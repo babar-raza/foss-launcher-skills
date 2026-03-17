@@ -1,0 +1,6 @@
+# Dependencies for scripts/scout.py and scripts/embed.py
+tree-sitter>=0.25
+tree-sitter-language-pack>=0.13
+tree-sitter-c-sharp>=0.23
+pyyaml>=6.0
+requests>=2.28
