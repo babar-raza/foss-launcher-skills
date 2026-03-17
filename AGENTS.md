@@ -1,6 +1,6 @@
 # AGENTS.md — Aspose.org Content Generation & Maintenance Governance
 
-> Last updated: 2026-03-15
+> Last updated: 2026-03-17
 > Authority: Human maintainer only (see Section 4 — this file is in the forbidden write list)
 
 ## 1. Purpose
@@ -12,7 +12,7 @@ authoritative source of operating rules for all agents.
 ## 2. Read Order (always read in this order before doing any work)
 
 1. This file (AGENTS.md)
-2. CLAUDE.md (if present)
+2. Agent instructions file (`CLAUDE.md`, `CODEX.md`, or `.kilocode/rules-code/`) — if present
 3. `knowledge/{family}/{platform}/model.yaml` — for the target product
 4. `knowledge/{family}/{platform}/claims.md` — verify claims are current
 5. `knowledge/{family}/{platform}/api_surface.md` — for API grounding
@@ -32,15 +32,24 @@ Before editing any content page for family/platform X:
 ```
 ALLOWED:
   content/docs.aspose.org/en/{family}/{platform}/
+  content/blog.aspose.org/{family}/{platform}/
+  content/kb.aspose.org/en/{family}/{platform}/
   content/products.aspose.org/en/{family}/
+  content/reference.aspose.org/en/{family}/{platform}/
   knowledge/   (evidence artifacts and model only)
+  reports/     (audit and check reports)
 
 FORBIDDEN (no agent may write here without explicit human override):
   themes/
   layouts/
   configs/
   CLAUDE.md
-  AGENTS.md   (this file — only humans may update it)
+  CODEX.md
+  AGENTS.md    (this file — only humans may update it)
+  .claude/     (Claude Code config)
+  .agents/     (Codex config)
+  .kilocode/   (Kilo Code config)
+  skills/      (canonical skill source — only humans may update)
 ```
 
 ## 5. Evidence Requirements (non-negotiable)
@@ -161,3 +170,19 @@ Citation comments in pages are the inline persistent evidence.
 | citation-attach | S-24 | Attach evidence citations |
 | eval-page | S-25 | Evaluate page grade |
 | heal-page | S-26 | Heal low-quality page |
+| truth-sync | S-30 | Import FOSS-Launcher knowledge |
+| truth-index | S-31 | Generate knowledge index |
+| content-audit | S-32 | Semantic knowledge verification |
+| change-guard | S-33 | Pre-write knowledge gate |
+| repo-scout | S-34 | Extract truth from FOSS repository |
+| truth-merge | S-35 | Dual-source verification merge |
+| cross-platform | S-36 | Family consistency check |
+
+### Skill locations (per agent)
+
+| Agent | Skills path | Instructions file |
+|-------|------------|-------------------|
+| Claude Code | `.claude/commands/{name}.md` | `CLAUDE.md` |
+| Codex CLI | `.agents/skills/{name}/SKILL.md` | `CODEX.md` + `AGENTS.md` |
+| Kilo Code | `.kilocode/skills/{name}/SKILL.md` | `.kilocode/rules-code/` |
+| Canonical source | `skills/{name}.md` | — |
