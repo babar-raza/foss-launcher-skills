@@ -1,0 +1,100 @@
+# config.yaml — Site path configuration for foss-launcher-skills
+#
+# These paths define the content structure of the target Hugo repo.
+# The installer uses these to customize skill files for your project.
+# Defaults match the aspose.org monorepo layout.
+
+# Root path to the external content repo (absolute or relative to CWD).
+# Override with $CONTENT_REPO_PATH environment variable.
+content_repo: "/c/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills/output/install-test"
+
+# Paths to intake configs (used by scripts/discover.py).
+intake_config: "configs/intake_config.yaml"
+families_config: "configs/families.yaml"
+
+# Golden corpus — curated exemplar files for structural/stylistic anchoring
+golden_dir: "golden/"    # path to imported golden corpus (relative to project root)
+
+golden_corpus:
+  sample_count: 3        # number of golden examples per site type
+  min_words: 200         # minimum page word count to qualify as example
+  profile_dir: "_corpus" # stored under knowledge/{family}/{platform}/_corpus/
+  variant_defaults:      # default variant per site type (overridden by richness_tier)
+    docs: "standard"
+    blog: "standard"
+    kb: "standard"
+    reference: "standard"
+    products: "standard"
+
+sites:
+  docs:
+    content_path: "content/docs.aspose.org/en/{family}/{platform}/"
+    type: docs
+  blog:
+    content_path: "content/blog.aspose.org/{family}/{platform}/"
+    type: blog
+  kb:
+    content_path: "content/kb.aspose.org/en/{family}/{platform}/"
+    type: kb
+  products:
+    content_path: "content/products.aspose.org/en/{family}/"
+    type: products
+  reference:
+    content_path: "content/reference.aspose.org/en/{family}/{platform}/"
+    type: reference
+
+knowledge_path: "knowledge/{family}/{platform}/"
+reports_path: "reports/"
+scripts_path: "scripts/"
+
+forbidden_paths:
+  - "themes/"
+  - "layouts/"
+  - "configs/"
+  - "AGENTS.md"
+  - "CLAUDE.md"
+  - "CODEX.md"
+  - ".claude/"
+  - ".agents/"
+  - ".kilocode/"
+  - "skills/"
+  - "scripts/"
+
+# --- Agent Governance ---
+governance:
+  default_role: writer
+
+  roles:
+    scout:
+      skills: [S-34, S-35, S-31, S-15, S-30, S-37, S-39]
+      write_paths: [knowledge/, reports/]
+    writer:
+      skills: [S-10, S-18, S-19, S-20, S-21, S-22, S-24,
+               new-blog-post, new-docs-page, new-kb-howto, new-kb-faq, new-reference-page]
+      required_gates: [S-01, S-23]
+      write_paths: [content/, plans/, output/, reports/]
+    reviewer:
+      skills: [S-25, S-26, S-17, S-32, S-33, S-23, S-01, content-check, S-36]
+      write_paths: [reports/, content/]
+    orchestrator:
+      skills: [all]
+      write_paths: [knowledge/, content/, plans/, output/, reports/]
+
+  session_limits:
+    max_pages_per_session: 20
+    max_families_per_session: 3
+    max_consecutive_fails: 3
+
+  audit:
+    log_path: reports/agents/
+
+  # README auto-sync: agents may update README.md when project state drifts
+  readme_sync:
+    enabled: true
+    autonomy_tier: WARN       # agent can update but flags NEEDS_REVIEW
+    check_on_distribute: true # distribute.py --check-readme warns if stale
+    managed_sections:         # README sections that readme_sync.py tracks
+      - skill_catalog
+      - project_structure
+      - script_list
+      - skill_count
