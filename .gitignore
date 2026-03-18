@@ -56,3 +56,4 @@ reports/conformance/*.json
 
 # Install artifacts
 install.log
+/.cloned
