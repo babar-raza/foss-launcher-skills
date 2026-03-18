@@ -1,0 +1,44 @@
+[
+  {
+    "name": "MAX_PAGES",
+    "value": "1000",
+    "file": "constants.py",
+    "line": 10,
+    "exported": true
+  },
+  {
+    "name": "DEFAULT_ENCODING",
+    "value": "\"utf-8\"",
+    "file": "constants.py",
+    "line": 11,
+    "exported": true
+  },
+  {
+    "name": "VERSION",
+    "value": "\"1.0.0\"",
+    "file": "constants.py",
+    "line": 12,
+    "exported": true
+  },
+  {
+    "name": "DOCX",
+    "value": "\"docx\"",
+    "file": "document.py",
+    "line": 4,
+    "exported": false
+  },
+  {
+    "name": "PDF",
+    "value": "\"pdf\"",
+    "file": "document.py",
+    "line": 5,
+    "exported": false
+  },
+  {
+    "name": "RTF",
+    "value": "\"rtf\"",
+    "file": "document.py",
+    "line": 6,
+    "exported": false
+  }
+]

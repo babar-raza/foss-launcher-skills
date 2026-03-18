@@ -1,0 +1,194 @@
+# Family + Platform taxonomy for FOSS Launcher v2
+# Auto-derived: display_name = families[family].display + " FOSS for " + platform.title()
+# Auto-derived: canonical_import = platforms[platform].import_tpl.format(family=family)
+
+version: "2.0"
+
+families:
+  cells:
+    display: "Aspose.Cells"
+    category: "spreadsheet processing"
+  note:
+    display: "Aspose.Note"
+    category: "digital notebook processing"
+  3d:
+    display: "Aspose.3D"
+    category: "3D modeling and rendering"
+  words:
+    display: "Aspose.Words"
+    category: "document processing"
+  pdf:
+    display: "Aspose.PDF"
+    category: "PDF manipulation"
+  slides:
+    display: "Aspose.Slides"
+    category: "presentation processing"
+  barcode:
+    display: "Aspose.BarCode"
+    category: "barcode generation and recognition"
+  cad:
+    display: "Aspose.CAD"
+    category: "CAD file processing"
+  diagram:
+    display: "Aspose.Diagram"
+    category: "diagram processing"
+  drawing:
+    display: "Aspose.Drawing"
+    category: "2D graphics rendering"
+  email:
+    display: "Aspose.Email"
+    category: "email processing"
+  finance:
+    display: "Aspose.Finance"
+    category: "financial data processing"
+  font:
+    display: "Aspose.Font"
+    category: "font manipulation"
+  gis:
+    display: "Aspose.GIS"
+    category: "geospatial data processing"
+  html:
+    display: "Aspose.HTML"
+    category: "HTML processing"
+  imaging:
+    display: "Aspose.Imaging"
+    category: "image processing"
+  medical:
+    display: "Aspose.Medical"
+    category: "medical imaging"
+  ocr:
+    display: "Aspose.OCR"
+    category: "optical character recognition"
+  omr:
+    display: "Aspose.OMR"
+    category: "optical mark recognition"
+  page:
+    display: "Aspose.Page"
+    category: "page description language processing"
+  psd:
+    display: "Aspose.PSD"
+    category: "Photoshop file processing"
+  pub:
+    display: "Aspose.PUB"
+    category: "Publisher file processing"
+  svg:
+    display: "Aspose.SVG"
+    category: "SVG processing"
+  tasks:
+    display: "Aspose.Tasks"
+    category: "project management"
+  tex:
+    display: "Aspose.TeX"
+    category: "TeX typesetting"
+  zip:
+    display: "Aspose.ZIP"
+    category: "archive processing"
+
+platforms:
+  python:
+    import_tpl: "aspose_{family}_foss"
+    install_cmd: "pip install aspose-{family}-foss"
+    lang_tag: "python"
+    runtime_import_tpl: "aspose.{family}"
+    runtime_import_overrides:
+      3d: "aspose.threed"
+    file_ext: ".py"
+    doc_comment: "docstring"
+    ast_parser: "python_ast"
+    import_stmt_tpl: "from {import_path} import {class}"
+  java:
+    import_tpl: "com.aspose.{family}"
+    install_cmd: "maven"
+    lang_tag: "java"
+    file_ext: ".java"
+    doc_comment: "javadoc"
+    ast_parser: "tree_sitter"
+    import_stmt_tpl: "import {import_path}.{class};"
+  dotnet:
+    import_tpl: "Aspose.{Family}"
+    install_cmd: "dotnet add package Aspose.{Family}"
+    lang_tag: "csharp"
+    file_ext: ".cs"
+    doc_comment: "xmldoc"
+    ast_parser: "tree_sitter"
+    import_stmt_tpl: "using {import_path};"
+  node:
+    import_tpl: "@aspose/{family}"
+    install_cmd: "npm install @aspose/{family}"
+    lang_tag: "javascript"
+    file_ext: ".ts"
+    doc_comment: "jsdoc"
+    ast_parser: "tree_sitter"
+    import_stmt_tpl: "import { {class} } from '{import_path}';"
+  typescript:
+    import_tpl: "@aspose/{family}"
+    install_cmd: "npm install @aspose/{family}"
+    lang_tag: "typescript"
+    file_ext: ".ts"
+    doc_comment: "jsdoc"
+    ast_parser: "tree_sitter"
+    import_stmt_tpl: "import { {class} } from '{import_path}';"
+  javascript:
+    import_tpl: "@aspose/{family}"
+    install_cmd: "npm install @aspose/{family}"
+    lang_tag: "javascript"
+    file_ext: ".js"
+    doc_comment: "jsdoc"
+    ast_parser: "tree_sitter"
+    import_stmt_tpl: "const { {class} } = require('{import_path}');"
+  go:
+    import_tpl: "github.com/aspose-{family}/aspose_{family}_go"
+    install_cmd: "go get github.com/aspose-{family}/aspose_{family}_go"
+    lang_tag: "go"
+    file_ext: ".go"
+    doc_comment: "godoc"
+    ast_parser: "tree_sitter"
+    import_stmt_tpl: "import \"github.com/aspose-{family}/aspose_{family}_go\""
+  rust:
+    import_tpl: "aspose_{family}"
+    install_cmd: "cargo add aspose_{family}"
+    lang_tag: "rust"
+    file_ext: ".rs"
+    doc_comment: "rustdoc"
+    ast_parser: "tree_sitter"
+    import_stmt_tpl: "use {import_path}::{class};"
+  php:
+    import_tpl: "Aspose\\{Family}"
+    install_cmd: "composer require aspose/{family}"
+    lang_tag: "php"
+    file_ext: ".php"
+    doc_comment: "phpdoc"
+    ast_parser: "tree_sitter"
+    import_stmt_tpl: "use {import_path}\\{class};"
+  ruby:
+    import_tpl: "aspose_{family}"
+    install_cmd: "gem install aspose_{family}"
+    lang_tag: "ruby"
+    file_ext: ".rb"
+    doc_comment: "yard"
+    ast_parser: "tree_sitter"
+    import_stmt_tpl: "require '{import_path}'"
+  kotlin:
+    import_tpl: "com.aspose.{family}"
+    install_cmd: "implementation 'com.aspose:aspose-{family}'"
+    lang_tag: "kotlin"
+    file_ext: ".kt"
+    doc_comment: "kdoc"
+    ast_parser: "tree_sitter"
+    import_stmt_tpl: "import {import_path}.{class}"
+  swift:
+    import_tpl: "Aspose{Family}"
+    install_cmd: ".package(url: \"https://github.com/aspose-{family}/aspose-{family}-swift\", from: \"1.0.0\")"
+    lang_tag: "swift"
+    file_ext: ".swift"
+    doc_comment: "swift_markup"
+    ast_parser: "tree_sitter"
+    import_stmt_tpl: "import {import_path}"
+  cpp:
+    import_tpl: "Aspose::{Family}"
+    install_cmd: "vcpkg install aspose-{family}"
+    lang_tag: "cpp"
+    file_ext: ".cpp"
+    doc_comment: "doxygen"
+    ast_parser: "tree_sitter"
+    import_stmt_tpl: "#include \"{import_path}.h\""

@@ -1,0 +1,82 @@
+[
+  {
+    "family": "3d",
+    "platform": "python",
+    "repo_url": "https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+    "full_name": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+    "language": "Python",
+    "stars": 0,
+    "clone_dir": "repos/aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+    "cloned": false
+  },
+  {
+    "family": "3d",
+    "platform": "typescript",
+    "repo_url": "https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+    "full_name": "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+    "language": "TypeScript",
+    "stars": 0,
+    "clone_dir": "repos/aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+    "cloned": false
+  },
+  {
+    "family": "3d",
+    "platform": "dotnet",
+    "repo_url": "https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+    "full_name": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+    "language": "C#",
+    "stars": 0,
+    "clone_dir": "repos/aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+    "cloned": false
+  },
+  {
+    "family": "3d",
+    "platform": "java",
+    "repo_url": "https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Java",
+    "full_name": "aspose-3d-foss/Aspose.3D-FOSS-for-Java",
+    "language": "Java",
+    "stars": 0,
+    "clone_dir": "repos/aspose-3d-foss/Aspose.3D-FOSS-for-Java",
+    "cloned": false
+  },
+  {
+    "family": "cells",
+    "platform": "python",
+    "repo_url": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
+    "full_name": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
+    "language": "Python",
+    "stars": 8,
+    "clone_dir": "repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
+    "cloned": false
+  },
+  {
+    "family": "email",
+    "platform": "python",
+    "repo_url": "https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Python",
+    "full_name": "aspose-email-foss/Aspose.Email-FOSS-for-Python",
+    "language": "Python",
+    "stars": 0,
+    "clone_dir": "repos/aspose-email-foss/Aspose.Email-FOSS-for-Python",
+    "cloned": false
+  },
+  {
+    "family": "note",
+    "platform": "python",
+    "repo_url": "https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python",
+    "full_name": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+    "language": "Python",
+    "stars": 2,
+    "clone_dir": "repos/aspose-note-foss/Aspose.Note-FOSS-for-Python",
+    "cloned": true
+  },
+  {
+    "family": "slides",
+    "platform": "python",
+    "repo_url": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python",
+    "full_name": "aspose-slides-foss/Aspose.Slides-FOSS-for-Python",
+    "language": "Python",
+    "stars": 0,
+    "clone_dir": "repos/aspose-slides-foss/Aspose.Slides-FOSS-for-Python",
+    "cloned": true
+  }
+]

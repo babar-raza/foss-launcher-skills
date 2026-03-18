@@ -1,0 +1,59 @@
+# Cloned FOSS repos (auto-managed by discover-products and repo-scout)
+repos/
+/.pylibs
+/output
+/plans
+/knowledge
+/.kilocode
+/.agents
+
+# Generated agent-specific skill directories
+/.claude
+/.agents
+
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build outputs and logs
+*.log
+build/
+dist/
+*.egg-info/
+
+# Test coverage
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Generated reports
+reports/agents/
+reports/conformance/*.json
+
+# Golden corpus (can be regenerated from content)
+# Uncomment if you want to exclude golden corpus
+# golden/
+
+# Install artifacts
+install.log
+/.cloned

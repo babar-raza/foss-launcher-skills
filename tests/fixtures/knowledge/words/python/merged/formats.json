@@ -1,0 +1,5 @@
+[
+  {"format": "DOCX", "can_import": true, "can_export": true, "direction": "both"},
+  {"format": "PDF", "can_import": false, "can_export": true, "direction": "export"},
+  {"format": "RTF", "can_import": true, "can_export": true, "direction": "both"}
+]

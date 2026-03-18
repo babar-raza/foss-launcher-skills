@@ -1,0 +1,405 @@
+[
+  {
+    "claim_id": "CLM-words-26242a",
+    "kind": "api_method",
+    "text": "Document.load(path) -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "document.py",
+        "line": 15
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-73bc2d",
+    "kind": "api_method",
+    "text": "Document.save(path) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "document.py",
+        "line": 27
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-374af4",
+    "kind": "api_method",
+    "text": "Document.convert(output_format, output_path) -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "document.py",
+        "line": 35
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-f34d9c",
+    "kind": "api_class",
+    "text": "Class Document defined in document.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "document.py",
+        "line": 9
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-c703c2",
+    "kind": "api_class",
+    "text": "Class Color defined in enums.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "enums.py",
+        "line": 6
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-8c1d9b",
+    "kind": "api_class",
+    "text": "Class FileFormat defined in enums.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "enums.py",
+        "line": 12
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-a2dff8",
+    "kind": "api_method",
+    "text": "PageSettings.width field of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "models.py",
+        "line": 9
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-e0c52a",
+    "kind": "api_method",
+    "text": "PageSettings.height field of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "models.py",
+        "line": 10
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-b71600",
+    "kind": "api_method",
+    "text": "PageSettings.margin field of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "models.py",
+        "line": 11
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-04e59d",
+    "kind": "api_method",
+    "text": "PageSettings.orientation field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "models.py",
+        "line": 12
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-c3260d",
+    "kind": "api_class",
+    "text": "Class PageSettings defined in models.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "models.py",
+        "line": 8
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-46d600",
+    "kind": "api_method",
+    "text": "Metadata.title field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "models.py",
+        "line": 17
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-3c3028",
+    "kind": "api_method",
+    "text": "Metadata.author field of type Optional[str]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "models.py",
+        "line": 18
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-7e4d01",
+    "kind": "api_class",
+    "text": "Class Metadata defined in models.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "models.py",
+        "line": 16
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-07e2a8",
+    "kind": "api_method",
+    "text": "StyledText.name() -> str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "props.py",
+        "line": 12
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-ec5c23",
+    "kind": "api_method",
+    "text": "StyledText.name(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "props.py",
+        "line": 16
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-6b20fe",
+    "kind": "api_method",
+    "text": "StyledText.size() -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "props.py",
+        "line": 20
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-93e63d",
+    "kind": "api_method",
+    "text": "StyledText.apply() -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "props.py",
+        "line": 23
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-916b86",
+    "kind": "api_method",
+    "text": "StyledText.name property of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "props.py",
+        "line": 12
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-ebbb89",
+    "kind": "api_method",
+    "text": "StyledText.size property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "props.py",
+        "line": 20
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-0230fd",
+    "kind": "api_class",
+    "text": "Class StyledText defined in props.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "props.py",
+        "line": 4
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-eeaf7b",
+    "kind": "api_constant",
+    "text": "Constant MAX_PAGES = 1000",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "constants.py",
+        "line": 10
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-4e8495",
+    "kind": "api_constant",
+    "text": "Constant DEFAULT_ENCODING = \"utf-8\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "constants.py",
+        "line": 11
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-203b50",
+    "kind": "api_constant",
+    "text": "Constant VERSION = \"1.0.0\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "constants.py",
+        "line": 12
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-96ff2e",
+    "kind": "api_constant",
+    "text": "Constant DOCX = \"docx\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "document.py",
+        "line": 4
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-9cc116",
+    "kind": "api_constant",
+    "text": "Constant PDF = \"pdf\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "document.py",
+        "line": 5
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-5aa741",
+    "kind": "api_constant",
+    "text": "Constant RTF = \"rtf\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "document.py",
+        "line": 6
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-dfcabc",
+    "kind": "format_support",
+    "text": "Supports format DOCX via FileFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "enums.py",
+        "line": 12
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-d12216",
+    "kind": "format_support",
+    "text": "Supports format PDF via FileFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "enums.py",
+        "line": 12
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-14550b",
+    "kind": "format_support",
+    "text": "Supports format RTF via FileFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "enums.py",
+        "line": 12
+      }
+    ]
+  },
+  {
+    "claim_id": "CLM-words-80128d",
+    "kind": "format_support",
+    "text": "Supports format HTML via FileFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "enums.py",
+        "line": 12
+      }
+    ]
+  }
+]

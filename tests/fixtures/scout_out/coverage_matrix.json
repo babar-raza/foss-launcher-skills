@@ -1,0 +1,56 @@
+[
+  {
+    "class": "Document",
+    "file": "document.py",
+    "method_count": 3,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": true,
+    "enum_members": 0
+  },
+  {
+    "class": "Color",
+    "file": "enums.py",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": true,
+    "enum_members": 3
+  },
+  {
+    "class": "FileFormat",
+    "file": "enums.py",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": true,
+    "enum_members": 4
+  },
+  {
+    "class": "PageSettings",
+    "file": "models.py",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": false,
+    "has_tests": true,
+    "enum_members": 0
+  },
+  {
+    "class": "Metadata",
+    "file": "models.py",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": false,
+    "has_tests": true,
+    "enum_members": 0
+  },
+  {
+    "class": "StyledText",
+    "file": "props.py",
+    "method_count": 4,
+    "property_count": 2,
+    "has_doc": false,
+    "has_tests": true,
+    "enum_members": 0
+  }
+]
