@@ -1,0 +1,60 @@
+# Intake configuration for FOSS Launcher GitHub org monitoring.
+#
+# All repos in these organizations are public — no GitHub token is required.
+# A token ($GITHUB_TOKEN) increases the rate limit from 60 to 5000 req/hr.
+#
+# Platform is auto-detected from repo names (e.g. "*-for-Python" -> python,
+# "*-for-Java" -> java, "*-for-.NET" -> dotnet), GitHub language field, and
+# topics. Supports all 12 platforms: python, java, dotnet, cpp, go, ruby,
+# php, kotlin, swift, rust, typescript, javascript.
+#
+# Use per-org platform_rules only for repos where auto-detection fails.
+#
+# Schema: specs/schemas/intake_config.schema.json
+
+schema_version: "1.1"
+
+organizations:
+  - name: aspose-3d-foss
+  - name: aspose-barcode-foss
+  - name: aspose-cad-foss
+  - name: aspose-cells-foss
+  - name: aspose-diagram-foss
+  - name: aspose-drawing-foss
+  - name: aspose-email-foss
+  - name: aspose-finance-foss
+  - name: aspose-font-foss
+  - name: aspose-gis-foss
+  - name: aspose-html-foss
+  - name: aspose-medical-foss
+  - name: aspose-note-foss
+  - name: aspose-ocr-foss
+  - name: aspose-omr-foss
+  - name: aspose-page-foss
+  - name: aspose-pdf-foss
+  - name: aspose-psd-foss
+  - name: aspose-pub-foss
+  - name: aspose-slides-foss
+  - name: aspose-svg-foss
+  - name: aspose-tasks-foss
+  - name: aspose-tex-foss
+  - name: aspose-words-foss
+  - name: aspose-zip-foss
+
+scanner:
+  per_page: 100
+  rate_limit_delay_s: 1.0
+  activity_months: 12
+
+classifier:
+  min_stars: 0
+  require_readme: true
+  require_license: true
+
+scheduler:
+  batch_size: 5
+  sort_by: stars
+  sort_order: desc
+
+generator:
+  output_dir: configs/pilots

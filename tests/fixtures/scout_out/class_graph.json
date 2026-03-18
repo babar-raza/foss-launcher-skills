@@ -1,0 +1,14 @@
+[
+  {
+    "child": "Color",
+    "parent": "IntEnum",
+    "relationship": "inherits",
+    "internal": false
+  },
+  {
+    "child": "FileFormat",
+    "parent": "IntEnum",
+    "relationship": "inherits",
+    "internal": false
+  }
+]

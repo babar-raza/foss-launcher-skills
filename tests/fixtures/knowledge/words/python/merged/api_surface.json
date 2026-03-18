@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Document",
+    "kind": "class",
+    "methods": [
+      {"name": "load", "signature": "load(path: str) -> bool", "is_public": true},
+      {"name": "save", "signature": "save(path: str) -> None", "is_public": true},
+      {"name": "convert", "signature": "convert(output_format: str, output_path: str) -> bool", "is_public": true}
+    ],
+    "properties": ["_path"],
+    "source": "scout"
+  }
+]

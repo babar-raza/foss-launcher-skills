@@ -1,0 +1,224 @@
+[
+  {
+    "name": "Document",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "document.py",
+    "line": 9,
+    "bases": [],
+    "methods": [
+      {
+        "name": "load",
+        "params": [
+          {
+            "name": "path",
+            "type": "str"
+          }
+        ],
+        "return_type": "bool",
+        "doc": "",
+        "line": 15
+      },
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "path",
+            "type": "str"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 27
+      },
+      {
+        "name": "convert",
+        "params": [
+          {
+            "name": "output_format",
+            "type": "str"
+          },
+          {
+            "name": "output_path",
+            "type": "str"
+          }
+        ],
+        "return_type": "bool",
+        "doc": "",
+        "line": 35
+      }
+    ],
+    "properties": []
+  },
+  {
+    "name": "Color",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "enums.py",
+    "line": 6,
+    "bases": [
+      "IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "enum_members": [
+      {
+        "name": "RED",
+        "value": "1"
+      },
+      {
+        "name": "GREEN",
+        "value": "2"
+      },
+      {
+        "name": "BLUE",
+        "value": "3"
+      }
+    ]
+  },
+  {
+    "name": "FileFormat",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "enums.py",
+    "line": 12,
+    "bases": [
+      "IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "enum_members": [
+      {
+        "name": "DOCX",
+        "value": "1"
+      },
+      {
+        "name": "PDF",
+        "value": "2"
+      },
+      {
+        "name": "RTF",
+        "value": "3"
+      },
+      {
+        "name": "HTML",
+        "value": "4"
+      }
+    ]
+  },
+  {
+    "name": "PageSettings",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "models.py",
+    "line": 8,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "width",
+        "type": "float",
+        "line": 9,
+        "kind": "field"
+      },
+      {
+        "name": "height",
+        "type": "float",
+        "line": 10,
+        "kind": "field"
+      },
+      {
+        "name": "margin",
+        "type": "float",
+        "line": 11,
+        "kind": "field"
+      },
+      {
+        "name": "orientation",
+        "type": "str",
+        "line": 12,
+        "kind": "field"
+      }
+    ]
+  },
+  {
+    "name": "Metadata",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "models.py",
+    "line": 16,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "title",
+        "type": "str",
+        "line": 17,
+        "kind": "field"
+      },
+      {
+        "name": "author",
+        "type": "Optional[str]",
+        "line": 18,
+        "kind": "field"
+      }
+    ]
+  },
+  {
+    "name": "StyledText",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "props.py",
+    "line": 4,
+    "bases": [],
+    "methods": [
+      {
+        "name": "name",
+        "params": [],
+        "return_type": "str",
+        "doc": "",
+        "line": 12
+      },
+      {
+        "name": "name",
+        "params": [
+          {
+            "name": "value",
+            "type": "str"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 16
+      },
+      {
+        "name": "size",
+        "params": [],
+        "return_type": "int",
+        "doc": "",
+        "line": 20
+      },
+      {
+        "name": "apply",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 23
+      }
+    ],
+    "properties": [
+      {
+        "name": "name",
+        "type": "str",
+        "line": 12,
+        "read_write": true
+      },
+      {
+        "name": "size",
+        "type": "int",
+        "line": 20,
+        "read_write": false
+      }
+    ]
+  }
+]

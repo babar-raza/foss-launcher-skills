@@ -1,0 +1,37 @@
+[
+  {
+    "claim_id": "c1",
+    "kind": "api_class",
+    "text": "Document class handles Word documents",
+    "confidence": 0.9,
+    "provenance": "scout_only"
+  },
+  {
+    "claim_id": "c2",
+    "kind": "api_method",
+    "text": "Document.load loads a file from a path",
+    "confidence": 0.95,
+    "provenance": "dual"
+  },
+  {
+    "claim_id": "c3",
+    "kind": "api_method",
+    "text": "Document.save saves the document to a file path",
+    "confidence": 0.9,
+    "provenance": "dual"
+  },
+  {
+    "claim_id": "c4",
+    "kind": "api_method",
+    "text": "Document.convert converts the document to another format",
+    "confidence": 0.85,
+    "provenance": "scout_only"
+  },
+  {
+    "claim_id": "c5",
+    "kind": "format_support",
+    "text": "Supports DOCX format for import and export",
+    "confidence": 0.9,
+    "provenance": "dual"
+  }
+]

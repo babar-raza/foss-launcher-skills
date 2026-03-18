@@ -1,0 +1,21 @@
+family: words
+platform: python
+product_name: Aspose.WORDS-FOSS for python
+version: ''
+license: ''
+repo_sha: 9c6560789aa134e7b714c093f03f31942ad8c213
+extracted_at: '2026-03-18T08:33:42.156171+00:00'
+source: scout
+package_root: .
+canonical_import: ''
+install_command: ''
+runtime_requirement: ''
+stats:
+  class_count: 6
+  method_count: 7
+  property_count: 8
+  enum_count: 2
+  format_count: 4
+  snippet_count: 0
+  limitation_count: 0
+  constant_count: 6
