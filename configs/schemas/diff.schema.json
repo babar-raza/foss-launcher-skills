@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Evidence Diff",
+  "description": "Structured diff between two Product Evidence Files.",
+  "type": "object",
+  "required": [
+    "schema_version", "family", "platform", "diffed_at",
+    "claims", "api_surface", "formats", "impact_summary"
+  ],
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "family": { "type": "string" },
+    "platform": { "type": "string" },
+    "diffed_at": { "type": "string" },
+    "old_sha": { "type": "string" },
+    "new_sha": { "type": "string" },
+    "old_materialized_at": { "type": "string" },
+    "new_materialized_at": { "type": "string" },
+    "claims": {
+      "type": "object",
+      "required": ["added", "removed", "modified"],
+      "properties": {
+        "added": { "type": "array" },
+        "removed": { "type": "array" },
+        "modified": { "type": "array" },
+        "provenance_changed": { "type": "array" }
+      }
+    },
+    "api_surface": {
+      "type": "object",
+      "required": ["classes_added", "classes_removed"],
+      "properties": {
+        "classes_added": { "type": "array", "items": { "type": "string" } },
+        "classes_removed": { "type": "array", "items": { "type": "string" } },
+        "methods_added": { "type": "array" },
+        "methods_removed": { "type": "array" }
+      }
+    },
+    "formats": {
+      "type": "object",
+      "properties": {
+        "added": { "type": "array" },
+        "removed": { "type": "array" }
+      }
+    },
+    "impact_summary": {
+      "type": "object",
+      "required": ["severity"],
+      "properties": {
+        "severity": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW", "NONE"] },
+        "affected_page_types": { "type": "array", "items": { "type": "string" } },
+        "recommendation": { "type": "string" }
+      }
+    }
+  }
+}

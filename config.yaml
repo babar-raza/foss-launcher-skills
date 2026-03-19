@@ -44,6 +44,7 @@ sites:
     type: reference
 
 knowledge_path: "knowledge/{family}/{platform}/"
+evidence_path: "evidence/{family}/{platform}/"
 reports_path: "reports/"
 scripts_path: "scripts/"
 
@@ -66,8 +67,8 @@ governance:
 
   roles:
     scout:
-      skills: [S-34, S-35, S-31, S-15, S-30, S-37, S-39]
-      write_paths: [knowledge/, reports/]
+      skills: [S-34, S-35, S-31, S-15, S-30, S-37, S-39, S-40, S-41, S-42, S-43]
+      write_paths: [knowledge/, reports/, evidence/]
     writer:
       skills: [S-10, S-18, S-19, S-20, S-21, S-22, S-24,
                new-blog-post, new-docs-page, new-kb-howto, new-kb-faq, new-reference-page]
@@ -78,7 +79,7 @@ governance:
       write_paths: [reports/, content/]
     orchestrator:
       skills: [all]
-      write_paths: [knowledge/, content/, plans/, output/, reports/]
+      write_paths: [knowledge/, content/, plans/, output/, reports/, evidence/]
 
   session_limits:
     max_pages_per_session: 20

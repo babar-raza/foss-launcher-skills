@@ -100,6 +100,14 @@ def golden_corpus_config() -> dict:
     })
 
 
+def resolve_evidence_path(family: str, platform: str) -> Path:
+    """Resolve the evidence directory for a product."""
+    config = load_config()
+    template = config.get("evidence_path", "evidence/{family}/{platform}/")
+    path_str = template.replace("{family}", family).replace("{platform}", platform)
+    return Path(path_str)
+
+
 def resolve_golden_dir() -> Path:
     """Resolve path to the golden corpus directory.
 

@@ -42,7 +42,8 @@ ALLOWED:
   content/kb.aspose.org/en/{family}/{platform}/
   content/products.aspose.org/en/{family}/
   content/reference.aspose.org/en/{family}/{platform}/
-  knowledge/        (evidence artifacts only)
+  knowledge/        (knowledge artifacts only)
+  evidence/         (canonical evidence: PEF, mental model, verification, diffs, decisions)
   reports/          (audit and check reports)
   output/           (generated content, install tests)
   plans/            (page plans and healing workflows)
@@ -77,7 +78,7 @@ S-17 → S-21 → S-23 → S-01 → write
 S-25 → S-26 → S-23 → S-25 → S-01 → write (or escalate)
 
 **Product launch:**
-S-38 orchestrates: S-34 → S-35 → S-31 → S-15 → S-37 → [per-page chain] → S-36 → report
+S-38 orchestrates: S-34 → S-35 → S-31 → S-15 → S-37 → S-40 → S-41 → S-43 → [per-page chain] → S-36 → report
 
 ## 7. Hard Stops
 
@@ -110,7 +111,7 @@ Four roles, each with scoped skill access. Default is **writer** if undeclared.
 
 | Role | Allowed Skills | Write Paths |
 |------|---------------|-------------|
-| **scout** | S-34, S-35, S-31, S-15, S-30, S-37, S-39 | `knowledge/`, `reports/` |
+| **scout** | S-34, S-35, S-31, S-15, S-30, S-37, S-39, S-40, S-41, S-42, S-43 | `knowledge/`, `reports/`, `evidence/` |
 | **writer** | S-10, S-18–S-22, S-24, new-* (gates: S-01, S-23) | `content/`, `plans/`, `output/`, `reports/` |
 | **reviewer** | S-25, S-26, S-17, S-32, S-33, S-23, S-01, content-check, S-36 | `reports/`, `content/` |
 | **orchestrator** | All skills | All allowed paths |
@@ -138,8 +139,10 @@ Session limits: 20 pages, 3 families, 3 consecutive fails → halt.
 
 | Path | Purpose |
 |------|---------|
-| `skills/` | 32 canonical skill sources (YAML frontmatter + Markdown) |
-| `scripts/` | Python engines: scout, merge, index, embed, corpus_scan, discover |
+| `skills/` | 36 canonical skill sources (YAML frontmatter + Markdown) |
+| `scripts/` | Python engines: scout, merge, index, embed, corpus_scan, discover, materialize, mental_model, verify, differ, decide |
+| `evidence/{family}/{platform}/` | Canonical evidence: PEF, mental model, verification reports, diffs, decisions |
+| `configs/schemas/` | JSON schemas for evidence artifact validation |
 | `tools/distribute.py` | Generates agent-specific skill dirs from canonical sources |
 | `configs/families.yaml` | 21 product families × 13 platforms taxonomy |
 | `configs/intake_config.yaml` | 24 GitHub orgs for product discovery |

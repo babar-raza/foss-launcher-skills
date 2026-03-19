@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Mental Model",
+  "description": "Derived structured summary of product capabilities, page coverage, and readiness.",
+  "type": "object",
+  "required": [
+    "schema_version", "family", "platform", "generated_at",
+    "source_pef_hash", "capability_tiers", "format_matrix",
+    "page_coverage", "gap_analysis", "readiness"
+  ],
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "family": { "type": "string", "minLength": 1 },
+    "platform": { "type": "string", "minLength": 1 },
+    "generated_at": { "type": "string" },
+    "source_pef_hash": { "type": "string" },
+    "capability_tiers": {
+      "type": "object",
+      "required": ["tier_1_core", "tier_2_supporting", "tier_3_utility"],
+      "properties": {
+        "tier_1_core": { "type": "array" },
+        "tier_2_supporting": { "type": "array" },
+        "tier_3_utility": { "type": "array" }
+      }
+    },
+    "format_matrix": {
+      "type": "object",
+      "properties": {
+        "import": { "type": "array" },
+        "export": { "type": "array" }
+      }
+    },
+    "page_coverage": {
+      "type": "object",
+      "properties": {
+        "docs": { "type": "object" },
+        "blog": { "type": "object" },
+        "kb": { "type": "object" },
+        "reference": { "type": "object" }
+      }
+    },
+    "gap_analysis": {
+      "type": "object",
+      "required": ["uncovered_tier1_classes", "missing_page_types"],
+      "properties": {
+        "uncovered_tier1_classes": { "type": "array", "items": { "type": "string" } },
+        "undocumented_formats": { "type": "array", "items": { "type": "string" } },
+        "missing_page_types": { "type": "array", "items": { "type": "string" } },
+        "forbidden_claim_count": { "type": "integer" }
+      }
+    },
+    "readiness": {
+      "type": "object",
+      "required": ["overall"],
+      "properties": {
+        "overall": { "type": "string", "enum": ["launch_ready", "needs_work", "blocked"] },
+        "blockers": { "type": "array", "items": { "type": "string" } },
+        "warnings": { "type": "array", "items": { "type": "string" } },
+        "dual_confirmed_pct": { "type": "number" },
+        "api_confidence": { "type": "string" }
+      }
+    }
+  }
+}

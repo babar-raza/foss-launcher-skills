@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Verification Report",
+  "description": "Deterministic verification of a published content page against the PEF.",
+  "type": "object",
+  "required": [
+    "schema_version", "content_path", "family", "platform",
+    "verified_at", "citations", "api_references", "result", "grounded_pct"
+  ],
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "content_path": { "type": "string" },
+    "family": { "type": "string" },
+    "platform": { "type": "string" },
+    "verified_at": { "type": "string" },
+    "pef_sha": { "type": "string" },
+    "citations": {
+      "type": "object",
+      "required": ["total", "valid", "orphaned"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "valid": { "type": "integer", "minimum": 0 },
+        "orphaned": { "type": "integer", "minimum": 0 },
+        "outdated": { "type": "integer", "minimum": 0 },
+        "orphaned_ids": { "type": "array", "items": { "type": "string" } },
+        "outdated_ids": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "api_references": {
+      "type": "object",
+      "required": ["total", "verified", "unverified"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "verified": { "type": "integer", "minimum": 0 },
+        "unverified": { "type": "integer", "minimum": 0 },
+        "unverified_names": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "format_claims": {
+      "type": "object",
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "confirmed": { "type": "integer", "minimum": 0 },
+        "contradicted": { "type": "integer", "minimum": 0 },
+        "contradicted_details": { "type": "array" }
+      }
+    },
+    "forbidden_violations": { "type": "array", "items": { "type": "string" } },
+    "code_blocks": {
+      "type": "object",
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "verified_api": { "type": "integer", "minimum": 0 },
+        "unverified": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "result": { "type": "string", "enum": ["PASS", "WARN", "FAIL"] },
+    "grounded_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "severity": { "type": "string" },
+          "type": { "type": "string" },
+          "detail": { "type": "string" },
+          "line": { "type": ["integer", "null"] }
+        }
+      }
+    }
+  }
+}

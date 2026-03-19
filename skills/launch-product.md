@@ -99,6 +99,32 @@ Invoke for each site type used in Phase 2:
 
 If no existing content is found for a site type → WARN and proceed (generation skills will use default templates).
 
+## Phase 1.5 — Evidence Materialization (NEW)
+
+After knowledge extraction, materialize evidence and build the decision manifest:
+
+### Step 1.5a — Materialize evidence (S-40)
+
+Invoke: `/evidence-materialize {family} {platform}`
+
+Expected output: `evidence/{family}/{platform}/pef.json`
+
+### Step 1.5b — Build mental model (S-41)
+
+Invoke: `/mental-model {family} {platform}`
+
+Expected output: `evidence/{family}/{platform}/mental_model.json`
+
+### Step 1.5c — Run decision engine (S-43)
+
+Invoke: `/evidence-decide {family} {platform}`
+
+Expected output: `evidence/{family}/{platform}/decision.json`
+
+Phase 2 should use `decision.json` to determine which pages to generate. Only generate pages
+with `action: "create"` or `action: "update"`. Skip pages with `action: "no_change"` or
+`action: "verify_only"`.
+
 ## Confidence Gate
 
 After Phase 1, read `knowledge/{family}/{platform}/merged/index.json` and check `api_confidence`:
