@@ -2,6 +2,8 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 
 from schema_validate import load_schema, validate, _structural_validate
@@ -84,3 +86,62 @@ def test_validate_decision_schema():
     }
     errors = _structural_validate(data, load_schema("decision"))
     assert errors == []
+
+
+# ---------------------------------------------------------------------------
+# Config schema validation
+# ---------------------------------------------------------------------------
+
+def test_load_config_schema():
+    """config.schema.json loads and has expected required fields."""
+    schema = load_schema("config")
+    assert schema["title"] == "foss-launcher-skills configuration"
+    required = schema["required"]
+    assert "content_repo" in required
+    assert "sites" in required
+    assert "governance" in required
+
+
+def test_config_schema_valid_minimal(minimal_config):
+    """minimal_config fixture passes config schema validation."""
+    schema = load_schema("config")
+    errors = _structural_validate(minimal_config["data"], schema)
+    assert errors == [], f"minimal_config should be valid, got: {errors}"
+
+
+def test_config_schema_actual_config():
+    """Actual config.yaml from repo passes config schema validation."""
+    import yaml
+    config_path = Path(__file__).resolve().parent.parent / "config.yaml"
+    if not config_path.exists():
+        pytest.skip("config.yaml not found")
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    schema = load_schema("config")
+    errors = _structural_validate(config, schema)
+    assert errors == [], f"config.yaml should be valid, got: {errors}"
+
+
+def test_config_schema_missing_required():
+    """Missing required key detected by config schema."""
+    schema = load_schema("config")
+    # Missing governance, forbidden_paths, sites
+    data = {"content_repo": "", "knowledge_path": "k/", "evidence_path": "e/"}
+    errors = _structural_validate(data, schema)
+    assert any("governance" in e for e in errors)
+    assert any("forbidden_paths" in e for e in errors)
+    assert any("sites" in e for e in errors)
+
+
+def test_config_schema_wrong_type():
+    """Wrong type for forbidden_paths detected by config schema."""
+    schema = load_schema("config")
+    data = {
+        "content_repo": "",
+        "sites": {},
+        "knowledge_path": "k/",
+        "evidence_path": "e/",
+        "forbidden_paths": "should-be-array",
+        "governance": {},
+    }
+    errors = _structural_validate(data, schema)
+    assert any("forbidden_paths" in e for e in errors)
