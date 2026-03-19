@@ -6,7 +6,7 @@
 
 # Root path to the external content repo (absolute or relative to CWD).
 # Override with $CONTENT_REPO_PATH environment variable.
-content_repo: "/c/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills/output/install-test"
+content_repo: ""
 
 # Paths to intake configs (used by scripts/discover.py).
 intake_config: "configs/intake_config.yaml"

@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "foss-launcher-skills configuration",
+  "description": "Schema for config.yaml — site paths, governance, and pipeline settings.",
+  "type": "object",
+  "required": [
+    "content_repo",
+    "sites",
+    "knowledge_path",
+    "evidence_path",
+    "forbidden_paths",
+    "governance"
+  ],
+  "properties": {
+    "content_repo": {
+      "type": "string",
+      "description": "Root path to the external content repo. Empty string = use $CONTENT_REPO_PATH env var or CWD."
+    },
+    "data_root": {
+      "type": "string",
+      "description": "Runtime data location. Empty = platform default. '.' = project directory."
+    },
+    "sites": {
+      "type": "object",
+      "description": "Site type definitions with content_path templates.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["content_path", "type"],
+        "properties": {
+          "content_path": {
+            "type": "string",
+            "description": "Path template with {family} and {platform} placeholders."
+          },
+          "type": {
+            "type": "string",
+            "description": "Site type identifier."
+          }
+        }
+      }
+    },
+    "knowledge_path": {
+      "type": "string",
+      "description": "Path template for knowledge directories. Supports {family} and {platform}."
+    },
+    "evidence_path": {
+      "type": "string",
+      "description": "Path template for evidence directories. Supports {family} and {platform}."
+    },
+    "reports_path": {
+      "type": "string",
+      "description": "Path for reports directory."
+    },
+    "scripts_path": {
+      "type": "string",
+      "description": "Path to scripts directory."
+    },
+    "forbidden_paths": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Paths that agents must not write to."
+    },
+    "governance": {
+      "type": "object",
+      "required": ["default_role", "roles", "session_limits", "audit"],
+      "properties": {
+        "default_role": {
+          "type": "string",
+          "description": "Default agent role."
+        },
+        "roles": {
+          "type": "object",
+          "description": "Role definitions with skills and write_paths.",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["skills", "write_paths"],
+            "properties": {
+              "skills": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Skill IDs available to this role."
+              },
+              "required_gates": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Skills that must pass before content generation."
+              },
+              "write_paths": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Directories this role may write to."
+              }
+            }
+          }
+        },
+        "session_limits": {
+          "type": "object",
+          "required": ["max_pages_per_session", "max_families_per_session", "max_consecutive_fails"],
+          "properties": {
+            "max_pages_per_session": {"type": "integer"},
+            "max_families_per_session": {"type": "integer"},
+            "max_consecutive_fails": {"type": "integer"}
+          }
+        },
+        "audit": {
+          "type": "object",
+          "required": ["log_path"],
+          "properties": {
+            "log_path": {"type": "string"}
+          }
+        }
+      }
+    },
+    "intake_config": {
+      "type": "string",
+      "description": "Path to intake configuration file."
+    },
+    "families_config": {
+      "type": "string",
+      "description": "Path to families configuration file."
+    },
+    "golden_dir": {
+      "type": "string",
+      "description": "Path to golden corpus directory."
+    },
+    "golden_corpus": {
+      "type": "object",
+      "properties": {
+        "sample_count": {"type": "integer"},
+        "min_words": {"type": "integer"},
+        "profile_dir": {"type": "string"},
+        "variant_defaults": {
+          "type": "object",
+          "additionalProperties": {"type": "string"}
+        }
+      }
+    },
+    "launcher_compat": {
+      "type": "string",
+      "description": "Semver range of compatible launcher versions."
+    },
+    "readme_sync": {
+      "type": "object",
+      "description": "README auto-sync settings."
+    }
+  }
+}

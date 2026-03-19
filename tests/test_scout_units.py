@@ -28,6 +28,9 @@ requires_tree_sitter = pytest.mark.skipif(
     reason="tree-sitter not installed (run: pip install -r scripts/requirements.txt)",
 )
 
+# Also mark all tree-sitter tests with @pytest.mark.scout for selective filtering
+pytestmark = pytest.mark.scout
+
 
 # ---------------------------------------------------------------------------
 # Integration: run scout.py on fixture repo
