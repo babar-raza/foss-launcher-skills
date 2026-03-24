@@ -17,13 +17,13 @@ Extract truth directly from a FOSS repository using tree-sitter analysis. Produc
 
 ## Pre-conditions
 1. Verify the repo path exists and is a git repository (`git -C {repo-path} rev-parse HEAD`)
-2. Verify `scripts/scout.py` exists
+2. Verify `scripts/pipeline/scout.py` exists
 3. Verify tree-sitter dependencies are installed: `python -c "import tree_sitter; import tree_sitter_language_pack"`
 
 ## Steps
 
 1. **Parse arguments**: Extract `{family}`, `{platform}`, and `{repo-path}` from $ARGUMENTS
-2. **Run extraction**: Execute `python scripts/scout.py {family} {platform} {repo-path} knowledge/{family}/{platform}/scout/`
+2. **Run extraction**: Execute `python scripts/pipeline/scout.py {family} {platform} {repo-path} knowledge/{family}/{platform}/scout/`
 3. **Validate outputs**: Verify the following files were created:
    - `knowledge/{family}/{platform}/scout/model.yaml` — must contain `family`, `platform`, `repo_sha`
    - `knowledge/{family}/{platform}/scout/api_surface.json` — must be valid JSON with at least 1 class

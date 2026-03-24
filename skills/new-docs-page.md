@@ -20,6 +20,10 @@ Before generating any content, you MUST:
    - If `stale: true`, STOP and instruct the user to run `/knowledge-diff` first
    - If `has_conflicts: true`, WARN and list unresolved conflicts from `merge_conflicts.md`
 2. **Load verified facts**: Read `knowledge/{family}/{platform}/merged/claims.json` and `api_surface.json`
+2b. **Read API surface summary**: Read `knowledge/{family}/{platform}/merged/api_surface.md`
+    - This is the concise, human-readable API reference
+    - Every class name, method, property, and enum value in your generated content MUST appear in this file
+    - If a name is not in api_surface.md, do not use it
 3. **Load forbidden claims**: Read `forbidden_claims` from `index.json` — never include these in content
 4. **Load format matrix**: Read `formats.json` — only reference formats confirmed here
 5. **Load snippets**: Check `knowledge/{family}/{platform}/merged/snippets/` for verified code examples
@@ -92,5 +96,6 @@ After generating the page:
 1. **Run evidence citation**: Execute `/evidence-cite content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md` to attach `<!-- evidence: ... -->` comments
 2. **Run content check**: Execute `/content-check content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md` to validate structure and knowledge alignment
 3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
+4. Run `python scripts/pipeline/audit.py --files {output-file}` to verify API accuracy before committing
 
 8. **Confirm** with the output path and a list of the H2 sections written.

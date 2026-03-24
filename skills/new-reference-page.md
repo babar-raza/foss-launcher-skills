@@ -21,6 +21,10 @@ Before generating any content, you MUST:
 2. **Load API surface**: Read `knowledge/{family}/{platform}/merged/api_surface.json`
    - The class being documented MUST exist in api_surface.json — do not document classes that aren't verified
    - Use method signatures, property types, and docstrings from api_surface.json as the authoritative source
+2b. **Read API surface summary**: Read `knowledge/{family}/{platform}/merged/api_surface.md`
+    - This is the concise, human-readable API reference
+    - Every class name, method, property, and enum value in your generated content MUST appear in this file
+    - If a name is not in api_surface.md, do not use it
 3. **Load class graph**: Read `knowledge/{family}/{platform}/merged/class_graph.json` for inheritance chain
 4. **Load forbidden claims**: Read `forbidden_claims` from `index.json` — never reference capabilities that are not implemented
 
@@ -117,5 +121,6 @@ After generating the reference page:
 
 1. **Run evidence citation**: Execute `/evidence-cite content/reference.aspose.org/en/{family}/{platform}/{classname-slug}.md` to attach `<!-- evidence: api=... -->` comments
 2. **Run content check**: Execute `/content-check content/reference.aspose.org/en/{family}/{platform}/{classname-slug}.md` to validate structure and knowledge alignment
+3. Run `python scripts/pipeline/audit.py --files {output-file}` to verify API accuracy before committing
 
 7. **Confirm** with the output path and a count of properties and methods documented.

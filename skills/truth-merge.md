@@ -2,89 +2,51 @@
 name: truth-merge
 id: S-35
 description: >
-  Merge scout/ and fl/ knowledge sources into merged/ with dual-source
-  verification and provenance tagging.
+  Copy scout knowledge to merged/ with provenance tagging.
+  Scout-only pipeline — no FL merge.
 args: "{family} {platform}"
 ---
 
-# S-35: Truth Merge — Dual-Source Verification
+# S-35: Truth Merge — Scout-Only Knowledge Merge
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform}`
 
 ## Purpose
-Merge `knowledge/{family}/{platform}/scout/` and `knowledge/{family}/{platform}/fl/` into `knowledge/{family}/{platform}/merged/`, applying dual-source verification with provenance tagging.
+Copy `knowledge/{family}/{platform}/scout/` to `knowledge/{family}/{platform}/merged/`, tagging all claims with `provenance: "scout_only"`. This is a deterministic passthrough — no LLM or FL involvement.
 
 ## Pre-conditions
-1. At least ONE source must exist: `scout/` or `fl/` (both preferred)
-2. If both exist, verify they refer to the same product (compare family/platform in model.yaml)
+1. `knowledge/{family}/{platform}/scout/claims.json` must exist (run S-34 repo-scout first)
 
 ## Automated Script
 
-Run the merge engine first, then review:
 ```
-python scripts/merge.py {family} {platform}
+python scripts/pipeline/merge.py {family} {platform}
 ```
-Review `knowledge/{family}/{platform}/merged/merge_report.md` for dual/fuzzy/conflict counts.
 
-The script implements claim-type-aware matching (KIND_MAP) that bridges the vocabulary gap between scout API signatures and FL natural-language claims. If the script output shows PASS and dual-confirmed > 20%, the manual steps below can be skipped.
-
-## Manual Steps (fallback)
-
-1. **Load sources**:
-   - Read `scout/claims.json`, `scout/api_surface.json`, `scout/model.yaml`
-   - Read `fl/claims.json`, `fl/api_surface.json`, `fl/model.yaml`
-   - Either can be absent — proceed with single-source if needed
-
-2. **Merge claims** with provenance tagging:
-   - For each scout claim, find matching FL claims (same kind + similar text)
-   - Matching strategy:
-     - Exact text match → `provenance: "dual"`, confidence = max(both)
-     - Similar text (>80% token overlap) → `provenance: "dual_fuzzy"`, flag for review
-     - Scout only → `provenance: "scout_only"`
-     - FL only (deterministic source) → `provenance: "fl_only"`, confidence × 0.8
-     - FL only (llm/llm_fallback source) → `provenance: "fl_only"`, confidence × 0.6
-     - Contradicting claims → `provenance: "conflict"`, add to merge_conflicts.md
-
-3. **Merge API surface**:
-   - Class in both with same methods → `dual`
-   - Class in both with different methods → take union, flag discrepancies
-   - Class in one only → single-source provenance
-
-4. **Merge format matrix**:
-   - Same format, same flags → `dual`
-   - Different flags → `conflict`
-
-5. **Build forbidden_claims**: From limitations (NotImplementedError items) build list of claims that must NOT appear in content
-
-6. **Build truth_gaps**: Facts that couldn't be extracted or verified
-
-7. **Write merged artifacts**:
-   - `merged/model.yaml` — combined metadata
-   - `merged/claims.json` — all claims with provenance
-   - `merged/claims.md` — human-readable claim summary
-   - `merged/api_surface.json` — merged API surface
-   - `merged/api_surface.md` — human-readable API reference
-   - `merged/formats.json` — merged format matrix
-   - `merged/formats.md` — human-readable format table
-   - `merged/install.md` — install instructions (prefer scout, fall back to fl)
-   - `merged/limitations.md` — combined limitations
-   - `merged/class_graph.json` — from scout (or fl if scout absent)
-   - `merged/merge_report.md` — statistics on merge (dual/single/conflict counts)
-   - `merged/merge_conflicts.md` — only if conflicts exist
+The script:
+- Validates scout claims
+- Tags all claims with `provenance: "scout_only"`
+- Copies api_surface.json, formats.json, class_graph.json, limitations.md, etc. to merged/
+- Generates api_surface.md (human-readable API reference)
+- Writes model.yaml with `source: "scout_only"` and `has_conflicts: false`
+- Writes merge_report.md with statistics
 
 ## Post-conditions
 - `merged/` directory has all required files
-- `merge_report.md` shows merge statistics
-- All claims have a `provenance` field
-- Conflicting claims are documented in `merge_conflicts.md`
+- All claims have `provenance: "scout_only"`
+- `model.yaml` has `source: "scout_only"` and `has_conflicts: false`
+- `api_surface.md` generated for LLM prompt grounding
+- No merge_conflicts.md (legacy files are cleaned up)
 
-## Provenance rules
-| Scout | FL | Result |
-|-------|-----|--------|
-| Present | Present (matching) | `dual`, confidence = max |
-| Present | Present (fuzzy match) | `dual_fuzzy`, flag review |
-| Present | Absent | `scout_only` |
-| Absent | Present (deterministic) | `fl_only`, conf × 0.8 |
-| Absent | Present (llm source) | `fl_only`, conf × 0.6 |
-| Present | Present (contradicting) | `conflict` |
+## Output artifacts
+| File | Purpose |
+|------|---------|
+| `merged/claims.json` | All claims with provenance tags |
+| `merged/api_surface.json` | API surface (classes, methods, properties) |
+| `merged/api_surface.md` | Human-readable API reference |
+| `merged/model.yaml` | Metadata (repo_sha, stats, source) |
+| `merged/formats.json` | Format support matrix |
+| `merged/formats.md` | Human-readable format table |
+| `merged/limitations.md` | NotImplementedError methods |
+| `merged/merge_report.md` | Merge statistics |
