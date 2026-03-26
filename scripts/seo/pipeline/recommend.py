@@ -127,13 +127,13 @@ def _call_llm(
         try:
             response = client.chat.completions.create(
                 model=model,
-                response_format={"type": "json_object"},
                 messages=[
                     {
                         "role": "system",
                         "content": (
                             "You are an SEO specialist. "
-                            "Respond ONLY with a valid JSON object. "
+                            "Respond ONLY with a valid JSON object — no markdown, no prose, "
+                            "no code fences. Output raw JSON only. "
                             "Never fabricate API names, class names, or method names. "
                             "Base all suggestions strictly on the provided context."
                         ),
@@ -151,7 +151,12 @@ def _call_llm(
                 time.sleep(_LLM_RETRY_DELAY)
                 continue
 
-            parsed: dict = json.loads(raw)
+            # Strip markdown code fences if present (```json ... ``` or ``` ... ```)
+            stripped = raw.strip()
+            if stripped.startswith("```"):
+                stripped = stripped.split("```", 2)[-1] if stripped.count("```") >= 2 else stripped
+                stripped = stripped.lstrip("json").strip().rstrip("`").strip()
+            parsed: dict = json.loads(stripped)
 
             # Validate required schema keys are present
             missing = [k for k in schema if k not in parsed]
