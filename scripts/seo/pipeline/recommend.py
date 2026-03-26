@@ -64,7 +64,7 @@ BATCH_ID = "2026-03-25T15:00:00"
 # LLM settings
 _LLM_BASE_URL = "https://llm.professionalize.com/v1/"
 _LLM_MODEL_MEDIUM = "recommended"          # seoTitle rewrites for MEDIUM/HIGH
-_LLM_MAX_RETRIES = 2
+_LLM_MAX_RETRIES = 3
 _LLM_RETRY_DELAY = 3                       # seconds between retries
 
 # SEO length bounds
@@ -140,7 +140,7 @@ def _call_llm(
                     },
                     {"role": "user", "content": prompt},
                 ],
-                max_tokens=512,
+                max_tokens=2048,
                 temperature=0.3,
             )
 
