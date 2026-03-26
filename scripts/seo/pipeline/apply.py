@@ -357,7 +357,14 @@ def run_apply(patches: list[dict], dry_run: bool) -> None:
             continue
 
         # --- Verify evidence block unchanged ---
-        if not _verify_evidence_unchanged(original_fm, new_fm):
+        # Products and reference _index.md pages are metadata pages without
+        # evidence blocks — only require evidence for blog/docs/kb content pages.
+        page_path_str = str(page_path)
+        is_metadata_page = (
+            "products.aspose.org" in page_path_str
+            or "reference.aspose.org" in page_path_str
+        ) and page_path_str.endswith("_index.md")
+        if not is_metadata_page and not _verify_evidence_unchanged(original_fm, new_fm):
             log.error(
                 "SKIP: %s — evidence block missing or would change; aborting this page",
                 page_path,
