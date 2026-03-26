@@ -475,7 +475,7 @@ def build_patch_manifest(safe_data: dict | None, today: str) -> dict:
             elif field == "description" and proposed is not None:
                 description_proposed = proposed
             elif field == "tags":
-                ta = r.get("tags_to_add", [])
+                ta = r.get("proposed") or r.get("tags_to_add") or []
                 if ta:
                     tags_to_add.extend(ta)
 
