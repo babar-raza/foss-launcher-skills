@@ -304,7 +304,8 @@ def build_per_page_md(rec: dict, opp: dict | None) -> str:
         lines.append("")
 
     # Source keywords from first recommendation
-    first_rec = rec.get("recommendations", [{}])[0]
+    recs_list = rec.get("recommendations") or [{}]
+    first_rec = recs_list[0] if recs_list else {}
     source_kws = first_rec.get("source_keywords", [])
     if source_kws:
         lines.append("## Source Keywords")
