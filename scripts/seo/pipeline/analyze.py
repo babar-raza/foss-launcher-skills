@@ -203,36 +203,46 @@ def _score_path_b(
 # ---------------------------------------------------------------------------
 
 
-def _build_schema_a_index(schema_a_records: list[dict]) -> dict[str, list[str]]:
+def _build_schema_a_index(
+    schema_a_records: list[dict],
+) -> dict[str, dict[str, list[str]]]:
     """
-    Build a {pageTitle_lower: [keywords]} index from Schema A records.
-    Used for approximate title matching when a page has no url_map entry.
+    Build a {family: {pageTitle_lower: [keywords]}} index from Schema A records.
+    Keyed by family so that keyword matching is always family-scoped — pages from
+    the 'cells' family only match against 'cells' Schema A records, never against
+    'page', 'pdf', or any other family's records.
     """
-    index: dict[str, list[str]] = {}
+    index: dict[str, dict[str, list[str]]] = {}
     for rec in schema_a_records:
+        family = rec.get("family") or ""
         title_lower = rec.get("pageTitle", "").lower().strip()
         if title_lower:
-            index[title_lower] = rec.get("keywords", [])
+            index.setdefault(family, {})[title_lower] = rec.get("keywords", [])
     return index
 
 
 def _match_schema_a_keywords(
     seo_title: str | None,
-    schema_a_index: dict[str, list[str]],
+    schema_a_index: dict[str, dict[str, list[str]]],
+    family: str | None = None,
 ) -> list[str]:
     """
     Find Schema A keywords that approximately match a page's seo_title.
-    Strategy: check if the page seo_title is a substring (case-insensitive) of
-    any Schema A pageTitle, or vice versa — simple heuristic, no LLM needed.
+    Only searches records belonging to the same *family* as the page.
+    Strategy: token-overlap heuristic — at least 2 shared tokens required.
     Returns matched keyword list (may be empty).
     """
     if not seo_title:
+        return []
+    # Restrict to the family's sub-index; fall back to empty dict if unknown
+    family_index = schema_a_index.get(family or "", {})
+    if not family_index:
         return []
     title_lower = seo_title.lower().strip()
     title_toks = set(_tokenize(title_lower))
     best_overlap = 0
     best_kws: list[str] = []
-    for page_title_lower, kws in schema_a_index.items():
+    for page_title_lower, kws in family_index.items():
         pt_toks = set(_tokenize(page_title_lower))
         if not pt_toks:
             continue
@@ -584,7 +594,7 @@ def run_analysis(
     schema_a_candidates = [p for p in pages if p["path"] not in analyzed_paths]
     matched_via_schema_a = 0
     for page in schema_a_candidates:
-        kws = _match_schema_a_keywords(page.get("seo_title"), schema_a_index)
+        kws = _match_schema_a_keywords(page.get("seo_title"), schema_a_index, family=page.get("family"))
         if not kws:
             continue  # no keyword signal — skip
         record = _analyze_page_path_b(page, kws)
