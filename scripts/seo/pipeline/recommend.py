@@ -140,7 +140,7 @@ def _call_llm(
                     },
                     {"role": "user", "content": prompt},
                 ],
-                max_tokens=256,
+                max_tokens=512,
                 temperature=0.3,
             )
 
