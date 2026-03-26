@@ -680,7 +680,7 @@ def run_recommendations(
     # ------------------------------------------------------------------
     # 2. Check LLM availability
     # ------------------------------------------------------------------
-    litellm_key: str | None = os.environ.get("LITELLM_KEY")
+    litellm_key: str | None = os.environ.get("LITELLM_KEY") or None
     litellm_available = litellm_key is not None
     if litellm_available:
         _LOG.info("LITELLM_KEY present — LLM calls enabled (model: %s)", _LLM_MODEL_MEDIUM)
