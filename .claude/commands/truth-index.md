@@ -14,8 +14,8 @@ Generate `index.json` per product from `knowledge/{family}/{platform}/merged/` a
 
 Run the index generator:
 ```
-python scripts/index.py {family} {platform}   # Single product
-python scripts/index.py all                     # All discovered products
+python scripts/pipeline/index.py {family} {platform}   # Single product
+python scripts/pipeline/index.py all                     # All discovered products
 ```
 The script auto-discovers products, computes api_confidence thresholds, generates platform-appropriate install commands, and writes both per-product `index.json` and cross-product `_index.json`.
 

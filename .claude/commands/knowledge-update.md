@@ -8,8 +8,8 @@ Refresh the knowledge model for a product by re-running the full knowledge boots
 
 ## Pre-conditions
 1. The repo at `{repo-path}` must be accessible and is a git repository
-2. `scripts/scout.py` exists
-3. `scripts/merge.py` exists
+2. `scripts/pipeline/scout.py` exists
+3. `scripts/pipeline/merge.py` exists
 4. Current knowledge exists at `knowledge/{family}/{platform}/` (at least `model.yaml`)
 5. Check `knowledge/{family}/{platform}/model.yaml` — if `stale_since` is null, warn that knowledge may not need updating (proceed if user confirms)
 
@@ -21,13 +21,13 @@ Refresh the knowledge model for a product by re-running the full knowledge boots
 
 3. **Run repo-scout** (S-34):
    ```
-   python scripts/scout.py {family} {platform} {repo-path} knowledge/{family}/{platform}/scout/
+   python scripts/pipeline/scout.py {family} {platform} {repo-path} knowledge/{family}/{platform}/scout/
    ```
    Verify outputs: `model.yaml`, `api_surface.json`, `claims.json` in `knowledge/{family}/{platform}/scout/`.
 
 4. **Run truth-merge** (S-35):
    ```
-   python scripts/merge.py {family} {platform}
+   python scripts/pipeline/merge.py {family} {platform}
    ```
    Verify `knowledge/{family}/{platform}/merged/merge_report.md` exists and shows merge statistics.
 
