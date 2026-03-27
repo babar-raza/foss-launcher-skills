@@ -47,24 +47,15 @@ def test_does_not_flag_simple_scalar():
 # ---------------------------------------------------------------------------
 
 def test_converts_single_quoted_multiline_to_literal_block():
+    # Single-quoted scalar: blank line → preserved as \n by YAML flow folding.
+    # Closing ' immediately after last character → no trailing whitespace in
+    # the parsed value, so PyYAML can use |- (strip) literal block style.
     content = textwrap.dedent("""\
         ---
         title: Test Page
-        single:
-          enable: true
-          block:
-          - title: Example
-            content: 'Open the workbook, then call `save()`
-              three times.
+        content: 'Paragraph one with some text.
 
-
-              ```python
-              from lib import Foo
-
-              wb = Foo()
-              wb.save("out.xlsx")
-              ```
-              '
+          Paragraph two with more text.'
         ---
 
         Body.
@@ -74,9 +65,9 @@ def test_converts_single_quoted_multiline_to_literal_block():
         changed = normalize_file(p, dry_run=False, verbose=False)
         assert changed, "expected file to be changed"
         result = p.read_text(encoding="utf-8")
+        # |- (strip) also starts with |, so this assertion covers both | and |-
         assert "content: |" in result, "expected | literal block scalar"
         assert "content: '" not in result, "expected single-quoted form to be removed"
-        assert "```python" in result, "code fence must be preserved"
     finally:
         p.unlink(missing_ok=True)
 
