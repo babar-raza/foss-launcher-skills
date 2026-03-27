@@ -175,7 +175,7 @@ class TestAssignmentTracking:
 
     def test_assignment_regex_lowercase_still_tracked(self):
         """result = some_func( should still populate var_types via primary regex."""
-        from audit import _extract_from_code_line
+        from token_ops import _extract_from_code_line
         var_types = {}
         # lowercase func — primary regex matches but doesn't set (lowercase name)
         # This ensures the primary regex still matches the line (no crash)
@@ -185,35 +185,35 @@ class TestAssignmentTracking:
 
     def test_qualified_assignment_module_prefix(self):
         """scene = aspose.threed.Scene( should populate var_types['scene'] = 'Scene'."""
-        from audit import _extract_from_code_line
+        from token_ops import _extract_from_code_line
         var_types = {}
         _extract_from_code_line("scene = aspose.threed.Scene()", 1, var_types, "python")
         assert var_types.get("scene") == "Scene"
 
     def test_annotated_assignment(self):
         """scene: Scene = Scene( should populate var_types['scene'] = 'Scene'."""
-        from audit import _extract_from_code_line
+        from token_ops import _extract_from_code_line
         var_types = {}
         _extract_from_code_line("scene: Scene = Scene()", 1, var_types, "python")
         assert var_types.get("scene") == "Scene"
 
     def test_simple_class_assignment(self):
         """scene = Scene( should still work with the reverted primary regex."""
-        from audit import _extract_from_code_line
+        from token_ops import _extract_from_code_line
         var_types = {}
         _extract_from_code_line("scene = Scene()", 1, var_types, "python")
         assert var_types.get("scene") == "Scene"
 
     def test_method_assignment_takes_precedence_over_prop(self):
         """node = scene.create_child_node() should be tracked as method, not property."""
-        from audit import _extract_from_code_line
+        from token_ops import _extract_from_code_line
         var_types = {"scene": "Scene"}
         _extract_from_code_line("node = scene.create_child_node()", 1, var_types, "python")
         assert var_types.get("node") == "Scene.create_child_node"
 
     def test_prop_assignment_no_parens(self):
         """name = node.name should be tracked as property access (no parens)."""
-        from audit import _extract_from_code_line
+        from token_ops import _extract_from_code_line
         var_types = {"node": "Node"}
         _extract_from_code_line("name = node.name", 1, var_types, "python")
         assert var_types.get("name") == "Node.name"
