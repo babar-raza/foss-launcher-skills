@@ -7,7 +7,12 @@ import yaml
 
 import google.generativeai as genai
 
-DEFAULT_FAMILIES = ["barcode", "cells", "html", "imaging", "ocr", "page", "pdf", "psd", "tasks", "tex", "words", "zip"]
+DEFAULT_FAMILIES = [
+    # KB-oriented families (original)
+    "barcode", "cells", "html", "imaging", "ocr", "page", "pdf", "psd", "tasks", "tex", "words", "zip",
+    # Extended families (docs/products/reference content)
+    "3d", "cad", "diagram", "email", "note", "slides",
+]
 
 
 # Extract head_title from Markdown file
@@ -137,11 +142,25 @@ def process_markdown_files_by_families(families, root_dir, output_dir):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Generate SEO keywords for KB content pages using Google Gemini."
+        description=(
+            "Generate Schema A SEO keywords for content pages using Google Gemini.\n\n"
+            "Pass the root of any content subdirectory as content_dir. Common invocations:\n"
+            "  KB pages:       python get_keywords.py content/kb.aspose.org keywords/\n"
+            "  Docs pages:     python get_keywords.py content/docs.aspose.org/en keywords/\n"
+            "  Products pages: python get_keywords.py content/products.aspose.org/en keywords/\n\n"
+            "The script walks {content_dir}/{family}/ for each family in --families and\n"
+            "appends discovered page titles + LLM-generated keywords to keywords/{family}.json."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "content_dir",
-        help="Root of the KB content directory (e.g. content/kb.aspose.org)",
+        help=(
+            "Root content directory to scan. The script looks for "
+            "{content_dir}/{family}/ subdirectories. "
+            "E.g. content/kb.aspose.org, content/docs.aspose.org/en, "
+            "content/products.aspose.org/en"
+        ),
     )
     parser.add_argument(
         "output_dir",
@@ -151,7 +170,12 @@ if __name__ == "__main__":
         "--families",
         nargs="+",
         default=DEFAULT_FAMILIES,
-        help="Product families to process (default: 12 standard families)",
+        help=(
+            "Product families to process. "
+            f"Default: {len(DEFAULT_FAMILIES)} families "
+            "(barcode, cells, html, imaging, ocr, page, pdf, psd, tasks, tex, words, zip, "
+            "3d, cad, diagram, email, note, slides)"
+        ),
     )
     args = parser.parse_args()
 

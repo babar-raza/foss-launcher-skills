@@ -63,7 +63,12 @@ GAP_SUMMARY_PATH = REPORTS_DIR / "seo_gap_summary.json"
 
 # Impression threshold for noise filter
 _IMPRESSION_THRESHOLD = 10
-# CTR gap: high impressions but very low CTR
+# CTR gap: high impressions but very low CTR — thresholds for HIGH opportunity classification.
+# With full GSC coverage (Phase 0a complete for docs/blog/kb/reference), pages in the
+# 100+ impressions range will qualify for HIGH. Before Phase 0a, only 3.4% of pages had
+# GSC data, making HIGH=0 the expected outcome. Now that all 7 subdomains are connected,
+# HIGH opportunities will surface once the weekly gsc-query-collector workflow deposits
+# fresh CSV exports into reports/gsc/.
 _CTR_GAP_MIN_IMPRESSIONS = 100
 _CTR_GAP_MAX_CTR = 0.02
 # High-impression threshold for tag gap check

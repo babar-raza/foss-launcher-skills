@@ -28,9 +28,10 @@ KEYWORDS_DIR = REPO_ROOT / "keywords"
 REPORTS_DIR = REPO_ROOT / "reports" / "seo"
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
-# Schema B files are domain-level JSON (url/keywords/lang/lastUpdated)
+# Schema B files are domain-level JSON (url/lang/lastUpdated/queries)
 # Everything else is Schema A (pageTitle/keywords)
 _SCHEMA_B_NAMES = {
+    "docs.aspose.org.json",
     "products.aspose.org.json",
     "reference.aspose.org.json",
     "websites.aspose.org.json",

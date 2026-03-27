@@ -28,7 +28,7 @@ import json
 import logging
 import sys
 from collections import Counter, defaultdict
-from datetime import date
+from datetime import datetime, date, timezone
 from pathlib import Path
 from typing import Any
 
@@ -58,7 +58,23 @@ log = logging.getLogger("report")
 # Constants
 # ---------------------------------------------------------------------------
 
-REPORTS_DIR = _REPO_ROOT / "reports" / "seo"
+# Prefer the canonical output directory; fall back to the workflow-artifact
+# location (reports/reports/seo/) if the canonical path has no inputs yet.
+_CANONICAL_REPORTS_DIR = _REPO_ROOT / "reports" / "seo"
+_ARTIFACT_REPORTS_DIR = _REPO_ROOT / "reports" / "reports" / "seo"
+
+def _resolve_reports_dir() -> Path:
+    """Return the reports dir that actually contains pipeline outputs."""
+    # If canonical dir has opportunities.json already, use it (fresh local run).
+    if (_CANONICAL_REPORTS_DIR / "opportunities.json").exists():
+        return _CANONICAL_REPORTS_DIR
+    # Fall back to the workflow-artifact location committed to the repo.
+    if (_ARTIFACT_REPORTS_DIR / "opportunities.json").exists():
+        return _ARTIFACT_REPORTS_DIR
+    # Default to canonical (will be created on first run).
+    return _CANONICAL_REPORTS_DIR
+
+REPORTS_DIR = _resolve_reports_dir()
 PATCHES_DIR = _REPO_ROOT / "patches" / "seo"
 PER_PAGE_DIR = REPORTS_DIR / "per_page"
 
@@ -433,7 +449,12 @@ def build_patch_manifest(safe_data: dict | None, today: str) -> dict:
 
     Include only patches where:
       safety_checks_passed=True
-      AND (requires_human_review=False OR all proposed values are non-null)
+      AND at least one field has a non-null actionable value to apply.
+
+    Note: requires_human_review=True does NOT block a patch from inclusion;
+    the flag is preserved on the patch entry so apply.py can gate on it.
+    Fields that still require human input (null proposed) are simply omitted
+    from fields_to_update — only actionable fields are included.
     """
     if not safe_data:
         return {
@@ -453,16 +474,7 @@ def build_patch_manifest(safe_data: dict | None, today: str) -> dict:
         requires_review = rec.get("requires_human_review", True)
         field_recs = rec.get("recommendations", [])
 
-        # Check if all proposed values are non-null
-        all_proposed_non_null = all(
-            r.get("proposed") is not None for r in field_recs
-        )
-
-        # Include if: passed safety AND (no review needed OR all proposed non-null)
-        if requires_review and not all_proposed_non_null:
-            continue
-
-        # Build fields_to_update
+        # Build fields_to_update — collect only fields with actionable values
         seo_title_proposed = None
         description_proposed = None
         tags_to_add: list[str] = []
@@ -478,6 +490,15 @@ def build_patch_manifest(safe_data: dict | None, today: str) -> dict:
                 ta = r.get("proposed") or r.get("tags_to_add") or []
                 if ta:
                     tags_to_add.extend(ta)
+
+        # Skip patches that have nothing to apply — no actionable fields at all
+        has_actionable = (
+            seo_title_proposed is not None
+            or description_proposed is not None
+            or bool(tags_to_add)
+        )
+        if not has_actionable:
+            continue
 
         patches.append({
             "page_path": rec["page_path"],
@@ -537,15 +558,49 @@ def main() -> None:
     manifest = build_patch_manifest(outputs.get("safe_recommendations"), today)
     _write_json(PATCHES_DIR / "patch_manifest.json", manifest)
 
+    # --- E: pipeline_run.json ---
+    run_ts = datetime.now(timezone.utc).isoformat()
+    safe = outputs.get("safe_recommendations") or {}
+    opp_data = outputs.get("opportunities") or {}
+    gap_data = outputs.get("gap_summary") or {}
+    recs_list = safe.get("recommendations", [])
+    pipeline_run = {
+        "run_at": run_ts,
+        "batch_id": safe.get("batch_id", "unknown"),
+        "reports_dir": str(REPORTS_DIR.relative_to(_REPO_ROOT)),
+        "stages_loaded": {k: v is not None for k, v in outputs.items()},
+        "artifact_sizes": {
+            k: (REPORTS_DIR / f"{k}.json").stat().st_size
+            if (REPORTS_DIR / f"{k}.json").exists() else 0
+            for k in ["opportunities", "safe_recommendations", "recommendations",
+                      "validation_report", "seo_gap_summary"]
+        },
+        "opportunities": opp_data.get("summary", {}),
+        "total_pages_analyzed": opp_data.get("total_pages_analyzed", 0),
+        "gsc_match_rate_pct": round(
+            opp_data.get("schema_b_matches", 0) /
+            max(opp_data.get("total_pages_analyzed", 1), 1) * 100, 1
+        ),
+        "total_pages_inventory": gap_data.get("total_pages", 0),
+        "recommendations_generated": safe.get("total_recommendations_generated", 0),
+        "safety_passed": safe.get("safety_passed_count", 0),
+        "requires_human_review": sum(1 for r in recs_list if r.get("requires_human_review")),
+        "patches_generated": manifest["total_patches"],
+        "per_page_reports": per_page_count,
+    }
+    _write_json(REPORTS_DIR / "pipeline_run.json", pipeline_run)
+
     # Summary
     print()
     print("=" * 60)
     print("SEO-007 report.py complete")
-    print(f"  summary.md           : reports/seo/summary.md")
-    print(f"  per-page reports     : {per_page_count} files in reports/seo/per_page/")
-    print(f"  low_priority_summary : reports/seo/low_priority_summary.md")
+    print(f"  reports_dir          : {REPORTS_DIR.relative_to(_REPO_ROOT)}")
+    print(f"  summary.md           : {REPORTS_DIR.relative_to(_REPO_ROOT)}/summary.md")
+    print(f"  per-page reports     : {per_page_count} files")
+    print(f"  low_priority_summary : written")
     print(f"  patch_manifest.json  : patches/seo/patch_manifest.json")
     print(f"    total_patches      : {manifest['total_patches']}")
+    print(f"  pipeline_run.json    : written")
     print("=" * 60)
 
 

@@ -23,7 +23,7 @@ import logging
 import os
 import sys
 import time
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -58,8 +58,9 @@ REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 OPPORTUNITIES_PATH = REPORTS_DIR / "opportunities.json"
 RECOMMENDATIONS_PATH = REPORTS_DIR / "recommendations.json"
 
-# Batch ID matches the artifacts run timestamp (stable for this phase)
-BATCH_ID = "2026-03-25T15:00:00"
+# Batch ID is set once per process invocation (ISO timestamp in UTC).
+# This ensures each pipeline run produces uniquely identifiable artifacts.
+BATCH_ID = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
 
 # LLM settings
 _LLM_BASE_URL = "https://llm.professionalize.com/v1/"
