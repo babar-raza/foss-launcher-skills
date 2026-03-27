@@ -1,10 +1,6 @@
 """Tests for scout_enrichers docstring extraction."""
 
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "scripts" / "pipeline"))
-
+# sys.path is set by tests/conftest.py — no manual insert needed here.
 from scout_enrichers._javadoc import _extract_javadoc_comment, enrich_javadoc
 from scout_enrichers._doxygen import _extract_doxygen_comment, enrich_doxygen
 from scout_enrichers._xml_doc import _extract_xml_doc_comment, enrich_xml_doc

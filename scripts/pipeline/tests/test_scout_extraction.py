@@ -10,14 +10,12 @@ Covers:
 - Bug fix: Python enum bare assignment extraction
 """
 
-import sys
 from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts/pipeline"))
-
-import scout  # noqa: E402
+# sys.path is set by tests/conftest.py — no manual insert needed here.
+import scout
 
 
 def _parse(language: str, code: str):

@@ -5,12 +5,9 @@ import textwrap
 from pathlib import Path
 
 import pytest
-import sys
 
-# Add pipeline to path for audit imports
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "scripts" / "pipeline"))
-
-from scripts.pipeline.content_eval.models import (
+# sys.path is set by tests/conftest.py — no manual insert needed here.
+from content_eval.models import (
     CodeBlock,
     EvalReport,
     Finding,

@@ -64,4 +64,5 @@ def _ensure_loaded():
         prose_truth,
         risk_language,
         structure,
+        type_accuracy,
     )

@@ -1,4 +1,20 @@
-"""API accuracy evaluator — wraps audit.py's token verification."""
+"""API accuracy evaluator — wraps audit.py's token verification.
+
+Architectural boundary (Phase 7 / Option A)
+-------------------------------------------
+This module is the **explicit bridge** between the two evaluation systems:
+
+- ``audit/`` (verification layer): fast CI gate, emits ``token_ops.Finding``
+- ``content_eval/`` (quality layer): rubric-driven scoring, emits ``models.Finding``
+
+This evaluator calls ``extract_tokens`` + ``verify_tokens`` from the audit layer
+and converts the results into ``content_eval`` Finding objects so they appear in
+the quality report alongside all other rubric dimensions.
+
+Remediation: ``remediate.py`` acts on ``content_eval`` findings, including those
+produced here.  Audit-layer findings that bypass this bridge are **not**
+remediated — they are CI-blocking gates only.
+"""
 
 from __future__ import annotations
 
@@ -10,6 +26,7 @@ from ..models import Finding, Page
 from . import BaseEvaluator
 
 # Import audit.py machinery
+# sibling-import guard: content_eval sub-package needs the pipeline root for knowledge_core/token_ops imports
 _HERE = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(_HERE))
 

@@ -1,0 +1,8 @@
+[
+  {"extension": "obj", "support": "read/write"},
+  {"extension": "stl", "support": "read/write"},
+  {"extension": "gltf", "support": "read/write"},
+  {"extension": "fbx", "support": "read/write"},
+  {"extension": "3ds", "support": "read"},
+  {"extension": "dae", "support": "read/write"}
+]

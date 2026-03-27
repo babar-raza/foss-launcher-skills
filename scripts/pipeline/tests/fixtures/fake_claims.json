@@ -1,0 +1,32 @@
+[
+  {
+    "claim_id": "CLM-3d-001abc",
+    "text": "Scene.open(filename) -> ",
+    "kind": "api_method",
+    "api_refs": ["Scene.open"]
+  },
+  {
+    "claim_id": "CLM-3d-002abc",
+    "text": "Scene.save(filename) -> ",
+    "kind": "api_method",
+    "api_refs": ["Scene.save"]
+  },
+  {
+    "claim_id": "CLM-3d-003abc",
+    "text": "Scene.create_child_node() -> Node",
+    "kind": "api_method",
+    "api_refs": ["Scene.create_child_node"]
+  },
+  {
+    "claim_id": "CLM-3d-004abc",
+    "text": "Node.create_child_node(name) -> Node",
+    "kind": "api_method",
+    "api_refs": ["Node.create_child_node"]
+  },
+  {
+    "claim_id": "CLM-3d-005abc",
+    "text": "A3DObject.__init__(name) -> ",
+    "kind": "api_method",
+    "api_refs": ["A3DObject.__init__"]
+  }
+]

@@ -21,10 +21,12 @@ REPORTS_DIR = Path("reports") / "content_eval"
 
 
 def _load_knowledge(family: str, platform: str):
-    """Load Knowledge from audit.py."""
+    """Load Knowledge from knowledge_core (shorter dependency chain than audit)."""
     _HERE = Path(__file__).resolve().parent.parent
-    sys.path.insert(0, str(_HERE))
-    from audit import Knowledge  # noqa: E402
+    # sibling-import guard: content_eval sub-package needs pipeline root for knowledge_core.
+    if str(_HERE) not in sys.path:
+        sys.path.insert(0, str(_HERE))
+    from knowledge_core import Knowledge  # noqa: E402
     return Knowledge(family, platform)
 
 
@@ -119,7 +121,18 @@ def _run_evaluate(args):
                 findings = evaluator.evaluate(page, knowledge)
                 report.findings.extend(findings)
             except Exception as e:
+                import traceback as _tb
                 _log(f"  ERROR in {eval_name} on {page.filepath}: {e}")
+                _log(_tb.format_exc())
+                report.findings.append(Finding(
+                    level="WARN",
+                    category="PIPELINE",
+                    filepath=str(page.filepath),
+                    line_no=0,
+                    message=f"Evaluator '{eval_name}' raised {type(e).__name__}: {e}",
+                    evaluator="cli",
+                    suggestion="Check stderr for full traceback.",
+                ))
 
         report.pages_evaluated += 1
 

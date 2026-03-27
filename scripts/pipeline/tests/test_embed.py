@@ -1,12 +1,7 @@
 """Tests for scripts/pipeline/embed.py — TF-IDF and utility functions."""
 
-import sys
-from pathlib import Path
-
-# Add scripts/ to path so we can import embed module
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts/pipeline"))
-
-import embed  # noqa: E402
+# sys.path is set by tests/conftest.py — no manual insert needed here.
+import embed
 
 
 class TestTokenize:

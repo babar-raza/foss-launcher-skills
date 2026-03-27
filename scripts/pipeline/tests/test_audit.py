@@ -3,15 +3,13 @@
 Tests parse_frontmatter, verify_evidence, and the api_to_claim index.
 Uses mock Knowledge objects — no filesystem required for most tests.
 """
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts" / "pipeline"))
-
-from audit import Finding, parse_frontmatter, verify_evidence  # noqa: E402
+# sys.path is set by tests/conftest.py — no manual insert needed here.
+from audit import Finding, parse_frontmatter, verify_evidence
 
 
 # ---------------------------------------------------------------------------

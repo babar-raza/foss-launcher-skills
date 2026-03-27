@@ -1,0 +1,216 @@
+"""runner.py — Core audit orchestration: audit_product, audit_files, main().
+
+Extracted from audit.py (Phase 5). Orchestrates the per-product and per-file
+audit workflow, delegating to links, snippets, and report sub-modules.
+"""
+from __future__ import annotations
+
+import sys
+from datetime import datetime
+from pathlib import Path
+
+# sibling-import guard: sub-packages must add the pipeline root so they can
+# import sibling top-level modules (knowledge_core, token_ops, core.*).
+# This is not the antipattern -- Python adds the sub-package dir to sys.path,
+# not the pipeline root. This guard is the correct workaround for the flat layout.
+_HERE = Path(__file__).resolve().parent.parent
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE))
+
+from knowledge_core import (  # noqa: E402
+    Knowledge,
+    discover_content,
+    discover_products,
+    infer_product,
+    parse_frontmatter,
+    verify_evidence,
+)
+from token_ops import (  # noqa: E402
+    extract_tokens,
+    verify_tokens,
+)
+from audit.links import verify_internal_links  # noqa: E402
+from audit.snippets import verify_snippet_coverage  # noqa: E402
+from audit.reports import (  # noqa: E402
+    REPORTS_DIR,
+    report_text,
+    report_json,
+    _append_quality_trend,
+    _write_quality_baseline,
+    _prune_quality_trend,
+)
+
+
+def _log(*args, **kwargs):
+    """Print to stderr so stdout stays clean for --json."""
+    print(*args, file=sys.stderr, **kwargs)
+
+
+CONTENT_ROOT = Path("content")
+
+
+def audit_product(
+    family: str,
+    platform: str,
+    check_evidence: bool = True,
+    check_snippets: bool = False,
+) -> list:
+    """Audit a single product. Returns list of findings."""
+    knowledge = Knowledge(family, platform)
+    if not knowledge.available:
+        _log(f"  SKIP {family}/{platform}: no knowledge model")
+        return []
+
+    files = discover_content(family, platform)
+    if not files:
+        _log(f"  SKIP {family}/{platform}: no content files")
+        return []
+
+    _log(f"  {family}/{platform}: {len(files)} files, tier {knowledge.surface_tier}")
+
+    findings = []
+    for f in files:
+        tokens = extract_tokens(f, platform)
+        file_findings = verify_tokens(tokens, knowledge, f)
+        findings.extend(file_findings)
+        if check_evidence:
+            fm = parse_frontmatter(f)
+            findings.extend(verify_evidence(fm, knowledge, f))
+        findings.extend(verify_internal_links(f))
+        if check_snippets:
+            findings.extend(verify_snippet_coverage(f, knowledge))
+
+    fails = sum(1 for f in findings if f.level == "FAIL")
+    warns = sum(1 for f in findings if f.level == "WARN")
+    _log(f"    -> {fails} FAIL, {warns} WARN")
+
+    return findings
+
+
+def audit_files(
+    file_paths: list,
+    check_evidence: bool = True,
+    check_snippets: bool = False,
+) -> list:
+    """Audit specific files, inferring product from path."""
+    findings = []
+    knowledge_cache = {}
+
+    for fp in file_paths:
+        fp = Path(fp)
+        if not fp.exists():
+            _log(f"  SKIP {fp}: file not found")
+            continue
+
+        family, platform = infer_product(fp)
+        if not family:
+            _log(f"  SKIP {fp}: cannot infer product")
+            continue
+
+        key = (family, platform)
+        if key not in knowledge_cache:
+            knowledge_cache[key] = Knowledge(family, platform)
+
+        knowledge = knowledge_cache[key]
+        if not knowledge.available:
+            _log(f"  SKIP {fp}: no knowledge for {family}/{platform}")
+            continue
+
+        tokens = extract_tokens(fp, platform)
+        file_findings = verify_tokens(tokens, knowledge, fp)
+        findings.extend(file_findings)
+        if check_evidence:
+            fm = parse_frontmatter(fp)
+            findings.extend(verify_evidence(fm, knowledge, fp))
+        link_findings = verify_internal_links(fp)
+        file_findings.extend(link_findings)
+        findings.extend(link_findings)
+        if check_snippets:
+            snippet_findings = verify_snippet_coverage(fp, knowledge)
+            file_findings.extend(snippet_findings)
+            findings.extend(snippet_findings)
+
+        fails = sum(1 for f in file_findings if f.level == "FAIL")
+        if fails:
+            _log(f"  FAIL {fp}: {fails} failures")
+
+    return findings
+
+
+def main():
+    args = sys.argv[1:]
+    json_mode = "--json" in args
+    fail_fast = "--fail-fast" in args
+    files_mode = "--files" in args
+    check_evidence = "--no-evidence" not in args
+    check_snippets = "--check-snippets" in args
+
+    args = [a for a in args if not a.startswith("--")]
+
+    products_summary = None  # populated in "all" batch mode only; used for quality trend
+
+    if files_mode:
+        findings = audit_files(args, check_evidence=check_evidence,
+                               check_snippets=check_snippets)
+        products_checked = ["(file mode)"]
+    elif len(args) >= 2:
+        family, platform = args[0], args[1]
+        _log(f"Auditing {family}/{platform}...")
+        findings = audit_product(family, platform, check_evidence=check_evidence,
+                                 check_snippets=check_snippets)
+        products_checked = [f"{family}/{platform}"]
+    elif len(args) == 1 and args[0] == "all":
+        products = discover_products()
+        _log(f"Auditing {len(products)} products...")
+        findings = []
+        products_checked = []
+        products_summary = []  # per-product stats for quality_trend
+        for family, platform in products:
+            product_findings = audit_product(family, platform,
+                                             check_evidence=check_evidence,
+                                             check_snippets=check_snippets)
+            findings.extend(product_findings)
+            products_checked.append(f"{family}/{platform}")
+            # Collect per-product warn breakdown for trend tracking
+            warn_by_type: dict[str, int] = {}
+            for f in product_findings:
+                if f.level == "WARN":
+                    key = (f.message.split(":")[0].strip()
+                           if ":" in f.message else f.message[:40])
+                    warn_by_type[key] = warn_by_type.get(key, 0) + 1
+            products_summary.append({
+                "family": family,
+                "platform": platform,
+                "fail": sum(1 for f in product_findings if f.level == "FAIL"),
+                "warn": sum(1 for f in product_findings if f.level == "WARN"),
+                "warn_by_type": warn_by_type,
+                "pages": len(set(str(f.filepath) for f in product_findings)),
+            })
+            if fail_fast and any(f.level == "FAIL" for f in product_findings):
+                break
+    else:
+        print(__doc__)
+        sys.exit(1)
+
+    if json_mode:
+        print(report_json(findings, products_checked))
+    else:
+        report = report_text(findings, products_checked)
+        print()
+        print(report)
+
+        # Write report file
+        REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+        date_str = datetime.now().strftime("%Y%m%d")
+        report_path = REPORTS_DIR / f"batch-audit-{date_str}.md"
+        report_path.write_text(report, encoding="utf-8")
+        _log(f"\nReport written to {report_path}")
+
+    # Quality trend tracking — batch mode only
+    if products_summary is not None:
+        _append_quality_trend(products_summary)
+        _write_quality_baseline(products_summary)
+        _prune_quality_trend()
+
+    total_fails = sum(1 for f in findings if f.level == "FAIL")
+    sys.exit(1 if total_fails > 0 else 0)

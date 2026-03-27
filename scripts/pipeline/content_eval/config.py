@@ -19,6 +19,7 @@ ALL_EVALUATORS = [
     "evidence_depth",
     "code_plausibility",
     "coverage",
+    "type_accuracy",
 ]
 
 # Default evaluators (fast, deterministic, production-ready)
@@ -37,7 +38,7 @@ DEFAULT_EVALUATORS = [
 # Platform foreign-code patterns: (regex, description)
 # Applied to code blocks to detect wrong-language contamination
 PLATFORM_FOREIGN_PATTERNS: dict[str, list[tuple[str, str]]] = {
-    "dotnet": [
+    "net": [
         (r"\bdef\s+\w+\s*\(", "Python function definition"),
         (r"\bself\.\w+", "Python self reference"),
         (r"\bSystem\.out\.println", "Java print statement"),
@@ -93,9 +94,9 @@ PLATFORM_FOREIGN_PATTERNS: dict[str, list[tuple[str, str]]] = {
 LANG_TO_PLATFORM = {
     "python": "python",
     "py": "python",
-    "csharp": "dotnet",
-    "cs": "dotnet",
-    "c#": "dotnet",
+    "csharp": "net",
+    "cs": "net",
+    "c#": "net",
     "java": "java",
     "cpp": "cpp",
     "c++": "cpp",
@@ -107,7 +108,7 @@ LANG_TO_PLATFORM = {
 
 # Platform → expected code block language tags
 PLATFORM_EXPECTED_LANGS = {
-    "dotnet": {"csharp", "cs", "c#"},
+    "net": {"csharp", "cs", "c#"},
     "python": {"python", "py"},
     "java": {"java"},
     "cpp": {"cpp", "c++"},
@@ -117,7 +118,7 @@ PLATFORM_EXPECTED_LANGS = {
 
 # Prose contamination patterns (checked in prose, not code)
 PROSE_FOREIGN_PATTERNS: dict[str, list[tuple[str, str]]] = {
-    "dotnet": [
+    "net": [
         (r"\bpip\s+install\b", "Python pip install in .NET page"),
         (r"\bnpm\s+install\b", "npm install in .NET page"),
         (r"\bmaven\b", "Maven reference in .NET page"),

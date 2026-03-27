@@ -1,6 +1,5 @@
 """Tests for content_eval evaluators."""
 
-import sys
 import tempfile
 import textwrap
 from pathlib import Path
@@ -8,9 +7,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "scripts" / "pipeline"))
-
-from scripts.pipeline.content_eval.models import CodeBlock, Finding, Heading, Page
+# sys.path is set by tests/conftest.py — no manual insert needed here.
+from content_eval.models import CodeBlock, Finding, Heading, Page
 
 
 def _make_page(content: str, filepath: str = "content/docs.aspose.org/en/slides/dotnet/test.md") -> Page:
@@ -26,7 +24,7 @@ def _make_page(content: str, filepath: str = "content/docs.aspose.org/en/slides/
 
 class TestPlatformPurity:
     def setup_method(self):
-        from scripts.pipeline.content_eval.evaluators.platform_purity import PlatformPurityEvaluator
+        from content_eval.evaluators.platform_purity import PlatformPurityEvaluator
         self.evaluator = PlatformPurityEvaluator()
 
     def test_python_def_in_dotnet_page(self):
@@ -40,7 +38,7 @@ class TestPlatformPurity:
             def my_function():
                 pass
             ```
-        """), "content/docs.aspose.org/en/slides/dotnet/test.md")
+        """), "content/docs.aspose.org/en/slides/net/test.md")
         findings = self.evaluator.evaluate(page, None)
         foreign = [f for f in findings if "Python function definition" in f.message]
         assert len(foreign) >= 1
@@ -56,7 +54,7 @@ class TestPlatformPurity:
             ```python
             from aspose.slides import Presentation
             ```
-        """), "content/docs.aspose.org/en/slides/dotnet/test.md")
+        """), "content/docs.aspose.org/en/slides/net/test.md")
         findings = self.evaluator.evaluate(page, None)
         lang_findings = [f for f in findings if "tagged as" in f.message]
         assert len(lang_findings) >= 1
@@ -73,7 +71,7 @@ class TestPlatformPurity:
             using Aspose.Slides;
             var prs = new Presentation();
             ```
-        """), "content/docs.aspose.org/en/slides/dotnet/test.md")
+        """), "content/docs.aspose.org/en/slides/net/test.md")
         findings = self.evaluator.evaluate(page, None)
         # Should have no findings for correct code
         code_findings = [f for f in findings if "Foreign" in f.message or "tagged" in f.message]
@@ -85,7 +83,7 @@ class TestPlatformPurity:
             title: Test
             ---
             Install using pip install aspose-slides.
-        """), "content/docs.aspose.org/en/slides/dotnet/test.md")
+        """), "content/docs.aspose.org/en/slides/net/test.md")
         findings = self.evaluator.evaluate(page, None)
         prose_findings = [f for f in findings if "prose" in f.message.lower()]
         assert len(prose_findings) >= 1
@@ -93,7 +91,7 @@ class TestPlatformPurity:
 
 class TestRiskLanguage:
     def setup_method(self):
-        from scripts.pipeline.content_eval.evaluators.risk_language import RiskLanguageEvaluator
+        from content_eval.evaluators.risk_language import RiskLanguageEvaluator
         self.evaluator = RiskLanguageEvaluator()
 
     def test_detects_superlatives(self):
@@ -137,7 +135,7 @@ class TestRiskLanguage:
 
 class TestStructure:
     def setup_method(self):
-        from scripts.pipeline.content_eval.evaluators.structure import StructureEvaluator
+        from content_eval.evaluators.structure import StructureEvaluator
         self.evaluator = StructureEvaluator()
 
     def test_missing_title(self):
@@ -192,7 +190,7 @@ class TestStructure:
 
 class TestPageRole:
     def setup_method(self):
-        from scripts.pipeline.content_eval.evaluators.page_role import PageRoleEvaluator
+        from content_eval.evaluators.page_role import PageRoleEvaluator
         self.evaluator = PageRoleEvaluator()
 
     def test_kb_howto_missing_steps(self):
@@ -239,7 +237,7 @@ class TestPageRole:
 
 class TestForbiddenClaims:
     def setup_method(self):
-        from scripts.pipeline.content_eval.evaluators.forbidden_claims import ForbiddenClaimsEvaluator
+        from content_eval.evaluators.forbidden_claims import ForbiddenClaimsEvaluator
         self.evaluator = ForbiddenClaimsEvaluator()
 
     def test_no_knowledge_no_findings(self):
@@ -255,7 +253,7 @@ class TestStructureProductsExemption:
     """Tests for 1.1: layout:plugin pages should not get empty-body FAIL."""
 
     def setup_method(self):
-        from scripts.pipeline.content_eval.evaluators.structure import StructureEvaluator
+        from content_eval.evaluators.structure import StructureEvaluator
         self.evaluator = StructureEvaluator()
 
     def test_plugin_layout_empty_body_no_fail(self):
@@ -276,7 +274,7 @@ class TestStructureAsciiArt:
     """Tests for 1.5: ASCII art code blocks downgraded to INFO."""
 
     def setup_method(self):
-        from scripts.pipeline.content_eval.evaluators.structure import StructureEvaluator
+        from content_eval.evaluators.structure import StructureEvaluator
         self.evaluator = StructureEvaluator()
 
     def test_ascii_art_is_info(self):
@@ -306,7 +304,7 @@ class TestKbIndexRole:
     """Tests for 1.2: KB _index pages classified as kb_index."""
 
     def setup_method(self):
-        from scripts.pipeline.content_eval.evaluators.page_role import PageRoleEvaluator
+        from content_eval.evaluators.page_role import PageRoleEvaluator
         self.evaluator = PageRoleEvaluator()
 
     def test_kb_index_page_no_howto_checks(self):
@@ -334,7 +332,7 @@ class TestReferenceHomeLayout:
     """Tests for 1.3: reference-home accepted as valid layout."""
 
     def setup_method(self):
-        from scripts.pipeline.content_eval.evaluators.page_role import PageRoleEvaluator
+        from content_eval.evaluators.page_role import PageRoleEvaluator
         self.evaluator = PageRoleEvaluator()
 
     def test_reference_home_no_layout_warning(self):
@@ -356,7 +354,7 @@ class TestStepHeadingRelaxation:
     """Tests for 1.4: h2/h3 headings accepted as alternative to Step N."""
 
     def setup_method(self):
-        from scripts.pipeline.content_eval.evaluators.page_role import PageRoleEvaluator
+        from content_eval.evaluators.page_role import PageRoleEvaluator
         self.evaluator = PageRoleEvaluator()
 
     def test_section_headings_accepted(self):
@@ -385,7 +383,7 @@ class TestStepHeadingRelaxation:
 
 class TestCodePlausibility:
     def setup_method(self):
-        from scripts.pipeline.content_eval.evaluators.code_plausibility import CodePlausibilityEvaluator
+        from content_eval.evaluators.code_plausibility import CodePlausibilityEvaluator
         self.evaluator = CodePlausibilityEvaluator()
 
     def test_empty_code_block(self):
@@ -410,7 +408,7 @@ class TestCodePlausibility:
 
 class TestEvidenceDepth:
     def setup_method(self):
-        from scripts.pipeline.content_eval.evaluators.evidence_depth import EvidenceDepthEvaluator
+        from content_eval.evaluators.evidence_depth import EvidenceDepthEvaluator
         self.evaluator = EvidenceDepthEvaluator()
 
     def test_no_knowledge_no_findings(self):
@@ -439,7 +437,7 @@ class TestEvidenceDepth:
 
 class TestProseTruth:
     def setup_method(self):
-        from scripts.pipeline.content_eval.evaluators.prose_truth import ProseTruthEvaluator
+        from content_eval.evaluators.prose_truth import ProseTruthEvaluator
         self.evaluator = ProseTruthEvaluator()
 
     def test_no_knowledge_no_findings(self):
@@ -487,7 +485,7 @@ class TestProseTruth:
 
 class TestCoverage:
     def setup_method(self):
-        from scripts.pipeline.content_eval.evaluators.coverage import CoverageEvaluator
+        from content_eval.evaluators.coverage import CoverageEvaluator
         self.evaluator = CoverageEvaluator()
 
     def test_non_docs_page_skipped(self):
@@ -503,6 +501,67 @@ class TestCoverage:
         assert len(findings) == 0
 
 
+class TestCoverageInterfaceFiltering:
+    """S-Fix-5: Platform-aware interface filtering."""
+
+    def setup_method(self):
+        from content_eval.evaluators.coverage import (
+            CoverageEvaluator, _is_interface_entry, INTERFACE_PAGE_PLATFORMS,
+            CONCRETE_ONLY_PLATFORMS,
+        )
+        self.evaluator = CoverageEvaluator()
+        self._is_interface_entry = _is_interface_entry
+        self.INTERFACE_PAGE_PLATFORMS = INTERFACE_PAGE_PLATFORMS
+        self.CONCRETE_ONLY_PLATFORMS = CONCRETE_ONLY_PLATFORMS
+
+    def test_i_prefix_uppercase_detected_as_interface(self):
+        assert self._is_interface_entry("IShape", "") is True
+        assert self._is_interface_entry("IPPImage", "") is True
+
+    def test_i_prefix_lowercase_not_interface(self):
+        # "Index" starts with I but second char is 'n' (lowercase) — not an interface
+        assert self._is_interface_entry("Index", "") is False
+
+    def test_single_i_not_interface(self):
+        assert self._is_interface_entry("I", "") is False
+
+    def test_kind_field_interface_detected(self):
+        assert self._is_interface_entry("SomeType", "interface") is True
+        assert self._is_interface_entry("SomeType", "abstract_class") is True
+
+    def test_kind_field_concrete_not_interface(self):
+        assert self._is_interface_entry("SomeType", "class_specifier") is False
+
+    def test_platform_sets_correct(self):
+        assert "cpp" in self.CONCRETE_ONLY_PLATFORMS
+        assert "python" in self.CONCRETE_ONLY_PLATFORMS
+        assert "net" in self.INTERFACE_PAGE_PLATFORMS
+        assert "java" in self.INTERFACE_PAGE_PLATFORMS
+        assert "dotnet" not in self.INTERFACE_PAGE_PLATFORMS
+
+
+class TestCoverageSlug:
+    """S-Fix-6: Slug generation for enum page lookup."""
+
+    def setup_method(self):
+        from content_eval.evaluators.coverage import _to_slug
+        self._to_slug = _to_slug
+
+    def test_pascal_case_to_kebab(self):
+        assert self._to_slug("BevelPresetType") == "bevel-preset-type"
+
+    def test_fill_type(self):
+        assert self._to_slug("FillType") == "fill-type"
+
+    def test_single_word(self):
+        assert self._to_slug("Presentation") == "presentation"
+
+    def test_acronym_prefix(self):
+        # "GradientDirection" → "gradient-direction"
+        result = self._to_slug("GradientDirection")
+        assert "gradient" in result and "direction" in result
+
+
 # ---------------------------------------------------------------------------
 # TF-IDF Semantic Matching (prose_truth)
 # ---------------------------------------------------------------------------
@@ -511,7 +570,7 @@ class TestClaimIndex:
     """Tests for _ClaimIndex TF-IDF semantic matching."""
 
     def setup_method(self):
-        from scripts.pipeline.content_eval.evaluators.prose_truth import _ClaimIndex
+        from content_eval.evaluators.prose_truth import _ClaimIndex
         self.ClaimIndex = _ClaimIndex
 
     def test_similar_text_high_score(self):
@@ -554,30 +613,30 @@ class TestClaimIndexCache:
     """Tests for _ClaimIndex caching (TM-01)."""
 
     def setup_method(self):
-        from scripts.pipeline.content_eval.evaluators.prose_truth import clear_claim_cache
+        from content_eval.evaluators.prose_truth import clear_claim_cache
         clear_claim_cache()
 
     def teardown_method(self):
-        from scripts.pipeline.content_eval.evaluators.prose_truth import clear_claim_cache
+        from content_eval.evaluators.prose_truth import clear_claim_cache
         clear_claim_cache()
 
     def test_claim_index_cached_across_calls(self):
         """Same (family, platform) should return the same object."""
-        from scripts.pipeline.content_eval.evaluators.prose_truth import _get_claim_index
+        from content_eval.evaluators.prose_truth import _get_claim_index
         idx1 = _get_claim_index("nonexistent_family", "nonexistent_platform")
         idx2 = _get_claim_index("nonexistent_family", "nonexistent_platform")
         assert idx1 is idx2
 
     def test_different_keys_different_objects(self):
         """Different (family, platform) should return different objects."""
-        from scripts.pipeline.content_eval.evaluators.prose_truth import _get_claim_index
+        from content_eval.evaluators.prose_truth import _get_claim_index
         idx1 = _get_claim_index("family_a", "platform_a")
         idx2 = _get_claim_index("family_b", "platform_b")
         assert idx1 is not idx2
 
     def test_cache_cleared(self):
         """clear_claim_cache() should reset state."""
-        from scripts.pipeline.content_eval.evaluators.prose_truth import (
+        from content_eval.evaluators.prose_truth import (
             _get_claim_index, clear_claim_cache, _CLAIM_INDEX_CACHE,
         )
         _get_claim_index("test_family", "test_platform")

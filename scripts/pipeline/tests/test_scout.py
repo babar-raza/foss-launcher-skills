@@ -1,13 +1,10 @@
 """Tests for scripts/pipeline/scout.py — core utility functions and data structures."""
 
 import hashlib
-import sys
 from pathlib import Path
 
-# Add scripts/ to path so we can import scout module
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts/pipeline"))
-
-import scout  # noqa: E402
+# sys.path is set by tests/conftest.py — no manual insert needed here.
+import scout
 
 
 class TestPlatformToLang:
@@ -108,3 +105,129 @@ class TestNotImplPatterns:
         assert "csharp" in scout._NOT_IMPL_PATTERNS
         pattern = scout._NOT_IMPL_PATTERNS["csharp"]
         assert pattern.search("throw new NotImplementedException()")
+
+
+def _make_snippet(source_file, classes_used, code=""):
+    """Helper: build a minimal snippet dict matching extraction/snippets.py schema."""
+    return {
+        "id": "snippet_001",
+        "file": "snippet_001.py",       # output filename — never starts with "test"
+        "source_file": source_file,     # origin path — what has_tests must check
+        "source_function": "test_fn",
+        "source_line": 1,
+        "language": "python",
+        "code": code or f"# uses {', '.join(classes_used)}\n",
+        "valid": True,
+        "classes_used": list(classes_used),
+        "methods_used": [],
+        "formats_referenced": [],
+    }
+
+
+def _run_coverage(classes_dicts, snippets):
+    """Run _build_coverage on a minimal fake Scout and return coverage list."""
+    from extraction.scout import Scout
+
+    class FakeScout:
+        _SNIPPET_TEST_DIRS = Scout._SNIPPET_TEST_DIRS
+
+        def _build_coverage(self):
+            Scout._build_coverage(self)
+
+    fake = FakeScout()
+    fake.classes = classes_dicts
+    fake.snippets = snippets
+    fake.coverage = []
+    fake._build_coverage()
+    return {e["class"]: e for e in fake.coverage}
+
+
+class TestBuildCoverageHasTests:
+    """Regression tests for has_tests field in coverage_matrix.
+
+    Primary bug (Fix 1E): _build_coverage was checking s["file"] (output
+    filename like "snippet_001.py") instead of s["source_file"] (origin path
+    like "tests/test_x.py"), causing has_tests to be universally False.
+
+    Secondary fix: class matching now uses s["classes_used"] (pre-computed
+    exact list) instead of a case-insensitive prose scan.
+    """
+
+    def _cls(self, name):
+        return {"name": name, "file": f"{name}.py", "kind": "class",
+                "methods": [], "properties": [], "doc": "", "enum_members": []}
+
+    def test_output_file_never_starts_with_test(self):
+        """Confirm the bug was real: output filenames start with 'snippet_'."""
+        snip = _make_snippet("tests/test_scene.py", ["Scene"])
+        assert not snip["file"].startswith(("test", "tests"))
+
+    def test_has_tests_true_for_tests_directory(self):
+        cov = _run_coverage([self._cls("Scene")],
+                            [_make_snippet("tests/test_scene.py", ["Scene"])])
+        assert cov["Scene"]["has_tests"] is True
+
+    def test_has_tests_true_for_test_directory(self):
+        """Snippets from a 'test/' directory (no plural) also count."""
+        cov = _run_coverage([self._cls("Scene")],
+                            [_make_snippet("test/SceneTest.java", ["Scene"])])
+        assert cov["Scene"]["has_tests"] is True
+
+    def test_has_tests_false_for_examples_directory(self):
+        cov = _run_coverage([self._cls("Scene")],
+                            [_make_snippet("examples/scene_example.py", ["Scene"])])
+        assert cov["Scene"]["has_tests"] is False
+
+    def test_has_tests_false_for_readme(self):
+        cov = _run_coverage([self._cls("Scene")],
+                            [_make_snippet("README.md", ["Scene"])])
+        assert cov["Scene"]["has_tests"] is False
+
+    def test_has_tests_false_when_class_not_in_classes_used(self):
+        """Class must be in snippet's classes_used, not merely mentioned in prose."""
+        snip = _make_snippet("tests/test_scene.py", ["Mesh"],
+                             code="# scene node transform matrix\ndef test(): pass")
+        cov = _run_coverage([self._cls("Scene"), self._cls("Mesh")], [snip])
+        assert cov["Scene"]["has_tests"] is False  # not in classes_used
+        assert cov["Mesh"]["has_tests"] is True    # is in classes_used
+
+    def test_has_tests_no_false_positive_from_generic_names(self):
+        """Generic class names (Node, Scene, Matrix) in prose must not trigger."""
+        snip = _make_snippet(
+            "tests/test_transforms.py",
+            classes_used=["Transform"],
+            code="# Use a node to transform the scene matrix\ndef test(): pass"
+        )
+        cov = _run_coverage(
+            [self._cls("Node"), self._cls("Scene"), self._cls("Matrix"),
+             self._cls("Transform")],
+            [snip]
+        )
+        assert cov["Node"]["has_tests"] is False
+        assert cov["Scene"]["has_tests"] is False
+        assert cov["Matrix"]["has_tests"] is False
+        assert cov["Transform"]["has_tests"] is True
+
+    def test_has_tests_multiple_classes_same_snippet(self):
+        """A single test snippet can mark multiple classes as tested."""
+        snip = _make_snippet("tests/test_3mf.py", ["Scene", "Node", "Mesh"])
+        cov = _run_coverage(
+            [self._cls("Scene"), self._cls("Node"), self._cls("Mesh"),
+             self._cls("Camera")],
+            [snip]
+        )
+        assert cov["Scene"]["has_tests"] is True
+        assert cov["Node"]["has_tests"] is True
+        assert cov["Mesh"]["has_tests"] is True
+        assert cov["Camera"]["has_tests"] is False  # not in this snippet
+
+    def test_has_tests_false_with_no_snippets(self):
+        cov = _run_coverage([self._cls("Scene")], [])
+        assert cov["Scene"]["has_tests"] is False
+
+    def test_function_kind_excluded_from_coverage(self):
+        """Entries with kind='function' are skipped by _build_coverage."""
+        cls = self._cls("helper_fn")
+        cls["kind"] = "function"
+        cov = _run_coverage([cls], [_make_snippet("tests/test_x.py", ["helper_fn"])])
+        assert "helper_fn" not in cov

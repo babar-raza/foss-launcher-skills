@@ -38,7 +38,7 @@ _STRONG_WORDS = re.compile(
 # ---------------------------------------------------------------------------
 
 try:
-    from scripts.pipeline.embed import (
+    from embed import (
         tokenize as _tfidf_tokenize,
         compute_idf as _compute_idf,
         compute_tfidf_vector as _tfidf_vector,
@@ -158,17 +158,12 @@ class ProseTruthEvaluator(BaseEvaluator):
         if not page.family or not page.platform:
             return []
 
-        claims = _load_claims(page.family, page.platform)
-        formats = _load_formats(page.family, page.platform)
-
-        if not claims and not formats:
-            return []
-
         findings: list[Finding] = []
 
         # --- API claim verification against knowledge model ---
-        has_knowledge = hasattr(knowledge, "classes") and knowledge is not None
-        if has_knowledge and knowledge.available:
+        # Runs unconditionally when knowledge is available; does NOT require on-disk claims.
+        has_knowledge = knowledge is not None and hasattr(knowledge, "classes") and getattr(knowledge, "available", False)
+        if has_knowledge:
             for line_no, line_text in page.prose_lines:
                 for m in _API_CLAIM_RE.finditer(line_text):
                     api_ref = m.group(1)  # e.g. "Scene.open" or "Scene"
@@ -189,6 +184,13 @@ class ProseTruthEvaluator(BaseEvaluator):
                                 suggestion=f"Verify `{cls_name}.{member}` exists or fix the reference",
                                 evaluator=self.name,
                             ))
+
+        # Load on-disk claims and formats for token/format matching
+        claims = _load_claims(page.family, page.platform)
+        formats = _load_formats(page.family, page.platform)
+
+        if not claims and not formats:
+            return findings
 
         # Build claim token index for fuzzy matching
         claim_tokens = [(c.get("text", ""), _tokenize(c.get("text", "")))
