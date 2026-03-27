@@ -8,7 +8,9 @@ Verify consistency across all platforms within the same product family. Detect d
 
 ## Pre-conditions
 1. At least 2 platforms must have merged knowledge for the given family
-2. `knowledge/{family}/*/merged/index.json` must exist for each platform
+2. **Knowledge bootstrap** (per platform): For each platform directory under `knowledge/{family}/`, run `/knowledge-bootstrap {family} {platform}` and check status:
+   - `STOP:partial` → skip that platform and report the error (continue with other platforms)
+   - Any other status (`READY`, `BOOTSTRAPPED`, `REFRESHED`, `WARN:conflicts`) → continue for that platform
 
 ## Steps
 

@@ -27,6 +27,18 @@ Before editing any content page for family/platform X:
 3. Read `claims.md` and `api_surface.md` for the product
 4. Only then proceed to content tasks
 
+## 3a. Platform Folder Naming
+
+The `{platform}` segment in all content and knowledge paths must use the short name:
+
+| Platform | Folder name | **Never** use |
+|----------|-------------|---------------|
+| .NET / C# | `net` | `dotnet` |
+| Python | `python` | — |
+| Java | `java` | — |
+| C++ | `cpp` | — |
+| TypeScript | `typescript` | `ts` |
+
 ## 4. Allowed Write Paths (enforced by S-01 path-guard)
 
 ```

@@ -13,29 +13,62 @@ args: "{content-file-path} | {family} {platform}"
 Expected format: `{content-file-path}` or `{family} {platform}`
 
 ## Purpose
-Audit content pages against verified knowledge. Maps each factual claim in content to knowledge artifacts using semantic similarity.
+Audit content pages against verified knowledge. Maps each factual claim in content to knowledge artifacts using deterministic semantic similarity.
 
 ## Pre-conditions
-1. Knowledge must exist: `knowledge/{family}/{platform}/merged/index.json`
-2. Index must not be stale (`stale: false`)
-3. Index must not have unresolved conflicts (`has_conflicts: false` or conflicts are acknowledged)
+1. **Knowledge bootstrap**: Run `/knowledge-bootstrap {family} {platform}` and check status:
+   - `STOP:partial` → halt (see printed message)
+   - Any other status (`READY`, `BOOTSTRAPPED`, `REFRESHED`, `WARN:conflicts`) → continue
 
 ## Steps
 
-1. **Identify product**: Extract family/platform from content path or arguments
-2. **Load knowledge**: Read `merged/index.json`, `merged/claims.json`, `merged/api_surface.json`
-3. **Load content**: Read the content file(s)
-4. **Split content into factual paragraphs**: Skip frontmatter, headings, and code blocks
-5. **For each paragraph, classify**:
-   - Search claims.json for matching claims (text similarity)
-   - **SUPPORTED**: Match found, confidence >= 0.75, provenance = dual
-   - **PROBABLE**: Match found, confidence >= 0.6, single-source provenance
-   - **WEAK**: Match found, confidence < 0.6 or llm_fallback source
-   - **UNSUPPORTED**: No matching claim found
-   - **CONTRADICTED**: Paragraph matches a `forbidden_claim`
-6. **For code blocks**: Verify class/method names exist in `api_surface.json`
-7. **Check coverage**: Identify knowledge facts not mentioned in content → MISSING COVERAGE
-8. **Write audit report** to `reports/audit/{family}-{platform}-{timestamp}.md`
+### Step 1: Run deterministic audit script
+
+Run the Python script first to get reproducible, machine-verifiable results:
+
+```bash
+# For a specific product:
+python scripts/pipeline/content_audit.py {family} {platform} --json
+
+# For specific files:
+python scripts/pipeline/content_audit.py --files {content-file-path} --json
+
+# For all products:
+python scripts/pipeline/content_audit.py all --json
+```
+
+The script classifies every prose paragraph into tiers:
+- **SUPPORTED**: API refs verified AND token overlap >= 0.5 with a knowledge claim
+- **PROBABLE**: API refs verified OR token overlap >= 0.3
+- **WEAK**: token overlap < 0.3 but no contradiction
+- **UNSUPPORTED**: no matching evidence found
+- **CONTRADICTED**: matches a forbidden claim or contradicts format direction
+
+It also runs `verify_tokens` on code blocks for API accuracy.
+
+### Step 2: Interpret results
+
+After the script completes, review the JSON output:
+
+1. **CONTRADICTED findings are blockers** — these must be fixed before content ships
+2. **UNSUPPORTED findings need investigation** — determine if they need evidence or removal
+3. **WEAK findings are informational** — consider strengthening evidence or qualifying language
+4. **Check code_findings** for API accuracy issues in code blocks
+
+### Step 3: Check coverage gaps
+
+Identify knowledge facts not mentioned in content:
+- Load `claims.json` and compare against content coverage
+- Flag important claims (confidence >= 0.8) that have no content coverage
+
+### Step 4: Write audit report
+
+The script automatically writes a report to `reports/audit/{family}-{platform}-content-audit-{timestamp}.json`.
+
+Review the aggregate summary and act on:
+- Any CONTRADICTED tier findings (must fix)
+- Files with high UNSUPPORTED percentages (need evidence)
+- Code blocks with API accuracy failures
 
 ## Audit report format
 ```

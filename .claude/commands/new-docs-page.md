@@ -8,14 +8,38 @@ Valid sections: `getting-started` | `developer-guide`
 
 Before generating any content, you MUST:
 
-1. **Read knowledge model**: Load `knowledge/{family}/{platform}/merged/index.json`
-   - If it does not exist, STOP and instruct the user to run `/repo-scout` and `/truth-merge` first
-   - If `stale: true`, STOP and instruct the user to run `/knowledge-diff` first
-   - If `has_conflicts: true`, WARN and list unresolved conflicts from `merge_conflicts.md`
+1. **Knowledge bootstrap**: Run `/knowledge-bootstrap {family} {platform}` and check status:
+   - `STOP:partial` → halt (see printed message)
+   - `REFRESHED` → STOP: "Knowledge was refreshed from upstream changes. Run /knowledge-diff to review what changed before generating content, then re-run this command."
+   - `READY`, `BOOTSTRAPPED`, or `WARN:conflicts` → continue
 2. **Load verified facts**: Read `knowledge/{family}/{platform}/merged/claims.json` and `api_surface.json`
 3. **Load forbidden claims**: Read `forbidden_claims` from `index.json` — never include these in content
 4. **Load format matrix**: Read `formats.json` — only reference formats confirmed here
 5. **Load snippets**: Check `knowledge/{family}/{platform}/merged/snippets/` for verified code examples
+
+## Platform Resolution
+
+Read `knowledge/{family}/{platform}/scout/model.yaml` to determine:
+- `install_command` — use this verbatim instead of hardcoding any install command
+- `canonical_import` — use this for import statements
+
+Determine the **code fence language** from the platform:
+- python → `python`
+- dotnet → `csharp`
+- java → `java`
+- cpp → `cpp`
+- typescript → `typescript`
+- javascript → `javascript`
+- nodejs → `javascript`
+
+Determine the **package manager context** from the platform:
+- python → pip / PyPI
+- dotnet → NuGet / `dotnet add package`
+- java → Maven / Gradle
+- cpp → CMake / vcpkg
+- typescript / javascript / nodejs → npm / yarn
+
+Use these resolved values (`{platform_lang}`, `{install_command}`, `{package_manager}`) throughout the generated content. Never hardcode a platform-specific tool or language fence.
 
 ## Steps
 
@@ -46,10 +70,16 @@ Before generating any content, you MUST:
    - `## {Title}`
    - Opening paragraph: one-sentence purpose statement
    - `---`
-   - `### Prerequisites` — markdown table: Requirement | Detail rows (Python version, OS, compiler, system packages)
+   - `### Prerequisites` — markdown table: Requirement | Detail rows (runtime version, OS, compiler, system packages — adjust for platform)
    - `---`
    - Numbered steps for the task (install, configure, verify)
-   - Each step: prose explanation + code block (bash or python)
+   - Each step: prose explanation + code block using `{install_command}` from model.yaml for install steps
+   - Platform-specific install verification:
+     - python: `{install_command}` in a ```bash block, then a ```python block with import verification
+     - dotnet: `{install_command}` in a ```bash block, then a ```csharp block with `using` statement
+     - java: `{install_command}` in a ```xml block (Maven POM), then a ```java block with `import` statement
+     - cpp: `{install_command}` in a ```bash or ```cmake block, then a ```cpp block with `#include` directive
+     - typescript/javascript/nodejs: `{install_command}` in a ```bash block, then a ```typescript or ```javascript block with `import` statement
    - `---`
    - `### Next Steps` — 3–5 links to related getting-started or developer-guide pages using `[Title](../slug/)`
 
@@ -59,7 +89,7 @@ Before generating any content, you MUST:
    - `---`
    - `### {Feature subsection}` blocks — one per major capability or concept, each with:
      - 1–2 prose sentences
-     - Working Python code block
+     - Working code block using ```{platform_lang} fence
    - `---`
    - `### Tips and Best Practices` — 3–5 bullet points
    - `---`
@@ -70,7 +100,7 @@ Before generating any content, you MUST:
    - `### API Reference Summary` — markdown table: Class/Method | Description, limited to what you confirmed exists in reference content
 
 6. **Constraints**:
-   - Every code block uses ` ```python ` or ` ```bash ` language identifier
+   - Every code block uses ```{platform_lang} (resolved from Platform Resolution above) or ```bash / ```xml / ```cmake as appropriate for shell and config blocks
    - `---` divider between every major section
    - Class names, method names, package paths must exactly match what you read from reference content — no invented API
    - Internal links: relative paths within same section (`../slug/`) or absolute starting with `/docs.aspose.org/`
@@ -82,8 +112,8 @@ Before generating any content, you MUST:
 
 After generating the page:
 
-1. **Run evidence citation**: Execute `/evidence-cite content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md` to attach `<!-- evidence: ... -->` comments
+1. **Attach evidence**: Run `python scripts/pipeline/attach_evidence.py --files content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md` to generate the `evidence:` YAML frontmatter block with claims, APIs, and per-section binding
 2. **Run content check**: Execute `/content-check content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md` to validate structure and knowledge alignment
-3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
+3. **Run change guard**: Run `python scripts/pipeline/change_guard.py {family} {platform} --file content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md` to verify no contradictions with known facts
 
 8. **Confirm** with the output path and a list of the H2 sections written.
