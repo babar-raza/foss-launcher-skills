@@ -1,12 +1,3 @@
----
-name: truth-merge
-id: S-35
-description: >
-  Merge scout/ and fl/ knowledge into merged/ with dual-source provenance
-  tagging. FL is optional — gracefully skipped if absent.
-args: "{family} {platform}"
----
-
 # S-35: Truth Merge — Dual-Source Verification
 
 **Arguments**: $ARGUMENTS

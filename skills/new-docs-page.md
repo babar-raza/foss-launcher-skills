@@ -1,10 +1,3 @@
----
-name: new-docs-page
-description: >
-  Generate a new documentation page for docs.aspose.org with knowledge
-  pre-conditions, evidence grounding, and post-condition skill chain.
-args: "{family} {platform} {section} {slug}"
----
 Generate a new documentation page for docs.aspose.org.
 
 **Arguments:** `$ARGUMENTS`

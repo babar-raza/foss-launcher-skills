@@ -1,11 +1,3 @@
----
-name: knowledge-bootstrap
-description: >
-  Shared pre-condition gate that detects and resolves knowledge state before
-  any content or validation command proceeds.
-args: "{family} {platform}"
----
-
 # Knowledge Bootstrap — Shared Pre-condition Gate
 
 **Arguments**: $ARGUMENTS

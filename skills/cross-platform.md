@@ -1,12 +1,3 @@
----
-name: cross-platform
-id: S-36
-description: >
-  Verify consistency across all platforms within the same product family.
-  Detect discrepancies in format support, API surface, and limitations.
-args: "{family}"
----
-
 # S-36: Cross-Platform — Family Consistency Check
 
 **Arguments**: $ARGUMENTS

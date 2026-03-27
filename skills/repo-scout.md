@@ -1,13 +1,3 @@
----
-name: repo-scout
-id: S-34
-description: >
-  Extract truth from a FOSS repository using tree-sitter analysis. Supports
-  both source-repo and pip-install modes. Produces knowledge artifacts in
-  scout/ for independent verification.
-args: "{family} {platform} [{repo-path}]"
----
-
 # S-34: Repo Scout — Extract Truth from FOSS Repository
 
 **Arguments**: $ARGUMENTS
@@ -21,7 +11,15 @@ source alongside FOSS-Launcher outputs.
 
 ## Repo-path resolution
 
-**With `{repo-path}` supplied** — use it directly (source repo clone with test directories).
+**Option 0 — Local clone cache (preferred)**:
+```bash
+repo_path=$(python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
+```
+Use this when repos are already cloned locally (the default setup). Provides full
+snippet extraction from `tests/`, `examples/`, `samples/`. Auto-clones if the cache
+entry is missing. Respects `ASPOSE_CLONE_CACHE` env var.
+
+**With `{repo-path}` supplied explicitly** — use it directly (any accessible source repo clone).
 Snippets will be extracted from `tests/`, `examples/`, `samples/` inside the repo.
 
 **Without `{repo-path}`** — auto-install the pip package:

@@ -1,12 +1,3 @@
----
-name: stale-detect
-id: S-13
-description: >
-  Map upstream repository changes to content pages that may need updating.
-  Identifies stale, at-risk, and current content across all sites.
-args: "{family} {platform}"
----
-
 # S-13: Stale Detect — Map Changes to Affected Content
 
 **Arguments**: $ARGUMENTS
@@ -58,3 +49,14 @@ CURRENT: N pages are up to date
 ## Post-conditions
 - Report identifies all potentially affected content pages
 - STALE pages should be prioritized for update
+
+## Translation Integration
+
+After stale-detect identifies modified English source pages, the translate-batch skill
+should be invoked to regenerate their translated counterparts:
+
+  Trigger: any English page under content/{site}/en/ is written or updated
+  Action: run `python -m translator sync --site {site} --family {family} --platform {platform}`
+  Or use the translate-batch skill for explicit batch runs
+
+This integration ensures translations stay in sync with English source changes automatically.

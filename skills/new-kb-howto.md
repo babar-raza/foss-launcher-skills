@@ -1,10 +1,3 @@
----
-name: new-kb-howto
-description: >
-  Generate a new KB how-to article with step-by-step guide, common issues,
-  FAQ, and post-condition skill chain.
-args: "{family} {platform} {slug}"
----
 Generate a new KB how-to article.
 
 **Arguments:** `$ARGUMENTS`

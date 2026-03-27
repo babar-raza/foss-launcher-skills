@@ -1,12 +1,3 @@
----
-name: embed-knowledge
-id: S-15
-description: >
-  Embed knowledge artifacts into dual vector stores using three-tier
-  embedding infrastructure (professionalize.com, Ollama, TF-IDF).
-args: "{family} {platform} | all"
----
-
 # S-15: Embed Knowledge — Vector Store Generation
 
 **Arguments**: $ARGUMENTS

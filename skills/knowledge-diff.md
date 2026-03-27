@@ -1,16 +1,17 @@
----
-name: knowledge-diff
-id: S-12
-description: >
-  Detect changes in the upstream FOSS repository since the last knowledge
-  extraction by comparing git SHAs and file diffs.
-args: "{family} {platform} {repo-path}"
----
-
 # S-12: Knowledge Diff — Detect Upstream Changes
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform} {repo-path}`
+
+## Resolving `{repo-path}`
+
+Use the local clone cache (auto-clones if missing):
+```bash
+repo_path=$(python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
+```
+Then invoke this skill as: `/knowledge-diff {family} {platform} $repo_path`
+
+Override the cache root with `ASPOSE_CLONE_CACHE=/path/to/cache` if needed.
 
 ## Purpose
 Detect changes in the upstream FOSS repository since the last knowledge extraction by comparing git SHAs and file diffs.

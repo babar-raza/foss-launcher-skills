@@ -1,12 +1,3 @@
----
-name: content-audit
-id: S-32
-description: >
-  Audit content pages against verified knowledge. Maps each factual claim
-  in content to knowledge artifacts using semantic similarity.
-args: "{content-file-path} | {family} {platform}"
----
-
 # S-32: Content Audit — Semantic Knowledge Verification
 
 **Arguments**: $ARGUMENTS

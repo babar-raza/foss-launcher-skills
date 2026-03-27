@@ -1,12 +1,3 @@
----
-name: change-guard
-id: S-33
-description: >
-  Pre-write gate that validates proposed content changes against verified
-  knowledge. Rejects writes that contradict known facts.
-args: "{family} {platform} \"{proposed-text}\""
----
-
 # S-33: Change Guard — Pre-Write Knowledge Gate
 
 **Arguments**: $ARGUMENTS

@@ -1,15 +1,3 @@
----
-name: truth-audit
-id: S-38
-description: >
-  Line-by-line verification of every API claim in content files against
-  api_surface.json. Extracts class names, method names, property names,
-  constructor signatures, enum values, types, install commands, and format
-  claims, then verifies each against the knowledge model. Produces a
-  structured FAIL/WARN/PASS report.
-args: "{family} {platform}"
----
-
 # S-38: Truth Audit — Member-Level API Verification
 
 **Arguments**: $ARGUMENTS

@@ -1,10 +1,3 @@
----
-name: new-kb-faq
-description: >
-  Generate or update the FAQ page for a product platform with licensing,
-  installation, format support, API usage, and known limitations sections.
-args: "{family} {platform}"
----
 Generate or update the FAQ page for a product platform.
 
 **Arguments:** `$ARGUMENTS`

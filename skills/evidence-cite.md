@@ -1,13 +1,3 @@
----
-name: evidence-cite
-id: S-24
-description: >
-  Attach evidence citations to a content page. For pages with code blocks,
-  runs attach_evidence.py (deterministic). For prose-only pages with no API
-  tokens, manually maps factual claims to claim_ids from the knowledge model.
-args: "{content-file-path}"
----
-
 # S-24: Evidence Cite — Attach Knowledge Citations
 
 **Arguments**: $ARGUMENTS

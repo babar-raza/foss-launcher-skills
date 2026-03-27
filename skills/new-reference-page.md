@@ -1,10 +1,3 @@
----
-name: new-reference-page
-description: >
-  Generate a new API reference page for reference.aspose.org documenting a
-  single class with properties, methods, examples, and inheritance chain.
-args: "{family} {platform} {classname}"
----
 Generate a new API reference page for reference.aspose.org.
 
 **Arguments:** `$ARGUMENTS`

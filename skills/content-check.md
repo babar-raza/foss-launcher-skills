@@ -1,11 +1,3 @@
----
-name: content-check
-description: >
-  Run structural and quality checks on a content file before committing.
-  Validates frontmatter, content structure, code quality, file paths,
-  knowledge cross-references, and evidence citations.
-args: "{relative-file-path}"
----
 Run a structural and quality check on a content file before committing.
 
 **Arguments:** `$ARGUMENTS`

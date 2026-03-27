@@ -1,10 +1,3 @@
----
-name: new-blog-post
-description: >
-  Generate a new blog post for blog.aspose.org with knowledge pre-conditions,
-  evidence grounding, and post-condition skill chain.
-args: "{family} {platform} {slug}"
----
 Generate a new blog post for blog.aspose.org.
 
 **Arguments:** `$ARGUMENTS`
