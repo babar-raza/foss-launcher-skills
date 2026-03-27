@@ -48,6 +48,11 @@ Use these resolved values (`{platform_lang}`, `{install_command}`, `{package_man
 
 1. **Parse** `$ARGUMENTS` into: `family`, `platform`, `slug` (slug becomes the directory name and title source).
 
+   **Slug hygiene gates (STOP if violated):**
+   - If `slug` starts with `test` (case-insensitive): STOP — "Slug '{slug}' looks like an internal test method name. Derive the slug from the content title instead (e.g. `create-hyperlinks-excel-python`)."
+   - If `content/blog.aspose.org/{family}/{platform}/{slug}.md` exists: STOP — "A flat file at that path already exists. Delete it first or choose a different slug to avoid a Hugo URL collision."
+   - If `content/blog.aspose.org/{family}/{platform}/{slug}/index.md` already exists: STOP — "A blog post at that slug already exists. Use `/page-update` to modify it instead."
+
 2. **Read existing blog posts for reference** (read only — do not copy):
    - List files in `content/blog.aspose.org/{family}/{platform}/`
    - Read one existing post's `index.md` to confirm frontmatter fields and tone
