@@ -1,6 +1,6 @@
 # AGENTS.md — Aspose.org Content Generation & Maintenance Governance
 
-> Last updated: 2026-03-27
+> Last updated: 2026-03-27 (§5 + §13 updated: evidence panel production gate)
 > Authority: Human maintainer only (see Section 4 — this file is in the forbidden write list)
 
 ## 1. Purpose
@@ -87,9 +87,10 @@ FORBIDDEN (no agent may write here without explicit human override):
   ```
   Do **not** include `ground_check:` — it is self-reported and unverifiable.
   Do **not** use inline HTML comments (`<!-- evidence: ... -->`).
-  Frontmatter is the canonical citation store, machine-validated by `audit.py` and rendered
-  via the `evidence-panel` Hugo partial. After any knowledge model update, rerun
-  `attach_evidence.py {family} {platform}` to refresh stale blocks.
+  Frontmatter is the canonical citation store, machine-validated by `audit.py`. The
+  `evidence-panel` Hugo partial renders this data **only in non-production builds**
+  (see Section 13 — Internal Metadata Rendering Policy). After any knowledge model update,
+  rerun `attach_evidence.py {family} {platform}` to refresh stale blocks.
 
 ## 6. Skill Chains by Task
 
@@ -114,9 +115,17 @@ S-30 (truth-sync) → S-35 (truth-merge) → S-31 (truth-index)
 
 ### Maintenance (repo changed)
 
+Resolve repo path first:
+```bash
+repo_path=$(python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
 ```
-S-12 (knowledge-diff) → S-13 (stale-detect) → S-14 (knowledge-update) → S-20 (page-update)
-→ S-23 (content-check / audit.py) → S-24 (evidence-cite) → S-01 → write
+
+Then run the chain:
+```
+S-12 (knowledge-diff {family} {platform} $repo_path)
+→ S-13 (stale-detect)
+→ S-14 (knowledge-update {family} {platform} $repo_path)
+→ S-20 (page-update) → S-23 (content-check / audit.py) → S-24 (evidence-cite) → S-01 → write
 ```
 
 ### Enhancement (below rubric quality)
@@ -266,6 +275,51 @@ python scripts/pipeline/audit.py all                  # All products
 python scripts/pipeline/audit.py --files path1.md     # Specific files (pre-commit)
 python scripts/pipeline/audit.py all --json           # Machine-readable output
 ```
+
+## 13. Internal Metadata Rendering Policy
+
+The `evidence:` frontmatter block is **internal provenance data** that must never appear
+on the public-facing website. It exists solely for pipeline validation and debugging.
+
+### Design
+
+The `layouts/partials/evidence-panel.html` partial is gated in all four public-facing
+theme base templates (`products`, `docs`, `kb`, `blog`) with:
+
+```html
+{{- if ne hugo.Environment "production" }}{{- partial "evidence-panel.html" . -}}{{- end }}
+```
+
+This means:
+
+| Build context | `hugo.Environment` | Panel renders? |
+|--------------|-------------------|----------------|
+| CI production build (`--environment production`) | `"production"` | **No** |
+| CI staging build (`--environment staging`) | `"staging"` | Yes (QA only) |
+| Local `hugo server` | `"development"` | Yes (dev only) |
+| Plain local `hugo` (no `--environment` flag) | `"production"` (default) | **No** |
+
+### CI workflow requirement
+
+All site build workflows in `aspose.org-workflows` **must** pass
+`--environment "${{ github.event.inputs.environment }}"` to the `hugo` build command.
+This ensures the `workflow_dispatch` `environment` input (already used for deploy targeting)
+is also forwarded to Hugo's template context. All 7 site workflows already do this.
+
+If a new site workflow is added, the same flag is required on the `hugo` build step.
+Omitting it is safe (Hugo defaults to `"production"` → panel hidden) but must be explicit.
+
+### What must not change
+
+- The `evidence:` frontmatter block must remain in content files — it is required by
+  `audit.py`, `attach_evidence.py`, and `evidence_depth.py` for validation and staleness
+  detection. Do not remove or relocate it.
+- Do not call `evidence-panel.html` unconditionally from any base template. The partial
+  itself contains a comment warning against this.
+- Do not gate the panel on URL patterns (e.g. `-qa.aspose.org`) — the `hugo.Environment`
+  mechanism is the correct and durable approach.
+
+---
 
 ### Skill locations (per agent)
 
