@@ -1,12 +1,11 @@
 ---
 name: new-kb-howto
 description: >
-  Generate a new KB how-to article with step-by-step guide, common issues,
-  FAQ, and post-condition skill chain.
+  Generate a new KB how-to article
 args: "{family} {platform} {slug}"
 ---
 
-> Cross-skill references like `/evidence-cite` refer to sibling skills in this directory.
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
 Generate a new KB how-to article.
 
@@ -15,16 +14,18 @@ Generate a new KB how-to article.
 
 ## Knowledge Pre-conditions
 
-Before generating any content, you MUST:
+1. **Bootstrap knowledge**: Run `/knowledge-bootstrap {family} {platform}` and check status:
+   - `KNOWLEDGE: STOP:partial` → halt; see printed message
+   - `KNOWLEDGE: REFRESHED` → STOP: "Knowledge refreshed from upstream changes. Run `/knowledge-diff` to review what changed, then re-run this command."
+   - `KNOWLEDGE: READY`, `KNOWLEDGE: BOOTSTRAPPED`, or `KNOWLEDGE: WARN:conflicts` → continue
 
-1. **Read knowledge model**: Load `knowledge/{family}/{platform}/merged/index.json`
-   - If it does not exist, STOP and instruct the user to run `/repo-scout` and `/truth-merge` first
-   - If `stale: true`, STOP and instruct the user to run `/knowledge-diff` first
-   - If `has_conflicts: true`, WARN and list unresolved conflicts from `merge_conflicts.md`
-2. **Load verified facts**: Read `knowledge/{family}/{platform}/merged/claims.json` and `api_surface.json`
-3. **Load forbidden claims**: Read `forbidden_claims` from `index.json` — never include these in content
-4. **Load format matrix**: Read `formats.json` — only reference formats confirmed here
-5. **Load snippets**: Check `knowledge/{family}/{platform}/merged/snippets/` for verified code examples
+2. **Load verified artifacts**:
+   - Read `knowledge/{family}/{platform}/merged/claims.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.md` (human-readable; every class/method name used in content MUST appear here)
+   - Read `knowledge/{family}/{platform}/merged/formats.json`
+   - Read `forbidden_claims` from `knowledge/{family}/{platform}/merged/index.json`
+   - Read `knowledge/{family}/{platform}/merged/snippets/` for verified code examples
 
 ## Steps
 
@@ -70,14 +71,23 @@ Before generating any content, you MUST:
    - All internal links must begin with `/kb.aspose.org/`, `/docs.aspose.org/`, or `/reference.aspose.org/`
    - All claims must be backed by entries in `knowledge/{family}/{platform}/merged/claims.json`
 
-6. **Write** the file to `content/kb.aspose.org/en/{family}/{platform}/{slug}.md`
+6. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
+   - Target path: `content/kb.aspose.org/en/{family}/{platform}/{slug}.md`
+   - If BLOCK → do not write; report the blocking reason to the user
+   - If WARN → present the warning to the user; await confirmation before writing
+   - If ALLOW → proceed with write
+
+7. **Write** the file to `content/kb.aspose.org/en/{family}/{platform}/{slug}.md`
 
 ## Knowledge Post-conditions
 
 After generating the article:
 
-1. **Run evidence citation**: Execute `/evidence-cite content/kb.aspose.org/en/{family}/{platform}/{slug}.md` to attach `<!-- evidence: ... -->` comments
+1. **Attach evidence**: Run `python scripts/pipeline/attach_evidence.py --files content/kb.aspose.org/en/{family}/{platform}/{slug}.md`
+   — this writes the `evidence:` YAML frontmatter block (`model_sha`, `claims`, `apis`).
 2. **Run content check**: Execute `/content-check content/kb.aspose.org/en/{family}/{platform}/{slug}.md` to validate structure and knowledge alignment
 3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
+4. **Run audit**: `python scripts/pipeline/audit.py --files content/kb.aspose.org/en/{family}/{platform}/{slug}.md`
+   — must exit with 0 FAIL before committing.
 
 7. **Confirm** by printing the output file path and a short summary of steps covered.

@@ -4,12 +4,12 @@
 Expected format: `{family} {platform} {repo-path}`
 
 ## Purpose
-Refresh the knowledge model for a product by re-running the full knowledge bootstrap pipeline: repo-scout, truth-merge, and truth-index. Use this when `model.yaml` has `stale_since != null` or after upstream repo changes detected by S-12 (knowledge-diff).
+Refresh the knowledge model for a product by re-running the full knowledge bootstrap pipeline: repo-scout → knowledge-enrich → truth-merge → truth-index. Use this when `model.yaml` has `stale_since != null` or after upstream repo changes detected by S-12 (knowledge-diff).
 
 ## Pre-conditions
 1. The repo at `{repo-path}` must be accessible and is a git repository
 2. `scripts/pipeline/scout.py` exists
-3. `scripts/pipeline/merge.py` exists
+3. `scripts/pipeline/enrich.py` and `scripts/pipeline/promote.py` exist
 4. Current knowledge exists at `knowledge/{family}/{platform}/` (at least `model.yaml`)
 5. Check `knowledge/{family}/{platform}/model.yaml` — if `stale_since` is null, warn that knowledge may not need updating (proceed if user confirms)
 
@@ -25,24 +25,30 @@ Refresh the knowledge model for a product by re-running the full knowledge boots
    ```
    Verify outputs: `model.yaml`, `api_surface.json`, `claims.json` in `knowledge/{family}/{platform}/scout/`.
 
-4. **Run truth-merge** (S-35):
+4. **Run knowledge-enrich** (S-37):
    ```
-   python scripts/pipeline/merge.py {family} {platform}
+   python scripts/pipeline/enrich.py {family} {platform}
    ```
-   Verify `knowledge/{family}/{platform}/merged/merge_report.md` exists and shows merge statistics.
+   This is best-effort — if LLM is unavailable, writes empty `enriched_claims.json` and continues.
 
-5. **Run truth-index** (S-31):
+5. **Run truth-merge** (S-35):
+   ```
+   python scripts/pipeline/promote.py {family} {platform}
+   ```
+   Verify `knowledge/{family}/{platform}/merged/merge_report.md` exists and shows scout/enriched counts.
+
+6. **Run truth-index** (S-31):
    Generate the knowledge index from the merged artifacts. Verify `knowledge/{family}/{platform}/merged/index.json` is created.
 
-6. **Clear stale flag**: Update `knowledge/{family}/{platform}/model.yaml` to set `stale_since: null` and update `last_refreshed` to today's date.
+7. **Clear stale flag**: Update `knowledge/{family}/{platform}/model.yaml` to set `stale_since: null` and update `last_refreshed` to today's date.
 
-7. **Diff report**: Compare `merged.bak/claims.json` with `merged/claims.json` to summarize:
+8. **Diff report**: Compare `merged.bak/claims.json` with `merged/claims.json` to summarize:
    - New claims added
    - Claims removed
    - Claims with changed confidence
    - API surface additions/removals
 
-8. **Clean up**: Remove `merged.bak/` after diff report is generated.
+9. **Clean up**: Remove `merged.bak/` after diff report is generated.
 
 ## Post-conditions
 - `knowledge/{family}/{platform}/scout/` has fresh extraction artifacts

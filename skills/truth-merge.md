@@ -1,43 +1,40 @@
-# S-35: Truth Merge — Dual-Source Verification
+# S-35: Truth Merge - Scout-Only Promotion with Enrichment
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform}`
 
 ## Purpose
-Merge `knowledge/{family}/{platform}/scout/` and `knowledge/{family}/{platform}/fl/` into `knowledge/{family}/{platform}/merged/`, applying dual-source verification with provenance tagging.
+
+Promote `knowledge/{family}/{platform}/scout/` plus any `scout/enriched_claims.json`
+enrichment into `knowledge/{family}/{platform}/merged/`, applying provenance tagging and
+current runtime rules. The FL layer has been removed.
 
 ## Pre-conditions
-1. `scout/claims.json` must exist (`fl/` is optional — gracefully skipped if absent)
-2. If both exist, both should refer to the same product (family/platform)
+
+1. `scout/claims.json` must exist
+2. `scout/enriched_claims.json` is optional but should be used when present
+3. If both exist, both should refer to the same product (family/platform)
 
 ## Automated Script
 
-Run the merge engine first, then review:
+Run the promotion engine first, then review:
+```bash
+python scripts/pipeline/promote.py {family} {platform}
 ```
-python scripts/pipeline/merge.py {family} {platform}
-```
-Review `knowledge/{family}/{platform}/merged/merge_report.md` for dual/scout_only/fl_only counts.
-
-The script matches claims using: **same `kind`** AND **Jaccard token overlap ≥ 0.8**.
-
-**Note on dual-confirmed rate**: In practice, FL LLM-generated claims (`claim_source: "llm"`)
-use natural-language text (e.g. "The Scene class enables...") while scout claims use terse API
-signatures (e.g. "Scene.open(file) -> Scene"). These rarely meet the 0.8 overlap threshold, so
-`dual` count is typically 0. FL claims appear in the merged output as `fl_only` with their
-confidence penalised (×0.6 for llm, ×0.8 for deterministic). This is correct — FL claims
-still add value as contextual/explanatory knowledge even when they cannot be cross-confirmed.
-If PASS is shown in the script output, the manual steps below can be skipped.
+Review `knowledge/{family}/{platform}/merged/merge_report.md` for scout/enriched promotion counts.
 
 ## Post-conditions
+
 - `merged/` directory has all required files
 - All claims have a `provenance` field
-- `model.yaml` has `source: "dual"` (or `"scout_only"` when FL absent) and `has_conflicts: false`
+- `model.yaml` has `source: "scout_only"` or `source: "scout_plus_enriched"` depending on
+  enrichment availability and `has_conflicts: false`
 - `api_surface.md` generated for LLM prompt grounding
 
 ## Provenance rules
-| Scout | FL | Result |
-|-------|-----|--------|
-| Present | Present (same kind, overlap ≥ 0.8) | `dual`, confidence = max |
-| Present | Absent / no match | `scout_only` |
-| Absent | Present (deterministic) | `fl_only`, conf × 0.8 |
-| Absent | Present (llm/llm_fallback) | `fl_only`, conf × 0.6 |
+
+| Scout | Enriched claim | Result |
+|-------|-----------------|--------|
+| Present | Present and validated | `scout_plus_enriched`, confidence = max |
+| Present | Absent / rejected | `scout_only` |
+| Present | Present but hallucinated / invalid | `scout_only` with the invalid enrichment excluded |

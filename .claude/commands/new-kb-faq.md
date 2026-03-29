@@ -5,42 +5,18 @@ Generate or update the FAQ page for a product platform.
 
 ## Knowledge Pre-conditions
 
-Before generating any content, you MUST:
+1. **Bootstrap knowledge**: Run `/knowledge-bootstrap {family} {platform}` and check status:
+   - `KNOWLEDGE: STOP:partial` → halt; see printed message
+   - `KNOWLEDGE: REFRESHED` → STOP: "Knowledge refreshed from upstream changes. Run `/knowledge-diff` to review what changed, then re-run this command."
+   - `KNOWLEDGE: READY`, `KNOWLEDGE: BOOTSTRAPPED`, or `KNOWLEDGE: WARN:conflicts` → continue
 
-1. **Knowledge bootstrap**: Run `/knowledge-bootstrap {family} {platform}` and check status:
-   - `STOP:partial` → halt (see printed message)
-   - `REFRESHED` → STOP: "Knowledge was refreshed from upstream changes. Run /knowledge-diff to review what changed before generating content, then re-run this command."
-   - `READY`, `BOOTSTRAPPED`, or `WARN:conflicts` → continue
-2. **Load verified facts**: Read `knowledge/{family}/{platform}/merged/claims.json` and `api_surface.json`
-3. **Load forbidden claims**: Read `forbidden_claims` from `index.json` — never include these in content
-4. **Load format matrix**: Read `formats.json` — only reference formats confirmed here
-5. **Load limitations**: Read `limitations.md` for known NotImplementedError items
-
-## Platform Resolution
-
-Read `knowledge/{family}/{platform}/scout/model.yaml` to determine:
-- `install_command` — use this verbatim instead of hardcoding any install command
-- `canonical_import` — use this for import statements
-- `product_name` — use for package references
-- `version` — use for version-specific answers
-
-Determine the **code fence language** from the platform:
-- python → `python`
-- dotnet → `csharp`
-- java → `java`
-- cpp → `cpp`
-- typescript → `typescript`
-- javascript → `javascript`
-- nodejs → `javascript`
-
-Determine the **package manager context** from the platform:
-- python → pip / PyPI
-- dotnet → NuGet / `dotnet add package`
-- java → Maven / Gradle
-- cpp → CMake / vcpkg
-- typescript / javascript / nodejs → npm / yarn
-
-Use these resolved values (`{platform_lang}`, `{install_command}`, `{package_manager}`, `{package_registry}`) throughout the generated content. Never hardcode a platform-specific tool or language fence.
+2. **Load verified artifacts**:
+   - Read `knowledge/{family}/{platform}/merged/claims.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.md` (human-readable; every class/method name used in content MUST appear here)
+   - Read `knowledge/{family}/{platform}/merged/formats.json`
+   - Read `forbidden_claims` from `knowledge/{family}/{platform}/merged/index.json`
+   - Read `knowledge/{family}/{platform}/merged/limitations.md` for known unimplemented items
 
 ## Steps
 
@@ -67,8 +43,8 @@ Use these resolved values (`{platform_lang}`, `{install_command}`, `{package_man
    draft: false
    type: topic
    keywords:
-   - {product name} {platform} faq
-   - {product name} {platform} licensing
+   - {product name} python faq
+   - {product name} python licensing
    - {product name} open source
    - {6–10 more question-oriented keywords}
    ---
@@ -82,8 +58,7 @@ Use these resolved values (`{platform_lang}`, `{install_command}`, `{package_man
    - Can I use it in commercial products?
 
    **Installation & Requirements** (2–3 questions):
-   - How do I install? — answer using `{install_command}` from model.yaml and reference the appropriate package manager ({package_manager})
-   - What runtime versions are supported? (e.g. Python versions, .NET versions, JDK versions, C++ standard — adjust for platform)
+   - How do I install? What Python versions are supported?
    - Are there any native dependencies?
 
    **Format Support** (2–4 questions):
@@ -94,7 +69,6 @@ Use these resolved values (`{platform_lang}`, `{install_command}`, `{package_man
    - Typical pattern for the main entry-point class (e.g. `Scene`, `Workbook`, `Presentation`)
    - How to traverse/iterate the data model
    - Saving in different formats
-   - Code examples in ```{platform_lang} fence
 
    **Known Limitations** (2–3 questions):
    - Features that are stubbed or not yet implemented (base answers on what you observed in reference content)
@@ -103,17 +77,26 @@ Use these resolved values (`{platform_lang}`, `{install_command}`, `{package_man
 
 6. **Constraints**:
    - All class names, method names, and package import paths must match what you read from the reference content — do not invent API surface
-   - Code examples use ```{platform_lang} (resolved from Platform Resolution above) or ```bash / ```xml / ```cmake for shell and config blocks
+   - Code examples use ` ```python ` language identifier
    - `weight: 1` ensures FAQ appears first in the KB listing — never change this value
 
-7. **Write** to `content/kb.aspose.org/en/{family}/{platform}/faq.md`
+7. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
+   - Target path: `content/kb.aspose.org/en/{family}/{platform}/faq.md`
+   - If BLOCK → do not write; report the blocking reason to the user
+   - If WARN → present the warning to the user; await confirmation before writing
+   - If ALLOW → proceed with write
+
+8. **Write** to `content/kb.aspose.org/en/{family}/{platform}/faq.md`
 
 ## Knowledge Post-conditions
 
 After generating or updating the FAQ:
 
-1. **Attach evidence**: Run `python scripts/pipeline/attach_evidence.py --files content/kb.aspose.org/en/{family}/{platform}/faq.md` to generate the `evidence:` YAML frontmatter block with claims, APIs, and per-section binding
+1. **Attach evidence**: Run `python scripts/pipeline/attach_evidence.py --files content/kb.aspose.org/en/{family}/{platform}/faq.md`
+   — this writes the `evidence:` YAML frontmatter block (`model_sha`, `claims`, `apis`).
 2. **Run content check**: Execute `/content-check content/kb.aspose.org/en/{family}/{platform}/faq.md` to validate structure and knowledge alignment
-3. **Run change guard**: Run `python scripts/pipeline/change_guard.py {family} {platform} --file content/kb.aspose.org/en/{family}/{platform}/faq.md` to verify no contradictions with known facts
+3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
+4. **Run audit**: `python scripts/pipeline/audit.py --files content/kb.aspose.org/en/{family}/{platform}/faq.md`
+   — must exit with 0 FAIL before committing.
 
 8. **Confirm** by printing the output path and a count of FAQ items written or added.

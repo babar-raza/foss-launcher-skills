@@ -89,10 +89,12 @@ Run a structural and quality check on a content file before committing.
      - [ ] Every property access `obj.property_name` in code blocks should be validated: if the object's class can be inferred from context, check that `property_name` exists on that class in `api_surface.json` — WARN if property not found (type inference is best-effort)
    - [ ] If `knowledge/{family}/{platform}/merged/index.json` does NOT exist: WARN "No knowledge model found — content cannot be verified against repo truth"
 
-   ### Evidence citation checks (WARN if any fail)
-   - [ ] Content has at least one `<!-- evidence: ... -->` citation comment — WARN if missing
-   - [ ] All `claim_id` values in citation comments exist in `knowledge/{family}/{platform}/merged/claims.json` — WARN if orphaned citation
-   - [ ] Code blocks that demonstrate API usage have a corresponding `<!-- evidence: api=... -->` comment — WARN if missing
+   ### Evidence frontmatter checks (WARN unless noted)
+   - [ ] Frontmatter has an `evidence:` block with non-empty `model_sha` — WARN if missing or empty
+   - [ ] `evidence.claims` array is non-empty — WARN if empty (page has no grounded claims)
+   - [ ] All claim IDs in `evidence.claims` exist in `knowledge/{family}/{platform}/merged/claims.json` — WARN if any orphaned claim ID found
+   - [ ] `evidence.apis` array is non-empty for pages with code blocks — WARN if empty
+   - [ ] No `<!-- evidence: ... -->` HTML comment blocks in the page body — FAIL if found (violates AGENTS.md §5)
 
 5. **If OVERALL is FAIL**: list each failing check with a one-line fix suggestion.
 

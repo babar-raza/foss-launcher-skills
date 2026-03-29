@@ -1,12 +1,11 @@
 ---
 name: new-kb-faq
 description: >
-  Generate or update the FAQ page for a product platform with licensing,
-  installation, format support, API usage, and known limitations sections.
+  Generate or update the FAQ page for a product platform
 args: "{family} {platform}"
 ---
 
-> Cross-skill references like `/evidence-cite` refer to sibling skills in this directory.
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
 Generate or update the FAQ page for a product platform.
 
@@ -15,16 +14,18 @@ Generate or update the FAQ page for a product platform.
 
 ## Knowledge Pre-conditions
 
-Before generating any content, you MUST:
+1. **Bootstrap knowledge**: Run `/knowledge-bootstrap {family} {platform}` and check status:
+   - `KNOWLEDGE: STOP:partial` → halt; see printed message
+   - `KNOWLEDGE: REFRESHED` → STOP: "Knowledge refreshed from upstream changes. Run `/knowledge-diff` to review what changed, then re-run this command."
+   - `KNOWLEDGE: READY`, `KNOWLEDGE: BOOTSTRAPPED`, or `KNOWLEDGE: WARN:conflicts` → continue
 
-1. **Read knowledge model**: Load `knowledge/{family}/{platform}/merged/index.json`
-   - If it does not exist, STOP and instruct the user to run `/repo-scout` and `/truth-merge` first
-   - If `stale: true`, STOP and instruct the user to run `/knowledge-diff` first
-   - If `has_conflicts: true`, WARN and list unresolved conflicts from `merge_conflicts.md`
-2. **Load verified facts**: Read `knowledge/{family}/{platform}/merged/claims.json` and `api_surface.json`
-3. **Load forbidden claims**: Read `forbidden_claims` from `index.json` — never include these in content
-4. **Load format matrix**: Read `formats.json` — only reference formats confirmed here
-5. **Load limitations**: Read `limitations.md` for known NotImplementedError items
+2. **Load verified artifacts**:
+   - Read `knowledge/{family}/{platform}/merged/claims.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.md` (human-readable; every class/method name used in content MUST appear here)
+   - Read `knowledge/{family}/{platform}/merged/formats.json`
+   - Read `forbidden_claims` from `knowledge/{family}/{platform}/merged/index.json`
+   - Read `knowledge/{family}/{platform}/merged/limitations.md` for known unimplemented items
 
 ## Steps
 
@@ -88,14 +89,23 @@ Before generating any content, you MUST:
    - Code examples use ` ```python ` language identifier
    - `weight: 1` ensures FAQ appears first in the KB listing — never change this value
 
-7. **Write** to `content/kb.aspose.org/en/{family}/{platform}/faq.md`
+7. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
+   - Target path: `content/kb.aspose.org/en/{family}/{platform}/faq.md`
+   - If BLOCK → do not write; report the blocking reason to the user
+   - If WARN → present the warning to the user; await confirmation before writing
+   - If ALLOW → proceed with write
+
+8. **Write** to `content/kb.aspose.org/en/{family}/{platform}/faq.md`
 
 ## Knowledge Post-conditions
 
 After generating or updating the FAQ:
 
-1. **Run evidence citation**: Execute `/evidence-cite content/kb.aspose.org/en/{family}/{platform}/faq.md` to attach `<!-- evidence: ... -->` comments
+1. **Attach evidence**: Run `python scripts/pipeline/attach_evidence.py --files content/kb.aspose.org/en/{family}/{platform}/faq.md`
+   — this writes the `evidence:` YAML frontmatter block (`model_sha`, `claims`, `apis`).
 2. **Run content check**: Execute `/content-check content/kb.aspose.org/en/{family}/{platform}/faq.md` to validate structure and knowledge alignment
 3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
+4. **Run audit**: `python scripts/pipeline/audit.py --files content/kb.aspose.org/en/{family}/{platform}/faq.md`
+   — must exit with 0 FAIL before committing.
 
 8. **Confirm** by printing the output path and a count of FAQ items written or added.

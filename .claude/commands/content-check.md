@@ -82,14 +82,19 @@ Run a structural and quality check on a content file before committing.
      - [ ] Every method call `ClassName.method()` in code blocks exists in `api_surface.json` — FAIL if unknown method
      - [ ] No paragraph semantically matches any entry in `index.json` → `forbidden_claims` — FAIL if forbidden claim detected
      - [ ] Format claims (e.g. "supports FBX export") are consistent with `index.json` → `formats` — FAIL if contradicted
-     - [ ] `index.json` → `stale` is `false` — WARN if knowledge is stale (content may be based on outdated facts)
-     - [ ] `index.json` → `has_conflicts` is `false` — WARN if unresolved merge conflicts exist
+     - [ ] `index.json` → `stale` is `false` — FAIL if knowledge is stale (run `/knowledge-diff` first)
+     - [ ] Constructor calls `new ClassName(args)` in code blocks match constructor signatures in `api_surface.json` (methods where name is `<init>` or the class name) — FAIL if constructor signature doesn't exist
+     - [ ] Every `import {pkg}` or `from {pkg}` statement in code blocks uses a package name that appears in `api_surface.json` file paths (e.g. `aspose/slides_foss/` → valid import is `aspose.slides_foss`) — FAIL if unknown package
+     - [ ] Every `EnumName.MEMBER` reference in code blocks exists in `api_surface.json` enum definitions — FAIL if enum member not found (e.g. `ShapeType.ROUNDED_RECTANGLE` when only `ROUND_CORNER_RECTANGLE` exists)
+     - [ ] Every property access `obj.property_name` in code blocks should be validated: if the object's class can be inferred from context, check that `property_name` exists on that class in `api_surface.json` — WARN if property not found (type inference is best-effort)
    - [ ] If `knowledge/{family}/{platform}/merged/index.json` does NOT exist: WARN "No knowledge model found — content cannot be verified against repo truth"
 
-   ### Evidence citation checks (WARN if any fail)
-   - [ ] Content has at least one `<!-- evidence: ... -->` citation comment — WARN if missing
-   - [ ] All `claim_id` values in citation comments exist in `knowledge/{family}/{platform}/merged/claims.json` — WARN if orphaned citation
-   - [ ] Code blocks that demonstrate API usage have a corresponding `<!-- evidence: api=... -->` comment — WARN if missing
+   ### Evidence frontmatter checks (WARN unless noted)
+   - [ ] Frontmatter has an `evidence:` block with non-empty `model_sha` — WARN if missing or empty
+   - [ ] `evidence.claims` array is non-empty — WARN if empty (page has no grounded claims)
+   - [ ] All claim IDs in `evidence.claims` exist in `knowledge/{family}/{platform}/merged/claims.json` — WARN if any orphaned claim ID found
+   - [ ] `evidence.apis` array is non-empty for pages with code blocks — WARN if empty
+   - [ ] No `<!-- evidence: ... -->` HTML comment blocks in the page body — FAIL if found (violates AGENTS.md §5)
 
 5. **If OVERALL is FAIL**: list each failing check with a one-line fix suggestion.
 

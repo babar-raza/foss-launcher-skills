@@ -1,13 +1,11 @@
 ---
 name: stale-detect
-id: S-13
 description: >
-  Map upstream repository changes to content pages that may need updating.
-  Identifies stale, at-risk, and current content across all sites.
+  Map upstream changes to affected content pages
 args: "{family} {platform}"
 ---
 
-> Cross-skill references like `/evidence-cite` refer to sibling skills in this directory.
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
 # S-13: Stale Detect — Map Changes to Affected Content
 
@@ -31,10 +29,12 @@ Map upstream repository changes (detected by S-12) to content pages that may nee
    - `content/kb.aspose.org/en/{family}/{platform}/`
    - `content/reference.aspose.org/en/{family}/{platform}/`
 4. **For each content page**:
-   - Read evidence citations (`<!-- evidence: claim_id=... -->`)
-   - Check if cited claims have changed or been removed
+   - Read evidence from YAML frontmatter: `evidence.claims` array and `evidence.model_sha`
+   - Check if cited claim IDs in `evidence.claims` have changed or been removed in current `claims.json`
+   - Check `evidence.model_sha` against current `merged/model.yaml` `repo_sha` — mismatch means stale
    - Check if page references classes/methods that no longer exist
    - Check if page mentions formats whose support status changed
+   - Note: `<!-- evidence: ... -->` HTML comment citations are forbidden (AGENTS.md §5); if found, flag page as needing `attach_evidence.py` re-run
 5. **Classify staleness**:
    - STALE: Page cites changed/removed claims
    - AT_RISK: Page references changed API surface
@@ -60,3 +60,14 @@ CURRENT: N pages are up to date
 ## Post-conditions
 - Report identifies all potentially affected content pages
 - STALE pages should be prioritized for update
+
+## Translation Integration
+
+After stale-detect identifies modified English source pages, the translate-batch skill
+should be invoked to regenerate their translated counterparts:
+
+  Trigger: any English page under content/{site}/en/ is written or updated
+  Action: run `python -m translator sync --site {site} --family {family} --platform {platform}`
+  Or use the translate-batch skill for explicit batch runs
+
+This integration ensures translations stay in sync with English source changes automatically.

@@ -7,18 +7,22 @@ Generate a new blog post for blog.aspose.org.
 
 Before generating any content, you MUST:
 
-1. **Read knowledge model**: Load `knowledge/{family}/{platform}/merged/index.json`
-   - If it does not exist, STOP and instruct the user to run `/repo-scout` and `/truth-merge` first
-   - If `stale: true`, STOP and instruct the user to run `/knowledge-diff` first
-   - If `has_conflicts: true`, WARN and list unresolved conflicts from `merge_conflicts.md`
-2. **Load verified facts**: Read `knowledge/{family}/{platform}/merged/claims.json` and `api_surface.json`
-2b. **Read API surface summary**: Read `knowledge/{family}/{platform}/merged/api_surface.md`
-    - This is the concise, human-readable API reference
-    - Every class name, method, property, and enum value in your generated content MUST appear in this file
-    - If a name is not in api_surface.md, do not use it
-3. **Load forbidden claims**: Read `forbidden_claims` from `index.json` — never include these in content
-4. **Load format matrix**: Read `formats.json` — only reference formats confirmed here
-5. **Load snippets**: Check `knowledge/{family}/{platform}/merged/snippets/` for verified code examples
+1. **Bootstrap knowledge**: Run `/knowledge-bootstrap {family} {platform}` and check status:
+   - `KNOWLEDGE: STOP:partial` → halt (see printed message)
+   - `KNOWLEDGE: REFRESHED` → STOP: "Knowledge was refreshed from upstream changes. Run
+     `/knowledge-diff` to review what changed before generating content, then re-run this command."
+   - `KNOWLEDGE: READY`, `KNOWLEDGE: BOOTSTRAPPED`, or `KNOWLEDGE: WARN:conflicts` → continue
+
+2. **Load verified artifacts**:
+   - Read `knowledge/{family}/{platform}/merged/claims.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.md` — the human-readable API reference.
+     Every class name, method, property, and enum value in your generated content MUST appear in
+     this file. If a name is not in api_surface.md, do not use it.
+   - Read `knowledge/{family}/{platform}/merged/formats.json` — only reference formats confirmed here
+   - Read `forbidden_claims` from `knowledge/{family}/{platform}/merged/index.json` — never include these
+   - Read `knowledge/{family}/{platform}/scout/model.yaml` → `canonical_import` (package name for install)
+   - Check `knowledge/{family}/{platform}/merged/snippets/` for verified code examples
 
 ## Steps
 
@@ -45,6 +49,11 @@ Before generating any content, you MUST:
    tags: []
    categories:
    - Aspose.{Family}
+   evidence:
+     model_sha: ""
+     model_version: ""
+     claims: []
+     apis: []
    ---
    ```
 
@@ -93,19 +102,35 @@ Before generating any content, you MUST:
    - `author` is always exactly `Aspose`
    - `tags` is always `[]`
    - `categories` uses the format `Aspose.{Family}` with a capital F and correct family name casing (e.g. `Aspose.3D`, `Aspose.Cells`, `Aspose.Slides`)
-   - Every code block uses ` ```python ` or ` ```bash ` language identifier
+   - **Code fence language** — resolve from `{platform}` argument (never hardcode `python`):
+     - `python` → `python`, install via `pip`
+     - `net` → `csharp`, install via `dotnet add package`
+     - `java` → `java`, install via Maven `<dependency>`
+     - `cpp` → `cpp`, install via CMake FetchContent or vcpkg (see install.md)
+     - `typescript` → `typescript`, install via `npm install`
+   - **Package name** always comes from `knowledge/{family}/{platform}/scout/model.yaml` →
+     `canonical_import`. Never use the commercial Aspose package name. If `canonical_import`
+     is empty, STOP and run `/repo-scout {family} {platform}` first.
    - All class names and method names must match what you read from reference content — no invented API
 
-6. **Create directory and write** the file to `content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
+6. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
+   - Target path: `content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
+   - If BLOCK → do not write; report the blocking reason to the user
+   - If WARN → present the warning to the user; await confirmation before writing
+   - If ALLOW → proceed with write
+
+7. **Create directory and write** the file to `content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
    - The slug is a directory name, not just a filename — create `{slug}/index.md`
 
 ## Knowledge Post-conditions
 
 After generating the post:
 
-1. **Run evidence citation**: Execute `/evidence-cite content/blog.aspose.org/{family}/{platform}/{slug}/index.md` to attach `<!-- evidence: ... -->` comments
+1. **Attach evidence**: Run `python scripts/pipeline/attach_evidence.py --files content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
+   — this writes the `evidence:` YAML frontmatter block (`model_sha`, `claims`, `apis`).
 2. **Run content check**: Execute `/content-check content/blog.aspose.org/{family}/{platform}/{slug}/index.md` to validate structure and knowledge alignment
 3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
-4. Run `python scripts/pipeline/audit.py --files {output-file}` to verify API accuracy before committing
+4. **Run audit**: `python scripts/pipeline/audit.py --files content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
+   — must exit with 0 FAIL before committing.
 
 7. **Confirm** with the output path.

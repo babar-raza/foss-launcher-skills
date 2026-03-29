@@ -77,11 +77,17 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
      formats: []
    ```
 
-7. **Write the draft** to the target path from the plan (e.g., `content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`).
+7. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
+   - Target path: as specified in the plan (e.g., `content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`)
+   - If BLOCK → do not write; report the blocking reason to the user
+   - If WARN → present the warning to the user; await confirmation before writing
+   - If ALLOW → proceed with write
 
-8. **Run ground-check**: Execute `python scripts/pipeline/audit.py --files {target_path}` to verify API accuracy.
+8. **Write the draft** to the target path from the plan (e.g., `content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`).
 
-9. **Report**: Print summary of draft — word count, sections, claims used, API tokens verified.
+9. **Run ground-check**: Execute `python scripts/pipeline/audit.py --files {target_path}` to verify API accuracy.
+
+10. **Report**: Print summary of draft — word count, sections, claims used, API tokens verified.
 
 ## Post-conditions
 - Draft file is written to the correct content path

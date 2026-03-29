@@ -1,18 +1,17 @@
 ---
 name: new-reference-page
 description: >
-  Generate a new API reference page for reference.aspose.org documenting a
-  single class with properties, methods, examples, and inheritance chain.
-args: "{family} {platform} {classname}"
+  Generate a new API reference page for reference.aspose.org
+args: "{family} {platform} {ClassName}"
 ---
 
-> Cross-skill references like `/evidence-cite` refer to sibling skills in this directory.
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
 Generate a new API reference page for reference.aspose.org.
 
 **Arguments:** `$ARGUMENTS`
-**Expected format:** `{family} {platform} {classname}` — e.g. `3d python polygon-modifier`
-The classname argument is used as both the slug (filename) and the class display name (PascalCase the slug for title).
+**Expected format:** `{family} {platform} {ClassName}` — e.g. `3d python PolygonModifier`
+The ClassName argument is the exact class name as it appears in the repo (PascalCase). It is used directly as the filename stem.
 
 ## Knowledge Pre-conditions
 
@@ -24,13 +23,29 @@ Before generating any content, you MUST:
 2. **Load API surface**: Read `knowledge/{family}/{platform}/merged/api_surface.json`
    - The class being documented MUST exist in api_surface.json — do not document classes that aren't verified
    - Use method signatures, property types, and docstrings from api_surface.json as the authoritative source
+2b. **Read API surface summary**: Read `knowledge/{family}/{platform}/merged/api_surface.md`
+    - This is the concise, human-readable API reference
+    - Every class name, method, property, and enum value in your generated content MUST appear in this file
+    - If a name is not in api_surface.md, do not use it
 3. **Load class graph**: Read `knowledge/{family}/{platform}/merged/class_graph.json` for inheritance chain
 4. **Load forbidden claims**: Read `forbidden_claims` from `index.json` — never reference capabilities that are not implemented
 
 ## Steps
 
-1. **Parse** `$ARGUMENTS` into: `family`, `platform`, `classname-slug`.
-   - Derive `ClassName` (PascalCase) from the slug: e.g. `polygon-modifier` → `PolygonModifier`
+0b. **Package name validation** (run before any content generation):
+   - Read `knowledge/{family}/{platform}/scout/model.yaml` → `canonical_import`
+   - This is the ground-truth package identifier (e.g. `aspose.slides_foss`, `org.aspose.slides.foss`)
+   - If `canonical_import` is empty or missing:
+     **STOP**: "canonical_import not set in scout/model.yaml. Run `/repo-scout {family} {platform}` first."
+   - Store as `{CANONICAL_IMPORT}` for use in frontmatter and throughout the page body.
+   - **Validation**: If `{CANONICAL_IMPORT}` contains `aspose.` without `_foss` suffix (Python),
+     or `com.aspose.` without `.foss` (Java), or `Aspose.` without `.Foss` (.NET):
+     WARN: "Package name `{CANONICAL_IMPORT}` does not look like a FOSS package. Verify against clone:
+     `python scripts/pipeline/core/clone_cache.py resolve {family} {platform}` then check
+     setup.py/pom.xml/package.json for the correct package identifier."
+
+1. **Parse** `$ARGUMENTS` into: `family`, `platform`, `ClassName`.
+   - `ClassName` is already PascalCase — use it as-is for both the filename and display name.
 
 2. **Read reference content for context** (read only — do not copy):
    - Read `content/reference.aspose.org/en/{family}/{platform}/_index.md` to understand:
@@ -104,21 +119,31 @@ Before generating any content, you MUST:
    `---`
 
    `## See Also`
-   - 3–5 links to related class pages using `[ClassName](/reference.aspose.org/en/{family}/{platform}/classname-slug/)`
+   - 3–5 links to related class pages — template: `[ClassName](/reference.aspose.org/en/{family}/{platform}/{ClassName}/)`
+   - Example: `[PolygonModifier](/reference.aspose.org/en/3d/python/PolygonModifier/)`
 
 5. **Constraints**:
    - `layout: reference-single` must always be present — this triggers the custom Hugo template
    - Class name, parent class, package name, and property names must match what you read from the reference index — do not invent API surface
-   - Code examples use ` ```python ` language identifier
+   - Code examples use the platform's code fence language: `python` (Python), `csharp` (.NET), `java` (Java), `cpp` (C++), `typescript` (TypeScript)
    - The `---` divider separates Examples, Properties, Methods, and See Also blocks
 
-6. **Write** to `content/reference.aspose.org/en/{family}/{platform}/{classname-slug}.md`
+6. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
+   - Target path: `content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md`
+   - If BLOCK → do not write; report the blocking reason to the user
+   - If WARN → present the warning to the user; await confirmation before writing
+   - If ALLOW → proceed with write
+
+7. **Write** to `content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md`
 
 ## Knowledge Post-conditions
 
 After generating the reference page:
 
-1. **Run evidence citation**: Execute `/evidence-cite content/reference.aspose.org/en/{family}/{platform}/{classname-slug}.md` to attach `<!-- evidence: api=... -->` comments
-2. **Run content check**: Execute `/content-check content/reference.aspose.org/en/{family}/{platform}/{classname-slug}.md` to validate structure and knowledge alignment
+1. **Attach evidence**: Run `python scripts/pipeline/attach_evidence.py --files content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md`
+   — this writes the `evidence:` YAML frontmatter block (`model_sha`, `claims`, `apis`).
+2. **Run content check**: Execute `/content-check content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md` to validate structure and knowledge alignment
+3. **Run audit**: `python scripts/pipeline/audit.py --files content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md`
+   — must exit with 0 FAIL before committing.
 
 7. **Confirm** with the output path and a count of properties and methods documented.

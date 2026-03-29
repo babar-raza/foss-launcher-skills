@@ -1,12 +1,16 @@
-# S-17: Rubric Align — Assess Page Against Quality Rubric
+# S-17: Rubric Align - Assess Page Against Quality Rubric
 
 **Arguments**: $ARGUMENTS
-Expected format: `{relative-file-path}` — e.g. `content/docs.aspose.org/en/3d/python/developer-guide/rendering.md`
+Expected format: `{relative-file-path}` - e.g. `content/docs.aspose.org/en/3d/python/developer-guide/rendering.md`
 
 ## Purpose
-Assess a content page against the quality rubric by running content_eval evaluators and producing a rubric score card. This identifies which quality dimensions need improvement before enhancement (S-21) is applied.
+
+Assess a content page against the quality rubric by running content_eval evaluators and
+producing a rubric score card. This identifies which quality dimensions need improvement
+before enhancement (S-21) is applied.
 
 ## Pre-conditions
+
 1. The file at `{relative-file-path}` exists and is a content page under `content/`
 2. Detect `{family}` and `{platform}` from the file path
 3. `knowledge/{family}/{platform}/merged/` exists with `claims.json` and `api_surface.json`
@@ -15,16 +19,13 @@ Assess a content page against the quality rubric by running content_eval evaluat
 ## Steps
 
 1. **Parse arguments**: Extract file path from $ARGUMENTS.
-
 2. **Detect product**: Parse `{family}` and `{platform}` from the file path.
-
 3. **Read knowledge model**: Load `knowledge/{family}/{platform}/merged/model.yaml` and verify `stale_since` is null. If stale, warn but continue (results may be against outdated knowledge).
-
 4. **Run content_eval evaluators**:
    ```bash
-   python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json
+   cd scripts/pipeline
+   python -m content_eval evaluate --files ../../{relative-file-path} --format json
    ```
-
 5. **Build rubric score card** from evaluator results. Score each dimension 0-100:
 
    | Dimension | Evaluator(s) | Weight |
@@ -38,17 +39,16 @@ Assess a content page against the quality rubric by running content_eval evaluat
    | Risk Language | risk_language (RL) | 5% |
 
 6. **Compute overall rubric score**: Weighted average of all dimensions.
-
 7. **Assign grade**:
    - A: 90-100 (publication ready)
    - B: 75-89 (minor improvements needed)
-   - C: 60-74 (significant gaps — run S-21 page-enhance)
-   - D: 40-59 (major issues — run S-26 heal-page)
-   - F: 0-39 (critical failures — escalate to human)
+   - C: 60-74 (significant gaps - run S-21 page-enhance)
+   - D: 40-59 (major issues - run S-26 heal-page)
+   - F: 0-39 (critical failures - escalate to human)
 
 8. **Output score card**:
    ```
-   RUBRIC ALIGNMENT — {file-path}
+   RUBRIC ALIGNMENT - {file-path}
    Product: {family}/{platform}
 
    DIMENSION SCORES
@@ -60,7 +60,7 @@ Assess a content page against the quality rubric by running content_eval evaluat
      Platform Purity:    [score]/100  (weight 10%)
      Risk Language:      [score]/100  (weight 5%)
 
-   OVERALL: [weighted score]/100 — Grade [A-F]
+   OVERALL: [weighted score]/100 - Grade [A-F]
 
    TOP ISSUES (sorted by impact):
      1. [dimension]: [specific finding]
@@ -70,11 +70,13 @@ Assess a content page against the quality rubric by running content_eval evaluat
    ```
 
 ## Post-conditions
+
 - Score card is printed with per-dimension scores
 - Grade is assigned (A-F)
 - Next step recommendation is provided
 - No file modifications made (read-only skill)
 
 ## Error handling
+
 - If content_eval is not available, fall back to manual rubric assessment using content-check patterns
 - If knowledge model is missing, score Evidence Backing and Prose Truth as 0 and note in output

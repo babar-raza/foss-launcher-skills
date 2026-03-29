@@ -21,6 +21,16 @@ Evaluate a content page using the content_eval pipeline and produce a letter gra
    python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json --remediation
    ```
 
+2b. **Run smoke test** (Python platform only — skip for java, net, cpp, typescript):
+   If `{platform}` is `python`, run:
+   ```bash
+   python scripts/pipeline/smoke_test.py --files {relative-file-path}
+   ```
+   - Exit code 2 (FAIL): count each failing block as one additional FAIL finding
+   - Exit code 1 (WARN): count each warning block as one additional WARN finding
+   - Exit code 0 (PASS): no additional findings from smoke test
+   - If smoke_test.py not found: skip silently (tool not yet installed)
+
 3. **Parse output**: Extract findings categorized by severity:
    - **FAIL**: Critical issues that must be fixed
    - **WARN**: Issues that should be fixed

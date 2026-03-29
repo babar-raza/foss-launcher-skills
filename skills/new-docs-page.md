@@ -8,18 +8,21 @@ Valid sections: `getting-started` | `developer-guide`
 
 Before generating any content, you MUST:
 
-1. **Read knowledge model**: Load `knowledge/{family}/{platform}/merged/index.json`
-   - If it does not exist, STOP and instruct the user to run `/repo-scout` and `/truth-merge` first
-   - If `stale: true`, STOP and instruct the user to run `/knowledge-diff` first
-   - If `has_conflicts: true`, WARN and list unresolved conflicts from `merge_conflicts.md`
-2. **Load verified facts**: Read `knowledge/{family}/{platform}/merged/claims.json` and `api_surface.json`
-2b. **Read API surface summary**: Read `knowledge/{family}/{platform}/merged/api_surface.md`
-    - This is the concise, human-readable API reference
-    - Every class name, method, property, and enum value in your generated content MUST appear in this file
-    - If a name is not in api_surface.md, do not use it
-3. **Load forbidden claims**: Read `forbidden_claims` from `index.json` — never include these in content
-4. **Load format matrix**: Read `formats.json` — only reference formats confirmed here
-5. **Load snippets**: Check `knowledge/{family}/{platform}/merged/snippets/` for verified code examples
+1. **Bootstrap knowledge**: Run `/knowledge-bootstrap {family} {platform}` and check status:
+   - `KNOWLEDGE: STOP:partial` → halt (see printed message)
+   - `KNOWLEDGE: REFRESHED` → STOP: "Knowledge was refreshed from upstream changes. Run
+     `/knowledge-diff` to review what changed before generating content, then re-run this command."
+   - `KNOWLEDGE: READY`, `KNOWLEDGE: BOOTSTRAPPED`, or `KNOWLEDGE: WARN:conflicts` → continue
+
+2. **Load verified artifacts**:
+   - Read `knowledge/{family}/{platform}/merged/claims.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.md` — the human-readable API reference.
+     Every class name, method, property, and enum value in your generated content MUST appear in
+     this file. If a name is not in api_surface.md, do not use it.
+   - Read `knowledge/{family}/{platform}/merged/formats.json` — only reference formats confirmed here
+   - Read `forbidden_claims` from `knowledge/{family}/{platform}/merged/index.json` — never include these
+   - Check `knowledge/{family}/{platform}/merged/snippets/` for verified code examples
 
 ## Steps
 
@@ -41,6 +44,11 @@ Before generating any content, you MUST:
      {1–2 sentences: what the reader learns and which classes/methods are covered}
    weight: {next weight}
    type: docs
+   evidence:
+     model_sha: ""
+     model_version: ""
+     claims: []
+     apis: []
    ---
    ```
 
@@ -80,15 +88,23 @@ Before generating any content, you MUST:
    - Internal links: relative paths within same section (`../slug/`) or absolute starting with `/docs.aspose.org/`
    - Do not add a `sidebar:` key unless the section `_index.md` uses it
 
-7. **Write** to `content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`
+7. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
+   - Target path: `content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`
+   - If BLOCK → do not write; report the blocking reason to the user
+   - If WARN → present the warning to the user; await confirmation before writing
+   - If ALLOW → proceed with write
+
+8. **Write** to `content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`
 
 ## Knowledge Post-conditions
 
 After generating the page:
 
-1. **Run evidence citation**: Execute `/evidence-cite content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md` to attach `<!-- evidence: ... -->` comments
+1. **Attach evidence**: Run `python scripts/pipeline/attach_evidence.py --files content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`
+   — this writes the `evidence:` YAML frontmatter block (`model_sha`, `claims`, `apis`).
 2. **Run content check**: Execute `/content-check content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md` to validate structure and knowledge alignment
 3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
-4. Run `python scripts/pipeline/audit.py --files {output-file}` to verify API accuracy before committing
+4. **Run audit**: `python scripts/pipeline/audit.py --files content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`
+   — must exit with 0 FAIL before committing.
 
 8. **Confirm** with the output path and a list of the H2 sections written.

@@ -42,18 +42,24 @@ After a knowledge refresh (S-14), identify which content pages reference changed
    - For API changes (renamed/removed methods): find code blocks and prose mentioning old names
    - For added claims: identify if any existing section should incorporate new information
 
-6. **Apply updates**:
+6. **Pre-write quality check**: For each affected page, invoke `no-downgrade-guard` before writing:
+   - Target path: the affected page's file path
+   - If BLOCK → do not write; report the blocking reason to the user
+   - If WARN → present the warning to the user; await confirmation before writing
+   - If ALLOW → proceed with write
+
+7. **Apply updates**:
    - Rewrite affected paragraphs using current claims from `claims.json`
    - Update code blocks if API surface changed (use snippets from `knowledge/{family}/{platform}/snippets/`)
    - Update `evidence:` frontmatter: remove orphaned claim IDs, add new ones
    - Update `model_sha` in evidence frontmatter to current value
 
-7. **Run ground-check** on each updated page:
+8. **Run ground-check** on each updated page:
    ```bash
    python scripts/pipeline/audit.py --files {updated-file-path}
    ```
 
-8. **Report**: For each updated page, print:
+9. **Report**: For each updated page, print:
    ```
    PAGE UPDATE — {file-path}
    Changes applied:

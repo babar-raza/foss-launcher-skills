@@ -44,6 +44,19 @@ Adjust verification behavior by tier:
 - **Tier 2** (method_pct 40–69%): FAIL on missing methods; WARN on missing properties and enum values
 - **Tier 3** (method_pct < 40%): WARN on everything (no FAIL for member-level claims); note that results are unreliable
 
+When `surface_tier == 3` and `{platform}` is `cpp`, print this explicit advisory:
+```
+⚠ WARNING: C++ empty-body stubs are NOT reliably detected by the API surface
+  scanner unless P2-1 (scout.py _detect_cpp_stubs) has been applied and
+  /repo-scout has been re-run. The limitations.md for this product may be
+  INCOMPLETE. Manual review of the FOSS repo source is required before
+  publishing any C++ content:
+    - Check $REPO/include/ and $REPO/src/ for functions returning false/nullptr
+      unconditionally or with empty bodies {}.
+    - Re-run /repo-scout {family} cpp to refresh limitations.md if not done.
+  Do NOT publish C++ content until this advisory is resolved.
+```
+
 ## Content Files to Scan
 
 Glob all of these:

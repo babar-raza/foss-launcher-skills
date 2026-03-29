@@ -7,51 +7,26 @@ Generate a new blog post for blog.aspose.org.
 
 Before generating any content, you MUST:
 
-1. **Knowledge bootstrap**: Run `/knowledge-bootstrap {family} {platform}` and check status:
-   - `STOP:partial` → halt (see printed message)
-   - `REFRESHED` → STOP: "Knowledge was refreshed from upstream changes. Run /knowledge-diff to review what changed before generating content, then re-run this command."
-   - `READY`, `BOOTSTRAPPED`, or `WARN:conflicts` → continue
-2. **Load verified facts**: Read `knowledge/{family}/{platform}/merged/claims.json` and `api_surface.json`
-3. **Load forbidden claims**: Read `forbidden_claims` from `index.json` — never include these in content
-4. **Load format matrix**: Read `formats.json` — only reference formats confirmed here
-5. **Load snippets**: Check `knowledge/{family}/{platform}/merged/snippets/` for verified code examples.
-   Load `snippets_index.json` and keep it in memory for all code block decisions.
-   - Check `index.json` → `snippets_coverage.total_snippets` to know how many are available
-   - If `snippets_coverage.total_snippets == 0`, note this: you will need `<!-- MISSING_SNIPPET -->` placeholders throughout
+1. **Bootstrap knowledge**: Run `/knowledge-bootstrap {family} {platform}` and check status:
+   - `KNOWLEDGE: STOP:partial` → halt (see printed message)
+   - `KNOWLEDGE: REFRESHED` → STOP: "Knowledge was refreshed from upstream changes. Run
+     `/knowledge-diff` to review what changed before generating content, then re-run this command."
+   - `KNOWLEDGE: READY`, `KNOWLEDGE: BOOTSTRAPPED`, or `KNOWLEDGE: WARN:conflicts` → continue
 
-## Platform Resolution
-
-Read `knowledge/{family}/{platform}/scout/model.yaml` to determine:
-- `install_command` — use this verbatim instead of hardcoding any install command
-- `canonical_import` — use this for import statements
-- `product_name` — use for package registry references
-
-Determine the **code fence language** from the platform:
-- python → `python`
-- dotnet → `csharp`
-- java → `java`
-- cpp → `cpp`
-- typescript → `typescript`
-- javascript → `javascript`
-- nodejs → `javascript`
-
-Determine the **package manager context** from the platform:
-- python → pip / PyPI
-- dotnet → NuGet / `dotnet add package`
-- java → Maven / Gradle
-- cpp → CMake / vcpkg
-- typescript / javascript / nodejs → npm / yarn
-
-Use these resolved values (`{platform_lang}`, `{install_command}`, `{package_manager}`, `{package_registry}`) throughout the generated content. Never hardcode a platform-specific tool or language fence.
+2. **Load verified artifacts**:
+   - Read `knowledge/{family}/{platform}/merged/claims.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.md` — the human-readable API reference.
+     Every class name, method, property, and enum value in your generated content MUST appear in
+     this file. If a name is not in api_surface.md, do not use it.
+   - Read `knowledge/{family}/{platform}/merged/formats.json` — only reference formats confirmed here
+   - Read `forbidden_claims` from `knowledge/{family}/{platform}/merged/index.json` — never include these
+   - Read `knowledge/{family}/{platform}/scout/model.yaml` → `canonical_import` (package name for install)
+   - Check `knowledge/{family}/{platform}/merged/snippets/` for verified code examples
 
 ## Steps
 
 1. **Parse** `$ARGUMENTS` into: `family`, `platform`, `slug` (slug becomes the directory name and title source).
-
-   **Slug hygiene gates (STOP if violated):**
-   - If `slug` starts with `test` (case-insensitive): STOP — "Slug '{slug}' looks like an internal test method name. Derive the slug from the content title instead (e.g. `create-hyperlinks-excel-python`)."
-   - If `content/blog.aspose.org/{family}/{platform}/{slug}.md` exists: STOP — "A flat file at that path already exists. Delete it first or choose a different slug to avoid a Hugo URL collision."
-   - If `content/blog.aspose.org/{family}/{platform}/{slug}/index.md` already exists: STOP — "A blog post at that slug already exists. Use `/page-update` to modify it instead."
 
 2. **Read existing blog posts for reference** (read only — do not copy):
    - List files in `content/blog.aspose.org/{family}/{platform}/`
@@ -74,6 +49,11 @@ Use these resolved values (`{platform_lang}`, `{install_command}`, `{package_man
    tags: []
    categories:
    - Aspose.{Family}
+   evidence:
+     model_sha: ""
+     model_version: ""
+     claims: []
+     apis: []
    ---
    ```
 
@@ -81,34 +61,20 @@ Use these resolved values (`{platform_lang}`, `{install_command}`, `{package_man
 
    `## Introduction`
    - 2–3 paragraphs: announce or introduce the topic; what problem this solves; who it's for
-   - Mention the package name (from `product_name` in model.yaml), MIT license, and zero-dependency nature
-   - Reference the package registry appropriate to the platform ({package_registry} from Platform Resolution)
+   - Mention the package name (PyPI name), MIT license, and zero-dependency nature
 
    `---`
 
    `## What's Included` (or `## Key Features` — pick one that fits the slug topic)
    - One `###` subsection per major feature area (3–6 subsections)
-   - Each subsection: 2–4 sentences of prose + a code block using ```{platform_lang} fence demonstrating the feature
+   - Each subsection: 2–4 sentences of prose + a working Python code block demonstrating the feature
    - Base subsections on what you read in the reference content — use only confirmed class/method names
-   - **Code blocks must use snippets**: Search `snippets_index.json` for entries where
-     `classes_used` or `methods_used` overlaps with the API you are demonstrating.
-     - If a match exists: paste the snippet file's content verbatim (or trim to relevant lines)
-     - If no match exists: write `<!-- MISSING_SNIPPET: {ClassName.method} -->` and omit the code block
-     - Never invent code when no snippet is available
 
    `---`
 
    `## Quick Start`
-   - Install snippet: use `{install_command}` from model.yaml in the appropriate block format:
-     - python: ```bash block
-     - dotnet: ```bash block
-     - java: ```xml block (Maven POM dependency)
-     - cpp: ```bash or ```cmake block
-     - typescript/javascript/nodejs: ```bash block
-   - A 10–20 line code example in ```{platform_lang} fence covering the core task described by the slug.
-     Search `snippets_index.json` for an entry covering the slug's core class or operation.
-     Use that snippet verbatim (or trimmed); if no match exists, write
-     `<!-- MISSING_SNIPPET: {core_class.core_method} -->` and omit the code block.
+   - Install snippet in ` ```bash ` block: `pip install {package-name}`
+   - A 10–20 line Python example covering the core task described by the slug
 
    `---`
 
@@ -120,7 +86,7 @@ Use these resolved values (`{platform_lang}`, `{install_command}`, `{package_man
    `---`
 
    `## Open Source & Licensing`
-   - 2–3 sentences: MIT license, link to repo or package registry, commercial use allowed
+   - 2–3 sentences: MIT license, link to repo or PyPI, commercial use allowed
    - Do not include pricing or comparison with paid products
 
    `---`
@@ -136,18 +102,35 @@ Use these resolved values (`{platform_lang}`, `{install_command}`, `{package_man
    - `author` is always exactly `Aspose`
    - `tags` is always `[]`
    - `categories` uses the format `Aspose.{Family}` with a capital F and correct family name casing (e.g. `Aspose.3D`, `Aspose.Cells`, `Aspose.Slides`)
-   - Every code block uses ```{platform_lang} (resolved from Platform Resolution above) or ```bash / ```xml / ```cmake as appropriate for shell and config blocks
+   - **Code fence language** — resolve from `{platform}` argument (never hardcode `python`):
+     - `python` → `python`, install via `pip`
+     - `net` → `csharp`, install via `dotnet add package`
+     - `java` → `java`, install via Maven `<dependency>`
+     - `cpp` → `cpp`, install via CMake FetchContent or vcpkg (see install.md)
+     - `typescript` → `typescript`, install via `npm install`
+   - **Package name** always comes from `knowledge/{family}/{platform}/scout/model.yaml` →
+     `canonical_import`. Never use the commercial Aspose package name. If `canonical_import`
+     is empty, STOP and run `/repo-scout {family} {platform}` first.
    - All class names and method names must match what you read from reference content — no invented API
 
-6. **Create directory and write** the file to `content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
+6. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
+   - Target path: `content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
+   - If BLOCK → do not write; report the blocking reason to the user
+   - If WARN → present the warning to the user; await confirmation before writing
+   - If ALLOW → proceed with write
+
+7. **Create directory and write** the file to `content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
    - The slug is a directory name, not just a filename — create `{slug}/index.md`
 
 ## Knowledge Post-conditions
 
 After generating the post:
 
-1. **Attach evidence**: Run `python scripts/pipeline/attach_evidence.py --files content/blog.aspose.org/{family}/{platform}/{slug}/index.md` to generate the `evidence:` YAML frontmatter block with claims, APIs, and per-section binding
+1. **Attach evidence**: Run `python scripts/pipeline/attach_evidence.py --files content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
+   — this writes the `evidence:` YAML frontmatter block (`model_sha`, `claims`, `apis`).
 2. **Run content check**: Execute `/content-check content/blog.aspose.org/{family}/{platform}/{slug}/index.md` to validate structure and knowledge alignment
-3. **Run change guard**: Run `python scripts/pipeline/change_guard.py {family} {platform} --file content/blog.aspose.org/{family}/{platform}/{slug}/index.md` to verify no contradictions with known facts
+3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
+4. **Run audit**: `python scripts/pipeline/audit.py --files content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
+   — must exit with 0 FAIL before committing.
 
 7. **Confirm** with the output path.

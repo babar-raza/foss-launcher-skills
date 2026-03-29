@@ -30,7 +30,7 @@ Validate that a file path is an allowed write target before any content modifica
 - `skills/` — Canonical skill source
 - `scripts/` — Extraction scripts (except by explicit human override)
 - `knowledge/*/scout/` — Scout output (only written by S-34)
-- `knowledge/*/fl/` — FL sync output (only written by S-30)
+- `knowledge/*/fl/` — FL layer (deleted; any recreation is forbidden)
 
 ## Allowed paths
 - `content/docs.aspose.org/en/{family}/{platform}/**` — Docs pages

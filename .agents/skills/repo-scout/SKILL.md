@@ -18,8 +18,8 @@ Expected format: `{family} {platform} [{repo-path}]`
 
 ## Purpose
 Extract truth directly from a FOSS package using tree-sitter analysis. Produces knowledge
-artifacts in `knowledge/{family}/{platform}/scout/` that serve as an independent verification
-source alongside FOSS-Launcher outputs.
+artifacts in `knowledge/{family}/{platform}/scout/` that serve as the primary verification
+source for the knowledge pipeline.
 
 ## Repo-path resolution
 
@@ -39,7 +39,7 @@ where source repos are not cloned.
 
 > **Snippet limitation (pip-install mode):** Installed packages contain no test directories.
 > `scout.py` will write `snippets_index.json` as `[]` and `snippet_count: 0` in `model.yaml`.
-> `merge.py` will promote 0 scout snippets (FL snippets still promoted if available).
+> `promote.py` will promote 0 scout snippets in this mode.
 > To obtain real snippets, run with a cloned source repo that includes `tests/` or `examples/`.
 
 ## Pre-conditions
