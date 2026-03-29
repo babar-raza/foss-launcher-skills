@@ -1,0 +1,6 @@
+# SEO scripts: get_keywords.py, review_keywords.py, pipeline/recommend.py
+# Install only when SEO features are needed.
+google-generativeai>=0.8
+litellm
+requests>=2.28
+python-dotenv>=1.0
