@@ -42,6 +42,50 @@ LOG = logging.getLogger("scout")
 _PIPELINE_ROOT = Path(__file__).resolve().parents[1]
 
 
+def _iter_nodes(node, target_type):
+    """Yield all descendant nodes (including node itself) with the given type."""
+    if node.type == target_type:
+        yield node
+    for child in node.children:
+        yield from _iter_nodes(child, target_type)
+
+
+def _cpp_func_name(func_node) -> str:
+    """Extract the plain identifier name from a C++ function_definition node.
+
+    C++ AST nests the name differently depending on return type:
+    - Simple:   primitive_type + function_declarator + ...
+    - Pointer:  type_identifier + pointer_declarator > function_declarator + ...
+    We recursively search declarator children for the first identifier.
+    """
+    _DECLARATOR_TYPES = frozenset({
+        "function_declarator", "pointer_declarator",
+        "reference_declarator", "abstract_declarator",
+    })
+    # field_identifier is used for class-member function names (vs identifier for free functions)
+    _NAME_TYPES = frozenset({"identifier", "field_identifier", "destructor_name", "qualified_identifier"})
+
+    def _find_name(node) -> str:
+        for child in node.children:
+            if child.type in _NAME_TYPES:
+                raw = (child.text or b"").decode("utf-8", errors="replace")
+                # Strip scope prefix (e.g. "Ns::Foo" → "Foo") and keep only last segment
+                return raw.rsplit("::", 1)[-1].lstrip("~")
+            if child.type in _DECLARATOR_TYPES:
+                result = _find_name(child)
+                if result:
+                    return result
+        return ""
+
+    # Walk direct children; name is under a declarator, not at top level
+    for child in func_node.children:
+        if child.type in _DECLARATOR_TYPES:
+            name = _find_name(child)
+            if name:
+                return name
+    return ""
+
+
 class Scout:
     """Main extraction engine."""
 
@@ -182,6 +226,9 @@ class Scout:
         pattern = _NOT_IMPL_PATTERNS.get(self.language)
         if pattern is None:
             return
+        # C++: also scan for empty-body and trivial-return stubs
+        if self.language == "cpp":
+            self._detect_cpp_stubs()
 
         ext = _FILE_EXTENSIONS.get(self.language, ".py")
         files = _collect_source_files(self.pkg_root, ext)
@@ -231,6 +278,87 @@ class Scout:
                     "limitation",
                     f"Not implemented: {enclosing_class}.{enclosing_method} in {rel}:{i}",
                     rel, i)
+
+    # -- C++ empty-body-stub detection -------------------------------------
+
+    def _detect_cpp_stubs(self):
+        """Detect C++ functions with empty bodies or trivial stub returns.
+
+        The _NOT_IMPL_PATTERNS["cpp"] only catches explicit runtime_error
+        throws. C++ FOSS stubs frequently use empty bodies {} or return
+        false/nullptr unconditionally without any throw. This method finds
+        those patterns using tree-sitter AST traversal.
+        """
+        ext = ".cpp"
+        files = _collect_source_files(self.pkg_root, ext)
+        # Also scan .h and .hpp headers where inline stubs may live
+        header_files = _collect_source_files(self.pkg_root, ".h")
+        hpp_files = _collect_source_files(self.pkg_root, ".hpp")
+        files = list(files) + list(header_files) + list(hpp_files)
+
+        for fpath in files:
+            rel = str(fpath.relative_to(self.repo)).replace("\\", "/")
+            try:
+                text = fpath.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+
+            src_bytes = text.encode("utf-8")
+            tree = self.parser.parse(src_bytes)
+
+            for func_node in _iter_nodes(tree.root_node, "function_definition"):
+                # Find the compound_statement (body) of this function
+                body = None
+                for child in func_node.children:
+                    if child.type == "compound_statement":
+                        body = child
+                        break
+                if body is None:
+                    continue
+
+                # Collect meaningful statements (exclude braces and comments)
+                stmts = [
+                    c for c in body.children
+                    if c.type not in ("{", "}", "comment")
+                ]
+
+                func_name = _cpp_func_name(func_node)
+                if not func_name:
+                    continue
+                line_num = func_node.start_point[0] + 1
+
+                if len(stmts) == 0:
+                    # Empty body stub: foo() {}
+                    self.limitations.append({
+                        "file": rel,
+                        "line": line_num,
+                        "class": "",
+                        "method": func_name,
+                        "text": f"{func_name} has an empty body (unimplemented stub)",
+                    })
+                    self._add_claim(
+                        "limitation",
+                        f"Unimplemented stub (empty body): {func_name} in {rel}:{line_num}",
+                        rel, line_num)
+
+                elif len(stmts) == 1 and stmts[0].type == "return_statement":
+                    ret_text = (stmts[0].text or b"").decode("utf-8",
+                                                              errors="replace").strip()
+                    if ret_text in ("return false;", "return nullptr;",
+                                    "return 0;", "return NULL;"):
+                        self.limitations.append({
+                            "file": rel,
+                            "line": line_num,
+                            "class": "",
+                            "method": func_name,
+                            "text": (f"{func_name} returns {ret_text} "
+                                     f"unconditionally (likely unimplemented stub)"),
+                        })
+                        self._add_claim(
+                            "limitation",
+                            (f"Trivial-return stub: {func_name} returns "
+                             f"{ret_text} unconditionally in {rel}:{line_num}"),
+                            rel, line_num)
 
     # -- Snippet extraction ------------------------------------------------
 

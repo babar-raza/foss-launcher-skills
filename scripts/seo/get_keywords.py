@@ -2,8 +2,15 @@ import argparse
 import json
 import logging
 import os
+import sys
 import time
 import yaml
+from pathlib import Path
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
+from core.env_loader import load_env  # noqa: E402
+load_env()
 
 import google.generativeai as genai
 

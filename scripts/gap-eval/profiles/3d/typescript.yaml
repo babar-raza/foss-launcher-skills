@@ -1,0 +1,31 @@
+family: 3d
+platform: typescript
+version: 1
+
+discovery_hints:
+  package_source_file: package.json
+  package_extraction: "json:.name"
+  language: typescript
+  format_source_glob: "src/**/formats/*.ts"
+  stub_search_hints:
+    - "throw new Error('Not implemented')"
+    - "// TODO"
+  runtime_requirement_source: package.json
+
+discovered_actuals:
+  package_name: "@aspose/3d"
+  package_source_actual: package.json
+  format_files_found: null
+  last_baseline_sha: null
+
+language_conventions:
+  method_naming: camelCase
+  enum_values: PascalCase
+  pass_by: reference
+
+expected_sections:
+  - {site: products, mandatory: true}
+  - {site: docs, mandatory: true}
+  - {site: kb, mandatory: true}
+  - {site: reference, mandatory: true}
+  - {site: blog, mandatory: false}

@@ -9,6 +9,9 @@ Modules in this package:
 - knowledge.py:    Re-export shim over knowledge_core (enables `from core.knowledge import X`)
 - clone_cache.py:  Internal FOSS repo clone cache — cache_root, clone_path, clone_exists,
                    clone_head_sha, ensure_clone.  No dependency on foss-launcher.
+- env_loader.py:  load_env() — loads .env from repo root into os.environ via python-dotenv.
+                  Call once at the top of every CLI entry point.  No-op if python-dotenv
+                  is absent (graceful degradation to shell-exported vars).
 
 Note: knowledge.py imports from knowledge_core (a sibling), so it does not
 satisfy the strict "zero upstream deps" rule. All other modules in this

@@ -465,6 +465,18 @@ def extract_api_surface(
                 if not mname:
                     continue
 
+                # Skip Python @property and setter/deleter — handled by _extract_python_properties
+                if language == "python" and mnode.type == "function_definition":
+                    dec = find_child_by_type(mnode, "decorator")
+                    if dec is None:
+                        prev = mnode.prev_named_sibling
+                        if prev and prev.type == "decorator":
+                            dec = prev
+                    if dec is not None:
+                        dec_text = node_text(dec)
+                        if "@property" in dec_text or ".setter" in dec_text or ".deleter" in dec_text:
+                            continue
+
                 if mnode.type in ("property_declaration",
                                   "public_field_definition",
                                   "property_signature"):

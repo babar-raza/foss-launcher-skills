@@ -1,0 +1,31 @@
+family: slides
+platform: python
+version: 1
+
+discovery_hints:
+  package_source_file: pyproject.toml
+  package_extraction: "toml:[project].name"
+  language: python
+  format_source_glob: "src/**/export/*.py"
+  stub_search_hints:
+    - "raise NotImplementedError"
+    - "pass  # TODO"
+  runtime_requirement_source: pyproject.toml
+
+discovered_actuals:
+  package_name: "aspose-slides-foss"
+  package_source_actual: pyproject.toml
+  format_files_found: null
+  last_baseline_sha: null
+
+language_conventions:
+  method_naming: snake_case
+  enum_values: UPPER_CASE
+  pass_by: reference
+
+expected_sections:
+  - {site: products, mandatory: true}
+  - {site: docs, mandatory: true}
+  - {site: kb, mandatory: true}
+  - {site: reference, mandatory: true}
+  - {site: blog, mandatory: false}

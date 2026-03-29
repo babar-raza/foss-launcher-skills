@@ -1,0 +1,32 @@
+family: 3d
+platform: java
+version: 1
+
+discovery_hints:
+  package_source_file: pom.xml
+  package_extraction: "xpath://groupId + ':' + //artifactId"
+  language: java
+  format_source_glob: "src/**/formats/*Exporter.java"
+  stub_search_hints:
+    - "throw new UnsupportedOperationException"
+    - "// not implemented"
+    - "TODO"
+  runtime_requirement_source: pom.xml
+
+discovered_actuals:
+  package_name: "com.aspose:aspose-3d-foss"
+  package_source_actual: pom.xml
+  format_files_found: null
+  last_baseline_sha: null
+
+language_conventions:
+  method_naming: camelCase
+  enum_values: UPPER_CASE
+  pass_by: reference
+
+expected_sections:
+  - {site: products, mandatory: true}
+  - {site: docs, mandatory: true}
+  - {site: kb, mandatory: true}
+  - {site: reference, mandatory: true}
+  - {site: blog, mandatory: false}

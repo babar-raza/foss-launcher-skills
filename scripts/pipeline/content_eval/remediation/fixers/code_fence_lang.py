@@ -17,6 +17,7 @@ from . import BaseFixer
 _PLATFORM_PRIMARY_LANG: dict[str, str] = {
     "python": "python",
     "dotnet": "csharp",
+    "net": "csharp",
     "java": "java",
     "cpp": "cpp",
     "typescript": "typescript",

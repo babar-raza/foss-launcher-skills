@@ -17,6 +17,7 @@ from pathlib import Path
 from extraction.tree_helpers import (
     _CLASS_TYPES,
     _FILE_EXTENSIONS,
+    _HEADER_EXTENSIONS,
     _PY_ENUM_BASES,
     _collect_source_files,
     _extract_bases,
@@ -59,7 +60,8 @@ def detect_formats(
         })
 
     ext = _FILE_EXTENSIONS.get(language, ".py")
-    files = _collect_source_files(pkg_root, ext)
+    header_ext = _HEADER_EXTENSIONS.get(language, "")
+    files = _collect_source_files(pkg_root, ext, header_ext)
     format_pattern = re.compile(
         r"(FileFormat|FormatType|SupportedFormat|FileType)", re.IGNORECASE)
     importer_pattern = re.compile(

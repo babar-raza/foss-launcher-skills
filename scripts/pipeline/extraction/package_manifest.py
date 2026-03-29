@@ -23,7 +23,7 @@ def parse_manifest(repo: Path, platform: str) -> dict[str, Any]:
     """Extract identity fields from the platform manifest."""
     if platform == "python":
         return _parse_python_manifest(repo)
-    if platform == "dotnet":
+    if platform in ("net", "dotnet"):
         return _parse_dotnet_manifest(repo)
     if platform == "java":
         return _parse_java_manifest(repo)

@@ -33,7 +33,7 @@ def _install_command(platform: str, manifest: dict) -> str:
         if name and version:
             return f"pip install {name}>={version}"
         return f"pip install {name}" if name else ""
-    if platform == "dotnet":
+    if platform in ("net", "dotnet"):
         if name and version:
             return f"dotnet add package {name} --version {version}"
         return f"dotnet add package {name}" if name else ""
@@ -61,8 +61,9 @@ def _install_command(platform: str, manifest: dict) -> str:
 def _canonical_import(platform: str, manifest: dict) -> str:
     name = manifest.get("name", "")
     if platform == "python":
-        return name.replace("-", "_") if name else ""
-    if platform == "dotnet":
+        pkg = name.replace("-", "_")
+        return f"import {pkg}" if pkg else ""
+    if platform in ("net", "dotnet"):
         return f"using {name};" if name else ""
     if platform == "java":
         gid = manifest.get("group_id", "")
@@ -78,7 +79,7 @@ def _canonical_import(platform: str, manifest: dict) -> str:
 def _runtime_requirement(platform: str, manifest: dict) -> str:
     if platform == "python":
         return manifest.get("requires_python", "")
-    if platform == "dotnet":
+    if platform in ("net", "dotnet"):
         return manifest.get("target_framework", "")
     if platform in ("typescript", "javascript", "nodejs"):
         return manifest.get("engines_node", "")

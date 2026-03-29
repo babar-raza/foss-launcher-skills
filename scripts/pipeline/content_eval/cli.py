@@ -20,6 +20,13 @@ def _log(*args, **kwargs):
 REPORTS_DIR = Path("reports") / "content_eval"
 
 
+def _resolve_reports_dir(output_root: str | None) -> Path:
+    """Resolve the report directory, allowing isolated temp roots for testing."""
+    if output_root:
+        return Path(output_root) / "content_eval"
+    return REPORTS_DIR
+
+
 def _load_knowledge(family: str, platform: str):
     """Load Knowledge from knowledge_core (shorter dependency chain than audit)."""
     _HERE = Path(__file__).resolve().parent.parent
@@ -155,10 +162,11 @@ def _run_evaluate(args):
         output = generate_markdown(report, remediation)
 
     # Write to file
-    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    report_dir = _resolve_reports_dir(args.output_root)
+    report_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     ext = "json" if args.format == "json" else "md"
-    report_path = REPORTS_DIR / f"eval-{timestamp}.{ext}"
+    report_path = report_dir / f"eval-{timestamp}.{ext}"
     report_path.write_text(output, encoding="utf-8")
 
     # Also print to stdout (handle Windows encoding)
@@ -231,6 +239,8 @@ def main(argv: list[str] | None = None):
                              help="Enable cross-page consistency analysis")
     eval_parser.add_argument("--remediation", action="store_true",
                              help="Include remediation plan")
+    eval_parser.add_argument("--output-root",
+                             help="Override report root for isolated runs")
     eval_parser.set_defaults(func=_run_evaluate)
 
     # diff command

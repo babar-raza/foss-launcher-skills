@@ -17,7 +17,7 @@ def detect_package_root(repo: Path, platform: str) -> Path:
     """Return the package source root inside *repo*."""
     if platform == "python":
         return _detect_python_root(repo)
-    if platform == "dotnet":
+    if platform in ("net", "dotnet"):
         return _detect_dotnet_root(repo)
     if platform == "java":
         return _detect_java_root(repo)

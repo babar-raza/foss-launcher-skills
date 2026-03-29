@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This pipeline extracts the API surface, format support, code snippets, and structured claims from FOSS source repositories using tree-sitter AST parsing, merges multiple knowledge sources (deterministic scout output and optional LLM-enriched FL claims) into a unified model, validates published content pages against that model for factual accuracy, and supports evidence-based content generation. It is the source of truth for everything the Aspose FOSS documentation sites can claim.
+This pipeline extracts the API surface, format support, code snippets, and structured claims from FOSS source repositories using tree-sitter AST parsing, enriches them with LLM-generated semantic claims grounded in the verified API surface, promotes the combined knowledge into a unified model, validates published content pages against that model for factual accuracy, and supports evidence-based content generation. It is the source of truth for everything the Aspose FOSS documentation sites can claim.
 
 ## Quick Start (Fresh Clone)
 
@@ -21,7 +21,8 @@ python scripts/pipeline/refresh_knowledge.py --all --check
 
 # 5. Bootstrap knowledge for a product
 python scripts/pipeline/scout.py 3d python runs/.clone_cache/aspose_3d_python knowledge/3d/python/scout
-python scripts/pipeline/merge.py 3d python
+python scripts/pipeline/enrich.py 3d python
+python scripts/pipeline/promote.py 3d python
 python scripts/pipeline/index.py 3d python
 
 # 6. Optionally embed into vector stores
@@ -43,10 +44,15 @@ scout.py  ───────────────────────�
      snippets, identity claims)
     |
     v
-merge.py  ──────────────────────────────> knowledge/{family}/{platform}/merged/
-    (dual-source merge: scout + fl/)          claims.json (with provenance tags)
-    (Jaccard overlap >= 0.8 for "dual")       api_surface.json, api_surface.md
-                                              model.yaml, merge_report.md
+enrich.py  ─────────────────────────────> knowledge/{family}/{platform}/scout/enriched_claims.json
+    (LLM bounded-description enrichment)     ERC-prefixed claims grounded in api_surface.json
+    (gpt-oss → ollama fallback)              claim_source: "llm_enriched"
+    |
+    v
+promote.py  ────────────────────────────> knowledge/{family}/{platform}/merged/
+    (scout-only promotion: no FL)             claims.json (provenance: scout|enriched|supplemental)
+    (appends enriched_claims if present)      api_surface.json, api_surface.md
+    (guard: exits 1 if fl/ exists)            formats.md, model.yaml, merge_report.md
     |
     v
 index.py  ──────────────────────────────> knowledge/{family}/{platform}/merged/index.json
@@ -75,7 +81,8 @@ All commands must be run from the **repo root** (the directory that contains `kn
 | Script | Purpose | CLI Usage | Produces |
 |--------|---------|-----------|---------|
 | `scout.py` | AST extraction from FOSS repo | `python scripts/pipeline/scout.py {family} {platform} {repo_path} {output_dir}` | `scout/` artifacts |
-| `merge.py` | Dual-source knowledge merge | `python scripts/pipeline/merge.py {family} {platform}` | `merged/` artifacts |
+| `enrich.py` | LLM enrichment from scout artifacts | `python scripts/pipeline/enrich.py {family} {platform}` | `scout/enriched_claims.json` |
+| `promote.py` | Scout-only knowledge promotion | `python scripts/pipeline/promote.py {family} {platform}` | `merged/` artifacts |
 | `index.py` | Knowledge index generator | `python scripts/pipeline/index.py {family} {platform}` or `all` | `merged/index.json` |
 | `embed.py` | Vector store generation | `python scripts/pipeline/embed.py {family} {platform}` or `all` | `knowledge/_vectors/` |
 | `audit.py` | API accuracy audit | `python scripts/pipeline/audit.py {family} {platform}` or `all` or `--files` | `reports/audit/` |
@@ -112,12 +119,10 @@ knowledge/
         snippets/
           snippets_index.json
           snippet_001.py  (etc.)
-      fl/                 # Optional LLM-enriched claims (truth-sync skill)
-        claims.json
-      merged/             # Merged output (merge.py + index.py)
+      merged/             # Promoted output (promote.py + index.py)
         api_surface.json
         api_surface.md    # Human-readable, used in LLM prompts
-        claims.json       # With provenance: dual | scout_only | fl_only
+        claims.json       # With provenance: scout | enriched | supplemental
         formats.json
         formats.md
         index.json        # Built by index.py
@@ -207,7 +212,7 @@ python scripts/pipeline/remediate.py fix reports/content_eval/eval-*.json
 |---------|-------------|-----|
 | `ImportError: No module named 'tree_sitter'` | Missing tree-sitter | `pip install -r scripts/requirements.txt` |
 | `ERROR: No scout knowledge found` | Missing `scout/claims.json` | Run `scout.py` first |
-| `SKIP: no knowledge model` | Missing `merged/model.yaml` | Run `merge.py` then `index.py` |
+| `SKIP: no knowledge model` | Missing `merged/model.yaml` | Run `promote.py` then `index.py` |
 | `stale_since != null` in model.yaml | Knowledge is outdated | Run `refresh_knowledge.py` |
 | Evaluator exception in content_eval | Unexpected page structure | Check stderr; evaluator errors emit WARN findings |
 | `No clone_url in products.json` | Registry not populated | Run `update_product_registry.py --token` |

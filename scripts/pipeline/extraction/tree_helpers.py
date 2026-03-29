@@ -25,7 +25,8 @@ MAX_FILES = 500  # shared cap for _collect_source_files
 
 PLATFORM_TO_LANG: dict[str, str] = {
     "python": "python",
-    "dotnet": "csharp",
+    "net": "csharp",
+    "dotnet": "csharp",  # kept for backward compatibility
     "java": "java",
     "cpp": "cpp",
     "typescript": "typescript",
@@ -105,8 +106,8 @@ _FILE_EXTENSIONS: dict[str, str] = {
     "javascript": ".js",
 }
 
-_HEADER_EXTENSIONS: dict[str, str] = {
-    "cpp": ".h",
+_HEADER_EXTENSIONS: dict[str, str | list[str]] = {
+    "cpp": [".h", ".hpp"],
 }
 
 _DOC_COMMENT_STYLES: dict[str, str] = {
@@ -279,11 +280,16 @@ def is_public(node, language: str) -> bool:
 # Source file collection
 # ---------------------------------------------------------------------------
 
-def _collect_source_files(root: Path, ext: str, header_ext: str = "") -> list[Path]:
+def _collect_source_files(root: Path, ext: str, header_ext: str | list[str] = "") -> list[Path]:
     """Glob for source files, capped at MAX_FILES."""
     files = list(root.rglob(f"*{ext}"))[:MAX_FILES]
     if header_ext:
-        files.extend(list(root.rglob(f"*{header_ext}"))[:MAX_FILES - len(files)])
+        exts = [header_ext] if isinstance(header_ext, str) else header_ext
+        for he in exts:
+            remaining = MAX_FILES - len(files)
+            if remaining <= 0:
+                break
+            files.extend(list(root.rglob(f"*{he}"))[:remaining])
     return files
 
 

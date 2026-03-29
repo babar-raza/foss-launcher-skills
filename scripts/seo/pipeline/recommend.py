@@ -37,6 +37,10 @@ _REPO_ROOT = _THIS_FILE.parents[3]       # .../aspose.org
 
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
+sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
+
+from core.env_loader import load_env  # noqa: E402
+load_env()
 
 # ---------------------------------------------------------------------------
 # Logging

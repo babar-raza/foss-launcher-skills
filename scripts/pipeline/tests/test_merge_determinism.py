@@ -1,10 +1,9 @@
-"""Regression tests for merge.py correctness fixes (Phase 1A).
+"""Regression tests for promote.py correctness.
 
 Tests that:
-1. Claims without claim_id get deterministic IDs assigned (not id() fallback)
-2. Merge output is identical on consecutive runs
-3. FL claim ordering does not affect merge output (order-invariant)
-4. Tie-breaking in Jaccard matching is deterministic (lowest claim_id wins)
+1. Provenance tagging is applied correctly to all claim sources
+2. Promote output is identical on consecutive runs (deterministic)
+3. api_to_claim index ordering is stable (lowest claim_id wins)
 """
 import copy
 import json
@@ -14,8 +13,8 @@ from pathlib import Path
 import pytest
 
 # sys.path is set by tests/conftest.py
-import merge as merge_mod
-from merge import _ensure_claim_ids, _merge_fl_claims
+import promote as promote_mod
+from promote import _validate_claims
 
 
 # ---------------------------------------------------------------------------
@@ -24,110 +23,47 @@ from merge import _ensure_claim_ids, _merge_fl_claims
 
 SCOUT_CLAIM = {
     "claim_id": "CLM-scout-001",
-    "text": "Scene.open(filename) -> ",
+    "text": "Scene.open(filename) -> Scene",
     "kind": "api_method",
 }
 
-FL_CLAIM_A = {
-    "claim_id": "FL-A001",
-    "text": "Scene.open accepts a filename parameter",
-    "kind": "api_method",
+ENRICHED_CLAIM = {
+    "claim_id": "ERC-3d-net-abc12345",
+    "text": "The Scene class enables loading and saving 3D models.",
+    "kind": "feature",
+    "claim_source": "llm_enriched",
+    "confidence": 0.85,
 }
 
-FL_CLAIM_B = {
-    "claim_id": "FL-B001",
-    "text": "Scene supports opening files",
-    "kind": "api_method",
+SUPPLEMENTAL_CLAIM = {
+    "claim_id": "CLM-supp-001",
+    "text": "Aspose.3D supports FBX format.",
+    "kind": "format",
+    "claim_source": "fl_absorbed_2026-03-29",
 }
 
 
 # ---------------------------------------------------------------------------
-# Test: _ensure_claim_ids generates stable IDs
+# Test: _validate_claims filters bad entries
 # ---------------------------------------------------------------------------
 
-class TestEnsureClaimIds:
-    def test_claims_with_ids_unchanged(self):
-        claims = [{"claim_id": "STABLE-001", "text": "hello"}]
-        result = _ensure_claim_ids(claims, "test")
-        assert result[0]["claim_id"] == "STABLE-001"
+class TestValidateClaims:
+    def test_valid_claims_pass_through(self):
+        claims = [copy.deepcopy(SCOUT_CLAIM)]
+        result = _validate_claims(claims, "scout")
+        assert len(result) == 1
+        assert result[0]["claim_id"] == "CLM-scout-001"
 
-    def test_missing_id_generates_deterministic_id(self):
-        claims = [{"text": "some text", "kind": "api_method"}]
-        r1 = _ensure_claim_ids(claims, "test")
-        r2 = _ensure_claim_ids(claims, "test")
-        assert r1[0]["claim_id"] == r2[0]["claim_id"]
-        assert r1[0]["claim_id"].startswith("test")
+    def test_non_dict_entries_filtered(self):
+        claims = [copy.deepcopy(SCOUT_CLAIM), "not_a_dict", None]
+        result = _validate_claims(claims, "scout")
+        assert len(result) == 1
 
-    def test_different_text_produces_different_id(self):
-        c1 = [{"text": "text A", "kind": "api_method"}]
-        c2 = [{"text": "text B", "kind": "api_method"}]
-        r1 = _ensure_claim_ids(c1, "p")
-        r2 = _ensure_claim_ids(c2, "p")
-        assert r1[0]["claim_id"] != r2[0]["claim_id"]
+    def test_empty_list_returns_empty(self):
+        assert _validate_claims([], "scout") == []
 
-    def test_same_text_same_prefix_same_id(self):
-        """Deterministic: same input → same output across calls."""
-        claims = [{"text": "Scene.open(path)", "kind": "api_method"}]
-        ids = {_ensure_claim_ids(claims, "fl")[0]["claim_id"] for _ in range(5)}
-        assert len(ids) == 1  # always the same
-
-    def test_id_never_uses_memory_address(self):
-        """Old bug: id() is a memory address — changes between runs."""
-        claims = [{"text": "test claim", "kind": "api_method"}]
-        generated = _ensure_claim_ids(claims, "fl")[0]["claim_id"]
-        # Memory addresses are typically 10+ digit integers, not hex prefixed strings
-        # Our generated IDs are: prefix + 12-char hex
-        assert len(generated) > 0
-        assert generated.startswith("fl")
-        # Verify it's not a plain integer (memory address)
-        assert not generated.lstrip("fl").isdigit() or len(generated.lstrip("fl")) < 10
-
-
-# ---------------------------------------------------------------------------
-# Test: FL claim ordering invariance
-# ---------------------------------------------------------------------------
-
-class TestMergeOrderInvariance:
-    def _run_merge(self, fl_claims):
-        """Run _merge_fl_claims with a fixed scout claim and return result."""
-        scout = [copy.deepcopy(SCOUT_CLAIM)]
-        fl = copy.deepcopy(fl_claims)
-        return _merge_fl_claims(scout, fl)
-
-    def test_single_fl_claim_deterministic(self):
-        """Single FL claim: result is the same on two runs."""
-        r1 = self._run_merge([FL_CLAIM_A])
-        r2 = self._run_merge([FL_CLAIM_A])
-        assert r1 == r2
-
-    def test_two_fl_claims_order_invariant(self):
-        """Two FL claims in different order must produce identical merged output."""
-        r1 = self._run_merge([FL_CLAIM_A, FL_CLAIM_B])
-        r2 = self._run_merge([FL_CLAIM_B, FL_CLAIM_A])
-        # The matched claim IDs in the merge result must be identical
-        def extract_matched_ids(result):
-            return sorted([
-                c.get("fl_claim_id", "") or c.get("claim_id", "")
-                for c in result
-                if isinstance(c, dict)
-            ])
-        assert extract_matched_ids(r1) == extract_matched_ids(r2)
-
-    def test_reversed_fl_order_same_result(self):
-        """Reversing FL claim list must not change which claims match."""
-        fl_claims = [
-            {"claim_id": f"FL-{i:03d}", "text": f"Scene.open variant {i}", "kind": "api_method"}
-            for i in range(5)
-        ]
-        r1 = self._run_merge(fl_claims)
-        r2 = self._run_merge(list(reversed(fl_claims)))
-
-        def fl_ids(result):
-            return sorted([
-                c.get("fl_claim_id", "") or c.get("claim_id", "")
-                for c in result if isinstance(c, dict)
-            ])
-        assert fl_ids(r1) == fl_ids(r2)
+    def test_non_list_input_returns_empty(self):
+        assert _validate_claims(None, "scout") == []  # type: ignore[arg-type]
 
 
 # ---------------------------------------------------------------------------

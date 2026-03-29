@@ -9,7 +9,7 @@ import scout
 
 class TestPlatformToLang:
     def test_all_platforms_present(self):
-        expected = {"python", "dotnet", "java", "cpp", "typescript", "javascript", "nodejs"}
+        expected = {"python", "net", "dotnet", "java", "cpp", "typescript", "javascript", "nodejs"}
         assert set(scout.PLATFORM_TO_LANG.keys()) == expected
 
     def test_nodejs_maps_to_javascript(self):
@@ -17,6 +17,9 @@ class TestPlatformToLang:
 
     def test_dotnet_maps_to_csharp(self):
         assert scout.PLATFORM_TO_LANG["dotnet"] == "csharp"
+
+    def test_net_maps_to_csharp(self):
+        assert scout.PLATFORM_TO_LANG["net"] == "csharp"
 
 
 class TestNodeTypeMaps:
