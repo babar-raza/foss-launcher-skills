@@ -38,8 +38,13 @@ _SITE_CONTENT_MAP = {
 def _resolve_link_to_file(url, source_filepath):
     """Resolve an internal link URL to a content file path.
 
-    Returns (Path, True) if link is internal and resolvable,
-    (Path, False) if internal but NOT found, or (None, None) for external/skip.
+    Returns (resolved_path, link_kind) where link_kind is:
+      "absolute"       – proper https:// cross-subdomain link
+      "cross_relative" – root-relative but targets another subdomain (wrong form)
+      "same_site"      – root-relative within the same subdomain
+      None             – external / not an internal link (caller should skip)
+
+    resolved_path is a Path if found, or None if the target does not exist.
     """
     url = url.split("#")[0].split("?")[0].rstrip("/")  # strip anchor/query/trailing slash
     if not url:
@@ -50,15 +55,26 @@ def _resolve_link_to_file(url, source_filepath):
         prefix = f"https://{hostname}/"
         if url.startswith(prefix):
             rel_path = url[len(prefix):]
-            return _check_content_path(Path(content_dir), rel_path), False
+            return _check_content_path(Path(content_dir), rel_path), "absolute"
 
     # Relative URL starting with /
     if url.startswith("/"):
-        # Determine which site this file belongs to
+        rel = url.lstrip("/")
+        # Cross-subdomain root-relative: /docs.aspose.org/en/email/net/...
+        # These resolve but are the WRONG link form — should be absolute https://
+        for hostname, content_dir in _SITE_CONTENT_MAP.items():
+            if rel.startswith(hostname + "/"):
+                inner = rel[len(hostname) + 1:]  # strip "docs.aspose.org/"
+                # The content_dir already includes /en for non-blog sites,
+                # so strip a leading en/ from the inner path to avoid doubling.
+                if "/en" in content_dir and inner.startswith("en/"):
+                    inner = inner[3:]
+                return _check_content_path(Path(content_dir), inner), "cross_relative"
+        # Same-site root-relative: /email/net/getting-started/...
         source_str = str(source_filepath).replace("\\", "/")
         for hostname, content_dir in _SITE_CONTENT_MAP.items():
             if content_dir.replace("\\", "/") in source_str:
-                return _check_content_path(Path(content_dir), url.lstrip("/")), False
+                return _check_content_path(Path(content_dir), rel), "same_site"
 
     return None, None
 
@@ -105,10 +121,28 @@ def verify_internal_links(filepath) -> list:
             ):
                 continue  # external https link
 
-            resolved, _ = _resolve_link_to_file(url, filepath)
-            if resolved is None and _ is None:
+            resolved, kind = _resolve_link_to_file(url, filepath)
+            if kind is None:
                 continue  # not an internal link
-            if resolved is None:
+            if kind == "cross_relative":
+                # Root-relative link targeting another subdomain — wrong form.
+                # Build the correct absolute URL, stripping /en/ for English.
+                rel = url.lstrip("/")
+                correct = url
+                for h in _SITE_CONTENT_MAP:
+                    if rel.startswith(h + "/"):
+                        after_host = rel[len(h):]  # e.g. /en/email/net/...
+                        # English pages omit /en/ in the public URL
+                        if after_host.startswith("/en/"):
+                            after_host = "/" + after_host[4:]
+                        correct = f"https://{h}{after_host}"
+                        break
+                findings.append(Finding(
+                    "WARN", filepath, line_no,
+                    f"Cross-subdomain link must be absolute: [{link_text}]({url})",
+                    f"Use {correct} instead of root-relative path",
+                ))
+            elif resolved is None:
                 findings.append(Finding(
                     "WARN", filepath, line_no,
                     f"Broken internal link: [{link_text}]({url})",
