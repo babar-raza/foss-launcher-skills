@@ -28,5 +28,29 @@
     "text": "A3DObject.__init__(name) -> ",
     "kind": "api_method",
     "api_refs": ["A3DObject.__init__"]
+  },
+  {
+    "claim_id": "ERC-fake-001",
+    "text": "**Scene** is the top-level container for all 3D objects, supporting load and save.",
+    "kind": "enriched",
+    "confidence": 0.85
+  },
+  {
+    "claim_id": "ERC-fake-002",
+    "text": "**Node** represents a node in the scene graph hierarchy with child node support.",
+    "kind": "enriched",
+    "confidence": 0.80
+  },
+  {
+    "claim_id": "ERC-fake-003",
+    "text": "A3DObject is the base class for all named 3D objects with property storage.",
+    "kind": "enriched",
+    "confidence": 0.75
+  },
+  {
+    "claim_id": "ERC-fake-004",
+    "text": "The library provides unified import and export support for multiple formats.",
+    "kind": "enriched",
+    "confidence": 0.70
   }
 ]

@@ -46,6 +46,8 @@ class ContentEvalOutputRootTests(unittest.TestCase):
                 cross_page=False,
                 remediation=False,
                 output_root=str(output_root),
+                write_grade=False,
+                skip_graded=False,
             )
             stdout = _StdoutCapture()
             old_cwd = os.getcwd()

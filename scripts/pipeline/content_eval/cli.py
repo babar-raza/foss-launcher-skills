@@ -10,7 +10,7 @@ from pathlib import Path
 
 from . import __version__
 from .config import ALL_EVALUATORS, DEFAULT_EVALUATORS
-from .models import EvalReport, Finding
+from .models import EvalReport, Finding, compute_grade_with_criticality
 
 
 def _log(*args, **kwargs):
@@ -111,6 +111,30 @@ def _run_evaluate(args):
     # Cache knowledge per product
     knowledge_cache: dict[tuple[str, str], object] = {}
 
+    # --skip-graded: filter out pages already graded with current knowledge
+    if args.skip_graded:
+        _HERE = Path(__file__).resolve().parent.parent
+        if str(_HERE) not in sys.path:
+            sys.path.insert(0, str(_HERE))
+        from grade_writer import read_grade as _read_grade  # noqa: E402
+        filtered = []
+        for page in pages:
+            key = (page.family, page.platform)
+            if key not in knowledge_cache:
+                if page.family and page.platform:
+                    knowledge_cache[key] = _load_knowledge(page.family, page.platform)
+                else:
+                    knowledge_cache[key] = None
+            k = knowledge_cache[key]
+            stored = _read_grade(page.filepath)
+            if stored and stored["tier"] == "full" and k and hasattr(k, "repo_sha") and stored["model_sha"] == k.repo_sha:
+                continue  # Already graded with current knowledge, full evaluators
+            filtered.append(page)
+        skipped = len(pages) - len(filtered)
+        if skipped:
+            _log(f"Skipped {skipped} already-graded pages")
+        pages = filtered
+
     for page in pages:
         key = (page.family, page.platform)
         if key not in knowledge_cache:
@@ -181,6 +205,28 @@ def _run_evaluate(args):
     _log(f"  INFO: {len(report.infos)}")
     _log(f"  Report: {report_path}")
 
+    # --write-grade: persist computed grade into each page's frontmatter
+    if args.write_grade:
+        _HERE_g = Path(__file__).resolve().parent.parent
+        if str(_HERE_g) not in sys.path:
+            sys.path.insert(0, str(_HERE_g))
+        from grade_writer import write_grade as _write_grade  # noqa: E402
+
+        grade_counts: dict[str, int] = {}
+        by_file = report.by_file()
+        for page in pages:
+            fp = page.filepath
+            page_findings = by_file.get(str(fp), [])
+            grade = compute_grade_with_criticality(page_findings)
+            # Determine model_sha from cached knowledge
+            k = knowledge_cache.get((page.family, page.platform))
+            model_sha = k.repo_sha if k and hasattr(k, "repo_sha") else ""
+            tier = "full" if k and getattr(k, "available", False) else "structural"
+            _write_grade(fp, grade, model_sha=model_sha, evaluator_tier=tier)
+            grade_counts[grade] = grade_counts.get(grade, 0) + 1
+
+        _log(f"  Grades written: {grade_counts}")
+
     # Exit code
     if args.strict and report.fails:
         sys.exit(1)
@@ -216,6 +262,62 @@ def _run_diff(args):
             print(f"  [{f['level']}] {f['category']} {f['file']}:{f['line']} — {f['message']}")
 
 
+def _run_grade_summary(args):
+    """Print grade distribution across all (or one) product."""
+    _HERE_gs = Path(__file__).resolve().parent.parent
+    if str(_HERE_gs) not in sys.path:
+        sys.path.insert(0, str(_HERE_gs))
+    from knowledge_core import discover_content, discover_products  # noqa: E402
+    from grade_writer import read_grade as _read_grade  # noqa: E402
+
+    if args.product:
+        products = [(args.product[0], args.product[1])]
+    else:
+        products = sorted(discover_products())
+
+    total = 0
+    total_graded = 0
+    overall_dist: dict[str, int] = {}
+    rows = []
+
+    for family, platform in products:
+        files = discover_content(family, platform)
+        dist: dict[str, int] = {}
+        graded = 0
+        for f in files:
+            r = _read_grade(f)
+            if r:
+                graded += 1
+                dist[r["grade"]] = dist.get(r["grade"], 0) + 1
+                overall_dist[r["grade"]] = overall_dist.get(r["grade"], 0) + 1
+        total += len(files)
+        total_graded += graded
+        rows.append((f"{family}/{platform}", len(files), graded, dict(dist)))
+
+    if args.json:
+        import json as _json
+        print(_json.dumps({
+            "total_files": total,
+            "total_graded": total_graded,
+            "distribution": overall_dist,
+            "products": [
+                {"product": r[0], "files": r[1], "graded": r[2], "distribution": r[3]}
+                for r in rows
+            ],
+        }, indent=2))
+        return
+
+    print(f"Grade Summary: {total_graded}/{total} files graded\n")
+    print(f"{'Product':<25} {'Files':>5} {'Graded':>6}  A    B    C    D    F")
+    print("-" * 72)
+    for name, file_count, graded, dist in rows:
+        parts = [f"{dist.get(g, 0):>4}" for g in ("A", "B", "C", "D", "F")]
+        print(f"{name:<25} {file_count:>5} {graded:>6}  {'  '.join(parts)}")
+    print("-" * 72)
+    parts = [f"{overall_dist.get(g, 0):>4}" for g in ("A", "B", "C", "D", "F")]
+    print(f"{'TOTAL':<25} {total:>5} {total_graded:>6}  {'  '.join(parts)}")
+
+
 def main(argv: list[str] | None = None):
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
@@ -241,6 +343,10 @@ def main(argv: list[str] | None = None):
                              help="Include remediation plan")
     eval_parser.add_argument("--output-root",
                              help="Override report root for isolated runs")
+    eval_parser.add_argument("--write-grade", action="store_true",
+                             help="Write computed grade to each page's frontmatter")
+    eval_parser.add_argument("--skip-graded", action="store_true",
+                             help="Skip pages already graded with current knowledge")
     eval_parser.set_defaults(func=_run_evaluate)
 
     # diff command
@@ -248,6 +354,13 @@ def main(argv: list[str] | None = None):
     diff_parser.add_argument("old_report", help="Path to old JSON report")
     diff_parser.add_argument("new_report", help="Path to new JSON report")
     diff_parser.set_defaults(func=_run_diff)
+
+    # grade-summary command
+    gs_parser = sub.add_parser("grade-summary", help="Show grade distribution across content")
+    gs_parser.add_argument("--product", nargs=2, metavar=("FAMILY", "PLATFORM"),
+                           help="Filter to one product (e.g. --product slides python)")
+    gs_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    gs_parser.set_defaults(func=_run_grade_summary)
 
     args = parser.parse_args(argv)
     args.func(args)

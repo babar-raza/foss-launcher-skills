@@ -400,6 +400,12 @@ def extract_api_surface(
         # Track packages/namespaces
         module_types = _MODULE_TYPES.get(language, set())
         for mnode in collect_nodes(root, module_types):
+            # C++ namespace_definition: extract name field instead of full text
+            if language == "cpp" and mnode.type == "namespace_definition":
+                name_node = child_by_field(mnode, "name")
+                if name_node:
+                    packages.add(node_text(name_node))
+                continue
             pkg_text = node_text(mnode).strip().rstrip(";").rstrip("{").strip()
             for kw in ("package", "namespace"):
                 if pkg_text.startswith(kw):

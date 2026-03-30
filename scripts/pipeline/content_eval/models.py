@@ -256,3 +256,57 @@ class EvalReport:
         for f in self.findings:
             grouped.setdefault(f.category, []).append(f)
         return grouped
+
+    @property
+    def grade(self) -> str:
+        """Aggregate grade for this report."""
+        return compute_grade(len(self.fails), len(self.warns))
+
+
+# ---------------------------------------------------------------------------
+# Grade computation — canonical A-F scale (matches eval-page S-25)
+# ---------------------------------------------------------------------------
+
+# Categories whose FAIL findings force grade F regardless of count.
+CRITICAL_CATEGORIES = frozenset({"FC", "PC"})
+
+
+def compute_grade(fail_count: int, warn_count: int) -> str:
+    """Canonical A-F grade from finding counts.
+
+    Scale (matches eval-page S-25):
+        F: 6+ FAIL
+        D: 3-5 FAIL
+        C: 1-2 FAIL; or 0 FAIL + 6+ WARN
+        B: 0 FAIL, 3-5 WARN
+        A: 0 FAIL, 0-2 WARN
+    """
+    if fail_count >= 6:
+        return "F"
+    if fail_count >= 3:
+        return "D"
+    if fail_count >= 1:
+        return "C"
+    # 0 FAILs — grade depends on WARN count
+    if warn_count >= 6:
+        return "C"
+    if warn_count >= 3:
+        return "B"
+    return "A"
+
+
+def compute_grade_with_criticality(findings: list[Finding]) -> str:
+    """Grade with critical-finding override.
+
+    Any FAIL in a critical category (FC=forbidden_claims, PC=platform_purity)
+    forces grade F regardless of total count.
+    """
+    has_critical = any(
+        f.level == "FAIL" and f.category in CRITICAL_CATEGORIES
+        for f in findings
+    )
+    if has_critical:
+        return "F"
+    fails = sum(1 for f in findings if f.level == "FAIL")
+    warns = sum(1 for f in findings if f.level == "WARN")
+    return compute_grade(fails, warns)

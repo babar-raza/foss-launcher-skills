@@ -81,7 +81,7 @@ _MODULE_TYPES: dict[str, set[str]] = {
     "javascript": set(),
     "typescript": set(),
     "go": {"package_clause"},
-    "cpp": set(),
+    "cpp": {"namespace_definition"},
     "python": set(),
 }
 

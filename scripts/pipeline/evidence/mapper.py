@@ -125,8 +125,17 @@ def _map_tokens_to_evidence(tokens, knowledge) -> tuple[list, list]:
             continue
         seen_refs.add(ref)
 
-        api_key = f"{cls}.{tok.member_name}" if tok.member_name else cls
+        # Use ClassName.method for method calls; fall back to ClassName-only for
+        # constructors (__init__) so ERC- class-level claim keys can be resolved.
+        raw_member = tok.member_name
+        if raw_member and raw_member != "__init__":
+            api_key = f"{cls}.{raw_member}"
+        else:
+            api_key = cls
         cid = knowledge.api_to_claim.get(api_key)
+        if not cid and raw_member and raw_member != "__init__":
+            # Also try class-only fallback for ERC- resolution when method key misses
+            cid = knowledge.api_to_claim.get(cls)
         if cid:
             claim_ids.append(cid)
         if member:

@@ -58,7 +58,8 @@ def _install_command(platform: str, manifest: dict) -> str:
     return ""
 
 
-def _canonical_import(platform: str, manifest: dict) -> str:
+def _canonical_import(platform: str, manifest: dict,
+                      packages: set[str] | None = None) -> str:
     name = manifest.get("name", "")
     if platform == "python":
         pkg = name.replace("-", "_")
@@ -73,7 +74,34 @@ def _canonical_import(platform: str, manifest: dict) -> str:
         return ""
     if platform in ("typescript", "javascript", "nodejs"):
         return f'import {{ ... }} from "{name}";' if name else ""
+    if platform == "cpp" and packages:
+        # Compute deepest common namespace prefix from extracted namespaces
+        ns = _common_cpp_namespace(packages)
+        if ns:
+            return f"#include <{ns.replace('::', '/')}/...>"
     return ""
+
+
+def _common_cpp_namespace(packages: set[str]) -> str:
+    """Find the deepest common namespace prefix from a set of C++ namespaces.
+
+    Example: {"aspose::email::foss::cfb", "aspose::email::foss::msg"}
+    -> "aspose::email::foss"
+    """
+    if not packages:
+        return ""
+    split_ns = [ns.split("::") for ns in packages if "::" in ns]
+    if not split_ns:
+        return ""
+    prefix = split_ns[0]
+    for parts in split_ns[1:]:
+        new_len = min(len(prefix), len(parts))
+        prefix = prefix[:new_len]
+        for i in range(new_len):
+            if prefix[i] != parts[i]:
+                prefix = prefix[:i]
+                break
+    return "::".join(prefix) if prefix else ""
 
 
 def _runtime_requirement(platform: str, manifest: dict) -> str:
@@ -111,7 +139,7 @@ def write_outputs(
     output.mkdir(parents=True, exist_ok=True)
 
     install_cmd = _install_command(platform, manifest)
-    canonical_imp = _canonical_import(platform, manifest)
+    canonical_imp = _canonical_import(platform, manifest, packages)
     runtime_req = _runtime_requirement(platform, manifest)
 
     # model.yaml

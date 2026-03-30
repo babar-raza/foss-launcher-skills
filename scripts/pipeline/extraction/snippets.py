@@ -65,11 +65,21 @@ def _collect_snippet_functions(
                     results.append((fname, fn, fn.start_point[0] + 1))
 
     elif language == "cpp":
+        _gtest_macros = {"TEST", "TEST_F", "TEST_P", "TYPED_TEST"}
         for fn in collect_nodes(root, func_types):
             fname = _node_name(fn, language)
+            if not fname:
+                # C++ function_definition: name lives in function_declarator child
+                for ch in fn.children:
+                    if ch.type == "function_declarator":
+                        for gch in ch.children:
+                            if gch.type == "identifier":
+                                fname = node_text(gch)
+                                break
+                        break
             if fname and (fname.startswith("test_")
                           or fname.startswith("Test")
-                          or fname.startswith("TEST")):
+                          or fname in _gtest_macros):
                 results.append((fname, fn, fn.start_point[0] + 1))
 
     elif language in ("typescript", "javascript"):

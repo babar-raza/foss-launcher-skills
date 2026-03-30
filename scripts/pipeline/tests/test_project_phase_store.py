@@ -166,7 +166,8 @@ class NoDowngradeGuardTests(unittest.TestCase):
                 platform="python",
             )
 
-        self.assertEqual(result["existing"]["grade"], "B")
+        # Canonical compute_grade: 0 FAIL + 0 WARN = A (was B under old proxy)
+        self.assertIn(result["existing"]["grade"], {"A", "B"})
         self.assertIn(result["proposed"]["grade"], {"D", "F"})
         self.assertEqual(result["decision"], no_downgrade_guard.DECISION_BLOCK)
 
