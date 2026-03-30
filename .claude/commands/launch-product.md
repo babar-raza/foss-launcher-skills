@@ -30,22 +30,45 @@ kb, and reference pages. Uses `project-phase-store` (S-10) for checkpoint-based 
 
 ---
 
+### STAGE 0.5 — Site Plan
+
+Run `/site-plan {family} {platform}` to generate a complete, evidence-bound manifest of all pages before any generation begins.
+
+Check the output:
+- If `SITE-PLAN STOP:` → halt and fix the reported issue
+- If `launch_tier: placeholder` → first launch; continue
+- Note the `output: reports/plans/{family}/{platform}/site_plan.yaml` path for use in subsequent stages
+
+**Checkpoint**: `site_plan_done`
+
+**Resume guard**: If resuming and `reports/plans/{family}/{platform}/site_plan.yaml` already exists, verify its `repo_sha` matches `knowledge/{family}/{platform}/merged/model.yaml` `repo_sha`. If match: skip. If mismatch: re-run `/site-plan {family} {platform}`.
+
+**Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} site_plan_done true`
+
+---
+
 ### STAGE 1 — Products Page
-**Command**: `/new-products-page {family} {platform}`
+
+Read products pages from `reports/plans/{family}/{platform}/site_plan.yaml`, section `sections.products.pages[]`.
+
+Generate both:
+1. Family `_index.md` (layout: family): `/new-products-page {family}`
+2. Platform `_index.md` (layout: plugin): `/new-products-page {family} {platform} --layout plugin`
+
 **Checkpoint**: `products_done`
 
-**Skip condition**: `content/products.aspose.org/en/{family}/_index.md` already exists AND
-passes `python scripts/pipeline/audit.py --files content/products.aspose.org/en/{family}/_index.md`
-(0 FAIL)
+**Skip condition**: file already exists AND passes audit (0 FAIL)
 
 **Save checkpoint** when done.
 
 ---
 
 ### STAGE 2 — Blog Posts
-**Commands** (run sequentially):
-1. `/new-blog-post {family} {platform} introducing-{family}-foss-{platform}`
-2. `/new-blog-post {family} {platform} {family}-key-features-{platform}`
+
+Read blog post slugs from `reports/plans/{family}/{platform}/site_plan.yaml`, section `sections.blog.pages[]`. Generate each page whose `mandatory: true`. Also generate optional posts if `mandatory: false` and evidence supports it.
+
+For each page entry in `sections.blog.pages[]`:
+- Use `/new-blog-post {family} {platform} {slug}` for each entry
 
 **Skip condition per slug**: directory `content/blog.aspose.org/{family}/{platform}/{slug}/`
 already exists AND its `index.md` passes audit (0 FAIL)
@@ -55,12 +78,11 @@ already exists AND its `index.md` passes audit (0 FAIL)
 ---
 
 ### STAGE 3 — Documentation Pages
-**Derive needed pages** from `knowledge/{family}/{platform}/merged/claims.json`:
-- `getting-started/installation` — always generate if missing
-- `getting-started/quickstart` — always generate if missing
-- `developer-guide/{topic}` — one page per distinct capability cluster in claims
 
-**Command per page**: `/new-docs-page {family} {platform} {section} {slug}`
+Read docs pages from `reports/plans/{family}/{platform}/site_plan.yaml`, section `sections.docs.pages[]`.
+
+For each page entry:
+- Generate using `/new-docs-page {family} {platform} {section}/{slug}`
 
 **Skip condition**: file already exists AND passes audit
 
@@ -69,9 +91,11 @@ already exists AND its `index.md` passes audit (0 FAIL)
 ---
 
 ### STAGE 4 — KB Articles
-**Commands**:
-1. `/new-kb-faq {family} {platform}`
-2. `/new-kb-howto {family} {platform} how-to-get-started-{family}-{platform}`
+
+Read KB pages from `reports/plans/{family}/{platform}/site_plan.yaml`, section `sections.kb.pages[]`.
+
+1. Generate FAQ: `/new-kb-faq {family} {platform}`
+2. For each how-to page in the plan: `/new-kb-howto {family} {platform} {slug}`
 
 **Skip condition**: files already exist AND pass audit
 
@@ -139,10 +163,14 @@ Skip completed stages. Print: `Resuming {family}/{platform} from stage N (checkp
 
 Checkpoints are stored via S-10 (`project-phase-store`) in `reports/phase_state.json`.
 
-Keys used: `{family}_{platform}_knowledge_ready`, `{family}_{platform}_products_done`,
-`{family}_{platform}_blog_done`, `{family}_{platform}_docs_done`, `{family}_{platform}_kb_done`,
-`{family}_{platform}_reference_done`, `{family}_{platform}_truth_audit_done`,
-`{family}_{platform}_quality_done`
+Record key: `{family}/{platform}` (created automatically by the CLI from positional args).
+
+Value keys stored under each record: `knowledge_ready`, `products_done`,
+`blog_done`, `docs_done`, `kb_done`,
+`reference_done`, `truth_audit_done`, `quality_done`
+
+Example: `python scripts/pipeline/project_phase_store.py set email net knowledge_ready true`
+stores `knowledge_ready=true` under record key `email/net`.
 
 ## Error Handling
 

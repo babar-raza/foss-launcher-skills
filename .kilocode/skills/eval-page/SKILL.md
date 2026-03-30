@@ -90,12 +90,18 @@ Evaluate a content page using the content_eval pipeline and produce a letter gra
    NEXT STEP: {recommendation}
    ```
 
+8. **Write grade to frontmatter**:
+   ```bash
+   python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --write-grade --format json
+   ```
+   This persists the grade (A-F), timestamp, knowledge SHA, and evaluator tier into the page's YAML frontmatter. The grade is used by the no-downgrade-guard for overwrite protection.
+
 ## Post-conditions
 - Evaluation report is printed with grade and findings
 - Grade is one of A, B, C, D, F
 - Remediation plan is included for grades below A
 - Next step recommendation references the correct downstream skill
-- No file modifications made (read-only skill)
+- Grade is written to page frontmatter via `--write-grade` (see step 8)
 
 ## Error handling
 - If content_eval module is not available, fall back to running `python scripts/pipeline/audit.py --files {path}` for API accuracy check only, and assign grade based on audit results alone

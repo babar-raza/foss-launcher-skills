@@ -16,4 +16,10 @@ python scripts/pipeline/scout.py {family} {platform} {repo-path} knowledge/{fami
 python scripts/pipeline/enrich.py {family} {platform}
 python scripts/pipeline/promote.py {family} {platform}
 python scripts/pipeline/index.py {family} {platform}
+python scripts/pipeline/site_planner.py {family} {platform} --mode update
 ```
+
+After the pipeline completes, review the site planner delta output:
+- `pages_to_add`: create new pages using `/new-docs-page`, `/new-kb-howto`, or `/new-blog-post` as appropriate
+- `pages_to_update`: re-run the relevant generation skill for each affected page
+- `pages_to_remove`: review manually before deleting — removals require human judgment

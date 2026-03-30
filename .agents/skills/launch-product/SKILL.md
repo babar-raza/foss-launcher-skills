@@ -33,28 +33,71 @@ kb, and reference pages. Uses `project-phase-store` (S-10) for checkpoint-based 
 - `KNOWLEDGE: STOP:partial` → halt and explain; do not proceed
 - `KNOWLEDGE: REFRESHED` → halt: "Knowledge refreshed from upstream changes. Run `/knowledge-diff`
   to review what changed, then re-run `/launch-product {family} {platform}`."
-- Any other status → continue to Stage 1
+- Any other status → continue to pre-alpha gate
+
+**Pre-alpha gate** (Fix 9): After bootstrap, read `knowledge/{family}/{platform}/merged/model.yaml`.
+If `stats.class_count < 5`:
+```
+HARD STOP: PRE-ALPHA GATE — {family}/{platform} has only {N} documented classes.
+Minimum required: 5. Inspect the clone cache before launching.
+```
+
+**Enrichment quality gate** (Fix 6): If `stats.enriched_claims < 20`:
+```
+WARNING: Only {N} enriched claims. Re-run: python scripts/pipeline/enrich.py {family} {platform} --min-coverage 0.8
+Then re-promote: python scripts/pipeline/promote.py {family} {platform}
+```
+Do not proceed until enriched_claims ≥ 20 or human override.
 
 **Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} knowledge_ready true`
 
 ---
 
+### STAGE 0.5 — Site Plan
+
+Run `/site-plan {family} {platform}` to generate a complete, evidence-bound manifest of all pages before any generation begins.
+
+```bash
+/site-plan {family} {platform}
+```
+
+Check the output:
+- If `SITE-PLAN STOP:` → halt and fix the reported issue
+- If `launch_tier: placeholder` → the product has no prior content; this is a first launch — continue
+- Note the `output: reports/plans/{family}/{platform}/site_plan.yaml` path for use in subsequent stages
+
+**Checkpoint**: `site_plan_done`
+
+**Resume guard**: If resuming and `reports/plans/{family}/{platform}/site_plan.yaml` already exists, verify its `repo_sha` matches `knowledge/{family}/{platform}/merged/model.yaml.repo_sha`. If match: skip to Stage 1. If mismatch: re-run `/site-plan {family} {platform}`.
+
+**Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} site_plan_done true`
+
+---
+
 ### STAGE 1 — Products Page
-**Command**: `/new-products-page {family} {platform}`
+
+Read products pages from `reports/plans/{family}/{platform}/site_plan.yaml`, section `sections.products.pages[]`.
+
+Generate both:
+1. Family `_index.md` (layout: family): `/new-products-page {family}`
+2. Platform `_index.md` (layout: plugin): `/new-products-page {family} {platform} --layout plugin`
+
 **Checkpoint**: `products_done`
 
-**Skip condition**: `content/products.aspose.org/en/{family}/_index.md` already exists AND
-passes `python scripts/pipeline/audit.py --files content/products.aspose.org/en/{family}/_index.md`
-(0 FAIL)
+**Skip condition**: file already exists AND passes audit (0 FAIL)
 
 **Save checkpoint** when done.
 
 ---
 
 ### STAGE 2 — Blog Posts
-**Commands** (run sequentially):
-1. `/new-blog-post {family} {platform} introducing-{family}-foss-{platform}`
-2. `/new-blog-post {family} {platform} {family}-key-features-{platform}`
+
+Read blog post slugs from `reports/plans/{family}/{platform}/site_plan.yaml`, section `sections.blog.pages[]`. Generate each page whose `mandatory: true`. Also generate optional posts if `mandatory: false` and evidence supports it.
+
+For each page entry in `sections.blog.pages[]`:
+- `slug`: the directory name
+- `path`: the target file path
+- Use `/new-blog-post {family} {platform} {slug}` for each entry
 
 **Skip condition per slug**: directory `content/blog.aspose.org/{family}/{platform}/{slug}/`
 already exists AND its `index.md` passes audit (0 FAIL)
@@ -64,12 +107,31 @@ already exists AND its `index.md` passes audit (0 FAIL)
 ---
 
 ### STAGE 3 — Documentation Pages
-**Derive needed pages** from `knowledge/{family}/{platform}/merged/claims.json`:
-- `getting-started/installation` — always generate if missing
-- `getting-started/quickstart` — always generate if missing
-- `developer-guide/{topic}` — one page per distinct capability cluster in claims
 
-**Command per page**: `/new-docs-page {family} {platform} {section} {slug}`
+Read docs pages from `reports/plans/{family}/{platform}/site_plan.yaml`, section `sections.docs.pages[]`.
+
+For each page entry:
+- Generate using `/new-docs-page {family} {platform} {section}/{slug}`
+- The plan provides `capability_cluster`, `evidence_claims[]`, and `page_role` for each page
+- Pages with `mandatory: true` MUST be generated; `mandatory: false` pages are optional
+
+Always generate:
+- `getting-started/installation`
+- `getting-started/quickstart` **(mandatory — hard requirement)**
+- `developer-guide/features` (fixed mandatory — not derived from clusters)
+- `getting-started/license` only if `condition: "license_file_found_in_repo == true"` in the plan entry
+
+**Capability cluster enforcement** (Fix 2): After generating all plan pages, verify coverage:
+1. Read `knowledge/{family}/{platform}/merged/api_surface.json`
+2. Group classes by workflow cluster (read, write, convert, inspect, advanced) — classes in the same
+   source directory or sharing method prefixes form a cluster
+3. Any cluster with ≥5 public methods that has no dedicated docs page → generate one
+4. Only mark `docs_done` when all clusters are covered by at least one page
+
+**quickstart.md existence check** (Fix 4): Before marking `docs_done`, verify:
+```
+HARD STOP if getting-started/quickstart.md does not exist
+```
 
 **Skip condition**: file already exists AND passes audit
 
@@ -78,9 +140,22 @@ already exists AND its `index.md` passes audit (0 FAIL)
 ---
 
 ### STAGE 4 — KB Articles
-**Commands**:
-1. `/new-kb-faq {family} {platform}`
-2. `/new-kb-howto {family} {platform} how-to-get-started-{family}-{platform}`
+
+Read KB pages from `reports/plans/{family}/{platform}/site_plan.yaml`, section `sections.kb.pages[]`.
+
+For each page entry:
+- `faq.md`: generate using `/new-kb-faq {family} {platform}`
+- `how-to-*.md`: generate using `/new-kb-howto {family} {platform} {slug}`
+- `troubleshooting.md` (if in plan): generate using `/new-kb-howto {family} {platform} troubleshooting`
+- `use-cases.md` (if in plan): generate using `/new-kb-howto {family} {platform} use-cases`
+
+The plan provides `verb`, `capability_cluster`, `required_shortcode`, and `evidence_claims[]` for each how-to entry.
+
+**KB how-to derivation** (Fix 3): If the site plan has fewer than `floor(capability_clusters / 2)` how-to
+entries, derive additional topics from capability clusters:
+1. For each cluster with ≥2 public entry points and a clear task verb (read, convert, inspect, create),
+   generate a `how-to-{verb}-{object}-{platform}` article
+2. Minimum: FAQ + 1 how-to per major capability cluster
 
 **Skip condition**: files already exist AND pass audit
 
@@ -115,6 +190,41 @@ Auto-fixes deterministic issues only (no LLM pass). Reviews eval grades.
 
 ---
 
+### STAGE 7.5 — Completeness Gap Check (Fix 7)
+
+Before the readiness scorecard, run a completeness verification:
+
+1. **Required page existence check**:
+   - `getting-started/quickstart.md` MUST exist → HARD STOP if missing
+   - `getting-started/installation.md` MUST exist → HARD STOP if missing
+   - At least 1 blog post directory MUST exist → HARD STOP if missing
+   - `products.aspose.org/en/{family}/{platform}/_index.md` MUST exist → HARD STOP if missing
+
+2. **Capability cluster coverage** (from api_surface.json):
+   - Count distinct clusters with ≥5 public methods
+   - Count docs pages under `developer-guide/` (excluding `_index.md` and `features.md`)
+   - If cluster pages < clusters: WARN with list of uncovered clusters
+
+3. **KB depth check**:
+   - Count how-to articles under `kb.aspose.org/en/{family}/{platform}/`
+   - If how-to count < floor(capability_clusters / 2): WARN
+
+4. **Reference page content check** (R-D):
+   - For each reference page, verify no Markdown table has >30% blank value cells
+   - If blank template detected: FAIL with list of affected pages
+
+Print completeness summary:
+```
+=== COMPLETENESS: {family}/{platform} ===
+Required pages: {present}/{required}
+Capability clusters: {covered}/{total}
+KB how-tos: {count} (minimum: {min})
+Reference pages: {populated}/{total}
+COMPLETENESS: {PASS|WARN|FAIL}
+```
+
+---
+
 ### STAGE 8 — Readiness Scorecard
 Read `reports/content_eval/eval-latest.json` (or run fresh eval) for this product.
 
@@ -129,7 +239,10 @@ Reference pages: {grade summary} ({N} pages)
 
 A: N  B: N  C: N  D: N  F: N
 
-READY TO SHIP if: 0 D/F pages AND products + getting-started + first blog post at B+
+QUALITY:      {PASS if 0 D/F pages AND products + getting-started + first blog at B+}
+COMPLETENESS: {PASS/WARN/FAIL from Stage 7.5}
+
+READY TO SHIP if: QUALITY PASS AND COMPLETENESS PASS
 ```
 
 **Print**: `READY TO SHIP` or `NOT READY` with a bullet list of blocking items.
@@ -148,10 +261,14 @@ Skip completed stages. Print: `Resuming {family}/{platform} from stage N (checkp
 
 Checkpoints are stored via S-10 (`project-phase-store`) in `reports/phase_state.json`.
 
-Keys used: `{family}_{platform}_knowledge_ready`, `{family}_{platform}_products_done`,
-`{family}_{platform}_blog_done`, `{family}_{platform}_docs_done`, `{family}_{platform}_kb_done`,
-`{family}_{platform}_reference_done`, `{family}_{platform}_truth_audit_done`,
-`{family}_{platform}_quality_done`
+Record key: `{family}/{platform}` (created automatically by the CLI from positional args).
+
+Value keys stored under each record: `knowledge_ready`, `site_plan_done`,
+`products_done`, `blog_done`, `docs_done`, `kb_done`,
+`reference_done`, `truth_audit_done`, `quality_done`
+
+Example: `python scripts/pipeline/project_phase_store.py set email net knowledge_ready true`
+stores `knowledge_ready=true` under record key `email/net`.
 
 ## Error Handling
 

@@ -1,3 +1,12 @@
+---
+name: batch-remediate
+description: >
+  Full Eval→Fix→LLM→Re-eval pipeline for batch content remediation
+args: "{family} {platform}"
+---
+
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
 # S-40: Batch Remediate — Full Eval→Fix→LLM→Re-eval Pipeline
 
 **Arguments**: $ARGUMENTS
@@ -69,10 +78,10 @@ Run the complete remediation pipeline for all content pages of a product: evalua
 
    f. Maximum 2 LLM passes per file. If findings persist after 2 passes, escalate to human queue.
 
-7. **Run re-evaluation**:
+7. **Run re-evaluation and persist grades**:
 
    ```bash
-   python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json
+   python -m scripts.pipeline.content_eval evaluate {family} {platform} --write-grade --format json
    ```
 
 8. **Diff reports** to show improvement:

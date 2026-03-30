@@ -1,7 +1,16 @@
+---
+name: new-docs-page
+description: >
+  Generate a new documentation page for docs.aspose.org
+argument-hint: "{family} {platform} {section} {slug} [--bypass-plan]"
+---
+
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
 Generate a new documentation page for docs.aspose.org.
 
 **Arguments:** `$ARGUMENTS`
-**Expected format:** `{family} {platform} {section} {slug}` — e.g. `3d python developer-guide mesh-operations`
+**Expected format:** `{family} {platform} {section} {slug} [--bypass-plan]` — e.g. `3d python developer-guide mesh-operations`
 Valid sections: `getting-started` | `developer-guide`
 
 ## Knowledge Pre-conditions
@@ -26,16 +35,25 @@ Before generating any content, you MUST:
 
 ## Steps
 
-1. **Parse** `$ARGUMENTS` into: `family`, `platform`, `section`, `slug`.
+1. **Parse** `$ARGUMENTS` into: `family`, `platform`, `section`, `slug`. Note `--bypass-plan` flag if present.
 
-2. **Read existing docs for reference** (read only — do not copy text):
+2. **Site Plan Check**: Run the code-enforced plan gate:
+   ```bash
+   python scripts/pipeline/plan_check.py {family} {platform} docs {section}/{slug} [--bypass]
+   ```
+   Pass `--bypass` if `--bypass-plan` was in the arguments.
+   - Exit 0 → proceed normally.
+   - Exit 0 with `plan_bypass: true` output → proceed and add `# plan_bypass: true` as a comment in the generated frontmatter evidence block.
+   - Exit 1 → stop with the printed warning message.
+
+3. **Read existing docs for reference** (read only — do not copy text):
    - List files in `content/docs.aspose.org/en/{family}/{platform}/{section}/` to see what already exists
    - Read the `_index.md` for that section to understand the section's scope and tone
    - Read `content/reference.aspose.org/en/{family}/{platform}/_index.md` for available API classes and methods
 
-3. **Determine the next `weight`** by reading existing pages in the section and using the next available multiple of 10 (e.g. if highest existing weight is 20, use 30).
+4. **Determine the next `weight`** by reading existing pages in the section and using the next available multiple of 10 (e.g. if highest existing weight is 20, use 30).
 
-4. **Generate frontmatter**:
+5. **Generate frontmatter** (if `--bypass-plan` was passed, add `# plan_bypass: true` as a comment above the `evidence:` block):
    ```yaml
    ---
    page_role: howto_article
@@ -52,7 +70,7 @@ Before generating any content, you MUST:
    ---
    ```
 
-5. **Generate body** — structure differs by section:
+6. **Generate body** — structure differs by section:
 
    ### For `getting-started` pages:
    - `## {Title}`
@@ -81,20 +99,20 @@ Before generating any content, you MUST:
    - `---`
    - `### API Reference Summary` — markdown table: Class/Method | Description, limited to what you confirmed exists in reference content
 
-6. **Constraints**:
+7. **Constraints**:
    - Every code block uses ` ```python ` or ` ```bash ` language identifier
    - `---` divider between every major section
    - Class names, method names, package paths must exactly match what you read from reference content — no invented API
    - Internal links: relative paths within same section (`../slug/`) or absolute starting with `/docs.aspose.org/`
    - Do not add a `sidebar:` key unless the section `_index.md` uses it
 
-7. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
+8. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
    - Target path: `content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`
    - If BLOCK → do not write; report the blocking reason to the user
    - If WARN → present the warning to the user; await confirmation before writing
    - If ALLOW → proceed with write
 
-8. **Write** to `content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`
+9. **Write** to `content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`
 
 ## Knowledge Post-conditions
 
@@ -102,9 +120,10 @@ After generating the page:
 
 1. **Attach evidence**: Run `python scripts/pipeline/attach_evidence.py --files content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`
    — this writes the `evidence:` YAML frontmatter block (`model_sha`, `claims`, `apis`).
+   - After attach_evidence completes, an audit-tier grade is auto-populated in frontmatter. For a full multi-dimensional grade, run `/eval-page {path}`.
 2. **Run content check**: Execute `/content-check content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md` to validate structure and knowledge alignment
 3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
 4. **Run audit**: `python scripts/pipeline/audit.py --files content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`
    — must exit with 0 FAIL before committing.
 
-8. **Confirm** with the output path and a list of the H2 sections written.
+9. **Confirm** with the output path and a list of the H2 sections written.

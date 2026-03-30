@@ -1,3 +1,12 @@
+---
+name: batch-eval-fix
+description: >
+  Quick eval and auto-fix batch pipeline for content quality
+args: "{family} {platform}"
+---
+
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
 # S-41: Batch Eval Fix — Quick Eval + Auto-Fix Only
 
 **Arguments**: $ARGUMENTS
@@ -45,6 +54,8 @@ Lightweight remediation pipeline: evaluate content (or consume an existing repor
    ```bash
    python scripts/pipeline/attach_evidence.py --files {file1} {file2} ...
    ```
+
+   - After fixes are applied, persist updated grades: `python -m scripts.pipeline.content_eval evaluate {family} {platform} --write-grade --format json`
 
 6. **Report results** to the user:
 

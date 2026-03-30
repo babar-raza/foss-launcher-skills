@@ -50,6 +50,28 @@ Refresh the knowledge model for a product by re-running the full knowledge boots
 
 9. **Clean up**: Remove `merged.bak/` after diff report is generated.
 
+### Step 10: Update Site Plan
+
+After knowledge is refreshed, update the site plan to detect which pages need to be added, updated, or removed:
+
+```bash
+python scripts/pipeline/site_planner.py {family} {platform} --mode update
+```
+
+This will:
+- Compare the current `repo_sha` against the existing `reports/plans/{family}/{platform}/site_plan.yaml`
+- If no plan exists yet: generate a full plan (same as `/site-plan {family} {platform}`)
+- If the plan is current (same repo_sha): print "Plan is current" and skip
+- If the plan needs updating: print a delta summary with `pages_to_add`, `pages_to_update`, `pages_to_remove`
+
+Review the delta output. For each `pages_to_add` entry:
+- Use the appropriate generation skill to create the new page
+- For docs pages: `/new-docs-page {family} {platform} {section}/{slug}`
+- For KB pages: `/new-kb-howto {family} {platform} {slug}`
+- For blog posts: `/new-blog-post {family} {platform} {slug}`
+
+For `pages_to_remove` entries: review manually before deleting, as removals require human judgment.
+
 ## Post-conditions
 - `knowledge/{family}/{platform}/scout/` has fresh extraction artifacts
 - `knowledge/{family}/{platform}/merged/` has updated merged artifacts
