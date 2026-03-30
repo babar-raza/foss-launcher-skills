@@ -296,6 +296,42 @@ class TestWriteGrade:
         finally:
             p.unlink(missing_ok=True)
 
+    def test_orphan_grade_key_not_expanded(self):
+        """count=1 defense: orphaned grade key is not expanded into a second block.
+
+        When a stale grade key is separated from the main block by non-grade
+        content, write_grade() replaces only the main consecutive block
+        (count=1). The orphan remains inert but is NOT expanded into a full
+        duplicate grade block.
+        """
+        p = _tmp_file(textwrap.dedent("""\
+            ---
+            title: Page
+            grade: C
+            graded_at: "2026-01-01T00:00:00Z"
+            graded_model_sha: old
+            graded_evaluators: structural
+            description: Middle content
+            graded_evaluators: orphan
+            ---
+
+            Body.
+        """))
+        try:
+            write_grade(p, "A", model_sha="new_sha", evaluator_tier="full")
+            text = p.read_text(encoding="utf-8")
+            # Main block replaced correctly — only 1 grade: key
+            assert text.count("grade:") == 1, f"grade: duplicated:\n{text}"
+            assert "grade: A" in text
+            assert "graded_evaluators: full" in text
+            assert "description: Middle content" in text
+            # Orphan remains inert (not expanded into a full block)
+            assert text.count("graded_model_sha") == 1, (
+                f"orphan expanded into full block:\n{text}"
+            )
+        finally:
+            p.unlink(missing_ok=True)
+
 
 class TestReadGrade:
     def test_read_existing_grade(self):
