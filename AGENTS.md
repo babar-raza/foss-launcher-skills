@@ -427,6 +427,23 @@ python scripts/pipeline/provenance_backfill.py
 
 The backfill sets `translation_origin: unknown`, `auto_updatable: true`, and derives `source_file` / `source_sha` from the path mapping. This is the correct conservative default. See RUNBOOK §1 for the canonical post-clone setup sequence.
 
+### Reference orphan locale files
+
+`content/reference.aspose.org/` contains ~3,530 locale files with no English counterpart. These fall into two classified buckets:
+
+**Bucket 1 — Kebab-case topic-grouping pages (3,530 files):** Legacy multi-class summary pages (e.g., `animation.md` covering AnimationClip, AnimationNode, etc.) produced under an older organizational scheme. The current English reference uses individual PascalCase class pages; no English topic-group pages exist. These files:
+- Have valid translated content and are served to users; removing them would cause 404s
+- Cannot be updated via translator sync because the sync only processes English source files — there is no source to sync from
+- Should be left in place with `source_file: unknown` from the backfill
+- **Do not require `auto_updatable: false` for protection** — translator sync structurally cannot reach them (no English source → never in stale job queue)
+
+**Bucket 2 — Case-sensitivity mismatch (37 files):** All are `Light.md` (locale) for `3d/net`, where the English file is `light.md` (lowercase). Same class, same content, different filename capitalization. These:
+- Are valid translations of `content/reference.aspose.org/en/3d/net/light.md`
+- Cannot be updated by translator sync without a filename change (sync would produce `light.md`, not `Light.md`)
+- Remain frozen in their current state; `source_file` points to `unknown` from backfill
+
+**Policy:** Do not delete either bucket without verifying no live URLs depend on the files. Do not attempt to translator-sync these files without first resolving the structural mismatch.
+
 ## 11. Prohibited Actions
 
 - Copy content from `golden/` corpus into `content/` pages (`golden/` is rubric reference only)
