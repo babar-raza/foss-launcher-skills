@@ -87,7 +87,8 @@ Before generating any content, you MUST:
    - Every code block uses ` ```python ` or ` ```bash ` language identifier
    - `---` divider between every major section
    - Class names, method names, package paths must exactly match what you read from reference content — no invented API
-   - Internal links: relative paths within same section (`../slug/`) or absolute starting with `/docs.aspose.org/`
+   - **Internal links within docs.aspose.org**: use relative paths (`../slug/`)
+   - **Cross-subdomain links** (to kb, blog, reference): use absolute `https://` URLs without `/en/` — e.g. `https://kb.aspose.org/{family}/{platform}/slug/`
    - Do not add a `sidebar:` key unless the section `_index.md` uses it
 
 7. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:

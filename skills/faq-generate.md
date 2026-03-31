@@ -112,6 +112,11 @@ For KB FAQ pages specifically, prefer S-59 (new-kb-faq) which includes the full 
 - Evidence frontmatter lists all referenced claim IDs
 
 ## Error handling
-- If knowledge model is stale, the pre-condition bootstrap handles refresh automatically
-- If very few claims available (< 5), warn that FAQ will be sparse and suggest running S-34/S-35 for richer knowledge
-- If no limitations found, skip the Limitations category
+- If knowledge model is stale, the pre-condition bootstrap handles refresh automatically.
+- **Insufficient claims (< 3 claims total)**: Return `STOP:insufficient_knowledge` immediately.
+  Do NOT generate a partial FAQ. Print: "FAQ generation halted: fewer than 3 claims available
+  in merged/claims.json. Run S-34 (repo-scout) → S-37 (knowledge-enrich) → S-35 (truth-merge)
+  to populate the knowledge model before retrying."
+- **Sparse claims (3–4 claims)**: Log a WARN that the FAQ will be sparse. Continue generation
+  but limit output to the categories that have at least one grounded claim. Omit empty categories.
+- If no limitations found, skip the Limitations category entirely.

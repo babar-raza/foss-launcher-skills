@@ -7,6 +7,14 @@ Expected format: `{family} {platform}` — e.g. `3d java`
 
 Verify every API claim in content files against `api_surface.json` at the **member level** — not just class existence but individual methods, properties, constructor signatures, enum values, and types. This catches fabricated APIs that pass class-level checks (S-32, S-33, content-check).
 
+## Quick Reference — Verdict Summary
+
+| Verdict | Trigger | Action Required |
+|---------|---------|-----------------|
+| **FAIL** | Method/property/class not in `api_surface.json`, wrong type, wrong install command, contradicted format claim, forbidden claim | Must fix before commit |
+| **WARN** | Unverifiable member (empty methods array), not-implemented feature used without caveat, inherited member on child class | Flag for review; advisory only |
+| **PASS** | Member confirmed in `api_surface.json` or parent class via `class_graph`; format claim matches `formats.md` | No action |
+
 ## Pre-conditions
 
 1. `knowledge/{family}/{platform}/merged/api_surface.json` must exist
@@ -132,9 +140,19 @@ For each extracted token, verify against knowledge:
 When a method/property is not found directly on a class:
 1. Look up the class in `class_graph` (from index.json or api_surface bases)
 2. Check parent class for the member
-3. If found on parent → PASS (but note inheritance)
-4. If not found on parent either → continue up the chain
+3. If found on parent → PASS (but note inheritance in the report)
+4. If not found on parent either → continue up the chain (repeat steps 1–3 for the parent's parent)
 5. If not found anywhere in hierarchy → FAIL
+
+**Deep inheritance (>2 levels)**: Walk the full chain up to a maximum of 5 levels. If the
+`class_graph` entry for a class is empty (`[]`) or the class does not appear in `class_graph`,
+stop traversal at that point. Do NOT assume a member exists simply because the traversal
+was incomplete — treat unresolvable deep chains as WARN (UNVERIFIABLE), not FAIL, since the
+api_surface extraction may be incomplete for deeply nested hierarchies.
+
+**Circular inheritance**: If the same class appears twice during traversal (circular reference
+in `class_graph`), stop immediately and emit WARN: "Circular inheritance detected for
+{ClassName} — manual review required."
 
 ## Output Format
 

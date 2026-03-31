@@ -53,5 +53,8 @@ Re-run `/repo-scout {family} {platform} {repo-path}` to update knowledge
 ```
 
 ## Post-conditions
-- Diff report is printed to output
-- If HIGH impact, recommend re-scouting
+- Diff report is printed to output with impact classification (HIGH/MEDIUM/LOW).
+- If HIGH impact: recommendation to run S-14 (knowledge-update) is included in the report.
+- If no changes (SHAs match): skill exits cleanly with "no changes" message; no further action needed.
+- The stored `repo_sha` in `merged/model.yaml` is NOT modified by this skill — it is read-only.
+  SHA update only happens in S-14 (knowledge-update) after re-scouting completes.

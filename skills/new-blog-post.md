@@ -94,11 +94,12 @@ Before generating any content, you MUST:
    `---`
 
    `## Getting Started`
-   - Bullet list of 4–6 links to docs, KB, and reference pages using absolute internal paths:
-     - `[Getting Started](/docs.aspose.org/en/{family}/{platform}/getting-started/)`
-     - `[Developer Guide](/docs.aspose.org/en/{family}/{platform}/developer-guide/)`
-     - `[KB Articles](/kb.aspose.org/en/{family}/{platform}/)`
-     - `[API Reference](/reference.aspose.org/en/{family}/{platform}/)`
+   - Bullet list of 4–6 links to docs, KB, and reference pages using absolute `https://` URLs.
+     Omit `/en/` from all links (English pages use the root path):
+     - `[Getting Started](https://docs.aspose.org/{family}/{platform}/getting-started/)`
+     - `[Developer Guide](https://docs.aspose.org/{family}/{platform}/developer-guide/)`
+     - `[KB Articles](https://kb.aspose.org/{family}/{platform}/)`
+     - `[API Reference](https://reference.aspose.org/{family}/{platform}/)`
 
 5. **Constraints**:
    - `author` is always exactly `Aspose`

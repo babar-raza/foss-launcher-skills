@@ -55,13 +55,14 @@ Generate a new KB how-to article.
    - `{{% /steps %}}`
    - `## Common Issues and Fixes` — 3–5 bold-question + answer-paragraph pairs for likely errors
    - `## Frequently Asked Questions` — 3–5 `### Question?` + answer-paragraph pairs
-   - `## See Also` — 3–5 links using pattern `[Article Title](/kb.aspose.org/en/{family}/{platform}/slug/)`
+   - `## See Also` — 3–5 links using absolute `https://` URLs without `/en/`:
+     `[Article Title](https://kb.aspose.org/{family}/{platform}/slug/)`
 
 5. **Constraints** (hard rules — never violate):
    - Every code block must open with ` ```python ` or ` ```bash ` (language identifier required)
    - Use `---` horizontal divider between each step inside `{{% steps %}}`
    - Class names, method names, and import paths must exactly match what appears in the reference content you read — do not invent new API names
-   - All internal links must begin with `/kb.aspose.org/`, `/docs.aspose.org/`, or `/reference.aspose.org/`
+   - All cross-subdomain links must be absolute `https://` URLs without `/en/` (e.g. `https://docs.aspose.org/{family}/{platform}/...`)
    - All claims must be backed by entries in `knowledge/{family}/{platform}/merged/claims.json`
 
 6. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:

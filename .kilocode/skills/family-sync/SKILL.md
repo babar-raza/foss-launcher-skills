@@ -150,12 +150,22 @@ prevent double-frontmatter corruption:
 
 1. Parse the existing file's frontmatter with `yaml.safe_load` into a dict.
 2. Update only `head_description`, `description`, and `overview.content` in the dict.
-3. Serialize the full updated dict back with `yaml.dump(..., default_flow_style=False, allow_unicode=True, sort_keys=False)`.
-4. Reconstruct the file as `f"---\n{serialized_fm}---\n\n{body}"` where `body` is the
+3. Before serializing, wrap `overview.content` in a `_Literal` helper so `yaml.dump`
+   emits it as a `|` block scalar (not a quoted flow scalar):
+   ```python
+   class _Literal(str):
+       pass
+   def _literal_representer(dumper, data):
+       return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
+   yaml.add_representer(_Literal, _literal_representer)
+   fm['overview']['content'] = _Literal(fm['overview']['content'])
+   ```
+4. Serialize: `yaml.dump(fm, default_flow_style=False, allow_unicode=True, sort_keys=False)`.
+5. Reconstruct the file as `f"---\n{serialized_fm}---\n\n{body}"` where `body` is the
    original body content after the closing `---` fence.
-5. The reconstructed string **must end with `\n`**. If the body is empty, use
+6. The reconstructed string **must end with `\n`**. If the body is empty, use
    `f"---\n{serialized_fm}---\n"`.
-6. **Never** prepend a new `---...---` block to the existing file content — always
+7. **Never** prepend a new `---...---` block to the existing file content — always
    replace the whole frontmatter block in one atomic write.
 
 After writing, verify no double frontmatter was introduced:

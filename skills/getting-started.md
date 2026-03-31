@@ -170,9 +170,13 @@ Do not edit any content page before completing these checks:
 
 ## Notes for agents
 
-- Never skip Step 6 before editing content pages
-- If `stale_since != null` in `model.yaml`, run S-12 (knowledge-diff) -> S-13 (stale-detect) -> S-14 (knowledge-update) before any content edits
-- `PROFESSIONALIZE_API_KEY` is optional; TF-IDF fallback is transparent to all consuming skills
-- The `runs/` directory is git-ignored; FOSS clones are never committed
-- For production content work, always verify knowledge freshness with `/stale-detect {family} {platform}` (S-13) before writing
+> **Authoritative source**: The governance rules below are also documented in `AGENTS.md` §2
+> (Read Order) and §9 (Maintenance Workflow). Those sections take precedence if any
+> discrepancy exists. These notes are a quick reference for first-time onboarding only.
+
+- Never skip Step 6 before editing content pages — knowledge freshness is a hard requirement.
+- If `stale_since != null` in `model.yaml`, run S-12 (knowledge-diff) → S-13 (stale-detect) → S-14 (knowledge-update) before any content edits.
+- `PROFESSIONALIZE_API_KEY` is optional; TF-IDF fallback is transparent to all consuming skills.
+- The `runs/` directory is git-ignored; FOSS clones are never committed.
+- For production content work, always verify knowledge freshness with `/stale-detect {family} {platform}` (S-13) before writing.
 - Cross-product refresh: `python scripts/pipeline/refresh_knowledge.py --all --check`
