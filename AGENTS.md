@@ -1,6 +1,6 @@
 # AGENTS.md — Aspose.org Content Generation & Maintenance Governance
 
-> Last updated: 2026-03-29 (§6 + §12: FL dependency removed; S-30 deleted; S-37 knowledge-enrich added; pipeline is now scout-only + enrich)
+> Last updated: 2026-03-30 (§6a + §6b added: skill-first mandate, capability classification, gap escalation; §7, §8, §11 updated); prior: §12 .venv governance; FL dependency removed; S-30 deleted; S-37 knowledge-enrich added
 > Authority: Human maintainer only (see Section 4 — this file is in the forbidden write list)
 
 ## 1. Purpose
@@ -108,6 +108,12 @@ FORBIDDEN (no agent may write here without explicit human override):
 
 ## 6. Skill Chains by Task
 
+Skills are the **only sanctioned execution mechanism** for the task types listed below.
+When your requirement matches a listed task type, you must follow the corresponding chain —
+invoking each skill in order, passing outputs forward, and not substituting manual reasoning
+for any step that has a registered skill. If your requirement does not match any listed task
+type, follow the protocol in §6b before doing anything else.
+
 ### Initial generation (new page)
 
 ```
@@ -159,6 +165,130 @@ Platform scope rules enforced by `batch-reference`:
 - **java / net**: interfaces, concrete classes, structs, and enums all included
 - **Idempotency**: existing pages are never overwritten; re-runs skip already-present slugs
 
+## 6a. Skill-First Execution Mandate
+
+### Rule
+
+Every agent operating on this repo must treat the skill system as the **default and required**
+execution mechanism. This rule has the same enforcement weight as path-guard (§4) and
+evidence requirements (§5).
+
+### What "skill-first" means in practice
+
+1. **Before starting any task**, identify which registered skill(s) in §12 cover it.
+2. **Invoke matching skills** in the order defined by §6 chains. Do not perform equivalent
+   work through inline reasoning, shell one-liners, or ad hoc prompting when a skill exists.
+3. **Activate upstream dependencies automatically.** If a skill you need requires a
+   precondition (e.g., `/knowledge-bootstrap` before `/page-draft`), you must invoke that
+   precondition skill first — even if the user's request did not mention it.
+4. **Do not invent workflows.** If no skill covers the requirement, follow §6b (gap
+   escalation). Do not design a one-off process and execute it.
+
+### Dependency Activation Rule (DAR)
+
+Agents must activate the upstream skill if it has not already been confirmed as passing in
+the current session. "Passing" means: the upstream skill returned a non-STOP status in
+this conversation, no knowledge-modifying skill has run since, and less than one hour has
+elapsed.
+
+| Downstream skill | Required upstream | Trigger condition |
+|-----------------|------------------|------------------|
+| `/page-plan` (S-18) | `/knowledge-bootstrap` | Always |
+| `/page-draft` (S-19) | `/knowledge-bootstrap` | Always |
+| `/page-draft` (S-19) | `/page-plan` (S-18) | Plan not in session context |
+| `/page-update` (S-20) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | `stale_since` not null |
+| `/page-enhance` (S-21) | S-25 `/eval-page` or S-17 `/rubric-align` | Eval not in session context |
+| `/heal-page` (S-26) | S-25 `/eval-page` | Eval not in session context |
+| `/content-check` (S-23) | `/knowledge-bootstrap` | Always |
+| `/truth-merge` (S-35) | S-34 `/repo-scout` | Scout output absent |
+| `/batch-remediate` (S-40) | `/knowledge-bootstrap` | Always |
+| `/batch-eval-fix` (S-41) | `/knowledge-bootstrap` | Always |
+| Any content write | S-01 `/path-guard` | Always (final gate) |
+
+If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do not continue
+to the downstream skill.
+
+## 6b. Capability Classification and Gap Escalation
+
+Before starting any task that is not a direct invocation of a single registered skill, the
+agent must classify its capability level and act accordingly.
+
+### Capability states (choose exactly one)
+
+| State | Definition | Required action |
+|-------|-----------|----------------|
+| **FULL** | Every step of the requirement is covered by a registered skill in §12 | Invoke the skill chain; no gap report needed |
+| **PARTIAL** | Some steps are covered; others are not | Execute skill-covered steps; produce gap escalation report for uncovered steps; do not perform uncovered steps through ad hoc work |
+| **NONE** | No registered skill covers this requirement | Do not start work; produce gap escalation report immediately; await human decision |
+| **BROKEN** | A required skill exists but fails when invoked | Invoke it, capture failure output; produce breakage report; do not bypass; await human decision |
+
+### Classification output
+
+When starting a novel, multi-part, or ambiguous request, state:
+
+```
+CAPABILITY ASSESSMENT — {brief task description}
+State: FULL | PARTIAL | NONE | BROKEN
+Skill(s) covering this task: [list skill IDs and names, or "none"]
+Gap (if PARTIAL or NONE): [describe what is not covered]
+Broken skill (if BROKEN): [skill ID, invocation attempted, error observed]
+Planned action: [what you will do next]
+```
+
+For requests that are direct invocations of a single skill or a predefined §6 chain, this
+output is implicit — you do not need to print it.
+
+### Gap escalation report format
+
+When state is PARTIAL or NONE, produce this report after completing any skill-covered work,
+and save to `reports/skill-gaps/{YYYY-MM-DD}-{task-slug}.md`:
+
+```
+SKILL GAP ESCALATION
+Task: {what was requested}
+Capability state: PARTIAL | NONE
+Skills invoked (completed): [list]
+Uncovered requirement: {precise description}
+Impact: {what the user won't get until this gap is filled}
+
+ENHANCEMENT PLAN
+  Title: {short name for the missing skill}
+  Proposed skill ID: {next available S-xx or descriptive name}
+  Input: {what the skill would receive}
+  Output: {what the skill would produce}
+  Skill file location: skills/{proposed-name}.md
+  Depends on: {upstream skills it would call}
+  Estimated complexity: LOW | MEDIUM | HIGH
+  Workaround available: YES | NO
+  If YES — workaround description: {only if it can be done safely without fabrication}
+```
+
+### Broken skill report format
+
+When state is BROKEN, save to `reports/skill-breakage/{YYYY-MM-DD}-{skill-id}.md`:
+
+```
+SKILL BREAKAGE REPORT
+Skill: {ID and name}
+Invocation: {exact command or invocation attempted}
+Expected output: {what the skill's spec says it should produce}
+Actual output / error: {verbatim failure output}
+Impact: {what tasks are blocked until this is fixed}
+Suggested diagnosis: {most likely cause based on the error}
+```
+
+### Novel requirement protocol
+
+If the requirement does not match any task type in §6:
+
+1. Classify capability (FULL / PARTIAL / NONE) — for truly novel requirements this will
+   usually be PARTIAL or NONE.
+2. If PARTIAL: execute skill-covered steps, then produce gap escalation report.
+3. If NONE: produce gap escalation report immediately. Do not attempt the work.
+4. Do not design a new workflow and execute it inline — this is prohibited by §11.
+5. Fill in the "Enhancement Plan" section of the gap escalation report fully. This is the
+   mechanism by which the skill system grows to cover new requirements.
+
 ## 7. Hard Stop Conditions
 
 The following always cause immediate halt (no agent override):
@@ -167,6 +297,10 @@ The following always cause immediate halt (no agent override):
 - S-23 content-check returns `FAIL` after 2 retries
 - `knowledge/model.yaml.api_confidence = "low"`
 - Page grade = F (critical finding) from S-25
+- Agent classifies requirement as NONE (no skill covers it) and proceeds with ad hoc work —
+  unconditional STOP; produce a gap escalation report (§6b) instead
+- A required upstream skill (per DAR table in §6a) returns `STOP` or `DENY` — do not
+  proceed to the downstream skill; report the blocking condition to the user
 
 ## 8. Escalation Conditions (route to human review)
 
@@ -174,6 +308,8 @@ The following always cause immediate halt (no agent override):
 - S-12 diff reveals removed public class or changed method signature
 - `stale_report` shows > 30% of page claims are orphaned
 - Heal loop (S-26) fails to improve grade after 2 attempts
+- Skill breakage report is filed (§6b) — a broken skill cannot be bypassed; human must
+  diagnose and repair the skill before affected task types can proceed
 
 ## 9. Maintenance Workflow
 
@@ -204,6 +340,12 @@ The `evidence:` frontmatter block in each page is the persistent inline evidence
 - Generate code blocks using LLM — all code must come from `snippets/`
 - Skip S-23 content-check for any reason
 - Write to forbidden paths listed in Section 4
+- Bypass a registered skill by performing its equivalent function through manual reasoning,
+  inline shell commands, or ad hoc prompting — even if the output appears correct
+- Perform any step of a requirement classified as PARTIAL or NONE without first producing a
+  gap escalation report (§6b) and receiving explicit human approval for the uncovered portion
+- Invent a new workflow or process for a requirement type not covered by §6 — produce the
+  gap escalation report and enhancement plan defined in §6b instead, then halt
 
 ## 12. File Map
 
@@ -221,10 +363,104 @@ The `evidence:` frontmatter block in each page is the persistent inline evidence
 | `knowledge/{family}/{platform}/snippets/` | Pre-approved code snippets |
 | `knowledge/{family}/{platform}/formats.md` | Supported format claims |
 
+### Environment & Dependencies
+
+**Rule: all scripts must load environment variables exclusively from `.env` via `core.env_loader`.**
+
+#### Virtual environment (.venv)
+
+**Rule: always use `.venv` for all Python execution. Never use system Python directly.**
+
+The repo contains a pre-configured virtual environment at `.venv/` (repo root) with all
+required packages already installed (tree-sitter, pyyaml, requests, python-dotenv, pytest).
+Always activate it before running any script or `pip install` command.
+
+**Activate:**
+```bash
+# Windows (Git Bash / WSL)
+source .venv/Scripts/activate
+
+# Unix / macOS
+source .venv/bin/activate
+```
+
+Once activated, `python` and `pip` resolve to the venv — no path prefix needed.
+
+**Before installing any package** — check whether it is already in `.venv`:
+```bash
+pip show <package>          # with venv active
+```
+
+Install only into `.venv`, never into system Python. All `pip install -r` commands in this
+file assume the venv is active.
+
+**Agents must not** run `python` or `pip` commands without first confirming `.venv` is
+active (`echo $VIRTUAL_ENV` should be non-empty). For automated skill chains, prepend
+`source .venv/Scripts/activate &&` (Windows) or `source .venv/bin/activate &&` (Unix)
+to any shell command that invokes Python.
+
+#### `.env` file (repo root)
+
+The single source of truth for all runtime configuration. It is **git-ignored** — never commit it.
+Copy `.env.example` (repo root) to `.env` and fill in values.
+
+Key variables:
+
+| Variable | Used by | Required? |
+|----------|---------|-----------|
+| `GITHUB_TOKEN` | `update_product_registry.py` | Optional (or `--token` arg) |
+| `ASPOSE_CLONE_CACHE` | all pipeline scripts | Optional — defaults to `runs/.clone_cache/` |
+| `PROFESSIONALIZE_API_KEY` | `enrich.py`, `gap-eval/run.py` | Optional — falls back to Ollama |
+| `LLM_API_KEY` | `translator/cli.py` | **Required** for translation |
+| `LLM_API_BASE_URL` | `translator/cli.py` | Optional — defaults to `https://llm.professionalize.com/v1` |
+| `TRANSLATE_PRIMARY_MODEL` | `translator/cli.py` | Optional — defaults to `gpt-oss` |
+| `TRANSLATE_BULK_MODEL` | `translator/cli.py` | Optional — defaults to `TRANSLATE_PRIMARY_MODEL` |
+| `TRANSLATE_OLLAMA_BASE_URL` | `translator/backends/ollama.py` | Optional — defaults to `http://localhost:11434` |
+| `TRANSLATE_OLLAMA_MODEL` | `translator/backends/ollama.py` | Optional — defaults to `llama3.2` |
+| `GOOGLE_API_KEY` | `seo/get_keywords.py`, `seo/review_keywords.py` | Optional (SEO only) |
+| `LITELLM_KEY` | `seo/pipeline/recommend.py` | Optional (SEO only) |
+
+#### `env_loader` — automatic dotenv loading
+
+`scripts/pipeline/core/env_loader.py` provides `load_env()`. Every CLI entry point calls it
+once at startup, before any `os.environ.get()` call:
+
+```python
+from core.env_loader import load_env
+load_env()
+```
+
+Behaviour:
+- Reads `.env` at repo root into `os.environ`
+- Uses `override=False` — shell-exported variables and CI secrets always take precedence
+- No-op (silent) if `python-dotenv` is not installed or `.env` does not exist
+
+**Agents must not** call `os.environ.get()` without first ensuring `load_env()` has been called
+in the entry point. For new scripts, add the standard two-line block immediately after the
+`sys.path` setup section.
+
+#### Dependency installation
+
+Each subdirectory under `scripts/` maintains its own `requirements.txt`. Install only what
+you need:
+
+```bash
+pip install -r scripts/pipeline/requirements.txt    # core pipeline (includes python-dotenv)
+pip install -r scripts/translator/requirements.txt  # translator subsystem
+pip install -r scripts/gap-eval/requirements.txt    # gap-eval runner
+pip install -r scripts/seo/requirements.txt         # optional — SEO scripts only
+pip install -r scripts/generator/requirements.txt   # reference page generator
+pip install -r scripts/ci/requirements.txt          # CI check scripts
+pip install -r scripts/maintenance/requirements.txt # maintenance utilities
+```
+
+`scripts/requirements.txt` is a navigation index only — do not `pip install -r` it directly.
+
 ### Scripts reference
 
 | Path | Purpose |
 |------|---------|
+| `scripts/pipeline/core/env_loader.py` | `load_env()` — loads `.env` from repo root via python-dotenv; `override=False`; no-op if dotenv absent |
 | `scripts/pipeline/verification/` | Clean re-export namespace over `token_ops.py`; provides `extract_tokens`, `verify_tokens` under more descriptive import paths (`from verification.extractor import extract_tokens`, `from verification.verifier import verify_tokens`). `token_ops.py` remains unchanged and both import paths work simultaneously. |
 
 ### Skills reference
@@ -258,6 +494,7 @@ The `evidence:` frontmatter block in each page is the persistent inline evidence
 | batch-remediate | S-40 | Full eval→fix→LLM→re-eval pipeline for all content pages of a product |
 | batch-eval-fix | S-41 | Lightweight eval + deterministic auto-fixes only; no LLM pass; safe for unattended runs |
 | category-fix | S-42 | Run a specific fixer on files by category code (ST, RV, EG, RL, AA, PC, FC, PT, CP, CG) |
+| family-sync | S-48 | Update family-level products page to reflect all launched platforms |
 | batch-reference | — | Bulk reference page generation for all missing classes/enums in a family+platform; idempotent; never overwrites existing pages |
 | knowledge-bootstrap | — | Pre-condition gate; detects and resolves stale knowledge state before any content or validation command proceeds |
 | new-docs-page | — | Generate documentation pages for docs.aspose.org |
@@ -337,3 +574,18 @@ Omitting it is safe (Hugo defaults to `"production"` → panel hidden) but must 
 | Codex CLI | `.agents/skills/{name}/SKILL.md` | `CODEX.md` + `AGENTS.md` |
 | Kilo Code | `.kilocode/skills/{name}/SKILL.md` | `.kilocode/rules-code/` |
 | Canonical source | `skills/{name}.md` | — |
+
+---
+
+## Operating Standard
+
+Every agent operating on this repository is expected to behave as a disciplined user of a
+governed skill system — not as an autonomous reasoner inventing its own processes. The skill
+system is the documented, human-reviewed record of how content work is done here. When skills
+cover a requirement, they must be used. When they do not, the gap must be reported and
+recorded so the skill system can grow. An agent that silently bypasses skills, fabricates
+workflows, or completes tasks partially without disclosure violates the operating contract of
+this repository regardless of whether the output appears correct. Correctness of output does
+not retroactively legitimize non-compliant process. The test is not "did it work?" — the test
+is "did it work through the skill system, with the skill system's evidence and path rules
+intact?"

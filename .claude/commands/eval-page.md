@@ -40,8 +40,16 @@ Evaluate a content page using the content_eval pipeline and produce a letter gra
    - Exit code 0 (PASS): no additional findings from smoke test
    - If smoke_test.py not found: skip silently (tool not yet installed)
 
+2c. **EMPTY_CELL check** (applies to all pages with Markdown tables):
+   Scan the page body for Markdown tables. For each table:
+   - Count total value cells (excluding header row and separator row)
+   - Count blank cells (cells matching `| |` or `|  |` with only whitespace)
+   - If blank cells > 30% of total value cells: add a FAIL finding:
+     `[EMPTY_CELL] Table has {N}% blank cells — possible template data binding failure`
+   - This check catches reference pages or feature tables generated as blank shells
+
 3. **Parse output**: Extract findings categorized by severity:
-   - **FAIL**: Critical issues that must be fixed
+   - **FAIL**: Critical issues that must be fixed (including EMPTY_CELL from step 2c)
    - **WARN**: Issues that should be fixed
    - **INFO**: Suggestions for improvement
 

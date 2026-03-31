@@ -76,6 +76,29 @@ Generate both:
 
 ---
 
+### STAGE 1.5 — Family Page Sync
+
+**Condition**: Run ONLY when >= 2 platform subdirectories exist under
+`content/products.aspose.org/en/{family}/` after Stage 1 completes. This means
+another platform was already launched previously and the family page text may
+reference only the earlier platform(s).
+
+If only 1 platform subdirectory exists (this is the first launch for the family),
+skip this stage — the family page was just created fresh in Stage 1.
+
+**Command**: `/family-sync {family}`
+
+This rewrites the family `_index.md` text fields (`head_description`, `description`,
+`overview.content`) to be platform-agnostic and list all launched platforms.
+
+**Checkpoint**: `family_sync_done`
+
+**Skip condition**: only 1 platform subdirectory exists under the family
+
+**Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} family_sync_done true`
+
+---
+
 ### STAGE 2 — Blog Posts
 
 Read blog post slugs from `reports/plans/{family}/{platform}/site_plan.yaml`, section `sections.blog.pages[]`. Generate each page whose `mandatory: true`. Also generate optional posts if `mandatory: false` and evidence supports it.
@@ -193,7 +216,7 @@ Checkpoints are stored via S-10 (`project-phase-store`) in `reports/phase_state.
 Record key: `{family}/{platform}` (created automatically by the CLI from positional args).
 
 Value keys stored under each record: `knowledge_ready`, `site_plan_done`,
-`products_done`, `blog_done`, `docs_done`, `kb_done`,
+`products_done`, `family_sync_done`, `blog_done`, `docs_done`, `kb_done`,
 `reference_done`, `truth_audit_done`, `quality_done`
 
 Example: `python scripts/pipeline/project_phase_store.py set email net knowledge_ready true`

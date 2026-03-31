@@ -15,6 +15,7 @@ discovery_hints:
 
 discovered_actuals:
   package_name: "aspose-3d-foss"
+  import_path: "aspose.threed"
   package_source_actual: setup.py
   format_files_found: null
   last_baseline_sha: 37114723be16c9c9441c8fb93116b044ad1aa6b5
