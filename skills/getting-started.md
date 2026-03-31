@@ -134,6 +134,22 @@ If missing, re-run the install commands above.
 
 ---
 
+## Step 5c: Provenance backfill (fresh-clone only)
+
+On a fresh clone, locale files translated before the provenance system was introduced lack
+a `provenance:` block. Run the backfill to assign conservative defaults:
+
+```bash
+python scripts/pipeline/provenance_backfill.py
+```
+
+This is safe to re-run at any time (idempotent — files that already have a provenance block
+are skipped). After the backfill, all files have `auto_updatable: true` and
+`translation_origin: unknown` as their conservative baseline. Human-authored files should be
+updated manually to `auto_updatable: false` after running `/register-human-content` (S-66).
+
+---
+
 ## Step 6: Verify environment is healthy
 
 Run the audit tool against your product:

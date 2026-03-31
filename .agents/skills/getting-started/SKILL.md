@@ -27,3 +27,14 @@ python scripts/pipeline/audit.py {family} {platform}
 ```
 
 Do not use `merge.py` or `truth-sync`; the FL-era flow has been removed.
+
+After the knowledge bootstrap, complete the environment setup:
+
+```bash
+# Install enforcement hooks
+cp scripts/pre-commit-audit.sh .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+cp scripts/commit-msg-skills.sh .git/hooks/commit-msg && chmod +x .git/hooks/commit-msg
+
+# Backfill provenance blocks on pre-existing locale files (idempotent, safe to re-run)
+python scripts/pipeline/provenance_backfill.py
+```

@@ -78,7 +78,38 @@ FORBIDDEN (no agent may write here without explicit human override):
   .agents/     (Codex config)
   .kilocode/   (Kilo Code config)
   skills/      (canonical skill source — only humans may update)
+  scripts/pipeline/path_guard.py  (self-protected enforcement oracle)
+  .github/workflows/             (CI pipeline — not in content allowlist)
+
+ALSO ALLOWED (pipeline and CI maintenance):
+  scripts/pipeline/   (operational pipeline scripts — except path_guard.py above)
+  scripts/ci/         (CI helper scripts)
+  tests/              (test fixtures and integration tests)
 ```
+
+### Override token protocol (for forbidden-path edits)
+
+When a forbidden-path edit is authorized by the human maintainer:
+
+1. **Create an override token** BEFORE staging the forbidden-path file:
+   ```bash
+   python scripts/pipeline/override_manager.py create \
+     --paths <path> --reason '...' --plan '<plan-name>'
+   ```
+2. **Stage the token file** along with the forbidden-path change:
+   ```bash
+   git add reports/overrides/pending/<token-id>.json <forbidden-path-file>
+   ```
+3. The pre-commit hook will validate the token and allow the commit.
+4. After committing, consume the token:
+   ```bash
+   python scripts/pipeline/override_manager.py consume \
+     --token-id <id> --commit-sha $(git rev-parse HEAD)
+   ```
+
+Override tokens are stored in `reports/overrides/` and are part of the audit trail.
+The CI step "Check forbidden-path override tokens" verifies every PR touching forbidden paths
+has committed override tokens.
 
 ## 5. Evidence Requirements (non-negotiable)
 
@@ -154,6 +185,38 @@ S-17 (rubric-align) → S-21 (page-enhance) → S-23 → S-01 → write
 S-25 (eval-page) → S-26 (heal-page) → S-23 → S-25 → S-01 → write (or escalate)
 ```
 
+#### Healing/Enhancement dispatch — grade-to-skill mapping
+
+| Grade | Required skill | Rationale |
+|-------|---------------|-----------|
+| **A or B** | None (or S-21 for optional polish) | Meets quality bar |
+| **C** | S-21 (page-enhance) only | No false claims; improve depth and structure |
+| **D** | S-26 (heal-page) → check grade → if now C, optionally S-21 | False claims present; must heal before enhancing |
+| **F** | S-26 (heal-page) → if no improvement after 2 passes → human escalation (§8) | Critical violations |
+
+**Rule:** S-26 must precede S-21 when grade is D or below. S-21 alone is correct only for grade C.
+S-21 applied to a grade-D page without prior healing may suppress false claims that should be removed.
+
+#### Quality gate dispatch — development vs launch
+
+| Use case | Correct skill | When to use |
+|----------|---------------|-------------|
+| Iterative development (page-by-page improvement) | S-25 (eval-page) or S-51 (content-eval) | During generation/enhancement loops; many times per session |
+| Pre-launch publishability gate | S-43 (gap-eval) | Once per launch cycle; verifies against clone cache truth |
+| Cross-product quality summary | S-45 (gap-report) | Post-launch or periodic; cluster analysis across families |
+
+**Rule:** Use S-43 at most once per launch cycle (expensive; requires clone cache). Use S-25/S-51 during
+development. Do not use S-43 as a development-loop quality check — it is a launch-readiness gate, not a
+rapid-iteration tool.
+
+### Gap remediation (clone-cache verification + wave-ordered fixes)
+
+```
+S-43 (gap-eval) → S-44 (gap-plan) → S-46 (gap-apply) → S-23 (content-check) → S-01 (path-guard) → write
+```
+
+Wave 4 items from S-46 are escalated to human review (do not apply ad hoc fixes).
+
 ### Batch reference page generation
 
 ```
@@ -215,6 +278,8 @@ elapsed.
 | `/content-audit` (S-32) | `/knowledge-bootstrap` | Always |
 | `/site-plan` (S-47) | `/knowledge-bootstrap` | Always |
 | `/family-sync` (S-48) | `/knowledge-bootstrap` | Always |
+| `/gap-apply` (S-46) | S-44 `/gap-plan` | Plan not in session context |
+| `/register-human-content` (S-66) | `/knowledge-bootstrap` | Always |
 | Any content write | S-01 `/path-guard` | Always (final gate) |
 
 If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do not continue
@@ -367,6 +432,40 @@ Every commit touching `content/` MUST include in the commit message:
 
 The `evidence:` frontmatter block in each page is the persistent inline evidence record.
 `model_sha` anchors it to the knowledge version; `audit.py` detects staleness automatically.
+
+### Skill invocation accuracy (T-04 requirement)
+
+For content commits, the "Skills invoked:" field MUST accurately reflect which skills were
+invoked as **full SKILL.md procedures**. Do not declare a skill that was applied as inline
+reasoning (equivalent work but not through the registered skill procedure).
+
+Use a skill run record to ensure accuracy:
+```bash
+# Before execution: create a run record
+python scripts/pipeline/skill_run_manager.py create --skills S-48 S-23 --plan '<plan>'
+
+# If any skill was applied as inline reasoning, record it explicitly:
+python scripts/pipeline/skill_run_manager.py record-step \
+  --run-id <id> --skill S-01 --type inline_reasoning \
+  --note "Path checked inline: under content/, not forbidden" --deviation
+
+# Get the correct "Skills invoked:" list (excludes inline_reasoning):
+python scripts/pipeline/skill_run_manager.py get-declared-skills --run-id <id>
+```
+
+Skill run records are stored in `reports/skill-runs/`. The CI step "Validate skill run records"
+checks that declared skills match the record (advisory). The commit-msg hook warns on mismatch.
+
+### Proof bundles for compliance observations
+
+Any governance run that produces a compliance observation in `reports/compliance/` MUST
+generate a corresponding proof bundle in `reports/proofs/`. Use:
+```bash
+bash scripts/ci/capture_proof_bundle.sh <slug> <command1> <command2> ...
+```
+
+The bundle captures verbatim command outputs with exit codes, git diff, and structured metadata.
+The CI step "Check compliance observation proof bundles" verifies this linkage.
 
 ## 10b. Content Provenance Rules
 
@@ -622,6 +721,7 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | gap-eval | S-43 | Content verification against clone cache — publishability verdict |
 | gap-plan | S-44 | Wave-ordered remediation planning from gap-eval findings |
 | gap-report | S-45 | Cross-product gap synthesis report |
+| gap-apply | S-46 | Execute wave-ordered fix specs from gap-plan output (Wave 1 auto-fix, Wave 2 LLM-planned substitutions, Wave 3 page generation, Wave 4 human escalation) |
 | site-plan | S-47 | Production-grade pre-generation site manifest (deterministic YAML output) |
 | family-sync | S-48 | Update family-level products page to reflect all launched platforms |
 | launch-product | S-49 | 5-subdomain full documentation launch orchestrator (10 stages) |
@@ -639,6 +739,9 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | batch-reference | S-62 | Bulk reference page generation for all missing classes/enums; idempotent |
 | code-smoke | S-63 | Syntax and type-check Python code blocks in content files |
 | getting-started | S-64 | Fresh-clone onboarding: install deps, configure env, bootstrap knowledge, verify |
+| link-validate | S-65 | Validate cross-subdomain internal links in content files; report BROKEN links where the target slug does not exist locally |
+| register-human-content | S-66 | Onboard a human-authored page into quality and provenance systems (sets auto_updatable: false, attaches evidence, assigns grade baseline) |
+| diagnose-skill-failure | S-67 | Governed diagnostic procedure when a skill or pipeline script fails; classifies failure as CONFIG/DATA/CODE/GOVERNANCE and produces a breakage report |
 
 ### Enforcement scripts
 
