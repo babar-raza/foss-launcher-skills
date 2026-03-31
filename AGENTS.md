@@ -197,7 +197,7 @@ elapsed.
 | `/page-draft` (S-19) | `/knowledge-bootstrap` | Always |
 | `/page-draft` (S-19) | `/page-plan` (S-18) | Plan not in session context |
 | `/page-update` (S-20) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | `stale_since` not null |
-| `/page-enhance` (S-21) | S-25 `/eval-page` or S-17 `/rubric-align` | Eval not in session context |
+| `/page-enhance` (S-21) | S-25 `/eval-page` or S-17 `/rubric-align` (either satisfies — choice of [S-25, S-17]) | Eval not in session context |
 | `/heal-page` (S-26) | S-25 `/eval-page` | Eval not in session context |
 | `/content-check` (S-23) | `/knowledge-bootstrap` | Always |
 | `/truth-merge` (S-35) | S-34 `/repo-scout` | Scout output absent |
@@ -214,6 +214,7 @@ elapsed.
 | `/change-guard` (S-33) | `/knowledge-bootstrap` | Always |
 | `/content-audit` (S-32) | `/knowledge-bootstrap` | Always |
 | `/site-plan` (S-47) | `/knowledge-bootstrap` | Always |
+| `/family-sync` (S-48) | `/knowledge-bootstrap` | Always |
 | Any content write | S-01 `/path-guard` | Always (final gate) |
 
 If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do not continue
@@ -230,6 +231,18 @@ itself internally → no DAR entry.
 **DAR maintenance**: When a skill is added, removed, renamed, or split, update this table.
 Run `python scripts/ci/check_dar_coverage.py` to verify alignment between the DAR table
 and skill file preconditions.
+
+**Adding a DAR entry** — use this template:
+
+```
+| `/skill-name` (S-XX) | S-YY `/upstream-skill` | Trigger condition (Always | specific condition) |
+```
+
+Steps:
+1. Add the row to the table above in the correct alphabetical/logical position.
+2. Ensure the downstream skill's `## Pre-conditions` section documents the same dependency.
+3. Run `python scripts/ci/check_dar_coverage.py` — must exit 0.
+4. If the CI check fails, the skill file precondition text and the DAR row are misaligned — fix both.
 
 ## 6b. Capability Classification and Gap Escalation
 
@@ -378,14 +391,14 @@ provenance:
 | Event | Fields updated |
 |-------|----------------|
 | Translator produces a new or updated locale file | `translation_origin`, `source_file`, `source_sha`, `last_mechanism: translator`, `auto_updatable: true`, `reviewed: false` |
-| Evidence attachment writes evidence block | `last_mechanism: evidence-attach` only — all other fields unchanged |
+| Evidence writer helper writes evidence block | Interim `last_mechanism: evidence-attach`; in the default `attach_evidence.py` flow, the subsequent grade write persists `grade-writer` as the final value |
 | Grade writer writes grade block | `last_mechanism: grade-writer` only — all other fields unchanged |
 | Remediation fixer modifies content | `last_mechanism: fixer` only — all other fields unchanged |
 | Skill generates a new English page | `content_origin: skill-generated`, `last_mechanism: skill`, `auto_updatable: true`, `reviewed: false` |
 | Human edits content | `last_mechanism: human-edit`, `auto_updatable: false`, `reviewed: true` |
 | Agent edits content directly | `last_mechanism: agent-edit`, `reviewed: false` |
 
-**Critical:** Evidence attachment, grade writes, and fixer runs are metadata-only operations. They MUST update `last_mechanism` but MUST NOT change `auto_updatable` or `translation_origin`.
+**Critical:** Evidence attachment, grade writes, and fixer runs are metadata-only operations. They MUST update `last_mechanism` but MUST NOT change `auto_updatable` or `translation_origin`. When multiple metadata writers run in sequence, the final persisted value is from the last writer. In the default `attach_evidence.py` path, `write_grade()` runs after the evidence write, so the final persisted `last_mechanism` is `grade-writer`.
 
 ### Overwrite/skip decision rules
 
@@ -616,7 +629,7 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | translate-page | S-52 | Translate a single English content page to target locales |
 | translate-batch | S-53 | Batch translate all pages for a family/platform to target locales |
 | knowledge-bootstrap | S-54 | Pre-condition gate; detects and resolves stale knowledge before content or validation commands |
-| no-downgrade-guard | S-55 | Pre-write quality comparison to prevent content regression |
+| no-downgrade-guard | S-55 | Pre-write quality comparison to prevent content regression *(internal sub-routine — called by generation skills before write; not invoked directly by users)* |
 | new-docs-page | S-56 | Generate documentation pages for docs.aspose.org |
 | new-blog-post | S-57 | Generate blog posts for blog.aspose.org |
 | new-kb-howto | S-58 | Generate KB how-to articles |
@@ -697,6 +710,36 @@ Omitting it is safe (Hugo defaults to `"production"` → panel hidden) but must 
 | Codex CLI | `.agents/skills/{name}/SKILL.md` | `CODEX.md` + `AGENTS.md` |
 | Kilo Code | `.kilocode/skills/{name}/SKILL.md` | `.kilocode/rules-code/` |
 | Canonical source | `skills/{name}.md` | — |
+
+---
+
+## 14. Completion Verification Protocol
+
+When reviewing whether a task, sprint, or acceptance criterion is complete, the agent or
+reviewer must assign one of the following verification tiers. A lower tier cannot be
+substituted for a higher tier to claim completion.
+
+| Tier | Label | Meaning |
+|------|-------|---------|
+| 1 | Written | File was edited. No verification performed. Mark as `[written]`, not `[x]`. |
+| 2 | Tested | Automated test covers the criterion. Test was run and passed. |
+| 3 | Runtime-validated | Script or tool confirmed behavior at runtime. |
+| 4 | Behaviorally proven | Confirmed in real agent execution, not only in file state. |
+
+### Rules
+
+1. A criterion is `[x]` (complete) only when it reaches the minimum tier required by the
+   governing plan or specification. Where no minimum is stated, Tier 2 (Tested) is the
+   default minimum.
+2. `[written]` is not completion — it is the start of the work. Do not mark criteria
+   complete when only Tier 1 (Written) evidence exists.
+3. Sprint summaries must include a tier breakdown (count per tier). A summary that marks
+   everything `[x]` without naming verification actions is non-conforming.
+4. Any criterion marked complete without a named verification action is automatically
+   treated as OPEN on the next review cycle.
+5. Claims about behavioral compliance (e.g., "agents follow skill chains") require at
+   minimum Tier 4 (Behaviorally proven). They must not be asserted on the basis of
+   documentation changes alone.
 
 ---
 
