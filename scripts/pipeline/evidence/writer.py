@@ -122,4 +122,13 @@ def _write_evidence_to_frontmatter(filepath, evidence_dict) -> bool:
         new_text = f"---\n{evidence_yaml}---\n\n{text}"
 
     atomic_write(filepath, new_text)
+
+    # Update provenance: record that evidence-attach modified the file.
+    # Only updates last_mechanism — does NOT change auto_updatable or origin.
+    try:
+        from provenance import update_mechanism
+        update_mechanism(filepath, "evidence-attach")
+    except Exception:
+        pass  # Provenance update is best-effort; evidence write succeeded
+
     return True

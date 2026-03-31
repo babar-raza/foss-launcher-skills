@@ -166,6 +166,13 @@ def run_fixes(
         if page_text != original_text and not dry_run:
             filepath.write_text(page_text, encoding="utf-8")
             _log(f"  wrote {filepath_str}")
+            # Update provenance: record that a fixer modified the file.
+            # Only updates last_mechanism — does NOT change auto_updatable or origin.
+            try:
+                from provenance import update_mechanism
+                update_mechanism(filepath, "fixer")
+            except Exception:
+                pass  # Provenance update is best-effort
 
         # Run post-step fixers (e.g. evidence_attach subprocess)
         for tf in post_step_findings:
