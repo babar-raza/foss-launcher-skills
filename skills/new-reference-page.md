@@ -7,8 +7,6 @@ args: "{family} {platform} {classname}"
 ---
 Generate a new API reference page for reference.aspose.org.
 
-> **Configuration**: Output paths below are defaults for the aspose.org repo. See `config.yaml` `sites.reference` for your project's reference content path.
-
 **Arguments:** `$ARGUMENTS`
 **Expected format:** `{family} {platform} {classname}` — e.g. `3d python polygon-modifier`
 The classname argument is used as both the slug (filename) and the class display name (PascalCase the slug for title).
@@ -23,36 +21,12 @@ Before generating any content, you MUST:
 2. **Load API surface**: Read `knowledge/{family}/{platform}/merged/api_surface.json`
    - The class being documented MUST exist in api_surface.json — do not document classes that aren't verified
    - Use method signatures, property types, and docstrings from api_surface.json as the authoritative source
+2b. **Read API surface summary**: Read `knowledge/{family}/{platform}/merged/api_surface.md`
+    - This is the concise, human-readable API reference
+    - Every class name, method, property, and enum value in your generated content MUST appear in this file
+    - If a name is not in api_surface.md, do not use it
 3. **Load class graph**: Read `knowledge/{family}/{platform}/merged/class_graph.json` for inheritance chain
 4. **Load forbidden claims**: Read `forbidden_claims` from `index.json` — never reference capabilities that are not implemented
-
-## Golden Corpus Pre-conditions
-
-1. **Load corpus profile**: Read `knowledge/{family}/{platform}/_corpus/reference_profile.json`
-   - If not found → WARN and suggest running `/corpus-scan {family} {platform} reference`; proceed with default template
-
-2. **Load golden index**: Read `golden/_index.json`
-   - If not found → WARN and suggest running `python scripts/golden_index.py`; proceed with default template
-
-3. **Determine variant**: Read `selected_variant` from the corpus profile
-   - If `richness_tier: C` → use "minimal" variant (class definition + properties table only)
-   - If `richness_tier: A` or `B` → use "standard" variant (full with examples, methods, see also)
-
-4. **Select golden page**: From `golden/_index.json`, find the page where `page_role` is `api_reference` and `variant` matches the selected variant
-   - If no match → fall back to "standard" variant
-
-5. **Read the golden file**: Read the actual golden `.md` file at the `source_path` from the index entry
-
-6. **Apply STRUCTURAL CONTRACTS**: For EACH section you generate, find the matching section in the golden page (by heading) and follow its structural contract:
-   - Required block types (paragraph, code, list, table) at minimum counts
-   - Target prose word count and code block count
-
-7. **Apply STYLE ANCHOR**: Use the first 600 chars of the matching golden section as a style reference — match its voice and depth. Do NOT copy its actual content.
-
-8. **Apply STYLE RUBRIC** from the golden page's `style_rubric`:
-   - If `prose_before_code: true` → every code block must be preceded by a prose paragraph
-   - If `code_completeness_required: true` → code must show import + usage + verification pattern
-   - Include at least `min_code_variety` distinct code examples
 
 ## Steps
 
@@ -77,7 +51,7 @@ Before generating any content, you MUST:
    summary: >
      {Same 2 sentences as description — used in listing cards}
    categories:
-   - {Class | Enum | Interface — pick based on api_surface.json: if class has `enum_members` → Enum}
+   - {Class | Enum | Interface — pick the correct one}
    layout: reference-single
    ---
    ```
@@ -114,20 +88,9 @@ Before generating any content, you MUST:
    Markdown table:
    | Property | Type | Access | Description |
    |----------|------|--------|-------------|
-   *(one row per property from api_surface.json `properties` array)*
+   *(one row per property)*
 
-   Access values — map from the `read_write` field in api_surface.json:
-   - `read_write: true` → "read/write"
-   - `read_write: false` or absent → "read"
-
-   `---`
-
-   `## Enum Members` *(only if the class has `enum_members` in api_surface.json — omit for non-enum classes)*
-
-   Markdown table:
-   | Member | Value | Description |
-   |--------|-------|-------------|
-   *(one row per entry from api_surface.json `enum_members` array)*
+   Access values: `read` | `read/write`
 
    `---`
 
@@ -158,5 +121,6 @@ After generating the reference page:
 
 1. **Run evidence citation**: Execute `/evidence-cite content/reference.aspose.org/en/{family}/{platform}/{classname-slug}.md` to attach `<!-- evidence: api=... -->` comments
 2. **Run content check**: Execute `/content-check content/reference.aspose.org/en/{family}/{platform}/{classname-slug}.md` to validate structure and knowledge alignment
+3. Run `python scripts/pipeline/audit.py --files {output-file}` to verify API accuracy before committing
 
 7. **Confirm** with the output path and a count of properties and methods documented.

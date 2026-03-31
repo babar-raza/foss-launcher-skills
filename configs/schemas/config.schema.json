@@ -134,6 +134,10 @@
         }
       }
     },
+    "knowledge_root": {
+      "type": "string",
+      "description": "Base directory for all knowledge artifacts (non-templated root). Default: 'knowledge'."
+    },
     "launcher_compat": {
       "type": "string",
       "description": "Semver range of compatible launcher versions."

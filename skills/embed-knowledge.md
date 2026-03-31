@@ -24,16 +24,16 @@ Embed knowledge artifacts into dual vector stores using the three-tier embedding
 ## Steps
 
 1. **Parse arguments**: `{family} {platform}` or `all`
-2. **Run embedding**: `python scripts/embed.py {family} {platform}`
-3. **Verify outputs**: Check that vector files were created in `knowledge/_vectors/{tier}/{family}/{platform}/`
+2. **Run embedding**: `python scripts/pipeline/embed.py {family} {platform}`
+3. **Verify outputs**: Check that vector files were created in `knowledge/_vectors/`
 4. **Report**: Print which tiers were used and how many vectors were generated
 
 ## Post-conditions
-- At least one tier of vectors exists in `knowledge/_vectors/{tier}/{family}/{platform}/`
-- `knowledge/_vectors/config.json` is updated with per-product `last_embedded` timestamps under `products`
+- At least one tier of vectors exists in `knowledge/_vectors/`
+- `knowledge/_vectors/config.json` is updated with `last_embedded` timestamps
 - Vector counts match claim counts in merged knowledge
 
 ## Notes
 - Tier 1 and Tier 2 use different models, so vectors are NOT interchangeable
-- Each tier has its own subdirectory (`api/{family}/{platform}/`, `local/{family}/{platform}/`)
+- Each tier has its own subdirectory (`api/`, `local/`)
 - If neither Tier 1 nor Tier 2 is available, TF-IDF is computed on demand by consuming skills

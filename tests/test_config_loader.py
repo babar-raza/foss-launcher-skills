@@ -15,6 +15,8 @@ from config_loader import (  # noqa: E402
     resolve_content_path,
     resolve_content_repo,
     resolve_knowledge_path,
+    resolve_knowledge_root,
+    resolve_reports_root,
 )
 
 
@@ -132,3 +134,43 @@ def test_resolve_content_repo_returns_path(monkeypatch):
     monkeypatch.delenv("CONTENT_REPO_PATH", raising=False)
     result = resolve_content_repo()
     assert isinstance(result, Path)
+
+
+# ---------------------------------------------------------------------------
+# resolve_knowledge_root
+# ---------------------------------------------------------------------------
+
+def test_resolve_knowledge_root_returns_path():
+    result = resolve_knowledge_root()
+    assert isinstance(result, Path)
+
+
+def test_resolve_knowledge_root_contains_knowledge():
+    result = resolve_knowledge_root()
+    assert "knowledge" in str(result)
+
+
+def test_resolve_knowledge_root_default_is_knowledge():
+    """Default knowledge_root should be 'knowledge' (matches config.yaml)."""
+    result = resolve_knowledge_root()
+    assert result == Path("knowledge")
+
+
+# ---------------------------------------------------------------------------
+# resolve_reports_root
+# ---------------------------------------------------------------------------
+
+def test_resolve_reports_root_returns_path():
+    result = resolve_reports_root()
+    assert isinstance(result, Path)
+
+
+def test_resolve_reports_root_contains_reports():
+    result = resolve_reports_root()
+    assert "reports" in str(result)
+
+
+def test_resolve_reports_root_default_is_reports():
+    """Default reports_path should be 'reports' (matches config.yaml)."""
+    result = resolve_reports_root()
+    assert result == Path("reports")

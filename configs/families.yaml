@@ -104,7 +104,15 @@ platforms:
     doc_comment: "javadoc"
     ast_parser: "tree_sitter"
     import_stmt_tpl: "import {import_path}.{class};"
-  dotnet:
+  net:
+    import_tpl: "Aspose.{Family}"
+    install_cmd: "dotnet add package Aspose.{Family}"
+    lang_tag: "csharp"
+    file_ext: ".cs"
+    doc_comment: "xmldoc"
+    ast_parser: "tree_sitter"
+    import_stmt_tpl: "using {import_path};"
+  dotnet:  # deprecated alias for net — use 'net' in all new content and knowledge paths
     import_tpl: "Aspose.{Family}"
     install_cmd: "dotnet add package Aspose.{Family}"
     lang_tag: "csharp"

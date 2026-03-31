@@ -15,8 +15,6 @@ Expected format: `{file-path}`
 ## Purpose
 Validate that a file path is an allowed write target before any content modification. Prevents accidental writes to protected files and directories.
 
-> **Configuration**: The allowed and forbidden path lists below are defaults for the aspose.org repo. See `config.yaml` in foss-launcher-skills for your project's path configuration.
-
 ## Forbidden paths (NEVER writable)
 - `themes/` — Hugo theme files
 - `layouts/` — Hugo layout templates
@@ -30,7 +28,7 @@ Validate that a file path is an allowed write target before any content modifica
 - `skills/` — Canonical skill source
 - `scripts/` — Extraction scripts (except by explicit human override)
 - `knowledge/*/scout/` — Scout output (only written by S-34)
-- `knowledge/*/external/` — External knowledge import (only written by S-30)
+- `knowledge/*/fl/` — FL sync output (only written by S-30)
 
 ## Allowed paths
 - `content/docs.aspose.org/en/{family}/{platform}/**` — Docs pages
