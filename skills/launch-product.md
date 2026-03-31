@@ -42,6 +42,29 @@ passes `python scripts/pipeline/audit.py --files content/products.aspose.org/en/
 
 ---
 
+### STAGE 1.2 — Products Translation
+
+**Purpose**: Ensure the products page exists in all served locales before the family sync
+runs (family sync reads locale pages to compile the platform grid).
+
+**Command**:
+```bash
+python -m translator page content/products.aspose.org/en/{family}/{platform}/_index.md --locales all
+```
+
+**Skip condition**: At least 80% of declared locales already have
+`content/products.aspose.org/{locale}/{family}/{platform}/_index.md`. Check a representative
+sample (ar, de, fr, zh) -- if all four are present, skip.
+
+**Checkpoint**: `products_translation_done`
+
+**On failure**: Log failed locales, continue -- translation failures are non-blocking for
+the launch but must appear in the Stage 8 readiness scorecard.
+
+**Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} products_translation_done true`
+
+---
+
 ### STAGE 1.5 — Family Page Sync
 
 **Condition**: Run ONLY when >= 2 platform subdirectories exist under
@@ -136,8 +159,9 @@ KB articles:     {grade summary}
 Reference pages: {grade summary} ({N} pages)
 
 A: N  B: N  C: N  D: N  F: N
+Products translations: {N}/{total_locales} locales present
 
-READY TO SHIP if: 0 D/F pages AND products + getting-started + first blog post at B+
+READY TO SHIP if: 0 D/F pages AND products + getting-started + first blog post at B+ AND products translations >= 80% of declared locales
 ```
 
 **Print**: `READY TO SHIP` or `NOT READY` with a bullet list of blocking items.
