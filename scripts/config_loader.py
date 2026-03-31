@@ -108,6 +108,30 @@ def resolve_evidence_path(family: str, platform: str) -> Path:
     return Path(path_str)
 
 
+def resolve_knowledge_root() -> Path:
+    """Resolve the base knowledge directory (not per-product).
+
+    Resolution order:
+      1. knowledge_root field in config.yaml
+      2. knowledge/ relative to CWD (fallback)
+    """
+    config = load_config()
+    root = config.get("knowledge_root", "knowledge")
+    return Path(root)
+
+
+def resolve_reports_root() -> Path:
+    """Resolve the base reports directory.
+
+    Resolution order:
+      1. reports_path field in config.yaml
+      2. reports/ relative to CWD (fallback)
+    """
+    config = load_config()
+    root = config.get("reports_path", "reports")
+    return Path(root)
+
+
 def resolve_golden_dir() -> Path:
     """Resolve path to the golden corpus directory.
 

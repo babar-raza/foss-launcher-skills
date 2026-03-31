@@ -15,8 +15,6 @@ Expected format: `{family} {platform}`
 ## Purpose
 Map upstream repository changes (detected by S-12) to content pages that may need updating.
 
-> **Configuration**: Content site paths scanned by this skill are defaults for the aspose.org repo. See `config.yaml` for your project's path configuration.
-
 ## Pre-conditions
 1. Knowledge diff should have been run (S-12) or `model.yaml` should have change info
 2. Content pages must exist for the product

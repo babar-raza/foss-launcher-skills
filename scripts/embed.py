@@ -163,8 +163,9 @@ DEFAULT_CONFIG = {
             "provider": "professionalize",
             "endpoint": "https://llm.professionalize.com/v1/embeddings",
             "model": "qwen3-embedding-8b",
-            "api_key_env": "litellm_key",
+            "api_key_env": "PROFESSIONALIZE_API_KEY",
             "dimensions": None,
+            "last_embedded": None,
         },
         {
             "id": "local",
@@ -173,30 +174,20 @@ DEFAULT_CONFIG = {
             "model": "nomic-embed-text",
             "api_key_env": None,
             "dimensions": 768,
+            "last_embedded": None,
         },
     ],
     "active_tier": "api",
-    "products": {},
+    "claim_count": 0,
+    "content_chunk_count": 0,
 }
-
-
-def migrate_config(config: dict) -> dict:
-    """Upgrade old flat config to per-product structure."""
-    if "products" not in config:
-        config["products"] = {}
-    for tier in config.get("tiers", []):
-        tier.pop("last_embedded", None)
-    config.pop("claim_count", None)
-    config.pop("content_chunk_count", None)
-    return config
 
 
 def load_or_create_config(config_path: Path | None = None) -> dict:
     """Load config.json or create from defaults."""
     path = config_path or DEFAULT_CONFIG_PATH
     if path.exists():
-        config = json.loads(path.read_text(encoding="utf-8"))
-        return migrate_config(config)
+        return json.loads(path.read_text(encoding="utf-8"))
     return json.loads(json.dumps(DEFAULT_CONFIG))  # deep copy
 
 
@@ -338,7 +329,7 @@ def embed_knowledge(
             tier["model"],
         )
 
-        tier_dir = VECTORS_DIR / tier["id"] / family / platform
+        tier_dir = VECTORS_DIR / tier["id"]
         tier_dir.mkdir(parents=True, exist_ok=True)
 
         if claim_texts:
@@ -350,16 +341,7 @@ def embed_knowledge(
         if content_texts:
             embed_and_save(client, content_texts, tier_dir / "content.vectors.json")
 
-        # Track per-product embedding metadata
-        product_key = f"{family}/{platform}"
-        products = config.setdefault("products", {})
-        prod_entry = products.setdefault(product_key, {})
-        prod_entry["claim_count"] = len(claim_texts)
-        prod_entry["api_chunk_count"] = len(api_texts)
-        prod_entry["content_chunk_count"] = len(content_texts)
-        last = prod_entry.setdefault("last_embedded", {})
-        last[tier["id"]] = datetime.utcnow().isoformat() + "Z"
-
+        tier["last_embedded"] = datetime.utcnow().isoformat() + "Z"
         embedded_any = True
 
     if not embedded_any:
@@ -369,6 +351,8 @@ def embed_knowledge(
         )
 
     # 6. Update config
+    config["claim_count"] = len(claim_texts)
+    config["content_chunk_count"] = len(content_texts)
     save_config(config, config_path)
 
 

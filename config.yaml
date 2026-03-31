@@ -45,7 +45,12 @@ sites:
 
 knowledge_path: "knowledge/{family}/{platform}/"
 evidence_path: "evidence/{family}/{platform}/"
-reports_path: "reports/"
+
+# Base directory roots (used by pipeline scripts for non-templated access)
+# knowledge_root: base of all knowledge artifacts (default: knowledge/)
+knowledge_root: "knowledge"
+# reports_path: base of all reports (default: reports/)
+reports_path: "reports"
 scripts_path: "scripts/"
 
 forbidden_paths:

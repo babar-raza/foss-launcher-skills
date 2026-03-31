@@ -21,45 +21,21 @@ Generate `index.json` per product from `knowledge/{family}/{platform}/merged/` a
 
 ## Automated Script
 
-Run the index generator:
 ```
-python scripts/index.py {family} {platform}   # Single product
-python scripts/index.py all                     # All discovered products
+python scripts/pipeline/index.py {family} {platform}   # Single product
+python scripts/pipeline/index.py all                     # All discovered products
 ```
-The script auto-discovers products, computes api_confidence thresholds, generates platform-appropriate install commands, and writes both per-product `index.json` and cross-product `_index.json`.
 
-## Manual Steps (fallback)
-
-1. **Scan merged knowledge**: Read all artifacts from `merged/`
-2. **Build index.json** with schema:
-   ```json
-   {
-     "schema_version": 2,
-     "family": "{family}",
-     "platform": "{platform}",
-     "display_name": "Aspose.{Family}",
-     "provenance": "dual|scout_only|external_only",
-     "stale": false,
-     "has_conflicts": false,
-     "api_confidence": "high|medium|low",
-     "repo_sha": "...",
-     "last_merged": "...",
-     "vectors_available": true|false,
-     "stats": { ... },
-     "classes": [...],
-     "class_graph": { ... },
-     "formats": { "import": [...], "export": [...], "caveats": { ... } },
-     "install": { ... },
-     "not_implemented": [...],
-     "forbidden_claims": [...],
-     "truth_gaps": []
-   }
-   ```
-3. **Write** `knowledge/{family}/{platform}/merged/index.json`
-4. **Build _index.json**: Aggregate all products into cross-product summary
-5. **Write** `knowledge/_index.json`
+The script:
+- Reads merged knowledge artifacts
+- Sets `api_confidence: "high"` (scout claims are deterministic code analysis)
+- Sets `provenance: "scout_only"` and `has_conflicts: false`
+- Computes API coverage metrics (surface_tier 1/2/3)
+- Builds forbidden_claims from limitations.md
+- Writes per-product index.json and cross-product _index.json
 
 ## Post-conditions
 - `index.json` exists for each processed product
 - `_index.json` exists at `knowledge/` root
 - All JSON files are valid and parseable
+- `api_confidence` is `"high"` for all scout-sourced products

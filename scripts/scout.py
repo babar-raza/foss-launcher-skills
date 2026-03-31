@@ -53,7 +53,7 @@ _CLASS_TYPES: dict[str, set[str]] = {
     "javascript": {"class_declaration"},
     "typescript": {"class_declaration", "interface_declaration",
                    "type_alias_declaration", "enum_declaration"},
-    "cpp": {"class_specifier", "struct_specifier"},
+    "cpp": {"class_specifier", "struct_specifier", "enum_specifier"},
     "python": {"class_definition"},
     "go": {"type_declaration", "type_spec"},
 }
@@ -62,12 +62,19 @@ _FUNC_TYPES: dict[str, set[str]] = {
     "java": {"method_declaration", "constructor_declaration"},
     "csharp": {"method_declaration", "constructor_declaration",
                "property_declaration"},
-    "javascript": {"function_declaration", "method_definition", "arrow_function"},
-    "typescript": {"function_declaration", "method_definition", "arrow_function"},
+    "javascript": {"function_declaration", "method_definition", "arrow_function",
+                   "public_field_definition"},
+    "typescript": {"function_declaration", "method_definition", "arrow_function",
+                   "public_field_definition", "property_signature", "method_signature"},
     "go": {"function_declaration", "method_declaration"},
     "cpp": {"function_definition"},
     "python": {"function_definition"},
 }
+
+_PY_ENUM_BASES: frozenset[str] = frozenset({
+    "Enum", "IntEnum", "StrEnum", "Flag", "IntFlag",
+    "enum.Enum", "enum.IntEnum", "enum.StrEnum", "enum.Flag", "enum.IntFlag",
+})
 
 _IMPORT_TYPES: dict[str, set[str]] = {
     "java": {"import_declaration"},
@@ -125,6 +132,7 @@ _DOC_COMMENT_STYLES: dict[str, str] = {
 }
 
 MAX_FILES = 500
+MAX_SNIPPETS = 100
 
 # ---------------------------------------------------------------------------
 # Parser loading
@@ -366,19 +374,8 @@ def _parse_dotnet_manifest(repo: Path) -> dict[str, Any]:
     csproj_files = list(repo.rglob("*.csproj"))[:20]
     if not csproj_files:
         return info
-    # Apply same filtering as _detect_dotnet_root: prefer library over CLI/test
-    candidates = []
-    for cp in csproj_files:
-        cp_text = cp.read_text(encoding="utf-8", errors="replace").lower()
-        if "test" in cp.stem.lower():
-            continue
-        if "<outputtype>exe</outputtype>" in cp_text:
-            continue
-        candidates.append(cp)
-    if not candidates:
-        candidates = csproj_files
-    candidates.sort(key=lambda p: len(p.parts))
-    text = candidates[0].read_text(encoding="utf-8", errors="replace")
+    csproj_files.sort(key=lambda p: len(p.parts))
+    text = csproj_files[0].read_text(encoding="utf-8", errors="replace")
     for tag, key in [("PackageId", "name"), ("AssemblyName", "name"),
                      ("Version", "version"), ("TargetFramework", "target_framework")]:
         if key in info and info[key]:
@@ -400,6 +397,12 @@ def _parse_java_manifest(repo: Path) -> dict[str, Any]:
             if m:
                 info[key] = m.group(1)
         info["name"] = info.get("artifact_id", "")
+        # Extract Java compiler target version (priority: release > target > source)
+        for prop_tag in ["maven.compiler.release", "maven.compiler.target", "maven.compiler.source"]:
+            m = re.search(rf"<{re.escape(prop_tag)}>(.*?)</{re.escape(prop_tag)}>", text)
+            if m:
+                info["runtime_min_version"] = m.group(1).strip()
+                break
     gradle = repo / "build.gradle"
     if not info.get("name") and gradle.exists():
         text = gradle.read_text(encoding="utf-8", errors="replace")
@@ -409,6 +412,17 @@ def _parse_java_manifest(repo: Path) -> dict[str, Any]:
         m = re.search(r"version\s*=\s*['\"]([^'\"]+)", text)
         if m:
             info["version"] = m.group(1)
+    if "runtime_min_version" not in info and gradle.exists():
+        text = gradle.read_text(encoding="utf-8", errors="replace")
+        for pattern in [
+            r"targetCompatibility\s*=\s*['\"]?(\d+)['\"]?",
+            r"sourceCompatibility\s*=\s*['\"]?(\d+)['\"]?",
+            r"languageVersion\.of\((\d+)\)",
+        ]:
+            m = re.search(pattern, text)
+            if m:
+                info["runtime_min_version"] = m.group(1).strip()
+                break
     return info
 
 
@@ -455,10 +469,21 @@ def is_public(node, language: str) -> bool:
         return name[0].isupper()
 
     if language == "python":
+        if name == "__init__":
+            return True
         return not name.startswith("_")
 
     if language in ("javascript", "typescript"):
         parent = node.parent
+        # Class/interface members are public unless explicitly private/protected
+        if parent and parent.type in ("class_body", "interface_body", "object_type"):
+            for ch in node.children:
+                if ch.type == "accessibility_modifier":
+                    if node_text(ch) in ("private", "protected"):
+                        return False
+            if name.startswith("#"):
+                return False
+            return True
         if parent and parent.type == "export_statement":
             return True
         # top-level declarations in modules are considered public
@@ -467,6 +492,19 @@ def is_public(node, language: str) -> bool:
         return False
 
     if language in ("java", "csharp", "cpp"):
+        # C++ top-level classes/structs are implicitly public API
+        if language == "cpp" and node.type in ("class_specifier", "struct_specifier",
+                                                "enum_specifier"):
+            parent = node.parent
+            if parent and parent.type in ("translation_unit", "declaration",
+                                           "namespace_definition",
+                                           "declaration_list"):
+                return True
+            if parent and parent.type == "declaration":
+                gp = parent.parent
+                if gp and gp.type in ("translation_unit", "namespace_definition",
+                                       "declaration_list"):
+                    return True
         for ch in node.children:
             if ch.type == "modifiers" or ch.type == "modifier":
                 if "public" in node_text(ch):
@@ -562,10 +600,8 @@ def _extract_return_type(node, language: str) -> str:
         return node_text(ta).lstrip(":").strip()
 
     # C#/Java: type before method name
-    # C# uses field "returns"; Java uses field "type"
     if language in ("csharp", "java"):
-        type_node = (child_by_field(node, "returns")   # csharp method_declaration
-                     or child_by_field(node, "type"))  # java / fallback
+        type_node = child_by_field(node, "type")
         if type_node:
             return node_text(type_node)
 
@@ -613,20 +649,11 @@ def _extract_doc_comment(node, language: str) -> str:
             cleaned = re.sub(r"/\*\*|\*/|\n\s*\*\s?", " ", txt).strip()
             return _first_sentence(cleaned)
     elif style == "xml_doc":
-        # Each "/// ..." line is a separate comment node; walk back
-        # through all consecutive /// siblings to collect the full block.
-        doc_lines: list[str] = []
-        sib = prev
-        while sib is not None:
-            t = node_text(sib).strip()
-            if t.startswith("///"):
-                doc_lines.insert(0, t)
-                sib = sib.prev_named_sibling or sib.prev_sibling
-            else:
-                break
-        if doc_lines:
-            joined = " ".join(line.lstrip("/ ").strip() for line in doc_lines)
-            cleaned = re.sub(r"<[^>]+>", "", joined).strip()
+        if txt.strip().startswith("///"):
+            lines = txt.strip().splitlines()
+            cleaned = " ".join(l.lstrip("/ ").strip() for l in lines)
+            # strip XML tags
+            cleaned = re.sub(r"<[^>]+>", "", cleaned).strip()
             return _first_sentence(cleaned)
     elif style == "godoc":
         if txt.strip().startswith("//"):
@@ -681,26 +708,13 @@ def _extract_bases(node, language: str) -> list[str]:
 # Enum member extraction
 # ---------------------------------------------------------------------------
 
-_PYTHON_ENUM_BASES = {"Enum", "IntEnum", "StrEnum", "Flag", "IntFlag"}
-
-
-def _is_python_enum(node) -> bool:
-    """Check if a Python class_definition inherits from an Enum type."""
-    if node.type != "class_definition":
-        return False
-    bases = _extract_bases(node, "python")
-    return bool(set(bases) & _PYTHON_ENUM_BASES)
-
-
 def _extract_enum_members(node, language: str) -> list[dict[str, str]]:
     """Extract enum constant names and values."""
     members: list[dict[str, str]] = []
-    # child_by_field("body") handles C# (enum_member_declaration_list)
-    # and Java (enum_body); fallbacks for other grammars
-    body = (child_by_field(node, "body")
-            or find_child_by_type(node, "enum_body")
+    body = (find_child_by_type(node, "enum_body")
             or find_child_by_type(node, "enum_member_declaration_list")
             or find_child_by_type(node, "enum_declaration_list")
+            or find_child_by_type(node, "enumerator_list")
             or find_child_by_type(node, "declaration_list")
             or find_child_by_type(node, "block"))
     if body is None:
@@ -718,27 +732,28 @@ def _extract_enum_members(node, language: str) -> list[dict[str, str]]:
 
 
 def _extract_python_enum_members(node) -> list[dict[str, str]]:
-    """Extract enum members from a Python IntEnum/Enum class body.
-
-    Python enum members are assignment nodes directly in the class block:
-        MEMBER = value
-    Tree-sitter: class_definition > block > assignment > [identifier, value]
-    """
+    """Extract enum members from Python enum class (class-level assignments)."""
     members: list[dict[str, str]] = []
-    body = child_by_field(node, "body") or find_child_by_type(node, "block")
-    if body is None:
+    body = find_child_by_type(node, "block")
+    if not body:
         return members
     for ch in body.children:
-        if ch.type != "assignment":
-            continue
-        left = child_by_field(ch, "left")
-        right = child_by_field(ch, "right")
-        if left and left.type == "identifier":
-            name = node_text(left)
-            if name.startswith("_"):
+        # Assignments may appear directly or wrapped in expression_statement
+        if ch.type == "expression_statement":
+            expr = ch.children[0] if ch.children else None
+            if not expr or expr.type != "assignment":
                 continue
-            val = node_text(right) if right else ""
-            members.append({"name": name, "value": val})
+        elif ch.type == "assignment":
+            expr = ch
+        else:
+            continue
+        lhs = child_by_field(expr, "left")
+        rhs = child_by_field(expr, "right")
+        if lhs and lhs.type == "identifier":
+            name = node_text(lhs)
+            if not name.startswith("_"):
+                val = node_text(rhs) if rhs else ""
+                members.append({"name": name, "value": val})
     return members
 
 
@@ -746,26 +761,11 @@ def _extract_python_enum_members(node) -> list[dict[str, str]]:
 # Core extraction
 # ---------------------------------------------------------------------------
 
-_TEST_DIR_PARTS = {"test", "tests", "test_", "__tests__", "spec", "specs"}
-
-
-def _is_test_path(path: Path) -> bool:
-    """Return True if the file lives inside a test directory."""
-    return any(p.lower() in _TEST_DIR_PARTS or p.lower().endswith("test")
-               or p.lower().endswith("tests")
-               for p in path.parts[:-1])
-
-
 def _collect_source_files(root: Path, ext: str, header_ext: str = "") -> list[Path]:
-    """Glob for source files, capped at MAX_FILES, excluding test directories."""
-    raw = list(root.rglob(f"*{ext}"))
-    # Use path relative to root for test-path detection so that the scan root's
-    # own location (e.g. tests/fixtures/repo) does not cause false positives.
-    files = [f for f in raw if not _is_test_path(f.relative_to(root))][:MAX_FILES]
+    """Glob for source files, capped at MAX_FILES."""
+    files = list(root.rglob(f"*{ext}"))[:MAX_FILES]
     if header_ext:
-        raw_h = list(root.rglob(f"*{header_ext}"))
-        files.extend([f for f in raw_h
-                      if not _is_test_path(f.relative_to(root))][:MAX_FILES - len(files)])
+        files.extend(list(root.rglob(f"*{header_ext}"))[:MAX_FILES - len(files)])
     return files
 
 
@@ -788,7 +788,8 @@ class Scout:
         self.snippets: list[dict[str, Any]] = []
         self.class_graph: list[dict[str, Any]] = []
         self.coverage: list[dict[str, Any]] = []
-        self.constants: list[dict[str, Any]] = []
+        self.packages: set[str] = set()
+        self.scanned_files: list[str] = []
 
     # -- claim helpers -----------------------------------------------------
 
@@ -817,11 +818,10 @@ class Scout:
         LOG.info("Package root: %s", self.pkg_root)
 
         self._extract_api_surface()
-        self._extract_module_constants()
+        self._enrich_docstrings()
         self._detect_formats()
         self._detect_limitations()
         self._extract_snippets()
-        self._extract_doc_claims()
         self._build_identity_claims()
         self._build_class_graph()
         self._build_coverage()
@@ -847,6 +847,18 @@ class Scout:
 
             tree = self.parser.parse(src)
             root = tree.root_node
+            self.scanned_files.append(rel)
+
+            # Track packages/namespaces
+            module_types = _MODULE_TYPES.get(self.language, set())
+            for mnode in collect_nodes(root, module_types):
+                pkg_text = node_text(mnode).strip().rstrip(";").rstrip("{").strip()
+                # Remove leading keyword (e.g., "package com.foo" → "com.foo")
+                for kw in ("package", "namespace"):
+                    if pkg_text.startswith(kw):
+                        pkg_text = pkg_text[len(kw):].strip()
+                if pkg_text:
+                    self.packages.add(pkg_text)
 
             class_nodes = collect_nodes(root, class_types)
 
@@ -858,16 +870,40 @@ class Scout:
                 if not cname:
                     continue
 
-                is_enum = cnode.type in ("enum_declaration", "enum_definition")
-                if not is_enum and self.language == "python":
-                    is_enum = _is_python_enum(cnode)
+                # Skip C++ forward declarations (class Foo;) — no body
+                if (self.language == "cpp"
+                        and cnode.type in ("class_specifier", "struct_specifier")
+                        and find_child_by_type(cnode, "field_declaration_list") is None):
+                    continue
+
+                is_enum = cnode.type in ("enum_declaration", "enum_definition",
+                                        "enum_specifier")
                 cdoc = _extract_doc_comment(cnode, self.language)
                 bases = _extract_bases(cnode, self.language)
+
+                # Python: detect enums by base class inheritance
+                if not is_enum and self.language == "python":
+                    if set(bases) & _PY_ENUM_BASES:
+                        is_enum = True
+
                 if is_enum:
                     if self.language == "python":
                         enum_members = _extract_python_enum_members(cnode)
                     else:
                         enum_members = _extract_enum_members(cnode, self.language)
+                elif self.language == "python":
+                    # Convention-based enum detection: plain classes whose
+                    # body consists entirely of ALL_CAPS assignments are
+                    # treated as enum-like (common in 3D/Python libraries).
+                    candidates = _extract_python_enum_members(cnode)
+                    if candidates and all(
+                        m["name"].replace("_", "").isupper()
+                        for m in candidates
+                    ):
+                        enum_members = candidates
+                        is_enum = True
+                    else:
+                        enum_members = []
                 else:
                     enum_members = []
 
@@ -882,7 +918,9 @@ class Scout:
                     if not mname:
                         continue
 
-                    if mnode.type == "property_declaration":
+                    if mnode.type in ("property_declaration",
+                                      "public_field_definition",
+                                      "property_signature"):
                         ptype = ""
                         type_node = child_by_field(mnode, "type")
                         if type_node:
@@ -902,23 +940,66 @@ class Scout:
                     ret = _extract_return_type(mnode, self.language)
                     mdoc = _extract_doc_comment(mnode, self.language)
 
+                    is_ctor = (mnode.type == "constructor_declaration"
+                               or (self.language == "python" and mname == "__init__")
+                               or (self.language in ("typescript", "javascript")
+                                   and mname == "constructor"))
+
                     methods.append({
                         "name": mname,
                         "params": params,
                         "return_type": ret,
                         "doc": mdoc,
                         "line": mnode.start_point[0] + 1,
+                        "is_constructor": is_ctor,
                     })
                     self._add_claim(
                         "api_method",
                         f"{cname}.{mname}({', '.join(p['name'] for p in params)}) -> {ret}",
                         rel, mnode.start_point[0] + 1)
 
-                # Python properties via decorators and typed class fields
+                # Python properties via decorators
                 if self.language == "python":
                     self._extract_python_properties(cnode, cname, rel, properties)
-                    if not is_enum:
-                        self._extract_python_class_fields(cnode, cname, rel, properties)
+
+                # Java properties via getter/setter synthesis
+                if self.language == "java":
+                    self._synthesize_java_properties(methods, cname, rel, properties)
+
+                # C++ field_declaration method declarations (no body)
+                if self.language == "cpp":
+                    body = find_child_by_type(cnode, "field_declaration_list")
+                    if body:
+                        access = "public" if cnode.type == "struct_specifier" else "private"
+                        for member in body.children:
+                            if member.type == "access_specifier":
+                                access = node_text(member).strip().rstrip(":")
+                            elif member.type == "field_declaration" and access == "public":
+                                fdecl = find_child_by_type(member, "function_declarator")
+                                if fdecl is None:
+                                    continue
+                                mname = ""
+                                for ch in fdecl.children:
+                                    if ch.type in ("identifier", "field_identifier"):
+                                        mname = node_text(ch)
+                                        break
+                                if not mname:
+                                    continue
+                                params = _extract_method_params(fdecl, self.language)
+                                ret = _extract_return_type(member, self.language)
+                                mdoc = _extract_doc_comment(member, self.language)
+                                methods.append({
+                                    "name": mname,
+                                    "params": params,
+                                    "return_type": ret,
+                                    "doc": mdoc,
+                                    "line": member.start_point[0] + 1,
+                                    "is_constructor": False,
+                                })
+                                self._add_claim(
+                                    "api_method",
+                                    f"{cname}.{mname}({', '.join(p['name'] for p in params)}) -> {ret}",
+                                    rel, member.start_point[0] + 1)
 
                 cls_record: dict[str, Any] = {
                     "name": cname,
@@ -933,20 +1014,10 @@ class Scout:
                 if is_enum:
                     cls_record["enum_members"] = enum_members
 
-                # Deduplicate: if same class name already recorded from a shorter
-                # path (primary namespace), prefer that one; otherwise add.
-                existing = next((c for c in self.classes if c["name"] == cname), None)
-                if existing is not None:
-                    if len(rel) < len(existing["file"]):
-                        # Replace with shorter-path (more primary) version
-                        self.classes.remove(existing)
-                    else:
-                        continue  # skip this duplicate
-                if True:
-                    self.classes.append(cls_record)
-                    self._add_claim("api_class",
-                                    f"Class {cname} defined in {rel}",
-                                    rel, cnode.start_point[0] + 1)
+                self.classes.append(cls_record)
+                self._add_claim("api_class",
+                                f"Class {cname} defined in {rel}",
+                                rel, cnode.start_point[0] + 1)
 
             # top-level functions (not inside classes)
             top_funcs = collect_nodes(root, func_types)
@@ -986,96 +1057,15 @@ class Scout:
                                 f"Function {fname}({', '.join(p['name'] for p in params)}) -> {ret}",
                                 rel, fnode.start_point[0] + 1)
 
-    # -- Module-level constants --------------------------------------------
-
-    def _extract_module_constants(self):
-        """Extract module-level constants across all source files."""
-        ext = _FILE_EXTENSIONS.get(self.language, ".py")
-        files = _collect_source_files(self.pkg_root, ext)
-        for fpath in files:
-            rel = str(fpath.relative_to(self.repo)).replace("\\", "/")
-            try:
-                src = fpath.read_bytes()
-            except OSError:
-                continue
-            tree = self.parser.parse(src)
-            root = tree.root_node
-            text = src.decode("utf-8", errors="replace")
-            if self.language == "python":
-                self._extract_python_constants(root, rel, text)
-
-    def _extract_python_constants(self, root, rel: str, text: str):
-        """Extract Python module-level constants: __all__ exports + UPPER_CASE."""
-        # Parse __all__ to find explicitly exported names
-        exported_names: set[str] = set()
-        for node in root.children:
-            assign = None
-            if node.type == "expression_statement":
-                assign = find_child_by_type(node, "assignment")
-            elif node.type == "assignment":
-                assign = node
-            if assign is None:
-                continue
-            left = child_by_field(assign, "left")
-            if left and node_text(left) == "__all__":
-                right = child_by_field(assign, "right")
-                if right and right.type == "list":
-                    for item in right.children:
-                        if item.type == "string":
-                            name = node_text(item).strip("\"'")
-                            exported_names.add(name)
-
-        # Find UPPER_CASE assignments at root level
-        class_names = {c["name"] for c in self.classes}
-        for node in root.children:
-            assign = None
-            if node.type == "expression_statement":
-                assign = find_child_by_type(node, "assignment")
-            elif node.type == "assignment":
-                assign = node
-            if assign is None:
-                continue
-            left = child_by_field(assign, "left")
-            right = child_by_field(assign, "right")
-            if left is None or left.type != "identifier":
-                continue
-            name = node_text(left)
-            if not name or name.startswith("_") or name == "__all__":
-                continue
-            # Skip class/function names already captured
-            if name in class_names:
-                continue
-
-            is_exported = name in exported_names
-            is_upper = bool(re.match(r'^[A-Z][A-Z0-9_]+$', name))
-            if not is_exported and not is_upper:
-                continue
-
-            value = node_text(right) if right else ""
-            if len(value) > 200:
-                value = value[:200] + "..."
-
-            self.constants.append({
-                "name": name,
-                "value": value,
-                "file": rel,
-                "line": assign.start_point[0] + 1,
-                "exported": is_exported,
-            })
-            self._add_claim("api_constant",
-                            f"Constant {name} = {value[:80]}",
-                            rel, assign.start_point[0] + 1)
-
     def _extract_python_properties(self, cnode, cname: str, rel: str,
                                    properties: list[dict[str, Any]]):
         """Extract @property decorated methods in Python classes."""
-        prop_names: set[str] = set()
         func_nodes = collect_nodes(cnode, {"function_definition"})
         for fn in func_nodes:
             # check for @property decorator
             dec = find_child_by_type(fn, "decorator")
             if dec is None:
-                # check previous sibling (decorated_definition puts decorator there)
+                # check previous sibling
                 prev = fn.prev_named_sibling
                 if prev and prev.type == "decorator":
                     dec = prev
@@ -1092,73 +1082,69 @@ class Scout:
                 "name": pname,
                 "type": ret,
                 "line": fn.start_point[0] + 1,
-                "read_write": False,
             })
-            prop_names.add(pname)
             self._add_claim("api_method",
                             f"{cname}.{pname} property of type {ret}",
                             rel, fn.start_point[0] + 1)
 
-        # Second pass: detect @name.setter decorators
-        if prop_names:
-            decorated_nodes = collect_nodes(cnode, {"decorated_definition"})
-            for dn in decorated_nodes:
-                dec = find_child_by_type(dn, "decorator")
-                if dec is None:
-                    continue
-                # setter decorator is: @ attribute(name.setter)
-                attr = find_child_by_type(dec, "attribute")
-                if attr is None:
-                    continue
-                # attribute has children: identifier("name") . identifier("setter")
-                parts = [ch for ch in attr.children if ch.type == "identifier"]
-                if len(parts) == 2 and node_text(parts[1]) == "setter":
-                    setter_name = node_text(parts[0])
-                    if setter_name in prop_names:
-                        for prop in properties:
-                            if prop["name"] == setter_name:
-                                prop["read_write"] = True
-                                break
+    _JAVA_OBJECT_METHODS = frozenset({
+        "getClass", "hashCode", "equals", "toString",
+        "notify", "notifyAll", "wait", "clone", "finalize",
+    })
 
-    def _extract_python_class_fields(self, cnode, cname: str, rel: str,
-                                      properties: list[dict[str, Any]]):
-        """Extract typed class-level fields (dataclass fields, typed attributes).
-
-        Captures patterns like: name: str, name: int = 0, items: list[str] = None
-        AST: block > assignment with a 'type' child node.
-        """
-        existing_names = {p["name"] for p in properties}
-        body = child_by_field(cnode, "body") or find_child_by_type(cnode, "block")
-        if body is None:
-            return
-        for ch in body.children:
-            if ch.type != "assignment":
+    def _synthesize_java_properties(self, methods, cname: str, rel: str,
+                                    properties: list[dict[str, Any]]):
+        """Synthesize property entries from Java getter/setter method pairs."""
+        getters: dict[str, dict[str, Any]] = {}
+        for m in methods:
+            name = m["name"]
+            if name in self._JAVA_OBJECT_METHODS:
                 continue
-            left = child_by_field(ch, "left")
-            type_node = find_child_by_type(ch, "type")
-            if left is None or type_node is None:
-                continue
-            if left.type != "identifier":
-                continue
-            field_name = node_text(left)
-            if not field_name or field_name.startswith("_"):
-                continue
-            if field_name in existing_names:
-                continue
-            # Skip UPPER_CASE names (constants / enum members)
-            if re.match(r'^[A-Z][A-Z0-9_]+$', field_name):
-                continue
-            field_type = node_text(type_node).lstrip(":").strip()
+            params = m.get("params", [])
+            if (name.startswith("get") and len(name) > 3
+                    and name[3].isupper() and len(params) == 0):
+                prop_name = name[3].lower() + name[4:]
+                getters[prop_name] = m
+            elif (name.startswith("is") and len(name) > 2
+                  and name[2].isupper() and len(params) == 0):
+                prop_name = name[2].lower() + name[3:]
+                getters[prop_name] = m
+        for prop_name, getter in getters.items():
+            ptype = getter.get("return_type", "")
             properties.append({
-                "name": field_name,
-                "type": field_type,
-                "line": ch.start_point[0] + 1,
-                "kind": "field",
+                "name": prop_name,
+                "type": ptype,
+                "line": getter["line"],
             })
-            existing_names.add(field_name)
             self._add_claim("api_method",
-                            f"{cname}.{field_name} field of type {field_type}",
-                            rel, ch.start_point[0] + 1)
+                            f"{cname}.{prop_name} property of type {ptype}",
+                            rel, getter["line"])
+
+    # -- Docstring enrichment -----------------------------------------------
+
+    def _enrich_docstrings(self):
+        """Post-process extracted classes with platform-specific docstring enrichers.
+
+        Populates empty ``doc`` fields on class/method records using
+        Javadoc (Java), Doxygen (C++), or XML doc comments (.NET/C#).
+        """
+        try:
+            import importlib
+            spec = importlib.util.spec_from_file_location(
+                "scout_enrichers",
+                Path(__file__).resolve().parent / "pipeline" / "scout_enrichers" / "__init__.py",
+            )
+            if spec is None or spec.loader is None:
+                return
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            enrich_classes = mod.enrich_classes
+        except Exception:
+            return
+
+        count = enrich_classes(self.classes, self.repo, self.platform)
+        if count:
+            LOG.info("Docstring enrichment: populated %d items", count)
 
     # -- Format detection --------------------------------------------------
 
@@ -1189,13 +1175,16 @@ class Scout:
                 cname = _node_name(cn, self.language)
                 if not cname:
                     continue
-                is_enum = cn.type in ("enum_declaration", "enum_definition")
+                is_enum = cn.type in ("enum_declaration", "enum_definition",
+                                      "enum_specifier")
+                # Python: detect enums by base class inheritance
                 if not is_enum and self.language == "python":
-                    is_enum = _is_python_enum(cn)
+                    fmt_bases = _extract_bases(cn, self.language)
+                    if set(fmt_bases) & _PY_ENUM_BASES:
+                        is_enum = True
 
                 if format_pattern.search(cname):
                     if is_enum:
-                        # Only enum members are concrete format names
                         if self.language == "python":
                             members = _extract_python_enum_members(cn)
                         else:
@@ -1213,76 +1202,35 @@ class Scout:
                             self._add_claim("format_support",
                                             f"Supports format {mem['name']} via {cname}",
                                             rel, cn.start_point[0] + 1)
-                    # Non-enum format-named classes (e.g. FileFormat, FileFormatType)
-                    # are framework types, not concrete format entries — skip them.
+                    else:
+                        self.formats.append({
+                            "format": cname,
+                            "enum": "",
+                            "value": "",
+                            "file": rel,
+                            "line": cn.start_point[0] + 1,
+                            "direction": "both",
+                        })
 
                 if importer_pattern.search(cname):
-                    # Skip pure interface declarations (IExporter, IImporter)
-                    if cname.startswith("I") and cname[1:2].isupper() and cn.type == "interface_declaration":
-                        pass
-                    else:
-                        direction = "import"
-                        if re.search(r"(Exporter|Writer|Saver)", cname, re.IGNORECASE):
-                            direction = "export"
-                        fmt_name = re.sub(
-                            r"(Importer|Exporter|Reader|Writer|Loader|Saver)", "",
-                            cname, flags=re.IGNORECASE).strip()
-                        # Skip if stripped name is empty, a single char, or
-                        # looks like a bare interface prefix ("I")
-                        if fmt_name and len(fmt_name) > 1:
-                            self.formats.append({
-                                "format": fmt_name,
-                                "enum": "",
-                                "value": "",
-                                "file": rel,
-                                "line": cn.start_point[0] + 1,
-                                "direction": direction,
-                            })
-                            self._add_claim("format_support",
-                                            f"{direction} support for {fmt_name} via {cname}",
-                                            rel, cn.start_point[0] + 1)
-
-        # Secondary pass: detect formats from method names (to_X, from_X, etc.)
-        _FMT_METHOD_RE = re.compile(
-            r'^(to|from|save_as|load|export_to|import_from)_(\w+)$', re.IGNORECASE)
-        _FMT_SKIP = {"file", "stream", "bytes", "string", "dict", "json",
-                      "text", "list", "tuple", "set", "int", "float", "bool",
-                      "path", "buffer", "io", "reader", "writer", "document",
-                      "object", "array", "map", "iterator", "config",
-                      "embedded_message"}
-        seen_formats = {f["format"].lower() for f in self.formats}
-        for cls in self.classes:
-            for method in cls.get("methods", []):
-                m = _FMT_METHOD_RE.match(method["name"])
-                if not m:
-                    continue
-                direction_word = m.group(1).lower()
-                fmt_name = m.group(2)
-                fmt_lower = fmt_name.lower()
-                if fmt_lower in _FMT_SKIP:
-                    continue
-                # Skip names ending with internal suffixes
-                if fmt_lower.endswith(("_document", "_reader", "_writer",
-                                       "_object", "_stream")):
-                    continue
-                if fmt_lower in seen_formats:
-                    continue
-                direction = ("export" if direction_word in ("to", "save_as", "export_to")
-                             else "import")
-                self.formats.append({
-                    "format": fmt_name,
-                    "enum": "",
-                    "value": "",
-                    "file": cls["file"],
-                    "line": method["line"],
-                    "direction": direction,
-                    "detected_via": f"{cls['name']}.{method['name']}",
-                })
-                seen_formats.add(fmt_name.lower())
-                self._add_claim(
-                    "format_support",
-                    f"{direction} support for {fmt_name} via {cls['name']}.{method['name']}()",
-                    cls["file"], method["line"])
+                    direction = "import"
+                    if re.search(r"(Exporter|Writer|Saver)", cname, re.IGNORECASE):
+                        direction = "export"
+                    fmt_name = re.sub(
+                        r"(Importer|Exporter|Reader|Writer|Loader|Saver)", "",
+                        cname, flags=re.IGNORECASE).strip()
+                    if fmt_name:
+                        self.formats.append({
+                            "format": fmt_name,
+                            "enum": "",
+                            "value": "",
+                            "file": rel,
+                            "line": cn.start_point[0] + 1,
+                            "direction": direction,
+                        })
+                        self._add_claim("format_support",
+                                        f"{direction} support for {fmt_name} via {cname}",
+                                        rel, cn.start_point[0] + 1)
 
     # -- Limitation detection ----------------------------------------------
 
@@ -1347,32 +1295,135 @@ class Scout:
     # -- Snippet extraction ------------------------------------------------
 
     def _extract_snippets(self):
-        snippet_dirs = ["tests", "test", "examples", "example", "samples"]
+        """Extract function-level snippets from test/example directories.
+
+        For each test/example function found, records which API classes and
+        methods it references (cross-referenced against self.classes) and
+        which file format names appear.  Also extracts README code blocks
+        as whole-file snippets.  Capped at MAX_SNIPPETS per product.
+        """
+        # Build lookup sets from already-extracted api_surface
+        api_class_names: set[str] = set()
+        api_method_index: dict[str, set[str]] = {}  # class -> methods
+        for cls in self.classes:
+            cname = cls.get("name", "")
+            if not cname or cls.get("kind") == "function":
+                continue
+            api_class_names.add(cname)
+            meths = set()
+            for m in cls.get("methods", []):
+                if isinstance(m, dict) and m.get("name"):
+                    meths.add(m["name"])
+            api_method_index[cname] = meths
+
+        # Build format names set from already-extracted formats
+        format_names: set[str] = set()
+        for fmt in self.formats:
+            fname = fmt.get("format", "")
+            if fname:
+                format_names.add(fname.lower())
+
+        snippet_dirs = ["tests", "test", "examples", "example", "samples",
+                        "demo"]
         ext = _FILE_EXTENSIONS.get(self.language, ".py")
+        func_types = _FUNC_TYPES.get(self.language, set())
+        class_types = _CLASS_TYPES.get(self.language, set())
+
+        # Build search base list: walk from pkg_root up to repo root so that
+        # repos with a language subdirectory (e.g. repo/python/tests/) are
+        # found even when tests are not at the repo root level.
+        _search_bases: list[Path] = []
+        _p = self.pkg_root
+        while True:
+            try:
+                _p.relative_to(self.repo)
+                _search_bases.append(_p)
+            except ValueError:
+                pass
+            if _p == self.repo or _p.parent == _p:
+                break
+            _p = _p.parent
+        if self.repo not in _search_bases:
+            _search_bases.append(self.repo)
+
+        snippet_counter = 0
 
         for sdir in snippet_dirs:
-            d = self.repo / sdir
-            if not d.is_dir():
-                continue
-            files = list(d.rglob(f"*{ext}"))[:100]
-            for fpath in files:
-                rel = str(fpath.relative_to(self.repo)).replace("\\", "/")
-                try:
-                    src = fpath.read_bytes()
-                except OSError:
+            _visited: set[Path] = set()
+            for _base in _search_bases:
+                d = _base / sdir
+                if d in _visited:
                     continue
-                tree = self.parser.parse(src)
-                has_error = tree.root_node.has_error
-                text = src.decode("utf-8", errors="replace")
-                self.snippets.append({
-                    "file": rel,
-                    "language": self.language,
-                    "code": text[:5000],
-                    "valid": not has_error,
-                })
+                _visited.add(d)
+                if not d.is_dir():
+                    continue
+                files = sorted(d.rglob(f"*{ext}"))[:MAX_FILES]
+                for fpath in files:
+                    if snippet_counter >= MAX_SNIPPETS:
+                        break
+                    rel = str(fpath.relative_to(self.repo)).replace("\\", "/")
+                    try:
+                        src = fpath.read_bytes()
+                    except OSError:
+                        continue
+                    tree = self.parser.parse(src)
+                    text = src.decode("utf-8", errors="replace")
+                    text_lines = text.splitlines()
+                    root = tree.root_node
 
-        # README fenced code blocks
+                    # Collect candidate function nodes
+                    func_nodes = self._collect_snippet_functions(
+                        root, func_types, class_types, text)
+
+                    for fn_name, fn_node, fn_line in func_nodes:
+                        if snippet_counter >= MAX_SNIPPETS:
+                            break
+                        code = node_text(fn_node)
+                        if not code.strip():
+                            continue
+
+                        # Cross-reference: which API classes/methods appear?
+                        classes_used: list[str] = []
+                        methods_used: list[str] = []
+                        formats_ref: list[str] = []
+
+                        code_lower = code.lower()
+                        for cname in api_class_names:
+                            if cname in code:
+                                classes_used.append(cname)
+                                for mname in api_method_index.get(cname, set()):
+                                    # Look for Class.method or just .method patterns
+                                    if (f"{cname}.{mname}" in code
+                                            or f".{mname}(" in code):
+                                        methods_used.append(f"{cname}.{mname}")
+
+                        for fmt_name in format_names:
+                            if fmt_name in code_lower:
+                                formats_ref.append(fmt_name)
+
+                        snippet_id = f"snippet_{snippet_counter + 1:03d}"
+                        self.snippets.append({
+                            "id": snippet_id,
+                            "file": f"{snippet_id}{ext}",
+                            "source_file": rel,
+                            "source_function": fn_name,
+                            "source_line": fn_line,
+                            "language": self.language,
+                            "code": code[:5000],
+                            "valid": not fn_node.has_error,
+                            "classes_used": sorted(set(classes_used)),
+                            "methods_used": sorted(set(methods_used)),
+                            "formats_referenced": sorted(set(formats_ref)),
+                        })
+                        snippet_counter += 1
+
+            if snippet_counter >= MAX_SNIPPETS:
+                break
+
+        # README fenced code blocks (as whole-file snippets)
         for readme_name in ("README.md", "readme.md", "README.rst"):
+            if snippet_counter >= MAX_SNIPPETS:
+                break
             readme = self.repo / readme_name
             if readme.exists():
                 try:
@@ -1397,72 +1448,116 @@ class Scout:
                     r"```(" + "|".join(re.escape(n) for n in lang_names)
                     + r")\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
                 for m in fence_pattern.finditer(text):
+                    if snippet_counter >= MAX_SNIPPETS:
+                        break
                     code = m.group(2)
-                    # validate via tree-sitter parse
                     t = self.parser.parse(code.encode("utf-8"))
                     valid = not t.root_node.has_error
+
+                    classes_used = [c for c in api_class_names if c in code]
+                    methods_used = []
+                    for cname in classes_used:
+                        for mname in api_method_index.get(cname, set()):
+                            if f"{cname}.{mname}" in code or f".{mname}(" in code:
+                                methods_used.append(f"{cname}.{mname}")
+                    formats_ref = [f for f in format_names if f in code.lower()]
+
+                    snippet_id = f"snippet_{snippet_counter + 1:03d}"
                     self.snippets.append({
-                        "file": readme_name,
+                        "id": snippet_id,
+                        "file": f"{snippet_id}{ext}",
+                        "source_file": readme_name,
+                        "source_function": "(readme_block)",
+                        "source_line": text[:m.start()].count("\n") + 1,
                         "language": self.language,
                         "code": code[:5000],
                         "valid": valid,
+                        "classes_used": sorted(set(classes_used)),
+                        "methods_used": sorted(set(methods_used)),
+                        "formats_referenced": sorted(set(formats_ref)),
                     })
+                    snippet_counter += 1
                 break
 
-    # -- Documentation claims ----------------------------------------------
+        LOG.info("Extracted %d function-level snippets", len(self.snippets))
 
-    _DOC_FILES = [
-        "PUBLIC_API.md", "API.md", "FEATURES.md", "USAGE.md", "GUIDE.md",
-        "docs/API.md", "docs/README.md",
-    ]
+    def _collect_snippet_functions(self, root, func_types, class_types,
+                                   source_text):
+        """Collect candidate test/example functions from a parsed tree.
 
-    def _extract_doc_claims(self):
-        """Extract structured claims and code snippets from documentation files."""
-        for doc_name in self._DOC_FILES:
-            doc_path = self.repo / doc_name
-            if not doc_path.exists():
-                continue
-            try:
-                text = doc_path.read_text(encoding="utf-8", errors="replace")
-            except OSError:
-                continue
+        Returns list of (function_name, node, line_number) tuples.
+        Language-specific heuristics determine which functions qualify.
+        """
+        results: list[tuple[str, Any, int]] = []
 
-            claim_count = 0
-            for i, line in enumerate(text.splitlines(), 1):
-                stripped = line.strip()
-                if stripped.startswith(("- ", "* ", "• ")) and len(stripped) > 10:
-                    claim_text = stripped.lstrip("-*• ").strip()
-                    if len(claim_text) > 200:
-                        claim_text = claim_text[:200]
-                    self._add_claim("doc_feature", claim_text, doc_name, i)
-                    claim_count += 1
-                    if claim_count >= 100:
-                        break
+        if self.language == "python":
+            # Functions starting with test_, example_, or demo_
+            for fn in collect_nodes(root, func_types):
+                fname = _node_name(fn, self.language)
+                if fname and (fname.startswith("test_")
+                              or fname.startswith("example_")
+                              or fname.startswith("demo_")):
+                    results.append((fname, fn, fn.start_point[0] + 1))
 
-            # Extract fenced code blocks as additional snippets
-            lang_names = {self.language}
-            if self.language == "python":
-                lang_names.update({"python", "py"})
-            elif self.language == "csharp":
-                lang_names.update({"csharp", "cs", "c#"})
-            elif self.language == "javascript":
-                lang_names.update({"javascript", "js"})
-            elif self.language == "typescript":
-                lang_names.update({"typescript", "ts"})
-            elif self.language == "cpp":
-                lang_names.update({"cpp", "c++"})
+        elif self.language in ("java", "csharp"):
+            # Methods inside test classes (class name contains Test/Tests)
+            for cn in collect_nodes(root, class_types):
+                cname = _node_name(cn, self.language)
+                if not cname:
+                    continue
+                is_test_class = ("Test" in cname or "Example" in cname
+                                 or "Demo" in cname or "Sample" in cname)
+                if not is_test_class:
+                    continue
+                for fn in collect_nodes(cn, func_types):
+                    fname = _node_name(fn, self.language)
+                    if fname and not fname.startswith("_"):
+                        results.append((fname, fn, fn.start_point[0] + 1))
 
-            fence_re = re.compile(
-                r"```(" + "|".join(re.escape(n) for n in lang_names)
-                + r")\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
-            for m in fence_re.finditer(text):
-                code = m.group(2)
-                self.snippets.append({
-                    "file": doc_name,
-                    "language": self.language,
-                    "code": code[:5000],
-                    "valid": True,
-                })
+        elif self.language == "cpp":
+            # Functions in test files
+            for fn in collect_nodes(root, func_types):
+                fname = _node_name(fn, self.language)
+                if fname and (fname.startswith("test_")
+                              or fname.startswith("Test")
+                              or fname.startswith("TEST")):
+                    results.append((fname, fn, fn.start_point[0] + 1))
+
+        elif self.language in ("typescript", "javascript"):
+            # Exported functions, test() / describe() blocks, or
+            # functions starting with test/example
+            for fn in collect_nodes(root, func_types):
+                fname = _node_name(fn, self.language)
+                if not fname:
+                    continue
+                parent = fn.parent
+                is_exported = (parent and parent.type == "export_statement")
+                is_test_fn = (fname.startswith("test")
+                              or fname.startswith("example")
+                              or fname.startswith("demo"))
+                if is_exported or is_test_fn:
+                    results.append((fname, fn, fn.start_point[0] + 1))
+
+            # Also capture describe/test/it call expression blocks
+            # These appear as call_expression nodes with string + arrow_function
+            _test_block_names = {"test", "it", "describe"}
+            for call_node in collect_nodes(root, {"call_expression"}):
+                fn_part = child_by_field(call_node, "function")
+                if fn_part and node_text(fn_part) in _test_block_names:
+                    args = child_by_field(call_node, "arguments")
+                    if args and args.children:
+                        # First arg is usually the test description string
+                        desc = ""
+                        for ch in args.children:
+                            if ch.type in ("string", "template_string"):
+                                desc = node_text(ch).strip("'\"` ")
+                                break
+                        block_name = desc[:60] or node_text(fn_part)
+                        results.append(
+                            (block_name, call_node,
+                             call_node.start_point[0] + 1))
+
+        return results
 
     # -- Identity claims ---------------------------------------------------
 
@@ -1503,28 +1598,7 @@ class Scout:
 
     # -- Coverage matrix ---------------------------------------------------
 
-    def _build_test_index(self) -> set[str]:
-        """Return set of class names referenced in any test-directory source file."""
-        ext = _FILE_EXTENSIONS.get(self.language, ".py")
-        tested: set[str] = set()
-        class_names = {c["name"] for c in self.classes if c.get("kind") != "function"}
-        try:
-            for fpath in self.repo.rglob(f"*{ext}"):
-                if not _is_test_path(fpath):
-                    continue
-                try:
-                    text = fpath.read_text(encoding="utf-8", errors="replace")
-                except OSError:
-                    continue
-                for name in class_names:
-                    if name in text:
-                        tested.add(name)
-        except Exception:
-            pass
-        return tested
-
     def _build_coverage(self):
-        tested = self._build_test_index()
         for cls in self.classes:
             if cls.get("kind") == "function":
                 continue
@@ -1534,7 +1608,9 @@ class Scout:
                 "method_count": len(cls.get("methods", [])),
                 "property_count": len(cls.get("properties", [])),
                 "has_doc": bool(cls.get("doc")),
-                "has_tests": cls["name"] in tested,
+                "has_tests": any(s["file"].startswith(("test", "tests"))
+                                for s in self.snippets
+                                if cls["name"].lower() in s.get("code", "").lower()),
                 "enum_members": len(cls.get("enum_members", [])),
             })
 
@@ -1548,6 +1624,20 @@ class Scout:
             return result.stdout.strip()
         except Exception:
             return ""
+
+    def _get_repo_url(self) -> str:
+        """Return the git remote 'origin' URL, or '' if unavailable."""
+        try:
+            result = subprocess.run(
+                ["git", "remote", "get-url", "origin"],
+                cwd=str(self.repo),
+                capture_output=True, text=True, timeout=10,
+            )
+            if result.returncode == 0:
+                return result.stdout.strip()
+        except Exception:
+            pass
+        return ""
 
     def _install_command(self) -> str:
         name = self.manifest.get("name", "")
@@ -1597,6 +1687,8 @@ class Scout:
             return self.manifest.get("target_framework", "")
         if self.platform in ("typescript", "javascript", "nodejs"):
             return self.manifest.get("engines_node", "")
+        if self.platform in ("java", "kotlin"):
+            return self.manifest.get("runtime_min_version", "")
         return ""
 
     def _write_outputs(self):
@@ -1606,7 +1698,8 @@ class Scout:
         class_count = sum(1 for c in self.classes if c.get("kind") != "function")
         method_count = sum(len(c.get("methods", [])) for c in self.classes)
         prop_count = sum(len(c.get("properties", [])) for c in self.classes)
-        enum_count = sum(1 for c in self.classes if c.get("enum_members"))
+        enum_count = sum(1 for c in self.classes
+                         if c.get("kind") in ("enum_declaration", "enum_definition"))
 
         model = {
             "family": self.family,
@@ -1615,6 +1708,7 @@ class Scout:
             "version": self.manifest.get("version", ""),
             "license": self.manifest.get("license", ""),
             "repo_sha": self._get_repo_sha(),
+            "repo_url": self._get_repo_url(),
             "extracted_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
             "source": "scout",
             "package_root": str(self.pkg_root.relative_to(self.repo)).replace("\\", "/"),
@@ -1629,7 +1723,6 @@ class Scout:
                 "format_count": len(self.formats),
                 "snippet_count": len(self.snippets),
                 "limitation_count": len(self.limitations),
-                "constant_count": len(self.constants),
             },
         }
         (self.output / "model.yaml").write_text(
@@ -1655,12 +1748,6 @@ class Scout:
             json.dumps(self.formats, indent=2, ensure_ascii=False),
             encoding="utf-8")
         LOG.info("Wrote formats.json (%d formats)", len(self.formats))
-
-        # constants.json
-        (self.output / "constants.json").write_text(
-            json.dumps(self.constants, indent=2, ensure_ascii=False),
-            encoding="utf-8")
-        LOG.info("Wrote constants.json (%d constants)", len(self.constants))
 
         # limitations.md
         lim_lines = ["# Limitations (Not Implemented)\n"]
@@ -1706,15 +1793,51 @@ class Scout:
             encoding="utf-8")
         LOG.info("Wrote coverage_matrix.json (%d entries)", len(self.coverage))
 
+        # absent_evidence.json — signals what scout scanned so merge.py can
+        # reject FL-only classes that scout explicitly did NOT find.
+        absent_evidence = {
+            "scan_complete": True,
+            "scanned_file_count": len(self.scanned_files),
+            "scanned_packages": sorted(self.packages),
+            "found_classes": sorted(
+                c["name"] for c in self.classes if c.get("kind") != "function"
+            ),
+            "found_enums": sorted(
+                c["name"] for c in self.classes
+                if c.get("kind") in ("enum_declaration", "enum_definition")
+            ),
+        }
+        (self.output / "absent_evidence.json").write_text(
+            json.dumps(absent_evidence, indent=2, ensure_ascii=False),
+            encoding="utf-8")
+        LOG.info("Wrote absent_evidence.json (%d classes, %d packages)",
+                 len(absent_evidence["found_classes"]),
+                 len(absent_evidence["scanned_packages"]))
+
         # snippets/
         snippets_dir = self.output / "snippets"
         snippets_dir.mkdir(exist_ok=True)
-        for i, snip in enumerate(self.snippets):
-            fname = f"snippet_{i:04d}_{Path(snip['file']).stem}"
-            ext = _FILE_EXTENSIONS.get(snip["language"], ".txt")
-            out_path = snippets_dir / f"{fname}{ext}"
-            out_path.write_text(snip["code"], encoding="utf-8")
-        LOG.info("Wrote %d snippets", len(self.snippets))
+        ext = _FILE_EXTENSIONS.get(self.language, ".txt")
+        index_entries: list[dict[str, Any]] = []
+        for snip in self.snippets:
+            snippet_id = snip.get("id", "")
+            out_fname = snip.get("file", f"{snippet_id}{ext}")
+            out_path = snippets_dir / out_fname
+            out_path.write_text(snip.get("code", ""), encoding="utf-8")
+            index_entries.append({
+                "id": snippet_id,
+                "file": out_fname,
+                "source_file": snip.get("source_file", ""),
+                "source_function": snip.get("source_function", ""),
+                "source_line": snip.get("source_line", 0),
+                "classes_used": snip.get("classes_used", []),
+                "methods_used": snip.get("methods_used", []),
+                "formats_referenced": snip.get("formats_referenced", []),
+            })
+        (snippets_dir / "snippets_index.json").write_text(
+            json.dumps(index_entries, indent=2, ensure_ascii=False),
+            encoding="utf-8")
+        LOG.info("Wrote %d snippets + snippets_index.json", len(self.snippets))
 
 
 # ---------------------------------------------------------------------------

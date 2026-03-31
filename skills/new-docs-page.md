@@ -7,8 +7,6 @@ args: "{family} {platform} {section} {slug}"
 ---
 Generate a new documentation page for docs.aspose.org.
 
-> **Configuration**: Output paths below are defaults for the aspose.org repo. See `config.yaml` `sites.docs` for your project's docs content path.
-
 **Arguments:** `$ARGUMENTS`
 **Expected format:** `{family} {platform} {section} {slug}` — e.g. `3d python developer-guide mesh-operations`
 Valid sections: `getting-started` | `developer-guide`
@@ -22,44 +20,13 @@ Before generating any content, you MUST:
    - If `stale: true`, STOP and instruct the user to run `/knowledge-diff` first
    - If `has_conflicts: true`, WARN and list unresolved conflicts from `merge_conflicts.md`
 2. **Load verified facts**: Read `knowledge/{family}/{platform}/merged/claims.json` and `api_surface.json`
+2b. **Read API surface summary**: Read `knowledge/{family}/{platform}/merged/api_surface.md`
+    - This is the concise, human-readable API reference
+    - Every class name, method, property, and enum value in your generated content MUST appear in this file
+    - If a name is not in api_surface.md, do not use it
 3. **Load forbidden claims**: Read `forbidden_claims` from `index.json` — never include these in content
 4. **Load format matrix**: Read `formats.json` — only reference formats confirmed here
 5. **Load snippets**: Check `knowledge/{family}/{platform}/merged/snippets/` for verified code examples
-6. **Load constants**: Read `knowledge/{family}/{platform}/merged/constants.json` for module-level constants available for code examples
-
-## Golden Corpus Pre-conditions
-
-1. **Load corpus profile**: Read `knowledge/{family}/{platform}/_corpus/docs_profile.json`
-   - If not found → WARN and suggest running `/corpus-scan {family} {platform} docs`; proceed with default template
-
-2. **Load golden index**: Read `golden/_index.json`
-   - If not found → WARN and suggest running `python scripts/golden_index.py`; proceed with default template
-
-3. **Determine variant**: Read `selected_variant` from the corpus profile
-   - If `richness_tier: C` → use "minimal" variant (Usage Examples + See Also only)
-   - If `richness_tier: A` or `B` → use "standard" variant (full template below)
-   - If product has fewer than 3 API classes in knowledge model → force "minimal"
-
-4. **Select golden page**: From `golden/_index.json`, find the page where:
-   - `page_role` is `workflow_page` (for developer-guide) or `installation` (for getting-started)
-   - `variant` matches the selected variant
-   - If no match → fall back to "standard" variant → fall back to any variant for this role
-
-5. **Read the golden file**: Read the actual golden `.md` file at the `source_path` from the index entry
-
-6. **Apply STRUCTURAL CONTRACTS**: For EACH section you generate, find the matching section in the golden page (by heading) and follow its structural contract:
-   - Required block types (paragraph, code, list, table) at minimum counts
-   - Target prose word count and code block count
-   - These are minimum requirements — expand further to fully cover the topic
-
-7. **Apply STYLE ANCHOR**: Use the first 600 chars of the matching golden section as a style reference — match its voice, sentence structure, and depth. Do NOT copy its actual content (it uses template variables).
-
-8. **Apply STYLE RUBRIC** from the golden page's `style_rubric`:
-   - If `prose_before_code: true` → every code block must be preceded by a prose paragraph
-   - If `use_case_required: true` → include use-case bullet lists after major code examples
-   - If `code_completeness_required: true` → code must show import + usage + verification pattern
-   - Target `avg_sentence_length` words per sentence
-   - Include at least `min_code_variety` distinct code examples
 
 ## Steps
 
@@ -129,5 +96,6 @@ After generating the page:
 1. **Run evidence citation**: Execute `/evidence-cite content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md` to attach `<!-- evidence: ... -->` comments
 2. **Run content check**: Execute `/content-check content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md` to validate structure and knowledge alignment
 3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
+4. Run `python scripts/pipeline/audit.py --files {output-file}` to verify API accuracy before committing
 
 8. **Confirm** with the output path and a list of the H2 sections written.
