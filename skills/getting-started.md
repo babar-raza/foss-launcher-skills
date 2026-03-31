@@ -116,6 +116,22 @@ chmod +x .git/hooks/pre-commit
 
 This hook runs `audit.py` on staged content files and blocks commits with API accuracy failures.
 
+Also install the commit-msg hook to enforce `Skills invoked:` declaration on content commits (AGENTS.md §10):
+
+```bash
+cp scripts/commit-msg-skills.sh .git/hooks/commit-msg
+chmod +x .git/hooks/commit-msg
+```
+
+**WARN**: If `.git/hooks/commit-msg` is absent or not executable, content commits will not enforce
+the `Skills invoked:` field required by AGENTS.md §10. Verify with:
+
+```bash
+ls -la .git/hooks/commit-msg
+```
+
+If missing, re-run the install commands above.
+
 ---
 
 ## Step 6: Verify environment is healthy

@@ -91,7 +91,7 @@ python scripts/pipeline/truth_audit.py {family} {platform}
 python scripts/pipeline/cross_platform_audit.py {family}
 
 # Gap analysis
-python scripts/gap-eval/run.py {family} {platform} --scope docs --dry-run
+python scripts/gap-eval/run.py {family} {platform} --scope docs --no-llm
 ```
 
 ## 5. Translate Content

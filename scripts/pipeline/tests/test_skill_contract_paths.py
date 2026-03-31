@@ -145,5 +145,43 @@ class TestSkillFirstAwareness(unittest.TestCase):
                 )
 
 
+class TestS12Completeness(unittest.TestCase):
+    """Every skills/*.md file must be listed in AGENTS.md §12 Skills reference table.
+
+    Catches the class of defect where a skill is added to skills/ but is never
+    registered in §12 and therefore never subject to DAR governance checks.
+    Fail here = add the skill to the §12 Skills reference table in AGENTS.md.
+    """
+
+    def _parse_s12_names(self, agents_text: str) -> set[str]:
+        names: set[str] = set()
+        in_skills = False
+        for line in agents_text.splitlines():
+            if "Skills reference" in line:
+                in_skills = True
+                continue
+            if in_skills and "---" not in line and "Skill" not in line and line.startswith("| "):
+                cols = [c.strip() for c in line.split("|")[1:-1]]
+                if cols:
+                    names.add(cols[0].strip())
+            if in_skills and line.startswith("##") and "Skills reference" not in line:
+                in_skills = False
+        return names
+
+    def test_all_skill_files_registered_in_s12(self):
+        agents_text = read_text("AGENTS.md")
+        s12_names = self._parse_s12_names(agents_text)
+        skills_dir = REPO_ROOT / "skills"
+        for skill_path in sorted(skills_dir.glob("*.md")):
+            skill_name = skill_path.stem
+            with self.subTest(skill=skill_name):
+                self.assertIn(
+                    skill_name,
+                    s12_names,
+                    f"skills/{skill_name}.md exists but is not listed in AGENTS.md §12 "
+                    "Skills reference table. Add it to maintain DAR governance coverage.",
+                )
+
+
 if __name__ == "__main__":
     unittest.main()
