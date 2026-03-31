@@ -26,7 +26,10 @@ if str(_HERE) not in sys.path:
 from core.fs import atomic_write  # noqa: E402
 
 # Matches the full frontmatter block: opening ---, content, closing ---
-_FRONTMATTER_RE = re.compile(r"^(---\s*\n)(.*?)(\n---\s*\n)", re.DOTALL)
+# The closing fence accepts \n or end-of-string so files without a trailing
+# newline after the last --- are still detected (avoids false "no frontmatter"
+# that would cause the prepend path to fire and produce double frontmatter).
+_FRONTMATTER_RE = re.compile(r"^(---\s*\n)(.*?)(\n---\s*(?:\n|$))", re.DOTALL)
 
 # Matches the evidence: key and all its indented child lines.
 # Anchored at start-of-line (MULTILINE). Stops at the first line that starts
@@ -117,7 +120,20 @@ def _write_evidence_to_frontmatter(filepath, evidence_dict) -> bool:
         new_text = f"{open_fence}{new_fm}{close_fence}{body}"
 
     else:
-        # No frontmatter — prepend a minimal one containing only evidence
+        # Regex did not match.  Before prepending a new block, guard against
+        # the case where the file already starts with --- (valid frontmatter
+        # whose closing fence lacked a trailing newline, or otherwise
+        # malformed).  Prepending in that case would create double frontmatter,
+        # which Hugo silently ignores — a silent data-loss corruption.
+        if text.lstrip().startswith("---"):
+            raise ValueError(
+                f"Frontmatter regex failed on {filepath} but file starts with "
+                "'---'.  The file likely has malformed frontmatter (e.g. missing "
+                "trailing newline after closing fence).  Refusing to prepend a "
+                "new block to avoid double-frontmatter corruption.  Fix the "
+                "source file and retry."
+            )
+        # Genuinely no frontmatter — prepend a minimal one containing only evidence
         evidence_yaml = _build_evidence_yaml(evidence_dict)
         new_text = f"---\n{evidence_yaml}---\n\n{text}"
 

@@ -29,6 +29,11 @@ _EVIDENCE_BLOCK_RE = re.compile(
     re.MULTILINE,
 )
 
+_PROVENANCE_BLOCK_RE = re.compile(
+    r"^provenance:[ \t]*(?:\n[ \t]+[^\n]*)*",
+    re.MULTILINE,
+)
+
 _SAMPLE_EVIDENCE = {
     "model_sha": "abc123def456",
     "model_version": "1.0.0",
@@ -61,7 +66,8 @@ def _strip_evidence(text: str) -> str:
         return text
     open_f, fm, close_f = fm_match.group(1), fm_match.group(2), fm_match.group(3)
     body = text[fm_match.end():]
-    fm_clean = _EVIDENCE_BLOCK_RE.sub("", fm).rstrip("\n") + "\n"
+    fm_clean = _EVIDENCE_BLOCK_RE.sub("", fm)
+    fm_clean = _PROVENANCE_BLOCK_RE.sub("", fm_clean).rstrip("\n") + "\n"
     return f"{open_f}{fm_clean}{close_f}{body}"
 
 

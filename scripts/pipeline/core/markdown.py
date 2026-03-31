@@ -23,11 +23,15 @@ from typing import Any
 import yaml
 
 
-# 1-group: captures only the YAML body (for reading)
-_FRONTMATTER_READER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
+# 1-group: captures only the YAML body (for reading).
+# Closing fence accepts \n or end-of-string: files without a trailing newline
+# after the last --- are still matched (avoids false "no frontmatter" on
+# LLM-generated files that omit the trailing newline).
+_FRONTMATTER_READER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*(?:\n|$)", re.DOTALL)
 
-# 3-group: captures (opening-fence, body, closing-fence) (for writing)
-_FRONTMATTER_WRITER_RE = re.compile(r"^(---\s*\n)(.*?)(\n---\s*\n)", re.DOTALL)
+# 3-group: captures (opening-fence, body, closing-fence) (for writing).
+# Same trailing-newline tolerance as the reader variant above.
+_FRONTMATTER_WRITER_RE = re.compile(r"^(---\s*\n)(.*?)(\n---\s*(?:\n|$))", re.DOTALL)
 
 # Convenience alias — matches the name used in knowledge_core.py callers
 _FRONTMATTER_RE = _FRONTMATTER_READER_RE
