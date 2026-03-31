@@ -23,7 +23,14 @@ cp .env.example .env
 cp scripts/pre-commit-audit.sh .git/hooks/pre-commit
 chmod +x .git/hooks/pre-commit
 
-# 5. Verify
+# 5. Populate provenance for pre-existing locale files (required post-clone migration)
+# Locale files translated since cdaa1daac already have committed provenance.
+# Older locale files that have not been re-translated need this step.
+# The script is idempotent — safe to re-run; files with provenance are skipped.
+python scripts/pipeline/provenance_backfill.py
+# Expected output: "Backfilled N files, skipped M (already have provenance), 0 errors"
+
+# 6. Verify
 python scripts/pipeline/audit.py all
 ```
 
@@ -147,3 +154,35 @@ The pre-commit hook runs automatically if installed (Step 1.4).
 | `no-downgrade-guard` blocks write | Proposed content is structurally smaller than existing | Review proposed content -- likely missing sections or code blocks |
 | `change-guard` blocks write | Claim references unknown format or API | Verify claim against `knowledge/{f}/{p}/merged/` artifacts |
 | Grade is D or F after evaluation | Multiple quality issues | Run `/heal-page {path}` to rescue the page |
+| Locale file has no `provenance:` block after clone | Pre-provenance file; backfill not run | Run `python scripts/pipeline/provenance_backfill.py` (see §1) |
+| Translator sync skips a file with `auto_updatable=false` | File is explicitly protected from auto-overwrite | Intentional. To re-enable: set `auto_updatable: true` in the file's provenance block |
+| `provenance_backfill.py` reports "no English source" for a file | Structural orphan (e.g., reference.aspose.org kebab-case topic pages) | These are legacy locale files with no current English counterpart. File is safe to leave; set `auto_updatable: false` to prevent accidental overwrite |
+
+## 9. Provenance Operations
+
+See AGENTS.md §10b for the full provenance model. Quick reference:
+
+```bash
+# Backfill provenance on files that lack it (idempotent, safe to re-run)
+python scripts/pipeline/provenance_backfill.py
+
+# Protect a file from automated translator overwrite
+# Edit the file's frontmatter:
+#   provenance:
+#     auto_updatable: false
+
+# Check why a translator sync skipped a file
+# Look for: [SKIP] {path} -- auto_updatable=false, requires review
+python -m translator sync --family {f} --platform {p} --site docs.aspose.org --locales {locale}
+
+# Verify provenance fields in a translated file
+grep -A8 "^provenance:" content/docs.aspose.org/{locale}/{family}/{platform}/_index.md
+
+# Check provenance coverage across a locale
+grep -rn "translation_origin: translator-" content/docs.aspose.org/{locale}/{family}/{platform}/ | wc -l
+```
+
+**Provenance durability model (Option B — post-clone migration):**
+- Files translated since commit `cdaa1daac`: provenance is in git, durable across clones
+- Files not yet re-translated: provenance requires `provenance_backfill.py` after clone (Step 1.5)
+- The backfill script is committed and idempotent. Running it is required for full provenance coverage.

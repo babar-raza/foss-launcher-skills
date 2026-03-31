@@ -411,9 +411,21 @@ Set `auto_updatable: false` in the file's provenance block. The translator sync 
 
 `source_sha` holds the first 12 hex characters of SHA-256 of the English source content at the time of translation. If `source_sha` does not match the current English source, the locale file is stale and eligible for re-translation (if `auto_updatable: true`).
 
-### Backfill
+### Backfill and fresh-clone durability
 
 `scripts/pipeline/provenance_backfill.py` writes provenance to all existing files that lack it. It is idempotent and safe to re-run. Files that already have a provenance block are skipped.
+
+**Which files have committed provenance (durable across clones):**
+All locale files translated or re-translated since commit `cdaa1daac` (provenance integration). These carry `translation_origin: translator-*` written by the translator and are in git.
+
+**Which files require backfill after a fresh clone:**
+Locale files that existed before `cdaa1daac` and have not been re-translated since. On a fresh clone these files have no `provenance:` block. Run:
+
+```bash
+python scripts/pipeline/provenance_backfill.py
+```
+
+The backfill sets `translation_origin: unknown`, `auto_updatable: true`, and derives `source_file` / `source_sha` from the path mapping. This is the correct conservative default. See RUNBOOK §1 for the canonical post-clone setup sequence.
 
 ## 11. Prohibited Actions
 
