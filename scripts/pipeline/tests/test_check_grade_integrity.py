@@ -127,6 +127,59 @@ class TestAnomalies:
             p.unlink(missing_ok=True)
 
 
+class TestInlineCommentEdgeCases:
+    """Regression tests for the inline-comment false-positive bug.
+
+    A grade line like ``grade: A # written by evaluator`` contains a valid
+    grade (A) followed by an inline YAML comment.  Before the fix, the raw
+    value ``A # written by evaluator`` was compared against _VALID_GRADES and
+    reported as invalid_grade — a false positive.
+    """
+
+    def test_grade_with_inline_comment_passes(self):
+        p = _tmp_md(
+            "---\ntitle: T\ngrade: A # written by evaluator\n"
+            "graded_at: \"2026-03-31T00:00:00Z\"\ngraded_evaluators: full\n---\nBody.\n"
+        )
+        try:
+            issues = _check_file(p)
+            checks = [i["check"] for i in issues]
+            assert "invalid_grade" not in checks, (
+                f"False positive invalid_grade on 'grade: A # comment': {issues}"
+            )
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_actually_invalid_grade_still_detected(self):
+        p = _tmp_md(
+            "---\ntitle: T\ngrade: Z # typo\n"
+            "graded_at: \"2026-03-31T00:00:00Z\"\ngraded_evaluators: full\n---\nBody.\n"
+        )
+        try:
+            checks = [i["check"] for i in _check_file(p)]
+            assert "invalid_grade" in checks
+        finally:
+            p.unlink(missing_ok=True)
+
+
+class TestScopeFiltering:
+    def test_non_md_files_skipped_silently(self):
+        """GH-05: .py, .yaml, .txt files passed via --files are silently ignored."""
+        assert main(["--files", __file__]) == 0  # __file__ is a .py file
+
+    def test_mixed_md_and_non_md_only_md_checked(self, tmp_path):
+        bad_md = tmp_path / "bad.md"
+        bad_md.write_text(
+            "---\ntitle: Dup\ngrade: A\ngraded_at: \"2026-01-01\"\n"
+            "graded_evaluators: full\ngraded_evaluators: audit\n---\nBody.\n",
+            encoding="utf-8",
+        )
+        yaml_file = tmp_path / "ignored.yaml"
+        yaml_file.write_text("key: value\n", encoding="utf-8")
+        # Only bad.md is checked; ignored.yaml is skipped → exit 1 from bad.md
+        assert main(["--files", str(bad_md), str(yaml_file)]) == 1
+
+
 class TestCLI:
     def test_clean_file_exits_0(self):
         p = _tmp_md(CLEAN_FILE)

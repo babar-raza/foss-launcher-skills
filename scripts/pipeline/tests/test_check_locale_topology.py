@@ -205,6 +205,182 @@ class TestCheckLocale:
             src.unlink(missing_ok=True)
 
 
+class TestPrePatchRegressionFixture:
+    """Fixture-backed tests based on the real historical working-with-formulas.md
+    H2-inflation bug (commit cb8c937d3).
+
+    The fr locale at that commit had 9 H2s vs the English source's 8 because a
+    Note paragraph was incorrectly promoted to a heading:
+
+        ## Aspose.Cells FOSS does not include a formula engine. If you need...
+
+    The checker must detect this; the fixed (8-H2) locale must pass.
+    """
+
+    # English source: 8 H2s — the canonical structure after the WS-11 fix.
+    EN_8H2 = """\
+---
+title: Working with Formulas
+---
+
+## Overview
+
+Content.
+
+## Setting a Formula via the Cell Constructor
+
+Content.
+
+## Setting a Formula via the `.formula` Property
+
+Content.
+
+## Reading a Formula Back
+
+Content.
+
+## Common Excel Formulas
+
+Content.
+
+## Complete Example
+
+Content.
+
+## Notes
+
+A formula string must start with `=`.
+
+## See Also
+
+Links.
+"""
+
+    # Pre-patch broken locale: 9 H2s — Note paragraph promoted to heading.
+    FR_9H2_BROKEN = """\
+---
+title: Travailler avec des formules
+---
+
+## Vue d'ensemble
+
+Contenu.
+
+## Définir une formule via le constructeur Cell
+
+Contenu.
+
+## Définir une formule via le `.formula` Propriété
+
+Contenu.
+
+## Lire une formule
+
+Contenu.
+
+## Formules Excel courantes
+
+Contenu.
+
+## Exemple complet
+
+Contenu.
+
+## Remarques
+
+Contenu.
+
+## Aspose.Cells FOSS does not include a formula engine. If you need the computed résultat d'une formule dans Python, calculez vous-même la valeur.
+
+## Voir aussi
+
+Liens.
+"""
+
+    # Fixed locale: 8 H2s — Note content stays in body, not promoted to heading.
+    FR_8H2_FIXED = """\
+---
+title: Travailler avec des formules
+---
+
+## Vue d'ensemble
+
+Contenu.
+
+## Définir une formule via le constructeur Cell
+
+Contenu.
+
+## Définir une formule via le `.formula` Propriété
+
+Contenu.
+
+## Lire une formule
+
+Contenu.
+
+## Formules Excel courantes
+
+Contenu.
+
+## Exemple complet
+
+Contenu.
+
+## Remarques
+
+Aspose.Cells FOSS n'inclut pas de moteur de formule.
+
+## Voir aussi
+
+Liens.
+"""
+
+    def test_pre_patch_broken_locale_detected(self):
+        """Checker must fire on the historical 9-H2 broken locale (pre-patch state)."""
+        src = _tmp_md(self.EN_8H2)
+        loc = _tmp_md(self.FR_9H2_BROKEN)
+        try:
+            result = check_locale(src, loc)
+            assert result is not None, "Expected mismatch on pre-patch broken locale"
+            assert result["check"] == "h2_count_mismatch"
+            assert "locale has 9 H2(s)" in result["detail"]
+            assert "source has 8 H2(s)" in result["detail"]
+        finally:
+            src.unlink(missing_ok=True)
+            loc.unlink(missing_ok=True)
+
+    def test_fixed_locale_passes(self):
+        """Fixed locale (8 H2s matching source) must pass the checker."""
+        src = _tmp_md(self.EN_8H2)
+        loc = _tmp_md(self.FR_8H2_FIXED)
+        try:
+            assert check_locale(src, loc) is None, "Expected PASS on fixed locale"
+        finally:
+            src.unlink(missing_ok=True)
+            loc.unlink(missing_ok=True)
+
+    def test_cli_exits_1_on_broken_locale(self):
+        """CLI exits 1 when pre-patch broken locale is checked."""
+        src = _tmp_md(self.EN_8H2)
+        loc = _tmp_md(self.FR_9H2_BROKEN)
+        try:
+            assert main(["--source", str(src), "--locales", str(loc)]) == 1
+        finally:
+            src.unlink(missing_ok=True)
+            loc.unlink(missing_ok=True)
+
+    def test_cli_exits_0_on_fixed_locale(self):
+        """CLI exits 0 when fixed locale is checked."""
+        src = _tmp_md(self.EN_8H2)
+        loc = _tmp_md(self.FR_8H2_FIXED)
+        try:
+            assert main(["--source", str(src), "--locales", str(loc)]) == 0
+        finally:
+            src.unlink(missing_ok=True)
+            loc.unlink(missing_ok=True)
+
+
 class TestCLI:
     def test_matching_locale_exits_0(self):
         src = _tmp_md(ENGLISH_SOURCE)
