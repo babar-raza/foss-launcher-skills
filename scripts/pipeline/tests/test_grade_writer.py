@@ -227,6 +227,111 @@ class TestWriteGrade:
         finally:
             p.unlink(missing_ok=True)
 
+    def test_double_write_no_duplicate_graded_evaluators(self):
+        """Regression: write_grade() twice must not duplicate graded_evaluators."""
+        p = _tmp_file(textwrap.dedent("""\
+            ---
+            title: Page
+            ---
+
+            Body.
+        """))
+        try:
+            write_grade(p, "A", model_sha="sha1", evaluator_tier="full")
+            write_grade(p, "B", model_sha="sha2", evaluator_tier="full")
+            text = p.read_text(encoding="utf-8")
+            assert text.count("graded_evaluators") == 1, (
+                f"graded_evaluators duplicated:\n{text}"
+            )
+            assert "grade: B" in text
+            assert "graded_evaluators: full" in text
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_double_write_grade_block_mid_frontmatter(self):
+        """Grade block in middle of frontmatter (content after it) stays intact."""
+        p = _tmp_file(textwrap.dedent("""\
+            ---
+            title: Page
+            grade: C
+            graded_at: "2026-01-01T00:00:00Z"
+            graded_model_sha: old
+            graded_evaluators: structural
+            description: Some description
+            ---
+
+            Body.
+        """))
+        try:
+            write_grade(p, "A", model_sha="new_sha", evaluator_tier="full")
+            text = p.read_text(encoding="utf-8")
+            assert text.count("graded_evaluators") == 1, (
+                f"graded_evaluators duplicated:\n{text}"
+            )
+            assert "grade: A" in text
+            assert "graded_evaluators: full" in text
+            assert "description: Some description" in text
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_triple_write_idempotent(self):
+        """Three consecutive writes must not duplicate any grade keys."""
+        p = _tmp_file(textwrap.dedent("""\
+            ---
+            title: Page
+            ---
+
+            Body.
+        """))
+        try:
+            write_grade(p, "A", model_sha="sha1", evaluator_tier="full")
+            write_grade(p, "B", model_sha="sha2", evaluator_tier="full")
+            write_grade(p, "C", model_sha="sha3", evaluator_tier="structural")
+            text = p.read_text(encoding="utf-8")
+            assert text.count("grade:") == 1
+            assert text.count("graded_evaluators") == 1
+            assert "grade: C" in text
+            assert "graded_evaluators: structural" in text
+            assert "graded_model_sha: sha3" in text
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_orphan_grade_key_not_expanded(self):
+        """count=1 defense: orphaned grade key is not expanded into a second block.
+
+        When a stale grade key is separated from the main block by non-grade
+        content, write_grade() replaces only the main consecutive block
+        (count=1). The orphan remains inert but is NOT expanded into a full
+        duplicate grade block.
+        """
+        p = _tmp_file(textwrap.dedent("""\
+            ---
+            title: Page
+            grade: C
+            graded_at: "2026-01-01T00:00:00Z"
+            graded_model_sha: old
+            graded_evaluators: structural
+            description: Middle content
+            graded_evaluators: orphan
+            ---
+
+            Body.
+        """))
+        try:
+            write_grade(p, "A", model_sha="new_sha", evaluator_tier="full")
+            text = p.read_text(encoding="utf-8")
+            # Main block replaced correctly — only 1 grade: key
+            assert text.count("grade:") == 1, f"grade: duplicated:\n{text}"
+            assert "grade: A" in text
+            assert "graded_evaluators: full" in text
+            assert "description: Middle content" in text
+            # Orphan remains inert (not expanded into a full block)
+            assert text.count("graded_model_sha") == 1, (
+                f"orphan expanded into full block:\n{text}"
+            )
+        finally:
+            p.unlink(missing_ok=True)
+
 
 class TestReadGrade:
     def test_read_existing_grade(self):

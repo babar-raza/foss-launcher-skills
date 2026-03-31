@@ -63,6 +63,23 @@ Generate both:
 
 ---
 
+### STAGE 1.5 — Family Page Sync
+
+**Condition**: Run ONLY when >= 2 platform subdirectories exist under
+`content/products.aspose.org/en/{family}/` after Stage 1 completes.
+
+If only 1 platform subdirectory exists (first launch), skip — family page was just created fresh.
+
+**Command**: `/family-sync {family}`
+
+**Checkpoint**: `family_sync_done`
+
+**Skip condition**: only 1 platform subdirectory exists under the family
+
+**Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} family_sync_done true`
+
+---
+
 ### STAGE 2 — Blog Posts
 
 Read blog post slugs from `reports/plans/{family}/{platform}/site_plan.yaml`, section `sections.blog.pages[]`. Generate each page whose `mandatory: true`. Also generate optional posts if `mandatory: false` and evidence supports it.
@@ -136,6 +153,7 @@ Read `reports/content_eval/eval-latest.json` (or run fresh eval) for this produc
 Print per-page grades with counts:
 ```
 === LAUNCH READINESS: {family}/{platform} ===
+Launch tier:     {tier from site_plan.yaml launch_tier}
 Products page:   {grade}
 Blog posts:      {A/B/C/D/F per post}
 Docs pages:      {grade summary}

@@ -14,6 +14,7 @@ discovery_hints:
 
 discovered_actuals:
   package_name: "aspose-note"
+  import_path: "aspose.note"
   package_source_actual: pyproject.toml
   format_files_found: null
   last_baseline_sha: null

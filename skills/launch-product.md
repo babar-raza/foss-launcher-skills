@@ -42,6 +42,23 @@ passes `python scripts/pipeline/audit.py --files content/products.aspose.org/en/
 
 ---
 
+### STAGE 1.5 — Family Page Sync
+
+**Condition**: Run ONLY when >= 2 platform subdirectories exist under
+`content/products.aspose.org/en/{family}/` after Stage 1 completes.
+
+If only 1 platform subdirectory exists (first launch), skip — family page was just created fresh.
+
+**Command**: `/family-sync {family}`
+
+**Checkpoint**: `family_sync_done`
+
+**Skip condition**: only 1 platform subdirectory exists under the family
+
+**Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} family_sync_done true`
+
+---
+
 ### STAGE 2 — Blog Posts
 **Commands** (run sequentially):
 1. `/new-blog-post {family} {platform} introducing-{family}-foss-{platform}`
