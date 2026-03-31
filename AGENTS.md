@@ -332,6 +332,66 @@ Every commit touching `content/` MUST include in the commit message:
 The `evidence:` frontmatter block in each page is the persistent inline evidence record.
 `model_sha` anchors it to the knowledge version; `audit.py` detects staleness automatically.
 
+## 10b. Content Provenance Rules
+
+Every `.md` content file carries a `provenance:` block in its YAML frontmatter.
+This block is **internal metadata** — never rendered in Hugo templates.
+
+### Provenance fields
+
+```yaml
+provenance:
+  content_origin: skill-generated | agent-drafted | human-authored | unknown
+  translation_origin: translator-batch | translator-sync | translator-page | translator-retranslate | agent-translated | human-translated | unknown
+  source_file: <relative path of English source>   # locale files only
+  source_sha: <first 12 hex chars of SHA-256 of English source>  # locale files only
+  last_mechanism: translator | evidence-attach | grade-writer | fixer | skill | agent-edit | human-edit | unknown
+  auto_updatable: true | false
+  reviewed: true | false
+```
+
+### Lifecycle rules
+
+| Event | Fields updated |
+|-------|----------------|
+| Translator produces a new or updated locale file | `translation_origin`, `source_file`, `source_sha`, `last_mechanism: translator`, `auto_updatable: true`, `reviewed: false` |
+| Evidence attachment writes evidence block | `last_mechanism: evidence-attach` only — all other fields unchanged |
+| Grade writer writes grade block | `last_mechanism: grade-writer` only — all other fields unchanged |
+| Remediation fixer modifies content | `last_mechanism: fixer` only — all other fields unchanged |
+| Skill generates a new English page | `content_origin: skill-generated`, `last_mechanism: skill`, `auto_updatable: true`, `reviewed: false` |
+| Human edits content | `last_mechanism: human-edit`, `auto_updatable: false`, `reviewed: true` |
+| Agent edits content directly | `last_mechanism: agent-edit`, `reviewed: false` |
+
+**Critical:** Evidence attachment, grade writes, and fixer runs are metadata-only operations. They MUST update `last_mechanism` but MUST NOT change `auto_updatable` or `translation_origin`.
+
+### Overwrite/skip decision rules
+
+The translator sync command uses `auto_updatable` to decide whether to overwrite an existing locale file:
+
+```
+locale file does not exist → translate (new file)
+locale file exists AND auto_updatable == true → translate (overwrite)
+locale file exists AND auto_updatable == false → skip, log reason
+```
+
+**The git commit author email is NOT a reliable provenance indicator and MUST NOT be used for overwrite decisions.** The `_is_bot_authored()` function was removed in commit `cdaa1daac`. Do not recreate it.
+
+### Interpreting unknown provenance
+
+`translation_origin: unknown` and `content_origin: unknown` are set by the backfill migration on pre-existing files. This means **origin is unverified**, not that the file is safe to overwrite. Use `auto_updatable` to make overwrite decisions — it is set to `true` by the backfill for all existing files, which is the correct conservative default.
+
+### Protecting a file from automated overwrite
+
+Set `auto_updatable: false` in the file's provenance block. The translator sync will log `[SKIP] ... -- auto_updatable=false, requires review` and skip the file.
+
+### Staleness detection
+
+`source_sha` holds the first 12 hex characters of SHA-256 of the English source content at the time of translation. If `source_sha` does not match the current English source, the locale file is stale and eligible for re-translation (if `auto_updatable: true`).
+
+### Backfill
+
+`scripts/pipeline/provenance_backfill.py` writes provenance to all existing files that lack it. It is idempotent and safe to re-run. Files that already have a provenance block are skipped.
+
 ## 11. Prohibited Actions
 
 - Copy content from `golden/` corpus into `content/` pages (`golden/` is rubric reference only)
@@ -494,15 +554,26 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | batch-remediate | S-40 | Full eval→fix→LLM→re-eval pipeline for all content pages of a product |
 | batch-eval-fix | S-41 | Lightweight eval + deterministic auto-fixes only; no LLM pass; safe for unattended runs |
 | category-fix | S-42 | Run a specific fixer on files by category code (ST, RV, EG, RL, AA, PC, FC, PT, CP, CG) |
+| gap-eval | S-43 | Content verification against clone cache — publishability verdict |
+| gap-plan | S-44 | Wave-ordered remediation planning from gap-eval findings |
+| gap-report | S-45 | Cross-product gap synthesis report |
+| site-plan | S-47 | Production-grade pre-generation site manifest (deterministic YAML output) |
 | family-sync | S-48 | Update family-level products page to reflect all launched platforms |
-| batch-reference | — | Bulk reference page generation for all missing classes/enums in a family+platform; idempotent; never overwrites existing pages |
-| knowledge-bootstrap | — | Pre-condition gate; detects and resolves stale knowledge state before any content or validation command proceeds |
-| new-docs-page | — | Generate documentation pages for docs.aspose.org |
-| new-blog-post | — | Generate blog posts for blog.aspose.org |
-| new-kb-faq | — | Generate or update FAQ page for a product platform |
-| new-kb-howto | — | Generate KB how-to articles |
-| new-reference-page | — | Generate API reference pages for reference.aspose.org |
-| getting-started | — | Fresh-clone onboarding: install deps, configure env, bootstrap knowledge, verify |
+| launch-product | S-49 | 5-subdomain full documentation launch orchestrator (10 stages) |
+| content-eval | S-51 | Multi-dimensional content evaluation (16 evaluators, grading, batch mode) |
+| translate-page | S-52 | Translate a single English content page to target locales |
+| translate-batch | S-53 | Batch translate all pages for a family/platform to target locales |
+| knowledge-bootstrap | S-54 | Pre-condition gate; detects and resolves stale knowledge before content or validation commands |
+| no-downgrade-guard | S-55 | Pre-write quality comparison to prevent content regression |
+| new-docs-page | S-56 | Generate documentation pages for docs.aspose.org |
+| new-blog-post | S-57 | Generate blog posts for blog.aspose.org |
+| new-kb-howto | S-58 | Generate KB how-to articles |
+| new-kb-faq | S-59 | Generate or update FAQ page for a product platform |
+| new-reference-page | S-60 | Generate API reference pages for reference.aspose.org |
+| new-products-page | S-61 | Generate products.aspose.org landing pages |
+| batch-reference | S-62 | Bulk reference page generation for all missing classes/enums; idempotent |
+| code-smoke | S-63 | Syntax and type-check Python code blocks in content files |
+| getting-started | S-64 | Fresh-clone onboarding: install deps, configure env, bootstrap knowledge, verify |
 
 ### Enforcement scripts
 
