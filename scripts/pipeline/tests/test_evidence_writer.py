@@ -122,14 +122,14 @@ def test_preserves_unquoted_scalar():
     original = textwrap.dedent("""\
         ---
         layout: plugin
-        plugin_name: Aspose.Cells FOSS
+        family_name: Aspose.Cells FOSS
         weight: 1
         ---
 
         Body.
     """)
     result = _apply_evidence(original)
-    assert "plugin_name: Aspose.Cells FOSS" in result
+    assert "family_name: Aspose.Cells FOSS" in result
     assert "weight: 1" in result
 
 
