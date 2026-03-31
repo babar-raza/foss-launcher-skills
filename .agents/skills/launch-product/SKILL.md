@@ -211,6 +211,29 @@ until FAIL count is 0.
 
 Auto-fixes deterministic issues only (no LLM pass). Reviews eval grades.
 
+**After `/batch-eval-fix` completes — mandatory grade integrity scan:**
+```bash
+python -c "
+from pathlib import Path; import re
+sites = ['content/blog.aspose.org/{family}/{platform}',
+         'content/docs.aspose.org/en/{family}/{platform}',
+         'content/kb.aspose.org/en/{family}/{platform}',
+         'content/products.aspose.org/en/{family}',
+         'content/reference.aspose.org/en/{family}/{platform}']
+dupes = 0
+for bp in sites:
+    p = Path(bp)
+    if not p.exists(): continue
+    for md in p.rglob('*.md'):
+        try: text = md.read_text(encoding='utf-8', errors='replace')
+        except: continue
+        if len(re.findall(r'^graded_evaluators:', text, re.MULTILINE)) > 1:
+            print(f'DUPLICATE: {md}'); dupes += 1
+print(f'Grade duplicates: {dupes}')
+"
+```
+If `Grade duplicates > 0`: **HARD STOP**. Do not proceed to Stage 7.5 or Stage 8. Investigate the affected files before continuing.
+
 ---
 
 ### STAGE 7.5 — Completeness Gap Check (Fix 7)

@@ -1,3 +1,5 @@
+# S-59: New KB FAQ — Generate FAQ Page for Product Platform
+
 Generate or update the FAQ page for a product platform.
 
 **Arguments:** `$ARGUMENTS`

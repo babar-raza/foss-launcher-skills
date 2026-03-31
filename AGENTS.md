@@ -203,10 +203,33 @@ elapsed.
 | `/truth-merge` (S-35) | S-34 `/repo-scout` | Scout output absent |
 | `/batch-remediate` (S-40) | `/knowledge-bootstrap` | Always |
 | `/batch-eval-fix` (S-41) | `/knowledge-bootstrap` | Always |
+| `/faq-generate` (S-22) | `/knowledge-bootstrap` | Always |
+| `/new-docs-page` (S-56) | `/knowledge-bootstrap` | Always |
+| `/new-blog-post` (S-57) | `/knowledge-bootstrap` | Always |
+| `/new-kb-howto` (S-58) | `/knowledge-bootstrap` | Always |
+| `/new-kb-faq` (S-59) | `/knowledge-bootstrap` | Always |
+| `/new-reference-page` (S-60) | `/knowledge-bootstrap` | Always |
+| `/new-products-page` (S-61) | `/knowledge-bootstrap` | Always |
+| `/batch-reference` (S-62) | `/knowledge-bootstrap` | Always |
+| `/change-guard` (S-33) | `/knowledge-bootstrap` | Always |
+| `/content-audit` (S-32) | `/knowledge-bootstrap` | Always |
+| `/site-plan` (S-47) | `/knowledge-bootstrap` | Always |
 | Any content write | S-01 `/path-guard` | Always (final gate) |
 
 If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do not continue
 to the downstream skill.
+
+**DAR scope**: The DAR table lists skills that require an upstream dependency to be
+activated *before* they can begin. Orchestrator skills that invoke upstream dependencies
+as part of their own internal pipeline (e.g., `launch-product` invoking bootstrap as
+Stage 0, `knowledge-update` managing the full refresh chain) are not listed — they manage
+their own dependency chain. The test is: "Does this skill require someone else to have
+already run the upstream skill?" If yes → DAR entry. If the skill runs the upstream
+itself internally → no DAR entry.
+
+**DAR maintenance**: When a skill is added, removed, renamed, or split, update this table.
+Run `python scripts/ci/check_dar_coverage.py` to verify alignment between the DAR table
+and skill file preconditions.
 
 ## 6b. Capability Classification and Gap Escalation
 

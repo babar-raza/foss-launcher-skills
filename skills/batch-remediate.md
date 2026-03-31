@@ -7,6 +7,14 @@ Expected format: `{family} {platform}` — e.g. `3d python`
 
 Run the complete remediation pipeline for all content pages of a product: evaluate, triage, auto-fix deterministic issues, apply LLM fixes for non-deterministic issues, then re-evaluate to confirm improvement.
 
+## Lightweight mode (no LLM)
+
+For deterministic auto-fixes only (no LLM pass), use S-41 (batch-eval-fix) instead:
+```
+/batch-eval-fix {family} {platform}
+```
+This is safe for unattended runs and skips the LLM fix pass (Step 6).
+
 ## Pre-conditions
 
 1. **Knowledge bootstrap**: Run `/knowledge-bootstrap {family} {platform}` and check status:

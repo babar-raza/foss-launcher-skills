@@ -1,3 +1,5 @@
+# S-58: New KB How-To — Generate KB How-To Article
+
 Generate a new KB how-to article.
 
 **Arguments:** `$ARGUMENTS`

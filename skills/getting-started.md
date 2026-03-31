@@ -1,4 +1,4 @@
-# Getting Started - Bootstrap the Repo Environment
+# S-64: Getting Started - Bootstrap the Repo Environment
 
 **Arguments**: $ARGUMENTS
 Optional format: `{family} {platform}` to bootstrap a specific product. Omit to see all steps.
@@ -102,6 +102,19 @@ To bootstrap all products at once:
 ```bash
 python scripts/pipeline/refresh_knowledge.py --all --check
 ```
+
+---
+
+## Step 5b: Install pre-commit hook
+
+Install the content audit pre-commit hook to enforce API accuracy on every commit:
+
+```bash
+cp scripts/pre-commit-audit.sh .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+This hook runs `audit.py` on staged content files and blocks commits with API accuracy failures.
 
 ---
 

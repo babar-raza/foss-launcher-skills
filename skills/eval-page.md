@@ -6,6 +6,13 @@ Expected format: `{relative-file-path}` — e.g. `content/docs.aspose.org/en/3d/
 ## Purpose
 Evaluate a content page using the content_eval pipeline and produce a letter grade (A-F). This is the primary quality gate for deciding whether a page needs enhancement (S-21) or healing (S-26).
 
+## Batch mode
+
+For batch evaluation of all pages in a product, use S-51 (content-eval):
+```bash
+python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation
+```
+
 ## Pre-conditions
 1. The file at `{relative-file-path}` exists under `content/`
 2. `scripts/pipeline/content_eval` module is available

@@ -1,4 +1,4 @@
-# Knowledge Bootstrap - Shared Pre-condition Gate
+# S-54: Knowledge Bootstrap - Shared Pre-condition Gate
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform}` - e.g. `3d python`

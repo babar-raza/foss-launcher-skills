@@ -1,7 +1,15 @@
+# S-23: Content Check — Structural Quality Pre-Commit Check
+
 Run a structural and quality check on a content file before committing.
 
 **Arguments:** `$ARGUMENTS`
 **Expected format:** `{relative-file-path}` — e.g. `content/kb.aspose.org/en/3d/python/how-to-load-models.md`
+
+## Pre-conditions
+
+1. **Knowledge bootstrap**: Run `/knowledge-bootstrap {family} {platform}` (detect `{family}` and `{platform}` from the file path argument) and check status:
+   - `STOP:partial` → halt (see printed message)
+   - Any other status (`READY`, `BOOTSTRAPPED`, `REFRESHED`, `WARN:conflicts`) → continue
 
 ## Steps
 

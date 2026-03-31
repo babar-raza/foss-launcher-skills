@@ -6,6 +6,10 @@ Expected format: `{family} {platform}` — e.g. `3d python`
 ## Purpose
 Generate a FAQ page for a product by extracting common patterns, limitations, and capabilities from the knowledge model. Produces Q&A pairs grounded in verified claims.
 
+## Note
+
+For KB FAQ pages specifically, prefer S-59 (new-kb-faq) which includes the full KB site template, evidence citations, and Hugo frontmatter. This skill (S-22) generates FAQ content sections that can be embedded in any page type.
+
 ## Pre-conditions
 1. **Knowledge bootstrap**: Run `/knowledge-bootstrap {family} {platform}` and check status:
    - `STOP:partial` → halt (see printed message)

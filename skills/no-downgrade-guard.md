@@ -1,4 +1,4 @@
-# No-Downgrade Guard — Pre-Write Quality Comparison
+# S-55: No-Downgrade Guard — Pre-Write Quality Comparison
 
 **This is a sub-routine, not a user-facing command.**
 
