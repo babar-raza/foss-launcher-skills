@@ -80,6 +80,7 @@ def mock_knowledge(tmp_path):
     k.property_types = {}
     k.parents = {}
     k.valid_imports = set()
+    k.workaround_members = {}
 
     import re
     for cls in api_surface:

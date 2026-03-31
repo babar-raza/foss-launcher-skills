@@ -115,7 +115,11 @@ def _load_formats(family: str, platform: str) -> dict[str, str]:
                 direction = "export"
             else:
                 direction = "none"
-        result[ext] = direction
+        existing = result.get(ext)
+        if existing and existing != direction:
+            result[ext] = "both"
+        else:
+            result[ext] = direction
     return result
 
 

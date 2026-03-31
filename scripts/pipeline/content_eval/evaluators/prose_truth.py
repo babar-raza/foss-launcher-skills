@@ -199,13 +199,17 @@ class ProseTruthEvaluator(BaseEvaluator):
         # Build TF-IDF claim index for semantic matching (secondary tier, cached)
         claim_index = _get_claim_index(page.family, page.platform)
 
-        # Build format lookup
+        # Build format lookup — merge entries so bidirectional formats get "both"
         format_support: dict[str, str] = {}
         for fmt in formats:
             ext = (fmt.get("format") or fmt.get("ext") or "").lower()
             direction = (fmt.get("direction") or fmt.get("support") or "").lower()
             if ext:
-                format_support[ext] = direction
+                existing = format_support.get(ext)
+                if existing and existing != direction:
+                    format_support[ext] = "both"
+                else:
+                    format_support[ext] = direction
 
         # Check format claims in prose
         for line_no, line_text in page.prose_lines:

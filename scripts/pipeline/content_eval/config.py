@@ -7,6 +7,8 @@ ALL_EVALUATORS = [
     "api_accuracy",
     "api_backtick",
     "claim_coverage",
+    "content_substance",
+    "description_completeness",
     "platform_purity",
     "forbidden_claims",
     "page_role",
@@ -25,6 +27,8 @@ ALL_EVALUATORS = [
 # Default evaluators (fast, deterministic, production-ready)
 DEFAULT_EVALUATORS = [
     "api_accuracy",
+    "content_substance",
+    "description_completeness",
     "platform_purity",
     "forbidden_claims",
     "page_role",

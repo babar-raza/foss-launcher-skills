@@ -294,9 +294,18 @@ def _run_grade_summary(args):
         total_graded += graded
         rows.append((f"{family}/{platform}", len(files), graded, dict(dist)))
 
+    # Collect ungraded files for --strict mode
+    ungraded_files: list[str] = []
+    if getattr(args, "strict", False):
+        for family, platform in ([(args.product[0], args.product[1])] if args.product else sorted(discover_products())):
+            for f in discover_content(family, platform):
+                r = _read_grade(f)
+                if not r:
+                    ungraded_files.append(str(f))
+
     if args.json:
         import json as _json
-        print(_json.dumps({
+        payload = {
             "total_files": total,
             "total_graded": total_graded,
             "distribution": overall_dist,
@@ -304,18 +313,28 @@ def _run_grade_summary(args):
                 {"product": r[0], "files": r[1], "graded": r[2], "distribution": r[3]}
                 for r in rows
             ],
-        }, indent=2))
-        return
+        }
+        if getattr(args, "strict", False):
+            payload["ungraded"] = ungraded_files
+        print(_json.dumps(payload, indent=2))
+    else:
+        print(f"Grade Summary: {total_graded}/{total} files graded\n")
+        print(f"{'Product':<25} {'Files':>5} {'Graded':>6}  A    B    C    D    F")
+        print("-" * 72)
+        for name, file_count, graded, dist in rows:
+            parts = [f"{dist.get(g, 0):>4}" for g in ("A", "B", "C", "D", "F")]
+            print(f"{name:<25} {file_count:>5} {graded:>6}  {'  '.join(parts)}")
+        print("-" * 72)
+        parts = [f"{overall_dist.get(g, 0):>4}" for g in ("A", "B", "C", "D", "F")]
+        print(f"{'TOTAL':<25} {total:>5} {total_graded:>6}  {'  '.join(parts)}")
 
-    print(f"Grade Summary: {total_graded}/{total} files graded\n")
-    print(f"{'Product':<25} {'Files':>5} {'Graded':>6}  A    B    C    D    F")
-    print("-" * 72)
-    for name, file_count, graded, dist in rows:
-        parts = [f"{dist.get(g, 0):>4}" for g in ("A", "B", "C", "D", "F")]
-        print(f"{name:<25} {file_count:>5} {graded:>6}  {'  '.join(parts)}")
-    print("-" * 72)
-    parts = [f"{overall_dist.get(g, 0):>4}" for g in ("A", "B", "C", "D", "F")]
-    print(f"{'TOTAL':<25} {total:>5} {total_graded:>6}  {'  '.join(parts)}")
+    if getattr(args, "strict", False) and ungraded_files:
+        print(f"\nSTRICT: {len(ungraded_files)} file(s) missing grades:", file=sys.stderr)
+        for uf in ungraded_files[:20]:
+            print(f"  {uf}", file=sys.stderr)
+        if len(ungraded_files) > 20:
+            print(f"  ... and {len(ungraded_files) - 20} more", file=sys.stderr)
+        raise SystemExit(1)
 
 
 def main(argv: list[str] | None = None):
@@ -360,6 +379,8 @@ def main(argv: list[str] | None = None):
     gs_parser.add_argument("--product", nargs=2, metavar=("FAMILY", "PLATFORM"),
                            help="Filter to one product (e.g. --product slides python)")
     gs_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    gs_parser.add_argument("--strict", action="store_true",
+                           help="Exit 1 if any discoverable file lacks a grade")
     gs_parser.set_defaults(func=_run_grade_summary)
 
     args = parser.parse_args(argv)
