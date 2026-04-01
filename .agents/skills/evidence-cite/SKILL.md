@@ -19,7 +19,7 @@ Write or update the `evidence:` YAML frontmatter block in a content page, linkin
 the backing knowledge model. Citations must be deterministic and rerunnable: the same page
 and the same knowledge model must produce the same evidence block every time.
 
-Do not use inline HTML comments (`<!-- evidence: ... -->`).
+Do not use inline HTML comments for evidence (legacy pattern — use YAML frontmatter only).
 Do not include a `ground_check:` field - it is self-reported and unverifiable.
 
 ## Two-path approach
@@ -89,7 +89,7 @@ evidence:
 - `model_sha` matches current `knowledge/{family}/{platform}/merged/model.yaml`
 - All listed `claim_id` values exist in `merged/claims.json` (when claims.json is populated)
 - All listed `api` values exist in `merged/api_surface.json`
-- No `<!-- evidence: ... -->` HTML comments remain in the body
+- No HTML evidence comment blocks remain in the body (use YAML frontmatter only)
 - Running `attach_evidence.py` again on the same file with the same model produces identical output
 
 ## Staleness handling
