@@ -11,6 +11,21 @@ from . import BaseEvaluator
 
 KNOWLEDGE_ROOT = Path("knowledge")
 
+# Language tags that are definitively non-API: plain text, shell commands, file
+# paths, output, config, or legal text.  Fenced blocks with these tags contain
+# no extractable API tokens, so attach_evidence.py correctly skips them.
+# They must NOT count toward the "code blocks need evidence" threshold.
+_NON_API_LANGS: frozenset[str] = frozenset({
+    "text", "txt", "plain", "plaintext",
+    "bash", "sh", "shell", "console", "terminal", "cmd",
+    "powershell", "ps1", "zsh", "fish",
+    "output", "log",
+    "json", "yaml", "yml", "toml", "xml", "html", "css",
+    "markdown", "md",
+    "ini", "cfg", "conf",
+    "diff", "patch",
+})
+
 
 class EvidenceDepthEvaluator(BaseEvaluator):
     """Assesses whether evidence backing is sufficient for content claims.
@@ -49,16 +64,25 @@ class EvidenceDepthEvaluator(BaseEvaluator):
 
         # Count factual prose lines (lines with backtick-wrapped identifiers)
         factual_lines = sum(1 for _, text in page.prose_lines if "`" in text)
-        code_block_count = len(page.code_blocks)
 
-        # Warn if many code blocks but few evidence apis
+        # Only count blocks in languages that could contain API calls.
+        # Non-API blocks (text, bash, output, config, legal text, etc.) are
+        # excluded because attach_evidence.py correctly skips them — they have
+        # no extractable API tokens and will never produce evidence.apis entries.
+        api_eligible_blocks = [
+            cb for cb in page.code_blocks
+            if cb.lang.lower() not in _NON_API_LANGS
+        ]
+        code_block_count = len(api_eligible_blocks)
+
+        # Warn if many API-eligible code blocks but no evidence APIs
         if code_block_count >= 2 and len(apis) == 0:
             findings.append(Finding(
                 level="WARN",
                 category="EG",
                 filepath=str(page.filepath),
                 line_no=1,
-                message=f"Page has {code_block_count} code blocks but 0 evidence APIs",
+                message=f"Page has {code_block_count} API-eligible code blocks but 0 evidence APIs",
                 suggestion="Run attach_evidence.py to map code tokens to evidence",
                 evaluator=self.name,
             ))
@@ -201,9 +225,9 @@ class EvidenceDepthEvaluator(BaseEvaluator):
                 # Extends to end of file
                 section_end = float("inf")
 
-            # Check if any code block starts within this section
+            # Check if any API-eligible code block starts within this section
             for cb in page.code_blocks:
-                if h_line < cb.start_line < section_end:
+                if h_line < cb.start_line < section_end and cb.lang.lower() not in _NON_API_LANGS:
                     result.add(h_line)
                     break
 

@@ -434,6 +434,169 @@ class TestEvidenceDepth:
         findings = self.evaluator.evaluate(page, None)
         assert isinstance(findings, list)
 
+    def test_text_blocks_do_not_trigger_evidence_warn(self):
+        """Regression: text/path/license fenced blocks must NOT trigger evidence_depth WARN.
+
+        A page whose only code fences are ``text``-tagged (file paths, license text,
+        plain output) has no API-bearing code.  attach_evidence.py will correctly
+        SKIP such a page.  The evaluator must not warn about missing evidence APIs.
+
+        Reproduces: license.md false positive — 2 ``text`` blocks, apis:[], grade B
+        Expected after fix: 0 WARN findings from evidence_depth.
+        """
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: License
+            evidence:
+              model_sha: abc123
+              claims: []
+              apis: []
+            ---
+            ## Where to Find the License
+
+            The file is at:
+
+               ```text
+               node_modules/@aspose/3d/LICENSE
+               ```
+
+            ## MIT License Text
+
+            ```text
+            MIT License
+
+            Copyright (c) Aspose Pty Ltd
+
+            Permission is hereby granted, free of charge, to any person obtaining a copy
+            of this software and associated documentation files.
+            ```
+        """), "content/docs.aspose.org/en/3d/typescript/getting-started/license.md")
+        findings = self.evaluator.evaluate(page, None)
+        warn_findings = [f for f in findings if f.level == "WARN" and "evidence APIs" in f.message]
+        assert warn_findings == [], (
+            f"text-only blocks should not trigger evidence_depth WARN; got: {warn_findings}"
+        )
+
+    def test_bash_blocks_do_not_trigger_evidence_warn(self):
+        """Shell/bash install blocks must not trigger evidence_depth WARN.
+
+        Installation pages commonly have 2+ bash blocks for pip/npm/nuget commands.
+        These blocks contain no API tokens, so attach_evidence skips them.
+        """
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Installation
+            evidence:
+              model_sha: abc123
+              claims: []
+              apis: []
+            ---
+            ## Install via npm
+
+            ```bash
+            npm install @aspose/3d
+            ```
+
+            ## Verify
+
+            ```bash
+            node -e "require('@aspose/3d')"
+            ```
+        """), "content/docs.aspose.org/en/3d/typescript/getting-started/installation.md")
+        findings = self.evaluator.evaluate(page, None)
+        warn_findings = [f for f in findings if f.level == "WARN" and "evidence APIs" in f.message]
+        assert warn_findings == [], (
+            f"bash-only blocks should not trigger evidence_depth WARN; got: {warn_findings}"
+        )
+
+    def test_api_blocks_do_trigger_evidence_warn(self):
+        """True positive: TypeScript API code blocks with empty evidence.apis MUST warn.
+
+        This validates that the fix does not suppress legitimate evidence gaps.
+        A page with 2+ TypeScript code blocks and empty apis should still WARN.
+        """
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Quick Start
+            evidence:
+              model_sha: abc123
+              claims: []
+              apis: []
+            ---
+            ## Load a Scene
+
+            ```typescript
+            import { Scene } from "@aspose/3d";
+            const scene = new Scene();
+            ```
+
+            ## Save a File
+
+            ```typescript
+            await scene.save("output.fbx");
+            ```
+        """), "content/docs.aspose.org/en/3d/typescript/developer-guide/quickstart.md")
+        findings = self.evaluator.evaluate(page, None)
+        warn_findings = [f for f in findings if f.level == "WARN" and "evidence APIs" in f.message]
+        assert len(warn_findings) == 1, (
+            f"TypeScript API blocks with empty evidence.apis must produce exactly 1 WARN; got: {warn_findings}"
+        )
+        assert "2 API-eligible code blocks" in warn_findings[0].message
+
+    def test_mixed_bash_api_blocks_trigger_evidence_warn(self):
+        """True positive: pages mixing bash install blocks with API code blocks must still warn.
+
+        The presence of non-API bash blocks should not mask the API coverage gap.
+        """
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Quick Start
+            evidence:
+              model_sha: abc123
+              claims: []
+              apis: []
+            ---
+            ## Install
+
+            ```bash
+            npm install @aspose/3d
+            ```
+
+            ## Use the API
+
+            ```typescript
+            import { Scene } from "@aspose/3d";
+            const scene = new Scene();
+            ```
+
+            ## Save
+
+            ```typescript
+            await scene.save("output.fbx");
+            ```
+        """), "content/docs.aspose.org/en/3d/typescript/developer-guide/quickstart.md")
+        findings = self.evaluator.evaluate(page, None)
+        warn_findings = [f for f in findings if f.level == "WARN" and "evidence APIs" in f.message]
+        assert len(warn_findings) == 1, (
+            f"Mixed bash+API blocks with empty apis must produce 1 WARN; got: {warn_findings}"
+        )
+        assert "2 API-eligible code blocks" in warn_findings[0].message
+
+    def test_grade_mapping_zero_fail_one_warn_is_A(self):
+        """Regression: 0 FAIL + 1 WARN must map to grade A, not B.
+
+        The rubric: A = 0 FAIL, 0-2 WARN; B = 0 FAIL, 3-5 WARN.
+        The license.md bug report claimed grade B for 0F+1W which is wrong.
+        """
+        from content_eval.models import compute_grade
+        assert compute_grade(0, 0) == "A"
+        assert compute_grade(0, 1) == "A"
+        assert compute_grade(0, 2) == "A"
+        assert compute_grade(0, 3) == "B"
+        assert compute_grade(0, 5) == "B"
+        assert compute_grade(0, 6) == "C"
+        assert compute_grade(1, 0) == "C"
+
 
 class TestProseTruth:
     def setup_method(self):
