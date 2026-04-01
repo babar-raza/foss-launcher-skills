@@ -498,6 +498,25 @@ class Scout:
                 file=sys.stderr,
             )
 
+        # Guardrail: warn when a Python class has zero methods AND zero properties.
+        # A @dataclass or similar annotation-only class with no extracted members is
+        # a strong signal that annotated fields may not be captured.  This fires for
+        # the Python extractor only (other languages use different member patterns).
+        if self.language == "python":
+            for cls in self.classes:
+                if cls.get("kind") not in ("class_definition",):
+                    continue
+                if cls.get("enum_members"):
+                    continue  # enum classes are expected to have no methods/props
+                if not cls.get("methods") and not cls.get("properties"):
+                    print(
+                        f"WARNING: Python class {cls['name']} in {cls['file']} "
+                        f"has no methods or properties — may be a dataclass or "
+                        f"TypedDict with unemitted fields. "
+                        f"Check extraction/api_surface.py _extract_python_annotated_fields.",
+                        file=sys.stderr,
+                    )
+
     # -- Output ------------------------------------------------------------
 
     def _get_repo_sha(self) -> str:
