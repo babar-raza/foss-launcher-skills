@@ -35,6 +35,38 @@ python scripts/pipeline/provenance_backfill.py
 python scripts/pipeline/audit.py all
 ```
 
+## 1b. Update Product Registry
+
+Run after a fresh clone (replaces the manual Step 3 in §1) and whenever a new org or repo
+is added to GitHub. Writes `data/products.json` — the source of truth for clone URLs used
+by `clone_cache.py` and `refresh_knowledge.py`.
+
+```bash
+# Skill invocation (recommended)
+/update-registry
+
+# Or run the backing script directly
+python scripts/pipeline/update_product_registry.py --token $GITHUB_TOKEN
+```
+
+**Modes:**
+
+| Command | Behaviour |
+|---------|-----------|
+| `/update-registry` | Scan all 26 GitHub orgs, merge with knowledge/ dirs, write registry |
+| `/update-registry --dry-run` | Preview discovered repos; do NOT write data/products.json |
+| `/update-registry --local-only` | Skip GitHub; derive registry from knowledge/ dirs only |
+| `/update-registry --force` | Overwrite `active` status for all existing entries |
+
+**Output**: `data/products.json` — one entry per `{family}/{platform}` pair with `repo_url`,
+`clone_url`, and `active` flag.
+
+**After discovering new products**: run `/knowledge-bootstrap {family} {platform}` for each
+new entry, then `/launch-product {family} {platform}`.
+
+**Troubleshooting**: if `clone_cache.py` reports "clone_url not found", re-run this skill
+to refresh the registry before retrying.
+
 ## 2. Launch a New Product
 
 ```bash
