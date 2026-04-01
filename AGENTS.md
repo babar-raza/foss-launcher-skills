@@ -751,6 +751,7 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | `scripts/pre-commit-audit.sh` | Pre-commit hook — blocks commits with API accuracy FAILs |
 | `.github/workflows/content-audit.yml` | CI — blocks PRs with API accuracy FAILs |
 | `scripts/pipeline/content_eval/` | Multi-dimensional content evaluation (16 evaluators); run via `python -m content_eval evaluate {family} {platform}` from `scripts/pipeline/`. DEFAULT_EVALUATORS = 9 (fast/deterministic); ALL_EVALUATORS = 16. |
+| `scripts/ci/check_skill_readme_coverage.py` | Documentation coverage: asserts README.md exists in all four skill trees (skills/, .claude/commands/, .agents/skills/, .kilocode/skills/) and root README.md links to skills. **Blocking** (no continue-on-error). |
 
 Usage:
 ```
@@ -813,6 +814,40 @@ Omitting it is safe (Hugo defaults to `"production"` → panel hidden) but must 
 | Codex CLI | `.agents/skills/{name}/SKILL.md` | `CODEX.md` + `AGENTS.md` |
 | Kilo Code | `.kilocode/skills/{name}/SKILL.md` | `.kilocode/rules-code/` |
 | Canonical source | `skills/{name}.md` | — |
+
+Each tree has a `README.md` at its root describing its contents, invocation syntax, and any
+divergence from canonical. See [`skills/README.md`](skills/README.md) for the primary catalog.
+
+#### Internal skills (auto-invoked sub-routines)
+
+The following 8 skills exist in canonical `skills/` and in `.agents/` and `.kilocode/` trees,
+but are **intentionally absent from `.claude/commands/`**. They are auto-invoked by other skills
+and are never called directly by users or agents.
+
+| Slug | ID | Role |
+|------|----|------|
+| `knowledge-bootstrap` | S-54 | Pre-condition gate before content or validation commands |
+| `evidence-cite` | S-24 | Attaches knowledge citations; auto-invoked by generation skills |
+| `path-guard` | S-01 | Enforces allowed write paths; auto-invoked on every write |
+| `change-guard` | S-33 | Pre-write knowledge gate; auto-invoked before content writes |
+| `no-downgrade-guard` | S-55 | Pre-write quality comparison sub-routine |
+| `rubric-align` | S-17 | Sub-evaluator called by eval-page |
+| `gap-plan` | S-44 | Planning sub-tool for the remediation pipeline |
+| `project-phase-store` | S-10 | Checkpoint infrastructure |
+
+Source: `scripts/pipeline/sync_skills.py:INTERNAL_SKILLS`.
+
+#### Claude Code-only extras (not registered skills)
+
+The following files exist **only in `.claude/commands/`**. They are not registered in §12, have
+no file in canonical `skills/`, and are not present in `.agents/` or `.kilocode/` trees.
+
+| File | Role |
+|------|------|
+| `translate.md` | Dispatcher: routes to `/translate-page` (S-52) or `/translate-batch` (S-53) based on argument type. Convenience wrapper; adds no new capability. |
+| `seo-review.md` | Interactive human review gate for SEO recommendations. Claude Code utility; not yet a registered skill. |
+
+Source: `scripts/pipeline/sync_skills.py:KNOWN_EXCEPTIONS`.
 
 ---
 

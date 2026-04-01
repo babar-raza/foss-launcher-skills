@@ -32,7 +32,23 @@ chmod +x "$HOOKS_DIR/post-commit"
 echo "  post-commit -> scripts/post-commit-override.sh"
 
 echo ""
-echo "Hooks installed. Verify with: ls -la .git/hooks/pre-commit .git/hooks/commit-msg .git/hooks/post-commit"
+echo "=== Hook installation verification ==="
+ALL_OK=1
+for hook in pre-commit commit-msg post-commit; do
+    if [ -x "$HOOKS_DIR/$hook" ]; then
+        echo "  OK  $hook"
+    else
+        echo "  MISSING  $hook — installation failed"
+        ALL_OK=0
+    fi
+done
+
+if [ "$ALL_OK" -eq 0 ]; then
+    echo "ERROR: One or more hooks failed to install."
+    exit 1
+fi
+
+echo "All hooks installed and executable."
 echo ""
 echo "Requirements:"
 echo "  - Python .venv must be activated: source .venv/bin/activate (Unix) or .venv\\Scripts\\activate (Windows)"

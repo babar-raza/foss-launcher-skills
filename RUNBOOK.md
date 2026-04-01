@@ -1,6 +1,7 @@
 # RUNBOOK — Aspose.org Operator Guide
 
 Quick-reference for common operations. For governance rules, see `AGENTS.md`.
+New to this system? Read [OPERATOR_GUIDE.md](OPERATOR_GUIDE.md) first — it explains what skills are and how to invoke them.
 
 ## 1. Setup (Fresh Clone)
 
@@ -64,7 +65,7 @@ python promote.py {family} {platform}
 python index.py {family} {platform}
 ```
 
-Or use the skill: `/knowledge-update {family} {platform}`
+Or use the skill: `/knowledge-update {family} {platform}` — runs all 4 steps above via `refresh_knowledge.py`. After success, `knowledge/{family}/{platform}/merged/pipeline_run.json` confirms all steps ran.
 
 **Verify**: `python scripts/pipeline/audit.py {family} {platform}` — 0 FAIL expected.
 

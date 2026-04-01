@@ -1,3 +1,10 @@
+<!-- CONTRACT: scripts/pipeline/remediate.py (handles Steps 3-5 only)
+     postcondition: remediate.py applies deterministic auto-fixes and outputs LLM queue
+     postcondition: Step 6 (LLM fix pass) is executed by the agent, not by the script
+     postcondition: re-evaluation in Step 7 runs content_eval again and produces diff report
+     note: remediate.py has no LLM pass — LLM fixes are agent actions using knowledge artifacts
+     verified: 2026-04-01
+-->
 # S-40: Batch Remediate — Full Eval→Fix→LLM→Re-eval Pipeline
 
 **Arguments**: $ARGUMENTS
@@ -5,7 +12,15 @@ Expected format: `{family} {platform}` — e.g. `3d python`
 
 ## Purpose
 
-Run the complete remediation pipeline for all content pages of a product: evaluate, triage, auto-fix deterministic issues, apply LLM fixes for non-deterministic issues, then re-evaluate to confirm improvement.
+Run the complete remediation pipeline for all content pages of a product: evaluate, triage,
+auto-fix deterministic issues (via `remediate.py`), apply LLM fixes for non-deterministic
+issues (agent-executed, not automated by the script), then re-evaluate to confirm improvement.
+
+> **Script scope**: `remediate.py` handles Steps 3–5 only (evaluate, triage, auto-fix).
+> Step 6 (LLM fix pass) is performed **by the agent directly**, not by any script. The agent
+> reads the LLM queue output from Step 4 and applies fixes file-by-file using its own
+> reasoning + knowledge artifacts. If you only need deterministic auto-fixes (no LLM pass),
+> use S-41 (batch-eval-fix) instead.
 
 ## Lightweight mode (no LLM)
 
@@ -80,7 +95,7 @@ This is safe for unattended runs and skips the LLM fix pass (Step 6).
 7. **Run re-evaluation**:
 
    ```bash
-   python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json
+   python -m scripts.pipeline.content_eval evaluate {family} {platform} --write-grade --format json
    ```
 
 8. **Diff reports** to show improvement:

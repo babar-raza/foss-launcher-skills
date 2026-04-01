@@ -1,3 +1,9 @@
+<!-- CONTRACT: scripts/pipeline/refresh_knowledge.py (runs scout.py + enrich.py + promote.py + index.py)
+     postcondition: refresh_knowledge.py executes all 4 pipeline steps (scout → enrich → promote → index)
+     postcondition: writes merged/pipeline_run.json confirming all 4 steps ran and index_succeeded status
+     postcondition: step 7 (stale flag clear) still requires explicit agent action after refresh
+     verified: 2026-04-01
+-->
 # S-14: Knowledge Update - Refresh Knowledge Model from Source
 
 **Arguments**: $ARGUMENTS
@@ -15,10 +21,15 @@ Override the cache root with `ASPOSE_CLONE_CACHE=/path/to/cache` if needed.
 
 ## Purpose
 
-Refresh the knowledge model for a product by re-running the current knowledge bootstrap
-pipeline: repo-scout, knowledge-enrich, truth-merge, and truth-index. Use this when
-`model.yaml` has `stale_since != null` or after upstream repo changes detected by S-12
-(knowledge-diff).
+Refresh the knowledge model for a product by re-running the full knowledge pipeline:
+repo-scout, knowledge-enrich, truth-merge, and truth-index. Use this when `model.yaml`
+has `stale_since != null` or after upstream repo changes detected by S-12 (knowledge-diff).
+
+> **Note on `refresh_knowledge.py`**: Running `python scripts/pipeline/refresh_knowledge.py
+> {family} {platform}` executes all 4 pipeline steps: `scout.py → enrich.py → promote.py → index.py`.
+> After a successful run, `merged/pipeline_run.json` confirms all steps completed.
+> Step 7 (stale flag clear) is not automated and must still be performed explicitly
+> completes.
 
 ## Pre-conditions
 
