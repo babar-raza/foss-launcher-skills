@@ -6,14 +6,100 @@ description: >
 args: "{family} {platform} {repo-path}"
 ---
 
-# S-14: Knowledge Update
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-Mirror of the canonical contract in `skills/knowledge-update.md`.
+<!-- CONTRACT: scripts/pipeline/refresh_knowledge.py (runs scout.py + enrich.py + promote.py + index.py)
+     postcondition: refresh_knowledge.py executes all 4 pipeline steps (scout → enrich → promote → index)
+     postcondition: writes merged/pipeline_run.json confirming all 4 steps ran and index_succeeded status
+     postcondition: step 7 (stale flag clear) still requires explicit agent action after refresh
+     verified: 2026-04-01
+-->
+# S-14: Knowledge Update - Refresh Knowledge Model from Source
 
-Current pipeline:
+**Arguments**: $ARGUMENTS
+Expected format: `{family} {platform} {repo-path}`
+
+## Resolving `{repo-path}`
+
+Use the local clone cache (auto-clones if missing):
 ```bash
-python scripts/pipeline/scout.py {family} {platform} {repo-path} knowledge/{family}/{platform}/scout/
-python scripts/pipeline/enrich.py {family} {platform}
-python scripts/pipeline/promote.py {family} {platform}
-python scripts/pipeline/index.py {family} {platform}
+repo_path=$(python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
 ```
+Then invoke this skill as: `/knowledge-update {family} {platform} $repo_path`
+
+Override the cache root with `ASPOSE_CLONE_CACHE=/path/to/cache` if needed.
+
+## Purpose
+
+Refresh the knowledge model for a product by re-running the full knowledge pipeline:
+repo-scout, knowledge-enrich, truth-merge, and truth-index. Use this when `model.yaml`
+has `stale_since != null` or after upstream repo changes detected by S-12 (knowledge-diff).
+
+> **Note on `refresh_knowledge.py`**: Running `python scripts/pipeline/refresh_knowledge.py
+> {family} {platform}` executes all 4 pipeline steps: `scout.py → enrich.py → promote.py → index.py`.
+> After a successful run, `merged/pipeline_run.json` confirms all steps completed.
+> Step 7 (stale flag clear) is not automated and must still be performed explicitly
+> completes.
+
+## Pre-conditions
+
+1. The repo at `{repo-path}` must be accessible and is a git repository
+2. `scripts/pipeline/scout.py` exists
+3. `scripts/pipeline/enrich.py` exists
+4. `scripts/pipeline/promote.py` exists
+5. `scripts/pipeline/index.py` exists
+6. Current knowledge exists at `knowledge/{family}/{platform}/` (at least `model.yaml`)
+7. Check `knowledge/{family}/{platform}/model.yaml` - if `stale_since` is null, warn that
+   knowledge may not need updating (proceed if user confirms)
+
+## Steps
+
+1. **Parse arguments**: Extract `{family}`, `{platform}`, and `{repo-path}` from $ARGUMENTS.
+
+2. **Back up current knowledge**: Copy `knowledge/{family}/{platform}/merged/` to
+   `knowledge/{family}/{platform}/merged.bak/` so diffs can be computed later by S-20.
+
+3. **Run repo-scout** (S-34):
+   ```
+   python scripts/pipeline/scout.py {family} {platform} {repo-path} knowledge/{family}/{platform}/scout/
+   ```
+   Verify outputs: `model.yaml`, `api_surface.json`, `claims.json` in `knowledge/{family}/{platform}/scout/`.
+
+4. **Run knowledge-enrich** (S-37):
+   ```
+   python scripts/pipeline/enrich.py {family} {platform}
+   ```
+   Verify `knowledge/{family}/{platform}/scout/enriched_claims.json` exists and is valid JSON.
+
+5. **Run truth-merge** (S-35):
+   ```
+   python scripts/pipeline/promote.py {family} {platform}
+   ```
+   Verify `knowledge/{family}/{platform}/merged/merge_report.md` exists and shows merge statistics.
+
+6. **Run truth-index** (S-31):
+   Generate the knowledge index from the merged artifacts. Verify `knowledge/{family}/{platform}/merged/index.json` is created.
+
+7. **Clear stale flag**: Update `knowledge/{family}/{platform}/model.yaml` to set `stale_since: null`
+   and update `last_refreshed` to today's date.
+
+8. **Diff report**: Compare `merged.bak/claims.json` with `merged/claims.json` to summarize:
+   - New claims added
+   - Claims removed
+   - Claims with changed confidence
+   - API surface additions/removals
+
+9. **Clean up**: Remove `merged.bak/` after diff report is generated.
+
+## Post-conditions
+
+- `knowledge/{family}/{platform}/scout/` has fresh extraction artifacts
+- `knowledge/{family}/{platform}/merged/` has updated merged artifacts
+- `model.yaml` has `stale_since: null` and current `repo_sha`
+- A diff summary is printed showing what changed
+
+## Error handling
+
+- If repo-scout fails, abort and preserve existing knowledge (do not corrupt merged/)
+- If promote fails, restore from `merged.bak/`
+- If repo path is unreachable, abort with clear message

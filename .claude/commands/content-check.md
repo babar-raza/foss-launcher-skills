@@ -1,7 +1,21 @@
+<!-- CONTRACT: scripts/pipeline/audit.py (invoked in Step 3)
+     postcondition: audit.py returns automated structural PASS/WARN/FAIL report
+     postcondition: agent performs knowledge cross-reference and evidence checks manually
+     postcondition: skill is read-only — no file modifications
+     verified: 2026-04-01
+-->
+# S-23: Content Check — Structural Quality Pre-Commit Check
+
 Run a structural and quality check on a content file before committing.
 
 **Arguments:** `$ARGUMENTS`
 **Expected format:** `{relative-file-path}` — e.g. `content/kb.aspose.org/en/3d/python/how-to-load-models.md`
+
+## Pre-conditions
+
+1. **Knowledge bootstrap**: Run `/knowledge-bootstrap {family} {platform}` (detect `{family}` and `{platform}` from the file path argument) and check status:
+   - `STOP:partial` → halt (see printed message)
+   - Any other status (`READY`, `BOOTSTRAPPED`, `REFRESHED`, `WARN:conflicts`) → continue
 
 ## Steps
 
@@ -14,7 +28,17 @@ Run a structural and quality check on a content file before committing.
    - `content/reference.aspose.org/` → Reference page
    - `content/products.aspose.org/` → Product page
 
-3. **Run all checks below** and record PASS / WARN / FAIL for each:
+3. **Run automated structural checks via audit.py**:
+   ```bash
+   python scripts/pipeline/audit.py --files {relative-file-path}
+   ```
+   `audit.py` performs automated structural and schema checks and outputs a PASS/WARN/FAIL
+   report. Read the script output and incorporate the results into the overall check.
+
+   Then **perform the additional checks below** (these require agent reasoning and are not
+   automated by the script):
+
+   Record PASS / WARN / FAIL for each:
 
    ### Frontmatter checks (FAIL if any fail)
    - [ ] Frontmatter is valid YAML (no parse errors)

@@ -14,7 +14,7 @@ args: "{family} {platform} [--scope docs|blog|kb|all] [--no-llm] [--dry-run]"
 Expected format: `{family} {platform} [--scope all|products|docs|blog|kb|reference] [--no-llm] [--dry-run]`
 
 ## Purpose
-Evaluate all content for a family/platform against clone cache ground truth using a three-tier verification architecture (deterministic -> vector -> LLM). Produces a structured findings report and updates the per-product state file for delta tracking.
+Evaluate all content for a family/platform against clone cache ground truth using a three-tier verification architecture (deterministic → vector → LLM). Produces a structured findings report and updates the per-product state file for delta tracking.
 
 ## Pre-conditions
 1. Clone cache must exist at `{FOSS_LAUNCHER_PATH}/runs/.clone_cache/aspose_{family}_{platform}/`
@@ -32,7 +32,7 @@ Evaluate all content for a family/platform against clone cache ground truth usin
 python scripts/gap-eval/validate_profile.py {family} {platform}
 ```
 
-If profile validation fails on clone cache path -> check `FOSS_LAUNCHER_PATH` env var.
+If profile validation fails on clone cache path → check `FOSS_LAUNCHER_PATH` env var.
 
 ### Step 2: (Optional) Build API surface vectors for Tier 2
 
@@ -86,6 +86,6 @@ python scripts/gap-eval/run.py {family} {platform} --no-llm
 - Exit code 2 if verdict = NOT PUBLISHABLE (enables CI blocking)
 
 ## Repeatability
-- Same content + same clone cache SHA -> same findings (except `run_date`)
-- Rerun after fixes -> delta section shows prior findings as `fixed`, new findings listed
+- Same content + same clone cache SHA → same findings (except `run_date`)
+- Rerun after fixes → delta section shows prior findings as `fixed`, new findings listed
 - Finding IDs are stable: `F-{family}-{platform}-{type}-{sha8(file+line+old_value[:20])}`

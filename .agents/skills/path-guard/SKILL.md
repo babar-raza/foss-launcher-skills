@@ -7,7 +7,7 @@ description: >
 args: "{file-path}"
 ---
 
-> Cross-skill references like `/evidence-cite` refer to sibling skills in this directory.
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
 # S-01: Path Guard — Enforce Allowed Write Paths
 
@@ -30,7 +30,7 @@ Validate that a file path is an allowed write target before any content modifica
 - `skills/` — Canonical skill source
 - `scripts/` — Extraction scripts (except by explicit human override)
 - `knowledge/*/scout/` — Scout output (only written by S-34)
-- `knowledge/*/fl/` — FL layer (deleted; any recreation is forbidden)
+- `knowledge/*/fl/` — FL sync output (only written by S-30)
 
 ## Allowed paths
 - `content/docs.aspose.org/en/{family}/{platform}/**` — Docs pages

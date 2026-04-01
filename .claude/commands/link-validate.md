@@ -10,35 +10,76 @@ args: "{family} {platform} | all | --files file1.md ..."
 # S-65: Link Validate — Cross-Subdomain Link Validation
 
 **Arguments**: $ARGUMENTS
+Expected format: `{family} {platform}` | `all` | `--files file1.md ...`
 
 ## Purpose
 
-Find and report broken internal links across aspose.org subdomains (docs → kb, blog → docs, etc.).
-Use before publishing to catch stale cross-site links.
+Validate cross-subdomain internal links in content files. Finds links pointing to
+other aspose.org subdomains (docs → kb, blog → docs, etc.) and reports BROKEN links
+where the target slug does not exist in the local content directory.
+
+Use before publishing to catch stale cross-site links that would result in 404s on production.
 
 ## Pre-conditions
 
-None. Works from local content directory only.
+None. This skill works from the local content directory only.
 
 ## Steps
 
+### Step 1: Run validation for one product
+
 ```bash
-# One product
 python scripts/pipeline/link_validator.py {family} {platform}
-
-# Specific files
-python scripts/pipeline/link_validator.py --files path/to/file.md
-
-# All content
-python scripts/pipeline/link_validator.py all
-
-# JSON output for reporting
-python scripts/pipeline/link_validator.py {family} {platform} --json \
-  > reports/link-validation/{family}-{platform}-$(date +%Y%m%d).json
 ```
 
-For each BROKEN finding: update the URL, remove the link, or create the missing page.
+Or for specific files:
+```bash
+python scripts/pipeline/link_validator.py --files path/to/file.md
+```
+
+Or for all content:
+```bash
+python scripts/pipeline/link_validator.py all
+```
+
+### Step 2: Review BROKEN findings
+
+Each BROKEN finding shows:
+- Source file containing the broken link
+- Full URL of the broken link
+- Target subdomain and path that was not found
+
+### Step 3: Fix or accept each finding
+
+For each BROKEN link:
+1. **Update the URL** if the target page exists at a different path
+2. **Remove the link** if the target page no longer exists
+3. **Create the missing page** if the link should exist (use appropriate page generation skill)
+4. **Accept as expected** if the target page will be created shortly — document in your PR
+
+### Step 4: JSON output for CI integration
+
+```bash
+python scripts/pipeline/link_validator.py {family} {platform} --json > reports/link-validation/{family}-{platform}-{timestamp}.json
+```
+
+## Post-conditions
+
+- BROKEN links are documented or fixed
+- Report saved to `reports/link-validation/{family}-{platform}-{timestamp}.json`
+- No new BROKEN cross-subdomain links remain in modified content files
 
 ## Exit codes
-- 0: No broken links
-- 1: Broken links found
+
+| Code | Meaning |
+|------|---------|
+| 0 | No broken links found |
+| 1 | One or more broken links found |
+
+## Notes
+
+- This skill validates links that exist in the **local content directory** only.
+  It cannot validate external links (non-aspose.org URLs).
+- Locale variant files (`/ar/`, `/fr/`, etc.) are included in the slug index — a link
+  to a locale page will resolve correctly if the locale file exists.
+- Fragment anchors (`#section-name`) and query parameters are stripped before validation.

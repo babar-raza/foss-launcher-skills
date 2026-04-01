@@ -7,6 +7,8 @@ args: "{family} {platform} {ClassName}"
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
+# S-60: New Reference Page — Generate API Reference Page
+
 Generate a new API reference page for reference.aspose.org.
 
 **Arguments:** `$ARGUMENTS`
@@ -17,9 +19,11 @@ The ClassName argument is the exact class name as it appears in the repo (Pascal
 
 Before generating any content, you MUST:
 
-1. **Read knowledge model**: Load `knowledge/{family}/{platform}/merged/index.json`
-   - If it does not exist, STOP and instruct the user to run `/repo-scout` and `/truth-merge` first
-   - If `stale: true`, STOP and instruct the user to run `/knowledge-diff` first
+1. **Bootstrap knowledge**: Run `/knowledge-bootstrap {family} {platform}` and check status:
+   - `KNOWLEDGE: STOP:partial` → halt (see printed message)
+   - `KNOWLEDGE: REFRESHED` → STOP: "Knowledge was refreshed from upstream changes. Run
+     `/knowledge-diff` to review what changed before generating content, then re-run this command."
+   - `KNOWLEDGE: READY`, `KNOWLEDGE: BOOTSTRAPPED`, or `KNOWLEDGE: WARN:conflicts` → continue
 2. **Load API surface**: Read `knowledge/{family}/{platform}/merged/api_surface.json`
    - The class being documented MUST exist in api_surface.json — do not document classes that aren't verified
    - Use method signatures, property types, and docstrings from api_surface.json as the authoritative source

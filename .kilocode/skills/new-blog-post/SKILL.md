@@ -7,10 +7,12 @@ argument-hint: "{family} {platform} {slug} [--bypass-plan]"
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
+# S-57: New Blog Post — Generate Blog Post for blog.aspose.org
+
 Generate a new blog post for blog.aspose.org.
 
 **Arguments:** `$ARGUMENTS`
-**Expected format:** `{family} {platform} {slug} [--bypass-plan]` — e.g. `3d python working-with-3d-formats`
+**Expected format:** `{family} {platform} {slug}` — e.g. `3d python working-with-3d-formats`
 
 ## Knowledge Pre-conditions
 
@@ -35,23 +37,14 @@ Before generating any content, you MUST:
 
 ## Steps
 
-1. **Parse** `$ARGUMENTS` into: `family`, `platform`, `slug` (slug becomes the directory name and title source). Note `--bypass-plan` flag if present.
+1. **Parse** `$ARGUMENTS` into: `family`, `platform`, `slug` (slug becomes the directory name and title source).
 
-2. **Site Plan Check**: Run the code-enforced plan gate:
-   ```bash
-   python scripts/pipeline/plan_check.py {family} {platform} blog {slug} [--bypass]
-   ```
-   Pass `--bypass` if `--bypass-plan` was in the arguments.
-   - Exit 0 → proceed normally.
-   - Exit 0 with `plan_bypass: true` output → proceed and add `# plan_bypass: true` as a comment in the generated frontmatter evidence block.
-   - Exit 1 → stop with the printed warning message.
-
-3. **Read existing blog posts for reference** (read only — do not copy):
+2. **Read existing blog posts for reference** (read only — do not copy):
    - List files in `content/blog.aspose.org/{family}/{platform}/`
    - Read one existing post's `index.md` to confirm frontmatter fields and tone
    - Read `content/reference.aspose.org/en/{family}/{platform}/_index.md` for class names, format support, and package name
 
-4. **Generate frontmatter** (if `--bypass-plan` was passed, add `# plan_bypass: true` as a comment above the `evidence:` block):
+3. **Generate frontmatter**:
    ```yaml
    ---
    title: {Natural title derived from slug — written for humans, not SEO}
@@ -75,7 +68,7 @@ Before generating any content, you MUST:
    ---
    ```
 
-5. **Generate body** in this exact section order:
+4. **Generate body** in this exact section order:
 
    `## Introduction`
    - 2–3 paragraphs: announce or introduce the topic; what problem this solves; who it's for
@@ -110,13 +103,14 @@ Before generating any content, you MUST:
    `---`
 
    `## Getting Started`
-   - Bullet list of 4–6 links to docs, KB, and reference pages using absolute internal paths:
-     - `[Getting Started](/docs.aspose.org/en/{family}/{platform}/getting-started/)`
-     - `[Developer Guide](/docs.aspose.org/en/{family}/{platform}/developer-guide/)`
-     - `[KB Articles](/kb.aspose.org/en/{family}/{platform}/)`
-     - `[API Reference](/reference.aspose.org/en/{family}/{platform}/)`
+   - Bullet list of 4–6 links to docs, KB, and reference pages using absolute `https://` URLs.
+     Omit `/en/` from all links (English pages use the root path):
+     - `[Getting Started](https://docs.aspose.org/{family}/{platform}/getting-started/)`
+     - `[Developer Guide](https://docs.aspose.org/{family}/{platform}/developer-guide/)`
+     - `[KB Articles](https://kb.aspose.org/{family}/{platform}/)`
+     - `[API Reference](https://reference.aspose.org/{family}/{platform}/)`
 
-6. **Constraints**:
+5. **Constraints**:
    - `author` is always exactly `Aspose`
    - `tags` is always `[]`
    - `categories` uses the format `Aspose.{Family}` with a capital F and correct family name casing (e.g. `Aspose.3D`, `Aspose.Cells`, `Aspose.Slides`)
@@ -131,13 +125,13 @@ Before generating any content, you MUST:
      is empty, STOP and run `/repo-scout {family} {platform}` first.
    - All class names and method names must match what you read from reference content — no invented API
 
-7. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
+6. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
    - Target path: `content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
    - If BLOCK → do not write; report the blocking reason to the user
    - If WARN → present the warning to the user; await confirmation before writing
    - If ALLOW → proceed with write
 
-8. **Create directory and write** the file to `content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
+7. **Create directory and write** the file to `content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
    - The slug is a directory name, not just a filename — create `{slug}/index.md`
 
 ## Knowledge Post-conditions
@@ -146,10 +140,9 @@ After generating the post:
 
 1. **Attach evidence**: Run `python scripts/pipeline/attach_evidence.py --files content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
    — this writes the `evidence:` YAML frontmatter block (`model_sha`, `claims`, `apis`).
-   - After attach_evidence completes, an audit-tier grade is auto-populated in frontmatter. For a full multi-dimensional grade, run `/eval-page {path}`.
 2. **Run content check**: Execute `/content-check content/blog.aspose.org/{family}/{platform}/{slug}/index.md` to validate structure and knowledge alignment
 3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
 4. **Run audit**: `python scripts/pipeline/audit.py --files content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
    — must exit with 0 FAIL before committing.
 
-8. **Confirm** with the output path.
+7. **Confirm** with the output path.

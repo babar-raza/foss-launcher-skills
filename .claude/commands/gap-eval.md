@@ -7,7 +7,7 @@ Expected format: `{family} {platform} [--scope all|products|docs|blog|kb|referen
 Evaluate all content for a family/platform against clone cache ground truth using a three-tier verification architecture (deterministic → vector → LLM). Produces a structured findings report and updates the per-product state file for delta tracking.
 
 ## Pre-conditions
-1. Clone cache must exist at `runs/.clone_cache/aspose_{family}_{platform}/` (resolved via `core.clone_cache`)
+1. Clone cache must exist at `{FOSS_LAUNCHER_PATH}/runs/.clone_cache/aspose_{family}_{platform}/`
 2. Profile must exist at `scripts/gap-eval/profiles/{family}/{platform}.yaml`
    - If missing, run will create a minimal auto-detected profile
 3. Optional (Tier 2): API vectors at `knowledge/_vectors/{family}/{platform}/api.vectors.json`
@@ -22,7 +22,7 @@ Evaluate all content for a family/platform against clone cache ground truth usin
 python scripts/gap-eval/validate_profile.py {family} {platform}
 ```
 
-If profile validation fails on clone cache path → check `ASPOSE_CLONE_CACHE` env var or confirm `runs/.clone_cache/` exists in the repo root.
+If profile validation fails on clone cache path → check `FOSS_LAUNCHER_PATH` env var.
 
 ### Step 2: (Optional) Build API surface vectors for Tier 2
 
@@ -65,7 +65,6 @@ python scripts/gap-eval/run.py {family} {platform} --no-llm
 ### Step 6: If NOT PUBLISHABLE — generate fix plan
 
 ```bash
-# After gap-eval, generate wave-ordered remediation plan:
 /gap-plan {family} {platform}
 ```
 

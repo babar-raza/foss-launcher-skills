@@ -17,6 +17,9 @@ Plan a page's structure before drafting. Compiles relevant claims from knowledge
    - `how-to-*`, `faq`, `troubleshooting`, `use-cases` → kb.aspose.org
    - Blog topic → blog.aspose.org
    - API reference → reference.aspose.org
+   - `products`, `_index`, `product-landing` → products.aspose.org
+     Note: products pages are per-family (`content/products.aspose.org/en/{family}/_index.md`).
+     Use `/new-products-page {family} {platform}` instead of page-draft for products pages.
 
 ## Steps
 

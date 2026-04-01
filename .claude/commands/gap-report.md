@@ -56,8 +56,45 @@ LLM-generated pattern names are in `synthesis_result.json`. If pattern descripti
 1. Re-run with different k: `--k {smaller_or_larger}`
 2. Or edit `MASTER-SYNTHESIS.md` pattern names manually (the update section is clearly delimited)
 
+## Output Format
+
+The synthesis update appended to MASTER-SYNTHESIS.md follows this structure:
+
+```markdown
+## Synthesis Update — {date}
+
+**Total open findings**: N across M repos
+
+### Identified Patterns
+
+#### Pattern A: {LLM-named pattern}
+- **Findings in cluster**: N
+- **Repos affected**: slides-java, cells-python, ...
+- **Description**: LLM-generated 2-sentence description
+- **Root cause**: LLM-generated root cause
+- **Prevention**: LLM-generated prevention strategy
+
+### Systemic Root Causes
+#### {Root cause name}
+...
+
+### Publish Sequence
+**Tier 1 — PUBLICATION READY**: slides-python, email-python, ...
+**Tier 2 — CONDITIONAL**: 3d-java, cells-python, ...
+**Tier 3 — NOT PUBLISHABLE**: (none)
+```
+
 ## Post-conditions
 - `reports/gap-analysis/synthesis_result.json` written with clusters, patterns, root causes
 - `reports/gap-analysis/MASTER-SYNTHESIS.md` updated with new synthesis section
 - `knowledge/_vectors/_synthesis/findings.vectors.json` written if embedding succeeded
 - Publish sequence derived deterministically from state files (no LLM for ordering)
+
+## Clustering Parameters
+
+| Parameter | Default | Notes |
+|-----------|---------|-------|
+| k | Auto (silhouette heuristic, range 3-10) | Override with `--k` |
+| Embedding | Professionalize → Ollama → TF-IDF | Tier chain |
+| Similarity metric | Cosine | Standard for text vectors |
+| Threshold | 0.70 (Tier 2 match) | Below = escalate to Tier 3 |

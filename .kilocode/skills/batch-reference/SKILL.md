@@ -7,6 +7,8 @@ args: "{family} {platform}"
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
+# S-62: Batch Reference — Generate Reference Pages in Bulk
+
 Generate reference pages in bulk for all missing classes/enums in a given family + platform.
 
 **Arguments:** `$ARGUMENTS`

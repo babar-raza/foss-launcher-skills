@@ -12,9 +12,13 @@ capabilities, and rewrites the three text fields to be platform-agnostic.
 
 ## Pre-conditions
 
-1. Family page must exist with `layout: family` — if missing, run `/new-products-page {family} --layout family` first
-2. At least 1 platform subdirectory with `_index.md` (layout: plugin) must exist
-3. Each platform should have merged knowledge at `knowledge/{family}/{platform}/merged/`
+1. **Knowledge bootstrap**: Run `/knowledge-bootstrap {family} {platform}` for each platform
+   in the family and check status:
+   - `STOP:partial` → halt (see printed message)
+   - Any other status (`READY`, `BOOTSTRAPPED`, `REFRESHED`, `WARN:conflicts`) → continue
+2. Family page must exist with `layout: family` — if missing, run `/new-products-page {family} --layout family` first
+3. At least 1 platform subdirectory with `_index.md` (layout: plugin) must exist
+4. Each platform should have merged knowledge at `knowledge/{family}/{platform}/merged/`
 
 ## Steps
 
@@ -24,14 +28,14 @@ capabilities, and rewrites the three text fields to be platform-agnostic.
 4. **Read existing family page** — preserve all fields NOT being rewritten
 5. **Rewrite** `head_description`, `description`, `overview.content` using shared claims and platform list
 6. **No-downgrade guard** — invoke before write; halt on BLOCK
-7. **Write** updated `_index.md`
+7. **Write** updated `_index.md` — use read-modify-write via `yaml.safe_load` + `yaml.dump`; wrap `overview.content` in a `_Literal` helper before serializing so `yaml.dump` emits it as a `|` block scalar; reconstruct as `"---\n{serialized_fm}---\n\n{body}"` ending with `\n`; never prepend a new FM block to the existing file (causes double frontmatter); verify single FM block after write
 8. **Attach evidence** — `python scripts/pipeline/attach_evidence.py --files {path}`
 9. **Audit** — `python scripts/pipeline/audit.py --files {path}` — must exit 0 FAIL
 
 ## Hard Constraints
 
 - All claims from knowledge `claims.json` only — no fabrication
-- No format claims unless in `formats.json`
+- No format claims unless confirmed in `formats.json` OR in `enriched_claims.json` feature/format claims
 - No limitation denials
 - Overview must NOT name individual platforms — describes the suite generically
 - .NET always first in platform list

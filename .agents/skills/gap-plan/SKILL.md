@@ -14,7 +14,7 @@ args: "{family} {platform} [--wave 1|2|3|4|all]"
 Expected format: `{family} {platform} [--dry-run]`
 
 ## Purpose
-Convert S-43 gap-eval findings into an exact, wave-ordered remediation plan. Uses LLM to generate precise old->new substitutions for each finding, grounded in clone cache evidence. Produces a machine-applicable plan ready for S-40/S-41.
+Convert S-43 gap-eval findings into an exact, wave-ordered remediation plan. Uses LLM to generate precise old→new substitutions for each finding, grounded in clone cache evidence. Produces a machine-applicable plan ready for S-40/S-41.
 
 ## Pre-conditions
 1. `reports/gap-analysis/{family}-{platform}.json` must exist (run `/gap-eval {family} {platform}` first)
@@ -56,7 +56,7 @@ Or apply specific category fixes:
 
 ### Step 4: Apply Wave 2 fixes (LLM-planned)
 
-Review each fix spec in `plan.md`. Apply file-by-file using the exact `old` -> `new` substitutions.
+Review each fix spec in `plan.md`. Apply file-by-file using the exact `old` → `new` substitutions.
 Each fix is bounded to a single content block — no side effects.
 
 ### Step 5: Rerun gap-eval to verify

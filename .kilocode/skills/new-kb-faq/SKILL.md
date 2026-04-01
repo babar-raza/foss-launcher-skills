@@ -7,6 +7,8 @@ args: "{family} {platform}"
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
+# S-59: New KB FAQ — Generate FAQ Page for Product Platform
+
 Generate or update the FAQ page for a product platform.
 
 **Arguments:** `$ARGUMENTS`

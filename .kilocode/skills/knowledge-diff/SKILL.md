@@ -7,12 +7,22 @@ description: >
 args: "{family} {platform} {repo-path}"
 ---
 
-> Cross-skill references like `/evidence-cite` refer to sibling skills in this directory.
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
 # S-12: Knowledge Diff — Detect Upstream Changes
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform} {repo-path}`
+
+## Resolving `{repo-path}`
+
+Use the local clone cache (auto-clones if missing):
+```bash
+repo_path=$(python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
+```
+Then invoke this skill as: `/knowledge-diff {family} {platform} $repo_path`
+
+Override the cache root with `ASPOSE_CLONE_CACHE=/path/to/cache` if needed.
 
 ## Purpose
 Detect changes in the upstream FOSS repository since the last knowledge extraction by comparing git SHAs and file diffs.
@@ -54,5 +64,8 @@ Re-run `/repo-scout {family} {platform} {repo-path}` to update knowledge
 ```
 
 ## Post-conditions
-- Diff report is printed to output
-- If HIGH impact, recommend re-scouting
+- Diff report is printed to output with impact classification (HIGH/MEDIUM/LOW).
+- If HIGH impact: recommendation to run S-14 (knowledge-update) is included in the report.
+- If no changes (SHAs match): skill exits cleanly with "no changes" message; no further action needed.
+- The stored `repo_sha` in `merged/model.yaml` is NOT modified by this skill — it is read-only.
+  SHA update only happens in S-14 (knowledge-update) after re-scouting completes.

@@ -7,7 +7,7 @@ args: "{target_path} {proposed_content}"
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-# No-Downgrade Guard — Pre-Write Quality Comparison
+# S-55: No-Downgrade Guard — Pre-Write Quality Comparison
 
 **This is a sub-routine, not a user-facing command.**
 
@@ -25,33 +25,25 @@ Uses `audit.py` FAIL count as a quality proxy for proposed content.
    - If `{target_path}` does NOT exist → return `ALLOW:new-file`
    - Print: "NEW FILE: no prior grade to protect — proceeding."
 
-2. **Check for stored grade** (fast path):
-   - Read the existing file's frontmatter for `grade:` and `graded_model_sha:` fields.
-   - If both are present AND `graded_model_sha` matches the current `knowledge/{family}/{platform}/merged/model.yaml` `repo_sha`:
-     - Use the stored grade directly. Print: "Using stored grade {grade} (fast path)."
-     - Skip step 3 for the existing file.
-   - If not present or `graded_model_sha` is stale: fall through to step 3.
-
-3. **Grade existing file** (full evaluation):
+2. **Grade existing file**:
    ```bash
    python -m scripts.pipeline.content_eval evaluate --files {target_path} --format json
    ```
    - Parse: `existing_grade` = output `grade` field (A/B/C/D/F)
    - If eval fails (module unavailable): fallback — run `python scripts/pipeline/audit.py --files {target_path}`; grade by FAIL count: 0→B, 1-2→C, 3-5→D, 6+→F
 
-4. **Pre-check proposed content** (write to temp location first):
+3. **Pre-check proposed content** (write to temp location first):
    - Write proposed content to: `/tmp/aspose-proposed-{basename}` (or OS temp dir)
    - Run: `python scripts/pipeline/audit.py --files /tmp/aspose-proposed-{basename}`
    - Count FAIL lines from output → `proposed_fail_count`
-   - Assign `predicted_grade` using the canonical A-F scale:
-     - 0 FAIL, 0-2 WARN → predicted A
-     - 0 FAIL, 3-5 WARN → predicted B
-     - 0 FAIL, 6+ WARN OR 1-2 FAIL → predicted C
+   - Assign `predicted_grade`:
+     - 0 FAIL → predicted B
+     - 1-2 FAIL → predicted C
      - 3-5 FAIL → predicted D
      - 6+ FAIL → predicted F
    - Delete temp file
 
-5. **Decision matrix**:
+4. **Decision matrix**:
 
    | Existing Grade | Predicted Grade | Decision |
    |---|---|---|
@@ -67,7 +59,7 @@ Uses `audit.py` FAIL count as a quality proxy for proposed content.
    | D or F | any | ALLOW (anything is better or equal) |
    | new file | any | ALLOW |
 
-6. **Output**:
+5. **Output**:
    - **BLOCK**: Print "BLOCK: Proposed content predicted {grade} vs existing {grade}. Fix API issues first." + list the audit FAIL lines. **Do NOT write the file.**
    - **WARN**: Print "WARN: Proposed content predicted {grade} vs existing {grade}. Review before writing." Generation skill must confirm with user before proceeding.
    - **ALLOW**: Print "ALLOW: {reason}." Generation skill proceeds with write.
@@ -77,7 +69,6 @@ Uses `audit.py` FAIL count as a quality proxy for proposed content.
 - Cannot fully eval proposed content without writing it first; uses `audit.py` FAIL count as a proxy.
 - This catches API accuracy regressions (D/F overwriting A/B) but may not catch prose quality regressions that do not involve API token errors.
 - If `content_eval` module is unavailable, the fallback grading by FAIL count is used; it is less precise.
-- When a stored grade is available and its `graded_model_sha` matches the current knowledge, it is used as-is (fast path). This avoids re-evaluation and ensures consistency with the last full content_eval run.
 
 ## Integration
 

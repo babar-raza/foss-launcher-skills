@@ -8,103 +8,116 @@ description: >
 args: "{family} {platform}"
 ---
 
-> Cross-skill references like `/repo-scout` refer to sibling skills in this directory.
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-# S-37: Knowledge Enrich — LLM Semantic Enrichment from Scout Artifacts
+<!-- CONTRACT: scripts/pipeline/enrich.py
+     postcondition: scout/enriched_claims.json exists as a JSON array
+     postcondition: claim_id format is ERC-{family}-{platform}-{8-char-hash}
+     postcondition: claim fields are: claim_id, text, kind, confidence, claim_source, evidence
+     postcondition: all claims have confidence >= 0.60 (lower dropped before write)
+     verified: 2026-04-01
+-->
+# S-37: Knowledge Enrich - LLM Semantic Enrichment from Scout Artifacts
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform}`
 
 ## Purpose
 
-Generate LLM-enriched semantic claims for a product by:
-1. Reading the deterministic API surface from `scout/api_surface.json` (verified facts)
-2. Reading source context from the internal clone cache (`runs/.clone_cache/`)
-3. Calling the LLM in **bounded-description mode**: produce one user-facing claim per
-   verified API fact, constrained to only reference identifiers that exist in the API surface
-4. Writing deduplicated, validated claims to `scout/enriched_claims.json`
-
-This replaces the FOSS Launcher FL layer with fresh, locally-generated enrichment that
-can be re-run on demand whenever the scout knowledge is updated.
+Generate LLM-enriched semantic claims from `knowledge/{family}/{platform}/scout/`
+artifacts. The enrichment step reads verified API facts from `scout/api_surface.json`,
+uses the clone cache for bounded context, and writes `scout/enriched_claims.json`.
+This is the current replacement for the removed FL enrichment layer.
 
 ## Pre-conditions
 
-1. **Scout artifacts exist** — `knowledge/{family}/{platform}/scout/api_surface.json` must be present.
-   If missing, run S-34 (`/repo-scout {family} {platform}`) first.
-
-2. **Clone cache populated** — `runs/.clone_cache/aspose_{family}_{platform}/` should exist for
-   best source context. If absent, enrichment still runs but with minimal context (README-only).
-
-3. **`fl/` must NOT exist** — `knowledge/{family}/{platform}/fl/` must not be present.
-   The FL layer has been removed. If it exists, delete it before running this skill.
-
-4. **Verify `scripts/pipeline/enrich.py` exists**:
-   ```
-   ls scripts/pipeline/enrich.py
-   ```
+1. `knowledge/{family}/{platform}/scout/api_surface.json` must exist.
+2. `runs/.clone_cache/aspose_{family}_{platform}/` should exist for richer context.
+3. `scripts/pipeline/enrich.py` must exist.
 
 ## Steps
 
-1. **Parse arguments** from $ARGUMENTS: `family`, `platform`
-
-2. **Check pre-conditions**:
-   ```
-   ls knowledge/{family}/{platform}/scout/api_surface.json
-   ```
-   Abort if missing.
-
-3. **Run enrichment**:
-   ```
+1. Parse `{family}` and `{platform}` from `$ARGUMENTS`.
+2. Verify `knowledge/{family}/{platform}/scout/api_surface.json` exists.
+3. Run:
+   ```bash
    python scripts/pipeline/enrich.py {family} {platform}
    ```
-   This will:
-   - Build a verified-facts block from api_surface.json (up to 80 classes)
-   - Collect source context from clone cache (README, docs, examples — up to 12 000 chars)
-   - Call `llm.professionalize.com` (gpt-oss) with temperature=0.0 in bounded-description mode
-   - Fall back to Ollama llama3.2 if `PROFESSIONALIZE_API_KEY` is not set
-   - Validate claims: reject hallucinations (CamelCase names not in API surface), low-confidence, duplicates
-   - Write `knowledge/{family}/{platform}/scout/enriched_claims.json`
+   Optional flags:
+   - `--knowledge-root <path>` to override the knowledge root
+   - `--no-llm` to skip the LLM call and write an empty enrichment file
+4. Verify `knowledge/{family}/{platform}/scout/enriched_claims.json` exists and is valid JSON.
+5. Report the number of enriched claims written.
 
-4. **Validate output** — verify file was created:
-   - `knowledge/{family}/{platform}/scout/enriched_claims.json` — valid JSON, `claim_count >= 0`
+## Output Schema
 
-5. **Report** — print summary:
-   ```
-   {family}/{platform}: {N} enriched claims written to scout/enriched_claims.json
-   model: {gpt-oss|llama3.2|none}
-   ```
+`scout/enriched_claims.json` is a JSON array (not a wrapped object) conforming to this schema:
+
+```json
+[
+  {
+    "claim_id": "ERC-{family}-{platform}-{8-char-hash}",
+    "text": "human-readable claim about the API or feature",
+    "kind": "api | feature | format | install | troubleshoot",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      { "source_file": "relative/path/to/source.py", "snippet": "relevant code or doc excerpt" }
+    ]
+  }
+]
+```
+
+**Field rules**:
+- `claim_id`: Stable hash-based ID. Format: `ERC-{family}-{platform}-{sha256_8chars}` where the
+  hash is derived from `text + kind`. Assigned automatically by `enrich.py`.
+- `text`: The complete, self-contained claim text. Grounded in `api_surface.json` evidence.
+  Claims whose text contains CamelCase words not in `api_surface.json` are dropped (hallucination
+  guard in `_validate_claim()`).
+- `kind`: Must be one of `api`, `feature`, `format`, `install`, `troubleshoot`.
+- `confidence`: LLM-assigned confidence. Claims with `confidence < 0.60` are dropped before
+  writing. No claims below this threshold appear in the output file.
+- `claim_source`: Always `"llm_enriched"` for LLM-generated claims.
+- `evidence`: Source grounding — the file excerpts the LLM used to generate the claim.
 
 ## Post-conditions
-- `scout/enriched_claims.json` exists with keys: `generated_at`, `model`, `source`, `claim_count`, `claims`
-- `claims` is a JSON array (may be empty if LLM was unavailable — this is not an error)
-- All claims have `claim_source: "llm_enriched"` and `claim_id` starting with `ERC-`
-- `.pipeline_state.json` records step `enrich` as completed
+
+- `scout/enriched_claims.json` exists as a JSON array (may be `[]` if `--no-llm` was used
+  or LLM was unavailable).
+- All `claim_id` values use `ERC-{family}-{platform}-{hash}` format and are unique within the file.
+- All claims pass the hallucination guard: any claim whose text contains CamelCase words absent
+  from `api_surface.json` is excluded before writing.
+- All claims have `confidence >= 0.60` — lower-confidence claims are dropped.
+- The enrichment is grounded in `api_surface.json`, not in fabricated API names.
+
+## LLM Fallback Sequence
+
+If the primary LLM endpoint is unavailable:
+
+1. **Retry once** (transient network failure).
+2. **Fall back to `--no-llm` mode**: Write `enriched_claims.json` as an empty JSON array `[]`.
+   - Downstream impact: S-35 (truth-merge) will proceed as `scout_only`.
+   - Content generation proceeds with scout claims only — no enrichment. This is safe but
+     produces less semantically rich content.
+3. **Do NOT abort** — empty enrichment is a valid output. Log: "LLM unavailable; proceeding
+   with empty enrichment. Run S-37 again with LLM access to improve claim quality."
+
+If the LLM returns claims that fail hallucination detection (subject not in api_surface.json):
+- Exclude those claims.
+- If ALL claims are hallucinated (100% rejection), write `claims: []` and log the rejection.
+- Do NOT write the hallucinated claims under any circumstances.
 
 ## Chain
 
 ```
-S-34 (repo-scout) → S-37 (knowledge-enrich) → S-35 (promote) → S-31 (truth-index)
+S-34 (repo-scout) -> S-37 (knowledge-enrich) -> S-35 (truth-merge) -> S-31 (truth-index)
 ```
-
-Run S-37 after S-34 completes and before S-35 (promote.py).
-
-## Claim provenance
-
-Enriched claims appear in `merged/claims.json` with `provenance: "enriched"`.
-They are grounded in `api_surface.json` (verified facts) and therefore cannot reference
-phantom API members — this is enforced both in the prompt and in post-LLM validation.
 
 ## Error handling
 
-| Condition | Behaviour |
-|-----------|-----------|
-| `scout/api_surface.json` missing | Abort: `run S-34 first` |
-| `fl/` directory present | Abort: `FL layer removed — delete fl/ first` |
-| LLM unreachable | Write empty `enriched_claims.json` (graceful degradation) |
-| All claims rejected by validator | Write empty `enriched_claims.json` + warning |
-| Clone cache absent | Enrich with minimal context (README only) |
-
-## Skip condition
-
-`scout/enriched_claims.json` already exists and `api_surface_sha` matches current
-`scout/api_surface.json` → skip re-enrichment (idempotent). Delete the file to force re-run.
+- Missing scout artifacts: abort and run S-34 (repo-scout) first.
+- LLM unavailable: follow the fallback sequence above; write `claims: []` and continue.
+- Invalid hallucinated claims: reject them individually; write only validated claims.
+- `enrich.py` script error (non-zero exit): do not write partial output; leave any existing
+  `enriched_claims.json` intact; print the script error.
+- `enriched_claims.json` already exists from a prior run: the script overwrites it; this is safe.

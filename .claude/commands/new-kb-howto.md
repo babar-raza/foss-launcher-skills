@@ -7,10 +7,12 @@ argument-hint: "{family} {platform} {slug} [--bypass-plan]"
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
+# S-58: New KB How-To — Generate KB How-To Article
+
 Generate a new KB how-to article.
 
 **Arguments:** `$ARGUMENTS`
-**Expected format:** `{family} {platform} {slug} [--bypass-plan]` — e.g. `3d python how-to-convert-fbx-to-gltf`
+**Expected format:** `{family} {platform} {slug}` — e.g. `3d python how-to-convert-fbx-to-gltf`
 
 ## Knowledge Pre-conditions
 
@@ -29,22 +31,13 @@ Generate a new KB how-to article.
 
 ## Steps
 
-1. **Parse** `$ARGUMENTS` into: `family`, `platform`, `slug` (slug becomes the filename and title source). Note `--bypass-plan` flag if present.
+1. **Parse** `$ARGUMENTS` into: `family`, `platform`, `slug` (slug becomes the filename and title source).
 
-2. **Site Plan Check**: Run the code-enforced plan gate:
-   ```bash
-   python scripts/pipeline/plan_check.py {family} {platform} kb {slug} [--bypass]
-   ```
-   Pass `--bypass` if `--bypass-plan` was in the arguments.
-   - Exit 0 → proceed normally.
-   - Exit 0 with `plan_bypass: true` output → proceed and add `# plan_bypass: true` as a comment in the generated frontmatter evidence block.
-   - Exit 1 → stop with the printed warning message.
-
-3. **Read existing KB content for reference** (do not copy text — read only to confirm patterns):
+2. **Read existing KB content for reference** (do not copy text — read only to confirm patterns):
    - Read one existing how-to file from `content/kb.aspose.org/en/{family}/{platform}/` to confirm exact frontmatter fields
    - Read `content/reference.aspose.org/en/{family}/{platform}/_index.md` to identify available classes, methods, and package names you may reference
 
-4. **Generate frontmatter** (if `--bypass-plan` was passed, add `# plan_bypass: true` as a comment above the `keywords:` block) using this exact structure (fill in placeholders):
+3. **Generate frontmatter** using this exact structure (fill in placeholders):
    ```yaml
    ---
    title: {Human-readable title — convert slug hyphens to words, capitalise naturally}
@@ -61,7 +54,7 @@ Generate a new KB how-to article.
    ---
    ```
 
-5. **Generate body** using this exact section order:
+4. **Generate body** using this exact section order:
    - Opening paragraph: what the library does for this task; state no install prerequisites beyond pip
    - `## Step-by-Step Guide`
    - `{{% steps %}}`
@@ -71,22 +64,23 @@ Generate a new KB how-to article.
    - `{{% /steps %}}`
    - `## Common Issues and Fixes` — 3–5 bold-question + answer-paragraph pairs for likely errors
    - `## Frequently Asked Questions` — 3–5 `### Question?` + answer-paragraph pairs
-   - `## See Also` — 3–5 links using pattern `[Article Title](/kb.aspose.org/en/{family}/{platform}/slug/)`
+   - `## See Also` — 3–5 links using absolute `https://` URLs without `/en/`:
+     `[Article Title](https://kb.aspose.org/{family}/{platform}/slug/)`
 
-6. **Constraints** (hard rules — never violate):
+5. **Constraints** (hard rules — never violate):
    - Every code block must open with ` ```python ` or ` ```bash ` (language identifier required)
    - Use `---` horizontal divider between each step inside `{{% steps %}}`
    - Class names, method names, and import paths must exactly match what appears in the reference content you read — do not invent new API names
-   - All internal links must begin with `/kb.aspose.org/`, `/docs.aspose.org/`, or `/reference.aspose.org/`
+   - All cross-subdomain links must be absolute `https://` URLs without `/en/` (e.g. `https://docs.aspose.org/{family}/{platform}/...`)
    - All claims must be backed by entries in `knowledge/{family}/{platform}/merged/claims.json`
 
-7. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
+6. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
    - Target path: `content/kb.aspose.org/en/{family}/{platform}/{slug}.md`
    - If BLOCK → do not write; report the blocking reason to the user
    - If WARN → present the warning to the user; await confirmation before writing
    - If ALLOW → proceed with write
 
-8. **Write** the file to `content/kb.aspose.org/en/{family}/{platform}/{slug}.md`
+7. **Write** the file to `content/kb.aspose.org/en/{family}/{platform}/{slug}.md`
 
 ## Knowledge Post-conditions
 
@@ -94,10 +88,9 @@ After generating the article:
 
 1. **Attach evidence**: Run `python scripts/pipeline/attach_evidence.py --files content/kb.aspose.org/en/{family}/{platform}/{slug}.md`
    — this writes the `evidence:` YAML frontmatter block (`model_sha`, `claims`, `apis`).
-   - After attach_evidence completes, an audit-tier grade is auto-populated in frontmatter. For a full multi-dimensional grade, run `/eval-page {path}`.
 2. **Run content check**: Execute `/content-check content/kb.aspose.org/en/{family}/{platform}/{slug}.md` to validate structure and knowledge alignment
 3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
 4. **Run audit**: `python scripts/pipeline/audit.py --files content/kb.aspose.org/en/{family}/{platform}/{slug}.md`
    — must exit with 0 FAIL before committing.
 
-8. **Confirm** by printing the output file path and a short summary of steps covered.
+7. **Confirm** by printing the output file path and a short summary of steps covered.

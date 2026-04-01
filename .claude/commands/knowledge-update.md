@@ -1,23 +1,53 @@
-# S-14: Knowledge Update — Refresh Knowledge Model from Source
+<!-- CONTRACT: scripts/pipeline/refresh_knowledge.py (runs scout.py + enrich.py + promote.py + index.py)
+     postcondition: refresh_knowledge.py executes all 4 pipeline steps (scout → enrich → promote → index)
+     postcondition: writes merged/pipeline_run.json confirming all 4 steps ran and index_succeeded status
+     postcondition: step 7 (stale flag clear) still requires explicit agent action after refresh
+     verified: 2026-04-01
+-->
+# S-14: Knowledge Update - Refresh Knowledge Model from Source
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform} {repo-path}`
 
+## Resolving `{repo-path}`
+
+Use the local clone cache (auto-clones if missing):
+```bash
+repo_path=$(python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
+```
+Then invoke this skill as: `/knowledge-update {family} {platform} $repo_path`
+
+Override the cache root with `ASPOSE_CLONE_CACHE=/path/to/cache` if needed.
+
 ## Purpose
-Refresh the knowledge model for a product by re-running the full knowledge bootstrap pipeline: repo-scout → knowledge-enrich → truth-merge → truth-index. Use this when `model.yaml` has `stale_since != null` or after upstream repo changes detected by S-12 (knowledge-diff).
+
+Refresh the knowledge model for a product by re-running the full knowledge pipeline:
+repo-scout, knowledge-enrich, truth-merge, and truth-index. Use this when `model.yaml`
+has `stale_since != null` or after upstream repo changes detected by S-12 (knowledge-diff).
+
+> **Note on `refresh_knowledge.py`**: Running `python scripts/pipeline/refresh_knowledge.py
+> {family} {platform}` executes all 4 pipeline steps: `scout.py → enrich.py → promote.py → index.py`.
+> After a successful run, `merged/pipeline_run.json` confirms all steps completed.
+> Step 7 (stale flag clear) is not automated and must still be performed explicitly
+> completes.
 
 ## Pre-conditions
+
 1. The repo at `{repo-path}` must be accessible and is a git repository
 2. `scripts/pipeline/scout.py` exists
-3. `scripts/pipeline/enrich.py` and `scripts/pipeline/promote.py` exist
-4. Current knowledge exists at `knowledge/{family}/{platform}/` (at least `model.yaml`)
-5. Check `knowledge/{family}/{platform}/model.yaml` — if `stale_since` is null, warn that knowledge may not need updating (proceed if user confirms)
+3. `scripts/pipeline/enrich.py` exists
+4. `scripts/pipeline/promote.py` exists
+5. `scripts/pipeline/index.py` exists
+6. Current knowledge exists at `knowledge/{family}/{platform}/` (at least `model.yaml`)
+7. Check `knowledge/{family}/{platform}/model.yaml` - if `stale_since` is null, warn that
+   knowledge may not need updating (proceed if user confirms)
 
 ## Steps
 
 1. **Parse arguments**: Extract `{family}`, `{platform}`, and `{repo-path}` from $ARGUMENTS.
 
-2. **Back up current knowledge**: Copy `knowledge/{family}/{platform}/merged/` to `knowledge/{family}/{platform}/merged.bak/` so diffs can be computed later by S-20.
+2. **Back up current knowledge**: Copy `knowledge/{family}/{platform}/merged/` to
+   `knowledge/{family}/{platform}/merged.bak/` so diffs can be computed later by S-20.
 
 3. **Run repo-scout** (S-34):
    ```
@@ -29,18 +59,19 @@ Refresh the knowledge model for a product by re-running the full knowledge boots
    ```
    python scripts/pipeline/enrich.py {family} {platform}
    ```
-   This is best-effort — if LLM is unavailable, writes empty `enriched_claims.json` and continues.
+   Verify `knowledge/{family}/{platform}/scout/enriched_claims.json` exists and is valid JSON.
 
 5. **Run truth-merge** (S-35):
    ```
    python scripts/pipeline/promote.py {family} {platform}
    ```
-   Verify `knowledge/{family}/{platform}/merged/merge_report.md` exists and shows scout/enriched counts.
+   Verify `knowledge/{family}/{platform}/merged/merge_report.md` exists and shows merge statistics.
 
 6. **Run truth-index** (S-31):
    Generate the knowledge index from the merged artifacts. Verify `knowledge/{family}/{platform}/merged/index.json` is created.
 
-7. **Clear stale flag**: Update `knowledge/{family}/{platform}/model.yaml` to set `stale_since: null` and update `last_refreshed` to today's date.
+7. **Clear stale flag**: Update `knowledge/{family}/{platform}/model.yaml` to set `stale_since: null`
+   and update `last_refreshed` to today's date.
 
 8. **Diff report**: Compare `merged.bak/claims.json` with `merged/claims.json` to summarize:
    - New claims added
@@ -50,35 +81,15 @@ Refresh the knowledge model for a product by re-running the full knowledge boots
 
 9. **Clean up**: Remove `merged.bak/` after diff report is generated.
 
-### Step 10: Update Site Plan
-
-After knowledge is refreshed, update the site plan to detect which pages need to be added, updated, or removed:
-
-```bash
-python scripts/pipeline/site_planner.py {family} {platform} --mode update
-```
-
-This will:
-- Compare the current `repo_sha` against the existing `reports/plans/{family}/{platform}/site_plan.yaml`
-- If no plan exists yet: generate a full plan (same as `/site-plan {family} {platform}`)
-- If the plan is current (same repo_sha): print "Plan is current" and skip
-- If the plan needs updating: print a delta summary with `pages_to_add`, `pages_to_update`, `pages_to_remove`
-
-Review the delta output. For each `pages_to_add` entry:
-- Use the appropriate generation skill to create the new page
-- For docs pages: `/new-docs-page {family} {platform} {section}/{slug}`
-- For KB pages: `/new-kb-howto {family} {platform} {slug}`
-- For blog posts: `/new-blog-post {family} {platform} {slug}`
-
-For `pages_to_remove` entries: review manually before deleting, as removals require human judgment.
-
 ## Post-conditions
+
 - `knowledge/{family}/{platform}/scout/` has fresh extraction artifacts
 - `knowledge/{family}/{platform}/merged/` has updated merged artifacts
 - `model.yaml` has `stale_since: null` and current `repo_sha`
 - A diff summary is printed showing what changed
 
 ## Error handling
+
 - If repo-scout fails, abort and preserve existing knowledge (do not corrupt merged/)
-- If merge fails, restore from `merged.bak/`
+- If promote fails, restore from `merged.bak/`
 - If repo path is unreachable, abort with clear message

@@ -20,11 +20,12 @@ check regresses unexpectedly, this skill provides a governed diagnostic path.
 Use instead of ad hoc investigation. Produces a structured breakage report that routes to
 AGENTS.md §8 escalation when the failure cannot be resolved within the skill's normal flow.
 
-Do NOT use this skill to bypass a failing skill or skip its safety checks.
+Do NOT use this skill to bypass a failing skill or skip its safety checks. The goal is to
+understand the failure and fix its root cause, not to work around it.
 
 ## Pre-conditions
 
-None.
+None. This skill can be invoked at any point when a skill or pipeline step fails.
 
 ## Steps
 
@@ -51,73 +52,129 @@ Record exactly:
 
 **CONFIG failures:**
 ```bash
+# Check Python environment
 .venv/Scripts/python --version   # Windows
 .venv/bin/python --version        # Unix
+
+# Check script existence
 ls scripts/pipeline/{failed-script}.py
+
+# Check knowledge model
 ls knowledge/{family}/{platform}/merged/model.yaml
 ```
 
 **DATA failures:**
 ```bash
+# Validate frontmatter structure
 python scripts/pipeline/validate_frontmatter.py --files {filepath}
+
+# Check evidence block
 python scripts/pipeline/audit.py --files {filepath}
+
+# Check for unknown API tokens
 python scripts/pipeline/attach_evidence.py --files {filepath} --dry-run
 ```
 
 **CODE failures:**
 ```bash
+# Run the script's own unit tests
 PYTHONPATH=scripts/pipeline python -m pytest scripts/pipeline/tests/ -v -k "{script-name}"
+
+# Check for import errors
+.venv/Scripts/python -c "import scripts.pipeline.{module}"
 ```
 
 **GOVERNANCE failures:**
 ```bash
+# Check override token status
 python scripts/pipeline/override_manager.py list
+
+# Check DAR coverage
 python scripts/ci/check_dar_coverage.py
+
+# Check skill sync parity
 python scripts/ci/sync_skills.py --check
 ```
 
 **REGRESSION failures:**
 ```bash
+# Check grade trajectory
+python scripts/pipeline/grade_writer.py --files {filepath} --check-only
+
+# Check what changed
 git diff HEAD~1 -- {filepath}
 git diff HEAD~1 -- knowledge/{family}/{platform}/
 ```
 
 ### Step 4: Attempt resolution
 
-- CONFIG/DATA: fix the configuration or input data and re-run the failed skill
-- CODE: run unit tests; do not modify scripts to work around failures
-- GOVERNANCE: obtain override token or satisfy DAR precondition
-- REGRESSION: determine if regression is in content (fix via skill) or pipeline scripts (escalate)
+For CONFIG and DATA failures: fix the configuration or input data and re-run the failed skill.
 
-### Step 5: Emit breakage report (if unresolved)
+For CODE failures: run the script's unit tests to determine if this is a known bug or an
+environment issue. Do not modify the script to work around the failure — that requires a
+separate code change with human review.
 
-Write to `reports/skill-breakage/{date}-{skill-id}.md`:
+For GOVERNANCE failures: obtain the required override token or satisfy the DAR precondition
+before proceeding. Do not skip governance checks.
+
+For REGRESSION failures: determine whether the regression is in the content (acceptable to
+fix via the appropriate skill) or in the pipeline scripts (requires human review).
+
+### Step 5: Emit breakage report
+
+If the failure cannot be resolved via Steps 3–4, write to
+`reports/skill-breakage/{date}-{skill-id}.md`:
 
 ```markdown
 # Skill Breakage Report
+
 **Skill:** {skill-id} ({skill-name})
 **Date:** {ISO date}
-**Classification:** {CONFIG|DATA|CODE|GOVERNANCE|REGRESSION}
+**Reported by:** {agent or human}
 
 ## Failure summary
+{One sentence: what failed, where, with what input}
+
+## Classification
+{CONFIG | DATA | CODE | GOVERNANCE | REGRESSION}
+
 ## Exact error
-## Diagnostics run
-## Resolution attempted
-## Escalation: {RESOLVED|ESCALATED_TO_HUMAN|DEFERRED}
+```
+{verbatim error output}
 ```
 
-If GOVERNANCE or CODE and unresolved: escalate per AGENTS.md §8.
+## Diagnostics run
+{list of diagnostic commands and their output}
+
+## Resolution attempted
+{what was tried; why it did not resolve}
+
+## Escalation
+{RESOLVED | ESCALATED_TO_HUMAN | DEFERRED}
+```
+
+If classification is GOVERNANCE or CODE and cannot be resolved: escalate per AGENTS.md §8.
+Do not continue with the original skill until the breakage is resolved.
 
 ## Post-conditions
 
-- Failure classified
-- Resolution attempted for CONFIG/DATA
-- Breakage report in `reports/skill-breakage/` if unresolved
-- GOVERNANCE/CODE escalated per §8
+- Failure classified into one of the five classes
+- Resolution attempted for CONFIG and DATA failures
+- Breakage report written to `reports/skill-breakage/` if unresolved
+- Escalation routed to AGENTS.md §8 for GOVERNANCE and CODE failures
 
-## Exit codes
+## Failure handling
 
-| Code | Meaning |
-|------|---------|
-| 0 | Failure resolved; root cause identified and fixed |
-| 1 | Failure unresolved; breakage report emitted; escalation required |
+| Failure | Action |
+|---------|--------|
+| Cannot determine class | Default to CODE; emit breakage report; escalate |
+| Resolution attempt makes things worse | Revert with `git checkout -- {filepath}`; escalate |
+| Skill that failed has no unit tests | Note in breakage report; escalate as CODE |
+| Failure is in a forbidden-path file | Do not attempt to fix; escalate as GOVERNANCE |
+
+## When NOT to use this skill
+
+- When a skill completes normally but you disagree with its output (use the skill's own
+  review/heal workflow instead)
+- When investigating a content quality issue unrelated to skill execution (use S-25 eval-page)
+- When updating a knowledge model (use S-12 knowledge-diff → S-14 knowledge-update)

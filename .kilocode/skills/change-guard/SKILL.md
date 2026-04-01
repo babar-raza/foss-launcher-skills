@@ -7,7 +7,7 @@ description: >
 args: "{family} {platform} \"{proposed-text}\""
 ---
 
-> Cross-skill references like `/evidence-cite` refer to sibling skills in this directory.
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
 # S-33: Change Guard — Pre-Write Knowledge Gate
 

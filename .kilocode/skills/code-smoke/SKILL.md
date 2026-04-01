@@ -7,7 +7,7 @@ args: "{family} {platform}"
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-# Code Smoke — Syntax and Type-Check Python Code Blocks
+# S-63: Code Smoke — Syntax and Type-Check Python Code Blocks
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform}` or `--files {path1} [path2 ...]`

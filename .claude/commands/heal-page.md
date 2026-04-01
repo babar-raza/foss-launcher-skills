@@ -17,7 +17,8 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 
 1. **Parse arguments**: Extract file path from $ARGUMENTS.
 
-2. **Auto-refresh knowledge**: Before loading any knowledge artifacts, ensure they are current:
+2. **Auto-refresh knowledge**: Before loading any knowledge artifacts, ensure they are current.
+   Invoke S-14 (knowledge-update) via its underlying script:
    ```bash
    python scripts/pipeline/refresh_knowledge.py {family} {platform}
    ```

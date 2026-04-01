@@ -119,9 +119,18 @@ Write to `reports/human-content/{family}-{platform}-{slug}-{date}.json`:
 - Audit passes (no FAIL findings)
 - Registration report written to `reports/human-content/`
 
-## Exit codes
+## Failure handling
 
-| Code | Meaning |
-|------|---------|
-| 0 | Registration complete; all post-conditions met |
-| 1 | Pre-condition failure or content defect; see failure handling |
+| Failure | Action |
+|---------|--------|
+| Knowledge model missing | Run `/knowledge-bootstrap {family} {platform}` first |
+| Evidence attachment fails (unknown tokens) | Fix API references in the page; retry |
+| Audit FAIL after evidence | Do not register; fix content defects first |
+| Grade F with critical FC/PC finding | Escalate to human review per §8; do not protect |
+| File is a locale variant (non-English path) | Do not register via this skill; locale files follow translator workflow |
+
+## When NOT to use this skill
+
+- Machine-generated pages (use the appropriate generation skill instead)
+- Translator-produced locale files (use the translator workflow)
+- Pages that should remain auto-updatable (omit this skill; leave default provenance)

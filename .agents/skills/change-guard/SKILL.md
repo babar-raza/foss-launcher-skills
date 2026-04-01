@@ -7,7 +7,7 @@ description: >
 args: "{family} {platform} \"{proposed-text}\""
 ---
 
-> Cross-skill references like `/evidence-cite` refer to sibling skills in this directory.
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
 # S-33: Change Guard — Pre-Write Knowledge Gate
 
@@ -59,7 +59,7 @@ Exit codes: 0 = PASS, 1 = WARN, 2 = DENY
 
 Review the issues list in the script output:
 1. `forbidden_claim` — rewrite to avoid the forbidden claim
-2. `api_reference` — fix the API reference to match the actual API reference to match the actual API surface
+2. `api_reference` — fix the API reference to match the actual API surface
 3. `format_direction` — correct the import/export direction claim
 
 Re-run the guard after fixes to confirm PASS.

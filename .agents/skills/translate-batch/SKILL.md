@@ -7,6 +7,8 @@ args: "{family} {platform} [locales]"
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
+# S-53: Translate Batch — Batch Translation for Family/Platform
+
 Translate all English content pages for a product family and platform to one or more target locales.
 
 **Arguments:** `$ARGUMENTS`

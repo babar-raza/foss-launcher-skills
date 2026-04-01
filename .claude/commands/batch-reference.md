@@ -1,3 +1,5 @@
+# S-62: Batch Reference — Generate Reference Pages in Bulk
+
 Generate reference pages in bulk for all missing classes/enums in a given family + platform.
 
 **Arguments:** `$ARGUMENTS`
@@ -79,12 +81,14 @@ Apply `--limit N` after filtering (take the first N entries from the filtered li
 
 ### 3. Check for existing pages (idempotency)
 
-For each candidate type, derive its slug:
-- Convert the class name to kebab-case: e.g. `PolygonModifier` → `polygon-modifier`,
-  `IShape` → `ishape`, `Color3D` → `color3d`
-  (lowercase all chars, insert `-` before each uppercase letter that follows a lowercase letter)
+For each candidate type, the filename is the **exact class name from the repo** (PascalCase preserved):
+- `PolygonModifier` → `PolygonModifier.md`
+- `IShape` → `IShape.md`
+- `Color3D` → `Color3D.md`
 
-Check whether `content/reference.aspose.org/en/{family}/{platform}/{slug}.md` already exists.
+No slug transformation — the class name IS the filename stem.
+
+Check whether `content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md` already exists.
 - **If it exists**: mark as `SKIP` — do not overwrite existing pages.
 - **If it does not exist**: mark as `GENERATE`.
 
@@ -96,12 +100,12 @@ For each entry marked `GENERATE`, in order:
 
 **Log progress**: `[{n}/{total_to_generate}] Generating page for {ClassName} ({kind})...`
 
-Invoke `/new-reference-page {family} {platform} {slug}` passing the class data from api_surface.json.
+Invoke `/new-reference-page {family} {platform} {ClassName}` passing the class data from api_surface.json.
 
 This will:
 - Build frontmatter with `categories: [Class]` or `categories: [Enum]` or `categories: [Interface]`
 - Generate the body using the knowledge files
-- Write to `content/reference.aspose.org/en/{family}/{platform}/{slug}.md`
+- Write to `content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md`
 - Attach evidence via `attach_evidence.py`
 
 #### Enum pages — additional requirement
@@ -123,14 +127,14 @@ but keep the section header and column headers with a note: `*(No members found 
 
 ### 5. Post-generation validation (spot-check)
 
-After all pages are generated, run a spot-check on the first and last generated page:
+After all pages are generated, run a spot-check on the first and last generated page using the audit script:
 
 ```
-/truth-audit {family} {platform} {first-slug}
-/truth-audit {family} {platform} {last-slug}
+python scripts/pipeline/audit.py --files content/reference.aspose.org/en/{family}/{platform}/{first-ClassName}.md
+python scripts/pipeline/audit.py --files content/reference.aspose.org/en/{family}/{platform}/{last-ClassName}.md
 ```
 
-If either fails truth-audit, log a warning: `WARN: Truth-audit failed for {slug} — manual review required.`
+If either audit returns any FAIL, log a warning: `WARN: Audit failed for {ClassName} — manual review required.`
 Do not halt the batch for a single failing page.
 
 ### 6. Print summary
@@ -150,16 +154,16 @@ Skipped:      {skipped} (already existed)
 Errors:       {errors} (failed to generate)
 
 Generated pages:
-  - {slug-1}  [{ClassName}]  ({kind})
-  - {slug-2}  [{ClassName}]  ({kind})
+  - {ClassName-1}  ({kind})
+  - {ClassName-2}  ({kind})
   ...
 
 Skipped pages:
-  - {slug-a}  [{ClassName}]  (already exists)
+  - {ClassName-a}  (already exists)
   ...
 
 Error pages (manual review required):
-  - {slug-x}  [{ClassName}]  ({error message})
+  - {ClassName-x}  ({error message})
 ```
 
 ## Hard Stops

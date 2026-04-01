@@ -7,6 +7,8 @@ args: "{file-path} {locales}"
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
+# S-52: Translate Page — Single Page Translation
+
 Translate a single English content page to one or more target locales.
 
 **Arguments:** `$ARGUMENTS`

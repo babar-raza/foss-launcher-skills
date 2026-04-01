@@ -7,7 +7,7 @@ args: "{family} {platform}"
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-# Launch Product — 5-Subdomain Full Documentation Launch
+# S-49: Launch Product — 5-Subdomain Full Documentation Launch
 
 **Arguments**: $ARGUMENTS
 **Expected format**: `{family} {platform}` — e.g. `3d java` or `slides python`
@@ -39,57 +39,49 @@ kb, and reference pages. Uses `project-phase-store` (S-10) for checkpoint-based 
 
 ---
 
-### STAGE 0.5 — Site Plan
+### STAGE 1 — Products Page
+**Command**: `/new-products-page {family} {platform}`
+**Checkpoint**: `products_done`
 
-Run `/site-plan {family} {platform}` to generate a complete, evidence-bound manifest of all pages before any generation begins.
+**Skip condition**: `content/products.aspose.org/en/{family}/_index.md` already exists AND
+passes `python scripts/pipeline/audit.py --files content/products.aspose.org/en/{family}/_index.md`
+(0 FAIL)
 
-```bash
-/site-plan {family} {platform}
-```
-
-Check the output:
-- If `SITE-PLAN STOP:` → halt and fix the reported issue
-- If `launch_tier: placeholder` → the product has no prior content; this is a first launch — continue
-- Note the `output: reports/plans/{family}/{platform}/site_plan.yaml` path for use in subsequent stages
-
-**Checkpoint**: `site_plan_done`
-
-**Resume guard**: If resuming and `reports/plans/{family}/{platform}/site_plan.yaml` already exists, verify its `repo_sha` matches `knowledge/{family}/{platform}/merged/model.yaml.repo_sha`. If match: skip to Stage 1. If mismatch: re-run `/site-plan {family} {platform}`.
-
-**Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} site_plan_done true`
+**Save checkpoint** when done.
 
 ---
 
-### STAGE 1 — Products Page
+### STAGE 1.2 — Products Translation
 
-Read products pages from `reports/plans/{family}/{platform}/site_plan.yaml`, section `sections.products.pages[]`.
+**Purpose**: Ensure the products page exists in all served locales before the family sync
+runs (family sync reads locale pages to compile the platform grid).
 
-Generate both:
-1. Family `_index.md` (layout: family): `/new-products-page {family}`
-2. Platform `_index.md` (layout: plugin): `/new-products-page {family} {platform} --layout plugin`
+**Command**:
+```bash
+python -m translator page content/products.aspose.org/en/{family}/{platform}/_index.md --locales all
+```
 
-**Checkpoint**: `products_done`
+**Skip condition**: At least 80% of declared locales already have
+`content/products.aspose.org/{locale}/{family}/{platform}/_index.md`. Check a representative
+sample (ar, de, fr, zh) -- if all four are present, skip.
 
-**Skip condition**: file already exists AND passes audit (0 FAIL)
+**Checkpoint**: `products_translation_done`
 
-**Save checkpoint** when done.
+**On failure**: Log failed locales, continue -- translation failures are non-blocking for
+the launch but must appear in the Stage 8 readiness scorecard.
+
+**Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} products_translation_done true`
 
 ---
 
 ### STAGE 1.5 — Family Page Sync
 
 **Condition**: Run ONLY when >= 2 platform subdirectories exist under
-`content/products.aspose.org/en/{family}/` after Stage 1 completes. This means
-another platform was already launched previously and the family page text may
-reference only the earlier platform(s).
+`content/products.aspose.org/en/{family}/` after Stage 1 completes.
 
-If only 1 platform subdirectory exists (this is the first launch for the family),
-skip this stage — the family page was just created fresh in Stage 1.
+If only 1 platform subdirectory exists (first launch), skip — family page was just created fresh.
 
 **Command**: `/family-sync {family}`
-
-This rewrites the family `_index.md` text fields (`head_description`, `description`,
-`overview.content`) to be platform-agnostic and list all launched platforms.
 
 **Checkpoint**: `family_sync_done`
 
@@ -100,13 +92,9 @@ This rewrites the family `_index.md` text fields (`head_description`, `descripti
 ---
 
 ### STAGE 2 — Blog Posts
-
-Read blog post slugs from `reports/plans/{family}/{platform}/site_plan.yaml`, section `sections.blog.pages[]`. Generate each page whose `mandatory: true`. Also generate optional posts if `mandatory: false` and evidence supports it.
-
-For each page entry in `sections.blog.pages[]`:
-- `slug`: the directory name
-- `path`: the target file path
-- Use `/new-blog-post {family} {platform} {slug}` for each entry
+**Commands** (run sequentially):
+1. `/new-blog-post {family} {platform} introducing-{family}-foss-{platform}`
+2. `/new-blog-post {family} {platform} {family}-key-features-{platform}`
 
 **Skip condition per slug**: directory `content/blog.aspose.org/{family}/{platform}/{slug}/`
 already exists AND its `index.md` passes audit (0 FAIL)
@@ -116,18 +104,12 @@ already exists AND its `index.md` passes audit (0 FAIL)
 ---
 
 ### STAGE 3 — Documentation Pages
+**Derive needed pages** from `knowledge/{family}/{platform}/merged/claims.json`:
+- `getting-started/installation` — always generate if missing
+- `getting-started/quickstart` — always generate if missing
+- `developer-guide/{topic}` — one page per distinct capability cluster in claims
 
-Read docs pages from `reports/plans/{family}/{platform}/site_plan.yaml`, section `sections.docs.pages[]`.
-
-For each page entry:
-- Generate using `/new-docs-page {family} {platform} {section}/{slug}`
-- The plan provides `capability_cluster`, `evidence_claims[]`, and `page_role` for each page
-- Pages with `mandatory: true` MUST be generated; `mandatory: false` pages are optional
-
-Always generate:
-- `getting-started/installation`
-- `developer-guide/features` (fixed mandatory — not derived from clusters)
-- `getting-started/license` only if `condition: "license_file_found_in_repo == true"` in the plan entry
+**Command per page**: `/new-docs-page {family} {platform} {section} {slug}`
 
 **Skip condition**: file already exists AND passes audit
 
@@ -136,16 +118,9 @@ Always generate:
 ---
 
 ### STAGE 4 — KB Articles
-
-Read KB pages from `reports/plans/{family}/{platform}/site_plan.yaml`, section `sections.kb.pages[]`.
-
-For each page entry:
-- `faq.md`: generate using `/new-kb-faq {family} {platform}`
-- `how-to-*.md`: generate using `/new-kb-howto {family} {platform} {slug}`
-- `troubleshooting.md` (if in plan): generate using `/new-kb-howto {family} {platform} troubleshooting`
-- `use-cases.md` (if in plan): generate using `/new-kb-howto {family} {platform} use-cases`
-
-The plan provides `verb`, `capability_cluster`, `required_shortcode`, and `evidence_claims[]` for each how-to entry.
+**Commands**:
+1. `/new-kb-faq {family} {platform}`
+2. `/new-kb-howto {family} {platform} how-to-get-started-{family}-{platform}`
 
 **Skip condition**: files already exist AND pass audit
 
@@ -193,8 +168,9 @@ KB articles:     {grade summary}
 Reference pages: {grade summary} ({N} pages)
 
 A: N  B: N  C: N  D: N  F: N
+Products translations: {N}/{total_locales} locales present
 
-READY TO SHIP if: 0 D/F pages AND products + getting-started + first blog post at B+
+READY TO SHIP if: 0 D/F pages AND products + getting-started + first blog post at B+ AND products translations >= 80% of declared locales
 ```
 
 **Print**: `READY TO SHIP` or `NOT READY` with a bullet list of blocking items.
@@ -213,14 +189,10 @@ Skip completed stages. Print: `Resuming {family}/{platform} from stage N (checkp
 
 Checkpoints are stored via S-10 (`project-phase-store`) in `reports/phase_state.json`.
 
-Record key: `{family}/{platform}` (created automatically by the CLI from positional args).
-
-Value keys stored under each record: `knowledge_ready`, `site_plan_done`,
-`products_done`, `family_sync_done`, `blog_done`, `docs_done`, `kb_done`,
-`reference_done`, `truth_audit_done`, `quality_done`
-
-Example: `python scripts/pipeline/project_phase_store.py set email net knowledge_ready true`
-stores `knowledge_ready=true` under record key `email/net`.
+Keys used: `{family}_{platform}_knowledge_ready`, `{family}_{platform}_products_done`,
+`{family}_{platform}_blog_done`, `{family}_{platform}_docs_done`, `{family}_{platform}_kb_done`,
+`{family}_{platform}_reference_done`, `{family}_{platform}_truth_audit_done`,
+`{family}_{platform}_quality_done`
 
 ## Error Handling
 

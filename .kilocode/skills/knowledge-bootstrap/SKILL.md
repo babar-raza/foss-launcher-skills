@@ -5,53 +5,99 @@ description: >
 args: "{family} {platform}"
 ---
 
-# Knowledge Bootstrap
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-Current chain:
+# S-54: Knowledge Bootstrap - Shared Pre-condition Gate
 
-```text
-repo-scout -> knowledge-enrich -> truth-merge -> truth-index
+**Arguments**: $ARGUMENTS
+Expected format: `{family} {platform}` - e.g. `3d python`
+
+## Purpose
+
+Single reusable command that detects and resolves knowledge state before any content or validation
+command proceeds. Outputs a structured status line that calling commands act on.
+
+## Output Protocol
+
+This command always prints exactly one of the following as its final output line:
+
+| Status | Meaning |
+|---|---|
+| `KNOWLEDGE: READY` | Knowledge exists, is current, and has no blocking issues |
+| `KNOWLEDGE: BOOTSTRAPPED` | Was absent (first-time setup); ran /repo-scout + /knowledge-enrich + /truth-merge; now ready |
+| `KNOWLEDGE: REFRESHED` | Was stale; ran refresh_knowledge.py; now current |
+| `KNOWLEDGE: WARN:conflicts` | Has unresolved merge conflicts (listed above); proceeding with caution |
+| `KNOWLEDGE: STOP:partial` | Directory exists but merged/ is missing - human action required; halted |
+
+## Steps
+
+1. **Parse arguments**: Extract `{family}` and `{platform}` from $ARGUMENTS.
+
+2. **Check index.json existence**:
+
+   a. `knowledge/{family}/{platform}/merged/index.json` **exists** - go to step 3.
+
+   b. File **missing AND** `knowledge/{family}/{platform}/` directory **does not exist**
+      (first-time setup):
+      - Announce: "Knowledge not found for {family}/{platform} - running first-time bootstrap."
+      - Invoke `/repo-scout {family} {platform}`
+      - Invoke `/knowledge-enrich {family} {platform}`
+      - Invoke `/truth-merge {family} {platform}`
+      - Output: `KNOWLEDGE: BOOTSTRAPPED`
+      - Stop here (calling command continues from this status).
+
+   c. File **missing BUT** `knowledge/{family}/{platform}/` directory **exists**
+      (partial or interrupted state):
+      - Output: `KNOWLEDGE: STOP:partial`
+      - Print: "knowledge/{family}/{platform}/merged/ is missing or incomplete.
+        This may indicate an interrupted bootstrap. Run /repo-scout, /knowledge-enrich,
+        and /truth-merge manually to rebuild before retrying."
+      - Halt - do not proceed further.
+
+3. **Check staleness**: Read `knowledge/{family}/{platform}/merged/model.yaml` or `index.json`:
+   - If `stale_since` is not null OR `stale: true`:
+     - Announce: "Knowledge for {family}/{platform} is stale - refreshing."
+     - Run: `python scripts/pipeline/refresh_knowledge.py {family} {platform}`
+     - Reload index.json.
+     - Output: `KNOWLEDGE: REFRESHED`
+     - Stop here (calling command continues from this status).
+
+4. **Check conflicts**: Read `index.json` -> `has_conflicts`:
+   - If `true`:
+     - Print the contents of `knowledge/{family}/{platform}/merged/merge_conflicts.md`
+     - Output: `KNOWLEDGE: WARN:conflicts`
+     - Stop here (calling command continues from this status).
+
+5. **All clear**:
+   - Output: `KNOWLEDGE: READY`
+
+## How Calling Commands Use This
+
+**Generation commands** (new-*, page-plan, page-draft) - add as pre-condition step 1:
+```
+1. Run `/knowledge-bootstrap {family} {platform}` and check status:
+   - `STOP:partial` -> halt (see printed message)
+   - `REFRESHED` -> STOP: "Knowledge was refreshed from upstream changes. Run /knowledge-diff
+     to review what changed before generating content, then re-run this command."
+   - `READY`, `BOOTSTRAPPED`, or `WARN:conflicts` -> continue
 ```
 
-Do not use `truth-sync`. If knowledge is stale, refresh with the current pipeline.
-
-## Post-Scout Validation Gate
-
-After running repo-scout, validate the extraction output before proceeding:
-
-```bash
-source .venv/Scripts/activate  # Windows
-python -m extraction.validate_scout_output knowledge/{family}/{platform}/scout/model.yaml {repo_path} {platform}
+**Validation/audit commands** (content-audit, change-guard, truth-audit, faq-generate,
+batch-eval-fix, batch-remediate, cross-platform) - add as pre-condition step 1:
+```
+1. Run `/knowledge-bootstrap {family} {platform}` and check status:
+   - `STOP:partial` -> halt (see printed message)
+   - Any other status (`READY`, `BOOTSTRAPPED`, `REFRESHED`, `WARN:conflicts`) -> continue
 ```
 
-Act on the verdict:
-- `VERDICT: OK` — continue to enrich + merge
-- `VERDICT: EXTRACTION_FAILURE` — **HARD STOP**. Scout produced 0 classes but the repo contains class-bearing source files. The extraction failed silently. Diagnose before proceeding. Do NOT propagate empty knowledge.
-- `VERDICT: PRE_ALPHA` — the repo genuinely contains no class-bearing files. Emit `STOP:pre_alpha` and halt.
+## When to Use Each Knowledge Skill
 
-## Maturity Tier
+| Situation | Use |
+|-----------|-----|
+| Before generating any content (normal use) | `/knowledge-bootstrap` - auto-detects state and dispatches |
+| Force full re-extraction from the FOSS repo clone | `/knowledge-update {family} {platform} $repo_path` (S-14) - re-runs repo-scout + knowledge-enrich + truth-merge + truth-index |
+| Re-generate LLM enrichment without re-scouting | `/knowledge-enrich {family} {platform}` (S-37) - calls the enrich pipeline against scout/api_surface.json; writes scout/enriched_claims.json |
+| Review what changed between knowledge versions | `/knowledge-diff {family} {platform}` (S-12) - diffs current vs previous; required after REFRESHED status |
+| Check staleness of content pages (post-diff) | `/stale-detect {family} {platform}` (S-13) - maps changed claims to affected pages |
 
-After successful extraction, classify the product maturity tier based on scout stats:
-
-| Tier | class_count | claim_count | Justified launch scope |
-|------|-------------|-------------|----------------------|
-| **full** | >= 50 | >= 500 | All 5 subdomains |
-| **reduced** | 10-49 | >= 50 | products + 1 blog + kb FAQ + reference (no docs except install) |
-| **minimal** | 1-9 | >= 10 | products page only + README blog intro |
-| **skip** | 0 | < 10 | No launch — defer to future |
-
-Include the tier in the output status: `BOOTSTRAPPED (tier: reduced)` or `READY (tier: full)`.
-The `launch-product` skill uses this tier to determine which stages to execute.
-
-## Output Statuses
-
-- READY — knowledge is current, enrichment meets thresholds, safe for content generation
-- BOOTSTRAPPED — knowledge was freshly built from source; completeness gate passed
-- REFRESHED — knowledge was rebuilt after detecting a stale SHA; completeness gate passed
-- STOP:incomplete — enrichment or snippet coverage is below threshold; run
-  `python scripts/pipeline/enrich.py {family} {platform} --min-coverage 0.25`
-  then `python scripts/pipeline/promote.py {family} {platform}` before generating content
-- STOP:pre_alpha — repo contains no class-bearing source files; defer launch
-- STOP:extraction_failure — scout produced 0 classes from a non-empty repo; diagnose
-- WARN:low_enrichment — enriched_claims / class_count < 0.25; content generation
-  may produce WEAK/UNSUPPORTED semantic audit results
+**Rule of thumb**: Always start with `/knowledge-bootstrap`. Only reach for S-14 or S-37 directly when you need to force a specific layer update that bootstrap does not cover.

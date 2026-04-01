@@ -105,6 +105,6 @@ The synthesis update appended to MASTER-SYNTHESIS.md follows this structure:
 | Parameter | Default | Notes |
 |-----------|---------|-------|
 | k | Auto (silhouette heuristic, range 3-10) | Override with `--k` |
-| Embedding | Professionalize -> Ollama -> TF-IDF | Tier chain |
+| Embedding | Professionalize → Ollama → TF-IDF | Tier chain |
 | Similarity metric | Cosine | Standard for text vectors |
 | Threshold | 0.70 (Tier 2 match) | Below = escalate to Tier 3 |

@@ -55,8 +55,6 @@ Lightweight remediation pipeline: evaluate content (or consume an existing repor
    python scripts/pipeline/attach_evidence.py --files {file1} {file2} ...
    ```
 
-   - After fixes are applied, persist updated grades: `python -m scripts.pipeline.content_eval evaluate {family} {platform} --write-grade --format json`
-
 6. **Report results** to the user:
 
    ```

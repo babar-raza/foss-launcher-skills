@@ -7,6 +7,13 @@ args: "{family} {platform}"
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
+<!-- CONTRACT: agent-executed workflow (no single script runs the full skill)
+     postcondition: staleness report written or printed identifying STALE/AT_RISK/CURRENT pages
+     postcondition: checks model_sha comparison and orphaned claim detection
+     note: API surface and format change detection described in Steps 4c-4d are agent-reasoned,
+           not automated by stale_detect.py (which only checks model_sha and orphaned claims)
+     verified: 2026-04-01
+-->
 # S-13: Stale Detect — Map Changes to Affected Content
 
 **Arguments**: $ARGUMENTS

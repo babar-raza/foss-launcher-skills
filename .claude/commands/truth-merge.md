@@ -1,87 +1,145 @@
-# S-35: Truth Merge — Dual-Source Verification
+<!-- CONTRACT: scripts/pipeline/promote.py
+     postcondition: merged/claims.json exists (flat JSON array of claims with string provenance)
+     postcondition: merged/model.yaml exists (source always "scout_only", has_conflicts always false)
+     postcondition: merged/merge_report.md exists
+     postcondition: merged/merge_conflicts.md does NOT exist (deleted by script if present)
+     verified: 2026-04-01
+-->
+# S-35: Truth Merge - Scout-Only Promotion with Enrichment
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform}`
 
 ## Purpose
-Merge `knowledge/{family}/{platform}/scout/` and `knowledge/{family}/{platform}/fl/` into `knowledge/{family}/{platform}/merged/`, applying dual-source verification with provenance tagging.
+
+Promote `knowledge/{family}/{platform}/scout/` plus any `scout/enriched_claims.json`
+enrichment into `knowledge/{family}/{platform}/merged/`, applying provenance tagging and
+current runtime rules. The FL layer has been removed.
 
 ## Pre-conditions
-1. `scout/claims.json` must exist (`fl/` is optional — gracefully skipped if absent)
-2. If both exist, both should refer to the same product (family/platform)
+
+1. `scout/claims.json` must exist and be valid JSON with a `claims` array.
+2. `scout/enriched_claims.json` is optional but must be used when present.
+3. If both exist, both must refer to the same product (family/platform match in `model.yaml`).
+4. `scout/api_surface.json` must exist — it is the validation source for enriched claim hallucination detection.
 
 ## Automated Script
 
-Run the merge engine first, then review:
+Run the promotion engine first, then review:
+```bash
+python scripts/pipeline/promote.py {family} {platform}
 ```
-python scripts/pipeline/merge.py {family} {platform}
+Review `knowledge/{family}/{platform}/merged/merge_report.md` for scout/enriched promotion counts.
+
+## Provenance Model
+
+Every claim in `merged/claims.json` has a `provenance` field set to a string by source file:
+
+| Claim origin | `provenance` string written |
+|---|---|
+| `scout/claims.json` | `"scout"` |
+| `scout/enriched_claims.json` | `"enriched"` |
+| `scout/supplemental_claims.json` | `"supplemental"` |
+
+`promote.py` is additive: all claims from all sources are merged with no cross-source
+deduplication or conflict detection. Each claim gets the provenance string for its source file.
+
+> **Planned enhancement**: Structured conflict detection (scout wins over enriched on
+> contradictions, hallucination exclusion with conflict log, `merge_conflicts.md` output) is not
+> implemented in the current `promote.py`. The current model is additive-only.
+
+## model.yaml source field
+
+`merged/model.yaml` always writes `source: "scout_only"` regardless of whether enriched or
+supplemental claims are present. This reflects the architectural intent (scout is the
+authoritative ground truth); the `stats.enriched_claims` count records actual enrichment usage.
+
+## merge_conflicts.md
+
+If `merged/merge_conflicts.md` exists from a previous run, `promote.py` **deletes** it. This
+file is not created by the current implementation — it is a reset-on-each-run cleanup. A future
+implementation may write it when conflict detection is added.
+
+## Output Schema
+
+After promotion, `merged/` must contain these files:
+
+**`merged/model.yaml`** — authoritative metadata:
+```yaml
+family: {family}
+platform: {platform}
+product_name: "..."
+version: "..."
+license: "..."
+repo_url: "..."
+repo_sha: "{from scout/model.yaml}"
+stale_since: null
+promoted_at: "{ISO timestamp}"
+source: "scout_only"    # always "scout_only" regardless of enriched claims
+has_conflicts: false    # always false in current implementation
+stats:
+  scout_claims: N
+  enriched_claims: N
+  supplemental_claims: N
+  total_claims: N
+  class_count: N
+  forbidden_count: N
+  snippet_count: N
 ```
-Review `knowledge/{family}/{platform}/merged/merge_report.md` for dual/scout_only/fl_only counts.
 
-The script matches claims using: **same `kind`** AND **Jaccard token overlap ≥ 0.8**.
+**`merged/claims.json`** — flat list of all promoted claims with string provenance:
+```json
+[
+  {
+    "text": "...",
+    "kind": "api|feature|format|install|...",
+    "provenance": "scout"
+  },
+  {
+    "text": "...",
+    "kind": "feature",
+    "provenance": "enriched"
+  }
+]
+```
 
-**Note on dual-confirmed rate**: In practice, FL LLM-generated claims (`claim_source: "llm"`)
-use natural-language text (e.g. "The Scene class enables...") while scout claims use terse API
-signatures (e.g. "Scene.open(file) -> Scene"). These rarely meet the 0.8 overlap threshold, so
-`dual` count is typically 0. FL claims appear in the merged output as `fl_only` with their
-confidence penalised (×0.6 for llm, ×0.8 for deterministic). This is correct — FL claims
-still add value as contextual/explanatory knowledge even when they cannot be cross-confirmed.
-If PASS is shown in the script output, the manual steps below can be skipped.
+Claims from scout preserve all their original fields; `provenance` is added/overwritten.
+Claims from enriched and supplemental sources also preserve their original fields.
 
-## Manual Steps (fallback)
+**`merged/merge_report.md`** — human-readable promotion summary:
+```markdown
+# Promote Report: {family}/{platform}
+Date: {ISO timestamp}
+Scout SHA: {sha}
+Source: scout-only (standalone pipeline, no FL dependency)
 
-1. **Load sources**:
-   - Read `scout/claims.json`, `scout/api_surface.json`, `scout/model.yaml`
-   - Read `fl/claims.json`, `fl/api_surface.json`, `fl/model.yaml`
-   - Either can be absent — proceed with single-source if needed
+## Statistics
+| Metric | Value |
+|--------|-------|
+| Scout claims | N |
+| Enriched claims (S-37) | N |
+| Supplemental claims (bridge) | N |
+| Total claims | N |
+| Classes | N |
+| Forbidden claims | N |
+| Snippets | N |
+```
 
-2. **Merge claims** with provenance tagging:
-   - For each scout claim, find matching FL claims (same kind + similar text)
-   - Matching strategy:
-     - Exact text match → `provenance: "dual"`, confidence = max(both)
-     - Similar text (>80% token overlap) → `provenance: "dual_fuzzy"`, flag for review
-     - Scout only → `provenance: "scout_only"`
-     - FL only (deterministic source) → `provenance: "fl_only"`, confidence × 0.8
-     - FL only (llm/llm_fallback source) → `provenance: "fl_only"`, confidence × 0.6
-     - Contradicting claims → `provenance: "conflict"`, add to merge_conflicts.md
-
-3. **Merge API surface**:
-   - Class in both with same methods → `dual`
-   - Class in both with different methods → take union, flag discrepancies
-   - Class in one only → single-source provenance
-
-4. **Merge format matrix**:
-   - Same format, same flags → `dual`
-   - Different flags → `conflict`
-
-5. **Build forbidden_claims**: From limitations (NotImplementedError items) build list of claims that must NOT appear in content
-
-6. **Build truth_gaps**: Facts that couldn't be extracted or verified
-
-7. **Write merged artifacts**:
-   - `merged/model.yaml` — combined metadata
-   - `merged/claims.json` — all claims with provenance
-   - `merged/claims.md` — human-readable claim summary
-   - `merged/api_surface.json` — merged API surface
-   - `merged/api_surface.md` — human-readable API reference
-   - `merged/formats.json` — merged format matrix
-   - `merged/formats.md` — human-readable format table
-   - `merged/install.md` — install instructions (prefer scout, fall back to fl)
-   - `merged/limitations.md` — combined limitations
-   - `merged/class_graph.json` — from scout (or fl if scout absent)
-   - `merged/merge_report.md` — statistics on merge (dual/single/conflict counts)
-   - `merged/merge_conflicts.md` — only if conflicts exist
+**`merged/merge_conflicts.md`** — **this file is DELETED** by `promote.py` if it exists.
+It is not written. If a previous run left it, it is removed as part of the reset cycle.
 
 ## Post-conditions
-- `merged/` directory has all required files
-- `merge_report.md` shows merge statistics
-- All claims have a `provenance` field
-- Conflicting claims are documented in `merge_conflicts.md`
 
-## Provenance rules
-| Scout | FL | Result |
-|-------|-----|--------|
-| Present | Present (same kind, overlap ≥ 0.8) | `dual`, confidence = max |
-| Present | Absent / no match | `scout_only` |
-| Absent | Present (deterministic) | `fl_only`, conf × 0.8 |
-| Absent | Present (llm/llm_fallback) | `fl_only`, conf × 0.6 |
+- `merged/` directory contains: `claims.json`, `api_surface.json`, `api_surface.md`,
+  `model.yaml`, `merge_report.md`, and copies of `formats.json`, `class_graph.json`,
+  `limitations.md`, `install.md` (if present in scout).
+- Every claim in `merged/claims.json` has a `provenance` string field.
+- `merged/model.yaml` has `source: "scout_only"` and `has_conflicts: false`.
+- `merged/merge_conflicts.md` does NOT exist.
+
+## Error handling
+
+- `scout/claims.json` missing or invalid JSON: abort; run S-34 (repo-scout) first.
+- `enriched_claims.json` malformed (not valid JSON): skip enrichment; proceed with scout only.
+- `promote.py` script fails (non-zero exit): print the error; do not partially write `merged/`.
+- `fl/` directory exists: abort with error — FL layer has been removed; delete `fl/` and re-run.
