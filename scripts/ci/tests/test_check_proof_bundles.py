@@ -43,10 +43,9 @@ def _make_valid_bundle(proofs_dir: Path, obs_name: str) -> Path:
 
 
 def _patch(monkeypatch, tmp_path):
-    """Patch directory constants and _REPO_ROOT so relative_to() in print statements works."""
+    """Patch directory constants so file I/O goes to tmp_path instead of the real reports/ directory."""
     comp_dir = tmp_path / "compliance"
     proofs_dir = tmp_path / "proofs"
-    monkeypatch.setattr(check_proof_bundles, "_REPO_ROOT", tmp_path)
     monkeypatch.setattr(check_proof_bundles, "_COMPLIANCE_DIR", comp_dir)
     monkeypatch.setattr(check_proof_bundles, "_PROOFS_DIR", proofs_dir)
     monkeypatch.setattr(check_proof_bundles, "_INDEX_FILE", proofs_dir / "INDEX.json")

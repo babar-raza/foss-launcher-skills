@@ -33,9 +33,8 @@ def _load_record(runs_dir: Path) -> dict:
 
 
 def _patch_dirs(tmp_path: Path, monkeypatch) -> None:
-    """Patch both _RUNS_DIR and _REPO_ROOT so relative_to() in print statements works."""
+    """Patch _RUNS_DIR so file I/O goes to tmp_path instead of the real reports/ directory."""
     monkeypatch.setattr(skill_run_manager, "_RUNS_DIR", tmp_path)
-    monkeypatch.setattr(skill_run_manager, "_REPO_ROOT", tmp_path)
 
 
 # ---------------------------------------------------------------------------
@@ -162,3 +161,41 @@ class TestFinalize:
         assert record["outcome"] == "success"
         assert record["commit_sha"] == "abc123def"
         assert record["completed_at"] is not None
+
+
+# ---------------------------------------------------------------------------
+# TestPathUtils — proves repo_rel() renders safely in and out of repo root
+# ---------------------------------------------------------------------------
+
+import path_utils  # noqa: E402
+
+
+class TestPathUtils:
+    def test_in_repo_returns_relative(self):
+        """A path under _REPO_ROOT is rendered as a relative string."""
+        root = path_utils._REPO_ROOT
+        target = root / "scripts" / "pipeline" / "skill_run_manager.py"
+        result = path_utils.repo_rel(target)
+        expected = str(target.relative_to(root))
+        assert result == expected
+
+    def test_out_of_repo_returns_absolute(self, tmp_path):
+        """A path outside _REPO_ROOT (e.g. tmp_path) never raises and returns an absolute path."""
+        target = tmp_path / "some" / "nested" / "file.json"
+        result = path_utils.repo_rel(target)
+        # Must not crash; must equal the absolute path string
+        assert result == str(target)
+
+    def test_explicit_root_in_repo(self, tmp_path):
+        """When an explicit root is given and path is under it, result is relative."""
+        root = tmp_path / "myroot"
+        target = root / "sub" / "file.txt"
+        result = path_utils.repo_rel(target, root=root)
+        assert result == str(Path("sub") / "file.txt")
+
+    def test_explicit_root_outside(self, tmp_path):
+        """When an explicit root is given and path is NOT under it, result is absolute."""
+        root = tmp_path / "myroot"
+        target = tmp_path / "elsewhere" / "file.txt"
+        result = path_utils.repo_rel(target, root=root)
+        assert result == str(target)

@@ -34,11 +34,14 @@ def _collect_snippet_functions(
     func_types: set,
     class_types: set,
     source_text: str,
+    is_example_dir: bool = False,
 ) -> list[tuple[str, Any, int]]:
     """Collect candidate test/example functions from a parsed tree.
 
     Returns list of (function_name, node, line_number) tuples.
     Language-specific heuristics determine which functions qualify.
+    When *is_example_dir* is True, C++ ``main()`` functions are also
+    captured — example files use ``main`` rather than test_ naming.
     """
     results: list[tuple[str, Any, int]] = []
 
@@ -79,7 +82,8 @@ def _collect_snippet_functions(
                         break
             if fname and (fname.startswith("test_")
                           or fname.startswith("Test")
-                          or fname in _gtest_macros):
+                          or fname in _gtest_macros
+                          or (is_example_dir and fname == "main")):
                 results.append((fname, fn, fn.start_point[0] + 1))
 
     elif language in ("typescript", "javascript"):
@@ -152,6 +156,7 @@ def extract_snippets(
             format_names.add(fname.lower())
 
     snippet_dirs = ["tests", "test", "examples", "example", "samples", "demo"]
+    _example_dirs = {"examples", "example", "samples", "demo"}
     ext = _FILE_EXTENSIONS.get(language, ".py")
     func_types = _FUNC_TYPES.get(language, set())
     class_types = _CLASS_TYPES.get(language, set())
@@ -197,7 +202,8 @@ def extract_snippets(
                 root = tree.root_node
 
                 func_nodes = _collect_snippet_functions(
-                    root, language, func_types, class_types, text)
+                    root, language, func_types, class_types, text,
+                    is_example_dir=(sdir in _example_dirs))
 
                 for fn_name, fn_node, fn_line in func_nodes:
                     if snippet_counter >= MAX_SNIPPETS:

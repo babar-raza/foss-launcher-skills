@@ -73,7 +73,8 @@ def _extract_method_params(node, language: str) -> list[dict[str, str]]:
         if ch.type in ("formal_parameter", "parameter", "required_parameter",
                         "optional_parameter", "typed_parameter",
                         "default_parameter", "typed_default_parameter",
-                        "identifier"):
+                        "identifier", "parameter_declaration",
+                        "optional_parameter_declaration"):
             pname = ""
             ptype = ""
 
@@ -87,6 +88,26 @@ def _extract_method_params(node, language: str) -> list[dict[str, str]]:
                     if sub.type == "identifier":
                         pname = node_text(sub)
                         break
+
+            # C++: parameter_declaration uses a "declarator" field for the name.
+            # Handles default-arg forms: std::string x = {}, const T& y = T()
+            if not pname and ch.type == "parameter_declaration":
+                decl = child_by_field(ch, "declarator")
+                if decl is not None:
+                    cur = decl
+                    while cur is not None and cur.type != "identifier":
+                        inner = child_by_field(cur, "declarator")
+                        if inner is not None:
+                            cur = inner
+                        else:
+                            found = None
+                            for gc in cur.children:
+                                if gc.type == "identifier":
+                                    found = gc
+                                    break
+                            cur = found
+                    if cur is not None and cur.type == "identifier":
+                        pname = node_text(cur)
 
             if pname in ("self", "this", "cls"):
                 continue
