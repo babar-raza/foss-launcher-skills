@@ -498,17 +498,33 @@ class Scout:
                 file=sys.stderr,
             )
 
-        # Guardrail: warn when a Python class has zero methods AND zero properties.
-        # A @dataclass or similar annotation-only class with no extracted members is
-        # a strong signal that annotated fields may not be captured.  This fires for
-        # the Python extractor only (other languages use different member patterns).
+        # Guardrail: warn when a Python class_definition has methods but zero
+        # properties.  A @dataclass with class methods (e.g. from_file, from_reader)
+        # and annotated instance fields produces exactly this pattern when field
+        # extraction is broken.  This is the pre-fix state of CFBDocument/MsgDocument.
+        #
+        # Also warn when the class has zero members of any kind (possibly a
+        # TypedDict or bare annotation class whose fields were not emitted).
+        #
+        # Enum classes are excluded — they carry enum_members instead.
+        # Fires for the Python extractor only; other languages use different patterns.
         if self.language == "python":
             for cls in self.classes:
                 if cls.get("kind") not in ("class_definition",):
                     continue
                 if cls.get("enum_members"):
-                    continue  # enum classes are expected to have no methods/props
-                if not cls.get("methods") and not cls.get("properties"):
+                    continue  # enum classes carry enum_members — expected
+                has_methods = bool(cls.get("methods"))
+                has_properties = bool(cls.get("properties"))
+                if has_methods and not has_properties:
+                    print(
+                        f"WARNING: Python class {cls['name']} in {cls['file']} "
+                        f"has {len(cls['methods'])} method(s) but zero properties — "
+                        f"possible missed dataclass fields. "
+                        f"Check extraction/api_surface.py _extract_python_annotated_fields.",
+                        file=sys.stderr,
+                    )
+                elif not has_methods and not has_properties:
                     print(
                         f"WARNING: Python class {cls['name']} in {cls['file']} "
                         f"has no methods or properties — may be a dataclass or "
