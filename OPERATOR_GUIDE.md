@@ -111,24 +111,23 @@ python scripts/translator/cli.py batch {family} {platform} --locales all
 
 ---
 
-## §6 — Understanding the 24 Pre-Existing Audit FAILs
+## §6 — Audit FAIL Baseline
 
-Running `python scripts/pipeline/audit.py all` shows 24 FAILs across 6 products. These are
-**KNOWN, DOCUMENTED, and TRACKED** — they are NOT system errors.
+Running `python scripts/pipeline/audit.py all` currently shows **0 FAILs** across all 13 products.
+All products are clean as of 2026-04-01.
 
-| Product | FAILs | Classification |
-|---------|-------|---------------|
-| 3d/net | 9 | missing_api_member (enum values + property collections not extracted by scout.py) |
-| email/python | 6 | missing_api_member (.root property on CFB/MSG classes) |
-| slides/python | 2 | stale_claim_id (CLM IDs changed after knowledge model regen) |
-| 3d/python | 3 | stale_claim_id (ERC IDs changed after knowledge model regen) |
-| email/cpp | 2 | stale_claim_id (CLM-email-127262 referenced after model regen) |
-| 3d/typescript | 2 | missing_api_member + content_parse_false_positive |
-
-**Full details:** `reports/audit/baseline-fail-counts.json`
+If FAILs appear after a knowledge model update or content generation sprint, check
+`reports/audit/baseline-fail-counts.json` for the current documented baseline and root causes.
 
 The CI regression gate (`scripts/ci/check_audit_regression.py`) blocks any PR that introduces
-**new** FAILs beyond these baselines. Pre-existing FAILs do not block CI.
+**new** FAILs beyond the documented baseline. Pre-existing baselined FAILs do not block CI.
+
+**Common FAIL root causes:**
+| Classification | Root Cause | Fix |
+|----------------|-----------|-----|
+| `stale_claim_id` | Knowledge model regenerated; claim IDs in content not refreshed | Re-run `attach_evidence.py` or remove stale claim from evidence block |
+| `missing_api_member` | Scout didn't extract that member type (e.g., dataclass fields before 2026-04-01 fix) | Update `extraction/api_surface.py` or remove invalid `apis:` entry |
+| `content_parse_false_positive` | URL fragment or code comment parsed as API reference | Convert code block to prose or restructure to avoid ambiguity |
 
 If you add new content and see audit FAILs, check whether they are:
 1. In the baseline (expected) → no action needed
