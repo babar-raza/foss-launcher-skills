@@ -411,7 +411,7 @@ class WithProperty:
         from pathlib import Path
         from extraction.api_surface import extract_api_surface
         parser = scout.get_parser("python")
-        import tempfile, os
+        import tempfile
         with tempfile.TemporaryDirectory() as tmpdir:
             pkg = Path(tmpdir) / "aspose" / "pkg"
             pkg.mkdir(parents=True)
@@ -466,3 +466,100 @@ class WithProperty:
         classes = self._extract()
         props = [p["name"] for p in classes["WithProperty"]["properties"]]
         assert "size" in props
+
+
+# ---------------------------------------------------------------------------
+# Scout guardrail warnings
+# ---------------------------------------------------------------------------
+
+class TestScoutGuardrailWarnings:
+    """Scout._log_extraction_quality must warn for suspicious Python classes.
+
+    The guardrail is tested by directly calling _log_extraction_quality() on
+    a Scout instance whose classes/coverage/snippets lists are injected with
+    controlled fixture data — avoiding the need for a real full extraction run.
+    """
+
+    def _make_scout(self):
+        """Create a minimal Scout instance with empty state for guardrail testing."""
+        import tempfile
+        from pathlib import Path
+        from extraction.scout import Scout
+
+        tmpdir = tempfile.mkdtemp()
+        pkg = Path(tmpdir) / "aspose" / "pkg"
+        pkg.mkdir(parents=True)
+        out_dir = Path(tmpdir) / "out"
+        out_dir.mkdir()
+        s = Scout(family="testfamily", platform="python",
+                  repo=Path(tmpdir), output=out_dir)
+        # Reset to empty state; we will inject fixture data
+        s.classes = []
+        s.coverage = []
+        s.snippets = []
+        return s
+
+    def _capture_guardrail(self, classes: list) -> str:
+        """Run _log_extraction_quality with injected classes and return stderr."""
+        import io
+        import sys
+
+        s = self._make_scout()
+        s.classes = classes
+        buf = io.StringIO()
+        old_stderr = sys.stderr
+        sys.stderr = buf
+        try:
+            s._log_extraction_quality()
+        finally:
+            sys.stderr = old_stderr
+        return buf.getvalue()
+
+    def test_guardrail_fires_for_methods_but_no_properties(self):
+        """Class with methods but zero properties triggers the guardrail."""
+        classes = [{
+            "name": "BrokenDataclass",
+            "kind": "class_definition",
+            "file": "pkg/models.py",
+            "methods": [
+                {"name": "from_file", "params": [], "return_type": "", "doc": "", "line": 2, "is_constructor": False},
+                {"name": "from_reader", "params": [], "return_type": "", "doc": "", "line": 5, "is_constructor": False},
+            ],
+            "properties": [],
+        }]
+        stderr = self._capture_guardrail(classes)
+        assert "BrokenDataclass" in stderr
+        assert "WARNING" in stderr
+        assert "zero properties" in stderr
+
+    def test_guardrail_does_not_fire_for_enum_class(self):
+        """Enum classes (with enum_members) must not trigger the guardrail."""
+        classes = [{
+            "name": "FileFormat",
+            "kind": "class_definition",
+            "file": "pkg/models.py",
+            "methods": [],
+            "properties": [],
+            "enum_members": [{"name": "MSG", "value": "1"}, {"name": "EML", "value": "2"}],
+        }]
+        stderr = self._capture_guardrail(classes)
+        # No WARNING lines about FileFormat
+        warning_lines = [l for l in stderr.splitlines()
+                         if "FileFormat" in l and "WARNING" in l]
+        assert warning_lines == [], f"Unexpected warnings: {warning_lines}"
+
+    def test_guardrail_does_not_fire_when_properties_present(self):
+        """A class with both methods and properties must NOT trigger the guardrail."""
+        classes = [{
+            "name": "CFBDocument",
+            "kind": "class_definition",
+            "file": "pkg/models.py",
+            "methods": [
+                {"name": "from_file", "params": [], "return_type": "", "doc": "", "line": 4, "is_constructor": False},
+            ],
+            "properties": [{"name": "root", "type": "object", "line": 2}],
+        }]
+        stderr = self._capture_guardrail(classes)
+        warning_lines = [l for l in stderr.splitlines()
+                         if "CFBDocument" in l and "WARNING" in l]
+        assert warning_lines == [], f"Unexpected warnings: {warning_lines}"
