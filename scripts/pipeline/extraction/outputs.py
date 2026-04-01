@@ -26,6 +26,24 @@ LOG = logging.getLogger("scout")
 from extraction.tree_helpers import _FILE_EXTENSIONS  # noqa: E402
 
 
+def _is_enum_class(c: dict) -> bool:
+    """Return True if this class record represents an enum type.
+
+    Handles two cases:
+    - Native enum types (Java enum_declaration, C# enum_declaration, etc.)
+    - Python IntEnum/Flag subclasses, which have kind="class_definition" but
+      carry a populated enum_members list because _PY_ENUM_BASES detected them.
+    """
+    kind = c.get("kind", "")
+    if kind in ("enum_declaration", "enum_definition"):
+        return True
+    # Python: IntEnum/StrEnum/Flag/IntFlag subclasses are class_definition nodes
+    # that the api_surface extractor tagged with enum_members.
+    if kind == "class_definition" and c.get("enum_members"):
+        return True
+    return False
+
+
 def _install_command(platform: str, manifest: dict) -> str:
     name = manifest.get("name", "")
     version = manifest.get("version", "")
@@ -62,6 +80,13 @@ def _canonical_import(platform: str, manifest: dict,
                       packages: set[str] | None = None) -> str:
     name = manifest.get("name", "")
     if platform == "python":
+        # Prefer an explicit canonical_package (set by package_manifest.py when
+        # pyproject.toml contains [tool.setuptools.packages.find].include).
+        # This correctly handles namespace packages like aspose/email_foss/ whose
+        # import path (aspose.email_foss) differs from the PyPI name (aspose-email-foss).
+        canonical_pkg = manifest.get("canonical_package", "")
+        if canonical_pkg:
+            return f"import {canonical_pkg}"
         pkg = name.replace("-", "_")
         return f"import {pkg}" if pkg else ""
     if platform in ("net", "dotnet"):
@@ -80,6 +105,19 @@ def _canonical_import(platform: str, manifest: dict,
         if ns:
             return f"#include <{ns.replace('::', '/')}/...>"
     return ""
+
+
+def _verify_command(platform: str, canonical_import: str) -> str:
+    """Return a runnable shell command that verifies the installation.
+
+    For Python the canonical_import is a statement (``import foo.bar``), not a
+    shell command.  We wrap it in ``python -c "..."`` so the install.md
+    ## Verify block is actually executable.
+    """
+    if platform == "python" and canonical_import.startswith("import "):
+        module = canonical_import[len("import "):]
+        return f'python -c "import {module}; print(\\"{module} OK\\")"'
+    return canonical_import
 
 
 def _common_cpp_namespace(packages: set[str]) -> str:
@@ -113,6 +151,9 @@ def _runtime_requirement(platform: str, manifest: dict) -> str:
         return manifest.get("engines_node", "")
     if platform in ("java", "kotlin"):
         return manifest.get("runtime_min_version", "")
+    if platform == "cpp":
+        cmake_min = manifest.get("cmake_min_version", "")
+        return f"CMake {cmake_min}+" if cmake_min else ""
     return ""
 
 
@@ -146,8 +187,7 @@ def write_outputs(
     class_count = sum(1 for c in classes if c.get("kind") != "function")
     method_count = sum(len(c.get("methods", [])) for c in classes)
     prop_count = sum(len(c.get("properties", [])) for c in classes)
-    enum_count = sum(1 for c in classes
-                     if c.get("kind") in ("enum_declaration", "enum_definition"))
+    enum_count = sum(1 for c in classes if _is_enum_class(c))
 
     model = {
         "family": family,
@@ -163,15 +203,21 @@ def write_outputs(
         "canonical_import": canonical_imp,
         "install_command": install_cmd,
         "runtime_requirement": runtime_req,
-        "stats": {
-            "class_count": class_count,
-            "method_count": method_count,
-            "property_count": prop_count,
-            "enum_count": enum_count,
-            "format_count": len(formats),
-            "snippet_count": len(snippets),
-            "limitation_count": len(limitations),
-        },
+    }
+    # C++-specific build metadata — only include when extracted
+    if platform == "cpp":
+        for _key in ("cmake_min_version", "library_target", "cpp_standard"):
+            _val = manifest.get(_key, "")
+            if _val:
+                model[_key] = _val
+    model["stats"] = {
+        "class_count": class_count,
+        "method_count": method_count,
+        "property_count": prop_count,
+        "enum_count": enum_count,
+        "format_count": len(formats),
+        "snippet_count": len(snippets),
+        "limitation_count": len(limitations),
     }
     (output / "model.yaml").write_text(
         yaml.dump(model, default_flow_style=False, sort_keys=False,
@@ -219,9 +265,10 @@ def write_outputs(
         install_lines.append(install_cmd)
         install_lines.append("```\n")
     if canonical_imp:
+        verify_cmd = _verify_command(platform, canonical_imp)
         install_lines.append("## Verify\n")
         install_lines.append("```")
-        install_lines.append(canonical_imp)
+        install_lines.append(verify_cmd)
         install_lines.append("```\n")
     (output / "install.md").write_text(
         "\n".join(install_lines) + "\n", encoding="utf-8")
@@ -248,8 +295,7 @@ def write_outputs(
             c["name"] for c in classes if c.get("kind") != "function"
         ),
         "found_enums": sorted(
-            c["name"] for c in classes
-            if c.get("kind") in ("enum_declaration", "enum_definition")
+            c["name"] for c in classes if _is_enum_class(c)
         ),
     }
     (output / "absent_evidence.json").write_text(

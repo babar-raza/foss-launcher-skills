@@ -143,4 +143,85 @@ def detect_formats(
                                f"{direction} support for {fmt_name} via {cname}",
                                rel, cn.start_point[0] + 1)
 
+    # Second pass: scan method names for format signals embedded in naming
+    # conventions (e.g., load_from_eml, save_to_eml).  Catches formats that
+    # are surfaced via a high-level API method rather than a dedicated
+    # Reader/Writer class — common in C++ libraries.
+    _FORMAT_METHOD_SKIP = frozenset({
+        "file", "stream", "bytes", "buffer", "string", "dict", "list",
+        "json", "xml", "yaml", "text", "utf8", "base64", "path",
+        "data", "object", "array", "value", "type", "node", "doc",
+        "document", "model", "map", "tree", "memory",
+    })
+    _method_fmt_re = re.compile(r'\b(?:load_from|save_to|from|to)_([a-z][a-z0-9]+)\b')
+    seen_mf: set[tuple[str, str]] = set()
+
+    for fpath in files:
+        rel = str(fpath.relative_to(repo)).replace("\\", "/")
+        try:
+            text = fpath.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for mfm in _method_fmt_re.finditer(text):
+            fmt_name = mfm.group(1).lower()
+            if fmt_name in _FORMAT_METHOD_SKIP:
+                continue
+            full_verb = mfm.group(0)
+            if full_verb.startswith("save_to_") or full_verb.startswith("to_"):
+                direction = "export"
+            else:
+                direction = "import"
+            key = (fmt_name, direction)
+            if key in seen_mf:
+                continue
+            seen_mf.add(key)
+            line_num = text[:mfm.start()].count("\n") + 1
+            formats.append({
+                "format": fmt_name,
+                "enum": "",
+                "value": "",
+                "file": rel,
+                "line": line_num,
+                "direction": direction,
+            })
+            _add_claim("format_support",
+                       f"{direction} support for {fmt_name} format "
+                       f"(method name: {mfm.group(0)})",
+                       rel, line_num)
+
+    # Third pass: Python-specific EmailMessage interop detection.
+    # Methods like from_email_message / to_email_message / to_email_string /
+    # to_email_bytes are semantic signals for EML / RFC 5322 support that the
+    # generic method-name regex above does not capture (it stops at "email").
+    _eml_import_re = re.compile(r'\bdef\s+from_email_(?:message|string|bytes)\b')
+    _eml_export_re = re.compile(r'\bdef\s+to_email_(?:message|string|bytes)\b')
+    seen_eml: set[str] = set()
+
+    for fpath in files:
+        rel = str(fpath.relative_to(repo)).replace("\\", "/")
+        try:
+            text = fpath.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for direction, pattern in (("import", _eml_import_re),
+                                   ("export", _eml_export_re)):
+            if direction in seen_eml:
+                continue
+            m = pattern.search(text)
+            if m:
+                seen_eml.add(direction)
+                line_num = text[:m.start()].count("\n") + 1
+                formats.append({
+                    "format": "eml",
+                    "enum": "",
+                    "value": "",
+                    "file": rel,
+                    "line": line_num,
+                    "direction": direction,
+                })
+                _add_claim("format_support",
+                           f"{direction} support for eml/RFC-5322 format "
+                           f"(method: {m.group(0)})",
+                           rel, line_num)
+
     return formats, claims

@@ -53,6 +53,18 @@ def _parse_python_manifest(repo: Path) -> dict[str, Any]:
             info["license"] = lic
             info["dependencies"] = proj.get("dependencies", [])
             info["requires_python"] = proj.get("requires-python", "")
+            # Extract canonical package path for namespace packages.
+            # [tool.setuptools.packages.find].include lists dotted package names;
+            # the first non-wildcard entry with a dot is the canonical import root.
+            # e.g. include = ["aspose.email_foss", "aspose.email_foss.*"]
+            # → canonical_package = "aspose.email_foss"
+            setuptools_cfg = data.get("tool", {}).get("setuptools", {})
+            packages_find = setuptools_cfg.get("packages", {}).get("find", {})
+            includes = packages_find.get("include", [])
+            for inc in includes:
+                if inc and "." in inc and not inc.endswith(".*") and not inc.endswith("*"):
+                    info["canonical_package"] = inc
+                    break
         except Exception as exc:
             LOG.warning("pyproject.toml parse error: %s", exc)
     if not info.get("name"):
@@ -149,9 +161,29 @@ def _parse_cpp_manifest(repo: Path) -> dict[str, Any]:
     cmake = repo / "CMakeLists.txt"
     if cmake.exists():
         text = cmake.read_text(encoding="utf-8", errors="replace")
-        m = re.search(r"project\s*\(\s*(\S+)(?:\s+VERSION\s+(\S+))?", text)
+        # Project name and version
+        m = re.search(r"project\s*\(\s*(\S+)(?:\s+VERSION\s+(\S+))?", text,
+                      re.IGNORECASE)
         if m:
             info["name"] = m.group(1)
             if m.group(2):
-                info["version"] = m.group(2)
+                info["version"] = m.group(2).rstrip(")")
+        # CMake minimum required version
+        m = re.search(r"cmake_minimum_required\s*\(\s*VERSION\s+([\d.]+)",
+                      text, re.IGNORECASE)
+        if m:
+            info["cmake_min_version"] = m.group(1)
+        # Library target name (first add_library call that is not INTERFACE-only)
+        m = re.search(r"add_library\s*\(\s*([A-Za-z][A-Za-z0-9_.-]*)\s+", text,
+                      re.IGNORECASE)
+        if m:
+            info["library_target"] = m.group(1)
+        # C++ standard requirement
+        m = re.search(r"set_property\s*\([^)]*CXX_STANDARD\s+(\d+)|"
+                      r"CMAKE_CXX_STANDARD\s+(\d+)",
+                      text, re.IGNORECASE)
+        if m:
+            std = m.group(1) or m.group(2)
+            if std:
+                info["cpp_standard"] = std
     return info

@@ -280,16 +280,42 @@ def is_public(node, language: str) -> bool:
 # Source file collection
 # ---------------------------------------------------------------------------
 
+# Directories that should never contribute to the public API surface.
+_NON_PUBLIC_DIRS: frozenset[str] = frozenset({
+    "tests", "test", "spec", "specs",
+    "examples", "example", "samples", "sample", "demo", "demos",
+    "docs", "doc", "documentation",
+    ".github", ".git",
+    "benchmarks", "benchmark", "perf",
+    "scripts", "tools", "build", "dist",
+})
+
+
+def _is_non_public_path(p: Path, root: Path) -> bool:
+    """Return True if any path component relative to *root* is a non-public directory."""
+    try:
+        parts = p.relative_to(root).parts
+    except ValueError:
+        parts = p.parts
+    return any(part.lower() in _NON_PUBLIC_DIRS for part in parts)
+
+
 def _collect_source_files(root: Path, ext: str, header_ext: str | list[str] = "") -> list[Path]:
-    """Glob for source files, capped at MAX_FILES."""
-    files = list(root.rglob(f"*{ext}"))[:MAX_FILES]
+    """Glob for source files, capped at MAX_FILES, excluding non-public directories."""
+    files = [
+        f for f in root.rglob(f"*{ext}")
+        if not _is_non_public_path(f, root)
+    ][:MAX_FILES]
     if header_ext:
         exts = [header_ext] if isinstance(header_ext, str) else header_ext
         for he in exts:
             remaining = MAX_FILES - len(files)
             if remaining <= 0:
                 break
-            files.extend(list(root.rglob(f"*{he}"))[:remaining])
+            files.extend([
+                f for f in root.rglob(f"*{he}")
+                if not _is_non_public_path(f, root)
+            ][:remaining])
     return files
 
 

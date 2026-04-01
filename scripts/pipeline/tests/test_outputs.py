@@ -3,6 +3,7 @@
 Covers:
 - _canonical_import: all platforms (python, net, dotnet, java, typescript)
 - python branch: bare name, hyphenated name, empty name
+- python namespace package branch: canonical_package takes priority over name-based inference
 - net/dotnet branch: name, empty
 - java branch: group_id + artifact_id present/missing
 - typescript branch: name, empty
@@ -42,6 +43,31 @@ class TestCanonicalImport:
     def test_python_missing_name_key_returns_empty(self):
         result = _canonical_import("python", {})
         assert result == ""
+
+    def test_python_canonical_package_overrides_name_inference(self):
+        # Namespace packages (e.g. aspose/email_foss/) have a dotted import path
+        # that differs from the PyPI package name.  canonical_package, set by
+        # package_manifest.py when pyproject.toml carries [tool.setuptools.packages.find],
+        # must take priority over the hyphen→underscore name fallback.
+        result = _canonical_import("python", {
+            "name": "aspose-email-foss",
+            "canonical_package": "aspose.email_foss",
+        })
+        assert result == "import aspose.email_foss"
+
+    def test_python_canonical_package_used_even_without_name(self):
+        result = _canonical_import("python", {
+            "canonical_package": "aspose.slides_foss",
+        })
+        assert result == "import aspose.slides_foss"
+
+    def test_python_canonical_package_empty_falls_back_to_name(self):
+        # Empty string canonical_package should fall back to name-based inference.
+        result = _canonical_import("python", {
+            "name": "aspose-slides-foss",
+            "canonical_package": "",
+        })
+        assert result == "import aspose_slides_foss"
 
     # --- .NET ---
 
