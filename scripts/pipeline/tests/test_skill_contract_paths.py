@@ -168,12 +168,17 @@ class TestS12Completeness(unittest.TestCase):
                 in_skills = False
         return names
 
+    # Documentation files that coexist with skills in skills/ but are not skills themselves
+    _NON_SKILL_SLUGS: set[str] = {"readme"}
+
     def test_all_skill_files_registered_in_s12(self):
         agents_text = read_text("AGENTS.md")
         s12_names = self._parse_s12_names(agents_text)
         skills_dir = REPO_ROOT / "skills"
         for skill_path in sorted(skills_dir.glob("*.md")):
             skill_name = skill_path.stem
+            if skill_name.lower() in self._NON_SKILL_SLUGS:
+                continue
             with self.subTest(skill=skill_name):
                 self.assertIn(
                     skill_name,

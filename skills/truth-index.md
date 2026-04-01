@@ -1,3 +1,10 @@
+<!-- CONTRACT: scripts/pipeline/index.py
+     postcondition: merged/index.json exists (schema_version 2, api_confidence always "high")
+     postcondition: knowledge/_index.json exists (products array)
+     postcondition: install field is {"command": "...", "version": "..."} not pip/npm/maven object
+     postcondition: forbidden_claims format is ["supports ClassName.method"] strings
+     verified: 2026-04-01
+-->
 # S-31: Truth Index - Generate Knowledge Index
 
 **Arguments**: $ARGUMENTS
@@ -21,9 +28,8 @@ Run the index generator:
 python scripts/pipeline/index.py {family} {platform}   # Single product
 python scripts/pipeline/index.py all                   # All discovered products
 ```
-The script auto-discovers products, computes api_confidence thresholds, generates
-platform-appropriate install commands, and writes both per-product `index.json` and
-cross-product `_index.json`.
+The script auto-discovers products, generates platform-appropriate install commands, and
+writes both per-product `index.json` and cross-product `_index.json`.
 
 ## Manual Steps (fallback)
 
@@ -37,66 +43,79 @@ cross-product `_index.json`.
      "family": "{family}",
      "platform": "{platform}",
      "display_name": "Aspose.{Family}",
-     "provenance": "dual | scout_only | fl_only",
+     "provenance": "scout_only",
      "stale": false,
      "has_conflicts": false,
-     "api_confidence": "high | medium | low",
+     "api_confidence": "high",
      "repo_sha": "...",
      "last_merged": "...",
      "vectors_available": true | false,
-     "stats": {
-       "total_claims": 0,
-       "capability_claims": 0,
-       "format_claims": 0,
-       "api_claims": 0,
-       "limitation_claims": 0
-     },
+     "stats": { ... },
      "classes": ["ClassName", ...],
      "class_graph": { "ClassName": ["ParentClass"] },
      "formats": {
        "import": ["ext", ...],
        "export": ["ext", ...],
-       "caveats": { "ext": "description of caveat" }
+       "caveats": {}
      },
      "install": {
-       "pip": "pip install {package}",
-       "npm": null,
-       "maven": null,
-       "dotnet": null,
-       "cmake": null
+       "command": "pip install aspose-{family}-foss",
+       "version": "..."
      },
-     "not_implemented": ["ClassName.method — reason"],
-     "forbidden_claims": ["Do not claim X because Y", ...],
-     "truth_gaps": []
+     "not_implemented": ["ClassName.method"],
+     "forbidden_claims": ["supports ClassName.method", ...],
+     "truth_gaps": [],
+     "api_coverage": {
+       "total_classes": N,
+       "with_methods": N,
+       "with_properties": N,
+       "with_enums": N,
+       "method_pct": 75.0,
+       "property_pct": 50.0,
+       "surface_tier": 1
+     },
+     "snippets_coverage": {
+       "total_snippets": N,
+       "classes_with_snippet": N,
+       "classes_total": N,
+       "coverage_ratio": 0.45
+     }
    }
    ```
 
    **Field semantics**:
-   - `api_confidence`: Set to `"high"` when total classes ≥ 10 AND all class methods are documented;
-     `"medium"` when 5–9 classes or some methods undocumented; `"low"` when <5 classes or
-     `api_surface.json` is sparse. A value of `"low"` triggers a hard stop in all content skills.
-   - `classes`: Exact list of class names from `merged/api_surface.json` top-level keys.
-   - `class_graph`: Inheritance map — keys are class names, values are arrays of parent class names.
-     Empty array `[]` means no parent. Use data from `merged/class_graph.json` if present.
-   - `forbidden_claims`: Statements that must NEVER appear in generated content. Populate from
-     `merged/limitations.md` entries tagged as `[FORBIDDEN]`, and any claims with `confidence < 0.4`.
-   - `not_implemented`: List of `"ClassName.method — reason"` strings from `merged/limitations.md`
-     entries where the feature is documented as `NotImplementedError` or explicitly unimplemented.
-   - `truth_gaps`: Leave as `[]` for initial generation; populated by S-43 (gap-eval) findings.
-   - `install`: Only populate the field relevant to `{platform}` (e.g., `pip` for Python,
-     `npm` for TypeScript). Set all other install fields to `null`.
-   - `stale`: Copy from `merged/model.yaml` → `stale_since != null ? true : false`.
-   - `has_conflicts`: Copy from `merged/model.yaml` → `has_conflicts`.
+   - `api_confidence`: Always `"high"` in the current implementation — deterministic code
+     analysis (tree-sitter) is considered high-confidence. Threshold-based calculation
+     (high/medium/low by class count) is a planned enhancement.
+   - `classes`: Public API class names only — excludes functions, private names (`_`-prefixed),
+     test-file classes, and internal implementation paths.
+   - `class_graph`: From `merged/class_graph.json` if present; empty object otherwise.
+   - `forbidden_claims`: Derived from `merged/limitations.md` parsed entries, formatted as
+     `"supports ClassName.method"` strings. NOT `[FORBIDDEN]`-tagged sentences.
+   - `not_implemented`: `"ClassName.method"` strings from parsed `merged/limitations.md` table rows.
+   - `install`: Single command for the platform: `{"command": "pip install ...", "version": "..."}`.
+     All platforms use this same two-field structure.
+   - `stats`: Copied directly from `merged/model.yaml` → `stats` object (promote.py stats).
+   - `api_coverage`: Computed class coverage metrics — method/property/enum percentages and
+     `surface_tier` (1: ≥70% methods, 2: 40-69%, 3: <40%).
+   - `snippets_coverage`: Snippet coverage ratio across public classes.
+   - `stale`: Always `false` — `index.py` does not currently read `stale_since` from model.yaml.
+   - `has_conflicts`: Always `false` — mirrors `promote.py` output.
 
 3. **Write** `knowledge/{family}/{platform}/merged/index.json`.
 
 4. **Build _index.json**: Aggregate all processed products into cross-product summary:
    ```json
    {
-     "schema_version": 1,
-     "generated": "{ISO timestamp}",
      "products": [
-       { "family": "3d", "platform": "python", "display_name": "Aspose.3D", "api_confidence": "high", "stale": false }
+       {
+         "family": "3d", "platform": "python",
+         "display_name": "Aspose.3D for Python",
+         "api_confidence": "high",
+         "stale": false,
+         "class_count": N,
+         "claim_count": N
+       }
      ]
    }
    ```
@@ -107,11 +126,11 @@ cross-product `_index.json`.
 
 After writing, verify:
 - `index.json` is valid JSON (parseable).
-- `classes` list is non-empty (abort if empty — indicates scout failure).
-- `api_confidence` is one of `"high"`, `"medium"`, `"low"` — never absent.
+- `classes` list is non-empty (abort if empty — indicates scout failure or no public API).
+- `api_confidence` is `"high"` (current implementation hardcodes this for scout-only).
 - `forbidden_claims` is an array (may be empty `[]`).
-- `stale` and `has_conflicts` are boolean, not null.
-- `install` has exactly one non-null field (the platform-appropriate one).
+- `install` has both `command` and `version` fields.
+- `api_coverage.surface_tier` is 1, 2, or 3; if 3, a WARNING is logged.
 
 ## Post-conditions
 

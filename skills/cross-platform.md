@@ -1,3 +1,8 @@
+<!-- CONTRACT: scripts/pipeline/cross_platform_audit.py
+     postcondition: knowledge/{family}/_consistency.md exists
+     postcondition: index.json files are NOT modified (no platform_consistency section written)
+     verified: 2026-04-01
+-->
 # S-36: Cross-Platform — Family Consistency Check
 
 **Arguments**: $ARGUMENTS
@@ -5,8 +10,8 @@ Expected format: `{family}`
 
 ## Purpose
 Verify consistency across all platforms within the same product family. Detect discrepancies in
-format support, API surface, features, and limitations. Produces a human-readable report for
-review and updates each platform's `index.json` with a `platform_consistency` section.
+format support, API surface, features, and limitations. Produces a human-readable consistency
+report at `knowledge/{family}/_consistency.md`.
 
 ## Pre-conditions
 1. At least 2 platforms must have merged knowledge for the given family.
@@ -51,15 +56,9 @@ review and updates each platform's `index.json` with a `platform_consistency` se
 
 7. **Write consistency report** to `knowledge/{family}/_consistency.md`.
 
-8. **Update each platform's index.json** with a `platform_consistency` section:
-   ```json
-   "platform_consistency": {
-     "checked_against": ["python", "net", ...],
-     "format_gaps": ["FBX export: missing in net"],
-     "api_gaps": ["PolygonModifier: missing in typescript"],
-     "last_checked": "{ISO timestamp}"
-   }
-   ```
+> **Note**: `index.json` is NOT updated by this skill. Updating each platform's `index.json`
+> with a `platform_consistency` section is a planned enhancement; `cross_platform_audit.py`
+> currently writes only the `_consistency.md` report file.
 
 ## Report format
 ```markdown
@@ -93,7 +92,6 @@ Checked: {ISO timestamp}
 | `GAP` | Feature/class absent from ≥1 platform | Escalate; may indicate missing implementation or missing documentation |
 
 ## Post-conditions
-- `knowledge/{family}/_consistency.md` exists.
+- `knowledge/{family}/_consistency.md` exists and contains platform, format, API, and limitation comparison.
 - Discrepancies are clearly documented with platform-specific details and severity codes.
-- Each processed platform's `index.json` has a `platform_consistency` section with `last_checked` timestamp.
 - Any `GAP`-severity discrepancy triggers a `WARN` in the report summary. Human review recommended for `GAP` items.

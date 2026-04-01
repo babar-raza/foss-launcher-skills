@@ -1,3 +1,10 @@
+<!-- CONTRACT: scripts/pipeline/enrich.py
+     postcondition: scout/enriched_claims.json exists as a JSON array
+     postcondition: claim_id format is ERC-{family}-{platform}-{8-char-hash}
+     postcondition: claim fields are: claim_id, text, kind, confidence, claim_source, evidence
+     postcondition: all claims have confidence >= 0.60 (lower dropped before write)
+     verified: 2026-04-01
+-->
 # S-37: Knowledge Enrich - LLM Semantic Enrichment from Scout Artifacts
 
 **Arguments**: $ARGUMENTS
@@ -32,42 +39,43 @@ This is the current replacement for the removed FL enrichment layer.
 
 ## Output Schema
 
-`scout/enriched_claims.json` must conform to this schema:
+`scout/enriched_claims.json` is a JSON array (not a wrapped object) conforming to this schema:
 
 ```json
-{
-  "claims": [
-    {
-      "claim_id": "ENRICH-001",
-      "subject": "ClassName",
-      "predicate": "supports | can | has | implements | raises",
-      "object": "human-readable description of the capability or fact",
-      "kind": "capability | format | api | limitation",
-      "confidence": 0.0–1.0,
-      "source_ref": "api_surface.json class or method that grounded this claim",
-      "enrichment_method": "llm | rule"
-    }
-  ]
-}
+[
+  {
+    "claim_id": "ERC-{family}-{platform}-{8-char-hash}",
+    "text": "human-readable claim about the API or feature",
+    "kind": "api | feature | format | install | troubleshoot",
+    "confidence": 0.75,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      { "source_file": "relative/path/to/source.py", "snippet": "relevant code or doc excerpt" }
+    ]
+  }
+]
 ```
 
 **Field rules**:
-- `claim_id`: Must be unique within the file. Use sequential `ENRICH-NNN` format.
-- `subject`: Must be a class name that exists in `scout/api_surface.json`. If no matching class
-  exists, the claim is hallucinated and must be excluded.
-- `confidence`: LLM-assigned confidence. Claims with `confidence < 0.5` are written but
-  flagged; S-35 (truth-merge) will set them as `validated: false`.
-- `source_ref`: The specific API surface entry that this claim is derived from (e.g.,
-  `"Scene.open"` or `"PolygonModifier"`). Never empty — if no grounding exists, reject the claim.
-- `enrichment_method`: `"llm"` for LLM-generated claims, `"rule"` for deterministically
-  derived claims (e.g., format support inferred from method signatures).
+- `claim_id`: Stable hash-based ID. Format: `ERC-{family}-{platform}-{sha256_8chars}` where the
+  hash is derived from `text + kind`. Assigned automatically by `enrich.py`.
+- `text`: The complete, self-contained claim text. Grounded in `api_surface.json` evidence.
+  Claims whose text contains CamelCase words not in `api_surface.json` are dropped (hallucination
+  guard in `_validate_claim()`).
+- `kind`: Must be one of `api`, `feature`, `format`, `install`, `troubleshoot`.
+- `confidence`: LLM-assigned confidence. Claims with `confidence < 0.60` are dropped before
+  writing. No claims below this threshold appear in the output file.
+- `claim_source`: Always `"llm_enriched"` for LLM-generated claims.
+- `evidence`: Source grounding — the file excerpts the LLM used to generate the claim.
 
 ## Post-conditions
 
-- `scout/enriched_claims.json` exists.
-- `claims` is a JSON array (may be empty `[]` if `--no-llm` was used or LLM was unavailable).
-- All `claim_id` values are deterministic and unique within the file.
-- All `subject` values appear in `scout/api_surface.json` (hallucinated subjects are excluded).
+- `scout/enriched_claims.json` exists as a JSON array (may be `[]` if `--no-llm` was used
+  or LLM was unavailable).
+- All `claim_id` values use `ERC-{family}-{platform}-{hash}` format and are unique within the file.
+- All claims pass the hallucination guard: any claim whose text contains CamelCase words absent
+  from `api_surface.json` is excluded before writing.
+- All claims have `confidence >= 0.60` — lower-confidence claims are dropped.
 - The enrichment is grounded in `api_surface.json`, not in fabricated API names.
 
 ## LLM Fallback Sequence
@@ -75,7 +83,7 @@ This is the current replacement for the removed FL enrichment layer.
 If the primary LLM endpoint is unavailable:
 
 1. **Retry once** (transient network failure).
-2. **Fall back to `--no-llm` mode**: Write `enriched_claims.json` with `claims: []`.
+2. **Fall back to `--no-llm` mode**: Write `enriched_claims.json` as an empty JSON array `[]`.
    - Downstream impact: S-35 (truth-merge) will proceed as `scout_only`.
    - Content generation proceeds with scout claims only — no enrichment. This is safe but
      produces less semantically rich content.
