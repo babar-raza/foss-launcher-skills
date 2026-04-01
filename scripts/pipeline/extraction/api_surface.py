@@ -263,6 +263,73 @@ def _extract_python_properties(
 
 
 # ---------------------------------------------------------------------------
+# Python annotated field extraction (dataclass fields, TypedDict members, etc.)
+# ---------------------------------------------------------------------------
+
+def _extract_python_annotated_fields(
+    cnode, cname: str, rel: str, family: str,
+) -> tuple[list[dict[str, Any]], list[dict]]:
+    """Extract annotated class-level field declarations from Python classes.
+
+    Captures plain annotated assignments in the class body such as::
+
+        name: str
+        count: int = 0
+        items: list[str] = field(default_factory=list)
+
+    These patterns are common in ``@dataclass``, ``TypedDict``, ``NamedTuple``,
+    and similar declarations.  The function inspects only **direct children**
+    of the class body block so that assignments inside method bodies are never
+    collected by accident.
+
+    Returns (fields, claims).
+    """
+    fields: list[dict[str, Any]] = []
+    claims: list[dict] = []
+
+    body = child_by_field(cnode, "body") or find_child_by_type(cnode, "block")
+    if body is None:
+        return fields, claims
+
+    for stmt in body.children:
+        if stmt.type != "assignment":
+            continue
+
+        # Annotated assignments carry a named "type" child (the annotation after
+        # the colon).  Plain assignments  (x = 5)  have no such child.
+        type_node = child_by_field(stmt, "type")
+        if type_node is None:
+            continue
+
+        # Field name comes from the first identifier child of the assignment.
+        fname = ""
+        for ch in stmt.children:
+            if ch.type == "identifier":
+                fname = node_text(ch)
+                break
+        if not fname or fname.startswith("_"):
+            continue
+
+        ftype = node_text(type_node).strip()
+
+        # ClassVar annotations mark class-level variables, not instance fields.
+        if ftype.startswith("ClassVar"):
+            continue
+
+        fields.append({
+            "name": fname,
+            "type": ftype,
+            "line": stmt.start_point[0] + 1,
+        })
+        claims.append(_make_claim(
+            family, "api_method",
+            f"{cname}.{fname} field of type {ftype}",
+            rel, stmt.start_point[0] + 1))
+
+    return fields, claims
+
+
+# ---------------------------------------------------------------------------
 # Java property synthesis
 # ---------------------------------------------------------------------------
 
@@ -549,6 +616,13 @@ def extract_api_surface(
                 extra_props, extra_claims = _extract_python_properties(
                     cnode, cname, rel, family)
                 properties.extend(extra_props)
+                claims.extend(extra_claims)
+
+            # Python annotated fields (dataclass fields, TypedDict members, etc.)
+            if language == "python":
+                extra_fields, extra_claims = _extract_python_annotated_fields(
+                    cnode, cname, rel, family)
+                properties.extend(extra_fields)
                 claims.extend(extra_claims)
 
             # Java properties via getter/setter synthesis

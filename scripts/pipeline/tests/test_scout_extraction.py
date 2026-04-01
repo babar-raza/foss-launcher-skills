@@ -373,3 +373,96 @@ class TestPyEnumBasesConstant:
     def test_contains_flag_bases(self):
         assert "Flag" in scout._PY_ENUM_BASES
         assert "IntFlag" in scout._PY_ENUM_BASES
+
+
+# ---------------------------------------------------------------------------
+# Python dataclass field extraction
+# ---------------------------------------------------------------------------
+
+class TestPythonDataclassFields:
+    """Annotated class-level fields (dataclass fields) must be extracted as properties."""
+
+    PY_DATACLASS = """
+from dataclasses import dataclass, field
+from typing import ClassVar
+
+@dataclass
+class CFBDocument:
+    root: CFBStorage
+    major_version: int = 3
+    transaction_signature_number: int = 0
+    _private: str = "hidden"
+
+@dataclass(frozen=True)
+class CFBStream:
+    name: str
+    data: bytes = b""
+    items: list = field(default_factory=list)
+    CLASS_CONST: ClassVar[int] = 42
+
+class WithProperty:
+    @property
+    def size(self) -> int:
+        return 0
+"""
+
+    def _extract(self):
+        """Run extract_api_surface on the dataclass fixture and return classes."""
+        from pathlib import Path
+        from extraction.api_surface import extract_api_surface
+        parser = scout.get_parser("python")
+        import tempfile, os
+        with tempfile.TemporaryDirectory() as tmpdir:
+            pkg = Path(tmpdir) / "aspose" / "pkg"
+            pkg.mkdir(parents=True)
+            src = pkg / "models.py"
+            src.write_text(self.PY_DATACLASS)
+            classes, _, _, _ = extract_api_surface(
+                parser, "python", pkg, Path(tmpdir), "testfamily"
+            )
+        return {c["name"]: c for c in classes if c.get("kind") == "class_definition"}
+
+    def test_extracts_plain_annotated_field(self):
+        classes = self._extract()
+        props = [p["name"] for p in classes["CFBDocument"]["properties"]]
+        assert "root" in props
+
+    def test_extracts_field_with_default(self):
+        classes = self._extract()
+        props = [p["name"] for p in classes["CFBDocument"]["properties"]]
+        assert "major_version" in props
+        assert "transaction_signature_number" in props
+
+    def test_excludes_private_field(self):
+        classes = self._extract()
+        props = [p["name"] for p in classes["CFBDocument"]["properties"]]
+        assert "_private" not in props
+
+    def test_excludes_classvar(self):
+        classes = self._extract()
+        props = [p["name"] for p in classes["CFBStream"]["properties"]]
+        assert "CLASS_CONST" not in props
+
+    def test_field_type_captured(self):
+        classes = self._extract()
+        root_field = next(
+            p for p in classes["CFBDocument"]["properties"] if p["name"] == "root"
+        )
+        assert root_field["type"] == "CFBStorage"
+
+    def test_field_default_with_factory(self):
+        classes = self._extract()
+        props = [p["name"] for p in classes["CFBStream"]["properties"]]
+        assert "items" in props
+
+    def test_frozen_dataclass_fields_extracted(self):
+        classes = self._extract()
+        props = [p["name"] for p in classes["CFBStream"]["properties"]]
+        assert "name" in props
+        assert "data" in props
+
+    def test_existing_property_decorator_still_works(self):
+        """Regression guard: @property extraction must not be broken by the new code."""
+        classes = self._extract()
+        props = [p["name"] for p in classes["WithProperty"]["properties"]]
+        assert "size" in props
