@@ -742,6 +742,7 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | link-validate | S-65 | Validate cross-subdomain internal links in content files; report BROKEN links where the target slug does not exist locally |
 | register-human-content | S-66 | Onboard a human-authored page into quality and provenance systems (sets auto_updatable: false, attaches evidence, assigns grade baseline) |
 | diagnose-skill-failure | S-67 | Governed diagnostic procedure when a skill or pipeline script fails; classifies failure as CONFIG/DATA/CODE/GOVERNANCE and produces a breakage report |
+| update-registry | S-68 | Scan all 26 aspose-{family}-foss GitHub orgs, discover FOSS repos, and write data/products.json (supports --dry-run, --local-only, --force) |
 
 ### Enforcement scripts
 
