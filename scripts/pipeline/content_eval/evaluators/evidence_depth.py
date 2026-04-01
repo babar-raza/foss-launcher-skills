@@ -6,25 +6,28 @@ import json
 from pathlib import Path
 from typing import Any
 
+from ..config import PLATFORM_EXPECTED_LANGS
 from ..models import Finding, Page
 from . import BaseEvaluator
 
 KNOWLEDGE_ROOT = Path("knowledge")
 
-# Language tags that are definitively non-API: plain text, shell commands, file
-# paths, output, config, or legal text.  Fenced blocks with these tags contain
-# no extractable API tokens, so attach_evidence.py correctly skips them.
-# They must NOT count toward the "code blocks need evidence" threshold.
-_NON_API_LANGS: frozenset[str] = frozenset({
-    "text", "txt", "plain", "plaintext",
-    "bash", "sh", "shell", "console", "terminal", "cmd",
-    "powershell", "ps1", "zsh", "fish",
-    "output", "log",
-    "json", "yaml", "yml", "toml", "xml", "html", "css",
-    "markdown", "md",
-    "ini", "cfg", "conf",
-    "diff", "patch",
-})
+
+def _api_eligible_blocks(blocks: list, platform: str) -> list:
+    """Return blocks whose language tag is a known API-bearing language for this platform.
+
+    Uses PLATFORM_EXPECTED_LANGS as the single source of truth.  Only blocks
+    explicitly recognised as the platform's API language(s) are counted.
+    Blocks tagged as bash, text, output, json, config, untagged, or any other
+    non-API language are excluded by default — they contain no extractable API
+    tokens and attach_evidence.py correctly skips them.
+
+    If *platform* is unknown (not in PLATFORM_EXPECTED_LANGS) the function
+    returns an empty list, which is the conservative safe default: no false
+    positives for platforms we don't yet recognise.
+    """
+    eligible_langs = PLATFORM_EXPECTED_LANGS.get(platform, set())
+    return [cb for cb in blocks if cb.lang.lower() in eligible_langs]
 
 
 class EvidenceDepthEvaluator(BaseEvaluator):
@@ -46,7 +49,7 @@ class EvidenceDepthEvaluator(BaseEvaluator):
         evidence = fm.get("evidence", {})
 
         if not evidence:
-            if page.code_blocks or len(page.prose_lines) > 10:
+            if _api_eligible_blocks(page.code_blocks, page.platform) or len(page.prose_lines) > 10:
                 findings.append(Finding(
                     level="WARN",
                     category="EG",
@@ -65,17 +68,14 @@ class EvidenceDepthEvaluator(BaseEvaluator):
         # Count factual prose lines (lines with backtick-wrapped identifiers)
         factual_lines = sum(1 for _, text in page.prose_lines if "`" in text)
 
-        # Only count blocks in languages that could contain API calls.
-        # Non-API blocks (text, bash, output, config, legal text, etc.) are
-        # excluded because attach_evidence.py correctly skips them — they have
-        # no extractable API tokens and will never produce evidence.apis entries.
-        api_eligible_blocks = [
-            cb for cb in page.code_blocks
-            if cb.lang.lower() not in _NON_API_LANGS
-        ]
-        code_block_count = len(api_eligible_blocks)
+        # Only count blocks in the platform's expected API-bearing languages.
+        # PLATFORM_EXPECTED_LANGS is the single source of truth: bash, text,
+        # output, config, untagged, and any other non-API language are excluded
+        # because attach_evidence.py correctly skips them.
+        eligible = _api_eligible_blocks(page.code_blocks, page.platform)
+        code_block_count = len(eligible)
 
-        # Warn if many API-eligible code blocks but no evidence APIs
+        # Warn if API-language code blocks are present but no evidence APIs cited
         if code_block_count >= 2 and len(apis) == 0:
             findings.append(Finding(
                 level="WARN",
@@ -226,8 +226,9 @@ class EvidenceDepthEvaluator(BaseEvaluator):
                 section_end = float("inf")
 
             # Check if any API-eligible code block starts within this section
+            eligible_langs = PLATFORM_EXPECTED_LANGS.get(page.platform, set())
             for cb in page.code_blocks:
-                if h_line < cb.start_line < section_end and cb.lang.lower() not in _NON_API_LANGS:
+                if h_line < cb.start_line < section_end and cb.lang.lower() in eligible_langs:
                     result.add(h_line)
                     break
 

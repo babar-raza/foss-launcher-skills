@@ -582,6 +582,174 @@ class TestEvidenceDepth:
         )
         assert "2 API-eligible code blocks" in warn_findings[0].message
 
+    def test_untagged_blocks_do_not_trigger_evidence_warn(self):
+        """Untagged (empty-lang) blocks must not trigger evidence_depth WARN.
+
+        Pages with untagged output/shell/prose blocks have no API tokens.
+        attach_evidence.py tokenizes them but finds nothing to attach.
+        The evaluator must not count them as API-eligible.
+
+        Empty string is NOT in PLATFORM_EXPECTED_LANGS for any platform,
+        so the allowlist correctly excludes these blocks.
+        """
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Quick Start Output
+            evidence:
+              model_sha: abc123
+              claims: []
+              apis: []
+            ---
+            ## Expected output
+
+            After running the script you will see:
+
+            ```
+            Scene loaded. Node hierarchy:
+             [(no entity)]
+              Cube [Mesh]
+            ```
+
+            ## Second run
+
+            ```
+            rootNode name:
+            total nodes: 3
+            ```
+        """), "content/docs.aspose.org/en/3d/typescript/getting-started/output.md")
+        findings = self.evaluator.evaluate(page, None)
+        warn = [f for f in findings if f.level == "WARN" and "evidence APIs" in f.message]
+        assert warn == [], (
+            f"Untagged output blocks should not trigger evidence_depth WARN; got: {warn}"
+        )
+
+    def test_sql_blocks_on_ts_page_do_not_trigger_evidence_warn(self):
+        """SQL blocks on a TypeScript page must not trigger evidence_depth WARN.
+
+        SQL is not in PLATFORM_EXPECTED_LANGS['typescript'], so 2 SQL blocks
+        on a TypeScript page must not be treated as API-eligible TypeScript code.
+        This would have falsely triggered under the old denylist if sql were
+        accidentally omitted from it.
+        """
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Database Example
+            evidence:
+              model_sha: abc123
+              claims: []
+              apis: []
+            ---
+            ## Schema
+
+            ```sql
+            CREATE TABLE scenes (id INTEGER PRIMARY KEY, name TEXT);
+            ```
+
+            ## Query
+
+            ```sql
+            SELECT * FROM scenes WHERE name = 'demo';
+            ```
+        """), "content/docs.aspose.org/en/3d/typescript/developer-guide/db.md")
+        findings = self.evaluator.evaluate(page, None)
+        warn = [f for f in findings if f.level == "WARN" and "evidence APIs" in f.message]
+        assert warn == [], (
+            f"SQL blocks on TypeScript page should not trigger evidence_depth WARN; got: {warn}"
+        )
+
+    def test_api_block_count_not_inflated_by_untagged_blocks(self):
+        """API-eligible block count in WARN message must not include untagged blocks.
+
+        A page with 2 TypeScript blocks + 2 untagged output blocks should report
+        count=2 in the WARN message, not count=4.  Inflated counts were a symptom
+        of the denylist not excluding empty-string tags.
+        """
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Quick Start
+            evidence:
+              model_sha: abc123
+              claims: []
+              apis: []
+            ---
+            ## Load
+
+            ```typescript
+            import { Scene } from "@aspose/3d";
+            const scene = new Scene();
+            ```
+
+            ## Expected output
+
+            ```
+            Scene loaded.
+            ```
+
+            ## Save
+
+            ```typescript
+            await scene.save("output.fbx");
+            ```
+
+            ## Second output
+
+            ```
+            File saved successfully.
+            ```
+        """), "content/docs.aspose.org/en/3d/typescript/developer-guide/quickstart.md")
+        findings = self.evaluator.evaluate(page, None)
+        warn = [f for f in findings if f.level == "WARN" and "evidence APIs" in f.message]
+        assert len(warn) == 1
+        # Count in message must be 2 (TypeScript blocks only), not 4 (all blocks)
+        assert "2 API-eligible code blocks" in warn[0].message, (
+            f"Expected count=2 in message but got: {warn[0].message}"
+        )
+
+    def test_platform_purity_and_evidence_depth_agree_on_non_api_block(self):
+        """Cross-evaluator consistency: both evaluators must skip the same non-API blocks.
+
+        For any block that platform_purity skips (not a recognised API language),
+        evidence_depth must also not count it as API-eligible.  This test verifies
+        that bash blocks are skipped by both evaluators on a TypeScript page.
+        """
+        from content_eval.evaluators.platform_purity import PlatformPurityEvaluator
+        pp = PlatformPurityEvaluator()
+
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Install
+            evidence:
+              model_sha: abc123
+              claims: []
+              apis: []
+            ---
+            ## Step 1
+
+            ```bash
+            npm install @aspose/3d
+            ```
+
+            ## Step 2
+
+            ```bash
+            npx tsc
+            ```
+        """), "content/docs.aspose.org/en/3d/typescript/getting-started/install.md")
+
+        # evidence_depth must not warn
+        ed_warn = [
+            f for f in self.evaluator.evaluate(page, None)
+            if f.level == "WARN" and "evidence APIs" in f.message
+        ]
+        assert ed_warn == [], f"evidence_depth should skip bash blocks; got: {ed_warn}"
+
+        # platform_purity must not flag bash blocks as wrong-language
+        pp_fail = [
+            f for f in pp.evaluate(page, None)
+            if f.level == "FAIL" and "tagged as" in f.message
+        ]
+        assert pp_fail == [], f"platform_purity should skip bash blocks; got: {pp_fail}"
+
     def test_grade_mapping_zero_fail_one_warn_is_A(self):
         """Regression: 0 FAIL + 1 WARN must map to grade A, not B.
 
