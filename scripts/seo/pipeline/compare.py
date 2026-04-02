@@ -57,18 +57,7 @@ log = logging.getLogger("compare")
 # Constants
 # ---------------------------------------------------------------------------
 
-# Canonical output directory (falls back to artifact location)
-_CANONICAL_REPORTS_DIR = _REPO_ROOT / "reports" / "seo"
-_ARTIFACT_REPORTS_DIR = _REPO_ROOT / "reports" / "reports" / "seo"
-
-def _resolve_reports_dir() -> Path:
-    if (_CANONICAL_REPORTS_DIR / "opportunities.json").exists():
-        return _CANONICAL_REPORTS_DIR
-    if (_ARTIFACT_REPORTS_DIR / "opportunities.json").exists():
-        return _ARTIFACT_REPORTS_DIR
-    return _CANONICAL_REPORTS_DIR
-
-REPORTS_DIR = _resolve_reports_dir()
+REPORTS_DIR = _REPO_ROOT / "reports" / "seo"
 
 # Opportunity level ordering for IMPROVED / REGRESSED classification
 _LEVEL_ORDER = {"HIGH": 3, "MEDIUM": 2, "LOW": 1, "SKIP": 0}

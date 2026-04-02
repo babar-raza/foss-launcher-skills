@@ -36,6 +36,11 @@ CONTENT_ROOT = Path("content")
 AUDIT_REPORTS_DIR = Path("reports") / "audit"
 CONTENT_EVAL_REPORTS_DIR = Path("reports") / "content_eval"
 REMEDIATION_REPORTS_DIR = Path("reports") / "remediation"
+SEO_REPORTS_DIR = Path("reports") / "seo"
+KILOCODE_REPORTS_DIR = Path("reports") / "kilocode"
+PLANS_REPORTS_DIR = Path("reports") / "plans"
+PATCHES_DIR = Path("patches")
+LLMS_OUTPUT_DIR = Path("llms-output")
 
 
 # ---------------------------------------------------------------------------

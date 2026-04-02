@@ -58,23 +58,7 @@ log = logging.getLogger("report")
 # Constants
 # ---------------------------------------------------------------------------
 
-# Prefer the canonical output directory; fall back to the workflow-artifact
-# location (reports/reports/seo/) if the canonical path has no inputs yet.
-_CANONICAL_REPORTS_DIR = _REPO_ROOT / "reports" / "seo"
-_ARTIFACT_REPORTS_DIR = _REPO_ROOT / "reports" / "reports" / "seo"
-
-def _resolve_reports_dir() -> Path:
-    """Return the reports dir that actually contains pipeline outputs."""
-    # If canonical dir has opportunities.json already, use it (fresh local run).
-    if (_CANONICAL_REPORTS_DIR / "opportunities.json").exists():
-        return _CANONICAL_REPORTS_DIR
-    # Fall back to the workflow-artifact location committed to the repo.
-    if (_ARTIFACT_REPORTS_DIR / "opportunities.json").exists():
-        return _ARTIFACT_REPORTS_DIR
-    # Default to canonical (will be created on first run).
-    return _CANONICAL_REPORTS_DIR
-
-REPORTS_DIR = _resolve_reports_dir()
+REPORTS_DIR = _REPO_ROOT / "reports" / "seo"
 PATCHES_DIR = _REPO_ROOT / "patches" / "seo"
 PER_PAGE_DIR = REPORTS_DIR / "per_page"
 
