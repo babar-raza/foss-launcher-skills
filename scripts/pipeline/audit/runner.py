@@ -142,6 +142,7 @@ def main():
     json_mode = "--json" in args
     fail_fast = "--fail-fast" in args
     files_mode = "--files" in args
+    files_from_mode = "--files-from" in args
     check_evidence = "--no-evidence" not in args
     check_snippets = "--check-snippets" in args
 
@@ -149,7 +150,19 @@ def main():
 
     products_summary = None  # populated in "all" batch mode only; used for quality trend
 
-    if files_mode:
+    if files_from_mode:
+        # Read file paths from a text file (one path per line); handles large file lists
+        # that would exceed the OS argument-list limit if passed as CLI args.
+        if not args:
+            _log("ERROR: --files-from requires a file path argument")
+            sys.exit(1)
+        from pathlib import Path as _Path
+        file_list = _Path(args[0]).read_text(encoding="utf-8").splitlines()
+        file_list = [p for p in file_list if p.strip()]
+        findings = audit_files(file_list, check_evidence=check_evidence,
+                               check_snippets=check_snippets)
+        products_checked = ["(file mode)"]
+    elif files_mode:
         findings = audit_files(args, check_evidence=check_evidence,
                                check_snippets=check_snippets)
         products_checked = ["(file mode)"]

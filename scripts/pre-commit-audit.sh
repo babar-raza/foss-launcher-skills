@@ -49,8 +49,12 @@ mapfile -t changed < <(
 [ ${#changed[@]} -eq 0 ] && exit 0
 
 echo "Running content API audit on staged files (${#changed[@]} English pages)..."
-python scripts/pipeline/audit.py --files "${changed[@]}" --fail-fast
+# Use --files-from to avoid OS argument-list-too-long errors on large commits.
+_tmpfile=$(mktemp /tmp/audit-files-XXXXXX.txt 2>/dev/null || mktemp)
+printf '%s\n' "${changed[@]}" > "$_tmpfile"
+python scripts/pipeline/audit.py --files-from "$_tmpfile" --fail-fast
 status=$?
+rm -f "$_tmpfile"
 
 if [ $status -ne 0 ]; then
     echo ""
