@@ -1,0 +1,225 @@
+schema_version: 1
+
+# Single authoritative source of truth for all skill IDs, names, and script bindings.
+# Checked by: python scripts/validate_skills.py
+# Rules enforced:
+#   - IDs must be unique across all entries
+#   - Every skills/{name}.md must have a matching entry here
+#   - Every .claude/commands/{name}.md must be byte-identical to skills/{name}.md
+#   - Non-null script paths must exist on disk (relative to repo root)
+#
+# ID assignment notes:
+#   S-38 collision resolved: launch-product keeps S-38; truth-audit renumbered to S-47
+#   S-42 collision resolved: category-fix keeps S-42; evidence-verify renumbered to S-46
+#   S-40/S-41/S-42 frontmatter was missing id: field — authoritative IDs are here
+
+skills:
+  - id: S-01
+    name: path-guard
+    description: Enforce allowed write paths
+    script: scripts/path_guard.py
+
+  - id: S-10
+    name: project-phase-store
+    description: Record page creation intent as a YAML plan file
+    script: null
+
+  - id: S-12
+    name: knowledge-diff
+    description: Detect upstream repo changes since last knowledge extraction
+    script: null
+
+  - id: S-13
+    name: stale-detect
+    description: Identify content pages affected by upstream changes
+    script: null
+
+  - id: S-14
+    name: knowledge-update
+    description: Refresh knowledge model from source repo
+    script: scripts/pipeline/refresh_knowledge.py
+
+  - id: S-15
+    name: embed-knowledge
+    description: Generate vector embeddings for knowledge retrieval
+    script: scripts/embed.py
+
+  - id: S-17
+    name: rubric-align
+    description: Align content to quality rubric and identify gaps
+    script: null
+
+  - id: S-18
+    name: page-plan
+    description: Plan page structure before drafting
+    script: null
+
+  - id: S-19
+    name: page-draft
+    description: Draft initial page content from knowledge model
+    script: null
+
+  - id: S-20
+    name: page-update
+    description: Update page after knowledge model change
+    script: null
+
+  - id: S-21
+    name: page-enhance
+    description: Enhance page quality to meet rubric bar
+    script: null
+
+  - id: S-22
+    name: faq-generate
+    description: Generate FAQ section from knowledge model
+    script: null
+
+  - id: S-23
+    name: ground-check
+    description: Pre-write evidence verification gate
+    script: scripts/pipeline/audit.py
+
+  - id: S-24
+    name: evidence-cite
+    description: Attach evidence citations to content frontmatter
+    script: scripts/pipeline/attach_evidence.py
+
+  - id: S-25
+    name: eval-page
+    description: Evaluate page quality and assign A-F grade
+    script: scripts/pipeline/content_eval/__main__.py
+
+  - id: S-26
+    name: heal-page
+    description: Fix low-quality page to reach passing grade
+    script: null
+
+  - id: S-30
+    name: truth-sync
+    description: Import external FOSS-Launcher knowledge into fl/
+    script: null
+
+  - id: S-31
+    name: truth-index
+    description: Generate knowledge index from merged artifacts
+    script: scripts/index.py
+
+  - id: S-32
+    name: content-audit
+    description: Semantic knowledge verification of content pages
+    script: scripts/pipeline/content_audit.py
+
+  - id: S-33
+    name: change-guard
+    description: Pre-write knowledge gate for single text blocks
+    script: scripts/pipeline/change_guard.py
+
+  - id: S-34
+    name: repo-scout
+    description: Extract API truth from FOSS repository
+    script: scripts/scout.py
+
+  - id: S-35
+    name: truth-merge
+    description: Merge scout and external knowledge sources
+    script: scripts/merge.py
+
+  - id: S-36
+    name: cross-platform
+    description: Family-wide consistency check across platforms
+    script: null
+
+  - id: S-37
+    name: corpus-scan
+    description: Build golden corpus profile for a site type
+    script: scripts/corpus_scan.py
+
+  - id: S-38
+    name: launch-product
+    description: Orchestrate full FOSS product launch end-to-end
+    script: null
+
+  - id: S-39
+    name: discover-products
+    description: Scan GitHub org to discover FOSS product repos
+    script: scripts/discover.py
+
+  - id: S-40
+    name: batch-remediate
+    description: Full eval-to-fix-to-LLM-to-re-eval remediation pipeline
+    script: scripts/pipeline/remediate.py
+
+  - id: S-41
+    name: batch-eval-fix
+    description: Quick eval plus deterministic auto-fix only (no LLM)
+    script: scripts/pipeline/remediate.py
+
+  - id: S-42
+    name: category-fix
+    description: Run specific fixer on targeted files by category
+    script: scripts/pipeline/remediate.py
+
+  - id: S-43
+    name: evidence-decide
+    description: Determine per-page content action from evidence
+    script: scripts/decide.py
+
+  - id: S-44
+    name: evidence-materialize
+    description: Build canonical Product Evidence File from merged knowledge
+    script: scripts/materialize.py
+
+  - id: S-45
+    name: mental-model
+    description: Build product mental model and capability tiers from PEF
+    script: scripts/mental_model.py
+
+  - id: S-46
+    name: evidence-verify
+    description: Deterministic content verification against PEF
+    script: scripts/verify.py
+
+  - id: S-47
+    name: truth-audit
+    description: Member-level API verification against knowledge surface
+    script: null
+
+  - id: S-48
+    name: content-eval
+    description: Multi-dimensional content evaluation against repo truth
+    script: scripts/pipeline/content_eval/__main__.py
+
+  - id: S-49
+    name: knowledge-bootstrap
+    description: Shared pre-condition gate for knowledge state detection
+    script: null
+
+  - id: S-50
+    name: content-check
+    description: Structural and quality check on a content file pre-commit
+    script: null
+
+  - id: S-51
+    name: new-docs-page
+    description: Generate a new documentation page for docs.aspose.org
+    script: null
+
+  - id: S-52
+    name: new-blog-post
+    description: Generate a new blog post for blog.aspose.org
+    script: null
+
+  - id: S-53
+    name: new-kb-howto
+    description: Generate a new KB how-to article for kb.aspose.org
+    script: null
+
+  - id: S-54
+    name: new-kb-faq
+    description: Generate or update the FAQ page for a product platform
+    script: null
+
+  - id: S-55
+    name: new-reference-page
+    description: Generate a new API reference page for reference.aspose.org
+    script: null
