@@ -10,7 +10,7 @@ Usage:
     python scripts/audit.py all                        # All products
     python scripts/audit.py --files path1.md path2.md  # Specific files
     python scripts/audit.py all --json                 # Machine-readable
-    python scripts/audit.py all --no-evidence          # Skip evidence checks
+    python scripts/audit.py all --check-snippets       # + advisory snippet coverage
 """
 import json
 import re
@@ -33,6 +33,7 @@ import sys as _sys
 if str(_SCRIPTS) not in _sys.path:
     _sys.path.insert(0, str(_SCRIPTS))
 from config_loader import (                       # noqa: E402
+    ConfigError as _ConfigError,
     resolve_content_repo as _resolve_content_repo,
     resolve_reports_root as _resolve_reports_root,
     resolve_knowledge_root as _resolve_knowledge_root,
@@ -67,7 +68,10 @@ def _log(*args, **kwargs):
     """Print to stderr so stdout stays clean for --json."""
     print(*args, file=sys.stderr, **kwargs)
 
-CONTENT_ROOT = _resolve_content_repo() / "content"
+try:
+    CONTENT_ROOT = _resolve_content_repo() / "content"
+except _ConfigError:
+    CONTENT_ROOT = None  # content repo not configured; CLI will error if path needed
 REPORTS_DIR = _resolve_reports_root() / "audit"
 QUALITY_TREND_MAX_ENTRIES = 180
 
@@ -406,8 +410,11 @@ def _check_code_block_snippets(code_text, line_no, filepath, knowledge,
     ))
 
 
-def audit_product(family, platform, check_evidence=True, check_snippets=False):
-    """Audit a single product. Returns list of findings."""
+def audit_product(family, platform, check_snippets=False):
+    """Audit a single product. Returns list of findings.
+
+    Evidence checking (evidence: frontmatter block) is always enabled.
+    """
     knowledge = Knowledge(family, platform)
     if not knowledge.available:
         _log(f"  SKIP {family}/{platform}: no knowledge model")
@@ -425,9 +432,9 @@ def audit_product(family, platform, check_evidence=True, check_snippets=False):
         tokens = extract_tokens(f, platform)
         file_findings = verify_tokens(tokens, knowledge, f)
         findings.extend(file_findings)
-        if check_evidence:
-            fm = parse_frontmatter(f)
-            findings.extend(verify_evidence(fm, knowledge, f))
+        fm = parse_frontmatter(f)
+        ev_findings = verify_evidence(fm, knowledge, f)
+        findings.extend(ev_findings)
         findings.extend(verify_internal_links(f))
         if check_snippets:
             findings.extend(verify_snippet_coverage(f, knowledge))
@@ -439,8 +446,11 @@ def audit_product(family, platform, check_evidence=True, check_snippets=False):
     return findings
 
 
-def audit_files(file_paths, check_evidence=True, check_snippets=False):
-    """Audit specific files, inferring product from path."""
+def audit_files(file_paths, check_snippets=False):
+    """Audit specific files, inferring product from path.
+
+    Evidence checking (evidence: frontmatter block) is always enabled.
+    """
     findings = []
     knowledge_cache = {}
 
@@ -467,9 +477,10 @@ def audit_files(file_paths, check_evidence=True, check_snippets=False):
         tokens = extract_tokens(fp, platform)
         file_findings = verify_tokens(tokens, knowledge, fp)
         findings.extend(file_findings)
-        if check_evidence:
-            fm = parse_frontmatter(fp)
-            findings.extend(verify_evidence(fm, knowledge, fp))
+        fm = parse_frontmatter(fp)
+        ev_findings = verify_evidence(fm, knowledge, fp)
+        file_findings.extend(ev_findings)
+        findings.extend(ev_findings)
         link_findings = verify_internal_links(fp)
         file_findings.extend(link_findings)
         findings.extend(link_findings)
@@ -490,7 +501,6 @@ def main():
     json_mode = "--json" in args
     fail_fast = "--fail-fast" in args
     files_mode = "--files" in args
-    check_evidence = "--no-evidence" not in args
     check_snippets = "--check-snippets" in args
 
     args = [a for a in args if not a.startswith("--")]
@@ -498,14 +508,12 @@ def main():
     products_summary = None  # populated in "all" batch mode only; used for quality trend
 
     if files_mode:
-        findings = audit_files(args, check_evidence=check_evidence,
-                               check_snippets=check_snippets)
+        findings = audit_files(args, check_snippets=check_snippets)
         products_checked = ["(file mode)"]
     elif len(args) >= 2:
         family, platform = args[0], args[1]
         _log(f"Auditing {family}/{platform}...")
-        findings = audit_product(family, platform, check_evidence=check_evidence,
-                                 check_snippets=check_snippets)
+        findings = audit_product(family, platform, check_snippets=check_snippets)
         products_checked = [f"{family}/{platform}"]
     elif len(args) == 1 and args[0] == "all":
         products = discover_products()
@@ -514,8 +522,7 @@ def main():
         products_checked = []
         products_summary = []  # per-product stats for quality_trend
         for family, platform in products:
-            product_findings = audit_product(family, platform, check_evidence=check_evidence,
-                                             check_snippets=check_snippets)
+            product_findings = audit_product(family, platform, check_snippets=check_snippets)
             findings.extend(product_findings)
             products_checked.append(f"{family}/{platform}")
             # Collect per-product warn breakdown for trend tracking
