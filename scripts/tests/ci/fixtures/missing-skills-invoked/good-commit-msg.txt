@@ -1,0 +1,8 @@
+feat(content): update slides python developer guide
+
+Updated installation instructions and code examples.
+Verified with audit.py: 0 FAIL.
+
+Skills invoked: [S-19, S-23, S-01]
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
