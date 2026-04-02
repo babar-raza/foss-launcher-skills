@@ -2,7 +2,7 @@
 name: translate-batch
 description: >
   Translate all English content pages for a product family and platform
-args: "{family} {platform} [locales]"
+argument-hint: "{family} {platform} [locales]"
 ---
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
@@ -18,7 +18,10 @@ Omit `{site}` or use `all` to process all supported sites. Omit `{locales}` or u
 
 ## Pre-conditions
 
-1. `LLM_API_KEY` environment variable must be set (or `--offline` flag used with M2M100 installed).
+1. At least one translation backend must be available. Run `python -m translator preflight` to check.
+   - **llm.professionalize.com**: requires `LLM_API_KEY` to be set.
+   - **Ollama**: requires Ollama running locally with a suitable model installed.
+   - **M2M100 offline**: requires `pip install transformers torch` and the model downloaded (~2 GB).
 2. English source files must exist under `content/{site}/en/{family}/{platform}/`.
 3. The knowledge model for the family/platform should be current. If `knowledge/{family}/{platform}/merged/index.json` shows `stale: true`, run `/stale-detect` first.
 
@@ -36,35 +39,50 @@ Omit `{site}` or use `all` to process all supported sites. Omit `{locales}` or u
    - Print: `Scope: {file_count} files x {locale_count} locales = {total} translation jobs`
    - If total exceeds 500, warn the user and ask for confirmation before proceeding.
 
-3. **Run the batch translator**:
+3. **Run preflight** (mandatory before translation):
    ```bash
-   python -m translator batch --family {family} --platform {platform} --site {site} --locales {locales}
+   python -m translator preflight [--provider {auto,llm,ollama,m2m}]
    ```
-   Add `--dry-run` to validate without writing output.
-   Add `--force` to re-translate files whose translated copies are already up to date.
-   Add `--offline` to use the M2M100 local backend.
+   Review the preflight report. Confirm that:
+   - A valid backend is selected (no `ERROR` lines in output).
+   - The selected model is a non-thinking translation-suitable model.
+   - Any `WARNING` lines are understood and acceptable.
+   If preflight fails, resolve the issue before proceeding.
 
-4. **Monitor progress**: The translator prints progress every 10 jobs and a final summary line:
+4. **Run the batch translator**:
+   ```bash
+   python -m translator batch --family {family} --platform {platform} --site {site} --locales {locales} [--provider {auto,llm,ollama,m2m}]
+   ```
+   - `--provider auto` (default): system selects best available backend automatically.
+   - `--provider llm`: force llm.professionalize.com.
+   - `--provider ollama`: force local Ollama.
+   - `--provider m2m`: force offline M2M100 backend.
+   - `--dry-run`: validate without writing output.
+   - `--force`: re-translate files whose translated copies are already up to date.
+   - `--offline`: alias for `--provider m2m` (backward compat).
+
+5. **Monitor progress**: The translator prints progress every 10 jobs and a final summary line:
    ```
    Batch complete: N ok, N skipped, N failed
    ```
 
-5. **On completion**, run cache-stats to confirm cache utilisation:
+6. **On completion**, run cache-stats to confirm cache utilisation:
    ```bash
    python -m translator cache-stats
    ```
    Print the cache statistics.
 
-6. **Spot-check translated output**: For a representative sample (up to 3 files), run `/content-check` on the translated output:
+7. **Spot-check translated output**: For a representative sample (up to 3 files), run `/content-check` on the translated output:
    ```
    /content-check content/{site}/{lang}/{family}/{platform}/{filename}
    ```
    Report any FAIL results.
 
-7. **Report results** in this format:
+8. **Report results** in this format:
    ```
    TRANSLATE BATCH — {family}/{platform}
    Site(s): {site}   Locales: {locales}
+   Backend used: {backend} ({model})
    Source files found: N
    Total jobs: N
 
@@ -90,6 +108,7 @@ Omit `{site}` or use `all` to process all supported sites. Omit `{locales}` or u
 
 ## Acceptance Criteria
 
+- [ ] Preflight completed without errors before translation started.
 - [ ] Translator CLI exits 0 (or only with expected validation failures reported).
 - [ ] All `[OK]` locales have files on disk at the correct paths.
 - [ ] No `[FAIL]` entries in the batch output.
