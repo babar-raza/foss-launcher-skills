@@ -974,3 +974,23 @@ class TestClaimIndexCache:
         assert len(_CLAIM_INDEX_CACHE) == 1
         clear_claim_cache()
         assert len(_CLAIM_INDEX_CACHE) == 0
+
+
+# ---------------------------------------------------------------------------
+# EVALUATOR_LOGIC_VERSION invariant
+# ---------------------------------------------------------------------------
+
+class TestEvaluatorLogicVersion:
+    def test_evaluator_logic_version_is_nonempty(self):
+        """EVALUATOR_LOGIC_VERSION must be a non-empty string.
+
+        An empty or missing value would cause --skip-graded to never skip any
+        pages (stored["logic_version"] == "" always matches "" == ""), defeating
+        the staleness detection mechanism entirely.
+        """
+        from content_eval import EVALUATOR_LOGIC_VERSION
+        assert EVALUATOR_LOGIC_VERSION, (
+            "EVALUATOR_LOGIC_VERSION must be a non-empty string; got: "
+            f"{EVALUATOR_LOGIC_VERSION!r}"
+        )
+

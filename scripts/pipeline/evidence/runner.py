@@ -92,11 +92,12 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False) -> str:
     if ok:
         # Auto-grade: pages reaching here have 0 FAILs (line 58 returns on FAILs).
         from content_eval.models import compute_grade  # noqa: E402
+        from content_eval import EVALUATOR_LOGIC_VERSION  # noqa: E402
         from grade_writer import write_grade  # noqa: E402
         warn_count = sum(1 for f in findings if f.level == "WARN")
         grade = compute_grade(0, warn_count)
         write_grade(filepath, grade, model_sha=knowledge.repo_sha,
-                    evaluator_tier="audit")
+                    evaluator_tier="audit", logic_version=EVALUATOR_LOGIC_VERSION)
     return "UPDATED" if ok else "ERROR"
 
 

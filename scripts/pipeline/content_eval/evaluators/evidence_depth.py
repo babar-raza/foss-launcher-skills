@@ -27,6 +27,12 @@ def _api_eligible_blocks(blocks: list, platform: str) -> list:
     positives for platforms we don't yet recognise.
     """
     eligible_langs = PLATFORM_EXPECTED_LANGS.get(platform, set())
+    # NOTE: "" (untagged blocks) is intentionally excluded here even though
+    # token_ops._is_target_lang includes "" for all platforms.  The two functions
+    # serve different concerns: token_ops is a conservative *extractor* that must
+    # not silently drop real API code from untagged blocks; this function is an
+    # *evaluator* guard that must not emit false-positive WARNs for untagged
+    # output/prose blocks.  The net behaviour is correct in both directions.
     return [cb for cb in blocks if cb.lang.lower() in eligible_langs]
 
 

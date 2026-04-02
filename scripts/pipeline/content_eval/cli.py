@@ -8,7 +8,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import __version__
+from . import EVALUATOR_LOGIC_VERSION, __version__
 from .config import ALL_EVALUATORS, DEFAULT_EVALUATORS
 from .models import EvalReport, Finding, compute_grade_with_criticality
 
@@ -127,8 +127,11 @@ def _run_evaluate(args):
                     knowledge_cache[key] = None
             k = knowledge_cache[key]
             stored = _read_grade(page.filepath)
-            if stored and stored["tier"] == "full" and k and hasattr(k, "repo_sha") and stored["model_sha"] == k.repo_sha:
-                continue  # Already graded with current knowledge, full evaluators
+            if (stored and stored["tier"] == "full"
+                    and k and hasattr(k, "repo_sha")
+                    and stored["model_sha"] == k.repo_sha
+                    and stored.get("logic_version", "") == EVALUATOR_LOGIC_VERSION):
+                continue  # Already graded with current knowledge, full evaluators, current logic
             filtered.append(page)
         skipped = len(pages) - len(filtered)
         if skipped:
@@ -222,7 +225,8 @@ def _run_evaluate(args):
             k = knowledge_cache.get((page.family, page.platform))
             model_sha = k.repo_sha if k and hasattr(k, "repo_sha") else ""
             tier = "full" if k and getattr(k, "available", False) else "structural"
-            _write_grade(fp, grade, model_sha=model_sha, evaluator_tier=tier)
+            _write_grade(fp, grade, model_sha=model_sha, evaluator_tier=tier,
+                         logic_version=EVALUATOR_LOGIC_VERSION)
             grade_counts[grade] = grade_counts.get(grade, 0) + 1
 
         _log(f"  Grades written: {grade_counts}")

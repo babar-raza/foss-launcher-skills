@@ -424,3 +424,70 @@ class TestReadGrade:
             assert result["tier"] == "structural"
         finally:
             p.unlink(missing_ok=True)
+
+    def test_read_grade_reads_logic_version(self):
+        """graded_logic_version present in frontmatter is returned by read_grade."""
+        p = _tmp_file(textwrap.dedent("""\
+            ---
+            title: T
+            grade: A
+            graded_at: "2026-04-01T00:00:00Z"
+            graded_model_sha: sha1
+            graded_evaluators: full
+            graded_logic_version: 1
+            ---
+
+            Body.
+        """))
+        try:
+            result = read_grade(p)
+            assert result is not None
+            assert result["logic_version"] == "1"
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_read_grade_missing_logic_version_returns_empty(self):
+        """Pages without graded_logic_version return empty string for logic_version."""
+        p = _tmp_file(textwrap.dedent("""\
+            ---
+            title: T
+            grade: B
+            graded_model_sha: sha1
+            graded_evaluators: full
+            ---
+
+            Body.
+        """))
+        try:
+            result = read_grade(p)
+            assert result is not None
+            assert result["logic_version"] == ""
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_write_grade_writes_logic_version(self):
+        """write_grade with logic_version writes graded_logic_version to frontmatter."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            ok = write_grade(p, "A", model_sha="sha1", evaluator_tier="full",
+                             logic_version="1")
+            assert ok
+            text = p.read_text(encoding="utf-8")
+            assert "graded_logic_version: 1" in text
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_write_grade_replaces_logic_version_on_rewrite(self):
+        """Double write with different logic_version replaces rather than duplicates."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            write_grade(p, "A", model_sha="sha1", evaluator_tier="full",
+                        logic_version="1")
+            write_grade(p, "B", model_sha="sha2", evaluator_tier="full",
+                        logic_version="2")
+            text = p.read_text(encoding="utf-8")
+            assert text.count("graded_logic_version") == 1
+            assert "graded_logic_version: 2" in text
+            assert "graded_logic_version: 1" not in text
+        finally:
+            p.unlink(missing_ok=True)

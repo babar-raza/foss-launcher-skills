@@ -422,6 +422,63 @@ The following always cause immediate halt (no agent override):
 4. S-15 (embed-knowledge) — sync vector store if used
 5. Commit: `knowledge/` changes + `content/` changes together
 
+## 9a. Evaluator Change Checklist
+
+Run this checklist whenever you modify logic in `scripts/pipeline/content_eval/evaluators/`
+in a way that changes which findings are emitted, their level (FAIL/WARN), or their
+category. Non-grade-affecting edits (comments, docstrings, test additions, non-finding
+refactors) do not require a bump.
+
+### When to bump `EVALUATOR_LOGIC_VERSION`
+
+Bump `EVALUATOR_LOGIC_VERSION` in `scripts/pipeline/content_eval/__init__.py` if:
+- A new FAIL or WARN finding is added to any evaluator
+- An existing FAIL or WARN condition is changed, removed, or reclassified
+- A threshold value (word count, percentage, pattern set) that gates a FAIL or WARN is changed
+- A new evaluator is added to `DEFAULT_EVALUATORS`
+
+Do NOT bump for:
+- Comment or docstring changes
+- Refactoring with identical output
+- Adding an INFO-level finding only
+- Adding a new evaluator to `ALL_EVALUATORS` but not `DEFAULT_EVALUATORS`
+
+### How to bump
+
+1. Increment the string in `content_eval/__init__.py`:
+   ```python
+   EVALUATOR_LOGIC_VERSION = "2"  # was "1"
+   ```
+2. Re-grade all pages to stamp the new version:
+   ```bash
+   cd scripts/pipeline
+   ../../.venv/Scripts/python -m content_eval evaluate all --write-grade
+   ```
+   Pages with a different (or missing) `graded_logic_version` will be re-evaluated
+   on the next `--skip-graded` run.
+
+### What `graded_logic_version` means
+
+`graded_logic_version` in page frontmatter records which version of the evaluator logic
+produced the stored grade. When `--skip-graded` is used, a page is only skipped when all
+three conditions are true:
+
+| Condition | Frontmatter field checked |
+|-----------|--------------------------|
+| Graded with the full default evaluator set | `graded_evaluators: full` |
+| Knowledge has not changed since grading | `graded_model_sha` matches current `repo_sha` |
+| Evaluator logic has not changed since grading | `graded_logic_version` matches `EVALUATOR_LOGIC_VERSION` |
+
+Re-grading a page that did not need it is always safe — results are idempotent.
+
+### Using `--skip-graded` safely
+
+`--skip-graded` speeds up incremental runs after minor content edits. After bumping
+`EVALUATOR_LOGIC_VERSION`, run a full sweep **without** `--skip-graded` first so all
+pages are re-graded and stamped with the new version before any skipping occurs.
+
+---
+
 ## 10. Evidence Proof in Commits
 
 Every commit touching `content/` MUST include in the commit message:

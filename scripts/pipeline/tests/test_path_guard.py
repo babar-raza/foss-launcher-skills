@@ -132,12 +132,16 @@ class TestDefaultDeny:
         "random/file.txt",
         "src/main.py",
         "static/images/logo.png",
-        "data/something.json",
     ])
     def test_unknown_paths_denied(self, path):
         decision, reason = check_path(path)
         assert decision == "DENY"
         assert "not in allowlist" in reason
+
+    def test_data_path_allowed(self):
+        """data/ is explicitly allowed for Hugo registry data written by update_product_registry.py."""
+        decision, _ = check_path("data/something.json")
+        assert decision == "ALLOW"
 
 
 # ---------------------------------------------------------------------------
