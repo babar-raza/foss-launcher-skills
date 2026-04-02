@@ -3,9 +3,18 @@
 Provides content repo path resolution used by all pipeline scripts.
 """
 import os
+import sys
 from pathlib import Path
 
 import yaml
+
+# Required top-level keys for a valid config.yaml.
+# Missing keys will raise ConfigError at load time.
+_REQUIRED_CONFIG_KEYS = {"sites", "knowledge_root", "reports_path"}
+
+
+class ConfigError(ValueError):
+    """Raised when configuration is missing or invalid."""
 
 
 def _find_config() -> Path:
@@ -18,12 +27,31 @@ def _find_config() -> Path:
 
 
 def load_config() -> dict:
-    """Load and return the parsed config.yaml."""
+    """Load and return the parsed config.yaml.
+
+    Raises ConfigError if the file is missing or lacks required keys.
+    """
     path = _find_config()
     if not path.is_file():
-        return {}
+        raise ConfigError(
+            "config.yaml not found. "
+            "Copy config.yaml.example to config.yaml and set content_repo."
+        )
     with open(path, encoding="utf-8") as f:
-        return yaml.safe_load(f) or {}
+        data = yaml.safe_load(f) or {}
+
+    missing = _REQUIRED_CONFIG_KEYS - set(data)
+    if missing:
+        raise ConfigError(
+            f"config.yaml is missing required keys: {sorted(missing)}. "
+            "Check config.yaml against config.yaml.example."
+        )
+    return data
+
+
+def _log_resolution(key: str, source: str, value: str) -> None:
+    """Print config resolution decision to stderr for operator visibility."""
+    print(f"[config] {key} resolved from {source}: {value}", file=sys.stderr)
 
 
 def resolve_content_repo() -> Path:
@@ -32,18 +60,36 @@ def resolve_content_repo() -> Path:
     Resolution order:
       1. $CONTENT_REPO_PATH environment variable
       2. content_repo field in config.yaml
-      3. Current working directory (fallback)
+
+    Raises ConfigError if neither is set or if the resolved path does not exist.
+    The CWD fallback has been intentionally removed: silent fallback to CWD caused
+    content to be written to the wrong location across reruns with no error.
     """
     env_path = os.environ.get("CONTENT_REPO_PATH")
-    if env_path and Path(env_path).is_dir():
-        return Path(env_path).resolve()
+    if env_path:
+        p = Path(env_path)
+        if not p.is_dir():
+            raise ConfigError(
+                f"$CONTENT_REPO_PATH={env_path!r} is set but does not exist or is not a directory."
+            )
+        _log_resolution("content_repo", "env:CONTENT_REPO_PATH", str(p.resolve()))
+        return p.resolve()
 
     config = load_config()
     repo = config.get("content_repo", "")
-    if repo and Path(repo).is_dir():
-        return Path(repo).resolve()
+    if repo:
+        p = Path(repo)
+        if not p.is_dir():
+            raise ConfigError(
+                f"config.yaml:content_repo={repo!r} does not exist or is not a directory."
+            )
+        _log_resolution("content_repo", "config.yaml", str(p.resolve()))
+        return p.resolve()
 
-    return Path.cwd()
+    raise ConfigError(
+        "Content repo not configured. "
+        "Set $CONTENT_REPO_PATH or config.yaml:content_repo to the path of your content repo."
+    )
 
 
 def resolve_content_path(site_type: str, family: str, platform: str = "") -> Path:
