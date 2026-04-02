@@ -75,29 +75,54 @@ class PageRoleEvaluator(BaseEvaluator):
                 evaluator=self.name,
             ))
 
-        # Must have a properties table
-        if not _has_table(page):
-            findings.append(Finding(
-                level="WARN",
-                category="RV",
-                filepath=str(page.filepath),
-                line_no=1,
-                message="Reference page has no markdown table (properties/methods table expected)",
-                suggestion="Add a properties or methods table",
-                evaluator=self.name,
-            ))
+        if layout == "reference-home":
+            # Reference home (_index.md) — validate required fields and shortcode
+            for field in ("summary", "categories"):
+                if not fm.get(field):
+                    findings.append(Finding(
+                        level="WARN",
+                        category="RV",
+                        filepath=str(page.filepath),
+                        line_no=1,
+                        message=f"Reference home page missing `{field}` in frontmatter",
+                        suggestion=f"Add `{field}` — run `/new-reference-index` to regenerate",
+                        evaluator=self.name,
+                    ))
+            body = page.body or ""
+            if "{{< children >}}" not in body:
+                findings.append(Finding(
+                    level="WARN",
+                    category="RV",
+                    filepath=str(page.filepath),
+                    line_no=1,
+                    message="Reference home page missing {{< children >}} shortcode — class list will not render",
+                    suggestion="Add `{{< children >}}` to the page body — run `/new-reference-index` to regenerate",
+                    evaluator=self.name,
+                ))
+        else:
+            # Reference class pages — must have a properties/methods table
+            if not _has_table(page):
+                findings.append(Finding(
+                    level="WARN",
+                    category="RV",
+                    filepath=str(page.filepath),
+                    line_no=1,
+                    message="Reference page has no markdown table (properties/methods table expected)",
+                    suggestion="Add a properties or methods table",
+                    evaluator=self.name,
+                ))
 
-        # Should have code examples
-        if _count_code_blocks(page) == 0:
-            findings.append(Finding(
-                level="INFO",
-                category="RV",
-                filepath=str(page.filepath),
-                line_no=1,
-                message="Reference page has no code examples",
-                suggestion="Consider adding usage examples",
-                evaluator=self.name,
-            ))
+            # Should have code examples
+            if _count_code_blocks(page) == 0:
+                findings.append(Finding(
+                    level="INFO",
+                    category="RV",
+                    filepath=str(page.filepath),
+                    line_no=1,
+                    message="Reference page has no code examples",
+                    suggestion="Consider adding usage examples",
+                    evaluator=self.name,
+                ))
 
         return findings
 
@@ -203,17 +228,44 @@ class PageRoleEvaluator(BaseEvaluator):
                 evaluator=self.name,
             ))
 
-        # Docs should have code examples (unless it's an index page)
-        if page.filepath.stem != "_index" and _count_code_blocks(page) == 0:
-            findings.append(Finding(
-                level="INFO",
-                category="RV",
-                filepath=str(page.filepath),
-                line_no=1,
-                message="Docs page has no code examples",
-                suggestion="Consider adding code examples",
-                evaluator=self.name,
-            ))
+        if page.filepath.stem == "_index" and page.filepath.parent.name == page.platform:
+            # Platform-level section landing page (e.g. .../email/cpp/_index.md)
+            # Distinguish from section-level indexes (.../getting-started/_index.md)
+            # by checking parent dir name matches the platform key.
+            for field in ("linktitle", "subtitle", "icon"):
+                if not fm.get(field):
+                    findings.append(Finding(
+                        level="WARN",
+                        category="RV",
+                        filepath=str(page.filepath),
+                        line_no=1,
+                        message=f"Docs platform index page missing `{field}` in frontmatter",
+                        suggestion=f"Add `{field}` — run `/new-docs-index` to regenerate",
+                        evaluator=self.name,
+                    ))
+            body = page.body or ""
+            if "{{< sections >}}" not in body:
+                findings.append(Finding(
+                    level="WARN",
+                    category="RV",
+                    filepath=str(page.filepath),
+                    line_no=1,
+                    message="Docs platform index page missing {{< sections >}} shortcode — section will render blank",
+                    suggestion="Add `{{< sections >}}` to the page body — run `/new-docs-index` to regenerate",
+                    evaluator=self.name,
+                ))
+        else:
+            # Docs content pages should have code examples
+            if _count_code_blocks(page) == 0:
+                findings.append(Finding(
+                    level="INFO",
+                    category="RV",
+                    filepath=str(page.filepath),
+                    line_no=1,
+                    message="Docs page has no code examples",
+                    suggestion="Consider adding code examples",
+                    evaluator=self.name,
+                ))
 
         return findings
 
@@ -258,7 +310,7 @@ class PageRoleEvaluator(BaseEvaluator):
         return findings
 
     def _check_kb_index(self, page: Page) -> list[Finding]:
-        """Light validation for KB section listing pages (_index.md)."""
+        """Validate KB section listing pages (_index.md) have all required fields."""
         findings: list[Finding] = []
         fm = page.frontmatter
 
@@ -270,6 +322,30 @@ class PageRoleEvaluator(BaseEvaluator):
                 line_no=1,
                 message="KB index page missing `title` in frontmatter",
                 suggestion="Add a `title` field",
+                evaluator=self.name,
+            ))
+
+        for field in ("linkTitle", "subtitle", "icon"):
+            if not fm.get(field):
+                findings.append(Finding(
+                    level="WARN",
+                    category="RV",
+                    filepath=str(page.filepath),
+                    line_no=1,
+                    message=f"KB index page missing `{field}` in frontmatter",
+                    suggestion=f"Add a `{field}` field — run `/new-kb-index` to regenerate",
+                    evaluator=self.name,
+                ))
+
+        body = page.body or ""
+        if "{{< children >}}" not in body:
+            findings.append(Finding(
+                level="WARN",
+                category="RV",
+                filepath=str(page.filepath),
+                line_no=1,
+                message="KB index page missing {{< children >}} shortcode — section will render blank",
+                suggestion="Add `{{< children >}}` to the page body — run `/new-kb-index` to regenerate",
                 evaluator=self.name,
             ))
 
