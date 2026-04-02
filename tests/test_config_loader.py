@@ -10,6 +10,7 @@ sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 from config_loader import (  # noqa: E402
+    ConfigError,
     golden_corpus_config,
     load_config,
     resolve_content_path,
@@ -57,13 +58,15 @@ def test_load_config_sites_keys():
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("site_type", ["docs", "blog", "kb", "reference"])
-def test_resolve_content_path_contains_family_and_platform(site_type):
+def test_resolve_content_path_contains_family_and_platform(site_type, tmp_path, monkeypatch):
+    monkeypatch.setenv("CONTENT_REPO_PATH", str(tmp_path))
     path = resolve_content_path(site_type, "words", "python")
     assert "words" in str(path)
     assert "python" in str(path)
 
 
-def test_resolve_content_path_products_has_family():
+def test_resolve_content_path_products_has_family(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONTENT_REPO_PATH", str(tmp_path))
     path = resolve_content_path("products", "words")
     assert "words" in str(path)
 
@@ -130,10 +133,11 @@ def test_resolve_content_repo_env_override(tmp_path, monkeypatch):
     assert result == tmp_path.resolve()
 
 
-def test_resolve_content_repo_returns_path(monkeypatch):
+def test_resolve_content_repo_raises_without_config(monkeypatch):
+    """ConfigError is raised when no content_repo is configured — no silent CWD fallback."""
     monkeypatch.delenv("CONTENT_REPO_PATH", raising=False)
-    result = resolve_content_repo()
-    assert isinstance(result, Path)
+    with pytest.raises(ConfigError):
+        resolve_content_repo()
 
 
 # ---------------------------------------------------------------------------
