@@ -1,13 +1,13 @@
 ---
 name: evidence-materialize
-id: S-40
+id: S-44
 description: >
   Materialize scattered knowledge artifacts into a canonical Product Evidence
   File (PEF) at evidence/{family}/{platform}/pef.json.
 args: "{family} {platform} | all"
 ---
 
-# S-40: Evidence Materialize — Build Canonical Product Evidence File
+# S-44: Evidence Materialize — Build Canonical Product Evidence File
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform}` or `all`

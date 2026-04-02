@@ -33,9 +33,70 @@ launched with a single invocation rather than manually sequencing ~10 skills.
 2. A content repo must be configured (via `$CONTENT_REPO_PATH` or `config.yaml`)
 3. No existing `knowledge/{family}/{platform}/` directory is required — this skill creates it
 
+## Checkpoint / Resume Protocol
+
+This skill supports resuming after a partial failure. A checkpoint file is maintained at:
+
+```
+reports/launch/{family}-{platform}-checkpoint.json
+```
+
+**Before starting any phase:**
+
+1. Check whether `reports/launch/{family}-{platform}-checkpoint.json` exists.
+2. If it exists, read it and ask the user: "Checkpoint found from {checkpoint.started_at}. Last completed step: {checkpoint.last_completed_step}. Resume from there? (yes / start-over)"
+   - If **yes** → skip all steps marked `done: true` in the checkpoint and continue from the first step where `done` is absent or `false`.
+   - If **start-over** → delete the checkpoint file and proceed from Phase 1.
+3. If no checkpoint exists → proceed normally.
+
+**Checkpoint file format** (`reports/launch/{family}-{platform}-checkpoint.json`):
+
+```json
+{
+  "family": "{family}",
+  "platform": "{platform}",
+  "repo_path": "{repo-path}",
+  "started_at": "{ISO timestamp}",
+  "updated_at": "{ISO timestamp}",
+  "steps": {
+    "1.1_scout":    {"done": true,  "at": "{ISO timestamp}"},
+    "1.2_merge":    {"done": true,  "at": "{ISO timestamp}"},
+    "1.3_index":    {"done": false},
+    "1.4_embed":    {"done": false},
+    "1.5_corpus":   {"done": false},
+    "1.5a_materialize": {"done": false},
+    "1.5b_mental_model": {"done": false},
+    "1.5c_decision": {"done": false},
+    "2.1_docs_installation": {"done": false},
+    "2.2_docs_quick_start":  {"done": false},
+    "2.3_blog_launch":       {"done": false},
+    "2.4_kb_howto":          {"done": false},
+    "2.5_kb_faq":            {"done": false},
+    "2.6_reference":         {"done": false},
+    "3_cross_platform":      {"done": false},
+    "4_launch_report":       {"done": false}
+  },
+  "last_completed_step": "1.2_merge"
+}
+```
+
+**After each step succeeds:** update the checkpoint file, setting the step's `done: true` and `at: {ISO timestamp}` and updating `last_completed_step` and `updated_at`.
+
+**After Phase 4 completes successfully:** delete the checkpoint file (the launch report is the durable record).
+
+**On ABORT or HALT:** do NOT delete the checkpoint — preserve it for resume.
+
 ## Phase 1 — Knowledge Extraction
 
 Run the full knowledge pipeline in sequence. Each step must succeed before proceeding.
+
+### Step 1.0 — Validate setup
+
+Run `python scripts/check_setup.py --family {family} --platform {platform}`
+
+- If exit code 2 (ERROR): **ABORT** — report the error to the user; do not proceed.
+- If exit code 1 (WARN): surface warnings but continue.
+- Write checkpoint step `1.0_check_setup` as done.
 
 ### Step 1.1 — Scout the repository (S-34)
 

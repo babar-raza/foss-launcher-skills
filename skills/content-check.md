@@ -98,9 +98,11 @@ Run a structural and quality check on a content file before committing.
    - [ ] If `knowledge/{family}/{platform}/merged/index.json` does NOT exist: WARN "No knowledge model found — content cannot be verified against repo truth"
 
    ### Evidence citation checks (WARN if any fail)
-   - [ ] Content has at least one `<!-- evidence: ... -->` citation comment — WARN if missing
-   - [ ] All `claim_id` values in citation comments exist in `knowledge/{family}/{platform}/merged/claims.json` — WARN if orphaned citation
-   - [ ] Code blocks that demonstrate API usage have a corresponding `<!-- evidence: api=... -->` comment — WARN if missing
+   - [ ] Frontmatter `evidence:` block is present with at minimum `model_sha` and `claims` fields — WARN if missing (run `python scripts/pipeline/attach_evidence.py --files {path}` to generate)
+   - [ ] All `claim_id` values in `evidence.claims` array exist in `knowledge/{family}/{platform}/merged/claims.json` — WARN if orphaned claim ID
+   - [ ] Pages with code blocks: `evidence.apis` array should be non-empty — WARN if empty (list verified `ClassName.method` references)
+   - [ ] `evidence.model_sha` matches `repo_sha` in `knowledge/{family}/{platform}/merged/model.yaml` — WARN if stale (rerun `attach_evidence.py`)
+   - [ ] **Do NOT** check for `<!-- evidence: ... -->` HTML comment citations — those are the legacy format; AGENTS.md §5 requires frontmatter blocks only
 
 5. **If OVERALL is FAIL**: list each failing check with a one-line fix suggestion.
 

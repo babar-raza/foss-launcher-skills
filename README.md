@@ -4,7 +4,7 @@ Evidence-based content generation skills for FOSS product documentation. Works w
 
 ## What This Is
 
-A standalone library of 32 agent skills that power a knowledge-grounded content pipeline:
+A standalone library of 35 agent skills that power a knowledge-grounded content pipeline:
 
 1. **Discover** FOSS repositories across GitHub organizations
 2. **Extract** truth from FOSS repositories (tree-sitter analysis)
@@ -119,7 +119,7 @@ This installs tree-sitter and language grammars used by the knowledge extraction
 | S-23 | ground-check | Pre-write evidence verification (truth gate) |
 | S-33 | change-guard | Pre-write knowledge gate (forbidden claims) |
 | S-32 | content-audit | Semantic audit against knowledge |
-| S-24 | evidence-cite | Attach `<!-- evidence: -->` citations |
+| S-24 | evidence-cite | Attach `evidence:` frontmatter citations |
 | -- | content-check | Structural/formatting validation |
 
 ### Content Quality
@@ -132,11 +132,19 @@ This installs tree-sitter and language grammars used by the knowledge extraction
 | S-26 | heal-page | Fix low-quality pages (grade D/F) |
 | S-20 | page-update | Update content after knowledge refresh |
 
+### Evidence Pipeline
+
+| ID | Skill | Purpose |
+|----|-------|---------|
+| S-44 | evidence-materialize | Build canonical Product Evidence File (PEF) from merged knowledge |
+| S-45 | mental-model | Build product mental model (capability tiers, gaps, readiness) |
+| S-43 | evidence-decide | Determine per-page content actions (create/update/enhance/no-change) |
+
 ### Orchestration
 
 | ID | Skill | Purpose |
 |----|-------|---------|
-| S-38 | launch-product | Full FOSS product launch (knowledge → pages → report) |
+| S-38 | launch-product | Full FOSS product launch (knowledge → evidence → pages → report) |
 
 ## Skill Chains
 
@@ -147,10 +155,11 @@ Maintenance:  S-12 → S-13 → S-14 → S-20 → S-23 → S-24 → S-01 → wri
 Enhancement:  S-17 → S-21 → S-23 → S-01 → write
 Healing:      S-25 → S-26 → S-23 → S-25 → S-01 → write (or escalate)
 Launch:       S-38 orchestrates:
-                Phase 1 (knowledge): S-34 → S-35 → S-31 → S-15 → S-37
-                Phase 2 (pages):     [S-10 → S-18 → S-19 → S-23 → S-24 → S-01] × page types
-                Phase 3 (consistency): S-36
-                Phase 4 (report):    reports/launch/{family}-{platform}-{timestamp}.md
+                Phase 1   (knowledge):  S-34 → S-35 → S-31 → S-15 → S-37
+                Phase 1.5 (evidence):   S-44 → S-45 → S-43 (decision.json)
+                Phase 2   (pages):      [S-10 → S-18 → S-19 → S-23 → S-24 → S-01] × page types
+                Phase 3   (consistency): S-36
+                Phase 4   (report):     reports/launch/{family}-{platform}-{timestamp}.md
 ```
 
 ## Project Structure
@@ -297,6 +306,21 @@ Monitors 23 GitHub organizations for FOSS repositories, matches them to the prod
 ```
 knowledge/merged/ → page-plan → page-draft → ground-check → evidence-cite → path-guard → write
 ```
+
+### The validation pipeline (two complementary tools):
+
+```
+Pre-write gate:   scripts/pipeline/audit.py       (S-23 ground-check)
+                  → verifies API tokens, evidence frontmatter, internal links
+                  → FAIL blocks the write
+
+Post-write grade: scripts/pipeline/content_eval/  (S-25 eval-page / S-40 batch-remediate)
+                  → assigns A–F quality grades, runs content evaluators
+                  → FAIL triggers remediation, not write block
+```
+
+Use `audit.py` before writing any content page. Use `content_eval` to measure and improve
+quality of already-written pages. See `AGENTS.md §12` for detailed usage guidance.
 
 ## Agent Governance
 

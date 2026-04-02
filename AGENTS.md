@@ -149,6 +149,28 @@ S-40 (batch-remediate) — full eval→fix→LLM→re-eval
 S-41 (batch-eval-fix) — deterministic auto-fix only (no LLM)
 ```
 
+### Product launch (full end-to-end — orchestrated by S-38)
+
+```
+Phase 1 (knowledge extraction):
+  S-34 (repo-scout) → S-35 (truth-merge) → S-31 (truth-index)
+  → S-15 (embed-knowledge, conditional) → S-37 (corpus-scan per site type)
+
+Phase 1.5 (evidence materialization):
+  S-44 (evidence-materialize) → S-45 (mental-model) → S-43 (evidence-decide)
+  evidence-decide produces decision.json: create | update | enhance | verify_only | no_change
+  Phase 2 only processes pages with action: create | update
+
+Phase 2 (pages — for each page where decision = create | update):
+  S-10 → S-18 → S-19 → S-22 (conditional) → S-23 (audit.py) → S-24 → S-01 → write
+
+Phase 3 (consistency, conditional):
+  S-36 (cross-platform) — if multiple platforms exist in family
+
+Phase 4 (launch report):
+  reports/launch/{family}-{platform}-{timestamp}.md
+```
+
 ## 7. Hard Stop Conditions
 
 The following always cause immediate halt (no agent override):
@@ -248,12 +270,26 @@ The `evidence:` frontmatter block in each page is the persistent inline evidence
 | batch-remediate | S-40 | Full eval→fix→LLM→re-eval pipeline |
 | batch-eval-fix | S-41 | Quick eval + auto-fix only |
 | category-fix | S-42 | Run specific fixer on targeted files |
+| evidence-decide | S-43 | Determine per-page content actions (create/update/enhance/verify_only/no_change) |
+| evidence-materialize | S-44 | Build canonical Product Evidence File (PEF) from merged knowledge |
+| mental-model | S-45 | Build product mental model from PEF (capability tiers, gaps, readiness) |
+
+> **Note on skill IDs S-44 and S-45**: `evidence-materialize` (S-44) and `mental-model` (S-45) were
+> previously assigned S-40 and S-41 in their skill file frontmatter (colliding with `batch-remediate`
+> and `batch-eval-fix`). They have been renumbered to S-44 and S-45 to resolve the collision.
 
 ### Enforcement scripts
 
-| Script | Purpose |
-|--------|---------|
-| `scripts/pipeline/audit.py` | Deterministic S-23 ground-check: verifies every API token in content against `api_surface.json` |
+Two complementary validation tools exist. Understand which to use when:
+
+| Script | Skill | Role | When to use |
+|--------|-------|------|-------------|
+| `scripts/pipeline/audit.py` | S-23 ground-check | **Pre-write truth gate** | Before writing any content page; enforces evidence frontmatter; verifies API tokens against api_surface.json |
+| `scripts/pipeline/content_eval/` | S-25 / S-40 | **Post-write quality grading** | After writing pages; assigns A–F grades; runs content evaluators; generates remediation plans |
+
+**audit.py** is the hard gate — content that fails audit must not be committed.
+**content_eval** measures quality — content that scores low should be improved but is not blocked.
+These are complementary systems covering different layers of the quality pipeline.
 
 Usage:
 ```bash

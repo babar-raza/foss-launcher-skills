@@ -1,3 +1,108 @@
+# CHANGELOG — aspose.org Skills System
+
+---
+
+## Phase 2+3+4: Full Remediation Complete
+
+**Date**: 2026-03-31
+**Branch**: main
+**Tests**: 371 passed, 0 failed (all workstreams complete)
+
+### Phase 2 — Enforcement
+
+- **scripts/path_guard.py** (new): ALLOW/DENY enforcement against forbidden_paths from config.yaml; hardcoded safety net for `.git/`, `themes/`, `scripts/`, etc.; backslash normalisation; 38 tests
+- **scripts/check_setup.py** (new): OK/WARN/ERROR environment validation; checks CONTENT_REPO_PATH, required/optional packages, knowledge model; 31 tests
+- **scripts/ops_log.py** (new): Append-only JSONL ops log at `reports/ops.log`; each pre_write call writes an entry; 24 tests
+- **tests/test_path_guard.py** (new): 38 tests — all passing
+- **tests/test_check_setup.py** (new): 31 tests — all passing
+- **tests/test_ops_log.py** (new): 24 tests — all passing
+
+### Phase 3 — Hardening
+
+- **scripts/pre_write.py** (new): Mandatory pre-write hook wrapping path_guard + audit_files; PASS/WARN/FAIL/ERROR output; logs to ops.log; 25 tests
+- **tests/test_pre_write.py** (new): 25 tests — all passing
+- **tests/test_e2e_pipeline.py** (new): 8 integration tests — full pipeline chain verified (M8 ✅)
+
+### Phase 4 — Scout Fixes + Skill Integration
+
+- **scripts/scout.py** (modified): Added enum_count tracking, dataclass field extraction, property setter detection (`read_write`), constants.json generation (UPPER_CASE module-level assignments + IntEnum members)
+- **scripts/pipeline/merge.py** (modified): Copy `constants.json` from scout output to `merged/`
+- **scripts/pipeline/index.py** (modified): Load `constants.json`; add `enum_classes` and `constants` fields to `index.json`
+- **tests/test_scout_units.py**: All 17 tests now pass (was 7 failing pre-existing failures)
+- **skills/new-docs-page.md**: Added step 0 `check_setup.py` validation; replaced `audit.py` with `pre_write.py` pre-write gate
+- **skills/new-blog-post.md**: Same — check_setup.py + pre_write.py integrated
+- **skills/new-kb-howto.md**: Same
+- **skills/new-kb-faq.md**: Same
+- **skills/new-reference-page.md**: Same
+- **skills/launch-product.md**: Added checkpoint/resume protocol; Step 1.0 check_setup.py validation; full checkpoint schema with step-by-step state tracking
+
+---
+
+## Phase 0+1: Production-Readiness Remediation
+
+**Date**: 2026-03-31
+**Branch**: main
+**Source**: Audit plan `wild-yawning-sprout.md`
+
+### AGENTS.md
+- Added Phase 1.5 (evidence materialization) to §6 launch chain
+- Added S-43 (evidence-decide), S-44 (evidence-materialize), S-45 (mental-model) to §12 skill map
+- Added validation systems comparison table to §12 enforcement scripts section
+- Added note on S-40/S-41 numbering collision resolution (S-44, S-45)
+
+### scripts/pipeline/audit.py
+- Removed `--no-evidence` flag — evidence checking is now always mandatory (cannot be bypassed)
+- Removed `check_evidence` parameter from `audit_product()` and `audit_files()` — simplified API
+- Fixed per-file fail count: evidence findings now stored in `ev_findings` and added to both `file_findings` (for per-file log) and `findings` (master list)
+- Updated docstring Usage section
+
+### skills/content-check.md
+- Evidence citation checks updated: replaced HTML comment citation checks (`<!-- evidence: ... -->`) with frontmatter `evidence:` block checks
+- Added explicit note: "Do NOT check for HTML comment citations — legacy format only"
+- Checks now validate: `evidence.model_sha`, `evidence.claims`, `evidence.apis` array
+
+### skills/evidence-materialize.md
+- Renumbered id: S-40 → S-44 (resolves collision with batch-remediate)
+- Updated skill title from "S-40:" to "S-44:"
+
+### skills/mental-model.md
+- Renumbered id: S-41 → S-45 (resolves collision with batch-eval-fix)
+- Updated skill title from "S-41:" to "S-45:"
+
+### README.md
+- Skill count updated: "32 agent skills" → "35 agent skills"
+- Added Evidence Pipeline section to skill catalog (S-43, S-44, S-45)
+- Updated launch chain to include Phase 1.5
+- Added validation pipeline section documenting audit.py vs content_eval
+- Fixed evidence-cite description: "HTML comments" → "frontmatter citations"
+
+### QUICKSTART.md (NEW)
+- First-time operator guide: prerequisites, install, configure, first run, verify
+- Covers Python 3.10+, tree-sitter install, content repo config, first scout, first page, full launch
+- Troubleshooting section for common failures
+
+### Test results
+- Pre-change: 7 failures (all pre-existing, test_scout_units.py fixture issues)
+- Post-change: 7 failures (same 7, unchanged — no regressions introduced)
+- 238 tests passing
+
+### Test commands
+```bash
+PYTHONPATH=.pylibs python .pylibs/pytest/__main__.py tests/ -q --tb=no
+# Expected: 238 passed, 7 failed (pre-existing scout fixture failures)
+
+grep -n "no.evidence\|check_evidence" scripts/pipeline/audit.py
+# Expected: 0 matches
+
+grep "^id:" skills/evidence-materialize.md skills/mental-model.md
+# Expected: id: S-44 / id: S-45
+
+grep -n "Phase 1.5\|S-44\|S-45\|S-43" AGENTS.md
+# Expected: multiple lines in §6 and §12
+```
+
+---
+
 # CHANGELOG — aspose.org Skills System Import
 
 **Date**: 2026-03-31

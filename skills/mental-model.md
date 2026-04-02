@@ -1,13 +1,13 @@
 ---
 name: mental-model
-id: S-41
+id: S-45
 description: >
   Build a structured mental model from the PEF showing capability tiers,
   page coverage, gap analysis, and launch readiness.
 args: "{family} {platform} | all"
 ---
 
-# S-41: Mental Model — Build Product Mental Model
+# S-45: Mental Model — Build Product Mental Model
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform}` or `all`

@@ -14,6 +14,10 @@ Generate a new blog post for blog.aspose.org.
 
 Before generating any content, you MUST:
 
+0. **Validate setup**: Run `python scripts/check_setup.py --family {family} --platform {platform}`
+   - If exit code 2 (ERROR): STOP and report the error to the user before proceeding.
+   - If exit code 1 (WARN): proceed but surface all warnings.
+
 1. **Read knowledge model**: Load `knowledge/{family}/{platform}/merged/index.json`
    - If it does not exist, STOP and instruct the user to run `/repo-scout` and `/truth-merge` first
    - If `stale: true`, STOP and instruct the user to run `/knowledge-diff` first
@@ -113,6 +117,8 @@ After generating the post:
 1. **Run evidence citation**: Execute `/evidence-cite content/blog.aspose.org/{family}/{platform}/{slug}/index.md` to attach `<!-- evidence: ... -->` comments
 2. **Run content check**: Execute `/content-check content/blog.aspose.org/{family}/{platform}/{slug}/index.md` to validate structure and knowledge alignment
 3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
-4. Run `python scripts/pipeline/audit.py --files {output-file}` to verify API accuracy before committing
+4. **Pre-write gate**: Run `python scripts/pre_write.py {output-file}` before committing
+   - Exit 0 (PASS/WARN): proceed
+   - Exit 1 (FAIL): do NOT commit — report findings to user and offer to fix
 
 7. **Confirm** with the output path.

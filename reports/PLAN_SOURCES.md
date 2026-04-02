@@ -1,47 +1,73 @@
 # Plan Sources
 
 ## PrimaryPlanSource
-- **Path**: `C:\Users\prora\.claude\plans\floating-imagining-bunny.md`
-- **Type**: Chat-derived + disk plan (approved by user)
-- **Rationale**: 25 actionable steps, 10 validation gates (G-1 through G-10), full acceptance criteria, concrete evidence commands. Meets SUBSTANTIAL threshold (>=5 steps, acceptance criteria + evidence commands).
+- **Path**: `C:\Users\prora\.claude\plans\wild-yawning-sprout.md`
+- **Type**: Chat-derived production-readiness audit plan (approved by user 2026-03-31)
+- **Rationale**: 10 production-grade fixes, 8 minimum-ship requirements, 13 major gaps with root
+  causes, complete operator test matrix. Meets SUBSTANTIAL threshold (>=5 steps, acceptance
+  criteria, evidence commands).
 
 ## ChatExtractedSteps
-1. WS0: Pre-flight baseline tests + branch creation
-2. WS1: Extend config_loader.py with content_root, knowledge_root, reports_root
-3. WS2: Create scripts/pipeline/ subpackage; import + adapt pipeline core scripts
-4. WS3: Import content_eval/ package and scout_enrichers/
-5. WS4: Replace all skill .md files; import 6 new skills; run distribute.py
-6. WS5: Import AGENTS.md, CLAUDE.md, CODEX.md (adapted)
-7. WS6: Run all 10 validation gates; merge branch
+
+### Phase 0 — Quick Wins (Fix 7, Fix 10, Fix 5a)
+1. Update AGENTS.md §6: add Phase 1.5 (evidence-materialize→mental-model→evidence-decide) to launch chain
+2. Update AGENTS.md §12: add evidence-materialize (S-44), mental-model (S-45), evidence-decide (S-43) to skill map; fix S-40 numbering collision
+3. Remove `--no-evidence` flag from `scripts/pipeline/audit.py`
+4. Update `skills/content-check.md` evidence citation checks from HTML comments to frontmatter `evidence:` block
+5. Update `skills/evidence-materialize.md` id from S-40 → S-44; `skills/mental-model.md` id from S-41 → S-45
+
+### Phase 1 — Foundation (Fix 6, Fix 3, Fix 5b)
+6. Write `QUICKSTART.md` operator guide (prerequisites, install, first run, verify)
+7. Document audit.py vs content_eval relationship in AGENTS.md §12 and README.md
+8. Fix `scripts/pipeline/audit.py` per-file fail count to include evidence findings
+
+### Phase 1 (continued)
+9. Update README.md skill catalog to add 3 evidence skills (S-43, S-44, S-45)
+
+### Phase 2 — Enforcement (Fix 1, Fix 8, Fix 9) — FUTURE
+10. Implement `scripts/path_guard.py` with tests
+11. Implement `scripts/check_setup.py` with tests
+12. Implement append-only `reports/ops.log`
+
+### Phase 3 — Hardening (Fix 2, Fix 4) — FUTURE
+13. Implement `scripts/pre_write.py` mandatory audit hook
+14. Write `tests/test_e2e_pipeline.py` integration test using existing fixtures
 
 ## ChatExtractedGapsAndFixes
-- **G1**: CWD-relative path hardcoding in all pipeline scripts → fix via config_loader adapter
-- **G2**: content_eval/cli.py imports audit.py via parent.parent → fix sys.path to scripts/pipeline/
-- **G3**: Platform naming `dotnet` vs `net` discrepancy → add `net` alias in families.yaml
-- **G4**: Missing knowledge/ data at runtime → document bootstrap requirement
-- **G5**: Test import paths after script reorganization → update all 20 test files as needed
+- **G-F1**: S-01 path-guard has no script implementation → Phase 2 Fix 1
+- **G-F2**: S-23 ground-check not automatically called in content-writing skills → Phase 3 Fix 2
+- **G-Q1**: No end-to-end integration test → Phase 3 Fix 4
+- **G-D1**: Evidence citation format contradiction (HTML comments vs frontmatter) → Fix 5a (Phase 0)
+- **G-D2**: AGENTS.md §12 skill map missing 3 evidence skills → Fix 7 (Phase 0)
+- **G-D3**: AGENTS.md §6 missing Phase 1.5 in launch chain → Fix 7 (Phase 0)
+- **G-D4**: README.md quickstart incomplete → Fix 6 (Phase 1)
+- **G-A1**: Two parallel validation systems undocumented → Fix 3 (Phase 1)
+- **G-Q4**: `--no-evidence` flag in audit.py → Fix 10 (Phase 0)
+- **G-U1**: Skill numbering collision (two S-40) → Fix 7 (Phase 0)
 
 ## ChatMentionedFiles
-- `scripts/config_loader.py` (extend)
-- `config.yaml` (add keys: content_root, knowledge_root, reports_root)
-- `configs/schemas/config.schema.json` (update)
-- `tests/test_config_loader.py` (update)
-- `skills/` (replace all 36+)
-- `scripts/pipeline/` (create)
-- `AGENTS.md`, `CLAUDE.md`, `CODEX.md` (import/adapt)
-- `tools/distribute.py` (verify)
-- Source: `C:/Users/prora/OneDrive/Documents/GitHub/aspose.org/scripts/pipeline/`
+- `AGENTS.md` (update §6, §12)
+- `skills/content-check.md` (fix evidence checks)
+- `skills/evidence-materialize.md` (renumber to S-44)
+- `skills/mental-model.md` (renumber to S-45)
+- `scripts/pipeline/audit.py` (remove --no-evidence, fix per-file fail count)
+- `scripts/pipeline/knowledge_core.py` (verify evidence already has claim_id validation ✓)
+- `QUICKSTART.md` (create)
+- `README.md` (update skill catalog + validation system docs)
 
 ## SubstantialityCheck
-SUBSTANTIAL: 25 actionable steps, 10 validation gates, acceptance criteria, evidence commands ✓
+SUBSTANTIAL: 10 concrete fixes, 8 minimum-ship requirements, 13 gap categories, acceptance criteria ✓
 
 ## ResolutionStrategy
-Execute plan directly from disk file. Chat instructions = orchestrator protocol wrapper.
+Execute Phase 0 quick wins first (no architecture change), then Phase 1 foundation, then Phase 2+3 in future sprint.
 
 ## SecondarySources
-- `AGENTS.md` (repo governance)
+- `C:\Users\prora\.claude\plans\floating-imagining-bunny.md` — prior migration plan (completed)
+- `AGENTS.md` (repo governance, read-first)
 - `README.md` (project documentation)
-- `pytest.ini` (test config)
+- `reports/STATUS.md` (self-assessment with G-4/G-5/G-6 deferred gates)
 
 ## MissingCandidates
-None — primary plan is complete and approved.
+- `scripts/path_guard.py` — needs to be created (Phase 2)
+- `scripts/check_setup.py` — needs to be created (Phase 2)
+- `tests/test_e2e_pipeline.py` — needs to be created (Phase 3)
