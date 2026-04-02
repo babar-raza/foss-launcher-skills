@@ -4,7 +4,7 @@ Evidence-based content generation skills for FOSS product documentation. Works w
 
 ## What This Is
 
-A standalone library of 35 agent skills that power a knowledge-grounded content pipeline:
+A standalone library of 42 agent skills that power a knowledge-grounded content pipeline:
 
 1. **Discover** FOSS repositories across GitHub organizations
 2. **Extract** truth from FOSS repositories (tree-sitter analysis)
@@ -51,6 +51,16 @@ pip install -r scripts/requirements.txt
 ```
 
 This installs tree-sitter and language grammars used by the knowledge extraction pipeline.
+
+### Validate your environment
+
+```bash
+python scripts/check_setup.py
+# Check knowledge readiness for a specific product
+python scripts/check_setup.py --family words --platform python
+```
+
+See `QUICKSTART.md` for a full step-by-step walkthrough.
 
 ### First run
 
@@ -105,11 +115,11 @@ This installs tree-sitter and language grammars used by the knowledge extraction
 | S-18 | page-plan | Plan page structure (sections → claims → snippets) |
 | S-19 | page-draft | Draft content using site-type template |
 | S-22 | faq-generate | Generate FAQ from knowledge model |
-| -- | new-docs-page | Shortcut: generate docs page |
-| -- | new-blog-post | Shortcut: generate blog post |
-| -- | new-kb-howto | Shortcut: generate KB how-to |
-| -- | new-kb-faq | Shortcut: generate KB FAQ |
-| -- | new-reference-page | Shortcut: generate API reference page |
+| S-51 | new-docs-page | Shortcut: generate docs page |
+| S-52 | new-blog-post | Shortcut: generate blog post |
+| S-53 | new-kb-howto | Shortcut: generate KB how-to |
+| S-54 | new-kb-faq | Shortcut: generate KB FAQ |
+| S-55 | new-reference-page | Shortcut: generate API reference page |
 
 ### Content Validation
 
@@ -120,7 +130,9 @@ This installs tree-sitter and language grammars used by the knowledge extraction
 | S-33 | change-guard | Pre-write knowledge gate (forbidden claims) |
 | S-32 | content-audit | Semantic audit against knowledge |
 | S-24 | evidence-cite | Attach `evidence:` frontmatter citations |
-| -- | content-check | Structural/formatting validation |
+| S-48 | content-eval | Multi-dimensional content evaluation against repo truth |
+| S-49 | knowledge-bootstrap | Shared pre-condition gate for knowledge state detection |
+| S-50 | content-check | Structural/formatting validation |
 
 ### Content Quality
 
@@ -131,6 +143,9 @@ This installs tree-sitter and language grammars used by the knowledge extraction
 | S-25 | eval-page | Assign A–F quality grade |
 | S-26 | heal-page | Fix low-quality pages (grade D/F) |
 | S-20 | page-update | Update content after knowledge refresh |
+| S-40 | batch-remediate | Full eval→fix→LLM→re-eval remediation pipeline |
+| S-41 | batch-eval-fix | Quick eval + deterministic auto-fix only (no LLM) |
+| S-42 | category-fix | Run specific fixer on targeted files by category |
 
 ### Evidence Pipeline
 
@@ -139,6 +154,8 @@ This installs tree-sitter and language grammars used by the knowledge extraction
 | S-44 | evidence-materialize | Build canonical Product Evidence File (PEF) from merged knowledge |
 | S-45 | mental-model | Build product mental model (capability tiers, gaps, readiness) |
 | S-43 | evidence-decide | Determine per-page content actions (create/update/enhance/no-change) |
+| S-46 | evidence-verify | Deterministic content verification against PEF |
+| S-47 | truth-audit | Member-level API verification against knowledge surface |
 
 ### Orchestration
 
@@ -166,8 +183,9 @@ Launch:       S-38 orchestrates:
 
 ```
 foss-launcher-skills/
-├── skills/                    # 32 canonical skill files (YAML frontmatter + markdown)
-├── scripts/                   # Python tooling (11 modules)
+├── skills/                    # 42 canonical skill files (YAML frontmatter + markdown)
+│   └── registry.yaml             # Machine-readable skill registry (authoritative IDs)
+├── scripts/                   # Python tooling
 │   ├── scout.py               # Tree-sitter knowledge extraction
 │   ├── merge.py               # Knowledge consolidation engine
 │   ├── index.py               # Knowledge index generation
@@ -177,8 +195,20 @@ foss-launcher-skills/
 │   ├── golden_index.py        # Golden corpus index builder
 │   ├── golden_conformance.py  # Conformance checking vs golden
 │   ├── refresh_golden.py      # Golden corpus refresh
-│   ├── config_loader.py       # Shared config resolution
+│   ├── config_loader.py       # Shared config resolution (fail-fast ConfigError)
 │   ├── readme_sync.py         # README staleness detection
+│   ├── check_setup.py         # Validate operator environment and knowledge readiness
+│   ├── ops_log.py             # Append-only pipeline audit log
+│   ├── path_guard.py          # Enforce forbidden write paths
+│   ├── pre_write.py           # Pre-write gate: path_guard + audit_files
+│   ├── validate_skills.py     # CI validator: unique IDs, registry completeness
+│   ├── sync_commands.py       # Sync skills/ → .claude/commands/
+│   ├── decide.py              # Evidence decision engine
+│   ├── differ.py              # Knowledge diff helper
+│   ├── materialize.py         # Build Product Evidence File (PEF)
+│   ├── mental_model.py        # Build product mental model
+│   ├── schema_validate.py     # YAML/JSON schema validation helper
+│   ├── verify.py              # Deterministic content verification
 │   └── requirements.txt
 ├── tools/
 │   └── distribute.py          # Generate agent-specific skill dirs
@@ -321,6 +351,19 @@ Post-write grade: scripts/pipeline/content_eval/  (S-25 eval-page / S-40 batch-r
 
 Use `audit.py` before writing any content page. Use `content_eval` to measure and improve
 quality of already-written pages. See `AGENTS.md §12` for detailed usage guidance.
+
+### The enforcement layer:
+
+```
+check_setup.py → validate environment + knowledge readiness (min 50 claims / 10 classes)
+pre_write.py   → path_guard (forbidden paths) + audit_files (ground-check gate)
+               → missing knowledge model = FAIL (exit 1), not silent skip
+ops_log.py     → append-only audit trail for all pipeline write operations
+```
+
+Run `python scripts/check_setup.py` before any content generation session.
+Run `python scripts/validate_skills.py` in CI to catch skill registry drift.
+Run `python scripts/sync_commands.py --check` to verify `.claude/commands/` is in sync with `skills/`.
 
 ## Agent Governance
 
