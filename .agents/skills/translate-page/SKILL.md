@@ -2,7 +2,7 @@
 name: translate-page
 description: >
   Translate a single English content page to one or more target locales
-args: "{file-path} {locales}"
+argument-hint: "{file-path} {locales}"
 ---
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
@@ -18,7 +18,10 @@ Locales may be a comma-separated list (e.g. `fr,de,ar`) or the literal string `a
 
 ## Pre-conditions
 
-1. `LLM_API_KEY` environment variable must be set (or `--offline` flag used with M2M100 installed).
+1. At least one translation backend must be available. Run `python -m translator preflight` to check.
+   - **llm.professionalize.com**: requires `LLM_API_KEY` to be set.
+   - **Ollama**: requires Ollama running locally with a suitable model installed.
+   - **M2M100 offline**: requires `pip install transformers torch` and the model downloaded (~2 GB).
 2. The source file must exist under `content/{site}/en/` — blog content is skipped automatically.
 3. The knowledge model for the page's family/platform should be current. If `knowledge/{family}/{platform}/merged/index.json` shows `stale: true`, run `/stale-detect` before translating.
 
@@ -33,28 +36,43 @@ Locales may be a comma-separated list (e.g. `fr,de,ar`) or the literal string `a
    - Confirm the path contains `/en/` — this is required to derive the output path.
    - If the path is under `content/blog.aspose.org/`, STOP: blog content is English-only and must not be translated.
 
-3. **Run the translator**:
+3. **Run preflight** (mandatory before translation):
    ```bash
-   python -m translator page {src_path} --locales {locales}
+   python -m translator preflight [--provider {auto,llm,ollama,m2m}]
    ```
-   Add `--dry-run` to validate without writing output files.
-   Add `--model MODEL` to override the translation model.
-   Add `--offline` to use the M2M100 local backend instead of the LLM API.
+   Review the preflight report. Confirm that:
+   - A valid backend is selected (no `ERROR` lines in output).
+   - The selected model is a non-thinking translation-suitable model.
+   - Any `WARNING` lines are understood and acceptable.
+   If preflight fails, resolve the issue before proceeding.
 
-4. **Interpret output**: The translator prints one line per locale:
+4. **Run the translator**:
+   ```bash
+   python -m translator page {src_path} --locales {locales} [--provider {auto,llm,ollama,m2m}]
+   ```
+   - `--provider auto` (default): system selects best available backend automatically.
+   - `--provider llm`: force llm.professionalize.com.
+   - `--provider ollama`: force local Ollama.
+   - `--provider m2m`: force offline M2M100 backend.
+   - `--model MODEL`: override translation model (LLM and Ollama backends).
+   - `--dry-run`: validate without writing output files.
+   - `--offline`: alias for `--provider m2m` (backward compat).
+
+5. **Interpret output**: The translator prints one line per locale:
    - `[OK]   filename -> lang (translated=N, cached=N)` — success
    - `[SKIP] filename -> lang: reason` — skipped (e.g. blog content, unknown content type)
    - `[FAIL] filename -> lang: reason` — validation or backend failure
 
-5. **For each `[OK]` output**, verify the translated file:
+6. **For each `[OK]` output**, verify the translated file:
    - Confirm the output file was written at `content/{site}/{lang}/{family}/{platform}/{filename}`.
    - Run `/content-check {output_path}` on the translated file to verify structural integrity.
    - A translated file should PASS all frontmatter and file path checks. WARN on content-structure checks is acceptable (translated content may differ in structure).
 
-6. **Report results** in this format:
+7. **Report results** in this format:
    ```
    TRANSLATE PAGE — {src_path}
    Locales requested: {locales}
+   Backend used: {backend} ({model})
 
    RESULTS
      [OK/SKIP/FAIL] {lang}: {output_path or reason}
@@ -74,6 +92,7 @@ Locales may be a comma-separated list (e.g. `fr,de,ar`) or the literal string `a
 
 ## Acceptance Criteria
 
+- [ ] Preflight completed without errors before translation started.
 - [ ] Translator CLI exits 0 for all requested locales (or exits 1 only on actual failures, not skips).
 - [ ] Every `[OK]` locale has a corresponding file on disk at the correct path.
 - [ ] `/content-check` on each output file returns OVERALL PASS or WARN (not FAIL).
