@@ -551,7 +551,8 @@ def merge(family, platform):
     if (scout_dir / "formats.json").exists():
         shutil.copy2(scout_dir / "formats.json", merged_dir / "formats.json")
 
-    for f in ["class_graph.json", "coverage_matrix.json", "limitations.md", "install.md"]:
+    for f in ["class_graph.json", "coverage_matrix.json", "limitations.md", "install.md",
+              "constants.json"]:
         src = scout_dir / f
         if src.exists():
             shutil.copy2(src, merged_dir / f)

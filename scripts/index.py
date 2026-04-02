@@ -158,6 +158,7 @@ def build_index(family, platform):
     api = json.loads((merged_dir / "api_surface.json").read_text()) if (merged_dir / "api_surface.json").exists() else []
     formats = json.loads((merged_dir / "formats.json").read_text()) if (merged_dir / "formats.json").exists() else []
     class_graph = json.loads((merged_dir / "class_graph.json").read_text()) if (merged_dir / "class_graph.json").exists() else {}
+    constants_raw = json.loads((merged_dir / "constants.json").read_text()) if (merged_dir / "constants.json").exists() else []
 
     # Build the public API view once — reused for all downstream metrics.
     # Excludes test functions, private members, test-file classes, and
@@ -207,6 +208,22 @@ def build_index(family, platform):
     # class_names derives directly from public_api — same filter, consistent with all metrics
     class_names = sorted(set(c["name"] for c in public_api if "name" in c))
 
+    # enum classes: public API entries that have enum_members
+    enum_class_names = sorted(
+        c["name"] for c in public_api
+        if c.get("enum_members") is not None and "name" in c
+    )
+
+    # constants summary
+    exported_const_names = sorted(
+        c["name"] for c in constants_raw
+        if isinstance(c, dict) and c.get("exported")
+    )
+    constants_index = {
+        "count": len(constants_raw),
+        "exported": exported_const_names,
+    }
+
     # Classify public classes for snippet-coverage sub-metrics.
     # "Testable" classes have at least one method, property, or enum_member —
     # zero-surface marker classes (pure structural placeholders) are excluded
@@ -243,6 +260,8 @@ def build_index(family, platform):
         "not_implemented": limitations[:50],
         "forbidden_claims": forbidden[:50],
         "truth_gaps": [],
+        "enum_classes": enum_class_names,
+        "constants": constants_index,
         "api_coverage": {
             "total_classes": api_total,
             "with_methods": api_with_methods,

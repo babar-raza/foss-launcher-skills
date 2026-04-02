@@ -790,6 +790,7 @@ class Scout:
         self.coverage: list[dict[str, Any]] = []
         self.packages: set[str] = set()
         self.scanned_files: list[str] = []
+        self.constants: list[dict[str, Any]] = []
 
     # -- claim helpers -----------------------------------------------------
 
@@ -825,6 +826,8 @@ class Scout:
         self._build_identity_claims()
         self._build_class_graph()
         self._build_coverage()
+        if self.language == "python":
+            self._extract_python_constants()
         self._write_outputs()
 
     # -- API surface -------------------------------------------------------
@@ -961,6 +964,8 @@ class Scout:
                 # Python properties via decorators
                 if self.language == "python":
                     self._extract_python_properties(cnode, cname, rel, properties)
+                    # Python dataclass fields (typed class-body annotations)
+                    self._extract_python_dataclass_fields(cnode, cname, rel, properties)
 
                 # Java properties via getter/setter synthesis
                 if self.language == "java":
@@ -1061,6 +1066,24 @@ class Scout:
                                    properties: list[dict[str, Any]]):
         """Extract @property decorated methods in Python classes."""
         func_nodes = collect_nodes(cnode, {"function_definition"})
+
+        # First pass: collect all setter names in this class
+        setter_names: set[str] = set()
+        for fn in func_nodes:
+            dec = find_child_by_type(fn, "decorator")
+            if dec is None:
+                prev = fn.prev_named_sibling
+                if prev and prev.type == "decorator":
+                    dec = prev
+            if dec is None:
+                continue
+            dec_text = node_text(dec)
+            # Match @name.setter pattern
+            if re.search(r"@\w+\.setter", dec_text):
+                setter_name = _node_name(fn, "python")
+                if setter_name:
+                    setter_names.add(setter_name)
+
         for fn in func_nodes:
             # check for @property decorator
             dec = find_child_by_type(fn, "decorator")
@@ -1082,10 +1105,104 @@ class Scout:
                 "name": pname,
                 "type": ret,
                 "line": fn.start_point[0] + 1,
+                "read_write": pname in setter_names,
             })
             self._add_claim("api_method",
                             f"{cname}.{pname} property of type {ret}",
                             rel, fn.start_point[0] + 1)
+
+    def _extract_python_dataclass_fields(self, cnode, cname: str, rel: str,
+                                        properties: list[dict[str, Any]]):
+        """Extract typed fields from @dataclass decorated Python classes.
+
+        Scans the class decorators for 'dataclass' and then extracts class-body
+        annotated assignments of the form ``name: type [= default]``.
+        Skips names starting with ``_``.
+        """
+        # Check if this class has a @dataclass decorator.
+        # In tree-sitter Python, when a class has decorators the AST is:
+        #   decorated_definition -> [decorator, class_definition]
+        # The decorator is NOT a child of class_definition but of its parent.
+        is_dataclass = False
+
+        # Check parent node (decorated_definition) for @dataclass
+        parent = cnode.parent
+        if parent and parent.type == "decorated_definition":
+            for ch in parent.children:
+                if ch.type == "decorator" and "dataclass" in node_text(ch):
+                    is_dataclass = True
+                    break
+
+        # Fallback: check direct children of class node
+        if not is_dataclass:
+            for ch in cnode.children:
+                if ch.type == "decorator" and "dataclass" in node_text(ch):
+                    is_dataclass = True
+                    break
+
+        # Fallback: check previous sibling decorators
+        if not is_dataclass:
+            prev = cnode.prev_named_sibling
+            while prev and prev.type == "decorator":
+                if "dataclass" in node_text(prev):
+                    is_dataclass = True
+                    break
+                prev = prev.prev_named_sibling
+
+        if not is_dataclass:
+            return
+
+        existing_names = {p["name"] for p in properties}
+        body = find_child_by_type(cnode, "block")
+        if not body:
+            return
+
+        for stmt in body.children:
+            # Resolve the actual assignment/annotation node
+            # In tree-sitter Python, typed fields ``name: type [= default]``
+            # appear as ``assignment`` nodes with a ``type`` child field.
+            # They may also appear as ``annotated_assignment`` or be wrapped
+            # in ``expression_statement``.
+            _assign = None
+            if stmt.type == "assignment":
+                _assign = stmt
+            elif stmt.type == "annotated_assignment":
+                _assign = stmt
+            elif stmt.type == "expression_statement":
+                inner = stmt.children[0] if stmt.children else None
+                if inner and inner.type in ("assignment", "annotated_assignment"):
+                    _assign = inner
+            elif stmt.type == "typed_parameter":
+                # Some tree-sitter grammars use typed_parameter at class body
+                name_node = find_child_by_type(stmt, "identifier") or child_by_field(stmt, "name")
+                if name_node:
+                    fname = node_text(name_node)
+                    if fname and not fname.startswith("_") and fname not in existing_names:
+                        type_node = child_by_field(stmt, "type") or find_child_by_type(stmt, "type")
+                        ftype = node_text(type_node).lstrip(":").strip() if type_node else ""
+                        properties.append({"name": fname, "type": ftype, "kind": "field",
+                                           "line": stmt.start_point[0] + 1})
+                        existing_names.add(fname)
+                continue
+
+            if _assign is None:
+                continue
+
+            # Extract name from left/first identifier child
+            lhs = child_by_field(_assign, "left") or (_assign.children[0] if _assign.children else None)
+            if not lhs or lhs.type != "identifier":
+                continue
+            fname = node_text(lhs)
+            if not fname or fname.startswith("_") or fname in existing_names:
+                continue
+
+            # Extract type annotation
+            type_node = child_by_field(_assign, "type") or find_child_by_type(_assign, "type")
+            ftype = node_text(type_node).lstrip(":").strip() if type_node else ""
+            # Only add if there IS a type annotation (otherwise it's not a dataclass field)
+            properties.append({"name": fname, "type": ftype, "kind": "field",
+                               "line": stmt.start_point[0] + 1})
+            existing_names.add(fname)
 
     _JAVA_OBJECT_METHODS = frozenset({
         "getClass", "hashCode", "equals", "toString",
@@ -1559,6 +1676,133 @@ class Scout:
 
         return results
 
+    # -- Python constants extraction ----------------------------------------
+
+    def _extract_python_constants(self):
+        """Extract UPPER_CASE module-level constants and enum member names from Python files.
+
+        For each Python source file:
+        1. Scan for module-level ``NAME = value`` assignments where NAME matches
+           ``^[A-Z][A-Z0-9_]+$`` and does not start with ``_``.
+        2. Also include UPPER_CASE members from IntEnum / Enum class bodies.
+        3. Mark ``exported: True`` if the name appears in the module's ``__all__``.
+        """
+        _upper_re = re.compile(r"^[A-Z][A-Z0-9_]+$")
+        ext = ".py"
+        files = _collect_source_files(self.pkg_root, ext)
+
+        seen: set[str] = set()  # (name, source_file) dedup
+
+        for fpath in files:
+            rel = str(fpath.relative_to(self.repo)).replace("\\", "/")
+            try:
+                text = fpath.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+
+            # Determine __all__ for this module
+            all_names: set[str] = set()
+            all_match = re.search(r"^__all__\s*=\s*\[([^\]]*)\]", text, re.MULTILINE)
+            if all_match:
+                for m in re.finditer(r'["\'](\w+)["\']', all_match.group(1)):
+                    all_names.add(m.group(1))
+
+            try:
+                src = fpath.read_bytes()
+            except OSError:
+                continue
+            tree = self.parser.parse(src)
+            root = tree.root_node
+
+            class_types = _CLASS_TYPES.get(self.language, set())
+
+            # Module-level assignments (not inside class or function)
+            for stmt in root.children:
+                # Resolve inner assignment node (may be wrapped or direct)
+                assign_node = None
+                if stmt.type == "assignment":
+                    assign_node = stmt
+                elif stmt.type == "expression_statement":
+                    inner = stmt.children[0] if stmt.children else None
+                    if inner and inner.type == "assignment":
+                        assign_node = inner
+                elif stmt.type == "annotated_assignment":
+                    # name: type = value at module level
+                    lhs = child_by_field(stmt, "left") or (stmt.children[0] if stmt.children else None)
+                    if lhs and lhs.type == "identifier":
+                        name = node_text(lhs)
+                        if _upper_re.match(name) and not name.startswith("_"):
+                            key = (name, rel)
+                            if key not in seen:
+                                seen.add(key)
+                                rhs = child_by_field(stmt, "value")
+                                val = node_text(rhs) if rhs else ""
+                                self.constants.append({
+                                    "name": name,
+                                    "value": val,
+                                    "exported": name in all_names,
+                                    "source_file": rel,
+                                })
+
+                if assign_node is not None:
+                    lhs = child_by_field(assign_node, "left")
+                    rhs = child_by_field(assign_node, "right")
+                    if lhs and lhs.type == "identifier":
+                        name = node_text(lhs)
+                        if _upper_re.match(name) and not name.startswith("_"):
+                            key = (name, rel)
+                            if key not in seen:
+                                seen.add(key)
+                                val = node_text(rhs) if rhs else ""
+                                self.constants.append({
+                                    "name": name,
+                                    "value": val,
+                                    "exported": name in all_names,
+                                    "source_file": rel,
+                                })
+                    continue
+
+                # Enum class bodies: UPPER_CASE member names
+                # Also handle decorated_definition wrapping a class
+                _class_stmt = stmt
+                if stmt.type == "decorated_definition":
+                    for _dch in stmt.children:
+                        if _dch.type in class_types:
+                            _class_stmt = _dch
+                            break
+                if _class_stmt.type in class_types:
+                    cname = _node_name(_class_stmt, self.language)
+                    bases = _extract_bases(_class_stmt, self.language)
+                    if set(bases) & _PY_ENUM_BASES:
+                        body = find_child_by_type(_class_stmt, "block")
+                        if body:
+                            for ch in body.children:
+                                # assignment inside enum class body
+                                # May be direct assignment or wrapped
+                                inner_assign = None
+                                if ch.type == "assignment":
+                                    inner_assign = ch
+                                elif ch.type == "expression_statement" and ch.children:
+                                    _inner = ch.children[0]
+                                    if _inner.type == "assignment":
+                                        inner_assign = _inner
+                                if inner_assign is not None:
+                                    lhs = child_by_field(inner_assign, "left")
+                                    rhs = child_by_field(inner_assign, "right")
+                                    if lhs and lhs.type == "identifier":
+                                        name = node_text(lhs)
+                                        if _upper_re.match(name) and not name.startswith("_"):
+                                            key = (name, rel)
+                                            if key not in seen:
+                                                seen.add(key)
+                                                val = node_text(rhs) if rhs else ""
+                                                self.constants.append({
+                                                    "name": name,
+                                                    "value": val,
+                                                    "exported": name in all_names,
+                                                    "source_file": rel,
+                                                })
+
     # -- Identity claims ---------------------------------------------------
 
     def _build_identity_claims(self):
@@ -1698,8 +1942,7 @@ class Scout:
         class_count = sum(1 for c in self.classes if c.get("kind") != "function")
         method_count = sum(len(c.get("methods", [])) for c in self.classes)
         prop_count = sum(len(c.get("properties", [])) for c in self.classes)
-        enum_count = sum(1 for c in self.classes
-                         if c.get("kind") in ("enum_declaration", "enum_definition"))
+        enum_count = sum(1 for c in self.classes if c.get("enum_members") is not None)
 
         model = {
             "family": self.family,
@@ -1792,6 +2035,12 @@ class Scout:
             json.dumps(self.coverage, indent=2, ensure_ascii=False),
             encoding="utf-8")
         LOG.info("Wrote coverage_matrix.json (%d entries)", len(self.coverage))
+
+        # constants.json (Python only — written for all platforms as empty list)
+        (self.output / "constants.json").write_text(
+            json.dumps(self.constants, indent=2, ensure_ascii=False),
+            encoding="utf-8")
+        LOG.info("Wrote constants.json (%d entries)", len(self.constants))
 
         # absent_evidence.json — signals what scout scanned so merge.py can
         # reject FL-only classes that scout explicitly did NOT find.
