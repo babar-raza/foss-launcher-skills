@@ -20,7 +20,7 @@ import yaml
 def _load_run():
     spec = importlib.util.spec_from_file_location(
         "gap_eval_run",
-        Path(__file__).parents[2] / "scripts" / "gap-eval" / "run.py",
+        Path(__file__).parents[3] / "scripts" / "gap-eval" / "run.py",
     )
     m = importlib.util.module_from_spec(spec)
     try:
