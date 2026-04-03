@@ -3,6 +3,23 @@
 # Install: cp scripts/pre-commit-audit.sh .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
 
 # ---------------------------------------------------------------------------
+# Step 0: reports/ boundary — local-only artifacts must never be committed
+# ---------------------------------------------------------------------------
+# reports/ is gitignored and is a strict local-only boundary. Any staged
+# addition or modification under reports/ is an error (usually caused by
+# git add -f bypassing .gitignore). Deletions (git rm --cached) are allowed
+# so that the cleanup commit can untrack already-committed files.
+staged_reports=$(git diff --cached --name-only --diff-filter=ACM | grep '^reports/')
+if [ -n "$staged_reports" ]; then
+    echo "ERROR: Staged files under reports/ violate the local-only artifact boundary:"
+    echo "$staged_reports"
+    echo ""
+    echo "reports/ is gitignored. Do not use 'git add -f' to stage files under reports/."
+    echo "Override tokens are validated from disk (reports/overrides/pending/) — do not stage them."
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
 # Step 1: Forbidden-path enforcement
 # ---------------------------------------------------------------------------
 # For every staged file, check path_guard.py. If DENY, require a valid pending
@@ -31,7 +48,7 @@ if [ ${#forbidden_staged[@]} -gt 0 ]; then
         echo "  Create an override token before committing:"
         echo "    python scripts/pipeline/override_manager.py create \\"
         echo "      --paths <path> --reason '...' --plan '...'"
-        echo "  Then stage the token file (reports/overrides/pending/*.json) and commit together."
+        echo "  The token is auto-validated from reports/overrides/pending/ — do NOT stage it."
         exit 1
     fi
 fi

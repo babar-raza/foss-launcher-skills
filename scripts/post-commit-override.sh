@@ -5,6 +5,8 @@
 # After a commit permitted via override tokens, this hook consumes each pending
 # token in reports/overrides/pending/ by calling override_manager.py consume,
 # which moves it to archived/ and records the commit SHA.
+# Tokens are local-only artifacts (reports/ is gitignored). They are NOT staged
+# or committed — the move to archived/ is a local filesystem operation only.
 # If no pending tokens exist, this hook exits silently.
 
 PENDING_DIR="reports/overrides/pending"
@@ -27,7 +29,6 @@ for token_file in $token_files; do
         --token-id "$token_id" \
         --commit-sha "$COMMIT_SHA"
     if [ $? -eq 0 ]; then
-        git add -f "reports/overrides/archived/${token_id}.json" 2>/dev/null || true
         consumed=$((consumed + 1))
     else
         echo "post-commit-override: failed to consume token $token_id" >&2
@@ -35,6 +36,5 @@ for token_file in $token_files; do
 done
 
 if [ $consumed -gt 0 ]; then
-    echo "post-commit-override: consumed $consumed override token(s)."
-    echo "  Stage the archived tokens: git add reports/overrides/archived/"
+    echo "post-commit-override: consumed $consumed override token(s). Archived locally (not staged)."
 fi

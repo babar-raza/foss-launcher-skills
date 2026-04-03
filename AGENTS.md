@@ -65,7 +65,7 @@ ALLOWED:
   content/products.aspose.org/en/{family}/
   content/reference.aspose.org/en/{family}/{platform}/
   knowledge/   (evidence artifacts and model only)
-  reports/     (audit and check reports)
+  reports/     (local-only audit artifacts — agents may write here; NEVER commit to git)
 
 FORBIDDEN (no agent may write here without explicit human override):
   themes/
@@ -89,6 +89,10 @@ ALSO ALLOWED (pipeline and CI maintenance):
 
 ### Override token protocol (for forbidden-path edits)
 
+Override tokens are **local-only artifacts** stored in `reports/overrides/pending/`.
+They are validated from disk by the pre-commit hook — do NOT stage or commit them.
+`reports/` is gitignored; the pre-commit hook enforces this boundary.
+
 When a forbidden-path edit is authorized by the human maintainer:
 
 1. **Create an override token** BEFORE staging the forbidden-path file:
@@ -96,20 +100,14 @@ When a forbidden-path edit is authorized by the human maintainer:
    python scripts/pipeline/override_manager.py create \
      --paths <path> --reason '...' --plan '<plan-name>'
    ```
-2. **Stage the token file** along with the forbidden-path change:
+   Token is written to `reports/overrides/pending/` (local only — do not stage it).
+2. **Stage only the forbidden-path file**:
    ```bash
-   git add reports/overrides/pending/<token-id>.json <forbidden-path-file>
+   git add <forbidden-path-file>
    ```
-3. The pre-commit hook will validate the token and allow the commit.
-4. After committing, consume the token:
-   ```bash
-   python scripts/pipeline/override_manager.py consume \
-     --token-id <id> --commit-sha $(git rev-parse HEAD)
-   ```
-
-Override tokens are stored in `reports/overrides/` and are part of the audit trail.
-The CI step "Check forbidden-path override tokens" verifies every PR touching forbidden paths
-has committed override tokens.
+3. The pre-commit hook reads the token from disk, validates it, and allows the commit.
+4. The post-commit hook automatically moves the token from `pending/` → `archived/`
+   (local filesystem only — no staging required).
 
 ## 5. Evidence Requirements (non-negotiable)
 

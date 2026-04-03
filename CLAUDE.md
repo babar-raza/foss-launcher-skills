@@ -26,10 +26,11 @@ Always read in this order before doing any work:
 
 1. **Read AGENTS.md first** — it is the authoritative governance file for all content work.
 2. **Forbidden write paths** — never write to `themes/`, `layouts/`, `configs/`, `AGENTS.md`, `CODEX.md`, `CLAUDE.md`, `.claude/`, `.agents/`, `.kilocode/`, `skills/`, or `scripts/pipeline/path_guard.py` without explicit human override.
-3. **Evidence-first** — every content edit must be grounded in the knowledge model (`knowledge/{family}/{platform}/`). Read `model.yaml` before touching any content page.
-4. **Knowledge freshness** — if `model.yaml` has `stale_since != null`, stop and run the maintenance workflow (S-12 → S-14) before editing content.
-5. **Activate .venv** — always use `.venv/Scripts/python` (Windows) or `.venv/bin/python` (Unix) rather than system Python for all scripts.
-6. **Skill-first execution** — every task must be attempted through registered skills first (AGENTS.md §6a). If no skill covers the requirement, classify capability as FULL/PARTIAL/NONE/BROKEN per §6b and produce a gap escalation report. Do not invent ad hoc workflows.
+3. **reports/ is local-only** — `reports/` is a strict local artifact boundary. Agents may write to it; nothing under `reports/` may ever be staged or committed. The pre-commit hook enforces this. Do not use `git add -f` to bypass it.
+4. **Evidence-first** — every content edit must be grounded in the knowledge model (`knowledge/{family}/{platform}/`). Read `model.yaml` before touching any content page.
+5. **Knowledge freshness** — if `model.yaml` has `stale_since != null`, stop and run the maintenance workflow (S-12 → S-14) before editing content.
+6. **Activate .venv** — always use `.venv/Scripts/python` (Windows) or `.venv/bin/python` (Unix) rather than system Python for all scripts.
+7. **Skill-first execution** — every task must be attempted through registered skills first (AGENTS.md §6a). If no skill covers the requirement, classify capability as FULL/PARTIAL/NONE/BROKEN per §6b and produce a gap escalation report. Do not invent ad hoc workflows.
 
 ## Skills
 
