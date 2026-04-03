@@ -56,9 +56,9 @@ Run a structural and quality check on a content file before committing.
    - [ ] `draft` is `false` (WARN if `true` — not a blocker but flag it)
    - [ ] Date fields (`date`, `lastmod`) use `YYYY-MM-DD` format with quotes: `'2026-01-15'`
    - [ ] KB articles: `type: topic` present
-   - [ ] Docs pages: `type: docs` present
+   - [ ] Docs pages: `layout: list` present
    - [ ] Blog posts: `author: Aspose` and `categories` array present
-   - [ ] Reference pages: `layout: reference-single` present
+   - [ ] Reference pages: `layout: single` present
    - [ ] KB/blog: `keywords` list present with at least 5 items
 
    ### Content structure checks (FAIL if any fail)

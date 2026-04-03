@@ -104,14 +104,17 @@ already exists AND its `index.md` passes audit (0 FAIL)
 ---
 
 ### STAGE 3 — Documentation Pages
-**Derive needed pages** from `knowledge/{family}/{platform}/merged/claims.json`:
-- `getting-started/installation` — always generate if missing
-- `getting-started/quickstart` — always generate if missing
-- `developer-guide/{topic}` — one page per distinct capability cluster in claims
+**Commands**:
+1. `/new-docs-index {family} {platform}`
+2. Per page derived from `knowledge/{family}/{platform}/merged/claims.json`:
+   - `getting-started/installation` — always generate if missing
+   - `getting-started/quickstart` — always generate if missing
+   - `developer-guide/{topic}` — one page per distinct capability cluster in claims
 
-**Command per page**: `/new-docs-page {family} {platform} {section} {slug}`
+**Command per content page**: `/new-docs-page {family} {platform} {section} {slug}`
 
-**Skip condition**: file already exists AND passes audit
+**Skip condition**: files already exist AND pass audit (step 1 is self-idempotent — it skips
+automatically if `_index.md` already has `linktitle`, `layout: list`, and `{{< sections >}}`)
 
 **Checkpoint**: `docs_done`
 
@@ -119,19 +122,24 @@ already exists AND its `index.md` passes audit (0 FAIL)
 
 ### STAGE 4 — KB Articles
 **Commands**:
-1. `/new-kb-faq {family} {platform}`
-2. `/new-kb-howto {family} {platform} how-to-get-started-{family}-{platform}`
+1. `/new-kb-index {family} {platform}`
+2. `/new-kb-faq {family} {platform}`
+3. `/new-kb-howto {family} {platform} how-to-get-started-{family}-{platform}`
 
-**Skip condition**: files already exist AND pass audit
+**Skip condition**: files already exist AND pass audit (step 1 is self-idempotent — it skips
+automatically if `_index.md` already has `linkTitle`, `layout: list`, and `{{< children >}}`)
 
 **Checkpoint**: `kb_done`
 
 ---
 
 ### STAGE 5 — Reference Pages (Batch)
-**Command**: `/batch-reference {family} {platform}`
+**Commands**:
+1. `/new-reference-index {family} {platform}`
+2. `/batch-reference {family} {platform}`
 
-Idempotent — skips existing pages automatically. No skip-condition check needed.
+Step 1 is self-idempotent — skips if `_index.md` already has `layout: list` and
+`{{< children >}}`. Step 2 is idempotent — skips existing class pages automatically.
 
 **Checkpoint**: `reference_done`
 

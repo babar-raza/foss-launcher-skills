@@ -14,6 +14,22 @@ Generate a new blog post for blog.aspose.org.
 **Arguments:** `$ARGUMENTS`
 **Expected format:** `{family} {platform} {slug}` — e.g. `3d python working-with-3d-formats`
 
+> **⚠ BYPASS PREVENTION (healing-sprint governance addition)**
+>
+> NEVER create blog files manually or by writing to
+> `content/blog.aspose.org/` outside this skill. Manual creation bypasses:
+> - `no-downgrade-guard` (structural regression check)
+> - `attach_evidence.py` (knowledge grounding)
+> - `content-check` and `change-guard` (claim/API verification)
+>
+> All blog files MUST use the **directory structure** `{slug}/index.md` — flat
+> `{slug}.md` files are invalid and will be rejected by `check-blog-slugs.py`.
+>
+> Any file found with `content_origin: unknown` and a non-Aspose author is
+> evidence of a rogue generation path and must be audited and remediated before
+> publishing. The `author` field must always be exactly `Aspose` (FAIL if wrong,
+> enforced by `page_role.py`).
+
 ## Knowledge Pre-conditions
 
 Before generating any content, you MUST:
