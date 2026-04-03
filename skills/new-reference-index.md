@@ -10,7 +10,7 @@ Scaffold or repair the reference platform `_index.md` section landing page.
 Creates the Hugo section landing page at
 `content/reference.aspose.org/en/{family}/{platform}/_index.md` with all required frontmatter
 fields and the `{{< children >}}` shortcode. Without this file (or when it is missing
-`layout: reference-home`, `summary`, `categories`, or the shortcode), the reference section
+`layout: list`, `summary`, `categories`, or the shortcode), the reference section
 will fail to list classes or render incorrectly.
 
 ## Platform Display Names
@@ -56,7 +56,7 @@ Default weight for unlisted platforms: 80.
    - `formats` or top-level capability summary — for the description's format/operation list
 
 4. **Check idempotency**: If `content/reference.aspose.org/en/{family}/{platform}/_index.md`
-   already exists AND contains `layout: reference-home` in frontmatter AND contains
+   already exists AND contains `layout: list` in frontmatter AND contains
    `{{< children >}}` in the body, print `SKIP: _index.md already complete` and stop.
 
 5. **Derive values**:
@@ -88,8 +88,7 @@ Default weight for unlisted platforms: 80.
    weight: {weight from step 5}
    description: "{description from step 5}"
    summary: "{summary from step 5}"
-   layout: reference-home
-   type: reference_home
+   layout: list
    categories:
    - API Reference
    ---

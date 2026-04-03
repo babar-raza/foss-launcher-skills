@@ -105,7 +105,7 @@ already exists AND its `index.md` passes audit (0 FAIL)
 **Command per content page**: `/new-docs-page {family} {platform} {section} {slug}`
 
 **Skip condition**: files already exist AND pass audit (step 1 is self-idempotent — it skips
-automatically if `_index.md` already has `linktitle` and `{{< sections >}}`)
+automatically if `_index.md` already has `linktitle`, `layout: list`, and `{{< sections >}}`)
 
 **Checkpoint**: `docs_done`
 
@@ -118,7 +118,7 @@ automatically if `_index.md` already has `linktitle` and `{{< sections >}}`)
 3. `/new-kb-howto {family} {platform} how-to-get-started-{family}-{platform}`
 
 **Skip condition**: files already exist AND pass audit (step 1 is self-idempotent — it skips
-automatically if `_index.md` already has `linkTitle` and `{{< children >}}`)
+automatically if `_index.md` already has `linkTitle`, `layout: list`, and `{{< children >}}`)
 
 **Checkpoint**: `kb_done`
 
@@ -129,7 +129,7 @@ automatically if `_index.md` already has `linkTitle` and `{{< children >}}`)
 1. `/new-reference-index {family} {platform}`
 2. `/batch-reference {family} {platform}`
 
-Step 1 is self-idempotent — skips if `_index.md` already has `layout: reference-home` and
+Step 1 is self-idempotent — skips if `_index.md` already has `layout: list` and
 `{{< children >}}`. Step 2 is idempotent — skips existing class pages automatically.
 
 **Checkpoint**: `reference_done`

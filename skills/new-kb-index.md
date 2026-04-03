@@ -9,7 +9,7 @@ Scaffold or repair the KB platform `_index.md` section landing page.
 
 Creates the Hugo section landing page at `content/kb.aspose.org/en/{family}/{platform}/_index.md`
 with all required frontmatter fields and the `{{< children >}}` shortcode. Without this file
-(or when it is missing `linkTitle`, `subtitle`, `icon`, or the shortcode), the section renders
+(or when it is missing `linkTitle`, `subtitle`, `icon`, `layout: list`, or the shortcode), the section renders
 blank in Hugo.
 
 ## Platform Display Names
@@ -56,7 +56,7 @@ Default weight for unlisted platforms: 80.
    - `title` or `name` field for the human-readable family/product name
 
 4. **Check idempotency**: If `content/kb.aspose.org/en/{family}/{platform}/_index.md` already
-   exists AND contains `linkTitle` in frontmatter AND contains `{{< children >}}` in the body,
+   exists AND contains `linkTitle` in frontmatter AND contains `layout: list` in frontmatter AND contains `{{< children >}}` in the body,
    print `SKIP: _index.md already complete` and stop — do not overwrite.
 
 5. **Derive values**:
@@ -85,6 +85,7 @@ Default weight for unlisted platforms: 80.
    description: "{description from step 5}"
    icon: terminal
    weight: {weight from step 5}
+   layout: list
    ---
 
    {body_intro from step 5}

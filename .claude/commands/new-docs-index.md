@@ -10,7 +10,7 @@ Scaffold or repair the docs platform `_index.md` section landing page.
 Creates the Hugo section landing page at
 `content/docs.aspose.org/en/{family}/{platform}/_index.md` with all required frontmatter
 fields and the `{{< sections >}}` shortcode. Without this file (or when it is missing
-`linktitle`, `subtitle`, `icon`, `type: docs`, or the shortcode), the docs section may
+`linktitle`, `subtitle`, `icon`, `layout: list`, or the shortcode), the docs section may
 render blank or fail to build.
 
 ## Platform Display Names
@@ -56,7 +56,7 @@ Default weight for unlisted platforms: 80.
    - `install_command` or `requirements` — for the platform requirement sentence
 
 4. **Check idempotency**: If `content/docs.aspose.org/en/{family}/{platform}/_index.md` already
-   exists AND contains `linktitle` in frontmatter AND contains `{{< sections >}}` in the body,
+   exists AND contains `linktitle` in frontmatter AND contains `layout: list` in frontmatter AND contains `{{< sections >}}` in the body,
    print `SKIP: _index.md already complete` and stop — do not overwrite.
 
 5. **Derive values**:
@@ -85,8 +85,8 @@ Default weight for unlisted platforms: 80.
    subtitle: Aspose.{Family} FOSS for {Platform display}
    description: "{description from step 5}"
    icon: terminal
-   type: docs
    weight: {weight from step 5}
+   layout: list
    ---
 
    {body_intro from step 5}
@@ -100,7 +100,7 @@ Default weight for unlisted platforms: 80.
    in the next step — do not include them manually.
 
    Note: use `linktitle` (all lowercase) — this is the Hugo docs theme convention for this site,
-   distinct from `linkTitle` used in the KB and reference sites.
+   distinct from `linkTitle` (camelCase) used in the KB and reference sites.
 
 8. **Attach evidence**: Run:
    ```bash

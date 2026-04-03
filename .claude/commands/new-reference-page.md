@@ -61,7 +61,7 @@ Before generating any content, you MUST:
      {Same 2 sentences as description — used in listing cards}
    categories:
    - {Class | Enum | Interface — pick the correct one}
-   layout: reference-single
+   layout: single
    ---
    ```
    Note: no `date`, `lastmod`, `draft`, `type`, or `weight` fields on reference pages.
@@ -118,7 +118,7 @@ Before generating any content, you MUST:
    - Example: `[PolygonModifier](/reference.aspose.org/en/3d/python/PolygonModifier/)`
 
 5. **Constraints**:
-   - `layout: reference-single` must always be present — this triggers the custom Hugo template
+   - `layout: single` must always be present — bypasses `layouts/_default/section.html` and uses `themes/docs/layouts/_default/single.html`
    - Class name, parent class, package name, and property names must match what you read from the reference index — do not invent API surface
    - Code examples use the platform's code fence language: `python` (Python), `csharp` (.NET), `java` (Java), `cpp` (C++), `typescript` (TypeScript)
    - The `---` divider separates Examples, Properties, Methods, and See Also blocks
