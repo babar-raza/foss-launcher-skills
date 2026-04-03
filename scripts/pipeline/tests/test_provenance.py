@@ -362,7 +362,7 @@ class TestSourceSha:
             sha1 = compute_source_sha(p)
             sha2 = compute_source_sha(p)
             assert sha1 == sha2
-            assert len(sha1) == 12
+            assert len(sha1) == 24
             assert all(c in "0123456789abcdef" for c in sha1)
         finally:
             _cleanup(p)
