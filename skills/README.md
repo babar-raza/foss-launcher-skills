@@ -60,7 +60,7 @@ Source: `scripts/pipeline/sync_skills.py:INTERNAL_SKILLS`.
 
 ## Skill Catalog
 
-52 registered skills grouped by functional category. For the machine-validated registry with
+53 registered skills grouped by functional category. For the machine-validated registry with
 full descriptions, see [AGENTS.md §12](../AGENTS.md).
 
 ### Knowledge & Truth
@@ -149,6 +149,7 @@ Skills that coordinate pipelines, manage translations, or support operators.
 | S-64 | `getting-started` | Fresh-clone onboarding: install deps, configure env, bootstrap knowledge, verify |
 | S-66 | `register-human-content` | Onboard a human-authored page into quality and provenance systems |
 | S-67 | `diagnose-skill-failure` | Governed diagnostic procedure when a skill or pipeline script fails |
+| S-76 | `commit` | Full commit-prep workflow: inspect, categorize, plan commits, handle override tokens + content audit, stage precisely, verify tests, commit, clean up token lifecycle, print summary |
 
 ---
 
