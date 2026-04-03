@@ -951,7 +951,7 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | manual-edit | S-73 | Operator-directed targeted content edit: applies a human-specified targeted change (frontmatter, wording, code block, section rewrite) to a single file under full path-guard, evidence, provenance, and audit trail governance; revert-on-failure; single file per invocation |
 | causal-backtrack | S-74 | Resolve upstream dependency failures: given evaluation findings with cause_class UPSTREAM_MISSING or BAD_LINK_FORMAT, classifies dependency root cause, invokes S-62/S-60 for missing targets or S-73 for wrong-URL fixes, and writes cause-classification.json + dependency-verification.json evidence; supports --dry-run |
 | locale-patch | S-75 | Propagate targeted text fixes to locale translation copies of a fixed English source file; dry-run first; applies (old_text, new_text) patches to all locale variants; emits patch_report.md; never re-translates whole page |
-| commit | S-76 | Full commit-prep workflow: inspect working tree, categorize changes, plan 2–8 Conventional Commits, handle override tokens for protected paths, add Skills invoked for content commits, stage precisely (never git add -A), verify quality gates (pytest), create commits with structured bodies, clean up post-commit token lifecycle, print final summary |
+| commit | S-76 | Full commit-prep workflow: inspect working tree, categorize changes, plan 2–8 Conventional Commits, handle override tokens for protected paths, add invoked-skill IDs to content commits, stage precisely (never git add -A), verify quality gates (pytest), create commits with structured bodies, clean up post-commit token lifecycle, print final summary |
 
 ### Enforcement scripts
 
