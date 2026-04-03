@@ -34,6 +34,7 @@ class FixType(StrEnum):
     LLM = "llm"
     HUMAN = "human"
     SKIP = "skip"
+    UPSTREAM = "upstream"   # requires causal backtracking before local fix
 
 
 @dataclass(slots=True)
@@ -55,6 +56,7 @@ class TriageResult:
     llm_needed: list[TriagedFinding] = field(default_factory=list)
     human_needed: list[TriagedFinding] = field(default_factory=list)
     skipped: list[TriagedFinding] = field(default_factory=list)
+    upstream_blocked: list[TriagedFinding] = field(default_factory=list)
 
     @property
     def summary(self) -> dict[str, int]:
@@ -64,6 +66,7 @@ class TriageResult:
             "llm_needed": len(self.llm_needed),
             "human_needed": len(self.human_needed),
             "skipped": len(self.skipped),
+            "upstream_blocked": len(self.upstream_blocked),
         }
 
 
@@ -131,7 +134,24 @@ CATEGORY_TO_EVALUATOR: dict[str, str] = {
 
 
 def triage_finding(finding: Finding) -> TriagedFinding:
-    """Classify a single finding. First matching rule wins."""
+    """Classify a single finding. First matching rule wins.
+
+    Findings with cause_class UPSTREAM_MISSING or BAD_LINK_FORMAT are routed
+    to the UPSTREAM bucket regardless of category/level so the BacktrackController
+    can handle them before local fixers run.
+    """
+    # Upstream-dependency findings take priority over all other rules.
+    if finding.cause_class in ("UPSTREAM_MISSING", "BAD_LINK_FORMAT"):
+        return TriagedFinding(
+            finding=finding,
+            fix_type=FixType.UPSTREAM,
+            fixer_name="backtrack_controller",
+            reason=(
+                f"Link target cause_class={finding.cause_class}: "
+                "must be resolved by BacktrackController before local triage"
+            ),
+        )
+
     for cat, levels, msg_re, fix_type, fixer, reason in _TRIAGE_RULES:
         if finding.category != cat:
             continue
@@ -174,6 +194,8 @@ def triage_findings(findings: list[Finding]) -> TriageResult:
             result.llm_needed.append(tf)
         elif tf.fix_type == FixType.HUMAN:
             result.human_needed.append(tf)
+        elif tf.fix_type == FixType.UPSTREAM:
+            result.upstream_blocked.append(tf)
         else:
             result.skipped.append(tf)
 

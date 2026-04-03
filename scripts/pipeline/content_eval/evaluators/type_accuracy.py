@@ -108,6 +108,11 @@ class TypeAccuracyEvaluator(BaseEvaluator):
         if page.subdomain == "reference" and api_surface:
             findings.extend(self._check_return_types(page, api_surface))
 
+        # FR-17b: reference_void_mismatch — FAIL when table explicitly shows void/None
+        # but api_surface has a non-void return type
+        if page.subdomain == "reference" and api_surface:
+            findings.extend(self._check_reference_void_mismatch(page, api_surface))
+
         # Checks 1-3: C++ only
         if page.platform == "cpp":
             cpp_blocks = [b for b in page.code_blocks if b.lang in _CPP_LANGS]
@@ -344,6 +349,73 @@ class TypeAccuracyEvaluator(BaseEvaluator):
                     suggestion=f"Set Return Type column for `{method_name}()` to `{expected}`",
                     evaluator=self.name,
                 ))
+
+        return findings
+
+    # ------------------------------------------------------------------
+    # FR-17b: reference_void_mismatch — FAIL when table explicitly says void/None
+    # ------------------------------------------------------------------
+
+    # Explicit void/None values in the return-type cell (not just blank)
+    _EXPLICIT_VOID_CELL_RE = re.compile(
+        r"^\|\s*`(?P<method>[A-Za-z_][A-Za-z0-9_]*)\s*\([^)]*\)`\s*\|\s*`?(?P<ret>void|None|null)`?\s*\|",
+        re.MULTILINE | re.IGNORECASE,
+    )
+
+    def _check_reference_void_mismatch(
+        self,
+        page: Page,
+        api_surface: list[dict],
+    ) -> list[Finding]:
+        """Emit FAIL when a method table explicitly documents void/None but api_surface
+        shows a definitive non-void return type.
+
+        This differs from Check 5 (_check_return_types) which catches *blank* return
+        cells.  This check catches *explicit* void/None that contradicts the source.
+        """
+        findings: list[Finding] = []
+
+        class_name = page.frontmatter.get("linkTitle", "") or page.filepath.stem
+        if not class_name:
+            return findings
+
+        # Build method → return_type map for non-void methods
+        return_type_map: dict[str, str] = {}
+        for entry in api_surface:
+            if entry.get("name") != class_name:
+                continue
+            for method in entry.get("methods", []):
+                mname = method.get("name", "")
+                mtype = (method.get("return_type") or "").strip()
+                if mname and mtype and mtype.lower() not in _VOID_RETURN_VALUES:
+                    return_type_map[mname] = mtype
+            break
+
+        if not return_type_map:
+            return findings
+
+        raw = page.filepath.read_text(encoding="utf-8", errors="replace")
+        for m in self._EXPLICIT_VOID_CELL_RE.finditer(raw):
+            method_name = m.group("method")
+            if method_name not in return_type_map:
+                continue
+            line_no = raw[: m.start()].count("\n") + 1
+            expected = return_type_map[method_name]
+            findings.append(Finding(
+                level="FAIL",
+                category="TA",
+                filepath=str(page.filepath),
+                line_no=line_no,
+                message=(
+                    f"Method `{method_name}()` explicitly documented as returning "
+                    f"`void`/`None` but api_surface shows return type `{expected}`"
+                ),
+                suggestion=(
+                    f"Change the Return Type cell for `{method_name}()` from void/None "
+                    f"to `{expected}`"
+                ),
+                evaluator=self.name,
+            ))
 
         return findings
 

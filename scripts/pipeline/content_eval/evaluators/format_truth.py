@@ -288,4 +288,72 @@ class FormatTruthEvaluator(BaseEvaluator):
                     evaluator=self.name,
                 ))
 
+        # FR-17d: products_format_unsupported — products pages that mention formats
+        # that are neither importable nor exportable per formats.json
+        if page.subdomain == "products":
+            findings.extend(
+                self._check_products_format_unsupported(page, format_direction)
+            )
+
+        return findings
+
+    # ------------------------------------------------------------------
+    # FR-17d helper
+    # ------------------------------------------------------------------
+
+    # Pattern for 3-5 char uppercase format tokens (e.g. FBX, OBJ, STL, GLTF, PPTX)
+    _UPPERCASE_FORMAT_RE = re.compile(
+        r"(?<![A-Z])([A-Z]{3,5})(?![A-Z])",
+    )
+
+    def _check_products_format_unsupported(
+        self,
+        page: Page,
+        format_direction: dict[str, str],
+    ) -> list[Finding]:
+        """Emit FAIL when a products page positively mentions a format that is
+        neither importable nor exportable per formats.json.
+
+        Only fires when formats.json is available (format_direction non-empty).
+        """
+        if not format_direction:
+            return []
+
+        findings: list[Finding] = []
+        reported: set[str] = set()
+
+        for line_no, line_text in page.prose_lines:
+            stripped = line_text.strip()
+            # Only examine bullet lines or lines with "support"/"format" context
+            if not any(kw in stripped.lower() for kw in ("support", "format", "import", "export", "read", "writ", "load", "save")):
+                continue
+            for m in self._UPPERCASE_FORMAT_RE.finditer(stripped):
+                fmt_upper = m.group(1)
+                fmt_lower = fmt_upper.lower()
+                # Only check formats we know about in formats.json
+                if fmt_lower not in format_direction:
+                    continue
+                if fmt_lower in reported:
+                    continue
+                direction = format_direction[fmt_lower]
+                # "none" direction means canImport=false AND canExport=false
+                if direction == "none":
+                    reported.add(fmt_lower)
+                    findings.append(Finding(
+                        level="FAIL",
+                        category="FT",
+                        filepath=str(page.filepath),
+                        line_no=line_no,
+                        message=(
+                            f"Products page positively mentions `{fmt_upper}` but "
+                            f"formats.json shows canImport=false AND canExport=false"
+                        ),
+                        suggestion=(
+                            f"Remove the `{fmt_upper}` reference or add a clear "
+                            f"'not supported' caveat — the knowledge model shows "
+                            f"this format is not supported"
+                        ),
+                        evaluator=self.name,
+                    ))
+
         return findings

@@ -380,6 +380,103 @@ def _synthesize_java_properties(
 
 
 # ---------------------------------------------------------------------------
+# C# / Java const and static-final field extraction (Track A-1)
+# ---------------------------------------------------------------------------
+
+def _extract_const_fields(
+    cnode, cname: str, rel: str, family: str, language: str,
+) -> tuple[list[dict[str, Any]], list[dict]]:
+    """Extract public const/static-readonly (C#) and public static final (Java) fields.
+
+    These are accessed in content like properties (``CfbConstants.RootStreamId``)
+    but are field_declaration nodes, not method_declaration or property_declaration
+    nodes, so they are missed by the main extraction pass.
+
+    Returns (properties, claims).
+    """
+    fields: list[dict[str, Any]] = []
+    claims: list[dict] = []
+
+    # C# class body is a declaration_list; Java class body is a class_body
+    body = (find_child_by_type(cnode, "declaration_list")
+            or find_child_by_type(cnode, "class_body"))
+    if body is None:
+        return fields, claims
+
+    for member in body.children:
+        if member.type != "field_declaration":
+            continue
+
+        # Gather ALL modifier texts (C# has one `modifier` node per keyword)
+        mod_parts: list[str] = []
+        var_decl_node = None
+        for ch in member.children:
+            if ch.type in ("modifiers", "modifier"):
+                mod_parts.append(node_text(ch))
+            elif ch.type == "variable_declaration":
+                var_decl_node = ch
+        mods = " ".join(mod_parts)
+
+        if "public" not in mods:
+            continue
+
+        # C#: must have `const` or `readonly` (catches `static readonly`)
+        if language == "csharp" and "const" not in mods and "readonly" not in mods:
+            continue
+        # Java: must have `final` (catches `static final`)
+        if language == "java" and "final" not in mods:
+            continue
+
+        # Extract field type — C# puts it inside variable_declaration
+        ftype = ""
+        if var_decl_node is not None:
+            type_node = child_by_field(var_decl_node, "type")
+            if type_node is None:
+                # fallback: first non-declarator child
+                for sub in var_decl_node.children:
+                    if sub.type not in ("variable_declarator", ",", ";"):
+                        ftype = node_text(sub)
+                        break
+            else:
+                ftype = node_text(type_node)
+        else:
+            type_node = child_by_field(member, "type")
+            if type_node:
+                ftype = node_text(type_node)
+
+        # Find variable_declarator nodes — C# nests them inside variable_declaration
+        declarator_parent = var_decl_node if var_decl_node is not None else member
+        for ch in declarator_parent.children:
+            if ch.type == "variable_declarator":
+                fname_node = child_by_field(ch, "name")
+                fname = node_text(fname_node) if fname_node else ""
+                if not fname:
+                    # fallback: first identifier in the declarator
+                    for sub in ch.children:
+                        if sub.type == "identifier":
+                            fname = node_text(sub)
+                            break
+                if not fname:
+                    continue
+
+                kind = "constant" if "const" in mods else "static_field"
+                fields.append({
+                    "name": fname,
+                    "type": ftype,
+                    "kind": kind,
+                    "line": member.start_point[0] + 1,
+                    "writable": False,
+                })
+                claims.append(_make_claim(
+                    family, "api_field",
+                    f"{cname}.{fname} {kind} of type {ftype}",
+                    rel, member.start_point[0] + 1,
+                ))
+
+    return fields, claims
+
+
+# ---------------------------------------------------------------------------
 # C++ property synthesis
 # ---------------------------------------------------------------------------
 
@@ -448,6 +545,107 @@ def _synthesize_cpp_properties(
 
 
 # ---------------------------------------------------------------------------
+# FR-16: Stub method detection helpers
+# ---------------------------------------------------------------------------
+
+def _is_python_stub(mnode) -> bool:
+    """Return True if a Python function body is a single raise NotImplementedError."""
+    body = child_by_field(mnode, "body") or find_child_by_type(mnode, "block")
+    if body is None:
+        return False
+    stmts = [ch for ch in body.children if ch.type not in (",", "\n", "comment")]
+    if len(stmts) != 1:
+        return False
+    stmt = stmts[0]
+    # Allow docstring + raise pattern: 2 children where first is expression_statement(string)
+    if stmt.type == "expression_statement" and stmt.children:
+        s = stmt.children[0]
+        if s.type in ("string", "concatenated_string"):
+            # This is a docstring — not a raise; look at siblings
+            return False
+    # raise_statement: raise NotImplementedError / raise NotImplementedError(...)
+    if stmt.type == "raise_statement":
+        txt = node_text(stmt)
+        return "NotImplementedError" in txt
+    # expression_statement containing raise: not common, but skip
+    return False
+
+
+def _is_python_stub_with_docstring(mnode) -> bool:
+    """Return True if a Python function body is docstring + raise NotImplementedError."""
+    body = child_by_field(mnode, "body") or find_child_by_type(mnode, "block")
+    if body is None:
+        return False
+    stmts = [ch for ch in body.children if ch.type not in (",", "\n", "comment")]
+    # pattern: expression_statement(string), raise_statement
+    if len(stmts) == 2:
+        first, second = stmts
+        if (first.type == "expression_statement"
+                and second.type == "raise_statement"
+                and "NotImplementedError" in node_text(second)):
+            return True
+    return False
+
+
+def _is_python_stub_any(mnode) -> bool:
+    """Check both pure-raise and docstring+raise stub patterns for Python."""
+    return _is_python_stub(mnode) or _is_python_stub_with_docstring(mnode)
+
+
+def _is_csharp_stub(mnode) -> bool:
+    """Return True if a C# method body is a single throw new NotImplementedException."""
+    body = find_child_by_type(mnode, "block")
+    if body is None:
+        return False
+    stmts = [ch for ch in body.children if ch.type not in ("{", "}", "\n", "comment")]
+    if len(stmts) != 1:
+        return False
+    stmt = stmts[0]
+    if stmt.type == "throw_statement":
+        txt = node_text(stmt)
+        return "NotImplementedException" in txt
+    return False
+
+
+def _is_java_stub(mnode) -> bool:
+    """Return True if a Java method body is a single throw new UnsupportedOperationException."""
+    body = find_child_by_type(mnode, "block")
+    if body is None:
+        return False
+    stmts = [ch for ch in body.children if ch.type not in ("{", "}", "\n", "comment")]
+    if len(stmts) != 1:
+        return False
+    stmt = stmts[0]
+    if stmt.type in ("throw_statement", "expression_statement"):
+        txt = node_text(stmt)
+        return "UnsupportedOperationException" in txt or "NotImplementedException" in txt
+    return False
+
+
+# ---------------------------------------------------------------------------
+# FR-15: C++ canonical namespace helper
+# ---------------------------------------------------------------------------
+
+def _cpp_canonical_namespace(cnode) -> str:
+    """Walk up the AST from a C++ class node to collect all enclosing namespace names.
+
+    Returns namespace names joined with '::' in outermost-to-innermost order.
+    Example: class inside 'namespace Aspose { namespace Slides { ... } }' returns
+    'Aspose::Slides'.
+    """
+    parts: list[str] = []
+    parent = cnode.parent
+    while parent is not None:
+        if parent.type == "namespace_definition":
+            name_node = child_by_field(parent, "name")
+            if name_node:
+                parts.append(node_text(name_node))
+        parent = parent.parent
+    parts.reverse()
+    return "::".join(parts)
+
+
+# ---------------------------------------------------------------------------
 # Core API surface extraction
 # ---------------------------------------------------------------------------
 
@@ -500,6 +698,15 @@ def extract_api_surface(
                     pkg_text = pkg_text[len(kw):].strip()
             if pkg_text:
                 packages.add(pkg_text)
+
+        # FR-15: capture Java file-level package declaration once per file
+        java_file_package = ""
+        if language == "java":
+            for pkg_node in collect_nodes(root, {"package_declaration"}):
+                pkg_txt = node_text(pkg_node).strip().rstrip(";")
+                if pkg_txt.startswith("package"):
+                    java_file_package = pkg_txt[len("package"):].strip()
+                break
 
         class_nodes = collect_nodes(root, class_types)
 
@@ -571,6 +778,73 @@ def extract_api_surface(
                         if "@property" in dec_text or ".setter" in dec_text or ".deleter" in dec_text:
                             continue
 
+                # FR-14: TypeScript getter/setter accessors → kind: property, not callable
+                if language in ("typescript", "javascript"):
+                    if mnode.type in ("get_signature", "set_signature"):
+                        # Explicit TS accessor signature nodes
+                        acc_mode = "readonly" if mnode.type == "get_signature" else "writeonly"
+                        ptype = ""
+                        type_node = (child_by_field(mnode, "return_type")
+                                     or find_child_by_type(mnode, "type_annotation"))
+                        if type_node:
+                            ptype = node_text(type_node).lstrip(":").strip()
+                        # Merge with existing same-name property if present
+                        existing_prop = next(
+                            (p for p in properties
+                             if p.get("name") == mname and p.get("kind") == "property"),
+                            None,
+                        )
+                        if existing_prop is not None:
+                            existing_prop["access_mode"] = "readwrite"
+                        else:
+                            properties.append({
+                                "name": mname,
+                                "type": ptype,
+                                "kind": "property",
+                                "access_mode": acc_mode,
+                                "line": mnode.start_point[0] + 1,
+                            })
+                            claims.append(_make_claim(
+                                family, "api_method",
+                                f"{cname}.{mname} property of type {ptype}",
+                                rel, mnode.start_point[0] + 1))
+                        continue
+                    # method_definition that begins with 'get ' or 'set '
+                    if mnode.type == "method_definition":
+                        raw_txt = node_text(mnode).lstrip()
+                        is_getter = raw_txt.startswith("get ")
+                        is_setter = raw_txt.startswith("set ")
+                        if is_getter or is_setter:
+                            acc_mode = "readonly" if is_getter else "writeonly"
+                            ptype = ""
+                            if is_getter:
+                                type_node = (child_by_field(mnode, "return_type")
+                                             or find_child_by_type(mnode, "type_annotation"))
+                                if type_node:
+                                    ptype = node_text(type_node).lstrip(":").strip()
+                            existing_prop = next(
+                                (p for p in properties
+                                 if p.get("name") == mname and p.get("kind") == "property"),
+                                None,
+                            )
+                            if existing_prop is not None:
+                                existing_prop["access_mode"] = "readwrite"
+                                if is_getter and ptype and not existing_prop.get("type"):
+                                    existing_prop["type"] = ptype
+                            else:
+                                properties.append({
+                                    "name": mname,
+                                    "type": ptype,
+                                    "kind": "property",
+                                    "access_mode": acc_mode,
+                                    "line": mnode.start_point[0] + 1,
+                                })
+                                claims.append(_make_claim(
+                                    family, "api_method",
+                                    f"{cname}.{mname} property of type {ptype}",
+                                    rel, mnode.start_point[0] + 1))
+                            continue
+
                 if mnode.type in ("property_declaration",
                                   "public_field_definition",
                                   "property_signature"):
@@ -578,10 +852,21 @@ def extract_api_surface(
                     type_node = child_by_field(mnode, "type")
                     if type_node:
                         ptype = node_text(type_node)
+                    # Detect setter — C# accessor_list with "set" or "init"
+                    writable = False
+                    acc_list = find_child_by_type(mnode, "accessor_list")
+                    if acc_list is not None:
+                        for acc in acc_list.children:
+                            if acc.type == "accessor_declaration":
+                                acc_text = node_text(acc).lstrip()
+                                if acc_text.startswith(("set", "init")):
+                                    writable = True
+                                    break
                     properties.append({
                         "name": mname,
                         "type": ptype,
                         "line": mnode.start_point[0] + 1,
+                        "writable": writable,
                     })
                     claims.append(_make_claim(
                         family, "api_method",
@@ -598,14 +883,23 @@ def extract_api_surface(
                            or (language in ("typescript", "javascript")
                                and mname == "constructor"))
 
-                methods.append({
+                # FR-16: stub detection — methods that only raise/throw NotImplemented*
+                method_entry: dict[str, Any] = {
                     "name": mname,
                     "params": params,
                     "return_type": ret,
                     "doc": mdoc,
                     "line": mnode.start_point[0] + 1,
                     "is_constructor": is_ctor,
-                })
+                }
+                if language == "python" and _is_python_stub_any(mnode):
+                    method_entry["stub"] = True
+                elif language == "csharp" and _is_csharp_stub(mnode):
+                    method_entry["stub"] = True
+                elif language == "java" and _is_java_stub(mnode):
+                    method_entry["stub"] = True
+
+                methods.append(method_entry)
                 claims.append(_make_claim(
                     family, "api_method",
                     f"{cname}.{mname}({', '.join(p['name'] for p in params)}) -> {ret}",
@@ -636,6 +930,15 @@ def extract_api_surface(
             if language == "cpp":
                 extra_props, extra_claims = _synthesize_cpp_properties(
                     methods, cname, rel, family)
+                properties.extend(extra_props)
+                claims.extend(extra_claims)
+
+            # C# public const / static readonly fields + Java public static final fields
+            # These are accessed like properties in content (e.g. CfbConstants.RootStreamId)
+            # but are NOT captured by the method/property_declaration pass above.
+            if language in ("csharp", "java"):
+                extra_props, extra_claims = _extract_const_fields(
+                    cnode, cname, rel, family, language)
                 properties.extend(extra_props)
                 claims.extend(extra_claims)
 
@@ -686,6 +989,36 @@ def extract_api_surface(
             }
             if is_enum:
                 cls_record["enum_members"] = enum_members
+
+            # FR-15: canonical_namespace (C++) and class_package (Java)
+            if language == "cpp":
+                canonical_ns = _cpp_canonical_namespace(cnode)
+                if canonical_ns:
+                    cls_record["canonical_namespace"] = canonical_ns
+                    cls_record["class_import"] = f"{canonical_ns}::{cname}"
+                else:
+                    cls_record["class_import"] = cname
+            elif language == "java":
+                # java_file_package is captured at file level above the class loop
+                if java_file_package:
+                    cls_record["class_package"] = java_file_package
+                    cls_record["class_import"] = f"{java_file_package}.{cname}"
+                else:
+                    cls_record["class_import"] = cname
+            elif language == "python":
+                # Derive from file path relative to pkg_root
+                try:
+                    py_rel = fpath.relative_to(pkg_root)
+                    parts = list(py_rel.parts)
+                    if parts and parts[-1].endswith(".py"):
+                        parts[-1] = parts[-1][:-3]
+                    if parts and parts[-1] == "__init__":
+                        parts = parts[:-1]
+                    if parts:
+                        module_path = ".".join(parts)
+                        cls_record["class_import"] = f"{module_path}.{cname}"
+                except ValueError:
+                    pass
 
             classes.append(cls_record)
             claims.append(_make_claim(

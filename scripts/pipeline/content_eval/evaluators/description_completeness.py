@@ -51,15 +51,16 @@ def _parse_tables(body: str, body_offset: int) -> list[dict]:
                     row_line = lines[j].strip()
                     if not row_line or "|" not in row_line:
                         break
-                    cells = [c.strip() for c in row_line.split("|")]
-                    cells = [c for c in cells if c or cells.index(c) > 0]
+                    # Replace escaped pipes (\|) with a placeholder before splitting
+                    # so that type unions like `str \| None` don't misalign columns.
+                    safe_line = row_line.replace("\\|", "\x00")
                     # Rebuild: split on | gives ['', 'a', 'b', ''] for |a|b|
-                    raw_cells = row_line.split("|")
+                    raw_cells = safe_line.split("|")
                     if raw_cells and not raw_cells[0].strip():
                         raw_cells = raw_cells[1:]
                     if raw_cells and not raw_cells[-1].strip():
                         raw_cells = raw_cells[:-1]
-                    cells = [c.strip() for c in raw_cells]
+                    cells = [c.replace("\x00", "|").strip() for c in raw_cells]
                     rows.append(cells)
                     j += 1
 
@@ -96,12 +97,21 @@ class DescriptionCompletenessEvaluator(BaseEvaluator):
         for table in tables:
             headers_lower = [h.lower() for h in table["headers"]]
 
-            # Find description column index
+            # Find description column index — prefer specific description headers
+            # over "returns" so that tables with both a Returns and a Description
+            # column are evaluated on the Description column.
+            _HIGH_PRIO = {"description", "summary", "remarks"}
+            _LOW_PRIO = {"returns"}
             desc_idx = None
+            low_prio_idx = None
             for idx, h in enumerate(headers_lower):
-                if h in _DESC_HEADERS:
+                if h in _HIGH_PRIO:
                     desc_idx = idx
                     break
+                if h in _LOW_PRIO and low_prio_idx is None:
+                    low_prio_idx = idx
+            if desc_idx is None:
+                desc_idx = low_prio_idx
 
             if desc_idx is None:
                 continue

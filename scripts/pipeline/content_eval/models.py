@@ -32,6 +32,8 @@ class Finding:
     message: str
     suggestion: str = ""
     evaluator: str = ""     # which evaluator produced this
+    cause_class: str = ""   # LOCAL_DEFECT | UPSTREAM_MISSING | BAD_LINK_FORMAT |
+                            # KNOWLEDGE_STALE | PREREQUISITE_ABSENT (empty = LOCAL_DEFECT)
 
     @property
     def id(self) -> str:

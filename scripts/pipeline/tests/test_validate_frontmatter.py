@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import sys
 import tempfile
 import textwrap
@@ -225,5 +226,249 @@ class TestCLI:
             assert isinstance(data, list)
             assert len(data) >= 1
             assert data[0]["check"] == "duplicate_key"
+        finally:
+            p.unlink(missing_ok=True)
+
+
+def _blog_file(content: str, filename: str = "index.md") -> tuple[Path, Path]:
+    """Create a temp file under a blog.aspose.org/{family}/{platform}/{slug}/ path.
+
+    Returns (tmpdir, filepath). Caller must shutil.rmtree(tmpdir) after use.
+    The path structure ensures _is_blog_content_file() returns True.
+    """
+    tmpdir = Path(tempfile.mkdtemp())
+    blog_dir = tmpdir / "content" / "blog.aspose.org" / "3d" / "python" / "test-slug"
+    blog_dir.mkdir(parents=True)
+    p = blog_dir / filename
+    p.write_text(textwrap.dedent(content), encoding="utf-8")
+    return tmpdir, p
+
+
+_BLOG_FULL = """\
+---
+title: Test Blog Post
+draft: false
+evidence:
+  model_sha: abc123
+  model_version: 1.0.0
+  claims:
+  - CLM-001
+  apis:
+  - Scene.open
+provenance:
+  content_origin: skill-generated
+  last_mechanism: skill
+  auto_updatable: true
+  reviewed: false
+---
+Body text.
+"""
+
+_BLOG_EMPTY_CLAIMS = """\
+---
+title: Test Blog Post
+draft: false
+evidence:
+  model_sha: abc123
+  model_version: 1.0.0
+  claims: []
+  apis:
+  - Scene.open
+---
+Body text.
+"""
+
+_BLOG_EMPTY_APIS = """\
+---
+title: Test Blog Post
+draft: false
+evidence:
+  model_sha: abc123
+  model_version: 1.0.0
+  claims:
+  - CLM-001
+  apis: []
+---
+Body text.
+"""
+
+_BLOG_MISSING_EVIDENCE = """\
+---
+title: Test Blog Post
+draft: false
+---
+Body text.
+"""
+
+_BLOG_MISSING_DRAFT = """\
+---
+title: Test Blog Post
+evidence:
+  model_sha: abc123
+  claims:
+  - CLM-001
+  apis:
+  - Scene.open
+---
+Body text.
+"""
+
+_BLOG_MANUAL_REMEDIATION = """\
+---
+title: Test Blog Post
+draft: false
+evidence:
+  model_sha: abc123
+  model_version: 1.0.0
+  claims: []
+  apis: []
+provenance:
+  content_origin: manual-remediation
+  last_mechanism: agent-edit
+  auto_updatable: true
+  reviewed: false
+---
+Body text.
+"""
+
+
+class TestBlogEvidence:
+    """Tests for P-03: blog post evidence completeness check.
+
+    These tests verify that:
+    - Missing or empty evidence blocks are caught
+    - Detail strings reference /evidence-repair for actionable guidance
+    - The manual-remediation escape hatch bypasses claims/apis check
+    - Locale translation files are excluded from P-03
+    - Non-blog files are excluded from P-03
+    """
+
+    def test_full_evidence_passes(self):
+        """Blog post with all required fields passes P-03."""
+        tmpdir, p = _blog_file(_BLOG_FULL)
+        try:
+            errors = check_file(p)
+            blog_errs = [e for e in errors if e.check == "blog_evidence"]
+            assert blog_errs == [], f"Unexpected P-03 errors: {blog_errs}"
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def test_empty_claims_detected(self):
+        """Empty evidence.claims fires P-03."""
+        tmpdir, p = _blog_file(_BLOG_EMPTY_CLAIMS)
+        try:
+            errors = check_file(p)
+            checks = [e.check for e in errors]
+            assert "blog_evidence" in checks
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def test_empty_apis_detected(self):
+        """Empty evidence.apis fires P-03."""
+        tmpdir, p = _blog_file(_BLOG_EMPTY_APIS)
+        try:
+            errors = check_file(p)
+            checks = [e.check for e in errors]
+            assert "blog_evidence" in checks
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def test_missing_evidence_block_detected(self):
+        """Missing evidence: block fires P-03."""
+        tmpdir, p = _blog_file(_BLOG_MISSING_EVIDENCE)
+        try:
+            errors = check_file(p)
+            checks = [e.check for e in errors]
+            assert "blog_evidence" in checks
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def test_missing_draft_field_detected(self):
+        """Missing draft: field fires P-03."""
+        tmpdir, p = _blog_file(_BLOG_MISSING_DRAFT)
+        try:
+            errors = check_file(p)
+            checks = [e.check for e in errors]
+            assert "blog_evidence" in checks
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def test_empty_claims_detail_includes_evidence_repair_hint(self):
+        """Empty claims error detail references /evidence-repair for actionable guidance."""
+        tmpdir, p = _blog_file(_BLOG_EMPTY_CLAIMS)
+        try:
+            errors = check_file(p)
+            claims_errs = [e for e in errors if e.check == "blog_evidence" and "claims" in e.detail]
+            assert claims_errs, "Expected a blog_evidence error about claims"
+            assert "/evidence-repair" in claims_errs[0].detail, (
+                f"Expected /evidence-repair in detail, got: {claims_errs[0].detail}"
+            )
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def test_empty_apis_detail_includes_evidence_repair_hint(self):
+        """Empty apis error detail references /evidence-repair for actionable guidance."""
+        tmpdir, p = _blog_file(_BLOG_EMPTY_APIS)
+        try:
+            errors = check_file(p)
+            apis_errs = [e for e in errors if e.check == "blog_evidence" and "apis" in e.detail]
+            assert apis_errs, "Expected a blog_evidence error about apis"
+            assert "/evidence-repair" in apis_errs[0].detail, (
+                f"Expected /evidence-repair in detail, got: {apis_errs[0].detail}"
+            )
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def test_missing_evidence_detail_includes_evidence_repair_hint(self):
+        """Missing evidence block detail references /evidence-repair."""
+        tmpdir, p = _blog_file(_BLOG_MISSING_EVIDENCE)
+        try:
+            errors = check_file(p)
+            ev_errs = [e for e in errors if e.check == "blog_evidence" and "missing" in e.detail]
+            assert ev_errs, "Expected a blog_evidence error about missing block"
+            assert "/evidence-repair" in ev_errs[0].detail, (
+                f"Expected /evidence-repair in detail, got: {ev_errs[0].detail}"
+            )
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def test_manual_remediation_bypasses_claims_apis_check(self):
+        """Files with content_origin: manual-remediation are exempt from claims/apis check."""
+        tmpdir, p = _blog_file(_BLOG_MANUAL_REMEDIATION)
+        try:
+            errors = check_file(p)
+            # Should have no blog_evidence errors about claims or apis
+            claims_api_errs = [
+                e for e in errors
+                if e.check == "blog_evidence" and ("claims" in e.detail or "apis" in e.detail)
+            ]
+            assert claims_api_errs == [], (
+                f"manual-remediation should bypass claims/apis check, got: {claims_api_errs}"
+            )
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def test_locale_file_excluded_from_p03(self):
+        """Locale translation files (index.ar.md, index.fr.md) are NOT checked for P-03."""
+        tmpdir, p = _blog_file(_BLOG_EMPTY_CLAIMS, filename="index.ar.md")
+        try:
+            errors = check_file(p)
+            blog_errs = [e for e in errors if e.check == "blog_evidence"]
+            assert blog_errs == [], (
+                f"Locale files should be excluded from P-03, got: {blog_errs}"
+            )
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def test_non_blog_file_excluded_from_p03(self):
+        """Files outside content/blog.aspose.org/ are NOT checked for P-03."""
+        # Use a regular temp file (not under blog.aspose.org/)
+        p = _tmp_md(_BLOG_EMPTY_CLAIMS)
+        try:
+            errors = check_file(p)
+            blog_errs = [e for e in errors if e.check == "blog_evidence"]
+            assert blog_errs == [], (
+                f"Non-blog files should be excluded from P-03, got: {blog_errs}"
+            )
         finally:
             p.unlink(missing_ok=True)

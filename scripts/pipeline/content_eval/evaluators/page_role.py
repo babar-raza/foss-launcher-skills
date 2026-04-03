@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import json
 import re
+from pathlib import Path
 from typing import Any
 
 from ..models import Finding, Page
 from . import BaseEvaluator
+
+KNOWLEDGE_ROOT = Path("knowledge")
 
 
 def _has_table(page: Page) -> bool:
@@ -58,6 +62,23 @@ class PageRoleEvaluator(BaseEvaluator):
             return checker(page)
         return []
 
+    def _class_has_members(self, page: Page) -> bool:
+        """Return True if api_surface has any methods or properties for this class."""
+        if not page.family or not page.platform:
+            return True  # can't tell — assume it does to avoid false suppression
+        api_path = KNOWLEDGE_ROOT / page.family / page.platform / "merged" / "api_surface.json"
+        if not api_path.exists():
+            return True
+        try:
+            surface = json.loads(api_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return True
+        class_name = page.filepath.stem
+        for entry in surface:
+            if entry.get("name") == class_name:
+                return bool(entry.get("methods") or entry.get("properties") or entry.get("enum_members"))
+        return True  # not found → assume has members
+
     def _check_reference(self, page: Page) -> list[Finding]:
         findings: list[Finding] = []
         fm = page.frontmatter
@@ -101,7 +122,8 @@ class PageRoleEvaluator(BaseEvaluator):
                 ))
         else:
             # Reference class pages — must have a properties/methods table
-            if not _has_table(page):
+            # unless the class has no documented members (e.g. pure exception types)
+            if not _has_table(page) and self._class_has_members(page):
                 findings.append(Finding(
                     level="WARN",
                     category="RV",
@@ -273,7 +295,9 @@ class PageRoleEvaluator(BaseEvaluator):
         findings: list[Finding] = []
         fm = page.frontmatter
 
-        if not fm.get("author"):
+        author = fm.get("author")
+        if not author:
+            # Missing author — WARN (fixable)
             findings.append(Finding(
                 level="WARN",
                 category="RV",
@@ -281,6 +305,20 @@ class PageRoleEvaluator(BaseEvaluator):
                 line_no=1,
                 message="Blog post missing `author` in frontmatter",
                 suggestion="Add `author: Aspose`",
+                evaluator=self.name,
+            ))
+        elif str(author).strip() != "Aspose":
+            # Author present but wrong value — FAIL (signals off-skill generation, P-02)
+            findings.append(Finding(
+                level="FAIL",
+                category="RV",
+                filepath=str(page.filepath),
+                line_no=1,
+                message=(
+                    f"Blog post `author` is '{author}' — must be exactly 'Aspose'. "
+                    "Non-Aspose author signals the post was created outside the skill chain."
+                ),
+                suggestion="Change `author` to `Aspose`",
                 evaluator=self.name,
             ))
 

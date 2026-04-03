@@ -60,6 +60,40 @@ def _limitations_md_has_content(family: str, platform: str) -> bool:
         return False
 
 
+def _load_limitation_keywords(family: str, platform: str) -> list[str]:
+    """Extract keyword phrases from limitations.md for overlap detection.
+
+    Returns a list of lowercase keyword phrases (3+ chars) extracted from
+    bullet point lines in the limitations file.
+    """
+    path = KNOWLEDGE_ROOT / family / platform / "merged" / "limitations.md"
+    if not path.exists():
+        return []
+    try:
+        content = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return []
+
+    keywords: list[str] = []
+    for line in content.splitlines():
+        stripped = line.strip()
+        # Only process bullet lines
+        if not stripped.startswith(("-", "*", "+")):
+            continue
+        # Remove leading bullet char
+        text = stripped.lstrip("-*+ ").lower()
+        # Extract meaningful phrases (3+ chars, no pure numbers)
+        words = re.findall(r"[a-z][a-z0-9_\-]{2,}", text)
+        # Use multi-word phrases where possible (up to 4-word windows)
+        for i in range(len(words)):
+            phrase = " ".join(words[i:i+2])
+            if len(phrase) >= 5:
+                keywords.append(phrase)
+        # Also add individual meaningful words
+        keywords.extend(w for w in words if len(w) >= 5)
+    return list(set(keywords))
+
+
 class LimitationsCheckEvaluator(BaseEvaluator):
     """Flags docs/kb pages that cover API usage but lack any limitations section.
 
@@ -129,3 +163,62 @@ class LimitationsCheckEvaluator(BaseEvaluator):
             ),
             evaluator=self.name,
         )]
+
+
+class ProductsFeatureLimitationsEvaluator(BaseEvaluator):
+    """FR-17c: Detect products page feature bullets that contradict limitations.md.
+
+    Fires FAIL when a feature bullet in a products page contains keywords
+    that semantically overlap with known limitation entries.
+
+    Gate: products subdomain only, pages with layout ``plugin`` or similar.
+    Only fires when merged/limitations.md is present and substantial.
+    """
+
+    name = "limitations_check"  # shared category for report grouping
+
+    def evaluate(self, page: Page, knowledge: Any) -> list[Finding]:
+        # Gate: products pages only
+        if page.subdomain != "products":
+            return []
+        if not page.family or not page.platform:
+            return []
+
+        # Only fire when limitations data is available
+        keywords = _load_limitation_keywords(page.family, page.platform)
+        if not keywords:
+            return []
+
+        findings: list[Finding] = []
+        reported_kws: set[str] = set()
+
+        # Scan prose bullet lines for overlapping limitation keywords
+        for line_no, line_text in page.prose_lines:
+            stripped = line_text.strip()
+            # Only look at bullet lines or lines that appear to be feature points
+            if not stripped.startswith(("-", "*", "+", "•")):
+                continue
+            bullet_lower = stripped.lower()
+            for kw in keywords:
+                if kw in bullet_lower and kw not in reported_kws:
+                    reported_kws.add(kw)
+                    lim_path = (
+                        f"knowledge/{page.family}/{page.platform}/merged/limitations.md"
+                    )
+                    findings.append(Finding(
+                        level="FAIL",
+                        category="LC",
+                        filepath=str(page.filepath),
+                        line_no=line_no,
+                        message=(
+                            f"Products page feature bullet mentions `{kw}` which "
+                            f"overlaps with a known limitation in limitations.md"
+                        ),
+                        suggestion=(
+                            f"Verify: if `{kw}` is actually limited/unsupported, "
+                            f"remove or caveat this bullet. See {lim_path}"
+                        ),
+                        evaluator=self.name,
+                    ))
+
+        return findings

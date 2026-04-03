@@ -36,6 +36,43 @@ _TEXT_FRAME_INIT_RE = re.compile(
     re.MULTILINE,
 )
 
+# FR-17a: java_awt_contamination — import java.awt.* in Java code
+_JAVA_AWT_IMPORT_RE = re.compile(
+    r"import\s+java\.awt\b",
+    re.MULTILINE,
+)
+
+# FR-17a: net_null_unsafe_textframe — .TextFrame.Text = without preceding .AddTextFrame(
+_NET_TEXTFRAME_TEXT_SET_RE = re.compile(
+    r"\.TextFrame\.Text\s*=",
+    re.MULTILINE,
+)
+_NET_ADD_TEXTFRAME_RE = re.compile(
+    r"\.AddTextFrame\s*\(",
+    re.MULTILINE,
+)
+
+# FR-17a: java_null_unsafe_gettextframe — .getTextFrame(). after addAutoShape/addConnector
+_JAVA_GET_TEXTFRAME_RE = re.compile(
+    r"\.getTextFrame\s*\(\s*\)\.",
+    re.MULTILINE,
+)
+_JAVA_ADD_SHAPE_RE = re.compile(
+    r"\.(?:addAutoShape|addConnector)\s*\(",
+    re.MULTILINE,
+)
+_JAVA_ADD_TEXTFRAME_RE = re.compile(
+    r"\.addTextFrame\s*\(",
+    re.MULTILINE,
+)
+
+# FR-17a: python_wrong_saveformat — {alias}.export.SaveFormat in Python
+# Matches patterns like: slides.export.SaveFormat  or  aspose.export.SaveFormat
+_PY_WRONG_SAVEFORMAT_RE = re.compile(
+    r"\b(\w+)\.export\.SaveFormat\b",
+    re.MULTILINE,
+)
+
 
 class CodePlausibilityEvaluator(BaseEvaluator):
     """Validates that code examples are structurally plausible.
@@ -145,6 +182,89 @@ class CodePlausibilityEvaluator(BaseEvaluator):
                 findings.extend(
                     self._check_python_property_as_method(page, block.content, block.start_line)
                 )
+
+            # FR-17a: java_awt_contamination — FAIL when java.awt imported in Java code
+            if block.lang in ("java",) and _JAVA_AWT_IMPORT_RE.search(content):
+                findings.append(Finding(
+                    level="FAIL",
+                    category="CP",
+                    filepath=str(page.filepath),
+                    line_no=block.start_line,
+                    message=(
+                        "Java code imports `java.awt.*` — Aspose products use their "
+                        "own Color/Drawing classes, not java.awt"
+                    ),
+                    suggestion=(
+                        "Replace `import java.awt.Color` with the product's own Color class "
+                        "(e.g. `com.aspose.slides.Color` or the FOSS equivalent)"
+                    ),
+                    evaluator=self.name,
+                ))
+
+            # FR-17a: net_null_unsafe_textframe — WARN for .TextFrame.Text = without AddTextFrame
+            if (block.lang in ("csharp", "cs")
+                    and _NET_TEXTFRAME_TEXT_SET_RE.search(content)
+                    and not _NET_ADD_TEXTFRAME_RE.search(content)):
+                findings.append(Finding(
+                    level="WARN",
+                    category="CP",
+                    filepath=str(page.filepath),
+                    line_no=block.start_line,
+                    message=(
+                        "Null-unsafe: `.TextFrame.Text =` used without a preceding "
+                        "`.AddTextFrame(` — TextFrame may be null on a new shape"
+                    ),
+                    suggestion=(
+                        "Call `shape.AddTextFrame(\"\")` first and assign the returned "
+                        "ITextFrame before accessing `.Text`"
+                    ),
+                    evaluator=self.name,
+                ))
+
+            # FR-17a: java_null_unsafe_gettextframe — WARN for .getTextFrame(). after add shape
+            if (block.lang in ("java",)
+                    and _JAVA_GET_TEXTFRAME_RE.search(content)
+                    and _JAVA_ADD_SHAPE_RE.search(content)
+                    and not _JAVA_ADD_TEXTFRAME_RE.search(content)):
+                findings.append(Finding(
+                    level="WARN",
+                    category="CP",
+                    filepath=str(page.filepath),
+                    line_no=block.start_line,
+                    message=(
+                        "Null-unsafe: `.getTextFrame().` used after `addAutoShape`/"
+                        "`addConnector` without calling `addTextFrame()` first — "
+                        "getTextFrame() will throw NullPointerException"
+                    ),
+                    suggestion=(
+                        "Call `shape.addTextFrame(\"\")` on the new shape before "
+                        "accessing `.getTextFrame()`"
+                    ),
+                    evaluator=self.name,
+                ))
+
+            # FR-17a: python_wrong_saveformat — WARN for {alias}.export.SaveFormat in Python
+            if block.lang in ("python", "py"):
+                for m in _PY_WRONG_SAVEFORMAT_RE.finditer(content):
+                    alias = m.group(1)
+                    line_no = block.start_line + content[: m.start()].count("\n")
+                    findings.append(Finding(
+                        level="WARN",
+                        category="CP",
+                        filepath=str(page.filepath),
+                        line_no=line_no,
+                        message=(
+                            f"`{alias}.export.SaveFormat` — SaveFormat is not accessed "
+                            f"via `.export.` in Python; use the correct import path for "
+                            f"the SaveFormat enum"
+                        ),
+                        suggestion=(
+                            "Import SaveFormat directly, e.g. "
+                            "`from aspose.slides.export import SaveFormat` "
+                            "then use `SaveFormat.PPTX` directly"
+                        ),
+                        evaluator=self.name,
+                    ))
 
         return findings
 

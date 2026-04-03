@@ -1,0 +1,32 @@
+family: email
+platform: net
+version: 1
+
+discovery_hints:
+  package_source_file: src/Aspose.Email.Foss/Aspose.Email.Foss.csproj
+  package_extraction: "xpath://PackageId"
+  language: csharp
+  format_source_glob: "src/**/*.cs"
+  stub_search_hints:
+    - "throw new NotImplementedException"
+    - "throw new NotSupportedException"
+    - "// TODO"
+  runtime_requirement_source: src/Aspose.Email.Foss/Aspose.Email.Foss.csproj
+
+discovered_actuals:
+  package_name: "Aspose.Email.Foss"
+  package_source_actual: src/Aspose.Email.Foss/Aspose.Email.Foss.csproj
+  format_files_found: null
+  last_baseline_sha: a8999e259143a9ffc660086b34a7f39516da29f5
+
+language_conventions:
+  method_naming: PascalCase
+  enum_values: PascalCase
+  pass_by: value
+
+expected_sections:
+  - {site: products, mandatory: true}
+  - {site: docs, mandatory: true}
+  - {site: kb, mandatory: true}
+  - {site: reference, mandatory: true}
+  - {site: blog, mandatory: false}
