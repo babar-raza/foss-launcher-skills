@@ -115,5 +115,6 @@ Enhance a page that scores below the quality bar (grade C or below from S-17/S-2
 
 ## Error handling
 - If no evaluation data exists, run S-25 first before enhancing
-- If grade doesn't improve after enhancement, flag for human review
+- If grade doesn't improve after enhancement, flag for human review. The operator may then
+  invoke **S-73 (manual-edit)** to apply a specific targeted fix they can specify precisely.
 - If knowledge is stale, abort and instruct to run S-14 first

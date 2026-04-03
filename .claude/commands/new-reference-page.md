@@ -144,6 +144,47 @@ Before generating any content, you MUST:
 
 7. **Write** to `content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md`
 
+## Platform-Specific Rendering Rules
+
+### TypeScript: Property vs. Method Rendering (FR-14)
+
+When generating TypeScript reference pages, check the `kind` field for each member in api_surface.json:
+
+- If `kind: property` → render as a **Property** row in the Properties table:
+  - Columns: `Property | Type | Access | Description`
+  - Use `access_mode` field: `readonly` → `Read`, `readwrite` → `Read/Write`, `writeonly` → `Write`
+  - Do NOT append `()` to the property name — properties are accessed without parentheses in TypeScript
+  - Example: `binaryMode` property of type `boolean`, access `Read/Write`
+- If `kind: method` (or no `kind` field) → render as a **Method** section with `methodName(params)` heading (including `()`)
+- This rule is critical: TypeScript getter/setter accessors are properties, not callable methods. Rendering `binaryMode()` as a method will produce incorrect documentation.
+
+### class_import Usage (FR-15)
+
+When generating the import/package line at the top of a reference page:
+- Check api_surface.json for the `class_import` field on the class entry
+- If `class_import` is present, use it as the authoritative import path
+- Example: `class_import: "com.aspose.threed.shading.PbrMaterial"` → render `import com.aspose.threed.shading.PbrMaterial;`
+- If `class_import` is absent, fall back to `canonical_import` from `scout/model.yaml`
+- Do NOT guess or construct the import path from the class name alone
+
+### C++ canonical_namespace (FR-15)
+
+For C++ reference pages, the namespace label must use the full qualified namespace:
+- Check api_surface.json for the `canonical_namespace` field on the class entry
+- If `canonical_namespace` is present (e.g. `Aspose::Slides::Foss::Drawing`), use it as the namespace label
+- Do NOT use a shortened or root-only namespace (e.g. do not use `Aspose::Slides` when the canonical is `Aspose::Slides::Foss`)
+- Example: `canonical_namespace: "Aspose::Slides::Foss::Drawing"` → `**Namespace**: Aspose::Slides::Foss::Drawing`
+
+### Stub Method Callout (FR-16)
+
+When a method has `stub: true` in api_surface.json, emit the following callout block immediately **above** the method description (before the parameter table):
+
+```
+> **Not implemented**: This method raises NotImplementedException in the current release.
+```
+
+Do not omit stub methods from the reference page — document them with the callout so developers know the method signature exists but is not yet functional. This is especially important for Aspose FOSS libraries where many methods are scaffolded but not yet implemented.
+
 ## Knowledge Post-conditions
 
 After generating the reference page:

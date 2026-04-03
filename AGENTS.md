@@ -1,6 +1,6 @@
 # AGENTS.md — Aspose.org Content Generation & Maintenance Governance
 
-> Last updated: 2026-03-30 (§6a + §6b added: skill-first mandate, capability classification, gap escalation; §7, §8, §11 updated); prior: §12 .venv governance; FL dependency removed; S-30 deleted; S-37 knowledge-enrich added
+> Last updated: 2026-04-03 (§6c added: causal backtracking protocol, S-74, cause_class taxonomy, grade_final policy); prior: 2026-03-30 §6a + §6b skill-first mandate, capability classification
 > Authority: Human maintainer only (see Section 4 — this file is in the forbidden write list)
 
 ## 1. Purpose
@@ -215,7 +215,35 @@ rapid-iteration tool.
 S-43 (gap-eval) → S-44 (gap-plan) → S-46 (gap-apply) → S-23 (content-check) → S-01 (path-guard) → write
 ```
 
-Wave 4 items from S-46 are escalated to human review (do not apply ad hoc fixes).
+Wave 4 items from S-46 are escalated to human review. Address each item via S-73 (manual-edit)
+with the operator-specified fix — do not apply ad hoc fixes outside the skill chain.
+
+### Evidence gap recovery (validator-blocked commits)
+
+Triggered when `validate_frontmatter.py` (P-03) or `audit.py` (evidence FAIL) blocks a commit.
+
+```
+S-72 (evidence-repair) → S-23 (content-check) → S-01 (path-guard) → write
+```
+
+S-72 runs `attach_evidence.py --force` first (Stage 1). If claims or apis remain empty,
+it performs a knowledge-grounded reasoning pass (Stage 2). If evidence cannot be confidently
+populated, it applies the `manual-remediation` escape (P-03 exempt) and writes an escalation
+entry to `reports/evidence-repair/needs-human-{date}.md`.
+
+Wave 4 analogue: ESCAPED files are routed to human for manual evidence population — do not guess.
+
+### Operator-directed targeted edit (specific change specified by operator)
+
+```
+S-73 (manual-edit) → embedded S-01 (path-guard) → embedded S-24 (evidence-cite) → write
+```
+
+Use when the operator knows exactly what to change (a specific sentence, frontmatter field,
+code block, or section) and can specify it. Do not use when the agent should decide what to
+fix — use S-26 (heal-page), S-21 (page-enhance), or S-20 (page-update) instead.
+
+Wave 4 items from S-46 (gap-apply) must be addressed via S-73. Do not apply ad hoc fixes.
 
 ### Batch reference page generation
 
@@ -280,6 +308,8 @@ elapsed.
 | `/family-sync` (S-48) | `/knowledge-bootstrap` | Always |
 | `/gap-apply` (S-46) | S-44 `/gap-plan` | Plan not in session context |
 | `/register-human-content` (S-66) | `/knowledge-bootstrap` | Always |
+| `/evidence-repair` (S-72) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | `stale_since` not null |
+| `/manual-edit` (S-73) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | `stale_since` not null |
 | Any content write | S-01 `/path-guard` | Always (final gate) |
 
 If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do not continue
@@ -390,6 +420,97 @@ If the requirement does not match any task type in §6:
 5. Fill in the "Enhancement Plan" section of the gap escalation report fully. This is the
    mechanism by which the skill system grows to cover new requirements.
 
+## 6c. Causal Backtracking Protocol (added 2026-04-03)
+
+### Principle
+
+A page grade is only **final** when all evaluation findings are caused by **local content
+defects** that the page itself can fix. If any finding has `cause_class: UPSTREAM_MISSING`
+or `cause_class: BAD_LINK_FORMAT`, the grade is **provisional** and MUST NOT be treated as
+a terminal quality judgment. The system must trace the problem to its upstream cause, invoke
+the responsible skill, and replay evaluation before writing a final grade.
+
+This is **required system behavior** — not an optional enhancement.
+
+### When causal backtracking activates
+
+Causal backtracking MUST activate whenever:
+- A `content_eval` evaluation produces findings with `cause_class: UPSTREAM_MISSING` or
+  `cause_class: BAD_LINK_FORMAT`.
+- These findings appear in the triage result's `upstream_blocked` list.
+- `/batch-remediate` is run and `triage.upstream_blocked` is non-empty.
+
+### Required action sequence
+
+1. **Do not write a final grade** while `cause_class=UPSTREAM_MISSING` findings exist.
+   Set `grade_final: false` and `grade_stale_reason: upstream_missing`.
+
+2. **Invoke S-74 (causal-backtrack):**
+   ```
+   /causal-backtrack {family} {platform} [--eval-report {path}]
+   ```
+
+3. **Read the action plan** from `reports/dependency-backtrack/{run-id}/backtrack-summary.md`.
+
+4. **Execute action items** in order:
+   - `GENERATE` → run S-62 or S-60 for missing reference pages.
+   - `CORRECT_LINK` → run S-73 with `--scope body-wording` on source pages.
+   - `ESCALATE` → write to human queue; grade remains stale.
+
+5. **Replay evaluation** on all pages listed in `replay_plan`.
+
+6. **Write final grade** only after replay shows zero `UPSTREAM_MISSING` findings.
+
+### Grade policy under this protocol
+
+| Finding state after replay | grade_final | Rule |
+|---------------------------|-------------|------|
+| Zero UPSTREAM_MISSING findings | `true` | Write final grade |
+| UPSTREAM_MISSING findings remain, depth < 3 | `false` | Recurse S-74 |
+| UPSTREAM_MISSING findings remain, depth ≥ 3 | `false` | ESCALATE; human queue |
+| Verdict was ESCALATE | `false` | Human queue; grade stays stale |
+| Only LOCAL_DEFECT findings | `true` | Write final grade (page has fixable defects) |
+
+### Cause classification taxonomy
+
+| cause_class | Meaning | Default action |
+|-------------|---------|----------------|
+| `LOCAL_DEFECT` (default) | Content the page itself must fix | Existing triage flow |
+| `UPSTREAM_MISSING` | Link target absent from file system | S-74 → DependencyVerifier |
+| `BAD_LINK_FORMAT` | Target exists but URL casing/slug is wrong | S-74 → S-73 CORRECT_LINK |
+| `KNOWLEDGE_STALE` | Finding depends on stale knowledge | Hard stop → S-12 → S-14 |
+| `PREREQUISITE_ABSENT` | Evaluation precondition not met | Hard stop; fix prerequisites |
+
+### Evidence requirements
+
+All S-74 runs MUST produce the following files (written before any skill is invoked):
+- `reports/dependency-backtrack/{run-id}/cause-classification.json`
+- `reports/dependency-backtrack/{run-id}/dependency-verification.json`
+- `reports/dependency-backtrack/{run-id}/remediation-decision.json`
+- `reports/dependency-backtrack/{run-id}/invoked-skill-record.json`
+- `reports/dependency-backtrack/{run-id}/replay-plan.json`
+- `reports/dependency-backtrack/{run-id}/revalidation-report.json`
+- `reports/dependency-backtrack/{run-id}/final-grade-decision.json`
+
+If any action escalates to human:
+- `reports/dependency-backtrack/needs-human-{YYYYMMDD}.md`
+
+### Safety bounds
+
+- `MAX_BACKTRACK_DEPTH = 3` — at depth ≥ 3, ESCALATE unconditionally.
+- Cycle detection: if the same target URL is encountered twice in one run, skip it and
+  write `cycle-detected.json`. Do not recurse infinitely.
+- S-62/S-60 are idempotent: re-running never overwrites existing pages.
+- S-73 edits only the URLs specified in `--intent`; it never rewrites other content.
+
+### Prohibition
+
+It is **prohibited** to:
+- Write `grade_final: true` on a page that still has `cause_class=UPSTREAM_MISSING` findings.
+- Edit the source page's link to a non-existent target to "remove the warning."
+- Skip S-74 and proceed directly to local triage when `upstream_blocked` is non-empty.
+- Treat a grade B caused entirely by broken link WARNs as a terminal content defect.
+
 ## 7. Hard Stop Conditions
 
 The following always cause immediate halt (no agent override):
@@ -402,6 +523,25 @@ The following always cause immediate halt (no agent override):
   unconditional STOP; produce a gap escalation report (§6b) instead
 - A required upstream skill (per DAR table in §6a) returns `STOP` or `DENY` — do not
   proceed to the downstream skill; report the blocking condition to the user
+
+### Blog Content Governance (added 2026-04-03)
+
+**Hard stop: manual blog file creation is PROHIBITED.**
+
+- Blog files MUST be created exclusively via the `/new-blog-post` skill (S-57).
+- Manual file creation (writing directly to `content/blog.aspose.org/` without the
+  skill) bypasses all of: no-downgrade-guard (S-55), `attach_evidence.py`,
+  change-guard (S-33), and the pre-commit API audit.
+- Any file where `provenance.content_origin: unknown` AND `author != "Aspose"` is a
+  rogue-path indicator. DO NOT commit it without manual evidence remediation and
+  explicit human review.
+- Blog posts MUST use the directory structure: `{slug}/index.md`. Flat `.md` leaf files
+  are rejected by pre-commit (`check-blog-slugs.py` P-05 check).
+- `aliases:` lists MUST NOT contain path segments starting with `test` (`check-blog-slugs.py`
+  P-06 check).
+- `evidence.claims` and `evidence.apis` MUST be non-empty before commit
+  (`validate_frontmatter.py` P-03/P-04 checks). Files with
+  `content_origin: manual-remediation` are temporarily exempt.
 
 ## 8. Escalation Conditions (route to human review)
 
@@ -623,6 +763,10 @@ The backfill sets `translation_origin: unknown`, `auto_updatable: true`, and der
 - Write to forbidden paths listed in Section 4
 - Bypass a registered skill by performing its equivalent function through manual reasoning,
   inline shell commands, or ad hoc prompting — even if the output appears correct
+- Perform a targeted content edit — wording change, frontmatter update, code block replacement,
+  or section rewrite — on any content file without invoking S-73 (manual-edit). This applies
+  regardless of the size of the change. A one-word typo fix is still subject to S-73's
+  path-guard and post-edit validation. "It's just a small change" is not an exemption.
 - Perform any step of a requirement classified as PARTIAL or NONE without first producing a
   gap escalation report (§6b) and receiving explicit human approval for the uncovered portion
 - Invent a new workflow or process for a requirement type not covered by §6 — produce the
@@ -800,6 +944,12 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | register-human-content | S-66 | Onboard a human-authored page into quality and provenance systems (sets auto_updatable: false, attaches evidence, assigns grade baseline) |
 | diagnose-skill-failure | S-67 | Governed diagnostic procedure when a skill or pipeline script fails; classifies failure as CONFIG/DATA/CODE/GOVERNANCE and produces a breakage report |
 | update-registry | S-68 | Scan all 26 aspose-{family}-foss GitHub orgs, discover FOSS repos, and write data/products.json (supports --dry-run, --local-only, --force) |
+| new-kb-index | S-69 | Scaffold KB platform section landing page |
+| new-docs-index | S-70 | Scaffold Docs platform section landing page |
+| new-reference-index | S-71 | Scaffold Reference platform section landing page |
+| evidence-repair | S-72 | Repair evidence frontmatter for validator-blocked pages (P-03 or audit FAIL); evidence-frontmatter-only; never modifies body content; fail-closed; supports --dry-run |
+| manual-edit | S-73 | Operator-directed targeted content edit: applies a human-specified targeted change (frontmatter, wording, code block, section rewrite) to a single file under full path-guard, evidence, provenance, and audit trail governance; revert-on-failure; single file per invocation |
+| locale-patch | S-75 | Propagate targeted text fixes to locale translation copies of a fixed English source file; dry-run first; applies (old_text, new_text) patches to all locale variants; emits patch_report.md; never re-translates whole page |
 
 ### Enforcement scripts
 

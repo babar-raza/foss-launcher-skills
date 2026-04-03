@@ -1,12 +1,3 @@
----
-name: batch-remediate
-description: >
-  Full Eval→Fix→LLM→Re-eval pipeline for batch content remediation
-args: "{family} {platform}"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
 <!-- CONTRACT: scripts/pipeline/remediate.py (handles Steps 3-5 only)
      postcondition: remediate.py applies deterministic auto-fixes and outputs LLM queue
      postcondition: Step 6 (LLM fix pass) is executed by the agent, not by the script
@@ -132,7 +123,8 @@ This is safe for unattended runs and skips the LLM fix pass (Step 6).
 - LLM fixes pass ground-check (`audit.py`).
 - Re-evaluation report is saved to `reports/content_eval/`.
 - Remediation report is saved to `reports/remediation/`.
-- Human queue items are listed for manual review.
+- Human queue items are listed for manual review. Each item should be addressed via
+  **S-73 (manual-edit)** — the only sanctioned path for operator-directed targeted edits.
 - Maximum 2 LLM passes per file enforced (AGENTS.md Section 8 compliance).
 - No files outside allowed content paths were modified (S-01 path-guard).
 

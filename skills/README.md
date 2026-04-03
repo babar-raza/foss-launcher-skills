@@ -60,7 +60,7 @@ Source: `scripts/pipeline/sync_skills.py:INTERNAL_SKILLS`.
 
 ## Skill Catalog
 
-51 registered skills grouped by functional category. For the machine-validated registry with
+52 registered skills grouped by functional category. For the machine-validated registry with
 full descriptions, see [AGENTS.md §12](../AGENTS.md).
 
 ### Knowledge & Truth
@@ -132,6 +132,7 @@ Skills that fix, heal, or improve existing content.
 | S-44 | `gap-plan` | Wave-ordered remediation planning from gap-eval findings *(internal)* |
 | S-45 | `gap-report` | Cross-product gap synthesis report |
 | S-46 | `gap-apply` | Execute wave-ordered fix specs from gap-plan output |
+| S-73 | `manual-edit` | Operator-directed targeted content edit: wording, frontmatter, code block, or section rewrite — single file, evidence-first, revert-on-failure |
 
 ### Operations & Orchestration
 
@@ -186,6 +187,13 @@ S-25 (eval-page) → S-26 (heal-page) → S-23 (content-check) → S-25 (eval-pa
 ```
 S-43 (gap-eval) → S-44 (gap-plan) → S-46 (gap-apply) → S-23 (content-check) → S-01 (path-guard) → write
 ```
+Wave 4 items from S-46 must be addressed via S-73 (manual-edit) — do not apply ad hoc fixes.
+
+### Operator-directed targeted edit
+```
+S-73 (manual-edit) → embedded S-01 (path-guard) → embedded S-24 (evidence-cite) → write
+```
+Use when the operator specifies exactly what to change. For agent-decided fixes use S-26, S-21, or S-20.
 
 ### Batch reference page generation
 ```

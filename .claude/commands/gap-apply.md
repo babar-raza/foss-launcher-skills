@@ -1,12 +1,3 @@
----
-name: gap-apply
-description: >
-  Execute wave-ordered fix specs from gap-plan output (Wave 1 auto, Wave 2 LLM-planned substitutions, Wave 3 page generation, Wave 4 human escalation)
-args: "{family} {platform} [--waves 1,2,3] [--dry-run]"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
 # S-46: Gap Apply — Execute Wave-Ordered Fix Specs
 
 **Arguments**: $ARGUMENTS
@@ -112,7 +103,10 @@ Files requiring human review (LLM unavailable, ambiguous fix, or application fai
 Save as: reports/agents/remediation/{family}-{platform}/wave4-escalation.md
 ```
 
-Halt and route these items to the human maintainer. Do not apply ad hoc fixes for Wave 4 items.
+Halt and route these items to the human maintainer. For each Wave 4 item requiring a targeted
+content change, the operator must invoke **S-73 (manual-edit)** with the specific change. Do not
+apply ad hoc fixes outside the skill chain — S-73 is the only sanctioned path for
+operator-directed targeted edits.
 
 ### Step 6: Re-run gap-eval to verify
 
