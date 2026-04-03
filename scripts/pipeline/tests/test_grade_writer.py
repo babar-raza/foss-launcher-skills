@@ -491,3 +491,70 @@ class TestReadGrade:
             assert "graded_logic_version: 1" not in text
         finally:
             p.unlink(missing_ok=True)
+
+
+# ---------------------------------------------------------------------------
+# TC-03 acceptance test: write_grade MUST NOT update last_mechanism
+# ---------------------------------------------------------------------------
+
+class TestWriteGradePreservesLastMechanism:
+    """write_grade must not touch last_mechanism in the provenance block."""
+
+    def test_write_grade_does_not_change_last_mechanism(self):
+        """After write_grade, last_mechanism must be unchanged from pre-write value."""
+        p = _tmp_file(textwrap.dedent("""\
+            ---
+            title: Test
+            type: docs
+            provenance:
+              content_origin: human-authored
+              last_mechanism: human-edit
+              auto_updatable: false
+            ---
+
+            Body content.
+        """))
+        try:
+            ok = write_grade(p, "A", model_sha="sha1", evaluator_tier="full")
+            assert ok, "write_grade returned False unexpectedly"
+            text = p.read_text(encoding="utf-8")
+            assert "last_mechanism: human-edit" in text, (
+                f"last_mechanism was mutated by write_grade:\n{text}"
+            )
+            assert "grade: A" in text
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_write_grade_does_not_create_provenance_if_absent(self):
+        """If no provenance block exists, write_grade must NOT create one."""
+        p = _tmp_file("---\ntitle: T\ntype: docs\n---\n\nBody.\n")
+        try:
+            write_grade(p, "B", model_sha="sha1")
+            text = p.read_text(encoding="utf-8")
+            assert "provenance:" not in text, (
+                f"write_grade created a provenance block unexpectedly:\n{text}"
+            )
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_write_grade_twice_still_preserves_last_mechanism(self):
+        """Two consecutive grade writes must not alter last_mechanism."""
+        p = _tmp_file(textwrap.dedent("""\
+            ---
+            title: T
+            provenance:
+              last_mechanism: skill
+              auto_updatable: true
+            ---
+
+            Body.
+        """))
+        try:
+            write_grade(p, "C", model_sha="sha1")
+            write_grade(p, "A", model_sha="sha2")
+            text = p.read_text(encoding="utf-8")
+            assert "last_mechanism: skill" in text, (
+                f"last_mechanism mutated after double write_grade:\n{text}"
+            )
+        finally:
+            p.unlink(missing_ok=True)

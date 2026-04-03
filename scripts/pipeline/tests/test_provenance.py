@@ -19,6 +19,7 @@ from provenance import (
     write_provenance,
     update_mechanism,
     compute_source_sha,
+    compute_content_hash,
     is_auto_updatable,
     is_stale,
 )
@@ -374,3 +375,66 @@ class TestSourceSha:
         finally:
             _cleanup(p1)
             _cleanup(p2)
+
+
+# ---------------------------------------------------------------------------
+# test_compute_content_hash
+# ---------------------------------------------------------------------------
+
+class TestComputeContentHash:
+    """compute_content_hash returns 32-char SHA-256 of body text after frontmatter."""
+
+    def test_returns_32_char_hex(self):
+        p = _tmp_md(MINIMAL_PAGE)
+        try:
+            h = compute_content_hash(p)
+            assert len(h) == 32
+            assert all(c in "0123456789abcdef" for c in h)
+        finally:
+            _cleanup(p)
+
+    def test_deterministic(self):
+        p = _tmp_md(MINIMAL_PAGE)
+        try:
+            assert compute_content_hash(p) == compute_content_hash(p)
+        finally:
+            _cleanup(p)
+
+    def test_changes_when_body_changes(self):
+        body_a = "---\ntitle: T\n---\n\nBody A.\n"
+        body_b = "---\ntitle: T\n---\n\nBody B — different.\n"
+        pa = _tmp_md(body_a)
+        pb = _tmp_md(body_b)
+        try:
+            assert compute_content_hash(pa) != compute_content_hash(pb)
+        finally:
+            _cleanup(pa)
+            _cleanup(pb)
+
+    def test_unchanged_when_only_frontmatter_changes(self):
+        """Changing title in frontmatter must NOT change the content hash."""
+        body_a = "---\ntitle: Title A\n---\n\nShared body.\n"
+        body_b = "---\ntitle: Title B — different\n---\n\nShared body.\n"
+        pa = _tmp_md(body_a)
+        pb = _tmp_md(body_b)
+        try:
+            assert compute_content_hash(pa) == compute_content_hash(pb)
+        finally:
+            _cleanup(pa)
+            _cleanup(pb)
+
+    def test_file_without_frontmatter_hashes_whole_content(self):
+        """A file with no --- fences → entire content is treated as body."""
+        p = _tmp_md("No frontmatter here.\nJust text.\n")
+        try:
+            h = compute_content_hash(p)
+            assert len(h) == 32
+            assert h  # non-empty
+        finally:
+            _cleanup(p)
+
+    def test_unreadable_file_returns_empty_string(self):
+        """A path that does not exist returns empty string (not an exception)."""
+        missing = Path(tempfile.gettempdir()) / "nonexistent_content_hash_test.md"
+        result = compute_content_hash(missing)
+        assert result == ""

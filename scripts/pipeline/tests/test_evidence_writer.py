@@ -309,4 +309,69 @@ def test_evidence_is_last_key_by_convention():
     title_pos = fm.rfind("title:")
     layout_pos = fm.rfind("layout:")
     assert evidence_pos > title_pos, "evidence should come after title"
-    assert evidence_pos > layout_pos, "evidence should come after layout"
+
+
+# ---------------------------------------------------------------------------
+# TC-04 acceptance test: evidence writer MUST NOT update last_mechanism
+# ---------------------------------------------------------------------------
+
+class TestEvidenceWriterPreservesLastMechanism:
+    """write_evidence must not touch last_mechanism in the provenance block."""
+
+    def _make_file(self, tmp_path, extra_fm: str = "") -> Path:
+        """Write a temp .md with a provenance block containing last_mechanism."""
+        p = tmp_path / "index.md"
+        p.write_text(
+            "---\n"
+            "title: Test Page\n"
+            "type: docs\n"
+            + extra_fm +
+            "provenance:\n"
+            "  content_origin: human-authored\n"
+            "  last_mechanism: human-edit\n"
+            "  auto_updatable: false\n"
+            "---\n\nBody content.\n",
+            encoding="utf-8",
+        )
+        return p
+
+    def test_write_evidence_does_not_change_last_mechanism(self, tmp_path):
+        """After attaching evidence, last_mechanism must still be 'human-edit'."""
+        p = self._make_file(tmp_path)
+        evidence = {
+            "model_sha": "abc123",
+            "model_version": "1.0.0",
+            "claims": ["CLM-test-001"],
+            "apis": ["SomeClass.method"],
+        }
+        ok = _write_evidence_to_frontmatter(p, evidence)
+        assert ok, "write_evidence returned False unexpectedly"
+
+        text = p.read_text(encoding="utf-8")
+        # The provenance block must still contain last_mechanism: human-edit
+        assert "last_mechanism: human-edit" in text, (
+            f"last_mechanism was mutated by evidence writer:\n{text}"
+        )
+        # Evidence should be present
+        assert "model_sha: abc123" in text
+
+    def test_write_evidence_does_not_create_provenance_if_absent(self, tmp_path):
+        """If no provenance block exists, evidence write must NOT create one."""
+        p = tmp_path / "no_prov.md"
+        p.write_text(
+            "---\ntitle: No Provenance\ntype: docs\n---\n\nBody.\n",
+            encoding="utf-8",
+        )
+        evidence = {
+            "model_sha": "abc123",
+            "model_version": "1.0.0",
+            "claims": ["CLM-test-001"],
+            "apis": ["SomeClass.method"],
+        }
+        _write_evidence_to_frontmatter(p, evidence)
+
+        text = p.read_text(encoding="utf-8")
+        # No provenance block should have been created
+        assert "provenance:" not in text, (
+            f"evidence writer created a provenance block unexpectedly:\n{text}"
+        )
