@@ -92,6 +92,10 @@ def _write_evidence_to_frontmatter(filepath, evidence_dict) -> bool:
     Key invariant: every byte outside the evidence: block is preserved exactly.
     No yaml.safe_load + yaml.dump round-trip is performed on the full frontmatter.
 
+    Note: this function does NOT call update_mechanism / set last_mechanism.
+    Evidence attachment is a metadata-only operation; its timing is implicit from
+    the evidence block's presence in the frontmatter.
+
     Returns True on success, False on skip/error.
     """
     text = filepath.read_text(encoding="utf-8")
@@ -138,13 +142,5 @@ def _write_evidence_to_frontmatter(filepath, evidence_dict) -> bool:
         new_text = f"---\n{evidence_yaml}---\n\n{text}"
 
     atomic_write(filepath, new_text)
-
-    # Update provenance: record that evidence-attach modified the file.
-    # Only updates last_mechanism — does NOT change auto_updatable or origin.
-    try:
-        from provenance import update_mechanism
-        update_mechanism(filepath, "evidence-attach")
-    except Exception:
-        pass  # Provenance update is best-effort; evidence write succeeded
 
     return True

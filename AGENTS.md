@@ -674,12 +674,14 @@ This block is **internal metadata** — never rendered in Hugo templates.
 ```yaml
 provenance:
   content_origin: skill-generated | agent-drafted | human-authored | unknown
+  content_created_at: <ISO-8601 UTC; set once at page creation; never updated>
+  content_hash: <first 32 hex chars of SHA-256 of body text after frontmatter>
   translation_origin: translator-batch | translator-sync | translator-page | translator-retranslate | agent-translated | human-translated | unknown
   source_file: <relative path of English source>   # locale files only
   source_sha: <first 12 hex chars of SHA-256 of English source>  # locale files only
-  last_mechanism: translator | evidence-attach | grade-writer | fixer | skill | agent-edit | human-edit | unknown
+  last_mechanism: translator | content-fixer | fixer | skill | agent-edit | human-edit | unknown
   auto_updatable: true | false
-  reviewed: true | false
+  reviewed: true | false  # deprecated — no enforcement gate; use auto_updatable: false to protect files
 ```
 
 ### Lifecycle rules
@@ -687,14 +689,15 @@ provenance:
 | Event | Fields updated |
 |-------|----------------|
 | Translator produces a new or updated locale file | `translation_origin`, `source_file`, `source_sha`, `last_mechanism: translator`, `auto_updatable: true`, `reviewed: false` |
-| Evidence writer helper writes evidence block | Interim `last_mechanism: evidence-attach`; in the default `attach_evidence.py` flow, the subsequent grade write persists `grade-writer` as the final value |
-| Grade writer writes grade block | `last_mechanism: grade-writer` only — all other fields unchanged |
-| Remediation fixer modifies content | `last_mechanism: fixer` only — all other fields unchanged |
-| Skill generates a new English page | `content_origin: skill-generated`, `last_mechanism: skill`, `auto_updatable: true`, `reviewed: false` |
-| Human edits content | `last_mechanism: human-edit`, `auto_updatable: false`, `reviewed: true` |
-| Agent edits content directly | `last_mechanism: agent-edit`, `reviewed: false` |
+| Evidence writer writes evidence block | `evidence:` block updated. **`last_mechanism` is NOT updated** — evidence attachment is metadata-only. |
+| Grade writer writes grade block | `grade*` fields and `graded_at` updated. **`last_mechanism` is NOT updated** — grade writes are metadata-only; use `graded_at` for timing. |
+| Remediation fixer modifies content body | `last_mechanism: content-fixer`, `content_hash` updated |
+| Remediation fixer modifies frontmatter only (type/author/layout/categories) | No provenance fields updated — these are structural metadata fixes |
+| Skill generates a new English page | `content_origin: skill-generated`, `content_created_at: <now>`, `content_hash: <body hash>`, `last_mechanism: skill`, `auto_updatable: true`, `reviewed: false` |
+| Human edits content | `last_mechanism: human-edit`, `content_hash` updated, `auto_updatable: false`, `reviewed: true` |
+| Agent edits content directly | `last_mechanism: agent-edit`, `content_hash` updated, `reviewed: false` |
 
-**Critical:** Evidence attachment, grade writes, and fixer runs are metadata-only operations. They MUST update `last_mechanism` but MUST NOT change `auto_updatable` or `translation_origin`. When multiple metadata writers run in sequence, the final persisted value is from the last writer. In the default `attach_evidence.py` path, `write_grade()` runs after the evidence write, so the final persisted `last_mechanism` is `grade-writer`.
+**Critical:** Evidence attachment and grade writes are metadata-only operations. They MUST NOT update `last_mechanism`, `auto_updatable`, or `translation_origin`. Only content-changing operations (skill, agent-edit, human-edit, translator, content-fixer) update `last_mechanism`. The `graded_at` timestamp in the grade block is the authoritative record of when grading occurred.
 
 ### Overwrite/skip decision rules
 
@@ -715,6 +718,10 @@ locale file exists AND auto_updatable == false → skip, log reason
 ### Protecting a file from automated overwrite
 
 Set `auto_updatable: false` in the file's provenance block. The translator sync will log `[SKIP] ... -- auto_updatable=false, requires review` and skip the file.
+
+### `reviewed` field status
+
+`reviewed: true | false` is currently **deprecated**. It has no enforcement gate — no CI check or Hugo build step reads it. Use `auto_updatable: false` to protect a file from automated overwrite (which is the operative signal). The `reviewed` field may be removed in a future cleanup.
 
 ### Staleness detection
 
