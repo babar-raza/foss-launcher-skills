@@ -108,6 +108,11 @@ This will:
 - Write to `content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md`
 - Attach evidence via `attach_evidence.py`
 
+**D-1/D-2/D-3 enforcement** (all pages, non-negotiable):
+- **D-1 description**: Use `class.doc` from api_surface.json. If absent, write `[No documentation available — class summary not captured by scout]`. Do NOT invent a description.
+- **D-2 return types**: Each method's return type MUST come from `method.return_type` in api_surface.json. Non-empty, non-void → show `→ {return_type}`. Omit or show `→ None` for void/empty.
+- **D-3 access mode**: Each property Access value MUST be derived from `property.writable`: `true` → `Read/Write`, `false`/absent → `Read`. Do NOT default all properties to `Read`.
+
 #### Enum pages — additional requirement
 
 When generating an enum page (`kind` is `enum_specifier` / `enum`), after the standard Properties

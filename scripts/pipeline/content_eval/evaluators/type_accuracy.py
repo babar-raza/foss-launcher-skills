@@ -1,4 +1,4 @@
-"""Type accuracy evaluator — detects known type mismatch patterns in C++ reference pages.
+"""Type accuracy evaluator — detects type mismatch patterns in reference pages.
 
 S-Fix-13
 --------
@@ -6,23 +6,24 @@ The existing api_accuracy evaluator checks that API *names* exist (token-level).
 It does NOT verify parameter types, return types, or static modifiers.
 This evaluator catches those type inaccuracies in generated pages.
 
-Checks performed (cpp platform only)
+Checks performed
 --------------------------------------
 1. **string& instead of string_view** — ``const std::string&`` in parameter
    positions where Aspose FOSS C++ style uses ``std::string_view``.
-   Emits WARN.
+   Emits WARN. (cpp only)
 
 2. **float for geometry properties** — ``float`` as the type of properties
    named x, y, width, height, or rotation; these should be ``double`` in
-   Aspose FOSS.  Emits WARN.
+   Aspose FOSS.  Emits WARN. (cpp only)
 
 3. **Static modifier mismatch** — if a method is documented with a ``static``
    keyword in a code example, the evaluator extracts the class/method name
    and (if api_surface.json is available) checks whether the method is marked
-   static there.  If it is not found as static, emits INFO.
+   static there.  If it is not found as static, emits INFO. (cpp only)
 
-These are WARNING/INFO findings — not FAIL.  The evaluator is intentionally
-conservative (opt-in, cpp only, narrow patterns) to avoid false positives.
+4. **Property access mode mismatch** — if a reference page Property table shows
+   "Read" access for a property that api_surface.json marks as ``writable: true``,
+   emits FAIL. (all platforms, reference subdomain only)
 """
 
 from __future__ import annotations
@@ -65,6 +66,24 @@ _STATIC_DECL_RE = re.compile(
 # Code-block language tags that map to C++
 _CPP_LANGS = {"cpp", "c++", "cxx"}
 
+# Pattern 4: Property table row — | `PropName` | SomeType | Read | Description |
+# Captures prop name and access value (Read / Read/Write / Write)
+_PROP_TABLE_ROW_RE = re.compile(
+    r"^\|\s*`(?P<prop>[^`]+)`\s*\|[^|]*\|\s*(?P<access>Read|Write|Read/Write)\s*\|",
+    re.MULTILINE,
+)
+
+# Pattern 5: Method table row — | `MethodName(args)` | `ReturnType` | Description |
+# Captures method name (without args) and return type cell content
+_METHOD_TABLE_ROW_RE = re.compile(
+    r"^\|\s*`(?P<method>[A-Za-z_][A-Za-z0-9_]*)\s*\([^)]*\)`\s*\|\s*`?(?P<ret>[^`|]*)`?\s*\|",
+    re.MULTILINE,
+)
+
+# Return type values that count as "blank/void" (no meaningful type documented).
+# Note: "none" is intentionally excluded — Python None IS a meaningful return type.
+_VOID_RETURN_VALUES = {"", "void", "null", "n/a", "-"}
+
 KNOWLEDGE_ROOT = Path("knowledge")
 
 
@@ -78,24 +97,24 @@ class TypeAccuracyEvaluator(BaseEvaluator):
     name = "type_accuracy"
 
     def evaluate(self, page: Page, knowledge: Any) -> list[Finding]:
-        # Guard: only meaningful for cpp platform pages
-        if page.platform != "cpp":
-            return []
-
         findings: list[Finding] = []
-
-        # Collect cpp-tagged code blocks only
-        cpp_blocks = [b for b in page.code_blocks if b.lang in _CPP_LANGS]
-        if not cpp_blocks:
-            return []
-
-        # Load api_surface for static-check (best-effort; skip if missing)
         api_surface = self._load_api_surface(page)
 
-        for block in cpp_blocks:
-            findings.extend(self._check_string_ref(block.content, block.start_line, page))
-            findings.extend(self._check_float_geometry(block.content, block.start_line, page))
-            findings.extend(self._check_static_modifier(block.content, block.start_line, page, api_surface))
+        # Check 4: property access mode (all platforms, reference pages only)
+        if page.subdomain == "reference" and api_surface:
+            findings.extend(self._check_property_access(page, api_surface))
+
+        # Check 5: method return type vs api_surface (all platforms, reference pages only)
+        if page.subdomain == "reference" and api_surface:
+            findings.extend(self._check_return_types(page, api_surface))
+
+        # Checks 1-3: C++ only
+        if page.platform == "cpp":
+            cpp_blocks = [b for b in page.code_blocks if b.lang in _CPP_LANGS]
+            for block in cpp_blocks:
+                findings.extend(self._check_string_ref(block.content, block.start_line, page))
+                findings.extend(self._check_float_geometry(block.content, block.start_line, page))
+                findings.extend(self._check_static_modifier(block.content, block.start_line, page, api_surface))
 
         return findings
 
@@ -207,6 +226,124 @@ class TypeAccuracyEvaluator(BaseEvaluator):
                 ))
             # If is_static_in_surface is True → correct, no finding
             # If is_static_in_surface is None → not found, skip (api may be incomplete)
+
+        return findings
+
+    # ------------------------------------------------------------------
+    # Check 4: property access mode vs api_surface writable flag
+    # ------------------------------------------------------------------
+
+    def _check_property_access(
+        self,
+        page: Page,
+        api_surface: list[dict],
+    ) -> list[Finding]:
+        """Emit FAIL when a reference page says 'Read' but api_surface has writable=True.
+
+        Class-scoped: only checks properties belonging to the class named by the
+        page filename (e.g. ``Presentation.md`` → checks ``Presentation`` class only).
+        """
+        findings: list[Finding] = []
+
+        # Derive class name from page filename
+        class_name = page.filepath.stem
+
+        # Build name → writable lookup from the matching class only
+        writable_map: dict[str, bool] = {}
+        for entry in api_surface:
+            if entry.get("name") != class_name:
+                continue
+            for prop in entry.get("properties", []):
+                pname = prop.get("name", "")
+                if pname:
+                    writable_map[pname] = bool(prop.get("writable", False))
+            break  # only one class matches
+
+        if not writable_map:
+            return findings
+
+        raw = page.filepath.read_text(encoding="utf-8", errors="replace")
+        for m in _PROP_TABLE_ROW_RE.finditer(raw):
+            prop_name = m.group("prop")
+            access_val = m.group("access")
+            if access_val != "Read":
+                continue
+            if writable_map.get(prop_name) is True:
+                line_no = raw[: m.start()].count("\n") + 1
+                findings.append(Finding(
+                    level="FAIL",
+                    category="TA",
+                    filepath=str(page.filepath),
+                    line_no=line_no,
+                    message=(
+                        f"Property `{prop_name}` documented as Read-only but "
+                        "api_surface marks it as writable (has a setter)"
+                    ),
+                    suggestion=(
+                        f"Change Access column for `{prop_name}` from `Read` to `Read/Write`"
+                    ),
+                    evaluator=self.name,
+                ))
+
+        return findings
+
+    # ------------------------------------------------------------------
+    # Check 5: method return type vs api_surface
+    # ------------------------------------------------------------------
+
+    def _check_return_types(
+        self,
+        page: Page,
+        api_surface: list[dict],
+    ) -> list[Finding]:
+        """Emit WARN when a method table shows blank/void return but api_surface has one.
+
+        Class-scoped: only checks methods belonging to the class named by filename.
+        Scope: reference pages only.
+        """
+        findings: list[Finding] = []
+
+        class_name = page.frontmatter.get("linkTitle", "") or page.filepath.stem
+        if not class_name:
+            return findings
+
+        # Build method name → return_type from api_surface for this class
+        return_type_map: dict[str, str] = {}
+        for entry in api_surface:
+            if entry.get("name") != class_name:
+                continue
+            for method in entry.get("methods", []):
+                mname = method.get("name", "")
+                mtype = (method.get("return_type") or "").strip()
+                if mname and mtype and mtype.lower() not in _VOID_RETURN_VALUES:
+                    return_type_map[mname] = mtype
+            break
+
+        if not return_type_map:
+            return findings
+
+        raw = page.filepath.read_text(encoding="utf-8", errors="replace")
+        for m in _METHOD_TABLE_ROW_RE.finditer(raw):
+            method_name = m.group("method")
+            ret_cell = m.group("ret").strip().lower()
+
+            if method_name not in return_type_map:
+                continue
+            if ret_cell in _VOID_RETURN_VALUES:
+                line_no = raw[: m.start()].count("\n") + 1
+                expected = return_type_map[method_name]
+                findings.append(Finding(
+                    level="WARN",
+                    category="TA",
+                    filepath=str(page.filepath),
+                    line_no=line_no,
+                    message=(
+                        f"Method `{method_name}()` return type is blank/void in table but "
+                        f"api_surface shows `{expected}`"
+                    ),
+                    suggestion=f"Set Return Type column for `{method_name}()` to `{expected}`",
+                    evaluator=self.name,
+                ))
 
         return findings
 

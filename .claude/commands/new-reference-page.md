@@ -55,7 +55,8 @@ Before generating any content, you MUST:
    linkTitle: {ClassName}
    title: {ClassName}
    description: >
-     {2 sentences: what this class does, what it stores/manages, and its key properties or methods.
+     {2 sentences derived from the class `doc` field in api_surface.json.
+     If `doc` is empty or absent, write exactly: [No documentation available — class summary not captured by scout]
      Include inheritance parent if known.}
    summary: >
      {Same 2 sentences as description — used in listing cards}
@@ -65,6 +66,10 @@ Before generating any content, you MUST:
    ---
    ```
    Note: no `date`, `lastmod`, `draft`, `type`, or `weight` fields on reference pages.
+
+   **D-1 enforcement**: The `description:` value MUST come from `api_surface.json → class.doc`.
+   If the doc string is absent or empty, write `[No documentation available — class summary not captured by scout]`.
+   Do NOT invent a description. This causes the structure evaluator to flag the page for human review.
 
 4. **Generate body** in this exact structure:
 
@@ -99,7 +104,10 @@ Before generating any content, you MUST:
    |----------|------|--------|-------------|
    *(one row per property)*
 
-   Access values: `read` | `read/write`
+   **D-3 enforcement**: The `Access` column value MUST be derived from `api_surface.json → property.writable`:
+   - `writable: true` → `Read/Write`
+   - `writable: false` or absent → `Read`
+   Do NOT default all properties to `Read`. Check each property individually.
 
    `---`
 
@@ -110,6 +118,11 @@ Before generating any content, you MUST:
    - 1-sentence description
    - Parameter table: | Parameter | Type | Description |
    - Short code example
+
+   **D-2 enforcement**: The `ReturnType` in the method heading MUST come from `api_surface.json → method.return_type`.
+   - If `return_type` is non-empty and not `void`/`None`: write `→ {return_type}`
+   - If `return_type` is empty, `void`, or `None`: omit the `→ ReturnType` part or write `→ None`
+   Do NOT default all methods to `void` or leave ReturnType blank.
 
    `---`
 

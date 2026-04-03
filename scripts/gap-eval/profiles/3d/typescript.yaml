@@ -16,7 +16,7 @@ discovered_actuals:
   package_name: "@aspose/3d"
   package_source_actual: package.json
   format_files_found: null
-  last_baseline_sha: null
+  last_baseline_sha: 227894a1120c22b9b6522564e23dc1d14c8fc39a
 
 language_conventions:
   method_naming: camelCase
