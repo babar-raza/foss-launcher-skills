@@ -725,7 +725,7 @@ Set `auto_updatable: false` in the file's provenance block. The translator sync 
 
 ### `reviewed` field status
 
-`reviewed: true | false` is currently **deprecated**. It has no enforcement gate — no CI check or Hugo build step reads it. Use `auto_updatable: false` to protect a file from automated overwrite (which is the operative signal). The `reviewed` field may be removed in a future cleanup.
+`reviewed: true | false` has been **removed**. It is no longer written by any code path. Use `auto_updatable: false` to protect a file from automated overwrite (which is the operative signal). Existing files may still have `reviewed:` in their frontmatter; it is inert and will be stripped by the next provenance rewrite.
 
 ### Staleness detection
 
