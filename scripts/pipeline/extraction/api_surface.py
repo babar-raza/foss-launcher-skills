@@ -942,7 +942,7 @@ def extract_api_surface(
                 properties.extend(extra_props)
                 claims.extend(extra_claims)
 
-            # C++ field_declaration method declarations (no body)
+            # C++ field_declaration: method declarations (no body) AND public data members
             if language == "cpp":
                 body = find_child_by_type(cnode, "field_declaration_list")
                 if body:
@@ -952,30 +952,54 @@ def extract_api_surface(
                             access = node_text(member).strip().rstrip(":")
                         elif member.type == "field_declaration" and access == "public":
                             fdecl = find_child_by_type(member, "function_declarator")
-                            if fdecl is None:
-                                continue
-                            mname = ""
-                            for ch in fdecl.children:
-                                if ch.type in ("identifier", "field_identifier"):
-                                    mname = node_text(ch)
-                                    break
-                            if not mname:
-                                continue
-                            params = _extract_method_params(fdecl, language)
-                            ret = _extract_return_type(member, language)
-                            mdoc = _extract_doc_comment(member, language)
-                            methods.append({
-                                "name": mname,
-                                "params": params,
-                                "return_type": ret,
-                                "doc": mdoc,
-                                "line": member.start_point[0] + 1,
-                                "is_constructor": False,
-                            })
-                            claims.append(_make_claim(
-                                family, "api_method",
-                                f"{cname}.{mname}({', '.join(p['name'] for p in params)}) -> {ret}",
-                                rel, member.start_point[0] + 1))
+                            if fdecl is not None:
+                                # Method declaration (no body) — common in header files
+                                mname = ""
+                                for ch in fdecl.children:
+                                    if ch.type in ("identifier", "field_identifier"):
+                                        mname = node_text(ch)
+                                        break
+                                if not mname:
+                                    continue
+                                params = _extract_method_params(fdecl, language)
+                                ret = _extract_return_type(member, language)
+                                mdoc = _extract_doc_comment(member, language)
+                                methods.append({
+                                    "name": mname,
+                                    "params": params,
+                                    "return_type": ret,
+                                    "doc": mdoc,
+                                    "line": member.start_point[0] + 1,
+                                    "is_constructor": False,
+                                })
+                                claims.append(_make_claim(
+                                    family, "api_method",
+                                    f"{cname}.{mname}({', '.join(p['name'] for p in params)}) -> {ret}",
+                                    rel, member.start_point[0] + 1))
+                            else:
+                                # Public data member (e.g., std::string name;)
+                                fname = ""
+                                for ch in member.children:
+                                    if ch.type in ("identifier", "field_identifier"):
+                                        fname = node_text(ch)
+                                        break
+                                if not fname or fname.startswith("_"):
+                                    continue
+                                ftype = ""
+                                type_node = child_by_field(member, "type")
+                                if type_node:
+                                    ftype = node_text(type_node)
+                                mdoc = _extract_doc_comment(member, language)
+                                properties.append({
+                                    "name": fname,
+                                    "type": ftype,
+                                    "line": member.start_point[0] + 1,
+                                    "writable": True,  # public data members are read-write
+                                })
+                                claims.append(_make_claim(
+                                    family, "api_method",
+                                    f"{cname}.{fname} data member of type {ftype}",
+                                    rel, member.start_point[0] + 1))
 
             cls_record: dict[str, Any] = {
                 "name": cname,

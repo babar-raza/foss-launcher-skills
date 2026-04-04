@@ -31,6 +31,10 @@ _KNOWN_EXTENSIONS = {
     # additional common formats
     "u3d", "amf", "rvm", "ma", "mb", "blend", "draco",
     "zip", "tar", "gz",
+    # note/email formats
+    "one", "msg", "eml", "mht", "mhtml", "ics", "vcf", "pst", "ost",
+    # spreadsheet/cell formats
+    "csv", "tsv",
 }
 
 # Regex: matches format extensions used as tokens (case-insensitive)
@@ -93,15 +97,14 @@ def _load_formats(family: str, platform: str) -> dict[str, str]:
     except (json.JSONDecodeError, TypeError):
         return {}
 
-    # Skip extension matching when the schema uses enum names, not extensions
-    if _is_enum_name_schema(data):
-        return {}
+    is_enum_schema = _is_enum_name_schema(data)
 
     result: dict[str, str] = {}
     for entry in data:
-        ext = (entry.get("format") or entry.get("ext") or "").lower().lstrip(".")
-        if not ext:
+        raw_key = (entry.get("format") or entry.get("ext") or "").lstrip(".")
+        if not raw_key:
             continue
+        ext = raw_key.lower()
         direction = (entry.get("direction") or entry.get("support") or "").lower()
         if not direction:
             # Infer from boolean fields
@@ -120,6 +123,12 @@ def _load_formats(family: str, platform: str) -> dict[str, str]:
             result[ext] = "both"
         else:
             result[ext] = direction
+
+    # For enum-name schemas (e.g., OneNote2010 instead of .one), extension
+    # matching against prose will not work.  But we still return the data so
+    # that callers can use it for direction lookups when the enum name itself
+    # appears in content.  The caller must be aware that keys are enum names,
+    # not file extensions.
     return result
 
 
@@ -248,6 +257,28 @@ class FormatTruthEvaluator(BaseEvaluator):
                         suggestion=(
                             f"Clarify that {ext.upper()} is {known_dir}-only, "
                             f"not both import and export"
+                        ),
+                        evaluator=self.name,
+                    ))
+            # "detect" means the format enum exists for identification only —
+            # the library can recognize the format but cannot read or write it.
+            # Any claim of import, export, or both is a false capability claim.
+            elif known_dir == "detect" and claimed_dir in ("import", "export", "both"):
+                key = (ext, "detect-only-mismatch")
+                if key not in reported:
+                    reported.add(key)
+                    findings.append(Finding(
+                        level="FAIL",
+                        category="FT",
+                        filepath=str(page.filepath),
+                        line_no=line_no,
+                        message=(
+                            f"Claims {ext.upper()} {claimed_dir} support but "
+                            f"formats.json shows detect-only (no I/O capability)"
+                        ),
+                        suggestion=(
+                            f"Remove the {claimed_dir} claim for {ext.upper()} — "
+                            f"the library can only detect this format, not read or write it"
                         ),
                         evaluator=self.name,
                     ))

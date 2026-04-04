@@ -63,7 +63,14 @@ def detect_formats(
     header_ext = _HEADER_EXTENSIONS.get(language, "")
     files = _collect_source_files(pkg_root, ext, header_ext)
     format_pattern = re.compile(
-        r"(FileFormat|FormatType|SupportedFormat|FileType)", re.IGNORECASE)
+        r"(FileFormat|FormatType|SupportedFormat|FileType|SaveFormat|ExportFormat|LoadFormat|ImportFormat|OutputFormat|InputFormat)",
+        re.IGNORECASE)
+    # SaveFormat/ExportFormat enums indicate actual output capability
+    save_format_pattern = re.compile(
+        r"(SaveFormat|ExportFormat|OutputFormat)", re.IGNORECASE)
+    # LoadFormat enums indicate actual input capability
+    load_format_pattern = re.compile(
+        r"(LoadFormat|ImportFormat|InputFormat)", re.IGNORECASE)
     importer_pattern = re.compile(
         r"(Importer|Exporter|Reader|Writer|Loader|Saver)", re.IGNORECASE)
 
@@ -95,6 +102,18 @@ def detect_formats(
                     is_enum = True
 
             if format_pattern.search(cname):
+                # Determine direction from enum name semantics:
+                # - SaveFormat/ExportFormat → export only
+                # - LoadFormat/ImportFormat → import only
+                # - FileFormat/FormatType  → detect only (NOT both)
+                # Content generators must not treat "detect" as I/O capability.
+                if save_format_pattern.search(cname):
+                    enum_direction = "export"
+                elif load_format_pattern.search(cname):
+                    enum_direction = "import"
+                else:
+                    enum_direction = "detect"
+
                 if is_enum:
                     if language == "python":
                         members = _extract_python_enum_members(cn)
@@ -107,11 +126,15 @@ def detect_formats(
                             "value": mem.get("value", ""),
                             "file": rel,
                             "line": cn.start_point[0] + 1,
-                            "direction": "both",
+                            "direction": enum_direction,
                         }
                         formats.append(fmt_entry)
-                        _add_claim("format_support",
-                                   f"Supports format {mem['name']} via {cname}",
+                        direction_desc = (
+                            f"Detects format {mem['name']} via {cname}"
+                            if enum_direction == "detect"
+                            else f"{enum_direction} support for {mem['name']} via {cname}"
+                        )
+                        _add_claim("format_support", direction_desc,
                                    rel, cn.start_point[0] + 1)
                 else:
                     formats.append({
@@ -120,7 +143,7 @@ def detect_formats(
                         "value": "",
                         "file": rel,
                         "line": cn.start_point[0] + 1,
-                        "direction": "both",
+                        "direction": enum_direction,
                     })
 
             if importer_pattern.search(cname):
