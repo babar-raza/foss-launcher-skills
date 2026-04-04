@@ -682,7 +682,7 @@ provenance:
   content_hash: <first 32 hex chars of SHA-256 of body text after frontmatter>
   translation_origin: translator-batch | translator-sync | translator-page | translator-retranslate | agent-translated | human-translated | unknown
   source_file: <relative path of English source>   # locale files only
-  source_sha: <first 12 hex chars of SHA-256 of English source>  # locale files only
+  source_sha: <first 24 hex chars of SHA-256 of English source>  # locale files only
   last_mechanism: translator | content-fixer | fixer | skill | agent-edit | human-edit | unknown
   auto_updatable: true | false
   reviewed: true | false  # deprecated — no enforcement gate; use auto_updatable: false to protect files
@@ -729,7 +729,7 @@ Set `auto_updatable: false` in the file's provenance block. The translator sync 
 
 ### Staleness detection
 
-`source_sha` holds the first 12 hex characters of SHA-256 of the English source content at the time of translation. If `source_sha` does not match the current English source, the locale file is stale and eligible for re-translation (if `auto_updatable: true`).
+`source_sha` holds the first 24 hex characters of SHA-256 of the English source content at the time of translation. If `source_sha` does not match the current English source, the locale file is stale and eligible for re-translation (if `auto_updatable: true`).
 
 ### Backfill and fresh-clone durability
 
