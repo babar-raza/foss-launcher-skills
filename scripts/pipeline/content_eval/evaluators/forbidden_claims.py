@@ -50,7 +50,7 @@ class ForbiddenClaimsEvaluator(BaseEvaluator):
         findings: list[Finding] = []
 
         # Tokenize forbidden claims
-        forbidden_tokens = [(fc, _tokenize(fc)) for fc in forbidden if len(fc) > 5]
+        forbidden_tokens = [(fc, _tokenize(fc)) for fc in forbidden if len(fc) > 2]
 
         for line_no, line_text in page.prose_lines:
             line_tokens = _tokenize(line_text)
