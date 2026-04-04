@@ -115,6 +115,35 @@ When a forbidden-path edit is authorized by the human maintainer:
 4. The post-commit hook automatically moves the token from `pending/` → `archived/`
    (local filesystem only — no staging required).
 
+### path_guard batch mode (`--stdin`)
+
+For large staged batches (> 100 files), use `--stdin` to avoid per-file Python startup overhead.
+The `--stdin` flag reads one path per line from stdin and prints only DENY paths to stdout.
+
+```bash
+# Pipe staged paths through path_guard in batch mode
+git diff --cached --name-only --diff-filter=ACM | \
+    python scripts/pipeline/path_guard.py --stdin
+# Exit 0 → all paths ALLOW; exit 2 → one or more paths DENY (printed to stdout)
+
+# With JSON output (for tooling)
+git diff --cached --name-only --diff-filter=ACM | \
+    python scripts/pipeline/path_guard.py --stdin --json
+# Outputs JSON array of {"path": "...", "decision": "DENY", "reason": "..."} objects
+```
+
+**When to use `--stdin`:** Any automated pipeline staging thousands of files (e.g., provenance
+backfill commits, batch content generation). The pre-commit hook already uses `--stdin` internally
+(Step 1 pipes all staged paths through it in one Python invocation).
+
+**Exit codes:** `0` = all paths allowed; `2` = at least one DENY (DENY paths printed to stdout,
+one per line). Exit `1` is reserved for internal errors. Scripts should check for exit `2`, not
+just non-zero.
+
+**Windows/CRLF note:** On Windows, Python's `sys.stdout` in text mode emits `\r\n`. `path_guard.py`
+calls `sys.stdout.reconfigure(newline="\n")` in `--stdin` mode to force LF-only output.
+If consuming the output in a bash pipeline, add `| tr -d '\r'` as defence-in-depth.
+
 ## 5. Evidence Requirements (non-negotiable)
 
 - Every content page write must pass S-23 (content-check) before committing.
@@ -746,6 +775,44 @@ python scripts/pipeline/provenance_backfill.py
 ```
 
 The backfill sets `translation_origin: unknown`, `auto_updatable: true`, and derives `source_file` / `source_sha` from the path mapping. This is the correct conservative default. See RUNBOOK §1 for the canonical post-clone setup sequence.
+
+### content_origin recovery (two-step provisioning workflow)
+
+After `provenance_backfill.py` runs, newly provisioned English files carry `content_origin: unknown`.
+`scripts/pipeline/content_origin_recover.py` upgrades eligible files to `content_origin: skill-generated`
+using **Rule A**: grade ∈ {A, B} AND `evidence.claims` non-empty → `skill-generated`.
+
+**Two-step provisioning flow:**
+
+```
+Step 1 — provenance_backfill.py     (writes provenance block; sets content_origin: unknown)
+Step 2 — content_origin_recover.py  (upgrades content_origin for Rule A-eligible files)
+```
+
+**Usage:**
+
+```bash
+# Dry-run first — review all proposed changes before writing
+python scripts/pipeline/content_origin_recover.py --dry-run
+
+# Human sampling gate: inspect 30 files across families; confirm Rule A is correct
+# Save review record to reports/tc4-review-sample.txt (gitignored)
+
+# Apply after sampling passes
+python scripts/pipeline/content_origin_recover.py --apply
+```
+
+**Idempotency:** Both scripts are safe to re-run. `content_origin_recover` skips files that
+already have a non-`unknown` `content_origin`. Running the two-step sequence multiple times
+produces no additional changes after the first full run.
+
+**Sampling gate requirement:** Before running `--apply` on a new corpus batch, sample at least
+30 files evenly across product families and verify that grade + claims justify `skill-generated`.
+Document the review in `reports/` (local-only — never commit).
+
+**Files not upgraded by Rule A:** Reference pages graded C/D/F, human-authored docs, and any
+file where `evidence.claims` is empty remain at `content_origin: unknown` — this is correct.
+Do not manually patch these to `skill-generated` without confirming authorship.
 
 ### Reference orphan locale files
 
