@@ -105,7 +105,7 @@ Create a **commit plan** with 2–8 commits (max). For each commit specify:
 2. **Junk files**: look for `__pycache__/`, `*.pyc`, `.DS_Store`, `node_modules/`, build outputs.
    - Add to `.gitignore` if not already covered; unstage if accidentally staged.
 3. **Untracked ignore paths**: verify these directories remain untracked (never accidentally stage):
-   - `reports/` (except `reports/overrides/archived/` and `reports/overrides/pending/` when explicitly needed)
+   - `reports/` — **strict local-only boundary; nothing under reports/ may ever be committed**
    - `plans/`, `foss-launcher/`, `.venv/`
 
 ---
@@ -130,23 +130,21 @@ an override token created and staged alongside the edit.
   --paths "path/to/file1" "path/to/file2" \
   --reason "brief reason for the edit" \
   --plan "feat(scope): commit title"
+# Token is written to reports/overrides/pending/ (local only — do NOT stage it)
 
-# 2. Stage the token with -f (reports/ is in .gitignore)
-git add -f reports/overrides/pending/<token-filename>.json
-
-# 3. Stage the protected files normally
+# 2. Stage the protected files normally
 git add path/to/file1 path/to/file2
 
-# 4. Commit — hook validates token, consumes it, archives it
+# 3. Commit — hook reads token from disk, validates it, then consumes + archives it
 git commit -m "..."
 ```
 
 **Batching**: Group related protected files into one token to minimise noise.
 Maximum 20–25 paths per token call (CLI limit).
 
-**After commit**: the hook moves tokens from `pending/` → `archived/`. The archived files
-will appear as untracked `A` entries. Collect these in a final
-`chore(reports): archive consumed override tokens` commit at the end of the session.
+**After commit**: the post-commit hook moves the token from `pending/` → `archived/`
+locally. Both directories live under `reports/` which is gitignored. No staging of
+token files is ever needed.
 
 ---
 
@@ -261,28 +259,9 @@ After **each** commit, run:
 git status -sb
 ```
 
-If the hook consumed override tokens, you will see:
-- ` D reports/overrides/pending/<token>.json` — tracked file deleted by hook
-- `A  reports/overrides/archived/<token>.json` — new archived copy
-
-Accumulate these across all commits in the session. At the **end of the session**, create
-a final cleanup commit:
-
-```bash
-# Stage deletions of consumed pending tokens
-git rm -f reports/overrides/pending/<token1>.json reports/overrides/pending/<token2>.json ...
-
-# Stage newly archived copies
-git add -f reports/overrides/archived/
-
-# Commit
-git commit -m "chore(reports): archive consumed override tokens from this session
-
-- Delete N consumed pending token files
-- Stage corresponding archived copies linked to respective commits
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
-```
+If the hook consumed override tokens you will see no reports/ entries — token files live
+under `reports/` which is gitignored and never committed. The hook moves them from
+`pending/` → `archived/` locally; no staging or cleanup commit is needed.
 
 ---
 
