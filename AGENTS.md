@@ -92,6 +92,12 @@ ALSO ALLOWED (pipeline and CI maintenance):
 Override tokens are **local-only artifacts** stored in `reports/overrides/pending/`.
 They are validated from disk by the pre-commit hook — do NOT stage or commit them.
 `reports/` is gitignored; the pre-commit hook enforces this boundary.
+If hooks are not installed (e.g., after a fresh clone), run `bash scripts/install-hooks.sh`.
+
+> **Never use `--no-verify`** when committing files in or near protected paths.
+> `--no-verify` bypasses the pre-commit hook entirely, including the `reports/` boundary
+> guard and the forbidden-path token check. If the pre-commit hook fails, fix the root
+> cause — do not bypass it.
 
 When a forbidden-path edit is authorized by the human maintainer:
 
