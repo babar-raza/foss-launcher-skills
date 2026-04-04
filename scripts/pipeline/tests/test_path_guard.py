@@ -219,3 +219,95 @@ class TestCLI:
         assert result.returncode == 2
         payload = json.loads(result.stdout)
         assert payload["decision"] == "DENY"
+
+
+# ---------------------------------------------------------------------------
+# Stdin batch mode (PG-01 / PG-03)
+# ---------------------------------------------------------------------------
+
+class TestStdinBatchMode:
+    """--stdin mode processes all paths in one invocation."""
+
+    _SCRIPT = str(Path(__file__).resolve().parent.parent / "path_guard.py")
+
+    def _run_stdin(self, paths: list[str], extra_flags: list[str] | None = None) -> subprocess.CompletedProcess:
+        input_text = "\n".join(paths) + ("\n" if paths else "")
+        flags = extra_flags or []
+        return subprocess.run(
+            [sys.executable, self._SCRIPT, "--stdin"] + flags,
+            input=input_text,
+            capture_output=True,
+            text=True,
+        )
+
+    def test_all_allow_exits_0_empty_stdout(self):
+        """All-ALLOW batch → exit 0, stdout empty."""
+        result = self._run_stdin([
+            "content/blog.aspose.org/3d/java/test.md",
+            "content/docs.aspose.org/en/cells/python/overview.md",
+            "knowledge/cells/model.yaml",
+        ])
+        assert result.returncode == 0
+        assert result.stdout.strip() == ""
+
+    def test_mixed_batch_exits_2_only_deny_in_stdout(self):
+        """Mixed batch → exit 2, only DENY paths in stdout."""
+        result = self._run_stdin([
+            "content/blog.aspose.org/3d/java/test.md",
+            "skills/foo.md",
+            "content/docs.aspose.org/en/overview.md",
+            "AGENTS.md",
+        ])
+        assert result.returncode == 2
+        denied = result.stdout.strip().splitlines()
+        assert "skills/foo.md" in denied
+        assert "AGENTS.md" in denied
+        assert "content/blog.aspose.org/3d/java/test.md" not in denied
+        assert "content/docs.aspose.org/en/overview.md" not in denied
+
+    def test_all_deny_batch_exits_2_all_in_stdout(self):
+        """All-DENY batch → exit 2, all three in stdout."""
+        result = self._run_stdin([
+            "skills/foo.md",
+            "CLAUDE.md",
+            "themes/bar.css",
+        ])
+        assert result.returncode == 2
+        denied = result.stdout.strip().splitlines()
+        assert len(denied) == 3
+        assert "skills/foo.md" in denied
+        assert "CLAUDE.md" in denied
+        assert "themes/bar.css" in denied
+
+    def test_empty_stdin_exits_0(self):
+        """Empty stdin → exit 0, no output."""
+        result = self._run_stdin([])
+        assert result.returncode == 0
+        assert result.stdout.strip() == ""
+
+    def test_stdin_json_returns_array_of_deny(self):
+        """--stdin --json → JSON array containing only DENY entries."""
+        result = self._run_stdin(
+            [
+                "content/blog.aspose.org/3d/java/test.md",
+                "skills/forbidden.md",
+            ],
+            extra_flags=["--json"],
+        )
+        assert result.returncode == 2
+        payload = json.loads(result.stdout)
+        assert isinstance(payload, list)
+        assert len(payload) == 1
+        assert payload[0]["path"] == "skills/forbidden.md"
+        assert payload[0]["decision"] == "DENY"
+        assert "reason" in payload[0]
+
+    def test_stdin_json_all_allow_empty_array(self):
+        """--stdin --json with all-ALLOW input → empty JSON array, exit 0."""
+        result = self._run_stdin(
+            ["content/blog.aspose.org/3d/java/test.md"],
+            extra_flags=["--json"],
+        )
+        assert result.returncode == 0
+        payload = json.loads(result.stdout)
+        assert payload == []

@@ -438,3 +438,46 @@ class TestComputeContentHash:
         missing = Path(tempfile.gettempdir()) / "nonexistent_content_hash_test.md"
         result = compute_content_hash(missing)
         assert result == ""
+
+
+# ---------------------------------------------------------------------------
+# Write-once guard for content_created_at
+# ---------------------------------------------------------------------------
+
+class TestWriteOnceContentCreatedAt:
+    """write_provenance() must preserve an existing content_created_at value."""
+
+    def test_preserves_when_caller_omits_field(self, tmp_path):
+        """If existing provenance has content_created_at and caller omits it, value is kept."""
+        p = tmp_path / "page.md"
+        p.write_text("---\ntitle: Test\n---\nBody.\n", encoding="utf-8")
+        write_provenance(p, {"content_origin": "unknown", "content_created_at": "2025-01-15T00:00:00Z"})
+
+        # Now write again WITHOUT content_created_at
+        write_provenance(p, {"content_origin": "skill-generated"})
+
+        prov = read_provenance(p)
+        assert prov["content_created_at"] == "2025-01-15T00:00:00Z"
+        assert prov["content_origin"] == "skill-generated"
+
+    def test_preserves_when_caller_tries_to_change_value(self, tmp_path):
+        """If caller passes a different content_created_at, existing value wins."""
+        p = tmp_path / "page.md"
+        p.write_text("---\ntitle: Test\n---\nBody.\n", encoding="utf-8")
+        write_provenance(p, {"content_origin": "unknown", "content_created_at": "2025-01-15T00:00:00Z"})
+
+        write_provenance(p, {"content_origin": "unknown", "content_created_at": "2099-01-01T00:00:00Z"})
+
+        prov = read_provenance(p)
+        assert prov["content_created_at"] == "2025-01-15T00:00:00Z"
+
+    def test_no_guard_when_field_not_yet_set(self, tmp_path):
+        """If no content_created_at exists yet, caller's value is written normally."""
+        p = tmp_path / "page.md"
+        p.write_text("---\ntitle: Test\n---\nBody.\n", encoding="utf-8")
+        write_provenance(p, {"content_origin": "unknown"})
+
+        write_provenance(p, {"content_origin": "unknown", "content_created_at": "2025-06-01T00:00:00Z"})
+
+        prov = read_provenance(p)
+        assert prov["content_created_at"] == "2025-06-01T00:00:00Z"

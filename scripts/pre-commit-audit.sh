@@ -22,16 +22,15 @@ fi
 # ---------------------------------------------------------------------------
 # Step 1: Forbidden-path enforcement
 # ---------------------------------------------------------------------------
-# For every staged file, check path_guard.py. If DENY, require a valid pending
-# override token in reports/overrides/pending/ (via override_manager.py).
+# Check all staged paths in a single Python invocation using --stdin batch mode.
+# This avoids one Python startup per file (~120ms/file) which was ~56 min for
+# large commits.  The --stdin flag reads one path per line and prints only DENY
+# paths to stdout, exit 0 if all ALLOW, exit 2 if any DENY.
 forbidden_staged=()
-while IFS= read -r staged_file; do
-    [ -z "$staged_file" ] && continue
-    python scripts/pipeline/path_guard.py "$staged_file" > /dev/null 2>&1
-    if [ $? -eq 2 ]; then
-        forbidden_staged+=("$staged_file")
-    fi
-done < <(git diff --cached --name-only --diff-filter=ACM)
+while IFS= read -r _line; do forbidden_staged+=("$_line"); done < <(
+    git diff --cached --name-only --diff-filter=ACM | \
+        python scripts/pipeline/path_guard.py --stdin | tr -d '\r'
+)
 
 if [ ${#forbidden_staged[@]} -gt 0 ]; then
     forbidden_violation=0
@@ -58,7 +57,8 @@ fi
 # ---------------------------------------------------------------------------
 # Locale files (/ar/, /fr/, /de/, etc.) are translator output and are not
 # subject to API accuracy audit — only English source pages are checked.
-mapfile -t changed < <(
+changed=()
+while IFS= read -r _line; do changed+=("$_line"); done < <(
     git diff --cached --name-only --diff-filter=ACM \
         | grep '^content/.*\.md$' \
         | grep '/en/'
