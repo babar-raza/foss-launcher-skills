@@ -78,7 +78,7 @@ class TestPreCommitGuard:
     def test_installed_hook_contains_guard(self):
         """The installed .git/hooks/pre-commit must also contain the guard."""
         if not self._INSTALLED.exists():
-            pytest.skip("Pre-commit hook not installed (run bash scripts/install-hooks.sh)")
+            pytest.fail("Pre-commit hook not installed (run bash scripts/install-hooks.sh)")
         content = self._INSTALLED.read_text(encoding="utf-8")
         assert "Step 0" in content or "reports/ boundary" in content, (
             ".git/hooks/pre-commit is missing the reports/ guard — "
@@ -125,7 +125,7 @@ class TestPostCommitHook:
 
     def test_installed_hook_no_git_add_force_archived(self):
         if not self._INSTALLED.exists():
-            pytest.skip("Post-commit hook not installed (run bash scripts/install-hooks.sh)")
+            pytest.fail("Post-commit hook not installed (run bash scripts/install-hooks.sh)")
         content = self._INSTALLED.read_text(encoding="utf-8")
         assert "git add -f" not in content, (
             ".git/hooks/post-commit must not force-add any files — "
