@@ -379,7 +379,12 @@ class TypeAccuracyEvaluator(BaseEvaluator):
         if not class_name:
             return findings
 
-        # Build method → return_type map for non-void methods
+        # Build method → return_type map for non-void methods.
+        # Include "none" here because documenting None for a None-returning
+        # method is correct — the global _VOID_RETURN_VALUES excludes "none"
+        # since Python None is a meaningful return type for Check 5, but for
+        # this void-mismatch check None==None is not a mismatch.
+        _void_for_mismatch = _VOID_RETURN_VALUES | {"none"}
         return_type_map: dict[str, str] = {}
         for entry in api_surface:
             if entry.get("name") != class_name:
@@ -387,7 +392,7 @@ class TypeAccuracyEvaluator(BaseEvaluator):
             for method in entry.get("methods", []):
                 mname = method.get("name", "")
                 mtype = (method.get("return_type") or "").strip()
-                if mname and mtype and mtype.lower() not in _VOID_RETURN_VALUES:
+                if mname and mtype and mtype.lower() not in _void_for_mismatch:
                     return_type_map[mname] = mtype
             break
 
@@ -395,9 +400,21 @@ class TypeAccuracyEvaluator(BaseEvaluator):
             return findings
 
         raw = page.filepath.read_text(encoding="utf-8", errors="replace")
+
+        # Detect overloaded methods: if the same method name appears in
+        # multiple table rows with DIFFERENT return types, some overloads
+        # legitimately return void while others don't. Skip these.
+        _all_rows = _METHOD_TABLE_ROW_RE.findall(raw) if hasattr(_METHOD_TABLE_ROW_RE, 'findall') else []
+        from collections import Counter as _Counter
+        _method_row_counts = _Counter(name for name, _ in _all_rows)
+        _overloaded = {name for name, count in _method_row_counts.items() if count > 1}
+
         for m in self._EXPLICIT_VOID_CELL_RE.finditer(raw):
             method_name = m.group("method")
             if method_name not in return_type_map:
+                continue
+            # Skip overloaded methods — void overload is likely correct
+            if method_name in _overloaded:
                 continue
             line_no = raw[: m.start()].count("\n") + 1
             expected = return_type_map[method_name]

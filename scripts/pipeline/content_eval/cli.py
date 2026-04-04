@@ -177,6 +177,40 @@ def _run_evaluate(args):
         report.findings.extend(check_consistency(pages))
         report.evaluators_run.append("cross_page_consistency")
 
+    # Cross-family defect sweep
+    if args.sweep and len(target_parts) == 2:
+        from .cross_page.defect_sweep import extract_defect_signatures, run_sweep
+        from .loader import load_all_products as _load_all
+
+        sigs = extract_defect_signatures(report.findings)
+        if sigs:
+            _log(f"Sweep: {len(sigs)} defect signatures found, scanning other products...")
+            all_products = _load_all()
+            exclude = (target_parts[0], target_parts[1])
+
+            def _evaluator_runner(page, eval_names):
+                k = knowledge_cache.get((page.family, page.platform))
+                if not k and page.family and page.platform:
+                    k = _load_knowledge(page.family, page.platform)
+                    knowledge_cache[(page.family, page.platform)] = k
+                results = []
+                for en in eval_names:
+                    ec = get_evaluator(en)
+                    if ec:
+                        results.extend(ec().evaluate(page, k))
+                return results
+
+            sweep_findings = run_sweep(
+                seed_findings=report.findings,
+                all_products=all_products,
+                evaluator_runner=_evaluator_runner,
+                exclude=exclude,
+            )
+            report.findings.extend(sweep_findings)
+            _log(f"Sweep: {len(sweep_findings)} additional findings across other products")
+        else:
+            _log("Sweep: no defect signatures to sweep")
+
     # Generate remediation plan
     remediation = None
     if args.remediation:
@@ -370,6 +404,8 @@ def main(argv: list[str] | None = None):
                              help="Write computed grade to each page's frontmatter")
     eval_parser.add_argument("--skip-graded", action="store_true",
                              help="Skip pages already graded with current knowledge")
+    eval_parser.add_argument("--sweep", action="store_true",
+                             help="Sweep all products for same defect classes found in target")
     eval_parser.set_defaults(func=_run_evaluate)
 
     # diff command

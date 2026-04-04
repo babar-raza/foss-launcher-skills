@@ -138,8 +138,10 @@ class CoverageEvaluator(BaseEvaluator):
         if important_missing and len(important_missing) >= 3:
             top5 = important_missing[:5]
             names = ", ".join(f"`{c}`" for c, _ in top5)
+            # H-05: reference pages get WARN for missing important classes
+            _level = "WARN" if page.page_role == "reference" else "INFO"
             findings.append(Finding(
-                level="INFO",
+                level=_level,
                 category="CG",
                 filepath=str(page.filepath),
                 line_no=1,

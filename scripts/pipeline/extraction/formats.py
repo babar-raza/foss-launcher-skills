@@ -74,6 +74,13 @@ def detect_formats(
     importer_pattern = re.compile(
         r"(Importer|Exporter|Reader|Writer|Loader|Saver)", re.IGNORECASE)
 
+    # H-04: False-positive format names to reject after suffix stripping
+    _FALSE_POSITIVE_NAMES = frozenset({
+        "reader", "writer", "loader", "saver", "importer", "exporter",
+        "document", "file", "stream", "base", "abstract", "default",
+        "generic", "common", "internal", "helper", "utils", "factory",
+    })
+
     for fpath in files:
         rel = str(fpath.relative_to(repo)).replace("\\", "/")
         try:
@@ -152,8 +159,9 @@ def detect_formats(
                     direction = "export"
                 fmt_name = re.sub(
                     r"(Importer|Exporter|Reader|Writer|Loader|Saver)", "",
-                    cname, flags=re.IGNORECASE).strip()
-                if fmt_name:
+                    cname, flags=re.IGNORECASE).strip().strip("_")
+                # H-04: reject empty, too-short, or common-word false positives
+                if fmt_name and len(fmt_name) >= 2 and fmt_name.lower() not in _FALSE_POSITIVE_NAMES:
                     formats.append({
                         "format": fmt_name,
                         "enum": "",
@@ -247,4 +255,22 @@ def detect_formats(
                            f"(method: {m.group(0)})",
                            rel, line_num)
 
+    # H-04: Post-extraction validation — remove false-positive entries and
+    # normalize format names (strip trailing underscores, reject common words).
+    formats = _validate_formats(formats, _FALSE_POSITIVE_NAMES)
     return formats, claims
+
+
+def _validate_formats(
+    formats: list[dict],
+    false_positives: frozenset[str],
+) -> list[dict]:
+    """Remove false-positive format entries and normalize names."""
+    valid: list[dict] = []
+    for f in formats:
+        name = (f.get("format") or "").strip().strip("_")
+        if not name or len(name) < 2 or name.lower() in false_positives:
+            continue
+        f["format"] = name
+        valid.append(f)
+    return valid

@@ -33,98 +33,34 @@ _STRONG_WORDS = re.compile(
     re.IGNORECASE,
 )
 
+# Site-specific severity for unbacked claims (H-06 / H-09)
+_UNBACKED_CLAIM_SEVERITY: dict[str, str] = {
+    "reference": "FAIL",
+    "blog": "WARN",
+    "kb": "WARN",
+    "docs": "INFO",
+    "products": "WARN",
+}
+
 # ---------------------------------------------------------------------------
-# TF-IDF semantic matching — imported from embed.py (single source of truth)
+# TF-IDF semantic matching — shared module (H-10 refactor)
 # ---------------------------------------------------------------------------
 
-try:
-    from embed import (
-        tokenize as _tfidf_tokenize,
-        compute_idf as _compute_idf,
-        compute_tfidf_vector as _tfidf_vector,
-        cosine_similarity as _cosine_similarity,
-    )
-    _TFIDF_AVAILABLE = True
-except ImportError:
-    _TFIDF_AVAILABLE = False
+from ._claim_index import (
+    ClaimIndex as _ClaimIndex,
+    clear_claim_cache,
+    get_claim_index as _get_claim_index,
+    load_claims as _load_claims,
+    tokenize as _tokenize_shared,
+)
 
-    def _tfidf_tokenize(text):  # type: ignore[misc]
-        return []
-
-    def _compute_idf(documents):  # type: ignore[misc]
-        return {}
-
-    def _tfidf_vector(tokens, idf):  # type: ignore[misc]
-        return {}
-
-    def _cosine_similarity(v1, v2):  # type: ignore[misc]
-        return 0.0
-
-
-# Module-level cache: (family, platform) → _ClaimIndex
-_CLAIM_INDEX_CACHE: dict[tuple[str, str], "_ClaimIndex"] = {}
-
-
-def clear_claim_cache() -> None:
-    """Clear the claim index cache (for test isolation)."""
-    _CLAIM_INDEX_CACHE.clear()
-
-
-def _get_claim_index(family: str, platform: str) -> "_ClaimIndex":
-    """Lazily build and cache a _ClaimIndex per (family, platform)."""
-    key = (family, platform)
-    if key not in _CLAIM_INDEX_CACHE:
-        claims = _load_claims(family, platform)
-        _CLAIM_INDEX_CACHE[key] = _ClaimIndex(claims)
-    return _CLAIM_INDEX_CACHE[key]
-
-
-class _ClaimIndex:
-    """Pre-computed TF-IDF index over knowledge claims for semantic matching."""
-
-    def __init__(self, claims: list[dict]):
-        self._texts: list[str] = []
-        self._token_lists: list[list[str]] = []
-
-        for c in claims:
-            text = c.get("text", "")
-            if text:
-                self._texts.append(text)
-                self._token_lists.append(_tfidf_tokenize(text))
-
-        self._idf = _compute_idf(self._token_lists) if self._token_lists else {}
-        self._vectors = [
-            _tfidf_vector(toks, self._idf) for toks in self._token_lists
-        ]
-
-    @property
-    def available(self) -> bool:
-        return len(self._vectors) >= 1
-
-    def best_similarity(self, text: str) -> float:
-        """Return highest cosine similarity between text and any claim."""
-        if not self._vectors:
-            return 0.0
-        tokens = _tfidf_tokenize(text)
-        if not tokens:
-            return 0.0
-        vec = _tfidf_vector(tokens, self._idf)
-        return max(_cosine_similarity(vec, cv) for cv in self._vectors)
+# Re-export for backwards compatibility
+clear_claim_cache = clear_claim_cache
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
-
-def _load_claims(family: str, platform: str) -> list[dict]:
-    """Load claims.json for a product."""
-    path = KNOWLEDGE_ROOT / family / platform / "merged" / "claims.json"
-    if not path.exists():
-        return []
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, KeyError):
-        return []
 
 
 def _load_formats(family: str, platform: str) -> list[dict]:
@@ -139,8 +75,8 @@ def _load_formats(family: str, platform: str) -> list[dict]:
 
 
 def _tokenize(text: str) -> set[str]:
-    """Extract lowercase word tokens."""
-    return set(re.findall(r"[a-z][a-z0-9_]+", text.lower()))
+    """Extract lowercase word tokens (delegates to shared _claim_index)."""
+    return _tokenize_shared(text)
 
 
 class ProseTruthEvaluator(BaseEvaluator):
@@ -175,8 +111,12 @@ class ProseTruthEvaluator(BaseEvaluator):
                         member = parts[1]
                         if not knowledge.has_method(cls_name, member) and \
                            not knowledge.has_property(cls_name, member):
+                            # Site-specific: reference → FAIL, blog/kb → WARN, docs → WARN
+                            _api_level = _UNBACKED_CLAIM_SEVERITY.get(
+                                page.subdomain, "WARN"
+                            )
                             findings.append(Finding(
-                                level="WARN",
+                                level=_api_level,
                                 category="PT",
                                 filepath=str(page.filepath),
                                 line_no=line_no,
@@ -257,8 +197,13 @@ class ProseTruthEvaluator(BaseEvaluator):
                         if semantic_score >= 0.4:
                             continue  # Supported by semantic similarity
 
+                    # Site-specific severity: reference pages get FAIL,
+                    # blog/kb/products get WARN, docs gets INFO.
+                    _unbacked_level = _UNBACKED_CLAIM_SEVERITY.get(
+                        page.subdomain, "WARN"
+                    )
                     findings.append(Finding(
-                        level="INFO",
+                        level=_unbacked_level,
                         category="PT",
                         filepath=str(page.filepath),
                         line_no=line_no,

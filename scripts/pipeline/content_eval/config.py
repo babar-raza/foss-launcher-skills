@@ -22,6 +22,10 @@ ALL_EVALUATORS = [
     "code_plausibility",
     "coverage",
     "type_accuracy",
+    "prose_claim_binding",
+    "api_completeness",
+    "code_syntax_check",
+    "namespace_correctness",
 ]
 
 # Default evaluators (fast, deterministic, production-ready)
@@ -37,6 +41,15 @@ DEFAULT_EVALUATORS = [
     "evidence_depth",
     "prose_truth",
     "code_plausibility",
+    "format_truth",
+    "type_accuracy",
+    "coverage",
+    "install_recipe",
+    "limitations_check",
+    "prose_claim_binding",
+    "api_completeness",
+    "code_syntax_check",
+    "namespace_correctness",
 ]
 
 # Platform foreign-code patterns: (regex, description)

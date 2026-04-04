@@ -270,7 +270,7 @@ class EvalReport:
 # ---------------------------------------------------------------------------
 
 # Categories whose FAIL findings force grade F regardless of count.
-CRITICAL_CATEGORIES = frozenset({"FC", "PC"})
+CRITICAL_CATEGORIES = frozenset({"FC", "PC", "TA"})
 
 
 def compute_grade(fail_count: int, warn_count: int) -> str:
@@ -298,10 +298,18 @@ def compute_grade(fail_count: int, warn_count: int) -> str:
 
 
 def compute_grade_with_criticality(findings: list[Finding]) -> str:
-    """Grade with critical-finding override.
+    """Grade with critical-finding override and category ceilings.
 
-    Any FAIL in a critical category (FC=forbidden_claims, PC=platform_purity)
-    forces grade F regardless of total count.
+    Any FAIL in a critical category (FC=forbidden_claims, PC=platform_purity,
+    TA=type_accuracy) forces grade F regardless of total count.
+
+    Category ceilings cap the grade even when total counts are low:
+      - Any TA finding (WARN or FAIL) → max C
+      - Any FT FAIL → max C
+      - Any CP FAIL → max B
+      - Any NC FAIL → max C
+      - Any SX FAIL → max C
+      - Any AC FAIL → max B
     """
     has_critical = any(
         f.level == "FAIL" and f.category in CRITICAL_CATEGORIES
@@ -311,4 +319,37 @@ def compute_grade_with_criticality(findings: list[Finding]) -> str:
         return "F"
     fails = sum(1 for f in findings if f.level == "FAIL")
     warns = sum(1 for f in findings if f.level == "WARN")
-    return compute_grade(fails, warns)
+    base = compute_grade(fails, warns)
+
+    # Apply category-specific grade ceilings
+    ceiling = base
+    for f in findings:
+        # Any TA finding (WARN or FAIL) caps at C
+        if f.category == "TA" and f.level in ("WARN", "FAIL"):
+            ceiling = _cap(ceiling, "C")
+        # FT FAIL caps at C
+        if f.category == "FT" and f.level == "FAIL":
+            ceiling = _cap(ceiling, "C")
+        # CP FAIL caps at B
+        if f.category == "CP" and f.level == "FAIL":
+            ceiling = _cap(ceiling, "B")
+        # NC FAIL caps at C
+        if f.category == "NC" and f.level == "FAIL":
+            ceiling = _cap(ceiling, "C")
+        # SX FAIL caps at C
+        if f.category == "SX" and f.level == "FAIL":
+            ceiling = _cap(ceiling, "C")
+        # AC FAIL caps at B
+        if f.category == "AC" and f.level == "FAIL":
+            ceiling = _cap(ceiling, "B")
+    return ceiling
+
+
+_GRADE_ORDER = {"A": 0, "B": 1, "C": 2, "D": 3, "F": 4}
+
+
+def _cap(current: str, ceiling: str) -> str:
+    """Return the worse (lower) of *current* and *ceiling*."""
+    if _GRADE_ORDER.get(ceiling, 4) > _GRADE_ORDER.get(current, 0):
+        return ceiling
+    return current

@@ -158,6 +158,18 @@ def _claim_direction(context: str) -> str | None:
     return None
 
 
+# H-09: Site-specific severity for direction mismatches.
+# Reference and products pages get FAIL (factual errors are critical there),
+# other sites get WARN.
+_DIRECTION_MISMATCH_SEVERITY: dict[str, str] = {
+    "reference": "FAIL",
+    "products": "FAIL",
+    "blog": "WARN",
+    "kb": "WARN",
+    "docs": "WARN",
+}
+
+
 class FormatTruthEvaluator(BaseEvaluator):
     """Comprehensive check that format support claims match formats.json knowledge.
 
@@ -210,13 +222,16 @@ class FormatTruthEvaluator(BaseEvaluator):
             if claimed_dir is None:
                 return  # No direction context; can't check mismatch
 
-            # Direction mismatch checks
+            # Direction mismatch checks — H-09: site-specific severity
+            _mm_level = _DIRECTION_MISMATCH_SEVERITY.get(
+                page.subdomain, "WARN"
+            )
             if claimed_dir == "export" and known_dir == "import":
                 key = (ext, "export-mismatch")
                 if key not in reported:
                     reported.add(key)
                     findings.append(Finding(
-                        level="WARN",
+                        level=_mm_level,
                         category="FT",
                         filepath=str(page.filepath),
                         line_no=line_no,
@@ -231,7 +246,7 @@ class FormatTruthEvaluator(BaseEvaluator):
                 if key not in reported:
                     reported.add(key)
                     findings.append(Finding(
-                        level="WARN",
+                        level=_mm_level,
                         category="FT",
                         filepath=str(page.filepath),
                         line_no=line_no,
@@ -246,7 +261,7 @@ class FormatTruthEvaluator(BaseEvaluator):
                 if key not in reported:
                     reported.add(key)
                     findings.append(Finding(
-                        level="WARN",
+                        level=_mm_level,
                         category="FT",
                         filepath=str(page.filepath),
                         line_no=line_no,

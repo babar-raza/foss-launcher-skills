@@ -118,7 +118,7 @@ class CodePlausibilityEvaluator(BaseEvaluator):
             for i, line in enumerate(lines):
                 if _PSEUDO_COMMENT_RE.search(line):
                     findings.append(Finding(
-                        level="WARN",
+                        level="FAIL",
                         category="CP",
                         filepath=str(page.filepath),
                         line_no=block.start_line + 1 + i,
