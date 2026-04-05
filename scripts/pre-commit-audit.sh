@@ -96,4 +96,25 @@ if git diff --cached --name-only --diff-filter=ACM | grep -q '^content/products\
     fi
 fi
 
+# ---------------------------------------------------------------------------
+# Step 4: Provenance frontmatter validation on staged English pages
+# ---------------------------------------------------------------------------
+# Check 2b (validate_frontmatter.py): warn when a non-empty provenance block is
+# present but content_origin is absent. This prevents new pages from entering the
+# corpus without a content_origin field. Warnings are non-blocking (the validator
+# exits 0 on warnings) but are visible in hook output to the committer.
+# Hard errors (e.g. malformed frontmatter) are blocking (exit 1).
+if [ ${#changed[@]} -gt 0 ]; then
+    _tmpfile3=$(mktemp /tmp/prov-files-XXXXXX.txt 2>/dev/null || mktemp)
+    printf '%s\n' "${changed[@]}" > "$_tmpfile3"
+    python scripts/pipeline/validate_frontmatter.py --files-from "$_tmpfile3"
+    prov_status=$?
+    rm -f "$_tmpfile3"
+    if [ $prov_status -ne 0 ]; then
+        echo ""
+        echo "BLOCKED: Frontmatter has hard errors (see above). Fix before committing."
+        exit 1
+    fi
+fi
+
 exit 0
