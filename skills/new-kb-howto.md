@@ -19,10 +19,11 @@ Generate a new KB how-to article.
    - Read `knowledge/{family}/{platform}/merged/formats.json`
    - Read `forbidden_claims` from `knowledge/{family}/{platform}/merged/index.json`
    - Read `knowledge/{family}/{platform}/merged/snippets/` for verified code examples
-   - Read `knowledge/{family}/{platform}/merged/limitations.md` — **limitations cross-check**: for every
-     format or capability claim in the how-to (e.g., "save as PDF", "export to OBJ"), verify it does not
-     contradict a limitation marked as "not supported", "read-only", or "detect-only". Remove or correct
-     contradicting claims before generating content.
+   - Read `knowledge/{family}/{platform}/merged/limitations.md` (if the file exists — skip this step
+     if absent) — **limitations cross-check**: for every format or capability claim in the how-to
+     (e.g., "save as PDF", "export to OBJ"), verify it does not contradict a limitation marked as
+     "not supported", "read-only", or "detect-only". Remove or correct contradicting claims before
+     generating content.
 
 ## Steps
 
@@ -87,7 +88,7 @@ After generating the article:
 3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
 4. **Run audit**: `python scripts/pipeline/audit.py --files content/kb.aspose.org/en/{family}/{platform}/{slug}.md`
    — must exit with 0 FAIL before committing.
-5. **Run format eval**: `python -m scripts.pipeline.content_eval.cli evaluate {family} {platform} --evaluators format_truth,format_completeness --files content/kb.aspose.org/en/{family}/{platform}/{slug}.md`
-   — must return 0 FAIL findings before committing.
+5. **Run format eval**: `python -m scripts.pipeline.content_eval.cli evaluate {family} {platform} --evaluators format_truth,format_completeness --files content/kb.aspose.org/en/{family}/{platform}/{slug}.md --strict`
+   — must exit 0 (no FAIL findings) before committing.
 
 7. **Confirm** by printing the output file path and a short summary of steps covered.

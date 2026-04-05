@@ -18,10 +18,10 @@ Generate or update the FAQ page for a product platform.
    - Read `knowledge/{family}/{platform}/merged/api_surface.md` (human-readable; every class/method name used in content MUST appear here)
    - Read `knowledge/{family}/{platform}/merged/formats.json`
    - Read `forbidden_claims` from `knowledge/{family}/{platform}/merged/index.json`
-   - Read `knowledge/{family}/{platform}/merged/limitations.md` for known unimplemented items —
-     **limitations cross-check**: for every format or capability claim in the FAQ (e.g., "can write
-     to X", "supports Y format"), verify it does not contradict a known limitation. Correct
-     contradictions before generating content.
+   - Read `knowledge/{family}/{platform}/merged/limitations.md` (if the file exists — skip this step
+     if absent) for known unimplemented items — **limitations cross-check**: for every format or
+     capability claim in the FAQ (e.g., "can write to X", "supports Y format"), verify it does not
+     contradict a known limitation. Correct contradictions before generating content.
 
 ## Steps
 
@@ -103,7 +103,7 @@ After generating or updating the FAQ:
 3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
 4. **Run audit**: `python scripts/pipeline/audit.py --files content/kb.aspose.org/en/{family}/{platform}/faq.md`
    — must exit with 0 FAIL before committing.
-5. **Run format eval**: `python -m scripts.pipeline.content_eval.cli evaluate {family} {platform} --evaluators format_truth,format_completeness --files content/kb.aspose.org/en/{family}/{platform}/faq.md`
-   — must return 0 FAIL findings before committing.
+5. **Run format eval**: `python -m scripts.pipeline.content_eval.cli evaluate {family} {platform} --evaluators format_truth,format_completeness --files content/kb.aspose.org/en/{family}/{platform}/faq.md --strict`
+   — must exit 0 (no FAIL findings) before committing.
 
 8. **Confirm** by printing the output path and a count of FAQ items written or added.

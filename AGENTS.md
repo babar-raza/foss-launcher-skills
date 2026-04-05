@@ -1,13 +1,11 @@
 # AGENTS.md — Aspose.org Content Generation & Maintenance Governance
 
-> Last updated: 2026-04-03 (§6c added: causal backtracking protocol, S-74, cause_class taxonomy, grade_final policy); prior: 2026-03-30 §6a + §6b skill-first mandate, capability classification
+> Last updated: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline); prior: 2026-04-03 §6c causal backtracking
 > Authority: Human maintainer only (see Section 4 — this file is in the forbidden write list)
 
 ## 1. Purpose
 
-Agents operating on this repo generate and maintain documentation for Aspose FOSS products.
-All content must be grounded in evidence from the knowledge model. This file is the
-authoritative source of operating rules for all agents.
+Agents operating on this repo generate and maintain documentation for Aspose FOSS products. All content must be grounded in evidence from the knowledge model. This file is the authoritative source of operating rules for all agents.
 
 ## 2. Read Order (always read in this order before doing any work)
 
@@ -21,8 +19,7 @@ New contributor or agent? See the `getting-started` skill for step-by-step fresh
 
 ## 2a. Source-of-Truth Hierarchy
 
-When a conflict exists between two artifacts, this hierarchy governs which one is authoritative.
-Higher items in the list override lower items — never the reverse.
+When a conflict exists between two artifacts, this hierarchy governs which one is authoritative. Higher items in the list override lower items — never the reverse.
 
 | Priority | Source | Scope |
 |----------|--------|-------|
@@ -33,15 +30,11 @@ Higher items in the list override lower items — never the reverse.
 | 5 | `knowledge/{family}/{platform}/merged/limitations.md` | Known unimplemented features; overrides positive claims at same priority level |
 | 6 | Generated content in `content/` | Output artifact; must reflect all higher sources |
 
-**Conflict resolution rule**: When a content claim contradicts a higher-priority source, fix the
-content (or the knowledge artifact) — never demote the higher-priority source to match the content.
+**Conflict resolution rule**: When a content claim contradicts a higher-priority source, fix the content (or the knowledge artifact) — never demote the higher-priority source to match the content.
 
-**Cloned repos are read-only.** Agents never write to `runs/.clone_cache/`. The scout (S-34)
-reads them; the knowledge layer synthesizes from them.
+**Cloned repos are read-only.** Agents never write to `runs/.clone_cache/`. The scout (S-34) reads them; the knowledge layer synthesizes from them.
 
-**Phase artifacts are not source of truth.** `knowledge/{family}/{platform}/scout/` and
-`knowledge/{family}/{platform}/merged/` are derived from the clone cache. If they contradict
-the clone cache, re-run the knowledge bootstrap (S-12 → S-14) to regenerate from source.
+**Phase artifacts are not source of truth.** `knowledge/{family}/{platform}/scout/` and `knowledge/{family}/{platform}/merged/` are derived from the clone cache. If they contradict the clone cache, re-run the knowledge bootstrap (S-12 → S-14) to regenerate from source.
 
 ## 3. Mental Model Refresh Protocol
 
@@ -113,10 +106,7 @@ ALSO ALLOWED (pipeline and CI maintenance):
 
 ### Override token protocol (for forbidden-path edits)
 
-Override tokens are **local-only artifacts** stored in `reports/overrides/pending/`.
-They are validated from disk by the pre-commit hook — do NOT stage or commit them.
-`reports/` is gitignored; the pre-commit hook enforces this boundary.
-If hooks are not installed (e.g., after a fresh clone), run `bash scripts/install-hooks.sh`.
+Override tokens are **local-only artifacts** stored in `reports/overrides/pending/`. They are validated from disk by the pre-commit hook — do NOT stage or commit them. `reports/` is gitignored; the pre-commit hook enforces this boundary. If hooks are not installed (e.g., after a fresh clone), run `bash scripts/install-hooks.sh`.
 
 > **Never use `--no-verify`** when committing files in or near protected paths.
 > `--no-verify` bypasses the pre-commit hook entirely, including the `reports/` boundary
@@ -141,8 +131,7 @@ When a forbidden-path edit is authorized by the human maintainer:
 
 ### path_guard batch mode (`--stdin`)
 
-For large staged batches (> 100 files), use `--stdin` to avoid per-file Python startup overhead.
-The `--stdin` flag reads one path per line from stdin and prints only DENY paths to stdout.
+For large staged batches (> 100 files), use `--stdin` to avoid per-file Python startup overhead. The `--stdin` flag reads one path per line from stdin and prints only DENY paths to stdout.
 
 ```bash
 # Pipe staged paths through path_guard in batch mode
@@ -156,17 +145,11 @@ git diff --cached --name-only --diff-filter=ACM | \
 # Outputs JSON array of {"path": "...", "decision": "DENY", "reason": "..."} objects
 ```
 
-**When to use `--stdin`:** Any automated pipeline staging thousands of files (e.g., provenance
-backfill commits, batch content generation). The pre-commit hook already uses `--stdin` internally
-(Step 1 pipes all staged paths through it in one Python invocation).
+**When to use `--stdin`:** Any automated pipeline staging thousands of files (e.g., provenance backfill commits, batch content generation). The pre-commit hook already uses `--stdin` internally (Step 1 pipes all staged paths through it in one Python invocation).
 
-**Exit codes:** `0` = all paths allowed; `2` = at least one DENY (DENY paths printed to stdout,
-one per line). Exit `1` is reserved for internal errors. Scripts should check for exit `2`, not
-just non-zero.
+**Exit codes:** `0` = all paths allowed; `2` = at least one DENY (DENY paths printed to stdout, one per line). Exit `1` is reserved for internal errors. Scripts should check for exit `2`, not just non-zero.
 
-**Windows/CRLF note:** On Windows, Python's `sys.stdout` in text mode emits `\r\n`. `path_guard.py`
-calls `sys.stdout.reconfigure(newline="\n")` in `--stdin` mode to force LF-only output.
-If consuming the output in a bash pipeline, add `| tr -d '\r'` as defence-in-depth.
+**Windows/CRLF note:** On Windows, Python's `sys.stdout` in text mode emits `\r\n`. `path_guard.py` calls `sys.stdout.reconfigure(newline="\n")` in `--stdin` mode to force LF-only output. If consuming the output in a bash pipeline, add `| tr -d '\r'` as defence-in-depth.
 
 ## 5. Evidence Requirements (non-negotiable)
 
@@ -196,11 +179,7 @@ If consuming the output in a bash pipeline, add `| tr -d '\r'` as defence-in-dep
 
 ## 6. Skill Chains by Task
 
-Skills are the **only sanctioned execution mechanism** for the task types listed below.
-When your requirement matches a listed task type, you must follow the corresponding chain —
-invoking each skill in order, passing outputs forward, and not substituting manual reasoning
-for any step that has a registered skill. If your requirement does not match any listed task
-type, follow the protocol in §6b before doing anything else.
+Skills are the **only sanctioned execution mechanism** for the task types listed below. When your requirement matches a listed task type, you must follow the corresponding chain — invoking each skill in order, passing outputs forward, and not substituting manual reasoning for any step that has a registered skill. If your requirement does not match any listed task type, follow the protocol in §6b before doing anything else.
 
 ### Initial generation (new page)
 
@@ -251,8 +230,7 @@ S-25 (eval-page) → S-26 (heal-page) → S-23 → S-25 → S-01 → write (or e
 | **D** | S-26 (heal-page) → check grade → if now C, optionally S-21 | False claims present; must heal before enhancing |
 | **F** | S-26 (heal-page) → if no improvement after 2 passes → human escalation (§8) | Critical violations |
 
-**Rule:** S-26 must precede S-21 when grade is D or below. S-21 alone is correct only for grade C.
-S-21 applied to a grade-D page without prior healing may suppress false claims that should be removed.
+**Rule:** S-26 must precede S-21 when grade is D or below. S-21 alone is correct only for grade C. S-21 applied to a grade-D page without prior healing may suppress false claims that should be removed.
 
 #### Quality gate dispatch — development vs launch
 
@@ -262,9 +240,7 @@ S-21 applied to a grade-D page without prior healing may suppress false claims t
 | Pre-launch publishability gate | S-43 (gap-eval) | Once per launch cycle; verifies against clone cache truth |
 | Cross-product quality summary | S-45 (gap-report) | Post-launch or periodic; cluster analysis across families |
 
-**Rule:** Use S-43 at most once per launch cycle (expensive; requires clone cache). Use S-25/S-51 during
-development. Do not use S-43 as a development-loop quality check — it is a launch-readiness gate, not a
-rapid-iteration tool.
+**Rule:** Use S-43 at most once per launch cycle (expensive; requires clone cache). Use S-25/S-51 during development. Do not use S-43 as a development-loop quality check — it is a launch-readiness gate, not a rapid-iteration tool.
 
 ### Gap remediation (clone-cache verification + wave-ordered fixes)
 
@@ -272,8 +248,7 @@ rapid-iteration tool.
 S-43 (gap-eval) → S-44 (gap-plan) → S-46 (gap-apply) → S-23 (content-check) → S-01 (path-guard) → write
 ```
 
-Wave 4 items from S-46 are escalated to human review. Address each item via S-73 (manual-edit)
-with the operator-specified fix — do not apply ad hoc fixes outside the skill chain.
+Wave 4 items from S-46 are escalated to human review. Address each item via S-73 (manual-edit) with the operator-specified fix — do not apply ad hoc fixes outside the skill chain.
 
 ### Evidence gap recovery (validator-blocked commits)
 
@@ -283,10 +258,7 @@ Triggered when `validate_frontmatter.py` (P-03) or `audit.py` (evidence FAIL) bl
 S-72 (evidence-repair) → S-23 (content-check) → S-01 (path-guard) → write
 ```
 
-S-72 runs `attach_evidence.py --force` first (Stage 1). If claims or apis remain empty,
-it performs a knowledge-grounded reasoning pass (Stage 2). If evidence cannot be confidently
-populated, it applies the `manual-remediation` escape (P-03 exempt) and writes an escalation
-entry to `reports/evidence-repair/needs-human-{date}.md`.
+S-72 runs `attach_evidence.py --force` first (Stage 1). If claims or apis remain empty, it performs a knowledge-grounded reasoning pass (Stage 2). If evidence cannot be confidently populated, it applies the `manual-remediation` escape (P-03 exempt) and writes an escalation entry to `reports/evidence-repair/needs-human-{date}.md`.
 
 Wave 4 analogue: ESCAPED files are routed to human for manual evidence population — do not guess.
 
@@ -296,9 +268,7 @@ Wave 4 analogue: ESCAPED files are routed to human for manual evidence populatio
 S-73 (manual-edit) → embedded S-01 (path-guard) → embedded S-24 (evidence-cite) → write
 ```
 
-Use when the operator knows exactly what to change (a specific sentence, frontmatter field,
-code block, or section) and can specify it. Do not use when the agent should decide what to
-fix — use S-26 (heal-page), S-21 (page-enhance), or S-20 (page-update) instead.
+Use when the operator knows exactly what to change (a specific sentence, frontmatter field, code block, or section) and can specify it. Do not use when the agent should decide what to fix — use S-26 (heal-page), S-21 (page-enhance), or S-20 (page-update) instead.
 
 Wave 4 items from S-46 (gap-apply) must be addressed via S-73. Do not apply ad hoc fixes.
 
@@ -306,9 +276,7 @@ Wave 4 items from S-46 (gap-apply) must be addressed via S-73. Do not apply ad h
 
 **Grade A means automated checks passed — it does NOT mean publication-ready.**
 
-The evaluator suite covers approximately 60% of known defect classes. A grade of A or B confirms
-that no automated evaluator detected a violation. It does not confirm that a human reviewer
-would accept the page for publication.
+The evaluator suite covers approximately 60% of known defect classes. A grade of A or B confirms that no automated evaluator detected a violation. It does not confirm that a human reviewer would accept the page for publication.
 
 | Grade | Automated check result | Publication implication |
 |-------|----------------------|-------------------------|
@@ -344,9 +312,7 @@ Platform scope rules enforced by `batch-reference`:
 
 ### Rule
 
-Every agent operating on this repo must treat the skill system as the **default and required**
-execution mechanism. This rule has the same enforcement weight as path-guard (§4) and
-evidence requirements (§5).
+Every agent operating on this repo must treat the skill system as the **default and required** execution mechanism. This rule has the same enforcement weight as path-guard (§4) and evidence requirements (§5).
 
 ### What "skill-first" means in practice
 
@@ -361,10 +327,7 @@ evidence requirements (§5).
 
 ### Dependency Activation Rule (DAR)
 
-Agents must activate the upstream skill if it has not already been confirmed as passing in
-the current session. "Passing" means: the upstream skill returned a non-STOP status in
-this conversation, no knowledge-modifying skill has run since, and less than one hour has
-elapsed.
+Agents must activate the upstream skill if it has not already been confirmed as passing in the current session. "Passing" means: the upstream skill returned a non-STOP status in this conversation, no knowledge-modifying skill has run since, and less than one hour has elapsed.
 
 | Downstream skill | Required upstream | Trigger condition |
 |-----------------|------------------|------------------|
@@ -396,20 +359,11 @@ elapsed.
 | `/manual-edit` (S-73) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | `stale_since` not null |
 | Any content write | S-01 `/path-guard` | Always (final gate) |
 
-If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do not continue
-to the downstream skill.
+If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do not continue to the downstream skill.
 
-**DAR scope**: The DAR table lists skills that require an upstream dependency to be
-activated *before* they can begin. Orchestrator skills that invoke upstream dependencies
-as part of their own internal pipeline (e.g., `launch-product` invoking bootstrap as
-Stage 0, `knowledge-update` managing the full refresh chain) are not listed — they manage
-their own dependency chain. The test is: "Does this skill require someone else to have
-already run the upstream skill?" If yes → DAR entry. If the skill runs the upstream
-itself internally → no DAR entry.
+**DAR scope**: The DAR table lists skills that require an upstream dependency to be activated *before* they can begin. Orchestrator skills that invoke upstream dependencies as part of their own internal pipeline (e.g., `launch-product` invoking bootstrap as Stage 0, `knowledge-update` managing the full refresh chain) are not listed — they manage their own dependency chain. The test is: "Does this skill require someone else to have already run the upstream skill?" If yes → DAR entry. If the skill runs the upstream itself internally → no DAR entry.
 
-**DAR maintenance**: When a skill is added, removed, renamed, or split, update this table.
-Run `python scripts/ci/check_dar_coverage.py` to verify alignment between the DAR table
-and skill file preconditions.
+**DAR maintenance**: When a skill is added, removed, renamed, or split, update this table. Run `python scripts/ci/check_dar_coverage.py` to verify alignment between the DAR table and skill file preconditions.
 
 **Adding a DAR entry** — use this template:
 
@@ -425,8 +379,7 @@ Steps:
 
 ## 6b. Capability Classification and Gap Escalation
 
-Before starting any task that is not a direct invocation of a single registered skill, the
-agent must classify its capability level and act accordingly.
+Before starting any task that is not a direct invocation of a single registered skill, the agent must classify its capability level and act accordingly.
 
 ### Capability states (choose exactly one)
 
@@ -450,13 +403,11 @@ Broken skill (if BROKEN): [skill ID, invocation attempted, error observed]
 Planned action: [what you will do next]
 ```
 
-For requests that are direct invocations of a single skill or a predefined §6 chain, this
-output is implicit — you do not need to print it.
+For requests that are direct invocations of a single skill or a predefined §6 chain, this output is implicit — you do not need to print it.
 
 ### Gap escalation report format
 
-When state is PARTIAL or NONE, produce this report after completing any skill-covered work,
-and save to `reports/skill-gaps/{YYYY-MM-DD}-{task-slug}.md`:
+When state is PARTIAL or NONE, produce this report after completing any skill-covered work, and save to `reports/skill-gaps/{YYYY-MM-DD}-{task-slug}.md`:
 
 ```
 SKILL GAP ESCALATION
@@ -508,11 +459,7 @@ If the requirement does not match any task type in §6:
 
 ### Principle
 
-A page grade is only **final** when all evaluation findings are caused by **local content
-defects** that the page itself can fix. If any finding has `cause_class: UPSTREAM_MISSING`
-or `cause_class: BAD_LINK_FORMAT`, the grade is **provisional** and MUST NOT be treated as
-a terminal quality judgment. The system must trace the problem to its upstream cause, invoke
-the responsible skill, and replay evaluation before writing a final grade.
+A page grade is only **final** when all evaluation findings are caused by **local content defects** that the page itself can fix. If any finding has `cause_class: UPSTREAM_MISSING` or `cause_class: BAD_LINK_FORMAT`, the grade is **provisional** and MUST NOT be treated as a terminal quality judgment. The system must trace the problem to its upstream cause, invoke the responsible skill, and replay evaluation before writing a final grade.
 
 This is **required system behavior** — not an optional enhancement.
 
@@ -700,10 +647,7 @@ All generated content is classified into risk tiers. Higher tiers require more h
 
 ## 9a. Evaluator Change Checklist
 
-Run this checklist whenever you modify logic in `scripts/pipeline/content_eval/evaluators/`
-in a way that changes which findings are emitted, their level (FAIL/WARN), or their
-category. Non-grade-affecting edits (comments, docstrings, test additions, non-finding
-refactors) do not require a bump.
+Run this checklist whenever you modify logic in `scripts/pipeline/content_eval/evaluators/` in a way that changes which findings are emitted, their level (FAIL/WARN), or their category. Non-grade-affecting edits (comments, docstrings, test additions, non-finding refactors) do not require a bump.
 
 ### When to bump `EVALUATOR_LOGIC_VERSION`
 
@@ -735,9 +679,7 @@ Do NOT bump for:
 
 ### What `graded_logic_version` means
 
-`graded_logic_version` in page frontmatter records which version of the evaluator logic
-produced the stored grade. When `--skip-graded` is used, a page is only skipped when all
-three conditions are true:
+`graded_logic_version` in page frontmatter records which version of the evaluator logic produced the stored grade. When `--skip-graded` is used, a page is only skipped when all three conditions are true:
 
 | Condition | Frontmatter field checked |
 |-----------|--------------------------|
@@ -749,16 +691,13 @@ Re-grading a page that did not need it is always safe — results are idempotent
 
 ### Using `--skip-graded` safely
 
-`--skip-graded` speeds up incremental runs after minor content edits. After bumping
-`EVALUATOR_LOGIC_VERSION`, run a full sweep **without** `--skip-graded` first so all
-pages are re-graded and stamped with the new version before any skipping occurs.
+`--skip-graded` speeds up incremental runs after minor content edits. After bumping `EVALUATOR_LOGIC_VERSION`, run a full sweep **without** `--skip-graded` first so all pages are re-graded and stamped with the new version before any skipping occurs.
 
 ---
 
 ## 9b. Regeneration After Extraction Script Changes
 
-When a change is made to `scripts/pipeline/extraction/scout.py` or `scripts/pipeline/enrich.py`
-that alters what is extracted or how claims are synthesized:
+When a change is made to `scripts/pipeline/extraction/scout.py` or `scripts/pipeline/enrich.py` that alters what is extracted or how claims are synthesized:
 
 1. **Re-run the knowledge bootstrap** for ALL affected products:
    ```bash
@@ -773,13 +712,9 @@ that alters what is extracted or how claims are synthesized:
    ```
 4. **Re-run the launch gate** before promoting any affected product.
 
-**Rationale**: Extraction script changes can silently change the API surface model. Content generated
-before the change may reference APIs or formats that the new extraction no longer includes, or vice versa.
-This creates a hidden discrepancy that evaluators cannot catch without re-grounding.
+**Rationale**: Extraction script changes can silently change the API surface model. Content generated before the change may reference APIs or formats that the new extraction no longer includes, or vice versa. This creates a hidden discrepancy that evaluators cannot catch without re-grounding.
 
-**Scope**: Applies to changes to scout.py, enrich.py, and any extractor plugin under
-`scripts/pipeline/extraction/`. Does NOT apply to changes to content-evaluation logic
-(`content_eval/evaluators/`) — those follow the §9a checklist instead.
+**Scope**: Applies to changes to scout.py, enrich.py, and any extractor plugin under `scripts/pipeline/extraction/`. Does NOT apply to changes to content-evaluation logic (`content_eval/evaluators/`) — those follow the §9a checklist instead.
 
 ## 9c. Change-Trigger Matrix
 
@@ -797,13 +732,9 @@ Use this matrix to decide what action is required when a specific artifact or sc
 | `scripts/pipeline/path_guard.py` changed | Run `pytest scripts/tests/test_path_guard.py` — must exit 0 | Self-test |
 | `AGENTS.md` changed | Verify CLAUDE.md §6 alignment (see CLAUDE.md alignment note) | Self |
 
-**Manual edit after content-only change**: Use S-73 (manual-edit) → re-run S-23 + audit.py.
-Do not re-run knowledge bootstrap unless `stale_since` is set — content-only edits do not
-require knowledge regeneration.
+**Manual edit after content-only change**: Use S-73 (manual-edit) → re-run S-23 + audit.py. Do not re-run knowledge bootstrap unless `stale_since` is set — content-only edits do not require knowledge regeneration.
 
-**Format/claims contradiction found**: Fix the higher-priority source (formats.json or claims.json)
-and re-run promote.py. If the contradiction is in the clone cache source itself, file an issue in
-the FOSS repo and document the discrepancy in `knowledge/{family}/{platform}/merged/limitations.md`.
+**Format/claims contradiction found**: Fix the higher-priority source (formats.json or claims.json) and re-run promote.py. If the contradiction is in the clone cache source itself, file an issue in the FOSS repo and document the discrepancy in `knowledge/{family}/{platform}/merged/limitations.md`.
 
 ## 10. Evidence Proof in Commits
 
@@ -813,14 +744,11 @@ Every commit touching `content/` MUST include in the commit message:
 - Ground-check result: `PASS` (with report path)
 - Skills invoked: `[S-xx, S-yy, ...]`
 
-The `evidence:` frontmatter block in each page is the persistent inline evidence record.
-`model_sha` anchors it to the knowledge version; `audit.py` detects staleness automatically.
+The `evidence:` frontmatter block in each page is the persistent inline evidence record. `model_sha` anchors it to the knowledge version; `audit.py` detects staleness automatically.
 
 ### Skill invocation accuracy (T-04 requirement)
 
-For content commits, the "Skills invoked:" field MUST accurately reflect which skills were
-invoked as **full SKILL.md procedures**. Do not declare a skill that was applied as inline
-reasoning (equivalent work but not through the registered skill procedure).
+For content commits, the "Skills invoked:" field MUST accurately reflect which skills were invoked as **full SKILL.md procedures**. Do not declare a skill that was applied as inline reasoning (equivalent work but not through the registered skill procedure).
 
 Use a skill run record to ensure accuracy:
 ```bash
@@ -836,24 +764,20 @@ python scripts/pipeline/skill_run_manager.py record-step \
 python scripts/pipeline/skill_run_manager.py get-declared-skills --run-id <id>
 ```
 
-Skill run records are stored in `reports/skill-runs/`. The CI step "Validate skill run records"
-checks that declared skills match the record (advisory). The commit-msg hook warns on mismatch.
+Skill run records are stored in `reports/skill-runs/`. The CI step "Validate skill run records" checks that declared skills match the record (advisory). The commit-msg hook warns on mismatch.
 
 ### Proof bundles for compliance observations
 
-Any governance run that produces a compliance observation in `reports/compliance/` MUST
-generate a corresponding proof bundle in `reports/proofs/`. Use:
+Any governance run that produces a compliance observation in `reports/compliance/` MUST generate a corresponding proof bundle in `reports/proofs/`. Use:
 ```bash
 bash scripts/ci/capture_proof_bundle.sh <slug> <command1> <command2> ...
 ```
 
-The bundle captures verbatim command outputs with exit codes, git diff, and structured metadata.
-The CI step "Check compliance observation proof bundles" verifies this linkage.
+The bundle captures verbatim command outputs with exit codes, git diff, and structured metadata. The CI step "Check compliance observation proof bundles" verifies this linkage.
 
 ## 10a. Verification Standards for Fixes
 
-Every fix — whether to a script, evaluator, content page, or knowledge artifact — must meet
-these verification standards before being declared complete.
+Every fix — whether to a script, evaluator, content page, or knowledge artifact — must meet these verification standards before being declared complete.
 
 ### Required evidence per fix
 
@@ -872,8 +796,7 @@ After any fix, verify that the fix does not break previously passing content. Mi
 python -m scripts.pipeline.content_eval.cli evaluate {family} {platform} --write-grade
 ```
 
-If any previously-passing page now FAILs, the fix introduced a regression. Investigate before
-committing.
+If any previously-passing page now FAILs, the fix introduced a regression. Investigate before committing.
 
 ### Before/after evidence trail
 
@@ -896,8 +819,7 @@ Every fix commit message MUST include:
 
 ## 10b. Content Provenance Rules
 
-Every `.md` content file carries a `provenance:` block in its YAML frontmatter.
-This block is **internal metadata** — never rendered in Hugo templates.
+Every `.md` content file carries a `provenance:` block in its YAML frontmatter. This block is **internal metadata** — never rendered in Hugo templates.
 
 ### Provenance fields
 
@@ -961,11 +883,9 @@ Set `auto_updatable: false` in the file's provenance block. The translator sync 
 
 `scripts/pipeline/provenance_backfill.py` writes provenance to all existing files that lack it. It is idempotent and safe to re-run. Files that already have a provenance block are skipped.
 
-**Which files have committed provenance (durable across clones):**
-All locale files translated or re-translated since commit `cdaa1daac` (provenance integration). These carry `translation_origin: translator-*` written by the translator and are in git.
+**Which files have committed provenance (durable across clones):** All locale files translated or re-translated since commit `cdaa1daac` (provenance integration). These carry `translation_origin: translator-*` written by the translator and are in git.
 
-**Which files require backfill after a fresh clone:**
-Locale files that existed before `cdaa1daac` and have not been re-translated since. On a fresh clone these files have no `provenance:` block. Run:
+**Which files require backfill after a fresh clone:** Locale files that existed before `cdaa1daac` and have not been re-translated since. On a fresh clone these files have no `provenance:` block. Run:
 
 ```bash
 python scripts/pipeline/provenance_backfill.py
@@ -975,9 +895,7 @@ The backfill sets `translation_origin: unknown`, `auto_updatable: true`, and der
 
 ### content_origin recovery (two-step provisioning workflow)
 
-After `provenance_backfill.py` runs, newly provisioned English files carry `content_origin: unknown`.
-`scripts/pipeline/content_origin_recover.py` upgrades eligible files to `content_origin: skill-generated`
-using **Rule A**: grade ∈ {A, B} AND `evidence.claims` non-empty → `skill-generated`.
+After `provenance_backfill.py` runs, newly provisioned English files carry `content_origin: unknown`. `scripts/pipeline/content_origin_recover.py` upgrades eligible files to `content_origin: skill-generated` using **Rule A**: grade ∈ {A, B} AND `evidence.claims` non-empty → `skill-generated`.
 
 **Two-step provisioning flow:**
 
@@ -999,17 +917,11 @@ python scripts/pipeline/content_origin_recover.py --dry-run
 python scripts/pipeline/content_origin_recover.py --apply
 ```
 
-**Idempotency:** Both scripts are safe to re-run. `content_origin_recover` skips files that
-already have a non-`unknown` `content_origin`. Running the two-step sequence multiple times
-produces no additional changes after the first full run.
+**Idempotency:** Both scripts are safe to re-run. `content_origin_recover` skips files that already have a non-`unknown` `content_origin`. Running the two-step sequence multiple times produces no additional changes after the first full run.
 
-**Sampling gate requirement:** Before running `--apply` on a new corpus batch, sample at least
-30 files evenly across product families and verify that grade + claims justify `skill-generated`.
-Document the review in `reports/` (local-only — never commit).
+**Sampling gate requirement:** Before running `--apply` on a new corpus batch, sample at least 30 files evenly across product families and verify that grade + claims justify `skill-generated`. Document the review in `reports/` (local-only — never commit).
 
-**Files not upgraded by Rule A:** Reference pages graded C/D/F, human-authored docs, and any
-file where `evidence.claims` is empty remain at `content_origin: unknown` — this is correct.
-Do not manually patch these to `skill-generated` without confirming authorship.
+**Files not upgraded by Rule A:** Reference pages graded C/D/F, human-authored docs, and any file where `evidence.claims` is empty remain at `content_origin: unknown` — this is correct. Do not manually patch these to `skill-generated` without confirming authorship.
 
 ### Reference orphan locale files
 
@@ -1030,8 +942,7 @@ Do not manually patch these to `skill-generated` without confirming authorship.
 
 ## 10c. Output-Location Discipline
 
-All agent-generated artifact files must be written to their designated location. Using the wrong
-output location causes git leakage, CI failures, and audit trail gaps.
+All agent-generated artifact files must be written to their designated location. Using the wrong output location causes git leakage, CI failures, and audit trail gaps.
 
 | Artifact type | Correct location | Never write to |
 |---------------|-----------------|----------------|
@@ -1046,13 +957,9 @@ output location causes git leakage, CI failures, and audit trail gaps.
 | Design documents (schema, evaluator specs) | `reports/design/` | `knowledge/`, `content/`, skills/ |
 | Override tokens | `reports/overrides/pending/` | Any git-tracked path |
 
-**`reports/` is a strict local artifact boundary.** Nothing under `reports/` may ever be staged
-or committed. The pre-commit hook enforces this. If you need a design document to persist across
-sessions, it must live in `reports/design/` (local-only) — not in `knowledge/` or `content/`.
+**`reports/` is a strict local artifact boundary.** Nothing under `reports/` may ever be staged or committed. The pre-commit hook enforces this. If you need a design document to persist across sessions, it must live in `reports/design/` (local-only) — not in `knowledge/` or `content/`.
 
-**Do not write reports to the repo root.** Files like `reconciliation-report.md`, `gate-results.txt`,
-or `debug.log` written to `/` will be flagged by `git status` as untracked files and may confuse
-future audit runs. Use `reports/` exclusively.
+**Do not write reports to the repo root.** Files like `reconciliation-report.md`, `gate-results.txt`, or `debug.log` written to `/` will be flagged by `git status` as untracked files and may confuse future audit runs. Use `reports/` exclusively.
 
 ## 11. Prohibited Actions
 
@@ -1097,9 +1004,7 @@ future audit runs. Use `reports/` exclusively.
 
 **Rule: always use `.venv` for all Python execution. Never use system Python directly.**
 
-The repo contains a pre-configured virtual environment at `.venv/` (repo root) with all
-required packages already installed (tree-sitter, pyyaml, requests, python-dotenv, pytest).
-Always activate it before running any script or `pip install` command.
+The repo contains a pre-configured virtual environment at `.venv/` (repo root) with all required packages already installed (tree-sitter, pyyaml, requests, python-dotenv, pytest). Always activate it before running any script or `pip install` command.
 
 **Activate:**
 ```bash
@@ -1117,18 +1022,13 @@ Once activated, `python` and `pip` resolve to the venv — no path prefix needed
 pip show <package>          # with venv active
 ```
 
-Install only into `.venv`, never into system Python. All `pip install -r` commands in this
-file assume the venv is active.
+Install only into `.venv`, never into system Python. All `pip install -r` commands in this file assume the venv is active.
 
-**Agents must not** run `python` or `pip` commands without first confirming `.venv` is
-active (`echo $VIRTUAL_ENV` should be non-empty). For automated skill chains, prepend
-`source .venv/Scripts/activate &&` (Windows) or `source .venv/bin/activate &&` (Unix)
-to any shell command that invokes Python.
+**Agents must not** run `python` or `pip` commands without first confirming `.venv` is active (`echo $VIRTUAL_ENV` should be non-empty). For automated skill chains, prepend `source .venv/Scripts/activate &&` (Windows) or `source .venv/bin/activate &&` (Unix) to any shell command that invokes Python.
 
 #### `.env` file (repo root)
 
-The single source of truth for all runtime configuration. It is **git-ignored** — never commit it.
-Copy `.env.example` (repo root) to `.env` and fill in values.
+The single source of truth for all runtime configuration. It is **git-ignored** — never commit it. Copy `.env.example` (repo root) to `.env` and fill in values.
 
 Key variables:
 
@@ -1148,8 +1048,7 @@ Key variables:
 
 #### `env_loader` — automatic dotenv loading
 
-`scripts/pipeline/core/env_loader.py` provides `load_env()`. Every CLI entry point calls it
-once at startup, before any `os.environ.get()` call:
+`scripts/pipeline/core/env_loader.py` provides `load_env()`. Every CLI entry point calls it once at startup, before any `os.environ.get()` call:
 
 ```python
 from core.env_loader import load_env
@@ -1161,14 +1060,11 @@ Behaviour:
 - Uses `override=False` — shell-exported variables and CI secrets always take precedence
 - No-op (silent) if `python-dotenv` is not installed or `.env` does not exist
 
-**Agents must not** call `os.environ.get()` without first ensuring `load_env()` has been called
-in the entry point. For new scripts, add the standard two-line block immediately after the
-`sys.path` setup section.
+**Agents must not** call `os.environ.get()` without first ensuring `load_env()` has been called in the entry point. For new scripts, add the standard two-line block immediately after the `sys.path` setup section.
 
 #### Dependency installation
 
-Each subdirectory under `scripts/` maintains its own `requirements.txt`. Install only what
-you need:
+Each subdirectory under `scripts/` maintains its own `requirements.txt`. Install only what you need:
 
 ```bash
 pip install -r scripts/pipeline/requirements.txt    # core pipeline (includes python-dotenv)
@@ -1274,13 +1170,11 @@ python scripts/pipeline/audit.py all --json           # Machine-readable output
 
 ## 13. Internal Metadata Rendering Policy
 
-The `evidence:` frontmatter block is **internal provenance data** that must never appear
-on the public-facing website. It exists solely for pipeline validation and debugging.
+The `evidence:` frontmatter block is **internal provenance data** that must never appear on the public-facing website. It exists solely for pipeline validation and debugging.
 
 ### Design
 
-The `layouts/partials/evidence-panel.html` partial is gated in all four public-facing
-theme base templates (`products`, `docs`, `kb`, `blog`) with:
+The `layouts/partials/evidence-panel.html` partial is gated in all four public-facing theme base templates (`products`, `docs`, `kb`, `blog`) with:
 
 ```html
 {{- if ne hugo.Environment "production" }}{{- partial "evidence-panel.html" . -}}{{- end }}
@@ -1297,13 +1191,9 @@ This means:
 
 ### CI workflow requirement
 
-All site build workflows in `aspose.org-workflows` **must** pass
-`--environment "${{ github.event.inputs.environment }}"` to the `hugo` build command.
-This ensures the `workflow_dispatch` `environment` input (already used for deploy targeting)
-is also forwarded to Hugo's template context. All 7 site workflows already do this.
+All site build workflows in `aspose.org-workflows` **must** pass `--environment "${{ github.event.inputs.environment }}"` to the `hugo` build command. This ensures the `workflow_dispatch` `environment` input (already used for deploy targeting) is also forwarded to Hugo's template context. All 7 site workflows already do this.
 
-If a new site workflow is added, the same flag is required on the `hugo` build step.
-Omitting it is safe (Hugo defaults to `"production"` → panel hidden) but must be explicit.
+If a new site workflow is added, the same flag is required on the `hugo` build step. Omitting it is safe (Hugo defaults to `"production"` → panel hidden) but must be explicit.
 
 ### What must not change
 
@@ -1326,14 +1216,11 @@ Omitting it is safe (Hugo defaults to `"production"` → panel hidden) but must 
 | Kilo Code | `.kilocode/skills/{name}/SKILL.md` | `.kilocode/rules-code/` |
 | Canonical source | `skills/{name}.md` | — |
 
-Each tree has a `README.md` at its root describing its contents, invocation syntax, and any
-divergence from canonical. See [`skills/README.md`](skills/README.md) for the primary catalog.
+Each tree has a `README.md` at its root describing its contents, invocation syntax, and any divergence from canonical. See [`skills/README.md`](skills/README.md) for the primary catalog.
 
 #### Internal skills (auto-invoked sub-routines)
 
-The following 8 skills exist in canonical `skills/` and in `.agents/` and `.kilocode/` trees,
-but are **intentionally absent from `.claude/commands/`**. They are auto-invoked by other skills
-and are never called directly by users or agents.
+The following 8 skills exist in canonical `skills/` and in `.agents/` and `.kilocode/` trees, but are **intentionally absent from `.claude/commands/`**. They are auto-invoked by other skills and are never called directly by users or agents.
 
 | Slug | ID | Role |
 |------|----|------|
@@ -1350,8 +1237,7 @@ Source: `scripts/pipeline/sync_skills.py:INTERNAL_SKILLS`.
 
 #### Claude Code-only extras (not registered skills)
 
-The following files exist **only in `.claude/commands/`**. They are not registered in §12, have
-no file in canonical `skills/`, and are not present in `.agents/` or `.kilocode/` trees.
+The following files exist **only in `.claude/commands/`**. They are not registered in §12, have no file in canonical `skills/`, and are not present in `.agents/` or `.kilocode/` trees.
 
 | File | Role |
 |------|------|
@@ -1364,9 +1250,7 @@ Source: `scripts/pipeline/sync_skills.py:KNOWN_EXCEPTIONS`.
 
 ## 14. Completion Verification Protocol
 
-When reviewing whether a task, sprint, or acceptance criterion is complete, the agent or
-reviewer must assign one of the following verification tiers. A lower tier cannot be
-substituted for a higher tier to claim completion.
+When reviewing whether a task, sprint, or acceptance criterion is complete, the agent or reviewer must assign one of the following verification tiers. A lower tier cannot be substituted for a higher tier to claim completion.
 
 | Tier | Label | Meaning |
 |------|-------|---------|
@@ -1394,13 +1278,4 @@ substituted for a higher tier to claim completion.
 
 ## Operating Standard
 
-Every agent operating on this repository is expected to behave as a disciplined user of a
-governed skill system — not as an autonomous reasoner inventing its own processes. The skill
-system is the documented, human-reviewed record of how content work is done here. When skills
-cover a requirement, they must be used. When they do not, the gap must be reported and
-recorded so the skill system can grow. An agent that silently bypasses skills, fabricates
-workflows, or completes tasks partially without disclosure violates the operating contract of
-this repository regardless of whether the output appears correct. Correctness of output does
-not retroactively legitimize non-compliant process. The test is not "did it work?" — the test
-is "did it work through the skill system, with the skill system's evidence and path rules
-intact?"
+Every agent operating on this repository is expected to behave as a disciplined user of a governed skill system — not as an autonomous reasoner inventing its own processes. The skill system is the documented, human-reviewed record of how content work is done here. When skills cover a requirement, they must be used. When they do not, the gap must be reported and recorded so the skill system can grow. An agent that silently bypasses skills, fabricates workflows, or completes tasks partially without disclosure violates the operating contract of this repository regardless of whether the output appears correct. Correctness of output does not retroactively legitimize non-compliant process. The test is not "did it work?" — the test is "did it work through the skill system, with the skill system's evidence and path rules intact?"
