@@ -19,6 +19,30 @@ authoritative source of operating rules for all agents.
 
 New contributor or agent? See the `getting-started` skill for step-by-step fresh-clone setup.
 
+## 2a. Source-of-Truth Hierarchy
+
+When a conflict exists between two artifacts, this hierarchy governs which one is authoritative.
+Higher items in the list override lower items — never the reverse.
+
+| Priority | Source | Scope |
+|----------|--------|-------|
+| 1 | FOSS repo source code (clone cache at `runs/.clone_cache/`) | API surface, class names, method signatures, namespaces |
+| 2 | `knowledge/{family}/{platform}/merged/api_surface.json` | What the scout extracted from source; authoritative for content generation |
+| 3 | `knowledge/{family}/{platform}/merged/formats.json` | Format support; must reconcile with api_surface (see §9c) |
+| 4 | `knowledge/{family}/{platform}/merged/claims.json` | Enriched semantic claims; must not contradict api_surface or formats |
+| 5 | `knowledge/{family}/{platform}/merged/limitations.md` | Known unimplemented features; overrides positive claims at same priority level |
+| 6 | Generated content in `content/` | Output artifact; must reflect all higher sources |
+
+**Conflict resolution rule**: When a content claim contradicts a higher-priority source, fix the
+content (or the knowledge artifact) — never demote the higher-priority source to match the content.
+
+**Cloned repos are read-only.** Agents never write to `runs/.clone_cache/`. The scout (S-34)
+reads them; the knowledge layer synthesizes from them.
+
+**Phase artifacts are not source of truth.** `knowledge/{family}/{platform}/scout/` and
+`knowledge/{family}/{platform}/merged/` are derived from the clone cache. If they contradict
+the clone cache, re-run the knowledge bootstrap (S-12 → S-14) to regenerate from source.
+
 ## 3. Mental Model Refresh Protocol
 
 Before editing any content page for family/platform X:
@@ -277,6 +301,33 @@ code block, or section) and can specify it. Do not use when the agent should dec
 fix — use S-26 (heal-page), S-21 (page-enhance), or S-20 (page-update) instead.
 
 Wave 4 items from S-46 (gap-apply) must be addressed via S-73. Do not apply ad hoc fixes.
+
+### Grade semantics and publication readiness
+
+**Grade A means automated checks passed — it does NOT mean publication-ready.**
+
+The evaluator suite covers approximately 60% of known defect classes. A grade of A or B confirms
+that no automated evaluator detected a violation. It does not confirm that a human reviewer
+would accept the page for publication.
+
+| Grade | Automated check result | Publication implication |
+|-------|----------------------|-------------------------|
+| A | All default evaluators passed | Eligible for automated-pass status; still requires human review for Tier 1 content (§7b) |
+| B | No FAIL; some WARN (capped categories) | Eligible for spot-check review |
+| C | Category ceiling applied (TA/FT/NC/SX/FM ceiling) | Must resolve WARN findings before promotion |
+| D | One or more WARN → FAIL escalation | Requires heal-page (S-26) before publishing |
+| F | Critical finding (FC/PC/TA FAIL) or grade ceiling forced | Blocked from publication; must heal and re-evaluate |
+
+**Manual-edit decision rule**: When content appears wrong, apply this decision tree before editing:
+
+1. Is the knowledge artifact (api_surface.json, formats.json, claims.json) wrong?
+   → Fix upstream: re-run repo-scout (S-34) or knowledge-update (S-14), then regenerate.
+2. Is the content page wrong but the knowledge is correct?
+   → Use S-73 (manual-edit) for targeted fixes.
+3. Is the page below quality bar (grade C or below) but factually correct?
+   → Use S-21 (page-enhance) for grade C, S-26 (heal-page) for grade D/F.
+4. Do not patch content manually for quality issues that should be fixed in the generator —
+   file a skill gap report (§6b) and let the system generate correctly next time.
 
 ### Batch reference page generation
 
@@ -576,6 +627,58 @@ The following always cause immediate halt (no agent override):
   (`validate_frontmatter.py` P-03/P-04 checks). Files with
   `content_origin: manual-remediation` are temporarily exempt.
 
+## 7a. Launch-Readiness Gates
+
+Before any product launch (new family/platform going live), run the automated gate checker:
+
+```bash
+python scripts/pipeline/launch_gate.py {family} {platform}
+```
+
+All 7 automated gates must report PASS before a product is considered launch-eligible.
+
+| Gate | ID | What it checks | Fail behavior |
+|------|----|----------------|---------------|
+| Knowledge freshness | L-01 | `model.yaml stale_since` is null | FAIL — run S-12 → S-14 |
+| Evidence coverage | L-02 | All content files have non-empty `evidence:` block | FAIL — run attach_evidence.py |
+| Forbidden claims | L-03 | `change_guard.py` reports 0 DENY on active claims | FAIL — remove or correct claim |
+| API accuracy | L-04 | `audit.py` exits 0 FAIL on all content files | FAIL — fix API references |
+| Format truth | L-05 | `content_eval --evaluators format_truth` exits 0 FAIL | FAIL — correct format table |
+| Knowledge reconciliation | L-06 | `promote.py` reconciliation passes (no format/claim contradiction) | FAIL — fix formats.json or claims |
+| Pipeline tests | L-07 | `pytest` on `scripts/pipeline/tests/` exits 0 | FAIL — fix broken test |
+
+**Fail-closed policy**: Any FAIL blocks launch. WARN does not block launch but must be logged.
+
+The following 5 gates require human judgment and cannot be automated:
+
+| Gate | ID | What it checks |
+|------|----|----------------|
+| Human prose review | H-01 | Random sample of 5 non-reference pages reviewed by human |
+| Reference accuracy | H-02 | Stratified sample of 10 reference pages spot-checked against source |
+| Format table spot-check | H-03 | Format support tables verified against clone cache |
+| Link validation | H-04 | All cross-subdomain links resolve in local build |
+| License accuracy | H-05 | Open source license claim matches repo LICENSE file |
+
+**Output**: `launch_gate.py` writes a per-gate result report to `reports/launch-gate/{family}-{platform}-{date}.md` (local only — never commit).
+
+## 7b. Human-Review Risk Tiers
+
+All generated content is classified into risk tiers. Higher tiers require more human review before publication.
+
+| Tier | Content type | Review requirement | Examples |
+|------|--------------|--------------------|---------|
+| **Tier 1** | Code-heavy reference pages, blog posts with format tables, capability claims | Full human review (H-01 through H-05 gates) before first publish | `slides/net` reference pages, blog posts with `## Supported Formats` sections |
+| **Tier 2** | Docs pages, KB how-to articles, FAQ pages | Spot-check review (5 pages sampled per platform per launch) | `docs/getting-started`, `kb/how-to-*` |
+| **Tier 3** | Locale files, pure structural pages (index/_index), products landing pages | Automated gates only; human review optional | `_index.md` files, locale translations, products pages |
+
+**Tier 1 classification triggers** (any one is sufficient):
+- Page contains a format support table (markdown table with Import/Export or Read/Write columns)
+- Page contains code blocks with real API calls (not just install snippets)
+- Page makes a capability claim (e.g., "supports conversion", "can export to PDF")
+- Page is a blog post (all blog posts are Tier 1)
+
+**When tiers matter**: Before a product launch, route Tier 1 pages through human review (H-01/H-02 gates). Tier 2 pages require at least sampling. Tier 3 pages proceed on automated gates alone. After a known evaluator logic change (EVALUATOR_LOGIC_VERSION bump), re-evaluate Tier 1 pages first.
+
 ## 8. Escalation Conditions (route to human review)
 
 - S-23 `FAIL` persists after remediation
@@ -652,6 +755,56 @@ pages are re-graded and stamped with the new version before any skipping occurs.
 
 ---
 
+## 9b. Regeneration After Extraction Script Changes
+
+When a change is made to `scripts/pipeline/extraction/scout.py` or `scripts/pipeline/enrich.py`
+that alters what is extracted or how claims are synthesized:
+
+1. **Re-run the knowledge bootstrap** for ALL affected products:
+   ```bash
+   python scripts/pipeline/scout.py {family} {platform}
+   python scripts/pipeline/enrich.py {family} {platform}
+   python scripts/pipeline/promote.py {family} {platform}
+   ```
+2. **Check for knowledge drift**: compare merged/api_surface.json and merged/formats.json before and after.
+3. **Re-evaluate all content** for affected products:
+   ```bash
+   python -m scripts.pipeline.content_eval.cli evaluate {family} {platform} --write-grade
+   ```
+4. **Re-run the launch gate** before promoting any affected product.
+
+**Rationale**: Extraction script changes can silently change the API surface model. Content generated
+before the change may reference APIs or formats that the new extraction no longer includes, or vice versa.
+This creates a hidden discrepancy that evaluators cannot catch without re-grounding.
+
+**Scope**: Applies to changes to scout.py, enrich.py, and any extractor plugin under
+`scripts/pipeline/extraction/`. Does NOT apply to changes to content-evaluation logic
+(`content_eval/evaluators/`) — those follow the §9a checklist instead.
+
+## 9c. Change-Trigger Matrix
+
+Use this matrix to decide what action is required when a specific artifact or script changes.
+
+| Changed artifact | Required action | Scope |
+|-----------------|-----------------|-------|
+| Clone cache updated (upstream repo changed) | Run S-12 → S-14 → re-evaluate affected pages | Per product |
+| `scout.py` or `enrich.py` logic changed | Re-run knowledge bootstrap + full re-evaluate (§9b) | All products |
+| `promote.py` logic changed | Re-run promote for all products; check merged artifacts | All products |
+| `content_eval/evaluators/*.py` logic changed | Bump EVALUATOR_LOGIC_VERSION; re-grade all pages (§9a) | All products |
+| `content/` page changed | Run S-23 (content-check) + audit.py + attach_evidence.py | Per file |
+| `knowledge/{family}/{platform}/merged/*.json` updated | Re-run attach_evidence.py for affected product | Per product |
+| `skills/*.md` skill file changed | Test with 1 representative run; verify post-conditions fire correctly | Per skill |
+| `scripts/pipeline/path_guard.py` changed | Run `pytest scripts/tests/test_path_guard.py` — must exit 0 | Self-test |
+| `AGENTS.md` changed | Verify CLAUDE.md §6 alignment (see CLAUDE.md alignment note) | Self |
+
+**Manual edit after content-only change**: Use S-73 (manual-edit) → re-run S-23 + audit.py.
+Do not re-run knowledge bootstrap unless `stale_since` is set — content-only edits do not
+require knowledge regeneration.
+
+**Format/claims contradiction found**: Fix the higher-priority source (formats.json or claims.json)
+and re-run promote.py. If the contradiction is in the clone cache source itself, file an issue in
+the FOSS repo and document the discrepancy in `knowledge/{family}/{platform}/merged/limitations.md`.
+
 ## 10. Evidence Proof in Commits
 
 Every commit touching `content/` MUST include in the commit message:
@@ -696,6 +849,50 @@ bash scripts/ci/capture_proof_bundle.sh <slug> <command1> <command2> ...
 
 The bundle captures verbatim command outputs with exit codes, git diff, and structured metadata.
 The CI step "Check compliance observation proof bundles" verifies this linkage.
+
+## 10a. Verification Standards for Fixes
+
+Every fix — whether to a script, evaluator, content page, or knowledge artifact — must meet
+these verification standards before being declared complete.
+
+### Required evidence per fix
+
+| Fix type | Before evidence | After evidence | Tool |
+|----------|----------------|----------------|------|
+| Content page fix | `audit.py` FAIL count before fix | `audit.py` FAIL count after fix (must be <= before) | `python scripts/pipeline/audit.py --files {path}` |
+| Evaluator logic fix | Evaluation output before change | Evaluation output after change (same test page) | `python -m scripts.pipeline.content_eval.cli evaluate ...` |
+| Knowledge artifact fix | Artifact state before fix (git diff) | Artifact state after fix (git diff) | `git diff knowledge/` |
+| Script/pipeline fix | Script invocation output before fix | Script invocation output after fix | Per script |
+
+### Regression check requirement
+
+After any fix, verify that the fix does not break previously passing content. Minimum check:
+```bash
+# Re-run evaluators on the same product that was passing before
+python -m scripts.pipeline.content_eval.cli evaluate {family} {platform} --write-grade
+```
+
+If any previously-passing page now FAILs, the fix introduced a regression. Investigate before
+committing.
+
+### Before/after evidence trail
+
+Every fix commit message MUST include:
+- What was broken (symptom)
+- Root cause (one sentence)
+- What changed (file + function/line)
+- Before: [tool output or count before fix]
+- After: [tool output or count after fix]
+- Regression check: PASS / FAIL (if FAIL, explain)
+
+### Verification scope selection
+
+| Fix scope | Verification scope |
+|-----------|-------------------|
+| Single file | Verify that file only |
+| Single evaluator | Verify all test pages that the evaluator touches |
+| Knowledge bootstrap chain (scout/enrich/promote) | Re-run full launch gate (§7a) on the affected product |
+| Grade ceiling or model.py change | Re-grade all products; verify overall A/B/C/D/F distribution is within expected range |
 
 ## 10b. Content Provenance Rules
 
@@ -830,6 +1027,32 @@ Do not manually patch these to `skill-generated` without confirming authorship.
 - Remain frozen in their current state; `source_file` points to `unknown` from backfill
 
 **Policy:** Do not delete either bucket without verifying no live URLs depend on the files. Do not attempt to translator-sync these files without first resolving the structural mismatch.
+
+## 10c. Output-Location Discipline
+
+All agent-generated artifact files must be written to their designated location. Using the wrong
+output location causes git leakage, CI failures, and audit trail gaps.
+
+| Artifact type | Correct location | Never write to |
+|---------------|-----------------|----------------|
+| Content pages (docs, blog, kb, reference, products) | `content/{site}/en/{family}/{platform}/` | `reports/`, `knowledge/`, repo root |
+| Knowledge artifacts (api_surface, claims, formats, etc.) | `knowledge/{family}/{platform}/` | `content/`, `reports/`, repo root |
+| Audit and evaluation reports | `reports/` (gitignored, local-only) | `content/`, `knowledge/`, repo root |
+| Launch gate results | `reports/launch-gate/` | `content/`, `knowledge/`, git-tracked paths |
+| Skill gap escalation reports | `reports/skill-gaps/` | Any git-tracked path |
+| Skill breakage reports | `reports/skill-breakage/` | Any git-tracked path |
+| Evidence repair logs | `reports/evidence-repair/` | Any git-tracked path |
+| Compliance observations + proof bundles | `reports/compliance/`, `reports/proofs/` | Any git-tracked path |
+| Design documents (schema, evaluator specs) | `reports/design/` | `knowledge/`, `content/`, skills/ |
+| Override tokens | `reports/overrides/pending/` | Any git-tracked path |
+
+**`reports/` is a strict local artifact boundary.** Nothing under `reports/` may ever be staged
+or committed. The pre-commit hook enforces this. If you need a design document to persist across
+sessions, it must live in `reports/design/` (local-only) — not in `knowledge/` or `content/`.
+
+**Do not write reports to the repo root.** Files like `reconciliation-report.md`, `gate-results.txt`,
+or `debug.log` written to `/` will be flagged by `git status` as untracked files and may confuse
+future audit runs. Use `reports/` exclusively.
 
 ## 11. Prohibited Actions
 
