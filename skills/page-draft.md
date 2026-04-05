@@ -36,6 +36,10 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
    type: docs
    weight: {N}
    lastmod: '{today}'
+   provenance:
+     content_origin: skill-generated
+     last_mechanism: skill
+     auto_updatable: true
    ```
 
    **KB article**:
@@ -46,6 +50,10 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
    date: '{today}'
    lastmod: '{today}'
    keywords: [kw1, kw2, kw3, kw4, kw5]
+   provenance:
+     content_origin: skill-generated
+     last_mechanism: skill
+     auto_updatable: true
    ```
 
    **Blog post**:
@@ -57,6 +65,10 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
    lastmod: '{today}'
    categories: ["{family}"]
    tags: ["{platform}", ...]
+   provenance:
+     content_origin: skill-generated
+     last_mechanism: skill
+     auto_updatable: true
    ```
 
 5. **Draft content section by section** following the plan's `structure` array:

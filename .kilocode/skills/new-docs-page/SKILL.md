@@ -55,6 +55,10 @@ Before generating any content, you MUST:
      {1–2 sentences: what the reader learns and which classes/methods are covered}
    weight: {next weight}
    type: docs
+   provenance:
+     content_origin: skill-generated
+     last_mechanism: skill
+     auto_updatable: true
    evidence:
      model_sha: ""
      model_version: ""

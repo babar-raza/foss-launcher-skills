@@ -72,6 +72,10 @@ Before generating any content, you MUST:
    tags: []
    categories:
    - Aspose.{Family}
+   provenance:
+     content_origin: skill-generated
+     last_mechanism: skill
+     auto_updatable: true
    evidence:
      model_sha: ""
      model_version: ""

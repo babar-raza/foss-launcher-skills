@@ -56,6 +56,10 @@ Generate a new KB how-to article.
    keywords:
    - {action verb + noun + platform — e.g. "convert fbx to gltf python"}
    - {6–10 more SEO-oriented phrases, each on its own line}
+   provenance:
+     content_origin: skill-generated
+     last_mechanism: skill
+     auto_updatable: true
    ---
    ```
 

@@ -72,6 +72,10 @@ Before generating any content, you MUST:
    categories:
    - {Class | Enum | Interface — pick the correct one}
    layout: single
+   provenance:
+     content_origin: skill-generated
+     last_mechanism: skill
+     auto_updatable: true
    ---
    ```
    Note: no `date`, `lastmod`, `draft`, `type`, or `weight` fields on reference pages.

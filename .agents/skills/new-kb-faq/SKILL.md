@@ -61,9 +61,13 @@ Generate or update the FAQ page for a product platform.
    - {product name} python licensing
    - {product name} open source
    - {6–10 more question-oriented keywords}
+   provenance:
+     content_origin: skill-generated
+     last_mechanism: skill
+     auto_updatable: true
    ---
    ```
-   When updating an existing file: update only `lastmod` to today's date; leave all other frontmatter unchanged.
+   When updating an existing file: update only `lastmod` to today's date; leave all other frontmatter unchanged. Do NOT modify the `provenance:` block.
 
 5. **Content structure** — write or append these FAQ categories (skip categories that are already fully covered):
 

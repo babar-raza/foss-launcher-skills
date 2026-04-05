@@ -87,6 +87,11 @@ Default weight for unlisted platforms: 80.
    icon: terminal
    weight: {weight from step 5}
    layout: list
+   provenance:
+     content_origin: unknown
+     last_mechanism: skill
+     auto_updatable: false
+     provenance_recovery_note: structural-page
    ---
 
    {body_intro from step 5}
@@ -96,8 +101,10 @@ Default weight for unlisted platforms: 80.
    {{< sections >}}
    ```
 
-   Note: the `evidence:`, `grade:`, and `provenance:` blocks are written by `attach_evidence.py`
-   in the next step — do not include them manually.
+   Note: the `evidence:` and `grade:` blocks are written by `attach_evidence.py` in the next
+   step — do not add them manually. The `provenance:` block above is included in the template
+   by design: structural index pages receive `content_origin: unknown` with `auto_updatable: false`
+   at creation time (structural-deferred classification per Phase N provenance governance).
 
    Note: use `linktitle` (all lowercase) — this is the Hugo docs theme convention for this site,
    distinct from `linkTitle` (camelCase) used in the KB and reference sites.

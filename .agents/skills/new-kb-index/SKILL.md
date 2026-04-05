@@ -99,6 +99,11 @@ Default weight for unlisted platforms: 80.
    icon: terminal
    weight: {weight from step 5}
    layout: list
+   provenance:
+     content_origin: unknown
+     last_mechanism: skill
+     auto_updatable: false
+     provenance_recovery_note: structural-page
    ---
 
    {body_intro from step 5}
@@ -108,8 +113,10 @@ Default weight for unlisted platforms: 80.
    {{< children >}}
    ```
 
-   Note: the `evidence:`, `grade:`, and `provenance:` blocks are written by `attach_evidence.py`
-   in the next step — do not include them manually.
+   Note: the `evidence:` and `grade:` blocks are written by `attach_evidence.py` in the next
+   step — do not add them manually. The `provenance:` block above is included in the template
+   by design: structural index pages receive `content_origin: unknown` with `auto_updatable: false`
+   at creation time (structural-deferred classification per Phase N provenance governance).
 
 8. **Attach evidence**: Run:
    ```bash

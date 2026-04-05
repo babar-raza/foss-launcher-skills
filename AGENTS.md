@@ -308,6 +308,44 @@ Platform scope rules enforced by `batch-reference`:
 - **java / net**: interfaces, concrete classes, structs, and enums all included
 - **Idempotency**: existing pages are never overwritten; re-runs skip already-present slugs
 
+### Provenance contract for creation-path skills (Control 1 — Phase N)
+
+> **MANDATORY — do not remove this requirement from any creation-path skill.**
+
+Every skill that creates a new English content page MUST write a `provenance:` block in the
+page's frontmatter template as part of the same `Write` tool call that creates the page. This
+is a provenance contract — removing it breaks `verified_at_creation` classification.
+
+**For content-generating skills** (`new-docs-page`, `new-blog-post`, `new-kb-howto`, `new-kb-faq`,
+`new-reference-page`, `page-draft`, `new-products-page`, `batch-reference`):
+
+```yaml
+provenance:
+  content_origin: skill-generated
+  last_mechanism: skill
+  auto_updatable: true
+```
+
+**For structural-scaffold skills** (`new-docs-index`, `new-kb-index`, `new-reference-index`):
+
+```yaml
+provenance:
+  content_origin: unknown
+  last_mechanism: skill
+  auto_updatable: false
+  provenance_recovery_note: structural-page
+```
+
+**Why this matters:** Without a concurrent provenance write at creation time, every new page
+enters the corpus as `content_origin: unknown`. Post-hoc classification via
+`content_origin_recover.py` produces only `pipeline_signal_only` status — it cannot
+produce `verified_at_creation`. Only a concurrent write (skill writes `content_origin` in
+the same `Write` call as the frontmatter) achieves `verified_at_creation` per §10b taxonomy.
+
+**Launch gate enforcement:** `launch_gate.py` Check 2b (L-02b) blocks launch for any English
+page missing `content_origin` in its provenance block. This check fires at the launch gate
+to prevent pages that bypassed the skill contract from reaching production.
+
 ## 6a. Skill-First Execution Mandate
 
 ### Rule
@@ -582,7 +620,7 @@ Before any product launch (new family/platform going live), run the automated ga
 python scripts/pipeline/launch_gate.py {family} {platform}
 ```
 
-All 7 automated gates must report PASS before a product is considered launch-eligible.
+All 8 automated gates must report PASS before a product is considered launch-eligible.
 
 | Gate | ID | What it checks | Fail behavior |
 |------|----|----------------|---------------|
@@ -593,6 +631,7 @@ All 7 automated gates must report PASS before a product is considered launch-eli
 | Format truth | L-05 | `content_eval --evaluators format_truth` exits 0 FAIL | FAIL — correct format table |
 | Knowledge reconciliation | L-06 | `promote.py` reconciliation passes (no format/claim contradiction) | FAIL — fix formats.json or claims |
 | Pipeline tests | L-07 | `pytest` on `scripts/pipeline/tests/` exits 0 | FAIL — fix broken test |
+| Provenance coverage | L-08 | All English content files with a provenance block have `content_origin` set | FAIL — fix skill template or run provenance_backfill.py |
 
 **Fail-closed policy**: Any FAIL blocks launch. WARN does not block launch but must be logged.
 
@@ -848,6 +887,8 @@ provenance:
 | Skill generates a new English page | `content_origin: skill-generated`, `content_created_at: <now>`, `content_hash: <body hash>`, `last_mechanism: skill`, `auto_updatable: true`, `reviewed: false` |
 | Human edits content | `last_mechanism: human-edit`, `content_hash` updated, `auto_updatable: false`, `reviewed: true` |
 | Agent edits content directly | `last_mechanism: agent-edit`, `content_hash` updated, `reviewed: false` |
+
+**Skill provenance contract (PC-07b, 2026-04-05):** Every creation-path skill MUST write a `provenance:` block containing `content_origin: skill-generated` and `last_mechanism: skill` in the **same `Write` tool call** that creates the page frontmatter. This is the only mechanism that achieves `verified_at_creation` state (see provenance state taxonomy below). Post-hoc assignment via `content_origin_recover.py` yields only `pipeline_signal_only` — not equivalent. Do NOT remove or omit the `provenance:` block from a skill's frontmatter template. Index-scaffold skills (`new-docs-index`, `new-kb-index`, `new-reference-index`) are exempt from `skill-generated` — they use `content_origin: unknown`, `auto_updatable: false`, `provenance_recovery_note: structural-page` (structural-deferred classification). The `content_created_at` field is intentionally omitted from skill templates; it is populated by `provenance_backfill.py` in the post-creation pipeline step.
 
 **Critical:** Evidence attachment and grade writes are metadata-only operations. They MUST NOT update `last_mechanism`, `auto_updatable`, or `translation_origin`. Only content-changing operations (skill, agent-edit, human-edit, translator, content-fixer) update `last_mechanism`. The `graded_at` timestamp in the grade block is the authoritative record of when grading occurred.
 

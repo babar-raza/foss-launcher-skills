@@ -97,6 +97,10 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
     layout: plugin
     plugin_name: "{plugin_name}"
     plugin_description: "{plugin_description}"
+    provenance:
+      content_origin: skill-generated
+      last_mechanism: skill
+      auto_updatable: true
     evidence:
       model_sha: ""
       model_version: ""
