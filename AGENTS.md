@@ -958,6 +958,31 @@ python scripts/pipeline/provenance_backfill.py
 
 The backfill sets `translation_origin: unknown`, `auto_updatable: true`, and derives `source_file` / `source_sha` from the path mapping. This is the correct conservative default. See RUNBOOK §1 for the canonical post-clone setup sequence.
 
+### content_created_at governance (TC-7E, 2026-04-05)
+
+`content_created_at` records when the English page was **first committed to the repository**. It is NOT the date content was authored, drafted, or published.
+
+**Field semantics:**
+- Format: ISO-8601 UTC (`YYYY-MM-DDTHHMMSSZ`), e.g. `2025-03-15T00:00:00Z`
+- Source priority: (1) frontmatter `date:` field (blog/KB files); (2) `git log --diff-filter=A` first-commit date
+- Intentionally absent from skill frontmatter templates — the agent cannot know the commit timestamp at Write time; `provenance_backfill.py` populates this field in the post-creation pipeline
+
+**Write-once rule (enforced by code):**
+Once `content_created_at` is set in a file, `write_provenance()` MUST NOT overwrite it. The TC-7B write-once guard in `scripts/pipeline/provenance.py` enforces this: if an existing `content_created_at` value is found in the file, it is merged into the outgoing dict before write, even if the caller omitted the field. Any caller that attempts to change an existing value receives a `WARN: preserving existing content_created_at` log line.
+
+**Authorized write paths:**
+- `scripts/pipeline/content_created_at_backfill.py` — primary corpus backfill; uses `date:` field (Source 1) or bulk git log (Source 2); dry-run by default; `--apply` required
+- `scripts/pipeline/provenance_backfill.py` — writes `content_created_at` only on first provenance block creation (new-file path); never overwrites an existing value
+- Post-creation pipeline: for any future creation-path that can supply a verified commit timestamp
+
+**Permanent exceptions (53 files):**
+53 English files have no `content_created_at` and cannot be backfilled because they have no `--diff-filter=A` git history record (renamed, cherry-picked, or squash-merged into the repo). Breakdown: 3 blog locale (`.fa.md`), 11 docs.aspose.org feature pages, 39 reference.aspose.org API pages. These are permanently excepted. No fabricated date is acceptable. `audit_content_created_at.py` correctly counts them as `skipped-no-source`.
+
+**Do NOT:**
+- Set `content_created_at` in skill frontmatter templates — use `content_created_at_backfill.py` after creation
+- Fabricate a date for any file without a git history source
+- Call `write_provenance()` with a dict that overwrites an existing `content_created_at` value
+
 ### content_origin recovery (two-step provisioning workflow)
 
 After `provenance_backfill.py` runs, newly provisioned English files carry `content_origin: unknown`. `scripts/pipeline/content_origin_recover.py` upgrades eligible files to `content_origin: skill-generated` using two confidence rules:
