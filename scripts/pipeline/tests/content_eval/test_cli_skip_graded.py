@@ -83,6 +83,7 @@ def _run_with_pages(pages, read_grade_fn, tmp_path, logic_version_override=None)
         output_root=str(tmp_path),
         write_grade=True,
         skip_graded=True,
+        sweep=False,
     )
 
     old_cwd = os.getcwd()
