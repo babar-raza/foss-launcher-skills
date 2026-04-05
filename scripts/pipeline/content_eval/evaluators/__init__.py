@@ -60,6 +60,7 @@ def _ensure_loaded():
         description_completeness,
         evidence_depth,
         forbidden_claims,
+        format_completeness,
         format_truth,
         install_recipe,
         limitations_check,

@@ -342,6 +342,9 @@ def compute_grade_with_criticality(findings: list[Finding]) -> str:
         # AC FAIL caps at B
         if f.category == "AC" and f.level == "FAIL":
             ceiling = _cap(ceiling, "B")
+        # FM FAIL (phantom format) caps at C
+        if f.category == "FM" and f.level == "FAIL":
+            ceiling = _cap(ceiling, "C")
     return ceiling
 
 

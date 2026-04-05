@@ -26,6 +26,7 @@ ALL_EVALUATORS = [
     "api_completeness",
     "code_syntax_check",
     "namespace_correctness",
+    "format_completeness",
 ]
 
 # Default evaluators (fast, deterministic, production-ready)
@@ -42,6 +43,7 @@ DEFAULT_EVALUATORS = [
     "prose_truth",
     "code_plausibility",
     "format_truth",
+    "format_completeness",
     "type_accuracy",
     "coverage",
     "install_recipe",
