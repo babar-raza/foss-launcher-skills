@@ -23,7 +23,8 @@ from . import BaseEvaluator
 KNOWLEDGE_ROOT = Path("knowledge")
 
 # Patterns to extract member names mentioned on the page
-_BACKTICK_MEMBER_RE = re.compile(r"`(\w+)`")
+# Matches `name` and `name()` and `name(args)` inside backticks
+_BACKTICK_MEMBER_RE = re.compile(r"`(\w+)(?:\([^`]*\))?`")
 _TABLE_MEMBER_RE = re.compile(
     r"^\|\s*`(\w+)(?:\([^)]*\))?`",
     re.MULTILINE,
