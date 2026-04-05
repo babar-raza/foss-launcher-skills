@@ -345,6 +345,9 @@ def compute_grade_with_criticality(findings: list[Finding]) -> str:
         # FM FAIL (phantom format) caps at C
         if f.category == "FM" and f.level == "FAIL":
             ceiling = _cap(ceiling, "C")
+        # MV FAIL (member validity — hallucinated member in property table) caps at C
+        if f.category == "MV" and f.level == "FAIL":
+            ceiling = _cap(ceiling, "C")
     return ceiling
 
 

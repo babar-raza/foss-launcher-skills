@@ -72,4 +72,5 @@ def _ensure_loaded():
         risk_language,
         structure,
         type_accuracy,
+        member_validity,
     )
