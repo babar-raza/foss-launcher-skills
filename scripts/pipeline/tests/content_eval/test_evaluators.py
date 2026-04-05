@@ -967,10 +967,10 @@ class TestClaimIndexCache:
 
     def test_cache_cleared(self):
         """clear_claim_cache() should reset state."""
-        from content_eval.evaluators.prose_truth import (
-            _get_claim_index, clear_claim_cache, _CLAIM_INDEX_CACHE,
+        from content_eval.evaluators._claim_index import (
+            get_claim_index, clear_claim_cache, _CLAIM_INDEX_CACHE,
         )
-        _get_claim_index("test_family", "test_platform")
+        get_claim_index("test_family", "test_platform")
         assert len(_CLAIM_INDEX_CACHE) == 1
         clear_claim_cache()
         assert len(_CLAIM_INDEX_CACHE) == 0
