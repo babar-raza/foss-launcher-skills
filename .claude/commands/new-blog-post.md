@@ -41,6 +41,11 @@ Before generating any content, you MUST:
    - Read `forbidden_claims` from `knowledge/{family}/{platform}/merged/index.json` — never include these
    - Read `knowledge/{family}/{platform}/scout/model.yaml` → `canonical_import` (package name for install)
    - Check `knowledge/{family}/{platform}/merged/snippets/` for verified code examples
+   - Read `knowledge/{family}/{platform}/merged/limitations.md` (if the file exists — skip this step
+     if absent) — **limitations cross-check**: for every format capability claim you plan to make
+     (e.g., "export to PDF", "write FBX", "convert to GLTF"), verify it does not contradict a
+     limitation marked as "not supported", "read-only", or "detect-only". If a contradiction is found,
+     remove or correct the claim before generating any content.
 
 ## Steps
 
@@ -151,5 +156,7 @@ After generating the post:
 3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
 4. **Run audit**: `python scripts/pipeline/audit.py --files content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
    — must exit with 0 FAIL before committing.
+5. **Run format eval**: `python -m scripts.pipeline.content_eval.cli evaluate {family} {platform} --evaluators format_truth,format_completeness --files content/blog.aspose.org/{family}/{platform}/{slug}/index.md --strict`
+   — must exit 0 (no FAIL findings) before committing. WARN findings are acceptable but must be reviewed.
 
 7. **Confirm** with the output path.
