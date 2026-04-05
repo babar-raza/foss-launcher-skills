@@ -36,7 +36,12 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Step 3: Optional — validate declared skills against pending skill run record
+# Step 3: Validate declared skills against pending skill run record (BLOCKING).
+# Bypass: add '# SKIP-SKILL-RUN-CHECK' anywhere in the commit message.
+if echo "$msg" | grep -q '# SKIP-SKILL-RUN-CHECK'; then
+    exit 0
+fi
+
 PENDING_RUN=$(python scripts/pipeline/skill_run_manager.py find-pending 2>/dev/null)
 if [ -n "$PENDING_RUN" ]; then
     declared=$(echo "$msg" | grep -iE 'skills?\s*invoked' | sed 's/.*[Ss]kills\s*[Ii]nvoked[: ]*//' | tr -d '[]')
@@ -45,11 +50,12 @@ if [ -n "$PENDING_RUN" ]; then
     validation_exit=$?
     if [ $validation_exit -ne 0 ]; then
         echo ""
-        echo "WARNING: Declared skills do not match skill run record $PENDING_RUN."
+        echo "BLOCKED: Declared skills do not match skill run record $PENDING_RUN."
         echo "$validation_result"
         echo "Run: python scripts/pipeline/skill_run_manager.py get-declared-skills --run-id $PENDING_RUN"
-        echo "(This is a warning only -- commit is not blocked. Fix the declaration to match the record.)"
+        echo "To bypass (e.g. for ad-hoc fixes), add '# SKIP-SKILL-RUN-CHECK' to the commit message."
         echo ""
+        exit 1
     fi
 fi
 
