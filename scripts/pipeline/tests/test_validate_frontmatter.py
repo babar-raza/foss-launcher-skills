@@ -475,3 +475,71 @@ class TestBlogEvidence:
             )
         finally:
             p.unlink(missing_ok=True)
+
+
+class TestMissingContentOriginWarning:
+    """Check 2b: provenance block present but content_origin absent → warning."""
+
+    def test_missing_content_origin_warns(self):
+        md = (
+            "---\ntitle: Test\n"
+            "provenance:\n"
+            "  last_mechanism: grade-writer\n"
+            "  auto_updatable: true\n"
+            "  content_hash: abc123\n"
+            "---\nBody.\n"
+        )
+        p = _tmp_md(md)
+        try:
+            errors = check_file(p)
+            pv = [e for e in errors if e.check == "provenance_validity" and "content_origin is missing" in e.detail]
+            assert len(pv) == 1, f"Expected 1 missing-content_origin warning, got: {pv}"
+            assert pv[0].severity == "warning"
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_content_origin_present_no_warn(self):
+        md = (
+            "---\ntitle: Test\n"
+            "provenance:\n"
+            "  last_mechanism: grade-writer\n"
+            "  content_origin: skill-generated\n"
+            "  auto_updatable: true\n"
+            "---\nBody.\n"
+        )
+        p = _tmp_md(md)
+        try:
+            errors = check_file(p)
+            pv = [e for e in errors if "content_origin is missing" in e.detail]
+            assert pv == [], f"Should not warn when content_origin present: {pv}"
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_locale_file_no_warn(self):
+        """Locale files have translation_origin instead of content_origin — must not warn."""
+        md = (
+            "---\ntitle: Test\n"
+            "provenance:\n"
+            "  translation_origin: translator-batch\n"
+            "  source_file: en/test.md\n"
+            "  auto_updatable: true\n"
+            "---\nBody.\n"
+        )
+        p = _tmp_md(md)
+        try:
+            errors = check_file(p)
+            pv = [e for e in errors if "content_origin is missing" in e.detail]
+            assert pv == [], f"Locale files must not warn for missing content_origin: {pv}"
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_empty_provenance_block_no_warn(self):
+        """Empty provenance block (no keys) should not trigger the warning."""
+        md = "---\ntitle: Test\nprovenance:\n---\nBody.\n"
+        p = _tmp_md(md)
+        try:
+            errors = check_file(p)
+            pv = [e for e in errors if "content_origin is missing" in e.detail]
+            assert pv == [], f"Empty provenance block must not warn: {pv}"
+        finally:
+            p.unlink(missing_ok=True)
