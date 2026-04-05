@@ -895,13 +895,22 @@ The backfill sets `translation_origin: unknown`, `auto_updatable: true`, and der
 
 ### content_origin recovery (two-step provisioning workflow)
 
-After `provenance_backfill.py` runs, newly provisioned English files carry `content_origin: unknown`. `scripts/pipeline/content_origin_recover.py` upgrades eligible files to `content_origin: skill-generated` using **Rule A**: grade ∈ {A, B} AND `evidence.claims` non-empty → `skill-generated`.
+After `provenance_backfill.py` runs, newly provisioned English files carry `content_origin: unknown`. `scripts/pipeline/content_origin_recover.py` upgrades eligible files to `content_origin: skill-generated` using two confidence rules:
+
+- **Rule A** (strong): grade ∈ {A, B} AND `evidence.claims` non-empty → `skill-generated`
+  Claims are matched against the knowledge model; their presence is a strong signal that the page was skill-generated.
+- **Rule B** (weaker): grade ∈ {A, B} AND `evidence.apis` non-empty (claims may be empty) → `skill-generated`
+  Covers prose-only pages (no code blocks) where S-72 Stage 1 cannot populate claims but API tokens were verified. Applicable to the majority of `reference.aspose.org` API prose pages.
+
+Rule A is tested first. Rule B fires only when Rule A does not qualify.
+
+**Locale files are automatically skipped.** Files with `translation_origin` in their provenance block are never processed — they lack `content_origin` entirely and must not receive automated origin assignments.
 
 **Two-step provisioning flow:**
 
 ```
 Step 1 — provenance_backfill.py     (writes provenance block; sets content_origin: unknown)
-Step 2 — content_origin_recover.py  (upgrades content_origin for Rule A-eligible files)
+Step 2 — content_origin_recover.py  (upgrades content_origin for Rule A or Rule B eligible files)
 ```
 
 **Usage:**
@@ -910,7 +919,7 @@ Step 2 — content_origin_recover.py  (upgrades content_origin for Rule A-eligib
 # Dry-run first — review all proposed changes before writing
 python scripts/pipeline/content_origin_recover.py --dry-run
 
-# Human sampling gate: inspect 30 files across families; confirm Rule A is correct
+# Human sampling gate: inspect 30 files across families; confirm rules are correct
 # Save review record to reports/tc4-review-sample.txt (gitignored)
 
 # Apply after sampling passes
@@ -919,9 +928,9 @@ python scripts/pipeline/content_origin_recover.py --apply
 
 **Idempotency:** Both scripts are safe to re-run. `content_origin_recover` skips files that already have a non-`unknown` `content_origin`. Running the two-step sequence multiple times produces no additional changes after the first full run.
 
-**Sampling gate requirement:** Before running `--apply` on a new corpus batch, sample at least 30 files evenly across product families and verify that grade + claims justify `skill-generated`. Document the review in `reports/` (local-only — never commit).
+**Sampling gate requirement:** Before running `--apply` on a new corpus batch, sample at least 30 files evenly across product families and verify that grade + claims/apis justify `skill-generated`. Document the review in `reports/` (local-only — never commit).
 
-**Files not upgraded by Rule A:** Reference pages graded C/D/F, human-authored docs, and any file where `evidence.claims` is empty remain at `content_origin: unknown` — this is correct. Do not manually patch these to `skill-generated` without confirming authorship.
+**Files not upgraded by Rule A or Rule B:** Pages graded C/D/F, human-authored docs, and files with neither non-empty claims nor non-empty apis remain at `content_origin: unknown` — this is correct. Do not manually patch these to `skill-generated` without confirming authorship.
 
 ---
 
@@ -944,23 +953,26 @@ Three classes:
 
 | Class | Condition | Strategy | Script |
 |-------|-----------|----------|--------|
-| 1 | Grade A/B + `claims: []` | S-72 evidence-repair → content_origin_recover | `attach_evidence.py --force` + `content_origin_recover.py --apply` |
-| 2 | Grade C/D/F, or prose-only Class 1 without code blocks | Human review | `apply_origin_decisions.py` |
+| 1 | Grade A/B + `claims: []` | S-72 evidence-repair (code-block files) → Rule A; Rule B for prose-only | `attach_evidence.py --force` + `content_origin_recover.py --apply` |
+| 2 | Grade C/D/F, or files with neither non-empty claims nor non-empty apis | Human review | `apply_origin_decisions.py` |
 | 3 | No grade, no evidence block (structural/navigation pages) | Write-lock + deferral | `structural_lock.py` |
 
 #### Class 1: evidence-repair + content_origin_recover
 
-Only files with code blocks are Stage 1 eligible. Prose-only Class 1 files fall to Class 2.
+Two tracks:
+
+- **Track A1 (code-block files):** S-72 Stage 1 populates `claims`; Rule A fires.
+- **Track A2 (prose-only files):** `evidence.apis` is non-empty for API reference pages graded A/B; Rule B fires directly without evidence-repair.
 
 ```bash
-# Stage 1: evidence-repair on code-block files
+# Track A1: evidence-repair on code-block files
 python scripts/pipeline/attach_evidence.py --files <paths...> --force --dry-run
 # Review output; confirm claims are non-zero for target files
 python scripts/pipeline/attach_evidence.py --files <paths...> --force
 
-# Promote to skill-generated via Rule A
+# Both tracks: promote to skill-generated via Rule A or Rule B
 python scripts/pipeline/content_origin_recover.py --dry-run
-# Sampling gate: inspect 30 files across families
+# Sampling gate: inspect 30 files across families (include prose-only in sample)
 python scripts/pipeline/content_origin_recover.py --apply
 ```
 
