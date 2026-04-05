@@ -22,6 +22,13 @@ from . import BaseEvaluator
 
 KNOWLEDGE_ROOT = Path("knowledge")
 
+# Maps enum-style canonical keys (lowercased) to their common file-extension
+# equivalents so that content using "3MF" matches formats.json key "ThreeMf".
+_FORMAT_ALIASES: dict[str, str] = {
+    "threemf": "3mf",
+    "microsoft3mf": "3mf",
+}
+
 # Broad list of format extensions to watch for
 _KNOWN_EXTENSIONS = {
     "obj", "fbx", "gltf", "glb", "stl", "ply", "3mf", "dae", "x3d",
@@ -123,6 +130,11 @@ def _load_formats(family: str, platform: str) -> dict[str, str]:
             result[ext] = "both"
         else:
             result[ext] = direction
+
+    # Register aliases so human-readable display names match enum canonical keys.
+    for canon, alias in _FORMAT_ALIASES.items():
+        if canon in result and alias not in result:
+            result[alias] = result[canon]
 
     # For enum-name schemas (e.g., OneNote2010 instead of .one), extension
     # matching against prose will not work.  But we still return the data so

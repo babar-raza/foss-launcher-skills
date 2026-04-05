@@ -70,6 +70,16 @@ def _normalize(name: str) -> str:
     return n
 
 
+# Maps enum-style canonical keys (after normalization) to their common
+# file-extension / display-name equivalents so that content using the
+# human-readable name (e.g. "3MF") still matches the knowledge key
+# (e.g. "ThreeMf" → normalized "threemf").
+_FORMAT_ALIASES: dict[str, str] = {
+    "threemf": "3mf",
+    "microsoft3mf": "3mf",
+}
+
+
 def _load_formats(family: str, platform: str) -> dict[str, str]:
     """Load formats.json and return a dict of normalized_name -> direction.
 
@@ -124,6 +134,11 @@ def _load_formats(family: str, platform: str) -> dict[str, str]:
             result[norm] = "both"
         else:
             result[norm] = direction
+
+    # Register aliases so human-readable display names match enum canonical keys.
+    for canon, alias in _FORMAT_ALIASES.items():
+        if canon in result and alias not in result:
+            result[alias] = result[canon]
 
     return result
 
