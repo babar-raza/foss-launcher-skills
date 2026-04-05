@@ -40,7 +40,7 @@ KNOWLEDGE_ROOT = Path("knowledge")
 #   | Extension | Import | Export |
 # Case-insensitive; leading/trailing whitespace/pipes tolerated.
 _TABLE_HEADER_RE = re.compile(
-    r"^\s*\|.*\b(?:format|extension)\b.*\|.*\b(?:extension|import|export|read|write)\b.*\|",
+    r"^\s*\|\s*(?!`)[^`|]*\b(?:format|extension)\b[^`|]*\|.*\b(?:extension|import|export|read|write)\b.*\|",
     re.IGNORECASE,
 )
 
