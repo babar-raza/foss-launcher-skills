@@ -28,6 +28,28 @@ _TABLE_MEMBER_RE = re.compile(
     r"^\|\s*`(\w+)(?:\([^)]*\))?`",
     re.MULTILINE,
 )
+# Section headers of the form "### MethodName()" or "## MethodName" or "### MethodName() → RetType"
+_SECTION_HEADER_RE = re.compile(
+    r"^#{1,4}\s+(\w+)\s*(?:\([^)]*\))?",
+    re.MULTILINE,
+)
+
+# Language-level members that are universally present in a platform's object model
+# and do not need explicit documentation in reference pages.
+_UNIVERSAL_SKIP: frozenset[str] = frozenset({
+    "constructor",   # TypeScript / JavaScript class constructor keyword
+    "toString",      # Object.toString() — inherited by all JS/TS objects
+    "hashCode",      # Java Object.hashCode()
+    "equals",        # Java Object.equals()
+    "finalize",      # Java Object.finalize()
+    "getClass",      # Java Object.getClass()
+    "notify",        # Java Object.notify()
+    "notifyAll",     # Java Object.notifyAll()
+    "wait",          # Java Object.wait() overloads
+    "__init__",      # Python constructor (already filtered by leading-_ rule)
+    "__str__",       # Python str() — already filtered by leading-_ rule
+    "__repr__",      # Python repr() — already filtered by leading-_ rule
+})
 
 
 class ApiCompletenessEvaluator(BaseEvaluator):
@@ -62,12 +84,12 @@ class ApiCompletenessEvaluator(BaseEvaluator):
         expected_members: set[str] = set()
         for method in cls_entry.get("methods", []):
             name = method.get("name", "")
-            # Skip private/internal members
-            if name and not name.startswith("_"):
+            # Skip private/internal members and universal language-level members
+            if name and not name.startswith("_") and name not in _UNIVERSAL_SKIP:
                 expected_members.add(name)
         for prop in cls_entry.get("properties", []):
             name = prop.get("name", "")
-            if name and not name.startswith("_"):
+            if name and not name.startswith("_") and name not in _UNIVERSAL_SKIP:
                 expected_members.add(name)
 
         if not expected_members:
@@ -79,6 +101,10 @@ class ApiCompletenessEvaluator(BaseEvaluator):
 
         # From markdown tables
         for m in _TABLE_MEMBER_RE.finditer(raw):
+            documented.add(m.group(1))
+
+        # From section headers (### MethodName() or ## PropertyName)
+        for m in _SECTION_HEADER_RE.finditer(raw):
             documented.add(m.group(1))
 
         # From backtick references in prose
