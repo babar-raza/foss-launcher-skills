@@ -63,6 +63,7 @@ def _normalize(name: str) -> str:
     compare equal to 'pdf'.
     """
     n = name.strip().lower()
+    n = n.replace(" ", "")
     n = n.lstrip(".")
     n = n.rstrip("_*")
     n = n.replace("_", "")
