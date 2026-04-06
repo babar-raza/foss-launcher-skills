@@ -234,9 +234,9 @@ class TestUpdateMechanism:
     def test_updates_existing(self):
         p = _tmp_md(PAGE_WITH_BOTH)
         try:
-            update_mechanism(p, "evidence-attach")
+            update_mechanism(p, "page-update")
             result = read_provenance(p)
-            assert result["last_mechanism"] == "evidence-attach"
+            assert result["last_mechanism"] == "page-update"
             # Other fields preserved
             assert result["translation_origin"] == "translator-batch"
             assert result["source_sha"] == "a1b2c3d4e5f6"
@@ -248,9 +248,9 @@ class TestUpdateMechanism:
     def test_creates_minimal_when_absent(self):
         p = _tmp_md(MINIMAL_PAGE)
         try:
-            update_mechanism(p, "grade-writer")
+            update_mechanism(p, "heal-page")
             result = read_provenance(p)
-            assert result["last_mechanism"] == "grade-writer"
+            assert result["last_mechanism"] == "heal-page"
             assert result["auto_updatable"] is True
         finally:
             _cleanup(p)
@@ -258,9 +258,9 @@ class TestUpdateMechanism:
     def test_does_not_change_auto_updatable(self):
         p = _tmp_md(PAGE_NOT_UPDATABLE)
         try:
-            update_mechanism(p, "evidence-attach")
+            update_mechanism(p, "page-enhance")
             result = read_provenance(p)
-            assert result["last_mechanism"] == "evidence-attach"
+            assert result["last_mechanism"] == "page-enhance"
             # auto_updatable MUST stay false
             assert result["auto_updatable"] is False
             # content_origin preserved

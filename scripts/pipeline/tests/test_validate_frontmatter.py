@@ -484,7 +484,7 @@ class TestMissingContentOriginWarning:
         md = (
             "---\ntitle: Test\n"
             "provenance:\n"
-            "  last_mechanism: grade-writer\n"
+            "  last_mechanism: skill\n"
             "  auto_updatable: true\n"
             "  content_hash: abc123\n"
             "---\nBody.\n"
@@ -502,7 +502,7 @@ class TestMissingContentOriginWarning:
         md = (
             "---\ntitle: Test\n"
             "provenance:\n"
-            "  last_mechanism: grade-writer\n"
+            "  last_mechanism: skill\n"
             "  content_origin: skill-generated\n"
             "  auto_updatable: true\n"
             "---\nBody.\n"
