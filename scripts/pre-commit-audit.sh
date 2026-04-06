@@ -117,4 +117,65 @@ if [ ${#changed[@]} -gt 0 ]; then
     fi
 fi
 
+# ---------------------------------------------------------------------------
+# Step 5: content_hash normalization for staged English content files
+# ---------------------------------------------------------------------------
+# Computes the current body hash for each staged English .md file and updates
+# the stored content_hash in the provenance block if it differs.  Re-stages
+# modified files so the commit includes the corrected hash.
+# Non-blocking: hash normalization is mechanical (analogous to auto-formatting).
+# Note: this may add provenance-only frontmatter changes to the staged diff.
+if [ ${#changed[@]} -gt 0 ]; then
+    _tmpfile5=$(mktemp /tmp/hash-norm-XXXXXX.txt 2>/dev/null || mktemp)
+    printf '%s\n' "${changed[@]}" > "$_tmpfile5"
+    python scripts/pipeline/provenance_normalize_hash.py \
+        --apply --files-from "$_tmpfile5" --auto-stage 2>&1
+    rm -f "$_tmpfile5"
+    # Non-blocking: normalization errors are logged but do not block the commit.
+fi
+
+# ---------------------------------------------------------------------------
+# Step 6: last_mechanism staleness warning
+# ---------------------------------------------------------------------------
+# For each staged file where the body changed (hash was stale), check whether
+# last_mechanism was also updated.  Warns if the mechanism appears unchanged
+# despite body changes — indicates an undeclared content edit.
+# Non-blocking: warning only.  Will be upgraded to hard error after skill
+# contracts (S-20, S-21, S-26) include provenance update steps.
+for staged_file in "${changed[@]}"; do
+    if [ ! -f "$staged_file" ]; then continue; fi
+    # Read current last_mechanism from the working copy
+    current_mech=$(python -c "
+import sys; sys.path.insert(0, 'scripts/pipeline')
+from provenance import read_provenance, compute_content_hash
+from pathlib import Path
+p = Path('$staged_file')
+prov = read_provenance(p)
+if prov:
+    stored = prov.get('content_hash', '')
+    computed = compute_content_hash(p)
+    if stored and stored == computed:
+        sys.exit(0)  # hash matches — no body change
+    mech = prov.get('last_mechanism', '')
+    print(mech)
+" 2>/dev/null)
+    if [ -z "$current_mech" ]; then continue; fi
+    # Compare with HEAD version
+    head_mech=$(git show HEAD:"$staged_file" 2>/dev/null | python -c "
+import sys, yaml, re
+text = sys.stdin.read()
+m = re.match(r'^---\s*\n(.*?)\n---', text, re.DOTALL)
+if m:
+    try:
+        fm = yaml.safe_load(m.group(1))
+        prov = (fm or {}).get('provenance') or {}
+        print(prov.get('last_mechanism', ''))
+    except: pass
+" 2>/dev/null)
+    if [ -n "$head_mech" ] && [ "$current_mech" = "$head_mech" ]; then
+        echo "WARNING: content changed but last_mechanism not updated in $staged_file"
+        echo "  Consider calling update_mechanism() after content-modifying writes."
+    fi
+done
+
 exit 0
