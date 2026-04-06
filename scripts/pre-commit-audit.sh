@@ -147,26 +147,12 @@ fi
 # contracts (S-20, S-21, S-26) include provenance update steps.
 for staged_file in "${changed[@]}"; do
     if [ ! -f "$staged_file" ]; then continue; fi
-    # Read current last_mechanism from the working copy
-    # Pass file path via sys.argv to avoid shell quoting issues with
-    # single quotes or special characters in file paths.
-    current_mech=$(python -c "
-import sys; sys.path.insert(0, 'scripts/pipeline')
-from provenance import read_provenance, compute_content_hash
-from pathlib import Path
-p = Path(sys.argv[1])
-prov = read_provenance(p)
-if prov:
-    stored = prov.get('content_hash', '')
-    computed = compute_content_hash(p)
-    if stored and stored == computed:
-        sys.exit(0)  # hash matches — no body change
-    mech = prov.get('last_mechanism', '')
-    print(mech)
-" "$staged_file" 2>/dev/null)
-    if [ -z "$current_mech" ]; then continue; fi
-    # Compare with HEAD version
-    head_mech=$(git show HEAD:"$staged_file" 2>/dev/null | python -c "
+    # Compare HEAD's content_hash against current computed hash to detect body
+    # changes.  We read HEAD (not the working copy) because Step 5 already
+    # normalized the working copy's stored hash — comparing stored vs computed
+    # on the working copy would always match after Step 5.
+    # Pass file path via sys.argv to avoid shell quoting issues.
+    head_info=$(git show HEAD:"$staged_file" 2>/dev/null | python -c "
 import sys, yaml, re
 text = sys.stdin.read()
 m = re.match(r'^---\s*\n(.*?)\n---', text, re.DOTALL)
@@ -174,10 +160,31 @@ if m:
     try:
         fm = yaml.safe_load(m.group(1))
         prov = (fm or {}).get('provenance') or {}
-        print(prov.get('last_mechanism', ''))
+        h = prov.get('content_hash', '')
+        mech = prov.get('last_mechanism', '')
+        print(f'{h}|{mech}')
     except: pass
 " 2>/dev/null)
-    if [ -n "$head_mech" ] && [ "$current_mech" = "$head_mech" ]; then
+    [ -z "$head_info" ] && continue
+    head_hash="${head_info%%|*}"
+    head_mech="${head_info##*|}"
+    # Compute current body hash and read current mechanism
+    current_info=$(python -c "
+import sys; sys.path.insert(0, 'scripts/pipeline')
+from provenance import read_provenance, compute_content_hash
+from pathlib import Path
+p = Path(sys.argv[1])
+computed = compute_content_hash(p)
+prov = read_provenance(p)
+mech = prov.get('last_mechanism', '') if prov else ''
+print(f'{computed}|{mech}')
+" "$staged_file" 2>/dev/null)
+    [ -z "$current_info" ] && continue
+    current_hash="${current_info%%|*}"
+    current_mech="${current_info##*|}"
+    # If body hash changed (HEAD hash != current computed hash) but mechanism
+    # was not updated, warn about undeclared content edit.
+    if [ -n "$head_hash" ] && [ "$head_hash" != "$current_hash" ] && [ "$current_mech" = "$head_mech" ]; then
         echo "WARNING: content changed but last_mechanism not updated in $staged_file"
         echo "  Consider calling update_mechanism() after content-modifying writes."
     fi
