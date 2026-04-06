@@ -77,14 +77,22 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
     python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json
     ```
 
-13. **Final decision**:
+13. **Update provenance**: After each pass that modifies body content, update the provenance mechanism:
+    ```python
+    from provenance import update_mechanism
+    from pathlib import Path
+    update_mechanism(Path("{relative-file-path}"), "heal-page")
+    ```
+    The `content_hash` will be normalized automatically by the pre-commit hook — do not compute or pass it here.
+
+14. **Final decision**:
     - If grade C or above: report success
     - If still D or F: **escalate to human** — do not attempt further automatic fixes.
       For each escalated item, the operator should invoke **S-73 (manual-edit)** with the
       specific change they want to apply. S-73 is the only sanctioned path for
       operator-directed targeted edits.
 
-14. **Report**:
+15. **Report**:
     ```
     HEAL PAGE — {file-path}
     Initial grade: {letter}
