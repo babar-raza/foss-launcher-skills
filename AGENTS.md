@@ -1347,6 +1347,7 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | causal-backtrack | S-74 | Resolve upstream dependency failures: given evaluation findings with cause_class UPSTREAM_MISSING or BAD_LINK_FORMAT, classifies dependency root cause, invokes S-62/S-60 for missing targets or S-73 for wrong-URL fixes, and writes cause-classification.json + dependency-verification.json evidence; supports --dry-run |
 | locale-patch | S-75 | Propagate targeted text fixes to locale translation copies of a fixed English source file; dry-run first; applies (old_text, new_text) patches to all locale variants; emits patch_report.md; never re-translates whole page |
 | commit | S-76 | Full commit-prep workflow: inspect working tree, categorize changes, plan 2–8 Conventional Commits, handle override tokens for protected paths, add invoked-skill IDs to content commits, stage precisely (never git add -A), verify quality gates (pytest), create commits with structured bodies, clean up post-commit token lifecycle, print final summary |
+| session-start | S-77 | Mandatory session initialization gate: read AGENTS.md + CLAUDE.md in full, confirm §2 Read Order and §6b capability assessment method, output SESSION GATE PASSED block before accepting any task |
 
 ### Enforcement scripts
 
