@@ -183,6 +183,66 @@ def test_evidence_block_preserved_verbatim():
         p.unlink(missing_ok=True)
 
 
+# ---------------------------------------------------------------------------
+# A2b preflight — strict vs tolerant frontmatter regex behavior
+# ---------------------------------------------------------------------------
+
+def test_strict_regex_does_not_match_eof_without_trailing_newline():
+    """The local strict pattern r'^(---\\s*\\n)(.*?)(\\n---\\s*\\n)' does NOT match
+    a file where the closing --- is at EOF with no trailing newline.
+
+    This is the behavioral difference that motivated A2b: such files are
+    silently skipped by normalize_file() when the strict pattern is in use.
+    """
+    import re
+    strict_re = re.compile(r"^(---\s*\n)(.*?)(\n---\s*\n)", re.DOTALL)
+    text_no_trailing_newline = "---\ntitle: foo\n---"   # no \n after closing ---
+    assert strict_re.match(text_no_trailing_newline) is None, (
+        "strict pattern must NOT match file ending with --- at EOF (no trailing newline)"
+    )
+
+
+def test_tolerant_helper_matches_eof_without_trailing_newline():
+    """The shared tolerant helper split_frontmatter() DOES match a file ending
+    with --- at EOF (no trailing newline).
+
+    This is Case B evidence: the tolerant variant handles the edge case that
+    the strict local copy silently misses.
+    """
+    from core.markdown import split_frontmatter
+    text_no_trailing_newline = "---\ntitle: foo\n---"   # no \n after closing ---
+    result = split_frontmatter(text_no_trailing_newline)
+    assert result is not None, (
+        "tolerant split_frontmatter() must match file ending with --- at EOF"
+    )
+    open_fence, body, close_fence = result
+    assert body.strip() == "title: foo"
+
+
+def test_normalize_file_processes_eof_without_trailing_newline_after_a2b():
+    """AFTER A2b migration: normalize_file processes a file with a non-literal
+    multiline scalar even when the closing --- is at EOF (no trailing newline).
+
+    split_frontmatter() uses the tolerant (?:\\n|$) pattern, so this case
+    is no longer silently skipped.
+    """
+    import re
+    # Confirm the old strict pattern still misses it (invariant):
+    strict_re = re.compile(r"^(---\s*\n)(.*?)(\n---\s*\n)", re.DOTALL)
+    text = '---\ntitle: Test\ncontent: "line one\\nline two"\n---'
+    assert strict_re.match(text) is None, "precondition: strict RE must not match"
+
+    # But normalize_file (now using split_frontmatter) DOES detect it:
+    p = _write_tmp(text)
+    try:
+        changed = normalize_file(p, dry_run=True, verbose=False)
+        assert changed, (
+            "after A2b: normalize_file must detect non-literal scalar even without trailing newline"
+        )
+    finally:
+        p.unlink(missing_ok=True)
+
+
 def test_trailing_whitespace_string_emits_warning(capsys):
     """String with trailing whitespace can't use | — should warn to stderr."""
     # A string ending with a space (not newline) — PyYAML can't use | for this
