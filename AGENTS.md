@@ -395,6 +395,7 @@ Agents must activate the upstream skill if it has not already been confirmed as 
 | `/register-human-content` (S-66) | `/knowledge-bootstrap` | Always |
 | `/evidence-repair` (S-72) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | `stale_since` not null |
 | `/manual-edit` (S-73) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | `stale_since` not null |
+| `/evidence-enhance` (S-78) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | `stale_since` not null |
 | Any content write | S-01 `/path-guard` | Always (final gate) |
 
 If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do not continue to the downstream skill.
@@ -887,10 +888,17 @@ provenance:
 | Skill generates a new English page | `content_origin: skill-generated`, `content_created_at: <now>`, `content_hash: <body hash>`, `last_mechanism: skill`, `auto_updatable: true`, `reviewed: false` |
 | Human edits content | `last_mechanism: human-edit`, `content_hash` updated, `auto_updatable: false`, `reviewed: true` |
 | Agent edits content directly | `last_mechanism: agent-edit`, `content_hash` updated, `reviewed: false` |
+| S-20 page-update modifies content | `last_mechanism: page-update`. `content_hash` auto-normalized by pre-commit hook. |
+| S-21 page-enhance modifies content | `last_mechanism: page-enhance`. `content_hash` auto-normalized by pre-commit hook. |
+| S-26 heal-page modifies content | `last_mechanism: heal-page`. `content_hash` auto-normalized by pre-commit hook. |
+| S-73 manual-edit modifies content | `last_mechanism: manual-edit-skill`, `auto_updatable: false`. `content_hash` auto-normalized by pre-commit hook. |
+| S-48 family-sync updates family page | `last_mechanism: family-sync`, `content_origin: family-sync`. |
 
 **Skill provenance contract (PC-07b, 2026-04-05):** Every creation-path skill MUST write a `provenance:` block containing `content_origin: skill-generated` and `last_mechanism: skill` in the **same `Write` tool call** that creates the page frontmatter. This is the only mechanism that achieves `verified_at_creation` state (see provenance state taxonomy below). Post-hoc assignment via `content_origin_recover.py` yields only `pipeline_signal_only` — not equivalent. Do NOT remove or omit the `provenance:` block from a skill's frontmatter template. Index-scaffold skills (`new-docs-index`, `new-kb-index`, `new-reference-index`) are exempt from `skill-generated` — they use `content_origin: unknown`, `auto_updatable: false`, `provenance_recovery_note: structural-page` (structural-deferred classification). The `content_created_at` field is intentionally omitted from skill templates; it is populated by `provenance_backfill.py` in the post-creation pipeline step.
 
-**Critical:** Evidence attachment and grade writes are metadata-only operations. They MUST NOT update `last_mechanism`, `auto_updatable`, or `translation_origin`. Only content-changing operations (skill, agent-edit, human-edit, translator, content-fixer) update `last_mechanism`. The `graded_at` timestamp in the grade block is the authoritative record of when grading occurred.
+**Critical:** Evidence attachment and grade writes are metadata-only operations. They MUST NOT update `last_mechanism`, `auto_updatable`, or `translation_origin`. Only content-changing operations (skill, agent-edit, human-edit, manual-edit-skill, page-update, page-enhance, heal-page, family-sync, translator, content-fixer) update `last_mechanism`. The `graded_at` timestamp in the grade block is the authoritative record of when grading occurred.
+
+**content_hash normalization:** The pre-commit hook (`scripts/pre-commit-audit.sh` Step 5) automatically computes and writes the correct `content_hash` for all staged English content files. Skills do NOT need to compute or pass `content_hash` — they only need to call `update_mechanism(path, "<mechanism_name>")` after modifying body content. The hook also emits a non-blocking warning (Step 6) when body content changed but `last_mechanism` was not updated.
 
 ### Overwrite/skip decision rules
 
@@ -1055,6 +1063,11 @@ Two tracks:
 
 - **Track A1 (code-block files):** S-72 Stage 1 populates `claims`; Rule A fires.
 - **Track A2 (prose-only files):** `evidence.apis` is non-empty for API reference pages graded A/B; Rule B fires directly without evidence-repair.
+
+**Routing note — S-72 vs S-78**: Use S-72 when `audit.py` or `validate_frontmatter.py` is
+failing (validator-blocked). Use S-78 when the page passes all validators but `evidence_depth`
+reports section coverage < 100% (INFO-only, non-blocking). Do not call `attach_evidence.py`
+directly — route through the appropriate skill.
 
 ```bash
 # Track A1: evidence-repair on code-block files
@@ -1348,6 +1361,7 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | locale-patch | S-75 | Propagate targeted text fixes to locale translation copies of a fixed English source file; dry-run first; applies (old_text, new_text) patches to all locale variants; emits patch_report.md; never re-translates whole page |
 | commit | S-76 | Full commit-prep workflow: inspect working tree, categorize changes, plan 2–8 Conventional Commits, handle override tokens for protected paths, add invoked-skill IDs to content commits, stage precisely (never git add -A), verify quality gates (pytest), create commits with structured bodies, clean up post-commit token lifecycle, print final summary |
 | session-start | S-77 | Mandatory session initialization gate: read AGENTS.md + CLAUDE.md in full, confirm §2 Read Order and §6b capability assessment method, output SESSION GATE PASSED block before accepting any task |
+| evidence-enhance | S-78 | Improve section evidence coverage on pages that already pass validation (audit.py PASS, grade A/B); thin wrapper around attach_evidence.py --force; evidence-frontmatter-only; never modifies body content; pre-flight audit required; revert-on-failure; use S-72 for validator-blocked pages |
 
 ### Enforcement scripts
 
