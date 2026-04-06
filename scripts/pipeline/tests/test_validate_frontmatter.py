@@ -107,9 +107,9 @@ class TestDuplicateKeys:
         """)
         try:
             errors = check_file(p)
-            # Filter out provenance_validity warnings — this test only checks for no hard errors
-            hard_errors = [e for e in errors if e.severity == "error"]
-            assert hard_errors == []
+            # Filter out provenance_validity errors — this test only checks for structural errors
+            structural_errors = [e for e in errors if e.severity == "error" and e.check != "provenance_validity"]
+            assert structural_errors == []
         finally:
             p.unlink(missing_ok=True)
 
@@ -494,7 +494,7 @@ class TestMissingContentOriginWarning:
             errors = check_file(p)
             pv = [e for e in errors if e.check == "provenance_validity" and "content_origin is missing" in e.detail]
             assert len(pv) == 1, f"Expected 1 missing-content_origin warning, got: {pv}"
-            assert pv[0].severity == "warning"
+            assert pv[0].severity == "error"
         finally:
             p.unlink(missing_ok=True)
 
