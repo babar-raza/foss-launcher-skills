@@ -67,7 +67,6 @@ These scripts have a `if __name__ == "__main__"` block. Invoke them directly.
 
 | Script | Purpose |
 |--------|---------|
-| `check_audit_results.py` | Validate audit result JSON files |
 | `check_knowledge_completeness.py` | Check for missing knowledge artifacts |
 | `check_locale_topology.py` | Check locale directory topology consistency |
 | `normalize_yaml_style.py` | Normalize YAML formatting in knowledge files |
