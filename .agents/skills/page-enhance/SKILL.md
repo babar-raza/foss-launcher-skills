@@ -93,7 +93,15 @@ Enhance a page that scores below the quality bar (grade C or below from S-17/S-2
     python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json
     ```
 
-12. **Report**:
+12. **Update provenance**: After writing enhanced content, update the provenance mechanism:
+    ```python
+    from provenance import update_mechanism
+    from pathlib import Path
+    update_mechanism(Path("{relative-file-path}"), "page-enhance")
+    ```
+    The `content_hash` will be normalized automatically by the pre-commit hook — do not compute or pass it here.
+
+13. **Report**:
     ```
     PAGE ENHANCE — {file-path}
     Before: Grade [X] ([score]/100)

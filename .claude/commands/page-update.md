@@ -59,7 +59,15 @@ After a knowledge refresh (S-14), identify which content pages reference changed
    python scripts/pipeline/audit.py --files {updated-file-path}
    ```
 
-9. **Report**: For each updated page, print:
+9. **Update provenance**: For each file where body content was modified, update the provenance mechanism:
+   ```python
+   from provenance import update_mechanism
+   from pathlib import Path
+   update_mechanism(Path("{updated-file-path}"), "page-update")
+   ```
+   The `content_hash` will be normalized automatically by the pre-commit hook — do not compute or pass it here.
+
+10. **Report**: For each updated page, print:
    ```
    PAGE UPDATE — {file-path}
    Changes applied:
