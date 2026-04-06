@@ -242,5 +242,27 @@ class TestSkillContractPathExistence(unittest.TestCase):
         self.assertEqual(missing, [], "\n".join(missing))
 
 
+class TestScriptRegistration(unittest.TestCase):
+    """Phase G: every root .py in scripts/pipeline/ must be in registry.yaml.
+
+    Runs check_pipeline_registration.py as a subprocess so that the test
+    picks up the same logic as the CI blocking step.
+    """
+
+    def test_registration_check_exits_zero(self):
+        import subprocess
+        result = subprocess.run(
+            ["python", str(REPO_ROOT / "scripts" / "ci" / "check_pipeline_registration.py")],
+            cwd=str(REPO_ROOT),
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(
+            result.returncode, 0,
+            f"check_pipeline_registration.py exited {result.returncode}:\n"
+            f"stdout: {result.stdout}\nstderr: {result.stderr}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
