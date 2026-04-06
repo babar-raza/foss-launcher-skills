@@ -47,7 +47,6 @@ where source repos are not cloned.
 
 > **Snippet limitation (pip-install mode):** Installed packages contain no test directories.
 > `scout.py` will write `snippets_index.json` as `[]` and `snippet_count: 0` in `model.yaml`.
-> `merge.py` will promote 0 scout snippets (FL snippets still promoted if available).
 > To obtain real snippets, run with a cloned source repo that includes `tests/` or `examples/`.
 
 ## Pre-conditions
