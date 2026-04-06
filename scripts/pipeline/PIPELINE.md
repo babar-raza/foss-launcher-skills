@@ -111,8 +111,8 @@ When adding a new `.py` file to `scripts/pipeline/`:
 
 - **Partial migration**: `knowledge_core.py` exists at the pipeline root and `core/knowledge.py` is a re-export shim for it. The intent was to move `knowledge_core` into `core/`, but the migration stalled. Both files exist; do not create a third. The shim (`core/knowledge.py`) means code importing `from core.knowledge import ...` is forward-compatible.
 
-- **Flat root size**: 69 files at one level makes discovery harder than ideal. A future sprint may separate entry-point scripts from library modules via sub-packages (`kilocode/`, `ops/`) — but this requires updating skill files, CI, and all hook scripts simultaneously. Track B in the restructuring plan covers this.
+- **Flat root size**: 69 files at one level is intentional for this codebase. A namespace sub-package refactor (`kilocode/`, `ops/`) was considered (Track B) and closed: the registry's `owner_domain` field already provides logical grouping, and moving CLI entrypoints into sub-packages adds shim complexity with no operational benefit. Do not reopen this unless there is a concrete correctness or testability argument.
 
-- **Strict frontmatter variant**: `normalize_yaml_style.py` and `validate_product_yaml.py` use a strict `\n---\s*\n` closing-fence pattern vs. the tolerant `\n---\s*(?:\n|$)` in `core/markdown.py`. Consolidation is deferred to phase-A2b pending a behavioral verification test.
+- **Strict frontmatter variant** (resolved — Phase A2b, 2026-04-06): `normalize_yaml_style.py` and `validate_product_yaml.py` previously used a strict `\n---\s*\n` closing-fence pattern that silently skipped files ending with `---` at EOF. Both files now use `split_frontmatter()` / `extract_frontmatter_body()` from `core/markdown.py` (tolerant `(?:\n|$)`). Behavioral tests in `test_normalize_yaml_style.py` and `test_validate_product_yaml.py` document and prove the fix.
 
 - **Test coverage**: All pipeline tests now live in `scripts/pipeline/tests/`. Run via `pytest scripts/pipeline/tests/ -q`.
