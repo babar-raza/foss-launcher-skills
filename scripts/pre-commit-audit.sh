@@ -125,6 +125,9 @@ fi
 # modified files so the commit includes the corrected hash.
 # Non-blocking: hash normalization is mechanical (analogous to auto-formatting).
 # Note: this may add provenance-only frontmatter changes to the staged diff.
+# Scope: all content/*/en/ sites.  websites.aspose.org hub pages (_index.md)
+# lack provenance by design — they are navigation pages outside the content
+# quality pipeline (no grade, evidence, or staleness tracking expected).
 if [ ${#changed[@]} -gt 0 ]; then
     _tmpfile5=$(mktemp /tmp/hash-norm-XXXXXX.txt 2>/dev/null || mktemp)
     printf '%s\n' "${changed[@]}" > "$_tmpfile5"
