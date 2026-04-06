@@ -769,7 +769,7 @@ Use this matrix to decide what action is required when a specific artifact or sc
 | `content/` page changed | Run S-23 (content-check) + audit.py + attach_evidence.py | Per file |
 | `knowledge/{family}/{platform}/merged/*.json` updated | Re-run attach_evidence.py for affected product | Per product |
 | `skills/*.md` skill file changed | Test with 1 representative run; verify post-conditions fire correctly | Per skill |
-| `scripts/pipeline/path_guard.py` changed | Run `pytest scripts/tests/test_path_guard.py` — must exit 0 | Self-test |
+| `scripts/pipeline/path_guard.py` changed | Run `pytest scripts/pipeline/tests/test_path_guard.py` — must exit 0 | Self-test |
 | `AGENTS.md` changed | Verify CLAUDE.md §6 alignment (see CLAUDE.md alignment note) | Self |
 
 **Manual edit after content-only change**: Use S-73 (manual-edit) → re-run S-23 + audit.py. Do not re-run knowledge bootstrap unless `stale_since` is set — content-only edits do not require knowledge regeneration.
