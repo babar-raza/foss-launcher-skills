@@ -25,11 +25,7 @@ if str(_HERE) not in sys.path:
 
 from core.fs import atomic_write  # noqa: E402
 
-# Matches the full frontmatter block: opening ---, content, closing ---
-# The closing fence accepts \n or end-of-string so files without a trailing
-# newline after the last --- are still detected (avoids false "no frontmatter"
-# that would cause the prepend path to fire and produce double frontmatter).
-_FRONTMATTER_RE = re.compile(r"^(---\s*\n)(.*?)(\n---\s*(?:\n|$))", re.DOTALL)
+from core.markdown import _FRONTMATTER_WRITER_RE as _FRONTMATTER_RE
 
 # Matches the evidence: key and all its indented child lines.
 # Anchored at start-of-line (MULTILINE). Stops at the first line that starts

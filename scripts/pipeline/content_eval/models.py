@@ -11,9 +11,9 @@ from typing import Any
 import yaml
 
 # ---------------------------------------------------------------------------
-# Frontmatter regex (same as audit.py)
+# Frontmatter regex (canonical definition in core.markdown)
 # ---------------------------------------------------------------------------
-_FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
+from core.markdown import _FRONTMATTER_READER_RE as _FRONTMATTER_RE
 _CODE_FENCE_RE = re.compile(r"^```(\w*)")
 _HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)")
 

@@ -5,7 +5,8 @@ Modules in this package:
 - models.py:       Unified Finding frozen dataclass with stable deterministic id
 - fs.py:           atomic_write, file_hash — safe file mutations
 - manifest.py:     write_step_manifest, check_step_complete — pipeline run state
-- markdown.py:     _FRONTMATTER_READER_RE, _FRONTMATTER_WRITER_RE, parse_frontmatter
+- markdown.py:     _FRONTMATTER_READER_RE, _FRONTMATTER_WRITER_RE, parse_frontmatter,
+                   extract_frontmatter_body, split_frontmatter
 - knowledge.py:    Re-export shim over knowledge_core (enables `from core.knowledge import X`)
 - clone_cache.py:  Internal FOSS repo clone cache — cache_root, clone_path, clone_exists,
                    clone_head_sha, ensure_clone.  No dependency on foss-launcher.

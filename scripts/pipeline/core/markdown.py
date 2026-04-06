@@ -41,6 +41,20 @@ _HEADING_RE = re.compile(r"^#{1,6}\s+(.+)$", re.MULTILINE)
 _CODE_FENCE_RE = re.compile(r"^```(\w*)\n(.*?)^```", re.DOTALL | re.MULTILINE)
 
 
+def extract_frontmatter_body(text: str) -> str | None:
+    """Return the raw YAML body between --- fences, or None if absent."""
+    m = _FRONTMATTER_READER_RE.match(text)
+    return m.group(1) if m else None
+
+
+def split_frontmatter(text: str) -> tuple[str, str, str] | None:
+    """Split text into (opening_fence, yaml_body, closing_fence) or None."""
+    m = _FRONTMATTER_WRITER_RE.match(text)
+    if not m:
+        return None
+    return m.group(1), m.group(2), m.group(3)
+
+
 def parse_frontmatter(filepath: Path) -> dict[str, Any]:
     """Extract YAML frontmatter dict from a markdown file.
 
