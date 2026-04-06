@@ -31,7 +31,6 @@ class TestCanonicalSkillContracts(unittest.TestCase):
         self.assertIn("scripts/pipeline/enrich.py", text)
         self.assertIn("scripts/pipeline/promote.py", text)
         self.assertIn("scripts/pipeline/index.py", text)
-        self.assertNotIn("scripts/pipeline/merge.py", text)
 
     def test_truth_index_uses_pipeline_index_script(self):
         text = read_text("skills/truth-index.md")
@@ -49,7 +48,6 @@ class TestCanonicalSkillContracts(unittest.TestCase):
         self.assertIn("python enrich.py", text)
         self.assertIn("python promote.py", text)
         self.assertIn("python index.py", text)
-        self.assertNotIn("python merge.py", text)
         self.assertNotIn("truth-sync", text)
 
     def test_knowledge_enrich_exists(self):
@@ -92,7 +90,6 @@ class TestWrapperInventory(unittest.TestCase):
             with self.subTest(rel_path=rel_path):
                 text = read_text(rel_path)
                 self.assertNotIn("/truth-sync", text)
-                self.assertNotIn("python merge.py", text)
                 self.assertNotIn("python scripts/index.py", text)
                 self.assertNotIn("<!-- evidence:", text)
 

@@ -43,7 +43,6 @@ These scripts have a `if __name__ == "__main__"` block. Invoke them directly.
 | `enrich.py` | LLM knowledge enrichment | knowledge-enrich skill |
 | `index.py` | Knowledge index generation | truth-index skill, `refresh_knowledge.py` |
 | `link_validator.py` | Internal link validation | link-validate skill |
-| `merge.py` | Dual-source knowledge merge (scout + FL) | truth-merge skill, `refresh_knowledge.py` |
 | `no_downgrade_guard.py` | Grade downgrade protection guard | no-downgrade-guard (internal skill) |
 | `override_manager.py` | Forbidden-path override token lifecycle (`create` / `validate-for-path` / `consume`) | pre-commit hook, post-commit hook, CI |
 | `path_guard.py` | Forbidden write path enforcement oracle | pre-commit hook, CLAUDE.md (protected) |
@@ -68,7 +67,6 @@ These scripts have a `if __name__ == "__main__"` block. Invoke them directly.
 
 | Script | Purpose |
 |--------|---------|
-| `absorb_fl_claims.py` | Absorb FOSS Launcher claims into knowledge |
 | `check_audit_results.py` | Validate audit result JSON files |
 | `check_knowledge_completeness.py` | Check for missing knowledge artifacts |
 | `check_locale_topology.py` | Check locale directory topology consistency |
