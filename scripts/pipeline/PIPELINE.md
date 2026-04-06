@@ -1,6 +1,6 @@
 # pipeline/ — Entry Points vs. Library Modules
 
-`scripts/pipeline/` is the core content pipeline. Its root directory contains ~48 Python files at a flat level. This document classifies every file so maintainers know at a glance what to call vs. what to import.
+`scripts/pipeline/` is the core content pipeline. Its root directory contains **69 Python files** at a flat level (tracked in `registry.yaml`; rendered to `INVENTORY.md`). This document classifies every file so maintainers know at a glance what to call vs. what to import.
 
 ## PYTHONPATH note
 
@@ -94,8 +94,25 @@ These files have **no `__main__` block**. They are utility modules meant to be i
 | `provenance.py` | Provenance data model and helpers (used by `provenance_backfill.py` and `audit/`) |
 | `token_ops.py` | Token extraction and verification utilities; imported by `knowledge_core.py` and `content_eval/` |
 
+## New File Protocol
+
+When adding a new `.py` file to `scripts/pipeline/`:
+
+1. Determine `kind` and `lifecycle` from the registry schema in `registry.yaml`
+2. Add an entry to `scripts/pipeline/registry.yaml`
+3. Run `python scripts/ci/render_inventory.py` → regenerates `INVENTORY.md`
+4. If `kind=entrypoint` and `cli_contract=stable`: add or update the skill CONTRACT tag
+5. If `kind=entrypoint`: create `scripts/pipeline/tests/test_{name}.py`
+6. If skills changed: run `sync_providers.py` in a **separate commit** scoped to those files
+7. Run `python scripts/ci/check_pipeline_path_integrity.py` → must exit 0
+8. Run `python scripts/ci/check_pipeline_registration.py` → must exit 0 (once Phase G is complete)
+
 ## Known technical debt
 
 - **Partial migration**: `knowledge_core.py` exists at the pipeline root and `core/knowledge.py` is a re-export shim for it. The intent was to move `knowledge_core` into `core/`, but the migration stalled. Both files exist; do not create a third. The shim (`core/knowledge.py`) means code importing `from core.knowledge import ...` is forward-compatible.
 
-- **Flat root size**: ~48 files at one level makes discovery harder than ideal. A future sprint should separate entry-point scripts from library modules into `bin/` vs `lib/` subdirectories — but this requires updating 47+ skill files, CI, and all hook scripts simultaneously. Do not attempt this as a side task.
+- **Flat root size**: 69 files at one level makes discovery harder than ideal. A future sprint may separate entry-point scripts from library modules via sub-packages (`kilocode/`, `ops/`) — but this requires updating skill files, CI, and all hook scripts simultaneously. Track B in the restructuring plan covers this.
+
+- **Strict frontmatter variant**: `normalize_yaml_style.py` and `validate_product_yaml.py` use a strict `\n---\s*\n` closing-fence pattern vs. the tolerant `\n---\s*(?:\n|$)` in `core/markdown.py`. Consolidation is deferred to phase-A2b pending a behavioral verification test.
+
+- **Test coverage**: All pipeline tests now live in `scripts/pipeline/tests/`. Run via `pytest scripts/pipeline/tests/ -q`.

@@ -217,6 +217,20 @@ python scripts/pipeline/remediate.py fix reports/content_eval/eval-*.json
 | Evaluator exception in content_eval | Unexpected page structure | Check stderr; evaluator errors emit WARN findings |
 | `No clone_url in products.json` | Registry not populated | Run `update_product_registry.py --token` |
 
+## Script Inventory
+
+All root `.py` scripts in `scripts/pipeline/` (currently **69 files**) are tracked in
+`scripts/pipeline/registry.yaml`. A human-readable view is generated from the registry:
+
+```bash
+python scripts/ci/render_inventory.py     # validates + regenerates INVENTORY.md
+python scripts/ci/render_inventory.py --check   # validate only
+```
+
+> **Do not edit `INVENTORY.md` directly.** Edit `registry.yaml` and regenerate.
+
+When adding a new script, follow the New File Protocol in `PIPELINE.md`.
+
 ## Notes for Agents
 
 - Always run pipeline scripts from the **repo root** (not from `scripts/pipeline/`)
