@@ -187,5 +187,60 @@ class TestS12Completeness(unittest.TestCase):
                 )
 
 
+class TestSkillContractPathExistence(unittest.TestCase):
+    """Phase F: every scripts/pipeline/ path referenced in skills/CI/docs must exist."""
+
+    _PATH_RE = __import__("re").compile(r"scripts/(?:pipeline|tests/pipeline)/[\w./]+\.py")
+
+    def _missing_refs(self, text: str, source_label: str) -> list[str]:
+        missing = []
+        for lineno, line in enumerate(text.splitlines(), 1):
+            for m in self._PATH_RE.finditer(line):
+                p = REPO_ROOT / m.group()
+                if not p.exists():
+                    missing.append(f"{source_label}:{lineno} → {m.group()}")
+        return missing
+
+    def test_contract_tags_in_skills_exist(self):
+        skills_dir = REPO_ROOT / "skills"
+        all_missing: list[str] = []
+        for skill_file in sorted(skills_dir.glob("*.md")):
+            text = skill_file.read_text(encoding="utf-8", errors="ignore")
+            for lineno, line in enumerate(text.splitlines(), 1):
+                if "CONTRACT:" in line:
+                    for m in self._PATH_RE.finditer(line):
+                        p = REPO_ROOT / m.group()
+                        if not p.exists():
+                            all_missing.append(
+                                f"skills/{skill_file.name}:{lineno} → {m.group()}"
+                            )
+        self.assertEqual(all_missing, [], "\n".join(all_missing))
+
+    def test_ci_workflow_paths_exist(self):
+        ci_yml = REPO_ROOT / ".github" / "workflows" / "content-audit.yml"
+        if not ci_yml.exists():
+            self.skipTest("content-audit.yml not found")
+        text = ci_yml.read_text(encoding="utf-8", errors="ignore")
+        missing = self._missing_refs(text, ".github/workflows/content-audit.yml")
+        self.assertEqual(missing, [], "\n".join(missing))
+
+    def test_pipeline_docs_paths_exist(self):
+        all_missing: list[str] = []
+        for doc in ["scripts/pipeline/README.md", "scripts/pipeline/PIPELINE.md"]:
+            p = REPO_ROOT / doc
+            if p.exists():
+                text = p.read_text(encoding="utf-8", errors="ignore")
+                all_missing.extend(self._missing_refs(text, doc))
+        self.assertEqual(all_missing, [], "\n".join(all_missing))
+
+    def test_commit_skill_paths_exist(self):
+        commit_md = REPO_ROOT / "skills" / "commit.md"
+        if not commit_md.exists():
+            self.skipTest("skills/commit.md not found")
+        text = commit_md.read_text(encoding="utf-8", errors="ignore")
+        missing = self._missing_refs(text, "skills/commit.md")
+        self.assertEqual(missing, [], "\n".join(missing))
+
+
 if __name__ == "__main__":
     unittest.main()
