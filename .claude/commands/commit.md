@@ -199,10 +199,7 @@ junk files, or files that belong to a different logical commit.
 Before creating any commit, run:
 
 ```bash
-.venv/Scripts/python -m pytest scripts/tests/ scripts/pipeline/tests/ -q \
-  --ignore=scripts/tests/gap_eval \
-  --ignore=scripts/tests/pipeline/test_site_planner.py \
-  --ignore=scripts/tests/pipeline/test_site_planner_update.py
+.venv/Scripts/python -m pytest scripts/pipeline/tests/ -q
 ```
 
 **Interpret results**:
@@ -214,7 +211,7 @@ Before creating any commit, run:
 
 Record the result in the commit body:
 ```
-Verification: pytest scripts/tests/ -q → 927 passed, 2 expected pre-commit failures
+Verification: pytest scripts/pipeline/tests/ -q → 927 passed, 2 expected pre-commit failures
 ```
 
 ---
