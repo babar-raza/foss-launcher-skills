@@ -145,11 +145,13 @@ fi
 for staged_file in "${changed[@]}"; do
     if [ ! -f "$staged_file" ]; then continue; fi
     # Read current last_mechanism from the working copy
+    # Pass file path via sys.argv to avoid shell quoting issues with
+    # single quotes or special characters in file paths.
     current_mech=$(python -c "
 import sys; sys.path.insert(0, 'scripts/pipeline')
 from provenance import read_provenance, compute_content_hash
 from pathlib import Path
-p = Path('$staged_file')
+p = Path(sys.argv[1])
 prov = read_provenance(p)
 if prov:
     stored = prov.get('content_hash', '')
@@ -158,7 +160,7 @@ if prov:
         sys.exit(0)  # hash matches — no body change
     mech = prov.get('last_mechanism', '')
     print(mech)
-" 2>/dev/null)
+" "$staged_file" 2>/dev/null)
     if [ -z "$current_mech" ]; then continue; fi
     # Compare with HEAD version
     head_mech=$(git show HEAD:"$staged_file" 2>/dev/null | python -c "
