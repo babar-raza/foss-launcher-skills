@@ -101,11 +101,13 @@ class TestSkillFirstAwareness(unittest.TestCase):
     """Drift-detection tests: entry-point files must reference §6a/§6b and capability states.
 
     These tests catch drift when AGENTS.md §6a/§6b are updated but entry-point files
-    are not updated to match. Fail here = update CLAUDE.md, CODEX.md, or governance.md.
+    are not updated to match. Fail here = update CODEX.md or governance.md.
+
+    CLAUDE.md was refactored to a "Session Gate" (no operational rules; all governance
+    lives in AGENTS.md). It is intentionally excluded from this drift-detection list.
     """
 
     ENTRY_POINTS = [
-        "CLAUDE.md",
         "CODEX.md",
         ".kilocode/rules-code/governance.md",
     ]
