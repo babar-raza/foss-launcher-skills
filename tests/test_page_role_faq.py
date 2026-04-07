@@ -234,3 +234,98 @@ class TestExistingRulesUnchanged:
         findings = _EVALUATOR.evaluate(page, knowledge=None)
         h2_warns = [f for f in findings if "question headings" in f.message and f.level == "WARN"]
         assert not h2_warns, "Rule 2 must not fire when h2_count >= 3"
+
+
+# ---------------------------------------------------------------------------
+# Rule 4 — bold-format FAQ pages without faq.list must emit WARN QA
+# ---------------------------------------------------------------------------
+
+def _rule4_warns(findings: list[Finding]) -> list[Finding]:
+    """Return only Rule-4 WARN findings (H3 headings absent, no faq.list)."""
+    return [
+        f for f in findings
+        if f.level == "WARN" and f.category == "QA" and "H3" in f.message
+    ]
+
+
+class TestFaqNoH3WithoutFaqListEmitsWarn:
+    """Rule 4: FAQ page with no faq.list AND no H3 headings must emit WARN QA.
+
+    Root-cause context (secondary defect class):
+        3d/java, 3d/net, email/net, and email/python FAQ pages were generated
+        with **bold** question format instead of ### H3 headings. Content renders
+        (not invisible) but lacks semantic heading structure. Rule 3 does not
+        catch these because they have no faq.list. Rule 4 fills this gap.
+    """
+
+    def test_bold_format_page_no_h3_emits_warn(self):
+        """Bold-format page (no H3, no faq.list) triggers Rule 4 WARN QA."""
+        page = _faq_page(faq_list=None, headings=[
+            Heading(level=2, text="Installation", line_no=10),
+            Heading(level=2, text="API Usage", line_no=20),
+            Heading(level=2, text="Limitations", line_no=30),
+        ])
+        findings = _EVALUATOR.evaluate(page, knowledge=None)
+        warns = _rule4_warns(findings)
+        assert warns, (
+            "WARN QA not emitted for FAQ page with 0 H3 headings and no faq.list. "
+            f"All findings: {[f.message for f in findings]}"
+        )
+
+    def test_warn_category_is_qa(self):
+        """Rule 4 finding must use QA category."""
+        page = _faq_page(faq_list=None, headings=[])
+        findings = _EVALUATOR.evaluate(page, knowledge=None)
+        warns = _rule4_warns(findings)
+        assert warns
+        assert all(f.category == "QA" for f in warns)
+
+    def test_warn_level_is_warn_not_fail(self):
+        """Rule 4 is WARN not FAIL — bold-format content is visible, not invisible."""
+        page = _faq_page(faq_list=None, headings=[])
+        findings = _EVALUATOR.evaluate(page, knowledge=None)
+        warns = _rule4_warns(findings)
+        assert warns
+        assert all(f.level == "WARN" for f in warns)
+
+    def test_suggestion_references_new_kb_faq(self):
+        """Rule 4 suggestion must reference /new-kb-faq."""
+        page = _faq_page(faq_list=None, headings=[])
+        findings = _EVALUATOR.evaluate(page, knowledge=None)
+        warns = _rule4_warns(findings)
+        assert warns
+        assert "/new-kb-faq" in warns[0].suggestion
+
+    def test_h3_heading_present_suppresses_rule4(self):
+        """When at least one H3 heading exists, Rule 4 must not fire."""
+        page = _faq_page(faq_list=None, headings=[
+            Heading(level=2, text="Overview", line_no=5),
+            Heading(level=3, text="How do I install?", line_no=10),
+            Heading(level=3, text="How do I save?", line_no=20),
+        ])
+        findings = _EVALUATOR.evaluate(page, knowledge=None)
+        warns = _rule4_warns(findings)
+        assert not warns, (
+            f"Rule 4 must not fire when H3 headings are present; got: {[f.message for f in warns]}"
+        )
+
+    def test_faq_list_with_no_h3_uses_rule3_not_rule4(self):
+        """When faq.list is non-empty and no H3 exists, Rule 3 fires (FAIL RV), not Rule 4."""
+        page = _faq_page(faq_list=_FAQ_ENTRIES, headings=[])
+        findings = _EVALUATOR.evaluate(page, knowledge=None)
+        rule3_fails = _rule3_fails(findings)
+        rule4_warns = _rule4_warns(findings)
+        assert rule3_fails, "Rule 3 must still fire when faq.list non-empty"
+        assert not rule4_warns, (
+            "Rule 4 must NOT fire when faq.list is non-empty (Rule 3 covers that case)"
+        )
+
+    def test_empty_page_no_spurious_rule4(self):
+        """A completely empty FAQ page emits Rule 4 WARN (correct — no H3s, no faq.list)."""
+        # This is expected behavior: even an empty body page gets Rule 4 WARN.
+        page = _faq_page(faq_list=None, headings=[])
+        findings = _EVALUATOR.evaluate(page, knowledge=None)
+        warns = _rule4_warns(findings)
+        # Rule 4 SHOULD fire here — empty page is a valid Rule 4 trigger.
+        # Verify it's only one Rule 4 finding (no duplication).
+        assert len(warns) == 1, f"Expected exactly 1 Rule 4 WARN; got {len(warns)}"

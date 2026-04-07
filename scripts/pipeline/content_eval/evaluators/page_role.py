@@ -257,6 +257,27 @@ class PageRoleEvaluator(BaseEvaluator):
                     ),
                     evaluator=self.name,
                 ))
+        else:
+            # Rule 4 — body H3 heading requirement (no faq.list present).
+            # Bold-format questions (**Question**) have no semantic heading structure
+            # and are not navigable by screen readers or indexed as questions by search
+            # engines. Rule 3 already covers the faq.list case; this rule catches pages
+            # that use bold text instead of ### headings without any faq.list present.
+            h3_count = sum(1 for h in page.headings if h.level == 3)
+            if h3_count == 0:
+                findings.append(Finding(
+                    level="WARN",
+                    category="QA",
+                    filepath=str(page.filepath),
+                    line_no=1,
+                    message="FAQ page has no `### Question` H3 headings in body",
+                    suggestion=(
+                        "Use `### Question text?` headings (not bold `**text**`) — "
+                        "H3 headings are required for KB template rendering and SEO; "
+                        "regenerate using /new-kb-faq"
+                    ),
+                    evaluator=self.name,
+                ))
 
         return findings
 
