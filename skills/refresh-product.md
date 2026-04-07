@@ -126,7 +126,12 @@ Do not run any subsequent steps. Exit 0.
     - `stale_since` is null in `merged/model.yaml`
     - No content pages cite claim IDs absent from `merged/claims.json`
     - No reference pages exist for classes absent from `merged/api_surface.json`
-    - All changed pages pass `audit.py`
+    - `stale_detect.py` reports 0 stale pages (end-state proxy for page freshness)
+
+    Note: `audit.py` is NOT re-run per-page during `--verify`; it is already enforced
+    by S-20 and S-23 during the chain. `stale_detect.py` is the correct end-state proxy:
+    pages with audit failures leave their `model_sha` stale (Check 4) or produce orphaned
+    claim citations (Check 2), both of which are caught above.
 
     **If verification fails**: do NOT proceed to Step 14. Fix the reported issues and re-run
     the failing sub-steps, then re-run `--verify`. Commit only after verification passes.
