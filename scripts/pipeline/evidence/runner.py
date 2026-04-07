@@ -16,13 +16,13 @@ _HERE = Path(__file__).resolve().parent.parent
 if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
 
-from knowledge_core import (  # noqa: E402
-    Knowledge,
+from knowledge_core import Knowledge  # noqa: E402
+from content_discovery import (  # noqa: E402  (R-1b: was knowledge_core)
     discover_content,
     discover_products,
     infer_product,
-    parse_frontmatter,
 )
+from core.markdown import parse_frontmatter  # noqa: E402  (R-2a: was knowledge_core)
 from token_ops import (  # noqa: E402
     extract_tokens,
     verify_tokens,

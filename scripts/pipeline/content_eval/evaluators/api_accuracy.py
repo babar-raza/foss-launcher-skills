@@ -30,7 +30,8 @@ from . import BaseEvaluator
 _HERE = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(_HERE))
 
-from knowledge_core import Knowledge, verify_evidence  # noqa: E402
+from knowledge_core import Knowledge  # noqa: E402
+from evidence_verifier import verify_evidence  # noqa: E402  (R-3b: was knowledge_core)
 from token_ops import extract_tokens, verify_tokens  # noqa: E402
 
 

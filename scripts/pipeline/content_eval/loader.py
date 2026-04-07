@@ -16,7 +16,7 @@ _HERE = Path(__file__).resolve().parent.parent
 if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
 
-from knowledge_core import (  # noqa: E402
+from content_discovery import (  # noqa: E402  (R-1b/R-4: was knowledge_core)
     LOCALE_RE,
     PLATFORM_MAP,
     PLATFORM_RMAP,

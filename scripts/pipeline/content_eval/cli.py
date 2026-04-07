@@ -305,7 +305,7 @@ def _run_grade_summary(args):
     _HERE_gs = Path(__file__).resolve().parent.parent
     if str(_HERE_gs) not in sys.path:
         sys.path.insert(0, str(_HERE_gs))
-    from knowledge_core import discover_content, discover_products  # noqa: E402
+    from content_discovery import discover_content, discover_products  # noqa: E402  (R-1b)
     from grade_writer import read_grade as _read_grade  # noqa: E402
 
     if args.product:

@@ -20,7 +20,7 @@ if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
 
 from token_ops import Finding  # noqa: E402
-from knowledge_core import _FRONTMATTER_RE  # noqa: E402
+from core.markdown import _FRONTMATTER_RE  # noqa: E402  (was: knowledge_core — R-0b cleanup)
 
 
 _MD_LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)]+)\)")

@@ -13,9 +13,14 @@ stays in ``knowledge_core.py`` where it can freely import siblings.
 
 Usage::
 
-    # Either of these works:
-    from knowledge_core import Knowledge, discover_content
-    from core.knowledge import Knowledge, discover_content
+    # Canonical imports (post R-1b / R-3b):
+    from knowledge_core import Knowledge          # loader
+    from content_discovery import discover_content, discover_products, infer_product
+    from evidence_verifier import verify_evidence
+    from core.markdown import parse_frontmatter
+
+    # Or via this shim (re-exports all of the above):
+    from core.knowledge import Knowledge, discover_content, verify_evidence
 """
 from __future__ import annotations
 
@@ -33,13 +38,17 @@ from knowledge_core import (  # noqa: E402
     PLATFORM_RMAP,
     SITE_PATHS,
     LOCALE_RE,
-    _FRONTMATTER_RE,
     Knowledge,
+)
+from content_discovery import (  # noqa: E402  (R-1b: was knowledge_core)
     discover_content,
     discover_products,
     infer_product,
-    parse_frontmatter,
-    verify_evidence,
+)
+from evidence_verifier import verify_evidence  # noqa: E402  (R-3b: was knowledge_core)
+from core.markdown import (  # noqa: E402
+    _FRONTMATTER_RE,  # R-0b: bypass knowledge_core alias
+    parse_frontmatter,  # R-2b: was knowledge_core
 )
 
 __all__ = [

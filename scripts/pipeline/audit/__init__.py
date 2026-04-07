@@ -41,7 +41,9 @@ _HERE = Path(__file__).resolve().parent.parent
 if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
 
-# Re-export knowledge_core and token_ops symbols that audit.py previously exposed
+# Re-export symbols that audit.py previously exposed.
+# R-1b: discover_* now sourced from content_discovery (canonical).
+# R-3b: verify_evidence now sourced from evidence_verifier (canonical).
 from knowledge_core import (  # noqa: E402
     KNOWLEDGE_ROOT,
     PLATFORM_MAP,
@@ -49,13 +51,15 @@ from knowledge_core import (  # noqa: E402
     SITE_PATHS,
     LOCALE_RE,
     Knowledge,
+)
+from content_discovery import (  # noqa: E402  (R-1b: was knowledge_core)
     discover_content,
     discover_products,
     infer_product,
-    parse_frontmatter,
-    verify_evidence,
-    _FRONTMATTER_RE,
 )
+from evidence_verifier import verify_evidence  # noqa: E402  (R-3b: was knowledge_core)
+from core.markdown import parse_frontmatter  # noqa: E402  (R-2b: was knowledge_core)
+# _FRONTMATTER_RE removed from re-exports (R-2b): no external consumers via audit package
 from token_ops import (  # noqa: E402
     PLATFORM_SDK_CLASSES,
     PROPERTY_CHAIN_CLASSES,
@@ -106,7 +110,6 @@ __all__ = [
     "infer_product",
     "parse_frontmatter",
     "verify_evidence",
-    "_FRONTMATTER_RE",
     # token_ops re-exports
     "PLATFORM_SDK_CLASSES",
     "PROPERTY_CHAIN_CLASSES",
