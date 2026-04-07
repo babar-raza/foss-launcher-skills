@@ -116,3 +116,113 @@ When adding a new `.py` file to `scripts/pipeline/`:
 - **Strict frontmatter variant** (resolved — Phase A2b, 2026-04-06): `normalize_yaml_style.py` and `validate_product_yaml.py` previously used a strict `\n---\s*\n` closing-fence pattern that silently skipped files ending with `---` at EOF. Both files now use `split_frontmatter()` / `extract_frontmatter_body()` from `core/markdown.py` (tolerant `(?:\n|$)`). Behavioral tests in `test_normalize_yaml_style.py` and `test_validate_product_yaml.py` document and prove the fix.
 
 - **Test coverage**: All pipeline tests now live in `scripts/pipeline/tests/`. Run via `pytest scripts/pipeline/tests/ -q`.
+
+## knowledge_core.py — Public API Census (R-0a, 2026-04-06)
+
+This census documents every symbol currently exported by `knowledge_core.py`.
+It is the gate for Phase R extractions — do not begin R-1 until this is committed.
+See `test_knowledge_core_api_surface.py` for the machine-verifiable baseline.
+
+| Symbol | Type | Line | External fan-in | Move target | Status |
+|--------|------|------|----------------|-------------|--------|
+| `Knowledge` | class | 64 | 14 (highest fan-in) | stays in `knowledge_core.py` | **never move** |
+| `KNOWLEDGE_ROOT` | constant | 39 | 2 | `core/constants.py` (pending R-0c check) | candidate R-4 |
+| `PLATFORM_MAP` | constant | 44 | 2 | `core/constants.py` | candidate R-4 |
+| `PLATFORM_RMAP` | constant | 45 | 1 | `core/constants.py` | candidate R-4 |
+| `SITE_PATHS` | constant | 48 | 1 | `core/constants.py` | candidate R-4 |
+| `LOCALE_RE` | constant | 57 | 3 | `core/constants.py` | candidate R-4 |
+| `discover_content` | function | 433 | 4 | `content_discovery.py` (R-1) | ready for R-1a |
+| `discover_products` | function | 469 | 4 | `content_discovery.py` (R-1) | ready for R-1a |
+| `infer_product` | function | 451 | 3 | `content_discovery.py` (R-1) | ready for R-1a |
+| `parse_frontmatter` | function | 490 | 3 | remove; redirect to `core.markdown` | R-2 |
+| `verify_evidence` | function | 502 | 3 | `evidence_verifier.py` (R-3) | ready for R-3a |
+| `_FRONTMATTER_RE` | private re-import | 487 | 2 | remove alias; update `audit/links.py` | R-0b (deferred) |
+| `diff` | function | 584 | 0 (tests only) | stays in `knowledge_core.py` | **never move** |
+
+**Notes:**
+- `_FRONTMATTER_RE` is itself a re-import: `from core.markdown import _FRONTMATTER_READER_RE as _FRONTMATTER_RE`. The alias should be removed once `audit/links.py` and `core/knowledge.py` import from `core.markdown` directly (R-0b, separate sprint).
+- `parse_frontmatter` is a thin wrapper around `core.markdown._FRONTMATTER_RE` — essentially a duplicate. Direct consumers should use `core.markdown.parse_frontmatter` (R-2).
+- Constants (`PLATFORM_MAP`, `PLATFORM_RMAP`) are intentionally empty dicts (API compatibility). Move only if R-0c circular import check passes.
+
+**Import site count by file (non-test):**
+
+| File | Symbols imported |
+|------|----------------|
+| `audit/__init__.py` | `Knowledge`, `discover_content`, `discover_products`, `infer_product`, `parse_frontmatter`, `verify_evidence` |
+| `audit/links.py` | `_FRONTMATTER_RE` |
+| `audit/runner.py` | `Knowledge`, `discover_content`, `discover_products`, `infer_product`, `parse_frontmatter`, `verify_evidence` |
+| `change_guard.py` | `Knowledge`, `PLATFORM_MAP` |
+| `check_grade_downgrade.py` | `LOCALE_RE` |
+| `check_grade_presence.py` | `LOCALE_RE`, `discover_content`, `discover_products` |
+| `content_audit.py` | `Knowledge`, `discover_content`, `discover_products`, `infer_product`, `PLATFORM_MAP` |
+| `content_eval/cli.py` | `Knowledge`, `discover_content`, `discover_products` |
+| `content_eval/evaluators/api_accuracy.py` | `Knowledge`, `verify_evidence` |
+| `content_eval/loader.py` | `Knowledge`, `discover_content`, `discover_products`, `infer_product` |
+| `core/knowledge.py` | `KNOWLEDGE_ROOT`, `PLATFORM_MAP`, `PLATFORM_RMAP`, `SITE_PATHS`, `LOCALE_RE`, `_FRONTMATTER_RE`, `Knowledge`, `discover_content`, `discover_products`, `infer_product`, `parse_frontmatter`, `verify_evidence` |
+| `evidence/mapper.py` | `KNOWLEDGE_ROOT` |
+| `evidence/runner.py` | `Knowledge`, `discover_content`, `discover_products`, `infer_product`, `parse_frontmatter`, `verify_evidence` |
+| `no_downgrade_guard.py` | `Knowledge`, `infer_product`, `parse_frontmatter`, `verify_evidence` |
+| `stale_detect.py` | `Knowledge`, `LOCALE_RE`, `parse_frontmatter` |
+| `token_ops.py` | `Knowledge` |
+
+## Maintainer Navigation Guide
+
+| If you need to… | Start here | Run after change |
+|-----------------|-----------|-----------------|
+| Change knowledge loading / model access | `knowledge_core.py` | full pytest (21 consumers) |
+| Change content file discovery | `knowledge_core.py` (→ `content_discovery.py` after R-1) | full pytest |
+| Change evidence validation | `knowledge_core.py` (→ `evidence_verifier.py` after R-3) | full pytest |
+| Change pre-write content gate | `change_guard.py` | `test_change_guard.py` |
+| Change post-write audit | `audit.py` → `audit/` package | `test_audit.py` |
+| Change site launch readiness | `site_planner.py`, `launch_gate.py` | `test_site_planner*.py` |
+| Change the embedding pipeline | `embed.py` | `test_embed.py` |
+| Change content evaluation | `content_eval/` (subpackage), `remediate.py` | content_eval test suite |
+| Add a one-shot maintenance utility | `kind=one-shot, lifecycle=maintenance` | set `lifecycle=deprecated` after use |
+| Add a new shared library module | `kind=library` at root; only if 3+ consumers | new `test_*.py` required |
+
+### Owner-domain → canonical file cross-reference
+
+| owner_domain | Canonical entry points |
+|---|---|
+| `content-quality` | `audit.py`, `validate_product_yaml.py`, `validate_frontmatter.py` |
+| `knowledge-pipeline` | `scout.py`, `enrich.py`, `promote.py`, `index.py`, `refresh_knowledge.py` |
+| `content-remediation` | `remediate.py`, `normalize_yaml_style.py` |
+| `content-grading` | `check_grade_downgrade.py`, `check_grade_integrity.py`, `check_grade_presence.py`, `no_downgrade_guard.py` |
+| `content-governance` | `change_guard.py`, `override_manager.py`, `path_guard.py` |
+| `knowledge-infrastructure` | `knowledge_core.py`, `embed.py`, `embed_knowledge.py`, `stale_detect.py` |
+| `governance` | `sync_skills.py`, `skill_run_manager.py`, `smoke_test.py` |
+| `provenance-maintenance` | `provenance_backfill.py` + 15 `kind=one-shot` provenance scripts |
+
+## Governance-Sensitive Files
+
+Changes to these files require extra care — a mistake here affects the entire session or all CI runs:
+
+| File | Why sensitive | Extra step required |
+|------|--------------|---------------------|
+| `registry.yaml` | CI governance source of truth; wrong entry breaks CI | Run `python scripts/ci/render_inventory.py` + `check_pipeline_registration.py` |
+| `override_manager.py` | Write-path bypass token control | Manual review of token lifecycle logic |
+| `scripts/ci/check_pipeline_registration.py` | Self-referential CI check; must self-verify | Run with `--self-check` after any edit |
+| `launch_gate.py` | Pre-launch readiness; false-negative causes bad deploy | Run full launch test suite |
+| `AGENTS.md` | All agent behavior; changes affect every session | Override token required (see `path_guard.py`) |
+
+## Shared Module Rules
+
+These rules govern when to create a new `kind=library` module at root:
+
+- **3+ scripts** need the same function → extract to `kind=library` at root (registered, tested)
+- **2 scripts** need it → duplicate and comment; no module for a single use
+- **Never** create a new `core/` module for logic that depends on `knowledge_core`; `core/` has a zero-dep rule. Only `core/knowledge.py` is grandfathered.
+- **Never** expand `knowledge_core.py`; it is a tracked hotspot (21 fan-in, 661 lines). Pending split in Phase R.
+- New `kind=library` modules must set `requires_test: true` and have a matching `test_*.py` in `tests/`.
+
+## One-Shot Lifecycle Enforcement
+
+One-shot maintenance scripts follow this lifecycle:
+
+1. **Create** with `kind=one-shot, lifecycle=maintenance` — the correct pattern (NOT `lifecycle: one-shot`)
+2. **Execute** the script for its intended one-time operation
+3. **Deprecate** in the same sprint: set `lifecycle=deprecated` in `registry.yaml`
+4. CHECK 5 in `check_pipeline_registration.py` flags `lifecycle=deprecated` entries as advisory reminders
+5. CHECK 1 confirms the file still exists on disk (deprecated entries are kept for reruns)
+
+Do not delete deprecated one-shot scripts — they are retained for audit trail and potential reruns.
