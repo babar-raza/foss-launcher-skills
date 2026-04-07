@@ -1,10 +1,12 @@
 """Tests for audit.runner.verify_faq_structure — faq.list frontmatter FAIL rule.
 
-Four cases:
-  (a) faq.list non-empty + no check_evidence guard bypass concern → FAIL finding
+Cases:
+  (a) faq.list non-empty → FAIL finding
   (b) no faq.list key → no finding
   (c) faq.list present but empty list → no finding
   (d) check fires even when check_evidence=False (via audit_files)
+  (e) audit_product() path wires verify_faq_structure (SR-02)
+  (f) non-dict faq value (faq: true) → no crash, no finding (SR-03)
 """
 import tempfile
 import unittest
@@ -13,7 +15,7 @@ from unittest.mock import MagicMock, patch
 
 # sys.path is set by tests/conftest.py — no manual insert needed here.
 from audit import Finding, verify_faq_structure
-from audit.runner import audit_files
+from audit.runner import audit_files, audit_product
 
 
 # ---------------------------------------------------------------------------
@@ -114,6 +116,17 @@ class TestVerifyFaqStructure(unittest.TestCase):
         findings = verify_faq_structure(fp, fm)
         self.assertEqual(findings, [])
 
+    # (f) non-dict faq value → no crash, no finding (SR-03 guard)
+    def test_faq_true_nondict_returns_empty(self):
+        fp = Path("fake.md")
+        findings = verify_faq_structure(fp, {"faq": True})
+        self.assertEqual(findings, [])
+
+    def test_faq_string_nondict_returns_empty(self):
+        fp = Path("fake.md")
+        findings = verify_faq_structure(fp, {"faq": "unexpected string"})
+        self.assertEqual(findings, [])
+
     # filepath is stored as string in Finding.filepath
     def test_filepath_stored_as_string(self):
         fp = _make_file(_FAQ_LIST_FRONTMATTER)
@@ -169,6 +182,59 @@ class TestAuditFilesFaqGate(unittest.TestCase):
     # regression: empty faq.list, check_evidence=False → no FAIL
     def test_empty_faq_list_no_fail_when_check_evidence_false(self):
         findings = self._run_audit_files_no_evidence(_EMPTY_FAQ_LIST_FRONTMATTER)
+        faq_fails = [f for f in findings if "faq.list" in getattr(f, "message", "")]
+        self.assertEqual(len(faq_fails), 0)
+
+
+# ---------------------------------------------------------------------------
+# TestAuditProductFaqGate — SR-02: audit_product() path wires verify_faq_structure
+# ---------------------------------------------------------------------------
+
+class TestAuditProductFaqGate(unittest.TestCase):
+    """Verify verify_faq_structure is called from audit_product() by mocking
+    discover_content to return a single file with faq.list frontmatter.
+    """
+
+    def test_faq_fail_fires_via_audit_product(self):
+        fp = _make_file(_FAQ_LIST_FRONTMATTER)
+
+        mock_knowledge = MagicMock()
+        mock_knowledge.available = True
+        mock_knowledge.surface_tier = "T1"
+
+        with (
+            patch("audit.runner.Knowledge", return_value=mock_knowledge),
+            patch("audit.runner.discover_content", return_value=[fp]),
+            patch("audit.runner.extract_tokens", return_value=[]),
+            patch("audit.runner.verify_tokens", return_value=[]),
+            patch("audit.runner.verify_evidence", return_value=[]),
+            patch("audit.runner.verify_internal_links", return_value=[]),
+        ):
+            findings = audit_product("cells", "net", check_evidence=False)
+
+        fail_findings = [f for f in findings if f.level == "FAIL" and "faq.list" in f.message]
+        self.assertEqual(
+            len(fail_findings), 1,
+            f"Expected 1 faq.list FAIL via audit_product but got {len(fail_findings)}"
+        )
+
+    def test_clean_page_no_faq_fail_via_audit_product(self):
+        fp = _make_file(_NO_FAQ_FRONTMATTER)
+
+        mock_knowledge = MagicMock()
+        mock_knowledge.available = True
+        mock_knowledge.surface_tier = "T1"
+
+        with (
+            patch("audit.runner.Knowledge", return_value=mock_knowledge),
+            patch("audit.runner.discover_content", return_value=[fp]),
+            patch("audit.runner.extract_tokens", return_value=[]),
+            patch("audit.runner.verify_tokens", return_value=[]),
+            patch("audit.runner.verify_evidence", return_value=[]),
+            patch("audit.runner.verify_internal_links", return_value=[]),
+        ):
+            findings = audit_product("cells", "net", check_evidence=False)
+
         faq_fails = [f for f in findings if "faq.list" in getattr(f, "message", "")]
         self.assertEqual(len(faq_fails), 0)
 

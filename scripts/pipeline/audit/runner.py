@@ -55,7 +55,8 @@ def verify_faq_structure(fp: Path, fm: dict) -> list:
     users. This check enforces that FAQ content lives exclusively in the body as
     ### Question headings.
     """
-    faq_list = fm.get("faq", {}).get("list", [])
+    faq_block = fm.get("faq") or {}
+    faq_list = faq_block.get("list", []) if isinstance(faq_block, dict) else []
     if not faq_list:
         return []
     return [Finding(
