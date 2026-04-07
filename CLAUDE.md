@@ -32,3 +32,22 @@ in AGENTS.md §3 (Mental Model Refresh Protocol).
 | reference.aspose.org | `configs/reference.aspose.org.toml` | `content/reference.aspose.org/en/{family}/{platform}/` |
 
 This table is for orientation only. Path enforcement rules are in AGENTS.md §4.
+
+## Available Commands (Quick Reference)
+
+Skills are invoked as slash commands:
+
+```
+/skill-name {arguments}
+```
+
+| Category | Commands |
+|----------|---------|
+| Knowledge | `/knowledge-update`, `/repo-scout`, `/knowledge-enrich`, `/truth-merge`, `/stale-detect`, `/knowledge-diff` |
+| Generation | `/page-plan`, `/page-draft`, `/faq-generate`, `/new-docs-page`, `/launch-product`, `/batch-reference` |
+| Repair | `/page-update`, `/page-enhance`, `/heal-page`, `/batch-remediate`, `/gap-apply`, `/evidence-repair` |
+| Validation | `/content-check`, `/eval-page`, `/content-eval`, `/gap-eval`, `/content-audit`, `/link-validate` |
+| Operations | `/update-registry`, `/family-sync`, `/translate`, `/getting-started`, `/session-start`, `/commit` |
+
+Full list and argument syntax: `.claude/commands/README.md`
+Authoritative registry: `AGENTS.md §12`
