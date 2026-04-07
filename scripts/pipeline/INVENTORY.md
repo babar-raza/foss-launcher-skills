@@ -3,7 +3,7 @@
 > **Generated file** — do not edit directly.
 > Edit `scripts/pipeline/registry.yaml` and run `python scripts/ci/render_inventory.py`.
 
-Total scripts: **75**
+Total scripts: **78**
 
 ## Content Quality (9 files)
 
@@ -12,7 +12,7 @@ Total scripts: **75**
 | `audit.py` | entrypoint | active | skill/content-check | — | wrapper → audit.runner.main() |
 | `content_audit.py` | entrypoint | active | skill/content-audit | HIGH: 5 mixed responsibilities; tier classification is load-bearing | semantic prose auditor; code blocks delegated to audit.py |
 | `cross_platform_audit.py` | entrypoint | active | skill/cross-platform | — | cross-platform format-support consistency audit |
-| `knowledge_coverage.py` | entrypoint | active | skill/knowledge-coverage-audit | — | per-claim disposition table; 9-state taxonomy; writes reports/coverage/{family}/{platform}/ |
+| `knowledge_coverage.py` | entrypoint | active | skill/coverage-reconcile | — | per-claim disposition table; 9-state taxonomy; writes reports/coverage/{family}/{platform}/ |
 | `run_content_eval.py` | entrypoint | active | skill/content-eval | — | thin wrapper entrypoint for content_eval; enables repo-root invocation without PYTHONPATH |
 | `smoke_test.py` | entrypoint | active | skill/code-smoke | — | code block syntax/type checker; never executes code |
 | `stale_detect.py` | entrypoint | active | skill/stale-detect | — | detect pages with stale evidence relative to knowledge model |
@@ -59,7 +59,6 @@ Total scripts: **75**
 | `check_knowledge_completeness.py` | entrypoint | active | internal | — | called by refresh_knowledge.py:52; checks enrichment_ratio / snippet_ratio |
 | `check_locale_topology.py` | entrypoint | active | internal | — | compare H2 structure between English and locale files |
 | `launch_gate.py` | entrypoint | active | workflow/launch-product | — | pre-launch readiness checker; 8 automated gates (L-01 through L-08) |
-| `launch_rollback.py` | entrypoint | active | skill/launch-rollback | — | revert generated content files for one family/platform; reads site_plan.yaml; dry-run + manifest; protects scripts/, .agents/, knowledge/ paths |
 | `sync_providers.py` | entrypoint | active | internal | — | propagate canonical skills/ to .agents/, .claude/commands/, .kilocode/ trees |
 | `sync_skills.py` | entrypoint | active | workflow/content-audit.yml | — | CI parity check: canonical skills/ must match all provider copies |
 | `translation_coverage.py` | entrypoint | active | workflow/content-audit.yml | — | CI: measure translation coverage across all subdomains |
@@ -77,22 +76,24 @@ Total scripts: **75**
 
 | Script | Kind | Lifecycle | Backing | Change Impact | Notes |
 |--------|------|-----------|---------|---------------|-------|
-| `content_discovery.py` | library | active | internal | 9 indirect consumers via knowledge_core re-exports (R-1a); direct consumers after R-1b | content file discovery: discover_content, discover_products, infer_product — extracted from knowledge_core (R-1a) |
+| `content_discovery.py` | library | active | internal | 9 indirect consumers migrated to canonical imports (R-1b complete) | content file discovery: discover_content, discover_products, infer_product — extracted from knowledge_core (R-1a); consumer migration complete (R-1b) |
 | `knowledge.py` | shim | active | internal/scripts/pipeline/knowledge_core.py | backward-compat re-export shim; update if any canonical module moves a symbol | re-exports 12 symbols from knowledge_core, content_discovery, evidence_verifier, core.markdown; zero production callers as of R-4 |
-| `evidence_verifier.py` | library | active | internal | 4 direct consumers via knowledge_core re-exports (R-3a); will migrate in R-3b | evidence frontmatter validation: verify_evidence — extracted from knowledge_core (R-3a) |
+| `evidence_verifier.py` | library | active | internal | 4 direct consumers migrated to canonical imports (R-3b complete) | evidence frontmatter validation: verify_evidence — extracted from knowledge_core (R-3a); consumer migration complete (R-3b) |
 | `knowledge_core.py` | library | active | internal | 6 import sites (Knowledge class only) — run full pytest after any change | knowledge model loading; all re-exports removed post-R-4; public API: {Knowledge, diff} |
 | `path_utils.py` | library | active | internal | — | shared path rendering utilities; provides repo_rel() |
 | `provenance.py` | library | active | internal | — | read/write provenance metadata in YAML frontmatter |
 | `session_logger.py` | library | active | internal | — | log skill invocations to reports/session-invocations/ |
 
-## Governance (6 files)
+## Governance (8 files)
 
 | Script | Kind | Lifecycle | Backing | Change Impact | Notes |
 |--------|------|-----------|---------|---------------|-------|
+| `launch_rollback.py` | entrypoint | active | skill/launch-rollback | — | S-79: revert one product's generated content files after a flawed launch; reads site_plan.yaml; protects system files |
 | `override_manager.py` | entrypoint | active | internal | — | GOVERNANCE: override token lifecycle; DO NOT MOVE OR RENAME |
 | `path_guard.py` | entrypoint | active | internal | — | GOVERNANCE: forbidden write-path enforcement oracle; DO NOT MOVE OR RENAME |
 | `plan_check.py` | entrypoint | active | internal | — | GOVERNANCE: validate slug exists in site plan before content write |
 | `project_phase_store.py` | entrypoint | active | skill/launch-product | — | GOVERNANCE: checkpoint store for launch orchestration; DO NOT MOVE OR RENAME |
+| `retire_page.py` | entrypoint | active | internal | — | mark content pages as retired via draft:true + retired_at frontmatter; batch mode reads site_plan.yaml; does not delete files |
 | `site_planner.py` | entrypoint | active | skill/site-plan | MEDIUM: 1756 lines; cluster detection mixed with manifest generation; deferred refactor | GOVERNANCE: site manifest generator; DO NOT MOVE OR RENAME |
 | `skill_run_manager.py` | entrypoint | active | internal | — | GOVERNANCE: skill run record management; DO NOT MOVE OR RENAME |
 
@@ -145,3 +146,9 @@ Total scripts: **75**
 | Script | Kind | Lifecycle | Backing | Change Impact | Notes |
 |--------|------|-----------|---------|---------------|-------|
 | `batch_reference.py` | entrypoint | active | skill/batch-reference | — | batch reference page generation from api_surface.json; ERC-* claim fallback when doc empty |
+
+## Knowledge (1 files)
+
+| Script | Kind | Lifecycle | Backing | Change Impact | Notes |
+|--------|------|-----------|---------|---------------|-------|
+| `post_refresh_verify.py` | entrypoint | active | internal | — | post-refresh verification gate and pipeline progress tracker; --step records steps, --verify gates on required steps |

@@ -74,13 +74,15 @@ class TestRefreshNoClone:
 class TestRefreshCurrent:
     def test_returns_current_when_sha_matches(self, tmp_path):
         sha = "abc123deadbeef"
-        with _patch_clone_dir(tmp_path), _patch_head(sha), _patch_model(sha):
+        with _patch_clone_dir(tmp_path), _patch_head(sha), _patch_model(sha), \
+             patch.object(_rk, "_update_clone", return_value=None):
             result = refresh("cells", "python")
         assert result == "current"
 
     def test_current_does_not_call_run(self, tmp_path):
         sha = "abc123deadbeef"
         with _patch_clone_dir(tmp_path), _patch_head(sha), _patch_model(sha), \
+             patch.object(_rk, "_update_clone", return_value=None), \
              patch.object(_rk, "_run") as mock_run:
             refresh("cells", "python")
         mock_run.assert_not_called()
