@@ -16,7 +16,10 @@ capabilities, and rewrites the three text fields to be platform-agnostic.
    in the family and check status:
    - `STOP:partial` → halt (see printed message)
    - Any other status (`READY`, `BOOTSTRAPPED`, `REFRESHED`, `WARN:conflicts`) → continue
-2. Family page must exist with `layout: family` — if missing, run `/new-products-page {family} --layout family` first
+2. Family page must exist at `content/products.aspose.org/en/{family}/_index.md` with `layout: family`.
+   If missing, it is a structural page that must be created manually — `/new-products-page` creates
+   platform product pages (`layout: plugin`), not family pages. Use the existing family page from
+   another product as a template, stripping platform-specific content.
 3. At least 1 platform subdirectory with `_index.md` (layout: plugin) must exist
 4. Each platform should have merged knowledge at `knowledge/{family}/{platform}/merged/`
 
