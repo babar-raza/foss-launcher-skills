@@ -145,10 +145,10 @@ Total scripts: **78**
 
 | Script | Kind | Lifecycle | Backing | Change Impact | Notes |
 |--------|------|-----------|---------|---------------|-------|
-| `batch_reference.py` | entrypoint | active | skill/batch-reference | — | batch reference page generation from api_surface.json; ERC-* claim fallback when doc empty |
+| `batch_reference.py` | entrypoint | active | skill/batch-reference | — | batch reference page generation from api_surface.json; ERC-* claim fallback when doc empty; --update flag regenerates only classes in knowledge_delta.json modified_apis |
 
 ## Knowledge (1 files)
 
 | Script | Kind | Lifecycle | Backing | Change Impact | Notes |
 |--------|------|-----------|---------|---------------|-------|
-| `post_refresh_verify.py` | entrypoint | active | internal | — | post-refresh verification gate and pipeline progress tracker; --step records steps, --verify gates on required steps |
+| `post_refresh_verify.py` | entrypoint | active | internal | — | post-refresh verification gate and pipeline progress tracker; --step records steps, --verify gates on required checks |
