@@ -91,13 +91,35 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False) -> str:
     ok = _write_evidence_to_frontmatter(filepath, evidence)
     if ok:
         # Auto-grade: pages reaching here have 0 FAILs (line 58 returns on FAILs).
-        from content_eval.models import compute_grade  # noqa: E402
+        from content_eval.models import compute_grade, Page  # noqa: E402
         from content_eval import EVALUATOR_LOGIC_VERSION  # noqa: E402
         from grade_writer import write_grade  # noqa: E402
         warn_count = sum(1 for f in findings if f.level == "WARN")
-        grade = compute_grade(0, warn_count)
+        fail_count = 0
+        evaluator_tier = "audit"
+
+        # For reference pages: also run description_completeness to catch empty
+        # description tables. attach_evidence normally uses only verify_tokens()
+        # (audit tier), which checks API accuracy but not content completeness.
+        # Without this, pages with 100% empty description cells grade A because
+        # verify_tokens() finds 0 FAILs when all API names are structurally correct.
+        if "reference.aspose.org" in str(filepath):
+            try:
+                from content_eval.evaluators.description_completeness import (  # noqa: E402
+                    DescriptionCompletenessEvaluator,
+                )
+                page = Page.load(Path(filepath))
+                dc_findings = DescriptionCompletenessEvaluator().evaluate(page, knowledge)
+                fail_count += sum(1 for f in dc_findings if f.level == "FAIL")
+                warn_count += sum(1 for f in dc_findings if f.level == "WARN")
+                if dc_findings:
+                    evaluator_tier = "audit,description_completeness"
+            except Exception:
+                pass  # never block evidence writing on evaluator errors
+
+        grade = compute_grade(fail_count, warn_count)
         write_grade(filepath, grade, model_sha=knowledge.repo_sha,
-                    evaluator_tier="audit", logic_version=EVALUATOR_LOGIC_VERSION)
+                    evaluator_tier=evaluator_tier, logic_version=EVALUATOR_LOGIC_VERSION)
     return "UPDATED" if ok else "ERROR"
 
 
