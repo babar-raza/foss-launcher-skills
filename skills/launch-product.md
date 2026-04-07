@@ -265,12 +265,13 @@ READY TO SHIP if:
   - ALL subdomain translations >= 70% of 36 locales (>= 26 locales each)
 ```
 
-> **Grade calibration — reference pages**: Reference page grades reflect API surface accuracy
-> (format_truth / format_completeness evaluators), not description depth. For FOSS repos that
-> ship without XML docstrings, grade A on reference pages means "no format errors detected" —
-> empty property/method description fields are expected and do not lower the grade. This is
-> correct behaviour. Do NOT treat A-graded reference pages as evidence of prose quality;
-> treat them as evidence of structural and API-accuracy compliance only.
+> **Grade calibration — reference pages**: Reference page grades reflect both API surface accuracy
+> and description completeness (`description_completeness` evaluator runs alongside the audit tier
+> for reference pages). For FOSS repos without XML docstrings, grade **C** is expected and
+> acceptable — it means the API structure is correct but description fields are empty
+> (`description_completeness` FAIL for tables with ≥3 rows). Grade B or above requires non-empty
+> description text from ERC enrichment. Grade **A** is NOT expected for skeleton reference pages
+> from undocumented FOSS repos.
 
 ---
 

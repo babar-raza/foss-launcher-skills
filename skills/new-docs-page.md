@@ -64,10 +64,10 @@ Before generating any content, you MUST:
    - `## {Title}`
    - Opening paragraph: one-sentence purpose statement
    - `---`
-   - `### Prerequisites` — markdown table: Requirement | Detail rows (Python version, OS, compiler, system packages)
+   - `### Prerequisites` — markdown table: Requirement | Detail rows (runtime/compiler version, OS, system packages — resolved from `{platform}`)
    - `---`
    - Numbered steps for the task (install, configure, verify)
-   - Each step: prose explanation + code block (bash or python)
+   - Each step: prose explanation + code block (bash or platform-resolved language)
    - `---`
    - `### Next Steps` — 3–5 links to related getting-started or developer-guide pages using `[Title](../slug/)`
 
@@ -77,7 +77,7 @@ Before generating any content, you MUST:
    - `---`
    - `### {Feature subsection}` blocks — one per major capability or concept, each with:
      - 1–2 prose sentences
-     - Working Python code block
+     - Working code block (language resolved from `{platform}` — see Constraints below)
    - `---`
    - `### Tips and Best Practices` — 3–5 bullet points
    - `---`
@@ -88,7 +88,13 @@ Before generating any content, you MUST:
    - `### API Reference Summary` — markdown table: Class/Method | Description, limited to what you confirmed exists in reference content
 
 6. **Constraints**:
-   - Every code block uses ` ```python ` or ` ```bash ` language identifier
+   - **Code fence language** — resolve from `{platform}` argument (never hardcode `python`):
+     - `python` → ` ```python `, install via `pip install {package-name}`
+     - `net` → ` ```csharp `, install via `dotnet add package {package-name}`
+     - `java` → ` ```java `, install via Maven `<dependency>`
+     - `cpp` → ` ```cpp `, install via CMake FetchContent or vcpkg
+     - `typescript` → ` ```typescript `, install via `npm install {package-name}`
+   - Shell/terminal commands always use ` ```bash `
    - `---` divider between every major section
    - Class names, method names, package paths must exactly match what you read from reference content — no invented API
    - **Internal links within docs.aspose.org**: use relative paths (`../slug/`)
