@@ -1,6 +1,6 @@
 # AGENTS.md — Aspose.org Content Generation & Maintenance Governance
 
-> Last updated: 2026-04-07 (§6e ceiling-reached terminal state); prior: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline)
+> Last updated: 2026-04-07 (§7a translation-staging-order governance rule; §6e ceiling-reached terminal state); prior: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline)
 > Authority: Human maintainer only (see Section 4 — this file is in the forbidden write list)
 
 ## 1. Purpose
@@ -79,7 +79,8 @@ ALLOWED:
   content/docs.aspose.org/en/{family}/{platform}/
   content/blog.aspose.org/{family}/{platform}/
   content/kb.aspose.org/en/{family}/{platform}/
-  content/products.aspose.org/en/{family}/
+  content/products.aspose.org/en/{family}/            (family landing page — layout: family; managed by /family-sync)
+  content/products.aspose.org/en/{family}/{platform}/ (platform product page — layout: plugin; managed by /new-products-page)
   content/reference.aspose.org/en/{family}/{platform}/
   knowledge/   (evidence artifacts and model only)
   reports/     (local-only audit artifacts — agents may write here; NEVER commit to git)
@@ -744,11 +745,20 @@ The following 5 gates require human judgment and cannot be automated:
 
 ### Launch Planning Governance Rules (added 2026-04-07)
 
+**Translation staging rule**: In S-49 (launch-product), translation is a **terminal stage**.
+Stage 6.5 is the **only** translation stage in the launch flow. No translation command may
+run before Stage 6 (truth audit) completes with 0 FAIL. All 5 subdomains (products, docs,
+kb, reference, blog) must be translated in Stage 6.5 — in a single consolidated batch,
+after all English pages across all subdomains have been generated and validated. Any plan
+or skill variant that schedules translation for individual subdomains before Stage 6 is in
+violation of this rule. The only exception is S-84 (refresh-product), where translation
+at Step 11 is content-hash-filtered and runs after content-check and link-validate.
+
 **Translation completeness rule**: For any 5-subdomain launch, all 5 subdomains must be
-translated after Stage 6 (truth audit) passes. The Stage 8 readiness scorecard must report
-per-subdomain locale coverage. `READY TO SHIP` requires >= 70% locale coverage (>= 26 of 36
-locales) across all 5 subdomains — not just the products page. Untranslated subdomains are
-a launch blocker at the same severity as a failing quality gate.
+translated in Stage 6.5 after Stage 6 (truth audit) passes. The Stage 8 readiness scorecard
+must report per-subdomain locale coverage. `READY TO SHIP` requires products >= 80% locale
+coverage (>= 29 of 36 locales) and all other subdomains >= 70% (>= 26 of 36 locales).
+Untranslated subdomains are a launch blocker at the same severity as a failing quality gate.
 
 **Proof-of-mechanism rule**: Any planning statement of the form "derived from X", "generated
 from Y", or "one page per Z" MUST identify the exact skill, script, output file, and threshold
@@ -1335,7 +1345,8 @@ All agent-generated artifact files must be written to their designated location.
 | Path | Purpose |
 |------|---------|
 | `content/docs.aspose.org/en/{family}/{platform}/` | Per-platform documentation pages |
-| `content/products.aspose.org/en/{family}/` | Product landing pages |
+| `content/products.aspose.org/en/{family}/` | Family landing page (layout: `family`) — `/family-sync` |
+| `content/products.aspose.org/en/{family}/{platform}/` | Platform product page (layout: `plugin`) — `/new-products-page` |
 | `knowledge/{family}/{platform}/model.yaml` | Knowledge model + staleness flag |
 | `knowledge/{family}/{platform}/claims.json` | Structured evidence claims |
 | `knowledge/{family}/{platform}/claims.md` | Human-readable claim summary |

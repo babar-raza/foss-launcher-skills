@@ -27,8 +27,10 @@ Plan a page's structure before drafting. Compiles relevant claims from knowledge
    - Blog topic → blog.aspose.org
    - API reference → reference.aspose.org
    - `products`, `_index`, `product-landing` → products.aspose.org
-     Note: products pages are per-family (`content/products.aspose.org/en/{family}/_index.md`).
-     Use `/new-products-page {family} {platform}` instead of page-draft for products pages.
+     Note: Platform product pages live at `content/products.aspose.org/en/{family}/{platform}/_index.md`
+     (layout: `plugin`). Family landing pages at `{family}/_index.md` (layout: `family`) are managed
+     by `/family-sync` — never written by page-draft or new-products-page.
+     Use `/new-products-page {family} {platform}` instead of page-draft for platform product pages.
 
 ## Steps
 

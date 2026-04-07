@@ -45,10 +45,11 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
 
 1. **Parse arguments**: Extract `{family}` and `{platform}` from $ARGUMENTS.
 
-2. **Check if existing products page exists**:
-   - Read `content/products.aspose.org/en/{family}/_index.md` if it exists (read only)
-   - Note: products pages are per-family, not per-platform. If multiple platforms share a
-     family page, generate/update only the `{platform}` section within it.
+2. **Check if existing platform product page exists**:
+   - Read `content/products.aspose.org/en/{family}/{platform}/_index.md` if it exists (read only)
+   - Note: The platform product page (`layout: plugin`) lives at `{family}/{platform}/_index.md`.
+     The family landing page (`layout: family`) at `{family}/_index.md` is managed by `/family-sync`
+     — **do not read or write the family page from this skill**.
    - Invoke **no-downgrade-guard** before writing (see Step 8)
 
 3. **Resolve product metadata** from `scout/model.yaml`:
@@ -88,14 +89,16 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
 9. **Invoke no-downgrade-guard**: Before writing, check if existing page has a higher quality grade.
    If BLOCK → do not write; report to user.
 
-10. **Write** to `content/products.aspose.org/en/{family}/_index.md` using this frontmatter structure:
+10. **Write** to `content/products.aspose.org/en/{family}/{platform}/_index.md` using this frontmatter structure:
     ```yaml
     ---
     title: "{ProductName} FOSS for {Platform display name}"
     description: >
       {plugin_description}
     layout: plugin
+    family_name: "{ProductName} FOSS"
     plugin_name: "{plugin_name}"
+    plugin_platform: "{platform display name per §3b}"
     plugin_description: "{plugin_description}"
     provenance:
       content_origin: skill-generated
@@ -110,10 +113,11 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
     ```
     Followed by the overview, content.block, single.block, and faq.list YAML sections
     in the body (Hugo plugin layout reads these as page params).
+    **Do NOT write to `{family}/_index.md`** — that is the family landing page managed by `/family-sync`.
 
-11. **Attach evidence**: `python scripts/pipeline/attach_evidence.py --files content/products.aspose.org/en/{family}/_index.md`
+11. **Attach evidence**: `python scripts/pipeline/attach_evidence.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
 
-12. **Run audit**: `python scripts/pipeline/audit.py --files content/products.aspose.org/en/{family}/_index.md`
+12. **Run audit**: `python scripts/pipeline/audit.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
     — must exit with 0 FAIL before committing.
 
 ## Hard Constraints
@@ -127,8 +131,10 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
 
 ## Post-conditions
 
-- Products page exists at `content/products.aspose.org/en/{family}/_index.md`
+- Platform product page exists at `content/products.aspose.org/en/{family}/{platform}/_index.md`
 - `layout: plugin` present in frontmatter
+- `family_name`, `plugin_name`, `plugin_platform` fields populated
 - `evidence:` frontmatter block populated by `attach_evidence.py`
 - `audit.py` exits with 0 FAIL
 - No forbidden claims present
+- Family page at `content/products.aspose.org/en/{family}/_index.md` is **NOT modified** by this skill
