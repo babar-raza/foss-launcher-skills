@@ -41,7 +41,7 @@ This is the current replacement for the removed FL enrichment layer.
 2. Verify `knowledge/{family}/{platform}/scout/api_surface.json` exists.
 3. Run:
    ```bash
-   python scripts/pipeline/enrich.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/enrich.py {family} {platform}
    ```
    Optional flags:
    - `--knowledge-root <path>` to override the knowledge root

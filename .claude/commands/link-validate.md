@@ -29,17 +29,17 @@ None. This skill works from the local content directory only.
 ### Step 1: Run validation for one product
 
 ```bash
-python scripts/pipeline/link_validator.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/link_validator.py {family} {platform}
 ```
 
 Or for specific files:
 ```bash
-python scripts/pipeline/link_validator.py --files path/to/file.md
+.venv/Scripts/python scripts/pipeline/link_validator.py --files path/to/file.md
 ```
 
 Or for all content:
 ```bash
-python scripts/pipeline/link_validator.py all
+.venv/Scripts/python scripts/pipeline/link_validator.py all
 ```
 
 ### Step 2: Review BROKEN findings
@@ -60,7 +60,7 @@ For each BROKEN link:
 ### Step 4: JSON output for CI integration
 
 ```bash
-python scripts/pipeline/link_validator.py {family} {platform} --json > reports/link-validation/{family}-{platform}-{timestamp}.json
+.venv/Scripts/python scripts/pipeline/link_validator.py {family} {platform} --json > reports/link-validation/{family}-{platform}-{timestamp}.json
 ```
 
 ## Post-conditions

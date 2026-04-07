@@ -59,7 +59,7 @@ This is safe for unattended runs and skips the LLM fix pass (Step 6).
 3. **Run full evaluation**:
 
    ```bash
-   python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation
    ```
 
    Save the report path (e.g. `reports/content_eval/eval-{timestamp}.json`).
@@ -67,7 +67,7 @@ This is safe for unattended runs and skips the LLM fix pass (Step 6).
 4. **Run triage + auto-fix**:
 
    ```bash
-   python scripts/pipeline/remediate.py fix {eval-report-path}
+   .venv/Scripts/python scripts/pipeline/remediate.py fix {eval-report-path}
    ```
 
    Parse the remediation report to get: fixes applied, LLM queue, human queue.
@@ -104,13 +104,13 @@ This is safe for unattended runs and skips the LLM fix pass (Step 6).
 7. **Run re-evaluation**:
 
    ```bash
-   python -m scripts.pipeline.content_eval evaluate {family} {platform} --write-grade --format json
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate {family} {platform} --write-grade --format json
    ```
 
 8. **Diff reports** to show improvement:
 
    ```bash
-   python -m scripts.pipeline.content_eval diff {old-report} {new-report}
+   .venv/Scripts/python -m scripts.pipeline.content_eval diff {old-report} {new-report}
    ```
 
 9. **Report final summary**:

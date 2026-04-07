@@ -31,7 +31,7 @@ Load `claims.json`, `api_surface.json`, `index.json`, `limitations.md`, `formats
 
 ### Step 5: Detect capability clusters
 ```bash
-python scripts/pipeline/site_planner.py {family} {platform} --detect-clusters
+.venv/Scripts/python scripts/pipeline/site_planner.py {family} {platform} --detect-clusters
 ```
 Each cluster: `name`, `slug`, `claim_count`, `api_method_count`, `snippet_count`, `in_limitations`, `verb`, `slug_convention`.
 

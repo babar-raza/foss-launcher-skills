@@ -38,7 +38,7 @@ Locales may be a comma-separated list (e.g. `fr,de,ar`) or the literal string `a
 
 3. **Run preflight** (mandatory before translation):
    ```bash
-   python -m translator preflight [--provider {auto,llm,ollama,m2m}]
+   .venv/Scripts/python -m translator preflight [--provider {auto,llm,ollama,m2m}]
    ```
    Review the preflight report. Confirm that:
    - A valid backend is selected (no `ERROR` lines in output).
@@ -48,7 +48,7 @@ Locales may be a comma-separated list (e.g. `fr,de,ar`) or the literal string `a
 
 4. **Run the translator**:
    ```bash
-   python -m translator page {src_path} --locales {locales} [--provider {auto,llm,ollama,m2m}]
+   .venv/Scripts/python -m translator page {src_path} --locales {locales} [--provider {auto,llm,ollama,m2m}]
    ```
    - `--provider auto` (default): system selects best available backend automatically.
    - `--provider llm`: force llm.professionalize.com.

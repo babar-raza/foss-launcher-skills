@@ -26,7 +26,7 @@ Convert S-43 gap-eval findings into an exact, wave-ordered remediation plan. Use
 ### Step 1: Classify findings by wave
 
 ```bash
-python scripts/gap-eval/fix_spec.py {family} {platform} --dry-run
+.venv/Scripts/python scripts/gap-eval/fix_spec.py {family} {platform} --dry-run
 ```
 
 This shows the wave breakdown without writing files. Review wave assignments before proceeding.
@@ -34,7 +34,7 @@ This shows the wave breakdown without writing files. Review wave assignments bef
 ### Step 2: Generate full remediation plan
 
 ```bash
-python scripts/gap-eval/fix_spec.py {family} {platform}
+.venv/Scripts/python scripts/gap-eval/fix_spec.py {family} {platform}
 ```
 
 Outputs:
@@ -62,7 +62,7 @@ Each fix is bounded to a single content block — no side effects.
 ### Step 5: Rerun gap-eval to verify
 
 ```bash
-python scripts/gap-eval/run.py {family} {platform}
+.venv/Scripts/python scripts/gap-eval/run.py {family} {platform}
 ```
 
 Delta section will show all prior findings as `fixed` with 0 regressions if applied correctly.

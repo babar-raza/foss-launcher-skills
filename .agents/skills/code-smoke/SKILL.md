@@ -50,10 +50,10 @@ checking. **Never executes code** — compile/type-check only.
 5. **Run the script**:
    ```bash
    # Product-wide:
-   python scripts/pipeline/smoke_test.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/smoke_test.py {family} {platform}
 
    # Specific files:
-   python scripts/pipeline/smoke_test.py --files path/to/file.md
+   .venv/Scripts/python scripts/pipeline/smoke_test.py --files path/to/file.md
    ```
 
 6. **Report results**:

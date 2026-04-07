@@ -28,7 +28,7 @@ not require vectors, but gap evaluation quality degrades without them.
 
 2. **Attempt Tier 1 — Professionalize API**:
    ```bash
-   python scripts/pipeline/embed.py {family} {platform} --tier api
+   .venv/Scripts/python scripts/pipeline/embed.py {family} {platform} --tier api
    ```
    - If `PROFESSIONALIZE_API_KEY` is set and the call succeeds: vectors written to
      `knowledge/_vectors/api/` (flat structure — all products share the same tier directory).
@@ -36,7 +36,7 @@ not require vectors, but gap evaluation quality degrades without them.
 
 3. **Attempt Tier 2 — Ollama (local)**:
    ```bash
-   python scripts/pipeline/embed.py {family} {platform} --tier local
+   .venv/Scripts/python scripts/pipeline/embed.py {family} {platform} --tier local
    ```
    - If Ollama is running and returns vectors: written to
      `knowledge/_vectors/local/` (flat structure).
@@ -77,7 +77,7 @@ not require vectors, but gap evaluation quality degrades without them.
 ## Gap-index mode (S-43 Tier 2)
 For per-product API surface vectors (used by S-43), use the `gap-index` subcommand instead:
 ```bash
-python scripts/pipeline/embed.py gap-index {family} {platform}
+.venv/Scripts/python scripts/pipeline/embed.py gap-index {family} {platform}
 ```
 This mode writes to `knowledge/_vectors/{family}/{platform}/api.vectors.json` (with
 family/platform subdirectories). It is a separate operation from standard knowledge embedding.

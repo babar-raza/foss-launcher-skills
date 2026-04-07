@@ -20,7 +20,7 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 2. **Auto-refresh knowledge**: Before loading any knowledge artifacts, ensure they are current.
    Invoke S-14 (knowledge-update) via its underlying script:
    ```bash
-   python scripts/pipeline/refresh_knowledge.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform}
    ```
    - If it prints "refreshed": knowledge was stale and has been rebuilt from the clone cache.
    - If it prints "current": no action needed.
@@ -28,7 +28,7 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 
 3. **Load evaluation report**: Retrieve S-25 output for this page. If not available, run S-25 first:
    ```bash
-   python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json --remediation
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json --remediation
    ```
    If grade is C or above, report that healing is not needed and exit.
 
@@ -57,12 +57,12 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 
 8. **Run ground-check after pass 1**:
    ```bash
-   python scripts/pipeline/audit.py --files {relative-file-path}
+   .venv/Scripts/python scripts/pipeline/audit.py --files {relative-file-path}
    ```
 
 9. **Re-evaluate after pass 1**:
    ```bash
-   python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json
    ```
 
 10. **Check improvement**: If grade is now C or above, report success and exit.
@@ -74,7 +74,7 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 
 12. **Re-evaluate after pass 2**:
     ```bash
-    python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json
+    .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json
     ```
 
 13. **Update provenance**: After each pass that modifies body content, update the provenance mechanism:

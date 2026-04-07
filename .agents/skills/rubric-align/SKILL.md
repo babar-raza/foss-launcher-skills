@@ -34,7 +34,7 @@ before enhancement (S-21) is applied.
 4. **Run content_eval evaluators**:
    ```bash
    cd scripts/pipeline
-   python -m content_eval evaluate --files ../../{relative-file-path} --format json
+   .venv/Scripts/python -m content_eval evaluate --files ../../{relative-file-path} --format json
    ```
 5. **Build rubric score card** from evaluator results. Score each dimension 0-100:
 

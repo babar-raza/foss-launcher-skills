@@ -100,8 +100,8 @@ because Kilo Code invokes them directly when orchestrating skill chains.
 
 ```bash
 # Verify this tree matches canonical
-python scripts/pipeline/sync_skills.py --check
+.venv/Scripts/python scripts/pipeline/sync_skills.py --check
 
 # View full divergence report
-python scripts/pipeline/sync_skills.py --report
+.venv/Scripts/python scripts/pipeline/sync_skills.py --report
 ```

@@ -1,12 +1,3 @@
----
-name: new-kb-howto
-description: >
-  Generate a new KB how-to article
-argument-hint: "{family} {platform} {slug} [--bypass-plan]"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
 # S-58: New KB How-To — Generate KB How-To Article
 
 Generate a new KB how-to article.
@@ -64,12 +55,12 @@ Generate a new KB how-to article.
    ```
 
 4. **Generate body** using this exact section order:
-   - Opening paragraph: what the library does for this task; state no install prerequisites beyond pip
+   - Opening paragraph: what the library does for this task; state the package manager used (resolved from `{platform}` below)
    - `## Step-by-Step Guide`
    - `{{% steps %}}`
-   - `### Step 1: Install the Package` — pip install command + version check snippet
+   - `### Step 1: Install the Package` — install command (platform-resolved) + version check snippet
    - `### Step 2: Import Required Classes` — exact import statements matching the package used in existing content
-   - `### Step 3–N:` — one step per logical task action, each with a prose explanation followed by a working Python code block
+   - `### Step 3–N:` — one step per logical task action, each with a prose explanation followed by a working code block (language resolved from `{platform}` below)
    - `{{% /steps %}}`
    - `## Common Issues and Fixes` — 3–5 bold-question + answer-paragraph pairs for likely errors
    - `## Frequently Asked Questions` — 3–5 `### Question?` + answer-paragraph pairs
@@ -77,8 +68,15 @@ Generate a new KB how-to article.
      `[Article Title](https://kb.aspose.org/{family}/{platform}/slug/)`
 
 5. **Constraints** (hard rules — never violate):
-   - Every code block must open with ` ```python ` or ` ```bash ` (language identifier required)
+   - **Code fence language** — resolve from `{platform}` argument (never hardcode `python`):
+     - `python` → ` ```python `, install via `pip install {package-name}`
+     - `net` → ` ```csharp `, install via `dotnet add package {package-name}`
+     - `java` → ` ```java `, install via Maven `<dependency>`
+     - `cpp` → ` ```cpp `, install via CMake FetchContent or vcpkg (see install.md)
+     - `typescript` → ` ```typescript `, install via `npm install {package-name}`
+   - Shell/terminal commands always use ` ```bash `
    - Use `---` horizontal divider between each step inside `{{% steps %}}`
+   - **Package name** always comes from `knowledge/{family}/{platform}/scout/model.yaml` → `canonical_import`. Never use the commercial Aspose package name.
    - Class names, method names, and import paths must exactly match what appears in the reference content you read — do not invent new API names
    - All cross-subdomain links must be absolute `https://` URLs without `/en/` (e.g. `https://docs.aspose.org/{family}/{platform}/...`)
    - All claims must be backed by entries in `knowledge/{family}/{platform}/merged/claims.json`

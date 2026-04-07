@@ -131,7 +131,7 @@ Action: Apply operator-specified targeted edit under S-73 governance
 ### Step 2: Path guard check
 
 ```bash
-python scripts/pipeline/path_guard.py {target_file}
+.venv/Scripts/python scripts/pipeline/path_guard.py {target_file}
 ```
 
 - Exit 0: proceed
@@ -175,7 +175,7 @@ warn "products pages discourage code examples — confirm you intend to add code
 ### Step 5: Knowledge freshness check
 
 ```bash
-python scripts/pipeline/refresh_knowledge.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform}
 ```
 
 - Prints "current": proceed
@@ -197,12 +197,12 @@ Halt if operator responds N.
 ### Step 7: Capture pre-edit grade
 
 ```bash
-python -m scripts.pipeline.content_eval evaluate --files {target_file} --format json
+.venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {target_file} --format json
 ```
 
 Store result as `pre_grade` (letter A–F) and `pre_score` (0–100). If content_eval is unavailable, run:
 ```bash
-python scripts/pipeline/audit.py --files {target_file}
+.venv/Scripts/python scripts/pipeline/audit.py --files {target_file}
 ```
 and record `pre_grade` as "unknown (audit proxy)".
 
@@ -217,7 +217,7 @@ For scopes `body-wording`, `code-snippet`, `section-replacement`, `full-remediat
 
 4. Run change-guard check:
    ```bash
-   python scripts/pipeline/change_guard.py {family} {platform} "{edit_intent_first_200_chars}"
+   .venv/Scripts/python scripts/pipeline/change_guard.py {family} {platform} "{edit_intent_first_200_chars}"
    ```
    - DENY: **REFUSE** with the guard's reason
 
@@ -253,7 +253,7 @@ Write the modified content back to the file.
 ### Step 10: Post-edit path guard re-check
 
 ```bash
-python scripts/pipeline/path_guard.py {target_file}
+.venv/Scripts/python scripts/pipeline/path_guard.py {target_file}
 ```
 
 If DENY: this indicates an unexpected path mutation. **Revert the write, halt.**
@@ -261,7 +261,7 @@ If DENY: this indicates an unexpected path mutation. **Revert the write, halt.**
 ### Step 11: Audit check
 
 ```bash
-python scripts/pipeline/audit.py --files {target_file}
+.venv/Scripts/python scripts/pipeline/audit.py --files {target_file}
 ```
 
 If FAIL:
@@ -272,7 +272,7 @@ If FAIL:
 ### Step 12: Frontmatter validation
 
 ```bash
-python scripts/pipeline/validate_frontmatter.py {target_file}
+.venv/Scripts/python scripts/pipeline/validate_frontmatter.py {target_file}
 ```
 
 If errors: **revert, halt** with the validation errors listed.
@@ -280,7 +280,7 @@ If errors: **revert, halt** with the validation errors listed.
 ### Step 13: Refresh evidence block
 
 ```bash
-python scripts/pipeline/attach_evidence.py --files {target_file}
+.venv/Scripts/python scripts/pipeline/attach_evidence.py --files {target_file}
 ```
 
 This updates `evidence.model_sha`, `evidence.claims`, and `evidence.apis` to reflect the
@@ -298,7 +298,7 @@ In the file's frontmatter `provenance:` block:
 ### Step 15: Re-evaluate and grade
 
 ```bash
-python -m scripts.pipeline.content_eval evaluate --files {target_file} --format json
+.venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {target_file} --format json
 ```
 
 Store as `post_grade` and `post_score`.
@@ -312,13 +312,13 @@ Proceed? [Y/N]
 If operator responds N: **revert the edit** (restore pre-edit content, do not update evidence or provenance).
 
 ```bash
-python scripts/pipeline/grade_writer.py --files {target_file}
+.venv/Scripts/python scripts/pipeline/grade_writer.py --files {target_file}
 ```
 
 ### Step 16: Record skill invocation
 
 ```bash
-python scripts/pipeline/skill_run_manager.py record-step \
+.venv/Scripts/python scripts/pipeline/skill_run_manager.py record-step \
   --skill S-73 \
   --type full \
   --files {target_file} \

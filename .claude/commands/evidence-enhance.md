@@ -51,7 +51,7 @@ exclusive: S-78 requires audit.py PASS; S-72 handles audit.py FAIL.
 6. `knowledge/{family}/{platform}/merged/claims.json` and `api_surface.json` must exist.
 7. **Pre-flight audit** — the page must already be clean:
    ```bash
-   python scripts/pipeline/audit.py --files {path}
+   .venv/Scripts/python scripts/pipeline/audit.py --files {path}
    ```
    If audit returns any FAIL, HALT:
    ```
@@ -59,10 +59,57 @@ exclusive: S-78 requires audit.py PASS; S-72 handles audit.py FAIL.
    ```
 8. Check current evidence coverage:
    ```bash
-   python -m scripts.pipeline.content_eval evaluate --files {path} --format json
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {path} --format json
    ```
    If `evidence_depth` INFO finding is absent (coverage already 100%), report NO_CHANGE
    and exit without modifying the file.
+
+## Step 0b — Preflight Classification
+
+Run a static classification of the page **before any script execution**. This step is
+read-only and deterministic. HALT immediately on `SKIPPED-DEGRADE-RISK` or `UNCERTAIN`.
+
+1. Read `evidence.apis` from the frontmatter.
+   - If non-empty, the page has manually-set API evidence.
+2. Extract API token candidates from the page's fenced code blocks using
+   `token_ops.extract_tokens(path, platform)` — the same tokenizer as `attach_evidence.py`.
+   - Exclude import tokens and constructor tokens (`member_name == "__init__"`).
+3. Check token coverage against the in-memory `Knowledge.api_to_claim` index (built from
+   `knowledge/{family}/{platform}/merged/claims.json`).
+   - `covered` = tokens whose `ClassName.method` key appears in `api_to_claim`
+   - `uncovered` = tokens not in `api_to_claim`
+
+**Classification table** (evaluated in order):
+
+| `evidence.apis` | `covered` tokens | Outcome |
+|-----------------|-----------------|---------|
+| non-empty | 0 | `SKIPPED-DEGRADE-RISK` |
+| non-empty | > 0, fewer than `len(existing_apis)` | `SKIPPED-DEGRADE-RISK` |
+| non-empty | ≥ `len(existing_apis)` | `no-op` → proceed to Step 8 (report NO_CHANGE) |
+| empty | > 0 | `viable` → continue to Step 1 |
+| empty | 0, but code blocks exist | `UNCERTAIN` → escalate to operator |
+| empty | no code blocks at all | `no-op` → proceed to Step 8 (report NO_CHANGE) |
+
+**On `SKIPPED-DEGRADE-RISK`** — halt and report without running any script:
+```
+CLASSIFICATION: SKIPPED-DEGRADE-RISK
+Reason: Page has {N} manually-set APIs; auto-detect would produce {M} APIs (covered tokens).
+Running attach_evidence.py would overwrite the manual evidence panel with a shorter list.
+Action: No script executed. File unchanged.
+```
+
+**On `UNCERTAIN`** — halt and escalate:
+```
+CLASSIFICATION: UNCERTAIN
+Reason: Page has {N} code block(s) but 0 API tokens match the api_to_claim index.
+This may indicate incomplete index coverage or non-standard API naming.
+Action: Escalate to operator. Do not run script without explicit authorization.
+```
+
+**Note on tokenizer scope**: `extract_tokens` only extracts constructors, static method
+calls, and instance method calls where the variable type can be inferred from a prior typed
+assignment in the same code block. Regex scanning of method names in prose or table cells
+will produce false `viable` classifications — always use the tokenizer, not regex.
 
 ## Steps
 
@@ -71,17 +118,17 @@ exclusive: S-78 requires audit.py PASS; S-72 handles audit.py FAIL.
 
 2. **Auto-refresh knowledge**:
    ```bash
-   python scripts/pipeline/refresh_knowledge.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform}
    ```
 
 3. **Run attach_evidence**:
    ```bash
-   python scripts/pipeline/attach_evidence.py --files {path} --force
+   .venv/Scripts/python scripts/pipeline/attach_evidence.py --files {path} --force
    ```
 
 4. **Post-attach audit**:
    ```bash
-   python scripts/pipeline/audit.py --files {path}
+   .venv/Scripts/python scripts/pipeline/audit.py --files {path}
    ```
    If audit returns any FAIL, revert the file to its pre-step-3 state and report ESCAPED:
    ```
@@ -90,16 +137,17 @@ exclusive: S-78 requires audit.py PASS; S-72 handles audit.py FAIL.
 
 5. **Validate frontmatter**:
    ```bash
-   python scripts/pipeline/validate_frontmatter.py --files {path}
+   .venv/Scripts/python scripts/pipeline/validate_frontmatter.py --files {path}
    ```
    If validation fails, revert and report ESCAPED.
 
-6. **Update provenance**:
-   Set `provenance.last_mechanism: evidence-enhance` in the frontmatter.
+6. **Provenance**: Do NOT update `provenance.last_mechanism`. Per `provenance.py` lifecycle
+   rules (lines 51–55), evidence attachment is not a content-changing operation and must
+   not call `update_mechanism()` or change `last_mechanism`. The existing value is preserved.
 
 7. **Re-evaluate**:
    ```bash
-   python -m scripts.pipeline.content_eval evaluate --files {path} --format json
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {path} --format json
    ```
    Record new `evidence_depth` finding. If WARN count has increased or grade has decreased,
    revert the file and report ESCAPED.
@@ -121,7 +169,7 @@ exclusive: S-78 requires audit.py PASS; S-72 handles audit.py FAIL.
 - `validate_frontmatter.py` exits 0
 - Grade is unchanged or improved
 - WARN count is unchanged or reduced (must not increase)
-- `provenance.last_mechanism` is `evidence-enhance`
+- `provenance.last_mechanism` is **unchanged** — evidence-only operations must not change it (lifecycle rule in `provenance.py:51–55`)
 - Page body content is byte-for-byte identical to pre-skill state
 
 ## Known Limitations

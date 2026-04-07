@@ -41,7 +41,7 @@ Omit `{site}` or use `all` to process all supported sites. Omit `{locales}` or u
 
 3. **Run preflight** (mandatory before translation):
    ```bash
-   python -m translator preflight [--provider {auto,llm,ollama,m2m}]
+   .venv/Scripts/python -m translator preflight [--provider {auto,llm,ollama,m2m}]
    ```
    Review the preflight report. Confirm that:
    - A valid backend is selected (no `ERROR` lines in output).
@@ -51,7 +51,7 @@ Omit `{site}` or use `all` to process all supported sites. Omit `{locales}` or u
 
 4. **Run the batch translator**:
    ```bash
-   python -m translator batch --family {family} --platform {platform} --site {site} --locales {locales} [--provider {auto,llm,ollama,m2m}]
+   .venv/Scripts/python -m translator batch --family {family} --platform {platform} --site {site} --locales {locales} [--provider {auto,llm,ollama,m2m}]
    ```
    - `--provider auto` (default): system selects best available backend automatically.
    - `--provider llm`: force llm.professionalize.com.
@@ -68,7 +68,7 @@ Omit `{site}` or use `all` to process all supported sites. Omit `{locales}` or u
 
 6. **On completion**, run cache-stats to confirm cache utilisation:
    ```bash
-   python -m translator cache-stats
+   .venv/Scripts/python -m translator cache-stats
    ```
    Print the cache statistics.
 

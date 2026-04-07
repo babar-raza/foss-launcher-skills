@@ -117,10 +117,10 @@ Source: `scripts/pipeline/sync_skills.py:KNOWN_EXCEPTIONS` and `INTERNAL_SKILLS`
 
 ```bash
 # Verify this tree matches canonical
-python scripts/pipeline/sync_skills.py --check
+.venv/Scripts/python scripts/pipeline/sync_skills.py --check
 
 # View full divergence report
-python scripts/pipeline/sync_skills.py --report
+.venv/Scripts/python scripts/pipeline/sync_skills.py --report
 ```
 
 CI runs this check on every PR that modifies content. Drift from canonical is reported but

@@ -34,7 +34,7 @@ Goes beyond API token verification (audit.py/S-23) to check:
 2. **Run evaluation**: Execute the content_eval pipeline
 
 ```bash
-cd scripts/pipeline && python -m content_eval evaluate $ARGUMENTS --remediation
+cd scripts/pipeline && .venv/Scripts/python -m content_eval evaluate $ARGUMENTS --remediation
 ```
 
 3. **Review findings**: Present the report to the user, organized by severity

@@ -13,7 +13,7 @@ source alongside FOSS-Launcher outputs.
 
 **Option 0 — Local clone cache (preferred)**:
 ```bash
-repo_path=$(python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
+repo_path=$(.venv/Scripts/python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
 ```
 Use this when repos are already cloned locally (the default setup). Provides full
 snippet extraction from `tests/`, `examples/`, `samples/`. Auto-clones if the cache

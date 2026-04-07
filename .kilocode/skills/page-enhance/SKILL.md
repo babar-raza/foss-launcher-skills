@@ -28,7 +28,7 @@ Enhance a page that scores below the quality bar (grade C or below from S-17/S-2
 
 2. **Auto-refresh knowledge**: Before loading any knowledge artifacts, ensure they are current:
    ```bash
-   python scripts/pipeline/refresh_knowledge.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform}
    ```
    - If it prints "refreshed": knowledge was stale and has been rebuilt from the clone cache.
    - If it prints "current": no action needed.
@@ -36,7 +36,7 @@ Enhance a page that scores below the quality bar (grade C or below from S-17/S-2
 
 3. **Load evaluation results**: Retrieve S-25 or S-17 output for this page. If not available, run S-25 first:
    ```bash
-   python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json
    ```
 
 4. **Load knowledge artifacts**:
@@ -85,12 +85,12 @@ Enhance a page that scores below the quality bar (grade C or below from S-17/S-2
 
 10. **Run ground-check**:
    ```bash
-   python scripts/pipeline/audit.py --files {relative-file-path}
+   .venv/Scripts/python scripts/pipeline/audit.py --files {relative-file-path}
    ```
 
 11. **Re-evaluate** to confirm improvement:
     ```bash
-    python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json
+    .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json
     ```
 
 12. **Update provenance**: After writing enhanced content, update the provenance mechanism:

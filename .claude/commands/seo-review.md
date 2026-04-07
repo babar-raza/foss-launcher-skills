@@ -120,7 +120,7 @@ for p in m['patches'][:5]:
 Run `apply.py` in dry-run mode to preview what will change:
 
 ```bash
-python scripts/seo/pipeline/apply.py --dry-run
+.venv/Scripts/python scripts/seo/pipeline/apply.py --dry-run
 ```
 
 Confirm output shows expected frontmatter updates before proceeding.

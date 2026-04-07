@@ -30,7 +30,7 @@ Lightweight remediation pipeline: evaluate content (or consume an existing repor
 2. **Run evaluation** (skip if consuming existing report):
 
    ```bash
-   python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation
    ```
 
    Note the report path from stderr output (e.g. `reports/content_eval/eval-{timestamp}.json`).
@@ -38,7 +38,7 @@ Lightweight remediation pipeline: evaluate content (or consume an existing repor
 3. **Dry-run auto-fix** to preview changes:
 
    ```bash
-   python scripts/pipeline/remediate.py fix {eval-report-path} --dry-run
+   .venv/Scripts/python scripts/pipeline/remediate.py fix {eval-report-path} --dry-run
    ```
 
    Review the dry-run output. Confirm findings and planned fixes look correct.
@@ -46,13 +46,13 @@ Lightweight remediation pipeline: evaluate content (or consume an existing repor
 4. **Apply auto-fixes**:
 
    ```bash
-   python scripts/pipeline/remediate.py fix {eval-report-path}
+   .venv/Scripts/python scripts/pipeline/remediate.py fix {eval-report-path}
    ```
 
 5. **Refresh evidence** on modified files. Extract the list of modified files from the remediation report, then run:
 
    ```bash
-   python scripts/pipeline/attach_evidence.py --files {file1} {file2} ...
+   .venv/Scripts/python scripts/pipeline/attach_evidence.py --files {file1} {file2} ...
    ```
 
 6. **Report results** to the user:

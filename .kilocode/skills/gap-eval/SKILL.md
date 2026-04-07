@@ -29,7 +29,7 @@ Evaluate all content for a family/platform against clone cache ground truth usin
 ### Step 1: Validate profile
 
 ```bash
-python scripts/gap-eval/validate_profile.py {family} {platform}
+.venv/Scripts/python scripts/gap-eval/validate_profile.py {family} {platform}
 ```
 
 If profile validation fails on clone cache path → check `FOSS_LAUNCHER_PATH` env var.
@@ -37,7 +37,7 @@ If profile validation fails on clone cache path → check `FOSS_LAUNCHER_PATH` e
 ### Step 2: (Optional) Build API surface vectors for Tier 2
 
 ```bash
-python scripts/pipeline/embed.py gap-index {family} {platform}
+.venv/Scripts/python scripts/pipeline/embed.py gap-index {family} {platform}
 ```
 
 Skip if `knowledge/_vectors/{family}/{platform}/api.vectors.json` already exists.
@@ -45,17 +45,17 @@ Skip if `knowledge/_vectors/{family}/{platform}/api.vectors.json` already exists
 ### Step 3: Run evaluation
 
 ```bash
-python scripts/gap-eval/run.py {family} {platform} [--scope {scope}]
+.venv/Scripts/python scripts/gap-eval/run.py {family} {platform} [--scope {scope}]
 ```
 
 With all tiers active:
 ```bash
-python scripts/gap-eval/run.py {family} {platform} --scope all
+.venv/Scripts/python scripts/gap-eval/run.py {family} {platform} --scope all
 ```
 
 Skip LLM (Tier 1+2 only, faster):
 ```bash
-python scripts/gap-eval/run.py {family} {platform} --no-llm
+.venv/Scripts/python scripts/gap-eval/run.py {family} {platform} --no-llm
 ```
 
 ### Step 4: Review output

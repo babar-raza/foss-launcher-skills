@@ -67,19 +67,19 @@ ls knowledge/{family}/{platform}/merged/model.yaml
 **DATA failures:**
 ```bash
 # Validate frontmatter structure
-python scripts/pipeline/validate_frontmatter.py --files {filepath}
+.venv/Scripts/python scripts/pipeline/validate_frontmatter.py --files {filepath}
 
 # Check evidence block
-python scripts/pipeline/audit.py --files {filepath}
+.venv/Scripts/python scripts/pipeline/audit.py --files {filepath}
 
 # Check for unknown API tokens
-python scripts/pipeline/attach_evidence.py --files {filepath} --dry-run
+.venv/Scripts/python scripts/pipeline/attach_evidence.py --files {filepath} --dry-run
 ```
 
 **CODE failures:**
 ```bash
 # Run the script's own unit tests
-PYTHONPATH=scripts/pipeline python -m pytest scripts/pipeline/tests/ -v -k "{script-name}"
+PYTHONPATH=scripts/pipeline .venv/Scripts/python -m pytest scripts/pipeline/tests/ -v -k "{script-name}"
 
 # Check for import errors
 .venv/Scripts/python -c "import scripts.pipeline.{module}"
@@ -88,19 +88,19 @@ PYTHONPATH=scripts/pipeline python -m pytest scripts/pipeline/tests/ -v -k "{scr
 **GOVERNANCE failures:**
 ```bash
 # Check override token status
-python scripts/pipeline/override_manager.py list
+.venv/Scripts/python scripts/pipeline/override_manager.py list
 
 # Check DAR coverage
-python scripts/ci/check_dar_coverage.py
+.venv/Scripts/python scripts/ci/check_dar_coverage.py
 
 # Check skill sync parity
-python scripts/ci/sync_skills.py --check
+.venv/Scripts/python scripts/ci/sync_skills.py --check
 ```
 
 **REGRESSION failures:**
 ```bash
 # Check grade trajectory
-python scripts/pipeline/grade_writer.py --files {filepath} --check-only
+.venv/Scripts/python scripts/pipeline/grade_writer.py --files {filepath} --check-only
 
 # Check what changed
 git diff HEAD~1 -- {filepath}
