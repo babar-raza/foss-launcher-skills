@@ -143,15 +143,10 @@ def detect_formats(
                         )
                         _add_claim("format_support", direction_desc,
                                    rel, cn.start_point[0] + 1)
-                else:
-                    formats.append({
-                        "format": cname,
-                        "enum": "",
-                        "value": "",
-                        "file": rel,
-                        "line": cn.start_point[0] + 1,
-                        "direction": enum_direction,
-                    })
+                # Non-enum format-pattern classes (e.g. FileFormat, FileFormatType,
+                # InvalidFileFormatException) are NOT format identifiers — they are
+                # class/interface definitions.  Do NOT emit the class name as a format
+                # entry; only enum *members* are valid format names.
 
             if importer_pattern.search(cname):
                 direction = "import"

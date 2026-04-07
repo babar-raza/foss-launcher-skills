@@ -54,7 +54,14 @@ def verify_faq_structure(fp: Path, fm: dict) -> list:
     YAML arrays. Any FAQ entries stored in faq.list are therefore never shown to
     users. This check enforces that FAQ content lives exclusively in the body as
     ### Question headings.
+
+    Exception: pages with layout: plugin use a Hugo shortcode template that
+    iterates .Params.faq.list directly — faq.list in frontmatter is by design
+    for those pages and must not be flagged.
     """
+    # layout: plugin pages render faq.list via Hugo template params — exempt
+    if fm.get("layout") == "plugin":
+        return []
     faq_block = fm.get("faq") or {}
     faq_list = faq_block.get("list", []) if isinstance(faq_block, dict) else []
     if not faq_list:
