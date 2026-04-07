@@ -93,12 +93,21 @@ class TestExtractFamilyPlatform:
         assert f == "slides"
         assert p == "net"
 
-    def test_products_path_has_no_platform(self):
+    def test_products_platform_path_returns_platform(self):
+        # Platform product page: content/products.aspose.org/en/{family}/{platform}/_index.md
         f, p = meh.extract_family_platform(
             "content/products.aspose.org/en/3d/python/_index.md"
         )
         assert f == "3d"
-        assert p is None  # products has no platform level
+        assert p == "python"
+
+    def test_products_family_path_has_no_platform(self):
+        # Family landing page: content/products.aspose.org/en/{family}/_index.md
+        f, p = meh.extract_family_platform(
+            "content/products.aspose.org/en/3d/_index.md"
+        )
+        assert f == "3d"
+        assert p is None  # family page has no platform subdirectory
 
     def test_unknown_path_returns_none_none(self):
         f, p = meh.extract_family_platform("AGENTS.md")
