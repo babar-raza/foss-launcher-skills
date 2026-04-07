@@ -78,29 +78,6 @@ passes `python scripts/pipeline/audit.py --files content/products.aspose.org/en/
 
 ---
 
-### STAGE 1.2 — Products Translation
-
-**Purpose**: Ensure the products page exists in all served locales before the family sync
-runs (family sync reads locale pages to compile the platform grid).
-
-**Command**:
-```bash
-.venv/Scripts/python -m translator batch --family {family} --platform {platform} --site products.aspose.org
-```
-
-**Skip condition**: At least 80% of declared locales already have
-`content/products.aspose.org/{locale}/{family}/{platform}/_index.md`. Check a representative
-sample (ar, de, fr, zh) -- if all four are present, skip.
-
-**Checkpoint**: `products_translation_done`
-
-**On failure**: Log failed locales, continue -- translation failures are non-blocking for
-the launch but must appear in the Stage 8 readiness scorecard.
-
-**Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} products_translation_done true`
-
----
-
 ### STAGE 1.5 — Family Page Sync
 
 **Condition**: Run ONLY when >= 2 platform subdirectories exist under
@@ -213,11 +190,19 @@ or Stage 7 until FAIL count is 0.
 
 ### STAGE 6.5 — Full Translation (all subdomains)
 
-**Purpose**: Translate all English content to all 36 locales after truth audit passes.
-Products were already translated in Stage 1.2 — verify coverage only for products.
+**Purpose**: Translate all English content across all 5 subdomains to all 36 locales. This
+is the **only** translation stage in the launch flow — all English pages must be generated
+and truth-audited (Stage 6, 0 FAIL) before this stage runs.
+
+**Pre-flight guard**: Before running any translate commands, verify the truth audit passed:
+```bash
+python scripts/pipeline/project_phase_store.py get {family} {platform} truth_audit_done
+```
+If this does not return `true`, halt: "Stage 6.5 requires truth_audit_done=true. Complete Stage 6 first."
 
 **Commands** (run each subdomain sequentially):
 ```bash
+.venv/Scripts/python -m translator batch --family {family} --platform {platform} --site products.aspose.org
 .venv/Scripts/python -m translator batch --family {family} --platform {platform} --site docs.aspose.org
 .venv/Scripts/python -m translator batch --family {family} --platform {platform} --site kb.aspose.org
 .venv/Scripts/python -m translator batch --family {family} --platform {platform} --site reference.aspose.org
@@ -229,7 +214,7 @@ Products were already translated in Stage 1.2 — verify coverage only for produ
 **On failure per locale**: Log and continue — translation failures are non-blocking for the
 launch but must appear in the Stage 8 readiness scorecard with per-subdomain locale counts.
 
-**On products**: verify coverage >= 80% from Stage 1.2; re-run only if coverage dropped below threshold.
+**Coverage thresholds**: products ≥80% of 36 locales (≥29 locales); all other subdomains ≥70% (≥26 locales each).
 
 **Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} translation_done true`
 
@@ -271,7 +256,8 @@ Translation coverage:
 READY TO SHIP if:
   - 0 D/F pages
   - products + getting-started + first blog post at B+
-  - ALL subdomain translations >= 70% of 36 locales (>= 26 locales each)
+  - Products translation >= 80% of 36 locales (>= 29 locales)
+  - All other subdomain translations >= 70% of 36 locales (>= 26 locales each)
 ```
 
 > **Grade calibration — reference pages**: Reference page grades reflect both API surface accuracy
@@ -297,8 +283,8 @@ Skip completed stages. Print: `Resuming {family}/{platform} from stage N (checkp
 Checkpoints are stored via S-10 (`project-phase-store`) in `reports/phase_state.json`.
 
 Keys used: `{family}_{platform}_knowledge_ready`, `{family}_{platform}_site_plan_done`,
-`{family}_{platform}_products_done`, `{family}_{platform}_products_translation_done`,
-`{family}_{platform}_family_sync_done`, `{family}_{platform}_blog_done`,
+`{family}_{platform}_products_done`, `{family}_{platform}_family_sync_done`,
+`{family}_{platform}_blog_done`,
 `{family}_{platform}_docs_done`, `{family}_{platform}_kb_done`,
 `{family}_{platform}_reference_done`, `{family}_{platform}_truth_audit_done`,
 `{family}_{platform}_translation_done`, `{family}_{platform}_quality_done`
