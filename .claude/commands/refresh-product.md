@@ -25,6 +25,13 @@ This skill is the entry point for the maintenance chain (AGENTS.md §6). Running
 the full cycle executes in the correct order with progress tracking and a verification gate
 before any commit.
 
+## Pre-conditions
+
+- Knowledge model must be accessible: `knowledge/{family}/{platform}/merged/model.yaml` must exist.
+- Clone cache must be reachable or previously populated at `runs/.clone_cache/` (or `ASPOSE_CLONE_CACHE`).
+- **S-12 (knowledge-diff) is auto-invoked as Step 1** — no separate pre-activation required.
+  If S-12 reports no SHA change, the skill exits cleanly without further steps.
+
 ## Early Exit (No Change)
 
 If Step 1 finds no SHA change (upstream repo unchanged), exit cleanly:
@@ -121,6 +128,9 @@ Do not run any subsequent steps. Exit 0.
     **Filter**: Only translate pages where body `content_hash` changed (not just frontmatter/evidence updates).
     Compare `provenance.content_hash` before and after to identify pages with real content changes.
     Translating metadata-only changes wastes LLM budget.
+    **LLM_API_KEY absent**: If `LLM_API_KEY` is not set in the environment, this step emits
+    a SKIP-WITH-WARNING and the chain continues. Translation can be re-run separately via
+    `/translate {family} {platform}` once the key is available. This is not a chain-abort condition.
     - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step translate`
 
 12. **Record step completions**: After each step above, call:
