@@ -63,6 +63,11 @@ For KB FAQ pages specifically, prefer S-59 (new-kb-faq) which includes the full 
    - Use hedging language for claims with confidence < 0.7
 
 5. **Format as FAQ page**:
+
+   **IMPORTANT**: FAQ Q&A pairs must appear as `### Question?` headings in the markdown body.
+   Never write a `faq:` or `faq.list` frontmatter block — it is invisible to the Hugo renderer
+   and will trigger `_check_faq` Rule 3 FAIL on the next evaluation.
+
    ```markdown
    ---
    title: "Frequently Asked Questions — Aspose.{Family} for {Platform}"
@@ -99,7 +104,7 @@ For KB FAQ pages specifically, prefer S-59 (new-kb-faq) which includes the full 
 
 7. **Run ground-check**:
    ```bash
-   python scripts/pipeline/audit.py --files content/kb.aspose.org/en/{family}/{platform}/faq.md
+   .venv/Scripts/python scripts/pipeline/audit.py --files content/kb.aspose.org/en/{family}/{platform}/faq.md
    ```
 
 8. **Report**: Print summary — number of Q&A pairs generated, categories covered, claims referenced.

@@ -97,6 +97,10 @@ Generate or update the FAQ page for a product platform.
    - All class names, method names, and package import paths must match what you read from the reference content — do not invent API surface
    - Code examples use ` ```python ` language identifier
    - `weight: 1` ensures FAQ appears first in the KB listing — never change this value
+   - Do NOT write a `faq:` or `faq.list` key to frontmatter — FAQ entries belong exclusively
+     in the markdown body as `### Question text?` headings followed by answer paragraphs.
+     A `faq.list` frontmatter block is invisible to the Hugo renderer and will trigger
+     `_check_faq` Rule 3 FAIL on the next evaluation
 
 7. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
    - Target path: `content/kb.aspose.org/en/{family}/{platform}/faq.md`
@@ -120,3 +124,5 @@ After generating or updating the FAQ:
    — must exit 0 (no FAIL findings) before committing.
 
 8. **Confirm** by printing the output path and a count of FAQ items written or added.
+   After writing, verify the body contains ≥1 `###` heading. If absent, regenerate — the page
+   will fail `_check_faq` Rule 3 on the next evaluation.
