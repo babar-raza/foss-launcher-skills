@@ -12,6 +12,10 @@ args: "{family} {platform}"
      postcondition: refresh_knowledge.py executes all 4 pipeline steps (scout → enrich → promote → index)
      postcondition: writes merged/pipeline_run.json confirming all 4 steps ran and index_succeeded status
      postcondition: refresh_knowledge.py auto-clears stale_since in merged/model.yaml on successful refresh
+     postcondition: refresh_knowledge.py creates merged.bak/ before pipeline, writes knowledge_delta.json
+                    after successful promote, then deletes merged.bak/ in finally block (always cleaned up)
+     postcondition: knowledge_delta.json contains base_sha, current_sha, new_claims, removed_claims,
+                    modified_claims, new_apis, removed_apis, modified_apis
      verified: 2026-04-07
 -->
 # S-14: Knowledge Update - Refresh Knowledge Model from Source
@@ -35,8 +39,9 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
 
 > **Note on `refresh_knowledge.py`**: Running `python scripts/pipeline/refresh_knowledge.py
 > {family} {platform}` executes all 4 pipeline steps: `scout.py → enrich.py → promote.py → index.py`.
-> After a successful run, `merged/pipeline_run.json` confirms all steps completed and
-> `merged/model.yaml` has `stale_since` cleared automatically.
+> After a successful run, `merged/pipeline_run.json` confirms all steps completed,
+> `merged/model.yaml` has `stale_since` cleared automatically, and `merged/knowledge_delta.json`
+> is written with the semantic diff of what changed.
 
 ## Pre-conditions
 
@@ -52,52 +57,60 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
 
 1. **Parse arguments**: Extract `{family}` and `{platform}` from $ARGUMENTS.
 
-2. **Back up current knowledge**: Copy `knowledge/{family}/{platform}/merged/` to
-   `knowledge/{family}/{platform}/merged.bak/` so diffs can be computed later by S-20.
-
-3. **Run refresh pipeline**:
+2. **Run refresh pipeline** (handles backup, diff, and cleanup internally):
    ```
    python scripts/pipeline/refresh_knowledge.py {family} {platform}
    ```
-   This single command runs scout → enrich → promote → index in sequence.
+   Internally, `refresh_knowledge.py`:
+   - Sets `stale_since` in `merged/model.yaml` to today before running the pipeline
+   - Creates a temporary backup of `merged/` to `merged.bak/` for delta computation
+   - Runs scout → enrich → promote → index in sequence
+   - After successful `promote.py`, writes `knowledge_delta.json` to `merged/` with the
+     semantic diff (new/removed/modified claims and APIs)
+   - Clears `stale_since` in `merged/model.yaml` after success
+   - Always deletes `merged.bak/` on exit (success or failure) — never committed
+
    Verify `knowledge/{family}/{platform}/merged/pipeline_run.json` confirms all steps ran.
    Verify outputs: `model.yaml`, `api_surface.json`, `claims.json` in `knowledge/{family}/{platform}/scout/`.
 
-4. **Run knowledge-enrich** (S-37):
+3. **Run knowledge-enrich** (S-37) if not already run by refresh pipeline:
    ```
    python scripts/pipeline/enrich.py {family} {platform}
    ```
    Verify `knowledge/{family}/{platform}/scout/enriched_claims.json` exists and is valid JSON.
 
-5. **Run truth-merge** (S-35):
+4. **Run truth-merge** (S-35) if not already run:
    ```
    python scripts/pipeline/promote.py {family} {platform}
    ```
    Verify `knowledge/{family}/{platform}/merged/merge_report.md` exists and shows merge statistics.
 
-6. **Run truth-index** (S-31):
+5. **Run truth-index** (S-31):
    Generate the knowledge index from the merged artifacts. Verify `knowledge/{family}/{platform}/merged/index.json` is created.
 
-7. **Verify stale flag cleared**: Confirm `knowledge/{family}/{platform}/merged/model.yaml` has
-   `stale_since: null`. This is now automated by `refresh_knowledge.py` — no manual edit needed.
+6. **Verify stale flag cleared**: Confirm `knowledge/{family}/{platform}/merged/model.yaml` has
+   `stale_since: null`. This is automated by `refresh_knowledge.py` — no manual edit needed.
 
-8. **Diff report**: Compare `merged.bak/claims.json` with `merged/claims.json` to summarize:
-   - New claims added
-   - Claims removed
-   - Claims with changed confidence
-   - API surface additions/removals
+7. **Diff report**: Read `merged/knowledge_delta.json` to summarize:
+   - New claims added (`new_claims`)
+   - Claims removed (`removed_claims`)
+   - Claims with changed text or confidence (`modified_claims`)
+   - API surface additions/removals (`new_apis`, `removed_apis`, `modified_apis`)
 
-9. **Clean up**: Remove `merged.bak/` after diff report is generated.
+   Note: `merged.bak/` is NOT available here — cleanup was automatic inside `refresh_knowledge.py`.
+   The `knowledge_delta.json` file is the durable diff artifact for downstream skills (S-20, S-62 --update).
 
 ## Post-conditions
 
 - `knowledge/{family}/{platform}/scout/` has fresh extraction artifacts
 - `knowledge/{family}/{platform}/merged/` has updated merged artifacts
 - `model.yaml` has `stale_since: null` and current `repo_sha`
+- `merged/knowledge_delta.json` exists with semantic diff of what changed
+- `merged.bak/` does NOT exist (always cleaned up by refresh_knowledge.py)
 - A diff summary is printed showing what changed
 
 ## Error handling
 
 - If repo-scout fails, abort and preserve existing knowledge (do not corrupt merged/)
-- If promote fails, restore from `merged.bak/`
+- If promote fails, `knowledge_delta.json` is NOT written (no partial delta); `merged.bak/` is cleaned up
 - If clone cache is missing, script auto-clones from `clone_url` in `data/products.json`; use `--no-auto-clone` to disable

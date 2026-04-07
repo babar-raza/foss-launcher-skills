@@ -216,11 +216,36 @@ Error pages (manual review required):
 - If `model.yaml.stale_since` is not null → halt with:
   `STOP: Knowledge model is stale. Run /knowledge-diff then /knowledge-update before generating content.`
 
+## Update Mode (--update flag)
+
+After a knowledge refresh (S-14), use `--update` to regenerate only the reference pages whose
+classes appear in `knowledge_delta.json modified_apis`:
+
+```bash
+python scripts/pipeline/batch_reference.py {family} {platform} --update
+python scripts/pipeline/batch_reference.py {family} {platform} --update --dry-run  # preview only
+```
+
+**Behavior in `--update` mode**:
+- Reads `knowledge/{family}/{platform}/merged/knowledge_delta.json` to get `modified_apis` list
+- Regenerates pages only for classes in `modified_apis` (overwrites existing pages)
+- Skips all other classes (preserves unchanged pages)
+- New classes (in `api_surface.json` but no existing page) are always generated
+- Calls `attach_evidence()` and grade_writer on updated pages — identical to new-page generation
+- Prints summary: `Updated N pages, generated M new pages, skipped K unchanged`
+- **If `knowledge_delta.json` is absent**: prints `WARN: knowledge_delta.json not found; falling back to default mode`
+  and degrades to standard behavior (skip existing pages, generate only new ones)
+
+Use `--update` in the maintenance chain after S-14 (knowledge-update) to keep reference pages current.
+
 ## Idempotency Guarantee
 
-This skill MUST NEVER overwrite an existing reference page. The check in Step 3 is mandatory
-and must be performed for every candidate before invoking `/new-reference-page`. A re-run on a
-fully-populated platform should produce `Generated: 0, Skipped: {N}` with no writes.
+**Default mode** (no `--update`): this skill MUST NEVER overwrite an existing reference page.
+The check in Step 3 is mandatory and must be performed for every candidate before invoking
+`/new-reference-page`. A re-run on a fully-populated platform should produce `Generated: 0, Skipped: {N}` with no writes.
+
+**`--update` mode**: intentionally overwrites pages whose classes appear in `modified_apis`.
+Idempotency is preserved for unchanged pages — only modified classes are regenerated.
 
 ## Evidence & Commit Requirements
 

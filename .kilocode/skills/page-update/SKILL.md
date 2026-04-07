@@ -27,17 +27,22 @@ After a knowledge refresh (S-14), identify which content pages reference changed
 
 2. **Auto-refresh knowledge**: Before loading any knowledge artifacts, ensure they are current:
    ```bash
-   python scripts/pipeline/refresh_knowledge.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform}
    ```
    - If it prints "refreshed": knowledge was stale and has been rebuilt from the clone cache.
    - If it prints "current": no action needed.
    - If clone cache is missing: warn but continue with existing knowledge artifacts.
 
-3. **Load knowledge diff**: Compare current `knowledge/{family}/{platform}/merged/claims.json` with the previous version. Identify:
-   - **Added claims**: New claim IDs not in previous version
-   - **Removed claims**: Claim IDs that no longer exist
-   - **Modified claims**: Same ID but changed text, confidence, or provenance
-   - **API changes**: Diff `api_surface.json` for added/removed/renamed members
+3. **Load knowledge diff**: Read `knowledge/{family}/{platform}/merged/knowledge_delta.json`.
+   This file is written by `refresh_knowledge.py` after each successful refresh. Identify:
+   - **Added claims**: `new_claims` — new claim IDs not in previous version
+   - **Removed claims**: `removed_claims` — claim IDs that no longer exist
+   - **Modified claims**: `modified_claims` — same ID but changed text, confidence, or provenance
+   - **API changes**: `new_apis`, `removed_apis`, `modified_apis` — added/removed/changed classes
+
+   **If `knowledge_delta.json` is absent** (first run after launch, or no refresh has occurred):
+   fall back to stale_detect scan — scan all pages for evidence.model_sha mismatch to find affected pages.
+   Log: `WARN: knowledge_delta.json not found; falling back to stale_detect scan for affected pages.`
 
 4. **Find affected pages**: Scan content files for the product:
    - For product-wide scope: scan all `.md` files under the product's content paths (docs, kb, blog, reference)
@@ -51,9 +56,21 @@ After a knowledge refresh (S-14), identify which content pages reference changed
    - For API changes (renamed/removed methods): find code blocks and prose mentioning old names
    - For added claims: identify if any existing section should incorporate new information
 
+   **Blog post strategy** (pages under `content/blog.aspose.org/`):
+   Blog posts are narrative content — surgical paragraph patching destroys coherence.
+   Apply these rules instead:
+   - If `removed_claims` or `removed_apis` includes any ID cited by this blog page
+     → full regeneration via `/new-blog-post {family} {platform} {slug}`. Do not patch.
+   - If only `modified_claims` (text changes, no removals) → update only the specific
+     claim-citing sentences (not whole paragraphs).
+   - If only `new_claims` are present → no update needed; new content goes in new pages
+     via delta dispatch (S-84 Step 5).
+
 6. **Pre-write quality check**: For each affected page, invoke `no-downgrade-guard` before writing:
    - Target path: the affected page's file path
-   - If BLOCK → do not write; report the blocking reason to the user
+   - If BLOCK → do not write; report the blocking reason to the user.
+     **If the guard BLOCKS a known-accurate update**: do not silently skip. Use S-73 (manual-edit)
+     with explicit justification. Document the reason in the commit message.
    - If WARN → present the warning to the user; await confirmation before writing
    - If ALLOW → proceed with write
 
@@ -65,7 +82,7 @@ After a knowledge refresh (S-14), identify which content pages reference changed
 
 8. **Run ground-check** on each updated page:
    ```bash
-   python scripts/pipeline/audit.py --files {updated-file-path}
+   .venv/Scripts/python scripts/pipeline/audit.py --files {updated-file-path}
    ```
 
 9. **Update provenance**: For each file where body content was modified, update the provenance mechanism:
@@ -94,6 +111,7 @@ After a knowledge refresh (S-14), identify which content pages reference changed
 - Unaffected content is unchanged
 
 ## Error handling
-- If no knowledge diff is available (S-14 not run), abort with instruction to run S-14 first
+- If `knowledge_delta.json` not found: fall back to stale_detect scan (Step 3); log warning
 - If a page references a removed claim but the paragraph cannot be safely rewritten, flag for human review
 - If audit.py fails after update, list specific issues and attempt one correction pass
+- If no-downgrade-guard BLOCKS a known-accurate update: escalate to S-73 (manual-edit); do not skip
