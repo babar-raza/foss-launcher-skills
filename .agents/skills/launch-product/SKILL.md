@@ -274,6 +274,13 @@ READY TO SHIP if:
   - ALL subdomain translations >= 70% of 36 locales (>= 26 locales each)
 ```
 
+> **Grade calibration — reference pages**: Reference page grades reflect API surface accuracy
+> (format_truth / format_completeness evaluators), not description depth. For FOSS repos that
+> ship without XML docstrings, grade A on reference pages means "no format errors detected" —
+> empty property/method description fields are expected and do not lower the grade. This is
+> correct behaviour. Do NOT treat A-graded reference pages as evidence of prose quality;
+> treat them as evidence of structural and API-accuracy compliance only.
+
 ---
 
 ## Resume Behavior
