@@ -1,6 +1,6 @@
 # AGENTS.md — Aspose.org Content Generation & Maintenance Governance
 
-> Last updated: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline); prior: 2026-04-03 §6c causal backtracking
+> Last updated: 2026-04-07 (§6e ceiling-reached terminal state); prior: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline)
 > Authority: Human maintainer only (see Section 4 — this file is in the forbidden write list)
 
 ## 1. Purpose
@@ -194,6 +194,17 @@ S-10 (project-phase-store) → S-18 (page-plan) → S-19 (page-draft) → S-22 (
 S-34 (repo-scout) → S-37 (knowledge-enrich) → S-35 (truth-merge) → S-31 (truth-index)
 ```
 
+### Full-product launch (5-subdomain)
+
+```
+S-54 (knowledge-bootstrap) → S-47 (site-plan) → S-49 (launch-product stages 1–8)
+```
+
+Every launch MUST run `/site-plan` after knowledge bootstrap and BEFORE any content generation.
+The site plan output (`reports/plans/{family}/{platform}/site_plan.yaml`) is the authoritative
+slug manifest for blog posts, developer-guide pages, and KB how-to articles. Stages that skip
+site-plan and hardcode or re-derive slugs are in violation of this chain.
+
 ### Maintenance (repo changed)
 
 Resolve repo path first:
@@ -231,6 +242,42 @@ S-25 (eval-page) → S-26 (heal-page) → S-23 → S-25 → S-01 → write (or e
 | **F** | S-26 (heal-page) → if no improvement after 2 passes → human escalation (§8) | Critical violations |
 
 **Rule:** S-26 must precede S-21 when grade is D or below. S-21 alone is correct only for grade C. S-21 applied to a grade-D page without prior healing may suppress false claims that should be removed.
+
+### 6e. Terminal-Success State (ceiling-reached)
+
+A page is **ceiling-reached** when ALL of the following are true:
+
+1. `audit.py --files {path}` exits 0 (no FAIL findings)
+2. `validate_frontmatter.py --files {path}` exits 0
+3. Grade is A or B (0 FAIL, ≤5 WARN)
+4. All remaining WARN findings have been explicitly classified as one of:
+   - Evaluator/linter conflict artifacts (prose softening triggers linter revert;
+     WARN is restored; no stable prose edit resolves it)
+   - Known false positives (token collision, etc.) with a classification record
+     in `reports/skill-gaps/`
+5. A skill run has been attempted to address each WARN and confirmed that no further
+   content change improves the stable outcome
+
+**When a page is ceiling-reached, agents MUST**:
+- Classify it as ceiling-reached in session notes or plan artifacts
+- NOT re-apply prose softening that a prior session confirmed the linter reverts
+- NOT invoke S-21 (page-enhance) again without a changed pre-condition (e.g., new
+  knowledge model, updated evaluator, linter rule change)
+- NOT invoke S-78 (evidence-enhance) again if a prior S-78 run returned ESCAPED and
+  the manual evidence panel is richer than auto-detection output
+
+**Ceiling-reached is not a failure state.** Grade B with 0 FAIL and known
+evaluator-conflict WARNs is publish-ready per the quality rubric. The WARNs are
+system artifacts, not content defects.
+
+**Reopening conditions** (any one of these allows retry):
+- `prose_truth` evaluator updated to consult evidence panel (Option P1 from
+  `reports/skill-gaps/2026-04-06-prose-truth-evaluator-claim-check.md`)
+- Linter rule is identified and found to be configurable or removable
+- `attach_evidence.py` gains merge-safe mode that preserves manual `apis`
+- Knowledge model is updated (re-run S-12 → S-14 first; re-evaluate; if grade
+  drops, use appropriate skill chain)
+- Human explicitly authorizes a retry with specific rationale
 
 #### Quality gate dispatch — development vs launch
 
@@ -391,7 +438,11 @@ Agents must activate the upstream skill if it has not already been confirmed as 
 | `/content-audit` (S-32) | `/knowledge-bootstrap` | Always |
 | `/site-plan` (S-47) | `/knowledge-bootstrap` | Always |
 | `/family-sync` (S-48) | `/knowledge-bootstrap` | Always |
+| `/launch-product` (S-49) | S-47 `/site-plan` | Always (Stage 0.5 — must run before Stage 1; produces slug manifest) |
 | `/gap-apply` (S-46) | S-44 `/gap-plan` | Plan not in session context |
+| `/new-docs-index` (S-70) | `/knowledge-bootstrap` | Always |
+| `/new-kb-index` (S-69) | `/knowledge-bootstrap` | Always |
+| `/new-reference-index` (S-71) | `/knowledge-bootstrap` | Always |
 | `/register-human-content` (S-66) | `/knowledge-bootstrap` | Always |
 | `/evidence-repair` (S-72) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | `stale_since` not null |
 | `/manual-edit` (S-73) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | `stale_since` not null |
@@ -493,6 +544,33 @@ If the requirement does not match any task type in §6:
 4. Do not design a new workflow and execute it inline — this is prohibited by §11.
 5. Fill in the "Enhancement Plan" section of the gap escalation report fully. This is the
    mechanism by which the skill system grows to cover new requirements.
+
+### Anti-workaround mandate (added 2026-04-07)
+
+Before writing any inline loop, shell hack, manual file edit, or ad hoc Python in bash to
+work around a missing or broken pipeline step, you MUST:
+
+1. **Check for an existing script** — look in `scripts/pipeline/` for a script that covers
+   the need. If one exists but is broken or incomplete, classify as BROKEN and file a
+   breakage report (§6b). Fix the script; do not invent a parallel workaround.
+2. **Check for an existing skill** — if the task maps to a registered skill (§12), invoke it.
+   If the skill fails, classify as BROKEN. Do not bypass with ad hoc code.
+3. **If the capability is truly absent** — classify as NONE, produce a gap escalation report
+   immediately, and add the missing script or skill in the correct layer with CONTRACT comment,
+   tests, and docs before using it. Do not execute ad hoc work pending the addition.
+4. **If a workaround is unavoidable** — mark it explicitly as TEMPORARY in a comment, create
+   a tracked remediation item (gap escalation report at `reports/skill-gaps/`), and include
+   the exit criteria for when the workaround becomes unnecessary.
+5. **Reverify after every fix** — after adding or repairing a capability, re-run the original
+   failing scenario to prove the workaround is no longer needed. The sprint is not complete
+   until every former ad hoc step is replaced by its durable system path.
+
+Specific failures this rule prevents (Healing Sprint 2026-04-07):
+- Inline Python batch loops in bash → use `scripts/pipeline/batch_reference.py` (S-62)
+- PYTHONPATH prefix hacks → use `scripts/pipeline/run_content_eval.py` wrapper
+- Manual `stale_since` edits → `refresh_knowledge.py` clears it automatically after refresh
+- Dropping args from skill invocations → read the actual CLI first; fix spec if it drifts
+- On-the-fly kind filter rewrites → check `_CLASS_TYPES` in `extraction/tree_helpers.py`
 
 ## 6c. Causal Backtracking Protocol (added 2026-04-03)
 
@@ -647,6 +725,33 @@ The following 5 gates require human judgment and cannot be automated:
 | License accuracy | H-05 | Open source license claim matches repo LICENSE file |
 
 **Output**: `launch_gate.py` writes a per-gate result report to `reports/launch-gate/{family}-{platform}-{date}.md` (local only — never commit).
+
+### Launch Planning Governance Rules (added 2026-04-07)
+
+**Translation completeness rule**: For any 5-subdomain launch, all 5 subdomains must be
+translated after Stage 6 (truth audit) passes. The Stage 8 readiness scorecard must report
+per-subdomain locale coverage. `READY TO SHIP` requires >= 70% locale coverage (>= 26 of 36
+locales) across all 5 subdomains — not just the products page. Untranslated subdomains are
+a launch blocker at the same severity as a failing quality gate.
+
+**Proof-of-mechanism rule**: Any planning statement of the form "derived from X", "generated
+from Y", or "one page per Z" MUST identify the exact skill, script, output file, and threshold
+involved. Vague derivations — e.g. "one page per distinct capability cluster in claims" without
+naming `site_planner.py` / `/site-plan` — are treated as NONE capability (§6b) and must be
+escalated. Agents must trace the mechanism to code before writing it into a plan.
+
+**Computed slug policy**: Blog and KB how-to slugs in 5-subdomain launch plans MUST be read
+from `/site-plan` output (`reports/plans/{family}/{platform}/site_plan.yaml`). Hardcoding slug
+patterns in plan documents is prohibited unless the system explicitly requires manual operator
+input and that requirement is documented in the skill contract. This includes the 3rd optional
+blog deep-dive post: it is in the site plan or it does not exist — do not add or omit it
+based on agent judgment alone.
+
+**Minimum page-count check**: A launch plan that lists exactly 1 KB how-to article, exactly
+2 blog posts, or zero cluster-derived developer-guide pages without reading the site plan
+output is likely incomplete. Before finalising a launch plan, verify the site plan section
+counts match expectations (docs: >= 2 developer-guide pages for non-trivial products;
+KB: >= 1 how-to per eligible cluster up to 7; blog: 2 mandatory + optional 3rd).
 
 ## 7b. Human-Review Risk Tiers
 
@@ -1362,6 +1467,9 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | commit | S-76 | Full commit-prep workflow: inspect working tree, categorize changes, plan 2–8 Conventional Commits, handle override tokens for protected paths, add invoked-skill IDs to content commits, stage precisely (never git add -A), verify quality gates (pytest), create commits with structured bodies, clean up post-commit token lifecycle, print final summary |
 | session-start | S-77 | Mandatory session initialization gate: read AGENTS.md + CLAUDE.md in full, confirm §2 Read Order and §6b capability assessment method, output SESSION GATE PASSED block before accepting any task |
 | evidence-enhance | S-78 | Improve section evidence coverage on pages that already pass validation (audit.py PASS, grade A/B); thin wrapper around attach_evidence.py --force; evidence-frontmatter-only; never modifies body content; pre-flight audit required; revert-on-failure; use S-72 for validator-blocked pages |
+| launch-rollback | S-79 | Revert one product's generated content files to last committed git state without touching system files (scripts/, .agents/, reports/, knowledge/); reads site_plan.yaml for file list; dry-run manifest first; backs `scripts/pipeline/launch_rollback.py` |
+| coverage-reconcile | S-80 | Trace every knowledge unit (claim, API member) to a page disposition (used_in_content / excluded_by_planner / orphaned); writes `reports/coverage/{family}/{platform}/{date}-coverage-report.md`; backs `scripts/pipeline/knowledge_coverage.py` |
+| knowledge-coverage-audit | S-81 | Per-claim disposition table: maps every claim in merged/claims.json to exactly one disposition (USED_EVIDENCE / SURFACE_ONLY / EXCLUDED_THRESHOLD / EXCLUDED_TIER / ORPHANED); writes `reports/coverage/{family}/{platform}/knowledge_coverage.json` and `.md`; backs `scripts/pipeline/knowledge_coverage.py` |
 
 ### Enforcement scripts
 
@@ -1370,7 +1478,10 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | `scripts/pipeline/audit.py` | Deterministic S-23 content-check: verifies every API token in content against `api_surface.json` |
 | `scripts/pre-commit-audit.sh` | Pre-commit hook — blocks commits with API accuracy FAILs |
 | `.github/workflows/content-audit.yml` | CI — blocks PRs with API accuracy FAILs |
-| `scripts/pipeline/content_eval/` | Multi-dimensional content evaluation (16 evaluators); run via `python -m content_eval evaluate {family} {platform}` from `scripts/pipeline/`. DEFAULT_EVALUATORS = 9 (fast/deterministic); ALL_EVALUATORS = 16. |
+| `scripts/pipeline/content_eval/` | Multi-dimensional content evaluation (16 evaluators); run via `python scripts/pipeline/run_content_eval.py evaluate {family} {platform}` (no PYTHONPATH needed) or `python -m content_eval ...` from `scripts/pipeline/`. DEFAULT_EVALUATORS = 9 (fast/deterministic); ALL_EVALUATORS = 16. |
+| `scripts/pipeline/run_content_eval.py` | Wrapper entrypoint for content_eval — invoke from repo root without any PYTHONPATH prefix. Use this instead of `PYTHONPATH=scripts/pipeline python -m content_eval`. |
+| `scripts/pipeline/batch_reference.py` | Backing script for S-62 (batch-reference) — generates template-based reference pages from api_surface.json for headless/CI runs. CLI: `python scripts/pipeline/batch_reference.py {family} {platform} [--kind class\|enum\|all] [--limit N] [--dry-run]`. |
+| `scripts/pipeline/refresh_knowledge.py` | Runs the full knowledge pipeline (scout→enrich→promote→index) and auto-clears `stale_since` in `merged/model.yaml` after successful refresh. CLI: `python scripts/pipeline/refresh_knowledge.py {family} {platform}`. |
 | `scripts/ci/check_skill_readme_coverage.py` | Documentation coverage: asserts README.md exists in all four skill trees (skills/, .claude/commands/, .agents/skills/, .kilocode/skills/) and root README.md links to skills. **Blocking** (no continue-on-error). |
 
 Usage:

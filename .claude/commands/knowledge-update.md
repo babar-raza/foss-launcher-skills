@@ -1,21 +1,19 @@
 <!-- CONTRACT: scripts/pipeline/refresh_knowledge.py (runs scout.py + enrich.py + promote.py + index.py)
      postcondition: refresh_knowledge.py executes all 4 pipeline steps (scout → enrich → promote → index)
      postcondition: writes merged/pipeline_run.json confirming all 4 steps ran and index_succeeded status
-     postcondition: step 7 (stale flag clear) still requires explicit agent action after refresh
-     verified: 2026-04-01
+     postcondition: refresh_knowledge.py auto-clears stale_since in merged/model.yaml on successful refresh
+     verified: 2026-04-07
 -->
 # S-14: Knowledge Update - Refresh Knowledge Model from Source
 
 **Arguments**: $ARGUMENTS
-Expected format: `{family} {platform} {repo-path}`
+Expected format: `{family} {platform}`
 
-## Resolving `{repo-path}`
+## Clone Cache Resolution
 
-Use the local clone cache (auto-clones if missing):
-```bash
-repo_path=$(python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
-```
-Then invoke this skill as: `/knowledge-update {family} {platform} $repo_path`
+The script resolves the repo path automatically from the local clone cache. No `{repo-path}` argument
+is needed. If the clone cache directory is missing, the script auto-clones from `clone_url` in
+`data/products.json` (disable with `--no-auto-clone`).
 
 Override the cache root with `ASPOSE_CLONE_CACHE=/path/to/cache` if needed.
 
@@ -27,32 +25,32 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
 
 > **Note on `refresh_knowledge.py`**: Running `python scripts/pipeline/refresh_knowledge.py
 > {family} {platform}` executes all 4 pipeline steps: `scout.py → enrich.py → promote.py → index.py`.
-> After a successful run, `merged/pipeline_run.json` confirms all steps completed.
-> Step 7 (stale flag clear) is not automated and must still be performed explicitly
-> completes.
+> After a successful run, `merged/pipeline_run.json` confirms all steps completed and
+> `merged/model.yaml` has `stale_since` cleared automatically.
 
 ## Pre-conditions
 
-1. The repo at `{repo-path}` must be accessible and is a git repository
-2. `scripts/pipeline/scout.py` exists
-3. `scripts/pipeline/enrich.py` exists
-4. `scripts/pipeline/promote.py` exists
-5. `scripts/pipeline/index.py` exists
-6. Current knowledge exists at `knowledge/{family}/{platform}/` (at least `model.yaml`)
-7. Check `knowledge/{family}/{platform}/model.yaml` - if `stale_since` is null, warn that
+1. `scripts/pipeline/scout.py` exists
+2. `scripts/pipeline/enrich.py` exists
+3. `scripts/pipeline/promote.py` exists
+4. `scripts/pipeline/index.py` exists
+5. Current knowledge exists at `knowledge/{family}/{platform}/` (at least `model.yaml`)
+6. Check `knowledge/{family}/{platform}/model.yaml` - if `stale_since` is null, warn that
    knowledge may not need updating (proceed if user confirms)
 
 ## Steps
 
-1. **Parse arguments**: Extract `{family}`, `{platform}`, and `{repo-path}` from $ARGUMENTS.
+1. **Parse arguments**: Extract `{family}` and `{platform}` from $ARGUMENTS.
 
 2. **Back up current knowledge**: Copy `knowledge/{family}/{platform}/merged/` to
    `knowledge/{family}/{platform}/merged.bak/` so diffs can be computed later by S-20.
 
-3. **Run repo-scout** (S-34):
+3. **Run refresh pipeline**:
    ```
-   python scripts/pipeline/scout.py {family} {platform} {repo-path} knowledge/{family}/{platform}/scout/
+   python scripts/pipeline/refresh_knowledge.py {family} {platform}
    ```
+   This single command runs scout → enrich → promote → index in sequence.
+   Verify `knowledge/{family}/{platform}/merged/pipeline_run.json` confirms all steps ran.
    Verify outputs: `model.yaml`, `api_surface.json`, `claims.json` in `knowledge/{family}/{platform}/scout/`.
 
 4. **Run knowledge-enrich** (S-37):
@@ -70,8 +68,8 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
 6. **Run truth-index** (S-31):
    Generate the knowledge index from the merged artifacts. Verify `knowledge/{family}/{platform}/merged/index.json` is created.
 
-7. **Clear stale flag**: Update `knowledge/{family}/{platform}/model.yaml` to set `stale_since: null`
-   and update `last_refreshed` to today's date.
+7. **Verify stale flag cleared**: Confirm `knowledge/{family}/{platform}/merged/model.yaml` has
+   `stale_since: null`. This is now automated by `refresh_knowledge.py` — no manual edit needed.
 
 8. **Diff report**: Compare `merged.bak/claims.json` with `merged/claims.json` to summarize:
    - New claims added
@@ -92,4 +90,4 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
 
 - If repo-scout fails, abort and preserve existing knowledge (do not corrupt merged/)
 - If promote fails, restore from `merged.bak/`
-- If repo path is unreachable, abort with clear message
+- If clone cache is missing, script auto-clones from `clone_url` in `data/products.json`; use `--no-auto-clone` to disable
