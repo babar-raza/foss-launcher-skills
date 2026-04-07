@@ -26,6 +26,7 @@ from content_discovery import (  # noqa: E402  (R-1b: was knowledge_core)
 from evidence_verifier import verify_evidence  # noqa: E402  (R-3b: was knowledge_core)
 from core.markdown import parse_frontmatter  # noqa: E402  (R-2a: was knowledge_core)
 from token_ops import (  # noqa: E402
+    Finding,
     extract_tokens,
     verify_tokens,
 )
@@ -44,6 +45,32 @@ from audit.reports import (  # noqa: E402
 def _log(*args, **kwargs):
     """Print to stderr so stdout stays clean for --json."""
     print(*args, file=sys.stderr, **kwargs)
+
+
+def verify_faq_structure(fp: Path, fm: dict) -> list:
+    """FAIL if faq.list is non-empty in frontmatter — invisible to Hugo renderer.
+
+    Hugo renders .Content (markdown body) only and does not iterate frontmatter
+    YAML arrays. Any FAQ entries stored in faq.list are therefore never shown to
+    users. This check enforces that FAQ content lives exclusively in the body as
+    ### Question headings.
+    """
+    faq_list = fm.get("faq", {}).get("list", [])
+    if not faq_list:
+        return []
+    return [Finding(
+        level="FAIL",
+        filepath=str(fp),
+        line_no=1,
+        message=(
+            f"faq.list contains {len(faq_list)} entries in frontmatter but "
+            "Hugo renders .Content only — all entries are invisible to users"
+        ),
+        suggestion=(
+            "Regenerate using /new-kb-faq to materialize faq.list entries as "
+            "### headings in the markdown body; remove faq.list from frontmatter"
+        ),
+    )]
 
 
 CONTENT_ROOT = Path("content")
@@ -70,11 +97,12 @@ def audit_product(
 
     findings = []
     for f in files:
+        fm = parse_frontmatter(f)
         tokens = extract_tokens(f, platform)
         file_findings = verify_tokens(tokens, knowledge, f)
         findings.extend(file_findings)
+        findings.extend(verify_faq_structure(f, fm))
         if check_evidence:
-            fm = parse_frontmatter(f)
             findings.extend(verify_evidence(fm, knowledge, f))
         findings.extend(verify_internal_links(f))
         if check_snippets:
@@ -116,11 +144,14 @@ def audit_files(
             _log(f"  SKIP {fp}: no knowledge for {family}/{platform}")
             continue
 
+        fm = parse_frontmatter(fp)
         tokens = extract_tokens(fp, platform)
         file_findings = verify_tokens(tokens, knowledge, fp)
         findings.extend(file_findings)
+        faq_findings = verify_faq_structure(fp, fm)
+        file_findings.extend(faq_findings)
+        findings.extend(faq_findings)
         if check_evidence:
-            fm = parse_frontmatter(fp)
             findings.extend(verify_evidence(fm, knowledge, fp))
         link_findings = verify_internal_links(fp)
         file_findings.extend(link_findings)

@@ -91,6 +91,7 @@ from .reports import (
 )
 from .runner import (
     CONTENT_ROOT,
+    verify_faq_structure,
     audit_product,
     audit_files,
     main,
@@ -133,6 +134,7 @@ __all__ = [
     "_write_quality_baseline",
     "_prune_quality_trend",
     "CONTENT_ROOT",
+    "verify_faq_structure",
     "audit_product",
     "audit_files",
     "main",
