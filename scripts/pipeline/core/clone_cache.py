@@ -13,11 +13,12 @@ NFS, etc.).  When unset, defaults to ``<repo_root>/runs/.clone_cache/``.
 
 Public API::
 
-    cache_root()                    -> Path   # resolved cache directory
-    clone_path(family, platform)    -> Path   # expected clone dir
-    clone_exists(family, platform)  -> bool   # valid git clone present?
+    cache_root()                    -> Path      # resolved cache directory
+    clone_path(family, platform)    -> Path      # expected clone dir
+    clone_exists(family, platform)  -> bool      # valid git clone present?
     clone_head_sha(family, platform)-> str|None  # HEAD commit sha
-    ensure_clone(family, platform)  -> Path   # ensure clone exists; auto-clone if missing
+    ensure_clone(family, platform)  -> Path      # ensure clone exists; auto-clone if missing
+    update_clone(family, platform)  -> str|None  # fetch upstream + return new HEAD sha
 """
 from __future__ import annotations
 
@@ -121,6 +122,46 @@ def ensure_clone(family: str, platform: str) -> Path:
         )
 
     return p
+
+
+def update_clone(family: str, platform: str) -> Optional[str]:
+    """Fetch the latest commits from upstream and reset the clone to origin/HEAD.
+
+    Uses ``git fetch --depth=1 origin`` to stay shallow (avoids downloading full
+    history) then ``git reset --hard origin/HEAD`` to advance the local HEAD.
+
+    Returns the new HEAD commit SHA on success, or ``None`` if the fetch fails
+    (clone missing, network unavailable, or git error).  Never raises — callers
+    can treat ``None`` as "could not refresh; use existing clone".
+    """
+    p = clone_path(family, platform)
+    if not clone_exists(family, platform):
+        return None
+
+    try:
+        fetch = subprocess.run(
+            ["git", "fetch", "--depth=1", "origin"],
+            cwd=str(p),
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        if fetch.returncode != 0:
+            return None
+
+        reset = subprocess.run(
+            ["git", "reset", "--hard", "origin/HEAD"],
+            cwd=str(p),
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if reset.returncode != 0:
+            return None
+    except Exception:
+        return None
+
+    return clone_head_sha(family, platform)
 
 
 def _get_clone_url(family: str, platform: str) -> Optional[str]:
