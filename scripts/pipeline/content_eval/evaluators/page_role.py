@@ -233,6 +233,31 @@ class PageRoleEvaluator(BaseEvaluator):
                 evaluator=self.name,
             ))
 
+        # Rule 3 — faq.list vs body cross-check.
+        # If structured FAQ entries exist in frontmatter but no ### question headings
+        # exist in the body, every entry is invisible: Hugo renders .Content (body only)
+        # and does not iterate over frontmatter YAML arrays.
+        faq_list = fm.get("faq", {}).get("list", [])
+        if faq_list:
+            h3_count = sum(1 for h in page.headings if h.level == 3)
+            if h3_count == 0:
+                findings.append(Finding(
+                    level="FAIL",
+                    category="RV",
+                    filepath=str(page.filepath),
+                    line_no=1,
+                    message=(
+                        f"FAQ page has {len(faq_list)} entries in frontmatter `faq.list` "
+                        "but no `### Question` headings in body — entries are invisible "
+                        "to the Hugo renderer (renders .Content only)"
+                    ),
+                    suggestion=(
+                        "Regenerate using /new-kb-faq or materialize faq.list entries "
+                        "as ### headings in the markdown body; remove faq.list from frontmatter"
+                    ),
+                    evaluator=self.name,
+                ))
+
         return findings
 
     def _check_docs(self, page: Page) -> list[Finding]:
