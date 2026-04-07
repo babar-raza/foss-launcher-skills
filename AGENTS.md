@@ -207,18 +207,31 @@ site-plan and hardcode or re-derive slugs are in violation of this chain.
 
 ### Maintenance (repo changed)
 
-Resolve repo path first:
-```bash
-repo_path=$(python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
+Use S-84 (refresh-product) to run the full maintenance cycle in one command:
+```
+/refresh-product {family} {platform}
 ```
 
-Then run the chain:
+S-84 orchestrates the 14-step chain internally:
 ```
-S-12 (knowledge-diff {family} {platform} $repo_path)
-→ S-13 (stale-detect)
-→ S-14 (knowledge-update {family} {platform} $repo_path)
-→ S-20 (page-update) → S-23 (content-check / audit.py) → S-24 (evidence-cite) → S-01 → write
+S-12 (knowledge-diff — detect + fetch)       [exits early if no SHA change]
+→ S-14 (knowledge-update — refresh + write knowledge_delta.json)
+→ S-82 (delta-site-plan — site_planner --mode update)
+→ S-20 (page-update — update stale pages from knowledge_delta.json)
+→ delta-dispatch (generate pages_to_add by type)
+→ S-83 (page-retire --from-plan — retire pages_to_remove; dry-run first)
+→ S-62 --update (batch-reference — regenerate modified_apis reference pages)
+→ S-48 (family-sync)
+→ S-23 (content-check on all changed files)
+→ S-65 (link-validate)
+→ S-53 (translate-batch — content_hash-changed pages only)
+→ post_refresh_verify --step (progress tracking after each step)
+→ post_refresh_verify --verify (verification gate; must exit 0 before commit)
+→ S-76 (commit)
 ```
+
+Progress is tracked at `reports/refresh_state/{family}/{platform}/progress.json`.
+Check status: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --status`
 
 ### Enhancement (below rubric quality)
 
@@ -447,6 +460,9 @@ Agents must activate the upstream skill if it has not already been confirmed as 
 | `/evidence-repair` (S-72) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | `stale_since` not null |
 | `/manual-edit` (S-73) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | `stale_since` not null |
 | `/evidence-enhance` (S-78) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | `stale_since` not null |
+| `/delta-site-plan` (S-82) | S-14 `/knowledge-update` | Always (knowledge_delta.json must exist) |
+| `/page-retire` (S-83) | S-82 `/delta-site-plan` | When retiring from plan; or explicit operator path |
+| `/refresh-product` (S-84) | S-12 `/knowledge-diff` | Always (auto-invokes S-14, S-82, S-83 in sequence) |
 | Any content write | S-01 `/path-guard` | Always (final gate) |
 
 If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do not continue to the downstream skill.
@@ -1470,6 +1486,9 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | launch-rollback | S-79 | Revert one product's generated content files to last committed git state without touching system files (scripts/, .agents/, reports/, knowledge/); reads site_plan.yaml for file list; dry-run manifest first; backs `scripts/pipeline/launch_rollback.py` |
 | coverage-reconcile | S-80 | Trace every knowledge unit (claim, API member) to a page disposition (used_in_content / excluded_by_planner / orphaned); writes `reports/coverage/{family}/{platform}/{date}-coverage-report.md`; backs `scripts/pipeline/knowledge_coverage.py` |
 | knowledge-coverage-audit | S-81 | Per-claim disposition table: maps every claim in merged/claims.json to exactly one disposition (USED_EVIDENCE / SURFACE_ONLY / EXCLUDED_THRESHOLD / EXCLUDED_TIER / ORPHANED); writes `reports/coverage/{family}/{platform}/knowledge_coverage.json` and `.md`; backs `scripts/pipeline/knowledge_coverage.py` |
+| delta-site-plan | S-82 | Incremental site planning after knowledge update: runs `site_planner.py --mode update` to compute pages_to_add, pages_to_update, pages_to_remove, pages_renamed; writes delta section to site_plan.yaml; requires knowledge_delta.json from S-14 |
+| page-retire | S-83 | Retire obsolete content pages via `draft: true` + `retired_at` frontmatter (Hugo standard); never deletes files; dual-signal retirement rule (cluster + claim signal); --dry-run first; backs `scripts/pipeline/retire_page.py` |
+| refresh-product | S-84 | Full post-launch product refresh orchestration: 14-step chain from S-12 (detect) through S-14, S-82, S-20, delta-dispatch, S-83, S-62 --update, S-48, S-23, S-65, S-53, progress tracking, verification gate (post_refresh_verify --verify), and S-76 (commit); early-exit if no SHA change |
 
 ### Enforcement scripts
 
@@ -1481,7 +1500,9 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | `scripts/pipeline/content_eval/` | Multi-dimensional content evaluation (16 evaluators); run via `python scripts/pipeline/run_content_eval.py evaluate {family} {platform}` (no PYTHONPATH needed) or `python -m content_eval ...` from `scripts/pipeline/`. DEFAULT_EVALUATORS = 9 (fast/deterministic); ALL_EVALUATORS = 16. |
 | `scripts/pipeline/run_content_eval.py` | Wrapper entrypoint for content_eval — invoke from repo root without any PYTHONPATH prefix. Use this instead of `PYTHONPATH=scripts/pipeline python -m content_eval`. |
 | `scripts/pipeline/batch_reference.py` | Backing script for S-62 (batch-reference) — generates template-based reference pages from api_surface.json for headless/CI runs. CLI: `python scripts/pipeline/batch_reference.py {family} {platform} [--kind class\|enum\|all] [--limit N] [--dry-run]`. |
-| `scripts/pipeline/refresh_knowledge.py` | Runs the full knowledge pipeline (scout→enrich→promote→index) and auto-clears `stale_since` in `merged/model.yaml` after successful refresh. CLI: `python scripts/pipeline/refresh_knowledge.py {family} {platform}`. |
+| `scripts/pipeline/refresh_knowledge.py` | Runs the full knowledge pipeline (scout→enrich→promote→index), auto-clears `stale_since` in `merged/model.yaml` after successful refresh, and writes `merged/knowledge_delta.json` with semantic diff. CLI: `python scripts/pipeline/refresh_knowledge.py {family} {platform} [--no-auto-fetch] [--check-only]`. |
+| `scripts/pipeline/retire_page.py` | Retire content pages via `draft: true` + `retired_at` frontmatter (Hugo standard); backs S-83 (page-retire). CLI: `python scripts/pipeline/retire_page.py {file-path} [--dry-run]` or `--from-plan {site_plan_path}`. |
+| `scripts/pipeline/post_refresh_verify.py` | Post-refresh verification gate and progress tracker; backs S-84 (refresh-product). CLI: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step {name}` / `--verify` / `--status`. |
 | `scripts/ci/check_skill_readme_coverage.py` | Documentation coverage: asserts README.md exists in all four skill trees (skills/, .claude/commands/, .agents/skills/, .kilocode/skills/) and root README.md links to skills. **Blocking** (no continue-on-error). |
 
 Usage:

@@ -109,7 +109,7 @@ When adding a new `.py` file to `scripts/pipeline/`:
 
 ## Known technical debt
 
-- **Partial migration**: `knowledge_core.py` exists at the pipeline root and `core/knowledge.py` is a re-export shim for it. The intent was to move `knowledge_core` into `core/`, but the migration stalled. Both files exist; do not create a third. The shim (`core/knowledge.py`) means code importing `from core.knowledge import ...` is forward-compatible.
+- **knowledge_core.py file location** (deferred, not blocking): `knowledge_core.py` lives at the pipeline root; `core/knowledge.py` is a re-export shim. Phase R symbol extraction is complete — all 11 extracted symbols now live in their canonical homes (`content_discovery.py`, `evidence_verifier.py`, `core/markdown.py`). The public API of `knowledge_core.py` is now `{Knowledge, diff}` only. Physically moving the file into `core/` was considered but deferred indefinitely; the shim makes both import paths equivalent. Do not create a third copy. Do not reopen the physical relocation unless there is a concrete correctness argument.
 
 - **Flat root size**: 69 files at one level is intentional for this codebase. A namespace sub-package refactor (`kilocode/`, `ops/`) was considered (Track B) and closed: the registry's `owner_domain` field already provides logical grouping, and moving CLI entrypoints into sub-packages adds shim complexity with no operational benefit. Do not reopen this unless there is a concrete correctness or testability argument.
 
