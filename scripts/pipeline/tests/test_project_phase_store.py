@@ -41,8 +41,8 @@ def fake_content_target():
             shutil.copy(_FIXTURES_DIR / fname, merged / dest)
         (merged / "install.md").write_text("pip install aspose-fake-foss\n", encoding="utf-8")
 
-        original_root = knowledge_core.KNOWLEDGE_ROOT
-        knowledge_core.KNOWLEDGE_ROOT = root / "knowledge"
+        original_root = knowledge_core._KNOWLEDGE_ROOT
+        knowledge_core._KNOWLEDGE_ROOT = root / "knowledge"
 
         content_root = root / "content" / "docs.aspose.org" / "en" / "fake" / "python"
         content_root.mkdir(parents=True)
@@ -50,7 +50,7 @@ def fake_content_target():
         try:
             yield target
         finally:
-            knowledge_core.KNOWLEDGE_ROOT = original_root
+            knowledge_core._KNOWLEDGE_ROOT = original_root
 
 
 def _page_body(body: str, *, code_lang: str | None = None, apis: list[str] | None = None) -> str:

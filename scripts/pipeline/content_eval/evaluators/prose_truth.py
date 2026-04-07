@@ -139,6 +139,44 @@ class ProseTruthEvaluator(BaseEvaluator):
         # Build TF-IDF claim index for semantic matching (secondary tier, cached)
         claim_index = _get_claim_index(page.family, page.platform)
 
+        # Build section → claims map for strong-wording suppression (N2).
+        # Maps heading text to its claims list; only sections with ≥1 claim are included.
+        # Uses page.headings line_nos (always current) rather than the stored section "line"
+        # values (which can be stale after frontmatter rewrites).
+        _evidence = page.frontmatter.get("evidence") or {}
+        _section_claims: dict[str, list] = {}
+        for _sec in (_evidence.get("sections") or []):
+            _heading_text = _sec.get("heading", "")
+            _sec_claims = _sec.get("claims") or []
+            if _heading_text and _sec_claims:
+                _section_claims[_heading_text] = _sec_claims
+
+        # Build sorted list of (line_no, heading_text) for evidenced sections.
+        # Primary source: page.headings line_nos (always current).
+        # Fallback for sections whose heading text doesn't appear as an actual ##
+        # heading (e.g., preamble "Introduction" text before the first heading):
+        # insert at line 0 so all pre-heading prose is covered.
+        _heading_texts_in_page = {h.text for h in page.headings}
+        _evidenced_section_lines: list[tuple[int, str]] = []
+        for h in page.headings:
+            if h.text in _section_claims:
+                _evidenced_section_lines.append((h.line_no, h.text))
+        for _heading_text in _section_claims:
+            if _heading_text not in _heading_texts_in_page:
+                # Preamble/intro section with no matching heading — cover from line 0
+                _evidenced_section_lines.append((0, _heading_text))
+        _evidenced_section_lines.sort(key=lambda x: x[0])
+
+        def _enclosing_section_has_claims(line_no: int) -> bool:
+            """Return True if *line_no* falls within an evidence-backed section."""
+            enclosing: str | None = None
+            for sec_line, sec_heading in _evidenced_section_lines:
+                if sec_line <= line_no:
+                    enclosing = sec_heading
+                else:
+                    break
+            return bool(enclosing)
+
         # Build format lookup — merge entries so bidirectional formats get "both"
         format_support: dict[str, str] = {}
         for fmt in formats:
@@ -196,6 +234,13 @@ class ProseTruthEvaluator(BaseEvaluator):
                         semantic_score = claim_index.best_similarity(line_text)
                         if semantic_score >= 0.4:
                             continue  # Supported by semantic similarity
+
+                    # Tertiary tier: section-level evidence suppression.
+                    # If the line falls within a section that has ≥1 claim in
+                    # evidence.sections, the operator has explicitly backed this
+                    # section — suppress the strong-wording WARN.
+                    if _enclosing_section_has_claims(line_no):
+                        continue
 
                     # Site-specific severity: reference pages get FAIL,
                     # blog/kb/products get WARN, docs gets INFO.

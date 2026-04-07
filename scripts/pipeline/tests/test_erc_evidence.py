@@ -203,3 +203,86 @@ class TestMapperFallback:
         claim_ids, api_refs = _map_tokens_to_evidence([tok], k)
         # Should fall back to class-only key → ERC-fake-001
         assert "ERC-fake-001" in claim_ids
+
+
+# ---------------------------------------------------------------------------
+# knowledge_core.py — CLM- property claim indexing (Bug E1 fix — 2026-04-07)
+# ---------------------------------------------------------------------------
+
+class TestCLMPropertyClaims:
+    """CLM- property/field claims must be indexed in api_to_claim (format:
+    'ClassName.member property of type X').  Before the fix only method claims
+    (with parens) were indexed; property claims were silently dropped."""
+
+    def test_property_claim_indexed(self, tmp_path):
+        """'AutoFilter.Range property of type string' → api_to_claim['AutoFilter.Range']."""
+        claims = [
+            {
+                "claim_id": "CLM-prop-001",
+                "text": "AutoFilter.Range property of type string",
+                "kind": "property",
+            }
+        ]
+        api_surface = [
+            {"name": "AutoFilter", "methods": [], "properties": ["Range"],
+             "enum_members": [], "bases": []},
+        ]
+        k = _make_knowledge(tmp_path, api_surface=api_surface, claims=claims)
+        assert k.api_to_claim.get("AutoFilter.Range") == "CLM-prop-001", (
+            "CLM- property claim 'AutoFilter.Range property of type string' must be "
+            "indexed under 'AutoFilter.Range' in api_to_claim."
+        )
+
+    def test_field_claim_indexed(self, tmp_path):
+        """'Cell.Value field of type object' → api_to_claim['Cell.Value']."""
+        claims = [
+            {"claim_id": "CLM-field-001", "text": "Cell.Value field of type object", "kind": "field"},
+        ]
+        api_surface = [
+            {"name": "Cell", "methods": [], "properties": ["Value"],
+             "enum_members": [], "bases": []},
+        ]
+        k = _make_knowledge(tmp_path, api_surface=api_surface, claims=claims)
+        assert k.api_to_claim.get("Cell.Value") == "CLM-field-001"
+
+    def test_event_claim_indexed(self, tmp_path):
+        """'Workbook.Saved event of type EventHandler' → api_to_claim['Workbook.Saved']."""
+        claims = [
+            {"claim_id": "CLM-evt-001", "text": "Workbook.Saved event of type EventHandler"},
+        ]
+        api_surface = [
+            {"name": "Workbook", "methods": [], "properties": [],
+             "enum_members": [], "bases": []},
+        ]
+        k = _make_knowledge(tmp_path, api_surface=api_surface, claims=claims)
+        assert k.api_to_claim.get("Workbook.Saved") == "CLM-evt-001"
+
+    def test_method_claim_still_indexed(self, tmp_path):
+        """Method claims (with parens) continue to work alongside property claims."""
+        claims = [
+            {"claim_id": "CLM-method-001", "text": "Workbook.Save(path) -> void"},
+            {"claim_id": "CLM-prop-002", "text": "Workbook.FileName property of type string"},
+        ]
+        api_surface = [
+            {"name": "Workbook", "methods": ["Save"], "properties": ["FileName"],
+             "enum_members": [], "bases": []},
+        ]
+        k = _make_knowledge(tmp_path, api_surface=api_surface, claims=claims)
+        assert k.api_to_claim.get("Workbook.Save") == "CLM-method-001"
+        assert k.api_to_claim.get("Workbook.FileName") == "CLM-prop-002"
+
+    def test_method_wins_over_property_for_same_key(self, tmp_path):
+        """If a CLM- method and property share the same key, CLM- sorts first wins."""
+        # CLM- sorts before CLM- (same prefix); alphabetical order determines winner.
+        # "CLM-a" < "CLM-b", so CLM-a wins.
+        claims = [
+            {"claim_id": "CLM-a-001", "text": "Obj.Member(args) -> void"},  # method
+            {"claim_id": "CLM-b-001", "text": "Obj.Member property of type X"},  # property
+        ]
+        api_surface = [
+            {"name": "Obj", "methods": ["Member"], "properties": ["Member"],
+             "enum_members": [], "bases": []},
+        ]
+        k = _make_knowledge(tmp_path, api_surface=api_surface, claims=claims)
+        # First claim wins (alphabetically smallest claim_id = CLM-a-001)
+        assert k.api_to_claim.get("Obj.Member") == "CLM-a-001"

@@ -6,6 +6,8 @@ Covers:
   - refresh() returns "stale" in check_only mode when SHA differs
   - refresh() calls scout → enrich → promote → index in correct order
   - refresh() with auto_clone=False does not attempt clone
+  - refresh() auto-clears stale_since in model.yaml after successful refresh
+  - refresh() does NOT clear stale_since when scout fails
 """
 import sys
 from pathlib import Path
@@ -186,3 +188,87 @@ class TestRefreshSequencing:
         assert result == "refreshed"
         assert "promote" in call_order
         assert "index" in call_order
+
+
+# ---------------------------------------------------------------------------
+# stale_since lifecycle (F-4 regression tests)
+# ---------------------------------------------------------------------------
+
+class TestStaleFlagLifecycle:
+    """Verify refresh() auto-clears stale_since after a successful refresh.
+
+    These tests were added in the Healing Sprint (S-AD-HOC-4) to prevent the
+    recurrence of manual model.yaml edits after knowledge refreshes.
+    """
+
+    def _make_model_yaml(self, path: Path, stale_since: str | None = "2026-03-01") -> None:
+        import yaml as _yaml
+        data = {
+            "family": "cells",
+            "platform": "python",
+            "repo_sha": "old_sha",
+            "stale_since": stale_since,
+            "last_refreshed": "2026-03-01",
+        }
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(_yaml.safe_dump(data, allow_unicode=True), encoding="utf-8")
+
+    def test_stale_flag_cleared_after_refresh(self, tmp_path):
+        """After a successful refresh, stale_since must be null in merged/model.yaml."""
+        import yaml as _yaml
+        merged_dir = tmp_path / "knowledge" / "cells" / "python" / "merged"
+        merged_dir.mkdir(parents=True)
+        model_path = merged_dir / "model.yaml"
+        self._make_model_yaml(model_path, stale_since="2026-03-01")
+
+        with _patch_clone_dir(tmp_path), _patch_head("new_sha"), _patch_model("old_sha"), \
+             patch.object(_rk, "_run", return_value=True), \
+             patch.object(_rk, "_run_completeness_check"), \
+             patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
+            result = refresh("cells", "python")
+
+        assert result == "refreshed"
+        data = _yaml.safe_load(model_path.read_text(encoding="utf-8"))
+        assert data["stale_since"] is None, (
+            "stale_since must be cleared automatically after a successful refresh"
+        )
+
+    def test_stale_flag_not_cleared_on_scout_failure(self, tmp_path):
+        """When scout fails, stale_since must remain unchanged."""
+        import yaml as _yaml
+        merged_dir = tmp_path / "knowledge" / "cells" / "python" / "merged"
+        merged_dir.mkdir(parents=True)
+        model_path = merged_dir / "model.yaml"
+        self._make_model_yaml(model_path, stale_since="2026-03-01")
+
+        def fail_scout(cmd: list[str], label: str) -> bool:
+            return False  # scout fails → refresh returns "failed" immediately
+
+        with _patch_clone_dir(tmp_path), _patch_head("new_sha"), _patch_model("old_sha"), \
+             patch.object(_rk, "_run", side_effect=fail_scout), \
+             patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
+            result = refresh("cells", "python")
+
+        assert result == "failed"
+        data = _yaml.safe_load(model_path.read_text(encoding="utf-8"))
+        assert data["stale_since"] == "2026-03-01", (
+            "stale_since must not be cleared when the refresh pipeline fails"
+        )
+
+    def test_stale_already_null_no_side_effect(self, tmp_path):
+        """If stale_since is already null, refresh succeeds without error."""
+        import yaml as _yaml
+        merged_dir = tmp_path / "knowledge" / "cells" / "python" / "merged"
+        merged_dir.mkdir(parents=True)
+        model_path = merged_dir / "model.yaml"
+        self._make_model_yaml(model_path, stale_since=None)
+
+        with _patch_clone_dir(tmp_path), _patch_head("new_sha"), _patch_model("old_sha"), \
+             patch.object(_rk, "_run", return_value=True), \
+             patch.object(_rk, "_run_completeness_check"), \
+             patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
+            result = refresh("cells", "python")
+
+        assert result == "refreshed"
+        data = _yaml.safe_load(model_path.read_text(encoding="utf-8"))
+        assert data["stale_since"] is None

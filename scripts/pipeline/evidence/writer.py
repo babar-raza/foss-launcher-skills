@@ -66,6 +66,29 @@ def _extract_existing_claims(fm_text: str) -> list:
     return []
 
 
+def _extract_existing_apis(fm_text: str) -> list:
+    """Extract the apis list from an existing evidence block in frontmatter text.
+
+    Mirrors _extract_existing_claims. Used to preserve metadata-derived apis
+    (e.g. from batch_reference.py) when code-token extraction yields nothing.
+    """
+    import yaml
+
+    m = _EVIDENCE_BLOCK_RE.search(fm_text)
+    if not m:
+        return []
+    try:
+        parsed = yaml.safe_load(m.group(0))
+        if not isinstance(parsed, dict):
+            return []
+        inner = parsed.get("evidence", parsed)
+        if isinstance(inner, dict):
+            return list(inner.get("apis", []))
+    except Exception:
+        pass
+    return []
+
+
 def _build_evidence_yaml(evidence_dict: dict) -> str:
     """Serialize just the evidence: block to a YAML string.
 
@@ -106,7 +129,14 @@ def _write_evidence_to_frontmatter(filepath, evidence_dict) -> bool:
         merged_claims = sorted(set(
             existing_claims + list(evidence_dict.get("claims", []))
         ))
-        evidence_dict = {**evidence_dict, "claims": merged_claims}
+        # Merge apis: preserve metadata-derived apis (e.g. from batch_reference.py)
+        # when code-token extraction yields nothing. Both sources are valid —
+        # metadata-derived (class members) and code-extracted (token scan).
+        existing_apis = _extract_existing_apis(fm_text)
+        merged_apis = sorted(set(
+            existing_apis + list(evidence_dict.get("apis", []))
+        ))
+        evidence_dict = {**evidence_dict, "claims": merged_claims, "apis": merged_apis}
 
         evidence_yaml = _build_evidence_yaml(evidence_dict)
 

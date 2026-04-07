@@ -4,11 +4,13 @@ This test asserts that all known public symbols can be imported from
 knowledge_core.py. It serves as a canary: if any symbol is accidentally
 removed during Phase R extractions, this test fails before consumers break.
 
-Current surface (6 symbols, post R-1b + R-3b):
-  Knowledge, KNOWLEDGE_ROOT, PLATFORM_MAP, PLATFORM_RMAP, SITE_PATHS, LOCALE_RE, diff
+Current surface (2 symbols, post R-4):
+  Knowledge, diff
 
 Removed symbols (see canonical homes):
   discover_content / discover_products / infer_product → content_discovery (R-1b)
+  KNOWLEDGE_ROOT / PLATFORM_MAP / PLATFORM_RMAP        → content_discovery (R-4)
+  SITE_PATHS / LOCALE_RE                               → content_discovery (R-4)
   verify_evidence                                       → evidence_verifier (R-3b)
   parse_frontmatter / _FRONTMATTER_RE                  → core.markdown (R-2b)
 
@@ -24,38 +26,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 
 # ---------------------------------------------------------------------------
-# Import-level smoke test — 6 retained symbols (post R-1b + R-3b)
+# Import-level smoke test — 2 retained symbols (post R-4)
 # ---------------------------------------------------------------------------
 
 def test_knowledge_class_importable():
     from knowledge_core import Knowledge
     assert callable(Knowledge)
-
-
-def test_knowledge_root_importable():
-    from knowledge_core import KNOWLEDGE_ROOT
-    assert KNOWLEDGE_ROOT is not None
-
-
-def test_platform_map_importable():
-    from knowledge_core import PLATFORM_MAP
-    assert isinstance(PLATFORM_MAP, dict)
-
-
-def test_platform_rmap_importable():
-    from knowledge_core import PLATFORM_RMAP
-    assert isinstance(PLATFORM_RMAP, dict)
-
-
-def test_site_paths_importable():
-    from knowledge_core import SITE_PATHS
-    assert isinstance(SITE_PATHS, list)
-
-
-def test_locale_re_importable():
-    from knowledge_core import LOCALE_RE
-    import re
-    assert isinstance(LOCALE_RE, type(re.compile("")))
 
 
 def test_diff_importable():
@@ -69,29 +45,52 @@ def test_diff_importable():
 # ---------------------------------------------------------------------------
 
 def test_full_api_surface_import():
-    """All 7 remaining symbols importable (post R-1b + R-3b).
+    """All 2 remaining symbols importable (post R-4).
 
     Removed from surface (R-1b): discover_content, discover_products, infer_product.
     Removed from surface (R-3b): verify_evidence.
     Removed from surface (R-2b): parse_frontmatter, _FRONTMATTER_RE.
+    Removed from surface (R-4): KNOWLEDGE_ROOT, PLATFORM_MAP, PLATFORM_RMAP,
+                                 SITE_PATHS, LOCALE_RE → all now in content_discovery.
 
     This is the canonical baseline: if this test fails, an extraction sprint
     has removed a symbol without updating its consumers.
     """
-    from knowledge_core import (
-        Knowledge,
-        KNOWLEDGE_ROOT,
-        PLATFORM_MAP,
-        PLATFORM_RMAP,
-        SITE_PATHS,
-        LOCALE_RE,
-        diff,
-    )
+    from knowledge_core import Knowledge, diff
     assert callable(Knowledge)
     assert callable(diff)
+
+
+# ---------------------------------------------------------------------------
+# R-4 migration complete — constants now in content_discovery
+# ---------------------------------------------------------------------------
+
+def test_constants_not_in_knowledge_core():
+    """Confirm R-4 migration: constants removed from knowledge_core."""
+    import knowledge_core as kc
+    for sym in ("KNOWLEDGE_ROOT", "PLATFORM_MAP", "PLATFORM_RMAP", "SITE_PATHS", "LOCALE_RE"):
+        assert not hasattr(kc, sym), f"{sym} should have moved to content_discovery"
+
+
+def test_platform_map_importable_from_content_discovery():
+    from content_discovery import PLATFORM_MAP
     assert isinstance(PLATFORM_MAP, dict)
+
+
+def test_platform_rmap_importable_from_content_discovery():
+    from content_discovery import PLATFORM_RMAP
     assert isinstance(PLATFORM_RMAP, dict)
+
+
+def test_site_paths_importable_from_content_discovery():
+    from content_discovery import SITE_PATHS
     assert isinstance(SITE_PATHS, list)
+
+
+def test_locale_re_importable_from_content_discovery():
+    import re
+    from content_discovery import LOCALE_RE
+    assert isinstance(LOCALE_RE, type(re.compile("")))
 
 
 # ---------------------------------------------------------------------------
@@ -100,19 +99,19 @@ def test_full_api_surface_import():
 
 def test_platform_map_is_empty():
     """PLATFORM_MAP is intentionally empty (API compat; paths now use canonical names)."""
-    from knowledge_core import PLATFORM_MAP
+    from content_discovery import PLATFORM_MAP
     assert PLATFORM_MAP == {}
 
 
 def test_platform_rmap_is_empty():
     """PLATFORM_RMAP is intentionally empty (API compat)."""
-    from knowledge_core import PLATFORM_RMAP
+    from content_discovery import PLATFORM_RMAP
     assert PLATFORM_RMAP == {}
 
 
 def test_site_paths_has_five_sites():
     """SITE_PATHS must contain exactly 5 (site, path_pattern) tuples."""
-    from knowledge_core import SITE_PATHS
+    from content_discovery import SITE_PATHS
     assert len(SITE_PATHS) == 5
     sites = [s for s, _ in SITE_PATHS]
     assert "docs.aspose.org" in sites
@@ -124,7 +123,7 @@ def test_site_paths_has_five_sites():
 
 def test_locale_re_matches_locale_suffix():
     """LOCALE_RE must match locale-suffixed filenames."""
-    from knowledge_core import LOCALE_RE
+    from content_discovery import LOCALE_RE
     assert LOCALE_RE.search("_index.de.md")
     assert LOCALE_RE.search("page.fr.md")
     assert LOCALE_RE.search("guide.zh.md")
@@ -132,7 +131,7 @@ def test_locale_re_matches_locale_suffix():
 
 def test_locale_re_does_not_match_plain_md():
     """LOCALE_RE must not match plain .md files."""
-    from knowledge_core import LOCALE_RE
+    from content_discovery import LOCALE_RE
     assert not LOCALE_RE.search("_index.md")
     assert not LOCALE_RE.search("page.md")
 

@@ -45,14 +45,14 @@ def fake_knowledge_dir():
         (merged / "install.md").write_text("pip install aspose-fake-foss\n", encoding="utf-8")
 
         original_cg = change_guard.KNOWLEDGE_ROOT
-        original_kc = knowledge_core.KNOWLEDGE_ROOT
+        original_kc = knowledge_core._KNOWLEDGE_ROOT
         change_guard.KNOWLEDGE_ROOT = root / "knowledge"
-        knowledge_core.KNOWLEDGE_ROOT = root / "knowledge"
+        knowledge_core._KNOWLEDGE_ROOT = root / "knowledge"
         try:
             yield root / "knowledge"
         finally:
             change_guard.KNOWLEDGE_ROOT = original_cg
-            knowledge_core.KNOWLEDGE_ROOT = original_kc
+            knowledge_core._KNOWLEDGE_ROOT = original_kc
 
 
 class ParseNotImplementedTests(unittest.TestCase):

@@ -19,7 +19,7 @@ _HERE = Path(__file__).resolve().parent.parent
 if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
 
-from knowledge_core import KNOWLEDGE_ROOT  # noqa: E402
+from content_discovery import KNOWLEDGE_ROOT  # noqa: E402  (R-4: was knowledge_core)
 from token_ops import (  # noqa: E402
     PLATFORM_SDK_CLASSES,
     PROPERTY_CHAIN_CLASSES,

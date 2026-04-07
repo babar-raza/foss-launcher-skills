@@ -980,6 +980,269 @@ class TestClaimIndexCache:
 # EVALUATOR_LOGIC_VERSION invariant
 # ---------------------------------------------------------------------------
 
+class TestProseTruthSectionSuppression:
+    """Tests for N2: strong-words WARN suppressed when enclosing section has evidence claims.
+
+    All tests use `filepath` in the `kb` subdomain so prose_truth assigns WARN severity
+    for strong-wording findings.  knowledge=None skips the API claims path so only the
+    strong-words check is exercised.
+    """
+
+    _KB_PATH = "content/kb.aspose.org/en/email/cpp/test.md"
+
+    def setup_method(self):
+        from content_eval.evaluators.prose_truth import ProseTruthEvaluator
+        self.evaluator = ProseTruthEvaluator()
+
+    def test_strong_words_suppressed_in_evidenced_section(self):
+        """Strong word inside a section with ≥1 claim → WARN suppressed."""
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Test
+            evidence:
+              sections:
+              - heading: My Section
+                line: 0
+                claims:
+                - CLM-test-001
+                apis: []
+            ---
+            ## My Section
+
+            This library requires only a C++17 compiler.
+        """), self._KB_PATH)
+        findings = [f for f in self.evaluator.evaluate(page, None)
+                    if f.level == "WARN" and "Strong wording" in f.message]
+        assert len(findings) == 0, (
+            f"Expected strong-wording WARN suppressed by section evidence; got: {findings}"
+        )
+
+    def test_strong_words_not_suppressed_in_empty_claims_section(self):
+        """Strong word in a section with claims: [] → WARN still fires (no suppression)."""
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Test
+            evidence:
+              sections:
+              - heading: My Section
+                line: 0
+                claims: []
+                apis: []
+            ---
+            ## My Section
+
+            This library requires only a C++17 compiler.
+        """), self._KB_PATH)
+        findings = [f for f in self.evaluator.evaluate(page, None)
+                    if f.level == "WARN" and "Strong wording" in f.message]
+        assert len(findings) >= 1, (
+            "Expected strong-wording WARN to fire when section claims list is empty; "
+            f"got: {findings}"
+        )
+
+    def test_strong_words_suppressed_preamble_before_heading(self):
+        """Strong word in preamble text (before first ##) is suppressed when an
+        evidence section with claims has no matching ## heading in the body.
+
+        The section is inserted at line 0 via the preamble fallback, covering all
+        pre-heading prose.
+        """
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Test
+            evidence:
+              sections:
+              - heading: Introduction
+                line: 0
+                claims:
+                - CLM-test-001
+                apis: []
+            ---
+            This library uses only the C++ standard library.
+
+            ## Usage
+
+            See examples below.
+        """), self._KB_PATH)
+        findings = [f for f in self.evaluator.evaluate(page, None)
+                    if f.level == "WARN" and "Strong wording" in f.message]
+        assert len(findings) == 0, (
+            "Expected preamble strong-wording WARN suppressed when Introduction section "
+            f"has claims; got: {findings}"
+        )
+
+    def test_strong_words_not_suppressed_no_sections(self):
+        """Strong word with no evidence.sections in frontmatter → WARN fires normally."""
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Test
+            ---
+            ## My Section
+
+            This library requires only a C++17 compiler.
+        """), self._KB_PATH)
+        findings = [f for f in self.evaluator.evaluate(page, None)
+                    if f.level == "WARN" and "Strong wording" in f.message]
+        assert len(findings) >= 1, (
+            "Expected strong-wording WARN to fire when no evidence.sections; "
+            f"got: {findings}"
+        )
+
+
+class TestEvidenceCompleteness:
+    """Tests for EvidenceCompletenessEvaluator (WP-4: detect empty apis:/claims: on reference pages)."""
+
+    _REF_PATH = "content/reference.aspose.org/en/cells/net/MyClass.md"
+
+    def setup_method(self):
+        from content_eval.evaluators.evidence_completeness import EvidenceCompletenessEvaluator
+        self.evaluator = EvidenceCompletenessEvaluator()
+
+    def _make_ref_page(self, content: str) -> "Page":
+        return _make_page(content, self._REF_PATH)
+
+    def test_empty_apis_many_members_is_fail(self):
+        """apis: [] with >5 known members → FAIL."""
+        page = self._make_ref_page(textwrap.dedent("""\
+            ---
+            linkTitle: MyClass
+            layout: reference-single
+            evidence:
+              model_sha: abc123
+              claims: [ERC-001]
+              apis: []
+            ---
+            ## Overview
+            MyClass is a class.
+        """))
+        # Inject mock api_surface by patching _count_known_members
+        from unittest.mock import patch
+        with patch.object(self.evaluator, "_count_known_members", return_value=8):
+            findings = self.evaluator.evaluate(page, None)
+        fail_findings = [f for f in findings if f.level == "FAIL" and f.category == "EC"]
+        assert len(fail_findings) == 1
+        assert "8 known API members" in fail_findings[0].message
+
+    def test_empty_apis_few_members_is_warn(self):
+        """apis: [] with 1–5 known members → WARN (not FAIL)."""
+        page = self._make_ref_page(textwrap.dedent("""\
+            ---
+            linkTitle: MyClass
+            layout: reference-single
+            evidence:
+              model_sha: abc123
+              claims: [ERC-001]
+              apis: []
+            ---
+            ## Overview
+            MyClass is a class.
+        """))
+        from unittest.mock import patch
+        with patch.object(self.evaluator, "_count_known_members", return_value=3):
+            findings = self.evaluator.evaluate(page, None)
+        warn_findings = [f for f in findings if f.level == "WARN" and "known API members" in f.message]
+        fail_findings = [f for f in findings if f.level == "FAIL" and "known API members" in f.message]
+        assert len(warn_findings) == 1
+        assert len(fail_findings) == 0
+
+    def test_empty_apis_no_members_no_finding(self):
+        """apis: [] with 0 known members → no apis finding (acceptable for empty classes)."""
+        page = self._make_ref_page(textwrap.dedent("""\
+            ---
+            linkTitle: MyClass
+            layout: reference-single
+            evidence:
+              model_sha: abc123
+              claims: [ERC-001]
+              apis: []
+            ---
+            ## Overview
+            MyClass is a class.
+        """))
+        from unittest.mock import patch
+        with patch.object(self.evaluator, "_count_known_members", return_value=0):
+            findings = self.evaluator.evaluate(page, None)
+        apis_findings = [f for f in findings if "known API members" in f.message]
+        assert len(apis_findings) == 0
+
+    def test_populated_apis_no_finding(self):
+        """Non-empty apis: → no EC finding."""
+        page = self._make_ref_page(textwrap.dedent("""\
+            ---
+            linkTitle: MyClass
+            layout: reference-single
+            evidence:
+              model_sha: abc123
+              claims: [ERC-001]
+              apis:
+                - "MyClass.MyMethod"
+                - "MyClass.MyProp"
+            ---
+            ## Overview
+            MyClass is a class.
+        """))
+        from unittest.mock import patch
+        with patch.object(self.evaluator, "_count_known_members", return_value=2):
+            findings = self.evaluator.evaluate(page, None)
+        ec_findings = [f for f in findings if f.category == "EC"]
+        assert len(ec_findings) == 0
+
+    def test_empty_claims_is_warn(self):
+        """claims: [] on reference page → WARN."""
+        page = self._make_ref_page(textwrap.dedent("""\
+            ---
+            linkTitle: MyClass
+            layout: reference-single
+            evidence:
+              model_sha: abc123
+              claims: []
+              apis:
+                - "MyClass.MyMethod"
+            ---
+            ## Overview
+            MyClass is a class.
+        """))
+        from unittest.mock import patch
+        with patch.object(self.evaluator, "_count_known_members", return_value=1):
+            findings = self.evaluator.evaluate(page, None)
+        claim_warn = [f for f in findings if f.level == "WARN" and "claims" in f.message]
+        assert len(claim_warn) == 1
+
+    def test_non_reference_page_skipped(self):
+        """Evaluator only fires on reference subdomain pages."""
+        page = _make_page(textwrap.dedent("""\
+            ---
+            linkTitle: MyClass
+            layout: reference-single
+            evidence:
+              model_sha: abc123
+              claims: []
+              apis: []
+            ---
+            ## Overview
+            MyClass is a class.
+        """), "content/docs.aspose.org/en/cells/net/test.md")
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) == 0
+
+    def test_non_single_layout_skipped(self):
+        """reference-home layout pages are not checked."""
+        page = self._make_ref_page(textwrap.dedent("""\
+            ---
+            linkTitle: Cells Reference
+            layout: reference-home
+            evidence:
+              model_sha: abc123
+              claims: []
+              apis: []
+            ---
+            ## Overview
+            Reference home.
+        """))
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) == 0
+
+
 class TestEvaluatorLogicVersion:
     def test_evaluator_logic_version_is_nonempty(self):
         """EVALUATOR_LOGIC_VERSION must be a non-empty string.

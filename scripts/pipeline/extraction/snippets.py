@@ -66,6 +66,26 @@ def _collect_snippet_functions(
                 fname = _node_name(fn, language)
                 if fname and not fname.startswith("_"):
                     results.append((fname, fn, fn.start_point[0] + 1))
+        # C# top-level statement files (no class wrapper) in sample dirs:
+        # treat root-level expression/statement nodes as a single file snippet.
+        if language == "csharp" and is_example_dir and not results:
+            non_class_nodes = [
+                ch for ch in root.children
+                if ch.type not in class_types and ch.type != "using_directive"
+                and ch.type not in ("namespace_declaration", "comment",
+                                    "extern_alias_directive")
+                and not ch.type.endswith("_statement")  # skip isolated stmts
+            ]
+            # If there is any meaningful code at top level (not just using/ns)
+            has_top_level = any(
+                ch for ch in root.children
+                if ch.type not in ("using_directive", "extern_alias_directive",
+                                   "namespace_declaration")
+                and ch.type != "comment"
+            )
+            if has_top_level:
+                # Emit the entire root as one "file-level" snippet
+                results.append(("(top_level_program)", root, 1))
 
     elif language == "cpp":
         _gtest_macros = {"TEST", "TEST_F", "TEST_P", "TYPED_TEST"}

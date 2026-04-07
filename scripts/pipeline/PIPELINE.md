@@ -117,61 +117,56 @@ When adding a new `.py` file to `scripts/pipeline/`:
 
 - **Test coverage**: All pipeline tests now live in `scripts/pipeline/tests/`. Run via `pytest scripts/pipeline/tests/ -q`.
 
-## knowledge_core.py — Public API Census (R-0a, 2026-04-06)
+## knowledge_core.py — Public API Census (post-R-4, 2026-04-07)
 
-This census documents every symbol currently exported by `knowledge_core.py`.
-It is the gate for Phase R extractions — do not begin R-1 until this is committed.
+Phase R decomposition is complete. `knowledge_core.py` public API is now `{Knowledge, diff}`.
 See `test_knowledge_core_api_surface.py` for the machine-verifiable baseline.
 
-| Symbol | Type | Line | External fan-in | Move target | Status |
-|--------|------|------|----------------|-------------|--------|
-| `Knowledge` | class | 64 | 14 (highest fan-in) | stays in `knowledge_core.py` | **never move** |
-| `KNOWLEDGE_ROOT` | constant | 39 | 2 | `core/constants.py` (pending R-0c check) | candidate R-4 |
-| `PLATFORM_MAP` | constant | 44 | 2 | `core/constants.py` | candidate R-4 |
-| `PLATFORM_RMAP` | constant | 45 | 1 | `core/constants.py` | candidate R-4 |
-| `SITE_PATHS` | constant | 48 | 1 | `core/constants.py` | candidate R-4 |
-| `LOCALE_RE` | constant | 57 | 3 | `core/constants.py` | candidate R-4 |
-| `discover_content` | function | 433 | 4 | `content_discovery.py` (R-1) | ready for R-1a |
-| `discover_products` | function | 469 | 4 | `content_discovery.py` (R-1) | ready for R-1a |
-| `infer_product` | function | 451 | 3 | `content_discovery.py` (R-1) | ready for R-1a |
-| `parse_frontmatter` | function | 490 | 3 | remove; redirect to `core.markdown` | R-2 |
-| `verify_evidence` | function | 502 | 3 | `evidence_verifier.py` (R-3) | ready for R-3a |
-| `_FRONTMATTER_RE` | private re-import | 487 | 2 | remove alias; update `audit/links.py` | R-0b (deferred) |
-| `diff` | function | 584 | 0 (tests only) | stays in `knowledge_core.py` | **never move** |
+**Current public surface (2 symbols):**
 
-**Notes:**
-- `_FRONTMATTER_RE` is itself a re-import: `from core.markdown import _FRONTMATTER_READER_RE as _FRONTMATTER_RE`. The alias should be removed once `audit/links.py` and `core/knowledge.py` import from `core.markdown` directly (R-0b, separate sprint).
-- `parse_frontmatter` is a thin wrapper around `core.markdown._FRONTMATTER_RE` — essentially a duplicate. Direct consumers should use `core.markdown.parse_frontmatter` (R-2).
-- Constants (`PLATFORM_MAP`, `PLATFORM_RMAP`) are intentionally empty dicts (API compatibility). Move only if R-0c circular import check passes.
+| Symbol | Type | Line | External fan-in | Notes |
+|--------|------|------|----------------|-------|
+| `Knowledge` | class | 42 | 6 | Core model loader; highest fan-in; must remain stable |
+| `diff` | function | 420 | 0 (tests only) | CLI helper; retained in `knowledge_core.py` |
 
-**Import site count by file (non-test):**
+**Removed symbols and canonical homes (post-R-4):**
 
-| File | Symbols imported |
-|------|----------------|
-| `audit/__init__.py` | `Knowledge`, `discover_content`, `discover_products`, `infer_product`, `parse_frontmatter`, `verify_evidence` |
-| `audit/links.py` | `_FRONTMATTER_RE` |
-| `audit/runner.py` | `Knowledge`, `discover_content`, `discover_products`, `infer_product`, `parse_frontmatter`, `verify_evidence` |
-| `change_guard.py` | `Knowledge`, `PLATFORM_MAP` |
-| `check_grade_downgrade.py` | `LOCALE_RE` |
-| `check_grade_presence.py` | `LOCALE_RE`, `discover_content`, `discover_products` |
-| `content_audit.py` | `Knowledge`, `discover_content`, `discover_products`, `infer_product`, `PLATFORM_MAP` |
-| `content_eval/cli.py` | `Knowledge`, `discover_content`, `discover_products` |
-| `content_eval/evaluators/api_accuracy.py` | `Knowledge`, `verify_evidence` |
-| `content_eval/loader.py` | `Knowledge`, `discover_content`, `discover_products`, `infer_product` |
-| `core/knowledge.py` | `KNOWLEDGE_ROOT`, `PLATFORM_MAP`, `PLATFORM_RMAP`, `SITE_PATHS`, `LOCALE_RE`, `_FRONTMATTER_RE`, `Knowledge`, `discover_content`, `discover_products`, `infer_product`, `parse_frontmatter`, `verify_evidence` |
-| `evidence/mapper.py` | `KNOWLEDGE_ROOT` |
-| `evidence/runner.py` | `Knowledge`, `discover_content`, `discover_products`, `infer_product`, `parse_frontmatter`, `verify_evidence` |
-| `no_downgrade_guard.py` | `Knowledge`, `infer_product`, `parse_frontmatter`, `verify_evidence` |
-| `stale_detect.py` | `Knowledge`, `LOCALE_RE`, `parse_frontmatter` |
+| Symbol | Removed from `knowledge_core` | Canonical home | Sprint |
+|--------|------------------------------|----------------|--------|
+| `discover_content` | R-1b | `content_discovery.py` | R-1a |
+| `discover_products` | R-1b | `content_discovery.py` | R-1a |
+| `infer_product` | R-1b | `content_discovery.py` | R-1a |
+| `parse_frontmatter` | R-2b | `core/markdown.py` | R-2a |
+| `_FRONTMATTER_RE` | R-2b | `core/markdown.py` | R-0b |
+| `verify_evidence` | R-3b | `evidence_verifier.py` | R-3a |
+| `KNOWLEDGE_ROOT` | R-4 | `content_discovery.py` | R-4 |
+| `PLATFORM_MAP` | R-4 | `content_discovery.py` | R-4 |
+| `PLATFORM_RMAP` | R-4 | `content_discovery.py` | R-4 |
+| `SITE_PATHS` | R-4 | `content_discovery.py` | R-4 |
+| `LOCALE_RE` | R-4 | `content_discovery.py` | R-4 |
+
+**Import site count by file (non-test, post-R-4):**
+
+| File | Symbols imported from `knowledge_core` |
+|------|---------------------------------------|
+| `audit/__init__.py` | `Knowledge` |
+| `audit/runner.py` | `Knowledge` |
+| `content_audit.py` | `Knowledge` |
+| `content_eval/evaluators/api_accuracy.py` | `Knowledge` |
+| `content_eval/loader.py` | `Knowledge` |
 | `token_ops.py` | `Knowledge` |
+
+Fan-in reduced from 21 to 6 (Knowledge-only callers). All 11 removed symbols are imported
+from their canonical homes by all consumers. Verified by `test_constants_not_in_knowledge_core`
+and zero grep matches on removed-symbol import patterns.
 
 ## Maintainer Navigation Guide
 
 | If you need to… | Start here | Run after change |
 |-----------------|-----------|-----------------|
-| Change knowledge loading / model access | `knowledge_core.py` | full pytest (21 consumers) |
-| Change content file discovery | `knowledge_core.py` (→ `content_discovery.py` after R-1) | full pytest |
-| Change evidence validation | `knowledge_core.py` (→ `evidence_verifier.py` after R-3) | full pytest |
+| Change knowledge loading / model access | `knowledge_core.py` | full pytest (6 consumers) |
+| Change content file discovery | `content_discovery.py` | full pytest |
+| Change evidence validation | `evidence_verifier.py` | full pytest |
 | Change pre-write content gate | `change_guard.py` | `test_change_guard.py` |
 | Change post-write audit | `audit.py` → `audit/` package | `test_audit.py` |
 | Change site launch readiness | `site_planner.py`, `launch_gate.py` | `test_site_planner*.py` |
@@ -212,8 +207,9 @@ These rules govern when to create a new `kind=library` module at root:
 - **3+ scripts** need the same function → extract to `kind=library` at root (registered, tested)
 - **2 scripts** need it → duplicate and comment; no module for a single use
 - **Never** create a new `core/` module for logic that depends on `knowledge_core`; `core/` has a zero-dep rule. Only `core/knowledge.py` is grandfathered.
-- **Never** expand `knowledge_core.py`; it is a tracked hotspot (21 fan-in, 661 lines). Pending split in Phase R.
+- **Never** expand `knowledge_core.py`; it is a tracked module with 6 fan-in. Public API is `{Knowledge, diff}` (post-R-4).
 - New `kind=library` modules must set `requires_test: true` and have a matching `test_*.py` in `tests/`.
+- **Before extracting a symbol, run a fresh grep for all its import patterns** — `from <module> import <symbol>` and multi-import block variants. Consumer counts from prior documentation are estimates; 3 consumers were missed in R-1b because the grep was done at plan time, not execution time. Never rely on pre-counted lists.
 
 ## One-Shot Lifecycle Enforcement
 

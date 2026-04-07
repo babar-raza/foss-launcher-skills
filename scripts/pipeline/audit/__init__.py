@@ -42,17 +42,16 @@ if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
 
 # Re-export symbols that audit.py previously exposed.
-# R-1b: discover_* now sourced from content_discovery (canonical).
-# R-3b: verify_evidence now sourced from evidence_verifier (canonical).
-from knowledge_core import (  # noqa: E402
+# R-1b: discover_* sourced from content_discovery (canonical).
+# R-3b: verify_evidence sourced from evidence_verifier (canonical).
+# R-4: constants sourced from content_discovery (canonical).
+from knowledge_core import Knowledge  # noqa: E402
+from content_discovery import (  # noqa: E402  (R-1b/R-4: was knowledge_core)
     KNOWLEDGE_ROOT,
     PLATFORM_MAP,
     PLATFORM_RMAP,
     SITE_PATHS,
     LOCALE_RE,
-    Knowledge,
-)
-from content_discovery import (  # noqa: E402  (R-1b: was knowledge_core)
     discover_content,
     discover_products,
     infer_product,
@@ -98,7 +97,7 @@ from .runner import (
 )
 
 __all__ = [
-    # knowledge_core re-exports
+    # knowledge_core / content_discovery re-exports
     "KNOWLEDGE_ROOT",
     "PLATFORM_MAP",
     "PLATFORM_RMAP",
