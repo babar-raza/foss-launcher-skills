@@ -204,7 +204,7 @@ class TestDiscoverContentCWDIndependence:
     def test_discover_content_from_foreign_cwd(self, tmp_path, monkeypatch):
         """discover_content must find files when CWD is an empty temp dir."""
         monkeypatch.chdir(tmp_path)
-        from knowledge_core import discover_content
+        from content_discovery import discover_content  # R-1b: canonical home
         files = discover_content("note", "python")
         assert len(files) > 0, (
             f"discover_content('note','python') returned 0 files from CWD={tmp_path}. "
@@ -214,7 +214,7 @@ class TestDiscoverContentCWDIndependence:
     def test_discover_products_from_foreign_cwd(self, tmp_path, monkeypatch):
         """discover_products must find products when CWD is an empty temp dir."""
         monkeypatch.chdir(tmp_path)
-        from knowledge_core import discover_products
+        from content_discovery import discover_products  # R-1b: canonical home
         products = discover_products()
         assert len(products) >= 10, (
             f"discover_products() returned {len(products)} from CWD={tmp_path}. "
