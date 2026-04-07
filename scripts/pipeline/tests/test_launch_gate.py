@@ -34,16 +34,27 @@ class TestCheckProvenanceCoverage:
         text = "title: Example\ncontent goes here\n"
         assert _check_provenance_coverage(text) == "ok"
 
-    def test_frontmatter_without_provenance_block_returns_ok(self):
-        """Frontmatter that has no provenance: key is fine — no enforcement applies."""
+    def test_structural_page_without_provenance_returns_ok(self):
+        """Structural pages (layout: list/family/reference-home) are exempt from provenance requirement."""
         text = textwrap.dedent("""\
             ---
             title: Example
-            layout: single
+            layout: list
             ---
             Content here.
         """)
         assert _check_provenance_coverage(text) == "ok"
+
+    def test_non_structural_without_provenance_returns_absent(self):
+        """Non-structural content page with no provenance block returns absent_provenance (L-08b)."""
+        text = textwrap.dedent("""\
+            ---
+            title: Example
+            layout: reference-single
+            ---
+            Content here.
+        """)
+        assert _check_provenance_coverage(text) == "absent_provenance"
 
     def test_provenance_with_content_origin_returns_ok(self):
         """Provenance block with content_origin present — passes."""

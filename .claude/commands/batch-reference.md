@@ -1,3 +1,12 @@
+<!-- CONTRACT: scripts/pipeline/batch_reference.py (backing script for headless/CI batch runs)
+     purpose: generate template-based skeleton reference pages from api_surface.json without LLM
+     cli: python scripts/pipeline/batch_reference.py {family} {platform} [--kind class|enum|all] [--limit N] [--dry-run]
+     postcondition: applies same platform scope rules as this skill (kind values match tree-sitter output)
+     postcondition: idempotent — skips existing pages; re-run on populated platform yields Generated: 0
+     postcondition: prints S-62 summary format (Candidates / Generated / Skipped / Errors)
+     verified: 2026-04-07
+-->
+
 # S-62: Batch Reference — Generate Reference Pages in Bulk
 
 Generate reference pages in bulk for all missing classes/enums in a given family + platform.
@@ -58,19 +67,35 @@ Apply **platform scope rules** to determine the candidate list:
 - **Include** types where `kind == "enum_specifier"`
 
 #### Python (`python`) scope rules
-- **Include** types where `kind == "class"` AND name does NOT match `^I[A-Z]`
-- **Include** types where `kind == "enum"`
+- **Include** types where `kind == "class_definition"` AND name does NOT match `^I[A-Z]`
+  AND the class is NOT an enum subclass (see enum rule below)
+- **Include** types where `kind == "class_definition"` AND the class inherits from one of:
+  `Enum`, `IntEnum`, `StrEnum`, `Flag`, `IntFlag`, `enum.Enum`, `enum.IntEnum`, `enum.StrEnum`,
+  `enum.Flag`, `enum.IntFlag` — these are the Python enum classes
 
 #### Java (`java`) scope rules
-- **Include** types where `kind` is `class`, `interface`, or `enum`
+- **Include** types where `kind` is `"class_declaration"`, `"interface_declaration"`, or `"enum_declaration"`
 - Include I-prefixed types (Java interfaces are part of the public API)
 
 #### .NET (`net`) scope rules
-- **Include** types where `kind` is `class`, `interface`, `enum`, or `struct`
+- **Include** types where `kind` is `"class_declaration"`, `"interface_declaration"`,
+  `"enum_declaration"`, or `"struct_declaration"`
 - Include I-prefixed types (C# interfaces are part of the public API)
 
 #### TypeScript (`typescript`) scope rules
-- **Include** types where `kind` is `class`, `interface`, or `enum`
+- **Include** types where `kind` is `"class_declaration"`, `"interface_declaration"`, or `"enum_declaration"`
+
+> **KIND Reference** — actual values emitted by the scanner (`api_surface.py` sets `"kind": cnode.type`):
+>
+> | Platform | Class kinds | Enum kind |
+> |----------|------------|-----------|
+> | `cpp`    | `class_specifier`, `struct_specifier` | `enum_specifier` |
+> | `python` | `class_definition` | `class_definition` (detect via base class) |
+> | `java`   | `class_declaration`, `interface_declaration` | `enum_declaration` |
+> | `net`    | `class_declaration`, `interface_declaration`, `struct_declaration`, `record_declaration` | `enum_declaration` |
+> | `typescript` | `class_declaration`, `interface_declaration`, `type_alias_declaration` | `enum_declaration` |
+>
+> Source of truth: `scripts/pipeline/extraction/tree_helpers.py` `_CLASS_TYPES` dict.
 
 Apply the `--kind` filter on top of platform scope:
 - `--kind class` → keep only class/interface/struct entries (not enums)
@@ -100,13 +125,24 @@ For each entry marked `GENERATE`, in order:
 
 **Log progress**: `[{n}/{total_to_generate}] Generating page for {ClassName} ({kind})...`
 
-Invoke `/new-reference-page {family} {platform} {ClassName}` passing the class data from api_surface.json.
+Invoke the batch generation script:
 
-This will:
-- Build frontmatter with `categories: [Class]` or `categories: [Enum]` or `categories: [Interface]`
-- Generate the body using the knowledge files
-- Write to `content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md`
-- Attach evidence via `attach_evidence.py`
+```bash
+python scripts/pipeline/batch_reference.py {family} {platform}
+```
+
+The script generates all class pages using templates from `api_surface.json`. For each page it:
+- Builds frontmatter including `provenance:` block (`content_origin: skill-generated`, `content_created_at`) and `evidence:` block
+- Generates the body sections (Overview, Constructors, Methods, Properties, etc.)
+- Writes to `content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md`
+- Calls `attach_evidence()` with `force=True` to replace the template evidence block with
+  tokenised API citations and auto-grade the page (`grade:`, `graded_at:`, etc.)
+
+> **Contract note (Fix 10, 2026-04-07)**: Prior to Fix 8, `batch_reference.py` wrote pages
+> without a `provenance:` block and without calling `attach_evidence()`. This meant reference
+> pages lacked grading and violated Control 1 (AGENTS.md §6.3). Fix 8 corrected both gaps.
+> The skill spec previously documented invocation via `/new-reference-page` per class — the
+> actual implementation uses the batch script directly. This note records the correction.
 
 **D-1/D-2/D-3 enforcement** (all pages, non-negotiable):
 - **D-1 description**: Use `class.doc` from api_surface.json. If absent, write `[No documentation available — class summary not captured by scout]`. Do NOT invent a description.

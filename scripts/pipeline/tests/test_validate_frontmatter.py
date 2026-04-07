@@ -31,6 +31,11 @@ CLEAN_FILE = """\
 title: Valid Page
 type: docs
 weight: 10
+provenance:
+  content_origin: skill-generated
+  last_mechanism: skill
+  auto_updatable: true
+  content_created_at: '2026-01-01T00:00:00+00:00'
 ---
 Body text.
 """
@@ -165,6 +170,7 @@ class TestDoubleFrontmatter:
         content = (
             "---\n"
             "title: Dashes in body\n"
+            "layout: list\n"
             "---\n"
             "Some text with --- in a line.\n"
             "More text.\n"
