@@ -266,8 +266,8 @@ class PageRoleEvaluator(BaseEvaluator):
             h3_count = sum(1 for h in page.headings if h.level == 3)
             if h3_count == 0:
                 findings.append(Finding(
-                    level="WARN",
-                    category="QA",
+                    level="FAIL",
+                    category="RV",
                     filepath=str(page.filepath),
                     line_no=1,
                     message="FAQ page has no `### Question` H3 headings in body",

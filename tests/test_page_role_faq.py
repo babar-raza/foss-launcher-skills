@@ -240,61 +240,64 @@ class TestExistingRulesUnchanged:
 # Rule 4 — bold-format FAQ pages without faq.list must emit WARN QA
 # ---------------------------------------------------------------------------
 
-def _rule4_warns(findings: list[Finding]) -> list[Finding]:
-    """Return only Rule-4 WARN findings (H3 headings absent, no faq.list)."""
+def _rule4_fails(findings: list[Finding]) -> list[Finding]:
+    """Return only Rule-4 FAIL findings (H3 headings absent, no faq.list)."""
     return [
         f for f in findings
-        if f.level == "WARN" and f.category == "QA" and "H3" in f.message
+        if f.level == "FAIL" and f.category == "RV" and "H3" in f.message
     ]
 
 
-class TestFaqNoH3WithoutFaqListEmitsWarn:
-    """Rule 4: FAQ page with no faq.list AND no H3 headings must emit WARN QA.
+class TestFaqNoH3WithoutFaqListEmitsFail:
+    """Rule 4: FAQ page with no faq.list AND no H3 headings must emit FAIL RV.
 
     Root-cause context (secondary defect class):
         3d/java, 3d/net, email/net, and email/python FAQ pages were generated
         with **bold** question format instead of ### H3 headings. Content renders
         (not invisible) but lacks semantic heading structure. Rule 3 does not
         catch these because they have no faq.list. Rule 4 fills this gap.
+
+    Severity escalated to FAIL RV after the 4 affected pages were remediated
+    to H3 standard (all now have ### headings; audit confirmed Grade A).
     """
 
-    def test_bold_format_page_no_h3_emits_warn(self):
-        """Bold-format page (no H3, no faq.list) triggers Rule 4 WARN QA."""
+    def test_bold_format_page_no_h3_emits_fail(self):
+        """Bold-format page (no H3, no faq.list) triggers Rule 4 FAIL RV."""
         page = _faq_page(faq_list=None, headings=[
             Heading(level=2, text="Installation", line_no=10),
             Heading(level=2, text="API Usage", line_no=20),
             Heading(level=2, text="Limitations", line_no=30),
         ])
         findings = _EVALUATOR.evaluate(page, knowledge=None)
-        warns = _rule4_warns(findings)
-        assert warns, (
-            "WARN QA not emitted for FAQ page with 0 H3 headings and no faq.list. "
+        fails = _rule4_fails(findings)
+        assert fails, (
+            "FAIL RV not emitted for FAQ page with 0 H3 headings and no faq.list. "
             f"All findings: {[f.message for f in findings]}"
         )
 
-    def test_warn_category_is_qa(self):
-        """Rule 4 finding must use QA category."""
+    def test_fail_category_is_rv(self):
+        """Rule 4 finding must use RV category."""
         page = _faq_page(faq_list=None, headings=[])
         findings = _EVALUATOR.evaluate(page, knowledge=None)
-        warns = _rule4_warns(findings)
-        assert warns
-        assert all(f.category == "QA" for f in warns)
+        fails = _rule4_fails(findings)
+        assert fails
+        assert all(f.category == "RV" for f in fails)
 
-    def test_warn_level_is_warn_not_fail(self):
-        """Rule 4 is WARN not FAIL — bold-format content is visible, not invisible."""
+    def test_fail_level_is_fail(self):
+        """Rule 4 is FAIL — missing H3 headings blocks KB template rendering."""
         page = _faq_page(faq_list=None, headings=[])
         findings = _EVALUATOR.evaluate(page, knowledge=None)
-        warns = _rule4_warns(findings)
-        assert warns
-        assert all(f.level == "WARN" for f in warns)
+        fails = _rule4_fails(findings)
+        assert fails
+        assert all(f.level == "FAIL" for f in fails)
 
     def test_suggestion_references_new_kb_faq(self):
         """Rule 4 suggestion must reference /new-kb-faq."""
         page = _faq_page(faq_list=None, headings=[])
         findings = _EVALUATOR.evaluate(page, knowledge=None)
-        warns = _rule4_warns(findings)
-        assert warns
-        assert "/new-kb-faq" in warns[0].suggestion
+        fails = _rule4_fails(findings)
+        assert fails
+        assert "/new-kb-faq" in fails[0].suggestion
 
     def test_h3_heading_present_suppresses_rule4(self):
         """When at least one H3 heading exists, Rule 4 must not fire."""
@@ -304,9 +307,9 @@ class TestFaqNoH3WithoutFaqListEmitsWarn:
             Heading(level=3, text="How do I save?", line_no=20),
         ])
         findings = _EVALUATOR.evaluate(page, knowledge=None)
-        warns = _rule4_warns(findings)
-        assert not warns, (
-            f"Rule 4 must not fire when H3 headings are present; got: {[f.message for f in warns]}"
+        fails = _rule4_fails(findings)
+        assert not fails, (
+            f"Rule 4 must not fire when H3 headings are present; got: {[f.message for f in fails]}"
         )
 
     def test_faq_list_with_no_h3_uses_rule3_not_rule4(self):
@@ -314,18 +317,18 @@ class TestFaqNoH3WithoutFaqListEmitsWarn:
         page = _faq_page(faq_list=_FAQ_ENTRIES, headings=[])
         findings = _EVALUATOR.evaluate(page, knowledge=None)
         rule3_fails = _rule3_fails(findings)
-        rule4_warns = _rule4_warns(findings)
+        rule4_fails = _rule4_fails(findings)
         assert rule3_fails, "Rule 3 must still fire when faq.list non-empty"
-        assert not rule4_warns, (
+        assert not rule4_fails, (
             "Rule 4 must NOT fire when faq.list is non-empty (Rule 3 covers that case)"
         )
 
     def test_empty_page_no_spurious_rule4(self):
-        """A completely empty FAQ page emits Rule 4 WARN (correct — no H3s, no faq.list)."""
-        # This is expected behavior: even an empty body page gets Rule 4 WARN.
+        """A completely empty FAQ page emits Rule 4 FAIL (correct — no H3s, no faq.list)."""
+        # This is expected behavior: even an empty body page gets Rule 4 FAIL.
         page = _faq_page(faq_list=None, headings=[])
         findings = _EVALUATOR.evaluate(page, knowledge=None)
-        warns = _rule4_warns(findings)
+        fails = _rule4_fails(findings)
         # Rule 4 SHOULD fire here — empty page is a valid Rule 4 trigger.
         # Verify it's only one Rule 4 finding (no duplication).
-        assert len(warns) == 1, f"Expected exactly 1 Rule 4 WARN; got {len(warns)}"
+        assert len(fails) == 1, f"Expected exactly 1 Rule 4 FAIL; got {len(fails)}"
