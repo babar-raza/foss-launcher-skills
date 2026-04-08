@@ -47,3 +47,21 @@ scripts:
     purpose: "Rewrite body content of all 11 cells/net reference pages; merges scripts/update_reference_pages.py + update_refs2.py (now deleted)"
     created: "2026-04-08"
     status: pending
+
+  - path: scripts/maintenance/repair_access_mode_column.py
+    kind: repair
+    purpose: "Fix access_mode column values in content frontmatter (moved from scripts/fix_access_mode.py)"
+    created: "2026-04-08"
+    status: done
+
+  - path: scripts/maintenance/repair_saveformat_indent.py
+    kind: repair
+    purpose: "Fix SaveFormat import indentation in code samples (moved from scripts/fix_saveformat_import_indent.py)"
+    created: "2026-04-08"
+    status: done
+
+  - path: scripts/maintenance/repair_stale_claims.py
+    kind: repair
+    purpose: "Repair stale API claims in content pages (moved from scripts/fix_stale_claims.py)"
+    created: "2026-04-08"
+    status: done

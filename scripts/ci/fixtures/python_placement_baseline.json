@@ -1,13 +1,10 @@
 {
   "description": "Known Python placement violations as of 2026-04-08. Remove entries as cleanup completes. If this list grows beyond its initial count, the system is failing.",
-  "initial_count": 11,
+  "initial_count": 8,
   "violations": [
-    {"rule": 2, "path": "scripts/fix_access_mode.py", "note": "legacy pre-hook; target: scripts/maintenance/repair_access_mode_column.py"},
     {"rule": 2, "path": "scripts/fix_email_net_remaining.py", "note": "legacy pre-hook; target: scripts/maintenance/repair_email_net_stubs_pass2.py"},
     {"rule": 2, "path": "scripts/fix_email_net_stubs.py", "note": "legacy pre-hook; target: scripts/maintenance/repair_email_net_stubs.py"},
     {"rule": 2, "path": "scripts/fix_note_python_stubs.py", "note": "legacy pre-hook; target: scripts/maintenance/repair_note_python_stubs.py"},
-    {"rule": 2, "path": "scripts/fix_saveformat_import_indent.py", "note": "legacy pre-hook; target: scripts/maintenance/repair_saveformat_indent.py"},
-    {"rule": 2, "path": "scripts/fix_stale_claims.py", "note": "legacy pre-hook; target: scripts/maintenance/repair_stale_claims.py"},
     {"rule": 2, "path": "scripts/patch_products_locales.py", "note": "legacy pre-hook; target: scripts/maintenance/repair_products_locales.py"},
     {"rule": 2, "path": "scripts/regen_3d_typescript.py", "note": "legacy pre-hook; target: scripts/maintenance/regen_3d_typescript.py"},
     {"rule": 3, "path": "scripts/one-shot/auto_expand_stubs.py", "note": "legacy; review for move to scripts/maintenance/ or deletion"},
