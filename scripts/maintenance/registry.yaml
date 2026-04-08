@@ -95,3 +95,21 @@ scripts:
     purpose: "Fill stub pages for note/python product (moved from scripts/fix_note_python_stubs.py)"
     created: "2026-04-08"
     status: done
+
+  - path: scripts/maintenance/repair_reference_stubs_auto_expand.py
+    kind: repair
+    purpose: "Auto-expand stub reference pages across all repos (moved from scripts/one-shot/auto_expand_stubs.py)"
+    created: "2026-04-08"
+    status: done
+
+  - path: scripts/maintenance/repair_3d_typescript_stubs.py
+    kind: repair
+    purpose: "Expand 3D TypeScript reference stubs — pass 1 (moved from scripts/one-shot/expand_3d_typescript_stubs.py)"
+    created: "2026-04-08"
+    status: done
+
+  - path: scripts/maintenance/repair_3d_typescript_stubs_pass2.py
+    kind: repair
+    purpose: "Expand 3D TypeScript reference stubs — pass 2 (moved from scripts/one-shot/expand_3d_typescript_stubs_pass2.py)"
+    created: "2026-04-08"
+    status: done
