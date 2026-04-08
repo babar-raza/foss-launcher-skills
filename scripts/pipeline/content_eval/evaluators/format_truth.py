@@ -70,6 +70,14 @@ _BOTH_VERB_RE = re.compile(
 
 _EXT_RE = re.compile(r"^[a-z0-9]{2,6}$")
 
+# Negation context — when a format mention is surrounded by these phrases it is
+# explicitly described as unsupported and should NOT be counted as an "unknown" mention.
+_NEGATION_RE = re.compile(
+    r"\b(?:not\s+support|unsupport|are\s+not|is\s+not|cannot|no\s+support|"
+    r"does\s+not\s+support|don't\s+support|doesn't\s+support)\b",
+    re.IGNORECASE,
+)
+
 
 def _is_enum_name_schema(entries: list[dict]) -> bool:
     """Return True when formats.json uses enum names (e.g. OneNote2010) not file extensions.
@@ -312,6 +320,10 @@ class FormatTruthEvaluator(BaseEvaluator):
 
         # --- Scan prose lines ---
         for line_no, line_text in page.prose_lines:
+            # Skip lines that explicitly state a format is NOT supported —
+            # these are honest limitation disclosures, not false capability claims.
+            if _NEGATION_RE.search(line_text):
+                continue
             mentions = _extract_format_mentions(line_text)
             for ext, pos in mentions:
                 # Build context around the position for direction detection
