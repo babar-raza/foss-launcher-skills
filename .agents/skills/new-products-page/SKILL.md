@@ -89,17 +89,58 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
 9. **Invoke no-downgrade-guard**: Before writing, check if existing page has a higher quality grade.
    If BLOCK → do not write; report to user.
 
-10. **Write** to `content/products.aspose.org/en/{family}/{platform}/_index.md` using this frontmatter structure:
+10. **Write** to `content/products.aspose.org/en/{family}/{platform}/_index.md`.
+    ALL content sections MUST be inside the YAML frontmatter (between `---` delimiters).
+    The Hugo `plugin.html` template reads sections via `.Params.overview`, `.Params.content`,
+    `.Params.single`, `.Params.faq` — these are ONLY populated from frontmatter, NOT from
+    the page body. **The page body after the closing `---` MUST be empty.**
+
+    Use this frontmatter structure (reference pages: slides/net, email/net, cells/python):
     ```yaml
     ---
+    layout: plugin
+    family_name: "{ProductName} FOSS"
+    plugin_description: "{1-sentence, max 160 chars}"
+    plugin_platform: "{platform display name per §3b}"
+    head_title: "{ProductName} FOSS for {Platform} | Open-Source {Category} Library"
+    head_description: "{SEO description, max 160 chars}"
     title: "{ProductName} FOSS for {Platform display name}"
     description: >
       {plugin_description}
-    layout: plugin
-    family_name: "{ProductName} FOSS"
-    plugin_name: "{plugin_name}"
-    plugin_platform: "{platform display name per §3b}"
-    plugin_description: "{plugin_description}"
+    submenu:
+      enable: true
+    github_url: "{repo URL from scout/model.yaml repo_url}"
+    overview:
+      enable: true
+      title: "..."
+      content: |
+        {overview paragraphs}
+    content:
+      enable: true
+      block:
+      - title_left: "..."
+        content_left: |
+          {bullet points}
+        title_right: "..."
+        content_right: |
+          {bullet points}
+    single:
+      enable: true
+      block:
+      - title: "..."
+        content: |
+          {prose + fenced code block}
+    faq:
+      enable: true
+      list:
+      - question: "..."
+        answer: "..."
+    supportandlearning:
+      enable: true
+    more_formats:
+      enable: true
+    back_to_top:
+      enable: true
     provenance:
       content_origin: skill-generated
       last_mechanism: skill
@@ -111,13 +152,15 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
       apis: []
     ---
     ```
-    Followed by the overview, content.block, single.block, and faq.list YAML sections
-    in the body (Hugo plugin layout reads these as page params).
+    If no KB FAQ exists, set `faq: enable: false` (omit the `list` key).
     **Do NOT write to `{family}/_index.md`** — that is the family landing page managed by `/family-sync`.
 
 11. **Attach evidence**: `python scripts/pipeline/attach_evidence.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
 
-12. **Run audit**: `python scripts/pipeline/audit.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
+12. **Run structural validator**: `python scripts/pipeline/validate_plugin_structure.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
+    — must exit 0 (no FATAL or ERROR findings). This catches body-content-leak and missing frontmatter keys.
+
+13. **Run audit**: `python scripts/pipeline/audit.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
     — must exit with 0 FAIL before committing.
 
 ## Hard Constraints
@@ -133,8 +176,15 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
 
 - Platform product page exists at `content/products.aspose.org/en/{family}/{platform}/_index.md`
 - `layout: plugin` present in frontmatter
-- `family_name`, `plugin_name`, `plugin_platform` fields populated
+- `family_name`, `plugin_platform`, `plugin_description` fields populated in frontmatter
+- `head_title` and `head_description` present in frontmatter
+- `submenu: enable: true` present in frontmatter
+- `github_url` present in frontmatter
+- `overview`, `content`, `single` sections present in frontmatter with `enable: true`
+- `supportandlearning: enable: true` and `back_to_top: enable: true` present
+- **Page body (after closing `---`) is empty** — all content is in frontmatter
 - `evidence:` frontmatter block populated by `attach_evidence.py`
+- `validate_plugin_structure.py` exits with 0 (no FATAL/ERROR)
 - `audit.py` exits with 0 FAIL
 - No forbidden claims present
 - Family page at `content/products.aspose.org/en/{family}/_index.md` is **NOT modified** by this skill
