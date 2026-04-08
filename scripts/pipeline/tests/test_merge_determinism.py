@@ -4,6 +4,8 @@ Tests that:
 1. Provenance tagging is applied correctly to all claim sources
 2. Promote output is identical on consecutive runs (deterministic)
 3. api_to_claim index ordering is stable (lowest claim_id wins)
+4. ERC duplicate claim IDs block promotion (hard gate)
+5. CLM duplicate claim IDs warn but allow promotion
 """
 import copy
 import json
@@ -111,3 +113,53 @@ class TestApiToClaimOrdering:
             return index
 
         assert build_index([]) == {}
+
+
+# ---------------------------------------------------------------------------
+# Test: ERC duplicate claim IDs block promotion (Track B prevention)
+# ---------------------------------------------------------------------------
+
+def _setup_promote_tree(tmp_path, scout_claims, enriched_claims=None):
+    """Create minimal knowledge tree for promote()."""
+    base = tmp_path / "knowledge" / "test" / "testplat"
+    scout_dir = base / "scout"
+    scout_dir.mkdir(parents=True)
+    (scout_dir / "claims.json").write_text(
+        json.dumps(scout_claims), encoding="utf-8")
+    (scout_dir / "api_surface.json").write_text("[]", encoding="utf-8")
+    if enriched_claims is not None:
+        enriched_dir = base / "scout"
+        (enriched_dir / "enriched_claims.json").write_text(
+            json.dumps(enriched_claims), encoding="utf-8")
+    return tmp_path / "knowledge"
+
+
+class TestPromoteErcDuplicateGate:
+    """ERC duplicates must block promotion; CLM duplicates must not."""
+
+    def test_promote_rejects_erc_duplicates(self, tmp_path):
+        """Duplicate ERC-* IDs → promote returns False, claims.json not written."""
+        scout = [
+            {"claim_id": "CLM-scout-001", "text": "ok", "kind": "api_method"},
+        ]
+        enriched = [
+            {"claim_id": "ERC-test-testplat-aaa", "text": "claim A", "kind": "feature"},
+            {"claim_id": "ERC-test-testplat-aaa", "text": "claim B", "kind": "feature"},
+        ]
+        kr = _setup_promote_tree(tmp_path, scout, enriched)
+        result = promote_mod.promote("test", "testplat", knowledge_root=str(kr))
+        assert result is False
+        merged = kr / "test" / "testplat" / "merged" / "claims.json"
+        assert not merged.exists(), "claims.json must NOT be written when ERC dupes exist"
+
+    def test_promote_allows_clm_duplicates(self, tmp_path):
+        """Duplicate CLM-* IDs → promote returns True, claims.json written."""
+        scout = [
+            {"claim_id": "CLM-scout-aaa", "text": "method A()", "kind": "api_method"},
+            {"claim_id": "CLM-scout-aaa", "text": "method A()", "kind": "api_method"},
+        ]
+        kr = _setup_promote_tree(tmp_path, scout)
+        result = promote_mod.promote("test", "testplat", knowledge_root=str(kr))
+        assert result is True
+        merged = kr / "test" / "testplat" / "merged" / "claims.json"
+        assert merged.exists(), "claims.json must be written when only CLM dupes exist"

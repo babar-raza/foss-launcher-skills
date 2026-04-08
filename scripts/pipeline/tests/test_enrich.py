@@ -243,6 +243,18 @@ class TestAssignIds:
         r2 = _assign_ids(claims2, "cells", "python")
         assert r1[0]["claim_id"] == r2[0]["claim_id"]
 
+    def test_globally_unique_ids_large_batch(self):
+        """100 claims with distinct text+kind must produce 100 unique IDs."""
+        claims = [
+            {"text": f"Method_{i}() does thing {i}.", "kind": f"kind_{i % 5}"}
+            for i in range(100)
+        ]
+        result = _assign_ids(claims, "slides", "java")
+        ids = [c["claim_id"] for c in result]
+        assert len(set(ids)) == len(ids), (
+            f"Hash collision: {len(ids)} claims but only {len(set(ids))} unique IDs"
+        )
+
 
 # ---------------------------------------------------------------------------
 # enrich() with no_llm=True — integration smoke test
