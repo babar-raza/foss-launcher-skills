@@ -65,3 +65,15 @@ scripts:
     purpose: "Repair stale API claims in content pages (moved from scripts/fix_stale_claims.py)"
     created: "2026-04-08"
     status: done
+
+  - path: scripts/maintenance/repair_products_locales.py
+    kind: repair
+    purpose: "Patch locale metadata on products.aspose.org pages (moved from scripts/patch_products_locales.py)"
+    created: "2026-04-08"
+    status: done
+
+  - path: scripts/maintenance/regen_3d_typescript.py
+    kind: one-shot
+    purpose: "Regenerate TypeScript reference pages for 3D product (moved from scripts/regen_3d_typescript.py)"
+    created: "2026-04-08"
+    status: done
