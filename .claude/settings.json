@@ -6,7 +6,16 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'if [ ! -f .claude/.agents_read ]; then echo \"⛔ AGENTS.md not confirmed read. Session gate: read AGENTS.md before proceeding.\"; fi'"
+            "command": "bash -c 'if [ ! -f .claude/.agents_read ]; then echo \"⛔ AGENTS.md not confirmed read. Session gate: read AGENTS.md before proceeding.\"; exit 1; fi'"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/ci/check_py_write_hook.sh"
           }
         ]
       }
