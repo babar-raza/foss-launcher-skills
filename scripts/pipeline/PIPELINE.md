@@ -222,3 +222,12 @@ One-shot maintenance scripts follow this lifecycle:
 5. CHECK 1 confirms the file still exists on disk (deprecated entries are kept for reruns)
 
 Do not delete deprecated one-shot scripts — they are retained for audit trail and potential reruns.
+
+**Distinction between pipeline one-shots and maintenance scripts:**
+`scripts/pipeline/` `kind=one-shot` is for pipeline-orchestrated one-shot operations that
+import from the pipeline package and are invoked by skill chains or CI. They require full
+registration and the 8-step New File Protocol above.
+`scripts/maintenance/` is for standalone operator-run mutations (content repairs, data
+migrations) that are run manually and never called by automation. They require only a
+1-line entry in `scripts/maintenance/registry.yaml`. When in doubt, prefer
+`scripts/maintenance/`.
