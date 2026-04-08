@@ -220,7 +220,13 @@ Auto-fixes deterministic issues only (no LLM pass). Reviews eval grades.
 ---
 
 ### STAGE 8 — Readiness Scorecard
-Read `reports/content_eval/eval-latest.json` (or run fresh eval) for this product.
+**Command**:
+```bash
+python scripts/pipeline/readiness_scorecard.py --family {family} --platform {platform} --set-checkpoint
+```
+**Checkpoint**: `readiness_done`
+
+The script collects grades and translation coverage automatically. Review the output below.
 
 Print per-page grades with counts:
 ```
