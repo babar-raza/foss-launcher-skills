@@ -1,3 +1,12 @@
+---
+name: launch-product
+description: >
+  Orchestrate full 5-subdomain documentation launch
+args: "{family} {platform}"
+---
+
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
 # S-49: Launch Product — 5-Subdomain Full Documentation Launch
 
 **Arguments**: $ARGUMENTS
@@ -152,6 +161,25 @@ automatically if `_index.md` already has `linkTitle`, `layout: list`, and `{{< c
 
 ---
 
+### STAGE 4.5 — Products Page FAQ Backfill
+**Checkpoint**: `products_faq_done`
+
+**Purpose**: Populate the products page FAQ section now that the KB FAQ exists (created in Stage 4).
+
+**Skip condition**: products page `faq.enable` is already `true` with a non-empty `faq.list[]`
+
+**Steps**:
+1. Read `content/kb.aspose.org/en/{family}/{platform}/faq.md`
+2. If file exists and contains Q&A content, extract 4–6 representative Q&A pairs
+3. Update `content/products.aspose.org/en/{family}/{platform}/_index.md`:
+   - Set `faq.enable: true`
+   - Populate `faq.list[]` with extracted Q&A pairs (question + short 1–2 sentence answer)
+4. If KB FAQ does not exist (unlikely after Stage 4), leave `faq: enable: false` unchanged
+
+**Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} products_faq_done true`
+
+---
+
 ### STAGE 5 — Reference Pages (Batch)
 **Commands**:
 1. `/new-reference-index {family} {platform}`
@@ -283,6 +311,7 @@ Keys used: `{family}_{platform}_knowledge_ready`, `{family}_{platform}_site_plan
 `{family}_{platform}_products_done`, `{family}_{platform}_family_sync_done`,
 `{family}_{platform}_blog_done`,
 `{family}_{platform}_docs_done`, `{family}_{platform}_kb_done`,
+`{family}_{platform}_products_faq_done`,
 `{family}_{platform}_reference_done`, `{family}_{platform}_truth_audit_done`,
 `{family}_{platform}_translation_done`, `{family}_{platform}_quality_done`
 
