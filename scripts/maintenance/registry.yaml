@@ -41,3 +41,9 @@ scripts:
     purpose: "Rebuild code snippet index after format change"
     created: "2025-01-01"
     status: done
+
+  - path: scripts/maintenance/repair_cells_net_reference_pages.py
+    kind: repair
+    purpose: "Rewrite body content of all 11 cells/net reference pages; merges scripts/update_reference_pages.py + update_refs2.py (now deleted)"
+    created: "2026-04-08"
+    status: pending
