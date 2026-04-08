@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'if [ ! -f .claude/.agents_read ]; then echo \"⛔ AGENTS.md not confirmed read. Session gate: read AGENTS.md before proceeding.\"; fi'"
+          }
+        ]
+      }
+    ]
+  }
+}
