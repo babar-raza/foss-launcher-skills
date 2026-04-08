@@ -180,13 +180,24 @@ def _extract_doc_comment(node, language: str) -> str:
 
     if style == "docstring" and language == "python":
         body = child_by_field(node, "body") or find_child_by_type(node, "block")
-        if body and body.children:
-            first = body.children[0]
-            if first.type == "expression_statement" and first.children:
-                s = first.children[0]
-                if s.type == "string" or s.type == "concatenated_string":
-                    raw = node_text(s).strip("\"' \n\r")
+        if body:
+            for child in body.children:
+                if not child.is_named:
+                    continue  # skip anonymous tokens (newlines, indent, etc.)
+                if child.type == "expression_statement":
+                    # Some tree-sitter-python versions wrap the docstring
+                    if child.children:
+                        s = child.children[0]
+                        if s.type in ("string", "concatenated_string"):
+                            raw = node_text(s).strip("\"' \n\r")
+                            return _first_sentence(raw)
+                    break  # first named statement isn't a docstring
+                elif child.type in ("string", "concatenated_string"):
+                    # Other versions expose the docstring as a bare string node
+                    raw = node_text(child).strip("\"' \n\r")
                     return _first_sentence(raw)
+                else:
+                    break  # first named child is not a docstring
         return ""
 
     # Look at previous sibling for comment

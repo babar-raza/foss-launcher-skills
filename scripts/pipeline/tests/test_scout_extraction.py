@@ -563,3 +563,48 @@ class TestScoutGuardrailWarnings:
         warning_lines = [l for l in stderr.splitlines()
                          if "CFBDocument" in l and "WARNING" in l]
         assert warning_lines == [], f"Unexpected warnings: {warning_lines}"
+
+
+# ---------------------------------------------------------------------------
+# Bug fix: Python class docstring extraction (_extract_doc_comment)
+# Regression guard for: tree-sitter-python exposes class docstrings as bare
+# `string` nodes (not wrapped in `expression_statement`), which caused the
+# original `children[0].type == "expression_statement"` check to always miss.
+# ---------------------------------------------------------------------------
+
+class TestPythonDocstringExtraction:
+    """_extract_doc_comment must capture class-level docstrings for Python."""
+
+    def _get_class_doc(self, code: str) -> str:
+        from extraction.api_surface import _extract_doc_comment
+        root = _parse("python", code)
+        for child in root.children:
+            if child.type == "class_definition":
+                return _extract_doc_comment(child, "python")
+        return ""
+
+    def test_simple_docstring(self):
+        code = '''class Camera:
+    """Represents Camera."""
+    def foo(self): pass
+'''
+        assert self._get_class_doc(code) == "Represents Camera."
+
+    def test_multi_sentence_returns_first(self):
+        code = '''class Slide:
+    """Represents a slide in a presentation. Contains shapes and notes."""
+    pass
+'''
+        assert self._get_class_doc(code) == "Represents a slide in a presentation."
+
+    def test_no_docstring_returns_empty(self):
+        code = '''class Foo:
+    def bar(self): pass
+'''
+        assert self._get_class_doc(code) == ""
+
+    def test_class_with_only_pass_returns_empty(self):
+        code = '''class Empty:
+    pass
+'''
+        assert self._get_class_doc(code) == ""
