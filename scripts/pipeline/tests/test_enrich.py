@@ -26,6 +26,8 @@ from enrich import (
     _extract_api_names,
     _assign_ids,
     enrich,
+    _build_member_doc_facts,
+    _build_member_doc_prompt,
     _DEDUP_OVERLAP_THRESHOLD,
     _MIN_CONFIDENCE,
     _CLAIM_KINDS,
@@ -361,3 +363,121 @@ class TestEnrichRehashOnly:
         # No api_surface.json
         result = enrich("cells", "python", knowledge_root=str(tmp_path / "knowledge"), no_llm=True)
         assert result is False
+
+
+# ---------------------------------------------------------------------------
+# _build_member_doc_facts — pure helper for FIX-1
+# ---------------------------------------------------------------------------
+
+class TestBuildMemberDocFacts:
+    def _cls(self):
+        return {
+            "name": "Workbook",
+            "methods": [
+                {"name": "Save", "params": [{"name": "path", "type": "str"}], "return_type": "bool", "doc": ""},
+                {"name": "Load", "params": [{"name": "path", "type": "str"}], "return_type": "void", "doc": "Loads from file."},
+            ],
+            "properties": [
+                {"name": "FileName", "type": "str", "doc": ""},
+                "Sheets",  # string-form property
+            ],
+        }
+
+    def test_class_header_present(self):
+        facts = _build_member_doc_facts(self._cls())
+        assert "Class: Workbook" in facts
+
+    def test_method_signatures_present(self):
+        facts = _build_member_doc_facts(self._cls())
+        assert "method Save" in facts
+        assert "method Load" in facts
+
+    def test_property_names_present(self):
+        facts = _build_member_doc_facts(self._cls())
+        assert "property FileName" in facts
+        assert "property Sheets" in facts
+
+    def test_private_members_excluded(self):
+        cls = {"name": "Workbook", "methods": [{"name": "_internal", "params": [], "doc": ""}], "properties": []}
+        facts = _build_member_doc_facts(cls)
+        assert "_internal" not in facts
+
+    def test_return_type_included(self):
+        facts = _build_member_doc_facts(self._cls())
+        assert "-> bool" in facts
+
+    def test_doc_snippet_included_when_present(self):
+        facts = _build_member_doc_facts(self._cls())
+        assert "Loads from file" in facts
+
+
+class TestBuildMemberDocPrompt:
+    def _cls(self):
+        return {
+            "name": "Workbook",
+            "methods": [{"name": "Save", "params": [], "return_type": "bool", "doc": ""}],
+            "properties": [{"name": "FileName", "type": "str", "doc": ""}],
+        }
+
+    def test_returns_two_strings(self):
+        sys_p, user_p = _build_member_doc_prompt("cells", "net", self._cls(), "")
+        assert isinstance(sys_p, str)
+        assert isinstance(user_p, str)
+
+    def test_class_name_in_prompt(self):
+        _, user_p = _build_member_doc_prompt("cells", "net", self._cls(), "")
+        assert "Workbook" in user_p
+
+    def test_member_doc_claim_source_in_instructions(self):
+        _, user_p = _build_member_doc_prompt("cells", "net", self._cls(), "")
+        assert "llm_member_doc" in user_p
+
+    def test_classname_memberformat_rule_stated(self):
+        _, user_p = _build_member_doc_prompt("cells", "net", self._cls(), "")
+        assert "Workbook.MemberName" in user_p
+
+    def test_json_array_output_format_stated(self):
+        _, user_p = _build_member_doc_prompt("cells", "net", self._cls(), "")
+        assert "JSON array" in user_p
+
+
+# ---------------------------------------------------------------------------
+# enrich() mode parameter — no_llm smoke test
+# ---------------------------------------------------------------------------
+
+class TestEnrichModeParameter:
+    def _setup_scout_dir(self, tmp_path: Path) -> Path:
+        scout_dir = tmp_path / "knowledge" / "cells" / "net" / "scout"
+        scout_dir.mkdir(parents=True)
+        api_surface = [
+            {"name": "Workbook", "doc": "", "kind": "class",
+             "file": "aspose/cells/workbook.cs",
+             "methods": [{"name": "Save", "params": [], "return_type": "bool", "doc": ""}],
+             "properties": [{"name": "FileName", "type": "str", "doc": ""}],
+             "enum_members": []},
+        ]
+        (scout_dir / "api_surface.json").write_text(json.dumps(api_surface), encoding="utf-8")
+        return scout_dir
+
+    def test_member_doc_mode_no_llm_returns_true(self, tmp_path):
+        """mode='member-doc' with no_llm=True must return True (idempotent)."""
+        self._setup_scout_dir(tmp_path)
+        result = enrich("cells", "net",
+                        knowledge_root=str(tmp_path / "knowledge"),
+                        no_llm=True, mode="member-doc")
+        assert result is True
+
+    def test_both_mode_no_llm_returns_true(self, tmp_path):
+        self._setup_scout_dir(tmp_path)
+        result = enrich("cells", "net",
+                        knowledge_root=str(tmp_path / "knowledge"),
+                        no_llm=True, mode="both")
+        assert result is True
+
+    def test_default_mode_is_capability(self, tmp_path):
+        """Default mode (no mode kwarg) still works — backward compat."""
+        self._setup_scout_dir(tmp_path)
+        result = enrich("cells", "net",
+                        knowledge_root=str(tmp_path / "knowledge"),
+                        no_llm=True)
+        assert result is True

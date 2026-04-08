@@ -17,7 +17,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import refresh_knowledge as _rk
-from refresh_knowledge import refresh
+from refresh_knowledge import refresh, _build_erc_member_set
 
 
 # ---------------------------------------------------------------------------
@@ -274,3 +274,72 @@ class TestStaleFlagLifecycle:
         assert result == "refreshed"
         data = _yaml.safe_load(model_path.read_text(encoding="utf-8"))
         assert data["stale_since"] is None
+
+
+# ---------------------------------------------------------------------------
+# _build_erc_member_set — FIX-2 helper for ERC delta tracking
+# ---------------------------------------------------------------------------
+
+class TestBuildErcMemberSet:
+    def _make_claim(self, text: str, kind: str = "api", claim_id: str = "ERC-cells-net-abc") -> dict:
+        return {"claim_id": claim_id, "text": text, "kind": kind, "confidence": 0.8}
+
+    def test_extracts_classname_membername(self):
+        claims = [self._make_claim("Workbook.Save writes the workbook to disk.")]
+        result = _build_erc_member_set(claims)
+        assert "Workbook.Save" in result
+
+    def test_backtick_prefix_stripped(self):
+        claims = [self._make_claim("`Workbook.Load` reads a workbook from file.")]
+        result = _build_erc_member_set(claims)
+        assert "Workbook.Load" in result
+
+    def test_non_api_kind_excluded(self):
+        claims = [self._make_claim("Workbook.Save writes the workbook.", kind="feature")]
+        result = _build_erc_member_set(claims)
+        assert len(result) == 0
+
+    def test_non_erc_claim_id_excluded(self):
+        claims = [{"claim_id": "SC-001", "text": "Workbook.Save does X.", "kind": "api"}]
+        result = _build_erc_member_set(claims)
+        assert len(result) == 0
+
+    def test_text_not_starting_classname_membername_excluded(self):
+        claims = [self._make_claim("The workbook supports saving to multiple formats.")]
+        result = _build_erc_member_set(claims)
+        assert len(result) == 0
+
+    def test_multiple_classes_extracted(self):
+        claims = [
+            self._make_claim("Workbook.Save writes to disk.", claim_id="ERC-cells-net-001"),
+            self._make_claim("Cell.PutValue sets the value.", claim_id="ERC-cells-net-002"),
+            self._make_claim("Style.ForegroundColor controls color.", claim_id="ERC-cells-net-003"),
+        ]
+        result = _build_erc_member_set(claims)
+        assert "Workbook.Save" in result
+        assert "Cell.PutValue" in result
+        assert "Style.ForegroundColor" in result
+
+    def test_empty_claims_returns_empty_set(self):
+        assert _build_erc_member_set([]) == set()
+
+    def test_symmetric_difference_detects_new_members(self):
+        """Demonstrates FIX-2 intent: new ERC claims → classes appear in modified_apis."""
+        old_claims = [self._make_claim("Workbook.Save writes to disk.", claim_id="ERC-cells-net-001")]
+        new_claims = [
+            self._make_claim("Workbook.Save writes to disk.", claim_id="ERC-cells-net-001"),
+            self._make_claim("Cell.PutValue sets cell value.", claim_id="ERC-cells-net-002"),
+        ]
+        old_set = _build_erc_member_set(old_claims)
+        new_set = _build_erc_member_set(new_claims)
+        changed_classes = sorted({key.split(".")[0] for key in (new_set ^ old_set)})
+        assert changed_classes == ["Cell"], (
+            "Only Cell was added — Workbook unchanged — symmetric diff should contain Cell.PutValue only"
+        )
+
+    def test_no_change_produces_empty_symmetric_diff(self):
+        """When old and new ERC claims are identical, no classes in modified_apis."""
+        claims = [self._make_claim("Workbook.Save writes to disk.")]
+        old_set = _build_erc_member_set(claims)
+        new_set = _build_erc_member_set(claims)
+        assert old_set ^ new_set == set()
