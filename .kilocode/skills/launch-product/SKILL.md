@@ -103,9 +103,11 @@ If only 1 platform subdirectory exists (first launch), skip — family page was 
 /new-blog-post {family} {platform} {slug}
 ```
 
-Mandatory posts (always present in site plan — example slugs shown, use actual plan values):
-1. Intro post — e.g. `introducing-{family}-foss-{platform}`
-2. Key features post — e.g. `{family}-key-features-{platform}`
+Mandatory posts (always present in site plan — use actual slug values from the plan, not patterns):
+1. Intro post — fixed slug `introducing-{family}-foss-{platform}`
+2. Features post — **cluster-derived slug** computed by `site_planner.py`; do not hardcode
+   `{family}-key-features-{platform}`. Read the actual slug from `sections.blog.pages[1].slug`
+   in the site plan. The `blog_role: features` field identifies this post.
 
 Optional 3rd post (present in site plan only when `total_claims >= 500` and top cluster
 `snippet_count >= 3`):

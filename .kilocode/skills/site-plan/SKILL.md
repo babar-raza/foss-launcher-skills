@@ -48,7 +48,17 @@ Each cluster: `name`, `slug`, `claim_count`, `api_method_count`, `snippet_count`
 
 **Products** (always mandatory): family `_index.md` (layout: `family`) + `{platform}/_index.md` (layout: `plugin`).
 
-**Blog** (justified if `claim_count >= 200 AND snippet_count >= 10`): `introducing-{family}-foss-{platform}` + `{family}-key-features-{platform}`. Optional 3rd post if `claim_count >= 500 AND top_cluster.claim_count >= 20 AND top_cluster.snippet_count >= 3`.
+**Blog** (justified if `claim_count >= 200 AND snippet_count >= 10`):
+- Post 1 (announcement, weight 1): Fixed slug `introducing-{family}-foss-{platform}`.
+- Post 2 (features, weight 2): Dynamic — `{family}-{primary_cluster_slug}-{platform}` (or
+  `{primary_cluster_slug}-{platform}` when cluster slug already starts with family name, to
+  avoid double prefix). Derived from the highest-claim-count non-limitations cluster.
+  **`{family}-key-features-{platform}` is a BANNED derived slug**; `plan_blog()` validator
+  rejects it at plan generation time. Existing posts with that slug are preserved as
+  `source: discovered` until explicitly replanned with `site_planner.py --replan-blog`.
+- Post 3 (deep-dive, optional): cluster-derived slug, second-best cluster (Post 2's cluster
+  is excluded). Threshold: `claim_count >= 500 AND top_cluster.claim_count >= 20 AND
+  top_cluster.snippet_count >= 3`.
 
 **Docs** (always mandatory):
 - `getting-started/installation.md` — always

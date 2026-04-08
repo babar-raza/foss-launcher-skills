@@ -324,3 +324,243 @@ def test_all_pages_have_slug_field():
     for page in all_pages:
         assert "slug" in page, f"Page missing 'slug' field: {page.get('path')}"
         assert page["slug"], f"Page has empty 'slug': {page.get('path')}"
+
+
+# ---------------------------------------------------------------------------
+# Helpers for blog slug tests
+# ---------------------------------------------------------------------------
+
+def _make_api_surface_family(subpkgs: list[str], family: str = "3d") -> list[dict]:
+    """Build api_surface using paths compatible with the target family's subpackages."""
+    entries = []
+    for i, subpkg in enumerate(subpkgs):
+        name = f"Class{i}"
+        # Use the subpkg dir directly; root level uses 2-level path so _class_to_subpackage
+        # returns "" (root), which then maps to the family-specific ROOT_LABELS entry.
+        if subpkg:
+            file_path = f"aspose/{family}/{subpkg}/{name}.py"
+        else:
+            file_path = f"aspose/{family}/{name}.py"
+        entries.append({
+            "name": name,
+            "file": file_path,
+            "methods": [f"method_{i}_a", f"method_{i}_b"],
+        })
+    return entries
+
+
+def _make_snippet_index_for(api_surface: list[dict], snippets_per_class: int = 4) -> list[dict]:
+    """Build synthetic snippet_index with entries pointing at each class."""
+    snippets = []
+    snip_id = 0
+    for entry in api_surface:
+        cls_name = entry["name"]
+        for _ in range(snippets_per_class):
+            snippets.append({"id": f"snip_{snip_id}", "classes_used": [cls_name]})
+            snip_id += 1
+    return snippets
+
+
+# ---------------------------------------------------------------------------
+# TEST-BLOG-01: Post 2 slug is derived from top cluster, not hardcoded key-features
+# ---------------------------------------------------------------------------
+
+def test_plan_blog_post2_uses_cluster_slug():
+    """Post 2 slug must be derived from primary cluster, not key-features template."""
+    api = _make_api_surface_family(["pptx", "effects", ""], family="slides")
+    claims = _make_claims(api, per_class=20)
+    clusters = sp.detect_clusters(claims, api, [], "", family="slides")
+    pages, justified, to_retire = sp.plan_blog("slides", "python", 600, 30, clusters)
+    assert justified
+    assert to_retire == []
+    p2 = next(p for p in pages if p["weight"] == 2)
+    assert "key-features" not in p2["slug"], f"Banned slug: {p2['slug']!r}"
+    assert p2.get("blog_role") == "features"
+    assert "cluster" in p2
+    assert p2["slug"].endswith("-python")
+
+
+# ---------------------------------------------------------------------------
+# TEST-BLOG-02: Family prefix deduplication avoids email-email-processing-python
+# ---------------------------------------------------------------------------
+
+def test_plan_blog_post2_deduplicates_family_prefix():
+    """email-email-processing-python must become email-processing-python."""
+    api = _make_api_surface_family([""], family="email")
+    claims = _make_claims(api, per_class=20)
+    clusters = sp.detect_clusters(claims, api, [], "", family="email")
+    pages, _, _ = sp.plan_blog("email", "python", 600, 30, clusters)
+    p2 = next(p for p in pages if p["weight"] == 2)
+    assert "email-email" not in p2["slug"], f"Double prefix: {p2['slug']!r}"
+
+
+# ---------------------------------------------------------------------------
+# TEST-BLOG-03: Keyword fallback discovers legacy *-key-features-* posts reliably
+# ---------------------------------------------------------------------------
+
+def test_plan_blog_keyword_fallback_finds_legacy_post():
+    """Keyword fallback must discover existing *-key-features-* posts reliably."""
+    existing = [
+        {
+            "slug": "slides-key-features-python",
+            "path": "content/blog.aspose.org/slides/python/slides-key-features-python/index.md",
+            "frontmatter_cluster": "", "title": "", "auto_updatable": True,
+        },
+        {
+            "slug": "introducing-slides-foss-python",
+            "path": "content/blog.aspose.org/slides/python/introducing-slides-foss-python/index.md",
+            "frontmatter_cluster": "", "title": "", "auto_updatable": True,
+        },
+    ]
+    api = _make_api_surface_family(["pptx", "effects"], family="slides")
+    claims = _make_claims(api, per_class=20)
+    clusters = sp.detect_clusters(claims, api, [], "", family="slides")
+    pages, _, _ = sp.plan_blog("slides", "python", 600, 30, clusters, existing=existing)
+    p2 = next(p for p in pages if p["weight"] == 2)
+    assert p2["slug"] == "slides-key-features-python"
+    assert p2["source"] == "discovered"
+
+
+# ---------------------------------------------------------------------------
+# TEST-BLOG-04: Intro post must never be matched as Post 2 features slot
+# ---------------------------------------------------------------------------
+
+def test_plan_blog_intro_not_matched_as_features():
+    """The intro post must never be matched as the Post 2 features slot."""
+    existing = [
+        {
+            "slug": "introducing-slides-foss-python",
+            "path": "content/blog.aspose.org/slides/python/introducing-slides-foss-python/index.md",
+            "frontmatter_cluster": "", "title": "", "auto_updatable": True,
+        },
+    ]
+    api = _make_api_surface_family(["pptx"], family="slides")
+    claims = _make_claims(api, per_class=20)
+    clusters = sp.detect_clusters(claims, api, [], "", family="slides")
+    pages, _, _ = sp.plan_blog("slides", "python", 600, 30, clusters, existing=existing)
+    p2 = next(p for p in pages if p["weight"] == 2)
+    assert p2["source"] == "derived"
+    assert "introducing" not in p2["slug"]
+
+
+# ---------------------------------------------------------------------------
+# TEST-BLOG-05: Post 2 and Post 3 must not use the same cluster
+# ---------------------------------------------------------------------------
+
+def test_plan_blog_post2_and_post3_use_different_clusters():
+    """Post 2 and Post 3 must not use the same cluster."""
+    api = _make_api_surface_family(["pptx", "effects", "drawing"], family="slides")
+    claims = _make_claims(api, per_class=25)
+    snippet_index = _make_snippet_index_for(api, snippets_per_class=4)
+    clusters = sp.detect_clusters(claims, api, snippet_index, "", family="slides")
+    pages, _, _ = sp.plan_blog("slides", "python", 600, 30, clusters)
+    p2 = next((p for p in pages if p["weight"] == 2), None)
+    p3 = next((p for p in pages if p["weight"] == 3), None)
+    if p2 and p3 and p2.get("cluster") and p3.get("cluster"):
+        assert p2["cluster"] != p3["cluster"], (
+            f"Cluster collision: both used {p2['cluster']!r}"
+        )
+
+
+# ---------------------------------------------------------------------------
+# TEST-BLOG-06: Validator rejects source=derived *-key-features-* slugs
+# ---------------------------------------------------------------------------
+
+def test_plan_blog_validator_rejects_derived_key_features():
+    """Validator must raise for source=derived *-key-features-* slugs."""
+    bad = [{"slug": "slides-key-features-python", "source": "derived"}]
+    with pytest.raises(ValueError, match="Banned generic slug"):
+        sp._validate_blog_slugs(bad)
+
+
+# ---------------------------------------------------------------------------
+# TEST-BLOG-07: Validator allows source=discovered *-key-features-* slugs
+# ---------------------------------------------------------------------------
+
+def test_plan_blog_validator_allows_discovered_key_features():
+    """Validator must not raise for source=discovered (existing deployed content)."""
+    old = [{"slug": "slides-key-features-python", "source": "discovered"}]
+    sp._validate_blog_slugs(old)  # must not raise
+
+
+# ---------------------------------------------------------------------------
+# TEST-BLOG-08: --replan-blog forces re-derivation and populates pages_to_retire
+# ---------------------------------------------------------------------------
+
+def test_plan_blog_force_replan_replaces_banned_slug():
+    """force_replan=True must force re-derivation and populate pages_to_retire."""
+    existing = [
+        {
+            "slug": "slides-key-features-python",
+            "path": "content/blog.aspose.org/slides/python/slides-key-features-python/index.md",
+            "frontmatter_cluster": "", "title": "", "auto_updatable": True,
+        },
+        {
+            "slug": "introducing-slides-foss-python",
+            "path": "content/blog.aspose.org/slides/python/introducing-slides-foss-python/index.md",
+            "frontmatter_cluster": "", "title": "", "auto_updatable": True,
+        },
+    ]
+    api = _make_api_surface_family(["pptx", "effects"], family="slides")
+    claims = _make_claims(api, per_class=20)
+    clusters = sp.detect_clusters(claims, api, [], "", family="slides")
+    pages, _, to_retire = sp.plan_blog(
+        "slides", "python", 600, 30, clusters,
+        existing=existing, force_replan=True,
+    )
+    p2 = next(p for p in pages if p["weight"] == 2)
+    assert "key-features" not in p2["slug"], f"Replan did not override: {p2['slug']!r}"
+    assert p2["source"] == "derived"
+    assert len(to_retire) == 1
+    assert to_retire[0]["slug"] == "slides-key-features-python"
+    # Old slug must not appear anywhere in pages (not even as page_class: preserved)
+    all_slugs = [p["slug"] for p in pages]
+    assert "slides-key-features-python" not in all_slugs, (
+        f"Old slug still present in pages after replan: {all_slugs}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# TEST-BLOG-09: force_replan respects auto_updatable=False (human-authored)
+# ---------------------------------------------------------------------------
+
+def test_plan_blog_force_replan_respects_auto_updatable_false():
+    """force_replan must not override posts with auto_updatable: false."""
+    existing = [
+        {
+            "slug": "slides-key-features-python",
+            "path": "content/blog.aspose.org/slides/python/slides-key-features-python/index.md",
+            "frontmatter_cluster": "", "title": "", "auto_updatable": False,
+        },
+        {
+            "slug": "introducing-slides-foss-python",
+            "path": "content/blog.aspose.org/slides/python/introducing-slides-foss-python/index.md",
+            "frontmatter_cluster": "", "title": "", "auto_updatable": True,
+        },
+    ]
+    api = _make_api_surface_family(["pptx"], family="slides")
+    claims = _make_claims(api, per_class=20)
+    clusters = sp.detect_clusters(claims, api, [], "", family="slides")
+    pages, _, to_retire = sp.plan_blog(
+        "slides", "python", 600, 30, clusters,
+        existing=existing, force_replan=True,
+    )
+    p2 = next(p for p in pages if p["weight"] == 2)
+    assert p2["slug"] == "slides-key-features-python"
+    assert p2["source"] == "discovered"
+    assert to_retire == []
+
+
+# ---------------------------------------------------------------------------
+# TEST-BLOG-10: All mandatory blog posts have a blog_role field
+# ---------------------------------------------------------------------------
+
+def test_plan_blog_all_mandatory_posts_have_blog_role():
+    """Every mandatory blog post record must have a blog_role field."""
+    api = _make_api_surface_family(["formats"], family="3d")
+    claims = _make_claims(api, per_class=20)
+    clusters = sp.detect_clusters(claims, api, [], "", family="3d")
+    pages, _, _ = sp.plan_blog("3d", "python", 600, 30, clusters)
+    for p in pages:
+        if p.get("mandatory"):
+            assert "blog_role" in p, f"Missing blog_role: {p}"
