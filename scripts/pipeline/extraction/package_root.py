@@ -41,7 +41,7 @@ def _detect_python_root(repo: Path) -> Path:
             # flat layout: first package dir at root
             pkgs = [d for d in repo.iterdir() if d.is_dir()
                     and (d / "__init__.py").exists()
-                    and not d.name.startswith((".", "test", "example", "doc"))]
+                    and not d.name.lower().startswith((".", "test", "example", "doc", "api"))]
             if pkgs:
                 return pkgs[0]
     return repo
