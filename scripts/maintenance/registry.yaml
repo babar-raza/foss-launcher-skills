@@ -1,0 +1,43 @@
+# scripts/maintenance/registry.yaml
+# Operator-run one-off scripts. NEVER called by CI, hooks, or skills.
+#
+# Add one entry when creating any new maintenance script.
+# Update status: done once the operation is complete.
+# Keep files after completion — retained for audit trail and potential reruns.
+#
+# Fields:
+#   path     — relative repo path (scripts/maintenance/...)
+#   kind     — one-shot | repair | migration
+#   purpose  — one-line description of what this script does / did
+#   created  — date in YYYY-MM-DD format
+#   status   — pending (not yet run) | done (complete) | archived (superseded)
+#
+# NOTE: If your script needs to import from scripts/pipeline/ and be invoked
+# by a skill chain or CI step, it belongs in scripts/pipeline/ (kind=one-shot)
+# with the full 8-step New File Protocol instead. See PIPELINE.md.
+
+scripts:
+
+  - path: scripts/maintenance/generate_reference_pages.py
+    kind: one-shot
+    purpose: "Initial reference page generation for batch product launch"
+    created: "2025-01-01"
+    status: done
+
+  - path: scripts/maintenance/migrate_homepage_platforms.py
+    kind: migration
+    purpose: "Migrate homepage platform listing to new format"
+    created: "2025-01-01"
+    status: done
+
+  - path: scripts/maintenance/migrate_model_yaml.py
+    kind: migration
+    purpose: "Schema migration for model.yaml knowledge artifact files"
+    created: "2025-01-01"
+    status: done
+
+  - path: scripts/maintenance/rebuild_snippet_index.py
+    kind: one-shot
+    purpose: "Rebuild code snippet index after format change"
+    created: "2025-01-01"
+    status: done
