@@ -223,10 +223,16 @@ class TestAssignIds:
         assert "cells" in result[0]["claim_id"]
         assert "python" in result[0]["claim_id"]
 
-    def test_preserves_existing_erc_id(self):
-        claims = [{"text": "text", "kind": "api", "claim_id": "ERC-cells-python-abc12345"}]
+    def test_overwrites_sequential_erc_id(self):
+        # LLM batches produce sequential IDs (ERC-001, ERC-002, ...) that must
+        # be replaced with stable hash-based IDs to prevent cross-batch duplicates.
+        import hashlib
+        claims = [{"text": "text", "kind": "api", "claim_id": "ERC-cells-python-001"}]
         result = _assign_ids(claims, "cells", "python")
-        assert result[0]["claim_id"] == "ERC-cells-python-abc12345"
+        expected = "ERC-cells-python-" + hashlib.sha256(
+            ("text" + "|" + "api").encode()
+        ).hexdigest()[:8]
+        assert result[0]["claim_id"] == expected
 
     def test_stable_for_same_text(self):
         claims1 = [{"text": "Workbook loads xlsx.", "kind": "api"}]
