@@ -1,17 +1,3 @@
----
-name: new-docs-index
-description: >
-  Scaffold or repair the docs platform `_index.md` section landing page.
-args: "
-
-## Purpose
-
-Creates the Hugo section landing page at
-"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
 # S-70: New Docs Index — Scaffold Docs Platform Section Landing Page
 
 Scaffold or repair the docs platform `_index.md` section landing page.
@@ -106,7 +92,6 @@ Default weight for unlisted platforms: 80.
      last_mechanism: skill
      auto_updatable: false
      provenance_recovery_note: structural-page
-     content_created_at: '{today as YYYY-MM-DD}'
    ---
 
    {body_intro from step 5}

@@ -1,12 +1,3 @@
----
-name: page-draft
-description: >
-  Draft page content from a page plan
-args: "{family} {platform} {section} {slug}"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
 # S-19: Page Draft — Draft Page Content from a Page Plan
 
 **Arguments**: $ARGUMENTS
@@ -49,7 +40,6 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
      content_origin: skill-generated
      last_mechanism: skill
      auto_updatable: true
-     content_created_at: '{today}'
    ```
 
    **KB article**:
@@ -64,7 +54,6 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
      content_origin: skill-generated
      last_mechanism: skill
      auto_updatable: true
-     content_created_at: '{today}'
    ```
 
    **Blog post**:
@@ -80,7 +69,6 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
      content_origin: skill-generated
      last_mechanism: skill
      auto_updatable: true
-     content_created_at: '{today}'
    ```
 
 5. **Draft content section by section** following the plan's `structure` array:

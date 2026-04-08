@@ -1,12 +1,3 @@
----
-name: new-blog-post
-description: >
-  Generate a new blog post for blog.aspose.org
-argument-hint: "{family} {platform} {slug} [--bypass-plan]"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
 # S-57: New Blog Post — Generate Blog Post for blog.aspose.org
 
 Generate a new blog post for blog.aspose.org.
@@ -60,18 +51,6 @@ Before generating any content, you MUST:
 
 1. **Parse** `$ARGUMENTS` into: `family`, `platform`, `slug` (slug becomes the directory name and title source).
 
-   **Read the site plan record for this slug** (if the site plan exists):
-   - Path: `reports/plans/{family}/{platform}/site_plan.yaml`
-   - Find the blog entry where `slug == {slug}` in `sections.blog.pages`
-   - If a record is found, read `blog_role` and `cluster` fields and scope the content accordingly:
-     - `blog_role: announcement` — introduce the library broadly; do not narrow to one cluster
-     - `blog_role: features` — scope content around the `cluster` capability area as a feature
-       overview with prose + examples; write `cluster: {cluster_value}` to `evidence.cluster`
-       in the generated frontmatter
-     - `blog_role: deep-dive` — write a narrowly focused technical deep-dive covering only the
-       `cluster` capability area; write `cluster: {cluster_value}` to `evidence.cluster`
-   - If no site plan record is found, fall back to inferring intent from the slug.
-
 2. **Read existing blog posts for reference** (read only — do not copy):
    - List files in `content/blog.aspose.org/{family}/{platform}/`
    - Read one existing post's `index.md` to confirm frontmatter fields and tone
@@ -97,7 +76,6 @@ Before generating any content, you MUST:
      content_origin: skill-generated
      last_mechanism: skill
      auto_updatable: true
-     content_created_at: '{today as YYYY-MM-DD}'
    evidence:
      model_sha: ""
      model_version: ""

@@ -1,12 +1,3 @@
----
-name: new-reference-page
-description: >
-  Generate a new API reference page for reference.aspose.org
-args: "{family} {platform} {ClassName}"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
 # S-60: New Reference Page — Generate API Reference Page
 
 Generate a new API reference page for reference.aspose.org.
@@ -76,7 +67,6 @@ Before generating any content, you MUST:
      content_origin: skill-generated
      last_mechanism: skill
      auto_updatable: true
-     content_created_at: '{today as YYYY-MM-DD}'
    ---
    ```
    Note: no `date`, `lastmod`, `draft`, `type`, or `weight` fields on reference pages.

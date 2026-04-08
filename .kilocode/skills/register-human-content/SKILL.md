@@ -1,13 +1,3 @@
----
-name: register-human-content
-id: S-66
-description: >
-  Onboard a human-authored content page into quality and provenance systems; set auto_updatable: false, attach evidence, assign grade baseline
-args: "{filepath}"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
 # S-66: Register Human Content — Onboard Human-Authored Pages
 
 **Arguments**: $ARGUMENTS
@@ -51,7 +41,6 @@ provenance:
   last_mechanism: human-edit
   auto_updatable: false
   reviewed: true
-  content_created_at: '{today as YYYY-MM-DD}'
 ```
 
 **Critical:** `auto_updatable: false` prevents translator sync and batch overwrites from
@@ -60,7 +49,7 @@ replacing this page. Do not change this unless the human explicitly requests it.
 ### Step 3: Attach evidence
 
 ```bash
-.venv/Scripts/python scripts/pipeline/attach_evidence.py --files {filepath}
+python scripts/pipeline/attach_evidence.py --files {filepath}
 ```
 
 This attaches an `evidence:` block with `model_sha`, `claims`, `apis`, and `formats`
@@ -74,12 +63,12 @@ are content defects, not pipeline errors.
 
 Run S-25 (eval-page) to determine the current grade:
 ```bash
-.venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {filepath}
+python -m scripts.pipeline.content_eval evaluate --files {filepath}
 ```
 
 Then persist the grade:
 ```bash
-.venv/Scripts/python scripts/pipeline/grade_writer.py --files {filepath}
+python scripts/pipeline/grade_writer.py --files {filepath}
 ```
 
 Note the assigned grade. If grade is D or F, consider running S-26 (heal-page) before
@@ -89,7 +78,7 @@ before registering — do not protect a critically-wrong page from automated cor
 ### Step 5: Run content-check gate
 
 ```bash
-.venv/Scripts/python scripts/pipeline/audit.py --files {filepath}
+python scripts/pipeline/audit.py --files {filepath}
 ```
 
 A FAIL at this stage means the page has API accuracy problems. Fix them before proceeding.

@@ -1,12 +1,3 @@
----
-name: new-products-page
-description: >
-  Generate products.aspose.org landing page for a FOSS product
-argument-hint: "{family} [platform] [--layout family|plugin]"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
 # S-61: New Products Page — Generate products.aspose.org Landing Page
 
 **Arguments**: $ARGUMENTS
@@ -104,7 +95,6 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
       content_origin: skill-generated
       last_mechanism: skill
       auto_updatable: true
-      content_created_at: '{today as YYYY-MM-DD}'
     evidence:
       model_sha: ""
       model_version: ""

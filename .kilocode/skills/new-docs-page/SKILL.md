@@ -1,12 +1,3 @@
----
-name: new-docs-page
-description: >
-  Generate a new documentation page for docs.aspose.org
-argument-hint: "{family} {platform} {section} {slug} [--bypass-plan]"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
 # S-56: New Docs Page — Generate Documentation Page for docs.aspose.org
 
 Generate a new documentation page for docs.aspose.org.
@@ -59,7 +50,6 @@ Before generating any content, you MUST:
      content_origin: skill-generated
      last_mechanism: skill
      auto_updatable: true
-     content_created_at: '{today as YYYY-MM-DD}'
    evidence:
      model_sha: ""
      model_version: ""
