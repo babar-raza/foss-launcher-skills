@@ -64,21 +64,30 @@ Omit `{site}` or use `all` to process all supported sites. Omit `{locales}` or u
 5. **Monitor progress**: The translator prints progress every 10 jobs and a final summary line:
    ```
    Batch complete: N ok, N skipped, N failed
+   Manifest: reports/translation/{family}-{platform}-{timestamp}.json
    ```
 
-6. **On completion**, run cache-stats to confirm cache utilisation:
+6. **Check manifest for failures**: Read the manifest JSON from the path printed by the CLI.
+   - If `summary.failed == 0`: proceed to cache-stats and commit.
+   - If `summary.failed > 0`: print the list of failed files with their error messages.
+     Ask the operator: "N files failed translation. Retry now, commit partial, or abort?"
+     - **Retry**: run `.venv/Scripts/python -m translator batch --family {family} --platform {platform} --site {site} --locales {locales} --retry-failed {manifest_path}`
+     - **Commit partial**: proceed but note failures in the commit body.
+     - **Abort**: stop without committing.
+
+7. **On completion**, run cache-stats to confirm cache utilisation:
    ```bash
    .venv/Scripts/python -m translator cache-stats
    ```
    Print the cache statistics.
 
-7. **Spot-check translated output**: For a representative sample (up to 3 files), run `/content-check` on the translated output:
+8. **Spot-check translated output**: For a representative sample (up to 3 files), run `/content-check` on the translated output:
    ```
    /content-check content/{site}/{lang}/{family}/{platform}/{filename}
    ```
    Report any FAIL results.
 
-8. **Report results** in this format:
+9. **Report results** in this format:
    ```
    TRANSLATE BATCH — {family}/{platform}
    Site(s): {site}   Locales: {locales}
