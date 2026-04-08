@@ -59,6 +59,7 @@ Before generating any content, you MUST:
      content_origin: skill-generated
      last_mechanism: skill
      auto_updatable: true
+     content_created_at: '{today as YYYY-MM-DD}'
    evidence:
      model_sha: ""
      model_version: ""

@@ -49,6 +49,7 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
      content_origin: skill-generated
      last_mechanism: skill
      auto_updatable: true
+     content_created_at: '{today}'
    ```
 
    **KB article**:
@@ -63,6 +64,7 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
      content_origin: skill-generated
      last_mechanism: skill
      auto_updatable: true
+     content_created_at: '{today}'
    ```
 
    **Blog post**:
@@ -78,6 +80,7 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
      content_origin: skill-generated
      last_mechanism: skill
      auto_updatable: true
+     content_created_at: '{today}'
    ```
 
 5. **Draft content section by section** following the plan's `structure` array:

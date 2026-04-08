@@ -1,6 +1,6 @@
 # AGENTS.md — Aspose.org Content Generation & Maintenance Governance
 
-> Last updated: 2026-04-07 (§7a translation-staging-order governance rule; §6e ceiling-reached terminal state); prior: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline)
+> Last updated: 2026-04-08 (§6f blog slug governance — features post slug is cluster-derived; banned pattern enforced by plan_blog() validator); prior: 2026-04-07 (§7a translation-staging-order governance rule; §6e ceiling-reached terminal state); prior: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline)
 > Authority: Human maintainer only (see Section 4 — this file is in the forbidden write list)
 
 ## 1. Purpose
@@ -429,6 +429,22 @@ Platform scope rules enforced by `batch-reference`:
 - **java / net**: interfaces, concrete classes, structs, and enums all included
 - **Idempotency**: existing pages are never overwritten; re-runs skip already-present slugs
 
+**Known limitation — Grade C floor for FOSS reference pages without XML docstrings**: FOSS
+libraries (e.g. Aspose.Cells_FOSS for .NET) do not contain XML documentation comments.
+`batch_reference.py` correctly extracts an empty `doc` field for these classes.
+`DescriptionCompletenessEvaluator` fires DC FAIL when >70% of description cells in a method
+table are empty, which floors the grade at C (`compute_grade()`: 1+ FAIL → C).
+
+**Grade C is the accepted publish floor for reference pages from FOSS libraries with no
+docstrings, provided the method/property tables are structurally complete (all extracted
+members listed).** Do not attempt to heal these pages by fabricating descriptions — the empty
+descriptions are correct and reflect the source truth. Do not gate publication on Grade B for
+this class of page. The evaluator FAIL is expected and acknowledged.
+
+To distinguish acceptable Grade C from a genuine structural gap: a Grade C reference page is
+acceptable only if it has a non-empty `evidence.apis` block. A reference page with an empty
+`evidence.apis` block is a structural gap regardless of grade and requires investigation.
+
 ### Provenance contract for creation-path skills (Control 1 — Phase N)
 
 > **MANDATORY — do not remove this requirement from any creation-path skill.**
@@ -445,6 +461,7 @@ provenance:
   content_origin: skill-generated
   last_mechanism: skill
   auto_updatable: true
+  content_created_at: '{today as YYYY-MM-DD}'
 ```
 
 **For structural-scaffold skills** (`new-docs-index`, `new-kb-index`, `new-reference-index`):
@@ -455,7 +472,13 @@ provenance:
   last_mechanism: skill
   auto_updatable: false
   provenance_recovery_note: structural-page
+  content_created_at: '{today as YYYY-MM-DD}'
 ```
+
+**`content_created_at` is required**: `validate_frontmatter.py` enforces this field on any page
+whose `graded_at` falls within the last 7 days. All creation-path skills MUST include it. It is
+set once at creation and is protected by a write-once guard in `provenance.py` — subsequent
+evidence or grade writes will not overwrite it.
 
 **Why this matters:** Without a concurrent provenance write at creation time, every new page
 enters the corpus as `content_origin: unknown`. Post-hoc classification via
@@ -839,6 +862,40 @@ based on agent judgment alone.
 output is likely incomplete. Before finalising a launch plan, verify the site plan section
 counts match expectations (docs: >= 2 developer-guide pages for non-trivial products;
 KB: >= 1 how-to per eligible cluster up to 7; blog: 2 mandatory + optional 3rd).
+
+### §6f Blog Slug Governance (added 2026-04-08)
+
+**Features post slug (Post 2, weight 2, mandatory) MUST be cluster-derived.**
+`plan_blog()` in `site_planner.py` derives the Post 2 slug from the highest-claim-count
+non-limitations knowledge cluster. The pattern `{family}-key-features-{platform}` is
+**banned for `source: derived`**; the validator raises `ValueError` at plan generation time
+if it appears on a derived record.
+
+**Existing posts are protected by default.** Any existing post with a `*-key-features-*`
+slug is preserved as `source: discovered` on every normal re-plan. These slugs are NEVER
+overridden automatically — doing so would break deployed URLs without a redirect strategy.
+
+**Migration path (opt-in only).** To replace a legacy features slug with a cluster-derived
+one, a human must explicitly run:
+```bash
+python scripts/pipeline/site_planner.py {family} {platform} --replan-blog
+```
+This flag may only be invoked by a human operator with deliberate intent. It MUST NOT be
+called automatically from `/launch-product`, `/refresh-product`, or any orchestration skill.
+After `--replan-blog` is used, the plan's `sections.blog.pages_to_retire` list will contain
+the old post path — run `/page-retire {family} {platform} {old_slug}` immediately for the
+replaced post before committing.
+
+**`auto_updatable: false` is an unconditional block.** A blog post with `auto_updatable: false`
+in its frontmatter provenance block was authored or edited by a human. Even with `--replan-blog`,
+its slug is never overridden. Do not set `auto_updatable: false` on skill-generated content.
+
+**Traceability fields.** All mandatory blog post records in `site_plan.yaml` include:
+- `blog_role: announcement | features | deep-dive` — identifies the post's function
+- `cluster: {category}` — present on `features` and `deep-dive` records; identifies the
+  knowledge cluster that determined the slug
+
+These fields are consumed by `/new-blog-post` to scope content correctly. Do not strip them.
 
 ## 7b. Human-Review Risk Tiers
 

@@ -51,6 +51,7 @@ provenance:
   last_mechanism: human-edit
   auto_updatable: false
   reviewed: true
+  content_created_at: '{today as YYYY-MM-DD}'
 ```
 
 **Critical:** `auto_updatable: false` prevents translator sync and batch overwrites from

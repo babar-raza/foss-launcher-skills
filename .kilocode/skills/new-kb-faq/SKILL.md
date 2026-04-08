@@ -65,6 +65,7 @@ Generate or update the FAQ page for a product platform.
      content_origin: skill-generated
      last_mechanism: skill
      auto_updatable: true
+     content_created_at: '{today as YYYY-MM-DD}'
    ---
    ```
    When updating an existing file: update only `lastmod` to today's date; leave all other frontmatter unchanged. Do NOT modify the `provenance:` block.

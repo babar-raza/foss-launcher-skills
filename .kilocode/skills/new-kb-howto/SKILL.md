@@ -60,6 +60,7 @@ Generate a new KB how-to article.
      content_origin: skill-generated
      last_mechanism: skill
      auto_updatable: true
+     content_created_at: '{today as YYYY-MM-DD}'
    ---
    ```
 

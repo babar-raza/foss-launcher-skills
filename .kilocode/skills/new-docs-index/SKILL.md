@@ -106,6 +106,7 @@ Default weight for unlisted platforms: 80.
      last_mechanism: skill
      auto_updatable: false
      provenance_recovery_note: structural-page
+     content_created_at: '{today as YYYY-MM-DD}'
    ---
 
    {body_intro from step 5}
