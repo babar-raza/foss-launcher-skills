@@ -282,6 +282,79 @@ class TestEnrichNoLlm:
         data = json.loads((scout_dir / "enriched_claims.json").read_text(encoding="utf-8"))
         assert data["claims"] == []
 
+
+# ---------------------------------------------------------------------------
+# enrich() with rehash_only=True — re-hash existing claims without LLM
+# ---------------------------------------------------------------------------
+
+class TestEnrichRehashOnly:
+    def _setup_with_existing(self, tmp_path: Path) -> Path:
+        scout_dir = tmp_path / "knowledge" / "cells" / "python" / "scout"
+        scout_dir.mkdir(parents=True)
+        api_surface = [
+            {"name": "Workbook", "doc": "A workbook.", "kind": "class",
+             "file": "aspose/cells/workbook.py",
+             "methods": [{"name": "save"}], "properties": [], "enum_members": []},
+        ]
+        (scout_dir / "api_surface.json").write_text(json.dumps(api_surface), encoding="utf-8")
+        # Write existing enriched claims with sequential (buggy) IDs
+        existing = {
+            "generated_at": "2026-04-04T00:00:00",
+            "model": "gpt-oss",
+            "source": "enrich.py (S-37)",
+            "family": "cells",
+            "platform": "python",
+            "api_surface_sha": "abc123",
+            "claim_count": 3,
+            "claims": [
+                {"text": "Workbook loads xlsx files.", "kind": "api", "confidence": 0.95, "claim_id": "ERC-cells-python-001"},
+                {"text": "Workbook.save() writes xlsx output.", "kind": "api", "confidence": 0.9, "claim_id": "ERC-cells-python-002"},
+                {"text": "Workbook supports CSV import.", "kind": "feature", "confidence": 0.85, "claim_id": "ERC-cells-python-001"},
+            ],
+        }
+        (scout_dir / "enriched_claims.json").write_text(json.dumps(existing), encoding="utf-8")
+        return scout_dir
+
+    def test_rehash_only_returns_true(self, tmp_path):
+        self._setup_with_existing(tmp_path)
+        result = enrich("cells", "python", knowledge_root=str(tmp_path / "knowledge"), rehash_only=True)
+        assert result is True
+
+    def test_rehash_only_preserves_claim_count(self, tmp_path):
+        scout_dir = self._setup_with_existing(tmp_path)
+        enrich("cells", "python", knowledge_root=str(tmp_path / "knowledge"), rehash_only=True)
+        data = json.loads((scout_dir / "enriched_claims.json").read_text(encoding="utf-8"))
+        assert len(data["claims"]) == 3
+
+    def test_rehash_only_produces_unique_ids(self, tmp_path):
+        """Two claims that had the same sequential ID must get different hash IDs."""
+        scout_dir = self._setup_with_existing(tmp_path)
+        enrich("cells", "python", knowledge_root=str(tmp_path / "knowledge"), rehash_only=True)
+        data = json.loads((scout_dir / "enriched_claims.json").read_text(encoding="utf-8"))
+        ids = [c["claim_id"] for c in data["claims"]]
+        # All 3 claims have different text+kind combos → 3 unique IDs
+        assert len(set(ids)) == 3, f"Expected 3 unique IDs, got {len(set(ids))}: {ids}"
+
+    def test_rehash_only_eliminates_sequential_ids(self, tmp_path):
+        scout_dir = self._setup_with_existing(tmp_path)
+        enrich("cells", "python", knowledge_root=str(tmp_path / "knowledge"), rehash_only=True)
+        data = json.loads((scout_dir / "enriched_claims.json").read_text(encoding="utf-8"))
+        import re
+        for c in data["claims"]:
+            assert not re.match(r"^ERC-.*-\d{1,3}$", c["claim_id"]), \
+                f"Sequential ID still present: {c['claim_id']}"
+
+    def test_rehash_only_preserves_claim_text(self, tmp_path):
+        scout_dir = self._setup_with_existing(tmp_path)
+        enrich("cells", "python", knowledge_root=str(tmp_path / "knowledge"), rehash_only=True)
+        data = json.loads((scout_dir / "enriched_claims.json").read_text(encoding="utf-8"))
+        texts = sorted(c["text"] for c in data["claims"])
+        assert texts == sorted([
+            "Workbook loads xlsx files.",
+            "Workbook.save() writes xlsx output.",
+            "Workbook supports CSV import.",
+        ])
+
     def test_missing_api_surface_returns_false(self, tmp_path):
         scout_dir = tmp_path / "knowledge" / "cells" / "python" / "scout"
         scout_dir.mkdir(parents=True)

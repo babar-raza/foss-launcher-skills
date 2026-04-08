@@ -552,7 +552,41 @@ def test_plan_blog_force_replan_respects_auto_updatable_false():
 
 
 # ---------------------------------------------------------------------------
-# TEST-BLOG-10: All mandatory blog posts have a blog_role field
+# TEST-BLOG-10: --replan-blog handles long-prefix key-features slugs (3d format)
+# ---------------------------------------------------------------------------
+
+def test_plan_blog_force_replan_handles_long_prefix_slug():
+    """--replan-blog must also replace aspose-3d-foss-for-python-key-features format."""
+    existing = [
+        {
+            "slug": "aspose-3d-foss-for-python-key-features",
+            "path": "content/blog.aspose.org/3d/python/aspose-3d-foss-for-python-key-features/index.md",
+            "frontmatter_cluster": "", "title": "", "auto_updatable": True,
+        },
+        {
+            "slug": "introducing-3d-foss-python",
+            "path": "content/blog.aspose.org/3d/python/introducing-3d-foss-python/index.md",
+            "frontmatter_cluster": "", "title": "", "auto_updatable": True,
+        },
+    ]
+    api = _make_api_surface_family(["formats", "entities"], family="3d")
+    claims = _make_claims(api, per_class=20)
+    clusters = sp.detect_clusters(claims, api, [], "", family="3d")
+    pages, _, to_retire = sp.plan_blog(
+        "3d", "python", 600, 30, clusters,
+        existing=existing, force_replan=True,
+    )
+    p2 = next(p for p in pages if p["weight"] == 2)
+    assert "key-features" not in p2["slug"], f"Long-prefix slug not replaced: {p2['slug']!r}"
+    assert p2["source"] == "derived"
+    assert len(to_retire) == 1
+    assert to_retire[0]["slug"] == "aspose-3d-foss-for-python-key-features"
+    # Must not appear in pages at all
+    assert "aspose-3d-foss-for-python-key-features" not in [p["slug"] for p in pages]
+
+
+# ---------------------------------------------------------------------------
+# TEST-BLOG-11: All mandatory blog posts have a blog_role field
 # ---------------------------------------------------------------------------
 
 def test_plan_blog_all_mandatory_posts_have_blog_role():
