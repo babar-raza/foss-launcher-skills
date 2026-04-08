@@ -44,8 +44,14 @@ class TestDescriptionCompleteness:
         dc_findings = [f for f in findings if f.category == "DC"]
         assert len(dc_findings) == 0
 
-    def test_mostly_empty_descriptions_fail(self):
-        """Reference page with >70% empty description cells → FAIL."""
+    def test_mostly_empty_descriptions_small_table_warn(self):
+        """Small table (4 rows, 3 empty = 75%) gets WARN not FAIL.
+
+        The absolute-count guard (_FAIL_EMPTY_MIN=5) prevents FAIL for small
+        classes where the high percentage is driven by a tiny denominator.
+        A 4-property class with 3 undocumented members is penalised less severely
+        than a 17-method class with 13 undocumented members at the same percentage.
+        """
         page = _make_page(textwrap.dedent("""\
             ---
             title: Scene
@@ -62,7 +68,10 @@ class TestDescriptionCompleteness:
         findings = self.evaluator.evaluate(page, None)
         dc_findings = [f for f in findings if f.category == "DC"]
         assert len(dc_findings) == 1
-        assert dc_findings[0].level == "FAIL"
+        assert dc_findings[0].level == "WARN", (
+            "Small table (4 rows, 3 empty) should get WARN not FAIL "
+            "— absolute-count guard prevents FAIL when empty < _FAIL_EMPTY_MIN"
+        )
         assert "empty description" in dc_findings[0].message.lower()
 
     def test_partially_empty_descriptions_warn(self):
@@ -139,8 +148,13 @@ class TestDescriptionCompleteness:
         dc_findings = [f for f in findings if f.category == "DC"]
         assert len(dc_findings) == 0
 
-    def test_summary_column_detected(self):
-        """Table with 'Summary' header treated same as 'Description'."""
+    def test_summary_column_detected_small_table_warn(self):
+        """Table with 'Summary' header and all 4 rows empty → WARN (not FAIL).
+
+        The absolute-count guard prevents FAIL for small tables even when
+        empty_pct is 100% — 4 empty cells < _FAIL_EMPTY_MIN (5).
+        The 'Summary' column name is still detected and triggers a WARN.
+        """
         page = _make_page(textwrap.dedent("""\
             ---
             title: Scene
@@ -157,4 +171,37 @@ class TestDescriptionCompleteness:
         findings = self.evaluator.evaluate(page, None)
         dc_findings = [f for f in findings if f.category == "DC"]
         assert len(dc_findings) == 1
-        assert dc_findings[0].level == "FAIL"
+        assert dc_findings[0].level == "WARN", (
+            "4-row table with all cells empty should get WARN not FAIL "
+            "— 4 empty < _FAIL_EMPTY_MIN(5)"
+        )
+
+    def test_large_table_mostly_empty_still_fails(self):
+        """Large table (7 rows, 6 empty = 86%) → FAIL even with absolute-count guard.
+
+        When empty >= _FAIL_EMPTY_MIN (5) AND empty_pct > 70%, FAIL fires normally.
+        This confirms large undocumented API surfaces are still caught.
+        """
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Workbook
+            ---
+            ## Methods
+
+            | Method | Description |
+            |--------|-------------|
+            | Save | Writes the workbook to disk |
+            | Open | |
+            | Close | |
+            | Dispose | |
+            | Calculate | |
+            | Protect | |
+            | Unprotect | |
+        """))
+        findings = self.evaluator.evaluate(page, None)
+        dc_findings = [f for f in findings if f.category == "DC"]
+        assert len(dc_findings) == 1
+        assert dc_findings[0].level == "FAIL", (
+            "Large table (7 rows, 6 empty = 86%) should FAIL "
+            "— 6 >= _FAIL_EMPTY_MIN(5) and 86% > 70%"
+        )

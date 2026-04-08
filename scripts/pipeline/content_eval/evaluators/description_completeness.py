@@ -21,6 +21,13 @@ _WARN_EMPTY_PCT = 40  # >40% empty → WARN
 # Minimum chars for a cell to count as "populated"
 _MIN_CELL_LEN = 6
 
+# Minimum absolute empty-cell count before the percentage thresholds apply.
+# Prevents small tables (≤4 rows) from getting FAIL/WARN purely because the
+# denominator is tiny. A large class with 10+ undocumented members is more
+# severe than a small class with 3 undocumented members at the same percentage.
+_FAIL_EMPTY_MIN = 5   # require ≥5 empty cells to fire FAIL
+_WARN_EMPTY_MIN = 2   # require ≥2 empty cells to fire WARN
+
 
 def _parse_tables(body: str, body_offset: int) -> list[dict]:
     """Parse Markdown tables from body text.
@@ -134,7 +141,7 @@ class DescriptionCompletenessEvaluator(BaseEvaluator):
 
             pct = int(100 * empty / total)
 
-            if pct > _FAIL_EMPTY_PCT:
+            if pct > _FAIL_EMPTY_PCT and empty >= _FAIL_EMPTY_MIN:
                 findings.append(Finding(
                     level="FAIL",
                     category="DC",
@@ -144,7 +151,7 @@ class DescriptionCompletenessEvaluator(BaseEvaluator):
                     suggestion="Populate description cells with meaningful text for each API member",
                     evaluator=self.name,
                 ))
-            elif pct > _WARN_EMPTY_PCT:
+            elif pct > _WARN_EMPTY_PCT and empty >= _WARN_EMPTY_MIN:
                 findings.append(Finding(
                     level="WARN",
                     category="DC",
