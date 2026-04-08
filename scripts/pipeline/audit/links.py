@@ -79,6 +79,15 @@ def _resolve_link_to_file(url, source_filepath):
     return None, None
 
 
+def _kebab_to_pascal(slug: str) -> str:
+    """Convert a kebab-case slug back to PascalCase.
+
+    Hugo generates kebab-case URLs from PascalCase filenames:
+    ``FillFormat.md`` → ``/fill-format/``.  This reverses that transform.
+    """
+    return "".join(part.capitalize() for part in slug.split("-"))
+
+
 def _check_content_path(base, rel_path):
     """Check if a content path resolves to a real file. Returns the Path if found, None if not."""
     rel_path = rel_path.strip("/")
@@ -91,6 +100,22 @@ def _check_content_path(base, rel_path):
     for c in candidates:
         if c.exists():
             return c
+
+    # Fallback: the last path segment may be a kebab-case Hugo slug derived
+    # from a PascalCase filename (e.g. /fill-format/ → FillFormat.md).
+    parts = rel_path.split("/")
+    pascal_leaf = _kebab_to_pascal(parts[-1])
+    if pascal_leaf != parts[-1]:
+        parent = base / "/".join(parts[:-1]) if len(parts) > 1 else base
+        pascal_candidates = [
+            parent / pascal_leaf / "_index.md",
+            parent / pascal_leaf / "index.md",
+            parent / (pascal_leaf + ".md"),
+        ]
+        for c in pascal_candidates:
+            if c.exists():
+                return c
+
     return None
 
 
