@@ -175,8 +175,10 @@ def extract_snippets(
         if fname:
             format_names.add(fname.lower())
 
-    snippet_dirs = ["tests", "test", "examples", "example", "samples", "demo"]
-    _example_dirs = {"examples", "example", "samples", "demo"}
+    snippet_dirs = ["tests", "test", "examples", "example", "samples", "demo",
+                     "ApiExamples", "api_examples"]
+    _example_dirs = {"examples", "example", "samples", "demo",
+                     "ApiExamples", "api_examples"}
     ext = _FILE_EXTENSIONS.get(language, ".py")
     func_types = _FUNC_TYPES.get(language, set())
     class_types = _CLASS_TYPES.get(language, set())
