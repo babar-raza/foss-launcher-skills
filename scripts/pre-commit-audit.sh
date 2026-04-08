@@ -190,4 +190,25 @@ print(f'{computed}|{mech}')
     fi
 done
 
+# ---------------------------------------------------------------------------
+# Step 7: Python file placement check (staged .py files only)
+# ---------------------------------------------------------------------------
+# Blocks commits of .py files in forbidden locations (repo root, scripts/ root,
+# scripts/one-shot/). Uses --check-staged so only staged files are examined —
+# existing legacy files in the working tree don't trigger false positives.
+# See AGENTS.md §4b for placement rules.
+if git diff --cached --name-only --diff-filter=ACM | grep -q '\.py$'; then
+    python scripts/ci/check_python_placement.py --check-staged
+    if [ $? -ne 0 ]; then
+        echo ""
+        echo "BLOCKED: Staged Python file(s) are in forbidden locations (see above)."
+        echo "  Correct locations:"
+        echo "    scripts/maintenance/  (operator one-off; add to scripts/maintenance/registry.yaml)"
+        echo "    scripts/pipeline/     (operational; follow PIPELINE.md New File Protocol)"
+        echo "    scripts/ci/           (CI-only validator)"
+        echo "  See AGENTS.md §4b for the full decision tree."
+        exit 1
+    fi
+fi
+
 exit 0

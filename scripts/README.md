@@ -32,6 +32,10 @@ This directory contains all Python scripts, shell hooks, and tooling for the Asp
 
 **Entry points vs. library modules**: The `pipeline/` root mixes runnable entry-point scripts (call these from CLI/CI/hooks) with importable library modules (import these; do not call directly). See [`pipeline/PIPELINE.md`](pipeline/PIPELINE.md) for the complete classification.
 
-**One-off scripts**: Scripts that are not meant to be run repeatedly or integrated into CI live in [`maintenance/`](maintenance/). They are idempotent where possible but are not monitored or called automatically.
+**One-off scripts — two categories:**
+- `scripts/maintenance/` — standalone operator-run mutations (content repairs, schema migrations) run manually and **never called by CI or skills**. Register each script in `scripts/maintenance/registry.yaml`. Use naming convention `{verb}_{what}_{scope}.py` (e.g. `repair_stale_claims_cells.py`).
+- `scripts/pipeline/` `kind=one-shot` — pipeline-orchestrated one-shots that **import from the pipeline package or are invoked by a skill chain**. These require the full 8-step New File Protocol in `pipeline/PIPELINE.md`.
+
+When in doubt, prefer `scripts/maintenance/`. See `AGENTS.md §4b` for the full placement decision tree.
 
 **Blast radius warning**: The paths of CI validators (`ci/*.py`) and pipeline entry points (`pipeline/*.py`) are hardcoded in `.github/workflows/content-audit.yml`, git hooks, AGENTS.md, and 47+ skill files. Do not rename or move these without a coordinated update across all callers.
