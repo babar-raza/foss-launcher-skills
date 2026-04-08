@@ -77,3 +77,21 @@ scripts:
     purpose: "Regenerate TypeScript reference pages for 3D product (moved from scripts/regen_3d_typescript.py)"
     created: "2026-04-08"
     status: done
+
+  - path: scripts/maintenance/repair_email_net_stubs.py
+    kind: repair
+    purpose: "Fill stub pages for email/net product — pass 1 (moved from scripts/fix_email_net_stubs.py)"
+    created: "2026-04-08"
+    status: done
+
+  - path: scripts/maintenance/repair_email_net_stubs_pass2.py
+    kind: repair
+    purpose: "Fill stub pages for email/net product — pass 2 remaining (moved from scripts/fix_email_net_remaining.py)"
+    created: "2026-04-08"
+    status: done
+
+  - path: scripts/maintenance/repair_note_python_stubs.py
+    kind: repair
+    purpose: "Fill stub pages for note/python product (moved from scripts/fix_note_python_stubs.py)"
+    created: "2026-04-08"
+    status: done

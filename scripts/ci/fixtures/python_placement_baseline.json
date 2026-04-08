@@ -1,10 +1,7 @@
 {
   "description": "Known Python placement violations as of 2026-04-08. Remove entries as cleanup completes. If this list grows beyond its initial count, the system is failing.",
-  "initial_count": 6,
+  "initial_count": 3,
   "violations": [
-    {"rule": 2, "path": "scripts/fix_email_net_remaining.py", "note": "legacy pre-hook; target: scripts/maintenance/repair_email_net_stubs_pass2.py"},
-    {"rule": 2, "path": "scripts/fix_email_net_stubs.py", "note": "legacy pre-hook; target: scripts/maintenance/repair_email_net_stubs.py"},
-    {"rule": 2, "path": "scripts/fix_note_python_stubs.py", "note": "legacy pre-hook; target: scripts/maintenance/repair_note_python_stubs.py"},
     {"rule": 3, "path": "scripts/one-shot/auto_expand_stubs.py", "note": "legacy; review for move to scripts/maintenance/ or deletion"},
     {"rule": 3, "path": "scripts/one-shot/expand_3d_typescript_stubs.py", "note": "legacy; review for move to scripts/maintenance/ or deletion"},
     {"rule": 3, "path": "scripts/one-shot/expand_3d_typescript_stubs_pass2.py", "note": "legacy; review for move to scripts/maintenance/ or deletion"}
