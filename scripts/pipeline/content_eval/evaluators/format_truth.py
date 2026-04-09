@@ -121,6 +121,10 @@ def _load_formats(family: str, platform: str) -> dict[str, str]:
             continue
         ext = raw_key.lower()
         direction = (entry.get("direction") or entry.get("support") or "").lower()
+        # Normalize enum_only → import: the enum constant exists for
+        # identification but save() raises ValueError, so only reading works.
+        if direction == "enum_only":
+            direction = "import"
         if not direction:
             # Infer from boolean fields
             can_import = entry.get("import", False)
