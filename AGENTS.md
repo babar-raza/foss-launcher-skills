@@ -547,6 +547,7 @@ Agents must activate the upstream skill if it has not already been confirmed as 
 | `/delta-site-plan` (S-82) | S-14 `/knowledge-update` | Always (knowledge_delta.json must exist) |
 | `/page-retire` (S-83) | S-82 `/delta-site-plan` | When retiring from plan; or explicit operator path |
 | `/refresh-product` (S-84) | S-12 `/knowledge-diff` | Always (auto-invokes S-14, S-82, S-83 in sequence) |
+| `/truth-audit-content` (S-85) | S-54 `/knowledge-bootstrap` | Always |
 | Any content write | S-01 `/path-guard` | Always (final gate) |
 
 If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do not continue to the downstream skill.
@@ -1633,6 +1634,7 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | delta-site-plan | S-82 | Incremental site planning after knowledge update: runs `site_planner.py --mode update` to compute pages_to_add, pages_to_update, pages_to_remove, pages_renamed; writes delta section to site_plan.yaml; requires knowledge_delta.json from S-14 |
 | page-retire | S-83 | Retire obsolete content pages via `draft: true` + `retired_at` frontmatter (Hugo standard); never deletes files; dual-signal retirement rule (cluster + claim signal); --dry-run first; backs `scripts/pipeline/retire_page.py` |
 | refresh-product | S-84 | Full post-launch product refresh orchestration: 14-step chain from S-12 (detect) through S-14, S-82, S-20, delta-dispatch, S-83, S-62 --update, S-48, S-23, S-65, S-53, progress tracking, verification gate (post_refresh_verify --verify), and S-76 (commit); early-exit if no SHA change |
+| truth-audit-content | S-85 | Line-level content truth audit against clone cache and knowledge model (read-only; decomposes pages into units, verifies each, produces gap ledger); backs `scripts/pipeline/truth_audit_content.py` |
 
 ### Enforcement scripts
 
