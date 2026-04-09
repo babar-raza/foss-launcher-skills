@@ -18,7 +18,7 @@ After a knowledge refresh (S-14), identify which content pages reference changed
 
 2. **Auto-refresh knowledge**: Before loading any knowledge artifacts, ensure they are current:
    ```bash
-   python scripts/pipeline/refresh_knowledge.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform}
    ```
    - If it prints "refreshed": knowledge was stale and has been rebuilt from the clone cache.
    - If it prints "current": no action needed.
@@ -73,7 +73,7 @@ After a knowledge refresh (S-14), identify which content pages reference changed
 
 8. **Run ground-check** on each updated page:
    ```bash
-   python scripts/pipeline/audit.py --files {updated-file-path}
+   .venv/Scripts/python scripts/pipeline/audit.py --files {updated-file-path}
    ```
 
 9. **Update provenance**: For each file where body content was modified, update the provenance mechanism:

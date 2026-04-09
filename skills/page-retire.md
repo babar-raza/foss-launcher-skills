@@ -37,9 +37,9 @@ pages that still have valid coverage.
 
 2. **Always run --dry-run first**:
    ```bash
-   python scripts/pipeline/retire_page.py {file-path} --dry-run
+   .venv/Scripts/python scripts/pipeline/retire_page.py {file-path} --dry-run
    # or
-   python scripts/pipeline/retire_page.py --from-plan reports/plans/{family}/{platform}/site_plan.yaml --dry-run
+   .venv/Scripts/python scripts/pipeline/retire_page.py --from-plan reports/plans/{family}/{platform}/site_plan.yaml --dry-run
    ```
    Review the list of pages that would be retired. Confirm before proceeding.
 
@@ -51,9 +51,9 @@ pages that still have valid coverage.
 
 4. **Execute retirement**:
    ```bash
-   python scripts/pipeline/retire_page.py {file-path}
+   .venv/Scripts/python scripts/pipeline/retire_page.py {file-path}
    # or
-   python scripts/pipeline/retire_page.py --from-plan reports/plans/{family}/{platform}/site_plan.yaml
+   .venv/Scripts/python scripts/pipeline/retire_page.py --from-plan reports/plans/{family}/{platform}/site_plan.yaml
    ```
    Each retired page receives:
    - `draft: true` in frontmatter (Hugo standard — suppresses from production builds)

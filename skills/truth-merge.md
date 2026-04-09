@@ -27,7 +27,7 @@ current runtime rules. The FL layer has been removed.
 
 Run the promotion engine first, then review:
 ```bash
-python scripts/pipeline/promote.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/promote.py {family} {platform}
 ```
 Review `knowledge/{family}/{platform}/merged/merge_report.md` for scout/enriched promotion counts.
 

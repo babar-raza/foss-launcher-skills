@@ -18,7 +18,7 @@ Uses `audit.py` FAIL count as a quality proxy for proposed content.
 
 2. **Grade existing file**:
    ```bash
-   python -m scripts.pipeline.content_eval evaluate --files {target_path} --format json
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {target_path} --format json
    ```
    - Parse: `existing_grade` = output `grade` field (A/B/C/D/F)
    - If eval fails (module unavailable): fallback — run `python scripts/pipeline/audit.py --files {target_path}`; grade by FAIL count: 0→B, 1-2→C, 3-5→D, 6+→F

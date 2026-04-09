@@ -19,7 +19,7 @@ Do not include a `ground_check:` field - it is self-reported and unverifiable.
 Run `attach_evidence.py`. It is deterministic and requires no LLM:
 
 ```bash
-python scripts/pipeline/attach_evidence.py --files {content-file-path}
+.venv/Scripts/python scripts/pipeline/attach_evidence.py --files {content-file-path}
 ```
 
 This script:

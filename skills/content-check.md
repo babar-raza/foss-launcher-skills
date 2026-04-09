@@ -30,7 +30,7 @@ Run a structural and quality check on a content file before committing.
 
 3. **Run automated structural checks via audit.py**:
    ```bash
-   python scripts/pipeline/audit.py --files {relative-file-path}
+   .venv/Scripts/python scripts/pipeline/audit.py --files {relative-file-path}
    ```
    `audit.py` performs automated structural and schema checks and outputs a PASS/WARN/FAIL
    report. Read the script output and incorporate the results into the overall check.

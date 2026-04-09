@@ -51,7 +51,7 @@ exclusive: S-78 requires audit.py PASS; S-72 handles audit.py FAIL.
 6. `knowledge/{family}/{platform}/merged/claims.json` and `api_surface.json` must exist.
 7. **Pre-flight audit** — the page must already be clean:
    ```bash
-   python scripts/pipeline/audit.py --files {path}
+   .venv/Scripts/python scripts/pipeline/audit.py --files {path}
    ```
    If audit returns any FAIL, HALT:
    ```
@@ -59,7 +59,7 @@ exclusive: S-78 requires audit.py PASS; S-72 handles audit.py FAIL.
    ```
 8. Check current evidence coverage:
    ```bash
-   python -m scripts.pipeline.content_eval evaluate --files {path} --format json
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {path} --format json
    ```
    If `evidence_depth` INFO finding is absent (coverage already 100%), report NO_CHANGE
    and exit without modifying the file.
@@ -118,17 +118,17 @@ will produce false `viable` classifications — always use the tokenizer, not re
 
 2. **Auto-refresh knowledge**:
    ```bash
-   python scripts/pipeline/refresh_knowledge.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform}
    ```
 
 3. **Run attach_evidence**:
    ```bash
-   python scripts/pipeline/attach_evidence.py --files {path} --force
+   .venv/Scripts/python scripts/pipeline/attach_evidence.py --files {path} --force
    ```
 
 4. **Post-attach audit**:
    ```bash
-   python scripts/pipeline/audit.py --files {path}
+   .venv/Scripts/python scripts/pipeline/audit.py --files {path}
    ```
    If audit returns any FAIL, revert the file to its pre-step-3 state and report ESCAPED:
    ```
@@ -137,7 +137,7 @@ will produce false `viable` classifications — always use the tokenizer, not re
 
 5. **Validate frontmatter**:
    ```bash
-   python scripts/pipeline/validate_frontmatter.py --files {path}
+   .venv/Scripts/python scripts/pipeline/validate_frontmatter.py --files {path}
    ```
    If validation fails, revert and report ESCAPED.
 
@@ -147,7 +147,7 @@ will produce false `viable` classifications — always use the tokenizer, not re
 
 7. **Re-evaluate**:
    ```bash
-   python -m scripts.pipeline.content_eval evaluate --files {path} --format json
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {path} --format json
    ```
    Record new `evidence_depth` finding. If WARN count has increased or grade has decreased,
    revert the file and report ESCAPED.

@@ -24,7 +24,7 @@ It is the final step in the gap remediation pipeline: `S-43 → S-44 → S-46 �
 ### Step 1: Validate plan exists
 
 ```bash
-python -c "
+.venv/Scripts/python -c "
 import json, sys
 from pathlib import Path
 specs = Path('reports/agents/remediation/{family}-{platform}/fix_specs.json')
@@ -54,7 +54,7 @@ Or apply by category code if you want finer control:
 
 After Wave 1, verify no regressions:
 ```bash
-python scripts/pipeline/audit.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/audit.py {family} {platform}
 ```
 
 ### Step 3: Apply Wave 2 fixes (LLM-planned substitutions)
@@ -69,7 +69,7 @@ For each fix in `fix_specs.json` where `wave == 2`:
 
 After all Wave 2 substitutions, run S-23 (content-check):
 ```bash
-python scripts/pipeline/audit.py --files {modified_files}
+.venv/Scripts/python scripts/pipeline/audit.py --files {modified_files}
 ```
 
 If audit FAILs on a Wave 2 page: revert that specific file's change and add it to the Wave 4 (human) escalation list.

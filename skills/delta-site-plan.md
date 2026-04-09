@@ -32,7 +32,7 @@ a complete picture of what changes are needed.
 
 3. **Run delta planning**:
    ```bash
-   python scripts/pipeline/site_planner.py {family} {platform} --mode update
+   .venv/Scripts/python scripts/pipeline/site_planner.py {family} {platform} --mode update
    ```
    This reads the current `api_surface.json`, `claims.json`, and `knowledge_delta.json`,
    compares them against the existing `site_plan.yaml`, and writes a `delta:` section to

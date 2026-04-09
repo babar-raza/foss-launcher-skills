@@ -7,8 +7,8 @@ Expected format: `{family} {platform} {repo-path}`
 
 First, update the local clone to fetch any upstream changes, then resolve the path:
 ```bash
-python -c "from scripts.pipeline.core.clone_cache import update_clone; update_clone('{family}', '{platform}')"
-repo_path=$(python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
+.venv/Scripts/python -c "from scripts.pipeline.core.clone_cache import update_clone; update_clone('{family}', '{platform}')"
+repo_path=$(.venv/Scripts/python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
 ```
 Then invoke this skill as: `/knowledge-diff {family} {platform} $repo_path`
 

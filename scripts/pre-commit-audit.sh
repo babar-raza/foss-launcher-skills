@@ -228,6 +228,23 @@ if git diff --cached --name-only --diff-filter=ACM | grep -q '\.py$'; then
 fi
 
 # ---------------------------------------------------------------------------
+# Step 7b: Venv enforcement on staged skill files
+# ---------------------------------------------------------------------------
+# Blocks commits where skill bash blocks contain bare `python`, `pip install --user`,
+# or PYTHONPATH=$USER_SITE.  Only checks staged skill files to avoid false positives
+# on unmodified legacy files.  See AGENTS.md §virtual-environment.
+if git diff --cached --name-only --diff-filter=ACM | grep -qE '^(skills/|\.agents/skills/|\.kilocode/skills/|\.claude/commands/)'; then
+    python scripts/ci/enforce_venv_python.py --check
+    if [ $? -ne 0 ]; then
+        echo ""
+        echo "BLOCKED: Staged skill file(s) contain bare python/pip or --user violations."
+        echo "  Auto-fix: python scripts/ci/enforce_venv_python.py --fix"
+        echo "  DENY violations (--user, USER_SITE) require manual skill redesign."
+        exit 1
+    fi
+fi
+
+# ---------------------------------------------------------------------------
 # Step 8: Session-ledger enforcement (content files only)
 # ---------------------------------------------------------------------------
 # When an ACTIVE session pointer exists, verify that every staged content .md

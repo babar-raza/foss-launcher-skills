@@ -36,13 +36,13 @@ Run a specific category fixer on targeted files. Useful for surgical fixes when 
 3. **Run eval** on just those files with the relevant evaluator:
 
    ```bash
-   python -m scripts.pipeline.content_eval evaluate --files {files...} --evaluators {evaluator} --format json
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {files...} --evaluators {evaluator} --format json
    ```
 
 4. **Run targeted fix**:
 
    ```bash
-   python scripts/pipeline/remediate.py fix {report-path} --categories {category}
+   .venv/Scripts/python scripts/pipeline/remediate.py fix {report-path} --categories {category}
    ```
 
 5. **For LLM-needed findings** in the category (RL, AA, PC, FC, PT, CP):
@@ -61,7 +61,7 @@ Run a specific category fixer on targeted files. Useful for surgical fixes when 
 6. **Re-evaluate** the fixed files:
 
    ```bash
-   python -m scripts.pipeline.content_eval evaluate --files {files...} --evaluators {evaluator} --format json
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {files...} --evaluators {evaluator} --format json
    ```
 
 7. **Report**:

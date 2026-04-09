@@ -10,7 +10,7 @@ Evaluate a content page using the content_eval pipeline and produce a letter gra
 
 For batch evaluation of all pages in a product, use S-51 (content-eval):
 ```bash
-python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation
+.venv/Scripts/python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation
 ```
 
 ## Pre-conditions
@@ -25,13 +25,13 @@ python -m scripts.pipeline.content_eval evaluate {family} {platform} --format js
 
 2. **Run content_eval**:
    ```bash
-   python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json --remediation
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json --remediation
    ```
 
 2b. **Run smoke test** (Python platform only — skip for java, net, cpp, typescript):
    If `{platform}` is `python`, run:
    ```bash
-   python scripts/pipeline/smoke_test.py --files {relative-file-path}
+   .venv/Scripts/python scripts/pipeline/smoke_test.py --files {relative-file-path}
    ```
    - Exit code 2 (FAIL): count each failing block as one additional FAIL finding
    - Exit code 1 (WARN): count each warning block as one additional WARN finding

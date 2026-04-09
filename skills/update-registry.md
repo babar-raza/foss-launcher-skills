@@ -60,7 +60,7 @@ memory; the only persisted record of discovery results is this file.
 
 3. **Run discovery**:
    ```bash
-   python scripts/pipeline/update_product_registry.py [--token $GITHUB_TOKEN] [--dry-run] [--local-only] [--force]
+   .venv/Scripts/python scripts/pipeline/update_product_registry.py [--token $GITHUB_TOKEN] [--dry-run] [--local-only] [--force]
    ```
 
    - **GitHub mode** (default): Calls `org_scanner.scan_orgs()` for each of the 26 orgs.

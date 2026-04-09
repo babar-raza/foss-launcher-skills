@@ -23,14 +23,14 @@ def _make_skill(tmp_path: Path, rel: str, content: str) -> Path:
 
 
 def _run_fix(tmp_path: Path, rel: str, content: str) -> tuple[str, list[str]]:
-    """Write file, run process_file in fix mode, return (new_content, violations)."""
+    """Write file, run process_file in fix mode, return (new_content, fixable_violations)."""
     p = _make_skill(tmp_path, rel, content)
-    viols = enforce_venv_python.process_file(p, fix=True)
+    viols, _deny = enforce_venv_python.process_file(p, fix=True)
     return p.read_text(encoding="utf-8"), viols
 
 
-def _run_check(tmp_path: Path, rel: str, content: str) -> list[str]:
-    """Write file, run process_file in check mode (no write), return violations."""
+def _run_check(tmp_path: Path, rel: str, content: str) -> tuple[list[str], list[str]]:
+    """Write file, run process_file in check mode (no write), return (violations, deny)."""
     p = _make_skill(tmp_path, rel, content)
     return enforce_venv_python.process_file(p, fix=False)
 
@@ -138,7 +138,7 @@ def test_getting_started_file_unchanged_in_fix_mode(tmp_path):
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(src, encoding="utf-8")
     # process_file is not called for skipped files; verify directly
-    viols = enforce_venv_python.process_file(p, fix=True)
+    viols, _deny = enforce_venv_python.process_file(p, fix=True)
     # should_skip is checked in collect_files, not process_file —
     # but when passed directly, it processes. This tests the skip logic at collect level.
     # Verify should_skip returns True for this path.
@@ -171,7 +171,7 @@ def test_multiple_violations_all_fixed(tmp_path):
 def test_check_mode_does_not_modify_file(tmp_path):
     src = "# Skill\n\n```bash\npython -m foo\n```\n"
     p = _make_skill(tmp_path, ".agents/skills/foo/SKILL.md", src)
-    viols = enforce_venv_python.process_file(p, fix=False)
+    viols, _deny = enforce_venv_python.process_file(p, fix=False)
     assert p.read_text(encoding="utf-8") == src  # file unchanged
     assert len(viols) == 1
 
@@ -179,7 +179,7 @@ def test_check_mode_does_not_modify_file(tmp_path):
 def test_check_mode_returns_violations_without_writing(tmp_path):
     src = "# Skill\n\n```bash\npython -m bar\npip install requests\n```\n"
     p = _make_skill(tmp_path, ".agents/skills/foo/SKILL.md", src)
-    viols = enforce_venv_python.process_file(p, fix=False)
+    viols, _deny = enforce_venv_python.process_file(p, fix=False)
     assert len(viols) == 2
     assert p.read_text(encoding="utf-8") == src
 
@@ -223,3 +223,86 @@ def test_multiple_fences_both_fixed(tmp_path):
     out, viols = _run_fix(tmp_path, ".agents/skills/foo/SKILL.md", src)
     assert out.count(".venv/Scripts/python") == 2
     assert len(viols) == 2
+
+
+# ---------------------------------------------------------------------------
+# Untagged code fences (``` without bash/sh)
+# ---------------------------------------------------------------------------
+
+def test_untagged_fence_is_scanned(tmp_path):
+    src = "# Skill\n\n```\npython -m foo\n```\n"
+    out, viols = _run_fix(tmp_path, "skills/foo.md", src)
+    assert ".venv/Scripts/python -m foo" in out
+    assert len(viols) == 1
+
+
+def test_untagged_fence_pip_is_scanned(tmp_path):
+    src = "# Skill\n\n```\npip install requests\n```\n"
+    out, viols = _run_fix(tmp_path, "skills/foo.md", src)
+    assert ".venv/Scripts/pip install requests" in out
+    assert len(viols) == 1
+
+
+def test_python_tagged_fence_not_scanned(tmp_path):
+    """```python fences contain Python source, not shell commands."""
+    src = "# Skill\n\n```python\npython -m foo\n```\n"
+    out, viols = _run_fix(tmp_path, "skills/foo.md", src)
+    assert out == src
+    assert viols == []
+
+
+def test_yaml_tagged_fence_not_scanned(tmp_path):
+    src = "# Skill\n\n```yaml\npython: 3.12\n```\n"
+    out, viols = _run_fix(tmp_path, "skills/foo.md", src)
+    assert out == src
+    assert viols == []
+
+
+# ---------------------------------------------------------------------------
+# DENY_PATTERNS (--user, USER_SITE)
+# ---------------------------------------------------------------------------
+
+def test_pip_install_user_is_deny_violation(tmp_path):
+    src = "# Skill\n\n```\npip install tree-sitter --user\n```\n"
+    p = _make_skill(tmp_path, "skills/foo.md", src)
+    _viols, deny = enforce_venv_python.process_file(p, fix=False)
+    assert len(deny) == 1
+    assert "--user" in deny[0]
+
+
+def test_pip_install_user_is_deny_in_fix_mode_too(tmp_path):
+    """DENY patterns are reported even in --fix mode (not auto-fixed)."""
+    src = "# Skill\n\n```bash\npip install tree-sitter --user\n```\n"
+    p = _make_skill(tmp_path, "skills/foo.md", src)
+    _viols, deny = enforce_venv_python.process_file(p, fix=True)
+    assert len(deny) == 1
+    # The bare pip IS auto-fixed, but --user is still flagged
+    content = p.read_text(encoding="utf-8")
+    assert ".venv/Scripts/pip install tree-sitter --user" in content
+
+
+def test_pythonpath_user_site_is_deny_violation(tmp_path):
+    src = '# Skill\n\n```\nPYTHONPATH="$USER_SITE" python -c "import foo"\n```\n'
+    p = _make_skill(tmp_path, "skills/foo.md", src)
+    _viols, deny = enforce_venv_python.process_file(p, fix=False)
+    assert len(deny) == 1
+    assert "USER_SITE" in deny[0]
+
+
+def test_no_deny_violation_in_clean_file(tmp_path):
+    src = "# Skill\n\n```bash\n.venv/Scripts/python -m foo\n```\n"
+    p = _make_skill(tmp_path, "skills/foo.md", src)
+    _viols, deny = enforce_venv_python.process_file(p, fix=False)
+    assert deny == []
+
+
+# ---------------------------------------------------------------------------
+# Canonical skills/ directory in SCAN_DIRS
+# ---------------------------------------------------------------------------
+
+def test_scan_dirs_includes_canonical_skills():
+    """Canonical skills/ must be in SCAN_DIRS (primary enforcement target)."""
+    canonical = enforce_venv_python.REPO_ROOT / "skills"
+    assert canonical in enforce_venv_python.SCAN_DIRS
+    # Must be first entry (primary target)
+    assert enforce_venv_python.SCAN_DIRS[0] == canonical

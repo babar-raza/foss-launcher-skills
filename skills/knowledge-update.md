@@ -39,7 +39,7 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
 
 2. **Run refresh pipeline** (handles backup, diff, and cleanup internally):
    ```
-   python scripts/pipeline/refresh_knowledge.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform}
    ```
    Internally, `refresh_knowledge.py`:
    - Sets `stale_since` in `merged/model.yaml` to today before running the pipeline
@@ -55,13 +55,13 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
 
 3. **Run knowledge-enrich** (S-37) if not already run by refresh pipeline:
    ```
-   python scripts/pipeline/enrich.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/enrich.py {family} {platform}
    ```
    Verify `knowledge/{family}/{platform}/scout/enriched_claims.json` exists and is valid JSON.
 
 4. **Run truth-merge** (S-35) if not already run:
    ```
-   python scripts/pipeline/promote.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/promote.py {family} {platform}
    ```
    Verify `knowledge/{family}/{platform}/merged/merge_report.md` exists and shows merge statistics.
 
