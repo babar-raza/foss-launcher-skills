@@ -57,6 +57,11 @@ if [ -n "$PENDING_RUN" ]; then
         echo ""
         exit 1
     fi
+else
+    # No pending run record — warn about undocumented commit (non-blocking).
+    echo "WARNING: No skill run record found for this content commit."
+    echo "  Declared skills are accepted at face value without execution evidence."
+    echo "  Consider using /commit (S-76) to create auditable skill run records."
 fi
 
 exit 0

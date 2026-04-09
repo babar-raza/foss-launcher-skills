@@ -211,4 +211,42 @@ if git diff --cached --name-only --diff-filter=ACM | grep -q '\.py$'; then
     fi
 fi
 
+# ---------------------------------------------------------------------------
+# Step 8: Session-ledger enforcement (content files only)
+# ---------------------------------------------------------------------------
+# When an ACTIVE session pointer exists, verify that every staged content .md
+# file appears in the session ledger's touched_files.  This converts the
+# session ledger from an advisory system to a blocking enforcement layer.
+# Bypass: include '# SKIP-SESSION-CHECK' in the commit message.
+# Non-content files (scripts, configs, skills, etc.) are exempt — the session
+# ledger tracks content authorship, not infrastructure changes.
+if [ -f "reports/session-state/ACTIVE" ]; then
+    # Check for bypass in commit message (available via .git/COMMIT_EDITMSG during commit)
+    _commit_msg_file=".git/COMMIT_EDITMSG"
+    _skip_session=0
+    if [ -f "$_commit_msg_file" ] && grep -q '# SKIP-SESSION-CHECK' "$_commit_msg_file"; then
+        _skip_session=1
+    fi
+
+    if [ $_skip_session -eq 0 ]; then
+        _staged_content=$(git diff --cached --name-only --diff-filter=ACM | grep '^content/.*\.md$')
+        if [ -n "$_staged_content" ]; then
+            _session_check_result=$(echo "$_staged_content" | \
+                python scripts/pipeline/session_ledger.py check-staged 2>&1)
+            _session_check_status=$?
+            if [ $_session_check_status -ne 0 ]; then
+                echo ""
+                echo "$_session_check_result"
+                echo ""
+                echo "BLOCKED: Staged content files not found in session ledger."
+                echo "  Options:"
+                echo "    1. Record files: session_ledger.py record --file <path> --action modified"
+                echo "    2. Adopt files:  session_ledger.py adopt --files <path> [<path> ...]"
+                echo "    3. Bypass:       add '# SKIP-SESSION-CHECK' to commit message"
+                exit 1
+            fi
+        fi
+    fi
+fi
+
 exit 0
