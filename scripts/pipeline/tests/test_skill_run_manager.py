@@ -141,6 +141,65 @@ class TestValidate:
         ])
         assert rc == 1
 
+    def test_inline_declared_is_allowed(self, tmp_path, monkeypatch):
+        """Declaring an inline_reasoning skill is now valid (has a record)."""
+        _patch_dirs(tmp_path, monkeypatch)
+        skill_run_manager.main(["create", "--skills", "S-73", "S-01"])
+        run_id = _get_run_id(tmp_path)
+
+        skill_run_manager.main([
+            "record-step", "--run-id", run_id,
+            "--skill", "S-73", "--type", "full",
+        ])
+        skill_run_manager.main([
+            "record-step", "--run-id", run_id,
+            "--skill", "S-01", "--type", "inline_reasoning",
+        ])
+
+        # Declaring both (full + inline) should pass
+        rc = skill_run_manager.main([
+            "validate", "--run-id", run_id, "--declared", "S-73, S-01",
+        ])
+        assert rc == 0
+
+    def test_inline_undeclared_is_allowed(self, tmp_path, monkeypatch):
+        """NOT declaring an inline_reasoning skill is valid (it's optional)."""
+        _patch_dirs(tmp_path, monkeypatch)
+        skill_run_manager.main(["create", "--skills", "S-73", "S-01"])
+        run_id = _get_run_id(tmp_path)
+
+        skill_run_manager.main([
+            "record-step", "--run-id", run_id,
+            "--skill", "S-73", "--type", "full",
+        ])
+        skill_run_manager.main([
+            "record-step", "--run-id", run_id,
+            "--skill", "S-01", "--type", "inline_reasoning",
+        ])
+
+        # Declaring only the full skill should pass
+        rc = skill_run_manager.main([
+            "validate", "--run-id", run_id, "--declared", "S-73",
+        ])
+        assert rc == 0
+
+    def test_no_record_at_all_exits_1(self, tmp_path, monkeypatch):
+        """Declaring a skill with no record entry at all is invalid."""
+        _patch_dirs(tmp_path, monkeypatch)
+        skill_run_manager.main(["create", "--skills", "S-73"])
+        run_id = _get_run_id(tmp_path)
+
+        skill_run_manager.main([
+            "record-step", "--run-id", run_id,
+            "--skill", "S-73", "--type", "full",
+        ])
+
+        # Declaring S-99 which has no record → should fail
+        rc = skill_run_manager.main([
+            "validate", "--run-id", run_id, "--declared", "S-73, S-99",
+        ])
+        assert rc == 1
+
 
 # ---------------------------------------------------------------------------
 # TestFinalize

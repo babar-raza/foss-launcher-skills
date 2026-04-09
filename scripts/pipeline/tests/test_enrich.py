@@ -537,11 +537,12 @@ class TestPageRoleValidation:
                  "confidence": 0.9}
         assert _validate_claim(claim, self._api_names())
 
-    def test_missing_page_role_normalized_to_none(self):
+    def test_validate_does_not_mutate_input(self):
+        """_validate_claim must not add page_role key to dict that lacks it."""
         claim = {"text": "Workbook supports xlsx.", "kind": "api",
                  "confidence": 0.9}
         _validate_claim(claim, self._api_names())
-        assert claim["page_role"] is None
+        assert "page_role" not in claim
 
     def test_null_page_role_passes(self):
         claim = {"text": "Workbook supports xlsx.", "kind": "api",
@@ -578,3 +579,26 @@ class TestPageRoleInPrompt:
         assert "docs" in user
         assert "kb" in user
         assert "reference" in user
+
+
+class TestMemberDocPageRole:
+    """Member-doc claims must get page_role='reference' automatically."""
+
+    def test_member_doc_claim_gets_reference_role(self):
+        """Simulate member-doc processing: validate then set page_role."""
+        claim = {"text": "Workbook.Save writes the file.", "kind": "api",
+                 "confidence": 0.80, "claim_source": "llm_member_doc"}
+        api_names = {"workbook", "save"}
+        assert _validate_claim(claim, api_names)
+        # Member-doc loop sets page_role after validation
+        claim["page_role"] = "reference"
+        assert claim["page_role"] == "reference"
+
+    def test_capability_claim_gets_none_via_setdefault(self):
+        """Capability loop normalizes missing page_role to None via setdefault."""
+        claim = {"text": "Workbook supports xlsx.", "kind": "api",
+                 "confidence": 0.90}
+        api_names = {"workbook"}
+        assert _validate_claim(claim, api_names)
+        claim.setdefault("page_role", None)
+        assert claim["page_role"] is None

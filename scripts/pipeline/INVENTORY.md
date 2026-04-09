@@ -84,7 +84,7 @@ Total scripts: **78**
 | `provenance.py` | library | active | internal | — | read/write provenance metadata in YAML frontmatter |
 | `session_logger.py` | library | active | internal | — | log skill invocations to reports/session-invocations/ |
 
-## Governance (8 files)
+## Governance (9 files)
 
 | Script | Kind | Lifecycle | Backing | Change Impact | Notes |
 |--------|------|-----------|---------|---------------|-------|
@@ -95,6 +95,7 @@ Total scripts: **78**
 | `project_phase_store.py` | entrypoint | active | skill/launch-product | — | GOVERNANCE: checkpoint store for launch orchestration; DO NOT MOVE OR RENAME |
 | `retire_page.py` | entrypoint | active | internal | — | mark content pages as retired via draft:true + retired_at frontmatter; batch mode reads site_plan.yaml; does not delete files |
 | `site_planner.py` | entrypoint | active | skill/site-plan | MEDIUM: 1756 lines; cluster detection mixed with manifest generation; deferred refactor | GOVERNANCE: site manifest generator; DO NOT MOVE OR RENAME |
+| `session_ledger.py` | entrypoint | active | skill/commit | — | GOVERNANCE: session-scoped file touch ledger for /commit scoping; init/record/candidates/groups |
 | `skill_run_manager.py` | entrypoint | active | internal | — | GOVERNANCE: skill run record management; DO NOT MOVE OR RENAME |
 
 ## Kilocode Provider (6 files)

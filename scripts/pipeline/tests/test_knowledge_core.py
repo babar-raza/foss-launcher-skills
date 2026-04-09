@@ -220,3 +220,90 @@ class TestDiscoverContentCWDIndependence:
             f"discover_products() returned {len(products)} from CWD={tmp_path}. "
             "Expected at least 10 products."
         )
+
+
+# ---------------------------------------------------------------------------
+# Fully-qualified name index (S-1 disambiguation)
+# ---------------------------------------------------------------------------
+
+
+class TestFQNameIndex:
+    """Knowledge.classes_by_import disambiguates same-named classes."""
+
+    def _make_knowledge(self, tmp_path, api_list):
+        """Build a minimal Knowledge from a synthetic api_surface.json."""
+        merged = tmp_path / "test" / "python" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "model.yaml").write_text(
+            "version: '1.0'\nrepo_sha: abc123\n", encoding="utf-8"
+        )
+        (merged / "api_surface.json").write_text(
+            json.dumps(api_list), encoding="utf-8"
+        )
+        from knowledge_core import Knowledge
+        return Knowledge("test", "python", knowledge_root=tmp_path)
+
+    def test_classes_by_import_populated(self, tmp_path):
+        api = [
+            {
+                "name": "Document",
+                "kind": "class_definition",
+                "doc": "",
+                "file": "words_foss/document.py",
+                "line": 1,
+                "bases": [],
+                "methods": [],
+                "properties": [],
+                "class_import": "words_foss.document.Document",
+            },
+            {
+                "name": "Document",
+                "kind": "class_definition",
+                "doc": "",
+                "file": "pdf_foss/document.py",
+                "line": 1,
+                "bases": [],
+                "methods": [{"name": "save", "params": [], "return_type": "None", "doc": "", "line": 5}],
+                "properties": [],
+                "class_import": "pdf_foss.document.Document",
+            },
+        ]
+        k = self._make_knowledge(tmp_path, api)
+        # Bare-name lookup returns last-loaded (collision)
+        assert k.classes["Document"]["file"] == "pdf_foss/document.py"
+        # FQ-name lookup resolves correctly
+        assert k.has_class_fq("words_foss.document.Document")
+        assert k.has_class_fq("pdf_foss.document.Document")
+        assert not k.has_class_fq("nonexistent.Document")
+
+    def test_has_method_fq(self, tmp_path):
+        api = [
+            {
+                "name": "Document",
+                "kind": "class_definition",
+                "doc": "", "file": "a.py", "line": 1, "bases": [],
+                "methods": [{"name": "save", "params": [], "return_type": "None", "doc": "", "line": 5}],
+                "properties": [],
+                "class_import": "module_a.Document",
+            },
+        ]
+        k = self._make_knowledge(tmp_path, api)
+        assert k.has_method_fq("module_a.Document", "save")
+        assert not k.has_method_fq("module_a.Document", "load")
+        assert not k.has_method_fq("nonexistent.Document", "save")
+
+    def test_backward_compat_no_class_import(self, tmp_path):
+        """Classes without class_import field still work via bare-name lookup."""
+        api = [
+            {
+                "name": "Foo",
+                "kind": "class_definition",
+                "doc": "", "file": "foo.py", "line": 1, "bases": [],
+                "methods": [], "properties": [],
+                # No class_import field
+            },
+        ]
+        k = self._make_knowledge(tmp_path, api)
+        assert "Foo" in k.classes
+        # FQ lookup returns nothing (no class_import)
+        assert not k.has_class_fq("Foo")

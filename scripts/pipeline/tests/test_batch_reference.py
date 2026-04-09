@@ -483,3 +483,85 @@ class TestBuildPageApiEvidence:
         content = page_path.read_text(encoding="utf-8")
         assert sha in content
         assert "Widget.DoIt" in content
+
+
+# ---------------------------------------------------------------------------
+# Name collision deduplication (TM-02: Document class collision guard)
+# ---------------------------------------------------------------------------
+
+class TestNameCollisionDedup:
+    """When multiple api_surface entries share the same name, batch-reference
+    should prefer the entry with the highest visibility tier."""
+
+    def test_prefers_exported_over_conventional(self, tmp_path):
+        entries = [
+            {"name": "Document", "kind": "class_definition",
+             "file": "internal/model.py", "visibility": "conventional",
+             "methods": [{"name": "find_style", "params": [], "return_type": "", "doc": "", "line": 1}],
+             "properties": []},
+            {"name": "Document", "kind": "class_definition",
+             "file": "document.py", "visibility": "public",
+             "methods": [{"name": "save", "params": [], "return_type": "", "doc": "", "line": 1}],
+             "properties": []},
+        ]
+        _make_api_surface(tmp_path, entries, "words", "python")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "words" / "python"
+        out_dir.mkdir(parents=True)
+
+        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"), \
+             patch.object(_br, "CONTENT_ROOT", tmp_path / "content" / "reference.aspose.org" / "en"):
+            result = run("words", "python")
+
+        page = out_dir / "Document.md"
+        assert page.exists()
+        content = page.read_text(encoding="utf-8")
+        # The public class (with save method) should win, not the internal one
+        assert "save" in content
+        assert result["generated"] == 1  # only 1 page, not 2
+
+    def test_keeps_first_when_same_visibility(self, tmp_path):
+        entries = [
+            {"name": "Widget", "kind": "class_definition",
+             "file": "a.py", "visibility": "public",
+             "methods": [{"name": "first_method", "params": [], "return_type": "", "doc": "", "line": 1}],
+             "properties": []},
+            {"name": "Widget", "kind": "class_definition",
+             "file": "b.py", "visibility": "public",
+             "methods": [{"name": "second_method", "params": [], "return_type": "", "doc": "", "line": 1}],
+             "properties": []},
+        ]
+        _make_api_surface(tmp_path, entries, "words", "python")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "words" / "python"
+        out_dir.mkdir(parents=True)
+
+        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"), \
+             patch.object(_br, "CONTENT_ROOT", tmp_path / "content" / "reference.aspose.org" / "en"):
+            result = run("words", "python")
+
+        page = out_dir / "Widget.md"
+        assert page.exists()
+        content = page.read_text(encoding="utf-8")
+        # First entry wins when visibility is equal
+        assert "first_method" in content
+        assert result["generated"] == 1
+
+    def test_no_collision_passes_through(self, tmp_path):
+        entries = [
+            {"name": "Alpha", "kind": "class_definition",
+             "file": "a.py", "visibility": "public",
+             "methods": [], "properties": []},
+            {"name": "Beta", "kind": "class_definition",
+             "file": "b.py", "visibility": "public",
+             "methods": [], "properties": []},
+        ]
+        _make_api_surface(tmp_path, entries, "words", "python")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "words" / "python"
+        out_dir.mkdir(parents=True)
+
+        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"), \
+             patch.object(_br, "CONTENT_ROOT", tmp_path / "content" / "reference.aspose.org" / "en"):
+            result = run("words", "python")
+
+        assert (out_dir / "Alpha.md").exists()
+        assert (out_dir / "Beta.md").exists()
+        assert result["generated"] == 2

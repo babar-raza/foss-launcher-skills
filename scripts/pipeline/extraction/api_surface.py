@@ -342,6 +342,116 @@ def _extract_python_annotated_fields(
 
 
 # ---------------------------------------------------------------------------
+# Python __init__ instance attribute extraction
+# ---------------------------------------------------------------------------
+
+def _extract_python_init_attributes(
+    cnode, cname: str, rel: str, family: str,
+    existing_names: set[str] | None = None,
+) -> tuple[list[dict[str, Any]], list[dict]]:
+    """Extract instance attributes assigned in ``__init__`` from Python classes.
+
+    Captures patterns like::
+
+        def __init__(self):
+            self.jpeg_quality: int = 100
+            self.compliance = PdfCompliance.PDF17
+
+    Only public attributes (not starting with ``_``) are captured.
+    Attributes whose names already appear in *existing_names* (from
+    ``@property`` or class-level fields) are skipped to avoid duplication.
+
+    Returns (properties, claims).
+    """
+    props: list[dict[str, Any]] = []
+    claims: list[dict] = []
+    seen = set(existing_names or ())
+
+    body = child_by_field(cnode, "body") or find_child_by_type(cnode, "block")
+    if body is None:
+        return props, claims
+
+    # Find the __init__ method
+    init_fn = None
+    for child in body.children:
+        if child.type == "function_definition":
+            fn_name = _node_name(child, "python")
+            if fn_name == "__init__":
+                init_fn = child
+                break
+    if init_fn is None:
+        return props, claims
+
+    init_body = child_by_field(init_fn, "body") or find_child_by_type(init_fn, "block")
+    if init_body is None:
+        return props, claims
+
+    # Walk all statements (including nested in if/else/try blocks)
+    stmts = collect_nodes(init_body, {"assignment", "expression_statement"})
+    for stmt in stmts:
+        # Handle expression_statement wrapping an assignment
+        target = stmt
+        if stmt.type == "expression_statement":
+            inner = find_child_by_type(stmt, "assignment")
+            if inner is None:
+                continue
+            target = inner
+
+        if target.type != "assignment":
+            continue
+
+        # Left side must be an attribute access on self: self.xxx
+        left = child_by_field(target, "left")
+        if left is None:
+            # For some tree-sitter representations, iterate children
+            for ch in target.children:
+                if ch.type == "attribute":
+                    left = ch
+                    break
+            if left is None:
+                continue
+
+        if left.type != "attribute":
+            continue
+
+        # Object must be "self"
+        obj = child_by_field(left, "object")
+        if obj is None or node_text(obj) != "self":
+            continue
+
+        # Attribute name
+        attr_node = child_by_field(left, "attribute")
+        if attr_node is None:
+            continue
+        attr_name = node_text(attr_node)
+
+        # Skip private/protected
+        if attr_name.startswith("_"):
+            continue
+
+        # Skip duplicates (already found via @property or class-level annotation)
+        if attr_name in seen:
+            continue
+        seen.add(attr_name)
+
+        # Try to get type annotation
+        type_node = child_by_field(target, "type")
+        attr_type = node_text(type_node).strip() if type_node else ""
+
+        props.append({
+            "name": attr_name,
+            "type": attr_type,
+            "line": target.start_point[0] + 1,
+        })
+        claims.append(_make_claim(
+            family, "api_method",
+            f"{cname}.{attr_name} field of type {attr_type or 'unknown'}",
+            rel, target.start_point[0] + 1))
+
+    return props, claims
+
+
+# ---------------------------------------------------------------------------
 # Java property synthesis
 # ---------------------------------------------------------------------------
 
@@ -722,7 +832,13 @@ def extract_api_surface(
 
         class_nodes = collect_nodes(root, class_types)
 
-        # S-1: Extract __all__ names for Python visibility tier
+        # S-1: Extract __all__ names for Python visibility tier.
+        # Only handles simple top-level assignment (`__all__ = [...]`).
+        # Intentionally does NOT handle `__all__ += [...]`, conditional
+        # assignments, or __init__.py re-export aggregation — these are
+        # rare in the Aspose FOSS repos and would require control-flow
+        # analysis.  Unrecognized patterns fall back gracefully to
+        # "public" or "conventional" visibility, which is safe.
         module_all_names: set[str] = set()
         if language == "python":
             for stmt in root.children:
@@ -944,6 +1060,14 @@ def extract_api_surface(
                     cnode, cname, rel, family)
                 properties.extend(extra_fields)
                 claims.extend(extra_claims)
+
+            # Python __init__ instance attributes (self.xxx = value)
+            if language == "python":
+                existing_prop_names = {p["name"] for p in properties}
+                init_props, init_claims = _extract_python_init_attributes(
+                    cnode, cname, rel, family, existing_prop_names)
+                properties.extend(init_props)
+                claims.extend(init_claims)
 
             # Java properties via getter/setter synthesis
             if language == "java":

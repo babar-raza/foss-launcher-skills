@@ -131,3 +131,71 @@ class TestPythonAllExtraction:
         by_name = {c["name"]: c for c in classes}
         assert "Bare" in by_name
         assert by_name["Bare"]["visibility"] == "conventional"
+
+    def test_multi_entry_all_list(self, parser, tmp_path):
+        """Multiple classes in __all__ should all get visibility='exported'."""
+        src = tmp_path / "pkg"
+        src.mkdir()
+        (src / "__init__.py").write_text("")
+        (src / "mod.py").write_text(
+            '__all__ = ["Foo", "Bar", "Baz"]\n\n'
+            'class Foo:\n'
+            '    """Documented."""\n'
+            '    def method(self): pass\n\n'
+            'class Bar:\n'
+            '    """Documented."""\n'
+            '    def method(self): pass\n\n'
+            'class Baz:\n'
+            '    """Documented."""\n'
+            '    def method(self): pass\n'
+        )
+
+        from extraction.api_surface import extract_api_surface
+        classes, _, _, _ = extract_api_surface(parser, "python", src, src, "test")
+
+        by_name = {c["name"]: c for c in classes}
+        for name in ("Foo", "Bar", "Baz"):
+            assert name in by_name, f"{name} not found in api_surface output"
+            assert by_name[name]["visibility"] == "exported", \
+                f"{name} should be exported but got {by_name[name]['visibility']}"
+
+    def test_single_quoted_all_entries(self, parser, tmp_path):
+        """__all__ with single-quoted strings should work identically."""
+        src = tmp_path / "pkg"
+        src.mkdir()
+        (src / "__init__.py").write_text("")
+        (src / "mod.py").write_text(
+            "__all__ = ['OnlyClass']\n\n"
+            'class OnlyClass:\n'
+            '    """Has docstring."""\n'
+            '    def method(self): pass\n'
+        )
+
+        from extraction.api_surface import extract_api_surface
+        classes, _, _, _ = extract_api_surface(parser, "python", src, src, "test")
+
+        by_name = {c["name"]: c for c in classes}
+        assert "OnlyClass" in by_name
+        assert by_name["OnlyClass"]["visibility"] == "exported"
+
+    def test_class_not_in_all_with_docstring_gets_public(self, parser, tmp_path):
+        """Class with docstring but NOT in __all__ → 'public' (not exported)."""
+        src = tmp_path / "pkg"
+        src.mkdir()
+        (src / "__init__.py").write_text("")
+        (src / "mod.py").write_text(
+            '__all__ = ["Exported"]\n\n'
+            'class Exported:\n'
+            '    """In __all__."""\n'
+            '    def method(self): pass\n\n'
+            'class NotExported:\n'
+            '    """Has docstring but not in __all__."""\n'
+            '    def method(self): pass\n'
+        )
+
+        from extraction.api_surface import extract_api_surface
+        classes, _, _, _ = extract_api_surface(parser, "python", src, src, "test")
+
+        by_name = {c["name"]: c for c in classes}
+        assert by_name["Exported"]["visibility"] == "exported"
+        assert by_name["NotExported"]["visibility"] == "public"

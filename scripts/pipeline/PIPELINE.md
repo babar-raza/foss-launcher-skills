@@ -72,6 +72,7 @@ These scripts have a `if __name__ == "__main__"` block. Invoke them directly.
 | `normalize_yaml_style.py` | Normalize YAML formatting in knowledge files |
 | `plan_check.py` | Validate plan files |
 | `regenerate_reference.py` | Regenerate reference pages from knowledge |
+| `session_ledger.py` | Session-scoped file touch ledger for `/commit` scoping (`init`/`record`/`candidates`/`groups`) |
 | `session_logger.py` | Session logging utilities |
 | `sync_providers.py` | Provider registry synchronization |
 
@@ -185,7 +186,7 @@ and zero grep matches on removed-symbol import patterns.
 | `content-grading` | `check_grade_downgrade.py`, `check_grade_integrity.py`, `check_grade_presence.py`, `no_downgrade_guard.py` |
 | `content-governance` | `change_guard.py`, `override_manager.py`, `path_guard.py` |
 | `knowledge-infrastructure` | `knowledge_core.py`, `embed.py`, `embed_knowledge.py`, `stale_detect.py` |
-| `governance` | `sync_skills.py`, `skill_run_manager.py`, `smoke_test.py` |
+| `governance` | `sync_skills.py`, `skill_run_manager.py`, `smoke_test.py`, `session_ledger.py` |
 | `provenance-maintenance` | `provenance_backfill.py` + 15 `kind=one-shot` provenance scripts |
 
 ## Governance-Sensitive Files

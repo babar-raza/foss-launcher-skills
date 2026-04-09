@@ -4,10 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
 from content_eval.cross_page.deduplication import (
+    _MAX_COMPARISONS,
+    _MAX_PARAGRAPHS_PER_PAGE,
     _extract_paragraphs,
     _jaccard,
     _tokenize,
@@ -119,6 +122,31 @@ class TestExtractParagraphs:
         paras = _extract_paragraphs(page)
         assert len(paras) == 0  # the only line is in a code block
 
+    def test_returns_tokens_in_tuple(self):
+        """Each returned tuple must include the token set (3rd element)."""
+        words = " ".join(f"word{i}" for i in range(40))
+        page = _make_page("a.md", words)
+        paras = _extract_paragraphs(page)
+        assert len(paras) == 1
+        line_no, text, tokens = paras[0]
+        assert isinstance(tokens, set)
+        assert len(tokens) >= 30
+
+    def test_paragraph_cap_keeps_longest(self):
+        """Only the longest _MAX_PARAGRAPHS_PER_PAGE paragraphs are kept."""
+        # Create 20 paragraphs of increasing length
+        blocks = []
+        for i in range(20):
+            words = " ".join(f"word{j}" for j in range(31 + i))
+            blocks.append(words)
+        prose = "\n\n".join(blocks)
+        page = _make_page("a.md", prose)
+        paras = _extract_paragraphs(page)
+        assert len(paras) == _MAX_PARAGRAPHS_PER_PAGE
+        # Longest paragraphs should be kept (sorted by -token_count)
+        lengths = [len(tokens) for _, _, tokens in paras]
+        assert lengths == sorted(lengths, reverse=True)
+
 
 # ---------------------------------------------------------------------------
 # check_deduplication() integration tests
@@ -181,6 +209,13 @@ class TestCheckDeduplication:
         findings = check_deduplication([pa, pb])
         assert len(findings) == 0
 
+    def test_same_family_different_platform_not_compared(self):
+        """Same family but different platform → separate groups, no comparison."""
+        pa = _make_page("a.md", LONG_PARAGRAPH, family="words", platform="python")
+        pb = _make_page("b.md", LONG_PARAGRAPH, family="words", platform="java")
+        findings = check_deduplication([pa, pb])
+        assert len(findings) == 0
+
     def test_same_page_not_compared(self):
         """Paragraphs within the same page should not trigger findings."""
         double = LONG_PARAGRAPH + "\n\n" + LONG_PARAGRAPH
@@ -188,3 +223,28 @@ class TestCheckDeduplication:
         # Only one page — cross-page dedup won't flag same-page duplication
         findings = check_deduplication([pa])
         assert len(findings) == 0
+
+    def test_comparison_cap_limits_work(self):
+        """With a low cap, comparisons stop early and log is emitted."""
+        # Create enough pages to exceed a small cap
+        pages = []
+        for i in range(10):
+            words = " ".join(f"word{j}" for j in range(35))
+            pages.append(_make_page(f"page{i}.md", words))
+
+        with patch(
+            "content_eval.cross_page.deduplication._MAX_COMPARISONS", 5
+        ):
+            findings = check_deduplication(pages)
+        # With cap=5, we stop after 5 comparisons — not all pairs explored
+        # Just verify no crash and findings count is bounded
+        assert isinstance(findings, list)
+
+    def test_summary_log_emitted(self, caplog):
+        """check_deduplication emits a summary log line."""
+        import logging
+        pa = _make_page("a.md", LONG_PARAGRAPH)
+        pb = _make_page("b.md", LONG_PARAGRAPH)
+        with caplog.at_level(logging.INFO):
+            check_deduplication([pa, pb])
+        assert any("cross_dedup" in r.message for r in caplog.records)

@@ -21,7 +21,10 @@ from provenance import (
     compute_source_sha,
     compute_content_hash,
     is_auto_updatable,
+    is_manually_curated,
     is_stale,
+    safe_content_write,
+    ProtectedPageError,
 )
 
 
@@ -481,3 +484,168 @@ class TestWriteOnceContentCreatedAt:
 
         prov = read_provenance(p)
         assert prov["content_created_at"] == "2025-06-01T00:00:00Z"
+
+
+# ---------------------------------------------------------------------------
+# test_safe_content_write
+# ---------------------------------------------------------------------------
+
+class TestSafeContentWrite:
+    """safe_content_write() enforces auto_updatable protection."""
+
+    def test_writes_new_file(self, tmp_path):
+        """New file (no provenance) is always written."""
+        p = tmp_path / "new_page.md"
+        content = "---\ntitle: New\n---\nBody.\n"
+        result = safe_content_write(p, content, mechanism="batch-reference")
+        assert result is True
+        assert p.exists()
+        assert p.read_text(encoding="utf-8") == content
+
+    def test_overwrites_updatable_page(self, tmp_path):
+        """Page with auto_updatable: true is overwritten."""
+        p = tmp_path / "page.md"
+        p.write_text(
+            "---\ntitle: Old\nprovenance:\n  auto_updatable: true\n---\nOld body.\n",
+            encoding="utf-8",
+        )
+        new_content = "---\ntitle: New\n---\nNew body.\n"
+        result = safe_content_write(p, new_content, mechanism="batch-reference")
+        assert result is True
+        assert "New body." in p.read_text(encoding="utf-8")
+
+    def test_blocks_protected_page(self, tmp_path):
+        """Page with auto_updatable: false raises ProtectedPageError."""
+        p = tmp_path / "protected.md"
+        p.write_text(
+            "---\ntitle: Protected\nprovenance:\n  auto_updatable: false\n---\nSafe.\n",
+            encoding="utf-8",
+        )
+        with pytest.raises(ProtectedPageError) as exc_info:
+            safe_content_write(p, "---\ntitle: X\n---\nOverwrite.\n", mechanism="batch-reference")
+        assert "auto_updatable: false" in str(exc_info.value)
+        # Original content preserved
+        assert "Safe." in p.read_text(encoding="utf-8")
+
+    def test_force_overrides_protection(self, tmp_path):
+        """force=True allows overwriting a protected page with audit log."""
+        p = tmp_path / "forced.md"
+        p.write_text(
+            "---\ntitle: Protected\nprovenance:\n  auto_updatable: false\n---\nSafe.\n",
+            encoding="utf-8",
+        )
+        import provenance as prov_mod
+        # Point audit log to tmp_path so test doesn't pollute reports/
+        prov_mod._AUDIT_LOG_DIR = tmp_path / "audit"
+
+        new_content = "---\ntitle: Forced\n---\nOverwritten.\n"
+        result = safe_content_write(
+            p, new_content, mechanism="batch-reference",
+            force=True, reason="test override",
+        )
+        assert result is True
+        assert "Overwritten." in p.read_text(encoding="utf-8")
+
+        # Audit log written
+        log_file = tmp_path / "audit" / "overrides.jsonl"
+        assert log_file.exists()
+        import json
+        entry = json.loads(log_file.read_text(encoding="utf-8").strip())
+        assert entry["mechanism"] == "batch-reference"
+        assert entry["action"] == "force_overwrite"
+        assert entry["reason"] == "test override"
+
+        # Reset module state
+        prov_mod._AUDIT_LOG_DIR = None
+
+    def test_no_provenance_allows_write(self, tmp_path):
+        """Page without provenance block (migration default) is overwritable."""
+        p = tmp_path / "legacy.md"
+        p.write_text("---\ntitle: Legacy\n---\nOld.\n", encoding="utf-8")
+        result = safe_content_write(p, "---\ntitle: New\n---\nNew.\n", mechanism="test")
+        assert result is True
+        assert "New." in p.read_text(encoding="utf-8")
+
+
+# ---------------------------------------------------------------------------
+# test_is_manually_curated
+# ---------------------------------------------------------------------------
+
+class TestManuallyCurated:
+    """is_manually_curated detects human-curation mechanisms."""
+
+    def test_manual_edit_skill(self):
+        p = _tmp_md("""\
+        ---
+        title: Test
+        provenance:
+          last_mechanism: manual-edit-skill
+          auto_updatable: true
+        ---
+        Content.
+        """)
+        try:
+            assert is_manually_curated(p) is True
+        finally:
+            _cleanup(p)
+
+    def test_human_edit(self):
+        p = _tmp_md("""\
+        ---
+        title: Test
+        provenance:
+          last_mechanism: human-edit
+          auto_updatable: true
+        ---
+        Content.
+        """)
+        try:
+            assert is_manually_curated(p) is True
+        finally:
+            _cleanup(p)
+
+    def test_batch_mechanism_not_curated(self):
+        p = _tmp_md("""\
+        ---
+        title: Test
+        provenance:
+          last_mechanism: batch-reference
+          auto_updatable: true
+        ---
+        Content.
+        """)
+        try:
+            assert is_manually_curated(p) is False
+        finally:
+            _cleanup(p)
+
+    def test_skill_mechanism_not_curated(self):
+        p = _tmp_md("""\
+        ---
+        title: Test
+        provenance:
+          last_mechanism: skill
+          auto_updatable: true
+        ---
+        Content.
+        """)
+        try:
+            assert is_manually_curated(p) is False
+        finally:
+            _cleanup(p)
+
+    def test_no_provenance_not_curated(self):
+        p = _tmp_md("""\
+        ---
+        title: Test
+        ---
+        Content.
+        """)
+        try:
+            assert is_manually_curated(p) is False
+        finally:
+            _cleanup(p)
+
+    def test_nonexistent_file_not_curated(self):
+        p = Path(tempfile.gettempdir()) / "nonexistent_manually_curated_test.md"
+        assert is_manually_curated(p) is False

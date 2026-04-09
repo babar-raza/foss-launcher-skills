@@ -608,3 +608,120 @@ class TestPythonDocstringExtraction:
     pass
 '''
         assert self._get_class_doc(code) == ""
+
+
+# ---------------------------------------------------------------------------
+# Python __init__ instance attribute extraction
+# ---------------------------------------------------------------------------
+
+from extraction.api_surface import _extract_python_init_attributes
+
+
+class TestPythonInitAttributes:
+    """_extract_python_init_attributes captures self.xxx assignments in __init__."""
+
+    PYTHON_CLASS_WITH_INIT = """
+class PdfSaveOptions:
+    def __init__(self):
+        self.jpeg_quality: int = 100
+        self.compliance: str = "PDF17"
+        self.export_document_structure: bool = False
+        self._internal_cache = {}
+        self._temp = None
+"""
+
+    PYTHON_CLASS_NO_INIT = """
+class EmptyClass:
+    pass
+"""
+
+    PYTHON_CLASS_WITH_PROPERTY_AND_INIT = """
+class DualSource:
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def __init__(self):
+        self.name: str = "default"
+        self.value: int = 42
+"""
+
+    PYTHON_CLASS_UNTYPED_INIT = """
+class UntypedAttrs:
+    def __init__(self):
+        self.width = 800
+        self.height = 600
+        self._private = True
+"""
+
+    def test_extracts_typed_init_attributes(self):
+        root = _parse("python", self.PYTHON_CLASS_WITH_INIT)
+        classes = scout.collect_nodes(root, {"class_definition"})
+        assert len(classes) == 1
+        props, claims = _extract_python_init_attributes(
+            classes[0], "PdfSaveOptions", "test.py", "words"
+        )
+        names = [p["name"] for p in props]
+        assert "jpeg_quality" in names
+        assert "compliance" in names
+        assert "export_document_structure" in names
+        # Private attributes must be excluded
+        assert "_internal_cache" not in names
+        assert "_temp" not in names
+
+    def test_extracts_type_annotations(self):
+        root = _parse("python", self.PYTHON_CLASS_WITH_INIT)
+        classes = scout.collect_nodes(root, {"class_definition"})
+        props, _ = _extract_python_init_attributes(
+            classes[0], "PdfSaveOptions", "test.py", "words"
+        )
+        type_map = {p["name"]: p["type"] for p in props}
+        assert type_map["jpeg_quality"] == "int"
+        assert type_map["compliance"] == "str"
+        assert type_map["export_document_structure"] == "bool"
+
+    def test_no_init_returns_empty(self):
+        root = _parse("python", self.PYTHON_CLASS_NO_INIT)
+        classes = scout.collect_nodes(root, {"class_definition"})
+        props, claims = _extract_python_init_attributes(
+            classes[0], "EmptyClass", "test.py", "words"
+        )
+        assert props == []
+        assert claims == []
+
+    def test_deduplicates_against_existing_properties(self):
+        """If 'name' already exists via @property, don't double-count it."""
+        root = _parse("python", self.PYTHON_CLASS_WITH_PROPERTY_AND_INIT)
+        classes = scout.collect_nodes(root, {"class_definition"})
+        props, _ = _extract_python_init_attributes(
+            classes[0], "DualSource", "test.py", "words",
+            existing_names={"name"},
+        )
+        names = [p["name"] for p in props]
+        assert "name" not in names  # Already in @property
+        assert "value" in names     # New, should be captured
+
+    def test_extracts_untyped_attributes(self):
+        root = _parse("python", self.PYTHON_CLASS_UNTYPED_INIT)
+        classes = scout.collect_nodes(root, {"class_definition"})
+        props, _ = _extract_python_init_attributes(
+            classes[0], "UntypedAttrs", "test.py", "words"
+        )
+        names = [p["name"] for p in props]
+        assert "width" in names
+        assert "height" in names
+        assert "_private" not in names
+        # Untyped attrs should have empty type
+        type_map = {p["name"]: p["type"] for p in props}
+        assert type_map["width"] == ""
+
+    def test_generates_claims(self):
+        root = _parse("python", self.PYTHON_CLASS_WITH_INIT)
+        classes = scout.collect_nodes(root, {"class_definition"})
+        _, claims = _extract_python_init_attributes(
+            classes[0], "PdfSaveOptions", "test.py", "words"
+        )
+        assert len(claims) == 3  # 3 public attributes
+        assert all(c["kind"] == "api_method" for c in claims)
+        texts = [c["text"] for c in claims]
+        assert any("jpeg_quality" in t for t in texts)

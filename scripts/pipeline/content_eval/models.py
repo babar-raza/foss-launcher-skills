@@ -26,7 +26,7 @@ class Finding:
     """A single evaluation finding with stable ID."""
 
     level: str              # FAIL, WARN, INFO
-    category: str           # AA, PT, CP, RV, ST, PC, EG, RL, CG, XP, FC
+    category: str           # AA, PT, CP, RV, ST, PC, EG, RL, CG, XP, FC, XD
     filepath: str           # relative path
     line_no: int
     message: str

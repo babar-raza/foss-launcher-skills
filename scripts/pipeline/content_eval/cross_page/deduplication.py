@@ -6,10 +6,15 @@ family+platform combination. Uses Jaccard similarity on word tokens.
 Thresholds:
   Jaccard >= 0.85  →  FAIL  (near-identical content)
   Jaccard >= 0.70  →  WARN  (high overlap, likely redundant)
+
+Performance caps:
+  _MAX_PARAGRAPHS_PER_PAGE = 15   (keep longest by token count)
+  _MAX_COMPARISONS = 10_000       (stop comparing after this many pairs)
 """
 
 from __future__ import annotations
 
+import logging
 import re
 from collections import defaultdict
 from typing import TYPE_CHECKING
@@ -17,8 +22,12 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..models import Finding, Page
 
+log = logging.getLogger(__name__)
+
 _WORD_RE = re.compile(r"[a-z][a-z0-9_]+")
 _MIN_WORDS = 30  # skip paragraphs shorter than this
+_MAX_PARAGRAPHS_PER_PAGE = 15  # keep longest paragraphs per page
+_MAX_COMPARISONS = 10_000  # cap total cross-page paragraph comparisons
 
 
 def _tokenize(text: str) -> set[str]:
@@ -33,10 +42,11 @@ def _jaccard(a: set[str], b: set[str]) -> float:
     return len(a & b) / len(a | b)
 
 
-def _extract_paragraphs(page: "Page") -> list[tuple[int, str]]:
+def _extract_paragraphs(page: "Page") -> list[tuple[int, str, set[str]]]:
     """Extract prose paragraphs (>= _MIN_WORDS, outside code blocks) from a page.
 
-    Returns list of (line_no, paragraph_text).
+    Returns list of (line_no, paragraph_text, token_set), sorted by token
+    count descending and capped at _MAX_PARAGRAPHS_PER_PAGE.
     """
     # Build set of line ranges inside code blocks
     code_ranges: set[int] = set()
@@ -44,7 +54,7 @@ def _extract_paragraphs(page: "Page") -> list[tuple[int, str]]:
         for ln in range(cb.start_line, cb.end_line + 1):
             code_ranges.add(ln)
 
-    paragraphs: list[tuple[int, str]] = []
+    raw: list[tuple[int, str, set[str]]] = []
     current_lines: list[str] = []
     current_start = 0
 
@@ -56,9 +66,9 @@ def _extract_paragraphs(page: "Page") -> list[tuple[int, str]]:
             # Blank line → flush paragraph
             if current_lines:
                 para = " ".join(current_lines)
-                tokens = _WORD_RE.findall(para.lower())
+                tokens = _tokenize(para)
                 if len(tokens) >= _MIN_WORDS:
-                    paragraphs.append((current_start, para))
+                    raw.append((current_start, para, tokens))
                 current_lines = []
             continue
         if not current_lines:
@@ -68,17 +78,20 @@ def _extract_paragraphs(page: "Page") -> list[tuple[int, str]]:
     # Flush final paragraph
     if current_lines:
         para = " ".join(current_lines)
-        tokens = _WORD_RE.findall(para.lower())
+        tokens = _tokenize(para)
         if len(tokens) >= _MIN_WORDS:
-            paragraphs.append((current_start, para))
+            raw.append((current_start, para, tokens))
 
-    return paragraphs
+    # Cap: keep longest paragraphs (by token count), stable sort on ties
+    raw.sort(key=lambda t: (-len(t[2]), t[0]))
+    return raw[:_MAX_PARAGRAPHS_PER_PAGE]
 
 
 def check_deduplication(pages: list["Page"]) -> list["Finding"]:
     """Detect near-duplicate prose paragraphs across pages.
 
     Only compares pages within the same (family, platform) group.
+    Capped at _MAX_COMPARISONS total cross-page paragraph comparisons.
 
     Returns
     -------
@@ -95,23 +108,34 @@ def check_deduplication(pages: list["Page"]) -> list["Finding"]:
         if page.family and page.platform:
             groups[(page.family, page.platform)].append(page)
 
+    total_comparisons = 0
+    total_pages = 0
+    cap_hit = False
+
     for _key, group_pages in groups.items():
-        # Pre-extract and tokenize paragraphs per page
+        total_pages += len(group_pages)
+
+        # Pre-extract and tokenize paragraphs per page (single pass)
         page_paras: list[tuple["Page", int, str, set[str]]] = []
         for page in group_pages:
-            for line_no, text in _extract_paragraphs(page):
-                tokens = _tokenize(text)
-                if len(tokens) >= _MIN_WORDS:
-                    page_paras.append((page, line_no, text, tokens))
+            for line_no, text, tokens in _extract_paragraphs(page):
+                page_paras.append((page, line_no, text, tokens))
 
         # Compare all cross-page pairs (skip same-page pairs)
         seen: set[tuple[str, int, str, int]] = set()
         for i, (pa, la, _ta, toka) in enumerate(page_paras):
+            if cap_hit:
+                break
             for j in range(i + 1, len(page_paras)):
                 pb, lb, _tb, tokb = page_paras[j]
                 # Only compare across different pages
                 if pa.filepath == pb.filepath:
                     continue
+
+                total_comparisons += 1
+                if total_comparisons > _MAX_COMPARISONS:
+                    cap_hit = True
+                    break
 
                 sim = _jaccard(toka, tokb)
                 if sim < 0.70:
@@ -139,5 +163,14 @@ def check_deduplication(pages: list["Page"]) -> list["Finding"]:
                     ),
                     evaluator="cross_dedup",
                 ))
+
+    # Summary logging
+    fail_count = sum(1 for f in findings if f.level == "FAIL")
+    warn_count = sum(1 for f in findings if f.level == "WARN")
+    log.info(
+        "cross_dedup: %d pages, %d comparisons, %d findings (%d FAIL, %d WARN)%s",
+        total_pages, total_comparisons, len(findings), fail_count, warn_count,
+        " [comparison cap reached]" if cap_hit else "",
+    )
 
     return findings

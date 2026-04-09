@@ -604,8 +604,8 @@ def test_plan_blog_all_mandatory_posts_have_blog_role():
 # S-4: Stats-consistency warning for orphaned claims
 # ---------------------------------------------------------------------------
 
-def test_orphaned_claims_warning(capsys):
-    """Orphaned claims (not allocated to any cluster) must produce stderr warning."""
+def test_orphaned_claims_warning(caplog):
+    """Orphaned claims (not allocated to any cluster) must produce logger warning."""
     api_surface = _make_api_surface(["formats", "entities"])
     claims = _make_claims(api_surface, per_class=5)
     # Add orphaned claims that reference no known class
@@ -613,16 +613,19 @@ def test_orphaned_claims_warning(capsys):
     claims.append({"kind": "format", "text": "Supports XYZ format"})
     claims.append({"kind": "install", "text": "Install via pip"})
 
-    sp.detect_clusters(claims, api_surface, [], "", family="3d")
-    captured = capsys.readouterr()
-    assert "stats-consistency" in captured.err
-    assert "3/" in captured.err  # 3 orphaned claims
+    import logging
+    with caplog.at_level(logging.WARNING, logger="site_planner"):
+        sp.detect_clusters(claims, api_surface, [], "", family="3d")
+    assert any("stats-consistency" in r.message for r in caplog.records)
+    assert any("3/" in r.message for r in caplog.records)
 
 
-def test_no_warning_when_all_claims_allocated(capsys):
+def test_no_warning_when_all_claims_allocated(caplog):
     """No warning when every claim maps to a cluster."""
     api_surface = _make_api_surface(["formats"])
     claims = _make_claims(api_surface, per_class=5)
-    sp.detect_clusters(claims, api_surface, [], "", family="3d")
-    captured = capsys.readouterr()
-    assert "stats-consistency" not in captured.err
+
+    import logging
+    with caplog.at_level(logging.WARNING, logger="site_planner"):
+        sp.detect_clusters(claims, api_surface, [], "", family="3d")
+    assert not any("stats-consistency" in r.message for r in caplog.records)
