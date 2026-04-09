@@ -59,7 +59,7 @@ replacing this page. Do not change this unless the human explicitly requests it.
 ### Step 3: Attach evidence
 
 ```bash
-.venv/Scripts/python scripts/pipeline/attach_evidence.py --files {filepath}
+python scripts/pipeline/attach_evidence.py --files {filepath}
 ```
 
 This attaches an `evidence:` block with `model_sha`, `claims`, `apis`, and `formats`
@@ -73,12 +73,12 @@ are content defects, not pipeline errors.
 
 Run S-25 (eval-page) to determine the current grade:
 ```bash
-.venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {filepath}
+python -m scripts.pipeline.content_eval evaluate --files {filepath}
 ```
 
 Then persist the grade:
 ```bash
-.venv/Scripts/python scripts/pipeline/grade_writer.py --files {filepath}
+python scripts/pipeline/grade_writer.py --files {filepath}
 ```
 
 Note the assigned grade. If grade is D or F, consider running S-26 (heal-page) before
@@ -88,7 +88,7 @@ before registering — do not protect a critically-wrong page from automated cor
 ### Step 5: Run content-check gate
 
 ```bash
-.venv/Scripts/python scripts/pipeline/audit.py --files {filepath}
+python scripts/pipeline/audit.py --files {filepath}
 ```
 
 A FAIL at this stage means the page has API accuracy problems. Fix them before proceeding.

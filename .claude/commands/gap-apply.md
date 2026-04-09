@@ -111,7 +111,7 @@ operator-directed targeted edits.
 ### Step 6: Re-run gap-eval to verify
 
 ```bash
-.venv/Scripts/python scripts/gap-eval/run.py {family} {platform}
+python scripts/gap-eval/run.py {family} {platform}
 ```
 
 The delta section must show prior Wave 1/2 findings as `fixed` with 0 regressions. If

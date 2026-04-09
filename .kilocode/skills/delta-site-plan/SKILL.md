@@ -9,14 +9,6 @@ args: "{family} {platform}"
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-<!-- CONTRACT: scripts/pipeline/site_planner.py --mode update
-     purpose: compute delta between current site_plan.yaml and updated knowledge artifacts
-     cli: python scripts/pipeline/site_planner.py {family} {platform} --mode update
-     postcondition: site_plan.yaml updated with delta section containing pages_to_add,
-                    pages_to_update, pages_to_remove, pages_renamed
-     verified: 2026-04-07
--->
-
 # S-82: Delta Site Plan — Incremental Site Planning After Knowledge Update
 
 **Arguments**: $ARGUMENTS
@@ -51,7 +43,7 @@ a complete picture of what changes are needed.
 
 3. **Run delta planning**:
    ```bash
-   python scripts/pipeline/site_planner.py {family} {platform} --mode update
+   .venv/Scripts/python scripts/pipeline/site_planner.py {family} {platform} --mode update
    ```
    This reads the current `api_surface.json`, `claims.json`, and `knowledge_delta.json`,
    compares them against the existing `site_plan.yaml`, and writes a `delta:` section to

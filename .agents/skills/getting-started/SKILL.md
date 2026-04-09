@@ -22,10 +22,13 @@ each step depends on the previous.
 
 ## Step 1: Python environment
 
-Install all pipeline dependencies from repo root:
+Create and activate the repo virtual environment, then install all pipeline dependencies:
 
 ```bash
-pip install -r scripts/requirements.txt
+python -m venv .venv
+source .venv/Scripts/activate   # Windows (Git Bash)
+# source .venv/bin/activate     # Unix / macOS
+.venv/Scripts/pip install -r scripts/requirements.txt
 ```
 
 Key packages required:
@@ -38,7 +41,9 @@ Key packages required:
 | pyyaml | >= 6.0 |
 | requests | >= 2.28 |
 
-Verify with `pip show tree-sitter pyyaml requests`.
+Verify with `.venv/Scripts/pip show tree-sitter pyyaml requests`.
+
+> **All subsequent steps assume `.venv` is active.** If starting a new shell, re-activate first.
 
 ---
 
@@ -61,7 +66,7 @@ automatically when the key is absent. `GITHUB_TOKEN` is required for Steps 3 and
 Write clone URLs into `data/products.json` for all active products:
 
 ```bash
-python scripts/pipeline/update_product_registry.py --token $GITHUB_TOKEN
+.venv/Scripts/python scripts/pipeline/update_product_registry.py --token $GITHUB_TOKEN
 ```
 
 This step is required before cloning FOSS source repos. Without it the product
@@ -75,7 +80,7 @@ FOSS repos auto-clone the first time you run scout (Step 5). To pre-clone manual
 
 ```bash
 # Run from scripts/pipeline/ directory
-python -c "from core.clone_cache import ensure_clone; ensure_clone('{family}','{platform}')"
+.venv/Scripts/python -c "from core.clone_cache import ensure_clone; ensure_clone('{family}','{platform}')"
 ```
 
 Replace `{family}` and `{platform}` with the product you are working on (e.g. `3d`, `python`).
@@ -91,10 +96,10 @@ Run the four-stage pipeline to extract, enrich, promote, and index knowledge:
 
 ```bash
 cd scripts/pipeline
-python scout.py {family} {platform} ../../runs/.clone_cache/aspose_{family}_{platform}/ ../../knowledge/{family}/{platform}/scout/
-python enrich.py {family} {platform}
-python promote.py {family} {platform}
-python index.py {family} {platform}
+../../.venv/Scripts/python scout.py {family} {platform} ../../runs/.clone_cache/aspose_{family}_{platform}/ ../../knowledge/{family}/{platform}/scout/
+../../.venv/Scripts/python enrich.py {family} {platform}
+../../.venv/Scripts/python promote.py {family} {platform}
+../../.venv/Scripts/python index.py {family} {platform}
 ```
 
 **Expected outputs after completion:**
@@ -109,7 +114,7 @@ python index.py {family} {platform}
 To bootstrap all products at once:
 
 ```bash
-python scripts/pipeline/refresh_knowledge.py --all --check
+.venv/Scripts/python scripts/pipeline/refresh_knowledge.py --all --check
 ```
 
 ---
@@ -149,7 +154,7 @@ On a fresh clone, locale files translated before the provenance system was intro
 a `provenance:` block. Run the backfill to assign conservative defaults:
 
 ```bash
-python scripts/pipeline/provenance_backfill.py
+.venv/Scripts/python scripts/pipeline/provenance_backfill.py
 ```
 
 This is safe to re-run at any time (idempotent — files that already have a provenance block
@@ -164,7 +169,7 @@ updated manually to `auto_updatable: false` after running `/register-human-conte
 Run the audit tool against your product:
 
 ```bash
-python scripts/pipeline/audit.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/audit.py {family} {platform}
 ```
 
 Expected result: `PASS` or a findings list with severity levels.
@@ -175,7 +180,7 @@ If `model.yaml` shows `api_confidence: low`, re-run scout with more verbose logg
 Quick batch check across all products:
 
 ```bash
-python scripts/pipeline/audit.py all --json | python -c "import json,sys; r=json.load(sys.stdin); print(f'{sum(1 for f in r if f[\"level\"]==\"FAIL\")} FAILs found')"
+.venv/Scripts/python scripts/pipeline/audit.py all --json | .venv/Scripts/python -c "import json,sys; r=json.load(sys.stdin); print(f'{sum(1 for f in r if f[\"level\"]==\"FAIL\")} FAILs found')"
 ```
 
 ---
@@ -204,4 +209,4 @@ Do not edit any content page before completing these checks:
 - `PROFESSIONALIZE_API_KEY` is optional; TF-IDF fallback is transparent to all consuming skills.
 - The `runs/` directory is git-ignored; FOSS clones are never committed.
 - For production content work, always verify knowledge freshness with `/stale-detect {family} {platform}` (S-13) before writing.
-- Cross-product refresh: `python scripts/pipeline/refresh_knowledge.py --all --check`
+- Cross-product refresh: `.venv/Scripts/python scripts/pipeline/refresh_knowledge.py --all --check`

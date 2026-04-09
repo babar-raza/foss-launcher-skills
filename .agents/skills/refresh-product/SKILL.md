@@ -97,7 +97,7 @@ Do not run any subsequent steps. Exit 0.
 
 7. **Update reference pages for modified APIs** (S-62: batch-reference --update):
    ```
-   python scripts/pipeline/batch_reference.py {family} {platform} --update
+   .venv/Scripts/python scripts/pipeline/batch_reference.py {family} {platform} --update
    ```
    - Regenerates only reference pages for classes in `knowledge_delta.json modified_apis`
    - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step reference_update`
@@ -135,13 +135,13 @@ Do not run any subsequent steps. Exit 0.
 
 12. **Record step completions**: After each step above, call:
     ```bash
-    python scripts/pipeline/post_refresh_verify.py {family} {platform} --step {step_name}
+    .venv/Scripts/python scripts/pipeline/post_refresh_verify.py {family} {platform} --step {step_name}
     ```
     Progress is tracked at `reports/refresh_state/{family}/{platform}/progress.json` (local-only, not committed).
 
 13. **Verification gate** (post_refresh_verify.py --verify):
     ```bash
-    python scripts/pipeline/post_refresh_verify.py {family} {platform} --verify
+    .venv/Scripts/python scripts/pipeline/post_refresh_verify.py {family} {platform} --verify
     ```
     Runs post-refresh checklist:
     - `stale_since` is null in `merged/model.yaml`
@@ -171,7 +171,7 @@ Do not run any subsequent steps. Exit 0.
 Progress is stored at `reports/refresh_state/{family}/{platform}/progress.json` (local-only, gitignored).
 Check current progress at any time:
 ```bash
-python scripts/pipeline/post_refresh_verify.py {family} {platform} --status
+.venv/Scripts/python scripts/pipeline/post_refresh_verify.py {family} {platform} --status
 ```
 
 If the refresh cycle is interrupted, re-run this skill — completed steps are idempotent and

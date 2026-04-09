@@ -5,6 +5,8 @@ description: >
 args: "{family} {platform}"
 ---
 
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
 # S-79: Launch Rollback — Revert One Product's Generated Content
 
 **Arguments**: $ARGUMENTS

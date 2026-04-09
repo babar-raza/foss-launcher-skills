@@ -77,7 +77,7 @@ not require vectors, but gap evaluation quality degrades without them.
 ## Gap-index mode (S-43 Tier 2)
 For per-product API surface vectors (used by S-43), use the `gap-index` subcommand instead:
 ```bash
-.venv/Scripts/python scripts/pipeline/embed.py gap-index {family} {platform}
+python scripts/pipeline/embed.py gap-index {family} {platform}
 ```
 This mode writes to `knowledge/_vectors/{family}/{platform}/api.vectors.json` (with
 family/platform subdirectories). It is a separate operation from standard knowledge embedding.

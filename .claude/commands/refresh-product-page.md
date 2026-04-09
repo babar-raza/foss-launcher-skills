@@ -8,6 +8,8 @@ description: >
 args: "{family} {platform}"
 ---
 
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
 > Cross-skill references like `/new-products-page` refer to sibling skills in this directory.
 
 # S-85: Refresh Product Page — Re-generate Product Landing Page

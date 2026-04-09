@@ -103,7 +103,7 @@ writes both per-product `index.json` and cross-product `_index.json`.
    - `forbidden_claims`: Derived from `merged/limitations.md` parsed entries, formatted as
      `"supports ClassName.method"` strings. NOT `[FORBIDDEN]`-tagged sentences.
    - `not_implemented`: `"ClassName.method"` strings from parsed `merged/limitations.md` table rows.
-   - `install`: Single command for the platform: `{"command": "pip install ...", "version": "..."}`.
+   - `install`: Single command for the platform: `{"command": ".venv/Scripts/pip install ...", "version": "..."}`.
      All platforms use this same two-field structure.
    - `stats`: Copied directly from `merged/model.yaml` → `stats` object (promote.py stats).
    - `api_coverage`: Computed class coverage metrics — method/property/enum percentages and

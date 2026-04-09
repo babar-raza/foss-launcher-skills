@@ -9,11 +9,9 @@ args: "{family} {platform}"
 
 <!-- CONTRACT: scripts/pipeline/batch_reference.py (backing script for headless/CI batch runs)
      purpose: generate template-based skeleton reference pages from api_surface.json without LLM
-     cli: python scripts/pipeline/batch_reference.py {family} {platform} [--kind class|enum|all] [--limit N] [--dry-run] [--update]
+     cli: python scripts/pipeline/batch_reference.py {family} {platform} [--kind class|enum|all] [--limit N] [--dry-run]
      postcondition: applies same platform scope rules as this skill (kind values match tree-sitter output)
-     postcondition: idempotent — skips existing pages in default mode; re-run on populated platform yields Generated: 0
-     postcondition: --update mode regenerates only classes listed in knowledge_delta.json modified_apis;
-                    if knowledge_delta.json absent, degrades to full re-run with WARN message
+     postcondition: idempotent — skips existing pages; re-run on populated platform yields Generated: 0
      postcondition: prints S-62 summary format (Candidates / Generated / Skipped / Errors)
      verified: 2026-04-07
 -->
@@ -139,7 +137,7 @@ For each entry marked `GENERATE`, in order:
 Invoke the batch generation script:
 
 ```bash
-python scripts/pipeline/batch_reference.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/batch_reference.py {family} {platform}
 ```
 
 The script generates all class pages using templates from `api_surface.json`. For each page it:
@@ -182,8 +180,8 @@ but keep the section header and column headers with a note: `*(No members found 
 After all pages are generated, run a spot-check on the first and last generated page using the audit script:
 
 ```
-python scripts/pipeline/audit.py --files content/reference.aspose.org/en/{family}/{platform}/{first-ClassName}.md
-python scripts/pipeline/audit.py --files content/reference.aspose.org/en/{family}/{platform}/{last-ClassName}.md
+.venv/Scripts/python scripts/pipeline/audit.py --files content/reference.aspose.org/en/{family}/{platform}/{first-ClassName}.md
+.venv/Scripts/python scripts/pipeline/audit.py --files content/reference.aspose.org/en/{family}/{platform}/{last-ClassName}.md
 ```
 
 If either audit returns any FAIL, log a warning: `WARN: Audit failed for {ClassName} — manual review required.`
@@ -233,8 +231,8 @@ After a knowledge refresh (S-14), use `--update` to regenerate only the referenc
 classes appear in `knowledge_delta.json modified_apis`:
 
 ```bash
-python scripts/pipeline/batch_reference.py {family} {platform} --update
-python scripts/pipeline/batch_reference.py {family} {platform} --update --dry-run  # preview only
+.venv/Scripts/python scripts/pipeline/batch_reference.py {family} {platform} --update
+.venv/Scripts/python scripts/pipeline/batch_reference.py {family} {platform} --update --dry-run  # preview only
 ```
 
 **Behavior in `--update` mode**:

@@ -8,16 +8,6 @@ args: "{family} {platform}"
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-<!-- CONTRACT: scripts/pipeline/refresh_knowledge.py (runs scout.py + enrich.py + promote.py + index.py)
-     postcondition: refresh_knowledge.py executes all 4 pipeline steps (scout → enrich → promote → index)
-     postcondition: writes merged/pipeline_run.json confirming all 4 steps ran and index_succeeded status
-     postcondition: refresh_knowledge.py auto-clears stale_since in merged/model.yaml on successful refresh
-     postcondition: refresh_knowledge.py creates merged.bak/ before pipeline, writes knowledge_delta.json
-                    after successful promote, then deletes merged.bak/ in finally block (always cleaned up)
-     postcondition: knowledge_delta.json contains base_sha, current_sha, new_claims, removed_claims,
-                    modified_claims, new_apis, removed_apis, modified_apis
-     verified: 2026-04-07
--->
 # S-14: Knowledge Update - Refresh Knowledge Model from Source
 
 **Arguments**: $ARGUMENTS
@@ -59,7 +49,7 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
 
 2. **Run refresh pipeline** (handles backup, diff, and cleanup internally):
    ```
-   python scripts/pipeline/refresh_knowledge.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform}
    ```
    Internally, `refresh_knowledge.py`:
    - Sets `stale_since` in `merged/model.yaml` to today before running the pipeline
@@ -75,13 +65,13 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
 
 3. **Run knowledge-enrich** (S-37) if not already run by refresh pipeline:
    ```
-   python scripts/pipeline/enrich.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/enrich.py {family} {platform}
    ```
    Verify `knowledge/{family}/{platform}/scout/enriched_claims.json` exists and is valid JSON.
 
 4. **Run truth-merge** (S-35) if not already run:
    ```
-   python scripts/pipeline/promote.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/promote.py {family} {platform}
    ```
    Verify `knowledge/{family}/{platform}/merged/merge_report.md` exists and shows merge statistics.
 

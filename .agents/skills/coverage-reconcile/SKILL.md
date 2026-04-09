@@ -5,6 +5,8 @@ description: >
 args: "{family} {platform}"
 ---
 
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
 # S-80: Coverage Reconcile — Knowledge Unit Disposition Report
 
 **Arguments**: $ARGUMENTS

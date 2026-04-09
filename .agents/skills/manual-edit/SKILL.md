@@ -46,7 +46,7 @@ Expected format:
 /manual-edit content/docs.aspose.org/en/cells/python/developer-guide/working-with-charts.md \
   --scope section-replacement \
   --section "Prerequisites" \
-  --intent "Replace the Prerequisites section with: install via pip install aspose-cells-foss"
+  --intent "Replace the Prerequisites section with: install via .venv/Scripts/pip install aspose-cells-foss"
 
 # Full targeted remediation (requires evidence)
 /manual-edit content/reference.aspose.org/en/3d/java/Scene.md \

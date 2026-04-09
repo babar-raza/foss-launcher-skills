@@ -114,7 +114,7 @@ For KB FAQ pages specifically, prefer S-59 (new-kb-faq) which includes the full 
 
 7. **Run ground-check**:
    ```bash
-   .venv/Scripts/python scripts/pipeline/audit.py --files content/kb.aspose.org/en/{family}/{platform}/faq.md
+   python scripts/pipeline/audit.py --files content/kb.aspose.org/en/{family}/{platform}/faq.md
    ```
 
 8. **Report**: Print summary — number of Q&A pairs generated, categories covered, claims referenced.

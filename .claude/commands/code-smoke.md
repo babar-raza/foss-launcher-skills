@@ -79,7 +79,7 @@ When `eval-page` is run for a Python-platform product, add this as step 2b:
 
 ```
 2b. Run smoke test (Python only):
-    python scripts/pipeline/smoke_test.py --files {relative-file-path}
+    .venv/Scripts/python scripts/pipeline/smoke_test.py --files {relative-file-path}
     - Exit code 2 (FAIL): count each failing block as an additional FAIL finding in the eval grade
     - Exit code 1 (WARN): count each warning block as an additional WARN finding
     - Exit code 0 (PASS): no additional findings

@@ -38,7 +38,7 @@ Snippets will be extracted from `tests/`, `examples/`, `samples/` inside the rep
 ```
 pip_pkg  = aspose-{family}-foss
 temp_dir = /tmp/aspose-{family}-foss-pkg
-pip install {pip_pkg} --target {temp_dir}
+.venv/Scripts/pip install {pip_pkg} --target {temp_dir}
 repo_path = {temp_dir}/aspose/{family}_foss
 ```
 If `{temp_dir}/aspose/{family}_foss` does not exist, use the first subdirectory under
@@ -62,17 +62,16 @@ where source repos are not cloned.
    ls scripts/pipeline/scout.py
    ```
 
-3. **Verify tree-sitter is importable** — first check the user site-packages:
+3. **Verify tree-sitter is importable** (already in `.venv` via `scripts/pipeline/requirements.txt`):
    ```
-   USER_SITE=$(python -m site --user-site 2>/dev/null || python -m site --user-site)
-   PYTHONPATH="$USER_SITE" python -c "import tree_sitter; import tree_sitter_language_pack"
+   .venv/Scripts/python -c "import tree_sitter; import tree_sitter_language_pack"
    ```
-   If that fails, install:
+   If that fails, install into the venv:
    ```
-   pip install tree-sitter tree-sitter-language-pack --user
+   .venv/Scripts/pip install tree-sitter tree-sitter-language-pack
    ```
    Re-verify after install. If still failing, abort with:
-   `tree-sitter not available — run: pip install tree-sitter tree-sitter-language-pack --user`
+   `tree-sitter not available — run: .venv/Scripts/pip install tree-sitter tree-sitter-language-pack`
 
 ## Steps
 
@@ -80,19 +79,13 @@ where source repos are not cloned.
    - If 3 tokens: `family`, `platform`, `repo_path` (explicit source repo)
    - If 2 tokens: `family`, `platform` → resolve `repo_path` via pip-install (see above)
 
-2. **Resolve PYTHONPATH**:
+2. **Run extraction**:
    ```
-   USER_SITE=$(python -m site --user-site)
-   ```
-   Prepend to all subsequent `python` invocations as `PYTHONPATH="$USER_SITE"`.
-
-3. **Run extraction**:
-   ```
-   PYTHONPATH="$USER_SITE" python scripts/pipeline/scout.py \
+   .venv/Scripts/python scripts/pipeline/scout.py \
      {family} {platform} {repo_path} knowledge/{family}/{platform}/scout/
    ```
 
-4. **Validate outputs** — verify these files were created:
+3. **Validate outputs** — verify these files were created:
    - `knowledge/{family}/{platform}/scout/model.yaml` — must contain `family`, `platform`, `source: scout`
    - `knowledge/{family}/{platform}/scout/api_surface.json` — valid JSON, at least 1 class
    - `knowledge/{family}/{platform}/scout/claims.json` — valid JSON array
@@ -101,7 +94,7 @@ where source repos are not cloned.
    - `knowledge/{family}/{platform}/scout/coverage_matrix.json` — exists
    - `knowledge/{family}/{platform}/scout/snippets/snippets_index.json` — exists (may be `[]` in pip mode)
 
-5. **Report** — print summary:
+4. **Report** — print summary:
    ```
    family/platform: {class_count} classes, {method_count} methods, {snippet_count} snippets
    repo_sha: {repo_sha or "(pip-installed, no sha)"}
@@ -109,7 +102,7 @@ where source repos are not cloned.
    ```
 
 ## Post-conditions
-- All output files listed in Step 4 exist and contain valid data
+- All output files listed in Step 3 exist and contain valid data
 - `model.yaml` has `source: scout`
 - `repo_sha` may be empty when running in pip-install mode — this is expected and not an error
 - `snippet_count: 0` is expected in pip-install mode — not an error
@@ -125,7 +118,7 @@ After a pip-install scout run, if `.py` snippet files already exist in `scout/sn
 from a previous source-repo run, they are preserved. Run `rebuild_snippet_index.py` to
 re-index them:
 ```
-python scripts/pipeline/rebuild_snippet_index.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/rebuild_snippet_index.py {family} {platform}
 ```
 
 ## Error handling

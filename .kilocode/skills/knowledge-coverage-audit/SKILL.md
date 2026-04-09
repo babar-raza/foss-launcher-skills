@@ -4,7 +4,7 @@ description: >
   <!-- CONTRACT: scripts/pipeline/knowledge_coverage.py (per-claim disposition table)
 ---
 
-> Cross-skill references like `/knowledge-update` refer to sibling skills in this directory.
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
 # S-81: Knowledge Coverage Audit — Per-Claim Disposition Table
 

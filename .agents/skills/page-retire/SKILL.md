@@ -9,16 +9,6 @@ args: "{file-path} | --from-plan {site_plan_path}"
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-<!-- CONTRACT: scripts/pipeline/retire_page.py
-     purpose: mark obsolete pages as draft: true; never deletes files
-     cli: python scripts/pipeline/retire_page.py {file-path} [--dry-run]
-          python scripts/pipeline/retire_page.py --from-plan {site_plan_path} [--dry-run]
-     postcondition: retired pages have draft: true and retired_at: YYYY-MM-DD in frontmatter
-     postcondition: idempotent — already-retired pages (draft: true) are skipped with log message
-     postcondition: --dry-run makes no file changes; prints "Would retire: {path}"
-     verified: 2026-04-07
--->
-
 # S-83: Page Retire — Retire Obsolete Content Pages
 
 **Arguments**: $ARGUMENTS
@@ -58,9 +48,9 @@ pages that still have valid coverage.
 
 2. **Always run --dry-run first**:
    ```bash
-   python scripts/pipeline/retire_page.py {file-path} --dry-run
+   .venv/Scripts/python scripts/pipeline/retire_page.py {file-path} --dry-run
    # or
-   python scripts/pipeline/retire_page.py --from-plan reports/plans/{family}/{platform}/site_plan.yaml --dry-run
+   .venv/Scripts/python scripts/pipeline/retire_page.py --from-plan reports/plans/{family}/{platform}/site_plan.yaml --dry-run
    ```
    Review the list of pages that would be retired. Confirm before proceeding.
 
@@ -72,9 +62,9 @@ pages that still have valid coverage.
 
 4. **Execute retirement**:
    ```bash
-   python scripts/pipeline/retire_page.py {file-path}
+   .venv/Scripts/python scripts/pipeline/retire_page.py {file-path}
    # or
-   python scripts/pipeline/retire_page.py --from-plan reports/plans/{family}/{platform}/site_plan.yaml
+   .venv/Scripts/python scripts/pipeline/retire_page.py --from-plan reports/plans/{family}/{platform}/site_plan.yaml
    ```
    Each retired page receives:
    - `draft: true` in frontmatter (Hugo standard — suppresses from production builds)

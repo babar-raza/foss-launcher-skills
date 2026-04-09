@@ -18,7 +18,7 @@ Expected format: `{family} {platform} {repo-path}`
 
 First, update the local clone to fetch any upstream changes, then resolve the path:
 ```bash
-python -c "from scripts.pipeline.core.clone_cache import update_clone; update_clone('{family}', '{platform}')"
+.venv/Scripts/python -c "from scripts.pipeline.core.clone_cache import update_clone; update_clone('{family}', '{platform}')"
 repo_path=$(.venv/Scripts/python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
 ```
 Then invoke this skill as: `/knowledge-diff {family} {platform} $repo_path`
@@ -104,11 +104,3 @@ stale_since set to {today} in merged/model.yaml (HIGH/MEDIUM impact only)
 - The stored `repo_sha` in `merged/model.yaml` is NOT modified by this skill — it is read-only.
   SHA update only happens in S-14 (knowledge-update) after re-scouting completes.
 - `update_clone()` is called before SHA comparison — change detection is never blind to upstream commits.
-
-<!-- CONTRACT: scripts/pipeline/core/clone_cache.py (update_clone), scripts/pipeline/refresh_knowledge.py
-     postcondition: update_clone() called before SHA comparison; detection not blind to upstream commits
-     postcondition: stale_since auto-set for HIGH/MEDIUM impact; no manual operator step required
-     postcondition: git diff {sha1}..{sha2} NOT used (shallow clone cannot support it);
-                    impact classification uses knowledge_delta.json or file-type heuristic
-     verified: 2026-04-07
--->

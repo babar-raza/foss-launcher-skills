@@ -243,7 +243,7 @@ and truth-audited (Stage 6, 0 FAIL) before this stage runs.
 
 **Pre-flight guard**: Before running any translate commands, verify the truth audit passed:
 ```bash
-python scripts/pipeline/project_phase_store.py get {family} {platform} truth_audit_done
+.venv/Scripts/python scripts/pipeline/project_phase_store.py get {family} {platform} truth_audit_done
 ```
 If this does not return `true`, halt: "Stage 6.5 requires truth_audit_done=true. Complete Stage 6 first."
 
@@ -278,7 +278,7 @@ Auto-fixes deterministic issues only (no LLM pass). Reviews eval grades.
 ### STAGE 8 — Readiness Scorecard
 **Command**:
 ```bash
-python scripts/pipeline/readiness_scorecard.py --family {family} --platform {platform} --set-checkpoint
+.venv/Scripts/python scripts/pipeline/readiness_scorecard.py --family {family} --platform {platform} --set-checkpoint
 ```
 **Checkpoint**: `readiness_done`
 

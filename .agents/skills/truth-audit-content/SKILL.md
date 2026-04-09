@@ -32,22 +32,22 @@ This skill fills the gap between S-38 (member-level API token verification) and 
 
 ```bash
 cd scripts/pipeline
-python truth_audit_content.py {family} {platform} --scope {scope}
+.venv/Scripts/python truth_audit_content.py {family} {platform} --scope {scope}
 ```
 
 Full run (all 5 subdomains):
 ```bash
-python scripts/pipeline/truth_audit_content.py {family} {platform} --scope all
+.venv/Scripts/python scripts/pipeline/truth_audit_content.py {family} {platform} --scope all
 ```
 
 Quick pilot (single subdomain, limited units):
 ```bash
-python scripts/pipeline/truth_audit_content.py {family} {platform} --scope docs --max-units 200
+.venv/Scripts/python scripts/pipeline/truth_audit_content.py {family} {platform} --scope docs --max-units 200
 ```
 
 With JSON output to stdout:
 ```bash
-python scripts/pipeline/truth_audit_content.py {family} {platform} --json
+.venv/Scripts/python scripts/pipeline/truth_audit_content.py {family} {platform} --json
 ```
 
 ### Step 2: Review output
