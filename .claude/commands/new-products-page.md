@@ -146,13 +146,27 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
     If no KB FAQ exists, set `faq: enable: false` (omit the `list` key).
     **Do NOT write to `{family}/_index.md`** — that is the family landing page managed by `/family-sync`.
 
-11. **Attach evidence**: `python scripts/pipeline/attach_evidence.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
+11. **Structural completion**: Run the deterministic skeleton filler to ensure all
+    display-control boilerplate sections are present regardless of LLM output variance:
+    `python scripts/pipeline/complete_plugin_structure.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
+    This inserts `supportandlearning`, `more_formats`, and `back_to_top` sections if the
+    LLM omitted them. It is idempotent and does not modify LLM-generated content sections.
 
-12. **Run structural validator**: `python scripts/pipeline/validate_plugin_structure.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
-    — must exit 0 (no FATAL or ERROR findings). This catches body-content-leak and missing frontmatter keys.
+12. **Attach evidence**: `python scripts/pipeline/attach_evidence.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
 
-13. **Run audit**: `python scripts/pipeline/audit.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
+13. **Run structural validator**: `python scripts/pipeline/validate_plugin_structure.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
+    — must exit 0 (no FATAL or ERROR findings). This catches body-content-leak, missing frontmatter keys,
+    and missing display-control sections on English pages.
+
+14. **Run audit**: `python scripts/pipeline/audit.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
     — must exit with 0 FAIL before committing.
+
+15. **Run full evaluation**: `.venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files content/products.aspose.org/en/{family}/{platform}/_index.md --format json --remediation`
+    — runs 22 evaluators (api_accuracy, content_substance, page_role, prose_truth, risk_language, evidence_depth, code_plausibility, etc.).
+    If grade < B, review FAIL findings and fix before committing. Update `graded_evaluators` to `full` in frontmatter.
+
+16. **Run smoke test** (Python platform only): `.venv/Scripts/python scripts/pipeline/smoke_test.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
+    — must exit 0. All code blocks must compile cleanly.
 
 ## Hard Constraints
 
@@ -177,5 +191,7 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
 - `evidence:` frontmatter block populated by `attach_evidence.py`
 - `validate_plugin_structure.py` exits with 0 (no FATAL/ERROR)
 - `audit.py` exits with 0 FAIL
+- `content_eval` grade is B or above; `graded_evaluators: full` in frontmatter
+- Smoke test passes (Python platform) — all code blocks compile
 - No forbidden claims present
 - Family page at `content/products.aspose.org/en/{family}/_index.md` is **NOT modified** by this skill
