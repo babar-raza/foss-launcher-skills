@@ -8,6 +8,7 @@ from sync_providers import (
     _extract_frontmatter,
     _generate_frontmatter,
     _has_cross_skill_note,
+    sync_provider,
     main,
 )
 
@@ -251,3 +252,131 @@ class TestCheckMode:
         captured = capsys.readouterr()
         assert "PASS" in captured.out
         assert result == 0
+
+
+# ---------------------------------------------------------------------------
+# sync_provider() with create_missing=True — integration tests
+# ---------------------------------------------------------------------------
+
+
+import sync_providers  # for monkeypatching module-level constants
+
+
+class TestCreateMissingIntegration:
+    """Integration tests for the --create-missing file creation path."""
+
+    def _setup(self, tmp_path, monkeypatch, slug, content):
+        """Create canonical dir + empty provider dirs, monkeypatch module constants."""
+        canonical_dir = tmp_path / "skills"
+        canonical_dir.mkdir()
+        (canonical_dir / f"{slug}.md").write_text(content, encoding="utf-8")
+
+        providers = {
+            "agents": tmp_path / "agents",
+            "claude": tmp_path / "claude",
+            "kilocode": tmp_path / "kilocode",
+        }
+        for p in providers.values():
+            p.mkdir()
+
+        monkeypatch.setattr(sync_providers, "CANONICAL_DIR", canonical_dir)
+        monkeypatch.setattr(sync_providers, "PROVIDERS", providers)
+        monkeypatch.setattr(sync_providers, "SKIP_SLUGS", {})
+        return providers
+
+    def test_agents_creates_dir_and_skill_file(self, tmp_path, monkeypatch):
+        """agents provider creates {slug}/SKILL.md with frontmatter + cross-skill note."""
+        providers = self._setup(tmp_path, monkeypatch, "test-skill", STANDARD_CANONICAL)
+
+        changed, created = sync_provider("agents", create_missing=True)
+
+        assert "test-skill" in created
+        skill_path = providers["agents"] / "test-skill" / "SKILL.md"
+        assert skill_path.exists()
+        content = skill_path.read_text(encoding="utf-8")
+        assert content.startswith("---\n")
+        assert "id: S-42" in content
+        assert "name: test-skill" in content
+        assert "Cross-skill references" in content
+        assert "## Purpose" in content
+
+    def test_claude_creates_flat_file_no_cross_note(self, tmp_path, monkeypatch):
+        """claude provider creates {slug}.md with frontmatter but NO cross-skill note."""
+        providers = self._setup(tmp_path, monkeypatch, "test-skill", STANDARD_CANONICAL)
+
+        changed, created = sync_provider("claude", create_missing=True)
+
+        assert "test-skill" in created
+        skill_path = providers["claude"] / "test-skill.md"
+        assert skill_path.exists()
+        content = skill_path.read_text(encoding="utf-8")
+        assert content.startswith("---\n")
+        assert "id: S-42" in content
+        assert "Cross-skill references" not in content
+
+    def test_kilocode_matches_agents_format(self, tmp_path, monkeypatch):
+        """kilocode uses the same nested {slug}/SKILL.md format as agents."""
+        providers = self._setup(tmp_path, monkeypatch, "test-skill", STANDARD_CANONICAL)
+
+        changed, created = sync_provider("kilocode", create_missing=True)
+
+        assert "test-skill" in created
+        skill_path = providers["kilocode"] / "test-skill" / "SKILL.md"
+        assert skill_path.exists()
+        content = skill_path.read_text(encoding="utf-8")
+        assert "Cross-skill references" in content
+        assert "id: S-42" in content
+
+    def test_internal_skill_skipped_for_claude(self, tmp_path, monkeypatch):
+        """Internal skills (sub-routines) must NOT be created in the Claude tree."""
+        providers = self._setup(tmp_path, monkeypatch, "knowledge-bootstrap", MINIMAL_CANONICAL)
+        monkeypatch.setattr(
+            sync_providers, "INTERNAL_SKILLS", frozenset({"knowledge-bootstrap"})
+        )
+
+        changed, created = sync_provider("claude", create_missing=True)
+
+        assert "knowledge-bootstrap" not in created
+        assert not (providers["claude"] / "knowledge-bootstrap.md").exists()
+
+    def test_internal_skill_created_for_agents(self, tmp_path, monkeypatch):
+        """Internal skills ARE created in agents/kilocode (they invoke them directly)."""
+        providers = self._setup(tmp_path, monkeypatch, "knowledge-bootstrap", MINIMAL_CANONICAL)
+        monkeypatch.setattr(
+            sync_providers, "INTERNAL_SKILLS", frozenset({"knowledge-bootstrap"})
+        )
+
+        changed, created = sync_provider("agents", create_missing=True)
+
+        assert "knowledge-bootstrap" in created
+        assert (providers["agents"] / "knowledge-bootstrap" / "SKILL.md").exists()
+
+    def test_no_id_guard_prevents_creation(self, tmp_path, monkeypatch):
+        """Canonical without S-XX heading must NOT generate a provider file."""
+        providers = self._setup(tmp_path, monkeypatch, "bad-skill", NO_ID_CANONICAL)
+
+        changed, created = sync_provider("agents", create_missing=True)
+
+        assert "bad-skill" not in created
+        assert not (providers["agents"] / "bad-skill" / "SKILL.md").exists()
+
+    def test_skip_slugs_respected(self, tmp_path, monkeypatch):
+        """Skills listed in SKIP_SLUGS must not be created."""
+        providers = self._setup(tmp_path, monkeypatch, "translate-batch", STANDARD_CANONICAL)
+        monkeypatch.setattr(
+            sync_providers, "SKIP_SLUGS", {"claude": {"translate-batch"}}
+        )
+
+        changed, created = sync_provider("claude", create_missing=True)
+
+        assert "translate-batch" not in created
+        assert not (providers["claude"] / "translate-batch.md").exists()
+
+    def test_dry_run_does_not_write(self, tmp_path, monkeypatch):
+        """dry_run=True must report the file but NOT create it on disk."""
+        providers = self._setup(tmp_path, monkeypatch, "test-skill", STANDARD_CANONICAL)
+
+        changed, created = sync_provider("agents", dry_run=True, create_missing=True)
+
+        assert "test-skill" in created
+        assert not (providers["agents"] / "test-skill" / "SKILL.md").exists()
