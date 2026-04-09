@@ -36,6 +36,13 @@ kb, and reference pages. Uses `project-phase-store` (S-10) for checkpoint-based 
 **Output**: `reports/plans/{family}/{platform}/site_plan.yaml`
 **Checkpoint**: `site_plan_done`
 
+**Skip condition**: If checkpoint `site_plan_done` is already `true` AND
+`reports/plans/{family}/{platform}/site_plan.yaml` exists, skip this stage.
+
+**Failure handling**: If `/site-plan` (site_planner) exits non-zero, **STOP**.
+Print the error output and do not proceed to Stage 1. Resolve the site-plan
+failure before continuing the launch.
+
 This stage computes all content slugs from the knowledge model via `site_planner.py`:
 - **Blog slugs**: 2 mandatory posts + 1 optional deep-dive (present when total_claims >= 500
   and top cluster has snippet_count >= 3)
@@ -87,6 +94,9 @@ If only 1 platform subdirectory exists (first launch), skip — family page was 
 ---
 
 ### STAGE 2 — Blog Posts
+**Pre-condition**: Verify `reports/plans/{family}/{platform}/site_plan.yaml` exists.
+If missing, STOP and re-run Stage 0.5.
+
 **Read**: `reports/plans/{family}/{platform}/site_plan.yaml` → `sections.blog.pages`
 
 **Commands**: For each entry with `page_class: generated`, run in order:
@@ -110,6 +120,9 @@ already exists AND its `index.md` passes audit (0 FAIL)
 ---
 
 ### STAGE 3 — Documentation Pages
+**Pre-condition**: Verify `reports/plans/{family}/{platform}/site_plan.yaml` exists.
+If missing, STOP and re-run Stage 0.5.
+
 **Read**: `reports/plans/{family}/{platform}/site_plan.yaml` → `sections.docs.pages`
 
 **Commands**:
@@ -134,6 +147,9 @@ automatically if `_index.md` already has `linktitle`, `layout: list`, and `{{< s
 ---
 
 ### STAGE 4 — KB Articles
+**Pre-condition**: Verify `reports/plans/{family}/{platform}/site_plan.yaml` exists.
+If missing, STOP and re-run Stage 0.5.
+
 **Read**: `reports/plans/{family}/{platform}/site_plan.yaml` → `sections.kb.pages`
 
 **Commands**:
