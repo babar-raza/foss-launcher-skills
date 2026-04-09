@@ -26,7 +26,7 @@ in AGENTS.md §3 (Mental Model Refresh Protocol).
 | Site | Config | Content |
 |------|--------|---------|
 | docs.aspose.org | `configs/docs.aspose.org.toml` | `content/docs.aspose.org/en/{family}/{platform}/` |
-| blog.aspose.org | `configs/blog.aspose.org.toml` | `content/blog.aspose.org/{family}/{platform}/` |
+| blog.aspose.org | `configs/blog.aspose.org.yml` | `content/blog.aspose.org/{family}/{platform}/` |
 | kb.aspose.org | `configs/kb.aspose.org.toml` | `content/kb.aspose.org/en/{family}/{platform}/` |
 | products.aspose.org | `configs/products.aspose.org.toml` | `content/products.aspose.org/en/{family}/` |
 | reference.aspose.org | `configs/reference.aspose.org.toml` | `content/reference.aspose.org/en/{family}/{platform}/` |

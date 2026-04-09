@@ -801,7 +801,7 @@ Before any product launch (new family/platform going live), run the automated ga
 python scripts/pipeline/launch_gate.py {family} {platform}
 ```
 
-All 8 automated gates must report PASS before a product is considered launch-eligible.
+All 9 automated gates must report PASS before a product is considered launch-eligible.
 
 | Gate | ID | What it checks | Fail behavior |
 |------|----|----------------|---------------|
@@ -813,6 +813,7 @@ All 8 automated gates must report PASS before a product is considered launch-eli
 | Knowledge reconciliation | L-06 | `promote.py` reconciliation passes (no format/claim contradiction) | FAIL — fix formats.json or claims |
 | Pipeline tests | L-07 | `pytest` on `scripts/pipeline/tests/` exits 0 | FAIL — fix broken test |
 | Provenance coverage | L-08 | All English content files with a provenance block have `content_origin` set | FAIL — fix skill template or run provenance_backfill.py |
+| Hugo build | L-09 | `hugo --config configs/products.aspose.org.toml` exits 0 | FAIL — fix YAML/template errors (does not verify rendering completeness) |
 
 **Fail-closed policy**: Any FAIL blocks launch. WARN does not block launch but must be logged.
 
