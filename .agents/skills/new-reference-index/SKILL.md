@@ -73,7 +73,50 @@ Default weight for unlisted platforms: 80.
    already exists AND contains `layout: list` in frontmatter AND contains
    `{{< children >}}` in the body, print `SKIP: _index.md already complete` and stop.
 
-5. **Derive values**:
+5. **Ensure family index exists**: Check if `content/reference.aspose.org/en/{family}/_index.md` exists.
+   If it already exists, skip to step 6. If missing, create it:
+
+   a. Read `data/families_order.json` and find the 0-based index of `{family}`. Compute
+      `weight = (index + 1) * 10`. If the family is not listed, use weight 100.
+
+   b. Look up the family icon from this table:
+
+      | Family | Icon |
+      |--------|------|
+      | words | `pencil-alt` |
+      | cells | `table` |
+      | email | `mail` |
+      | slides | `presentation-chart-bar` |
+      | note | `document-text` |
+      | 3d | `cube` |
+      | pdf | `document` |
+      | *other* | `document` |
+
+   c. Write `content/reference.aspose.org/en/{family}/_index.md`:
+
+      ```
+      ---
+      title: Aspose.{Family} FOSS
+      subtitle: {5–8 word summary from model.yaml description}
+      description: "API reference for Aspose.{Family} FOSS: {top 3–4 class names} and all classes for {domain from model.yaml}."
+      icon: {icon from table above}
+      layout: wide
+      weight: {weight from step 5a}
+      provenance:
+        content_origin: unknown
+        last_mechanism: skill
+        auto_updatable: false
+        provenance_recovery_note: structural-page
+      ---
+
+      Aspose.{Family} FOSS API reference for all supported platforms. Select your platform to browse classes, methods, and properties.
+
+      {{< sections cols="4" >}}
+      ```
+
+   d. Run `attach_evidence.py` and `audit.py` on the new file (0 FAIL required).
+
+6. **Derive values**:
    - `{Platform display}` — from the Platform Display Names table above
    - `{weight}` — from the Platform Weights table above
    - `{version}` — from `model.yaml`
@@ -86,22 +129,22 @@ Default weight for unlisted platforms: 80.
      v{version} — classes, enums, and interfaces covering {same 2–4 formats/operations as
      description}."`
 
-6. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
+7. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
    - Target path: `content/reference.aspose.org/en/{family}/{platform}/_index.md`
    - If BLOCK → do not write; report the blocking reason
    - If WARN → present warning; await confirmation
    - If ALLOW → proceed
 
-7. **Write** `content/reference.aspose.org/en/{family}/{platform}/_index.md` with this exact
+8. **Write** `content/reference.aspose.org/en/{family}/{platform}/_index.md` with this exact
    structure:
 
    ```
    ---
    linkTitle: {Platform display}
    title: Aspose.{Family} FOSS for {Platform display}
-   weight: {weight from step 5}
-   description: "{description from step 5}"
-   summary: "{summary from step 5}"
+   weight: {weight from step 6}
+   description: "{description from step 6}"
+   summary: "{summary from step 6}"
    layout: list
    categories:
    - API Reference
@@ -112,7 +155,7 @@ Default weight for unlisted platforms: 80.
      provenance_recovery_note: structural-page
    ---
 
-   {body_intro from step 5}
+   {body_intro from step 6}
 
    {{< children >}}
    ```
@@ -122,18 +165,18 @@ Default weight for unlisted platforms: 80.
    by design: structural index pages receive `content_origin: unknown` with `auto_updatable: false`
    at creation time (structural-deferred classification per Phase N provenance governance).
 
-8. **Attach evidence**: Run:
+9. **Attach evidence**: Run:
    ```bash
    .venv/Scripts/python scripts/pipeline/attach_evidence.py \
      --files content/reference.aspose.org/en/{family}/{platform}/_index.md
    ```
 
-9. **Run audit**: Run:
-   ```bash
-   .venv/Scripts/python scripts/pipeline/audit.py \
-     --files content/reference.aspose.org/en/{family}/{platform}/_index.md
-   ```
-   Must exit with 0 FAIL before confirming success.
+10. **Run audit**: Run:
+    ```bash
+    .venv/Scripts/python scripts/pipeline/audit.py \
+      --files content/reference.aspose.org/en/{family}/{platform}/_index.md
+    ```
+    Must exit with 0 FAIL before confirming success.
 
-10. **Confirm** by printing the output file path and the values used for `linkTitle`, `weight`,
+11. **Confirm** by printing the output file path and the values used for `linkTitle`, `weight`,
     `version`, and the first line of the body.

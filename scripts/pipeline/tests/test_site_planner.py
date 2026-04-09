@@ -629,3 +629,59 @@ def test_no_warning_when_all_claims_allocated(caplog):
     with caplog.at_level(logging.WARNING, logger="site_planner"):
         sp.detect_clusters(claims, api_surface, [], "", family="3d")
     assert not any("stats-consistency" in r.message for r in caplog.records)
+
+
+# ---------------------------------------------------------------------------
+# Family index entry tests (FIX-03)
+# ---------------------------------------------------------------------------
+
+class TestFamilyIndexEntry:
+    """Tests for _family_index_entry() and its presence in planner output."""
+
+    def test_words_weight(self):
+        """Words is index 0 → weight 10."""
+        entry = sp._family_index_entry("docs.aspose.org", "words")
+        assert entry["weight"] == 10
+
+    def test_cells_weight(self):
+        """Cells is index 2 → weight 30."""
+        entry = sp._family_index_entry("docs.aspose.org", "cells")
+        assert entry["weight"] == 30
+
+    def test_unknown_family_weight(self):
+        """Unknown family defaults to weight 100."""
+        entry = sp._family_index_entry("docs.aspose.org", "nonexistent")
+        assert entry["weight"] == 100
+
+    def test_entry_shape(self):
+        """Entry has required keys: slug, path, type, page_class, layout, weight, mandatory."""
+        entry = sp._family_index_entry("kb.aspose.org", "words")
+        assert entry["slug"] == "_family_index"
+        assert entry["path"] == "content/kb.aspose.org/en/words/_index.md"
+        assert entry["type"] == "family-home"
+        assert entry["page_class"] == "structural"
+        assert entry["layout"] == "wide"
+        assert entry["mandatory"] is True
+
+    def test_docs_plan_contains_family_entry(self):
+        """plan_docs() output includes exactly one _family_index entry."""
+        pages = sp.plan_docs("3d", "python", clusters=[], has_license=False, license_path=None)
+        family_entries = [p for p in pages if p.get("slug") == "_family_index"]
+        assert len(family_entries) == 1
+        assert "3d/_index.md" in family_entries[0]["path"]
+
+    def test_kb_plan_contains_family_entry(self):
+        """plan_kb() output includes exactly one _family_index entry."""
+        subpkgs = ["formats", "entities"]
+        pages = _plan_kb_from_surface(subpkgs)
+        family_entries = [p for p in pages if p.get("slug") == "_family_index"]
+        assert len(family_entries) == 1
+        assert "3d/_index.md" in family_entries[0]["path"]
+
+    def test_reference_plan_contains_family_entry(self):
+        """plan_reference() output includes exactly one _family_index entry."""
+        api_surface = _make_api_surface(["formats"])
+        pages = sp.plan_reference("3d", "python", api_surface)
+        family_entries = [p for p in pages if p.get("slug") == "_family_index"]
+        assert len(family_entries) == 1
+        assert "3d/_index.md" in family_entries[0]["path"]

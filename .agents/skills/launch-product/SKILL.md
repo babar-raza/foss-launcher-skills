@@ -204,6 +204,27 @@ and evidence (`apis:`, `claims:`) are written during generation.
 
 ---
 
+### STAGE 5.5 — Family Index Verification
+
+**Purpose**: Confirm that the family-level `_index.md` files were created by
+S-70/S-69/S-71 (step 5) during Stages 3–5. Without these files the family is
+invisible in `{{< docs-families >}}` listings and sidebars.
+
+**Check**: For each of `docs.aspose.org`, `kb.aspose.org`, `reference.aspose.org`:
+1. Verify `content/{site}/en/{family}/_index.md` exists
+2. Verify it contains `layout:` in the frontmatter
+
+If any file is missing or malformed:
+`LAUNCH BLOCKED: family index missing for {site}/{family} — re-run the corresponding /new-*-index skill`
+
+**This is a read-only verification step** — it does not create files. If it fails,
+re-run the relevant platform-index skill (`/new-docs-index`, `/new-kb-index`, or
+`/new-reference-index`) which will create the family index in its step 5.
+
+**Checkpoint**: `family_indexes_verified`
+
+---
+
 ### STAGE 6 — Truth Audit
 **Command**: `/truth-audit {family} {platform}`
 **Checkpoint**: `truth_audit_done`
