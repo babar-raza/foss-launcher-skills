@@ -1,6 +1,6 @@
 ---
 name: refresh-product-page
-id: S-85
+id: S-86
 description: >
   Re-generate a single products.aspose.org landing page through the full S-61
   pipeline with no-downgrade-guard protection. Use when the generation template
@@ -12,7 +12,7 @@ args: "{family} {platform}"
 
 > Cross-skill references like `/new-products-page` refer to sibling skills in this directory.
 
-# S-85: Refresh Product Page — Re-generate Product Landing Page
+# S-86: Refresh Product Page — Re-generate Product Landing Page
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform}` — e.g. `words python` or `slides java`

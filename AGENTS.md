@@ -1636,6 +1636,7 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | page-retire | S-83 | Retire obsolete content pages via `draft: true` + `retired_at` frontmatter (Hugo standard); never deletes files; dual-signal retirement rule (cluster + claim signal); --dry-run first; backs `scripts/pipeline/retire_page.py` |
 | refresh-product | S-84 | Full post-launch product refresh orchestration: 14-step chain from S-12 (detect) through S-14, S-82, S-20, delta-dispatch, S-83, S-62 --update, S-48, S-23, S-65, S-53, progress tracking, verification gate (post_refresh_verify --verify), and S-76 (commit); early-exit if no SHA change |
 | truth-audit-content | S-85 | Line-level content truth audit against clone cache and knowledge model (read-only; decomposes pages into units, verifies each, produces gap ledger); backs `scripts/pipeline/truth_audit_content.py` |
+| refresh-product-page | S-86 | Re-generate a single products.aspose.org landing page through the full S-61 pipeline with no-downgrade-guard protection; use when S-61 template has been improved and existing pages should benefit |
 
 ### Enforcement scripts
 

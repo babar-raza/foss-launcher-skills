@@ -60,7 +60,7 @@ Source: `scripts/pipeline/sync_skills.py:INTERNAL_SKILLS`.
 
 ## Skill Catalog
 
-53 registered skills grouped by functional category. For the machine-validated registry with
+70 registered skills grouped by functional category. For the machine-validated registry with
 full descriptions, see [AGENTS.md §12](../AGENTS.md).
 
 ### Knowledge & Truth
@@ -97,6 +97,9 @@ Skills that produce new content pages.
 | S-60 | `new-reference-page` | Generate API reference pages for reference.aspose.org |
 | S-61 | `new-products-page` | Generate products.aspose.org landing pages |
 | S-62 | `batch-reference` | Bulk reference page generation for all missing classes/enums; idempotent |
+| S-69 | `new-kb-index` | Scaffold KB platform section landing page |
+| S-70 | `new-docs-index` | Scaffold docs platform section landing page |
+| S-71 | `new-reference-index` | Scaffold reference platform section landing page |
 
 ### Validation & Quality
 
@@ -116,6 +119,9 @@ Skills that verify content accuracy, quality, and structural compliance.
 | S-55 | `no-downgrade-guard` | Pre-write quality comparison to prevent content regression *(internal)* |
 | S-63 | `code-smoke` | Syntax and type-check Python code blocks in content files |
 | S-65 | `link-validate` | Validate cross-subdomain internal links in content files |
+| S-80 | `coverage-reconcile` | Trace every knowledge unit to a page disposition |
+| S-81 | `knowledge-coverage-audit` | Per-claim disposition table |
+| S-85 | `truth-audit-content` | Line-level content truth audit |
 
 ### Repair & Remediation
 
@@ -132,7 +138,10 @@ Skills that fix, heal, or improve existing content.
 | S-44 | `gap-plan` | Wave-ordered remediation planning from gap-eval findings *(internal)* |
 | S-45 | `gap-report` | Cross-product gap synthesis report |
 | S-46 | `gap-apply` | Execute wave-ordered fix specs from gap-plan output |
+| S-72 | `evidence-repair` | Repair evidence frontmatter for validator-blocked pages |
 | S-73 | `manual-edit` | Operator-directed targeted content edit: wording, frontmatter, code block, or section rewrite — single file, evidence-first, revert-on-failure |
+| S-74 | `causal-backtrack` | Causal backtracking for root-cause-driven repair |
+| S-78 | `evidence-enhance` | Improve section evidence coverage on passing pages |
 
 ### Operations & Orchestration
 
@@ -149,7 +158,15 @@ Skills that coordinate pipelines, manage translations, or support operators.
 | S-64 | `getting-started` | Fresh-clone onboarding: install deps, configure env, bootstrap knowledge, verify |
 | S-66 | `register-human-content` | Onboard a human-authored page into quality and provenance systems |
 | S-67 | `diagnose-skill-failure` | Governed diagnostic procedure when a skill or pipeline script fails |
+| S-68 | `update-registry` | Update product registry from knowledge model |
+| S-75 | `locale-patch` | Propagate targeted text fixes to locale files |
 | S-76 | `commit` | Full commit-prep workflow: inspect, categorize, plan commits, handle override tokens + content audit, stage precisely, verify tests, commit, clean up token lifecycle, print summary |
+| S-77 | `session-start` | Mandatory session initialization gate |
+| S-79 | `launch-rollback` | Revert one product's generated content files |
+| S-82 | `delta-site-plan` | Incremental site planning after knowledge update |
+| S-83 | `page-retire` | Retire obsolete content pages via Hugo draft flag |
+| S-84 | `refresh-product` | Full post-launch product refresh orchestration (14-step chain from detect through commit) |
+| S-86 | `refresh-product-page` | Re-generate a single products.aspose.org landing page through the full S-61 pipeline with no-downgrade-guard protection |
 
 ---
 

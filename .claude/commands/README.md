@@ -110,6 +110,25 @@ Source: `scripts/pipeline/sync_skills.py:KNOWN_EXCEPTIONS` and `INTERNAL_SKILLS`
 | S-65 | `link-validate` | Validation |
 | S-66 | `register-human-content` | Operations |
 | S-67 | `diagnose-skill-failure` | Operations |
+| S-68 | `update-registry` | Operations |
+| S-69 | `new-kb-index` | Generation |
+| S-70 | `new-docs-index` | Generation |
+| S-71 | `new-reference-index` | Generation |
+| S-72 | `evidence-repair` | Repair |
+| S-73 | `manual-edit` | Repair |
+| S-74 | `causal-backtrack` | Repair |
+| S-75 | `locale-patch` | Operations |
+| S-76 | `commit` | Operations |
+| S-77 | `session-start` | Operations |
+| S-78 | `evidence-enhance` | Repair |
+| S-79 | `launch-rollback` | Operations |
+| S-80 | `coverage-reconcile` | Validation |
+| S-81 | `knowledge-coverage-audit` | Validation |
+| S-82 | `delta-site-plan` | Operations |
+| S-83 | `page-retire` | Operations |
+| S-84 | `refresh-product` | Operations |
+| S-85 | `truth-audit-content` | Validation |
+| S-86 | `refresh-product-page` | Operations |
 
 ---
 
