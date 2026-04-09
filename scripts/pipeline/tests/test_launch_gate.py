@@ -19,6 +19,7 @@ from scripts.pipeline.launch_gate import (
     _ALL_GATES,
     _check_provenance_coverage,
     gate_l08_provenance_coverage,
+    gate_l09_hugo_build,
 )
 
 
@@ -193,15 +194,15 @@ class TestGateL08ProvenanceCoverage:
 class TestGateRegistry:
     """Smoke test for the _ALL_GATES registry."""
 
-    def test_gate_count_is_eight(self):
-        """_ALL_GATES must contain exactly 8 entries.
+    def test_gate_count_is_nine(self):
+        """_ALL_GATES must contain exactly 9 entries.
         If this fails, a gate was added or removed without updating this test
-        and the L-01-through-L-08 documentation."""
-        assert len(_ALL_GATES) == 8, (
-            f"Expected 8 gates, found {len(_ALL_GATES)}. "
+        and the L-01-through-L-09 documentation."""
+        assert len(_ALL_GATES) == 9, (
+            f"Expected 9 gates, found {len(_ALL_GATES)}. "
             "Update this test and launch_gate.py docstring when adding/removing gates."
         )
 
-    def test_l08_is_last_gate(self):
-        """L-08 must be the last gate in the registry (ordered by gate number)."""
-        assert _ALL_GATES[-1] is gate_l08_provenance_coverage
+    def test_l09_is_last_gate(self):
+        """L-09 must be the last gate in the registry (ordered by gate number)."""
+        assert _ALL_GATES[-1] is gate_l09_hugo_build
