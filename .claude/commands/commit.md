@@ -3,13 +3,14 @@
 **Arguments**: $ARGUMENTS
 Expected format:
 ```
-[--scope "{conventional-commits-scope}"] [--hint "{free-text guidance}"]
+[--scope "{conventional-commits-scope}"] [--hint "{free-text guidance}"] [--force-all]
 ```
 
 | Parameter | Required | Values |
 |-----------|----------|--------|
 | `--scope` | No | Conventional Commits scope prefix, e.g. `slides` or `pipeline`. Pre-populates commit type guesses. |
 | `--hint`  | No | Free-text guidance to the agent about what changed and why, e.g. `"fixed stale claim IDs in email reference pages"` |
+| `--force-all` | No | Bypass session ledger scoping and include all dirty files (emergency escape hatch). |
 
 **Examples:**
 ```
@@ -21,24 +22,28 @@ Expected format:
 
 # Content-only session
 /commit --hint "KB locale batch update for slides/python"
+
+# Emergency: commit all dirty files regardless of session ledger
+/commit --force-all --hint "manual cleanup of orphaned changes"
 ```
 
 ---
 
 ## Purpose
 
-Applies a full commit-preparation workflow to the current working tree:
+Applies a full commit-preparation workflow **scoped to the current session's touched files**.
 
 1. **Inspect** — enumerate all changed, staged, and untracked files
-2. **Categorize** — group changes into: feature, fix, refactor, docs/content, test, config/CI, hygiene
-3. **Plan** — propose 2–8 logical Conventional Commits (never "everything in one commit")
-4. **Hygiene** — verify no secrets, junk files, or accidentally staged ignore paths
-5. **Repo-specific gates** — handle override tokens for protected paths; add `Skills invoked:` to content commits
-6. **Stage with precision** — explicit file-by-file staging, never `git add -A`
-7. **Quality gates** — run tests before committing
-8. **Commit** — create each commit with imperative title + structured body
-9. **Post-commit cleanup** — stage archived override tokens; ensure working tree is clean
-10. **Final summary** — print log, per-commit breakdown, remaining items, follow-ups
+2. **Session scope** — filter candidates to session-touched files only (via session ledger)
+3. **Categorize** — group changes deterministically by path-prefix commit groups
+4. **Preview** — present commit plan with file lists and exclusion report; get confirmation
+5. **Hygiene** — verify no secrets, junk files, or accidentally staged ignore paths
+6. **Repo-specific gates** — handle override tokens for protected paths; add `Skills invoked:` to content commits
+7. **Stage with precision** — explicit file-by-file staging, never `git add -A`
+8. **Quality gates** — run tests before committing
+9. **Commit** — create each commit with imperative title + structured body
+10. **Post-commit cleanup** — stage archived override tokens; ensure working tree is clean
+11. **Final summary** — print log, per-commit breakdown, remaining items, follow-ups
 
 ---
 
@@ -64,29 +69,98 @@ git ls-files -m -o --exclude-standard
 
 Then read `.gitignore` to confirm what is intentionally excluded.
 
-Produce a **categorized change list**:
+---
 
-| Category | Description |
-|----------|-------------|
-| `feature` | New behaviour, new files, new skills/scripts |
-| `fix` | Bug corrections, stale claim repairs, broken-link fixes |
-| `refactor` | Internal restructuring with no behaviour change |
-| `docs/content` | `content/` page updates, locale translations, blog/KB/products/reference |
-| `test` | New or updated test files |
-| `config/CI` | `configs/`, `.github/`, `scripts/pipeline/` infrastructure changes |
-| `hygiene` | `.gitignore`, formatting, token lifecycle, reports cleanup |
+### A.5 — Session-scope filtering
+
+**Check for session ledger:**
+```bash
+.venv/Scripts/python scripts/pipeline/session_ledger.py current
+```
+
+**If a session ledger exists** (exit 0):
+1. Get commit candidates (session-touched ∩ git-dirty):
+   ```bash
+   .venv/Scripts/python scripts/pipeline/session_ledger.py candidates --format json
+   ```
+2. The `candidates` list is the **only** set of files eligible for commit.
+3. `excluded_dirty_at_start` files were dirty before this session — do NOT commit them.
+4. `excluded_not_in_ledger` files became dirty from an unknown source — do NOT commit them.
+5. Print both exclusion lists so the user can see what is being left out and why.
+
+**If no session ledger exists** (exit 2):
+1. **Run diagnostics BEFORE giving up** — do not assume "no session" without evidence:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/session_ledger.py diagnose
+   ```
+2. Report the diagnostic output to the user verbatim.
+3. If diagnostics confirm no active session:
+   - Warn the user: `"⚠ No session ledger active. Consider running /session-start first."`
+   - If `--force-all` was passed: proceed with ALL dirty files (legacy behavior).
+   - If `--force-all` was NOT passed: **refuse to proceed**. Print the warning and exit.
+     The user must either:
+     1. Run `/session-start` to initialize a ledger, then use `adopt` to claim files:
+        ```bash
+        .venv/Scripts/python scripts/pipeline/session_ledger.py init
+        # Adopt all dirty files:
+        .venv/Scripts/python scripts/pipeline/session_ledger.py adopt --all
+        # Or adopt by commit group:
+        .venv/Scripts/python scripts/pipeline/session_ledger.py adopt --group "content(locale)"
+        # Or adopt by glob pattern:
+        .venv/Scripts/python scripts/pipeline/session_ledger.py adopt --glob "content/kb.aspose.org/*"
+        # Or inherit a prior session's work (when continuing interrupted work):
+        .venv/Scripts/python scripts/pipeline/session_ledger.py inherit
+        # Or inherit a specific prior session:
+        .venv/Scripts/python scripts/pipeline/session_ledger.py inherit --session-id <prior-id>
+        ```
+     2. Or pass `--force-all` to bypass scoping entirely.
+
+  Use `dirty` to see all dirty files with their commit group and adoption status:
+  ```bash
+  .venv/Scripts/python scripts/pipeline/session_ledger.py dirty
+  ```
+
+**Critical**: Always capture BOTH stdout and stderr from session_ledger.py commands.
+Do not assume "no session" without actually running `current` and examining its output.
+
+**Refusal conditions** (even with a ledger):
+- If ledger is empty (session touched no files) → refuse: `"Session ledger is empty — nothing to commit."`
+- If candidates list is empty after filtering → refuse: `"No session-touched files are currently dirty."`
 
 ---
 
 ### B — Decide commit boundaries
 
-Create a **commit plan** with 2–8 commits (max). For each commit specify:
+**Get deterministic commit groups** from the session ledger classifier:
+```bash
+.venv/Scripts/python scripts/pipeline/session_ledger.py groups --format json
+```
 
-- **Conventional Commits type + scope**: `feat|fix|refactor|docs|test|chore|build|ci|perf`
-  Scope is optional but recommended: e.g. `feat(skills)`, `content(reference)`, `chore(reports)`
+This returns a JSON object mapping group names to file lists. Each group becomes one commit.
+
+**Group names** are deterministic Conventional Commits type+scope derived from path prefixes:
+- `content(docs)`, `content(kb)`, `content(reference)`, `content(products)`, `content(blog)` — English content by site
+- `content(locale)` — non-English locale translations
+- `knowledge` — knowledge model artifacts
+- `fix(pipeline)` — pipeline scripts
+- `chore(ci)`, `chore(maintenance)`, `chore(translator)`, `chore(generator)` — subsystem scripts
+- `test` — test files
+- `chore(data)` — Hugo data registry
+- `chore(misc)` — anything not matching a known prefix
+
+**Agent refinement** (optional, within group constraints):
+- The agent may further sub-scope a content group by `{family}/{platform}` when the group
+  spans multiple families. E.g., `content(docs)` with both words/python and cells/net files
+  becomes two commits: `content(words/python)` and `content(cells/net)`.
+- The agent may override the commit type (e.g., `feat` instead of `content`) when the `--hint`
+  or `--scope` indicates a feature, fix, or other type.
+- The agent may NOT add files to a commit that are not in the session ledger candidates list.
+
+**For each commit, specify:**
+- **Conventional Commits type + scope** (from group name, optionally refined)
 - **Title**: imperative mood, ≤ 72 characters
 - **Body**: bullet list of what changed + why + verification command
-- **Exact file list**: which files go into this commit (no wildcards)
+- **Exact file list**: from the group output (no wildcards, no additions outside ledger)
 
 **Split rules** (in priority order):
 1. Separate behaviour changes from formatting/whitespace-only changes.
@@ -95,6 +169,41 @@ Create a **commit plan** with 2–8 commits (max). For each commit specify:
 4. Keep mechanical renames/moves in their own commit if they cause large diff noise.
 5. Keep docs/content updates near the feature they document, unless it's a bulk content update.
 6. Hygiene commits (reports, token cleanup) go last.
+
+---
+
+### B.5 — Commit plan preview
+
+**Before any staging or committing**, present the commit plan to the user:
+
+```
+=== COMMIT PLAN (session {session_id}) ===
+
+Commit 1/N: {type(scope)}: {title}
+  Files ({count}):
+    {file1}
+    {file2}
+    ...
+  Skills invoked: [{S-xx, ...}]   ← content commits only
+
+Commit 2/N: ...
+  ...
+
+EXCLUDED (dirty before session start):
+  {file_a}
+  {file_b}
+  ...
+
+EXCLUDED (not in session ledger):
+  {file_c}
+  ...
+```
+
+**Wait for user confirmation** before proceeding to Step C.
+If the user requests changes to the plan, adjust and re-present.
+
+**Exception**: When invoked from an automated workflow (e.g., S-84 refresh-product) with
+`--auto` flag, skip the confirmation prompt and proceed directly.
 
 ---
 
@@ -264,8 +373,8 @@ under `reports/` which is gitignored and never committed. The hook moves them fr
 
 ## Post-conditions
 
-- `git status -sb` output: only `## main...origin/main [ahead N]`, no modified or untracked
-  tracked files.
+- Only session-touched files were committed (or all files if `--force-all` was used).
+- `git status -sb` may still show dirty files that were excluded (pre-existing or non-session).
 - All commits pass pre-commit hooks (no `--no-verify` used).
 - `git log --oneline -N` shows N logical, independently reviewable commits.
 - No secrets, junk files, or accidentally staged ignore paths in any commit.
@@ -276,6 +385,8 @@ under `reports/` which is gitignored and never committed. The hook moves them fr
 
 | Error | Resolution |
 |-------|-----------|
+| `No active session` / `session ledger is empty` | Run `/session-start` to initialize a session; or pass `--force-all` for legacy behavior |
+| `No session-touched files are currently dirty` | Files may have been committed already; check `git log`; or record files with `session_ledger.py record` |
 | `BLOCKED: no valid token covers path '...'` | Create override token with `override_manager.py create`, stage it, retry commit |
 | `Content API audit FAIL` | Fix stale claim ID / broken evidence in the file, `git add` the fix, retry |
 | `Forbidden path staged: ...` (token exists) | Token path list does not cover exact path string — recreate with correct paths |

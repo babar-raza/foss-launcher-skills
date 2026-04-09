@@ -12,6 +12,8 @@ from content_eval.cross_page.deduplication import (
     _MAX_COMPARISONS,
     _MAX_PARAGRAPHS_PER_PAGE,
     _extract_paragraphs,
+    _get_thresholds,
+    _is_boilerplate,
     _jaccard,
     _tokenize,
     check_deduplication,
@@ -45,6 +47,7 @@ def _make_page(
     family: str = "words",
     platform: str = "python",
     code_blocks: list | None = None,
+    page_role: str = "",
 ) -> _StubPage:
     """Build a stub page with prose_lines derived from *prose*."""
     lines = prose.splitlines()
@@ -55,6 +58,7 @@ def _make_page(
         family=family,
         platform=platform,
         code_blocks=code_blocks or [],
+        page_role=page_role,
     )
 
 
@@ -248,3 +252,113 @@ class TestCheckDeduplication:
         with caplog.at_level(logging.INFO):
             check_deduplication([pa, pb])
         assert any("cross_dedup" in r.message for r in caplog.records)
+
+
+# ---------------------------------------------------------------------------
+# Boilerplate exemption tests
+# ---------------------------------------------------------------------------
+
+class TestBoilerplateExemption:
+    def test_install_command_paragraph_is_boilerplate(self):
+        """Paragraph with pip install + using Aspose → boilerplate."""
+        text = (
+            "To get started pip install aspose-words and then "
+            "using Aspose.Words in your project to convert documents"
+        )
+        assert _is_boilerplate(text) is True
+
+    def test_normal_prose_not_boilerplate(self):
+        """Regular prose paragraph is not boilerplate."""
+        assert _is_boilerplate(LONG_PARAGRAPH) is False
+
+    def test_single_pattern_short_para_is_boilerplate(self):
+        """Short paragraph with one boilerplate pattern → boilerplate."""
+        text = "Run pip install aspose-cells to install the library"
+        assert _is_boilerplate(text) is True
+
+    def test_single_pattern_long_para_not_boilerplate(self):
+        """Long paragraph with only one pattern → not boilerplate."""
+        words = " ".join(f"word{i}" for i in range(60))
+        text = f"Run pip install aspose-cells then {words}"
+        assert _is_boilerplate(text) is False
+
+    def test_boilerplate_paragraphs_excluded_from_extraction(self):
+        """Paragraphs matching boilerplate are not extracted."""
+        boilerplate = (
+            "To get started pip install aspose-words and then "
+            "import aspose and using Aspose.Words in your project "
+            + " ".join(f"word{i}" for i in range(30))
+        )
+        page = _make_page("a.md", boilerplate)
+        paras = _extract_paragraphs(page)
+        assert len(paras) == 0
+
+    def test_identical_boilerplate_no_finding(self):
+        """Two pages sharing identical boilerplate → no finding (excluded)."""
+        boilerplate = (
+            "To install run pip install aspose-words and then "
+            "import aspose and using Aspose.Words in your code "
+            + " ".join(f"word{i}" for i in range(30))
+        )
+        pa = _make_page("a.md", boilerplate)
+        pb = _make_page("b.md", boilerplate)
+        findings = check_deduplication([pa, pb])
+        assert len(findings) == 0
+
+
+# ---------------------------------------------------------------------------
+# Role-aware threshold tests
+# ---------------------------------------------------------------------------
+
+class TestRoleAwareThresholds:
+    def test_default_thresholds(self):
+        """Non-special roles get default thresholds."""
+        fail_t, warn_t = _get_thresholds("docs", "docs")
+        assert fail_t == 0.85
+        assert warn_t == 0.70
+
+    def test_reference_vs_reference_relaxed(self):
+        """Reference pages get relaxed thresholds."""
+        fail_t, warn_t = _get_thresholds("reference", "reference")
+        assert fail_t == 0.92
+        assert warn_t == 0.80
+
+    def test_products_role_relaxed(self):
+        """Products pages get relaxed thresholds."""
+        fail_t, warn_t = _get_thresholds("products", "docs")
+        assert fail_t == 0.92
+        assert warn_t == 0.80
+
+    def test_kb_index_role_relaxed(self):
+        """KB index pages get relaxed thresholds."""
+        fail_t, warn_t = _get_thresholds("kb_index", "howto")
+        assert fail_t == 0.92
+        assert warn_t == 0.80
+
+    def test_reference_pages_high_overlap_no_warn(self):
+        """Reference pages with ~75% overlap → no finding (below relaxed WARN 0.80)."""
+        # 35 shared out of 45 → Jaccard ≈ 0.78 (below relaxed 0.80)
+        words_a = [f"word{i}" for i in range(40)]
+        words_b = words_a[:35] + [f"unique{i}" for i in range(5)]
+        pa = _make_page("a.md", " ".join(words_a), page_role="reference")
+        pb = _make_page("b.md", " ".join(words_b), page_role="reference")
+        findings = check_deduplication([pa, pb])
+        assert len(findings) == 0
+
+    def test_reference_pages_identical_still_fail(self):
+        """Reference pages with identical content still get FAIL."""
+        pa = _make_page("a.md", LONG_PARAGRAPH, page_role="reference")
+        pb = _make_page("b.md", LONG_PARAGRAPH, page_role="reference")
+        findings = check_deduplication([pa, pb])
+        assert len(findings) == 1
+        assert findings[0].level == "FAIL"
+
+    def test_docs_pages_high_overlap_still_warn(self):
+        """Docs pages with ~78% overlap → WARN (above default 0.70)."""
+        words_a = [f"word{i}" for i in range(40)]
+        words_b = words_a[:35] + [f"unique{i}" for i in range(5)]
+        pa = _make_page("a.md", " ".join(words_a), page_role="docs")
+        pb = _make_page("b.md", " ".join(words_b), page_role="docs")
+        findings = check_deduplication([pa, pb])
+        assert len(findings) == 1
+        assert findings[0].level == "WARN"

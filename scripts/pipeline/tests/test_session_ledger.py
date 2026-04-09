@@ -699,17 +699,19 @@ class TestCheckStaged:
         assert len(blocked) == 0
 
     @patch.object(session_ledger, "_git_dirty_files", return_value=[])
-    def test_cmd_check_staged_exit_codes(self, mock_dirty, isolate_session_dir, monkeypatch):
-        """CLI check-staged returns 0 when all OK, 1 when blocked."""
+    def test_cmd_check_staged_exit_0_when_all_in_ledger(self, mock_dirty, isolate_session_dir, monkeypatch):
+        """CLI check-staged returns 0 when all staged files are in the ledger."""
         session_ledger.init_session("test-cs")
         session_ledger.record_file("content/a.md", "created")
-
-        # All in ledger → exit 0
         monkeypatch.setattr("sys.stdin", __import__("io").StringIO("content/a.md\n"))
         rc = session_ledger.main(["check-staged"])
         assert rc == 0
 
-        # Unknown file → exit 1
+    @patch.object(session_ledger, "_git_dirty_files", return_value=[])
+    def test_cmd_check_staged_exit_1_when_blocked(self, mock_dirty, isolate_session_dir, monkeypatch):
+        """CLI check-staged returns 1 when staged files are NOT in the ledger."""
+        session_ledger.init_session("test-cs")
+        session_ledger.record_file("content/a.md", "created")
         monkeypatch.setattr("sys.stdin", __import__("io").StringIO("content/unknown.md\n"))
         rc = session_ledger.main(["check-staged"])
         assert rc == 1
@@ -759,3 +761,57 @@ class TestInheritCLI:
         """CLI inherit without active session returns exit 1."""
         rc = session_ledger.main(["inherit"])
         assert rc == 1
+
+    @patch.object(session_ledger, "_git_dirty_files", return_value=[])
+    def test_inherit_preserves_original_actions(self, mock_dirty, isolate_session_dir):
+        """Inherited files carry their original action, not hardcoded 'modified'."""
+        session_ledger.init_session("session-a")
+        session_ledger.record_file("content/new.md", "created", skill="S-56")
+        session_ledger.record_file("content/old.md", "deleted")
+        session_ledger.record_file("content/changed.md", "modified")
+
+        session_ledger.init_session("session-b")
+        count, paths = session_ledger.inherit_session("session-a")
+        assert count == 3
+
+        # Verify actions in session-b's manifest
+        manifest_b = json.loads(
+            (isolate_session_dir / "session-b.json").read_text(encoding="utf-8"))
+        touched = manifest_b["touched_files"]
+        assert touched["content/new.md"]["action"] == "created"
+        assert touched["content/old.md"]["action"] == "deleted"
+        assert touched["content/changed.md"]["action"] == "modified"
+
+    @patch.object(session_ledger, "_git_dirty_files", return_value=[])
+    def test_inherit_cli_invalid_session_id(self, mock_dirty, isolate_session_dir, capsys):
+        """CLI inherit with nonexistent session ID gives clear error."""
+        session_ledger.init_session("session-b")
+        rc = session_ledger.main(["inherit", "--session-id", "nonexistent-id"])
+        assert rc == 2
+        err = capsys.readouterr().err
+        assert "not found" in err
+
+
+# ---------------------------------------------------------------------------
+# _log_adopt (T2-G3 test coverage)
+# ---------------------------------------------------------------------------
+
+class TestLogAdopt:
+    @patch.object(session_ledger, "_git_dirty_files",
+                  return_value=["content/a.md", "content/b.md"])
+    def test_log_adopt_calls_session_logger(self, mock_dirty, isolate_session_dir):
+        """_log_adopt is called with adopt args and count when cmd_adopt runs."""
+        session_ledger.init_session("test-log")
+        with patch("session_ledger._log_adopt") as mock_log:
+            session_ledger.main(["adopt", "--all"])
+            mock_log.assert_called_once()
+            adopt_args, count = mock_log.call_args[0]
+            assert adopt_args == ["--all"]
+            assert count == 2
+
+    @patch.object(session_ledger, "_git_dirty_files", return_value=[])
+    def test_log_adopt_survives_import_error(self, mock_dirty, isolate_session_dir):
+        """_log_adopt silently handles missing session_logger."""
+        session_ledger.init_session("test-log")
+        # Call _log_adopt directly — it should not raise even if session_logger is unavailable
+        session_ledger._log_adopt(["--all"], 5)  # No exception = pass

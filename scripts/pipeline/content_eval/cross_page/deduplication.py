@@ -3,9 +3,17 @@
 Detects near-duplicate prose paragraphs across pages within the same
 family+platform combination. Uses Jaccard similarity on word tokens.
 
-Thresholds:
+Default thresholds:
   Jaccard >= 0.85  →  FAIL  (near-identical content)
   Jaccard >= 0.70  →  WARN  (high overlap, likely redundant)
+
+Role-aware threshold adjustments:
+  reference vs reference  →  FAIL 0.92, WARN 0.80  (higher tolerance)
+  kb_index / products     →  FAIL 0.92, WARN 0.80  (boilerplate-heavy)
+
+Boilerplate exemption:
+  Paragraphs dominated by install commands, import statements, or
+  license text are skipped (high legitimate overlap expected).
 
 Performance caps:
   _MAX_PARAGRAPHS_PER_PAGE = 15   (keep longest by token count)
@@ -29,6 +37,33 @@ _MIN_WORDS = 30  # skip paragraphs shorter than this
 _MAX_PARAGRAPHS_PER_PAGE = 15  # keep longest paragraphs per page
 _MAX_COMPARISONS = 10_000  # cap total cross-page paragraph comparisons
 
+# --- Boilerplate detection patterns ---
+_BOILERPLATE_PATTERNS = [
+    re.compile(r"pip\s+install\s+", re.IGNORECASE),
+    re.compile(r"dotnet\s+add\s+package\s+", re.IGNORECASE),
+    re.compile(r"<dependency>\s*<groupId>", re.IGNORECASE),
+    re.compile(r"npm\s+install\s+", re.IGNORECASE),
+    re.compile(r"Install-Package\s+", re.IGNORECASE),
+    re.compile(r"maven\s+repository", re.IGNORECASE),
+    re.compile(r"licensed?\s+under\s+the\s+MIT", re.IGNORECASE),
+    re.compile(r"free\s+trial\s+(version|license|download)", re.IGNORECASE),
+    re.compile(r"import\s+aspose", re.IGNORECASE),
+    re.compile(r"using\s+Aspose\.", re.IGNORECASE),
+]
+# Fraction of boilerplate-matching tokens that triggers exemption
+_BOILERPLATE_THRESHOLD = 0.40
+
+# --- Role-aware threshold matrix ---
+# Roles expected to share more legitimate boilerplate get higher thresholds.
+_HIGH_OVERLAP_ROLES = frozenset({"reference", "products", "kb_index"})
+
+# Default thresholds
+_FAIL_THRESHOLD = 0.85
+_WARN_THRESHOLD = 0.70
+# Relaxed thresholds for role pairs where legitimate overlap is expected
+_FAIL_THRESHOLD_RELAXED = 0.92
+_WARN_THRESHOLD_RELAXED = 0.80
+
 
 def _tokenize(text: str) -> set[str]:
     """Extract lowercase word tokens from prose."""
@@ -40,6 +75,23 @@ def _jaccard(a: set[str], b: set[str]) -> float:
     if not a or not b:
         return 0.0
     return len(a & b) / len(a | b)
+
+
+def _is_boilerplate(text: str) -> bool:
+    """Return True if the paragraph is dominated by boilerplate patterns."""
+    matches = sum(1 for p in _BOILERPLATE_PATTERNS if p.search(text))
+    return matches >= 2 or (matches >= 1 and len(text.split()) < 50)
+
+
+def _get_thresholds(
+    role_a: str, role_b: str,
+) -> tuple[float, float]:
+    """Return (fail_threshold, warn_threshold) for a page-role pair."""
+    if role_a in _HIGH_OVERLAP_ROLES or role_b in _HIGH_OVERLAP_ROLES:
+        return _FAIL_THRESHOLD_RELAXED, _WARN_THRESHOLD_RELAXED
+    if role_a == role_b == "reference":
+        return _FAIL_THRESHOLD_RELAXED, _WARN_THRESHOLD_RELAXED
+    return _FAIL_THRESHOLD, _WARN_THRESHOLD
 
 
 def _extract_paragraphs(page: "Page") -> list[tuple[int, str, set[str]]]:
@@ -58,29 +110,29 @@ def _extract_paragraphs(page: "Page") -> list[tuple[int, str, set[str]]]:
     current_lines: list[str] = []
     current_start = 0
 
+    def _flush():
+        if not current_lines:
+            return
+        para = " ".join(current_lines)
+        tokens = _tokenize(para)
+        if len(tokens) >= _MIN_WORDS and not _is_boilerplate(para):
+            raw.append((current_start, para, tokens))
+
     for line_no, text in page.prose_lines:
         if line_no in code_ranges:
             continue
         stripped = text.strip()
         if not stripped:
             # Blank line → flush paragraph
-            if current_lines:
-                para = " ".join(current_lines)
-                tokens = _tokenize(para)
-                if len(tokens) >= _MIN_WORDS:
-                    raw.append((current_start, para, tokens))
-                current_lines = []
+            _flush()
+            current_lines = []
             continue
         if not current_lines:
             current_start = line_no
         current_lines.append(stripped)
 
     # Flush final paragraph
-    if current_lines:
-        para = " ".join(current_lines)
-        tokens = _tokenize(para)
-        if len(tokens) >= _MIN_WORDS:
-            raw.append((current_start, para, tokens))
+    _flush()
 
     # Cap: keep longest paragraphs (by token count), stable sort on ties
     raw.sort(key=lambda t: (-len(t[2]), t[0]))
@@ -138,7 +190,12 @@ def check_deduplication(pages: list["Page"]) -> list["Finding"]:
                     break
 
                 sim = _jaccard(toka, tokb)
-                if sim < 0.70:
+
+                # Role-aware thresholds
+                fail_thresh, warn_thresh = _get_thresholds(
+                    pa.page_role, pb.page_role,
+                )
+                if sim < warn_thresh:
                     continue
 
                 # Deduplicate findings for same pair
@@ -147,7 +204,7 @@ def check_deduplication(pages: list["Page"]) -> list["Finding"]:
                     continue
                 seen.add(key)
 
-                level = "FAIL" if sim >= 0.85 else "WARN"
+                level = "FAIL" if sim >= fail_thresh else "WARN"
                 findings.append(Finding(
                     level=level,
                     category="XD",
