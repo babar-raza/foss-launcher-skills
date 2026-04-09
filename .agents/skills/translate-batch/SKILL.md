@@ -61,13 +61,23 @@ Omit `{site}` or use `all` to process all supported sites. Omit `{locales}` or u
    - `--force`: re-translate files whose translated copies are already up to date.
    - `--offline`: alias for `--provider m2m` (backward compat).
 
-5. **Monitor progress**: The translator prints progress every 10 jobs and a final summary line:
+5. **Structural completion (product pages only)**: For every translated file under
+   `content/products.aspose.org/`, run:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/complete_plugin_structure.py --files {translated_file}
+   ```
+   This inserts missing display-control sections (`supportandlearning`, `more_formats`,
+   `back_to_top`) that the translator preserves-if-present but cannot generate when the
+   English source lacked them at translation time. Idempotent — safe on pages that already
+   have all sections. Skip for non-product-site translations.
+
+6. **Monitor progress**: The translator prints progress every 10 jobs and a final summary line:
    ```
    Batch complete: N ok, N skipped, N failed
    Manifest: reports/translation/{family}-{platform}-{timestamp}.json
    ```
 
-6. **Check manifest for failures**: Read the manifest JSON from the path printed by the CLI.
+7. **Check manifest for failures**: Read the manifest JSON from the path printed by the CLI.
    - If `summary.failed == 0`: proceed to cache-stats and commit.
    - If `summary.failed > 0`: print the list of failed files with their error messages.
      Ask the operator: "N files failed translation. Retry now, commit partial, or abort?"
@@ -75,19 +85,19 @@ Omit `{site}` or use `all` to process all supported sites. Omit `{locales}` or u
      - **Commit partial**: proceed but note failures in the commit body.
      - **Abort**: stop without committing.
 
-7. **On completion**, run cache-stats to confirm cache utilisation:
+8. **On completion**, run cache-stats to confirm cache utilisation:
    ```bash
    .venv/Scripts/python -m translator cache-stats
    ```
    Print the cache statistics.
 
-8. **Spot-check translated output**: For a representative sample (up to 3 files), run `/content-check` on the translated output:
+9. **Spot-check translated output**: For a representative sample (up to 3 files), run `/content-check` on the translated output:
    ```
    /content-check content/{site}/{lang}/{family}/{platform}/{filename}
    ```
    Report any FAIL results.
 
-9. **Report results** in this format:
+10. **Report results** in this format:
    ```
    TRANSLATE BATCH — {family}/{platform}
    Site(s): {site}   Locales: {locales}
