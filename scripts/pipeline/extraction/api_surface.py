@@ -34,6 +34,7 @@ from extraction.tree_helpers import (
     find_child_by_type,
     is_public,
     node_text,
+    visibility_tier,
 )
 
 
@@ -721,6 +722,20 @@ def extract_api_surface(
 
         class_nodes = collect_nodes(root, class_types)
 
+        # S-1: Extract __all__ names for Python visibility tier
+        module_all_names: set[str] = set()
+        if language == "python":
+            for stmt in root.children:
+                if stmt.type == "assignment":
+                    lhs = child_by_field(stmt, "left")
+                    rhs = child_by_field(stmt, "right")
+                    if lhs and node_text(lhs).strip() == "__all__" and rhs:
+                        rhs_text = node_text(rhs)
+                        module_all_names = set(
+                            re.findall(r'["\'](\w+)["\']', rhs_text)
+                        )
+                        break
+
         for cnode in class_nodes:
             if not is_public(cnode, language):
                 continue
@@ -1012,6 +1027,11 @@ def extract_api_surface(
                                     f"{cname}.{fname} data member of type {ftype}",
                                     rel, member.start_point[0] + 1))
 
+            vis = visibility_tier(
+                cnode, language,
+                has_docstring=bool(cdoc),
+                in_module_all=(cname in module_all_names),
+            )
             cls_record: dict[str, Any] = {
                 "name": cname,
                 "kind": cnode.type,
@@ -1021,6 +1041,7 @@ def extract_api_surface(
                 "bases": bases,
                 "methods": methods,
                 "properties": properties,
+                "visibility": vis,
             }
             if is_enum:
                 cls_record["enum_members"] = enum_members

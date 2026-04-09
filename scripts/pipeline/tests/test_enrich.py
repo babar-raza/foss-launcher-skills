@@ -28,9 +28,11 @@ from enrich import (
     enrich,
     _build_member_doc_facts,
     _build_member_doc_prompt,
+    _build_prompt,
     _DEDUP_OVERLAP_THRESHOLD,
     _MIN_CONFIDENCE,
     _CLAIM_KINDS,
+    _VALID_PAGE_ROLES,
 )
 
 
@@ -493,3 +495,86 @@ class TestEnrichModeParameter:
                         knowledge_root=str(tmp_path / "knowledge"),
                         no_llm=True)
         assert result is True
+
+
+# ---------------------------------------------------------------------------
+# S-5: page_role field — validation, prompt, and ID stability
+# ---------------------------------------------------------------------------
+
+class TestPageRoleValidation:
+    """Test that page_role is validated correctly in _validate_claim()."""
+
+    def _api_names(self):
+        return {"workbook", "save"}
+
+    def test_valid_page_role_docs_passes(self):
+        claim = {"text": "Workbook supports xlsx.", "kind": "api",
+                 "confidence": 0.9, "page_role": "docs"}
+        assert _validate_claim(claim, self._api_names())
+
+    def test_valid_page_role_product_passes(self):
+        claim = {"text": "Workbook supports xlsx.", "kind": "api",
+                 "confidence": 0.9, "page_role": "product"}
+        assert _validate_claim(claim, self._api_names())
+
+    def test_valid_page_role_kb_passes(self):
+        claim = {"text": "Workbook supports xlsx.", "kind": "api",
+                 "confidence": 0.9, "page_role": "kb"}
+        assert _validate_claim(claim, self._api_names())
+
+    def test_valid_page_role_reference_passes(self):
+        claim = {"text": "Workbook supports xlsx.", "kind": "api",
+                 "confidence": 0.9, "page_role": "reference"}
+        assert _validate_claim(claim, self._api_names())
+
+    def test_invalid_page_role_rejected(self):
+        claim = {"text": "Workbook supports xlsx.", "kind": "api",
+                 "confidence": 0.9, "page_role": "invalid"}
+        assert not _validate_claim(claim, self._api_names())
+
+    def test_missing_page_role_passes_backward_compat(self):
+        claim = {"text": "Workbook supports xlsx.", "kind": "api",
+                 "confidence": 0.9}
+        assert _validate_claim(claim, self._api_names())
+
+    def test_missing_page_role_normalized_to_none(self):
+        claim = {"text": "Workbook supports xlsx.", "kind": "api",
+                 "confidence": 0.9}
+        _validate_claim(claim, self._api_names())
+        assert claim["page_role"] is None
+
+    def test_null_page_role_passes(self):
+        claim = {"text": "Workbook supports xlsx.", "kind": "api",
+                 "confidence": 0.9, "page_role": None}
+        assert _validate_claim(claim, self._api_names())
+
+    def test_all_valid_page_roles_accepted(self):
+        for role in _VALID_PAGE_ROLES:
+            claim = {"text": "plain text no camelcase.", "kind": "api",
+                     "confidence": 0.8, "page_role": role}
+            assert _validate_claim(claim, set()), f"page_role={role!r} should be valid"
+
+
+class TestPageRoleIdStability:
+    """page_role must NOT affect claim ID (text + kind only)."""
+
+    def test_same_id_regardless_of_page_role(self):
+        claims_a = [{"text": "Workbook loads xlsx.", "kind": "api", "page_role": "docs"}]
+        claims_b = [{"text": "Workbook loads xlsx.", "kind": "api", "page_role": "product"}]
+        claims_c = [{"text": "Workbook loads xlsx.", "kind": "api"}]
+        ra = _assign_ids(claims_a, "cells", "python")
+        rb = _assign_ids(claims_b, "cells", "python")
+        rc = _assign_ids(claims_c, "cells", "python")
+        assert ra[0]["claim_id"] == rb[0]["claim_id"] == rc[0]["claim_id"]
+
+
+class TestPageRoleInPrompt:
+    """The capability prompt should include page_role instructions."""
+
+    def test_capability_prompt_contains_page_role(self):
+        _, user = _build_prompt("words", "python", "facts", "context")
+        assert "page_role" in user
+        assert "product" in user
+        assert "docs" in user
+        assert "kb" in user
+        assert "reference" in user

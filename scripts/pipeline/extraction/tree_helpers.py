@@ -276,6 +276,36 @@ def is_public(node, language: str) -> bool:
     return True
 
 
+def visibility_tier(node, language: str, *, has_docstring: bool = False,
+                     in_module_all: bool = False) -> str:
+    """Return visibility tier for a node that already passed is_public().
+
+    Tiers (highest to lowest signal):
+      "exported"     — Explicitly exported (__all__, export keyword, Go uppercase)
+      "public"       — Explicitly public (modifier) or documented (has docstring)
+      "conventional" — Public by naming convention only (no explicit marker)
+
+    For Python, callers should pass *has_docstring* and *in_module_all* since
+    those require context beyond the tree-sitter node itself.
+    """
+    if language == "python":
+        if in_module_all:
+            return "exported"
+        if has_docstring:
+            return "public"
+        return "conventional"
+    if language in ("java", "csharp", "cpp"):
+        return "public"
+    if language in ("javascript", "typescript"):
+        parent = node.parent
+        if parent and parent.type == "export_statement":
+            return "exported"
+        return "public"
+    if language == "go":
+        return "exported"
+    return "public"
+
+
 # ---------------------------------------------------------------------------
 # Source file collection
 # ---------------------------------------------------------------------------

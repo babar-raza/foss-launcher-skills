@@ -177,6 +177,11 @@ def _run_evaluate(args):
         report.findings.extend(check_consistency(pages))
         report.evaluators_run.append("cross_page_consistency")
 
+        from .cross_page.deduplication import check_deduplication
+        _log("Running cross-page deduplication checks...")
+        report.findings.extend(check_deduplication(pages))
+        report.evaluators_run.append("cross_dedup")
+
     # Cross-family defect sweep
     if args.sweep and len(target_parts) == 2:
         from .cross_page.defect_sweep import extract_defect_signatures, run_sweep

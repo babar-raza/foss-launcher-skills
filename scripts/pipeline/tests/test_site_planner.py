@@ -598,3 +598,31 @@ def test_plan_blog_all_mandatory_posts_have_blog_role():
     for p in pages:
         if p.get("mandatory"):
             assert "blog_role" in p, f"Missing blog_role: {p}"
+
+
+# ---------------------------------------------------------------------------
+# S-4: Stats-consistency warning for orphaned claims
+# ---------------------------------------------------------------------------
+
+def test_orphaned_claims_warning(capsys):
+    """Orphaned claims (not allocated to any cluster) must produce stderr warning."""
+    api_surface = _make_api_surface(["formats", "entities"])
+    claims = _make_claims(api_surface, per_class=5)
+    # Add orphaned claims that reference no known class
+    claims.append({"kind": "feature", "text": "General library feature claim"})
+    claims.append({"kind": "format", "text": "Supports XYZ format"})
+    claims.append({"kind": "install", "text": "Install via pip"})
+
+    sp.detect_clusters(claims, api_surface, [], "", family="3d")
+    captured = capsys.readouterr()
+    assert "stats-consistency" in captured.err
+    assert "3/" in captured.err  # 3 orphaned claims
+
+
+def test_no_warning_when_all_claims_allocated(capsys):
+    """No warning when every claim maps to a cluster."""
+    api_surface = _make_api_surface(["formats"])
+    claims = _make_claims(api_surface, per_class=5)
+    sp.detect_clusters(claims, api_surface, [], "", family="3d")
+    captured = capsys.readouterr()
+    assert "stats-consistency" not in captured.err
