@@ -339,6 +339,20 @@ class FormatTruthEvaluator(BaseEvaluator):
         # --- Scan code blocks ---
         for block in page.code_blocks:
             for ext, pos in _extract_format_mentions(block.content):
+                # Skip variable-name false positives: "doc.save()", "doc = ..."
+                # A format token immediately followed by ".<letter>" or " =" is
+                # a Python identifier, not a file-extension mention.
+                tail = block.content[pos + len(ext):]
+                if tail and (
+                    re.match(r"\.[a-zA-Z]", tail)   # doc.save(), doc.get_text()
+                    or tail.lstrip().startswith("=")  # doc = Document(...)
+                ):
+                    continue
+                # Skip file-path literals: "input.docx", 'report.pdf', etc.
+                # These are I/O arguments, not capability claims.
+                pre = block.content[max(0, pos - 30) : pos]
+                if re.search(r'["\'][^"\']*\.\s*$', pre):
+                    continue
                 before = block.content[max(0, pos - 60) : pos]
                 after = block.content[pos : min(len(block.content), pos + 40)]
                 claimed_dir = _claim_direction(before + after)
