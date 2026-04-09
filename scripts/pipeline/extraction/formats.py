@@ -108,6 +108,15 @@ def detect_formats(
                 if set(fmt_bases) & _PY_ENUM_BASES:
                     is_enum = True
 
+            # Fallback: Python plain classes with ALLCAPS constants that
+            # match format_pattern but don't inherit from enum bases.
+            # Example: class SaveFormat with MARKDOWN = "markdown".
+            if (not is_enum and language == "python"
+                    and format_pattern.search(cname)):
+                trial = _extract_python_enum_members(cn)
+                if sum(1 for m in trial if m["name"].isupper()) >= 2:
+                    is_enum = True
+
             if format_pattern.search(cname):
                 # Determine direction from enum name semantics:
                 # - SaveFormat/ExportFormat → export only

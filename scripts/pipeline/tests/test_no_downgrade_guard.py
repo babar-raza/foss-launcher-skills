@@ -103,6 +103,57 @@ class TestStructuralCheck:
         pass  # Behavior depends on exact threshold — intentionally not asserted
 
 
+class TestPluginPageStructuralCheck:
+    """Test the plugin-page frontmatter section comparison."""
+
+    def _make_plugin_page(self, sections=None):
+        """Build a synthetic plugin page with given enabled sections."""
+        if sections is None:
+            sections = ["submenu", "overview", "content", "single",
+                        "supportandlearning", "more_formats", "back_to_top"]
+        parts = ["---", "layout: plugin", 'title: "Test"']
+        for s in sections:
+            parts.append(f"{s}:")
+            parts.append("  enable: true")
+        parts.append("---")
+        return "\n".join(parts)
+
+    def test_section_removed_blocks(self):
+        """Removing an enabled section from a plugin page must BLOCK."""
+        existing = self._make_plugin_page()
+        proposed = self._make_plugin_page(
+            sections=["submenu", "overview", "content", "single"]
+        )
+        result = _structural_check(existing, proposed)
+        assert result is not None
+        decision, reason = result
+        assert decision == DECISION_BLOCK
+        assert "sections removed" in reason
+
+    def test_identical_plugin_page_allows(self):
+        """Identical plugin pages should pass."""
+        page = self._make_plugin_page()
+        result = _structural_check(page, page)
+        assert result is None
+
+    def test_section_added_allows(self):
+        """Adding a new section should not trigger."""
+        existing = self._make_plugin_page(
+            sections=["submenu", "overview", "content", "single"]
+        )
+        proposed = self._make_plugin_page()
+        result = _structural_check(existing, proposed)
+        assert result is None
+
+    def test_non_plugin_page_skips_check(self):
+        """Non-plugin pages should not trigger the plugin section check."""
+        existing = "---\nlayout: family\ntitle: Test\n---\nLots of body content here.\n"
+        proposed = "---\nlayout: family\ntitle: Test\n---\n"
+        # Body shrunk but not enough to trigger word-count guard (< 50 words)
+        result = _structural_check(existing, proposed)
+        assert result is None
+
+
 class TestDecisionMatrix:
     """Test the grade-based decision matrix."""
 
