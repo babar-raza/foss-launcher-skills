@@ -282,5 +282,238 @@ class TestStateIO(unittest.TestCase):
                 self.assertEqual(loaded["findings"], [])
 
 
+class TestReverseMethodIndex(unittest.TestCase):
+    """Change A: Bare method/property resolution via reverse index."""
+
+    def _make_knowledge(self):
+        k = MagicMock()
+        k.available = True
+        k.classes = {"Document": {}, "NumberingParser": {}, "StyleParser": {}}
+        k.methods = {
+            "Document": {"save", "get_text"},
+            "NumberingParser": {"is_ordered_list", "parse"},
+            "StyleParser": {"get_style_chain"},
+        }
+        k.properties = {"Document": {"text", "range"}}
+        k.enum_members = {"SaveFormat": {"PDF", "DOCX"}}
+        k.has_method = lambda c, m: m in k.methods.get(c, set())
+        k.has_property = lambda c, p: p in k.properties.get(c, set())
+        k.repo_sha = "abc123"
+        k.version = "1.0.0"
+        return k
+
+    def test_bare_method_resolved_via_index(self):
+        """is_ordered_list() should resolve via reverse index to NumberingParser."""
+        knowledge = self._make_knowledge()
+        method_index = tac._build_method_index(knowledge)
+        claims = [{"id": "CLM-1", "text": "is_ordered_list checks if a list is ordered"}]
+        claim_index = [("CLM-1", claims[0]["text"], tac._tokenize(claims[0]["text"]))]
+        unit = {
+            "id": "U-test", "file": "test.md", "line_start": 10, "line_end": 10,
+            "type": "paragraph",
+            "text": "Use `is_ordered_list()` to distinguish ordered from unordered lists.",
+        }
+        result = tac.verify_unit(unit, knowledge, claims, [], {}, None, claim_index, method_index)
+        self.assertEqual(result["verdict"], tac.VERDICT_VERIFIED)
+
+    def test_bare_method_no_index_backward_compat(self):
+        """Without method_index, bare methods are silently skipped (old behavior)."""
+        knowledge = self._make_knowledge()
+        unit = {
+            "id": "U-test", "file": "test.md", "line_start": 10, "line_end": 10,
+            "type": "paragraph",
+            "text": "Use `is_ordered_list()` to check list ordering behavior in documents.",
+        }
+        result = tac.verify_unit(unit, knowledge, [], [], {}, None, [])
+        # Without index, bare name is skipped — falls through to overlap/unsupported
+        self.assertIn(result["verdict"],
+                      [tac.VERDICT_UNVERIFIABLE, tac.VERDICT_UNSUPPORTED])
+
+    def test_fabricated_bare_method_detected(self):
+        """A bare method not in any class should be FABRICATED via reverse index."""
+        knowledge = self._make_knowledge()
+        method_index = tac._build_method_index(knowledge)
+        unit = {
+            "id": "U-test", "file": "test.md", "line_start": 10, "line_end": 10,
+            "type": "paragraph",
+            "text": "Call `totally_fake_method()` to perform the nonexistent operation.",
+        }
+        result = tac.verify_unit(unit, knowledge, [], [], {}, None, [], method_index)
+        self.assertEqual(result["verdict"], tac.VERDICT_FABRICATED)
+        self.assertEqual(result["defect_origin"], tac.ORIGIN_GENERATION_FABRICATION)
+
+    def test_camelcase_bare_method_resolved_java(self):
+        """Java-style camelCase bare method should resolve via reverse index."""
+        knowledge = self._make_knowledge()
+        # Add a camelCase method to the mock
+        knowledge.methods["Document"] = {"save", "get_text", "getText"}
+        method_index = tac._build_method_index(knowledge)
+        claims = [{"id": "CLM-1", "text": "getText returns the document text content"}]
+        claim_index = [("CLM-1", claims[0]["text"], tac._tokenize(claims[0]["text"]))]
+        unit = {
+            "id": "U-test", "file": "test.md", "line_start": 10, "line_end": 10,
+            "type": "paragraph",
+            "text": "Call `getText()` to retrieve the full document text content.",
+        }
+        result = tac.verify_unit(unit, knowledge, claims, [], {}, None,
+                                 claim_index, method_index, platform="java")
+        self.assertEqual(result["verdict"], tac.VERDICT_VERIFIED)
+
+    def test_camelcase_fabricated_method_detected_java(self):
+        """Java-style fabricated camelCase method should be FABRICATED."""
+        knowledge = self._make_knowledge()
+        method_index = tac._build_method_index(knowledge)
+        unit = {
+            "id": "U-test", "file": "test.md", "line_start": 10, "line_end": 10,
+            "type": "paragraph",
+            "text": "Call `getNonexistentValue()` to perform the fake operation.",
+        }
+        result = tac.verify_unit(unit, knowledge, [], [], {}, None,
+                                 [], method_index, platform="java")
+        self.assertEqual(result["verdict"], tac.VERDICT_FABRICATED)
+        self.assertEqual(result["defect_origin"], tac.ORIGIN_GENERATION_FABRICATION)
+
+    def test_camelcase_ignored_for_python(self):
+        """camelCase bare names should NOT trigger on Python platform."""
+        knowledge = self._make_knowledge()
+        method_index = tac._build_method_index(knowledge)
+        unit = {
+            "id": "U-test", "file": "test.md", "line_start": 10, "line_end": 10,
+            "type": "paragraph",
+            "text": "The `getValue()` method retrieves data from the document store.",
+        }
+        result = tac.verify_unit(unit, knowledge, [], [], {}, None,
+                                 [], method_index, platform="python")
+        # Should NOT be FABRICATED — camelCase not recognized as method-like for Python
+        self.assertNotEqual(result["verdict"], tac.VERDICT_FABRICATED)
+
+
+class TestIsMethodLike(unittest.TestCase):
+    """SR-05: _is_method_like platform-aware method detection."""
+
+    def test_snake_case_all_platforms(self):
+        self.assertTrue(tac._is_method_like("get_text", "python"))
+        self.assertTrue(tac._is_method_like("get_text", "java"))
+        self.assertTrue(tac._is_method_like("get_text", ""))
+
+    def test_camelcase_java(self):
+        self.assertTrue(tac._is_method_like("getText", "java"))
+        self.assertTrue(tac._is_method_like("getValue", "net"))
+        self.assertTrue(tac._is_method_like("setWidth", "typescript"))
+
+    def test_camelcase_not_python(self):
+        self.assertFalse(tac._is_method_like("getText", "python"))
+        self.assertFalse(tac._is_method_like("getValue", ""))
+
+    def test_single_lowercase_word_false(self):
+        self.assertFalse(tac._is_method_like("filepath", "python"))
+        self.assertFalse(tac._is_method_like("stream", "java"))
+        self.assertFalse(tac._is_method_like("pip", "python"))
+
+    def test_uppercase_word_false(self):
+        """All-caps or PascalCase without interior lowercase+uppercase transition."""
+        self.assertFalse(tac._is_method_like("PDF", "java"))
+
+
+class TestClassifyUnit(unittest.TestCase):
+    """Change B: Unit classification into claim vs structural/code/reference."""
+
+    def test_classify_heading_structural(self):
+        unit = {"type": "heading", "text": "Getting Started with Document Processing"}
+        self.assertEqual(tac.classify_unit(unit), tac.CLAIM_TYPE_STRUCTURAL)
+
+    def test_classify_code_block_code(self):
+        unit = {"type": "code_block", "text": "from aspose.words import Document\ndoc = Document()"}
+        self.assertEqual(tac.classify_unit(unit), tac.CLAIM_TYPE_CODE)
+
+    def test_classify_table_header_structural(self):
+        unit = {"type": "table_row", "text": "| Name | Type | Description |"}
+        self.assertEqual(tac.classify_unit(unit), tac.CLAIM_TYPE_STRUCTURAL)
+
+    def test_classify_table_with_api_ref_claim(self):
+        unit = {"type": "table_row", "text": "| `Document.save()` | Saves the document to disk |"}
+        self.assertEqual(tac.classify_unit(unit), tac.CLAIM_TYPE_CLAIM)
+
+    def test_classify_nav_link_reference(self):
+        unit = {"type": "list_item", "text": "- [Core Management](/docs/words/python/core/) — learn how to manage"}
+        self.assertEqual(tac.classify_unit(unit), tac.CLAIM_TYPE_REFERENCE)
+
+    def test_classify_paragraph_with_api_claim(self):
+        unit = {"type": "paragraph", "text": "The `Document.save` method writes the file to the specified path."}
+        self.assertEqual(tac.classify_unit(unit), tac.CLAIM_TYPE_CLAIM)
+
+    def test_classify_short_boilerplate_structural(self):
+        unit = {"type": "paragraph", "text": "Code block style preference."}
+        self.assertEqual(tac.classify_unit(unit), tac.CLAIM_TYPE_STRUCTURAL)
+
+    def test_classify_multiword_bold_dash_reference(self):
+        """Multi-word bold terms like **Commercial use** should be reference."""
+        unit = {"type": "list_item", "text": "- **Commercial use** — integrate the library into paid products"}
+        self.assertEqual(tac.classify_unit(unit), tac.CLAIM_TYPE_REFERENCE)
+
+    def test_classify_singleword_bold_dash_still_reference(self):
+        """Single-word bold terms still match (no regression)."""
+        unit = {"type": "list_item", "text": "- **Modify** — make changes to the source"}
+        self.assertEqual(tac.classify_unit(unit), tac.CLAIM_TYPE_REFERENCE)
+
+
+class TestSummaryMetrics(unittest.TestCase):
+    """Change C: Summary includes claim_verification_rate and confidence_bands."""
+
+    def test_summary_includes_claim_rate(self):
+        """Simulated summary must contain claim_units and claim_verification_rate."""
+        # Build minimal units with claim_type and verdict fields
+        units = [
+            {"verdict": tac.VERDICT_VERIFIED, "claim_type": tac.CLAIM_TYPE_CLAIM, "confidence": 0.8},
+            {"verdict": tac.VERDICT_VERIFIED, "claim_type": tac.CLAIM_TYPE_CLAIM, "confidence": 0.5},
+            {"verdict": tac.VERDICT_UNVERIFIABLE, "claim_type": tac.CLAIM_TYPE_STRUCTURAL, "confidence": 0.0},
+            {"verdict": tac.VERDICT_UNVERIFIABLE, "claim_type": tac.CLAIM_TYPE_CODE, "confidence": 0.0},
+            {"verdict": tac.VERDICT_UNSUPPORTED, "claim_type": tac.CLAIM_TYPE_CLAIM, "confidence": 0.1},
+        ]
+        claim_units = sum(1 for u in units if u.get("claim_type") == tac.CLAIM_TYPE_CLAIM)
+        verified = sum(1 for u in units if u.get("verdict") == tac.VERDICT_VERIFIED)
+        self.assertEqual(claim_units, 3)
+        self.assertEqual(verified, 2)
+        # claim_verification_rate = 2/3 ≈ 0.667
+        rate = round(verified / claim_units, 3)
+        self.assertAlmostEqual(rate, 0.667, places=3)
+        # Confidence bands
+        high = sum(1 for u in units if u.get("verdict") == tac.VERDICT_VERIFIED and u.get("confidence", 0) >= 0.7)
+        medium = sum(1 for u in units if u.get("verdict") == tac.VERDICT_VERIFIED and 0.5 <= u.get("confidence", 0) < 0.7)
+        self.assertEqual(high, 1)
+        self.assertEqual(medium, 1)
+
+
+class TestApiRefRegex(unittest.TestCase):
+    """SR-07/G-08: _API_REF_RE must handle parens and dotted refs."""
+
+    def test_simple_identifier(self):
+        self.assertEqual(tac._API_REF_RE.findall("`Document`"), ["Document"])
+
+    def test_dotted_identifier(self):
+        self.assertEqual(tac._API_REF_RE.findall("`Document.save`"), ["Document.save"])
+
+    def test_method_with_empty_parens(self):
+        self.assertEqual(tac._API_REF_RE.findall("`Document.save()`"), ["Document.save"])
+
+    def test_method_with_args(self):
+        self.assertEqual(tac._API_REF_RE.findall("`Document.save(path)`"), ["Document.save"])
+
+    def test_bare_method_with_parens(self):
+        self.assertEqual(tac._API_REF_RE.findall("`is_ordered_list()`"), ["is_ordered_list"])
+
+    def test_no_match_expression(self):
+        """Expressions like `a + b` should not match."""
+        self.assertEqual(tac._API_REF_RE.findall("`a + b`"), [])
+
+    def test_multiple_refs_in_text(self):
+        text = "Use `Document.save()` and `PdfSaveOptions` together."
+        self.assertEqual(sorted(tac._API_REF_RE.findall(text)),
+                         ["Document.save", "PdfSaveOptions"])
+
+    def test_method_with_multiple_args(self):
+        self.assertEqual(tac._API_REF_RE.findall("`save(path, format)`"), ["save"])
+
+
 if __name__ == "__main__":
     unittest.main()
