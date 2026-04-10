@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import copy
+import importlib.util
 import logging
+import subprocess
 import sys
 from pathlib import Path
 from unittest.mock import patch, MagicMock
@@ -915,3 +917,98 @@ class TestUpdateCommand:
 
         result = vp.update_profile("test", "net", dry_run=False)
         assert result is False
+
+
+# ---------------------------------------------------------------------------
+# TC-03: cells/net profile validation round-trip integration tests
+# ---------------------------------------------------------------------------
+
+_VALIDATE_SCRIPT = str(Path(__file__).resolve().parents[2] / "gap-eval" / "validate_profile.py")
+_CLONE_CACHE = Path(__file__).resolve().parents[3] / "runs" / ".clone_cache" / "aspose_cells_net"
+_PYTHON = sys.executable
+
+
+class TestCellsNetProfileValidationRoundTrip:
+    """Integration test: validate_profile.py cells net must exit 0.
+
+    Depends on:
+    - scripts/gap-eval/profiles/cells/net.yaml existing
+    - foss-launcher/runs/.clone_cache/aspose_cells_net/ existing
+    - ('cells', 'net') registered in ALL_PRODUCTS
+
+    Clone-cache-dependent tests are skipped automatically when the cache is
+    absent (e.g. fresh CI environments without a populated cache).
+    The ALL_PRODUCTS membership test does NOT require the clone cache.
+    """
+
+    @pytest.fixture(autouse=True)
+    def skip_if_no_cache(self, request):
+        # Only skip cache-dependent tests; the static test is excluded via marker
+        if "no_cache_skip" not in request.keywords and not _CLONE_CACHE.exists():
+            pytest.skip(
+                f"Clone cache absent at {_CLONE_CACHE!r} — "
+                "integration tests skipped. Run /gap-eval cells net first."
+            )
+
+    @pytest.mark.integration
+    def test_cells_net_profile_validates_to_pass(self):
+        """validate_profile.py cells net must exit 0 and print PASS."""
+        result = subprocess.run(
+            [_PYTHON, _VALIDATE_SCRIPT, "cells", "net"],
+            capture_output=True,
+            text=True,
+        )
+        combined = result.stdout + result.stderr
+        assert result.returncode == 0, (
+            f"validate_profile.py cells net exited {result.returncode}.\n"
+            f"stdout: {result.stdout}\nstderr: {result.stderr}"
+        )
+        assert "PASS" in combined, (
+            f"Expected 'PASS' in output. Got:\n{combined}"
+        )
+
+    @pytest.mark.integration
+    def test_cells_net_passes_in_all_sweep(self):
+        """validate_profile.py --all must include cells/net as PASS.
+
+        Other profiles may have pre-existing failures (e.g. slides/java package
+        mismatch); this test only asserts cells/net is not among the failures.
+        """
+        result = subprocess.run(
+            [_PYTHON, _VALIDATE_SCRIPT, "--all"],
+            capture_output=True,
+            text=True,
+        )
+        combined = result.stdout + result.stderr
+        # cells/net must appear and must be PASS (not ERROR/FAIL)
+        assert "cells/net" in combined, (
+            f"cells/net not mentioned in --all output.\nstdout: {result.stdout}"
+        )
+        assert "PASS cells/net" in combined, (
+            f"cells/net did not PASS in --all sweep.\nOutput: {combined}"
+        )
+
+    @pytest.mark.integration
+    def test_missing_family_exits_nonzero(self):
+        """validate_profile.py for a non-existent family must exit non-zero."""
+        result = subprocess.run(
+            [_PYTHON, _VALIDATE_SCRIPT, "nonexistent", "net"],
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode != 0, (
+            "Expected non-zero exit for non-existent family 'nonexistent/net'"
+        )
+
+    @pytest.mark.no_cache_skip
+    def test_cells_net_in_all_products_list(self):
+        """('cells', 'net') must appear in ALL_PRODUCTS so --all includes it.
+
+        This test does not require the clone cache — it only imports the script.
+        """
+        spec = importlib.util.spec_from_file_location("validate_profile", _VALIDATE_SCRIPT)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        assert ("cells", "net") in mod.ALL_PRODUCTS, (
+            "('cells', 'net') not in ALL_PRODUCTS — CI gate will silently skip cells/net"
+        )
