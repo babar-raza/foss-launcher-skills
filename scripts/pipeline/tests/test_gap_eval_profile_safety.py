@@ -15,7 +15,7 @@ _GAP_EVAL_DIR = Path(__file__).resolve().parents[2] / "gap-eval"
 if str(_GAP_EVAL_DIR) not in sys.path:
     sys.path.insert(0, str(_GAP_EVAL_DIR))
 
-from validate_profile import _read_package_from_build_file, validate_profile  # type: ignore  # noqa: E402
+from validate_profile import _read_package_from_build_file, validate_profile, update_profile  # type: ignore  # noqa: E402
 from run import stage1_baseline, stage2_knowledge_validation, tier1_verify  # type: ignore  # noqa: E402
 from state import make_finding_id  # type: ignore  # noqa: E402
 
@@ -776,3 +776,142 @@ class TestCodeBlockExtractionGuard:
         # Noise block must not contribute: all claims should reference aspose
         non_aspose = [c for c in claims if "aspose" not in c.get("value", "").lower()]
         assert not non_aspose, f"Non-aspose claims from noise block: {non_aspose}"
+
+
+# ---------------------------------------------------------------------------
+# update_profile (--update command)
+# ---------------------------------------------------------------------------
+
+class TestUpdateCommand:
+    """Tests for validate_profile.update_profile() — auto-derives discovered_actuals.package_name."""
+
+    def _make_profile(self, tmp_path: Path, pkg_source: str, package_name: str | None = None) -> Path:
+        """Write a minimal profile YAML to tmp_path and return its path."""
+        import yaml
+        content: dict = {
+            "family": "test",
+            "platform": "net",
+            "version": 1,
+            "discovery_hints": {"package_source_file": pkg_source, "language": "csharp"},
+            "discovered_actuals": {"package_name": package_name},
+            "expected_sections": [{"site": "products", "mandatory": True}],
+        }
+        profile_dir = tmp_path / "profiles" / "test"
+        profile_dir.mkdir(parents=True)
+        p = profile_dir / "net.yaml"
+        p.write_text(yaml.dump(content, default_flow_style=False), encoding="utf-8")
+        return p
+
+    def _make_build_file(self, tmp_path: Path, pkg_source: str, package_id: str) -> Path:
+        """Write a .csproj build file containing the given PackageId."""
+        build_file = tmp_path / "cache" / "aspose_test_net" / pkg_source
+        build_file.parent.mkdir(parents=True, exist_ok=True)
+        build_file.write_text(f"<PackageId>{package_id}</PackageId>", encoding="utf-8")
+        return build_file
+
+    def test_writes_derived_package_name(self, tmp_path, monkeypatch):
+        """update_profile writes the package name read from the build file."""
+        import yaml
+        import validate_profile as vp
+
+        pkg_source = "src/Aspose.Test/Aspose.Test.csproj"
+        profile_path = self._make_profile(tmp_path, pkg_source, package_name=None)
+        self._make_build_file(tmp_path, pkg_source, "Aspose.Test")
+
+        monkeypatch.setattr(vp, "_PROFILES_DIR", tmp_path / "profiles")
+        monkeypatch.setattr(vp, "_clone_cache_base", lambda: tmp_path / "cache")
+
+        result = vp.update_profile("test", "net", dry_run=False)
+
+        assert result is True
+        updated = yaml.safe_load(profile_path.read_text(encoding="utf-8"))
+        assert updated["discovered_actuals"]["package_name"] == "Aspose.Test"
+
+    def test_dry_run_does_not_write(self, tmp_path, monkeypatch):
+        """--dry-run reports what would change but leaves the YAML file unmodified."""
+        import yaml
+        import validate_profile as vp
+
+        pkg_source = "src/Aspose.Test/Aspose.Test.csproj"
+        profile_path = self._make_profile(tmp_path, pkg_source, package_name="OldName")
+        self._make_build_file(tmp_path, pkg_source, "NewName")
+
+        monkeypatch.setattr(vp, "_PROFILES_DIR", tmp_path / "profiles")
+        monkeypatch.setattr(vp, "_clone_cache_base", lambda: tmp_path / "cache")
+
+        original_text = profile_path.read_text(encoding="utf-8")
+        result = vp.update_profile("test", "net", dry_run=True)
+
+        assert result is True
+        assert profile_path.read_text(encoding="utf-8") == original_text
+
+    def test_skip_when_already_up_to_date(self, tmp_path, monkeypatch):
+        """Returns True without writing when stored value already matches clone cache."""
+        import validate_profile as vp
+
+        pkg_source = "src/Aspose.Test/Aspose.Test.csproj"
+        self._make_profile(tmp_path, pkg_source, package_name="Aspose.Test")
+        self._make_build_file(tmp_path, pkg_source, "Aspose.Test")
+
+        monkeypatch.setattr(vp, "_PROFILES_DIR", tmp_path / "profiles")
+        monkeypatch.setattr(vp, "_clone_cache_base", lambda: tmp_path / "cache")
+
+        result = vp.update_profile("test", "net", dry_run=False)
+        assert result is True
+
+    def test_returns_false_when_build_file_missing(self, tmp_path, monkeypatch):
+        """Returns False (no crash) when the build file does not exist in clone cache."""
+        import validate_profile as vp
+
+        self._make_profile(tmp_path, "src/Missing.csproj", package_name=None)
+        cache = tmp_path / "cache"
+        cache.mkdir()
+
+        monkeypatch.setattr(vp, "_PROFILES_DIR", tmp_path / "profiles")
+        monkeypatch.setattr(vp, "_clone_cache_base", lambda: cache)
+
+        result = vp.update_profile("test", "net", dry_run=False)
+        assert result is False
+
+    def test_returns_false_on_os_error_from_cache(self, tmp_path, monkeypatch):
+        """Returns False (no crash) when clone cache resolution raises OSError."""
+        import validate_profile as vp
+
+        self._make_profile(tmp_path, "src/Aspose.Test/Aspose.Test.csproj", package_name=None)
+
+        def _raise():
+            raise OSError("cache unavailable")
+
+        monkeypatch.setattr(vp, "_PROFILES_DIR", tmp_path / "profiles")
+        monkeypatch.setattr(vp, "_clone_cache_base", _raise)
+
+        result = vp.update_profile("test", "net", dry_run=False)
+        assert result is False
+
+    def test_returns_false_when_profile_missing(self, tmp_path, monkeypatch):
+        """Returns False when the profile YAML does not exist."""
+        import validate_profile as vp
+
+        monkeypatch.setattr(vp, "_PROFILES_DIR", tmp_path / "profiles")
+
+        result = vp.update_profile("nonexistent", "net", dry_run=False)
+        assert result is False
+
+    def test_returns_false_when_no_package_source_hint(self, tmp_path, monkeypatch):
+        """Returns False when discovery_hints.package_source_file is absent."""
+        import yaml
+        import validate_profile as vp
+
+        profile_dir = tmp_path / "profiles" / "test"
+        profile_dir.mkdir(parents=True)
+        p = profile_dir / "net.yaml"
+        p.write_text(yaml.dump({
+            "discovery_hints": {},
+            "discovered_actuals": {},
+            "expected_sections": [],
+        }), encoding="utf-8")
+
+        monkeypatch.setattr(vp, "_PROFILES_DIR", tmp_path / "profiles")
+
+        result = vp.update_profile("test", "net", dry_run=False)
+        assert result is False
