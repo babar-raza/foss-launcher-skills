@@ -1594,7 +1594,7 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | batch-remediate | S-40 | Full eval→fix→LLM→re-eval pipeline for all content pages of a product |
 | batch-eval-fix | S-41 | Lightweight eval + deterministic auto-fixes only; no LLM pass; safe for unattended runs |
 | category-fix | S-42 | Run a specific fixer on files by category code (ST, RV, EG, RL, AA, PC, FC, PT, CP, CG) |
-| gap-eval | S-43 | Content verification against clone cache — publishability verdict |
+| gap-eval | S-43 | Content verification against clone cache — publishability verdict. CLI flags: `--deterministic` (exhaustive Stage 2 + no LLM, recommended for regression tracking/CI), `--seed N` (default 42, used when `--max-stage2-entries > 0`), `--max-stage2-entries N` (0=all, default; >0=sample N) |
 | gap-plan | S-44 | Wave-ordered remediation planning from gap-eval findings |
 | gap-report | S-45 | Cross-product gap synthesis report |
 | gap-apply | S-46 | Execute wave-ordered fix specs from gap-plan output (Wave 1 auto-fix, Wave 2 LLM-planned substitutions, Wave 3 page generation, Wave 4 human escalation) |
