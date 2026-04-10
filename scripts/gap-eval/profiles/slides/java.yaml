@@ -1,32 +1,33 @@
-family: slides
-platform: java
-version: 1
-
-discovery_hints:
-  package_source_file: pom.xml
-  package_extraction: "xpath://groupId + ':' + //artifactId"
-  language: java
-  format_source_glob: "src/**/export/*Exporter.java"
-  stub_search_hints:
-    - "throw new UnsupportedOperationException"
-    - "// not implemented"
-    - "TODO"
-  runtime_requirement_source: pom.xml
-
 discovered_actuals:
-  package_name: "org.aspose.slides.foss"
-  package_source_actual: pom.xml
   format_files_found: null
   last_baseline_sha: 44597f1a09feb16ed1b6f29a1c6b939df4415863
-
-language_conventions:
-  method_naming: camelCase
-  enum_values: UPPER_CASE
-  pass_by: reference
-
+  package_name: org.aspose.slides.foss:aspose-slides-foss
+  package_source_actual: pom.xml
+discovery_hints:
+  format_source_glob: src/**/export/*Exporter.java
+  language: java
+  package_extraction: xpath://groupId + ':' + //artifactId
+  package_source_file: pom.xml
+  runtime_requirement_source: pom.xml
+  stub_search_hints:
+  - throw new UnsupportedOperationException
+  - // not implemented
+  - TODO
 expected_sections:
-  - {site: products, mandatory: true}
-  - {site: docs, mandatory: true}
-  - {site: kb, mandatory: true}
-  - {site: reference, mandatory: true}
-  - {site: blog, mandatory: false}
+- mandatory: true
+  site: products
+- mandatory: true
+  site: docs
+- mandatory: true
+  site: kb
+- mandatory: true
+  site: reference
+- mandatory: false
+  site: blog
+family: slides
+language_conventions:
+  enum_values: UPPER_CASE
+  method_naming: camelCase
+  pass_by: reference
+platform: java
+version: 1

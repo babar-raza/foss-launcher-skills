@@ -672,7 +672,7 @@ class TestGracefulSkip:
     """Verify narrowed except clause: OSError skips gracefully; RuntimeError propagates."""
 
     def test_graceful_skip_on_os_error(self, monkeypatch, caplog):
-        """OSError from _clone_cache_base causes graceful skip with WARNING logged."""
+        """OSError from _clone_cache_base causes graceful skip with [SKIP] WARNING logged."""
         import validate_profile as vp
 
         def _raise_os():
@@ -685,11 +685,14 @@ class TestGracefulSkip:
             vp.main()  # must NOT raise
 
         assert any(
-            "skipping validation" in r.message.lower() for r in caplog.records
+            "skip" in r.message.lower() for r in caplog.records
         ), f"Expected skip warning, got: {[r.message for r in caplog.records]}"
         assert any(
             r.levelname == "WARNING" for r in caplog.records
         ), "Skip message must be at WARNING level"
+        assert any(
+            r.message.startswith("[SKIP]") for r in caplog.records
+        ), f"Skip message must start with [SKIP] for CI grep visibility: {[r.message for r in caplog.records]}"
 
     def test_propagates_unexpected_exception(self, monkeypatch):
         """RuntimeError (unexpected) must NOT be swallowed — it propagates."""
@@ -1012,3 +1015,291 @@ class TestCellsNetProfileValidationRoundTrip:
         assert ("cells", "net") in mod.ALL_PRODUCTS, (
             "('cells', 'net') not in ALL_PRODUCTS — CI gate will silently skip cells/net"
         )
+
+
+# ---------------------------------------------------------------------------
+# Track A: ImportError / ModuleNotFoundError in _clone_cache_base (GHF-TC Part IX)
+# ---------------------------------------------------------------------------
+
+class TestGracefulSkipImportError:
+    """Verify that ImportError and ModuleNotFoundError from the dynamic import in
+    _clone_cache_base() produce a [SKIP] log at WARNING rather than an unhandled crash.
+
+    Root cause: `from core.clone_cache import cache_root` inside _clone_cache_base()
+    raises ModuleNotFoundError when scripts/pipeline is absent (sparse checkout, CI
+    config error).  The except clause must now cover ImportError to skip gracefully.
+    """
+
+    def test_graceful_skip_on_import_error(self, monkeypatch, caplog):
+        """ImportError from _clone_cache_base must skip with [SKIP] WARNING, not crash."""
+        import validate_profile as vp
+
+        def _raise_import():
+            raise ImportError("core.clone_cache not importable in test env")
+
+        monkeypatch.setattr(sys, "argv", ["validate_profile.py", "--all"])
+        monkeypatch.setattr("validate_profile._clone_cache_base", _raise_import)
+
+        with caplog.at_level(logging.WARNING):
+            vp.main()  # must NOT raise
+
+        assert any(
+            r.message.startswith("[SKIP]") for r in caplog.records
+        ), f"Expected [SKIP] prefix in log, got: {[r.message for r in caplog.records]}"
+        assert any(
+            r.levelname == "WARNING" for r in caplog.records
+        ), "Skip message must be at WARNING level"
+
+    def test_graceful_skip_on_module_not_found_error(self, monkeypatch, caplog):
+        """ModuleNotFoundError (subclass of ImportError) must also skip gracefully."""
+        import validate_profile as vp
+
+        def _raise_module_not_found():
+            raise ModuleNotFoundError("No module named 'core'")
+
+        monkeypatch.setattr(sys, "argv", ["validate_profile.py", "--all"])
+        monkeypatch.setattr("validate_profile._clone_cache_base", _raise_module_not_found)
+
+        with caplog.at_level(logging.WARNING):
+            vp.main()  # must NOT raise
+
+        assert any(
+            r.message.startswith("[SKIP]") for r in caplog.records
+        ), f"Expected [SKIP] prefix in log, got: {[r.message for r in caplog.records]}"
+        assert any(
+            "skip" in r.message.lower() for r in caplog.records
+        ), "Skip message must mention 'skip'"
+
+
+# ---------------------------------------------------------------------------
+# Track B: [SKIP] prefix regression guard (GHF-TC Part IX)
+# ---------------------------------------------------------------------------
+
+class TestSkipPrefixRegression:
+    """Verify that skip log messages always begin with [SKIP].
+
+    The [SKIP] prefix is the agreed operator-visible signal for distinguishing
+    expected environment skips from actual pass results.  Removing it would make
+    silent skips invisible in CI log aggregation tools that grep for [SKIP].
+    """
+
+    def test_cache_absent_skip_has_skip_prefix(self, monkeypatch, caplog):
+        """When cache_base.exists() is False, the skip log must start with [SKIP]."""
+        import validate_profile as vp
+        from pathlib import Path as _Path
+
+        class _FakePath:
+            def exists(self) -> bool:
+                return False
+            def __truediv__(self, other):
+                return self
+            def __str__(self):
+                return "/fake/cache"
+
+        monkeypatch.setattr(sys, "argv", ["validate_profile.py", "--all"])
+        monkeypatch.setattr("validate_profile._clone_cache_base", lambda: _FakePath())
+
+        with caplog.at_level(logging.WARNING):
+            vp.main()
+
+        skip_records = [r for r in caplog.records if "skip" in r.message.lower()]
+        assert skip_records, f"Expected a skip log record, got: {[r.message for r in caplog.records]}"
+        assert all(
+            r.message.startswith("[SKIP]") for r in skip_records
+        ), f"All skip records must start with [SKIP]: {[r.message for r in skip_records]}"
+
+    def test_os_error_skip_has_skip_prefix(self, monkeypatch, caplog):
+        """OSError from _clone_cache_base: the WARNING must start with [SKIP]."""
+        import validate_profile as vp
+
+        def _raise_os():
+            raise OSError("disk not mounted")
+
+        monkeypatch.setattr(sys, "argv", ["validate_profile.py", "--all"])
+        monkeypatch.setattr("validate_profile._clone_cache_base", _raise_os)
+
+        with caplog.at_level(logging.WARNING):
+            vp.main()
+
+        skip_records = [r for r in caplog.records if r.levelname == "WARNING"]
+        assert skip_records, "Expected at least one WARNING record"
+        assert all(
+            r.message.startswith("[SKIP]") for r in skip_records
+        ), f"All WARNING records must start with [SKIP]: {[r.message for r in skip_records]}"
+
+
+# ---------------------------------------------------------------------------
+# Track C: Schema-always-validates in cache-absent environment (GHF-TC Part IX)
+# ---------------------------------------------------------------------------
+
+class TestSchemaValidationCacheAbsent:
+    """Prove that validate_schema() catches structural errors even when clone cache
+    is absent.  This is the core Track C contract: CI without caches must still block
+    on malformed profiles.
+
+    Tests use tmp_path fixtures to create real YAML files — no monkeypatching of the
+    YAML parser itself, so these tests prove end-to-end schema detection.
+    """
+
+    def _schema(self, family: str = "test", platform: str = "py") -> list[str]:
+        import validate_profile as vp
+        return vp.validate_schema(family, platform)
+
+    def test_missing_profile_file_fails(self, tmp_path, monkeypatch):
+        """If the profile YAML doesn't exist, validate_schema() must return an error."""
+        import validate_profile as vp
+        monkeypatch.setattr("validate_profile._PROFILES_DIR", tmp_path)
+
+        errors = vp.validate_schema("nonexistent", "platform")
+        assert any("missing" in e.lower() or "not found" in e.lower() for e in errors), (
+            f"Expected 'missing' or 'not found' error, got: {errors}"
+        )
+
+    def test_empty_expected_sections_fails(self, tmp_path, monkeypatch):
+        """Profile with empty expected_sections must fail schema validation."""
+        import validate_profile as vp
+        monkeypatch.setattr("validate_profile._PROFILES_DIR", tmp_path)
+
+        profile_dir = tmp_path / "myfamily"
+        profile_dir.mkdir()
+        (profile_dir / "myplatform.yaml").write_text(
+            "discovery_hints:\n"
+            "  package_source_file: setup.py\n"
+            "discovered_actuals:\n"
+            "  package_name: mypackage\n"
+            "expected_sections: []\n",
+            encoding="utf-8",
+        )
+
+        errors = vp.validate_schema("myfamily", "myplatform")
+        assert any("expected_sections" in e for e in errors), (
+            f"Expected 'expected_sections is empty' error, got: {errors}"
+        )
+
+    def test_missing_package_source_file_fails(self, tmp_path, monkeypatch):
+        """Profile missing discovery_hints.package_source_file must fail schema validation."""
+        import validate_profile as vp
+        monkeypatch.setattr("validate_profile._PROFILES_DIR", tmp_path)
+
+        profile_dir = tmp_path / "myfamily"
+        profile_dir.mkdir()
+        (profile_dir / "myplatform.yaml").write_text(
+            "discovery_hints: {}\n"
+            "discovered_actuals:\n"
+            "  package_name: mypackage\n"
+            "expected_sections:\n"
+            "  - {site: docs, mandatory: true}\n",
+            encoding="utf-8",
+        )
+
+        errors = vp.validate_schema("myfamily", "myplatform")
+        assert any("package_source_file" in e for e in errors), (
+            f"Expected package_source_file error, got: {errors}"
+        )
+
+    def test_null_package_name_fails(self, tmp_path, monkeypatch):
+        """Profile with null discovered_actuals.package_name must fail schema validation."""
+        import validate_profile as vp
+        monkeypatch.setattr("validate_profile._PROFILES_DIR", tmp_path)
+
+        profile_dir = tmp_path / "myfamily"
+        profile_dir.mkdir()
+        (profile_dir / "myplatform.yaml").write_text(
+            "discovery_hints:\n"
+            "  package_source_file: setup.py\n"
+            "discovered_actuals:\n"
+            "  package_name: null\n"
+            "expected_sections:\n"
+            "  - {site: docs, mandatory: true}\n",
+            encoding="utf-8",
+        )
+
+        errors = vp.validate_schema("myfamily", "myplatform")
+        assert any("package_name" in e for e in errors), (
+            f"Expected package_name error, got: {errors}"
+        )
+
+    def test_valid_schema_passes(self, tmp_path, monkeypatch):
+        """A well-formed profile must return zero schema errors."""
+        import validate_profile as vp
+        monkeypatch.setattr("validate_profile._PROFILES_DIR", tmp_path)
+
+        profile_dir = tmp_path / "myfamily"
+        profile_dir.mkdir()
+        (profile_dir / "myplatform.yaml").write_text(
+            "discovery_hints:\n"
+            "  package_source_file: setup.py\n"
+            "discovered_actuals:\n"
+            "  package_name: mypackage\n"
+            "expected_sections:\n"
+            "  - {site: docs, mandatory: true}\n",
+            encoding="utf-8",
+        )
+
+        errors = vp.validate_schema("myfamily", "myplatform")
+        assert errors == [], f"Expected no schema errors for valid profile, got: {errors}"
+
+    def test_schema_errors_exit1_even_with_no_cache(self, tmp_path, monkeypatch):
+        """main() with a schema-invalid profile must exit 1 even when _clone_cache_base raises ImportError.
+
+        This is the core Track C acceptance test: CI without caches must still block on
+        schema errors.  Proves the schema pass runs before and independently of cache resolution.
+        """
+        import validate_profile as vp
+
+        # Point _PROFILES_DIR to tmp_path; create ONE invalid profile
+        monkeypatch.setattr("validate_profile._PROFILES_DIR", tmp_path)
+        monkeypatch.setattr("validate_profile.ALL_PRODUCTS", [("myfamily", "myplatform")])
+
+        profile_dir = tmp_path / "myfamily"
+        profile_dir.mkdir()
+        (profile_dir / "myplatform.yaml").write_text(
+            "discovery_hints:\n"
+            "  package_source_file: setup.py\n"
+            "discovered_actuals:\n"
+            "  package_name: mypackage\n"
+            "expected_sections: []\n",  # schema error: empty
+            encoding="utf-8",
+        )
+
+        # Make _clone_cache_base raise ImportError (simulates cache-less CI)
+        def _raise_import():
+            raise ImportError("scripts/pipeline missing in test")
+
+        monkeypatch.setattr("validate_profile._clone_cache_base", _raise_import)
+        monkeypatch.setattr(sys, "argv", ["validate_profile.py", "--all"])
+
+        with pytest.raises(SystemExit) as exc_info:
+            vp.main()
+
+        assert exc_info.value.code == 1, (
+            "Schema error must cause exit 1 even when clone cache is unavailable"
+        )
+
+    def test_valid_schema_no_cache_exits0(self, tmp_path, monkeypatch):
+        """main() with a valid profile and no cache must exit 0 (no schema errors)."""
+        import validate_profile as vp
+
+        monkeypatch.setattr("validate_profile._PROFILES_DIR", tmp_path)
+        monkeypatch.setattr("validate_profile.ALL_PRODUCTS", [("myfamily", "myplatform")])
+
+        profile_dir = tmp_path / "myfamily"
+        profile_dir.mkdir()
+        (profile_dir / "myplatform.yaml").write_text(
+            "discovery_hints:\n"
+            "  package_source_file: setup.py\n"
+            "discovered_actuals:\n"
+            "  package_name: mypackage\n"
+            "expected_sections:\n"
+            "  - {site: docs, mandatory: true}\n",
+            encoding="utf-8",
+        )
+
+        def _raise_import():
+            raise ImportError("no cache in this test")
+
+        monkeypatch.setattr("validate_profile._clone_cache_base", _raise_import)
+        monkeypatch.setattr(sys, "argv", ["validate_profile.py", "--all"])
+
+        # Must NOT raise SystemExit (exits 0 via normal return)
+        vp.main()
