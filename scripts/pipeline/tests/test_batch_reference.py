@@ -639,3 +639,70 @@ class TestJavaInternalClassFilter:
     def test_frozenset_has_exactly_31_entries(self):
         """The frozenset must contain exactly 31 entries — no more, no less."""
         assert len(_br._JAVA_INTERNAL_CLASSES) == 31
+
+
+# ---------------------------------------------------------------------------
+# Tests for the file-path-based internal package filter (Part X / Fix X-1)
+# ---------------------------------------------------------------------------
+
+class TestJavaInternalPathFilter:
+    """_passes_platform_scope must reject Java entries whose `file` field
+    contains an /internal/ path segment, regardless of class name."""
+
+    _INTERNAL_FILE = "src/main/java/org/aspose/slides/foss/internal/pptx/AppPropertiesPart.java"
+    _PUBLIC_FILE   = "src/main/java/org/aspose/slides/foss/Presentation.java"
+
+    def test_internal_path_unix_sep_is_filtered(self):
+        """Entry with /internal/ in file path must be excluded for java."""
+        assert not _passes_platform_scope(
+            {"name": "AppPropertiesPart", "kind": "class_declaration",
+             "file": self._INTERNAL_FILE},
+            "java",
+        )
+
+    def test_internal_path_windows_sep_is_filtered(self):
+        r"""Entry with \internal\ (Windows separator) must also be excluded."""
+        win_path = self._INTERNAL_FILE.replace("/", "\\")
+        assert not _passes_platform_scope(
+            {"name": "NewInternalClass", "kind": "class_declaration", "file": win_path},
+            "java",
+        )
+
+    def test_public_file_path_passes(self):
+        """Entry with a non-internal file path must still be included."""
+        assert _passes_platform_scope(
+            {"name": "Presentation", "kind": "class_declaration",
+             "file": self._PUBLIC_FILE},
+            "java",
+        )
+
+    def test_blocklist_fires_even_without_file_field(self):
+        """_JAVA_INTERNAL_CLASSES name match must still reject entries with no file field."""
+        assert not _passes_platform_scope(
+            {"name": "AppPropertiesPart", "kind": "class_declaration"},
+            "java",
+        )
+
+    def test_internal_path_does_not_affect_net(self):
+        """The /internal/ file-path guard must not apply to non-Java platforms."""
+        assert _passes_platform_scope(
+            {"name": "SomeClass", "kind": "class_declaration",
+             "file": "src/internal/SomeClass.cs"},
+            "net",
+        )
+
+    def test_internal_path_does_not_affect_python(self):
+        """Same: /internal/ in file path must not block Python entries."""
+        assert _passes_platform_scope(
+            {"name": "SomeClass", "kind": "class_definition",
+             "file": "src/internal/some_class.py"},
+            "python",
+        )
+
+    def test_unknown_class_in_internal_package_filtered(self):
+        """A brand-new class name (not in blocklist) from /internal/ must be filtered."""
+        assert not _passes_platform_scope(
+            {"name": "FutureInternalClass", "kind": "class_declaration",
+             "file": "src/main/java/com/aspose/words/foss/internal/impl/FutureInternalClass.java"},
+            "java",
+        )
