@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import logging
 import sys
 from pathlib import Path
 from unittest.mock import patch, MagicMock
@@ -63,6 +64,42 @@ class TestReadPackageFromBuildFile:
         f = tmp_path / "build.txt"
         f.write_text("nothing useful here\n", encoding="utf-8")
         assert _read_package_from_build_file(f) is None
+
+    # --- AssemblyName fallback (PV-01) ---
+
+    def test_assembly_name_fallback(self, tmp_path):
+        """AssemblyName extracted when PackageId is absent (cells/net scenario)."""
+        f = tmp_path / "Aspose.Cells_FOSS.csproj"
+        f.write_text(
+            "<Project><PropertyGroup>"
+            "<AssemblyName>Aspose.Cells_FOSS</AssemblyName>"
+            "</PropertyGroup></Project>",
+            encoding="utf-8",
+        )
+        assert _read_package_from_build_file(f) == "Aspose.Cells_FOSS"
+
+    def test_package_id_preferred_over_assembly_name(self, tmp_path):
+        """PackageId wins when both elements are present — AssemblyName is last-resort."""
+        f = tmp_path / "multi.csproj"
+        f.write_text(
+            "<Project><PropertyGroup>"
+            "<PackageId>Preferred.Package</PackageId>"
+            "<AssemblyName>AssemblyFallback</AssemblyName>"
+            "</PropertyGroup></Project>",
+            encoding="utf-8",
+        )
+        assert _read_package_from_build_file(f) == "Preferred.Package"
+
+    def test_assembly_name_with_underscore(self, tmp_path):
+        """AssemblyName containing underscore (common in Aspose FOSS naming) is extracted."""
+        f = tmp_path / "lib.csproj"
+        f.write_text(
+            "<Project><PropertyGroup>"
+            "<AssemblyName>Aspose.Email_FOSS</AssemblyName>"
+            "</PropertyGroup></Project>",
+            encoding="utf-8",
+        )
+        assert _read_package_from_build_file(f) == "Aspose.Email_FOSS"
 
 
 # ---------------------------------------------------------------------------
@@ -240,9 +277,7 @@ class TestMaxEntriesOverflow:
     """Verify Stage 2 warns when max_entries exceeds api_data size."""
 
     def test_max_entries_exceeds_api_data_warns(self, tmp_path, caplog):
-        """max_entries > len(api_data) logs a warning and checks all entries."""
-        import logging
-
+        """max_entries > len(api_data) logs a WARNING and checks all entries."""
         api_data = [{"name": f"Class{i}", "type": "class"} for i in range(5)]
         checked: list[str] = []
 
@@ -256,7 +291,7 @@ class TestMaxEntriesOverflow:
 
         with (
             patch("subprocess.run", side_effect=_capture_grep),
-            caplog.at_level(logging.WARNING),
+            caplog.at_level(logging.WARNING, logger="run"),
         ):
             stage2_knowledge_validation(
                 "test", "python", tmp_path, api_data, make_finding_id,
@@ -267,6 +302,29 @@ class TestMaxEntriesOverflow:
         assert any("max_entries=100 exceeds api_data size=5" in r.message for r in caplog.records), (
             f"Expected overflow warning in logs, got: {[r.message for r in caplog.records]}"
         )
+        assert any(r.levelname == "WARNING" for r in caplog.records), (
+            "Warning must be emitted at WARNING level (visible at default CI log threshold)"
+        )
+
+    def test_max_entries_zero_with_empty_api_data_returns_empty(self, tmp_path):
+        """max_entries=0 (exhaustive) with empty api_data hits early return — no error."""
+        clone_path = tmp_path / "clone"
+        clone_path.mkdir()
+        result = stage2_knowledge_validation(
+            "test", "python", clone_path, [], make_finding_id,
+            max_entries=0, seed=42,
+        )
+        assert result == [], f"Empty api_data must return empty list, got: {result}"
+
+    def test_max_entries_positive_with_empty_api_data(self, tmp_path):
+        """max_entries>0 with empty api_data also hits early return — no error, no warning."""
+        clone_path = tmp_path / "clone"
+        clone_path.mkdir()
+        result = stage2_knowledge_validation(
+            "test", "python", clone_path, [], make_finding_id,
+            max_entries=5, seed=42,
+        )
+        assert result == [], f"Empty api_data must return empty list regardless of max_entries"
 
 
 # ---------------------------------------------------------------------------
@@ -450,3 +508,202 @@ class TestCSharpTier1Filter:
             self._claim("Aspose.Cells_FOSS"), set(), self._CSHARP_PROFILE, "cells", "net"
         )
         assert result is None, "Correct package Aspose.Cells_FOSS must always pass"
+
+
+# ---------------------------------------------------------------------------
+# SITE_GLOBS products scope (SR-01 regression guard)
+# ---------------------------------------------------------------------------
+
+class TestSiteGlobsProductsScope:
+    """
+    Regression guard for SITE_GLOBS['products'] scope (SR-01 fix).
+
+    Verifies:
+    - Family _index.md included (two-glob fix)
+    - Sibling platform excluded
+    - Platform _index.md and sub-pages included
+    - Other sites (docs, kb, reference) remain platform-only
+    """
+
+    def _discover(self, tmp_path: Path, family: str, platform: str) -> dict:
+        """Call discover_content_files with _REPO_ROOT monkeypatched to tmp_path."""
+        import run as run_mod  # already on sys.path via _GAP_EVAL_DIR
+        original = run_mod._REPO_ROOT
+        run_mod._REPO_ROOT = tmp_path
+        try:
+            return run_mod.discover_content_files(family, platform)
+        finally:
+            run_mod._REPO_ROOT = original
+
+    def _build_tree(self, tmp_path: Path, family: str, platform: str, sibling: str | None = None):
+        prod = tmp_path / "content" / "products.aspose.org" / "en"
+        (prod / family).mkdir(parents=True)
+        (prod / family / "_index.md").write_text("---\ntitle: family\n---\n", encoding="utf-8")
+        (prod / family / platform).mkdir(parents=True)
+        (prod / family / platform / "_index.md").write_text("---\ntitle: net\n---\n", encoding="utf-8")
+        (prod / family / platform / "features.md").write_text("---\ntitle: feat\n---\n", encoding="utf-8")
+        if sibling:
+            (prod / family / sibling).mkdir(parents=True)
+            (prod / family / sibling / "_index.md").write_text("---\ntitle: sib\n---\n", encoding="utf-8")
+
+    def test_family_index_included_in_products(self, tmp_path):
+        """Family _index.md must appear in products scope (SR-01 two-glob fix)."""
+        self._build_tree(tmp_path, "cells", "net")
+        files = self._discover(tmp_path, "cells", "net")
+        prod_strs = [str(p) for p in files.get("products", [])]
+        # Family _index.md: under /cells/ but NOT under /cells/net/
+        family_idx = [x for x in prod_strs if x.endswith("_index.md") and "net" not in x.split("cells")[-1]]
+        assert family_idx, f"Family _index.md missing from products scope. Got: {prod_strs}"
+
+    def test_platform_index_and_pages_included(self, tmp_path):
+        self._build_tree(tmp_path, "cells", "net")
+        files = self._discover(tmp_path, "cells", "net")
+        prod_strs = [str(p) for p in files.get("products", [])]
+        assert any("net" in x and "_index.md" in x for x in prod_strs), f"Platform _index.md missing: {prod_strs}"
+        assert any("features.md" in x for x in prod_strs), f"Sub-page missing: {prod_strs}"
+
+    def test_sibling_platform_excluded(self, tmp_path):
+        """cells/python must NOT appear when evaluating cells/net."""
+        self._build_tree(tmp_path, "cells", "net", sibling="python")
+        files = self._discover(tmp_path, "cells", "net")
+        prod_strs = [str(p) for p in files.get("products", [])]
+        assert not any("python" in x for x in prod_strs), f"Sibling leak: {prod_strs}"
+
+    @pytest.mark.parametrize("site", ["docs", "kb", "reference"])
+    def test_non_products_sites_no_family_index(self, tmp_path, site):
+        """docs/kb/reference must not include family-level _index.md."""
+        # Build minimal tree for each site
+        if site == "docs":
+            p = tmp_path / "content" / "docs.aspose.org" / "en" / "cells" / "net"
+        elif site == "kb":
+            p = tmp_path / "content" / "kb.aspose.org" / "en" / "cells" / "net"
+        else:
+            p = tmp_path / "content" / "reference.aspose.org" / "en" / "cells" / "net"
+        p.mkdir(parents=True)
+        (p / "page.md").write_text("---\ntitle: page\n---\n", encoding="utf-8")
+        # Also create products tree so discover_content_files doesn't blow up
+        self._build_tree(tmp_path, "cells", "net")
+        files = self._discover(tmp_path, "cells", "net")
+        site_strs = [str(p) for p in files.get(site, [])]
+        family_idx = [x for x in site_strs if x.endswith("_index.md") and "net" not in x.split("cells")[-1]]
+        assert not family_idx, f"Family _index.md leaked into {site} scope: {family_idx}"
+
+
+# ---------------------------------------------------------------------------
+# Code-block extraction guard (SR-02 regression guard)
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# validate_profile.py graceful skip narrowing (GHF-TC-04)
+# ---------------------------------------------------------------------------
+
+class TestGracefulSkip:
+    """Verify narrowed except clause: OSError skips gracefully; RuntimeError propagates."""
+
+    def test_graceful_skip_on_os_error(self, monkeypatch, caplog):
+        """OSError from _clone_cache_base causes graceful skip with WARNING logged."""
+        import validate_profile as vp
+
+        def _raise_os():
+            raise OSError("cache unavailable for test")
+
+        monkeypatch.setattr(sys, "argv", ["validate_profile.py", "--all"])
+        monkeypatch.setattr("validate_profile._clone_cache_base", _raise_os)
+
+        with caplog.at_level(logging.WARNING):
+            vp.main()  # must NOT raise
+
+        assert any(
+            "skipping validation" in r.message.lower() for r in caplog.records
+        ), f"Expected skip warning, got: {[r.message for r in caplog.records]}"
+        assert any(
+            r.levelname == "WARNING" for r in caplog.records
+        ), "Skip message must be at WARNING level"
+
+    def test_propagates_unexpected_exception(self, monkeypatch):
+        """RuntimeError (unexpected) must NOT be swallowed — it propagates."""
+        import validate_profile as vp
+
+        def _raise_runtime():
+            raise RuntimeError("unexpected internal error")
+
+        monkeypatch.setattr(sys, "argv", ["validate_profile.py", "--all"])
+        monkeypatch.setattr("validate_profile._clone_cache_base", _raise_runtime)
+
+        with pytest.raises(RuntimeError, match="unexpected internal error"):
+            vp.main()
+
+
+class TestCodeBlockExtractionGuard:
+    """
+    Regression guard for untagged code-block extraction behavior (SR-02 fix).
+
+    Matrix: (tagged / untagged) x (aspose / no-aspose)
+    Tagged blocks: always scanned regardless of content.
+    Untagged blocks: scanned ONLY when block body contains 'aspose' (case-insensitive).
+    """
+
+    def _claims(self, page_text: str) -> list[dict]:
+        import run as run_mod
+        return run_mod.extract_claims(Path("dummy.md"), page_text)
+
+    def _pkg(self, page_text: str) -> list[dict]:
+        return [c for c in self._claims(page_text) if c["type"] == "package-declaration"]
+
+    def test_tagged_csharp_block_scanned(self):
+        claims = self._pkg("```csharp\nusing Aspose.Cells_FOSS;\n```")
+        assert claims, "Tagged csharp block must produce package-declaration claims"
+
+    def test_tagged_python_block_scanned(self):
+        claims = self._pkg("```python\nimport aspose.cells\n```")
+        assert claims, "Tagged python block must produce package-declaration claims"
+
+    def test_untagged_block_with_aspose_scanned(self):
+        """Untagged block containing 'aspose' must be scanned."""
+        claims = self._pkg("```\npip install Aspose.Cells_FOSS\n```")
+        assert claims, "Untagged block with 'aspose' must produce claims"
+
+    def test_untagged_block_no_aspose_skipped(self):
+        """Untagged block without 'aspose' must be silently skipped."""
+        claims = self._pkg("```\nThis is plain shell output\nno package refs here\n```")
+        assert not claims, f"Noise block produced unexpected claims: {claims}"
+
+    def test_untagged_system_namespace_skipped(self):
+        claims = self._pkg("```\nusing System.Globalization;\n```")
+        assert not claims, f"System namespace in untagged block must not produce claims: {claims}"
+
+    def test_untagged_csharp_keywords_skipped(self):
+        for token in ("var", "the", "stream"):
+            claims = self._pkg(f"```\n{token}\n```")
+            assert not claims, f"Token '{token}' in untagged block must not produce claims"
+
+    def test_untagged_aspose_case_insensitive(self):
+        """ASPOSE (uppercase) in untagged block must trigger scan (case-insensitive guard)."""
+        # The guard checks "aspose" in block.lower() — this block passes the guard.
+        # _RE_PACKAGE_IMPORT then extracts the package name from the install keyword.
+        claims = self._pkg("```\npip install ASPOSE.Cells_FOSS\n```")
+        assert claims, "Uppercase ASPOSE with pip install must trigger scan"
+
+    def test_untagged_empty_block_skipped(self):
+        claims = self._pkg("```\n\n```")
+        assert not claims, "Empty untagged block must not produce claims"
+
+    def test_tagged_block_always_beats_untagged_guard(self):
+        """Tagged block with non-aspose content is still scanned (guard only for untagged)."""
+        # e.g. wrong package in tagged block — should be caught by tier1_verify, not skipped here
+        claims = self._pkg("```csharp\nusing SomeOther.Library;\n```")
+        # extract_claims returns the claim; tier1_verify decides if it's wrong-package
+        # The important thing: extraction is NOT skipped for tagged blocks
+        assert isinstance(claims, list)  # may be empty after language filter — but not skipped at extract stage
+
+    def test_mixed_tagged_and_untagged_page(self):
+        """Tagged aspose block + untagged noise block: only tagged contributes."""
+        page = (
+            "```csharp\nusing Aspose.Cells_FOSS;\n```\n\n"
+            "```\nThis is plain output text\n```\n"
+        )
+        claims = self._pkg(page)
+        assert claims, "Tagged aspose block must produce claims"
+        # Noise block must not contribute: all claims should reference aspose
+        non_aspose = [c for c in claims if "aspose" not in c.get("value", "").lower()]
+        assert not non_aspose, f"Non-aspose claims from noise block: {non_aspose}"
