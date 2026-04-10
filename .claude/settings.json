@@ -1,12 +1,32 @@
 {
   "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'rm -f .claude/.agents_read && echo \"[hook] Session gate reset — run /session-start before any task\"'"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": ".*",
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'if [ ! -f .claude/.agents_read ]; then echo \"⛔ AGENTS.md not confirmed read. Session gate: read AGENTS.md before proceeding.\"; exit 1; fi'"
+            "command": "bash -c 'if [ ! -f .claude/.agents_read ]; then echo \"⛔ AGENTS.md not confirmed read. Session gate: run /session-start before proceeding.\"; exit 1; fi'"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/ci/check_content_edit_hook.sh"
           }
         ]
       },
@@ -16,6 +36,10 @@
           {
             "type": "command",
             "command": "bash scripts/ci/check_py_write_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/check_content_write_hook.sh"
           }
         ]
       }

@@ -16,6 +16,19 @@ Do not begin any task, respond to any request, or invoke any skill until
 path error), stop and report the failure — do not proceed with cached memory
 of its contents.
 
+## Behavioral Mandates (enforced by hooks)
+
+These rules are enforced by PreToolUse hooks — violations will be auto-blocked:
+
+| Action | Required first step |
+|--------|---------------------|
+| Edit any file under `content/` | Invoke `/manual-edit` (S-73) |
+| Write any new file under `content/` | Invoke appropriate creation skill, then `/content-check` (S-23) |
+| Commit any content change | Invoke `/commit` (S-76) — never run `git commit` directly |
+
+**Inline reasoning bypass is prohibited.** If no skill covers the task, invoke the
+gap escalation protocol (§6b) — do not proceed without a registered skill.
+
 ## After Reading AGENTS.md
 
 Follow §2 (Read Order) in AGENTS.md exactly. The session start checklist is
