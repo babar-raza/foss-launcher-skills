@@ -511,6 +511,75 @@ class TestCSharpTier1Filter:
 
 
 # ---------------------------------------------------------------------------
+# C++ language filter for Tier 1 (email/cpp regression guard)
+# ---------------------------------------------------------------------------
+
+class TestCppTier1Filter:
+    """Verify C++ language-specific filters suppress false positive wrong-package findings.
+
+    C++ code uses `using namespace`, `#include`, and CMake directives — none of which
+    are competing Aspose packages.  These must not produce wrong-package findings.
+    """
+
+    _CPP_PROFILE = {
+        "discovered_actuals": {"package_name": "AsposeEmailFoss"},
+        "discovery_hints": {"language": "cpp"},
+    }
+
+    def _claim(self, value: str, context: str = "") -> dict:
+        return {
+            "type": "package-declaration",
+            "value": value,
+            "file": "test.md",
+            "line": 10,
+            "context": context,
+        }
+
+    def test_namespace_keyword_suppressed(self):
+        """C++ 'using namespace' produces token 'namespace' — must not be flagged."""
+        result = tier1_verify(
+            self._claim("namespace"), set(), self._CPP_PROFILE, "email", "cpp"
+        )
+        assert result is None, "'namespace' should not be flagged in C++ content"
+
+    def test_stdlib_include_suppressed(self):
+        """C++ using std — must not be flagged."""
+        result = tier1_verify(
+            self._claim("std"), set(), self._CPP_PROFILE, "email", "cpp"
+        )
+        assert result is None, "'std' should not be flagged in C++ content"
+
+    def test_cmake_target_without_aspose_suppressed(self):
+        """CMake identifier without 'aspose' in name — must not be flagged."""
+        result = tier1_verify(
+            self._claim("MyApp"), set(), self._CPP_PROFILE, "email", "cpp"
+        )
+        assert result is None, "CMake target 'MyApp' should not be flagged in C++ content"
+
+    def test_correct_package_always_passes(self):
+        """AsposeEmailFoss exactly matches expected_pkg — must always pass."""
+        result = tier1_verify(
+            self._claim("AsposeEmailFoss"), set(), self._CPP_PROFILE, "email", "cpp"
+        )
+        assert result is None, "Correct package AsposeEmailFoss must always pass"
+
+    def test_other_aspose_package_suppressed(self):
+        """C++ uses blanket suppression — even a different Aspose library name is not flagged.
+
+        Rationale: C++ has no package manager with import statements.  'package-declaration'
+        claims from C++ content are CMake identifiers or namespace tokens, not package imports.
+        The blanket `if _lang == 'cpp': return None` at run.py:339 handles all cases.
+        """
+        result = tier1_verify(
+            self._claim("AsposeSlideFoss"), set(), self._CPP_PROFILE, "email", "cpp"
+        )
+        assert result is None, (
+            "C++ blanket suppression must apply even to other Aspose package names — "
+            "they are CMake target references, not package imports"
+        )
+
+
+# ---------------------------------------------------------------------------
 # SITE_GLOBS products scope (SR-01 regression guard)
 # ---------------------------------------------------------------------------
 

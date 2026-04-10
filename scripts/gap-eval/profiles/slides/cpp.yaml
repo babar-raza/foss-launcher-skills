@@ -16,7 +16,7 @@ discovered_actuals:
   package_name: "aspose_slides_foss"
   package_source_actual: CMakeLists.txt
   format_files_found: null
-  last_baseline_sha: null
+  last_baseline_sha: 25adb25c8796f06d9b89cd5f8093e490091195ef
 
 language_conventions:
   method_naming: PascalCase

@@ -17,7 +17,7 @@ discovered_actuals:
   import_path: "aspose.slides_foss"
   package_source_actual: pyproject.toml
   format_files_found: null
-  last_baseline_sha: null
+  last_baseline_sha: f9541c5cbdc5c39432a624180f6a820d374fec7e
 
 language_conventions:
   method_naming: snake_case
