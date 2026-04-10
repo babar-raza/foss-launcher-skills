@@ -1594,7 +1594,7 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | batch-remediate | S-40 | Full eval→fix→LLM→re-eval pipeline for all content pages of a product |
 | batch-eval-fix | S-41 | Lightweight eval + deterministic auto-fixes only; no LLM pass; safe for unattended runs |
 | category-fix | S-42 | Run a specific fixer on files by category code (ST, RV, EG, RL, AA, PC, FC, PT, CP, CG) |
-| gap-eval | S-43 | Content verification against clone cache — publishability verdict. CLI flags: `--deterministic` (exhaustive Stage 2 + no LLM, recommended for regression tracking/CI), `--seed N` (default 42, used when `--max-stage2-entries > 0`), `--max-stage2-entries N` (0=all, default; >0=sample N) |
+| gap-eval | S-43 | Content verification against clone cache — publishability verdict. |
 | gap-plan | S-44 | Wave-ordered remediation planning from gap-eval findings |
 | gap-report | S-45 | Cross-product gap synthesis report |
 | gap-apply | S-46 | Execute wave-ordered fix specs from gap-plan output (Wave 1 auto-fix, Wave 2 LLM-planned substitutions, Wave 3 page generation, Wave 4 human escalation) |
@@ -1637,6 +1637,11 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | refresh-product | S-84 | Full post-launch product refresh orchestration: 14-step chain from S-12 (detect) through S-14, S-82, S-20, delta-dispatch, S-83, S-62 --update, S-48, S-23, S-65, S-53, progress tracking, verification gate (post_refresh_verify --verify), and S-76 (commit); early-exit if no SHA change |
 | truth-audit-content | S-85 | Line-level content truth audit against clone cache and knowledge model (read-only; decomposes pages into units, verifies each, produces gap ledger); backs `scripts/pipeline/truth_audit_content.py` |
 | refresh-product-page | S-86 | Re-generate a single products.aspose.org landing page through the full S-61 pipeline with no-downgrade-guard protection; use when S-61 template has been improved and existing pages should benefit |
+
+**S-43 (gap-eval) CLI flags:**
+- `--deterministic` — Exhaustive Stage 2 + no LLM (Tier 1 + Tier 2 only). Fully reproducible. Recommended for regression tracking and CI integration.
+- `--seed N` — Random seed for Stage 2 sampling (default: 42). Only used when `--max-stage2-entries > 0`.
+- `--max-stage2-entries N` — Stage 2 entries to check: 0 = all entries (default, exhaustive); N > 0 = sample N entries.
 
 ### Enforcement scripts
 
