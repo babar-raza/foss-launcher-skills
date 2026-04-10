@@ -92,10 +92,15 @@ def _canonical_import(platform: str, manifest: dict,
     if platform in ("net", "dotnet"):
         return f"using {name};" if name else ""
     if platform == "java":
+        # Prefer actual extracted package names (valid Java identifiers) over
+        # the Maven artifact_id which may contain hyphens (illegal in Java packages).
+        if packages:
+            common_pkg = _common_java_package(packages)
+            if common_pkg:
+                return f"import {common_pkg}.*;"
         gid = manifest.get("group_id", "")
-        aid = manifest.get("artifact_id", "")
-        if gid and aid:
-            return f"import {gid}.{aid}.*;"
+        if gid:
+            return f"import {gid}.*;"
         return ""
     if platform in ("typescript", "javascript", "nodejs"):
         return f'import {{ ... }} from "{name}";' if name else ""
@@ -140,6 +145,28 @@ def _common_cpp_namespace(packages: set[str]) -> str:
                 prefix = prefix[:i]
                 break
     return "::".join(prefix) if prefix else ""
+
+
+def _common_java_package(packages: set[str]) -> str:
+    """Find the deepest common package prefix from a set of Java package names.
+
+    Example: {"org.aspose.slides.foss", "org.aspose.slides.foss.drawing"}
+    -> "org.aspose.slides.foss"
+    """
+    if not packages:
+        return ""
+    split_pkgs = [p.split(".") for p in packages if p]
+    if not split_pkgs:
+        return ""
+    prefix = split_pkgs[0]
+    for parts in split_pkgs[1:]:
+        new_len = min(len(prefix), len(parts))
+        prefix = prefix[:new_len]
+        for i in range(new_len):
+            if prefix[i] != parts[i]:
+                prefix = prefix[:i]
+                break
+    return ".".join(prefix) if prefix else ""
 
 
 def _runtime_requirement(platform: str, manifest: dict) -> str:

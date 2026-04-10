@@ -85,20 +85,30 @@ class TestCanonicalImport:
 
     # --- Java ---
 
-    def test_java_with_group_and_artifact(self):
+    def test_java_with_packages_uses_common_prefix(self):
+        # Prefer actual extracted packages (valid Java identifiers) over group_id.artifact_id
+        result = _canonical_import("java", {
+            "group_id": "org.aspose.slides.foss",
+            "artifact_id": "aspose-slides-foss",
+        }, packages={"org.aspose.slides.foss", "org.aspose.slides.foss.drawing"})
+        assert result == "import org.aspose.slides.foss.*;"
+
+    def test_java_without_packages_falls_back_to_group_id(self):
+        # Without packages, fall back to group_id (artifact_id may contain hyphens)
         result = _canonical_import("java", {
             "group_id": "org.aspose",
             "artifact_id": "aspose-slides-foss",
         })
-        assert result == "import org.aspose.aspose-slides-foss.*;"
+        assert result == "import org.aspose.*;"
 
     def test_java_missing_group_id_returns_empty(self):
         result = _canonical_import("java", {"artifact_id": "aspose-slides-foss"})
         assert result == ""
 
-    def test_java_missing_artifact_id_returns_empty(self):
+    def test_java_missing_artifact_id_falls_back_to_group_id(self):
+        # artifact_id is no longer required; group_id alone is the fallback
         result = _canonical_import("java", {"group_id": "org.aspose"})
-        assert result == ""
+        assert result == "import org.aspose.*;"
 
     def test_java_empty_manifest_returns_empty(self):
         result = _canonical_import("java", {})
