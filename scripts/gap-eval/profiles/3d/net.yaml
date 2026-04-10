@@ -14,9 +14,10 @@ discovery_hints:
 
 discovered_actuals:
   package_name: "Aspose.3D"
+  import_path: "Aspose.ThreeD"
   package_source_actual: src/main/Aspose.ThreeD/Aspose.ThreeD.csproj
   format_files_found: null
-  last_baseline_sha: null
+  last_baseline_sha: 5257b01390b17aee0644d4ffce119e6cc7125141
 
 language_conventions:
   method_naming: PascalCase
