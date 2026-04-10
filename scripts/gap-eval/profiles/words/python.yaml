@@ -13,7 +13,7 @@ discovery_hints:
   runtime_requirement_source: pyproject.toml
 
 discovered_actuals:
-  package_name: "aspose-words-foss"
+  package_name: null  # GHF-TC-02 CI proof: null triggers validate_schema S-5 fail — WILL BE REVERTED
   import_path: "aspose.words_foss"
   package_source_actual: pyproject.toml
   format_files_found: null
