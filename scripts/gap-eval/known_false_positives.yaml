@@ -18,6 +18,99 @@
 # ---------------------------------------------------------------------------
 
 false_positives:
+  - id: BUG-3dts-001
+    reason: >
+      Tier 3 LLM incorrectly flags JSON.stringify (standard JavaScript built-in global)
+      as a library API token in 3d/typescript documentation. JSON.stringify is used
+      correctly in code examples as a JS standard global, not claimed as a library API.
+      Retracted 2026-04-10 after file inspection confirmed no erroneous library claim.
+    retracted_at: "2026-04-10"
+    matches:
+      family: 3d
+      platform: typescript
+      description_contains: "JSON.stringify"
+
+  - id: BUG-3dts-002
+    reason: >
+      Tier 3 LLM incorrectly identifies common English words ("is", "all", "file") in
+      TypeScript code comments and prose as package declarations. These words appear in
+      contextually correct documentation; they are not package names. Retracted 2026-04-10
+      after inspection confirmed all flagged lines contain correct technical prose.
+    retracted_at: "2026-04-10"
+    matches:
+      family: 3d
+      platform: typescript
+      description_contains: "package declaration with value"
+
+  - id: BUG-3dts-003
+    reason: >
+      Tier 3 LLM incorrectly identifies Node.js variable/type names ("buffer", "Buffer")
+      as package declarations in 3d/typescript documentation. Buffer is a Node.js built-in
+      type used correctly as a type annotation and variable name. Retracted 2026-04-10.
+    retracted_at: "2026-04-10"
+    matches:
+      family: 3d
+      platform: typescript
+      description_contains: "package declaration named"
+
+  - id: BUG-3dts-004
+    reason: >
+      Tier 3 LLM incorrectly identifies "magic" (from "magic bytes", standard file format
+      detection terminology) in 3d/typescript docs as a package-level declaration. "Magic
+      bytes" is correct technical vocabulary for binary format signatures. Retracted 2026-04-10.
+    retracted_at: "2026-04-10"
+    matches:
+      family: 3d
+      platform: typescript
+      description_contains: "magic"
+
+  - id: BUG-3dts-005
+    reason: >
+      Tier 3 LLM incorrectly identifies the format abbreviation "GLB" (binary glTF)
+      used in code comments as a package or module declaration in 3d/typescript docs.
+      GLB is a standard file format name. Retracted 2026-04-10.
+    retracted_at: "2026-04-10"
+    matches:
+      family: 3d
+      platform: typescript
+      description_contains: "package or module named"
+
+  - id: BUG-3dts-006
+    reason: >
+      Tier 3 LLM incorrectly identifies technical terms ("binary" from "binary magic
+      numbers") in prose as package declarations in 3d/typescript documentation.
+      Retracted 2026-04-10.
+    retracted_at: "2026-04-10"
+    matches:
+      family: 3d
+      platform: typescript
+      description_contains: "package named"
+
+  - id: BUG-3dts-007
+    reason: >
+      Tier 3 LLM incorrectly identifies common English words ("all", "file") appearing
+      near TypeScript package imports as package declaration values. These are standard
+      English words in prose/comments — "all" in iteration context, "file" in load
+      description. All match "package declaration with the value" or "let alone one with
+      the value" LLM phrasing patterns. Retracted 2026-04-10.
+    retracted_at: "2026-04-10"
+    matches:
+      family: 3d
+      platform: typescript
+      description_contains: "package declaration with the value"
+
+  - id: BUG-3dts-008
+    reason: >
+      Tier 3 LLM incorrectly identifies the word "file" in TypeScript how-to documentation
+      prose ("load an existing file") as a package declaration. The description uses the
+      phrasing "package declaration, let alone one with the value 'file'". Content is correct.
+      Retracted 2026-04-10.
+    retracted_at: "2026-04-10"
+    matches:
+      family: 3d
+      platform: typescript
+      description_contains: "package declaration, let alone"
+
   - id: BUG-enet-001
     reason: >
       knowledge/email/net/merged/limitations.md incorrectly claimed that
