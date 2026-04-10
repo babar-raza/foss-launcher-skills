@@ -1,6 +1,6 @@
 # AGENTS.md — Aspose.org Content Generation & Maintenance Governance
 
-> Last updated: 2026-04-09 (§2/§3 fix knowledge artifact paths to match actual `merged/` directory; remove nonexistent `claims.md` reference); prior: 2026-04-08 (§6f blog slug governance — features post slug is cluster-derived; banned pattern enforced by plan_blog() validator); prior: 2026-04-07 (§7a translation-staging-order governance rule; §6e ceiling-reached terminal state); prior: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline)
+> Last updated: 2026-04-10 (S-87 system-heal registered in §12, §6a DAR, §6 audit-driven healing chain; --no-tier3-cache flag documented in §12 S-43 flags); prior: 2026-04-09 (§2/§3 fix knowledge artifact paths to match actual `merged/` directory; remove nonexistent `claims.md` reference); prior: 2026-04-08 (§6f blog slug governance — features post slug is cluster-derived; banned pattern enforced by plan_blog() validator); prior: 2026-04-07 (§7a translation-staging-order governance rule; §6e ceiling-reached terminal state); prior: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline)
 > Authority: Human maintainer only (see Section 4 — this file is in the forbidden write list)
 
 ## 1. Purpose
@@ -294,6 +294,30 @@ S-12 (knowledge-diff — detect + fetch)       [exits early if no SHA change]
 Progress is tracked at `reports/refresh_state/{family}/{platform}/progress.json`.
 Check status: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --status`
 
+### Audit-driven healing (content wrong but upstream SHA unchanged)
+
+Use when S-84 exits early ("no SHA change") but content is known or suspected to be wrong.
+S-87 (system-heal) is the canonical path — do not run gap-eval manually and then patch files:
+
+```
+/system-heal {family} {platform} [--scope all|docs|products|kb|blog|reference]
+```
+
+S-87 orchestrates the 8-phase chain internally:
+```
+S-43 --no-llm (deterministic baseline)          [halts if > 50 findings → use S-44+S-46]
+→ S-43 (extended baseline: LLM + tier3_cache)
+→ origin_map.py (classify CONTENT / PIPELINE / UPSTREAM / AMBIGUOUS)
+→ Phase 4: CONTENT findings → S-74 (broken-link) | S-46 (wrong-pkg/wapi) | S-26 (wrong-claim/missing)
+→ pipeline-evidence.md (PIPELINE + HOLD bucket — human action required)
+→ S-43 (re-verify healed files; regression guard)
+→ S-76 (commit) [only if fixed > 0 and regressions == 0]
+→ final-report.md
+```
+
+AMBIGUOUS findings and findings with `tier3_non_determinism_flag: true` are never auto-repaired.
+If finding count > 50, S-87 halts and directs to S-44 (gap-plan) + S-46 (gap-apply).
+
 ### Enhancement (below rubric quality)
 
 ```
@@ -548,6 +572,8 @@ Agents must activate the upstream skill if it has not already been confirmed as 
 | `/page-retire` (S-83) | S-82 `/delta-site-plan` | When retiring from plan; or explicit operator path |
 | `/refresh-product` (S-84) | S-12 `/knowledge-diff` | Always (auto-invokes S-14, S-82, S-83 in sequence) |
 | `/truth-audit-content` (S-85) | S-54 `/knowledge-bootstrap` | Always |
+| `/system-heal` (S-87) | S-43 `/gap-eval` | Always (Phase 1 invokes gap-eval --no-llm) |
+| `/system-heal` (S-87) | S-54 `/knowledge-bootstrap` | Always (knowledge must not be stale before healing) |
 | Any content write | S-01 `/path-guard` | Always (final gate) |
 
 If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do not continue to the downstream skill.
@@ -1637,11 +1663,13 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | refresh-product | S-84 | Full post-launch product refresh orchestration: 14-step chain from S-12 (detect) through S-14, S-82, S-20, delta-dispatch, S-83, S-62 --update, S-48, S-23, S-65, S-53, progress tracking, verification gate (post_refresh_verify --verify), and S-76 (commit); early-exit if no SHA change |
 | truth-audit-content | S-85 | Line-level content truth audit against clone cache and knowledge model (read-only; decomposes pages into units, verifies each, produces gap ledger); backs `scripts/pipeline/truth_audit_content.py` |
 | refresh-product-page | S-86 | Re-generate a single products.aspose.org landing page through the full S-61 pipeline with no-downgrade-guard protection; use when S-61 template has been improved and existing pages should benefit |
+| system-heal | S-87 | Audit-driven content healing: deterministic baseline (--no-llm) → extended baseline (LLM + tier3_cache) → origin classification (origin_map.py) → content healing (S-74/S-46/S-26 by route) → pipeline evidence report → re-verify → commit or escalate; 8-phase; max 50 findings (use S-44+S-46 above that); AMBIGUOUS and tier3_non_determinism_flag findings never auto-repaired; backs `scripts/gap-eval/origin_map.py` + `scripts/gap-eval/tier3_cache.py` |
 
 **S-43 (gap-eval) CLI flags:**
 - `--deterministic` — Exhaustive Stage 2 + no LLM (Tier 1 + Tier 2 only). Fully reproducible. Recommended for regression tracking and CI integration.
 - `--seed N` — Random seed for Stage 2 sampling (default: 42). Only used when `--max-stage2-entries > 0`.
 - `--max-stage2-entries N` — Stage 2 entries to check: 0 = all entries (default, exhaustive); N > 0 = sample N entries.
+- `--no-tier3-cache` — Bypass Tier 3 result cache; force fresh LLM calls for all Tier 3 findings; write results back to cache after evaluation. Use when suspecting cache staleness or testing Tier 3 behavior. (Added with S-87/tier3_cache.py.)
 
 ### Enforcement scripts
 
