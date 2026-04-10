@@ -1,0 +1,33 @@
+family: cells
+platform: net
+version: 1
+
+discovery_hints:
+  package_source_file: src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj
+  package_extraction: "xpath://AssemblyName"
+  # Note: <PackageId> is absent in this .csproj; AssemblyName is the effective package
+  # identifier. validate_profile.py cross-check safely skips when PackageId regex returns None.
+  language: csharp
+  format_source_glob: "src/**/*Format.cs"
+  stub_search_hints:
+    - "throw new NotImplementedException"
+    - "// TODO"
+  runtime_requirement_source: src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj
+
+discovered_actuals:
+  package_name: "Aspose.Cells_FOSS"
+  package_source_actual: src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj
+  format_files_found: null
+  last_baseline_sha: 447707096215151f08c12f5b92e88212b654be7e
+
+language_conventions:
+  method_naming: PascalCase
+  enum_values: PascalCase
+  pass_by: value
+
+expected_sections:
+  - {site: products, mandatory: true}
+  - {site: docs, mandatory: true}
+  - {site: kb, mandatory: true}
+  - {site: reference, mandatory: true}
+  - {site: blog, mandatory: false}
