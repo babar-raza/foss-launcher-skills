@@ -32,11 +32,15 @@ Severity: FAIL — omitting the warning is a factual accuracy error.
 from __future__ import annotations
 
 import json
+import logging
 import re
+from functools import lru_cache
 from pathlib import Path
 from typing import List
 
 from token_ops import Finding
+
+_log = logging.getLogger(__name__)
 
 KNOWLEDGE_ROOT = Path("knowledge")
 
@@ -44,16 +48,17 @@ KNOWLEDGE_ROOT = Path("knowledge")
 # Compiled patterns
 # ---------------------------------------------------------------------------
 
-# Match a Markdown table row where the second pipe-delimited cell contains
-# `SaveFormat.NAME`.  Example rows:
-#
-#   | DOCX | `SaveFormat.DOCX` | — |
-#   | PDF  | `SaveFormat.PDF`  | `PdfSaveOptions` — ... |
-#
+# Match any Markdown table row (starts with |, has ≥1 | after the match)
+# containing `SaveFormat.NAME` in any column position.
 # Group 1 captures the format constant name (e.g. "DOCX").
 # The full match (group 0) is used for _has_warning().
+#
+# Example rows matched:
+#   | DOCX | `SaveFormat.DOCX` | — |          (SaveFormat in col 2)
+#   | `SaveFormat.DOCX` | DOCX format | — |   (SaveFormat in col 1)
+#   | DOCX | Legacy | `SaveFormat.DOCX` |     (SaveFormat in col 3)
 _SAVEFORMAT_ROW_RE = re.compile(
-    r"^\|[^|\n]*\|\s*`SaveFormat\.(\w+)`\s*\|[^|\n]*\|[^\n]*$",
+    r"^\|[^\n]*`SaveFormat\.(\w+)`[^\n]*\|[^\n]*$",
     re.MULTILINE,
 )
 
@@ -73,26 +78,47 @@ _WARNING_KEYWORDS: tuple[str, ...] = (
 # Helpers
 # ---------------------------------------------------------------------------
 
+@lru_cache(maxsize=None)
 def _load_enum_only_formats(family: str, platform: str) -> set[str]:
     """Return the set of uppercase format names marked ``direction: enum_only``.
 
-    Returns an empty set if ``formats.json`` is absent or unparseable —
-    the check silently skips rather than producing spurious findings.
+    Results are cached per ``(family, platform)`` pair for the lifetime of
+    the process — ``formats.json`` does not change during a single audit run.
+    Call ``_load_enum_only_formats.cache_clear()`` in tests to prevent state
+    bleed between test cases that write different ``formats.json`` fixtures.
+
+    Logging behaviour:
+    - ``DEBUG``: ``formats.json`` not found (expected for products with no
+      enum-only formats; not an error).
+    - ``WARNING``: ``formats.json`` exists but cannot be parsed or is not a
+      JSON list (unexpected misconfiguration; operator attention needed).
+
+    Returns an empty set on any error so callers always get a safe result.
     """
     path = KNOWLEDGE_ROOT / family / platform / "merged" / "formats.json"
     if not path.exists():
+        _log.debug(
+            "audit/formats: no formats.json at %s — FD check skipped", path
+        )
         return set()
     try:
         raw = json.loads(path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, TypeError, OSError):
+    except (json.JSONDecodeError, TypeError, OSError) as exc:
+        _log.warning(
+            "audit/formats: could not load %s (%s) — FD check skipped", path, exc
+        )
         return set()
     if not isinstance(raw, list):
+        _log.warning(
+            "audit/formats: %s is not a JSON list — FD check skipped", path
+        )
         return set()
     return {
         entry["name"].upper()
         for entry in raw
         if isinstance(entry, dict)
         and entry.get("direction") == "enum_only"
+        and isinstance(entry.get("name"), str)
         and entry.get("name")
     }
 
