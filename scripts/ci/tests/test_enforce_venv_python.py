@@ -2,7 +2,10 @@
 from __future__ import annotations
 
 import sys
+import textwrap
 from pathlib import Path
+
+import pytest
 
 _CI_ROOT = Path(__file__).resolve().parent.parent
 if str(_CI_ROOT) not in sys.path:
@@ -306,3 +309,153 @@ def test_scan_dirs_includes_canonical_skills():
     assert canonical in enforce_venv_python.SCAN_DIRS
     # Must be first entry (primary target)
     assert enforce_venv_python.SCAN_DIRS[0] == canonical
+
+
+# ---------------------------------------------------------------------------
+# GitHub Actions workflow YAML scanning
+# ---------------------------------------------------------------------------
+
+def _make_workflow(tmp_path: Path, content: str) -> Path:
+    p = tmp_path / ".github" / "workflows" / "test.yml"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(content, encoding="utf-8")
+    return p
+
+
+def test_workflow_bare_python_is_violation_without_venv_export(tmp_path):
+    """Without a $GITHUB_PATH venv export, bare `python` must be flagged."""
+    src = textwrap.dedent("""\
+        jobs:
+          ci:
+            steps:
+              - name: Run script
+                run: python scripts/ci/check_something.py
+        """)
+    p = _make_workflow(tmp_path, src)
+    viols, deny = enforce_venv_python.scan_workflow_file(p)
+    assert viols, "Expected a bare-python violation when no venv PATH export"
+    assert any("Run script" in v for v in viols)
+    assert deny == []
+
+
+def test_workflow_bare_python_with_venv_path_export_is_clean(tmp_path):
+    """With $GITHUB_PATH venv export, bare `python` routes via venv — not flagged."""
+    src = textwrap.dedent("""\
+        jobs:
+          ci:
+            steps:
+              - name: Set up .venv
+                run: |
+                  python -m venv .venv
+                  echo "$(pwd)/.venv/bin" >> $GITHUB_PATH
+                  .venv/bin/pip install pyyaml --quiet
+              - name: Run script
+                run: python scripts/ci/check_something.py
+        """)
+    p = _make_workflow(tmp_path, src)
+    viols, deny = enforce_venv_python.scan_workflow_file(p)
+    assert viols == [], f"PATH-exported venv makes bare python compliant; got: {viols}"
+    assert deny == []
+
+
+def test_workflow_explicit_venv_python_is_always_clean(tmp_path):
+    """Explicit .venv/bin/python is always clean regardless of PATH export."""
+    src = textwrap.dedent("""\
+        jobs:
+          ci:
+            steps:
+              - name: Run with venv
+                run: .venv/bin/python scripts/ci/check_something.py
+        """)
+    p = _make_workflow(tmp_path, src)
+    viols, deny = enforce_venv_python.scan_workflow_file(p)
+    assert viols == []
+    assert deny == []
+
+
+def test_workflow_venv_creation_exempt_without_path_export(tmp_path):
+    """python -m venv .venv must NOT be flagged even without a PATH export."""
+    src = textwrap.dedent("""\
+        jobs:
+          ci:
+            steps:
+              - name: Bootstrap only
+                run: python -m venv .venv
+        """)
+    p = _make_workflow(tmp_path, src)
+    viols, deny = enforce_venv_python.scan_workflow_file(p)
+    assert viols == [], f"venv creation must be exempt; got: {viols}"
+    assert deny == []
+
+
+def test_workflow_pip_install_user_is_deny_with_path_export(tmp_path):
+    """pip install --user is a DENY violation even when venv is on PATH."""
+    src = textwrap.dedent("""\
+        jobs:
+          ci:
+            steps:
+              - name: Set up .venv
+                run: |
+                  python -m venv .venv
+                  echo "$(pwd)/.venv/bin" >> $GITHUB_PATH
+              - name: Bad install
+                run: pip install pytest --user
+        """)
+    p = _make_workflow(tmp_path, src)
+    viols, deny = enforce_venv_python.scan_workflow_file(p)
+    assert deny, "DENY violation must fire even with venv on PATH"
+    assert any("--user" in d or "bypass" in d.lower() for d in deny)
+
+
+def test_workflow_pip_install_user_is_deny_without_path_export(tmp_path):
+    """pip install --user is a DENY violation when no venv setup at all."""
+    src = textwrap.dedent("""\
+        jobs:
+          ci:
+            steps:
+              - name: Bad install
+                run: pip install pytest --user
+        """)
+    p = _make_workflow(tmp_path, src)
+    viols, deny = enforce_venv_python.scan_workflow_file(p)
+    assert deny, "Expected a deny violation for --user"
+    assert any("--user" in d or "bypass" in d.lower() for d in deny)
+
+
+def test_workflow_non_run_block_python_is_ignored(tmp_path):
+    """python references in with: or uses: values must not trigger violations."""
+    src = textwrap.dedent("""\
+        jobs:
+          ci:
+            steps:
+              - name: Setup Python
+                uses: actions/setup-python@v5
+                with:
+                  python-version: '3.12'
+              - name: Run venv step
+                run: .venv/bin/python scripts/ci/do_thing.py
+        """)
+    p = _make_workflow(tmp_path, src)
+    viols, deny = enforce_venv_python.scan_workflow_file(p)
+    assert viols == [], f"with:/uses: values should be ignored; got: {viols}"
+    assert deny == []
+
+
+def test_workflow_files_are_clean():
+    """Regression guard: actual CI workflow files must have no venv violations.
+
+    Both workflows export .venv/bin to $GITHUB_PATH, so bare python calls are
+    compliant.  pip install --user or $USER_SITE would still be flagged.
+    If this test fails, the PATH export was removed or a DENY pattern was added.
+    """
+    wf_dir = enforce_venv_python.REPO_ROOT / ".github" / "workflows"
+    if not wf_dir.exists():
+        pytest.skip("No .github/workflows/ directory present")
+    all_viols: list[str] = []
+    all_deny: list[str] = []
+    for yml in sorted(wf_dir.glob("*.yml")):
+        v, d = enforce_venv_python.scan_workflow_file(yml)
+        all_viols.extend(f"{yml.name}: {x}" for x in v)
+        all_deny.extend(f"{yml.name}: {x}" for x in d)
+    assert not all_viols, "Bare python/pip violations in workflow files:\n" + "\n".join(all_viols)
+    assert not all_deny, "DENY violations in workflow files:\n" + "\n".join(all_deny)
