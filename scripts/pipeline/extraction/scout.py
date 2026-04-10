@@ -33,7 +33,11 @@ from extraction.package_manifest import parse_manifest
 from extraction.formats import detect_formats
 from extraction.claims import build_identity_claims
 from extraction.snippets import extract_snippets
-from extraction.api_surface import extract_api_surface, _JAVA_OBJECT_METHODS
+from extraction.api_surface import (
+    extract_api_surface,
+    _JAVA_OBJECT_METHODS,
+    _JAVA_DEFAULT_EXCLUDED_PACKAGE_SEGMENTS,
+)
 from extraction.outputs import write_outputs
 
 LOG = logging.getLogger("scout")
@@ -92,7 +96,15 @@ class Scout:
     # Backward-compat class attribute — tests reference scout.Scout._JAVA_OBJECT_METHODS
     _JAVA_OBJECT_METHODS = _JAVA_OBJECT_METHODS  # noqa: F841
 
-    def __init__(self, family: str, platform: str, repo: Path, output: Path):
+    def __init__(
+        self,
+        family: str,
+        platform: str,
+        repo: Path,
+        output: Path,
+        *,
+        excluded_package_segments: frozenset[str] | None = None,
+    ):
         self.family = family
         self.platform = platform
         self.repo = repo
@@ -110,6 +122,9 @@ class Scout:
         self.coverage: list[dict[str, Any]] = []
         self.packages: set[str] = set()
         self.scanned_files: list[str] = []
+        # SYS-PKG-001: Java internal-package exclusion.
+        # None → use language defaults (frozenset({"internal","impl"}) for Java).
+        self.excluded_package_segments: frozenset[str] | None = excluded_package_segments
 
     # -- claim helpers -----------------------------------------------------
 
@@ -179,7 +194,8 @@ class Scout:
     def _extract_api_surface(self):
         """Delegate to extraction.api_surface.extract_api_surface (SC-07)."""
         new_classes, new_claims, new_files, new_pkgs = extract_api_surface(
-            self.parser, self.language, self.pkg_root, self.repo, self.family)
+            self.parser, self.language, self.pkg_root, self.repo, self.family,
+            excluded_package_segments=self.excluded_package_segments)
         LOG.info("Scanning %d source files", len(new_files))
         self.classes.extend(new_classes)
         self.claims.extend(new_claims)

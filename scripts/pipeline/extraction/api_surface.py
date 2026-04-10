@@ -5,9 +5,17 @@ Scout class.
 
 Public API::
 
-    extract_api_surface(parser, language, pkg_root, repo, family)
+    extract_api_surface(parser, language, pkg_root, repo, family,
+                        *, excluded_package_segments=None)
         -> tuple[list[dict], list[dict], list[str], set[str]]
         # (classes, claims, scanned_files, packages)
+
+    _is_excluded_java_package(package, excluded_segments)
+        -> bool  # True when package has an excluded segment
+
+Constants::
+
+    _JAVA_DEFAULT_EXCLUDED_PACKAGE_SEGMENTS  # frozenset({"internal", "impl"})
 """
 from __future__ import annotations
 
@@ -36,6 +44,39 @@ from extraction.tree_helpers import (
     node_text,
     visibility_tier,
 )
+
+
+# ---------------------------------------------------------------------------
+# SYS-PKG-001: Java internal-package exclusion filter
+# ---------------------------------------------------------------------------
+
+#: Default package segments excluded for Java at the scout/extraction layer.
+#: Classes whose ``class_package`` contains any of these as a dot-separated
+#: segment are not emitted to api_surface.json, preventing them from ever
+#: reaching batch_reference, enrichment, or site-plan steps.
+#:
+#: Segment matching is exact (split on ".") — "international" is NOT matched
+#: by "internal".  To disable filtering pass
+#: ``excluded_package_segments=frozenset()`` to ``extract_api_surface()``.
+_JAVA_DEFAULT_EXCLUDED_PACKAGE_SEGMENTS: frozenset[str] = frozenset({"internal", "impl"})
+
+
+def _is_excluded_java_package(package: str, excluded_segments: frozenset[str]) -> bool:
+    """Return True if any dot-separated segment of *package* is in *excluded_segments*.
+
+    Uses exact segment matching so that "international" is NOT excluded by the
+    "internal" rule.
+
+    Args:
+        package: Fully-qualified Java package string, e.g. "com.aspose.slides.internal.dx".
+        excluded_segments: Set of segment strings to block, e.g. frozenset({"internal"}).
+
+    Returns:
+        True when the package should be excluded; False otherwise.
+    """
+    if not package or not excluded_segments:
+        return False
+    return any(seg in excluded_segments for seg in package.split("."))
 
 
 # ---------------------------------------------------------------------------
@@ -777,15 +818,42 @@ def extract_api_surface(
     pkg_root: Path,
     repo: Path,
     family: str,
+    *,
+    excluded_package_segments: frozenset[str] | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict], list[str], set[str]]:
     """Extract API classes, methods, and properties from source files.
 
-    Returns (classes, claims, scanned_files, packages).
+    Args:
+        parser: tree-sitter parser for *language*.
+        language: Language key (e.g. "java", "python").
+        pkg_root: Root directory of the package source tree.
+        repo: Root of the FOSS repository clone.
+        family: Product family identifier (e.g. "slides").
+        excluded_package_segments: For Java, a frozenset of dot-separated
+            package segment strings whose matching classes should be excluded
+            from the output.  When ``None`` (default) the Java-specific
+            defaults :data:`_JAVA_DEFAULT_EXCLUDED_PACKAGE_SEGMENTS` are used
+            (``{"internal", "impl"}``).  Pass ``frozenset()`` to disable all
+            package filtering.  Ignored for non-Java languages.
+
+    Returns:
+        Tuple of (classes, claims, scanned_files, packages).
     """
     classes: list[dict[str, Any]] = []
     claims: list[dict] = []
     scanned_files: list[str] = []
     packages: set[str] = set()
+
+    # SYS-PKG-001: resolve effective Java package exclusion segments once.
+    # None → apply language default; frozenset() → disable filtering.
+    if language == "java":
+        _effective_excluded_segments: frozenset[str] = (
+            _JAVA_DEFAULT_EXCLUDED_PACKAGE_SEGMENTS
+            if excluded_package_segments is None
+            else excluded_package_segments
+        )
+    else:
+        _effective_excluded_segments = frozenset()
 
     ext = _FILE_EXTENSIONS.get(language, ".py")
     header_ext = _HEADER_EXTENSIONS.get(language, "")
@@ -858,6 +926,13 @@ def extract_api_surface(
 
             cname = _node_name(cnode, language)
             if not cname:
+                continue
+
+            # SYS-PKG-001: exclude Java classes in internal/impl packages.
+            # Check uses the file-level java_file_package captured above the loop.
+            if (language == "java"
+                    and _effective_excluded_segments
+                    and _is_excluded_java_package(java_file_package, _effective_excluded_segments)):
                 continue
 
             # Skip C++ forward declarations (class Foo;) — no body

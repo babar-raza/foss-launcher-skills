@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import importlib.util
 import logging
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -17,7 +18,7 @@ _GAP_EVAL_DIR = Path(__file__).resolve().parents[2] / "gap-eval"
 if str(_GAP_EVAL_DIR) not in sys.path:
     sys.path.insert(0, str(_GAP_EVAL_DIR))
 
-from validate_profile import _read_package_from_build_file, validate_profile, update_profile  # type: ignore  # noqa: E402
+from validate_profile import _read_package_from_build_file, validate_profile, update_profile, ALL_PRODUCTS  # type: ignore  # noqa: E402
 from run import stage1_baseline, stage2_knowledge_validation, tier1_verify  # type: ignore  # noqa: E402
 from state import make_finding_id  # type: ignore  # noqa: E402
 
@@ -1303,3 +1304,39 @@ class TestSchemaValidationCacheAbsent:
 
         # Must NOT raise SystemExit (exits 0 via normal return)
         vp.main()
+
+
+# ---------------------------------------------------------------------------
+# HT-GHF-TC-02: package_name placeholder guard
+# ---------------------------------------------------------------------------
+
+class TestProfilePackageNameNotPlaceholder:
+    """Regression guard: no committed profile may carry a placeholder package_name.
+
+    Motivation (HT-GHF-TC-02): The clone-cache cross-validation is skipped in CI
+    (no cache present), so a corrupted package_name string that passes YAML schema
+    validation would silently land in main.  This test makes CI RED for any profile
+    whose package_name matches known placeholder patterns — without requiring the cache.
+    """
+
+    _PLACEHOLDER_RE = re.compile(
+        r"WRONG|placeholder|FIXME|TODO|CHANGEME|DO.NOT.MERGE",
+        re.IGNORECASE,
+    )
+
+    @pytest.mark.parametrize("family,platform", ALL_PRODUCTS)
+    def test_package_name_not_placeholder(self, family, platform):
+        """Each committed profile's package_name must not match placeholder patterns."""
+        import yaml  # stdlib-adjacent; present in repo venv
+
+        profile_path = _GAP_EVAL_DIR / "profiles" / family / f"{platform}.yaml"
+        assert profile_path.exists(), f"Profile missing: {profile_path}"
+
+        with profile_path.open(encoding="utf-8") as fh:
+            data = yaml.safe_load(fh)
+
+        pkg = (data.get("discovered_actuals") or {}).get("package_name", "")
+        assert pkg, f"{family}/{platform}: package_name is empty or null"
+        assert not self._PLACEHOLDER_RE.search(pkg), (
+            f"{family}/{platform}: package_name looks like a placeholder: {pkg!r}"
+        )
