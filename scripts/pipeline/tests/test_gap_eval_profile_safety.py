@@ -368,3 +368,85 @@ class TestStage1OverrideIntegration:
 
         # Profile should still have the wrong value
         assert profile["discovered_actuals"]["package_name"] == "aspose-words-WRONG"
+
+
+# ---------------------------------------------------------------------------
+# C# language filter for Tier 1 (GR-TC-03)
+# ---------------------------------------------------------------------------
+
+class TestCSharpTier1Filter:
+    """Verify C# language-specific filters suppress false positive wrong-package findings."""
+
+    _CSHARP_PROFILE = {
+        "discovered_actuals": {"package_name": "Aspose.Cells_FOSS"},
+        "discovery_hints": {"language": "csharp"},
+    }
+
+    def _claim(self, value: str, context: str = "") -> dict:
+        return {
+            "type": "package-declaration",
+            "value": value,
+            "file": "test.md",
+            "line": 10,
+            "context": context,
+        }
+
+    def test_system_namespace_suppressed(self):
+        """System.* namespaces are not competing packages — must pass."""
+        result = tier1_verify(
+            self._claim("System.Globalization"), set(), self._CSHARP_PROFILE, "cells", "net"
+        )
+        assert result is None, "System.Globalization should not be flagged in C# content"
+
+    def test_system_io_suppressed(self):
+        """System.IO is stdlib — must pass."""
+        result = tier1_verify(
+            self._claim("System.IO"), set(), self._CSHARP_PROFILE, "cells", "net"
+        )
+        assert result is None, "System.IO should not be flagged in C# content"
+
+    def test_csharp_keyword_var_suppressed(self):
+        """C# keyword 'var' captured by `using var x = ...` — must pass."""
+        result = tier1_verify(
+            self._claim("var"), set(), self._CSHARP_PROFILE, "cells", "net"
+        )
+        assert result is None, "'var' should not be flagged as wrong package in C#"
+
+    def test_english_word_suppressed(self):
+        """Common English word 'the' captured from comment — must pass."""
+        result = tier1_verify(
+            self._claim("the"), set(), self._CSHARP_PROFILE, "cells", "net"
+        )
+        assert result is None, "'the' should not be flagged as wrong package in C#"
+
+    def test_aspnet_framework_suppressed(self):
+        """ASP.NET framework ref in comment — must pass."""
+        result = tier1_verify(
+            self._claim("ASP.NET"), set(), self._CSHARP_PROFILE, "cells", "net"
+        )
+        assert result is None, "ASP.NET should not be flagged as wrong package in C#"
+
+    def test_aspose_partial_with_expected_in_context_suppressed(self):
+        """Aspose.Cells token from 'from Aspose.Cells FOSS' string — context proves correct usage."""
+        context = 'using Aspose.Cells_FOSS;\n\nvar wb = new Workbook();\nsheet.PutValue("Hello from Aspose.Cells FOSS");'
+        result = tier1_verify(
+            self._claim("Aspose.Cells", context=context), set(), self._CSHARP_PROFILE, "cells", "net"
+        )
+        assert result is None, "Aspose partial match when block declares expected_pkg should pass"
+
+    def test_aspose_wrong_package_without_context_flagged(self):
+        """Aspose.Cells without expected_pkg in context is genuinely wrong — must flag."""
+        result = tier1_verify(
+            self._claim("Aspose.Cells", context="using Aspose.Cells;\nvar wb = new Workbook();"),
+            set(), self._CSHARP_PROFILE, "cells", "net"
+        )
+        assert result is not None, "Aspose.Cells without expected_pkg in context should be flagged"
+        assert result["type"] == "wrong-package"
+        assert result["severity"] == "M"
+
+    def test_correct_package_always_passes(self):
+        """Aspose.Cells_FOSS exactly matches expected_pkg — must always pass."""
+        result = tier1_verify(
+            self._claim("Aspose.Cells_FOSS"), set(), self._CSHARP_PROFILE, "cells", "net"
+        )
+        assert result is None, "Correct package Aspose.Cells_FOSS must always pass"
