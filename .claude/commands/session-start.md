@@ -19,10 +19,6 @@ any user request.
    .venv/Scripts/python scripts/pipeline/session_ledger.py init
    ```
    Record the returned session ID.
-5b. Stamp the session gate marker so the PreToolUse hook unblocks:
-   ```bash
-   touch .claude/.agents_read
-   ```
 6. Only then accept the user's task
 
 ## Verification
