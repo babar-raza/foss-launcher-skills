@@ -1,0 +1,31 @@
+# known_false_positives.yaml — Gap-eval false positive suppression registry
+#
+# Findings matching any entry here are marked status: "suppressed" before
+# verdict computation.  Suppressed findings do not affect the verdict and are
+# excluded from the M/S counts in the report.
+#
+# Schema per entry:
+#   id               — unique bug ID (BUG-{scope}-{seq})
+#   reason           — human-readable explanation of why this is a false positive
+#   retracted_at     — ISO date the false positive was identified and retracted
+#   matches:
+#     family         — (optional) restrict to a product family, e.g. "email"
+#     platform       — (optional) restrict to a platform, e.g. "net"
+#     type           — (optional) finding type string to match
+#     description_contains — (optional) substring that must appear in description
+#
+# All match fields are ANDed.  Omit a field to match any value.
+# ---------------------------------------------------------------------------
+
+false_positives:
+  - id: BUG-enet-001
+    reason: >
+      knowledge/email/net/merged/limitations.md incorrectly claimed that
+      `new CfbDocument(root)` does not compile with a single root argument.
+      Retracted 2026-04-10 after source-code verification confirmed the
+      constructor overload exists and compiles correctly.
+    retracted_at: "2026-04-10"
+    matches:
+      family: email
+      platform: net
+      description_contains: "CfbDocument"

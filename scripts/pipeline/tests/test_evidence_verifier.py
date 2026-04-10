@@ -251,6 +251,58 @@ class TestApiValidation:
 
 
 # ---------------------------------------------------------------------------
+# Tier-gating for unknown member (FIX-HOOK-01)
+# ---------------------------------------------------------------------------
+
+class TestTierGatedMemberCheck:
+    """surface_tier >= 2 → WARN instead of FAIL for unknown members."""
+
+    def _knowledge(self, tier: int):
+        k = FakeKnowledge(
+            repo_sha="abc12345",
+            classes={"Document": {}},
+        )
+        k.surface_tier = tier
+        return k
+
+    def test_tier1_unknown_member_is_fail(self):
+        fm = {"evidence": {"model_sha": "abc12345", "apis": ["Document.Save"]}}
+        k = self._knowledge(1)
+        results = verify_evidence(fm, k, FAKE_FILE)
+        fails = [r for r in results if r.level == "FAIL"]
+        assert len(fails) == 1
+        assert "unknown member" in fails[0].message
+
+    def test_tier2_unknown_member_is_warn_not_fail(self):
+        fm = {"evidence": {"model_sha": "abc12345", "apis": ["Document.Save"]}}
+        k = self._knowledge(2)
+        results = verify_evidence(fm, k, FAKE_FILE)
+        fails = [r for r in results if r.level == "FAIL"]
+        warns = [r for r in results if r.level == "WARN" and "unknown member" in r.message]
+        assert fails == []
+        assert len(warns) == 1
+
+    def test_tier3_unknown_member_is_warn_not_fail(self):
+        fm = {"evidence": {"model_sha": "abc12345", "apis": ["Document.Save"]}}
+        k = self._knowledge(3)
+        results = verify_evidence(fm, k, FAKE_FILE)
+        fails = [r for r in results if r.level == "FAIL"]
+        warns = [r for r in results if r.level == "WARN" and "unknown member" in r.message]
+        assert fails == []
+        assert len(warns) == 1
+
+    def test_no_surface_tier_attr_defaults_to_tier1_behaviour(self):
+        """When knowledge has no surface_tier, getattr default=1 → FAIL."""
+        fm = {"evidence": {"model_sha": "abc12345", "apis": ["Document.Save"]}}
+        k = FakeKnowledge(repo_sha="abc12345", classes={"Document": {}})
+        # FakeKnowledge has no surface_tier attribute — getattr should fall back to 1
+        assert not hasattr(k, "surface_tier")
+        results = verify_evidence(fm, k, FAKE_FILE)
+        fails = [r for r in results if r.level == "FAIL"]
+        assert len(fails) == 1
+
+
+# ---------------------------------------------------------------------------
 # Migration complete (R-3b) — verify_evidence now lives only in evidence_verifier
 # ---------------------------------------------------------------------------
 

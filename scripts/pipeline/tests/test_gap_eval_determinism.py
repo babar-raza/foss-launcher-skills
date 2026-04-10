@@ -13,7 +13,7 @@ _GAP_EVAL_DIR = Path(__file__).resolve().parents[2] / "gap-eval"
 if str(_GAP_EVAL_DIR) not in sys.path:
     sys.path.insert(0, str(_GAP_EVAL_DIR))
 
-from run import stage2_knowledge_validation  # type: ignore  # noqa: E402
+from run import stage2_knowledge_validation, _apply_false_positives, compute_verdict  # type: ignore  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -161,3 +161,73 @@ class TestStage2Determinism:
             "test", "python", Path("/nonexistent"), _make_api_data(5), _make_id_fn,
         )
         assert findings == []
+
+
+# ---------------------------------------------------------------------------
+# False-positive suppression (FIX-N4-01)
+# ---------------------------------------------------------------------------
+
+class TestApplyFalsePositives:
+    def _finding(self, **kwargs) -> dict:
+        base = {
+            "type": "wrong-claim",
+            "severity": "M",
+            "file": "content/docs/index.md",
+            "description": "Some description",
+            "status": "open",
+        }
+        base.update(kwargs)
+        return base
+
+    def test_matching_finding_is_suppressed(self):
+        findings = [self._finding(description="CfbDocument constructor issue")]
+        rules = [{"id": "BUG-enet-001", "matches": {"description_contains": "CfbDocument"}}]
+        n = _apply_false_positives(findings, "email", "net", rules)
+        assert n == 1
+        assert findings[0]["status"] == "suppressed"
+        assert findings[0]["suppressed_by"] == "BUG-enet-001"
+
+    def test_non_matching_description_not_suppressed(self):
+        findings = [self._finding(description="Wrong package name")]
+        rules = [{"id": "BUG-enet-001", "matches": {"description_contains": "CfbDocument"}}]
+        n = _apply_false_positives(findings, "email", "net", rules)
+        assert n == 0
+        assert findings[0]["status"] == "open"
+
+    def test_family_scope_restricts_match(self):
+        findings = [self._finding(description="CfbDocument issue")]
+        rules = [{"id": "BUG-enet-001", "matches": {"family": "email", "description_contains": "CfbDocument"}}]
+        n = _apply_false_positives(findings, "cells", "net", rules)
+        assert n == 0
+
+    def test_platform_scope_restricts_match(self):
+        findings = [self._finding(description="CfbDocument issue")]
+        rules = [{"id": "BUG-enet-001", "matches": {"platform": "net", "description_contains": "CfbDocument"}}]
+        n = _apply_false_positives(findings, "email", "python", rules)
+        assert n == 0
+
+    def test_already_suppressed_not_double_counted(self):
+        findings = [self._finding(description="CfbDocument issue", status="suppressed")]
+        rules = [{"id": "BUG-enet-001", "matches": {"description_contains": "CfbDocument"}}]
+        n = _apply_false_positives(findings, "email", "net", rules)
+        assert n == 0
+
+    def test_empty_rules_changes_nothing(self):
+        findings = [self._finding(description="CfbDocument issue")]
+        n = _apply_false_positives(findings, "email", "net", [])
+        assert n == 0
+        assert findings[0]["status"] == "open"
+
+    def test_suppressed_findings_excluded_from_verdict(self):
+        findings = [
+            self._finding(severity="M", status="suppressed"),
+        ]
+        result = compute_verdict(findings)
+        assert result == "PUBLICATION READY"
+
+    def test_wontfix_findings_excluded_from_verdict(self):
+        findings = [
+            self._finding(severity="M", status="wontfix"),
+        ]
+        result = compute_verdict(findings)
+        assert result == "PUBLICATION READY"

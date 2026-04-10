@@ -23,6 +23,7 @@ def _make_knowledge(claim_ids=None, classes=None, api_to_claim=None, repo_sha="a
     k.api_to_claim = api_to_claim or {}
     k.repo_sha = repo_sha
     k.version = "1.0.0"
+    k.surface_tier = 1  # tier 1 = best coverage; unknown-member check emits FAIL
     k.has_method.return_value = False
     k.has_property.return_value = False
     k.has_enum_member.return_value = False
