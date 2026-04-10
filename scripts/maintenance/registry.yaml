@@ -18,6 +18,12 @@
 
 scripts:
 
+  - path: scripts/maintenance/enhance_reference_descriptions_cells_net.py
+    kind: repair
+    purpose: "Populate empty Description cells in 26 grade-C cells/net reference pages and promote grade to A"
+    created: "2026-04-10"
+    status: done
+
   - path: scripts/maintenance/generate_reference_pages.py
     kind: one-shot
     purpose: "Initial reference page generation for batch product launch"
