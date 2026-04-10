@@ -1,0 +1,23 @@
+[
+  {
+    "id": "claim-001",
+    "value": "Document.Save supports all major formats",
+    "description": "Save method description",
+    "confidence": 0.85,
+    "source": "api_surface"
+  },
+  {
+    "id": "claim-002",
+    "value": "Use Document.Convert for format conversion",
+    "description": "Convert method description",
+    "confidence": 0.40,
+    "source": "enrichment"
+  },
+  {
+    "id": "claim-003",
+    "value": "Presentation rendering supports 300 DPI",
+    "description": "Rendering quality claim",
+    "confidence": 0.72,
+    "source": "enrichment"
+  }
+]
