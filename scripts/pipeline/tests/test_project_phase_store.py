@@ -36,6 +36,7 @@ def fake_content_target():
             "fake_model.yaml",
             "fake_claims.json",
             "fake_formats.json",
+            "fake_index.json",
         ):
             dest = fname.replace("fake_", "")
             shutil.copy(_FIXTURES_DIR / fname, merged / dest)
