@@ -15,9 +15,10 @@ discovery_hints:
 
 discovered_actuals:
   package_name: "com.aspose:aspose-3d-foss"
+  import_path: "com.aspose.threed"
   package_source_actual: pom.xml
   format_files_found: null
-  last_baseline_sha: null
+  last_baseline_sha: 3f31eaaeb3e874d070138c39683c198e4f1d6bb2
 
 language_conventions:
   method_naming: camelCase
