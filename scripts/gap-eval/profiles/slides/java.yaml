@@ -1,6 +1,9 @@
 discovered_actuals:
   format_files_found: null
   last_baseline_sha: 44597f1a09feb16ed1b6f29a1c6b939df4415863
+  # package_name uses Maven groupId:artifactId coordinate format, not a plain Java package name.
+  # Extracted by xpath://groupId + ':' + //artifactId from pom.xml.
+  # validate_profile.py supports this format via _read_build_package (commit e8a821b5fe).
   package_name: org.aspose.slides.foss:aspose-slides-foss
   package_source_actual: pom.xml
 discovery_hints:
