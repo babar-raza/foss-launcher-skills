@@ -32,6 +32,7 @@ from token_ops import (  # noqa: E402
 )
 from audit.links import verify_internal_links  # noqa: E402
 from audit.snippets import verify_snippet_coverage  # noqa: E402
+from audit.formats import verify_format_direction  # noqa: E402
 from audit.reports import (  # noqa: E402
     REPORTS_DIR,
     report_text,
@@ -113,6 +114,7 @@ def audit_product(
         if check_evidence:
             findings.extend(verify_evidence(fm, knowledge, f))
         findings.extend(verify_internal_links(f))
+        findings.extend(verify_format_direction(str(f), family, platform))
         if check_snippets:
             findings.extend(verify_snippet_coverage(f, knowledge))
 
@@ -164,6 +166,9 @@ def audit_files(
         link_findings = verify_internal_links(fp)
         file_findings.extend(link_findings)
         findings.extend(link_findings)
+        format_findings = verify_format_direction(str(fp), family, platform)
+        file_findings.extend(format_findings)
+        findings.extend(format_findings)
         if check_snippets:
             snippet_findings = verify_snippet_coverage(fp, knowledge)
             file_findings.extend(snippet_findings)

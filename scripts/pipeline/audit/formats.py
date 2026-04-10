@@ -1,0 +1,159 @@
+"""audit/formats.py — enum_only SaveFormat warning check.
+
+Verifies that SaveFormat constants with ``direction: enum_only`` in
+``knowledge/{family}/{platform}/merged/formats.json`` are not presented as
+functional export options without an explicit ValueError or
+not-implemented warning in their Markdown table row.
+
+Why this check exists
+---------------------
+FOSS libraries sometimes define SaveFormat enum members for API symmetry
+with the commercial library without implementing the corresponding save
+path.  ``formats.json`` records these as ``direction: enum_only``.  If a
+reference or docs page lists such a constant in an Output Formats table
+without a warning, developers will attempt to call
+``Document.save(..., SaveFormat.DOCX)`` and receive an unexpected
+``ValueError`` at runtime.
+
+Root cause this prevents
+------------------------
+GAP-01 words/python session 2026-04-10: ``Document.md`` Output Formats
+table listed ``SaveFormat.DOCX`` and ``SaveFormat.DOC`` without a
+ValueError note, contradicting ``limitations.md`` and ``formats.json``
+``enum_only`` markers.  Fixed via S-73; this check prevents recurrence.
+
+Category code
+-------------
+FD — Format Direction (distinct from FM used by format_completeness.py
+and FT used by format_truth.py).
+
+Severity: FAIL — omitting the warning is a factual accuracy error.
+"""
+from __future__ import annotations
+
+import json
+import re
+from pathlib import Path
+from typing import List
+
+from token_ops import Finding
+
+KNOWLEDGE_ROOT = Path("knowledge")
+
+# ---------------------------------------------------------------------------
+# Compiled patterns
+# ---------------------------------------------------------------------------
+
+# Match a Markdown table row where the second pipe-delimited cell contains
+# `SaveFormat.NAME`.  Example rows:
+#
+#   | DOCX | `SaveFormat.DOCX` | — |
+#   | PDF  | `SaveFormat.PDF`  | `PdfSaveOptions` — ... |
+#
+# Group 1 captures the format constant name (e.g. "DOCX").
+# The full match (group 0) is used for _has_warning().
+_SAVEFORMAT_ROW_RE = re.compile(
+    r"^\|[^|\n]*\|\s*`SaveFormat\.(\w+)`\s*\|[^|\n]*\|[^\n]*$",
+    re.MULTILINE,
+)
+
+# Keywords indicating a table row already carries a sufficient warning.
+# Lower-cased at match time.
+_WARNING_KEYWORDS: tuple[str, ...] = (
+    "valueerror",
+    "not implemented",
+    "raises",
+    "not supported",
+    "read-only constant",
+    "enum_only",
+)
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _load_enum_only_formats(family: str, platform: str) -> set[str]:
+    """Return the set of uppercase format names marked ``direction: enum_only``.
+
+    Returns an empty set if ``formats.json`` is absent or unparseable —
+    the check silently skips rather than producing spurious findings.
+    """
+    path = KNOWLEDGE_ROOT / family / platform / "merged" / "formats.json"
+    if not path.exists():
+        return set()
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, TypeError, OSError):
+        return set()
+    if not isinstance(raw, list):
+        return set()
+    return {
+        entry["name"].upper()
+        for entry in raw
+        if isinstance(entry, dict)
+        and entry.get("direction") == "enum_only"
+        and entry.get("name")
+    }
+
+
+def _has_warning(row_text: str) -> bool:
+    """Return True if *row_text* already contains a ValueError/not-implemented note."""
+    low = row_text.lower()
+    return any(kw in low for kw in _WARNING_KEYWORDS)
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
+
+def verify_format_direction(
+    file_path: str, family: str, platform: str
+) -> List[Finding]:
+    """Return FAIL findings for enum_only SaveFormat rows missing a warning note.
+
+    Scans *file_path* for Markdown table rows that reference a
+    ``SaveFormat.NAME`` constant where ``NAME`` is listed as
+    ``direction: enum_only`` in ``formats.json``.  Rows that already
+    contain a ValueError / not-implemented note pass silently.
+
+    Returns an empty list if ``formats.json`` has no ``enum_only``
+    entries, the file cannot be read, or no problematic rows are found.
+    """
+    enum_only = _load_enum_only_formats(family, platform)
+    if not enum_only:
+        return []
+
+    try:
+        content = Path(file_path).read_text(encoding="utf-8")
+    except OSError:
+        return []
+
+    findings = []
+    for m in _SAVEFORMAT_ROW_RE.finditer(content):
+        format_name = m.group(1).upper()
+        if format_name not in enum_only:
+            continue
+        if _has_warning(m.group(0)):
+            continue
+        line_no = content[: m.start()].count("\n") + 1
+        findings.append(
+            Finding(
+                level="FAIL",
+                filepath=str(file_path),
+                line_no=line_no,
+                message=(
+                    f"SaveFormat.{format_name} is direction:enum_only in "
+                    f"formats.json but appears in a table without a "
+                    f"ValueError/not-implemented note.  Omitting this note "
+                    f"misleads users: Document.save(..., SaveFormat.{format_name}) "
+                    f"raises ValueError at runtime."
+                ),
+                suggestion=(
+                    f"Update the SaveFormat.{format_name} row to include: "
+                    f'"Read-only constant. `Document.save()` does not support '
+                    f"{format_name} \u2014 raises `ValueError`.\""
+                ),
+            )
+        )
+    return findings

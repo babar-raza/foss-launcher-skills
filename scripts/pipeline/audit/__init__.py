@@ -96,6 +96,7 @@ from .runner import (
     audit_files,
     main,
 )
+from .formats import verify_format_direction
 
 __all__ = [
     # knowledge_core / content_discovery re-exports
@@ -138,4 +139,5 @@ __all__ = [
     "audit_product",
     "audit_files",
     "main",
+    "verify_format_direction",
 ]
