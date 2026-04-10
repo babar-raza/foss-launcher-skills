@@ -48,6 +48,26 @@ def _log(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
+def _write_content_check_marker(fp: Path) -> None:
+    """Write a pass marker for fp to reports/content-check/.
+
+    The marker is consumed by scripts/ci/check_content_write_hook.sh to confirm
+    that S-23 content-check passed before allowing a Write tool call on the file.
+    Encoding: path separators replaced with underscores, matching the shell hook.
+
+    Only writes markers for files under the content/ tree (relative path starting
+    with 'content/'). Absolute paths and non-content paths are silently skipped —
+    the hook only guards content/ writes, so markers for other paths are unused.
+    """
+    normalised = str(fp).replace("\\", "/")
+    if not normalised.startswith("content/"):
+        return
+    marker_dir = Path("reports/content-check")
+    marker_dir.mkdir(parents=True, exist_ok=True)
+    encoded = normalised.replace("/", "_")
+    (marker_dir / f"{encoded}.pass").write_text("", encoding="utf-8")
+
+
 def verify_faq_structure(fp: Path, fm: dict) -> list:
     """FAIL if faq.list is non-empty in frontmatter — invisible to Hugo renderer.
 
@@ -177,6 +197,8 @@ def audit_files(
         fails = sum(1 for f in file_findings if f.level == "FAIL")
         if fails:
             _log(f"  FAIL {fp}: {fails} failures")
+        else:
+            _write_content_check_marker(fp)
 
     return findings
 

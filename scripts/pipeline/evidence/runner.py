@@ -62,6 +62,23 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False) -> str:
     # Map verified tokens → claim_ids via deterministic index (aggregate)
     claim_ids, api_refs = _map_tokens_to_evidence(tokens, knowledge)
 
+    # For reference pages: inject the documented class as primary api_ref when no
+    # code-block tokens yielded API refs. Reference pages document a class in
+    # method/property tables (not inline code), so extract_tokens() returns nothing.
+    # The class name from the title IS the authoritative evidence anchor per AGENTS.md §6:
+    # "A reference page with an empty evidence.apis block is a structural gap."
+    if "reference.aspose.org" in str(filepath) and not api_refs:
+        title = fm.get("title", "")
+        # Title format: "ClassName — Aspose.Note FOSS for Python API Reference"
+        # Index pages have no "—" separator and document no single class — skip them.
+        if "—" in title:
+            class_candidate = title.split("—")[0].strip().split()[0]
+            if class_candidate and class_candidate in knowledge.classes:
+                api_refs.append(class_candidate)
+                cid = knowledge.api_to_claim.get(class_candidate)
+                if cid and cid not in claim_ids:
+                    claim_ids.append(cid)
+
     # Detect format references (page-level aggregate)
     formats = _detect_formats(filepath, knowledge)
 
