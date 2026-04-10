@@ -17,7 +17,7 @@ discovered_actuals:
   import_path: "aspose.words_foss"
   package_source_actual: pyproject.toml
   format_files_found: null
-  last_baseline_sha: null
+  last_baseline_sha: 815fc3d52e3085ada8451c897733678dadf790c3
 
 language_conventions:
   method_naming: snake_case
