@@ -755,8 +755,35 @@ def _is_python_stub_any(mnode) -> bool:
     return _is_python_stub(mnode) or _is_python_stub_with_docstring(mnode)
 
 
+# ---------------------------------------------------------------------------
+# Generalized stub detection: catches both well-known exception types AND
+# domain-specific exceptions with "not implemented"/"not supported" messages
+# (e.g. ExportException("FBX export is not implemented in FOSS version")).
+# ---------------------------------------------------------------------------
+
+_STUB_EXCEPTION_RE = re.compile(
+    r"(UnsupportedOperationException|NotImplementedException"
+    r"|NotSupportedOperationException|NotSupportedException)",
+    re.IGNORECASE,
+)
+_STUB_MESSAGE_RE = re.compile(
+    r"not\s+(implemented|supported)|is\s+not\s+(implemented|supported)",
+    re.IGNORECASE,
+)
+
+
+def _is_stub_throw(txt: str) -> bool:
+    """True if a throw statement indicates unimplemented functionality.
+
+    Matches both well-known exception types (UnsupportedOperationException,
+    NotImplementedException) and domain-specific exceptions whose message
+    contains "not implemented" or "not supported".
+    """
+    return bool(_STUB_EXCEPTION_RE.search(txt) or _STUB_MESSAGE_RE.search(txt))
+
+
 def _is_csharp_stub(mnode) -> bool:
-    """Return True if a C# method body is a single throw new NotImplementedException."""
+    """Return True if a C# method body is a single throw indicating unimplemented."""
     body = find_child_by_type(mnode, "block")
     if body is None:
         return False
@@ -766,12 +793,12 @@ def _is_csharp_stub(mnode) -> bool:
     stmt = stmts[0]
     if stmt.type == "throw_statement":
         txt = node_text(stmt)
-        return "NotImplementedException" in txt
+        return _is_stub_throw(txt)
     return False
 
 
 def _is_java_stub(mnode) -> bool:
-    """Return True if a Java method body is a single throw new UnsupportedOperationException."""
+    """Return True if a Java method body is a single throw indicating unimplemented."""
     body = find_child_by_type(mnode, "block")
     if body is None:
         return False
@@ -781,7 +808,7 @@ def _is_java_stub(mnode) -> bool:
     stmt = stmts[0]
     if stmt.type in ("throw_statement", "expression_statement"):
         txt = node_text(stmt)
-        return "UnsupportedOperationException" in txt or "NotImplementedException" in txt
+        return _is_stub_throw(txt)
     return False
 
 

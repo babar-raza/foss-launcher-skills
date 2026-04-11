@@ -25,7 +25,60 @@ from extraction.tree_helpers import (
     _extract_python_enum_members,
     _node_name,
     collect_nodes,
+    find_child_by_type,
+    node_text,
 )
+from extraction.api_surface import _is_stub_throw
+
+
+# I/O method names by direction — used to find primary methods in Exporter/Importer classes
+_IO_METHOD_NAMES: dict[str, set[str]] = {
+    "export": {"export", "save", "write", "serialize"},
+    "import": {"import_", "load", "read", "deserialize", "parse"},
+}
+
+# Method node types per language
+_METHOD_TYPES: set[str] = {
+    "method_declaration",       # Java, C#
+    "function_definition",      # Python, C++
+    "function_declaration",     # C++
+    "method_definition",        # Ruby-style (rare)
+    "public_method_definition", # TypeScript
+}
+
+
+def _find_io_methods(class_node, direction: str, language: str) -> list:
+    """Find methods in a class that match I/O naming conventions for a direction."""
+    target_names = _IO_METHOD_NAMES.get(direction, set())
+    methods = []
+    for child in class_node.children:
+        # Check class body (Java/C# wrap methods inside a body node)
+        children = child.children if child.type in ("class_body", "declaration_list") else [child]
+        for node in children:
+            if node.type in _METHOD_TYPES:
+                mname = _node_name(node, language)
+                if mname and mname.lower() in target_names:
+                    methods.append(node)
+    return methods
+
+
+def _all_io_methods_are_stubs(methods: list, language: str) -> bool:
+    """True if every method in the list is a stub that throws 'not implemented'."""
+    if not methods:
+        return False
+    for m in methods:
+        body = find_child_by_type(m, "block")
+        if body is None:
+            body = find_child_by_type(m, "body")
+        if body is None:
+            return False
+        stmts = [ch for ch in body.children if ch.type not in ("{", "}", "\n", "comment", ",")]
+        if len(stmts) != 1:
+            return False
+        txt = node_text(stmts[0])
+        if not _is_stub_throw(txt):
+            return False
+    return True
 
 
 def detect_formats(
@@ -166,6 +219,11 @@ def detect_formats(
                     cname, flags=re.IGNORECASE).strip().strip("_")
                 # H-04: reject empty, too-short, or common-word false positives
                 if fmt_name and len(fmt_name) >= 2 and fmt_name.lower() not in _FALSE_POSITIVE_NAMES:
+                    # Validate: if the primary I/O method is a stub, demote to detect-only
+                    if direction in ("export", "import"):
+                        io_methods = _find_io_methods(cn, direction, language)
+                        if io_methods and _all_io_methods_are_stubs(io_methods, language):
+                            direction = "detect"
                     formats.append({
                         "format": fmt_name,
                         "enum": "",

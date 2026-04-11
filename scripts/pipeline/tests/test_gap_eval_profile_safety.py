@@ -785,6 +785,125 @@ class TestCodeBlockExtractionGuard:
 
 
 # ---------------------------------------------------------------------------
+# TIER3-TS-FP-01: TS/JS built-in filter in extract_claims
+# ---------------------------------------------------------------------------
+
+class TestTier3TsFp01BuiltinFilter:
+    """Regression guard for TIER3-TS-FP-01.
+
+    Ensures that:
+    1. JS/TS built-in global class method calls (e.g. JSON.stringify, Math.floor,
+       Buffer.from) are NOT extracted as api-token claims from typescript/javascript
+       code blocks — they would otherwise escalate to Tier 3 LLM as false positives.
+    2. Bare single-word default import bindings (e.g. `import is from 'is'`,
+       `import buffer from 'buffer'`) are NOT extracted as package-declaration claims
+       from typescript/javascript code blocks.
+    3. Legitimate Aspose API tokens and package declarations are still extracted
+       normally from typescript/javascript code blocks.
+    4. The filter does NOT apply to non-TS/JS tagged blocks (csharp, python, java).
+    """
+
+    def _claims(self, page_text: str) -> list[dict]:
+        import run as run_mod
+        return run_mod.extract_claims(Path("dummy.md"), page_text)
+
+    def _api_tokens(self, page_text: str) -> list[dict]:
+        return [c for c in self._claims(page_text) if c["type"] == "api-token"]
+
+    def _pkg_decls(self, page_text: str) -> list[dict]:
+        return [c for c in self._claims(page_text) if c["type"] == "package-declaration"]
+
+    # --- api-token: built-in suppression ---
+
+    def test_json_stringify_ts_block_suppressed(self):
+        """JSON.stringify in a typescript block must not produce an api-token claim."""
+        page = "```typescript\nconst s = JSON.stringify(obj);\n```"
+        tokens = self._api_tokens(page)
+        assert not any(t["value"] == "JSON.stringify" for t in tokens), (
+            f"JSON.stringify should be suppressed in typescript block, got: {tokens}"
+        )
+
+    def test_math_floor_js_block_suppressed(self):
+        """Math.floor in a javascript block must not produce an api-token claim."""
+        page = "```javascript\nconst n = Math.floor(x);\n```"
+        tokens = self._api_tokens(page)
+        assert not any(t["value"] == "Math.floor" for t in tokens), (
+            f"Math.floor should be suppressed in javascript block, got: {tokens}"
+        )
+
+    def test_buffer_from_ts_block_suppressed(self):
+        """Buffer.from in a typescript block must not produce an api-token claim."""
+        page = "```typescript\nconst b = Buffer.from(data);\n```"
+        tokens = self._api_tokens(page)
+        assert not any(t["value"] == "Buffer.from" for t in tokens), (
+            f"Buffer.from should be suppressed in typescript block, got: {tokens}"
+        )
+
+    def test_promise_resolve_ts_block_suppressed(self):
+        """Promise.resolve in a typescript block must not produce an api-token claim."""
+        page = "```typescript\nawait Promise.resolve();\n```"
+        tokens = self._api_tokens(page)
+        assert not any(t["value"] == "Promise.resolve" for t in tokens), (
+            f"Promise.resolve should be suppressed in typescript block, got: {tokens}"
+        )
+
+    def test_aspose_api_token_ts_block_preserved(self):
+        """A real Aspose API token (GltfFormat.getInstance) must still be extracted."""
+        page = "```typescript\nconst fmt = GltfFormat.getInstance();\n```"
+        tokens = self._api_tokens(page)
+        assert any(t["value"] == "GltfFormat.getInstance" for t in tokens), (
+            f"GltfFormat.getInstance must be extracted from typescript block, got: {tokens}"
+        )
+
+    def test_stdlib_filter_not_applied_to_csharp(self):
+        """The TS/JS filter must not suppress tokens in csharp blocks."""
+        # Array.resize is a .NET method call with a lowercase method name that matches
+        # _RE_API_TOKEN.  The stdlib filter must NOT suppress it in a csharp block.
+        page = "```csharp\nArray.resize(ref arr, 10);\n```"
+        tokens = self._api_tokens(page)
+        assert any(t["value"] == "Array.resize" for t in tokens), (
+            f"Array.resize in csharp block must NOT be filtered by TS/JS guard, got: {tokens}"
+        )
+
+    # --- package-declaration: bare binding suppression ---
+
+    def test_bare_binding_is_ts_block_suppressed(self):
+        """`import is from 'is'` must not produce a package-declaration claim for 'is'."""
+        page = "```typescript\nimport is from 'is';\n```"
+        pkgs = self._pkg_decls(page)
+        assert not any(p["value"] == "is" for p in pkgs), (
+            f"Bare binding 'is' should be suppressed in typescript block, got: {pkgs}"
+        )
+
+    def test_bare_binding_buffer_ts_block_suppressed(self):
+        """`import buffer from 'buffer'` must not produce a package-declaration claim for 'buffer'."""
+        page = "```typescript\nimport buffer from 'buffer';\n```"
+        pkgs = self._pkg_decls(page)
+        assert not any(p["value"] == "buffer" for p in pkgs), (
+            f"Bare binding 'buffer' should be suppressed in typescript block, got: {pkgs}"
+        )
+
+    def test_aspose_scoped_package_ts_block_preserved(self):
+        """@aspose/3d must still be extracted as a package-declaration from typescript blocks.
+
+        The install instruction (npm install @aspose/3d) is the canonical form that
+        _RE_PACKAGE_IMPORT captures — it contains '/' so it passes the bare-binding filter.
+        """
+        page = "```typescript\nnpm install @aspose/3d\n```"
+        pkgs = self._pkg_decls(page)
+        assert any(p["value"] == "@aspose/3d" for p in pkgs), (
+            f"@aspose/3d must be extracted from typescript block (npm install form), got: {pkgs}"
+        )
+
+    def test_bare_binding_filter_not_applied_to_java(self):
+        """The bare-binding filter must not suppress Java imports."""
+        # 'is' as a token would be unusual in Java but the filter must not activate for java blocks
+        page = "```java\nimport org.aspose.threed.Scene;\n```"
+        pkgs = self._pkg_decls(page)
+        assert pkgs, f"Java aspose import must still be extracted, got: {pkgs}"
+
+
+# ---------------------------------------------------------------------------
 # update_profile (--update command)
 # ---------------------------------------------------------------------------
 
@@ -1340,3 +1459,81 @@ class TestProfilePackageNameNotPlaceholder:
         assert not self._PLACEHOLDER_RE.search(pkg), (
             f"{family}/{platform}: package_name looks like a placeholder: {pkg!r}"
         )
+
+
+# ---------------------------------------------------------------------------
+# Locale blog file exclusion filter (Problem A)
+# ---------------------------------------------------------------------------
+
+class TestLocaleBlogFilter:
+    """Verify that locale blog files (index.XX.md) are excluded from gap-eval discovery."""
+
+    def test_locale_ar_excluded(self):
+        from run import _is_locale_file  # type: ignore  # noqa: E402
+        assert _is_locale_file(Path("index.ar.md")) is True
+
+    def test_locale_bg_excluded(self):
+        from run import _is_locale_file  # type: ignore  # noqa: E402
+        assert _is_locale_file(Path("index.bg.md")) is True
+
+    def test_locale_zh_excluded(self):
+        from run import _is_locale_file  # type: ignore  # noqa: E402
+        assert _is_locale_file(Path("index.zh.md")) is True
+
+    def test_english_index_kept(self):
+        from run import _is_locale_file  # type: ignore  # noqa: E402
+        assert _is_locale_file(Path("index.md")) is False
+
+    def test_english_en_suffix_kept(self):
+        from run import _is_locale_file  # type: ignore  # noqa: E402
+        assert _is_locale_file(Path("index.en.md")) is False
+
+    def test_non_index_file_kept(self):
+        from run import _is_locale_file  # type: ignore  # noqa: E402
+        assert _is_locale_file(Path("getting-started.md")) is False
+
+    def test_three_letter_code_kept(self):
+        """Three-letter codes (e.g., index.api.md) should not be filtered."""
+        from run import _is_locale_file  # type: ignore  # noqa: E402
+        assert _is_locale_file(Path("index.api.md")) is False
+
+
+# ---------------------------------------------------------------------------
+# Generalized stub throw detection (Problem B)
+# ---------------------------------------------------------------------------
+
+class TestStubThrowDetection:
+    """Verify _is_stub_throw catches domain-specific and standard exceptions."""
+
+    def setup_method(self):
+        # Import from extraction module
+        _EXTRACT_DIR = Path(__file__).resolve().parents[2] / "pipeline" / "extraction"
+        if str(_EXTRACT_DIR) not in sys.path:
+            sys.path.insert(0, str(_EXTRACT_DIR))
+        from api_surface import _is_stub_throw  # type: ignore  # noqa: E402
+        self._is_stub_throw = _is_stub_throw
+
+    def test_unsupported_operation_exception(self):
+        assert self._is_stub_throw('throw new UnsupportedOperationException("not supported")')
+
+    def test_not_implemented_exception(self):
+        assert self._is_stub_throw('throw new NotImplementedException()')
+
+    def test_domain_export_exception(self):
+        """ExportException with 'not implemented' message must be detected."""
+        assert self._is_stub_throw(
+            'throw new ExportException("FBX export is not implemented in FOSS version")'
+        )
+
+    def test_domain_import_exception(self):
+        """ImportException with 'not supported' message must be detected."""
+        assert self._is_stub_throw(
+            'throw new ImportException("Import is not supported in this build")'
+        )
+
+    def test_normal_throw_not_detected(self):
+        """A throw that doesn't indicate stub should return False."""
+        assert not self._is_stub_throw('throw new IOException("File not found")')
+
+    def test_return_not_detected(self):
+        assert not self._is_stub_throw('return result;')
