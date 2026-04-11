@@ -1537,3 +1537,88 @@ class TestStubThrowDetection:
 
     def test_return_not_detected(self):
         assert not self._is_stub_throw('return result;')
+
+
+# ---------------------------------------------------------------------------
+# Tier 1: Java Maven coordinate sub-package check (slides/java fix)
+# ---------------------------------------------------------------------------
+
+class TestJavaMavenSubpackage:
+    """Java Maven coordinate groupId:artifactId must be split for sub-package checks."""
+
+    def _make_claim(self, value: str) -> dict:
+        return {"type": "package-declaration", "value": value, "file": "test.md", "line": 1}
+
+    def _profile(self, pkg: str, lang: str = "java") -> dict:
+        return {
+            "discovered_actuals": {"package_name": pkg},
+            "discovery_hints": {"language": lang},
+        }
+
+    def test_maven_subpackage_accepted(self):
+        """org.aspose.slides.foss.export.SaveFormat is a valid sub-package of groupId."""
+        result = tier1_verify(
+            self._make_claim("org.aspose.slides.foss.export.SaveFormat"),
+            set(), self._profile("org.aspose.slides.foss:aspose-slides-foss"), "slides", "java",
+        )
+        assert result is None, f"Sub-package of Maven groupId should pass Tier 1, got: {result}"
+
+    def test_maven_exact_groupid_subpackage(self):
+        """org.aspose.slides.foss.Presentation must also pass."""
+        result = tier1_verify(
+            self._make_claim("org.aspose.slides.foss.Presentation"),
+            set(), self._profile("org.aspose.slides.foss:aspose-slides-foss"), "slides", "java",
+        )
+        assert result is None
+
+    def test_maven_unrelated_package_flagged(self):
+        """A completely different Aspose package should still be flagged."""
+        result = tier1_verify(
+            self._make_claim("org.aspose.cells.foss.Workbook"),
+            set(), self._profile("org.aspose.slides.foss:aspose-slides-foss"), "slides", "java",
+        )
+        assert result is not None and result["type"] == "wrong-package"
+
+
+# ---------------------------------------------------------------------------
+# Tier 1: Python underscore normalization (cells/python fix)
+# ---------------------------------------------------------------------------
+
+class TestPythonUnderscoreNormalization:
+    """Python packages with hyphens import as underscored modules."""
+
+    def _make_claim(self, value: str) -> dict:
+        return {"type": "package-declaration", "value": value, "file": "test.md", "line": 1}
+
+    def _profile(self, pkg: str, import_path: str | None = None) -> dict:
+        actuals = {"package_name": pkg}
+        if import_path:
+            actuals["import_path"] = import_path
+        return {
+            "discovered_actuals": actuals,
+            "discovery_hints": {"language": "python"},
+        }
+
+    def test_underscore_form_accepted(self):
+        """import aspose_cells_foss must pass when package is aspose-cells-foss."""
+        result = tier1_verify(
+            self._make_claim("aspose_cells_foss"),
+            set(), self._profile("aspose-cells-foss", "aspose.cells_foss"), "cells", "python",
+        )
+        assert result is None, f"Underscore-normalized package should pass, got: {result}"
+
+    def test_companion_plugin_skipped(self):
+        """markitdown-aspose-cells-plugin must not be flagged (starts with 'markitdown')."""
+        result = tier1_verify(
+            self._make_claim("markitdown-aspose-cells-plugin"),
+            set(), self._profile("aspose-cells-foss", "aspose.cells_foss"), "cells", "python",
+        )
+        assert result is None, f"Companion plugin should be skipped, got: {result}"
+
+    def test_wrong_aspose_package_flagged(self):
+        """A different Aspose package should still be flagged."""
+        result = tier1_verify(
+            self._make_claim("aspose-words-foss"),
+            set(), self._profile("aspose-cells-foss", "aspose.cells_foss"), "cells", "python",
+        )
+        assert result is not None and result["type"] == "wrong-package"
