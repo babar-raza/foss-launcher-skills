@@ -202,3 +202,90 @@ class TestVerifyCheckStaleDetect:
             passed, failures = post_refresh_verify.verify("3d", "python")
 
         assert any("stale_detect" in f.lower() for f in failures)
+
+
+# ---------------------------------------------------------------------------
+# verify() — check 3: stale reference pages (API class absent)
+# ---------------------------------------------------------------------------
+
+class TestVerifyCheckStaleReferencePages:
+    """Check 3: reference pages for API classes absent from api_surface.json."""
+
+    def test_valid_reference_page_passes(self, tmp_path, monkeypatch):
+        """Reference page for a KNOWN class → no failure. Guard: check actually runs."""
+        monkeypatch.setattr(post_refresh_verify, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
+        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
+
+        _setup_knowledge(tmp_path, "3d", "python",
+                         api_surface=[{"name": "PdfDocument"}])
+
+        # Must create ref_dir so ref_root.is_dir() is True (otherwise check silently skips)
+        ref_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "3d" / "python"
+        ref_dir.mkdir(parents=True)
+        (ref_dir / "PdfDocument.md").write_text("---\ntitle: PdfDocument\n---\nbody\n")
+
+        with patch.object(post_refresh_verify, "_HERE", tmp_path / "nonexistent"):
+            passed, failures = post_refresh_verify.verify("3d", "python")
+
+        assert not any("Reference page for absent" in f for f in failures)
+
+    def test_orphaned_reference_page_reported(self, tmp_path, monkeypatch):
+        """Reference page whose stem is NOT in api_surface.json → failure reported."""
+        monkeypatch.setattr(post_refresh_verify, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
+        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
+
+        # Non-empty api_surface so valid_api_names ≠ {} (guard passes)
+        _setup_knowledge(tmp_path, "3d", "python",
+                         api_surface=[{"name": "PdfDocument"}])
+
+        ref_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "3d" / "python"
+        ref_dir.mkdir(parents=True)
+        # stem "OrphanedClass" → not in {"pdfdocument"} → stale
+        (ref_dir / "OrphanedClass.md").write_text("---\ntitle: OrphanedClass\n---\n")
+
+        with patch.object(post_refresh_verify, "_HERE", tmp_path / "nonexistent"):
+            passed, failures = post_refresh_verify.verify("3d", "python")
+
+        assert any("Reference page for absent" in f for f in failures)
+        assert any("OrphanedClass" in f for f in failures)
+
+    def test_index_page_not_flagged(self, tmp_path, monkeypatch):
+        """_index.md is explicitly excluded from stale detection."""
+        monkeypatch.setattr(post_refresh_verify, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
+        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
+
+        _setup_knowledge(tmp_path, "3d", "python",
+                         api_surface=[{"name": "PdfDocument"}])
+
+        ref_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "3d" / "python"
+        ref_dir.mkdir(parents=True)
+        (ref_dir / "_index.md").write_text("---\ntitle: Reference Index\n---\n")
+        (ref_dir / "PdfDocument.md").write_text("---\ntitle: PdfDocument\n---\n")
+
+        with patch.object(post_refresh_verify, "_HERE", tmp_path / "nonexistent"):
+            passed, failures = post_refresh_verify.verify("3d", "python")
+
+        assert not any("Reference page for absent" in f for f in failures)
+
+    def test_empty_api_surface_skips_check(self, tmp_path, monkeypatch):
+        """When api_surface.json has no classes, check 3 is silently skipped.
+        Documents the guard: valid_api_names must be non-empty for check to run."""
+        monkeypatch.setattr(post_refresh_verify, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
+        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
+
+        # Empty api_surface → valid_api_names = set() → guard short-circuits
+        _setup_knowledge(tmp_path, "3d", "python", api_surface=[])
+
+        ref_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "3d" / "python"
+        ref_dir.mkdir(parents=True)
+        (ref_dir / "SomeClass.md").write_text("---\ntitle: SomeClass\n---\n")
+
+        with patch.object(post_refresh_verify, "_HERE", tmp_path / "nonexistent"):
+            passed, failures = post_refresh_verify.verify("3d", "python")
+
+        # No "Reference page for absent" failures — check was skipped
+        assert not any("Reference page for absent" in f for f in failures)

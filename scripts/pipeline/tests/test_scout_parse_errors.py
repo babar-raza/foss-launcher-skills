@@ -160,7 +160,7 @@ class TestParseErrorWarningThresholds:
         repo, pkg_root = _setup_repo(tmp_path, files)
         parser = get_parser("python")
 
-        with caplog.at_level(logging.WARNING, logger="extraction.scout"):
+        with caplog.at_level(logging.WARNING, logger="scout"):
             from extraction.scout import Scout
             output_dir = tmp_path / "output"
             output_dir.mkdir()

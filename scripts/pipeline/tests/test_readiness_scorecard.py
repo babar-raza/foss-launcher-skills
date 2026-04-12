@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import pytest
 
+import readiness_scorecard
 from readiness_scorecard import (
     _SUBDOMAINS,
     _THRESHOLDS,
@@ -272,3 +273,55 @@ class TestPureFunction:
 
         assert grades == grades_copy
         assert checkpoints == checkpoints_copy
+
+
+# ---------------------------------------------------------------------------
+# Exit-code contract: main() must exit 0 on ready, 1 on not-ready
+# ---------------------------------------------------------------------------
+
+class TestExitCodes:
+    def _patch_main(self, monkeypatch, tmp_path, ready: bool):
+        """Patch all I/O in main() so it runs cleanly to sys.exit."""
+        # Redirect file output path so report write doesn't crash
+        monkeypatch.setattr(readiness_scorecard, "_ROOT", tmp_path)
+        (tmp_path / "reports" / "3d" / "python").mkdir(parents=True)
+
+        # Stub data-reading functions (called before compute_verdict)
+        monkeypatch.setattr(readiness_scorecard, "_read_checkpoints",
+                            lambda f, p: {})
+        monkeypatch.setattr(readiness_scorecard, "_collect_grades",
+                            lambda f, p: {"A": 5, "B": 0, "C": 0, "D": 0, "F": 0, "ungraded": 0})
+        monkeypatch.setattr(readiness_scorecard, "_count_locale_coverage",
+                            lambda s, f, p: {
+                                "locales_present": 30, "total_locales": 36,
+                                "coverage": 30 / 36, "total_files": 150,
+                            })
+        monkeypatch.setattr(readiness_scorecard, "_read_hgate_signoffs",
+                            lambda f, p: {g: "PASS" for g in
+                                          ["h01", "h02", "h03", "h04", "h05"]})
+
+        # The contract under test: does main() correctly translate ready → exit code?
+        monkeypatch.setattr(readiness_scorecard, "compute_verdict",
+                            lambda *a, **kw: (ready, [] if ready else ["F-grade: 1"]))
+
+        # Prevent real subprocess call to project_phase_store.py
+        monkeypatch.setattr(readiness_scorecard, "_set_checkpoint",
+                            lambda *a, **kw: None)
+
+    def test_exit_0_when_ready(self, tmp_path, monkeypatch):
+        self._patch_main(monkeypatch, tmp_path, ready=True)
+        monkeypatch.setattr("sys.argv", ["readiness_scorecard.py",
+                                         "--family", "3d", "--platform", "python",
+                                         "--skip-human-review"])
+        with pytest.raises(SystemExit) as exc:
+            readiness_scorecard.main()
+        assert exc.value.code == 0
+
+    def test_exit_1_when_not_ready(self, tmp_path, monkeypatch):
+        self._patch_main(monkeypatch, tmp_path, ready=False)
+        monkeypatch.setattr("sys.argv", ["readiness_scorecard.py",
+                                         "--family", "3d", "--platform", "python",
+                                         "--skip-human-review"])
+        with pytest.raises(SystemExit) as exc:
+            readiness_scorecard.main()
+        assert exc.value.code == 1
