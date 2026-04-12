@@ -1622,3 +1622,166 @@ class TestPythonUnderscoreNormalization:
             set(), self._profile("aspose-cells-foss", "aspose.cells_foss"), "cells", "python",
         )
         assert result is not None and result["type"] == "wrong-package"
+
+
+# ---------------------------------------------------------------------------
+# Edge case: Maven no-colon (plain groupId, no :artifactId)
+# ---------------------------------------------------------------------------
+
+class TestMavenNoColon:
+    """expected_pkg is a plain Java groupId without :artifactId — must fall through gracefully."""
+
+    def _make_claim(self, value: str) -> dict:
+        return {"type": "package-declaration", "value": value, "file": "test.md", "line": 1}
+
+    def _profile(self, pkg: str) -> dict:
+        return {
+            "discovered_actuals": {"package_name": pkg},
+            "discovery_hints": {"language": "java"},
+        }
+
+    def test_plain_java_subpackage_accepted(self):
+        """com.aspose.slides.foss.Presentation must pass when expected is plain groupId."""
+        result = tier1_verify(
+            self._make_claim("com.aspose.slides.foss.Presentation"),
+            set(), self._profile("com.aspose.slides.foss"), "slides", "java",
+        )
+        assert result is None, f"Sub-package of plain groupId should pass Tier 1, got: {result}"
+
+    def test_plain_java_exact_match_accepted(self):
+        """com.aspose.slides.foss (exact) must pass when expected_pkg is the same."""
+        result = tier1_verify(
+            self._make_claim("com.aspose.slides.foss"),
+            set(), self._profile("com.aspose.slides.foss"), "slides", "java",
+        )
+        assert result is None, f"Exact match of plain groupId should pass Tier 1, got: {result}"
+
+
+# ---------------------------------------------------------------------------
+# Edge case: Python sub-module path normalization
+# ---------------------------------------------------------------------------
+
+class TestPythonSubModuleNormalization:
+    """Python hyphen→underscore normalization applies to sub-module import paths."""
+
+    def _make_claim(self, value: str) -> dict:
+        return {"type": "package-declaration", "value": value, "file": "test.md", "line": 1}
+
+    def _profile(self, pkg: str) -> dict:
+        return {
+            "discovered_actuals": {"package_name": pkg},
+            "discovery_hints": {"language": "python"},
+        }
+
+    def test_submodule_underscore_form_accepted(self):
+        """aspose_cells_foss.worksheet must be suppressed when expected is aspose-cells-foss."""
+        result = tier1_verify(
+            self._make_claim("aspose_cells_foss.worksheet"),
+            set(), self._profile("aspose-cells-foss"), "cells", "python",
+        )
+        assert result is None, f"Underscore sub-module should be suppressed, got: {result}"
+
+    def test_submodule_hyphen_form_accepted(self):
+        """aspose-cells-foss.worksheet (hyphen form) must also be suppressed."""
+        result = tier1_verify(
+            self._make_claim("aspose-cells-foss.worksheet"),
+            set(), self._profile("aspose-cells-foss"), "cells", "python",
+        )
+        assert result is None, f"Hyphen sub-module should be suppressed, got: {result}"
+
+
+# ---------------------------------------------------------------------------
+# Edge case: Maven triple-segment groupId (4 dotted segments)
+# ---------------------------------------------------------------------------
+
+class TestMavenTripleSegmentGroupId:
+    """groupId has 4 dotted segments (e.g. com.aspose.cells.foss)."""
+
+    def _make_claim(self, value: str) -> dict:
+        return {"type": "package-declaration", "value": value, "file": "test.md", "line": 1}
+
+    def _profile(self, pkg: str) -> dict:
+        return {
+            "discovered_actuals": {"package_name": pkg},
+            "discovery_hints": {"language": "java"},
+        }
+
+    def test_triple_segment_subpackage_accepted(self):
+        """com.aspose.cells.foss.Workbook must pass when expected contains that groupId."""
+        result = tier1_verify(
+            self._make_claim("com.aspose.cells.foss.Workbook"),
+            set(), self._profile("com.aspose.cells.foss:aspose-cells-foss"), "cells", "java",
+        )
+        assert result is None, f"Sub-package of triple-segment groupId should pass, got: {result}"
+
+    def test_cross_family_still_flagged(self):
+        """com.aspose.slides.foss.Presentation must be flagged when cells groupId is expected."""
+        result = tier1_verify(
+            self._make_claim("com.aspose.slides.foss.Presentation"),
+            set(), self._profile("com.aspose.cells.foss:aspose-cells-foss"), "cells", "java",
+        )
+        assert result is not None, "Cross-family import must be flagged as wrong-package"
+
+
+# ---------------------------------------------------------------------------
+# Regression guard: Python startswith("aspose") filter on other platforms
+# ---------------------------------------------------------------------------
+
+class TestPythonStartswithRegressionGuard:
+    """Legitimate Aspose imports on non-cells Python platforms must not be flagged.
+
+    Verifies that the companion-plugin filter change (startswith vs 'in') did not
+    introduce regressions: imports that start with 'aspose' are not affected by the
+    companion filter in either old or new code, so these must still pass.
+    """
+
+    def _make_claim(self, value: str) -> dict:
+        return {"type": "package-declaration", "value": value, "file": "test.md", "line": 1}
+
+    def _profile(self, pkg: str, import_path: str) -> dict:
+        return {
+            "discovered_actuals": {"package_name": pkg, "import_path": import_path},
+            "discovery_hints": {"language": "python"},
+        }
+
+    def test_words_python_not_regressed(self):
+        """aspose.words import path must not be flagged for words/python."""
+        result = tier1_verify(
+            self._make_claim("aspose.words"),
+            set(), self._profile("aspose-words", "aspose.words"), "words", "python",
+        )
+        assert result is None, "words/python: aspose.words was flagged"
+
+    def test_slides_python_not_regressed(self):
+        """aspose.slides import path must not be flagged for slides/python."""
+        result = tier1_verify(
+            self._make_claim("aspose.slides"),
+            set(), self._profile("aspose-slides", "aspose.slides"), "slides", "python",
+        )
+        assert result is None, "slides/python: aspose.slides was flagged"
+
+    def test_email_python_not_regressed(self):
+        """aspose.email import path must not be flagged for email/python."""
+        result = tier1_verify(
+            self._make_claim("aspose.email"),
+            set(), self._profile("aspose-email", "aspose.email"), "email", "python",
+        )
+        assert result is None, "email/python: aspose.email was flagged"
+
+    def test_3d_python_not_regressed(self):
+        """aspose.threed import path must not be flagged for 3d/python."""
+        result = tier1_verify(
+            self._make_claim("aspose.threed"),
+            set(), self._profile("aspose-3d", "aspose.threed"), "3d", "python",
+        )
+        assert result is None, "3d/python: aspose.threed was flagged"
+
+    def test_companion_plugin_suppressed_not_regressed(self):
+        """Companion plugin (markitdown-aspose-cells-plugin) must be suppressed on all platforms."""
+        for platform, pkg in [("words", "aspose-words"), ("slides", "aspose-slides"),
+                               ("email", "aspose-email"), ("3d", "aspose-3d")]:
+            result = tier1_verify(
+                self._make_claim("markitdown-aspose-cells-plugin"),
+                set(), self._profile(pkg, f"aspose.{platform}"), platform, "python",
+            )
+            assert result is None, f"{platform}/python: companion plugin was not suppressed"
