@@ -20,7 +20,7 @@ if str(_GAP_EVAL_DIR) not in sys.path:
 
 from validate_profile import _read_package_from_build_file, validate_profile, update_profile, ALL_PRODUCTS  # type: ignore  # noqa: E402
 from run import stage1_baseline, stage2_knowledge_validation, tier1_verify  # type: ignore  # noqa: E402
-from state import make_finding_id  # type: ignore  # noqa: E402
+from state import make_finding_id, reset_state, save_state  # type: ignore  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -1792,10 +1792,6 @@ class TestResetState:
 
     def test_reset_deletes_existing_file(self, tmp_path):
         """reset_state() returns True and removes the state file."""
-        import sys
-        sys.path.insert(0, str(tmp_path.parent.parent / "scripts" / "gap-eval"))
-        from state import save_state, reset_state  # type: ignore
-
         state = {"family": "cells", "platform": "python", "findings": []}
         save_state(state, "cells", "python", state_dir=tmp_path)
         state_file = tmp_path / "cells-python.json"
@@ -1807,9 +1803,55 @@ class TestResetState:
 
     def test_reset_safe_when_no_file(self, tmp_path):
         """reset_state() returns False without error when no state file exists."""
-        import sys
-        sys.path.insert(0, str(tmp_path.parent.parent / "scripts" / "gap-eval"))
-        from state import reset_state  # type: ignore
-
         result = reset_state("cells", "python", state_dir=tmp_path)
         assert result is False
+
+    def test_reset_oserror_is_reraised(self, tmp_path, monkeypatch):
+        """OSError from unlink() must be logged and re-raised, not swallowed."""
+        import pathlib
+
+        state = {"family": "cells", "platform": "python", "findings": []}
+        save_state(state, "cells", "python", state_dir=tmp_path)
+
+        original_unlink = pathlib.Path.unlink
+
+        def mock_unlink(self_path, missing_ok=False):
+            if self_path.name == "cells-python.json":
+                raise OSError("locked")
+            return original_unlink(self_path, missing_ok=missing_ok)
+
+        monkeypatch.setattr(pathlib.Path, "unlink", mock_unlink)
+
+        with pytest.raises(OSError, match="locked"):
+            reset_state("cells", "python", state_dir=tmp_path)
+
+
+class TestCLIFlags:
+    """CLI smoke tests: verify gap-eval flags appear in --help output."""
+
+    def _run_help(self) -> str:
+        import subprocess
+        result = subprocess.run(
+            [sys.executable, "scripts/gap-eval/run.py", "--help"],
+            capture_output=True,
+            text=True,
+            cwd=Path(__file__).parents[3],  # repo root
+        )
+        assert result.returncode == 0, f"--help failed: {result.stderr}"
+        return result.stdout
+
+    def test_reset_state_in_help(self):
+        """--reset-state flag must appear in --help."""
+        assert "--reset-state" in self._run_help()
+
+    def test_reset_state_dry_run_in_help(self):
+        """--reset-state-dry-run flag must appear in --help."""
+        assert "--reset-state-dry-run" in self._run_help()
+
+    def test_no_tier3_cache_in_help(self):
+        """--no-tier3-cache flag must appear in --help (regression guard)."""
+        assert "--no-tier3-cache" in self._run_help()
+
+    def test_deterministic_in_help(self):
+        """--deterministic flag must appear in --help (regression guard)."""
+        assert "--deterministic" in self._run_help()
