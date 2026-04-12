@@ -1,3 +1,10 @@
+<!-- CONTRACT: agent-executed
+     purpose: refresh knowledge model from source via scout/enrich/promote/index chain
+     preconditions: clone cache populated; existing knowledge at knowledge/{family}/{platform}/
+     postcondition: merged knowledge artifacts updated; stale_since cleared; knowledge_delta.json written
+     idempotent: yes — re-running produces same merged artifacts from same source
+     verified: 2026-04-11
+-->
 ---
 name: knowledge-update
 id: S-14

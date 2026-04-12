@@ -1,3 +1,19 @@
+<!-- CONTRACT: agent-executed
+     purpose: governed diagnostic for skill/pipeline failures with structured classification
+     preconditions: error message or unexpected output from a failed skill
+     postcondition: failure classified (CONFIG/DATA/CODE/GOVERNANCE/REGRESSION); resolution path identified or escalated
+     idempotent: yes — same failure input produces same classification and diagnostic steps
+     verified: 2026-04-11
+-->
+---
+name: diagnose-skill-failure
+description: >
+  Governed diagnostic procedure for skill or pipeline failures; classifies failure as CONFIG/DATA/CODE/GOVERNANCE/REGRESSION and routes to resolution or §8 escalation
+args: "{skill-id} {error-summary}"
+---
+
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
 # S-67: Diagnose Skill Failure — Governed Diagnostic Procedure
 
 **Arguments**: $ARGUMENTS

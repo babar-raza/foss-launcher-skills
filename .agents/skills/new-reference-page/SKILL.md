@@ -1,12 +1,10 @@
----
-name: new-reference-page
-description: >
-  Generate a new API reference page for reference.aspose.org
-args: "{family} {platform} {ClassName}"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
+<!-- CONTRACT: agent-executed
+     purpose: generate an API reference page for reference.aspose.org with class/member docs
+     preconditions: api_surface.json exists; class must be present in api_surface.json
+     postcondition: new reference page with properties, methods, inheritance, and evidence attached
+     idempotent: no — LLM-generated descriptions and examples vary between invocations
+     verified: 2026-04-11
+-->
 # S-60: New Reference Page — Generate API Reference Page
 
 Generate a new API reference page for reference.aspose.org.

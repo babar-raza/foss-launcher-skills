@@ -1,3 +1,10 @@
+<!-- CONTRACT: agent-executed
+     purpose: draft page content from a page plan with evidence-grounded prose and code
+     preconditions: page plan from S-18 exists; knowledge artifacts loaded
+     postcondition: page file written with frontmatter, evidence block, and knowledge-grounded content
+     idempotent: no — LLM-generated content varies between invocations
+     verified: 2026-04-11
+-->
 # S-19: Page Draft — Draft Page Content from a Page Plan
 
 **Arguments**: $ARGUMENTS
@@ -109,7 +116,13 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
 - Ground-check (audit.py) returns PASS or lists specific issues to fix
 - KB how-to pages include `{{% steps %}}` / `{{% /steps %}}` shortcodes
 
-## Error handling
-- If a referenced snippet is missing, leave a `{TODO: snippet needed}` placeholder and WARN
-- If audit.py returns FAIL, list each failing token and attempt correction from api_surface.json
-- If plan is not available, instruct user to run S-18 first
+## Error Handling
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `Plan not found` | S-18 page-plan was not run | Run `/page-plan {family} {platform} {topic}` first |
+| `Knowledge unavailable` | Knowledge not bootstrapped | Run `/knowledge-bootstrap {family} {platform}` |
+| `{TODO: snippet needed}` in output | Referenced snippet missing from knowledge | Generate snippet via `/knowledge-enrich {family} {platform} --mode member-doc` |
+| `audit.py FAIL: unknown token {name}` | API token in code block not in api_surface.json | Correct the token to match `api_surface.json`, or re-run `/repo-scout` if api_surface is stale |
+| `change_guard BLOCK` | Path or content violates change guard | Check the blocking reason; may need human override token |
+| Grade D or F after draft | Content failed critical evaluators | Run `/heal-page {path}` to auto-repair |

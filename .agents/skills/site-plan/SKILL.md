@@ -1,12 +1,10 @@
----
-name: site-plan
-description: >
-  Produce a complete, evidence-bound manifest of all pages a product needs across all 5 subdomains
-args: "{family} {platform} [--mode launch|update|section] [--section products|docs|blog|kb|reference] [--dry-run]"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
+<!-- CONTRACT: scripts/pipeline/site_planner.py
+     purpose: produce deterministic pre-generation site manifest for all 5 subdomains
+     preconditions: knowledge model bootstrapped; claims.json + api_surface.json + formats.json available
+     postcondition: site_plan.yaml written to reports/plans/{family}/{platform}/ with evidence-justified pages
+     idempotent: yes — deterministic output from same knowledge inputs
+     verified: 2026-04-11
+-->
 # S-47: Site Plan — Production-Grade Pre-Generation Site Manifest
 
 **Arguments**: $ARGUMENTS

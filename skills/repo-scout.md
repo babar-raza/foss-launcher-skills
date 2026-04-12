@@ -106,7 +106,7 @@ After a pip-install scout run, if `.py` snippet files already exist in `scout/sn
 from a previous source-repo run, they are preserved. Run `rebuild_snippet_index.py` to
 re-index them:
 ```
-.venv/Scripts/python scripts/pipeline/rebuild_snippet_index.py {family} {platform}
+.venv/Scripts/python scripts/maintenance/rebuild_snippet_index.py {family} {platform}
 ```
 
 ## Error handling

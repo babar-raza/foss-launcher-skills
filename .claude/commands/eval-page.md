@@ -1,3 +1,10 @@
+<!-- CONTRACT: scripts/pipeline/content_eval/cli.py evaluate
+     purpose: evaluate page content and produce a quality grade (A-F)
+     preconditions: target file exists under content/; knowledge model available for full evaluation
+     postcondition: grade assigned with findings report and remediation plan; no file modifications
+     idempotent: yes — deterministic evaluators produce same grade for same input
+     verified: 2026-04-11
+-->
 ---
 name: eval-page
 description: >

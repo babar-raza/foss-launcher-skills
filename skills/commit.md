@@ -1,3 +1,10 @@
+<!-- CONTRACT: scripts/pipeline/session_ledger.py
+     purpose: stage and commit session changes with structured conventional commits
+     preconditions: active session ledger (or --force-all); uncommitted changes in working tree
+     postcondition: git commit(s) created with skill IDs, evidence, and verification results
+     idempotent: no — each invocation creates new commit(s)
+     verified: 2026-04-11
+-->
 # S-76: Commit Prep — Stage and Commit Working Tree Changes
 
 **Arguments**: $ARGUMENTS

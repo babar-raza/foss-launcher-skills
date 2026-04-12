@@ -1,12 +1,10 @@
----
-name: page-plan
-description: >
-  Plan page structure before generation
-args: "{family} {platform} {section} {slug}"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
+<!-- CONTRACT: agent-executed
+     purpose: plan page structure before generation by compiling relevant claims and API surface
+     preconditions: knowledge model bootstrapped; claims.json + api_surface.json available
+     postcondition: YAML page plan written with claims, API surface, snippets, and structure
+     idempotent: no — LLM selects different claims and structures between invocations
+     verified: 2026-04-11
+-->
 # S-18: Page Plan — Plan Page Structure Before Generation
 
 **Arguments**: $ARGUMENTS
@@ -133,7 +131,13 @@ Plan a page's structure before drafting. Compiles relevant claims from knowledge
 - No fabricated API names or format claims
 - Plan is ready for consumption by S-19 (page-draft)
 
-## Error handling
-- If no relevant claims found for the topic, warn and suggest checking the slug or running S-14
-- If no snippets available, note that code blocks will need manual creation
-- If knowledge is stale, the pre-condition bootstrap handles refresh automatically
+## Error Handling
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `Knowledge unavailable` | Knowledge not bootstrapped | Run `/knowledge-bootstrap {family} {platform}` |
+| No relevant claims for topic | Topic doesn't match any claims in claims.json | Check slug spelling; run `/knowledge-update` to refresh claims |
+| No snippets available | Snippet extraction didn't produce code for this topic | Note in plan; S-19 will use `{TODO: snippet needed}` placeholders |
+| `model.yaml stale_since` warning | Knowledge artifacts are outdated | Run `/knowledge-update {family} {platform}` to refresh |
+| `api_surface.json` missing | Scout extraction not run | Run `/repo-scout {family} {platform}` |
+| Plan YAML validation error | Malformed plan output | Re-run; if persistent, check claims.json for encoding issues |

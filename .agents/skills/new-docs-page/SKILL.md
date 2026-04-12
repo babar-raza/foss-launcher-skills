@@ -1,12 +1,10 @@
----
-name: new-docs-page
-description: >
-  Generate a new documentation page for docs.aspose.org
-argument-hint: "{family} {platform} {section} {slug} [--bypass-plan]"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
+<!-- CONTRACT: agent-executed
+     purpose: generate a documentation page for docs.aspose.org with evidence provenance
+     preconditions: knowledge model bootstrapped; claims.json + api_surface.json available
+     postcondition: new page at docs.aspose.org path with frontmatter, evidence, and audit pass
+     idempotent: no — LLM-generated content varies between invocations
+     verified: 2026-04-11
+-->
 # S-56: New Docs Page — Generate Documentation Page for docs.aspose.org
 
 Generate a new documentation page for docs.aspose.org.
@@ -130,3 +128,14 @@ After generating the page:
    — must exit with 0 FAIL before committing.
 
 8. **Confirm** with the output path and a list of the H2 sections written.
+
+## Error Handling
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `Knowledge unavailable` | Knowledge not bootstrapped | Run `/knowledge-bootstrap {family} {platform}` |
+| `api_surface.json not found` | Scout extraction not run | Run `/repo-scout {family} {platform}` |
+| `change_guard BLOCK` | Content violates change guard rules | Check blocking reason; may need override token or content revision |
+| `audit.py FAIL: unknown token` | Fabricated API name in code block | Correct token to match `api_surface.json` entries |
+| Page already exists at target path | Duplicate page generation | Use `/page-update` to modify existing pages instead |
+| Grade D/F after generation | Content failed critical evaluators | Run `/heal-page {path}` to auto-repair |

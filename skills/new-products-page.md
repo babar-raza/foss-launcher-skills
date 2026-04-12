@@ -1,3 +1,10 @@
+<!-- CONTRACT: agent-executed
+     purpose: generate products.aspose.org landing page with YAML-heavy plugin layout
+     preconditions: knowledge model bootstrapped; claims.json + snippets available
+     postcondition: products page with feature table, code examples, FAQ, and evidence attached
+     idempotent: no — LLM-generated feature descriptions and code selection vary
+     verified: 2026-04-11
+-->
 # S-61: New Products Page — Generate products.aspose.org Landing Page
 
 **Arguments**: $ARGUMENTS

@@ -1,3 +1,10 @@
+<!-- CONTRACT: agent-executed
+     purpose: audit-driven content healing via gap-eval baseline + classified finding repair
+     preconditions: knowledge model current; clone cache exists; gap-eval profile exists
+     postcondition: CONTENT findings fixed and grades improved; PIPELINE findings documented for human action
+     idempotent: no — LLM-generated fixes vary; Tier 3 findings may differ between runs
+     verified: 2026-04-11
+-->
 # S-87: System Heal — Audit-Driven Content Healing
 
 **Arguments**: $ARGUMENTS

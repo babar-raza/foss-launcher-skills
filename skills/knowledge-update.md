@@ -1,3 +1,20 @@
+<!-- CONTRACT: agent-executed
+     purpose: refresh knowledge model from source via scout/enrich/promote/index chain
+     preconditions: clone cache populated; existing knowledge at knowledge/{family}/{platform}/
+     postcondition: merged knowledge artifacts updated; stale_since cleared; knowledge_delta.json written
+     idempotent: yes — re-running produces same merged artifacts from same source
+     verified: 2026-04-11
+-->
+---
+name: knowledge-update
+id: S-14
+description: >
+  Refresh the knowledge model from source using scout, enrich, promote, and index.
+args: "{family} {platform}"
+---
+
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
 # S-14: Knowledge Update - Refresh Knowledge Model from Source
 
 **Arguments**: $ARGUMENTS

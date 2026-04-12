@@ -1,3 +1,10 @@
+<!-- CONTRACT: scripts/pipeline/site_planner.py
+     purpose: produce deterministic pre-generation site manifest for all 5 subdomains
+     preconditions: knowledge model bootstrapped; claims.json + api_surface.json + formats.json available
+     postcondition: site_plan.yaml written to reports/plans/{family}/{platform}/ with evidence-justified pages
+     idempotent: yes — deterministic output from same knowledge inputs
+     verified: 2026-04-11
+-->
 # S-47: Site Plan — Production-Grade Pre-Generation Site Manifest
 
 **Arguments**: $ARGUMENTS

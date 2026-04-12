@@ -1,12 +1,10 @@
----
-name: heal-page
-description: >
-  Heal a low-quality page by fixing audit failures and improving grade
-args: "{family} {platform} {section} {slug}"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
+<!-- CONTRACT: agent-executed
+     purpose: heal a low-quality page by applying targeted fixes for each FAIL finding
+     preconditions: eval-page grade D or F available; knowledge model current
+     postcondition: page quality improved (grade >= prior) or escalated to human review
+     idempotent: no — LLM-generated fixes vary between invocations
+     verified: 2026-04-11
+-->
 # S-26: Heal Page — Heal Low-Quality Page
 
 **Arguments**: $ARGUMENTS
@@ -125,7 +123,13 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 - All fixes are grounded in knowledge (no fabrication)
 - Evidence frontmatter is current
 
-## Error handling
-- If knowledge model is missing or stale, abort — healing without knowledge would introduce errors
-- If audit.py fails persistently, escalate immediately
-- Never apply more than 2 healing passes — escalate after that per AGENTS.md Section 8
+## Error Handling
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `Knowledge unavailable` | Knowledge not bootstrapped | Run `/knowledge-bootstrap {family} {platform}` |
+| `model.yaml stale_since` | Knowledge outdated | Run `/knowledge-update {family} {platform}` |
+| Grade not improved after pass 1 | Fix didn't address root cause | Pass 2 will attempt; if still not improved → ESCALATE |
+| Still D/F after 2 passes | Page has structural issues beyond auto-repair | Escalate to human review per AGENTS.md §8 |
+| `audit.py FAIL` persistent | Fabricated API tokens not fixable by LLM | Check api_surface.json; may need `/repo-scout` refresh |
+| `no-downgrade-guard` blocked | Proposed fix would reduce grade | Examine the fix; the guard is protecting correct content |

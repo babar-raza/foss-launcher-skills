@@ -1,3 +1,10 @@
+<!-- CONTRACT: scripts/pipeline/content_eval/cli.py evaluate
+     purpose: batch multi-dimensional content evaluation across 9-16 evaluators
+     preconditions: knowledge model available; content files exist under content/
+     postcondition: evaluation report with grades and prioritized remediation plan
+     idempotent: yes — deterministic evaluators produce same results for same input
+     verified: 2026-04-11
+-->
 # S-51: Content Eval — Multi-Dimensional Content Evaluation
 
 **Arguments**: $ARGUMENTS

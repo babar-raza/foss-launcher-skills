@@ -1,3 +1,10 @@
+<!-- CONTRACT: agent-executed
+     purpose: initialize session and governance context before any work
+     preconditions: AGENTS.md readable; .venv usable
+     postcondition: session ledger initialized with dirty-file snapshot; governance files loaded
+     idempotent: yes — re-init creates a new session safely
+     verified: 2026-04-11
+-->
 # S-77: Session Start — Mandatory Session Initialization Gate
 
 **Trigger:** Run at the start of every session before any other command or task.
@@ -33,6 +40,30 @@ SESSION GATE PASSED
 - Capability assessment: FULL / PARTIAL / NONE / BROKEN
 - Session ledger: initialized (session ID: {id}, dirty files at start: {N})
 ```
+
+## Resuming Another Operator's Session
+
+If another operator started work and you need to continue their session:
+
+1. Run `/session-start` as normal (creates a fresh session)
+2. Inherit the prior session's file tracking:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/session_ledger.py inherit
+   ```
+   This finds the most recent closed session and adopts all its tracked files
+   into your new session.
+3. If you know the specific session ID:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/session_ledger.py inherit --session-id <id>
+   ```
+4. To selectively adopt files (e.g., only content changes):
+   ```bash
+   .venv/Scripts/python scripts/pipeline/session_ledger.py adopt --glob "content/**"
+   ```
+5. To adopt all dirty files at once:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/session_ledger.py adopt --all
+   ```
 
 ## Hard rules
 

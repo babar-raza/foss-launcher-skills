@@ -1,3 +1,10 @@
+<!-- CONTRACT: agent-executed
+     purpose: orchestrate full post-launch product refresh cycle (14-step chain)
+     preconditions: product already launched; knowledge model accessible; clone cache reachable
+     postcondition: content updated from knowledge delta; verification gate passed; changes committed
+     idempotent: yes — checkpoint-based resume; completed steps produce no-ops on re-run
+     verified: 2026-04-11
+-->
 ---
 name: refresh-product
 id: S-84

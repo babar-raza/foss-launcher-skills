@@ -1,12 +1,10 @@
----
-name: getting-started
-description: >
-  Bootstrap the repo environment for a FOSS product
-args: "{family} {platform}"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
+<!-- CONTRACT: agent-executed
+     purpose: bootstrap repo environment from fresh clone to content-ready state
+     preconditions: Python 3.8+ installed; git clone completed
+     postcondition: venv created; hooks installed; knowledge artifacts bootstrapped; audit passing
+     idempotent: yes — re-running steps is safe; existing artifacts are preserved
+     verified: 2026-04-11
+-->
 # S-64: Getting Started - Bootstrap the Repo Environment
 
 **Arguments**: $ARGUMENTS

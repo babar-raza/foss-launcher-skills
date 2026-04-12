@@ -1,12 +1,10 @@
----
-name: new-products-page
-description: >
-  Generate products.aspose.org landing page for a FOSS product
-argument-hint: "{family} [platform] [--layout family|plugin]"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
+<!-- CONTRACT: agent-executed
+     purpose: generate products.aspose.org landing page with YAML-heavy plugin layout
+     preconditions: knowledge model bootstrapped; claims.json + snippets available
+     postcondition: products page with feature table, code examples, FAQ, and evidence attached
+     idempotent: no — LLM-generated feature descriptions and code selection vary
+     verified: 2026-04-11
+-->
 # S-61: New Products Page — Generate products.aspose.org Landing Page
 
 **Arguments**: $ARGUMENTS

@@ -1,12 +1,10 @@
----
-name: new-blog-post
-description: >
-  Generate a new blog post for blog.aspose.org
-argument-hint: "{family} {platform} {slug} [--bypass-plan]"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
+<!-- CONTRACT: agent-executed
+     purpose: generate a blog post for blog.aspose.org with knowledge-grounded content
+     preconditions: knowledge model bootstrapped; claims.json + api_surface.md available
+     postcondition: new blog post at blog.aspose.org/{family}/{platform}/{slug}/index.md with provenance
+     idempotent: no — LLM-generated content varies between invocations
+     verified: 2026-04-11
+-->
 # S-57: New Blog Post — Generate Blog Post for blog.aspose.org
 
 Generate a new blog post for blog.aspose.org.

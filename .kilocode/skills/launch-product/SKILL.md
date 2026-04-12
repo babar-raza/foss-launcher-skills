@@ -1,3 +1,10 @@
+<!-- CONTRACT: agent-executed
+     purpose: orchestrate 5-subdomain full documentation launch (products, blog, docs, kb, reference)
+     preconditions: knowledge bootstrapped; clone cache populated; LLM key available for translation
+     postcondition: all 5 subdomains populated, graded, translated, and readiness scorecard produced
+     idempotent: yes — checkpoint-based resume skips completed stages
+     verified: 2026-04-11
+-->
 # S-49: Launch Product — 5-Subdomain Full Documentation Launch
 
 **Arguments**: $ARGUMENTS
@@ -241,11 +248,19 @@ or Stage 7 until FAIL count is 0.
 is the **only** translation stage in the launch flow — all English pages must be generated
 and truth-audited (Stage 6, 0 FAIL) before this stage runs.
 
-**Pre-flight guard**: Before running any translate commands, verify the truth audit passed:
+**Pre-flight guards** (check both before running any translate commands):
+
+1. Verify the truth audit passed:
 ```bash
 .venv/Scripts/python scripts/pipeline/project_phase_store.py get {family} {platform} truth_audit_done
 ```
 If this does not return `true`, halt: "Stage 6.5 requires truth_audit_done=true. Complete Stage 6 first."
+
+2. Verify LLM API key is available:
+```bash
+python -c "import os; k=os.environ.get('LLM_API_KEY',''); print('OK' if k else 'MISSING')"
+```
+If `MISSING`: halt with message: "Stage 6.5 requires LLM_API_KEY for translation. Set it and retry, or proceed to Stage 7/8 with untranslated content (scorecard will flag locale coverage gaps)." Do NOT silently skip translation — the operator must explicitly choose to proceed without it.
 
 **Commands** (run each subdomain sequentially):
 ```bash
@@ -320,6 +335,43 @@ READY TO SHIP if:
 > (`description_completeness` FAIL for tables with ≥3 rows). Grade B or above requires non-empty
 > description text from ERC enrichment. Grade **A** is NOT expected for skeleton reference pages
 > from undocumented FOSS repos.
+
+---
+
+### STAGE 8.5 — Human Review Gates (H-01 through H-05)
+
+Before declaring READY TO SHIP, human review gates must be completed.
+
+**Step 1 — Generate review samples:**
+```bash
+.venv/Scripts/python scripts/pipeline/human_review_sampler.py --family {family} --platform {platform} --gate all
+```
+
+This creates 5 files in `reports/human-review/`:
+- `{family}-{platform}-h01-sample.md` — 5 random non-reference pages for prose review
+- `{family}-{platform}-h02-sample.md` — 10 stratified reference pages for accuracy review
+- `{family}-{platform}-h03-sample.md` — format table verification template
+- `{family}-{platform}-h04-sample.md` — link validation template
+- `{family}-{platform}-h05-sample.md` — license accuracy template
+
+**Step 2 — Operator reviews each gate:**
+- H-01: Review sampled pages using `docs/review/h01-prose-review-checklist.md`
+- H-02: Review sampled pages using `docs/review/h02-reference-accuracy-checklist.md`
+- H-03: Verify format tables against clone cache `formats.json`
+- H-04: Run Hugo build, verify cross-subdomain links resolve
+- H-05: Compare license claims against upstream repo LICENSE file
+
+**Step 3 — Record results:**
+Fill in the `result:` field in each sign-off block (PASS / FAIL / CONDITIONAL).
+
+**Step 4 — Re-run scorecard:**
+```bash
+.venv/Scripts/python scripts/pipeline/readiness_scorecard.py --family {family} --platform {platform} --set-checkpoint
+```
+
+The scorecard now reads H-gate sign-offs. "READY TO SHIP" requires all 5 gates to show PASS.
+
+> **Note**: Use `--skip-human-review` during development only. Production launches require all H-gates.
 
 ---
 

@@ -1,13 +1,10 @@
----
-name: gap-eval
-id: S-43
-description: >
-  Content verification against clone cache using three-tier strategy
-args: "{family} {platform} [--scope docs|blog|kb|all] [--no-llm] [--dry-run]"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
+<!-- CONTRACT: scripts/gap-eval/run.py
+     purpose: verify content against clone cache ground truth using three-tier architecture
+     preconditions: clone cache exists; profile at scripts/gap-eval/profiles/{family}/{platform}.yaml
+     postcondition: gap-eval report with verdict (PUBLICATION READY / CONDITIONAL / NOT PUBLISHABLE)
+     idempotent: yes — same inputs and clone cache SHA produce same Tier 1/2 results
+     verified: 2026-04-11
+-->
 # S-43: Gap Eval — Content Verification Against Clone Cache
 
 **Arguments**: $ARGUMENTS
@@ -89,3 +86,14 @@ Skip LLM (Tier 1+2 only, faster):
 - Same content + same clone cache SHA → same findings (except `run_date`)
 - Rerun after fixes → delta section shows prior findings as `fixed`, new findings listed
 - Finding IDs are stable: `F-{family}-{platform}-{type}-{sha8(file+line+old_value[:20])}`
+
+## Error Handling
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `PRECONDITION FAILED: api_surface.json not found` | Knowledge not bootstrapped | Run `/knowledge-bootstrap {family} {platform}` |
+| `PREREQUISITE FAILED: Clone cache not found` | Clone cache absent or FOSS_LAUNCHER_PATH not set | Run `/getting-started` step 4, or set `ASPOSE_CLONE_CACHE` env var |
+| `Profile validation failed` | Missing or malformed profile YAML | Check `scripts/gap-eval/profiles/{family}/{platform}.yaml`; delete and re-run to auto-detect |
+| Exit code 2 (NOT PUBLISHABLE) | Mandatory findings in core content | Run `/gap-plan {family} {platform}` to generate fix specs |
+| `LLM endpoint unreachable` (Tier 3) | LLM API key missing or endpoint down | Set `LLM_API_KEY` env var, or use `--no-llm` to skip Tier 3 |
+| `api.vectors.json not found` (Tier 2) | Vectors not built | Run `python scripts/pipeline/embed.py gap-index {family} {platform}` |

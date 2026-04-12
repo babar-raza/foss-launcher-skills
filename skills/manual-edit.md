@@ -1,3 +1,10 @@
+<!-- CONTRACT: agent-executed
+     purpose: apply operator-specified targeted content edit under full governance
+     preconditions: active session; target file exists under content/; knowledge model current
+     postcondition: page edited with evidence attached, audit passed, and provenance updated
+     idempotent: no — operator intent varies; grade outcomes depend on edit content
+     verified: 2026-04-11
+-->
 # S-73: Manual Edit — Operator-Directed Targeted Content Edit
 
 **Arguments**: $ARGUMENTS
