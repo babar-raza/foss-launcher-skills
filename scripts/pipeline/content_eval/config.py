@@ -28,6 +28,7 @@ ALL_EVALUATORS = [
     "namespace_correctness",
     "format_completeness",
     "member_validity",
+    "prose_grounding",
 ]
 
 # Default evaluators (fast, deterministic, production-ready)
@@ -54,6 +55,7 @@ DEFAULT_EVALUATORS = [
     "code_syntax_check",
     "namespace_correctness",
     "member_validity",
+    "prose_grounding",
 ]
 
 # Platform foreign-code patterns: (regex, description)

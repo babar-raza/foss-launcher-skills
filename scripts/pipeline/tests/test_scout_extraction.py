@@ -417,7 +417,7 @@ class WithProperty:
             pkg.mkdir(parents=True)
             src = pkg / "models.py"
             src.write_text(self.PY_DATACLASS)
-            classes, _, _, _ = extract_api_surface(
+            classes, _, _, _, _ = extract_api_surface(
                 parser, "python", pkg, Path(tmpdir), "testfamily"
             )
         return {c["name"]: c for c in classes if c.get("kind") == "class_definition"}

@@ -69,6 +69,7 @@ def _ensure_loaded():
         page_role,
         platform_purity,
         prose_claim_binding,
+        prose_grounding,
         prose_truth,
         risk_language,
         structure,

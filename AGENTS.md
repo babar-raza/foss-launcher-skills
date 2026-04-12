@@ -129,6 +129,9 @@ ALLOWED:
   content/reference.aspose.org/en/{family}/{platform}/
   knowledge/   (evidence artifacts and model only)
   reports/     (local-only audit artifacts — agents may write here; NEVER commit to git)
+  keywords/    (SEO keyword data — written exclusively by seo-keyword-refresh CI; never hand-edited)
+  data/        (Hugo registry data — written by update_product_registry.py)
+  patches/     (SEO patch manifests — written by scripts/seo/pipeline/report.py)
 
 FORBIDDEN (no agent may write here without explicit human override):
   themes/

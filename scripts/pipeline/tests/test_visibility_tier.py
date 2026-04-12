@@ -88,7 +88,7 @@ class TestPythonAllExtraction:
         )
 
         from extraction.api_surface import extract_api_surface
-        classes, _, _, _ = extract_api_surface(parser, "python", src, src, "test")
+        classes, _, _, _, _ = extract_api_surface(parser, "python", src, src, "test")
 
         by_name = {c["name"]: c for c in classes}
         assert "MyClass" in by_name
@@ -109,7 +109,7 @@ class TestPythonAllExtraction:
         )
 
         from extraction.api_surface import extract_api_surface
-        classes, _, _, _ = extract_api_surface(parser, "python", src, src, "test")
+        classes, _, _, _, _ = extract_api_surface(parser, "python", src, src, "test")
 
         by_name = {c["name"]: c for c in classes}
         assert "DocClass" in by_name
@@ -126,7 +126,7 @@ class TestPythonAllExtraction:
         )
 
         from extraction.api_surface import extract_api_surface
-        classes, _, _, _ = extract_api_surface(parser, "python", src, src, "test")
+        classes, _, _, _, _ = extract_api_surface(parser, "python", src, src, "test")
 
         by_name = {c["name"]: c for c in classes}
         assert "Bare" in by_name
@@ -151,7 +151,7 @@ class TestPythonAllExtraction:
         )
 
         from extraction.api_surface import extract_api_surface
-        classes, _, _, _ = extract_api_surface(parser, "python", src, src, "test")
+        classes, _, _, _, _ = extract_api_surface(parser, "python", src, src, "test")
 
         by_name = {c["name"]: c for c in classes}
         for name in ("Foo", "Bar", "Baz"):
@@ -172,7 +172,7 @@ class TestPythonAllExtraction:
         )
 
         from extraction.api_surface import extract_api_surface
-        classes, _, _, _ = extract_api_surface(parser, "python", src, src, "test")
+        classes, _, _, _, _ = extract_api_surface(parser, "python", src, src, "test")
 
         by_name = {c["name"]: c for c in classes}
         assert "OnlyClass" in by_name
@@ -194,7 +194,7 @@ class TestPythonAllExtraction:
         )
 
         from extraction.api_surface import extract_api_surface
-        classes, _, _, _ = extract_api_surface(parser, "python", src, src, "test")
+        classes, _, _, _, _ = extract_api_surface(parser, "python", src, src, "test")
 
         by_name = {c["name"]: c for c in classes}
         assert by_name["Exported"]["visibility"] == "exported"

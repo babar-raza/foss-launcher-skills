@@ -13,6 +13,9 @@ Modules in this package:
 - env_loader.py:  load_env() — loads .env from repo root into os.environ via python-dotenv.
                   Call once at the top of every CLI entry point.  No-op if python-dotenv
                   is absent (graceful degradation to shell-exported vars).
+- prereqs.py:     Prerequisite checker for pipeline entry points — check_venv,
+                  check_clone_cache, check_knowledge_model, check_api_surface,
+                  check_all, require_all.  Clear, actionable error messages.
 
 Note: knowledge.py imports from knowledge_core (a sibling), so it does not
 satisfy the strict "zero upstream deps" rule. All other modules in this

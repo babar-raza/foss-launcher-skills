@@ -17,7 +17,7 @@ discovered_actuals:
   import_path: "aspose.email_foss"
   package_source_actual: pyproject.toml
   format_files_found: null
-  last_baseline_sha: null
+  last_baseline_sha: c336fa7c1d6b90c6155ecf25a261477640c2b1b6
 
 language_conventions:
   method_naming: snake_case

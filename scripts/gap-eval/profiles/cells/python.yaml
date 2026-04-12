@@ -17,7 +17,7 @@ discovered_actuals:
   import_path: "aspose.cells_foss"
   package_source_actual: pyproject.toml
   format_files_found: null
-  last_baseline_sha: null
+  last_baseline_sha: 5b5b28eb372c28f4529928ea81696a0031b68d60
 
 language_conventions:
   method_naming: snake_case

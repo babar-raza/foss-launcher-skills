@@ -47,6 +47,17 @@ def _run_evaluate(args):
 
     _ensure_loaded()
 
+    # Prerequisite check for targeted product evaluations
+    target_parts = args.target if hasattr(args, "target") else []
+    if len(target_parts) == 2 and not args.files:
+        try:
+            from core.prereqs import require_all
+            require_all(target_parts[0], target_parts[1])
+        except SystemExit:
+            raise
+        except Exception:
+            pass  # prereqs is best-effort; evaluators have their own checks
+
     # Determine evaluator set
     if args.evaluators:
         evaluator_names = [e.strip() for e in args.evaluators.split(",")]
@@ -110,13 +121,15 @@ def _run_evaluate(args):
 
     # Cache knowledge per product
     knowledge_cache: dict[tuple[str, str], object] = {}
+    _knowledge_unavailable_keys: set[tuple[str, str]] = set()
 
     # --skip-graded: filter out pages already graded with current knowledge
     if args.skip_graded:
         _HERE = Path(__file__).resolve().parent.parent
         if str(_HERE) not in sys.path:
             sys.path.insert(0, str(_HERE))
-        from grade_writer import read_grade as _read_grade  # noqa: E402
+        from grade_writer import read_grade as _read_grade, content_hash as _content_hash  # noqa: E402
+        from core.markdown import _FRONTMATTER_WRITER_RE as _FM_RE  # noqa: E402
         filtered = []
         for page in pages:
             key = (page.family, page.platform)
@@ -131,6 +144,18 @@ def _run_evaluate(args):
                     and k and hasattr(k, "repo_sha")
                     and stored["model_sha"] == k.repo_sha
                     and stored.get("logic_version", "") == EVALUATOR_LOGIC_VERSION):
+                # Content-hash gate: if the body changed since last grade, re-grade
+                stored_hash = stored.get("content_hash", "")
+                if stored_hash:
+                    try:
+                        text = page.filepath.read_text(encoding="utf-8")
+                        fm_m = _FM_RE.match(text)
+                        body = text[fm_m.end():] if fm_m else text
+                        if _content_hash(body) != stored_hash:
+                            filtered.append(page)
+                            continue
+                    except (OSError, UnicodeDecodeError):
+                        pass  # if unreadable, fall through to skip
                 continue  # Already graded with current knowledge, full evaluators, current logic
             filtered.append(page)
         skipped = len(pages) - len(filtered)
@@ -148,6 +173,25 @@ def _run_evaluate(args):
 
         knowledge = knowledge_cache[key]
 
+        # Knowledge availability gate: skip evaluators when knowledge is missing
+        if knowledge and not getattr(knowledge, 'available', True):
+            if key not in _knowledge_unavailable_keys:
+                _knowledge_unavailable_keys.add(key)
+                family, platform = key
+                report.findings.append(Finding(
+                    level="FAIL",
+                    category="PIPELINE",
+                    filepath=str(page.filepath),
+                    line_no=0,
+                    message=f"Knowledge unavailable for {family}/{platform}. "
+                            f"Run /knowledge-bootstrap {family} {platform} first. "
+                            f"Grading without knowledge produces inflated grades.",
+                    evaluator="cli",
+                    suggestion="Run /knowledge-bootstrap to populate knowledge artifacts.",
+                ))
+            report.pages_evaluated += 1
+            continue
+
         for eval_name in evaluator_names:
             evaluator_cls = get_evaluator(eval_name)
             evaluator = evaluator_cls()
@@ -159,7 +203,7 @@ def _run_evaluate(args):
                 _log(f"  ERROR in {eval_name} on {page.filepath}: {e}")
                 _log(_tb.format_exc())
                 report.findings.append(Finding(
-                    level="WARN",
+                    level="FAIL",
                     category="PIPELINE",
                     filepath=str(page.filepath),
                     line_no=0,

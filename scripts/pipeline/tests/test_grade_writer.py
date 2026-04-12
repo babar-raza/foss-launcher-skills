@@ -13,7 +13,7 @@ from content_eval.models import (
     compute_grade_with_criticality,
     CRITICAL_CATEGORIES,
 )
-from grade_writer import read_grade, write_grade
+from grade_writer import content_hash, read_grade, write_grade
 
 
 # ---------------------------------------------------------------------------
@@ -555,6 +555,103 @@ class TestWriteGradePreservesLastMechanism:
             text = p.read_text(encoding="utf-8")
             assert "last_mechanism: skill" in text, (
                 f"last_mechanism mutated after double write_grade:\n{text}"
+            )
+        finally:
+            p.unlink(missing_ok=True)
+
+
+# ---------------------------------------------------------------------------
+# content_hash — unit tests
+# ---------------------------------------------------------------------------
+
+class TestContentHash:
+    def test_deterministic(self):
+        """Same input always produces the same hash."""
+        assert content_hash("hello") == content_hash("hello")
+
+    def test_length_is_16(self):
+        """Hash is truncated to 16 hex characters."""
+        h = content_hash("anything")
+        assert len(h) == 16
+        assert all(c in "0123456789abcdef" for c in h)
+
+    def test_different_content_different_hash(self):
+        assert content_hash("body A") != content_hash("body B")
+
+
+# ---------------------------------------------------------------------------
+# graded_content_hash — write/read round-trip
+# ---------------------------------------------------------------------------
+
+class TestContentHashRoundTrip:
+    def test_write_grade_stores_content_hash(self):
+        """write_grade writes graded_content_hash derived from the page body."""
+        p = _tmp_file("---\ntitle: T\n---\nBody text.\n")
+        try:
+            ok = write_grade(p, "A", model_sha="sha1")
+            assert ok
+            text = p.read_text(encoding="utf-8")
+            assert "graded_content_hash:" in text
+            result = read_grade(p)
+            assert result is not None
+            assert len(result["content_hash"]) == 16
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_read_grade_returns_content_hash(self):
+        """read_grade returns the stored content_hash."""
+        p = _tmp_file(textwrap.dedent("""\
+            ---
+            title: T
+            grade: B
+            graded_content_hash: "abcdef0123456789"
+            ---
+
+            Body.
+        """))
+        try:
+            result = read_grade(p)
+            assert result is not None
+            assert result["content_hash"] == "abcdef0123456789"
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_missing_content_hash_returns_empty(self):
+        """Pages without graded_content_hash return empty string."""
+        p = _tmp_file("---\ntitle: T\ngrade: A\n---\nBody.\n")
+        try:
+            result = read_grade(p)
+            assert result is not None
+            assert result["content_hash"] == ""
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_content_hash_changes_when_body_changes(self):
+        """If body is modified after grading, the stored hash differs from current."""
+        p = _tmp_file("---\ntitle: T\n---\nOriginal body.\n")
+        try:
+            write_grade(p, "A", model_sha="sha1")
+            stored = read_grade(p)
+            old_hash = stored["content_hash"]
+            # Manually change the body while keeping frontmatter
+            text = p.read_text(encoding="utf-8")
+            new_text = text.replace("Original body.", "Changed body.")
+            p.write_text(new_text, encoding="utf-8")
+            # The stored hash should no longer match the current body
+            current = content_hash("\nChanged body.\n")
+            assert old_hash != current
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_double_write_no_duplicate_content_hash(self):
+        """Two consecutive writes must not duplicate graded_content_hash."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            write_grade(p, "A", model_sha="sha1")
+            write_grade(p, "B", model_sha="sha2")
+            text = p.read_text(encoding="utf-8")
+            assert text.count("graded_content_hash") == 1, (
+                f"graded_content_hash duplicated:\n{text}"
             )
         finally:
             p.unlink(missing_ok=True)

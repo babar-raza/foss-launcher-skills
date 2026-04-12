@@ -139,7 +139,7 @@ class TestExtractApiSurfaceJavaPackageFilter:
             }
         """)
         parser = scout.get_parser("java")
-        classes, _, _, _ = extract_api_surface(
+        classes, _, _, _, _ = extract_api_surface(
             parser, "java", tmp_path, tmp_path, "slides")
         names = [c["name"] for c in classes]
         assert "AppPropertiesPart" not in names, (
@@ -155,7 +155,7 @@ class TestExtractApiSurfaceJavaPackageFilter:
             }
         """)
         parser = scout.get_parser("java")
-        classes, _, _, _ = extract_api_surface(
+        classes, _, _, _, _ = extract_api_surface(
             parser, "java", tmp_path, tmp_path, "slides")
         names = [c["name"] for c in classes]
         assert "SlideImpl" not in names, (
@@ -171,7 +171,7 @@ class TestExtractApiSurfaceJavaPackageFilter:
             }
         """)
         parser = scout.get_parser("java")
-        classes, _, _, _ = extract_api_surface(
+        classes, _, _, _, _ = extract_api_surface(
             parser, "java", tmp_path, tmp_path, "slides")
         names = [c["name"] for c in classes]
         assert "Presentation" in names, (
@@ -187,7 +187,7 @@ class TestExtractApiSurfaceJavaPackageFilter:
             }
         """)
         parser = scout.get_parser("java")
-        classes, _, _, _ = extract_api_surface(
+        classes, _, _, _, _ = extract_api_surface(
             parser, "java", tmp_path, tmp_path, "slides")
         names = [c["name"] for c in classes]
         assert "LocaleHelper" in names, (
@@ -204,7 +204,7 @@ class TestExtractApiSurfaceJavaPackageFilter:
             }
         """)
         parser = scout.get_parser("java")
-        classes, _, _, _ = extract_api_surface(
+        classes, _, _, _, _ = extract_api_surface(
             parser, "java", tmp_path, tmp_path, "slides",
             excluded_package_segments=frozenset(),  # disable filtering
         )
@@ -220,7 +220,7 @@ class TestExtractApiSurfaceJavaPackageFilter:
             public class SecretHelper {}
         """)
         parser = scout.get_parser("java")
-        classes, _, _, _ = extract_api_surface(
+        classes, _, _, _, _ = extract_api_surface(
             parser, "java", tmp_path, tmp_path, "slides",
             excluded_package_segments=frozenset({"secret"}),
         )
@@ -237,7 +237,7 @@ class TestExtractApiSurfaceJavaPackageFilter:
             }
         """)
         parser = scout.get_parser("java")
-        classes, _, _, _ = extract_api_surface(
+        classes, _, _, _, _ = extract_api_surface(
             parser, "java", tmp_path, tmp_path, "slides")
         names = [c["name"] for c in classes]
         assert "SimpleClass" in names, (
@@ -258,7 +258,7 @@ class TestExtractApiSurfaceJavaPackageFilter:
             public class InternalHelper {}
         """)
         parser = scout.get_parser("java")
-        classes, _, _, _ = extract_api_surface(
+        classes, _, _, _, _ = extract_api_surface(
             parser, "java", tmp_path, tmp_path, "slides")
         names = [c["name"] for c in classes]
         assert "Presentation" in names
@@ -280,7 +280,7 @@ class TestNonJavaNotAffected:
                 def help(self): pass
         """))
         parser = scout.get_parser("python")
-        classes, _, _, _ = extract_api_surface(
+        classes, _, _, _, _ = extract_api_surface(
             parser, "python", tmp_path, tmp_path, "test")
         names = [c["name"] for c in classes]
         assert "InternalHelper" in names, (
@@ -295,7 +295,7 @@ class TestNonJavaNotAffected:
                 def run(self): pass
         """))
         parser = scout.get_parser("python")
-        classes, _, _, _ = extract_api_surface(
+        classes, _, _, _, _ = extract_api_surface(
             parser, "python", tmp_path, tmp_path, "test",
             excluded_package_segments=frozenset({"impl"}),
         )

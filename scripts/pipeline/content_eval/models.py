@@ -266,11 +266,26 @@ class EvalReport:
 
 
 # ---------------------------------------------------------------------------
-# Grade computation — canonical A-F scale (matches eval-page S-25)
+# Grade configuration — loaded from grade_config.yaml
 # ---------------------------------------------------------------------------
 
-# Categories whose FAIL findings force grade F regardless of count.
-CRITICAL_CATEGORIES = frozenset({"FC", "PC", "TA"})
+def _load_grade_config() -> dict:
+    """Load grade configuration from grade_config.yaml."""
+    config_path = Path(__file__).parent / "grade_config.yaml"
+    if not config_path.exists():
+        raise FileNotFoundError(f"Grade config not found at {config_path}")
+    with open(config_path, encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+_GRADE_CONFIG = _load_grade_config()
+CRITICAL_CATEGORIES = frozenset(_GRADE_CONFIG["critical_categories"])
+_CATEGORY_CEILINGS: dict = _GRADE_CONFIG.get("category_ceilings", {})
+
+
+# ---------------------------------------------------------------------------
+# Grade computation — canonical A-F scale (matches eval-page S-25)
+# ---------------------------------------------------------------------------
 
 
 def compute_grade(fail_count: int, warn_count: int) -> str:
@@ -300,16 +315,7 @@ def compute_grade(fail_count: int, warn_count: int) -> str:
 def compute_grade_with_criticality(findings: list[Finding]) -> str:
     """Grade with critical-finding override and category ceilings.
 
-    Any FAIL in a critical category (FC=forbidden_claims, PC=platform_purity,
-    TA=type_accuracy) forces grade F regardless of total count.
-
-    Category ceilings cap the grade even when total counts are low:
-      - Any TA finding (WARN or FAIL) → max C
-      - Any FT FAIL → max C
-      - Any CP FAIL → max B
-      - Any NC FAIL → max C
-      - Any SX FAIL → max C
-      - Any AC FAIL → max B
+    Configuration loaded from grade_config.yaml.
     """
     has_critical = any(
         f.level == "FAIL" and f.category in CRITICAL_CATEGORIES
@@ -321,33 +327,12 @@ def compute_grade_with_criticality(findings: list[Finding]) -> str:
     warns = sum(1 for f in findings if f.level == "WARN")
     base = compute_grade(fails, warns)
 
-    # Apply category-specific grade ceilings
+    # Apply category-specific grade ceilings from config
     ceiling = base
     for f in findings:
-        # Any TA finding (WARN or FAIL) caps at C
-        if f.category == "TA" and f.level in ("WARN", "FAIL"):
-            ceiling = _cap(ceiling, "C")
-        # FT FAIL caps at C
-        if f.category == "FT" and f.level == "FAIL":
-            ceiling = _cap(ceiling, "C")
-        # CP FAIL caps at B
-        if f.category == "CP" and f.level == "FAIL":
-            ceiling = _cap(ceiling, "B")
-        # NC FAIL caps at C
-        if f.category == "NC" and f.level == "FAIL":
-            ceiling = _cap(ceiling, "C")
-        # SX FAIL caps at C
-        if f.category == "SX" and f.level == "FAIL":
-            ceiling = _cap(ceiling, "C")
-        # AC FAIL caps at B
-        if f.category == "AC" and f.level == "FAIL":
-            ceiling = _cap(ceiling, "B")
-        # FM FAIL (phantom format) caps at C
-        if f.category == "FM" and f.level == "FAIL":
-            ceiling = _cap(ceiling, "C")
-        # MV FAIL (member validity — hallucinated member in property table) caps at C
-        if f.category == "MV" and f.level == "FAIL":
-            ceiling = _cap(ceiling, "C")
+        cat_config = _CATEGORY_CEILINGS.get(f.category)
+        if cat_config and f.level in cat_config["levels"]:
+            ceiling = _cap(ceiling, cat_config["ceiling"])
     return ceiling
 
 

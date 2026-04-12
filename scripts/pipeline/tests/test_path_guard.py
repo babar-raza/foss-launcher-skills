@@ -143,6 +143,11 @@ class TestDefaultDeny:
         decision, _ = check_path("data/something.json")
         assert decision == "ALLOW"
 
+    def test_keywords_path_allowed(self):
+        """keywords/ is explicitly allowed — written by seo-keyword-refresh CI, never by hand."""
+        assert check_path("keywords/docs.aspose.org.json")[0] == "ALLOW"
+        assert check_path("keywords/reference.aspose.org.json")[0] == "ALLOW"
+
 
 # ---------------------------------------------------------------------------
 # Path normalization

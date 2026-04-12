@@ -20,9 +20,12 @@ Constants::
 from __future__ import annotations
 
 import hashlib
+import logging
 import re
 from pathlib import Path
 from typing import Any
+
+LOG = logging.getLogger(__name__)
 
 from extraction.tree_helpers import (
     _CLASS_TYPES,
@@ -912,10 +915,7 @@ def extract_api_surface(
         root = tree.root_node
         if root.has_error:
             parse_errors.append(rel)
-            import logging as _logging
-            _logging.getLogger(__name__).warning(
-                "tree-sitter parse error in %s — extraction may be incomplete", rel
-            )
+            LOG.debug("tree-sitter parse error in %s — extraction may be incomplete", rel)
         scanned_files.append(rel)
 
         # Track packages/namespaces
