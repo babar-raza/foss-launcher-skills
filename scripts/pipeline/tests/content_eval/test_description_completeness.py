@@ -238,3 +238,69 @@ class TestDescriptionCompleteness:
             "Retired reference page must not produce DC findings — "
             "evaluator should return early when retired_at is set"
         )
+
+    def test_enum_page_skipped_by_dc_evaluator(self):
+        """Enum page with categories: [Enum] → zero DC findings even with 100% empty table.
+
+        Regression guard for SR-07a: enum member names (XYZ, NOT_DEFINED, etc.)
+        ARE the documentation. Requiring description cells for enum values produces
+        false positives. Evaluator must return early when 'Enum' is in categories.
+        """
+        page = _make_page(
+            textwrap.dedent("""\
+                ---
+                title: RotationOrder
+                categories:
+                - Enum
+                ---
+                ## Values
+
+                | Value | Description |
+                |-------|-------------|
+                | `XYZ` | |
+                | `XZY` | |
+                | `YZX` | |
+                | `YXZ` | |
+                | `ZXY` | |
+                | `ZYX` | |
+            """),
+            filepath="content/reference.aspose.org/en/3d/net/RotationOrder.md",
+        )
+        findings = self.evaluator.evaluate(page, None)
+        dc_findings = [f for f in findings if f.category == "DC"]
+        assert len(dc_findings) == 0, (
+            "Enum reference page must not produce DC findings — "
+            "enum value names are self-documenting; evaluator must skip when "
+            "'Enum' is in categories"
+        )
+
+    def test_dc_exempt_page_skipped(self):
+        """Page with dc_exempt: true → zero DC findings regardless of empty cells.
+
+        Regression guard for SR-07a: dc_exempt frontmatter flag allows opting
+        out of description completeness checks for pages where empty cells are
+        structurally correct (e.g. internal utility classes).
+        """
+        page = _make_page(
+            textwrap.dedent("""\
+                ---
+                title: CellCollection
+                dc_exempt: true
+                ---
+                ## Methods
+
+                | Name | Description |
+                |------|-------------|
+                | get | |
+                | set | |
+                | add | |
+                | remove | |
+                | clear | |
+            """),
+            filepath="content/reference.aspose.org/en/slides/cpp/CellCollection.md",
+        )
+        findings = self.evaluator.evaluate(page, None)
+        dc_findings = [f for f in findings if f.category == "DC"]
+        assert len(dc_findings) == 0, (
+            "Page with dc_exempt: true must not produce DC findings"
+        )

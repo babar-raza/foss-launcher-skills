@@ -102,6 +102,17 @@ class DescriptionCompletenessEvaluator(BaseEvaluator):
         if page.frontmatter.get("retired_at"):
             return findings
 
+        # Skip dc_exempt pages explicitly opted out of description completeness checks
+        if page.frontmatter.get("dc_exempt"):
+            return findings
+
+        # Skip enum-declaration pages — enum member names ARE the documentation.
+        # e.g. XYZ, NOT_DEFINED, ISOMETRIC_BOTTOM_DOWN are self-documenting;
+        # requiring description cells for enum values produces false positives.
+        categories = page.frontmatter.get("categories", [])
+        if isinstance(categories, list) and "Enum" in categories:
+            return findings
+
         tables = _parse_tables(page.body, page.body_offset)
 
         for table in tables:
