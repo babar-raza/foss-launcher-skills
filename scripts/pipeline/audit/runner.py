@@ -33,6 +33,7 @@ from token_ops import (  # noqa: E402
 from audit.links import verify_internal_links  # noqa: E402
 from audit.snippets import verify_snippet_coverage  # noqa: E402
 from audit.formats import verify_format_direction  # noqa: E402
+from audit.phantom_methods import verify_phantom_methods  # noqa: E402
 from audit.reports import (  # noqa: E402
     REPORTS_DIR,
     report_text,
@@ -127,6 +128,7 @@ def audit_product(
     findings = []
     for f in files:
         fm = parse_frontmatter(f)
+        text = f.read_text(encoding="utf-8", errors="replace")
         tokens = extract_tokens(f, platform)
         file_findings = verify_tokens(tokens, knowledge, f)
         findings.extend(file_findings)
@@ -135,6 +137,7 @@ def audit_product(
             findings.extend(verify_evidence(fm, knowledge, f))
         findings.extend(verify_internal_links(f))
         findings.extend(verify_format_direction(str(f), family, platform))
+        findings.extend(verify_phantom_methods(f, text, knowledge))
         if check_snippets:
             findings.extend(verify_snippet_coverage(f, knowledge))
 
@@ -175,6 +178,7 @@ def audit_files(
             continue
 
         fm = parse_frontmatter(fp)
+        text = fp.read_text(encoding="utf-8", errors="replace")
         tokens = extract_tokens(fp, platform)
         file_findings = verify_tokens(tokens, knowledge, fp)
         findings.extend(file_findings)
@@ -189,6 +193,9 @@ def audit_files(
         format_findings = verify_format_direction(str(fp), family, platform)
         file_findings.extend(format_findings)
         findings.extend(format_findings)
+        phantom_findings = verify_phantom_methods(fp, text, knowledge)
+        file_findings.extend(phantom_findings)
+        findings.extend(phantom_findings)
         if check_snippets:
             snippet_findings = verify_snippet_coverage(fp, knowledge)
             file_findings.extend(snippet_findings)
