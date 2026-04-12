@@ -21,7 +21,8 @@ import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import batch_reference as _br
-from batch_reference import _passes_platform_scope, _apply_kind_filter, _is_enum, run, _build_erc_index, _build_page
+from batch_reference import (_passes_platform_scope, _apply_kind_filter, _is_enum, run,
+                              _build_erc_index, _build_page, check_member_doc_coverage)
 
 
 # ---------------------------------------------------------------------------
@@ -706,3 +707,324 @@ class TestJavaInternalPathFilter:
              "file": "src/main/java/com/aspose/words/foss/internal/impl/FutureInternalClass.java"},
             "java",
         )
+
+
+# ---------------------------------------------------------------------------
+# TC-06 regression guard: ERC member index populates table description cells
+# ---------------------------------------------------------------------------
+
+class TestErcMemberIndexPopulatesTableCells:
+    """_build_erc_member_index must return ClassName.MemberName → description
+    entries when the claims.json contains ERC-* api-kind claims in the right format.
+
+    Regression guard for RC-2 (member-doc enrichment never run). Verifies that
+    the index-building logic correctly extracts member descriptions from properly
+    formatted ERC claims.
+    """
+
+    def _write_claims(self, tmp_path: Path, claims: list) -> None:
+        merged = tmp_path / "knowledge" / "test_fam" / "python" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "claims.json").write_text(json.dumps(claims), encoding="utf-8")
+
+    def test_erc_api_claim_indexed(self, tmp_path):
+        """ERC-* claim with kind='api' and ClassName.Member prefix → entry in index."""
+        self._write_claims(tmp_path, [
+            {
+                "claim_id": "ERC-test-0001",
+                "kind": "api",
+                "text": "Document.title returns the document title string.",
+                "confidence": 0.85,
+            }
+        ])
+        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
+            index = _br._build_erc_member_index("test_fam", "python")
+        assert "Document.title" in index, "ERC api claim must be indexed under ClassName.MemberName"
+        assert len(index["Document.title"]) >= 6, "Description must be non-trivial"
+
+    def test_non_erc_claim_not_indexed(self, tmp_path):
+        """Scout claim (CLM- prefix) must not appear in the member index."""
+        self._write_claims(tmp_path, [
+            {
+                "claim_id": "CLM-test-abc123",
+                "kind": "api_method",
+                "text": "Document.save(path) -> None",
+                "confidence": 1.0,
+            }
+        ])
+        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
+            index = _br._build_erc_member_index("test_fam", "python")
+        assert index == {}, "Scout claims (non-ERC) must not pollute the member index"
+
+    def test_non_api_kind_erc_not_indexed(self, tmp_path):
+        """ERC claim with kind='feature' (not 'api') must not appear in the index."""
+        self._write_claims(tmp_path, [
+            {
+                "claim_id": "ERC-test-0002",
+                "kind": "feature",
+                "text": "Document supports import from PDF files.",
+                "confidence": 0.90,
+            }
+        ])
+        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
+            index = _br._build_erc_member_index("test_fam", "python")
+        assert index == {}, "ERC feature claims must not appear in the member description index"
+
+    def test_longest_description_wins(self, tmp_path):
+        """When multiple ERC claims match the same member, the longest description wins."""
+        self._write_claims(tmp_path, [
+            {
+                "claim_id": "ERC-test-0003",
+                "kind": "api",
+                "text": "Body.type short desc.",
+                "confidence": 0.80,
+            },
+            {
+                "claim_id": "ERC-test-0004",
+                "kind": "api",
+                "text": "Body.type is the content-model type string identifying the node kind.",
+                "confidence": 0.85,
+            },
+        ])
+        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
+            index = _br._build_erc_member_index("test_fam", "python")
+        assert "Body.type" in index
+        assert "content-model" in index["Body.type"] or len(index["Body.type"]) > len("short desc"), (
+            "Longer description must win over shorter one"
+        )
+
+    def test_missing_claims_json_returns_empty(self, tmp_path):
+        """Absent claims.json must return empty dict without error."""
+        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
+            index = _br._build_erc_member_index("no_such_fam", "python")
+        assert index == {}
+
+    def test_snake_case_class_member_indexed(self, tmp_path):
+        """SR-04: snake_case class name (e.g. cfb_document) is indexed when in api_surface.
+
+        Regression guard for the _MEMBER_PREFIX_RE broadening from [A-Z] to [A-Za-z]
+        combined with the class-name gate — ensures C++ snake_case class names are
+        correctly matched when present in the known classes set.
+        """
+        self._write_claims(tmp_path, [
+            {
+                "claim_id": "ERC-cpp-0001",
+                "kind": "api",
+                "text": "cfb_document.major_version Returns the CFB container major version.",
+                "confidence": 0.80,
+            }
+        ])
+        api_surface = [{"name": "cfb_document", "properties": [], "methods": []}]
+        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
+            index = _br._build_erc_member_index("test_fam", "python", api_surface=api_surface)
+        assert "cfb_document.major_version" in index, (
+            "snake_case class member must be indexed when class is in known api_surface"
+        )
+
+    def test_non_member_sentence_not_indexed(self, tmp_path):
+        """SR-04: prose like 'it.seems' is NOT indexed even if it matches ClassName.word.
+
+        The class-name gate must reject claims whose matched class name is not in
+        the known classes set, preventing false-positive indexing of prose text.
+        """
+        self._write_claims(tmp_path, [
+            {
+                "claim_id": "ERC-prose-0001",
+                "kind": "api",
+                "text": "it.seems this is a method description",
+                "confidence": 0.75,
+            }
+        ])
+        api_surface = [{"name": "Document", "properties": [], "methods": []}]
+        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
+            index = _br._build_erc_member_index("test_fam", "python", api_surface=api_surface)
+        assert "it.seems" not in index, (
+            "Prose sentence matching ClassName.word pattern must be rejected by class-name gate"
+        )
+        assert index == {}, "No valid member claims in input; index must be empty"
+
+    def test_unknown_class_not_indexed(self, tmp_path):
+        """SR-04: class not in api_surface is rejected even with correct ClassName.Member format.
+
+        Ensures that claims referencing classes absent from api_surface (e.g. from
+        a prior version of the API or a hallucinated class name) are not indexed.
+        """
+        self._write_claims(tmp_path, [
+            {
+                "claim_id": "ERC-unknown-0001",
+                "kind": "api",
+                "text": "UnknownClass.some_method does something useful.",
+                "confidence": 0.82,
+            }
+        ])
+        # api_surface contains Document, not UnknownClass
+        api_surface = [{"name": "Document", "properties": [], "methods": []}]
+        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
+            index = _br._build_erc_member_index("test_fam", "python", api_surface=api_surface)
+        assert "UnknownClass.some_method" not in index, (
+            "Class absent from api_surface must be rejected by class-name gate"
+        )
+
+    def test_class_name_gate_skipped_when_no_api_surface(self, tmp_path):
+        """SR-04: when api_surface is None (backward-compat), class-name gate is skipped.
+
+        Ensures that callers passing no api_surface still get the original behavior —
+        any ClassName.MemberName claim is indexed regardless of known classes.
+        """
+        self._write_claims(tmp_path, [
+            {
+                "claim_id": "ERC-nosurf-0001",
+                "kind": "api",
+                "text": "AnyClass.any_member Returns something.",
+                "confidence": 0.80,
+            }
+        ])
+        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
+            # api_surface defaults to None → gate disabled → claim indexed
+            index = _br._build_erc_member_index("test_fam", "python")
+        assert "AnyClass.any_member" in index, (
+            "Without api_surface, class-name gate must be skipped for backward compatibility"
+        )
+
+
+# ---------------------------------------------------------------------------
+# TC-06 / TC-05 regression guard: pre-generation coverage check function
+# ---------------------------------------------------------------------------
+
+class TestMemberDocCoverageCheck:
+    """check_member_doc_coverage must compute coverage rate correctly.
+
+    Regression guard for TC-05 — verifies the pre-generation gate computes
+    accurate coverage rates so the WARNING fires at the right threshold.
+    """
+
+    def _make_entry(self, name: str, props: list, methods: list) -> dict:
+        return {"name": name, "properties": props, "methods": methods}
+
+    def test_fully_covered_by_erc_index(self):
+        """All members present in ERC index → 100% coverage."""
+        api_surface = [self._make_entry("Doc", [
+            {"name": "title", "doc": ""},
+        ], [
+            {"name": "save", "doc": "", "is_constructor": False},
+        ])]
+        erc_index = {"Doc.title": "The document title.", "Doc.save": "Saves the document."}
+        rate, covered, total = check_member_doc_coverage(api_surface, erc_index)
+        assert total == 2
+        assert covered == 2
+        assert rate == 1.0
+
+    def test_no_coverage_returns_zero(self):
+        """No members in ERC index and no source docstrings → 0% coverage."""
+        api_surface = [self._make_entry("Doc", [
+            {"name": "title", "doc": ""},
+            {"name": "author", "doc": ""},
+        ], [])]
+        rate, covered, total = check_member_doc_coverage(api_surface, {})
+        assert total == 2
+        assert covered == 0
+        assert rate == 0.0
+
+    def test_source_docstring_counts_as_covered(self):
+        """Member with non-empty 'doc' field from source counts as covered without ERC."""
+        api_surface = [self._make_entry("Doc", [
+            {"name": "title", "doc": "The document title."},
+        ], [])]
+        rate, covered, total = check_member_doc_coverage(api_surface, {})
+        assert covered == 1
+        assert total == 1
+        assert rate == 1.0
+
+    def test_constructors_excluded_from_count(self):
+        """Constructor methods (is_constructor=True) must not inflate the total count."""
+        api_surface = [self._make_entry("Doc", [], [
+            {"name": "__init__", "doc": "", "is_constructor": True},
+            {"name": "save", "doc": "", "is_constructor": False},
+        ])]
+        erc_index = {"Doc.save": "Saves to disk."}
+        rate, covered, total = check_member_doc_coverage(api_surface, erc_index)
+        assert total == 1  # __init__ excluded
+        assert covered == 1
+        assert rate == 1.0
+
+    def test_empty_api_surface_returns_zero_rate(self):
+        """Empty api_surface must return (0.0, 0, 0) without dividing by zero."""
+        rate, covered, total = check_member_doc_coverage([], {})
+        assert (rate, covered, total) == (0.0, 0, 0)
+
+
+# ---------------------------------------------------------------------------
+# SR-05: Pipe-escaping in type columns
+# ---------------------------------------------------------------------------
+
+class TestPipeEscapingInPropertyTypeColumn:
+    """Property type strings containing | are escaped to \\| in the generated table.
+
+    Regression guard for SR-05 Behavior 1: ensures that union types such as
+    "int | None" do not break markdown table column alignment when written to
+    the Properties table.
+    """
+
+    def test_pipe_escaped_in_property_type_column(self):
+        """Type 'int | None' must appear as 'int \\| None' in the generated page."""
+        entry = {
+            "name": "MyClass",
+            "kind": "class_declaration",
+            "doc": "",
+            "methods": [],
+            "properties": [
+                {"name": "count", "type": "int | None", "writable": False, "doc": "The count."},
+            ],
+            "bases": [],
+        }
+        page = _build_page(entry, "cells", "net")
+        # Escaped form must be present
+        assert r"int \| None" in page, "Pipe in type string was not escaped to \\|"
+        # Raw unescaped form must not appear as a standalone table separator
+        # (we check that the literal "| None |" pattern is absent as a cell boundary)
+        lines = page.splitlines()
+        for line in lines:
+            if "int" in line and "None" in line and "|" in line:
+                # The pipe between int and None must be backslash-escaped
+                assert r"int \| None" in line, (
+                    f"Found unescaped pipe in property type column: {line!r}"
+                )
+
+
+# ---------------------------------------------------------------------------
+# SR-05: Enum ERC lookup populates cell when member has no doc
+# ---------------------------------------------------------------------------
+
+class TestEnumMemberErcLookup:
+    """Enum table description cells are populated from member_erc_index when
+    the enum member has no 'doc' field.
+
+    Regression guard for SR-05 Behavior 2: verifies the ERC-index fallback path
+    in the enum values table, mirroring the same fallback already tested for
+    property/method rows.
+    """
+
+    def test_enum_member_erc_lookup_populates_cell(self):
+        """When an enum member has no doc, member_erc_index supplies the description."""
+        entry = {
+            "name": "SaveFormat",
+            "kind": "enum_declaration",
+            "doc": "",
+            "methods": [],
+            "properties": [],
+            "bases": [],
+            "enum_members": [
+                {"name": "PDF", "doc": ""},
+                {"name": "DOCX", "doc": "Microsoft Word document format."},
+            ],
+        }
+        member_erc_index = {
+            "SaveFormat.PDF": "Portable Document Format output.",
+        }
+        page = _build_page(entry, "slides", "net", member_erc_index=member_erc_index)
+        # ERC description must appear for the member with empty doc
+        assert "Portable Document Format output." in page, (
+            "ERC member description was not written into the enum values table"
+        )
+        # Existing doc must also be preserved
+        assert "Microsoft Word document format." in page

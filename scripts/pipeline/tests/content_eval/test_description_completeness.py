@@ -44,13 +44,12 @@ class TestDescriptionCompleteness:
         dc_findings = [f for f in findings if f.category == "DC"]
         assert len(dc_findings) == 0
 
-    def test_mostly_empty_descriptions_small_table_warn(self):
-        """Small table (4 rows, 3 empty = 75%) gets WARN not FAIL.
+    def test_mostly_empty_descriptions_small_table_fail(self):
+        """Small table (4 rows, 3 empty = 75%) gets FAIL with tightened thresholds.
 
-        The absolute-count guard (_FAIL_EMPTY_MIN=5) prevents FAIL for small
-        classes where the high percentage is driven by a tiny denominator.
-        A 4-property class with 3 undocumented members is penalised less severely
-        than a 17-method class with 13 undocumented members at the same percentage.
+        With _FAIL_EMPTY_MIN=3 and _FAIL_EMPTY_PCT=50, a table with 3 empty cells
+        at 75% now triggers FAIL — the absolute-count guard was lowered so that
+        small-but-sparse classes are caught as well as large ones.
         """
         page = _make_page(textwrap.dedent("""\
             ---
@@ -68,9 +67,9 @@ class TestDescriptionCompleteness:
         findings = self.evaluator.evaluate(page, None)
         dc_findings = [f for f in findings if f.category == "DC"]
         assert len(dc_findings) == 1
-        assert dc_findings[0].level == "WARN", (
-            "Small table (4 rows, 3 empty) should get WARN not FAIL "
-            "— absolute-count guard prevents FAIL when empty < _FAIL_EMPTY_MIN"
+        assert dc_findings[0].level == "FAIL", (
+            "Table with 3 empty cells at 75% should FAIL — "
+            "_FAIL_EMPTY_MIN=3 and _FAIL_EMPTY_PCT=50 both met"
         )
         assert "empty description" in dc_findings[0].message.lower()
 
@@ -148,12 +147,12 @@ class TestDescriptionCompleteness:
         dc_findings = [f for f in findings if f.category == "DC"]
         assert len(dc_findings) == 0
 
-    def test_summary_column_detected_small_table_warn(self):
-        """Table with 'Summary' header and all 4 rows empty → WARN (not FAIL).
+    def test_summary_column_detected_small_table_fail(self):
+        """Table with 'Summary' header and all 4 rows empty → FAIL.
 
-        The absolute-count guard prevents FAIL for small tables even when
-        empty_pct is 100% — 4 empty cells < _FAIL_EMPTY_MIN (5).
-        The 'Summary' column name is still detected and triggers a WARN.
+        With _FAIL_EMPTY_MIN=3 and _FAIL_EMPTY_PCT=50, a table with 4 empty
+        cells at 100% now triggers FAIL — the absolute-count guard was lowered
+        so that small-but-fully-undocumented classes are no longer let through.
         """
         page = _make_page(textwrap.dedent("""\
             ---
@@ -171,9 +170,9 @@ class TestDescriptionCompleteness:
         findings = self.evaluator.evaluate(page, None)
         dc_findings = [f for f in findings if f.category == "DC"]
         assert len(dc_findings) == 1
-        assert dc_findings[0].level == "WARN", (
-            "4-row table with all cells empty should get WARN not FAIL "
-            "— 4 empty < _FAIL_EMPTY_MIN(5)"
+        assert dc_findings[0].level == "FAIL", (
+            "4-row table with all cells empty should FAIL — "
+            "_FAIL_EMPTY_MIN=3 and _FAIL_EMPTY_PCT=50 both met (4 >= 3 and 100% > 50%)"
         )
 
     def test_large_table_mostly_empty_still_fails(self):
@@ -203,5 +202,39 @@ class TestDescriptionCompleteness:
         assert len(dc_findings) == 1
         assert dc_findings[0].level == "FAIL", (
             "Large table (7 rows, 6 empty = 86%) should FAIL "
-            "— 6 >= _FAIL_EMPTY_MIN(5) and 86% > 70%"
+            "— 6 >= _FAIL_EMPTY_MIN(3) and 86% > 50%"
+        )
+
+    def test_retired_page_skipped_by_dc_evaluator(self):
+        """Reference page with retired_at set → zero DC findings even with empty table.
+
+        Regression guard for SR-05 Behavior 3: verifies that
+        DescriptionCompletenessEvaluator returns early when
+        page.frontmatter['retired_at'] is populated, treating the page as a
+        read-only snapshot that must not generate FAIL findings.
+        """
+        page = _make_page(
+            textwrap.dedent("""\
+                ---
+                title: LegacyClass
+                retired_at: "2025-01-01"
+                ---
+                ## Properties
+
+                | Name | Description |
+                |------|-------------|
+                | alpha | |
+                | beta | |
+                | gamma | |
+                | delta | |
+                | epsilon | |
+                | zeta | |
+            """),
+            filepath="content/reference.aspose.org/en/slides/net/LegacyClass.md",
+        )
+        findings = self.evaluator.evaluate(page, None)
+        dc_findings = [f for f in findings if f.category == "DC"]
+        assert len(dc_findings) == 0, (
+            "Retired reference page must not produce DC findings — "
+            "evaluator should return early when retired_at is set"
         )

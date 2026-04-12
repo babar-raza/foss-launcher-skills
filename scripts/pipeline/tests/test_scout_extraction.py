@@ -725,3 +725,75 @@ class UntypedAttrs:
         assert all(c["kind"] == "api_method" for c in claims)
         texts = [c["text"] for c in claims]
         assert any("jpeg_quality" in t for t in texts)
+
+
+# ---------------------------------------------------------------------------
+# TC-01 regression guard: property "doc" field in extracted output
+# ---------------------------------------------------------------------------
+
+from extraction.api_surface import _extract_python_properties, _extract_python_annotated_fields
+
+
+class TestPropertyDocField:
+    """Property records must include a 'doc' key after TC-01 fix.
+
+    Regression guard for the gap where all property extraction paths omitted the
+    'doc' field, causing prop.get('doc') in batch_reference to always return None
+    and collapse every description cell to an empty string.
+    """
+
+    PYTHON_PROP_WITH_DOCSTRING = '''
+class Document:
+    @property
+    def title(self) -> str:
+        """The document title."""
+        return self._title
+'''
+
+    PYTHON_PROP_NO_DOCSTRING = '''
+class Document:
+    @property
+    def title(self) -> str:
+        return self._title
+'''
+
+    PYTHON_ANNOTATED_FIELD = '''
+class Body:
+    content: str
+    children: list
+'''
+
+    def test_property_with_docstring_has_doc_field(self):
+        """@property with docstring must produce a 'doc' key in the property record."""
+        root = _parse("python", self.PYTHON_PROP_WITH_DOCSTRING)
+        classes = scout.collect_nodes(root, {"class_definition"})
+        assert classes, "Expected at least one class_definition node"
+        props, _ = _extract_python_properties(classes[0], "Document", "document.py", "words")
+        assert props, "Expected at least one property"
+        prop = next((p for p in props if p["name"] == "title"), None)
+        assert prop is not None, "Expected 'title' property"
+        assert "doc" in prop, "Property record must have 'doc' key (TC-01)"
+        assert prop["doc"] == "The document title.", (
+            f"Expected docstring 'The document title.', got {prop['doc']!r}"
+        )
+
+    def test_property_without_docstring_has_empty_doc_field(self):
+        """@property without docstring must produce 'doc': '' (not absent key)."""
+        root = _parse("python", self.PYTHON_PROP_NO_DOCSTRING)
+        classes = scout.collect_nodes(root, {"class_definition"})
+        props, _ = _extract_python_properties(classes[0], "Document", "document.py", "words")
+        prop = next((p for p in props if p["name"] == "title"), None)
+        assert prop is not None, "Expected 'title' property"
+        assert "doc" in prop, "Property record must have 'doc' key even without docstring (TC-01)"
+        assert prop["doc"] == "", f"Expected empty doc, got {prop['doc']!r}"
+
+    def test_annotated_field_has_empty_doc_field(self):
+        """Type-annotated class fields must have 'doc': '' key (no docstring container)."""
+        root = _parse("python", self.PYTHON_ANNOTATED_FIELD)
+        classes = scout.collect_nodes(root, {"class_definition"})
+        fields, _ = _extract_python_annotated_fields(classes[0], "Body", "body.py", "words")
+        assert fields, "Expected annotated fields"
+        for field in fields:
+            assert "doc" in field, (
+                f"Field '{field.get('name')}' must have 'doc' key (TC-01)"
+            )
