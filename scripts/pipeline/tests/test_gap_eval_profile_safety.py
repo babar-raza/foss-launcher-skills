@@ -1785,3 +1785,31 @@ class TestPythonStartswithRegressionGuard:
                 set(), self._profile(pkg, f"aspose.{platform}"), platform, "python",
             )
             assert result is None, f"{platform}/python: companion plugin was not suppressed"
+
+
+class TestResetState:
+    """reset_state() deletes state file; safe to call when file absent."""
+
+    def test_reset_deletes_existing_file(self, tmp_path):
+        """reset_state() returns True and removes the state file."""
+        import sys
+        sys.path.insert(0, str(tmp_path.parent.parent / "scripts" / "gap-eval"))
+        from state import save_state, reset_state  # type: ignore
+
+        state = {"family": "cells", "platform": "python", "findings": []}
+        save_state(state, "cells", "python", state_dir=tmp_path)
+        state_file = tmp_path / "cells-python.json"
+        assert state_file.exists()
+
+        result = reset_state("cells", "python", state_dir=tmp_path)
+        assert result is True
+        assert not state_file.exists()
+
+    def test_reset_safe_when_no_file(self, tmp_path):
+        """reset_state() returns False without error when no state file exists."""
+        import sys
+        sys.path.insert(0, str(tmp_path.parent.parent / "scripts" / "gap-eval"))
+        from state import reset_state  # type: ignore
+
+        result = reset_state("cells", "python", state_dir=tmp_path)
+        assert result is False
