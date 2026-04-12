@@ -1,3 +1,12 @@
+<!--
+OWNERSHIP: RUNBOOK.md
+AUTHORITY: Terminal command cheatsheet (script-level commands only)
+MUST NOT RESTATE: Policy rules — link to AGENTS.md; never copy governance text
+REVIEW TRIGGERS:
+  - AGENTS.md §12 venv execution policy changes → update all python command blocks
+  - New workflow skills added to AGENTS.md §12 → add matching runbook entry
+MAINTAINED BY: Human maintainer · CI: scripts/ci/check_onboarding_integrity.py (Check 5)
+-->
 # RUNBOOK — Aspose.org Operator Guide
 
 Quick-reference for common operations. For governance rules, see `AGENTS.md`.
@@ -28,11 +37,11 @@ chmod +x .git/hooks/pre-commit
 # Locale files translated since cdaa1daac already have committed provenance.
 # Older locale files that have not been re-translated need this step.
 # The script is idempotent — safe to re-run; files with provenance are skipped.
-python scripts/pipeline/provenance_backfill.py
+.venv/Scripts/python python scripts/pipeline/provenance_backfill.py
 # Expected output: "Backfilled N files, skipped M (already have provenance), 0 errors"
 
 # 6. Verify
-python scripts/pipeline/audit.py all
+.venv/Scripts/python python scripts/pipeline/audit.py all
 ```
 
 ## 1b. Update Product Registry
@@ -46,7 +55,7 @@ by `clone_cache.py` and `refresh_knowledge.py`.
 /update-registry
 
 # Or run the backing script directly
-python scripts/pipeline/update_product_registry.py --token $GITHUB_TOKEN
+.venv/Scripts/python python scripts/pipeline/update_product_registry.py --token $GITHUB_TOKEN
 ```
 
 **Modes:**
@@ -74,7 +83,7 @@ to refresh the registry before retrying.
 /knowledge-bootstrap {family} {platform}
 
 # Step 2: Generate site manifest
-python scripts/pipeline/site_planner.py {family} {platform} --dry-run
+.venv/Scripts/python python scripts/pipeline/site_planner.py {family} {platform} --dry-run
 # Review YAML output, then without --dry-run to write
 
 # Step 3: Generate content (via agent skills)
@@ -82,9 +91,9 @@ python scripts/pipeline/site_planner.py {family} {platform} --dry-run
 # This orchestrates: site-plan -> page generation -> evidence -> audit -> grade
 
 # Step 4: Verify
-python scripts/pipeline/audit.py {family} {platform}
+.venv/Scripts/python python scripts/pipeline/audit.py {family} {platform}
 python -m scripts.pipeline.content_eval evaluate {family} {platform}
-python scripts/pipeline/truth_audit.py {family} {platform}
+.venv/Scripts/python python scripts/pipeline/truth_audit.py {family} {platform}
 ```
 
 ## 3. Refresh Knowledge After Upstream Changes
@@ -105,43 +114,43 @@ Or use the skill: `/knowledge-update {family} {platform}` — runs all 4 steps a
 
 ```bash
 # All products
-python scripts/pipeline/audit.py all
-python scripts/pipeline/audit.py all --json   # machine-readable
+.venv/Scripts/python python scripts/pipeline/audit.py all
+.venv/Scripts/python python scripts/pipeline/audit.py all --json   # machine-readable
 
 # Single product
-python scripts/pipeline/audit.py {family} {platform}
+.venv/Scripts/python python scripts/pipeline/audit.py {family} {platform}
 
 # Specific files
-python scripts/pipeline/audit.py --files path/to/file.md
+.venv/Scripts/python python scripts/pipeline/audit.py --files path/to/file.md
 
 # Content evaluation (multi-dimensional)
 python -m scripts.pipeline.content_eval evaluate {family} {platform}
 
 # Deep API verification
-python scripts/pipeline/truth_audit.py {family} {platform}
+.venv/Scripts/python python scripts/pipeline/truth_audit.py {family} {platform}
 
 # Cross-platform consistency
-python scripts/pipeline/cross_platform_audit.py {family}
+.venv/Scripts/python python scripts/pipeline/cross_platform_audit.py {family}
 
 # Gap analysis
-python scripts/gap-eval/run.py {family} {platform} --scope docs --no-llm
+.venv/Scripts/python python scripts/gap-eval/run.py {family} {platform} --scope docs --no-llm
 ```
 
 ## 5. Translate Content
 
 ```bash
 # Audit existing translations
-python scripts/translator/cli.py audit --family {family} --platform {platform} --site docs.aspose.org --locales fa,es
+.venv/Scripts/python python scripts/translator/cli.py audit --family {family} --platform {platform} --site docs.aspose.org --locales fa,es
 
 # Translate single page
-python scripts/translator/cli.py page {file} --locales fa --dry-run
-python scripts/translator/cli.py page {file} --locales fa
+.venv/Scripts/python python scripts/translator/cli.py page {file} --locales fa --dry-run
+.venv/Scripts/python python scripts/translator/cli.py page {file} --locales fa
 
 # Batch translate
-python scripts/translator/cli.py batch --family {family} --platform {platform} --site docs.aspose.org --locales fa,es
+.venv/Scripts/python python scripts/translator/cli.py batch --family {family} --platform {platform} --site docs.aspose.org --locales fa,es
 
 # Cache stats
-python scripts/translator/cli.py cache-stats
+.venv/Scripts/python python scripts/translator/cli.py cache-stats
 ```
 
 **Healing loop**: audit -> translate failed pages -> re-audit -> verify improvement.
@@ -166,11 +175,11 @@ python scripts/translator/cli.py cache-stats
 
 ```bash
 # Pre-commit checks (automated via hook)
-python scripts/pipeline/audit.py --files {staged-files}
+.venv/Scripts/python python scripts/pipeline/audit.py --files {staged-files}
 
 # Manual verification
-python scripts/pipeline/path_guard.py {target-path}
-python scripts/pipeline/check_grade_integrity.py --files {target-files}
+.venv/Scripts/python python scripts/pipeline/path_guard.py {target-path}
+.venv/Scripts/python python scripts/pipeline/check_grade_integrity.py --files {target-files}
 ```
 
 The pre-commit hook runs automatically if installed (Step 1.4).
@@ -197,7 +206,7 @@ See AGENTS.md §10b for the full provenance model. Quick reference:
 
 ```bash
 # Backfill provenance on files that lack it (idempotent, safe to re-run)
-python scripts/pipeline/provenance_backfill.py
+.venv/Scripts/python python scripts/pipeline/provenance_backfill.py
 
 # Protect a file from automated translator overwrite
 # Edit the file's frontmatter:

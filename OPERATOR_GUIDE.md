@@ -1,3 +1,12 @@
+<!--
+OWNERSHIP: OPERATOR_GUIDE.md
+AUTHORITY: Skill concept model and invocation guide
+MUST NOT RESTATE: Policy rules — AGENTS.md is the only authority for rules
+REVIEW TRIGGERS:
+  - AGENTS.md §12 Skill Registry changes (new/renamed skills) → update §3 invocation examples
+  - skills/session-start.md changes → update §3 How to Invoke a Skill
+MAINTAINED BY: Human maintainer · CI: scripts/ci/check_onboarding_integrity.py
+-->
 # Operator Guide — aspose.org Content System
 
 This guide explains how to operate the aspose.org content management system for new team
