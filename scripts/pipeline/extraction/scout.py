@@ -122,6 +122,7 @@ class Scout:
         self.coverage: list[dict[str, Any]] = []
         self.packages: set[str] = set()
         self.scanned_files: list[str] = []
+        self.scout_report: dict[str, Any] = {}
         # SYS-PKG-001: Java internal-package exclusion.
         # None → use language defaults (frozenset({"internal","impl"}) for Java).
         self.excluded_package_segments: frozenset[str] | None = excluded_package_segments
@@ -193,7 +194,7 @@ class Scout:
 
     def _extract_api_surface(self):
         """Delegate to extraction.api_surface.extract_api_surface (SC-07)."""
-        new_classes, new_claims, new_files, new_pkgs = extract_api_surface(
+        new_classes, new_claims, new_files, new_pkgs, scout_report = extract_api_surface(
             self.parser, self.language, self.pkg_root, self.repo, self.family,
             excluded_package_segments=self.excluded_package_segments)
         LOG.info("Scanning %d source files", len(new_files))
@@ -201,6 +202,37 @@ class Scout:
         self.claims.extend(new_claims)
         self.scanned_files.extend(new_files)
         self.packages.update(new_pkgs)
+        self.scout_report = scout_report
+
+        # Log warnings for high skip rates
+        skip_rate = len(scout_report["files_skipped"]) / max(scout_report["files_attempted"], 1)
+        if skip_rate > 0.10:
+            LOG.warning(
+                "Scout skipped %.0f%% of source files (%d/%d). "
+                "API surface may be significantly incomplete.",
+                skip_rate * 100, len(scout_report["files_skipped"]),
+                scout_report["files_attempted"],
+            )
+        if skip_rate > 0.30:
+            LOG.error("Scout skip rate exceeds 30%%. API surface is unreliable.")
+
+        # Log warnings for high parse-error rates (tree-sitter partial parses)
+        parse_error_rate = scout_report.get("parse_error_rate", 0.0)
+        if parse_error_rate > 0.20:
+            LOG.error(
+                "Scout parse error rate exceeds 20%%. API surface reliability is suspect. "
+                "(%d/%d files had parse errors)",
+                len(scout_report.get("parse_errors", [])),
+                scout_report["files_attempted"],
+            )
+        elif parse_error_rate > 0.05:
+            LOG.warning(
+                "Scout encountered parse errors in %.0f%% of files (%d/%d). "
+                "API surface may be partially incomplete.",
+                parse_error_rate * 100,
+                len(scout_report.get("parse_errors", [])),
+                scout_report["files_attempted"],
+            )
 
     # -- Docstring enrichment -----------------------------------------------
 
@@ -591,4 +623,5 @@ class Scout:
             repo_sha=self._get_repo_sha(),
             repo_url=self._get_repo_url(),
             package_root=str(self.pkg_root.relative_to(self.repo)).replace("\\", "/"),
+            scout_report=self.scout_report,
         )

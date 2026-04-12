@@ -8,7 +8,7 @@ Public API::
     write_outputs(output, family, platform, manifest, classes, claims,
                   formats, limitations, snippets, class_graph, coverage,
                   scanned_files, packages, repo, language,
-                  repo_sha, repo_url)
+                  repo_sha, repo_url, scout_report=None)
 """
 from __future__ import annotations
 
@@ -202,6 +202,7 @@ def write_outputs(
     repo_sha: str,
     repo_url: str,
     package_root: str = "",
+    scout_report: dict[str, Any] | None = None,
 ) -> None:
     """Write all scout extraction artifacts to *output* directory."""
     output.mkdir(parents=True, exist_ok=True)
@@ -356,3 +357,17 @@ def write_outputs(
         json.dumps(index_entries, indent=2, ensure_ascii=False),
         encoding="utf-8")
     LOG.info("Wrote %d snippets + snippets_index.json", len(snippets))
+
+    # scout_report.json (completeness tracking)
+    if scout_report is not None:
+        report_path = output / "scout_report.json"
+        report_path.write_text(
+            json.dumps(scout_report, indent=2, ensure_ascii=False),
+            encoding="utf-8")
+        LOG.info(
+            "Wrote scout_report.json (attempted=%d, parsed=%d, skipped=%d, parse_errors=%d)",
+            scout_report.get("files_attempted", 0),
+            scout_report.get("files_parsed", 0),
+            len(scout_report.get("files_skipped", [])),
+            len(scout_report.get("parse_errors", [])),
+        )

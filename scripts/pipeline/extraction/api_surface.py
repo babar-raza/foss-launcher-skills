@@ -7,8 +7,8 @@ Public API::
 
     extract_api_surface(parser, language, pkg_root, repo, family,
                         *, excluded_package_segments=None)
-        -> tuple[list[dict], list[dict], list[str], set[str]]
-        # (classes, claims, scanned_files, packages)
+        -> tuple[list[dict], list[dict], list[str], set[str], dict]
+        # (classes, claims, scanned_files, packages, scout_report)
 
     _is_excluded_java_package(package, excluded_segments)
         -> bool  # True when package has an excluded segment
@@ -847,7 +847,7 @@ def extract_api_surface(
     family: str,
     *,
     excluded_package_segments: frozenset[str] | None = None,
-) -> tuple[list[dict[str, Any]], list[dict], list[str], set[str]]:
+) -> tuple[list[dict[str, Any]], list[dict], list[str], set[str], dict[str, Any]]:
     """Extract API classes, methods, and properties from source files.
 
     Args:
@@ -864,12 +864,20 @@ def extract_api_surface(
             package filtering.  Ignored for non-Java languages.
 
     Returns:
-        Tuple of (classes, claims, scanned_files, packages).
+        Tuple of (classes, claims, scanned_files, packages, scout_report).
+        *scout_report* is a dict with keys ``files_attempted``,
+        ``files_parsed``, ``files_skipped``, and ``skip_reasons``.
     """
     classes: list[dict[str, Any]] = []
     claims: list[dict] = []
     scanned_files: list[str] = []
     packages: set[str] = set()
+
+    # Completeness tracking (S1-6)
+    files_attempted: int = 0
+    files_skipped: list[str] = []
+    skip_reasons: dict[str, int] = {}
+    parse_errors: list[str] = []
 
     # SYS-PKG-001: resolve effective Java package exclusion segments once.
     # None → apply language default; frozenset() → disable filtering.
@@ -891,13 +899,23 @@ def extract_api_surface(
 
     for fpath in files:
         rel = str(fpath.relative_to(repo)).replace("\\", "/")
+        files_attempted += 1
         try:
             src = fpath.read_bytes()
-        except OSError:
+        except OSError as e:
+            files_skipped.append(rel)
+            reason = type(e).__name__
+            skip_reasons[reason] = skip_reasons.get(reason, 0) + 1
             continue
 
         tree = parser.parse(src)
         root = tree.root_node
+        if root.has_error:
+            parse_errors.append(rel)
+            import logging as _logging
+            _logging.getLogger(__name__).warning(
+                "tree-sitter parse error in %s — extraction may be incomplete", rel
+            )
         scanned_files.append(rel)
 
         # Track packages/namespaces
@@ -1347,4 +1365,12 @@ def extract_api_surface(
                 f"Function {fname}({', '.join(p['name'] for p in params)}) -> {ret}",
                 rel, fnode.start_point[0] + 1))
 
-    return classes, claims, scanned_files, packages
+    scout_report: dict[str, Any] = {
+        "files_attempted": files_attempted,
+        "files_parsed": files_attempted - len(files_skipped),
+        "files_skipped": files_skipped,
+        "skip_reasons": skip_reasons,
+        "parse_errors": parse_errors,
+        "parse_error_rate": len(parse_errors) / max(files_attempted, 1),
+    }
+    return classes, claims, scanned_files, packages, scout_report
