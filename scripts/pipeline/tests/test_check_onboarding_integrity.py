@@ -87,6 +87,7 @@ def _make_repo(tmp_path: Path) -> Path:
 def _run_checks(tmp_path: Path) -> int:
     """Patch REPO_ROOT + OPERATOR_DOCS, clear _failures, run all non-git checks, return exit code."""
     module._failures.clear()
+    module._passed_labels.clear()
     module._verbose = False
     patched_docs = [
         tmp_path / "docs" / "QUICKSTART.md",
@@ -497,3 +498,97 @@ class TestObservability:
             module.check_agents_link()
         captured = capsys.readouterr()
         assert "::error title=Onboarding Integrity [C2-AGENTS-LINK]::" in captured.out
+
+    def test_verbose_dedup_for_multi_call_checks(self, tmp_path, capsys):
+        """With --verbose, C4-LINKS appears exactly once even when multiple links pass."""
+        _make_repo(tmp_path)
+        # OPERATOR_GUIDE.md has two valid links — check_relative_links will call _check
+        # with C4-LINKS twice (both passing); only one PASS line should be emitted.
+        (tmp_path / "OPERATOR_GUIDE.md").write_text(
+            "See [AGENTS.md](AGENTS.md) and [RUNBOOK.md](RUNBOOK.md).\n",
+            encoding="utf-8",
+        )
+        module._failures.clear()
+        module._passed_labels.clear()
+        module._verbose = True
+        try:
+            with (
+                patch.object(module, "REPO_ROOT", tmp_path),
+                patch.object(
+                    module,
+                    "OPERATOR_DOCS",
+                    [
+                        tmp_path / "docs" / "QUICKSTART.md",
+                        tmp_path / "OPERATOR_GUIDE.md",
+                        tmp_path / "RUNBOOK.md",
+                    ],
+                ),
+            ):
+                module.check_relative_links()
+        finally:
+            module._verbose = False
+            module._passed_labels.clear()
+        captured = capsys.readouterr()
+        assert captured.out.count("PASS [C4-LINKS]") == 1
+
+
+# ---------------------------------------------------------------------------
+# SR-08 — Encoding crash guard (non-UTF-8 bytes produce named FAIL, not traceback)
+# ---------------------------------------------------------------------------
+
+
+class TestEncodingGuard:
+    def test_agents_md_non_utf8_named_fail(self, tmp_path):
+        """AGENTS.md with non-UTF-8 bytes produces C2 FAIL with 'non-UTF-8' message, not crash."""
+        _make_repo(tmp_path)
+        # 0x96 is an em-dash in Windows-1252 — invalid in UTF-8
+        (tmp_path / "AGENTS.md").write_bytes(
+            b"## 2. Read Order\n\nSee docs/QUICKSTART.md\x96here.\n"
+        )
+        module._failures.clear()
+        with patch.object(module, "REPO_ROOT", tmp_path):
+            module.check_agents_link()
+        assert any("C2-AGENTS-LINK" in f for f in module._failures), module._failures
+        assert any("non-UTF-8" in f for f in module._failures), module._failures
+
+    def test_operator_doc_non_utf8_named_fail(self, tmp_path):
+        """An operator doc with non-UTF-8 bytes produces C4 FAIL, not crash."""
+        _make_repo(tmp_path)
+        (tmp_path / "OPERATOR_GUIDE.md").write_bytes(
+            b"See [AGENTS.md](AGENTS.md).\x80Invalid byte.\n"
+        )
+        module._failures.clear()
+        patched_docs = [
+            tmp_path / "docs" / "QUICKSTART.md",
+            tmp_path / "OPERATOR_GUIDE.md",
+            tmp_path / "RUNBOOK.md",
+        ]
+        with (
+            patch.object(module, "REPO_ROOT", tmp_path),
+            patch.object(module, "OPERATOR_DOCS", patched_docs),
+        ):
+            module.check_relative_links()
+        assert any("C4-LINKS" in f for f in module._failures), module._failures
+        assert any("non-UTF-8" in f for f in module._failures), module._failures
+
+    def test_runbook_non_utf8_named_fail(self, tmp_path):
+        """RUNBOOK.md with non-UTF-8 bytes produces C5 FAIL, not crash."""
+        _make_repo(tmp_path)
+        (tmp_path / "RUNBOOK.md").write_bytes(b"# Runbook\n\nBad byte: \xff\n")
+        module._failures.clear()
+        with patch.object(module, "REPO_ROOT", tmp_path):
+            module.check_runbook_venv()
+        assert any("C5-VENV-PREFIX" in f for f in module._failures), module._failures
+        assert any("non-UTF-8" in f for f in module._failures), module._failures
+
+    def test_quickstart_non_utf8_named_fail(self, tmp_path):
+        """docs/QUICKSTART.md with non-UTF-8 bytes produces C6 FAIL, not crash."""
+        _make_repo(tmp_path)
+        (tmp_path / "docs" / "QUICKSTART.md").write_bytes(
+            b"# Guide\n\nBad byte: \x81\n"
+        )
+        module._failures.clear()
+        with patch.object(module, "REPO_ROOT", tmp_path):
+            module.check_quickstart_structure()
+        assert any("C6-STRUCTURE" in f for f in module._failures), module._failures
+        assert any("non-UTF-8" in f for f in module._failures), module._failures

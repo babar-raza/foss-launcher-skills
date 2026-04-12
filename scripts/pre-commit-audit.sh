@@ -279,4 +279,39 @@ if [ -f "reports/session-state/ACTIVE" ]; then
     fi
 fi
 
+# ---------------------------------------------------------------------------
+# Step 9: Onboarding integrity — runs ONLY when an operator doc is staged.
+# Skipped entirely for all other commits (< 1ms gate check, ~2s when triggered).
+# Enforces: AGENTS.md link, CLAUDE.md ref, relative links, venv prefix, structure.
+# Primary gate: CI job 'onboarding-integrity' in ci-eval-consistency.yml (TC-08).
+# This is a local redundancy layer — catches issues before push.
+# Cross-platform: auto-detects .venv/Scripts/python (Windows) vs .venv/bin/python (Unix).
+# Graceful: warns (does not block) if .venv is absent (pre-bootstrap state).
+# ---------------------------------------------------------------------------
+STAGED_FILES="$(git diff --cached --name-only)"
+ONBOARDING_PATTERN='^(AGENTS\.md|CLAUDE\.md|RUNBOOK\.md|OPERATOR_GUIDE\.md|docs/QUICKSTART\.md|skills/getting-started\.md|skills/session-start\.md)$'
+
+if echo "$STAGED_FILES" | grep -qE "$ONBOARDING_PATTERN"; then
+  echo "[Step 9] Operator doc staged — running onboarding integrity check..."
+
+  # Cross-platform .venv detection
+  if [ -f ".venv/Scripts/python" ]; then
+    venv_python=".venv/Scripts/python"       # Windows Git Bash / MINGW
+  elif [ -f ".venv/bin/python" ]; then
+    venv_python=".venv/bin/python"            # macOS / Linux
+  else
+    echo "[Step 9] WARN: .venv not found — skipping onboarding integrity check."
+    echo "         Run the bootstrap step in docs/QUICKSTART.md §2 to enable this gate."
+    venv_python=""
+  fi
+
+  if [ -n "$venv_python" ]; then
+    if ! "$venv_python" scripts/ci/check_onboarding_integrity.py; then
+      echo "[Step 9] FAIL: onboarding integrity check failed. Fix issues above before committing."
+      exit 1
+    fi
+    echo "[Step 9] PASS"
+  fi
+fi
+
 exit 0
