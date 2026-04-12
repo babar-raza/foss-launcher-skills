@@ -1,0 +1,195 @@
+"""Tests for override_manager.py — override token lifecycle.
+
+Coverage:
+- create: token file written to pending/
+- validate-for-path: matching path passes; non-matching rejected
+- expired token: explicitly rejected
+- consume: token moves from pending/ to archived/
+- non-existent token: rejected
+"""
+from __future__ import annotations
+
+import json
+from datetime import datetime, timezone, timedelta
+from pathlib import Path
+
+import pytest
+
+import override_manager
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _write_token(pending_dir: Path, token: dict) -> Path:
+    """Write a token dict to pending_dir/{id}.json and return the path."""
+    pending_dir.mkdir(parents=True, exist_ok=True)
+    token_id = token["override_id"]
+    p = pending_dir / f"{token_id}.json"
+    p.write_text(json.dumps(token, indent=2), encoding="utf-8")
+    return p
+
+
+def _make_token(
+    token_id: str,
+    paths: list[str],
+    *,
+    days_ago: int = 0,
+    retroactive: bool = False,
+) -> dict:
+    authorized_at = (
+        datetime.now(tz=timezone.utc) - timedelta(days=days_ago)
+    ).isoformat().replace("+00:00", "Z")
+    return {
+        "override_id": token_id,
+        "paths": paths,
+        "operation": "edit",
+        "reason": "test reason",
+        "plan_reference": "",
+        "scope_description": "",
+        "authorized_at": authorized_at,
+        "retroactive": retroactive,
+        "consumed_by_commit": None,
+    }
+
+
+# ---------------------------------------------------------------------------
+# TASK-05 tests
+# ---------------------------------------------------------------------------
+
+class TestCreate:
+    def test_token_file_written_to_pending(self, tmp_path, monkeypatch):
+        pending = tmp_path / "pending"
+        archived = tmp_path / "archived"
+        monkeypatch.setattr(override_manager, "_REPO_ROOT", tmp_path)
+        monkeypatch.setattr(override_manager, "_PENDING_DIR", pending)
+        monkeypatch.setattr(override_manager, "_ARCHIVED_DIR", archived)
+
+        class Args:
+            paths = ["AGENTS.md"]
+            reason = "test reason"
+            plan = "my-plan.md"
+            scope = ""
+            operation = "edit"
+            retroactive = False
+
+        rc = override_manager.cmd_create(Args())
+
+        assert rc == 0
+        token_files = list(pending.glob("*.json"))
+        assert len(token_files) == 1
+
+        token = json.loads(token_files[0].read_text())
+        assert token["paths"] == ["AGENTS.md"]
+        assert token["reason"] == "test reason"
+        assert token["consumed_by_commit"] is None
+
+
+class TestValidateForPath:
+    def test_matching_path_passes(self, tmp_path, monkeypatch):
+        pending = tmp_path / "pending"
+        monkeypatch.setattr(override_manager, "_PENDING_DIR", pending)
+
+        token = _make_token("20260401-123000-agents-md", ["AGENTS.md"], days_ago=1)
+        _write_token(pending, token)
+
+        class Args:
+            path = "AGENTS.md"
+
+        rc = override_manager.cmd_validate_for_path(Args())
+        assert rc == 0
+
+    def test_non_matching_path_rejected(self, tmp_path, monkeypatch):
+        pending = tmp_path / "pending"
+        monkeypatch.setattr(override_manager, "_PENDING_DIR", pending)
+
+        token = _make_token("20260401-123000-agents-md", ["AGENTS.md"], days_ago=1)
+        _write_token(pending, token)
+
+        class Args:
+            path = "scripts/pipeline/somefile.py"
+
+        rc = override_manager.cmd_validate_for_path(Args())
+        assert rc == 2
+
+    def test_expired_token_rejected(self, tmp_path, monkeypatch):
+        """Expired token (>7 days) must be rejected — the core safety property."""
+        pending = tmp_path / "pending"
+        monkeypatch.setattr(override_manager, "_PENDING_DIR", pending)
+
+        # Token created 10 days ago — past the 7-day TTL
+        token = _make_token("20260401-123000-agents-md", ["AGENTS.md"], days_ago=10)
+        _write_token(pending, token)
+
+        class Args:
+            path = "AGENTS.md"
+
+        rc = override_manager.cmd_validate_for_path(Args())
+        assert rc == 2  # expired → rejected
+
+    def test_expired_retroactive_token_passes(self, tmp_path, monkeypatch):
+        """Retroactive tokens bypass the TTL check."""
+        pending = tmp_path / "pending"
+        monkeypatch.setattr(override_manager, "_PENDING_DIR", pending)
+
+        token = _make_token(
+            "20260401-123000-agents-md", ["AGENTS.md"], days_ago=10, retroactive=True
+        )
+        _write_token(pending, token)
+
+        class Args:
+            path = "AGENTS.md"
+
+        rc = override_manager.cmd_validate_for_path(Args())
+        assert rc == 0
+
+    def test_no_token_returns_2(self, tmp_path, monkeypatch):
+        """No pending token → exit 2."""
+        pending = tmp_path / "pending"
+        monkeypatch.setattr(override_manager, "_PENDING_DIR", pending)
+
+        class Args:
+            path = "AGENTS.md"
+
+        rc = override_manager.cmd_validate_for_path(Args())
+        assert rc == 2
+
+
+class TestConsume:
+    def test_consume_moves_to_archived(self, tmp_path, monkeypatch):
+        pending = tmp_path / "pending"
+        archived = tmp_path / "archived"
+        monkeypatch.setattr(override_manager, "_PENDING_DIR", pending)
+        monkeypatch.setattr(override_manager, "_ARCHIVED_DIR", archived)
+
+        token_id = "20260401-123000-agents-md"
+        token = _make_token(token_id, ["AGENTS.md"], days_ago=1)
+        _write_token(pending, token)
+
+        class Args:
+            token_id = "20260401-123000-agents-md"
+            commit_sha = "abc123def456"
+
+        rc = override_manager.cmd_consume(Args())
+
+        assert rc == 0
+        assert not (pending / f"{token_id}.json").exists()
+        archived_file = archived / f"{token_id}.json"
+        assert archived_file.exists()
+
+        consumed = json.loads(archived_file.read_text())
+        assert consumed["consumed_by_commit"] == "abc123def456"
+
+    def test_consume_nonexistent_token_returns_1(self, tmp_path, monkeypatch):
+        pending = tmp_path / "pending"
+        archived = tmp_path / "archived"
+        monkeypatch.setattr(override_manager, "_PENDING_DIR", pending)
+        monkeypatch.setattr(override_manager, "_ARCHIVED_DIR", archived)
+
+        class Args:
+            token_id = "nonexistent-token"
+            commit_sha = "abc123"
+
+        rc = override_manager.cmd_consume(Args())
+        assert rc == 1
