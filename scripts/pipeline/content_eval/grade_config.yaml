@@ -1,0 +1,21 @@
+# Grade configuration for content_eval
+# Changes to this file MUST be accompanied by an EVALUATOR_LOGIC_VERSION bump.
+evaluator_logic_version: "4"
+
+# Categories where any FAIL forces grade F
+critical_categories:
+  - FC  # forbidden_claims
+  - PC  # platform_purity
+  - TA  # type_accuracy
+
+# Category-specific grade ceilings
+# Format: category: {levels: [WARN, FAIL, or both], ceiling: max_grade}
+category_ceilings:
+  TA: {levels: ["WARN", "FAIL"], ceiling: "C"}
+  FT: {levels: ["FAIL"], ceiling: "C"}
+  CP: {levels: ["FAIL"], ceiling: "B"}
+  NC: {levels: ["FAIL"], ceiling: "C"}
+  SX: {levels: ["FAIL"], ceiling: "C"}
+  AC: {levels: ["FAIL"], ceiling: "B"}
+  FM: {levels: ["FAIL"], ceiling: "C"}
+  MV: {levels: ["FAIL"], ceiling: "C"}
