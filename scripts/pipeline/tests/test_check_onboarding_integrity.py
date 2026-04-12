@@ -6,7 +6,7 @@ Tests for scripts/ci/check_onboarding_integrity.py.
 Each test builds a minimal fake repo in a temp directory and invokes the
 check functions directly (no subprocess, no real repo state).
 
-Happy path: all checks pass.
+Happy path: all non-git checks pass.
 Failure paths: one per check group — exactly the failure that used to break things.
 """
 
@@ -19,8 +19,21 @@ from unittest.mock import patch
 import pytest
 
 # Make the CI script importable without installing it.
-# __file__ lives at scripts/pipeline/tests/ → go up 3 levels to repo root → down to scripts/ci
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent / "scripts" / "ci"))
+# Walk up from __file__ until we find the repo root (identified by AGENTS.md),
+# then descend to scripts/ci. Robust to file moves — no hardcoded parent depth.
+def _find_repo_root(start: Path) -> Path:
+    current = start.resolve()
+    while current.parent != current:
+        if (current / "AGENTS.md").exists():
+            return current
+        current = current.parent
+    raise RuntimeError(
+        f"Could not find repo root (no AGENTS.md found starting from {start}). "
+        "Ensure the test is run from within the repository."
+    )
+
+
+sys.path.insert(0, str(_find_repo_root(Path(__file__)) / "scripts" / "ci"))
 
 import check_onboarding_integrity as module  # noqa: E402
 
@@ -32,7 +45,8 @@ import check_onboarding_integrity as module  # noqa: E402
 
 def _make_repo(tmp_path: Path) -> Path:
     """Scaffold a minimal, fully-passing fake repo."""
-    # AGENTS.md — must contain the docs/QUICKSTART.md link
+    # AGENTS.md — must contain the docs/QUICKSTART.md link; headings must round-trip
+    # through the GitHub slug algorithm (C7 check validates this)
     (tmp_path / "AGENTS.md").write_text(
         "## 2. Read Order\n\nSee [docs/QUICKSTART.md](docs/QUICKSTART.md) for onboarding.\n\n"
         "## 2a. Source-of-Truth Hierarchy\n",
@@ -71,8 +85,9 @@ def _make_repo(tmp_path: Path) -> Path:
 
 
 def _run_checks(tmp_path: Path) -> int:
-    """Patch REPO_ROOT + OPERATOR_DOCS, clear _failures, run all checks, return exit code."""
+    """Patch REPO_ROOT + OPERATOR_DOCS, clear _failures, run all non-git checks, return exit code."""
     module._failures.clear()
+    module._verbose = False
     patched_docs = [
         tmp_path / "docs" / "QUICKSTART.md",
         tmp_path / "OPERATOR_GUIDE.md",
@@ -87,6 +102,7 @@ def _run_checks(tmp_path: Path) -> int:
         module.check_relative_links()
         module.check_runbook_venv()
         module.check_quickstart_structure()
+        module.check_toc_anchors()
     return 1 if module._failures else 0
 
 
@@ -97,9 +113,57 @@ def _run_checks(tmp_path: Path) -> int:
 
 class TestHappyPath:
     def test_all_non_git_checks_pass(self, tmp_path):
-        """All checks except C1 (git) pass on a well-formed fake repo."""
+        """All checks except C1 (git subprocess) pass on a well-formed fake repo."""
         _make_repo(tmp_path)
         assert _run_checks(tmp_path) == 0, f"Unexpected failures: {module._failures}"
+
+
+# ---------------------------------------------------------------------------
+# C1 — git-tracking check (subprocess mocked — SR-03)
+# ---------------------------------------------------------------------------
+
+
+class TestC1GitTracked:
+    def test_tracked_file_passes(self, tmp_path):
+        """subprocess returns the expected path → C1 passes."""
+        _make_repo(tmp_path)
+        module._failures.clear()
+        mock_result = type("CP", (), {"stdout": "docs/QUICKSTART.md\n", "returncode": 0})()
+        with (
+            patch("subprocess.run", return_value=mock_result),
+            patch.object(module, "REPO_ROOT", tmp_path),
+        ):
+            module.check_quickstart_tracked()
+        assert not any("C1-TRACKED" in f for f in module._failures), module._failures
+
+    def test_untracked_file_fails(self, tmp_path):
+        """subprocess returns empty stdout → C1 fires."""
+        _make_repo(tmp_path)
+        module._failures.clear()
+        mock_result = type("CP", (), {"stdout": "", "returncode": 0})()
+        with (
+            patch("subprocess.run", return_value=mock_result),
+            patch.object(module, "REPO_ROOT", tmp_path),
+        ):
+            module.check_quickstart_tracked()
+        assert any("C1-TRACKED" in f for f in module._failures), module._failures
+
+    def test_git_subprocess_called_with_correct_args(self, tmp_path):
+        """check_quickstart_tracked calls git ls-files with the correct path and cwd."""
+        _make_repo(tmp_path)
+        module._failures.clear()
+        mock_result = type("CP", (), {"stdout": "docs/QUICKSTART.md\n", "returncode": 0})()
+        with (
+            patch("subprocess.run", return_value=mock_result) as mock_run,
+            patch.object(module, "REPO_ROOT", tmp_path),
+        ):
+            module.check_quickstart_tracked()
+        mock_run.assert_called_once_with(
+            ["git", "ls-files", "docs/QUICKSTART.md"],
+            capture_output=True,
+            text=True,
+            cwd=tmp_path,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -327,3 +391,109 @@ class TestC6QuickstartStructure:
             module.check_quickstart_structure()
         # C6 skips — C1 would catch the missing file in the full run
         assert not any("C6-STRUCTURE" in f for f in module._failures), module._failures
+
+
+# ---------------------------------------------------------------------------
+# C7 — TOC anchor validation (SR-01)
+# ---------------------------------------------------------------------------
+
+
+class TestC7TocAnchors:
+    def test_valid_anchor_passes(self, tmp_path):
+        """An (#anchor) that matches a real heading slug does not fire C7."""
+        _make_repo(tmp_path)
+        # Heading '## 2. Read Order' → slug '2-read-order'
+        (tmp_path / "AGENTS.md").write_text(
+            "## 2. Read Order\n\nSee [docs/QUICKSTART.md](docs/QUICKSTART.md).\n\n"
+            "See also [Read Order](#2-read-order).\n\n"
+            "## 2a. Source-of-Truth Hierarchy\n",
+            encoding="utf-8",
+        )
+        module._failures.clear()
+        with patch.object(module, "REPO_ROOT", tmp_path):
+            module.check_toc_anchors()
+        assert not any("C7-TOC-ANCHORS" in f for f in module._failures), module._failures
+
+    def test_broken_anchor_detected(self, tmp_path):
+        """An (#anchor) with no matching heading fires C7."""
+        _make_repo(tmp_path)
+        (tmp_path / "AGENTS.md").write_text(
+            "## 2. Read Order\n\nSee [docs/QUICKSTART.md](docs/QUICKSTART.md).\n\n"
+            "See also [Wrong](#nonexistent-heading-slug).\n\n"
+            "## 2a. Source-of-Truth Hierarchy\n",
+            encoding="utf-8",
+        )
+        module._failures.clear()
+        with patch.object(module, "REPO_ROOT", tmp_path):
+            module.check_toc_anchors()
+        assert any("C7-TOC-ANCHORS" in f for f in module._failures), module._failures
+
+    def test_slug_algorithm_strips_punctuation(self, tmp_path):
+        """Heading '## 6c. Protocol (added 2026-04-03)' → slug '6c-protocol-added-2026-04-03'."""
+        _make_repo(tmp_path)
+        (tmp_path / "AGENTS.md").write_text(
+            "## 2. Read Order\n\nSee [docs/QUICKSTART.md](docs/QUICKSTART.md).\n\n"
+            "## 6c. Protocol (added 2026-04-03)\n\n"
+            "See [this](#6c-protocol-added-2026-04-03).\n\n"
+            "## 2a. Source-of-Truth Hierarchy\n",
+            encoding="utf-8",
+        )
+        module._failures.clear()
+        with patch.object(module, "REPO_ROOT", tmp_path):
+            module.check_toc_anchors()
+        assert not any("C7-TOC-ANCHORS" in f for f in module._failures), module._failures
+
+    def test_agents_missing_skips_gracefully(self, tmp_path):
+        """If AGENTS.md is absent, C7 returns without error (C2 handles the miss)."""
+        _make_repo(tmp_path)
+        (tmp_path / "AGENTS.md").unlink()
+        module._failures.clear()
+        with patch.object(module, "REPO_ROOT", tmp_path):
+            module.check_toc_anchors()
+        assert not any("C7-TOC-ANCHORS" in f for f in module._failures), module._failures
+
+
+# ---------------------------------------------------------------------------
+# Observability — verbose mode and GitHub Actions annotations (SR-05)
+# ---------------------------------------------------------------------------
+
+
+class TestObservability:
+    def test_verbose_pass_output(self, tmp_path, capsys):
+        """With _verbose=True, passing checks emit 'PASS [Cx]' lines to stdout."""
+        _make_repo(tmp_path)
+        module._failures.clear()
+        module._verbose = True
+        try:
+            with patch.object(module, "REPO_ROOT", tmp_path):
+                module.check_agents_link()
+        finally:
+            module._verbose = False
+        captured = capsys.readouterr()
+        assert "PASS [C2-AGENTS-LINK]" in captured.out
+
+    def test_verbose_false_no_pass_output(self, tmp_path, capsys):
+        """With _verbose=False (default), no PASS lines are emitted on stdout."""
+        _make_repo(tmp_path)
+        module._failures.clear()
+        module._verbose = False
+        with patch.object(module, "REPO_ROOT", tmp_path):
+            module.check_agents_link()
+        captured = capsys.readouterr()
+        assert "PASS" not in captured.out
+
+    def test_github_actions_annotation_on_failure(self, tmp_path, capsys):
+        """When GITHUB_ACTIONS env var is set, failures emit ::error:: annotations."""
+        _make_repo(tmp_path)
+        (tmp_path / "AGENTS.md").write_text(
+            "## 2. Read Order\n\nNo quickstart link.\n\n## 2a. Source\n",
+            encoding="utf-8",
+        )
+        module._failures.clear()
+        with (
+            patch.dict("os.environ", {"GITHUB_ACTIONS": "true"}),
+            patch.object(module, "REPO_ROOT", tmp_path),
+        ):
+            module.check_agents_link()
+        captured = capsys.readouterr()
+        assert "::error title=Onboarding Integrity [C2-AGENTS-LINK]::" in captured.out
