@@ -48,6 +48,8 @@ This table is for orientation only. Path enforcement rules are in AGENTS.md §4.
 
 ## Available Commands (Quick Reference)
 
+New to this repo? Start with [`docs/QUICKSTART.md`](docs/QUICKSTART.md) — 30-minute onboarding guide.
+
 Skills are invoked as slash commands:
 
 ```

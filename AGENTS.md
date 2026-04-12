@@ -3,6 +3,42 @@
 > Last updated: 2026-04-10 (S-87 system-heal registered in §12, §6a DAR, §6 audit-driven healing chain; --no-tier3-cache flag documented in §12 S-43 flags); prior: 2026-04-09 (§2/§3 fix knowledge artifact paths to match actual `merged/` directory; remove nonexistent `claims.md` reference); prior: 2026-04-08 (§6f blog slug governance — features post slug is cluster-derived; banned pattern enforced by plan_blog() validator); prior: 2026-04-07 (§7a translation-staging-order governance rule; §6e ceiling-reached terminal state); prior: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline)
 > Authority: Human maintainer only (see Section 4 — this file is in the forbidden write list)
 
+<details>
+<summary>Section Index (click to expand)</summary>
+
+| § | Section | Key content |
+|---|---------|-------------|
+| §1 | [Purpose](#1-purpose) | What agents do here |
+| §2 | [Read Order](#2-read-order-always-read-in-this-order-before-doing-any-work) | Mandatory pre-work gate |
+| §2a | [Source-of-Truth Hierarchy](#2a-source-of-truth-hierarchy) | Conflict resolution |
+| §3 | [Mental Model Refresh](#3-mental-model-refresh-protocol) | Pre-edit knowledge check |
+| §4 | [Allowed Write Paths](#4-allowed-write-paths-enforced-by-s-01-path-guard) | Path guard rules |
+| §4b | [Python File Placement](#4b-python-file-placement-rules) | New .py file rules |
+| §5 | [Evidence Requirements](#5-evidence-requirements-non-negotiable) | Non-negotiable grounding |
+| §6 | [Skill Chains by Task](#6-skill-chains-by-task) | Which skill chain to run |
+| §6a | [Skill-First Mandate](#6a-skill-first-execution-mandate) | DAR dependency table |
+| §6b | [Gap Escalation](#6b-capability-classification-and-gap-escalation) | No-skill-found protocol |
+| §6c | [Causal Backtracking](#6c-causal-backtracking-protocol-added-2026-04-03) | Failure root-cause |
+| §6f | [Blog Slug Governance](#6f-blog-slug-governance-added-2026-04-08) | Blog URL rules |
+| §7 | [Hard Stop Conditions](#7-hard-stop-conditions) | When to halt |
+| §7a | [Launch-Readiness Gates](#7a-launch-readiness-gates) | Pre-launch requirements |
+| §7b | [Human-Review Risk Tiers](#7b-human-review-risk-tiers) | Escalation tiers |
+| §8 | [Escalation Conditions](#8-escalation-conditions-route-to-human-review) | Human review routes |
+| §9 | [Maintenance Workflow](#9-maintenance-workflow) | Ongoing maintenance |
+| §9a | [Evaluator Change Checklist](#9a-evaluator-change-checklist) | Bump EVALUATOR_LOGIC_VERSION |
+| §9b | [Regeneration Triggers](#9b-regeneration-after-extraction-script-changes) | When to re-run pipeline |
+| §9c | [Change-Trigger Matrix](#9c-change-trigger-matrix) | What change triggers what |
+| §10 | [Evidence Proof in Commits](#10-evidence-proof-in-commits) | Commit evidence rules |
+| §10a | [Verification Standards](#10a-verification-standards-for-fixes) | Fix evidence requirements |
+| §10b | [Content Provenance Rules](#10b-content-provenance-rules) | Provenance lifecycle |
+| §10c | [Output-Location Discipline](#10c-output-location-discipline) | Where outputs go |
+| §11 | [Prohibited Actions](#11-prohibited-actions) | Hard prohibitions |
+| §12 | [File Map](#12-file-map) | All scripts, skills, paths |
+| §13 | [Internal Metadata Policy](#13-internal-metadata-rendering-policy) | Evidence panel hiding |
+| §14 | [Completion Verification](#14-completion-verification-protocol) | Task done = what? |
+
+</details>
+
 ## 1. Purpose
 
 Agents operating on this repo generate and maintain documentation for Aspose FOSS products. All content must be grounded in evidence from the knowledge model. This file is the authoritative source of operating rules for all agents.
@@ -18,6 +54,13 @@ Agents operating on this repo generate and maintain documentation for Aspose FOS
    in full (§ New File Protocol, § Registry Schema, § Shared Module Rules).
 
 New contributor or agent? See the `getting-started` skill for step-by-step fresh-clone setup.
+
+> **New operator or agent?** Before reading further, start here:
+> - [`docs/QUICKSTART.md`](docs/QUICKSTART.md) — 30-minute onboarding (environment, session flow, five workflows)
+> - [`OPERATOR_GUIDE.md`](OPERATOR_GUIDE.md) — What skills are and how to invoke them
+> - [`RUNBOOK.md`](RUNBOOK.md) — Terminal command cheatsheet
+>
+> After completing the quickstart, return here and read AGENTS.md in full before your first content task.
 
 ## 2a. Source-of-Truth Hierarchy
 
@@ -971,12 +1014,16 @@ S-84 orchestrates the complete 14-step chain (detect → knowledge-update → de
 content-check → link-validate → translate → verify → commit). See §6 Maintenance chain
 for the full step sequence with progress tracking.
 
-**Deprecated manual chain** (pre-S-84; superseded by S-84 above; do not follow):
+<details>
+<summary>Deprecated manual chain (pre-S-84; do not follow)</summary>
+
 1. S-12 (diff) — identify which files changed
 2. S-13 (stale-detect) — which content pages are affected
 3. For each affected page: S-14 → S-20 → S-25
 4. S-15 (embed-knowledge) — sync vector store if used
 5. Commit: `knowledge/` changes + `content/` changes together
+
+</details>
 
 ## 9a. Evaluator Change Checklist
 
