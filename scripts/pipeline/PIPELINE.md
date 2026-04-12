@@ -232,3 +232,46 @@ registration and the 8-step New File Protocol above.
 migrations) that are run manually and never called by automation. They require only a
 1-line entry in `scripts/maintenance/registry.yaml`. When in doubt, prefer
 `scripts/maintenance/`.
+
+
+## Registry Schema: `test_exempt_reason` field
+
+Optional string. When present and non-empty, suppresses CHECK 4b warnings for this entry
+and documents why no test is needed. Valid exempt reasons:
+- One-shot maintenance scripts with no production callers
+- Thin wrappers whose backing module has full test coverage (cite the test file)
+- Scripts requiring live external APIs that cannot be mocked offline without a full harness
+- Phase-deferred scripts not yet in the active CI path
+
+Entries with neither `test_targets` nor `test_exempt_reason` will fail CHECK 4b
+once `--fail-test-gaps` is active in `content-audit.yml`.
+
+Example:
+```yaml
+- path: scripts/pipeline/embed_knowledge.py
+  test_targets: []
+  test_exempt_reason: "thin wrapper: calls embed.main() which has full coverage in test_embed.py"
+```
+
+## Test file requirements
+
+For every new `kind: entrypoint` or `kind: library` with `lifecycle: active`:
+
+**Option A — Add tests:**
+1. Create `scripts/pipeline/tests/test_{module_name}.py`
+2. Add path to `test_targets` in registry.yaml
+3. Set `requires_test: true` in registry.yaml
+
+**Option B — Document exemption:**
+1. Set `test_exempt_reason` to a non-empty string justifying the exemption
+2. Leave `test_targets: []`
+
+Test file location is non-negotiable:
+- `scripts/pipeline/` scripts → `scripts/pipeline/tests/test_{module}.py`
+- `scripts/translator/` scripts → `scripts/translator/tests/test_{module}.py`
+- Root `tests/` → end-to-end integration spanning multiple subsystems only
+- Naming: `test_{module}.py` matching the source filename exactly
+- Sub-packages use flat naming: `test_prereqs.py` not `core/test_prereqs.py`
+
+When a module is renamed, deleted, or split: rename/delete/split its test file and update
+`test_targets` in registry.yaml accordingly. The registry is the enforcement contract.
