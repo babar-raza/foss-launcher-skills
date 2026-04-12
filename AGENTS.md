@@ -1,6 +1,6 @@
 # AGENTS.md — Aspose.org Content Generation & Maintenance Governance
 
-> Last updated: 2026-04-10 (S-87 system-heal registered in §12, §6a DAR, §6 audit-driven healing chain; --no-tier3-cache flag documented in §12 S-43 flags); prior: 2026-04-09 (§2/§3 fix knowledge artifact paths to match actual `merged/` directory; remove nonexistent `claims.md` reference); prior: 2026-04-08 (§6f blog slug governance — features post slug is cluster-derived; banned pattern enforced by plan_blog() validator); prior: 2026-04-07 (§7a translation-staging-order governance rule; §6e ceiling-reached terminal state); prior: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline)
+> Last updated: 2026-04-12 (§9c change-trigger matrix: added member-doc enrichment gate for batch_reference + description_coverage_audit.py reference; EVALUATOR_LOGIC_VERSION bumped to 6 for retired_at page skip in DescriptionCompletenessEvaluator); prior: 2026-04-10 (S-87 system-heal registered in §12, §6a DAR, §6 audit-driven healing chain; --no-tier3-cache flag documented in §12 S-43 flags); prior: 2026-04-09 (§2/§3 fix knowledge artifact paths to match actual `merged/` directory; remove nonexistent `claims.md` reference); prior: 2026-04-08 (§6f blog slug governance — features post slug is cluster-derived; banned pattern enforced by plan_blog() validator); prior: 2026-04-07 (§7a translation-staging-order governance rule; §6e ceiling-reached terminal state); prior: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline)
 > Authority: Human maintainer only (see Section 4 — this file is in the forbidden write list)
 
 <details>
@@ -1114,6 +1114,8 @@ Use this matrix to decide what action is required when a specific artifact or sc
 | `skills/*.md` skill file changed | Test with 1 representative run; verify post-conditions fire correctly | Per skill |
 | `scripts/pipeline/path_guard.py` changed | Run `pytest scripts/pipeline/tests/test_path_guard.py` — must exit 0 | Self-test |
 | `AGENTS.md` changed | Verify CLAUDE.md §6 alignment (see CLAUDE.md alignment note) | Self |
+| Running `batch_reference` (S-62) for a product | Verify member-doc ERC coverage ≥ 20% per product first: `python scripts/pipeline/description_coverage_audit.py`; if any product is below threshold, run `enrich --mode member-doc` then `promote.py` before generating reference pages | Per product |
+| `enrich.py --mode member-doc` completed | Run `promote.py` to merge enriched claims, then verify coverage with `description_coverage_audit.py` | Per product |
 
 **Manual edit after content-only change**: Use S-73 (manual-edit) → re-run S-23 + audit.py. Do not re-run knowledge bootstrap unless `stale_since` is set — content-only edits do not require knowledge regeneration.
 
@@ -1719,7 +1721,12 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 - `--deterministic` — Exhaustive Stage 2 + no LLM (Tier 1 + Tier 2 only). Fully reproducible. Recommended for regression tracking and CI integration.
 - `--seed N` — Random seed for Stage 2 sampling (default: 42). Only used when `--max-stage2-entries > 0`.
 - `--max-stage2-entries N` — Stage 2 entries to check: 0 = all entries (default, exhaustive); N > 0 = sample N entries.
-- `--no-tier3-cache` — Bypass Tier 3 result cache; force fresh LLM calls for all Tier 3 findings; write results back to cache after evaluation. Use when suspecting cache staleness or testing Tier 3 behavior. (Added with S-87/tier3_cache.py.)
+- `--no-tier3-cache` — Bypass Tier 3 result cache; force fresh LLM calls for all Tier 3 findings;
+  write results back to cache after evaluation. Use when suspecting cache staleness or testing
+  Tier 3 behavior. **Performance ceiling:** for products with > 50 content files, a full
+  `--no-tier3-cache` run requires one LLM call per Tier 3 finding and typically exceeds 5 minutes
+  (may time out in CI with default 2-min limits). Use `--deterministic` for CI and reserve
+  `--no-tier3-cache` for targeted local diagnosis. (Added with S-87/tier3_cache.py.)
 
 ### Enforcement scripts
 
