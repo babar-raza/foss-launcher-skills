@@ -12,4 +12,4 @@ __version__ = "0.1.0"
 # When this value does not match graded_logic_version in a page's frontmatter,
 # --skip-graded will re-grade the page even if graded_model_sha is current.
 # Update the AGENTS.md evaluator change checklist when bumping this value.
-EVALUATOR_LOGIC_VERSION = "4"
+EVALUATOR_LOGIC_VERSION = "6"

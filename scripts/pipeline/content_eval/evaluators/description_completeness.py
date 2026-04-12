@@ -14,18 +14,17 @@ _DESC_HEADERS = {"description", "summary", "returns", "remarks"}
 # Minimum data rows to evaluate a table (skip tiny tables)
 _MIN_DATA_ROWS = 3
 
-# Thresholds
-_FAIL_EMPTY_PCT = 70  # >70% empty → FAIL
-_WARN_EMPTY_PCT = 40  # >40% empty → WARN
+# Thresholds — tightened from 70/40 to 50/25 to catch majority-empty tables sooner.
+_FAIL_EMPTY_PCT = 50  # >50% empty → FAIL
+_WARN_EMPTY_PCT = 25  # >25% empty → WARN
 
 # Minimum chars for a cell to count as "populated"
 _MIN_CELL_LEN = 6
 
 # Minimum absolute empty-cell count before the percentage thresholds apply.
-# Prevents small tables (≤4 rows) from getting FAIL/WARN purely because the
-# denominator is tiny. A large class with 10+ undocumented members is more
-# severe than a small class with 3 undocumented members at the same percentage.
-_FAIL_EMPTY_MIN = 5   # require ≥5 empty cells to fire FAIL
+# Lowered from 5/2 to 3/2 so that small-but-sparse tables (≥3 empty cells)
+# still receive FAIL when the percentage threshold is met.
+_FAIL_EMPTY_MIN = 3   # require ≥3 empty cells to fire FAIL
 _WARN_EMPTY_MIN = 2   # require ≥2 empty cells to fire WARN
 
 
@@ -97,6 +96,10 @@ class DescriptionCompletenessEvaluator(BaseEvaluator):
 
         # Only evaluate reference pages
         if page.subdomain != "reference":
+            return findings
+
+        # Skip retired pages — they are snapshots and may intentionally lack descriptions
+        if page.frontmatter.get("retired_at"):
             return findings
 
         tables = _parse_tables(page.body, page.body_offset)

@@ -69,6 +69,7 @@ These scripts have a `if __name__ == "__main__"` block. Invoke them directly.
 |--------|---------|
 | `check_knowledge_completeness.py` | Check for missing knowledge artifacts |
 | `check_locale_topology.py` | Check locale directory topology consistency |
+| `description_coverage_audit.py` | Per-product ERC api-kind member-doc coverage audit; run after `enrich --mode member-doc` and before `batch_reference` to verify ≥20% coverage; writes `knowledge/description_coverage_report.json` |
 | `normalize_yaml_style.py` | Normalize YAML formatting in knowledge files |
 | `plan_check.py` | Validate plan files |
 | `regenerate_reference.py` | Regenerate reference pages from knowledge |

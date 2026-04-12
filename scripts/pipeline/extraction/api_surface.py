@@ -308,6 +308,7 @@ def _extract_python_properties(
         properties.append({
             "name": pname,
             "type": ret,
+            "doc": _extract_doc_comment(fn, "python"),
             "line": fn.start_point[0] + 1,
         })
         claims.append(_make_claim(
@@ -375,6 +376,7 @@ def _extract_python_annotated_fields(
         fields.append({
             "name": fname,
             "type": ftype,
+            "doc": "",
             "line": stmt.start_point[0] + 1,
         })
         claims.append(_make_claim(
@@ -485,6 +487,7 @@ def _extract_python_init_attributes(
         props.append({
             "name": attr_name,
             "type": attr_type,
+            "doc": "",
             "line": target.start_point[0] + 1,
         })
         claims.append(_make_claim(
@@ -535,6 +538,7 @@ def _synthesize_java_properties(
         properties.append({
             "name": prop_name,
             "type": ptype,
+            "doc": getter.get("doc", ""),
             "line": getter["line"],
         })
         claims.append(_make_claim(
@@ -630,6 +634,7 @@ def _extract_const_fields(
                     "name": fname,
                     "type": ftype,
                     "kind": kind,
+                    "doc": _extract_doc_comment(member, language),
                     "line": member.start_point[0] + 1,
                     "writable": False,
                 })
@@ -699,6 +704,7 @@ def _synthesize_cpp_properties(
         properties.append({
             "name": name,
             "type": ret,
+            "doc": m.get("doc", ""),
             "line": m["line"],
             "writable": name in setter_names,
         })
@@ -1064,6 +1070,7 @@ def extract_api_surface(
                                 "type": ptype,
                                 "kind": "property",
                                 "access_mode": acc_mode,
+                                "doc": "",
                                 "line": mnode.start_point[0] + 1,
                             })
                             claims.append(_make_claim(
@@ -1099,6 +1106,7 @@ def extract_api_surface(
                                     "type": ptype,
                                     "kind": "property",
                                     "access_mode": acc_mode,
+                                    "doc": "",
                                     "line": mnode.start_point[0] + 1,
                                 })
                                 claims.append(_make_claim(
@@ -1127,6 +1135,7 @@ def extract_api_surface(
                     properties.append({
                         "name": mname,
                         "type": ptype,
+                        "doc": _extract_doc_comment(mnode, language),
                         "line": mnode.start_point[0] + 1,
                         "writable": writable,
                     })
@@ -1263,6 +1272,7 @@ def extract_api_surface(
                                 properties.append({
                                     "name": fname,
                                     "type": ftype,
+                                    "doc": mdoc,
                                     "line": member.start_point[0] + 1,
                                     "writable": True,  # public data members are read-write
                                 })

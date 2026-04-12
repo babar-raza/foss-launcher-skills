@@ -1,6 +1,6 @@
 # Grade configuration for content_eval
 # Changes to this file MUST be accompanied by an EVALUATOR_LOGIC_VERSION bump.
-evaluator_logic_version: "4"
+evaluator_logic_version: "6"
 
 # Categories where any FAIL forces grade F
 critical_categories:
@@ -19,3 +19,4 @@ category_ceilings:
   AC: {levels: ["FAIL"], ceiling: "B"}
   FM: {levels: ["FAIL"], ceiling: "C"}
   MV: {levels: ["FAIL"], ceiling: "C"}
+  DC: {levels: ["FAIL"], ceiling: "C"}
