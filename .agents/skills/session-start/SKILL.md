@@ -26,7 +26,13 @@ any user request.
    .venv/Scripts/python scripts/pipeline/session_ledger.py init
    ```
    Record the returned session ID.
-6. Only then accept the user's task
+6. Surface backlog briefing (non-blocking — skip gracefully if files absent):
+   - Read `backlog/REMINDERS.md` — show items where `Due <= today` or `Due = session-start`
+   - Read `backlog/HANDOFF.md` — show "What's next" and "Blocked / Waiting"
+   - Read `backlog/BACKLOG.md` — show Active (P0-P1) items (max 5)
+   - Output a `BACKLOG BRIEFING` block (see format below)
+   - If `backlog/` directory does not exist, output: `BACKLOG: not configured (run /backlog to set up)`
+7. Only then accept the user's task
 
 ## Verification
 
@@ -39,6 +45,23 @@ SESSION GATE PASSED
 - Read Order: [list the items from §2]
 - Capability assessment: FULL / PARTIAL / NONE / BROKEN
 - Session ledger: initialized (session ID: {id}, dirty files at start: {N})
+```
+
+## Backlog Briefing Format
+
+```
+BACKLOG BRIEFING — {date}
+Reminders due: {count}
+  - {reminder text} [{priority}]
+
+Last session ({date}): {1-line summary from HANDOFF.md}
+Next steps:
+  - {item from HANDOFF.md "What's next"}
+
+Active items: {count} (P0: {n}, P1: {n})
+  - [{id}] {title} — {status} {blocker if any}
+
+Queued: {count} | Deferred: {count} | Inbox: {count}
 ```
 
 ## Resuming Another Operator's Session
@@ -67,6 +90,6 @@ If another operator started work and you need to continue their session:
 
 ## Hard rules
 
-- Do NOT accept any task before completing all 5 steps
+- Do NOT accept any task before completing all 7 steps
 - Do NOT skip or summarise AGENTS.md — read it fully
 - If AGENTS.md is missing or unreadable, stop and report the failure

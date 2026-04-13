@@ -60,7 +60,7 @@ Source: `scripts/pipeline/sync_skills.py:INTERNAL_SKILLS`.
 
 ## Skill Catalog
 
-71 registered skills grouped by functional category. For the machine-validated registry with
+72 registered skills grouped by functional category. For the machine-validated registry with
 full descriptions, see [AGENTS.md §12](../AGENTS.md).
 
 ### Knowledge & Truth
@@ -167,6 +167,8 @@ Skills that coordinate pipelines, manage translations, or support operators.
 | S-83 | `page-retire` | Retire obsolete content pages via Hugo draft flag |
 | S-84 | `refresh-product` | Full post-launch product refresh orchestration (14-step chain from detect through commit) |
 | S-86 | `refresh-product-page` | Re-generate a single products.aspose.org landing page through the full S-61 pipeline with no-downgrade-guard protection |
+| S-87 | `system-heal` | Audit-driven content healing: 8-phase chain from gap-eval through commit |
+| S-88 | `backlog` | Unified backlog management — view, update, add, triage, archive, remind, handoff |
 
 ---
 

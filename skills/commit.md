@@ -344,6 +344,7 @@ type(scope): imperative title ≤ 72 chars
 - Verification: <command> → <result>
 
 [Skills invoked: [S-xx, ...]]        ← content commits only
+[Addresses: [item-IDs, ...]]         ← when session addresses backlog items
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 ```

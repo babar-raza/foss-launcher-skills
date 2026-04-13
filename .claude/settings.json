@@ -5,7 +5,8 @@
       "Bash(python scripts/pipeline/sync_skills.py --check)",
       "Bash(echo \"EXIT:$?\")",
       "Bash(PYTHONPATH=\"scripts/pipeline;C:/Users/prora/AppData/Roaming/Python/Python313/site-packages\" python -c \"import sys; sys.path.insert\\(0, ''C:/Users/prora/AppData/Roaming/Python/Python313/site-packages''\\); import pytest; sys.exit\\(pytest.main\\([''scripts/pipeline/tests/'', ''-q'', ''--tb=line'', ''--ignore=scripts/pipeline/tests/test_sync_skills.py'']\\)\\)\")",
-      "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/test_check_onboarding_integrity.py -v --tb=short)"
+      "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/test_check_onboarding_integrity.py -v --tb=short)",
+      "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/ -q)"
     ]
   },
   "hooks": {
