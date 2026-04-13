@@ -185,9 +185,18 @@ environment uses UTF-8 locale. On Windows: set `PYTHONUTF8=1` or use `.venv/Scri
 3. If stale claim IDs: re-run `attach_evidence.py` for the affected product
 4. If missing API member: re-run `refresh_knowledge.py` (knowledge model may be stale)
 
+### Detecting upstream repository changes
+1. Run `/knowledge-diff {family} {platform}` — fetches the clone cache and compares SHAs
+2. If SHAs differ: `stale_since` is auto-set in `model.yaml`; follow "Knowledge model is stale" below
+3. If SHAs match: no action needed; the command exits cleanly
+4. To check all products at once: run `/knowledge-diff` for each product in `data/products.json`
+
 ### Knowledge model is stale
 1. Check `knowledge/{family}/{platform}/merged/model.yaml` → `stale_since` field
 2. If not null: run `/knowledge-update {family} {platform}` or manually run the 4 steps (see §5)
+3. After knowledge update: run `/delta-site-plan {family} {platform}` to compute page-level changes
+4. Execute downstream updates per RUNBOOK.md §3d (page-update, page-retire, batch-reference, family-sync)
+5. Run verification gate: `post_refresh_verify.py {family} {platform} --verify` — must exit 0 before commit
 
 ### Pre-commit hook is not running
 Install hooks with the single-command installer:
@@ -237,6 +246,8 @@ at `reports/phase_state.json` records which stages have been completed.
 | `knowledge/{family}/{platform}/merged/claims.json` | Factual claims |
 | `knowledge/{family}/{platform}/merged/api_surface.json` | API surface |
 | `knowledge/{family}/{platform}/merged/pipeline_run.json` | Confirms full 4-step pipeline ran |
+| `knowledge/{family}/{platform}/merged/knowledge_delta.json` | Semantic diff: new/removed/modified claims and APIs |
+| `reports/refresh_state/{family}/{platform}/progress.json` | Step-level progress tracking for refresh workflow |
 | `reports/audit/` | Audit results and baseline |
 | `reports/content_eval/` | Content evaluation reports |
 | `reports/proofs/` | CI proof bundles |

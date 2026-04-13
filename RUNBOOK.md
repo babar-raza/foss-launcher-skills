@@ -98,17 +98,91 @@ python -m scripts.pipeline.content_eval evaluate {family} {platform}
 
 ## 3. Refresh Knowledge After Upstream Changes
 
+### 3a. Detect upstream changes (S-12)
+
 ```bash
-cd scripts/pipeline
-python scout.py {family} {platform} ../../runs/.clone_cache/aspose_{family}_{platform}/ ../../knowledge/{family}/{platform}/scout/
-python enrich.py {family} {platform}
-python promote.py {family} {platform}
-python index.py {family} {platform}
+# Check if a product's upstream repo has new commits
+/knowledge-diff {family} {platform}
 ```
 
-Or use the skill: `/knowledge-update {family} {platform}` — runs all 4 steps above via `refresh_knowledge.py`. After success, `knowledge/{family}/{platform}/merged/pipeline_run.json` confirms all steps ran.
+This fetches the clone, compares SHAs, and auto-sets `stale_since` in `model.yaml` for HIGH/MEDIUM impact.
+If SHAs match, it exits with "no changes" — safe to run on any product at any time.
 
-**Verify**: `python scripts/pipeline/audit.py {family} {platform}` — 0 FAIL expected.
+### 3b. Refresh knowledge model (S-14)
+
+```bash
+# Full pipeline: scout → enrich → promote → index
+/knowledge-update {family} {platform}
+
+# Or run the backing script directly
+.venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform}
+```
+
+After success: `merged/pipeline_run.json` confirms all steps ran, `stale_since` is cleared,
+`knowledge_delta.json` is written with the semantic diff (new/removed/modified claims and APIs).
+
+### 3c. Generate delta site plan (S-82)
+
+```bash
+/delta-site-plan {family} {platform}
+```
+
+Reads `knowledge_delta.json` and produces a `delta:` section in `reports/plans/{family}/{platform}/site_plan.yaml`
+with `pages_to_add`, `pages_to_update`, `pages_to_remove`, and `pages_renamed`.
+
+### 3d. Execute downstream content updates
+
+```bash
+# Update pages affected by changed claims/APIs
+/page-update {family} {platform}
+
+# Retire pages for removed APIs (preview first)
+/page-retire {family} {platform} --from-plan --dry-run
+/page-retire {family} {platform} --from-plan
+
+# Regenerate reference pages for modified APIs
+/batch-reference {family} {platform} --update
+
+# Sync family landing page
+/family-sync {family}
+```
+
+### 3e. Monitor progress
+
+```bash
+# Record a completed step
+.venv/Scripts/python scripts/pipeline/post_refresh_verify.py {family} {platform} --step "{step_name}"
+
+# View progress
+.venv/Scripts/python scripts/pipeline/post_refresh_verify.py {family} {platform} --status
+```
+
+### 3f. Verification gate
+
+```bash
+.venv/Scripts/python scripts/pipeline/post_refresh_verify.py {family} {platform} --verify
+```
+
+Runs 4 checks: (1) `stale_since` is null, (2) no content pages cite absent claim IDs,
+(3) no reference pages exist for absent API classes, (4) `stale_detect.py` reports 0 stale pages.
+Exit 0 = PASS (safe to commit). Exit 1 = FAIL (fix issues first).
+
+**Note**: Retired pages (`draft: true`) still exist on disk. The verifier checks file existence,
+not draft status. If the gate fails on retired pages, clear their `evidence.apis` and `evidence.claims`
+to `[]` so they no longer reference removed classes.
+
+### 3g. Recovery after failure
+
+| Failure point | State | Recovery |
+|---------------|-------|----------|
+| Scout fails | Existing `merged/` preserved; `merged.bak/` cleaned | Re-run S-14 |
+| Enrich fails | Continues best-effort with scout-only claims | Re-run `enrich.py` manually if needed |
+| Promote fails | No delta written; `merged.bak/` cleaned | Re-run S-14 |
+| Network down during fetch | `update_clone()` returns None; uses cached clone | Re-run after network restored |
+| Verify gate fails | Commit blocked | Fix issues listed in output; re-run `--verify` |
+| Duplicate frontmatter keys after evidence update | Pre-commit hook blocks | Deduplicate keys in affected files; re-stage |
+
+**Verify**: `.venv/Scripts/python scripts/pipeline/audit.py {family} {platform}` — 0 FAIL expected.
 
 ## 4. Run Full Content Audit
 

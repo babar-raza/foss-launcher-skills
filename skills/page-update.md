@@ -94,6 +94,28 @@ After a knowledge refresh (S-14), identify which content pages reference changed
    Audit result: PASS/FAIL
    ```
 
+## Body-change requirement rules
+
+Not all delta signals require body prose changes. Use this table to determine
+whether a metadata-only update is acceptable or whether body content MUST change:
+
+| Delta signal | Body change REQUIRED? | Rationale |
+|---|---|---|
+| `removed_claims` citing specific paragraphs | YES | Remove stale sentences referencing removed APIs/features |
+| `modified_claims` | YES | Update sentences to reflect changed behavior |
+| `removed_apis` with no page citations | NO | Only evidence cleanup needed |
+| `new_claims` for existing pages | NO | New content goes in new pages or dedicated sections |
+
+## Frontmatter write rule
+
+ALWAYS use `attach_evidence.py` to update evidence blocks:
+```bash
+.venv/Scripts/python scripts/pipeline/attach_evidence.py --files {updated-file-path}
+```
+NEVER construct evidence YAML manually or via `yaml.dump`. The `evidence/writer.py`
+performs surgical regex-based replacement that preserves non-evidence frontmatter
+fields and avoids duplicate keys.
+
 ## Post-conditions
 - All affected pages have been updated to reflect current knowledge
 - No pages reference removed or orphaned claim IDs
