@@ -343,3 +343,126 @@ class TestBuildErcMemberSet:
         old_set = _build_erc_member_set(claims)
         new_set = _build_erc_member_set(claims)
         assert old_set ^ new_set == set()
+
+
+# ---------------------------------------------------------------------------
+# Fix A: Delta invalidation on re-staleness (healing sprint 2026-04-15)
+# ---------------------------------------------------------------------------
+
+class TestSetStaleSinceRenamesDelta:
+    """Fix A: _set_stale_since renames existing knowledge_delta.json to .prev.json."""
+
+    def test_renames_delta_to_prev(self, tmp_path):
+        """When stale_since is None and delta exists, delta is renamed."""
+        merged = tmp_path / "knowledge" / "test" / "net" / "merged"
+        merged.mkdir(parents=True)
+        model_yaml = merged / "model.yaml"
+        delta_json = merged / "knowledge_delta.json"
+        prev_json = merged / "knowledge_delta.prev.json"
+
+        model_yaml.write_text("stale_since: null\nrepo_sha: abc123\n", encoding="utf-8")
+        delta_json.write_text('{"modified_apis": []}', encoding="utf-8")
+
+        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
+            _rk._set_stale_since("test", "net")
+
+        assert not delta_json.exists(), "delta.json should have been renamed"
+        assert prev_json.exists(), "delta.prev.json should exist"
+        assert prev_json.read_text(encoding="utf-8") == '{"modified_apis": []}'
+
+    def test_no_rename_when_delta_absent(self, tmp_path):
+        """When no delta.json exists, no error and no .prev.json created."""
+        merged = tmp_path / "knowledge" / "test" / "net" / "merged"
+        merged.mkdir(parents=True)
+        model_yaml = merged / "model.yaml"
+        model_yaml.write_text("stale_since: null\nrepo_sha: abc123\n", encoding="utf-8")
+
+        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
+            _rk._set_stale_since("test", "net")
+
+        prev_json = merged / "knowledge_delta.prev.json"
+        assert not prev_json.exists()
+
+    def test_no_rename_when_already_stale(self, tmp_path):
+        """When stale_since is already set, neither model nor delta is modified."""
+        merged = tmp_path / "knowledge" / "test" / "net" / "merged"
+        merged.mkdir(parents=True)
+        model_yaml = merged / "model.yaml"
+        delta_json = merged / "knowledge_delta.json"
+
+        model_yaml.write_text("stale_since: '2026-04-15'\nrepo_sha: abc123\n", encoding="utf-8")
+        delta_json.write_text('{"modified_apis": []}', encoding="utf-8")
+
+        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
+            _rk._set_stale_since("test", "net")
+
+        # Delta should still exist (not renamed) because stale_since was already set
+        assert delta_json.exists()
+        prev_json = merged / "knowledge_delta.prev.json"
+        assert not prev_json.exists()
+
+
+# ---------------------------------------------------------------------------
+# Fix B: Resurrection detection in delta writer (healing sprint 2026-04-15)
+# ---------------------------------------------------------------------------
+
+class TestResurrectionDetection:
+    """Fix B: _write_knowledge_delta detects resurrected APIs from prev.json."""
+
+    def test_detects_resurrected_apis(self, tmp_path):
+        """APIs in new_apis that appear in prev.json removed_apis are resurrected."""
+        import json
+
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+
+        # Write prev delta showing ClassA and ClassB were removed
+        prev_json = merged / "knowledge_delta.prev.json"
+        prev_json.write_text(json.dumps({
+            "removed_apis": ["ClassA", "ClassB", "ClassC"],
+        }), encoding="utf-8")
+
+        # Bak has old api_surface without ClassA/ClassB
+        (bak / "api_surface.json").write_text("[]", encoding="utf-8")
+        (bak / "claims.json").write_text("[]", encoding="utf-8")
+
+        # New merged has ClassA and ClassB back (plus ClassD which is new)
+        (merged / "api_surface.json").write_text(json.dumps([
+            {"name": "ClassA", "methods": [], "properties": []},
+            {"name": "ClassB", "methods": [], "properties": []},
+            {"name": "ClassD", "methods": [], "properties": []},
+        ]), encoding="utf-8")
+        (merged / "claims.json").write_text("[]", encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+        assert "resurrected_apis" in delta
+        assert sorted(delta["resurrected_apis"]) == ["ClassA", "ClassB"]
+        # ClassC was removed in prev but NOT re-added → not resurrected
+        assert "ClassC" not in delta["resurrected_apis"]
+        # ClassD is new but was not in prev removed_apis → not resurrected
+        assert "ClassD" not in delta["resurrected_apis"]
+
+    def test_no_prev_delta_produces_empty_resurrected(self, tmp_path):
+        """Without prev.json, resurrected_apis is an empty list."""
+        import json
+
+        merged = tmp_path / "merged"
+        merged.mkdir()
+        bak = tmp_path / "bak"
+        bak.mkdir()
+
+        (bak / "api_surface.json").write_text("[]", encoding="utf-8")
+        (bak / "claims.json").write_text("[]", encoding="utf-8")
+        (merged / "api_surface.json").write_text(json.dumps([
+            {"name": "ClassA", "methods": [], "properties": []},
+        ]), encoding="utf-8")
+        (merged / "claims.json").write_text("[]", encoding="utf-8")
+
+        _rk._write_knowledge_delta("test", "net", bak, merged, "sha_new", "sha_old")
+
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+        assert delta.get("resurrected_apis") == []

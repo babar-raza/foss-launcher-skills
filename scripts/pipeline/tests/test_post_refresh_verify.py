@@ -289,3 +289,83 @@ class TestVerifyCheckStaleReferencePages:
 
         # No "Reference page for absent" failures — check was skipped
         assert not any("Reference page for absent" in f for f in failures)
+
+
+# ---------------------------------------------------------------------------
+# Fix E: Check 3b — incorrectly retired pages (healing sprint 2026-04-15)
+# ---------------------------------------------------------------------------
+
+class TestCheck3bIncorrectlyRetiredPages:
+    """Fix E: check_incorrectly_retired_pages catches draft:true pages for live APIs."""
+
+    def test_catches_retired_page_with_live_api(self, tmp_path):
+        """A reference page with draft:true whose class IS in api_surface → FAIL."""
+        api_path = tmp_path / "api_surface.json"
+        api_path.write_text(json.dumps([
+            {"name": "FilterColumn", "methods": [], "properties": []},
+            {"name": "Workbook", "methods": [], "properties": []},
+        ]), encoding="utf-8")
+
+        ref_root = tmp_path / "ref"
+        ref_root.mkdir()
+        (ref_root / "FilterColumn.md").write_text(
+            "---\ntitle: FilterColumn\ndraft: true\nretired_at: '2026-04-13'\n---\nBody.\n",
+            encoding="utf-8",
+        )
+        (ref_root / "Workbook.md").write_text(
+            "---\ntitle: Workbook\nlayout: reference-single\n---\nBody.\n",
+            encoding="utf-8",
+        )
+
+        passed, failures = post_refresh_verify.check_incorrectly_retired_pages(api_path, ref_root)
+        assert not passed, "Should FAIL — FilterColumn is retired but exists in api_surface"
+        assert len(failures) == 1
+        assert "FilterColumn" in failures[0]
+
+    def test_passes_when_no_incorrectly_retired_pages(self, tmp_path):
+        """All draft:true pages are for absent APIs → PASS."""
+        api_path = tmp_path / "api_surface.json"
+        api_path.write_text(json.dumps([
+            {"name": "Workbook", "methods": [], "properties": []},
+        ]), encoding="utf-8")
+
+        ref_root = tmp_path / "ref"
+        ref_root.mkdir()
+        # Retired page for a class NOT in api_surface — correct retirement
+        (ref_root / "OldClass.md").write_text(
+            "---\ntitle: OldClass\ndraft: true\n---\nBody.\n",
+            encoding="utf-8",
+        )
+        (ref_root / "Workbook.md").write_text(
+            "---\ntitle: Workbook\n---\nBody.\n",
+            encoding="utf-8",
+        )
+
+        passed, failures = post_refresh_verify.check_incorrectly_retired_pages(api_path, ref_root)
+        assert passed
+        assert len(failures) == 0
+
+    def test_skips_index_page(self, tmp_path):
+        """_index.md pages are never flagged even if retired."""
+        api_path = tmp_path / "api_surface.json"
+        api_path.write_text(json.dumps([{"name": "_index"}]), encoding="utf-8")
+
+        ref_root = tmp_path / "ref"
+        ref_root.mkdir()
+        (ref_root / "_index.md").write_text(
+            "---\ntitle: Index\ndraft: true\n---\nBody.\n",
+            encoding="utf-8",
+        )
+
+        passed, _ = post_refresh_verify.check_incorrectly_retired_pages(api_path, ref_root)
+        assert passed
+
+    def test_empty_api_surface_is_pass(self, tmp_path):
+        """No API entries → check is skipped → PASS."""
+        api_path = tmp_path / "api_surface.json"
+        api_path.write_text("[]", encoding="utf-8")
+        ref_root = tmp_path / "ref"
+        ref_root.mkdir()
+
+        passed, _ = post_refresh_verify.check_incorrectly_retired_pages(api_path, ref_root)
+        assert passed

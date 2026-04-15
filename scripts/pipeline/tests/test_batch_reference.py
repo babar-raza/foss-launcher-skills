@@ -1028,3 +1028,47 @@ class TestEnumMemberErcLookup:
         )
         # Existing doc must also be preserved
         assert "Microsoft Word document format." in page
+
+
+# ---------------------------------------------------------------------------
+# Fix D: _load_update_apis includes new + resurrected (healing sprint 2026-04-15)
+# ---------------------------------------------------------------------------
+
+class TestLoadUpdateApis:
+    """Fix D: _load_update_apis returns modified + new + resurrected API sets."""
+
+    def test_includes_all_three_fields(self, tmp_path, monkeypatch):
+        import json
+        import batch_reference as br
+
+        merged = tmp_path / "knowledge" / "test" / "net" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "knowledge_delta.json").write_text(json.dumps({
+            "modified_apis": ["ClassA"],
+            "new_apis": ["ClassB", "ClassC"],
+            "resurrected_apis": ["ClassD"],
+        }), encoding="utf-8")
+
+        monkeypatch.setattr(br, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+        result = br._load_update_apis("test", "net")
+        assert result == {"ClassA", "ClassB", "ClassC", "ClassD"}
+
+    def test_missing_fields_use_empty_default(self, tmp_path, monkeypatch):
+        import json
+        import batch_reference as br
+
+        merged = tmp_path / "knowledge" / "test" / "net" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "knowledge_delta.json").write_text(json.dumps({
+            "modified_apis": ["ClassA"],
+        }), encoding="utf-8")
+
+        monkeypatch.setattr(br, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+        result = br._load_update_apis("test", "net")
+        assert result == {"ClassA"}
+
+    def test_missing_file_returns_none(self, tmp_path, monkeypatch):
+        import batch_reference as br
+        monkeypatch.setattr(br, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+        result = br._load_update_apis("test", "net")
+        assert result is None
