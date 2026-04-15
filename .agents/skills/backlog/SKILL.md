@@ -1,9 +1,9 @@
 <!-- CONTRACT: agent-executed
-     purpose: unified backlog management and planning — view, update, add, triage, archive, remind, handoff, reconcile, status investigation, investigation execution, contextual surfacing, plan creation, replan amendment, plan hardening, traceability, governed closeout, intake dedup, cross-item analysis, merge, group, link
+     purpose: unified backlog management and planning — view, update, add, triage, archive, remind, handoff, reconcile, status investigation, investigation execution, contextual surfacing, plan creation, replan amendment, plan hardening, traceability, governed closeout, intake dedup, cross-item analysis, merge, group, link, wave-based execution sequencing, plan sweep
      preconditions: backlog/ directory exists with BACKLOG.md, REMINDERS.md, HANDOFF.md, inbox.md
      postcondition: backlog state updated per subcommand; briefing displayed; plan files created/amended in plans/from_backlog/; contextual surfacing available via /backlog surface
-     idempotent: yes — read-only subcommands (briefing, status, trace, harden, investigate-run, surface) safe to repeat; write subcommands are append-only or guarded
-     subcommands: 19 (briefing, update, add, investigate, investigate-run, surface, remind, handoff, archive, triage, reconcile, status, plan, replan, harden, trace, close, merge, group, link)
+     idempotent: yes — read-only subcommands (briefing, status, trace, harden, investigate-run, surface, next) safe to repeat; write subcommands are append-only or guarded
+     subcommands: 22 (briefing, update, add, investigate, investigate-run, surface, remind, handoff, archive, triage, reconcile, status, plan, replan, harden, trace, close, merge, group, link, next, sweep)
      verified: 2026-04-15
 -->
 # S-88: Backlog — Unified Planning & Backlog Management
@@ -41,19 +41,37 @@ Last session ({date}): {1-line summary from HANDOFF.md}
 Next steps:
   - {item from HANDOFF.md "What's next"}
 
+Ready to execute (wave 0, unblocked):
+  1. [{id}] {title} — {cat}/{priority}/{size} {score if set}
+  2. ...
+  (ranked by: priority tier, then impact score, then size ascending)
+
 Active items: {count} (P0: {n}, P1: {n})
   - [{id}] {title} — {status} {blocker if any}
 
 Queued: {count} | Deferred: {count} | Inbox: {count}
 
-Stale items (>14 days no activity): {count}
+Deferred items due for review: {count}
+  - [{id}] {title} — deferred since {date}, review due {review_date}
+
+Stale items: {count}
   - [{id}] {title} — last activity: {date} ({N} days ago)
 ```
 
-**Staleness computation**: An item is stale if all of these are true for >14 days:
-- No modification to referenced plan file (check mtime)
-- No commits mentioning the item ID (`git log --grep="{id}"`)
-- No status change in `backlog/CHANGELOG.md`
+**Wave computation**: The Wave column in BACKLOG.md is computed via topological sort on
+the Blocker column DAG. Items with no blockers are wave 0. Items blocked only by wave-0
+items are wave 1, and so on. Within a wave, items are ranked by priority tier, then
+impact score, then size ascending (XS first). The briefing displays wave-0 items as the
+"ready to execute" queue.
+
+**Staleness thresholds** (per-status, all requiring no plan mtime change, no commits, no CHANGELOG entry):
+- `in-progress`: stale after 7 days (claims active work)
+- `queued` / `next`: stale after 21 days
+- `blocked` / `waiting`: stale after 30 days (external dependency)
+
+**Deferred review check**: Read the Deferred table. For each item where Review Date is
+a specific date (`YYYY-MM-DD`) and that date <= today, or `quarterly` and >=90 days have
+passed since deferral, surface it in the "Deferred items due for review" section.
 
 ### `/backlog update` — Automated Plan Scanning
 
@@ -77,8 +95,10 @@ Discover plan files, extract open items, reconcile with BACKLOG.md.
    - Items whose status changed → report as CHANGED
    - Items in BACKLOG.md not found in any plan → report as ORPHANED
 4. Update `backlog/BACKLOG.md` with changes (append new items, update statuses)
-5. Update staleness: compute days since last file modification for each plan
-6. Output summary: `{N} new, {N} changed, {N} orphaned, {N} plans scanned`
+5. **Recompute waves**: Build Blocker DAG, compute topological layers, update Wave column for all Active and Queued items
+6. **Lightweight duplicate detection**: For each newly extracted item, compute title keyword overlap (Jaccard) against existing BACKLOG.md items. If score >=4 (using Relationship Taxonomy weights), emit warning: `POSSIBLE DUPLICATE: [{new}] overlaps with [{existing}]`
+7. Update staleness: compute days since last file modification for each plan (use per-status thresholds: 7d for in-progress, 21d for queued/next, 30d for blocked/waiting)
+8. Output summary: `{N} new, {N} changed, {N} orphaned, {N} plans scanned, {N} duplicate warnings`
 
 **`.claude/plans/` repo-affinity filtering:**
 
@@ -254,6 +274,9 @@ Overwrite `backlog/HANDOFF.md` with current session summary.
    > Last session: {session-id} on {date}
    ## What was done
    ## What's next
+   ## Wave status
+   > Wave 0: {N} items completed this session, {M} remaining
+   > Next wave (wave 1): {N} items unblocked by this session's completions
    ## Blocked / Waiting
    ## Context for next session
    ```
@@ -284,12 +307,25 @@ Review `backlog/inbox.md` and disposition each item.
 2. For each item in Investigation Needed and Standalone Tasks:
    - Display the item
    - Ask: promote to BACKLOG.md? attach to plan? defer? drop?
-3. Apply the disposition:
-   - **Promote**: move to appropriate section in `backlog/BACKLOG.md`, assign priority
-   - **Attach**: add plan reference, move to BACKLOG.md
-   - **Defer**: move to Deferred section in BACKLOG.md with reason
+3. For items being promoted or attached, **require**:
+   - **Category** (Cat): suggest from title keywords using heuristics below; operator confirms
+   - **Size**: estimate effort (XS/S/M/L/XL)
+   - **Priority**: P0-P3
+   - **Review Date** (deferrals only): must not be empty — use `YYYY-MM-DD`, `after:{id}`, or `quarterly`
+4. **Category suggestion heuristics**:
+   - Title contains `script`, `pipeline`, `CLI`, `tool`, `runner` → suggest `S` (system)
+   - Title contains `evaluator`, `grade`, `grading`, `heal`, `threshold` → suggest `S` (system)
+   - Title contains `GAP-`, `fix`, `overclaim`, `caveat`, `import`, family/platform names → suggest `C` (content-fix)
+   - Title contains `AGENTS.md`, `policy`, `skill`, `hook`, `forbidden` → suggest `G` (governance)
+   - Title contains `test`, `coverage`, `regression`, `assert` → suggest `T` (test)
+   - Title contains `backlog`, `plan`, `session`, `onboarding`, `CI` → suggest `H` (housekeeping)
+5. Apply the disposition:
+   - **Promote**: move to appropriate section in `backlog/BACKLOG.md` with Cat, Size, Priority, Wave=0
+   - **Attach**: add plan reference, move to BACKLOG.md with Cat, Size, Priority
+   - **Defer**: move to Deferred section with reason AND Review Date (required, never empty)
    - **Drop**: remove from inbox.md (no further tracking)
-4. Output summary: `{N} promoted, {N} attached, {N} deferred, {N} dropped`
+6. Remove triaged items from `backlog/inbox.md` (enforce single-location rule)
+7. Output summary: `{N} promoted, {N} attached, {N} deferred, {N} dropped`
 
 ### `/backlog reconcile` — Evidence-Based Reconciliation
 
@@ -359,7 +395,13 @@ Compare active backlog items against current system evidence and classify each i
    - ORPHANED → move to inbox for re-triage
    - RELATIONSHIP CANDIDATE → apply operator-chosen action (merge/group/link/separate)
 
-7. Append all status changes to `backlog/CHANGELOG.md`
+7. **Auto-archive completed items >30 days**: Check Recently Completed section. Items with Completed date >30 days ago are moved to `backlog/ARCHIVE.md`. Log the move.
+
+8. **Deferred review check**: Read the Deferred table. For each item where Review Date has passed (specific date <= today, or `quarterly` and >=90 days since deferral), surface in the report as "due for review."
+
+9. **Recompute waves**: Rebuild Blocker DAG and update Wave column for all Active and Queued items.
+
+10. Append all status changes to `backlog/CHANGELOG.md`
 
 ## Target Resolution
 
@@ -716,6 +758,104 @@ Lightweight bidirectional cross-reference without hierarchy.
 
 ---
 
+## Execution Sequencing Subcommands
+
+### `/backlog next [--count N]` — Wave-Based Execution Queue
+
+Compute dependency waves and return the top N executable items. Read-only.
+
+> **Idempotent:** Safe to call multiple times — read-only, no state changes.
+
+**Steps:**
+1. Read `backlog/BACKLOG.md` — collect all Active and Queued items with status `queued` or `next`
+2. Build a directed acyclic graph from the Blocker column:
+   - Each item is a node
+   - Each Blocker reference is a directed edge (blocker → blocked)
+   - Items with `none` or empty Blocker are root nodes
+3. **Cycle detection**: If a cycle is found, flag the involved items and exclude them from wave computation
+4. Compute topological layers (waves):
+   - Wave 0: items with no blockers
+   - Wave 1: items whose all blockers are in wave 0
+   - Wave N+1: items whose all blockers are in wave 0..N
+5. Filter wave 0 items: remove any with status `blocked`, `waiting`, `in-progress`, or `deferred`
+6. Rank remaining wave-0 items by:
+   a. Priority tier (P0 first, then P1, P2, P3)
+   b. Impact score from Evidence column (`impact:I{n}` — lower I = higher impact; I1 > I2 > I3)
+   c. Size ascending (XS first — quick wins surface)
+7. Return top N items (default 5)
+8. Separately list G=0 items (no plan or no acceptance checks, effort >= M) as "needs planning"
+9. Output:
+
+```
+EXECUTION QUEUE — {date}
+
+Ready now (wave 0):
+  1. [{id}] {title} — {cat}/{priority}/{size}
+  2. [{id}] {title} — {cat}/{priority}/{size}
+  ...
+
+In progress: {count}
+  - [{id}] {title} — since {date or "unknown"}
+
+Next wave (wave 1, {count} items):
+  - [{id}] {title} — waiting on [{blocker_ids}]
+
+Needs planning before execution: {count}
+  - [{id}] {title} — missing: {plan | acceptance checks}
+
+Waves summary: {wave_count} waves, {total_items} items
+  Wave 0: {n} ready | Wave 1: {n} | Wave 2: {n} | ...
+```
+
+### `/backlog sweep` — Batch Plan File Cleanup
+
+Scan plan directories for completed, orphaned, and stale plan files. Suggest archival.
+
+**Steps:**
+1. Scan these directories for `.md` files:
+   - `plans/healing/`
+   - `plans/from_chat/`
+   - `plans/from_backlog/`
+2. For each file:
+   a. Extract all taskcard statuses (using same patterns as `/backlog update`)
+   b. Check if any `backlog/BACKLOG.md` Active or Queued item references this file in Plan column
+   c. Check file mtime (last modification date)
+3. Classify each file:
+   - **ARCHIVABLE**: All taskcards terminal (done/closed/deferred/dropped) AND no active backlog item references it
+   - **ORPHANED**: No taskcard status markers found AND no backlog item references it AND file mtime >30 days
+   - **STALE**: At least one non-terminal taskcard AND file mtime >30 days AND no backlog item references it
+   - **ACTIVE**: At least one non-terminal taskcard OR referenced by active backlog item
+4. Output report:
+
+```
+PLAN SWEEP — {date}
+Directories scanned: {list}
+Files found: {total}
+
+  ARCHIVABLE: {count} — all tasks done, no active backlog refs
+    {path} (last modified: {date})
+    ...
+
+  ORPHANED: {count} — no status markers, no backlog refs, >30d old
+    {path} (last modified: {date})
+    ...
+
+  STALE: {count} — open tasks but no activity >30d
+    {path} (last modified: {date})
+    ...
+
+  ACTIVE: {count} — in use
+```
+
+5. If ARCHIVABLE + ORPHANED > 0:
+   - Ask operator: `Archive {N} completed/orphaned plans? (y/n/selective)`
+   - If `y`: invoke `/backlog archive` for each ARCHIVABLE and ORPHANED file
+   - If `selective`: present numbered list, operator picks which to archive
+   - If `n`: no action taken
+6. For STALE files: suggest investigation or deferral, do not auto-archive
+
+---
+
 ## Taskcard Standard
 
 Every taskcard in a plan file governed by `/backlog plan` or `/backlog replan` must include:
@@ -841,7 +981,8 @@ Replan deltas are appended to existing plan files by `/backlog replan`:
 
 | File | Purpose |
 |------|---------|
-| `backlog/BACKLOG.md` | Canonical backlog index — single source of truth for all items |
+| `backlog/BACKLOG.md` | Canonical backlog index — single source of truth for all items (includes Wave column for execution sequencing) |
+| `backlog/ARCHIVE.md` | Completed items >30 days old — moved by reconcile |
 | `backlog/REMINDERS.md` | Reminder queue — surfaced at session boundaries |
 | `backlog/HANDOFF.md` | Session handoff — what happened, what's next |
 | `backlog/inbox.md` | Unattached items — investigation, standalone tasks, ideas |

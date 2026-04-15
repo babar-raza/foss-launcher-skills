@@ -16,6 +16,9 @@
 Skills are in `.kilocode/skills/`. Each skill has its own directory with a `SKILL.md` file.
 Cross-skill references like `/evidence-cite` refer to sibling skills in that directory.
 
+For structured skill lookup, see `skills/registry.json` — a machine-readable catalog of all
+registered skills with IDs, descriptions, and argument patterns.
+
 ## Evidence Requirements (non-negotiable)
 
 - Every content page write must pass S-23 (ground-check) before committing
@@ -76,8 +79,20 @@ S-17 → S-21 → S-23 → S-01 → write
 ### Healing (grade D or below)
 S-25 → S-26 → S-23 → S-25 → S-01 → write (or escalate)
 
+## Pre-Write Preflight Check
+
+Before writing any file, run the preflight check to validate the path is allowed:
+
+```bash
+python scripts/pipeline/preflight.py <path>
+```
+
+This consolidates path guard, Python placement, and content workflow checks into a single
+command. Exit 0 = ALLOW, exit 1 = DENY with guidance. Use `--json` for machine-readable output.
+
 ## Do / Don't
 
+- **Do** run `python scripts/pipeline/preflight.py <path>` before writing any file
 - **Do** check `knowledge/` artifacts before writing any content
 - **Do** include evidence citations in content pages
 - **Do** run ground-check (S-23) before committing content changes
@@ -86,6 +101,25 @@ S-25 → S-26 → S-23 → S-25 → S-01 → write (or escalate)
 - **Don't** skip the skill chain defined in AGENTS.md Section 6
 - **Don't** commit content without the evidence proof required by AGENTS.md Section 10
 - **Don't** bypass registered skills by performing equivalent work manually (AGENTS.md §11)
+
+## Backlog & Plans
+
+Kilo Code must use the canonical shared backlog and plan system — never create custom folders.
+
+### Canonical Locations
+
+| Path | Purpose |
+|------|---------|
+| `backlog/` | Canonical backlog index, audit trail, inbox, reminders |
+| `plans/` | Plan files by provenance (archive/, from_backlog/, from_chat/, healing/) |
+
+### Hard Rules
+
+- **Never** create folders like `.kilo-backlog/`, `.kilo-plans/`, `kilo-backlog/`, or similar agent-specific workspaces
+- All backlog operations **must** read from and write to `backlog/` and `plans/`
+- S-88 skill (backlog) handles all backlog operations
+- If `backlog/` or `plans/` directories do not exist, **STOP** and ask the operator — never create alternate locations
+- If path resolution is unclear, inspect existing repo conventions instead of inventing new locations
 
 ## Alignment
 
