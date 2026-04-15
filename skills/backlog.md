@@ -1,9 +1,10 @@
 <!-- CONTRACT: agent-executed
-     purpose: unified backlog management — view, update, add, triage, archive, remind, handoff, reconcile
+     purpose: unified backlog management and planning — view, update, add, triage, archive, remind, handoff, reconcile, status investigation, investigation execution, contextual surfacing, plan creation, replan amendment, plan hardening, traceability, governed closeout, intake dedup, cross-item analysis, merge, group, link
      preconditions: backlog/ directory exists with BACKLOG.md, REMINDERS.md, HANDOFF.md, inbox.md
-     postcondition: backlog state updated per subcommand; briefing displayed
-     idempotent: yes — read-only subcommands are safe to repeat; write subcommands are append-only
-     verified: 2026-04-13
+     postcondition: backlog state updated per subcommand; briefing displayed; plan files created/amended in plans/from_backlog/; contextual surfacing available via /backlog surface
+     idempotent: yes — read-only subcommands (briefing, status, trace, harden, investigate-run, surface) safe to repeat; write subcommands are append-only or guarded
+     subcommands: 19 (briefing, update, add, investigate, investigate-run, surface, remind, handoff, archive, triage, reconcile, status, plan, replan, harden, trace, close, merge, group, link)
+     verified: 2026-04-15
 -->
 # S-88: Backlog — Unified Planning & Backlog Management
 
@@ -62,6 +63,7 @@ Discover plan files, extract open items, reconcile with BACKLOG.md.
 1. Scan these locations for `.md` files:
    - `plans/healing/`
    - `plans/from_chat/`
+   - `plans/from_backlog/`
    - `plans/` (top-level files only)
    - `.claude/plans/` (with repo-affinity filtering — see below)
 2. For each file found, extract items with status markers:
@@ -97,20 +99,133 @@ Files matching 0-1 signals are skipped. Report skipped file count for spot-check
 Append a task to `backlog/inbox.md` under "Standalone Tasks".
 
 **Steps:**
-1. Read `backlog/inbox.md`
-2. Determine next `ST-NNN` ID by counting existing Standalone Tasks entries
-3. Append row: `| ST-{NNN} | {title} | P2 | {today} | |`
-4. Confirm: `Added ST-{NNN}: {title}`
+1. **Relatedness Check** (before adding):
+   - Extract keywords from `{title}`
+   - Scan `backlog/BACKLOG.md` (Active, Queued, Deferred, Recently Completed within 30 days) for:
+     - Title keyword overlap (Jaccard on words, threshold ≥0.5)
+     - Same subsystem references (file paths, script names, skill IDs mentioned in title)
+   - Score each candidate using signal weights (see Relationship Taxonomy)
+   - If score ≥5: `DUPLICATE DETECTED: matches [{id}] {title}` — present options: cancel / override with `duplicate-of:{id}` / merge into existing
+   - If score 3–4: `POSSIBLE OVERLAP with [{id}]` — present options: merge / add with `related-to:{id}` / add as separate
+   - If score 2: `RELATED ITEM: [{id}]` — suggest adding `related-to:{id}`
+   - If score 0–1: proceed normally
+2. Read `backlog/inbox.md`
+3. Determine next `ST-NNN` ID by counting existing Standalone Tasks entries
+4. Append row: `| ST-{NNN} | {title} | P2 | {today} | |`
+5. Confirm: `Added ST-{NNN}: {title}`
 
 ### `/backlog investigate {title}` — Add Investigation Item
 
 Append an investigation item to `backlog/inbox.md` under "Investigation Needed".
 
+**Dispatch (before Steps):**
+- Extract a leading INV-ID from `{title}` using the pattern `INV-\d+` at the start of the
+  string (e.g. `INV-006` from `INV-006 — Read frontmatter grade...`).
+  - If an INV-ID is extracted, check `backlog/inbox.md` for that ID:
+    - Found in "Investigation Needed" → execute `/backlog investigate-run {extracted-id}` (do not add a new item)
+    - Found in "Resolved Investigations" → output `{id} already resolved — see Resolved section` and STOP
+    - Not found in either section → treat the full `{title}` as a new intake and proceed normally
+- If no leading INV-ID is present → proceed with intake steps as normal
+
 **Steps:**
-1. Read `backlog/inbox.md`
-2. Determine next `INV-NNN` ID by counting existing Investigation entries
-3. Append row: `| INV-{NNN} | {title} | {today} | |`
-4. Confirm: `Added INV-{NNN}: {title}`
+1. **Relatedness Check** (before adding):
+   - Extract keywords from `{title}`
+   - Scan `backlog/BACKLOG.md` (Active, Queued, Deferred, Recently Completed within 30 days) for:
+     - Title keyword overlap (Jaccard on words, threshold ≥0.5)
+     - Same subsystem references (file paths, script names, skill IDs mentioned in title)
+   - Score each candidate using signal weights (see Relationship Taxonomy)
+   - If score ≥5: `DUPLICATE DETECTED: matches [{id}] {title}` — present options: cancel / override with `duplicate-of:{id}` / merge into existing
+   - If score 3–4: `POSSIBLE OVERLAP with [{id}]` — present options: merge / add with `related-to:{id}` / add as separate
+   - If score 2: `RELATED ITEM: [{id}]` — suggest adding `related-to:{id}`
+   - If score 0–1: proceed normally
+2. Read `backlog/inbox.md`
+3. Determine next `INV-NNN` ID by counting existing Investigation entries
+4. Append row: `| INV-{NNN} | {title} | {today} | |`
+5. Confirm: `Added INV-{NNN}: {title}`
+
+### `/backlog investigate-run {id}` — Execute an Existing Investigation
+
+Perform the investigation described in an existing INV item from `backlog/inbox.md`.
+Read the item's Notes as the investigation brief, execute it, and record findings inline.
+
+> **Idempotent:** Safe to re-run. If already resolved, displays existing findings and stops.
+
+**Steps:**
+1. Read `backlog/inbox.md`; locate `{id}`:
+   - Found in "Resolved Investigations" → output existing findings summary and STOP:
+     `{id} already resolved on {date}: {findings summary from Resolved table}. No action taken.`
+   - Found in "Investigation Needed" → proceed to Step 2
+   - Not found in either section → `UNRESOLVED: {id} not found in inbox (checked Investigation Needed + Resolved)`
+2. Extract the Notes text — this is the investigation brief
+3. Parse the brief for what to check:
+   - Files/paths to read (look for `content/`, `scripts/`, `plans/`)
+   - Frontmatter fields to check (e.g., `grade:`, `graded_logic_version:`)
+   - Conditions to evaluate (e.g., "whether X blocks Y")
+   - Scripts to inspect (e.g., guard logic, CLI args)
+   - Git history to check (e.g., "what commit introduced X")
+4. Execute the investigation using available read-only tools:
+   - Read referenced files; extract requested fields
+   - Check referenced scripts for described logic
+   - Check git log if commit-level evidence is needed
+5. Produce structured findings output:
+   ```
+   INVESTIGATION — {id}: {title}
+   Executed: {date}
+
+   Findings:
+     - {file or check}: {result}
+     ...
+
+   Conclusion:
+   {2-3 sentences: what was found, what it means for the question in the brief}
+
+   Recommendation: close-as-resolved | promote-to-backlog | defer | needs-more-info
+   ```
+6. Update `backlog/inbox.md` — append to the Notes column of the item:
+   `resolved:{date} — {1-line summary of conclusion}`
+7. If recommendation is `close-as-resolved`:
+   - Remove the item from "Investigation Needed"
+   - Append it to "## Resolved Investigations" section with the full findings summary
+
+### `/backlog surface {context}` — Contextual Item Surfacing
+
+Scan backlog for items relevant to the given context string and return top matches.
+Read-only. Silent (no output) if no items score ≥3.
+
+> **Idempotent:** Safe to call multiple times — read-only, no state changes.
+
+**Steps:**
+0. If `backlog/BACKLOG.md` does not exist → output nothing and STOP (silent skip; backlog not yet configured).
+1. Extract signal tokens from `{context}`:
+   - File paths and script names (e.g. `run.py`, `session_ledger.py`, `content/slides/`)
+   - Product families and platforms (e.g. `slides`, `cells`, `3d`, `net`, `python`)
+   - Skill IDs (e.g. `S-61`, `S-88`)
+   - Subsystem terms (e.g. `no-downgrade`, `gap-eval`, `knowledge`, `tier1`, `grading`, `pipeline`)
+2. Scan these item pools:
+   - `backlog/BACKLOG.md` — Active (P0–P1) and Queued (P2–P3) rows
+   - `backlog/inbox.md` — "Investigation Needed" rows
+   - `backlog/BACKLOG.md` — Deferred rows (only if final score ≥5)
+   - Skip: Recently Completed, Resolved Investigations (terminal — no action needed)
+3. For each item, compute relevance score:
+
+   | Signal | Weight |
+   |--------|--------|
+   | Matching file path or script name in Title/Evidence/Plan | 3 |
+   | Matching product family or platform | 2 |
+   | Matching subsystem term | 2 |
+   | Matching skill ID | 1 |
+   | Title keyword overlap ≥0.3 (Jaccard on words) | 1 |
+   | Status is `next` or `in-progress` | +1 boost |
+
+4. Filter: keep items with score ≥3. Sort by (priority asc, score desc). Cap at 5 items.
+5. Dedup: if any item ID appears in `{context}` (it was the current subject), remove it.
+6. If 0 items remain after filtering → output nothing (truly silent).
+7. If ≥1 item: output the surfacing block:
+   ```
+   Related backlog items:
+     [{id}] {title} — {status}/{priority}
+     ...
+   ```
 
 ### `/backlog remind {text} --due {date}` — Add Reminder
 
@@ -225,14 +340,502 @@ Compare active backlog items against current system evidence and classify each i
        Recommendation: {close | update-status | investigate | merge-with-{other-id}}
    ```
 
-5. Apply operator-confirmed actions:
+5. **Cross-Item Analysis** (after per-item checks):
+   - For each pair of STILL-OPEN items: compute signal score (see Relationship Taxonomy)
+   - For each STILL-OPEN item vs. each RESOLVED item (last 30 days): check if the resolved fix also addresses the open item
+   - For each pair with score ≥3: flag as candidate relationship
+   - Present relationship candidates in the report:
+     ```
+     CROSS-ITEM RELATIONSHIPS DETECTED:
+       [{id1}, {id2}, ...] — {relationship type} ({shared signals})
+         Recommendation: {group under parent | verify and close | link with related-to:}
+     ```
+
+6. Apply operator-confirmed actions:
    - RESOLVED → move to Recently Completed with evidence in Evidence column
    - PARTIAL → update status to `in-progress`, attach evidence note
    - STALE → flag in next briefing, ask operator to re-prioritize or defer
    - SUPERSEDED → mark `dropped` with `superseded-by:{item-ID}` in Evidence column
    - ORPHANED → move to inbox for re-triage
+   - RELATIONSHIP CANDIDATE → apply operator-chosen action (merge/group/link/separate)
 
-6. Append all status changes to `backlog/CHANGELOG.md`
+7. Append all status changes to `backlog/CHANGELOG.md`
+
+## Target Resolution
+
+Every planning subcommand that accepts `{target}` resolves it to a canonical
+`(backlog_item, plan_path)` tuple using this algorithm:
+
+**Step 1 — Classify input type:**
+- If `{target}` matches an ID pattern (`SR-T01`, `MP-SR03`, `H-TC01`, `INV-001`, `ST-001`): treat as **backlog ID**
+- If `{target}` is a file path (contains `/` or ends in `.md`): treat as **plan path**
+- Otherwise: treat as **freetext query**
+
+**Step 2 — Resolve to canonical backlog item:**
+- **Backlog ID**: Look up in `backlog/BACKLOG.md` (Active, Queued, Deferred, Recently Completed) and `backlog/inbox.md`. If not found → `UNRESOLVED: {target} not in backlog`.
+- **Plan path**: Read the plan file. Extract all backlog IDs from Backlog Cross-Reference tables, `Gap linkage:` fields, and `Backlog ID:` fields. Return the set of associated items.
+- **Freetext query**: Search `backlog/BACKLOG.md` titles for substring match (case-insensitive). If exactly one match → use it. If multiple → present numbered list and ask operator. If zero → search plan file titles in `plans/healing/`, `plans/from_chat/`, `plans/from_backlog/`, `.claude/plans/`. If still zero → `UNRESOLVED: no match for "{target}"`.
+
+**Step 3 — Resolve to existing plan file:**
+- Read the `Plan` column from the matched BACKLOG.md row. If non-empty → that is the plan path.
+- If no Plan column entry → grep plan file locations for the backlog ID string.
+- Result: `(backlog_item, plan_path)` or `(backlog_item, None)`.
+
+**Step 4 — Validate:**
+- If plan_path is set, verify file exists on disk. If missing → flag `ORPHANED_PLAN`.
+- Return resolved tuple to calling subcommand.
+
+**Step 5 — Discover related items** (if relationship tags exist):
+- Read the resolved item's Evidence column for tags: `symptom-of:`, `related-to:`, `parent-problem`, `cluster:`
+- If `symptom-of:{id}` → read parent item, collect all siblings
+- If `parent-problem` → read all items with `symptom-of:{this_id}`
+- If `related-to:{ids}` → read those items
+- Include related items in resolution output for context
+
+---
+
+## Planning Subcommands
+
+### `/backlog status {target}` — Pre-Planning State Investigation
+
+Investigate the current system state for a backlog item before planning or replanning.
+Read-only — does not modify any files.
+
+**Steps:**
+1. Resolve `{target}` using Target Resolution
+2. Read backlog entry (status, priority, plan reference, evidence column)
+3. If plan exists, read plan file and extract taskcard statuses
+4. Run evidence checks (same as `/backlog reconcile` but single-item):
+   - **Plan check**: taskcard statuses from plan file
+   - **Commit check**: `git log --grep="{id}" --oneline`
+   - **Content check**: frontmatter grades on referenced pages (if content item)
+   - **Test check**: referenced test files/functions exist (if test item)
+   - **Code check**: referenced scripts exist and were modified since item creation
+5. Classify status: `done` | `partially-done` | `not-done` | `done-incorrectly` | `obsolete` | `superseded` | `blocked` | `cannot-verify`
+6. If relationship tags exist, show related items from Step 5 of Target Resolution
+7. Output:
+
+```
+BACKLOG STATUS — {id}: {title}
+Classification: {status}
+Priority: {P0-P3} | Plan: {path | none} | Staleness: {N days | fresh}
+
+Evidence:
+  Plan: {taskcard summary}
+  Commits: {hash list or "none found"}
+  Content: {grade summary or "N/A"}
+  Tests: {test summary or "N/A"}
+  Code: {script modification summary or "N/A"}
+
+Related items: {list or "none"}
+
+Conclusion: {1-2 sentence assessment}
+Recommendation: {plan | replan | close | defer | investigate-further}
+```
+
+### `/backlog plan {target}` — Create New Plan File
+
+Create a brand-new governed plan file for a backlog item or problem statement.
+A plan invocation MUST create a new file. It must NEVER amend an existing plan.
+
+**Steps:**
+1. Resolve `{target}` using Target Resolution
+2. **Plan-vs-replan guard**: If an active plan already exists for this item:
+   - Warn: `Active plan exists at {path}. Use /backlog replan to amend.`
+   - If operator passes `--force`, create parallel plan with predecessor link
+   - Otherwise halt and suggest `/backlog replan`
+3. Run `/backlog status {target}` internally to gather current state
+4. **Investigate the real system**: Read relevant files, check git history, inspect code, understand the actual problem. Do not trust backlog wording alone.
+5. **Root-cause analysis**: Distinguish symptom from source. Identify why existing checks/plans/skills did not catch it.
+6. **Solution options**: Consider at least 2 approaches. Choose the best and explain why.
+7. **Generate plan file** at `plans/from_backlog/{YYYY-MM-DD}-{slug}.md` using the Plan File Template (see below)
+8. Run `/backlog harden {plan-path}` on the new file
+9. Update `backlog/BACKLOG.md` — set the Plan column to the new file path
+10. Append to `backlog/CHANGELOG.md`
+11. Output: `Created plan: {path} with {N} taskcards`
+
+**Slug derivation**: From backlog item title — lowercase, spaces to hyphens, strip non-alphanumeric except hyphens, max 50 chars.
+
+### `/backlog replan {target}` — Amend Existing Plan In Place
+
+Amend an existing plan file with a dated delta section preserving all history.
+A replan invocation MUST amend the existing file. It must NEVER create a replacement.
+
+**Steps:**
+1. Resolve `{target}` using Target Resolution
+2. **Replan guard**: If no plan exists for this item:
+   - Error: `No existing plan found for {id}. Use /backlog plan to create one.`
+   - Halt
+3. Read the FULL existing plan. Extract all taskcards and their current statuses.
+4. Run `/backlog status {target}` internally to gather fresh evidence
+5. **Re-investigate the real system**: Verify every meaningful assumption in the existing plan against current code and system state
+6. **Identify deltas**:
+   - What changed since the previous plan version
+   - What was validated as still correct
+   - What is now obsolete (with evidence)
+   - What is partially implemented
+   - What remains
+   - New blockers, new evidence, changed sequencing
+   - Newly required taskcards
+7. **Append** a dated `## Replan — {YYYY-MM-DD}` section to the plan file containing:
+   ```
+   ## Replan — {YYYY-MM-DD}
+   > Reason: {why this replan is needed}
+   > Evidence: {what changed since last version}
+
+   ### Assumptions Validated
+   - {assumption}: still correct ({evidence})
+
+   ### Assumptions Invalidated
+   - {assumption}: now obsolete ({evidence})
+
+   ### Status Updates
+   | TC | Old Status | New Status | Reason |
+   |----|------------|------------|--------|
+
+   ### New Taskcards
+   {full taskcards using Taskcard Standard}
+
+   ### Updated Backlog Cross-Reference
+   | Backlog ID | Plan TC | Phase |
+   |------------|---------|-------|
+   ```
+8. Update plan header `> Status:` if needed
+9. Run `/backlog harden {plan-path}` on the amended file
+10. Update `backlog/BACKLOG.md` with any status changes
+11. Append to `backlog/CHANGELOG.md`
+12. Output: `Replanned: {path} — {N} status updates, {M} new taskcards`
+
+### `/backlog harden {plan-path}` — Plan Gap Sweep + Auto-Patch
+
+Run structural completeness checks against a plan file and auto-fix what can be fixed.
+
+**Steps:**
+1. Read the plan file at `{plan-path}`
+2. Run these 14 checks:
+
+| # | Check | Severity | Auto-fixable |
+|---|-------|----------|-------------|
+| H-01 | Plan has `> Status:` line in header | ERROR | Yes — insert `> Status: active` |
+| H-02 | Plan has `> Created:` date | ERROR | Yes — insert today |
+| H-03 | Plan has `## Context` section | WARN | No |
+| H-04 | Plan has `## Goals` with ≥1 numbered item | WARN | No |
+| H-05 | Plan has `## Gap Table` with ≥1 row | WARN | No |
+| H-06 | Every Gap Table row references existing Taskcard | ERROR | No — report missing TC |
+| H-07 | Every Taskcard has `**Status:**` field | ERROR | Yes — insert `open` |
+| H-08 | Every Taskcard has `**Priority:**` field | WARN | Yes — insert `P2` |
+| H-09 | Every Taskcard has `#### Acceptance checks` | WARN | No |
+| H-10 | Every Taskcard has Allowed paths or Forbidden | WARN | No |
+| H-11 | Plan has `## Backlog Cross-Reference` table | WARN | Yes — generate from TC Backlog ID fields |
+| H-12 | Every Backlog ID in Cross-Reference exists in BACKLOG.md | ERROR | No — report missing |
+| H-13 | No taskcard references AGENTS.md §4 FORBIDDEN paths | ERROR | No — report violation |
+| H-14 | Status not `active` while all taskcards are terminal | WARN | Yes — suggest close |
+
+3. Apply auto-fixes for fixable items
+4. Output:
+
+```
+PLAN HARDENING — {plan-path}
+Checks run: 14
+  PASS: {N}    WARN: {N}    ERROR: {N}
+
+Findings:
+  [{H-NN}] {severity}: {description}
+
+Auto-fixes applied: {N}
+  [{H-NN}] {what was fixed}
+
+Remaining issues requiring operator action: {N}
+```
+
+### `/backlog trace {target}` — Requirement-to-Taskcard Traceability
+
+Build the full traceability chain for a backlog item.
+Read-only — does not modify any files.
+
+**Steps:**
+1. Resolve `{target}` using Target Resolution
+2. For each backlog item in the resolved set, build the chain:
+   - Backlog item → Plan file → Taskcard(s) → Gap(s) → Commits → Content/Test state
+3. Identify gaps in the chain (missing taskcards, uncommitted work, untested deliverables)
+4. Output:
+
+```
+TRACEABILITY — {id}: {title}
+
+| Backlog ID | Plan TC | Gap | Commits | Content | Tests | Status |
+|------------|---------|-----|---------|---------|-------|--------|
+
+Chain gaps: {count}
+  - {description of each gap}
+```
+
+### `/backlog close {target}` — Governed Closeout
+
+Close a backlog item only after verifying implementation, tests, commits, and plan status all agree. Refuses false closure.
+
+**Steps:**
+1. Resolve `{target}` to `(backlog_items[], plan_path)`
+2. For each item, verify the evidence chain:
+
+   **a. Plan evidence**: Taskcard status is terminal (`done`/`closed`/`deferred`)
+   - If not terminal → FAIL: `"{TC-ID} is still {status} — cannot close"`
+
+   **b. Acceptance check replay**: Present each taskcard's CLI acceptance commands
+   - Ask operator: `Verified? (y/n/skip)`
+   - If any `n` → FAIL
+
+   **c. Commit evidence**: `git log --grep="{id}" --oneline`
+   - Collect hashes as evidence
+   - Zero commits + no operator attestation → WARN
+
+   **d. Content evidence** (content items): Page grades meet expected level
+
+   **e. Test evidence** (test items): Test files/functions exist
+
+3. **No false closure guard**: At least one of (commit hash, test reference, grade state, operator attestation) must be present. No exceptions.
+
+4. Apply transitions:
+   - Move items to Recently Completed in `backlog/BACKLOG.md` with evidence summary
+   - Update plan taskcard statuses to `done` (in-place edit — closeout is terminal)
+   - Update plan `> Status:` to `closed` if all taskcards are terminal
+   - Append to `backlog/CHANGELOG.md`
+
+5. Output:
+
+```
+CLOSEOUT — {target}
+Items closed: {N}
+  [{id}] {title} — CLOSED
+    Evidence: {summary}
+Items not closeable: {N}
+  [{id}] {title} — {reason}
+
+Plan status: {closed | still active (N open taskcards remain)}
+```
+
+---
+
+## Relationship Taxonomy
+
+The backlog system distinguishes five relationship types between items:
+
+| Type | Definition | Key test | Default action |
+|------|-----------|----------|----------------|
+| **Exact duplicate** | Same root problem, same scope, same outcome | Identical allowed_paths + same affected files + same acceptance criteria | Block new entry; point to existing |
+| **Near duplicate** | Highly overlapping scope, different wording | ≥70% file overlap + similar title keywords | Link or merge; ask operator |
+| **Symptom-sibling** | Different symptoms, same root cause | Same triggering commit OR one fix resolves both | Group under root-cause parent; keep separate child taskcards |
+| **Related cluster** | Coordinated execution needed, distinct root causes | Same subsystem + shared file modifications | Cross-reference with `related-to:`; suggest sequencing |
+| **Legitimately separate** | Similar domain, truly different problem | Different root causes + different affected files | No action; confirm if flagged |
+
+### Matching signals and weights
+
+| Signal | Weight | Rationale |
+|--------|--------|-----------|
+| Same file in allowed_paths | 3 | Strongest execution conflict indicator |
+| Same commit in evidence | 3 | Same root cause proven |
+| Same plan file reference | 2 | Already logically grouped |
+| Same subsystem | 2 | Likely coordinated execution |
+| Title keyword overlap ≥0.7 (Jaccard on words) | 2 | Strong textual match |
+| Same blocker | 1 | Correlated but may be coincidence |
+| Same session origin | 1 | Temporal correlation |
+| Title keyword overlap 0.5–0.7 | 1 | Weak textual match |
+
+**Classification thresholds** — sum of matching signal weights:
+- ≥5 → exact/near duplicate candidate
+- 3–4 → symptom-sibling candidate
+- 2 → related cluster candidate
+- 0–1 → likely separate
+
+All classifications are presented to the operator for confirmation. No auto-merge, no auto-group.
+
+## Relationship Metadata
+
+Relationship tags in the **Evidence** column of `backlog/BACKLOG.md` (backward-compatible with existing `superseded-by:` convention):
+
+| Tag | Format | Meaning |
+|-----|--------|---------|
+| `duplicate-of:{id}` | Single ID | Exact duplicate; `{id}` is authoritative |
+| `related-to:{id1},{id2}` | Comma-separated | Cross-reference to related items |
+| `symptom-of:{id}` | Single ID | Symptom child; `{id}` is root-cause parent |
+| `parent-problem` | Flag | Root-cause umbrella for symptom children |
+| `cluster:{name}` | Short name | Named group for operator visibility |
+| `merged-into:{id}` | Single ID | Item was merged; `{id}` survived |
+| `superseded-by:{id}` | Single ID | (existing) Item replaced by newer work |
+
+**Merge rules**: When items merge, the surviving item keeps its ID/title/status. The absorbed item gets `dropped` with `merged-into:{id}`. Evidence from absorbed item is copied to survivor. CHANGELOG records both transitions.
+
+**Grouping rules**: Parent items are navigation aids, not execution units. Children retain their own status, priority, plan references, and taskcards. Parent status = `in-progress` while any child is open; `done` only when ALL children are terminal.
+
+**Resume workflow**: An agent starting from any item reads its Evidence tags. If `symptom-of:{id}` → read parent to see all siblings. If `parent-problem` → read all children. `/backlog status` includes this discovery automatically.
+
+### `/backlog merge {source_id} into {target_id}` — Merge Items
+
+Merge one backlog item into another, preserving evidence.
+
+**Steps:**
+1. Read both items from `backlog/BACKLOG.md`
+2. Verify source is not already completed (warn if so)
+3. Show both items side-by-side; ask operator to confirm
+4. Apply merge:
+   - Target keeps its ID, title, status
+   - Source gets status `dropped`, Evidence `merged-into:{target_id}`
+   - Source's evidence (commits, tests) copied to target's Evidence
+   - Source's plan cross-reference added to target's plan
+5. Append to `backlog/CHANGELOG.md`
+6. Output: `Merged [{source_id}] into [{target_id}]. Source dropped.`
+
+**Anti-over-merge rules:**
+- Do not merge across priority tiers (P0 into P2). Use `related-to:` instead.
+- Do not merge items with different plan files. Use `related-to:` and document execution order.
+- Maximum 7 children per parent. Split into sub-groups if exceeded.
+- Operator confirmation required for all merges.
+
+### `/backlog group {id1} {id2} [id3...] --parent {parent_id|new}` — Group Symptom-Siblings
+
+Group related items under a root-cause parent.
+
+**Steps:**
+1. Read all specified items from `backlog/BACKLOG.md`
+2. If `--parent new`: create new parent item with `parent-problem` tag
+3. If `--parent {id}`: add `parent-problem` tag to existing item
+4. Add `symptom-of:{parent_id}` to each child item's Evidence
+5. Optionally add `## Related Items` section to parent's plan file
+6. Append to `backlog/CHANGELOG.md`
+7. Output: `Grouped [{ids}] under parent [{parent_id}]`
+
+### `/backlog link {id1} {id2}` — Cross-Reference Items
+
+Lightweight bidirectional cross-reference without hierarchy.
+
+**Steps:**
+1. Add `related-to:{id2}` to id1's Evidence
+2. Add `related-to:{id1}` to id2's Evidence
+3. Append to `backlog/CHANGELOG.md`
+4. Output: `Linked [{id1}] ↔ [{id2}]`
+
+---
+
+## Taskcard Standard
+
+Every taskcard in a plan file governed by `/backlog plan` or `/backlog replan` must include:
+
+**Required fields:**
+- `**Priority:**` P0–P3
+- `**Effort:**` XS/S/M/L/XL
+- `**Status:**` open | in-progress | nearly-done | blocked | done | dropped | deferred
+- `**Gap linkage:**` G-NN reference (or `standalone`)
+- `#### Scope` section with Problem + Work required
+- `**Allowed paths:**` (at least one file or directory)
+- `#### Acceptance checks` with at least one CLI command and expected output
+
+**Optional fields** (include when relevant):
+- `**Backlog ID:**` — when taskcard maps to a tracked backlog item
+- `**Depends:**` TC-NN — when hard ordering dependency exists
+- `**Forbidden:**` — specific paths/actions to avoid
+- `#### Deliverables` — when output is not obvious from acceptance checks
+- `#### Rollback` — for changes touching production content or system scripts
+- `#### Review dimensions` table — only for Effort L or XL taskcards
+
+## Plan File Template
+
+New plan files created by `/backlog plan` use this structure:
+
+````markdown
+# {Title}
+> Created: {YYYY-MM-DD}
+> Source: /backlog plan — {backlog_item_id}: {title}
+> Status: active
+> Predecessor: {path_to_prior_plan | none}
+
+## Context
+{2-4 sentences: what is broken/missing, how discovered, why it matters now.}
+
+## Goals
+1. {Concrete verifiable outcome}
+
+## Gap Table
+
+| Gap ID | Severity | Description | Taskcard |
+|--------|----------|-------------|----------|
+| G-01 | {Critical/High/Medium/Low} | {description} | {TC-ID} |
+
+## Taskcards
+
+---
+
+### {TC-ID} — {Short title}
+**Priority:** {P0-P3} | **Effort:** {XS/S/M/L/XL} | **Status:** open
+**Gap linkage:** {G-NN}
+**Backlog ID:** {backlog_item_id}
+
+#### Scope
+**Problem:** {what is broken/missing}
+**Work required:**
+1. {step}
+
+**Allowed paths:**
+- {file or directory}
+
+**Forbidden:** {what must not be touched}
+
+#### Acceptance checks
+```bash
+{exact command}
+# Expected: {output}
+```
+
+#### Deliverables
+- {file or artifact}
+
+#### Rollback
+{revert steps}
+
+---
+
+## Healing Triage
+- New information during execution: patch this plan (append to latest Replan delta)
+- Failed acceptance check: stop-the-line, investigate root cause, add new taskcard
+- Partially proven assumption: downgrade confidence, add verification taskcard
+- False-green signal: re-run with --no-cache/--force, compare, escalate if divergent
+- Re-entry loop: investigate → patch plan → implement → prove → update status
+
+## Backlog Cross-Reference
+
+| Backlog ID | Plan TC | Phase |
+|------------|---------|-------|
+````
+
+## Replan Delta Template
+
+Replan deltas are appended to existing plan files by `/backlog replan`:
+
+```markdown
+---
+
+## Replan — {YYYY-MM-DD}
+> Reason: {why}
+> Evidence: {what changed}
+
+### Assumptions Validated
+- {assumption}: still correct ({evidence})
+
+### Assumptions Invalidated
+- {assumption}: now obsolete ({evidence})
+
+### Status Updates
+| TC | Old Status | New Status | Reason |
+|----|------------|------------|--------|
+
+### New Taskcards
+{full taskcards using Taskcard Standard}
+
+### Updated Backlog Cross-Reference
+| Backlog ID | Plan TC | Phase |
+|------------|---------|-------|
+```
+
+---
 
 ## Files
 
@@ -243,6 +846,7 @@ Compare active backlog items against current system evidence and classify each i
 | `backlog/HANDOFF.md` | Session handoff — what happened, what's next |
 | `backlog/inbox.md` | Unattached items — investigation, standalone tasks, ideas |
 | `backlog/CHANGELOG.md` | Append-only audit trail of status changes |
+| `plans/from_backlog/` | Plan files created by `/backlog plan` — distinct provenance from healing/chat plans |
 | `plans/archive/` | Completed plan archive |
 
 ## Status Transition Rules
@@ -271,3 +875,10 @@ All status changes must be logged to `backlog/CHANGELOG.md` with: date, item ID,
 - **Changelog is append-only**: `backlog/CHANGELOG.md` records every status change — never delete entries
 - **No stale assumptions**: Before generating new taskcards from backlog items, run `/backlog reconcile` on those items first — stale items must be revalidated
 - **Escalate drift**: If `/backlog reconcile` finds >5 items misclassified (open but resolved, or done but failing), escalate to operator before proceeding
+- **Plan creates, never amends**: `/backlog plan` always creates a new file in `plans/from_backlog/`. If an active plan exists, it warns and suggests `/backlog replan` instead.
+- **Replan amends, never creates**: `/backlog replan` always appends a dated delta to an existing file. If no plan exists, it errors and suggests `/backlog plan` instead.
+- **Replan is append-only**: Replan sections are appended chronologically. Earlier sections are never edited (except terminal closeout status).
+- **Harden before publish**: `/backlog plan` and `/backlog replan` both call `/backlog harden` before completing.
+- **Intake dedup is mandatory**: `/backlog add` and `/backlog investigate` run the Relatedness Check before adding. Operator can override, but the check always runs.
+- **No auto-merge**: Relationship detection is automated; merge/group/link actions always require operator confirmation.
+- **Anti-over-merge**: Max 7 children per parent. No cross-priority-tier merge. No cross-plan-file merge. See `/backlog merge` for full rules.

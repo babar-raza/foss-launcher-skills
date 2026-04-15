@@ -1716,7 +1716,7 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | truth-audit-content | S-85 | Line-level content truth audit against clone cache and knowledge model (read-only; decomposes pages into units, verifies each, produces gap ledger); backs `scripts/pipeline/truth_audit_content.py` |
 | refresh-product-page | S-86 | Re-generate a single products.aspose.org landing page through the full S-61 pipeline with no-downgrade-guard protection; use when S-61 template has been improved and existing pages should benefit |
 | system-heal | S-87 | Audit-driven content healing: deterministic baseline (--no-llm) → extended baseline (LLM + tier3_cache) → origin classification (origin_map.py) → content healing (S-74/S-46/S-26 by route) → pipeline evidence report → re-verify → commit or escalate; 8-phase; max 50 findings (use S-44+S-46 above that); AMBIGUOUS and tier3_non_determinism_flag findings never auto-repaired; backs `scripts/gap-eval/origin_map.py` + `scripts/gap-eval/tier3_cache.py` |
-| backlog | S-88 | Unified backlog management: view briefing, automated plan scanning (with `.claude/plans/` repo-affinity filtering), add standalone/investigation items, remind, session handoff, archive completed plans, triage inbox; all state in `backlog/` (gitignored, internal-only); 8 subcommands |
+| backlog | S-88 | Unified backlog management and planning: view briefing, automated plan scanning (with `.claude/plans/` repo-affinity filtering), add items (with intake dedup), investigate (intake), investigate-run (execute existing INV item inline — reads brief, gathers evidence, records findings, moves to Resolved), surface (contextual item surfacing — scores backlog against response context, returns top matches; called automatically per §15), remind, session handoff, archive, triage inbox, reconcile (with cross-item analysis), status investigation, plan creation, replan amendment, plan hardening, traceability, governed closeout, merge, group, link; all state in `backlog/` + `plans/from_backlog/` (gitignored); 19 subcommands |
 
 **S-43 (gap-eval) CLI flags:**
 - `--deterministic` — Exhaustive Stage 2 + no LLM (Tier 1 + Tier 2 only). Fully reproducible. Recommended for regression tracking and CI integration.
@@ -1857,6 +1857,46 @@ When reviewing whether a task, sprint, or acceptance criterion is complete, the 
 5. Claims about behavioral compliance (e.g., "agents follow skill chains") require at
    minimum Tier 4 (Behaviorally proven). They must not be asserted on the basis of
    documentation changes alone.
+
+---
+
+## 15. Contextual Backlog Surfacing Policy
+
+After completing any substantive response, scan the response for subsystem signals. If
+≥2 signals are detected, call `/backlog surface` with 3–7 extracted signal tokens and
+append the result to the response.
+
+### Trigger signals (≥2 required to activate)
+
+- A file path or script name is mentioned (`scripts/`, `content/`, any `.py` or `.md` file reference)
+- A product family or platform is mentioned (`slides`, `cells`, `3d`, `words`, `email`, `pdf`, `net`, `python`, `java`, `cpp`, `typescript`)
+- A skill ID is mentioned (`S-` followed by digits)
+- A backlog item ID is mentioned (`SR-`, `MP-`, `H-TC`, `INV-`, `ST-`, `BK-`)
+- A subsystem term is mentioned (`gap-eval`, `no-downgrade`, `knowledge`, `tier1`, `tier2`, `grading`, `pipeline`, `scout`, `enrichment`, `batch-reference`)
+
+### How to call it
+
+```
+/backlog surface "{space-separated signal tokens}"
+```
+
+Example — after a response about `session_ledger.py` and the `configure()` seam:
+```
+/backlog surface "session_ledger configure seam pipeline scripts"
+```
+
+### Output placement
+
+Append the surfacing block at the end of the response, after the main answer.
+The block uses the plain "Related backlog items:" label — no additional heading needed.
+
+### Suppression rules
+
+- Do NOT surface if the response was itself a `/backlog` command output (avoid recursion)
+- Do NOT surface if the response is a brief acknowledgement (fewer than 3 sentences)
+- Do NOT surface if `/backlog surface` returns nothing (score < 3 for all items)
+- Do NOT surface the same item that was the primary subject of the current response
+- Do NOT surface if the surfacing block would be longer than the main response body
 
 ---
 
