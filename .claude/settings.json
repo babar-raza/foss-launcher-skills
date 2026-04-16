@@ -4,14 +4,15 @@
       "Bash(.venv/Scripts/python -m pytest tests/test_runner_reference_injection.py -v)",
       "Bash(.venv/Scripts/python scripts/pipeline/sync_skills.py --check)",
       "Bash(echo \"EXIT:$?\")",
-      "Bash(PYTHONPATH=\"scripts/pipeline;C:/Users/prora/AppData/Roaming/Python/Python313/site-packages\" .venv/Scripts/python -c \"import sys; sys.path.insert\\(0, ''C:/Users/prora/AppData/Roaming/Python/Python313/site-packages''\\); import pytest; sys.exit\\(pytest.main\\([''scripts/pipeline/tests/'', ''-q'', ''--tb=line'', ''--ignore=scripts/pipeline/tests/test_sync_skills.py'']\\)\\)\")",
+      "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/ -q --tb=line --ignore=scripts/pipeline/tests/test_sync_skills.py)",
       "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/test_check_onboarding_integrity.py -v --tb=short)",
       "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/ -q)",
       "Bash(.venv/Scripts/python scripts/pipeline/post_refresh_verify.py cells net --verify)",
-      "Bash(PYTHONPATH=\"C:/Users/prora/AppData/Roaming/Python/Python313/site-packages;scripts/pipeline;scripts/gap-eval\" .venv/Scripts/python -m pytest scripts/pipeline/tests/test_embed.py scripts/pipeline/tests/test_tier2_determinism.py scripts/pipeline/tests/test_tier3_result.py scripts/pipeline/tests/test_synthesize_llm.py scripts/pipeline/tests/test_llm_router.py -v --tb=short)",
-      "Bash(ls d:/onedrive/Documents/GitHub/aspose.org/scripts/pipeline/tests/test_format*.py)",
+      "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/test_embed.py scripts/pipeline/tests/test_tier2_determinism.py scripts/pipeline/tests/test_tier3_result.py scripts/pipeline/tests/test_synthesize_llm.py scripts/pipeline/tests/test_llm_router.py -v --tb=short)",
+      "Bash(ls scripts/pipeline/tests/test_format*.py)",
       "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/test_format_cross_reference.py -v)",
-      "Bash(.venv/Scripts/python -m unittest scripts.pipeline.tests.test_format_cross_reference -v)"
+      "Bash(.venv/Scripts/python -m unittest scripts.pipeline.tests.test_format_cross_reference -v)",
+      "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/test_heal_controller.py -v)"
     ],
     "additionalDirectories": [
       "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing"
@@ -45,6 +46,10 @@
           {
             "type": "command",
             "command": "bash scripts/ci/check_content_edit_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/check_skill_context_hook.sh"
           }
         ]
       },
@@ -58,6 +63,10 @@
           {
             "type": "command",
             "command": "bash scripts/ci/check_content_write_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/check_skill_context_hook.sh"
           }
         ]
       }

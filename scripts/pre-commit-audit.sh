@@ -280,7 +280,7 @@ if [ -f "reports/session-state/ACTIVE" ]; then
                 echo "  Options:"
                 echo "    1. Record files: session_ledger.py record --file <path> --action modified"
                 echo "    2. Adopt files:  session_ledger.py adopt --files <path> [<path> ...]"
-                echo "    3. Bypass:       SKIP_SESSION_CHECK=1 git commit ..."
+                echo "    3. If operator-authorized, see docs/OPERATOR_BYPASSES.md"
                 echo ""
                 # Include full diagnostics (non-fatal if diagnose itself fails).
                 python scripts/pipeline/session_ledger.py diagnose 2>&1 || true
