@@ -88,13 +88,62 @@ def _parse_dotnet_manifest(repo: Path) -> dict[str, Any]:
     csproj_files.sort(key=lambda p: len(p.parts))
     text = csproj_files[0].read_text(encoding="utf-8", errors="replace")
     for tag, key in [("PackageId", "name"), ("AssemblyName", "name"),
-                     ("Version", "version"), ("TargetFramework", "target_framework")]:
+                     ("Version", "version")]:
         if key in info and info[key]:
             continue
         m = re.search(rf"<{tag}>(.*?)</{tag}>", text)
         if m:
             info[key] = m.group(1)
+
+    # FIX-11: Extract ALL target frameworks from multi-target csproj files.
+    # <TargetFrameworks> (plural) contains semicolon-separated values;
+    # <TargetFramework> (singular) contains a single value.
+    m_plural = re.search(r"<TargetFrameworks>(.*?)</TargetFrameworks>", text)
+    m_single = re.search(r"<TargetFramework>(.*?)</TargetFramework>", text)
+    if m_plural:
+        targets = [t.strip() for t in m_plural.group(1).split(";") if t.strip()]
+        info["target_frameworks"] = targets
+        info["target_framework"] = targets[0] if targets else ""
+        # Determine minimum compatible framework
+        info["min_framework"] = _lowest_dotnet_framework(targets)
+    elif m_single:
+        tf = m_single.group(1).strip()
+        info["target_frameworks"] = [tf]
+        info["target_framework"] = tf
+        info["min_framework"] = tf
+
     return info
+
+
+# Ranking for .NET framework targets (lower = broader compatibility)
+_DOTNET_FRAMEWORK_RANK: dict[str, int] = {
+    "netstandard1.0": 10,
+    "netstandard1.1": 11,
+    "netstandard1.2": 12,
+    "netstandard1.3": 13,
+    "netstandard1.4": 14,
+    "netstandard1.5": 15,
+    "netstandard1.6": 16,
+    "netstandard2.0": 20,
+    "netstandard2.1": 21,
+    "net5.0": 50,
+    "net6.0": 60,
+    "net7.0": 70,
+    "net8.0": 80,
+    "net9.0": 90,
+}
+
+
+def _lowest_dotnet_framework(targets: list[str]) -> str:
+    """Return the lowest (most compatible) framework from a list of targets.
+
+    netstandard targets are ranked lower than net* targets because they
+    support the widest range of runtimes. Unknown targets get rank 100.
+    """
+    if not targets:
+        return ""
+    ranked = sorted(targets, key=lambda t: _DOTNET_FRAMEWORK_RANK.get(t, 100))
+    return ranked[0]
 
 
 def _parse_java_manifest(repo: Path) -> dict[str, Any]:

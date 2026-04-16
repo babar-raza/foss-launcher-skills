@@ -87,3 +87,91 @@ class TestEmbeddingClientWithoutRequests:
         client = embed.EmbeddingClient("http://localhost:9999", "test-model")
         # Should return False (no server running, or requests missing)
         assert client.is_available() is False
+
+
+# ---------------------------------------------------------------------------
+# embed_and_save — dimension validation and metadata (TC-11)
+# ---------------------------------------------------------------------------
+
+import json
+import pytest
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+
+
+class TestEmbedAndSaveDimensionValidation:
+    """Test that embed_and_save validates dimensions and writes metadata."""
+
+    def _mock_client(self, model="test-model", vectors=None):
+        client = MagicMock(spec=embed.EmbeddingClient)
+        client.model = model
+        client.embed_batch.return_value = vectors or []
+        return client
+
+    def test_correct_dims_writes_successfully(self, tmp_path):
+        vectors = [[0.1] * 128, [0.2] * 128]
+        client = self._mock_client(vectors=vectors)
+        out = tmp_path / "test.vectors.json"
+
+        embed.embed_and_save(
+            client, {"a": "text a", "b": "text b"}, out,
+            expected_dimensions=128, provider="test-provider",
+        )
+
+        data = json.loads(out.read_text())
+        assert data["dimensions"] == 128
+        assert data["provider"] == "test-provider"
+        assert data["count"] == 2
+        assert len(data["vectors"]["a"]) == 128
+
+    def test_wrong_dims_raises_valueerror(self, tmp_path):
+        vectors = [[0.1] * 512, [0.2] * 512]
+        client = self._mock_client(vectors=vectors)
+        out = tmp_path / "test.vectors.json"
+
+        with pytest.raises(ValueError, match="Dimension mismatch"):
+            embed.embed_and_save(
+                client, {"a": "text a", "b": "text b"}, out,
+                expected_dimensions=128,
+            )
+
+        # File must NOT exist — refused to write
+        assert not out.exists()
+
+    def test_no_expected_dims_skips_validation(self, tmp_path):
+        vectors = [[0.1] * 999]
+        client = self._mock_client(vectors=vectors)
+        out = tmp_path / "test.vectors.json"
+
+        embed.embed_and_save(client, {"a": "text a"}, out)
+
+        data = json.loads(out.read_text())
+        assert data["dimensions"] == 999
+        assert data["provider"] == ""
+
+    def test_metadata_fields_present(self, tmp_path):
+        vectors = [[0.5] * 4096]
+        client = self._mock_client(model="qwen3-embedding-8b", vectors=vectors)
+        out = tmp_path / "test.vectors.json"
+
+        embed.embed_and_save(
+            client, {"cls1": "class Foo"}, out,
+            expected_dimensions=4096, provider="professionalize",
+        )
+
+        data = json.loads(out.read_text())
+        assert "dimensions" in data
+        assert "provider" in data
+        assert data["model"] == "qwen3-embedding-8b"
+        assert data["dimensions"] == 4096
+        assert data["provider"] == "professionalize"
+
+
+class TestPickClientReturnsTier:
+    """Test that _pick_client returns (client, tier) tuple."""
+
+    def test_returns_none_tuple_when_no_client(self):
+        config = {"tiers": []}
+        client, tier = embed._pick_client(config)
+        assert client is None
+        assert tier is None

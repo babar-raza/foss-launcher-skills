@@ -126,8 +126,9 @@ class TestKindFilterPython:
             {"name": "MyEnum", "kind": "class_definition", "bases": ["Enum"]}, "python"
         )
 
-    def test_is_enum_detected_via_enum_members(self):
-        assert _is_enum(
+    def test_is_enum_not_detected_via_enum_members_alone(self):
+        """FIX-09: enum_members heuristic removed — only base class or kind qualifies."""
+        assert not _is_enum(
             {"name": "MyEnum", "kind": "class_definition", "enum_members": ["A", "B"]}, "python"
         )
 
@@ -684,17 +685,17 @@ class TestJavaInternalPathFilter:
             "java",
         )
 
-    def test_internal_path_does_not_affect_net(self):
-        """The /internal/ file-path guard must not apply to non-Java platforms."""
-        assert _passes_platform_scope(
+    def test_internal_path_also_affects_net(self):
+        """FIX-01: universal /internal/ guard applies to ALL platforms."""
+        assert not _passes_platform_scope(
             {"name": "SomeClass", "kind": "class_declaration",
              "file": "src/internal/SomeClass.cs"},
             "net",
         )
 
-    def test_internal_path_does_not_affect_python(self):
-        """Same: /internal/ in file path must not block Python entries."""
-        assert _passes_platform_scope(
+    def test_internal_path_also_affects_python(self):
+        """FIX-01: universal /internal/ guard applies to ALL platforms."""
+        assert not _passes_platform_scope(
             {"name": "SomeClass", "kind": "class_definition",
              "file": "src/internal/some_class.py"},
             "python",

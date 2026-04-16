@@ -132,6 +132,7 @@ def detect_formats(
         "reader", "writer", "loader", "saver", "importer", "exporter",
         "document", "file", "stream", "base", "abstract", "default",
         "generic", "common", "internal", "helper", "utils", "factory",
+        "registry",
     })
 
     for fpath in files:
@@ -215,7 +216,7 @@ def detect_formats(
                 if re.search(r"(Exporter|Writer|Saver)", cname, re.IGNORECASE):
                     direction = "export"
                 fmt_name = re.sub(
-                    r"(Importer|Exporter|Reader|Writer|Loader|Saver)", "",
+                    r"(Importer|Exporter|Reader|Writer|Loader|Saver|Factory|Registry)", "",
                     cname, flags=re.IGNORECASE).strip().strip("_")
                 # H-04: reject empty, too-short, or common-word false positives
                 if fmt_name and len(fmt_name) >= 2 and fmt_name.lower() not in _FALSE_POSITIVE_NAMES:
@@ -245,8 +246,16 @@ def detect_formats(
         "json", "xml", "yaml", "text", "utf8", "base64", "path",
         "data", "object", "array", "value", "type", "node", "doc",
         "document", "model", "map", "tree", "memory",
+        # H-04b: additional false positives observed in slides/python scout output
+        "remove", "dir", "parts", "part", "argb", "name", "self",
+        "args", "kwargs", "none", "true", "false", "copy", "str",
+        "int", "url", "uri", "enum",
     })
-    _method_fmt_re = re.compile(r'\b(?:load_from|save_to|from|to)_([a-z][a-z0-9]+)\b')
+    _method_fmt_re = re.compile(
+        r'\b(?:load_from|save_to|save_as|from|to)_([a-z][a-z0-9]+)\b'
+    )
+    # Private save method definitions: def _save_xlsx(...), def _save_csv(...)
+    _save_private_re = re.compile(r'\bdef\s+_save_([a-z][a-z0-9]+)\s*\(')
     seen_mf: set[tuple[str, str]] = set()
 
     for fpath in files:
@@ -255,12 +264,21 @@ def detect_formats(
             text = fpath.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
+        # Scan both method-call patterns and private method definitions
+        # Each match: (fmt_name, full_verb, char_offset)
+        _pass2_matches: list[tuple[str, str, int]] = []
         for mfm in _method_fmt_re.finditer(text):
-            fmt_name = mfm.group(1).lower()
+            _pass2_matches.append(
+                (mfm.group(1).lower(), mfm.group(0), mfm.start()))
+        for mfm in _save_private_re.finditer(text):
+            _pass2_matches.append(
+                (mfm.group(1).lower(), f"def _save_{mfm.group(1)}", mfm.start()))
+        for fmt_name, full_verb, offset in _pass2_matches:
             if fmt_name in _FORMAT_METHOD_SKIP:
                 continue
-            full_verb = mfm.group(0)
-            if full_verb.startswith("save_to_") or full_verb.startswith("to_"):
+            if (full_verb.startswith("save_to_") or full_verb.startswith("to_")
+                    or full_verb.startswith("save_as_")
+                    or full_verb.startswith("def _save_")):
                 direction = "export"
             else:
                 direction = "import"
@@ -268,7 +286,7 @@ def detect_formats(
             if key in seen_mf:
                 continue
             seen_mf.add(key)
-            line_num = text[:mfm.start()].count("\n") + 1
+            line_num = text[:offset].count("\n") + 1
             formats.append({
                 "format": fmt_name,
                 "enum": "",
@@ -279,7 +297,7 @@ def detect_formats(
             })
             _add_claim("format_support",
                        f"{direction} support for {fmt_name} format "
-                       f"(method name: {mfm.group(0)})",
+                       f"(method name: {full_verb})",
                        rel, line_num)
 
     # Third pass: Python-specific EmailMessage interop detection.
@@ -317,10 +335,249 @@ def detect_formats(
                            f"(method: {m.group(0)})",
                            rel, line_num)
 
+    # Fourth pass: save-dispatch method scanner.  Detects inline save
+    # implementations (e.g. Document._save_as_text) that are invisible to
+    # the I/O class detector (Pass 1) and blocked by _FORMAT_METHOD_SKIP
+    # in the method-name scanner (Pass 2).  Uses SaveFormat enum members
+    # as a trusted allowlist to safely bypass the skip list.
+    formats = _scan_save_dispatch(
+        formats, files, repo, save_format_pattern, _add_claim,
+    )
+
+    # Cross-reference: demote SaveFormat/ExportFormat enum entries that have
+    # no matching I/O class (Exporter/Writer/Saver) in the same source tree.
+    formats = _cross_reference_enum_directions(
+        formats, save_format_pattern, load_format_pattern,
+    )
+
     # H-04: Post-extraction validation — remove false-positive entries and
     # normalize format names (strip trailing underscores, reject common words).
     formats = _validate_formats(formats, _FALSE_POSITIVE_NAMES)
     return formats, claims
+
+
+def _scan_save_dispatch(
+    formats: list[dict],
+    files: list[Path],
+    repo: Path,
+    save_format_pattern: re.Pattern,
+    add_claim: object,
+) -> list[dict]:
+    """Pass 4: Detect inline save methods backed by SaveFormat enum dispatch.
+
+    Scans for files where BOTH conditions are met:
+
+    1. A ``SaveFormat.MEMBER`` constant is referenced in the file
+    2. A method named ``_save_as_{member}``, ``save_as_{member}``, or
+       ``_save_{member}`` is defined in the same file with a non-stub body
+
+    When both conditions hold, emits a non-enum format entry with
+    ``direction: "export"``.  The cross-reference function then sees this
+    entry as backing evidence and keeps the corresponding enum member as
+    ``"export"`` rather than demoting it to ``"enum_only"``.
+
+    This handles the case where export is implemented inline in the main
+    document class (e.g. ``Document._save_as_text()``) rather than via a
+    dedicated Writer/Exporter class.  The SaveFormat enum acts as a trusted
+    allowlist, making it safe to bypass ``_FORMAT_METHOD_SKIP``.
+    """
+    # Collect SaveFormat/ExportFormat/OutputFormat member names from Pass 1
+    save_members: set[str] = set()
+    for f in formats:
+        enum_name = f.get("enum", "")
+        if not enum_name:
+            continue
+        if save_format_pattern.search(enum_name) and f.get("direction") == "export":
+            save_members.add(f["format"].upper())
+
+    if not save_members:
+        return formats
+
+    # Dynamic regex for SaveFormat.MEMBER references (case-insensitive for
+    # libraries that use Title-case enum values like SaveFormat.Pdf)
+    member_ref_re = re.compile(
+        r'SaveFormat\s*\.\s*('
+        + "|".join(re.escape(m) for m in sorted(save_members))
+        + r")\b",
+        re.IGNORECASE,
+    )
+    # Method definition pattern: _save_as_X, save_as_X, _save_X
+    save_method_re = re.compile(
+        r"\bdef\s+(_?save_?(?:as_?|to_?)?)([a-z][a-z0-9_]*)\s*\("
+    )
+
+    seen: set[str] = set()
+    new_entries: list[dict] = []
+
+    for fpath in files:
+        rel = str(fpath.relative_to(repo)).replace("\\", "/")
+        try:
+            text = fpath.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+
+        # Step 1: Does this file reference any SaveFormat.MEMBER?
+        referenced = {m.group(1).upper() for m in member_ref_re.finditer(text)}
+        if not referenced:
+            continue
+
+        # Step 2: Find save method definitions in this file
+        for mm in save_method_re.finditer(text):
+            method_suffix = mm.group(2).upper().strip("_")
+            if method_suffix not in referenced or method_suffix in seen:
+                continue
+
+            # Step 3: Stub detection — body must have > 2 meaningful lines
+            method_start = mm.start()
+            next_def = text.find("\ndef ", method_start + 1)
+            next_class = text.find("\nclass ", method_start + 1)
+            body_end = min(
+                next_def if next_def > 0 else len(text),
+                next_class if next_class > 0 else len(text),
+            )
+            body = text[method_start:body_end]
+            body_lines = [
+                line.strip()
+                for line in body.split("\n")
+                if line.strip()
+                and not line.strip().startswith("#")
+                and not line.strip().startswith('"""')
+                and not line.strip().startswith("'''")
+            ]
+            if len(body_lines) <= 2:
+                continue
+
+            seen.add(method_suffix)
+            line_num = text[:method_start].count("\n") + 1
+            fmt_lower = method_suffix.lower()
+            new_entries.append({
+                "format": fmt_lower,
+                "enum": "",
+                "value": "",
+                "file": rel,
+                "line": line_num,
+                "direction": "export",
+            })
+            if callable(add_claim):
+                add_claim(
+                    "format_support",
+                    f"export support for {fmt_lower} format "
+                    f"(inline save dispatch: {mm.group(0).strip()})",
+                    rel,
+                    line_num,
+                )
+
+    formats.extend(new_entries)
+    return formats
+
+
+def _cross_reference_enum_directions(
+    formats: list[dict],
+    save_pattern: re.Pattern,
+    load_pattern: re.Pattern,
+) -> list[dict]:
+    """Demote SaveFormat enum entries to 'detect' when no matching I/O class exists.
+
+    After all extraction passes, enum entries from SaveFormat/ExportFormat/
+    OutputFormat enums are cross-referenced against discovered I/O classes
+    (Exporter, Writer, Saver) and method-name format signals.  If no matching
+    implementation is found, the entry's direction is demoted from "export" to
+    "detect", preventing false export-capability claims.
+
+    FIX-13: Enhanced matching — checks suffix match, exact match, and
+    method-name patterns (save_to_X, to_X, load_from_X, from_X).  Demoted
+    entries also get ``functional: false`` to distinguish "enum exists but
+    no I/O implementation" from entries that were never export/import.
+    """
+    # Build sets of format names with real implementation evidence.
+    # Non-enum entries (enum == "") come from I/O class detection (Pass 1)
+    # and method-name detection (Pass 2/3).
+    export_impls: set[str] = set()
+    import_impls: set[str] = set()
+    # FIX-13: Also track method-name-derived format signals separately
+    # for exact-match fallback (e.g. "eml" from save_to_eml).
+    export_method_fmts: set[str] = set()
+    import_method_fmts: set[str] = set()
+    # FIX-13: Track formats whose I/O class exists but methods are stubs.
+    stub_export_fmts: set[str] = set()
+    stub_import_fmts: set[str] = set()
+
+    for f in formats:
+        if f.get("enum"):
+            continue  # skip enum entries — they are what we're validating
+        fmt_lower = f.get("format", "").lower()
+        if not fmt_lower or len(fmt_lower) < 2:
+            continue
+        direction = f.get("direction", "")
+        # FIX-13: stub I/O classes were demoted to "detect" in Pass 1.
+        # Track original direction via the claim text if present, but
+        # the simpler approach: detect-direction non-enum entries that
+        # came from I/O class detection are stubs.
+        if direction == "export":
+            export_impls.add(fmt_lower)
+            export_method_fmts.add(fmt_lower)
+        elif direction == "import":
+            import_impls.add(fmt_lower)
+            import_method_fmts.add(fmt_lower)
+        elif direction == "detect" and not f.get("enum"):
+            # Non-enum detect entries are I/O classes whose methods were stubs
+            stub_export_fmts.add(fmt_lower)
+            stub_import_fmts.add(fmt_lower)
+
+    # Noise suffixes that remain after Exporter/Reader stripping
+    # (e.g. DocFileReader → "DocFile"; strip "File" → "Doc" to match "DOC")
+    _impl_noise_re = re.compile(r"(?:file|document|format|core)+$", re.IGNORECASE)
+
+    def _has_backing(fmt_name: str, impl_set: set[str],
+                     method_set: set[str]) -> bool:
+        """Check if fmt_name has a backing implementation.
+
+        FIX-13: Three-layer matching:
+        1. Suffix match against I/O class format names (original logic)
+        2. Exact match against method-derived format names
+        3. Noise-stripped suffix match (original logic)
+        """
+        needle = fmt_name.lower()
+        # Layer 1: exact match in method-derived formats
+        if needle in method_set:
+            return True
+        # Layer 2: suffix match against I/O class names
+        for impl in impl_set:
+            if impl.endswith(needle):
+                return True
+            # Layer 3: strip noise suffixes and retry
+            stripped = _impl_noise_re.sub("", impl)
+            if stripped and len(stripped) >= 2 and stripped.endswith(needle):
+                return True
+        return False
+
+    def _is_stub_only(fmt_name: str, stub_set: set[str]) -> bool:
+        """FIX-13: Check if format has only stub implementations."""
+        needle = fmt_name.lower()
+        return needle in stub_set
+
+    for f in formats:
+        enum_name = f.get("enum", "")
+        if not enum_name:
+            continue
+        # Demote SaveFormat/ExportFormat/OutputFormat entries without exporters.
+        # Use "enum_only" (not "detect") so audit/formats.py FD check can
+        # distinguish SaveFormat stubs from generic FileFormat detection entries.
+        if f.get("direction") == "export" and save_pattern.search(enum_name):
+            if not _has_backing(f["format"], export_impls, export_method_fmts):
+                f["direction"] = "enum_only"
+                f["functional"] = False  # FIX-13: enum exists but no I/O class
+            elif _is_stub_only(f["format"], stub_export_fmts):
+                f["functional"] = False  # FIX-13: I/O class exists but throws
+        # Demote LoadFormat/ImportFormat/InputFormat entries without readers
+        elif f.get("direction") == "import" and load_pattern.search(enum_name):
+            if not _has_backing(f["format"], import_impls, import_method_fmts):
+                f["direction"] = "enum_only"
+                f["functional"] = False  # FIX-13: enum exists but no I/O class
+            elif _is_stub_only(f["format"], stub_import_fmts):
+                f["functional"] = False  # FIX-13: I/O class exists but throws
+
+    return formats
 
 
 def _validate_formats(

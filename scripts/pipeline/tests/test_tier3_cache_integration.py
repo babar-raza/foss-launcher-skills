@@ -57,8 +57,13 @@ def _run_gap_eval(tmp_state_dir: Path, tmp_out: str) -> tuple[dict, MagicMock, M
 
     Returns (result, t2_mock, t3_mock) so callers can inspect call counts.
     """
+    from llm_router import EndpointStatus
+    from run import Tier3Result  # type: ignore
     t2_mock = MagicMock(return_value=None)   # no T2 verdict → escalate to T3
-    t3_mock = MagicMock(return_value=None)   # T3 confirms all claims accurate
+    # T3 confirms all claims accurate — return Tier3Result with OK status
+    t3_mock = MagicMock(return_value=Tier3Result(
+        verdict=None, status=EndpointStatus.OK, reason="claim confirmed accurate",
+    ))
 
     with (
         patch.object(gap_eval_run, "tier2_verify", t2_mock),
@@ -157,6 +162,8 @@ class TestTier3CacheIntegration:
         tmp_state.mkdir()
 
         # --- Run 1: first T3 call returns a finding, rest return None (accurate) ---
+        from llm_router import EndpointStatus as _ES
+        from run import Tier3Result as _T3R  # type: ignore
         call_count = [0]
 
         def _t3_side_effect(claim, family, platform, clone_cache):
@@ -164,17 +171,21 @@ class TestTier3CacheIntegration:
             call_count[0] += 1
             if idx == 0:
                 # Return a finding on the very first Tier 3 call
-                return {
-                    "type": "wrong-claim",
-                    "severity": "S",
-                    "tier_resolved_by": 3,
-                    "file": claim.get("file", "unknown"),
-                    "line": claim.get("line", 0),
-                    "old_value": claim.get("value", ""),
-                    "correct_value": None,
-                    "description": "Integration test injected finding",
-                }
-            return None  # all other claims accurate
+                return _T3R(
+                    verdict={
+                        "type": "wrong-claim",
+                        "severity": "S",
+                        "tier_resolved_by": 3,
+                        "file": claim.get("file", "unknown"),
+                        "line": claim.get("line", 0),
+                        "old_value": claim.get("value", ""),
+                        "correct_value": None,
+                        "description": "Integration test injected finding",
+                    },
+                    status=_ES.OK,
+                    reason="claim inaccurate",
+                )
+            return _T3R(verdict=None, status=_ES.OK, reason="claim confirmed accurate")
 
         t2_1 = MagicMock(return_value=None)
         t3_1 = MagicMock(side_effect=_t3_side_effect)

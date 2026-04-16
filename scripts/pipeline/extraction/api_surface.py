@@ -821,6 +821,38 @@ def _is_java_stub(mnode) -> bool:
     return False
 
 
+def _is_typescript_stub(mnode) -> bool:
+    """Return True if a TypeScript/JavaScript method body is a single throw indicating unimplemented."""
+    body = find_child_by_type(mnode, "statement_block")
+    if body is None:
+        return False
+    stmts = [ch for ch in body.children if ch.type not in ("{", "}", "\n", "comment")]
+    if len(stmts) != 1:
+        return False
+    stmt = stmts[0]
+    if stmt.type in ("throw_statement", "expression_statement"):
+        txt = node_text(stmt)
+        return _is_stub_throw(txt)
+    return False
+
+
+def _is_cpp_stub(mnode) -> bool:
+    """Return True if a C++ function body is a single throw indicating unimplemented."""
+    body = find_child_by_type(mnode, "compound_statement")
+    if body is None:
+        body = find_child_by_type(mnode, "field_declaration_list")
+    if body is None:
+        return False
+    stmts = [ch for ch in body.children if ch.type not in ("{", "}", "\n", "comment")]
+    if len(stmts) != 1:
+        return False
+    stmt = stmts[0]
+    if stmt.type in ("throw_statement", "expression_statement"):
+        txt = node_text(stmt)
+        return _is_stub_throw(txt)
+    return False
+
+
 # ---------------------------------------------------------------------------
 # FR-15: C++ canonical namespace helper
 # ---------------------------------------------------------------------------
@@ -1034,6 +1066,21 @@ def extract_api_surface(
                 if not mname:
                     continue
 
+                # FIX-02: Skip methods that belong to nested classes.
+                # collect_nodes does a deep DFS, so methods inside nested
+                # private/internal classes appear in the parent's list.
+                # Check if mnode has a class ancestor that is NOT cnode itself.
+                if language in ("csharp", "java"):
+                    _parent = mnode.parent
+                    _in_nested = False
+                    while _parent is not None and _parent != cnode:
+                        if _parent.type in class_types:
+                            _in_nested = True
+                            break
+                        _parent = _parent.parent
+                    if _in_nested:
+                        continue
+
                 # Skip Python @property and setter/deleter — handled by _extract_python_properties
                 if language == "python" and mnode.type == "function_definition":
                     dec = find_child_by_type(mnode, "decorator")
@@ -1168,6 +1215,10 @@ def extract_api_surface(
                 elif language == "csharp" and _is_csharp_stub(mnode):
                     method_entry["stub"] = True
                 elif language == "java" and _is_java_stub(mnode):
+                    method_entry["stub"] = True
+                elif language in ("typescript", "javascript") and _is_typescript_stub(mnode):
+                    method_entry["stub"] = True
+                elif language == "cpp" and _is_cpp_stub(mnode):
                     method_entry["stub"] = True
 
                 methods.append(method_entry)

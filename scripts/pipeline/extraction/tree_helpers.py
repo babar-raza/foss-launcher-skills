@@ -226,6 +226,10 @@ def is_public(node, language: str) -> bool:
                         return False
             if name.startswith("#"):
                 return False
+            # FIX-03: TypeScript convention uses _ prefix for private members.
+            # Many TS libraries use this convention without explicit modifiers.
+            if name.startswith("_"):
+                return False
             return True
         if parent and parent.type == "export_statement":
             return True

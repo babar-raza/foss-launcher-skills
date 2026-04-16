@@ -259,11 +259,21 @@ def write_outputs(
         encoding="utf-8")
     LOG.info("Wrote api_surface.json (%d entries)", len(classes))
 
-    # claims.json
+    # claims.json — FIX-12: wrap with source_sha for freshness tracking.
+    # Downstream consumers (promote.py, knowledge-diff) can detect stale
+    # claims by comparing source_sha against the current repo HEAD.
+    claims_wrapper = {
+        "source_sha": repo_sha,
+        "extracted_at": model["extracted_at"],
+        "family": family,
+        "platform": platform,
+        "claim_count": len(claims),
+        "claims": claims,
+    }
     (output / "claims.json").write_text(
-        json.dumps(claims, indent=2, ensure_ascii=False),
+        json.dumps(claims_wrapper, indent=2, ensure_ascii=False),
         encoding="utf-8")
-    LOG.info("Wrote claims.json (%d claims)", len(claims))
+    LOG.info("Wrote claims.json (%d claims, source_sha=%s)", len(claims), repo_sha[:8])
 
     # formats.json
     (output / "formats.json").write_text(

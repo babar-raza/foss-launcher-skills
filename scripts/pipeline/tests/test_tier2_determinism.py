@@ -165,3 +165,63 @@ class TestTier2DeterminismBand:
         assert result is not None
         verdict, score = result
         assert verdict == "UNVERIFIABLE"
+
+
+# ---------------------------------------------------------------------------
+# Dimension mismatch WARNING (TC-12)
+# ---------------------------------------------------------------------------
+
+import logging
+
+
+class TestTier2DimensionWarning:
+    """Verify that tier2_verify logs WARNING when query dims ≠ stored dims."""
+
+    def _setup_vectors_with_dims(self, tmp_path, family, platform, vec, dims):
+        """Write api.vectors.json with a 'dimensions' metadata field."""
+        vdir = tmp_path / "knowledge" / "_vectors" / family / platform
+        vdir.mkdir(parents=True, exist_ok=True)
+        data = {
+            "dimensions": dims,
+            "vectors": {"SomeClass.someMethod": vec},
+        }
+        (vdir / "api.vectors.json").write_text(json.dumps(data), encoding="utf-8")
+        return tmp_path
+
+    def test_dimension_mismatch_logs_warning(self, tmp_path, caplog):
+        """When query vector dims ≠ stored dims, a WARNING must be logged."""
+        # Stored vectors are 4-dim with metadata saying 4
+        stored_vec = [1.0, 0.0, 0.0, 0.0]
+        repo = self._setup_vectors_with_dims(tmp_path, "test", "python", stored_vec, 4)
+        claim = _make_claim()
+
+        # _embed_text returns a 2-dim vector (mismatched)
+        query_vec = [1.0, 0.0]
+
+        with patch("run._embed_text", return_value=query_vec), \
+             patch("run._REPO_ROOT", repo), \
+             caplog.at_level(logging.WARNING, logger="run"):
+            result = tier2_verify(claim, "test", "python")
+
+        # Must warn about dimension mismatch
+        assert any("Dimension mismatch" in msg for msg in caplog.messages), \
+            f"Expected 'Dimension mismatch' WARNING, got: {caplog.messages}"
+
+        # Must still return a result (does not abort — falls through to cosine/TF-IDF)
+        assert result is not None
+
+    def test_matching_dims_no_warning(self, tmp_path, caplog):
+        """When query vector dims match stored dims, no WARNING should be logged."""
+        stored_vec = [1.0, 0.0, 0.0]
+        repo = self._setup_vectors_with_dims(tmp_path, "test", "python", stored_vec, 3)
+        claim = _make_claim()
+
+        query_vec = [0.5, 0.5, 0.0]
+
+        with patch("run._embed_text", return_value=query_vec), \
+             patch("run._REPO_ROOT", repo), \
+             caplog.at_level(logging.WARNING, logger="run"):
+            result = tier2_verify(claim, "test", "python")
+
+        assert not any("Dimension mismatch" in msg for msg in caplog.messages)
+        assert result is not None

@@ -113,14 +113,17 @@ def _load_enum_only_formats(family: str, platform: str) -> set[str]:
             "audit/formats: %s is not a JSON list — FD check skipped", path
         )
         return set()
-    return {
-        entry["name"].upper()
-        for entry in raw
-        if isinstance(entry, dict)
-        and entry.get("direction") == "enum_only"
-        and isinstance(entry.get("name"), str)
-        and entry.get("name")
-    }
+    result: set[str] = set()
+    for entry in raw:
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("direction") != "enum_only":
+            continue
+        # Accept both "name" (legacy hand-edited) and "format" (extraction output)
+        fname = entry.get("name") or entry.get("format") or ""
+        if isinstance(fname, str) and fname:
+            result.add(fname.upper())
+    return result
 
 
 def _has_warning(row_text: str) -> bool:
