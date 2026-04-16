@@ -31,6 +31,8 @@ ALL_EVALUATORS = [
     "format_completeness",
     "member_validity",
     "prose_grounding",
+    "version_claim_check",
+    "capability_claim_check",
 ]
 
 # Default evaluators (fast, deterministic, production-ready)
