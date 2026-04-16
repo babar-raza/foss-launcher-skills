@@ -19,6 +19,12 @@ Run a structural and quality check on a content file before committing.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-23 --scope "*"
+> ```
+
+
 1. **Read the file** at the path given in `$ARGUMENTS`.
 
 2. **Detect page type** from the path and frontmatter:
@@ -123,3 +129,9 @@ Run a structural and quality check on a content file before committing.
 5. **If OVERALL is FAIL**: list each failing check with a one-line fix suggestion.
 
 6. **Do not modify the file** — this skill is read-only.
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-23 --status completed
+> ```
+

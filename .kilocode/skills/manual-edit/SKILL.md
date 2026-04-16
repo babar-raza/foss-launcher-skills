@@ -103,6 +103,12 @@ Do **not** use S-73 for:
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-73 --scope "*"
+> ```
+
+
 ### Step 1: Parse and validate arguments
 
 Extract all arguments from $ARGUMENTS:
@@ -379,6 +385,11 @@ Reason (if not APPLIED): {reason}
 ```
 
 ---
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-73 --status completed
+> ```
 
 ## Post-conditions
 

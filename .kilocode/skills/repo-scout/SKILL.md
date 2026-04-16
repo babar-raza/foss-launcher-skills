@@ -63,6 +63,12 @@ where source repos are not cloned.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-34 --scope "*"
+> ```
+
+
 1. **Parse arguments** from $ARGUMENTS:
    - If 3 tokens: `family`, `platform`, `repo_path` (explicit source repo)
    - If 2 tokens: `family`, `platform` → resolve `repo_path` via pip-install (see above)
@@ -88,6 +94,11 @@ where source repos are not cloned.
    repo_sha: {repo_sha or "(pip-installed, no sha)"}
    output: knowledge/{family}/{platform}/scout/
    ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-34 --status completed
+> ```
 
 ## Post-conditions
 - All output files listed in Step 3 exist and contain valid data

@@ -40,6 +40,12 @@ audit), this skill always regenerates and uses the no-downgrade-guard to prevent
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-86 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Extract `{family}` and `{platform}` from $ARGUMENTS.
 
 2. **Verify existing page**: Confirm the product page exists. If not, abort:
@@ -88,6 +94,11 @@ audit), this skill always regenerates and uses the no-downgrade-guard to prevent
    Current:  grade {new_grade}, evaluators: {new_evaluators}
    Status: {REGENERATED | BLOCKED | NO_CHANGE}
    ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-86 --status completed
+> ```
 
 ## Post-conditions
 

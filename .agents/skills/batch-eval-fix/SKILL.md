@@ -25,6 +25,12 @@ Lightweight remediation pipeline: evaluate content (or consume an existing repor
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-41 --scope "*"
+> ```
+
+
 1. **Parse arguments.** If two words, treat as `{family} {platform}`. If a `.json` path, use it directly as the eval report.
 
 2. **Run evaluation** (skip if consuming existing report):
@@ -65,6 +71,11 @@ Lightweight remediation pipeline: evaluate content (or consume an existing repor
    Deferred to human: {count}
    Reports: {json_path}, {md_path}
    ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-41 --status completed
+> ```
 
 ## Post-conditions
 

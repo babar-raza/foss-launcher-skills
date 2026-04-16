@@ -23,6 +23,12 @@ Evaluate all content for a family/platform against clone cache ground truth usin
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-43 --scope "*"
+> ```
+
+
 ### Step 1: Validate profile
 
 ```bash
@@ -74,6 +80,11 @@ Skip LLM (Tier 1+2 only, faster):
 ```bash
 /gap-plan {family} {platform}
 ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-43 --status completed
+> ```
 
 ## Post-conditions
 - `reports/gap-analysis/{family}-{platform}.md` written with 8-section report

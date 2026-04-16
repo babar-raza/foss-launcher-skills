@@ -28,6 +28,12 @@ Map upstream repository changes (detected by S-12) to content pages that may nee
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-13 --scope "*"
+> ```
+
+
 1. **Load knowledge**: Read `merged/index.json` and `merged/claims.json`
 2. **Identify changed claims**: Compare current claims against content citations
 3. **Scan content pages**: Find all content files for `{family}/{platform}` across all sites:
@@ -47,6 +53,11 @@ Map upstream repository changes (detected by S-12) to content pages that may nee
    - AT_RISK: Page references changed API surface
    - CURRENT: No changes detected
 6. **Write report**
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-13 --status completed
+> ```
 
 ## Output
 ```

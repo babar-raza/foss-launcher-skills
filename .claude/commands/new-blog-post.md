@@ -56,6 +56,12 @@ Before generating any content, you MUST:
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-57 --scope "*"
+> ```
+
+
 1. **Parse** `$ARGUMENTS` into: `family`, `platform`, `slug` (slug becomes the directory name and title source).
 
 2. **Read existing blog posts for reference** (read only — do not copy):
@@ -156,6 +162,11 @@ Before generating any content, you MUST:
 
 7. **Create directory and write** the file to `content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
    - The slug is a directory name, not just a filename — create `{slug}/index.md`
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-57 --status completed
+> ```
 
 ## Knowledge Post-conditions
 

@@ -29,6 +29,12 @@ checking. **Never executes code** — compile/type-check only.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-63 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Determine scope — either product-wide (`{family} {platform}`)
    or specific files (`--files`).
 
@@ -73,6 +79,11 @@ checking. **Never executes code** — compile/type-check only.
 
    RESULT: FAIL — N block(s) have syntax errors
    ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-63 --status completed
+> ```
 
 ## Exit Codes
 

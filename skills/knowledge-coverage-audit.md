@@ -58,6 +58,12 @@ No claim may be absent from the output.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-81 --scope "*"
+> ```
+
+
 1. **Run backing script**:
    ```bash
    .venv/Scripts/python scripts/pipeline/knowledge_coverage.py {family} {platform}
@@ -70,6 +76,11 @@ No claim may be absent from the output.
    - If `orphaned_count > 0`: list orphaned claim IDs and kinds; report ORPHANED_FOUND
 
 4. **Report** using the standard format (see §Output Format).
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-81 --status completed
+> ```
 
 ## Output Format
 

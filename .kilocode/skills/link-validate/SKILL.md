@@ -27,6 +27,12 @@ None. This skill works from the local content directory only.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-65 --scope "*"
+> ```
+
+
 ### Step 1: Run validation for one product
 
 ```bash
@@ -63,6 +69,11 @@ For each BROKEN link:
 ```bash
 .venv/Scripts/python scripts/pipeline/link_validator.py {family} {platform} --json > reports/link-validation/{family}-{platform}-{timestamp}.json
 ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-65 --status completed
+> ```
 
 ## Post-conditions
 

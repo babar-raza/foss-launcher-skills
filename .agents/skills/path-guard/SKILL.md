@@ -43,10 +43,21 @@ Validate that a file path is an allowed write target before any content modifica
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-01 --scope "*"
+> ```
+
+
 1. **Normalize path**: Convert to forward slashes, make relative to repo root
 2. **Check forbidden list**: If path matches any forbidden pattern, DENY with explanation
 3. **Check allowed list**: If path matches an allowed pattern, ALLOW
 4. **Default**: DENY with message "Path not in allowed write list"
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-01 --status completed
+> ```
 
 ## Output
 - `ALLOW: {path}` or `DENY: {path} — {reason}`

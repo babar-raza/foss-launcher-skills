@@ -113,6 +113,12 @@ will produce false `viable` classifications — always use the tokenizer, not re
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-78 --scope "*"
+> ```
+
+
 1. **Capture baseline**: Record current `evidence_depth` finding (section count, API count,
    claim count) from the pre-flight eval output.
 
@@ -162,6 +168,11 @@ will produce false `viable` classifications — always use the tokenizer, not re
    Result: ENHANCED | NO_CHANGE | ESCAPED
    Grade:  {before} → {after} (must not decrease)
    ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-78 --status completed
+> ```
 
 ## Post-conditions
 

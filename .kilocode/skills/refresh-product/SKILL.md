@@ -51,6 +51,12 @@ Do not run any subsequent steps. Exit 0.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-84 --scope "*"
+> ```
+
+
 1. **Detect change** (S-12: knowledge-diff):
    ```
    /knowledge-diff {family} {platform} {repo-path}
@@ -172,6 +178,11 @@ Do not run any subsequent steps. Exit 0.
     - Knowledge delta summary (new/removed claims and APIs)
     - Step list from `progress.json`
     - `Skills invoked: [refresh-product, S-12, S-14, S-82, S-20, S-83, S-62, S-48]`
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-84 --status completed
+> ```
 
 ## Progress Tracking
 

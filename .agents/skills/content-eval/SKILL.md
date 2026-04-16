@@ -27,6 +27,12 @@ Goes beyond API token verification (audit.py/S-23) to check:
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-51 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Determine target scope from $ARGUMENTS
 2. **Run evaluation**: Execute the content_eval pipeline
 
@@ -39,6 +45,11 @@ cd scripts/pipeline && .venv/Scripts/python -m content_eval evaluate $ARGUMENTS 
 5. **For cross-page analysis**: Add `--cross-page` flag
 6. **For specific evaluators only**: Add `--evaluators api_accuracy,platform_purity,page_role`
 7. **To run all 16 evaluators** (slower): Add `--evaluators api_accuracy,api_backtick,claim_coverage,platform_purity,forbidden_claims,page_role,structure,prose_truth,format_truth,install_recipe,limitations_check,risk_language,evidence_depth,code_plausibility,coverage,type_accuracy`
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-51 --status completed
+> ```
 
 ## Available evaluators
 

@@ -25,6 +25,12 @@ capabilities, and rewrites the three text fields to be platform-agnostic.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-48 --scope "*"
+> ```
+
+
 1. **Discover platforms** — scan family directory for platform subdirs with plugin pages and knowledge
 2. **Build platform list** — .NET first if present, then alphabetical; Oxford comma formatting
 3. **Compute unified features** — aggregate feature claims across platforms; shared (all) vs partial (>=50%); exclude limitations
@@ -34,6 +40,11 @@ capabilities, and rewrites the three text fields to be platform-agnostic.
 7. **Write** updated `_index.md` — use read-modify-write via `yaml.safe_load` + `yaml.dump`; wrap `overview.content` in a `_Literal` helper before serializing so `yaml.dump` emits it as a `|` block scalar; reconstruct as `"---\n{serialized_fm}---\n\n{body}"` ending with `\n`; never prepend a new FM block to the existing file (causes double frontmatter); verify single FM block after write
 8. **Attach evidence** — `python scripts/pipeline/attach_evidence.py --files {path}`
 9. **Audit** — `python scripts/pipeline/audit.py --files {path}` — must exit 0 FAIL
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-48 --status completed
+> ```
 
 ## Hard Constraints
 

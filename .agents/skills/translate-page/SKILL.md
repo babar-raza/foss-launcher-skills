@@ -27,6 +27,12 @@ Locales may be a comma-separated list (e.g. `fr,de,ar`) or the literal string `a
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-52 --scope "*"
+> ```
+
+
 1. **Parse** `$ARGUMENTS` into:
    - `src_path` — path to the English source `.md` file
    - `locales` — comma-separated locale codes or `all`
@@ -83,6 +89,11 @@ Locales may be a comma-separated list (e.g. `fr,de,ar`) or the literal string `a
    OVERALL: PASS | PARTIAL | FAIL
    ```
    OVERALL is FAIL if any locale produced `[FAIL]`. OVERALL is PARTIAL if some succeeded and some failed or were skipped. OVERALL is PASS if all requested locales produced `[OK]`.
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-52 --status completed
+> ```
 
 ## Post-conditions
 

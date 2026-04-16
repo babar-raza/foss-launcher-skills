@@ -24,6 +24,12 @@ Audit content pages against verified knowledge. Maps each factual claim in conte
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-32 --scope "*"
+> ```
+
+
 ### Step 1: Run deterministic audit script
 
 Run the Python script first to get reproducible, machine-verifiable results:
@@ -71,6 +77,11 @@ Review the aggregate summary and act on:
 - Any CONTRADICTED tier findings (must fix)
 - Files with high UNSUPPORTED percentages (need evidence)
 - Code blocks with API accuracy failures
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-32 --status completed
+> ```
 
 ## Audit report format
 ```

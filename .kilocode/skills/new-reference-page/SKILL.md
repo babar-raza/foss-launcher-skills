@@ -34,6 +34,12 @@ Before generating any content, you MUST:
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-60 --scope "*"
+> ```
+
+
 0b. **Package name validation** (run before any content generation):
    - Read `knowledge/{family}/{platform}/scout/model.yaml` → `canonical_import`
    - This is the ground-truth package identifier (e.g. `aspose.slides_foss`, `org.aspose.slides.foss`)
@@ -154,6 +160,11 @@ Before generating any content, you MUST:
    - If ALLOW → proceed with write
 
 7. **Write** to `content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md`
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-60 --status completed
+> ```
 
 ## Platform-Specific Rendering Rules
 

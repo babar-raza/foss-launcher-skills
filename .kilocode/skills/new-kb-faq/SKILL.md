@@ -25,6 +25,12 @@ Generate or update the FAQ page for a product platform.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-59 --scope "*"
+> ```
+
+
 1. **Parse** `$ARGUMENTS` into `family` and `platform`.
 
 2. **Check if an FAQ exists** at `content/kb.aspose.org/en/{family}/{platform}/faq.md`:
@@ -100,6 +106,11 @@ Generate or update the FAQ page for a product platform.
    - If ALLOW → proceed with write
 
 8. **Write** to `content/kb.aspose.org/en/{family}/{platform}/faq.md`
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-59 --status completed
+> ```
 
 ## Knowledge Post-conditions
 

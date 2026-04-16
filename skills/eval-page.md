@@ -37,6 +37,12 @@ For batch evaluation of all pages in a product, use S-51 (content-eval):
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-25 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Extract file path from $ARGUMENTS.
 
 2. **Run content_eval**:
@@ -103,6 +109,11 @@ For batch evaluation of all pages in a product, use S-51 (content-eval):
 
    NEXT STEP: {recommendation}
    ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-25 --status completed
+> ```
 
 ## Post-conditions
 - Evaluation report is printed with grade and findings

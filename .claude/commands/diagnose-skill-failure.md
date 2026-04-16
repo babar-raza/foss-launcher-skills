@@ -36,6 +36,12 @@ None. This skill can be invoked at any point when a skill or pipeline step fails
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-67 --scope "*"
+> ```
+
+
 ### Step 1: Capture the failure context
 
 Record exactly:
@@ -138,6 +144,11 @@ If the failure cannot be resolved via Steps 3–4, write to
 **Skill:** {skill-id} ({skill-name})
 **Date:** {ISO date}
 **Reported by:** {agent or human}
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-67 --status completed
+> ```
 
 ## Failure summary
 {One sentence: what failed, where, with what input}

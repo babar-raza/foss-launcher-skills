@@ -55,6 +55,12 @@ Determine the **code fence language** from the platform:
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-62 --scope "*"
+> ```
+
+
 ### 1. Parse arguments
 
 Parse `$ARGUMENTS` into:
@@ -164,6 +170,12 @@ When generating an enum page (`kind` is `enum_specifier` / `enum`), after the st
 section, add a `## Values` section with a table listing each enum member and its description:
 
 ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-62 --status completed
+> ```
+
 ## Values
 
 | Value | Description |

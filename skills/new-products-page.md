@@ -41,6 +41,12 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-61 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Extract `{family}` and `{platform}` from $ARGUMENTS.
 
 2. **Check if existing platform product page exists**:
@@ -174,6 +180,11 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
 
 16. **Run smoke test** (Python platform only): `.venv/Scripts/python scripts/pipeline/smoke_test.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
     — must exit 0. All code blocks must compile cleanly.
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-61 --status completed
+> ```
 
 ## Hard Constraints
 

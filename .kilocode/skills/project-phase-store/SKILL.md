@@ -22,6 +22,12 @@ Track the current generation phase for a product. Reads or writes a phase marker
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-10 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Extract `{family}`, `{platform}`, and optional `[get|set {phase}]` from $ARGUMENTS.
    - If no action specified, default to `get`.
 
@@ -47,6 +53,11 @@ Track the current generation phase for a product. Reads or writes a phase marker
    - Write the file back
 
 5. **Report**: Print the current phase state for the product.
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-10 --status completed
+> ```
 
 ## Post-conditions
 - `reports/phase_state.json` exists and is valid JSON

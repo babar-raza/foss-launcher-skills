@@ -58,6 +58,12 @@ headings, code blocks, or any prose text.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-72 --scope "*"
+> ```
+
+
 ### Stage 1 — Auto-Attach (script-driven)
 
 3. **Run attach_evidence.py with --force** to rebuild the evidence block from code blocks and tables:
@@ -156,6 +162,11 @@ any entry in `claims.json`).
     ```
 
 15. Report **ESCAPED** for this file.
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-72 --status completed
+> ```
 
 ## Report (one entry per file)
 

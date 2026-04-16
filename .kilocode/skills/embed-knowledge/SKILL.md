@@ -35,6 +35,12 @@ not require vectors, but gap evaluation quality degrades without them.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-15 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Extract `{family}` and `{platform}` (or `all`).
 
 2. **Attempt Tier 1 — Professionalize API**:
@@ -75,6 +81,11 @@ not require vectors, but gap evaluation quality degrades without them.
    config.json is left unchanged to preserve consistency with the actual vector files on disk.
 
 6. **Report**: Print which tiers succeeded, which failed, and how many vectors were generated per tier.
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-15 --status completed
+> ```
 
 ## Post-conditions
 - If Tier 1 or Tier 2 succeeded: vector files exist under `knowledge/_vectors/{tier}/`

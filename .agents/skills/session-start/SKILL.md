@@ -17,10 +17,20 @@ any user request.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-77 --scope "*"
+> ```
+
+
 1. Read `AGENTS.md` in full
 2. Read `CLAUDE.md`
 3. Confirm: state the current §2 Read Order aloud
 4. Confirm: state the capability assessment method from AGENTS.md §6b
+   - Also state the anti-reframing rule: "There is no 'forensic', 'ad-hoc', or
+     'operator-directed' exemption from skill-first execution. All work matches
+     a registered skill (FULL), requires gap escalation (PARTIAL/NONE), or is
+     broken (BROKEN). No other classification exists."
 5. Initialize the session ledger (captures dirty-file snapshot for `/commit` scoping):
    ```bash
    .venv/Scripts/python scripts/pipeline/session_ledger.py init
@@ -42,6 +52,11 @@ any user request.
    - If `backlog/` directory does not exist, output: `BACKLOG: not configured (run /backlog to set up)`
 7. Only then accept the user's task
 
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-77 --status completed
+> ```
+
 ## Verification
 
 Output this exact block when complete:
@@ -52,6 +67,7 @@ SESSION GATE PASSED
 - CLAUDE.md: read ✓
 - Read Order: [list the items from §2]
 - Capability assessment: FULL / PARTIAL / NONE / BROKEN
+- Anti-reframing: no ad-hoc/forensic/operator-directed exemptions exist
 - Session ledger: initialized (session ID: {id}, dirty files at start: {N})
 ```
 

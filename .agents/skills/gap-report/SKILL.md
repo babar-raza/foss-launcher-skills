@@ -24,6 +24,12 @@ Synthesize findings across all products into a MASTER-SYNTHESIS update. Uses vec
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-45 --scope "*"
+> ```
+
+
 ### Step 1: Build findings index (optional, for dense vectors)
 
 ```bash
@@ -65,6 +71,11 @@ Override cluster count:
 LLM-generated pattern names are in `synthesis_result.json`. If pattern descriptions are unclear:
 1. Re-run with different k: `--k {smaller_or_larger}`
 2. Or edit `MASTER-SYNTHESIS.md` pattern names manually (the update section is clearly delimited)
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-45 --status completed
+> ```
 
 ## Output Format
 

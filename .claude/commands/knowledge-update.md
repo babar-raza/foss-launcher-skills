@@ -52,6 +52,12 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-14 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Extract `{family}` and `{platform}` from $ARGUMENTS.
 
 2. **Run refresh pipeline** (handles backup, diff, and cleanup internally):
@@ -96,6 +102,11 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
 
    Note: `merged.bak/` is NOT available here — cleanup was automatic inside `refresh_knowledge.py`.
    The `knowledge_delta.json` file is the durable diff artifact for downstream skills (S-20, S-62 --update).
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-14 --status completed
+> ```
 
 ## Post-conditions
 

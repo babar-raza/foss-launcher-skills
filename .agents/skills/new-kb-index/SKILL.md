@@ -57,6 +57,12 @@ Default weight for unlisted platforms: 80.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-69 --scope "*"
+> ```
+
+
 1. **Parse** `$ARGUMENTS` into `family` and `platform`.
 
 2. **Bootstrap knowledge**: Run `/knowledge-bootstrap {family} {platform}` and check status:
@@ -181,3 +187,9 @@ Default weight for unlisted platforms: 80.
 
 11. **Confirm** by printing the output file path and the values used for `linkTitle`, `weight`,
     and the first line of the body.
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-69 --status completed
+> ```
+

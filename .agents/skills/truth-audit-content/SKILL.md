@@ -28,6 +28,12 @@ This skill fills the gap between S-38 (member-level API token verification) and 
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-85 --scope "*"
+> ```
+
+
 ### Step 1: Run the audit
 
 ```bash
@@ -81,6 +87,11 @@ With JSON output to stdout:
 - **CONTRADICTED/FABRICATED findings**: Route to `/manual-edit` (S-73) or `/heal-page` (S-26)
 - **UNSUPPORTED findings**: Investigate; route to `/manual-edit` if confirmed false
 - **KNOWLEDGE_GAP / SCOUT_MISS origins**: Re-run knowledge pipeline first, then re-audit
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-85 --status completed
+> ```
 
 ## Knowledge Files to Load
 

@@ -23,6 +23,12 @@ After a knowledge refresh (S-14), identify which content pages reference changed
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-20 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Determine scope — either all pages for `{family}/{platform}` or a single file.
 
 2. **Auto-refresh knowledge**: Before loading any knowledge artifacts, ensure they are current:
@@ -102,6 +108,11 @@ After a knowledge refresh (S-14), identify which content pages reference changed
      - [api OldClass.method → NewClass.method]: code block updated
    Audit result: PASS/FAIL
    ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-20 --status completed
+> ```
 
 ## Body-change requirement rules
 

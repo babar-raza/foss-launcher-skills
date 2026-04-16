@@ -24,6 +24,12 @@ Pre-write gate that validates proposed content changes against verified knowledg
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-33 --scope "*"
+> ```
+
+
 ### Step 1: Run deterministic guard script
 
 Run the Python script first to get a reproducible PASS/WARN/DENY decision:
@@ -63,6 +69,11 @@ Review the issues list in the script output:
 3. `format_direction` — correct the import/export direction claim
 
 Re-run the guard after fixes to confirm PASS.
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-33 --status completed
+> ```
 
 ## Output
 ```

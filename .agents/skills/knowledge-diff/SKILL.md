@@ -36,6 +36,12 @@ before SHA comparison so detection is never blind.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-12 --scope "*"
+> ```
+
+
 1. **Update clone and get current SHA**:
    ```python
    from scripts.pipeline.core.clone_cache import update_clone, clone_head_sha
@@ -79,6 +85,11 @@ before SHA comparison so detection is never blind.
    LOW impact: do NOT set stale_since; just report.
 
 7. **Report**: Write diff report with recommendations
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-12 --status completed
+> ```
 
 ## Output
 ```

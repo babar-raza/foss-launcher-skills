@@ -52,6 +52,12 @@ memory; the only persisted record of discovery results is this file.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-68 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Extract flags from $ARGUMENTS. Default to full GitHub scan mode.
 
 2. **Resolve org list**: Read `_DEFAULT_ORGS` from `update_product_registry.py` (26 entries,
@@ -88,6 +94,11 @@ memory; the only persisted record of discovery results is this file.
    `/knowledge-bootstrap {family} {platform}` to initialise knowledge."
 
 ---
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-68 --status completed
+> ```
 
 ## Post-conditions
 

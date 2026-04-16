@@ -37,6 +37,12 @@ This is the current replacement for the removed FL enrichment layer.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-37 --scope "*"
+> ```
+
+
 1. Parse `{family}` and `{platform}` from `$ARGUMENTS`.
 2. Verify `knowledge/{family}/{platform}/scout/api_surface.json` exists.
 3. Run:
@@ -48,6 +54,11 @@ This is the current replacement for the removed FL enrichment layer.
    - `--no-llm` to skip the LLM call and write an empty enrichment file
 4. Verify `knowledge/{family}/{platform}/scout/enriched_claims.json` exists and is valid JSON.
 5. Report the number of enriched claims written.
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-37 --status completed
+> ```
 
 ## Output Schema
 

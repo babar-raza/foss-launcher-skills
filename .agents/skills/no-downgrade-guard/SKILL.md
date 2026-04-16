@@ -21,6 +21,12 @@ Uses `audit.py` FAIL count as a quality proxy for proposed content.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-55 --scope "*"
+> ```
+
+
 1. **Check if target file exists**:
    - If `{target_path}` does NOT exist → return `ALLOW:new-file`
    - Print: "NEW FILE: no prior grade to protect — proceeding."
@@ -63,6 +69,11 @@ Uses `audit.py` FAIL count as a quality proxy for proposed content.
    - **BLOCK**: Print "BLOCK: Proposed content predicted {grade} vs existing {grade}. Fix API issues first." + list the audit FAIL lines. **Do NOT write the file.**
    - **WARN**: Print "WARN: Proposed content predicted {grade} vs existing {grade}. Review before writing." Generation skill must confirm with user before proceeding.
    - **ALLOW**: Print "ALLOW: {reason}." Generation skill proceeds with write.
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-55 --status completed
+> ```
 
 ## Limitations
 

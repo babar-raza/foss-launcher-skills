@@ -31,6 +31,12 @@ This command always prints exactly one of the following as its final output line
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-54 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Extract `{family}` and `{platform}` from $ARGUMENTS.
 
 2. **Check index.json existence**:
@@ -70,6 +76,11 @@ This command always prints exactly one of the following as its final output line
 
 5. **All clear**:
    - Output: `KNOWLEDGE: READY`
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-54 --status completed
+> ```
 
 ## How Calling Commands Use This
 

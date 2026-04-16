@@ -24,6 +24,12 @@ Enhance a page that scores below the quality bar (grade C or below from S-17/S-2
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-21 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Extract file path from $ARGUMENTS.
 
 2. **Auto-refresh knowledge**: Before loading any knowledge artifacts, ensure they are current:
@@ -113,6 +119,11 @@ Enhance a page that scores below the quality bar (grade C or below from S-17/S-2
 
     Audit result: PASS/FAIL
     ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-21 --status completed
+> ```
 
 ## Post-conditions
 - Page grade has improved (target: at least one letter grade up)

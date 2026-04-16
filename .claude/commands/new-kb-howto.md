@@ -27,6 +27,12 @@ Generate a new KB how-to article.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-58 --scope "*"
+> ```
+
+
 1. **Parse** `$ARGUMENTS` into: `family`, `platform`, `slug` (slug becomes the filename and title source).
 
 2. **Read existing KB content for reference** (do not copy text — read only to confirm patterns):
@@ -88,6 +94,11 @@ Generate a new KB how-to article.
    - If ALLOW → proceed with write
 
 7. **Write** the file to `content/kb.aspose.org/en/{family}/{platform}/{slug}.md`
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-58 --status completed
+> ```
 
 ## Knowledge Post-conditions
 

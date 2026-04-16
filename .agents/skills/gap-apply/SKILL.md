@@ -31,6 +31,12 @@ It is the final step in the gap remediation pipeline: `S-43 → S-44 → S-46 �
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-46 --scope "*"
+> ```
+
+
 ### Step 1: Validate plan exists
 
 ```bash
@@ -102,6 +108,12 @@ Wave 4 items (`wave == 4`, or any items that failed Wave 2 application) require 
 Emit an escalation report:
 
 ```markdown
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-46 --status completed
+> ```
+
 ## Wave 4 Escalation — {family}/{platform}
 
 Files requiring human review (LLM unavailable, ambiguous fix, or application failed):

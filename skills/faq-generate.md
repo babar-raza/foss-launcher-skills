@@ -22,6 +22,12 @@ For KB FAQ pages specifically, prefer S-59 (new-kb-faq) which includes the full 
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-22 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Extract `{family}` and `{platform}` from $ARGUMENTS.
 
 2. **Load knowledge artifacts**:
@@ -108,6 +114,11 @@ For KB FAQ pages specifically, prefer S-59 (new-kb-faq) which includes the full 
    ```
 
 8. **Report**: Print summary — number of Q&A pairs generated, categories covered, claims referenced.
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-22 --status completed
+> ```
 
 ## Post-conditions
 - FAQ page is written to `content/kb.aspose.org/en/{family}/{platform}/faq.md`

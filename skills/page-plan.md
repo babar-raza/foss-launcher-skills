@@ -32,6 +32,12 @@ Plan a page's structure before drafting. Compiles relevant claims from knowledge
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-18 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Extract `{family}`, `{platform}`, `{section}`, and `{slug}` from $ARGUMENTS.
 
 2. **Load knowledge**:
@@ -122,6 +128,11 @@ Plan a page's structure before drafting. Compiles relevant claims from knowledge
        - id: CLM-zzz
          note: "confidence 0.6 — use hedging language"
    ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-18 --status completed
+> ```
 
 ## Post-conditions
 - Plan is output as valid YAML

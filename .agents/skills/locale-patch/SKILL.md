@@ -30,6 +30,12 @@ After fixing a content bug in an English source file that has locale translation
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-75 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Extract family, platform, site, source_file from `$ARGUMENTS`. If patches are not in arguments, ask the user to provide them before proceeding.
 
 2. **Discover locale files**: Find all locale variants of the source file:
@@ -69,6 +75,11 @@ After fixing a content bug in an English source file that has locale translation
 5. **Post-patch validation** (if dry_run: false and files modified):
    - Run: `.venv/Scripts/python scripts/pipeline/validate_frontmatter.py --files {modified_files}`
    - Report any validation failures
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-75 --status completed
+> ```
 
 ## Safety rules
 - **Always run with `dry_run: true` first** and inspect the report before applying

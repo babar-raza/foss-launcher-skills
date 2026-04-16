@@ -48,6 +48,12 @@ This is safe for unattended runs and skips the LLM fix pass (Step 6).
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-40 --scope "*"
+> ```
+
+
 1. **Parse arguments** to get `{family}` and `{platform}`.
 
 2. **Load knowledge model**:
@@ -125,6 +131,11 @@ This is safe for unattended runs and skips the LLM fix pass (Step 6).
    Human queue: {human_count} items (listed below)
    Reports: {report_paths}
    ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-40 --status completed
+> ```
 
 ## Post-conditions
 

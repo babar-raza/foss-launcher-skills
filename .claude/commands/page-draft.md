@@ -24,6 +24,12 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-19 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Extract `{family}`, `{platform}`, `{section}`, and `{slug}` from $ARGUMENTS.
 
 2. **Load the plan**: Retrieve the S-18 plan output for this page (from conversation context or `reports/plans/{family}/{platform}/{slug}.yaml`).
@@ -107,6 +113,11 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
 9. **Run ground-check**: Execute `python scripts/pipeline/audit.py --files {target_path}` to verify API accuracy.
 
 10. **Report**: Print summary of draft — word count, sections, claims used, API tokens verified.
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-19 --status completed
+> ```
 
 ## Post-conditions
 - Draft file is written to the correct content path

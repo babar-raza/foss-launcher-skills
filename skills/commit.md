@@ -64,6 +64,12 @@ Applies a full commit-preparation workflow **scoped to the current session's tou
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-76 --scope "*"
+> ```
+
+
 ### A — Inspect repo state
 
 Run all four commands and collect their output:
@@ -378,6 +384,11 @@ under `reports/` which is gitignored and never committed. The hook moves them fr
 `pending/` → `archived/` locally; no staging or cleanup commit is needed.
 
 ---
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-76 --status completed
+> ```
 
 ## Post-conditions
 

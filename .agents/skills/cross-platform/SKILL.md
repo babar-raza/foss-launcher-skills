@@ -30,6 +30,12 @@ report at `knowledge/{family}/_consistency.md`.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-36 --scope "*"
+> ```
+
+
 1. **Discover platforms**: Scan `knowledge/{family}/` for platform directories with `merged/index.json`.
    Collect the list of platforms (e.g., `python`, `net`, `java`, `cpp`, `typescript`).
 
@@ -70,6 +76,11 @@ report at `knowledge/{family}/_consistency.md`.
 > **Note**: `index.json` is NOT updated by this skill. Updating each platform's `index.json`
 > with a `platform_consistency` section is a planned enhancement; `cross_platform_audit.py`
 > currently writes only the `_consistency.md` report file.
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-36 --status completed
+> ```
 
 ## Report format
 ```markdown

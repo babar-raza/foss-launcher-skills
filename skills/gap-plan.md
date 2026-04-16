@@ -13,6 +13,12 @@ Convert S-43 gap-eval findings into an exact, wave-ordered remediation plan. Use
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-44 --scope "*"
+> ```
+
+
 ### Step 1: Classify findings by wave
 
 ```bash
@@ -63,6 +69,11 @@ For missing-section findings, use the appropriate page generation skill:
 ```bash
 /page-draft {family} {platform} {section}
 ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-44 --status completed
+> ```
 
 ## Post-conditions
 - `reports/agents/remediation/{family}-{platform}/plan.md` written with wave-ordered fixes

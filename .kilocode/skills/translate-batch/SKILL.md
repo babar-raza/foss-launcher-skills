@@ -27,6 +27,12 @@ Omit `{site}` or use `all` to process all supported sites. Omit `{locales}` or u
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-53 --scope "*"
+> ```
+
+
 1. **Parse** `$ARGUMENTS` into:
    - `family` — product family (e.g. `slides`, `3d`, `cells`)
    - `platform` — platform identifier (e.g. `net`, `python`, `java`, `cpp`)
@@ -118,6 +124,11 @@ Omit `{site}` or use `all` to process all supported sites. Omit `{locales}` or u
    OVERALL: PASS | PARTIAL | FAIL
    ```
    OVERALL is FAIL if the translator exited non-zero. OVERALL is PARTIAL if some files failed. OVERALL is PASS if all jobs succeeded or were legitimately skipped.
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-53 --status completed
+> ```
 
 ## Post-conditions
 

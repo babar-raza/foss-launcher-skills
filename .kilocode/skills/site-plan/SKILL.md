@@ -22,6 +22,12 @@ Produce `reports/plans/{family}/{platform}/site_plan.yaml` — a deterministic, 
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-47 --scope "*"
+> ```
+
+
 ### Step 1: Parse arguments
 Extract `{family}`, `{platform}`, `--mode` (default: `launch`), `--section`, `--dry-run`.
 
@@ -79,6 +85,11 @@ SITE-PLAN: {family}/{platform} [{mode}]
   excluded_topics: {N} (reason: below threshold or in limitations.md)
   output: reports/plans/{family}/{platform}/site_plan.yaml
 ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-47 --status completed
+> ```
 
 ## Post-conditions
 

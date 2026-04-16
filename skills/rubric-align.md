@@ -18,6 +18,12 @@ before enhancement (S-21) is applied.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-17 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Extract file path from $ARGUMENTS.
 2. **Detect product**: Parse `{family}` and `{platform}` from the file path.
 3. **Read knowledge model**: Load `knowledge/{family}/{platform}/merged/model.yaml` and verify `stale_since` is null. If stale, warn but continue (results may be against outdated knowledge).
@@ -68,6 +74,11 @@ before enhancement (S-21) is applied.
 
    RECOMMENDED NEXT STEP: [S-21 / S-26 / publish / escalate]
    ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-17 --status completed
+> ```
 
 ## Post-conditions
 

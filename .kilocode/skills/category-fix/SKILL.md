@@ -39,6 +39,12 @@ Run a specific category fixer on targeted files. Useful for surgical fixes when 
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-42 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Extract category code and file path(s) from `$ARGUMENTS`.
 
 2. **Discover files**: If path is a directory, discover all `.md` files within it.
@@ -82,6 +88,11 @@ Run a specific category fixer on targeted files. Useful for surgical fixes when 
    Fixed: {fixed_count}
    Remaining: {remaining_count}
    ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-42 --status completed
+> ```
 
 ## Post-conditions
 

@@ -31,6 +31,12 @@ page needs to participate in quality enforcement, evidence validation, and grade
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-66 --scope "*"
+> ```
+
+
 ### Step 1: Identify the product scope
 
 Parse `{filepath}` to extract `{family}` and `{platform}`:
@@ -109,6 +115,11 @@ Write to `reports/human-content/{family}-{platform}-{slug}-{date}.json`:
   "notes": ""
 }
 ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-66 --status completed
+> ```
 
 ## Post-conditions
 

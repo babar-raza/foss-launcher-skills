@@ -35,6 +35,12 @@ Before generating any content, you MUST:
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-56 --scope "*"
+> ```
+
+
 1. **Parse** `$ARGUMENTS` into: `family`, `platform`, `section`, `slug`.
 
 2. **Read existing docs for reference** (read only — do not copy text):
@@ -115,6 +121,11 @@ Before generating any content, you MUST:
    - If ALLOW → proceed with write
 
 8. **Write** to `content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-56 --status completed
+> ```
 
 ## Knowledge Post-conditions
 

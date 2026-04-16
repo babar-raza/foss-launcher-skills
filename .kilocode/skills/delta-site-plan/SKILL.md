@@ -31,6 +31,12 @@ a complete picture of what changes are needed.
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-82 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Extract `{family}` and `{platform}` from $ARGUMENTS.
 
 2. **Verify pre-conditions**:
@@ -57,6 +63,11 @@ a complete picture of what changes are needed.
    pages_to_remove: {N}  (pages whose claim/API coverage is now absent)
    pages_renamed:   {N}  (pages whose slug changed)
    ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-82 --status completed
+> ```
 
 ## Output
 

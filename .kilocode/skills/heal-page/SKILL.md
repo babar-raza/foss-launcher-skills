@@ -22,6 +22,12 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-26 --scope "*"
+> ```
+
+
 1. **Parse arguments**: Extract file path from $ARGUMENTS.
 
 2. **Auto-refresh knowledge**: Before loading any knowledge artifacts, ensure they are current.
@@ -116,6 +122,11 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
     RESULT: {HEALED | ESCALATED}
     Final grade: {letter}
     ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-26 --status completed
+> ```
 
 ## Post-conditions
 - If HEALED: page grade is C or above, ground-check passes
