@@ -15,13 +15,11 @@ import session_ledger
 # ---------------------------------------------------------------------------
 
 @pytest.fixture(autouse=True)
-def isolate_session_dir(tmp_path, monkeypatch):
-    """Redirect session state to tmp_path and clear env var."""
-    session_dir = tmp_path / "reports" / "session-state"
-    monkeypatch.setattr(session_ledger, "_SESSION_DIR", session_dir)
-    monkeypatch.setattr(session_ledger, "_ACTIVE_POINTER", session_dir / "ACTIVE")
-    monkeypatch.setattr(session_ledger, "_REPO_ROOT", tmp_path)
-    return session_dir
+def isolate_session_dir(tmp_path):
+    """Redirect session state to tmp_path via configure() seam."""
+    session_ledger.configure(repo_root=tmp_path)
+    yield tmp_path / "reports" / "session-state"
+    session_ledger.configure()  # reset to defaults
 
 
 @pytest.fixture

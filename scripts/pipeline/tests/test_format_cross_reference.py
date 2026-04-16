@@ -216,7 +216,11 @@ class TestCrossReferenceEnumDirections(unittest.TestCase):
     # ------------------------------------------------------------------
 
     def test_words_python_regression(self):
-        """5-member SaveFormat + LdmMarkdownWriter + LdmPdfWriter."""
+        """5-member SaveFormat + LdmMarkdownWriter + LdmPdfWriter + dispatch TEXT.
+
+        When Pass 4 dispatch scanning adds a "text" export entry (from
+        Document._save_as_text), the cross-reference keeps TEXT as export.
+        """
         formats = [
             {"format": "MARKDOWN", "enum": "SaveFormat", "direction": "export"},
             {"format": "DOC", "enum": "SaveFormat", "direction": "export"},
@@ -226,6 +230,8 @@ class TestCrossReferenceEnumDirections(unittest.TestCase):
             # I/O class entries (from Writer class detection)
             {"format": "LdmMarkdown", "enum": "", "direction": "export"},
             {"format": "LdmPdf", "enum": "", "direction": "export"},
+            # Pass 4 dispatch scan entry (from Document._save_as_text)
+            {"format": "text", "enum": "", "direction": "export"},
         ]
         result = _cross_reference_enum_directions(formats, _SAVE_PAT, _LOAD_PAT)
 
@@ -234,14 +240,9 @@ class TestCrossReferenceEnumDirections(unittest.TestCase):
 
         self.assertEqual(_dir("MARKDOWN"), "export")
         self.assertEqual(_dir("PDF"), "export")
+        self.assertEqual(_dir("TEXT"), "export")
         self.assertEqual(_dir("DOC"), "enum_only")
         self.assertEqual(_dir("DOCX"), "enum_only")
-        # NOTE: The cross-reference correctly demotes TEXT because no
-        # TextWriter I/O class exists.  In practice, words_foss implements
-        # TEXT save inline via Document._save_as_text() — a private method
-        # that the extractor cannot detect.  The merged/formats.json is
-        # manually corrected to direction:"export" for TEXT.
-        self.assertEqual(_dir("TEXT"), "enum_only")
 
     # ------------------------------------------------------------------
     # Audit integration: enum_only is the value audit/formats.py expects
@@ -262,6 +263,248 @@ class TestCrossReferenceEnumDirections(unittest.TestCase):
         self.assertEqual(pdf["direction"], "enum_only")
         self.assertNotEqual(pdf["direction"], "detect",
                             "Must use 'enum_only', not 'detect' — audit depends on it")
+
+
+class TestScanSaveDispatch(unittest.TestCase):
+    """Tests for _scan_save_dispatch() — Pass 4 inline save detection."""
+
+    def _write_file(self, tmp: Path, name: str, content: str) -> Path:
+        fpath = tmp / name
+        fpath.write_text(content, encoding="utf-8")
+        return fpath
+
+    # ------------------------------------------------------------------
+    # Core: dispatch scanner rescues inline save
+    # ------------------------------------------------------------------
+
+    def test_dispatch_rescues_inline_save(self):
+        """SaveFormat.TEXT ref + _save_as_text() method → emits export entry."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "document.py", '''\
+class SaveFormat:
+    TEXT = "text"
+    DOC = "doc"
+
+class Document:
+    def save(self, path, fmt):
+        if fmt == SaveFormat.TEXT:
+            self._save_as_text(path)
+        else:
+            raise ValueError(fmt)
+
+    def _save_as_text(self, path):
+        with open(path, "w") as f:
+            f.write(self.content)
+            f.flush()
+''')
+            formats = [
+                {"format": "TEXT", "enum": "SaveFormat", "direction": "export"},
+                {"format": "DOC", "enum": "SaveFormat", "direction": "export"},
+            ]
+            result = _scan_save_dispatch(
+                formats, [src], tmp, _SAVE_PAT, None)
+            non_enum = [f for f in result if not f.get("enum")]
+            self.assertEqual(len(non_enum), 1)
+            self.assertEqual(non_enum[0]["format"], "text")
+            self.assertEqual(non_enum[0]["direction"], "export")
+
+    def test_stub_method_does_not_rescue(self):
+        """SaveFormat.DOCX ref + stub _save_as_docx() → no entry emitted."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "document.py", '''\
+class SaveFormat:
+    DOCX = "docx"
+
+class Document:
+    def save(self, path, fmt):
+        if fmt == SaveFormat.DOCX:
+            self._save_as_docx(path)
+
+    def _save_as_docx(self, path):
+        raise ValueError("DOCX export not implemented")
+''')
+            formats = [
+                {"format": "DOCX", "enum": "SaveFormat", "direction": "export"},
+            ]
+            result = _scan_save_dispatch(
+                formats, [src], tmp, _SAVE_PAT, None)
+            non_enum = [f for f in result if not f.get("enum")]
+            self.assertEqual(len(non_enum), 0)
+
+    def test_no_saveformat_ref_no_rescue(self):
+        """_save_as_text() without SaveFormat.TEXT ref → no entry emitted."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "util.py", '''\
+class Util:
+    def _save_as_text(self, path):
+        with open(path, "w") as f:
+            f.write(self.content)
+            f.flush()
+''')
+            formats = [
+                {"format": "TEXT", "enum": "SaveFormat", "direction": "export"},
+            ]
+            result = _scan_save_dispatch(
+                formats, [src], tmp, _SAVE_PAT, None)
+            non_enum = [f for f in result if not f.get("enum")]
+            self.assertEqual(len(non_enum), 0)
+
+    def test_public_save_as_method(self):
+        """save_as_csv() (public, no underscore) is also detected."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "workbook.py", '''\
+class SaveFormat:
+    CSV = "csv"
+
+class Workbook:
+    def save(self, path, fmt):
+        if fmt == SaveFormat.CSV:
+            self.save_as_csv(path)
+
+    def save_as_csv(self, path, options=None):
+        handler = CSVHandler()
+        handler.save_csv(self._data, path, options)
+        return path
+''')
+            formats = [
+                {"format": "CSV", "enum": "SaveFormat", "direction": "export"},
+            ]
+            result = _scan_save_dispatch(
+                formats, [src], tmp, _SAVE_PAT, None)
+            non_enum = [f for f in result if not f.get("enum")]
+            self.assertEqual(len(non_enum), 1)
+            self.assertEqual(non_enum[0]["format"], "csv")
+
+    def test_private_save_without_as(self):
+        """_save_xlsx() (no 'as' in name) is also detected."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "workbook.py", '''\
+class SaveFormat:
+    XLSX = "xlsx"
+
+class Workbook:
+    def save(self, path, fmt):
+        if fmt == SaveFormat.XLSX:
+            self._save_xlsx(path)
+
+    def _save_xlsx(self, path, password=None):
+        saver = XMLSaver(self._model)
+        saver.save_to_file(path)
+        return path
+''')
+            formats = [
+                {"format": "XLSX", "enum": "SaveFormat", "direction": "export"},
+            ]
+            result = _scan_save_dispatch(
+                formats, [src], tmp, _SAVE_PAT, None)
+            non_enum = [f for f in result if not f.get("enum")]
+            self.assertEqual(len(non_enum), 1)
+            self.assertEqual(non_enum[0]["format"], "xlsx")
+
+    # ------------------------------------------------------------------
+    # Regression: cells/python scenario
+    # ------------------------------------------------------------------
+
+    def test_cells_regression(self):
+        """6 SaveFormat members + matching save methods → all stay export."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "workbook.py", '''\
+class SaveFormat:
+    XLSX = "xlsx"
+    CSV = "csv"
+    TSV = "tsv"
+    MARKDOWN = "markdown"
+    JSON = "json"
+    AUTO = "auto"
+
+class Workbook:
+    def save(self, path, fmt=None):
+        if fmt == SaveFormat.XLSX:
+            self._save_xlsx(path)
+        elif fmt == SaveFormat.CSV:
+            self.save_as_csv(path)
+        elif fmt == SaveFormat.TSV:
+            self.save_as_csv(path, delimiter="\\t")
+        elif fmt == SaveFormat.MARKDOWN:
+            self.save_as_markdown(path)
+        elif fmt == SaveFormat.JSON:
+            self.save_as_json(path)
+
+    def _save_xlsx(self, path, password=None):
+        saver = XMLSaver(self._model)
+        saver.save_to_file(path)
+        return path
+
+    def save_as_csv(self, path, options=None, delimiter=","):
+        handler = CSVHandler()
+        handler.save_csv(self._data, path, delimiter=delimiter)
+        return path
+
+    def save_as_markdown(self, path, options=None):
+        handler = MarkdownHandler()
+        handler.save_markdown(self._data, path)
+        return path
+
+    def save_as_json(self, path, options=None):
+        handler = JsonHandler()
+        handler.save_json(self._data, path)
+        return path
+''')
+            members = ["XLSX", "CSV", "TSV", "MARKDOWN", "JSON", "AUTO"]
+            formats = [
+                {"format": m, "enum": "SaveFormat", "direction": "export"}
+                for m in members
+            ]
+            result = _scan_save_dispatch(
+                formats, [src], tmp, _SAVE_PAT, None)
+            non_enum = [f for f in result if not f.get("enum")]
+            detected = {f["format"] for f in non_enum}
+            # XLSX, CSV, MARKDOWN, JSON detected via dispatch methods
+            # TSV dispatches via save_as_csv (not save_as_tsv) → not detected
+            # AUTO has no save_as_auto method → not detected
+            self.assertIn("xlsx", detected)
+            self.assertIn("csv", detected)
+            self.assertIn("markdown", detected)
+            self.assertIn("json", detected)
+            # Now run cross-reference — the detected formats keep export
+            result = _cross_reference_enum_directions(result, _SAVE_PAT, _LOAD_PAT)
+
+            def _dir(name):
+                return next(
+                    f for f in result
+                    if f["format"] == name and f.get("enum")
+                )["direction"]
+
+            self.assertEqual(_dir("XLSX"), "export")
+            self.assertEqual(_dir("CSV"), "export")
+            self.assertEqual(_dir("MARKDOWN"), "export")
+            self.assertEqual(_dir("JSON"), "export")
+            # TSV and AUTO have no direct save method → enum_only
+            self.assertEqual(_dir("TSV"), "enum_only")
+            self.assertEqual(_dir("AUTO"), "enum_only")
+
+    # ------------------------------------------------------------------
+    # Edge: empty inputs, no SaveFormat members
+    # ------------------------------------------------------------------
+
+    def test_no_saveformat_members(self):
+        """No SaveFormat enum entries → function is a no-op."""
+        formats = [
+            {"format": "PDF", "enum": "FileFormat", "direction": "detect"},
+        ]
+        result = _scan_save_dispatch(formats, [], Path("/tmp"), _SAVE_PAT, None)
+        self.assertEqual(len(result), 1)
+
+    def test_empty_formats(self):
+        """Empty formats list → no crash, no entries."""
+        result = _scan_save_dispatch([], [], Path("/tmp"), _SAVE_PAT, None)
+        self.assertEqual(result, [])
 
 
 if __name__ == "__main__":
