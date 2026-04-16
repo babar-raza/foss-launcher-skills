@@ -119,3 +119,9 @@ scripts:
     purpose: "Expand 3D TypeScript reference stubs — pass 2 (moved from scripts/one-shot/expand_3d_typescript_stubs_pass2.py)"
     created: "2026-04-08"
     status: done
+
+  - path: scripts/maintenance/add_skill_context_calls.py
+    kind: one-shot
+    purpose: "Batch-add skill_context.py begin/end gates to all skill .md files in skills/"
+    created: "2026-04-16"
+    status: done
