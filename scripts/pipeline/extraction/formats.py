@@ -380,6 +380,16 @@ def _scan_save_dispatch(
     document class (e.g. ``Document._save_as_text()``) rather than via a
     dedicated Writer/Exporter class.  The SaveFormat enum acts as a trusted
     allowlist, making it safe to bypass ``_FORMAT_METHOD_SKIP``.
+
+    Known limitation — indirect dispatch:
+        Formats that save through another format's method are not detected.
+        Example: ``SaveFormat.TSV`` → ``save_as_csv(path, delimiter="\\t")``.
+        No ``save_as_tsv()`` exists, so the scanner finds nothing.  As of
+        2026-04-16 this affects exactly 1 format (cells/python TSV) across
+        all FOSS libraries.  TSV is correctly classified as ``enum_only``
+        because it genuinely delegates to CSV.  A targeted detector is not
+        warranted until 3+ formats across 2+ products use this pattern and
+        at least one causes a content-audit FAIL.
     """
     # Collect SaveFormat/ExportFormat/OutputFormat member names from Pass 1
     save_members: set[str] = set()
