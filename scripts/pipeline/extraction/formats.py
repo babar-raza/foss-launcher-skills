@@ -361,7 +361,7 @@ def _scan_save_dispatch(
     files: list[Path],
     repo: Path,
     save_format_pattern: re.Pattern,
-    add_claim: object,
+    add_claim: object | None,
 ) -> list[dict]:
     """Pass 4: Detect inline save methods backed by SaveFormat enum dispatch.
 
@@ -383,20 +383,23 @@ def _scan_save_dispatch(
     """
     # Collect SaveFormat/ExportFormat/OutputFormat member names from Pass 1
     save_members: set[str] = set()
+    enum_names: set[str] = set()
     for f in formats:
         enum_name = f.get("enum", "")
         if not enum_name:
             continue
         if save_format_pattern.search(enum_name) and f.get("direction") == "export":
             save_members.add(f["format"].upper())
+            enum_names.add(enum_name)
 
     if not save_members:
         return formats
 
-    # Dynamic regex for SaveFormat.MEMBER references (case-insensitive for
-    # libraries that use Title-case enum values like SaveFormat.Pdf)
+    # Dynamic regex for SaveFormat/ExportFormat/OutputFormat.MEMBER references
+    # (case-insensitive for libraries that use Title-case enum values)
+    enum_alt = "|".join(re.escape(n) for n in sorted(enum_names))
     member_ref_re = re.compile(
-        r'SaveFormat\s*\.\s*('
+        r'(?:' + enum_alt + r')\s*\.\s*('
         + "|".join(re.escape(m) for m in sorted(save_members))
         + r")\b",
         re.IGNORECASE,

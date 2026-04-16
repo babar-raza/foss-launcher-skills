@@ -506,6 +506,38 @@ class Workbook:
         result = _scan_save_dispatch([], [], Path("/tmp"), _SAVE_PAT, None)
         self.assertEqual(result, [])
 
+    def test_exportformat_dispatch(self):
+        """ExportFormat.PDF ref + _save_as_pdf() → emits export entry."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "converter.py", '''\
+class ExportFormat:
+    PDF = "pdf"
+    HTML = "html"
+
+class Converter:
+    def export(self, path, fmt):
+        if fmt == ExportFormat.PDF:
+            self._save_as_pdf(path)
+        else:
+            raise ValueError(fmt)
+
+    def _save_as_pdf(self, path):
+        renderer = PDFRenderer(self.model)
+        renderer.render(path)
+        renderer.flush()
+''')
+            formats = [
+                {"format": "PDF", "enum": "ExportFormat", "direction": "export"},
+                {"format": "HTML", "enum": "ExportFormat", "direction": "export"},
+            ]
+            result = _scan_save_dispatch(
+                formats, [src], tmp, _SAVE_PAT, None)
+            non_enum = [f for f in result if not f.get("enum")]
+            self.assertEqual(len(non_enum), 1)
+            self.assertEqual(non_enum[0]["format"], "pdf")
+            self.assertEqual(non_enum[0]["direction"], "export")
+
 
 if __name__ == "__main__":
     unittest.main()
