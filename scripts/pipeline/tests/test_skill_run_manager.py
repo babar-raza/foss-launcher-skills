@@ -96,15 +96,18 @@ class TestRecordStep:
 # ---------------------------------------------------------------------------
 
 class TestGetDeclaredSkills:
-    def test_excludes_inline_reasoning(self, tmp_path, monkeypatch, capsys):
+    def test_returns_all_invoked_skills(self, tmp_path, monkeypatch, capsys):
         _patch_dirs(tmp_path, monkeypatch)
         skill_run_manager.main(["create", "--skills", "S-48", "S-23"])
         run_id = _get_run_id(tmp_path)
 
-        # Mark S-23 as inline_reasoning
         skill_run_manager.main([
             "record-step", "--run-id", run_id,
-            "--skill", "S-23", "--type", "inline_reasoning",
+            "--skill", "S-48", "--type", "full",
+        ])
+        skill_run_manager.main([
+            "record-step", "--run-id", run_id,
+            "--skill", "S-23", "--type", "partial",
         ])
 
         capsys.readouterr()  # clear stdout
@@ -112,7 +115,31 @@ class TestGetDeclaredSkills:
         assert rc == 0
         out = capsys.readouterr().out.strip()
         assert "S-48" in out
-        assert "S-23" not in out
+        assert "S-23" in out
+
+    def test_inline_reasoning_type_rejected(self, tmp_path, monkeypatch):
+        """inline_reasoning is no longer a valid invocation type."""
+        _patch_dirs(tmp_path, monkeypatch)
+        skill_run_manager.main(["create", "--skills", "S-48"])
+        run_id = _get_run_id(tmp_path)
+
+        with pytest.raises(SystemExit):
+            skill_run_manager.main([
+                "record-step", "--run-id", run_id,
+                "--skill", "S-48", "--type", "inline_reasoning",
+            ])
+
+    def test_gap_approved_requires_report(self, tmp_path, monkeypatch):
+        """gap_approved type requires --gap-report argument."""
+        _patch_dirs(tmp_path, monkeypatch)
+        skill_run_manager.main(["create", "--skills", "S-48"])
+        run_id = _get_run_id(tmp_path)
+
+        rc = skill_run_manager.main([
+            "record-step", "--run-id", run_id,
+            "--skill", "S-48", "--type", "gap_approved",
+        ])
+        assert rc == 1  # Should fail without --gap-report
 
 
 # ---------------------------------------------------------------------------
@@ -141,8 +168,8 @@ class TestValidate:
         ])
         assert rc == 1
 
-    def test_inline_declared_is_allowed(self, tmp_path, monkeypatch):
-        """Declaring an inline_reasoning skill is now valid (has a record)."""
+    def test_full_and_partial_both_declared(self, tmp_path, monkeypatch):
+        """Both full and partial invocation types are valid for declaration."""
         _patch_dirs(tmp_path, monkeypatch)
         skill_run_manager.main(["create", "--skills", "S-73", "S-01"])
         run_id = _get_run_id(tmp_path)
@@ -153,35 +180,26 @@ class TestValidate:
         ])
         skill_run_manager.main([
             "record-step", "--run-id", run_id,
-            "--skill", "S-01", "--type", "inline_reasoning",
+            "--skill", "S-01", "--type", "partial",
         ])
 
-        # Declaring both (full + inline) should pass
+        # Declaring both should pass
         rc = skill_run_manager.main([
             "validate", "--run-id", run_id, "--declared", "S-73, S-01",
         ])
         assert rc == 0
 
-    def test_inline_undeclared_is_allowed(self, tmp_path, monkeypatch):
-        """NOT declaring an inline_reasoning skill is valid (it's optional)."""
+    def test_undeclared_skill_fails(self, tmp_path, monkeypatch):
+        """Not declaring a recorded skill is a false negative."""
         _patch_dirs(tmp_path, monkeypatch)
         skill_run_manager.main(["create", "--skills", "S-73", "S-01"])
         run_id = _get_run_id(tmp_path)
 
-        skill_run_manager.main([
-            "record-step", "--run-id", run_id,
-            "--skill", "S-73", "--type", "full",
-        ])
-        skill_run_manager.main([
-            "record-step", "--run-id", run_id,
-            "--skill", "S-01", "--type", "inline_reasoning",
-        ])
-
-        # Declaring only the full skill should pass
+        # Declaring only S-73 when record has both → should fail (S-01 missing)
         rc = skill_run_manager.main([
             "validate", "--run-id", run_id, "--declared", "S-73",
         ])
-        assert rc == 0
+        assert rc == 1
 
     def test_no_record_at_all_exits_1(self, tmp_path, monkeypatch):
         """Declaring a skill with no record entry at all is invalid."""
