@@ -655,3 +655,95 @@ class TestContentHashRoundTrip:
             )
         finally:
             p.unlink(missing_ok=True)
+
+
+# ---------------------------------------------------------------------------
+# CP-P2 G-11: grade_reasons persistence
+# ---------------------------------------------------------------------------
+
+class TestGradeReasons:
+    def test_write_grade_with_reasons(self):
+        """grade_reasons parameter writes reasons to frontmatter."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            ok = write_grade(p, "C", model_sha="sha1",
+                             grade_reasons=["1 FAIL finding(s) -> base grade C",
+                                            "AA ceiling applied"])
+            assert ok
+            text = p.read_text(encoding="utf-8")
+            assert "grade_reasons:" in text
+            assert "1 FAIL finding(s)" in text
+            assert "AA ceiling applied" in text
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_read_grade_returns_reasons(self):
+        """read_grade returns grade_reasons list."""
+        p = _tmp_file(textwrap.dedent("""\
+            ---
+            title: T
+            grade: C
+            graded_at: "2026-04-16T00:00:00Z"
+            graded_content_hash: "abcd1234abcd1234"
+            grade_reasons:
+              - "1 FAIL finding(s) -> base grade C"
+              - "AA ceiling applied"
+            ---
+
+            Body.
+        """))
+        try:
+            result = read_grade(p)
+            assert result is not None
+            assert len(result["grade_reasons"]) == 2
+            assert "1 FAIL" in result["grade_reasons"][0]
+            assert "AA ceiling" in result["grade_reasons"][1]
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_grade_reasons_round_trip(self):
+        """Write then read grade_reasons should be consistent."""
+        p = _tmp_file("---\ntitle: Round Trip\n---\nBody.\n")
+        try:
+            reasons = ["No findings -> grade A"]
+            write_grade(p, "A", model_sha="sha1", grade_reasons=reasons)
+            result = read_grade(p)
+            assert result["grade_reasons"] == reasons
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_grade_reasons_limited_to_3(self):
+        """Only top 3 reasons are persisted."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            reasons = ["reason 1", "reason 2", "reason 3", "reason 4", "reason 5"]
+            write_grade(p, "D", model_sha="sha1", grade_reasons=reasons)
+            result = read_grade(p)
+            assert len(result["grade_reasons"]) == 3
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_no_reasons_means_empty_list(self):
+        """No grade_reasons param → empty list on read."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            write_grade(p, "A", model_sha="sha1")
+            result = read_grade(p)
+            assert result["grade_reasons"] == []
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_double_write_no_duplicate_reasons(self):
+        """Two writes with reasons must not duplicate grade_reasons block."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            write_grade(p, "C", model_sha="sha1",
+                        grade_reasons=["old reason"])
+            write_grade(p, "B", model_sha="sha2",
+                        grade_reasons=["new reason"])
+            text = p.read_text(encoding="utf-8")
+            assert text.count("grade_reasons:") == 1
+            assert "old reason" not in text
+            assert "new reason" in text
+        finally:
+            p.unlink(missing_ok=True)

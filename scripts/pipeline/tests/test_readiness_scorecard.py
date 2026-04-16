@@ -325,3 +325,105 @@ class TestExitCodes:
         with pytest.raises(SystemExit) as exc:
             readiness_scorecard.main()
         assert exc.value.code == 1
+
+
+# ---------------------------------------------------------------------------
+# CP-P2 Bug 1-4 tests: sign-off parser hardening
+# ---------------------------------------------------------------------------
+
+class TestSignoffParserHardening:
+    """Tests for CRLF normalization, case-insensitive parsing, and comment stripping."""
+
+    def test_lowercase_pass_accepted(self, tmp_path, monkeypatch):
+        """Bug 2: lowercase 'pass' must be accepted."""
+        review_dir = tmp_path / "reports" / "human-review"
+        review_dir.mkdir(parents=True)
+        (review_dir / "3d-java-h01-sample.md").write_text(
+            '# H-01\n\n```yaml\nresult: "pass"\n```\n'
+        )
+        monkeypatch.setattr(readiness_scorecard, "_ROOT", tmp_path)
+        results = readiness_scorecard._read_hgate_signoffs("3d", "java")
+        assert results["h01"] == "PASS"
+
+    def test_mixed_case_pass_accepted(self, tmp_path, monkeypatch):
+        """Bug 2: mixed case 'Pass' must be accepted."""
+        review_dir = tmp_path / "reports" / "human-review"
+        review_dir.mkdir(parents=True)
+        (review_dir / "3d-java-h01-sample.md").write_text(
+            '# H-01\n\n```yaml\nresult: "Pass"\n```\n'
+        )
+        monkeypatch.setattr(readiness_scorecard, "_ROOT", tmp_path)
+        results = readiness_scorecard._read_hgate_signoffs("3d", "java")
+        assert results["h01"] == "PASS"
+
+    def test_crlf_line_endings_accepted(self, tmp_path, monkeypatch):
+        """Bug 1: CRLF line endings must not break parsing."""
+        review_dir = tmp_path / "reports" / "human-review"
+        review_dir.mkdir(parents=True)
+        # Write with explicit CRLF
+        content = '# H-01\r\n\r\n```yaml\r\nresult: "PASS"\r\n```\r\n'
+        (review_dir / "3d-java-h01-sample.md").write_bytes(content.encode("utf-8"))
+        monkeypatch.setattr(readiness_scorecard, "_ROOT", tmp_path)
+        results = readiness_scorecard._read_hgate_signoffs("3d", "java")
+        assert results["h01"] == "PASS"
+
+    def test_inline_comment_stripped(self, tmp_path, monkeypatch):
+        """Bug 3: inline comments after result value must be stripped."""
+        review_dir = tmp_path / "reports" / "human-review"
+        review_dir.mkdir(parents=True)
+        (review_dir / "3d-java-h01-sample.md").write_text(
+            '# H-01\n\n```yaml\nresult: "PASS" # reviewer: looks good\n```\n'
+        )
+        monkeypatch.setattr(readiness_scorecard, "_ROOT", tmp_path)
+        results = readiness_scorecard._read_hgate_signoffs("3d", "java")
+        assert results["h01"] == "PASS"
+
+    def test_lowercase_fail_accepted(self, tmp_path, monkeypatch):
+        """Bug 2: lowercase 'fail' must be accepted and normalized to FAIL."""
+        review_dir = tmp_path / "reports" / "human-review"
+        review_dir.mkdir(parents=True)
+        (review_dir / "3d-java-h02-sample.md").write_text(
+            '# H-02\n\n```yaml\nresult: fail\n```\n'
+        )
+        monkeypatch.setattr(readiness_scorecard, "_ROOT", tmp_path)
+        results = readiness_scorecard._read_hgate_signoffs("3d", "java")
+        assert results["h02"] == "FAIL"
+
+    def test_lowercase_conditional_accepted(self, tmp_path, monkeypatch):
+        """Bug 2: lowercase 'conditional' must be accepted."""
+        review_dir = tmp_path / "reports" / "human-review"
+        review_dir.mkdir(parents=True)
+        (review_dir / "3d-java-h03-sample.md").write_text(
+            '# H-03\n\n```yaml\nresult: conditional\n```\n'
+        )
+        monkeypatch.setattr(readiness_scorecard, "_ROOT", tmp_path)
+        results = readiness_scorecard._read_hgate_signoffs("3d", "java")
+        assert results["h03"] == "CONDITIONAL"
+
+    def test_skip_human_review_json_recorded(self, tmp_path, monkeypatch):
+        """Bug 4: --skip-human-review should be recorded in JSON output."""
+        helper = TestExitCodes()
+        helper._patch_main(monkeypatch, tmp_path, ready=True)
+        import io, json
+        out = io.StringIO()
+        monkeypatch.setattr("sys.stdout", out)
+        monkeypatch.setattr("sys.argv", ["readiness_scorecard.py",
+                                         "--family", "3d", "--platform", "python",
+                                         "--skip-human-review", "--json"])
+        with pytest.raises(SystemExit):
+            readiness_scorecard.main()
+        output = out.getvalue()
+        # Extract the JSON object (first { to matching })
+        start = output.index("{")
+        # Find the matching closing brace by counting nesting
+        depth = 0
+        for i, c in enumerate(output[start:], start):
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    end = i + 1
+                    break
+        data = json.loads(output[start:end])
+        assert data["skip_human_review"] is True

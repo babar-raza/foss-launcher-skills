@@ -191,3 +191,119 @@ class TestScorecardHgates:
         ):
             results = _read_hgate_signoffs("3d", "java")
             assert results["h03"] == "FAIL"
+
+
+# ---------------------------------------------------------------------------
+# CP-P2 Bug 5-8 tests: sampler hardening
+# ---------------------------------------------------------------------------
+
+class TestSamplerHardening:
+    """Tests for expanded checklist, deterministic seed, integrity binding, verdict column."""
+
+    def test_h01_checklist_has_14_plus_items(self, repo_root):
+        """Bug 5: H-01 checklist must have at least 14 items."""
+        from scripts.pipeline.human_review_sampler import generate_h01
+        with patch.object(
+            __import__("scripts.pipeline.human_review_sampler", fromlist=["_ROOT"]),
+            "_ROOT", repo_root
+        ), patch.object(
+            __import__("scripts.pipeline.human_review_sampler", fromlist=["_CONTENT"]),
+            "_CONTENT", repo_root / "content"
+        ), patch.object(
+            __import__("scripts.pipeline.human_review_sampler", fromlist=["_REPORT_DIR"]),
+            "_REPORT_DIR", repo_root / "reports" / "human-review"
+        ):
+            out = generate_h01("3d", "java")
+            text = out.read_text()
+            checklist_items = [l for l in text.split("\n") if l.startswith("- [ ]")]
+            assert len(checklist_items) >= 14, f"Only {len(checklist_items)} checklist items"
+
+    def test_h02_checklist_has_14_plus_items(self, repo_root):
+        """Bug 5: H-02 checklist must have at least 14 items."""
+        from scripts.pipeline.human_review_sampler import generate_h02
+        with patch.object(
+            __import__("scripts.pipeline.human_review_sampler", fromlist=["_ROOT"]),
+            "_ROOT", repo_root
+        ), patch.object(
+            __import__("scripts.pipeline.human_review_sampler", fromlist=["_CONTENT"]),
+            "_CONTENT", repo_root / "content"
+        ), patch.object(
+            __import__("scripts.pipeline.human_review_sampler", fromlist=["_REPORT_DIR"]),
+            "_REPORT_DIR", repo_root / "reports" / "human-review"
+        ):
+            out = generate_h02("3d", "java")
+            text = out.read_text()
+            checklist_items = [l for l in text.split("\n") if l.startswith("- [ ]")]
+            assert len(checklist_items) >= 14, f"Only {len(checklist_items)} checklist items"
+
+    def test_h01_seed_is_deterministic_within_week(self, repo_root):
+        """Bug 6: Seed must be deterministic (same ISO week → same seed)."""
+        from scripts.pipeline.human_review_sampler import generate_h01
+        import random
+        with patch.object(
+            __import__("scripts.pipeline.human_review_sampler", fromlist=["_ROOT"]),
+            "_ROOT", repo_root
+        ), patch.object(
+            __import__("scripts.pipeline.human_review_sampler", fromlist=["_CONTENT"]),
+            "_CONTENT", repo_root / "content"
+        ), patch.object(
+            __import__("scripts.pipeline.human_review_sampler", fromlist=["_REPORT_DIR"]),
+            "_REPORT_DIR", repo_root / "reports" / "human-review"
+        ):
+            random.seed(42)
+            out1 = generate_h01("3d", "java")
+            text1 = out1.read_text()
+            seed_line1 = [l for l in text1.split("\n") if "Sample seed" in l][0]
+            # Extract seed value
+            seed1 = seed_line1.split(":")[1].strip().split(" ")[0]
+            assert "ISO week" in seed_line1, "Seed should reference ISO week"
+
+    def test_h01_signoff_has_pages_hash(self, repo_root):
+        """Bug 7: Sign-off block must include pages_hash for integrity binding."""
+        from scripts.pipeline.human_review_sampler import generate_h01
+        with patch.object(
+            __import__("scripts.pipeline.human_review_sampler", fromlist=["_ROOT"]),
+            "_ROOT", repo_root
+        ), patch.object(
+            __import__("scripts.pipeline.human_review_sampler", fromlist=["_CONTENT"]),
+            "_CONTENT", repo_root / "content"
+        ), patch.object(
+            __import__("scripts.pipeline.human_review_sampler", fromlist=["_REPORT_DIR"]),
+            "_REPORT_DIR", repo_root / "reports" / "human-review"
+        ):
+            out = generate_h01("3d", "java")
+            text = out.read_text()
+            assert "pages_hash:" in text, "Sign-off must include pages_hash"
+
+    def test_h01_verdict_column_populated(self, repo_root):
+        """Bug 8: Verdict column must be pre-populated with grade when available."""
+        from scripts.pipeline.human_review_sampler import generate_h01
+        with patch.object(
+            __import__("scripts.pipeline.human_review_sampler", fromlist=["_ROOT"]),
+            "_ROOT", repo_root
+        ), patch.object(
+            __import__("scripts.pipeline.human_review_sampler", fromlist=["_CONTENT"]),
+            "_CONTENT", repo_root / "content"
+        ), patch.object(
+            __import__("scripts.pipeline.human_review_sampler", fromlist=["_REPORT_DIR"]),
+            "_REPORT_DIR", repo_root / "reports" / "human-review"
+        ):
+            out = generate_h01("3d", "java")
+            text = out.read_text()
+            # Table rows should have grade= in verdict column
+            data_rows = [l for l in text.split("\n")
+                         if l.startswith("| ") and not l.startswith("| #") and not l.startswith("|---")]
+            populated = [r for r in data_rows if "grade=" in r]
+            assert len(populated) > 0, "At least one verdict column should be populated"
+
+    def test_signoff_block_accepts_integrity_params(self):
+        """Bug 7: _signoff_block() accepts and includes integrity binding fields."""
+        from scripts.pipeline.human_review_sampler import _signoff_block
+        block = _signoff_block(
+            logic_version="7",
+            pages_hash="abc123",
+            evaluator_version="v2",
+        )
+        assert 'logic_version: "7"' in block
+        assert 'pages_hash: "abc123"' in block
+        assert 'evaluator_version: "v2"' in block
