@@ -235,10 +235,14 @@ class TestEvalRerunConsistency:
 
         direct_grade = compute_grade_with_criticality(findings)
 
-        # Note: report.grade uses compute_grade (counts only), while
-        # compute_grade_with_criticality uses category ceilings too.
-        # Both must be stable across runs, but may differ from each other.
-        # We just check each is stable.
+        # EvalReport.grade now uses compute_grade_with_criticality (T-06 fix),
+        # so both must return the same value.
+        assert report_grade == direct_grade, (
+            f"EvalReport.grade ({report_grade}) != "
+            f"compute_grade_with_criticality ({direct_grade})"
+        )
+
+        # Stability across reruns
         findings2 = _run_all_default_evaluators(page, knowledge)
         report2 = EvalReport(findings=findings2)
 

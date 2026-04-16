@@ -1,0 +1,15 @@
+{
+  "_doc": "Maps human finding categories to system evaluator categories. A human finding 'matches' a system finding when: same file AND system finding category is in the mapped set.",
+  "phantom-api": ["AA", "CB"],
+  "wrong-api-member": ["AA", "CB"],
+  "dead-link": ["DL"],
+  "broken-internal-link": ["DL"],
+  "fabricated-enum": ["AA", "FC"],
+  "version-claim": ["PT", "VC"],
+  "capability-claim": ["PT", "FC", "CF"],
+  "platform-contamination": ["PC"],
+  "missing-description": ["DC"],
+  "risk-language": ["RL"],
+  "phantom-evidence": ["CC"],
+  "structural": ["ST", "FT"]
+}

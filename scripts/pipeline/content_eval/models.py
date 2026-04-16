@@ -262,7 +262,45 @@ class EvalReport:
     @property
     def grade(self) -> str:
         """Aggregate grade for this report."""
-        return compute_grade(len(self.fails), len(self.warns))
+        return compute_grade_with_criticality(self.findings)
+
+    def grade_reasons(self) -> list[str]:
+        """Human-readable reasons for the computed grade."""
+        reasons: list[str] = []
+        fails = [f for f in self.findings if f.level == "FAIL"]
+        warns = [f for f in self.findings if f.level == "WARN"]
+
+        # Check for critical category override
+        critical_fails = [f for f in fails if f.category in CRITICAL_CATEGORIES]
+        if critical_fails:
+            cats = sorted({f.category for f in critical_fails})
+            evals = sorted({f.evaluator for f in critical_fails})
+            reasons.append(
+                f"FAIL in {', '.join(cats)} ({', '.join(evals)}) "
+                f"-> critical category override -> F"
+            )
+            return reasons
+
+        # Base grade from counts
+        base = compute_grade(len(fails), len(warns))
+        if fails:
+            reasons.append(f"{len(fails)} FAIL finding(s) -> base grade {base}")
+        elif warns:
+            reasons.append(f"{len(warns)} WARN finding(s) -> base grade {base}")
+        else:
+            reasons.append("No findings -> grade A")
+
+        # Check category ceilings
+        final = self.grade
+        if final != base:
+            for f in self.findings:
+                cat_config = _CATEGORY_CEILINGS.get(f.category)
+                if cat_config and f.level in cat_config["levels"]:
+                    reasons.append(
+                        f"{f.category} ceiling applied ({f.level}) "
+                        f"-> grade capped at {cat_config['ceiling']}"
+                    )
+        return reasons
 
 
 # ---------------------------------------------------------------------------

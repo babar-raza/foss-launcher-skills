@@ -1,6 +1,6 @@
 # Grade configuration for content_eval
 # Changes to this file MUST be accompanied by an EVALUATOR_LOGIC_VERSION bump.
-evaluator_logic_version: "7"
+evaluator_logic_version: "9"
 
 # Categories where any FAIL forces grade F
 critical_categories:
@@ -20,3 +20,7 @@ category_ceilings:
   FM: {levels: ["FAIL"], ceiling: "C"}
   MV: {levels: ["FAIL"], ceiling: "C"}
   DC: {levels: ["FAIL"], ceiling: "C"}
+  CB: {levels: ["FAIL"], ceiling: "C"}  # code_block_api — activates when escalated to FAIL
+  DL: {levels: ["FAIL"], ceiling: "C"}  # dead_internal_link — activates when escalated to FAIL
+  VC: {levels: ["WARN", "FAIL"], ceiling: "C"}  # version_claim_check — version mismatch caps grade
+  CF: {levels: ["WARN", "FAIL"], ceiling: "C"}  # capability_claim_check — capability mismatch caps grade

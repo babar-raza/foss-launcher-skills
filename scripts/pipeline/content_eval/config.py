@@ -58,6 +58,10 @@ DEFAULT_EVALUATORS = [
     "namespace_correctness",
     "member_validity",
     "prose_grounding",
+    "code_block_api",
+    "dead_internal_link",
+    "version_claim_check",
+    "capability_claim_check",
 ]
 
 # Platform foreign-code patterns: (regex, description)
