@@ -37,10 +37,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Step 3: Validate declared skills against pending skill run record (BLOCKING).
-# Bypass: add '# SKIP-SKILL-RUN-CHECK' anywhere in the commit message.
-if echo "$msg" | grep -q '# SKIP-SKILL-RUN-CHECK'; then
-    exit 0
-fi
+# No bypass path — all content commits must have a matching skill run record.
 
 PENDING_RUN=$(python scripts/pipeline/skill_run_manager.py find-pending 2>/dev/null)
 if [ -n "$PENDING_RUN" ]; then
@@ -53,15 +50,17 @@ if [ -n "$PENDING_RUN" ]; then
         echo "BLOCKED: Declared skills do not match skill run record $PENDING_RUN."
         echo "$validation_result"
         echo "Run: python scripts/pipeline/skill_run_manager.py get-declared-skills --run-id $PENDING_RUN"
-        echo "To bypass (e.g. for ad-hoc fixes), add '# SKIP-SKILL-RUN-CHECK' to the commit message."
         echo ""
         exit 1
     fi
 else
-    # No pending run record — warn about undocumented commit (non-blocking).
-    echo "WARNING: No skill run record found for this content commit."
-    echo "  Declared skills are accepted at face value without execution evidence."
-    echo "  Consider using /commit (S-76) to create auditable skill run records."
+    # No pending run record — BLOCKED. All content commits require skill run evidence.
+    echo ""
+    echo "BLOCKED: No skill run record found for this content commit."
+    echo "  Content commits require a skill run record for provenance."
+    echo "  Use /commit (S-76) to create auditable skill run records."
+    echo ""
+    exit 1
 fi
 
 exit 0

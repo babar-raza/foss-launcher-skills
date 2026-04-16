@@ -145,6 +145,7 @@ FORBIDDEN (no agent may write here without explicit human override):
   .kilocode/   (Kilo Code config)
   skills/      (canonical skill source — only humans may update)
   scripts/pipeline/path_guard.py  (self-protected enforcement oracle)
+  docs/OPERATOR_BYPASSES.md      (operator-only bypass reference — agents must not read)
   .github/workflows/             (CI pipeline — not in content allowlist)
 
 ALSO ALLOWED (pipeline and CI maintenance):
@@ -1593,6 +1594,15 @@ All agent-generated artifact files must be written to their designated location.
   gap escalation report (§6b) and receiving explicit human approval for the uncovered portion
 - Invent a new workflow or process for a requirement type not covered by §6 — produce the
   gap escalation report and enhancement plan defined in §6b instead, then halt
+- Classify work as "forensic", "ad-hoc", "diagnostic", "manual", "one-off",
+  "operator-directed", or any other label to imply exemption from skill-first
+  execution (§6a). All work falls under the skill system or gap escalation (§6b).
+  There is no third category.
+- Set, recommend setting, or reference any SKIP_* environment variable. Bypass
+  variables are operator-only infrastructure not accessible to agents.
+- Proceed with PARTIAL or NONE capability without producing a gap escalation
+  report and halting for human approval. Claiming "operator direction" does not
+  substitute for gap escalation when no matching skill exists.
 
 ## 12. File Map
 
