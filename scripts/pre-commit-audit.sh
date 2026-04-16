@@ -233,14 +233,25 @@ fi
 # Blocks commits where skill bash blocks contain bare `python`, `pip install --user`,
 # or PYTHONPATH=$USER_SITE.  Only checks staged skill files to avoid false positives
 # on unmodified legacy files.  See AGENTS.md §virtual-environment.
-if git diff --cached --name-only --diff-filter=ACM | grep -qE '^(skills/|\.agents/skills/|\.kilocode/skills/|\.claude/commands/)'; then
-    python scripts/ci/enforce_venv_python.py --check
-    if [ $? -ne 0 ]; then
-        echo ""
-        echo "BLOCKED: Staged skill file(s) contain bare python/pip or --user violations."
-        echo "  Auto-fix: python scripts/ci/enforce_venv_python.py --fix"
-        echo "  DENY violations (--user, USER_SITE) require manual skill redesign."
-        exit 1
+if git diff --cached --name-only --diff-filter=ACM | grep -qE '^(skills/|\.agents/skills/|\.kilocode/skills/|\.claude/commands/|\.claude/settings\.(json|local\.json))'; then
+    # Cross-platform .venv detection (same pattern as Step 9)
+    if [ -f ".venv/Scripts/python" ]; then
+        _venv_py=".venv/Scripts/python"
+    elif [ -f ".venv/bin/python" ]; then
+        _venv_py=".venv/bin/python"
+    else
+        echo "[Step 7b] WARN: .venv not found — skipping venv enforcement check."
+        _venv_py=""
+    fi
+    if [ -n "$_venv_py" ]; then
+        "$_venv_py" scripts/ci/enforce_venv_python.py --check
+        if [ $? -ne 0 ]; then
+            echo ""
+            echo "BLOCKED: Staged file(s) contain bare python/pip or --user violations."
+            echo "  Auto-fix: .venv/Scripts/python scripts/ci/enforce_venv_python.py --fix"
+            echo "  DENY violations (--user, USER_SITE) require manual skill redesign."
+            exit 1
+        fi
     fi
 fi
 

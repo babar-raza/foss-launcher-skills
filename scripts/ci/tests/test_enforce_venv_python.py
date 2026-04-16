@@ -441,6 +441,104 @@ def test_workflow_non_run_block_python_is_ignored(tmp_path):
     assert deny == []
 
 
+# ---------------------------------------------------------------------------
+# Claude Code settings JSON scanning
+# ---------------------------------------------------------------------------
+
+def _make_settings(tmp_path: Path, data: dict) -> Path:
+    import json
+    p = tmp_path / "settings.json"
+    p.write_text(json.dumps(data), encoding="utf-8")
+    return p
+
+
+def test_settings_clean_file_has_no_violations(tmp_path):
+    p = _make_settings(tmp_path, {
+        "permissions": {"allow": [
+            "Bash(.venv/Scripts/python -m pytest tests/ -v)",
+            "Bash(echo hello)",
+        ]}
+    })
+    viols, deny = enforce_venv_python.scan_settings_file(p)
+    assert viols == []
+    assert deny == []
+
+
+def test_settings_bare_python_is_violation(tmp_path):
+    p = _make_settings(tmp_path, {
+        "permissions": {"allow": [
+            "Bash(python scripts/pipeline/audit.py)",
+        ]}
+    })
+    viols, deny = enforce_venv_python.scan_settings_file(p)
+    assert len(viols) == 1
+    assert "python scripts/pipeline/audit.py" in viols[0]
+    assert deny == []
+
+
+def test_settings_bare_pip_install_is_violation(tmp_path):
+    p = _make_settings(tmp_path, {
+        "permissions": {"allow": [
+            "Bash(pip install pyyaml)",
+        ]}
+    })
+    viols, deny = enforce_venv_python.scan_settings_file(p)
+    assert len(viols) == 1
+
+
+def test_settings_deny_pattern_detected(tmp_path):
+    p = _make_settings(tmp_path, {
+        "permissions": {"allow": [
+            "Bash(.venv/Scripts/pip install tree-sitter --user)",
+        ]}
+    })
+    viols, deny = enforce_venv_python.scan_settings_file(p)
+    assert viols == []  # .venv prefix is fine
+    assert len(deny) == 1
+    assert "--user" in deny[0]
+
+
+def test_settings_missing_file_returns_empty():
+    p = Path("/nonexistent/settings.json")
+    viols, deny = enforce_venv_python.scan_settings_file(p)
+    assert viols == []
+    assert deny == []
+
+
+def test_settings_malformed_json_returns_empty(tmp_path):
+    p = tmp_path / "settings.json"
+    p.write_text("{not valid json", encoding="utf-8")
+    viols, deny = enforce_venv_python.scan_settings_file(p)
+    assert viols == []
+    assert deny == []
+
+
+def test_settings_non_bash_entries_ignored(tmp_path):
+    p = _make_settings(tmp_path, {
+        "permissions": {"allow": [
+            "Read(file.py)",
+            "Edit(file.py)",
+        ]}
+    })
+    viols, deny = enforce_venv_python.scan_settings_file(p)
+    assert viols == []
+    assert deny == []
+
+
+def test_settings_files_are_clean():
+    """Regression guard: actual .claude/settings*.json must have no venv violations."""
+    all_viols: list[str] = []
+    all_deny: list[str] = []
+    for sf in enforce_venv_python.SETTINGS_FILES:
+        if not sf.exists():
+            continue
+        v, d = enforce_venv_python.scan_settings_file(sf)
+        all_viols.extend(f"{sf.name}: {x}" for x in v)
+        all_deny.extend(f"{sf.name}: {x}" for x in d)
+    assert not all_viols, "Bare python/pip in settings:\n" + "\n".join(all_viols)
+    assert not all_deny, "DENY violations in settings:\n" + "\n".join(all_deny)
+
+
 def test_workflow_files_are_clean():
     """Regression guard: actual CI workflow files must have no venv violations.
 

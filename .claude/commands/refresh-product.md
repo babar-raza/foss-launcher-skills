@@ -102,20 +102,11 @@ Do not run any subsequent steps. Exit 0.
    - Retires pages from `delta.pages_to_remove` (dual-signal rule applies)
    - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step page_retire`
 
-6.5. **Un-retire resurrected API pages** (retire_page.py --un-retire):
-   ```bash
-   .venv/Scripts/python scripts/pipeline/retire_page.py --un-retire --from-delta {family} {platform}
-   ```
-   - Reads `resurrected_apis` from `knowledge_delta.json`
-   - Removes `draft: true` and `retired_at` from reference pages whose class was re-added
-   - Idempotent: pages without `draft: true` are skipped
-   - Must run BEFORE batch-reference --update so un-retired pages get regenerated
-
-7. **Update reference pages for modified/new/resurrected APIs** (S-62: batch-reference --update):
+7. **Update reference pages for modified APIs** (S-62: batch-reference --update):
    ```
    .venv/Scripts/python scripts/pipeline/batch_reference.py {family} {platform} --update
    ```
-   - Regenerates reference pages for classes in `knowledge_delta.json` (modified + new + resurrected APIs)
+   - Regenerates only reference pages for classes in `knowledge_delta.json modified_apis`
    - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step reference_update`
 
 8. **Family page sync** (S-48: family-sync):
@@ -163,7 +154,6 @@ Do not run any subsequent steps. Exit 0.
     - `stale_since` is null in `merged/model.yaml`
     - No content pages cite claim IDs absent from `merged/claims.json`
     - No reference pages exist for classes absent from `merged/api_surface.json`
-    - No reference pages are incorrectly retired (draft: true) for classes that exist in api_surface (Check 3b)
     - `stale_detect.py` reports 0 stale pages (end-state proxy for page freshness)
 
     Note: `audit.py` is NOT re-run per-page during `--verify`; it is already enforced

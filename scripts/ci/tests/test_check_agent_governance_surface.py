@@ -44,6 +44,10 @@ def _fixture_repo(tmp_path: Path) -> Path:
         tmp_path / ".agents" / "skills" / "README.md",
         "# Codex CLI Skills\n\nInternal skills are included here because Codex invokes them directly.\n",
     )
+    _write(
+        tmp_path / ".kilocode" / "rules-code" / "governance.md",
+        "# Governance Rules for Kilo Code\n\n## Skills\n\nSkills are in `.kilocode/skills/`.\n\n## Do / Don't\n\n- **Do** check knowledge\n",
+    )
     return tmp_path
 
 
@@ -58,6 +62,11 @@ def test_analyze_repo_detects_expected_fixture_findings(tmp_path):
         "OPERATOR_GUIDE_MISSING_CODEX_INVOCATION",
         "README_SLASH_COMMAND_ONLY",
         "INTERNAL_SKILL_EXECUTION_ASYMMETRY",
+        "REGISTRY_JSON_MISSING",
+        "CODEX_MISSING_PREFLIGHT_RULE",
+        "KILOCODE_MISSING_PREFLIGHT_RULE",
+        "CODEX_MISSING_REGISTRY_REFERENCE",
+        "KILOCODE_MISSING_REGISTRY_REFERENCE",
     }
 
 
@@ -74,6 +83,11 @@ def test_check_baseline_passes_when_all_findings_are_listed(tmp_path):
                     {"finding_id": "OPERATOR_GUIDE_MISSING_CODEX_INVOCATION"},
                     {"finding_id": "README_SLASH_COMMAND_ONLY"},
                     {"finding_id": "INTERNAL_SKILL_EXECUTION_ASYMMETRY"},
+                    {"finding_id": "REGISTRY_JSON_MISSING"},
+                    {"finding_id": "CODEX_MISSING_PREFLIGHT_RULE"},
+                    {"finding_id": "KILOCODE_MISSING_PREFLIGHT_RULE"},
+                    {"finding_id": "CODEX_MISSING_REGISTRY_REFERENCE"},
+                    {"finding_id": "KILOCODE_MISSING_REGISTRY_REFERENCE"},
                 ]
             }
         ),

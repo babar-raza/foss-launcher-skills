@@ -30,6 +30,14 @@ any user request.
    - Read `backlog/REMINDERS.md` — show items where `Due <= today` or `Due = session-start`
    - Read `backlog/HANDOFF.md` — show "What's next" and "Blocked / Waiting"
    - Read `backlog/BACKLOG.md` — show Active (P0-P1) items (max 5)
+   - **Plan-file audit** (P0/P1 items only): For each Active P0/P1 item with a non-empty
+     Plan column, verify the referenced file exists on disk. If any are missing, surface
+     them as first-priority warnings before the rest of the briefing:
+     ```
+     ⚠ MISSING PLAN FILES (P0/P1):
+       [{id}] {title} — plan not found: {path}
+       Action: run `/backlog plan --reconstruct {id}` or `/backlog reconcile`
+     ```
    - Output a `BACKLOG BRIEFING` block (see format below)
    - If `backlog/` directory does not exist, output: `BACKLOG: not configured (run /backlog to set up)`
 7. Only then accept the user's task

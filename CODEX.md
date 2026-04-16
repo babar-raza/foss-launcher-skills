@@ -16,6 +16,9 @@
 Skills are in `.agents/skills/`. Each skill has its own directory with a `SKILL.md` file.
 Cross-skill references like `/evidence-cite` refer to sibling skills in that directory.
 
+For structured skill lookup, see `skills/registry.json` — a machine-readable catalog of all
+registered skills with IDs, descriptions, and argument patterns.
+
 ## Critical Rules
 
 1. **Evidence-first** — every content edit must be grounded in the knowledge model (`knowledge/{family}/{platform}/`). Read `model.yaml` before touching any content page.
@@ -23,8 +26,20 @@ Cross-skill references like `/evidence-cite` refer to sibling skills in that dir
 3. **Forbidden write paths** — never write to `themes/`, `layouts/`, `configs/`, `AGENTS.md`, `CODEX.md`, `CLAUDE.md`, `.claude/`, `.agents/`, `.kilocode/`, or `skills/` without explicit human override.
 4. **Skill-first execution** — every task must be attempted through registered skills first (AGENTS.md §6a). If no skill covers the requirement, classify capability as FULL/PARTIAL/NONE/BROKEN per §6b and produce a gap escalation report. Do not invent ad hoc workflows.
 
+## Pre-Write Preflight Check
+
+Before writing any file, run the preflight check to validate the path is allowed:
+
+```bash
+python scripts/pipeline/preflight.py <path>
+```
+
+This consolidates path guard, Python placement, and content workflow checks into a single
+command. Exit 0 = ALLOW, exit 1 = DENY with guidance. Use `--json` for machine-readable output.
+
 ## Do / Don't
 
+- **Do** run `python scripts/pipeline/preflight.py <path>` before writing any file
 - **Do** check `knowledge/` artifacts before writing any content
 - **Do** include evidence citations in content pages
 - **Do** run ground-check (S-23) before committing content changes

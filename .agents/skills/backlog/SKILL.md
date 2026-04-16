@@ -5,6 +5,9 @@
      idempotent: yes — read-only subcommands (briefing, status, trace, harden, investigate-run, surface, next) safe to repeat; write subcommands are append-only or guarded
      subcommands: 22 (briefing, update, add, investigate, investigate-run, surface, remind, handoff, archive, triage, reconcile, status, plan, replan, harden, trace, close, merge, group, link, next, sweep)
      verified: 2026-04-15
+
+     SAFE-FAILURE: If backlog/ or plans/ directories do not exist, STOP and ask the operator.
+     Never create custom folders like .kilo-backlog/, .kilo-plans/, kilo-backlog/, or kilo-plans/.
 -->
 # S-88: Backlog — Unified Planning & Backlog Management
 
@@ -277,6 +280,7 @@ Overwrite `backlog/HANDOFF.md` with current session summary.
    ## Wave status
    > Wave 0: {N} items completed this session, {M} remaining
    > Next wave (wave 1): {N} items unblocked by this session's completions
+   > Wave freshness: {Were items added/closed/blockers changed? If yes, run `/backlog update` at next session start.}
    ## Blocked / Waiting
    ## Context for next session
    ```
@@ -782,6 +786,7 @@ Compute dependency waves and return the top N executable items. Read-only.
    a. Priority tier (P0 first, then P1, P2, P3)
    b. Impact score from Evidence column (`impact:I{n}` — lower I = higher impact; I1 > I2 > I3)
    c. Size ascending (XS first — quick wins surface)
+6a. **Self-verify size ordering**: Within each priority tier, confirm sizes are non-decreasing (XS ≤ S ≤ M ≤ L ≤ XL). If any adjacent pair is out of order, swap them.
 7. Return top N items (default 5)
 8. Separately list G=0 items (no plan or no acceptance checks, effort >= M) as "needs planning"
 9. Output:

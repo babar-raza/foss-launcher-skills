@@ -45,7 +45,7 @@ Next steps:
   - {item from HANDOFF.md "What's next"}
 
 Ready to execute (wave 0, unblocked):
-  1. [{id}] {title} — {cat}/{priority}/{size} {score if set}
+  1. [{id}] {title} — {cat}/{priority}/{size} [{effect}] {score if set}
   2. ...
   (ranked by: priority tier, then impact score, then size ascending)
 
@@ -53,6 +53,9 @@ Active items: {count} (P0: {n}, P1: {n})
   - [{id}] {title} — {status} {blocker if any}
 
 Queued: {count} | Deferred: {count} | Inbox: {count}
+
+Effect rollup (active + queued):
+  TF: {n} items | GI: {n} | HA: {n} | KF: {n} | OM: {n}
 
 Deferred items due for review: {count}
   - [{id}] {title} — deferred since {date}, review due {review_date}
@@ -134,8 +137,15 @@ Append a task to `backlog/inbox.md` under "Standalone Tasks".
    - If score 0–1: proceed normally
 2. Read `backlog/inbox.md`
 3. Determine next `ST-NNN` ID by counting existing Standalone Tasks entries
-4. Append row: `| ST-{NNN} | {title} | P2 | {today} | |`
-5. Confirm: `Added ST-{NNN}: {title}`
+4. **Effect suggestion**: suggest effect tag from title keywords using these heuristics:
+   - Title contains `claim`, `overclaim`, `truth`, `accuracy`, `false`, `code example`, `syntax` → suggest `TF`
+   - Title contains `gate`, `guard`, `threshold`, `validator`, `enforce`, `grade` → suggest `GI`
+   - Title contains `heal`, `automat`, `batch`, `controller`, `remediate` → suggest `HA`
+   - Title contains `knowledge`, `extract`, `scout`, `format`, `enrich`, `claim` → suggest `KF`
+   - Title contains `test`, `seam`, `observ`, `backlog`, `monitor`, `CI`, `log` → suggest `OM`
+   - If no match: ask operator
+5. Append row: `| ST-{NNN} | {cat} | {effect} | {title} | queued | P2 | {size} | 0 | — | none | {today} |`
+6. Confirm: `Added ST-{NNN}: {title} [effect:{effect}]`
 
 ### `/backlog investigate {title}` — Add Investigation Item
 
@@ -280,6 +290,7 @@ Overwrite `backlog/HANDOFF.md` with current session summary.
    ## Wave status
    > Wave 0: {N} items completed this session, {M} remaining
    > Next wave (wave 1): {N} items unblocked by this session's completions
+   > Wave freshness: {Were items added/closed/blockers changed? If yes, run `/backlog update` at next session start.}
    ## Blocked / Waiting
    ## Context for next session
    ```
@@ -312,6 +323,7 @@ Review `backlog/inbox.md` and disposition each item.
    - Ask: promote to BACKLOG.md? attach to plan? defer? drop?
 3. For items being promoted or attached, **require**:
    - **Category** (Cat): suggest from title keywords using heuristics below; operator confirms
+   - **Effect**: suggest from title keywords using effect heuristics (see `/backlog add`); operator confirms
    - **Size**: estimate effort (XS/S/M/L/XL)
    - **Priority**: P0-P3
    - **Review Date** (deferrals only): must not be empty — use `YYYY-MM-DD`, `after:{id}`, or `quarterly`
@@ -324,6 +336,7 @@ Review `backlog/inbox.md` and disposition each item.
    - Title contains `backlog`, `plan`, `session`, `onboarding`, `CI` → suggest `H` (housekeeping)
 5. Apply the disposition:
    - **Promote**: move to appropriate section in `backlog/BACKLOG.md` with Cat, Size, Priority, Wave=0
+     - **Durable plan warning**: If promoted to P0/P1 and Plan path starts with `.claude/plans/`, warn: `⚠ Ephemeral plan path — P0/P1 items should use plans/from_backlog/ for durability`
    - **Attach**: add plan reference, move to BACKLOG.md with Cat, Size, Priority
    - **Defer**: move to Deferred section with reason AND Review Date (required, never empty)
    - **Drop**: remove from inbox.md (no further tracking)
@@ -341,7 +354,11 @@ Compare active backlog items against current system evidence and classify each i
    **a. Plan check** — Read the referenced plan file, extract taskcard status:
    - Taskcard marked Done/Closed → candidate for closure
    - Taskcard marked In Progress → verify against other evidence
-   - Plan file missing/archived → flag as ORPHANED
+   - Plan file missing (path in Plan column does not exist on disk) → flag as ORPHANED_PLAN:
+     - Add `plan-artifact-missing:{path}` to Evidence column
+     - If item is P0/P1: auto-set status to `blocked` and report as first-priority finding
+     - Report: `[{id}] ORPHANED_PLAN: {path} does not exist on disk`
+   - Plan file archived → flag as ORPHANED
 
    **b. Commit check** — `git log --grep="{item-ID}" --oneline`:
    - Commits found → extract hashes as evidence
@@ -781,10 +798,12 @@ Compute dependency waves and return the top N executable items. Read-only.
    - Wave 1: items whose all blockers are in wave 0
    - Wave N+1: items whose all blockers are in wave 0..N
 5. Filter wave 0 items: remove any with status `blocked`, `waiting`, `in-progress`, or `deferred`
+5a. **Plan artifact check**: For remaining wave-0 items with a non-empty Plan column, verify the file exists on disk. Items with `plan-artifact-missing:` in Evidence are excluded from "Ready now" and listed separately as "Blocked (missing plan)".
 6. Rank remaining wave-0 items by:
    a. Priority tier (P0 first, then P1, P2, P3)
    b. Impact score from Evidence column (`impact:I{n}` — lower I = higher impact; I1 > I2 > I3)
    c. Size ascending (XS first — quick wins surface)
+6a. **Self-verify size ordering**: Within each priority tier, confirm sizes are non-decreasing (XS ≤ S ≤ M ≤ L ≤ XL). If any adjacent pair is out of order, swap them.
 7. Return top N items (default 5)
 8. Separately list G=0 items (no plan or no acceptance checks, effort >= M) as "needs planning"
 9. Output:
@@ -793,8 +812,8 @@ Compute dependency waves and return the top N executable items. Read-only.
 EXECUTION QUEUE — {date}
 
 Ready now (wave 0):
-  1. [{id}] {title} — {cat}/{priority}/{size}
-  2. [{id}] {title} — {cat}/{priority}/{size}
+  1. [{id}] {title} — {cat}/{priority}/{size} [{effect}]
+  2. [{id}] {title} — {cat}/{priority}/{size} [{effect}]
   ...
 
 In progress: {count}
@@ -802,6 +821,9 @@ In progress: {count}
 
 Next wave (wave 1, {count} items):
   - [{id}] {title} — waiting on [{blocker_ids}]
+
+Blocked (missing plan): {count}
+  - [{id}] {title} — plan-artifact-missing: {path}
 
 Needs planning before execution: {count}
   - [{id}] {title} — missing: {plan | acceptance checks}

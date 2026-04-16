@@ -387,6 +387,64 @@ S-25 (eval-page) → S-26 (heal-page) → S-23 → S-25 → S-01 → write (or e
 
 **Rule:** S-26 must precede S-21 when grade is D or below. S-21 alone is correct only for grade C. S-21 applied to a grade-D page without prior healing may suppress false claims that should be removed.
 
+### 6d. Heal-Enabled Policy Table
+
+The healing automation system (`scripts/pipeline/heal_controller.py`) uses a
+policy table (`scripts/pipeline/heal_policy.py`) to route triaged findings to
+the correct healing strategy. This section documents the binding between
+evaluation findings and healing actions.
+
+#### Heal modes
+
+| Mode | Meaning | Automated? |
+|------|---------|------------|
+| `auto` | Deterministic fixer available (frontmatter, placeholder, code fence) | Yes |
+| `llm` | Requires LLM-assisted rewrite grounded in knowledge artifacts | Yes |
+| `regen` | Requires upstream causal backtracking before local fix | Yes |
+| `human` | No automated path — escalate to operator | No |
+| `skip` | INFO-level or not worth fixing | No |
+
+#### Policy resolution order
+
+1. **Exact match** on `(fix_type, category)` — e.g., `(llm, FC)` routes
+   forbidden-claim findings to S-21 with FC-specific prompt constraints.
+2. **Wildcard match** on `(fix_type, *)` — default for that fix type.
+3. **Fallback** to `human` mode if neither matches.
+
+#### Category-specific LLM policies
+
+| Category | Description | Skill | Effort |
+|----------|-------------|-------|--------|
+| AA | API accuracy — verify against api_surface.json | S-21 | medium |
+| FC | Forbidden claims — remove and rewrite | S-21 | medium |
+| PC | Platform contamination — replace with correct platform code | S-21 | medium |
+| PT | Prose truth — correct against enriched_claims.json | S-21 | medium |
+| CP | Code plausibility — replace snippet from clone cache | S-21 | medium |
+| RL | Risk language — context-aware rewrite | S-21 | medium |
+| ST | Structure — regenerate missing sections | S-21 | medium |
+| RV | Role violations (LLM bucket) — restructure page | S-21 | medium |
+
+#### Non-LLM policies
+
+| Fix type | Mode | Skill | Regen after? | Effort |
+|----------|------|-------|--------------|--------|
+| `auto` | auto | — | No | low |
+| `upstream` | regen | S-80 (causal-backtrack) | Yes | high |
+| `human` | human | — | No | high |
+| `skip` | skip | — | No | low |
+
+#### Governance rules
+
+- **Only `auto`, `llm`, and `regen` modes are heal-enabled.** `human` and
+  `skip` are excluded from automated healing pipelines.
+- **The policy table is the single source of truth** for heal-mode routing.
+  Do not hard-code heal-mode decisions outside `heal_policy.py`.
+- **Regression detection is mandatory.** After any healing pass, run
+  `verify.py` to compare before/after findings. If regression severity is
+  `critical` (grade decreased), revert the healing and escalate.
+- **Regen-after findings** (upstream mode) must complete causal backtracking
+  via S-80 before local fixes run. The heal controller enforces this ordering.
+
 ### 6e. Terminal-Success State (ceiling-reached)
 
 A page is **ceiling-reached** when ALL of the following are true:
@@ -1592,7 +1650,7 @@ Key variables:
 |----------|---------|-----------|
 | `GITHUB_TOKEN` | `update_product_registry.py` | Optional (or `--token` arg) |
 | `ASPOSE_CLONE_CACHE` | all pipeline scripts | Optional — defaults to `runs/.clone_cache/` |
-| `PROFESSIONALIZE_API_KEY` | `enrich.py`, `gap-eval/run.py` | Optional — falls back to Ollama |
+| `PROFESSIONALIZE_API_KEY` | `llm_router.py` (used by `enrich.py`, `gap-eval/run.py`, `fix_spec.py`, `synthesize.py`) | Optional — falls back to Ollama |
 | `LLM_API_KEY` | `translator/cli.py` | **Required** for translation |
 | `LLM_API_BASE_URL` | `translator/cli.py` | Optional — defaults to `https://llm.professionalize.com/v1` |
 | `TRANSLATE_PRIMARY_MODEL` | `translator/cli.py` | Optional — defaults to `gpt-oss` |
@@ -1639,6 +1697,8 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | Path | Purpose |
 |------|---------|
 | `scripts/pipeline/core/env_loader.py` | `load_env()` — loads `.env` from repo root via python-dotenv; `override=False`; no-op if dotenv absent |
+| `scripts/pipeline/llm_router.py` | Shared LLM routing: professionalize.com → Ollama fallback. `EndpointStatus` enum, `CallResult` dataclass. CLI: `--probe`. |
+| `scripts/pipeline/llm_registry.yaml` | Single source of truth for LLM endpoint URLs, models, dimensions, timeouts. |
 | `scripts/pipeline/verification/` | Clean re-export namespace over `token_ops.py`; provides `extract_tokens`, `verify_tokens` under more descriptive import paths (`from verification.extractor import extract_tokens`, `from verification.verifier import verify_tokens`). `token_ops.py` remains unchanged and both import paths work simultaneously. |
 
 ### Skills reference
@@ -1667,12 +1727,12 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | repo-scout | S-34 | Extract truth from FOSS repository |
 | truth-merge | S-35 | Promote scout + enriched claims into merged/ |
 | cross-platform | S-36 | Family consistency check |
-| knowledge-enrich | S-37 | LLM-enriched claims from scout api_surface (bounded-description mode) |
+| knowledge-enrich | S-37 | LLM-enriched claims from scout api_surface (bounded-description mode). enrich.py returns False on total LLM failure (all providers unreachable) — do not proceed to S-35. `--no-llm` is the only path that writes empty `enriched_claims.json` and returns True. |
 | truth-audit | S-38 | Member-level API verification (deep) |
 | batch-remediate | S-40 | Full eval→fix→LLM→re-eval pipeline for all content pages of a product |
 | batch-eval-fix | S-41 | Lightweight eval + deterministic auto-fixes only; no LLM pass; safe for unattended runs |
 | category-fix | S-42 | Run a specific fixer on files by category code (ST, RV, EG, RL, AA, PC, FC, PT, CP, CG) |
-| gap-eval | S-43 | Content verification against clone cache — publishability verdict. |
+| gap-eval | S-43 | Content verification against clone cache — publishability verdict. `Tier3Result` dataclass replaces `_TIER3_UNAVAILABLE` sentinel; three failure modes now distinguishable: `NOT_CONFIGURED`, `INTENTIONAL_SKIP` (no source context — data problem, not LLM), `UNREACHABLE`/`AUTH_FAILED`. Finding JSON includes `endpoint_status` and `endpoint_used` fields. |
 | gap-plan | S-44 | Wave-ordered remediation planning from gap-eval findings |
 | gap-report | S-45 | Cross-product gap synthesis report |
 | gap-apply | S-46 | Execute wave-ordered fix specs from gap-plan output (Wave 1 auto-fix, Wave 2 LLM-planned substitutions, Wave 3 page generation, Wave 4 human escalation) |

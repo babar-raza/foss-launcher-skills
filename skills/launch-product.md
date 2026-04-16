@@ -258,7 +258,7 @@ If this does not return `true`, halt: "Stage 6.5 requires truth_audit_done=true.
 
 2. Verify LLM API key is available:
 ```bash
-python -c "import os; k=os.environ.get('LLM_API_KEY',''); print('OK' if k else 'MISSING')"
+.venv/Scripts/python -c "import os; k=os.environ.get('LLM_API_KEY',''); print('OK' if k else 'MISSING')"
 ```
 If `MISSING`: halt with message: "Stage 6.5 requires LLM_API_KEY for translation. Set it and retry, or proceed to Stage 7/8 with untranslated content (scorecard will flag locale coverage gaps)." Do NOT silently skip translation — the operator must explicitly choose to proceed without it.
 
