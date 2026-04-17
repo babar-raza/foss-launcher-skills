@@ -48,6 +48,19 @@ any user request.
        [{id}] {title} — plan not found: {path}
        Action: run `/backlog plan --reconstruct {id}` or `/backlog reconcile`
      ```
+   - **Plan normalization audit** (non-blocking advisory, S-91): For each P0/P1 item whose
+     Plan file was found on disk, check whether the plan needs S-91 normalization by scanning
+     for: (a) H2 sections with sprint/retrospective/postmortem keywords, (b) file mtime >7 days
+     ago with no `## Plan Normalization Record` section, (c) session inherited from another
+     agent (HANDOFF.md present with prior-session context). For any plan matching at least one
+     trigger, append to the BACKLOG BRIEFING output block:
+     ```
+     PLANS NEEDING NORMALIZATION:
+       [{id}] {title} - plan: {path} - trigger: {reason}
+       Action: run `/plan-normalize {path}` before executing this plan
+     ```
+     If no plans need normalization, omit this section silently. Non-blocking: session proceeds
+     regardless of whether any plans need normalization.
    - Output a `BACKLOG BRIEFING` block (see format below)
    - If `backlog/` directory does not exist, output: `BACKLOG: not configured (run /backlog to set up)`
 7. Only then accept the user's task
