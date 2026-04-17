@@ -110,7 +110,7 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
 
 8. **Write the draft** to the target path from the plan (e.g., `content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`).
 
-9. **Run ground-check**: Execute `python scripts/pipeline/audit.py --files {target_path}` to verify API accuracy.
+9. **Run ground-check**: Execute `.venv/Scripts/python scripts/pipeline/audit.py --files {target_path}` to verify API accuracy.
 
 10. **Report**: Print summary of draft — word count, sections, claims used, API tokens verified.
 
