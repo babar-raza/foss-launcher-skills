@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/sync_providers.py",
-  "skill_count": 73,
+  "skill_count": 74,
   "skills": [
     {
       "id": "S-01",
@@ -587,6 +587,14 @@
       "description": "Run the healing pipeline on a batch of findings from a content_eval report.",
       "internal": false,
       "canonical_path": "skills/heal-batch.md"
+    },
+    {
+      "id": "S-90",
+      "slug": "publish-readiness-review",
+      "name": "Publish Readiness Review — Agent-Executed Governed Inspection",
+      "description": "Perform bounded manual-style inspection of content pages, make judgment calls against",
+      "internal": false,
+      "canonical_path": "skills/publish-readiness-review.md"
     }
   ]
 }

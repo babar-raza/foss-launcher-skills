@@ -31,7 +31,14 @@ Display the current backlog state. This is the default when no subcommand is giv
 
 **Steps:**
 1. Read `backlog/REMINDERS.md` — show items where `Due <= today` or `Due = session-start`
-2. Read `backlog/HANDOFF.md` — show "What's next" and "Blocked / Waiting" from last session
+2. Read `backlog/HANDOFF.md` — show "What's next" and "Blocked / Waiting" from last session.
+   **Freshness check**: Cross-reference HANDOFF.md "Critical path" and "Newly unblocked" items against current BACKLOG.md statuses. If any item listed as "newly unblocked", "critical path", or "next up" in HANDOFF.md has a different current status (e.g., listed as unblocked but now done, or listed as queued but now blocked), emit:
+   ```
+   ⚠️  HANDOFF.md is stale for {N} item(s):
+     - [{id}] listed as "{handoff-status}" but current status is "{backlog-status}"
+   Rely on BACKLOG.md, not HANDOFF.md, for current execution state.
+   ```
+   HANDOFF.md is written at session end and may lag by one or more sessions. It is orientation context, not authoritative state.
 3. Read `backlog/BACKLOG.md` — show Active (P0-P1) items, then count of Queued and Deferred
 4. Output the briefing in this format:
 
@@ -418,6 +425,26 @@ Compare active backlog items against current system evidence and classify each i
 7. **Auto-archive completed items >30 days**: Check Recently Completed section. Items with Completed date >30 days ago are moved to `backlog/ARCHIVE.md`. Log the move.
 
 8. **Deferred review check**: Read the Deferred table. For each item where Review Date has passed (specific date <= today, or `quarterly` and >=90 days since deferral), surface in the report as "due for review."
+   **Triggered-review scan**: For each deferred item with Review Date `after:{item-id}`, check if that item's current status in BACKLOG.md is `done`. If yes, flag the deferred item for operator review:
+   ```
+   REVIEW TRIGGERED: [{deferred-id}] {title}
+     Condition: after:{item-id} (which is now done as of {completion-date})
+     Recommendation: evaluate for promotion to queued, deferral extension, or drop
+   ```
+
+8b. **GAP-* artifact detection**: After staleness scan, check `backlog/inbox.md` for rows where (a) ID starts with `GAP-` AND (b) the referenced report file path does not exist on disk (test with `os.path.exists()` or equivalent). Drop these rows and include in reconcile report:
+   ```
+   Dropped stale gap artifacts: N
+     - GAP-{id} (report file missing: {path})
+   ```
+   These are test/debug artifacts created during gap escalation testing. They are never valid active items if their report files are gone.
+
+8c. **Done-item section check**: Scan all BACKLOG.md sections that are NOT "Recently Completed", "Superseded", or "Deferred" for rows where the Status cell equals `done`. Count them. Include in reconcile report:
+   ```
+   Done items not yet moved to Recently Completed: N
+     - [{id}] {title} — currently in {section name}
+   ```
+   For each found item, move the row to the Recently Completed section. This corrects the failure mode where `/backlog close` was skipped and items were only marked `done` in-place.
 
 9. **Recompute waves**: Rebuild Blocker DAG and update Wave column for all Active and Queued items.
 
@@ -511,6 +538,15 @@ A plan invocation MUST create a new file. It must NEVER amend an existing plan.
 5. **Root-cause analysis**: Distinguish symptom from source. Identify why existing checks/plans/skills did not catch it.
 6. **Solution options**: Consider at least 2 approaches. Choose the best and explain why.
 7. **Generate plan file** at `plans/from_backlog/{YYYY-MM-DD}-{slug}.md` using the Plan File Template (see below)
+   **Ephemeral path governance (P0/P1 items)**: If the item is P0 or P1 and the plan path would be under `.claude/plans/`, emit this warning before writing:
+   ```
+   ⚠️  EPHEMERAL PLAN PATH for P0/P1 item [{id}]
+   Path '.claude/plans/{slug}.md' is per-user and NOT committed to git.
+   It will be lost when sessions end or on a fresh clone.
+   Required: write to 'plans/from_backlog/{YYYY-MM-DD}-{slug}.md' instead.
+   Use '.claude/plans/' only for P2/P3 items where loss is acceptable.
+   ```
+   This is a hard warning for P0/P1. If operator overrides, add `ephemeral-path-acknowledged` to the Evidence column.
 8. Run `/backlog harden {plan-path}` on the new file
 9. Update `backlog/BACKLOG.md` — set the Plan column to the new file path
 10. Append to `backlog/CHANGELOG.md`
@@ -658,7 +694,7 @@ Close a backlog item only after verifying implementation, tests, commits, and pl
 3. **No false closure guard**: At least one of (commit hash, test reference, grade state, operator attestation) must be present. No exceptions.
 
 4. Apply transitions:
-   - Move items to Recently Completed in `backlog/BACKLOG.md` with evidence summary
+   - **REQUIRED: Physically move the row** from its current section (Active/Queued/Deferred) to the "Recently Completed" section in `backlog/BACKLOG.md`. Do NOT only update the Status cell in-place — the row must be removed from its current section and appended to Recently Completed with evidence summary. Updating Status=done in-place without moving the row is an incomplete close; re-run if this occurred.
    - Update plan taskcard statuses to `done` (in-place edit — closeout is terminal)
    - Update plan `> Status:` to `closed` if all taskcards are terminal
    - Append to `backlog/CHANGELOG.md`

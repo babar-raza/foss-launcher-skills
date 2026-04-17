@@ -1,13 +1,3 @@
----
-name: gap-apply
-id: S-46
-description: >
-  Execute wave-ordered fix specs from gap-plan output (Wave 1 auto, Wave 2 LLM-planned substitutions, Wave 3 page generation, Wave 4 human escalation)
-args: "{family} {platform} [--waves 1,2,3] [--dry-run]"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
 # S-46: Gap Apply — Execute Wave-Ordered Fix Specs
 
 **Arguments**: $ARGUMENTS
@@ -103,9 +93,13 @@ local checklist before proceeding to the next.
 
 ### Step 5: Collect Wave 4 escalation list
 
-Wave 4 items (`wave == 4`, or any items that failed Wave 2 application) require human review.
+Wave 4 items (`wave == 4`, or any items that failed Wave 2 application) require governed
+inspection before escalating. **Do not halt here.** Invoke S-90 (`/publish-readiness-review`)
+in `--dry-run` mode first to classify each Wave 4 item. S-90 will determine:
+- Which items are actionable (S-21, S-26, or S-73 with agent-derived spec)
+- Which items require real human escalation per §7c
 
-Emit an escalation report:
+Emit a Wave 4 manifest:
 
 ```markdown
 
@@ -116,19 +110,25 @@ Emit an escalation report:
 
 ## Wave 4 Escalation — {family}/{platform}
 
-Files requiring human review (LLM unavailable, ambiguous fix, or application failed):
+Files requiring governed inspection via S-90 (LLM unavailable, ambiguous fix, or application failed):
 
-| File | Finding | Reason |
-|------|---------|--------|
-| ... | ... | ... |
+| File | Finding | Reason | S-90 action |
+|------|---------|--------|-------------|
+| ... | ... | ... | ... |
 
 Save as: reports/agents/remediation/{family}-{platform}/wave4-escalation.md
 ```
 
-Halt and route these items to the human maintainer. For each Wave 4 item requiring a targeted
-content change, the operator must invoke **S-73 (manual-edit)** with the specific change. Do not
-apply ad hoc fixes outside the skill chain — S-73 is the only sanctioned path for
-operator-directed targeted edits.
+After writing this manifest, invoke:
+```
+/publish-readiness-review {family} {platform} --grade-filter C,D,F
+```
+
+S-90 will inspect each Wave 4 item, route actionable items to S-21/S-26/S-73, and emit a
+per-item disposition. For items that S-90 classifies as requiring a specific targeted change
+(S-73), the operator specifies the exact change via **S-73 (manual-edit)** — S-73 is the
+sanctioned path for operator-directed targeted edits. Do not apply ad hoc fixes outside the
+skill chain.
 
 ### Step 6: Re-run gap-eval to verify
 
