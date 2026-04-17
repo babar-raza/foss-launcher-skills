@@ -258,6 +258,82 @@ class TestPromoteFormatsNotePreservation:
         obj_entries = [e for e in result_formats if e["format"] == "OBJ"]
         assert len(obj_entries) == 1, "OBJ entry must not be duplicated"
 
+    def test_manual_true_entry_preserved(self, tmp_path):
+        """Entries with 'manual': True (no note key) must also be preserved."""
+        kr = _setup_scout(tmp_path)
+        scout_dir = kr / "test" / "python" / "scout"
+        merged_dir = kr / "test" / "python" / "merged"
+
+        scout_formats = [
+            {"format": "OBJ", "enum": "FileFormat", "direction": "export", "functional": True},
+        ]
+        (scout_dir / "formats.json").write_text(
+            json.dumps(scout_formats, indent=2), encoding="utf-8"
+        )
+
+        merged_dir.mkdir(parents=True, exist_ok=True)
+        existing_merged_formats = [
+            {"format": "OBJ", "enum": "FileFormat", "direction": "export", "functional": True},
+            {
+                "format": "CSV", "enum": "SaveFormat", "direction": "export",
+                "functional": True,
+                "manual": True,  # No "note" key — manual: true only
+            },
+        ]
+        (merged_dir / "formats.json").write_text(
+            json.dumps(existing_merged_formats, indent=2), encoding="utf-8"
+        )
+
+        promote_mod.promote("test", "python", knowledge_root=str(kr))
+
+        result_formats = json.loads(
+            (merged_dir / "formats.json").read_text(encoding="utf-8")
+        )
+        keys = {(e["format"], e["enum"]) for e in result_formats}
+        assert ("CSV", "SaveFormat") in keys, (
+            "Entry with manual:True (no note key) must survive promote()"
+        )
+
+    def test_malformed_entry_does_not_corrupt_preservation(self, tmp_path):
+        """Entries missing 'format' and 'enum' keys must not cause (None, None) collisions."""
+        kr = _setup_scout(tmp_path)
+        scout_dir = kr / "test" / "python" / "scout"
+        merged_dir = kr / "test" / "python" / "merged"
+
+        scout_formats = [
+            {"format": "OBJ", "enum": "FileFormat", "direction": "export", "functional": True},
+        ]
+        (scout_dir / "formats.json").write_text(
+            json.dumps(scout_formats, indent=2), encoding="utf-8"
+        )
+
+        merged_dir.mkdir(parents=True, exist_ok=True)
+        existing_merged_formats = [
+            {"format": "OBJ", "enum": "FileFormat", "direction": "export", "functional": True},
+            # Malformed entry: note field present but no format/enum keys
+            {"note": "orphan annotation with no format or enum", "manual": True},
+            # Well-formed note entry that SHOULD be preserved
+            {"format": "TXT", "enum": "LoadFormat", "direction": "import",
+             "functional": True, "note": "alias"},
+        ]
+        (merged_dir / "formats.json").write_text(
+            json.dumps(existing_merged_formats, indent=2), encoding="utf-8"
+        )
+
+        # Should not raise; malformed entry is silently skipped
+        promote_mod.promote("test", "python", knowledge_root=str(kr))
+
+        result_formats = json.loads(
+            (merged_dir / "formats.json").read_text(encoding="utf-8")
+        )
+        # Well-formed note entry still preserved
+        keys = {(e.get("format"), e.get("enum")) for e in result_formats}
+        assert ("TXT", "LoadFormat") in keys, "Well-formed note entry must survive"
+        # No (None, None) key collision artifacts introduced
+        none_entries = [e for e in result_formats
+                        if e.get("format") is None and e.get("enum") is None]
+        assert len(none_entries) == 0, "Malformed (None/None) entry must not appear in output"
+
 
 class TestPromoteWithMissingScout:
     """promote() must fail gracefully when scout/ artifacts are absent."""
@@ -278,3 +354,111 @@ class TestPromoteWithMissingScout:
         fl_dir.mkdir(parents=True)
         result = promote_mod.promote("test", "python", knowledge_root=str(kr))
         assert result is False
+
+
+# ---------------------------------------------------------------------------
+# TC-A12: Promote edge-case tests (merge-conflict, idempotency, large-batch)
+# ---------------------------------------------------------------------------
+
+class TestPromoteEdgeCases:
+    """TC-A12: merge-conflict, idempotency, and large-batch scenarios."""
+
+    def test_promote_idempotent(self, tmp_path):
+        """Running promote() twice on the same scout output produces identical merged/ output."""
+        kr = _setup_scout(tmp_path)
+
+        promote_mod.promote("test", "python", knowledge_root=str(kr))
+        merged_dir = kr / "test" / "python" / "merged"
+        claims_after_first = json.loads((merged_dir / "claims.json").read_text(encoding="utf-8"))
+
+        promote_mod.promote("test", "python", knowledge_root=str(kr))
+        claims_after_second = json.loads((merged_dir / "claims.json").read_text(encoding="utf-8"))
+
+        assert len(claims_after_first) == len(claims_after_second), (
+            "Second promote run must not duplicate or lose claims"
+        )
+        ids_first = {c["claim_id"] for c in claims_after_first}
+        ids_second = {c["claim_id"] for c in claims_after_second}
+        assert ids_first == ids_second, "Claim IDs must be identical after idempotent promote"
+
+    def test_promote_conflicting_claim_later_wins(self, tmp_path):
+        """When merged/ has a stale claim text and scout/ has updated text, scout wins."""
+        kr = _setup_scout(tmp_path)
+        merged_dir = kr / "test" / "python" / "merged"
+        scout_dir = kr / "test" / "python" / "scout"
+
+        # Pre-create merged/ claims with an old text for CLM-test-p1-001
+        stale_claims = [
+            {"claim_id": "CLM-test-p1-001", "text": "STALE TEXT", "kind": "api_method"},
+        ]
+        merged_dir.mkdir(parents=True, exist_ok=True)
+        (merged_dir / "claims.json").write_text(
+            json.dumps(stale_claims, indent=2), encoding="utf-8"
+        )
+
+        # Scout has the updated text for the same ID
+        fresh_scout_claims = [
+            {
+                "claim_id": "CLM-test-p1-001",
+                "text": "Scene.open(filename) loads a 3D file.",
+                "kind": "api_method",
+            }
+        ]
+        (scout_dir / "claims.json").write_text(
+            json.dumps(fresh_scout_claims, indent=2), encoding="utf-8"
+        )
+
+        promote_mod.promote("test", "python", knowledge_root=str(kr))
+
+        merged_claims = json.loads((merged_dir / "claims.json").read_text(encoding="utf-8"))
+        claim_001 = next((c for c in merged_claims if c["claim_id"] == "CLM-test-p1-001"), None)
+        assert claim_001 is not None, "CLM-test-p1-001 must exist in merged output"
+        assert "STALE" not in claim_001["text"], (
+            "Scout text must overwrite stale merged text on promote"
+        )
+
+    def test_promote_large_batch_no_truncation(self, tmp_path):
+        """promote() must handle 100+ classes without truncating or dropping any."""
+        kr = tmp_path / "knowledge"
+        scout_dir = kr / "test" / "python" / "scout"
+        scout_dir.mkdir(parents=True)
+
+        large_api_surface = [
+            {
+                "name": f"Class{i:03d}",
+                "kind": "class_declaration",
+                "methods": [{"name": f"method{i}"}],
+                "properties": [],
+            }
+            for i in range(120)
+        ]
+        large_claims = [
+            {"claim_id": f"CLM-large-{i:04d}", "text": f"Class{i:03d}.method{i}() description.", "kind": "api_method"}
+            for i in range(120)
+        ]
+
+        (scout_dir / "claims.json").write_text(
+            json.dumps(large_claims, indent=2), encoding="utf-8"
+        )
+        (scout_dir / "api_surface.json").write_text(
+            json.dumps(large_api_surface, indent=2), encoding="utf-8"
+        )
+        # Minimal model.yaml required by promote()
+        (scout_dir / "model.yaml").write_text(
+            "family: test\nplatform: python\nrepo_sha: abc123\nstale_since: null\n",
+            encoding="utf-8",
+        )
+
+        result = promote_mod.promote("test", "python", knowledge_root=str(kr))
+        assert result is True, "promote() must succeed with 120-class input"
+
+        merged_dir = kr / "test" / "python" / "merged"
+        merged_claims = json.loads((merged_dir / "claims.json").read_text(encoding="utf-8"))
+        merged_apis = json.loads((merged_dir / "api_surface.json").read_text(encoding="utf-8"))
+
+        assert len(merged_claims) == 120, (
+            f"All 120 claims must appear in merged output; got {len(merged_claims)}"
+        )
+        assert len(merged_apis) == 120, (
+            f"All 120 API classes must appear in merged output; got {len(merged_apis)}"
+        )
