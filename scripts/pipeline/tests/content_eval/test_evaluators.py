@@ -750,6 +750,34 @@ class TestEvidenceDepth:
         ]
         assert pp_fail == [], f"platform_purity should skip bash blocks; got: {pp_fail}"
 
+    def test_claims_none_in_sections_does_not_crash(self):
+        """Regression (ED-NULL-01): claims: null in evidence.sections must not crash.
+
+        YAML frontmatter can set ``claims:`` with no value, which parses as None.
+        The old code used ``s.get("claims", [])`` which returns None (key exists),
+        then ``len(None)`` raises TypeError.  The fix uses ``or []`` coercion.
+        """
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Test
+            evidence:
+              model_sha: abc123
+              claims: []
+              apis: []
+              sections:
+                - heading: Overview
+                  line: 5
+                  claims:
+                  apis:
+            ---
+            ## Overview
+
+            Some content here.
+        """), "content/docs.aspose.org/en/cells/net/developer-guide/test.md")
+        # Must not raise TypeError: object of type 'NoneType' has no len()
+        findings = self.evaluator.evaluate(page, None)
+        assert isinstance(findings, list)
+
     def test_grade_mapping_zero_fail_one_warn_is_A(self):
         """Regression: 0 FAIL + 1 WARN must map to grade A, not B.
 
@@ -1089,6 +1117,30 @@ class TestProseTruthSectionSuppression:
         )
 
 
+class TestClaimCoverage:
+    """Tests for ClaimCoverageEvaluator."""
+
+    def setup_method(self):
+        from content_eval.evaluators.claim_coverage import ClaimCoverageEvaluator
+        self.evaluator = ClaimCoverageEvaluator()
+
+    def test_claims_none_does_not_crash(self):
+        """Regression (ED-NULL-02): claims: null in evidence must not crash.
+        evidence.get('claims') or [] must coerce None to [] without TypeError.
+        """
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Test
+            evidence:
+              claims:
+              apis: []
+            ---
+            Content.
+        """), "content/docs.aspose.org/en/cells/net/test.md")
+        findings = self.evaluator.evaluate(page, None)
+        assert isinstance(findings, list)
+
+
 class TestEvidenceCompleteness:
     """Tests for EvidenceCompletenessEvaluator (WP-4: detect empty apis:/claims: on reference pages)."""
 
@@ -1207,6 +1259,23 @@ class TestEvidenceCompleteness:
             findings = self.evaluator.evaluate(page, None)
         claim_warn = [f for f in findings if f.level == "WARN" and "claims" in f.message]
         assert len(claim_warn) == 1
+
+    def test_claims_and_apis_none_does_not_crash(self):
+        """Regression (ED-NULL-02): claims: null and apis: null must not crash.
+        Both evidence.get('claims') or [] and evidence.get('apis') or [] must
+        coerce None without TypeError.
+        """
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Test
+            evidence:
+              claims:
+              apis:
+            ---
+            Content.
+        """), "content/reference.aspose.org/en/cells/net/test.md")
+        findings = self.evaluator.evaluate(page, None)
+        assert isinstance(findings, list)
 
     def test_non_reference_page_skipped(self):
         """Evaluator only fires on reference subdomain pages."""

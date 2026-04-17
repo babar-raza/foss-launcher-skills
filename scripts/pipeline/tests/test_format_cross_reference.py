@@ -539,5 +539,58 @@ class Converter:
             self.assertEqual(non_enum[0]["direction"], "export")
 
 
+# Re-create patterns that include SourceFormat (FMT-02 fix)
+_LOAD_PAT_WITH_SOURCE = re.compile(
+    r"(LoadFormat|ImportFormat|InputFormat|SourceFormat)", re.IGNORECASE)
+
+
+class TestSourceFormatPatternFix(unittest.TestCase):
+    """Tests for FMT-02: SourceFormat enum → direction='import'.
+
+    slides/python uses SourceFormat (PPT, PPTX, ODP) as its input-format enum.
+    Before the fix, SourceFormat was not in load_format_pattern so its members
+    were assigned direction='detect' instead of 'import'.
+    """
+
+    def test_source_format_gets_import_direction(self):
+        """SourceFormat enum members → direction 'import' after cross-reference."""
+        formats = [
+            {"format": "PPT", "enum": "SourceFormat", "direction": "import"},
+            {"format": "PPTX", "enum": "SourceFormat", "direction": "import"},
+            {"format": "ODP", "enum": "SourceFormat", "direction": "import"},
+        ]
+        # No backing I/O classes exist (constructor-based import)
+        # → cross_reference should demote to enum_only (no PptReader found)
+        result = _cross_reference_enum_directions(
+            formats, _SAVE_PAT, _LOAD_PAT_WITH_SOURCE)
+        # All three should be demoted to enum_only (no Reader class found)
+        directions = {f["format"]: f["direction"] for f in result}
+        self.assertEqual(directions["PPT"], "enum_only")
+        self.assertEqual(directions["PPTX"], "enum_only")
+        self.assertEqual(directions["ODP"], "enum_only")
+
+    def test_source_format_kept_when_backed(self):
+        """SourceFormat.PPTX stays 'import' when a PptxReader I/O class exists."""
+        formats = [
+            {"format": "PPTX", "enum": "SourceFormat", "direction": "import"},
+            {"format": "ODP", "enum": "SourceFormat", "direction": "import"},
+            # Simulated I/O class for PPTX (from Pass 1 Loader detection)
+            {"format": "Pptx", "enum": "", "direction": "import"},
+        ]
+        result = _cross_reference_enum_directions(
+            formats, _SAVE_PAT, _LOAD_PAT_WITH_SOURCE)
+        pptx = next(f for f in result if f["format"] == "PPTX")
+        odp = next(f for f in result if f["format"] == "ODP")
+        self.assertEqual(pptx["direction"], "import")
+        self.assertEqual(odp["direction"], "enum_only")
+
+    def test_source_format_not_confused_with_save_format(self):
+        """SourceFormat is treated as load pattern, not save pattern."""
+        # Verify _LOAD_PAT_WITH_SOURCE matches SourceFormat
+        self.assertTrue(bool(_LOAD_PAT_WITH_SOURCE.search("SourceFormat")))
+        # And _SAVE_PAT does NOT match SourceFormat
+        self.assertFalse(bool(_SAVE_PAT.search("SourceFormat")))
+
+
 if __name__ == "__main__":
     unittest.main()

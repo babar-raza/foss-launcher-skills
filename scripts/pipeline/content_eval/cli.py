@@ -303,13 +303,15 @@ def _run_evaluate(args):
         for page in pages:
             fp = page.filepath
             page_findings = by_file.get(str(fp), [])
-            grade = compute_grade_with_criticality(page_findings)
+            page_report = EvalReport(page_findings)
+            grade = page_report.grade
+            reasons = page_report.grade_reasons()
             # Determine model_sha from cached knowledge
             k = knowledge_cache.get((page.family, page.platform))
             model_sha = k.repo_sha if k and hasattr(k, "repo_sha") else ""
             tier = "full" if k and getattr(k, "available", False) else "structural"
             _write_grade(fp, grade, model_sha=model_sha, evaluator_tier=tier,
-                         logic_version=EVALUATOR_LOGIC_VERSION)
+                         logic_version=EVALUATOR_LOGIC_VERSION, grade_reasons=reasons)
             grade_counts[grade] = grade_counts.get(grade, 0) + 1
 
         _log(f"  Grades written: {grade_counts}")

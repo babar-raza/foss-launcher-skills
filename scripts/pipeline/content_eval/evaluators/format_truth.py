@@ -322,17 +322,37 @@ class FormatTruthEvaluator(BaseEvaluator):
                         evaluator=self.name,
                     ))
 
+        # Regex: detects Markdown table access-column values ("| Read |",
+        # "| Write |", "| Read/Write |") that should not count as I/O verbs.
+        _TABLE_ACCESS_COL_RE = re.compile(
+            r"\|\s*(?:Read(?:/Write)?|Write)\s*\|", re.IGNORECASE
+        )
+
         # --- Scan prose lines ---
         for line_no, line_text in page.prose_lines:
             # Skip lines that explicitly state a format is NOT supported —
             # these are honest limitation disclosures, not false capability claims.
             if _NEGATION_RE.search(line_text):
                 continue
-            mentions = _extract_format_mentions(line_text)
+            # Normalize table access-column values BEFORE extracting mentions so
+            # that "| Read |" / "| Write |" cells are never part of the direction
+            # context window, regardless of where the format token falls on the
+            # line (avoids pos-60 boundary splitting the pattern).
+            scan_text = _TABLE_ACCESS_COL_RE.sub("| - |", line_text)
+            mentions = _extract_format_mentions(scan_text)
             for ext, pos in mentions:
-                # Build context around the position for direction detection
-                before = line_text[max(0, pos - 60) : pos]
-                after = line_text[pos : min(len(line_text), pos + 40)]
+                tail = scan_text[pos + len(ext):]
+                # Skip Python type-annotation context: "doc: Type" where the
+                # format token is a variable name, not a file-extension claim.
+                if tail.lstrip().startswith(":"):
+                    continue
+                # Skip Markdown inline spans (*doc*, `doc`, _doc_) where the
+                # format token is a variable reference, not a format claim.
+                pre_char = scan_text[pos - 1 : pos] if pos > 0 else ""
+                if pre_char in ("*", "`", "_") and tail[:1] == pre_char:
+                    continue
+                before = scan_text[max(0, pos - 60) : pos]
+                after = scan_text[pos : min(len(scan_text), pos + 40)]
                 claimed_dir = _claim_direction(before + after)
                 _check(ext, claimed_dir, line_no, "prose")
 

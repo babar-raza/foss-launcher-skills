@@ -116,14 +116,16 @@ def detect_formats(
     header_ext = _HEADER_EXTENSIONS.get(language, "")
     files = _collect_source_files(pkg_root, ext, header_ext)
     format_pattern = re.compile(
-        r"(FileFormat|FormatType|SupportedFormat|FileType|SaveFormat|ExportFormat|LoadFormat|ImportFormat|OutputFormat|InputFormat)",
+        r"(FileFormat|FormatType|SupportedFormat|FileType|SaveFormat|ExportFormat|LoadFormat|ImportFormat|OutputFormat|InputFormat|SourceFormat)",
         re.IGNORECASE)
     # SaveFormat/ExportFormat enums indicate actual output capability
     save_format_pattern = re.compile(
         r"(SaveFormat|ExportFormat|OutputFormat)", re.IGNORECASE)
-    # LoadFormat enums indicate actual input capability
+    # LoadFormat/SourceFormat enums indicate actual input capability
+    # SourceFormat is used by libraries (e.g. slides/python) that detect the
+    # source/input format via constructor rather than a dedicated Importer class.
     load_format_pattern = re.compile(
-        r"(LoadFormat|ImportFormat|InputFormat)", re.IGNORECASE)
+        r"(LoadFormat|ImportFormat|InputFormat|SourceFormat)", re.IGNORECASE)
     importer_pattern = re.compile(
         r"(Importer|Exporter|Reader|Writer|Loader|Saver)", re.IGNORECASE)
 
