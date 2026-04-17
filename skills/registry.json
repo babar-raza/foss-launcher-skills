@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/sync_providers.py",
-  "skill_count": 74,
+  "skill_count": 75,
   "skills": [
     {
       "id": "S-01",
@@ -595,6 +595,14 @@
       "description": "Perform bounded manual-style inspection of content pages, make judgment calls against",
       "internal": false,
       "canonical_path": "skills/publish-readiness-review.md"
+    },
+    {
+      "id": "S-91",
+      "slug": "plan-normalize",
+      "name": "Plan Normalize — Execution-Safe Plan Quality Gate",
+      "description": "Stop agents from executing mixed-context plans blindly.",
+      "internal": false,
+      "canonical_path": "skills/plan-normalize.md"
     }
   ]
 }
