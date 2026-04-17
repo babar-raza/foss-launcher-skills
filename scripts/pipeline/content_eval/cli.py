@@ -282,6 +282,7 @@ def _run_evaluate(args):
     # Also print to stdout (handle Windows encoding)
     sys.stdout.buffer.write(output.encode("utf-8"))
     sys.stdout.buffer.write(b"\n")
+    sys.stdout.buffer.flush()
 
     # Summary to stderr
     _log(f"\nEvaluation complete:")
