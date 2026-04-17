@@ -183,6 +183,82 @@ class TestPromoteFullPipeline:
         )
 
 
+class TestPromoteFormatsNotePreservation:
+    """Manually-annotated formats.json entries (with 'note' field) must survive promote."""
+
+    def test_note_entries_preserved_when_absent_from_scout(self, tmp_path):
+        """Entries with a 'note' field that are absent from scout output are re-injected."""
+        kr = _setup_scout(tmp_path)
+        scout_dir = kr / "test" / "python" / "scout"
+        merged_dir = kr / "test" / "python" / "merged"
+
+        # Write a scout formats.json without the note entry
+        scout_formats = [
+            {"format": "OBJ", "enum": "FileFormat", "direction": "export", "functional": True},
+        ]
+        (scout_dir / "formats.json").write_text(
+            json.dumps(scout_formats, indent=2), encoding="utf-8"
+        )
+
+        # Pre-create a merged/formats.json that includes a manually-annotated note entry
+        merged_dir.mkdir(parents=True, exist_ok=True)
+        existing_merged_formats = [
+            {"format": "OBJ", "enum": "FileFormat", "direction": "export", "functional": True},
+            {
+                "format": "TXT", "enum": "LoadFormat", "direction": "import",
+                "functional": True,
+                "note": "File-extension alias for TEXT LoadFormat; not emitted by scout",
+            },
+        ]
+        (merged_dir / "formats.json").write_text(
+            json.dumps(existing_merged_formats, indent=2), encoding="utf-8"
+        )
+
+        promote_mod.promote("test", "python", knowledge_root=str(kr))
+
+        result_formats = json.loads(
+            (merged_dir / "formats.json").read_text(encoding="utf-8")
+        )
+        keys = {(e["format"], e["enum"]) for e in result_formats}
+        assert ("TXT", "LoadFormat") in keys, (
+            "Note-annotated TXT entry must survive promote() even if absent from scout output"
+        )
+
+    def test_scout_entry_not_duplicated_when_present_in_both(self, tmp_path):
+        """If a note-bearing entry is also in scout output, it must not be duplicated."""
+        kr = _setup_scout(tmp_path)
+        scout_dir = kr / "test" / "python" / "scout"
+        merged_dir = kr / "test" / "python" / "merged"
+
+        # Scout has OBJ entry
+        scout_formats = [
+            {"format": "OBJ", "enum": "FileFormat", "direction": "export", "functional": True},
+        ]
+        (scout_dir / "formats.json").write_text(
+            json.dumps(scout_formats, indent=2), encoding="utf-8"
+        )
+
+        # Merged has same OBJ entry (without note) plus a note-only TXT entry
+        merged_dir.mkdir(parents=True, exist_ok=True)
+        existing_merged = [
+            {"format": "OBJ", "enum": "FileFormat", "direction": "export",
+             "functional": True, "note": "also annotated"},
+            {"format": "TXT", "enum": "LoadFormat", "direction": "import",
+             "functional": True, "note": "alias"},
+        ]
+        (merged_dir / "formats.json").write_text(
+            json.dumps(existing_merged, indent=2), encoding="utf-8"
+        )
+
+        promote_mod.promote("test", "python", knowledge_root=str(kr))
+
+        result_formats = json.loads(
+            (merged_dir / "formats.json").read_text(encoding="utf-8")
+        )
+        obj_entries = [e for e in result_formats if e["format"] == "OBJ"]
+        assert len(obj_entries) == 1, "OBJ entry must not be duplicated"
+
+
 class TestPromoteWithMissingScout:
     """promote() must fail gracefully when scout/ artifacts are absent."""
 
