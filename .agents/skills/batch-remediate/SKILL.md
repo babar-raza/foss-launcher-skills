@@ -154,3 +154,9 @@ This is safe for unattended runs and skips the LLM fix pass (Step 6).
 - **Audit FAIL after LLM fix**: Revert file, add to human queue.
 - **2 LLM passes exhausted**: Escalate to human queue with finding details.
 - **File not found**: Skip and report.
+
+## Related Skills
+
+- **S-41 batch-eval-fix**: Lightweight auto-fix only (no LLM pass). Use when you only need deterministic fixes.
+- **S-42 category-fix**: Run a specific category fixer on targeted files.
+- **S-89 heal-batch**: Policy-routed batch healing from an eval report. Routes findings through the heal policy table to auto/llm/regen modes in a single pass. Use `/heal-batch` when you have an existing eval report and want structured dispatching rather than the sequential eval→fix→LLM pipeline of S-40.

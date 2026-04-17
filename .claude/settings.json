@@ -12,31 +12,28 @@
       "Bash(ls scripts/pipeline/tests/test_format*.py)",
       "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/test_format_cross_reference.py -v)",
       "Bash(.venv/Scripts/python -m unittest scripts.pipeline.tests.test_format_cross_reference -v)",
-      "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/test_heal_controller.py -v)"
+      "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/test_heal_controller.py -v)",
+      "Bash(.venv/Scripts/python scripts/ci/check_skill_registry_json.py)",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/ci/check_python_placement.py --check-staged)",
+      "Bash(.venv/Scripts/python -c \":*)",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python -m pytest scripts/pipeline/tests/test_readiness_scorecard.py -v)",
+      "Bash(PYTHONPATH=\"scripts/pipeline\" .venv/Scripts/python -m pytest scripts/pipeline/tests/test_readiness_scorecard.py scripts/pipeline/tests/test_human_review_sampler.py scripts/pipeline/tests/test_grade_writer.py -v --tb=short)",
+      "Bash(.venv/Scripts/python scripts/ci/check_skill_readme_coverage.py --fix)",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-77 --scope \"scripts/ci/*\")"
     ],
     "additionalDirectories": [
       "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing"
     ]
   },
   "hooks": {
-    "UserPromptSubmit": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash -c 'rm -f .claude/.agents_read && echo \"[hook] Session gate reset — run /session-start before any task\"'"
-          }
-        ]
-      }
-    ],
+    "UserPromptSubmit": [],
     "PreToolUse": [
       {
         "matcher": ".*",
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'if [ ! -f .claude/.agents_read ]; then echo \"⛔ AGENTS.md not confirmed read. Session gate: run /session-start before proceeding.\"; exit 1; fi'"
+            "command": "bash -c 'if [ ! -f .claude/.agents_read ]; then echo \"⛔ AGENTS.md not confirmed read. Session gate: run /session-start before proceeding.\" >&2; exit 2; fi'"
           }
         ]
       },
@@ -50,6 +47,15 @@
           {
             "type": "command",
             "command": "bash scripts/ci/check_skill_context_hook.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/ci/check_venv_bash_hook.sh"
           }
         ]
       },

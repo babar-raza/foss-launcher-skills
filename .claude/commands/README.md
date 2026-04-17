@@ -30,7 +30,7 @@ Arguments for each skill are documented in the `**Arguments**` line at the top o
 
 ## This Tree vs Canonical
 
-This tree (64 files) differs from the canonical `skills/` (72 files) in two ways:
+This tree (65 files) differs from the canonical `skills/` (73 files) in two ways:
 
 ### 1. Internal sub-routines are omitted (8 skills)
 
@@ -63,7 +63,7 @@ Source: `scripts/pipeline/sync_skills.py:KNOWN_EXCEPTIONS` and `INTERNAL_SKILLS`
 
 ---
 
-## Skill List (63 registered skills available in this tree)
+## Skill List (65 registered skills available in this tree)
 
 | ID | Slug | Category |
 |----|------|----------|
@@ -131,6 +131,7 @@ Source: `scripts/pipeline/sync_skills.py:KNOWN_EXCEPTIONS` and `INTERNAL_SKILLS`
 | S-86 | `refresh-product-page` | Operations |
 | S-87 | `system-heal` | Operations |
 | S-88 | `backlog` | Operations |
+| S-89 | `heal-batch` | Repair |
 
 ---
 

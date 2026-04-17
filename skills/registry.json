@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/sync_providers.py",
-  "skill_count": 72,
+  "skill_count": 73,
   "skills": [
     {
       "id": "S-01",
@@ -579,6 +579,14 @@
       "description": "Maintains a durable backlog system across sessions.",
       "internal": false,
       "canonical_path": "skills/backlog.md"
+    },
+    {
+      "id": "S-89",
+      "slug": "heal-batch",
+      "name": "Heal Batch — Batch Healing from Eval Report",
+      "description": "Run the healing pipeline on a batch of findings from a content_eval report.",
+      "internal": false,
+      "canonical_path": "skills/heal-batch.md"
     }
   ]
 }

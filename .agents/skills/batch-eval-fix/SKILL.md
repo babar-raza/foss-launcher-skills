@@ -10,7 +10,9 @@ args: "{family} {platform}"
 # S-41: Batch Eval Fix — Quick Eval + Auto-Fix Only
 
 **Arguments**: $ARGUMENTS
-Expected format: `{family} {platform}` or `{eval-report-path}` — e.g. `3d python` or `reports/content_eval/eval-20260324.json`
+Expected format: `{family} {platform}` or `{eval-report-path}` or `--eval-report {eval-report-path}` — e.g. `3d python` or `reports/content_eval/eval-20260324.json`
+
+When `--eval-report` is provided, skip the evaluation step and consume the existing report directly. This is useful when chaining with S-89 (heal-batch) or when re-running fixes after a previous evaluation.
 
 ## Purpose
 
@@ -31,9 +33,9 @@ Lightweight remediation pipeline: evaluate content (or consume an existing repor
 > ```
 
 
-1. **Parse arguments.** If two words, treat as `{family} {platform}`. If a `.json` path, use it directly as the eval report.
+1. **Parse arguments.** If two words, treat as `{family} {platform}`. If a `.json` path or `--eval-report {path}`, use it directly as the eval report.
 
-2. **Run evaluation** (skip if consuming existing report):
+2. **Run evaluation** (skip if consuming existing report via path or `--eval-report`):
 
    ```bash
    .venv/Scripts/python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation

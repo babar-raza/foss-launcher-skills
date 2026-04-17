@@ -78,6 +78,62 @@ class TestCountSkills:
 
 
 # ---------------------------------------------------------------------------
+# fix_counts
+# ---------------------------------------------------------------------------
+
+
+class TestFixCounts:
+    def _make_tree(self, tmp_path: Path, monkeypatch):
+        """Build a minimal skill tree with a README containing a wrong count."""
+        skills_dir = tmp_path / "skills"
+        skills_dir.mkdir()
+        for name in ("alpha", "beta", "gamma"):
+            (skills_dir / f"{name}.md").write_text(f"# {name}", encoding="utf-8")
+        readme = skills_dir / "README.md"
+        readme.write_text(
+            "This catalog has 2 registered skills in it.\n" * 25,
+            encoding="utf-8",
+        )
+        monkeypatch.setattr(cov, "_REPO_ROOT", tmp_path)
+        monkeypatch.setattr(
+            cov,
+            "_SKILL_DIRS",
+            {"skills": (skills_dir, "flat")},
+        )
+        monkeypatch.setattr(
+            cov,
+            "_COUNT_PATTERNS",
+            [
+                (
+                    readme,
+                    r"(\d+)\s+registered\s+skills",
+                    "skills",
+                    "skills/README.md registered count",
+                ),
+            ],
+        )
+        return readme
+
+    def test_fix_corrects_wrong_count(self, tmp_path: Path, monkeypatch):
+        readme = self._make_tree(tmp_path, monkeypatch)
+        fixed = cov.fix_counts()
+        assert fixed == 1
+        assert "3 registered skills" in readme.read_text(encoding="utf-8")
+
+    def test_fix_is_idempotent(self, tmp_path: Path, monkeypatch):
+        self._make_tree(tmp_path, monkeypatch)
+        cov.fix_counts()
+        assert cov.fix_counts() == 0
+
+    def test_fix_then_check_passes(self, tmp_path: Path, monkeypatch):
+        self._make_tree(tmp_path, monkeypatch)
+        # Stub out _CHECKS so check() only validates counts, not real repo files
+        monkeypatch.setattr(cov, "_CHECKS", [])
+        cov.fix_counts()
+        assert cov.check() == 0
+
+
+# ---------------------------------------------------------------------------
 # Count validation — integration against real repo
 # ---------------------------------------------------------------------------
 

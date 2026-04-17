@@ -1,7 +1,9 @@
 # S-42: Category Fix — Run Specific Fixer on Files
 
 **Arguments**: $ARGUMENTS
-Expected format: `{category} {file-or-directory}` — e.g. `ST content/docs.aspose.org/en/3d/python/` or `RV content/kb.aspose.org/en/slides/java/faq.md`
+Expected format: `{category} {file-or-directory} [--files {file1} {file2} ...]` — e.g. `ST content/docs.aspose.org/en/3d/python/` or `RV content/kb.aspose.org/en/slides/java/faq.md` or `AA --files content/docs.aspose.org/en/3d/python/rendering.md content/docs.aspose.org/en/3d/python/overview.md`
+
+When `--files` is provided, the explicit file list is used instead of discovering files from the directory argument. This is useful when you have a specific set of files from an eval report.
 
 ## Purpose
 
@@ -36,8 +38,10 @@ Run a specific category fixer on targeted files. Useful for surgical fixes when 
 
 
 1. **Parse arguments**: Extract category code and file path(s) from `$ARGUMENTS`.
+   - If `--files` is provided, use the explicit file list directly (skip discovery).
+   - Otherwise, use the positional file-or-directory argument.
 
-2. **Discover files**: If path is a directory, discover all `.md` files within it.
+2. **Discover files**: If path is a directory, discover all `.md` files within it. (Skipped when `--files` is used.)
 
 3. **Run eval** on just those files with the relevant evaluator:
 

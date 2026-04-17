@@ -60,7 +60,7 @@ Source: `scripts/pipeline/sync_skills.py:INTERNAL_SKILLS`.
 
 ## Skill Catalog
 
-72 registered skills grouped by functional category. For the machine-validated registry with
+73 registered skills grouped by functional category. For the machine-validated registry with
 full descriptions, see [AGENTS.md §12](../AGENTS.md).
 
 ### Knowledge & Truth
@@ -142,6 +142,7 @@ Skills that fix, heal, or improve existing content.
 | S-73 | `manual-edit` | Operator-directed targeted content edit: wording, frontmatter, code block, or section rewrite — single file, evidence-first, revert-on-failure |
 | S-74 | `causal-backtrack` | Causal backtracking for root-cause-driven repair |
 | S-78 | `evidence-enhance` | Improve section evidence coverage on passing pages |
+| S-89 | `heal-batch` | Batch healing from eval report — eval→fix→re-eval pipeline driven by remediate.py |
 
 ### Operations & Orchestration
 
