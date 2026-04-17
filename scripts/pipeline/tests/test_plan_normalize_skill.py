@@ -232,6 +232,41 @@ class TestPlanNormalizeAgentsRegistration(unittest.TestCase):
         self.assertIn("execution-ready-as-is: no", self.agents_text)
 
 
+class TestPlanNormalizeSampleVerdict(unittest.TestCase):
+    """TC-03: sample-verdict-output.md structure validation."""
+
+    def setUp(self):
+        path = REPO_ROOT / "tests" / "fixtures" / "plan-normalize" / "sample-verdict-output.md"
+        self.assertTrue(path.exists(), "sample-verdict-output.md must exist")
+        self.specimen = path.read_text(encoding="utf-8", errors="ignore")
+
+    def test_verdict_block_header_present(self):
+        self.assertIn("PLAN-NORMALIZE VERDICT", self.specimen)
+
+    def test_all_six_output_sections_present(self):
+        for section in ["A. VERDICT", "B. SECTION MAP", "C. OPEN WORK REGISTER",
+                        "D. NEXT ITEM", "E. EXCLUSIONS", "F. AMENDED EXECUTION PACK"]:
+            self.assertIn(section, self.specimen, f"Missing section: {section}")
+
+    def test_execution_ready_field_present(self):
+        self.assertIn("execution-ready-as-is:", self.specimen)
+
+    def test_historical_reference_classification_present(self):
+        self.assertIn("historical-reference", self.specimen)
+
+    def test_completed_archive_classification_present(self):
+        self.assertIn("completed-archive", self.specimen)
+
+    def test_verdict_is_no_for_mixed_plan(self):
+        self.assertIn("execution-ready-as-is: no", self.specimen)
+
+    def test_section_map_has_table_rows(self):
+        rows = [line for line in self.specimen.splitlines()
+                if line.strip().startswith("|") and "Section" not in line
+                and "---" not in line and line.strip() != "|"]
+        self.assertGreaterEqual(len(rows), 3, "Section map should have at least 3 rows")
+
+
 class TestSkillQualityGatesDoc(unittest.TestCase):
     """docs/skill-quality-gates.md existence and content."""
 

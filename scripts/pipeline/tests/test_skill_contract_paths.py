@@ -264,5 +264,20 @@ class TestScriptRegistration(unittest.TestCase):
         )
 
 
+
+
+class TestSessionStartReferencesPlanNormalize(unittest.TestCase):
+    """TC-02 acceptance: session-start.md must reference S-91 plan-normalize."""
+
+    def test_session_start_references_plan_normalize(self):
+        path = REPO_ROOT / 'skills' / 'session-start.md'
+        self.assertTrue(path.exists(), 'skills/session-start.md must exist')
+        text = path.read_text(encoding='utf-8', errors='ignore')
+        self.assertTrue(
+            'plan-normalize' in text or 'S-91' in text,
+            'skills/session-start.md must reference plan-normalize or S-91'
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
