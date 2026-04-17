@@ -1,5 +1,7 @@
 <!-- CONTRACT: scripts/pipeline/audit.py (invoked in Step 3)
+     CONTRACT: scripts/pipeline/ground_check.py (invoked in Step 3 when present)
      postcondition: audit.py returns automated structural PASS/WARN/FAIL report
+     postcondition: ground_check.py returns grounding ratio gate (exit 0=PASS, 1=WARN, 2=FAIL)
      postcondition: agent performs knowledge cross-reference and evidence checks manually
      postcondition: skill is read-only — no file modifications
      verified: 2026-04-01
@@ -40,6 +42,15 @@ Run a structural and quality check on a content file before committing.
    ```
    `audit.py` performs automated structural and schema checks and outputs a PASS/WARN/FAIL
    report. Read the script output and incorporate the results into the overall check.
+
+   **Run grounding ratio gate via ground_check.py** (if the script exists):
+   ```bash
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/ground_check.py {family} {platform} {relative-file-path}
+   ```
+   - Exit 0 → `GROUND_CHECK: PASS` — all backtick identifiers grounded in `api_surface.json`
+   - Exit 1 → `GROUND_CHECK: WARN` — grounding ratio 60–79%; flag but do not block
+   - Exit 2 → `GROUND_CHECK: FAIL` — grounding ratio <60%; block commit and list ungrounded identifiers
+   - If the script does not exist, skip this step (gate is enforced by agent reasoning in §Knowledge cross-reference checks below)
 
    Then **perform the additional checks below** (these require agent reasoning and are not
    automated by the script):
