@@ -33,6 +33,7 @@ ALL_EVALUATORS = [
     "prose_grounding",
     "version_claim_check",
     "capability_claim_check",
+    "encoding_check",
 ]
 
 # Default evaluators (fast, deterministic, production-ready)
@@ -64,6 +65,7 @@ DEFAULT_EVALUATORS = [
     "dead_internal_link",
     "version_claim_check",
     "capability_claim_check",
+    "encoding_check",
 ]
 
 # Platform foreign-code patterns: (regex, description)

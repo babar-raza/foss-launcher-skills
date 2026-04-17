@@ -79,4 +79,5 @@ def _ensure_loaded():
         member_validity,
         version_claim_check,
         capability_claim_check,
+        encoding_check,
     )
