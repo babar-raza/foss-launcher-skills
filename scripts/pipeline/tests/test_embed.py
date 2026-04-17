@@ -175,3 +175,80 @@ class TestPickClientReturnsTier:
         client, tier = embed._pick_client(config)
         assert client is None
         assert tier is None
+
+
+# ---------------------------------------------------------------------------
+# chunk_content_pages — all 5 site roots covered (RC-2 regression guard)
+# ---------------------------------------------------------------------------
+
+import content_discovery  # noqa: E402  (sys.path added by conftest.py)
+
+
+class TestChunkContentPagesAllSites:
+    """Regression guard: chunk_content_pages must cover all 5 content sites."""
+
+    SITE_NAMES = [
+        "docs.aspose.org",
+        "kb.aspose.org",
+        "blog.aspose.org",
+        "reference.aspose.org",
+        "products.aspose.org",
+    ]
+
+    def _make_site_files(self, tmp_path: Path, family: str, platform: str) -> dict[str, Path]:
+        """Create one .md file per site under tmp_path."""
+        site_files: dict[str, Path] = {}
+        for site_name, pattern in content_discovery.SITE_PATHS:
+            site_dir = Path(pattern.format(family=family, platform=platform))
+            # Reroute under tmp_path to avoid writing to actual content/
+            relative = site_dir.relative_to(site_dir.anchor) if site_dir.is_absolute() else site_dir
+            local_dir = tmp_path / relative
+            local_dir.mkdir(parents=True, exist_ok=True)
+            md = local_dir / "sample.md"
+            md.write_text(
+                f"# Sample for {site_name}\n\nThis is a paragraph long enough to be chunked.\n",
+                encoding="utf-8",
+            )
+            site_files[site_name] = md
+        return site_files
+
+    def test_all_five_sites_covered(self, tmp_path, monkeypatch):
+        """Every site in SITE_PATHS must contribute chunks when its dir exists."""
+        family, platform = "testfam", "testplat"
+
+        # Build fake SITE_PATHS pointing entirely inside tmp_path
+        fake_site_paths = []
+        for site_name, _ in content_discovery.SITE_PATHS:
+            local_dir = tmp_path / "content" / site_name.replace(".", "_") / "{family}" / "{platform}"
+            fake_site_paths.append((site_name, str(local_dir)))
+
+        # Create one file per site
+        for site_name, pattern in fake_site_paths:
+            site_dir = Path(pattern.format(family=family, platform=platform))
+            site_dir.mkdir(parents=True, exist_ok=True)
+            (site_dir / "page.md").write_text(
+                "# Test\n\nA paragraph with enough text to be included as a chunk.\n",
+                encoding="utf-8",
+            )
+
+        monkeypatch.setattr(content_discovery, "SITE_PATHS", fake_site_paths)
+
+        chunks = embed.chunk_content_pages(family, platform)
+        assert len(chunks) >= len(fake_site_paths), (
+            f"Expected chunks from all {len(fake_site_paths)} sites; got {len(chunks)} chunks. "
+            "chunk_content_pages may still be using hardcoded site paths."
+        )
+
+        # Every site dir should appear in at least one chunk key
+        covered_sites = set()
+        for key in chunks:
+            for site_name, pattern in fake_site_paths:
+                site_dir = str(Path(pattern.format(family=family, platform=platform)))
+                if site_dir in key:
+                    covered_sites.add(site_name)
+
+        missing = set(name for name, _ in fake_site_paths) - covered_sites
+        assert not missing, (
+            f"The following sites produced no chunks: {missing}. "
+            "chunk_content_pages is not using SITE_PATHS for all sites."
+        )
