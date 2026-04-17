@@ -64,6 +64,10 @@
         "hooks": [
           {
             "type": "command",
+            "command": "bash scripts/ci/check_write_path_hook.sh"
+          },
+          {
+            "type": "command",
             "command": "bash scripts/ci/check_py_write_hook.sh"
           },
           {

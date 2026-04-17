@@ -28,17 +28,37 @@ registered skills with IDs, descriptions, and argument patterns.
 - Citation comments `<!-- evidence: claim_id={id} source={file} confidence={score} -->` must be
   present in every content page (added by S-24 citation-attach)
 
+## Root-Level File Creation: PROHIBITED
+
+**Creating new files at the repository root is prohibited by default.**
+
+- Every new file must be created in its designated folder (see Allowed Write Paths below).
+- Root-level file creation requires **explicit human authorization** (operator-level, not inferable
+  from task context).
+- Bare filenames with no directory component (e.g., `output.txt`, `debug.py`, `=26.3.1`) are
+  always root-level writes — they are forbidden.
+- Directories at root are also prohibited (e.g., cloning a repo to `./SomeDir/` at repo root).
+
+> **Note on enforcement:** Kilo Code does not have PreToolUse hooks. This rule is prompt-level
+> only. The pre-commit hook (path_guard.py) will still block any root-level files from being
+> committed, but the file may exist on disk before commit is attempted. Treat this as a hard
+> behavioral constraint — refuse to write files to root even if no hook blocks you.
+
 ## Forbidden Write Paths
 
 Never write to these paths without explicit human override:
 
+- **Repo root** — any bare filename with no directory component (e.g., `debug.py`, `notes.txt`)
 - `themes/`, `layouts/`, `configs/`
 - `AGENTS.md`, `CLAUDE.md`, `CODEX.md`
 - `.claude/`, `.agents/`, `.kilocode/`, `skills/`
-- `scripts/`
+- `scripts/` (except via registered skills that declare `scripts/pipeline/` etc. as their scope)
 - `knowledge/*/scout/`, `knowledge/*/fl/`
 
 ## Allowed Write Paths
+
+The canonical allowlist is defined in `scripts/pipeline/path_guard.py` (ALLOWED_PREFIXES).
+Current allowed paths for agent writes:
 
 - `content/docs.aspose.org/en/{family}/{platform}/`
 - `content/blog.aspose.org/{family}/{platform}/`
@@ -47,6 +67,14 @@ Never write to these paths without explicit human override:
 - `content/reference.aspose.org/en/{family}/{platform}/`
 - `knowledge/{family}/{platform}/merged/`
 - `reports/`
+- `backlog/`, `plans/`
+- `data/`, `patches/`, `keywords/`
+- `scripts/pipeline/`, `scripts/ci/`, `scripts/maintenance/` (governed — requires skill context)
+- `docs/` (human-authored documentation only)
+- `tests/`
+
+**Everything else is DENY by default**, including any path not listed above. When in doubt,
+run `python scripts/pipeline/path_guard.py <path>` to check.
 
 ## Skill-First Execution (AGENTS.md §6a/§6b)
 
