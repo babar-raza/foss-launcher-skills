@@ -444,3 +444,39 @@ class TestHumanLikeness:
                 f"Human-likeness {human_likeness:.1%} below threshold "
                 f"{threshold:.0%}"
             )
+
+    def test_benchmark_no_unhandled_exceptions(self, corpus, tmp_path):
+        """Guard: benchmark corpus must not crash any evaluator (G-3 guardrail).
+
+        Ensures that pre-existing evaluator bugs do not contaminate benchmark
+        results by silently swallowing exceptions. Any crash must be classified
+        using the G-1 decision tree (AGENTS.md §6b) before routing.
+        """
+        from content_eval.config import DEFAULT_EVALUATORS
+
+        crashes = []
+
+        for entry in corpus:
+            if "_doc" in entry and "type" not in entry:
+                continue
+
+            entry_type = entry.get("type", "live")
+            family = entry["family"]
+            platform = entry["platform"]
+
+            try:
+                if entry_type == "live":
+                    file_path = entry["file"]
+                    _evaluate_page(file_path, family, platform)
+                elif entry_type == "seeded":
+                    subdomain = entry.get("subdomain", "products")
+                    _evaluate_seeded_page(entry, family, platform, subdomain)
+            except Exception as exc:
+                seed_id = entry.get("seed_id") or entry.get("file", "unknown")
+                crashes.append(f"{seed_id}: {type(exc).__name__}: {exc}")
+
+        assert not crashes, (
+            "Evaluator crash(es) on benchmark corpus — classify each using "
+            "G-1 decision tree (AGENTS.md §6b):\n"
+            + "\n".join(crashes)
+        )

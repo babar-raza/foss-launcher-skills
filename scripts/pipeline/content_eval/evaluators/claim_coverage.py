@@ -75,7 +75,7 @@ class ClaimCoverageEvaluator(BaseEvaluator):
         evidence = page.frontmatter.get("evidence", {})
         if not isinstance(evidence, dict):
             return []
-        cited_ids: list[str] = evidence.get("claims", [])
+        cited_ids: list[str] = evidence.get("claims") or []
         if not cited_ids:
             return []
 

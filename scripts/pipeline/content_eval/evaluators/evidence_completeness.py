@@ -47,8 +47,8 @@ class EvidenceCompletenessEvaluator(BaseEvaluator):
             return []
 
         findings: list[Finding] = []
-        apis = evidence.get("apis", [])
-        claims = evidence.get("claims", [])
+        apis = evidence.get("apis") or []
+        claims = evidence.get("claims") or []
 
         # --- claims: [] check ---
         if not claims:

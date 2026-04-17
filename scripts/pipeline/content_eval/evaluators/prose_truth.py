@@ -232,7 +232,7 @@ class ProseTruthEvaluator(BaseEvaluator):
                     # If cosine similarity is high enough, the claim is supported
                     if claim_index.available:
                         semantic_score = claim_index.best_similarity(line_text)
-                        if semantic_score >= 0.4:
+                        if semantic_score >= 0.6:
                             continue  # Supported by semantic similarity
 
                     # Tertiary tier: section-level evidence suppression.

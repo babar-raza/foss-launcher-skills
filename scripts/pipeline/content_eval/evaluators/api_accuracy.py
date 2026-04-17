@@ -32,7 +32,7 @@ sys.path.insert(0, str(_HERE))
 
 from knowledge_core import Knowledge  # noqa: E402
 from evidence_verifier import verify_evidence  # noqa: E402  (R-3b: was knowledge_core)
-from token_ops import extract_tokens, verify_tokens  # noqa: E402
+from token_ops import extract_tokens, verify_tokens, verify_signature  # noqa: E402
 
 
 class ApiAccuracyEvaluator(BaseEvaluator):
@@ -40,6 +40,7 @@ class ApiAccuracyEvaluator(BaseEvaluator):
 
     Delegates to audit.py's extract_tokens + verify_tokens for deterministic
     API accuracy checking. Also validates evidence frontmatter via verify_evidence.
+    Includes signature verification (SG category) via verify_signature.
     """
 
     name = "api_accuracy"
@@ -57,7 +58,10 @@ class ApiAccuracyEvaluator(BaseEvaluator):
         # Verify evidence frontmatter
         audit_findings.extend(verify_evidence(page.frontmatter, knowledge, page.filepath))
 
-        # Convert audit.Finding → content_eval.Finding
+        # Signature verification (TC-P3-02): argument count + return type checks
+        sig_findings = verify_signature(page.filepath, page.platform, knowledge)
+
+        # Convert audit.Finding → content_eval.Finding (AA category)
         for af in audit_findings:
             findings.append(Finding(
                 level=af.level,
@@ -66,6 +70,18 @@ class ApiAccuracyEvaluator(BaseEvaluator):
                 line_no=af.line_no,
                 message=af.message,
                 suggestion=af.suggestion,
+                evaluator=self.name,
+            ))
+
+        # Convert signature findings → content_eval.Finding (SG category)
+        for sf in sig_findings:
+            findings.append(Finding(
+                level=sf.level,
+                category="SG",
+                filepath=str(sf.filepath),
+                line_no=sf.line_no,
+                message=sf.message,
+                suggestion=sf.suggestion,
                 evaluator=self.name,
             ))
 

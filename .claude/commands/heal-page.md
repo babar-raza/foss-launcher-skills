@@ -81,6 +81,15 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 10. **Check improvement**: If grade is now C or above, report success and exit.
 
 11. **Healing pass 2** (if still D or F): Apply more aggressive fixes:
+
+    **Ground-check before pass 2** (TC-P3-04):
+    ```bash
+    .venv/Scripts/python scripts/pipeline/audit.py --files {relative-file-path}
+    ```
+    If audit.py finds new FAIL findings not present in the Pass 1 report, halt and escalate
+    to human review — do not proceed with aggressive rewrites until the new failures are
+    understood. If audit.py is clean (no new FAILs), continue.
+
     - Rewrite entire failing sections from scratch using claims and snippets
     - Remove sections that cannot be fixed (better to be incomplete than wrong)
     - Simplify code examples to only verified API calls

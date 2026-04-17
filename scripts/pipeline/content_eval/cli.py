@@ -476,3 +476,23 @@ def main(argv: list[str] | None = None):
 
     args = parser.parse_args(argv)
     args.func(args)
+
+
+if __name__ == "__main__":
+    # Support direct invocation: python scripts/pipeline/content_eval/cli.py ...
+    # Inject the pipeline directory so relative imports resolve correctly.
+    import sys as _sys
+    from pathlib import Path as _Path
+    _pipeline_dir = str(_Path(__file__).resolve().parents[1])
+    if _pipeline_dir not in _sys.path:
+        _sys.path.insert(0, _pipeline_dir)
+    # Re-run with the fixed path by delegating to the package entry point.
+    # This must happen before the relative imports at module top level fire,
+    # so we can't fix it here at __main__ time. Instead, print a clear error.
+    print(
+        "Error: cli.py cannot be invoked directly due to relative imports.\n"
+        "Use: .venv/Scripts/python scripts/pipeline/run_content_eval.py evaluate ...\n"
+        "  or: PYTHONPATH=scripts/pipeline .venv/Scripts/python -m content_eval evaluate ...",
+        file=_sys.stderr,
+    )
+    _sys.exit(2)

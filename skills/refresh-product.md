@@ -128,6 +128,14 @@ Do not run any subsequent steps. Exit 0.
    ```
    Run on all pages updated, generated, or modified in Steps 4-7.
 
+9.5. **Re-grade changed pages** (TC-P3-03: post-refresh re-grading):
+    ```bash
+    .venv/Scripts/python -m content_eval evaluate {family} {platform} --write-grade
+    ```
+    Recalculates grades against the updated knowledge model and persists them to frontmatter.
+    Compare before/after grades: any page regressing to D or F should be flagged for healing
+    before translation (Step 11). Pass `--skip-regrade` to bypass for fast refresh runs.
+
 10. **Link validation** (S-65: link-validate):
     ```
     /link-validate {family} {platform}

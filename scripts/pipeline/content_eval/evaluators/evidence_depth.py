@@ -68,8 +68,8 @@ class EvidenceDepthEvaluator(BaseEvaluator):
             return findings
 
         # Check claim count
-        claims = evidence.get("claims", [])
-        apis = evidence.get("apis", [])
+        claims = evidence.get("claims") or []
+        apis = evidence.get("apis") or []
 
         # Count factual prose lines (lines with backtick-wrapped identifiers)
         factual_lines = sum(1 for _, text in page.prose_lines if "`" in text)
@@ -153,8 +153,8 @@ class EvidenceDepthEvaluator(BaseEvaluator):
         for sec in sections:
             heading = sec.get("heading", "")
             line = sec.get("line", 0)
-            sec_apis = sec.get("apis", [])
-            sec_claims = sec.get("claims", [])
+            sec_apis = sec.get("apis") or []
+            sec_claims = sec.get("claims") or []
 
             # Check if this section's heading corresponds to one that has code blocks
             if line in headings_with_code and not sec_apis:
@@ -184,8 +184,8 @@ class EvidenceDepthEvaluator(BaseEvaluator):
         # INFO: section-level coverage statistics
         total_sections_on_page = len(page.headings)
         covered_sections = len(sections)
-        total_section_apis = sum(len(s.get("apis", [])) for s in sections)
-        total_section_claims = sum(len(s.get("claims", [])) for s in sections)
+        total_section_apis = sum(len(s.get("apis") or []) for s in sections)
+        total_section_claims = sum(len(s.get("claims") or []) for s in sections)
 
         if total_sections_on_page > 0:
             coverage_pct = round(covered_sections / total_sections_on_page * 100)
