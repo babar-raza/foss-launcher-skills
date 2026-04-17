@@ -1,4 +1,4 @@
-"""Regression tests for refresh pipeline validation (RH-108..RH-112, RH-202).
+"""Regression tests for refresh pipeline validation (RH-108..RH-112, RH-202, RH-205).
 
 RH-108 RC-1: Removal-only delta produces semantic body changes, not just SHA metadata.
 RH-109 RC-4: Modified API/claim produces prose updates — not just metadata.
@@ -6,6 +6,8 @@ RH-110 RC-2: New page generation — pages_to_add populated when new APIs/claims
 RH-111 RC-3: Enrichment truthfulness — success path (V4) and failure path (V5).
 RH-112 RC-5: Idempotent rerun — second run on same state produces zero-change delta.
 RH-202:      Delta-aware idempotency helpers for downstream planners.
+RH-205:      Two-layer model proof — 5 cases covering L1-only, L2-only, both, neither,
+             and page_spec_missing override.
 
 These tests prove that Sprint 2 code fixes work correctly and prevent regressions.
 """
@@ -25,6 +27,7 @@ from refresh_knowledge import (
     _load_knowledge_delta,
 )
 from triage_confirm import triage_confirm
+from reconcile_triage import reconcile_triage_page, TriageSource, ReconcileTriage
 
 
 # ---------------------------------------------------------------------------
@@ -1096,3 +1099,393 @@ class TestTriageConfirmMultipleSignals:
         }
         result = triage_confirm(page, knowledge)
         assert result["confidence"] >= 0.9
+
+
+# ---------------------------------------------------------------------------
+# RH-203: Enhanced reconciliation — 3-source schema + final_verdict
+# ---------------------------------------------------------------------------
+
+class TestReconcileTriageFinalVerdict:
+    """RH-203: final_verdict combines all three sources conservatively."""
+
+    def test_final_verdict_current_when_all_clean(self, tmp_path):
+        """All three sources clean → final_verdict = 'current'."""
+        page = tmp_path / "Workbook.md"
+        page.write_text("Workbook reference page.\n", encoding="utf-8")
+        knowledge = {"api_surface": [{"name": "Workbook", "methods": [], "properties": []}], "delta": {}}
+
+        result = reconcile_triage_page(
+            page, knowledge, layer1_stale=False, page_spec_missing=False
+        )
+        assert result.final_verdict == "current"
+        assert result.final_confidence == 0.0
+        assert result.final_reasons == []
+
+    def test_final_verdict_needs_update_from_layer1(self, tmp_path):
+        """Layer 1 stale (SHA mismatch) → final_verdict = 'needs_update'."""
+        page = tmp_path / "Workbook.md"
+        page.write_text("Workbook reference page.\n", encoding="utf-8")
+        knowledge = {"delta": {}}
+
+        result = reconcile_triage_page(page, knowledge, layer1_stale=True)
+        assert result.final_verdict == "needs_update"
+        assert result.final_confidence == 1.0
+
+    def test_final_verdict_needs_update_from_layer2(self, tmp_path):
+        """Layer 2 stale (body mentions removed API) → final_verdict = 'needs_update'."""
+        page = tmp_path / "Cell.md"
+        page.write_text("The OldClass provides CSV export.\n", encoding="utf-8")
+        knowledge = {
+            "delta": {"removed_apis": ["OldClass"], "modified_apis": [], "removed_claims": []},
+        }
+
+        result = reconcile_triage_page(page, knowledge, layer1_stale=False)
+        assert result.final_verdict == "needs_update"
+        assert result.final_confidence >= 0.9
+
+    def test_final_verdict_missing_from_page_spec(self, tmp_path):
+        """page_spec missing → final_verdict = 'missing' (highest priority)."""
+        page = tmp_path / "Workbook.md"
+        page.write_text("Workbook page.\n", encoding="utf-8")
+        knowledge = {"delta": {}}
+
+        result = reconcile_triage_page(page, knowledge, page_spec_missing=True)
+        assert result.final_verdict == "missing"
+        assert result.final_confidence == 1.0
+
+    def test_page_spec_missing_overrides_layer1_stale(self, tmp_path):
+        """page_spec missing takes priority over Layer 1 stale."""
+        page = tmp_path / "Workbook.md"
+        page.write_text("Workbook page.\n", encoding="utf-8")
+        knowledge = {"delta": {}}
+
+        result = reconcile_triage_page(
+            page, knowledge, layer1_stale=True, page_spec_missing=True
+        )
+        assert result.final_verdict == "missing", (
+            "page_spec missing must take priority over layer1 stale signal"
+        )
+
+    def test_layer2_stale_when_layer1_current(self, tmp_path):
+        """Layer 1 current but Layer 2 stale → needs_update (conservative)."""
+        page = tmp_path / "OldFormatter.md"
+        page.write_text("OldFormatter handles cell formatting.\n", encoding="utf-8")
+        knowledge = {
+            "api_surface": [{"name": "Workbook", "methods": [], "properties": []}],
+            "delta": {"removed_apis": ["OldFormatter"], "modified_apis": [], "removed_claims": []},
+        }
+
+        result = reconcile_triage_page(page, knowledge, layer1_stale=False)
+        assert result.final_verdict == "needs_update", (
+            "Conservative rule: Layer 2 stale must trigger needs_update "
+            "even when Layer 1 reports current"
+        )
+
+
+class TestReconcileTriageSources:
+    """RH-203: Individual source records are correctly populated."""
+
+    def test_layer1_source_populated_when_stale(self, tmp_path):
+        """Layer 1 source has correct name, verdict, confidence when stale."""
+        page = tmp_path / "page.md"
+        page.write_text("content", encoding="utf-8")
+
+        result = reconcile_triage_page(page, {}, layer1_stale=True)
+        assert result.layer1_triage.name == "layer1_triage"
+        assert result.layer1_triage.verdict == "needs_update"
+        assert result.layer1_triage.confidence == 1.0
+        assert len(result.layer1_triage.reasons) > 0
+
+    def test_layer1_source_current_when_not_stale(self, tmp_path):
+        """Layer 1 source has verdict='current' when SHA matches."""
+        page = tmp_path / "page.md"
+        page.write_text("content", encoding="utf-8")
+
+        result = reconcile_triage_page(page, {}, layer1_stale=False)
+        assert result.layer1_triage.verdict == "current"
+        assert result.layer1_triage.confidence == 0.0
+
+    def test_layer2_source_populated_when_body_stale(self, tmp_path):
+        """Layer 2 source records reasons from triage_confirm."""
+        page = tmp_path / "page.md"
+        page.write_text("RemovedClass is used here.\n", encoding="utf-8")
+        knowledge = {
+            "delta": {"removed_apis": ["RemovedClass"], "modified_apis": [], "removed_claims": []},
+        }
+
+        result = reconcile_triage_page(page, knowledge)
+        assert result.layer2_triage.name == "layer2_triage"
+        assert result.layer2_triage.verdict == "needs_update"
+        assert any("RemovedClass" in r for r in result.layer2_triage.reasons)
+
+    def test_page_spec_source_missing(self, tmp_path):
+        """page_spec source has verdict='missing' when page absent from plan."""
+        page = tmp_path / "page.md"
+        page.write_text("content", encoding="utf-8")
+
+        result = reconcile_triage_page(page, {}, page_spec_missing=True)
+        assert result.page_spec.name == "page_spec"
+        assert result.page_spec.verdict == "missing"
+        assert result.page_spec.confidence == 1.0
+
+    def test_layer1_custom_reasons_propagated(self, tmp_path):
+        """Custom layer1_reasons are stored in layer1_triage.reasons."""
+        page = tmp_path / "page.md"
+        page.write_text("content", encoding="utf-8")
+        custom = ["knowledge updated: 3 API changes"]
+
+        result = reconcile_triage_page(page, {}, layer1_stale=True, layer1_reasons=custom)
+        assert result.layer1_triage.reasons == custom
+
+
+class TestReconcileTriageSchema:
+    """RH-203: to_dict() produces complete 3-source schema with all required fields."""
+
+    def test_to_dict_contains_all_required_keys(self, tmp_path):
+        """to_dict() output must include all schema-required top-level keys."""
+        page = tmp_path / "Workbook.md"
+        page.write_text("content", encoding="utf-8")
+
+        result = reconcile_triage_page(
+            page, {}, family="cells", platform="net", layer1_stale=False
+        )
+        d = result.to_dict()
+
+        required_keys = {
+            "family", "platform", "page_path",
+            "sources", "final_verdict", "final_confidence", "final_reasons",
+        }
+        assert required_keys <= set(d.keys()), (
+            f"to_dict() missing required keys: {required_keys - set(d.keys())}"
+        )
+
+    def test_sources_dict_has_all_three_sources(self, tmp_path):
+        """to_dict()['sources'] must contain layer1_triage, layer2_triage, page_spec."""
+        page = tmp_path / "page.md"
+        page.write_text("content", encoding="utf-8")
+
+        result = reconcile_triage_page(page, {})
+        sources = result.to_dict()["sources"]
+
+        assert "layer1_triage" in sources
+        assert "layer2_triage" in sources
+        assert "page_spec" in sources
+
+    def test_each_source_has_required_fields(self, tmp_path):
+        """Each source in to_dict()['sources'] must have name, verdict, confidence, reasons."""
+        page = tmp_path / "page.md"
+        page.write_text("content", encoding="utf-8")
+
+        result = reconcile_triage_page(page, {})
+        sources = result.to_dict()["sources"]
+
+        for source_name, source_dict in sources.items():
+            required = {"name", "verdict", "confidence", "reasons"}
+            assert required <= set(source_dict.keys()), (
+                f"Source '{source_name}' missing required fields: "
+                f"{required - set(source_dict.keys())}"
+            )
+
+    def test_family_and_platform_in_output(self, tmp_path):
+        """family and platform are preserved in to_dict() output."""
+        page = tmp_path / "page.md"
+        page.write_text("content", encoding="utf-8")
+
+        result = reconcile_triage_page(
+            page, {}, family="words", platform="python"
+        )
+        d = result.to_dict()
+        assert d["family"] == "words"
+        assert d["platform"] == "python"
+
+    def test_final_verdict_values_are_valid(self, tmp_path):
+        """final_verdict must be one of the three valid states."""
+        valid_verdicts = {"needs_update", "current", "missing"}
+
+        page = tmp_path / "page.md"
+        page.write_text("content", encoding="utf-8")
+
+        for stale, missing in [(False, False), (True, False), (False, True)]:
+            result = reconcile_triage_page(
+                page, {}, layer1_stale=stale, page_spec_missing=missing
+            )
+            assert result.final_verdict in valid_verdicts, (
+                f"final_verdict '{result.final_verdict}' is not a valid state"
+            )
+
+
+class TestReconcileTriageDataclass:
+    """RH-203: ReconcileTriage and TriageSource dataclass structure."""
+
+    def test_triage_source_to_dict(self):
+        """TriageSource.to_dict() returns expected structure."""
+        source = TriageSource(
+            name="layer1_triage",
+            verdict="needs_update",
+            confidence=0.8,
+            reasons=["SHA mismatch"],
+        )
+        d = source.to_dict()
+        assert d == {
+            "name": "layer1_triage",
+            "verdict": "needs_update",
+            "confidence": 0.8,
+            "reasons": ["SHA mismatch"],
+        }
+
+    def test_triage_source_defaults(self):
+        """TriageSource has sensible defaults."""
+        source = TriageSource(name="page_spec", verdict="current")
+        assert source.confidence == 0.0
+        assert source.reasons == []
+
+    def test_reconcile_triage_is_dataclass(self, tmp_path):
+        """reconcile_triage_page returns a ReconcileTriage instance."""
+        page = tmp_path / "page.md"
+        page.write_text("content", encoding="utf-8")
+        result = reconcile_triage_page(page, {})
+        assert isinstance(result, ReconcileTriage)
+        assert isinstance(result.layer1_triage, TriageSource)
+        assert isinstance(result.layer2_triage, TriageSource)
+        assert isinstance(result.page_spec, TriageSource)
+
+
+# ---------------------------------------------------------------------------
+# RH-205: Two-layer model proof — 5 end-to-end cases
+# ---------------------------------------------------------------------------
+
+class TestTwoLayerModelProof:
+    """RH-205: End-to-end proof that the two-layer triage model produces correct
+    final_verdict across all 5 canonical combinations.
+
+    Case 1 — Layer 1-only stale: SHA mismatch, body prose clean.
+    Case 2 — Layer 2-only stale: SHA current, body references a removed API.
+    Case 3 — Both layers stale: SHA mismatch AND body references removed API.
+    Case 4 — Neither layer stale: SHA current, body prose clean.
+    Case 5 — page_spec missing overrides all: layer1 stale but verdict=missing.
+    """
+
+    def _make_page(self, tmp_path: Path, body: str, name: str = "Workbook.md") -> Path:
+        page = tmp_path / name
+        page.write_text(body, encoding="utf-8")
+        return page
+
+    def test_layer1_only_stale(self, tmp_path):
+        """Case 1: Layer 1 stale (SHA mismatch) + clean body → needs_update from L1 alone."""
+        body = "# Workbook\n\nUse the Workbook class to open spreadsheets.\n"
+        page = self._make_page(tmp_path, body)
+        knowledge = {
+            "api_surface": [{"name": "Workbook"}, {"name": "Worksheet"}],
+            "delta": {"removed_apis": [], "modified_apis": [], "removed_claims": []},
+        }
+        result = reconcile_triage_page(
+            page_path=page,
+            knowledge=knowledge,
+            layer1_stale=True,
+            layer1_reasons=["SHA mismatch: upstream commit a1b2c3"],
+            family="cells",
+            platform="python",
+        )
+        assert result.final_verdict == "needs_update"
+        assert result.layer1_triage.verdict == "needs_update"
+        assert result.layer2_triage.verdict == "current"
+        assert result.page_spec.verdict == "current"
+        assert result.final_confidence == 1.0
+        assert any("SHA mismatch" in r for r in result.final_reasons)
+
+    def test_layer2_only_stale(self, tmp_path):
+        """Case 2: SHA current + body references removed API → needs_update from L2 alone."""
+        body = "# Workbook\n\nUse DeprecatedLoader to load files.\n"
+        page = self._make_page(tmp_path, body)
+        knowledge = {
+            "api_surface": [{"name": "Workbook"}],
+            "delta": {
+                "removed_apis": ["DeprecatedLoader"],
+                "modified_apis": [],
+                "removed_claims": [],
+            },
+        }
+        result = reconcile_triage_page(
+            page_path=page,
+            knowledge=knowledge,
+            layer1_stale=False,
+            family="cells",
+            platform="python",
+        )
+        assert result.final_verdict == "needs_update"
+        assert result.layer1_triage.verdict == "current"
+        assert result.layer2_triage.verdict == "needs_update"
+        assert result.page_spec.verdict == "current"
+        assert result.layer2_triage.confidence >= 0.9
+        assert any("DeprecatedLoader" in r for r in result.final_reasons)
+
+    def test_both_layers_stale(self, tmp_path):
+        """Case 3: SHA mismatch AND body references removed API → needs_update, both L1+L2 fire."""
+        body = "# Workbook\n\nUse DeprecatedLoader to load files.\n"
+        page = self._make_page(tmp_path, body)
+        knowledge = {
+            "api_surface": [{"name": "Workbook"}],
+            "delta": {
+                "removed_apis": ["DeprecatedLoader"],
+                "modified_apis": [],
+                "removed_claims": [],
+            },
+        }
+        result = reconcile_triage_page(
+            page_path=page,
+            knowledge=knowledge,
+            layer1_stale=True,
+            layer1_reasons=["SHA mismatch: upstream changed"],
+            family="cells",
+            platform="python",
+        )
+        assert result.final_verdict == "needs_update"
+        assert result.layer1_triage.verdict == "needs_update"
+        assert result.layer2_triage.verdict == "needs_update"
+        reasons_text = " ".join(result.final_reasons)
+        assert "SHA mismatch" in reasons_text
+        assert "DeprecatedLoader" in reasons_text
+
+    def test_neither_layer_stale(self, tmp_path):
+        """Case 4: SHA current + clean body → final_verdict = current."""
+        body = "# Workbook\n\nUse the Workbook class to manage spreadsheets.\n"
+        page = self._make_page(tmp_path, body)
+        knowledge = {
+            "api_surface": [{"name": "Workbook"}, {"name": "Worksheet"}],
+            "delta": {"removed_apis": [], "modified_apis": [], "removed_claims": []},
+        }
+        result = reconcile_triage_page(
+            page_path=page,
+            knowledge=knowledge,
+            layer1_stale=False,
+            family="cells",
+            platform="python",
+        )
+        assert result.final_verdict == "current"
+        assert result.layer1_triage.verdict == "current"
+        assert result.layer2_triage.verdict == "current"
+        assert result.page_spec.verdict == "current"
+        assert result.final_confidence == 0.0
+        assert result.final_reasons == []
+
+    def test_page_spec_missing_overrides_layer1_stale(self, tmp_path):
+        """Case 5: page_spec_missing=True overrides layer1_stale → final_verdict = missing."""
+        body = "# Workbook\n\nThis page is in the plan but not fully written.\n"
+        page = self._make_page(tmp_path, body)
+        knowledge = {
+            "api_surface": [{"name": "Workbook"}],
+            "delta": {"removed_apis": [], "modified_apis": [], "removed_claims": []},
+        }
+        result = reconcile_triage_page(
+            page_path=page,
+            knowledge=knowledge,
+            layer1_stale=True,
+            layer1_reasons=["SHA mismatch"],
+            page_spec_missing=True,
+            family="cells",
+            platform="python",
+        )
+        assert result.final_verdict == "missing"
+        assert result.page_spec.verdict == "missing"
+        assert result.final_confidence == 1.0
+        assert any("plan" in r for r in result.final_reasons)
