@@ -747,3 +747,102 @@ class TestGradeReasons:
             assert "new reason" in text
         finally:
             p.unlink(missing_ok=True)
+
+
+# ---------------------------------------------------------------------------
+# TC-GA01: Idempotency guard — graded_at-only diff skips write
+# ---------------------------------------------------------------------------
+
+class TestIdempotencyGuard:
+    """write_grade() must not touch the file when only graded_at would change."""
+
+    def test_idempotent_skip_when_only_graded_at_differs(self):
+        """Second write_grade with same grade/sha/hash/tier/version skips the write."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            ok1 = write_grade(p, "A", model_sha="sha1", evaluator_tier="full",
+                              logic_version="5")
+            assert ok1
+            mtime1 = p.stat().st_mtime
+            ok2 = write_grade(p, "A", model_sha="sha1", evaluator_tier="full",
+                              logic_version="5")
+            assert ok2  # still True -- skip is not an error
+            mtime2 = p.stat().st_mtime
+            assert mtime1 == mtime2, "File must not be touched on idempotent re-write"
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_writes_when_grade_letter_changes(self):
+        """Grade letter A->B forces a write even if everything else is the same."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            write_grade(p, "A", model_sha="sha1", evaluator_tier="full", logic_version="5")
+            mtime1 = p.stat().st_mtime
+            write_grade(p, "B", model_sha="sha1", evaluator_tier="full", logic_version="5")
+            mtime2 = p.stat().st_mtime
+            assert mtime2 >= mtime1
+            assert "grade: B" in p.read_text(encoding="utf-8")
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_writes_when_model_sha_changes(self):
+        """Changed model_sha forces a write."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            write_grade(p, "A", model_sha="sha1", evaluator_tier="full", logic_version="5")
+            write_grade(p, "A", model_sha="sha2", evaluator_tier="full", logic_version="5")
+            assert "graded_model_sha: sha2" in p.read_text(encoding="utf-8")
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_writes_when_content_hash_changes(self):
+        """Changed body (-> different content_hash) forces a write."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            write_grade(p, "A", model_sha="sha1", evaluator_tier="full", logic_version="5")
+            # Rewrite the file with a different body so content_hash differs
+            text = p.read_text(encoding="utf-8")
+            p.write_text(text.replace("Body.", "Body changed."), encoding="utf-8")
+            ok = write_grade(p, "A", model_sha="sha1", evaluator_tier="full", logic_version="5")
+            assert ok
+            # content_hash in frontmatter must reflect the new body
+            from grade_writer import content_hash as ch
+            new_body = "Body changed.\n"
+            expected_hash = ch(new_body)
+            assert expected_hash in p.read_text(encoding="utf-8")
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_writes_when_logic_version_changes(self):
+        """Changed logic_version forces a write."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            write_grade(p, "A", model_sha="sha1", evaluator_tier="full", logic_version="5")
+            write_grade(p, "A", model_sha="sha1", evaluator_tier="full", logic_version="6")
+            assert "graded_logic_version: 6" in p.read_text(encoding="utf-8")
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_writes_when_grade_final_changes(self):
+        """Changing grade_final True->False forces a write."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            write_grade(p, "A", model_sha="sha1", evaluator_tier="full",
+                        logic_version="5", grade_final=True)
+            write_grade(p, "A", model_sha="sha1", evaluator_tier="full",
+                        logic_version="5", grade_final=False,
+                        grade_stale_reason="upstream-dep")
+            assert "grade_final: false" in p.read_text(encoding="utf-8")
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_always_writes_when_no_existing_grade(self):
+        """First-time write (no existing grade block) always writes."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            assert "grade:" not in p.read_text(encoding="utf-8")
+            ok = write_grade(p, "B", model_sha="sha1")
+            assert ok
+            assert "grade: B" in p.read_text(encoding="utf-8")
+        finally:
+            p.unlink(missing_ok=True)

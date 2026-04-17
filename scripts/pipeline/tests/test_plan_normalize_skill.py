@@ -232,5 +232,19 @@ class TestPlanNormalizeAgentsRegistration(unittest.TestCase):
         self.assertIn("execution-ready-as-is: no", self.agents_text)
 
 
+class TestSkillQualityGatesDoc(unittest.TestCase):
+    """docs/skill-quality-gates.md existence and content."""
+
+    def test_skill_quality_gates_doc_exists_and_references_s91(self):
+        path = REPO_ROOT / "docs" / "skill-quality-gates.md"
+        self.assertTrue(path.exists(),
+                        "docs/skill-quality-gates.md must exist")
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        self.assertIn("S-91", text,
+                      "skill-quality-gates.md must reference S-91")
+        self.assertIn("plan-normalize", text,
+                      "skill-quality-gates.md must reference plan-normalize")
+
+
 if __name__ == "__main__":
     unittest.main()
