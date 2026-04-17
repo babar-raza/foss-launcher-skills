@@ -338,38 +338,40 @@ READY TO SHIP if:
 
 ---
 
-### STAGE 8.5 — Human Review Gates (H-01 through H-05)
+### STAGE 8.5 — Governed Review Gates (H-01 through H-05, executed by S-90)
 
-Before declaring READY TO SHIP, human review gates must be completed.
+> **Updated 2026-04-17** — H-gates are now executed by S-90 (`/publish-readiness-review`)
+> per §7c and §7a. The agent performs all 5 gate equivalents. Real human escalation only
+> per §7c conditions (see AGENTS.md §7c).
 
-**Step 1 — Generate review samples:**
-```bash
-.venv/Scripts/python scripts/pipeline/human_review_sampler.py --family {family} --platform {platform} --gate all
+**Step 1 — Invoke S-90 as the governed H-gate executor:**
+```
+/publish-readiness-review {family} {platform} --triage-unknowns
 ```
 
-This creates 5 files in `reports/human-review/`:
-- `{family}-{platform}-h01-sample.md` — 5 random non-reference pages for prose review
-- `{family}-{platform}-h02-sample.md` — 10 stratified reference pages for accuracy review
-- `{family}-{platform}-h03-sample.md` — format table verification template
-- `{family}-{platform}-h04-sample.md` — link validation template
-- `{family}-{platform}-h05-sample.md` — license accuracy template
+S-90 covers all 5 gates internally:
+- **H-01** (prose review): Inspects a sample of non-reference pages against `claims.json` + `api_surface.json`
+- **H-02** (reference accuracy): Invokes S-38 (truth-audit) on a stratified reference sample
+- **H-03** (format table spot-check): Runs `content_eval --evaluators format_truth` on pages with format tables
+- **H-04** (link validation): Invokes S-65 (link-validate) for all cross-subdomain links
+- **H-05** (license accuracy): Reads LICENSE from clone cache; checks against products page claim
 
-**Step 2 — Operator reviews each gate:**
-- H-01: Review sampled pages using `docs/review/h01-prose-review-checklist.md`
-- H-02: Review sampled pages using `docs/review/h02-reference-accuracy-checklist.md`
-- H-03: Verify format tables against clone cache `formats.json`
-- H-04: Run Hugo build, verify cross-subdomain links resolve
-- H-05: Compare license claims against upstream repo LICENSE file
+**Step 2 — Review S-90 output:**
 
-**Step 3 — Record results:**
-Fill in the `result:` field in each sign-off block (PASS / FAIL / CONDITIONAL).
+S-90 writes `reports/publish-review/{family}-{platform}-{YYYYMMDD}/final-verdict.md`.
+This replaces the per-gate sign-off files. The verdict format covers:
+- Per-section READY/CONDITIONAL/BLOCKED
+- Actions taken (S-21/S-26/batch-reference/S-65/S-38 invocations)
+- Items escalated to real human (only those matching §7c real-escalation conditions)
 
-**Step 4 — Re-run scorecard:**
+**Step 3 — Record results in scorecard:**
 ```bash
 .venv/Scripts/python scripts/pipeline/readiness_scorecard.py --family {family} --platform {platform} --set-checkpoint
 ```
 
-The scorecard now reads H-gate sign-offs. "READY TO SHIP" requires all 5 gates to show PASS.
+The scorecard accepts the S-90 final-verdict.md as H-gate sign-off. "READY TO SHIP" requires
+the S-90 verdict to be PUBLISH or CONDITIONAL (with all CONDITIONAL items having been
+actioned by S-90's fix-skill invocations). If S-90 verdict is BLOCKED, the launch is blocked.
 
 > **Note**: Use `--skip-human-review` during development only. Production launches require all H-gates.
 

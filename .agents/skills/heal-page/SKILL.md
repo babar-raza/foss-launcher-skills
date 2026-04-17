@@ -1,7 +1,7 @@
 <!-- CONTRACT: agent-executed
      purpose: heal a low-quality page by applying targeted fixes for each FAIL finding
      preconditions: eval-page grade D or F available; knowledge model current
-     postcondition: page quality improved (grade >= prior) or escalated to human review
+     postcondition: page quality improved (grade >= prior) or routed to S-90 for governed inspection
      idempotent: no — LLM-generated fixes vary between invocations
      verified: 2026-04-11
 -->
@@ -81,6 +81,15 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 10. **Check improvement**: If grade is now C or above, report success and exit.
 
 11. **Healing pass 2** (if still D or F): Apply more aggressive fixes:
+
+    **Ground-check before pass 2** (TC-P3-04):
+    ```bash
+    .venv/Scripts/python scripts/pipeline/audit.py --files {relative-file-path}
+    ```
+    If audit.py finds new FAIL findings not present in the Pass 1 report, halt and escalate
+    to human review — do not proceed with aggressive rewrites until the new failures are
+    understood. If audit.py is clean (no new FAILs), continue.
+
     - Rewrite entire failing sections from scratch using claims and snippets
     - Remove sections that cannot be fixed (better to be incomplete than wrong)
     - Simplify code examples to only verified API calls
@@ -100,10 +109,13 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 
 14. **Final decision**:
     - If grade C or above: report success
-    - If still D or F: **escalate to human** — do not attempt further automatic fixes.
-      For each escalated item, the operator should invoke **S-73 (manual-edit)** with the
-      specific change they want to apply. S-73 is the only sanctioned path for
-      operator-directed targeted edits.
+    - If still D or F: **invoke S-90 (`/publish-readiness-review`)** — do not halt and
+      write a generic escalation item. S-90 will inspect the page, classify the remaining
+      findings, attempt further routing (additional passes via S-89 if appropriate), and
+      determine whether the page requires real human escalation per §7c. S-90 is the
+      governed continuation path; do not stop here.
+      If S-90 also cannot resolve the grade (Grade F after 2 S-26 passes + 1 S-89 pass):
+      S-90 records the real escalation with concrete reason.
 
 15. **Report**:
     ```
@@ -130,7 +142,7 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 
 ## Post-conditions
 - If HEALED: page grade is C or above, ground-check passes
-- If ESCALATED: page is flagged for human review, no further automatic changes
+- If ESCALATED: S-90 invoked for further classification; real human escalation only if S-90 confirms unresolvable per §7c
 - All fixes are grounded in knowledge (no fabrication)
 - Evidence frontmatter is current
 
@@ -141,6 +153,6 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 | `Knowledge unavailable` | Knowledge not bootstrapped | Run `/knowledge-bootstrap {family} {platform}` |
 | `model.yaml stale_since` | Knowledge outdated | Run `/knowledge-update {family} {platform}` |
 | Grade not improved after pass 1 | Fix didn't address root cause | Pass 2 will attempt; if still not improved → ESCALATE |
-| Still D/F after 2 passes | Page has structural issues beyond auto-repair | Escalate to human review per AGENTS.md §8 |
+| Still D/F after 2 passes | Page has structural issues beyond auto-repair | Invoke S-90 (`/publish-readiness-review`) per §7c — S-90 classifies and routes further; real human escalation only if S-90 confirms unresolvable |
 | `audit.py FAIL` persistent | Fabricated API tokens not fixable by LLM | Check api_surface.json; may need `/repo-scout` refresh |
 | `no-downgrade-guard` blocked | Proposed fix would reduce grade | Examine the fix; the guard is protecting correct content |

@@ -1,7 +1,7 @@
 <!-- CONTRACT: agent-executed
      purpose: audit-driven content healing via gap-eval baseline + classified finding repair
      preconditions: knowledge model current; clone cache exists; gap-eval profile exists
-     postcondition: CONTENT findings fixed and grades improved; PIPELINE findings documented for human action
+     postcondition: CONTENT findings fixed and grades improved; PIPELINE findings documented + HOLD items routed to S-90 for governed inspection
      idempotent: no — LLM-generated fixes vary; Tier 3 findings may differ between runs
      verified: 2026-04-11
 -->
@@ -146,13 +146,26 @@ Structure:
 2. **Profile configuration problems** (`wrong-package` PIPELINE subclass): evidence + required action (update profile YAML, re-run gap-eval)
 3. **Enrichment problems** (`wrong-claim` PIPELINE subclass): evidence + required action (re-run S-37 for affected claim IDs)
 4. **Planner gaps** (`missing-section` PIPELINE subclass): evidence + required action (re-run S-47/S-82 or add page to site plan manually)
-5. **Ambiguous and HOLD findings**: list with evidence; require human classification
-6. **Tier 3 non-determinism flags**: list of findings needing a second run to confirm
+5. **Ambiguous and HOLD findings**: list with evidence; classify via S-90 (§7c)
+6. **Tier 3 non-determinism flags**: list of findings needing a second run to confirm (real escalation per §7c condition 3)
 
 Also write `reports/system-heal/{family}-{platform}/pipeline-evidence.json` (machine-readable).
 
-The pipeline evidence report triggers no automated repair. It documents what evidence was found
-and exactly what human action is needed.
+After writing this report, **invoke S-90 on the HOLD bucket items**:
+```
+/publish-readiness-review {family} {platform} --grade-filter C,D,F
+```
+
+S-90 will classify each HOLD item as either:
+- **Actionable** (CONTENT defect misrouted to HOLD) → S-90 routes to S-21/S-26
+- **Pipeline-class only** (genuine extraction/profile/planner gap) → documented in
+  pipeline-evidence.md as requiring the specific pipeline action listed above
+- **Real escalation** (tier3_non_determinism_flag, skill breakage) → S-90 emits
+  escalation record per §7c conditions 2 and 3
+
+Do not halt at this report. S-90 is the governed continuation path for all HOLD items
+that S-87 cannot automatically repair. Real human action is required only for items
+that S-90 classifies as ESCALATED per §7c.
 
 ---
 

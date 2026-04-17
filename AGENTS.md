@@ -1,6 +1,6 @@
 # AGENTS.md — Aspose.org Content Generation & Maintenance Governance
 
-> Last updated: 2026-04-17 (forensic audit plan twinkling-forging-tiger — §9a: EVALUATOR_LOGIC_VERSION bumped to 12 (v11: encoding_check; v12: token_ops.py UNKNOWN_CLASS false-positive suppression via method/property membership check + Python built-in exceptions added to PLATFORM_SDK_CLASSES); §9c: token_ops.py UNKNOWN_CLASS WARN added — silent-skip removed for unknown CamelCase classes in constructor/method/property/enum verification; false positives suppressed by checking if identifier is a known method/property name on any class in api_surface; phantom_methods.py extended to docs/kb/blog dot-notation table entries; formats.json note/python PDF + words/python DOCX reclassified as functional; encoding_check evaluator added to ALL and DEFAULT sets; content_eval/cli.py direct-invocation guard added; §9a triage notes added for encoding_check, UNKNOWN_CLASS, and phantom_methods coverage); prior: 2026-04-13 (§12: S-88 backlog skill registered — unified backlog management with plan scanning, investigation items, archival, session handoff, reminders); prior: 2026-04-12 (§9c change-trigger matrix: added member-doc enrichment gate for batch_reference + description_coverage_audit.py reference; EVALUATOR_LOGIC_VERSION bumped to 6 for retired_at page skip in DescriptionCompletenessEvaluator); prior: 2026-04-10 (S-87 system-heal registered in §12, §6a DAR, §6 audit-driven healing chain; --no-tier3-cache flag documented in §12 S-43 flags); prior: 2026-04-09 (§2/§3 fix knowledge artifact paths to match actual `merged/` directory; remove nonexistent `claims.md` reference); prior: 2026-04-08 (§6f blog slug governance — features post slug is cluster-derived; banned pattern enforced by plan_blog() validator); prior: 2026-04-07 (§7a translation-staging-order governance rule; §6e ceiling-reached terminal state); prior: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline)
+> Last updated: 2026-04-17 (governed-inspection plan cheeky-swimming-whistle — §7b/§7c/§8 updated: S-90 publish-readiness-review operationalizes "human-review" as agent-executable governed inspection; §7a H-gates mapped to S-90 execution; §6a DAR entries added for S-90; §9a UNKNOWN_CLASS triage updated to route to S-90 --triage-unknowns; §9c matrix row added for S-90; §12 S-90 registry entry added); prior: 2026-04-17 (forensic audit plan twinkling-forging-tiger — §9a: EVALUATOR_LOGIC_VERSION bumped to 12 (v11: encoding_check; v12: token_ops.py UNKNOWN_CLASS false-positive suppression via method/property membership check + Python built-in exceptions added to PLATFORM_SDK_CLASSES); §9c: token_ops.py UNKNOWN_CLASS WARN added — silent-skip removed for unknown CamelCase classes in constructor/method/property/enum verification; false positives suppressed by checking if identifier is a known method/property name on any class in api_surface; phantom_methods.py extended to docs/kb/blog dot-notation table entries; formats.json note/python PDF + words/python DOCX reclassified as functional; encoding_check evaluator added to ALL and DEFAULT sets; content_eval/cli.py direct-invocation guard added; §9a triage notes added for encoding_check, UNKNOWN_CLASS, and phantom_methods coverage); prior: 2026-04-13 (§12: S-88 backlog skill registered — unified backlog management with plan scanning, investigation items, archival, session handoff, reminders); prior: 2026-04-12 (§9c change-trigger matrix: added member-doc enrichment gate for batch_reference + description_coverage_audit.py reference; EVALUATOR_LOGIC_VERSION bumped to 6 for retired_at page skip in DescriptionCompletenessEvaluator); prior: 2026-04-10 (S-87 system-heal registered in §12, §6a DAR, §6 audit-driven healing chain; --no-tier3-cache flag documented in §12 S-43 flags); prior: 2026-04-09 (§2/§3 fix knowledge artifact paths to match actual `merged/` directory; remove nonexistent `claims.md` reference); prior: 2026-04-08 (§6f blog slug governance — features post slug is cluster-derived; banned pattern enforced by plan_blog() validator); prior: 2026-04-07 (§7a translation-staging-order governance rule; §6e ceiling-reached terminal state); prior: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline)
 > Authority: Human maintainer only (see Section 4 — this file is in the forbidden write list)
 
 <details>
@@ -22,8 +22,9 @@
 | §6f | [Blog Slug Governance](#6f-blog-slug-governance-added-2026-04-08) | Blog URL rules |
 | §7 | [Hard Stop Conditions](#7-hard-stop-conditions) | When to halt |
 | §7a | [Launch-Readiness Gates](#7a-launch-readiness-gates) | Pre-launch requirements |
-| §7b | [Human-Review Risk Tiers](#7b-human-review-risk-tiers) | Escalation tiers |
-| §8 | [Escalation Conditions](#8-escalation-conditions-route-to-human-review) | Human review routes |
+| §7b | [Human-Review Risk Tiers](#7b-human-review-risk-tiers) | Risk tiers + S-90 requirements |
+| §7c | [Agent-Executed Governed Inspection](#7c-agent-executed-governed-inspection-canonical-interpretation-of-human-review) | Canonical meaning of "human-review" |
+| §8 | [Escalation Conditions](#8-escalation-conditions-invoke-s-90-first-escalate-to-real-human-only-for-these) | S-90 routing + real escalation conditions |
 | §9 | [Maintenance Workflow](#9-maintenance-workflow) | Ongoing maintenance |
 | §9a | [Evaluator Change Checklist](#9a-evaluator-change-checklist) | Bump EVALUATOR_LOGIC_VERSION |
 | §9b | [Regeneration Triggers](#9b-regeneration-after-extraction-script-changes) | When to re-run pipeline |
@@ -679,6 +680,8 @@ Agents must activate the upstream skill if it has not already been confirmed as 
 | `/truth-audit-content` (S-85) | S-54 `/knowledge-bootstrap` | Always |
 | `/system-heal` (S-87) | S-43 `/gap-eval` | Always (Phase 1 invokes gap-eval --no-llm) |
 | `/system-heal` (S-87) | S-54 `/knowledge-bootstrap` | Always (knowledge must not be stale before healing) |
+| `/publish-readiness-review` (S-90) | S-54 `/knowledge-bootstrap` | Always (knowledge must not be stale before inspection) |
+| `/publish-readiness-review` (S-90) | S-25 `/eval-page` or content_eval | Grades must be current at EVALUATOR_LOGIC_VERSION |
 | Any content write | S-01 `/path-guard` | Always (final gate) |
 
 If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do not continue to the downstream skill.
@@ -984,17 +987,17 @@ All 9 automated gates must report PASS before a product is considered launch-eli
 
 **Fail-closed policy**: Any FAIL blocks launch. WARN does not block launch but must be logged.
 
-The following 5 gates require human judgment and cannot be automated:
+The following 5 gates are executed by S-90 (`/publish-readiness-review`) — see §7c:
 
-| Gate | ID | What it checks |
-|------|----|----------------|
-| Human prose review | H-01 | Random sample of 5 non-reference pages reviewed by human |
-| Reference accuracy | H-02 | Stratified sample of 10 reference pages spot-checked against source |
-| Format table spot-check | H-03 | Format support tables verified against clone cache |
-| Link validation | H-04 | All cross-subdomain links resolve in local build |
-| License accuracy | H-05 | Open source license claim matches repo LICENSE file |
+| Gate | ID | What it checks | S-90 execution |
+|------|----|----------------|----------------|
+| Prose review | H-01 | Random sample of 5 non-reference pages reviewed for content quality | S-90 inspection pass: reads each page, checks against `claims.json` and `api_surface.json`, classifies findings |
+| Reference accuracy | H-02 | Stratified sample of 10 reference pages spot-checked against source | S-38 (truth-audit) invoked by S-90 Step 7g; checks `evidence.apis` entries against `api_surface.json` |
+| Format table spot-check | H-03 | Format support tables verified against `formats.json` | `content_eval --evaluators format_truth` invoked by S-90 Step 7f |
+| Link validation | H-04 | All cross-subdomain links resolve in local build | S-65 (link-validate) invoked by S-90 Step 7e |
+| License accuracy | H-05 | Open source license claim matches repo LICENSE file | S-90 Step 7h reads LICENSE from clone cache, checks against products page claim |
 
-**Output**: `launch_gate.py` writes a per-gate result report to `reports/launch-gate/{family}-{platform}-{date}.md` (local only — never commit).
+**Output**: `launch_gate.py` writes a per-gate result report to `reports/launch-gate/{family}-{platform}-{date}.md` (local only — never commit). S-90 writes `reports/publish-review/{family}-{platform}-{date}/final-verdict.md` which covers all H-gate equivalents.
 
 ### Launch Planning Governance Rules (added 2026-04-07)
 
@@ -1068,13 +1071,14 @@ These fields are consumed by `/new-blog-post` to scope content correctly. Do not
 
 ## 7b. Human-Review Risk Tiers
 
-All generated content is classified into risk tiers. Higher tiers require more human review before publication.
+All generated content is classified into risk tiers. Higher tiers require S-90 governed
+inspection before publication; real human escalation only per §7c.
 
 | Tier | Content type | Review requirement | Examples |
 |------|--------------|--------------------|---------|
-| **Tier 1** | Code-heavy reference pages, blog posts with format tables, capability claims | Full human review (H-01 through H-05 gates) before first publish | `slides/net` reference pages, blog posts with `## Supported Formats` sections |
-| **Tier 2** | Docs pages, KB how-to articles, FAQ pages | Spot-check review (5 pages sampled per platform per launch) | `docs/getting-started`, `kb/how-to-*` |
-| **Tier 3** | Locale files, pure structural pages (index/_index), products landing pages | Automated gates only; human review optional | `_index.md` files, locale translations, products pages |
+| **Tier 1** | Code-heavy reference pages, blog posts with format tables, capability claims | S-90 (`/publish-readiness-review`) review gate — agent executes H-01..H-05 equivalents (§7a); real human escalation only per §7c conditions | `slides/net` reference pages, blog posts with `## Supported Formats` sections |
+| **Tier 2** | Docs pages, KB how-to articles, FAQ pages | S-90 spot-check (`--scope docs` or `--scope kb`; `--grade-filter C,D,F`) | `docs/getting-started`, `kb/how-to-*` |
+| **Tier 3** | Locale files, pure structural pages (index/_index), products landing pages | Automated gates only; S-90 optional | `_index.md` files, locale translations, products pages |
 
 **Tier 1 classification triggers** (any one is sufficient):
 - Page contains a format support table (markdown table with Import/Export or Read/Write columns)
@@ -1082,16 +1086,57 @@ All generated content is classified into risk tiers. Higher tiers require more h
 - Page makes a capability claim (e.g., "supports conversion", "can export to PDF")
 - Page is a blog post (all blog posts are Tier 1)
 
-**When tiers matter**: Before a product launch, route Tier 1 pages through human review (H-01/H-02 gates). Tier 2 pages require at least sampling. Tier 3 pages proceed on automated gates alone. After a known evaluator logic change (EVALUATOR_LOGIC_VERSION bump), re-evaluate Tier 1 pages first.
+**When tiers matter**: Before a product launch, run S-90 on Tier 1 and Tier 2 content. Tier 3
+proceeds on automated gates alone. After EVALUATOR_LOGIC_VERSION bump, re-evaluate Tier 1 first,
+then run S-90 to classify and route any newly failing pages.
 
-## 8. Escalation Conditions (route to human review)
+## 7c. Agent-Executed Governed Inspection (canonical interpretation of "human-review")
 
-- S-23 `FAIL` persists after remediation
-- S-12 diff reveals removed public class or changed method signature
-- `stale_report` shows > 30% of page claims are orphaned
-- Heal loop (S-26) fails to improve grade after 2 attempts
+> **Added 2026-04-17** — operationalizes all "human-review" language in the system.
+
+When any skill, plan, report, or governance section says **"human-review required"**,
+**"human action required"**, **"manual review"**, **"manual investigation"**,
+**"needs reviewer"**, or any equivalent phrase, interpret it as follows:
+
+> **NOT**: "Stop and wait for a person."
+> **MEANS**: "Invoke S-90 (`/publish-readiness-review`) — the agent performs the bounded
+> inspection, makes judgment calls, routes to fix skills, re-verifies, and emits an
+> evidence-backed verdict."
+
+**Agents MUST invoke S-90 rather than halting when:**
+- A grade report or audit verdict describes content as "ready for review"
+- A skill's escalation path says "escalate to human review" (S-26, S-46 Wave 4, etc.)
+- H-gates H-01 through H-05 are listed as required before launch (§7a)
+- A policy note says a finding "requires human triage" (e.g., UNKNOWN_CLASS WARNs in §9a)
+- A pipeline evidence report lists "human action required" items (S-87 Phase 5)
+
+**Escalation to a real human is still required only when:**
+1. Grade F after 2 S-26 passes + 1 S-89 batch pass with no improvement
+2. PIPELINE-bucket finding from S-87 (skill breakage, extraction failure, pipeline misconfiguration)
+3. `tier3_non_determinism_flag: true` findings (evaluator non-determinism — agent cannot trust them)
+4. Legal, license, or business claims requiring external verification
+5. S-23 `FAIL` persists after full remediation (existing §8 condition 1)
+6. S-12 diff reveals removed public class or changed method signature (existing §8 condition 2)
+
+**For all other cases, S-90 is the governed execution path.** Do not halt and write an
+escalation item where S-90 can perform the inspection. The distinction between "inspection"
+(agent-executable) and "escalation" (truly external dependency) is governed by this section.
+
+## 8. Escalation Conditions (invoke S-90 first; escalate to real human only for these)
+
+> **Updated 2026-04-17** — agents must invoke S-90 (`/publish-readiness-review`) before
+> escalating. S-90 will classify which items need real human escalation and which it can
+> resolve. The conditions below are the only ones that produce real human escalation output
+> from S-90.
+
+- S-23 `FAIL` persists after full remediation by S-90 (S-90 condition 5)
+- S-12 diff reveals removed public class or changed method signature (S-90 condition 6)
+- `stale_report` shows > 30% of page claims orphaned — run S-90; if still failing after
+  S-26 passes, escalate
+- Heal loop (S-26) fails to improve grade after 2 attempts AND S-89 batch pass also fails —
+  escalate with S-90 evidence record (S-90 condition 1)
 - Skill breakage report is filed (§6b) — a broken skill cannot be bypassed; human must
-  diagnose and repair the skill before affected task types can proceed
+  diagnose and repair the skill before affected task types can proceed (S-90 condition 2)
 
 ## 9. Maintenance Workflow
 
@@ -1183,10 +1228,10 @@ Re-grading a page that did not need it is always safe — results are idempotent
 #### `UNKNOWN_CLASS` WARN in `token_ops.py` (added 2026-04-17)
 
 - **WARN findings with category `UNKNOWN_CLASS`** are emitted by `token_ops.py` when a code block contains `ClassName(...)` constructor syntax (or `ClassName.method(...)` dot-notation) where `ClassName` is not in `api_surface.json` and not in `PLATFORM_SDK_CLASSES`.
-- **These WARN findings require human triage before marking a page clean**. The class may be:
-  1. A genuine hallucination — remove it from the content and substitute a real API class.
-  2. A valid stdlib/third-party type (e.g., `datetime`, `BytesIO`, `DataFrame`) not yet in `PLATFORM_SDK_CLASSES` — add it to `PLATFORM_SDK_CLASSES` in `scripts/pipeline/token_ops.py`.
-  3. A tokenizer false positive from chained-call parsing (e.g., `doc.Save(...)` seen as constructor `Save(...)`) — suppress by adding to `PROPERTY_CHAIN_CLASSES` if appropriate, or ignore if the chain pattern is one-off.
+- **These WARN findings require triage before marking a page clean. Invoke S-90 with `--triage-unknowns`** rather than stopping. S-90 will classify each finding as:
+  1. **FALSE-POSITIVE** (real stdlib/third-party type, e.g., `datetime`, `BytesIO`, `DataFrame`) — S-90 prepares an S-73 invocation to add it to `PLATFORM_SDK_CLASSES` in `scripts/pipeline/token_ops.py`. Operator confirms the class is a real type before executing.
+  2. **TOKENIZER-ARTIFACT** (chained-call parsing error, e.g., `doc.Save(...)` seen as constructor `Save(...)`) — suppress by adding to `PROPERTY_CHAIN_CLASSES`, or ignore if one-off.
+  3. **PROBABLE-HALLUCINATION** (class not in api_surface.json, not in stdlib) — S-90 routes to S-26 (heal-page) to remove the hallucinated class and substitute a real API call.
 - **Do not bulk-suppress** by adding classes to PLATFORM_SDK_CLASSES without verifying they are not hallucinations. Each addition must be verifiable in stdlib docs or a known third-party package.
 
 #### `phantom_methods` — content page coverage (extended 2026-04-17)
@@ -1231,6 +1276,7 @@ Use this matrix to decide what action is required when a specific artifact or sc
 | `content/` page changed | Run S-23 (content-check) + audit.py + attach_evidence.py | Per file |
 | `knowledge/{family}/{platform}/merged/*.json` updated | Re-run attach_evidence.py for affected product | Per product |
 | `skills/*.md` skill file changed | Test with 1 representative run; verify post-conditions fire correctly | Per skill |
+| `skills/publish-readiness-review.md` changed (S-90) | Run `python scripts/ci/check_dar_coverage.py` to verify DAR alignment; run S-90 dry-run on 1 product | Self-test |
 | `scripts/pipeline/path_guard.py` changed | Run `pytest scripts/pipeline/tests/test_path_guard.py` — must exit 0 | Self-test |
 | `AGENTS.md` changed | Verify CLAUDE.md §6 alignment (see CLAUDE.md alignment note) | Self |
 | Running `batch_reference` (S-62) for a product | Verify member-doc ERC coverage ≥ 20% per product first: `python scripts/pipeline/description_coverage_audit.py`; if any product is below threshold, run `enrich --mode member-doc` then `promote.py` before generating reference pages | Per product |
@@ -1848,6 +1894,7 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | system-heal | S-87 | Audit-driven content healing: deterministic baseline (--no-llm) → extended baseline (LLM + tier3_cache) → origin classification (origin_map.py) → content healing (S-74/S-46/S-26 by route) → pipeline evidence report → re-verify → commit or escalate; 8-phase; max 50 findings (use S-44+S-46 above that); AMBIGUOUS and tier3_non_determinism_flag findings never auto-repaired; backs `scripts/gap-eval/origin_map.py` + `scripts/gap-eval/tier3_cache.py` |
 | backlog | S-88 | Unified backlog management and planning: view briefing, automated plan scanning (with `.claude/plans/` repo-affinity filtering), add items (with intake dedup), investigate (intake), investigate-run (execute existing INV item inline — reads brief, gathers evidence, records findings, moves to Resolved), surface (contextual item surfacing — scores backlog against response context, returns top matches; called automatically per §15), remind, session handoff, archive, triage inbox, reconcile (with cross-item analysis), status investigation, plan creation, replan amendment, plan hardening, traceability, governed closeout, merge, group, link; all state in `backlog/` + `plans/from_backlog/` (gitignored); 19 subcommands |
 | heal-batch | S-89 | Batch healing from content_eval report: routes findings through heal policy table to auto/llm/regen modes in a single pass; auto-mode applies deterministic fixers; llm-mode emits S-26 invocation descriptors; regen-mode emits causal-backtrack descriptors with `regen_after` flags; optional before/after verification with regression detection; supersedes deterministic portion of S-40 (batch-remediate); backs `scripts/pipeline/remediate.py heal` |
+| publish-readiness-review | S-90 | Agent-executed governed inspection — replaces all "human-review" dead-ends with bounded inspection, judgment, skill routing, re-verification, and verdict; reads audit context, classifies pages (PUBLISH-READY / NEEDS-ACTION / ACCEPTABLE-GRADE-C / STRUCTURAL-GAP / BLOCKED), routes to S-21/S-26/batch-reference/S-65/S-38/S-73/S-74; H-gate equivalents for H-01..H-05; writes inspection-manifest.json + action-log.json + final-verdict.md; supports --scope, --triage-unknowns, --dry-run; backs `skills/publish-readiness-review.md` |
 
 **S-43 (gap-eval) CLI flags:**
 - `--deterministic` — Exhaustive Stage 2 + no LLM (Tier 1 + Tier 2 only). Fully reproducible. Recommended for regression tracking and CI integration.

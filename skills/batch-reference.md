@@ -187,8 +187,13 @@ After all pages are generated, run a spot-check on the first and last generated 
 .venv/Scripts/python scripts/pipeline/audit.py --files content/reference.aspose.org/en/{family}/{platform}/{last-ClassName}.md
 ```
 
-If either audit returns any FAIL, log a warning: `WARN: Audit failed for {ClassName} — manual review required.`
-Do not halt the batch for a single failing page.
+If either audit returns any FAIL, log a warning: `WARN: Audit failed for {ClassName} — routed to S-90.`
+Do not halt the batch for a single failing page. After the full batch completes, invoke:
+```
+/publish-readiness-review {family} {platform} --scope reference --grade-filter C,D,F
+```
+S-90 will classify each audit-failing reference page and route to the appropriate fix skill
+(S-21 for grade C, S-26 for grade D/F, or S-73 for targeted corrections).
 
 ### 6. Print summary
 
@@ -215,7 +220,7 @@ Skipped pages:
   - {ClassName-a}  (already exists)
   ...
 
-Error pages (manual review required):
+Error pages (routed to S-90 for governed inspection):
   - {ClassName-x}  ({error message})
 ```
 
