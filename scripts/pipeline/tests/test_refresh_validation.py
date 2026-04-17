@@ -1,8 +1,10 @@
-"""Regression tests for refresh pipeline validation (RH-108, RH-110, RH-111, RH-202).
+"""Regression tests for refresh pipeline validation (RH-108..RH-112, RH-202).
 
 RH-108 RC-1: Removal-only delta produces semantic body changes, not just SHA metadata.
+RH-109 RC-4: Modified API/claim produces prose updates — not just metadata.
 RH-110 RC-2: New page generation — pages_to_add populated when new APIs/claims added.
 RH-111 RC-3: Enrichment truthfulness — success path (V4) and failure path (V5).
+RH-112 RC-5: Idempotent rerun — second run on same state produces zero-change delta.
 RH-202:      Delta-aware idempotency helpers for downstream planners.
 
 These tests prove that Sprint 2 code fixes work correctly and prevent regressions.
@@ -22,6 +24,7 @@ from refresh_knowledge import (
     _has_pending_delta,
     _load_knowledge_delta,
 )
+from triage_confirm import triage_confirm
 
 
 # ---------------------------------------------------------------------------
@@ -551,6 +554,24 @@ class TestHasPendingDelta:
         with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
             assert _has_pending_delta("cells", "net") is True
 
+    def test_true_when_modified_claims_present(self, tmp_path):
+        """Regression: modified_claims must trigger pending=True (was silently skipped)."""
+        merged = tmp_path / "cells" / "net" / "merged"
+        merged.mkdir(parents=True)
+        self._write_delta(merged, modified_claims=["SC-042"])
+
+        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
+            assert _has_pending_delta("cells", "net") is True
+
+    def test_true_when_resurrected_apis_present(self, tmp_path):
+        """Regression: resurrected_apis must trigger pending=True (was silently skipped)."""
+        merged = tmp_path / "cells" / "net" / "merged"
+        merged.mkdir(parents=True)
+        self._write_delta(merged, resurrected_apis=["ResurrectedClass"])
+
+        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
+            assert _has_pending_delta("cells", "net") is True
+
 
 class TestDeltaAwareCurrentPath:
     """RH-202: When refresh() returns 'current', pending delta is logged for downstream tools."""
@@ -614,3 +635,464 @@ class TestDeltaAwareCurrentPath:
             "RH-202: When knowledge is current but delta has pending changes, "
             "refresh() must emit a diagnostic for downstream planners"
         )
+
+
+# ---------------------------------------------------------------------------
+# RH-109 RC-4: Modified API/claim — prose updates (not just metadata)
+# ---------------------------------------------------------------------------
+
+class TestModifiedApiAndClaimDelta:
+    """RH-109 RC-4: When an API signature or claim text changes, the delta records
+    modified_apis / modified_claims — ensuring downstream tools update body prose,
+    not just SHA metadata.
+
+    This validates the Sprint 2 fix that distinguished semantic body changes from
+    simple repo-SHA bumps.
+    """
+
+    def test_modified_apis_populated_when_method_name_changes(self, tmp_path):
+        """RC-4: modified_apis includes the class when its method is renamed."""
+        merged, bak = _make_merged_and_bak(tmp_path)
+
+        _write_claims(bak / "claims.json", [])
+        _write_apis(bak / "api_surface.json", [
+            {"name": "Workbook", "methods": [{"name": "Save"}], "properties": []},
+        ])
+        _write_claims(merged / "claims.json", [])
+        _write_apis(merged / "api_surface.json", [
+            # Method renamed Save → SaveAs — this is a prose-affecting change
+            {"name": "Workbook", "methods": [{"name": "SaveAs"}], "properties": []},
+        ])
+
+        _write_knowledge_delta("cells", "net", bak, merged, "sha_new", "sha_old")
+
+        delta = json.loads((merged / "knowledge_delta.json").read_text())
+        assert "Workbook" in delta["modified_apis"], (
+            "RC-4 regression: modified_apis must include Workbook when its method set changes"
+        )
+        assert delta["new_apis"] == [], "Workbook existed before — not a new API"
+        assert delta["removed_apis"] == [], "Workbook still exists — not removed"
+
+    def test_modified_apis_populated_when_property_added(self, tmp_path):
+        """RC-4: modified_apis includes the class when a property is added."""
+        merged, bak = _make_merged_and_bak(tmp_path)
+
+        _write_claims(bak / "claims.json", [])
+        _write_apis(bak / "api_surface.json", [
+            {"name": "Cell", "methods": [], "properties": []},
+        ])
+        _write_claims(merged / "claims.json", [])
+        _write_apis(merged / "api_surface.json", [
+            {"name": "Cell", "methods": [], "properties": [{"name": "Value"}]},
+        ])
+
+        _write_knowledge_delta("cells", "net", bak, merged, "sha_new", "sha_old")
+
+        delta = json.loads((merged / "knowledge_delta.json").read_text())
+        assert "Cell" in delta["modified_apis"], (
+            "RC-4: modified_apis must include Cell when a property is added"
+        )
+
+    def test_modified_claims_populated_when_claim_text_changes(self, tmp_path):
+        """RC-4: modified_claims includes the claim_id when claim text is reworded."""
+        merged, bak = _make_merged_and_bak(tmp_path)
+
+        _write_claims(bak / "claims.json", [
+            {"claim_id": "SC-001", "text": "Workbook can be saved.", "confidence": 0.9},
+        ])
+        _write_apis(bak / "api_surface.json", [])
+        _write_claims(merged / "claims.json", [
+            # Text changed — downstream must update body prose that quoted this claim
+            {"claim_id": "SC-001", "text": "Workbook can be saved as XLSX or CSV.", "confidence": 0.9},
+        ])
+        _write_apis(merged / "api_surface.json", [])
+
+        _write_knowledge_delta("cells", "net", bak, merged, "sha_new", "sha_old")
+
+        delta = json.loads((merged / "knowledge_delta.json").read_text())
+        assert "SC-001" in delta["modified_claims"], (
+            "RC-4 regression: modified_claims must include SC-001 when its text changes"
+        )
+        assert delta["new_claims"] == [], "SC-001 existed before — not new"
+        assert delta["removed_claims"] == [], "SC-001 still exists — not removed"
+
+    def test_modified_claims_populated_when_confidence_changes(self, tmp_path):
+        """RC-4: modified_claims includes claim_id when confidence score changes."""
+        merged, bak = _make_merged_and_bak(tmp_path)
+
+        _write_claims(bak / "claims.json", [
+            {"claim_id": "SC-002", "text": "Cell.PutValue sets a value.", "confidence": 0.7},
+        ])
+        _write_apis(bak / "api_surface.json", [])
+        _write_claims(merged / "claims.json", [
+            {"claim_id": "SC-002", "text": "Cell.PutValue sets a value.", "confidence": 0.95},
+        ])
+        _write_apis(merged / "api_surface.json", [])
+
+        _write_knowledge_delta("cells", "net", bak, merged, "sha_new", "sha_old")
+
+        delta = json.loads((merged / "knowledge_delta.json").read_text())
+        assert "SC-002" in delta["modified_claims"], (
+            "RC-4: modified_claims must include SC-002 when confidence changes"
+        )
+
+    def test_combined_api_and_claim_change_in_single_delta(self, tmp_path):
+        """RC-4: modified_apis and modified_claims both populated in a combined update."""
+        merged, bak = _make_merged_and_bak(tmp_path)
+
+        _write_claims(bak / "claims.json", [
+            {"claim_id": "SC-010", "text": "Workbook saves as CSV.", "confidence": 0.8},
+        ])
+        _write_apis(bak / "api_surface.json", [
+            {"name": "Workbook", "methods": [{"name": "Save"}], "properties": []},
+        ])
+        _write_claims(merged / "claims.json", [
+            {"claim_id": "SC-010", "text": "Workbook saves as CSV or XLSX.", "confidence": 0.95},
+        ])
+        _write_apis(merged / "api_surface.json", [
+            {"name": "Workbook", "methods": [{"name": "Save"}, {"name": "SaveAs"}], "properties": []},
+        ])
+
+        _write_knowledge_delta("cells", "net", bak, merged, "sha_new", "sha_old")
+
+        delta = json.loads((merged / "knowledge_delta.json").read_text())
+        assert "Workbook" in delta["modified_apis"]
+        assert "SC-010" in delta["modified_claims"]
+        assert delta["new_apis"] == []
+        assert delta["removed_apis"] == []
+        assert delta["new_claims"] == []
+        assert delta["removed_claims"] == []
+
+
+# ---------------------------------------------------------------------------
+# RH-112 RC-5: Idempotent rerun — zero changes on second run
+# ---------------------------------------------------------------------------
+
+class TestIdempotentRerun:
+    """RH-112 RC-5: Running the pipeline twice on the same knowledge state must
+    produce a zero-change delta on the second run and must not create duplicate
+    pages. This validates that idempotency is maintained across multiple refreshes.
+    """
+
+    def test_second_delta_is_all_empty_when_knowledge_unchanged(self, tmp_path):
+        """RC-5: After a refresh, writing the delta again with the same state
+        produces all-empty delta fields (no spurious changes detected)."""
+        merged, bak = _make_merged_and_bak(tmp_path)
+
+        # Simulate steady-state: bak == merged (second run — no knowledge change)
+        same_apis = [{"name": "Workbook", "methods": [{"name": "Save"}], "properties": []}]
+        same_claims = [{"claim_id": "SC-001", "text": "Workbook saves.", "confidence": 0.9}]
+
+        _write_claims(bak / "claims.json", same_claims)
+        _write_apis(bak / "api_surface.json", same_apis)
+        _write_claims(merged / "claims.json", same_claims)
+        _write_apis(merged / "api_surface.json", same_apis)
+
+        _write_knowledge_delta("cells", "net", bak, merged, "sha_same", "sha_same")
+
+        delta = json.loads((merged / "knowledge_delta.json").read_text())
+        assert delta["new_apis"] == [], "RC-5: no new APIs in idempotent second run"
+        assert delta["removed_apis"] == [], "RC-5: no removed APIs in idempotent second run"
+        assert delta["modified_apis"] == [], "RC-5: no modified APIs in idempotent second run"
+        assert delta["new_claims"] == [], "RC-5: no new claims in idempotent second run"
+        assert delta["removed_claims"] == [], "RC-5: no removed claims in idempotent second run"
+        assert delta["modified_claims"] == [], "RC-5: no modified claims in idempotent second run"
+
+    def test_second_refresh_returns_current_when_sha_matches(self, tmp_path):
+        """RC-5: refresh() on same SHA as second run returns 'current' — no pipeline rerun."""
+        sha = "deadbeef1234"
+
+        with _patch_clone_dir(tmp_path), _patch_head(sha), _patch_model(sha), \
+                patch.object(_rk, "_update_clone", return_value=None):
+            result = refresh("cells", "net")
+
+        assert result == "current", (
+            "RC-5: refresh() must return 'current' when model SHA == HEAD (idempotent second run)"
+        )
+
+    def test_no_duplicate_api_names_in_modified_list(self, tmp_path):
+        """RC-5: modified_apis must not contain duplicate class names even when both
+        api_surface and ERC claims change for the same class."""
+        merged, bak = _make_merged_and_bak(tmp_path)
+
+        # Class 'Workbook' changes in both api_surface AND ERC claims
+        _write_claims(bak / "claims.json", [
+            {"claim_id": "ERC-001", "kind": "api", "text": "Workbook.Save persists data.", "confidence": 0.9},
+        ])
+        _write_apis(bak / "api_surface.json", [
+            {"name": "Workbook", "methods": [{"name": "Save"}], "properties": []},
+        ])
+        _write_claims(merged / "claims.json", [
+            {"claim_id": "ERC-001", "kind": "api", "text": "Workbook.Save persists data.", "confidence": 0.9},
+            # New ERC claim for Workbook.SaveAs — triggers erc_changed_classes for Workbook
+            {"claim_id": "ERC-002", "kind": "api", "text": "Workbook.SaveAs saves with new name.", "confidence": 0.85},
+        ])
+        _write_apis(merged / "api_surface.json", [
+            # SaveAs added — triggers api_surface_modified for Workbook
+            {"name": "Workbook", "methods": [{"name": "Save"}, {"name": "SaveAs"}], "properties": []},
+        ])
+
+        _write_knowledge_delta("cells", "net", bak, merged, "sha_new", "sha_old")
+
+        delta = json.loads((merged / "knowledge_delta.json").read_text())
+        modified = delta["modified_apis"]
+        assert modified.count("Workbook") == 1, (
+            "RC-5: 'Workbook' must appear exactly once in modified_apis even when "
+            "both api_surface and ERC claims change for the same class"
+        )
+
+    def test_identical_runs_produce_identical_delta_keys(self, tmp_path):
+        """RC-5: Running _write_knowledge_delta twice with same inputs produces
+        identical output (deterministic across runs)."""
+        merged, bak = _make_merged_and_bak(tmp_path)
+
+        apis = [{"name": "Cell", "methods": [{"name": "PutValue"}], "properties": []}]
+        claims = [{"claim_id": "SC-001", "text": "Cell sets values.", "confidence": 0.9}]
+
+        _write_claims(bak / "claims.json", [])
+        _write_apis(bak / "api_surface.json", [])
+        _write_claims(merged / "claims.json", claims)
+        _write_apis(merged / "api_surface.json", apis)
+
+        _write_knowledge_delta("cells", "net", bak, merged, "sha_v2", "sha_v1")
+        delta1 = json.loads((merged / "knowledge_delta.json").read_text())
+
+        # Simulate second run: bak now reflects the state after first run
+        _write_claims(bak / "claims.json", claims)
+        _write_apis(bak / "api_surface.json", apis)
+        # merged stays the same
+
+        _write_knowledge_delta("cells", "net", bak, merged, "sha_v2", "sha_v2")
+        delta2 = json.loads((merged / "knowledge_delta.json").read_text())
+
+        # On the second run (bak == merged), everything should be empty
+        assert delta2["new_apis"] == [], "Second run: no new APIs (Cell was already present)"
+        assert delta2["new_claims"] == [], "Second run: no new claims"
+        # delta1 should have had Cell as new
+        assert "Cell" in delta1["new_apis"], "First run: Cell must be in new_apis"
+        assert "SC-001" in delta1["new_claims"], "First run: SC-001 must be in new_claims"
+
+
+# ---------------------------------------------------------------------------
+# RH-201: Body-prose scanner — triage_confirm
+# ---------------------------------------------------------------------------
+
+class TestTriageConfirmBasic:
+    """RH-201: triage_confirm() returns stale=False for clean pages."""
+
+    def test_clean_page_not_stale(self, tmp_path):
+        """A page with no delta signals is not stale."""
+        page = tmp_path / "Workbook.md"
+        page.write_text(
+            "---\ntitle: Workbook\n---\n\nThe Workbook class supports saving files.\n",
+            encoding="utf-8",
+        )
+        knowledge = {
+            "api_surface": [{"name": "Workbook", "methods": [], "properties": []}],
+            "claims": [],
+            "delta": {"removed_apis": [], "modified_apis": [], "removed_claims": []},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+        assert result["reasons"] == []
+        assert result["confidence"] == 0.0
+
+    def test_missing_page_returns_not_stale(self, tmp_path):
+        """Unreadable page is treated as non-stale (unknown state — no false positive)."""
+        result = triage_confirm(tmp_path / "NonExistent.md", {})
+        assert result["stale"] is False
+        assert "could not read page" in result["reasons"]
+
+    def test_returns_dict_with_required_keys(self, tmp_path):
+        """triage_confirm always returns a dict with stale, reasons, confidence."""
+        page = tmp_path / "index.md"
+        page.write_text("body", encoding="utf-8")
+        result = triage_confirm(page, {})
+        assert "stale" in result
+        assert "reasons" in result
+        assert "confidence" in result
+
+
+class TestTriageConfirmRemovedApi:
+    """RH-201: Signal 1 — body mentions removed API."""
+
+    def test_stale_when_body_references_removed_api(self, tmp_path):
+        """Page body mentions an API that has been removed → stale."""
+        page = tmp_path / "WorksheetOld.md"
+        page.write_text(
+            "Use the OldFormatter class to format cells.\n",
+            encoding="utf-8",
+        )
+        knowledge = {
+            "delta": {"removed_apis": ["OldFormatter"], "modified_apis": [], "removed_claims": []},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is True
+        assert any("OldFormatter" in r for r in result["reasons"])
+        assert result["confidence"] >= 0.9
+
+    def test_not_stale_when_removed_api_not_in_body(self, tmp_path):
+        """Page body does not mention the removed API → not stale from this signal."""
+        page = tmp_path / "Workbook.md"
+        page.write_text("The Workbook class supports CSV export.\n", encoding="utf-8")
+        knowledge = {
+            "delta": {"removed_apis": ["OldFormatter"], "modified_apis": [], "removed_claims": []},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+
+    def test_word_boundary_prevents_false_positive(self, tmp_path):
+        """'WorkbookOld' in body should not match removed API 'Workbook'."""
+        page = tmp_path / "detail.md"
+        page.write_text("WorkbookOld is the legacy class.\n", encoding="utf-8")
+        knowledge = {
+            "delta": {"removed_apis": ["Workbook"], "modified_apis": [], "removed_claims": []},
+        }
+        result = triage_confirm(page, knowledge)
+        # "Workbook" as a word boundary should NOT match inside "WorkbookOld"
+        assert result["stale"] is False, (
+            "Word-boundary check must prevent 'Workbook' from matching 'WorkbookOld'"
+        )
+
+
+class TestTriageConfirmModifiedApi:
+    """RH-201: Signal 2 — body mentions modified API."""
+
+    def test_stale_when_body_references_modified_api(self, tmp_path):
+        """Page body mentions an API that was modified → potentially stale."""
+        page = tmp_path / "Cell.md"
+        page.write_text(
+            "The Cell class provides PutValue and GetValue methods.\n",
+            encoding="utf-8",
+        )
+        knowledge = {
+            "delta": {"removed_apis": [], "modified_apis": ["Cell"], "removed_claims": []},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is True
+        assert any("Cell" in r for r in result["reasons"])
+        assert 0.5 <= result["confidence"] < 0.9  # lower confidence than removed
+
+    def test_not_stale_when_modified_api_not_in_body(self, tmp_path):
+        """Page body does not mention the modified API → not stale from this signal."""
+        page = tmp_path / "Workbook.md"
+        page.write_text("Workbook handles file I/O.\n", encoding="utf-8")
+        knowledge = {
+            "delta": {"removed_apis": [], "modified_apis": ["Cell"], "removed_claims": []},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+
+
+class TestTriageConfirmSlugCheck:
+    """RH-201: Signal 3 — page slug not in current api_surface."""
+
+    def test_stale_when_slug_not_in_api_surface(self, tmp_path):
+        """Page file is named after a class that no longer exists in api_surface."""
+        page = tmp_path / "ObsoleteClass.md"
+        page.write_text("This is the ObsoleteClass reference page.\n", encoding="utf-8")
+        knowledge = {
+            "api_surface": [{"name": "Workbook", "methods": [], "properties": []}],
+            "delta": {},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is True
+        assert any("ObsoleteClass" in r for r in result["reasons"])
+        assert result["confidence"] >= 0.8
+
+    def test_not_stale_when_slug_in_api_surface(self, tmp_path):
+        """Page slug matches a class that still exists in api_surface."""
+        page = tmp_path / "Workbook.md"
+        page.write_text("The Workbook reference page.\n", encoding="utf-8")
+        knowledge = {
+            "api_surface": [{"name": "Workbook", "methods": [], "properties": []}],
+            "delta": {},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+
+    def test_lowercase_slug_ignored(self, tmp_path):
+        """Lowercase slugs (e.g. index.md) are not checked against api_surface."""
+        page = tmp_path / "index.md"
+        page.write_text("Welcome.\n", encoding="utf-8")
+        knowledge = {
+            "api_surface": [{"name": "Workbook", "methods": [], "properties": []}],
+            "delta": {},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+
+    def test_no_api_surface_skips_slug_check(self, tmp_path):
+        """When api_surface is empty/absent, slug check is skipped (no false positives)."""
+        page = tmp_path / "Workbook.md"
+        page.write_text("Workbook reference.\n", encoding="utf-8")
+        knowledge = {"api_surface": [], "delta": {}}
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+
+
+class TestTriageConfirmRemovedClaim:
+    """RH-201: Signal 4 — body contains a removed claim ID."""
+
+    def test_stale_when_body_contains_removed_claim_id(self, tmp_path):
+        """Page body explicitly references a claim ID that has been removed."""
+        page = tmp_path / "workbook.md"
+        page.write_text(
+            "<!-- evidence: SC-099 -->\nWorkbook exports to PDF.\n",
+            encoding="utf-8",
+        )
+        knowledge = {
+            "delta": {"removed_apis": [], "modified_apis": [], "removed_claims": ["SC-099"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is True
+        assert any("SC-099" in r for r in result["reasons"])
+
+    def test_not_stale_when_removed_claim_not_in_body(self, tmp_path):
+        """Removed claim ID is not referenced in page body → not stale."""
+        page = tmp_path / "workbook.md"
+        page.write_text("Workbook exports to PDF.\n", encoding="utf-8")
+        knowledge = {
+            "delta": {"removed_apis": [], "modified_apis": [], "removed_claims": ["SC-099"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+
+
+class TestTriageConfirmMultipleSignals:
+    """RH-201: Multiple signals accumulate — highest confidence wins."""
+
+    def test_multiple_signals_accumulate_reasons(self, tmp_path):
+        """When multiple signals fire, all reasons are reported."""
+        page = tmp_path / "ObsoleteClass.md"
+        page.write_text(
+            "The ObsoleteClass wraps LegacyHelper. <!-- SC-001 -->\n",
+            encoding="utf-8",
+        )
+        knowledge = {
+            "api_surface": [{"name": "Workbook", "methods": [], "properties": []}],
+            "delta": {
+                "removed_apis": ["LegacyHelper"],
+                "modified_apis": [],
+                "removed_claims": ["SC-001"],
+            },
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is True
+        # Should have at least 3 reasons: removed API + removed claim + slug not in surface
+        assert len(result["reasons"]) >= 2
+
+    def test_confidence_is_max_of_all_signals(self, tmp_path):
+        """Confidence reflects the strongest signal (removed API = 0.9)."""
+        page = tmp_path / "OldPage.md"
+        page.write_text("OldFormatter is used here.\n", encoding="utf-8")
+        knowledge = {
+            "api_surface": [{"name": "Workbook", "methods": [], "properties": []}],
+            "delta": {
+                "removed_apis": ["OldFormatter"],  # 0.9
+                "modified_apis": [],
+                "removed_claims": [],
+            },
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["confidence"] >= 0.9
