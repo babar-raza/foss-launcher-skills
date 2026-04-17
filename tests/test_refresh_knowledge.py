@@ -99,6 +99,7 @@ def test_write_knowledge_delta_correct_structure(knowledge_dir):
         "generated_at", "base_sha", "current_sha",
         "new_claims", "removed_claims", "modified_claims",
         "new_apis", "removed_apis", "modified_apis",
+        "resurrected_apis",
     }
     assert delta["new_claims"] == ["CLM-new-001"]
     assert delta["removed_claims"] == ["CLM-old-002"]
