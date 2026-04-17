@@ -1,6 +1,6 @@
 # AGENTS.md — Aspose.org Content Generation & Maintenance Governance
 
-> Last updated: 2026-04-13 (§12: S-88 backlog skill registered — unified backlog management with plan scanning, investigation items, archival, session handoff, reminders); prior: 2026-04-12 (§9c change-trigger matrix: added member-doc enrichment gate for batch_reference + description_coverage_audit.py reference; EVALUATOR_LOGIC_VERSION bumped to 6 for retired_at page skip in DescriptionCompletenessEvaluator); prior: 2026-04-10 (S-87 system-heal registered in §12, §6a DAR, §6 audit-driven healing chain; --no-tier3-cache flag documented in §12 S-43 flags); prior: 2026-04-09 (§2/§3 fix knowledge artifact paths to match actual `merged/` directory; remove nonexistent `claims.md` reference); prior: 2026-04-08 (§6f blog slug governance — features post slug is cluster-derived; banned pattern enforced by plan_blog() validator); prior: 2026-04-07 (§7a translation-staging-order governance rule; §6e ceiling-reached terminal state); prior: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline)
+> Last updated: 2026-04-17 (forensic audit plan twinkling-forging-tiger — §9a: EVALUATOR_LOGIC_VERSION bumped to 12 (v11: encoding_check; v12: token_ops.py UNKNOWN_CLASS false-positive suppression via method/property membership check + Python built-in exceptions added to PLATFORM_SDK_CLASSES); §9c: token_ops.py UNKNOWN_CLASS WARN added — silent-skip removed for unknown CamelCase classes in constructor/method/property/enum verification; false positives suppressed by checking if identifier is a known method/property name on any class in api_surface; phantom_methods.py extended to docs/kb/blog dot-notation table entries; formats.json note/python PDF + words/python DOCX reclassified as functional; encoding_check evaluator added to ALL and DEFAULT sets; content_eval/cli.py direct-invocation guard added; §9a triage notes added for encoding_check, UNKNOWN_CLASS, and phantom_methods coverage); prior: 2026-04-13 (§12: S-88 backlog skill registered — unified backlog management with plan scanning, investigation items, archival, session handoff, reminders); prior: 2026-04-12 (§9c change-trigger matrix: added member-doc enrichment gate for batch_reference + description_coverage_audit.py reference; EVALUATOR_LOGIC_VERSION bumped to 6 for retired_at page skip in DescriptionCompletenessEvaluator); prior: 2026-04-10 (S-87 system-heal registered in §12, §6a DAR, §6 audit-driven healing chain; --no-tier3-cache flag documented in §12 S-43 flags); prior: 2026-04-09 (§2/§3 fix knowledge artifact paths to match actual `merged/` directory; remove nonexistent `claims.md` reference); prior: 2026-04-08 (§6f blog slug governance — features post slug is cluster-derived; banned pattern enforced by plan_blog() validator); prior: 2026-04-07 (§7a translation-staging-order governance rule; §6e ceiling-reached terminal state); prior: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline)
 > Authority: Human maintainer only (see Section 4 — this file is in the forbidden write list)
 
 <details>
@@ -1170,6 +1170,30 @@ Re-grading a page that did not need it is always safe — results are idempotent
 ### Using `--skip-graded` safely
 
 `--skip-graded` speeds up incremental runs after minor content edits. After bumping `EVALUATOR_LOGIC_VERSION`, run a full sweep **without** `--skip-graded` first so all pages are re-graded and stamped with the new version before any skipping occurs.
+
+### Evaluator-specific triage notes (updated 2026-04-17)
+
+#### `encoding_check` (added version 11)
+
+- **FAIL** findings indicate mojibake: UTF-8 characters that were double-encoded through a CP1252 pipeline (e.g., em dash `—` appearing as `â€"`, en dash `–` appearing as `â€"`). Source file was saved with wrong encoding or copy-pasted from a mojibake document.
+- **Action**: Replace the corrupted sequences with the correct Unicode characters. Use search-and-replace: `â€"` → `—`, `â€"` → `–`, `â€˜` → `'`, `â€™` → `'`, `â€œ` → `"`, `â€` → `"`.
+- **WARN** findings indicate stray control characters (e.g., null bytes, BEL, DEL). Likely artifact from binary paste. Delete the characters.
+- Added to both `ALL_EVALUATORS` and `DEFAULT_EVALUATORS`. Scores affect grade; FAIL blocks Grade A.
+
+#### `UNKNOWN_CLASS` WARN in `token_ops.py` (added 2026-04-17)
+
+- **WARN findings with category `UNKNOWN_CLASS`** are emitted by `token_ops.py` when a code block contains `ClassName(...)` constructor syntax (or `ClassName.method(...)` dot-notation) where `ClassName` is not in `api_surface.json` and not in `PLATFORM_SDK_CLASSES`.
+- **These WARN findings require human triage before marking a page clean**. The class may be:
+  1. A genuine hallucination — remove it from the content and substitute a real API class.
+  2. A valid stdlib/third-party type (e.g., `datetime`, `BytesIO`, `DataFrame`) not yet in `PLATFORM_SDK_CLASSES` — add it to `PLATFORM_SDK_CLASSES` in `scripts/pipeline/token_ops.py`.
+  3. A tokenizer false positive from chained-call parsing (e.g., `doc.Save(...)` seen as constructor `Save(...)`) — suppress by adding to `PROPERTY_CHAIN_CLASSES` if appropriate, or ignore if the chain pattern is one-off.
+- **Do not bulk-suppress** by adding classes to PLATFORM_SDK_CLASSES without verifying they are not hallucinations. Each addition must be verifiable in stdlib docs or a known third-party package.
+
+#### `phantom_methods` — content page coverage (extended 2026-04-17)
+
+- In addition to reference pages (which check filename-inferred class tables), `phantom_methods.py` now also checks **docs, kb, and blog pages** for explicit dot-notation method calls in markdown table cells (pattern: `| \`ClassName.method_name(...)\` |`).
+- Content page checks only fire when `ClassName` is known in `api_surface.json` (prevents false positives from external classes).
+- **FAIL** means a documented dot-notation method call was not found in `api_surface.json` for that class or its parents. Action: remove the phantom method or correct the class name.
 
 ---
 
