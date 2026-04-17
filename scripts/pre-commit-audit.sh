@@ -325,4 +325,51 @@ if echo "$STAGED_FILES" | grep -qE "$ONBOARDING_PATTERN"; then
   fi
 fi
 
+
+# ---------------------------------------------------------------------------
+# Step 10: graded_at-only reversion
+# Auto-revert staged .md files where the only diff from HEAD is graded_at:.
+# Calls check_graded_at_only.py (which uses the venv python -- not bare python).
+# Blocking (exit 1): PARSE_FAILURE signals an unreadable diff (Case D).
+# Non-blocking: Case A files are reverted and commit continues without them.
+# ---------------------------------------------------------------------------
+if [ ${#changed[@]} -gt 0 ]; then
+    # Cross-platform .venv detection
+    if [ -f ".venv/Scripts/python" ]; then
+        _ga_python=".venv/Scripts/python"
+    elif [ -f ".venv/bin/python" ]; then
+        _ga_python=".venv/bin/python"
+    else
+        _ga_python=""
+    fi
+
+    if [ -n "$_ga_python" ]; then
+        _tmpfile10=$(mktemp /tmp/graded-at-only-XXXXXX.txt 2>/dev/null || mktemp)
+        printf '%s\n' "${changed[@]}" > "$_tmpfile10"
+        _ga_stderr=$(mktemp /tmp/graded-at-err-XXXXXX.txt 2>/dev/null || mktemp)
+        revert_candidates=()
+        while IFS= read -r _line; do revert_candidates+=("$_line"); done < <(
+            "$_ga_python" scripts/pipeline/check_graded_at_only.py \
+                --files-from "$_tmpfile10" 2>"$_ga_stderr"
+        )
+        rm -f "$_tmpfile10"
+        if grep -q '^PARSE_FAILURE:' "$_ga_stderr" 2>/dev/null; then
+            echo "[Step 10] ERROR: graded_at-only check had parse failures:"
+            grep '^PARSE_FAILURE:' "$_ga_stderr" | sed 's/^PARSE_FAILURE:/  /'
+            rm -f "$_ga_stderr"
+            exit 1
+        fi
+        rm -f "$_ga_stderr"
+        if [ ${#revert_candidates[@]} -gt 0 ]; then
+            echo "[Step 10] Auto-reverting graded_at-only staged files:"
+            for _f in "${revert_candidates[@]}"; do
+                echo "  REVERT $_f"
+                git restore --staged "$_f" 2>/dev/null || git reset HEAD -- "$_f" 2>/dev/null
+                git restore "$_f" 2>/dev/null || git checkout HEAD -- "$_f" 2>/dev/null
+            done
+            echo "[Step 10] Reverted ${#revert_candidates[@]} graded_at-only file(s)."
+        fi
+    fi
+fi
+
 exit 0
