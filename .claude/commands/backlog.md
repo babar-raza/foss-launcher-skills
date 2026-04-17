@@ -82,6 +82,13 @@ impact score, then size ascending (XS first). The briefing displays wave-0 items
 - `queued` / `next`: stale after 21 days
 - `blocked` / `waiting`: stale after 30 days (external dependency)
 
+**In-progress aging check**: For each `in-progress` item, compute days since the most recent CHANGELOG entry, commit reference, or status change. Include in the briefing output:
+```
+In-progress items (aging):
+  - [{id}] {title} — {N} days active [⚠ RISK: stale in {D} days] (if D ≤ 2)
+```
+Flag any item within 2 days of the 7-day stale threshold. This surfaces imminent staleness before it becomes a reconcile finding.
+
 **Deferred review check**: Read the Deferred table. For each item where Review Date is
 a specific date (`YYYY-MM-DD`) and that date <= today, or `quarterly` and >=90 days have
 passed since deferral, surface it in the "Deferred items due for review" section.
@@ -151,8 +158,9 @@ Append a task to `backlog/inbox.md` under "Standalone Tasks".
    - Title contains `knowledge`, `extract`, `scout`, `format`, `enrich`, `claim` → suggest `KF`
    - Title contains `test`, `seam`, `observ`, `backlog`, `monitor`, `CI`, `log` → suggest `OM`
    - If no match: ask operator
-5. Append row: `| ST-{NNN} | {cat} | {effect} | {title} | queued | P2 | {size} | 0 | — | none | {today} |`
-6. Confirm: `Added ST-{NNN}: {title} [effect:{effect}]`
+5. **Target-artifact suggestion**: If the title contains phrases like `Create {file}`, `Add {file}`, `Build {file}`, or `Implement {file}` (where `{file}` ends in `.py`, `.md`, `.yaml`, `.json`, or `.sh`), suggest appending `target-artifact:{file}` to the Evidence column. During `/backlog reconcile`, this tag enables automatic artifact-existence checks to detect when the item may already be done.
+6. Append row: `| ST-{NNN} | {cat} | {effect} | {title} | queued | P2 | {size} | 0 | — | none | {today} |`
+7. Confirm: `Added ST-{NNN}: {title} [effect:{effect}]`
 
 ### `/backlog investigate {title}` — Add Investigation Item
 
@@ -344,7 +352,9 @@ Review `backlog/inbox.md` and disposition each item.
 5. Apply the disposition:
    - **Promote**: move to appropriate section in `backlog/BACKLOG.md` with Cat, Size, Priority, Wave=0
      - **Durable plan warning**: If promoted to P0/P1 and Plan path starts with `.claude/plans/`, warn: `⚠ Ephemeral plan path — P0/P1 items should use plans/from_backlog/ for durability`
+     - **Plan file existence check**: If a Plan path is specified (not `—`), verify whether that path exists on disk. If the path starts with `.claude/plans/` and does NOT exist, automatically append `plan-artifact-missing:{path} (ephemeral-lost)` to the item's Evidence column and emit: `⚠ Plan file missing: {path} — tagged plan-artifact-missing in Evidence`
    - **Attach**: add plan reference, move to BACKLOG.md with Cat, Size, Priority
+     - Apply the same **Plan file existence check** as for Promote
    - **Defer**: move to Deferred section with reason AND Review Date (required, never empty)
    - **Drop**: remove from inbox.md (no further tracking)
 6. Remove triaged items from `backlog/inbox.md` (enforce single-location rule)
@@ -381,6 +391,7 @@ Compare active backlog items against current system evidence and classify each i
 
    **e. Validation check** (pipeline/tool items only):
    - Check if referenced script exists and was modified since item creation
+   - **Target-artifact check**: If the Evidence column contains `target-artifact:{path}`, verify whether that file exists on disk. If it does, emit: `[{id}] TARGET EXISTS: {path} — item may already be done; verify and close`; classify as RESOLVED candidate. If it does not exist, confirm the item is still open.
 
 3. Classify each item:
    - **RESOLVED** — all evidence shows the issue no longer exists
@@ -446,7 +457,12 @@ Compare active backlog items against current system evidence and classify each i
    ```
    For each found item, move the row to the Recently Completed section. This corrects the failure mode where `/backlog close` was skipped and items were only marked `done` in-place.
 
-9. **Recompute waves**: Rebuild Blocker DAG and update Wave column for all Active and Queued items.
+9. **Recompute waves** (runs after ALL status changes from steps 6, 8b, and 8c): Rebuild Blocker DAG — for each item in Active and Queued tables, determine wave by topological sort on Blocker column. Wave 0 = no blockers. Wave N = all blockers are in waves 0..N-1. Update Wave column in BACKLOG.md for every item whose wave changed. Emit:
+   ```
+   Wave recompute: {N} items updated
+     - [{id}] {old_wave} → {new_wave} (reason: {blocker-id} now done | new item added | blocker added)
+   ```
+   **Important:** This step must execute even if no status changes occurred in earlier steps — wave values may be stale from external edits between reconcile runs.
 
 10. Append all status changes to `backlog/CHANGELOG.md`
 
