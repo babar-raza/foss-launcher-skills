@@ -805,6 +805,42 @@ Specific failures this rule prevents (Healing Sprint 2026-04-07):
 - Dropping args from skill invocations → read the actual CLI first; fix spec if it drifts
 - On-the-fly kind filter rewrites → check `_CLASS_TYPES` in `extraction/tree_helpers.py`
 
+### Defect classification during validation (added 2026-04-16)
+
+When a validation run (pilot rerun, E2E evaluation, benchmark) surfaces an error or crash,
+classify it **before** routing. Apply this decision tree:
+
+```
+1. Does the failing code path exist in any file modified by the current track?
+   YES → Track regression. Block closure until fixed.
+   NO  → Go to step 2.
+
+2. Does git blame show the failing line was introduced by a track commit?
+   YES → Track regression (latent, activated by new conditions).
+   NO  → Go to step 3.
+
+3. Is the error triggered by test data/fixtures created by the track?
+   YES → Track test design issue. Fix fixture, re-validate.
+   NO  → Pre-existing defect. Route to owner track (standalone ED-* item
+         or appropriate backlog track). Do NOT block current track closure.
+```
+
+Record the classification in this format (inline or in a report):
+
+```
+DEFECT CLASSIFICATION
+  Error: {type} at {file}:{line}
+  Triggering page: {path}
+  Classification: regression | latent-regression | test-design | pre-existing
+  Evidence: {git blame hash + date, file inventory check}
+  Routed to: {item ID or "current track"}
+  Blocks closure: yes | no
+```
+
+Pre-existing defects never contaminate the validating track's closure decision. See also:
+`test_benchmark_no_unhandled_exceptions` in `test_human_likeness.py` (G-3 guardrail) which
+prevents pre-existing crashes from silently corrupting benchmark results.
+
 ## 6c. Causal Backtracking Protocol (added 2026-04-03)
 
 ### Principle
@@ -1787,6 +1823,7 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | refresh-product-page | S-86 | Re-generate a single products.aspose.org landing page through the full S-61 pipeline with no-downgrade-guard protection; use when S-61 template has been improved and existing pages should benefit |
 | system-heal | S-87 | Audit-driven content healing: deterministic baseline (--no-llm) → extended baseline (LLM + tier3_cache) → origin classification (origin_map.py) → content healing (S-74/S-46/S-26 by route) → pipeline evidence report → re-verify → commit or escalate; 8-phase; max 50 findings (use S-44+S-46 above that); AMBIGUOUS and tier3_non_determinism_flag findings never auto-repaired; backs `scripts/gap-eval/origin_map.py` + `scripts/gap-eval/tier3_cache.py` |
 | backlog | S-88 | Unified backlog management and planning: view briefing, automated plan scanning (with `.claude/plans/` repo-affinity filtering), add items (with intake dedup), investigate (intake), investigate-run (execute existing INV item inline — reads brief, gathers evidence, records findings, moves to Resolved), surface (contextual item surfacing — scores backlog against response context, returns top matches; called automatically per §15), remind, session handoff, archive, triage inbox, reconcile (with cross-item analysis), status investigation, plan creation, replan amendment, plan hardening, traceability, governed closeout, merge, group, link; all state in `backlog/` + `plans/from_backlog/` (gitignored); 19 subcommands |
+| heal-batch | S-89 | Batch healing from content_eval report: routes findings through heal policy table to auto/llm/regen modes in a single pass; auto-mode applies deterministic fixers; llm-mode emits S-26 invocation descriptors; regen-mode emits causal-backtrack descriptors with `regen_after` flags; optional before/after verification with regression detection; supersedes deterministic portion of S-40 (batch-remediate); backs `scripts/pipeline/remediate.py heal` |
 
 **S-43 (gap-eval) CLI flags:**
 - `--deterministic` — Exhaustive Stage 2 + no LLM (Tier 1 + Tier 2 only). Fully reproducible. Recommended for regression tracking and CI integration.
