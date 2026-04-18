@@ -846,3 +846,59 @@ class TestIdempotencyGuard:
             assert "grade: B" in p.read_text(encoding="utf-8")
         finally:
             p.unlink(missing_ok=True)
+
+
+# ---------------------------------------------------------------------------
+# GI-01: Field order correctness — graded_content_hash must follow metadata
+# ---------------------------------------------------------------------------
+
+class TestGradeFieldOrder:
+    """graded_content_hash must appear after graded_model_sha/evaluators/logic_version."""
+
+    def test_write_grade_field_order_correct(self):
+        """graded_content_hash must come after graded_model_sha and graded_evaluators."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            write_grade(p, "B", model_sha="abc123", evaluator_tier="full",
+                        logic_version="13")
+            text = p.read_text(encoding="utf-8")
+            lines = text.splitlines()
+            idx = {k: next((i for i, l in enumerate(lines) if l.startswith(k)), -1)
+                   for k in ("graded_at:", "graded_model_sha:", "graded_evaluators:",
+                              "graded_logic_version:", "graded_content_hash:")}
+            assert idx["graded_content_hash:"] > idx["graded_model_sha:"], (
+                f"graded_content_hash (line {idx['graded_content_hash:']}) must come "
+                f"AFTER graded_model_sha (line {idx['graded_model_sha:']})\n{text}"
+            )
+            assert idx["graded_content_hash:"] > idx["graded_evaluators:"], (
+                f"graded_content_hash (line {idx['graded_content_hash:']}) must come "
+                f"AFTER graded_evaluators (line {idx['graded_evaluators:']})\n{text}"
+            )
+            assert idx["graded_content_hash:"] > idx["graded_logic_version:"], (
+                f"graded_content_hash (line {idx['graded_content_hash:']}) must come "
+                f"AFTER graded_logic_version (line {idx['graded_logic_version:']})\n{text}"
+            )
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_double_write_field_order_stable(self):
+        """A second write_grade call must not displace graded_content_hash before metadata."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            write_grade(p, "B", model_sha="sha1", evaluator_tier="full", logic_version="13")
+            write_grade(p, "C", model_sha="sha2", evaluator_tier="audit", logic_version="13")
+            text = p.read_text(encoding="utf-8")
+            lines = text.splitlines()
+            idx = {k: next((i for i, l in enumerate(lines) if l.startswith(k)), -1)
+                   for k in ("graded_model_sha:", "graded_evaluators:",
+                              "graded_logic_version:", "graded_content_hash:")}
+            assert idx["graded_content_hash:"] > idx["graded_model_sha:"], (
+                f"After second write: graded_content_hash must still follow "
+                f"graded_model_sha\n{text}"
+            )
+            assert idx["graded_content_hash:"] > idx["graded_logic_version:"], (
+                f"After second write: graded_content_hash must still follow "
+                f"graded_logic_version\n{text}"
+            )
+        finally:
+            p.unlink(missing_ok=True)
