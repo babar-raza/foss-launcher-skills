@@ -1136,3 +1136,58 @@ class TestUpdateDeltaBehavior:
         assert result.get("dry_run") is True
         # The delta is strictly less than the total candidate count (3)
         assert result["skipped"] < 3, "skipped must be < total; --update is not a full re-run"
+
+
+# ---------------------------------------------------------------------------
+# configure() seam (MP-SR03 / TC-04)
+# ---------------------------------------------------------------------------
+
+class TestConfigureSeam:
+    """Verify the configure() injection seam works without monkeypatching."""
+
+    def test_configure_repo_root_overrides_globals(self, tmp_path):
+        """configure(repo_root=tmp_path) must redirect KNOWLEDGE_ROOT and CONTENT_ROOT."""
+        import batch_reference as _br_local
+        _br_local.configure(repo_root=tmp_path)
+        try:
+            assert _br_local.KNOWLEDGE_ROOT == tmp_path / "knowledge"
+            assert _br_local.CONTENT_ROOT == (
+                tmp_path / "content" / "reference.aspose.org" / "en"
+            )
+        finally:
+            _br_local.configure()  # reset to defaults
+
+    def test_configure_knowledge_root_direct(self, tmp_path):
+        """configure(knowledge_root=...) overrides KNOWLEDGE_ROOT independently."""
+        import batch_reference as _br_local
+        kr = tmp_path / "custom_knowledge"
+        _br_local.configure(knowledge_root=kr)
+        try:
+            assert _br_local.KNOWLEDGE_ROOT == kr
+        finally:
+            _br_local.configure()
+
+    def test_configure_reset_restores_defaults(self):
+        """configure() with no args must restore the built-in defaults."""
+        import batch_reference as _br_local
+        from pathlib import Path as _Path
+        default_root = _Path(__file__).resolve().parents[3]  # <repo>
+        _br_local.configure(repo_root=_Path("/tmp/fake_root"))
+        _br_local.configure()  # reset
+        assert _br_local.KNOWLEDGE_ROOT == default_root / "knowledge"
+
+    def test_configure_seam_enables_run_without_patching(self, tmp_path):
+        """run() works correctly when roots are set via configure() instead of patch.object."""
+        import batch_reference as _br_local
+        entries = [
+            {"name": "Foo", "kind": "class_declaration", "methods": [], "properties": []},
+        ]
+        _make_api_surface(tmp_path, entries, family="test_fam", platform="net")
+        _br_local.configure(repo_root=tmp_path)
+        try:
+            result = _br_local.run("test_fam", "net")
+        finally:
+            _br_local.configure()
+        assert result["generated"] == 1
+        page = tmp_path / "content" / "reference.aspose.org" / "en" / "test_fam" / "net" / "Foo.md"
+        assert page.exists()
