@@ -122,6 +122,29 @@ def _run_evaluate(args):
     # Cache knowledge per product
     knowledge_cache: dict[tuple[str, str], object] = {}
     _knowledge_unavailable_keys: set[tuple[str, str]] = set()
+    _enrichment_warned_keys: set[tuple[str, str]] = set()
+
+    def _warn_enrichment_status_once(family: str, platform: str) -> None:
+        """Emit a one-time warning when enrichment is degraded for a product (TC-4)."""
+        key = (family, platform)
+        if key in _enrichment_warned_keys:
+            return
+        _enrichment_warned_keys.add(key)
+        # knowledge/ is always CWD-relative (same convention as refresh_knowledge.py)
+        model_path = Path("knowledge") / family / platform / "merged" / "model.yaml"
+        if not model_path.exists():
+            return
+        try:
+            import yaml as _yaml
+            data = _yaml.safe_load(model_path.read_text(encoding="utf-8")) or {}
+            status = data.get("enrichment_status", "full")
+            if status != "full":
+                _log(
+                    f"[content_eval] WARNING: enrichment_status={status!r} for {family}/{platform}"
+                    f" — claim-based evaluators may report false gaps"
+                )
+        except Exception:
+            pass
 
     # --skip-graded: filter out pages already graded with current knowledge
     if args.skip_graded:
@@ -168,6 +191,7 @@ def _run_evaluate(args):
         if key not in knowledge_cache:
             if page.family and page.platform:
                 knowledge_cache[key] = _load_knowledge(page.family, page.platform)
+                _warn_enrichment_status_once(page.family, page.platform)
             else:
                 knowledge_cache[key] = None
 
