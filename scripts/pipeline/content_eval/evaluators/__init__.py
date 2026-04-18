@@ -80,4 +80,5 @@ def _ensure_loaded():
         version_claim_check,
         capability_claim_check,
         encoding_check,
+        consumer_usefulness,
     )
