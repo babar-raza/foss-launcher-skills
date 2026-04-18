@@ -5,6 +5,7 @@
      postcondition: idempotent — skips existing pages; re-run on populated platform yields Generated: 0
      postcondition: prints S-62 summary format (Candidates / Generated / Skipped / Errors)
      verified: 2026-04-07
+     depends_on: [S-54]
 -->
 
 # S-62: Batch Reference — Generate Reference Pages in Bulk

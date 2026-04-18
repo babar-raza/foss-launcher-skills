@@ -4,6 +4,7 @@
      postcondition: page quality improved (grade >= prior) or routed to S-90 for governed inspection
      idempotent: no — LLM-generated fixes vary between invocations
      verified: 2026-04-11
+     depends_on: [S-25, S-54]
 -->
 # S-26: Heal Page — Heal Low-Quality Page
 

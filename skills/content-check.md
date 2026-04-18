@@ -5,6 +5,7 @@
      postcondition: agent performs knowledge cross-reference and evidence checks manually
      postcondition: skill is read-only — no file modifications
      verified: 2026-04-01
+     depends_on: [S-01]
 -->
 # S-23: Content Check — Structural Quality Pre-Commit Check
 

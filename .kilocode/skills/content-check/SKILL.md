@@ -1,12 +1,3 @@
----
-name: content-check
-description: >
-  Run structural and quality check on a content file
-args: "{file-path}"
----
-
-> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
-
 <!-- CONTRACT: scripts/pipeline/audit.py (invoked in Step 3)
      CONTRACT: scripts/pipeline/ground_check.py (invoked in Step 3 when present)
      postcondition: audit.py returns automated structural PASS/WARN/FAIL report
@@ -14,6 +5,7 @@ args: "{file-path}"
      postcondition: agent performs knowledge cross-reference and evidence checks manually
      postcondition: skill is read-only — no file modifications
      verified: 2026-04-01
+     depends_on: [S-01]
 -->
 # S-23: Content Check — Structural Quality Pre-Commit Check
 

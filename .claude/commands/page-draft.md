@@ -4,6 +4,7 @@
      postcondition: page file written with frontmatter, evidence block, and knowledge-grounded content
      idempotent: no — LLM-generated content varies between invocations
      verified: 2026-04-11
+     depends_on: [S-18, S-54]
 -->
 # S-19: Page Draft — Draft Page Content from a Page Plan
 

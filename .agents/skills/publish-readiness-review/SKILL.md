@@ -6,6 +6,7 @@
                     final-verdict.md written with PUBLISH | CONDITIONAL | BLOCKED recommendation
      idempotent: no — LLM-based fix skills vary; --dry-run flag enables safe re-inspection
      verified: 2026-04-17
+     depends_on: [S-54, S-25, S-90]
 -->
 # S-90: Publish Readiness Review — Agent-Executed Governed Inspection
 
@@ -98,6 +99,10 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
      ```
 
    **5b. Read page content** (title, section headers, code blocks, format tables).
+   > **MANUAL GATE (H-01 prose review)**: No automated prose-hallucination evaluator
+   > exists. Prose accuracy is a judgment call by the inspecting agent: check that
+   > factual claims in the prose are consistent with `claims.json` and that no
+   > non-existent API classes appear in prose descriptions. Future: `prose_accuracy_check.py`.
 
    **5c. Classify each page** using this decision table:
 
