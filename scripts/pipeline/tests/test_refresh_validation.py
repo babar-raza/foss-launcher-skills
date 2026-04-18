@@ -904,7 +904,7 @@ class TestTriageConfirmBasic:
         """Unreadable page is treated as non-stale (unknown state — no false positive)."""
         result = triage_confirm(tmp_path / "NonExistent.md", {})
         assert result["stale"] is False
-        assert "could not read page" in result["reasons"]
+        assert any("could not read page" in r for r in result["reasons"])
 
     def test_returns_dict_with_required_keys(self, tmp_path):
         """triage_confirm always returns a dict with stale, reasons, confidence."""
