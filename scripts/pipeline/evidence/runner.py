@@ -42,6 +42,11 @@ def _log(*args, **kwargs):
 def attach_evidence(filepath, knowledge, dry_run=False, force=False) -> str:
     """Build and write evidence block for one file. Returns status string."""
     fm = parse_frontmatter(filepath)
+
+    # Never attach evidence to draft pages — they are not live content.
+    if fm.get("draft") is True:
+        return "SKIP (draft)"
+
     existing = fm.get("evidence") or {}
 
     # Already up to date — idempotent skip (bypass with --force)
@@ -153,8 +158,8 @@ def attach_product(family, platform, dry_run=False, force=False) -> dict:
         return {}
 
     _log(f"  {family}/{platform}: {len(files)} files")
-    counts = {"UPDATED": 0, "SKIP (current)": 0, "SKIP (audit FAILs)": 0,
-              "DRY-RUN": 0, "ERROR": 0}
+    counts = {"UPDATED": 0, "SKIP (current)": 0, "SKIP (draft)": 0,
+              "SKIP (audit FAILs)": 0, "DRY-RUN": 0, "ERROR": 0}
     for f in files:
         status = attach_evidence(f, knowledge, dry_run=dry_run, force=force)
         counts[status] = counts.get(status, 0) + 1
