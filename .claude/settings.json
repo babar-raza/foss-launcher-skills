@@ -19,7 +19,10 @@
       "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python -m pytest scripts/pipeline/tests/test_readiness_scorecard.py -v)",
       "Bash(PYTHONPATH=\"scripts/pipeline\" .venv/Scripts/python -m pytest scripts/pipeline/tests/test_readiness_scorecard.py scripts/pipeline/tests/test_human_review_sampler.py scripts/pipeline/tests/test_grade_writer.py -v --tb=short)",
       "Bash(.venv/Scripts/python scripts/ci/check_skill_readme_coverage.py --fix)",
-      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-77 --scope \"scripts/ci/*\")"
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-77 --scope \"scripts/ci/*\")",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-84 --scope \"scripts/ci/\")",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-84 --status completed)",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-84 --scope \"scripts/ci/check_write_path_hook.sh\")"
     ],
     "additionalDirectories": [
       "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing"
