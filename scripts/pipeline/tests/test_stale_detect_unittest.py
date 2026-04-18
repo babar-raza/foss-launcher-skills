@@ -80,5 +80,30 @@ class StaleDetectTests(unittest.TestCase):
             self.assertIn("orphaned_claims", report["pages"][0]["issues"])
 
 
+    def test_skips_draft_pages(self):
+        """Draft pages (draft: true in frontmatter) are excluded from scan."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_knowledge(root, repo_sha="abc123")
+            # Write a draft page with stale evidence — should NOT appear in stale_pages
+            draft_page = (
+                root / "content" / "docs.aspose.org" / "en" / "fake" / "python" / "draft.md"
+            )
+            draft_page.parent.mkdir(parents=True, exist_ok=True)
+            draft_page.write_text(
+                "---\ntitle: Draft\ndraft: true\nevidence:\n  model_sha: old999\n  claims: []\n---\n\nBody.\n",
+                encoding="utf-8",
+            )
+            report = scan_product(
+                "fake",
+                "python",
+                content_root=root / "content",
+                knowledge_root=root / "knowledge",
+            )
+            # Draft page should be excluded; files_scanned = 0, stale_pages = 0
+            self.assertEqual(report["stale_pages"], 0)
+            self.assertEqual(report["files_scanned"], 0)
+
+
 if __name__ == "__main__":
     unittest.main()

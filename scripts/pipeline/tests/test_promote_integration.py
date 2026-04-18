@@ -462,3 +462,98 @@ class TestPromoteEdgeCases:
         assert len(merged_apis) == 120, (
             f"All 120 API classes must appear in merged output; got {len(merged_apis)}"
         )
+
+
+# ---------------------------------------------------------------------------
+# Enriched-claims staleness check — ST-020 Gap 4
+# ---------------------------------------------------------------------------
+
+class TestPromoteEnrichedClaimsStaleness:
+    """promote() warns when enriched_claims.json was built from a different api_surface."""
+
+    def _setup_with_enriched(
+        self,
+        tmp_path: Path,
+        api_surface_sha: str,
+    ) -> Path:
+        """Create a minimal scout tree with an enriched_claims.json."""
+        kr = _setup_scout(tmp_path)
+        scout_dir = kr / "test" / "python" / "scout"
+        enriched = {
+            "generated_at": "2026-01-01T00:00:00+00:00",
+            "model": "gpt-oss",
+            "source": "enrich.py (S-37)",
+            "family": "test",
+            "platform": "python",
+            "api_surface_sha": api_surface_sha,
+            "claim_count": 1,
+            "claims": [
+                {
+                    "claim_id": "CLM-enriched-01",
+                    "text": "Enriched claim one.",
+                    "kind": "description",
+                    "confidence": 0.9,
+                }
+            ],
+        }
+        (scout_dir / "enriched_claims.json").write_text(
+            json.dumps(enriched, indent=2), encoding="utf-8"
+        )
+        return kr
+
+    def test_enriched_claims_merged_when_sha_matches(self, tmp_path, capsys):
+        """Enriched claims are included with no warning when SHA matches."""
+        import hashlib
+        # Compute the SHA of the actual scout api_surface.json that promote() will read.
+        # _setup_with_enriched calls _setup_scout which writes API_SURFACE to scout/; compute
+        # SHA from the same data so the stored SHA matches.
+        current_sha = hashlib.sha256(
+            json.dumps(API_SURFACE, sort_keys=True).encode()
+        ).hexdigest()[:16]
+
+        kr = self._setup_with_enriched(tmp_path, api_surface_sha=current_sha)
+        result = promote_mod.promote("test", "python", knowledge_root=str(kr))
+
+        assert result is True
+        captured = capsys.readouterr()
+        assert "stale" not in captured.out.lower()
+        # Enriched claim must appear in merged output
+        merged_claims = json.loads(
+            (kr / "test" / "python" / "merged" / "claims.json").read_text(encoding="utf-8")
+        )
+        claim_ids = {c["claim_id"] for c in merged_claims}
+        assert "CLM-enriched-01" in claim_ids
+
+    def test_enriched_claims_warn_when_sha_differs(self, tmp_path, capsys):
+        """promote() emits a WARNING when enriched_claims.json has a stale SHA."""
+        kr = self._setup_with_enriched(tmp_path, api_surface_sha="deadbeef00000000")
+        result = promote_mod.promote("test", "python", knowledge_root=str(kr))
+
+        assert result is True  # promote succeeds even with stale enrichment
+        captured = capsys.readouterr()
+        assert "WARNING" in captured.out
+        assert "stale" in captured.out.lower()
+
+    def test_enriched_claims_no_sha_field_no_warn(self, tmp_path, capsys):
+        """Older enriched_claims.json without api_surface_sha field: no warning emitted."""
+        kr = _setup_scout(tmp_path)
+        scout_dir = kr / "test" / "python" / "scout"
+        # Write enriched_claims without api_surface_sha
+        enriched = {
+            "claims": [
+                {
+                    "claim_id": "CLM-old-01",
+                    "text": "Old enriched claim.",
+                    "kind": "description",
+                    "confidence": 0.9,
+                }
+            ]
+        }
+        (scout_dir / "enriched_claims.json").write_text(
+            json.dumps(enriched, indent=2), encoding="utf-8"
+        )
+        result = promote_mod.promote("test", "python", knowledge_root=str(kr))
+
+        assert result is True
+        captured = capsys.readouterr()
+        assert "stale" not in captured.out.lower()

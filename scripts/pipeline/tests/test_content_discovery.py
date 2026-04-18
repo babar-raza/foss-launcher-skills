@@ -260,3 +260,82 @@ class TestMigrationComplete:
         assert callable(discover_content)
         assert callable(discover_products)
         assert callable(infer_product)
+
+
+# ---------------------------------------------------------------------------
+# skip_drafts — ST-020 draft filter
+# ---------------------------------------------------------------------------
+
+class TestDiscoverContentSkipDrafts:
+    def _make_md(self, path: Path, content: str) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+
+    def test_skip_drafts_false_includes_draft_pages(self, tmp_path):
+        """Default behaviour: draft pages are included (backward compat)."""
+        site = tmp_path / "cells" / "python"
+        site.mkdir(parents=True)
+        self._make_md(site / "draft_page.md", "---\ntitle: T\ndraft: true\n---\nBody.\n")
+        self._make_md(site / "normal.md", "---\ntitle: N\n---\nBody.\n")
+
+        pattern = str(tmp_path / "{family}/{platform}")
+        with patch.object(_cd, "SITE_PATHS", [("docs", pattern)]):
+            result = discover_content("cells", "python", skip_drafts=False)
+
+        names = {f.name for f in result}
+        assert "draft_page.md" in names
+        assert "normal.md" in names
+
+    def test_skip_drafts_true_excludes_draft_pages(self, tmp_path):
+        """skip_drafts=True removes files with draft: true."""
+        site = tmp_path / "cells" / "python"
+        site.mkdir(parents=True)
+        self._make_md(site / "draft_page.md", "---\ntitle: T\ndraft: true\n---\nBody.\n")
+        self._make_md(site / "normal.md", "---\ntitle: N\n---\nBody.\n")
+
+        pattern = str(tmp_path / "{family}/{platform}")
+        with patch.object(_cd, "SITE_PATHS", [("docs", pattern)]):
+            result = discover_content("cells", "python", skip_drafts=True)
+
+        names = {f.name for f in result}
+        assert "draft_page.md" not in names
+        assert "normal.md" in names
+
+    def test_skip_drafts_false_is_default(self, tmp_path):
+        """Calling without skip_drafts includes draft pages (backward compat)."""
+        site = tmp_path / "cells" / "python"
+        site.mkdir(parents=True)
+        self._make_md(site / "draft_page.md", "---\ntitle: T\ndraft: true\n---\nBody.\n")
+
+        pattern = str(tmp_path / "{family}/{platform}")
+        with patch.object(_cd, "SITE_PATHS", [("docs", pattern)]):
+            result_default = discover_content("cells", "python")
+            result_explicit = discover_content("cells", "python", skip_drafts=False)
+
+        assert {f.name for f in result_default} == {f.name for f in result_explicit}
+
+    def test_draft_false_not_excluded(self, tmp_path):
+        """Pages with draft: false are not excluded by skip_drafts."""
+        site = tmp_path / "cells" / "python"
+        site.mkdir(parents=True)
+        self._make_md(site / "not_draft.md", "---\ntitle: N\ndraft: false\n---\nBody.\n")
+
+        pattern = str(tmp_path / "{family}/{platform}")
+        with patch.object(_cd, "SITE_PATHS", [("docs", pattern)]):
+            result = discover_content("cells", "python", skip_drafts=True)
+
+        names = {f.name for f in result}
+        assert "not_draft.md" in names
+
+    def test_no_frontmatter_not_excluded(self, tmp_path):
+        """Files without frontmatter are not excluded by skip_drafts."""
+        site = tmp_path / "cells" / "python"
+        site.mkdir(parents=True)
+        self._make_md(site / "no_fm.md", "# Just a heading\nBody.\n")
+
+        pattern = str(tmp_path / "{family}/{platform}")
+        with patch.object(_cd, "SITE_PATHS", [("docs", pattern)]):
+            result = discover_content("cells", "python", skip_drafts=True)
+
+        names = {f.name for f in result}
+        assert "no_fm.md" in names
