@@ -96,8 +96,12 @@ current dirty-file snapshot. Skills will refuse to run without it.
 /heal-page content/docs.aspose.org/en/3d/python/getting-started.md
 ```
 
-Dependencies are auto-resolved. If `/heal-page` needs `/eval-page` first, the
-agent runs it automatically.
+Prerequisites are handled by the agent reading dependency rules from `AGENTS.md §6a`
+and running upstream skills first. Completed stages are tracked in
+`reports/phase_state.json` (checkpoint store), so re-running a completed stage is a
+no-op. However, there is no code gate that prevents invoking a downstream skill before
+its upstream prerequisite — correct ordering relies on the agent following AGENTS.md §6a
+in the active session.
 
 ### Commit when done:
 

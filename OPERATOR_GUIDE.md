@@ -84,6 +84,15 @@ top of the skill file. Skills without a CONTRACT block are fully agent-executed 
 
 If you need to run a skill's script portions without an active agent session:
 
+> **Warning — hooks are inactive in terminal mode.**
+> Claude Code's 6 PreToolUse enforcement hooks (session gate, path guard, Python venv
+> check, skill context gate, content write gate, content edit gate) only fire inside
+> Claude Code. They do NOT run when you execute scripts from a terminal directly.
+> To compensate, run these equivalents manually after any content changes:
+> - Path governance: `python scripts/pipeline/path_guard.py {path}`
+> - API accuracy: `python scripts/pipeline/audit.py {family} {platform}`
+> - Frontmatter: `python scripts/pipeline/validate_frontmatter.py {file}`
+
 ### knowledge-update (S-14)
 Runs all 4 knowledge pipeline steps:
 ```bash
@@ -123,7 +132,7 @@ python scripts/translator/cli.py batch {family} {platform} --locales all
 ## §6 — Audit FAIL Baseline
 
 Running `python scripts/pipeline/audit.py all` currently shows **0 FAILs** across all 13 products.
-All products are clean as of 2026-04-01.
+For the current baseline (count and root causes), see `reports/audit/baseline-fail-counts.json`.
 
 If FAILs appear after a knowledge model update or content generation sprint, check
 `reports/audit/baseline-fail-counts.json` for the current documented baseline and root causes.
@@ -151,7 +160,7 @@ If you add new content and see audit FAILs, check whether they are:
 source .venv/bin/activate         # Unix
 .venv\Scripts\activate            # Windows
 
-# API accuracy audit (24 expected FAILs — see §6)
+# API accuracy audit (0 FAILs in current baseline — see §6 and reports/audit/baseline-fail-counts.json)
 python scripts/pipeline/audit.py all
 
 # Content quality evaluation for a product
@@ -230,6 +239,10 @@ upstream skill first.
 
 DAR compliance is currently enforced by agent instruction-following. The checkpoint store
 at `reports/phase_state.json` records which stages have been completed.
+
+**There is no code-level gate** that prevents out-of-order skill invocation. The checkpoint
+store records what ran, but does not block a skill that skips a prerequisite. Correct
+ordering depends on the agent reading and following AGENTS.md §6a in the active session.
 
 ---
 
