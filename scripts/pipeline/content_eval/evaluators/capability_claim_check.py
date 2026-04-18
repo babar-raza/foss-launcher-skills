@@ -26,7 +26,7 @@ _EXPORT_VERB_RE = re.compile(
     re.IGNORECASE,
 )
 _IMPORT_VERB_RE = re.compile(
-    r"\b(?:import|load|read|open|convert\s+from|parse)\b",
+    r"\b(?:import|load|read(?!-only)|open|convert\s+from|parse)\b",
     re.IGNORECASE,
 )
 
@@ -91,12 +91,28 @@ def _load_formats(family: str, platform: str) -> dict[str, str]:
         if not ext:
             continue
 
+        # Normalize enum_only: the enum constant exists for identification.
+        # If functional == False, the constant is a stub (cannot read or write).
+        # If functional is absent or True, reading is supported (direction = import).
+        if direction == "enum_only":
+            functional = entry.get("functional", None)
+            if functional is False:
+                direction = "none"
+            else:
+                direction = "import"
+
         existing = lookup.get(ext)
         if existing is None:
             lookup[ext] = direction
         elif existing != direction:
+            # Don't upgrade to "both" if either entry is "none" — a non-functional
+            # enum_only stub from one direction does not add real capability.
+            if direction == "none":
+                pass  # keep existing
+            elif existing == "none":
+                lookup[ext] = direction  # replace none with actual direction
             # Merge: if one says import and another says export → both
-            if {existing, direction} <= {"import", "export"}:
+            elif {existing, direction} <= {"import", "export"}:
                 lookup[ext] = "both"
             elif "both" in (existing, direction) or "read/write" in (existing, direction):
                 lookup[ext] = "both"

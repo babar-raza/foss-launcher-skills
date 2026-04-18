@@ -59,7 +59,7 @@ _EXPORT_VERB_RE = re.compile(
     re.IGNORECASE,
 )
 _IMPORT_VERB_RE = re.compile(
-    r"\b(?:import|load|read|open|convert\s+from|parse)\b",
+    r"\b(?:import|load|read(?!-only)|open|convert\s+from|parse)\b",
     re.IGNORECASE,
 )
 _BOTH_VERB_RE = re.compile(
@@ -121,10 +121,15 @@ def _load_formats(family: str, platform: str) -> dict[str, str]:
             continue
         ext = raw_key.lower()
         direction = (entry.get("direction") or entry.get("support") or "").lower()
-        # Normalize enum_only → import: the enum constant exists for
-        # identification but save() raises ValueError, so only reading works.
+        # Normalize enum_only: the enum constant exists for identification.
+        # If functional == False, the constant is a stub (cannot read or write).
+        # If functional is absent or True, reading is supported (direction = import).
         if direction == "enum_only":
-            direction = "import"
+            functional = entry.get("functional", None)
+            if functional is False:
+                direction = "none"
+            else:
+                direction = "import"
         if not direction:
             # Infer from boolean fields
             can_import = entry.get("import", False)
@@ -139,7 +144,14 @@ def _load_formats(family: str, platform: str) -> dict[str, str]:
                 direction = "none"
         existing = result.get(ext)
         if existing and existing != direction:
-            result[ext] = "both"
+            # Don't upgrade to "both" if either entry is "none" — a non-functional
+            # enum_only stub from one direction does not add real capability.
+            if direction == "none":
+                pass  # keep existing
+            elif existing == "none":
+                result[ext] = direction  # replace none with actual direction
+            else:
+                result[ext] = "both"
         else:
             result[ext] = direction
 
@@ -330,10 +342,47 @@ class FormatTruthEvaluator(BaseEvaluator):
 
         # --- Scan prose lines ---
         for line_no, line_text in page.prose_lines:
-            # Skip lines that explicitly state a format is NOT supported —
-            # these are honest limitation disclosures, not false capability claims.
+            # Lines that explicitly state a format is NOT supported need a
+            # separate check: if formats.json says it IS supported, the claim
+            # is a false limitation (VBD-01 fix).
+            # Direction-aware: infer what direction the negation is claiming is
+            # unsupported using the WHOLE LINE context (not per-position), so
+            # that verb context from any part of the line is considered.
             if _NEGATION_RE.search(line_text):
-                continue
+                # Determine the direction context for the whole line once
+                line_neg_dir = _claim_direction(line_text)
+                for ext, _pos in _extract_format_mentions(line_text):
+                    known_dir = format_direction.get(ext)
+                    if not known_dir or known_dir in ("none", "detect"):
+                        continue  # Content correctly says it's unsupported
+                    # If the negated direction is not covered by known_dir, it's correct
+                    if line_neg_dir == "export" and known_dir == "import":
+                        continue  # "can't export X" — correct, only import is supported
+                    if line_neg_dir == "import" and known_dir == "export":
+                        continue  # "can't import X" — correct, only export is supported
+                    key = (ext, "false-negative-claim")
+                    if key not in reported:
+                        reported.add(key)
+                        _neg_level = _DIRECTION_MISMATCH_SEVERITY.get(
+                            page.subdomain, "WARN"
+                        )
+                        findings.append(Finding(
+                            level=_neg_level,
+                            category="FT",
+                            filepath=str(page.filepath),
+                            line_no=line_no,
+                            message=(
+                                f"Claims {ext.upper()} is not supported but "
+                                f"formats.json shows {known_dir} support"
+                            ),
+                            suggestion=(
+                                f"Remove the 'not supported' limitation for "
+                                f"{ext.upper()} — formats.json confirms "
+                                f"{known_dir} capability is present"
+                            ),
+                            evaluator=self.name,
+                        ))
+                continue  # Don't double-count this line as a positive claim
             # Normalize table access-column values BEFORE extracting mentions so
             # that "| Read |" / "| Write |" cells are never part of the direction
             # context window, regardless of where the format token falls on the

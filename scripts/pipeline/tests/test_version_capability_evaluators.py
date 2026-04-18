@@ -205,3 +205,119 @@ class TestCapabilityClaimCheck:
             frontmatter_extra="Export FBX files.")
         findings = self.evaluator.evaluate(page, None)
         assert len(findings) == 0
+
+
+class TestCapabilityClaimCheckNormalization:
+    """Regression tests for VBD-02: enum_only normalization and read(?!-only) regex gap."""
+
+    def setup_method(self):
+        self.evaluator = get_evaluator("capability_claim_check")()
+
+    # ------------------------------------------------------------------
+    # Gap 1: enum_only + functional:false must normalize to "none"
+    # ------------------------------------------------------------------
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_enum_only_functional_false_import_claim_is_flagged(self, mock_formats):
+        """enum_only+functional:false → direction='none'; claiming import must be flagged."""
+        mock_formats.return_value = {"docx": "none"}
+        page = _make_kb_page("words", "python",
+            body="Load and parse DOCX files using the library.")
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) >= 1
+        assert findings[0].category == "CF"
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_enum_only_functional_true_import_claim_not_flagged(self, mock_formats):
+        """enum_only+functional:true → direction='import'; claiming import must NOT be flagged."""
+        mock_formats.return_value = {"tsv": "import"}
+        page = _make_kb_page("cells", "python",
+            body="Load and parse TSV files for analysis.")
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) == 0
+
+    def test_load_formats_enum_only_functional_false_normalizes_to_none(self):
+        """_load_formats must normalize enum_only+functional:false to 'none'."""
+        import json
+        import tempfile
+        from pathlib import Path
+        import content_eval.evaluators.capability_claim_check as mod
+
+        data = [{"format": "docx", "direction": "enum_only", "functional": False}]
+        with tempfile.TemporaryDirectory() as tmp:
+            merged = Path(tmp) / "knowledge" / "words" / "python" / "merged"
+            merged.mkdir(parents=True)
+            (merged / "formats.json").write_text(json.dumps(data), encoding="utf-8")
+            original_root = mod.KNOWLEDGE_ROOT
+            mod.KNOWLEDGE_ROOT = Path(tmp) / "knowledge"
+            try:
+                result = mod._load_formats("words", "python")
+            finally:
+                mod.KNOWLEDGE_ROOT = original_root
+        assert result.get("docx") == "none"
+
+    def test_load_formats_enum_only_no_functional_normalizes_to_import(self):
+        """_load_formats must normalize enum_only (no functional field) to 'import'."""
+        import json
+        import tempfile
+        from pathlib import Path
+        import content_eval.evaluators.capability_claim_check as mod
+
+        data = [{"format": "tsv", "direction": "enum_only"}]
+        with tempfile.TemporaryDirectory() as tmp:
+            merged = Path(tmp) / "knowledge" / "cells" / "python" / "merged"
+            merged.mkdir(parents=True)
+            (merged / "formats.json").write_text(json.dumps(data), encoding="utf-8")
+            original_root = mod.KNOWLEDGE_ROOT
+            mod.KNOWLEDGE_ROOT = Path(tmp) / "knowledge"
+            try:
+                result = mod._load_formats("cells", "python")
+            finally:
+                mod.KNOWLEDGE_ROOT = original_root
+        assert result.get("tsv") == "import"
+
+    def test_load_formats_none_aware_merge_keeps_functional_direction(self):
+        """When two entries exist — first 'none', second 'import' — result must be 'import'."""
+        import json
+        import tempfile
+        from pathlib import Path
+        import content_eval.evaluators.capability_claim_check as mod
+
+        data = [
+            {"format": "docx", "direction": "enum_only", "functional": False},
+            {"format": "docx", "direction": "import"},
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            merged = Path(tmp) / "knowledge" / "words" / "python" / "merged"
+            merged.mkdir(parents=True)
+            (merged / "formats.json").write_text(json.dumps(data), encoding="utf-8")
+            original_root = mod.KNOWLEDGE_ROOT
+            mod.KNOWLEDGE_ROOT = Path(tmp) / "knowledge"
+            try:
+                result = mod._load_formats("words", "python")
+            finally:
+                mod.KNOWLEDGE_ROOT = original_root
+        assert result.get("docx") == "import"
+
+    # ------------------------------------------------------------------
+    # Gap 2: read(?!-only) — "read-only" must not trigger import claim
+    # ------------------------------------------------------------------
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_read_only_phrase_does_not_trigger_import_claim(self, mock_formats):
+        """'read-only' must not be parsed as an import verb — no false positive."""
+        mock_formats.return_value = {"doc": "export"}
+        page = _make_kb_page("words", "python",
+            body="The DOC format is read-only in this context.")
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) == 0
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_read_verb_alone_still_triggers_import_claim(self, mock_formats):
+        """Plain 'read' (not 'read-only') must still match as an import verb."""
+        mock_formats.return_value = {"doc": "export"}
+        page = _make_kb_page("words", "python",
+            body="Read and process DOC files from the filesystem.")
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) >= 1
+        assert findings[0].category == "CF"

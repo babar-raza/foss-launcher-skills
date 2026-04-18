@@ -1,6 +1,6 @@
 # Grade configuration for content_eval
 # Changes to this file MUST be accompanied by an EVALUATOR_LOGIC_VERSION bump.
-evaluator_logic_version: "13"
+evaluator_logic_version: "14"
 
 # Categories where any FAIL forces grade F
 critical_categories:
