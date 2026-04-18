@@ -321,3 +321,109 @@ class TestCapabilityClaimCheckNormalization:
         findings = self.evaluator.evaluate(page, None)
         assert len(findings) >= 1
         assert findings[0].category == "CF"
+
+
+class TestCapabilityClaimCheckHardening:
+    """Task 2 hardening tests: _BOTH_VERB_RE, _TABLE_ACCESS_COL_RE, prose guards.
+
+    These cover the 3 in-scope adjacent gaps identified in §13 of the VBD-02 plan
+    (serialized-waddling-kahn.md).  Code-block guards are intentionally omitted —
+    capability_claim_check is prose-only by design (uses _extract_scannable_lines).
+    """
+
+    def setup_method(self):
+        self.evaluator = get_evaluator("capability_claim_check")()
+
+    # ------------------------------------------------------------------
+    # Gap 1: _BOTH_VERB_RE — bidirectional verbs ("support", "handle", etc.)
+    # ------------------------------------------------------------------
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_support_verb_flags_when_import_only(self, mock_formats):
+        """'can support FBX' near import-only FBX must be flagged (both > import).
+
+        _BOTH_VERB_RE matches both 'support' and 'supports' (optional trailing s).
+        """
+        mock_formats.return_value = {"fbx": "import"}
+        page = _make_kb_page("3d", "java",
+            body="This library can support FBX files for 3D data exchange.")
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) >= 1
+        assert findings[0].category == "CF"
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_support_verb_not_flagged_when_both(self, mock_formats):
+        """'supports OBJ' near direction=both OBJ must NOT flag."""
+        mock_formats.return_value = {"obj": "both"}
+        page = _make_kb_page("3d", "java",
+            body="This library supports OBJ files for import and export.")
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) == 0
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_handle_verb_flags_when_export_only(self, mock_formats):
+        """'can handle PDF' near export-only PDF must be flagged (both > export)."""
+        mock_formats.return_value = {"pdf": "export"}
+        page = _make_kb_page("words", "python",
+            body="The API can handle PDF documents as both input and output.")
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) >= 1
+        assert findings[0].category == "CF"
+
+    # ------------------------------------------------------------------
+    # Gap 2: _TABLE_ACCESS_COL_RE — table header "| Read |" / "| Write |" columns
+    # ------------------------------------------------------------------
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_table_write_column_does_not_false_positive(self, mock_formats):
+        """'| CSV | Read | Write |' — both Write and Read cells must be neutralized.
+
+        Uses lookahead/lookbehind so shared | delimiter doesn't block matching
+        both cells in a single re.sub pass.
+        """
+        mock_formats.return_value = {"csv": "import"}
+        page = _make_kb_page("cells", "python",
+            body="| CSV | Read | Write |")
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) == 0
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_table_read_write_column_does_not_false_positive(self, mock_formats):
+        """'| CSV | Read/Write |' — combined column must NOT trigger export claim for import-only CSV."""
+        mock_formats.return_value = {"csv": "import"}
+        page = _make_kb_page("cells", "python",
+            body="| CSV | Read/Write |")
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) == 0
+
+    # ------------------------------------------------------------------
+    # Gap 3: Prose guards — type annotations and inline formatting spans
+    # ------------------------------------------------------------------
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_type_annotation_does_not_trigger_claim(self, mock_formats):
+        """'doc: Document' type annotation must not be parsed as a capability claim."""
+        mock_formats.return_value = {"doc": "export"}
+        page = _make_kb_page("words", "python",
+            body="The doc: Document parameter accepts a loaded document object.")
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) == 0
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_backtick_inline_span_does_not_trigger_claim(self, mock_formats):
+        """'`csv`' in backtick inline span must not be parsed as a capability claim."""
+        mock_formats.return_value = {"csv": "export"}
+        page = _make_kb_page("cells", "python",
+            body="The `csv` module is used internally for configuration parsing.")
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) == 0
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_plain_format_mention_with_verb_still_triggers(self, mock_formats):
+        """Regression: plain 'parse CSV' (no inline span) must still flag when CSV is export-only."""
+        mock_formats.return_value = {"csv": "export"}
+        page = _make_kb_page("cells", "python",
+            body="Parse CSV files and extract the header row.")
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) >= 1
+        assert findings[0].category == "CF"

@@ -606,11 +606,11 @@
     },
     {
       "id": "S-92",
-      "slug": "triage_confirm",
+      "slug": "triage-confirm",
       "name": "Triage Confirm — Layer 2 Body-Prose Staleness Scanner",
       "description": "Scan content page body prose for references to API classes or knowledge claims that have",
       "internal": false,
-      "canonical_path": "skills/triage_confirm.md"
+      "canonical_path": "skills/triage-confirm.md"
     }
   ]
 }

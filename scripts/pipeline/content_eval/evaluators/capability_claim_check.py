@@ -29,6 +29,12 @@ _IMPORT_VERB_RE = re.compile(
     r"\b(?:import|load|read(?!-only)|open|convert\s+from|parse)\b",
     re.IGNORECASE,
 )
+# Bidirectional verbs — "supports/handles/processes X" implies bidirectional capability.
+# When present near a format token, _claim_direction returns "both".
+_BOTH_VERB_RE = re.compile(
+    r"\b(?:support|handle|process|convert)s?\b",
+    re.IGNORECASE,
+)
 
 # Broad format extensions to look for
 _KNOWN_EXTENSIONS = {
@@ -52,6 +58,15 @@ _FORMAT_TOKEN_RE = re.compile(
 _NEGATION_RE = re.compile(
     r"\b(?:not|no\s+longer|without|don'?t|doesn'?t|cannot|unsupported|"
     r"removed|deprecated|limitation|except)\b",
+    re.IGNORECASE,
+)
+
+# Table access column normalizer — replaces "Read", "Write", "Read/Write" cell content
+# (between | delimiters) with "-" before scanning.  Uses lookahead/lookbehind so the
+# shared | between adjacent cells is not consumed, allowing both cells to be matched
+# in a single re.sub pass even when they share a delimiter (e.g. "| Read | Write |").
+_TABLE_ACCESS_COL_RE = re.compile(
+    r"(?<=\|)\s*(?:Read(?:/Write)?|Write)\s*(?=\|)",
     re.IGNORECASE,
 )
 
@@ -134,8 +149,9 @@ def _claim_direction(text: str, start: int, end: int) -> str | None:
 
     has_export = bool(_EXPORT_VERB_RE.search(window))
     has_import = bool(_IMPORT_VERB_RE.search(window))
+    has_both = bool(_BOTH_VERB_RE.search(window))
 
-    if has_export and has_import:
+    if has_both or (has_export and has_import):
         return "both"
     if has_export:
         return "export"
@@ -174,18 +190,31 @@ class CapabilityClaimCheckEvaluator(BaseEvaluator):
         from .version_claim_check import _extract_scannable_lines
 
         for line_no, text in _extract_scannable_lines(page):
+            # Normalize table access columns ("| Read |", "| Write |") to neutral "| - |"
+            # before scanning, preventing column headers from polluting direction context.
+            scan_text = _TABLE_ACCESS_COL_RE.sub(" - ", text)
+
             # Skip negation context
-            if _NEGATION_RE.search(text):
+            if _NEGATION_RE.search(scan_text):
                 continue
 
-            for m in _FORMAT_TOKEN_RE.finditer(text):
+            for m in _FORMAT_TOKEN_RE.finditer(scan_text):
                 fmt = m.group(1).lower()
                 actual_direction = format_lookup.get(fmt)
 
                 if actual_direction is None:
                     continue  # Unknown format — handled by format_truth
 
-                claimed = _claim_direction(text, m.start(), m.end())
+                # Prose guards: skip type-annotation and inline-formatting contexts.
+                # doc: Type → not a capability claim; `csv`, *pdf*, _odt_ → inline span.
+                tail = scan_text[m.end():]
+                if tail.lstrip().startswith(":"):
+                    continue
+                pre_char = scan_text[m.start() - 1 : m.start()] if m.start() > 0 else ""
+                if pre_char in ("*", "`", "_") and tail[:1] == pre_char:
+                    continue
+
+                claimed = _claim_direction(scan_text, m.start(), m.end())
                 if claimed is None:
                     continue  # No direction claim detected
 
