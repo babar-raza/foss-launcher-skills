@@ -8,7 +8,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import EVALUATOR_LOGIC_VERSION, __version__
+from . import EVALUATOR_LOGIC_VERSION, EVALUATOR_VERSIONS, __version__
 from .config import ALL_EVALUATORS, DEFAULT_EVALUATORS
 from .models import EvalReport, Finding, compute_grade_with_criticality
 
@@ -163,23 +163,34 @@ def _run_evaluate(args):
                     knowledge_cache[key] = None
             k = knowledge_cache[key]
             stored = _read_grade(page.filepath)
-            if (stored and stored["tier"] == "full"
-                    and k and hasattr(k, "repo_sha")
-                    and stored["model_sha"] == k.repo_sha
-                    and stored.get("logic_version", "") == EVALUATOR_LOGIC_VERSION):
-                # Content-hash gate: if the body changed since last grade, re-grade
-                stored_hash = stored.get("content_hash", "")
-                if stored_hash:
-                    try:
-                        text = page.filepath.read_text(encoding="utf-8")
-                        fm_m = _FM_RE.match(text)
-                        body = text[fm_m.end():] if fm_m else text
-                        if _content_hash(body) != stored_hash:
-                            filtered.append(page)
-                            continue
-                    except (OSError, UnicodeDecodeError):
-                        pass  # if unreadable, fall through to skip
-                continue  # Already graded with current knowledge, full evaluators, current logic
+            if stored and stored["tier"] == "full" and k and hasattr(k, "repo_sha") and stored["model_sha"] == k.repo_sha:
+                # TC-5: per-evaluator version check (preferred path)
+                stored_ev = stored.get("evaluator_versions") or {}
+                if stored_ev:
+                    # Compare per-evaluator: skip only if ALL current evaluators match
+                    stale_ev = [
+                        ev for ev in evaluator_names
+                        if stored_ev.get(ev, "") != EVALUATOR_VERSIONS.get(ev, "1")
+                    ]
+                    version_ok = not stale_ev
+                else:
+                    # Fallback: global logic-version gate (legacy pages)
+                    version_ok = stored.get("logic_version", "") == EVALUATOR_LOGIC_VERSION
+
+                if version_ok:
+                    # Content-hash gate: if the body changed since last grade, re-grade
+                    stored_hash = stored.get("content_hash", "")
+                    if stored_hash:
+                        try:
+                            text = page.filepath.read_text(encoding="utf-8")
+                            fm_m = _FM_RE.match(text)
+                            body = text[fm_m.end():] if fm_m else text
+                            if _content_hash(body) != stored_hash:
+                                filtered.append(page)
+                                continue
+                        except (OSError, UnicodeDecodeError):
+                            pass  # if unreadable, fall through to skip
+                    continue  # Already graded with current knowledge, full evaluators, current logic
             filtered.append(page)
         skipped = len(pages) - len(filtered)
         if skipped:
@@ -336,7 +347,8 @@ def _run_evaluate(args):
             model_sha = k.repo_sha if k and hasattr(k, "repo_sha") else ""
             tier = "full" if k and getattr(k, "available", False) else "structural"
             _write_grade(fp, grade, model_sha=model_sha, evaluator_tier=tier,
-                         logic_version=EVALUATOR_LOGIC_VERSION, grade_reasons=reasons)
+                         logic_version=EVALUATOR_LOGIC_VERSION, grade_reasons=reasons,
+                         evaluator_versions=EVALUATOR_VERSIONS)
             grade_counts[grade] = grade_counts.get(grade, 0) + 1
 
         _log(f"  Grades written: {grade_counts}")
