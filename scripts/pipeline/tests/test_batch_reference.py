@@ -1073,3 +1073,66 @@ class TestLoadUpdateApis:
         monkeypatch.setattr(br, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
         result = br._load_update_apis("test", "net")
         assert result is None
+
+
+# ---------------------------------------------------------------------------
+# TC-S20-B08: --update delta chain behavior (2026-04-18)
+# ---------------------------------------------------------------------------
+
+class TestUpdateDeltaBehavior:
+    """TC-S20-B08: --update produces a delta (subset of pages), not a full re-run.
+
+    Verifies that when update=True and knowledge_delta.json lists only a subset
+    of API classes as modified, only those pages are targeted for update while
+    unmodified pages are skipped.  This is the core incremental-update guarantee.
+    """
+
+    def test_update_mode_targets_only_modified_apis(self, tmp_path, monkeypatch):
+        """With 3 existing pages and 1 in modified_apis, skipped == 2 (not 3).
+
+        This proves the delta chain is incremental: pages not in knowledge_delta.json
+        are skipped even though they already exist, so update is a strict subset of
+        the full candidate list.
+        """
+        import json
+        import yaml
+
+        entries = [
+            {"name": "Alpha", "kind": "class_definition", "methods": [], "properties": []},
+            {"name": "Beta",  "kind": "class_definition", "methods": [], "properties": []},
+            {"name": "Gamma", "kind": "class_definition", "methods": [], "properties": []},
+        ]
+        merged = tmp_path / "knowledge" / "fake" / "python" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "api_surface.json").write_text(json.dumps(entries), encoding="utf-8")
+        (merged / "model.yaml").write_text(
+            yaml.safe_dump({"stale_since": None, "version": "1.0.0"}),
+        )
+        # Only Beta is modified — Alpha and Gamma are unchanged
+        (merged / "knowledge_delta.json").write_text(json.dumps({
+            "modified_apis": ["Beta"],
+            "new_apis": [],
+            "resurrected_apis": [],
+        }), encoding="utf-8")
+
+        # Pre-create all 3 pages (simulate committed content)
+        page_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "fake" / "python"
+        page_dir.mkdir(parents=True)
+        for name in ("Alpha", "Beta", "Gamma"):
+            (page_dir / f"{name}.md").write_text(
+                f"---\nauto_updatable: true\n---\n# {name}\n", encoding="utf-8"
+            )
+
+        monkeypatch.setattr(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+        monkeypatch.setattr(_br, "CONTENT_ROOT", tmp_path / "content" / "reference.aspose.org" / "en")
+
+        result = run("fake", "python", update=True, dry_run=True)
+
+        # 2 pages skipped (Alpha + Gamma, not in modified_apis)
+        assert result["skipped"] == 2, (
+            f"Expected 2 pages skipped (not in modified_apis); got {result['skipped']}"
+        )
+        # dry_run means nothing was actually written
+        assert result.get("dry_run") is True
+        # The delta is strictly less than the total candidate count (3)
+        assert result["skipped"] < 3, "skipped must be < total; --update is not a full re-run"
