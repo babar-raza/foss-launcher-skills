@@ -307,3 +307,103 @@ class TestFQNameIndex:
         assert "Foo" in k.classes
         # FQ lookup returns nothing (no class_import)
         assert not k.has_class_fq("Foo")
+
+
+# ---------------------------------------------------------------------------
+# Lazy I/O — TC-09
+# ---------------------------------------------------------------------------
+
+
+class TestKnowledgeLazyIO:
+    """Knowledge construction must have zero I/O cost (TC-09)."""
+
+    def _make_knowledge_root(self, tmp_path, api_list=None):
+        """Build a minimal merged/ tree under tmp_path."""
+        import yaml as _yaml
+        merged = tmp_path / "words" / "python" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "model.yaml").write_text(
+            _yaml.dump({"version": "1.0", "repo_sha": "test_sha"}),
+            encoding="utf-8",
+        )
+        (merged / "api_surface.json").write_text(
+            __import__("json").dumps(api_list or []),
+            encoding="utf-8",
+        )
+        return tmp_path
+
+    def test_construction_zero_io(self):
+        """1000 Knowledge() constructions in <100ms — no file reads in __init__."""
+        import time
+        import sys
+        sys.path.insert(0, "scripts/pipeline")
+        from knowledge_core import Knowledge
+        t = time.perf_counter()
+        for _ in range(1000):
+            k = Knowledge("words", "python")
+        elapsed = time.perf_counter() - t
+        assert elapsed < 0.1, f"Construction too slow: {elapsed*1000:.0f}ms for 1000 objects"
+
+    def test_no_load_before_attribute_access(self):
+        """_knowledge_loaded sentinel absent right after construction."""
+        import sys
+        sys.path.insert(0, "scripts/pipeline")
+        from knowledge_core import Knowledge
+        k = Knowledge("words", "python")
+        assert "_knowledge_loaded" not in k.__dict__
+        assert "available" not in k.__dict__
+
+    def test_available_false_when_no_knowledge_dir(self, tmp_path):
+        """available=False for missing knowledge root; no AttributeError."""
+        import sys
+        sys.path.insert(0, "scripts/pipeline")
+        from knowledge_core import Knowledge
+        k = Knowledge("words", "python", knowledge_root=tmp_path)
+        assert k.available is False
+        # All data attrs return safe defaults
+        assert k.classes == {}
+        assert k.methods == {}
+        assert k.claim_ids == set()
+        assert k.workaround_members == {}
+
+    def test_lazy_load_triggered_on_available_access(self, tmp_path):
+        """Accessing .available triggers _ensure_loaded; sentinel set afterwards."""
+        import sys
+        sys.path.insert(0, "scripts/pipeline")
+        from knowledge_core import Knowledge
+        root = self._make_knowledge_root(tmp_path)
+        k = Knowledge("words", "python", knowledge_root=root)
+        assert "_knowledge_loaded" not in k.__dict__, "must not load before access"
+        _ = k.available
+        assert "_knowledge_loaded" in k.__dict__, "must load after first access"
+
+    def test_all_attrs_populated_after_load(self, tmp_path):
+        """After load, all expected data attrs are present in __dict__."""
+        import sys
+        sys.path.insert(0, "scripts/pipeline")
+        from knowledge_core import Knowledge
+        root = self._make_knowledge_root(tmp_path)
+        k = Knowledge("words", "python", knowledge_root=root)
+        _ = k.available  # trigger load
+        expected = [
+            "version", "repo_sha", "classes", "classes_by_import",
+            "methods", "properties", "enum_members", "return_types",
+            "property_types", "method_params", "parents", "valid_imports",
+            "claim_ids", "api_to_claim", "surface_tier", "install_cmd",
+            "snippet_index", "_snippet_classes", "_snippet_methods",
+            "class_importance", "class_kind", "workaround_members",
+        ]
+        for attr in expected:
+            assert attr in k.__dict__, f"Missing attr after load: {attr}"
+
+    def test_ensure_loaded_idempotent(self, tmp_path):
+        """Calling _ensure_loaded() twice does not reload or raise."""
+        import sys
+        sys.path.insert(0, "scripts/pipeline")
+        from knowledge_core import Knowledge
+        root = self._make_knowledge_root(tmp_path)
+        k = Knowledge("words", "python", knowledge_root=root)
+        k._ensure_loaded()
+        classes_id_1 = id(k.classes)
+        k._ensure_loaded()
+        assert id(k.classes) == classes_id_1, "Second load must not replace objects"
