@@ -132,6 +132,69 @@ class TestRiskLanguage:
         fail_findings = [f for f in findings if f.level == "FAIL"]
         assert len(fail_findings) >= 1
 
+    def test_reference_table_row_all_formats_not_flagged(self):
+        """API table 'Get all formats...' on reference page must not trigger WARN."""
+        page = _make_page(
+            textwrap.dedent("""\
+                ---
+                title: ExporterRegistry
+                ---
+                | Method | Returns | Description |
+                |--------|---------|-------------|
+                | `get_supported_formats()` | `list[str]` | Get all formats that have registered exporters. |
+                | `clear()` | — | Clear all registered exporters. |
+            """),
+            filepath="content/reference.aspose.org/en/slides/python/ExporterRegistry.md",
+        )
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) == 0, f"Expected 0 findings on reference table, got: {findings}"
+
+    def test_reference_table_row_guarantees_not_flagged(self):
+        """Interface contract 'guarantees a Name property' in reference table must not trigger WARN."""
+        page = _make_page(
+            textwrap.dedent("""\
+                ---
+                title: _index
+                ---
+                | Interface | Description |
+                |-----------|-------------|
+                | `INamedObject` | Interface that guarantees a `Name` property. |
+            """),
+            filepath="content/reference.aspose.org/en/3d/net/_index.md",
+        )
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) == 0, f"Expected 0 findings on reference table, got: {findings}"
+
+    def test_non_reference_table_row_still_flagged(self):
+        """Same 'all formats' in a non-reference page (docs/blog/kb) must still trigger WARN."""
+        page = _make_page(
+            textwrap.dedent("""\
+                ---
+                title: Blog Post
+                ---
+                | Feature | Description |
+                |---------|-------------|
+                | Format support | Supports all formats with zero configuration. |
+            """),
+            filepath="content/blog.aspose.org/slides/python/test-post/index.md",
+        )
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) >= 1, "Non-reference page table rows must still be checked"
+
+    def test_reference_prose_still_flagged(self):
+        """Prose lines (not table rows) on reference pages must still be checked."""
+        page = _make_page(
+            textwrap.dedent("""\
+                ---
+                title: SomeClass
+                ---
+                This class provides seamless integration with all formats.
+            """),
+            filepath="content/reference.aspose.org/en/slides/python/SomeClass.md",
+        )
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) >= 1, "Reference page prose must still be evaluated for risk language"
+
 
 class TestStructure:
     def setup_method(self):
