@@ -372,4 +372,21 @@ if [ ${#changed[@]} -gt 0 ]; then
     fi
 fi
 
+# ---------------------------------------------------------------------------
+# Step 11: Monkeypatch lint — warn on seam-contract violations in staged test files
+# ---------------------------------------------------------------------------
+# Checks for monkeypatch.setattr / patch.object on guarded path constants (AGENTS.md §16).
+# Currently in warn-only mode (exit 0); promote to --strict once all seams land.
+staged_test_files=()
+while IFS= read -r _tline; do staged_test_files+=("$_tline"); done < <(
+    git diff --cached --name-only --diff-filter=ACM | grep -E '^.*(test_[^/]*\.py|[^/]*_test\.py)$' || true
+)
+if [ ${#staged_test_files[@]} -gt 0 ]; then
+    if command -v python >/dev/null 2>&1 && [ -f "scripts/ci/check_monkeypatch_lint.py" ]; then
+        python scripts/ci/check_monkeypatch_lint.py -- "${staged_test_files[@]}" 2>&1 | \
+            sed 's/^/[Step 11] /' >&2 || true
+        # warn-only mode: lint findings never block the commit
+    fi
+fi
+
 exit 0

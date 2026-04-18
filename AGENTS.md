@@ -2100,6 +2100,78 @@ The block uses the plain "Related backlog items:" label — no additional headin
 
 ---
 
+## 16. Testing Seam Contract — Anti-Monkeypatch Policy
+
+Pipeline scripts MUST be testable without `monkeypatch.setattr` or `unittest.mock.patch.object`
+on module-level path constants. All structural roots and cache paths MUST be injectable via
+a `configure()` function or CLI argument.
+
+### Contract Requirements
+
+**For every pipeline script that defines a module-level path constant** (e.g. `REPO_ROOT`,
+`KNOWLEDGE_ROOT`, `CONTENT_ROOT`, `_SESSION_DIR`, `_DEFAULT_CACHE`):
+
+1. **`configure()` function required** — Expose a module-level `configure()` function that
+   accepts keyword arguments matching the path constants and overrides their values.
+   Calling `configure()` with no arguments MUST reset all constants to their built-in defaults.
+
+   ```python
+   # Pattern: immutable default + mutable global + configure() + reset
+   _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[N]  # immutable built-in default
+   REPO_ROOT = _DEFAULT_REPO_ROOT                             # mutable module global
+
+   def configure(repo_root: "Path | None" = None) -> None:
+       """Override REPO_ROOT for testing. Call with no args to reset."""
+       global REPO_ROOT
+       REPO_ROOT = repo_root if repo_root is not None else _DEFAULT_REPO_ROOT
+   ```
+
+2. **CLI arg required for tools with a `main()`** — Scripts with a command-line interface
+   MUST also expose injectable paths as optional CLI arguments (e.g. `--repo-root`,
+   `--knowledge-root`, `--content-root`, `--cache-path`) that call `configure()` before
+   execution.
+
+3. **Tests MUST use `configure()`, never `monkeypatch`** — Test code MUST NOT use
+   `monkeypatch.setattr` or `patch.object` to override module-level path constants.
+   Use `configure(path=tmp_path)` before the call and `configure()` in a `finally` block.
+
+   ```python
+   # Correct pattern — seam-based injection
+   def test_run_in_isolation(tmp_path):
+       import my_script
+       my_script.configure(repo_root=tmp_path)
+       try:
+           result = my_script.run(...)
+       finally:
+           my_script.configure()  # always reset to defaults
+   ```
+
+### Scope
+
+This policy applies to all Python scripts in:
+- `scripts/pipeline/`
+- `scripts/ci/`
+- `scripts/translator/`
+
+### Existing Violations
+
+Existing tests that use `monkeypatch.setattr` or `patch.object` on path constants are
+**grandfathered** until the `check_monkeypatch_lint.py` pre-commit check is promoted to
+blocking mode. New tests introduced after this policy was written MUST comply.
+
+### Enforcement
+
+Automated enforcement is provided by `scripts/ci/check_monkeypatch_lint.py`, which is
+invoked from the pre-commit hook (Step 11) on staged test files. The check currently
+warns only; it will be promoted to blocking after all seams land.
+
+### Cross-Reference
+
+- §4 (Script Registration): scripts with `run()` or `main()` MUST expose configure() seams
+- §12 (File Map): see `scripts/ci/check_monkeypatch_lint.py` for the enforcement script
+
+---
+
 ## Operating Standard
 
 Every agent operating on this repository is expected to behave as a disciplined user of a governed skill system — not as an autonomous reasoner inventing its own processes. The skill system is the documented, human-reviewed record of how content work is done here. When skills cover a requirement, they must be used. When they do not, the gap must be reported and recorded so the skill system can grow. An agent that silently bypasses skills, fabricates workflows, or completes tasks partially without disclosure violates the operating contract of this repository regardless of whether the output appears correct. Correctness of output does not retroactively legitimize non-compliant process. The test is not "did it work?" — the test is "did it work through the skill system, with the skill system's evidence and path rules intact?"
