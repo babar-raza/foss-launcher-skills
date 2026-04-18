@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/sync_providers.py",
-  "skill_count": 75,
+  "skill_count": 76,
   "skills": [
     {
       "id": "S-01",
@@ -603,6 +603,14 @@
       "description": "Stop agents from executing mixed-context plans blindly.",
       "internal": false,
       "canonical_path": "skills/plan-normalize.md"
+    },
+    {
+      "id": "S-92",
+      "slug": "triage_confirm",
+      "name": "Triage Confirm — Layer 2 Body-Prose Staleness Scanner",
+      "description": "Scan content page body prose for references to API classes or knowledge claims that have",
+      "internal": false,
+      "canonical_path": "skills/triage_confirm.md"
     }
   ]
 }
