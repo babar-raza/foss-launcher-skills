@@ -517,3 +517,65 @@ class TestVerify:
         plan = ctrl.plan([f])
         report = ctrl.verify(plan, before_findings=[f], after_findings=[f, f_new])
         assert report.regression_severity in ("minor", "moderate", "critical")
+
+
+# ---------------------------------------------------------------------------
+# SR-04 (TC-3): HealController depth guard — depth_map escalation to human_group
+# ---------------------------------------------------------------------------
+
+class TestHealControllerDepthGuard:
+    """TC-3: findings at depth >= MAX_HEAL_DEPTH must be routed to human_group."""
+
+    def test_finding_at_max_depth_routes_to_human(self):
+        """A finding with depth == MAX_HEAL_DEPTH is escalated to human_group."""
+        from heal_controller import MAX_HEAL_DEPTH
+        f = _make_finding(category="CS", filepath="x.md")
+        ctrl = HealController()
+        plan = ctrl.plan([f], depth_map={f.id: MAX_HEAL_DEPTH})
+        assert plan.human_group.count == 1, (
+            f"Expected human_group.count=1, got {plan.human_group.count}"
+        )
+        item = plan.human_group.items[0]
+        assert "max_heal_depth_exceeded" in item.skip_reason, (
+            f"Expected max_heal_depth_exceeded in skip_reason, got {item.skip_reason!r}"
+        )
+        assert str(MAX_HEAL_DEPTH) in item.skip_reason
+
+    def test_finding_below_max_depth_routes_normally(self):
+        """A finding with depth < MAX_HEAL_DEPTH is NOT escalated."""
+        from heal_controller import MAX_HEAL_DEPTH
+        f = _make_finding(category="CS", filepath="x.md")
+        ctrl = HealController()
+        plan = ctrl.plan([f], depth_map={f.id: MAX_HEAL_DEPTH - 1})
+        # Finding should NOT be in human_group due to depth guard
+        # (it may still be human due to policy; check skip_reason is empty)
+        for item in plan.human_group.items:
+            assert item.skip_reason == "" or "max_heal_depth" not in item.skip_reason, (
+                f"depth={MAX_HEAL_DEPTH - 1} must not trigger max_heal_depth escalation"
+            )
+
+    def test_depth_zero_missing_from_map_treats_as_zero(self):
+        """A finding not in depth_map is treated as depth=0 (first run)."""
+        f = _make_finding(category="CS", filepath="x.md")
+        ctrl = HealController()
+        plan = ctrl.plan([f], depth_map={})
+        for item in plan.human_group.items:
+            assert "max_heal_depth" not in item.skip_reason
+
+    def test_depth_map_in_to_dict(self):
+        """HealPlan.to_dict() includes 'depth_map' keyed by finding ID."""
+        from heal_controller import MAX_HEAL_DEPTH
+        f = _make_finding(category="CS", filepath="x.md")
+        ctrl = HealController()
+        plan = ctrl.plan([f], depth_map={f.id: 2})
+        d = plan.to_dict()
+        assert "depth_map" in d, "depth_map missing from to_dict()"
+        assert d["depth_map"][f.id] == 2
+
+    def test_depth_map_none_behaves_as_empty(self):
+        """plan(findings, depth_map=None) must not raise."""
+        f = _make_finding(category="CS", filepath="x.md")
+        ctrl = HealController()
+        plan = ctrl.plan([f], depth_map=None)
+        d = plan.to_dict()
+        assert "depth_map" in d

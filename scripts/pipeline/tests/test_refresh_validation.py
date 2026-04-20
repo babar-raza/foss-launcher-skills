@@ -1489,3 +1489,47 @@ class TestTwoLayerModelProof:
         assert result.page_spec.verdict == "missing"
         assert result.final_confidence == 1.0
         assert any("plan" in r for r in result.final_reasons)
+
+
+# ---------------------------------------------------------------------------
+# SR-04 (TC-2): reconcile_triage_page with unreadable page → final_verdict "unknown"
+# ---------------------------------------------------------------------------
+
+class TestReconcileTriageReadError:
+    """TC-2: unreadable page must produce final_verdict='unknown', never 'current'."""
+
+    def test_nonexistent_page_yields_unknown_not_current(self, tmp_path):
+        """reconcile_triage_page on a non-existent file → unknown (not current, not stale)."""
+        nonexistent = tmp_path / "does_not_exist.md"
+        result = reconcile_triage_page(nonexistent, {})
+        assert result.layer2_triage.verdict == "read_error", (
+            f"Expected layer2_triage.verdict='read_error', got {result.layer2_triage.verdict!r}"
+        )
+        assert result.final_verdict == "unknown", (
+            f"Expected final_verdict='unknown', got {result.final_verdict!r}"
+        )
+
+    def test_read_error_blocked_by_layer1_needs_update(self, tmp_path):
+        """If layer1 already signals needs_update, read_error does not downgrade to unknown."""
+        nonexistent = tmp_path / "missing.md"
+        result = reconcile_triage_page(nonexistent, {}, layer1_stale=True)
+        # layer1 wins → needs_update (read_error only blocks 'current')
+        assert result.final_verdict == "needs_update"
+
+    def test_read_error_reasons_propagated(self, tmp_path):
+        """read_error reasons must be included in final_reasons."""
+        nonexistent = tmp_path / "missing.md"
+        result = reconcile_triage_page(nonexistent, {})
+        assert result.final_reasons, "final_reasons must be non-empty for read_error"
+        assert any("read" in r.lower() or "could not" in r.lower()
+                   for r in result.final_reasons), (
+            f"Expected a 'could not read' reason, got: {result.final_reasons}"
+        )
+
+    def test_triage_confirm_read_error_has_verdict_key(self, tmp_path):
+        """triage_confirm itself returns a dict with verdict='read_error' for missing files."""
+        from triage_confirm import triage_confirm
+        result = triage_confirm(tmp_path / "nonexistent.md", {})
+        assert result.get("verdict") == "read_error"
+        assert result["stale"] is False
+        assert any("could not read" in r for r in result["reasons"])

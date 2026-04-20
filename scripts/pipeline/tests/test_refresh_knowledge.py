@@ -466,3 +466,83 @@ class TestResurrectionDetection:
 
         delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
         assert delta.get("resurrected_apis") == []
+
+
+# ---------------------------------------------------------------------------
+# SR-04 (TC-4): _write_model_field round-trip
+# ---------------------------------------------------------------------------
+
+class TestWriteModelField:
+    """TC-4: _write_model_field atomically updates a single field in merged/model.yaml."""
+
+    def test_writes_new_field_to_existing_model_yaml(self, tmp_path):
+        """_write_model_field adds a new key and preserves existing keys."""
+        import yaml
+        merged = tmp_path / "family" / "net" / "merged"
+        merged.mkdir(parents=True)
+        model_path = merged / "model.yaml"
+        model_path.write_text(
+            yaml.safe_dump({"repo_sha": "abc123", "version": "1.0"}),
+            encoding="utf-8",
+        )
+        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
+            _rk._write_model_field("family", "net", "enrichment_status", "full")
+        data = yaml.safe_load(model_path.read_text(encoding="utf-8"))
+        assert data["enrichment_status"] == "full"
+        assert data["repo_sha"] == "abc123", "Existing fields must be preserved"
+
+    def test_writes_scout_only_status(self, tmp_path):
+        """enrichment_status='scout-only' is written and readable."""
+        import yaml
+        merged = tmp_path / "family" / "net" / "merged"
+        merged.mkdir(parents=True)
+        model_path = merged / "model.yaml"
+        model_path.write_text(yaml.safe_dump({"repo_sha": "def456"}), encoding="utf-8")
+        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
+            _rk._write_model_field("family", "net", "enrichment_status", "scout-only")
+        data = yaml.safe_load(model_path.read_text(encoding="utf-8"))
+        assert data["enrichment_status"] == "scout-only"
+
+    def test_silent_when_model_yaml_absent(self, tmp_path):
+        """_write_model_field must not raise when model.yaml doesn't exist."""
+        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
+            _rk._write_model_field("no_family", "no_platform", "enrichment_status", "full")
+        # No exception raised = pass
+
+    def test_overwrites_existing_field(self, tmp_path):
+        """A second _write_model_field call overwrites the previous value."""
+        import yaml
+        merged = tmp_path / "family" / "net" / "merged"
+        merged.mkdir(parents=True)
+        model_path = merged / "model.yaml"
+        model_path.write_text(
+            yaml.safe_dump({"enrichment_status": "scout-only"}), encoding="utf-8"
+        )
+        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
+            _rk._write_model_field("family", "net", "enrichment_status", "full")
+        data = yaml.safe_load(model_path.read_text(encoding="utf-8"))
+        assert data["enrichment_status"] == "full"
+
+
+# ---------------------------------------------------------------------------
+# TC-2: _set_stale_since failure propagates from refresh() (Phase 1 contract test)
+# ---------------------------------------------------------------------------
+
+class TestSetStaleSinceExceptionPropagation:
+    """TC-2 contract: _set_stale_since failure must NOT be swallowed by refresh().
+
+    When _set_stale_since raises, it means the pipeline cannot record that a
+    destructive refresh is starting.  This is a hard failure — the exception
+    must propagate out of refresh() so the CLI exits non-zero and the operator
+    is notified.  This is distinct from _clear_stale_since (both call sites
+    are wrapped in try/except with a WARN, per SR-01).
+    """
+
+    def test_set_stale_since_failure_propagates_from_refresh(self, tmp_path):
+        """_set_stale_since raising must escape refresh() unhandled."""
+        boom = RuntimeError("disk full — cannot write model.yaml")
+
+        with _patch_clone_dir(tmp_path), _patch_head("new_sha"), _patch_model("old_sha"), \
+             patch.object(_rk, "_set_stale_since", side_effect=boom):
+            with pytest.raises(RuntimeError, match="disk full"):
+                refresh("cells", "python")

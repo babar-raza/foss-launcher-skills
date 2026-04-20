@@ -5,12 +5,18 @@ or filesystem setup beyond a tmp_path.
 """
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import pytest
 
-from scripts.pipeline.content_eval.runner import EvalRunner
-from scripts.pipeline.content_eval.models import CodeBlock, Heading, Page
+# Use short-form imports consistent with the conftest sys.path injection.
+# scripts/pipeline/tests/conftest.py adds scripts/pipeline/ to sys.path, so
+# "content_eval" resolves directly without the "scripts.pipeline." prefix
+# (which would require scripts/__init__.py, which does not exist).
+from content_eval.runner import EvalRunner
+from content_eval.models import Page
+from content_eval import EVALUATOR_LOGIC_VERSION
 
 
 # ---------------------------------------------------------------------------
@@ -38,6 +44,44 @@ def _page(
     p.code_blocks = []
     p.headings = []
     return p
+
+
+# ---------------------------------------------------------------------------
+# Fixtures: graded page file + knowledge directory
+# ---------------------------------------------------------------------------
+
+def _write_graded_md(tmp_path: Path, enrichment_status: str | None) -> Path:
+    """Write a minimal .md file with a grade block at the given enrichment_status."""
+    import yaml as _yaml
+    from grade_writer import write_grade as _write_grade
+
+    md_dir = tmp_path / "content" / "docs" / "words" / "python"
+    md_dir.mkdir(parents=True, exist_ok=True)
+    md_file = md_dir / "guide.md"
+    md_file.write_text("---\ntitle: Test\n---\n\nBody text here.\n", encoding="utf-8")
+    _write_grade(
+        md_file,
+        grade="B",
+        model_sha="deadbeef00000001",
+        evaluator_tier="full",
+        logic_version=EVALUATOR_LOGIC_VERSION,
+        enrichment_status=enrichment_status,
+    )
+    return md_file
+
+
+def _make_knowledge_root(tmp_path: Path, enrichment_status: str | None) -> Path:
+    """Create a minimal knowledge directory with model.yaml + api_surface.json."""
+    import yaml as _yaml
+
+    merged = tmp_path / "knowledge" / "words" / "python" / "merged"
+    merged.mkdir(parents=True, exist_ok=True)
+    (merged / "api_surface.json").write_text("[]", encoding="utf-8")
+    model = {"repo_sha": "deadbeef00000001"}
+    if enrichment_status is not None:
+        model["enrichment_status"] = enrichment_status
+    (merged / "model.yaml").write_text(_yaml.dump(model), encoding="utf-8")
+    return tmp_path / "knowledge"
 
 
 # ---------------------------------------------------------------------------
@@ -80,7 +124,7 @@ class TestEvalRunnerRun:
             evaluator_names=["consumer_usefulness"],
             knowledge_root=tmp_path,  # empty → knowledge unavailable
         )
-        from scripts.pipeline.content_eval.models import EvalReport
+        from content_eval.models import EvalReport
         report = runner.run([])
         assert report.pages_evaluated == 0
         assert report.findings == []
@@ -135,6 +179,8 @@ class TestEvalRunnerRun:
         pipeline_fails = [f for f in report.findings if f.category == "PIPELINE"]
         assert len(pipeline_fails) == 1
         assert "unavailable" in pipeline_fails[0].message.lower()
+        # Standardized message includes "inflated grades" context (RC-4 fix)
+        assert "inflated grades" in pipeline_fails[0].message
 
     def test_runner_injectable_without_monkeypatch(self, tmp_path):
         """Core seam test: runner can be fully configured via __init__ args only."""
@@ -152,3 +198,150 @@ class TestEvalRunnerRun:
         us1 = [f for f in report.findings
                if f.category == "US" and "purpose" in f.message.lower()]
         assert us1 == []
+
+    def test_knowledge_cache_exposed_as_public_attribute(self, tmp_path):
+        """After run(), runner.knowledge_cache is accessible for sweep consumers."""
+        page = _page(["word " * 5] * 3)
+        runner = EvalRunner(
+            evaluator_names=["consumer_usefulness"],
+            knowledge_root=tmp_path,
+        )
+        runner.run([page])
+        # knowledge_cache is a dict (may be empty if page had no family/platform)
+        assert isinstance(runner.knowledge_cache, dict)
+
+
+# ---------------------------------------------------------------------------
+# RC-2: skip-graded enrichment quality gate
+# ---------------------------------------------------------------------------
+
+class TestSkipGradedEnrichmentGate:
+    """When enrichment quality improves on the same repo SHA, pages must be
+    re-evaluated.  The skip-graded gate must compare graded_enrichment_status
+    against the current knowledge enrichment_status (RC-2 fix)."""
+
+    def test_does_not_skip_when_enrichment_improved(self, tmp_path):
+        """Page graded at scout-only must be re-evaluated when knowledge is now full."""
+        # Grade was written when knowledge was scout-only
+        md_file = _write_graded_md(tmp_path, enrichment_status="scout-only")
+        # Knowledge has since been enriched (same repo SHA)
+        kn_root = _make_knowledge_root(tmp_path, enrichment_status="full")
+
+        page = _page(
+            prose_lines=["word " * 5] * 3,
+            filepath=str(md_file),
+            family="words",
+            platform="python",
+        )
+        runner = EvalRunner(
+            evaluator_names=["consumer_usefulness"],
+            knowledge_root=kn_root,
+        )
+        report = runner.run([page], skip_graded=True)
+
+        # Page was NOT skipped: it was re-evaluated because enrichment improved
+        assert report.pages_evaluated == 1, (
+            "Page should be re-evaluated when enrichment_status improved from "
+            "scout-only → full on the same repo SHA"
+        )
+
+    def test_skips_when_enrichment_unchanged(self, tmp_path):
+        """Page graded at full enrichment is skipped when knowledge is still full."""
+        # Grade was written with full enrichment
+        md_file = _write_graded_md(tmp_path, enrichment_status="full")
+        # Knowledge still at full enrichment (same repo SHA, same logic version)
+        kn_root = _make_knowledge_root(tmp_path, enrichment_status="full")
+
+        page = _page(
+            prose_lines=["word " * 5] * 3,
+            filepath=str(md_file),
+            family="words",
+            platform="python",
+        )
+        runner = EvalRunner(
+            evaluator_names=["consumer_usefulness"],
+            knowledge_root=kn_root,
+        )
+        report = runner.run([page], skip_graded=True)
+
+        # Page WAS skipped: nothing changed since last grading
+        assert report.pages_evaluated == 0, (
+            "Page should be skipped when enrichment_status is unchanged (full → full)"
+        )
+
+    def test_does_not_skip_when_enrichment_degraded(self, tmp_path):
+        """Page graded at full enrichment is re-evaluated if knowledge regressed
+        to scout-only (e.g. after a failed enrich run)."""
+        # Grade was written with full enrichment
+        md_file = _write_graded_md(tmp_path, enrichment_status="full")
+        # Knowledge regressed to scout-only (enrich step failed)
+        kn_root = _make_knowledge_root(tmp_path, enrichment_status="scout-only")
+
+        page = _page(
+            prose_lines=["word " * 5] * 3,
+            filepath=str(md_file),
+            family="words",
+            platform="python",
+        )
+        runner = EvalRunner(
+            evaluator_names=["consumer_usefulness"],
+            knowledge_root=kn_root,
+        )
+        report = runner.run([page], skip_graded=True)
+
+        # Page was NOT skipped: enrichment quality regressed, must re-evaluate
+        assert report.pages_evaluated == 1, (
+            "Page should be re-evaluated when enrichment_status regressed "
+            "(full → scout-only)"
+        )
+
+    def test_backward_compat_none_treated_as_full(self, tmp_path):
+        """Pages graded before enrichment_status tracking (field absent in grade block)
+        are treated as 'full' for backward-compat and skipped when knowledge is also full."""
+        # Grade written before enrichment_status field existed (None → field absent)
+        md_file = _write_graded_md(tmp_path, enrichment_status=None)
+        # Knowledge is fully enriched
+        kn_root = _make_knowledge_root(tmp_path, enrichment_status="full")
+
+        page = _page(
+            prose_lines=["word " * 5] * 3,
+            filepath=str(md_file),
+            family="words",
+            platform="python",
+        )
+        runner = EvalRunner(
+            evaluator_names=["consumer_usefulness"],
+            knowledge_root=kn_root,
+        )
+        report = runner.run([page], skip_graded=True)
+
+        # Page WAS skipped: absent field treated as "full" (backward-compat)
+        assert report.pages_evaluated == 0, (
+            "Pages with no enrichment_status in grade block should be treated as "
+            "full and skipped when current knowledge is also full"
+        )
+
+    def test_backward_compat_knowledge_none_treated_as_full(self, tmp_path):
+        """Knowledge model without enrichment_status field is treated as full."""
+        # Grade written with full enrichment
+        md_file = _write_graded_md(tmp_path, enrichment_status="full")
+        # Knowledge model has no enrichment_status field (old bootstrap, field absent)
+        kn_root = _make_knowledge_root(tmp_path, enrichment_status=None)
+
+        page = _page(
+            prose_lines=["word " * 5] * 3,
+            filepath=str(md_file),
+            family="words",
+            platform="python",
+        )
+        runner = EvalRunner(
+            evaluator_names=["consumer_usefulness"],
+            knowledge_root=kn_root,
+        )
+        report = runner.run([page], skip_graded=True)
+
+        # Page WAS skipped: absent knowledge enrichment_status treated as "full"
+        assert report.pages_evaluated == 0, (
+            "Knowledge with absent enrichment_status should be treated as full "
+            "and not trigger re-evaluation"
+        )

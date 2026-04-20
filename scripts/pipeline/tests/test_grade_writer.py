@@ -902,3 +902,133 @@ class TestGradeFieldOrder:
             )
         finally:
             p.unlink(missing_ok=True)
+
+
+# ---------------------------------------------------------------------------
+# SR-03: _GRADE_BLOCK_RE regression tests — list + mapping coexistence (TC-5)
+# ---------------------------------------------------------------------------
+
+class TestGradeBlockRegexSR03:
+    """Verify _GRADE_BLOCK_RE correctly handles grade blocks containing both
+    grade_reasons (YAML list items: '  - …') and graded_evaluator_versions
+    (YAML mapping entries: '  key: val'), and that these don't break
+    idempotency or replacement."""
+
+    def test_write_grade_with_reasons_and_evaluator_versions_round_trip(self):
+        """Grade block with both grade_reasons and graded_evaluator_versions survives read-back."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        ev = {"api_accuracy": "1", "risk_language": "2", "code_syntax_check": "2"}
+        try:
+            write_grade(p, "B", model_sha="sha1", grade_reasons=["gap A", "gap B"],
+                        evaluator_versions=ev)
+            text = p.read_text(encoding="utf-8")
+            assert "grade_reasons:" in text
+            assert "graded_evaluator_versions:" in text
+            assert '  api_accuracy: "1"' in text
+            assert '  - "gap A"' in text
+
+            stored = read_grade(p)
+            assert stored["grade"] == "B"
+            assert "gap A" in stored["grade_reasons"]
+            assert stored["evaluator_versions"]["risk_language"] == "2"
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_idempotency_with_evaluator_versions(self):
+        """Second write_grade with identical evaluator_versions must not touch the file."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        ev = {"api_accuracy": "1", "risk_language": "2"}
+        try:
+            write_grade(p, "A", model_sha="sha1", evaluator_tier="full",
+                        logic_version="15", evaluator_versions=ev)
+            mtime1 = p.stat().st_mtime
+            write_grade(p, "A", model_sha="sha1", evaluator_tier="full",
+                        logic_version="15", evaluator_versions=ev)
+            mtime2 = p.stat().st_mtime
+            assert mtime1 == mtime2, "File must not be touched on idempotent re-write with evaluator_versions"
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_replacement_leaves_no_orphaned_evaluator_version_keys(self):
+        """Re-writing grade block must fully replace old graded_evaluator_versions."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        ev1 = {"api_accuracy": "1", "risk_language": "1"}
+        ev2 = {"api_accuracy": "2", "risk_language": "2"}
+        try:
+            write_grade(p, "B", model_sha="sha1", evaluator_versions=ev1)
+            write_grade(p, "C", model_sha="sha2", evaluator_versions=ev2)
+            text = p.read_text(encoding="utf-8")
+            stored = read_grade(p)
+            # Old versions must be fully replaced
+            assert stored["evaluator_versions"]["api_accuracy"] == "2"
+            assert stored["evaluator_versions"]["risk_language"] == "2"
+            # Must appear exactly once in the text
+            assert text.count("graded_evaluator_versions:") == 1
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_grade_reasons_list_still_parsed_when_evaluator_versions_present(self):
+        """_GRADE_BLOCK_RE broadening must not break grade_reasons list parsing."""
+        p = _tmp_file("---\ntitle: T\n---\nBody content.\n")
+        ev = {"api_accuracy": "1"}
+        try:
+            write_grade(p, "D", grade_reasons=["reason X", "reason Y"],
+                        evaluator_versions=ev)
+            stored = read_grade(p)
+            assert "reason X" in stored["grade_reasons"]
+            assert "reason Y" in stored["grade_reasons"]
+        finally:
+            p.unlink(missing_ok=True)
+
+
+# ---------------------------------------------------------------------------
+# SR-04 (grade_writer portion): TC-5 — read_grade parses graded_evaluator_versions
+# ---------------------------------------------------------------------------
+
+class TestEvaluatorVersionsReadWrite:
+    """Committed tests for TC-5 graded_evaluator_versions round-trip (SR-04)."""
+
+    def test_write_grade_no_evaluator_versions_returns_empty_dict(self):
+        """Legacy pages without evaluator_versions return empty dict from read_grade."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            write_grade(p, "A", model_sha="sha1")
+            stored = read_grade(p)
+            assert stored["evaluator_versions"] == {}
+            assert "graded_evaluator_versions:" not in p.read_text(encoding="utf-8")
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_evaluator_versions_with_multiple_entries(self):
+        """All entries in evaluator_versions are written and read back correctly."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        ev = {
+            "api_accuracy": "1",
+            "code_syntax_check": "2",
+            "consumer_usefulness": "2",
+            "risk_language": "2",
+        }
+        try:
+            write_grade(p, "B", model_sha="sha99", evaluator_versions=ev)
+            stored = read_grade(p)
+            assert stored["evaluator_versions"] == ev
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_evaluator_versions_skip_check_logic(self):
+        """Pages with matching evaluator_versions are classified as current by skip logic."""
+        from content_eval import EVALUATOR_VERSIONS
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            write_grade(p, "A", model_sha="sha1", evaluator_tier="full",
+                        logic_version="15", evaluator_versions=EVALUATOR_VERSIONS)
+            stored = read_grade(p)
+            assert stored["tier"] == "full"
+            # All evaluators should match EVALUATOR_VERSIONS
+            for ev, ver in EVALUATOR_VERSIONS.items():
+                assert stored["evaluator_versions"].get(ev) == ver, (
+                    f"Mismatch for evaluator {ev}: expected {ver!r}, "
+                    f"got {stored['evaluator_versions'].get(ev)!r}"
+                )
+        finally:
+            p.unlink(missing_ok=True)
