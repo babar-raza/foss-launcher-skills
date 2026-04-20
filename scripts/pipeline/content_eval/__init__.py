@@ -12,7 +12,7 @@ __version__ = "0.1.0"
 # When this value does not match graded_logic_version in a page's frontmatter,
 # --skip-graded will re-grade the page even if graded_model_sha is current.
 # Update the AGENTS.md evaluator change checklist when bumping this value.
-EVALUATOR_LOGIC_VERSION = "15"
+EVALUATOR_LOGIC_VERSION = "16"
 
 # TC-5: Per-evaluator version dict.
 #
@@ -27,7 +27,7 @@ EVALUATOR_LOGIC_VERSION = "15"
 #   consumer_usefulness:  1→2 (purpose framing + code-context signals)
 #   risk_language:        1→2 (API reference table suppression)
 EVALUATOR_VERSIONS: dict[str, str] = {
-    "api_accuracy": "1",
+    "api_accuracy": "2",  # v2: TS/JS built-ins (Error, JSON, Buffer, Worker, GLB, etc.) added to PLATFORM_SDK_CLASSES
     "api_backtick": "1",
     "claim_coverage": "1",
     "code_block_api": "1",
