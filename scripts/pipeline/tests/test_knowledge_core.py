@@ -407,3 +407,20 @@ class TestKnowledgeLazyIO:
         classes_id_1 = id(k.classes)
         k._ensure_loaded()
         assert id(k.classes) == classes_id_1, "Second load must not replace objects"
+
+    def test_private_attr_raises_without_loading(self):
+        """__getattr__ guard: accessing a missing private attr raises AttributeError immediately,
+        without triggering _ensure_loaded() and without infinite recursion.
+        """
+        import sys
+        sys.path.insert(0, "scripts/pipeline")
+        from knowledge_core import Knowledge
+        k = Knowledge("words", "python")
+        # Sanity: no load before the access
+        assert "_knowledge_loaded" not in k.__dict__
+        with pytest.raises(AttributeError):
+            _ = k._nonexistent_private_attr
+        # Guard must not have triggered a load
+        assert "_knowledge_loaded" not in k.__dict__, (
+            "_ensure_loaded() must NOT be called for private-name lookups"
+        )

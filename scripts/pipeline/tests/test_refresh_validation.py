@@ -1533,3 +1533,29 @@ class TestReconcileTriageReadError:
         assert result.get("verdict") == "read_error"
         assert result["stale"] is False
         assert any("could not read" in r for r in result["reasons"])
+
+    def test_read_error_operator_visible_output(self, tmp_path):
+        """to_dict() output for read_error path is complete, human-readable, and JSON-serialisable.
+
+        Integration proof: verifies what an operator-facing caller (logger, CLI, API) would
+        actually receive — not just internal ReconcileTriage attributes but the serialised
+        dict that crosses the skill boundary.
+        """
+        import json
+
+        nonexistent = tmp_path / "does_not_exist.md"
+        result = reconcile_triage_page(nonexistent, {}, family="3d", platform="typescript")
+        d = result.to_dict()
+
+        # Operator-facing top-level verdict must be "unknown"
+        assert d["final_verdict"] == "unknown", (
+            f"Operator would see final_verdict={d['final_verdict']!r}; expected 'unknown'"
+        )
+        # Layer 2 source must carry read_error so operator knows the cause
+        assert d["sources"]["layer2_triage"]["verdict"] == "read_error", (
+            f"layer2_triage verdict={d['sources']['layer2_triage']['verdict']!r}; expected 'read_error'"
+        )
+        # Reasons must be non-empty so operator has actionable context
+        assert d["final_reasons"], "final_reasons must be non-empty for operator to act on"
+        # Serialisable — operator can write to log / return as JSON API response
+        json.dumps(d)  # raises TypeError if any value is non-serialisable

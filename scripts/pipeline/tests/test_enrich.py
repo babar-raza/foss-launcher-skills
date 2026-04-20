@@ -602,3 +602,66 @@ class TestMemberDocPageRole:
         assert _validate_claim(claim, api_names)
         claim.setdefault("page_role", None)
         assert claim["page_role"] is None
+
+
+# ---------------------------------------------------------------------------
+# TC-2: LLM error-response dict handling in enrich() capability loop
+# ---------------------------------------------------------------------------
+
+class TestEnrichLlmErrorResponse:
+    """TC-2: enrich() must log ERROR and continue (not abort) when LLM returns
+    a non-list dict without a 'claims' key (e.g. {"error": "rate_limited"}).
+    """
+
+    def _setup_scout_dir(self, tmp_path: Path) -> Path:
+        scout_dir = tmp_path / "knowledge" / "cells" / "python" / "scout"
+        scout_dir.mkdir(parents=True)
+        api_surface = [
+            {"name": "Workbook", "doc": "A workbook.", "kind": "class",
+             "file": "aspose/cells/workbook.py",
+             "methods": [{"name": "save"}], "properties": [], "enum_members": []},
+        ]
+        (scout_dir / "api_surface.json").write_text(json.dumps(api_surface), encoding="utf-8")
+        return scout_dir
+
+    def test_llm_error_response_logs_error_and_does_not_raise(self, tmp_path, caplog):
+        """LLM returns {"error": "rate_limited"} → ERROR logged; enrich() does not raise.
+
+        TC-2 contract: the capability loop uses `continue` on error responses (not raise/break),
+        so the ERROR log is emitted and the function exits cleanly (returns False because the
+        write-protection guard fires when 0 claims are produced from a live-LLM run).
+        """
+        import logging
+        self._setup_scout_dir(tmp_path)
+        with patch.object(_enrich_module, "_llm_call", return_value={"error": "rate_limited"}):
+            with caplog.at_level(logging.ERROR, logger="enrich"):
+                result = enrich(
+                    "cells", "python",
+                    knowledge_root=str(tmp_path / "knowledge"),
+                    no_llm=False,
+                )
+        # Write-protection guard fires (0 claims from live LLM) → False, not an exception
+        assert result is False, (
+            "enrich() must return False (write-protection guard) when LLM error response "
+            "produces 0 claims — not raise an exception"
+        )
+        assert any("non-list" in r.message for r in caplog.records if r.levelno >= logging.ERROR), (
+            "Expected an ERROR log mentioning 'non-list' response; got: "
+            + str([r.message for r in caplog.records])
+        )
+
+    def test_llm_error_response_writes_no_claims(self, tmp_path):
+        """LLM returns {"error": "rate_limited"} → write-protection fires; no output file written."""
+        scout_dir = self._setup_scout_dir(tmp_path)
+        with patch.object(_enrich_module, "_llm_call", return_value={"error": "rate_limited"}):
+            enrich(
+                "cells", "python",
+                knowledge_root=str(tmp_path / "knowledge"),
+                no_llm=False,
+            )
+        out_path = scout_dir / "enriched_claims.json"
+        # Write-protection guard refuses to write 0-claim output from live LLM
+        assert not out_path.exists(), (
+            "enriched_claims.json must NOT be written when write-protection fires "
+            "after an LLM error response"
+        )
