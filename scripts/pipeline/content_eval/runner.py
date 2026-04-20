@@ -104,9 +104,12 @@ class EvalRunner:
             scope={"target": target_str, "files": []},
         )
 
-        # Cache knowledge per (family, platform) key
-        knowledge_cache: dict[tuple[str, str], object] = {}
+        # Cache knowledge per (family, platform) key — exposed as public attribute
+        # so callers (e.g. cli.py sweep) can reuse loaded knowledge without reloading.
+        self.knowledge_cache: dict[tuple[str, str], object] = {}
+        knowledge_cache = self.knowledge_cache
         unavailable_keys: set[tuple[str, str]] = set()
+        enrichment_warned_keys: set[tuple[str, str]] = set()
 
         # Optional skip-graded filter
         if skip_graded:
@@ -126,6 +129,20 @@ class EvalRunner:
 
             knowledge = knowledge_cache[key]
 
+            # Enrichment-status warning (RC-1 fix): emitted once per product when
+            # enrichment is degraded so callers know claim-based findings may be inflated.
+            if knowledge and key not in enrichment_warned_keys:
+                enrichment_warned_keys.add(key)
+                es = getattr(knowledge, "enrichment_status", None)
+                if es is not None and es != "full":
+                    family_w, platform_w = key
+                    print(
+                        f"[content_eval] WARNING: enrichment_status={es!r} for "
+                        f"{family_w}/{platform_w}"
+                        " — claim-based evaluators may report false gaps",
+                        file=sys.stderr,
+                    )
+
             if knowledge and not getattr(knowledge, "available", True):
                 if key not in unavailable_keys:
                     unavailable_keys.add(key)
@@ -137,7 +154,8 @@ class EvalRunner:
                         line_no=0,
                         message=(
                             f"Knowledge unavailable for {family}/{platform}. "
-                            f"Run /knowledge-bootstrap {family} {platform} first."
+                            f"Run /knowledge-bootstrap {family} {platform} first. "
+                            f"Grading without knowledge produces inflated grades."
                         ),
                         evaluator="runner",
                         suggestion="Run /knowledge-bootstrap to populate knowledge artifacts.",
@@ -209,6 +227,15 @@ class EvalRunner:
                     and k and hasattr(k, "repo_sha")
                     and stored["model_sha"] == k.repo_sha
                     and stored.get("logic_version", "") == EVALUATOR_LOGIC_VERSION):
+                # RC-2 fix: enrichment quality gate.
+                # Re-evaluate when knowledge enrichment improved on the same repo SHA
+                # (e.g. scout-only bootstrap followed by successful enrichment run).
+                # None in either position is treated as "full" for backward-compat.
+                current_enrich = getattr(k, "enrichment_status", None) or "full"
+                stored_enrich = stored.get("enrichment_status") or "full"
+                if current_enrich != stored_enrich:
+                    filtered.append(page)
+                    continue
                 stored_hash = stored.get("content_hash", "")
                 if stored_hash:
                     try:
@@ -240,5 +267,9 @@ class EvalRunner:
             k = knowledge_cache.get((page.family, page.platform))
             model_sha = k.repo_sha if k and hasattr(k, "repo_sha") else ""
             tier = "full" if k and getattr(k, "available", False) else "structural"
+            # Persist enrichment_status at grading time so the skip-graded gate
+            # can detect quality improvements on the same repo SHA (RC-2/RC-3 fix).
+            enrich_status = getattr(k, "enrichment_status", None) if k else None
             _write_grade(fp, grade, model_sha=model_sha, evaluator_tier=tier,
-                         logic_version=EVALUATOR_LOGIC_VERSION, grade_reasons=reasons)
+                         logic_version=EVALUATOR_LOGIC_VERSION, grade_reasons=reasons,
+                         enrichment_status=enrich_status)

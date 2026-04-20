@@ -110,43 +110,17 @@ def _run_evaluate(args):
             _log(f"  ... and {len(pages) - 10} more")
         return
 
-    # Run evaluators
-    report = EvalReport(
-        evaluators_run=evaluator_names,
-        scope={
-            "target": target_str if not args.files else "files",
-            "files": args.files or [],
-        },
-    )
+    # Delegate core evaluation to EvalRunner (TC-08 completion).
+    # cli.py retains: prerequisite checking, skip-graded filtering (with TC-5
+    # per-evaluator version logic), sweep, report generation, grade writing.
+    # EvalRunner owns: knowledge caching, evaluator dispatch, cross-page analysis.
+    from .runner import EvalRunner
 
-    # Cache knowledge per product
-    knowledge_cache: dict[tuple[str, str], object] = {}
-    _knowledge_unavailable_keys: set[tuple[str, str]] = set()
-    _enrichment_warned_keys: set[tuple[str, str]] = set()
+    # Warmup knowledge cache for skip-graded (must happen before runner is created
+    # so pre-loaded knowledge is available for the enrichment gate comparison).
+    _skip_knowledge_cache: dict[tuple[str, str], object] = {}
 
-    def _warn_enrichment_status_once(family: str, platform: str) -> None:
-        """Emit a one-time warning when enrichment is degraded for a product (TC-4)."""
-        key = (family, platform)
-        if key in _enrichment_warned_keys:
-            return
-        _enrichment_warned_keys.add(key)
-        # knowledge/ is always CWD-relative (same convention as refresh_knowledge.py)
-        model_path = Path("knowledge") / family / platform / "merged" / "model.yaml"
-        if not model_path.exists():
-            return
-        try:
-            import yaml as _yaml
-            data = _yaml.safe_load(model_path.read_text(encoding="utf-8")) or {}
-            status = data.get("enrichment_status", "full")
-            if status != "full":
-                _log(
-                    f"[content_eval] WARNING: enrichment_status={status!r} for {family}/{platform}"
-                    f" — claim-based evaluators may report false gaps"
-                )
-        except Exception:
-            pass
-
-    # --skip-graded: filter out pages already graded with current knowledge
+    # --skip-graded: filter out pages already graded with current knowledge (TC-5)
     if args.skip_graded:
         _HERE = Path(__file__).resolve().parent.parent
         if str(_HERE) not in sys.path:
@@ -156,12 +130,12 @@ def _run_evaluate(args):
         filtered = []
         for page in pages:
             key = (page.family, page.platform)
-            if key not in knowledge_cache:
+            if key not in _skip_knowledge_cache:
                 if page.family and page.platform:
-                    knowledge_cache[key] = _load_knowledge(page.family, page.platform)
+                    _skip_knowledge_cache[key] = _load_knowledge(page.family, page.platform)
                 else:
-                    knowledge_cache[key] = None
-            k = knowledge_cache[key]
+                    _skip_knowledge_cache[key] = None
+            k = _skip_knowledge_cache[key]
             stored = _read_grade(page.filepath)
             if stored and stored["tier"] == "full" and k and hasattr(k, "repo_sha") and stored["model_sha"] == k.repo_sha:
                 # TC-5: per-evaluator version check (preferred path)
@@ -178,6 +152,13 @@ def _run_evaluate(args):
                     version_ok = stored.get("logic_version", "") == EVALUATOR_LOGIC_VERSION
 
                 if version_ok:
+                    # RC-2 enrichment quality gate: re-evaluate when enrichment
+                    # improved on the same repo SHA (e.g. scout-only → full).
+                    current_enrich = getattr(k, "enrichment_status", None) or "full"
+                    stored_enrich = stored.get("enrichment_status") or "full"
+                    if current_enrich != stored_enrich:
+                        filtered.append(page)
+                        continue
                     # Content-hash gate: if the body changed since last grade, re-grade
                     stored_hash = stored.get("content_hash", "")
                     if stored_hash:
@@ -197,71 +178,23 @@ def _run_evaluate(args):
             _log(f"Skipped {skipped} already-graded pages")
         pages = filtered
 
-    for page in pages:
-        key = (page.family, page.platform)
-        if key not in knowledge_cache:
-            if page.family and page.platform:
-                knowledge_cache[key] = _load_knowledge(page.family, page.platform)
-                _warn_enrichment_status_once(page.family, page.platform)
-            else:
-                knowledge_cache[key] = None
+    # Create runner and run core evaluation.  skip_graded=False because cli.py
+    # has already filtered pages above (with the richer TC-5 per-evaluator logic).
+    runner = EvalRunner(
+        evaluator_names=evaluator_names,
+        knowledge_root=None,  # always CWD-relative in CLI context
+    )
+    report = runner.run(
+        pages,
+        write_grade=False,       # cli.py writes grades below (with evaluator_versions)
+        skip_graded=False,       # already filtered above
+        cross_page=args.cross_page,
+        target_str=target_str if not args.files else "files",
+    )
+    # Expose runner's knowledge cache for the sweep closure below.
+    knowledge_cache = runner.knowledge_cache
 
-        knowledge = knowledge_cache[key]
-
-        # Knowledge availability gate: skip evaluators when knowledge is missing
-        if knowledge and not getattr(knowledge, 'available', True):
-            if key not in _knowledge_unavailable_keys:
-                _knowledge_unavailable_keys.add(key)
-                family, platform = key
-                report.findings.append(Finding(
-                    level="FAIL",
-                    category="PIPELINE",
-                    filepath=str(page.filepath),
-                    line_no=0,
-                    message=f"Knowledge unavailable for {family}/{platform}. "
-                            f"Run /knowledge-bootstrap {family} {platform} first. "
-                            f"Grading without knowledge produces inflated grades.",
-                    evaluator="cli",
-                    suggestion="Run /knowledge-bootstrap to populate knowledge artifacts.",
-                ))
-            report.pages_evaluated += 1
-            continue
-
-        for eval_name in evaluator_names:
-            evaluator_cls = get_evaluator(eval_name)
-            evaluator = evaluator_cls()
-            try:
-                findings = evaluator.evaluate(page, knowledge)
-                report.findings.extend(findings)
-            except Exception as e:
-                import traceback as _tb
-                _log(f"  ERROR in {eval_name} on {page.filepath}: {e}")
-                _log(_tb.format_exc())
-                report.findings.append(Finding(
-                    level="FAIL",
-                    category="PIPELINE",
-                    filepath=str(page.filepath),
-                    line_no=0,
-                    message=f"Evaluator '{eval_name}' raised {type(e).__name__}: {e}",
-                    evaluator="cli",
-                    suggestion="Check stderr for full traceback.",
-                ))
-
-        report.pages_evaluated += 1
-
-    # Cross-page analysis
-    if args.cross_page:
-        from .cross_page.consistency import check_consistency
-        _log("Running cross-page consistency checks...")
-        report.findings.extend(check_consistency(pages))
-        report.evaluators_run.append("cross_page_consistency")
-
-        from .cross_page.deduplication import check_deduplication
-        _log("Running cross-page deduplication checks...")
-        report.findings.extend(check_deduplication(pages))
-        report.evaluators_run.append("cross_dedup")
-
-    # Cross-family defect sweep
+    # Cross-family defect sweep (CLI-only — full product-family scope)
     if args.sweep and len(target_parts) == 2:
         from .cross_page.defect_sweep import extract_defect_signatures, run_sweep
         from .loader import load_all_products as _load_all
@@ -346,9 +279,11 @@ def _run_evaluate(args):
             k = knowledge_cache.get((page.family, page.platform))
             model_sha = k.repo_sha if k and hasattr(k, "repo_sha") else ""
             tier = "full" if k and getattr(k, "available", False) else "structural"
+            enrich_status = getattr(k, "enrichment_status", None) if k else None
             _write_grade(fp, grade, model_sha=model_sha, evaluator_tier=tier,
                          logic_version=EVALUATOR_LOGIC_VERSION, grade_reasons=reasons,
-                         evaluator_versions=EVALUATOR_VERSIONS)
+                         evaluator_versions=EVALUATOR_VERSIONS,
+                         enrichment_status=enrich_status)
             grade_counts[grade] = grade_counts.get(grade, 0) + 1
 
         _log(f"  Grades written: {grade_counts}")
