@@ -2,7 +2,9 @@
 
 Coverage:
 - HIGH_IMPACT: page body contains a class name from modified_apis
-- NOT_AFFECTED: page body contains no delta signals
+- MEDIUM_IMPACT: page body contains ≥2 claim keywords from modified/removed claims
+- LOW_IMPACT: delta has signals but page body has no matches
+- NOT_AFFECTED: page body contains no delta signals (empty delta)
 - PIA covers all 5 subdomain patterns
 - Empty delta → all pages NOT_AFFECTED
 - api_names and claim_keywords extraction functions
@@ -100,8 +102,9 @@ class TestHighImpactDetection:
 # ---------------------------------------------------------------------------
 
 class TestNotAffectedDetection:
-    def test_unrelated_page_scores_not_affected(self, tmp_path):
-        """Fixture page with no delta signals → NOT_AFFECTED."""
+    def test_unrelated_page_scores_low_impact(self, tmp_path):
+        """Page with no body matches when delta has signals → LOW_IMPACT.
+        NOT_AFFECTED is reserved for the empty-delta shortcut in assess_product."""
         page = _write_page(
             tmp_path, "unrelated.md",
             "This is a general overview page about installation requirements.",
@@ -111,14 +114,31 @@ class TestNotAffectedDetection:
 
         score, signals = page_impact_assess._score_page(page, api_names, claim_keywords)
 
-        assert score == "NOT_AFFECTED"
+        assert score == "LOW_IMPACT"
         assert signals == []
 
-    def test_empty_delta_signals_returns_not_affected(self, tmp_path):
-        """When api_names and claim_keywords are empty → NOT_AFFECTED."""
+    def test_empty_delta_signals_returns_low_impact(self, tmp_path):
+        """_score_page with empty signal sets → LOW_IMPACT.
+        The NOT_AFFECTED label is assigned by assess_product when delta is absent/empty,
+        before _score_page is ever called."""
         page = _write_page(tmp_path, "page.md", "Any body text here.")
         score, signals = page_impact_assess._score_page(page, set(), set())
-        assert score == "NOT_AFFECTED"
+        assert score == "LOW_IMPACT"
+
+    def test_assess_product_assigns_not_affected_for_empty_delta(self, tmp_path, monkeypatch):
+        """assess_product shortcut: when delta has no signals, all pages → NOT_AFFECTED."""
+        monkeypatch.setattr(page_impact_assess, "_REPO_ROOT", tmp_path)
+        d = tmp_path / "content" / "docs.aspose.org" / "en" / "cells" / "net"
+        _write_page(d, "page.md", "Any body text here.")
+        # No knowledge dir → _load_delta returns {} → empty signal sets → shortcut fires
+        result = page_impact_assess.assess_product(
+            "cells", "net",
+            content_root=tmp_path / "content",
+            knowledge_root=tmp_path / "knowledge",
+        )
+        assert result["pages"][0]["pia_score"] == "NOT_AFFECTED"
+        assert result["summary"]["NOT_AFFECTED"] == 1
+        assert result["summary"]["LOW_IMPACT"] == 0
 
 
 # ---------------------------------------------------------------------------
@@ -241,3 +261,98 @@ class TestAssessProductHighImpact:
         assert len(high_pages) >= 1
         assert any("workbook-guide.md" in p["path"] for p in high_pages)
         assert result["summary"]["HIGH_IMPACT"] >= 1
+
+
+# ---------------------------------------------------------------------------
+# MEDIUM_IMPACT detection
+# ---------------------------------------------------------------------------
+
+class TestMediumImpactDetection:
+    def test_medium_impact_two_keyword_matches(self, tmp_path):
+        """Page body with ≥2 claim keywords → MEDIUM_IMPACT."""
+        delta = {
+            "modified_claims": [
+                {"claim_id": "CLM-001", "text": "spreadsheet processing performance"},
+                {"claim_id": "CLM-002", "text": "workbook rendering accuracy"},
+            ]
+        }
+        page = tmp_path / "guide.md"
+        page.write_text(
+            "---\ntitle: Guide\n---\n"
+            "This guide covers spreadsheet performance and workbook rendering.\n",
+            encoding="utf-8",
+        )
+        keywords = page_impact_assess._extract_claim_keywords(delta)
+        assert "spreadsheet" in keywords
+        assert "workbook" in keywords
+
+        score, signals = page_impact_assess._score_page(page, set(), keywords)
+        assert score == "MEDIUM_IMPACT"
+        assert any(s.startswith("kw:") for s in signals)
+
+    def test_single_keyword_not_medium(self, tmp_path):
+        """Only 1 keyword match falls below threshold → LOW_IMPACT (not MEDIUM)."""
+        delta = {"modified_claims": [{"claim_id": "CLM-001", "text": "spreadsheet processing"}]}
+        page = tmp_path / "page.md"
+        page.write_text(
+            "---\ntitle: Page\n---\nOnly spreadsheet is mentioned here.\n",
+            encoding="utf-8",
+        )
+        keywords = page_impact_assess._extract_claim_keywords(delta)
+        score, _ = page_impact_assess._score_page(page, set(), keywords)
+        # 1 match is below the 2-keyword threshold
+        assert score == "LOW_IMPACT"
+
+
+# ---------------------------------------------------------------------------
+# LOW_IMPACT detection
+# ---------------------------------------------------------------------------
+
+class TestLowImpactDetection:
+    def test_low_impact_when_delta_has_api_signals_but_page_has_none(self, tmp_path):
+        """Delta has api_names; page body has no matches → LOW_IMPACT, not NOT_AFFECTED."""
+        page = tmp_path / "unrelated.md"
+        page.write_text(
+            "---\ntitle: Unrelated\n---\n"
+            "This page discusses completely different topics with no relevant terms.\n",
+            encoding="utf-8",
+        )
+        api_names = {"workbook", "worksheet"}
+        score, signals = page_impact_assess._score_page(page, api_names, set())
+        assert score == "LOW_IMPACT"
+        assert signals == []
+
+    def test_low_impact_when_delta_has_keywords_but_page_has_none(self, tmp_path):
+        """Delta has claim keywords; page body has no matches → LOW_IMPACT."""
+        page = tmp_path / "page.md"
+        page.write_text(
+            "---\ntitle: Page\n---\n"
+            "Introduction to the product with no specific technical terms.\n",
+            encoding="utf-8",
+        )
+        claim_keywords = {"rendering", "compression", "encryption"}
+        score, _ = page_impact_assess._score_page(page, set(), claim_keywords)
+        assert score == "LOW_IMPACT"
+
+    def test_score_page_never_returns_not_affected(self, tmp_path):
+        """_score_page with non-empty delta signals always returns LOW_IMPACT or higher."""
+        page = tmp_path / "page.md"
+        page.write_text("---\ntitle: Page\n---\nsome generic content here\n", encoding="utf-8")
+        score, _ = page_impact_assess._score_page(page, {"workbook"}, {"spreadsheet"})
+        assert score != "NOT_AFFECTED"
+        assert score == "LOW_IMPACT"
+
+    def test_not_affected_path_owned_by_assess_product(self, tmp_path, monkeypatch):
+        """assess_product uses NOT_AFFECTED for empty-delta shortcut, not via _score_page."""
+        monkeypatch.setattr(page_impact_assess, "_REPO_ROOT", tmp_path)
+        d = tmp_path / "content" / "docs.aspose.org" / "en" / "cells" / "net"
+        _write_page(d, "page.md", "generic content")
+        # No delta — _load_delta returns {} → api_names/claim_keywords empty
+        result = page_impact_assess.assess_product(
+            "cells", "net",
+            content_root=tmp_path / "content",
+            knowledge_root=tmp_path / "knowledge",
+        )
+        assert result["summary"]["NOT_AFFECTED"] == 1
+        assert result["summary"]["LOW_IMPACT"] == 0
+        assert result["pages"][0]["pia_score"] == "NOT_AFFECTED"
