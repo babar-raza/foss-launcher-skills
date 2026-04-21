@@ -369,3 +369,121 @@ class TestCheck3bIncorrectlyRetiredPages:
 
         passed, _ = post_refresh_verify.check_incorrectly_retired_pages(api_path, ref_root)
         assert passed
+
+
+# ---------------------------------------------------------------------------
+# Check 6: check_coverage_completeness
+# ---------------------------------------------------------------------------
+
+class TestCheck6CoverageCompleteness:
+    """Check 6: page_decisions.json must cover all discovered English pages."""
+
+    def _write_page(self, dir_: Path, name: str) -> Path:
+        dir_.mkdir(parents=True, exist_ok=True)
+        p = dir_ / name
+        p.write_text(f"---\ntitle: {name}\n---\nbody\n", encoding="utf-8")
+        return p
+
+    def _write_decisions(self, review_root: Path, family: str, platform: str, paths: list[str]) -> None:
+        d = review_root / family / platform
+        d.mkdir(parents=True, exist_ok=True)
+        pages = {p: {"decision": "EVIDENCE_ONLY", "reason": "test"} for p in paths}
+        (d / "page_decisions.json").write_text(
+            json.dumps({"family": family, "platform": platform, "pages": pages}),
+            encoding="utf-8",
+        )
+
+    def test_check6_fail_when_decisions_absent(self, tmp_path, monkeypatch):
+        """Check 6 FAIL when page_decisions.json does not exist."""
+        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
+        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
+
+        # Create a content page so there's something to check
+        d = tmp_path / "content" / "docs.aspose.org" / "en" / "cells" / "net"
+        self._write_page(d, "page.md")
+
+        passed, failures = post_refresh_verify.check_coverage_completeness(
+            "cells", "net", review_root=tmp_path / "review"
+        )
+
+        assert not passed
+        assert any("page_decisions.json not found" in f for f in failures)
+
+    def test_check6_fail_when_page_missing_from_decisions(self, tmp_path, monkeypatch):
+        """Check 6 FAIL when a discovered page is absent from page_decisions.json."""
+        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
+        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
+
+        d = tmp_path / "content" / "docs.aspose.org" / "en" / "cells" / "net"
+        self._write_page(d, "page1.md")
+        self._write_page(d, "page2.md")  # this one won't be in decisions
+
+        # Only record page1 — page2 is missing
+        self._write_decisions(
+            tmp_path / "review", "cells", "net",
+            ["content/docs.aspose.org/en/cells/net/page1.md"]
+        )
+
+        passed, failures = post_refresh_verify.check_coverage_completeness(
+            "cells", "net", review_root=tmp_path / "review"
+        )
+
+        assert not passed
+        assert any("Missing" in f and "page2.md" in f for f in failures)
+
+    def test_check6_pass_with_full_coverage(self, tmp_path, monkeypatch):
+        """Check 6 PASS when page_decisions.json covers all discovered files."""
+        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
+        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
+
+        d = tmp_path / "content" / "docs.aspose.org" / "en" / "cells" / "net"
+        self._write_page(d, "page1.md")
+        self._write_page(d, "page2.md")
+
+        self._write_decisions(
+            tmp_path / "review", "cells", "net",
+            [
+                "content/docs.aspose.org/en/cells/net/page1.md",
+                "content/docs.aspose.org/en/cells/net/page2.md",
+            ]
+        )
+
+        passed, failures = post_refresh_verify.check_coverage_completeness(
+            "cells", "net", review_root=tmp_path / "review"
+        )
+
+        assert passed
+        assert failures == []
+
+    def test_check6_pass_no_content_pages(self, tmp_path, monkeypatch):
+        """Check 6 PASS when no content pages are discovered (product not generated yet)."""
+        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
+        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
+
+        # No content pages exist; decisions file also absent — should pass (no content to cover)
+        passed, failures = post_refresh_verify.check_coverage_completeness(
+            "cells", "net", review_root=tmp_path / "review"
+        )
+
+        assert passed
+
+    def test_check6_skips_locale_files(self, tmp_path, monkeypatch):
+        """Check 6 does not require locale (translation) files in page_decisions.json."""
+        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
+        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
+
+        d = tmp_path / "content" / "docs.aspose.org" / "en" / "cells" / "net"
+        self._write_page(d, "page.md")
+        # Locale file — must be excluded from coverage requirement
+        (d / "page.fr.md").write_text("---\ntitle: page fr\n---\nbody\n", encoding="utf-8")
+
+        self._write_decisions(
+            tmp_path / "review", "cells", "net",
+            ["content/docs.aspose.org/en/cells/net/page.md"]  # only English file
+        )
+
+        passed, failures = post_refresh_verify.check_coverage_completeness(
+            "cells", "net", review_root=tmp_path / "review"
+        )
+
+        assert passed
