@@ -38,9 +38,9 @@
 | P1-2 | Make skill-provenance CI check blocking (not just informational) | ✅ DONE | HIGH | skill-governance.yml job 6 blocks on missing "Skills invoked:" |
 | P1-3 | Build scripts/quarterly_readiness.py + S-83 skill | ✅ DONE | MEDIUM | Script committed (4a2ffb5); estimates 62.9 score |
 | P1-4 | Build scripts/verify_claims.py + S-84 skill | ✅ DONE | MEDIUM | Script committed (4a2ffb5); 159 claims, 49 verified |
-| P1-5 | Auto-generate STATUS.md from test results and git log | PENDING | LOW | Delivery Evidence +2 |
+| P1-5 | Auto-generate STATUS.md from test results and git log | ✅ DONE | LOW | scripts/generate_status.py committed (64a85f0); append mode tested |
 
-**Phase 1 target**: Overall 58–65 (currently ~50–54 after Phase 0)
+**Phase 1 result**: All P1-1 through P1-5 DONE. Phase 1 target: Overall 58–65.
 
 ---
 
