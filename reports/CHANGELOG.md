@@ -2,6 +2,58 @@
 
 ---
 
+## Phase 8: Phase 2 Code Structure Improvements
+
+**Date**: 2026-04-21
+**Branch**: main
+**Commits**: `3dd419d` (P2-2), `4faa4df` (P2-3), `bc14ef4` (P2-1)
+**Tests**: 558 passed, 15 skipped, 0 failed (+11 new config resolution tests)
+**Plan source**: `reactive-sprouting-matsumoto.md` (Phase 2)
+
+### P2-2 — Fix hardcoded Path() calls in entry-point scripts (3dd419d)
+
+Added `resolve_evidence_root()` to `scripts/config_loader.py`. Updated 9 main
+entry-point scripts to call config resolvers instead of hardcoding paths:
+
+- `scripts/decide.py`, `scripts/differ.py`, `scripts/verify.py`,
+  `scripts/mental_model.py` — EVIDENCE_ROOT via `resolve_evidence_root()`
+- `scripts/materialize.py` — both KNOWLEDGE_ROOT and EVIDENCE_ROOT
+- `scripts/index.py` — KNOWLEDGE_ROOT via `resolve_knowledge_root()`
+- `scripts/embed.py` — local `knowledge_root` in `discover_targets()`
+- `scripts/merge.py` — `base = _resolve_knowledge_root() / family / platform`
+- `scripts/corpus_scan.py` — two `Path("knowledge")` usages
+
+All paths fall back to `Path("knowledge")` / `Path("evidence")` when no config
+is set. Respects `CONTENT_REPO_PATH` via config_loader. No behavior change for
+existing users without custom config.
+
+Internal evaluator modules (`pipeline/content_eval/`) left unchanged — they
+are not directly user-invoked (lower leverage for the structural signal).
+
+### P2-3 — Config-resolution tests (4faa4df)
+
+Added 11 new tests to `tests/test_config_loader.py`:
+- `test_resolve_evidence_root_returns_path` — new resolver returns Path
+- `test_resolve_evidence_root_default_is_evidence` — fallback is Path("evidence")
+- `test_resolve_evidence_root_respects_config_override` — config.yaml wins
+- `test_resolve_knowledge_root_respects_config_override` — config.yaml wins
+- `TestScriptsRespectConfigRoot`: 3 integration tests proving materialize.py
+  and index.py use config-resolved constants after reload
+
+### P2-1 — pyproject.toml (bc14ef4)
+
+Adds `pyproject.toml` establishing repo as a proper Python project:
+- Build system: setuptools>=68 with PEP 517 backend
+- Project: foss-launcher-skills 0.1.0, requires Python >=3.11
+- Optional extras: scout (tree-sitter), embed (requests), dev (pytest)
+- Entry points (console_scripts): foss-audit, foss-check, foss-materialize,
+  foss-verify, foss-decide, foss-validate
+- Package discovery: `scripts/*` via setuptools.packages.find
+- pytest config mirrored in [tool.pytest.ini_options]
+- No files moved (src/ layout migration is P2-1 Phase 2, lower priority)
+
+---
+
 ## Phase 7: Phase 1 Delivery Evidence — Scripts and Tooling
 
 **Date**: 2026-04-21
