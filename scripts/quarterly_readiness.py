@@ -228,10 +228,19 @@ def score_code_structure(repo_root: Path) -> tuple[float, list[str]]:
     except Exception:
         pass
 
-    # Duplicate launcher code (very approximate)
-    scout_lines = 0
+    # Duplicate launcher code — penalised unless a boundary adapter is present
+    adapter_path = repo_root / "scripts" / "launcher_adapter.py"
     scout_path = repo_root / "scripts" / "scout.py"
-    if scout_path.exists():
+    if adapter_path.exists():
+        score += 10.0
+        scout_lines = 0
+        if scout_path.exists():
+            scout_lines = len(scout_path.read_text(encoding="utf-8", errors="ignore").splitlines())
+        notes.append(
+            f"PASS: launcher boundary explicitly managed (launcher_adapter.py); "
+            f"scout.py is {scout_lines} lines"
+        )
+    elif scout_path.exists():
         scout_lines = len(scout_path.read_text(encoding="utf-8", errors="ignore").splitlines())
         if scout_lines > 1500:
             notes.append(f"WARN: scripts/scout.py is {scout_lines} lines — launcher duplication risk")

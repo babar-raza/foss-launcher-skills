@@ -4,8 +4,8 @@
 
 | Metric | Value |
 |--------|-------|
-| Overall (estimated) | **90.0** |
-| Raw before penalty | 90.0 |
+| Overall (estimated) | **93.8** |
+| Raw before penalty | 93.8 |
 | Confidence adjustment | 0.0 |
 | Readiness | READY (≥60) |
 
@@ -16,13 +16,13 @@
 | Testing | 100.0 |
 | Delivery Evidence | 90.0 |
 | Governance | 100.0 |
-| Code Structure | 70.0 |
+| Code Structure | 85.0 |
 
 ## Notes by Dimension
 
 ### Testing
-- Tests: 548 passed, 0 failed (pass_rate=100.0%)
-- Failure-mode tests detected: ~3438 (bonus: +25.0)
+- Tests: 579 passed, 0 failed (pass_rate=100.0%)
+- Failure-mode tests detected: ~3624 (bonus: +25.0)
 
 ### Delivery Evidence
 - PASS: CI workflow present (.github/workflows/skill-governance.yml)
@@ -40,7 +40,7 @@
 ### Code Structure
 - PASS: pyproject.toml present (package boundary)
 - PASS: no hardcoded Path("evidence") in scripts/
-- WARN: scripts/scout.py is 2127 lines — launcher duplication risk
+- PASS: launcher boundary explicitly managed (launcher_adapter.py); scout.py is 2127 lines
 
 ### Confidence
 - PASS: core claim tests present — confidence penalty unlikely
