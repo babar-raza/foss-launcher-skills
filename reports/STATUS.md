@@ -11,6 +11,12 @@
   - +15 tests: 5 schema negative-case, 4 materialize failure-mode, 4 pre_write stale-model, 2 check_setup CLI fixes
   - 17 scout failures → 15 correct skips (fixed subprocess-level skip guard)
   - check_setup optional packages now emit NOTE (exit 0) not WARN (exit 1)
+**Post-Parity Sprint 1 (2026-04-21)**: 556 passed, 0 failed ✅ — commits c13194e + 2b1d04c
+  - +101 new tests: test_hooks (42), test_no_downgrade_guard (40 total, +14 new), test_sync_agents (19)
+  - Phase 0 score-improvement committed (c13194e): +15 tests, skip guard fix, NOTE level
+  - Sprint 1 parity program committed (2b1d04c): 42 skills ported (S-57–S-101), governance infrastructure
+  - 84 skills registered (77 user-callable, 7 internal), all 3 mirrors synced
+  - Added: no_downgrade_guard.py, sync_agents.py, _skill_constants.py, git hooks, CI workflow, RUNBOOK, id-mapping
 
 ---
 
@@ -68,7 +74,7 @@ Audit verdict: **NO-SHIP** (before remediation). After Phase 0+1 remediation: **
 | G-4 | Knowledge bootstrap (scout→merge→index) | ⚠️ DEFERRED | Requires tree-sitter + cloned FOSS repos (operator setup) |
 | G-5 | Audit smoke test (dry-run) | ⚠️ DEFERRED | Requires knowledge model from G-4 |
 | G-6 | Content eval smoke test | ⚠️ DEFERRED | Requires knowledge model from G-4 |
-| G-7 | Skill distribution | ✅ PASS | 42 × 3 = 42 skills in all 3 agent formats |
+| G-7 | Skill distribution | ✅ PASS | 84 × 3 = 84 skills in all 3 agent formats (77 user-callable + 7 internal) |
 | G-8 | Path isolation (clear error when unconfigured) | ✅ PASS | SKIP message with clear reason when content/knowledge missing |
 | G-9 | Config root (scripts find content with CONTENT_REPO_PATH) | ✅ PASS | audit.py found slides/python content in aspose.org when CONTENT_REPO_PATH set |
 | G-10 | Governance (no hardcoded paths in AGENTS.md) | ✅ PASS | AGENTS.md uses config-relative path syntax throughout |

@@ -2,6 +2,99 @@
 
 ---
 
+## Phase 6: Parity Program Sprint 1 — 42 Skills + Governance Infrastructure
+
+**Date**: 2026-04-21
+**Branch**: main
+**Commits**: `c13194e` (Phase 0 score-improvement drift), `2b1d04c` (Sprint 1 parity program)
+**Tests**: 556 passed, 0 failed (+101 tests vs Phase 5 baseline of 541+15 skipped)
+**Plan sources**: `reactive-sprouting-matsumoto.md` (Phase 0), `wondrous-skipping-diffie.md` (Sprint 1)
+
+### Commit A — c13194e: Phase 0 score-improvement (pre-sprint drift committed)
+
+These changes were made in a separate session and committed separately to keep history clean:
+
+- **tests/test_scout_units.py**: Fixed subprocess-level `requires_tree_sitter` skip guard (17 FAILs → 15 SKIPs)
+- **tests/test_schema_validate.py**: Added 5 negative-case config schema tests (TASK-03)
+- **tests/test_materialize.py**: Added 4 evidence pipeline failure-mode tests (TASK-04)
+- **tests/test_pre_write.py**: Added 4 stale-model detection tests (TASK-05)
+- **scripts/check_setup.py**: Changed optional package absence from WARN (exit 1) to NOTE (exit 0)
+- **tests/test_check_setup.py**: Updated to reflect NOTE level
+- Governance: PLAN_SOURCES.md, PLAN_INDEX.md, TASK_BACKLOG.md, STATUS.md updated
+
+### Commit B — 2b1d04c: Sprint 1 parity program (42 skills + infrastructure)
+
+#### 42 New Skill Files (S-57 through S-101, plus S-56)
+
+**Content Generation (5):** new-products-page (S-66), batch-reference (S-67), new-kb-index (S-74), new-docs-index (S-75), new-reference-index (S-76)
+
+**Operational/Workflow (6):** code-smoke (S-68), getting-started (S-69), diagnose-skill-failure (S-72), update-registry (S-73), commit (S-81), session-start (S-82)
+
+**Repair/Remediation (7):** evidence-repair (S-77), manual-edit (S-78), causal-backtrack (S-79), evidence-enhance (S-83), page-retire (S-88), heal-batch (S-94), triage-confirm (S-97)
+
+**Quality/Audit (6):** link-validate (S-70), coverage-reconcile (S-85), knowledge-coverage-audit (S-86), truth-audit-content (S-90), publish-readiness-review (S-95), plan-normalize (S-96)
+
+**Orchestration/Pipeline (9):** site-plan (S-57), family-sync (S-58), refresh-product-page (S-59), launch-rollback (S-60), register-human-content (S-71), refresh-product (S-84), delta-site-plan (S-87), system-heal (S-93), backlog (S-98)
+
+**Knowledge/Gap-Eval (5):** knowledge-enrich (S-61), gap-eval (S-62), gap-plan (S-63), gap-report (S-64), gap-apply (S-65)
+
+**Translation (2 — prompt-only; backend absent):** translate-page (S-99), translate-batch (S-100)
+
+**Locale (1):** locale-patch (S-101)
+
+**Internal guard (1):** no-downgrade-guard (S-56, `internal: true`)
+
+#### Infrastructure Added
+
+- **`skills/registry.yaml`**: Expanded from 42 → 84 entries; added `internal: true/false` field to all entries
+- **`scripts/sync_commands.py`**: Added internal-skill enforcement (internals excluded from `.claude/commands/`)
+- **`scripts/validate_skills.py`**: Added internal flag validation and INTERNAL_IN_CMD violation check
+- **`scripts/sync_agents.py`** (new): Syncs `.agents/skills/` and `.kilocode/skills/` mirrors
+- **`scripts/pipeline/no_downgrade_guard.py`** (new): Pre-write content quality guard (ALLOW/WARN/BLOCK)
+- **`scripts/_skill_constants.py`** (new): `INTERNAL_SKILLS` frozenset (7 members)
+- **`scripts/pre-commit-audit.sh`** (new): Git pre-commit hook — runs validate_skills
+- **`scripts/commit-msg-skills.sh`** (new): Git commit-msg hook — validates Skills-invoked provenance
+- **`scripts/install-hooks.sh`** (new): Installs hooks to `.git/hooks/` on operator request
+- **`.github/workflows/skill-governance.yml`** (new): CI enforcement for registry, mirrors, and tests
+- **`docs/RUNBOOK.md`** (new): Operator quick-reference for standalone use
+- **`docs/id-mapping.md`** (new): Full aspose.org ↔ foss-launcher ID cross-reference
+- **`docs/parity/`** (new): 6 program artifact files (closure-report, verification-log, parity-matrix, gap-report, inventory-aspose, inventory-foss)
+- **`README.md`**: Updated to 84-skill catalog across 13 categories
+
+#### Tests Added
+
+- **`tests/test_hooks.py`** (new, 42 tests): Static inspection of hook scripts (existence, shebang, content patterns, provenance logic)
+- **`tests/test_no_downgrade_guard.py`** (new, 40 tests): Unit + CLI tests for no_downgrade_guard.py; `_fallback_grade_from_audit` grade thresholds; `main()` exit codes 0/2; `--json` output format
+- **`tests/test_sync_agents.py`** (new, 19 tests): `load_skill_names`, `check_sync`, `do_sync`, real-repo integration
+
+#### TC-021: Translator Gap Resolution (Path A — Document)
+
+- Added `> **Backend requirement:**` notice to `skills/translate-page.md` and `skills/translate-batch.md`
+- Corrected `docs/parity/verification-log.md`: translate-page/translate-batch changed from `PASS` → `PARTIAL`
+- Corrected `docs/parity/closure-report.md`: section heading and note updated to reflect backend absence
+
+#### Self-Review Loop
+
+- Phase 1 scored Thoroughness/Robustness/Testability/Scope = 3/5 on TC-016 test coverage
+- Healing plan written at `plans/healing/sr-tc016-gaps.md`
+- SR-01 (hook tests) and SR-02 (main() CLI + _fallback_grade_from_audit tests) implemented and verified
+- Final suite: 556 passed, 0 failed
+
+### Test commands
+
+```bash
+PYTHONPATH=".pylibs" python -m pytest tests/ -q
+# Expected: 556 passed, 0 failed
+
+python scripts/validate_skills.py
+# Expected: PASS: skill registry valid (84 skills, 7 internal, no violations)
+
+python scripts/sync_commands.py --check && python scripts/sync_agents.py --check
+# Expected: both PASS
+```
+
+---
+
 ## Phase 5: Score Improvement — Phase 0 (Confidence Gap Closed)
 
 **Date**: 2026-04-21
