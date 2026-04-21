@@ -273,6 +273,7 @@ foss-launcher-skills/
 │   ├── sync_commands.py       # Sync skills/ → .claude/commands/
 │   ├── sync_agents.py         # Sync skills/ → .agents/ and .kilocode/ mirrors
 │   ├── _skill_constants.py    # INTERNAL_SKILLS frozenset constant
+│   ├── launcher_adapter.py    # Boundary layer for upstream launcher scripts; drift detection
 │   ├── decide.py              # Evidence decision engine
 │   ├── differ.py              # Knowledge diff helper
 │   ├── materialize.py         # Build Product Evidence File (PEF)
