@@ -15,6 +15,7 @@ from config_loader import (  # noqa: E402
     load_config,
     resolve_content_path,
     resolve_content_repo,
+    resolve_evidence_root,
     resolve_knowledge_path,
     resolve_knowledge_root,
     resolve_reports_root,
@@ -178,3 +179,90 @@ def test_resolve_reports_root_default_is_reports():
     """Default reports_path should be 'reports' (matches config.yaml)."""
     result = resolve_reports_root()
     assert result == Path("reports")
+
+
+# ---------------------------------------------------------------------------
+# resolve_evidence_root
+# ---------------------------------------------------------------------------
+
+def test_resolve_evidence_root_returns_path():
+    result = resolve_evidence_root()
+    assert isinstance(result, Path)
+
+
+def test_resolve_evidence_root_default_is_evidence():
+    """Default evidence_root should be 'evidence' (fallback value)."""
+    result = resolve_evidence_root()
+    assert result == Path("evidence")
+
+
+def test_resolve_evidence_root_respects_config_override(monkeypatch, tmp_path):
+    """When config.yaml sets evidence_root, resolve_evidence_root() returns it."""
+    import config_loader
+    monkeypatch.setattr(
+        config_loader,
+        "load_config",
+        lambda: {"evidence_root": str(tmp_path / "custom_evidence")},
+    )
+    result = resolve_evidence_root()
+    assert result == Path(tmp_path / "custom_evidence")
+
+
+# ---------------------------------------------------------------------------
+# resolve_knowledge_root — config override
+# ---------------------------------------------------------------------------
+
+def test_resolve_knowledge_root_respects_config_override(monkeypatch, tmp_path):
+    """When config.yaml sets knowledge_root, resolve_knowledge_root() returns it."""
+    import config_loader
+    monkeypatch.setattr(
+        config_loader,
+        "load_config",
+        lambda: {"knowledge_root": str(tmp_path / "custom_knowledge")},
+    )
+    result = resolve_knowledge_root()
+    assert result == Path(tmp_path / "custom_knowledge")
+
+
+# ---------------------------------------------------------------------------
+# Scripts respect config (integration smoke)
+# ---------------------------------------------------------------------------
+
+class TestScriptsRespectConfigRoot:
+    """Verify that main entry-point scripts use resolve_knowledge/evidence_root()
+    instead of hardcoding Path("knowledge") / Path("evidence")."""
+
+    def test_materialize_uses_knowledge_root(self, monkeypatch, tmp_path):
+        """materialize.KNOWLEDGE_ROOT is not hardcoded Path('knowledge')."""
+        import config_loader
+        custom_k = tmp_path / "my_knowledge"
+        monkeypatch.setattr(config_loader, "load_config", lambda: {"knowledge_root": str(custom_k)})
+        # Re-import to get fresh module-level constant
+        import importlib
+        import materialize
+        importlib.reload(materialize)
+        assert materialize.KNOWLEDGE_ROOT == custom_k
+        # Restore
+        importlib.reload(materialize)
+
+    def test_materialize_uses_evidence_root(self, monkeypatch, tmp_path):
+        """materialize.EVIDENCE_ROOT is not hardcoded Path('evidence')."""
+        import config_loader
+        custom_e = tmp_path / "my_evidence"
+        monkeypatch.setattr(config_loader, "load_config", lambda: {"evidence_root": str(custom_e)})
+        import importlib
+        import materialize
+        importlib.reload(materialize)
+        assert materialize.EVIDENCE_ROOT == custom_e
+        importlib.reload(materialize)
+
+    def test_index_uses_knowledge_root(self, monkeypatch, tmp_path):
+        """index.KNOWLEDGE_ROOT is not hardcoded Path('knowledge')."""
+        import config_loader
+        custom_k = tmp_path / "my_knowledge"
+        monkeypatch.setattr(config_loader, "load_config", lambda: {"knowledge_root": str(custom_k)})
+        import importlib
+        import index
+        importlib.reload(index)
+        assert index.KNOWLEDGE_ROOT == custom_k
+        importlib.reload(index)
