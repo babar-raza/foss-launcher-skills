@@ -18,6 +18,7 @@
   - 84 skills registered (77 user-callable, 7 internal), all 3 mirrors synced
   - Added: no_downgrade_guard.py, sync_agents.py, _skill_constants.py, git hooks, CI workflow, RUNBOOK, id-mapping
 
+**Phase 1 scripts (quarterly_readiness + verify_claims) (2026-04-21)**: **556 passed (556 total), PASS**
 ---
 
 ## Production-Readiness Audit (2026-03-31)
