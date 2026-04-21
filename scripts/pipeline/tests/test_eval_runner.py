@@ -210,6 +210,32 @@ class TestEvalRunnerRun:
         # knowledge_cache is a dict (may be empty if page had no family/platform)
         assert isinstance(runner.knowledge_cache, dict)
 
+    def test_seed_cache_avoids_reload(self, tmp_path):
+        """Knowledge in _seed_cache is reused — not reloaded — during run() (SR-01)."""
+        from content_eval.runner import _load_knowledge
+
+        kn_root = _make_knowledge_root(tmp_path, enrichment_status="full")
+        # Simulate what cli.py skip-graded block does: pre-load knowledge
+        pre_loaded = _load_knowledge("words", "python", knowledge_root=kn_root)
+        seed = {("words", "python"): pre_loaded}
+
+        page = _page(
+            prose_lines=["word " * 5] * 3,
+            family="words",
+            platform="python",
+        )
+        runner = EvalRunner(
+            evaluator_names=["consumer_usefulness"],
+            knowledge_root=kn_root,
+        )
+        runner.run([page], _seed_cache=seed)
+
+        # Identity check: same object must be in knowledge_cache (not a reload)
+        cached = runner.knowledge_cache.get(("words", "python"))
+        assert cached is pre_loaded, (
+            "runner.run() must reuse seeded knowledge object, not reload it"
+        )
+
 
 # ---------------------------------------------------------------------------
 # RC-2: skip-graded enrichment quality gate
@@ -345,3 +371,60 @@ class TestSkipGradedEnrichmentGate:
             "Knowledge with absent enrichment_status should be treated as full "
             "and not trigger re-evaluation"
         )
+
+
+# ---------------------------------------------------------------------------
+# SR-02: enrichment-degraded warning fires to stderr
+# ---------------------------------------------------------------------------
+
+class TestEnrichmentWarning:
+    """Verifies the enrichment warning is emitted to stderr exactly once per
+    product when enrichment_status != 'full', and is silent otherwise."""
+
+    def test_warning_emitted_for_scout_only(self, tmp_path, capsys):
+        """Warning fires to stderr when enrichment_status='scout-only'."""
+        kn_root = _make_knowledge_root(tmp_path, enrichment_status="scout-only")
+        page = _page(
+            prose_lines=["word " * 5] * 3,
+            filepath="content/docs.aspose.org/en/words/python/g.md",
+            family="words",
+            platform="python",
+        )
+        runner = EvalRunner(["consumer_usefulness"], knowledge_root=kn_root)
+        runner.run([page])
+        captured = capsys.readouterr()
+        assert "scout-only" in captured.err
+        assert "claim-based evaluators" in captured.err
+
+    def test_no_warning_for_full_enrichment(self, tmp_path, capsys):
+        """No warning emitted when enrichment_status='full'."""
+        kn_root = _make_knowledge_root(tmp_path, enrichment_status="full")
+        page = _page(
+            prose_lines=["word " * 5] * 3,
+            filepath="content/docs.aspose.org/en/words/python/g.md",
+            family="words",
+            platform="python",
+        )
+        runner = EvalRunner(["consumer_usefulness"], knowledge_root=kn_root)
+        runner.run([page])
+        captured = capsys.readouterr()
+        assert "scout-only" not in captured.err
+        assert "enrichment_status" not in captured.err
+
+    def test_warning_emitted_once_per_product(self, tmp_path, capsys):
+        """Warning fires only once even when multiple pages from the same product are evaluated."""
+        kn_root = _make_knowledge_root(tmp_path, enrichment_status="scout-only")
+        pages = [
+            _page(
+                prose_lines=["word " * 5] * 3,
+                filepath=f"content/docs.aspose.org/en/words/python/g{i}.md",
+                family="words",
+                platform="python",
+            )
+            for i in range(3)
+        ]
+        runner = EvalRunner(["consumer_usefulness"], knowledge_root=kn_root)
+        runner.run(pages)
+        captured = capsys.readouterr()
+        # Warning must appear exactly once, not once per page
+        assert captured.err.count("scout-only") == 1

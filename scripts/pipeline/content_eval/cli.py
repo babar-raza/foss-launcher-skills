@@ -190,6 +190,7 @@ def _run_evaluate(args):
         skip_graded=False,       # already filtered above
         cross_page=args.cross_page,
         target_str=target_str if not args.files else "files",
+        _seed_cache=_skip_knowledge_cache,  # SR-01: avoid double-loading knowledge
     )
     # Expose runner's knowledge cache for the sweep closure below.
     knowledge_cache = runner.knowledge_cache

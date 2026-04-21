@@ -77,6 +77,7 @@ class EvalRunner:
         skip_graded: bool = False,
         cross_page: bool = False,
         target_str: str = "files",
+        _seed_cache: "dict | None" = None,
     ) -> EvalReport:
         """Evaluate *pages* and return a populated EvalReport.
 
@@ -94,6 +95,13 @@ class EvalRunner:
             the per-page loop.
         target_str :
             Human-readable scope label for EvalReport.scope.
+        _seed_cache :
+            Internal/CLI-composition seam.  If provided, pre-populates
+            ``self.knowledge_cache`` with already-loaded Knowledge objects so
+            callers that pre-load knowledge for skip-graded filtering (e.g.
+            cli.py) avoid a redundant second load.  A *copy* is taken so
+            mutations during run do not affect the caller's dict.  Not part of
+            the public consumer API — do not rely on this in tests.
         """
         from .evaluators import _ensure_loaded, get_evaluator
 
@@ -106,7 +114,11 @@ class EvalRunner:
 
         # Cache knowledge per (family, platform) key — exposed as public attribute
         # so callers (e.g. cli.py sweep) can reuse loaded knowledge without reloading.
-        self.knowledge_cache: dict[tuple[str, str], object] = {}
+        # SR-01: seed from caller's pre-loaded cache to avoid double-loading when
+        # cli.py skip-graded block already loaded knowledge for filtering.
+        self.knowledge_cache: dict[tuple[str, str], object] = (
+            dict(_seed_cache) if _seed_cache else {}
+        )
         knowledge_cache = self.knowledge_cache
         unavailable_keys: set[tuple[str, str]] = set()
         enrichment_warned_keys: set[tuple[str, str]] = set()
