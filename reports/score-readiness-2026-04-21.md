@@ -4,9 +4,9 @@
 
 | Metric | Value |
 |--------|-------|
-| Overall (estimated) | **93.8** |
+| Overall (estimated) | **91.8** |
 | Raw before penalty | 93.8 |
-| Confidence adjustment | 0.0 |
+| Confidence adjustment | -2.0 |
 | Readiness | READY (≥60) |
 
 ## Dimension Scores
@@ -43,7 +43,7 @@
 - PASS: launcher boundary explicitly managed (launcher_adapter.py); scout.py is 2127 lines
 
 ### Confidence
-- PASS: core claim tests present — confidence penalty unlikely
+- WARN: claim coverage report has unverified claims (claim-coverage-2026-04-21.md)
 
 ## Next Actions
 
