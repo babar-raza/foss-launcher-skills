@@ -1,0 +1,203 @@
+name: Skill Governance
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'skills/**'
+      - '.claude/commands/**'
+      - '.agents/skills/**'
+      - '.kilocode/skills/**'
+      - 'scripts/**'
+      - 'AGENTS.md'
+      - 'README.md'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'skills/**'
+      - '.claude/commands/**'
+      - '.agents/skills/**'
+      - '.kilocode/skills/**'
+      - 'scripts/**'
+      - 'AGENTS.md'
+      - 'README.md'
+  workflow_dispatch: {}
+
+jobs:
+  # ── Job 1: Skill registry integrity ────────────────────────────────────────
+  registry-integrity:
+    name: Registry Integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install pyyaml
+      - name: Validate skill registry
+        run: python scripts/validate_skills.py
+        # Checks: ID uniqueness, file↔registry sync, internal field,
+        # internal skills not in .claude/commands/, script paths exist
+
+  # ── Job 2: .claude/commands/ sync ──────────────────────────────────────────
+  commands-sync:
+    name: Commands Mirror Sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check .claude/commands/ is in sync
+        run: python scripts/sync_commands.py --check
+
+  # ── Job 3: .agents/.kilocode/ sync ─────────────────────────────────────────
+  agents-sync:
+    name: Agents Mirror Sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install pyyaml
+      - name: Check .agents/skills/ and .kilocode/skills/ are in sync
+        run: python scripts/sync_agents.py --check
+
+  # ── Job 4: README currency ──────────────────────────────────────────────────
+  readme-currency:
+    name: README Currency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check README is current
+        run: python scripts/readme_sync.py --check
+
+  # ── Job 5: Internal skill governance ───────────────────────────────────────
+  internal-skills:
+    name: Internal Skills Governance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install pyyaml
+      - name: Verify internal skills excluded from .claude/commands/
+        run: |
+          python -c "
+          import yaml, sys
+          with open('skills/registry.yaml') as f:
+              data = yaml.safe_load(f)
+          internal = [e['name'] for e in data['skills'] if e.get('internal')]
+          import os
+          found = []
+          for name in internal:
+              if os.path.exists(f'.claude/commands/{name}.md'):
+                  found.append(name)
+          if found:
+              print('FAIL: internal skills found in .claude/commands/:', found)
+              sys.exit(1)
+          print(f'PASS: {len(internal)} internal skills correctly excluded from .claude/commands/')
+          "
+
+  # ── Job 6: Commit skill provenance ─────────────────────────────────────────
+  commit-provenance:
+    name: Commit Skill Provenance
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check skill provenance in content-touching commits
+        run: |
+          python -c "
+          import subprocess, sys, re
+
+          # Get commit messages from this push
+          result = subprocess.run(
+              ['git', 'log', '--format=%s', 'HEAD~1..HEAD'],
+              capture_output=True, text=True
+          )
+          messages = result.stdout.strip().split('\n')
+
+          # Get files changed in this push
+          files_result = subprocess.run(
+              ['git', 'diff', '--name-only', 'HEAD~1..HEAD'],
+              capture_output=True, text=True
+          )
+          changed_files = files_result.stdout.strip().split('\n')
+
+          touches_content = any(f.startswith('content/') for f in changed_files)
+          if not touches_content:
+              print('SKIP: no content/ files changed, provenance not required')
+              sys.exit(0)
+
+          # Check first commit message for Skills invoked
+          msg = messages[0] if messages else ''
+          exempt = re.match(r'^(Merge|Revert|WIP|fixup!|squash!|chore:)', msg)
+          if exempt:
+              print('SKIP: exempt commit type')
+              sys.exit(0)
+
+          if 'Skills invoked:' in msg:
+              print('PASS: content commit contains Skills invoked: declaration')
+              sys.exit(0)
+          else:
+              print(\"FAIL: content commit missing 'Skills invoked:' declaration. Add 'Skills invoked: S-XX' or 'Skills invoked: manual' to the commit message.\")
+              sys.exit(1)
+          "
+
+  # ── Job 7: Full governance test suite ──────────────────────────────────────
+  test-suite:
+    name: Governance Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install test dependencies
+        run: |
+          pip install pyyaml pytest pytest-mock jsonschema
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Run governance tests
+        run: python -m pytest tests/ -v --tb=short -m "not scout" --ignore=tests/test_e2e_pipeline.py
+        continue-on-error: false
+
+  # ── Job 8: Schema validation ─────────────────────────────────────────────
+  schema-validation:
+    name: Schema Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install pyyaml jsonschema
+      - name: Validate config.yaml against config schema
+        run: |
+          python -c "
+          import sys, yaml
+          sys.path.insert(0, 'scripts')
+          from schema_validate import validate
+          import yaml as _yaml
+          config = _yaml.safe_load(open('config.yaml').read())
+          errors = validate(config, 'config')
+          if errors:
+              for e in errors:
+                  print('FAIL:', e)
+              sys.exit(1)
+          print('PASS: config.yaml validates against config.schema.json')
+          "

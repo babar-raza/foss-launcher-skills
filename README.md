@@ -4,7 +4,7 @@ Evidence-based content generation skills for FOSS product documentation. Works w
 
 ## What This Is
 
-A standalone library of 42 agent skills that power a knowledge-grounded content pipeline:
+A standalone library of 84 agent skills (7 internal sub-routines + 77 user-callable) that power a knowledge-grounded content pipeline:
 
 1. **Discover** FOSS repositories across GitHub organizations
 2. **Extract** truth from FOSS repositories (tree-sitter analysis)
@@ -97,6 +97,7 @@ See `QUICKSTART.md` for a full step-by-step walkthrough.
 | S-30 | truth-sync | Import external knowledge artifacts (optional) |
 | S-37 | corpus-scan | Build golden corpus profile from existing content |
 | S-39 | discover-products | Scan GitHub orgs for FOSS repositories |
+| S-61 | knowledge-enrich | LLM semantic enrichment from scout artifacts |
 
 ### Knowledge Maintenance
 
@@ -106,33 +107,59 @@ See `QUICKSTART.md` for a full step-by-step walkthrough.
 | S-13 | stale-detect | Map changes to affected content pages |
 | S-14 | knowledge-update | Refresh entire knowledge pipeline |
 | S-36 | cross-platform | Check consistency across platforms in a family |
+| S-85 | coverage-reconcile | Knowledge unit disposition table (used/orphaned/excluded) |
+| S-86 | knowledge-coverage-audit | Per-claim disposition; no silent knowledge loss |
 
 ### Content Generation
 
 | ID | Skill | Purpose |
 |----|-------|---------|
-| S-10 | project-phase-store | Record page creation intent and context |
 | S-18 | page-plan | Plan page structure (sections → claims → snippets) |
 | S-19 | page-draft | Draft content using site-type template |
 | S-22 | faq-generate | Generate FAQ from knowledge model |
-| S-51 | new-docs-page | Shortcut: generate docs page |
-| S-52 | new-blog-post | Shortcut: generate blog post |
-| S-53 | new-kb-howto | Shortcut: generate KB how-to |
-| S-54 | new-kb-faq | Shortcut: generate KB FAQ |
-| S-55 | new-reference-page | Shortcut: generate API reference page |
+| S-51 | new-docs-page | Generate docs page |
+| S-52 | new-blog-post | Generate blog post |
+| S-53 | new-kb-howto | Generate KB how-to |
+| S-54 | new-kb-faq | Generate KB FAQ |
+| S-55 | new-reference-page | Generate API reference page |
+| S-66 | new-products-page | Generate products.aspose.org landing page |
+| S-67 | batch-reference | Generate reference pages in bulk for all classes/enums |
+| S-74 | new-kb-index | Scaffold KB platform section landing page |
+| S-75 | new-docs-index | Scaffold docs platform section landing page |
+| S-76 | new-reference-index | Scaffold reference platform section landing page |
 
 ### Content Validation
 
 | ID | Skill | Purpose |
 |----|-------|---------|
-| S-01 | path-guard | Enforce allowed/forbidden write paths |
 | S-23 | ground-check | Pre-write evidence verification (truth gate) |
-| S-33 | change-guard | Pre-write knowledge gate (forbidden claims) |
 | S-32 | content-audit | Semantic audit against knowledge |
-| S-24 | evidence-cite | Attach `evidence:` frontmatter citations |
 | S-48 | content-eval | Multi-dimensional content evaluation against repo truth |
-| S-49 | knowledge-bootstrap | Shared pre-condition gate for knowledge state detection |
 | S-50 | content-check | Structural/formatting validation |
+| S-68 | code-smoke | Syntax and type-check Python code blocks (never executes) |
+| S-70 | link-validate | Validate cross-subdomain internal links |
+| S-90 | truth-audit-content | Line-level truth audit; verify each unit against knowledge model |
+
+### Evidence Pipeline (foss-launcher unique)
+
+| ID | Skill | Purpose |
+|----|-------|---------|
+| S-43 | evidence-decide | Determine per-page content actions |
+| S-44 | evidence-materialize | Build canonical Product Evidence File (PEF) |
+| S-45 | mental-model | Build product mental model (capability tiers, gaps) |
+| S-46 | evidence-verify | Deterministic content verification against PEF |
+| S-47 | truth-audit | Member-level API verification |
+| S-77 | evidence-repair | Repair evidence frontmatter on validator-blocked pages |
+| S-83 | evidence-enhance | Improve evidence coverage on passing pages |
+
+### Gap-Eval Pipeline (parallel to evidence pipeline)
+
+| ID | Skill | Purpose |
+|----|-------|---------|
+| S-62 | gap-eval | Verify content against clone cache (3-tier: deterministic/vector/LLM) |
+| S-63 | gap-plan | Convert gap-eval findings into wave-ordered fix plan |
+| S-64 | gap-report | Cross-product synthesis of gap patterns |
+| S-65 | gap-apply | Execute wave-ordered fix specs (waves 1–4) |
 
 ### Content Quality
 
@@ -144,24 +171,65 @@ See `QUICKSTART.md` for a full step-by-step walkthrough.
 | S-26 | heal-page | Fix low-quality pages (grade D/F) |
 | S-20 | page-update | Update content after knowledge refresh |
 | S-40 | batch-remediate | Full eval→fix→LLM→re-eval remediation pipeline |
-| S-41 | batch-eval-fix | Quick eval + deterministic auto-fix only (no LLM) |
-| S-42 | category-fix | Run specific fixer on targeted files by category |
+| S-41 | batch-eval-fix | Quick eval + deterministic auto-fix only |
+| S-42 | category-fix | Run specific fixer on targeted files |
+| S-78 | manual-edit | Operator-directed targeted content edit |
+| S-79 | causal-backtrack | Resolve upstream dependency failures |
+| S-88 | page-retire | Retire obsolete pages (draft:true mechanism) |
+| S-94 | heal-batch | Batch healing from eval report (auto/LLM/regen modes) |
 
-### Evidence Pipeline
-
-| ID | Skill | Purpose |
-|----|-------|---------|
-| S-44 | evidence-materialize | Build canonical Product Evidence File (PEF) from merged knowledge |
-| S-45 | mental-model | Build product mental model (capability tiers, gaps, readiness) |
-| S-43 | evidence-decide | Determine per-page content actions (create/update/enhance/no-change) |
-| S-46 | evidence-verify | Deterministic content verification against PEF |
-| S-47 | truth-audit | Member-level API verification against knowledge surface |
-
-### Orchestration
+### Quality Audit
 
 | ID | Skill | Purpose |
 |----|-------|---------|
-| S-38 | launch-product | Full FOSS product launch (knowledge → evidence → pages → report) |
+| S-95 | publish-readiness-review | Agent-executed governed inspection with publish verdict |
+| S-97 | triage-confirm | Layer 2 body-prose staleness scanner (read-only) |
+
+### Orchestration / Pipeline
+
+| ID | Skill | Purpose |
+|----|-------|---------|
+| S-38 | launch-product | Full FOSS product launch orchestrator |
+| S-57 | site-plan | Produce pre-generation site manifest across all 5 subdomains |
+| S-58 | family-sync | Update family page to reflect all launched platforms |
+| S-59 | refresh-product-page | Re-generate products page with latest template |
+| S-60 | launch-rollback | Revert product content to last committed state |
+| S-84 | refresh-product | Full post-launch refresh cycle (14-step chain) |
+| S-87 | delta-site-plan | Incremental site planning after knowledge update |
+| S-93 | system-heal | Audit-driven batch healing |
+
+### Session & Workflow
+
+| ID | Skill | Purpose |
+|----|-------|---------|
+| S-69 | getting-started | Bootstrap repo environment (7-step onboarding) |
+| S-72 | diagnose-skill-failure | Governed diagnostic for skill/pipeline failures |
+| S-73 | update-registry | Discover and register FOSS repos from GitHub orgs |
+| S-71 | register-human-content | Onboard human-authored pages into quality systems |
+| S-81 | commit | Stage and commit with structured conventional commits |
+| S-82 | session-start | Mandatory session initialization gate |
+| S-96 | plan-normalize | Execution-safe plan quality gate |
+| S-98 | backlog | Unified planning and backlog management (22 subcommands) |
+
+### Translation
+
+| ID | Skill | Purpose |
+|----|-------|---------|
+| S-99 | translate-page | Translate single page to one or more locales |
+| S-100 | translate-batch | Batch translate entire family/platform to locales |
+| S-101 | locale-patch | Propagate targeted fixes to locale translation copies |
+
+### Internal Sub-routines (not user-callable)
+
+| ID | Skill | Purpose |
+|----|-------|---------|
+| S-01 | path-guard | Enforce allowed/forbidden write paths |
+| S-10 | project-phase-store | Record page creation intent |
+| S-17 | rubric-align | Quality gap analysis (internal) |
+| S-24 | evidence-cite | Attach evidence frontmatter citations |
+| S-33 | change-guard | Pre-write knowledge gate |
+| S-49 | knowledge-bootstrap | Pre-condition gate for knowledge state |
+| S-56 | no-downgrade-guard | Pre-write quality comparison guard (ALLOW/WARN/BLOCK) |
 
 ## Skill Chains
 
@@ -183,7 +251,7 @@ Launch:       S-38 orchestrates:
 
 ```
 foss-launcher-skills/
-├── skills/                    # 42 canonical skill files (YAML frontmatter + markdown)
+├── skills/                    # 84 canonical skill files (77 user-callable + 7 internal)
 │   └── registry.yaml             # Machine-readable skill registry (authoritative IDs)
 ├── scripts/                   # Python tooling
 │   ├── scout.py               # Tree-sitter knowledge extraction

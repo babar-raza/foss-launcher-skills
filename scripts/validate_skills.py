@@ -4,8 +4,11 @@ Checks:
   1. No duplicate skill IDs in registry.yaml
   2. Every skills/{name}.md has a matching registry entry
   3. Every registry entry has a corresponding skills/{name}.md
-  4. Every .claude/commands/{name}.md is byte-identical to skills/{name}.md
+  4. Every non-internal skill has a .claude/commands/{name}.md that is
+     byte-identical to skills/{name}.md (frontmatter stripped)
   5. Non-null script: paths exist on disk (relative to repo root)
+  6. Every registry entry has an internal: field (true or false)
+  7. No internal skill appears in .claude/commands/
 
 Exit codes:
   0  PASS — all checks passed
@@ -87,17 +90,30 @@ def _strip_frontmatter(text: str) -> str:
     return stripped.lstrip("\n")
 
 
-def check_commands_sync(skills_dir: Path, commands_dir: Path) -> list[str]:
+def check_commands_sync(
+    skills_dir: Path,
+    commands_dir: Path,
+    skills: list[dict] | None = None,
+) -> list[str]:
     """Return errors for .claude/commands/ files that diverge from skills/ body.
 
     The commands/ file should equal the skills/ file with frontmatter removed.
+    Internal skills (internal: true) must NOT appear in commands/.
     """
+    internal_names: set[str] = set()
+    if skills:
+        internal_names = {e["name"] for e in skills if e.get("internal") and e.get("name")}
+
     errors = []
     if not commands_dir.exists():
         errors.append(f"  MISSING_DIR  {commands_dir} does not exist")
         return errors
 
     for skill_file in sorted(skills_dir.glob("*.md")):
+        stem = skill_file.stem
+        if stem in internal_names:
+            # Internal skills must not be in commands — checked separately
+            continue
         cmd_file = commands_dir / skill_file.name
         if not cmd_file.exists():
             errors.append(f"  MISSING_CMD  .claude/commands/{skill_file.name} not found")
@@ -134,6 +150,43 @@ def check_script_refs(skills: list[dict], repo_root: Path) -> list[str]:
     return errors
 
 
+def check_internal_field(skills: list[dict]) -> list[str]:
+    """Return errors for entries missing the required internal: boolean field."""
+    errors = []
+    for entry in skills:
+        if "internal" not in entry:
+            errors.append(
+                f"  MISSING_INTERNAL  {entry.get('id')} ({entry.get('name')}): "
+                f"registry entry is missing required 'internal:' field"
+            )
+        elif not isinstance(entry["internal"], bool):
+            errors.append(
+                f"  BAD_INTERNAL  {entry.get('id')} ({entry.get('name')}): "
+                f"'internal:' must be true or false, got: {entry['internal']!r}"
+            )
+    return errors
+
+
+def check_internal_not_in_commands(skills: list[dict], commands_dir: Path) -> list[str]:
+    """Return errors for internal skills that appear in .claude/commands/."""
+    errors = []
+    if not commands_dir.exists():
+        return errors
+    for entry in skills:
+        if not entry.get("internal"):
+            continue
+        name = entry.get("name")
+        if not name:
+            continue
+        cmd_file = commands_dir / f"{name}.md"
+        if cmd_file.exists():
+            errors.append(
+                f"  INTERNAL_IN_CMD  {entry.get('id')} ({name}): "
+                f"internal skill must not appear in .claude/commands/"
+            )
+    return errors
+
+
 def run(repo_root: Path) -> int:
     registry_path = repo_root / "skills" / "registry.yaml"
     skills_dir = repo_root / "skills"
@@ -159,7 +212,15 @@ def run(repo_root: Path) -> int:
     if unregistered:
         all_errors.append(("Files → registry", unregistered))
 
-    sync_errors = check_commands_sync(skills_dir, commands_dir)
+    internal_field_errors = check_internal_field(skills)
+    if internal_field_errors:
+        all_errors.append(("Internal field", internal_field_errors))
+
+    internal_cmd_errors = check_internal_not_in_commands(skills, commands_dir)
+    if internal_cmd_errors:
+        all_errors.append(("Internal in commands", internal_cmd_errors))
+
+    sync_errors = check_commands_sync(skills_dir, commands_dir, skills)
     if sync_errors:
         all_errors.append(("Commands sync", sync_errors))
 
@@ -168,7 +229,11 @@ def run(repo_root: Path) -> int:
         all_errors.append(("Script refs", script_errors))
 
     if not all_errors:
-        print(f"PASS: skill registry valid ({len(skills)} skills, no violations)")
+        n_internal = sum(1 for s in skills if s.get("internal"))
+        print(
+            f"PASS: skill registry valid "
+            f"({len(skills)} skills, {n_internal} internal, no violations)"
+        )
         return 0
 
     total = sum(len(errs) for _, errs in all_errors)

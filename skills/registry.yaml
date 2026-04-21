@@ -5,221 +5,523 @@ schema_version: 1
 # Rules enforced:
 #   - IDs must be unique across all entries
 #   - Every skills/{name}.md must have a matching entry here
-#   - Every .claude/commands/{name}.md must be byte-identical to skills/{name}.md
+#   - Every .claude/commands/{name}.md must be byte-identical to skills/{name}.md (frontmatter stripped)
 #   - Non-null script paths must exist on disk (relative to repo root)
+#   - Internal skills (internal: true) must NOT appear in .claude/commands/
 #
 # ID assignment notes:
 #   S-38 collision resolved: launch-product keeps S-38; truth-audit renumbered to S-47
 #   S-42 collision resolved: category-fix keeps S-42; evidence-verify renumbered to S-46
 #   S-40/S-41/S-42 frontmatter was missing id: field — authoritative IDs are here
+#   New skills S-56+ assigned by foss-launcher (independent of aspose.org IDs)
+#   Cross-reference: docs/id-mapping.md maps foss IDs to aspose.org IDs
 
 skills:
   - id: S-01
     name: path-guard
     description: Enforce allowed write paths
+    internal: true
     script: scripts/path_guard.py
 
   - id: S-10
     name: project-phase-store
     description: Record page creation intent as a YAML plan file
+    internal: true
     script: null
 
   - id: S-12
     name: knowledge-diff
     description: Detect upstream repo changes since last knowledge extraction
+    internal: false
     script: null
 
   - id: S-13
     name: stale-detect
     description: Identify content pages affected by upstream changes
+    internal: false
     script: null
 
   - id: S-14
     name: knowledge-update
     description: Refresh knowledge model from source repo
+    internal: false
     script: scripts/pipeline/refresh_knowledge.py
 
   - id: S-15
     name: embed-knowledge
     description: Generate vector embeddings for knowledge retrieval
+    internal: false
     script: scripts/embed.py
 
   - id: S-17
     name: rubric-align
     description: Align content to quality rubric and identify gaps
+    internal: true
     script: null
 
   - id: S-18
     name: page-plan
     description: Plan page structure before drafting
+    internal: false
     script: null
 
   - id: S-19
     name: page-draft
     description: Draft initial page content from knowledge model
+    internal: false
     script: null
 
   - id: S-20
     name: page-update
     description: Update page after knowledge model change
+    internal: false
     script: null
 
   - id: S-21
     name: page-enhance
     description: Enhance page quality to meet rubric bar
+    internal: false
     script: null
 
   - id: S-22
     name: faq-generate
     description: Generate FAQ section from knowledge model
+    internal: false
     script: null
 
   - id: S-23
     name: ground-check
     description: Pre-write evidence verification gate
+    internal: false
     script: scripts/pipeline/audit.py
 
   - id: S-24
     name: evidence-cite
     description: Attach evidence citations to content frontmatter
+    internal: true
     script: scripts/pipeline/attach_evidence.py
 
   - id: S-25
     name: eval-page
     description: Evaluate page quality and assign A-F grade
+    internal: false
     script: scripts/pipeline/content_eval/__main__.py
 
   - id: S-26
     name: heal-page
     description: Fix low-quality page to reach passing grade
+    internal: false
     script: null
 
   - id: S-30
     name: truth-sync
     description: Import external FOSS-Launcher knowledge into fl/
+    internal: false
     script: null
 
   - id: S-31
     name: truth-index
     description: Generate knowledge index from merged artifacts
+    internal: false
     script: scripts/index.py
 
   - id: S-32
     name: content-audit
     description: Semantic knowledge verification of content pages
+    internal: false
     script: scripts/pipeline/content_audit.py
 
   - id: S-33
     name: change-guard
     description: Pre-write knowledge gate for single text blocks
+    internal: true
     script: scripts/pipeline/change_guard.py
 
   - id: S-34
     name: repo-scout
     description: Extract API truth from FOSS repository
+    internal: false
     script: scripts/scout.py
 
   - id: S-35
     name: truth-merge
     description: Merge scout and external knowledge sources
+    internal: false
     script: scripts/merge.py
 
   - id: S-36
     name: cross-platform
     description: Family-wide consistency check across platforms
+    internal: false
     script: null
 
   - id: S-37
     name: corpus-scan
     description: Build golden corpus profile for a site type
+    internal: false
     script: scripts/corpus_scan.py
 
   - id: S-38
     name: launch-product
     description: Orchestrate full FOSS product launch end-to-end
+    internal: false
     script: null
 
   - id: S-39
     name: discover-products
     description: Scan GitHub org to discover FOSS product repos
+    internal: false
     script: scripts/discover.py
 
   - id: S-40
     name: batch-remediate
     description: Full eval-to-fix-to-LLM-to-re-eval remediation pipeline
+    internal: false
     script: scripts/pipeline/remediate.py
 
   - id: S-41
     name: batch-eval-fix
     description: Quick eval plus deterministic auto-fix only (no LLM)
+    internal: false
     script: scripts/pipeline/remediate.py
 
   - id: S-42
     name: category-fix
     description: Run specific fixer on targeted files by category
+    internal: false
     script: scripts/pipeline/remediate.py
 
   - id: S-43
     name: evidence-decide
     description: Determine per-page content action from evidence
+    internal: false
     script: scripts/decide.py
 
   - id: S-44
     name: evidence-materialize
     description: Build canonical Product Evidence File from merged knowledge
+    internal: false
     script: scripts/materialize.py
 
   - id: S-45
     name: mental-model
     description: Build product mental model and capability tiers from PEF
+    internal: false
     script: scripts/mental_model.py
 
   - id: S-46
     name: evidence-verify
     description: Deterministic content verification against PEF
+    internal: false
     script: scripts/verify.py
 
   - id: S-47
     name: truth-audit
     description: Member-level API verification against knowledge surface
+    internal: false
     script: null
 
   - id: S-48
     name: content-eval
     description: Multi-dimensional content evaluation against repo truth
+    internal: false
     script: scripts/pipeline/content_eval/__main__.py
 
   - id: S-49
     name: knowledge-bootstrap
     description: Shared pre-condition gate for knowledge state detection
+    internal: true
     script: null
 
   - id: S-50
     name: content-check
     description: Structural and quality check on a content file pre-commit
+    internal: false
     script: null
 
   - id: S-51
     name: new-docs-page
     description: Generate a new documentation page for docs.aspose.org
+    internal: false
     script: null
 
   - id: S-52
     name: new-blog-post
     description: Generate a new blog post for blog.aspose.org
+    internal: false
     script: null
 
   - id: S-53
     name: new-kb-howto
     description: Generate a new KB how-to article for kb.aspose.org
+    internal: false
     script: null
 
   - id: S-54
     name: new-kb-faq
     description: Generate or update the FAQ page for a product platform
+    internal: false
     script: null
 
   - id: S-55
     name: new-reference-page
     description: Generate a new API reference page for reference.aspose.org
+    internal: false
+    script: null
+
+  - id: S-56
+    name: no-downgrade-guard
+    description: Pre-write quality comparison guard; returns ALLOW/WARN/BLOCK before content writes
+    internal: true
+    script: scripts/pipeline/no_downgrade_guard.py
+
+  # TC-012f: Knowledge/Gap-eval skills (parallel to evidence pipeline)
+  - id: S-61
+    name: knowledge-enrich
+    description: Generate LLM-enriched semantic claims from scout artifacts; writes enriched_claims.json
+    internal: false
+    script: null
+
+  - id: S-62
+    name: gap-eval
+    description: Evaluate content against clone cache ground truth using three-tier architecture; produces PUBLICATION READY verdict
+    internal: false
+    script: null
+
+  - id: S-63
+    name: gap-plan
+    description: Convert gap-eval findings into wave-ordered remediation plan with old→new substitutions
+    internal: false
+    script: null
+
+  - id: S-64
+    name: gap-report
+    description: Synthesize gap-eval findings across all products into cross-product MASTER-SYNTHESIS
+    internal: false
+    script: null
+
+  - id: S-65
+    name: gap-apply
+    description: Execute wave-ordered fix specs from gap-plan; applies Wave 1 auto-fixes through Wave 4 escalation
+    internal: false
+    script: null
+
+  # TC-012e: Orchestration/Pipeline skills
+  - id: S-57
+    name: site-plan
+    description: Produce a deterministic evidence-bound site manifest across all 5 subdomains
+    internal: false
+    script: null
+
+  - id: S-58
+    name: family-sync
+    description: Update the family-level products page to reflect all currently launched platforms
+    internal: false
+    script: null
+
+  - id: S-59
+    name: refresh-product-page
+    description: Re-generate a products.aspose.org landing page with latest template via full S-66 pipeline
+    internal: false
+    script: null
+
+  - id: S-60
+    name: launch-rollback
+    description: Revert one product's generated content files to last committed state without touching system files
+    internal: false
+    script: null
+
+  - id: S-66
+    name: new-products-page
+    description: Generate or update the products.aspose.org landing page for a FOSS product
+    internal: false
+    script: null
+
+  - id: S-71
+    name: register-human-content
+    description: Onboard human-authored content pages into quality and provenance systems
+    internal: false
+    script: null
+
+  # TC-012d: Quality/Audit skills
+  - id: S-70
+    name: link-validate
+    description: Validate cross-subdomain internal links; reports BROKEN links where target slug does not exist
+    internal: false
+    script: null
+
+  - id: S-67
+    name: batch-reference
+    description: Generate reference pages in bulk for all missing classes/enums in a family+platform
+    internal: false
+    script: null
+
+  - id: S-68
+    name: code-smoke
+    description: Syntax and type-check Python code blocks in content pages; never executes code
+    internal: false
+    script: null
+
+  - id: S-69
+    name: getting-started
+    description: Bootstrap the repo environment from a fresh clone to a content-ready state
+    internal: false
+    script: null
+
+  - id: S-72
+    name: diagnose-skill-failure
+    description: Governed diagnostic procedure for skill failures; classifies as CONFIG/DATA/CODE/GOVERNANCE/REGRESSION
+    internal: false
+    script: null
+
+  - id: S-73
+    name: update-registry
+    description: Discover and register FOSS repositories from Aspose GitHub organisations
+    internal: false
+    script: null
+
+  - id: S-81
+    name: commit
+    description: Stage and commit working tree changes with structured conventional commits
+    internal: false
+    script: null
+
+  - id: S-74
+    name: new-kb-index
+    description: Scaffold or repair the KB platform section landing page with required frontmatter and children shortcode
+    internal: false
+    script: null
+
+  - id: S-75
+    name: new-docs-index
+    description: Scaffold or repair the docs platform section landing page with required frontmatter and sections shortcode
+    internal: false
+    script: null
+
+  - id: S-76
+    name: new-reference-index
+    description: Scaffold or repair the reference platform section landing page with required frontmatter and children shortcode
+    internal: false
+    script: null
+
+  - id: S-77
+    name: evidence-repair
+    description: Repair evidence frontmatter blocks on validator-blocked pages; two-stage auto-attach then LLM reasoning
+    internal: false
+    script: null
+
+  - id: S-78
+    name: manual-edit
+    description: Apply operator-specified targeted content edit under full governance; minimal-edit principle
+    internal: false
+    script: null
+
+  - id: S-79
+    name: causal-backtrack
+    description: Resolve upstream dependency failures by tracing broken links back to root cause and routing to responsible skill
+    internal: false
+    script: null
+
+  - id: S-82
+    name: session-start
+    description: Mandatory session initialization gate; reads governance files and loads backlog before any task
+    internal: false
+    script: null
+
+  - id: S-83
+    name: evidence-enhance
+    description: Improve section-level evidence coverage on passing pages; governed entry point for attach_evidence --force
+    internal: false
+    script: null
+
+  - id: S-88
+    name: page-retire
+    description: Retire obsolete content pages by setting draft:true; preserves history and allows rollback
+    internal: false
+    script: null
+
+  - id: S-94
+    name: heal-batch
+    description: Batch healing from content_eval report; routes findings to auto/LLM/regen heal modes
+    internal: false
+    script: null
+
+  - id: S-85
+    name: coverage-reconcile
+    description: Full disposition table for every knowledge unit showing used/stored/orphaned/excluded status
+    internal: false
+    script: null
+
+  - id: S-86
+    name: knowledge-coverage-audit
+    description: Per-claim disposition table; foundational observability for no-silent-knowledge-loss
+    internal: false
+    script: null
+
+  - id: S-90
+    name: truth-audit-content
+    description: Line-level content truth audit; decomposes pages into units and verifies each against knowledge model
+    internal: false
+    script: null
+
+  - id: S-95
+    name: publish-readiness-review
+    description: Agent-executed governed inspection; replaces human-review dead-ends with bounded verdict
+    internal: false
+    script: null
+
+  - id: S-96
+    name: plan-normalize
+    description: Execution-safe plan quality gate; classifies sections, verifies claims, recommends next item
+    internal: false
+    script: null
+
+  - id: S-84
+    name: refresh-product
+    description: Orchestrate the full post-launch product refresh cycle; 14-step chain with checkpoint resume
+    internal: false
+    script: null
+
+  - id: S-87
+    name: delta-site-plan
+    description: Incremental site planning after a knowledge update; produces pages_to_add/update/remove delta
+    internal: false
+    script: null
+
+  - id: S-93
+    name: system-heal
+    description: Audit-driven content healing; classifies findings as CONTENT/PIPELINE/KNOWLEDGE and heals automatically
+    internal: false
+    script: null
+
+  - id: S-97
+    name: triage-confirm
+    description: Layer 2 body-prose staleness scanner; detects stale API references and orphaned claims; read-only
+    internal: false
+    script: null
+
+  - id: S-98
+    name: backlog
+    description: Unified backlog management with 22 subcommands; maintains durable planning state across sessions
+    internal: false
+    script: null
+
+  # TC-012g: Translation skills
+  - id: S-99
+    name: translate-page
+    description: Translate a single English content page to one or more target locales; preserves evidence and code blocks
+    internal: false
+    script: null
+
+  - id: S-100
+    name: translate-batch
+    description: Batch translate all English content pages for a family/platform to target locales
+    internal: false
+    script: null
+
+  # TC-012h: Locale skills
+  - id: S-101
+    name: locale-patch
+    description: Propagate targeted text fixes from fixed English source to all locale translation copies
+    internal: false
     script: null

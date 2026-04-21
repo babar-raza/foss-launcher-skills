@@ -3,6 +3,9 @@
 The canonical source for all skills is skills/*.md.
 Derived targets strip the YAML frontmatter and contain only the skill body.
 
+Internal skills (internal: true in registry.yaml) must NOT appear in .claude/commands/.
+If they exist there, they are removed during --sync.
+
 Derived targets:
   .claude/commands/*.md   — Claude Code slash commands
 
@@ -23,6 +26,12 @@ import re
 import sys
 from pathlib import Path
 
+try:
+    import yaml
+    _HAS_YAML = True
+except ImportError:
+    _HAS_YAML = False
+
 _FRONTMATTER_RE = re.compile(r"^---\n.*?\n---\n?", re.DOTALL)
 
 
@@ -37,12 +46,35 @@ def _derive_body(skill_file: Path) -> str:
     return strip_frontmatter(skill_file.read_text(encoding="utf-8"))
 
 
+def _load_internal_names(skills_dir: Path) -> set[str]:
+    """Return the set of skill names marked internal: true in registry.yaml."""
+    if not _HAS_YAML:
+        return set()
+    registry_path = skills_dir / "registry.yaml"
+    if not registry_path.exists():
+        return set()
+    try:
+        with open(registry_path, encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+        return {e["name"] for e in data.get("skills", []) if e.get("internal") and e.get("name")}
+    except Exception:
+        return set()
+
+
 def check_sync(skills_dir: Path, commands_dir: Path) -> list[str]:
     """Return a list of human-readable diff descriptions. Empty = in sync."""
+    internal_names = _load_internal_names(skills_dir)
     diffs = []
 
     for skill_file in sorted(skills_dir.glob("*.md")):
         if skill_file.name == "registry.yaml":
+            continue
+        stem = skill_file.stem
+        if stem in internal_names:
+            # Internal skills must not be in commands/ — flag if present
+            cmd_file = commands_dir / skill_file.name
+            if cmd_file.exists():
+                diffs.append(f"INTERNAL .claude/commands/{skill_file.name} (should be absent)")
             continue
         cmd_file = commands_dir / skill_file.name
         expected_body = _derive_body(skill_file)
@@ -56,14 +88,20 @@ def check_sync(skills_dir: Path, commands_dir: Path) -> list[str]:
             diffs.append(f"DIFFERS  .claude/commands/{skill_file.name}")
 
     for cmd_file in sorted(commands_dir.glob("*.md")):
-        if not (skills_dir / cmd_file.name).exists():
+        stem = cmd_file.stem
+        skill_file = skills_dir / cmd_file.name
+        if not skill_file.exists():
             diffs.append(f"EXTRA    .claude/commands/{cmd_file.name} (no canonical in skills/)")
 
     return diffs
 
 
 def do_sync(skills_dir: Path, commands_dir: Path) -> tuple[int, int]:
-    """Sync skills/ → .claude/commands/. Returns (synced_count, already_ok_count)."""
+    """Sync skills/ → .claude/commands/. Returns (synced_count, already_ok_count).
+
+    Internal skills are removed from commands/ if present.
+    """
+    internal_names = _load_internal_names(skills_dir)
     commands_dir.mkdir(parents=True, exist_ok=True)
     synced = 0
     already_ok = 0
@@ -71,9 +109,17 @@ def do_sync(skills_dir: Path, commands_dir: Path) -> tuple[int, int]:
     for skill_file in sorted(skills_dir.glob("*.md")):
         if skill_file.name == "registry.yaml":
             continue
+        stem = skill_file.stem
         cmd_file = commands_dir / skill_file.name
-        body = _derive_body(skill_file)
 
+        if stem in internal_names:
+            # Remove internal skill from commands/ if it somehow got there
+            if cmd_file.exists():
+                cmd_file.unlink()
+                synced += 1
+            continue
+
+        body = _derive_body(skill_file)
         current = cmd_file.read_text(encoding="utf-8") if cmd_file.exists() else None
         if current == body:
             already_ok += 1
