@@ -21,6 +21,7 @@ Scoring dimensions (mirrors inferred quarterly rubric):
 """
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -29,6 +30,16 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TODAY = date.today().isoformat()
+
+# Discover user site-packages for pytest access (Windows installs pytest there)
+_USER_SITE = None
+try:
+    import site as _site
+    _user_sp = _site.getusersitepackages()
+    if _user_sp and Path(_user_sp).is_dir():
+        _USER_SITE = _user_sp
+except Exception:
+    pass
 
 
 # ---------------------------------------------------------------------------
@@ -44,12 +55,17 @@ def score_testing(repo_root: Path, run_tests: bool) -> tuple[float, list[str]]:
         base = min(60.0, 40.0 + len(test_files) * 0.5)
         return base, notes
 
+    # Build env with user site-packages for pytest discovery
+    env = dict(os.environ)
+    if _USER_SITE:
+        env["PYTHONPATH"] = _USER_SITE + os.pathsep + env.get("PYTHONPATH", "")
+
     try:
         result = subprocess.run(
             [sys.executable, "-m", "pytest", "tests/", "--tb=no", "-q",
              "-m", "not scout", "--ignore=tests/test_e2e_pipeline.py"],
             capture_output=True, text=True, timeout=180,
-            cwd=str(repo_root),
+            cwd=str(repo_root), env=env,
         )
         output = result.stdout + result.stderr
         # Parse "X passed, Y failed, Z skipped"
@@ -71,7 +87,7 @@ def score_testing(repo_root: Path, run_tests: bool) -> tuple[float, list[str]]:
             fm_result = subprocess.run(
                 [sys.executable, "-m", "pytest", "tests/", "--co", "-q",
                  "-k", name, "-m", "not scout"],
-                capture_output=True, text=True, timeout=30, cwd=str(repo_root),
+                capture_output=True, text=True, timeout=30, cwd=str(repo_root), env=env,
             )
             m = re.search(r"(\d+) test", fm_result.stdout)
             if m:
