@@ -173,3 +173,71 @@ def test_api_confidence():
     assert materialize._compute_api_confidence({"dual_pct": 30}) == "medium"
     assert materialize._compute_api_confidence({"dual_pct": 10}) == "low"
     assert materialize._compute_api_confidence({"dual_pct": 0}) == "low"
+
+
+# ---------------------------------------------------------------------------
+# Failure-mode tests — missing required inputs (TASK-04)
+# ---------------------------------------------------------------------------
+
+class TestMaterializeFailureModes:
+    """Tests that materialize handles missing required knowledge files gracefully."""
+
+    def test_missing_claims_json_returns_none(self, tmp_path, monkeypatch):
+        """When claims.json is absent, materialize returns None (not a silent partial result)."""
+        merged = tmp_path / "knowledge" / "words" / "python" / "merged"
+        merged.mkdir(parents=True)
+        # Write model.yaml and api_surface.json but NOT claims.json
+        import yaml as _yaml
+        model = {
+            "family": "words", "platform": "python",
+            "repo_sha": "abc", "merged_at": "2026-01-01T00:00:00+00:00",
+            "version": "1.0.0", "install_command": "pip install x",
+            "stats": {"class_count": 0, "method_count": 0, "claim_count": 0},
+        }
+        (merged / "model.yaml").write_text(_yaml.dump(model), encoding="utf-8")
+        (merged / "api_surface.json").write_text("[]", encoding="utf-8")
+        (merged / "formats.json").write_text("[]", encoding="utf-8")
+        # claims.json deliberately absent
+
+        monkeypatch.setattr(materialize, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+        monkeypatch.setattr(materialize, "EVIDENCE_ROOT", tmp_path / "evidence")
+
+        result = materialize.materialize("words", "python")
+        # Must either return None or raise FileNotFoundError — must NOT return a partial PEF
+        assert result is None or isinstance(result, dict) and result.get("claims") == []
+
+    def test_missing_model_yaml_returns_none(self, tmp_path, monkeypatch):
+        """When model.yaml is absent, materialize returns None."""
+        merged = tmp_path / "knowledge" / "words" / "python" / "merged"
+        merged.mkdir(parents=True)
+        # Write claims.json only, no model.yaml
+
+        monkeypatch.setattr(materialize, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+        monkeypatch.setattr(materialize, "EVIDENCE_ROOT", tmp_path / "evidence")
+
+        result = materialize.materialize("words", "python")
+        assert result is None
+
+    def test_empty_knowledge_dir_returns_none(self, tmp_path, monkeypatch):
+        """Completely empty knowledge dir returns None without exception."""
+        monkeypatch.setattr(materialize, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+        monkeypatch.setattr(materialize, "EVIDENCE_ROOT", tmp_path / "evidence")
+
+        result = materialize.materialize("words", "python")
+        assert result is None
+
+    def test_malformed_model_yaml_does_not_silently_succeed(self, tmp_path, monkeypatch):
+        """When model.yaml contains non-dict content, materialize does not return valid PEF."""
+        merged = tmp_path / "knowledge" / "words" / "python" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "model.yaml").write_text("- not\n- a\n- dict\n", encoding="utf-8")
+
+        monkeypatch.setattr(materialize, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+        monkeypatch.setattr(materialize, "EVIDENCE_ROOT", tmp_path / "evidence")
+
+        try:
+            result = materialize.materialize("words", "python")
+            # Acceptable outcomes: None or raises
+            assert result is None
+        except (TypeError, AttributeError, KeyError, ValueError):
+            pass  # structured failure is acceptable

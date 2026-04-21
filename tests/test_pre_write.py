@@ -283,3 +283,91 @@ class TestCLI:
         with patch("pre_write.check_path", return_value=("ALLOW", None)):
             code = main([str(target), "--knowledge-root", str(kr)])
         assert code == 0
+
+
+# ---------------------------------------------------------------------------
+# pre_write_check — stale knowledge model detection (TASK-05)
+# ---------------------------------------------------------------------------
+
+class TestStaleSinceBlock:
+    """Tests that pre_write blocks or warns when model.yaml has stale_since set."""
+
+    def _make_model_yaml(self, tmp_path, stale_since=None):
+        """Create a knowledge model directory with optional stale_since."""
+        import yaml as _yaml
+        merged = tmp_path / "knowledge" / "words" / "python" / "merged"
+        merged.mkdir(parents=True)
+        model = {
+            "family": "words",
+            "platform": "python",
+            "repo_sha": "abc123",
+            "merged_at": "2026-01-01T00:00:00+00:00",
+        }
+        if stale_since is not None:
+            model["stale_since"] = stale_since
+        (merged / "model.yaml").write_text(_yaml.dump(model), encoding="utf-8")
+        return tmp_path
+
+    def test_stale_model_audit_finding_causes_fail(self, tmp_path):
+        """When audit returns a stale-model finding, pre_write returns exit code 1."""
+        target = tmp_path / "content" / "page.md"
+        target.parent.mkdir(parents=True)
+        target.write_text("# Hello\n", encoding="utf-8")
+
+        stale_finding = _make_finding("knowledge model is stale (stale_since: 2026-01-01)", "FAIL")
+        mock_audit = MagicMock(return_value=[stale_finding])
+
+        with patch("pre_write.check_path", return_value=("ALLOW", None)):
+            with patch("pre_write._import_audit_files", return_value=mock_audit):
+                code, msg = pre_write_check(str(target))
+
+        assert code == 1
+        assert "stale" in msg.lower() or "finding(s)" in msg.lower()
+
+    def test_stale_model_message_starts_with_fail(self, tmp_path):
+        """Stale-model finding produces FAIL: prefix."""
+        target = tmp_path / "content" / "page.md"
+        target.parent.mkdir(parents=True)
+        target.write_text("# Hello\n", encoding="utf-8")
+
+        stale_finding = _make_finding("knowledge model is stale (stale_since: 2026-01-01)", "FAIL")
+        mock_audit = MagicMock(return_value=[stale_finding])
+
+        with patch("pre_write.check_path", return_value=("ALLOW", None)):
+            with patch("pre_write._import_audit_files", return_value=mock_audit):
+                code, msg = pre_write_check(str(target))
+
+        assert msg.startswith("FAIL:")
+
+    def test_fresh_model_passes(self, tmp_path):
+        """When audit returns no findings, pre_write returns exit code 0 (fresh model)."""
+        target = tmp_path / "content" / "page.md"
+        target.parent.mkdir(parents=True)
+        target.write_text("# Hello\n", encoding="utf-8")
+
+        mock_audit = MagicMock(return_value=[])  # no findings = model is fresh
+
+        with patch("pre_write.check_path", return_value=("ALLOW", None)):
+            with patch("pre_write._import_audit_files", return_value=mock_audit):
+                code, msg = pre_write_check(str(target))
+
+        assert code == 0
+
+    def test_multiple_findings_including_stale_all_reported(self, tmp_path):
+        """When multiple findings exist including stale, all findings appear in message."""
+        target = tmp_path / "content" / "page.md"
+        target.parent.mkdir(parents=True)
+        target.write_text("# Hello\n", encoding="utf-8")
+
+        findings = [
+            _make_finding("knowledge model is stale (stale_since: 2026-01-01)", "FAIL"),
+            _make_finding("unverified API token: FooClass", "FAIL"),
+        ]
+        mock_audit = MagicMock(return_value=findings)
+
+        with patch("pre_write.check_path", return_value=("ALLOW", None)):
+            with patch("pre_write._import_audit_files", return_value=mock_audit):
+                code, msg = pre_write_check(str(target))
+
+        assert code == 1
+        assert "2 finding(s)" in msg

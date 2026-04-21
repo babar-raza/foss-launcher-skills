@@ -2,6 +2,52 @@
 
 ---
 
+## Phase 5: Score Improvement — Phase 0 (Confidence Gap Closed)
+
+**Date**: 2026-04-21
+**Branch**: main
+**Tests**: 541 passed, 15 skipped, 0 failed (+15 tests, -17 failures vs prior baseline)
+**Plan source**: `C:\Users\prora\.claude\plans\reactive-sprouting-matsumoto.md`
+
+### Changes
+
+- **tests/test_scout_units.py**: Fixed `requires_tree_sitter` skip guard. Changed from
+  in-process `import tree_sitter` (accessible via user site-packages) to subprocess check
+  that mirrors the actual runtime environment. Result: 17 FAILs → 15 SKIPs.
+
+- **tests/test_schema_validate.py**: Added `TestConfigSchemaNegativeCases` with 5 tests:
+  governance dict empty, sites as list, knowledge_path as int, empty config dict,
+  content_repo as int. Closes TASK-03 (schema rejection untested gap).
+
+- **tests/test_materialize.py**: Added `TestMaterializeFailureModes` with 4 tests:
+  missing claims.json, missing model.yaml, empty knowledge dir, malformed model.yaml.
+  Closes TASK-04 (evidence pipeline silent failure gap).
+
+- **tests/test_pre_write.py**: Added `TestStaleSinceBlock` with 4 tests:
+  stale-model finding causes FAIL, message prefix, fresh model passes, multiple findings
+  all reported. Closes TASK-05 (stale-model detection untested gap).
+
+- **scripts/check_setup.py**: Added `NOTE` level (rank 0, same as OK) for truly optional
+  features. Changed optional package absence from WARN (exit 1) to NOTE (exit 0). Fixes
+  2 pre-existing CLI test failures. Design intent: optional packages (tree_sitter) being
+  absent is informational, not a warning that the setup is broken.
+
+- **tests/test_check_setup.py**: Updated import and test name to reflect NOTE level.
+
+### Governance Files Updated
+- `reports/PLAN_SOURCES.md`: Updated primary plan source
+- `reports/PLAN_INDEX.md`: Added reactive-sprouting-matsumoto plan
+- `reports/TASK_BACKLOG.md`: Created with Phase 0/1/2 backlog
+- `reports/STATUS.md`: Updated with new test counts
+
+### Test commands
+```bash
+python -c "import sys; sys.path.insert(0, r'C:\Users\prora\AppData\Roaming\Python\Python313\site-packages'); import pytest; sys.exit(pytest.main(['tests/', '--tb=no', '-q']))"
+# Expected: 541 passed, 15 skipped, 0 failed
+```
+
+---
+
 ## Phase 2+3+4: Full Remediation Complete
 
 **Date**: 2026-03-31

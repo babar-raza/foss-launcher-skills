@@ -1,12 +1,16 @@
 # Status Report
 
-**Last updated**: 2026-03-31
+**Last updated**: 2026-04-21
 **Branch**: main
 **Baseline (import session)**: 224 tests passed, 15 skipped
 **Post-import**: 230 tests passed, 15 skipped (+6 new config tests)
 **Post-audit-remediation Phase 0+1**: 238 tests passed, 7 failed (7 pre-existing scout fixture failures)
 **Post-Phase 2+3**: 364 tests passed, 7 failed (scout fixture failures pending fix)
 **Post-Phase 4 (all workstreams complete)**: 371 tests passed, 0 failed ✅
+**Post-Phase 5 (score improvement Phase 0, 2026-04-21)**: 541 passed, 15 skipped, 0 failed ✅
+  - +15 tests: 5 schema negative-case, 4 materialize failure-mode, 4 pre_write stale-model, 2 check_setup CLI fixes
+  - 17 scout failures → 15 correct skips (fixed subprocess-level skip guard)
+  - check_setup optional packages now emit NOTE (exit 0) not WARN (exit 1)
 
 ---
 

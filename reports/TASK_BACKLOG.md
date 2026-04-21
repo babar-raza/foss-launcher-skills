@@ -1,0 +1,90 @@
+# Task Backlog — Score Improvement + Parity Program
+**Source plans**: `C:\Users\prora\.claude\plans\reactive-sprouting-matsumoto.md` (score improvement) + `C:\Users\prora\.claude\plans\wondrous-skipping-diffie.md` (parity program Sprint 2)
+**Last updated**: 2026-04-21
+
+---
+
+## Parity Program Sprint 2 — ACTIVE BLOCKERS
+
+| ID | Task | Status | Priority | Acceptance |
+|----|------|--------|----------|-----------|
+| TC-020 | Commit sprint 1 work durably (two clean commits) | IN PROGRESS | **BLOCKER** | `git log` shows commit; `git status` clean; 556 tests pass |
+| TC-021 | Resolve translator gap: add backend-absent notice to translate-page/batch | IN PROGRESS | **BLOCKER** | Skill files accurate; verification-log corrected; closure-report corrected |
+| TC-022 | Push to remote + verify CI workflow triggers | PENDING | Follow-up | `git push` succeeds; GH Actions workflow run passes |
+| TC-023 | Hook behavioral test (install + violating commit) | DEFERRED | Non-blocking | Bad commit blocked; clean commit passes |
+| TC-024 | Live content repo smoke test (one skill chain) | DEFERRED | Non-blocking | Skill chain produces correct output against fixture |
+
+---
+
+## Phase 0 — Immediate (DONE ✅)
+
+| ID | Task | Status | Files Changed | Tests Added |
+|----|------|--------|---------------|-------------|
+| P0-1 | Fix scout skip guard (subprocess check for tree_sitter_language_pack) | ✅ DONE | test_scout_units.py | -17 failures → 15 skips |
+| P0-2 | Extend config schema negative tests (TASK-03) | ✅ DONE | test_schema_validate.py | +5 |
+| P0-3 | Add materialize failure-mode tests (TASK-04) | ✅ DONE | test_materialize.py | +4 |
+| P0-4 | Add pre_write stale-model block tests (TASK-05) | ✅ DONE | test_pre_write.py | +4 |
+| P0-5 | Fix check_setup optional-package exit code (NOTE vs WARN) | ✅ DONE | check_setup.py, test_check_setup.py | -2 failures |
+
+**Phase 0 result**: 541 passing, 15 skipped, 0 failed (was: 526 passing, 17 failed)
+
+---
+
+## Phase 1 — Near-term (PENDING)
+
+| ID | Task | Status | Priority | Expected Score Impact |
+|----|------|--------|----------|-----------------------|
+| P1-1 | Commit .github/workflows/skill-governance.yml and enable CI | PENDING | HIGH | Delivery Evidence +10 |
+| P1-2 | Make skill-provenance CI check blocking (not just informational) | PENDING | HIGH | Delivery Evidence +5 |
+| P1-3 | Build scripts/quarterly_readiness.py + S-83 skill | PENDING | MEDIUM | Confidence +2 |
+| P1-4 | Build scripts/verify_claims.py + S-84 skill | PENDING | MEDIUM | Confidence +2 |
+| P1-5 | Auto-generate STATUS.md from test results and git log | PENDING | LOW | Delivery Evidence +2 |
+
+**Phase 1 target**: Overall 58–65 (currently ~50–54 after Phase 0)
+
+---
+
+## Phase 2 — Medium-term (FUTURE)
+
+| ID | Task | Status | Priority | Expected Score Impact |
+|----|------|--------|----------|-----------------------|
+| P2-1 | Add pyproject.toml + src/ package boundary (Model B Phase 1) | FUTURE | HIGH | Code Structure +6 |
+| P2-2 | Fix hardcoded Path("evidence") / Path("knowledge") in scripts | FUTURE | MEDIUM | Code Structure +3 |
+| P2-3 | Add CONTENT_REPO_PATH config-resolution tests | FUTURE | MEDIUM | Testing +2 |
+| P2-4 | Begin launcher deduplication (create launcher_adapter.py) | FUTURE | HIGH | Code Structure +8 |
+| P2-5 | Add versioning contract with upstream launcher (stale detection) | FUTURE | LOW | Architecture +3 |
+
+**Phase 2 target**: Overall 68–75
+
+---
+
+## Governance Changes (ongoing)
+
+| Rule | Enforcement | Status |
+|------|-------------|--------|
+| No config/schema change without negative test | CI gate | PENDING (requires P1-1) |
+| No capability claim without executable test | PR checklist | PENDING |
+| No governance-path expansion without adversarial test | pre-merge gate | PENDING |
+| Commit-msg: "Skills invoked:" required for content commits | CI blocking | PENDING (P1-2) |
+| Quarterly readiness script run before review | CI schedule | PENDING (P1-3) |
+
+---
+
+## New Skills Approved
+
+| ID | Skill | Purpose | Status |
+|----|-------|---------|--------|
+| S-83 | score-readiness | Simulate quarterly reviewer rubric locally | PENDING (P1-3) |
+| S-84 | verify-claims | Trace docs claims to executable tests | PENDING (P1-4) |
+| S-85 | quarterly-report | Auto-generate delivery report from git/CI | FUTURE |
+
+---
+
+## Open Questions
+
+- Q1: Will CI run correctly on ubuntu-latest given Windows-specific test path patterns?
+  → Risk: Medium. Need to verify pytest.ini testpaths and path separators.
+- Q2: Are there other pre-existing test failures hidden by early failures in test runs?
+  → Action: Always run full suite without -x flag.
+- Q3: Does the quarterly reviewer see git history within a 90-day window or the full repo?
+  → Assumption: 90-day window. Phase 1 changes must land ≥90 days before next review.

@@ -1,73 +1,81 @@
 # Plan Sources
 
 ## PrimaryPlanSource
-- **Path**: `C:\Users\prora\.claude\plans\wild-yawning-sprout.md`
-- **Type**: Chat-derived production-readiness audit plan (approved by user 2026-03-31)
-- **Rationale**: 10 production-grade fixes, 8 minimum-ship requirements, 13 major gaps with root
-  causes, complete operator test matrix. Meets SUBSTANTIAL threshold (>=5 steps, acceptance
-  criteria, evidence commands).
+- **Path**: `C:\Users\prora\.claude\plans\reactive-sprouting-matsumoto.md`
+- **Type**: Quarterly-review score-improvement master plan (chat-derived, 2026-04-21)
+- **Rationale**: 12 taskcards, 8 gap categories, phased roadmap, acceptance criteria, evidence
+  commands, governance rules. SUBSTANTIAL (>5 steps, acceptance criteria, evidence commands).
 
 ## ChatExtractedSteps
 
-### Phase 0 — Quick Wins (Fix 7, Fix 10, Fix 5a)
-1. Update AGENTS.md §6: add Phase 1.5 (evidence-materialize→mental-model→evidence-decide) to launch chain
-2. Update AGENTS.md §12: add evidence-materialize (S-44), mental-model (S-45), evidence-decide (S-43) to skill map; fix S-40 numbering collision
-3. Remove `--no-evidence` flag from `scripts/pipeline/audit.py`
-4. Update `skills/content-check.md` evidence citation checks from HTML comments to frontmatter `evidence:` block
-5. Update `skills/evidence-materialize.md` id from S-40 → S-44; `skills/mental-model.md` id from S-41 → S-45
+### Phase 0 — Immediate (Close the Confidence Gap)
+1. Fix scout `requires_tree_sitter` skip guard to also check `tree_sitter_language_pack`
+2. Add adversarial path-guard tests (TASK-01) — already exists in test_path_guard.py ✓
+3. Add no_downgrade_guard fallback tests (TASK-02) — already exists in test_no_downgrade_guard.py ✓
+4. Extend config schema negative tests (TASK-03) — governance.roles, session_limits type errors
+5. Add evidence pipeline failure-mode tests (TASK-04) — materialize/verify with missing inputs
+6. Add pre_write stale-model block test (TASK-05) — stale_since != null → FAIL
+7. Create TASK_BACKLOG.md from all plan sources
+8. Create agent workspace directories for all Phase 0 tasks
 
-### Phase 1 — Foundation (Fix 6, Fix 3, Fix 5b)
-6. Write `QUICKSTART.md` operator guide (prerequisites, install, first run, verify)
-7. Document audit.py vs content_eval relationship in AGENTS.md §12 and README.md
-8. Fix `scripts/pipeline/audit.py` per-file fail count to include evidence findings
+### Phase 1 — Near-term (Delivery Evidence + CI Proof)
+9. Enable CI workflow and commit .github/ untracked files
+10. Make skill-provenance CI check blocking (GW-1, GB-4)
+11. Build scripts/quarterly_readiness.py (GW-4)
 
-### Phase 1 (continued)
-9. Update README.md skill catalog to add 3 evidence skills (S-43, S-44, S-45)
-
-### Phase 2 — Enforcement (Fix 1, Fix 8, Fix 9) — FUTURE
-10. Implement `scripts/path_guard.py` with tests
-11. Implement `scripts/check_setup.py` with tests
-12. Implement append-only `reports/ops.log`
-
-### Phase 3 — Hardening (Fix 2, Fix 4) — FUTURE
-13. Implement `scripts/pre_write.py` mandatory audit hook
-14. Write `tests/test_e2e_pipeline.py` integration test using existing fixtures
+### Phase 2 — Medium-term (Code Structure)
+12. Add pyproject.toml for package boundary (SW-1)
+13. Fix hardcoded evidence paths (SW-2)
+14. Begin launcher deduplication (GB-3)
 
 ## ChatExtractedGapsAndFixes
-- **G-F1**: S-01 path-guard has no script implementation → Phase 2 Fix 1
-- **G-F2**: S-23 ground-check not automatically called in content-writing skills → Phase 3 Fix 2
-- **G-Q1**: No end-to-end integration test → Phase 3 Fix 4
-- **G-D1**: Evidence citation format contradiction (HTML comments vs frontmatter) → Fix 5a (Phase 0)
-- **G-D2**: AGENTS.md §12 skill map missing 3 evidence skills → Fix 7 (Phase 0)
-- **G-D3**: AGENTS.md §6 missing Phase 1.5 in launch chain → Fix 7 (Phase 0)
-- **G-D4**: README.md quickstart incomplete → Fix 6 (Phase 1)
-- **G-A1**: Two parallel validation systems undocumented → Fix 3 (Phase 1)
-- **G-Q4**: `--no-evidence` flag in audit.py → Fix 10 (Phase 0)
-- **G-U1**: Skill numbering collision (two S-40) → Fix 7 (Phase 0)
+- **GB-1**: Fallback/degraded evidence paths untested → TASK-04
+- **GB-2**: Config schema rejection untested → TASK-03
+- **GB-3**: 3,175 duplicate launcher lines → Phase 2
+- **GB-4**: Delivery evidence unenforceable → Phase 1
+- **GB-5**: 15/17 scout test failures visible in git history → Fix skip guard
+- **CR-1**: S-01 path-guard claims untested adversarially → TASK-01 (DONE)
+- **CR-2**: no_downgrade_guard fallback untested → TASK-02 (DONE)
+- **CR-3**: Evidence pipeline silent failures → TASK-04
+- **CR-4**: Commit-msg hook opt-in → Phase 1
+- **CR-5**: Schema negative tests missing → TASK-03
+- **SW-1**: No pyproject.toml → Phase 2
+- **SW-2**: Hardcoded evidence paths → Phase 2
+- **GW-4**: No quarterly readiness self-audit → Phase 1
 
 ## ChatMentionedFiles
-- `AGENTS.md` (update §6, §12)
-- `skills/content-check.md` (fix evidence checks)
-- `skills/evidence-materialize.md` (renumber to S-44)
-- `skills/mental-model.md` (renumber to S-45)
-- `scripts/pipeline/audit.py` (remove --no-evidence, fix per-file fail count)
-- `scripts/pipeline/knowledge_core.py` (verify evidence already has claim_id validation ✓)
-- `QUICKSTART.md` (create)
-- `README.md` (update skill catalog + validation system docs)
+- `tests/test_scout_units.py` (fix requires_tree_sitter guard)
+- `tests/test_schema_validate.py` (extend with negative cases)
+- `tests/test_materialize.py` (extend with missing-input failure modes)
+- `tests/test_verify.py` (extend with malformed PEF failure modes)
+- `tests/test_pre_write.py` (extend with stale_since test)
+- `reports/PLAN_SOURCES.md` (this file)
+- `reports/PLAN_INDEX.md` (update)
+- `reports/TASK_BACKLOG.md` (create)
+- `reports/agents/` (create workspace dirs)
 
 ## SubstantialityCheck
-SUBSTANTIAL: 10 concrete fixes, 8 minimum-ship requirements, 13 gap categories, acceptance criteria ✓
+SUBSTANTIAL: 12 taskcards, acceptance criteria, evidence commands ✓
 
 ## ResolutionStrategy
-Execute Phase 0 quick wins first (no architecture change), then Phase 1 foundation, then Phase 2+3 in future sprint.
+Execute Phase 0 immediately (low-risk test additions + skip-guard fix), then Phase 1 (CI/evidence),
+then Phase 2 (structural refactor). All changes improve real quality AND reviewer-visible signals.
+
+## CoPrimaryPlanSource (2026-04-21, Parity Program Sprint 2)
+- **Path**: `C:\Users\prora\.claude\plans\wondrous-skipping-diffie.md`
+- **Type**: Skill parity program — aspose.org → foss-launcher-skills-gitlab (Sprint 1 complete, Sprint 2 in progress)
+- **Rationale**: TC-020 (commit blocker) + TC-021 (translator gap blocker) are the active critical path. Sprint 1 delivered 42 skills + infrastructure (84 total) but is entirely uncommitted. SUBSTANTIAL: 5 new taskcards, Sprint 2 exit criteria, evidence commands, guardrails.
+- **Active taskcards**: TC-020 (commit), TC-021 (translator gap), TC-022 (CI), TC-023 (hook behavioral), TC-024 (live content)
 
 ## SecondarySources
+- `C:\Users\prora\.claude\plans\wild-yawning-sprout.md` — prior production-readiness plan (completed)
 - `C:\Users\prora\.claude\plans\floating-imagining-bunny.md` — prior migration plan (completed)
-- `AGENTS.md` (repo governance, read-first)
-- `README.md` (project documentation)
-- `reports/STATUS.md` (self-assessment with G-4/G-5/G-6 deferred gates)
+- `AGENTS.md` (repo governance)
+- `reports/skills-product-audit/migration-plan.md` (7-phase migration plan, Phases 1-6 unstarted)
+- `reports/STATUS.md` (self-assessment)
 
 ## MissingCandidates
-- `scripts/path_guard.py` — needs to be created (Phase 2)
-- `scripts/check_setup.py` — needs to be created (Phase 2)
-- `tests/test_e2e_pipeline.py` — needs to be created (Phase 3)
+- `pyproject.toml` — needs to be created (Phase 2)
+- `scripts/quarterly_readiness.py` — needs to be created (Phase 1)
+- `skills/score-readiness.md` — needs to be created (Phase 1)
+- `skills/verify-claims.md` — needs to be created (Phase 1)

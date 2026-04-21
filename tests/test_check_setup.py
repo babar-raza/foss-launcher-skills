@@ -12,7 +12,7 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
-from check_setup import OK, WARN, ERROR, check_setup, _print_issues  # noqa: E402
+from check_setup import OK, NOTE, WARN, ERROR, check_setup, _print_issues  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -157,8 +157,9 @@ class TestPackageChecks:
         assert pkg_issues, "Expected a check for pathlib package"
         assert pkg_issues[0][0] == OK
 
-    def test_tree_sitter_missing_gives_warn(self, tmp_path):
-        """Simulate tree_sitter missing via injectable optional packages — WARN, not ERROR."""
+    def test_tree_sitter_missing_gives_note(self, tmp_path):
+        """Simulate tree_sitter missing via injectable optional packages — NOTE (not WARN/ERROR).
+        Optional packages are informational only; their absence does not raise exit code."""
         # Inject a fake optional package that does not exist
         issues = check_setup(
             config={},
@@ -167,7 +168,7 @@ class TestPackageChecks:
         )
         ts_issues = [(lvl, msg) for lvl, msg in issues if "tree_sitter_nonexistent_xyz" in msg]
         assert ts_issues, "Expected a check result for the fake tree_sitter package"
-        assert ts_issues[0][0] == WARN, f"Expected WARN, got {ts_issues[0][0]}"
+        assert ts_issues[0][0] == NOTE, f"Expected NOTE, got {ts_issues[0][0]}"
 
     def test_missing_required_package_gives_error(self, tmp_path):
         """Simulate a required package missing via injectable packages — should produce ERROR."""

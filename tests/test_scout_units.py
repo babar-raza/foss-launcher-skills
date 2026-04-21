@@ -18,9 +18,13 @@ SCOUT_SCRIPT = REPO_ROOT / "scripts" / "scout.py"
 # ---------------------------------------------------------------------------
 
 try:
-    import tree_sitter  # noqa: F401
-    HAS_TREE_SITTER = True
-except ImportError:
+    _check = subprocess.run(
+        [sys.executable, "-c",
+         "import tree_sitter; import tree_sitter_language_pack"],
+        capture_output=True, text=True, timeout=10,
+    )
+    HAS_TREE_SITTER = _check.returncode == 0
+except Exception:
     HAS_TREE_SITTER = False
 
 requires_tree_sitter = pytest.mark.skipif(

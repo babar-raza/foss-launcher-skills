@@ -25,10 +25,11 @@ from config_loader import ConfigError  # noqa: E402
 # Level constants
 # ---------------------------------------------------------------------------
 OK = "OK"
+NOTE = "NOTE"   # informational: optional feature unavailable; does not affect exit code
 WARN = "WARN"
 ERROR = "ERROR"
 
-_LEVEL_RANK = {OK: 0, WARN: 1, ERROR: 2}
+_LEVEL_RANK = {OK: 0, NOTE: 0, WARN: 1, ERROR: 2}
 
 # Knowledge readiness thresholds — override via config.yaml:knowledge_readiness
 _DEFAULT_MIN_CLAIMS = 50
@@ -130,7 +131,7 @@ def check_setup(
             importlib.import_module(pkg)
             issues.append((OK, f"package '{pkg}' importable"))
         except ImportError:
-            issues.append((WARN, f"package '{pkg}' not installed — {note}"))
+            issues.append((NOTE, f"package '{pkg}' not installed — {note}"))
 
     # -------------------------------------------------------------------------
     # Check 5: Knowledge model existence and readiness (family + platform required)
