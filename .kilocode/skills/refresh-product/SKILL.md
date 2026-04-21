@@ -83,6 +83,16 @@ Do not run any subsequent steps. Exit 0.
    - Produces `delta.pages_to_add`, `pages_to_update`, `pages_to_remove`, `pages_renamed`
    - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step delta_site_plan`
 
+3.5. **Page Impact Assessment**:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/page_impact_assess.py {family} {platform}
+   ```
+   - Scores every English page HIGH_IMPACT / MEDIUM_IMPACT / LOW_IMPACT / NOT_AFFECTED
+     based on body text signals vs `knowledge_delta.json` (class names, method names, claim keywords)
+   - Writes `reports/refresh_review/{family}/{platform}/page_impact.json`
+   - **If `knowledge_delta.json` absent**: step is skipped with WARNING; chain continues
+   - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step page_impact_assess`
+
 4. **Update stale existing pages** (S-20: page-update):
    ```
    /page-update {family} {platform}
@@ -114,6 +124,10 @@ Do not run any subsequent steps. Exit 0.
    ```
    - Regenerates only reference pages for classes in `knowledge_delta.json modified_apis`
    - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step reference_update`
+   - **Write execution reconciliation** (after all content steps complete):
+     ```bash
+     .venv/Scripts/python scripts/pipeline/post_refresh_verify.py {family} {platform} --reconcile
+     ```
 
 8. **Family page sync** (S-48: family-sync):
    ```
@@ -177,6 +191,15 @@ Do not run any subsequent steps. Exit 0.
 
     **If verification fails**: do NOT proceed to Step 14. Fix the reported issues and re-run
     the failing sub-steps, then re-run `--verify`. Commit only after verification passes.
+
+13.5. **Coverage report**:
+    ```bash
+    .venv/Scripts/python scripts/pipeline/refresh_review.py {family} {platform} --report
+    ```
+    Writes `reports/refresh_review/{family}/{platform}/coverage_report.md` with per-subdomain
+    counts (total, body_updated, evidence_only, not_affected, retired).
+    - If coverage < 100%: emits WARNING and includes gap in commit message; does NOT abort commit
+    - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step coverage_report`
 
 14. **Commit** (S-76: commit):
     ```

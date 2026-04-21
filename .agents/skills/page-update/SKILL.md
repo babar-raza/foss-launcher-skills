@@ -50,10 +50,19 @@ After a knowledge refresh (S-14), identify which content pages reference changed
    fall back to stale_detect scan — scan all pages for evidence.model_sha mismatch to find affected pages.
    Log: `WARN: knowledge_delta.json not found; falling back to stale_detect scan for affected pages.`
 
-4. **Find affected pages**: Scan content files for the product:
+4. **Find affected pages** (dual-path logic: citation-match + PIA-match):
    - For product-wide scope: scan all `.md` files under the product's content paths (docs, kb, blog, reference)
    - Read each page's `evidence:` frontmatter
-   - A page is affected if its `claims` or `apis` arrays reference any changed/removed item
+   - **Citation-match path**: A page is affected if its `claims` or `apis` arrays reference any changed/removed item
+   - **PIA-match path**: Load `reports/refresh_review/{family}/{platform}/page_impact.json` if present.
+     Add any page with `pia_score` of `HIGH_IMPACT` or `MEDIUM_IMPACT` to the affected-pages list,
+     even if its `evidence.claims`/`evidence.apis` have no delta overlap.
+     - For `MEDIUM_IMPACT` pages: perform LLM-assisted semantic review against current `claims.json`;
+       body updated only if review confirms change is warranted.
+     - If `LLM_API_KEY` absent and page is `MEDIUM_IMPACT` only (not citation-matched):
+       flag as `NEEDS_HUMAN_REVIEW` in page_decisions.json; do not silently skip.
+     - If `page_impact.json` absent: skip PIA-match path with a WARN; citation-match still runs.
+   - De-duplicate: pages found by both paths are processed once
 
 5. **For each affected page**, produce an update plan:
    - Map each removed/modified claim to the paragraph(s) that reference it
@@ -85,6 +94,24 @@ After a knowledge refresh (S-14), identify which content pages reference changed
    - Update code blocks if API surface changed (use snippets from `knowledge/{family}/{platform}/snippets/`)
    - Update `evidence:` frontmatter: remove orphaned claim IDs, add new ones
    - Update `model_sha` in evidence frontmatter to current value
+   - **Record decision after each page**:
+     ```bash
+     .venv/Scripts/python scripts/pipeline/refresh_review.py {family} {platform} \
+         --record-decision --path {relative_file_path} \
+         --decision {BODY_UPDATED|EVIDENCE_ONLY} \
+         --reason "{delta_signal_description}" \
+         [--body-changed]   # only when body prose was modified
+     ```
+     Decision rules:
+     - Pages with body prose changes → `BODY_UPDATED` (pass `--body-changed`)
+     - Pages with only `evidence.model_sha` updated → `EVIDENCE_ONLY`
+     - Pages assessed as NOT_AFFECTED by PIA but still scanned → `NOT_AFFECTED`
+     - Blog posts set to `draft: true` → `RETIRED`
+   - Also call `record_pages` for tracking:
+     ```bash
+     .venv/Scripts/python scripts/pipeline/post_refresh_verify.py {family} {platform} \
+         --step page_update --updated {space_separated_updated_paths}
+     ```
 
 8. **Run ground-check** on each updated page:
    ```bash

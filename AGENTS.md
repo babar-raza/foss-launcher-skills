@@ -343,6 +343,10 @@ S-12 (knowledge-diff — detect + fetch)       [exits early if no SHA change]
 Progress is tracked at `reports/refresh_state/{family}/{platform}/progress.json`.
 Check status: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --status`
 
+> **Refresh is complete only when** `reports/refresh_review/{family}/{platform}/coverage_report.md`
+> shows all 5 subdomains with `assessed > 0` and `post_refresh_verify --verify` exits 0 (Check 6).
+> "Evidence refreshed" alone is not sufficient — body accuracy requires per-page PIA scoring.
+
 ### Audit-driven healing (content wrong but upstream SHA unchanged)
 
 Use when S-84 exits early ("no SHA change") but content is known or suspected to be wrong.
@@ -1297,6 +1301,7 @@ Use this matrix to decide what action is required when a specific artifact or sc
 | `AGENTS.md` changed | Verify CLAUDE.md §6 alignment (see CLAUDE.md alignment note) | Self |
 | Running `batch_reference` (S-62) for a product | Verify member-doc ERC coverage ≥ 20% per product first: `python scripts/pipeline/description_coverage_audit.py`; if any product is below threshold, run `enrich --mode member-doc` then `promote.py` before generating reference pages | Per product |
 | `enrich.py --mode member-doc` completed | Run `promote.py` to merge enriched claims, then verify coverage with `description_coverage_audit.py` | Per product |
+| Refresh produces `coverage_report.md` showing < 100% subdomain coverage | Re-run `/refresh-product {family} {platform}` to fill gaps; or manually run `refresh_review.py {family} {platform} --report` to assess which subdomains were missed | Per product |
 
 **Manual edit after content-only change**: Use S-73 (manual-edit) → re-run S-23 + audit.py. Do not re-run knowledge bootstrap unless `stale_since` is set — content-only edits do not require knowledge regeneration.
 
@@ -1908,7 +1913,7 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | knowledge-coverage-audit | S-81 | Per-claim disposition table: maps every claim in merged/claims.json to exactly one disposition (USED_EVIDENCE / SURFACE_ONLY / EXCLUDED_THRESHOLD / EXCLUDED_TIER / ORPHANED); writes `reports/coverage/{family}/{platform}/knowledge_coverage.json` and `.md`; backs `scripts/pipeline/knowledge_coverage.py` |
 | delta-site-plan | S-82 | Incremental site planning after knowledge update: runs `site_planner.py --mode update` to compute pages_to_add, pages_to_update, pages_to_remove, pages_renamed; writes delta section to site_plan.yaml; requires knowledge_delta.json from S-14 |
 | page-retire | S-83 | Retire obsolete content pages via `draft: true` + `retired_at` frontmatter (Hugo standard); never deletes files; dual-signal retirement rule (cluster + claim signal); --dry-run first; backs `scripts/pipeline/retire_page.py` |
-| refresh-product | S-84 | Full post-launch product refresh orchestration: 14-step chain from S-12 (detect) through S-14, S-82, S-20, delta-dispatch, S-83, S-62 --update, S-48, S-23, S-65, S-53, progress tracking, verification gate (post_refresh_verify --verify), and S-76 (commit); early-exit if no SHA change |
+| refresh-product | S-84 | Full post-launch product refresh orchestration: 16-step chain from S-12 (detect) through S-14, S-82, **Step 3.5 PIA** (page_impact_assess.py), S-20, delta-dispatch, S-83, S-62 --update, S-48, S-23, S-65, S-53, **Step 13.5 coverage-report** (refresh_review.py), verification gate (post_refresh_verify --verify including Check 6 coverage completeness), and S-76 (commit); early-exit if no SHA change; post-conditions: `reports/refresh_review/{family}/{platform}/page_decisions.json` covers all 5 subdomains + `coverage_report.md` shows all subdomains assessed |
 | truth-audit-content | S-85 | Line-level content truth audit against clone cache and knowledge model (read-only; decomposes pages into units, verifies each, produces gap ledger); backs `scripts/pipeline/truth_audit_content.py` |
 | refresh-product-page | S-86 | Re-generate a single products.aspose.org landing page through the full S-61 pipeline with no-downgrade-guard protection; use when S-61 template has been improved and existing pages should benefit |
 | system-heal | S-87 | Audit-driven content healing: deterministic baseline (--no-llm) → extended baseline (LLM + tier3_cache) → origin classification (origin_map.py) → content healing (S-74/S-46/S-26 by route) → pipeline evidence report → re-verify → commit or escalate; 8-phase; max 50 findings (use S-44+S-46 above that); AMBIGUOUS and tier3_non_determinism_flag findings never auto-repaired; backs `scripts/gap-eval/origin_map.py` + `scripts/gap-eval/tier3_cache.py` |
