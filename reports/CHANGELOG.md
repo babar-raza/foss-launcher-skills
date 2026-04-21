@@ -2,6 +2,39 @@
 
 ---
 
+## Phase 9: Pytest Discovery Fix + Launcher Boundary + Score 93.8
+
+**Date**: 2026-04-21
+**Branch**: main
+**Commits**: `3ee900a` (launcher_adapter.py), `fb9ce17` (quarterly_readiness.py fix)
+**Tests**: 579 passed, 0 failed
+**Score**: 93.8 overall (Testing 100.0, Delivery Evidence 90.0, Governance 100.0, Code Structure 85.0)
+
+### quarterly_readiness.py — pytest discovery fix (fb9ce17)
+
+On Windows, pytest installs to user site-packages rather than system Python.
+The subprocess calls in `score_testing()` could not find pytest, causing Testing
+to fall back to 40.0 (heuristic). Fixed by discovering `site.getusersitepackages()`
+and injecting `PYTHONPATH` into the subprocess environment. Score jumped 75.8 → 93.8.
+
+### launcher_adapter.py — upstream boundary layer (3ee900a)
+
+Added `scripts/launcher_adapter.py` (P2-4): explicit boundary for 8 launcher-origin
+scripts (scout, merge, index, embed, corpus_scan, golden_index, golden_conformance,
+refresh_golden). Provides SHA-256 drift detection, named registry, and subprocess
+wrappers. 31 tests in `tests/test_launcher_adapter.py`.
+
+### Score progression
+
+| Phase | Score | Key change |
+|-------|-------|-----------|
+| Baseline | 46.7 | Pre-improvement |
+| Phase 1 | 62.9 | Delivery evidence scripts |
+| Phase 2 | 76.2 | Code structure (pyproject.toml, path fixes) |
+| Phase 9 | 93.8 | Pytest discovery fix, launcher boundary, hooks |
+
+---
+
 ## Phase 8: Phase 2 Code Structure Improvements
 
 **Date**: 2026-04-21

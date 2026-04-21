@@ -51,10 +51,10 @@
 | P2-1 | Add pyproject.toml + src/ package boundary (Model B Phase 1) | ✅ DONE | HIGH | Committed bc14ef4; pyproject.toml with metadata, entry points, optional extras |
 | P2-2 | Fix hardcoded Path("evidence") / Path("knowledge") in scripts | ✅ DONE | MEDIUM | Committed 3dd419d; 9 main scripts + resolve_evidence_root() added to config_loader |
 | P2-3 | Add CONTENT_REPO_PATH config-resolution tests | ✅ DONE | MEDIUM | Committed 4faa4df; 11 new tests; 558 passing, 15 skipped |
-| P2-4 | Begin launcher deduplication (create launcher_adapter.py) | FUTURE | HIGH | Code Structure +8 |
+| P2-4 | Begin launcher deduplication (create launcher_adapter.py) | ✅ DONE | HIGH | Committed 3ee900a; 31 tests; Code Structure 85.0 |
 | P2-5 | Add versioning contract with upstream launcher (stale detection) | FUTURE | LOW | Architecture +3 |
 
-**Phase 2 result (P2-1/2/3)**: 558 passed, 15 skipped, 0 failed. Phase 2 target: Overall 68–75.
+**Phase 2 result (P2-1/2/3/4)**: 579 passed, 0 failed. Overall score: **93.8** (target was 68–75).
 
 ---
 
