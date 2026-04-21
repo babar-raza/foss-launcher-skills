@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68", "setuptools-scm>=8"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "foss-launcher-skills"
+version = "0.1.0"
+description = "Standalone skills system for FOSS product documentation generation"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "pyyaml>=6.0",
+    "requests>=2.28",
+]
+
+[project.optional-dependencies]
+scout = [
+    "tree-sitter>=0.25",
+    "tree-sitter-language-pack>=0.13",
+]
+embed = [
+    "requests>=2.28",
+]
+dev = [
+    "pytest>=9",
+    "pytest-mock>=3",
+]
+
+[project.scripts]
+foss-audit     = "scripts.audit:main"
+foss-check     = "scripts.check_setup:main"
+foss-materialize = "scripts.materialize:main"
+foss-verify    = "scripts.verify:main"
+foss-decide    = "scripts.decide:main"
+foss-validate  = "scripts.validate_skills:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["scripts*"]
+exclude = ["tests*", "reports*", "docs*"]
+
+[tool.setuptools.package-data]
+"scripts" = ["*.yaml", "*.json", "*.txt"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "scout: tests requiring tree-sitter (may be slow or unavailable)",
+    "integration: end-to-end integration tests using fixture data only",
+]
