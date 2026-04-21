@@ -4,8 +4,8 @@
 
 | Metric | Value |
 |--------|-------|
-| Overall (estimated) | **76.2** |
-| Raw before penalty | 76.2 |
+| Overall (estimated) | **90.0** |
+| Raw before penalty | 90.0 |
 | Confidence adjustment | 0.0 |
 | Readiness | READY (≥60) |
 
@@ -15,13 +15,13 @@
 |-----------|-------|
 | Testing | 100.0 |
 | Delivery Evidence | 90.0 |
-| Governance | 50.0 |
-| Code Structure | 55.0 |
+| Governance | 100.0 |
+| Code Structure | 70.0 |
 
 ## Notes by Dimension
 
 ### Testing
-- Tests: 541 passed, 0 failed (pass_rate=100.0%)
+- Tests: 548 passed, 0 failed (pass_rate=100.0%)
 - Failure-mode tests detected: ~3438 (bonus: +25.0)
 
 ### Delivery Evidence
@@ -34,11 +34,11 @@
 ### Governance
 - PASS: AGENTS.md present
 - PASS: skill registry validates
-- WARN: commit-msg hook not installed — run scripts/install-hooks.sh
-- NOTE: pre-commit hook not installed
+- PASS: commit-msg hook installed
+- PASS: pre-commit hook installed
 
 ### Code Structure
-- WARN: pyproject.toml absent — Phase 2 work needed
+- PASS: pyproject.toml present (package boundary)
 - PASS: no hardcoded Path("evidence") in scripts/
 - WARN: scripts/scout.py is 2127 lines — launcher duplication risk
 

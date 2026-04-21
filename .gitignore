@@ -49,6 +49,7 @@ htmlcov/
 # Generated reports
 reports/agents/
 reports/conformance/*.json
+reports/content_eval/
 
 # Golden corpus (can be regenerated from content)
 # Uncomment if you want to exclude golden corpus
