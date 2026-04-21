@@ -11,8 +11,12 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-KNOWLEDGE_ROOT = Path("knowledge")
-EVIDENCE_ROOT = Path("evidence")
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from config_loader import resolve_evidence_root as _resolve_evidence_root
+from config_loader import resolve_knowledge_root as _resolve_knowledge_root
+
+KNOWLEDGE_ROOT = _resolve_knowledge_root()
+EVIDENCE_ROOT = _resolve_evidence_root()
 
 
 def _display_name(family):

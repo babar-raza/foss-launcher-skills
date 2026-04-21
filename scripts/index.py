@@ -9,7 +9,10 @@ import sys
 import yaml
 from pathlib import Path
 
-KNOWLEDGE_ROOT = Path("knowledge")
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from config_loader import resolve_knowledge_root as _resolve_knowledge_root
+
+KNOWLEDGE_ROOT = _resolve_knowledge_root()
 
 
 def _install_command(family, platform, version=""):

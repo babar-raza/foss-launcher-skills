@@ -18,7 +18,7 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
-from config_loader import golden_corpus_config, load_config, resolve_content_repo, resolve_golden_dir
+from config_loader import golden_corpus_config, load_config, resolve_content_repo, resolve_golden_dir, resolve_knowledge_root as _resolve_knowledge_root
 
 
 def _parse_frontmatter(text):
@@ -296,7 +296,7 @@ def _determine_richness_tier(page_count, family, platform):
     # Check API surface size from knowledge model if available
     api_class_count = 0
     try:
-        index_path = Path("knowledge") / family / platform / "merged" / "index.json"
+        index_path = _resolve_knowledge_root() / family / platform / "merged" / "index.json"
         if index_path.is_file():
             kindex = json.loads(index_path.read_text(encoding="utf-8"))
             api_class_count = len(kindex.get("classes", []))
@@ -356,7 +356,7 @@ def scan(family, platform, site_type):
 
     # Write profile
     profile_dir_name = corpus_cfg.get("profile_dir", "_corpus")
-    out_dir = Path("knowledge") / family / platform / profile_dir_name
+    out_dir = _resolve_knowledge_root() / family / platform / profile_dir_name
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"{site_type}_profile.json"
     out_path.write_text(json.dumps(profile, indent=2, ensure_ascii=False), encoding="utf-8")

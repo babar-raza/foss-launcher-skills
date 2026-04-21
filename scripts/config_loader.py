@@ -166,6 +166,18 @@ def resolve_knowledge_root() -> Path:
     return Path(root)
 
 
+def resolve_evidence_root() -> Path:
+    """Resolve the base evidence directory (not per-product).
+
+    Resolution order:
+      1. evidence_root field in config.yaml
+      2. evidence/ relative to CWD (fallback)
+    """
+    config = load_config()
+    root = config.get("evidence_root", "evidence")
+    return Path(root)
+
+
 def resolve_reports_root() -> Path:
     """Resolve the base reports directory.
 

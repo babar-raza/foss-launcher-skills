@@ -23,6 +23,9 @@ import yaml
 from datetime import datetime, timezone
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from config_loader import resolve_knowledge_root as _resolve_knowledge_root
+
 # Same criteria as _is_public_api_entry in index.py — must stay in sync.
 _TEST_PATH_PATTERNS = ("tests/", "/tests/", "/test_", "test_", "conftest")
 _INTERNAL_PATH_PATTERNS = ("/_internal/", "/_private/", "/_impl/")
@@ -467,7 +470,7 @@ def merge(family, platform):
     (LLM-enriched, confidence varies) using provenance tagging.  When fl/
     is absent the output is identical to the previous scout-only behaviour.
     """
-    base = Path("knowledge") / family / platform
+    base = _resolve_knowledge_root() / family / platform
     scout_dir = base / "scout"
     fl_dir = base / "fl"
     merged_dir = base / "merged"

@@ -20,6 +20,9 @@ from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from config_loader import resolve_knowledge_root as _resolve_knowledge_root
+
 try:
     import requests
 except ImportError:
@@ -362,7 +365,7 @@ def embed_knowledge(
 
 def discover_targets() -> list[tuple[str, str]]:
     """Find all family/platform pairs with merged knowledge."""
-    knowledge_root = Path("knowledge")
+    knowledge_root = _resolve_knowledge_root()
     targets: list[tuple[str, str]] = []
     if not knowledge_root.exists():
         return targets

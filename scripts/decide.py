@@ -8,7 +8,10 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-EVIDENCE_ROOT = Path("evidence")
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from config_loader import resolve_evidence_root as _resolve_evidence_root
+
+EVIDENCE_ROOT = _resolve_evidence_root()
 
 # Core page types every product should have
 CORE_PAGES = [
