@@ -79,7 +79,12 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
    .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json
    ```
 
-10. **Check improvement**: If grade is now C or above, report success and exit.
+10. **Check improvement**: If grade is now C or above, persist the grade and report success:
+    ```bash
+    .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --write-grade-if-policy-met
+    ```
+    This writes the new canonical grade via the write policy gate (WP-01) — body changed + grade improved.
+    Then exit.
 
 11. **Healing pass 2** (if still D or F): Apply more aggressive fixes:
 
@@ -108,7 +113,13 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
     ```
     The `content_hash` will be normalized automatically by the pre-commit hook — do not compute or pass it here.
 
-14. **Final decision**:
+14. **Persist grade update**: If body changed and grade improved, persist the new canonical grade:
+    ```bash
+    .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --write-grade-if-policy-met
+    ```
+    The write policy gate (WP-01) ensures grades are only written when body content changed and the grade actually changed (or on first grading). Do not use `--write-grade` (force mode) here.
+
+15. **Final decision**:
     - If grade C or above: report success
     - If still D or F: **invoke S-90 (`/publish-readiness-review`)** — do not halt and
       write a generic escalation item. S-90 will inspect the page, classify the remaining
@@ -118,7 +129,7 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
       If S-90 also cannot resolve the grade (Grade F after 2 S-26 passes + 1 S-89 pass):
       S-90 records the real escalation with concrete reason.
 
-15. **Report**:
+16. **Report**:
     ```
     HEAL PAGE — {file-path}
     Initial grade: {letter}
