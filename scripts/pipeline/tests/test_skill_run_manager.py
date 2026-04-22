@@ -32,9 +32,12 @@ def _load_record(runs_dir: Path) -> dict:
     return json.loads(files[0].read_text(encoding="utf-8"))
 
 
-def _patch_dirs(tmp_path: Path, monkeypatch) -> None:
-    """Patch _RUNS_DIR so file I/O goes to tmp_path instead of the real reports/ directory."""
-    monkeypatch.setattr(skill_run_manager, "_RUNS_DIR", tmp_path)
+@pytest.fixture(autouse=True)
+def _isolate_runs_dir(tmp_path):
+    """Redirect _RUNS_DIR to tmp_path for all tests; reset after each."""
+    skill_run_manager.configure(runs_dir=tmp_path)
+    yield
+    skill_run_manager.configure()
 
 
 # ---------------------------------------------------------------------------
@@ -42,8 +45,7 @@ def _patch_dirs(tmp_path: Path, monkeypatch) -> None:
 # ---------------------------------------------------------------------------
 
 class TestCreate:
-    def test_create_writes_required_fields(self, tmp_path, monkeypatch):
-        _patch_dirs(tmp_path, monkeypatch)
+    def test_create_writes_required_fields(self, tmp_path):
         rc = skill_run_manager.main(["create", "--skills", "S-48"])
         assert rc == 0
         record = _load_record(tmp_path)
@@ -53,8 +55,7 @@ class TestCreate:
         assert record["commit_sha"] is None
         assert record["completed_at"] is None
 
-    def test_create_retroactive_flag(self, tmp_path, monkeypatch):
-        _patch_dirs(tmp_path, monkeypatch)
+    def test_create_retroactive_flag(self, tmp_path):
         rc = skill_run_manager.main(["create", "--skills", "S-48", "--retroactive"])
         assert rc == 0
         record = _load_record(tmp_path)
@@ -67,8 +68,7 @@ class TestCreate:
 # ---------------------------------------------------------------------------
 
 class TestRecordStep:
-    def test_record_step_appends_to_skill_details(self, tmp_path, monkeypatch):
-        _patch_dirs(tmp_path, monkeypatch)
+    def test_record_step_appends_to_skill_details(self, tmp_path):
         skill_run_manager.main(["create", "--skills", "S-48"])
         run_id = _get_run_id(tmp_path)
 
@@ -82,8 +82,7 @@ class TestRecordStep:
         assert record["skill_details"][0]["skill_id"] == "S-48"
         assert record["skill_details"][0]["invocation_type"] == "full"
 
-    def test_record_step_missing_record_returns_2(self, tmp_path, monkeypatch):
-        _patch_dirs(tmp_path, monkeypatch)
+    def test_record_step_missing_record_returns_2(self, tmp_path):
         rc = skill_run_manager.main([
             "record-step", "--run-id", "nonexistent-id",
             "--skill", "S-48", "--type", "full",
@@ -96,8 +95,7 @@ class TestRecordStep:
 # ---------------------------------------------------------------------------
 
 class TestGetDeclaredSkills:
-    def test_returns_all_invoked_skills(self, tmp_path, monkeypatch, capsys):
-        _patch_dirs(tmp_path, monkeypatch)
+    def test_returns_all_invoked_skills(self, tmp_path, capsys):
         skill_run_manager.main(["create", "--skills", "S-48", "S-23"])
         run_id = _get_run_id(tmp_path)
 
@@ -117,9 +115,8 @@ class TestGetDeclaredSkills:
         assert "S-48" in out
         assert "S-23" in out
 
-    def test_inline_reasoning_type_rejected(self, tmp_path, monkeypatch):
+    def test_inline_reasoning_type_rejected(self, tmp_path):
         """inline_reasoning is no longer a valid invocation type."""
-        _patch_dirs(tmp_path, monkeypatch)
         skill_run_manager.main(["create", "--skills", "S-48"])
         run_id = _get_run_id(tmp_path)
 
@@ -129,9 +126,8 @@ class TestGetDeclaredSkills:
                 "--skill", "S-48", "--type", "inline_reasoning",
             ])
 
-    def test_gap_approved_requires_report(self, tmp_path, monkeypatch):
+    def test_gap_approved_requires_report(self, tmp_path):
         """gap_approved type requires --gap-report argument."""
-        _patch_dirs(tmp_path, monkeypatch)
         skill_run_manager.main(["create", "--skills", "S-48"])
         run_id = _get_run_id(tmp_path)
 
@@ -147,8 +143,7 @@ class TestGetDeclaredSkills:
 # ---------------------------------------------------------------------------
 
 class TestValidate:
-    def test_matching_declaration_exits_0(self, tmp_path, monkeypatch):
-        _patch_dirs(tmp_path, monkeypatch)
+    def test_matching_declaration_exits_0(self, tmp_path):
         skill_run_manager.main(["create", "--skills", "S-48"])
         run_id = _get_run_id(tmp_path)
 
@@ -157,9 +152,8 @@ class TestValidate:
         ])
         assert rc == 0
 
-    def test_extra_declared_skill_exits_1(self, tmp_path, monkeypatch):
+    def test_extra_declared_skill_exits_1(self, tmp_path):
         """Declaring S-99 when record only has S-48 is a false positive."""
-        _patch_dirs(tmp_path, monkeypatch)
         skill_run_manager.main(["create", "--skills", "S-48"])
         run_id = _get_run_id(tmp_path)
 
@@ -168,9 +162,8 @@ class TestValidate:
         ])
         assert rc == 1
 
-    def test_full_and_partial_both_declared(self, tmp_path, monkeypatch):
+    def test_full_and_partial_both_declared(self, tmp_path):
         """Both full and partial invocation types are valid for declaration."""
-        _patch_dirs(tmp_path, monkeypatch)
         skill_run_manager.main(["create", "--skills", "S-73", "S-01"])
         run_id = _get_run_id(tmp_path)
 
@@ -189,9 +182,8 @@ class TestValidate:
         ])
         assert rc == 0
 
-    def test_undeclared_skill_fails(self, tmp_path, monkeypatch):
+    def test_undeclared_skill_fails(self, tmp_path):
         """Not declaring a recorded skill is a false negative."""
-        _patch_dirs(tmp_path, monkeypatch)
         skill_run_manager.main(["create", "--skills", "S-73", "S-01"])
         run_id = _get_run_id(tmp_path)
 
@@ -201,9 +193,8 @@ class TestValidate:
         ])
         assert rc == 1
 
-    def test_no_record_at_all_exits_1(self, tmp_path, monkeypatch):
+    def test_no_record_at_all_exits_1(self, tmp_path):
         """Declaring a skill with no record entry at all is invalid."""
-        _patch_dirs(tmp_path, monkeypatch)
         skill_run_manager.main(["create", "--skills", "S-73"])
         run_id = _get_run_id(tmp_path)
 
@@ -224,8 +215,7 @@ class TestValidate:
 # ---------------------------------------------------------------------------
 
 class TestFinalize:
-    def test_finalize_sets_outcome_and_sha(self, tmp_path, monkeypatch):
-        _patch_dirs(tmp_path, monkeypatch)
+    def test_finalize_sets_outcome_and_sha(self, tmp_path):
         skill_run_manager.main(["create", "--skills", "S-48"])
         run_id = _get_run_id(tmp_path)
 
