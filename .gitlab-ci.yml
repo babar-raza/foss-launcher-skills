@@ -1,0 +1,155 @@
+# .gitlab-ci.yml — Skill Governance Pipeline for GitLab CI
+# Mirrors .github/workflows/skill-governance.yml for the GitLab remote.
+
+stages:
+  - validate
+  - test
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  PYTHON_VERSION: "3.11"
+
+default:
+  image: python:${PYTHON_VERSION}-slim
+  before_script:
+    - pip install --quiet pyyaml pytest pytest-mock jsonschema
+
+cache:
+  paths:
+    - .cache/pip
+
+# ── Stage: validate ─────────────────────────────────────────────────────────
+
+registry-integrity:
+  stage: validate
+  script:
+    - python scripts/validate_skills.py
+  rules:
+    - changes:
+        - skills/**/*
+        - scripts/**/*
+        - AGENTS.md
+        - README.md
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+commands-sync:
+  stage: validate
+  script:
+    - python scripts/sync_commands.py --check
+  rules:
+    - changes:
+        - skills/**/*
+        - .claude/commands/**/*
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+agents-sync:
+  stage: validate
+  script:
+    - python scripts/sync_agents.py --check
+  rules:
+    - changes:
+        - skills/**/*
+        - .agents/skills/**/*
+        - .kilocode/skills/**/*
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+readme-currency:
+  stage: validate
+  script:
+    - python scripts/readme_sync.py --check
+  rules:
+    - changes:
+        - skills/**/*
+        - scripts/**/*
+        - README.md
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+internal-skills:
+  stage: validate
+  script:
+    - |
+      python -c "
+      import yaml, sys, os
+      with open('skills/registry.yaml') as f:
+          data = yaml.safe_load(f)
+      internal = [e['name'] for e in data['skills'] if e.get('internal')]
+      found = [n for n in internal if os.path.exists(f'.claude/commands/{n}.md')]
+      if found:
+          print('FAIL: internal skills found in .claude/commands/:', found)
+          sys.exit(1)
+      print(f'PASS: {len(internal)} internal skills correctly excluded from .claude/commands/')
+      "
+  rules:
+    - changes:
+        - skills/**/*
+        - .claude/commands/**/*
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+schema-validation:
+  stage: validate
+  script:
+    - |
+      python -c "
+      import sys, yaml
+      sys.path.insert(0, 'scripts')
+      from schema_validate import validate
+      config = yaml.safe_load(open('config.yaml').read())
+      errors = validate(config, 'config')
+      if errors:
+          for e in errors:
+              print('FAIL:', e)
+          sys.exit(1)
+      print('PASS: config.yaml validates against config.schema.json')
+      "
+  rules:
+    - changes:
+        - config.yaml
+        - configs/schemas/**/*
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+# ── Stage: test ─────────────────────────────────────────────────────────────
+
+governance-tests:
+  stage: test
+  script:
+    - python -m pytest tests/ -v --tb=short -m "not scout" --ignore=tests/test_e2e_pipeline.py
+  rules:
+    - changes:
+        - scripts/**/*
+        - tests/**/*
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+commit-provenance:
+  stage: test
+  script:
+    - |
+      python -c "
+      import subprocess, sys, re
+      result = subprocess.run(
+          ['git', 'log', '--format=%s', 'HEAD~1..HEAD'],
+          capture_output=True, text=True
+      )
+      messages = result.stdout.strip().split('\n')
+      files_result = subprocess.run(
+          ['git', 'diff', '--name-only', 'HEAD~1..HEAD'],
+          capture_output=True, text=True
+      )
+      changed_files = files_result.stdout.strip().split('\n')
+      touches_content = any(f.startswith('content/') for f in changed_files)
+      if not touches_content:
+          print('SKIP: no content/ files changed, provenance not required')
+          sys.exit(0)
+      msg = messages[0] if messages else ''
+      exempt = re.match(r'^(Merge|Revert|WIP|fixup!|squash!|chore:)', msg)
+      if exempt:
+          print('SKIP: exempt commit type')
+          sys.exit(0)
+      if 'Skills invoked:' in msg:
+          print('PASS: content commit contains Skills invoked: declaration')
+          sys.exit(0)
+      else:
+          print(\"FAIL: content commit missing 'Skills invoked:' declaration.\")
+          sys.exit(1)
+      "
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
