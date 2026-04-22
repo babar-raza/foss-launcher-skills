@@ -23,6 +23,28 @@ import post_refresh_verify
 
 
 # ---------------------------------------------------------------------------
+# Path isolation fixture
+# ---------------------------------------------------------------------------
+
+@pytest.fixture(autouse=True)
+def _isolate_paths(tmp_path):
+    """Redirect all module-level paths to tmp_path for each test.
+
+    REPORTS_ROOT is explicitly set to tmp_path/refresh_state (not
+    tmp_path/reports/refresh_state) to match existing test assertions.
+    _HERE is set to a non-existent sub-path so stale_detect.py is not
+    found by default; override with configure(here=tmp_path) when needed.
+    """
+    post_refresh_verify.configure(
+        repo_root=tmp_path,
+        reports_root=tmp_path / "refresh_state",
+        here=tmp_path / "_nonexistent_scripts",
+    )
+    yield
+    post_refresh_verify.configure()
+
+
+# ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
@@ -54,9 +76,7 @@ def _setup_knowledge(tmp_path: Path, family: str, platform: str, **kwargs) -> Pa
 # ---------------------------------------------------------------------------
 
 class TestRecordStep:
-    def test_step_written_to_progress_json(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(post_refresh_verify, "REPORTS_ROOT", tmp_path / "refresh_state")
-
+    def test_step_written_to_progress_json(self, tmp_path):
         post_refresh_verify.record_step("3d", "python", "knowledge_refresh")
 
         p = tmp_path / "refresh_state" / "3d" / "python" / "progress.json"
@@ -64,9 +84,7 @@ class TestRecordStep:
         data = json.loads(p.read_text())
         assert "knowledge_refresh" in data["steps"]
 
-    def test_duplicate_step_not_added_twice(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(post_refresh_verify, "REPORTS_ROOT", tmp_path / "refresh_state")
-
+    def test_duplicate_step_not_added_twice(self, tmp_path):
         post_refresh_verify.record_step("3d", "python", "knowledge_refresh")
         post_refresh_verify.record_step("3d", "python", "knowledge_refresh")
 
@@ -74,9 +92,7 @@ class TestRecordStep:
         data = json.loads(p.read_text())
         assert data["steps"].count("knowledge_refresh") == 1
 
-    def test_multiple_steps_all_recorded(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(post_refresh_verify, "REPORTS_ROOT", tmp_path / "refresh_state")
-
+    def test_multiple_steps_all_recorded(self, tmp_path):
         post_refresh_verify.record_step("3d", "python", "step_a")
         post_refresh_verify.record_step("3d", "python", "step_b")
         post_refresh_verify.record_step("3d", "python", "step_c")
@@ -91,25 +107,15 @@ class TestRecordStep:
 # ---------------------------------------------------------------------------
 
 class TestVerifyCheckStaleSince:
-    def test_stale_since_null_passes(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(post_refresh_verify, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
-        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
+    def test_stale_since_null_passes(self, tmp_path):
         _setup_knowledge(tmp_path, "3d", "python", stale_since=None)
-
-        with patch.object(post_refresh_verify, "_HERE", tmp_path / "nonexistent_scripts"):
-            passed, failures = post_refresh_verify.verify("3d", "python")
-
+        passed, failures = post_refresh_verify.verify("3d", "python")
         stale_failures = [f for f in failures if "stale_since" in f]
         assert len(stale_failures) == 0
 
-    def test_stale_since_set_fails(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(post_refresh_verify, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
-        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
+    def test_stale_since_set_fails(self, tmp_path):
         _setup_knowledge(tmp_path, "3d", "python", stale_since="2026-04-01")
-
-        with patch.object(post_refresh_verify, "_HERE", tmp_path / "nonexistent_scripts"):
-            passed, failures = post_refresh_verify.verify("3d", "python")
-
+        passed, failures = post_refresh_verify.verify("3d", "python")
         assert any("stale_since" in f for f in failures)
 
 
@@ -118,45 +124,31 @@ class TestVerifyCheckStaleSince:
 # ---------------------------------------------------------------------------
 
 class TestVerifyCheckOrphanedClaims:
-    def test_valid_citations_pass(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(post_refresh_verify, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
-        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
-        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
-
+    def test_valid_citations_pass(self, tmp_path):
         claims = [{"claim_id": "CL-001"}, {"claim_id": "CL-002"}]
         _setup_knowledge(tmp_path, "3d", "python", claims=claims)
 
-        # Write a content page that cites valid claim IDs
         content_dir = tmp_path / "content" / "docs.aspose.org" / "en" / "3d" / "python"
         content_dir.mkdir(parents=True)
         (content_dir / "page.md").write_text(
             "---\nevidence:\n  claims:\n    - CL-001\n    - CL-002\n---\nbody\n"
         )
 
-        with patch.object(post_refresh_verify, "_HERE", tmp_path / "nonexistent_scripts"):
-            passed, failures = post_refresh_verify.verify("3d", "python")
-
+        passed, failures = post_refresh_verify.verify("3d", "python")
         orphan_failures = [f for f in failures if "Orphaned" in f]
         assert len(orphan_failures) == 0
 
-    def test_orphaned_claim_reported(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(post_refresh_verify, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
-        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
-        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
-
+    def test_orphaned_claim_reported(self, tmp_path):
         claims = [{"claim_id": "CL-001"}]
         _setup_knowledge(tmp_path, "3d", "python", claims=claims)
 
         content_dir = tmp_path / "content" / "docs.aspose.org" / "en" / "3d" / "python"
         content_dir.mkdir(parents=True)
-        # Cites CL-999 which doesn't exist
         (content_dir / "page.md").write_text(
             "---\nevidence:\n  claims:\n    - CL-999\n---\nbody\n"
         )
 
-        with patch.object(post_refresh_verify, "_HERE", tmp_path / "nonexistent_scripts"):
-            passed, failures = post_refresh_verify.verify("3d", "python")
-
+        passed, failures = post_refresh_verify.verify("3d", "python")
         assert any("Orphaned" in f for f in failures)
 
 
@@ -165,15 +157,16 @@ class TestVerifyCheckOrphanedClaims:
 # ---------------------------------------------------------------------------
 
 class TestVerifyCheckStaleDetect:
-    def test_stale_detect_exit_0_passes(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(post_refresh_verify, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
-        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
+    def test_stale_detect_exit_0_passes(self, tmp_path):
         _setup_knowledge(tmp_path, "3d", "python")
 
-        # Create fake stale_detect.py so it's found
-        stale_detect = tmp_path / "stale_detect.py"
-        stale_detect.touch()
-        monkeypatch.setattr(post_refresh_verify, "_HERE", tmp_path)
+        # Create fake stale_detect.py at tmp_path and point _HERE there
+        (tmp_path / "stale_detect.py").touch()
+        post_refresh_verify.configure(
+            repo_root=tmp_path,
+            reports_root=tmp_path / "refresh_state",
+            here=tmp_path,
+        )
 
         mock_result = MagicMock()
         mock_result.returncode = 0
@@ -185,14 +178,15 @@ class TestVerifyCheckStaleDetect:
         stale_failures = [f for f in failures if "stale_detect" in f.lower()]
         assert len(stale_failures) == 0
 
-    def test_stale_detect_exit_1_reports_failure(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(post_refresh_verify, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
-        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
+    def test_stale_detect_exit_1_reports_failure(self, tmp_path):
         _setup_knowledge(tmp_path, "3d", "python")
 
-        stale_detect = tmp_path / "stale_detect.py"
-        stale_detect.touch()
-        monkeypatch.setattr(post_refresh_verify, "_HERE", tmp_path)
+        (tmp_path / "stale_detect.py").touch()
+        post_refresh_verify.configure(
+            repo_root=tmp_path,
+            reports_root=tmp_path / "refresh_state",
+            here=tmp_path,
+        )
 
         mock_result = MagicMock()
         mock_result.returncode = 1
@@ -211,83 +205,50 @@ class TestVerifyCheckStaleDetect:
 class TestVerifyCheckStaleReferencePages:
     """Check 3: reference pages for API classes absent from api_surface.json."""
 
-    def test_valid_reference_page_passes(self, tmp_path, monkeypatch):
+    def test_valid_reference_page_passes(self, tmp_path):
         """Reference page for a KNOWN class → no failure. Guard: check actually runs."""
-        monkeypatch.setattr(post_refresh_verify, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
-        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
-        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
+        _setup_knowledge(tmp_path, "3d", "python", api_surface=[{"name": "PdfDocument"}])
 
-        _setup_knowledge(tmp_path, "3d", "python",
-                         api_surface=[{"name": "PdfDocument"}])
-
-        # Must create ref_dir so ref_root.is_dir() is True (otherwise check silently skips)
         ref_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "3d" / "python"
         ref_dir.mkdir(parents=True)
         (ref_dir / "PdfDocument.md").write_text("---\ntitle: PdfDocument\n---\nbody\n")
 
-        with patch.object(post_refresh_verify, "_HERE", tmp_path / "nonexistent"):
-            passed, failures = post_refresh_verify.verify("3d", "python")
-
+        passed, failures = post_refresh_verify.verify("3d", "python")
         assert not any("Reference page for absent" in f for f in failures)
 
-    def test_orphaned_reference_page_reported(self, tmp_path, monkeypatch):
+    def test_orphaned_reference_page_reported(self, tmp_path):
         """Reference page whose stem is NOT in api_surface.json → failure reported."""
-        monkeypatch.setattr(post_refresh_verify, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
-        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
-        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
-
-        # Non-empty api_surface so valid_api_names ≠ {} (guard passes)
-        _setup_knowledge(tmp_path, "3d", "python",
-                         api_surface=[{"name": "PdfDocument"}])
+        _setup_knowledge(tmp_path, "3d", "python", api_surface=[{"name": "PdfDocument"}])
 
         ref_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "3d" / "python"
         ref_dir.mkdir(parents=True)
-        # stem "OrphanedClass" → not in {"pdfdocument"} → stale
         (ref_dir / "OrphanedClass.md").write_text("---\ntitle: OrphanedClass\n---\n")
 
-        with patch.object(post_refresh_verify, "_HERE", tmp_path / "nonexistent"):
-            passed, failures = post_refresh_verify.verify("3d", "python")
-
+        passed, failures = post_refresh_verify.verify("3d", "python")
         assert any("Reference page for absent" in f for f in failures)
         assert any("OrphanedClass" in f for f in failures)
 
-    def test_index_page_not_flagged(self, tmp_path, monkeypatch):
+    def test_index_page_not_flagged(self, tmp_path):
         """_index.md is explicitly excluded from stale detection."""
-        monkeypatch.setattr(post_refresh_verify, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
-        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
-        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
-
-        _setup_knowledge(tmp_path, "3d", "python",
-                         api_surface=[{"name": "PdfDocument"}])
+        _setup_knowledge(tmp_path, "3d", "python", api_surface=[{"name": "PdfDocument"}])
 
         ref_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "3d" / "python"
         ref_dir.mkdir(parents=True)
         (ref_dir / "_index.md").write_text("---\ntitle: Reference Index\n---\n")
         (ref_dir / "PdfDocument.md").write_text("---\ntitle: PdfDocument\n---\n")
 
-        with patch.object(post_refresh_verify, "_HERE", tmp_path / "nonexistent"):
-            passed, failures = post_refresh_verify.verify("3d", "python")
-
+        passed, failures = post_refresh_verify.verify("3d", "python")
         assert not any("Reference page for absent" in f for f in failures)
 
-    def test_empty_api_surface_skips_check(self, tmp_path, monkeypatch):
-        """When api_surface.json has no classes, check 3 is silently skipped.
-        Documents the guard: valid_api_names must be non-empty for check to run."""
-        monkeypatch.setattr(post_refresh_verify, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
-        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
-        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
-
-        # Empty api_surface → valid_api_names = set() → guard short-circuits
+    def test_empty_api_surface_skips_check(self, tmp_path):
+        """When api_surface.json has no classes, check 3 is silently skipped."""
         _setup_knowledge(tmp_path, "3d", "python", api_surface=[])
 
         ref_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "3d" / "python"
         ref_dir.mkdir(parents=True)
         (ref_dir / "SomeClass.md").write_text("---\ntitle: SomeClass\n---\n")
 
-        with patch.object(post_refresh_verify, "_HERE", tmp_path / "nonexistent"):
-            passed, failures = post_refresh_verify.verify("3d", "python")
-
-        # No "Reference page for absent" failures — check was skipped
+        passed, failures = post_refresh_verify.verify("3d", "python")
         assert not any("Reference page for absent" in f for f in failures)
 
 
@@ -393,12 +354,8 @@ class TestCheck6CoverageCompleteness:
             encoding="utf-8",
         )
 
-    def test_check6_fail_when_decisions_absent(self, tmp_path, monkeypatch):
+    def test_check6_fail_when_decisions_absent(self, tmp_path):
         """Check 6 FAIL when page_decisions.json does not exist."""
-        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
-        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
-
-        # Create a content page so there's something to check
         d = tmp_path / "content" / "docs.aspose.org" / "en" / "cells" / "net"
         self._write_page(d, "page.md")
 
@@ -409,16 +366,12 @@ class TestCheck6CoverageCompleteness:
         assert not passed
         assert any("page_decisions.json not found" in f for f in failures)
 
-    def test_check6_fail_when_page_missing_from_decisions(self, tmp_path, monkeypatch):
+    def test_check6_fail_when_page_missing_from_decisions(self, tmp_path):
         """Check 6 FAIL when a discovered page is absent from page_decisions.json."""
-        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
-        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
-
         d = tmp_path / "content" / "docs.aspose.org" / "en" / "cells" / "net"
         self._write_page(d, "page1.md")
-        self._write_page(d, "page2.md")  # this one won't be in decisions
+        self._write_page(d, "page2.md")
 
-        # Only record page1 — page2 is missing
         self._write_decisions(
             tmp_path / "review", "cells", "net",
             ["content/docs.aspose.org/en/cells/net/page1.md"]
@@ -431,11 +384,8 @@ class TestCheck6CoverageCompleteness:
         assert not passed
         assert any("Missing" in f and "page2.md" in f for f in failures)
 
-    def test_check6_pass_with_full_coverage(self, tmp_path, monkeypatch):
+    def test_check6_pass_with_full_coverage(self, tmp_path):
         """Check 6 PASS when page_decisions.json covers all discovered files."""
-        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
-        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
-
         d = tmp_path / "content" / "docs.aspose.org" / "en" / "cells" / "net"
         self._write_page(d, "page1.md")
         self._write_page(d, "page2.md")
@@ -455,31 +405,22 @@ class TestCheck6CoverageCompleteness:
         assert passed
         assert failures == []
 
-    def test_check6_pass_no_content_pages(self, tmp_path, monkeypatch):
+    def test_check6_pass_no_content_pages(self, tmp_path):
         """Check 6 PASS when no content pages are discovered (product not generated yet)."""
-        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
-        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
-
-        # No content pages exist; decisions file also absent — should pass (no content to cover)
         passed, failures = post_refresh_verify.check_coverage_completeness(
             "cells", "net", review_root=tmp_path / "review"
         )
-
         assert passed
 
-    def test_check6_skips_locale_files(self, tmp_path, monkeypatch):
+    def test_check6_skips_locale_files(self, tmp_path):
         """Check 6 does not require locale (translation) files in page_decisions.json."""
-        monkeypatch.setattr(post_refresh_verify, "CONTENT_ROOT", tmp_path / "content")
-        monkeypatch.setattr(post_refresh_verify, "REPO_ROOT", tmp_path)
-
         d = tmp_path / "content" / "docs.aspose.org" / "en" / "cells" / "net"
         self._write_page(d, "page.md")
-        # Locale file — must be excluded from coverage requirement
         (d / "page.fr.md").write_text("---\ntitle: page fr\n---\nbody\n", encoding="utf-8")
 
         self._write_decisions(
             tmp_path / "review", "cells", "net",
-            ["content/docs.aspose.org/en/cells/net/page.md"]  # only English file
+            ["content/docs.aspose.org/en/cells/net/page.md"]
         )
 
         passed, failures = post_refresh_verify.check_coverage_completeness(
