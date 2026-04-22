@@ -123,6 +123,39 @@ def _ts_parser_for(lang_tag: str) -> Any | None:
     return _TS_PARSER_CACHE.get(lang_tag)
 
 
+# EC-03 Pattern 7 fix: declaration-only snippet detection.  Reference pages
+# frequently show API signatures and class/interface declarations that are
+# intentionally incomplete — they demonstrate the API shape, not runnable code.
+_DECL_ONLY_RE = re.compile(
+    r"^\s*(?:"
+    r"export\s+(?:abstract\s+)?(?:class|interface|enum|type|function|const|let|var)"
+    r"|(?:public|private|protected|internal)\s+(?:abstract\s+)?(?:class|interface|enum|struct|delegate|record)"
+    r"|abstract\s+(?:class|interface)"
+    r"|interface\s+\w+"
+    r"|enum\s+\w+"
+    r"|@\w+\s*(?:\(|$)"  # Decorator/annotation-only lines
+    r")",
+    re.MULTILINE,
+)
+
+
+def _is_declaration_only_snippet(code: str, lang: str) -> bool:
+    """Return True if code looks like an API declaration snippet, not runnable code.
+
+    Heuristic: if ≥60% of non-empty lines are declarations (class/interface/
+    enum/property signatures) and there are no executable statements, treat it
+    as a documentation snippet.
+    """
+    if lang not in ("typescript", "ts", "csharp", "cs", "c#", "java"):
+        return False
+    lines = [ln for ln in code.splitlines() if ln.strip()]
+    if not lines:
+        return False
+    decl_count = sum(1 for ln in lines if _DECL_ONLY_RE.search(ln))
+    # Majority of lines are declarations → snippet
+    return decl_count >= len(lines) * 0.6
+
+
 class CodeSyntaxCheckEvaluator(BaseEvaluator):
     """Validates code block syntax.
 
@@ -150,6 +183,12 @@ class CodeSyntaxCheckEvaluator(BaseEvaluator):
 
             # Skip blocks with noqa marker on first line
             if lines and _NOQA_SYNTAX_RE.search(lines[0]):
+                continue
+
+            # EC-03 Pattern 7 fix: skip declaration-only snippets common in
+            # reference pages — API shape documentation that is intentionally
+            # incomplete (e.g. "export abstract class Foo { ... }").
+            if _is_declaration_only_snippet(content, lang):
                 continue
 
             if lang in _PYTHON_LANGS:

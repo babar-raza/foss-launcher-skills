@@ -220,6 +220,15 @@ class FormatTruthEvaluator(BaseEvaluator):
         if not page.family or not page.platform:
             return []
 
+        # EC-03 Pattern 4 fix: enum reference pages (SaveFormat, SourceFormat,
+        # etc.) list enum constants as API documentation — mentioning a format
+        # name in the enum table is NOT a claim about I/O direction.  Suppress
+        # direction-mismatch checks entirely on these pages.
+        categories = page.frontmatter.get("categories") or []
+        layout = page.frontmatter.get("layout", "")
+        if "Enum" in categories and layout.startswith("reference"):
+            return []
+
         format_direction = _load_formats(page.family, page.platform)
         if not format_direction:
             return []  # No format knowledge available

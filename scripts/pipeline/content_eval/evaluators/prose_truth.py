@@ -62,6 +62,30 @@ clear_claim_cache = clear_claim_cache
 # Helpers
 # ---------------------------------------------------------------------------
 
+# EC-03 fix: patterns where "strong words" are normal technical language,
+# not marketing claims.  These appear in API docs (e.g. "the only supported
+# format", "must be called before save()", "all properties are read-only").
+_TECHNICAL_CONTEXT_RE = re.compile(
+    r"(?:"
+    r"must\s+be\s+(?:called|set|specified|initialized|non-null|valid)"
+    r"|(?:the\s+)?only\s+(?:supported|available|valid|required|property|method|parameter|way)"
+    r"|all\s+(?:properties|members|methods|parameters|fields|elements|items)\s+(?:are|have|must)"
+    r"|every\s+(?:property|member|method|call|instance)\s+(?:must|should|has|returns)"
+    r"|(?:returns?|accepts?|expects?)\s+(?:exactly|precisely)\s+\d+"
+    r"|read[\s-]only"
+    r"|write[\s-]only"
+    r"|none\s+of\s+the\s+(?:properties|methods|members|parameters)"
+    r"|ensures?\s+(?:that\s+)?(?:the\s+)?(?:object|instance|value|result)"
+    r"|guaranteed\s+to\s+(?:be|return|succeed)"
+    r")",
+    re.IGNORECASE,
+)
+
+
+def _is_technical_strong_wording(line_text: str) -> bool:
+    """Return True if the strong word appears in a technical API context."""
+    return bool(_TECHNICAL_CONTEXT_RE.search(line_text))
+
 
 def _load_formats(family: str, platform: str) -> list[dict]:
     """Load formats.json for a product."""
@@ -220,6 +244,12 @@ class ProseTruthEvaluator(BaseEvaluator):
 
             # Flag strong wording without evidence backing
             if _STRONG_WORDS.search(line_text):
+                # EC-03 Pattern fix: suppress strong-wording check in
+                # technical API contexts where words like "only", "all",
+                # "must", "every" are factual descriptors, not marketing.
+                if _is_technical_strong_wording(line_text):
+                    continue
+
                 line_tokens = _tokenize(line_text)
                 best_overlap = 0.0
                 for _, ct in claim_tokens:
