@@ -276,7 +276,7 @@ def score_confidence(repo_root: Path) -> tuple[float, list[str]]:
     if claim_files:
         latest = max(claim_files, key=lambda p: p.stat().st_mtime)
         content = latest.read_text(encoding="utf-8")
-        if "UNVERIFIED" not in content or "0 critical" in content:
+        if "Critical unverified | 0" in content or "0 critical" in content:
             notes.append(f"PASS: claim coverage report shows zero critical unverified claims ({latest.name})")
             return 0.0, notes
         else:
