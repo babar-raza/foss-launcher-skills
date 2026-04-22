@@ -261,14 +261,22 @@ def _run_evaluate(args):
     _log(f"  INFO: {len(report.infos)}")
     _log(f"  Report: {report_path}")
 
-    # --write-grade: persist computed grade into each page's frontmatter
-    if args.write_grade:
+    # --write-grade / --write-grade-if-policy-met: persist computed grade
+    should_write = args.write_grade or getattr(args, "write_grade_if_policy_met", False)
+    write_mode = "policy" if getattr(args, "write_grade_if_policy_met", False) else "force"
+    if should_write:
         _HERE_g = Path(__file__).resolve().parent.parent
         if str(_HERE_g) not in sys.path:
             sys.path.insert(0, str(_HERE_g))
-        from grade_writer import write_grade as _write_grade  # noqa: E402
+        from grade_writer import write_grade as _write_grade, content_hash as _content_hash_g  # noqa: E402
+        from grade_manifest import load_manifest as _load_manifest, write_manifest_entry as _write_manifest_entry, save_manifest as _save_manifest  # noqa: E402
+        from core.markdown import _FRONTMATTER_WRITER_RE as _FM_RE_g  # noqa: E402
+
+        # ARCH-03: Load manifest once, batch-update, save once
+        manifest = _load_manifest()
 
         grade_counts: dict[str, int] = {}
+        policy_skips = 0
         by_file = report.by_file()
         for page in pages:
             fp = page.filepath
@@ -281,13 +289,46 @@ def _run_evaluate(args):
             model_sha = k.repo_sha if k and hasattr(k, "repo_sha") else ""
             tier = "full" if k and getattr(k, "available", False) else "structural"
             enrich_status = getattr(k, "enrichment_status", None) if k else None
-            _write_grade(fp, grade, model_sha=model_sha, evaluator_tier=tier,
+
+            # Compute content hash for manifest
+            try:
+                text_g = fp.read_text(encoding="utf-8")
+                fm_m_g = _FM_RE_g.match(text_g)
+                body_g = text_g[fm_m_g.end():] if fm_m_g else text_g
+                body_hash_g = _content_hash_g(body_g)
+            except (OSError, UnicodeDecodeError):
+                body_hash_g = ""
+
+            # ARCH-03: Always write manifest entry (operational state)
+            rel_path = str(fp).replace("\\", "/")
+            _write_manifest_entry(
+                rel_path,
+                content_hash=body_hash_g,
+                grade=grade,
+                grade_reasons=reasons,
+                evaluator_versions=dict(EVALUATOR_VERSIONS),
+                model_sha=model_sha,
+                logic_version=EVALUATOR_LOGIC_VERSION,
+                enrichment_status=enrich_status,
+                graded_evaluators=tier,
+                manifest=manifest,
+                save=False,
+            )
+
+            # Write frontmatter (respects write_mode)
+            wrote = _write_grade(fp, grade, model_sha=model_sha, evaluator_tier=tier,
                          logic_version=EVALUATOR_LOGIC_VERSION, grade_reasons=reasons,
                          evaluator_versions=EVALUATOR_VERSIONS,
-                         enrichment_status=enrich_status)
+                         enrichment_status=enrich_status,
+                         write_mode=write_mode)
             grade_counts[grade] = grade_counts.get(grade, 0) + 1
 
+        # ARCH-03: Persist manifest after all entries
+        _save_manifest(manifest)
+
         _log(f"  Grades written: {grade_counts}")
+        if write_mode == "policy":
+            _log(f"  Write mode: policy (only policy-justified writes applied)")
 
     # Exit code
     if args.strict and report.fails:
@@ -425,7 +466,9 @@ def main(argv: list[str] | None = None):
     eval_parser.add_argument("--output-root",
                              help="Override report root for isolated runs")
     eval_parser.add_argument("--write-grade", action="store_true",
-                             help="Write computed grade to each page's frontmatter")
+                             help="Write computed grade to each page's frontmatter (force mode)")
+    eval_parser.add_argument("--write-grade-if-policy-met", action="store_true",
+                             help="Write grade only when write-policy gate approves (body changed + grade changed, or first grading)")
     eval_parser.add_argument("--skip-graded", action="store_true",
                              help="Skip pages already graded with current knowledge")
     eval_parser.add_argument("--sweep", action="store_true",

@@ -633,8 +633,10 @@ class TestEnrichLlmErrorResponse:
         """
         import logging
         self._setup_scout_dir(tmp_path)
-        with patch.object(_enrich_module, "_llm_call", return_value={"error": "rate_limited"}):
-            with caplog.at_level(logging.ERROR, logger="enrich"):
+        # VH-02 fix 1: mock preflight so LLM path is always taken regardless of environment
+        with patch.object(_enrich_module, "_preflight_check", return_value={"professionalize": "ok"}), \
+             patch.object(_enrich_module, "_llm_call", return_value={"error": "rate_limited"}):
+            with caplog.at_level(logging.DEBUG, logger="enrich"):
                 result = enrich(
                     "cells", "python",
                     knowledge_root=str(tmp_path / "knowledge"),
@@ -645,9 +647,11 @@ class TestEnrichLlmErrorResponse:
             "enrich() must return False (write-protection guard) when LLM error response "
             "produces 0 claims — not raise an exception"
         )
-        assert any("non-list" in r.message for r in caplog.records if r.levelno >= logging.ERROR), (
-            "Expected an ERROR log mentioning 'non-list' response; got: "
-            + str([r.message for r in caplog.records])
+        # VH-02 fix 2: use getMessage() not r.message (standard LogRecord API)
+        error_msgs = [r.getMessage() for r in caplog.records if r.levelno >= logging.ERROR]
+        assert any("non-list" in msg for msg in error_msgs), (
+            "Expected an ERROR log mentioning 'non-list' response; got ERROR messages: "
+            + str(error_msgs)
         )
 
     def test_llm_error_response_writes_no_claims(self, tmp_path):

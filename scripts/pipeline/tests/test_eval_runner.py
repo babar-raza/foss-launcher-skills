@@ -16,7 +16,8 @@ import pytest
 # (which would require scripts/__init__.py, which does not exist).
 from content_eval.runner import EvalRunner
 from content_eval.models import Page
-from content_eval import EVALUATOR_LOGIC_VERSION
+from content_eval import EVALUATOR_LOGIC_VERSION, EVALUATOR_VERSIONS
+import grade_manifest as _gm
 
 
 # ---------------------------------------------------------------------------
@@ -51,14 +52,18 @@ def _page(
 # ---------------------------------------------------------------------------
 
 def _write_graded_md(tmp_path: Path, enrichment_status: str | None) -> Path:
-    """Write a minimal .md file with a grade block at the given enrichment_status."""
+    """Write a minimal .md file with a grade block at the given enrichment_status.
+
+    Also writes a manifest entry so the ARCH-02 manifest-first skip path works.
+    """
     import yaml as _yaml
-    from grade_writer import write_grade as _write_grade
+    from grade_writer import write_grade as _write_grade, content_hash as _content_hash
 
     md_dir = tmp_path / "content" / "docs" / "words" / "python"
     md_dir.mkdir(parents=True, exist_ok=True)
     md_file = md_dir / "guide.md"
-    md_file.write_text("---\ntitle: Test\n---\n\nBody text here.\n", encoding="utf-8")
+    body_text = "Body text here.\n"
+    md_file.write_text(f"---\ntitle: Test\n---\n\n{body_text}", encoding="utf-8")
     _write_grade(
         md_file,
         grade="B",
@@ -66,6 +71,21 @@ def _write_graded_md(tmp_path: Path, enrichment_status: str | None) -> Path:
         evaluator_tier="full",
         logic_version=EVALUATOR_LOGIC_VERSION,
         enrichment_status=enrichment_status,
+    )
+    # Also write a manifest entry (ARCH-02: manifest-first skip path)
+    rel_path = str(md_file).replace("\\", "/")
+    chash = _content_hash(body_text)
+    _gm.write_manifest_entry(
+        rel_path,
+        content_hash=chash,
+        grade="B",
+        grade_reasons=["0 FAIL -> grade B"],
+        evaluator_versions=dict(EVALUATOR_VERSIONS),
+        model_sha="deadbeef00000001",
+        logic_version=EVALUATOR_LOGIC_VERSION,
+        enrichment_status=enrichment_status or "full",
+        graded_evaluators="full",
+        manifest_path=tmp_path / "reports" / "grade_manifest.json",
     )
     return md_file
 
@@ -245,6 +265,12 @@ class TestSkipGradedEnrichmentGate:
     """When enrichment quality improves on the same repo SHA, pages must be
     re-evaluated.  The skip-graded gate must compare graded_enrichment_status
     against the current knowledge enrichment_status (RC-2 fix)."""
+
+    @pytest.fixture(autouse=True)
+    def _redirect_manifest(self, tmp_path, monkeypatch):
+        """Point grade_manifest to tmp_path so tests use their own manifest."""
+        monkeypatch.setattr(_gm, "_DEFAULT_MANIFEST_PATH",
+                            tmp_path / "reports" / "grade_manifest.json")
 
     def test_does_not_skip_when_enrichment_improved(self, tmp_path):
         """Page graded at scout-only must be re-evaluated when knowledge is now full."""

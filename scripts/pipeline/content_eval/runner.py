@@ -27,7 +27,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from . import EVALUATOR_LOGIC_VERSION
+from . import EVALUATOR_LOGIC_VERSION, EVALUATOR_VERSIONS
 from .models import EvalReport, Finding
 
 
@@ -216,11 +216,21 @@ class EvalRunner:
     # ------------------------------------------------------------------
 
     def _filter_already_graded(self, pages, knowledge_cache):
+        """ARCH-02: Skip-graded gate — manifest first, frontmatter fallback.
+
+        Checks the external grade manifest for a matching entry before falling
+        back to frontmatter-based skip logic.  This avoids reading .md files
+        when the manifest has current operational state.
+        """
         _HERE = Path(__file__).resolve().parent.parent
         if str(_HERE) not in sys.path:
             sys.path.insert(0, str(_HERE))
         from grade_writer import read_grade as _read_grade, content_hash as _content_hash  # noqa
+        from grade_manifest import load_manifest, manifest_skip_check  # noqa
         from core.markdown import _FRONTMATTER_WRITER_RE as _FM_RE  # noqa
+
+        # Load manifest once for the entire filter pass
+        manifest = load_manifest()
 
         filtered = []
         for page in pages:
@@ -234,40 +244,59 @@ class EvalRunner:
                 else:
                     knowledge_cache[key] = None
             k = knowledge_cache[key]
+
+            # Compute current content hash for comparison
+            try:
+                text = page.filepath.read_text(encoding="utf-8")
+                fm_m = _FM_RE.match(text)
+                body = text[fm_m.end():] if fm_m else text
+                current_hash = _content_hash(body)
+            except (OSError, UnicodeDecodeError):
+                filtered.append(page)
+                continue
+
+            # ARCH-02: Try manifest first
+            current_enrich = getattr(k, "enrichment_status", None) or "full"
+            rel_path = str(page.filepath).replace("\\", "/")
+            can_skip, _reason = manifest_skip_check(
+                rel_path,
+                current_content_hash=current_hash,
+                current_evaluator_versions=EVALUATOR_VERSIONS,
+                current_enrichment_status=current_enrich,
+                evaluator_names=self.evaluator_names,
+                manifest=manifest,
+            )
+            if can_skip:
+                continue  # Manifest confirms page is current — skip
+
+            # MIG-02 fallback: check frontmatter if manifest had no entry
             stored = _read_grade(page.filepath)
             if (stored and stored["tier"] == "full"
                     and k and hasattr(k, "repo_sha")
                     and stored["model_sha"] == k.repo_sha
                     and stored.get("logic_version", "") == EVALUATOR_LOGIC_VERSION):
                 # RC-2 fix: enrichment quality gate.
-                # Re-evaluate when knowledge enrichment improved on the same repo SHA
-                # (e.g. scout-only bootstrap followed by successful enrichment run).
-                # None in either position is treated as "full" for backward-compat.
-                current_enrich = getattr(k, "enrichment_status", None) or "full"
                 stored_enrich = stored.get("enrichment_status") or "full"
                 if current_enrich != stored_enrich:
                     filtered.append(page)
                     continue
                 stored_hash = stored.get("content_hash", "")
-                if stored_hash:
-                    try:
-                        text = page.filepath.read_text(encoding="utf-8")
-                        fm_m = _FM_RE.match(text)
-                        body = text[fm_m.end():] if fm_m else text
-                        if _content_hash(body) != stored_hash:
-                            filtered.append(page)
-                            continue
-                    except (OSError, UnicodeDecodeError):
-                        pass
-                continue
+                if stored_hash and _content_hash(body) == stored_hash:
+                    continue  # Frontmatter confirms page is current — skip
             filtered.append(page)
         return filtered
 
     def _write_grades(self, pages, report: EvalReport, knowledge_cache):
+        """Write grades to frontmatter and manifest (ARCH-03)."""
         _HERE = Path(__file__).resolve().parent.parent
         if str(_HERE) not in sys.path:
             sys.path.insert(0, str(_HERE))
-        from grade_writer import write_grade as _write_grade  # noqa
+        from grade_writer import write_grade as _write_grade, content_hash as _content_hash  # noqa
+        from grade_manifest import load_manifest, write_manifest_entry, save_manifest  # noqa
+        from core.markdown import _FRONTMATTER_WRITER_RE as _FM_RE  # noqa
+
+        # ARCH-03: Load manifest once, batch-update entries, save once at end
+        manifest = load_manifest()
 
         by_file = report.by_file()
         for page in pages:
@@ -279,9 +308,37 @@ class EvalRunner:
             k = knowledge_cache.get((page.family, page.platform))
             model_sha = k.repo_sha if k and hasattr(k, "repo_sha") else ""
             tier = "full" if k and getattr(k, "available", False) else "structural"
-            # Persist enrichment_status at grading time so the skip-graded gate
-            # can detect quality improvements on the same repo SHA (RC-2/RC-3 fix).
             enrich_status = getattr(k, "enrichment_status", None) if k else None
+
+            # Compute content hash for manifest entry
+            try:
+                text = fp.read_text(encoding="utf-8")
+                fm_m = _FM_RE.match(text)
+                body = text[fm_m.end():] if fm_m else text
+                body_hash = _content_hash(body)
+            except (OSError, UnicodeDecodeError):
+                body_hash = ""
+
+            # ARCH-03: Always write manifest entry (operational state)
+            rel_path = str(fp).replace("\\", "/")
+            write_manifest_entry(
+                rel_path,
+                content_hash=body_hash,
+                grade=grade,
+                grade_reasons=reasons,
+                evaluator_versions=dict(EVALUATOR_VERSIONS),
+                model_sha=model_sha,
+                logic_version=EVALUATOR_LOGIC_VERSION,
+                enrichment_status=enrich_status,
+                graded_evaluators=tier,
+                manifest=manifest,
+                save=False,  # batch — save once at end
+            )
+
+            # Write frontmatter (respects write_mode from caller)
             _write_grade(fp, grade, model_sha=model_sha, evaluator_tier=tier,
                          logic_version=EVALUATOR_LOGIC_VERSION, grade_reasons=reasons,
                          enrichment_status=enrich_status)
+
+        # ARCH-03: Persist manifest after all entries are written
+        save_manifest(manifest)
