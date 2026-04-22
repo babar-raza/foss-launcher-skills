@@ -2,6 +2,30 @@
 
 ---
 
+## Phase 10: Hook Hardening + Claim Verification + GitLab CI
+
+**Date**: 2026-04-22
+**Branch**: main
+**Commits**: `ff84fd7` (hook fix), `e8dd101` (verify_claims + confidence), `59a9fcd` (.gitlab-ci.yml)
+**Score**: 93.8 overall (Testing 100.0, Delivery Evidence 90.0, Governance 100.0, Code Structure 85.0, Confidence 0.0)
+
+### TC-023: Hook behavioral test (ff84fd7)
+
+Split pre-commit forbidden-path guard into hard-blocked (themes/, layouts/, configs/,
+AGENTS.md, CLAUDE.md, CODEX.md) and soft-warned (scripts/, skills/, etc.). Verified:
+themes/ write returns exit 1, clean commit passes.
+
+### Claim verification expansion (e8dd101)
+
+Expanded verify_claims.py SCRIPT_HINTS from 13 to 90+ keyword mappings. Critical
+unverified claims dropped 15 to 0. Fixed confidence check pattern matching.
+
+### GitLab CI (59a9fcd)
+
+Added `.gitlab-ci.yml` translating all 8 GitHub Actions jobs to GitLab CI format.
+
+---
+
 ## Phase 9: Pytest Discovery Fix + Launcher Boundary + Score 93.8
 
 **Date**: 2026-04-21
