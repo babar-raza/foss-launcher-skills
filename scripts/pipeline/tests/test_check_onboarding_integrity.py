@@ -39,6 +39,18 @@ import check_onboarding_integrity as module  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
+# Path isolation (autouse)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture(autouse=True)
+def _isolate_module(tmp_path):
+    module.configure(repo_root=tmp_path)
+    yield
+    module.configure()
+
+
+# ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
@@ -84,26 +96,17 @@ def _make_repo(tmp_path: Path) -> Path:
     return tmp_path
 
 
-def _run_checks(tmp_path: Path) -> int:
-    """Patch REPO_ROOT + OPERATOR_DOCS, clear _failures, run all non-git checks, return exit code."""
+def _run_checks() -> int:
+    """Clear _failures, run all non-git checks, return exit code."""
     module._failures.clear()
     module._passed_labels.clear()
     module._verbose = False
-    patched_docs = [
-        tmp_path / "docs" / "QUICKSTART.md",
-        tmp_path / "OPERATOR_GUIDE.md",
-        tmp_path / "RUNBOOK.md",
-    ]
-    with (
-        patch.object(module, "REPO_ROOT", tmp_path),
-        patch.object(module, "OPERATOR_DOCS", patched_docs),
-    ):
-        module.check_agents_link()
-        module.check_claude_ref()
-        module.check_relative_links()
-        module.check_runbook_venv()
-        module.check_quickstart_structure()
-        module.check_toc_anchors()
+    module.check_agents_link()
+    module.check_claude_ref()
+    module.check_relative_links()
+    module.check_runbook_venv()
+    module.check_quickstart_structure()
+    module.check_toc_anchors()
     return 1 if module._failures else 0
 
 
@@ -116,7 +119,7 @@ class TestHappyPath:
     def test_all_non_git_checks_pass(self, tmp_path):
         """All checks except C1 (git subprocess) pass on a well-formed fake repo."""
         _make_repo(tmp_path)
-        assert _run_checks(tmp_path) == 0, f"Unexpected failures: {module._failures}"
+        assert _run_checks() == 0, f"Unexpected failures: {module._failures}"
 
 
 # ---------------------------------------------------------------------------
@@ -130,10 +133,7 @@ class TestC1GitTracked:
         _make_repo(tmp_path)
         module._failures.clear()
         mock_result = type("CP", (), {"stdout": "docs/QUICKSTART.md\n", "returncode": 0})()
-        with (
-            patch("subprocess.run", return_value=mock_result),
-            patch.object(module, "REPO_ROOT", tmp_path),
-        ):
+        with patch("subprocess.run", return_value=mock_result):
             module.check_quickstart_tracked()
         assert not any("C1-TRACKED" in f for f in module._failures), module._failures
 
@@ -142,10 +142,7 @@ class TestC1GitTracked:
         _make_repo(tmp_path)
         module._failures.clear()
         mock_result = type("CP", (), {"stdout": "", "returncode": 0})()
-        with (
-            patch("subprocess.run", return_value=mock_result),
-            patch.object(module, "REPO_ROOT", tmp_path),
-        ):
+        with patch("subprocess.run", return_value=mock_result):
             module.check_quickstart_tracked()
         assert any("C1-TRACKED" in f for f in module._failures), module._failures
 
@@ -154,10 +151,7 @@ class TestC1GitTracked:
         _make_repo(tmp_path)
         module._failures.clear()
         mock_result = type("CP", (), {"stdout": "docs/QUICKSTART.md\n", "returncode": 0})()
-        with (
-            patch("subprocess.run", return_value=mock_result) as mock_run,
-            patch.object(module, "REPO_ROOT", tmp_path),
-        ):
+        with patch("subprocess.run", return_value=mock_result) as mock_run:
             module.check_quickstart_tracked()
         mock_run.assert_called_once_with(
             ["git", "ls-files", "docs/QUICKSTART.md"],
@@ -181,8 +175,7 @@ class TestC2AgentsLink:
             encoding="utf-8",
         )
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_agents_link()
+        module.check_agents_link()
         assert any("C2-AGENTS-LINK" in f for f in module._failures), module._failures
 
     def test_agents_md_missing(self, tmp_path):
@@ -190,16 +183,14 @@ class TestC2AgentsLink:
         _make_repo(tmp_path)
         (tmp_path / "AGENTS.md").unlink()
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_agents_link()
+        module.check_agents_link()
         assert any("C2-AGENTS-LINK" in f for f in module._failures), module._failures
 
     def test_link_present_passes(self, tmp_path):
         """AGENTS.md contains 'docs/QUICKSTART.md' — no C2 failure."""
         _make_repo(tmp_path)
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_agents_link()
+        module.check_agents_link()
         assert not any("C2-AGENTS-LINK" in f for f in module._failures), module._failures
 
 
@@ -217,8 +208,7 @@ class TestC3ClaudeRef:
             encoding="utf-8",
         )
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_claude_ref()
+        module.check_claude_ref()
         assert any("C3-CLAUDE-REF" in f for f in module._failures), module._failures
 
     def test_operator_guide_ref_satisfies(self, tmp_path):
@@ -229,8 +219,7 @@ class TestC3ClaudeRef:
             encoding="utf-8",
         )
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_claude_ref()
+        module.check_claude_ref()
         assert not any("C3-CLAUDE-REF" in f for f in module._failures), module._failures
 
 
@@ -248,16 +237,7 @@ class TestC4RelativeLinks:
             encoding="utf-8",
         )
         module._failures.clear()
-        patched_docs = [
-            tmp_path / "docs" / "QUICKSTART.md",
-            tmp_path / "OPERATOR_GUIDE.md",
-            tmp_path / "RUNBOOK.md",
-        ]
-        with (
-            patch.object(module, "REPO_ROOT", tmp_path),
-            patch.object(module, "OPERATOR_DOCS", patched_docs),
-        ):
-            module.check_relative_links()
+        module.check_relative_links()
         assert any("C4-LINKS" in f for f in module._failures), module._failures
 
     def test_missing_operator_doc(self, tmp_path):
@@ -265,16 +245,7 @@ class TestC4RelativeLinks:
         _make_repo(tmp_path)
         (tmp_path / "RUNBOOK.md").unlink()
         module._failures.clear()
-        patched_docs = [
-            tmp_path / "docs" / "QUICKSTART.md",
-            tmp_path / "OPERATOR_GUIDE.md",
-            tmp_path / "RUNBOOK.md",
-        ]
-        with (
-            patch.object(module, "REPO_ROOT", tmp_path),
-            patch.object(module, "OPERATOR_DOCS", patched_docs),
-        ):
-            module.check_relative_links()
+        module.check_relative_links()
         assert any("C4-LINKS" in f for f in module._failures), module._failures
 
     def test_absolute_url_skipped(self, tmp_path):
@@ -285,16 +256,7 @@ class TestC4RelativeLinks:
             encoding="utf-8",
         )
         module._failures.clear()
-        patched_docs = [
-            tmp_path / "docs" / "QUICKSTART.md",
-            tmp_path / "OPERATOR_GUIDE.md",
-            tmp_path / "RUNBOOK.md",
-        ]
-        with (
-            patch.object(module, "REPO_ROOT", tmp_path),
-            patch.object(module, "OPERATOR_DOCS", patched_docs),
-        ):
-            module.check_relative_links()
+        module.check_relative_links()
         assert not any("C4-LINKS" in f for f in module._failures), module._failures
 
 
@@ -313,8 +275,7 @@ class TestC5RunbookVenv:
             encoding="utf-8",
         )
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_runbook_venv()
+        module.check_runbook_venv()
         assert any("C5-VENV-PREFIX" in f for f in module._failures), module._failures
 
     def test_bare_python_in_prose_not_flagged(self, tmp_path):
@@ -327,16 +288,14 @@ class TestC5RunbookVenv:
             encoding="utf-8",
         )
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_runbook_venv()
+        module.check_runbook_venv()
         assert not any("C5-VENV-PREFIX" in f for f in module._failures), module._failures
 
     def test_venv_prefixed_command_passes(self, tmp_path):
         """Properly prefixed .venv/Scripts/python command passes C5."""
         _make_repo(tmp_path)
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_runbook_venv()
+        module.check_runbook_venv()
         assert not any("C5-VENV-PREFIX" in f for f in module._failures), module._failures
 
 
@@ -356,8 +315,7 @@ class TestC6QuickstartStructure:
             encoding="utf-8",
         )
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_quickstart_structure()
+        module.check_quickstart_structure()
         assert any("C6-STRUCTURE" in f for f in module._failures), module._failures
 
     def test_missing_session_start_command(self, tmp_path):
@@ -371,16 +329,14 @@ class TestC6QuickstartStructure:
             encoding="utf-8",
         )
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_quickstart_structure()
+        module.check_quickstart_structure()
         assert any("C6-STRUCTURE" in f for f in module._failures), module._failures
 
     def test_all_substrings_present_passes(self, tmp_path):
         """All required substrings present — no C6 failure."""
         _make_repo(tmp_path)
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_quickstart_structure()
+        module.check_quickstart_structure()
         assert not any("C6-STRUCTURE" in f for f in module._failures), module._failures
 
     def test_quickstart_absent_skipped_gracefully(self, tmp_path):
@@ -388,8 +344,7 @@ class TestC6QuickstartStructure:
         _make_repo(tmp_path)
         (tmp_path / "docs" / "QUICKSTART.md").unlink()
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_quickstart_structure()
+        module.check_quickstart_structure()
         # C6 skips — C1 would catch the missing file in the full run
         assert not any("C6-STRUCTURE" in f for f in module._failures), module._failures
 
@@ -411,8 +366,7 @@ class TestC7TocAnchors:
             encoding="utf-8",
         )
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_toc_anchors()
+        module.check_toc_anchors()
         assert not any("C7-TOC-ANCHORS" in f for f in module._failures), module._failures
 
     def test_broken_anchor_detected(self, tmp_path):
@@ -425,8 +379,7 @@ class TestC7TocAnchors:
             encoding="utf-8",
         )
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_toc_anchors()
+        module.check_toc_anchors()
         assert any("C7-TOC-ANCHORS" in f for f in module._failures), module._failures
 
     def test_slug_algorithm_strips_punctuation(self, tmp_path):
@@ -440,8 +393,7 @@ class TestC7TocAnchors:
             encoding="utf-8",
         )
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_toc_anchors()
+        module.check_toc_anchors()
         assert not any("C7-TOC-ANCHORS" in f for f in module._failures), module._failures
 
     def test_agents_missing_skips_gracefully(self, tmp_path):
@@ -449,8 +401,7 @@ class TestC7TocAnchors:
         _make_repo(tmp_path)
         (tmp_path / "AGENTS.md").unlink()
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_toc_anchors()
+        module.check_toc_anchors()
         assert not any("C7-TOC-ANCHORS" in f for f in module._failures), module._failures
 
 
@@ -466,8 +417,7 @@ class TestObservability:
         module._failures.clear()
         module._verbose = True
         try:
-            with patch.object(module, "REPO_ROOT", tmp_path):
-                module.check_agents_link()
+            module.check_agents_link()
         finally:
             module._verbose = False
         captured = capsys.readouterr()
@@ -478,8 +428,7 @@ class TestObservability:
         _make_repo(tmp_path)
         module._failures.clear()
         module._verbose = False
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_agents_link()
+        module.check_agents_link()
         captured = capsys.readouterr()
         assert "PASS" not in captured.out
 
@@ -491,10 +440,7 @@ class TestObservability:
             encoding="utf-8",
         )
         module._failures.clear()
-        with (
-            patch.dict("os.environ", {"GITHUB_ACTIONS": "true"}),
-            patch.object(module, "REPO_ROOT", tmp_path),
-        ):
+        with patch.dict("os.environ", {"GITHUB_ACTIONS": "true"}):
             module.check_agents_link()
         captured = capsys.readouterr()
         assert "::error title=Onboarding Integrity [C2-AGENTS-LINK]::" in captured.out
@@ -512,19 +458,7 @@ class TestObservability:
         module._passed_labels.clear()
         module._verbose = True
         try:
-            with (
-                patch.object(module, "REPO_ROOT", tmp_path),
-                patch.object(
-                    module,
-                    "OPERATOR_DOCS",
-                    [
-                        tmp_path / "docs" / "QUICKSTART.md",
-                        tmp_path / "OPERATOR_GUIDE.md",
-                        tmp_path / "RUNBOOK.md",
-                    ],
-                ),
-            ):
-                module.check_relative_links()
+            module.check_relative_links()
         finally:
             module._verbose = False
             module._passed_labels.clear()
@@ -546,8 +480,7 @@ class TestEncodingGuard:
             b"## 2. Read Order\n\nSee docs/QUICKSTART.md\x96here.\n"
         )
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_agents_link()
+        module.check_agents_link()
         assert any("C2-AGENTS-LINK" in f for f in module._failures), module._failures
         assert any("non-UTF-8" in f for f in module._failures), module._failures
 
@@ -558,16 +491,7 @@ class TestEncodingGuard:
             b"See [AGENTS.md](AGENTS.md).\x80Invalid byte.\n"
         )
         module._failures.clear()
-        patched_docs = [
-            tmp_path / "docs" / "QUICKSTART.md",
-            tmp_path / "OPERATOR_GUIDE.md",
-            tmp_path / "RUNBOOK.md",
-        ]
-        with (
-            patch.object(module, "REPO_ROOT", tmp_path),
-            patch.object(module, "OPERATOR_DOCS", patched_docs),
-        ):
-            module.check_relative_links()
+        module.check_relative_links()
         assert any("C4-LINKS" in f for f in module._failures), module._failures
         assert any("non-UTF-8" in f for f in module._failures), module._failures
 
@@ -576,8 +500,7 @@ class TestEncodingGuard:
         _make_repo(tmp_path)
         (tmp_path / "RUNBOOK.md").write_bytes(b"# Runbook\n\nBad byte: \xff\n")
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_runbook_venv()
+        module.check_runbook_venv()
         assert any("C5-VENV-PREFIX" in f for f in module._failures), module._failures
         assert any("non-UTF-8" in f for f in module._failures), module._failures
 
@@ -588,7 +511,6 @@ class TestEncodingGuard:
             b"# Guide\n\nBad byte: \x81\n"
         )
         module._failures.clear()
-        with patch.object(module, "REPO_ROOT", tmp_path):
-            module.check_quickstart_structure()
+        module.check_quickstart_structure()
         assert any("C6-STRUCTURE" in f for f in module._failures), module._failures
         assert any("non-UTF-8" in f for f in module._failures), module._failures

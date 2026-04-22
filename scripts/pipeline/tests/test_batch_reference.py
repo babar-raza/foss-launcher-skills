@@ -43,6 +43,17 @@ def _make_api_surface(tmp_path: Path, entries: list[dict], family: str = "fake",
 
 
 # ---------------------------------------------------------------------------
+# Path isolation (autouse)
+# ---------------------------------------------------------------------------
+
+@pytest.fixture(autouse=True)
+def _isolate_paths(tmp_path):
+    _br.configure(repo_root=tmp_path)
+    yield
+    _br.configure()
+
+
+# ---------------------------------------------------------------------------
 # Kind filter tests (F-6 regression)
 # ---------------------------------------------------------------------------
 
@@ -171,9 +182,7 @@ class TestIdempotency:
         existing_dir.mkdir(parents=True)
         (existing_dir / "Foo.md").write_text("existing", encoding="utf-8")
 
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"), \
-             patch.object(_br, "CONTENT_ROOT", tmp_path / "content" / "reference.aspose.org" / "en"):
-            result = run("slides", "net")
+        result = run("slides", "net")
 
         assert result["skipped"] == 1
         assert result["generated"] == 1
@@ -189,9 +198,7 @@ class TestIdempotency:
         page_dir.mkdir(parents=True)
         (page_dir / "Alpha.md").write_text("existing", encoding="utf-8")
 
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"), \
-             patch.object(_br, "CONTENT_ROOT", tmp_path / "content" / "reference.aspose.org" / "en"):
-            result = run("slides", "net")
+        result = run("slides", "net")
 
         assert result["generated"] == 0
         assert result["skipped"] == 1
@@ -209,9 +216,7 @@ class TestLimit:
         ]
         _make_api_surface(tmp_path, entries, family="slides", platform="net")
 
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"), \
-             patch.object(_br, "CONTENT_ROOT", tmp_path / "content" / "reference.aspose.org" / "en"):
-            result = run("slides", "net", limit=3)
+        result = run("slides", "net", limit=3)
 
         assert result["generated"] == 3
 
@@ -219,9 +224,7 @@ class TestLimit:
         entries = [{"name": "Foo", "kind": "class_declaration", "methods": [], "properties": []}]
         _make_api_surface(tmp_path, entries, family="slides", platform="net")
 
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"), \
-             patch.object(_br, "CONTENT_ROOT", tmp_path / "content" / "reference.aspose.org" / "en"), \
-             pytest.raises(SystemExit):
+        with pytest.raises(SystemExit):
             run("slides", "net", limit=0)
 
 
@@ -231,9 +234,7 @@ class TestLimit:
 
 class TestHardStop:
     def test_missing_api_surface_exits(self, tmp_path):
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"), \
-             patch.object(_br, "CONTENT_ROOT", tmp_path / "content" / "reference.aspose.org" / "en"), \
-             pytest.raises(SystemExit):
+        with pytest.raises(SystemExit):
             run("nonexistent", "net")
 
     def test_stale_knowledge_exits(self, tmp_path):
@@ -246,9 +247,7 @@ class TestHardStop:
             encoding="utf-8",
         )
 
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"), \
-             patch.object(_br, "CONTENT_ROOT", tmp_path / "content" / "reference.aspose.org" / "en"), \
-             pytest.raises(SystemExit):
+        with pytest.raises(SystemExit):
             run("slides", "net")
 
 
@@ -264,9 +263,7 @@ class TestKindArgFilter:
         ]
         _make_api_surface(tmp_path, entries, family="slides", platform="net")
 
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"), \
-             patch.object(_br, "CONTENT_ROOT", tmp_path / "content" / "reference.aspose.org" / "en"):
-            result = run("slides", "net", kind_arg="enum")
+        result = run("slides", "net", kind_arg="enum")
 
         assert result["generated"] == 1
 
@@ -277,9 +274,7 @@ class TestKindArgFilter:
         ]
         _make_api_surface(tmp_path, entries, family="slides", platform="net")
 
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"), \
-             patch.object(_br, "CONTENT_ROOT", tmp_path / "content" / "reference.aspose.org" / "en"):
-            result = run("slides", "net", kind_arg="class")
+        result = run("slides", "net", kind_arg="class")
 
         assert result["generated"] == 1
 
@@ -301,9 +296,8 @@ class TestBuildErcIndex:
 
     def test_extracts_class_from_the_prefix(self, tmp_path):
         claims = [{"claim_id": "ERC-001", "kind": "api", "text": "The AutoFilter class handles filtering.", "confidence": 0.95}]
-        kr = _make_claims_file(tmp_path, claims)
-        with patch.object(_br, "KNOWLEDGE_ROOT", kr):
-            index = _build_erc_index("test", "net")
+        _make_claims_file(tmp_path, claims)
+        index = _build_erc_index("test", "net")
         assert "AutoFilter" in index
         assert index["AutoFilter"]["claim_id"] == "ERC-001"
 
@@ -312,9 +306,8 @@ class TestBuildErcIndex:
             {"claim_id": "ERC-001", "kind": "api", "text": "The Widget class.", "confidence": 0.9},
             {"claim_id": "CLM-001", "kind": "api_method", "text": "Widget.do() -> void", "confidence": 1.0},
         ]
-        kr = _make_claims_file(tmp_path, claims)
-        with patch.object(_br, "KNOWLEDGE_ROOT", kr):
-            index = _build_erc_index("test", "net")
+        _make_claims_file(tmp_path, claims)
+        index = _build_erc_index("test", "net")
         assert "Widget" in index
         assert index["Widget"]["claim_id"] == "ERC-001"
 
@@ -323,20 +316,18 @@ class TestBuildErcIndex:
             {"claim_id": "ERC-001", "kind": "api", "text": "The Widget class.", "confidence": 0.7},
             {"claim_id": "ERC-002", "kind": "api", "text": "The Widget class provides more.", "confidence": 0.95},
         ]
-        kr = _make_claims_file(tmp_path, claims)
-        with patch.object(_br, "KNOWLEDGE_ROOT", kr):
-            index = _build_erc_index("test", "net")
+        _make_claims_file(tmp_path, claims)
+        index = _build_erc_index("test", "net")
         assert index["Widget"]["claim_id"] == "ERC-002"
 
     def test_empty_claims_returns_empty_index(self, tmp_path):
-        kr = _make_claims_file(tmp_path, [])
-        with patch.object(_br, "KNOWLEDGE_ROOT", kr):
-            index = _build_erc_index("test", "net")
+        _make_claims_file(tmp_path, [])
+        index = _build_erc_index("test", "net")
         assert index == {}
 
     def test_missing_claims_file_returns_empty_index(self, tmp_path):
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "no_such_dir"):
-            index = _build_erc_index("test", "net")
+        _br.configure(knowledge_root=tmp_path / "no_such_dir")
+        index = _build_erc_index("test", "net")
         assert index == {}
 
 
@@ -477,9 +468,7 @@ class TestBuildPageApiEvidence:
             encoding="utf-8",
         )
 
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"), \
-             patch.object(_br, "CONTENT_ROOT", tmp_path / "content" / "reference.aspose.org" / "en"):
-            result = run("test", "net")
+        result = run("test", "net")
 
         page_path = tmp_path / "content" / "reference.aspose.org" / "en" / "test" / "net" / "Widget.md"
         assert page_path.exists()
@@ -511,9 +500,7 @@ class TestNameCollisionDedup:
         out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "words" / "python"
         out_dir.mkdir(parents=True)
 
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"), \
-             patch.object(_br, "CONTENT_ROOT", tmp_path / "content" / "reference.aspose.org" / "en"):
-            result = run("words", "python")
+        result = run("words", "python")
 
         page = out_dir / "Document.md"
         assert page.exists()
@@ -537,9 +524,7 @@ class TestNameCollisionDedup:
         out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "words" / "python"
         out_dir.mkdir(parents=True)
 
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"), \
-             patch.object(_br, "CONTENT_ROOT", tmp_path / "content" / "reference.aspose.org" / "en"):
-            result = run("words", "python")
+        result = run("words", "python")
 
         page = out_dir / "Widget.md"
         assert page.exists()
@@ -561,9 +546,7 @@ class TestNameCollisionDedup:
         out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "words" / "python"
         out_dir.mkdir(parents=True)
 
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"), \
-             patch.object(_br, "CONTENT_ROOT", tmp_path / "content" / "reference.aspose.org" / "en"):
-            result = run("words", "python")
+        result = run("words", "python")
 
         assert (out_dir / "Alpha.md").exists()
         assert (out_dir / "Beta.md").exists()
@@ -738,8 +721,7 @@ class TestErcMemberIndexPopulatesTableCells:
                 "confidence": 0.85,
             }
         ])
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
-            index = _br._build_erc_member_index("test_fam", "python")
+        index = _br._build_erc_member_index("test_fam", "python")
         assert "Document.title" in index, "ERC api claim must be indexed under ClassName.MemberName"
         assert len(index["Document.title"]) >= 6, "Description must be non-trivial"
 
@@ -753,8 +735,7 @@ class TestErcMemberIndexPopulatesTableCells:
                 "confidence": 1.0,
             }
         ])
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
-            index = _br._build_erc_member_index("test_fam", "python")
+        index = _br._build_erc_member_index("test_fam", "python")
         assert index == {}, "Scout claims (non-ERC) must not pollute the member index"
 
     def test_non_api_kind_erc_not_indexed(self, tmp_path):
@@ -767,8 +748,7 @@ class TestErcMemberIndexPopulatesTableCells:
                 "confidence": 0.90,
             }
         ])
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
-            index = _br._build_erc_member_index("test_fam", "python")
+        index = _br._build_erc_member_index("test_fam", "python")
         assert index == {}, "ERC feature claims must not appear in the member description index"
 
     def test_longest_description_wins(self, tmp_path):
@@ -787,8 +767,7 @@ class TestErcMemberIndexPopulatesTableCells:
                 "confidence": 0.85,
             },
         ])
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
-            index = _br._build_erc_member_index("test_fam", "python")
+        index = _br._build_erc_member_index("test_fam", "python")
         assert "Body.type" in index
         assert "content-model" in index["Body.type"] or len(index["Body.type"]) > len("short desc"), (
             "Longer description must win over shorter one"
@@ -796,8 +775,7 @@ class TestErcMemberIndexPopulatesTableCells:
 
     def test_missing_claims_json_returns_empty(self, tmp_path):
         """Absent claims.json must return empty dict without error."""
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
-            index = _br._build_erc_member_index("no_such_fam", "python")
+        index = _br._build_erc_member_index("no_such_fam", "python")
         assert index == {}
 
     def test_snake_case_class_member_indexed(self, tmp_path):
@@ -816,8 +794,7 @@ class TestErcMemberIndexPopulatesTableCells:
             }
         ])
         api_surface = [{"name": "cfb_document", "properties": [], "methods": []}]
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
-            index = _br._build_erc_member_index("test_fam", "python", api_surface=api_surface)
+        index = _br._build_erc_member_index("test_fam", "python", api_surface=api_surface)
         assert "cfb_document.major_version" in index, (
             "snake_case class member must be indexed when class is in known api_surface"
         )
@@ -837,8 +814,7 @@ class TestErcMemberIndexPopulatesTableCells:
             }
         ])
         api_surface = [{"name": "Document", "properties": [], "methods": []}]
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
-            index = _br._build_erc_member_index("test_fam", "python", api_surface=api_surface)
+        index = _br._build_erc_member_index("test_fam", "python", api_surface=api_surface)
         assert "it.seems" not in index, (
             "Prose sentence matching ClassName.word pattern must be rejected by class-name gate"
         )
@@ -860,8 +836,7 @@ class TestErcMemberIndexPopulatesTableCells:
         ])
         # api_surface contains Document, not UnknownClass
         api_surface = [{"name": "Document", "properties": [], "methods": []}]
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
-            index = _br._build_erc_member_index("test_fam", "python", api_surface=api_surface)
+        index = _br._build_erc_member_index("test_fam", "python", api_surface=api_surface)
         assert "UnknownClass.some_method" not in index, (
             "Class absent from api_surface must be rejected by class-name gate"
         )
@@ -880,9 +855,8 @@ class TestErcMemberIndexPopulatesTableCells:
                 "confidence": 0.80,
             }
         ])
-        with patch.object(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
-            # api_surface defaults to None → gate disabled → claim indexed
-            index = _br._build_erc_member_index("test_fam", "python")
+        # api_surface defaults to None → gate disabled → claim indexed
+        index = _br._build_erc_member_index("test_fam", "python")
         assert "AnyClass.any_member" in index, (
             "Without api_surface, class-name gate must be skipped for backward compatibility"
         )
@@ -1038,7 +1012,7 @@ class TestEnumMemberErcLookup:
 class TestLoadUpdateApis:
     """Fix D: _load_update_apis returns modified + new + resurrected API sets."""
 
-    def test_includes_all_three_fields(self, tmp_path, monkeypatch):
+    def test_includes_all_three_fields(self, tmp_path):
         import json
         import batch_reference as br
 
@@ -1050,11 +1024,10 @@ class TestLoadUpdateApis:
             "resurrected_apis": ["ClassD"],
         }), encoding="utf-8")
 
-        monkeypatch.setattr(br, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
         result = br._load_update_apis("test", "net")
         assert result == {"ClassA", "ClassB", "ClassC", "ClassD"}
 
-    def test_missing_fields_use_empty_default(self, tmp_path, monkeypatch):
+    def test_missing_fields_use_empty_default(self, tmp_path):
         import json
         import batch_reference as br
 
@@ -1064,13 +1037,11 @@ class TestLoadUpdateApis:
             "modified_apis": ["ClassA"],
         }), encoding="utf-8")
 
-        monkeypatch.setattr(br, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
         result = br._load_update_apis("test", "net")
         assert result == {"ClassA"}
 
-    def test_missing_file_returns_none(self, tmp_path, monkeypatch):
+    def test_missing_file_returns_none(self, tmp_path):
         import batch_reference as br
-        monkeypatch.setattr(br, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
         result = br._load_update_apis("test", "net")
         assert result is None
 
@@ -1087,7 +1058,7 @@ class TestUpdateDeltaBehavior:
     unmodified pages are skipped.  This is the core incremental-update guarantee.
     """
 
-    def test_update_mode_targets_only_modified_apis(self, tmp_path, monkeypatch):
+    def test_update_mode_targets_only_modified_apis(self, tmp_path):
         """With 3 existing pages and 1 in modified_apis, skipped == 2 (not 3).
 
         This proves the delta chain is incremental: pages not in knowledge_delta.json
@@ -1122,9 +1093,6 @@ class TestUpdateDeltaBehavior:
             (page_dir / f"{name}.md").write_text(
                 f"---\nauto_updatable: true\n---\n# {name}\n", encoding="utf-8"
             )
-
-        monkeypatch.setattr(_br, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
-        monkeypatch.setattr(_br, "CONTENT_ROOT", tmp_path / "content" / "reference.aspose.org" / "en")
 
         result = run("fake", "python", update=True, dry_run=True)
 

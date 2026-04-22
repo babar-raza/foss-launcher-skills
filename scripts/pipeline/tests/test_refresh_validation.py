@@ -31,6 +31,18 @@ from reconcile_triage import reconcile_triage_page, TriageSource, ReconcileTriag
 
 
 # ---------------------------------------------------------------------------
+# Path isolation (autouse)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture(autouse=True)
+def _isolate_paths(tmp_path):
+    _rk.configure(repo_root=tmp_path)
+    yield
+    _rk.configure()
+
+
+# ---------------------------------------------------------------------------
 # Shared helpers
 # ---------------------------------------------------------------------------
 
@@ -325,8 +337,7 @@ class TestEnrichmentSuccessPath:
 
         with _patch_clone_dir(tmp_path), _patch_head("new"), _patch_model("old"), \
                 patch.object(_rk, "_run", side_effect=fake_run), \
-                patch.object(_rk, "_run_completeness_check"), \
-                patch.object(_rk, "KNOWLEDGE_ROOT", knowledge_root):
+                patch.object(_rk, "_run_completeness_check"):
             result = refresh("cells", "python")
 
         assert result == "refreshed"
@@ -345,8 +356,7 @@ class TestEnrichmentSuccessPath:
 
         with _patch_clone_dir(tmp_path), _patch_head("new_sha"), _patch_model("old_sha"), \
                 patch.object(_rk, "_run", side_effect=fake_run), \
-                patch.object(_rk, "_run_completeness_check"), \
-                patch.object(_rk, "KNOWLEDGE_ROOT", knowledge_root):
+                patch.object(_rk, "_run_completeness_check"):
             result = refresh("cells", "python")
 
         assert result == "refreshed"
@@ -391,8 +401,7 @@ class TestEnrichmentFailurePath:
 
         with _patch_clone_dir(tmp_path), _patch_head("new"), _patch_model("old"), \
                 patch.object(_rk, "_run", side_effect=fake_run), \
-                patch.object(_rk, "_run_completeness_check"), \
-                patch.object(_rk, "KNOWLEDGE_ROOT", knowledge_root):
+                patch.object(_rk, "_run_completeness_check"):
             result = refresh("cells", "python")
 
         assert result == "refreshed"
@@ -437,8 +446,7 @@ class TestEnrichmentFailurePath:
 
         with _patch_clone_dir(tmp_path), _patch_head("new_sha"), _patch_model("old_sha"), \
                 patch.object(_rk, "_run", side_effect=fake_run), \
-                patch.object(_rk, "_run_completeness_check"), \
-                patch.object(_rk, "KNOWLEDGE_ROOT", knowledge_root):
+                patch.object(_rk, "_run_completeness_check"):
             result = refresh("cells", "python")
 
         assert result == "refreshed"
@@ -454,8 +462,8 @@ class TestLoadKnowledgeDelta:
     """RH-202: _load_knowledge_delta reads knowledge_delta.json or returns None."""
 
     def test_returns_none_when_file_missing(self, tmp_path):
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
-            result = _load_knowledge_delta("cells", "net")
+        _rk.configure(knowledge_root=tmp_path)
+        result = _load_knowledge_delta("cells", "net")
         assert result is None
 
     def test_returns_dict_when_valid(self, tmp_path):
@@ -467,8 +475,8 @@ class TestLoadKnowledgeDelta:
                  "generated_at": "2026-04-17T00:00:00+00:00"}
         (merged / "knowledge_delta.json").write_text(json.dumps(delta), encoding="utf-8")
 
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
-            result = _load_knowledge_delta("cells", "net")
+        _rk.configure(knowledge_root=tmp_path)
+        result = _load_knowledge_delta("cells", "net")
 
         assert isinstance(result, dict)
         assert result["new_apis"] == ["Foo"]
@@ -478,8 +486,8 @@ class TestLoadKnowledgeDelta:
         merged.mkdir(parents=True)
         (merged / "knowledge_delta.json").write_text("{not valid json", encoding="utf-8")
 
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
-            result = _load_knowledge_delta("cells", "net")
+        _rk.configure(knowledge_root=tmp_path)
+        result = _load_knowledge_delta("cells", "net")
 
         assert result is None
 
@@ -488,8 +496,8 @@ class TestLoadKnowledgeDelta:
         merged.mkdir(parents=True)
         (merged / "knowledge_delta.json").write_text("[]", encoding="utf-8")
 
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
-            result = _load_knowledge_delta("cells", "net")
+        _rk.configure(knowledge_root=tmp_path)
+        result = _load_knowledge_delta("cells", "net")
 
         assert result is None
 
@@ -506,56 +514,56 @@ class TestHasPendingDelta:
         (merged / "knowledge_delta.json").write_text(json.dumps(base), encoding="utf-8")
 
     def test_false_when_file_missing(self, tmp_path):
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
-            assert _has_pending_delta("cells", "net") is False
+        _rk.configure(knowledge_root=tmp_path)
+        assert _has_pending_delta("cells", "net") is False
 
     def test_false_when_all_empty(self, tmp_path):
         merged = tmp_path / "cells" / "net" / "merged"
         merged.mkdir(parents=True)
         self._write_delta(merged)
 
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
-            assert _has_pending_delta("cells", "net") is False
+        _rk.configure(knowledge_root=tmp_path)
+        assert _has_pending_delta("cells", "net") is False
 
     def test_true_when_new_apis_present(self, tmp_path):
         merged = tmp_path / "cells" / "net" / "merged"
         merged.mkdir(parents=True)
         self._write_delta(merged, new_apis=["NewClass"])
 
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
-            assert _has_pending_delta("cells", "net") is True
+        _rk.configure(knowledge_root=tmp_path)
+        assert _has_pending_delta("cells", "net") is True
 
     def test_true_when_removed_apis_present(self, tmp_path):
         merged = tmp_path / "cells" / "net" / "merged"
         merged.mkdir(parents=True)
         self._write_delta(merged, removed_apis=["OldClass"])
 
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
-            assert _has_pending_delta("cells", "net") is True
+        _rk.configure(knowledge_root=tmp_path)
+        assert _has_pending_delta("cells", "net") is True
 
     def test_true_when_modified_apis_present(self, tmp_path):
         merged = tmp_path / "cells" / "net" / "merged"
         merged.mkdir(parents=True)
         self._write_delta(merged, modified_apis=["ChangedClass"])
 
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
-            assert _has_pending_delta("cells", "net") is True
+        _rk.configure(knowledge_root=tmp_path)
+        assert _has_pending_delta("cells", "net") is True
 
     def test_true_when_removed_claims_present(self, tmp_path):
         merged = tmp_path / "cells" / "net" / "merged"
         merged.mkdir(parents=True)
         self._write_delta(merged, removed_claims=["SC-001"])
 
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
-            assert _has_pending_delta("cells", "net") is True
+        _rk.configure(knowledge_root=tmp_path)
+        assert _has_pending_delta("cells", "net") is True
 
     def test_true_when_new_claims_present(self, tmp_path):
         merged = tmp_path / "cells" / "net" / "merged"
         merged.mkdir(parents=True)
         self._write_delta(merged, new_claims=["SC-100"])
 
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
-            assert _has_pending_delta("cells", "net") is True
+        _rk.configure(knowledge_root=tmp_path)
+        assert _has_pending_delta("cells", "net") is True
 
     def test_true_when_modified_claims_present(self, tmp_path):
         """Regression: modified_claims must trigger pending=True (was silently skipped)."""
@@ -563,8 +571,8 @@ class TestHasPendingDelta:
         merged.mkdir(parents=True)
         self._write_delta(merged, modified_claims=["SC-042"])
 
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
-            assert _has_pending_delta("cells", "net") is True
+        _rk.configure(knowledge_root=tmp_path)
+        assert _has_pending_delta("cells", "net") is True
 
     def test_true_when_resurrected_apis_present(self, tmp_path):
         """Regression: resurrected_apis must trigger pending=True (was silently skipped)."""
@@ -572,8 +580,8 @@ class TestHasPendingDelta:
         merged.mkdir(parents=True)
         self._write_delta(merged, resurrected_apis=["ResurrectedClass"])
 
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
-            assert _has_pending_delta("cells", "net") is True
+        _rk.configure(knowledge_root=tmp_path)
+        assert _has_pending_delta("cells", "net") is True
 
 
 class TestDeltaAwareCurrentPath:
@@ -596,8 +604,7 @@ class TestDeltaAwareCurrentPath:
         self._write_delta(merged)  # all empty
 
         with _patch_clone_dir(tmp_path), _patch_head(sha), _patch_model(sha), \
-                patch.object(_rk, "_update_clone", return_value=None), \
-                patch.object(_rk, "KNOWLEDGE_ROOT", knowledge_root):
+                patch.object(_rk, "_update_clone", return_value=None):
             result = refresh("cells", "net")
 
         assert result == "current"
@@ -612,8 +619,7 @@ class TestDeltaAwareCurrentPath:
         self._write_delta(merged, new_apis=["PendingClass"])  # non-empty
 
         with _patch_clone_dir(tmp_path), _patch_head(sha), _patch_model(sha), \
-                patch.object(_rk, "_update_clone", return_value=None), \
-                patch.object(_rk, "KNOWLEDGE_ROOT", knowledge_root):
+                patch.object(_rk, "_update_clone", return_value=None):
             result = refresh("cells", "net")
 
         assert result == "current"
@@ -628,8 +634,7 @@ class TestDeltaAwareCurrentPath:
         self._write_delta(merged, new_apis=["PendingClass"], removed_apis=["OldClass"])
 
         with _patch_clone_dir(tmp_path), _patch_head(sha), _patch_model(sha), \
-                patch.object(_rk, "_update_clone", return_value=None), \
-                patch.object(_rk, "KNOWLEDGE_ROOT", knowledge_root):
+                patch.object(_rk, "_update_clone", return_value=None):
             refresh("cells", "net")
 
         output = capsys.readouterr().out

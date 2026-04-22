@@ -21,6 +21,18 @@ from refresh_knowledge import refresh, _build_erc_member_set
 
 
 # ---------------------------------------------------------------------------
+# Path isolation (autouse)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture(autouse=True)
+def _isolate_paths(tmp_path):
+    _rk.configure(repo_root=tmp_path)
+    yield
+    _rk.configure()
+
+
+# ---------------------------------------------------------------------------
 # Helper stubs
 # ---------------------------------------------------------------------------
 
@@ -225,8 +237,7 @@ class TestStaleFlagLifecycle:
 
         with _patch_clone_dir(tmp_path), _patch_head("new_sha"), _patch_model("old_sha"), \
              patch.object(_rk, "_run", return_value=True), \
-             patch.object(_rk, "_run_completeness_check"), \
-             patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
+             patch.object(_rk, "_run_completeness_check"):
             result = refresh("cells", "python")
 
         assert result == "refreshed"
@@ -247,8 +258,7 @@ class TestStaleFlagLifecycle:
             return False  # scout fails → refresh returns "failed" immediately
 
         with _patch_clone_dir(tmp_path), _patch_head("new_sha"), _patch_model("old_sha"), \
-             patch.object(_rk, "_run", side_effect=fail_scout), \
-             patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
+             patch.object(_rk, "_run", side_effect=fail_scout):
             result = refresh("cells", "python")
 
         assert result == "failed"
@@ -267,8 +277,7 @@ class TestStaleFlagLifecycle:
 
         with _patch_clone_dir(tmp_path), _patch_head("new_sha"), _patch_model("old_sha"), \
              patch.object(_rk, "_run", return_value=True), \
-             patch.object(_rk, "_run_completeness_check"), \
-             patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
+             patch.object(_rk, "_run_completeness_check"):
             result = refresh("cells", "python")
 
         assert result == "refreshed"
@@ -363,8 +372,7 @@ class TestSetStaleSinceRenamesDelta:
         model_yaml.write_text("stale_since: null\nrepo_sha: abc123\n", encoding="utf-8")
         delta_json.write_text('{"modified_apis": []}', encoding="utf-8")
 
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
-            _rk._set_stale_since("test", "net")
+        _rk._set_stale_since("test", "net")
 
         assert not delta_json.exists(), "delta.json should have been renamed"
         assert prev_json.exists(), "delta.prev.json should exist"
@@ -377,8 +385,7 @@ class TestSetStaleSinceRenamesDelta:
         model_yaml = merged / "model.yaml"
         model_yaml.write_text("stale_since: null\nrepo_sha: abc123\n", encoding="utf-8")
 
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
-            _rk._set_stale_since("test", "net")
+        _rk._set_stale_since("test", "net")
 
         prev_json = merged / "knowledge_delta.prev.json"
         assert not prev_json.exists()
@@ -393,8 +400,7 @@ class TestSetStaleSinceRenamesDelta:
         model_yaml.write_text("stale_since: '2026-04-15'\nrepo_sha: abc123\n", encoding="utf-8")
         delta_json.write_text('{"modified_apis": []}', encoding="utf-8")
 
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path / "knowledge"):
-            _rk._set_stale_since("test", "net")
+        _rk._set_stale_since("test", "net")
 
         # Delta should still exist (not renamed) because stale_since was already set
         assert delta_json.exists()
@@ -485,8 +491,8 @@ class TestWriteModelField:
             yaml.safe_dump({"repo_sha": "abc123", "version": "1.0"}),
             encoding="utf-8",
         )
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
-            _rk._write_model_field("family", "net", "enrichment_status", "full")
+        _rk.configure(knowledge_root=tmp_path)
+        _rk._write_model_field("family", "net", "enrichment_status", "full")
         data = yaml.safe_load(model_path.read_text(encoding="utf-8"))
         assert data["enrichment_status"] == "full"
         assert data["repo_sha"] == "abc123", "Existing fields must be preserved"
@@ -498,15 +504,15 @@ class TestWriteModelField:
         merged.mkdir(parents=True)
         model_path = merged / "model.yaml"
         model_path.write_text(yaml.safe_dump({"repo_sha": "def456"}), encoding="utf-8")
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
-            _rk._write_model_field("family", "net", "enrichment_status", "scout-only")
+        _rk.configure(knowledge_root=tmp_path)
+        _rk._write_model_field("family", "net", "enrichment_status", "scout-only")
         data = yaml.safe_load(model_path.read_text(encoding="utf-8"))
         assert data["enrichment_status"] == "scout-only"
 
     def test_silent_when_model_yaml_absent(self, tmp_path):
         """_write_model_field must not raise when model.yaml doesn't exist."""
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
-            _rk._write_model_field("no_family", "no_platform", "enrichment_status", "full")
+        _rk.configure(knowledge_root=tmp_path)
+        _rk._write_model_field("no_family", "no_platform", "enrichment_status", "full")
         # No exception raised = pass
 
     def test_overwrites_existing_field(self, tmp_path):
@@ -518,8 +524,8 @@ class TestWriteModelField:
         model_path.write_text(
             yaml.safe_dump({"enrichment_status": "scout-only"}), encoding="utf-8"
         )
-        with patch.object(_rk, "KNOWLEDGE_ROOT", tmp_path):
-            _rk._write_model_field("family", "net", "enrichment_status", "full")
+        _rk.configure(knowledge_root=tmp_path)
+        _rk._write_model_field("family", "net", "enrichment_status", "full")
         data = yaml.safe_load(model_path.read_text(encoding="utf-8"))
         assert data["enrichment_status"] == "full"
 
