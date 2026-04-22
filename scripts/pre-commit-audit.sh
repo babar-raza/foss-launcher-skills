@@ -46,13 +46,17 @@ fi
 # ── Step 4: Forbidden path guard on staged content files ────────────────────
 echo "[pre-commit] Step 4: Forbidden path guard ..."
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM 2>/dev/null || true)
-FORBIDDEN_PATTERNS=(
+# Hard-blocked paths: changes here always require explicit human override
+HARD_BLOCKED_PATTERNS=(
   "^themes/"
   "^layouts/"
   "^configs/"
   "^AGENTS\.md$"
   "^CLAUDE\.md$"
   "^CODEX\.md$"
+)
+# Soft-warned paths: informational only (scripts/skills change frequently during dev)
+SOFT_WARNED_PATTERNS=(
   "^\.claude/"
   "^\.agents/"
   "^\.kilocode/"
@@ -60,10 +64,16 @@ FORBIDDEN_PATTERNS=(
   "^scripts/"
 )
 for staged_file in $STAGED_FILES; do
-  for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
+  for pattern in "${HARD_BLOCKED_PATTERNS[@]}"; do
     if echo "$staged_file" | grep -qE "$pattern"; then
-      # Allow changes to skills/ and scripts/ only when they come from the parity
-      # program or explicit feature work — but warn the operator to confirm
+      echo "  BLOCK: staged file in hard-forbidden path: $staged_file"
+      echo "         Remove from staging or use --no-verify for explicit human override."
+      ERRORS=$((ERRORS + 1))
+      break
+    fi
+  done
+  for pattern in "${SOFT_WARNED_PATTERNS[@]}"; do
+    if echo "$staged_file" | grep -qE "$pattern"; then
       echo "  WARN: staged file matches restricted path: $staged_file"
       echo "        If this is intentional (migration, maintenance), this is informational only."
       break
