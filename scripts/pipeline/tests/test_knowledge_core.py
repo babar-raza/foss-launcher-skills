@@ -424,3 +424,78 @@ class TestKnowledgeLazyIO:
         assert "_knowledge_loaded" not in k.__dict__, (
             "_ensure_loaded() must NOT be called for private-name lookups"
         )
+
+
+# ---------------------------------------------------------------------------
+# OBS-03: Self-referential bases filtering
+# ---------------------------------------------------------------------------
+
+
+class TestSelfReferentialBasesFilter:
+    """OBS-03: Knowledge must strip self-referential bases on load."""
+
+    def _make_knowledge_root(self, tmp_path, api_list):
+        import yaml as _yaml
+        merged = tmp_path / "test" / "python" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "model.yaml").write_text(
+            _yaml.dump({"version": "1.0", "repo_sha": "test_sha"}),
+            encoding="utf-8",
+        )
+        (merged / "api_surface.json").write_text(
+            json.dumps(api_list), encoding="utf-8",
+        )
+        return tmp_path
+
+    def test_self_ref_removed_from_parents(self, tmp_path):
+        """A3DObject listing itself as its own base must be filtered out."""
+        api = [
+            {
+                "name": "A3DObject",
+                "kind": "class_definition",
+                "doc": "", "file": "a.py", "line": 1,
+                "bases": ["A3DObject", "INamedObject"],
+                "methods": [], "properties": [],
+            },
+        ]
+        from knowledge_core import Knowledge
+        k = Knowledge("test", "python", knowledge_root=self._make_knowledge_root(tmp_path, api))
+        assert "A3DObject" not in k.parents.get("A3DObject", []), (
+            "Self-referential base must be removed"
+        )
+        assert "INamedObject" in k.parents.get("A3DObject", []), (
+            "Legitimate base must be preserved"
+        )
+
+    def test_no_self_ref_leaves_bases_intact(self, tmp_path):
+        """Classes without self-refs keep all bases."""
+        api = [
+            {
+                "name": "Mesh",
+                "kind": "class_definition",
+                "doc": "", "file": "m.py", "line": 1,
+                "bases": ["Entity", "IMeshConvertible"],
+                "methods": [], "properties": [],
+            },
+        ]
+        from knowledge_core import Knowledge
+        k = Knowledge("test", "python", knowledge_root=self._make_knowledge_root(tmp_path, api))
+        assert k.parents.get("Mesh") == ["Entity", "IMeshConvertible"]
+
+    def test_has_method_no_infinite_loop(self, tmp_path):
+        """Self-ref in bases must not cause infinite loop in has_method."""
+        api = [
+            {
+                "name": "AnimationChannel",
+                "kind": "class_definition",
+                "doc": "", "file": "a.py", "line": 1,
+                "bases": ["AnimationChannel", "KeyframeSequence"],
+                "methods": [{"name": "play", "params": [], "return_type": "", "doc": "", "line": 5}],
+                "properties": [],
+            },
+        ]
+        from knowledge_core import Knowledge
+        k = Knowledge("test", "python", knowledge_root=self._make_knowledge_root(tmp_path, api))
+        # Should not hang; self-ref is filtered
+        assert k.has_method("AnimationChannel", "play") is True
+        assert k.has_method("AnimationChannel", "nonexistent") is False

@@ -1337,6 +1337,9 @@ def extract_api_surface(
                 has_docstring=bool(cdoc),
                 in_module_all=(cname in module_all_names),
             )
+            # OBS-03: Remove self-referential bases (tree-sitter extraction bug)
+            bases = [b for b in bases if b != cname]
+
             cls_record: dict[str, Any] = {
                 "name": cname,
                 "kind": cnode.type,
