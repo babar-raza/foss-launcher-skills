@@ -192,12 +192,6 @@
       "T3": 1,
       "T4": 0
     },
-    "scripts/pipeline/tests/test_grade_manifest.py": {
-      "T1": 1,
-      "T2": 0,
-      "T3": 0,
-      "T4": 0
-    },
     "scripts/pipeline/tests/test_ground_check.py": {
       "T1": 3,
       "T2": 0,
@@ -372,12 +366,6 @@
       "T3": 0,
       "T4": 0
     },
-    "scripts/pipeline/tests/test_skill_run_manager.py": {
-      "T1": 1,
-      "T2": 0,
-      "T3": 0,
-      "T4": 0
-    },
     "scripts/pipeline/tests/test_smoke_test.py": {
       "T1": 0,
       "T2": 2,
@@ -487,12 +475,12 @@
       "T4": 0
     }
   },
-  "generated_at": "2026-04-22T11:31:28Z",
+  "generated_at": "2026-04-22T12:34:59Z",
   "generator": "scripts/ci/check_monkeypatch_lint.py --baseline",
   "generator_version": "2.0.0",
   "schema_version": 1,
   "totals": {
-    "T1": 350,
+    "T1": 348,
     "T2": 449,
     "T3": 26,
     "T4": 11
