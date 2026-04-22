@@ -73,6 +73,8 @@ These scripts have a `if __name__ == "__main__"` block. Invoke them directly.
 | `normalize_yaml_style.py` | Normalize YAML formatting in knowledge files |
 | `plan_check.py` | Validate plan files |
 | `regenerate_reference.py` | Regenerate reference pages from knowledge |
+| `report_extract.py` | Extract open/unresolved items from markdown reports for backlog harvest (`parse_report`/`--json`/`--count-only`) |
+| `harvest_ledger.py` | Harvest ledger CRUD — tracks report items processed into backlog (`status`/`retry-failed`/`waive`/`reset`) |
 | `session_ledger.py` | Session-scoped file touch ledger for `/commit` scoping (`init`/`record`/`candidates`/`groups`) |
 | `session_logger.py` | Session logging utilities |
 | `sync_providers.py` | Provider registry synchronization |
@@ -273,6 +275,14 @@ Test file location is non-negotiable:
 - Root `tests/` → end-to-end integration spanning multiple subsystems only
 - Naming: `test_{module}.py` matching the source filename exactly
 - Sub-packages use flat naming: `test_prereqs.py` not `core/test_prereqs.py`
+
+### Testing seam requirements
+
+Tests MUST comply with AGENTS.md §16 (Tiered Monkeypatch Policy):
+- **T1 (path constants):** Use `configure()` seams, never `monkeypatch.setattr` or `patch.object`
+- **T2 (internal functions):** Use dependency injection (constructor, parameter, callback)
+- **T3 (I/O boundaries):** Annotate with `# T3-MOCK: target=... reason=... removal=...`
+- **T4 (env/dict):** Permitted without annotation
 
 When a module is renamed, deleted, or split: rename/delete/split its test file and update
 `test_targets` in registry.yaml accordingly. The registry is the enforcement contract.

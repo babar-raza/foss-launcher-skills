@@ -75,6 +75,10 @@ PROFESSIONALIZE_API_KEY=sk_xxxxxxxxxxxx  # Optional — LLM enrichment; TF-IDF f
 Should report 0 FAILs. If not, run `/getting-started` in a Claude session for
 guided setup.
 
+> **Testing policy:** Test code must comply with AGENTS.md §16 (Tiered Monkeypatch
+> Policy). Use `configure()` seams for path injection; never `monkeypatch.setattr`
+> on module-level path constants.
+
 ---
 
 ## 3. Session Flow: Init → Work → Commit

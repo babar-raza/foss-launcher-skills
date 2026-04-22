@@ -366,6 +366,7 @@ S-43 --no-llm (deterministic baseline)          [halts if > 50 findings → use 
 → S-43 (re-verify healed files; regression guard)
 → S-76 (commit) [only if fixed > 0 and regressions == 0]
 → final-report.md
+→ S-88 /backlog harvest (automatic on final-report.md — extracts unresolved items to backlog)
 ```
 
 AMBIGUOUS findings and findings with `tier3_non_determinism_flag: true` are never auto-repaired.
@@ -702,6 +703,8 @@ Agents must activate the upstream skill if it has not already been confirmed as 
 | `/system-heal` (S-87) | S-54 `/knowledge-bootstrap` | Always (knowledge must not be stale before healing) |
 | `/publish-readiness-review` (S-90) | S-54 `/knowledge-bootstrap` | Always (knowledge must not be stale before inspection) |
 | `/publish-readiness-review` (S-90) | S-25 `/eval-page` or content_eval | Grades must be current at EVALUATOR_LOGIC_VERSION |
+| `/backlog harvest` (S-88) | `report_extract.py` | Always (extracts open items from reports) |
+| `/backlog harvest` (S-88) | `harvest_ledger.py` | Always (tracks harvest state and dedup) |
 | Any content write | S-01 `/path-guard` | Always (final gate) |
 
 If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do not continue to the downstream skill.
@@ -1260,6 +1263,47 @@ Re-grading a page that did not need it is always safe — results are idempotent
 - Content page checks only fire when `ClassName` is known in `api_surface.json` (prevents false positives from external classes).
 - **FAIL** means a documented dot-notation method call was not found in `api_surface.json` for that class or its parents. Action: remove the phantom method or correct the class name.
 
+### ELV Bump Moratorium — Effective 2026-04-21
+
+**`EVALUATOR_LOGIC_VERSION` bumps are suspended.** Bumping ELV rewrites frontmatter on every graded page with no content improvement. This moratorium governs all future ELV changes.
+
+#### Allowed bump triggers (break/fix and safety only)
+- A canonical evaluator produces confirmed **false results** on real pages — fix logic and bump.
+- A **safety defect**: a canonical evaluator misses genuinely dangerous content — fix and bump.
+- A one-time canonical migration when Grade Contract items are formally updated.
+
+#### NOT allowed
+- Threshold calibration (tighten/loosen FAIL/WARN sensitivity).
+- Adding a new evaluator to `DEFAULT_EVALUATORS` (start it in `EXPERIMENTAL_EVALUATORS` instead).
+- Improving precision or reducing false positives in an experimental evaluator.
+- Any change to an evaluator in `EXPERIMENTAL_EVALUATORS` (these do not contribute to ELV).
+
+#### Write policy — when `--write-grade` may update frontmatter
+Frontmatter grade fields are updated ONLY when:
+1. Page has no grade (first grading), OR
+2. Page body content changed AND the new canonical grade letter differs from the stored grade, OR
+3. The grade crossed a letter boundary (A↔B↔C↔D↔F) AND human approval has been granted.
+
+Frontmatter MUST NOT be updated when:
+- Only ELV or evaluator versions changed (operational state only — goes to external manifest in Phase 2).
+- Grade letter is unchanged even if body changed.
+- A diagnostic/experimental evaluator finding changed.
+- Grading was run for reporting purposes only (no healing).
+
+#### grade_reasons must include evaluator attribution
+- **Required format**: `"N FAIL finding(s) [evaluator_name×N] -> base grade X"`
+- **Example**: `"1 FAIL finding(s) [api_completeness×1] -> base grade C"`
+- **NOT acceptable**: `"1 FAIL finding(s) -> base grade C"` (opaque — no evaluator named)
+
+#### Bulk migration annotation (DEC-06)
+Any commit touching ≥20 .md files with grade-only frontmatter changes (no body changes) requires:
+- Commit message: `BULK-GRADE-MIGRATION: approved by [name] on [date], reason: [policy trigger]`
+- Entry in `reports/migrations/MIGRATION_LOG.md`
+
+**Grade contract:** See `GRADE_CONTRACT.md` (v1.0) for frozen grade semantics, canonical schema, and change protocol.
+**Governing plan:** `C:\Users\prora\.claude\plans\curried-pondering-music.md` FINAL ARCHITECTURE §4, §15.5
+**Effective:** 2026-04-21 | **Status:** ACTIVE
+
 ---
 
 ## 9b. Regeneration After Extraction Script Changes
@@ -1302,6 +1346,7 @@ Use this matrix to decide what action is required when a specific artifact or sc
 | Running `batch_reference` (S-62) for a product | Verify member-doc ERC coverage ≥ 20% per product first: `python scripts/pipeline/description_coverage_audit.py`; if any product is below threshold, run `enrich --mode member-doc` then `promote.py` before generating reference pages | Per product |
 | `enrich.py --mode member-doc` completed | Run `promote.py` to merge enriched claims, then verify coverage with `description_coverage_audit.py` | Per product |
 | Refresh produces `coverage_report.md` showing < 100% subdomain coverage | Re-run `/refresh-product {family} {platform}` to fill gaps; or manually run `refresh_review.py {family} {platform} --report` to assess which subdomains were missed | Per product |
+| Qualifying report written to `reports/` | Automatic harvest via producing skill (S-87 Phase 8 step 10, S-76 step 5b); safety net via `/backlog update` step 1b and `/session-start` step 6 advisory | Per report |
 
 **Manual edit after content-only change**: Use S-73 (manual-edit) → re-run S-23 + audit.py. Do not re-run knowledge bootstrap unless `stale_since` is set — content-only edits do not require knowledge regeneration.
 
@@ -1917,7 +1962,7 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | truth-audit-content | S-85 | Line-level content truth audit against clone cache and knowledge model (read-only; decomposes pages into units, verifies each, produces gap ledger); backs `scripts/pipeline/truth_audit_content.py` |
 | refresh-product-page | S-86 | Re-generate a single products.aspose.org landing page through the full S-61 pipeline with no-downgrade-guard protection; use when S-61 template has been improved and existing pages should benefit |
 | system-heal | S-87 | Audit-driven content healing: deterministic baseline (--no-llm) → extended baseline (LLM + tier3_cache) → origin classification (origin_map.py) → content healing (S-74/S-46/S-26 by route) → pipeline evidence report → re-verify → commit or escalate; 8-phase; max 50 findings (use S-44+S-46 above that); AMBIGUOUS and tier3_non_determinism_flag findings never auto-repaired; backs `scripts/gap-eval/origin_map.py` + `scripts/gap-eval/tier3_cache.py` |
-| backlog | S-88 | Unified backlog management and planning: view briefing, automated plan scanning (with `.claude/plans/` repo-affinity filtering), add items (with intake dedup), investigate (intake), investigate-run (execute existing INV item inline — reads brief, gathers evidence, records findings, moves to Resolved), surface (contextual item surfacing — scores backlog against response context, returns top matches; called automatically per §15), remind, session handoff, archive, triage inbox, reconcile (with cross-item analysis), status investigation, plan creation, replan amendment, plan hardening, traceability, governed closeout, merge, group, link; all state in `backlog/` + `plans/from_backlog/` (gitignored); 19 subcommands |
+| backlog | S-88 | Unified backlog management and planning: view briefing, automated plan scanning (with `.claude/plans/` repo-affinity filtering), add items (with intake dedup), investigate (intake), investigate-run (execute existing INV item inline — reads brief, gathers evidence, records findings, moves to Resolved), surface (contextual item surfacing — scores backlog against response context, returns top matches; called automatically per §15), remind, session handoff, archive, triage inbox, reconcile (with cross-item analysis), status investigation, plan creation, replan amendment, plan hardening, traceability, governed closeout, merge, group, link, **harvest** (automatic report → backlog intake: extracts open items from qualifying reports via `report_extract.py`, routes through harvest ledger for dedup/state tracking via `harvest_ledger.py`, auto-intakes high-confidence items to inbox, queues low-confidence for review; primary trigger: report finalization by S-87/S-76; secondary: `/backlog update` step 1b; safety net: `/session-start` step 6 advisory + `/backlog reconcile` step 8d); all state in `backlog/` + `plans/from_backlog/` (gitignored); 23 subcommands |
 | heal-batch | S-89 | Batch healing from content_eval report: routes findings through heal policy table to auto/llm/regen modes in a single pass; auto-mode applies deterministic fixers; llm-mode emits S-26 invocation descriptors; regen-mode emits causal-backtrack descriptors with `regen_after` flags; optional before/after verification with regression detection; supersedes deterministic portion of S-40 (batch-remediate); backs `scripts/pipeline/remediate.py heal` |
 | publish-readiness-review | S-90 | Agent-executed governed inspection — replaces all "human-review" dead-ends with bounded inspection, judgment, skill routing, re-verification, and verdict; reads audit context, classifies pages (PUBLISH-READY / NEEDS-ACTION / ACCEPTABLE-GRADE-C / STRUCTURAL-GAP / BLOCKED), routes to S-21/S-26/batch-reference/S-65/S-38/S-73/S-74; H-gate equivalents for H-01..H-05; writes inspection-manifest.json + action-log.json + final-verdict.md; supports --scope, --triage-unknowns, --dry-run; backs `skills/publish-readiness-review.md` |
 | plan-normalize | S-91 | Execution-safe plan quality gate — classifies every section of a plan (historical-reference / verified-current-state / completed-archive / open-actionable / operator-guidance / design-rationale / intentionally-omitted), verifies claims against current repo state, extracts only still-open work, marks each item ready/blocked/stale/already-done/needs-replan, selects single next executable item, blocks execution on ambiguous sections or unverified capabilities; modes: assess (verdict only), amend (writes exec-pack sibling or edits in-place), launch (assess + amend + execute first safe item); mandatory gate before executing inherited, long, amended, or archive-containing plans; backs `skills/plan-normalize.md` |
@@ -2105,16 +2150,34 @@ The block uses the plain "Related backlog items:" label — no additional headin
 
 ---
 
-## 16. Testing Seam Contract — Anti-Monkeypatch Policy
+## 16. Testing Seam Contract — Tiered Monkeypatch Policy
 
-Pipeline scripts MUST be testable without `monkeypatch.setattr` or `unittest.mock.patch.object`
-on module-level path constants. All structural roots and cache paths MUST be injectable via
-a `configure()` function or CLI argument.
+Pipeline test code is governed by a four-tier model that classifies every mock/patch
+usage by risk. Tiers 1–2 are **banned**; Tier 3 requires annotation; Tier 4 is permitted.
 
-### Contract Requirements
+### 16.1 Tier Definitions
 
-**For every pipeline script that defines a module-level path constant** (e.g. `REPO_ROOT`,
-`KNOWLEDGE_ROOT`, `CONTENT_ROOT`, `_SESSION_DIR`, `_DEFAULT_CACHE`):
+| Tier | Name | Examples | Required Alternative | Enforcement |
+|------|------|---------|---------------------|-------------|
+| **T1** | Path constant patching | `monkeypatch.setattr(mod, "REPO_ROOT", ...)`, `patch.object(mod, "_REPO_ROOT", ...)`, `@patch("mod.CONTENT_ROOT")` | `configure()` seam (legacy) or constructor/parameter DI (new code) | Block (CI + pre-commit) |
+| **T2** | Internal function replacement | `monkeypatch.setattr(mod, "_private_func", ...)`, `patch.object(mod, "_run", ...)` | DI via constructor parameter, callback, protocol, or strategy | Block (CI ratchet + pre-commit) |
+| **T3** | External I/O boundary mocking | `sys.argv`, `subprocess.run`, HTTP clients, `sys.stdout` | Prefer `main(argv=None)` for CLI; structured annotation required | Lint: require annotation |
+| **T4** | Environment/dict patching | `patch.dict(os.environ, ...)`, `patch.dict(sys.modules, ...)` | None required | No enforcement |
+
+### 16.2 Guarded Path Constants
+
+The following module-level constants are T1-guarded. Any `monkeypatch.setattr`,
+`patch.object`, `@patch`, or direct test-scope assignment targeting these names is a
+T1 violation:
+
+`REPO_ROOT`, `KNOWLEDGE_ROOT`, `CONTENT_ROOT`, `_SESSION_DIR`, `_DEFAULT_CACHE`,
+`_DEFAULT_REPO_ROOT`, `_DEFAULT_KNOWLEDGE_ROOT`, `_DEFAULT_CONTENT_ROOT`,
+`_REPO_ROOT`, `_DEFAULT_MANIFEST_PATH`, `REPORTS_ROOT`, `_ROOT`, `_PENDING_DIR`,
+`_ARCHIVED_DIR`, `_RUNS_DIR`, `CANONICAL_DIR`, `_HERE`.
+
+### 16.3 Seam Pattern — `configure()` for Legacy Modules
+
+**For every pipeline script that defines a module-level path constant:**
 
 1. **`configure()` function required** — Expose a module-level `configure()` function that
    accepts keyword arguments matching the path constants and overrides their values.
@@ -2122,60 +2185,111 @@ a `configure()` function or CLI argument.
 
    ```python
    # Pattern: immutable default + mutable global + configure() + reset
-   _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[N]  # immutable built-in default
-   REPO_ROOT = _DEFAULT_REPO_ROOT                             # mutable module global
+   _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[N]
+   REPO_ROOT = _DEFAULT_REPO_ROOT
 
    def configure(repo_root: "Path | None" = None) -> None:
-       """Override REPO_ROOT for testing. Call with no args to reset."""
        global REPO_ROOT
        REPO_ROOT = repo_root if repo_root is not None else _DEFAULT_REPO_ROOT
    ```
 
-2. **CLI arg required for tools with a `main()`** — Scripts with a command-line interface
-   MUST also expose injectable paths as optional CLI arguments (e.g. `--repo-root`,
-   `--knowledge-root`, `--content-root`, `--cache-path`) that call `configure()` before
-   execution.
+2. **CLI arg required for tools with a `main()`** — Scripts with a CLI MUST also expose
+   injectable paths as optional arguments (e.g. `--repo-root`) that call `configure()`
+   before execution.
 
-3. **Tests MUST use `configure()`, never `monkeypatch`** — Test code MUST NOT use
-   `monkeypatch.setattr` or `patch.object` to override module-level path constants.
-   Use `configure(path=tmp_path)` before the call and `configure()` in a `finally` block.
+3. **Tests MUST use `configure()`, never `monkeypatch`** — Use `configure(path=tmp_path)`
+   before the call and `configure()` in a `finally` block or `yield`-based fixture.
 
    ```python
-   # Correct pattern — seam-based injection
    def test_run_in_isolation(tmp_path):
        import my_script
        my_script.configure(repo_root=tmp_path)
        try:
            result = my_script.run(...)
        finally:
-           my_script.configure()  # always reset to defaults
+           my_script.configure()  # reset to defaults
    ```
 
-### Scope
+4. **New modules** SHOULD prefer constructor/parameter DI over `configure()`.
+   `configure()` is acceptable for retrofitting existing modules only.
 
-This policy applies to all Python scripts in:
-- `scripts/pipeline/`
-- `scripts/ci/`
-- `scripts/translator/`
+### 16.4 T3 Annotation Schema
 
-### Existing Violations
+Every T3 mock MUST have a conforming comment on the preceding line:
 
-Existing tests that use `monkeypatch.setattr` or `patch.object` on path constants are
-**grandfathered** until the `check_monkeypatch_lint.py` pre-commit check is promoted to
-blocking mode. New tests introduced after this policy was written MUST comply.
+```python
+# T3-MOCK: target=sys.argv reason="CLI main() does not accept argv param" removal=TC-MP-XX
+monkeypatch.setattr("sys.argv", ["script", "--flag"])
+```
 
-### Enforcement
+Fields: `target` (what is mocked), `reason` (why DI is not feasible), `removal` (taskcard
+ID or `PERMANENT` with human approval). Missing or malformed annotations are lint errors.
 
-Automated enforcement is provided by `scripts/ci/check_monkeypatch_lint.py`, which is
-invoked from the pre-commit hook (Step 11) on staged test files. The check currently
-warns only; it will be promoted to blocking after all seams land.
+### 16.5 T2/T3 Boundary Rule
+
+An internal function may be reclassified as T3-equivalent **only** if ALL conditions hold:
+1. The function is a thin wrapper around a single external I/O call
+2. The wrapper adds no business logic
+3. The reclassification is entered in the exception register with `tier_override: "T2→T3"`
+4. The exception is approved by the human maintainer
+5. The exception has an expiry date (max 90 days) and a removal target taskcard
+
+### 16.6 Agent Output Requirements
+
+Agents MUST NOT recommend T1 or T2 monkeypatch patterns in plans, reports, or code
+suggestions. When test isolation is needed:
+- For path constants → recommend `configure()` seam or constructor DI
+- For internal functions → recommend parameter injection, protocol, or callback DI
+- For I/O boundaries → recommend T3 with annotation
+
+Any plan or report file containing a T1/T2 recommendation outside a `<!-- HISTORICAL -->`
+block is a lint failure.
+
+### 16.7 Scope
+
+This policy applies to all Python test files in:
+- `scripts/pipeline/tests/`
+- `scripts/ci/tests/`
+- `scripts/translator/tests/`
+- `tests/`
+
+Plan-file scanning applies to:
+- `.claude/plans/*.md`, `backlog/*.md` (except `CHANGELOG.md`), `reports/skill-gaps/*.md`,
+  `reports/skill-breakage/*.md`, `docs/*.md`
+
+### 16.8 Existing Violations and Sunset
+
+Existing T1/T2 violations are tracked in the committed baseline at
+`scripts/ci/monkeypatch_baseline.json`. The touched-file ratchet applies: if a PR
+modifies a test file containing T1 violations, that file must reach T1=0 before merge.
+
+T2 violations are governed by the exception register at
+`scripts/ci/monkeypatch_exceptions.json`. Each exception has an owner, expiry (max 90
+days), rationale, and removal target. Expired exceptions stop being exempt from lint.
+
+### 16.9 Enforcement
+
+| Mechanism | Location | Mode |
+|-----------|----------|------|
+| AST-first linter | `scripts/ci/check_monkeypatch_lint.py` | `--tier 1,2 --strict` (blocking) |
+| Pre-commit hook | Step 11 in `scripts/pre-commit-audit.sh` | Blocking for T1+T2 |
+| CI workflow | `.github/workflows/content-audit.yml` | Ratchet + baseline comparison |
+| Plan-file scanner | Integrated in linter | Fail on T1/T2 recommendations |
+
+**Invariant (INV-4):** Every policy statement in this section MUST have a corresponding
+automated enforcement mechanism. Policy without enforcement is documentation, not governance.
+
+### 16.10 Parallel-Test Safety
+
+`configure()` seams use unsynchronized module globals. Tests MUST NOT run with
+`pytest-xdist` or any parallel runner until seams are made thread-safe or replaced
+with constructor DI.
 
 ### Cross-Reference
 
 - §4 (Script Registration): scripts with `run()` or `main()` MUST expose configure() seams
 - §12 (File Map): see `scripts/ci/check_monkeypatch_lint.py` for the enforcement script
-
----
+- Master plan: `shiny-conjuring-hanrahan` (`.claude/plans/shiny-conjuring-hanrahan.md`)
 
 ## Operating Standard
 
