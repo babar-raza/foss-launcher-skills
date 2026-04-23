@@ -65,6 +65,7 @@ class TestStage2Determinism:
             checked_names.append(name)
             return _mock_grep_found()
 
+        # T3-MOCK: target=subprocess.run reason="grep clone-cache boundary call" removal=PERMANENT
         with patch("subprocess.run", side_effect=_capture_grep):
             stage2_knowledge_validation(
                 "test", "python", tmp_path, api_data, _make_id_fn,
@@ -87,6 +88,7 @@ class TestStage2Determinism:
                 checked.append(cmd[-2])
                 return _mock_grep_found()
 
+            # T3-MOCK: target=subprocess.run reason="grep clone-cache boundary call" removal=PERMANENT
             with patch("subprocess.run", side_effect=_capture):
                 stage2_knowledge_validation(
                     "test", "python", tmp_path, api_data, _make_id_fn,
@@ -111,6 +113,7 @@ class TestStage2Determinism:
                 checked.append(cmd[-2])
                 return _mock_grep_found()
 
+            # T3-MOCK: target=subprocess.run reason="grep clone-cache boundary call" removal=PERMANENT
             with patch("subprocess.run", side_effect=_capture):
                 stage2_knowledge_validation(
                     "test", "python", tmp_path, api_data, _make_id_fn,
@@ -126,6 +129,7 @@ class TestStage2Determinism:
         """Exhaustive mode catches phantom APIs that sampling would miss."""
         api_data = _make_api_data(20)
         # Make all entries "not found" in clone cache
+        # T3-MOCK: target=subprocess.run reason="grep clone-cache boundary call" removal=PERMANENT
         with patch("subprocess.run", side_effect=_mock_grep_not_found):
             findings = stage2_knowledge_validation(
                 "test", "python", tmp_path, api_data, _make_id_fn,
@@ -138,6 +142,7 @@ class TestStage2Determinism:
     def test_sampled_misses_phantoms(self, tmp_path):
         """Sampled mode only catches phantoms within the sample."""
         api_data = _make_api_data(50)
+        # T3-MOCK: target=subprocess.run reason="grep clone-cache boundary call" removal=PERMANENT
         with patch("subprocess.run", side_effect=_mock_grep_not_found):
             findings = stage2_knowledge_validation(
                 "test", "python", tmp_path, api_data, _make_id_fn,

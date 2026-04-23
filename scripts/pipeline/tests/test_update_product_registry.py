@@ -152,6 +152,7 @@ class TestPaginateRateLimit:
         ok_resp = self._make_response(200, [{"name": "repo1"}], {"Link": ""})
         ok_resp.raise_for_status = MagicMock()
 
+        # T3-MOCK: target=requests reason="HTTP boundary call to GitHub API" removal=PERMANENT
         with patch.object(org_scanner, "requests") as mock_req, \
              patch("org_scanner.time.sleep") as mock_sleep:
             mock_req.get.side_effect = [rate_resp, ok_resp]
@@ -162,6 +163,7 @@ class TestPaginateRateLimit:
 
     def test_no_403_no_sleep_between_single_page(self):
         ok_resp = self._make_response(200, [{"name": "r1"}, {"name": "r2"}], {"Link": ""})
+        # T3-MOCK: target=requests reason="HTTP boundary call to GitHub API" removal=PERMANENT
         with patch.object(org_scanner, "requests") as mock_req, \
              patch("org_scanner.time.sleep") as mock_sleep:
             mock_req.get.return_value = ok_resp

@@ -701,6 +701,7 @@ class TestCheckStaged:
         """CLI check-staged returns 0 when all staged files are in the ledger."""
         session_ledger.init_session("test-cs")
         session_ledger.record_file("content/a.md", "created")
+        # T3-MOCK: target=sys.stdin reason="CLI check-staged reads stdin for staged files" removal=PERMANENT
         monkeypatch.setattr("sys.stdin", __import__("io").StringIO("content/a.md\n"))
         rc = session_ledger.main(["check-staged"])
         assert rc == 0
@@ -710,6 +711,7 @@ class TestCheckStaged:
         """CLI check-staged returns 1 when staged files are NOT in the ledger."""
         session_ledger.init_session("test-cs")
         session_ledger.record_file("content/a.md", "created")
+        # T3-MOCK: target=sys.stdin reason="CLI check-staged reads stdin for staged files" removal=PERMANENT
         monkeypatch.setattr("sys.stdin", __import__("io").StringIO("content/unknown.md\n"))
         rc = session_ledger.main(["check-staged"])
         assert rc == 1

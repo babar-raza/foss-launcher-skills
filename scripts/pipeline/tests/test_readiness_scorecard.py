@@ -24,6 +24,12 @@ from readiness_scorecard import (
 )
 
 
+@pytest.fixture(autouse=True)
+def _reset_rs():
+    yield
+    readiness_scorecard.configure()
+
+
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -283,7 +289,7 @@ class TestExitCodes:
     def _patch_main(self, monkeypatch, tmp_path, ready: bool):
         """Patch all I/O in main() so it runs cleanly to sys.exit."""
         # Redirect file output path so report write doesn't crash
-        monkeypatch.setattr(readiness_scorecard, "_ROOT", tmp_path)
+        readiness_scorecard.configure(repo_root=tmp_path)
         (tmp_path / "reports" / "3d" / "python").mkdir(parents=True)
 
         # Stub data-reading functions (called before compute_verdict)
@@ -310,6 +316,7 @@ class TestExitCodes:
 
     def test_exit_0_when_ready(self, tmp_path, monkeypatch):
         self._patch_main(monkeypatch, tmp_path, ready=True)
+        # T3-MOCK: target=sys.argv reason="CLI main() does not accept argv param" removal=PERMANENT
         monkeypatch.setattr("sys.argv", ["readiness_scorecard.py",
                                          "--family", "3d", "--platform", "python",
                                          "--skip-human-review"])
@@ -319,6 +326,7 @@ class TestExitCodes:
 
     def test_exit_1_when_not_ready(self, tmp_path, monkeypatch):
         self._patch_main(monkeypatch, tmp_path, ready=False)
+        # T3-MOCK: target=sys.argv reason="CLI main() does not accept argv param" removal=PERMANENT
         monkeypatch.setattr("sys.argv", ["readiness_scorecard.py",
                                          "--family", "3d", "--platform", "python",
                                          "--skip-human-review"])
@@ -341,7 +349,7 @@ class TestSignoffParserHardening:
         (review_dir / "3d-java-h01-sample.md").write_text(
             '# H-01\n\n```yaml\nresult: "pass"\n```\n'
         )
-        monkeypatch.setattr(readiness_scorecard, "_ROOT", tmp_path)
+        readiness_scorecard.configure(repo_root=tmp_path)
         results = readiness_scorecard._read_hgate_signoffs("3d", "java")
         assert results["h01"] == "PASS"
 
@@ -352,7 +360,7 @@ class TestSignoffParserHardening:
         (review_dir / "3d-java-h01-sample.md").write_text(
             '# H-01\n\n```yaml\nresult: "Pass"\n```\n'
         )
-        monkeypatch.setattr(readiness_scorecard, "_ROOT", tmp_path)
+        readiness_scorecard.configure(repo_root=tmp_path)
         results = readiness_scorecard._read_hgate_signoffs("3d", "java")
         assert results["h01"] == "PASS"
 
@@ -363,7 +371,7 @@ class TestSignoffParserHardening:
         # Write with explicit CRLF
         content = '# H-01\r\n\r\n```yaml\r\nresult: "PASS"\r\n```\r\n'
         (review_dir / "3d-java-h01-sample.md").write_bytes(content.encode("utf-8"))
-        monkeypatch.setattr(readiness_scorecard, "_ROOT", tmp_path)
+        readiness_scorecard.configure(repo_root=tmp_path)
         results = readiness_scorecard._read_hgate_signoffs("3d", "java")
         assert results["h01"] == "PASS"
 
@@ -374,7 +382,7 @@ class TestSignoffParserHardening:
         (review_dir / "3d-java-h01-sample.md").write_text(
             '# H-01\n\n```yaml\nresult: "PASS" # reviewer: looks good\n```\n'
         )
-        monkeypatch.setattr(readiness_scorecard, "_ROOT", tmp_path)
+        readiness_scorecard.configure(repo_root=tmp_path)
         results = readiness_scorecard._read_hgate_signoffs("3d", "java")
         assert results["h01"] == "PASS"
 
@@ -385,7 +393,7 @@ class TestSignoffParserHardening:
         (review_dir / "3d-java-h02-sample.md").write_text(
             '# H-02\n\n```yaml\nresult: fail\n```\n'
         )
-        monkeypatch.setattr(readiness_scorecard, "_ROOT", tmp_path)
+        readiness_scorecard.configure(repo_root=tmp_path)
         results = readiness_scorecard._read_hgate_signoffs("3d", "java")
         assert results["h02"] == "FAIL"
 
@@ -396,7 +404,7 @@ class TestSignoffParserHardening:
         (review_dir / "3d-java-h03-sample.md").write_text(
             '# H-03\n\n```yaml\nresult: conditional\n```\n'
         )
-        monkeypatch.setattr(readiness_scorecard, "_ROOT", tmp_path)
+        readiness_scorecard.configure(repo_root=tmp_path)
         results = readiness_scorecard._read_hgate_signoffs("3d", "java")
         assert results["h03"] == "CONDITIONAL"
 
@@ -406,7 +414,9 @@ class TestSignoffParserHardening:
         helper._patch_main(monkeypatch, tmp_path, ready=True)
         import io, json
         out = io.StringIO()
+        # T3-MOCK: target=sys.stdout reason="capture CLI JSON output" removal=PERMANENT
         monkeypatch.setattr("sys.stdout", out)
+        # T3-MOCK: target=sys.argv reason="CLI main() does not accept argv param" removal=PERMANENT
         monkeypatch.setattr("sys.argv", ["readiness_scorecard.py",
                                          "--family", "3d", "--platform", "python",
                                          "--skip-human-review", "--json"])

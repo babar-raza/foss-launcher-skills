@@ -19,7 +19,7 @@
       "T4": 0
     },
     "scripts/ci/tests/test_check_skill_readme_coverage.py": {
-      "T1": 4,
+      "T1": 0,
       "T2": 3,
       "T3": 0,
       "T4": 0
@@ -37,7 +37,7 @@
       "T4": 0
     },
     "scripts/ci/tests/test_check_skill_run_records.py": {
-      "T1": 3,
+      "T1": 0,
       "T2": 3,
       "T3": 0,
       "T4": 0
@@ -66,21 +66,9 @@
       "T3": 0,
       "T4": 0
     },
-    "scripts/pipeline/tests/test_apply_origin_decisions.py": {
-      "T1": 20,
-      "T2": 0,
-      "T3": 0,
-      "T4": 0
-    },
     "scripts/pipeline/tests/test_attach_evidence_behavior.py": {
       "T1": 0,
       "T2": 17,
-      "T3": 0,
-      "T4": 0
-    },
-    "scripts/pipeline/tests/test_audit_content_origin.py": {
-      "T1": 2,
-      "T2": 0,
       "T3": 0,
       "T4": 0
     },
@@ -90,27 +78,9 @@
       "T3": 0,
       "T4": 0
     },
-    "scripts/pipeline/tests/test_audit_format_direction.py": {
-      "T1": 14,
-      "T2": 0,
-      "T3": 0,
-      "T4": 0
-    },
     "scripts/pipeline/tests/test_backtrack_controller.py": {
       "T1": 0,
       "T2": 3,
-      "T3": 0,
-      "T4": 0
-    },
-    "scripts/pipeline/tests/test_change_guard.py": {
-      "T1": 2,
-      "T2": 0,
-      "T3": 0,
-      "T4": 0
-    },
-    "scripts/pipeline/tests/test_change_guard_knowledge_warn.py": {
-      "T1": 8,
-      "T2": 0,
       "T3": 0,
       "T4": 0
     },
@@ -127,7 +97,7 @@
       "T4": 2
     },
     "scripts/pipeline/tests/test_content_discovery.py": {
-      "T1": 7,
+      "T1": 0,
       "T2": 11,
       "T3": 0,
       "T4": 0
@@ -146,7 +116,7 @@
     },
     "scripts/pipeline/tests/test_enrich.py": {
       "T1": 0,
-      "T2": 2,
+      "T2": 3,
       "T3": 0,
       "T4": 0
     },
@@ -162,12 +132,6 @@
       "T3": 0,
       "T4": 1
     },
-    "scripts/pipeline/tests/test_eval_runner.py": {
-      "T1": 1,
-      "T2": 0,
-      "T3": 0,
-      "T4": 0
-    },
     "scripts/pipeline/tests/test_gap_eval_determinism.py": {
       "T1": 0,
       "T2": 0,
@@ -181,15 +145,9 @@
       "T4": 0
     },
     "scripts/pipeline/tests/test_gap_eval_profile_safety.py": {
-      "T1": 2,
-      "T2": 42,
+      "T1": 0,
+      "T2": 28,
       "T3": 1,
-      "T4": 0
-    },
-    "scripts/pipeline/tests/test_ground_check.py": {
-      "T1": 3,
-      "T2": 0,
-      "T3": 0,
       "T4": 0
     },
     "scripts/pipeline/tests/test_harvest_ledger.py": {
@@ -216,12 +174,6 @@
       "T3": 0,
       "T4": 0
     },
-    "scripts/pipeline/tests/test_index.py": {
-      "T1": 6,
-      "T2": 0,
-      "T3": 0,
-      "T4": 0
-    },
     "scripts/pipeline/tests/test_knowledge_coverage.py": {
       "T1": 0,
       "T2": 10,
@@ -234,21 +186,9 @@
       "T3": 0,
       "T4": 0
     },
-    "scripts/pipeline/tests/test_launch_gate.py": {
-      "T1": 4,
-      "T2": 0,
-      "T3": 0,
-      "T4": 0
-    },
     "scripts/pipeline/tests/test_launch_rollback.py": {
-      "T1": 5,
+      "T1": 0,
       "T2": 6,
-      "T3": 0,
-      "T4": 0
-    },
-    "scripts/pipeline/tests/test_link_validator.py": {
-      "T1": 6,
-      "T2": 0,
       "T3": 0,
       "T4": 0
     },
@@ -264,39 +204,9 @@
       "T3": 4,
       "T4": 0
     },
-    "scripts/pipeline/tests/test_override_manager.py": {
-      "T1": 12,
-      "T2": 0,
-      "T3": 0,
-      "T4": 0
-    },
-    "scripts/pipeline/tests/test_page_impact_assess.py": {
-      "T1": 6,
-      "T2": 0,
-      "T3": 0,
-      "T4": 0
-    },
-    "scripts/pipeline/tests/test_page_spec.py": {
-      "T1": 6,
-      "T2": 0,
-      "T3": 0,
-      "T4": 0
-    },
-    "scripts/pipeline/tests/test_plan_check.py": {
-      "T1": 8,
-      "T2": 0,
-      "T3": 0,
-      "T4": 0
-    },
     "scripts/pipeline/tests/test_post_refresh_verify.py": {
       "T1": 0,
       "T2": 2,
-      "T3": 0,
-      "T4": 0
-    },
-    "scripts/pipeline/tests/test_prereqs.py": {
-      "T1": 2,
-      "T2": 0,
       "T3": 0,
       "T4": 0
     },
@@ -307,7 +217,7 @@
       "T4": 0
     },
     "scripts/pipeline/tests/test_readiness_scorecard.py": {
-      "T1": 7,
+      "T1": 0,
       "T2": 6,
       "T3": 4,
       "T4": 0
@@ -321,12 +231,6 @@
     "scripts/pipeline/tests/test_refresh_validation.py": {
       "T1": 0,
       "T2": 19,
-      "T3": 0,
-      "T4": 0
-    },
-    "scripts/pipeline/tests/test_retire_page.py": {
-      "T1": 3,
-      "T2": 0,
       "T3": 0,
       "T4": 0
     },
@@ -348,12 +252,6 @@
       "T3": 2,
       "T4": 0
     },
-    "scripts/pipeline/tests/test_skill_context.py": {
-      "T1": 1,
-      "T2": 0,
-      "T3": 0,
-      "T4": 0
-    },
     "scripts/pipeline/tests/test_smoke_test.py": {
       "T1": 0,
       "T2": 2,
@@ -366,15 +264,9 @@
       "T3": 0,
       "T4": 0
     },
-    "scripts/pipeline/tests/test_structural_lock.py": {
-      "T1": 12,
-      "T2": 0,
-      "T3": 0,
-      "T4": 0
-    },
     "scripts/pipeline/tests/test_sync_providers.py": {
-      "T1": 1,
-      "T2": 5,
+      "T1": 0,
+      "T2": 3,
       "T3": 0,
       "T4": 0
     },
@@ -385,7 +277,7 @@
       "T4": 0
     },
     "scripts/pipeline/tests/test_tier2_determinism.py": {
-      "T1": 9,
+      "T1": 0,
       "T2": 4,
       "T3": 0,
       "T4": 0
@@ -403,7 +295,7 @@
       "T4": 0
     },
     "scripts/pipeline/tests/test_truth_audit_content.py": {
-      "T1": 7,
+      "T1": 0,
       "T2": 2,
       "T3": 0,
       "T4": 0
@@ -415,13 +307,13 @@
       "T4": 0
     },
     "scripts/pipeline/tests/test_update_product_registry.py": {
-      "T1": 1,
+      "T1": 0,
       "T2": 4,
       "T3": 2,
       "T4": 0
     },
     "scripts/pipeline/tests/test_version_capability_evaluators.py": {
-      "T1": 6,
+      "T1": 0,
       "T2": 25,
       "T3": 0,
       "T4": 0
@@ -433,43 +325,31 @@
       "T4": 3
     },
     "scripts/translator/tests/test_translator_core.py": {
-      "T1": 1,
+      "T1": 0,
       "T2": 12,
       "T3": 0,
       "T4": 0
     },
     "tests/test_batch_reference.py": {
-      "T1": 2,
+      "T1": 0,
       "T2": 1,
       "T3": 0,
       "T4": 0
     },
-    "tests/test_post_refresh_verify.py": {
-      "T1": 6,
-      "T2": 0,
-      "T3": 0,
-      "T4": 0
-    },
     "tests/test_refresh_knowledge.py": {
-      "T1": 4,
+      "T1": 0,
       "T2": 13,
-      "T3": 0,
-      "T4": 0
-    },
-    "tests/test_retire_page.py": {
-      "T1": 1,
-      "T2": 0,
       "T3": 0,
       "T4": 0
     }
   },
-  "generated_at": "2026-04-22T15:21:56Z",
+  "generated_at": "2026-04-23T17:21:14Z",
   "generator": "scripts/ci/check_monkeypatch_lint.py --baseline",
   "generator_version": "2.0.0",
   "schema_version": 1,
   "totals": {
-    "T1": 182,
-    "T2": 426,
+    "T1": 0,
+    "T2": 411,
     "T3": 26,
     "T4": 11
   }

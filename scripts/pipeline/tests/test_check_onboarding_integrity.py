@@ -133,6 +133,7 @@ class TestC1GitTracked:
         _make_repo(tmp_path)
         module._failures.clear()
         mock_result = type("CP", (), {"stdout": "docs/QUICKSTART.md\n", "returncode": 0})()
+        # T3-MOCK: target=subprocess.run reason="git ls-files boundary call" removal=PERMANENT
         with patch("subprocess.run", return_value=mock_result):
             module.check_quickstart_tracked()
         assert not any("C1-TRACKED" in f for f in module._failures), module._failures
@@ -142,6 +143,7 @@ class TestC1GitTracked:
         _make_repo(tmp_path)
         module._failures.clear()
         mock_result = type("CP", (), {"stdout": "", "returncode": 0})()
+        # T3-MOCK: target=subprocess.run reason="git ls-files boundary call" removal=PERMANENT
         with patch("subprocess.run", return_value=mock_result):
             module.check_quickstart_tracked()
         assert any("C1-TRACKED" in f for f in module._failures), module._failures
@@ -151,6 +153,7 @@ class TestC1GitTracked:
         _make_repo(tmp_path)
         module._failures.clear()
         mock_result = type("CP", (), {"stdout": "docs/QUICKSTART.md\n", "returncode": 0})()
+        # T3-MOCK: target=subprocess.run reason="git ls-files boundary call" removal=PERMANENT
         with patch("subprocess.run", return_value=mock_result) as mock_run:
             module.check_quickstart_tracked()
         mock_run.assert_called_once_with(

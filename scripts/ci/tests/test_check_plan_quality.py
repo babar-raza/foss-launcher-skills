@@ -116,6 +116,7 @@ class TestPQ02StaleUnnormalized(unittest.TestCase):
             __import__("datetime").datetime.now()
             - __import__("datetime").timedelta(days=15)
         ).timestamp()
+        # T3-MOCK: target=os.path.getmtime reason="filesystem mtime boundary call" removal=PERMANENT
         with patch("os.path.getmtime", return_value=old_ts):
             result = check_plan_quality.check_pq02("fake.md", text, min_age_days=7)
         self.assertIsNotNone(result)

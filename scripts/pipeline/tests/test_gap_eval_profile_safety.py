@@ -19,8 +19,15 @@ if str(_GAP_EVAL_DIR) not in sys.path:
     sys.path.insert(0, str(_GAP_EVAL_DIR))
 
 from validate_profile import _read_package_from_build_file, validate_profile, update_profile, ALL_PRODUCTS  # type: ignore  # noqa: E402
+import validate_profile as _vp  # type: ignore  # noqa: E402
 from run import stage1_baseline, stage2_knowledge_validation, tier1_verify  # type: ignore  # noqa: E402
 from state import make_finding_id, reset_state, save_state  # type: ignore  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _reset_vp():
+    yield
+    _vp.configure()
 
 
 # ---------------------------------------------------------------------------
@@ -293,6 +300,7 @@ class TestMaxEntriesOverflow:
             return m
 
         with (
+            # T3-MOCK: target=subprocess.run reason="grep clone-cache boundary call" removal=PERMANENT
             patch("subprocess.run", side_effect=_capture_grep),
             caplog.at_level(logging.WARNING, logger="run"),
         ):
@@ -598,14 +606,13 @@ class TestSiteGlobsProductsScope:
     """
 
     def _discover(self, tmp_path: Path, family: str, platform: str) -> dict:
-        """Call discover_content_files with _REPO_ROOT monkeypatched to tmp_path."""
+        """Call discover_content_files with _REPO_ROOT set via configure() seam."""
         import run as run_mod  # already on sys.path via _GAP_EVAL_DIR
-        original = run_mod._REPO_ROOT
-        run_mod._REPO_ROOT = tmp_path
+        run_mod.configure(repo_root=tmp_path)
         try:
             return run_mod.discover_content_files(family, platform)
         finally:
-            run_mod._REPO_ROOT = original
+            run_mod.configure()
 
     def _build_tree(self, tmp_path: Path, family: str, platform: str, sibling: str | None = None):
         prod = tmp_path / "content" / "products.aspose.org" / "en"
@@ -943,7 +950,7 @@ class TestUpdateCommand:
         profile_path = self._make_profile(tmp_path, pkg_source, package_name=None)
         self._make_build_file(tmp_path, pkg_source, "Aspose.Test")
 
-        monkeypatch.setattr(vp, "_PROFILES_DIR", tmp_path / "profiles")
+        vp.configure(profiles_dir=tmp_path / "profiles")
         monkeypatch.setattr(vp, "_clone_cache_base", lambda: tmp_path / "cache")
 
         result = vp.update_profile("test", "net", dry_run=False)
@@ -961,7 +968,7 @@ class TestUpdateCommand:
         profile_path = self._make_profile(tmp_path, pkg_source, package_name="OldName")
         self._make_build_file(tmp_path, pkg_source, "NewName")
 
-        monkeypatch.setattr(vp, "_PROFILES_DIR", tmp_path / "profiles")
+        vp.configure(profiles_dir=tmp_path / "profiles")
         monkeypatch.setattr(vp, "_clone_cache_base", lambda: tmp_path / "cache")
 
         original_text = profile_path.read_text(encoding="utf-8")
@@ -978,7 +985,7 @@ class TestUpdateCommand:
         self._make_profile(tmp_path, pkg_source, package_name="Aspose.Test")
         self._make_build_file(tmp_path, pkg_source, "Aspose.Test")
 
-        monkeypatch.setattr(vp, "_PROFILES_DIR", tmp_path / "profiles")
+        vp.configure(profiles_dir=tmp_path / "profiles")
         monkeypatch.setattr(vp, "_clone_cache_base", lambda: tmp_path / "cache")
 
         result = vp.update_profile("test", "net", dry_run=False)
@@ -992,7 +999,7 @@ class TestUpdateCommand:
         cache = tmp_path / "cache"
         cache.mkdir()
 
-        monkeypatch.setattr(vp, "_PROFILES_DIR", tmp_path / "profiles")
+        vp.configure(profiles_dir=tmp_path / "profiles")
         monkeypatch.setattr(vp, "_clone_cache_base", lambda: cache)
 
         result = vp.update_profile("test", "net", dry_run=False)
@@ -1007,7 +1014,7 @@ class TestUpdateCommand:
         def _raise():
             raise OSError("cache unavailable")
 
-        monkeypatch.setattr(vp, "_PROFILES_DIR", tmp_path / "profiles")
+        vp.configure(profiles_dir=tmp_path / "profiles")
         monkeypatch.setattr(vp, "_clone_cache_base", _raise)
 
         result = vp.update_profile("test", "net", dry_run=False)
@@ -1017,7 +1024,7 @@ class TestUpdateCommand:
         """Returns False when the profile YAML does not exist."""
         import validate_profile as vp
 
-        monkeypatch.setattr(vp, "_PROFILES_DIR", tmp_path / "profiles")
+        vp.configure(profiles_dir=tmp_path / "profiles")
 
         result = vp.update_profile("nonexistent", "net", dry_run=False)
         assert result is False
@@ -1036,7 +1043,7 @@ class TestUpdateCommand:
             "expected_sections": [],
         }), encoding="utf-8")
 
-        monkeypatch.setattr(vp, "_PROFILES_DIR", tmp_path / "profiles")
+        vp.configure(profiles_dir=tmp_path / "profiles")
 
         result = vp.update_profile("test", "net", dry_run=False)
         assert result is False
@@ -1268,7 +1275,7 @@ class TestSchemaValidationCacheAbsent:
     def test_missing_profile_file_fails(self, tmp_path, monkeypatch):
         """If the profile YAML doesn't exist, validate_schema() must return an error."""
         import validate_profile as vp
-        monkeypatch.setattr("validate_profile._PROFILES_DIR", tmp_path)
+        vp.configure(profiles_dir=tmp_path)
 
         errors = vp.validate_schema("nonexistent", "platform")
         assert any("missing" in e.lower() or "not found" in e.lower() for e in errors), (
@@ -1278,7 +1285,7 @@ class TestSchemaValidationCacheAbsent:
     def test_empty_expected_sections_fails(self, tmp_path, monkeypatch):
         """Profile with empty expected_sections must fail schema validation."""
         import validate_profile as vp
-        monkeypatch.setattr("validate_profile._PROFILES_DIR", tmp_path)
+        vp.configure(profiles_dir=tmp_path)
 
         profile_dir = tmp_path / "myfamily"
         profile_dir.mkdir()
@@ -1299,7 +1306,7 @@ class TestSchemaValidationCacheAbsent:
     def test_missing_package_source_file_fails(self, tmp_path, monkeypatch):
         """Profile missing discovery_hints.package_source_file must fail schema validation."""
         import validate_profile as vp
-        monkeypatch.setattr("validate_profile._PROFILES_DIR", tmp_path)
+        vp.configure(profiles_dir=tmp_path)
 
         profile_dir = tmp_path / "myfamily"
         profile_dir.mkdir()
@@ -1320,7 +1327,7 @@ class TestSchemaValidationCacheAbsent:
     def test_null_package_name_fails(self, tmp_path, monkeypatch):
         """Profile with null discovered_actuals.package_name must fail schema validation."""
         import validate_profile as vp
-        monkeypatch.setattr("validate_profile._PROFILES_DIR", tmp_path)
+        vp.configure(profiles_dir=tmp_path)
 
         profile_dir = tmp_path / "myfamily"
         profile_dir.mkdir()
@@ -1342,7 +1349,7 @@ class TestSchemaValidationCacheAbsent:
     def test_valid_schema_passes(self, tmp_path, monkeypatch):
         """A well-formed profile must return zero schema errors."""
         import validate_profile as vp
-        monkeypatch.setattr("validate_profile._PROFILES_DIR", tmp_path)
+        vp.configure(profiles_dir=tmp_path)
 
         profile_dir = tmp_path / "myfamily"
         profile_dir.mkdir()
@@ -1368,7 +1375,7 @@ class TestSchemaValidationCacheAbsent:
         import validate_profile as vp
 
         # Point _PROFILES_DIR to tmp_path; create ONE invalid profile
-        monkeypatch.setattr("validate_profile._PROFILES_DIR", tmp_path)
+        vp.configure(profiles_dir=tmp_path)
         monkeypatch.setattr("validate_profile.ALL_PRODUCTS", [("myfamily", "myplatform")])
 
         profile_dir = tmp_path / "myfamily"
@@ -1400,7 +1407,7 @@ class TestSchemaValidationCacheAbsent:
         """main() with a valid profile and no cache must exit 0 (no schema errors)."""
         import validate_profile as vp
 
-        monkeypatch.setattr("validate_profile._PROFILES_DIR", tmp_path)
+        vp.configure(profiles_dir=tmp_path)
         monkeypatch.setattr("validate_profile.ALL_PRODUCTS", [("myfamily", "myplatform")])
 
         profile_dir = tmp_path / "myfamily"

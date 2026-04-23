@@ -237,6 +237,7 @@ class TestWrongApiNameDisambiguation(unittest.TestCase):
     def test_token_in_api_surface_content_regardless_of_grep(self):
         """Token already in api_surface → usage context issue → CONTENT, no grep called."""
         f = self._finding_wapi(old_value="Document")  # in minimal_api_surface.json
+        # T3-MOCK: target=subprocess.run reason="grep clone-cache boundary call" removal=PERMANENT
         with patch("subprocess.run") as mock_grep:
             r = _classify(f, no_grep=False)
         mock_grep.assert_not_called()
@@ -263,6 +264,7 @@ class TestWrongApiNameDisambiguation(unittest.TestCase):
 
     def test_grep_timeout_produces_ambiguous(self):
         f = self._finding_wapi()
+        # T3-MOCK: target=subprocess.run reason="grep clone-cache boundary call" removal=PERMANENT
         with patch("subprocess.run", side_effect=subprocess.TimeoutExpired(["grep"], 10)):
             r = _classify(f, no_grep=False)
         self.assertEqual(r["origin_class"], om.AMBIGUOUS)
@@ -270,6 +272,7 @@ class TestWrongApiNameDisambiguation(unittest.TestCase):
 
     def test_grep_file_not_found_produces_ambiguous(self):
         f = self._finding_wapi()
+        # T3-MOCK: target=subprocess.run reason="grep clone-cache boundary call" removal=PERMANENT
         with patch("subprocess.run", side_effect=FileNotFoundError):
             r = _classify(f, no_grep=False)
         self.assertEqual(r["origin_class"], om.AMBIGUOUS)
@@ -277,6 +280,7 @@ class TestWrongApiNameDisambiguation(unittest.TestCase):
     def test_no_grep_flag_produces_ambiguous_without_subprocess_call(self):
         """--no-grep must produce AMBIGUOUS and must NOT call subprocess.run."""
         f = self._finding_wapi()
+        # T3-MOCK: target=subprocess.run reason="grep clone-cache boundary call" removal=PERMANENT
         with patch("subprocess.run") as mock_grep:
             r = _classify(f, no_grep=True)
         mock_grep.assert_not_called()
