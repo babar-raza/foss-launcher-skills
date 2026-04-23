@@ -110,87 +110,26 @@ def _run_evaluate(args):
             _log(f"  ... and {len(pages) - 10} more")
         return
 
-    # Delegate core evaluation to EvalRunner (TC-08 completion).
-    # cli.py retains: prerequisite checking, skip-graded filtering (with TC-5
-    # per-evaluator version logic), sweep, report generation, grade writing.
-    # EvalRunner owns: knowledge caching, evaluator dispatch, cross-page analysis.
+    # Delegate core evaluation to EvalRunner (TC-08 + VH-03 + VH-05).
+    # EvalRunner owns: knowledge caching, evaluator dispatch, skip-graded
+    # filtering, cross-page analysis, grade writing (frontmatter + manifest).
+    # cli.py retains: prerequisite checking, sweep, report generation, summary.
     from .runner import EvalRunner
 
-    # Warmup knowledge cache for skip-graded (must happen before runner is created
-    # so pre-loaded knowledge is available for the enrichment gate comparison).
-    _skip_knowledge_cache: dict[tuple[str, str], object] = {}
+    should_write = args.write_grade or getattr(args, "write_grade_if_policy_met", False)
+    write_mode = "policy" if getattr(args, "write_grade_if_policy_met", False) else "force"
 
-    # --skip-graded: filter out pages already graded with current knowledge (TC-5)
-    if args.skip_graded:
-        _HERE = Path(__file__).resolve().parent.parent
-        if str(_HERE) not in sys.path:
-            sys.path.insert(0, str(_HERE))
-        from grade_writer import read_grade as _read_grade, content_hash as _content_hash  # noqa: E402
-        from core.markdown import _FRONTMATTER_WRITER_RE as _FM_RE  # noqa: E402
-        filtered = []
-        for page in pages:
-            key = (page.family, page.platform)
-            if key not in _skip_knowledge_cache:
-                if page.family and page.platform:
-                    _skip_knowledge_cache[key] = _load_knowledge(page.family, page.platform)
-                else:
-                    _skip_knowledge_cache[key] = None
-            k = _skip_knowledge_cache[key]
-            stored = _read_grade(page.filepath)
-            if stored and stored["tier"] == "full" and k and hasattr(k, "repo_sha") and stored["model_sha"] == k.repo_sha:
-                # TC-5: per-evaluator version check (preferred path)
-                stored_ev = stored.get("evaluator_versions") or {}
-                if stored_ev:
-                    # Compare per-evaluator: skip only if ALL current evaluators match
-                    stale_ev = [
-                        ev for ev in evaluator_names
-                        if stored_ev.get(ev, "") != EVALUATOR_VERSIONS.get(ev, "1")
-                    ]
-                    version_ok = not stale_ev
-                else:
-                    # Fallback: global logic-version gate (legacy pages)
-                    version_ok = stored.get("logic_version", "") == EVALUATOR_LOGIC_VERSION
-
-                if version_ok:
-                    # RC-2 enrichment quality gate: re-evaluate when enrichment
-                    # improved on the same repo SHA (e.g. scout-only → full).
-                    current_enrich = getattr(k, "enrichment_status", None) or "full"
-                    stored_enrich = stored.get("enrichment_status") or "full"
-                    if current_enrich != stored_enrich:
-                        filtered.append(page)
-                        continue
-                    # Content-hash gate: if the body changed since last grade, re-grade
-                    stored_hash = stored.get("content_hash", "")
-                    if stored_hash:
-                        try:
-                            text = page.filepath.read_text(encoding="utf-8")
-                            fm_m = _FM_RE.match(text)
-                            body = text[fm_m.end():] if fm_m else text
-                            if _content_hash(body) != stored_hash:
-                                filtered.append(page)
-                                continue
-                        except (OSError, UnicodeDecodeError):
-                            pass  # if unreadable, fall through to skip
-                    continue  # Already graded with current knowledge, full evaluators, current logic
-            filtered.append(page)
-        skipped = len(pages) - len(filtered)
-        if skipped:
-            _log(f"Skipped {skipped} already-graded pages")
-        pages = filtered
-
-    # Create runner and run core evaluation.  skip_graded=False because cli.py
-    # has already filtered pages above (with the richer TC-5 per-evaluator logic).
     runner = EvalRunner(
         evaluator_names=evaluator_names,
         knowledge_root=None,  # always CWD-relative in CLI context
     )
     report = runner.run(
         pages,
-        write_grade=False,       # cli.py writes grades below (with evaluator_versions)
-        skip_graded=False,       # already filtered above
+        write_grade=should_write,
+        write_mode=write_mode,
+        skip_graded=args.skip_graded,
         cross_page=args.cross_page,
         target_str=target_str if not args.files else "files",
-        _seed_cache=_skip_knowledge_cache,  # SR-01: avoid double-loading knowledge
     )
     # Expose runner's knowledge cache for the sweep closure below.
     knowledge_cache = runner.knowledge_cache
@@ -261,72 +200,9 @@ def _run_evaluate(args):
     _log(f"  INFO: {len(report.infos)}")
     _log(f"  Report: {report_path}")
 
-    # --write-grade / --write-grade-if-policy-met: persist computed grade
-    should_write = args.write_grade or getattr(args, "write_grade_if_policy_met", False)
-    write_mode = "policy" if getattr(args, "write_grade_if_policy_met", False) else "force"
-    if should_write:
-        _HERE_g = Path(__file__).resolve().parent.parent
-        if str(_HERE_g) not in sys.path:
-            sys.path.insert(0, str(_HERE_g))
-        from grade_writer import write_grade as _write_grade, content_hash as _content_hash_g  # noqa: E402
-        from grade_manifest import load_manifest as _load_manifest, write_manifest_entry as _write_manifest_entry, save_manifest as _save_manifest  # noqa: E402
-        from core.markdown import _FRONTMATTER_WRITER_RE as _FM_RE_g  # noqa: E402
-
-        # ARCH-03: Load manifest once, batch-update, save once
-        manifest = _load_manifest()
-
-        grade_counts: dict[str, int] = {}
-        policy_skips = 0
-        by_file = report.by_file()
-        for page in pages:
-            fp = page.filepath
-            page_findings = by_file.get(str(fp), [])
-            page_report = EvalReport(page_findings)
-            grade = page_report.grade
-            reasons = page_report.grade_reasons()
-            # Determine model_sha from cached knowledge
-            k = knowledge_cache.get((page.family, page.platform))
-            model_sha = k.repo_sha if k and hasattr(k, "repo_sha") else ""
-            tier = "full" if k and getattr(k, "available", False) else "structural"
-            enrich_status = getattr(k, "enrichment_status", None) if k else None
-
-            # Compute content hash for manifest
-            try:
-                text_g = fp.read_text(encoding="utf-8")
-                fm_m_g = _FM_RE_g.match(text_g)
-                body_g = text_g[fm_m_g.end():] if fm_m_g else text_g
-                body_hash_g = _content_hash_g(body_g)
-            except (OSError, UnicodeDecodeError):
-                body_hash_g = ""
-
-            # ARCH-03: Always write manifest entry (operational state)
-            rel_path = str(fp).replace("\\", "/")
-            _write_manifest_entry(
-                rel_path,
-                content_hash=body_hash_g,
-                grade=grade,
-                grade_reasons=reasons,
-                evaluator_versions=dict(EVALUATOR_VERSIONS),
-                model_sha=model_sha,
-                logic_version=EVALUATOR_LOGIC_VERSION,
-                enrichment_status=enrich_status,
-                graded_evaluators=tier,
-                manifest=manifest,
-                save=False,
-            )
-
-            # Write frontmatter (respects write_mode)
-            wrote = _write_grade(fp, grade, model_sha=model_sha, evaluator_tier=tier,
-                         logic_version=EVALUATOR_LOGIC_VERSION, grade_reasons=reasons,
-                         evaluator_versions=EVALUATOR_VERSIONS,
-                         enrichment_status=enrich_status,
-                         write_mode=write_mode)
-            grade_counts[grade] = grade_counts.get(grade, 0) + 1
-
-        # ARCH-03: Persist manifest after all entries
-        _save_manifest(manifest)
-
-        _log(f"  Grades written: {grade_counts}")
+    # VH-05: grade writing is now fully owned by runner.  Log summary here.
+    if should_write and runner.grade_counts:
+        _log(f"  Grades written: {runner.grade_counts}")
         if write_mode == "policy":
             _log(f"  Write mode: policy (only policy-justified writes applied)")
 

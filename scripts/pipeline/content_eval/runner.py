@@ -74,10 +74,10 @@ class EvalRunner:
         pages: list[Any],
         *,
         write_grade: bool = False,
+        write_mode: str = "force",
         skip_graded: bool = False,
         cross_page: bool = False,
         target_str: str = "files",
-        _seed_cache: "dict | None" = None,
     ) -> EvalReport:
         """Evaluate *pages* and return a populated EvalReport.
 
@@ -87,21 +87,19 @@ class EvalRunner:
             Loaded ``Page`` objects (from ``loader.load_pages`` or ``load_files``).
         write_grade :
             If True, persist computed grades into each page's frontmatter.
+        write_mode :
+            Grade-write policy: ``"force"`` (always write) or ``"policy"``
+            (write only when write-policy gate approves).
         skip_graded :
             If True, filter out pages already graded at the current logic version
-            and model SHA.
+            and model SHA.  Uses ARCH-02 manifest-first gate with frontmatter
+            fallback.  Checks TC-5 per-evaluator versions, enrichment status
+            (RC-2), and content hash.
         cross_page :
             If True, run cross-page consistency and deduplication checks after
             the per-page loop.
         target_str :
             Human-readable scope label for EvalReport.scope.
-        _seed_cache :
-            Internal/CLI-composition seam.  If provided, pre-populates
-            ``self.knowledge_cache`` with already-loaded Knowledge objects so
-            callers that pre-load knowledge for skip-graded filtering (e.g.
-            cli.py) avoid a redundant second load.  A *copy* is taken so
-            mutations during run do not affect the caller's dict.  Not part of
-            the public consumer API — do not rely on this in tests.
         """
         from .evaluators import _ensure_loaded, get_evaluator
 
@@ -114,11 +112,8 @@ class EvalRunner:
 
         # Cache knowledge per (family, platform) key — exposed as public attribute
         # so callers (e.g. cli.py sweep) can reuse loaded knowledge without reloading.
-        # SR-01: seed from caller's pre-loaded cache to avoid double-loading when
-        # cli.py skip-graded block already loaded knowledge for filtering.
-        self.knowledge_cache: dict[tuple[str, str], object] = (
-            dict(_seed_cache) if _seed_cache else {}
-        )
+        # VH-03: runner is the single owner of knowledge loading — no external seeding.
+        self.knowledge_cache: dict[tuple[str, str], object] = {}
         knowledge_cache = self.knowledge_cache
         unavailable_keys: set[tuple[str, str]] = set()
         enrichment_warned_keys: set[tuple[str, str]] = set()
@@ -126,6 +121,9 @@ class EvalRunner:
         # Optional skip-graded filter
         if skip_graded:
             pages = self._filter_already_graded(pages, knowledge_cache)
+
+        # VH-03: expose final page list for callers that write grades separately.
+        self.evaluated_pages: list[Any] = list(pages)
 
         # Per-page evaluation
         for page in pages:
@@ -205,9 +203,12 @@ class EvalRunner:
             report.findings.extend(check_deduplication(pages))
             report.evaluators_run.append("cross_dedup")
 
-        # Grade writing
+        # Grade writing (VH-05: runner is single owner)
+        self.grade_counts: dict[str, int] = {}
         if write_grade:
-            self._write_grades(pages, report, knowledge_cache)
+            self.grade_counts = self._write_grades(
+                pages, report, knowledge_cache, write_mode=write_mode,
+            )
 
         return report
 
@@ -286,8 +287,12 @@ class EvalRunner:
             filtered.append(page)
         return filtered
 
-    def _write_grades(self, pages, report: EvalReport, knowledge_cache):
-        """Write grades to frontmatter and manifest (ARCH-03)."""
+    def _write_grades(self, pages, report: EvalReport, knowledge_cache,
+                       *, write_mode: str = "force") -> dict[str, int]:
+        """Write grades to frontmatter and manifest (ARCH-03 + VH-05).
+
+        Returns a dict mapping grade letter → count of pages written.
+        """
         _HERE = Path(__file__).resolve().parent.parent
         if str(_HERE) not in sys.path:
             sys.path.insert(0, str(_HERE))
@@ -297,6 +302,7 @@ class EvalRunner:
 
         # ARCH-03: Load manifest once, batch-update entries, save once at end
         manifest = load_manifest()
+        grade_counts: dict[str, int] = {}
 
         by_file = report.by_file()
         for page in pages:
@@ -335,10 +341,14 @@ class EvalRunner:
                 save=False,  # batch — save once at end
             )
 
-            # Write frontmatter (respects write_mode from caller)
+            # Write frontmatter (VH-05: write_mode + evaluator_versions from runner)
             _write_grade(fp, grade, model_sha=model_sha, evaluator_tier=tier,
                          logic_version=EVALUATOR_LOGIC_VERSION, grade_reasons=reasons,
-                         enrichment_status=enrich_status)
+                         evaluator_versions=EVALUATOR_VERSIONS,
+                         enrichment_status=enrich_status,
+                         write_mode=write_mode)
+            grade_counts[grade] = grade_counts.get(grade, 0) + 1
 
         # ARCH-03: Persist manifest after all entries are written
         save_manifest(manifest)
+        return grade_counts
