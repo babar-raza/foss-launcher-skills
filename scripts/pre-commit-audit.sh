@@ -373,19 +373,26 @@ if [ ${#changed[@]} -gt 0 ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# Step 11: Monkeypatch lint — warn on seam-contract violations in staged test files
+# Step 11: Monkeypatch lint — block T1/T2 violations in staged test files
 # ---------------------------------------------------------------------------
-# Checks for monkeypatch.setattr / patch.object on guarded path constants (AGENTS.md §16).
-# Currently in warn-only mode (exit 0); promote to --strict once all seams land.
+# Checks for T1/T2 monkeypatch violations (AGENTS.md §16 tiered policy).
+# Blocking mode: T1/T2 violations fail the commit. T3/T4 are informational.
 staged_test_files=()
 while IFS= read -r _tline; do staged_test_files+=("$_tline"); done < <(
     git diff --cached --name-only --diff-filter=ACM | grep -E '^.*(test_[^/]*\.py|[^/]*_test\.py)$' || true
 )
 if [ ${#staged_test_files[@]} -gt 0 ]; then
     if command -v python >/dev/null 2>&1 && [ -f "scripts/ci/check_monkeypatch_lint.py" ]; then
-        python scripts/ci/check_monkeypatch_lint.py -- "${staged_test_files[@]}" 2>&1 | \
-            sed 's/^/[Step 11] /' >&2 || true
-        # warn-only mode: lint findings never block the commit
+        _lint_out=$(python scripts/ci/check_monkeypatch_lint.py --strict --tier 1,2 -- "${staged_test_files[@]}" 2>&1)
+        _lint_exit=$?
+        if [ -n "$_lint_out" ]; then
+            echo "$_lint_out" | sed 's/^/[Step 11] /' >&2
+        fi
+        if [ $_lint_exit -ne 0 ]; then
+            echo "[Step 11] BLOCKED: T1/T2 monkeypatch violations in staged test files." >&2
+            echo "[Step 11] Remediate with configure() seams. See AGENTS.md §16." >&2
+            exit 1
+        fi
     fi
 fi
 
