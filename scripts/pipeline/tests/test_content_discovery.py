@@ -16,6 +16,12 @@ from content_discovery import discover_content, discover_products, infer_product
 import content_discovery as _cd
 
 
+@pytest.fixture(autouse=True)
+def _reset_cd():
+    yield
+    _cd.configure()
+
+
 # ---------------------------------------------------------------------------
 # infer_product — pure function (path parsing)
 # ---------------------------------------------------------------------------
@@ -163,15 +169,15 @@ class TestDiscoverContent:
 
 class TestDiscoverProducts:
     def test_returns_list(self, tmp_path):
-        with patch.object(_cd, "KNOWLEDGE_ROOT", tmp_path):
-            result = discover_products()
+        _cd.configure(knowledge_root=tmp_path)
+        result = discover_products()
         assert isinstance(result, list)
 
     def test_empty_when_no_knowledge_root(self, tmp_path):
         empty = tmp_path / "empty_knowledge"
         empty.mkdir()
-        with patch.object(_cd, "KNOWLEDGE_ROOT", empty):
-            result = discover_products()
+        _cd.configure(knowledge_root=empty)
+        result = discover_products()
         assert result == []
 
     def test_finds_product_with_api_surface(self, tmp_path):
@@ -179,8 +185,8 @@ class TestDiscoverProducts:
         merged.mkdir(parents=True)
         (merged / "api_surface.json").write_text("[]")
 
-        with patch.object(_cd, "KNOWLEDGE_ROOT", tmp_path):
-            result = discover_products()
+        _cd.configure(knowledge_root=tmp_path)
+        result = discover_products()
 
         assert ("cells", "python") in result
 
@@ -189,8 +195,8 @@ class TestDiscoverProducts:
         merged.mkdir(parents=True)
         # No api_surface.json
 
-        with patch.object(_cd, "KNOWLEDGE_ROOT", tmp_path):
-            result = discover_products()
+        _cd.configure(knowledge_root=tmp_path)
+        result = discover_products()
 
         assert ("cells", "python") not in result
 
@@ -199,8 +205,8 @@ class TestDiscoverProducts:
         merged.mkdir(parents=True)
         (merged / "api_surface.json").write_text("[]")
 
-        with patch.object(_cd, "KNOWLEDGE_ROOT", tmp_path):
-            result = discover_products()
+        _cd.configure(knowledge_root=tmp_path)
+        result = discover_products()
 
         families = {f for f, _ in result}
         assert "_internal" not in families
@@ -211,8 +217,8 @@ class TestDiscoverProducts:
             merged.mkdir(parents=True)
             (merged / "api_surface.json").write_text("[]")
 
-        with patch.object(_cd, "KNOWLEDGE_ROOT", tmp_path):
-            result = discover_products()
+        _cd.configure(knowledge_root=tmp_path)
+        result = discover_products()
 
         assert len(result) == 3
         assert ("cells", "python") in result
@@ -225,8 +231,8 @@ class TestDiscoverProducts:
             merged.mkdir(parents=True)
             (merged / "api_surface.json").write_text("[]")
 
-        with patch.object(_cd, "KNOWLEDGE_ROOT", tmp_path):
-            result = discover_products()
+        _cd.configure(knowledge_root=tmp_path)
+        result = discover_products()
 
         # Sorted by family dir first, then platform dir
         families = [f for f, _ in result]

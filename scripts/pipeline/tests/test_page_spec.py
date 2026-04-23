@@ -348,8 +348,7 @@ class TestCLI:
     def test_cli_text_output(self, plan_with_content, capsys):
         plan_file, root = plan_with_content
         import page_spec
-        old_root = page_spec._ROOT
-        page_spec._ROOT = root
+        page_spec.configure(repo_root=root)
         try:
             import sys
             sys.argv = ["page_spec", str(plan_file)]
@@ -360,13 +359,12 @@ class TestCLI:
             captured = capsys.readouterr()
             assert "RECONCILE" in captured.out
         finally:
-            page_spec._ROOT = old_root
+            page_spec.configure()
 
     def test_cli_json_output(self, plan_with_content, capsys):
         plan_file, root = plan_with_content
         import page_spec
-        old_root = page_spec._ROOT
-        page_spec._ROOT = root
+        page_spec.configure(repo_root=root)
         try:
             import sys
             sys.argv = ["page_spec", str(plan_file), "--json"]
@@ -376,7 +374,7 @@ class TestCLI:
             data = json.loads(captured.out)
             assert "missing_count" in data
         finally:
-            page_spec._ROOT = old_root
+            page_spec.configure()
 
     def test_cli_strict_mode(self, tmp_path, capsys):
         """--strict exits 1 when mandatory pages are missing."""
@@ -395,8 +393,7 @@ class TestCLI:
         pf.write_text(yaml.dump(plan_data), encoding="utf-8")
 
         import page_spec
-        old_root = page_spec._ROOT
-        page_spec._ROOT = tmp_path
+        page_spec.configure(repo_root=tmp_path)
         try:
             import sys
             sys.argv = ["page_spec", str(pf), "--strict"]
@@ -404,4 +401,4 @@ class TestCLI:
                 page_spec.main()
             assert exc.value.code == 1
         finally:
-            page_spec._ROOT = old_root
+            page_spec.configure()

@@ -21,6 +21,14 @@ _PIPELINE_DIR = Path(__file__).resolve().parents[1] / "scripts" / "pipeline"
 if str(_PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_DIR))
 
+import refresh_knowledge as rk
+
+
+@pytest.fixture(autouse=True)
+def _reset_rk():
+    yield
+    rk.configure()
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -122,10 +130,7 @@ def test_refresh_check_only_no_modifications(knowledge_dir, monkeypatch):
     before_mtime = model_path.stat().st_mtime
     delta_path = merged / "knowledge_delta.json"
 
-    import refresh_knowledge as rk
-
-    # Patch KNOWLEDGE_ROOT to use tmp
-    monkeypatch.setattr(rk, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+    rk.configure(repo_root=tmp_path)
 
     # Patch clone to return a different SHA (stale)
     monkeypatch.setattr(rk, "_clone_dir", lambda f, p: tmp_path / "fake_clone")
@@ -151,8 +156,7 @@ def test_refresh_no_auto_fetch_skips_update_clone(knowledge_dir, monkeypatch):
     """refresh(..., auto_fetch=False) never calls update_clone."""
     tmp_path, family, platform, merged = knowledge_dir
 
-    import refresh_knowledge as rk
-    monkeypatch.setattr(rk, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+    rk.configure(repo_root=tmp_path)
     monkeypatch.setattr(rk, "_clone_dir", lambda f, p: tmp_path / "fake_clone")
 
     # Clone HEAD matches model SHA → "current" without needing to fetch
@@ -176,8 +180,7 @@ def test_refresh_delta_not_written_on_promote_failure(knowledge_dir, monkeypatch
     """When promote.py fails, knowledge_delta.json is not written."""
     tmp_path, family, platform, merged = knowledge_dir
 
-    import refresh_knowledge as rk
-    monkeypatch.setattr(rk, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+    rk.configure(repo_root=tmp_path)
     monkeypatch.setattr(rk, "_clone_dir", lambda f, p: tmp_path / "fake_clone")
     monkeypatch.setattr(rk, "_head_sha", lambda path: "ffff0000" * 5)
     monkeypatch.setattr(rk, "_update_clone", lambda f, p: "ffff0000" * 5)
@@ -206,8 +209,7 @@ def test_refresh_no_clone_returns_no_clone(knowledge_dir, monkeypatch):
     """refresh() returns 'no_clone' when clone cache is missing."""
     tmp_path, family, platform, merged = knowledge_dir
 
-    import refresh_knowledge as rk
-    monkeypatch.setattr(rk, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+    rk.configure(repo_root=tmp_path)
     monkeypatch.setattr(rk, "_clone_dir", lambda f, p: tmp_path / "nonexistent_clone")
     monkeypatch.setattr(rk, "_head_sha", lambda path: None)
 

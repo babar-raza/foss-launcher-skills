@@ -58,17 +58,15 @@ def _write_content_page(path: Path, claims: list[str] | None = None, model_sha: 
 
 
 @pytest.fixture()
-def env(tmp_path, monkeypatch):
+def env(tmp_path):
     """Set up a minimal test environment."""
     family, platform = "testfam", "testplat"
     merged = tmp_path / "knowledge" / family / platform / "merged"
     merged.mkdir(parents=True)
 
-    monkeypatch.setattr(prv, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
-    monkeypatch.setattr(prv, "CONTENT_ROOT", tmp_path / "content")
-    monkeypatch.setattr(prv, "REPORTS_ROOT", tmp_path / "reports" / "refresh_state")
-
-    return tmp_path, family, platform, merged
+    prv.configure(repo_root=tmp_path)
+    yield tmp_path, family, platform, merged
+    prv.configure()
 
 
 # ---------------------------------------------------------------------------
@@ -103,7 +101,7 @@ def test_record_step_idempotent(env):
 # Happy path: --verify on clean product exits 0
 # ---------------------------------------------------------------------------
 
-def test_verify_passes_on_clean_product(env, monkeypatch):
+def test_verify_passes_on_clean_product(env):
     """verify() returns (True, []) when knowledge is clean."""
     tmp_path, family, platform, merged = env
 
@@ -113,7 +111,7 @@ def test_verify_passes_on_clean_product(env, monkeypatch):
 
     # No content pages → no orphaned claims check to fail
     # Stub stale_detect to simulate 0 stale pages
-    monkeypatch.setattr(prv, "_HERE", tmp_path / "no_scripts")  # no stale_detect.py present
+    prv.configure(repo_root=tmp_path, here=tmp_path / "no_scripts")
 
     passed, failures = prv.verify(family, platform)
     assert passed is True
@@ -140,14 +138,14 @@ def test_print_status_no_error(env, capsys):
 # Failing path: --verify when stale_since is set exits 1
 # ---------------------------------------------------------------------------
 
-def test_verify_fails_when_stale_since_set(env, monkeypatch):
+def test_verify_fails_when_stale_since_set(env):
     """verify() returns failure when stale_since is non-null in model.yaml."""
     tmp_path, family, platform, merged = env
 
     _write_model_yaml(merged, stale_since="2026-04-01")
     _write_claims(merged, [])
     _write_api_surface(merged, [])
-    monkeypatch.setattr(prv, "_HERE", tmp_path / "no_scripts")
+    prv.configure(repo_root=tmp_path, here=tmp_path / "no_scripts")
 
     passed, failures = prv.verify(family, platform)
     assert passed is False
@@ -158,7 +156,7 @@ def test_verify_fails_when_stale_since_set(env, monkeypatch):
 # Failing path: --verify when orphaned claims present exits 1 with claim IDs
 # ---------------------------------------------------------------------------
 
-def test_verify_fails_on_orphaned_claims(env, monkeypatch):
+def test_verify_fails_on_orphaned_claims(env):
     """verify() reports failure when content pages cite claims not in claims.json."""
     tmp_path, family, platform, merged = env
 
@@ -166,7 +164,7 @@ def test_verify_fails_on_orphaned_claims(env, monkeypatch):
     # Only CLM-001 exists in claims.json; page cites CLM-001 and CLM-GHOST
     _write_claims(merged, ["CLM-001"])
     _write_api_surface(merged, [])
-    monkeypatch.setattr(prv, "_HERE", tmp_path / "no_scripts")
+    prv.configure(repo_root=tmp_path, here=tmp_path / "no_scripts")
 
     # Create a content page that cites CLM-GHOST (not in claims.json)
     page = tmp_path / "content" / "docs.aspose.org" / "en" / family / platform / "page.md"

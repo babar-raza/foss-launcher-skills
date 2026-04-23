@@ -42,7 +42,15 @@ from token_ops import Finding
 
 _log = logging.getLogger(__name__)
 
-KNOWLEDGE_ROOT = Path("knowledge")
+_DEFAULT_KNOWLEDGE_ROOT = Path("knowledge")
+KNOWLEDGE_ROOT = _DEFAULT_KNOWLEDGE_ROOT
+
+
+def configure(*, knowledge_root: "Path | str | None" = None) -> None:
+    """Override module-level path constants for testing."""
+    global KNOWLEDGE_ROOT
+    KNOWLEDGE_ROOT = Path(knowledge_root) if knowledge_root is not None else _DEFAULT_KNOWLEDGE_ROOT
+
 
 # ---------------------------------------------------------------------------
 # Compiled patterns

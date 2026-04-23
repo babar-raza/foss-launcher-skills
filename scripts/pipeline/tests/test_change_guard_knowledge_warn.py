@@ -55,9 +55,8 @@ class TestMissingForbiddenClaimsProducesWarn:
         """When index.json is missing, forbidden_claims is empty -> WARN."""
         knowledge_root = _build_knowledge_dir(tmp_path, include_index=False)
 
-        original_cg = change_guard.KNOWLEDGE_ROOT
         original_kc = knowledge_core._KNOWLEDGE_ROOT
-        change_guard.KNOWLEDGE_ROOT = knowledge_root
+        change_guard.configure(repo_root=tmp_path)
         knowledge_core._KNOWLEDGE_ROOT = knowledge_root
         try:
             result = guard_text(
@@ -66,7 +65,7 @@ class TestMissingForbiddenClaimsProducesWarn:
                 "python",
             )
         finally:
-            change_guard.KNOWLEDGE_ROOT = original_cg
+            change_guard.configure()
             knowledge_core._KNOWLEDGE_ROOT = original_kc
 
         ka_issues = [
@@ -84,9 +83,8 @@ class TestMissingForbiddenClaimsProducesWarn:
         data["forbidden_claims"] = []
         index_path.write_text(json.dumps(data), encoding="utf-8")
 
-        original_cg = change_guard.KNOWLEDGE_ROOT
         original_kc = knowledge_core._KNOWLEDGE_ROOT
-        change_guard.KNOWLEDGE_ROOT = knowledge_root
+        change_guard.configure(repo_root=tmp_path)
         knowledge_core._KNOWLEDGE_ROOT = knowledge_root
         try:
             result = guard_text(
@@ -95,7 +93,7 @@ class TestMissingForbiddenClaimsProducesWarn:
                 "python",
             )
         finally:
-            change_guard.KNOWLEDGE_ROOT = original_cg
+            change_guard.configure()
             knowledge_core._KNOWLEDGE_ROOT = original_kc
 
         ka_issues = [
@@ -116,9 +114,8 @@ class TestMissingKnowledgeProducesWarn:
         (merged / "model.yaml").write_text("family: noapi\nplatform: python\n", encoding="utf-8")
         # No api_surface.json -> knowledge.available will be False
 
-        original_cg = change_guard.KNOWLEDGE_ROOT
         original_kc = knowledge_core._KNOWLEDGE_ROOT
-        change_guard.KNOWLEDGE_ROOT = tmp_path / "knowledge"
+        change_guard.configure(repo_root=tmp_path)
         knowledge_core._KNOWLEDGE_ROOT = tmp_path / "knowledge"
         try:
             result = guard_text(
@@ -127,7 +124,7 @@ class TestMissingKnowledgeProducesWarn:
                 "python",
             )
         finally:
-            change_guard.KNOWLEDGE_ROOT = original_cg
+            change_guard.configure()
             knowledge_core._KNOWLEDGE_ROOT = original_kc
 
         ka_issues = [
@@ -142,9 +139,8 @@ class TestMissingKnowledgeProducesWarn:
         merged.mkdir(parents=True)
         (merged / "model.yaml").write_text("family: noapi\nplatform: python\n", encoding="utf-8")
 
-        original_cg = change_guard.KNOWLEDGE_ROOT
         original_kc = knowledge_core._KNOWLEDGE_ROOT
-        change_guard.KNOWLEDGE_ROOT = tmp_path / "knowledge"
+        change_guard.configure(repo_root=tmp_path)
         knowledge_core._KNOWLEDGE_ROOT = tmp_path / "knowledge"
         try:
             result = guard_text(
@@ -153,7 +149,7 @@ class TestMissingKnowledgeProducesWarn:
                 "python",
             )
         finally:
-            change_guard.KNOWLEDGE_ROOT = original_cg
+            change_guard.configure()
             knowledge_core._KNOWLEDGE_ROOT = original_kc
 
         ka_issues = [

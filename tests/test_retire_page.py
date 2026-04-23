@@ -22,6 +22,12 @@ if str(_PIPELINE_DIR) not in sys.path:
 import retire_page as rp
 
 
+@pytest.fixture(autouse=True)
+def _reset_rp():
+    yield
+    rp.configure()
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -95,7 +101,7 @@ def test_retire_from_plan(tmp_path, monkeypatch):
     _make_plan(plan_path, pages_to_remove=[str(page_a), str(page_b)])
 
     # Patch REPO_ROOT so relative paths resolve correctly
-    monkeypatch.setattr(rp, "REPO_ROOT", tmp_path)
+    rp.configure(repo_root=tmp_path)
 
     result = rp.retire_from_plan(plan_path)
 

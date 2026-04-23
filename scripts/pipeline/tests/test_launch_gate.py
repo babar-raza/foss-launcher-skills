@@ -22,6 +22,14 @@ from scripts.pipeline.launch_gate import (
     gate_l09_hugo_build,
 )
 
+import scripts.pipeline.launch_gate as _lg_mod
+
+
+@pytest.fixture(autouse=True)
+def _reset_launch_gate():
+    yield
+    _lg_mod.configure()
+
 
 # ---------------------------------------------------------------------------
 # Tests for _check_provenance_coverage(text)
@@ -122,7 +130,7 @@ class TestGateL08ProvenanceCoverage:
     def test_no_matching_files_returns_skip(self, tmp_path, monkeypatch):
         """When glob finds no .md files the gate should SKIP, not FAIL."""
         import scripts.pipeline.launch_gate as lg
-        monkeypatch.setattr(lg, "_REPO_ROOT", tmp_path)
+        lg.configure(repo_root=tmp_path)
         result = gate_l08_provenance_coverage("nonexistent", "platform")
         assert result.status == STATUS_SKIP
         assert "no content files found" in result.detail
@@ -130,7 +138,7 @@ class TestGateL08ProvenanceCoverage:
     def test_all_files_have_content_origin_returns_pass(self, tmp_path, monkeypatch):
         """All files correctly provisioned → PASS."""
         import scripts.pipeline.launch_gate as lg
-        monkeypatch.setattr(lg, "_REPO_ROOT", tmp_path)
+        lg.configure(repo_root=tmp_path)
 
         d = self._content_root(tmp_path, "docs.aspose.org", "widgets", "net")
         (d / "page.md").write_text(
@@ -145,7 +153,7 @@ class TestGateL08ProvenanceCoverage:
     def test_file_missing_content_origin_returns_fail(self, tmp_path, monkeypatch):
         """One file with provenance block but no content_origin → FAIL."""
         import scripts.pipeline.launch_gate as lg
-        monkeypatch.setattr(lg, "_REPO_ROOT", tmp_path)
+        lg.configure(repo_root=tmp_path)
 
         d = self._content_root(tmp_path, "docs.aspose.org", "widgets", "net")
         (d / "good.md").write_text(
@@ -166,7 +174,7 @@ class TestGateL08ProvenanceCoverage:
         """All files are structural-deferred (content_origin: unknown + note) → PASS.
         The gate must not flag intentionally deferred index pages."""
         import scripts.pipeline.launch_gate as lg
-        monkeypatch.setattr(lg, "_REPO_ROOT", tmp_path)
+        lg.configure(repo_root=tmp_path)
 
         d = self._content_root(tmp_path, "docs.aspose.org", "widgets", "net")
         (d / "_index.md").write_text(

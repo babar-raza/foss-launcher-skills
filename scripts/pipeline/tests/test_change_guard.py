@@ -44,14 +44,13 @@ def fake_knowledge_dir():
         shutil.copy(_FIXTURES_DIR / "fake_index.json", merged / "index.json")
         (merged / "install.md").write_text("pip install aspose-fake-foss\n", encoding="utf-8")
 
-        original_cg = change_guard.KNOWLEDGE_ROOT
         original_kc = knowledge_core._KNOWLEDGE_ROOT
-        change_guard.KNOWLEDGE_ROOT = root / "knowledge"
+        change_guard.configure(repo_root=root)
         knowledge_core._KNOWLEDGE_ROOT = root / "knowledge"
         try:
             yield root / "knowledge"
         finally:
-            change_guard.KNOWLEDGE_ROOT = original_cg
+            change_guard.configure()
             knowledge_core._KNOWLEDGE_ROOT = original_kc
 
 

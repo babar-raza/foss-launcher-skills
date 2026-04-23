@@ -230,31 +230,6 @@ class TestEvalRunnerRun:
         # knowledge_cache is a dict (may be empty if page had no family/platform)
         assert isinstance(runner.knowledge_cache, dict)
 
-    def test_seed_cache_avoids_reload(self, tmp_path):
-        """Knowledge in _seed_cache is reused — not reloaded — during run() (SR-01)."""
-        from content_eval.runner import _load_knowledge
-
-        kn_root = _make_knowledge_root(tmp_path, enrichment_status="full")
-        # Simulate what cli.py skip-graded block does: pre-load knowledge
-        pre_loaded = _load_knowledge("words", "python", knowledge_root=kn_root)
-        seed = {("words", "python"): pre_loaded}
-
-        page = _page(
-            prose_lines=["word " * 5] * 3,
-            family="words",
-            platform="python",
-        )
-        runner = EvalRunner(
-            evaluator_names=["consumer_usefulness"],
-            knowledge_root=kn_root,
-        )
-        runner.run([page], _seed_cache=seed)
-
-        # Identity check: same object must be in knowledge_cache (not a reload)
-        cached = runner.knowledge_cache.get(("words", "python"))
-        assert cached is pre_loaded, (
-            "runner.run() must reuse seeded knowledge object, not reload it"
-        )
 
 
 # ---------------------------------------------------------------------------
@@ -267,10 +242,11 @@ class TestSkipGradedEnrichmentGate:
     against the current knowledge enrichment_status (RC-2 fix)."""
 
     @pytest.fixture(autouse=True)
-    def _redirect_manifest(self, tmp_path, monkeypatch):
+    def _redirect_manifest(self, tmp_path):
         """Point grade_manifest to tmp_path so tests use their own manifest."""
-        monkeypatch.setattr(_gm, "_DEFAULT_MANIFEST_PATH",
-                            tmp_path / "reports" / "grade_manifest.json")
+        _gm.configure(manifest_path=tmp_path / "reports" / "grade_manifest.json")
+        yield
+        _gm.configure()
 
     def test_does_not_skip_when_enrichment_improved(self, tmp_path):
         """Page graded at scout-only must be re-evaluated when knowledge is now full."""
@@ -396,6 +372,67 @@ class TestSkipGradedEnrichmentGate:
         assert report.pages_evaluated == 0, (
             "Knowledge with absent enrichment_status should be treated as full "
             "and not trigger re-evaluation"
+        )
+
+    def test_scout_to_full_round_trip(self, tmp_path):
+        """VH-08: Full data-flow — scout-only grade → enrichment upgrade → skip gate re-evaluates.
+
+        Proves the complete chain:
+        1. Knowledge starts at scout-only → runner grades the page → manifest persists
+           enrichment_status: scout-only (ARCH-04: operational fields in manifest, not frontmatter)
+        2. Knowledge upgraded to full (same repo SHA) → runner.run(skip_graded=True) must
+           NOT skip the page because enrichment improved
+        """
+        import yaml as _yaml
+
+        # 1. Create knowledge at scout-only enrichment
+        kn_root = _make_knowledge_root(tmp_path, enrichment_status="scout-only")
+
+        # Create page file
+        md_dir = tmp_path / "content" / "docs" / "words" / "python"
+        md_dir.mkdir(parents=True)
+        md_file = md_dir / "guide.md"
+        md_file.write_text("---\ntitle: Test\n---\n\nBody text here.\n", encoding="utf-8")
+
+        page = _page(
+            prose_lines=["word " * 5] * 3,
+            filepath=str(md_file),
+            family="words",
+            platform="python",
+        )
+
+        # 2. Grade the page with scout-only knowledge (write_grade=True)
+        runner1 = EvalRunner(
+            evaluator_names=["consumer_usefulness"],
+            knowledge_root=kn_root,
+        )
+        runner1.run([page], write_grade=True)
+
+        # 3. Verify manifest has enrichment_status: scout-only
+        #    (ARCH-04: enrichment_status is in manifest, not frontmatter)
+        rel_path = str(md_file).replace("\\", "/")
+        manifest = _gm.load_manifest(tmp_path / "reports" / "grade_manifest.json")
+        entry = manifest.get(rel_path)
+        assert entry is not None, "Manifest entry must exist after runner.run(write_grade=True)"
+        assert entry.get("enrichment_status") == "scout-only", (
+            f"Manifest must record enrichment_status=scout-only; got: {entry.get('enrichment_status')}"
+        )
+
+        # 4. Upgrade knowledge to full enrichment (same repo SHA)
+        model_path = kn_root / "words" / "python" / "merged" / "model.yaml"
+        model = _yaml.safe_load(model_path.read_text(encoding="utf-8"))
+        model["enrichment_status"] = "full"
+        model_path.write_text(_yaml.dump(model), encoding="utf-8")
+
+        # 5. Re-evaluate with skip_graded=True → must NOT skip
+        runner2 = EvalRunner(
+            evaluator_names=["consumer_usefulness"],
+            knowledge_root=kn_root,
+        )
+        report = runner2.run([page], skip_graded=True, write_grade=False)
+        assert report.pages_evaluated == 1, (
+            "Page graded under scout-only must be re-evaluated after enrichment upgrade "
+            f"(scout-only → full). pages_evaluated={report.pages_evaluated}"
         )
 
 

@@ -18,6 +18,12 @@ import ground_check  # noqa: E402
 _FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
 
 
+@pytest.fixture(autouse=True)
+def _reset_ground_check():
+    yield
+    ground_check.configure()
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -27,8 +33,7 @@ def _make_knowledge(tmp_path: Path, api_surface_file: str = "fake_api_surface.js
     merged = tmp_path / "knowledge" / "fake" / "python" / "merged"
     merged.mkdir(parents=True)
     shutil.copy(_FIXTURES_DIR / api_surface_file, merged / "api_surface.json")
-    # Patch the module-level KNOWLEDGE_ROOT for this test's tmp directory
-    ground_check.KNOWLEDGE_ROOT = tmp_path / "knowledge"
+    ground_check.configure(repo_root=tmp_path)
     return merged / "api_surface.json"
 
 
@@ -173,13 +178,9 @@ class TestComputeGroundingRatio:
 # ---------------------------------------------------------------------------
 
 class TestMain:
-    """Test main() argument parsing and exit codes via monkey-patched KNOWLEDGE_ROOT."""
-
-    def _restore(self, original):
-        ground_check.KNOWLEDGE_ROOT = original
+    """Test main() argument parsing and exit codes via configure() seam."""
 
     def test_pass_exit_code_all_matched(self, tmp_path):
-        original = ground_check.KNOWLEDGE_ROOT
         _make_knowledge(tmp_path)
         content = tmp_path / "page.md"
         # All identifiers are known: ratio = 100%
@@ -187,14 +188,10 @@ class TestMain:
             "Use `Scene` to load. Call `Scene.open` and `Scene.save`.",
             encoding="utf-8",
         )
-        try:
-            result = ground_check.main(["fake", "python", str(content)])
-        finally:
-            self._restore(original)
+        result = ground_check.main(["fake", "python", str(content)])
         assert result == 0
 
     def test_warn_exit_code_75_pct(self, tmp_path):
-        original = ground_check.KNOWLEDGE_ROOT
         _make_knowledge(tmp_path)
         content = tmp_path / "page.md"
         # 3 known + 1 unknown = 75%
@@ -202,14 +199,10 @@ class TestMain:
             "`Scene` loads. `Scene.open` opens. `Scene.save` saves. `FakeThing` fakes.",
             encoding="utf-8",
         )
-        try:
-            result = ground_check.main(["fake", "python", str(content)])
-        finally:
-            self._restore(original)
+        result = ground_check.main(["fake", "python", str(content)])
         assert result == 1
 
     def test_fail_exit_code_20_pct(self, tmp_path):
-        original = ground_check.KNOWLEDGE_ROOT
         _make_knowledge(tmp_path)
         content = tmp_path / "page.md"
         # 1 known + 4 unknowns = 20%
@@ -217,39 +210,24 @@ class TestMain:
             "`Scene` loads. `FakeA.go` runs. `FakeB` works. `FakeC` helps. `FakeD` does.",
             encoding="utf-8",
         )
-        try:
-            result = ground_check.main(["fake", "python", str(content)])
-        finally:
-            self._restore(original)
+        result = ground_check.main(["fake", "python", str(content)])
         assert result == 2
 
     def test_no_identifiers_is_pass(self, tmp_path):
-        original = ground_check.KNOWLEDGE_ROOT
         _make_knowledge(tmp_path)
         content = tmp_path / "page.md"
         content.write_text("This page has no identifiers — just plain English prose.", encoding="utf-8")
-        try:
-            result = ground_check.main(["fake", "python", str(content)])
-        finally:
-            self._restore(original)
+        result = ground_check.main(["fake", "python", str(content)])
         assert result == 0
 
     def test_missing_content_file_returns_2(self, tmp_path):
-        original = ground_check.KNOWLEDGE_ROOT
         _make_knowledge(tmp_path)
-        try:
-            result = ground_check.main(["fake", "python", str(tmp_path / "nonexistent.md")])
-        finally:
-            self._restore(original)
+        result = ground_check.main(["fake", "python", str(tmp_path / "nonexistent.md")])
         assert result == 2
 
     def test_missing_knowledge_returns_2(self, tmp_path):
-        original = ground_check.KNOWLEDGE_ROOT
         content = tmp_path / "page.md"
         content.write_text("`Scene` is great.", encoding="utf-8")
-        ground_check.KNOWLEDGE_ROOT = tmp_path / "no_such_knowledge"
-        try:
-            result = ground_check.main(["fake", "python", str(content)])
-        finally:
-            self._restore(original)
+        ground_check.configure(knowledge_root=tmp_path / "no_such_knowledge")
+        result = ground_check.main(["fake", "python", str(content)])
         assert result == 2

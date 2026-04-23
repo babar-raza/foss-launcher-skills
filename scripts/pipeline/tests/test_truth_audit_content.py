@@ -59,6 +59,9 @@ class TestFindingIds(unittest.TestCase):
 class TestDecomposition(unittest.TestCase):
     """Content decomposition into reviewable units."""
 
+    def tearDown(self):
+        tac.configure()
+
     def _write_page(self, tmpdir: Path, content: str) -> Path:
         filepath = tmpdir / "content" / "docs.aspose.org" / "en" / "words" / "python" / "test.md"
         filepath.parent.mkdir(parents=True, exist_ok=True)
@@ -68,75 +71,75 @@ class TestDecomposition(unittest.TestCase):
     def test_heading_extraction(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
-            with patch.object(tac, '_REPO_ROOT', tmpdir):
-                fp = self._write_page(tmpdir, "---\ntitle: Test\n---\n## My Heading\n\nSome text here.\n")
-                units = tac.decompose_page(fp, "words", "python")
-                headings = [u for u in units if u["type"] == "heading"]
-                self.assertEqual(len(headings), 1)
-                self.assertEqual(headings[0]["text"], "My Heading")
+            tac.configure(repo_root=tmpdir)
+            fp = self._write_page(tmpdir, "---\ntitle: Test\n---\n## My Heading\n\nSome text here.\n")
+            units = tac.decompose_page(fp, "words", "python")
+            headings = [u for u in units if u["type"] == "heading"]
+            self.assertEqual(len(headings), 1)
+            self.assertEqual(headings[0]["text"], "My Heading")
 
     def test_code_block_extraction(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
-            with patch.object(tac, '_REPO_ROOT', tmpdir):
-                content = "---\ntitle: Test\n---\n\n```python\nfrom aspose import words\n```\n"
-                fp = self._write_page(tmpdir, content)
-                units = tac.decompose_page(fp, "words", "python")
-                code_blocks = [u for u in units if u["type"] == "code_block"]
-                self.assertEqual(len(code_blocks), 1)
-                self.assertIn("from aspose import words", code_blocks[0]["text"])
+            tac.configure(repo_root=tmpdir)
+            content = "---\ntitle: Test\n---\n\n```python\nfrom aspose import words\n```\n"
+            fp = self._write_page(tmpdir, content)
+            units = tac.decompose_page(fp, "words", "python")
+            code_blocks = [u for u in units if u["type"] == "code_block"]
+            self.assertEqual(len(code_blocks), 1)
+            self.assertIn("from aspose import words", code_blocks[0]["text"])
 
     def test_table_row_extraction(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
-            with patch.object(tac, '_REPO_ROOT', tmpdir):
-                content = "---\ntitle: Test\n---\n\n| Method | Return |\n|--------|--------|\n| save() | None |\n"
-                fp = self._write_page(tmpdir, content)
-                units = tac.decompose_page(fp, "words", "python")
-                rows = [u for u in units if u["type"] == "table_row"]
-                # Header row + data row (separator skipped)
-                self.assertGreaterEqual(len(rows), 1)
+            tac.configure(repo_root=tmpdir)
+            content = "---\ntitle: Test\n---\n\n| Method | Return |\n|--------|--------|\n| save() | None |\n"
+            fp = self._write_page(tmpdir, content)
+            units = tac.decompose_page(fp, "words", "python")
+            rows = [u for u in units if u["type"] == "table_row"]
+            # Header row + data row (separator skipped)
+            self.assertGreaterEqual(len(rows), 1)
 
     def test_list_item_extraction(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
-            with patch.object(tac, '_REPO_ROOT', tmpdir):
-                content = "---\ntitle: Test\n---\n\n- Supports DOCX format\n- Supports PDF format\n"
-                fp = self._write_page(tmpdir, content)
-                units = tac.decompose_page(fp, "words", "python")
-                items = [u for u in units if u["type"] == "list_item"]
-                self.assertEqual(len(items), 2)
+            tac.configure(repo_root=tmpdir)
+            content = "---\ntitle: Test\n---\n\n- Supports DOCX format\n- Supports PDF format\n"
+            fp = self._write_page(tmpdir, content)
+            units = tac.decompose_page(fp, "words", "python")
+            items = [u for u in units if u["type"] == "list_item"]
+            self.assertEqual(len(items), 2)
 
     def test_paragraph_extraction(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
-            with patch.object(tac, '_REPO_ROOT', tmpdir):
-                content = "---\ntitle: Test\n---\n\nThe Document class provides methods for loading and saving files.\n\nAnother paragraph with more information about formats.\n"
-                fp = self._write_page(tmpdir, content)
-                units = tac.decompose_page(fp, "words", "python")
-                paras = [u for u in units if u["type"] == "paragraph"]
-                self.assertGreaterEqual(len(paras), 1)
+            tac.configure(repo_root=tmpdir)
+            content = "---\ntitle: Test\n---\n\nThe Document class provides methods for loading and saving files.\n\nAnother paragraph with more information about formats.\n"
+            fp = self._write_page(tmpdir, content)
+            units = tac.decompose_page(fp, "words", "python")
+            paras = [u for u in units if u["type"] == "paragraph"]
+            self.assertGreaterEqual(len(paras), 1)
 
     def test_frontmatter_skipped(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
-            with patch.object(tac, '_REPO_ROOT', tmpdir):
-                content = "---\ntitle: Secret Field\ndescription: Not a unit\n---\n\nReal content here for testing.\n"
-                fp = self._write_page(tmpdir, content)
-                units = tac.decompose_page(fp, "words", "python")
-                # No unit should contain frontmatter content
-                for u in units:
-                    self.assertNotIn("Secret Field", u["text"])
+            tac.configure(repo_root=tmpdir)
+            content = "---\ntitle: Secret Field\ndescription: Not a unit\n---\n\nReal content here for testing.\n"
+            fp = self._write_page(tmpdir, content)
+            units = tac.decompose_page(fp, "words", "python")
+            # No unit should contain frontmatter content
+            for u in units:
+                self.assertNotIn("Secret Field", u["text"])
 
     def test_unit_type_filter(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
-            with patch.object(tac, '_REPO_ROOT', tmpdir):
-                content = "---\ntitle: Test\n---\n## Heading\n\nParagraph text that is long enough.\n"
-                fp = self._write_page(tmpdir, content)
-                units = tac.decompose_page(fp, "words", "python", unit_types={"H"})
-                types = {u["type"] for u in units}
-                self.assertEqual(types, {"heading"})
+            tac.configure(repo_root=tmpdir)
+            content = "---\ntitle: Test\n---\n## Heading\n\nParagraph text that is long enough.\n"
+            fp = self._write_page(tmpdir, content)
+            units = tac.decompose_page(fp, "words", "python", unit_types={"H"})
+            types = {u["type"] for u in units}
+            self.assertEqual(types, {"heading"})
 
 
 class TestVerifyUnit(unittest.TestCase):

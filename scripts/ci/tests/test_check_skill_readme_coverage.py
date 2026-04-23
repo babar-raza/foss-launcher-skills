@@ -8,7 +8,14 @@ _CI_ROOT = Path(__file__).resolve().parent.parent
 if str(_CI_ROOT) not in sys.path:
     sys.path.insert(0, str(_CI_ROOT))
 
+import pytest
 import check_skill_readme_coverage as cov  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _reset_cov():
+    yield
+    cov.configure()
 
 
 # ---------------------------------------------------------------------------
@@ -18,13 +25,13 @@ import check_skill_readme_coverage as cov  # noqa: E402
 
 class TestCheckFile:
     def test_missing_file_fails(self, tmp_path: Path, monkeypatch):
-        monkeypatch.setattr(cov, "_REPO_ROOT", tmp_path)
+        cov.configure(repo_root=tmp_path)
         passed, reason = cov._check_file(tmp_path / "nope.md", None)
         assert not passed
         assert "does not exist" in reason
 
     def test_short_file_fails(self, tmp_path: Path, monkeypatch):
-        monkeypatch.setattr(cov, "_REPO_ROOT", tmp_path)
+        cov.configure(repo_root=tmp_path)
         f = tmp_path / "short.md"
         f.write_text("# Title\nOne line.\n", encoding="utf-8")
         passed, reason = cov._check_file(f, None)
@@ -44,7 +51,7 @@ class TestCheckFile:
         assert passed
 
     def test_required_substring_absent(self, tmp_path: Path, monkeypatch):
-        monkeypatch.setattr(cov, "_REPO_ROOT", tmp_path)
+        cov.configure(repo_root=tmp_path)
         f = tmp_path / "root.md"
         f.write_text("No link here.", encoding="utf-8")
         passed, reason = cov._check_file(f, "skills/README.md")
@@ -94,7 +101,7 @@ class TestFixCounts:
             "This catalog has 2 registered skills in it.\n" * 25,
             encoding="utf-8",
         )
-        monkeypatch.setattr(cov, "_REPO_ROOT", tmp_path)
+        cov.configure(repo_root=tmp_path)
         monkeypatch.setattr(
             cov,
             "_SKILL_DIRS",

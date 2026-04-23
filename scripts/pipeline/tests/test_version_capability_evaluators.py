@@ -248,12 +248,11 @@ class TestCapabilityClaimCheckNormalization:
             merged = Path(tmp) / "knowledge" / "words" / "python" / "merged"
             merged.mkdir(parents=True)
             (merged / "formats.json").write_text(json.dumps(data), encoding="utf-8")
-            original_root = mod.KNOWLEDGE_ROOT
-            mod.KNOWLEDGE_ROOT = Path(tmp) / "knowledge"
+            mod.configure(knowledge_root=Path(tmp) / "knowledge")
             try:
                 result = mod._load_formats("words", "python")
             finally:
-                mod.KNOWLEDGE_ROOT = original_root
+                mod.configure()
         assert result.get("docx") == "none"
 
     def test_load_formats_enum_only_no_functional_normalizes_to_import(self):
@@ -268,12 +267,11 @@ class TestCapabilityClaimCheckNormalization:
             merged = Path(tmp) / "knowledge" / "cells" / "python" / "merged"
             merged.mkdir(parents=True)
             (merged / "formats.json").write_text(json.dumps(data), encoding="utf-8")
-            original_root = mod.KNOWLEDGE_ROOT
-            mod.KNOWLEDGE_ROOT = Path(tmp) / "knowledge"
+            mod.configure(knowledge_root=Path(tmp) / "knowledge")
             try:
                 result = mod._load_formats("cells", "python")
             finally:
-                mod.KNOWLEDGE_ROOT = original_root
+                mod.configure()
         assert result.get("tsv") == "import"
 
     def test_load_formats_none_aware_merge_keeps_functional_direction(self):
@@ -291,12 +289,11 @@ class TestCapabilityClaimCheckNormalization:
             merged = Path(tmp) / "knowledge" / "words" / "python" / "merged"
             merged.mkdir(parents=True)
             (merged / "formats.json").write_text(json.dumps(data), encoding="utf-8")
-            original_root = mod.KNOWLEDGE_ROOT
-            mod.KNOWLEDGE_ROOT = Path(tmp) / "knowledge"
+            mod.configure(knowledge_root=Path(tmp) / "knowledge")
             try:
                 result = mod._load_formats("words", "python")
             finally:
-                mod.KNOWLEDGE_ROOT = original_root
+                mod.configure()
         assert result.get("docx") == "import"
 
     # ------------------------------------------------------------------

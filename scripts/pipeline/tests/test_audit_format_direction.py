@@ -48,16 +48,14 @@ class TestVerifyFormatDirection(unittest.TestCase):
     def _run(self, tmpdir: Path, body: str, formats: list[dict]):
         import sys
         sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-        # Patch KNOWLEDGE_ROOT to tmpdir
         import audit.formats as fmt_mod
-        original_root = fmt_mod.KNOWLEDGE_ROOT
-        fmt_mod.KNOWLEDGE_ROOT = tmpdir / "knowledge"
+        fmt_mod.configure(knowledge_root=tmpdir / "knowledge")
         try:
             self._write_formats_json(tmpdir, formats)
             fp = self._write_content(tmpdir, body)
             return fmt_mod.verify_format_direction(str(fp), "words", "python")
         finally:
-            fmt_mod.KNOWLEDGE_ROOT = original_root
+            fmt_mod.configure()
 
     # ------------------------------------------------------------------
     # Failing cases — should produce FAIL findings
@@ -159,11 +157,10 @@ class TestVerifyFormatDirection(unittest.TestCase):
     def test_missing_formats_json_produces_no_findings(self):
         """If formats.json does not exist, no findings and no crash."""
         import audit.formats as fmt_mod
-        original_root = fmt_mod.KNOWLEDGE_ROOT
         # Point to a directory with no formats.json
         with tempfile.TemporaryDirectory() as td:
             td_path = Path(td)
-            fmt_mod.KNOWLEDGE_ROOT = td_path / "knowledge"
+            fmt_mod.configure(knowledge_root=td_path / "knowledge")
             body = (
                 "### Output Formats\n\n"
                 "| Format | `SaveFormat` Constant | Notes |\n"
@@ -175,7 +172,7 @@ class TestVerifyFormatDirection(unittest.TestCase):
             try:
                 findings = fmt_mod.verify_format_direction(str(fp), "words", "python")
             finally:
-                fmt_mod.KNOWLEDGE_ROOT = original_root
+                fmt_mod.configure()
         self.assertEqual(findings, [])
 
     def test_corrected_enum_only_rows_pass(self):
@@ -210,12 +207,11 @@ class TestVerifyFormatDirection(unittest.TestCase):
                 "| DOC  | `SaveFormat.DOC`  | Read-only constant. `Document.save()` does not support DOC — raises `ValueError`. |\n",
                 encoding="utf-8",
             )
-            original_root = fmt_mod.KNOWLEDGE_ROOT
-            fmt_mod.KNOWLEDGE_ROOT = td_path / "knowledge"
+            fmt_mod.configure(knowledge_root=td_path / "knowledge")
             try:
                 findings = fmt_mod.verify_format_direction(str(md), "words", "python")
             finally:
-                fmt_mod.KNOWLEDGE_ROOT = original_root
+                fmt_mod.configure()
         self.assertEqual(
             findings, [],
             msg=f"Expected 0 FD findings for correctly-warned rows; got: {findings}",
@@ -239,15 +235,14 @@ class TestVerifyFormatDirection(unittest.TestCase):
             md = td_path / "doc.md"
             md.write_text("| DOCX | `SaveFormat.DOCX` | — |\n", encoding="utf-8")
 
-            original_root = fmt_mod.KNOWLEDGE_ROOT
-            fmt_mod.KNOWLEDGE_ROOT = td_path / "knowledge"
+            fmt_mod.configure(knowledge_root=td_path / "knowledge")
             try:
                 fmt_mod.verify_format_direction(str(md), "words", "python")
                 fmt_mod.verify_format_direction(str(md), "words", "python")
                 fmt_mod.verify_format_direction(str(md), "words", "python")
                 info = fmt_mod._load_enum_only_formats.cache_info()
             finally:
-                fmt_mod.KNOWLEDGE_ROOT = original_root
+                fmt_mod.configure()
 
         self.assertEqual(info.misses, 1, "formats.json should be read exactly once")
         self.assertEqual(info.hits, 2, "second and third calls should be cache hits")
@@ -264,13 +259,12 @@ class TestVerifyFormatDirection(unittest.TestCase):
             merged = td_path / "knowledge" / "words" / "python" / "merged"
             merged.mkdir(parents=True)
             (merged / "formats.json").write_text("not valid json {{{", encoding="utf-8")
-            original_root = fmt_mod.KNOWLEDGE_ROOT
-            fmt_mod.KNOWLEDGE_ROOT = td_path / "knowledge"
+            fmt_mod.configure(knowledge_root=td_path / "knowledge")
             try:
                 with self.assertLogs("audit.formats", level="WARNING") as cm:
                     result = fmt_mod._load_enum_only_formats("words", "python")
             finally:
-                fmt_mod.KNOWLEDGE_ROOT = original_root
+                fmt_mod.configure()
         self.assertEqual(result, set())
         self.assertTrue(
             any("could not load" in msg for msg in cm.output),
@@ -289,13 +283,12 @@ class TestVerifyFormatDirection(unittest.TestCase):
                 json.dumps({"name": "DOCX", "direction": "enum_only"}),
                 encoding="utf-8",
             )
-            original_root = fmt_mod.KNOWLEDGE_ROOT
-            fmt_mod.KNOWLEDGE_ROOT = td_path / "knowledge"
+            fmt_mod.configure(knowledge_root=td_path / "knowledge")
             try:
                 with self.assertLogs("audit.formats", level="WARNING") as cm:
                     result = fmt_mod._load_enum_only_formats("words", "python")
             finally:
-                fmt_mod.KNOWLEDGE_ROOT = original_root
+                fmt_mod.configure()
         self.assertEqual(result, set())
         self.assertTrue(
             any("not a JSON list" in msg for msg in cm.output),
@@ -307,14 +300,13 @@ class TestVerifyFormatDirection(unittest.TestCase):
         import audit.formats as fmt_mod
         with tempfile.TemporaryDirectory() as td:
             td_path = Path(td)
-            original_root = fmt_mod.KNOWLEDGE_ROOT
-            fmt_mod.KNOWLEDGE_ROOT = td_path / "knowledge"  # no formats.json here
+            fmt_mod.configure(knowledge_root=td_path / "knowledge")  # no formats.json here
             try:
                 # assertNoLogs(level="WARNING") passes only if no WARNING records emitted
                 with self.assertNoLogs("audit.formats", level="WARNING"):
                     result = fmt_mod._load_enum_only_formats("words", "python")
             finally:
-                fmt_mod.KNOWLEDGE_ROOT = original_root
+                fmt_mod.configure()
         self.assertEqual(result, set())
 
 

@@ -178,9 +178,9 @@ class TestPaginateRateLimit:
 class TestDryRun:
     def test_dry_run_does_not_write_file(self, tmp_path, capsys):
         registry_path = tmp_path / "products.json"
-        # Patch REGISTRY_PATH and KNOWLEDGE_ROOT so no real I/O
+        # Use configure() for KNOWLEDGE_ROOT; patch REGISTRY_PATH and stub discovery
+        upr.configure(repo_root=tmp_path)
         with patch.object(upr, "REGISTRY_PATH", registry_path), \
-             patch.object(upr, "KNOWLEDGE_ROOT", tmp_path / "knowledge"), \
              patch("update_product_registry._discover_from_github", return_value=[]):
             rc = upr.main(["--local-only", "--dry-run"])
 

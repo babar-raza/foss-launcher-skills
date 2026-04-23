@@ -22,6 +22,13 @@ if str(_PIPELINE) not in sys.path:
 
 from provenance import write_provenance
 from audit_content_origin import audit, _classify
+import audit_content_origin as _aco
+
+
+@pytest.fixture(autouse=True)
+def _reset_aco():
+    yield
+    _aco.configure()
 
 
 # ---------------------------------------------------------------------------
@@ -110,17 +117,13 @@ def _read_csv(csv_path: Path) -> list[dict]:
 
 
 def _patch_audit_roots(mod, tmp_path):
-    """Context helper: patch both _CONTENT_ROOT and _REPO_ROOT so relative_to works."""
-    orig_content = mod._CONTENT_ROOT
-    orig_repo = mod._REPO_ROOT
-    mod._CONTENT_ROOT = tmp_path
-    mod._REPO_ROOT = tmp_path
-    return orig_content, orig_repo
+    """Configure audit roots so content_root and repo_root both point to tmp_path."""
+    mod.configure(repo_root=tmp_path, content_root=tmp_path)
+    return ()
 
 
-def _restore_audit_roots(mod, orig_content, orig_repo):
-    mod._CONTENT_ROOT = orig_content
-    mod._REPO_ROOT = orig_repo
+def _restore_audit_roots(mod, *_args):
+    mod.configure()
 
 
 def test_audit_grade_a_no_code_class1(tmp_path):

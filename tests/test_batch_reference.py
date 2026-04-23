@@ -82,15 +82,15 @@ def batch_env(tmp_path, monkeypatch):
     output_dir = tmp_path / "content" / "reference.aspose.org" / "en" / family / platform
     output_dir.mkdir(parents=True)
 
-    monkeypatch.setattr(br, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
-    monkeypatch.setattr(br, "CONTENT_ROOT", tmp_path / "content" / "reference.aspose.org" / "en")
+    br.configure(repo_root=tmp_path)
 
     # Stub Knowledge and attach_evidence to avoid needing a real knowledge model
     mock_knowledge = MagicMock()
     mock_knowledge.available = False  # skip attach_evidence
     monkeypatch.setattr(br, "Knowledge", lambda f, p: mock_knowledge)
 
-    return tmp_path, family, platform, merged, output_dir
+    yield tmp_path, family, platform, merged, output_dir
+    br.configure()
 
 
 # ---------------------------------------------------------------------------

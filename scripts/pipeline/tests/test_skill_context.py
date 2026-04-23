@@ -150,19 +150,10 @@ class TestSkillContextGap(unittest.TestCase):
     def setUp(self):
         import tempfile
         self.tmp = Path(tempfile.mkdtemp())
-        self.orig_context_dir = skill_context._CONTEXT_DIR
-        self.orig_active = skill_context._ACTIVE_FILE
-        self.orig_history = skill_context._HISTORY_DIR
-        self.orig_repo = skill_context._REPO_ROOT
-        skill_context._CONTEXT_DIR = self.tmp / "skill-context"
-        skill_context._ACTIVE_FILE = skill_context._CONTEXT_DIR / "ACTIVE.json"
-        skill_context._HISTORY_DIR = skill_context._CONTEXT_DIR / "history"
+        skill_context.configure(repo_root=self.tmp)
 
     def tearDown(self):
-        skill_context._CONTEXT_DIR = self.orig_context_dir
-        skill_context._ACTIVE_FILE = self.orig_active
-        skill_context._HISTORY_DIR = self.orig_history
-        skill_context._REPO_ROOT = self.orig_repo
+        skill_context.configure()
         import shutil
         shutil.rmtree(self.tmp, ignore_errors=True)
 

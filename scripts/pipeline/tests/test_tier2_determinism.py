@@ -18,6 +18,8 @@ _GAP_EVAL_DIR = Path(__file__).resolve().parents[2] / "gap-eval"
 if str(_GAP_EVAL_DIR) not in sys.path:
     sys.path.insert(0, str(_GAP_EVAL_DIR))
 
+import run as _run_mod  # noqa: E402
+
 from run import (  # type: ignore  # noqa: E402
     tier2_verify,
     TIER2_MATCH_HIGH,
@@ -25,6 +27,12 @@ from run import (  # type: ignore  # noqa: E402
     TIER2_BAND_LOW,
     TIER2_MISMATCH,
 )
+
+
+@pytest.fixture(autouse=True)
+def _reset_run():
+    yield
+    _run_mod.configure()
 
 
 # ---------------------------------------------------------------------------
@@ -86,7 +94,8 @@ class TestTier2DeterminismBand:
         repo = _setup_vectors(tmp_path, "test", "python", [1.0, 0.0, 0.0])
         claim = _make_claim()
         p_embed, p_cosine = _patch_embed_and_cosine(0.80)
-        with p_embed, p_cosine, patch("run._REPO_ROOT", repo):
+        _run_mod.configure(repo_root=repo)
+        with p_embed, p_cosine:
             result = tier2_verify(claim, "test", "python")
         assert result is not None
         verdict, score = result
@@ -98,7 +107,8 @@ class TestTier2DeterminismBand:
         repo = _setup_vectors(tmp_path, "test", "python", [1.0, 0.0, 0.0])
         claim = _make_claim()
         p_embed, p_cosine = _patch_embed_and_cosine(0.75)
-        with p_embed, p_cosine, patch("run._REPO_ROOT", repo):
+        _run_mod.configure(repo_root=repo)
+        with p_embed, p_cosine:
             result = tier2_verify(claim, "test", "python")
         assert result is not None
         verdict, score = result
@@ -111,7 +121,8 @@ class TestTier2DeterminismBand:
         claim = _make_claim()
         for test_score in [0.65, 0.68, 0.70, 0.72, 0.749]:
             p_embed, p_cosine = _patch_embed_and_cosine(test_score)
-            with p_embed, p_cosine, patch("run._REPO_ROOT", repo):
+            _run_mod.configure(repo_root=repo)
+            with p_embed, p_cosine:
                 result = tier2_verify(claim, "test", "python")
             assert result is not None, f"Expected result for score {test_score}"
             verdict, score = result
@@ -124,7 +135,8 @@ class TestTier2DeterminismBand:
         repo = _setup_vectors(tmp_path, "test", "python", [1.0, 0.0, 0.0])
         claim = _make_claim()
         p_embed, p_cosine = _patch_embed_and_cosine(0.70)
-        with p_embed, p_cosine, patch("run._REPO_ROOT", repo):
+        _run_mod.configure(repo_root=repo)
+        with p_embed, p_cosine:
             result = tier2_verify(claim, "test", "python")
         assert result is not None
         verdict, score = result
@@ -137,7 +149,8 @@ class TestTier2DeterminismBand:
         repo = _setup_vectors(tmp_path, "test", "python", [1.0, 0.0, 0.0])
         claim = _make_claim()
         p_embed, p_cosine = _patch_embed_and_cosine(0.30)
-        with p_embed, p_cosine, patch("run._REPO_ROOT", repo):
+        _run_mod.configure(repo_root=repo)
+        with p_embed, p_cosine:
             result = tier2_verify(claim, "test", "python")
         assert result is not None
         verdict, score = result
@@ -149,7 +162,8 @@ class TestTier2DeterminismBand:
         repo = _setup_vectors(tmp_path, "test", "python", [1.0, 0.0, 0.0])
         claim = _make_claim()
         p_embed, p_cosine = _patch_embed_and_cosine(0.50)
-        with p_embed, p_cosine, patch("run._REPO_ROOT", repo):
+        _run_mod.configure(repo_root=repo)
+        with p_embed, p_cosine:
             result = tier2_verify(claim, "test", "python")
         assert result is not None
         verdict, score = result
@@ -160,7 +174,8 @@ class TestTier2DeterminismBand:
         repo = _setup_vectors(tmp_path, "test", "python", [1.0, 0.0, 0.0])
         claim = _make_claim()
         p_embed, p_cosine = _patch_embed_and_cosine(0.40)
-        with p_embed, p_cosine, patch("run._REPO_ROOT", repo):
+        _run_mod.configure(repo_root=repo)
+        with p_embed, p_cosine:
             result = tier2_verify(claim, "test", "python")
         assert result is not None
         verdict, score = result
@@ -198,8 +213,8 @@ class TestTier2DimensionWarning:
         # _embed_text returns a 2-dim vector (mismatched)
         query_vec = [1.0, 0.0]
 
+        _run_mod.configure(repo_root=repo)
         with patch("run._embed_text", return_value=query_vec), \
-             patch("run._REPO_ROOT", repo), \
              caplog.at_level(logging.WARNING, logger="run"):
             result = tier2_verify(claim, "test", "python")
 
@@ -218,8 +233,8 @@ class TestTier2DimensionWarning:
 
         query_vec = [0.5, 0.5, 0.0]
 
+        _run_mod.configure(repo_root=repo)
         with patch("run._embed_text", return_value=query_vec), \
-             patch("run._REPO_ROOT", repo), \
              caplog.at_level(logging.WARNING, logger="run"):
             result = tier2_verify(claim, "test", "python")
 

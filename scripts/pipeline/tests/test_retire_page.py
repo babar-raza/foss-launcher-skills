@@ -16,6 +16,12 @@ import yaml
 import retire_page
 
 
+@pytest.fixture(autouse=True)
+def _reset_retire_page():
+    yield
+    retire_page.configure()
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -239,7 +245,7 @@ class TestUnRetireFromDelta:
 
     def test_un_retires_matching_pages(self, tmp_path, monkeypatch):
         merged, ref_root = self._setup_delta_and_pages(tmp_path, ["ClassA", "ClassB"])
-        monkeypatch.setattr(retire_page, "REPO_ROOT", tmp_path)
+        retire_page.configure(repo_root=tmp_path)
 
         result = retire_page.un_retire_from_delta("test", "net")
         assert result["un_retired"] == 2
@@ -263,11 +269,11 @@ class TestUnRetireFromDelta:
         (merged / "knowledge_delta.json").write_text(
             json.dumps({"resurrected_apis": []}), encoding="utf-8"
         )
-        monkeypatch.setattr(retire_page, "REPO_ROOT", tmp_path)
+        retire_page.configure(repo_root=tmp_path)
         result = retire_page.un_retire_from_delta("test", "net")
         assert result["un_retired"] == 0
 
     def test_missing_delta_is_noop(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(retire_page, "REPO_ROOT", tmp_path)
+        retire_page.configure(repo_root=tmp_path)
         result = retire_page.un_retire_from_delta("test", "net")
         assert result["un_retired"] == 0

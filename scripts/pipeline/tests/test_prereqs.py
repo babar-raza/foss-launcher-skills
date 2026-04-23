@@ -18,26 +18,32 @@ def test_prerequisite_result_factory():
 
 def test_check_venv_finds_existing(tmp_path):
     """check_venv should succeed when .venv/Scripts/python.exe exists."""
-    from unittest.mock import patch
     from core.prereqs import check_venv
+    import core.prereqs as _prereqs
 
     # Create a fake venv structure
     venv_python = tmp_path / ".venv" / "Scripts" / "python.exe"
     venv_python.parent.mkdir(parents=True)
     venv_python.touch()
 
-    with patch("core.prereqs._REPO_ROOT", tmp_path):
+    _prereqs.configure(repo_root=tmp_path)
+    try:
         result = check_venv()
+    finally:
+        _prereqs.configure()
     assert result.ok
 
 
 def test_check_venv_missing(tmp_path):
     """check_venv should fail when .venv does not exist."""
-    from unittest.mock import patch
     from core.prereqs import check_venv
+    import core.prereqs as _prereqs
 
-    with patch("core.prereqs._REPO_ROOT", tmp_path):
+    _prereqs.configure(repo_root=tmp_path)
+    try:
         result = check_venv()
+    finally:
+        _prereqs.configure()
     assert not result.ok
     assert ".venv" in result.message
 

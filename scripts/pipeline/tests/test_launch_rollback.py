@@ -16,6 +16,12 @@ import pytest
 import launch_rollback
 
 
+@pytest.fixture(autouse=True)
+def _reset_launch_rollback():
+    yield
+    launch_rollback.configure()
+
+
 # ---------------------------------------------------------------------------
 # _is_content_path
 # ---------------------------------------------------------------------------
@@ -83,7 +89,7 @@ class TestClassifyFiles:
         assert len(to_delete) == 0
 
     def test_missing_content_file_goes_to_skip(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(launch_rollback, "REPO_ROOT", tmp_path)
+        launch_rollback.configure(repo_root=tmp_path)
         # file does not exist
         to_revert, to_delete, to_skip, protected = launch_rollback._classify_files([
             "content/docs.aspose.org/en/3d/python/missing.md",
@@ -93,7 +99,7 @@ class TestClassifyFiles:
         assert len(to_delete) == 0
 
     def test_tracked_content_file_goes_to_revert(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(launch_rollback, "REPO_ROOT", tmp_path)
+        launch_rollback.configure(repo_root=tmp_path)
         page = tmp_path / "content" / "docs.aspose.org" / "en" / "3d" / "python" / "page.md"
         page.parent.mkdir(parents=True)
         page.write_text("---\ntitle: Test\n---\n")
@@ -106,7 +112,7 @@ class TestClassifyFiles:
         assert len(to_delete) == 0
 
     def test_untracked_content_file_goes_to_delete(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(launch_rollback, "REPO_ROOT", tmp_path)
+        launch_rollback.configure(repo_root=tmp_path)
         page = tmp_path / "content" / "docs.aspose.org" / "en" / "3d" / "python" / "new.md"
         page.parent.mkdir(parents=True)
         page.write_text("---\ntitle: New\n---\n")
@@ -119,7 +125,7 @@ class TestClassifyFiles:
         assert len(to_revert) == 0
 
     def test_mixed_paths_classified_correctly(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(launch_rollback, "REPO_ROOT", tmp_path)
+        launch_rollback.configure(repo_root=tmp_path)
         page = tmp_path / "content" / "docs.aspose.org" / "en" / "3d" / "python" / "page.md"
         page.parent.mkdir(parents=True)
         page.write_text("---\ntitle: Test\n---\n")
@@ -146,7 +152,7 @@ class TestClassifyFiles:
 class TestProtectedFileGuard:
     def test_run_aborts_on_protected_paths(self, tmp_path, monkeypatch, capsys):
         """When protected paths appear in the plan, run() exits 2 without reverting."""
-        monkeypatch.setattr(launch_rollback, "REPO_ROOT", tmp_path)
+        launch_rollback.configure(repo_root=tmp_path)
         monkeypatch.setattr(launch_rollback, "PLANS_DIR", tmp_path / "plans")
         monkeypatch.setattr(launch_rollback, "ROLLBACK_DIR", tmp_path / "rollback")
 

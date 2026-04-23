@@ -60,7 +60,7 @@ class TestParseSkills:
 class TestMain:
     def test_matching_record_exits_0(self, tmp_path, monkeypatch):
         _make_record(tmp_path, "test-run", ["S-48"], "abc12345")
-        monkeypatch.setattr(check_skill_run_records, "_RUNS_DIR", tmp_path)
+        check_skill_run_records.configure(runs_dir=tmp_path)
         monkeypatch.setattr(
             check_skill_run_records, "_get_commit_message",
             lambda sha: "feat: stuff\n\nSkills invoked: [S-48]\n",
@@ -70,7 +70,7 @@ class TestMain:
     def test_extra_declared_skill_exits_1(self, tmp_path, monkeypatch):
         """Record has S-48 but message declares S-48 + S-99 — mismatch."""
         _make_record(tmp_path, "test-run", ["S-48"], "abc12345")
-        monkeypatch.setattr(check_skill_run_records, "_RUNS_DIR", tmp_path)
+        check_skill_run_records.configure(runs_dir=tmp_path)
         monkeypatch.setattr(
             check_skill_run_records, "_get_commit_message",
             lambda sha: "feat: stuff\n\nSkills invoked: [S-48, S-99]\n",
@@ -79,7 +79,7 @@ class TestMain:
 
     def test_no_skills_declaration_exits_0(self, tmp_path, monkeypatch):
         """Commit with no 'Skills invoked:' line is not a mismatch — just skipped."""
-        monkeypatch.setattr(check_skill_run_records, "_RUNS_DIR", tmp_path)
+        check_skill_run_records.configure(runs_dir=tmp_path)
         monkeypatch.setattr(
             check_skill_run_records, "_get_commit_message",
             lambda sha: "docs: no skills here",

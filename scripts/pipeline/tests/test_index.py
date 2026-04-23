@@ -26,6 +26,12 @@ from index import (
 import index as _index_module
 
 
+@pytest.fixture(autouse=True)
+def _reset_index():
+    yield
+    _index_module.configure()
+
+
 # ---------------------------------------------------------------------------
 # compute_api_confidence — pure function
 # ---------------------------------------------------------------------------
@@ -189,7 +195,7 @@ def _make_merged_dir(tmp_path: Path, family: str, platform: str) -> Path:
 
 def test_build_index_returns_dict(tmp_path, monkeypatch):
     _make_merged_dir(tmp_path, "cells", "python")
-    monkeypatch.setattr(_index_module, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+    _index_module.configure(knowledge_root=tmp_path / "knowledge")
     result = build_index("cells", "python")
     assert result is not None
     assert isinstance(result, dict)
@@ -198,7 +204,7 @@ def test_build_index_returns_dict(tmp_path, monkeypatch):
 def test_build_index_summary_fields(tmp_path, monkeypatch):
     """build_index returns a condensed summary dict; full index is written to index.json."""
     _make_merged_dir(tmp_path, "cells", "python")
-    monkeypatch.setattr(_index_module, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+    _index_module.configure(knowledge_root=tmp_path / "knowledge")
     result = build_index("cells", "python")
     # Return value has summary keys
     for key in ("family", "platform", "api_confidence", "class_count", "claim_count"):
@@ -214,7 +220,7 @@ def test_build_index_summary_fields(tmp_path, monkeypatch):
 def test_build_index_api_confidence_returned(tmp_path, monkeypatch):
     """api_confidence must be present in return value."""
     _make_merged_dir(tmp_path, "cells", "python")
-    monkeypatch.setattr(_index_module, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+    _index_module.configure(knowledge_root=tmp_path / "knowledge")
     result = build_index("cells", "python")
     assert result["api_confidence"] in ("high", "medium", "low")
 
@@ -222,7 +228,7 @@ def test_build_index_api_confidence_returned(tmp_path, monkeypatch):
 def test_build_index_filters_function_kind(tmp_path, monkeypatch):
     """helper_func with kind=function must not appear in classes list in written index.json."""
     _make_merged_dir(tmp_path, "cells", "python")
-    monkeypatch.setattr(_index_module, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+    _index_module.configure(knowledge_root=tmp_path / "knowledge")
     build_index("cells", "python")
     written = json.loads(
         (tmp_path / "knowledge" / "cells" / "python" / "merged" / "index.json")
@@ -235,7 +241,7 @@ def test_build_index_filters_function_kind(tmp_path, monkeypatch):
 def test_build_index_formats_split(tmp_path, monkeypatch):
     """Formats should be split into import/export lists in written index.json."""
     _make_merged_dir(tmp_path, "cells", "python")
-    monkeypatch.setattr(_index_module, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+    _index_module.configure(knowledge_root=tmp_path / "knowledge")
     build_index("cells", "python")
     written = json.loads(
         (tmp_path / "knowledge" / "cells" / "python" / "merged" / "index.json")
@@ -251,6 +257,6 @@ def test_build_index_no_model_yaml_returns_none(tmp_path, monkeypatch):
     """build_index returns None when model.yaml is missing."""
     merged = tmp_path / "knowledge" / "cells" / "python" / "merged"
     merged.mkdir(parents=True)
-    monkeypatch.setattr(_index_module, "KNOWLEDGE_ROOT", tmp_path / "knowledge")
+    _index_module.configure(knowledge_root=tmp_path / "knowledge")
     result = build_index("cells", "python")
     assert result is None
