@@ -3,6 +3,15 @@
 # Install: cp scripts/pre-commit-audit.sh .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
 
 # ---------------------------------------------------------------------------
+# Shell preflight: validate execution environment (Windows-only, warn mode)
+# Phase 4: prepend _SHELL_CHECK_MODE=block before this source line to harden
+# ---------------------------------------------------------------------------
+# shellcheck source=scripts/ci/check_shell_bash.sh
+_REPO_ROOT_SHELL="$(git rev-parse --show-toplevel)"
+source "${_REPO_ROOT_SHELL}/scripts/ci/check_shell_bash.sh" || exit 1
+unset _REPO_ROOT_SHELL
+
+# ---------------------------------------------------------------------------
 # Step 0: reports/ boundary — local-only artifacts must never be committed
 # ---------------------------------------------------------------------------
 # reports/ is gitignored and is a strict local-only boundary. Any staged

@@ -14,6 +14,18 @@ members, maintainers, and anyone inheriting or debugging this system.
 
 ---
 
+## Shell Requirement (Windows)
+
+**All local operations on Windows MUST use Git Bash** (MSYS2/MINGW64, from
+[Git for Windows](https://git-scm.com/downloads)). WSL, PowerShell, and cmd.exe
+are not supported — governance scripts depend on bash semantics and Unix utilities.
+WSL is permanently rejected; see `docs/STATUS-venv-closure.md` for the reason.
+
+For the full policy, see `AGENTS.md §2b`. CI runs on `ubuntu-latest` (no Windows
+enforcement needed in CI).
+
+---
+
 ## §1 — What Is This System?
 
 The aspose.org content system uses AI agents (Claude) to generate, validate, and repair
@@ -96,7 +108,7 @@ If you need to run a skill's script portions without an active agent session:
 ### knowledge-update (S-14)
 Runs all 4 knowledge pipeline steps:
 ```bash
-source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+source .venv/bin/activate  # or .venv/Scripts/activate on Windows
 repo_path=$(python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
 python scripts/pipeline/refresh_knowledge.py {family} {platform} $repo_path
 # Confirms completion: check knowledge/{family}/{platform}/merged/pipeline_run.json
@@ -158,7 +170,7 @@ If you add new content and see audit FAILs, check whether they are:
 ```bash
 # Activate virtual environment first:
 source .venv/bin/activate         # Unix
-.venv\Scripts\activate            # Windows
+.venv/Scripts/activate            # Windows
 
 # API accuracy audit (0 FAILs in current baseline — see §6 and reports/audit/baseline-fail-counts.json)
 python scripts/pipeline/audit.py all
@@ -195,10 +207,11 @@ environment uses UTF-8 locale. On Windows: set `PYTHONUTF8=1` or use `.venv/Scri
 4. If missing API member: re-run `refresh_knowledge.py` (knowledge model may be stale)
 
 ### Detecting upstream repository changes
-1. Run `/knowledge-diff {family} {platform}` — fetches the clone cache and compares SHAs
-2. If SHAs differ: `stale_since` is auto-set in `model.yaml`; follow "Knowledge model is stale" below
-3. If SHAs match: no action needed; the command exits cleanly
-4. To check all products at once: run `/knowledge-diff` for each product in `data/products.json`
+- **Single product**: Run `/knowledge-diff {family} {platform}` — fetches the clone cache and compares SHAs.
+  If SHAs differ: `stale_since` is auto-set in `model.yaml`; follow "Knowledge model is stale" below.
+  If SHAs match: no action needed; the command exits cleanly.
+- **All products at once**: Run `/change-sweep` (S-94) — batch SHA comparison across all 15 active products
+  with structured JSON output. See `docs/discovery-workflow.md` §3 for full workflow and CLI reference.
 
 ### Knowledge model is stale
 1. Check `knowledge/{family}/{platform}/merged/model.yaml` → `stale_since` field
@@ -265,6 +278,7 @@ ordering depends on the agent reading and following AGENTS.md §6a in the active
 | `reports/content_eval/` | Content evaluation reports |
 | `reports/proofs/` | CI proof bundles |
 | `reports/skill-runs/` | Skill execution records |
+| `reports/discovery/` | Discovery reports: `patrol_report.json`, `sweep_report.json`, `combined_report.md`, `history/` |
 | `scripts/pipeline/` | Core pipeline scripts |
 | `scripts/ci/` | CI gate scripts |
 | `AGENTS.md` | Canonical governance (read this first) |

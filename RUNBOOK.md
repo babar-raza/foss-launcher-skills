@@ -12,6 +12,16 @@ MAINTAINED BY: Human maintainer · CI: scripts/ci/check_onboarding_integrity.py 
 Quick-reference for common operations. For governance rules, see `AGENTS.md`.
 New to this system? Read [OPERATOR_GUIDE.md](OPERATOR_GUIDE.md) first — it explains what skills are and how to invoke them.
 
+## Shell Requirement (Windows)
+
+**All local operations on Windows MUST use Git Bash** (MSYS2/MINGW64, from
+[Git for Windows](https://git-scm.com/downloads)). WSL, PowerShell, and cmd.exe
+are not supported — governance scripts depend on bash semantics and Unix utilities.
+WSL is permanently rejected; see `docs/STATUS-venv-closure.md` for the reason.
+
+For the full policy, see `AGENTS.md §2b`. CI runs on `ubuntu-latest` (no Windows
+enforcement needed in CI).
+
 ## 1. Setup (Fresh Clone)
 
 Run `/getting-started` or follow these steps manually:
@@ -301,3 +311,60 @@ grep -rn "translation_origin: translator-" content/docs.aspose.org/{locale}/{fam
 - Files translated since commit `cdaa1daac`: provenance is in git, durable across clones
 - Files not yet re-translated: provenance requires `provenance_backfill.py` after clone (Step 1.5)
 - The backfill script is committed and idempotent. Running it is required for full provenance coverage.
+
+## 10. Discovery: Patrol, Sweep, Triage
+
+See `docs/discovery-workflow.md` for the full operator guide. Quick reference:
+
+### 10a. Scan for new repos (S-93)
+
+```bash
+# Skill invocation
+/repo-patrol
+
+# Backing script — dry-run (no registry update)
+.venv/Scripts/python scripts/pipeline/repo_patrol.py scan
+
+# Apply: write discovered candidates to data/products.json
+.venv/Scripts/python scripts/pipeline/repo_patrol.py scan --apply
+```
+
+Output: `reports/discovery/patrol_report.json`
+
+### 10b. Sweep for upstream changes (S-94)
+
+```bash
+# Skill invocation
+/change-sweep
+
+# Backing script
+.venv/Scripts/python scripts/pipeline/repo_patrol.py sweep
+```
+
+Output: `reports/discovery/sweep_report.json`
+
+### 10c. Triage findings to backlog (S-95)
+
+```bash
+# Skill invocation (agent-executed, reads reports, writes backlog items)
+/discovery-triage
+```
+
+**MVP rule**: S-95 NEVER directly invokes S-12 or S-84. All findings → backlog items only.
+Operator reviews backlog items and manually runs `/refresh-product {family} {platform}`.
+
+### 10d. Generate combined report
+
+```bash
+.venv/Scripts/python scripts/pipeline/repo_patrol.py report
+cat reports/discovery/combined_report.md
+```
+
+### 10e. Troubleshooting
+
+| Symptom | Fix |
+|---------|-----|
+| Scan finds 0 repos | Missing `GITHUB_TOKEN` in `.env`; set and retry |
+| Sweep fetch failure | Check `sweep_report.json` `fetch_failures`; verify clone URL |
+| Description "pending" in provider mirror | Re-run `sync_providers.py` after adding `## Purpose` to canonical skill |
+| Session advisory shows stale patrol | `patrol_report.json` > 7 days old; run `/repo-patrol` |

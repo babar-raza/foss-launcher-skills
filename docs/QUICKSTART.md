@@ -49,10 +49,14 @@ edit content directly.
 - Python 3.8+
 - Git with SSH or HTTPS access to GitHub
 
+> **Windows prerequisite**: Use **Git Bash** (from [Git for Windows](https://git-scm.com/downloads)).
+> WSL, cmd.exe, and PowerShell are not supported. See [docs/STATUS-venv-closure.md](STATUS-venv-closure.md)
+> for why WSL is rejected.
+
 ### Bootstrap (run once)
 
 ```bash
-python -m venv .venv
+python -m venv .venv  # system Python — this one-time bootstrap use is the only permitted bare python invocation
 source .venv/Scripts/activate         # Windows Git Bash
 # or: source .venv/bin/activate       # Unix/macOS
 

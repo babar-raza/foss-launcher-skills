@@ -117,34 +117,27 @@ To bootstrap all products at once:
 
 ---
 
-## Step 5b: Install pre-commit hook
+## Step 5b: Install git hooks
 
-Install the content audit pre-commit hook to enforce API accuracy on every commit:
-
-```bash
-cp scripts/pre-commit-audit.sh .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
-```
-
-This hook runs `audit.py` on staged content files and blocks commits with API accuracy failures.
-
-Also install the commit-msg hook to enforce `Skills invoked:` declaration on content commits (AGENTS.md §10):
+Install all governance hooks (pre-commit, commit-msg, post-commit) using the hook installer:
 
 ```bash
-cp scripts/commit-msg-skills.sh .git/hooks/commit-msg
-chmod +x .git/hooks/commit-msg
+bash scripts/install-hooks.sh
 ```
 
-**WARN**: If `.git/hooks/commit-msg` is absent or not executable, content commits will not enforce
-the `Skills invoked:` field required by AGENTS.md §10. Verify with:
+This installs and verifies all three hooks. The pre-commit hook runs `audit.py` on staged
+content files. The commit-msg hook enforces the `Skills invoked:` field (AGENTS.md §10).
+The post-commit hook handles override token consumption.
+
+**WARN**: If hooks are absent or not executable, re-run `bash scripts/install-hooks.sh`.
+Verify with:
 
 ```bash
 ls -la .git/hooks/commit-msg
 ```
 
-If missing, re-run the install commands above.
-
 ---
+
 
 ## Step 5c: Provenance backfill (fresh-clone only)
 
