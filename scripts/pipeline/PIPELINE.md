@@ -286,3 +286,181 @@ Tests MUST comply with AGENTS.md §16 (Tiered Monkeypatch Policy):
 
 When a module is renamed, deleted, or split: rename/delete/split its test file and update
 `test_targets` in registry.yaml accordingly. The registry is the enforcement contract.
+
+---
+
+## Runtime Architecture (Phase 2 — Production-Proven)
+
+This section documents behavioral contracts that are NOT derivable from the module classification
+above. These were implemented in Phase 1 (TC-1 through TC-5) and verified live in Phase 2
+(VER-01a through VER-04). All behaviors are confirmed by the Phase 2 Verification Matrix in the
+planning document (`lazy-mixing-wirth.md`).
+
+---
+
+### Grade Data: Two-Layer Model (ARCH-04)
+
+Grade data is split across two layers with distinct roles.
+
+**Layer 1 — Frontmatter** (display fields only; written to each `.md` file):
+
+| Field | Description |
+|-------|-------------|
+| `grade` | Letter grade: A/B/C/D/F |
+| `graded_at` | ISO-8601 timestamp of last grading |
+| `graded_content_hash` | 32-char SHA-256 prefix of content at grading time |
+| `grade_reasons` | List of up to 5 human-readable grade reasons |
+
+These fields are safe to render on the site. They do not contain skip-gate or versioning data.
+`graded_evaluator_versions` is NOT a frontmatter field; it was removed when ARCH-04 was adopted.
+
+**Layer 2 — Grade Manifest** (`reports/grade_manifest.json`; operational/skip-gate fields):
+
+| Field | Description |
+|-------|-------------|
+| `content_hash` | 32-char SHA-256 prefix (current content at grade time) |
+| `enrichment_status` | `"full"` or `"scout-only"` |
+| `evaluator_versions` | Dict: `{"evaluator_name": "version_string", ...}` for all evaluators run |
+| `logic_version` | Global `EVALUATOR_LOGIC_VERSION` string (MIG-02 fallback key) |
+| `model_sha` | Knowledge repo SHA at grade time |
+| `grade`, `grade_reasons` | Duplicated from frontmatter for manifest-only consumers |
+
+The manifest is the authoritative source for skip-gate decisions. Frontmatter is the authoritative
+source for display. Neither layer is a subset of the other.
+
+**Entrypoints involved**: `grade_writer.py` (frontmatter), `grade_manifest.py` (manifest),
+`content_eval/runner.py` (reads manifest for skip gate; writes both layers via `_write_grades()`).
+
+---
+
+### Per-Evaluator Skip Gate (ARCH-02 / TC-5)
+
+`content_eval evaluate ... --skip-graded` engages the ARCH-02 manifest-first skip gate.
+
+**How it works** (implemented in `content_eval/runner.py._filter_already_graded()`):
+
+1. Load `reports/grade_manifest.json` once per run.
+2. For each page, call `grade_manifest.manifest_skip_check()`:
+   - If no manifest entry exists: not skippable → MIG-02 frontmatter fallback (see below).
+   - If content hash changed: not skippable.
+   - If enrichment status changed: not skippable.
+   - For each evaluator name in the current run: if `manifest["evaluator_versions"][ev] != EVALUATOR_VERSIONS[ev]`, not skippable.
+   - All checks pass: skippable. `pages_evaluated` is NOT incremented for skipped pages.
+3. **MIG-02 fallback** (pre-manifest legacy pages): if no manifest entry, fall back to frontmatter
+   `logic_version` comparison using the global `EVALUATOR_LOGIC_VERSION`. This covers pages graded
+   before ARCH-04 was adopted.
+
+**Staleness semantics**: Staleness is per-page per-evaluator-version. A page is stale if ANY
+evaluator's stored version in the manifest does not match the current `EVALUATOR_VERSIONS` dict.
+Whether an evaluator produced findings on a prior run is irrelevant to staleness.
+
+**Observable signal**: `Evaluation complete: Pages: N` in stderr.
+- `Pages: N > 0` when pages are re-evaluated (stale or no manifest entry).
+- `Pages: 0` when all pages are current (all versions match).
+
+**Which evaluators are checked**: Only evaluators in `DEFAULT_EVALUATORS` (the default set used
+when `--evaluators` is not specified). Evaluators not in this set (e.g., `api_backtick`) do not
+affect the skip gate.
+
+**Verified live** (VER-04, 2026-04-25): `description_completeness` bumped from "1" to "2";
+Step 3a `Pages: 80` (all stale); Step 3b `Pages: 0` (all current); 80 manifest entries updated.
+
+---
+
+### Enrichment Status and Downstream Signal (TC-4)
+
+`refresh_knowledge.py` writes `enrichment_status` to `knowledge/{family}/{platform}/merged/model.yaml`.
+
+| Value | Meaning |
+|-------|---------|
+| `"full"` | LLM enrichment completed successfully |
+| `"scout-only"` | LLM enrichment was skipped (`--skip-enrich`) or failed; knowledge is scout-only |
+
+**Downstream consumers surface enrichment degradation through these paths**:
+
+1. **`stale_detect.py`**: Annotates affected pages with `enrichment_degraded:{status}` in output.
+2. **`site_planner.py`**: Prints `SITE-PLAN: WARNING enrichment_status='{status}'` to stderr;
+   adds `enrichment_warning` key to the output plan YAML.
+3. **`content_eval` runner**: Prints once per `(family, platform)` to stderr:
+   ```
+   [content_eval] WARNING: enrichment_status='scout-only' for {family}/{platform}
+   — claim-based evaluators may report false gaps
+   ```
+   Dedup via `enrichment_warned_keys` set; fires only when at least one page is evaluated
+   (not when all pages are skipped by the skip gate).
+
+**Operator action**: If `enrichment_status: scout-only` appears in `model.yaml`, run
+`refresh_knowledge.py {family} {platform}` (without `--skip-enrich`) to perform full enrichment.
+Claim-based evaluators (`AA`, `PC`, `FC`, `PT`, `CP`, `RL`) may report false negatives until
+enrichment is restored.
+
+**Verified live** (VER-01a + VER-01b, 2026-04-25): `--skip-enrich` writes `scout-only`; full
+refresh writes `full`; all three downstream consumers surface the degradation signal.
+
+---
+
+### Heal Depth Accumulation and Sidecar Persistence (FIX-01 / TC-3)
+
+`remediate.py heal {eval_report} [--json]` plans healing for evaluation findings. The depth guard
+prevents infinite heal loops by escalating a finding to `human_group` after three failed attempts.
+
+**Depth semantics**:
+
+| State | `depth` value |
+|-------|--------------|
+| Finding newly seen; never healed | 0 |
+| Healed once; still unresolved | 1 |
+| Healed twice; still unresolved | 2 |
+| Healed three times; still unresolved | 3 |
+| Round 4 load: depth >= 3 | Escalate to `human_group` |
+
+Escalation gate: `if loaded_depth >= MAX_HEAL_DEPTH (3)` → routed to `human_group`.
+
+**Sidecar persistence** (cross-run accumulation):
+
+`_cmd_heal()` reads and writes a sidecar file alongside the eval report:
+```
+{eval_report.stem}-heal.json
+```
+Example: `reports/note-python-eval.json` → sidecar at `reports/note-python-eval-heal.json`.
+
+The sidecar stores the persistent depth_map under the top-level `"depth_map"` key:
+```json
+{
+  "depth_map": {
+    "CE-abc12345": 1,
+    "CE-def67890": 3
+  }
+}
+```
+
+- **Before `plan()`**: loaded from sidecar if it exists; defaults to `{}` on first run.
+- **After heal cycle** (non-dry-run): written back to sidecar with incremented depths.
+- **`--json` mode**: sidecar receives the full JSON data dict (same as stdout).
+- **`--dry-run` mode**: sidecar is NOT written (cycle did not execute).
+- **Depth increment**: only for findings routed to `auto`, `llm`, or `regen` groups.
+  Findings routed to `human` (policy or escalated) do NOT increment.
+
+**Round 4 escalation** happens when `loaded_depth >= 3`. Stored depth stays at 3 after escalation
+(no further increment for already-escalated findings).
+
+**Verified live** (VER-02, 2026-04-25): 4-round lifecycle proven with finding CE-746dc7dc;
+rounds 1-3 in `llm` group; round 4 in `human` group; fresh-start (sidecar deleted) resets to depth 1.
+
+---
+
+### Release Gate: Required Verifications Before VER-05
+
+Before running `VER-05` (end-to-end dry-run) and issuing a production GO:
+
+| Taskcard | Claim | Status |
+|----------|-------|--------|
+| VER-01a | `refresh_knowledge` writes `enrichment_status` correctly | Complete (2026-04-25) |
+| VER-01b | stale_detect / site_planner / content_eval surface enrichment signal | Complete (2026-04-25) |
+| VER-02 | Heal depth accumulates across runs; escalates on round 4 | Complete (2026-04-25) |
+| VER-03 | Backtrack visited URLs are not re-processed in subsequent runs | Complete (2026-04-25) |
+| VER-04 | Per-evaluator skip gate works: stale→re-eval, current→skip | Complete (2026-04-25) |
+| VER-05 | End-to-end dry-run on note/python + 3d/typescript | **Pending** |
+
+VER-05 is the final integration proof. After VER-05 passes, the revised Go/No-Go statement is
+issued and the system is considered production-ready.
