@@ -17,7 +17,7 @@ Inspect any content section in the aspose.org repository -- regardless of subdom
 1. Target section exists under `content/` (after SP-0/SP-1 path resolution)
 2. Knowledge artifacts at `knowledge/{family}/{platform}/merged/` preferred; skill degrades gracefully without them (knowledge-only confidence ceiling applies)
 3. Clone cache at `runs/.clone_cache/aspose_{family}_{platform}/` preferred; skill degrades gracefully if absent
-4. Clone cache path must NOT contain `foss-launcher` or `foss_launcher` anywhere in the resolved absolute path string
+4. Clone cache path must NOT contain `foss-launcher` or `foss_launcher` anywhere in the resolved absolute path string <!-- PROHIBITION_OBSOLETE_FOSS_LAUNCHER_REFERENCE -->
 5. Output goes to `reports/section-enhance/{section-slug}/` (gitignored; local only)
 
 ## Steps
@@ -124,7 +124,7 @@ Based on SP-0 classification, activate applicable adapters:
 
 1. Verify clone cache root does not contain `foss-launcher`:
    - Use `scripts/pipeline/core/clone_cache.py:cache_root()` to get resolved absolute path
-   - If `foss-launcher` or `foss_launcher` appears anywhere in resolved absolute path string: set `STALE_CLONE_CACHE_PATH` in manifest; log error; continue in knowledge-only mode; confidence ceiling 0.70
+   - If `foss-launcher` or `foss_launcher` appears anywhere in resolved absolute path string: set `STALE_CLONE_CACHE_PATH` in manifest; log error; continue in knowledge-only mode; confidence ceiling 0.70 <!-- PROHIBITION_OBSOLETE_FOSS_LAUNCHER_REFERENCE -->
    - Record `clone_cache_contains_foss_launcher: false` (or `true` if detected)
 
 2. For each clone candidate:

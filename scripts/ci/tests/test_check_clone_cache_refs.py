@@ -189,3 +189,64 @@ def test_no_broad_test_dir_skip():
             f"Broad test-directory skip '{prefix}' found in SKIP_PATH_PREFIXES — "
             "this would silently suppress scanner coverage of test files."
         )
+
+
+# ---------------------------------------------------------------------------
+# 7. Scanner recognises PROHIBITION_OBSOLETE_FOSS_LAUNCHER_REFERENCE marker
+# Follow-up: section-enhance skill files use active prohibition language
+# ---------------------------------------------------------------------------
+
+
+def test_permits_prohibition_marker(tmp_path):
+    """A prohibition rule line with PROHIBITION_OBSOLETE_FOSS_LAUNCHER_REFERENCE is not flagged."""
+    prohibition_file = tmp_path / "prohibition_test.md"
+    prohibition_file.write_text(
+        "Clone cache path must NOT contain `foss-launcher` or `foss_launcher` anywhere in the path"
+        "  <!-- PROHIBITION_OBSOLETE_FOSS_LAUNCHER_REFERENCE -->\n",
+        encoding="utf-8",
+    )
+    wrapper = tmp_path / "run_prohibition.py"
+    wrapper.write_text(
+        f"""
+import sys
+sys.path.insert(0, r'{REPO_ROOT}/scripts/ci')
+import check_clone_cache_refs as c
+from pathlib import Path
+
+c.collect_files = lambda: [Path(r'{prohibition_file}')]
+sys.exit(c.run_checks())
+""",
+        encoding="utf-8",
+    )
+    result = subprocess.run([sys.executable, str(wrapper)], capture_output=True, text=True)
+    assert result.returncode == 0, (
+        f"Expected exit 0 (prohibition marker permits line), got {result.returncode}\n{result.stdout}"
+    )
+    assert "PASS" in result.stdout
+
+
+def test_unmarked_prohibition_still_fails(tmp_path):
+    """A prohibition-style line without any marker is still flagged by the scanner."""
+    prohibition_file = tmp_path / "unmarked_prohibition.md"
+    prohibition_file.write_text(
+        "Clone cache path must NOT contain `foss-launcher` or `foss_launcher` anywhere in the path\n",  # TEST_FIXTURE_OBSOLETE_FOSS_LAUNCHER_REFERENCE
+        encoding="utf-8",
+    )
+    wrapper = tmp_path / "run_unmarked.py"
+    wrapper.write_text(
+        f"""
+import sys
+sys.path.insert(0, r'{REPO_ROOT}/scripts/ci')
+import check_clone_cache_refs as c
+from pathlib import Path
+
+c.collect_files = lambda: [Path(r'{prohibition_file}')]
+sys.exit(c.run_checks())
+""",
+        encoding="utf-8",
+    )
+    result = subprocess.run([sys.executable, str(wrapper)], capture_output=True, text=True)
+    assert result.returncode == 1, (
+        f"Expected exit 1 (unmarked prohibition line should fail), got {result.returncode}\n{result.stdout}"
+    )
+    assert "FAIL" in result.stdout
