@@ -36,6 +36,9 @@ edit content directly.
 | Fix content quality issues | `/batch-remediate {family} {platform}` |
 | Verify content | `/content-check {family} {platform}` |
 | Commit changes | `/commit` (never `git commit` directly) |
+| Discover new FOSS repos (26 orgs) | `/repo-patrol` |
+| Check all products for upstream changes | `/change-sweep` |
+| Route discovery findings to backlog | `/discovery-triage` |
 
 ---
 
@@ -164,7 +167,20 @@ generate new → retire obsolete → validate → translate → commit.
 The only sanctioned path for operator-directed content edits. Attaches evidence
 and runs audit after the edit.
 
-### 4.6 Hand Off to Another Operator
+### 4.6 Discover New FOSS Repos and Detect Upstream Changes
+
+```
+/repo-patrol              # Scan 26 GitHub orgs for new repos (S-93)
+/change-sweep             # Batch SHA comparison across all products (S-94)
+/discovery-triage         # Route findings to backlog items (S-95)
+```
+
+Run weekly (surfaced by session-start advisory and R-12 reminder). Triage-first:
+`/discovery-triage` never auto-invokes `/refresh-product` — operator reviews backlog
+items and manually runs `/refresh-product {family} {platform}` per changed product.
+Full workflow: `docs/discovery-workflow.md`.
+
+### 4.7 Hand Off to Another Operator
 
 ```
 # Current operator: close the session
@@ -197,6 +213,12 @@ tracked files. Use `adopt --glob "content/**"` to selectively adopt files.
 | `No active session` | Run `/session-start` first |
 | `path-guard DENY: {path}` | File is in a protected path; needs human override token |
 | Pre-commit audit FAIL | Fix the content issue shown, re-stage, retry |
+
+### Session errors
+
+| Error | Fix |
+|-------|-----|
+| `⛔ Session gate blocked: session not bootstrapped` | Run `/session-start` — step 0 runs bootstrap automatically. Emergency: `bash scripts/ci/bootstrap_session_gate.sh` |
 
 ### Skill errors
 
@@ -245,5 +267,6 @@ aspose.org/
 | [`AGENTS.md`](../AGENTS.md) | Full governance — skills, evidence, write paths, launch gates |
 | [`OPERATOR_GUIDE.md`](../OPERATOR_GUIDE.md) | Skill invocation patterns, CONTRACT model |
 | [`RUNBOOK.md`](../RUNBOOK.md) | Command cheatsheet |
+| [`docs/discovery-workflow.md`](discovery-workflow.md) | Discovery and change detection: patrol, sweep, triage, candidate states, advisory |
 | [`.claude/commands/README.md`](../.claude/commands/README.md) | All available slash commands with argument syntax |
 | [`scripts/pipeline/PIPELINE.md`](../scripts/pipeline/PIPELINE.md) | Pipeline architecture, New File Protocol |

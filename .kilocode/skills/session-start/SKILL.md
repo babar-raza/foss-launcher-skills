@@ -17,6 +17,12 @@ any user request.
 
 ## Steps
 
+> **Session gate bootstrap** — run as the very first action, before anything else:
+> ```bash
+> bash scripts/ci/bootstrap_session_gate.sh
+> ```
+> Creates `.claude/.agents_read` so all subsequent tool calls are unblocked. Idempotent.
+
 > **Skill context gate** — run before step 1:
 > ```bash
 > PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-77 --scope "*"
@@ -61,6 +67,30 @@ any user request.
      ```
      If no plans need normalization, omit this section silently. Non-blocking: session proceeds
      regardless of whether any plans need normalization.
+   - Report harvest advisory (read-only, never blocks session):
+     Run `report_extract.py reports/ --count-only` and cross-reference `harvest_ledger.py status`.
+     ```
+     HARVEST ADVISORY:
+       Unharvested qualifying reports: {N}
+       Items pending review: {N}
+       Items in failure queue: {N}
+     ```
+     If UNHARVESTED > 0: list report paths with item counts.
+     If FAILED > 0: warn and suggest `/backlog harvest --retry-failed`.
+     If all counts are 0: emit `Harvest: clear` (one line).
+     Graceful skip if extractor or ledger not available (scripts missing or reports/ empty).
+   - Discovery advisory (read-only, never blocks session — skip gracefully if reports/ absent):
+     Check age and content of discovery reports:
+     - If `reports/discovery/patrol_report.json` exists and is older than 7 days: suggest running `/repo-patrol`
+     - If `reports/discovery/sweep_report.json` exists and has `high_count > 0` or `medium_count > 0`: suggest running `/discovery-triage`
+     - If neither file exists: suggest running `/repo-patrol` then `/change-sweep` for initial baseline
+     ```
+     DISCOVERY ADVISORY:
+       Patrol report: {age} days old | Sweep HIGH: {N} | Sweep MEDIUM: {N}
+       [suggestion if applicable]
+     ```
+     If both reports are current (patrol < 7 days) and no HIGH/MEDIUM findings: emit `Discovery: clear` (one line).
+     Advisory is informational only — do NOT invoke S-93, S-94, or S-95 automatically.
    - Output a `BACKLOG BRIEFING` block (see format below)
    - If `backlog/` directory does not exist, output: `BACKLOG: not configured (run /backlog to set up)`
 7. Only then accept the user's task

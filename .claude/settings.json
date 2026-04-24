@@ -1,6 +1,7 @@
 {
   "permissions": {
     "allow": [
+      "Bash(bash scripts/ci/bootstrap_session_gate.sh)",
       "Bash(.venv/Scripts/python -m pytest tests/test_runner_reference_injection.py -v)",
       "Bash(.venv/Scripts/python scripts/pipeline/sync_skills.py --check)",
       "Bash(echo \"EXIT:$?\")",
@@ -22,10 +23,15 @@
       "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-77 --scope \"scripts/ci/*\")",
       "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-84 --scope \"scripts/ci/\")",
       "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-84 --status completed)",
-      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-84 --scope \"scripts/ci/check_write_path_hook.sh\")"
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-84 --scope \"scripts/ci/check_write_path_hook.sh\")",
+      "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/ -x -q --tb=short)",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-65 --scope \"*\")",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/repo_patrol.py report)",
+      "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/test_hk01_integration.py -v)"
     ],
     "additionalDirectories": [
-      "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing"
+      "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing",
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing"
     ]
   },
   "hooks": {
@@ -36,7 +42,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'if [ ! -f .claude/.agents_read ]; then echo \"⛔ AGENTS.md not confirmed read. Session gate: run /session-start before proceeding.\" >&2; exit 2; fi'"
+            "command": "bash scripts/ci/check_session_gate.sh"
           }
         ]
       },
