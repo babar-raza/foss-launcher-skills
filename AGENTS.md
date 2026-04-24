@@ -762,6 +762,7 @@ Agents must activate the upstream skill if it has not already been confirmed as 
 | `/backlog harvest` (S-88) | `harvest_ledger.py` | Always (tracks harvest state and dedup) |
 | `/discovery-triage` (S-95) | S-93 `/repo-patrol` | When routing patrol findings (patrol_report.json must exist from current or prior session) |
 | `/discovery-triage` (S-95) | S-94 `/change-sweep` | When routing sweep findings (sweep_report.json must exist from current or prior session) |
+| `/section-enhance` (S-96) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | When `stale_since` is not null in `knowledge/{family}/{platform}/merged/model.yaml` |
 | Any content write | S-01 `/path-guard` | Always (final gate) |
 
 If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do not continue to the downstream skill.
@@ -2116,6 +2117,7 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | repo-patrol | S-93 | Discover new FOSS repos across 26 GitHub orgs, score confidence, and produce `reports/discovery/patrol_report.json`; default dry-run (no registry changes); `--apply` adds candidates to `data/products.json` with `status: candidate`; `--inactive-days` threshold (default 180); `--force` re-evaluates rejected repos; backs `scripts/pipeline/repo_patrol.py scan`; skill file: `skills/repo-patrol.md` |
 | change-sweep | S-94 | Batch SHA comparison across all active launched products in `data/products.json`; reads `knowledge/{family}/{platform}/merged/model.yaml` stored SHA, updates clones, classifies impact HIGH/MEDIUM/LOW; produces `reports/discovery/sweep_report.json`; read-only (does NOT set `stale_since` — S-12's job); backs `scripts/pipeline/repo_patrol.py sweep`; skill file: `skills/change-sweep.md` |
 | discovery-triage | S-95 | Route patrol and sweep reports to backlog actions — reads `reports/discovery/patrol_report.json` + `sweep_report.json`, creates backlog items per §9 decision trees; **MVP: NEVER directly invokes S-12 or S-84** — all findings route to backlog items only; direct auto-refresh gated behind TC-GATE-01 post-pilot; backs `skills/discovery-triage.md` |
+| section-enhance | S-96 | Inventory a target content section across any subdomain, detect gaps against clone-cache and knowledge truth, and generate a read-only proposal pack; Phase 1 is proposal-only (zero writes to `content/`); accepts any plausible target input form, resolves to canonical repo path recording all alias corrections; backs `skills/section-enhance.md` |
 
 **S-43 (gap-eval) CLI flags:**
 - `--deterministic` — Exhaustive Stage 2 + no LLM (Tier 1 + Tier 2 only). Fully reproducible. Recommended for regression tracking and CI integration.

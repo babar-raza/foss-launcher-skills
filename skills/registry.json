@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/sync_providers.py",
-  "skill_count": 76,
+  "skill_count": 80,
   "skills": [
     {
       "id": "S-01",
@@ -611,6 +611,38 @@
       "description": "Scan content page body prose for references to API classes or knowledge claims that have",
       "internal": false,
       "canonical_path": "skills/triage-confirm.md"
+    },
+    {
+      "id": "S-93",
+      "slug": "repo-patrol",
+      "name": "Repo Patrol -- Scan and Diff",
+      "description": "Scan all 26 Aspose GitHub organisations for new FOSS repositories, diff against the product registry, score discovery confidence, and produce a structured patrol report for operator review.",
+      "internal": false,
+      "canonical_path": "skills/repo-patrol.md"
+    },
+    {
+      "id": "S-94",
+      "slug": "change-sweep",
+      "name": "Change Sweep -- Batch SHA Comparison",
+      "description": "Run a batch SHA comparison across all active launched products to detect upstream repository changes with HIGH/MEDIUM/LOW impact classification and produce a structured sweep report.",
+      "internal": false,
+      "canonical_path": "skills/change-sweep.md"
+    },
+    {
+      "id": "S-95",
+      "slug": "discovery-triage",
+      "name": "Discovery Triage -- Route Reports to Actions",
+      "description": "Read patrol and sweep reports and create structured backlog items for every finding; routes all discoveries and upstream changes to operator-reviewed backlog items and never directly invokes S-12 or S-84 in MVP.",
+      "internal": false,
+      "canonical_path": "skills/discovery-triage.md"
+    },
+    {
+      "id": "S-96",
+      "slug": "section-enhance",
+      "name": "Section Enhance -- Generic Repo-Grounded Section Enhancer",
+      "description": "Inspect any content section in the aspose.org repository -- regardless of subdomain, family, platform, or section depth -- and produce a read-only proposal pack identifying gaps and suggesting improvements grounded in clone-cache truth and knowledge artifacts.",
+      "internal": false,
+      "canonical_path": "skills/section-enhance.md"
     }
   ]
 }
