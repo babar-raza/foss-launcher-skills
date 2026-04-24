@@ -259,7 +259,13 @@ class TestCheckMode:
 # ---------------------------------------------------------------------------
 
 
-import sync_providers  # for monkeypatching module-level constants
+import sync_providers  # for configure() seam
+
+
+@pytest.fixture(autouse=True)
+def _reset_sp():
+    yield
+    sync_providers.configure()
 
 
 class TestCreateMissingIntegration:
@@ -279,9 +285,7 @@ class TestCreateMissingIntegration:
         for p in providers.values():
             p.mkdir()
 
-        monkeypatch.setattr(sync_providers, "CANONICAL_DIR", canonical_dir)
-        monkeypatch.setattr(sync_providers, "PROVIDERS", providers)
-        monkeypatch.setattr(sync_providers, "SKIP_SLUGS", {})
+        sync_providers.configure(canonical_dir=canonical_dir, providers=providers, skip_slugs={})
         return providers
 
     def test_agents_creates_dir_and_skill_file(self, tmp_path, monkeypatch):

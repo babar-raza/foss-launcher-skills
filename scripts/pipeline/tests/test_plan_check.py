@@ -17,6 +17,12 @@ import yaml
 import plan_check
 
 
+@pytest.fixture(autouse=True)
+def _reset_plan_check():
+    yield
+    plan_check.configure()
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -46,7 +52,7 @@ def _simple_plan(slugs: list[str]) -> dict:
 
 class TestSlugFound:
     def test_slug_in_plan_returns_true(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(plan_check, "REPORTS_ROOT", tmp_path)
+        plan_check.configure(reports_root=tmp_path)
         _write_plan(tmp_path, "3d", "python", _simple_plan(["getting-started", "installation"]))
 
         allowed, msg = plan_check.check_slug_in_plan("3d", "python", "docs", "getting-started")
@@ -54,7 +60,7 @@ class TestSlugFound:
         assert msg == ""
 
     def test_slug_matched_by_path_suffix(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(plan_check, "REPORTS_ROOT", tmp_path)
+        plan_check.configure(reports_root=tmp_path)
         plan_data = {
             "plan": {
                 "sections": {
@@ -73,7 +79,7 @@ class TestSlugFound:
 class TestSlugNotFound:
     def test_slug_absent_returns_false_with_message(self, tmp_path, monkeypatch):
         """Core bug class: slug not in plan → must return False."""
-        monkeypatch.setattr(plan_check, "REPORTS_ROOT", tmp_path)
+        plan_check.configure(reports_root=tmp_path)
         _write_plan(tmp_path, "3d", "python", _simple_plan(["getting-started"]))
 
         allowed, msg = plan_check.check_slug_in_plan("3d", "python", "docs", "unknown-page")
@@ -83,7 +89,7 @@ class TestSlugNotFound:
 
     def test_bypass_overrides_missing_slug(self, tmp_path, monkeypatch):
         """bypass=True must return (True, 'plan_bypass') even when slug absent."""
-        monkeypatch.setattr(plan_check, "REPORTS_ROOT", tmp_path)
+        plan_check.configure(reports_root=tmp_path)
         _write_plan(tmp_path, "3d", "python", _simple_plan(["getting-started"]))
 
         allowed, msg = plan_check.check_slug_in_plan(
@@ -96,7 +102,7 @@ class TestSlugNotFound:
 class TestPlanMissing:
     def test_no_plan_file_is_permissive(self, tmp_path, monkeypatch):
         """When plan file doesn't exist, allow generation."""
-        monkeypatch.setattr(plan_check, "REPORTS_ROOT", tmp_path)
+        plan_check.configure(reports_root=tmp_path)
         # no plan file written
 
         allowed, msg = plan_check.check_slug_in_plan("3d", "python", "docs", "any-slug")
@@ -106,7 +112,7 @@ class TestPlanMissing:
 
 class TestMalformedYAML:
     def test_malformed_yaml_is_permissive(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(plan_check, "REPORTS_ROOT", tmp_path)
+        plan_check.configure(reports_root=tmp_path)
         plan_path = tmp_path / "3d" / "python" / "site_plan.yaml"
         plan_path.parent.mkdir(parents=True, exist_ok=True)
         plan_path.write_text(": invalid: yaml: [[[", encoding="utf-8")
@@ -118,7 +124,7 @@ class TestMalformedYAML:
 
 class TestSectionVariants:
     def test_empty_section_does_not_crash(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(plan_check, "REPORTS_ROOT", tmp_path)
+        plan_check.configure(reports_root=tmp_path)
         plan_data = {"plan": {"sections": {"docs": {"pages": []}}}}
         _write_plan(tmp_path, "3d", "python", plan_data)
 
@@ -126,7 +132,7 @@ class TestSectionVariants:
         assert allowed is False
 
     def test_missing_section_key_does_not_crash(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(plan_check, "REPORTS_ROOT", tmp_path)
+        plan_check.configure(reports_root=tmp_path)
         plan_data = {"plan": {"sections": {}}}
         _write_plan(tmp_path, "3d", "python", plan_data)
 

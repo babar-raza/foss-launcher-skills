@@ -18,6 +18,12 @@ import pytest
 import override_manager
 
 
+@pytest.fixture(autouse=True)
+def _reset_om():
+    yield
+    override_manager.configure()
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -62,9 +68,7 @@ class TestCreate:
     def test_token_file_written_to_pending(self, tmp_path, monkeypatch):
         pending = tmp_path / "pending"
         archived = tmp_path / "archived"
-        monkeypatch.setattr(override_manager, "_REPO_ROOT", tmp_path)
-        monkeypatch.setattr(override_manager, "_PENDING_DIR", pending)
-        monkeypatch.setattr(override_manager, "_ARCHIVED_DIR", archived)
+        override_manager.configure(repo_root=tmp_path, pending_dir=pending, archived_dir=archived)
 
         class Args:
             paths = ["AGENTS.md"]
@@ -89,7 +93,7 @@ class TestCreate:
 class TestValidateForPath:
     def test_matching_path_passes(self, tmp_path, monkeypatch):
         pending = tmp_path / "pending"
-        monkeypatch.setattr(override_manager, "_PENDING_DIR", pending)
+        override_manager.configure(pending_dir=pending)
 
         token = _make_token("20260401-123000-agents-md", ["AGENTS.md"], days_ago=1)
         _write_token(pending, token)
@@ -102,7 +106,7 @@ class TestValidateForPath:
 
     def test_non_matching_path_rejected(self, tmp_path, monkeypatch):
         pending = tmp_path / "pending"
-        monkeypatch.setattr(override_manager, "_PENDING_DIR", pending)
+        override_manager.configure(pending_dir=pending)
 
         token = _make_token("20260401-123000-agents-md", ["AGENTS.md"], days_ago=1)
         _write_token(pending, token)
@@ -116,7 +120,7 @@ class TestValidateForPath:
     def test_expired_token_rejected(self, tmp_path, monkeypatch):
         """Expired token (>7 days) must be rejected — the core safety property."""
         pending = tmp_path / "pending"
-        monkeypatch.setattr(override_manager, "_PENDING_DIR", pending)
+        override_manager.configure(pending_dir=pending)
 
         # Token created 10 days ago — past the 7-day TTL
         token = _make_token("20260401-123000-agents-md", ["AGENTS.md"], days_ago=10)
@@ -131,7 +135,7 @@ class TestValidateForPath:
     def test_expired_retroactive_token_passes(self, tmp_path, monkeypatch):
         """Retroactive tokens bypass the TTL check."""
         pending = tmp_path / "pending"
-        monkeypatch.setattr(override_manager, "_PENDING_DIR", pending)
+        override_manager.configure(pending_dir=pending)
 
         token = _make_token(
             "20260401-123000-agents-md", ["AGENTS.md"], days_ago=10, retroactive=True
@@ -147,7 +151,7 @@ class TestValidateForPath:
     def test_no_token_returns_2(self, tmp_path, monkeypatch):
         """No pending token → exit 2."""
         pending = tmp_path / "pending"
-        monkeypatch.setattr(override_manager, "_PENDING_DIR", pending)
+        override_manager.configure(pending_dir=pending)
 
         class Args:
             path = "AGENTS.md"
@@ -160,8 +164,7 @@ class TestConsume:
     def test_consume_moves_to_archived(self, tmp_path, monkeypatch):
         pending = tmp_path / "pending"
         archived = tmp_path / "archived"
-        monkeypatch.setattr(override_manager, "_PENDING_DIR", pending)
-        monkeypatch.setattr(override_manager, "_ARCHIVED_DIR", archived)
+        override_manager.configure(pending_dir=pending, archived_dir=archived)
 
         token_id = "20260401-123000-agents-md"
         token = _make_token(token_id, ["AGENTS.md"], days_ago=1)
@@ -184,8 +187,7 @@ class TestConsume:
     def test_consume_nonexistent_token_returns_1(self, tmp_path, monkeypatch):
         pending = tmp_path / "pending"
         archived = tmp_path / "archived"
-        monkeypatch.setattr(override_manager, "_PENDING_DIR", pending)
-        monkeypatch.setattr(override_manager, "_ARCHIVED_DIR", archived)
+        override_manager.configure(pending_dir=pending, archived_dir=archived)
 
         class Args:
             token_id = "nonexistent-token"

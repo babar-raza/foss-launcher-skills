@@ -21,6 +21,13 @@ if str(_PIPELINE) not in sys.path:
 
 from provenance import read_provenance, write_provenance
 from structural_lock import run
+import structural_lock as _sl
+
+
+@pytest.fixture(autouse=True)
+def _reset_sl():
+    yield
+    _sl.configure()
 
 
 # ---------------------------------------------------------------------------
@@ -69,13 +76,8 @@ def test_class3_file_locked(tmp_path):
     rel = page.relative_to(tmp_path).as_posix()
     csv_path = _make_csv(tmp_path, [{"filepath": rel, "assigned_class": "3"}])
 
-    import structural_lock as mod
-    orig_root = mod._REPO_ROOT
-    mod._REPO_ROOT = tmp_path
-    try:
-        stats = run(csv_path=csv_path, dry_run=False)
-    finally:
-        mod._REPO_ROOT = orig_root
+    _sl.configure(repo_root=tmp_path)
+    stats = run(csv_path=csv_path, dry_run=False)
 
     assert stats["updated"] == 1
     assert stats["skipped"] == 0
@@ -91,13 +93,8 @@ def test_already_locked_skipped(tmp_path):
     rel = page.relative_to(tmp_path).as_posix()
     csv_path = _make_csv(tmp_path, [{"filepath": rel, "assigned_class": "3"}])
 
-    import structural_lock as mod
-    orig_root = mod._REPO_ROOT
-    mod._REPO_ROOT = tmp_path
-    try:
-        stats = run(csv_path=csv_path, dry_run=False)
-    finally:
-        mod._REPO_ROOT = orig_root
+    _sl.configure(repo_root=tmp_path)
+    stats = run(csv_path=csv_path, dry_run=False)
 
     assert stats["skipped"] == 1
     assert stats["updated"] == 0
@@ -106,13 +103,8 @@ def test_already_locked_skipped(tmp_path):
 def test_missing_file_counted_as_error(tmp_path):
     csv_path = _make_csv(tmp_path, [{"filepath": "no/such/file.md", "assigned_class": "3"}])
 
-    import structural_lock as mod
-    orig_root = mod._REPO_ROOT
-    mod._REPO_ROOT = tmp_path
-    try:
-        stats = run(csv_path=csv_path, dry_run=False)
-    finally:
-        mod._REPO_ROOT = orig_root
+    _sl.configure(repo_root=tmp_path)
+    stats = run(csv_path=csv_path, dry_run=False)
 
     assert stats["errors"] == 1
     assert stats["updated"] == 0
@@ -123,13 +115,8 @@ def test_dry_run_no_writes(tmp_path):
     rel = page.relative_to(tmp_path).as_posix()
     csv_path = _make_csv(tmp_path, [{"filepath": rel, "assigned_class": "3"}])
 
-    import structural_lock as mod
-    orig_root = mod._REPO_ROOT
-    mod._REPO_ROOT = tmp_path
-    try:
-        stats = run(csv_path=csv_path, dry_run=True)
-    finally:
-        mod._REPO_ROOT = orig_root
+    _sl.configure(repo_root=tmp_path)
+    stats = run(csv_path=csv_path, dry_run=True)
 
     assert stats["updated"] == 1
     prov = read_provenance(page)
@@ -142,14 +129,9 @@ def test_idempotent(tmp_path):
     rel = page.relative_to(tmp_path).as_posix()
     csv_path = _make_csv(tmp_path, [{"filepath": rel, "assigned_class": "3"}])
 
-    import structural_lock as mod
-    orig_root = mod._REPO_ROOT
-    mod._REPO_ROOT = tmp_path
-    try:
-        stats1 = run(csv_path=csv_path, dry_run=False)
-        stats2 = run(csv_path=csv_path, dry_run=False)
-    finally:
-        mod._REPO_ROOT = orig_root
+    _sl.configure(repo_root=tmp_path)
+    stats1 = run(csv_path=csv_path, dry_run=False)
+    stats2 = run(csv_path=csv_path, dry_run=False)
 
     assert stats1["updated"] == 1
     assert stats2["updated"] == 0
@@ -162,13 +144,8 @@ def test_non_class3_rows_ignored(tmp_path):
     # Row with assigned_class="1" — should be ignored
     csv_path = _make_csv(tmp_path, [{"filepath": rel, "assigned_class": "1"}])
 
-    import structural_lock as mod
-    orig_root = mod._REPO_ROOT
-    mod._REPO_ROOT = tmp_path
-    try:
-        stats = run(csv_path=csv_path, dry_run=False)
-    finally:
-        mod._REPO_ROOT = orig_root
+    _sl.configure(repo_root=tmp_path)
+    stats = run(csv_path=csv_path, dry_run=False)
 
     # File should be untouched
     assert stats["updated"] == 0

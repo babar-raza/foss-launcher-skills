@@ -19,6 +19,12 @@ import pytest
 import page_impact_assess
 
 
+@pytest.fixture(autouse=True)
+def _reset_pia():
+    yield
+    page_impact_assess.configure()
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -127,7 +133,7 @@ class TestNotAffectedDetection:
 
     def test_assess_product_assigns_not_affected_for_empty_delta(self, tmp_path, monkeypatch):
         """assess_product shortcut: when delta has no signals, all pages → NOT_AFFECTED."""
-        monkeypatch.setattr(page_impact_assess, "_REPO_ROOT", tmp_path)
+        page_impact_assess.configure(repo_root=tmp_path)
         d = tmp_path / "content" / "docs.aspose.org" / "en" / "cells" / "net"
         _write_page(d, "page.md", "Any body text here.")
         # No knowledge dir → _load_delta returns {} → empty signal sets → shortcut fires
@@ -148,7 +154,7 @@ class TestNotAffectedDetection:
 class TestSubdomainCoverage:
     def test_discovers_files_in_all_five_subdomains(self, tmp_path, monkeypatch):
         """Script discovers fixture files planted in all 5 subdomain directories."""
-        monkeypatch.setattr(page_impact_assess, "_REPO_ROOT", tmp_path)
+        page_impact_assess.configure(repo_root=tmp_path)
 
         # Create pages in each subdomain
         subdomain_paths = [
@@ -184,7 +190,7 @@ class TestSubdomainCoverage:
 
     def test_locale_files_excluded(self, tmp_path, monkeypatch):
         """Translation files (.fr.md, .de.md) are excluded from assessment."""
-        monkeypatch.setattr(page_impact_assess, "_REPO_ROOT", tmp_path)
+        page_impact_assess.configure(repo_root=tmp_path)
 
         d = tmp_path / "content" / "docs.aspose.org" / "en" / "test" / "py"
         _write_page(d, "page.md", "English page")
@@ -211,7 +217,7 @@ class TestSubdomainCoverage:
 class TestEmptyDelta:
     def test_empty_delta_all_not_affected(self, tmp_path, monkeypatch):
         """When delta has no modified/removed APIs or claims, all pages are NOT_AFFECTED."""
-        monkeypatch.setattr(page_impact_assess, "_REPO_ROOT", tmp_path)
+        page_impact_assess.configure(repo_root=tmp_path)
 
         d = tmp_path / "content" / "docs.aspose.org" / "en" / "fam" / "plat"
         _write_page(d, "page1.md", "Uses Workbook class extensively")
@@ -238,7 +244,7 @@ class TestEmptyDelta:
 class TestAssessProductHighImpact:
     def test_page_with_modified_api_class_is_high_impact(self, tmp_path, monkeypatch):
         """End-to-end: page mentioning modified_api class → HIGH_IMPACT in results."""
-        monkeypatch.setattr(page_impact_assess, "_REPO_ROOT", tmp_path)
+        page_impact_assess.configure(repo_root=tmp_path)
 
         d = tmp_path / "content" / "docs.aspose.org" / "en" / "cells" / "net"
         _write_page(
@@ -344,7 +350,7 @@ class TestLowImpactDetection:
 
     def test_not_affected_path_owned_by_assess_product(self, tmp_path, monkeypatch):
         """assess_product uses NOT_AFFECTED for empty-delta shortcut, not via _score_page."""
-        monkeypatch.setattr(page_impact_assess, "_REPO_ROOT", tmp_path)
+        page_impact_assess.configure(repo_root=tmp_path)
         d = tmp_path / "content" / "docs.aspose.org" / "en" / "cells" / "net"
         _write_page(d, "page.md", "generic content")
         # No delta — _load_delta returns {} → api_names/claim_keywords empty

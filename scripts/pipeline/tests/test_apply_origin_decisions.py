@@ -24,6 +24,13 @@ if str(_PIPELINE) not in sys.path:
 
 from provenance import read_provenance, write_provenance
 from apply_origin_decisions import run
+import apply_origin_decisions as _aod
+
+
+@pytest.fixture(autouse=True)
+def _reset_aod():
+    yield
+    _aod.configure()
 
 
 # ---------------------------------------------------------------------------
@@ -71,14 +78,8 @@ def test_skill_generated_confirmed(tmp_path):
     rel = page.relative_to(tmp_path).as_posix()
     csv_path = _make_csv(tmp_path, [{"filepath": rel, "reviewer_decision": "skill-generated-confirmed"}])
 
-    # Monkeypatch repo root so apply_origin_decisions resolves paths from tmp_path
-    import apply_origin_decisions as mod
-    orig_root = mod._REPO_ROOT
-    mod._REPO_ROOT = tmp_path
-    try:
-        stats = run(csv_path=csv_path, dry_run=False)
-    finally:
-        mod._REPO_ROOT = orig_root
+    _aod.configure(repo_root=tmp_path)
+    stats = run(csv_path=csv_path, dry_run=False)
 
     assert stats["updated"] == 1
     prov = read_provenance(page)
@@ -90,13 +91,8 @@ def test_human_authored_confirmed(tmp_path):
     rel = page.relative_to(tmp_path).as_posix()
     csv_path = _make_csv(tmp_path, [{"filepath": rel, "reviewer_decision": "human-authored-confirmed"}])
 
-    import apply_origin_decisions as mod
-    orig_root = mod._REPO_ROOT
-    mod._REPO_ROOT = tmp_path
-    try:
-        stats = run(csv_path=csv_path, dry_run=False)
-    finally:
-        mod._REPO_ROOT = orig_root
+    _aod.configure(repo_root=tmp_path)
+    stats = run(csv_path=csv_path, dry_run=False)
 
     assert stats["updated"] == 1
     prov = read_provenance(page)
@@ -108,13 +104,8 @@ def test_mixed_modified_sets_agent_drafted_and_locks(tmp_path):
     rel = page.relative_to(tmp_path).as_posix()
     csv_path = _make_csv(tmp_path, [{"filepath": rel, "reviewer_decision": "mixed-modified"}])
 
-    import apply_origin_decisions as mod
-    orig_root = mod._REPO_ROOT
-    mod._REPO_ROOT = tmp_path
-    try:
-        stats = run(csv_path=csv_path, dry_run=False)
-    finally:
-        mod._REPO_ROOT = orig_root
+    _aod.configure(repo_root=tmp_path)
+    stats = run(csv_path=csv_path, dry_run=False)
 
     assert stats["updated"] == 1
     prov = read_provenance(page)
@@ -127,13 +118,8 @@ def test_deferred_leaves_unknown(tmp_path):
     rel = page.relative_to(tmp_path).as_posix()
     csv_path = _make_csv(tmp_path, [{"filepath": rel, "reviewer_decision": "deferred"}])
 
-    import apply_origin_decisions as mod
-    orig_root = mod._REPO_ROOT
-    mod._REPO_ROOT = tmp_path
-    try:
-        stats = run(csv_path=csv_path, dry_run=False)
-    finally:
-        mod._REPO_ROOT = orig_root
+    _aod.configure(repo_root=tmp_path)
+    stats = run(csv_path=csv_path, dry_run=False)
 
     assert stats["deferred"] == 1
     assert stats["updated"] == 0
@@ -146,15 +132,10 @@ def test_blank_decision_blocks(tmp_path):
     rel = page.relative_to(tmp_path).as_posix()
     csv_path = _make_csv(tmp_path, [{"filepath": rel, "reviewer_decision": ""}])
 
-    import apply_origin_decisions as mod
-    orig_root = mod._REPO_ROOT
-    mod._REPO_ROOT = tmp_path
-    try:
-        with pytest.raises(SystemExit) as exc:
-            run(csv_path=csv_path, dry_run=False)
-        assert exc.value.code == 1
-    finally:
-        mod._REPO_ROOT = orig_root
+    _aod.configure(repo_root=tmp_path)
+    with pytest.raises(SystemExit) as exc:
+        run(csv_path=csv_path, dry_run=False)
+    assert exc.value.code == 1
 
     # File must NOT have been modified
     prov = read_provenance(page)
@@ -166,15 +147,10 @@ def test_invalid_decision_blocks(tmp_path):
     rel = page.relative_to(tmp_path).as_posix()
     csv_path = _make_csv(tmp_path, [{"filepath": rel, "reviewer_decision": "unknown-guess"}])
 
-    import apply_origin_decisions as mod
-    orig_root = mod._REPO_ROOT
-    mod._REPO_ROOT = tmp_path
-    try:
-        with pytest.raises(SystemExit) as exc:
-            run(csv_path=csv_path, dry_run=False)
-        assert exc.value.code == 1
-    finally:
-        mod._REPO_ROOT = orig_root
+    _aod.configure(repo_root=tmp_path)
+    with pytest.raises(SystemExit) as exc:
+        run(csv_path=csv_path, dry_run=False)
+    assert exc.value.code == 1
 
 
 def test_already_set_skipped(tmp_path):
@@ -182,13 +158,8 @@ def test_already_set_skipped(tmp_path):
     rel = page.relative_to(tmp_path).as_posix()
     csv_path = _make_csv(tmp_path, [{"filepath": rel, "reviewer_decision": "human-authored-confirmed"}])
 
-    import apply_origin_decisions as mod
-    orig_root = mod._REPO_ROOT
-    mod._REPO_ROOT = tmp_path
-    try:
-        stats = run(csv_path=csv_path, dry_run=False)
-    finally:
-        mod._REPO_ROOT = orig_root
+    _aod.configure(repo_root=tmp_path)
+    stats = run(csv_path=csv_path, dry_run=False)
 
     assert stats["already_set"] == 1
     assert stats["updated"] == 0
@@ -199,13 +170,8 @@ def test_already_set_skipped(tmp_path):
 def test_missing_file_counted(tmp_path):
     csv_path = _make_csv(tmp_path, [{"filepath": "no/such/file.md", "reviewer_decision": "skill-generated-confirmed"}])
 
-    import apply_origin_decisions as mod
-    orig_root = mod._REPO_ROOT
-    mod._REPO_ROOT = tmp_path
-    try:
-        stats = run(csv_path=csv_path, dry_run=False)
-    finally:
-        mod._REPO_ROOT = orig_root
+    _aod.configure(repo_root=tmp_path)
+    stats = run(csv_path=csv_path, dry_run=False)
 
     assert stats["missing"] == 1
     assert stats["updated"] == 0
@@ -216,13 +182,8 @@ def test_dry_run_makes_no_writes(tmp_path):
     rel = page.relative_to(tmp_path).as_posix()
     csv_path = _make_csv(tmp_path, [{"filepath": rel, "reviewer_decision": "skill-generated-confirmed"}])
 
-    import apply_origin_decisions as mod
-    orig_root = mod._REPO_ROOT
-    mod._REPO_ROOT = tmp_path
-    try:
-        stats = run(csv_path=csv_path, dry_run=True)
-    finally:
-        mod._REPO_ROOT = orig_root
+    _aod.configure(repo_root=tmp_path)
+    stats = run(csv_path=csv_path, dry_run=True)
 
     assert stats["updated"] == 1
     prov = read_provenance(page)
@@ -234,14 +195,9 @@ def test_idempotent(tmp_path):
     rel = page.relative_to(tmp_path).as_posix()
     csv_path = _make_csv(tmp_path, [{"filepath": rel, "reviewer_decision": "skill-generated-confirmed"}])
 
-    import apply_origin_decisions as mod
-    orig_root = mod._REPO_ROOT
-    mod._REPO_ROOT = tmp_path
-    try:
-        stats1 = run(csv_path=csv_path, dry_run=False)
-        stats2 = run(csv_path=csv_path, dry_run=False)
-    finally:
-        mod._REPO_ROOT = orig_root
+    _aod.configure(repo_root=tmp_path)
+    stats1 = run(csv_path=csv_path, dry_run=False)
+    stats2 = run(csv_path=csv_path, dry_run=False)
 
     assert stats1["updated"] == 1
     assert stats2["updated"] == 0

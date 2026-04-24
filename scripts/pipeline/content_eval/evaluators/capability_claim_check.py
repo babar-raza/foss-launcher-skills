@@ -18,7 +18,14 @@ from typing import Any
 from ..models import Finding, Page
 from . import BaseEvaluator
 
-KNOWLEDGE_ROOT = Path("knowledge")
+_DEFAULT_KNOWLEDGE_ROOT = Path(__file__).resolve().parents[4] / "knowledge"
+KNOWLEDGE_ROOT = _DEFAULT_KNOWLEDGE_ROOT
+
+
+def configure(*, knowledge_root: "Path | str | None" = None) -> None:
+    """Override module-level path constants for testing."""
+    global KNOWLEDGE_ROOT
+    KNOWLEDGE_ROOT = Path(knowledge_root) if knowledge_root is not None else _DEFAULT_KNOWLEDGE_ROOT
 
 # Direction verbs
 _EXPORT_VERB_RE = re.compile(

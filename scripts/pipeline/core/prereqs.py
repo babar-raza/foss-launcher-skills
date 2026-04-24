@@ -19,7 +19,14 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parents[3]
+_DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[3]
+_REPO_ROOT = _DEFAULT_REPO_ROOT
+
+
+def configure(*, repo_root: "Path | str | None" = None) -> None:
+    """Override module-level path constants for testing."""
+    global _REPO_ROOT
+    _REPO_ROOT = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
 
 
 @dataclass
