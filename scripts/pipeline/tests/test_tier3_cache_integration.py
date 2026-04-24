@@ -1,7 +1,9 @@
 """Integration test: Tier 3 cache reduces LLM calls on second run of run_gap_eval().
 
 Marked @pytest.mark.integration — requires clone cache at:
-  {repo_root}/../foss-launcher/runs/.clone_cache/aspose_3d_java/
+  {repo_root}/runs/.clone_cache/aspose_3d_java/
+  (canonical: D:/onedrive/Documents/GitHub/aspose.org/runs/.clone_cache/)
+  Do NOT use foss-launcher for clone-cache discovery — that path is obsolete.
 
 Run with:
   pytest -m integration scripts/pipeline/tests/test_tier3_cache_integration.py -v

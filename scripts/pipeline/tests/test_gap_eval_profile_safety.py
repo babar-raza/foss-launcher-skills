@@ -1063,7 +1063,7 @@ class TestCellsNetProfileValidationRoundTrip:
 
     Depends on:
     - scripts/gap-eval/profiles/cells/net.yaml existing
-    - foss-launcher/runs/.clone_cache/aspose_cells_net/ existing
+    - runs/.clone_cache/aspose_cells_net/ existing (canonical: D:/onedrive/Documents/GitHub/aspose.org/runs/.clone_cache/)
     - ('cells', 'net') registered in ALL_PRODUCTS
 
     Clone-cache-dependent tests are skipped automatically when the cache is

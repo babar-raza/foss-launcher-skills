@@ -1,4 +1,4 @@
-"""Tests for scripts/pipeline/smoke_test.py — Python code block syntax and type checking.
+"""Tests for scripts/pipeline/smoke_test.py — multi-language code block syntax checking.
 
 Covers:
 - PASS: valid Python block
@@ -8,6 +8,7 @@ Covers:
 - canonical_import NOT re-prepended when already in block
 - empty file (no python blocks) produces empty result
 - exit codes: 0 PASS, 1 WARN, 2 FAIL
+- non-Python blocks (java/csharp/typescript/cpp) via tree-sitter (TestNonPythonBlocks)
 """
 
 import sys
@@ -18,7 +19,10 @@ import pytest
 
 # sys.path is set by tests/conftest.py
 import smoke_test
-from smoke_test import check_file, print_report, BlockResult, SmokeResult
+from smoke_test import (
+    check_file, print_report, BlockResult, SmokeResult,
+    _TS_LANG_MAP, _PLATFORM_LANGS, _run_ts_parse, _first_error_node,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -224,3 +228,175 @@ class TestMypyAbsent:
         result = check_file(f)
         assert result.warn_count == 1, "real type error must produce a WARN"
         assert result.pass_count == 0
+
+
+# ---------------------------------------------------------------------------
+# Non-Python language blocks (TC-CS-02: CODE-SMOKE multi-language extension)
+# ---------------------------------------------------------------------------
+
+# Minimal valid snippets for each language.  Deliberately short so tree-sitter
+# MISSING-node tolerance doesn't matter — these are complete statements.
+_VALID_JAVA = "```java\nimport com.aspose.threed.*;\nScene scene = new Scene();\n```\n"
+_VALID_CSHARP = "```csharp\nusing System;\nvar x = 42;\n```\n"
+_VALID_TYPESCRIPT = "```typescript\nconst x: number = 42;\nconsole.log(x);\n```\n"
+_VALID_CPP = "```cpp\n#include <string>\nstd::string s = \"hello\";\n```\n"
+
+# Snippets with genuine ERROR tokens (not just MISSING).
+_BAD_JAVA = "```java\nimport com.aspose.threed.*;\nScene scene = @@@;\n```\n"
+_BAD_CSHARP = "```csharp\nusing System;\nvar x = @@@;\n```\n"
+_BAD_TYPESCRIPT = "```typescript\nconst x: number = @@@;\nconsole.log(x);\n```\n"
+_BAD_CPP = "```cpp\n#include <string>\nstd::string s = @@@;\n```\n"
+
+
+class TestNonPythonBlocks:
+    """Tree-sitter based syntax checking for Java, C#, TypeScript, and C++.
+
+    Tests require tree-sitter-java / tree-sitter-c-sharp /
+    tree-sitter-typescript / tree-sitter-cpp to be installed in the venv.
+    All four are present (verified 2026-04-24).
+    """
+
+    # ------------------------------------------------------------------
+    # Java
+    # ------------------------------------------------------------------
+
+    def test_java_valid_block_passes(self, tmp_path):
+        f = _write_md(tmp_path, _VALID_JAVA)
+        result = check_file(f, langs=frozenset({"java"}))
+        assert result.blocks_checked == 1
+        assert result.fail_count == 0
+        assert result.pass_count == 1
+
+    def test_java_syntax_error_fails(self, tmp_path):
+        f = _write_md(tmp_path, _BAD_JAVA)
+        result = check_file(f, langs=frozenset({"java"}))
+        assert result.blocks_checked == 1
+        assert result.fail_count == 1
+        assert "Java" in result.results[0].message
+
+    # ------------------------------------------------------------------
+    # C#
+    # ------------------------------------------------------------------
+
+    def test_csharp_valid_block_passes(self, tmp_path):
+        f = _write_md(tmp_path, _VALID_CSHARP)
+        result = check_file(f, langs=frozenset({"csharp"}))
+        assert result.blocks_checked == 1
+        assert result.fail_count == 0
+        assert result.pass_count == 1
+
+    def test_csharp_syntax_error_fails(self, tmp_path):
+        f = _write_md(tmp_path, _BAD_CSHARP)
+        result = check_file(f, langs=frozenset({"csharp"}))
+        assert result.blocks_checked == 1
+        assert result.fail_count == 1
+        assert "C#" in result.results[0].message
+
+    def test_csharp_tag_aliases(self, tmp_path):
+        """Both 'cs' and 'c#' tags are extracted when csharp is in langs."""
+        cs_block = "```cs\nusing System;\nvar y = 1;\n```\n"
+        f = _write_md(tmp_path, cs_block)
+        result = check_file(f, langs=frozenset({"csharp", "cs", "c#"}))
+        assert result.blocks_checked == 1
+
+    # ------------------------------------------------------------------
+    # TypeScript
+    # ------------------------------------------------------------------
+
+    def test_typescript_valid_block_passes(self, tmp_path):
+        f = _write_md(tmp_path, _VALID_TYPESCRIPT)
+        result = check_file(f, langs=frozenset({"typescript"}))
+        assert result.blocks_checked == 1
+        assert result.fail_count == 0
+        assert result.pass_count == 1
+
+    def test_typescript_syntax_error_fails(self, tmp_path):
+        f = _write_md(tmp_path, _BAD_TYPESCRIPT)
+        result = check_file(f, langs=frozenset({"typescript"}))
+        assert result.blocks_checked == 1
+        assert result.fail_count == 1
+        assert "TypeScript" in result.results[0].message
+
+    # ------------------------------------------------------------------
+    # C++
+    # ------------------------------------------------------------------
+
+    def test_cpp_valid_block_passes(self, tmp_path):
+        f = _write_md(tmp_path, _VALID_CPP)
+        result = check_file(f, langs=frozenset({"cpp"}))
+        assert result.blocks_checked == 1
+        assert result.fail_count == 0
+        assert result.pass_count == 1
+
+    def test_cpp_syntax_error_fails(self, tmp_path):
+        f = _write_md(tmp_path, _BAD_CPP)
+        result = check_file(f, langs=frozenset({"cpp"}))
+        assert result.blocks_checked == 1
+        assert result.fail_count == 1
+        assert "C++" in result.results[0].message
+
+    # ------------------------------------------------------------------
+    # Mixed-language document
+    # ------------------------------------------------------------------
+
+    def test_mixed_python_java_page(self, tmp_path):
+        """A page with both python and java blocks: each counted when langs includes both."""
+        content = _VALID_JAVA + "\n" + "```python\nx = 1\n```\n"
+        f = _write_md(tmp_path, content)
+        result = check_file(f, langs=frozenset({"python", "java"}))
+        assert result.blocks_checked == 2
+        assert result.fail_count == 0
+
+    def test_non_code_lang_ignored(self, tmp_path):
+        """bash block is never extracted, even when checking java."""
+        content = "```bash\njavac Foo.java\n```\n"
+        f = _write_md(tmp_path, content)
+        result = check_file(f, langs=frozenset({"java"}))
+        assert result.blocks_checked == 0
+
+    # ------------------------------------------------------------------
+    # MISSING node tolerance (common in code snippets)
+    # ------------------------------------------------------------------
+
+    def test_missing_node_does_not_fail(self, tmp_path):
+        """A snippet that has MISSING nodes but no ERROR nodes must PASS.
+
+        tree-sitter inserts MISSING tokens to complete partial parses — this
+        is normal for documentation snippets like `Scene scene = new Scene();`
+        without a surrounding class body.  Only ERROR nodes indicate a real
+        syntax problem.
+        """
+        # This Java snippet is syntactically valid as a block-level statement
+        # but lacks a class wrapper.  tree-sitter may insert MISSING nodes.
+        partial_java = "```java\nScene scene = new Scene();\n```\n"
+        f = _write_md(tmp_path, partial_java)
+        result = check_file(f, langs=frozenset({"java"}))
+        assert result.fail_count == 0, (
+            f"MISSING-node snippet must not FAIL; got: {result.results}"
+        )
+
+    # ------------------------------------------------------------------
+    # Platform-lang mapping
+    # ------------------------------------------------------------------
+
+    def test_platform_langs_net_is_csharp(self):
+        """_PLATFORM_LANGS maps 'net' to csharp tags."""
+        assert "csharp" in _PLATFORM_LANGS["net"] or "cs" in _PLATFORM_LANGS["net"]
+
+    def test_platform_langs_java_is_java(self):
+        assert "java" in _PLATFORM_LANGS["java"]
+
+    def test_platform_langs_typescript_is_typescript(self):
+        assert "typescript" in _PLATFORM_LANGS["typescript"]
+
+    def test_platform_langs_cpp_is_cpp(self):
+        assert "cpp" in _PLATFORM_LANGS["cpp"]
+
+    # ------------------------------------------------------------------
+    # _TS_LANG_MAP completeness
+    # ------------------------------------------------------------------
+
+    def test_ts_lang_map_covers_all_aliases(self):
+        """All expected aliases are present in _TS_LANG_MAP."""
+        for tag in ("java", "csharp", "cs", "c#", "typescript", "ts", "cpp", "c++"):
+            assert tag in _TS_LANG_MAP, f"Missing: {tag}"
