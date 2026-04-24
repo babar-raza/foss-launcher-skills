@@ -334,22 +334,42 @@ def _is_non_public_path(p: Path, root: Path) -> bool:
     return any(part.lower() in _NON_PUBLIC_DIRS for part in parts)
 
 
+_FORMAT_STEM_RE = re.compile(
+    r"(format|exporter|importer|loader|saver|reader|writer)", re.IGNORECASE
+)
+
+
 def _collect_source_files(root: Path, ext: str, header_ext: str | list[str] = "") -> list[Path]:
-    """Glob for source files, capped at MAX_FILES, excluding non-public directories."""
-    files = [
-        f for f in root.rglob(f"*{ext}")
-        if not _is_non_public_path(f, root)
-    ][:MAX_FILES]
+    """Glob for source files, capped at MAX_FILES, excluding non-public directories.
+
+    Files are ordered by a three-tier priority key so critical extraction
+    targets are never evicted by the MAX_FILES cap:
+      0 — _internal/ implementation files (exporter/parser classes live here)
+      1 — format-enum and I/O-class files (SaveFormat, SourceFormat, *Exporter …)
+      2 — all other public source files (alphabetical within tier)
+    """
+    def _priority(p: Path) -> tuple:
+        rel = p.relative_to(root).as_posix()
+        if "/_internal/" in rel:
+            return (0, rel)
+        if _FORMAT_STEM_RE.search(p.stem):
+            return (1, rel)
+        return (2, rel)
+
+    files = sorted(
+        (f for f in root.rglob(f"*{ext}") if not _is_non_public_path(f, root)),
+        key=_priority,
+    )[:MAX_FILES]
     if header_ext:
         exts = [header_ext] if isinstance(header_ext, str) else header_ext
         for he in exts:
             remaining = MAX_FILES - len(files)
             if remaining <= 0:
                 break
-            files.extend([
-                f for f in root.rglob(f"*{he}")
-                if not _is_non_public_path(f, root)
-            ][:remaining])
+            files.extend(sorted(
+                (f for f in root.rglob(f"*{he}") if not _is_non_public_path(f, root)),
+                key=_priority,
+            )[:remaining])
     return files
 
 

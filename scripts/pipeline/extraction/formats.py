@@ -81,6 +81,47 @@ def _all_io_methods_are_stubs(methods: list, language: str) -> bool:
     return True
 
 
+def _extract_exporter_dict_formats(class_node, language: str) -> list[str]:
+    """Extract additional format names from class-level dict attributes in an I/O class.
+
+    Handles patterns like:
+        class PptxExporter(ExporterBase):
+            _CONTENT_TYPES = {'Pptx': '...', 'Pptm': '...', ...}
+
+    When an exporter class handles multiple formats via a registry dict, the
+    class-name heuristic only yields one format name (e.g. 'Pptx' from
+    PptxExporter). This function extracts the remaining keys so that all
+    formats backed by the same exporter get I/O implementation evidence.
+    """
+    if language != "python":
+        return []
+    results: list[str] = []
+    body = find_child_by_type(class_node, "block")
+    if not body:
+        return []
+    for stmt in body.children:
+        # In tree-sitter Python, class-level variable assignments appear as
+        # direct 'assignment' children of the 'block' node (not wrapped in
+        # 'expression_statement' like they are in some other languages).
+        if stmt.type != "assignment":
+            continue
+        # RHS must be a dictionary literal
+        rhs = find_child_by_type(stmt, "dictionary")
+        if not rhs:
+            continue
+        # Extract string keys — accept short mixed-case alphanumeric format names
+        for pair in rhs.children:
+            if pair.type != "pair":
+                continue
+            key_node = pair.children[0] if pair.children else None
+            if not key_node or key_node.type not in ("string", "concatenated_string"):
+                continue
+            raw = node_text(key_node).strip("'\"")
+            if raw and 2 <= len(raw) <= 8 and re.match(r"^[A-Za-z][A-Za-z0-9]+$", raw):
+                results.append(raw)
+    return results
+
+
 def detect_formats(
     parser,
     language: str,
@@ -238,6 +279,18 @@ def detect_formats(
                     _add_claim("format_support",
                                f"{direction} support for {fmt_name} via {cname}",
                                rel, cn.start_point[0] + 1)
+                    # Also emit format names from class-level dict attributes
+                    # (e.g. PptxExporter._CONTENT_TYPES has keys 'Pptm', 'Ppsx', ...)
+                    for extra_fmt in _extract_exporter_dict_formats(cn, language):
+                        if extra_fmt.lower() != fmt_name.lower():
+                            formats.append({
+                                "format": extra_fmt,
+                                "enum": "",
+                                "value": "",
+                                "file": rel,
+                                "line": cn.start_point[0] + 1,
+                                "direction": direction,
+                            })
 
     # Second pass: scan method names for format signals embedded in naming
     # conventions (e.g., load_from_eml, save_to_eml).  Catches formats that
@@ -584,13 +637,23 @@ def _cross_reference_enum_directions(
                 f["functional"] = False  # FIX-13: enum exists but no I/O class
             elif _is_stub_only(f["format"], stub_export_fmts):
                 f["functional"] = False  # FIX-13: I/O class exists but throws
+            else:
+                f["functional"] = True  # has working I/O implementation
         # Demote LoadFormat/ImportFormat/InputFormat entries without readers
         elif f.get("direction") == "import" and load_pattern.search(enum_name):
             if not _has_backing(f["format"], import_impls, import_method_fmts):
-                f["direction"] = "enum_only"
-                f["functional"] = False  # FIX-13: enum exists but no I/O class
+                # Cross-inference: if this format has export backing it can also
+                # be loaded (e.g. PPTX is loaded via OpcPackage, not a dedicated
+                # importer class, so no import_impl exists — but loading is real).
+                if _has_backing(f["format"], export_impls, export_method_fmts):
+                    f["functional"] = True  # inferred from export backing
+                else:
+                    f["direction"] = "enum_only"
+                    f["functional"] = False  # FIX-13: enum exists but no I/O class
             elif _is_stub_only(f["format"], stub_import_fmts):
                 f["functional"] = False  # FIX-13: I/O class exists but throws
+            else:
+                f["functional"] = True  # has working I/O implementation
 
     return formats
 
