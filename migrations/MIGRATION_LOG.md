@@ -1,0 +1,25 @@
+# MIGRATION_LOG — Bulk Grade Migration Approvals
+Source: C:\Users\prora\.claude\plans\curried-pondering-music.md §17.8
+Created: 2026-04-21 by WS-A
+
+## Required commit annotation (per DEC-06)
+```
+BULK-GRADE-MIGRATION: approved by [name] on [date], reason: [policy trigger]
+```
+
+## Policy triggers that justify a bulk migration
+1. First grading of previously ungraded pages
+2. Healing batch: body content changed AND grade letter changed
+3. Grade letter crossed a band boundary under human-approved cause
+4. MIG-01: Phase 5 one-time operational field removal — explicit approval required
+5. Content pipeline output defect corrected (generation template fix applied to body)
+
+## Guardrail
+GUARD-01 (pre-commit hook) and GUARD-02 (CI check) block commits with ≥20 .md files
+changed in grade frontmatter only, unless this log has an entry and the commit carries
+the annotation string above.
+
+## Log
+| ID | Date | Approved by | Commit | Files | Trigger | Status |
+|---|---|---|---|---|---|---|
+| MIG-01 | 2026-04-24 | owner | 69c6ca2b31 | 9,902 | MIG-01 Phase 5 operational field removal: strip graded_at, graded_logic_version, graded_evaluators, graded_model_sha, graded_evaluator_versions, graded_enrichment_status; preserve grade, graded_content_hash, grade_reasons; manifest safety net at reports/grade_manifest.json (9,213 entries); 92 files with pre-existing audit failures deferred | DONE |
