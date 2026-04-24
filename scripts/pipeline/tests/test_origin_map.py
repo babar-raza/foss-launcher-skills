@@ -575,5 +575,44 @@ class TestTier3CacheClassTierFlag(unittest.TestCase):
         self.assertFalse(om._is_tier3_non_deterministic(f))
 
 
+# ---------------------------------------------------------------------------
+# Anti-regression: origin_map fallback must not use foss-launcher
+# ---------------------------------------------------------------------------
+
+class TestCloneCacheFallbackAntiRegression(unittest.TestCase):
+    """Verify _default_clone_cache_path() never falls back to foss-launcher."""
+
+    def test_fallback_uses_repo_runs_not_foss_launcher(self):
+        """When core.clone_cache import fails, fallback must be repo-root/runs/.clone_cache."""
+        with patch.dict("sys.modules", {"core.clone_cache": None}):
+            # Force ImportError by removing the module from sys.modules
+            import importlib
+            # Re-import origin_map with core.clone_cache unavailable
+            import builtins
+            original_import = builtins.__import__
+
+            def mock_import(name, *args, **kwargs):
+                if name == "core.clone_cache":
+                    raise ImportError("mocked unavailable")
+                return original_import(name, *args, **kwargs)
+
+            with patch("builtins.__import__", side_effect=mock_import):
+                result = om._default_clone_cache_path("3d", "net")
+
+        assert "foss-launcher" not in str(result).lower(), (
+            f"Fallback path must not contain foss-launcher, got: {result}"
+        )
+        assert "foss_launcher" not in str(result).lower()  # TEST_FIXTURE_OBSOLETE_FOSS_LAUNCHER_REFERENCE
+        assert result.name == "aspose_3d_net"
+        assert "runs" in str(result.parent)
+        assert ".clone_cache" in str(result.parent)
+
+    def test_primary_path_never_foss_launcher(self):
+        """_default_clone_cache_path() primary path (via cache_root) must not be foss-launcher."""
+        result = om._default_clone_cache_path("slides", "python")
+        assert "foss-launcher" not in str(result).lower()
+        assert "foss_launcher" not in str(result).lower()  # TEST_FIXTURE_OBSOLETE_FOSS_LAUNCHER_REFERENCE
+
+
 if __name__ == "__main__":
     unittest.main()

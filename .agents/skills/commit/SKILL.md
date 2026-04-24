@@ -228,7 +228,7 @@ If the user requests changes to the plan, adjust and re-present.
    - Add to `.gitignore` if not already covered; unstage if accidentally staged.
 3. **Untracked ignore paths**: verify these directories remain untracked (never accidentally stage):
    - `reports/` — **strict local-only boundary; nothing under reports/ may ever be committed**
-   - `plans/`, `foss-launcher/`, `.venv/`
+   - `plans/`, `.venv/`
 
 ---
 
@@ -338,6 +338,31 @@ Verification: pytest scripts/pipeline/tests/ -q → 927 passed, 2 expected pre-c
 
 ---
 
+### G.5 — Grade churn guard (GUARD-01)
+
+**After staging files but before committing**, check for bulk grade-only frontmatter changes:
+
+```bash
+PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/ci/check_grade_churn.py --mode staged
+```
+
+**Interpret results**:
+- `PASS` → proceed to commit
+- `WARN` (5–19 grade-only files) → non-blocking; note in commit body and proceed
+- `BLOCK` (≥20 grade-only files, no body changes) → **do not commit**. This looks like a
+  bulk grade rewrite without content improvement. Either:
+  1. Add body content changes that justify the grade update, OR
+  2. Add `BULK-GRADE-MIGRATION: approved by [name] on [date], reason: [trigger]` to the
+     commit message if this is an approved migration (must have MIGRATION_LOG.md entry)
+
+**Override**: If the commit message contains the `BULK-GRADE-MIGRATION` annotation, the check
+passes regardless of file count. Pass the planned commit message:
+```bash
+PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/ci/check_grade_churn.py   --mode staged --commit-msg "your commit message here"
+```
+
+---
+
 ### H — Create commits
 
 Use Conventional Commits format for every commit:
@@ -437,3 +462,10 @@ git log --oneline -n <N>
 **4. Follow-ups** (only if unavoidable):
 - Broken internal links found by audit (WARN-level, not regressions)
 - Skill run record mismatches (non-blocking warnings)
+
+**5. Automatic follow-up harvest** (if follow-ups section is non-empty):
+    Convert each follow-up to OpenItem format (item_type: next_step, confidence: 0.85).
+    Route per `/backlog harvest` intake protocol.
+    Update harvest ledger via `harvest_ledger.py`.
+    Emit: `HARVEST: {N} follow-ups registered ({R} review, {F} failed)`
+    Use section headers from `docs/report-conventions.md` for harvest compatibility.

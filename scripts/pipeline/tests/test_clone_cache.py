@@ -147,3 +147,46 @@ def test_cli_resolve_runtime_error_exits_1(tmp_path, monkeypatch):
     )
     assert result.returncode == 1
     assert "error:" in result.stderr
+
+
+# ---------------------------------------------------------------------------
+# Anti-regression: foss-launcher must never be used as clone cache
+# ---------------------------------------------------------------------------
+
+def test_cache_root_default_never_foss_launcher(monkeypatch):
+    """cache_root() default must not contain 'foss-launcher' in any form."""
+    monkeypatch.delenv("ASPOSE_CLONE_CACHE", raising=False)
+    root = cache_root()
+    assert "foss-launcher" not in str(root).lower()
+    assert "foss_launcher" not in str(root).lower()  # TEST_FIXTURE_OBSOLETE_FOSS_LAUNCHER_REFERENCE
+
+
+def test_cache_root_env_valid_non_foss_launcher(tmp_path, monkeypatch):
+    """ASPOSE_CLONE_CACHE pointing to a valid non-foss-launcher path is accepted."""
+    monkeypatch.setenv("ASPOSE_CLONE_CACHE", str(tmp_path / "my_cache"))
+    root = cache_root()
+    assert root == (tmp_path / "my_cache").resolve()
+
+
+def test_cache_root_env_foss_launcher_forward_slash_rejected(monkeypatch):
+    """ASPOSE_CLONE_CACHE pointing to foss-launcher path raises ValueError."""
+    import pytest
+    monkeypatch.setenv("ASPOSE_CLONE_CACHE", "/some/path/foss-launcher/runs/.clone_cache")  # TEST_FIXTURE_OBSOLETE_FOSS_LAUNCHER_REFERENCE
+    with pytest.raises(ValueError, match="obsolete foss-launcher"):
+        cache_root()
+
+
+def test_cache_root_env_foss_launcher_backslash_rejected(monkeypatch):
+    """ASPOSE_CLONE_CACHE with backslash foss-launcher path raises ValueError."""
+    import pytest
+    monkeypatch.setenv("ASPOSE_CLONE_CACHE", r"C:\foss-launcher\runs\.clone_cache")  # TEST_FIXTURE_OBSOLETE_FOSS_LAUNCHER_REFERENCE
+    with pytest.raises(ValueError, match="obsolete foss-launcher"):
+        cache_root()
+
+
+def test_cache_root_env_foss_underscore_launcher_rejected(monkeypatch):
+    """ASPOSE_CLONE_CACHE with foss_launcher variant raises ValueError."""  # TEST_FIXTURE_OBSOLETE_FOSS_LAUNCHER_REFERENCE
+    import pytest
+    monkeypatch.setenv("ASPOSE_CLONE_CACHE", "/some/path/foss_launcher/runs/.clone_cache")  # TEST_FIXTURE_OBSOLETE_FOSS_LAUNCHER_REFERENCE
+    with pytest.raises(ValueError, match="obsolete foss-launcher"):
+        cache_root()

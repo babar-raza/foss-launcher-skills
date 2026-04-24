@@ -11,6 +11,7 @@
 | §1 | [Purpose](#1-purpose) | What agents do here |
 | §2 | [Read Order](#2-read-order-always-read-in-this-order-before-doing-any-work) | Mandatory pre-work gate |
 | §2a | [Source-of-Truth Hierarchy](#2a-source-of-truth-hierarchy) | Conflict resolution |
+| §2b | [Shell Execution Policy](#2b-shell-execution-policy-windows-local-operations) | Windows shell rule |
 | §3 | [Mental Model Refresh](#3-mental-model-refresh-protocol) | Pre-edit knowledge check |
 | §4 | [Allowed Write Paths](#4-allowed-write-paths-enforced-by-s-01-path-guard) | Path guard rules |
 | §4b | [Python File Placement](#4b-python-file-placement-rules) | New .py file rules |
@@ -81,6 +82,60 @@ When a conflict exists between two artifacts, this hierarchy governs which one i
 **Cloned repos are read-only.** Agents never write to `runs/.clone_cache/`. The scout (S-34) reads them; the knowledge layer synthesizes from them.
 
 **Phase artifacts are not source of truth.** `knowledge/{family}/{platform}/scout/` and `knowledge/{family}/{platform}/merged/` are derived from the clone cache. If they contradict the clone cache, re-run the knowledge bootstrap (S-12 → S-14) to regenerate from source.
+
+## 2b. Shell Execution Policy (Windows Local Operations)
+
+### Rule
+All local repo operations on Windows MUST be performed in Git Bash
+(MSYS2/MINGW64, provided by Git for Windows). This is not a preference —
+the governance scripts, hooks, and pipeline depend on bash semantics and
+Unix utilities (grep, git, bash conditionals, LF line endings).
+
+### Scope
+Applies to:
+- Human operators running scripts, hooks, or pipeline commands locally
+- Agent-driven workflows using the Claude Code Bash tool on Windows
+- Any script invoked during: setup, hook installation, git commit,
+  CI simulation, knowledge pipeline, skill execution, content generation
+  or validation
+
+Does NOT apply to:
+- GitHub Actions CI: runs on ubuntu-latest (native bash); no Windows
+  enforcement needed or permitted in CI configuration
+- Linux/macOS contributors: already native bash; no change
+- Read-only operations (browsing files, reading docs): no shell requirement
+
+### Accepted shell (Windows)
+Git Bash (Git for Windows) is the only accepted shell on Windows.
+Detection signature: `$MSYSTEM` contains "MINGW" AND `$BASH_VERSION` is set.
+Installation: https://git-scm.com/downloads
+
+### Rejected shells (Windows) — hard failures in block mode
+- **cmd.exe**: No bash, no Unix utilities, wrong path separators
+- **PowerShell / pwsh**: Different quoting, no Unix utilities, CRLF risk
+- **WSL (any version)**: Drops environment variables across the Windows->WSL
+  boundary, breaking governance hooks. Documented failure mode:
+  `docs/STATUS-venv-closure.md`. Permanently rejected.
+- **Cygwin**: MSYS2-incompatible path semantics. Rejected.
+- **Any other bash-on-Windows** that does not set `$MSYSTEM=MINGW*`: rejected.
+
+### Enforcement
+Phase 1+2 (warn mode): Violations print a warning to stderr and continue.
+Phase 4+ (block mode): Violations exit non-zero and prevent execution.
+Detection utility: `scripts/ci/check_shell_bash.sh`
+Entry points enforced: `install-hooks.sh`, `pre-commit-audit.sh`,
+  `check_venv_bash_hook.sh` (agent PreToolUse hook)
+
+### Exceptions
+There are no runtime bypass mechanisms in block mode.
+In warn mode, all invocations proceed regardless of shell.
+If an exception is genuinely required (e.g., unusual CI migration),
+the human maintainer must temporarily revert to warn mode via a code
+change (not an env var), document the reason, and restore block mode
+after the exception window closes.
+
+### Ownership
+Human maintainer owns this policy. Scripts are operator-maintained.
 
 ## 3. Mental Model Refresh Protocol
 
@@ -1855,6 +1910,20 @@ All agent-generated artifact files must be written to their designated location.
 - Proceed with PARTIAL or NONE capability without producing a gap escalation
   report and halting for human approval. Claiming "operator direction" does not
   substitute for gap escalation when no matching skill exists.
+- **Clone cache canonical location (anti-regression)**: The FOSS clone cache lives
+  exclusively at `runs/.clone_cache/` inside this repo.
+  - Windows canonical path: `D:/onedrive/Documents/GitHub/aspose.org/runs/.clone_cache/`
+  - Resolver: `scripts/pipeline/core/clone_cache.py` → `cache_root()` (checks `ASPOSE_CLONE_CACHE`
+    env var first, then defaults to `<repo-root>/runs/.clone_cache/`)
+  - `ASPOSE_CLONE_CACHE` may override the default, but must not point to any `foss-launcher` path.
+    If it does, the resolver will fail with an error.
+  - **Prohibited**: searching for, inferring, or falling back to any `foss-launcher` clone-cache
+    path (`foss-launcher/runs/.clone_cache/`, `../foss-launcher/runs/.clone_cache/`, etc.) <!-- HISTORICAL_OBSOLETE_FOSS_LAUNCHER_REFERENCE: prohibition example, not an active instruction -->
+  - **Prohibited**: treating a `foss-launcher` sibling directory as clone cache
+  - If clone cache resolution fails, inspect `scripts/pipeline/core/clone_cache.py` and
+    `runs/.clone_cache/` — never look in obsolete `foss-launcher` paths.
+  - Any plan, prompt, memory entry, or documentation that presents `foss-launcher` as the current
+    clone-cache location is invalid and must be corrected before use.
 - Commit a `.md` file whose sole staged diff from HEAD is a changed `graded_at:` timestamp. The pre-commit hook Step 10 auto-reverts such files; using `--no-verify` to bypass this gate is prohibited.
 
 ## 12. File Map

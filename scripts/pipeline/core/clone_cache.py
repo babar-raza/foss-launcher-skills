@@ -39,9 +39,20 @@ def cache_root() -> Path:
 
     Respects ``ASPOSE_CLONE_CACHE`` environment variable if set.
     Falls back to ``<repo_root>/runs/.clone_cache/``.
+
+    Raises ``ValueError`` if ``ASPOSE_CLONE_CACHE`` contains an obsolete
+    ``foss-launcher`` path — that location is permanently retired.
     """
     env = os.environ.get("ASPOSE_CLONE_CACHE")
     if env:
+        env_lower = env.lower().replace("\\", "/")
+        if "foss-launcher" in env_lower or "foss_launcher" in env_lower:  # HISTORICAL_OBSOLETE_FOSS_LAUNCHER_REFERENCE
+            raise ValueError(
+                f"ASPOSE_CLONE_CACHE points to an obsolete foss-launcher path: {env!r}\n"
+                "The foss-launcher clone cache location is permanently retired.\n"  # HISTORICAL_OBSOLETE_FOSS_LAUNCHER_REFERENCE
+                "Canonical clone cache: runs/.clone_cache/ inside the aspose.org repo\n"
+                "Unset ASPOSE_CLONE_CACHE or set it to the correct path."
+            )
         return Path(env).resolve()
     resolved = _DEFAULT_CACHE.resolve()
     return resolved

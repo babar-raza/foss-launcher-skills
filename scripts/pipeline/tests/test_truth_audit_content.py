@@ -518,5 +518,52 @@ class TestApiRefRegex(unittest.TestCase):
         self.assertEqual(tac._API_REF_RE.findall("`save(path, format)`"), ["save"])
 
 
+# ---------------------------------------------------------------------------
+# Anti-regression: _find_clone_cache must never probe foss-launcher paths
+# GAP-01 closure
+# ---------------------------------------------------------------------------
+
+
+class TestFindCloneCacheAntiRegression(unittest.TestCase):
+    """_find_clone_cache() must use runs/.clone_cache/, never foss-launcher.
+
+    GAP-01: no automated guard existed for this function.  These tests ensure
+    that future edits cannot silently reintroduce an obsolete foss-launcher
+    clone-cache base without causing a test failure.
+    """
+
+    def test_search_base_is_runs_clone_cache_not_foss_launcher(self):
+        """The module-level canonical base must be repo-root/runs/.clone_cache."""
+        repo_root = tac._REPO_ROOT
+        canonical_base = repo_root / "runs" / ".clone_cache"
+        base_str = str(canonical_base).replace("\\", "/").lower()
+        self.assertIn("runs/.clone_cache", base_str)
+        self.assertNotIn("foss-launcher", base_str)  # TEST_FIXTURE_OBSOLETE_FOSS_LAUNCHER_REFERENCE
+        self.assertNotIn("foss_launcher", base_str)  # TEST_FIXTURE_OBSOLETE_FOSS_LAUNCHER_REFERENCE
+
+    def test_find_clone_cache_returns_none_for_nonexistent_product(self):
+        """Missing clone returns None, not a foss-launcher path."""
+        result = tac._find_clone_cache("no_such_family_xyzzy", "no_such_platform_xyzzy")
+        self.assertIsNone(result)
+
+    def test_find_clone_cache_result_uses_canonical_base(self):
+        """When a clone exists the returned path is under runs/.clone_cache/."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_root = Path(tmp)
+            cache_dir = tmp_root / "runs" / ".clone_cache" / "aspose_testfam_testplat"
+            cache_dir.mkdir(parents=True)
+            orig_root = tac._REPO_ROOT
+            try:
+                tac._REPO_ROOT = tmp_root
+                result = tac._find_clone_cache("testfam", "testplat")
+                self.assertIsNotNone(result, "Expected clone cache found under patched root")
+                result_str = str(result).replace("\\", "/").lower()
+                self.assertIn("runs/.clone_cache", result_str)
+                self.assertNotIn("foss-launcher", result_str)  # TEST_FIXTURE_OBSOLETE_FOSS_LAUNCHER_REFERENCE
+                self.assertNotIn("foss_launcher", result_str)  # TEST_FIXTURE_OBSOLETE_FOSS_LAUNCHER_REFERENCE
+            finally:
+                tac._REPO_ROOT = orig_root
+
+
 if __name__ == "__main__":
     unittest.main()
