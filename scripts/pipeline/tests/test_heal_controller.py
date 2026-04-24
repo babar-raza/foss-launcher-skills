@@ -579,3 +579,67 @@ class TestHealControllerDepthGuard:
         plan = ctrl.plan([f], depth_map=None)
         d = plan.to_dict()
         assert "depth_map" in d
+
+
+# ---------------------------------------------------------------------------
+# FIX-01: depth accumulation across runs — heal-group items store depth + 1
+# ---------------------------------------------------------------------------
+
+class TestHealDepthAccumulation:
+    """FIX-01: depth increments for heal-group items; escalates to human on round 4."""
+
+    def test_round1_stores_depth1(self):
+        """No prior depth_map → heal-group finding stored at depth=1."""
+        f = _make_finding(category="RV", message="type: missing frontmatter type")
+        ctrl = HealController()
+        plan = ctrl.plan([f], depth_map={})
+        d = plan.to_dict()
+        assert d["depth_map"][f.id] == 1, (
+            f"Round 1: expected depth=1, got {d['depth_map'][f.id]}"
+        )
+
+    def test_round2_stores_depth2(self):
+        """Prior depth=1 → heal-group finding stored at depth=2."""
+        f = _make_finding(category="RV", message="type: missing frontmatter type")
+        ctrl = HealController()
+        plan = ctrl.plan([f], depth_map={f.id: 1})
+        d = plan.to_dict()
+        assert d["depth_map"][f.id] == 2, (
+            f"Round 2: expected depth=2, got {d['depth_map'][f.id]}"
+        )
+
+    def test_round3_stores_depth3(self):
+        """Prior depth=2 → heal-group finding stored at depth=3."""
+        f = _make_finding(category="RV", message="type: missing frontmatter type")
+        ctrl = HealController()
+        plan = ctrl.plan([f], depth_map={f.id: 2})
+        d = plan.to_dict()
+        assert d["depth_map"][f.id] == 3, (
+            f"Round 3: expected depth=3, got {d['depth_map'][f.id]}"
+        )
+
+    def test_round4_escalates_to_human(self):
+        """Prior depth=3 (== MAX_HEAL_DEPTH) → finding in human_group on round 4."""
+        from heal_controller import MAX_HEAL_DEPTH
+        f = _make_finding(category="RV", message="type: missing frontmatter type")
+        ctrl = HealController()
+        plan = ctrl.plan([f], depth_map={f.id: MAX_HEAL_DEPTH})
+        assert plan.human_group.count == 1, (
+            "Round 4: finding at depth=MAX_HEAL_DEPTH must be in human_group"
+        )
+        assert "max_heal_depth_exceeded" in plan.human_group.items[0].skip_reason
+        # Escalated finding: depth NOT incremented further
+        d = plan.to_dict()
+        assert d["depth_map"][f.id] == MAX_HEAL_DEPTH, (
+            f"Escalated depth must remain {MAX_HEAL_DEPTH}, got {d['depth_map'][f.id]}"
+        )
+
+    def test_human_policy_items_do_not_increment(self):
+        """Findings routed to human by policy (not depth-guard) do not increment depth."""
+        f = _make_finding(category="CS", filepath="x.md")  # CS → policy-human
+        ctrl = HealController()
+        plan = ctrl.plan([f], depth_map={f.id: 2})
+        d = plan.to_dict()
+        assert d["depth_map"][f.id] == 2, (
+            f"Policy-human finding must not increment depth; expected 2, got {d['depth_map'][f.id]}"
+        )
