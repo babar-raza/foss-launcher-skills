@@ -78,6 +78,15 @@ _NEGATION_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Variant qualifiers — when a format mention is immediately preceded by one of
+# these words (e.g. "binary FBX", "ASCII OBJ"), a negation on the same line
+# applies to the variant, not the format as a whole.  EC-03 FP fix.
+_VARIANT_QUALIFIER_RE = re.compile(
+    r"\b(?:binary|ascii|text|xml|legacy|old|v[0-9]+|compressed|uncompressed"
+    r"|embedded|standalone|raw|plain)\s+$",
+    re.IGNORECASE,
+)
+
 
 def _is_enum_name_schema(entries: list[dict]) -> bool:
     """Return True when formats.json uses enum names (e.g. OneNote2010) not file extensions.
@@ -364,6 +373,12 @@ class FormatTruthEvaluator(BaseEvaluator):
                     known_dir = format_direction.get(ext)
                     if not known_dir or known_dir in ("none", "detect"):
                         continue  # Content correctly says it's unsupported
+                    # EC-03 FP fix: skip variant-qualified mentions like
+                    # "binary FBX is not implemented" — the negation applies
+                    # to the variant, not the format as a whole.
+                    pre_text = line_text[:_pos]
+                    if _VARIANT_QUALIFIER_RE.search(pre_text):
+                        continue
                     # If the negated direction is not covered by known_dir, it's correct
                     if line_neg_dir == "export" and known_dir == "import":
                         continue  # "can't export X" — correct, only import is supported
@@ -431,9 +446,15 @@ class FormatTruthEvaluator(BaseEvaluator):
                 pre = block.content[max(0, pos - 30) : pos]
                 if re.search(r'["\'][^"\']*\.\s*$', pre):
                     continue
-                before = block.content[max(0, pos - 60) : pos]
-                after = block.content[pos : min(len(block.content), pos + 40)]
-                claimed_dir = _claim_direction(before + after)
+                # EC-03 FP fix: limit direction context to the same line
+                # within the code block to prevent cross-statement bleed
+                # (e.g. a load statement picking up save() from the next line).
+                line_start = block.content.rfind("\n", 0, pos) + 1
+                line_end = block.content.find("\n", pos)
+                if line_end == -1:
+                    line_end = len(block.content)
+                code_line = block.content[line_start:line_end]
+                claimed_dir = _claim_direction(code_line)
                 _check(ext, claimed_dir, block.start_line, "code")
 
         # Aggregate: many unknown formats on a structured page

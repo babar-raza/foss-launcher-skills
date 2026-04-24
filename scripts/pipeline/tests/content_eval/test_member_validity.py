@@ -169,7 +169,14 @@ class TestMemberValidityEvaluator:
         assert mv == [], f"Expected no MV findings (InheritedProp is in inherited section), got: {mv}"
 
     def test_mv_fail_grade_ceiling_caps_at_c(self):
-        """MV FAIL grade ceiling: a page with MV FAIL cannot earn A or B."""
+        """MV (member_validity) is EXPERIMENTAL — its FAIL must NOT cap canonical grade.
+
+        After FA-01 canonical/experimental separation, member_validity findings are
+        excluded from compute_grade_with_criticality(). A page with only an MV FAIL
+        from member_validity must receive canonical grade A (no canonical findings).
+        The MV ceiling in grade_config.yaml is intentionally inactive for this
+        EXPERIMENTAL evaluator until it graduates to the canonical set.
+        """
         from content_eval.models import Finding
 
         findings_with_mv_fail = [
@@ -183,7 +190,9 @@ class TestMemberValidityEvaluator:
             )
         ]
         grade = compute_grade_with_criticality(findings_with_mv_fail)
-        assert grade == "C", f"Expected C ceiling for MV FAIL, got {grade}"
+        assert grade == "A", (
+            f"member_validity is EXPERIMENTAL — its FAIL must not cap canonical grade; got {grade}"
+        )
 
     def test_mv_fail_does_not_force_f(self):
         """MV FAIL is a ceiling (C), not a critical category (F)."""

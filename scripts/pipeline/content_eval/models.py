@@ -14,6 +14,7 @@ import yaml
 # Frontmatter regex (canonical definition in core.markdown)
 # ---------------------------------------------------------------------------
 from core.markdown import _FRONTMATTER_READER_RE as _FRONTMATTER_RE
+from content_eval.config import CANONICAL_EVALUATORS  # needed for canonical-only grade computation
 _CODE_FENCE_RE = re.compile(r"^```(\w*)")
 _HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)")
 
@@ -265,10 +266,20 @@ class EvalReport:
         return compute_grade_with_criticality(self.findings)
 
     def grade_reasons(self) -> list[str]:
-        """Human-readable reasons for the computed grade."""
+        """Human-readable reasons for the computed grade.
+
+        Only canonical evaluator findings drive grade reasons.  Experimental
+        evaluator findings appear in the manifest / reports but must not appear
+        here as grade-affecting signals.
+        """
         reasons: list[str] = []
-        fails = [f for f in self.findings if f.level == "FAIL"]
-        warns = [f for f in self.findings if f.level == "WARN"]
+        # Filter to canonical evaluators only — mirrors compute_grade_with_criticality
+        canonical_findings = [
+            f for f in self.findings
+            if not f.evaluator or f.evaluator in CANONICAL_EVALUATORS
+        ]
+        fails = [f for f in canonical_findings if f.level == "FAIL"]
+        warns = [f for f in canonical_findings if f.level == "WARN"]
 
         # Check for critical category override
         critical_fails = [f for f in fails if f.category in CRITICAL_CATEGORIES]
@@ -281,19 +292,34 @@ class EvalReport:
             )
             return reasons
 
-        # Base grade from counts
+        # Base grade from counts — include evaluator attribution for debuggability
         base = compute_grade(len(fails), len(warns))
         if fails:
-            reasons.append(f"{len(fails)} FAIL finding(s) -> base grade {base}")
+            by_eval: dict[str, int] = {}
+            for f in fails:
+                ev = f.evaluator or "unknown"
+                by_eval[ev] = by_eval.get(ev, 0) + 1
+            summary = ", ".join(f"{ev}\u00d7{n}" for ev, n in sorted(by_eval.items()))
+            reasons.append(f"{len(fails)} FAIL finding(s) [{summary}] -> base grade {base}")
+            # First FAIL message for immediate human context
+            first = fails[0]
+            if first.message:
+                loc = f" (line {first.line_no})" if first.line_no else ""
+                reasons.append(f"{first.evaluator or 'unknown'} FAIL: {first.message}{loc}")
         elif warns:
-            reasons.append(f"{len(warns)} WARN finding(s) -> base grade {base}")
+            by_eval_w: dict[str, int] = {}
+            for f in warns:
+                ev = f.evaluator or "unknown"
+                by_eval_w[ev] = by_eval_w.get(ev, 0) + 1
+            summary_w = ", ".join(f"{ev}\u00d7{n}" for ev, n in sorted(by_eval_w.items()))
+            reasons.append(f"{len(warns)} WARN finding(s) [{summary_w}] -> base grade {base}")
         else:
             reasons.append("No findings -> grade A")
 
-        # Check category ceilings
+        # Check category ceilings (canonical findings only)
         final = self.grade
         if final != base:
-            for f in self.findings:
+            for f in canonical_findings:
                 cat_config = _CATEGORY_CEILINGS.get(f.category)
                 if cat_config and f.level in cat_config["levels"]:
                     reasons.append(
@@ -353,21 +379,28 @@ def compute_grade(fail_count: int, warn_count: int) -> str:
 def compute_grade_with_criticality(findings: list[Finding]) -> str:
     """Grade with critical-finding override and category ceilings.
 
-    Configuration loaded from grade_config.yaml.
+    Only findings from canonical evaluators contribute to the grade letter.
+    Experimental evaluator findings are excluded so they cannot cap or change
+    the canonical grade. Configuration loaded from grade_config.yaml.
     """
+    # Filter to canonical evaluators only — experimental findings must not affect grade
+    canonical = [
+        f for f in findings
+        if not f.evaluator or f.evaluator in CANONICAL_EVALUATORS
+    ]
     has_critical = any(
         f.level == "FAIL" and f.category in CRITICAL_CATEGORIES
-        for f in findings
+        for f in canonical
     )
     if has_critical:
         return "F"
-    fails = sum(1 for f in findings if f.level == "FAIL")
-    warns = sum(1 for f in findings if f.level == "WARN")
+    fails = sum(1 for f in canonical if f.level == "FAIL")
+    warns = sum(1 for f in canonical if f.level == "WARN")
     base = compute_grade(fails, warns)
 
-    # Apply category-specific grade ceilings from config
+    # Apply category-specific grade ceilings from config (canonical only)
     ceiling = base
-    for f in findings:
+    for f in canonical:
         cat_config = _CATEGORY_CEILINGS.get(f.category)
         if cat_config and f.level in cat_config["levels"]:
             ceiling = _cap(ceiling, cat_config["ceiling"])

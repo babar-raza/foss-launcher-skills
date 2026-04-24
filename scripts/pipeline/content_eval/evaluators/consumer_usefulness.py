@@ -48,6 +48,14 @@ _PURPOSE_INDICATORS: list[re.Pattern[str]] = [
         r"\blet['']s\b",
         r"\bby\s+the\s+end\s+of\b",
         r"\bafter\s+(?:completing|following|reading)\b",
+        # EC-03 FP fix: product/library introduction framing — common in
+        # blog posts that introduce a library rather than teach a tutorial.
+        r"\benables?\s+(?:developers?|users?|you)\s+to\b",
+        r"\ballows?\s+(?:developers?|users?|you)\s+to\b",
+        r"\bdesigned\s+(?:for|to)\b",
+        r"\bsupports?\s+(?:creating|building|generating|working|processing|converting|loading|reading|writing|parsing|extracting|handling)\b",
+        r"\ba\s+(?:\S+\s+)*(?:library|tool|package|module|SDK|framework|API)\s+for\b",
+        r"\b(?:free|open[- ]source|MIT[- ]licensed)\s+(?:\S+\s+)*(?:library|tool|package|module|SDK)\b",
     ]
 ]
 

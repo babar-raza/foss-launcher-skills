@@ -116,9 +116,11 @@ class TestWriteGrade:
             assert ok
             text = p.read_text(encoding="utf-8")
             assert "grade: B" in text
-            assert "graded_model_sha: abc123" in text
-            assert "graded_evaluators: full" in text
-            assert "graded_at:" in text
+            assert "graded_at:" not in text  # D-1: graded_at is operational
+            assert "graded_content_hash:" in text
+            # ARCH-04: operational fields no longer written to frontmatter
+            assert "graded_model_sha" not in text
+            assert "graded_evaluators" not in text
         finally:
             p.unlink(missing_ok=True)
 
@@ -139,11 +141,12 @@ class TestWriteGrade:
             assert ok
             text = p.read_text(encoding="utf-8")
             assert "grade: A" in text
-            assert "graded_model_sha: new_sha" in text
-            assert "graded_evaluators: full" in text
-            assert "old_sha" not in text
             assert "grade: D" not in text
             assert text.count("grade:") == 1
+            # ARCH-04: operational fields replaced by canonical-only block
+            assert "old_sha" not in text
+            assert "graded_model_sha" not in text
+            assert "graded_evaluators" not in text
         finally:
             p.unlink(missing_ok=True)
 
@@ -227,8 +230,8 @@ class TestWriteGrade:
         finally:
             p.unlink(missing_ok=True)
 
-    def test_double_write_no_duplicate_graded_evaluators(self):
-        """Regression: write_grade() twice must not duplicate graded_evaluators."""
+    def test_double_write_no_duplicate_grade_fields(self):
+        """Regression: write_grade() twice must not duplicate canonical fields."""
         p = _tmp_file(textwrap.dedent("""\
             ---
             title: Page
@@ -240,11 +243,11 @@ class TestWriteGrade:
             write_grade(p, "A", model_sha="sha1", evaluator_tier="full")
             write_grade(p, "B", model_sha="sha2", evaluator_tier="full")
             text = p.read_text(encoding="utf-8")
-            assert text.count("graded_evaluators") == 1, (
-                f"graded_evaluators duplicated:\n{text}"
-            )
             assert "grade: B" in text
-            assert "graded_evaluators: full" in text
+            assert text.count("grade:") == 1
+            assert text.count("graded_content_hash:") == 1
+            # ARCH-04: operational fields absent
+            assert "graded_evaluators" not in text
         finally:
             p.unlink(missing_ok=True)
 
@@ -265,12 +268,11 @@ class TestWriteGrade:
         try:
             write_grade(p, "A", model_sha="new_sha", evaluator_tier="full")
             text = p.read_text(encoding="utf-8")
-            assert text.count("graded_evaluators") == 1, (
-                f"graded_evaluators duplicated:\n{text}"
-            )
             assert "grade: A" in text
-            assert "graded_evaluators: full" in text
             assert "description: Some description" in text
+            # ARCH-04: old operational fields replaced, new ones not written
+            assert "graded_model_sha" not in text
+            assert "graded_evaluators" not in text
         finally:
             p.unlink(missing_ok=True)
 
@@ -289,10 +291,10 @@ class TestWriteGrade:
             write_grade(p, "C", model_sha="sha3", evaluator_tier="structural")
             text = p.read_text(encoding="utf-8")
             assert text.count("grade:") == 1
-            assert text.count("graded_evaluators") == 1
             assert "grade: C" in text
-            assert "graded_evaluators: structural" in text
-            assert "graded_model_sha: sha3" in text
+            # ARCH-04: operational fields not in frontmatter
+            assert "graded_evaluators" not in text
+            assert "graded_model_sha" not in text
         finally:
             p.unlink(missing_ok=True)
 
@@ -323,12 +325,9 @@ class TestWriteGrade:
             # Main block replaced correctly — only 1 grade: key
             assert text.count("grade:") == 1, f"grade: duplicated:\n{text}"
             assert "grade: A" in text
-            assert "graded_evaluators: full" in text
             assert "description: Middle content" in text
-            # Orphan remains inert (not expanded into a full block)
-            assert text.count("graded_model_sha") == 1, (
-                f"orphan expanded into full block:\n{text}"
-            )
+            # ARCH-04: main block no longer writes operational fields;
+            # orphan graded_evaluators survives outside the block (expected)
         finally:
             p.unlink(missing_ok=True)
 
@@ -414,14 +413,16 @@ class TestReadGrade:
             p.unlink(missing_ok=True)
 
     def test_round_trip(self):
-        """Write then read should return consistent data."""
+        """Write then read should return consistent data for canonical fields."""
         p = _tmp_file("---\ntitle: Round Trip\n---\nBody.\n")
         try:
             write_grade(p, "D", model_sha="rtsha", evaluator_tier="structural")
             result = read_grade(p)
             assert result["grade"] == "D"
-            assert result["model_sha"] == "rtsha"
-            assert result["tier"] == "structural"
+            assert len(result["content_hash"]) == 32
+            # ARCH-04: operational fields not written → read back as defaults
+            assert result["model_sha"] == ""
+            assert result["tier"] == "full"  # default when absent
         finally:
             p.unlink(missing_ok=True)
 
@@ -465,20 +466,20 @@ class TestReadGrade:
         finally:
             p.unlink(missing_ok=True)
 
-    def test_write_grade_writes_logic_version(self):
-        """write_grade with logic_version writes graded_logic_version to frontmatter."""
+    def test_write_grade_does_not_write_logic_version(self):
+        """ARCH-04: write_grade no longer writes graded_logic_version to frontmatter."""
         p = _tmp_file("---\ntitle: T\n---\nBody.\n")
         try:
             ok = write_grade(p, "A", model_sha="sha1", evaluator_tier="full",
                              logic_version="1")
             assert ok
             text = p.read_text(encoding="utf-8")
-            assert "graded_logic_version: 1" in text
+            assert "graded_logic_version" not in text
         finally:
             p.unlink(missing_ok=True)
 
-    def test_write_grade_replaces_logic_version_on_rewrite(self):
-        """Double write with different logic_version replaces rather than duplicates."""
+    def test_write_grade_no_logic_version_on_rewrite(self):
+        """ARCH-04: Double write does not produce any graded_logic_version."""
         p = _tmp_file("---\ntitle: T\n---\nBody.\n")
         try:
             write_grade(p, "A", model_sha="sha1", evaluator_tier="full",
@@ -486,9 +487,7 @@ class TestReadGrade:
             write_grade(p, "B", model_sha="sha2", evaluator_tier="full",
                         logic_version="2")
             text = p.read_text(encoding="utf-8")
-            assert text.count("graded_logic_version") == 1
-            assert "graded_logic_version: 2" in text
-            assert "graded_logic_version: 1" not in text
+            assert "graded_logic_version" not in text
         finally:
             p.unlink(missing_ok=True)
 
@@ -569,10 +568,10 @@ class TestContentHash:
         """Same input always produces the same hash."""
         assert content_hash("hello") == content_hash("hello")
 
-    def test_length_is_16(self):
-        """Hash is truncated to 16 hex characters."""
+    def test_length_is_32(self):
+        """Hash is truncated to 32 hex characters."""
         h = content_hash("anything")
-        assert len(h) == 16
+        assert len(h) == 32
         assert all(c in "0123456789abcdef" for c in h)
 
     def test_different_content_different_hash(self):
@@ -594,7 +593,7 @@ class TestContentHashRoundTrip:
             assert "graded_content_hash:" in text
             result = read_grade(p)
             assert result is not None
-            assert len(result["content_hash"]) == 16
+            assert len(result["content_hash"]) == 32
         finally:
             p.unlink(missing_ok=True)
 
@@ -712,14 +711,14 @@ class TestGradeReasons:
         finally:
             p.unlink(missing_ok=True)
 
-    def test_grade_reasons_limited_to_3(self):
-        """Only top 3 reasons are persisted."""
+    def test_grade_reasons_limited_to_5(self):
+        """Top 5 reasons are persisted (cap raised from 3 to 5 per VERIFY-03)."""
         p = _tmp_file("---\ntitle: T\n---\nBody.\n")
         try:
-            reasons = ["reason 1", "reason 2", "reason 3", "reason 4", "reason 5"]
+            reasons = ["r1", "r2", "r3", "r4", "r5", "r6", "r7"]
             write_grade(p, "D", model_sha="sha1", grade_reasons=reasons)
             result = read_grade(p)
-            assert len(result["grade_reasons"]) == 3
+            assert len(result["grade_reasons"]) == 5
         finally:
             p.unlink(missing_ok=True)
 
@@ -785,13 +784,15 @@ class TestIdempotencyGuard:
         finally:
             p.unlink(missing_ok=True)
 
-    def test_writes_when_model_sha_changes(self):
-        """Changed model_sha forces a write."""
+    def test_skips_when_only_model_sha_changes(self):
+        """ARCH-04: Changed model_sha does NOT force a write (operational field)."""
         p = _tmp_file("---\ntitle: T\n---\nBody.\n")
         try:
             write_grade(p, "A", model_sha="sha1", evaluator_tier="full", logic_version="5")
+            mtime1 = p.stat().st_mtime
             write_grade(p, "A", model_sha="sha2", evaluator_tier="full", logic_version="5")
-            assert "graded_model_sha: sha2" in p.read_text(encoding="utf-8")
+            mtime2 = p.stat().st_mtime
+            assert mtime1 == mtime2, "Operational-only change must not touch file"
         finally:
             p.unlink(missing_ok=True)
 
@@ -813,26 +814,32 @@ class TestIdempotencyGuard:
         finally:
             p.unlink(missing_ok=True)
 
-    def test_writes_when_logic_version_changes(self):
-        """Changed logic_version forces a write."""
+    def test_skips_when_only_logic_version_changes(self):
+        """ARCH-04: Changed logic_version does NOT force a write (operational field)."""
         p = _tmp_file("---\ntitle: T\n---\nBody.\n")
         try:
             write_grade(p, "A", model_sha="sha1", evaluator_tier="full", logic_version="5")
+            mtime1 = p.stat().st_mtime
             write_grade(p, "A", model_sha="sha1", evaluator_tier="full", logic_version="6")
-            assert "graded_logic_version: 6" in p.read_text(encoding="utf-8")
+            mtime2 = p.stat().st_mtime
+            assert mtime1 == mtime2, "Operational-only change must not touch file"
         finally:
             p.unlink(missing_ok=True)
 
-    def test_writes_when_grade_final_changes(self):
-        """Changing grade_final True->False forces a write."""
+    def test_skips_when_only_grade_final_changes(self):
+        """ARCH-04: Changing grade_final does NOT force a write (operational field)."""
         p = _tmp_file("---\ntitle: T\n---\nBody.\n")
         try:
             write_grade(p, "A", model_sha="sha1", evaluator_tier="full",
                         logic_version="5", grade_final=True)
+            mtime1 = p.stat().st_mtime
             write_grade(p, "A", model_sha="sha1", evaluator_tier="full",
                         logic_version="5", grade_final=False,
                         grade_stale_reason="upstream-dep")
-            assert "grade_final: false" in p.read_text(encoding="utf-8")
+            mtime2 = p.stat().st_mtime
+            assert mtime1 == mtime2, "Operational-only change must not touch file"
+            # grade_final not in frontmatter
+            assert "grade_final" not in p.read_text(encoding="utf-8")
         finally:
             p.unlink(missing_ok=True)
 
@@ -853,10 +860,10 @@ class TestIdempotencyGuard:
 # ---------------------------------------------------------------------------
 
 class TestGradeFieldOrder:
-    """graded_content_hash must appear after graded_model_sha/evaluators/logic_version."""
+    """D-1 + ARCH-04: Only canonical fields remain. Verify correct order: grade, graded_content_hash."""
 
-    def test_write_grade_field_order_correct(self):
-        """graded_content_hash must come after graded_model_sha and graded_evaluators."""
+    def test_write_grade_canonical_field_order(self):
+        """Canonical fields appear in order: grade, graded_content_hash (no graded_at)."""
         p = _tmp_file("---\ntitle: T\n---\nBody.\n")
         try:
             write_grade(p, "B", model_sha="abc123", evaluator_tier="full",
@@ -864,25 +871,21 @@ class TestGradeFieldOrder:
             text = p.read_text(encoding="utf-8")
             lines = text.splitlines()
             idx = {k: next((i for i, l in enumerate(lines) if l.startswith(k)), -1)
-                   for k in ("graded_at:", "graded_model_sha:", "graded_evaluators:",
-                              "graded_logic_version:", "graded_content_hash:")}
-            assert idx["graded_content_hash:"] > idx["graded_model_sha:"], (
-                f"graded_content_hash (line {idx['graded_content_hash:']}) must come "
-                f"AFTER graded_model_sha (line {idx['graded_model_sha:']})\n{text}"
-            )
-            assert idx["graded_content_hash:"] > idx["graded_evaluators:"], (
-                f"graded_content_hash (line {idx['graded_content_hash:']}) must come "
-                f"AFTER graded_evaluators (line {idx['graded_evaluators:']})\n{text}"
-            )
-            assert idx["graded_content_hash:"] > idx["graded_logic_version:"], (
-                f"graded_content_hash (line {idx['graded_content_hash:']}) must come "
-                f"AFTER graded_logic_version (line {idx['graded_logic_version:']})\n{text}"
-            )
+                   for k in ("grade:", "graded_content_hash:")}
+            assert idx["grade:"] != -1
+            assert idx["graded_content_hash:"] != -1
+            assert idx["graded_content_hash:"] > idx["grade:"]
+            # D-1: graded_at is operational, not in frontmatter
+            assert "graded_at:" not in text
+            # No operational fields
+            assert "graded_model_sha" not in text
+            assert "graded_evaluators" not in text
+            assert "graded_logic_version" not in text
         finally:
             p.unlink(missing_ok=True)
 
     def test_double_write_field_order_stable(self):
-        """A second write_grade call must not displace graded_content_hash before metadata."""
+        """A second write_grade call preserves canonical field order."""
         p = _tmp_file("---\ntitle: T\n---\nBody.\n")
         try:
             write_grade(p, "B", model_sha="sha1", evaluator_tier="full", logic_version="13")
@@ -890,16 +893,10 @@ class TestGradeFieldOrder:
             text = p.read_text(encoding="utf-8")
             lines = text.splitlines()
             idx = {k: next((i for i, l in enumerate(lines) if l.startswith(k)), -1)
-                   for k in ("graded_model_sha:", "graded_evaluators:",
-                              "graded_logic_version:", "graded_content_hash:")}
-            assert idx["graded_content_hash:"] > idx["graded_model_sha:"], (
-                f"After second write: graded_content_hash must still follow "
-                f"graded_model_sha\n{text}"
-            )
-            assert idx["graded_content_hash:"] > idx["graded_logic_version:"], (
-                f"After second write: graded_content_hash must still follow "
-                f"graded_logic_version\n{text}"
-            )
+                   for k in ("grade:", "graded_content_hash:")}
+            assert idx["graded_content_hash:"] > idx["grade:"]
+            # D-1: graded_at not present
+            assert "graded_at:" not in text
         finally:
             p.unlink(missing_ok=True)
 
@@ -914,8 +911,8 @@ class TestGradeBlockRegexSR03:
     (YAML mapping entries: '  key: val'), and that these don't break
     idempotency or replacement."""
 
-    def test_write_grade_with_reasons_and_evaluator_versions_round_trip(self):
-        """Grade block with both grade_reasons and graded_evaluator_versions survives read-back."""
+    def test_write_grade_with_reasons_no_evaluator_versions_in_frontmatter(self):
+        """ARCH-04: grade_reasons written but evaluator_versions NOT in frontmatter."""
         p = _tmp_file("---\ntitle: T\n---\nBody.\n")
         ev = {"api_accuracy": "1", "risk_language": "2", "code_syntax_check": "2"}
         try:
@@ -923,14 +920,14 @@ class TestGradeBlockRegexSR03:
                         evaluator_versions=ev)
             text = p.read_text(encoding="utf-8")
             assert "grade_reasons:" in text
-            assert "graded_evaluator_versions:" in text
-            assert '  api_accuracy: "1"' in text
             assert '  - "gap A"' in text
+            # ARCH-04: evaluator_versions go to manifest only
+            assert "graded_evaluator_versions:" not in text
 
             stored = read_grade(p)
             assert stored["grade"] == "B"
             assert "gap A" in stored["grade_reasons"]
-            assert stored["evaluator_versions"]["risk_language"] == "2"
+            assert stored["evaluator_versions"] == {}  # not in frontmatter
         finally:
             p.unlink(missing_ok=True)
 
@@ -949,8 +946,8 @@ class TestGradeBlockRegexSR03:
         finally:
             p.unlink(missing_ok=True)
 
-    def test_replacement_leaves_no_orphaned_evaluator_version_keys(self):
-        """Re-writing grade block must fully replace old graded_evaluator_versions."""
+    def test_no_evaluator_versions_in_frontmatter_after_rewrite(self):
+        """ARCH-04: Re-writing grade block must not include evaluator_versions."""
         p = _tmp_file("---\ntitle: T\n---\nBody.\n")
         ev1 = {"api_accuracy": "1", "risk_language": "1"}
         ev2 = {"api_accuracy": "2", "risk_language": "2"}
@@ -958,12 +955,9 @@ class TestGradeBlockRegexSR03:
             write_grade(p, "B", model_sha="sha1", evaluator_versions=ev1)
             write_grade(p, "C", model_sha="sha2", evaluator_versions=ev2)
             text = p.read_text(encoding="utf-8")
+            assert "graded_evaluator_versions:" not in text
             stored = read_grade(p)
-            # Old versions must be fully replaced
-            assert stored["evaluator_versions"]["api_accuracy"] == "2"
-            assert stored["evaluator_versions"]["risk_language"] == "2"
-            # Must appear exactly once in the text
-            assert text.count("graded_evaluator_versions:") == 1
+            assert stored["evaluator_versions"] == {}
         finally:
             p.unlink(missing_ok=True)
 
@@ -999,8 +993,8 @@ class TestEvaluatorVersionsReadWrite:
         finally:
             p.unlink(missing_ok=True)
 
-    def test_evaluator_versions_with_multiple_entries(self):
-        """All entries in evaluator_versions are written and read back correctly."""
+    def test_evaluator_versions_not_in_frontmatter(self):
+        """ARCH-04: evaluator_versions not written to frontmatter (manifest only)."""
         p = _tmp_file("---\ntitle: T\n---\nBody.\n")
         ev = {
             "api_accuracy": "1",
@@ -1010,25 +1004,114 @@ class TestEvaluatorVersionsReadWrite:
         }
         try:
             write_grade(p, "B", model_sha="sha99", evaluator_versions=ev)
+            text = p.read_text(encoding="utf-8")
+            assert "graded_evaluator_versions:" not in text
             stored = read_grade(p)
-            assert stored["evaluator_versions"] == ev
+            assert stored["evaluator_versions"] == {}
         finally:
             p.unlink(missing_ok=True)
 
-    def test_evaluator_versions_skip_check_logic(self):
-        """Pages with matching evaluator_versions are classified as current by skip logic."""
+    def test_evaluator_versions_skip_check_uses_manifest_not_frontmatter(self):
+        """ARCH-04: evaluator_versions for skip-check logic now use manifest, not frontmatter."""
         from content_eval import EVALUATOR_VERSIONS
         p = _tmp_file("---\ntitle: T\n---\nBody.\n")
         try:
             write_grade(p, "A", model_sha="sha1", evaluator_tier="full",
                         logic_version="15", evaluator_versions=EVALUATOR_VERSIONS)
             stored = read_grade(p)
-            assert stored["tier"] == "full"
-            # All evaluators should match EVALUATOR_VERSIONS
-            for ev, ver in EVALUATOR_VERSIONS.items():
-                assert stored["evaluator_versions"].get(ev) == ver, (
-                    f"Mismatch for evaluator {ev}: expected {ver!r}, "
-                    f"got {stored['evaluator_versions'].get(ev)!r}"
-                )
+            # Canonical fields written
+            assert stored["grade"] == "A"
+            assert len(stored["content_hash"]) == 32
+            # Operational fields NOT in frontmatter → empty on read
+            assert stored["evaluator_versions"] == {}
+            assert "graded_evaluator_versions" not in p.read_text(encoding="utf-8")
         finally:
             p.unlink(missing_ok=True)
+
+
+# ---------------------------------------------------------------------------
+# D-1: graded_at removed from canonical frontmatter — regression tests
+# ---------------------------------------------------------------------------
+
+class TestD1GradedAtRemoval:
+    """D-1 fix: graded_at is operational and must NOT appear in new writes."""
+
+    def test_canonical_fields_exactly_three(self):
+        """CANONICAL_FRONTMATTER_FIELDS contains exactly {grade, graded_content_hash, grade_reasons}."""
+        from grade_writer import CANONICAL_FRONTMATTER_FIELDS
+        assert CANONICAL_FRONTMATTER_FIELDS == frozenset({
+            "grade", "graded_content_hash", "grade_reasons",
+        })
+
+    def test_new_write_has_no_graded_at(self):
+        """Fresh write_grade() must NOT emit graded_at."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            write_grade(p, "B", model_sha="sha1")
+            text = p.read_text(encoding="utf-8")
+            assert "graded_at:" not in text
+            assert "grade: B" in text
+            assert "graded_content_hash:" in text
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_rewrite_strips_legacy_graded_at(self):
+        """Overwriting a page that has graded_at must NOT preserve it."""
+        p = _tmp_file(textwrap.dedent("""\
+            ---
+            title: T
+            grade: C
+            graded_at: "2026-01-01T00:00:00Z"
+            graded_content_hash: "abcd1234abcd1234abcd1234abcd1234"
+            ---
+
+            Body.
+        """))
+        try:
+            write_grade(p, "A", model_sha="sha1")
+            text = p.read_text(encoding="utf-8")
+            assert "graded_at:" not in text
+            assert "grade: A" in text
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_idempotency_with_legacy_graded_at(self):
+        """Page with legacy graded_at: idempotent re-write at same grade must not touch file."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            write_grade(p, "A", model_sha="sha1")
+            mtime1 = p.stat().st_mtime
+            # Second write with identical grade + body → idempotent skip
+            write_grade(p, "A", model_sha="sha1")
+            mtime2 = p.stat().st_mtime
+            assert mtime1 == mtime2, "File must not be touched on idempotent re-write"
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_only_three_grade_fields_emitted(self):
+        """After write, only grade, graded_content_hash, and optionally grade_reasons are present."""
+        p = _tmp_file("---\ntitle: T\n---\nBody.\n")
+        try:
+            write_grade(p, "C", grade_reasons=["api_accuracy FAIL"])
+            text = p.read_text(encoding="utf-8")
+            # Exactly these canonical fields present
+            assert "grade: C" in text
+            assert "graded_content_hash:" in text
+            assert "grade_reasons:" in text
+            # No operational fields
+            for field in ("graded_at:", "graded_model_sha:", "graded_evaluators:",
+                          "graded_logic_version:", "graded_evaluator_versions:",
+                          "graded_enrichment_status:", "grade_final:", "grade_stale_reason:"):
+                assert field not in text, f"Operational field {field} found in frontmatter"
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_mig01_alignment(self):
+        """D-1 core: runtime canonical set matches MIG-01 canonical set (3 fields, no graded_at)."""
+        from grade_writer import CANONICAL_FRONTMATTER_FIELDS
+        # MIG-01 script defines: CANONICAL_GRADE_FIELDS = {"grade", "grade_reasons", "graded_content_hash"}
+        mig01_fields = frozenset({"grade", "grade_reasons", "graded_content_hash"})
+        assert CANONICAL_FRONTMATTER_FIELDS == mig01_fields, (
+            f"D-1 discrepancy: grade_writer={CANONICAL_FRONTMATTER_FIELDS}, "
+            f"MIG-01={mig01_fields}"
+        )

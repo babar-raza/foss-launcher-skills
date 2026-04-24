@@ -857,6 +857,97 @@ class TestEvidenceDepth:
         assert compute_grade(1, 0) == "C"
 
 
+class TestEvidenceBindingTier:
+    """Tests for classify_binding_tier (GR-G09: strong/weak/stale/absent tiers)."""
+
+    def setup_method(self):
+        from content_eval.evaluators.evidence_depth import classify_binding_tier
+        self.classify = classify_binding_tier
+
+    def test_absent_empty_dict(self):
+        assert self.classify({}) == "absent"
+
+    def test_absent_none(self):
+        assert self.classify(None) == "absent"
+
+    def test_strong_all_present_sha_matches(self):
+        assert self.classify(
+            {"apis": ["A.method"], "claims": ["claim1"], "model_sha": "abc123"},
+            current_sha="abc123",
+        ) == "strong"
+
+    def test_strong_sha_unknown_no_comparison(self):
+        """When current_sha is empty, no staleness comparison is possible — full arrays → strong."""
+        assert self.classify(
+            {"apis": ["A.method"], "claims": ["c1"], "model_sha": "abc123"},
+            current_sha="",
+        ) == "strong"
+
+    def test_stale_sha_mismatch(self):
+        assert self.classify(
+            {"apis": ["A.method"], "claims": ["c1"], "model_sha": "oldsha"},
+            current_sha="newsha",
+        ) == "stale"
+
+    def test_stale_beats_weak_on_mismatch(self):
+        """Stale takes precedence over weak even when arrays are empty."""
+        assert self.classify(
+            {"apis": [], "claims": [], "model_sha": "oldsha"},
+            current_sha="newsha",
+        ) == "stale"
+
+    def test_weak_no_apis(self):
+        assert self.classify(
+            {"apis": [], "claims": ["c1"], "model_sha": "abc123"},
+            current_sha="abc123",
+        ) == "weak"
+
+    def test_weak_no_claims(self):
+        assert self.classify(
+            {"apis": ["A.m"], "claims": [], "model_sha": "abc123"},
+            current_sha="abc123",
+        ) == "weak"
+
+    def test_weak_no_model_sha(self):
+        assert self.classify(
+            {"apis": ["A.m"], "claims": ["c1"], "model_sha": ""},
+        ) == "weak"
+
+    def test_evaluate_emits_binding_tier_info(self):
+        """evaluate() emits a binding tier INFO finding for pages with evidence.
+
+        We only assert that exactly one INFO 'binding tier' finding is emitted
+        and that its message contains one of the four valid tier names.  We do
+        not assert a specific tier because evaluate() may resolve current_sha
+        from a real model.yaml on disk, changing the tier from strong → stale
+        when the SHA differs.  Tier-branch correctness is fully covered by the
+        nine classify_binding_tier unit tests above.
+        """
+        from content_eval.evaluators.evidence_depth import EvidenceDepthEvaluator
+        evaluator = EvidenceDepthEvaluator()
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Test
+            evidence:
+              model_sha: abc123
+              claims:
+                - Some claim
+              apis:
+                - A.method
+            ---
+            Some content.
+        """), "content/docs.aspose.org/en/3d/python/developer-guide/test.md")
+        findings = evaluator.evaluate(page, None)
+        tier_findings = [
+            f for f in findings if "binding tier" in f.message and f.level == "INFO"
+        ]
+        assert len(tier_findings) == 1
+        assert any(
+            tier in tier_findings[0].message
+            for tier in ("strong", "weak", "stale", "absent")
+        )
+
+
 class TestProseTruth:
     def setup_method(self):
         from content_eval.evaluators.prose_truth import ProseTruthEvaluator

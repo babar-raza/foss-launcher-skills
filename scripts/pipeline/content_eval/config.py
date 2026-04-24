@@ -37,6 +37,55 @@ ALL_EVALUATORS = [
     "consumer_usefulness",
 ]
 
+# FREEZE-03: Canonical evaluators — contribute to the frontmatter grade letter.
+# These are the 10 evaluators across the 4 canonical dimensions defined in
+# GRADE_CONTRACT.md §1-3: Safety, Factual Accuracy, Usability, Completeness.
+CANONICAL_EVALUATORS = frozenset({
+    # Safety (FAIL → F)
+    "forbidden_claims",
+    "platform_purity",
+    "type_accuracy",
+    # Factual Accuracy (FAIL → ceiling D)
+    "api_accuracy",
+    "prose_truth",
+    "format_truth",
+    # Usability (FAIL → ceiling C)
+    "code_plausibility",
+    "code_syntax_check",
+    "consumer_usefulness",
+    # Completeness (FAIL → ceiling C)
+    "api_completeness",
+    "description_completeness",
+})
+
+# FREEZE-03: Experimental evaluators — run during evaluation and appear in
+# the manifest and reports, but do NOT affect the canonical frontmatter grade.
+# New evaluators MUST start here.  Graduation to CANONICAL_EVALUATORS requires
+# ≥14 days stable + corpus-wide validation + maintainer sign-off.
+# See GRADE_CONTRACT.md §6 for graduation policy.
+EXPERIMENTAL_EVALUATORS = frozenset({
+    "api_backtick",
+    "claim_coverage",
+    "code_block_api",
+    "content_substance",
+    "coverage",
+    "dead_internal_link",
+    "encoding_check",
+    "evidence_depth",
+    "format_completeness",
+    "install_recipe",
+    "limitations_check",
+    "member_validity",
+    "namespace_correctness",
+    "page_role",
+    "prose_claim_binding",
+    "prose_grounding",
+    "risk_language",
+    "structure",
+    "version_claim_check",
+    "capability_claim_check",
+})
+
 # Default evaluators (fast, deterministic, production-ready)
 DEFAULT_EVALUATORS = [
     "api_accuracy",

@@ -13,6 +13,29 @@ from . import BaseEvaluator
 KNOWLEDGE_ROOT = Path("knowledge")
 
 
+def classify_binding_tier(evidence: dict, current_sha: str = "") -> str:
+    """Classify evidence binding quality into one of four tiers (GR-G09).
+
+    strong — apis + claims populated; model_sha present and matches current_sha
+    weak   — evidence present but apis or claims empty; or no model_sha
+    stale  — model_sha present but does not match current_sha
+    absent — evidence block is empty or missing
+
+    Stale takes precedence over weak: outdated evidence is not trustworthy
+    regardless of array population.
+    """
+    if not evidence:
+        return "absent"
+    model_sha = evidence.get("model_sha", "")
+    apis = evidence.get("apis") or []
+    claims = evidence.get("claims") or []
+    if model_sha and current_sha and model_sha != current_sha:
+        return "stale"
+    if not apis or not claims or not model_sha:
+        return "weak"
+    return "strong"
+
+
 def _api_eligible_blocks(blocks: list, platform: str) -> list:
     """Return blocks whose language tag is a known API-bearing language for this platform.
 
@@ -134,6 +157,18 @@ class EvidenceDepthEvaluator(BaseEvaluator):
             findings.extend(
                 self._evaluate_sections(page, evidence, sections, current_sha)
             )
+
+        # --- Binding tier summary (GR-G09) ---
+        tier = classify_binding_tier(evidence, current_sha)
+        findings.append(Finding(
+            level="INFO",
+            category="EG",
+            filepath=str(page.filepath),
+            line_no=1,
+            message=f"Evidence binding tier: {tier}",
+            suggestion="",
+            evaluator=self.name,
+        ))
 
         return findings
 

@@ -14,6 +14,17 @@ __version__ = "0.1.0"
 # Update the AGENTS.md evaluator change checklist when bumping this value.
 EVALUATOR_LOGIC_VERSION = "16"
 
+# Evaluator freeze gate (C-24).
+#
+# When set to a version string, CI enforces that EVALUATOR_LOGIC_VERSION
+# matches this value exactly.  This prevents accidental evaluator logic
+# changes after a freeze has been declared.  Set to None while no freeze
+# is active.  To activate the freeze, set this to the current
+# EVALUATOR_LOGIC_VERSION value.  Any subsequent ELV bump must also
+# update this constant with a documented justification in the commit
+# message and GRADE_CONTRACT.md.
+EVALUATOR_FREEZE_VERSION: str | None = "16"
+
 # TC-5: Per-evaluator version dict.
 #
 # Increment the version for an individual evaluator when its logic changes.
