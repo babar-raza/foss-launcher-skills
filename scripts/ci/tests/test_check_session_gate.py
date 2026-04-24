@@ -18,17 +18,18 @@ Bootstrap command matching (exact regex):
 Rejected: compound commands, quoted paths, path traversal.
 
 Test strategy: invoke the shell script as a subprocess (absolute path) with
-CLAUDE_TOOL_INPUT set per case. Gate state is controlled by temporarily
-saving/restoring the real .claude/.agents_read in the repo root. The hook
-finds the gate file via its own SCRIPT_DIR-derived REPO_ROOT, not via cwd.
+CLAUDE_TOOL_INPUT set per case. Gate state is controlled by a temp gate file
+set via SESSION_GATE_OVERRIDE. Tests NEVER touch the live .claude/.agents_read.
 """
 from __future__ import annotations
 
+import atexit
 import json
 import os
 import shutil
 import subprocess
 import sys
+import tempfile
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -38,9 +39,12 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 # Hook uses absolute path — cwd does not need to be the repo root
 _HOOK_ABS = str(_REPO_ROOT / "scripts" / "ci" / "check_session_gate.sh")
 
-# Real gate file location (the hook always checks here via SCRIPT_DIR-derived REPO_ROOT)
-_GATE_FILE = _REPO_ROOT / ".claude" / ".agents_read"
-_GATE_BACKUP = _REPO_ROOT / ".claude" / ".agents_read.test_backup"
+# Temp directory for gate file isolation — never touches .claude/.agents_read
+_TEMP_DIR = Path(tempfile.mkdtemp(prefix="sg_test_"))
+_TEMP_GATE = _TEMP_DIR / ".agents_read"
+
+# Clean up temp dir on process exit
+atexit.register(lambda: shutil.rmtree(str(_TEMP_DIR), ignore_errors=True))
 
 
 def _find_bash() -> str:
@@ -57,34 +61,20 @@ _BASH = _find_bash()
 
 @contextmanager
 def _gate_state(present: bool):
-    """Context manager: temporarily set gate file state, restore on exit."""
-    was_present = _GATE_FILE.exists()
-    backup_taken = False
+    """Set temp gate file state for test isolation.
 
-    if was_present and not present:
-        # Need gate absent: back up and remove
-        shutil.copy2(str(_GATE_FILE), str(_GATE_BACKUP))
-        _GATE_FILE.unlink()
-        backup_taken = True
-    elif not was_present and present:
-        # Need gate present: create it
-        _GATE_FILE.parent.mkdir(parents=True, exist_ok=True)
-        _GATE_FILE.write_text("1")
-
+    Never reads, writes, or depends on the real .claude/.agents_read.
+    Sets SESSION_GATE_OVERRIDE so the hook uses the temp path.
+    """
+    if present:
+        _TEMP_GATE.parent.mkdir(parents=True, exist_ok=True)
+        _TEMP_GATE.write_text("1")
+    else:
+        _TEMP_GATE.unlink(missing_ok=True)
     try:
         yield
     finally:
-        # Restore original state
-        if was_present and not present:
-            if backup_taken and _GATE_BACKUP.exists():
-                shutil.copy2(str(_GATE_BACKUP), str(_GATE_FILE))
-                _GATE_BACKUP.unlink()
-            elif not _GATE_FILE.exists():
-                # Backup was lost — recreate from scratch (safe default)
-                _GATE_FILE.write_text("1")
-        elif not was_present and present:
-            if _GATE_FILE.exists():
-                _GATE_FILE.unlink()
+        _TEMP_GATE.unlink(missing_ok=True)
 
 
 def _run(
@@ -104,7 +94,11 @@ def _run(
             data["tool_input"] = tool_input
         payload = json.dumps(data)
 
-    env = {**os.environ, "CLAUDE_TOOL_INPUT": payload}
+    env = {
+        **os.environ,
+        "CLAUDE_TOOL_INPUT": payload,
+        "SESSION_GATE_OVERRIDE": str(_TEMP_GATE),
+    }
     if skip_flag:
         env["SKIP_SESSION_GATE_CHECK"] = "1"
     else:
@@ -200,9 +194,11 @@ def test_tc_sg_13_write_allowed_when_gate_present():
 
 def test_tc_sg_14_empty_input_gate_absent_blocked():
     """TC-SG-14: Empty CLAUDE_TOOL_INPUT with gate absent — blocked (falls to gate check)."""
-    env = {k: v for k, v in os.environ.items() if k != "CLAUDE_TOOL_INPUT"}
-    env.pop("SKIP_SESSION_GATE_CHECK", None)
-    with _gate_state(False):
+    _TEMP_GATE.unlink(missing_ok=True)
+    try:
+        env = {k: v for k, v in os.environ.items() if k != "CLAUDE_TOOL_INPUT"}
+        env.pop("SKIP_SESSION_GATE_CHECK", None)
+        env["SESSION_GATE_OVERRIDE"] = str(_TEMP_GATE)
         result = subprocess.run(
             [_BASH, _HOOK_ABS],
             env=env,
@@ -211,14 +207,19 @@ def test_tc_sg_14_empty_input_gate_absent_blocked():
             capture_output=True,
             text=True,
         )
+    finally:
+        _TEMP_GATE.unlink(missing_ok=True)
     assert result.returncode == 2
 
 
 def test_tc_sg_15_empty_input_gate_present_allowed():
     """TC-SG-15: Empty CLAUDE_TOOL_INPUT with gate present — allowed (falls to gate check)."""
-    env = {k: v for k, v in os.environ.items() if k != "CLAUDE_TOOL_INPUT"}
-    env.pop("SKIP_SESSION_GATE_CHECK", None)
-    with _gate_state(True):
+    _TEMP_GATE.parent.mkdir(parents=True, exist_ok=True)
+    _TEMP_GATE.write_text("1")
+    try:
+        env = {k: v for k, v in os.environ.items() if k != "CLAUDE_TOOL_INPUT"}
+        env.pop("SKIP_SESSION_GATE_CHECK", None)
+        env["SESSION_GATE_OVERRIDE"] = str(_TEMP_GATE)
         result = subprocess.run(
             [_BASH, _HOOK_ABS],
             env=env,
@@ -227,6 +228,8 @@ def test_tc_sg_15_empty_input_gate_present_allowed():
             capture_output=True,
             text=True,
         )
+    finally:
+        _TEMP_GATE.unlink(missing_ok=True)
     assert result.returncode == 0
 
 
