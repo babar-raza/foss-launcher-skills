@@ -22,7 +22,7 @@ S-84 handles change-driven refresh; S-87 handles audit-driven repair when S-84 e
 
 ## Pre-conditions
 
-1. Clone cache must exist at `{FOSS_LAUNCHER_PATH}/runs/.clone_cache/aspose_{family}_{platform}/`
+1. Clone cache must exist at `runs/.clone_cache/aspose_{family}_{platform}/`
    — if missing, run S-34 (repo-scout) first.
 2. Knowledge must not be stale: run `/knowledge-bootstrap` (S-54) first if `stale_since` is not null.
    Healing wrong content on a stale knowledge model produces wrong repairs.

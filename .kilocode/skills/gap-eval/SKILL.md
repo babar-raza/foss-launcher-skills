@@ -14,7 +14,7 @@ Expected format: `{family} {platform} [--scope all|products|docs|blog|kb|referen
 Evaluate all content for a family/platform against clone cache ground truth using a three-tier verification architecture (deterministic → vector → LLM). Produces a structured findings report and updates the per-product state file for delta tracking.
 
 ## Pre-conditions
-1. Clone cache must exist at `{FOSS_LAUNCHER_PATH}/runs/.clone_cache/aspose_{family}_{platform}/`
+1. Clone cache must exist at `runs/.clone_cache/aspose_{family}_{platform}/`
 2. Profile must exist at `scripts/gap-eval/profiles/{family}/{platform}.yaml`
    - If missing, run will create a minimal auto-detected profile
 3. Optional (Tier 2): API vectors at `knowledge/_vectors/{family}/{platform}/api.vectors.json`
@@ -35,7 +35,7 @@ Evaluate all content for a family/platform against clone cache ground truth usin
 .venv/Scripts/python scripts/gap-eval/validate_profile.py {family} {platform}
 ```
 
-If profile validation fails on clone cache path → check `FOSS_LAUNCHER_PATH` env var.
+If profile validation fails on clone cache path → check `ASPOSE_CLONE_CACHE` env var or verify clone cache exists.
 
 ### Step 2: (Optional) Build API surface vectors for Tier 2
 
@@ -103,7 +103,7 @@ Skip LLM (Tier 1+2 only, faster):
 | Error | Cause | Fix |
 |-------|-------|-----|
 | `PRECONDITION FAILED: api_surface.json not found` | Knowledge not bootstrapped | Run `/knowledge-bootstrap {family} {platform}` |
-| `PREREQUISITE FAILED: Clone cache not found` | Clone cache absent or FOSS_LAUNCHER_PATH not set | Run `/getting-started` step 4, or set `ASPOSE_CLONE_CACHE` env var |
+| `PREREQUISITE FAILED: Clone cache not found` | Clone cache absent at `runs/.clone_cache/` | Run `/getting-started` step 4, or set `ASPOSE_CLONE_CACHE` env var |
 | `Profile validation failed` | Missing or malformed profile YAML | Check `scripts/gap-eval/profiles/{family}/{platform}.yaml`; delete and re-run to auto-detect |
 | Exit code 2 (NOT PUBLISHABLE) | Mandatory findings in core content | Run `/gap-plan {family} {platform}` to generate fix specs |
 | `LLM endpoint unreachable` (Tier 3) | LLM API key missing or endpoint down | Set `LLM_API_KEY` env var, or use `--no-llm` to skip Tier 3 |

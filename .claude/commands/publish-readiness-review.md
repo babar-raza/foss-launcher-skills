@@ -223,7 +223,7 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
 
    **7h. H-05 license accuracy**:
    - Read `LICENSE` file from clone cache at
-     `{FOSS_LAUNCHER_PATH}/runs/.clone_cache/aspose_{family}_{platform}/LICENSE`
+     `runs/.clone_cache/aspose_{family}_{platform}/LICENSE`
    - Read license claim from products page frontmatter or prose.
    - If mismatch: record as ESCALATED with reason "license-mismatch" (real human required).
 

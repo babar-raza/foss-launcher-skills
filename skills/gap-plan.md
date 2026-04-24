@@ -8,7 +8,7 @@ Convert S-43 gap-eval findings into an exact, wave-ordered remediation plan. Use
 
 ## Pre-conditions
 1. `reports/gap-analysis/{family}-{platform}.json` must exist (run `/gap-eval {family} {platform}` first)
-2. Clone cache at `{FOSS_LAUNCHER_PATH}/runs/.clone_cache/aspose_{family}_{platform}/` (for evidence retrieval)
+2. Clone cache at `runs/.clone_cache/aspose_{family}_{platform}/` (for evidence retrieval)
 3. `LLM_API_KEY` env var recommended for best fix quality (falls back to Ollama llama3.2)
 
 ## Steps
