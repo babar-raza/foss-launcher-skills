@@ -1,6 +1,6 @@
 # AGENTS.md — Aspose.org Content Generation & Maintenance Governance
 
-> Last updated: 2026-04-18 (S-92 triage-confirm skill registered — OA-01 from validated-coalescing-porcupine forensic plan; Layer 2 body-prose staleness scanner); prior: 2026-04-17 (S-91 plan-normalize skill added — §12 S-91 registry entry; §6 plan execution gate section; §3 Mental Model Refresh bullet; provider mirrors + fixture tests created; CONVENTIONS.md Skill Quality Gates section added); prior: 2026-04-17 (governed-inspection plan cheeky-swimming-whistle — §7b/§7c/§8 updated: S-90 publish-readiness-review operationalizes "human-review" as agent-executable governed inspection; §7a H-gates mapped to S-90 execution; §6a DAR entries added for S-90; §9a UNKNOWN_CLASS triage updated to route to S-90 --triage-unknowns; §9c matrix row added for S-90; §12 S-90 registry entry added); prior: 2026-04-17 (forensic audit plan twinkling-forging-tiger — §9a: EVALUATOR_LOGIC_VERSION bumped to 12 (v11: encoding_check; v12: token_ops.py UNKNOWN_CLASS false-positive suppression via method/property membership check + Python built-in exceptions added to PLATFORM_SDK_CLASSES); §9c: token_ops.py UNKNOWN_CLASS WARN added — silent-skip removed for unknown CamelCase classes in constructor/method/property/enum verification; false positives suppressed by checking if identifier is a known method/property name on any class in api_surface; phantom_methods.py extended to docs/kb/blog dot-notation table entries; formats.json note/python PDF + words/python DOCX reclassified as functional; encoding_check evaluator added to ALL and DEFAULT sets; content_eval/cli.py direct-invocation guard added; §9a triage notes added for encoding_check, UNKNOWN_CLASS, and phantom_methods coverage); prior: 2026-04-13 (§12: S-88 backlog skill registered — unified backlog management with plan scanning, investigation items, archival, session handoff, reminders); prior: 2026-04-12 (§9c change-trigger matrix: added member-doc enrichment gate for batch_reference + description_coverage_audit.py reference; EVALUATOR_LOGIC_VERSION bumped to 6 for retired_at page skip in DescriptionCompletenessEvaluator); prior: 2026-04-10 (S-87 system-heal registered in §12, §6a DAR, §6 audit-driven healing chain; --no-tier3-cache flag documented in §12 S-43 flags); prior: 2026-04-09 (§2/§3 fix knowledge artifact paths to match actual `merged/` directory; remove nonexistent `claims.md` reference); prior: 2026-04-08 (§6f blog slug governance — features post slug is cluster-derived; banned pattern enforced by plan_blog() validator); prior: 2026-04-07 (§7a translation-staging-order governance rule; §6e ceiling-reached terminal state); prior: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline)
+> Last updated: 2026-04-24 (S-93/S-94/S-95 repo-patrol/change-sweep/discovery-triage registered — TC-GOV-01 from discovery-plan dapper-splashing-bengio; §12 skill registry + §6a DAR + §9c change-trigger + §10c output-location updated); prior: 2026-04-18 (S-92 triage-confirm skill registered — OA-01 from validated-coalescing-porcupine forensic plan; Layer 2 body-prose staleness scanner); prior: 2026-04-17 (S-91 plan-normalize skill added — §12 S-91 registry entry; §6 plan execution gate section; §3 Mental Model Refresh bullet; provider mirrors + fixture tests created; CONVENTIONS.md Skill Quality Gates section added); prior: 2026-04-17 (governed-inspection plan cheeky-swimming-whistle — §7b/§7c/§8 updated: S-90 publish-readiness-review operationalizes "human-review" as agent-executable governed inspection; §7a H-gates mapped to S-90 execution; §6a DAR entries added for S-90; §9a UNKNOWN_CLASS triage updated to route to S-90 --triage-unknowns; §9c matrix row added for S-90; §12 S-90 registry entry added); prior: 2026-04-17 (forensic audit plan twinkling-forging-tiger — §9a: EVALUATOR_LOGIC_VERSION bumped to 12 (v11: encoding_check; v12: token_ops.py UNKNOWN_CLASS false-positive suppression via method/property membership check + Python built-in exceptions added to PLATFORM_SDK_CLASSES); §9c: token_ops.py UNKNOWN_CLASS WARN added — silent-skip removed for unknown CamelCase classes in constructor/method/property/enum verification; false positives suppressed by checking if identifier is a known method/property name on any class in api_surface; phantom_methods.py extended to docs/kb/blog dot-notation table entries; formats.json note/python PDF + words/python DOCX reclassified as functional; encoding_check evaluator added to ALL and DEFAULT sets; content_eval/cli.py direct-invocation guard added; §9a triage notes added for encoding_check, UNKNOWN_CLASS, and phantom_methods coverage); prior: 2026-04-13 (§12: S-88 backlog skill registered — unified backlog management with plan scanning, investigation items, archival, session handoff, reminders); prior: 2026-04-12 (§9c change-trigger matrix: added member-doc enrichment gate for batch_reference + description_coverage_audit.py reference; EVALUATOR_LOGIC_VERSION bumped to 6 for retired_at page skip in DescriptionCompletenessEvaluator); prior: 2026-04-10 (S-87 system-heal registered in §12, §6a DAR, §6 audit-driven healing chain; --no-tier3-cache flag documented in §12 S-43 flags); prior: 2026-04-09 (§2/§3 fix knowledge artifact paths to match actual `merged/` directory; remove nonexistent `claims.md` reference); prior: 2026-04-08 (§6f blog slug governance — features post slug is cluster-derived; banned pattern enforced by plan_blog() validator); prior: 2026-04-07 (§7a translation-staging-order governance rule; §6e ceiling-reached terminal state); prior: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline)
 > Authority: Human maintainer only (see Section 4 — this file is in the forbidden write list)
 
 <details>
@@ -705,6 +705,8 @@ Agents must activate the upstream skill if it has not already been confirmed as 
 | `/publish-readiness-review` (S-90) | S-25 `/eval-page` or content_eval | Grades must be current at EVALUATOR_LOGIC_VERSION |
 | `/backlog harvest` (S-88) | `report_extract.py` | Always (extracts open items from reports) |
 | `/backlog harvest` (S-88) | `harvest_ledger.py` | Always (tracks harvest state and dedup) |
+| `/discovery-triage` (S-95) | S-93 `/repo-patrol` | When routing patrol findings (patrol_report.json must exist from current or prior session) |
+| `/discovery-triage` (S-95) | S-94 `/change-sweep` | When routing sweep findings (sweep_report.json must exist from current or prior session) |
 | Any content write | S-01 `/path-guard` | Always (final gate) |
 
 If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do not continue to the downstream skill.
@@ -1225,19 +1227,26 @@ Do NOT bump for:
 
 ### What `graded_logic_version` means
 
-`graded_logic_version` in page frontmatter records which version of the evaluator logic produced the stored grade. When `--skip-graded` is used, a page is only skipped when all three conditions are true:
+`graded_logic_version` in page frontmatter records which version of the evaluator logic produced the stored grade. When `--skip-graded` is used, a page is only skipped when all four conditions are true:
 
 | Condition | Frontmatter field checked |
 |-----------|--------------------------|
 | Graded with the full default evaluator set | `graded_evaluators: full` |
 | Knowledge has not changed since grading | `graded_model_sha` matches current `repo_sha` |
 | Evaluator logic has not changed since grading | `graded_logic_version` matches `EVALUATOR_LOGIC_VERSION` |
+| Knowledge enrichment quality has not improved since grading | `graded_enrichment_status` matches current `enrichment_status` |
+
+The `graded_enrichment_status` field records the enrichment quality at grading time (`full` or `scout-only`). If enrichment later succeeds on the same repo SHA, pages graded under `scout-only` knowledge will be re-evaluated once — their stored grade reflects degraded knowledge and must be refreshed. After that single wave, grades persist normally. For products bootstrapped before enrichment tracking was added, the field is absent and treated as `full` (backward-compatible: those products were enriched; the field simply wasn't recorded).
 
 Re-grading a page that did not need it is always safe — results are idempotent.
 
 ### Using `--skip-graded` safely
 
 `--skip-graded` speeds up incremental runs after minor content edits. After bumping `EVALUATOR_LOGIC_VERSION`, run a full sweep **without** `--skip-graded` first so all pages are re-graded and stamped with the new version before any skipping occurs.
+
+If enrichment quality improves for a product (e.g., a scout-only bootstrap later completes full enrichment), the next `--skip-graded` run will trigger a one-time re-evaluation wave for that product's pages. This is expected behavior — it corrects grades produced under degraded knowledge. The wave is bounded: once pages are re-graded with `graded_enrichment_status: full`, subsequent `--skip-graded` runs skip them normally.
+
+All skip-graded logic and grade writing is owned by `EvalRunner` (`content_eval/runner.py`). The CLI delegates to it; do not bypass the runner to write grades directly.
 
 ### Evaluator-specific triage notes (updated 2026-04-17)
 
@@ -1300,9 +1309,74 @@ Any commit touching ≥20 .md files with grade-only frontmatter changes (no body
 - Commit message: `BULK-GRADE-MIGRATION: approved by [name] on [date], reason: [policy trigger]`
 - Entry in `reports/migrations/MIGRATION_LOG.md`
 
-**Grade contract:** See `GRADE_CONTRACT.md` (v1.0) for frozen grade semantics, canonical schema, and change protocol.
-**Governing plan:** `C:\Users\prora\.claude\plans\curried-pondering-music.md` FINAL ARCHITECTURE §4, §15.5
-**Effective:** 2026-04-21 | **Status:** ACTIVE
+**Grade contract:** See `GRADE_CONTRACT.md` (v1.1) for frozen grade semantics, canonical schema, and change protocol.
+**Governing plan:** `C:\\Users\\prora\\.claude\\plans\\curried-pondering-music.md` FINAL ARCHITECTURE §4, §15.5
+**Effective:** 2026-04-21 | **Last amended:** 2026-04-24 | **Status:** HARD FROZEN
+
+---
+
+### Hard-Freeze Governance Declaration (Part 21 — effective 2026-04-24)
+
+**Owner approved the hard-freeze governance model on 2026-04-24.**
+
+> **Content may continue changing. Canonical grading behavior may not.**
+
+The following are frozen by governance declaration:
+
+| Frozen item | Where defined | Enforcement |
+|---|---|---|
+| Grade letter semantics (A-F scale) | GRADE_CONTRACT.md §1 | Contract version bump required |
+| Critical category rules (FC/PC/TA → F) | GRADE_CONTRACT.md §2 | Contract version bump required |
+| Category ceiling structure | GRADE_CONTRACT.md §3 | Contract version bump required |
+| Canonical frontmatter schema (3 fields: grade, graded_content_hash, grade_reasons) | GRADE_CONTRACT.md §4, grade_writer.py | `CANONICAL_FRONTMATTER_FIELDS` frozenset |
+| Frontmatter write policy semantics | GRADE_CONTRACT.md §5, grade_writer.py | `_should_write_canonical_grade()` gate |
+| Canonical evaluator set (10 evaluators) | config.py `CANONICAL_EVALUATORS` | Contract version bump + graduation protocol |
+| ELV (no bumps except break/fix) | §9a moratorium | GUARD-01 + GUARD-02 |
+
+What freeze does NOT prohibit: body-content edits by skills/humans, re-grading after body edits, experimental evaluator work, manifest updates, MIG-01 bulk operational field strip, threshold tweaks within experimental evaluators.
+
+`EVALUATOR_FREEZE_VERSION = "16"` is now set in `content_eval/__init__.py`. Any ELV bump must also update this constant with documented justification.
+
+---
+
+### Universal Skill Contract (Part 21 §21.5 — effective 2026-04-24)
+
+**Applies to all skills that modify content files.**
+
+1. **If a skill materially changes page body content, it MUST invoke the grading system in its verify/persist path.** Invocation: `content_eval evaluate --write-grade-if-policy-met` (or `--write-grade-force` for approved batch operations).
+
+2. **If a skill performs analysis only (no body edit), it MAY run report-only evaluation** (no `--write-grade` flag). Report-only updates manifest only, not frontmatter.
+
+3. **A skill MUST NOT write canonical frontmatter for operational-only changes.** If only metadata changed but body did not change, no frontmatter write is permitted. The write policy gate enforces this automatically.
+
+4. **A skill MUST respect canonical/experimental separation.** Experimental evaluator findings MUST NOT appear in `grade_reasons` or affect the canonical grade letter.
+
+5. **A skill MUST NOT change canonical grading behavior** (evaluator code, canonical evaluator set, grade semantics, write policy logic, ELV) **unless the Emergency Grading-Change Protocol (below) is invoked.**
+
+Current compliance gaps (backlog, not blocking): S-19, S-20, S-21 edit body content but do not invoke grading in their persist path. The write policy gate still prevents churn; the next evaluation run picks up body changes via content_hash mismatch.
+
+---
+
+### Emergency Grading-Change Protocol (Part 21 §21.6 — effective 2026-04-24)
+
+**When this protocol applies:**
+- A canonical evaluator produces confirmed false results (wrong FAIL or wrong PASS) on real pages
+- A safety defect: a canonical evaluator misses genuinely dangerous content
+- A critical category rule is provably wrong
+
+**When this protocol does NOT apply:** precision improvements to experimental evaluators, threshold tweaks within experimental evaluators, adding new experimental evaluators, content body edits by skills or humans.
+
+**Steps:**
+1. Document the defect — cite specific affected pages, classify as safety (same-day) or accuracy (48h).
+2. Obtain human approval — owner must explicitly approve. No agent may proceed without approval.
+3. Fix the evaluator — minimum necessary change; do not bundle unrelated improvements.
+4. Bump ELV — update `EVALUATOR_LOGIC_VERSION` in `__init__.py` AND update `EVALUATOR_FREEZE_VERSION` to match.
+5. Create MIGRATION_LOG.md entry — document what changed, why, which pages affected, approval reference.
+6. Re-evaluate affected pages only — run `content_eval evaluate --write-grade-if-policy-met` on specific pages only.
+7. Invalidate prior readiness verdicts if MIG-01 has not yet executed.
+8. Update GRADE_CONTRACT.md if frozen items changed — bump contract version.
+
+**Key constraint:** Break/fix only. Not a backdoor for calibration or precision improvements.
 
 ---
 
@@ -1347,6 +1421,8 @@ Use this matrix to decide what action is required when a specific artifact or sc
 | `enrich.py --mode member-doc` completed | Run `promote.py` to merge enriched claims, then verify coverage with `description_coverage_audit.py` | Per product |
 | Refresh produces `coverage_report.md` showing < 100% subdomain coverage | Re-run `/refresh-product {family} {platform}` to fill gaps; or manually run `refresh_review.py {family} {platform} --report` to assess which subdomains were missed | Per product |
 | Qualifying report written to `reports/` | Automatic harvest via producing skill (S-87 Phase 8 step 10, S-76 step 5b); safety net via `/backlog update` step 1b and `/session-start` step 6 advisory | Per report |
+| `data/products.json` new candidate added (S-93 `--apply`) | Run S-95 `/discovery-triage` to route candidate to backlog | Per discovery scan |
+| All active products swept for SHA changes (S-94) | Run S-95 `/discovery-triage` to route HIGH/MEDIUM findings to backlog items | Per sweep |
 
 **Manual edit after content-only change**: Use S-73 (manual-edit) → re-run S-23 + audit.py. Do not re-run knowledge bootstrap unless `stale_since` is set — content-only edits do not require knowledge regeneration.
 
@@ -1746,6 +1822,7 @@ All agent-generated artifact files must be written to their designated location.
 | Compliance observations + proof bundles | `reports/compliance/`, `reports/proofs/` | Any git-tracked path |
 | Design documents (schema, evaluator specs) | `reports/design/` | `knowledge/`, `content/`, skills/ |
 | Override tokens | `reports/overrides/pending/` | Any git-tracked path |
+| Discovery patrol/sweep reports + history | `reports/discovery/`, `reports/discovery/history/` | Any git-tracked path |
 
 **`reports/` is a strict local artifact boundary.** Nothing under `reports/` may ever be staged or committed. The pre-commit hook enforces this. If you need a design document to persist across sessions, it must live in `reports/design/` (local-only) — not in `knowledge/` or `content/`.
 
@@ -1967,6 +2044,9 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | publish-readiness-review | S-90 | Agent-executed governed inspection — replaces all "human-review" dead-ends with bounded inspection, judgment, skill routing, re-verification, and verdict; reads audit context, classifies pages (PUBLISH-READY / NEEDS-ACTION / ACCEPTABLE-GRADE-C / STRUCTURAL-GAP / BLOCKED), routes to S-21/S-26/batch-reference/S-65/S-38/S-73/S-74; H-gate equivalents for H-01..H-05; writes inspection-manifest.json + action-log.json + final-verdict.md; supports --scope, --triage-unknowns, --dry-run; backs `skills/publish-readiness-review.md` |
 | plan-normalize | S-91 | Execution-safe plan quality gate — classifies every section of a plan (historical-reference / verified-current-state / completed-archive / open-actionable / operator-guidance / design-rationale / intentionally-omitted), verifies claims against current repo state, extracts only still-open work, marks each item ready/blocked/stale/already-done/needs-replan, selects single next executable item, blocks execution on ambiguous sections or unverified capabilities; modes: assess (verdict only), amend (writes exec-pack sibling or edits in-place), launch (assess + amend + execute first safe item); mandatory gate before executing inherited, long, amended, or archive-containing plans; backs `skills/plan-normalize.md` |
 | triage-confirm | S-92 | Layer 2 body-prose staleness scanner for the refresh pipeline — complements Layer 1 SHA-based detection (refresh_knowledge.py) by scanning page body prose for references to API classes or knowledge claims that have changed or been removed; returns stale/current verdict with per-finding reasons; invoked by S-84 (refresh-product) Step 9.5 and S-89 (heal-batch) triage phase; backs `scripts/pipeline/triage_confirm.py` + `scripts/pipeline/reconcile_triage.py`; skill file: `skills/triage_confirm.md` |
+| repo-patrol | S-93 | Discover new FOSS repos across 26 GitHub orgs, score confidence, and produce `reports/discovery/patrol_report.json`; default dry-run (no registry changes); `--apply` adds candidates to `data/products.json` with `status: candidate`; `--inactive-days` threshold (default 180); `--force` re-evaluates rejected repos; backs `scripts/pipeline/repo_patrol.py scan`; skill file: `skills/repo-patrol.md` |
+| change-sweep | S-94 | Batch SHA comparison across all active launched products in `data/products.json`; reads `knowledge/{family}/{platform}/merged/model.yaml` stored SHA, updates clones, classifies impact HIGH/MEDIUM/LOW; produces `reports/discovery/sweep_report.json`; read-only (does NOT set `stale_since` — S-12's job); backs `scripts/pipeline/repo_patrol.py sweep`; skill file: `skills/change-sweep.md` |
+| discovery-triage | S-95 | Route patrol and sweep reports to backlog actions — reads `reports/discovery/patrol_report.json` + `sweep_report.json`, creates backlog items per §9 decision trees; **MVP: NEVER directly invokes S-12 or S-84** — all findings route to backlog items only; direct auto-refresh gated behind TC-GATE-01 post-pilot; backs `skills/discovery-triage.md` |
 
 **S-43 (gap-eval) CLI flags:**
 - `--deterministic` — Exhaustive Stage 2 + no LLM (Tier 1 + Tier 2 only). Fully reproducible. Recommended for regression tracking and CI integration.

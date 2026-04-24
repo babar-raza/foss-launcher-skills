@@ -67,7 +67,7 @@ def run_sweep(
     ----------
     seed_findings : findings from the target product evaluation
     all_products : dict of (family, platform) → list of Page objects
-    evaluator_runner : callable(page, evaluator_names, knowledge) → list[Finding]
+    evaluator_runner : callable(page, evaluator_names) → list[Finding]
     exclude : (family, platform) to skip (the seed product)
 
     Returns
