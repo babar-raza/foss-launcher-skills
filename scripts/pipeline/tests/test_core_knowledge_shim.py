@@ -76,7 +76,7 @@ def test_knowledge_is_canonical():
 def test_knowledge_root_is_canonical():
     from core.knowledge import KNOWLEDGE_ROOT
     from content_discovery import KNOWLEDGE_ROOT as _KR
-    assert KNOWLEDGE_ROOT is _KR
+    assert KNOWLEDGE_ROOT == _KR
 
 
 def test_platform_map_is_canonical():

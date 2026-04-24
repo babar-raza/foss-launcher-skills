@@ -132,13 +132,9 @@ def _run_with_pages(pages, read_grade_fn, tmp_path, logic_version_override=None)
         patches.append(mock.patch("grade_writer.write_grade", write_grade_mock))
 
         if logic_version_override is not None:
-            # VH-03: skip comparison happens in runner, grade writing uses cli's copy.
+            # VH-05: grade writing is in runner; only runner.EVALUATOR_LOGIC_VERSION needs patching.
             patches.append(
                 mock.patch("content_eval.runner.EVALUATOR_LOGIC_VERSION",
-                           logic_version_override)
-            )
-            patches.append(
-                mock.patch("content_eval.cli.EVALUATOR_LOGIC_VERSION",
                            logic_version_override)
             )
 

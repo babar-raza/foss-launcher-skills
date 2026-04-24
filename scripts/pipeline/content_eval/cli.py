@@ -8,9 +8,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import EVALUATOR_LOGIC_VERSION, EVALUATOR_VERSIONS, __version__
+from . import __version__
 from .config import ALL_EVALUATORS, DEFAULT_EVALUATORS
-from .models import EvalReport, Finding, compute_grade_with_criticality
 
 
 def _log(*args, **kwargs):
