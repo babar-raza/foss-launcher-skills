@@ -3,7 +3,7 @@
 > **Generated file** — do not edit directly.
 > Edit `scripts/pipeline/registry.yaml` and run `python scripts/ci/render_inventory.py`.
 
-Total scripts: **110**
+Total scripts: **112**
 
 ## Content Quality (15 files)
 
@@ -104,10 +104,11 @@ Total scripts: **110**
 | `provenance.py` | library | active | internal | — | read/write provenance metadata in YAML frontmatter |
 | `session_logger.py` | library | active | internal | — | log skill invocations to reports/session-invocations/ |
 
-## Governance (12 files)
+## Governance (14 files)
 
 | Script | Kind | Lifecycle | Backing | Change Impact | Notes |
 |--------|------|-----------|---------|---------------|-------|
+| `check_dar_prerequisites.py` | entrypoint | active | internal | — | DAR prerequisite enforcer; called by skill_context.py begin --check-dar |
 | `launch_rollback.py` | entrypoint | active | skill/launch-rollback | — | S-79: revert one product's generated content files after a flawed launch; reads site_plan.yaml; protects system files |
 | `override_manager.py` | entrypoint | active | internal | — | GOVERNANCE: override token lifecycle; DO NOT MOVE OR RENAME |
 | `path_guard.py` | entrypoint | active | internal | — | GOVERNANCE: forbidden write-path enforcement oracle; DO NOT MOVE OR RENAME |
@@ -118,6 +119,7 @@ Total scripts: **110**
 | `section_enhance_validator.py` | library | active | skill/section-enhance | — | S-96 Phase 1 audit output validator: artifact completeness, manifest schema, adapter isolation, no-write detection, zero-proposal acceptance, slug validation |
 | `session_ledger.py` | entrypoint | active | skill/commit | — | GOVERNANCE: session-scoped file touch ledger for /commit scoping |
 | `site_planner.py` | entrypoint | active | skill/site-plan | MEDIUM: 1756 lines; cluster detection mixed with manifest generation; deferred refactor | GOVERNANCE: site manifest generator; DO NOT MOVE OR RENAME |
+| `skill_chain.py` | entrypoint | active | internal | — | TC-SR-04: resolve ordered DAR prerequisite chain for a skill; --check-session verifies session satisfaction |
 | `skill_context.py` | library | active | internal | — | GOVERNANCE: active-skill state machine for PreToolUse hook enforcement |
 | `skill_run_manager.py` | entrypoint | active | internal | — | GOVERNANCE: skill run record management; DO NOT MOVE OR RENAME |
 
