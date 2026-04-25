@@ -23,6 +23,10 @@ and provides session handoff for context switches.
 
 All backlog state lives in `backlog/` (gitignored, internal-only).
 
+## Pre-conditions
+
+1. `backlog/` directory exists with `BACKLOG.md`, `REMINDERS.md`, `HANDOFF.md`, and `inbox.md`
+
 ## Subcommands
 
 ### `/backlog` (no args) — Briefing View
