@@ -7,7 +7,7 @@ preconditions:
   - reports/discovery/sweep_report.json exists (from S-94)
 postcondition: backlog/inbox.md updated with new items for each finding
 idempotent: no (creates backlog items; check for duplicates before re-running)
-verified: false
+verified: '2026-04-26'
 -->
 
 ## Purpose

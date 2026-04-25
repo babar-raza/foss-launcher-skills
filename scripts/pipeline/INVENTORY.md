@@ -3,7 +3,7 @@
 > **Generated file** — do not edit directly.
 > Edit `scripts/pipeline/registry.yaml` and run `python scripts/ci/render_inventory.py`.
 
-Total scripts: **109**
+Total scripts: **110**
 
 ## Content Quality (15 files)
 
@@ -58,14 +58,14 @@ Total scripts: **109**
 | `check_grade_downgrade.py` | entrypoint | active | workflow/content-audit.yml | — | CI: detect grade downgrades in modified files |
 | `check_grade_integrity.py` | entrypoint | active | workflow/content-audit.yml | — | CI: validate grade block structure |
 | `check_grade_presence.py` | entrypoint | active | workflow/content-audit.yml | — | CI: verify grades in frontmatter of modified files |
-| `check_graded_at_only.py` | entrypoint | active | internal | — | pre-commit hook Step 7: classify staged .md files where only graded_at: changed |
+| `check_graded_at_only.py` | entrypoint | active | internal | — | pre-commit hook Step 10 + S-76 Step B.4: classify staged or worktree .md files where only graded_at: changed; Case A = revert, B/C = pass, D = fail-closed |
 | `fix_grade_field_order.py` | entrypoint | active | internal | — | One-shot bulk repair: reorder grade frontmatter fields to canonical order |
 | `grade_manifest.py` | library | active | internal | — | ARCH-01: external grade manifest — stores per-page operational evaluation state outside .md files |
 | `grade_writer.py` | library | active | internal | — | read/write grade metadata in YAML frontmatter; style-preserving |
 | `migrate_strip_operational_frontmatter.py` | one-shot | active | internal | — | MIG-01: strip operational grade fields from .md frontmatter (Wave 5 migration) |
 | `seed_grade_manifest.py` | one-shot | active | internal | — | ARCH-05: one-time seeding of grade_manifest.json from existing frontmatter |
 
-## Content Governance (14 files)
+## Content Governance (15 files)
 
 | Script | Kind | Lifecycle | Backing | Change Impact | Notes |
 |--------|------|-----------|---------|---------------|-------|
@@ -76,6 +76,7 @@ Total scripts: **109**
 | `description_coverage_audit.py` | entrypoint | active | internal | — | per-product ERC api-kind member-doc coverage audit; scans claims.json vs api_surface.json; emits stdout table + knowledge/description_coverage_report.json; exit 1 if any product below --min-coverage threshold |
 | `human_review_sampler.py` | entrypoint | active | workflow/launch-product | — | H-gate sampling and sign-off generation for human review gates H-01 through H-05 |
 | `launch_gate.py` | entrypoint | active | workflow/launch-product | — | pre-launch readiness checker; 8 automated gates (L-01 through L-08) |
+| `readiness_gate.py` | entrypoint | active | workflow/system-heal | — | TC-08 unified readiness gate: aggregates skill-sync, provider-sync, DAR, knowledge staleness, proof index, and launch-gate into one verdict |
 | `readiness_scorecard.py` | entrypoint | active | workflow/launch-product | — | Stage 8 readiness scorecard for launch-product; collects grades and translation coverage |
 | `sync_providers.py` | entrypoint | active | internal | — | propagate canonical skills/ to .agents/, .claude/commands/, .kilocode/ trees |
 | `sync_skills.py` | entrypoint | active | workflow/content-audit.yml | — | CI parity check: canonical skills/ must match all provider copies |

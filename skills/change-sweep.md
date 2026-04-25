@@ -7,7 +7,7 @@ preconditions:
   - Clone cache populated (runs/.clone_cache/) or network available to fetch
 postcondition: reports/discovery/sweep_report.json created; reports/discovery/history/ updated
 idempotent: yes (read-only; only fetches upstream clones)
-verified: false
+verified: '2026-04-26'
 -->
 
 ## Purpose

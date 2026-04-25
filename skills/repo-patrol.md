@@ -7,7 +7,7 @@ preconditions:
   - data/products.json exists (may be empty)
 postcondition: reports/discovery/patrol_report.json created; reports/discovery/history/ updated
 idempotent: yes (--dry-run by default; --apply writes registry)
-verified: false
+verified: '2026-04-26'
 -->
 
 ## Purpose

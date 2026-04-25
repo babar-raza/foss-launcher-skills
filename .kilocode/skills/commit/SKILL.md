@@ -185,6 +185,61 @@ This returns a JSON object mapping group names to file lists. Each group becomes
 
 ---
 
+### B.4 — graded_at-only worktree cleanup
+
+**Before building the commit plan preview**, revert any candidate `.md` files whose only
+diff from HEAD is a changed `graded_at:` timestamp. These are non-meaningful metadata-only
+changes and MUST NOT be committed. Operates on the working tree (not staged index).
+
+```bash
+# Write candidate .md paths to a temp file
+# Use the candidate list from Step A.5 / B (English content .md files only)
+_tmpfile_ga=$(mktemp /tmp/ga-only-XXXXXX.txt 2>/dev/null || mktemp)
+printf '%s
+' "${candidate_md_files[@]}" > "$_tmpfile_ga"
+
+# Classify using worktree mode
+_ga_err=$(mktemp /tmp/ga-err-XXXXXX.txt 2>/dev/null || mktemp)
+ga_revert=()
+while IFS= read -r _f; do ga_revert+=("$_f"); done < <(
+    .venv/Scripts/python scripts/pipeline/check_graded_at_only.py         --files-from "$_tmpfile_ga" --mode worktree 2>"$_ga_err"
+)
+rm -f "$_tmpfile_ga"
+
+# Fail-closed on Case D (parse failure)
+if grep -q '^PARSE_FAILURE:' "$_ga_err" 2>/dev/null; then
+    echo "[B.4] BLOCKED: graded_at-only classifier failed:"
+    grep '^PARSE_FAILURE:' "$_ga_err" | sed 's/^PARSE_FAILURE:/  /'
+    rm -f "$_ga_err"
+    exit 1
+fi
+rm -f "$_ga_err"
+
+# Revert Case A files (graded_at-only diffs) from working tree
+if [ ${#ga_revert[@]} -gt 0 ]; then
+    printf '[B.4] Auto-reverting %d graded_at-only file(s):
+' "${#ga_revert[@]}"
+    for _f in "${ga_revert[@]}"; do
+        echo "  REVERT $_f"
+        git restore "$_f" 2>/dev/null || git checkout HEAD -- "$_f" 2>/dev/null
+    done
+fi
+```
+
+**After running this step**, remove any reverted files from the candidate list before
+building the commit plan preview (B.5). They should not appear in the plan at all.
+
+**Classification interpretation**:
+- Paths printed to stdout → **Case A** (graded_at-only diff) → reverted from working tree; excluded from plan
+- No output → **Cases B/C** (meaningful changes or no diff) → proceed normally
+- `PARSE_FAILURE:` on stderr → **Case D** → halt skill immediately with the message above
+- If `.venv` is absent → skip this step with a warning; the pre-commit hook Step 10 is the fallback safety net
+
+**Implementation note**: `scripts/pipeline/check_graded_at_only.py` is the authoritative
+classifier. See also: AGENTS.md §10b graded_at-only diff rule.
+
+---
+
 ### B.5 — Commit plan preview
 
 **Before any staging or committing**, present the commit plan to the user:
