@@ -27,5 +27,5 @@ Item 2 is blocked until item 1 is complete.
 ## Plan Normalization Record
 
 - Normalized: 2026-04-26
-- Normalizer: S-76 Sprint 2 fixture maintenance
+- Normalizer: S-76 TC-S2-02 fixture maintenance
 - Changes: added this section to satisfy PQ-02 time-threshold rule permanently
