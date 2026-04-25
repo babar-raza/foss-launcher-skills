@@ -107,7 +107,10 @@ class EvalRunner:
 
         report = EvalReport(
             evaluators_run=list(self.evaluator_names),
-            scope={"target": target_str, "files": []},
+            scope={
+                "target": target_str,
+                "files": [str(p.filepath) for p in pages],
+            },
         )
 
         # Cache knowledge per (family, platform) key — exposed as public attribute

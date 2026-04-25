@@ -491,3 +491,48 @@ class TestEnrichmentWarning:
         captured = capsys.readouterr()
         # Warning must appear exactly once, not once per page
         assert captured.err.count("scout-only") == 1
+
+
+# ---------------------------------------------------------------------------
+# GAP-10 regression: scope.files must be populated from evaluated pages
+# ---------------------------------------------------------------------------
+
+class TestScopeFilesPopulated:
+    """Regression for GAP-10: scope.files was always [] regardless of input."""
+
+    def test_scope_files_populated_single_page(self, tmp_path):
+        """scope.files must list evaluated file paths, not be empty."""
+        page = _page(
+            prose_lines=["word " * 5] * 3,
+            filepath="content/docs.aspose.org/en/note/python/guide.md",
+        )
+        runner = EvalRunner(["consumer_usefulness"], knowledge_root=tmp_path)
+        report = runner.run([page])
+        assert len(report.scope["files"]) == 1
+        assert "guide.md" in report.scope["files"][0]
+
+    def test_scope_files_populated_multiple_pages(self, tmp_path):
+        """scope.files must list all evaluated file paths."""
+        pages = [
+            _page(
+                prose_lines=["word " * 5] * 3,
+                filepath=f"content/docs.aspose.org/en/note/python/page{i}.md",
+            )
+            for i in range(3)
+        ]
+        runner = EvalRunner(["consumer_usefulness"], knowledge_root=tmp_path)
+        report = runner.run(pages)
+        assert len(report.scope["files"]) == 3
+
+    def test_scope_files_empty_on_no_pages(self, tmp_path):
+        """scope.files is [] when no pages are evaluated."""
+        runner = EvalRunner(["consumer_usefulness"], knowledge_root=tmp_path)
+        report = runner.run([])
+        assert report.scope["files"] == []
+
+    def test_scope_target_files_label_set(self, tmp_path):
+        """When target_str is 'files', scope.target reflects that."""
+        page = _page(prose_lines=["word " * 5] * 3)
+        runner = EvalRunner(["consumer_usefulness"], knowledge_root=tmp_path)
+        report = runner.run([page], target_str="files")
+        assert report.scope["target"] == "files"
