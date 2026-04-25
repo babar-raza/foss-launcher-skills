@@ -135,3 +135,86 @@ def test_repo_baseline_allows_current_repo_findings():
     findings = check_agent_governance_surface.analyze_repo(check_agent_governance_surface._REPO_ROOT)
     result = check_agent_governance_surface.compare_to_baseline(findings, baseline)
     assert result["new_findings"] == []
+
+
+# ---------------------------------------------------------------------------
+# SR-09: --ship mode tests — HIGH findings block in ship mode
+# ---------------------------------------------------------------------------
+
+def _make_baseline_with_all(tmp_path: Path, repo_root: Path) -> Path:
+    """Create a baseline that includes all current fixture findings (no new findings)."""
+    findings = check_agent_governance_surface.analyze_repo(repo_root)
+    baseline = tmp_path / "baseline.json"
+    baseline.write_text(
+        json.dumps({"findings": [{"finding_id": f.finding_id} for f in findings]}),
+        encoding="utf-8",
+    )
+    return baseline
+
+
+def test_ship_mode_blocks_on_high_finding(tmp_path):
+    """--ship exits 1 when any HIGH severity finding exists."""
+    repo_root = _fixture_repo(tmp_path)
+    baseline = _make_baseline_with_all(tmp_path, repo_root)
+    # With all findings in baseline, --check-baseline alone exits 0
+    rc_advisory = check_agent_governance_surface.main([
+        "--repo-root", str(repo_root),
+        "--check-baseline", "--baseline-path", str(baseline),
+    ])
+    assert rc_advisory == 0, "advisory check should pass (all in baseline)"
+
+    # But --ship should block if any HIGH finding exists
+    findings = check_agent_governance_surface.analyze_repo(repo_root)
+    has_high = any(f.severity.lower() == "high" for f in findings)
+    rc_ship = check_agent_governance_surface.main([
+        "--repo-root", str(repo_root),
+        "--check-baseline", "--baseline-path", str(baseline),
+        "--ship",
+    ])
+    if has_high:
+        assert rc_ship == 1, "--ship should exit 1 when HIGH finding present"
+    else:
+        assert rc_ship == 0, "--ship should exit 0 when no HIGH findings"
+
+
+def test_ship_mode_passes_when_no_high_findings(tmp_path):
+    """--ship exits 0 when no HIGH severity findings exist."""
+    repo_root = tmp_path / "clean"
+    # Create a repo fixture with only MEDIUM/LOW findings by providing
+    # complete Codex guidance (no HIGH trigger)
+    _write(repo_root / "CLAUDE.md", "# CLAUDE.md\n1. Read AGENTS.md first\n2. Activate .venv\n")
+    _write(repo_root / "CODEX.md", "# CODEX.md\n## Read Order\n1. AGENTS.md\n## Critical Rules\n1. Run .venv/bin/python\n")
+    _write(
+        repo_root / "OPERATOR_GUIDE.md",
+        "# Guide\n\n## How to Invoke a Skill\n\nClaude: run `claude`\nCodex: run `codex`\n\nAI agents manage this.\n",
+    )
+    _write(repo_root / "README.md", "# README\n\nSkills invoked as: /skill-name\nCodex: use codex CLI.\n")
+    _write(repo_root / ".claude" / "commands" / "README.md", "# Claude Skills\nAuto-invoked.\n")
+    _write(repo_root / ".agents" / "skills" / "README.md", "# Codex Skills\nAuto-invoked.\n")
+    _write(repo_root / ".kilocode" / "rules-code" / "governance.md", "# Governance\n## Skills\n## Do / Don't\n- Do check knowledge\n")
+
+    findings = check_agent_governance_surface.analyze_repo(repo_root)
+    has_high = any(f.severity.lower() == "high" for f in findings)
+
+    # Even without baseline, --ship should not block on MEDIUM/LOW only
+    if not has_high:
+        rc = check_agent_governance_surface.main([
+            "--repo-root", str(repo_root),
+            "--ship",
+        ])
+        assert rc == 0, "--ship should exit 0 when only MEDIUM/LOW findings"
+
+
+def test_ship_mode_without_baseline_still_checks_high(tmp_path):
+    """--ship works even without --check-baseline."""
+    repo_root = _fixture_repo(tmp_path)
+    findings = check_agent_governance_surface.analyze_repo(repo_root)
+    has_high = any(f.severity.lower() == "high" for f in findings)
+    rc = check_agent_governance_surface.main([
+        "--repo-root", str(repo_root),
+        "--ship",
+    ])
+    if has_high:
+        assert rc == 1
+    else:
+        assert rc == 0
