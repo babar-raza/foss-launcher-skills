@@ -6,7 +6,7 @@
                     final-verdict.md written with PUBLISH | CONDITIONAL | BLOCKED recommendation
      idempotent: no — LLM-based fix skills vary; --dry-run flag enables safe re-inspection
      verified: 2026-04-17
-     depends_on: [S-54, S-25, S-90]
+     depends_on: [S-54, S-25]
 -->
 # S-90: Publish Readiness Review — Agent-Executed Governed Inspection
 
