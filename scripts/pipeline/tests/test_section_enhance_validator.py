@@ -332,7 +332,7 @@ class TestSlugValidation:
         assert valid is True
         assert err is None
 
-    def test_slug_with_digits_passes(self):
+    def test_slug_starting_with_digit_fails(self):
         valid, err = validate_proposal_slug("3d-model-loading")
         # starts with digit — should this fail? per spec: must start with a letter
         # "^[a-z][a-z0-9]*" — digit start fails
