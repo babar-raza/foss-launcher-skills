@@ -1,0 +1,7 @@
+{
+  "run_id": "test-kb-adapter",
+  "subdomain": "kb",
+  "adapters_activated": ["kb", "clone-cache", "sibling-content"],
+  "adapters_NOT_activated": ["docs", "products", "blog", "reference"],
+  "proposals_generated": 0
+}

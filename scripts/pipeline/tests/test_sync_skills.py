@@ -1,6 +1,7 @@
 """Tests for sync_skills.py — skill registry parity checks."""
 
 import pytest
+import sync_skills
 from sync_skills import (
     discover_canonical,
     discover_provider,
@@ -33,8 +34,33 @@ class TestDiscovery:
 class TestParity:
     """Test that canonical skills match providers (accounting for known exceptions)."""
 
-    def test_parity_check_passes(self):
-        """All providers match canonical after accounting for exceptions."""
+    def test_parity_check_passes(self, tmp_path, monkeypatch):
+        """check_parity() returns no issues when providers match canonical."""
+        # Create an isolated, fully-synced set of skill dirs so the test is
+        # hermetic and does not depend on real working-tree skill file state.
+        canonical = tmp_path / "skills"
+        canonical.mkdir()
+        content = "# S-99: Test Skill\n\n## Purpose\nA minimal test skill.\n"
+        (canonical / "test-skill.md").write_text(content, encoding="utf-8")
+
+        agents = tmp_path / "agents"
+        claude = tmp_path / "claude"
+        kilocode = tmp_path / "kilocode"
+        agents.mkdir(); claude.mkdir(); kilocode.mkdir()
+
+        (agents / "test-skill").mkdir()
+        (agents / "test-skill" / "SKILL.md").write_text(content, encoding="utf-8")
+        (claude / "test-skill.md").write_text(content, encoding="utf-8")
+        (kilocode / "test-skill").mkdir()
+        (kilocode / "test-skill" / "SKILL.md").write_text(content, encoding="utf-8")
+
+        monkeypatch.setattr(sync_skills, "CANONICAL_DIR", canonical)
+        monkeypatch.setattr(sync_skills, "PROVIDERS", {
+            "agents": agents,
+            "claude": claude,
+            "kilocode": kilocode,
+        })
+
         issues = check_parity()
         assert len(issues) == 0, (
             f"Parity check found {len(issues)} issue(s):\n"

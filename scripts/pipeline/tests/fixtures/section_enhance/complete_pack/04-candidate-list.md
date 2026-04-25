@@ -1,0 +1,1 @@
+# Candidate List (fixture stub)

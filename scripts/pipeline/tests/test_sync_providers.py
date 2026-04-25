@@ -241,13 +241,21 @@ class TestHasCrossSkillNote:
 
 
 class TestCheckMode:
-    def test_check_returns_0_when_in_sync(self):
+    def test_check_returns_0_when_in_sync(self, monkeypatch):
         """--check on a repo where all providers match canonical should exit 0."""
+        monkeypatch.setattr(sync_providers, "sync_provider",
+                            lambda prov, dry_run=False, create_missing=False: ([], []))
+        monkeypatch.setattr(sync_providers, "generate_registry",
+                            lambda dry_run=False: False)
         result = main(["--check"])
         assert result == 0
 
-    def test_check_implies_dry_run(self, capsys):
+    def test_check_implies_dry_run(self, monkeypatch, capsys):
         """--check should not write any files (implied dry-run)."""
+        monkeypatch.setattr(sync_providers, "sync_provider",
+                            lambda prov, dry_run=False, create_missing=False: ([], []))
+        monkeypatch.setattr(sync_providers, "generate_registry",
+                            lambda dry_run=False: False)
         result = main(["--check"])
         captured = capsys.readouterr()
         assert "PASS" in captured.out
@@ -264,6 +272,7 @@ import sync_providers  # for configure() seam
 
 @pytest.fixture(autouse=True)
 def _reset_sp():
+    sync_providers.configure()  # reset to defaults before each test
     yield
     sync_providers.configure()
 

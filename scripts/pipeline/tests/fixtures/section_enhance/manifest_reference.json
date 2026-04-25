@@ -1,0 +1,10 @@
+{
+  "run_id": "test-reference-adapter",
+  "subdomain": "reference",
+  "adapters_activated": ["reference", "clone-cache", "package-metadata"],
+  "adapters_NOT_activated": ["docs", "kb", "products", "blog"],
+  "api_surface_classes": 42,
+  "proposals_generated": 0,
+  "zero_proposal_reason": "All 42 api_surface classes have corresponding reference pages. No gaps detected.",
+  "zero_proposal_validation": "PASS"
+}

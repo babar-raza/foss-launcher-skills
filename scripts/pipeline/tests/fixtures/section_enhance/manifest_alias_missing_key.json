@@ -1,0 +1,11 @@
+{
+  "run_id": "test-alias-missing-key",
+  "adapters_activated": ["docs", "clone-cache"],
+  "adapters_NOT_activated": ["kb", "products", "blog", "reference"],
+  "input_aliases": [
+    {"from": "cells/net", "to": "fake/cells/net", "reason": "test alias", "evidence": "fixture"},
+    {"from": "cells/python", "to": "fake/cells/python", "reason": "test alias 2"},
+    {"from": "3d/net", "to": "fake/3d/net", "reason": "test alias 3", "evidence": "fixture"}
+  ],
+  "proposals_generated": 0
+}
