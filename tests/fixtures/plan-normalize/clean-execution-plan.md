@@ -23,3 +23,9 @@
 
 Fix broken cross-links (item 1): unblocked, named files, clear validation.
 Item 2 is blocked until item 1 is complete.
+
+## Plan Normalization Record
+
+- Normalized: 2026-04-26
+- Normalizer: S-76 Sprint 2 fixture maintenance
+- Changes: added this section to satisfy PQ-02 time-threshold rule permanently
