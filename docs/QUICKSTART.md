@@ -192,7 +192,7 @@ Full workflow: `docs/discovery-workflow.md`.
 
 # New operator: start a fresh session and inherit prior work
 /session-start
-python scripts/pipeline/session_ledger.py inherit
+.venv/Scripts/python scripts/pipeline/session_ledger.py inherit
 ```
 
 The `inherit` command finds the most recent closed session and adopts all its

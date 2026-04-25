@@ -101,42 +101,41 @@ If you need to run a skill's script portions without an active agent session:
 > check, skill context gate, content write gate, content edit gate) only fire inside
 > Claude Code. They do NOT run when you execute scripts from a terminal directly.
 > To compensate, run these equivalents manually after any content changes:
-> - Path governance: `python scripts/pipeline/path_guard.py {path}`
-> - API accuracy: `python scripts/pipeline/audit.py {family} {platform}`
-> - Frontmatter: `python scripts/pipeline/validate_frontmatter.py {file}`
+> - Path governance: `.venv/Scripts/python scripts/pipeline/path_guard.py {path}`
+> - API accuracy: `.venv/Scripts/python scripts/pipeline/audit.py {family} {platform}`
+> - Frontmatter: `.venv/Scripts/python scripts/pipeline/validate_frontmatter.py {file}`
 
 ### knowledge-update (S-14)
 Runs all 4 knowledge pipeline steps:
 ```bash
-source .venv/bin/activate  # or .venv/Scripts/activate on Windows
-repo_path=$(python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
-python scripts/pipeline/refresh_knowledge.py {family} {platform} $repo_path
+repo_path=$(.venv/Scripts/python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
+.venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform} $repo_path
 # Confirms completion: check knowledge/{family}/{platform}/merged/pipeline_run.json
 ```
 
 ### content-check (S-32)
 ```bash
-python scripts/pipeline/audit.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/audit.py {family} {platform}
 ```
 
 ### batch-eval-fix (S-41)
 ```bash
 # Step 1: Evaluate
-python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation
+.venv/Scripts/python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation
 # Step 2: Auto-fix
-python scripts/pipeline/remediate.py fix {eval-report-path}
+.venv/Scripts/python scripts/pipeline/remediate.py fix {eval-report-path}
 # Step 3: Refresh evidence
-python scripts/pipeline/attach_evidence.py --files {modified-files}
+.venv/Scripts/python scripts/pipeline/attach_evidence.py --files {modified-files}
 ```
 
 ### truth-audit (S-38)
 ```bash
-python scripts/pipeline/audit.py {family} {platform} --json
+.venv/Scripts/python scripts/pipeline/audit.py {family} {platform} --json
 ```
 
 ### translate
 ```bash
-python scripts/translator/cli.py batch {family} {platform} --locales all
+.venv/Scripts/python scripts/translator/cli.py batch {family} {platform} --locales all
 ```
 
 ---
@@ -168,28 +167,24 @@ If you add new content and see audit FAILs, check whether they are:
 ## §7 — Quick System Health Commands
 
 ```bash
-# Activate virtual environment first:
-source .venv/bin/activate         # Unix
-.venv/Scripts/activate            # Windows
-
 # API accuracy audit (0 FAILs in current baseline — see §6 and reports/audit/baseline-fail-counts.json)
-python scripts/pipeline/audit.py all
+.venv/Scripts/python scripts/pipeline/audit.py all
 
 # Content quality evaluation for a product
-python -m scripts.pipeline.content_eval evaluate 3d python --format json
+.venv/Scripts/python -m scripts.pipeline.content_eval evaluate 3d python --format json
 
 # Check knowledge model freshness
-python scripts/pipeline/project_phase_store.py get 3d python
+.venv/Scripts/python scripts/pipeline/project_phase_store.py get 3d python
 
 # Verify skill registry and sync parity
-python scripts/ci/check_skill_registry.py
-python scripts/pipeline/sync_skills.py --check
+.venv/Scripts/python scripts/ci/check_skill_registry.py
+.venv/Scripts/python scripts/pipeline/sync_skills.py --check
 
 # Check for new audit regressions vs baseline
-python scripts/ci/check_audit_regression.py audit-results.json reports/audit/baseline-fail-counts.json
+.venv/Scripts/python scripts/ci/check_audit_regression.py audit-results.json reports/audit/baseline-fail-counts.json
 
 # Run all tests
-python -m pytest scripts/ -q
+.venv/Scripts/python -m pytest scripts/ -q
 ```
 
 ---

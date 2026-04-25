@@ -301,6 +301,77 @@ class TestC5RunbookVenv:
         module.check_runbook_venv()
         assert not any("C5-VENV-PREFIX" in f for f in module._failures), module._failures
 
+    def test_bare_python_in_operator_guide_fails(self, tmp_path):
+        """OPERATOR_GUIDE.md with bare 'python scripts/' inside a code block is flagged."""
+        _make_repo(tmp_path)
+        (tmp_path / "OPERATOR_GUIDE.md").write_text(
+            "# Guide\n\n"
+            "```bash\npython scripts/pipeline/audit.py all\n```\n",
+            encoding="utf-8",
+        )
+        module._failures.clear()
+        module.check_runbook_venv()
+        assert any("C5-VENV-PREFIX" in f for f in module._failures), module._failures
+
+    def test_venv_prefixed_operator_guide_passes(self, tmp_path):
+        """OPERATOR_GUIDE.md with .venv/Scripts/python prefix passes C5."""
+        _make_repo(tmp_path)
+        (tmp_path / "OPERATOR_GUIDE.md").write_text(
+            "# Guide\n\n"
+            "See [AGENTS.md](AGENTS.md).\n\n"
+            "```bash\n.venv/Scripts/python scripts/pipeline/audit.py all\n```\n",
+            encoding="utf-8",
+        )
+        module._failures.clear()
+        module.check_runbook_venv()
+        assert not any("C5-VENV-PREFIX" in f for f in module._failures), module._failures
+
+    def test_bare_python_in_codex_md_fails(self, tmp_path):
+        """CODEX.md with bare 'python scripts/' inside a code block is flagged."""
+        _make_repo(tmp_path)
+        (tmp_path / "CODEX.md").write_text(
+            "# CODEX.md\n\n"
+            "```bash\npython scripts/pipeline/preflight.py <path>\n```\n",
+            encoding="utf-8",
+        )
+        module._failures.clear()
+        module.check_runbook_venv()
+        assert any("C5-VENV-PREFIX" in f for f in module._failures), module._failures
+
+    def test_venv_prefixed_codex_md_passes(self, tmp_path):
+        """CODEX.md with .venv/Scripts/python prefix passes C5."""
+        _make_repo(tmp_path)
+        (tmp_path / "CODEX.md").write_text(
+            "# CODEX.md\n\n"
+            "```bash\n.venv/Scripts/python scripts/pipeline/preflight.py <path>\n```\n",
+            encoding="utf-8",
+        )
+        module._failures.clear()
+        module.check_runbook_venv()
+        assert not any("C5-VENV-PREFIX" in f for f in module._failures), module._failures
+
+    def test_codex_md_absent_skipped_gracefully(self, tmp_path):
+        """If CODEX.md is absent, C5 skips it without error (unlike RUNBOOK.md which C4 catches)."""
+        _make_repo(tmp_path)
+        # CODEX.md is not created in _make_repo — it doesn't exist
+        assert not (tmp_path / "CODEX.md").exists()
+        module._failures.clear()
+        module.check_runbook_venv()
+        assert not any("C5-VENV-PREFIX" in f for f in module._failures), module._failures
+
+    def test_bare_python_in_prose_operator_guide_not_flagged(self, tmp_path):
+        """Bare 'python scripts/' in prose (outside code blocks) in OPERATOR_GUIDE.md is not flagged."""
+        _make_repo(tmp_path)
+        (tmp_path / "OPERATOR_GUIDE.md").write_text(
+            "# Guide\n\n"
+            "You can run python scripts/pipeline/audit.py manually.\n"
+            "```bash\n.venv/Scripts/python scripts/pipeline/audit.py all\n```\n",
+            encoding="utf-8",
+        )
+        module._failures.clear()
+        module.check_runbook_venv()
+        assert not any("C5-VENV-PREFIX" in f for f in module._failures), module._failures
+
 
 # ---------------------------------------------------------------------------
 # C6 — QUICKSTART.md structure
