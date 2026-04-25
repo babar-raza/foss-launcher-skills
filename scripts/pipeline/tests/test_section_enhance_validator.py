@@ -104,7 +104,7 @@ class TestManifestAliasFields:
         manifest = {"input_aliases": "not-a-list"}
         valid, errors = validate_manifest_aliases(manifest)
         assert valid is False
-        assert "input_aliases must be a list" in errors
+        assert any("input_aliases must be a list" in e for e in errors)
 
     def test_all_four_keys_required(self):
         manifest = {
