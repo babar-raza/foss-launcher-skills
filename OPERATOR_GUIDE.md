@@ -245,12 +245,21 @@ before others. For example, `/knowledge-bootstrap` must pass before any content 
 current product and verify required upstream checkpoints are set. If missing, run the
 upstream skill first.
 
-DAR compliance is currently enforced by agent instruction-following. The checkpoint store
-at `reports/phase_state.json` records which stages have been completed.
+DAR compliance is **code-enforced by default** (SR-04). When an agent opens a skill context
+via `skill_context.py begin`, the DAR prerequisite check runs automatically and exits 1 if
+required upstream skills have not yet run this session:
 
-**There is no code-level gate** that prevents out-of-order skill invocation. The checkpoint
-store records what ran, but does not block a skill that skips a prerequisite. Correct
-ordering depends on the agent reading and following AGENTS.md §6a in the active session.
+```bash
+# Default: DAR prerequisites are checked automatically
+.venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-21 --scope "content/**"
+
+# Bootstrap/recovery only: skip DAR check with --skip-dar
+.venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-12 --scope "knowledge/**" --skip-dar
+```
+
+The checkpoint store at `reports/phase_state.json` records which stages have been completed.
+Out-of-order skill invocation is blocked at context-open time — agents cannot bypass this
+gate by instruction-following alone.
 
 ---
 

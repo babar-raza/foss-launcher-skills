@@ -38,7 +38,7 @@ class TestSkillContextBeginEnd(unittest.TestCase):
         shutil.rmtree(self.tmp, ignore_errors=True)
 
     def test_begin_creates_active_json(self):
-        result = skill_context.main(["begin", "--skill", "S-20", "--scope", "content/docs*"])
+        result = skill_context.main(["begin", "--skill", "S-20", "--scope", "content/docs*", "--skip-dar"])
         self.assertEqual(result, 0)
         self.assertTrue(skill_context._ACTIVE_FILE.exists())
         with open(skill_context._ACTIVE_FILE) as f:
@@ -48,7 +48,7 @@ class TestSkillContextBeginEnd(unittest.TestCase):
         self.assertIn("content/docs*", data["scope_patterns"])
 
     def test_end_removes_active_and_archives(self):
-        skill_context.main(["begin", "--skill", "S-20", "--scope", "*"])
+        skill_context.main(["begin", "--skill", "S-20", "--scope", "*", "--skip-dar"])
         result = skill_context.main(["end", "--skill", "S-20", "--status", "completed"])
         self.assertEqual(result, 0)
         self.assertFalse(skill_context._ACTIVE_FILE.exists())
@@ -63,8 +63,8 @@ class TestSkillContextBeginEnd(unittest.TestCase):
         self.assertEqual(result, 0)
 
     def test_begin_supersedes_existing(self):
-        skill_context.main(["begin", "--skill", "S-20", "--scope", "*"])
-        result = skill_context.main(["begin", "--skill", "S-21", "--scope", "*"])
+        skill_context.main(["begin", "--skill", "S-20", "--scope", "*", "--skip-dar"])
+        result = skill_context.main(["begin", "--skill", "S-21", "--scope", "*", "--skip-dar"])
         self.assertEqual(result, 0)
         with open(skill_context._ACTIVE_FILE) as f:
             data = json.load(f)
@@ -99,17 +99,17 @@ class TestSkillContextCheck(unittest.TestCase):
         self.assertEqual(result, 2)
 
     def test_check_in_scope_returns_0(self):
-        skill_context.main(["begin", "--skill", "S-20", "--scope", "content/docs*"])
+        skill_context.main(["begin", "--skill", "S-20", "--scope", "content/docs*", "--skip-dar"])
         result = skill_context.main(["check", "--file", "content/docs.aspose.org/en/foo.md"])
         self.assertEqual(result, 0)
 
     def test_check_out_of_scope_returns_1(self):
-        skill_context.main(["begin", "--skill", "S-20", "--scope", "content/docs*"])
+        skill_context.main(["begin", "--skill", "S-20", "--scope", "content/docs*", "--skip-dar"])
         result = skill_context.main(["check", "--file", "scripts/ci/foo.sh"])
         self.assertEqual(result, 1)
 
     def test_check_wildcard_scope_allows_all(self):
-        skill_context.main(["begin", "--skill", "S-20", "--scope", "*"])
+        skill_context.main(["begin", "--skill", "S-20", "--scope", "*", "--skip-dar"])
         result = skill_context.main(["check", "--file", "scripts/pipeline/audit.py"])
         self.assertEqual(result, 0)
 
@@ -139,7 +139,7 @@ class TestSkillContextCurrent(unittest.TestCase):
         self.assertEqual(result, 2)
 
     def test_current_with_active_returns_0(self):
-        skill_context.main(["begin", "--skill", "S-73", "--scope", "*"])
+        skill_context.main(["begin", "--skill", "S-73", "--scope", "*", "--skip-dar"])
         result = skill_context.main(["current"])
         self.assertEqual(result, 0)
 
@@ -252,6 +252,74 @@ class TestFileInScope(unittest.TestCase):
             "scripts/pipeline/audit.py",
             ["content/*", "scripts/pipeline/*"]
         ))
+
+
+class TestDAREnforcement(unittest.TestCase):
+    """Tests for default DAR prerequisite enforcement (SR-04)."""
+
+    def setUp(self):
+        import tempfile
+        self.tmp = Path(tempfile.mkdtemp())
+        self.orig_context_dir = skill_context._CONTEXT_DIR
+        self.orig_active = skill_context._ACTIVE_FILE
+        self.orig_history = skill_context._HISTORY_DIR
+        skill_context._CONTEXT_DIR = self.tmp / "skill-context"
+        skill_context._ACTIVE_FILE = skill_context._CONTEXT_DIR / "ACTIVE.json"
+        skill_context._HISTORY_DIR = skill_context._CONTEXT_DIR / "history"
+
+    def tearDown(self):
+        skill_context._CONTEXT_DIR = self.orig_context_dir
+        skill_context._ACTIVE_FILE = self.orig_active
+        skill_context._HISTORY_DIR = self.orig_history
+        import shutil
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_dar_check_runs_by_default(self):
+        with mock.patch("subprocess.run") as mock_run:
+            mock_run.return_value = mock.Mock(returncode=0)
+            result = skill_context.main(["begin", "--skill", "S-21", "--scope", "*"])
+        self.assertEqual(result, 0)
+        mock_run.assert_called_once()
+        self.assertIn("check_dar_prerequisites.py", str(mock_run.call_args[0][0]))
+
+    def test_dar_block_prevents_context_open(self):
+        with mock.patch("subprocess.run") as mock_run:
+            mock_run.return_value = mock.Mock(returncode=1)
+            result = skill_context.main(["begin", "--skill", "S-21", "--scope", "*"])
+        self.assertEqual(result, 1)
+        self.assertFalse(skill_context._ACTIVE_FILE.exists())
+
+    def test_dar_pass_opens_context(self):
+        with mock.patch("subprocess.run") as mock_run:
+            mock_run.return_value = mock.Mock(returncode=0)
+            result = skill_context.main(["begin", "--skill", "S-21", "--scope", "*"])
+        self.assertEqual(result, 0)
+        self.assertTrue(skill_context._ACTIVE_FILE.exists())
+
+    def test_skip_dar_bypasses_check(self):
+        with mock.patch("subprocess.run") as mock_run:
+            result = skill_context.main(["begin", "--skill", "S-21", "--scope", "*", "--skip-dar"])
+        self.assertEqual(result, 0)
+        mock_run.assert_not_called()
+
+    def test_dar_script_missing_is_warn_not_block(self):
+        temp_root = self.tmp / "fake_repo"
+        temp_root.mkdir()
+        orig_root = skill_context._REPO_ROOT
+        skill_context._REPO_ROOT = temp_root
+        try:
+            result = skill_context.main(["begin", "--skill", "S-21", "--scope", "*"])
+            self.assertEqual(result, 0)
+            self.assertTrue(skill_context._ACTIVE_FILE.exists())
+        finally:
+            skill_context._REPO_ROOT = orig_root
+
+    def test_legacy_check_dar_flag_still_accepted(self):
+        with mock.patch("subprocess.run") as mock_run:
+            mock_run.return_value = mock.Mock(returncode=0)
+            result = skill_context.main(["begin", "--skill", "S-21", "--scope", "*", "--check-dar"])
+        self.assertEqual(result, 0)
+        mock_run.assert_called_once()
 
 
 if __name__ == "__main__":
