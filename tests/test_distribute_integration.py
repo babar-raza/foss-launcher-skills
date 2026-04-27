@@ -5,6 +5,9 @@ from pathlib import Path
 
 import pytest
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from scripts.skill_constants import INTERNAL_SKILLS  # noqa: E402
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DISTRIBUTE_SCRIPT = REPO_ROOT / "tools" / "distribute.py"
 SKILLS_DIR = REPO_ROOT / "skills"
@@ -46,7 +49,10 @@ def test_distribute_script_skill_count(tmp_path):
     _run_distribute(tmp_path)
     skill_count = len(list(SKILLS_DIR.glob("*.md")))
     claude_count = len(list((tmp_path / ".claude" / "commands").glob("*.md")))
-    assert claude_count == skill_count
+    expected = skill_count - len(INTERNAL_SKILLS)
+    assert claude_count == expected, (
+        f"Claude should have {expected} skills (total={skill_count}, internal={len(INTERNAL_SKILLS)})"
+    )
 
 
 def test_distribute_no_frontmatter_in_claude_commands(tmp_path):

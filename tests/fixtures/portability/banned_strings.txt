@@ -1,0 +1,24 @@
+# Banned strings — must not appear in reusable skill bodies
+# (except inside clearly-labeled EXAMPLE blocks or "e.g." text)
+#
+# Format: one string per line; lines starting with # are comments
+# These strings are Aspose-specific references that prove a skill
+# was not properly generalized before inclusion in this repo.
+
+aspose.org
+aspose-cells
+aspose-words
+aspose-slides
+aspose-pdf
+aspose-3d
+aspose-email
+aspose-imaging
+aspose-barcode
+FOSS_LAUNCHER_PATH
+scripts/pipeline/
+.venv/Scripts/
+blog.aspose
+docs.aspose
+kb.aspose
+products.aspose
+reference.aspose
