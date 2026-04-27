@@ -1,6 +1,6 @@
 # AGENTS.md — Aspose.org Content Generation & Maintenance Governance
 
-> Last updated: 2026-04-24 (S-93/S-94/S-95 repo-patrol/change-sweep/discovery-triage registered — TC-GOV-01 from discovery-plan dapper-splashing-bengio; §12 skill registry + §6a DAR + §9c change-trigger + §10c output-location updated); prior: 2026-04-18 (S-92 triage-confirm skill registered — OA-01 from validated-coalescing-porcupine forensic plan; Layer 2 body-prose staleness scanner); prior: 2026-04-17 (S-91 plan-normalize skill added — §12 S-91 registry entry; §6 plan execution gate section; §3 Mental Model Refresh bullet; provider mirrors + fixture tests created; CONVENTIONS.md Skill Quality Gates section added); prior: 2026-04-17 (governed-inspection plan cheeky-swimming-whistle — §7b/§7c/§8 updated: S-90 publish-readiness-review operationalizes "human-review" as agent-executable governed inspection; §7a H-gates mapped to S-90 execution; §6a DAR entries added for S-90; §9a UNKNOWN_CLASS triage updated to route to S-90 --triage-unknowns; §9c matrix row added for S-90; §12 S-90 registry entry added); prior: 2026-04-17 (forensic audit plan twinkling-forging-tiger — §9a: EVALUATOR_LOGIC_VERSION bumped to 12 (v11: encoding_check; v12: token_ops.py UNKNOWN_CLASS false-positive suppression via method/property membership check + Python built-in exceptions added to PLATFORM_SDK_CLASSES); §9c: token_ops.py UNKNOWN_CLASS WARN added — silent-skip removed for unknown CamelCase classes in constructor/method/property/enum verification; false positives suppressed by checking if identifier is a known method/property name on any class in api_surface; phantom_methods.py extended to docs/kb/blog dot-notation table entries; formats.json note/python PDF + words/python DOCX reclassified as functional; encoding_check evaluator added to ALL and DEFAULT sets; content_eval/cli.py direct-invocation guard added; §9a triage notes added for encoding_check, UNKNOWN_CLASS, and phantom_methods coverage); prior: 2026-04-13 (§12: S-88 backlog skill registered — unified backlog management with plan scanning, investigation items, archival, session handoff, reminders); prior: 2026-04-12 (§9c change-trigger matrix: added member-doc enrichment gate for batch_reference + description_coverage_audit.py reference; EVALUATOR_LOGIC_VERSION bumped to 6 for retired_at page skip in DescriptionCompletenessEvaluator); prior: 2026-04-10 (S-87 system-heal registered in §12, §6a DAR, §6 audit-driven healing chain; --no-tier3-cache flag documented in §12 S-43 flags); prior: 2026-04-09 (§2/§3 fix knowledge artifact paths to match actual `merged/` directory; remove nonexistent `claims.md` reference); prior: 2026-04-08 (§6f blog slug governance — features post slug is cluster-derived; banned pattern enforced by plan_blog() validator); prior: 2026-04-07 (§7a translation-staging-order governance rule; §6e ceiling-reached terminal state); prior: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline)
+> Last updated: 2026-04-27 (TC-NEW-01 content filename governance — §4c Content Filename Conventions added; check_content_filenames.py validator + pre-commit Step 1b + CI blocking step; 37 -graph.md locale files recovered); prior: 2026-04-24 (S-93/S-94/S-95 repo-patrol/change-sweep/discovery-triage registered — TC-GOV-01 from discovery-plan dapper-splashing-bengio; §12 skill registry + §6a DAR + §9c change-trigger + §10c output-location updated); prior: 2026-04-18 (S-92 triage-confirm skill registered — OA-01 from validated-coalescing-porcupine forensic plan; Layer 2 body-prose staleness scanner); prior: 2026-04-17 (S-91 plan-normalize skill added — §12 S-91 registry entry; §6 plan execution gate section; §3 Mental Model Refresh bullet; provider mirrors + fixture tests created; CONVENTIONS.md Skill Quality Gates section added); prior: 2026-04-17 (governed-inspection plan cheeky-swimming-whistle — §7b/§7c/§8 updated: S-90 publish-readiness-review operationalizes "human-review" as agent-executable governed inspection; §7a H-gates mapped to S-90 execution; §6a DAR entries added for S-90; §9a UNKNOWN_CLASS triage updated to route to S-90 --triage-unknowns; §9c matrix row added for S-90; §12 S-90 registry entry added); prior: 2026-04-17 (forensic audit plan twinkling-forging-tiger — §9a: EVALUATOR_LOGIC_VERSION bumped to 12 (v11: encoding_check; v12: token_ops.py UNKNOWN_CLASS false-positive suppression via method/property membership check + Python built-in exceptions added to PLATFORM_SDK_CLASSES); §9c: token_ops.py UNKNOWN_CLASS WARN added — silent-skip removed for unknown CamelCase classes in constructor/method/property/enum verification; false positives suppressed by checking if identifier is a known method/property name on any class in api_surface; phantom_methods.py extended to docs/kb/blog dot-notation table entries; formats.json note/python PDF + words/python DOCX reclassified as functional; encoding_check evaluator added to ALL and DEFAULT sets; content_eval/cli.py direct-invocation guard added; §9a triage notes added for encoding_check, UNKNOWN_CLASS, and phantom_methods coverage); prior: 2026-04-13 (§12: S-88 backlog skill registered — unified backlog management with plan scanning, investigation items, archival, session handoff, reminders); prior: 2026-04-12 (§9c change-trigger matrix: added member-doc enrichment gate for batch_reference + description_coverage_audit.py reference; EVALUATOR_LOGIC_VERSION bumped to 6 for retired_at page skip in DescriptionCompletenessEvaluator); prior: 2026-04-10 (S-87 system-heal registered in §12, §6a DAR, §6 audit-driven healing chain; --no-tier3-cache flag documented in §12 S-43 flags); prior: 2026-04-09 (§2/§3 fix knowledge artifact paths to match actual `merged/` directory; remove nonexistent `claims.md` reference); prior: 2026-04-08 (§6f blog slug governance — features post slug is cluster-derived; banned pattern enforced by plan_blog() validator); prior: 2026-04-07 (§7a translation-staging-order governance rule; §6e ceiling-reached terminal state); prior: 2026-04-05 (§2a source-of-truth hierarchy; §6 grade semantics + manual-edit rule; §7a launch gates; §7b risk tiers; §9b regeneration triggers; §9c change-trigger matrix; §10a verification standards; §10c output-location discipline)
 > Authority: Human maintainer only (see Section 4 — this file is in the forbidden write list)
 
 <details>
@@ -15,6 +15,7 @@
 | §3 | [Mental Model Refresh](#3-mental-model-refresh-protocol) | Pre-edit knowledge check |
 | §4 | [Allowed Write Paths](#4-allowed-write-paths-enforced-by-s-01-path-guard) | Path guard rules |
 | §4b | [Python File Placement](#4b-python-file-placement-rules) | New .py file rules |
+| §4c | [Content Filename Conventions](#4c-content-filename-conventions-tc-new-01-enforced-2026-04-25) | Slug and extension rules |
 | §5 | [Evidence Requirements](#5-evidence-requirements-non-negotiable) | Non-negotiable grounding |
 | §6 | [Skill Chains by Task](#6-skill-chains-by-task) | Which skill chain to run |
 | §6a | [Skill-First Mandate](#6a-skill-first-execution-mandate) | DAR dependency table |
@@ -315,6 +316,58 @@ utility function. Never create a duplicate helper.
   pre-commit hook (`--check-staged`).
 - The PreToolUse Write hook (`scripts/ci/check_py_write_hook.sh`) blocks misplaced
   `.py` file creation before it reaches the commit stage.
+
+
+## 4c. Content Filename Conventions (TC-NEW-01, enforced 2026-04-25)
+
+All markdown files under `content/` must satisfy these filename rules before being committed.
+The validator (`scripts/ci/check_content_filenames.py`) is the authoritative enforcement oracle.
+
+### Rules
+
+**Structural rejections (apply to ALL content trees):**
+- Leading hyphen: `-word.md` → REJECT (breaks Hugo URL slug)
+- Trailing hyphen before extension: `word-.md` → REJECT
+- Doubled hyphens: `word--word.md` → REJECT
+- Uppercase or mixed-case extension: `.MD`, `.Md` → REJECT
+- Space in filename: `word word.md` → REJECT
+- Double dot: `word..md` → REJECT
+
+**Prose trees** (`content/docs.aspose.org/`, `content/kb.aspose.org/`, `content/blog.aspose.org/`):
+- Stem must match `[a-z0-9]+(-[a-z0-9]+)*` — all-lowercase with hyphens as separators only
+- PascalCase stems (e.g., `Scene3D.md`) → REJECT in prose trees
+
+**Reference tree** (`content/reference.aspose.org/`):
+- PascalCase stems (e.g., `Scene3D.md`, `IFileFormat.md`) → ALLOWED (mirrors API member names)
+- Structural rejections still apply
+
+**Internal scaffolding** (excluded from validation):
+- `content/templates/` directory is excluded — scaffold files follow their own conventions
+
+### Validator CLI
+
+```bash
+# Check all content — exits 1 if any violations (default mode)
+.venv/Scripts/python scripts/ci/check_content_filenames.py --strict
+
+# Print violations but exit 0 (advisory / pre-graduation mode)
+.venv/Scripts/python scripts/ci/check_content_filenames.py --report-only
+```
+
+### Enforcement
+
+| Gate | Scope | Mode |
+|------|-------|------|
+| `scripts/pre-commit-audit.sh` Step 1b | Every staged commit | Blocking (exit 1) |
+| `.github/workflows/content-audit.yml` "Check content filename conventions" | PRs touching `content/**/*.md` | Blocking |
+
+### Root cause and resolution (2026-04-25)
+
+Commit `05952a134c` (2026-03-27) introduced `content/docs.aspose.org/en/3d/net/developer-guide/-graph.md` — a leading-hyphen filename caused by a creation typo. The file was renamed to `scene-graph.md` (37 locale copies) in the recovery. Nginx redirects were added to `docs.aspose.org.redirects.txt` for all affected locales.
+
+**Do NOT:**
+- Use `segment.strip("-")` or any silent slug sanitization anywhere in the toolchain
+- Pass only the filename stem (without the full path) to the validator
 
 ## 5. Evidence Requirements (non-negotiable)
 
