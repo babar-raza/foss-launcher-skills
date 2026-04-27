@@ -6,6 +6,7 @@
 #   pre-commit  <- scripts/pre-commit-audit.sh  (forbidden-path guard + API audit)
 #   commit-msg  <- scripts/commit-msg-skills.sh  (Skills invoked field validation)
 #   post-commit <- scripts/post-commit-override.sh (override token consumption)
+#   reference-transaction <- scripts/maintenance/reference-transaction-unshallow.sh (auto-unshallow)
 
 set -e
 
@@ -35,10 +36,16 @@ cp "$REPO_ROOT/scripts/post-commit-override.sh" "$HOOKS_DIR/post-commit"
 chmod +x "$HOOKS_DIR/post-commit"
 echo "  post-commit -> scripts/post-commit-override.sh"
 
+# reference-transaction: heredoc ensures executable bit on Windows NTFS
+cat > "$HOOKS_DIR/reference-transaction" << HOOKEOF
+#!/bin/bash
+exec bash "$REPO_ROOT/scripts/maintenance/reference-transaction-unshallow.sh" "\$@"
+HOOKEOF
+echo "  reference-transaction -> scripts/maintenance/reference-transaction-unshallow.sh"
 echo ""
 echo "=== Hook installation verification ==="
 ALL_OK=1
-for hook in pre-commit commit-msg post-commit; do
+for hook in pre-commit commit-msg post-commit reference-transaction; do
     if [ -x "$HOOKS_DIR/$hook" ]; then
         echo "  OK  $hook"
     else
