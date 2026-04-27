@@ -1363,7 +1363,7 @@ Frontmatter MUST NOT be updated when:
 #### Bulk migration annotation (DEC-06)
 Any commit touching ≥20 .md files with grade-only frontmatter changes (no body changes) requires:
 - Commit message: `BULK-GRADE-MIGRATION: approved by [name] on [date], reason: [policy trigger]`
-- Entry in `reports/migrations/MIGRATION_LOG.md`
+- Entry in `migrations/MIGRATION_LOG.md`
 
 **Grade contract:** See `GRADE_CONTRACT.md` (v1.1) for frozen grade semantics, canonical schema, and change protocol.
 **Governing plan:** `C:\\Users\\prora\\.claude\\plans\\curried-pondering-music.md` FINAL ARCHITECTURE §4, §15.5
@@ -1391,7 +1391,7 @@ The following are frozen by governance declaration:
 
 What freeze does NOT prohibit: body-content edits by skills/humans, re-grading after body edits, experimental evaluator work, manifest updates, MIG-01 bulk operational field strip, threshold tweaks within experimental evaluators.
 
-`EVALUATOR_FREEZE_VERSION = "16"` is now set in `content_eval/__init__.py`. Any ELV bump must also update this constant with documented justification.
+`EVALUATOR_FREEZE_VERSION = "17"` is now set in `content_eval/__init__.py`. Any ELV bump must also update this constant with documented justification.
 
 ---
 
