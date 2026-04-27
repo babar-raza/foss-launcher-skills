@@ -36,10 +36,25 @@ cp "$REPO_ROOT/scripts/post-commit-override.sh" "$HOOKS_DIR/post-commit"
 chmod +x "$HOOKS_DIR/post-commit"
 echo "  post-commit -> scripts/post-commit-override.sh"
 
-# reference-transaction: heredoc ensures executable bit on Windows NTFS
-cat > "$HOOKS_DIR/reference-transaction" << HOOKEOF
+# reference-transaction: inlined so hook is self-contained (no path dependency).
+# Heredoc (not cp) ensures executable bit on Windows NTFS (core.fileMode=false).
+cat > "$HOOKS_DIR/reference-transaction" << 'HOOKEOF'
 #!/bin/bash
-exec bash "$REPO_ROOT/scripts/maintenance/reference-transaction-unshallow.sh" "\$@"
+[ "$1" = "committed" ] || exit 0
+GIT_DIR=$(git rev-parse --git-dir 2>/dev/null) || exit 0
+SHALLOW="$GIT_DIR/shallow"
+GUARD="$GIT_DIR/.unshallow-in-progress"
+[ -f "$SHALLOW" ] || exit 0
+if [ -f "$GUARD" ]; then
+    guard_pid=$(cat "$GUARD" 2>/dev/null)
+    if [ -n "$guard_pid" ] && kill -0 "$guard_pid" 2>/dev/null; then exit 0; fi
+    rm -f "$GUARD"
+fi
+echo $$ > "$GUARD"
+trap 'rm -f "$GUARD"' EXIT
+i=0
+while [ -f "${SHALLOW}.lock" ] && [ $i -lt 30 ]; do sleep 1; i=$((i+1)); done
+rm -f "$SHALLOW"
 HOOKEOF
 echo "  reference-transaction -> scripts/maintenance/reference-transaction-unshallow.sh"
 echo ""
