@@ -122,8 +122,7 @@ Evaluators are classified as **canonical** (affect the frontmatter grade)
 or **experimental** (run for diagnostics only, appear in manifest/reports
 but do not change the canonical grade letter).
 
-The EXPERIMENTAL_EVALUATORS set will be defined in content_eval/__init__.py
-after the FREEZE-02 evaluator stability audit completes.
+The EXPERIMENTAL_EVALUATORS set is defined in `content_eval/config.py` (FREEZE-02 evaluator stability audit completed 2026-04-24).
 
 ### Graduation Policy
 
@@ -183,6 +182,9 @@ To modify a frozen item:
   `grade_writer.py`. Non-breaking: the runtime was already not writing `graded_at`.
 - Hard-freeze governance declared (Part 21). `EVALUATOR_FREEZE_VERSION = "16"` activated
   in `content_eval/__init__.py`.
+
+### v1.1 amendment (2026-04-24, same day - post-freeze ELV bump)
+- ELV bumped 16->17 for encoding_check addition. EVALUATOR_FREEZE_VERSION updated to "17". Current frozen baseline: EVALUATOR_FREEZE_VERSION = "17".
 
 ### v1.0 (2026-04-21)
 - Initial frozen version.
