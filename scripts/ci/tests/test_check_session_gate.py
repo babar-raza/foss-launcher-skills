@@ -5,8 +5,8 @@ when the session has not been bootstrapped (.claude/.agents_read absent),
 except for exempted cases (Read tool, exact bootstrap Bash command).
 
 Input handling policy:
-- Empty/missing input: fall through to gate-file check
-- Malformed JSON: fail-closed (exit 2) regardless of gate state
+- Empty/missing input: fail-open (exit 0) — DR-03 bootstrap deadlock prevention
+- Malformed non-empty JSON: fail-closed (exit 2) regardless of gate state
 - Read tool: always allowed (exit 0)
 - Exact bootstrap command: always allowed (exit 0)
 - All other tools: gate-file check
@@ -192,8 +192,8 @@ def test_tc_sg_13_write_allowed_when_gate_present():
 # TC-SG-14 through TC-SG-18: input edge cases
 # ---------------------------------------------------------------------------
 
-def test_tc_sg_14_empty_input_gate_absent_blocked():
-    """TC-SG-14: Empty CLAUDE_TOOL_INPUT with gate absent — blocked (falls to gate check)."""
+def test_tc_sg_14_empty_input_gate_absent_allowed():
+    """TC-SG-14: Empty CLAUDE_TOOL_INPUT with gate absent — fail-open (DR-03 bootstrap deadlock fix)."""
     _TEMP_GATE.unlink(missing_ok=True)
     try:
         env = {k: v for k, v in os.environ.items() if k != "CLAUDE_TOOL_INPUT"}
@@ -209,7 +209,7 @@ def test_tc_sg_14_empty_input_gate_absent_blocked():
         )
     finally:
         _TEMP_GATE.unlink(missing_ok=True)
-    assert result.returncode == 2
+    assert result.returncode == 0
 
 
 def test_tc_sg_15_empty_input_gate_present_allowed():
