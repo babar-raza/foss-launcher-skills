@@ -65,6 +65,10 @@
           {
             "type": "command",
             "command": "bash scripts/ci/check_venv_bash_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/check_destructive_bash_hook.sh"
           }
         ]
       },
