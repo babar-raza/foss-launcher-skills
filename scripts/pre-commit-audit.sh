@@ -62,6 +62,22 @@ if [ ${#forbidden_staged[@]} -gt 0 ]; then
 fi
 
 # ---------------------------------------------------------------------------
+# Step 1b: Content filename convention check (TC-NEW-01)
+# ---------------------------------------------------------------------------
+# Blocks commits where any staged content file has an invalid filename:
+#   leading/trailing hyphen, uppercase extension, spaces, double dots, etc.
+# Non-English locale files are also validated (same filename rules apply).
+python scripts/ci/check_content_filenames.py --strict
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "BLOCKED: One or more content files have invalid filenames (see above)."
+    echo "  Rename the file(s) to a valid lowercase slug before committing."
+    echo "  Convention: [a-z0-9]+(-[a-z0-9]+)*.md  (no leading/trailing hyphen)"
+    exit 1
+fi
+
+
+# ---------------------------------------------------------------------------
 # Step 2: API accuracy audit on staged English content files
 # ---------------------------------------------------------------------------
 # Locale files (/ar/, /fr/, /de/, etc.) are translator output and are not
