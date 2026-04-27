@@ -1,4 +1,4 @@
-#\!/bin/bash
+#!/bin/bash
 # reference-transaction-unshallow.sh
 # Installed as .git/hooks/reference-transaction by scripts/install-hooks.sh
 #
