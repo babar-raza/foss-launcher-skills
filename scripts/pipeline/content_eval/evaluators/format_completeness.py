@@ -77,6 +77,8 @@ def _normalize(name: str) -> str:
 _FORMAT_ALIASES: dict[str, str] = {
     "threemf": "3mf",
     "microsoft3mf": "3mf",
+    "excelopenxml": "xlsx",   # "Excel Open XML" display name → formats.json key
+    "xlsx": "excelopenxml",   # reverse alias for safety
 }
 
 
