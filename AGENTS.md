@@ -1949,29 +1949,60 @@ All agent-generated artifact files must be written to their designated location.
 
 #### Virtual environment (.venv)
 
-**Rule: always use `.venv` for all Python execution. Never use system Python directly.**
+**Rule: always use the repo `.venv` Python directly. Never use system Python for normal repo work.**
 
-The repo contains a pre-configured virtual environment at `.venv/` (repo root) with all required packages already installed (tree-sitter, pyyaml, requests, python-dotenv, pytest). Always activate it before running any script or `pip install` command.
+**DR-01 policy (enforced by hooks):**
+- Use the `.venv` Python binary by **direct path** — do not rely on activation or `PATH`.
+- Do not trust `$VIRTUAL_ENV` as proof that the correct Python is active — it reflects shell state, not binary health.
+- Activation failure is not `.venv` failure. If the shell cannot activate but `.venv/Scripts/python` exists, use it directly.
+- If the `.venv` Python binary cannot start, use the approved repair script (see below). Do not fall back to system Python.
 
-**Activate:**
+**Invoke Python (in Bash tool commands):**
 ```bash
-# Windows (Git Bash / WSL)
+# Windows (Git Bash)
+.venv/Scripts/python scripts/pipeline/my_script.py
+
+# Unix / macOS
+.venv/bin/python scripts/pipeline/my_script.py
+```
+
+**Install packages through .venv Python (not bare pip):**
+```bash
+# Windows
+.venv/Scripts/python -m pip install <package>
+
+# Unix / macOS
+.venv/bin/python -m pip install <package>
+```
+
+**Check whether a package is already installed:**
+```bash
+.venv/Scripts/python -m pip show <package>   # Windows
+.venv/bin/python -m pip show <package>        # Unix / macOS
+```
+
+**Activation (optional, for human operator convenience only):**
+```bash
+# Windows (Git Bash)
 source .venv/Scripts/activate
 
 # Unix / macOS
 source .venv/bin/activate
 ```
+Activation is not required for agent skill chains. It is a shell convenience for interactive sessions. Skill chains must use explicit `.venv` paths regardless of activation state.
 
-Once activated, `python` and `pip` resolve to the venv — no path prefix needed.
-
-**Before installing any package** — check whether it is already in `.venv`:
+**If `.venv` is broken or missing — approved repair path:**
 ```bash
-pip show <package>          # with venv active
+bash scripts/ci/repair_venv.sh          # repair in place
+bash scripts/ci/repair_venv.sh --fresh  # delete and recreate
 ```
+The repair script uses system Python **only** for `python -m venv .venv` (the bootstrap exception). All subsequent operations use the newly created `.venv` Python.
 
-Install only into `.venv`, never into system Python. All `pip install -r` commands in this file assume the venv is active.
-
-**Agents must not** run `python` or `pip` commands without first confirming `.venv` is active (`echo $VIRTUAL_ENV` should be non-empty). For automated skill chains, prepend `source .venv/Scripts/activate &&` (Windows) or `source .venv/bin/activate &&` (Unix) to any shell command that invokes Python.
+**Diagnose .venv health:**
+```bash
+.venv/Scripts/python scripts/ci/venv_doctor.py          # human-readable
+.venv/Scripts/python scripts/ci/venv_doctor.py --json   # machine-readable
+```
 
 #### `.env` file (repo root)
 
