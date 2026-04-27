@@ -149,8 +149,8 @@ class TestGradeWriterIntegration:
                     logic_version=EVALUATOR_LOGIC_VERSION, grade_reasons=["Test reason"])
 
         content = page.read_text(encoding="utf-8")
-        assert f"graded_logic_version: {EVALUATOR_LOGIC_VERSION}" in content, (
-            f"Expected graded_logic_version: {EVALUATOR_LOGIC_VERSION} in frontmatter"
+        assert "graded_logic_version:" not in content, (
+            "WP-03: graded_logic_version must NOT be written to frontmatter"
         )
         assert "grade: B" in content
 
