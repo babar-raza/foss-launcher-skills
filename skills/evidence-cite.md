@@ -5,6 +5,7 @@ description: >
   Insert evidence citation comments into content pages, linking each factual
   statement to its backing claim in the knowledge model.
 args: "{content-file-path}"
+depends_on: [path-guard, ground-check]
 ---
 
 # S-24: Evidence Cite — Attach Knowledge Citations

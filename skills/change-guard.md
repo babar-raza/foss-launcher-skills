@@ -5,6 +5,7 @@ description: >
   Pre-write gate that validates proposed content changes against verified
   knowledge. Rejects writes that contradict known facts.
 args: "{family} {platform} \"{proposed-text}\""
+depends_on: [path-guard, ground-check]
 ---
 
 # S-33: Change Guard — Pre-Write Knowledge Gate

@@ -5,6 +5,7 @@ description: >
   Pre-write safety gate that verifies every factual claim in a content page
   is traceable to the knowledge model. Blocks fabricated or contradicted content.
 args: "{content-file-path}"
+depends_on: [path-guard]
 ---
 
 # S-23: Ground Check — Pre-Write Evidence Verification

@@ -5,6 +5,7 @@ description: >
   Validate that a file path is an allowed write target before any content
   modification. Prevents accidental writes to protected files and directories.
 args: "{file-path}"
+depends_on: []
 ---
 
 # S-01: Path Guard — Enforce Allowed Write Paths
