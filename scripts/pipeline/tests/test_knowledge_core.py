@@ -193,6 +193,12 @@ class TestDiffCommand:
         assert "ERROR" in result
 
 
+
+_KNOWLEDGE_ROOT_KCT = Path(__file__).resolve().parents[3] / "knowledge"
+_ENOUGH_PRODUCTS = (
+    sum(1 for _ in _KNOWLEDGE_ROOT_KCT.glob("*/*/merged/api_surface.json")) >= 10
+)
+
 class TestDiscoverContentCWDIndependence:
     """Regression tests for CWD-independent content discovery.
 
@@ -211,6 +217,10 @@ class TestDiscoverContentCWDIndependence:
             "Path resolution must use __file__-based _REPO_ROOT, not relative paths."
         )
 
+    @pytest.mark.skipif(
+        not _ENOUGH_PRODUCTS,
+        reason="knowledge not bootstrapped: fewer than 10 products have api_surface.json",
+    )
     def test_discover_products_from_foreign_cwd(self, tmp_path, monkeypatch):
         """discover_products must find products when CWD is an empty temp dir."""
         monkeypatch.chdir(tmp_path)

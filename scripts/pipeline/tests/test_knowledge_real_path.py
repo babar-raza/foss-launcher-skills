@@ -27,10 +27,11 @@ if str(_PIPELINE_DIR) not in sys.path:
 from content_discovery import KNOWLEDGE_ROOT  # noqa: E402
 
 REAL_CELLS_MERGED = KNOWLEDGE_ROOT / "cells" / "python" / "merged"
+REAL_CELLS_API_SURFACE = REAL_CELLS_MERGED / "api_surface.json"
 
 
 @pytest.mark.skipif(
-    not REAL_CELLS_MERGED.exists(),
+    not REAL_CELLS_API_SURFACE.exists(),
     reason="real knowledge directory not present (gitignored; skip in CI)",
 )
 def test_knowledge_loads_from_real_directory_without_monkeypatch():
@@ -47,7 +48,7 @@ def test_knowledge_loads_from_real_directory_without_monkeypatch():
 
 
 @pytest.mark.skipif(
-    not REAL_CELLS_MERGED.exists(),
+    not REAL_CELLS_API_SURFACE.exists(),
     reason="real knowledge directory not present (gitignored; skip in CI)",
 )
 def test_knowledge_root_private_matches_content_discovery_constant():

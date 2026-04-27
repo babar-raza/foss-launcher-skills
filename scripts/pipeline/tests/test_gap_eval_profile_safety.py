@@ -1055,6 +1055,7 @@ class TestUpdateCommand:
 
 _VALIDATE_SCRIPT = str(Path(__file__).resolve().parents[2] / "gap-eval" / "validate_profile.py")
 _CLONE_CACHE = Path(__file__).resolve().parents[3] / "runs" / ".clone_cache" / "aspose_cells_net"
+_CLONE_CACHE_CSPROJ = _CLONE_CACHE / "src" / "Aspose.Cells_FOSS" / "Aspose.Cells_FOSS.csproj"
 _PYTHON = sys.executable
 
 
@@ -1074,7 +1075,7 @@ class TestCellsNetProfileValidationRoundTrip:
     @pytest.fixture(autouse=True)
     def skip_if_no_cache(self, request):
         # Only skip cache-dependent tests; the static test is excluded via marker
-        if "no_cache_skip" not in request.keywords and not _CLONE_CACHE.exists():
+        if "no_cache_skip" not in request.keywords and not _CLONE_CACHE_CSPROJ.exists():
             pytest.skip(
                 f"Clone cache absent at {_CLONE_CACHE!r} — "
                 "integration tests skipped. Run /gap-eval cells net first."

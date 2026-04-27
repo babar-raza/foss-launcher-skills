@@ -59,6 +59,7 @@ class ContentEvalOutputRootTests(unittest.TestCase):
                         mock.patch("content_eval.loader.load_pages", return_value=[fake_page]), \
                         mock.patch("content_eval.cli._load_knowledge", return_value=None), \
                         mock.patch("content_eval.reporters.markdown.generate_markdown", return_value="# ok"), \
+                        mock.patch("core.prereqs.require_all"), \
                         mock.patch.object(sys, "stdout", stdout):
                     cli._run_evaluate(args)
             finally:

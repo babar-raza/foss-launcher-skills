@@ -52,6 +52,7 @@ import run as gap_eval_run  # type: ignore  # noqa: E402
 # Path confirmed via _clone_cache_base() in run.py.
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 _CLONE_CACHE_3D_JAVA = _REPO_ROOT / "runs" / ".clone_cache" / "aspose_3d_java"
+_API_SURFACE_3D_JAVA = _REPO_ROOT / "knowledge" / "3d" / "java" / "merged" / "api_surface.json"
 
 
 def _run_gap_eval(tmp_state_dir: Path, tmp_out: str) -> tuple[dict, MagicMock, MagicMock]:
@@ -98,6 +99,11 @@ class TestTier3CacheIntegration:
             pytest.skip(
                 f"Clone cache not found: {_CLONE_CACHE_3D_JAVA}. "
                 "Run S-34 (repo-scout) first to populate the clone cache."
+            )
+        if not _API_SURFACE_3D_JAVA.exists():
+            pytest.skip(
+                f"Knowledge not bootstrapped: {_API_SURFACE_3D_JAVA} absent. "
+                "Run /knowledge-bootstrap 3d java first."
             )
 
     def test_run1_makes_tier3_calls(self, tmp_path):

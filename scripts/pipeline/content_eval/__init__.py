@@ -12,7 +12,7 @@ __version__ = "0.1.0"
 # When this value does not match graded_logic_version in a page's frontmatter,
 # --skip-graded will re-grade the page even if graded_model_sha is current.
 # Update the AGENTS.md evaluator change checklist when bumping this value.
-EVALUATOR_LOGIC_VERSION = "16"
+EVALUATOR_LOGIC_VERSION = "17"
 
 # Evaluator freeze gate (C-24).
 #
@@ -23,7 +23,7 @@ EVALUATOR_LOGIC_VERSION = "16"
 # EVALUATOR_LOGIC_VERSION value.  Any subsequent ELV bump must also
 # update this constant with a documented justification in the commit
 # message and GRADE_CONTRACT.md.
-EVALUATOR_FREEZE_VERSION: str | None = "16"
+EVALUATOR_FREEZE_VERSION: str | None = "17"
 
 # TC-5: Per-evaluator version dict.
 #
@@ -49,7 +49,7 @@ EVALUATOR_VERSIONS: dict[str, str] = {
     "forbidden_claims": "1",
     "page_role": "1",
     "structure": "1",
-    "prose_truth": "1",
+    "prose_truth": "2",  # v2: fires without claims/formats,
     "format_truth": "1",
     "install_recipe": "1",
     "limitations_check": "1",

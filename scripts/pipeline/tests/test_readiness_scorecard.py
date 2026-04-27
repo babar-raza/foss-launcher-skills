@@ -292,6 +292,10 @@ class TestExitCodes:
         readiness_scorecard.configure(repo_root=tmp_path)
         (tmp_path / "reports" / "3d" / "python").mkdir(parents=True)
 
+        # Bypass knowledge prerequisite check
+        import core.prereqs
+        monkeypatch.setattr(core.prereqs, "require_all", lambda family, platform: None)
+
         # Stub data-reading functions (called before compute_verdict)
         monkeypatch.setattr(readiness_scorecard, "_read_checkpoints",
                             lambda f, p: {})

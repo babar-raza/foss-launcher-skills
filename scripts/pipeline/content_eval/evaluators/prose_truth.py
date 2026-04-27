@@ -155,8 +155,6 @@ class ProseTruthEvaluator(BaseEvaluator):
         claims = _load_claims(page.family, page.platform)
         formats = _load_formats(page.family, page.platform)
 
-        if not claims and not formats:
-            return findings
 
         # Build claim token index for fuzzy matching
         claim_tokens = [(c.get("text", ""), _tokenize(c.get("text", "")))

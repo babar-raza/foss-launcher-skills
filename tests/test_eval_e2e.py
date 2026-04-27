@@ -123,9 +123,9 @@ class TestEvalReport:
 # ---------------------------------------------------------------------------
 
 class TestGradeWriterIntegration:
-    """write_grade must embed logic_version in frontmatter."""
+    """write_grade must write only canonical fields per WP-03."""
 
-    def test_write_grade_embeds_logic_version(self, tmp_path: Path):
+    def test_write_grade_writes_canonical_fields(self, tmp_path: Path):
         from content_eval import EVALUATOR_LOGIC_VERSION
         from grade_writer import write_grade
 
@@ -179,6 +179,6 @@ class TestGradeWriterIntegration:
 
         content = page.read_text(encoding="utf-8")
         assert "grade: D" in content
-        assert f"graded_logic_version: {EVALUATOR_LOGIC_VERSION}" in content
+        assert "graded_logic_version:" not in content  # WP-03: stripped, not re-added
         # Old grade A should be gone
         assert "grade: A" not in content

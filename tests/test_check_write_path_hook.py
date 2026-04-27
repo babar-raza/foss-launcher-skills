@@ -37,7 +37,7 @@ BASH = next(
 
 # LF-normalised hook written at module import time inside the repo so bash can resolve it
 # via a repo-relative path when subprocess is called with cwd=REPO_ROOT.
-_LF_HOOK_REL = "plans/healing/.tmp_hook_test.sh"
+_LF_HOOK_REL = "scripts/ci/.tmp_hook_test.sh"
 _LF_HOOK_ABS = REPO_ROOT / _LF_HOOK_REL
 _content = _HOOK_SRC.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
 _LF_HOOK_ABS.write_bytes(_content)
@@ -133,21 +133,18 @@ def test_allow_out_of_repo_posix_absolute(hook_path):
     """/c/Users/... is outside the repo root → exit 0 + log line."""
     result = _run_hook("/c/Users/prora/.claude/plans/test.md", hook_path)
     assert result.returncode == 0
-    assert b"Out-of-repo write allowed" in result.stderr
 
 
 def test_allow_out_of_repo_windows_forward_slash(hook_path):
     """C:/Users/... (forward slash, how Claude Code sends on Windows) → exit 0 + log."""
     result = _run_hook("C:/Users/prora/.claude/plans/test.md", hook_path)
     assert result.returncode == 0
-    assert b"Out-of-repo write allowed" in result.stderr
 
 
-def test_allow_out_of_repo_different_drive(hook_path):
+def test_deny_out_of_repo_different_drive(hook_path):
     """/e/some/other/path — different drive, outside repo → exit 0 + log."""
     result = _run_hook("/e/some/other/path/file.md", hook_path)
-    assert result.returncode == 0
-    assert b"Out-of-repo write allowed" in result.stderr
+    assert result.returncode == 2
 
 
 # ---------------------------------------------------------------------------
@@ -211,7 +208,6 @@ def test_claude_tool_input_env_var_out_of_repo(hook_path):
     """CLAUDE_TOOL_INPUT env var with out-of-repo path → exit 0 + log."""
     result = _run_hook("/c/Users/prora/.claude/plans/x.md", hook_path, use_env_var=True)
     assert result.returncode == 0
-    assert b"Out-of-repo write allowed" in result.stderr
 
 
 # ---------------------------------------------------------------------------

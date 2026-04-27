@@ -22,6 +22,7 @@ from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _CLONE_CACHE = _REPO_ROOT / "runs" / ".clone_cache" / "aspose_slides_python"
+_CLONE_CACHE_HAS_SOURCES = bool(list(_CLONE_CACHE.rglob("*.py"))[:1]) if _CLONE_CACHE.exists() else False
 _SCOUT_SCRIPT = _REPO_ROOT / "scripts" / "pipeline" / "scout.py"
 
 _TARGETS = [
@@ -35,7 +36,7 @@ _TARGETS = [
 ]
 
 
-@unittest.skipUnless(_CLONE_CACHE.exists(), "Clone cache not available — skip integration test")
+@unittest.skipUnless(_CLONE_CACHE_HAS_SOURCES, "Clone cache absent or empty — run repo-scout first")
 class TestSlidesPythonPptxFormatsClassification(unittest.TestCase):
     """End-to-end: scout.py must classify PPTX-family formats as functional I/O."""
 
