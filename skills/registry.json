@@ -1,0 +1,394 @@
+[
+  {
+    "name": "project-phase-store",
+    "id": "S-10",
+    "description": ">",
+    "args": "{family} {platform} {site-type} {slug} \\\"{purpose}\\",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "knowledge-diff",
+    "id": "S-12",
+    "description": ">",
+    "args": "{family} {platform} {repo-path}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "stale-detect",
+    "id": "S-13",
+    "description": ">",
+    "args": "{family} {platform}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "knowledge-update",
+    "id": "S-14",
+    "description": ">",
+    "args": "{family} {platform} {repo-path}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "embed-knowledge",
+    "id": "S-15",
+    "description": ">",
+    "args": "{family} {platform} | all",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "page-plan",
+    "id": "S-18",
+    "description": ">",
+    "args": "{family} {platform} {site-type} {slug}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "page-draft",
+    "id": "S-19",
+    "description": ">",
+    "args": "{family} {platform} {site-type} {slug}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "page-update",
+    "id": "S-20",
+    "description": ">",
+    "args": "{content-file-path}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "page-enhance",
+    "id": "S-21",
+    "description": ">",
+    "args": "{content-file-path}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "faq-generate",
+    "id": "S-22",
+    "description": ">",
+    "args": "{content-file-path}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "ground-check",
+    "id": "S-23",
+    "description": ">",
+    "args": "{content-file-path}",
+    "depends_on": [
+      "path-guard"
+    ],
+    "internal": false
+  },
+  {
+    "name": "eval-page",
+    "id": "S-25",
+    "description": ">",
+    "args": "{content-file-path}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "heal-page",
+    "id": "S-26",
+    "description": ">",
+    "args": "{content-file-path}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "truth-sync",
+    "id": "S-30",
+    "description": ">",
+    "args": "{family} {platform} {source-path}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "truth-index",
+    "id": "S-31",
+    "description": ">",
+    "args": "{family} {platform} | all",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "content-audit",
+    "id": "S-32",
+    "description": ">",
+    "args": "{content-file-path} | {family} {platform}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "repo-scout",
+    "id": "S-34",
+    "description": ">",
+    "args": "{repo-path}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "truth-merge",
+    "id": "S-35",
+    "description": ">",
+    "args": "{family} {platform}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "cross-platform",
+    "id": "S-36",
+    "description": ">",
+    "args": "{family}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "corpus-scan",
+    "id": "S-37",
+    "description": ">",
+    "args": "{family} {platform} {site-type}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "launch-product",
+    "id": "S-38",
+    "description": ">",
+    "args": "{family} {platform} {repo-path}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "discover-products",
+    "id": "S-39",
+    "description": ">",
+    "args": "[{org}] [--clone]",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "batch-eval-fix",
+    "id": "S-41",
+    "description": ">",
+    "args": "{family} {platform} | --eval-report {eval-report-path}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "code-smoke",
+    "id": "S-63",
+    "description": ">",
+    "args": "{family} {platform} | --files {path1} [path2 ...]",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "link-validate",
+    "id": "S-65",
+    "description": ">",
+    "args": "{family} {platform} | all | --files {file1.md} ...",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "register-human-content",
+    "id": "S-66",
+    "description": ">",
+    "args": "{content-file-path}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "diagnose-skill-failure",
+    "id": "S-67",
+    "description": ">",
+    "args": "{skill-id} {error-summary}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "evidence-repair",
+    "id": "S-72",
+    "description": ">",
+    "args": "{content-file-path} [additional-paths ...] [--dry-run] [--scope claims|apis|both]",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "manual-edit",
+    "id": "S-73",
+    "description": ">",
+    "args": "{relative-file-path} --scope {scope} --intent \\\"{intent}\\\" [--section \\\"{heading}\\\"] [--evidence \\\"{id}\\\"]",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "commit",
+    "id": "S-76",
+    "description": ">",
+    "args": "[--scope {scope}] [--hint {guidance}] [--force-all]",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "session-start",
+    "id": "S-77",
+    "description": ">",
+    "args": "",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "evidence-enhance",
+    "id": "S-78",
+    "description": ">",
+    "args": "{content-file-path}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "coverage-reconcile",
+    "id": "S-80",
+    "description": ">",
+    "args": "{family} {platform}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "knowledge-coverage-audit",
+    "id": "S-81",
+    "description": ">",
+    "args": "{family} {platform}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "page-retire",
+    "id": "S-83",
+    "description": ">",
+    "args": "{content-file-path} | --from-plan {site-plan-path}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "truth-audit-content",
+    "id": "S-85",
+    "description": ">",
+    "args": "{family} {platform} [--scope all|docs|blog|kb|reference] [--no-llm] [--max-units N] [--unit-types H,P,C,T,L]",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "backlog",
+    "id": "S-88",
+    "description": ">",
+    "args": "[subcommand] [args...]",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "truth-audit",
+    "id": "S-90",
+    "description": ">",
+    "args": "{family} {platform}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "content-check",
+    "id": "",
+    "description": ">",
+    "args": "{relative-file-path}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "new-blog-post",
+    "id": "",
+    "description": ">",
+    "args": "{family} {platform} {slug}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "new-docs-page",
+    "id": "",
+    "description": ">",
+    "args": "{family} {platform} {section} {slug}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "new-kb-faq",
+    "id": "",
+    "description": ">",
+    "args": "{family} {platform}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "new-kb-howto",
+    "id": "",
+    "description": ">",
+    "args": "{family} {platform} {slug}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "new-reference-page",
+    "id": "",
+    "description": ">",
+    "args": "{family} {platform} {classname}",
+    "depends_on": [],
+    "internal": false
+  },
+  {
+    "name": "path-guard",
+    "id": "S-01",
+    "description": ">",
+    "args": "{file-path}",
+    "depends_on": [],
+    "internal": true
+  },
+  {
+    "name": "rubric-align",
+    "id": "S-17",
+    "description": ">",
+    "args": "{content-file-path}",
+    "depends_on": [],
+    "internal": true
+  },
+  {
+    "name": "evidence-cite",
+    "id": "S-24",
+    "description": ">",
+    "args": "{content-file-path}",
+    "depends_on": [
+      "path-guard",
+      "ground-check"
+    ],
+    "internal": true
+  },
+  {
+    "name": "change-guard",
+    "id": "S-33",
+    "description": ">",
+    "args": "{family} {platform} \\\"{proposed-text}\\",
+    "depends_on": [
+      "path-guard",
+      "ground-check"
+    ],
+    "internal": true
+  }
+]
