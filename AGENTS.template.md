@@ -10,7 +10,14 @@ Agents operating on this repo generate and maintain documentation for FOSS produ
 All content must be grounded in evidence from the knowledge model. This file is the
 authoritative source of operating rules for all agents.
 
-## 2. Read Order (always read in this order before doing any work)
+## 2. Session Start Gate
+
+**Mandatory first action every session**: invoke S-77 (session-start) before any task.
+
+S-77 reads this file, surfaces backlog reminders, initializes the session ledger (if configured),
+and states the skill-first mandate. Do not begin work until S-77 has completed.
+
+## 3. Read Order (always read in this order before doing any work)
 
 1. This file (AGENTS.md)
 2. Agent instructions file (`CLAUDE.md`, `CODEX.md`, or `.kilocode/rules-code/`) — if present
@@ -18,7 +25,7 @@ authoritative source of operating rules for all agents.
 4. `knowledge/{family}/{platform}/claims.md` — verify claims are current
 5. `knowledge/{family}/{platform}/api_surface.md` — for API grounding
 
-## 3. Mental Model Refresh Protocol
+## 4. Mental Model Refresh Protocol
 
 Before editing any content page for family/platform X:
 
@@ -28,7 +35,7 @@ Before editing any content page for family/platform X:
 3. Read `claims.md` and `api_surface.md` for the product
 4. Only then proceed to content tasks
 
-## 4. Allowed Write Paths (enforced by S-01 path-guard)
+## 5. Allowed Write Paths (enforced by S-01 path-guard)
 
 > **Customize these paths for your project.** The defaults below match the aspose.org
 > Hugo multisite layout. Update to reflect your content directory structure.
@@ -56,7 +63,7 @@ FORBIDDEN (no agent may write here without explicit human override):
   skills/      (canonical skill source — only humans may update)
 ```
 
-## 5. Evidence Requirements (non-negotiable)
+## 6. Evidence Requirements (non-negotiable)
 
 - Every content page write must pass S-23 (ground-check) before committing
 - Every code block in `content/` must come from a snippet in `knowledge/{family}/{platform}/snippets/`
@@ -65,7 +72,7 @@ FORBIDDEN (no agent may write here without explicit human override):
 - Citation comments `<!-- evidence: claim_id={id} source={file} confidence={score} -->` must be
   present in every content page (added by S-24 evidence-cite)
 
-## 6. Skill Chains by Task
+## 7. Skill Chains by Task
 
 ### Initial generation (new page)
 
@@ -93,6 +100,33 @@ S-17 (rubric-align) → S-21 (page-enhance) → S-23 → S-01 → write
 S-25 (eval-page) → S-26 (heal-page) → S-23 → S-25 → S-01 → write (or escalate)
 ```
 
+If S-26 fails to improve grade after 2 passes: escalate to **S-73 (manual-edit)**.
+S-73 is the only sanctioned path for operator-directed content changes. Never edit
+content files directly outside S-73 or the skill chain above.
+
+### Operator-directed edit (typo, wording, targeted fix)
+
+```
+S-73 (manual-edit) {file} --scope {scope} --intent "{what and why}"
+```
+
+S-73 validates the change, runs ground-check, refreshes evidence, and records an audit trail.
+Never edit content files directly — always invoke S-73.
+
+### Session recording
+
+```
+S-76 (commit) at session end — stages session-touched files, runs tests, commits with evidence metadata
+```
+
+### Backlog management
+
+```
+S-88 (backlog) — view current state, add items, update, triage, handoff
+/backlog           — session-start briefing (reminders + handoff + active items)
+/backlog handoff   — write session summary at session end
+```
+
 ### New FOSS product launch (all pages from scratch)
 
 ```
@@ -104,7 +138,7 @@ S-38 (launch-product) orchestrates:
   Phase 4 (report):    writes reports/launch/{family}-{platform}-{timestamp}.md
 ```
 
-## 7. Hard Stop Conditions
+## 8. Hard Stop Conditions
 
 The following always cause immediate halt (no agent override):
 
@@ -114,14 +148,14 @@ The following always cause immediate halt (no agent override):
 - `knowledge/claims.md` has `claim_source=llm_fallback` rate > 50%
 - Page grade = F (critical finding) from S-25
 
-## 8. Escalation Conditions (route to human review)
+## 9. Escalation Conditions (route to human review)
 
 - S-23 `FAIL` persists after remediation
 - S-12 diff reveals removed public class or changed method signature
 - `stale_report` shows > 30% of page claims are orphaned
 - Heal loop (S-26) fails to improve grade after 2 attempts
 
-## 9. Maintenance Workflow
+## 10. Maintenance Workflow
 
 **Trigger**: `knowledge/model.yaml.stale_since` is not null (repo has changed)
 
@@ -131,7 +165,7 @@ The following always cause immediate halt (no agent override):
 4. S-15 (embed-knowledge) — sync vector store if used
 5. Commit: `knowledge/` changes + `content/` changes together
 
-## 10. Evidence Proof in Commits
+## 11. Evidence Proof in Commits
 
 Every commit touching `content/` MUST include in the commit message:
 
@@ -141,7 +175,7 @@ Every commit touching `content/` MUST include in the commit message:
 
 Citation comments in pages are the inline persistent evidence.
 
-## 11. Prohibited Actions
+## 12. Prohibited Actions
 
 - Write API method names not present in `knowledge/{family}/{platform}/api_surface.md`
 - Write format claims not present in `knowledge/{family}/{platform}/formats.md`
@@ -149,7 +183,7 @@ Citation comments in pages are the inline persistent evidence.
 - Skip S-23 ground-check for any reason
 - Write to forbidden paths listed in Section 4
 
-## 12. Agent Roles
+## 13. Agent Roles
 
 Each agent session operates under one of four roles. The role determines which
 skills the agent may invoke and where it may write. Default role is **writer**.
@@ -165,7 +199,7 @@ skills the agent may invoke and where it may write. Default role is **writer**.
 - An agent must not invoke a skill outside its role's allowed set.
 - Machine-readable role definitions: `config.yaml` → `governance.roles`.
 
-## 13. Autonomy Tiers
+## 14. Autonomy Tiers
 
 Actions are grouped into four tiers that control how much human oversight is required.
 
@@ -181,7 +215,7 @@ Session limits (from `config.yaml` → `governance.session_limits`):
 - `max_families_per_session: 3` — escalate if touching more than 3 families
 - `max_consecutive_fails: 3` — halt session after 3 consecutive skill failures
 
-## 14. Audit Trail
+## 15. Audit Trail
 
 Every agent session must produce a traceable log.
 
@@ -203,7 +237,7 @@ Session: {session_id}
 {ISO-timestamp} SESSION_END skills_invoked={n} pages_written={n} escalations={n}
 ```
 
-## 15. File Map
+## 16. File Map
 
 ### Content paths
 
@@ -267,7 +301,7 @@ Session: {session_id}
 | Kilo Code | `.kilocode/skills/{name}/SKILL.md` | `.kilocode/rules-code/` |
 | Canonical source | `skills/{name}.md` | — |
 
-## 16. README Freshness
+## 17. README Freshness
 
 `README.md` is **not** in the forbidden write list — agents may update it under governance.
 

@@ -4,7 +4,7 @@ Evidence-based content generation skills for FOSS product documentation. Works w
 
 ## What This Is
 
-A standalone library of 32 agent skills that power a knowledge-grounded content pipeline:
+A standalone library of 48 agent skills that power a knowledge-grounded content pipeline:
 
 1. **Discover** FOSS repositories across GitHub organizations
 2. **Extract** truth from FOSS repositories (tree-sitter analysis)
@@ -126,11 +126,42 @@ This installs tree-sitter and language grammars used by the knowledge extraction
 
 | ID | Skill | Purpose |
 |----|-------|---------|
-| S-17 | rubric-align | Quality gap analysis per dimension |
+| S-17 | rubric-align *(internal)* | Quality gap analysis per dimension |
 | S-21 | page-enhance | Apply targeted quality improvements |
 | S-25 | eval-page | Assign A–F quality grade |
 | S-26 | heal-page | Fix low-quality pages (grade D/F) |
 | S-20 | page-update | Update content after knowledge refresh |
+| S-63 | code-smoke | Syntax/type-check Python code blocks without executing |
+| S-72 | evidence-repair | Fix broken/malformed evidence frontmatter blocks |
+| S-78 | evidence-enhance | Improve evidence coverage on passing pages |
+| S-41 | batch-eval-fix | Eval + deterministic auto-fix (no LLM); safe for batch runs |
+
+### Content Governance & Repair
+
+| ID | Skill | Purpose |
+|----|-------|---------|
+| S-73 | manual-edit | Operator-directed targeted content edit under full governance |
+| S-66 | register-human-content | Register human-authored pages in provenance tracking |
+| S-83 | page-retire | Retire outdated pages (set draft:true, retired_at) |
+
+### Validation & Audit
+
+| ID | Skill | Purpose |
+|----|-------|---------|
+| S-65 | link-validate | Validate cross-site internal links; detect broken slugs |
+| S-90 | truth-audit | Member-level API verification against api_surface.json |
+| S-85 | truth-audit-content | Line-level content truth audit; stable finding IDs |
+| S-80 | coverage-reconcile | Knowledge unit disposition report; detects orphaned claims |
+| S-81 | knowledge-coverage-audit | Per-claim 9-state disposition table; "no silent knowledge loss" |
+
+### Session & Operations
+
+| ID | Skill | Purpose |
+|----|-------|---------|
+| S-77 | session-start | Session gate: read governance, init ledger, backlog briefing |
+| S-76 | commit | Stage and commit session-touched files (Conventional Commits) |
+| S-88 | backlog | Unified backlog management across sessions |
+| S-67 | diagnose-skill-failure | 5-class failure diagnosis for broken skill invocations |
 
 ### Orchestration
 
@@ -157,7 +188,7 @@ Launch:       S-38 orchestrates:
 
 ```
 foss-launcher-skills/
-├── skills/                    # 32 canonical skill files (YAML frontmatter + markdown)
+├── skills/                    # 48 canonical skill files (YAML frontmatter + markdown)
 ├── scripts/                   # Python tooling (11 modules)
 │   ├── scout.py               # Tree-sitter knowledge extraction
 │   ├── merge.py               # Knowledge consolidation engine
