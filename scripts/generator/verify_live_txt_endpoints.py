@@ -60,11 +60,11 @@ def check_url(url, retries=3, backoff=2.0):
 
 def check_content(url, domain=''):
     try:
-        with urllib.request.urlopen(url, timeout=15) as r:
-            raw = r.read(4096)
+        with urllib.request.urlopen(url, timeout=30) as r:
+            raw = r.read()
             if raw[:2] == b'\x1f\x8b':
                 raw = gzip.decompress(raw)
-            body = raw.decode('utf-8', errors='replace')
+            body = raw.decode('utf-8', errors='replace')[:8192]
         results = {}
         skip = DOMAIN_SKIP_CHECKS.get(domain, set())
         for name, fn in CONTENT_CHECKS:
@@ -132,6 +132,9 @@ def check_consumer_endpoints(out_dir):
             # Extract .txt URLs from llms.txt
             import re
             txt_refs = re.findall(r'https?://[^\s)]+\.txt', body)
+            if not txt_refs:
+                rel_refs = re.findall(r'(?:^|\s)(/[^\s)]+\.txt)', body)
+                txt_refs = [f'https://{domain}{p}' for p in rel_refs]
             domain_results['referenced_urls'] = len(txt_refs)
             # Spot-check up to 5
             spot_urls = txt_refs[:5]
