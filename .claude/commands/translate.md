@@ -19,6 +19,11 @@ Inspect `$ARGUMENTS` to determine which skill to invoke:
   /translate-batch {family} {platform} [{site}] [{locales}]
   ```
 
+> **Parallelism note:** If this skill is invoked for multiple batches concurrently,
+> each batch agent MUST NOT commit or push independently. See "Push Coordination"
+> section in translate-batch SKILL.md. A single coordinator or the human operator
+> must perform the final commit+push after all batches complete.
+
 ## Quick Reference
 
 | Invocation | Effect |

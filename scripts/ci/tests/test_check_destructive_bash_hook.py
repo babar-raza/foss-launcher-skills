@@ -151,3 +151,36 @@ def test_rm_rf_runs_allowed():
 def test_git_push_force_non_main_allowed():
     """git push --force to a feature branch → exit 0 (not main/master)."""
     assert _run("git push --force origin feature/my-branch") == 0
+
+
+# New blocks: remote-ref resets, HEAD~N, SHA resets (TC-GIT-002)
+
+def test_reset_origin_head_blocked():
+    assert _run("git reset origin/HEAD") == 2
+
+def test_reset_origin_main_blocked():
+    assert _run("git reset origin/main") == 2
+
+def test_reset_refs_remotes_blocked():
+    assert _run("git reset refs/remotes/origin/main") == 2
+
+def test_reset_origin_file_allowed():
+    assert _run("git reset origin/main -- content/foo.md") == 0
+
+def test_reset_head_tilde_blocked():
+    assert _run("git reset HEAD~1") == 2
+
+def test_reset_head_caret_blocked():
+    assert _run("git reset HEAD^") == 2
+
+def test_reset_sha_no_file_blocked():
+    assert _run("git reset abc1234abc1234") == 2
+
+def test_reset_sha_file_allowed():
+    assert _run("git reset abc1234 -- content/foo.md") == 0
+
+def test_reset_head_allowed():
+    assert _run("git reset HEAD") == 0
+
+def test_reset_head_file_allowed():
+    assert _run("git reset HEAD -- content/foo.md") == 0
