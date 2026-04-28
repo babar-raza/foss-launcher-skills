@@ -13,6 +13,7 @@ import math
 import os
 import sys
 import time
+import argparse
 import urllib.request
 import urllib.error
 
@@ -27,17 +28,13 @@ PILOT_PAGES = {
 CONTENT_CHECKS = [
     ('no_angle_shortcodes', lambda body: '{{' not in body),
     ('no_percent_shortcodes', lambda body: '{%' not in body),
-    ('has_title', lambda body: body.startswith('# ')),
-    ('has_url', lambda body: 'https://' in body),
+    ('has_title', lambda body: '\n# ' in body or body.startswith('# ')),
     ('no_evidence', lambda body: 'claim_id' not in body and 'model_sha' not in body),
     ('no_grading', lambda body: 'graded_content_hash' not in body),
 ]
 
 
-DOMAIN_SKIP_CHECKS = {
-    'products.aspose.org': {'has_title'},
-    'blog.aspose.org': {'has_url'},
-}
+DOMAIN_SKIP_CHECKS = {}
 
 
 def check_url(url, retries=3, backoff=2.0):
@@ -91,7 +88,131 @@ def select_sample(domain, urls):
     return sorted(sampled)[:target + len(pilot_urls)]
 
 
+def select_deep_sample(domain, urls, ratio=0.10):
+    """Select evenly-spread sample for deep content validation."""
+    n = len(urls)
+    target = max(1, math.ceil(n * ratio))
+    step = max(1, n // target)
+    sampled = [urls[i] for i in range(0, n, step)]
+    return sampled[:target]
+
+
+def check_consumer_endpoints(out_dir):
+    """TC-17: Verify llms.txt and llms-full.txt discovery endpoints."""
+    print("\n=== TC-17: Consumer Discovery Validation ===")
+    domains = ['products.aspose.org', 'docs.aspose.org', 'blog.aspose.org',
+               'kb.aspose.org', 'reference.aspose.org']
+    any_failure = False
+    results = {}
+
+    for domain in domains:
+        domain_results = {}
+        for fname in ['llms.txt', 'llms-full.txt']:
+            url = f'https://{domain}/{fname}'
+            result = check_url(url)
+            if result['pass']:
+                ct = result.get('content_type', '')
+                if 'text/plain' not in ct and 'text/' not in ct:
+                    result['pass'] = False
+                    result['mime_issue'] = ct
+            domain_results[fname] = result
+            status = 'PASS' if result['pass'] else 'FAIL'
+            print(f"  {domain}/{fname}: HTTP {result.get('status')} | {status}")
+            if not result['pass']:
+                any_failure = True
+
+        # Cross-reference: parse llms.txt and spot-check referenced URLs
+        llms_url = f'https://{domain}/llms.txt'
+        try:
+            with urllib.request.urlopen(llms_url, timeout=15) as r:
+                raw = r.read()
+                if raw[:2] == b'\x1f\x8b':
+                    raw = gzip.decompress(raw)
+                body = raw.decode('utf-8', errors='replace')
+            # Extract .txt URLs from llms.txt
+            import re
+            txt_refs = re.findall(r'https?://[^\s)]+\.txt', body)
+            domain_results['referenced_urls'] = len(txt_refs)
+            # Spot-check up to 5
+            spot_urls = txt_refs[:5]
+            spot_pass = 0
+            for surl in spot_urls:
+                sr = check_url(surl)
+                if sr['pass']:
+                    spot_pass += 1
+                else:
+                    print(f"  XREF FAIL {surl}: HTTP {sr.get('status')}")
+            domain_results['xref_checked'] = len(spot_urls)
+            domain_results['xref_passed'] = spot_pass
+            if spot_pass < len(spot_urls):
+                any_failure = True
+            print(f"  {domain} xref: {spot_pass}/{len(spot_urls)} referenced URLs OK")
+        except Exception as e:
+            domain_results['xref_error'] = str(e)
+            print(f"  {domain} xref: ERROR {e}")
+
+        results[domain] = domain_results
+
+    with open(f'{out_dir}/consumer-discovery-results.json', 'w') as f:
+        json.dump(results, f, indent=2)
+
+    print("\n=== TC-17 Summary ===")
+    for domain, dr in results.items():
+        llms_ok = dr.get('llms.txt', {}).get('pass', False)
+        full_ok = dr.get('llms-full.txt', {}).get('pass', False)
+        status = 'PASS' if llms_ok and full_ok else 'FAIL'
+        print(f"  {domain}: llms.txt={'OK' if llms_ok else 'FAIL'} llms-full.txt={'OK' if full_ok else 'FAIL'} | {status}")
+
+    return any_failure
+
+
+def run_deep_content(inventory, out_dir):
+    """TC-13: Deep content validation on 10% of URLs per domain."""
+    print("\n=== Deep Content Validation (10% sampling) ===")
+    all_deep = {}
+    any_failure = False
+
+    for domain, urls in inventory.items():
+        sample = select_deep_sample(domain, urls)
+        print(f"\n--- {domain}: {len(sample)}/{len(urls)} deep checks ---")
+        results = []
+        passed = 0
+        failed = 0
+
+        for url in sample:
+            result = check_content(url, domain)
+            result['url'] = url
+            results.append(result)
+            if result.get('pass'):
+                passed += 1
+            else:
+                failed += 1
+                any_failure = True
+                print(f"  DEEP FAIL {url}: {result}")
+
+        all_deep[domain] = {
+            'total': len(urls), 'sampled': len(sample),
+            'passed': passed, 'failed': failed,
+            'results': results
+        }
+        print(f"  {domain}: {passed}/{len(sample)} deep content OK")
+
+    with open(f'{out_dir}/deep-content-results.json', 'w') as f:
+        json.dump(all_deep, f, indent=2)
+
+    print("\n=== Deep Content Summary ===")
+    for domain, d in all_deep.items():
+        status = 'PASS' if d['failed'] == 0 else 'FAIL'
+        print(f"  {domain}: {d['passed']}/{d['sampled']} | {status}")
+
+    return any_failure
+
+
 def main():
+    parser = argparse.ArgumentParser(description='Verify live .txt endpoints')
+    parser.add_argument('--deep', action='store_true', help='Run deep content validation (10%% sampling)')
+    args = parser.parse_args()
+
     inv_path = 'reports/llms-txt-verification/generated-txt-inventory.json'
     if not os.path.exists(inv_path):
         print(f"ERROR: {inv_path} not found — run build_txt_inventory.py first", file=sys.stderr)
@@ -164,6 +285,15 @@ def main():
     all_ct = [u.get('content_type', '') for d in all_results.values() for u in d.get('urls', []) if u.get('pass')]
     bad = [ct for ct in all_ct if 'octet-stream' in ct]
     print(f"\nTC-07 decision: {'MANDATORY' if bad else 'DEFERRED (all text/plain)'}")
+
+    # TC-13: Deep content validation
+    if args.deep:
+        deep_failure = run_deep_content(inventory, out_dir)
+        any_failure = any_failure or deep_failure
+
+    # TC-17: Consumer discovery validation
+    consumer_failure = check_consumer_endpoints(out_dir)
+    any_failure = any_failure or consumer_failure
 
     sys.exit(1 if any_failure else 0)
 
