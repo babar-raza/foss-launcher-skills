@@ -28,6 +28,63 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Pre-commit summary mode (TC-DS-02): step tracking and timing
+# ---------------------------------------------------------------------------
+declare -a _PC_NAMES=()
+declare -a _PC_RESULTS=()
+declare -a _PC_TIMES=()
+_PC_START_EPOCH=""
+
+_pc_now() {
+    # Portable epoch seconds (bash 4+ EPOCHSECONDS or date fallback)
+    if [ -n "${EPOCHSECONDS:-}" ]; then
+        echo "$EPOCHSECONDS"
+    else
+        date +%s 2>/dev/null || echo 0
+    fi
+}
+
+_pc_step_start() {
+    _PC_NAMES+=("$1")
+    _PC_START_EPOCH=$(_pc_now)
+}
+
+_pc_step_end() {
+    local _result="${1:-PASS}"
+    local _end=$(_pc_now)
+    local _elapsed=$(( _end - ${_PC_START_EPOCH:-$_end} ))
+    _PC_RESULTS+=("$_result")
+    _PC_TIMES+=("${_elapsed}.0s")
+}
+
+_pc_print_summary() {
+    echo ""
+    echo "=== Pre-commit Summary ==="
+    local _pass=0 _skip=0 _warn=0 _fail=0
+    for i in "${!_PC_NAMES[@]}"; do
+        local _name="${_PC_NAMES[$i]}"
+        local _res="${_PC_RESULTS[$i]:-SKIP}"
+        local _time="${_PC_TIMES[$i]:-0.0s}"
+        printf "  %-6s %-30s %-6s %s\n" "Step $i" "$_name" "$_res" "$_time"
+        case "$_res" in
+            PASS) _pass=$((_pass+1)) ;;
+            SKIP) _skip=$((_skip+1)) ;;
+            WARN) _warn=$((_warn+1)) ;;
+            FAIL) _fail=$((_fail+1)) ;;
+        esac
+    done
+    echo "  Total: $_pass passed, $_skip skipped, $_warn warning, $_fail failed"
+    echo "=============================="
+}
+
+_pc_exit() {
+    local _code="${1:-0}"
+    _pc_print_summary
+    exit "$_code"
+}
+
+# ---------------------------------------------------------------------------
+_pc_step_start "reports/ boundary"
 # Step 0: reports/ boundary — local-only artifacts must never be committed
 # ---------------------------------------------------------------------------
 # reports/ is gitignored and is a strict local-only boundary. Any staged
@@ -45,6 +102,7 @@ if [ -n "$staged_reports" ]; then
 fi
 
 # ---------------------------------------------------------------------------
+_pc_step_start "forbidden paths"
 # Step 1: Forbidden-path enforcement
 # ---------------------------------------------------------------------------
 # Check all staged paths in a single Python invocation using --stdin batch mode.
@@ -82,6 +140,7 @@ if [ ${#forbidden_staged[@]} -gt 0 ]; then
 fi
 
 # ---------------------------------------------------------------------------
+_pc_step_start "filename conventions"
 # Step 1b: Content filename convention check (TC-NEW-01)
 # ---------------------------------------------------------------------------
 # Blocks commits where any staged content file has an invalid filename:
@@ -94,14 +153,17 @@ if [ -n "$_HOOK_PYTHON" ]; then
         echo "BLOCKED: One or more content files have invalid filenames (see above)."
         echo "  Rename the file(s) to a valid lowercase slug before committing."
         echo "  Convention: [a-z0-9]+(-[a-z0-9]+)*.md  (no leading/trailing hyphen)"
-        exit 1
+        _pc_step_end "FAIL"
+        _pc_exit 1
     fi
 else
     echo "[Step 1b] SKIP: .venv not found — filename check skipped." >&2
 fi
+_pc_step_end "PASS"
 
 
 # ---------------------------------------------------------------------------
+_pc_step_start "API accuracy audit"
 # Step 2: API accuracy audit on staged English content files
 # ---------------------------------------------------------------------------
 # Locale files (/ar/, /fr/, /de/, etc.) are translator output and are not
@@ -112,7 +174,10 @@ while IFS= read -r _line; do changed+=("$_line"); done < <(
         | grep '^content/.*\.md$' \
         | grep '/en/'
 )
-[ ${#changed[@]} -eq 0 ] && exit 0
+if [ ${#changed[@]} -eq 0 ]; then
+    _pc_step_end "SKIP"
+    _pc_exit 0
+fi
 
 echo "Running content API audit on staged files (${#changed[@]} English pages)..."
 # Use --files-from to avoid OS argument-list-too-long errors on large commits.
@@ -126,17 +191,20 @@ if [ -n "$_HOOK_PYTHON" ]; then
         echo ""
         echo "BLOCKED: Content has API accuracy failures."
         echo "Fix the issues above, then re-stage and commit."
-        exit 1
+        _pc_step_end "FAIL"
+        _pc_exit 1
     fi
 else
     rm -f "$_tmpfile"
     echo "[Step 2] SKIP: .venv not found — audit skipped." >&2
     status=0
 fi
+_pc_step_end "PASS"
 
 echo "Content API audit passed."
 
 # ---------------------------------------------------------------------------
+_pc_step_start "plugin_platform"
 # Step 3: Check plugin_platform canonical values for products pages
 # ---------------------------------------------------------------------------
 if git diff --cached --name-only --diff-filter=ACM | grep -q '^content/products\.aspose\.org/'; then
@@ -147,14 +215,17 @@ if git diff --cached --name-only --diff-filter=ACM | grep -q '^content/products\
             echo ""
             echo "BLOCKED: plugin_platform has non-canonical values (see AGENTS.md Section 3b)."
             echo "Fix the values above, then re-stage and commit."
-            exit 1
+            _pc_step_end "FAIL"
+            _pc_exit 1
         fi
     else
         echo "[Step 3] SKIP: .venv not found — plugin_platform check skipped." >&2
     fi
 fi
+_pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
+_pc_step_start "frontmatter validation"
 # Step 4: Provenance frontmatter validation on staged English pages
 # ---------------------------------------------------------------------------
 # Check 2b (validate_frontmatter.py): warn when a non-empty provenance block is
@@ -176,11 +247,14 @@ if [ ${#changed[@]} -gt 0 ]; then
     if [ $prov_status -ne 0 ]; then
         echo ""
         echo "BLOCKED: Frontmatter has hard errors (see above). Fix before committing."
-        exit 1
+        _pc_step_end "FAIL"
+        _pc_exit 1
     fi
 fi
+_pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
+_pc_step_start "provenance protection"
 # Step 4b: Provenance protection — warn when auto_updatable: false pages are modified
 # ---------------------------------------------------------------------------
 # Detects staged modifications to pages that have auto_updatable: false in their
@@ -195,8 +269,10 @@ if [ $_prot_status -eq 2 ]; then
     echo "  This is currently a warning. It will become blocking in a future release."
     # Not blocking yet: exit would be here when promoted
 fi
+_pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
+_pc_step_start "content_hash normalization"
 # Step 5: content_hash normalization for staged English content files
 # ---------------------------------------------------------------------------
 # Computes the current body hash for each staged English .md file and updates
@@ -215,8 +291,10 @@ if [ ${#changed[@]} -gt 0 ]; then
     rm -f "$_tmpfile5"
     # Non-blocking: normalization errors are logged but do not block the commit.
 fi
+_pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
+_pc_step_start "last_mechanism staleness"
 # Step 6: last_mechanism staleness warning
 # ---------------------------------------------------------------------------
 # For each staged file where the body changed (hash was stale), check whether
@@ -270,8 +348,10 @@ print(f'{computed}|{mech}')
     fi
 done
 fi  # _HOOK_PYTHON guard (Step 6)
+_pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
+_pc_step_start "Python placement"
 # Step 7: Python file placement check (staged .py files only)
 # ---------------------------------------------------------------------------
 # Blocks commits of .py files in forbidden locations (repo root, scripts/ root,
@@ -289,14 +369,17 @@ if git diff --cached --name-only --diff-filter=ACM | grep -q '\.py$'; then
             echo "    scripts/pipeline/     (operational; follow PIPELINE.md New File Protocol)"
             echo "    scripts/ci/           (CI-only validator)"
             echo "  See AGENTS.md §4b for the full decision tree."
-            exit 1
+            _pc_step_end "FAIL"
+            _pc_exit 1
         fi
     else
         echo "[Step 7] SKIP: .venv not found — Python placement check skipped." >&2
     fi
 fi
+_pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
+_pc_step_start "venv enforcement"
 # Step 7b: Venv enforcement on staged skill files
 # ---------------------------------------------------------------------------
 # Blocks commits where skill bash blocks contain bare `python`, `pip install --user`,
@@ -319,12 +402,15 @@ if git diff --cached --name-only --diff-filter=ACM | grep -qE '^(skills/|\.agent
             echo "BLOCKED: Staged file(s) contain bare python/pip or --user violations."
             echo "  Auto-fix: .venv/Scripts/python scripts/ci/enforce_venv_python.py --fix"
             echo "  DENY violations (--user, USER_SITE) require manual skill redesign."
-            exit 1
+            _pc_step_end "FAIL"
+            _pc_exit 1
         fi
     fi
 fi
+_pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
+_pc_step_start "session ledger"
 # Step 8: Session-ledger enforcement (content files only)
 # ---------------------------------------------------------------------------
 # When an ACTIVE session pointer exists, verify that every staged content .md
@@ -358,8 +444,10 @@ if [ -f "reports/session-state/ACTIVE" ]; then
         fi
     fi
 fi
+_pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
+_pc_step_start "onboarding integrity"
 # Step 9: Onboarding integrity — runs ONLY when an operator doc is staged.
 # Skipped entirely for all other commits (< 1ms gate check, ~2s when triggered).
 # Enforces: AGENTS.md link, CLAUDE.md ref, relative links, venv prefix, structure.
@@ -388,14 +476,16 @@ if echo "$STAGED_FILES" | grep -qE "$ONBOARDING_PATTERN"; then
   if [ -n "$venv_python" ]; then
     if ! "$venv_python" scripts/ci/check_onboarding_integrity.py; then
       echo "[Step 9] FAIL: onboarding integrity check failed. Fix issues above before committing."
-      exit 1
+      _pc_step_end "FAIL"
+      _pc_exit 1
     fi
     echo "[Step 9] PASS"
   fi
 fi
-
+_pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
+_pc_step_start "graded_at reversion"
 # Step 10: graded_at-only reversion
 # Auto-revert staged .md files where the only diff from HEAD is graded_at:.
 # Calls check_graded_at_only.py (which uses the venv python -- not bare python).
@@ -426,7 +516,8 @@ if [ ${#changed[@]} -gt 0 ]; then
             echo "[Step 10] ERROR: graded_at-only check had parse failures:"
             grep '^PARSE_FAILURE:' "$_ga_stderr" | sed 's/^PARSE_FAILURE:/  /'
             rm -f "$_ga_stderr"
-            exit 1
+            _pc_step_end "FAIL"
+            _pc_exit 1
         fi
         rm -f "$_ga_stderr"
         if [ ${#revert_candidates[@]} -gt 0 ]; then
@@ -440,8 +531,10 @@ if [ ${#changed[@]} -gt 0 ]; then
         fi
     fi
 fi
+_pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
+_pc_step_start "monkeypatch lint"
 # Step 11: Monkeypatch lint — block T1/T2 violations in staged test files
 # ---------------------------------------------------------------------------
 # Checks for T1/T2 monkeypatch violations (AGENTS.md §16 tiered policy).
@@ -460,9 +553,11 @@ if [ ${#staged_test_files[@]} -gt 0 ]; then
         if [ $_lint_exit -ne 0 ]; then
             echo "[Step 11] BLOCKED: T1/T2 monkeypatch violations in staged test files." >&2
             echo "[Step 11] Remediate with configure() seams. See AGENTS.md §16." >&2
-            exit 1
+            _pc_step_end "FAIL"
+            _pc_exit 1
         fi
     fi
 fi
+_pc_step_end "PASS"
 
-exit 0
+_pc_exit 0

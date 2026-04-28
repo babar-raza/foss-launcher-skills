@@ -106,6 +106,25 @@ GOV_MAINTENANCE_MODE=1 GOV_MAINTENANCE_PLAN=TC-GOV-XX GOV_BYPASS_REASON='reason'
 | Git commit (non-content) | Pre-commit Steps 0-7 |
 | PR push | CI content-audit, CI skill-governance |
 
+## Hook Firing Order (TC-DS-04)
+
+Which PreToolUse hooks fire for each tool, and what can block:
+
+| Tool | Hooks (in firing order) | What can block | Exemptions |
+|------|------------------------|----------------|------------|
+| Read | session gate (EXEMPT) | Nothing | Always allowed |
+| Grep | session gate (EXEMPT) | Nothing | Intrinsically read-only (TC-DS-01) |
+| Glob | session gate (EXEMPT) | Nothing | Intrinsically read-only (TC-DS-01) |
+| Bash | session gate, venv hook, destructive hook | Bare python/pip; destructive ops | Read-only commands exempt from gate (TC-DS-01) |
+| Edit | session gate, content-edit hook, skill-context hook | content/ without S-73; governed path without skill | — |
+| Write | session gate, write-path hook, py-write hook, content-write hook, skill-context hook | Forbidden paths; wrong .py location; content/ without S-23; governed path without skill | — |
+
+**Session gate read-only exemptions (TC-DS-01):**
+- Grep and Glob are always exempt (zero write side effects)
+- Bash commands classified as read-only by `scripts/ci/classify_bash_readonly.py` are exempt
+- Read-only = commands like `git log`, `ls`, `cat`, `grep`, `find` (without -delete)
+- Non-read-only commands (rm, python, redirects, etc.) still require the gate
+
 ## Reinstalling Hooks
 
 If hooks get out of sync with source scripts:
