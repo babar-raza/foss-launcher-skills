@@ -4,7 +4,7 @@ Coverage:
 - 0 D/F pages → ready=True (when all other criteria met)
 - any F page → ready=False, blocker in list
 - D page also blocks
-- translation coverage below threshold → not ready
+- translation coverage does NOT block (informational only)
 - missing checkpoint → not ready
 - H-gate FAIL → not ready
 - H-gate not reviewed → not ready
@@ -18,7 +18,6 @@ import pytest
 import readiness_scorecard
 from readiness_scorecard import (
     _SUBDOMAINS,
-    _THRESHOLDS,
     _LOCALES,
     compute_verdict,
 )
@@ -35,18 +34,15 @@ def _reset_rs():
 # ---------------------------------------------------------------------------
 
 def _passing_coverage() -> dict:
-    """Coverage dict where all subdomains exceed their thresholds."""
+    """Coverage dict (informational only — does not affect verdict)."""
     total = len(_LOCALES)
     result = {}
     for site in _SUBDOMAINS:
-        threshold = _THRESHOLDS[site]
-        required = int(threshold * total)
-        present = required + 2  # safely above threshold
         result[site] = {
-            "locales_present": present,
+            "locales_present": 0,
             "total_locales": total,
-            "coverage": present / total,
-            "total_files": present * 5,
+            "coverage": 0,
+            "total_files": 0,
         }
     return result
 
@@ -54,7 +50,6 @@ def _passing_coverage() -> dict:
 def _passing_checkpoints() -> dict:
     return {
         "truth_audit_done": True,
-        "translation_done": True,
         "knowledge_ready": True,
         "quality_done": True,
     }
@@ -133,17 +128,10 @@ class TestGradeCriteria:
 # Translation coverage criteria
 # ---------------------------------------------------------------------------
 
-class TestTranslationCoverage:
-    def test_below_threshold_blocks(self):
-        coverage = _passing_coverage()
-        site = "docs.aspose.org"
-        threshold = _THRESHOLDS[site]
-        total = len(_LOCALES)
-        required = int(threshold * total)
-        # Set present to just below required
-        coverage[site]["locales_present"] = required - 2
-        coverage[site]["coverage"] = (required - 2) / total
-
+class TestTranslationCoverageNonBlocking:
+    def test_zero_coverage_does_not_block(self):
+        """Translation coverage is informational only — zero coverage must not block."""
+        coverage = _passing_coverage()  # all zeros
         ready, blockers = compute_verdict(
             _passing_grades(),
             coverage,
@@ -151,19 +139,19 @@ class TestTranslationCoverage:
             _passing_hgates(),
             skip_human_review=True,
         )
-        assert ready is False
-        assert any("docs.aspose.org" in b for b in blockers)
+        assert ready is True
+        coverage_blockers = [b for b in blockers if "locales" in b]
+        assert len(coverage_blockers) == 0
 
-    def test_empty_coverage_dict_passes(self):
-        """Empty coverage (no content yet) doesn't block via coverage criterion."""
+    def test_empty_coverage_dict_does_not_block(self):
+        """Empty coverage dict must not produce any blocker."""
         ready, blockers = compute_verdict(
             _passing_grades(),
-            {},  # empty coverage
+            {},
             _passing_checkpoints(),
             _passing_hgates(),
             skip_human_review=True,
         )
-        # Checkpoint criteria will still fire but not coverage
         coverage_blockers = [b for b in blockers if "locales" in b]
         assert len(coverage_blockers) == 0
 
@@ -187,19 +175,7 @@ class TestCheckpointCriteria:
         assert ready is False
         assert any("truth_audit_done" in b for b in blockers)
 
-    def test_missing_translation_done_blocks(self):
-        checkpoints = _passing_checkpoints()
-        del checkpoints["translation_done"]
 
-        ready, blockers = compute_verdict(
-            _passing_grades(),
-            _passing_coverage(),
-            checkpoints,
-            _passing_hgates(),
-            skip_human_review=True,
-        )
-        assert ready is False
-        assert any("translation_done" in b for b in blockers)
 
 
 # ---------------------------------------------------------------------------

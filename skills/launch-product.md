@@ -1,7 +1,7 @@
 <!-- CONTRACT: agent-executed
      purpose: orchestrate 5-subdomain full documentation launch (products, blog, docs, kb, reference)
-     preconditions: knowledge bootstrapped; clone cache populated; LLM key available for translation
-     postcondition: all 5 subdomains populated, graded, translated, and readiness scorecard produced
+     preconditions: knowledge bootstrapped; clone cache populated
+     postcondition: all 5 subdomains populated, graded, and readiness scorecard produced
      idempotent: yes — checkpoint-based resume skips completed stages
      verified: 2026-04-11
 -->
@@ -237,48 +237,7 @@ re-run the relevant platform-index skill (`/new-docs-index`, `/new-kb-index`, or
 **Checkpoint**: `truth_audit_done`
 
 **On FAIL findings**: Print the full list. **Do NOT auto-fix.** Require human review or
-healing agent to resolve before marking this checkpoint complete. Do not proceed to Stage 6.5
-or Stage 7 until FAIL count is 0.
-
----
-
-### STAGE 6.5 — Full Translation (all subdomains)
-
-**Purpose**: Translate all English content across all 5 subdomains to all 36 locales. This
-is the **only** translation stage in the launch flow — all English pages must be generated
-and truth-audited (Stage 6, 0 FAIL) before this stage runs.
-
-**Pre-flight guards** (check both before running any translate commands):
-
-1. Verify the truth audit passed:
-```bash
-.venv/Scripts/python scripts/pipeline/project_phase_store.py get {family} {platform} truth_audit_done
-```
-If this does not return `true`, halt: "Stage 6.5 requires truth_audit_done=true. Complete Stage 6 first."
-
-2. Verify LLM API key is available:
-```bash
-.venv/Scripts/python -c "import os; k=os.environ.get('LLM_API_KEY',''); print('OK' if k else 'MISSING')"
-```
-If `MISSING`: halt with message: "Stage 6.5 requires LLM_API_KEY for translation. Set it and retry, or proceed to Stage 7/8 with untranslated content (scorecard will flag locale coverage gaps)." Do NOT silently skip translation — the operator must explicitly choose to proceed without it.
-
-**Commands** (run each subdomain sequentially):
-```bash
-.venv/Scripts/python -m translator batch --family {family} --platform {platform} --site products.aspose.org
-.venv/Scripts/python -m translator batch --family {family} --platform {platform} --site docs.aspose.org
-.venv/Scripts/python -m translator batch --family {family} --platform {platform} --site kb.aspose.org
-.venv/Scripts/python -m translator batch --family {family} --platform {platform} --site reference.aspose.org
-.venv/Scripts/python -m translator batch --family {family} --platform {platform} --site blog.aspose.org
-```
-
-**Checkpoint**: `translation_done`
-
-**On failure per locale**: Log and continue — translation failures are non-blocking for the
-launch but must appear in the Stage 8 readiness scorecard with per-subdomain locale counts.
-
-**Coverage thresholds**: products ≥80% of 36 locales (≥29 locales); all other subdomains ≥70% (≥26 locales each).
-
-**Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} translation_done true`
+healing agent to resolve before marking this checkpoint complete. Do not proceed to Stage 7 until FAIL count is 0.
 
 ---
 
@@ -297,7 +256,7 @@ Auto-fixes deterministic issues only (no LLM pass). Reviews eval grades.
 ```
 **Checkpoint**: `readiness_done`
 
-The script collects grades and translation coverage automatically. Review the output below.
+The script collects grades automatically. Review the output below.
 
 Print per-page grades with counts:
 ```
@@ -310,12 +269,6 @@ Reference pages: {grade summary} ({N} pages)
 
 A: N  B: N  C: N  D: N  F: N
 
-Translation coverage:
-  Products:   {N}/36 locales
-  Docs:       {N}/36 locales
-  KB:         {N}/36 locales
-  Reference:  {N}/36 locales
-  Blog:       {N}/36 locales
 ```
 
 **Print**: `READY TO SHIP` or `NOT READY` with a bullet list of blocking items.
@@ -324,8 +277,6 @@ Translation coverage:
 READY TO SHIP if:
   - 0 D/F pages
   - products + getting-started + first blog post at B+
-  - Products translation >= 80% of 36 locales (>= 29 locales)
-  - All other subdomain translations >= 70% of 36 locales (>= 26 locales each)
 ```
 
 > **Grade calibration — reference pages**: Reference page grades reflect both API surface accuracy
@@ -395,10 +346,10 @@ Keys used: `{family}_{platform}_knowledge_ready`, `{family}_{platform}_site_plan
 `{family}_{platform}_docs_done`, `{family}_{platform}_kb_done`,
 `{family}_{platform}_products_faq_done`,
 `{family}_{platform}_reference_done`, `{family}_{platform}_truth_audit_done`,
-`{family}_{platform}_translation_done`, `{family}_{platform}_quality_done`
+`{family}_{platform}_quality_done`
 
 ## Error Handling
 
 - If any stage fails unexpectedly, save the last successful checkpoint and halt with instructions
 - Do not skip failed stages — investigate and fix before resuming
-- Stage 6 (truth audit) FAIL count > 0 is a hard stop; do not proceed to Stage 6.5, 7, or 8
+- Stage 6 (truth audit) FAIL count > 0 is a hard stop; do not proceed to Stage 7 or 8
