@@ -225,3 +225,101 @@ class TestCSharpNewKeywordTracking:
         # For Python, 'new' is not a keyword; this line parses differently.
         # The important thing: no crash and var_types is not wildly wrong.
         assert isinstance(var_types, dict)
+
+
+# ---------------------------------------------------------------------------
+# Test: Java chained type inference (JTI fix — 2026-04-28)
+# ---------------------------------------------------------------------------
+
+class TestJavaChainedTypeInference:
+    """Tests for N-hop chained method call type inference in Java."""
+
+    def test_explicit_typed_var_gets_declared_type(self):
+        """Worksheet sheet = workbook.getWorksheets().get(0) → sheet='Worksheet'."""
+        var_types = {"workbook": "Workbook"}
+        _extract_from_code_line(
+            "Worksheet sheet = workbook.getWorksheets().get(0);", 1, var_types, "java"
+        )
+        assert var_types.get("sheet") == "Worksheet", (
+            f"Explicit Java type decl must set sheet=Worksheet, got: {var_types.get('sheet')}"
+        )
+
+    def test_var_keyword_gets_full_chain_placeholder(self):
+        """var sheet = workbook.getWorksheets().get(0) → placeholder with getWorksheets AND get."""
+        var_types = {"workbook": "Workbook"}
+        _extract_from_code_line(
+            "var sheet = workbook.getWorksheets().get(0);", 1, var_types, "java"
+        )
+        result = var_types.get("sheet", "")
+        assert "getWorksheets" in result, f"Expected getWorksheets in placeholder, got: {result}"
+        assert "get" in result, f"Expected 'get' in placeholder, got: {result}"
+        assert result.startswith("Workbook."), f"Placeholder must start with Workbook, got: {result}"
+
+    def test_setname_token_uses_worksheet_not_collection(self):
+        """Full markdown: setName must be attributed to Worksheet, not WorksheetCollection."""
+        md = _make_md(
+            "```java\n"
+            "Workbook workbook = new Workbook();\n"
+            "Worksheet sheet = workbook.getWorksheets().get(0);\n"
+            'sheet.setName("TestSheet");\n'
+            "```\n"
+        )
+        tokens = extract_tokens(md, "java")
+        setname_tokens = [t for t in tokens if t.member_name == "setName"]
+        assert setname_tokens, "setName must generate a token"
+        for t in setname_tokens:
+            assert t.class_name == "Worksheet", (
+                f"setName must be attributed to Worksheet, got: {t.class_name}"
+            )
+
+    def test_multiple_collection_vars_independent(self):
+        """Two independent chains must not interfere."""
+        var_types = {"workbook": "Workbook", "presentation": "Presentation"}
+        _extract_from_code_line(
+            "var sheet = workbook.getWorksheets().get(0);", 1, var_types, "java"
+        )
+        _extract_from_code_line(
+            "var slide = presentation.getSlides().get(0);", 2, var_types, "java"
+        )
+        sheet_type = var_types.get("sheet", "")
+        slide_type = var_types.get("slide", "")
+        assert "Workbook" in sheet_type, f"sheet must reference Workbook chain, got: {sheet_type}"
+        assert "Presentation" in slide_type, f"slide must reference Presentation chain, got: {slide_type}"
+        assert sheet_type != slide_type, "sheet and slide must not share types"
+
+    def test_explicit_type_wins_over_rhs_inference(self):
+        """Explicit WorksheetCollection declaration must be honored."""
+        var_types = {"workbook": "Workbook"}
+        _extract_from_code_line(
+            "WorksheetCollection sheets = workbook.getWorksheets();", 1, var_types, "java"
+        )
+        assert var_types.get("sheets") == "WorksheetCollection", (
+            f"Explicit WorksheetCollection declaration must be honored, got: {var_types.get('sheets')}"
+        )
+        _extract_from_code_line(
+            "Worksheet sheet = sheets.get(0);", 2, var_types, "java"
+        )
+        assert var_types.get("sheet") == "Worksheet", (
+            f"Explicit Worksheet declaration must win, got: {var_types.get('sheet')}"
+        )
+
+    def test_invalid_method_produces_correctly_typed_token(self):
+        """Invalid method on correctly-typed var must produce a token for downstream validation."""
+        var_types = {"sheet": "Worksheet"}
+        result_tokens = _extract_from_code_line("sheet.nonExistentMethod123()", 1, var_types, "java")
+        method_tokens = [t for t in result_tokens if t.member_name == "nonExistentMethod123"]
+        assert method_tokens, "Invalid method call must still produce a token for downstream validation"
+        assert method_tokens[0].class_name == "Worksheet", (
+            f"Invalid method must be attributed to Worksheet, got: {method_tokens[0].class_name}"
+        )
+
+    def test_three_hop_chain_placeholder(self):
+        """a.getB().getC().getD() must produce full 3-hop chain placeholder."""
+        var_types = {"a": "ClassA"}
+        _extract_from_code_line("var val = a.getB().getC().getD();", 1, var_types, "python")
+        result = var_types.get("val", "")
+        parts = result.split(".")
+        assert parts[0] == "ClassA", f"First part must be ClassA, got: {result}"
+        assert "getB" in parts, f"getB must be in chain, got: {result}"
+        assert "getC" in parts, f"getC must be in chain, got: {result}"
+        assert "getD" in parts, f"getD must be in chain, got: {result}"

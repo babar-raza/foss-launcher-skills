@@ -99,6 +99,132 @@ def mock_knowledge(tmp_path):
     return k
 
 
+@pytest.fixture
+def java_mock_knowledge(tmp_path):
+    """Build a minimal Knowledge with Java collection chain data."""
+    merged = tmp_path / "test_family" / "java" / "merged"
+    merged.mkdir(parents=True)
+
+    import json
+    import yaml
+
+    (merged / "model.yaml").write_text(yaml.dump({
+        "version": "1.0",
+        "repo_sha": "java123",
+    }))
+
+    api_surface = [
+        {
+            "name": "Workbook",
+            "methods": [
+                {"name": "getWorksheets", "return_type": "WorksheetCollection", "params": []},
+                {"name": "save", "return_type": "", "params": ["filename"]},
+            ],
+            "properties": [],
+            "enum_members": [],
+            "bases": [],
+        },
+        {
+            "name": "WorksheetCollection",
+            "methods": [
+                {"name": "get", "return_type": "Worksheet", "params": ["index"]},
+                {"name": "add", "return_type": "int", "params": ["name"]},
+            ],
+            "properties": [],
+            "enum_members": [],
+            "bases": [],
+        },
+        {
+            "name": "Worksheet",
+            "methods": [
+                {"name": "setName", "return_type": "", "params": ["name"]},
+                {"name": "getCells", "return_type": "Cells", "params": []},
+            ],
+            "properties": [],
+            "enum_members": [],
+            "bases": [],
+        },
+        {
+            "name": "Cells",
+            "methods": [
+                {"name": "get", "return_type": "", "params": ["row", "col"]},
+            ],
+            "properties": [],
+            "enum_members": [],
+            "bases": [],
+        },
+    ]
+    (merged / "api_surface.json").write_text(json.dumps(api_surface))
+
+    with patch.object(Knowledge, "__init__", lambda self, f, p: None):
+        k = Knowledge.__new__(Knowledge)
+
+    k.family = "test_family"
+    k.platform = "java"
+    k.available = True
+    k.surface_tier = 2
+    k.classes = {}
+    k.methods = {}
+    k.properties = {}
+    k.enum_members = {}
+    k.return_types = {}
+    k.property_types = {}
+    k.parents = {}
+    k.valid_imports = set()
+    k.workaround_members = {}
+
+    for cls in api_surface:
+        name = cls["name"]
+        k.classes[name] = cls
+        k.methods[name] = {m["name"] for m in cls.get("methods", []) if isinstance(m, dict)}
+        k.properties[name] = {p["name"] for p in cls.get("properties", []) if isinstance(p, dict)}
+        for m in cls.get("methods", []):
+            if isinstance(m, dict) and m.get("return_type"):
+                k.return_types[(name, m["name"])] = m["return_type"]
+        for p in cls.get("properties", []):
+            if isinstance(p, dict) and p.get("type"):
+                k.property_types[(name, p["name"])] = p["type"]
+        k.parents[name] = cls.get("bases", [])
+
+    return k
+
+
+class TestResolveChainMultiHop:
+    """Tests for N-hop resolve_chain (JTI fix — 2026-04-28)."""
+
+    def test_two_hop_chain_resolves_correctly(self, java_mock_knowledge):
+        """Workbook.getWorksheets.get → Worksheet."""
+        result = java_mock_knowledge.resolve_chain("Workbook.getWorksheets.get")
+        assert result == "Worksheet", f"Expected Worksheet, got: {result}"
+
+    def test_single_hop_method_unchanged(self, java_mock_knowledge):
+        """Workbook.getWorksheets → WorksheetCollection (backward compat)."""
+        result = java_mock_knowledge.resolve_chain("Workbook.getWorksheets")
+        assert result == "WorksheetCollection", f"Expected WorksheetCollection, got: {result}"
+
+    def test_single_hop_property_unchanged(self, mock_knowledge):
+        """Scene.root_node → Node (backward compat with existing fixture)."""
+        result = mock_knowledge.resolve_chain("Scene.root_node")
+        assert result == "Node", f"Expected Node, got: {result}"
+
+    def test_unknown_root_class_returns_none(self, java_mock_knowledge):
+        result = java_mock_knowledge.resolve_chain("UnknownClass.getWorksheets.get")
+        assert result is None, f"Unknown root class must return None, got: {result}"
+
+    def test_missing_method_at_first_hop_returns_none(self, java_mock_knowledge):
+        result = java_mock_knowledge.resolve_chain("Workbook.nonExistentMethod.get")
+        assert result is None, f"Missing method must return None, got: {result}"
+
+    def test_missing_method_at_second_hop_returns_none(self, java_mock_knowledge):
+        result = java_mock_knowledge.resolve_chain("Workbook.getWorksheets.nonExistentAccessor")
+        assert result is None, f"Missing second-hop method must return None, got: {result}"
+
+    def test_three_hop_chain_if_metadata_present(self, java_mock_knowledge):
+        """Workbook.getWorksheets.get.getCells → Cells."""
+        result = java_mock_knowledge.resolve_chain("Workbook.getWorksheets.get.getCells")
+        assert result == "Cells", f"Expected Cells, got: {result}"
+
+
 class TestResolveChain:
     def test_property_type_resolution(self, mock_knowledge):
         """Scene.root_node should resolve to Node."""
