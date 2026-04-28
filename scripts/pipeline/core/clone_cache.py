@@ -149,6 +149,24 @@ def update_clone(family: str, platform: str) -> Optional[str]:
     if not clone_exists(family, platform):
         return None
 
+    # Safety guard: verify git will operate on the clone, not a parent repo.
+    try:
+        toplevel = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            cwd=str(p), capture_output=True, text=True, timeout=5,
+        )
+        if toplevel.returncode == 0:
+            resolved_top = Path(toplevel.stdout.strip()).resolve()
+            if resolved_top != p.resolve():
+                import logging
+                logging.getLogger(__name__).error(
+                    "update_clone safety guard: git toplevel %s != clone path %s — refusing to reset",
+                    resolved_top, p.resolve(),
+                )
+                return None
+    except Exception:
+        pass  # If the check fails, proceed cautiously
+
     try:
         fetch = subprocess.run(
             ["git", "fetch", "--depth=1", "origin"],
