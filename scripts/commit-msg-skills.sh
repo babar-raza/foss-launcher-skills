@@ -10,6 +10,33 @@
 content_staged=$(git diff --cached --name-only --diff-filter=ACM 2>/dev/null | grep '^content/.*\.md$' | head -1)
 [ -z "$content_staged" ] && exit 0
 
+# --- Audited operator bypass (3-var model) ---
+# Requires ALL THREE: SKIP_SKILL_COMMIT_CHECK=1 + GOV_BYPASS_TASKCARD + GOV_BYPASS_REASON
+# Bare bypass (flag only) is rejected. See docs/BYPASS_REGISTRY.md.
+if [ "${SKIP_SKILL_COMMIT_CHECK:-0}" = "1" ]; then
+    _tc="${GOV_BYPASS_TASKCARD:-}"
+    _reason="${GOV_BYPASS_REASON:-}"
+    if [ -z "$_tc" ] || [ -z "$_reason" ]; then
+        echo ""
+        echo "BLOCKED: SKIP_SKILL_COMMIT_CHECK=1 set but missing required context."
+        echo "REASON:  GOV_BYPASS_TASKCARD and GOV_BYPASS_REASON are mandatory for audited bypass."
+        echo "FIX:     SKIP_SKILL_COMMIT_CHECK=1 GOV_BYPASS_TASKCARD=TC-GOV-XX GOV_BYPASS_REASON='reason' git commit ..."
+        echo "BYPASS:  Not allowed without taskcard and reason."
+        echo ""
+        exit 1
+    fi
+    _repo="$(git rev-parse --show-toplevel)"
+    _log="$_repo/reports/overrides/env-bypasses.log"
+    _branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
+    _head="$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
+    mkdir -p "$(dirname "$_log")"
+    printf 'timestamp_utc=%s event=env_bypass bypass=SKIP_SKILL_COMMIT_CHECK taskcard=%s reason="%s" user=%s branch=%s head=%s files=%s result=allowed\n' \
+        "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$_tc" "$_reason" "$(whoami)" "$_branch" "$_head" \
+        "$(echo "$content_staged" | tr '\n' ';')" >> "$_log"
+    echo "WARN: Skill commit check bypassed (taskcard=$_tc reason=$_reason)"
+    exit 0
+fi
+
 # $1 is the commit message file.
 if [ -z "$1" ] || [ ! -f "$1" ]; then
     exit 0
