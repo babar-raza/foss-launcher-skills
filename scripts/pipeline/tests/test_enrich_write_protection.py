@@ -186,3 +186,39 @@ class TestPreflightPreservation:
         assert result is False
         assert not out_path.exists()
 
+# ---------------------------------------------------------------------------
+# TC-08T: Stale SHA mismatch detection on preflight failure
+# ---------------------------------------------------------------------------
+
+class TestPreflightStaleDetection:
+
+    @patch("enrich.clone_exists", return_value=False)
+    @patch("enrich._preflight_check", return_value={"professionalize": "unreachable", "ollama": "unreachable"})
+    def test_preflight_preserves_stale_claims_with_warning(self, _mock_pre, _mock_clone, tmp_path, caplog):
+        """TC-08: When preflight fails and preserved claims have mismatched api_surface_sha,
+        run_stats should flag preserved_stale=True and log a warning."""
+        import logging
+        scout_dir = _setup_scout_dir(tmp_path, existing_claims=_SAMPLE_CLAIMS)
+        # _setup_scout_dir writes api_surface_sha="abc123" which differs from computed SHA
+        out_path = scout_dir / "enriched_claims.json"
+        assert out_path.exists()
+
+        with caplog.at_level(logging.WARNING):
+            result = enrich("cells", "python",
+                           knowledge_root=str(tmp_path / "knowledge"),
+                           reports_root=str(tmp_path / "reports"))
+
+        assert result is False
+        assert out_path.exists()  # preserved
+
+        # Check report for preserved_stale flag
+        report_dir = tmp_path / "reports" / "enrichment"
+        reports = list(report_dir.glob("cells-python-*.json"))
+        assert len(reports) >= 1
+        import json as _json
+        report = _json.loads(reports[0].read_text(encoding="utf-8"))
+        assert report["run_stats"]["preserved_stale"] is True
+
+        # Check warning was logged
+        assert any("STALE" in msg for msg in caplog.messages)
+

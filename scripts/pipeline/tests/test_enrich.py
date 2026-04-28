@@ -801,3 +801,41 @@ class TestMalformedEnrichedWarning:
                        reports_root=str(tmp_path / "reports"))
         assert any("Could not parse existing enriched_claims.json" in msg for msg in caplog.messages)
 
+
+# ---------------------------------------------------------------------------
+# TC-09T: Pipeline state manifest observability
+# ---------------------------------------------------------------------------
+
+class TestPipelineStateManifest:
+    @patch("enrich.clone_exists", return_value=False)
+    @patch("enrich._preflight_check", return_value={"professionalize": "ok"})
+    def test_manifest_contains_enrichment_fields(self, _mock_pre, _mock_clone, tmp_path):
+        """TC-09: pipeline_state.json must include enrichment_status and run_stats_summary."""
+        scout_dir = tmp_path / "knowledge" / "cells" / "python" / "scout"
+        scout_dir.mkdir(parents=True)
+        api_surface = [
+            {"name": "Workbook", "doc": "A workbook.", "kind": "class",
+             "file": "aspose/cells/workbook.py",
+             "methods": [{"name": "save"}], "properties": [], "enum_members": []},
+        ]
+        (scout_dir / "api_surface.json").write_text(json.dumps(api_surface), encoding="utf-8")
+        claims = [
+            {"text": "Workbook.save persists the workbook to disk.", "kind": "api",
+             "confidence": 0.85, "grounding": ["Workbook"]}
+        ]
+        with patch("enrich._llm_call", return_value=(claims, "professionalize/gpt-oss")):
+            enrich("cells", "python",
+                   knowledge_root=str(tmp_path / "knowledge"),
+                   reports_root=str(tmp_path / "reports"))
+
+        # out_path.parents[2] resolves to knowledge/cells/ (not knowledge/cells/python/)
+        state_path = tmp_path / "knowledge" / "cells" / ".pipeline_state.json"
+        assert state_path.exists(), f"pipeline_state.json not found at {state_path}"
+        state_data = json.loads(state_path.read_text(encoding="utf-8"))
+        enrich_step = state_data.get("enrich", {})
+        assert "enrichment_status" in enrich_step, f"Missing enrichment_status in {enrich_step.keys()}"
+        assert enrich_step["enrichment_status"] == "success"
+        assert "run_stats_summary" in enrich_step
+        assert "batches" in enrich_step["run_stats_summary"]
+        assert "rejected" in enrich_step["run_stats_summary"]
+
