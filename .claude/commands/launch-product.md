@@ -8,7 +8,14 @@
 # S-49: Launch Product — 5-Subdomain Full Documentation Launch
 
 **Arguments**: $ARGUMENTS
-**Expected format**: `{family} {platform}` — e.g. `3d java` or `slides python`
+**Expected format**: `{family} {platform}` or `{family} {platform} --refresh`
+
+## Modes
+
+- **Normal mode** (no flag): First launch. Skip stages where content exists and passes audit.
+- **Refresh mode** (`--refresh`): Relaunch existing product. Reclassifies all files via
+  `write_classifier.py`, regenerates REFRESH-classified files, preserves PRESERVE-classified
+  files, halts on CONFLICT.
 
 ## Purpose
 
@@ -71,13 +78,48 @@ values from the site plan. Do not re-derive or hardcode slugs.
 
 ---
 
+### STAGE 0.9 — Write Classification (Refresh Mode Only)
+
+**Skip condition**: Not in `--refresh` mode. In normal mode, skip this stage entirely.
+
+**Command**:
+```bash
+.venv/Scripts/python scripts/pipeline/write_classifier.py {family} {platform}
+```
+
+**Output**: `reports/refresh_state/{family}/{platform}/write_classification.json`
+
+**Checkpoint**: `write_classification_done`
+
+**Behavior**:
+1. Reads `reports/plans/{family}/{platform}/site_plan.yaml` for the file manifest
+2. Reads each target file’s frontmatter for provenance fields (`content_origin`, `auto_updatable`)
+3. Classifies each file as CREATE / REFRESH / PRESERVE / CONFLICT
+4. Exits non-zero on any CONFLICT classification — **STOP** if exit code != 0
+
+**Classification rules**:
+- `content_origin: skill-generated` + `auto_updatable: true` → REFRESH
+- `content_origin: human-authored` or `auto_updatable: false` → PRESERVE (never touch)
+- `content_origin: unknown` → PRESERVE (safe default)
+- File does not exist → CREATE
+
+**In subsequent stages (1–5)**: When `--refresh` is active, each stage reads the classification
+and only processes files classified as CREATE or REFRESH. Files classified as PRESERVE are skipped
+regardless of audit state.
+
+**Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} write_classification_done true`
+
+---
+
 ### STAGE 1 — Products Page
 **Command**: `/new-products-page {family} {platform}`
 **Checkpoint**: `products_done`
 
-**Skip condition**: `content/products.aspose.org/en/{family}/{platform}/_index.md` already exists AND
-passes `python scripts/pipeline/audit.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
-(0 FAIL)
+**Skip condition**:
+- Normal mode: file exists AND passes audit (0 FAIL)
+- Refresh mode: file classified as PRESERVE in `write_classification.json`
+
+File: `content/products.aspose.org/en/{family}/{platform}/_index.md`
 
 **Save checkpoint** when done.
 
@@ -325,6 +367,58 @@ the S-90 verdict to be PUBLISH or CONDITIONAL (with all CONDITIONAL items having
 actioned by S-90's fix-skill invocations). If S-90 verdict is BLOCKED, the launch is blocked.
 
 > **Note**: Use `--skip-human-review` during development only. Production launches require all H-gates.
+
+---
+
+### STAGE 8.7 — Translation Skip Assertion
+
+**Purpose**: Hard gate proving no locale (non-English) files were created or modified during this launch.
+
+**Command**:
+```bash
+.venv/Scripts/python scripts/ci/check_locale_untouched.py {family} {platform} --report reports/refresh_state/{family}/{platform}/translation-skip-report.json
+```
+
+**Exit codes**:
+- 0 → PASS: no locale files touched — continue to Stage 9
+- 1 → **FAIL: STOP immediately** — locale files found; investigate before proceeding
+
+**Checkpoint**: `locale_assertion_done`
+
+**Runs in both normal and refresh modes.** This is a safety net confirming S-49 never triggers
+translation (S-84 handles that separately).
+
+**Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} locale_assertion_done true`
+
+---
+
+### STAGE 9 — Subdomain Commits (Refresh Mode)
+
+**Skip condition**: Not in `--refresh` mode. In normal mode, the operator handles commits manually
+via `/commit`.
+
+**Purpose**: Commit changes per subdomain group using session ledger classification.
+
+**Steps**:
+1. Run `python scripts/pipeline/session_ledger.py groups` to see subdomain groupings
+2. For each non-empty group in order: knowledge, content(products), content(blog),
+   content(docs), content(kb), content(reference):
+   - Stage only that group’s files
+   - Run `/commit` with message: `content({subdomain}): refresh {family}/{platform} {subdomain}`
+3. After all commits, verify `git status --porcelain` is clean or all remaining files are
+   outside the target paths
+
+**Commit message patterns**:
+- `chore(knowledge): refresh {family}/{platform} knowledge model`
+- `content(products): refresh {family}/{platform} products page`
+- `content(blog): refresh {family}/{platform} blog posts`
+- `content(docs): refresh {family}/{platform} documentation`
+- `content(kb): refresh {family}/{platform} knowledge base`
+- `content(reference): refresh {family}/{platform} API reference`
+
+**Checkpoint**: `commits_done`
+
+**Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} commits_done true`
 
 ---
 
