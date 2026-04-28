@@ -957,3 +957,38 @@ class TestPrecommitSummary:
         """Clean commit (no staged content) exits 0."""
         code, stdout, stderr = self._run_precommit()
         assert code == 0
+
+    def test_precommit_summary_on_failure(self, tmp_path):
+        """Failure produces summary with >=1 FAIL line and exit 1.
+
+        Triggers Step 0 (reports/ boundary) by staging a file under reports/.
+        """
+        # Create a temp file under reports/ and force-stage it
+        reports_file = _REPO_ROOT / "reports" / "_test_step0_fail.txt"
+        try:
+            reports_file.parent.mkdir(parents=True, exist_ok=True)
+            reports_file.write_text("test")
+            # Force-add despite gitignore
+            subprocess.run(
+                [_BASH, "-c", "git add -f reports/_test_step0_fail.txt"],
+                cwd=str(_REPO_ROOT), capture_output=True, timeout=10,
+            )
+            code, stdout, stderr = self._run_precommit()
+            combined = stdout + stderr
+            assert code == 1, f"Expected exit 1, got {code}"
+            assert "FAIL" in combined
+            assert "=== Pre-commit Summary ===" in combined
+        finally:
+            # Unstage and remove
+            subprocess.run(
+                [_BASH, "-c", "git reset HEAD -- reports/_test_step0_fail.txt"],
+                cwd=str(_REPO_ROOT), capture_output=True, timeout=10,
+            )
+            reports_file.unlink(missing_ok=True)
+
+    def test_precommit_summary_skip_shown(self):
+        """When no content is staged, content-specific steps show SKIP."""
+        code, stdout, stderr = self._run_precommit()
+        combined = stdout + stderr
+        # With no content staged, API accuracy audit should SKIP
+        assert "SKIP" in combined

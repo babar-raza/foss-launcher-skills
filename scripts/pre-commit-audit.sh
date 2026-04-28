@@ -98,8 +98,10 @@ if [ -n "$staged_reports" ]; then
     echo ""
     echo "reports/ is gitignored. Do not use 'git add -f' to stage files under reports/."
     echo "Override tokens are validated from disk (reports/overrides/pending/) — do not stage them."
-    exit 1
+    _pc_step_end "FAIL"
+    _pc_exit 1
 fi
+_pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "forbidden paths"
@@ -135,9 +137,11 @@ if [ ${#forbidden_staged[@]} -gt 0 ]; then
         echo "    .venv/Scripts/python scripts/pipeline/override_manager.py create \\"
         echo "      --paths <path> --reason '...' --plan '...'"
         echo "  The token is auto-validated from reports/overrides/pending/ — do NOT stage it."
-        exit 1
+        _pc_step_end "FAIL"
+        _pc_exit 1
     fi
 fi
+_pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "filename conventions"
