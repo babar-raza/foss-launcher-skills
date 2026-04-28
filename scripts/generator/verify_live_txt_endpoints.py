@@ -14,6 +14,7 @@ import os
 import sys
 import time
 import argparse
+import re
 import urllib.request
 import urllib.error
 
@@ -33,8 +34,6 @@ CONTENT_CHECKS = [
     ('no_grading', lambda body: 'graded_content_hash' not in body),
 ]
 
-
-DOMAIN_SKIP_CHECKS = {}
 
 
 def check_url(url, retries=3, backoff=2.0):
@@ -58,17 +57,16 @@ def check_url(url, retries=3, backoff=2.0):
     return {'url': url, 'status': 0, 'pass': False, 'error': 'timeout after retries', 'attempts': retries}
 
 
-def check_content(url, domain=''):
+def check_content(url):
     try:
         with urllib.request.urlopen(url, timeout=30) as r:
-            raw = r.read()
+            raw = r.read(16384)
             if raw[:2] == b'\x1f\x8b':
                 raw = gzip.decompress(raw)
-            body = raw.decode('utf-8', errors='replace')[:8192]
+            body = raw.decode('utf-8', errors='replace')
         results = {}
-        skip = DOMAIN_SKIP_CHECKS.get(domain, set())
         for name, fn in CONTENT_CHECKS:
-            results[name] = True if name in skip else fn(body)
+            results[name] = fn(body)
         results['first_line'] = body.split('\n')[0][:100]
         results['pass'] = all(results[name] for name, _ in CONTENT_CHECKS)
         return results
@@ -130,7 +128,6 @@ def check_consumer_endpoints(out_dir):
                     raw = gzip.decompress(raw)
                 body = raw.decode('utf-8', errors='replace')
             # Extract .txt URLs from llms.txt
-            import re
             txt_refs = re.findall(r'https?://[^\s)]+\.txt', body)
             if not txt_refs:
                 rel_refs = re.findall(r'(?:^|\s)(/[^\s)]+\.txt)', body)
@@ -183,7 +180,7 @@ def run_deep_content(inventory, out_dir):
         failed = 0
 
         for url in sample:
-            result = check_content(url, domain)
+            result = check_content(url)
             result['url'] = url
             results.append(result)
             if result.get('pass'):
@@ -254,7 +251,7 @@ def main():
                 print(f"  FAIL {url} status={result.get('status')} ct={result.get('content_type', '?')}")
 
         spot_url = next((r['url'] for r in domain_results if r['pass']), None)
-        spot_result = check_content(spot_url, domain) if spot_url else {'pass': False, 'error': 'no passing URL'}
+        spot_result = check_content(spot_url) if spot_url else {'pass': False, 'error': 'no passing URL'}
         if not spot_result.get('pass'):
             print(f"  CONTENT FAIL {spot_url}: {spot_result}")
             any_failure = True
@@ -294,9 +291,10 @@ def main():
         deep_failure = run_deep_content(inventory, out_dir)
         any_failure = any_failure or deep_failure
 
-    # TC-17: Consumer discovery validation
-    consumer_failure = check_consumer_endpoints(out_dir)
-    any_failure = any_failure or consumer_failure
+    # TC-17: Consumer discovery validation (runs with --deep)
+    if args.deep:
+        consumer_failure = check_consumer_endpoints(out_dir)
+        any_failure = any_failure or consumer_failure
 
     sys.exit(1 if any_failure else 0)
 
