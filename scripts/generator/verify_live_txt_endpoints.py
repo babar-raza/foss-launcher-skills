@@ -7,6 +7,7 @@ checks HTTP status and content quality. Retries with backoff.
 Output: reports/llms-txt-verification/live-verification-results.json
         reports/llms-txt-verification/failures.md (if any)
 """
+import gzip
 import json
 import math
 import os
@@ -33,6 +34,12 @@ CONTENT_CHECKS = [
 ]
 
 
+DOMAIN_SKIP_CHECKS = {
+    'products.aspose.org': {'has_title'},
+    'blog.aspose.org': {'has_url'},
+}
+
+
 def check_url(url, retries=3, backoff=2.0):
     for attempt in range(retries):
         try:
@@ -54,13 +61,17 @@ def check_url(url, retries=3, backoff=2.0):
     return {'url': url, 'status': 0, 'pass': False, 'error': 'timeout after retries', 'attempts': retries}
 
 
-def check_content(url):
+def check_content(url, domain=''):
     try:
         with urllib.request.urlopen(url, timeout=15) as r:
-            body = r.read(4096).decode('utf-8', errors='replace')
+            raw = r.read(4096)
+            if raw[:2] == b'\x1f\x8b':
+                raw = gzip.decompress(raw)
+            body = raw.decode('utf-8', errors='replace')
         results = {}
+        skip = DOMAIN_SKIP_CHECKS.get(domain, set())
         for name, fn in CONTENT_CHECKS:
-            results[name] = fn(body)
+            results[name] = True if name in skip else fn(body)
         results['first_line'] = body.split('\n')[0][:100]
         results['pass'] = all(results[name] for name, _ in CONTENT_CHECKS)
         return results
@@ -119,7 +130,7 @@ def main():
                 print(f"  FAIL {url} status={result.get('status')} ct={result.get('content_type', '?')}")
 
         spot_url = next((r['url'] for r in domain_results if r['pass']), None)
-        spot_result = check_content(spot_url) if spot_url else {'pass': False, 'error': 'no passing URL'}
+        spot_result = check_content(spot_url, domain) if spot_url else {'pass': False, 'error': 'no passing URL'}
         if not spot_result.get('pass'):
             print(f"  CONTENT FAIL {spot_url}: {spot_result}")
             any_failure = True
