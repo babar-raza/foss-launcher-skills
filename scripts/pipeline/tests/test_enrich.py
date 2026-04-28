@@ -635,7 +635,7 @@ class TestEnrichLlmErrorResponse:
         self._setup_scout_dir(tmp_path)
         # VH-02 fix 1: mock preflight so LLM path is always taken regardless of environment
         with patch.object(_enrich_module, "_preflight_check", return_value={"professionalize": "ok"}), \
-             patch.object(_enrich_module, "_llm_call", return_value={"error": "rate_limited"}):
+             patch.object(_enrich_module, "_llm_call", return_value=({"error": "rate_limited"}, "professionalize/gpt-oss")):
             with caplog.at_level(logging.DEBUG, logger="enrich"):
                 result = enrich(
                     "cells", "python",
@@ -657,7 +657,7 @@ class TestEnrichLlmErrorResponse:
     def test_llm_error_response_writes_no_claims(self, tmp_path):
         """LLM returns {"error": "rate_limited"} → write-protection fires; no output file written."""
         scout_dir = self._setup_scout_dir(tmp_path)
-        with patch.object(_enrich_module, "_llm_call", return_value={"error": "rate_limited"}):
+        with patch.object(_enrich_module, "_llm_call", return_value=({"error": "rate_limited"}, "professionalize/gpt-oss")):
             enrich(
                 "cells", "python",
                 knowledge_root=str(tmp_path / "knowledge"),
@@ -669,3 +669,135 @@ class TestEnrichLlmErrorResponse:
             "enriched_claims.json must NOT be written when write-protection fires "
             "after an LLM error response"
         )
+
+
+# ---------------------------------------------------------------------------
+# TC-04: model_used accuracy
+# ---------------------------------------------------------------------------
+
+class TestModelUsedAccuracy:
+    @patch("enrich.clone_exists", return_value=False)
+    @patch("enrich._preflight_check", return_value={"professionalize": "ok"})
+    def test_model_field_shows_actual_provider(self, _mock_pre, _mock_clone, tmp_path):
+        scout_dir = tmp_path / "knowledge" / "cells" / "python" / "scout"
+        scout_dir.mkdir(parents=True)
+        api_surface = [
+            {"name": "Workbook", "doc": "A workbook.", "kind": "class",
+             "file": "aspose/cells/workbook.py",
+             "methods": [{"name": "save"}], "properties": [], "enum_members": []},
+        ]
+        (scout_dir / "api_surface.json").write_text(json.dumps(api_surface), encoding="utf-8")
+        claims = [
+            {"text": "Workbook.save persists the workbook to disk.", "kind": "api",
+             "confidence": 0.85, "grounding": ["Workbook"]}
+        ]
+        with patch("enrich._llm_call", return_value=(claims, "ollama/llama3.1:latest")):
+            result = enrich("cells", "python",
+                          knowledge_root=str(tmp_path / "knowledge"),
+                          reports_root=str(tmp_path / "reports"))
+        assert result is True
+        data = json.loads((scout_dir / "enriched_claims.json").read_text(encoding="utf-8"))
+        assert "ollama" in data["model"]
+
+
+# ---------------------------------------------------------------------------
+# TC-06: run_stats
+# ---------------------------------------------------------------------------
+
+class TestRunStats:
+    @patch("enrich.clone_exists", return_value=False)
+    @patch("enrich._preflight_check", return_value={"professionalize": "ok"})
+    def test_run_stats_in_output(self, _mock_pre, _mock_clone, tmp_path):
+        scout_dir = tmp_path / "knowledge" / "cells" / "python" / "scout"
+        scout_dir.mkdir(parents=True)
+        api_surface = [
+            {"name": "Workbook", "doc": "A workbook.", "kind": "class",
+             "file": "aspose/cells/workbook.py",
+             "methods": [{"name": "save"}], "properties": [], "enum_members": []},
+        ]
+        (scout_dir / "api_surface.json").write_text(json.dumps(api_surface), encoding="utf-8")
+        claims = [
+            {"text": "Workbook.save persists the workbook to disk.", "kind": "api",
+             "confidence": 0.85, "grounding": ["Workbook"]}
+        ]
+        with patch("enrich._llm_call", return_value=(claims, "professionalize/gpt-oss")):
+            enrich("cells", "python",
+                   knowledge_root=str(tmp_path / "knowledge"),
+                   reports_root=str(tmp_path / "reports"))
+        data = json.loads((scout_dir / "enriched_claims.json").read_text(encoding="utf-8"))
+        assert "run_stats" in data
+        rs = data["run_stats"]
+        expected_keys = {
+            "batches_attempted", "batches_succeeded", "batches_failed",
+            "claims_raw", "claims_rejected", "claims_deduplicated",
+            "claims_accepted", "claims_stub_demoted", "claims_final",
+            "model_used", "preflight", "preserved_existing", "preserved_stale",
+            "duration_seconds",
+        }
+        assert expected_keys.issubset(set(rs.keys()))
+        assert rs["duration_seconds"] >= 0
+        assert rs["batches_attempted"] == rs["batches_succeeded"]
+
+
+# ---------------------------------------------------------------------------
+# TC-07: enrichment report
+# ---------------------------------------------------------------------------
+
+class TestEnrichmentReport:
+    @patch("enrich.clone_exists", return_value=False)
+    @patch("enrich._preflight_check", return_value={"professionalize": "ok"})
+    def test_report_written(self, _mock_pre, _mock_clone, tmp_path):
+        scout_dir = tmp_path / "knowledge" / "cells" / "python" / "scout"
+        scout_dir.mkdir(parents=True)
+        api_surface = [
+            {"name": "Workbook", "doc": "A workbook.", "kind": "class",
+             "file": "aspose/cells/workbook.py",
+             "methods": [{"name": "save"}], "properties": [], "enum_members": []},
+        ]
+        (scout_dir / "api_surface.json").write_text(json.dumps(api_surface), encoding="utf-8")
+        claims = [
+            {"text": "Workbook.save persists the workbook to disk.", "kind": "api",
+             "confidence": 0.85, "grounding": ["Workbook"]}
+        ]
+        with patch("enrich._llm_call", return_value=(claims, "professionalize/gpt-oss")):
+            enrich("cells", "python",
+                   knowledge_root=str(tmp_path / "knowledge"),
+                   reports_root=str(tmp_path / "reports"))
+        report_dir = tmp_path / "reports" / "enrichment"
+        assert report_dir.exists()
+        reports = list(report_dir.glob("cells-python-*.json"))
+        assert len(reports) >= 1
+        report_data = json.loads(reports[0].read_text(encoding="utf-8"))
+        assert report_data["family"] == "cells"
+        assert "run_stats" in report_data
+
+
+# ---------------------------------------------------------------------------
+# TC-10: malformed enriched_claims.json warning
+# ---------------------------------------------------------------------------
+
+class TestMalformedEnrichedWarning:
+    @patch("enrich.clone_exists", return_value=False)
+    @patch("enrich._preflight_check", return_value={"professionalize": "ok"})
+    def test_malformed_json_warns(self, _mock_pre, _mock_clone, tmp_path, caplog):
+        scout_dir = tmp_path / "knowledge" / "cells" / "python" / "scout"
+        scout_dir.mkdir(parents=True)
+        api_surface = [
+            {"name": "Workbook", "doc": "A workbook.", "kind": "class",
+             "file": "aspose/cells/workbook.py",
+             "methods": [{"name": "save"}], "properties": [], "enum_members": []},
+        ]
+        (scout_dir / "api_surface.json").write_text(json.dumps(api_surface), encoding="utf-8")
+        (scout_dir / "enriched_claims.json").write_text("{broken", encoding="utf-8")
+        claims = [
+            {"text": "Workbook.save persists the workbook to disk.", "kind": "api",
+             "confidence": 0.85, "grounding": ["Workbook"]}
+        ]
+        import logging
+        with caplog.at_level(logging.WARNING):
+            with patch("enrich._llm_call", return_value=(claims, "professionalize/gpt-oss")):
+                enrich("cells", "python",
+                       knowledge_root=str(tmp_path / "knowledge"),
+                       reports_root=str(tmp_path / "reports"))
+        assert any("Could not parse existing enriched_claims.json" in msg for msg in caplog.messages)
+

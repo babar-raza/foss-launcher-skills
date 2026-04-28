@@ -387,7 +387,7 @@ class TestEnrichmentFailurePath:
         assert "promote" in call_order, "V5: promote must run even when enrich fails"
         assert "index" in call_order, "V5: index must run even when enrich fails"
 
-    def test_enrich_failure_deletes_stale_enriched_claims(self, tmp_path):
+    def test_enrich_failure_preserves_stale_enriched_claims(self, tmp_path):
         """V5: When enrich fails, stale enriched_claims.json must be deleted to prevent
         promote.py from consuming prior-run enriched data."""
         knowledge_root = tmp_path / "knowledge"
@@ -405,9 +405,8 @@ class TestEnrichmentFailurePath:
             result = refresh("cells", "python")
 
         assert result == "refreshed"
-        assert not enriched.exists(), (
-            "V5: stale enriched_claims.json must be deleted when enrich fails "
-            "to prevent promote.py from using outdated enriched data"
+        assert enriched.exists(), (
+            "enriched_claims.json should be preserved after enrich failure (TC-11)"
         )
 
     def test_enrich_failure_no_crash_when_enriched_absent(self, tmp_path):

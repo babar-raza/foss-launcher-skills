@@ -10,6 +10,7 @@ Covers the gaps not addressed by test_merge_determinism.py:
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
 import pytest
@@ -557,3 +558,83 @@ class TestPromoteEnrichedClaimsStaleness:
         assert result is True
         captured = capsys.readouterr()
         assert "stale" not in captured.out.lower()
+
+
+# ---------------------------------------------------------------------------
+# TC-02/TC-03: enrichment_status and source fields in model.yaml
+# ---------------------------------------------------------------------------
+
+class TestEnrichmentStatusAndSource:
+
+    def test_full_enrichment_status(self, tmp_path):
+        import yaml
+        family, platform = "cells", "python"
+        base = tmp_path / "knowledge" / family / platform
+        scout_dir = base / "scout"
+        merged_dir = base / "merged"
+        scout_dir.mkdir(parents=True)
+        merged_dir.mkdir(parents=True)
+        scout_model = {
+            "product_name": "Aspose.Cells for Python",
+            "version": "24.1", "license": "proprietary",
+            "repo_url": "https://github.com/aspose-cells/Aspose.Cells-for-Python",
+            "repo_sha": "abc123",
+        }
+        (scout_dir / "model.yaml").write_text(yaml.dump(scout_model), encoding="utf-8")
+        api_surface = [
+            {"name": "Workbook", "doc": "A workbook.", "kind": "class",
+             "file": "workbook.py", "methods": [], "properties": [], "enum_members": []}
+        ]
+        (scout_dir / "api_surface.json").write_text(json.dumps(api_surface), encoding="utf-8")
+        scout_claims = [
+            {"claim_id": "CLM-cells-python-001", "text": "Scout claim.", "kind": "api",
+             "confidence": 0.9, "grounding": ["Workbook"], "provenance": "tree-sitter"}
+        ]
+        (scout_dir / "claims.json").write_text(json.dumps(scout_claims), encoding="utf-8")
+        enriched = {
+            "claims": [
+                {"claim_id": "ERC-cells-python-aabb", "text": "Enriched claim.", "kind": "api",
+                 "confidence": 0.85, "grounding": ["Workbook"]}
+            ]
+        }
+        (scout_dir / "enriched_claims.json").write_text(json.dumps(enriched), encoding="utf-8")
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+        from promote import promote
+        result = promote(family, platform, knowledge_root=str(tmp_path / "knowledge"))
+        assert result is True
+        model_data = yaml.safe_load((merged_dir / "model.yaml").read_text(encoding="utf-8"))
+        assert model_data["enrichment_status"] == "full"
+        assert model_data["source"] == "scout_and_enriched"
+
+    def test_scout_only_status(self, tmp_path):
+        import yaml
+        family, platform = "cells", "python"
+        base = tmp_path / "knowledge" / family / platform
+        scout_dir = base / "scout"
+        merged_dir = base / "merged"
+        scout_dir.mkdir(parents=True)
+        merged_dir.mkdir(parents=True)
+        scout_model = {
+            "product_name": "Aspose.Cells for Python",
+            "version": "24.1", "license": "proprietary",
+            "repo_url": "https://github.com/aspose-cells/Aspose.Cells-for-Python",
+            "repo_sha": "abc123",
+        }
+        (scout_dir / "model.yaml").write_text(yaml.dump(scout_model), encoding="utf-8")
+        api_surface = [
+            {"name": "Workbook", "doc": "A workbook.", "kind": "class",
+             "file": "workbook.py", "methods": [], "properties": [], "enum_members": []}
+        ]
+        (scout_dir / "api_surface.json").write_text(json.dumps(api_surface), encoding="utf-8")
+        scout_claims = [
+            {"claim_id": "CLM-cells-python-001", "text": "Scout claim.", "kind": "api",
+             "confidence": 0.9, "grounding": ["Workbook"], "provenance": "tree-sitter"}
+        ]
+        (scout_dir / "claims.json").write_text(json.dumps(scout_claims), encoding="utf-8")
+        from promote import promote
+        result = promote(family, platform, knowledge_root=str(tmp_path / "knowledge"))
+        assert result is True
+        model_data = yaml.safe_load((merged_dir / "model.yaml").read_text(encoding="utf-8"))
+        assert model_data["enrichment_status"] == "scout-only"
+        assert model_data["source"] == "scout_only"
+

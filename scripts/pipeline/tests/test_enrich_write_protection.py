@@ -77,8 +77,9 @@ class TestWriteProtectionLlmFailure:
     """When LLM fails and produces 0 new claims, enriched_claims.json must NOT be overwritten."""
 
     @patch("enrich.clone_exists", return_value=False)
-    @patch("enrich._llm_call", return_value=None)
-    def test_empty_claims_returns_false_on_llm_failure(self, _mock_llm, _mock_clone, tmp_path):
+    @patch("enrich._preflight_check", return_value={"professionalize": "ok"})
+    @patch("enrich._llm_call", return_value=(None, ""))
+    def test_empty_claims_returns_false_on_llm_failure(self, _mock_llm, _mock_pre, _mock_clone, tmp_path):
         """First run (no existing file) + LLM failure = return False, no file written."""
         scout_dir = _setup_scout_dir(tmp_path)
         result = enrich("cells", "python", knowledge_root=str(tmp_path / "knowledge"))
@@ -87,8 +88,9 @@ class TestWriteProtectionLlmFailure:
         assert not out_path.exists(), "Empty enriched_claims.json must NOT be written on LLM failure"
 
     @patch("enrich.clone_exists", return_value=False)
-    @patch("enrich._llm_call", return_value=None)
-    def test_existing_claims_preserved_on_llm_failure(self, _mock_llm, _mock_clone, tmp_path):
+    @patch("enrich._preflight_check", return_value={"professionalize": "ok"})
+    @patch("enrich._llm_call", return_value=(None, ""))
+    def test_existing_claims_preserved_on_llm_failure(self, _mock_llm, _mock_pre, _mock_clone, tmp_path):
         """Existing claims + LLM failure = return True, existing file untouched."""
         scout_dir = _setup_scout_dir(tmp_path, existing_claims=_SAMPLE_CLAIMS)
         out_path = scout_dir / "enriched_claims.json"
@@ -103,8 +105,9 @@ class TestWriteProtectionLlmFailure:
         assert current_content == original_content, "Existing claims must be preserved without rewrite"
 
     @patch("enrich.clone_exists", return_value=False)
-    @patch("enrich._llm_call", return_value=None)
-    def test_existing_claims_count_unchanged_on_llm_failure(self, _mock_llm, _mock_clone, tmp_path):
+    @patch("enrich._preflight_check", return_value={"professionalize": "ok"})
+    @patch("enrich._llm_call", return_value=(None, ""))
+    def test_existing_claims_count_unchanged_on_llm_failure(self, _mock_llm, _mock_pre, _mock_clone, tmp_path):
         """Existing claims must retain their count after LLM failure."""
         _setup_scout_dir(tmp_path, existing_claims=_SAMPLE_CLAIMS)
         scout_dir = tmp_path / "knowledge" / "cells" / "python" / "scout"
@@ -155,3 +158,31 @@ class TestNoLlmPreservesExisting:
 
         data = json.loads(out_path.read_text(encoding="utf-8"))
         assert len(data["claims"]) == len(_SAMPLE_CLAIMS)
+
+
+# ---------------------------------------------------------------------------
+# TC-05: Preflight failure preservation
+# ---------------------------------------------------------------------------
+
+class TestPreflightPreservation:
+
+    @patch("enrich.clone_exists", return_value=False)
+    @patch("enrich._preflight_check", return_value={"professionalize": "unreachable", "ollama": "unreachable"})
+    def test_preflight_fail_preserves_existing(self, _mock_pre, _mock_clone, tmp_path):
+        scout_dir = _setup_scout_dir(tmp_path, existing_claims=_SAMPLE_CLAIMS)
+        out_path = scout_dir / "enriched_claims.json"
+        original_content = out_path.read_text(encoding="utf-8")
+        result = enrich("cells", "python", knowledge_root=str(tmp_path / "knowledge"))
+        assert result is False
+        assert out_path.exists()
+        assert out_path.read_text(encoding="utf-8") == original_content
+
+    @patch("enrich.clone_exists", return_value=False)
+    @patch("enrich._preflight_check", return_value={"professionalize": "unreachable", "ollama": "unreachable"})
+    def test_preflight_fail_no_file_created(self, _mock_pre, _mock_clone, tmp_path):
+        scout_dir = _setup_scout_dir(tmp_path)
+        out_path = scout_dir / "enriched_claims.json"
+        result = enrich("cells", "python", knowledge_root=str(tmp_path / "knowledge"))
+        assert result is False
+        assert not out_path.exists()
+

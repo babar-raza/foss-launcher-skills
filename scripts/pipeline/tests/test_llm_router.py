@@ -54,6 +54,7 @@ def registry_path(tmp_path):
                 "priority": 2,
                 "base_url": "http://localhost:11434/v1",
                 "api_key_env": None,
+                "preferred_models": ["llama3.2", "llama3.1", "mistral", "qwen2.5"],
                 "chat": {
                     "endpoint": "/chat/completions",
                     "model": "llama3.2",
@@ -433,6 +434,105 @@ class TestEndpointStatus:
         data = {"status": EndpointStatus.OK}
         assert json.dumps(data) == '{"status": "ok"}'
 
+
+
+# ---------------------------------------------------------------------------
+# Ollama discovery (TC-01)
+# ---------------------------------------------------------------------------
+
+class TestOllamaDiscovery:
+    def test_discovery_returns_preferred_order(self, router_no_key):
+        """Mock /api/tags -> verify preferred order with exact names."""
+        tags_resp = MagicMock()
+        tags_resp.status_code = 200
+        tags_resp.json.return_value = {
+            "models": [
+                {"name": "mistral:7b", "size": 4000000000},
+                {"name": "llama3.2:latest", "size": 2000000000},
+                {"name": "llama3.1:latest", "size": 3000000000},
+            ]
+        }
+        with patch("llm_router.requests") as mock_req:
+            mock_req.get.return_value = tags_resp
+            mock_req.exceptions = __import__("requests").exceptions
+            models = router_no_key.discover_ollama_models()
+
+        assert models[0] == "llama3.2:latest"
+        assert models[1] == "llama3.1:latest"
+        assert models[2] == "mistral:7b"
+
+    def test_discovery_base_name_match(self, router_no_key):
+        tags_resp = MagicMock()
+        tags_resp.status_code = 200
+        tags_resp.json.return_value = {
+            "models": [{"name": "llama3.1:latest", "size": 3000000000}]
+        }
+        with patch("llm_router.requests") as mock_req:
+            mock_req.get.return_value = tags_resp
+            mock_req.exceptions = __import__("requests").exceptions
+            models = router_no_key.discover_ollama_models()
+        assert "llama3.1:latest" in models
+
+    def test_discovery_preserves_exact_tags(self, router_no_key):
+        tags_resp = MagicMock()
+        tags_resp.status_code = 200
+        tags_resp.json.return_value = {
+            "models": [{"name": "qwen2.5:14b", "size": 8000000000}]
+        }
+        with patch("llm_router.requests") as mock_req:
+            mock_req.get.return_value = tags_resp
+            mock_req.exceptions = __import__("requests").exceptions
+            models = router_no_key.discover_ollama_models()
+        assert models[0] == "qwen2.5:14b"
+
+    def test_discovery_timeout_returns_empty(self, router_no_key):
+        import requests as real_requests
+        with patch("llm_router.requests") as mock_req:
+            mock_req.get.side_effect = real_requests.exceptions.Timeout("timeout")
+            mock_req.exceptions = real_requests.exceptions
+            models = router_no_key.discover_ollama_models()
+        assert models == []
+
+    def test_discovery_cached(self, router_no_key):
+        tags_resp = MagicMock()
+        tags_resp.status_code = 200
+        tags_resp.json.return_value = {"models": [{"name": "llama3.2:latest", "size": 1}]}
+        with patch("llm_router.requests") as mock_req:
+            mock_req.get.return_value = tags_resp
+            mock_req.exceptions = __import__("requests").exceptions
+            m1 = router_no_key.discover_ollama_models()
+            m2 = router_no_key.discover_ollama_models()
+            assert mock_req.get.call_count == 1
+        assert m1 == m2
+
+    def test_no_discovery_when_model_works(self, router):
+        mock_resp = _mock_chat_response('{"ok": true}')
+        with patch("llm_router.requests") as mock_req:
+            mock_req.post.return_value = mock_resp
+            mock_req.exceptions = __import__("requests").exceptions
+            router.call_chat("system", "user")
+            mock_req.get.assert_not_called()
+
+    def test_404_fallback_uses_discovered_model(self, registry_path):
+        resp_404 = MagicMock()
+        resp_404.status_code = 404
+        resp_404.text = "model not found"
+        resp_ok = _mock_chat_response('{"answer": "from discovered"}')
+        tags_resp = MagicMock()
+        tags_resp.status_code = 200
+        tags_resp.json.return_value = {
+            "models": [{"name": "llama3.1:latest", "size": 3000000000}]
+        }
+        with patch.dict(os.environ, {"PROFESSIONALIZE_API_KEY": ""}, clear=False):
+            router = LLMRouter(registry_path=registry_path)
+            with patch("llm_router.requests") as mock_req:
+                mock_req.post.side_effect = [resp_404, resp_ok]
+                mock_req.get.return_value = tags_resp
+                mock_req.exceptions = __import__("requests").exceptions
+                result = router.call_chat("system", "user")
+        assert result.status == EndpointStatus.OK
+        assert result.provider == "ollama"
+        assert result.model == "llama3.1:latest"
 
 # ---------------------------------------------------------------------------
 # Live tests (skipped without API key)
