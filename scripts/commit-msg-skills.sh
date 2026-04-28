@@ -47,8 +47,11 @@ msg=$(cat "$1")
 # Step 1: Check for field presence
 if ! echo "$msg" | grep -qiE 'skills?\s*invoked'; then
     echo ""
-    echo "BLOCKED: Content commits must include 'Skills invoked: [S-xx, ...]' (AGENTS.md Section 10, Section 6a)."
-    echo "Add a line like: Skills invoked: [S-19, S-23, S-24, S-01]"
+    echo "BLOCKED: Content commit denied — missing Skills invoked: field."
+    echo "REASON:  Content commits must include 'Skills invoked: [S-xx, ...]'."
+    echo "FIX:     Add a line like: Skills invoked: [S-19, S-23, S-24, S-01]"
+    echo "BYPASS:  SKIP_SKILL_COMMIT_CHECK=1 + GOV_BYPASS_TASKCARD + GOV_BYPASS_REASON (all three required)"
+    echo "DOC:     AGENTS.md §10, §6a"
     echo ""
     exit 1
 fi
@@ -57,8 +60,11 @@ fi
 echo "$msg" | python scripts/ci/validate_skill_ids.py --stdin
 if [ $? -ne 0 ]; then
     echo ""
-    echo "BLOCKED: One or more skill IDs in 'Skills invoked:' are not in the registry."
-    echo "Check AGENTS.md §12 for the list of valid skill IDs."
+    echo "BLOCKED: Content commit denied — invalid skill IDs."
+    echo "REASON:  One or more skill IDs in 'Skills invoked:' are not in the AGENTS.md §12 registry."
+    echo "FIX:     Check AGENTS.md §12 for valid skill IDs."
+    echo "BYPASS:  SKIP_SKILL_COMMIT_CHECK=1 + GOV_BYPASS_TASKCARD + GOV_BYPASS_REASON"
+    echo "DOC:     AGENTS.md §12 (Skill Registry)"
     echo ""
     exit 1
 fi
@@ -74,18 +80,22 @@ if [ -n "$PENDING_RUN" ]; then
     validation_exit=$?
     if [ $validation_exit -ne 0 ]; then
         echo ""
-        echo "BLOCKED: Declared skills do not match skill run record $PENDING_RUN."
-        echo "$validation_result"
-        echo "Run: python scripts/pipeline/skill_run_manager.py get-declared-skills --run-id $PENDING_RUN"
+        echo "BLOCKED: Content commit denied — skills do not match run record."
+        echo "REASON:  Declared skills do not match skill run record $PENDING_RUN."
+        echo "FIX:     Run: python scripts/pipeline/skill_run_manager.py get-declared-skills --run-id $PENDING_RUN"
+        echo "BYPASS:  SKIP_SKILL_COMMIT_CHECK=1 + GOV_BYPASS_TASKCARD + GOV_BYPASS_REASON"
+        echo "DOC:     AGENTS.md §10"
         echo ""
         exit 1
     fi
 else
     # No pending run record — BLOCKED. All content commits require skill run evidence.
     echo ""
-    echo "BLOCKED: No skill run record found for this content commit."
-    echo "  Content commits require a skill run record for provenance."
-    echo "  Use /commit (S-76) to create auditable skill run records."
+    echo "BLOCKED: Content commit denied — no skill run record found."
+    echo "REASON:  Content commits require a skill run record for provenance."
+    echo "FIX:     Use /commit (S-76) to create auditable skill run records."
+    echo "BYPASS:  SKIP_SKILL_COMMIT_CHECK=1 + GOV_BYPASS_TASKCARD + GOV_BYPASS_REASON"
+    echo "DOC:     AGENTS.md §10"
     echo ""
     exit 1
 fi

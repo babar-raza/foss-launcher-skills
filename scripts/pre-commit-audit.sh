@@ -345,15 +345,15 @@ if [ -f "reports/session-state/ACTIVE" ]; then
                 echo ""
                 echo "$_session_check_result"
                 echo ""
-                echo "BLOCKED: Staged content files not found in session ledger."
+                echo "WARN: Staged content files not found in session ledger (non-blocking)."
                 echo "  Options:"
                 echo "    1. Record files: session_ledger.py record --file <path> --action modified"
                 echo "    2. Adopt files:  session_ledger.py adopt --files <path> [<path> ...]"
-                echo "    3. If operator-authorized, see docs/OPERATOR_BYPASSES.md"
+                echo "  DOC: docs/BYPASS_REGISTRY.md"
                 echo ""
                 # Include full diagnostics (non-fatal if diagnose itself fails).
                 "$_HOOK_PYTHON" scripts/pipeline/session_ledger.py diagnose 2>&1 || true
-                exit 1
+                # TC-GOV-02: Downgraded from exit 1 to warning (defense-in-depth, not blocking)
             fi
         fi
     fi

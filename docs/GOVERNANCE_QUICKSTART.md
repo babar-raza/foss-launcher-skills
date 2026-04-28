@@ -71,6 +71,10 @@ ROOT_WRITE_AUTHORIZED=1
 
 # Commit-msg skill check (3-var model — ALL THREE required, audited)
 SKIP_SKILL_COMMIT_CHECK=1 GOV_BYPASS_TASKCARD=TC-GOV-XX GOV_BYPASS_REASON='reason' git commit ...
+
+# Governance maintenance mode (3-var model — ALL THREE required, audited)
+# Allows edits to scripts/ci/, scripts/pipeline/, scripts/maintenance/ without skill context
+GOV_MAINTENANCE_MODE=1 GOV_MAINTENANCE_PLAN=TC-GOV-XX GOV_BYPASS_REASON='reason'
 ```
 
 ### Override Token (for forbidden paths)
@@ -98,7 +102,7 @@ SKIP_SKILL_COMMIT_CHECK=1 GOV_BYPASS_TASKCARD=TC-GOV-XX GOV_BYPASS_REASON='reaso
 | Write new content file | Session gate, write path hook, content write hook, skill context hook |
 | Write Python file | Session gate, write path hook, py placement hook, skill context hook |
 | Run bash command | Session gate, venv bash hook, destructive bash hook |
-| Git commit (content) | Pre-commit Steps 0-8, commit-msg skills check |
+| Git commit (content) | Pre-commit Steps 0-7, Step 8 session ledger (warning only), commit-msg skills check |
 | Git commit (non-content) | Pre-commit Steps 0-7 |
 | PR push | CI content-audit, CI skill-governance |
 
