@@ -30,7 +30,7 @@ before enhancement (S-21) is applied.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-17 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-17 --scope "*"
 > ```
 
 
@@ -87,7 +87,7 @@ before enhancement (S-21) is applied.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-17 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-17 --status completed
 > ```
 
 ## Post-conditions

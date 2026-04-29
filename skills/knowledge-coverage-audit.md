@@ -1,6 +1,6 @@
 # S-81: Knowledge Coverage Audit — Per-Claim Disposition Table
 
-<!-- CONTRACT: scripts/pipeline/knowledge_coverage.py (per-claim disposition table)
+<!-- CONTRACT: scripts/pipeline/commands/knowledge/knowledge_coverage.py (per-claim disposition table)
 postcondition: every claim in merged/claims.json has exactly one disposition
 postcondition: ORPHANED count is reported and must be reviewed by operator
 postcondition: reports/coverage/{family}/{platform}/knowledge_coverage.json written
@@ -60,13 +60,13 @@ No claim may be absent from the output.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-81 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-81 --scope "*"
 > ```
 
 
 1. **Run backing script**:
    ```bash
-   .venv/Scripts/python scripts/pipeline/knowledge_coverage.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/knowledge_coverage.py {family} {platform}
    ```
 
 2. **Read output** from `reports/coverage/{family}/{platform}/knowledge_coverage.json`.
@@ -79,7 +79,7 @@ No claim may be absent from the output.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-81 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-81 --status completed
 > ```
 
 ## Output Format

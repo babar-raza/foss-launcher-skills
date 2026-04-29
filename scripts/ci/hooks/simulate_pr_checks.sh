@@ -10,7 +10,7 @@
 # for later audit.
 #
 # Usage:
-#   bash scripts/ci/simulate_pr_checks.sh [--base <branch>] [--slug <slug>]
+#   bash scripts/ci/hooks/simulate_pr_checks.sh [--base <branch>] [--slug <slug>]
 #
 # Options:
 #   --base <branch>  Base branch to compare against (default: origin/main)
@@ -144,36 +144,36 @@ run_step "Check reports/ not tracked (local-only boundary)" "blocking" \
     bash -c 'count=$(git ls-files reports/ | wc -l | tr -d " \t\r\n"); if [ "$count" -gt 0 ]; then echo "ERROR: $count file(s) tracked under reports/ -- violates local-only boundary:"; git ls-files reports/; exit 1; fi; echo "OK: reports/ contains 0 tracked files"'
 
 run_step "Check blog slug hygiene" "blocking" \
-    "$PYTHON" scripts/ci/check-blog-slugs.py
+    "$PYTHON" scripts/ci/checks/check-blog-slugs.py
 
 run_step "Check content filename conventions" "blocking" \
-    "$PYTHON" scripts/ci/check_content_filenames.py
+    "$PYTHON" scripts/ci/checks/check_content_filenames.py
 
 run_step "Run API accuracy audit" "advisory" \
-    bash -c "\"$PYTHON\" scripts/pipeline/audit.py all --json > /tmp/audit-results.json"
+    bash -c "\"$PYTHON\" scripts/pipeline/commands/content/audit.py all --json > /tmp/audit-results.json"
 
 # Mirror CI: always run regression check regardless of audit exit code
 run_step "Check for audit regressions" "blocking" \
-    "$PYTHON" scripts/ci/check_audit_regression.py /tmp/audit-results.json reports/audit/baseline-fail-counts.json
+    "$PYTHON" scripts/ci/checks/check_audit_regression.py /tmp/audit-results.json reports/audit/baseline-fail-counts.json
 
 if [ "${#CHANGED_FILES[@]}" -gt 0 ]; then
     run_step "Check grade presence" "advisory" \
-        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/pipeline/check_grade_presence.py --scope modified "${CHANGED_FILES[@]}"
+        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/pipeline/commands/governance/check_grade_presence.py --scope modified "${CHANGED_FILES[@]}"
 
     run_step "Check grade block integrity" "blocking" \
-        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/pipeline/check_grade_integrity.py --files "${CHANGED_FILES[@]}"
+        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/pipeline/commands/governance/check_grade_integrity.py --files "${CHANGED_FILES[@]}"
 
     run_step "Check grade downgrade" "blocking" \
-        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/pipeline/check_grade_downgrade.py "${CHANGED_FILES[@]}"
+        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/pipeline/commands/governance/check_grade_downgrade.py "${CHANGED_FILES[@]}"
 
     run_step "Check manifest/frontmatter consistency (GUARD-04)" "blocking" \
-        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/check_manifest_consistency.py "${CHANGED_FILES[@]}"
+        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/checks/check_manifest_consistency.py "${CHANGED_FILES[@]}"
 
     run_step "Check grade churn (GUARD-02)" "blocking" \
-        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/check_grade_churn.py --mode pr --base-branch "${BASE_BRANCH}"
+        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/checks/check_grade_churn.py --mode pr --base-branch "${BASE_BRANCH}"
 
     run_step "Check evaluator freeze (FREEZE-04)" "blocking" \
-        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/check_evaluator_freeze.py
+        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/checks/check_evaluator_freeze.py
 
     if [ "${#EVAL_FILES[@]}" -gt 0 ]; then
         run_step "Strict content eval on modified files (TC-05)" "blocking" \
@@ -183,22 +183,22 @@ if [ "${#CHANGED_FILES[@]}" -gt 0 ]; then
     fi
 
     run_step "Validate frontmatter" "advisory" \
-        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/pipeline/validate_frontmatter.py "${CHANGED_FILES[@]}"
+        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/pipeline/commands/content/validate_frontmatter.py "${CHANGED_FILES[@]}"
 else
     echo "  SKIP: No changed content files -- skipping content-only checks"
 fi
 
 run_step "Translation coverage" "advisory" \
-    env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/pipeline/translation_coverage.py --json-out /tmp/translation_coverage.json
+    env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/pipeline/commands/ops/translation_coverage.py --json-out /tmp/translation_coverage.json
 
 run_step "Check skill sync parity" "blocking" \
-    env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/pipeline/sync_skills.py --check
+    env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/pipeline/commands/ops/sync_skills.py --check
 
 run_step "Check skill registry completeness" "advisory" \
-    "$PYTHON" scripts/ci/check_skill_registry.py
+    "$PYTHON" scripts/ci/checks/check_skill_registry.py
 
 run_step "Check agent governance surface" "advisory" \
-    "$PYTHON" scripts/ci/check_agent_governance_surface.py --check-baseline
+    "$PYTHON" scripts/ci/checks/check_agent_governance_surface.py --check-baseline
 
 if [ "${#COMMIT_SHAS[@]}" -gt 0 ]; then
     # Skills invoked check -- inline (no subshell needed)
@@ -225,15 +225,15 @@ fi
 
 if [ "${#CHANGED_ALL_FILES[@]}" -gt 0 ]; then
     run_step "Check forbidden-path override tokens" "blocking" \
-        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/check_forbidden_overrides.py "${CHANGED_ALL_FILES[@]}"
+        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/checks/check_forbidden_overrides.py "${CHANGED_ALL_FILES[@]}"
 fi
 
 run_step "Check compliance proof bundles" "advisory" \
-    "$PYTHON" scripts/ci/check_proof_bundles.py
+    "$PYTHON" scripts/ci/checks/check_proof_bundles.py
 
 if [ "${#COMMIT_SHAS[@]}" -gt 0 ]; then
     run_step "Validate skill run records" "advisory" \
-        "$PYTHON" scripts/ci/check_skill_run_records.py --commits "${COMMIT_SHAS[@]}"
+        "$PYTHON" scripts/ci/checks/check_skill_run_records.py --commits "${COMMIT_SHAS[@]}"
 fi
 
 # --------------------------------------------------------------------------

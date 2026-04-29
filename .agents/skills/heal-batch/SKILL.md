@@ -7,7 +7,7 @@ args: "{eval-report-path} [--mode auto|llm|regen|all] [--dry-run] [--after-repor
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-<!-- CONTRACT: scripts/pipeline/remediate.py heal
+<!-- CONTRACT: scripts/pipeline/commands/content/remediate.py heal
      purpose: batch healing from eval report — plan, execute, verify across auto/llm/regen modes
      preconditions: content_eval JSON report exists with findings
      postcondition: auto-fixes applied; LLM queue emitted; regen queue emitted; optional verification
@@ -37,21 +37,21 @@ correct healing mode (auto, llm, regen) in a single pass.
 ## Pre-conditions
 
 1. A content_eval JSON report exists at `{eval-report-path}` with a `findings` array.
-2. `scripts/pipeline/remediate.py` is available with the `heal` subcommand.
-3. `scripts/pipeline/heal_controller.py`, `heal_policy.py`, and `verify.py` are importable.
+2. `scripts/pipeline/commands/content/remediate.py` is available with the `heal` subcommand.
+3. `scripts/pipeline/lib/heal_controller.py`, `heal_policy.py`, and `verify.py` are importable.
 
 ## Steps
 
 > **Skill context gate** -- run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-89 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-89 --scope "*"
 > ```
 
 1. **Parse arguments**: Extract eval-report path and optional flags from $ARGUMENTS.
 
 2. **Run heal subcommand**:
    ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/remediate.py heal \
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/remediate.py heal \
        {eval-report-path} \
        --mode {mode|all} \
        [--dry-run] \
@@ -85,7 +85,7 @@ correct healing mode (auto, llm, regen) in a single pass.
 
 6. **Verify** (if re-evaluation was run):
    ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/remediate.py heal \
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/remediate.py heal \
        {eval-report-path} \
        --after-report {after-report-path} \
        --json
@@ -101,7 +101,7 @@ correct healing mode (auto, llm, regen) in a single pass.
 
 > **Skill context close** -- run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-89 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-89 --status completed
 > ```
 
 ## Post-conditions

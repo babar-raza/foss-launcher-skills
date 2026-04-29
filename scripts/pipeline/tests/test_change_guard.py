@@ -25,7 +25,7 @@ _FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
 @contextmanager
 def fake_knowledge_dir():
     """Build a complete fake knowledge dir including install and index artifacts."""
-    import knowledge_core
+    from commands.knowledge import knowledge_core
 
     with tempfile.TemporaryDirectory() as temp_dir:
         root = Path(temp_dir)

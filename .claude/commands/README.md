@@ -6,7 +6,7 @@ Skills here are invoked as slash commands within Claude Code sessions.
 > **Canonical source**: [skills/README.md](../../skills/README.md)
 > **Authoritative registry**: [AGENTS.md §12](../../AGENTS.md)
 > This tree is a mirror of `skills/` with Claude Code-specific adaptations. When content diverges,
-> investigate using `python scripts/pipeline/sync_skills.py --report`.
+> investigate using `python scripts/pipeline/commands/ops/sync_skills.py --report`.
 
 ---
 
@@ -59,7 +59,7 @@ counterpart in `skills/`, `.agents/skills/`, or `.kilocode/skills/`.
 | `translate.md` | Dispatcher: routes to `/translate-page` (S-52) or `/translate-batch` (S-53) based on argument type. Convenience wrapper only — adds no new capability. |
 | `seo-review.md` | Interactive human review gate for SEO recommendations. Claude Code-only utility; not yet a first-class registered skill. |
 
-Source: `scripts/pipeline/sync_skills.py:KNOWN_EXCEPTIONS` and `INTERNAL_SKILLS`.
+Source: `scripts/pipeline/commands/ops/sync_skills.py:KNOWN_EXCEPTIONS` and `INTERNAL_SKILLS`.
 
 ---
 
@@ -142,10 +142,10 @@ Source: `scripts/pipeline/sync_skills.py:KNOWN_EXCEPTIONS` and `INTERNAL_SKILLS`
 
 ```bash
 # Verify this tree matches canonical
-.venv/Scripts/python scripts/pipeline/sync_skills.py --check
+.venv/Scripts/python scripts/pipeline/commands/ops/sync_skills.py --check
 
 # View full divergence report
-.venv/Scripts/python scripts/pipeline/sync_skills.py --report
+.venv/Scripts/python scripts/pipeline/commands/ops/sync_skills.py --report
 ```
 
 CI runs this check on every PR that modifies content. Drift from canonical is reported but

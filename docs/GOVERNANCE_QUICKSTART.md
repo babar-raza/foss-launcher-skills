@@ -17,7 +17,7 @@ All blocking hooks exit 2 (PreToolUse) or exit 1 (pre-commit/commit-msg) to deny
 
 ### 1. "Session gate blocked: session not bootstrapped"
 **Hook**: check_session_gate.sh
-**Fix**: Run `/session-start` or `bash scripts/ci/bootstrap_session_gate.sh`
+**Fix**: Run `/session-start` or `bash scripts/ci/hooks/bootstrap_session_gate.sh`
 **Bypass**: `SKIP_SESSION_GATE_CHECK=1`
 
 ### 2. "Direct Edit on content file blocked"
@@ -81,7 +81,7 @@ GOV_MAINTENANCE_MODE=1 GOV_MAINTENANCE_PLAN=TC-GOV-XX GOV_BYPASS_REASON='reason'
 
 ```bash
 # Create a token for a forbidden-path write
-.venv/Scripts/python scripts/pipeline/override_manager.py create \
+.venv/Scripts/python scripts/pipeline/commands/governance/override_manager.py create \
   --path AGENTS.md --reason "governance update per TC-GOV-XX"
 
 # Token is consumed automatically by post-commit hook
@@ -121,7 +121,7 @@ Which PreToolUse hooks fire for each tool, and what can block:
 
 **Session gate read-only exemptions (TC-DS-01):**
 - Grep and Glob are always exempt (zero write side effects)
-- Bash commands classified as read-only by `scripts/ci/classify_bash_readonly.py` are exempt
+- Bash commands classified as read-only by `scripts/ci/checks/classify_bash_readonly.py` are exempt
 - Read-only = commands like `git log`, `ls`, `cat`, `grep`, `find` (without -delete)
 - Non-read-only commands (rm, python, redirects, etc.) still require the gate
 

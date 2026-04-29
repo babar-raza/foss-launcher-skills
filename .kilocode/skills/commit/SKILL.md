@@ -1,4 +1,4 @@
-<!-- CONTRACT: scripts/pipeline/session_ledger.py
+<!-- CONTRACT: scripts/pipeline/commands/ops/session_ledger.py
      purpose: stage and commit session changes with structured conventional commits
      preconditions: active session ledger (or --force-all); uncommitted changes in working tree
      postcondition: git commit(s) created with skill IDs, evidence, and verification results
@@ -66,7 +66,7 @@ Applies a full commit-preparation workflow **scoped to the current session's tou
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-76 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-76 --scope "*"
 > ```
 
 
@@ -88,13 +88,13 @@ Then read `.gitignore` to confirm what is intentionally excluded.
 
 **Check for session ledger:**
 ```bash
-.venv/Scripts/python scripts/pipeline/session_ledger.py current
+.venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py current
 ```
 
 **If a session ledger exists** (exit 0):
 1. Get commit candidates (session-touched ∩ git-dirty):
    ```bash
-   .venv/Scripts/python scripts/pipeline/session_ledger.py candidates --format json
+   .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py candidates --format json
    ```
 2. The `candidates` list is the **only** set of files eligible for commit.
 3. `excluded_dirty_at_start` files were dirty before this session — do NOT commit them.
@@ -104,7 +104,7 @@ Then read `.gitignore` to confirm what is intentionally excluded.
 **If no session ledger exists** (exit 2):
 1. **Run diagnostics BEFORE giving up** — do not assume "no session" without evidence:
    ```bash
-   .venv/Scripts/python scripts/pipeline/session_ledger.py diagnose
+   .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py diagnose
    ```
 2. Report the diagnostic output to the user verbatim.
 3. If diagnostics confirm no active session:
@@ -114,23 +114,23 @@ Then read `.gitignore` to confirm what is intentionally excluded.
      The user must either:
      1. Run `/session-start` to initialize a ledger, then use `adopt` to claim files:
         ```bash
-        .venv/Scripts/python scripts/pipeline/session_ledger.py init
+        .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py init
         # Adopt all dirty files:
-        .venv/Scripts/python scripts/pipeline/session_ledger.py adopt --all
+        .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py adopt --all
         # Or adopt by commit group:
-        .venv/Scripts/python scripts/pipeline/session_ledger.py adopt --group "content(locale)"
+        .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py adopt --group "content(locale)"
         # Or adopt by glob pattern:
-        .venv/Scripts/python scripts/pipeline/session_ledger.py adopt --glob "content/kb.aspose.org/*"
+        .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py adopt --glob "content/kb.aspose.org/*"
         # Or inherit a prior session's work (when continuing interrupted work):
-        .venv/Scripts/python scripts/pipeline/session_ledger.py inherit
+        .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py inherit
         # Or inherit a specific prior session:
-        .venv/Scripts/python scripts/pipeline/session_ledger.py inherit --session-id <prior-id>
+        .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py inherit --session-id <prior-id>
         ```
      2. Or pass `--force-all` to bypass scoping entirely.
 
   Use `dirty` to see all dirty files with their commit group and adoption status:
   ```bash
-  .venv/Scripts/python scripts/pipeline/session_ledger.py dirty
+  .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py dirty
   ```
 
 **Critical**: Always capture BOTH stdout and stderr from session_ledger.py commands.
@@ -146,7 +146,7 @@ Do not assume "no session" without actually running `current` and examining its 
 
 **Get deterministic commit groups** from the session ledger classifier:
 ```bash
-.venv/Scripts/python scripts/pipeline/session_ledger.py groups --format json
+.venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py groups --format json
 ```
 
 This returns a JSON object mapping group names to file lists. Each group becomes one commit.
@@ -202,7 +202,7 @@ printf '%s
 _ga_err=$(mktemp /tmp/ga-err-XXXXXX.txt 2>/dev/null || mktemp)
 ga_revert=()
 while IFS= read -r _f; do ga_revert+=("$_f"); done < <(
-    .venv/Scripts/python scripts/pipeline/check_graded_at_only.py         --files-from "$_tmpfile_ga" --mode worktree 2>"$_ga_err"
+    .venv/Scripts/python scripts/pipeline/commands/governance/check_graded_at_only.py         --files-from "$_tmpfile_ga" --mode worktree 2>"$_ga_err"
 )
 rm -f "$_tmpfile_ga"
 
@@ -235,7 +235,7 @@ building the commit plan preview (B.5). They should not appear in the plan at al
 - `PARSE_FAILURE:` on stderr → **Case D** → halt skill immediately with the message above
 - If `.venv` is absent → skip this step with a warning; the pre-commit hook Step 10 is the fallback safety net
 
-**Implementation note**: `scripts/pipeline/check_graded_at_only.py` is the authoritative
+**Implementation note**: `scripts/pipeline/commands/governance/check_graded_at_only.py` is the authoritative
 classifier. See also: AGENTS.md §10b (full detail: [docs/governance/provenance-rules.md](../docs/governance/provenance-rules.md)) graded_at-only diff rule.
 
 ---
@@ -292,7 +292,7 @@ If the user requests changes to the plan, adjust and re-present.
 This repo enforces a path-guard pre-commit hook. Any file in a **protected path** requires
 an override token created and staged alongside the edit.
 
-**Protected paths** (partial list — see `scripts/pipeline/path_guard.py` for full list):
+**Protected paths** (partial list — see `scripts/pipeline/commands/governance/path_guard.py` for full list):
 - `AGENTS.md`, `CLAUDE.md`, `CODEX.md`
 - `skills/`
 - `.agents/skills/`, `.kilocode/skills/`, `.claude/commands/`
@@ -303,7 +303,7 @@ an override token created and staged alongside the edit.
 
 ```bash
 # 1. Create one token per logical group of protected files
-.venv/Scripts/python scripts/pipeline/override_manager.py create \
+.venv/Scripts/python scripts/pipeline/commands/governance/override_manager.py create \
   --paths "path/to/file1" "path/to/file2" \
   --reason "brief reason for the edit" \
   --plan "feat(scope): commit title"
@@ -398,7 +398,7 @@ Verification: pytest scripts/pipeline/tests/ -q → 927 passed, 2 expected pre-c
 **After staging files but before committing**, check for bulk grade-only frontmatter changes:
 
 ```bash
-PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/ci/check_grade_churn.py --mode staged
+PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/ci/checks/check_grade_churn.py --mode staged
 ```
 
 **Interpret results**:
@@ -413,7 +413,7 @@ PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/ci/check_grade_churn.py
 **Override**: If the commit message contains the `BULK-GRADE-MIGRATION` annotation, the check
 passes regardless of file count. Pass the planned commit message:
 ```bash
-PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/ci/check_grade_churn.py   --mode staged --commit-msg "your commit message here"
+PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/ci/checks/check_grade_churn.py   --mode staged --commit-msg "your commit message here"
 ```
 
 ---
@@ -467,7 +467,7 @@ under `reports/` which is gitignored and never committed. The hook moves them fr
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-76 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-76 --status completed
 > ```
 
 ## Post-conditions

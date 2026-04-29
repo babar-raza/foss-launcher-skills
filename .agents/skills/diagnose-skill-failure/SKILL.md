@@ -38,7 +38,7 @@ None. This skill can be invoked at any point when a skill or pipeline step fails
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-67 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-67 --scope "*"
 > ```
 
 
@@ -79,13 +79,13 @@ ls knowledge/{family}/{platform}/merged/model.yaml
 **DATA failures:**
 ```bash
 # Validate frontmatter structure
-.venv/Scripts/python scripts/pipeline/validate_frontmatter.py --files {filepath}
+.venv/Scripts/python scripts/pipeline/commands/content/validate_frontmatter.py --files {filepath}
 
 # Check evidence block
-.venv/Scripts/python scripts/pipeline/audit.py --files {filepath}
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {filepath}
 
 # Check for unknown API tokens
-.venv/Scripts/python scripts/pipeline/attach_evidence.py --files {filepath} --dry-run
+.venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py --files {filepath} --dry-run
 ```
 
 **CODE failures:**
@@ -100,10 +100,10 @@ PYTHONPATH=scripts/pipeline .venv/Scripts/python -m pytest scripts/pipeline/test
 **GOVERNANCE failures:**
 ```bash
 # Check override token status
-.venv/Scripts/python scripts/pipeline/override_manager.py list
+.venv/Scripts/python scripts/pipeline/commands/governance/override_manager.py list
 
 # Check DAR coverage
-.venv/Scripts/python scripts/ci/check_dar_coverage.py
+.venv/Scripts/python scripts/ci/checks/check_dar_coverage.py
 
 # Check skill sync parity
 .venv/Scripts/python scripts/ci/sync_skills.py --check
@@ -112,7 +112,7 @@ PYTHONPATH=scripts/pipeline .venv/Scripts/python -m pytest scripts/pipeline/test
 **REGRESSION failures:**
 ```bash
 # Check grade trajectory
-.venv/Scripts/python scripts/pipeline/grade_writer.py --files {filepath} --check-only
+.venv/Scripts/python scripts/pipeline/lib/grade_writer.py --files {filepath} --check-only
 
 # Check what changed
 git diff HEAD~1 -- {filepath}
@@ -147,7 +147,7 @@ If the failure cannot be resolved via Steps 3–4, write to
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-67 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-67 --status completed
 > ```
 
 ## Failure summary

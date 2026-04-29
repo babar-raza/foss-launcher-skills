@@ -127,13 +127,13 @@ Applies to:
 ## 5. Evidence Requirements (non-negotiable)
 
 - Every content page write must pass S-23 (content-check) before committing.
-  **S-23 implementation**: `python scripts/pipeline/audit.py --files {path}` (deterministic, scriptable).
+  **S-23 implementation**: `python scripts/pipeline/commands/content/audit.py --files {path}` (deterministic, scriptable).
   Pre-commit hook enforces this automatically; CI workflow blocks PRs with FAILs.
 - Every code block in `content/` must come from a snippet in `knowledge/{family}/{platform}/snippets/`
 - Every factual claim must be traceable to a `claim_id` in `knowledge/{family}/{platform}/claims.json`
 - Claims with `confidence < 0.5` require human review before use
 - An `evidence:` YAML frontmatter block must be present in every content page. Generate it
-  deterministically with `python scripts/pipeline/attach_evidence.py --files {path}` (for pages
+  deterministically with `python scripts/pipeline/commands/healing/attach_evidence.py --files {path}` (for pages
   with code blocks) or manually via S-24 (evidence-cite, for prose-only pages). Format:
   ```yaml
   evidence:
@@ -181,7 +181,7 @@ overridden automatically — doing so would break deployed URLs without a redire
 **Migration path (opt-in only).** To replace a legacy features slug with a cluster-derived
 one, a human must explicitly run:
 ```bash
-python scripts/pipeline/site_planner.py {family} {platform} --replan-blog
+python scripts/pipeline/commands/launch/site_planner.py {family} {platform} --replan-blog
 ```
 This flag may only be invoked by a human operator with deliberate intent. It MUST NOT be
 called automatically from `/launch-product`, `/refresh-product`, or any orchestration skill.

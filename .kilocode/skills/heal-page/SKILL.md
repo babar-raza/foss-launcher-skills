@@ -25,7 +25,7 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-26 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-26 --scope "*"
 > ```
 
 
@@ -34,7 +34,7 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 2. **Auto-refresh knowledge**: Before loading any knowledge artifacts, ensure they are current.
    Invoke S-14 (knowledge-update) via its underlying script:
    ```bash
-   .venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform}
    ```
    - If it prints "refreshed": knowledge was stale and has been rebuilt from the clone cache.
    - If it prints "current": no action needed.
@@ -71,7 +71,7 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 
 8. **Run ground-check after pass 1**:
    ```bash
-   .venv/Scripts/python scripts/pipeline/audit.py --files {relative-file-path}
+   .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {relative-file-path}
    ```
 
 9. **Re-evaluate after pass 1**:
@@ -90,7 +90,7 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 
     **Ground-check before pass 2** (TC-P3-04):
     ```bash
-    .venv/Scripts/python scripts/pipeline/audit.py --files {relative-file-path}
+    .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {relative-file-path}
     ```
     If audit.py finds new FAIL findings not present in the Pass 1 report, halt and escalate
     to human review — do not proceed with aggressive rewrites until the new failures are
@@ -149,7 +149,7 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-26 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-26 --status completed
 > ```
 
 ## Post-conditions

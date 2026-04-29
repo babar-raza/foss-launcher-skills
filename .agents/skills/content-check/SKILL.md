@@ -1,5 +1,5 @@
-<!-- CONTRACT: scripts/pipeline/audit.py (invoked in Step 3)
-     CONTRACT: scripts/pipeline/ground_check.py (invoked in Step 3 when present)
+<!-- CONTRACT: scripts/pipeline/commands/content/audit.py (invoked in Step 3)
+     CONTRACT: scripts/pipeline/commands/content/ground_check.py (invoked in Step 3 when present)
      postcondition: audit.py returns automated structural PASS/WARN/FAIL report
      postcondition: ground_check.py returns grounding ratio gate (exit 0=PASS, 1=WARN, 2=FAIL)
      postcondition: agent performs knowledge cross-reference and evidence checks manually
@@ -24,7 +24,7 @@ Run a structural and quality check on a content file before committing.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-23 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-23 --scope "*"
 > ```
 
 
@@ -39,14 +39,14 @@ Run a structural and quality check on a content file before committing.
 
 3. **Run automated structural checks via audit.py**:
    ```bash
-   .venv/Scripts/python scripts/pipeline/audit.py --files {relative-file-path}
+   .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {relative-file-path}
    ```
    `audit.py` performs automated structural and schema checks and outputs a PASS/WARN/FAIL
    report. Read the script output and incorporate the results into the overall check.
 
    **Run grounding ratio gate via ground_check.py** (if the script exists):
    ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/ground_check.py {family} {platform} {relative-file-path}
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/ground_check.py {family} {platform} {relative-file-path}
    ```
    - Exit 0 → `GROUND_CHECK: PASS` — all backtick identifiers grounded in `api_surface.json`
    - Exit 1 → `GROUND_CHECK: WARN` — grounding ratio 60–79%; flag but do not block
@@ -144,6 +144,6 @@ Run a structural and quality check on a content file before committing.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-23 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-23 --status completed
 > ```
 

@@ -18,6 +18,21 @@ _PIPELINE_ROOT = Path(__file__).resolve().parent.parent
 if str(_PIPELINE_ROOT) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_ROOT))
 
+# Add lib/ and all commands/ subdirectories so bare imports of moved modules
+# (e.g. `from knowledge_core import Knowledge`) continue to work in tests.
+# IMPORTANT: commands/ dirs are appended (not inserted) to avoid shadowing
+# pipeline packages like audit/ with commands/content/audit.py.
+_LIB_DIR = _PIPELINE_ROOT / "lib"
+if str(_LIB_DIR) not in sys.path:
+    sys.path.insert(0, str(_LIB_DIR))
+_COMMANDS_DIR = _PIPELINE_ROOT / "commands"
+if _COMMANDS_DIR.is_dir():
+    for _sub in sorted(_COMMANDS_DIR.iterdir()):
+        if _sub.is_dir() and not _sub.name.startswith("_"):
+            _p = str(_sub)
+            if _p not in sys.path:
+                sys.path.append(_p)
+
 _FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
 
 

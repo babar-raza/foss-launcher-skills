@@ -7,7 +7,7 @@ REVIEW TRIGGERS:
   - AGENTS.md §11 Prohibited Actions changes → update §6 Key Safety Rules (pointer only)
   - AGENTS.md §2 Read Order changes → update §3 Session Flow
   - skills/getting-started.md step changes → update §2 Environment Setup
-MAINTAINED BY: Human maintainer · CI: scripts/ci/check_onboarding_integrity.py
+MAINTAINED BY: Human maintainer · CI: scripts/ci/checks/check_onboarding_integrity.py
 -->
 # Operator Quick-Start Guide
 
@@ -76,7 +76,7 @@ PROFESSIONALIZE_API_KEY=sk_xxxxxxxxxxxx  # Optional — LLM enrichment; TF-IDF f
 ### Verify
 
 ```bash
-.venv/Scripts/python scripts/pipeline/audit.py all
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py all
 ```
 
 Should report 0 FAILs. If not, run `/getting-started` in a Claude session for
@@ -193,7 +193,7 @@ Full workflow: `docs/discovery-workflow.md`.
 
 # New operator: start a fresh session and inherit prior work
 /session-start
-.venv/Scripts/python scripts/pipeline/session_ledger.py inherit
+.venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py inherit
 ```
 
 The `inherit` command finds the most recent closed session and adopts all its
@@ -223,7 +223,7 @@ tracked files. Use `adopt --glob "content/**"` to selectively adopt files.
 
 | Error | Fix |
 |-------|-----|
-| `⛔ Session gate blocked: session not bootstrapped` | Run `/session-start` — step 0 runs bootstrap automatically. Emergency: `bash scripts/ci/bootstrap_session_gate.sh` |
+| `⛔ Session gate blocked: session not bootstrapped` | Run `/session-start` — step 0 runs bootstrap automatically. Emergency: `bash scripts/ci/hooks/bootstrap_session_gate.sh` |
 
 ### Skill errors
 

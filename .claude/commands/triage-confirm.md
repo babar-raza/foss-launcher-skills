@@ -31,13 +31,13 @@ or S-21 based on severity.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-92 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-92 --scope "*"
 > ```
 
 ### 1. Knowledge bootstrap check
 
 ```bash
-PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform} --check-only
+PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform} --check-only
 ```
 
 If stale_since is set and clone cache is missing → halt: "Knowledge is stale. Run /knowledge-update first."
@@ -52,7 +52,7 @@ The scanner uses `knowledge/{family}/{platform}/merged/` artifacts:
 ### 3. Run Layer 2 scan
 
 ```bash
-PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/triage_confirm.py \
+PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/lib/triage_confirm.py \
   --family {family} --platform {platform} [--files {glob}]
 ```
 
@@ -66,7 +66,7 @@ For each page, `triage_confirm()` checks:
 To combine Layer 1 + Layer 2 + page-spec signals:
 
 ```bash
-PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/reconcile_triage.py \
+PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/lib/reconcile_triage.py \
   --family {family} --platform {platform} [--output reports/triage/]
 ```
 
@@ -94,10 +94,10 @@ Current:         {current_count}
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-92 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-92 --status completed
 > ```
 
 ## Backing Scripts
 
-- `scripts/pipeline/triage_confirm.py` — Layer 2 body-prose scanner
-- `scripts/pipeline/reconcile_triage.py` — 3-source reconciliation (Layer 1 + Layer 2 + page-spec)
+- `scripts/pipeline/lib/triage_confirm.py` — Layer 2 body-prose scanner
+- `scripts/pipeline/lib/reconcile_triage.py` — 3-source reconciliation (Layer 1 + Layer 2 + page-spec)

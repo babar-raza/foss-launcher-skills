@@ -5,7 +5,7 @@ MUST NOT RESTATE: Policy rules — link to AGENTS.md; never copy governance text
 REVIEW TRIGGERS:
   - AGENTS.md §12 / docs/registries/skills.md venv execution policy changes → update all python command blocks
   - New workflow skills added to AGENTS.md §12 / docs/registries/skills.md → add matching runbook entry
-MAINTAINED BY: Human maintainer · CI: scripts/ci/check_onboarding_integrity.py (Check 5)
+MAINTAINED BY: Human maintainer · CI: scripts/ci/checks/check_onboarding_integrity.py (Check 5)
 -->
 # RUNBOOK — Aspose.org Operator Guide
 
@@ -46,11 +46,11 @@ bash scripts/install-hooks.sh
 # Locale files translated since cdaa1daac already have committed provenance.
 # Older locale files that have not been re-translated need this step.
 # The script is idempotent — safe to re-run; files with provenance are skipped.
-.venv/Scripts/python scripts/pipeline/provenance_backfill.py
+.venv/Scripts/python scripts/pipeline/commands/migration/provenance_backfill.py
 # Expected output: "Backfilled N files, skipped M (already have provenance), 0 errors"
 
 # 6. Verify
-.venv/Scripts/python scripts/pipeline/audit.py all
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py all
 ```
 
 ## 1b. Update Product Registry
@@ -64,7 +64,7 @@ by `clone_cache.py` and `refresh_knowledge.py`.
 /update-registry
 
 # Or run the backing script directly
-.venv/Scripts/python scripts/pipeline/update_product_registry.py --token $GITHUB_TOKEN
+.venv/Scripts/python scripts/pipeline/commands/ops/update_product_registry.py --token $GITHUB_TOKEN
 ```
 
 **Modes:**
@@ -92,7 +92,7 @@ to refresh the registry before retrying.
 /knowledge-bootstrap {family} {platform}
 
 # Step 2: Generate site manifest
-.venv/Scripts/python scripts/pipeline/site_planner.py {family} {platform} --dry-run
+.venv/Scripts/python scripts/pipeline/commands/launch/site_planner.py {family} {platform} --dry-run
 # Review YAML output, then without --dry-run to write
 
 # Step 3: Generate content (via agent skills)
@@ -100,9 +100,9 @@ to refresh the registry before retrying.
 # This orchestrates: site-plan -> page generation -> evidence -> audit -> grade
 
 # Step 4: Verify
-.venv/Scripts/python scripts/pipeline/audit.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform}
 python -m scripts.pipeline.content_eval evaluate {family} {platform}
-.venv/Scripts/python scripts/pipeline/truth_audit.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/commands/diagnostics/truth_audit.py {family} {platform}
 ```
 
 ## 3. Refresh Knowledge After Upstream Changes
@@ -124,7 +124,7 @@ If SHAs match, it exits with "no changes" — safe to run on any product at any 
 /knowledge-update {family} {platform}
 
 # Or run the backing script directly
-.venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform}
 ```
 
 After success: `merged/pipeline_run.json` confirms all steps ran, `stale_since` is cleared,
@@ -160,16 +160,16 @@ with `pages_to_add`, `pages_to_update`, `pages_to_remove`, and `pages_renamed`.
 
 ```bash
 # Record a completed step
-.venv/Scripts/python scripts/pipeline/post_refresh_verify.py {family} {platform} --step "{step_name}"
+.venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step "{step_name}"
 
 # View progress
-.venv/Scripts/python scripts/pipeline/post_refresh_verify.py {family} {platform} --status
+.venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --status
 ```
 
 ### 3f. Verification gate
 
 ```bash
-.venv/Scripts/python scripts/pipeline/post_refresh_verify.py {family} {platform} --verify
+.venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --verify
 ```
 
 Runs 4 checks: (1) `stale_since` is null, (2) no content pages cite absent claim IDs,
@@ -191,32 +191,32 @@ to `[]` so they no longer reference removed classes.
 | Verify gate fails | Commit blocked | Fix issues listed in output; re-run `--verify` |
 | Duplicate frontmatter keys after evidence update | Pre-commit hook blocks | Deduplicate keys in affected files; re-stage |
 
-**Verify**: `.venv/Scripts/python scripts/pipeline/audit.py {family} {platform}` — 0 FAIL expected.
+**Verify**: `.venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform}` — 0 FAIL expected.
 
 ## 4. Run Full Content Audit
 
 ```bash
 # All products
-.venv/Scripts/python scripts/pipeline/audit.py all
-.venv/Scripts/python scripts/pipeline/audit.py all --json   # machine-readable
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py all
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py all --json   # machine-readable
 
 # Single product
-.venv/Scripts/python scripts/pipeline/audit.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform}
 
 # Specific files
-.venv/Scripts/python scripts/pipeline/audit.py --files path/to/file.md
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py --files path/to/file.md
 
 # Content evaluation (multi-dimensional)
 python -m scripts.pipeline.content_eval evaluate {family} {platform}
 
 # Deep API verification
-.venv/Scripts/python scripts/pipeline/truth_audit.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/commands/diagnostics/truth_audit.py {family} {platform}
 
 # Cross-platform consistency
-.venv/Scripts/python scripts/pipeline/cross_platform_audit.py {family}
+.venv/Scripts/python scripts/pipeline/commands/content/cross_platform_audit.py {family}
 
 # Gap analysis
-.venv/Scripts/python scripts/gap-eval/run.py {family} {platform} --scope docs --no-llm
+.venv/Scripts/python scripts/gap-eval/src/run.py {family} {platform} --scope docs --no-llm
 ```
 
 ## 5. Translate Content
@@ -258,11 +258,11 @@ python -m scripts.pipeline.content_eval evaluate {family} {platform}
 
 ```bash
 # Pre-commit checks (automated via hook)
-.venv/Scripts/python scripts/pipeline/audit.py --files {staged-files}
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {staged-files}
 
 # Manual verification
-.venv/Scripts/python scripts/pipeline/path_guard.py {target-path}
-.venv/Scripts/python scripts/pipeline/check_grade_integrity.py --files {target-files}
+.venv/Scripts/python scripts/pipeline/commands/governance/path_guard.py {target-path}
+.venv/Scripts/python scripts/pipeline/commands/governance/check_grade_integrity.py --files {target-files}
 ```
 
 The pre-commit hook runs automatically if installed (Step 1.4).
@@ -279,7 +279,7 @@ The pre-commit hook runs automatically if installed (Step 1.4).
 | `no-downgrade-guard` blocks write | Proposed content is structurally smaller than existing | Review proposed content -- likely missing sections or code blocks |
 | `change-guard` blocks write | Claim references unknown format or API | Verify claim against `knowledge/{f}/{p}/merged/` artifacts |
 | Grade is D or F after evaluation | Multiple quality issues | Run `/heal-page {path}` to rescue the page |
-| Locale file has no `provenance:` block after clone | Pre-provenance file; backfill not run | Run `python scripts/pipeline/provenance_backfill.py` (see §1) |
+| Locale file has no `provenance:` block after clone | Pre-provenance file; backfill not run | Run `python scripts/pipeline/commands/migration/provenance_backfill.py` (see §1) |
 | Translator sync skips a file with `auto_updatable=false` | File is explicitly protected from auto-overwrite | Intentional. To re-enable: set `auto_updatable: true` in the file's provenance block |
 | `provenance_backfill.py` reports "no English source" for a file | Structural orphan (e.g., reference.aspose.org kebab-case topic pages) | These are legacy locale files with no current English counterpart. File is safe to leave; set `auto_updatable: false` to prevent accidental overwrite |
 
@@ -289,7 +289,7 @@ See AGENTS.md §10b (full detail: docs/governance/provenance-rules.md) for the f
 
 ```bash
 # Backfill provenance on files that lack it (idempotent, safe to re-run)
-.venv/Scripts/python scripts/pipeline/provenance_backfill.py
+.venv/Scripts/python scripts/pipeline/commands/migration/provenance_backfill.py
 
 # Protect a file from automated translator overwrite
 # Edit the file's frontmatter:
@@ -323,10 +323,10 @@ See `docs/discovery-workflow.md` for the full operator guide. Quick reference:
 /repo-patrol
 
 # Backing script — dry-run (no registry update)
-.venv/Scripts/python scripts/pipeline/repo_patrol.py scan
+.venv/Scripts/python scripts/pipeline/commands/diagnostics/repo_patrol.py scan
 
 # Apply: write discovered candidates to data/products.json
-.venv/Scripts/python scripts/pipeline/repo_patrol.py scan --apply
+.venv/Scripts/python scripts/pipeline/commands/diagnostics/repo_patrol.py scan --apply
 ```
 
 Output: `reports/discovery/patrol_report.json`
@@ -338,7 +338,7 @@ Output: `reports/discovery/patrol_report.json`
 /change-sweep
 
 # Backing script
-.venv/Scripts/python scripts/pipeline/repo_patrol.py sweep
+.venv/Scripts/python scripts/pipeline/commands/diagnostics/repo_patrol.py sweep
 ```
 
 Output: `reports/discovery/sweep_report.json`
@@ -356,7 +356,7 @@ Operator reviews backlog items and manually runs `/refresh-product {family} {pla
 ### 10d. Generate combined report
 
 ```bash
-.venv/Scripts/python scripts/pipeline/repo_patrol.py report
+.venv/Scripts/python scripts/pipeline/commands/diagnostics/repo_patrol.py report
 cat reports/discovery/combined_report.md
 ```
 

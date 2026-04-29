@@ -33,9 +33,9 @@ def _run_module(module: str, args: list[str] | None = None) -> subprocess.Comple
 
 
 def _run_wrapper(wrapper: str, args: list[str] | None = None) -> subprocess.CompletedProcess:
-    """Run `python scripts/pipeline/{wrapper}` from repo root with a clean environment."""
+    """Run a pipeline command script from repo root with a clean environment."""
     env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
-    script = REPO_ROOT / "scripts" / "pipeline" / wrapper
+    script = PIPELINE_DIR / wrapper
     cmd = [sys.executable, str(script)] + (args or [])
     return subprocess.run(
         cmd,
@@ -63,7 +63,7 @@ class TestContentEvalBootstrap:
         Before the fix: operator had to prepend PYTHONPATH=scripts/pipeline.
         After the fix: python scripts/pipeline/run_content_eval.py --help works directly.
         """
-        result = _run_wrapper("run_content_eval.py", ["--help"])
+        result = _run_wrapper("commands/content/run_content_eval.py", ["--help"])
         assert result.returncode == 0, (
             f"python scripts/pipeline/run_content_eval.py --help failed without PYTHONPATH.\n"
             f"stdout: {result.stdout}\nstderr: {result.stderr}"

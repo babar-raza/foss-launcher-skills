@@ -194,7 +194,7 @@ To modify a frozen item:
 ## References
 
 - Governing plan: curried-pondering-music.md (FINAL ARCHITECTURE Sections 6, 7, 8.6, 9)
-- Implementation: scripts/pipeline/grade_writer.py (CANONICAL_FRONTMATTER_FIELDS, WP-01)
+- Implementation: scripts/pipeline/lib/grade_writer.py (CANONICAL_FRONTMATTER_FIELDS, WP-01)
 - Grade computation: scripts/pipeline/content_eval/models.py
 - Configuration: scripts/pipeline/content_eval/grade_config.yaml
 - Evaluator change checklist: AGENTS.md section 9a

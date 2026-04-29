@@ -30,7 +30,7 @@ This skill fills the gap between S-38 (member-level API token verification) and 
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-85 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-85 --scope "*"
 > ```
 
 
@@ -43,17 +43,17 @@ cd scripts/pipeline
 
 Full run (all 5 subdomains):
 ```bash
-.venv/Scripts/python scripts/pipeline/truth_audit_content.py {family} {platform} --scope all
+.venv/Scripts/python scripts/pipeline/commands/diagnostics/truth_audit_content.py {family} {platform} --scope all
 ```
 
 Quick pilot (single subdomain, limited units):
 ```bash
-.venv/Scripts/python scripts/pipeline/truth_audit_content.py {family} {platform} --scope docs --max-units 200
+.venv/Scripts/python scripts/pipeline/commands/diagnostics/truth_audit_content.py {family} {platform} --scope docs --max-units 200
 ```
 
 With JSON output to stdout:
 ```bash
-.venv/Scripts/python scripts/pipeline/truth_audit_content.py {family} {platform} --json
+.venv/Scripts/python scripts/pipeline/commands/diagnostics/truth_audit_content.py {family} {platform} --json
 ```
 
 ### Step 2: Review output
@@ -90,7 +90,7 @@ With JSON output to stdout:
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-85 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-85 --status completed
 > ```
 
 ## Knowledge Files to Load
@@ -178,5 +178,5 @@ See `reports/truth-audit/{family}-{platform}-{date}.json` for the full schema. K
 ## Registry
 
 **Skill code**: S-85
-**Script**: `scripts/pipeline/truth_audit_content.py`
+**Script**: `scripts/pipeline/commands/diagnostics/truth_audit_content.py`
 **Test**: `scripts/pipeline/tests/test_truth_audit_content.py`

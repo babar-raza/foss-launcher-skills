@@ -38,7 +38,7 @@ import pytest
 # Path setup — identical pattern to test_gap_eval_profile_safety.py
 # ---------------------------------------------------------------------------
 
-_GAP_EVAL_DIR = Path(__file__).resolve().parents[2] / "gap-eval"
+_GAP_EVAL_DIR = Path(__file__).resolve().parents[2] / "gap-eval" / "src"
 if str(_GAP_EVAL_DIR) not in sys.path:
     sys.path.insert(0, str(_GAP_EVAL_DIR))
 

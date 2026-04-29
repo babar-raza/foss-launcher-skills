@@ -60,7 +60,7 @@ headings, code blocks, or any prose text.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-72 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-72 --scope "*"
 > ```
 
 
@@ -68,14 +68,14 @@ headings, code blocks, or any prose text.
 
 3. **Run attach_evidence.py with --force** to rebuild the evidence block from code blocks and tables:
    ```bash
-   .venv/Scripts/python scripts/pipeline/attach_evidence.py --files {path} --force
+   .venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py --files {path} --force
    ```
    (Skip if `--dry-run`; report what would happen instead.)
 
 4. **Verify Stage 1 result**:
    ```bash
-   .venv/Scripts/python scripts/pipeline/validate_frontmatter.py {path}
-   .venv/Scripts/python scripts/pipeline/audit.py --files {path}
+   .venv/Scripts/python scripts/pipeline/commands/content/validate_frontmatter.py {path}
+   .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {path}
    ```
    - If both exit 0 → report **REPAIRED (auto)** and stop for this file.
    - If either still fails → proceed to Stage 2.
@@ -125,8 +125,8 @@ headings, code blocks, or any prose text.
 
 11. **Verify Stage 2 result**:
     ```bash
-    .venv/Scripts/python scripts/pipeline/validate_frontmatter.py {path}
-    .venv/Scripts/python scripts/pipeline/audit.py --files {path}
+    .venv/Scripts/python scripts/pipeline/commands/content/validate_frontmatter.py {path}
+    .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {path}
     ```
     - If both exit 0 → report **REPAIRED (reasoning)** and stop for this file.
     - If either still fails → proceed to Safe-Escape.
@@ -146,7 +146,7 @@ any entry in `claims.json`).
 
 13. **Verify escape works**:
     ```bash
-    .venv/Scripts/python scripts/pipeline/validate_frontmatter.py {path}
+    .venv/Scripts/python scripts/pipeline/commands/content/validate_frontmatter.py {path}
     ```
     P-03 claims/apis check is bypassed for `manual-remediation` files. Verify exit 0.
 
@@ -165,7 +165,7 @@ any entry in `claims.json`).
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-72 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-72 --status completed
 > ```
 
 ## Report (one entry per file)

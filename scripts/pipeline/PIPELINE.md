@@ -103,13 +103,13 @@ These files have **no `__main__` block**. They are utility modules meant to be i
 When adding a new `.py` file to `scripts/pipeline/`:
 
 1. Determine `kind` and `lifecycle` from the registry schema in `registry.yaml`
-2. Add an entry to `scripts/pipeline/registry.yaml`
-3. Run `python scripts/ci/render_inventory.py` → regenerates `INVENTORY.md`
+2. Add an entry to `scripts/pipeline/config/registry.yaml`
+3. Run `python scripts/ci/checks/render_inventory.py` → regenerates `INVENTORY.md`
 4. If `kind=entrypoint` and `cli_contract=stable`: add or update the skill CONTRACT tag
 5. If `kind=entrypoint`: create `scripts/pipeline/tests/test_{name}.py`
 6. If skills changed: run `sync_providers.py` in a **separate commit** scoped to those files
-7. Run `python scripts/ci/check_pipeline_path_integrity.py` → must exit 0
-8. Run `python scripts/ci/check_pipeline_registration.py` → must exit 0 (once Phase G is complete)
+7. Run `python scripts/ci/checks/check_pipeline_path_integrity.py` → must exit 0
+8. Run `python scripts/ci/checks/check_pipeline_registration.py` → must exit 0 (once Phase G is complete)
 
 ## Known technical debt
 
@@ -198,9 +198,9 @@ Changes to these files require extra care — a mistake here affects the entire 
 
 | File | Why sensitive | Extra step required |
 |------|--------------|---------------------|
-| `registry.yaml` | CI governance source of truth; wrong entry breaks CI | Run `python scripts/ci/render_inventory.py` + `check_pipeline_registration.py` |
+| `registry.yaml` | CI governance source of truth; wrong entry breaks CI | Run `python scripts/ci/checks/render_inventory.py` + `check_pipeline_registration.py` |
 | `override_manager.py` | Write-path bypass token control | Manual review of token lifecycle logic |
-| `scripts/ci/check_pipeline_registration.py` | Self-referential CI check; must self-verify | Run with `--self-check` after any edit |
+| `scripts/ci/checks/check_pipeline_registration.py` | Self-referential CI check; must self-verify | Run with `--self-check` after any edit |
 | `launch_gate.py` | Pre-launch readiness; false-negative causes bad deploy | Run full launch test suite |
 | `AGENTS.md` | All agent behavior; changes affect every session | Override token required (see `path_guard.py`) |
 
@@ -251,7 +251,7 @@ once `--fail-test-gaps` is active in `content-audit.yml`.
 
 Example:
 ```yaml
-- path: scripts/pipeline/embed_knowledge.py
+- path: scripts/pipeline/commands/knowledge/embed_knowledge.py
   test_targets: []
   test_exempt_reason: "thin wrapper: calls embed.main() which has full coverage in test_embed.py"
 ```

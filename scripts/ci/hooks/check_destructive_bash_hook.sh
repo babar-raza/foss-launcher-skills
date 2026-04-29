@@ -51,7 +51,7 @@ fi
 
 # Determine repo root from script location (scripts/ci/ — two levels up)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Resolve Python via shared resolver (venv-only, no python3 fallback — DR-01)
 # If venv absent/broken: fail-open (cannot inspect command — same policy as venv bash hook)

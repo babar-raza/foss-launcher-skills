@@ -34,7 +34,7 @@ Refresh the knowledge model for a product by re-running the full knowledge pipel
 repo-scout, knowledge-enrich, truth-merge, and truth-index. Use this when `model.yaml`
 has `stale_since != null` or after upstream repo changes detected by S-12 (knowledge-diff).
 
-> **Note on `refresh_knowledge.py`**: Running `python scripts/pipeline/refresh_knowledge.py
+> **Note on `refresh_knowledge.py`**: Running `python scripts/pipeline/commands/knowledge/refresh_knowledge.py
 > {family} {platform}` executes all 4 pipeline steps: `scout.py → enrich.py → promote.py → index.py`.
 > After a successful run, `merged/pipeline_run.json` confirms all steps completed,
 > `merged/model.yaml` has `stale_since` cleared automatically, and `merged/knowledge_delta.json`
@@ -42,10 +42,10 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
 
 ## Pre-conditions
 
-1. `scripts/pipeline/scout.py` exists
-2. `scripts/pipeline/enrich.py` exists
-3. `scripts/pipeline/promote.py` exists
-4. `scripts/pipeline/index.py` exists
+1. `scripts/pipeline/commands/knowledge/scout.py` exists
+2. `scripts/pipeline/commands/knowledge/enrich.py` exists
+3. `scripts/pipeline/commands/knowledge/promote.py` exists
+4. `scripts/pipeline/commands/knowledge/index.py` exists
 5. Current knowledge exists at `knowledge/{family}/{platform}/` (at least `model.yaml`)
 6. Check `knowledge/{family}/{platform}/model.yaml` - if `stale_since` is null, warn that
    knowledge may not need updating (proceed if user confirms)
@@ -54,7 +54,7 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-14 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-14 --scope "*"
 > ```
 
 
@@ -62,7 +62,7 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
 
 2. **Run refresh pipeline** (handles backup, diff, and cleanup internally):
    ```
-   .venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform}
    ```
    Internally, `refresh_knowledge.py`:
    - Sets `stale_since` in `merged/model.yaml` to today before running the pipeline
@@ -78,13 +78,13 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
 
 3. **Run knowledge-enrich** (S-37) if not already run by refresh pipeline:
    ```
-   .venv/Scripts/python scripts/pipeline/enrich.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/enrich.py {family} {platform}
    ```
    Verify `knowledge/{family}/{platform}/scout/enriched_claims.json` exists and is valid JSON.
 
 4. **Run truth-merge** (S-35) if not already run:
    ```
-   .venv/Scripts/python scripts/pipeline/promote.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/promote.py {family} {platform}
    ```
    Verify `knowledge/{family}/{platform}/merged/merge_report.md` exists and shows merge statistics.
 
@@ -105,7 +105,7 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-14 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-14 --status completed
 > ```
 
 ## Post-conditions

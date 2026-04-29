@@ -18,6 +18,9 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent.parent
 if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
+_LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 
 from token_ops import Finding  # noqa: E402
 from core.markdown import _FRONTMATTER_RE  # noqa: E402  (was: knowledge_core — R-0b cleanup)

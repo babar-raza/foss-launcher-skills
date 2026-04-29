@@ -78,7 +78,7 @@ If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do 
 
 **DAR scope**: The DAR table lists skills that require an upstream dependency to be activated *before* they can begin. Orchestrator skills that invoke upstream dependencies as part of their own internal pipeline (e.g., `launch-product` invoking bootstrap as Stage 0, `knowledge-update` managing the full refresh chain) are not listed — they manage their own dependency chain. The test is: "Does this skill require someone else to have already run the upstream skill?" If yes → DAR entry. If the skill runs the upstream itself internally → no DAR entry.
 
-**DAR maintenance**: When a skill is added, removed, renamed, or split, update this table. Run `python scripts/ci/check_dar_coverage.py` to verify alignment between the DAR table and skill file preconditions.
+**DAR maintenance**: When a skill is added, removed, renamed, or split, update this table. Run `python scripts/ci/checks/check_dar_coverage.py` to verify alignment between the DAR table and skill file preconditions.
 
 **Adding a DAR entry** — use this template:
 
@@ -89,7 +89,7 @@ If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do 
 Steps:
 1. Add the row to the table above in the correct alphabetical/logical position.
 2. Ensure the downstream skill's `## Pre-conditions` section documents the same dependency.
-3. Run `python scripts/ci/check_dar_coverage.py` — must exit 0.
+3. Run `python scripts/ci/checks/check_dar_coverage.py` — must exit 0.
 4. If the CI check fails, the skill file precondition text and the DAR row are misaligned — fix both.
 
 ## 6b. Capability Classification and Gap Escalation
@@ -192,8 +192,8 @@ you MUST:
    until every former ad hoc step is replaced by its durable system path.
 
 Specific failures this rule prevents (Healing Sprint 2026-04-07):
-- Inline Python batch loops in bash → use `scripts/pipeline/batch_reference.py` (S-62)
-- PYTHONPATH prefix hacks → use `scripts/pipeline/run_content_eval.py` wrapper
+- Inline Python batch loops in bash → use `scripts/pipeline/commands/content/batch_reference.py` (S-62)
+- PYTHONPATH prefix hacks → use `scripts/pipeline/commands/content/run_content_eval.py` wrapper
 - Manual `stale_since` edits → `refresh_knowledge.py` clears it automatically after refresh
 - Dropping args from skill invocations → read the actual CLI first; fix spec if it drifts
 - On-the-fly kind filter rewrites → check `_CLASS_TYPES` in `extraction/tree_helpers.py`

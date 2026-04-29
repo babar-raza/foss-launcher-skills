@@ -6,7 +6,7 @@ Each skill is a subdirectory with a `SKILL.md` file inside.
 > **Canonical source**: [skills/README.md](../../skills/README.md)
 > **Authoritative registry**: [AGENTS.md §12](../../AGENTS.md)
 > This tree is a full mirror of `skills/` — all 80 registered skills are present.
-> When content diverges from canonical, investigate with `python scripts/pipeline/sync_skills.py --report`.
+> When content diverges from canonical, investigate with `python scripts/pipeline/commands/ops/sync_skills.py --report`.
 
 ---
 
@@ -121,8 +121,8 @@ because Kilo Code invokes them directly when orchestrating skill chains.
 
 ```bash
 # Verify this tree matches canonical
-.venv/Scripts/python scripts/pipeline/sync_skills.py --check
+.venv/Scripts/python scripts/pipeline/commands/ops/sync_skills.py --check
 
 # View full divergence report
-.venv/Scripts/python scripts/pipeline/sync_skills.py --report
+.venv/Scripts/python scripts/pipeline/commands/ops/sync_skills.py --report
 ```

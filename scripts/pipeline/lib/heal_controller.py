@@ -24,6 +24,12 @@ from content_eval.models import Finding
 from content_eval.remediation.runner import FixResult, run_fixes
 from content_eval.remediation.triage import TriagedFinding, triage_finding
 from heal_policy import HealPolicy, lookup, is_heal_enabled
+_LIB_DIR = str(Path(__file__).resolve().parent)
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
+_CMD_HEALING = str(Path(__file__).resolve().parent.parent / "commands" / "healing")
+if _CMD_HEALING not in sys.path:
+    sys.path.insert(0, _CMD_HEALING)
 from verify import HealingReport, verify_healing
 
 # TC-3: maximum number of healing rounds before a finding is escalated to human.

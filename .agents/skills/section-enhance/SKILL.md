@@ -33,7 +33,7 @@ Inspect any content section in the aspose.org repository -- regardless of subdom
 
 > **Skill context gate** -- run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-96 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-96 --scope "*"
 > ```
 
 ### Step 1: Parse arguments and classify target (SP-0 + SP-1)
@@ -309,7 +309,7 @@ Next step: human reviews and approves proposals; then invoke downstream creation
 
 > **Skill context close** -- run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-96 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-96 --status completed
 > ```
 
 ## Post-conditions

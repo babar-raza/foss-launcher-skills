@@ -105,7 +105,7 @@ Do **not** use S-73 for:
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-73 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-73 --scope "*"
 > ```
 
 
@@ -134,7 +134,7 @@ Action: Apply operator-specified targeted edit under S-73 governance
 ### Step 2: Path guard check
 
 ```bash
-.venv/Scripts/python scripts/pipeline/path_guard.py {target_file}
+.venv/Scripts/python scripts/pipeline/commands/governance/path_guard.py {target_file}
 ```
 
 - Exit 0: proceed
@@ -178,7 +178,7 @@ warn "products pages discourage code examples — confirm you intend to add code
 ### Step 5: Knowledge freshness check
 
 ```bash
-.venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform}
 ```
 
 - Prints "current": proceed
@@ -205,7 +205,7 @@ Halt if operator responds N.
 
 Store result as `pre_grade` (letter A–F) and `pre_score` (0–100). If content_eval is unavailable, run:
 ```bash
-.venv/Scripts/python scripts/pipeline/audit.py --files {target_file}
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {target_file}
 ```
 and record `pre_grade` as "unknown (audit proxy)".
 
@@ -220,7 +220,7 @@ For scopes `body-wording`, `code-snippet`, `section-replacement`, `full-remediat
 
 4. Run change-guard check:
    ```bash
-   .venv/Scripts/python scripts/pipeline/change_guard.py {family} {platform} "{edit_intent_first_200_chars}"
+   .venv/Scripts/python scripts/pipeline/commands/governance/change_guard.py {family} {platform} "{edit_intent_first_200_chars}"
    ```
    - DENY: **REFUSE** with the guard's reason
 
@@ -256,7 +256,7 @@ Write the modified content back to the file.
 ### Step 10: Post-edit path guard re-check
 
 ```bash
-.venv/Scripts/python scripts/pipeline/path_guard.py {target_file}
+.venv/Scripts/python scripts/pipeline/commands/governance/path_guard.py {target_file}
 ```
 
 If DENY: this indicates an unexpected path mutation. **Revert the write, halt.**
@@ -264,7 +264,7 @@ If DENY: this indicates an unexpected path mutation. **Revert the write, halt.**
 ### Step 11: Audit check
 
 ```bash
-.venv/Scripts/python scripts/pipeline/audit.py --files {target_file}
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {target_file}
 ```
 
 If FAIL:
@@ -275,7 +275,7 @@ If FAIL:
 ### Step 12: Frontmatter validation
 
 ```bash
-.venv/Scripts/python scripts/pipeline/validate_frontmatter.py {target_file}
+.venv/Scripts/python scripts/pipeline/commands/content/validate_frontmatter.py {target_file}
 ```
 
 If errors: **revert, halt** with the validation errors listed.
@@ -283,7 +283,7 @@ If errors: **revert, halt** with the validation errors listed.
 ### Step 13: Refresh evidence block
 
 ```bash
-.venv/Scripts/python scripts/pipeline/attach_evidence.py --files {target_file}
+.venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py --files {target_file}
 ```
 
 This updates `evidence.model_sha`, `evidence.claims`, and `evidence.apis` to reflect the
@@ -315,13 +315,13 @@ Proceed? [Y/N]
 If operator responds N: **revert the edit** (restore pre-edit content, do not update evidence or provenance).
 
 ```bash
-.venv/Scripts/python scripts/pipeline/grade_writer.py --files {target_file}
+.venv/Scripts/python scripts/pipeline/lib/grade_writer.py --files {target_file}
 ```
 
 ### Step 16: Record skill invocation
 
 ```bash
-.venv/Scripts/python scripts/pipeline/skill_run_manager.py record-step \
+.venv/Scripts/python scripts/pipeline/commands/ops/skill_run_manager.py record-step \
   --skill S-73 \
   --type full \
   --files {target_file} \
@@ -388,7 +388,7 @@ Reason (if not APPLIED): {reason}
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-73 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-73 --status completed
 > ```
 
 ## Post-conditions

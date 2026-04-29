@@ -41,7 +41,7 @@ def _get_router():
     """Return cached LLMRouter instance (lazy init)."""
     global _router
     if _router is None:
-        from llm_router import LLMRouter
+        from lib.llm_router import LLMRouter
         _router = LLMRouter()
     return _router
 
@@ -108,7 +108,7 @@ def embed_findings(findings: list[dict]) -> dict[str, list[float]]:
 
     # Try embedding via LLMRouter
     try:
-        from llm_router import EndpointStatus as _ES
+        from lib.llm_router import EndpointStatus as _ES
         router = _get_router()
     except (ImportError, RuntimeError) as exc:
         log.warning("LLM router unavailable for embedding: %s", exc)
@@ -146,7 +146,7 @@ def embed_findings(findings: list[dict]) -> dict[str, list[float]]:
 
 def _tfidf_embed(texts: dict[str, str]) -> dict[str, list[float]]:
     """Compute sparse TF-IDF vectors as dense (fixed-vocab) float lists."""
-    from pipeline.embed import tokenize, compute_idf  # type: ignore
+    from commands.knowledge.embed import tokenize, compute_idf  # type: ignore
 
     tokenized = {k: tokenize(v) for k, v in texts.items()}
     idf = compute_idf(list(tokenized.values()))
@@ -158,7 +158,7 @@ def _tfidf_embed(texts: dict[str, str]) -> dict[str, list[float]]:
 
     result: dict[str, list[float]] = {}
     for key, tokens in tokenized.items():
-        from pipeline.embed import compute_tf  # type: ignore
+        from commands.knowledge.embed import compute_tf  # type: ignore
         tf = compute_tf(tokens)
         vec = [0.0] * dim
         for term, tf_val in tf.items():
@@ -298,7 +298,7 @@ def name_cluster(findings_in_cluster: list[dict]) -> dict:
     )
 
     try:
-        from llm_router import EndpointStatus
+        from lib.llm_router import EndpointStatus
         router = _get_router()
     except (ImportError, RuntimeError) as exc:
         log.warning("LLM router unavailable for cluster naming: %s", exc)
@@ -354,7 +354,7 @@ def analyze_root_causes(patterns: list[dict]) -> list[dict]:
     )
 
     try:
-        from llm_router import EndpointStatus
+        from lib.llm_router import EndpointStatus
         router = _get_router()
     except (ImportError, RuntimeError) as exc:
         log.warning("LLM router unavailable: %s", exc)

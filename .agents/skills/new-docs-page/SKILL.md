@@ -37,7 +37,7 @@ Before generating any content, you MUST:
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-56 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-56 --scope "*"
 > ```
 
 
@@ -124,18 +124,18 @@ Before generating any content, you MUST:
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-56 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-56 --status completed
 > ```
 
 ## Knowledge Post-conditions
 
 After generating the page:
 
-1. **Attach evidence**: Run `python scripts/pipeline/attach_evidence.py --files content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`
+1. **Attach evidence**: Run `python scripts/pipeline/commands/healing/attach_evidence.py --files content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`
    — this writes the `evidence:` YAML frontmatter block (`model_sha`, `claims`, `apis`).
 2. **Run content check**: Execute `/content-check content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md` to validate structure and knowledge alignment
 3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
-4. **Run audit**: `python scripts/pipeline/audit.py --files content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`
+4. **Run audit**: `python scripts/pipeline/commands/content/audit.py --files content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`
    — must exit with 0 FAIL before committing.
 
 8. **Confirm** with the output path and a list of the H2 sections written.

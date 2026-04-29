@@ -22,7 +22,7 @@ a complete picture of what changes are needed.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-82 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-82 --scope "*"
 > ```
 
 
@@ -38,7 +38,7 @@ a complete picture of what changes are needed.
 
 3. **Run delta planning**:
    ```bash
-   .venv/Scripts/python scripts/pipeline/site_planner.py {family} {platform} --mode update
+   .venv/Scripts/python scripts/pipeline/commands/launch/site_planner.py {family} {platform} --mode update
    ```
    This reads the current `api_surface.json`, `claims.json`, and `knowledge_delta.json`,
    compares them against the existing `site_plan.yaml`, and writes a `delta:` section to
@@ -55,7 +55,7 @@ a complete picture of what changes are needed.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-82 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-82 --status completed
 > ```
 
 ## Output

@@ -34,7 +34,7 @@ kb, and reference pages. Uses `project-phase-store` (S-10) for checkpoint-based 
   to review what changed, then re-run `/launch-product {family} {platform}`."
 - Any other status → continue to Stage 0.5
 
-**Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} knowledge_ready true`
+**Save checkpoint**: `python scripts/pipeline/commands/ops/project_phase_store.py set {family} {platform} knowledge_ready true`
 
 ---
 
@@ -67,7 +67,7 @@ This stage computes all content slugs from the knowledge model via `site_planner
 Slug patterns in stage descriptions below are documentation examples only — use actual
 values from the site plan. Do not re-derive or hardcode slugs.
 
-**Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} site_plan_done true`
+**Save checkpoint**: `python scripts/pipeline/commands/ops/project_phase_store.py set {family} {platform} site_plan_done true`
 
 ---
 
@@ -76,7 +76,7 @@ values from the site plan. Do not re-derive or hardcode slugs.
 **Checkpoint**: `products_done`
 
 **Skip condition**: `content/products.aspose.org/en/{family}/{platform}/_index.md` already exists AND
-passes `python scripts/pipeline/audit.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
+passes `python scripts/pipeline/commands/content/audit.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
 (0 FAIL)
 
 **Save checkpoint** when done.
@@ -96,7 +96,7 @@ If only 1 platform subdirectory exists (first launch), skip — family page was 
 
 **Skip condition**: only 1 platform subdirectory exists under the family
 
-**Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} family_sync_done true`
+**Save checkpoint**: `python scripts/pipeline/commands/ops/project_phase_store.py set {family} {platform} family_sync_done true`
 
 ---
 
@@ -190,7 +190,7 @@ automatically if `_index.md` already has `linkTitle`, `layout: list`, and `{{< c
    - Populate `faq.list[]` with extracted Q&A pairs (question + short 1–2 sentence answer)
 4. If KB FAQ does not exist (unlikely after Stage 4), leave `faq: enable: false` unchanged
 
-**Save checkpoint**: `python scripts/pipeline/project_phase_store.py set {family} {platform} products_faq_done true`
+**Save checkpoint**: `python scripts/pipeline/commands/ops/project_phase_store.py set {family} {platform} products_faq_done true`
 
 ---
 
@@ -252,7 +252,7 @@ Auto-fixes deterministic issues only (no LLM pass). Reviews eval grades.
 ### STAGE 8 — Readiness Scorecard
 **Command**:
 ```bash
-.venv/Scripts/python scripts/pipeline/readiness_scorecard.py --family {family} --platform {platform} --set-checkpoint
+.venv/Scripts/python scripts/pipeline/commands/launch/readiness_scorecard.py --family {family} --platform {platform} --set-checkpoint
 ```
 **Checkpoint**: `readiness_done`
 
@@ -317,7 +317,7 @@ This replaces the per-gate sign-off files. The verdict format covers:
 
 **Step 3 — Record results in scorecard:**
 ```bash
-.venv/Scripts/python scripts/pipeline/readiness_scorecard.py --family {family} --platform {platform} --set-checkpoint
+.venv/Scripts/python scripts/pipeline/commands/launch/readiness_scorecard.py --family {family} --platform {platform} --set-checkpoint
 ```
 
 The scorecard accepts the S-90 final-verdict.md as H-gate sign-off. "READY TO SHIP" requires
@@ -332,7 +332,7 @@ actioned by S-90's fix-skill invocations). If S-90 verdict is BLOCKED, the launc
 
 On re-run, read checkpoint state:
 ```bash
-.venv/Scripts/python scripts/pipeline/project_phase_store.py get {family} {platform}
+.venv/Scripts/python scripts/pipeline/commands/ops/project_phase_store.py get {family} {platform}
 ```
 Skip completed stages. Print: `Resuming {family}/{platform} from stage N (checkpoint: {name})`
 

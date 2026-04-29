@@ -9,7 +9,7 @@ args: "{family} {platform}"
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-<!-- CONTRACT: scripts/pipeline/promote.py
+<!-- CONTRACT: scripts/pipeline/commands/knowledge/promote.py
      postcondition: merged/claims.json exists (flat JSON array of claims with string provenance)
      postcondition: merged/model.yaml exists (source always "scout_only", has_conflicts always false)
      postcondition: merged/merge_report.md exists
@@ -38,7 +38,7 @@ current runtime rules. The FL layer has been removed.
 
 Run the promotion engine first, then review:
 ```bash
-.venv/Scripts/python scripts/pipeline/promote.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/commands/knowledge/promote.py {family} {platform}
 ```
 Review `knowledge/{family}/{platform}/merged/merge_report.md` for scout/enriched promotion counts.
 

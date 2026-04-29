@@ -21,6 +21,9 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parents[2]  # commands/governance/ -> commands/ -> pipeline/
 if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
+_LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 
 from provenance import read_provenance, write_provenance  # noqa: E402
 

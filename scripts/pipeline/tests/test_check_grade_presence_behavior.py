@@ -21,7 +21,7 @@ _PIPELINE_DIR = Path(__file__).resolve().parent.parent
 if str(_PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_DIR))
 
-_SCRIPT = str(_PIPELINE_DIR / "check_grade_presence.py")
+_SCRIPT = str(_PIPELINE_DIR / "commands" / "governance" / "check_grade_presence.py")
 _REPO_ROOT = _PIPELINE_DIR.parent.parent
 
 

@@ -1,4 +1,4 @@
-<!-- CONTRACT: scripts/pipeline/remediate.py (handles Steps 3-5 only)
+<!-- CONTRACT: scripts/pipeline/commands/content/remediate.py (handles Steps 3-5 only)
      postcondition: remediate.py applies deterministic auto-fixes and outputs LLM queue
      postcondition: Step 6 (LLM fix pass) is executed by the agent, not by the script
      postcondition: re-evaluation in Step 7 runs content_eval again and produces diff report
@@ -35,13 +35,13 @@ This is safe for unattended runs and skips the LLM fix pass (Step 6).
 1. **Knowledge bootstrap**: Run `/knowledge-bootstrap {family} {platform}` and check status:
    - `STOP:partial` → halt (see printed message)
    - Any other status (`READY`, `BOOTSTRAPPED`, `REFRESHED`, `WARN:conflicts`) → continue
-2. `scripts/pipeline/content_eval` and `scripts/pipeline/remediate.py` are available.
+2. `scripts/pipeline/content_eval` and `scripts/pipeline/commands/content/remediate.py` are available.
 
 ## Steps
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-40 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-40 --scope "*"
 > ```
 
 
@@ -64,7 +64,7 @@ This is safe for unattended runs and skips the LLM fix pass (Step 6).
 4. **Run triage + auto-fix**:
 
    ```bash
-   .venv/Scripts/python scripts/pipeline/remediate.py fix {eval-report-path}
+   .venv/Scripts/python scripts/pipeline/commands/content/remediate.py fix {eval-report-path}
    ```
 
    Parse the remediation report to get: fixes applied, LLM queue, human queue.
@@ -92,7 +92,7 @@ This is safe for unattended runs and skips the LLM fix pass (Step 6).
 
    c. Write the fixed file.
 
-   d. Run ground-check: `python scripts/pipeline/audit.py --files {path}`
+   d. Run ground-check: `python scripts/pipeline/commands/content/audit.py --files {path}`
 
    e. If audit returns FAIL after the fix, revert the file and add to human queue.
 
@@ -125,7 +125,7 @@ This is safe for unattended runs and skips the LLM fix pass (Step 6).
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-40 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-40 --status completed
 > ```
 
 ## Post-conditions

@@ -105,5 +105,5 @@ Report: `{N} files reverted, {M} files deleted, {K} files skipped.`
 
 **Skill code**: S-79
 **Status**: REGISTERED — AGENTS.md §12 / [docs/registries/skills.md](../docs/registries/skills.md) entry added 2026-04-07
-**Script**: `scripts/pipeline/launch_rollback.py`
+**Script**: `scripts/pipeline/commands/launch/launch_rollback.py`
 **Test**: `scripts/pipeline/tests/test_launch_rollback.py` (to be created)

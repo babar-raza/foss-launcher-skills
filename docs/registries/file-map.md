@@ -72,15 +72,15 @@ Activation is not required for agent skill chains. It is a shell convenience for
 
 **If `.venv` is broken or missing — approved repair path:**
 ```bash
-bash scripts/ci/repair_venv.sh          # repair in place
-bash scripts/ci/repair_venv.sh --fresh  # delete and recreate
+bash scripts/ci/hooks/repair_venv.sh          # repair in place
+bash scripts/ci/hooks/repair_venv.sh --fresh  # delete and recreate
 ```
 The repair script uses system Python **only** for `python -m venv .venv` (the bootstrap exception). All subsequent operations use the newly created `.venv` Python.
 
 **Diagnose .venv health:**
 ```bash
-.venv/Scripts/python scripts/ci/venv_doctor.py          # human-readable
-.venv/Scripts/python scripts/ci/venv_doctor.py --json   # machine-readable
+.venv/Scripts/python scripts/ci/checks/venv_doctor.py          # human-readable
+.venv/Scripts/python scripts/ci/checks/venv_doctor.py --json   # machine-readable
 ```
 
 #### `.env` file (repo root)
@@ -140,7 +140,7 @@ pip install -r scripts/maintenance/requirements.txt # maintenance utilities
 | Path | Purpose |
 |------|---------|
 | `scripts/pipeline/core/env_loader.py` | `load_env()` — loads `.env` from repo root via python-dotenv; `override=False`; no-op if dotenv absent |
-| `scripts/pipeline/llm_router.py` | Shared LLM routing: professionalize.com → Ollama fallback. `EndpointStatus` enum, `CallResult` dataclass. CLI: `--probe`. |
-| `scripts/pipeline/llm_registry.yaml` | Single source of truth for LLM endpoint URLs, models, dimensions, timeouts. |
+| `scripts/pipeline/lib/llm_router.py` | Shared LLM routing: professionalize.com → Ollama fallback. `EndpointStatus` enum, `CallResult` dataclass. CLI: `--probe`. |
+| `scripts/pipeline/config/llm_registry.yaml` | Single source of truth for LLM endpoint URLs, models, dimensions, timeouts. |
 | `scripts/pipeline/verification/` | Clean re-export namespace over `token_ops.py`; provides `extract_tokens`, `verify_tokens` under more descriptive import paths (`from verification.extractor import extract_tokens`, `from verification.verifier import verify_tokens`). `token_ops.py` remains unchanged and both import paths work simultaneously. |
 

@@ -105,8 +105,8 @@ you MUST:
    until every former ad hoc step is replaced by its durable system path.
 
 Specific failures this rule prevents (Healing Sprint 2026-04-07):
-- Inline Python batch loops in bash → use `scripts/pipeline/batch_reference.py` (S-62)
-- PYTHONPATH prefix hacks → use `scripts/pipeline/run_content_eval.py` wrapper
+- Inline Python batch loops in bash → use `scripts/pipeline/commands/content/batch_reference.py` (S-62)
+- PYTHONPATH prefix hacks → use `scripts/pipeline/commands/content/run_content_eval.py` wrapper
 - Manual `stale_since` edits → `refresh_knowledge.py` clears it automatically after refresh
 - Dropping args from skill invocations → read the actual CLI first; fix spec if it drifts
 - On-the-fly kind filter rewrites → check `_CLASS_TYPES` in `extraction/tree_helpers.py`

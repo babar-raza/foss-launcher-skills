@@ -40,6 +40,9 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent.parent
 if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
+_LIB_DIR = str(_HERE / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 
 # Re-export symbols that audit.py previously exposed.
 # R-1b: discover_* sourced from content_discovery (canonical).

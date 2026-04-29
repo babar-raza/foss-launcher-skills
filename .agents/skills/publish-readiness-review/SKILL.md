@@ -56,14 +56,14 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-90 --scope "{family}/{platform}"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-90 --scope "{family}/{platform}"
 > ```
 
 1. **Parse arguments**: Extract `{family}`, `{platform}`, `{scope}`, and flags from $ARGUMENTS.
 
 2. **Auto-refresh knowledge**: Ensure knowledge artifacts are current.
    ```bash
-   .venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform}
    ```
    If it prints "refreshed", knowledge was stale and has been rebuilt. If it prints "current",
    proceed. If clone cache is missing, warn and continue with existing artifacts.
@@ -269,7 +269,7 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
     }
     ```
     For FALSE-POSITIVE entries: prepare an S-73 invocation to add the class name to
-    `PLATFORM_SDK_CLASSES` in `scripts/pipeline/token_ops.py`.
+    `PLATFORM_SDK_CLASSES` in `scripts/pipeline/lib/token_ops.py`.
     **Note**: Additions to `PLATFORM_SDK_CLASSES` require the operator to verify the class
     is a real stdlib/third-party type before executing the S-73 invocation.
 
@@ -345,7 +345,7 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-90 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-90 --status completed
 > ```
 
 ## Post-conditions

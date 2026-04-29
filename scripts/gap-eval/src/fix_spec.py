@@ -61,7 +61,7 @@ def _get_router():
     """Return cached LLMRouter instance (lazy init)."""
     global _router
     if _router is None:
-        from llm_router import LLMRouter
+        from lib.llm_router import LLMRouter
         _router = LLMRouter()
     return _router
 
@@ -72,7 +72,7 @@ def _llm_call(system: str, user: str) -> dict | None:
     Delegates to shared LLMRouter.
     """
     try:
-        from llm_router import EndpointStatus
+        from lib.llm_router import EndpointStatus
         router = _get_router()
     except (ImportError, RuntimeError) as exc:
         log.warning("LLM router unavailable: %s", exc)

@@ -28,6 +28,10 @@ from pathlib import Path
 # KNOWLEDGE_ROOT kept as a private import — used by Knowledge.__init__.
 # ---------------------------------------------------------------------------
 
+import sys  # noqa: E402
+_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 from content_discovery import KNOWLEDGE_ROOT as _KNOWLEDGE_ROOT  # noqa: E402  (internal only — R-4)
 
 # _REPO_ROOT is still needed by Knowledge.__init__ path construction

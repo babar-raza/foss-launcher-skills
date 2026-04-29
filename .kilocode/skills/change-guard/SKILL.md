@@ -26,7 +26,7 @@ Pre-write gate that validates proposed content changes against verified knowledg
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-33 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-33 --scope "*"
 > ```
 
 
@@ -36,16 +36,16 @@ Run the Python script first to get a reproducible PASS/WARN/DENY decision:
 
 ```bash
 # Inline text:
-.venv/Scripts/python scripts/pipeline/change_guard.py {family} {platform} "proposed text here"
+.venv/Scripts/python scripts/pipeline/commands/governance/change_guard.py {family} {platform} "proposed text here"
 
 # From a file:
-.venv/Scripts/python scripts/pipeline/change_guard.py {family} {platform} --file path/to/draft.md
+.venv/Scripts/python scripts/pipeline/commands/governance/change_guard.py {family} {platform} --file path/to/draft.md
 
 # From stdin:
-echo "proposed text" | .venv/Scripts/python scripts/pipeline/change_guard.py {family} {platform} --stdin
+echo "proposed text" | .venv/Scripts/python scripts/pipeline/commands/governance/change_guard.py {family} {platform} --stdin
 
 # JSON output:
-.venv/Scripts/python scripts/pipeline/change_guard.py {family} {platform} "proposed text" --json
+.venv/Scripts/python scripts/pipeline/commands/governance/change_guard.py {family} {platform} "proposed text" --json
 ```
 
 The script checks each sentence for:
@@ -72,7 +72,7 @@ Re-run the guard after fixes to confirm PASS.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-33 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-33 --status completed
 > ```
 
 ## Output

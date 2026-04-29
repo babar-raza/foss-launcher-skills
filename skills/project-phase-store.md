@@ -14,7 +14,7 @@ Track the current generation phase for a product. Reads or writes a phase marker
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-10 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-10 --scope "*"
 > ```
 
 
@@ -46,7 +46,7 @@ Track the current generation phase for a product. Reads or writes a phase marker
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-10 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-10 --status completed
 > ```
 
 ## Post-conditions

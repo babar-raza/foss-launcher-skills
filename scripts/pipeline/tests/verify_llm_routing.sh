@@ -44,11 +44,11 @@ check "test_enrich.py" python -m pytest -q scripts/pipeline/tests/test_enrich.py
 
 # 5. Probe with no key → not_configured
 echo "5. Probe (no key)"
-check "probe_no_key" bash -c 'PROFESSIONALIZE_API_KEY="" python scripts/pipeline/llm_router.py --probe --provider professionalize 2>&1 | grep -q "not_configured"'
+check "probe_no_key" bash -c 'PROFESSIONALIZE_API_KEY="" python scripts/pipeline/commands/ops/llm_router.py --probe --provider professionalize 2>&1 | grep -q "not_configured"'
 
 # 6. _TIER3_UNAVAILABLE deleted
 echo "6. _TIER3_UNAVAILABLE deleted"
-check "no_sentinel" bash -c '! grep -n "_TIER3_UNAVAILABLE" scripts/gap-eval/run.py | grep -v "docstring\|Replaces"'
+check "no_sentinel" bash -c '! grep -n "_TIER3_UNAVAILABLE" scripts/gap-eval/src/run.py | grep -v "docstring\|Replaces"'
 
 # 7. Governance text fixed
 echo "7. Governance alignment"
@@ -56,7 +56,7 @@ check "no_old_text" bash -c '! grep -q "empty enrichment is valid" .claude/comma
 
 # 8. Probe writes artifact
 echo "8. Probe artifact"
-check "probe_artifact" bash -c 'python scripts/pipeline/llm_router.py --probe 2>&1 | grep -q "Probe artifact"'
+check "probe_artifact" bash -c 'python scripts/pipeline/commands/ops/llm_router.py --probe 2>&1 | grep -q "Probe artifact"'
 
 echo
 echo "=== Results: $PASS passed, $FAIL failed ==="

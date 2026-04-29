@@ -24,7 +24,7 @@ For KB FAQ pages specifically, prefer S-59 (new-kb-faq) which includes the full 
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-22 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-22 --scope "*"
 > ```
 
 
@@ -110,14 +110,14 @@ For KB FAQ pages specifically, prefer S-59 (new-kb-faq) which includes the full 
 
 7. **Run ground-check**:
    ```bash
-   python scripts/pipeline/audit.py --files content/kb.aspose.org/en/{family}/{platform}/faq.md
+   python scripts/pipeline/commands/content/audit.py --files content/kb.aspose.org/en/{family}/{platform}/faq.md
    ```
 
 8. **Report**: Print summary — number of Q&A pairs generated, categories covered, claims referenced.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-22 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-22 --status completed
 > ```
 
 ## Post-conditions

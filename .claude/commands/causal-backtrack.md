@@ -1,4 +1,4 @@
-<!-- CONTRACT: scripts/pipeline/backtrack_controller.py + scripts/pipeline/dependency_resolver.py -->
+<!-- CONTRACT: scripts/pipeline/commands/healing/backtrack_controller.py + scripts/pipeline/lib/dependency_resolver.py -->
 # S-74: Causal Backtrack — Resolve Upstream Dependency Failures
 
 **Skill ID:** S-74
@@ -57,7 +57,7 @@ Do NOT invoke this skill:
 ### Step 2 — Run BacktrackController
 
 ```bash
-.venv/Scripts/python scripts/pipeline/backtrack_controller.py \
+.venv/Scripts/python scripts/pipeline/commands/healing/backtrack_controller.py \
     --eval-report {eval-report-path} \
     --family {family} \
     --platform {platform} \
@@ -128,7 +128,7 @@ If depth >= 3: ESCALATE — write to human queue, stop.
 
 For each page in the replay plan where revalidation passes (0 UPSTREAM_MISSING findings):
 ```bash
-.venv/Scripts/python scripts/pipeline/grade_writer.py {page-path} \
+.venv/Scripts/python scripts/pipeline/lib/grade_writer.py {page-path} \
     --grade {new-grade} --grade-final true
 ```
 Or via the Python API:

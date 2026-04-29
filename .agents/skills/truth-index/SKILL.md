@@ -8,7 +8,7 @@ args: "{family} {platform} | all"
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-<!-- CONTRACT: scripts/pipeline/index.py
+<!-- CONTRACT: scripts/pipeline/commands/knowledge/index.py
      postcondition: merged/index.json exists (schema_version 2, api_confidence always "high")
      postcondition: knowledge/_index.json exists (products array)
      postcondition: install field is {"command": "...", "version": "..."} not pip/npm/maven object
@@ -35,8 +35,8 @@ Generate `index.json` per product from `knowledge/{family}/{platform}/merged/` a
 
 Run the index generator:
 ```bash
-.venv/Scripts/python scripts/pipeline/index.py {family} {platform}   # Single product
-.venv/Scripts/python scripts/pipeline/index.py all                   # All discovered products
+.venv/Scripts/python scripts/pipeline/commands/knowledge/index.py {family} {platform}   # Single product
+.venv/Scripts/python scripts/pipeline/commands/knowledge/index.py all                   # All discovered products
 ```
 The script auto-discovers products, generates platform-appropriate install commands, and
 writes both per-product `index.json` and cross-product `_index.json`.

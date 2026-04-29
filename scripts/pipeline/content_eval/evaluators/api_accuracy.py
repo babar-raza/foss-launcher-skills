@@ -29,6 +29,9 @@ from . import BaseEvaluator
 # sibling-import guard: content_eval sub-package needs the pipeline root for knowledge_core/token_ops imports
 _HERE = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(_HERE))
+_LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 
 from knowledge_core import Knowledge  # noqa: E402
 from evidence_verifier import verify_evidence  # noqa: E402  (R-3b: was knowledge_core)

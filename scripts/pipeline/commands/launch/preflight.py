@@ -47,7 +47,7 @@ def check_path_guard(rel_path: str) -> tuple[bool, str]:
 
     _PIPELINE_ROOT = _SCRIPT_DIR.parent.parent  # commands/launch/ -> commands/ -> pipeline/
     spec = importlib.util.spec_from_file_location(
-        "path_guard", _PIPELINE_ROOT / "path_guard.py"
+        "path_guard", _PIPELINE_ROOT / "commands" / "governance" / "path_guard.py"
     )
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)

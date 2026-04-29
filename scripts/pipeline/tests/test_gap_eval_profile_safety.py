@@ -14,7 +14,7 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 # Allow imports from scripts/gap-eval/
-_GAP_EVAL_DIR = Path(__file__).resolve().parents[2] / "gap-eval"
+_GAP_EVAL_DIR = Path(__file__).resolve().parents[2] / "gap-eval" / "src"
 if str(_GAP_EVAL_DIR) not in sys.path:
     sys.path.insert(0, str(_GAP_EVAL_DIR))
 
@@ -1456,7 +1456,7 @@ class TestProfilePackageNameNotPlaceholder:
         """Each committed profile's package_name must not match placeholder patterns."""
         import yaml  # stdlib-adjacent; present in repo venv
 
-        profile_path = _GAP_EVAL_DIR / "profiles" / family / f"{platform}.yaml"
+        profile_path = _GAP_EVAL_DIR.parent / "profiles" / family / f"{platform}.yaml"
         assert profile_path.exists(), f"Profile missing: {profile_path}"
 
         with profile_path.open(encoding="utf-8") as fh:
@@ -1840,7 +1840,7 @@ class TestCLIFlags:
     def _run_help(self) -> str:
         import subprocess
         result = subprocess.run(
-            [sys.executable, "scripts/gap-eval/run.py", "--help"],
+            [sys.executable, "scripts/gap-eval/src/run.py", "--help"],
             capture_output=True,
             text=True,
             cwd=Path(__file__).parents[3],  # repo root

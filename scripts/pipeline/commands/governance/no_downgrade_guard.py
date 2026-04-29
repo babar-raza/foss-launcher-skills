@@ -15,6 +15,9 @@ from tempfile import TemporaryDirectory
 
 import yaml
 
+_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 from knowledge_core import Knowledge  # noqa: E402
 from content_discovery import infer_product  # noqa: E402  (R-1b: was knowledge_core)
 from evidence_verifier import verify_evidence  # noqa: E402  (R-3b: was knowledge_core)

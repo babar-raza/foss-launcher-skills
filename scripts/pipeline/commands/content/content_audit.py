@@ -27,6 +27,9 @@ from pathlib import Path
 # sys.path.insert removed: Python adds the script directory to sys.path
 # automatically when invoked directly.
 
+_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 from knowledge_core import Knowledge  # noqa: E402
 from content_discovery import (  # noqa: E402  (R-1b/R-4: was knowledge_core)
     PLATFORM_MAP,

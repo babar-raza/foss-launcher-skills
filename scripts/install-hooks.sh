@@ -1,5 +1,5 @@
 #!/bin/bash
-# install-hooks.sh — Install all governance hooks into .git/hooks/
+# install-hooks.sh ï¿½ Install all governance hooks into .git/hooks/
 # Run once after cloning: bash scripts/install-hooks.sh
 #
 # Installs:
@@ -11,7 +11,7 @@
 set -e
 
 # Shell preflight (Windows-only; warn mode until Phase 4 hardens to block)
-# shellcheck source=scripts/ci/check_shell_bash.sh
+# shellcheck source=scripts/ci/hooks/check_shell_bash.sh
 source "$(dirname "$0")/ci/check_shell_bash.sh" || exit 1
 
 REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
@@ -64,7 +64,7 @@ for hook in pre-commit commit-msg post-commit reference-transaction; do
     if [ -x "$HOOKS_DIR/$hook" ]; then
         echo "  OK  $hook"
     else
-        echo "  MISSING  $hook — installation failed"
+        echo "  MISSING  $hook ï¿½ installation failed"
         ALL_OK=0
     fi
 done
@@ -78,4 +78,4 @@ echo "All hooks installed and executable."
 echo ""
 echo "Requirements:"
 echo "  - Python .venv must be activated: source .venv/bin/activate (Unix) or .venv/Scripts/activate (Windows)"
-echo "  - scripts/pipeline/path_guard.py and scripts/pipeline/override_manager.py must be importable"
+echo "  - scripts/pipeline/commands/governance/path_guard.py and scripts/pipeline/commands/governance/override_manager.py must be importable"

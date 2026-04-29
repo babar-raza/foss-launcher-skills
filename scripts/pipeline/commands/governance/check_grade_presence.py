@@ -12,6 +12,9 @@ from pathlib import Path
 _PIPELINE_ROOT = Path(__file__).resolve().parents[2]  # commands/governance/ -> commands/ -> pipeline/
 if str(_PIPELINE_ROOT) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_ROOT))
+_LIB_DIR = str(_PIPELINE_ROOT / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 
 from grade_writer import read_grade  # noqa: E402
 from content_discovery import LOCALE_RE  # noqa: E402  (R-4: was knowledge_core)

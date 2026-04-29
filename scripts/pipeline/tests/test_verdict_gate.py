@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 
 # Ensure gap-eval is importable
-_GAP_EVAL_DIR = Path(__file__).resolve().parents[2] / "gap-eval"
+_GAP_EVAL_DIR = Path(__file__).resolve().parents[2] / "gap-eval" / "src"
 if str(_GAP_EVAL_DIR) not in sys.path:
     sys.path.insert(0, str(_GAP_EVAL_DIR))
 

@@ -29,7 +29,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/check_venv.sh" || true
 if [ "${VENV_OK:-0}" != "1" ]; then
     echo "⚠️  Warning: .venv is broken or missing. Hook governance requires the venv." >&2
     echo "   Write/Edit/Delete tools will be blocked until venv is repaired." >&2
-    echo "   Recovery: bash scripts/ci/repair_venv.sh" >&2
+    echo "   Recovery: bash scripts/ci/hooks/repair_venv.sh" >&2
     echo "   (Manual fallback: python -m venv .venv && .venv/Scripts/python -m pip install -r scripts/pipeline/requirements.txt  # Windows)" >&2
     echo "   (Manual fallback: python -m venv .venv && .venv/bin/python -m pip install -r scripts/pipeline/requirements.txt      # Unix)" >&2
 fi

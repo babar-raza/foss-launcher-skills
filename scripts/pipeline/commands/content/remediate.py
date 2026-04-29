@@ -29,6 +29,9 @@ from content_eval.remediation.triage import (  # noqa: E402
     triage_findings,
 )
 from content_eval.remediation.runner import FixResult, run_fixes  # noqa: E402
+_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 from heal_controller import HealController  # noqa: E402
 
 

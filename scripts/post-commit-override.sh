@@ -25,7 +25,7 @@ consumed=0
 for token_file in $token_files; do
     token_id=$(basename "$token_file" .json)
     echo "Consuming override token: $token_id"
-    python scripts/pipeline/override_manager.py consume \
+    python scripts/pipeline/commands/governance/override_manager.py consume \
         --token-id "$token_id" \
         --commit-sha "$COMMIT_SHA"
     if [ $? -eq 0 ]; then

@@ -6,9 +6,9 @@
 # Shell preflight: validate execution environment (Windows-only, warn mode)
 # Phase 4: prepend _SHELL_CHECK_MODE=block before this source line to harden
 # ---------------------------------------------------------------------------
-# shellcheck source=scripts/ci/check_shell_bash.sh
+# shellcheck source=scripts/ci/hooks/check_shell_bash.sh
 _REPO_ROOT_SHELL="$(git rev-parse --show-toplevel)"
-source "${_REPO_ROOT_SHELL}/scripts/ci/check_shell_bash.sh" || exit 1
+source "${_REPO_ROOT_SHELL}/scripts/ci/hooks/check_shell_bash.sh" || exit 1
 unset _REPO_ROOT_SHELL
 
 # ---------------------------------------------------------------------------
@@ -23,7 +23,7 @@ elif [ -f ".venv/bin/python" ]; then
     _HOOK_PYTHON=".venv/bin/python"
 else
     echo "[pre-commit] WARN: .venv not found — Python-based governance checks will be skipped." >&2
-    echo "  Recovery: bash scripts/ci/repair_venv.sh" >&2
+    echo "  Recovery: bash scripts/ci/hooks/repair_venv.sh" >&2
     _HOOK_PYTHON=""
 fi
 
@@ -115,7 +115,7 @@ forbidden_staged=()
 if [ -n "$_HOOK_PYTHON" ]; then
     while IFS= read -r _line; do forbidden_staged+=("$_line"); done < <(
         git diff --cached --name-only --diff-filter=ACM | \
-            "$_HOOK_PYTHON" scripts/pipeline/path_guard.py --stdin | tr -d '\r'
+            "$_HOOK_PYTHON" scripts/pipeline/commands/governance/path_guard.py --stdin | tr -d '\r'
     )
 else
     echo "[Step 1] SKIP: .venv not found — forbidden-path check skipped." >&2
@@ -125,7 +125,7 @@ if [ ${#forbidden_staged[@]} -gt 0 ]; then
     forbidden_violation=0
     for staged_file in "${forbidden_staged[@]}"; do
         echo "Forbidden path staged: $staged_file"
-        "$_HOOK_PYTHON" scripts/pipeline/override_manager.py validate-for-path "$staged_file" 2>&1
+        "$_HOOK_PYTHON" scripts/pipeline/commands/governance/override_manager.py validate-for-path "$staged_file" 2>&1
         if [ $? -ne 0 ]; then
             forbidden_violation=1
         fi
@@ -134,7 +134,7 @@ if [ ${#forbidden_staged[@]} -gt 0 ]; then
         echo ""
         echo "BLOCKED: One or more staged files are in forbidden paths and have no override token."
         echo "  Create an override token before committing:"
-        echo "    .venv/Scripts/python scripts/pipeline/override_manager.py create \\"
+        echo "    .venv/Scripts/python scripts/pipeline/commands/governance/override_manager.py create \\"
         echo "      --paths <path> --reason '...' --plan '...'"
         echo "  The token is auto-validated from reports/overrides/pending/ — do NOT stage it."
         _pc_step_end "FAIL"
@@ -151,7 +151,7 @@ _pc_step_start "filename conventions"
 #   leading/trailing hyphen, uppercase extension, spaces, double dots, etc.
 # Non-English locale files are also validated (same filename rules apply).
 if [ -n "$_HOOK_PYTHON" ]; then
-    "$_HOOK_PYTHON" scripts/ci/check_content_filenames.py --strict
+    "$_HOOK_PYTHON" scripts/ci/checks/check_content_filenames.py --strict
     if [ $? -ne 0 ]; then
         echo ""
         echo "BLOCKED: One or more content files have invalid filenames (see above)."
@@ -188,7 +188,7 @@ echo "Running content API audit on staged files (${#changed[@]} English pages)..
 _tmpfile=$(mktemp /tmp/audit-files-XXXXXX.txt 2>/dev/null || mktemp)
 printf '%s\n' "${changed[@]}" > "$_tmpfile"
 if [ -n "$_HOOK_PYTHON" ]; then
-    "$_HOOK_PYTHON" scripts/pipeline/audit.py --files-from "$_tmpfile" --fail-fast
+    "$_HOOK_PYTHON" scripts/pipeline/commands/content/audit.py --files-from "$_tmpfile" --fail-fast
     status=$?
     rm -f "$_tmpfile"
     if [ $status -ne 0 ]; then
@@ -214,7 +214,7 @@ _pc_step_start "plugin_platform"
 if git diff --cached --name-only --diff-filter=ACM | grep -q '^content/products\.aspose\.org/'; then
     echo "Running plugin_platform canonical-value check..."
     if [ -n "$_HOOK_PYTHON" ]; then
-        "$_HOOK_PYTHON" scripts/ci/check_plugin_platform.py
+        "$_HOOK_PYTHON" scripts/ci/checks/check_plugin_platform.py
         if [ $? -ne 0 ]; then
             echo ""
             echo "BLOCKED: plugin_platform has non-canonical values (see AGENTS.md Section 3b)."
@@ -241,7 +241,7 @@ if [ ${#changed[@]} -gt 0 ]; then
     _tmpfile3=$(mktemp /tmp/prov-files-XXXXXX.txt 2>/dev/null || mktemp)
     printf '%s\n' "${changed[@]}" > "$_tmpfile3"
     if [ -n "$_HOOK_PYTHON" ]; then
-        "$_HOOK_PYTHON" scripts/pipeline/validate_frontmatter.py --files-from "$_tmpfile3"
+        "$_HOOK_PYTHON" scripts/pipeline/commands/content/validate_frontmatter.py --files-from "$_tmpfile3"
         prov_status=$?
     else
         prov_status=0
@@ -265,7 +265,7 @@ _pc_step_start "provenance protection"
 # committed (HEAD) provenance block.  These pages contain manually curated content
 # that should not be overwritten by automated processes.
 # Currently warning-only; will be promoted to blocking after validation period.
-[ -n "$_HOOK_PYTHON" ] && "$_HOOK_PYTHON" scripts/ci/check_protected_overwrites.py --check-staged
+[ -n "$_HOOK_PYTHON" ] && "$_HOOK_PYTHON" scripts/ci/checks/check_protected_overwrites.py --check-staged
 _prot_status=$?
 if [ $_prot_status -eq 2 ]; then
     echo ""
@@ -290,7 +290,7 @@ _pc_step_start "content_hash normalization"
 if [ ${#changed[@]} -gt 0 ]; then
     _tmpfile5=$(mktemp /tmp/hash-norm-XXXXXX.txt 2>/dev/null || mktemp)
     printf '%s\n' "${changed[@]}" > "$_tmpfile5"
-    [ -n "$_HOOK_PYTHON" ] && "$_HOOK_PYTHON" scripts/pipeline/provenance_normalize_hash.py \
+    [ -n "$_HOOK_PYTHON" ] && "$_HOOK_PYTHON" scripts/pipeline/commands/diagnostics/provenance_normalize_hash.py \
         --apply --files-from "$_tmpfile5" --auto-stage 2>&1
     rm -f "$_tmpfile5"
     # Non-blocking: normalization errors are logged but do not block the commit.
@@ -364,7 +364,7 @@ _pc_step_start "Python placement"
 # See AGENTS.md §4b for placement rules.
 if git diff --cached --name-only --diff-filter=ACM | grep -q '\.py$'; then
     if [ -n "$_HOOK_PYTHON" ]; then
-        "$_HOOK_PYTHON" scripts/ci/check_python_placement.py --check-staged
+        "$_HOOK_PYTHON" scripts/ci/checks/check_python_placement.py --check-staged
         if [ $? -ne 0 ]; then
             echo ""
             echo "BLOCKED: Staged Python file(s) are in forbidden locations (see above)."
@@ -400,11 +400,11 @@ if git diff --cached --name-only --diff-filter=ACM | grep -qE '^(skills/|\.agent
         _venv_py=""
     fi
     if [ -n "$_venv_py" ]; then
-        "$_venv_py" scripts/ci/enforce_venv_python.py --check
+        "$_venv_py" scripts/ci/checks/enforce_venv_python.py --check
         if [ $? -ne 0 ]; then
             echo ""
             echo "BLOCKED: Staged file(s) contain bare python/pip or --user violations."
-            echo "  Auto-fix: .venv/Scripts/python scripts/ci/enforce_venv_python.py --fix"
+            echo "  Auto-fix: .venv/Scripts/python scripts/ci/checks/enforce_venv_python.py --fix"
             echo "  DENY violations (--user, USER_SITE) require manual skill redesign."
             _pc_step_end "FAIL"
             _pc_exit 1
@@ -429,7 +429,7 @@ if [ -f "reports/session-state/ACTIVE" ]; then
         _staged_content=$(git diff --cached --name-only --diff-filter=ACM | grep '^content/.*\.md$')
         if [ -n "$_staged_content" ] && [ -n "$_HOOK_PYTHON" ]; then
             _session_check_result=$(echo "$_staged_content" | \
-                "$_HOOK_PYTHON" scripts/pipeline/session_ledger.py check-staged 2>&1)
+                "$_HOOK_PYTHON" scripts/pipeline/commands/ops/session_ledger.py check-staged 2>&1)
             _session_check_status=$?
             if [ $_session_check_status -ne 0 ]; then
                 echo ""
@@ -442,7 +442,7 @@ if [ -f "reports/session-state/ACTIVE" ]; then
                 echo "  DOC: docs/BYPASS_REGISTRY.md"
                 echo ""
                 # Include full diagnostics (non-fatal if diagnose itself fails).
-                "$_HOOK_PYTHON" scripts/pipeline/session_ledger.py diagnose 2>&1 || true
+                "$_HOOK_PYTHON" scripts/pipeline/commands/ops/session_ledger.py diagnose 2>&1 || true
                 # TC-GOV-02: Downgraded from exit 1 to warning (defense-in-depth, not blocking)
             fi
         fi
@@ -478,7 +478,7 @@ if echo "$STAGED_FILES" | grep -qE "$ONBOARDING_PATTERN"; then
   fi
 
   if [ -n "$venv_python" ]; then
-    if ! "$venv_python" scripts/ci/check_onboarding_integrity.py; then
+    if ! "$venv_python" scripts/ci/checks/check_onboarding_integrity.py; then
       echo "[Step 9] FAIL: onboarding integrity check failed. Fix issues above before committing."
       _pc_step_end "FAIL"
       _pc_exit 1
@@ -512,7 +512,7 @@ if [ ${#changed[@]} -gt 0 ]; then
         _ga_stderr=$(mktemp /tmp/graded-at-err-XXXXXX.txt 2>/dev/null || mktemp)
         revert_candidates=()
         while IFS= read -r _line; do revert_candidates+=("$_line"); done < <(
-            "$_ga_python" scripts/pipeline/check_graded_at_only.py \
+            "$_ga_python" scripts/pipeline/commands/governance/check_graded_at_only.py \
                 --files-from "$_tmpfile10" 2>"$_ga_stderr"
         )
         rm -f "$_tmpfile10"
@@ -548,8 +548,8 @@ while IFS= read -r _tline; do staged_test_files+=("$_tline"); done < <(
     git diff --cached --name-only --diff-filter=ACM | grep -E '^.*(test_[^/]*\.py|[^/]*_test\.py)$' || true
 )
 if [ ${#staged_test_files[@]} -gt 0 ]; then
-    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/check_monkeypatch_lint.py" ]; then
-        _lint_out=$("$_HOOK_PYTHON" scripts/ci/check_monkeypatch_lint.py --strict --tier 1,2 -- "${staged_test_files[@]}" 2>&1)
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_monkeypatch_lint.py" ]; then
+        _lint_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_monkeypatch_lint.py --strict --tier 1,2 -- "${staged_test_files[@]}" 2>&1)
         _lint_exit=$?
         if [ -n "$_lint_out" ]; then
             echo "$_lint_out" | sed 's/^/[Step 11] /' >&2

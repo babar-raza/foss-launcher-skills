@@ -1,4 +1,4 @@
-<!-- CONTRACT: scripts/gap-eval/run.py
+<!-- CONTRACT: scripts/gap-eval/src/run.py
      purpose: verify content against clone cache ground truth using three-tier architecture
      preconditions: clone cache exists; profile at scripts/gap-eval/profiles/{family}/{platform}.yaml
      postcondition: gap-eval report with verdict (PUBLICATION READY / CONDITIONAL / NOT PUBLISHABLE)
@@ -18,21 +18,21 @@ Evaluate all content for a family/platform against clone cache ground truth usin
 2. Profile must exist at `scripts/gap-eval/profiles/{family}/{platform}.yaml`
    - If missing, run will create a minimal auto-detected profile
 3. Optional (Tier 2): API vectors at `knowledge/_vectors/{family}/{platform}/api.vectors.json`
-   - Build with: `python scripts/pipeline/embed.py gap-index {family} {platform}`
+   - Build with: `python scripts/pipeline/commands/knowledge/embed.py gap-index {family} {platform}`
 4. Optional (Tier 3 LLM): `LLM_API_KEY` env var set for professionalize.com (falls back to Ollama)
 
 ## Steps
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-43 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-43 --scope "*"
 > ```
 
 
 ### Step 1: Validate profile
 
 ```bash
-.venv/Scripts/python scripts/gap-eval/validate_profile.py {family} {platform}
+.venv/Scripts/python scripts/gap-eval/src/validate_profile.py {family} {platform}
 ```
 
 If profile validation fails on clone cache path → check `ASPOSE_CLONE_CACHE` env var or verify clone cache exists.
@@ -40,7 +40,7 @@ If profile validation fails on clone cache path → check `ASPOSE_CLONE_CACHE` e
 ### Step 2: (Optional) Build API surface vectors for Tier 2
 
 ```bash
-.venv/Scripts/python scripts/pipeline/embed.py gap-index {family} {platform}
+.venv/Scripts/python scripts/pipeline/commands/knowledge/embed.py gap-index {family} {platform}
 ```
 
 Skip if `knowledge/_vectors/{family}/{platform}/api.vectors.json` already exists.
@@ -48,17 +48,17 @@ Skip if `knowledge/_vectors/{family}/{platform}/api.vectors.json` already exists
 ### Step 3: Run evaluation
 
 ```bash
-.venv/Scripts/python scripts/gap-eval/run.py {family} {platform} [--scope {scope}]
+.venv/Scripts/python scripts/gap-eval/src/run.py {family} {platform} [--scope {scope}]
 ```
 
 With all tiers active:
 ```bash
-.venv/Scripts/python scripts/gap-eval/run.py {family} {platform} --scope all
+.venv/Scripts/python scripts/gap-eval/src/run.py {family} {platform} --scope all
 ```
 
 Skip LLM (Tier 1+2 only, faster):
 ```bash
-.venv/Scripts/python scripts/gap-eval/run.py {family} {platform} --no-llm
+.venv/Scripts/python scripts/gap-eval/src/run.py {family} {platform} --no-llm
 ```
 
 ### Step 4: Review output
@@ -83,7 +83,7 @@ Skip LLM (Tier 1+2 only, faster):
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-43 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-43 --status completed
 > ```
 
 ## Post-conditions
@@ -107,4 +107,4 @@ Skip LLM (Tier 1+2 only, faster):
 | `Profile validation failed` | Missing or malformed profile YAML | Check `scripts/gap-eval/profiles/{family}/{platform}.yaml`; delete and re-run to auto-detect |
 | Exit code 2 (NOT PUBLISHABLE) | Mandatory findings in core content | Run `/gap-plan {family} {platform}` to generate fix specs |
 | `LLM endpoint unreachable` (Tier 3) | LLM API key missing or endpoint down | Set `LLM_API_KEY` env var, or use `--no-llm` to skip Tier 3 |
-| `api.vectors.json not found` (Tier 2) | Vectors not built | Run `python scripts/pipeline/embed.py gap-index {family} {platform}` |
+| `api.vectors.json not found` (Tier 2) | Vectors not built | Run `python scripts/pipeline/commands/knowledge/embed.py gap-index {family} {platform}` |

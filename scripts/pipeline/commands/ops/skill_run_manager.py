@@ -47,6 +47,9 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 from path_utils import repo_rel
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent

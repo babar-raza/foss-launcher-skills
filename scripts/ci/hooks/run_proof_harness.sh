@@ -2,7 +2,7 @@
 # run_proof_harness.sh — Local CI behavior proof harness.
 # Tests each scenario independently and captures outcomes to a proof bundle.
 #
-# Usage: bash scripts/ci/run_proof_harness.sh
+# Usage: bash scripts/ci/hooks/run_proof_harness.sh
 #
 # Exit codes:
 #   0  All scenarios matched expected outcomes
@@ -87,7 +87,7 @@ run_scenario \
     "path-guard-allows-content" \
     "PASS" \
     "path_guard.py must ALLOW content/ files" \
-    "$PYTHON '$REPO_ROOT/scripts/pipeline/path_guard.py' 'content/docs.aspose.org/en/3d/python/developer-guide/rendering.md'"
+    "$PYTHON '$REPO_ROOT/scripts/pipeline/commands/governance/path_guard.py' 'content/docs.aspose.org/en/3d/python/developer-guide/rendering.md'"
 
 # ---------------------------------------------------------------------------
 # Scenario 2: Path guard blocks AGENTS.md
@@ -96,7 +96,7 @@ run_scenario \
     "path-guard-blocks-agents-md" \
     "FAIL" \
     "path_guard.py must DENY AGENTS.md (exit 2)" \
-    "$PYTHON '$REPO_ROOT/scripts/pipeline/path_guard.py' 'AGENTS.md'"
+    "$PYTHON '$REPO_ROOT/scripts/pipeline/commands/governance/path_guard.py' 'AGENTS.md'"
 
 # ---------------------------------------------------------------------------
 # Scenario 3: Path guard blocks skills/ prefix
@@ -105,7 +105,7 @@ run_scenario \
     "path-guard-blocks-skills-dir" \
     "FAIL" \
     "path_guard.py must DENY skills/family-sync.md (exit 2)" \
-    "$PYTHON '$REPO_ROOT/scripts/pipeline/path_guard.py' 'skills/family-sync.md'"
+    "$PYTHON '$REPO_ROOT/scripts/pipeline/commands/governance/path_guard.py' 'skills/family-sync.md'"
 
 # ---------------------------------------------------------------------------
 # Scenarios 4–5 removed (2026-04-17, plan compiled-giggling-hippo.md TC-01/TC-04):
@@ -124,7 +124,7 @@ run_scenario \
     "skill-validator-accepts-valid-ids" \
     "PASS" \
     "validate_skill_ids.py must exit 0 for S-01 S-23 S-48" \
-    "$PYTHON '$REPO_ROOT/scripts/ci/validate_skill_ids.py' S-01 S-23 S-48"
+    "$PYTHON '$REPO_ROOT/scripts/ci/checks/validate_skill_ids.py' S-01 S-23 S-48"
 
 # ---------------------------------------------------------------------------
 # Scenario 7: validate_skill_ids.py rejects unknown IDs
@@ -133,7 +133,7 @@ run_scenario \
     "skill-validator-rejects-unknown-ids" \
     "FAIL" \
     "validate_skill_ids.py must exit 1 for S-999" \
-    "$PYTHON '$REPO_ROOT/scripts/ci/validate_skill_ids.py' S-999"
+    "$PYTHON '$REPO_ROOT/scripts/ci/checks/validate_skill_ids.py' S-999"
 
 # ---------------------------------------------------------------------------
 # Scenario 8: check_pr_override_compliance.py passes for allowed files
@@ -142,7 +142,7 @@ run_scenario \
     "pr-override-passes-for-allowed-files" \
     "PASS" \
     "check_pr_override_compliance.py must exit 0 for content/ files" \
-    "PYTHONPATH='$REPO_ROOT/scripts/pipeline' $PYTHON '$REPO_ROOT/scripts/ci/check_pr_override_compliance.py' 'content/docs.aspose.org/en/3d/python/developer-guide/rendering.md'"
+    "PYTHONPATH='$REPO_ROOT/scripts/pipeline' $PYTHON '$REPO_ROOT/scripts/ci/checks/check_pr_override_compliance.py' 'content/docs.aspose.org/en/3d/python/developer-guide/rendering.md'"
 
 # ---------------------------------------------------------------------------
 # Scenario 9: check_pr_override_compliance.py fails for forbidden files without archived token
@@ -151,7 +151,7 @@ run_scenario \
     "pr-override-fails-for-forbidden-without-token" \
     "FAIL" \
     "check_pr_override_compliance.py must exit 1 for themes/ file without archived token" \
-    "PYTHONPATH='$REPO_ROOT/scripts/pipeline' $PYTHON '$REPO_ROOT/scripts/ci/check_pr_override_compliance.py' 'themes/hypothetical/style.css'"
+    "PYTHONPATH='$REPO_ROOT/scripts/pipeline' $PYTHON '$REPO_ROOT/scripts/ci/checks/check_pr_override_compliance.py' 'themes/hypothetical/style.css'"
 
 # ---------------------------------------------------------------------------
 # Summary

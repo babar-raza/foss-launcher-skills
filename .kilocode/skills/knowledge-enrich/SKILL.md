@@ -10,7 +10,7 @@ args: "{family} {platform}"
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-<!-- CONTRACT: scripts/pipeline/enrich.py
+<!-- CONTRACT: scripts/pipeline/commands/knowledge/enrich.py
      postcondition: scout/enriched_claims.json exists as a JSON array
      postcondition: claim_id format is ERC-{family}-{platform}-{8-char-hash}
      postcondition: claim fields are: claim_id, text, kind, confidence, claim_source, evidence
@@ -33,13 +33,13 @@ This is the current replacement for the removed FL enrichment layer.
 
 1. `knowledge/{family}/{platform}/scout/api_surface.json` must exist.
 2. `runs/.clone_cache/aspose_{family}_{platform}/` should exist for richer context.
-3. `scripts/pipeline/enrich.py` must exist.
+3. `scripts/pipeline/commands/knowledge/enrich.py` must exist.
 
 ## Steps
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-37 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-37 --scope "*"
 > ```
 
 
@@ -47,7 +47,7 @@ This is the current replacement for the removed FL enrichment layer.
 2. Verify `knowledge/{family}/{platform}/scout/api_surface.json` exists.
 3. Run:
    ```bash
-   .venv/Scripts/python scripts/pipeline/enrich.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/enrich.py {family} {platform}
    ```
    Optional flags:
    - `--knowledge-root <path>` to override the knowledge root
@@ -57,7 +57,7 @@ This is the current replacement for the removed FL enrichment layer.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-37 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-37 --status completed
 > ```
 
 ## Output Schema

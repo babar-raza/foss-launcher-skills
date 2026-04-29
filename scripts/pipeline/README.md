@@ -14,22 +14,22 @@ pip install -r scripts/requirements.txt
 cp .env.example .env          # then fill in GITHUB_TOKEN, PROFESSIONALIZE_API_KEY
 
 # 3. Populate the product registry from GitHub
-python scripts/pipeline/update_product_registry.py --token $GITHUB_TOKEN
+python scripts/pipeline/commands/ops/update_product_registry.py --token $GITHUB_TOKEN
 
 # 4. Clone product repos (auto-clone from products.json)
-python scripts/pipeline/refresh_knowledge.py --all --check
+python scripts/pipeline/commands/knowledge/refresh_knowledge.py --all --check
 
 # 5. Bootstrap knowledge for a product
-python scripts/pipeline/scout.py 3d python runs/.clone_cache/aspose_3d_python knowledge/3d/python/scout
-python scripts/pipeline/enrich.py 3d python
-python scripts/pipeline/promote.py 3d python
-python scripts/pipeline/index.py 3d python
+python scripts/pipeline/commands/knowledge/scout.py 3d python runs/.clone_cache/aspose_3d_python knowledge/3d/python/scout
+python scripts/pipeline/commands/knowledge/enrich.py 3d python
+python scripts/pipeline/commands/knowledge/promote.py 3d python
+python scripts/pipeline/commands/knowledge/index.py 3d python
 
 # 6. Optionally embed into vector stores
-python scripts/pipeline/embed.py 3d python
+python scripts/pipeline/commands/knowledge/embed.py 3d python
 
 # 7. Verify content against knowledge
-python scripts/pipeline/audit.py 3d python
+python scripts/pipeline/commands/content/audit.py 3d python
 ```
 
 ## Architecture
@@ -80,18 +80,18 @@ All commands must be run from the **repo root** (the directory that contains `kn
 
 | Script | Purpose | CLI Usage | Produces |
 |--------|---------|-----------|---------|
-| `scout.py` | AST extraction from FOSS repo | `python scripts/pipeline/scout.py {family} {platform} {repo_path} {output_dir}` | `scout/` artifacts |
-| `enrich.py` | LLM enrichment from scout artifacts | `python scripts/pipeline/enrich.py {family} {platform}` | `scout/enriched_claims.json` |
-| `promote.py` | Scout-only knowledge promotion | `python scripts/pipeline/promote.py {family} {platform}` | `merged/` artifacts |
-| `index.py` | Knowledge index generator | `python scripts/pipeline/index.py {family} {platform}` or `all` | `merged/index.json` |
-| `embed.py` | Vector store generation | `python scripts/pipeline/embed.py {family} {platform}` or `all` | `knowledge/_vectors/` |
-| `audit.py` | API accuracy audit | `python scripts/pipeline/audit.py {family} {platform}` or `all` or `--files` | `reports/audit/` |
-| `attach_evidence.py` | Evidence frontmatter generator | `python scripts/pipeline/attach_evidence.py {family} {platform}` or `all` or `--files` | Updated frontmatter |
-| `content_audit.py` | Semantic prose audit | `python scripts/pipeline/content_audit.py {family} {platform}` or `all` | `reports/audit/` |
-| `change_guard.py` | Pre-write knowledge gate | `python scripts/pipeline/change_guard.py {family} {platform} "text"` | exit 0/1/2 |
-| `refresh_knowledge.py` | Auto-refresh stale knowledge | `python scripts/pipeline/refresh_knowledge.py {family} {platform}` or `--all` | Updated `merged/` |
-| `update_product_registry.py` | Sync product registry from GitHub | `python scripts/pipeline/update_product_registry.py [--token TOKEN]` | `data/products.json` |
-| `remediate.py` | Batch auto-fix eval findings | `python scripts/pipeline/remediate.py triage\|fix\|report\|status <report.json>` | `reports/remediation/` |
+| `scout.py` | AST extraction from FOSS repo | `python scripts/pipeline/commands/knowledge/scout.py {family} {platform} {repo_path} {output_dir}` | `scout/` artifacts |
+| `enrich.py` | LLM enrichment from scout artifacts | `python scripts/pipeline/commands/knowledge/enrich.py {family} {platform}` | `scout/enriched_claims.json` |
+| `promote.py` | Scout-only knowledge promotion | `python scripts/pipeline/commands/knowledge/promote.py {family} {platform}` | `merged/` artifacts |
+| `index.py` | Knowledge index generator | `python scripts/pipeline/commands/knowledge/index.py {family} {platform}` or `all` | `merged/index.json` |
+| `embed.py` | Vector store generation | `python scripts/pipeline/commands/knowledge/embed.py {family} {platform}` or `all` | `knowledge/_vectors/` |
+| `audit.py` | API accuracy audit | `python scripts/pipeline/commands/content/audit.py {family} {platform}` or `all` or `--files` | `reports/audit/` |
+| `attach_evidence.py` | Evidence frontmatter generator | `python scripts/pipeline/commands/healing/attach_evidence.py {family} {platform}` or `all` or `--files` | Updated frontmatter |
+| `content_audit.py` | Semantic prose audit | `python scripts/pipeline/commands/content/content_audit.py {family} {platform}` or `all` | `reports/audit/` |
+| `change_guard.py` | Pre-write knowledge gate | `python scripts/pipeline/commands/governance/change_guard.py {family} {platform} "text"` | exit 0/1/2 |
+| `refresh_knowledge.py` | Auto-refresh stale knowledge | `python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform}` or `--all` | Updated `merged/` |
+| `update_product_registry.py` | Sync product registry from GitHub | `python scripts/pipeline/commands/ops/update_product_registry.py [--token TOKEN]` | `data/products.json` |
+| `remediate.py` | Batch auto-fix eval findings | `python scripts/pipeline/commands/content/remediate.py triage\|fix\|report\|status <report.json>` | `reports/remediation/` |
 
 ## Sub-packages
 
@@ -151,25 +151,25 @@ knowledge/
 ### (a) Bootstrap a new product
 
 ```bash
-python scripts/pipeline/update_product_registry.py --token $GITHUB_TOKEN
-python scripts/pipeline/refresh_knowledge.py 3d python
-python scripts/pipeline/index.py 3d python
-python scripts/pipeline/audit.py 3d python
+python scripts/pipeline/commands/ops/update_product_registry.py --token $GITHUB_TOKEN
+python scripts/pipeline/commands/knowledge/refresh_knowledge.py 3d python
+python scripts/pipeline/commands/knowledge/index.py 3d python
+python scripts/pipeline/commands/content/audit.py 3d python
 ```
 
 ### (b) Refresh after upstream changes
 
 ```bash
-python scripts/pipeline/refresh_knowledge.py 3d python
-python scripts/pipeline/index.py 3d python
-python scripts/pipeline/audit.py 3d python
+python scripts/pipeline/commands/knowledge/refresh_knowledge.py 3d python
+python scripts/pipeline/commands/knowledge/index.py 3d python
+python scripts/pipeline/commands/content/audit.py 3d python
 ```
 
 ### (c) Audit existing content
 
 ```bash
-python scripts/pipeline/audit.py 3d python
-python scripts/pipeline/content_audit.py 3d python
+python scripts/pipeline/commands/content/audit.py 3d python
+python scripts/pipeline/commands/content/content_audit.py 3d python
 ```
 
 ### (d) Run full content evaluation
@@ -177,8 +177,8 @@ python scripts/pipeline/content_audit.py 3d python
 ```bash
 cd scripts/pipeline
 python -m content_eval evaluate 3d python
-python scripts/pipeline/remediate.py triage reports/content_eval/eval-*.json
-python scripts/pipeline/remediate.py fix reports/content_eval/eval-*.json
+python scripts/pipeline/commands/content/remediate.py triage reports/content_eval/eval-*.json
+python scripts/pipeline/commands/content/remediate.py fix reports/content_eval/eval-*.json
 ```
 
 ## Output Artifacts
@@ -220,11 +220,11 @@ python scripts/pipeline/remediate.py fix reports/content_eval/eval-*.json
 ## Script Inventory
 
 All root `.py` scripts in `scripts/pipeline/` (currently **69 files**) are tracked in
-`scripts/pipeline/registry.yaml`. A human-readable view is generated from the registry:
+`scripts/pipeline/config/registry.yaml`. A human-readable view is generated from the registry:
 
 ```bash
-python scripts/ci/render_inventory.py     # validates + regenerates INVENTORY.md
-python scripts/ci/render_inventory.py --check   # validate only
+python scripts/ci/checks/render_inventory.py     # validates + regenerates INVENTORY.md
+python scripts/ci/checks/render_inventory.py --check   # validate only
 ```
 
 > **Do not edit `INVENTORY.md` directly.** Edit `registry.yaml` and regenerate.

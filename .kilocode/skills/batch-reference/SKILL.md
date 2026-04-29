@@ -1,6 +1,6 @@
-<!-- CONTRACT: scripts/pipeline/batch_reference.py (backing script for headless/CI batch runs)
+<!-- CONTRACT: scripts/pipeline/commands/content/batch_reference.py (backing script for headless/CI batch runs)
      purpose: generate template-based skeleton reference pages from api_surface.json without LLM
-     cli: python scripts/pipeline/batch_reference.py {family} {platform} [--kind class|enum|all] [--limit N] [--dry-run]
+     cli: python scripts/pipeline/commands/content/batch_reference.py {family} {platform} [--kind class|enum|all] [--limit N] [--dry-run]
      postcondition: applies same platform scope rules as this skill (kind values match tree-sitter output)
      postcondition: idempotent — skips existing pages; re-run on populated platform yields Generated: 0
      postcondition: prints S-62 summary format (Candidates / Generated / Skipped / Errors)
@@ -49,7 +49,7 @@ Determine the **code fence language** from the platform:
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-62 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-62 --scope "*"
 > ```
 
 
@@ -135,7 +135,7 @@ For each entry marked `GENERATE`, in order:
 Invoke the batch generation script:
 
 ```bash
-.venv/Scripts/python scripts/pipeline/batch_reference.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/commands/content/batch_reference.py {family} {platform}
 ```
 
 The script generates all class pages using templates from `api_surface.json`. For each page it:
@@ -165,7 +165,7 @@ section, add a `## Values` section with a table listing each enum member and its
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-62 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-62 --status completed
 > ```
 
 ## Values
@@ -184,8 +184,8 @@ but keep the section header and column headers with a note: `*(No members found 
 After all pages are generated, run a spot-check on the first and last generated page using the audit script:
 
 ```
-.venv/Scripts/python scripts/pipeline/audit.py --files content/reference.aspose.org/en/{family}/{platform}/{first-ClassName}.md
-.venv/Scripts/python scripts/pipeline/audit.py --files content/reference.aspose.org/en/{family}/{platform}/{last-ClassName}.md
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py --files content/reference.aspose.org/en/{family}/{platform}/{first-ClassName}.md
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py --files content/reference.aspose.org/en/{family}/{platform}/{last-ClassName}.md
 ```
 
 If either audit returns any FAIL, log a warning: `WARN: Audit failed for {ClassName} — routed to S-90.`
@@ -240,8 +240,8 @@ After a knowledge refresh (S-14), use `--update` to regenerate only the referenc
 classes appear in `knowledge_delta.json modified_apis`:
 
 ```bash
-.venv/Scripts/python scripts/pipeline/batch_reference.py {family} {platform} --update
-.venv/Scripts/python scripts/pipeline/batch_reference.py {family} {platform} --update --dry-run  # preview only
+.venv/Scripts/python scripts/pipeline/commands/content/batch_reference.py {family} {platform} --update
+.venv/Scripts/python scripts/pipeline/commands/content/batch_reference.py {family} {platform} --update --dry-run  # preview only
 ```
 
 **Behavior in `--update` mode**:
@@ -270,7 +270,7 @@ Idempotency is preserved for unchanged pages — only modified classes are regen
 Each generated page receives an `evidence:` frontmatter block via `attach_evidence.py` (invoked
 by `/new-reference-page`). Before committing the batch output:
 
-1. Run `python scripts/pipeline/audit.py --files content/reference.aspose.org/en/{family}/{platform}/*.md`
+1. Run `python scripts/pipeline/commands/content/audit.py --files content/reference.aspose.org/en/{family}/{platform}/*.md`
    to confirm no API accuracy FAILs across all newly generated pages.
 2. Include in the commit message:
    - Knowledge model SHA from `knowledge/{family}/{platform}/model.yaml`

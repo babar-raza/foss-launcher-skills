@@ -5,7 +5,7 @@ MUST NOT RESTATE: Policy rules — AGENTS.md is the only authority for rules
 REVIEW TRIGGERS:
   - AGENTS.md §12 / docs/registries/skills.md Skill Registry changes (new/renamed skills) → update §3 invocation examples
   - skills/session-start.md changes → update §3 How to Invoke a Skill
-MAINTAINED BY: Human maintainer · CI: scripts/ci/check_onboarding_integrity.py
+MAINTAINED BY: Human maintainer · CI: scripts/ci/checks/check_onboarding_integrity.py
 -->
 # Operator Guide — aspose.org Content System
 
@@ -49,7 +49,7 @@ a procedure that an AI agent follows step by step.
 |---------|-----------|
 | `skills/knowledge-update.md` | Procedure document for the S-14 skill |
 | `/knowledge-update 3d python` | How you invoke it — only inside an AI agent session |
-| `scripts/pipeline/refresh_knowledge.py` | The backing script the agent calls automatically |
+| `scripts/pipeline/commands/knowledge/refresh_knowledge.py` | The backing script the agent calls automatically |
 
 ---
 
@@ -75,7 +75,7 @@ a procedure that an AI agent follows step by step.
 Every script-backed skill has a **CONTRACT comment** at the top of the skill file:
 
 ```markdown
-<!-- CONTRACT: scripts/pipeline/refresh_knowledge.py (runs scout.py + enrich.py + promote.py + index.py)
+<!-- CONTRACT: scripts/pipeline/commands/knowledge/refresh_knowledge.py (runs scout.py + enrich.py + promote.py + index.py)
      postcondition: refresh_knowledge.py executes all 4 pipeline steps
      postcondition: writes merged/pipeline_run.json confirming all 4 steps ran
      note: step 7 (stale flag clear) still requires explicit agent action
@@ -101,21 +101,21 @@ If you need to run a skill's script portions without an active agent session:
 > check, skill context gate, content write gate, content edit gate) only fire inside
 > Claude Code. They do NOT run when you execute scripts from a terminal directly.
 > To compensate, run these equivalents manually after any content changes:
-> - Path governance: `.venv/Scripts/python scripts/pipeline/path_guard.py {path}`
-> - API accuracy: `.venv/Scripts/python scripts/pipeline/audit.py {family} {platform}`
-> - Frontmatter: `.venv/Scripts/python scripts/pipeline/validate_frontmatter.py {file}`
+> - Path governance: `.venv/Scripts/python scripts/pipeline/commands/governance/path_guard.py {path}`
+> - API accuracy: `.venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform}`
+> - Frontmatter: `.venv/Scripts/python scripts/pipeline/commands/content/validate_frontmatter.py {file}`
 
 ### knowledge-update (S-14)
 Runs all 4 knowledge pipeline steps:
 ```bash
 repo_path=$(.venv/Scripts/python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
-.venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform} $repo_path
+.venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform} $repo_path
 # Confirms completion: check knowledge/{family}/{platform}/merged/pipeline_run.json
 ```
 
 ### content-check (S-32)
 ```bash
-.venv/Scripts/python scripts/pipeline/audit.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform}
 ```
 
 ### batch-eval-fix (S-41)
@@ -123,14 +123,14 @@ repo_path=$(.venv/Scripts/python scripts/pipeline/core/clone_cache.py resolve {f
 # Step 1: Evaluate
 .venv/Scripts/python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation
 # Step 2: Auto-fix
-.venv/Scripts/python scripts/pipeline/remediate.py fix {eval-report-path}
+.venv/Scripts/python scripts/pipeline/commands/content/remediate.py fix {eval-report-path}
 # Step 3: Refresh evidence
-.venv/Scripts/python scripts/pipeline/attach_evidence.py --files {modified-files}
+.venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py --files {modified-files}
 ```
 
 ### truth-audit (S-38)
 ```bash
-.venv/Scripts/python scripts/pipeline/audit.py {family} {platform} --json
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform} --json
 ```
 
 ### translate
@@ -142,13 +142,13 @@ repo_path=$(.venv/Scripts/python scripts/pipeline/core/clone_cache.py resolve {f
 
 ## §6 — Audit FAIL Baseline
 
-Running `python scripts/pipeline/audit.py all` currently shows **0 FAILs** across all 13 products.
+Running `python scripts/pipeline/commands/content/audit.py all` currently shows **0 FAILs** across all 13 products.
 For the current baseline (count and root causes), see `reports/audit/baseline-fail-counts.json`.
 
 If FAILs appear after a knowledge model update or content generation sprint, check
 `reports/audit/baseline-fail-counts.json` for the current documented baseline and root causes.
 
-The CI regression gate (`scripts/ci/check_audit_regression.py`) blocks any PR that introduces
+The CI regression gate (`scripts/ci/checks/check_audit_regression.py`) blocks any PR that introduces
 **new** FAILs beyond the documented baseline. Pre-existing baselined FAILs do not block CI.
 
 **Common FAIL root causes:**
@@ -168,20 +168,20 @@ If you add new content and see audit FAILs, check whether they are:
 
 ```bash
 # API accuracy audit (0 FAILs in current baseline — see §6 and reports/audit/baseline-fail-counts.json)
-.venv/Scripts/python scripts/pipeline/audit.py all
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py all
 
 # Content quality evaluation for a product
 .venv/Scripts/python -m scripts.pipeline.content_eval evaluate 3d python --format json
 
 # Check knowledge model freshness
-.venv/Scripts/python scripts/pipeline/project_phase_store.py get 3d python
+.venv/Scripts/python scripts/pipeline/commands/ops/project_phase_store.py get 3d python
 
 # Verify skill registry and sync parity
-.venv/Scripts/python scripts/ci/check_skill_registry.py
-.venv/Scripts/python scripts/pipeline/sync_skills.py --check
+.venv/Scripts/python scripts/ci/checks/check_skill_registry.py
+.venv/Scripts/python scripts/pipeline/commands/ops/sync_skills.py --check
 
 # Check for new audit regressions vs baseline
-.venv/Scripts/python scripts/ci/check_audit_regression.py audit-results.json reports/audit/baseline-fail-counts.json
+.venv/Scripts/python scripts/ci/checks/check_audit_regression.py audit-results.json reports/audit/baseline-fail-counts.json
 
 # Run all tests
 .venv/Scripts/python -m pytest scripts/ -q
@@ -229,7 +229,7 @@ CONFIG / DATA / CODE / GOVERNANCE / REGRESSION with a resolution path for each.
 ### CI check fails locally but passes in GitHub Actions (or vice versa)
 The local simulation mirrors CI step-for-step. Run:
 ```bash
-bash scripts/ci/simulate_pr_checks.sh
+bash scripts/ci/hooks/simulate_pr_checks.sh
 ```
 If results differ, check that `simulate_pr_checks.sh` was last synchronized with
 `content-audit.yml` (both files include a "SYNC" comment with the sync date).
@@ -251,10 +251,10 @@ required upstream skills have not yet run this session:
 
 ```bash
 # Default: DAR prerequisites are checked automatically
-.venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-21 --scope "content/**"
+.venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-21 --scope "content/**"
 
 # Bootstrap/recovery only: skip DAR check with --skip-dar
-.venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-12 --scope "knowledge/**" --skip-dar
+.venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-12 --scope "knowledge/**" --skip-dar
 ```
 
 The checkpoint store at `reports/phase_state.json` records which stages have been completed.

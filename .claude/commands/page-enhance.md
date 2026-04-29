@@ -17,7 +17,7 @@ Enhance a page that scores below the quality bar (grade C or below from S-17/S-2
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-21 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-21 --scope "*"
 > ```
 
 
@@ -25,7 +25,7 @@ Enhance a page that scores below the quality bar (grade C or below from S-17/S-2
 
 2. **Auto-refresh knowledge**: Before loading any knowledge artifacts, ensure they are current:
    ```bash
-   .venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform}
    ```
    - If it prints "refreshed": knowledge was stale and has been rebuilt from the clone cache.
    - If it prints "current": no action needed.
@@ -82,7 +82,7 @@ Enhance a page that scores below the quality bar (grade C or below from S-17/S-2
 
 10. **Run ground-check**:
    ```bash
-   .venv/Scripts/python scripts/pipeline/audit.py --files {relative-file-path}
+   .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {relative-file-path}
    ```
 
 11. **Re-evaluate** to confirm improvement:
@@ -113,7 +113,7 @@ Enhance a page that scores below the quality bar (grade C or below from S-17/S-2
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-21 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-21 --status completed
 > ```
 
 ## Post-conditions

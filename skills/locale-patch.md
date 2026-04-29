@@ -23,7 +23,7 @@ After fixing a content bug in an English source file that has locale translation
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-75 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-75 --scope "*"
 > ```
 
 
@@ -64,12 +64,12 @@ After fixing a content bug in an English source file that has locale translation
    ```
 
 5. **Post-patch validation** (if dry_run: false and files modified):
-   - Run: `.venv/Scripts/python scripts/pipeline/validate_frontmatter.py --files {modified_files}`
+   - Run: `.venv/Scripts/python scripts/pipeline/commands/content/validate_frontmatter.py --files {modified_files}`
    - Report any validation failures
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-75 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-75 --status completed
 > ```
 
 ## Safety rules

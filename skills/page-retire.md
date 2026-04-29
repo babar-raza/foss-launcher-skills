@@ -27,7 +27,7 @@ pages that still have valid coverage.
 
 ## Pre-conditions
 
-1. `scripts/pipeline/retire_page.py` exists
+1. `scripts/pipeline/commands/healing/retire_page.py` exists
 2. Target page(s) exist under `content/`
 3. For `--from-plan`: `site_plan.yaml` with `delta.pages_to_remove` exists
 
@@ -35,7 +35,7 @@ pages that still have valid coverage.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-83 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-83 --scope "*"
 > ```
 
 
@@ -43,9 +43,9 @@ pages that still have valid coverage.
 
 2. **Always run --dry-run first**:
    ```bash
-   .venv/Scripts/python scripts/pipeline/retire_page.py {file-path} --dry-run
+   .venv/Scripts/python scripts/pipeline/commands/healing/retire_page.py {file-path} --dry-run
    # or
-   .venv/Scripts/python scripts/pipeline/retire_page.py --from-plan reports/plans/{family}/{platform}/site_plan.yaml --dry-run
+   .venv/Scripts/python scripts/pipeline/commands/healing/retire_page.py --from-plan reports/plans/{family}/{platform}/site_plan.yaml --dry-run
    ```
    Review the list of pages that would be retired. Confirm before proceeding.
 
@@ -57,9 +57,9 @@ pages that still have valid coverage.
 
 4. **Execute retirement**:
    ```bash
-   .venv/Scripts/python scripts/pipeline/retire_page.py {file-path}
+   .venv/Scripts/python scripts/pipeline/commands/healing/retire_page.py {file-path}
    # or
-   .venv/Scripts/python scripts/pipeline/retire_page.py --from-plan reports/plans/{family}/{platform}/site_plan.yaml
+   .venv/Scripts/python scripts/pipeline/commands/healing/retire_page.py --from-plan reports/plans/{family}/{platform}/site_plan.yaml
    ```
    Each retired page receives:
    - `draft: true` in frontmatter (Hugo standard — suppresses from production builds)
@@ -79,7 +79,7 @@ pages that still have valid coverage.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-83 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-83 --status completed
 > ```
 
 ## Post-conditions

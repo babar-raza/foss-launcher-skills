@@ -9,7 +9,7 @@ args: "{family}"
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-<!-- CONTRACT: scripts/pipeline/cross_platform_audit.py
+<!-- CONTRACT: scripts/pipeline/commands/content/cross_platform_audit.py
      postcondition: knowledge/{family}/_consistency.md exists
      postcondition: index.json files are NOT modified (no platform_consistency section written)
      verified: 2026-04-01
@@ -32,7 +32,7 @@ report at `knowledge/{family}/_consistency.md`.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-36 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-36 --scope "*"
 > ```
 
 
@@ -79,7 +79,7 @@ report at `knowledge/{family}/_consistency.md`.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-36 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-36 --status completed
 > ```
 
 ## Report format

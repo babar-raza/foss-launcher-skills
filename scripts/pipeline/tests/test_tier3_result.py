@@ -18,7 +18,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-_GAP_EVAL_DIR = Path(__file__).resolve().parents[2] / "gap-eval"
+_GAP_EVAL_DIR = Path(__file__).resolve().parents[2] / "gap-eval" / "src"
 _PIPELINE_DIR = Path(__file__).resolve().parents[2] / "pipeline"
 if str(_GAP_EVAL_DIR) not in sys.path:
     sys.path.insert(0, str(_GAP_EVAL_DIR))

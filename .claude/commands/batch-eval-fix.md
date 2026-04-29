@@ -14,13 +14,13 @@ Lightweight remediation pipeline: evaluate content (or consume an existing repor
 1. **Knowledge bootstrap** (when using `{family} {platform}`): Run `/knowledge-bootstrap {family} {platform}` and check status:
    - `STOP:partial` → halt (see printed message)
    - Any other status (`READY`, `BOOTSTRAPPED`, `REFRESHED`, `WARN:conflicts`) → continue
-2. `scripts/pipeline/content_eval` and `scripts/pipeline/remediate.py` are available.
+2. `scripts/pipeline/content_eval` and `scripts/pipeline/commands/content/remediate.py` are available.
 
 ## Steps
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-41 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-41 --scope "*"
 > ```
 
 
@@ -37,7 +37,7 @@ Lightweight remediation pipeline: evaluate content (or consume an existing repor
 3. **Dry-run auto-fix** to preview changes:
 
    ```bash
-   .venv/Scripts/python scripts/pipeline/remediate.py fix {eval-report-path} --dry-run
+   .venv/Scripts/python scripts/pipeline/commands/content/remediate.py fix {eval-report-path} --dry-run
    ```
 
    Review the dry-run output. Confirm findings and planned fixes look correct.
@@ -45,13 +45,13 @@ Lightweight remediation pipeline: evaluate content (or consume an existing repor
 4. **Apply auto-fixes**:
 
    ```bash
-   .venv/Scripts/python scripts/pipeline/remediate.py fix {eval-report-path}
+   .venv/Scripts/python scripts/pipeline/commands/content/remediate.py fix {eval-report-path}
    ```
 
 5. **Refresh evidence** on modified files. Extract the list of modified files from the remediation report, then run:
 
    ```bash
-   .venv/Scripts/python scripts/pipeline/attach_evidence.py --files {file1} {file2} ...
+   .venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py --files {file1} {file2} ...
    ```
 
 6. **Report results** to the user:
@@ -67,7 +67,7 @@ Lightweight remediation pipeline: evaluate content (or consume an existing repor
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-41 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-41 --status completed
 > ```
 
 ## Post-conditions

@@ -48,7 +48,7 @@ def _run_checker(repo: Path, paths: list) -> subprocess.CompletedProcess:
     tmpf = repo / "_file_list.txt"
     tmpf.write_text("\n".join(paths) + "\n", encoding="utf-8")
 
-    checker = Path(__file__).resolve().parents[1] / "check_graded_at_only.py"
+    checker = Path(__file__).resolve().parents[1] / "commands" / "governance" / "check_graded_at_only.py"
     result = subprocess.run(
         [sys.executable, str(checker), "--files-from", str(tmpf)],
         cwd=str(repo),
@@ -227,7 +227,7 @@ class TestParseFailureExitsNonzero:
         tmpf = non_repo / "_files.txt"
         tmpf.write_text("page.md\n", encoding="utf-8")
 
-        checker = Path(__file__).resolve().parents[1] / "check_graded_at_only.py"
+        checker = Path(__file__).resolve().parents[1] / "commands" / "governance" / "check_graded_at_only.py"
         result = subprocess.run(
             [sys.executable, str(checker), "--files-from", str(tmpf)],
             cwd=str(non_repo),   # <-- not a git repo; git diff will fail

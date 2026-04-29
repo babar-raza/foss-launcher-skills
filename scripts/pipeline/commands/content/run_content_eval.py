@@ -17,8 +17,9 @@ from pathlib import Path
 # when invoked directly — all sibling packages (core, content_eval, extraction, …)
 # are therefore importable without any PYTHONPATH prefix.
 _HERE = Path(__file__).resolve().parent
-if str(_HERE) not in sys.path:
-    sys.path.insert(0, str(_HERE.parent.parent))  # scripts/pipeline/
+_PIPELINE_ROOT = _HERE.parent.parent  # commands/content/ -> commands/ -> pipeline/
+if str(_PIPELINE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PIPELINE_ROOT))
 
 from content_eval.cli import main
 

@@ -59,7 +59,7 @@ Default weight for unlisted platforms: 80.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-70 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-70 --scope "*"
 > ```
 
 
@@ -179,13 +179,13 @@ Default weight for unlisted platforms: 80.
 
 9. **Attach evidence**: Run:
    ```bash
-   .venv/Scripts/python scripts/pipeline/attach_evidence.py \
+   .venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py \
      --files content/docs.aspose.org/en/{family}/{platform}/_index.md
    ```
 
 10. **Run audit**: Run:
     ```bash
-    .venv/Scripts/python scripts/pipeline/audit.py \
+    .venv/Scripts/python scripts/pipeline/commands/content/audit.py \
       --files content/docs.aspose.org/en/{family}/{platform}/_index.md
     ```
     Must exit with 0 FAIL before confirming success.
@@ -195,6 +195,6 @@ Default weight for unlisted platforms: 80.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-70 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-70 --status completed
 > ```
 

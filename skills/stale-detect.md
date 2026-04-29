@@ -21,7 +21,7 @@ Map upstream repository changes (detected by S-12) to content pages that may nee
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-13 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-13 --scope "*"
 > ```
 
 
@@ -47,7 +47,7 @@ Map upstream repository changes (detected by S-12) to content pages that may nee
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-13 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-13 --status completed
 > ```
 
 ## Output

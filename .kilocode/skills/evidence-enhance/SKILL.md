@@ -1,14 +1,14 @@
 ---
 name: evidence-enhance
 description: >
-  <!-- CONTRACT: scripts/pipeline/attach_evidence.py --files {path} --force (thin wrapper)
+  <!-- CONTRACT: scripts/pipeline/commands/healing/attach_evidence.py --files {path} --force (thin wrapper)
 ---
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
 # S-78: Evidence Enhance — Improve Section Evidence Coverage on Passing Pages
 
-<!-- CONTRACT: scripts/pipeline/attach_evidence.py --files {path} --force (thin wrapper)
+<!-- CONTRACT: scripts/pipeline/commands/healing/attach_evidence.py --files {path} --force (thin wrapper)
 postcondition: page must pass audit.py BEFORE and AFTER the skill runs
 postcondition: skill is evidence-frontmatter-only — page body content is NEVER modified
 postcondition: validate_frontmatter.py + audit.py both exit 0 before reporting ENHANCED
@@ -59,7 +59,7 @@ exclusive: S-78 requires audit.py PASS; S-72 handles audit.py FAIL.
 6. `knowledge/{family}/{platform}/merged/claims.json` and `api_surface.json` must exist.
 7. **Pre-flight audit** — the page must already be clean:
    ```bash
-   .venv/Scripts/python scripts/pipeline/audit.py --files {path}
+   .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {path}
    ```
    If audit returns any FAIL, HALT:
    ```
@@ -123,7 +123,7 @@ will produce false `viable` classifications — always use the tokenizer, not re
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-78 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-78 --scope "*"
 > ```
 
 
@@ -132,17 +132,17 @@ will produce false `viable` classifications — always use the tokenizer, not re
 
 2. **Auto-refresh knowledge**:
    ```bash
-   .venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform}
    ```
 
 3. **Run attach_evidence**:
    ```bash
-   .venv/Scripts/python scripts/pipeline/attach_evidence.py --files {path} --force
+   .venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py --files {path} --force
    ```
 
 4. **Post-attach audit**:
    ```bash
-   .venv/Scripts/python scripts/pipeline/audit.py --files {path}
+   .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {path}
    ```
    If audit returns any FAIL, revert the file to its pre-step-3 state and report ESCAPED:
    ```
@@ -151,7 +151,7 @@ will produce false `viable` classifications — always use the tokenizer, not re
 
 5. **Validate frontmatter**:
    ```bash
-   .venv/Scripts/python scripts/pipeline/validate_frontmatter.py --files {path}
+   .venv/Scripts/python scripts/pipeline/commands/content/validate_frontmatter.py --files {path}
    ```
    If validation fails, revert and report ESCAPED.
 
@@ -179,7 +179,7 @@ will produce false `viable` classifications — always use the tokenizer, not re
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-78 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-78 --status completed
 > ```
 
 ## Post-conditions

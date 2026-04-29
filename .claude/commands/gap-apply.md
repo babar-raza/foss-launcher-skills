@@ -23,7 +23,7 @@ It is the final step in the gap remediation pipeline: `S-43 → S-44 → S-46 �
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-46 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-46 --scope "*"
 > ```
 
 
@@ -60,7 +60,7 @@ Or apply by category code if you want finer control:
 
 After Wave 1, verify no regressions:
 ```bash
-.venv/Scripts/python scripts/pipeline/audit.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform}
 ```
 
 ### Step 3: Apply Wave 2 fixes (LLM-planned substitutions)
@@ -75,7 +75,7 @@ For each fix in `fix_specs.json` where `wave == 2`:
 
 After all Wave 2 substitutions, run S-23 (content-check):
 ```bash
-.venv/Scripts/python scripts/pipeline/audit.py --files {modified_files}
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {modified_files}
 ```
 
 If audit FAILs on a Wave 2 page: revert that specific file's change and add it to the Wave 4 (human) escalation list.
@@ -105,7 +105,7 @@ Emit a Wave 4 manifest:
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-46 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-46 --status completed
 > ```
 
 ## Wave 4 Escalation — {family}/{platform}
@@ -133,7 +133,7 @@ skill chain.
 ### Step 6: Re-run gap-eval to verify
 
 ```bash
-python scripts/gap-eval/run.py {family} {platform}
+python scripts/gap-eval/src/run.py {family} {platform}
 ```
 
 The delta section must show prior Wave 1/2 findings as `fixed` with 0 regressions. If

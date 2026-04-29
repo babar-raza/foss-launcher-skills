@@ -38,7 +38,7 @@ Generate a new KB how-to article.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-58 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-58 --scope "*"
 > ```
 
 
@@ -106,18 +106,18 @@ Generate a new KB how-to article.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-58 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-58 --status completed
 > ```
 
 ## Knowledge Post-conditions
 
 After generating the article:
 
-1. **Attach evidence**: Run `python scripts/pipeline/attach_evidence.py --files content/kb.aspose.org/en/{family}/{platform}/{slug}.md`
+1. **Attach evidence**: Run `python scripts/pipeline/commands/healing/attach_evidence.py --files content/kb.aspose.org/en/{family}/{platform}/{slug}.md`
    — this writes the `evidence:` YAML frontmatter block (`model_sha`, `claims`, `apis`).
 2. **Run content check**: Execute `/content-check content/kb.aspose.org/en/{family}/{platform}/{slug}.md` to validate structure and knowledge alignment
 3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
-4. **Run audit**: `python scripts/pipeline/audit.py --files content/kb.aspose.org/en/{family}/{platform}/{slug}.md`
+4. **Run audit**: `python scripts/pipeline/commands/content/audit.py --files content/kb.aspose.org/en/{family}/{platform}/{slug}.md`
    — must exit with 0 FAIL before committing.
 5. **Run format eval**: `python -m scripts.pipeline.content_eval.cli evaluate {family} {platform} --evaluators format_truth,format_completeness --files content/kb.aspose.org/en/{family}/{platform}/{slug}.md --strict`
    — must exit 0 (no FAIL findings) before committing.

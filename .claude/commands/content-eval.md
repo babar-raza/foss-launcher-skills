@@ -29,7 +29,7 @@ Goes beyond API token verification (audit.py/S-23) to check:
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-51 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-51 --scope "*"
 > ```
 
 
@@ -48,7 +48,7 @@ cd scripts/pipeline && .venv/Scripts/python -m content_eval evaluate $ARGUMENTS 
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-51 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-51 --status completed
 > ```
 
 ## Available evaluators

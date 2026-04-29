@@ -1,4 +1,4 @@
-<!-- CONTRACT: scripts/pipeline/embed.py (standard mode)
+<!-- CONTRACT: scripts/pipeline/commands/knowledge/embed.py (standard mode)
      postcondition: knowledge/_vectors/api/ exists (if Tier 1 succeeded)
      postcondition: knowledge/_vectors/local/ exists (if Tier 2 succeeded)
      postcondition: paths do NOT include family/platform subdirectories (flat structure)
@@ -26,7 +26,7 @@ not require vectors, but gap evaluation quality degrades without them.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-15 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-15 --scope "*"
 > ```
 
 
@@ -34,7 +34,7 @@ not require vectors, but gap evaluation quality degrades without them.
 
 2. **Attempt Tier 1 — Professionalize API**:
    ```bash
-   .venv/Scripts/python scripts/pipeline/embed.py {family} {platform} --tier api
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/embed.py {family} {platform} --tier api
    ```
    - If `PROFESSIONALIZE_API_KEY` is set and the call succeeds: vectors written to
      `knowledge/_vectors/api/` (flat structure — all products share the same tier directory).
@@ -42,7 +42,7 @@ not require vectors, but gap evaluation quality degrades without them.
 
 3. **Attempt Tier 2 — Ollama (local)**:
    ```bash
-   .venv/Scripts/python scripts/pipeline/embed.py {family} {platform} --tier local
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/embed.py {family} {platform} --tier local
    ```
    - If Ollama is running and returns vectors: written to
      `knowledge/_vectors/local/` (flat structure).
@@ -73,7 +73,7 @@ not require vectors, but gap evaluation quality degrades without them.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-15 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-15 --status completed
 > ```
 
 ## Post-conditions
@@ -88,7 +88,7 @@ not require vectors, but gap evaluation quality degrades without them.
 ## Gap-index mode (S-43 Tier 2)
 For per-product API surface vectors (used by S-43), use the `gap-index` subcommand instead:
 ```bash
-python scripts/pipeline/embed.py gap-index {family} {platform}
+python scripts/pipeline/commands/knowledge/embed.py gap-index {family} {platform}
 ```
 This mode writes to `knowledge/_vectors/{family}/{platform}/api.vectors.json` (with
 family/platform subdirectories). It is a separate operation from standard knowledge embedding.
@@ -103,6 +103,6 @@ family/platform subdirectories). It is a separate operation from standard knowle
 
 ## Error handling
 - All three tiers fail (Tier 3 cannot fail, so this cannot happen).
-- `embed.py` script missing: abort; check that `scripts/pipeline/embed.py` exists.
+- `embed.py` script missing: abort; check that `scripts/pipeline/commands/knowledge/embed.py` exists.
 - `merged/claims.json` is empty (no claims to embed): skip; log "Nothing to embed — run S-35 first."
 - `all` mode: process each product independently; failures for one product do not abort others.

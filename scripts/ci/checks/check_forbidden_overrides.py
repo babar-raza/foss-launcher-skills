@@ -23,7 +23,7 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
 # Import path_guard from pipeline
 sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
-from path_guard import check_path, FORBIDDEN_EXACT, FORBIDDEN_PREFIXES  # noqa: E402
+from commands.governance.path_guard import check_path, FORBIDDEN_EXACT, FORBIDDEN_PREFIXES  # noqa: E402
 
 
 def _is_explicitly_forbidden(file_path: str) -> bool:

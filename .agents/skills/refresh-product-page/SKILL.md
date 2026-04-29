@@ -44,7 +44,7 @@ audit), this skill always regenerates and uses the no-downgrade-guard to prevent
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-86 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-86 --scope "*"
 > ```
 
 
@@ -99,7 +99,7 @@ audit), this skill always regenerates and uses the no-downgrade-guard to prevent
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-86 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-86 --status completed
 > ```
 
 ## Post-conditions

@@ -53,7 +53,7 @@ Do not run any subsequent steps. Exit 0.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-84 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-84 --scope "*"
 > ```
 
 
@@ -64,7 +64,7 @@ Do not run any subsequent steps. Exit 0.
    - Calls `update_clone()` to fetch upstream before SHA comparison
    - If SHAs match: exit cleanly with "no upstream change" message
    - If HIGH/MEDIUM: `stale_since` auto-set; proceed to Step 2
-   - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step knowledge_diff`
+   - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step knowledge_diff`
 
 2. **Refresh knowledge** (S-14: knowledge-update):
    ```
@@ -73,7 +73,7 @@ Do not run any subsequent steps. Exit 0.
    - Runs full scout → enrich → promote → index pipeline
    - Writes `knowledge_delta.json` with semantic diff
    - Clears `stale_since` on success
-   - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step knowledge_update`
+   - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step knowledge_update`
 
 3. **Delta site planning** (S-82: delta-site-plan):
    ```
@@ -81,17 +81,17 @@ Do not run any subsequent steps. Exit 0.
    ```
    - Runs `site_planner.py --mode update`
    - Produces `delta.pages_to_add`, `pages_to_update`, `pages_to_remove`, `pages_renamed`
-   - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step delta_site_plan`
+   - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step delta_site_plan`
 
 3.5. **Page Impact Assessment**:
    ```bash
-   .venv/Scripts/python scripts/pipeline/page_impact_assess.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/commands/ops/page_impact_assess.py {family} {platform}
    ```
    - Scores every English page HIGH_IMPACT / MEDIUM_IMPACT / LOW_IMPACT / NOT_AFFECTED
      based on body text signals vs `knowledge_delta.json` (class names, method names, claim keywords)
    - Writes `reports/refresh_review/{family}/{platform}/page_impact.json`
    - **If `knowledge_delta.json` absent**: step is skipped with WARNING; chain continues
-   - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step page_impact_assess`
+   - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step page_impact_assess`
 
 4. **Update stale existing pages** (S-20: page-update):
    ```
@@ -99,7 +99,7 @@ Do not run any subsequent steps. Exit 0.
    ```
    - Reads `knowledge_delta.json` to find affected pages
    - Updates stale paragraphs; uses blog regeneration rule for blog posts
-   - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step page_update`
+   - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step page_update`
 
 5. **Delta dispatch — generate new pages**:
    For each page in `delta.pages_to_add` from the site_plan.yaml delta section:
@@ -107,8 +107,8 @@ Do not run any subsequent steps. Exit 0.
    - `blog/` prefix → `/new-blog-post {family} {platform} {slug}`
    - `kb/faq` → `/new-kb-faq {family} {platform}`
    - `kb/howto` → `/new-kb-howto {family} {platform} {slug}`
-   - `reference/` → `python scripts/pipeline/batch_reference.py {family} {platform} --update`
-   - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step delta_dispatch`
+   - `reference/` → `python scripts/pipeline/commands/content/batch_reference.py {family} {platform} --update`
+   - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step delta_dispatch`
 
 6. **Retire obsolete pages** (S-83: page-retire):
    ```
@@ -116,17 +116,17 @@ Do not run any subsequent steps. Exit 0.
    ```
    - Always run `--dry-run` first; confirm before executing
    - Retires pages from `delta.pages_to_remove` (dual-signal rule applies)
-   - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step page_retire`
+   - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step page_retire`
 
 7. **Update reference pages for modified APIs** (S-62: batch-reference --update):
    ```
-   .venv/Scripts/python scripts/pipeline/batch_reference.py {family} {platform} --update
+   .venv/Scripts/python scripts/pipeline/commands/content/batch_reference.py {family} {platform} --update
    ```
    - Regenerates only reference pages for classes in `knowledge_delta.json modified_apis`
-   - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step reference_update`
+   - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step reference_update`
    - **Write execution reconciliation** (after all content steps complete):
      ```bash
-     .venv/Scripts/python scripts/pipeline/post_refresh_verify.py {family} {platform} --reconcile
+     .venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --reconcile
      ```
 
 8. **Family page sync** (S-48: family-sync):
@@ -134,7 +134,7 @@ Do not run any subsequent steps. Exit 0.
    /family-sync {family}
    ```
    Updates `products.aspose.org` family landing page with any version/status changes.
-   - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step family_sync`
+   - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step family_sync`
 
 9. **Content check** on all changed files (S-23: content-check):
    ```
@@ -158,13 +158,13 @@ Do not run any subsequent steps. Exit 0.
 
 11. **Record step completions**: After each step above, call:
     ```bash
-    .venv/Scripts/python scripts/pipeline/post_refresh_verify.py {family} {platform} --step {step_name}
+    .venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step {step_name}
     ```
     Progress is tracked at `reports/refresh_state/{family}/{platform}/progress.json` (local-only, not committed).
 
 12. **Verification gate** (post_refresh_verify.py --verify):
     ```bash
-    .venv/Scripts/python scripts/pipeline/post_refresh_verify.py {family} {platform} --verify
+    .venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --verify
     ```
     Runs post-refresh checklist:
     - `stale_since` is null in `merged/model.yaml`
@@ -182,12 +182,12 @@ Do not run any subsequent steps. Exit 0.
 
 13.5. **Coverage report**:
     ```bash
-    .venv/Scripts/python scripts/pipeline/refresh_review.py {family} {platform} --report
+    .venv/Scripts/python scripts/pipeline/commands/ops/refresh_review.py {family} {platform} --report
     ```
     Writes `reports/refresh_review/{family}/{platform}/coverage_report.md` with per-subdomain
     counts (total, body_updated, evidence_only, not_affected, retired).
     - If coverage < 100%: emits WARNING and includes gap in commit message; does NOT abort commit
-    - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step coverage_report`
+    - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step coverage_report`
 
 13. **Commit** (S-76: commit):
     ```
@@ -200,7 +200,7 @@ Do not run any subsequent steps. Exit 0.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-84 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-84 --status completed
 > ```
 
 ## Progress Tracking
@@ -208,7 +208,7 @@ Do not run any subsequent steps. Exit 0.
 Progress is stored at `reports/refresh_state/{family}/{platform}/progress.json` (local-only, gitignored).
 Check current progress at any time:
 ```bash
-.venv/Scripts/python scripts/pipeline/post_refresh_verify.py {family} {platform} --status
+.venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --status
 ```
 
 If the refresh cycle is interrupted, re-run this skill — completed steps are idempotent and

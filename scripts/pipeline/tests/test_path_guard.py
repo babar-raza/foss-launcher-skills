@@ -214,7 +214,7 @@ class TestPathNormalization:
 
 class TestCLI:
 
-    _SCRIPT = str(Path(__file__).resolve().parent.parent / "path_guard.py")
+    _SCRIPT = str(Path(__file__).resolve().parent.parent / "commands" / "governance" / "path_guard.py")
 
     def test_cli_allow(self):
         result = subprocess.run(
@@ -260,7 +260,7 @@ class TestCLI:
 class TestStdinBatchMode:
     """--stdin mode processes all paths in one invocation."""
 
-    _SCRIPT = str(Path(__file__).resolve().parent.parent / "path_guard.py")
+    _SCRIPT = str(Path(__file__).resolve().parent.parent / "commands" / "governance" / "path_guard.py")
 
     def _run_stdin(self, paths: list[str], extra_flags: list[str] | None = None) -> subprocess.CompletedProcess:
         input_text = "\n".join(paths) + ("\n" if paths else "")

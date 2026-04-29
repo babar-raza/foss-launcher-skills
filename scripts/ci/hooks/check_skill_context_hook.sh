@@ -29,7 +29,7 @@ fi
 
 # Determine repo root from script location (scripts/ci/ — two levels up)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Resolve Python via shared resolver (venv-only, no python3 fallback — DR-01)
 source "$(dirname "${BASH_SOURCE[0]}")/find_python.sh" || true
@@ -190,13 +190,13 @@ fi
 if [ "$GOVERNED" != "true" ]; then
     # PYTHON already resolved via find_python.sh at script start (DR-01)
     GUARD_EXIT=0
-    "$PYTHON" "$REPO_ROOT/scripts/pipeline/path_guard.py" "$FILE_PATH" >/dev/null 2>&1 || GUARD_EXIT=$?
+    "$PYTHON" "$REPO_ROOT/scripts/pipeline/commands/governance/path_guard.py" "$FILE_PATH" >/dev/null 2>&1 || GUARD_EXIT=$?
     if [ $GUARD_EXIT -ne 0 ]; then
         _gov_block "Edit/Write denied — $FILE_PATH is not in the allowed path list." \
             "Root-level files and non-allowlisted paths are blocked." \
             "Move file to an allowlisted path (scripts/, content/, reports/, etc.)." \
             "SKIP_SKILL_CONTEXT_CHECK=1" \
-            "scripts/pipeline/path_guard.py for the allowed path list" \
+            "scripts/pipeline/commands/governance/path_guard.py for the allowed path list" \
             '{"violation_type": "forbidden_path", "unblock_condition": "move file to an allowlisted path (scripts/, content/, reports/, backlog/, plans/, etc.)"}'
     fi
     exit 0
@@ -217,7 +217,7 @@ fi
 # Scope validation: check if the file is within the active skill's scope
 # Use `|| true` idiom to capture non-zero exit codes under `set -e`
 CHECK_EXIT=0
-PYTHONPATH="$REPO_ROOT/scripts/pipeline" "$PYTHON" "$REPO_ROOT/scripts/pipeline/skill_context.py" \
+PYTHONPATH="$REPO_ROOT/scripts/pipeline" "$PYTHON" "$REPO_ROOT/scripts/pipeline/commands/governance/skill_context.py" \
     check --file "$FILE_PATH" 2>/dev/null || CHECK_EXIT=$?
 
 if [ $CHECK_EXIT -eq 0 ]; then
@@ -231,7 +231,7 @@ except Exception:
 " 2>/dev/null || true)
     if [ -n "$ACTIVE_SKILL" ]; then
         PYTHONPATH="$REPO_ROOT/scripts/pipeline" "$PYTHON" \
-            "$REPO_ROOT/scripts/pipeline/session_ledger.py" \
+            "$REPO_ROOT/scripts/pipeline/commands/ops/session_ledger.py" \
             record --file "$FILE_PATH" --action modified \
             --skill "$ACTIVE_SKILL" 2>/dev/null || true
     fi

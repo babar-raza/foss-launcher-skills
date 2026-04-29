@@ -9,8 +9,8 @@
 # It only creates/repairs .venv and installs dependencies.
 #
 # Usage:
-#   bash scripts/ci/repair_venv.sh            # repair in place
-#   bash scripts/ci/repair_venv.sh --fresh    # delete .venv first, recreate clean
+#   bash scripts/ci/hooks/repair_venv.sh            # repair in place
+#   bash scripts/ci/hooks/repair_venv.sh --fresh    # delete .venv first, recreate clean
 #
 # Called by: bootstrap_session_gate.sh (recovery message)
 #            docs/QUICKSTART.md (manual reference)
@@ -18,7 +18,7 @@
 
 set -euo pipefail
 
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 VENV_DIR="$REPO_ROOT/.venv"
 FRESH=0
 
@@ -29,7 +29,7 @@ for arg in "$@"; do
     case "$arg" in
         --fresh) FRESH=1 ;;
         --help|-h)
-            echo "Usage: bash scripts/ci/repair_venv.sh [--fresh]"
+            echo "Usage: bash scripts/ci/hooks/repair_venv.sh [--fresh]"
             echo "  --fresh   Delete existing .venv before recreating"
             exit 0
             ;;
@@ -209,5 +209,5 @@ echo "  .venv Python ready: $PYTHON"
 echo ""
 echo "Next steps:"
 echo "  1. Install hooks (if not done): bash scripts/install-hooks.sh"
-echo "  2. Verify environment  : $PYTHON scripts/ci/venv_doctor.py"
-echo "  3. Run smoke test      : bash scripts/ci/smoke_chain.sh"
+echo "  2. Verify environment  : $PYTHON scripts/ci/checks/venv_doctor.py"
+echo "  3. Run smoke test      : bash scripts/ci/hooks/smoke_chain.sh"

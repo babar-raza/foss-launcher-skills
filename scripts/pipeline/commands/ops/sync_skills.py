@@ -45,6 +45,9 @@ KNOWN_EXCEPTIONS = {
     ("claude", "translate-page"): "Claude uses unified translate router",
 }
 
+_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 from _skill_constants import INTERNAL_SKILLS
 
 _ID_RE = re.compile(r"^#\s+(S-\d+):")

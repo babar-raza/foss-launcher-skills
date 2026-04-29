@@ -47,7 +47,7 @@ class EvidenceAttachFixer(BaseFixer):
         if not filepath:
             return page_text
 
-        script = Path(__file__).resolve().parents[3] / "attach_evidence.py"
+        script = Path(__file__).resolve().parents[3] / "commands" / "healing" / "attach_evidence.py"
         if not script.exists():
             return page_text
 

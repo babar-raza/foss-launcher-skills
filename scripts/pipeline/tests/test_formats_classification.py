@@ -23,7 +23,7 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _CLONE_CACHE = _REPO_ROOT / "runs" / ".clone_cache" / "aspose_slides_python"
 _CLONE_CACHE_HAS_SOURCES = bool(list(_CLONE_CACHE.rglob("*.py"))[:1]) if _CLONE_CACHE.exists() else False
-_SCOUT_SCRIPT = _REPO_ROOT / "scripts" / "pipeline" / "scout.py"
+_SCOUT_SCRIPT = _REPO_ROOT / "scripts" / "pipeline" / "commands" / "knowledge" / "scout.py"
 
 _TARGETS = [
     ("SaveFormat",  "PPTX",  "export",  True),

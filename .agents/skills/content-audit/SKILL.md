@@ -26,7 +26,7 @@ Audit content pages against verified knowledge. Maps each factual claim in conte
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-32 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-32 --scope "*"
 > ```
 
 
@@ -36,13 +36,13 @@ Run the Python script first to get reproducible, machine-verifiable results:
 
 ```bash
 # For a specific product:
-.venv/Scripts/python scripts/pipeline/content_audit.py {family} {platform} --json
+.venv/Scripts/python scripts/pipeline/commands/content/content_audit.py {family} {platform} --json
 
 # For specific files:
-.venv/Scripts/python scripts/pipeline/content_audit.py --files {content-file-path} --json
+.venv/Scripts/python scripts/pipeline/commands/content/content_audit.py --files {content-file-path} --json
 
 # For all products:
-.venv/Scripts/python scripts/pipeline/content_audit.py all --json
+.venv/Scripts/python scripts/pipeline/commands/content/content_audit.py all --json
 ```
 
 The script classifies every prose paragraph into tiers:
@@ -80,7 +80,7 @@ Review the aggregate summary and act on:
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-32 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-32 --status completed
 > ```
 
 ## Audit report format

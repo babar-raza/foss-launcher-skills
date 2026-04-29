@@ -23,6 +23,9 @@ import re
 import sys
 from pathlib import Path
 
+_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 from knowledge_core import Knowledge  # noqa: E402
 from content_discovery import PLATFORM_MAP  # noqa: E402  (R-4: was knowledge_core)
 

@@ -29,24 +29,24 @@ None. This skill works from the local content directory only.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-65 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-65 --scope "*"
 > ```
 
 
 ### Step 1: Run validation for one product
 
 ```bash
-.venv/Scripts/python scripts/pipeline/link_validator.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/commands/ops/link_validator.py {family} {platform}
 ```
 
 Or for specific files:
 ```bash
-.venv/Scripts/python scripts/pipeline/link_validator.py --files path/to/file.md
+.venv/Scripts/python scripts/pipeline/commands/ops/link_validator.py --files path/to/file.md
 ```
 
 Or for all content:
 ```bash
-.venv/Scripts/python scripts/pipeline/link_validator.py all
+.venv/Scripts/python scripts/pipeline/commands/ops/link_validator.py all
 ```
 
 ### Step 2: Review BROKEN findings
@@ -67,12 +67,12 @@ For each BROKEN link:
 ### Step 4: JSON output for CI integration
 
 ```bash
-.venv/Scripts/python scripts/pipeline/link_validator.py {family} {platform} --json > reports/link-validation/{family}-{platform}-{timestamp}.json
+.venv/Scripts/python scripts/pipeline/commands/ops/link_validator.py {family} {platform} --json > reports/link-validation/{family}-{platform}-{timestamp}.json
 ```
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-65 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-65 --status completed
 > ```
 
 ## Post-conditions

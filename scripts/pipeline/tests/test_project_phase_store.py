@@ -24,7 +24,7 @@ _FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
 
 @contextmanager
 def fake_content_target():
-    import knowledge_core
+    from commands.knowledge import knowledge_core
 
     with tempfile.TemporaryDirectory() as temp_dir:
         root = Path(temp_dir)

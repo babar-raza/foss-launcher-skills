@@ -16,14 +16,14 @@ Synthesize findings across all products into a MASTER-SYNTHESIS update. Uses vec
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-45 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-45 --scope "*"
 > ```
 
 
 ### Step 1: Build findings index (optional, for dense vectors)
 
 ```bash
-.venv/Scripts/python scripts/pipeline/embed.py findings-index
+.venv/Scripts/python scripts/pipeline/commands/knowledge/embed.py findings-index
 ```
 
 Embeds all findings for high-quality clustering. Skip if running in offline mode (TF-IDF fallback).
@@ -32,22 +32,22 @@ Embeds all findings for high-quality clustering. Skip if running in offline mode
 
 For all products:
 ```bash
-.venv/Scripts/python scripts/gap-eval/synthesize.py --products all
+.venv/Scripts/python scripts/gap-eval/src/synthesize.py --products all
 ```
 
 For specific products:
 ```bash
-.venv/Scripts/python scripts/gap-eval/synthesize.py --products slides/java,slides/python,slides/net
+.venv/Scripts/python scripts/gap-eval/src/synthesize.py --products slides/java,slides/python,slides/net
 ```
 
 Dry run (no file writes, prints synthesis update):
 ```bash
-.venv/Scripts/python scripts/gap-eval/synthesize.py --products all --dry-run
+.venv/Scripts/python scripts/gap-eval/src/synthesize.py --products all --dry-run
 ```
 
 Override cluster count:
 ```bash
-.venv/Scripts/python scripts/gap-eval/synthesize.py --k 8
+.venv/Scripts/python scripts/gap-eval/src/synthesize.py --k 8
 ```
 
 ### Step 3: Review output
@@ -64,7 +64,7 @@ LLM-generated pattern names are in `synthesis_result.json`. If pattern descripti
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-45 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-45 --status completed
 > ```
 
 ## Output Format

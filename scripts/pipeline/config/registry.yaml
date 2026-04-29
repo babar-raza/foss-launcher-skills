@@ -22,7 +22,7 @@ scripts:
 
   # ── Tier 1 — CI-blocking / CONTRACT-tagged ─────────────────────────────────
 
-  - path: scripts/pipeline/audit.py
+  - path: scripts/pipeline/commands/content/audit.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -37,7 +37,7 @@ scripts:
     deprecated_since: null
     notes: "wrapper → audit.runner.main()"
 
-  - path: scripts/pipeline/attach_evidence.py
+  - path: scripts/pipeline/commands/healing/attach_evidence.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -53,7 +53,7 @@ scripts:
     deprecated_since: null
     notes: "wrapper → evidence.runner.main()"
 
-  - path: scripts/pipeline/backtrack_controller.py
+  - path: scripts/pipeline/commands/healing/backtrack_controller.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -70,7 +70,7 @@ scripts:
     change_impact: "HIGH: causal orchestrator; depth-guard and cycle-detection logic"
     notes: "causal backtrack orchestrator; also needs dependency_resolver.py"
 
-  - path: scripts/pipeline/change_guard.py
+  - path: scripts/pipeline/commands/governance/change_guard.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -86,7 +86,7 @@ scripts:
     change_impact: "MEDIUM: 5 independent safety checks; leave as-is (no shared logic to extract)"
     notes: "pre-write knowledge validation gate"
 
-  - path: scripts/pipeline/check_audit_results.py
+  - path: scripts/pipeline/commands/ops/check_audit_results.py
     kind: entrypoint
     lifecycle: deprecated
     canonical_impl_path: null
@@ -100,7 +100,7 @@ scripts:
     deprecated_since: "2026-04-17"
     notes: "deprecated; superseded by unconditional regression check in simulate_pr_checks.sh:130; retained for reference only"
 
-  - path: scripts/pipeline/check_dar_prerequisites.py
+  - path: scripts/pipeline/commands/governance/check_dar_prerequisites.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -116,7 +116,7 @@ scripts:
     deprecated_since: null
     notes: "DAR prerequisite enforcer; called by skill_context.py begin --check-dar"
 
-  - path: scripts/pipeline/skill_chain.py
+  - path: scripts/pipeline/commands/ops/skill_chain.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -132,7 +132,7 @@ scripts:
     deprecated_since: null
     notes: "TC-SR-04: resolve ordered DAR prerequisite chain for a skill; --check-session verifies session satisfaction"
 
-  - path: scripts/pipeline/check_grade_downgrade.py
+  - path: scripts/pipeline/commands/governance/check_grade_downgrade.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -147,7 +147,7 @@ scripts:
     deprecated_since: null
     notes: "CI: detect grade downgrades in modified files"
 
-  - path: scripts/pipeline/check_grade_integrity.py
+  - path: scripts/pipeline/commands/governance/check_grade_integrity.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -162,7 +162,7 @@ scripts:
     deprecated_since: null
     notes: "CI: validate grade block structure"
 
-  - path: scripts/pipeline/fix_grade_field_order.py
+  - path: scripts/pipeline/commands/migration/fix_grade_field_order.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -177,7 +177,7 @@ scripts:
     deprecated_since: null
     notes: "One-shot bulk repair: reorder grade frontmatter fields to canonical order"
 
-  - path: scripts/pipeline/check_grade_presence.py
+  - path: scripts/pipeline/commands/governance/check_grade_presence.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -193,7 +193,7 @@ scripts:
     deprecated_since: null
     notes: "CI: verify grades in frontmatter of modified files"
 
-  - path: scripts/pipeline/check_graded_at_only.py
+  - path: scripts/pipeline/commands/governance/check_graded_at_only.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -209,7 +209,7 @@ scripts:
     deprecated_since: null
     notes: "pre-commit hook Step 10 + S-76 Step B.4: classify staged or worktree .md files where only graded_at: changed; Case A = revert, B/C = pass, D = fail-closed"
 
-  - path: scripts/pipeline/check_knowledge_completeness.py
+  - path: scripts/pipeline/commands/knowledge/check_knowledge_completeness.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -224,7 +224,7 @@ scripts:
     deprecated_since: null
     notes: "called by refresh_knowledge.py:52; checks enrichment_ratio / snippet_ratio"
 
-  - path: scripts/pipeline/content_audit.py
+  - path: scripts/pipeline/commands/content/content_audit.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -241,7 +241,7 @@ scripts:
     change_impact: "HIGH: 5 mixed responsibilities; tier classification is load-bearing"
     notes: "semantic prose auditor; code blocks delegated to audit.py"
 
-  - path: scripts/pipeline/cross_platform_audit.py
+  - path: scripts/pipeline/commands/content/cross_platform_audit.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -256,7 +256,7 @@ scripts:
     deprecated_since: null
     notes: "cross-platform format-support consistency audit"
 
-  - path: scripts/pipeline/knowledge_coverage.py
+  - path: scripts/pipeline/commands/knowledge/knowledge_coverage.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -273,7 +273,7 @@ scripts:
     change_impact: null
     notes: "per-claim disposition table; 9-state taxonomy; writes reports/coverage/{family}/{platform}/"
 
-  - path: scripts/pipeline/dependency_resolver.py
+  - path: scripts/pipeline/lib/dependency_resolver.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -288,7 +288,7 @@ scripts:
     deprecated_since: null
     notes: "backtrack dependency graph; shared CONTRACT with backtrack_controller.py"
 
-  - path: scripts/pipeline/embed.py
+  - path: scripts/pipeline/commands/knowledge/embed.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -303,7 +303,7 @@ scripts:
     deprecated_since: null
     notes: "dual-tier embedding helper; modes: standard, gap-index, findings-index"
 
-  - path: scripts/pipeline/embed_knowledge.py
+  - path: scripts/pipeline/commands/knowledge/embed_knowledge.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -318,7 +318,7 @@ scripts:
     deprecated_since: null
     notes: "compatibility wrapper → embed.main()"
 
-  - path: scripts/pipeline/enrich.py
+  - path: scripts/pipeline/commands/knowledge/enrich.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -335,7 +335,7 @@ scripts:
     change_impact: "HIGH: LLM-dependent; dedupe/confidence logic is fragile"
     notes: "LLM-enriched claim generation from scout artifacts"
 
-  - path: scripts/pipeline/evidence_verifier.py
+  - path: scripts/pipeline/lib/evidence_verifier.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -352,7 +352,7 @@ scripts:
     change_impact: "4 direct consumers migrated to canonical imports (R-3b complete)"
     notes: "evidence frontmatter validation: verify_evidence — extracted from knowledge_core (R-3a); consumer migration complete (R-3b)"
 
-  - path: scripts/pipeline/index.py
+  - path: scripts/pipeline/commands/knowledge/index.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -368,7 +368,7 @@ scripts:
     requires_test: true
     notes: "knowledge truth index builder; computes api_confidence tier"
 
-  - path: scripts/pipeline/launch_gate.py
+  - path: scripts/pipeline/commands/launch/launch_gate.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -383,7 +383,7 @@ scripts:
     deprecated_since: null
     notes: "pre-launch readiness checker; 8 automated gates (L-01 through L-08)"
 
-  - path: scripts/pipeline/readiness_scorecard.py
+  - path: scripts/pipeline/commands/launch/readiness_scorecard.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -399,7 +399,7 @@ scripts:
     deprecated_since: null
     notes: "Stage 8 readiness scorecard for launch-product; collects grades and translation coverage"
 
-  - path: scripts/pipeline/readiness_gate.py
+  - path: scripts/pipeline/commands/launch/readiness_gate.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -414,7 +414,7 @@ scripts:
     deprecated_since: null
     notes: "TC-08 unified readiness gate: aggregates skill-sync, provider-sync, DAR, knowledge staleness, proof index, and launch-gate into one verdict"
 
-  - path: scripts/pipeline/human_review_sampler.py
+  - path: scripts/pipeline/commands/diagnostics/human_review_sampler.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -429,7 +429,7 @@ scripts:
     deprecated_since: null
     notes: "H-gate sampling and sign-off generation for human review gates H-01 through H-05"
 
-  - path: scripts/pipeline/link_validator.py
+  - path: scripts/pipeline/commands/ops/link_validator.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -445,7 +445,7 @@ scripts:
     deprecated_since: null
     notes: "cross-subdomain internal link validator"
 
-  - path: scripts/pipeline/no_downgrade_guard.py
+  - path: scripts/pipeline/commands/governance/no_downgrade_guard.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -460,7 +460,7 @@ scripts:
     deprecated_since: null
     notes: "pre-write grade downgrade protection; used by change_guard.py"
 
-  - path: scripts/pipeline/promote.py
+  - path: scripts/pipeline/commands/knowledge/promote.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -475,7 +475,7 @@ scripts:
     deprecated_since: null
     notes: "scout → merged knowledge promotion; replaces deleted merge.py"
 
-  - path: scripts/pipeline/refresh_knowledge.py
+  - path: scripts/pipeline/commands/knowledge/refresh_knowledge.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -492,7 +492,7 @@ scripts:
     change_impact: "HIGH: pipeline orchestrator; controls scout→enrich→promote→index sequencing"
     notes: "knowledge pipeline orchestrator; runs scout → enrich → promote → index"
 
-  - path: scripts/pipeline/refresh_review.py
+  - path: scripts/pipeline/commands/ops/refresh_review.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -508,7 +508,7 @@ scripts:
     deprecated_since: null
     notes: "record per-page BODY_UPDATED/EVIDENCE_ONLY/NOT_AFFECTED/RETIRED decisions; generate coverage_report.md; Step 13.5 of S-84"
 
-  - path: scripts/pipeline/regenerate_reference.py
+  - path: scripts/pipeline/commands/migration/regenerate_reference.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -523,7 +523,7 @@ scripts:
     deprecated_since: null
     notes: "regenerate reference pages from api_surface.json"
 
-  - path: scripts/pipeline/remediate.py
+  - path: scripts/pipeline/commands/content/remediate.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -538,7 +538,7 @@ scripts:
     deprecated_since: null
     notes: "batch content remediation; modes: triage, fix, report, status"
 
-  - path: scripts/pipeline/page_spec.py
+  - path: scripts/pipeline/commands/content/page_spec.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -555,7 +555,7 @@ scripts:
     change_impact: null
     notes: "PageSpec/SectionPlan/SitePlan dataclasses; bridges site_planner.py output to batch_reference.py input"
 
-  - path: scripts/pipeline/batch_reference.py
+  - path: scripts/pipeline/commands/content/batch_reference.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -573,7 +573,7 @@ scripts:
     change_impact: null
     notes: "batch reference page generation from api_surface.json; ERC-* claim fallback when doc empty; --update flag regenerates only classes in knowledge_delta.json modified_apis"
 
-  - path: scripts/pipeline/run_content_eval.py
+  - path: scripts/pipeline/commands/content/run_content_eval.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -589,7 +589,7 @@ scripts:
     change_impact: null
     notes: "thin wrapper entrypoint for content_eval; enables repo-root invocation without PYTHONPATH"
 
-  - path: scripts/pipeline/scout.py
+  - path: scripts/pipeline/commands/knowledge/scout.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -605,7 +605,7 @@ scripts:
     deprecated_since: null
     notes: "tree-sitter extraction shim from FOSS repos"
 
-  - path: scripts/pipeline/smoke_test.py
+  - path: scripts/pipeline/commands/diagnostics/smoke_test.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -620,7 +620,7 @@ scripts:
     deprecated_since: null
     notes: "code block syntax/type checker; never executes code"
 
-  - path: scripts/pipeline/page_impact_assess.py
+  - path: scripts/pipeline/commands/ops/page_impact_assess.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -636,7 +636,7 @@ scripts:
     deprecated_since: null
     notes: "PIA: score English pages HIGH/MEDIUM/NOT_AFFECTED vs knowledge delta signals; outputs reports/refresh_review/{family}/{platform}/page_impact.json; Step 3.5 of S-84"
 
-  - path: scripts/pipeline/stale_detect.py
+  - path: scripts/pipeline/commands/knowledge/stale_detect.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -651,7 +651,7 @@ scripts:
     deprecated_since: null
     notes: "detect pages with stale evidence relative to knowledge model"
 
-  - path: scripts/pipeline/sync_providers.py
+  - path: scripts/pipeline/commands/ops/sync_providers.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -666,7 +666,7 @@ scripts:
     deprecated_since: null
     notes: "propagate canonical skills/ to .agents/, .claude/commands/, .kilocode/ trees"
 
-  - path: scripts/pipeline/_skill_constants.py
+  - path: scripts/pipeline/lib/_skill_constants.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -681,7 +681,7 @@ scripts:
     deprecated_since: null
     notes: "Shared constants (INTERNAL_SKILLS frozenset) for sync_skills.py and sync_providers.py."
 
-  - path: scripts/pipeline/sync_skills.py
+  - path: scripts/pipeline/commands/ops/sync_skills.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -696,7 +696,7 @@ scripts:
     deprecated_since: null
     notes: "CI parity check: canonical skills/ must match all provider copies"
 
-  - path: scripts/pipeline/translation_coverage.py
+  - path: scripts/pipeline/commands/ops/translation_coverage.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -711,7 +711,7 @@ scripts:
     deprecated_since: null
     notes: "CI: measure translation coverage across all subdomains"
 
-  - path: scripts/pipeline/truth_audit.py
+  - path: scripts/pipeline/commands/diagnostics/truth_audit.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -726,7 +726,7 @@ scripts:
     deprecated_since: null
     notes: "member-level audit wrapper → audit.runner.audit_product()"
 
-  - path: scripts/pipeline/truth_audit_content.py
+  - path: scripts/pipeline/commands/diagnostics/truth_audit_content.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -743,7 +743,7 @@ scripts:
     change_impact: null
     notes: "S-85: line-level content truth audit; decomposes pages into units, verifies against clone cache + knowledge model"
 
-  - path: scripts/pipeline/update_product_registry.py
+  - path: scripts/pipeline/commands/ops/update_product_registry.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -759,7 +759,7 @@ scripts:
     deprecated_since: null
     notes: "update data/products.json from GitHub org and local knowledge dirs"
 
-  - path: scripts/pipeline/validate_frontmatter.py
+  - path: scripts/pipeline/commands/content/validate_frontmatter.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -776,7 +776,7 @@ scripts:
 
   # ── Tier 2 — Active libraries and diagnostics ───────────────────────────────
 
-  - path: scripts/pipeline/heal_controller.py
+  - path: scripts/pipeline/lib/heal_controller.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -792,7 +792,7 @@ scripts:
     deprecated_since: null
     notes: "healing pipeline orchestrator: triage → policy → grouping → dispatch → verify"
 
-  - path: scripts/pipeline/heal_policy.py
+  - path: scripts/pipeline/lib/heal_policy.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -808,7 +808,7 @@ scripts:
     deprecated_since: null
     notes: "policy table mapping issue class → heal mode + skill"
 
-  - path: scripts/pipeline/llm_router.py
+  - path: scripts/pipeline/lib/llm_router.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -824,7 +824,7 @@ scripts:
     deprecated_since: null
     notes: "shared LLM router with provider fallback chain; replaces per-module _llm_call()"
 
-  - path: scripts/pipeline/verify.py
+  - path: scripts/pipeline/commands/healing/verify.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -840,7 +840,7 @@ scripts:
     deprecated_since: null
     notes: "healing verification with regression detection (before/after finding comparison)"
 
-  - path: scripts/pipeline/check_locale_topology.py
+  - path: scripts/pipeline/commands/ops/check_locale_topology.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -855,7 +855,7 @@ scripts:
     deprecated_since: null
     notes: "compare H2 structure between English and locale files"
 
-  - path: scripts/pipeline/grade_manifest.py
+  - path: scripts/pipeline/lib/grade_manifest.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -870,7 +870,7 @@ scripts:
     deprecated_since: null
     notes: "ARCH-01: external grade manifest — stores per-page operational evaluation state outside .md files"
 
-  - path: scripts/pipeline/grade_writer.py
+  - path: scripts/pipeline/lib/grade_writer.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -886,7 +886,7 @@ scripts:
     deprecated_since: null
     notes: "read/write grade metadata in YAML frontmatter; style-preserving"
 
-  - path: scripts/pipeline/ground_check.py
+  - path: scripts/pipeline/commands/content/ground_check.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -900,7 +900,7 @@ scripts:
     deprecated_since: null
     notes: "S-23 grounding ratio gate — verifies backtick identifiers against api_surface.json"
 
-  - path: scripts/pipeline/triage_confirm.py
+  - path: scripts/pipeline/lib/triage_confirm.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -916,7 +916,7 @@ scripts:
     change_impact: null
     notes: "RH-201 Layer 2 triage — scans page body prose for stale API class or claim references; used by refresh pipeline to detect false-negative staleness"
 
-  - path: scripts/pipeline/reconcile_triage.py
+  - path: scripts/pipeline/lib/reconcile_triage.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -932,7 +932,7 @@ scripts:
     change_impact: null
     notes: "RH-203 3-source triage reconciliation — combines layer1_triage, layer2_triage, page_spec into final_verdict; conservative: any stale signal triggers needs_update"
 
-  - path: scripts/pipeline/content_discovery.py
+  - path: scripts/pipeline/lib/content_discovery.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -949,7 +949,7 @@ scripts:
     change_impact: "9 indirect consumers migrated to canonical imports (R-1b complete)"
     notes: "content file discovery: discover_content, discover_products, infer_product — extracted from knowledge_core (R-1a); consumer migration complete (R-1b)"
 
-  - path: scripts/pipeline/knowledge_core.py
+  - path: scripts/pipeline/lib/knowledge_core.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -970,7 +970,7 @@ scripts:
   - path: scripts/pipeline/core/knowledge.py
     kind: shim
     lifecycle: active
-    canonical_impl_path: scripts/pipeline/knowledge_core.py
+    canonical_impl_path: scripts/pipeline/lib/knowledge_core.py
     public_entrypoint: false
     cli_contract: none
     owner_domain: knowledge-infrastructure
@@ -984,7 +984,7 @@ scripts:
     change_impact: "backward-compat re-export shim; update if any canonical module moves a symbol"
     notes: "re-exports 12 symbols from knowledge_core, content_discovery, evidence_verifier, core.markdown; zero production callers as of R-4"
 
-  - path: scripts/pipeline/manual_edit_helpers.py
+  - path: scripts/pipeline/lib/manual_edit_helpers.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -999,7 +999,7 @@ scripts:
     deprecated_since: null
     notes: "helpers for S-73 manual-edit skill; section detection, scope validation"
 
-  - path: scripts/pipeline/org_scanner.py
+  - path: scripts/pipeline/lib/org_scanner.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -1015,7 +1015,7 @@ scripts:
     deprecated_since: null
     notes: "GitHub org scanner; used by update_product_registry.py"
 
-  - path: scripts/pipeline/repo_patrol.py
+  - path: scripts/pipeline/commands/diagnostics/repo_patrol.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1032,7 +1032,7 @@ scripts:
     change_impact: null
     notes: "S-93/S-94: repo discovery scan, change sweep, combined reporting; subcommands: scan, sweep, report"
 
-  - path: scripts/pipeline/path_utils.py
+  - path: scripts/pipeline/lib/path_utils.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -1047,7 +1047,7 @@ scripts:
     deprecated_since: null
     notes: "shared path rendering utilities; provides repo_rel()"
 
-  - path: scripts/pipeline/provenance.py
+  - path: scripts/pipeline/lib/provenance.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -1062,7 +1062,7 @@ scripts:
     deprecated_since: null
     notes: "read/write provenance metadata in YAML frontmatter"
 
-  - path: scripts/pipeline/section_enhance_validator.py
+  - path: scripts/pipeline/lib/section_enhance_validator.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -1078,7 +1078,7 @@ scripts:
     deprecated_since: null
     notes: "S-96 Phase 1 audit output validator: artifact completeness, manifest schema, adapter isolation, no-write detection, zero-proposal acceptance, slug validation"
 
-  - path: scripts/pipeline/session_logger.py
+  - path: scripts/pipeline/commands/ops/session_logger.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -1093,7 +1093,7 @@ scripts:
     deprecated_since: null
     notes: "log skill invocations to reports/session-invocations/"
 
-  - path: scripts/pipeline/token_ops.py
+  - path: scripts/pipeline/lib/token_ops.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -1108,7 +1108,7 @@ scripts:
     deprecated_since: null
     notes: "token extraction and verification against knowledge API surface"
 
-  - path: scripts/pipeline/validate_product_yaml.py
+  - path: scripts/pipeline/commands/content/validate_product_yaml.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1123,7 +1123,7 @@ scripts:
     deprecated_since: null
     notes: "CI gate: check garbled code blocks and non-literal multi-line scalars"
 
-  - path: scripts/pipeline/validate_plugin_structure.py
+  - path: scripts/pipeline/commands/content/validate_plugin_structure.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1138,7 +1138,7 @@ scripts:
     deprecated_since: null
     notes: "Structural gate for layout: plugin product pages — checks BODY_LEAK, MISSING_KEY, MISSING_ENABLE"
 
-  - path: scripts/pipeline/complete_plugin_structure.py
+  - path: scripts/pipeline/commands/migration/complete_plugin_structure.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1155,7 +1155,7 @@ scripts:
 
   # ── Tier 3 — Governance tools (do NOT move or rename) ──────────────────────
 
-  - path: scripts/pipeline/override_manager.py
+  - path: scripts/pipeline/commands/governance/override_manager.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1171,7 +1171,7 @@ scripts:
     deprecated_since: null
     notes: "GOVERNANCE: override token lifecycle; DO NOT MOVE OR RENAME"
 
-  - path: scripts/pipeline/path_guard.py
+  - path: scripts/pipeline/commands/governance/path_guard.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1186,7 +1186,7 @@ scripts:
     deprecated_since: null
     notes: "GOVERNANCE: forbidden write-path enforcement oracle; DO NOT MOVE OR RENAME"
 
-  - path: scripts/pipeline/plan_check.py
+  - path: scripts/pipeline/commands/launch/plan_check.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1202,7 +1202,7 @@ scripts:
     deprecated_since: null
     notes: "GOVERNANCE: validate slug exists in site plan before content write"
 
-  - path: scripts/pipeline/project_phase_store.py
+  - path: scripts/pipeline/commands/ops/project_phase_store.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1217,7 +1217,7 @@ scripts:
     deprecated_since: null
     notes: "GOVERNANCE: checkpoint store for launch orchestration; DO NOT MOVE OR RENAME"
 
-  - path: scripts/pipeline/site_planner.py
+  - path: scripts/pipeline/commands/launch/site_planner.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1234,7 +1234,7 @@ scripts:
     change_impact: "MEDIUM: 1756 lines; cluster detection mixed with manifest generation; deferred refactor"
     notes: "GOVERNANCE: site manifest generator; DO NOT MOVE OR RENAME"
 
-  - path: scripts/pipeline/seed_grade_manifest.py
+  - path: scripts/pipeline/commands/migration/seed_grade_manifest.py
     kind: one-shot
     lifecycle: active
     canonical_impl_path: null
@@ -1249,7 +1249,7 @@ scripts:
     deprecated_since: null
     notes: "ARCH-05: one-time seeding of grade_manifest.json from existing frontmatter"
 
-  - path: scripts/pipeline/migrate_strip_operational_frontmatter.py
+  - path: scripts/pipeline/commands/migration/migrate_strip_operational_frontmatter.py
     kind: one-shot
     lifecycle: active
     canonical_impl_path: null
@@ -1264,7 +1264,7 @@ scripts:
     deprecated_since: null
     notes: "MIG-01: strip operational grade fields from .md frontmatter (Wave 5 migration)"
 
-  - path: scripts/pipeline/session_ledger.py
+  - path: scripts/pipeline/commands/ops/session_ledger.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1279,7 +1279,7 @@ scripts:
     deprecated_since: null
     notes: "GOVERNANCE: session-scoped file touch ledger for /commit scoping"
 
-  - path: scripts/pipeline/report_extract.py
+  - path: scripts/pipeline/commands/ops/report_extract.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1295,7 +1295,7 @@ scripts:
     deprecated_since: null
     notes: "extract open/unresolved items from markdown reports for backlog harvest"
 
-  - path: scripts/pipeline/harvest_ledger.py
+  - path: scripts/pipeline/commands/ops/harvest_ledger.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1311,7 +1311,7 @@ scripts:
     deprecated_since: null
     notes: "harvest ledger CRUD — tracks report items processed into backlog"
 
-  - path: scripts/pipeline/skill_run_manager.py
+  - path: scripts/pipeline/commands/ops/skill_run_manager.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1326,7 +1326,7 @@ scripts:
     deprecated_since: null
     notes: "GOVERNANCE: skill run record management; DO NOT MOVE OR RENAME"
 
-  - path: scripts/pipeline/preflight.py
+  - path: scripts/pipeline/commands/launch/preflight.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1342,7 +1342,7 @@ scripts:
     deprecated_since: null
     notes: "GOVERNANCE: universal pre-write preflight check; agent-agnostic enforcement"
 
-  - path: scripts/pipeline/skill_context.py
+  - path: scripts/pipeline/commands/governance/skill_context.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -1360,7 +1360,7 @@ scripts:
 
   # ── Tier 4 — Kilocode provider integration (→ Phase C deferred) ────────────
 
-  - path: scripts/pipeline/kilocode_compliance.py
+  - path: scripts/pipeline/lib/kilocode_compliance.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -1375,7 +1375,7 @@ scripts:
     deprecated_since: null
     notes: "compliance tracking for Kilo Code provider; Track B Phase C candidate"
 
-  - path: scripts/pipeline/kilocode_gate.py
+  - path: scripts/pipeline/commands/kilocode/kilocode_gate.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1390,7 +1390,7 @@ scripts:
     deprecated_since: null
     notes: "Kilo Code gate: enforce skill-first execution; Track B Phase C candidate"
 
-  - path: scripts/pipeline/kilocode_learning.py
+  - path: scripts/pipeline/commands/migration/kilocode_learning.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1405,7 +1405,7 @@ scripts:
     deprecated_since: null
     notes: "violation-driven learning for Kilo Code; Track B Phase C candidate"
 
-  - path: scripts/pipeline/kilocode_postcheck.py
+  - path: scripts/pipeline/commands/kilocode/kilocode_postcheck.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1420,7 +1420,7 @@ scripts:
     deprecated_since: null
     notes: "post-execution check for Kilo Code; Track B Phase C candidate"
 
-  - path: scripts/pipeline/kilocode_skill_chain.py
+  - path: scripts/pipeline/commands/kilocode/kilocode_skill_chain.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1435,7 +1435,7 @@ scripts:
     deprecated_since: null
     notes: "skill chain orchestration for Kilo Code; Track B Phase C candidate"
 
-  - path: scripts/pipeline/kilocode_skill_validator.py
+  - path: scripts/pipeline/commands/kilocode/kilocode_skill_validator.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1452,7 +1452,7 @@ scripts:
 
   # ── Tier 5 — One-time / maintenance utilities ───────────────────────────────
 
-  - path: scripts/pipeline/apply_origin_decisions.py
+  - path: scripts/pipeline/commands/migration/apply_origin_decisions.py
     kind: one-shot
     lifecycle: maintenance
     canonical_impl_path: null
@@ -1467,7 +1467,7 @@ scripts:
     deprecated_since: null
     notes: "apply content_origin field decisions from review records"
 
-  - path: scripts/pipeline/audit_content_created_at.py
+  - path: scripts/pipeline/commands/content/audit_content_created_at.py
     kind: one-shot
     lifecycle: maintenance
     canonical_impl_path: null
@@ -1482,7 +1482,7 @@ scripts:
     deprecated_since: null
     notes: "audit created_at field against actual file/git timestamps"
 
-  - path: scripts/pipeline/audit_content_hash.py
+  - path: scripts/pipeline/commands/content/audit_content_hash.py
     kind: one-shot
     lifecycle: maintenance
     canonical_impl_path: null
@@ -1497,7 +1497,7 @@ scripts:
     deprecated_since: null
     notes: "report files where stored content_hash != computed hash"
 
-  - path: scripts/pipeline/audit_content_origin.py
+  - path: scripts/pipeline/commands/content/audit_content_origin.py
     kind: one-shot
     lifecycle: maintenance
     canonical_impl_path: null
@@ -1512,7 +1512,7 @@ scripts:
     deprecated_since: null
     notes: "audit content_origin classification across all content files"
 
-  - path: scripts/pipeline/cleanup_reviewed_field.py
+  - path: scripts/pipeline/commands/migration/cleanup_reviewed_field.py
     kind: one-shot
     lifecycle: maintenance
     canonical_impl_path: null
@@ -1527,7 +1527,7 @@ scripts:
     deprecated_since: null
     notes: "remove deprecated 'reviewed' field from provenance blocks"
 
-  - path: scripts/pipeline/content_created_at_backfill.py
+  - path: scripts/pipeline/commands/content/content_created_at_backfill.py
     kind: one-shot
     lifecycle: maintenance
     canonical_impl_path: null
@@ -1542,7 +1542,7 @@ scripts:
     deprecated_since: null
     notes: "backfill created_at timestamps for pages missing the field"
 
-  - path: scripts/pipeline/content_hash_backfill.py
+  - path: scripts/pipeline/commands/content/content_hash_backfill.py
     kind: one-shot
     lifecycle: maintenance
     canonical_impl_path: null
@@ -1557,7 +1557,7 @@ scripts:
     deprecated_since: null
     notes: "backfill content_hash values for pages missing the field"
 
-  - path: scripts/pipeline/content_origin_recover.py
+  - path: scripts/pipeline/commands/content/content_origin_recover.py
     kind: one-shot
     lifecycle: maintenance
     canonical_impl_path: null
@@ -1572,7 +1572,7 @@ scripts:
     deprecated_since: null
     notes: "recover content_origin from signals; has local _FRONTMATTER_RE (consolidate A2)"
 
-  - path: scripts/pipeline/fix_last_mechanism.py
+  - path: scripts/pipeline/commands/migration/fix_last_mechanism.py
     kind: one-shot
     lifecycle: maintenance
     canonical_impl_path: null
@@ -1587,7 +1587,7 @@ scripts:
     deprecated_since: null
     notes: "repair stale last_mechanism values in provenance blocks"
 
-  - path: scripts/pipeline/logic_version_backfill.py
+  - path: scripts/pipeline/commands/migration/logic_version_backfill.py
     kind: one-shot
     lifecycle: maintenance
     canonical_impl_path: null
@@ -1602,7 +1602,7 @@ scripts:
     deprecated_since: null
     notes: "backfill graded_logic_version in provenance blocks"
 
-  - path: scripts/pipeline/normalize_yaml_style.py
+  - path: scripts/pipeline/commands/migration/normalize_yaml_style.py
     kind: one-shot
     lifecycle: maintenance
     canonical_impl_path: null
@@ -1617,7 +1617,7 @@ scripts:
     deprecated_since: null
     notes: "normalize YAML formatting; uses strict frontmatter variant (see Phase A2b)"
 
-  - path: scripts/pipeline/provenance_backfill.py
+  - path: scripts/pipeline/commands/migration/provenance_backfill.py
     kind: one-shot
     lifecycle: maintenance
     canonical_impl_path: null
@@ -1632,7 +1632,7 @@ scripts:
     deprecated_since: null
     notes: "idempotent provenance block backfill for English pages"
 
-  - path: scripts/pipeline/provenance_normalize_hash.py
+  - path: scripts/pipeline/commands/diagnostics/provenance_normalize_hash.py
     kind: one-shot
     lifecycle: maintenance
     canonical_impl_path: null
@@ -1647,7 +1647,7 @@ scripts:
     deprecated_since: null
     notes: "normalize content_hash format in provenance blocks"
 
-  - path: scripts/pipeline/source_sha_backfill.py
+  - path: scripts/pipeline/commands/migration/source_sha_backfill.py
     kind: one-shot
     lifecycle: maintenance
     canonical_impl_path: null
@@ -1662,7 +1662,7 @@ scripts:
     deprecated_since: null
     notes: "backfill source_sha in translation provenance blocks"
 
-  - path: scripts/pipeline/structural_lock.py
+  - path: scripts/pipeline/commands/governance/structural_lock.py
     kind: one-shot
     lifecycle: maintenance
     canonical_impl_path: null
@@ -1679,7 +1679,7 @@ scripts:
 
   # ── Tier 7 — Standalone ops (→ Phase D deferred) ───────────────────────────
 
-  - path: scripts/pipeline/expand_cpp_stubs.py
+  - path: scripts/pipeline/commands/knowledge/expand_cpp_stubs.py
     kind: one-shot
     lifecycle: maintenance
     canonical_impl_path: null
@@ -1694,7 +1694,7 @@ scripts:
     deprecated_since: null
     notes: "expand C++ stub definitions; Track B Phase D candidate"
 
-  - path: scripts/pipeline/launch_rollback.py
+  - path: scripts/pipeline/commands/launch/launch_rollback.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1711,7 +1711,7 @@ scripts:
     change_impact: null
     notes: "S-79: revert one product's generated content files after a flawed launch; reads site_plan.yaml; protects system files"
 
-  - path: scripts/pipeline/post_refresh_verify.py
+  - path: scripts/pipeline/commands/ops/post_refresh_verify.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1728,7 +1728,7 @@ scripts:
     change_impact: null
     notes: "post-refresh verification gate and pipeline progress tracker; --step records steps, --verify gates on required checks"
 
-  - path: scripts/pipeline/retire_page.py
+  - path: scripts/pipeline/commands/healing/retire_page.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1745,7 +1745,7 @@ scripts:
     change_impact: null
     notes: "mark content pages as retired via draft:true + retired_at frontmatter; batch mode reads site_plan.yaml; does not delete files"
 
-  - path: scripts/pipeline/description_coverage_audit.py
+  - path: scripts/pipeline/commands/diagnostics/description_coverage_audit.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1761,7 +1761,7 @@ scripts:
     change_impact: null
     notes: "per-product ERC api-kind member-doc coverage audit; scans claims.json vs api_surface.json; emits stdout table + knowledge/description_coverage_report.json; exit 1 if any product below --min-coverage threshold"
 
-  - path: scripts/pipeline/fix_ta_access.py
+  - path: scripts/pipeline/commands/migration/fix_ta_access.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1796,7 +1796,7 @@ scripts:
     change_impact: null
     notes: "shared path/config/env bootstrap for all pipeline commands"
 
-  - path: scripts/pipeline/write_classifier.py
+  - path: scripts/pipeline/commands/launch/write_classifier.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null

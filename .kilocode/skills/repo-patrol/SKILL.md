@@ -32,7 +32,7 @@ added to the 26 Aspose GitHub organisations.
 
 1. Run the patrol scan:
    ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/repo_patrol.py scan
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/diagnostics/repo_patrol.py scan
    ```
    - Default: dry-run (produces report only, does not modify data/products.json)
    - With --apply: also writes discovered candidates to data/products.json
@@ -45,7 +45,7 @@ added to the 26 Aspose GitHub organisations.
    ```
    Or generate the markdown summary:
    ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/repo_patrol.py report
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/diagnostics/repo_patrol.py report
    cat reports/discovery/combined_report.md
    ```
 

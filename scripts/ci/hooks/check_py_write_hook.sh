@@ -20,7 +20,7 @@
 # Wiring (in .claude/settings.json):
 #   {
 #     "matcher": "Write",
-#     "hooks": [{"type": "command", "command": "bash scripts/ci/check_py_write_hook.sh"}]
+#     "hooks": [{"type": "command", "command": "bash scripts/ci/hooks/check_py_write_hook.sh"}]
 #   }
 
 set -euo pipefail
@@ -32,7 +32,7 @@ fi
 
 # Determine repo root from script location (scripts/ci/ — two levels up)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Resolve Python via shared resolver (venv-only, no python3 fallback — DR-01)
 source "$(dirname "${BASH_SOURCE[0]}")/find_python.sh" || true
@@ -96,7 +96,7 @@ fi
 # Run the placement check in --propose mode.
 # Use set +e to capture exit code safely — set -e would abort immediately on non-zero.
 set +e
-"$PYTHON" "$REPO_ROOT/scripts/ci/check_python_placement.py" --propose "$FILE_PATH" >&2
+"$PYTHON" "$REPO_ROOT/scripts/ci/checks/check_python_placement.py" --propose "$FILE_PATH" >&2
 EXIT_CODE=$?
 set -e
 

@@ -20,7 +20,7 @@
 # Compute repo root from THIS script's location (scripts/ci/ — two levels up).
 # BASH_SOURCE[0] is find_python.sh itself when sourced — independent of the caller.
 _FP_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-_FP_REPO_ROOT="$(cd "$_FP_SCRIPT_DIR/../.." && pwd)"
+_FP_REPO_ROOT="$(cd "$_FP_SCRIPT_DIR/../../.." && pwd)"
 
 PYTHON=""
 

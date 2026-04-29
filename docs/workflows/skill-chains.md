@@ -59,7 +59,7 @@ S-12 (knowledge-diff — detect + fetch)       [exits early if no SHA change]
 ```
 
 Progress is tracked at `reports/refresh_state/{family}/{platform}/progress.json`.
-Check status: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --status`
+Check status: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --status`
 
 > **Refresh is complete only when** `reports/refresh_review/{family}/{platform}/coverage_report.md`
 > shows all 5 subdomains with `assessed > 0` and `post_refresh_verify --verify` exits 0 (Check 6).
@@ -115,8 +115,8 @@ S-25 (eval-page) → S-26 (heal-page) → S-23 → S-25 → S-01 → write (or e
 
 ### 6d. Heal-Enabled Policy Table
 
-The healing automation system (`scripts/pipeline/heal_controller.py`) uses a
-policy table (`scripts/pipeline/heal_policy.py`) to route triaged findings to
+The healing automation system (`scripts/pipeline/lib/heal_controller.py`) uses a
+policy table (`scripts/pipeline/lib/heal_policy.py`) to route triaged findings to
 the correct healing strategy. This section documents the binding between
 evaluation findings and healing actions.
 

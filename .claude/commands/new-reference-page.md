@@ -36,7 +36,7 @@ Before generating any content, you MUST:
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-60 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-60 --scope "*"
 > ```
 
 
@@ -163,7 +163,7 @@ Before generating any content, you MUST:
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-60 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-60 --status completed
 > ```
 
 ## Platform-Specific Rendering Rules
@@ -211,10 +211,10 @@ Do not omit stub methods from the reference page — document them with the call
 
 After generating the reference page:
 
-1. **Attach evidence**: Run `python scripts/pipeline/attach_evidence.py --files content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md`
+1. **Attach evidence**: Run `python scripts/pipeline/commands/healing/attach_evidence.py --files content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md`
    — this writes the `evidence:` YAML frontmatter block (`model_sha`, `claims`, `apis`).
 2. **Run content check**: Execute `/content-check content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md` to validate structure and knowledge alignment
-3. **Run audit**: `python scripts/pipeline/audit.py --files content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md`
+3. **Run audit**: `python scripts/pipeline/commands/content/audit.py --files content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md`
    — must exit with 0 FAIL before committing.
 
 7. **Confirm** with the output path and a count of properties and methods documented.

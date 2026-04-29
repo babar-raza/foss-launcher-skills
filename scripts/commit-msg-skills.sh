@@ -57,7 +57,7 @@ if ! echo "$msg" | grep -qiE 'skills?\s*invoked'; then
 fi
 
 # Step 2: Validate that listed S-{n} IDs exist in the AGENTS.md §12 registry
-echo "$msg" | python scripts/ci/validate_skill_ids.py --stdin
+echo "$msg" | python scripts/ci/checks/validate_skill_ids.py --stdin
 if [ $? -ne 0 ]; then
     echo ""
     echo "BLOCKED: Content commit denied — invalid skill IDs."
@@ -72,17 +72,17 @@ fi
 # Step 3: Validate declared skills against pending skill run record (BLOCKING).
 # No bypass path — all content commits must have a matching skill run record.
 
-PENDING_RUN=$(python scripts/pipeline/skill_run_manager.py find-pending 2>/dev/null)
+PENDING_RUN=$(python scripts/pipeline/commands/ops/skill_run_manager.py find-pending 2>/dev/null)
 if [ -n "$PENDING_RUN" ]; then
     declared=$(echo "$msg" | grep -iE 'skills?\s*invoked' | sed 's/.*[Ss]kills\s*[Ii]nvoked[: ]*//' | tr -d '[]')
-    validation_result=$(python scripts/pipeline/skill_run_manager.py validate \
+    validation_result=$(python scripts/pipeline/commands/ops/skill_run_manager.py validate \
         --run-id "$PENDING_RUN" --declared "$declared" 2>&1)
     validation_exit=$?
     if [ $validation_exit -ne 0 ]; then
         echo ""
         echo "BLOCKED: Content commit denied — skills do not match run record."
         echo "REASON:  Declared skills do not match skill run record $PENDING_RUN."
-        echo "FIX:     Run: python scripts/pipeline/skill_run_manager.py get-declared-skills --run-id $PENDING_RUN"
+        echo "FIX:     Run: python scripts/pipeline/commands/ops/skill_run_manager.py get-declared-skills --run-id $PENDING_RUN"
         echo "BYPASS:  SKIP_SKILL_COMMIT_CHECK=1 + GOV_BYPASS_TASKCARD + GOV_BYPASS_REASON"
         echo "DOC:     AGENTS.md §10"
         echo ""

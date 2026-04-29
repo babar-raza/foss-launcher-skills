@@ -29,7 +29,7 @@ Omit `{site}` or use `all` to process all supported sites. Omit `{locales}` or u
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-53 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-53 --scope "*"
 > ```
 
 
@@ -70,7 +70,7 @@ Omit `{site}` or use `all` to process all supported sites. Omit `{locales}` or u
 5. **Structural completion (product pages only)**: For every translated file under
    `content/products.aspose.org/`, run:
    ```bash
-   .venv/Scripts/python scripts/pipeline/complete_plugin_structure.py --files {translated_file}
+   .venv/Scripts/python scripts/pipeline/commands/migration/complete_plugin_structure.py --files {translated_file}
    ```
    This inserts missing display-control sections (`supportandlearning`, `more_formats`,
    `back_to_top`) that the translator preserves-if-present but cannot generate when the
@@ -127,7 +127,7 @@ Omit `{site}` or use `all` to process all supported sites. Omit `{locales}` or u
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-53 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-53 --status completed
 > ```
 
 ## Post-conditions

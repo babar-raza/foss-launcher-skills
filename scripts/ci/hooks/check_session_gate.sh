@@ -6,7 +6,7 @@
 #
 # Behavior:
 #   - Exempts the Read tool (read-only; required for AGENTS.md during bootstrap)
-#   - Exempts the exact bootstrap command: bash scripts/ci/bootstrap_session_gate.sh
+#   - Exempts the exact bootstrap command: bash scripts/ci/hooks/bootstrap_session_gate.sh
 #   - For all other tools: requires .claude/.agents_read to exist (session bootstrapped)
 #   - Empty/missing input: fail-open (exit 0) — bootstrap deadlock prevention (DR-03)
 #   - Malformed non-empty JSON: fail-closed (exit 2) regardless of gate state
@@ -34,9 +34,9 @@ if [ "${SKIP_SESSION_GATE_CHECK:-0}" = "1" ]; then
     exit 0
 fi
 
-# Determine repo root from script location (scripts/ci/ — two levels up)
+# Determine repo root from script location (scripts/ci/hooks/ — three levels up)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Gate file path: production uses repo default; SESSION_GATE_OVERRIDE redirects to a
 # caller-supplied path (used by tests to avoid touching the live .claude/.agents_read)
@@ -98,7 +98,7 @@ if [ -z "$PARSE_RESULT" ]; then
     else
         _gov_block "Tool call denied — session not bootstrapped." \
             ".claude/.agents_read gate file is missing." \
-            "Run /session-start or: bash scripts/ci/bootstrap_session_gate.sh" \
+            "Run /session-start or: bash scripts/ci/hooks/bootstrap_session_gate.sh" \
             "SKIP_SESSION_GATE_CHECK=1" \
             "AGENTS.md §3 (Session Start)"
     fi
@@ -125,8 +125,8 @@ if [ "$TOOL_NAME" = "Read" ]; then
 fi
 
 # 2. Exact bootstrap command: exempt
-# Accepts: bash scripts/ci/bootstrap_session_gate.sh
-#          bash ./scripts/ci/bootstrap_session_gate.sh
+# Accepts: bash scripts/ci/hooks/bootstrap_session_gate.sh
+#          bash ./scripts/ci/hooks/bootstrap_session_gate.sh
 # Rejects: compound commands, quoted paths, path traversal
 if [ "$TOOL_NAME" = "Bash" ] && [ -n "$COMMAND" ]; then
     BOOTSTRAP_MATCH=$(printf '%s' "$COMMAND" | "$PYTHON" -c "
@@ -162,7 +162,7 @@ fi
 if [ ! -f "$GATE_FILE" ]; then
     _gov_block "Tool call denied — session not bootstrapped." \
         ".claude/.agents_read gate file is missing." \
-        "Run /session-start or: bash scripts/ci/bootstrap_session_gate.sh" \
+        "Run /session-start or: bash scripts/ci/hooks/bootstrap_session_gate.sh" \
         "SKIP_SESSION_GATE_CHECK=1" \
         "AGENTS.md §3 (Session Start)"
 fi

@@ -36,6 +36,9 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from core.fs import atomic_write  # noqa: E402
+_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 from knowledge_core import Knowledge  # noqa: E402
 REPO_ROOT = SCRIPT_DIR.parent.parent  # scripts/pipeline/ -> scripts/ -> repo root
 

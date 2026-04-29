@@ -27,7 +27,7 @@ capabilities, and rewrites the three text fields to be platform-agnostic.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-48 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-48 --scope "*"
 > ```
 
 
@@ -38,12 +38,12 @@ capabilities, and rewrites the three text fields to be platform-agnostic.
 5. **Rewrite** `head_description`, `description`, `overview.content` using shared claims and platform list
 6. **No-downgrade guard** — invoke before write; halt on BLOCK
 7. **Write** updated `_index.md` — use read-modify-write via `yaml.safe_load` + `yaml.dump`; wrap `overview.content` in a `_Literal` helper before serializing so `yaml.dump` emits it as a `|` block scalar; reconstruct as `"---\n{serialized_fm}---\n\n{body}"` ending with `\n`; never prepend a new FM block to the existing file (causes double frontmatter); verify single FM block after write
-8. **Attach evidence** — `python scripts/pipeline/attach_evidence.py --files {path}`
-9. **Audit** — `python scripts/pipeline/audit.py --files {path}` — must exit 0 FAIL
+8. **Attach evidence** — `python scripts/pipeline/commands/healing/attach_evidence.py --files {path}`
+9. **Audit** — `python scripts/pipeline/commands/content/audit.py --files {path}` — must exit 0 FAIL
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-48 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-48 --status completed
 > ```
 
 ## Hard Constraints

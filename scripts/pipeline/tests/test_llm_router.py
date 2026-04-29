@@ -12,8 +12,7 @@ from unittest.mock import MagicMock, patch, PropertyMock
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from llm_router import (
+from commands.ops.llm_router import (
     LLMRouter,
     EndpointStatus,
     CallResult,
@@ -143,7 +142,7 @@ class TestRegistryLoading:
 class TestCallChatHappy:
     def test_primary_200_returns_ok(self, router):
         mock_resp = _mock_chat_response('{"answer": "hello"}')
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.post.return_value = mock_resp
             mock_req.exceptions = __import__("requests").exceptions
             result = router.call_chat("system", "user")
@@ -157,7 +156,7 @@ class TestCallChatHappy:
 
     def test_json_array_extraction(self, router):
         mock_resp = _mock_chat_response('[{"a": 1}, {"b": 2}]')
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.post.return_value = mock_resp
             mock_req.exceptions = __import__("requests").exceptions
             result = router.call_chat("system", "user", json_array=True)
@@ -168,7 +167,7 @@ class TestCallChatHappy:
 
     def test_no_json_extract(self, router):
         mock_resp = _mock_chat_response("Just plain text response")
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.post.return_value = mock_resp
             mock_req.exceptions = __import__("requests").exceptions
             result = router.call_chat("system", "user", json_extract=False)
@@ -186,7 +185,7 @@ class TestCallChatMissingKey:
         mock_resp = _mock_chat_response('{"answer": "from ollama"}')
         with patch.dict(os.environ, {"PROFESSIONALIZE_API_KEY": ""}, clear=False):
             router = LLMRouter(registry_path=registry_path)
-            with patch("llm_router.requests") as mock_req:
+            with patch("commands.ops.llm_router.requests") as mock_req:
                 mock_req.post.return_value = mock_resp
                 mock_req.exceptions = __import__("requests").exceptions
                 result = router.call_chat("system", "user")
@@ -210,7 +209,7 @@ class TestCallChatAuthFailed:
 
         resp_ok = _mock_chat_response('{"answer": "fallback"}')
 
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.post.side_effect = [resp_401, resp_ok]
             mock_req.exceptions = __import__("requests").exceptions
             result = router.call_chat("system", "user")
@@ -226,7 +225,7 @@ class TestCallChatAuthFailed:
 
         resp_ok = _mock_chat_response('{"answer": "fallback"}')
 
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.post.side_effect = [resp_403, resp_ok]
             mock_req.exceptions = __import__("requests").exceptions
             result = router.call_chat("system", "user")
@@ -245,7 +244,7 @@ class TestCallChatUnreachable:
 
         resp_ok = _mock_chat_response('{"answer": "fallback"}')
 
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.post.side_effect = [
                 real_requests.exceptions.ConnectionError("Connection refused"),
                 resp_ok,
@@ -262,7 +261,7 @@ class TestCallChatUnreachable:
 
         resp_ok = _mock_chat_response('{"answer": "fallback"}')
 
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.post.side_effect = [
                 real_requests.exceptions.Timeout("Read timed out"),
                 resp_ok,
@@ -282,7 +281,7 @@ class TestCallChatBothFail:
     def test_both_unreachable(self, router):
         import requests as real_requests
 
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.post.side_effect = real_requests.exceptions.ConnectionError(
                 "Connection refused"
             )
@@ -294,7 +293,7 @@ class TestCallChatBothFail:
         assert result.provider == "professionalize"
 
     def test_no_requests_library(self, router):
-        with patch("llm_router.requests", None):
+        with patch("commands.ops.llm_router.requests", None):
             result = router.call_chat("system", "user")
 
         assert result.status == EndpointStatus.NOT_CONFIGURED
@@ -309,7 +308,7 @@ class TestCallEmbeddingsHappy:
     def test_4096_dim_ok(self, router):
         vectors = [[0.1] * 4096, [0.2] * 4096]
         mock_resp = _mock_embed_response(vectors)
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.post.return_value = mock_resp
             mock_req.exceptions = __import__("requests").exceptions
             result = router.call_embeddings(["text1", "text2"])
@@ -333,7 +332,7 @@ class TestCallEmbeddingsDimensionMismatch:
         vectors_ok = [[0.3] * 768, [0.4] * 768]
         mock_resp_ok = _mock_embed_response(vectors_ok)
 
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.post.side_effect = [mock_resp_bad, mock_resp_ok]
             mock_req.exceptions = __import__("requests").exceptions
             result = router.call_embeddings(["text1", "text2"])
@@ -357,7 +356,7 @@ class TestProviderOrder:
             resp = _mock_chat_response('{"ok": true}')
             return resp
 
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.post.side_effect = track_calls
             mock_req.exceptions = __import__("requests").exceptions
             router.call_chat("system", "user")
@@ -374,7 +373,7 @@ class TestProbe:
     def test_probe_ok(self, router):
         mock_resp = MagicMock()
         mock_resp.status_code = 200
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.post.return_value = mock_resp
             mock_req.exceptions = __import__("requests").exceptions
             results = router.probe()
@@ -385,7 +384,7 @@ class TestProbe:
     def test_probe_filter(self, router):
         mock_resp = MagicMock()
         mock_resp.status_code = 200
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.post.return_value = mock_resp
             mock_req.exceptions = __import__("requests").exceptions
             results = router.probe(provider_filter="professionalize")
@@ -452,7 +451,7 @@ class TestOllamaDiscovery:
                 {"name": "llama3.1:latest", "size": 3000000000},
             ]
         }
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.get.return_value = tags_resp
             mock_req.exceptions = __import__("requests").exceptions
             models = router_no_key.discover_ollama_models()
@@ -467,7 +466,7 @@ class TestOllamaDiscovery:
         tags_resp.json.return_value = {
             "models": [{"name": "llama3.1:latest", "size": 3000000000}]
         }
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.get.return_value = tags_resp
             mock_req.exceptions = __import__("requests").exceptions
             models = router_no_key.discover_ollama_models()
@@ -479,7 +478,7 @@ class TestOllamaDiscovery:
         tags_resp.json.return_value = {
             "models": [{"name": "qwen2.5:14b", "size": 8000000000}]
         }
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.get.return_value = tags_resp
             mock_req.exceptions = __import__("requests").exceptions
             models = router_no_key.discover_ollama_models()
@@ -487,7 +486,7 @@ class TestOllamaDiscovery:
 
     def test_discovery_timeout_returns_empty(self, router_no_key):
         import requests as real_requests
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.get.side_effect = real_requests.exceptions.Timeout("timeout")
             mock_req.exceptions = real_requests.exceptions
             models = router_no_key.discover_ollama_models()
@@ -497,7 +496,7 @@ class TestOllamaDiscovery:
         tags_resp = MagicMock()
         tags_resp.status_code = 200
         tags_resp.json.return_value = {"models": [{"name": "llama3.2:latest", "size": 1}]}
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.get.return_value = tags_resp
             mock_req.exceptions = __import__("requests").exceptions
             m1 = router_no_key.discover_ollama_models()
@@ -507,7 +506,7 @@ class TestOllamaDiscovery:
 
     def test_no_discovery_when_model_works(self, router):
         mock_resp = _mock_chat_response('{"ok": true}')
-        with patch("llm_router.requests") as mock_req:
+        with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.post.return_value = mock_resp
             mock_req.exceptions = __import__("requests").exceptions
             router.call_chat("system", "user")
@@ -525,7 +524,7 @@ class TestOllamaDiscovery:
         }
         with patch.dict(os.environ, {"PROFESSIONALIZE_API_KEY": ""}, clear=False):
             router = LLMRouter(registry_path=registry_path)
-            with patch("llm_router.requests") as mock_req:
+            with patch("commands.ops.llm_router.requests") as mock_req:
                 mock_req.post.side_effect = [resp_404, resp_ok]
                 mock_req.get.return_value = tags_resp
                 mock_req.exceptions = __import__("requests").exceptions

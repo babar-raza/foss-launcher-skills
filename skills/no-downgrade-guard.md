@@ -14,7 +14,7 @@ Uses `audit.py` FAIL count as a quality proxy for proposed content.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-55 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-55 --scope "*"
 > ```
 
 
@@ -27,11 +27,11 @@ Uses `audit.py` FAIL count as a quality proxy for proposed content.
    .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {target_path} --format json
    ```
    - Parse: `existing_grade` = output `grade` field (A/B/C/D/F)
-   - If eval fails (module unavailable): fallback — run `python scripts/pipeline/audit.py --files {target_path}`; grade by FAIL count: 0→B, 1-2→C, 3-5→D, 6+→F
+   - If eval fails (module unavailable): fallback — run `python scripts/pipeline/commands/content/audit.py --files {target_path}`; grade by FAIL count: 0→B, 1-2→C, 3-5→D, 6+→F
 
 3. **Pre-check proposed content** (write to temp location first):
    - Write proposed content to: `/tmp/aspose-proposed-{basename}` (or OS temp dir)
-   - Run: `python scripts/pipeline/audit.py --files /tmp/aspose-proposed-{basename}`
+   - Run: `python scripts/pipeline/commands/content/audit.py --files /tmp/aspose-proposed-{basename}`
    - Count FAIL lines from output → `proposed_fail_count`
    - Assign `predicted_grade`:
      - 0 FAIL → predicted B
@@ -63,7 +63,7 @@ Uses `audit.py` FAIL count as a quality proxy for proposed content.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-55 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-55 --status completed
 > ```
 
 ## Limitations

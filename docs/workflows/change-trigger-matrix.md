@@ -9,13 +9,13 @@
 
 ## 9b. Regeneration After Extraction Script Changes
 
-When a change is made to `scripts/pipeline/extraction/scout.py` or `scripts/pipeline/enrich.py` that alters what is extracted or how claims are synthesized:
+When a change is made to `scripts/pipeline/extraction/scout.py` or `scripts/pipeline/commands/knowledge/enrich.py` that alters what is extracted or how claims are synthesized:
 
 1. **Re-run the knowledge bootstrap** for ALL affected products:
    ```bash
-   python scripts/pipeline/scout.py {family} {platform}
-   python scripts/pipeline/enrich.py {family} {platform}
-   python scripts/pipeline/promote.py {family} {platform}
+   python scripts/pipeline/commands/knowledge/scout.py {family} {platform}
+   python scripts/pipeline/commands/knowledge/enrich.py {family} {platform}
+   python scripts/pipeline/commands/knowledge/promote.py {family} {platform}
    ```
 2. **Check for knowledge drift**: compare merged/api_surface.json and merged/formats.json before and after.
 3. **Re-evaluate all content** for affected products:
@@ -41,10 +41,10 @@ Use this matrix to decide what action is required when a specific artifact or sc
 | `content/` page changed | Run S-23 (content-check) + audit.py + attach_evidence.py | Per file |
 | `knowledge/{family}/{platform}/merged/*.json` updated | Re-run attach_evidence.py for affected product | Per product |
 | `skills/*.md` skill file changed | Test with 1 representative run; verify post-conditions fire correctly | Per skill |
-| `skills/publish-readiness-review.md` changed (S-90) | Run `python scripts/ci/check_dar_coverage.py` to verify DAR alignment; run S-90 dry-run on 1 product | Self-test |
-| `scripts/pipeline/path_guard.py` changed | Run `pytest scripts/pipeline/tests/test_path_guard.py` — must exit 0 | Self-test |
+| `skills/publish-readiness-review.md` changed (S-90) | Run `python scripts/ci/checks/check_dar_coverage.py` to verify DAR alignment; run S-90 dry-run on 1 product | Self-test |
+| `scripts/pipeline/commands/governance/path_guard.py` changed | Run `pytest scripts/pipeline/tests/test_path_guard.py` — must exit 0 | Self-test |
 | `AGENTS.md` changed | Verify CLAUDE.md §6 alignment (see CLAUDE.md alignment note) | Self |
-| Running `batch_reference` (S-62) for a product | Verify member-doc ERC coverage ≥ 20% per product first: `python scripts/pipeline/description_coverage_audit.py`; if any product is below threshold, run `enrich --mode member-doc` then `promote.py` before generating reference pages | Per product |
+| Running `batch_reference` (S-62) for a product | Verify member-doc ERC coverage ≥ 20% per product first: `python scripts/pipeline/commands/diagnostics/description_coverage_audit.py`; if any product is below threshold, run `enrich --mode member-doc` then `promote.py` before generating reference pages | Per product |
 | `enrich.py --mode member-doc` completed | Run `promote.py` to merge enriched claims, then verify coverage with `description_coverage_audit.py` | Per product |
 | Refresh produces `coverage_report.md` showing < 100% subdomain coverage | Re-run `/refresh-product {family} {platform}` to fill gaps; or manually run `refresh_review.py {family} {platform} --report` to assess which subdomains were missed | Per product |
 | Qualifying report written to `reports/` | Automatic harvest via producing skill (S-87 Phase 8 step 10, S-76 step 5b); safety net via `/backlog update` step 1b and `/session-start` step 6 advisory | Per report |

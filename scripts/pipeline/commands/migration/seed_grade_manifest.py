@@ -20,6 +20,9 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent
 if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE.parent.parent.parent.parent))  # scripts/pipeline/
+    _LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "lib")
+    if _LIB_DIR not in sys.path:
+        sys.path.insert(0, _LIB_DIR)
 
 from grade_writer import read_grade, content_hash  # noqa: E402
 from grade_manifest import load_manifest, save_manifest  # noqa: E402

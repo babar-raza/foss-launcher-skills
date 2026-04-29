@@ -32,6 +32,9 @@ _HERE = Path(__file__).resolve().parent
 _REPO_ROOT = _HERE.parent.parent.parent.parent
 
 sys.path.insert(0, str(_HERE.parent.parent.parent.parent))  # scripts/pipeline/
+_LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 
 import provenance as _prov  # noqa: E402
 

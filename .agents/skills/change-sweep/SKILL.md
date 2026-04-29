@@ -32,7 +32,7 @@ changes that require documentation updates.
 
 1. Run the sweep:
    ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/repo_patrol.py sweep
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/diagnostics/repo_patrol.py sweep
    ```
    This fetches upstream for all active launched products and compares SHAs.
 
@@ -42,7 +42,7 @@ changes that require documentation updates.
    ```
    Or generate the markdown summary:
    ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/repo_patrol.py report
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/diagnostics/repo_patrol.py report
    cat reports/discovery/combined_report.md
    ```
 

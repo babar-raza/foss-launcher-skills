@@ -39,7 +39,7 @@ For batch evaluation of all pages in a product, use S-51 (content-eval):
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-25 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-25 --scope "*"
 > ```
 
 
@@ -53,7 +53,7 @@ For batch evaluation of all pages in a product, use S-51 (content-eval):
 2b. **Run smoke test** (Python platform only — skip for java, net, cpp, typescript):
    If `{platform}` is `python`, run:
    ```bash
-   .venv/Scripts/python scripts/pipeline/smoke_test.py --files {relative-file-path}
+   .venv/Scripts/python scripts/pipeline/commands/diagnostics/smoke_test.py --files {relative-file-path}
    ```
    - Exit code 2 (FAIL): count each failing block as one additional FAIL finding
    - Exit code 1 (WARN): count each warning block as one additional WARN finding
@@ -112,7 +112,7 @@ For batch evaluation of all pages in a product, use S-51 (content-eval):
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-25 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-25 --status completed
 > ```
 
 ## Post-conditions
@@ -123,6 +123,6 @@ For batch evaluation of all pages in a product, use S-51 (content-eval):
 - No file modifications made (read-only skill)
 
 ## Error handling
-- If content_eval module is not available, fall back to running `python scripts/pipeline/audit.py --files {path}` for API accuracy check only, and assign grade based on audit results alone
+- If content_eval module is not available, fall back to running `python scripts/pipeline/commands/content/audit.py --files {path}` for API accuracy check only, and assign grade based on audit results alone
 - If knowledge model is missing, note in output that evaluation is partial (API accuracy and evidence checks will be limited)
 - If the file does not exist, abort with clear message

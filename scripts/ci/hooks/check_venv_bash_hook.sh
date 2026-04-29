@@ -2,7 +2,7 @@
 
 # Shell preflight (defensive; agents use Git Bash via runtime on Windows)
 # warn mode — will be block mode in Phase 4 (caller prepends _SHELL_CHECK_MODE=block)
-# shellcheck source=scripts/ci/check_shell_bash.sh
+# shellcheck source=scripts/ci/hooks/check_shell_bash.sh
 source "$(dirname "$0")/check_shell_bash.sh" || exit 2
 
 # check_venv_bash_hook.sh — PreToolUse Bash hook for venv Python enforcement.
@@ -35,14 +35,14 @@ source "$(dirname "$0")/check_shell_bash.sh" || exit 2
 # Wiring (in .claude/settings.json):
 #   {
 #     "matcher": "Bash",
-#     "hooks": [{"type": "command", "command": "bash scripts/ci/check_venv_bash_hook.sh"}]
+#     "hooks": [{"type": "command", "command": "bash scripts/ci/hooks/check_venv_bash_hook.sh"}]
 #   }
 
 set -euo pipefail
 
 # Determine repo root from script location (scripts/ci/ — two levels up)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Resolve Python via shared resolver (venv-only, no python3 fallback — DR-01)
 # If venv absent/broken: PYTHON="" — falls through to fail-open (cannot inspect command)

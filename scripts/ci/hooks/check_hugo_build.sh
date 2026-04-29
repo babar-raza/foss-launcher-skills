@@ -2,8 +2,8 @@
 # check_hugo_build.sh — Verify Hugo builds succeed for all buildable sites.
 #
 # Usage:
-#     bash scripts/ci/check_hugo_build.sh              # build all sites
-#     bash scripts/ci/check_hugo_build.sh products.aspose.org  # build one site
+#     bash scripts/ci/hooks/check_hugo_build.sh              # build all sites
+#     bash scripts/ci/hooks/check_hugo_build.sh products.aspose.org  # build one site
 #
 # Exit codes:
 #     0 — All attempted builds succeeded
@@ -16,7 +16,7 @@
 #       Use validate_plugin_structure.py for structural completeness checks.
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 ALL_SITES="products.aspose.org docs.aspose.org kb.aspose.org reference.aspose.org blog.aspose.org"
 REQUESTED_SITES="${1:-$ALL_SITES}"
 

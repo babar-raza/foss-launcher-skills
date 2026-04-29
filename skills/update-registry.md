@@ -1,4 +1,4 @@
-<!-- CONTRACT: scripts/pipeline/update_product_registry.py
+<!-- CONTRACT: scripts/pipeline/commands/ops/update_product_registry.py
      postcondition: writes data/products.json with one entry per discovered {family}/{platform} pair
      postcondition: each entry contains repo_name, repo_url, clone_url, active flag, discovered_via
      postcondition: --dry-run mode prints a summary table and exits 0 without modifying data/products.json
@@ -45,7 +45,7 @@ memory; the only persisted record of discovery results is this file.
 2. `requests>=2.28` installed (`pip show requests`)
 3. `GITHUB_TOKEN` set in `.env` or passed via `--token` (required for live GitHub scan;
    not required for `--local-only`)
-4. `scripts/pipeline/org_scanner.py` exists
+4. `scripts/pipeline/lib/org_scanner.py` exists
 5. `data/` directory exists (or will be created automatically)
 
 ---
@@ -54,7 +54,7 @@ memory; the only persisted record of discovery results is this file.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-68 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-68 --scope "*"
 > ```
 
 
@@ -66,7 +66,7 @@ memory; the only persisted record of discovery results is this file.
 
 3. **Run discovery**:
    ```bash
-   .venv/Scripts/python scripts/pipeline/update_product_registry.py [--token $GITHUB_TOKEN] [--dry-run] [--local-only] [--force]
+   .venv/Scripts/python scripts/pipeline/commands/ops/update_product_registry.py [--token $GITHUB_TOKEN] [--dry-run] [--local-only] [--force]
    ```
 
    - **GitHub mode** (default): Calls `org_scanner.scan_orgs()` for each of the 26 orgs.
@@ -97,7 +97,7 @@ memory; the only persisted record of discovery results is this file.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-68 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-68 --status completed
 > ```
 
 ## Post-conditions

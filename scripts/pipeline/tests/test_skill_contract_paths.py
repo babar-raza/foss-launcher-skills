@@ -28,13 +28,13 @@ class TestCanonicalSkillContracts(unittest.TestCase):
 
     def test_knowledge_update_uses_promote_and_enrich(self):
         text = read_text("skills/knowledge-update.md")
-        self.assertIn("scripts/pipeline/enrich.py", text)
-        self.assertIn("scripts/pipeline/promote.py", text)
-        self.assertIn("scripts/pipeline/index.py", text)
+        self.assertIn("scripts/pipeline/commands/knowledge/enrich.py", text)
+        self.assertIn("scripts/pipeline/commands/knowledge/promote.py", text)
+        self.assertIn("scripts/pipeline/commands/knowledge/index.py", text)
 
     def test_truth_index_uses_pipeline_index_script(self):
         text = read_text("skills/truth-index.md")
-        self.assertIn("scripts/pipeline/index.py", text)
+        self.assertIn("scripts/pipeline/commands/knowledge/index.py", text)
         self.assertNotIn("scripts/index.py", text)
 
     def test_evidence_cite_uses_frontmatter(self):
@@ -53,7 +53,7 @@ class TestCanonicalSkillContracts(unittest.TestCase):
     def test_knowledge_enrich_exists(self):
         text = read_text("skills/knowledge-enrich.md")
         self.assertIn("enriched_claims.json", text)
-        self.assertIn("scripts/pipeline/enrich.py", text)
+        self.assertIn("scripts/pipeline/commands/knowledge/enrich.py", text)
 
 
 class TestWrapperInventory(unittest.TestCase):
@@ -258,7 +258,7 @@ class TestScriptRegistration(unittest.TestCase):
     def test_registration_check_exits_zero(self):
         import subprocess
         result = subprocess.run(
-            ["python", str(REPO_ROOT / "scripts" / "ci" / "check_pipeline_registration.py")],
+            ["python", str(REPO_ROOT / "scripts" / "ci" / "checks" / "check_pipeline_registration.py")],
             cwd=str(REPO_ROOT),
             capture_output=True,
             text=True,

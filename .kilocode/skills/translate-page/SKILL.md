@@ -29,7 +29,7 @@ Locales may be a comma-separated list (e.g. `fr,de,ar`) or the literal string `a
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-52 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-52 --scope "*"
 > ```
 
 
@@ -92,7 +92,7 @@ Locales may be a comma-separated list (e.g. `fr,de,ar`) or the literal string `a
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-52 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-52 --status completed
 > ```
 
 ## Post-conditions

@@ -54,7 +54,7 @@ users or agents. They do not appear as user-callable commands in Claude Code.
 | `gap-plan` | S-44 | Wave-ordered remediation planning; sub-tool for the remediation pipeline |
 | `project-phase-store` | S-10 | Tracks generation phase state; checkpoint infrastructure |
 
-Source: `scripts/pipeline/sync_skills.py:INTERNAL_SKILLS`.
+Source: `scripts/pipeline/commands/ops/sync_skills.py:INTERNAL_SKILLS`.
 
 ---
 
@@ -231,8 +231,8 @@ S-62 (batch-reference) → S-38 (truth-audit, spot-check) → S-24 (evidence-cit
 1. Create `skills/{slug}.md` following the structure of an existing skill (Purpose → Pre-conditions → Steps → Post-conditions → Error Handling)
 2. Add an entry to AGENTS.md §12 (full table: docs/registries/skills.md) with the next available S-XX ID
 3. Add a DAR entry in AGENTS.md §6a (full detail: docs/governance/dar-table.md) if the skill has upstream dependencies
-4. Run `python scripts/ci/check_skill_registry.py` — must exit 0
-5. Run `python scripts/ci/check_dar_coverage.py` — must exit 0
+4. Run `python scripts/ci/checks/check_skill_registry.py` — must exit 0
+5. Run `python scripts/ci/checks/check_dar_coverage.py` — must exit 0
 6. **Update the catalog table in this file** (skills/README.md) — add the new skill in the correct category
 7. The sync mechanism (`sync_skills.py`) will flag if agent-specific mirrors diverge
 

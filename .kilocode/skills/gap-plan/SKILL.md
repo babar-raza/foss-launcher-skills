@@ -25,14 +25,14 @@ Convert S-43 gap-eval findings into an exact, wave-ordered remediation plan. Use
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-44 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-44 --scope "*"
 > ```
 
 
 ### Step 1: Classify findings by wave
 
 ```bash
-.venv/Scripts/python scripts/gap-eval/fix_spec.py {family} {platform} --dry-run
+.venv/Scripts/python scripts/gap-eval/src/fix_spec.py {family} {platform} --dry-run
 ```
 
 This shows the wave breakdown without writing files. Review wave assignments before proceeding.
@@ -40,7 +40,7 @@ This shows the wave breakdown without writing files. Review wave assignments bef
 ### Step 2: Generate full remediation plan
 
 ```bash
-.venv/Scripts/python scripts/gap-eval/fix_spec.py {family} {platform}
+.venv/Scripts/python scripts/gap-eval/src/fix_spec.py {family} {platform}
 ```
 
 Outputs:
@@ -68,7 +68,7 @@ Each fix is bounded to a single content block — no side effects.
 ### Step 5: Rerun gap-eval to verify
 
 ```bash
-.venv/Scripts/python scripts/gap-eval/run.py {family} {platform}
+.venv/Scripts/python scripts/gap-eval/src/run.py {family} {platform}
 ```
 
 Delta section will show all prior findings as `fixed` with 0 regressions if applied correctly.
@@ -82,7 +82,7 @@ For missing-section findings, use the appropriate page generation skill:
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-44 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-44 --status completed
 > ```
 
 ## Post-conditions

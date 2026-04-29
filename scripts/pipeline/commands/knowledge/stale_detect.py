@@ -12,6 +12,9 @@ _PIPELINE_DIR = Path(__file__).resolve().parents[2]  # commands/knowledge/ -> co
 if str(_PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_DIR))
 
+_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 from knowledge_core import Knowledge  # noqa: E402
 from content_discovery import LOCALE_RE, _is_draft  # noqa: E402  (R-4: was knowledge_core)
 from core.markdown import parse_frontmatter  # noqa: E402  (R-2a: was knowledge_core)

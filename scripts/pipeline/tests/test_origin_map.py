@@ -24,7 +24,7 @@ from unittest.mock import patch, MagicMock
 # ---------------------------------------------------------------------------
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
-_GAP_EVAL_DIR = _REPO_ROOT / "scripts" / "gap-eval"
+_GAP_EVAL_DIR = _REPO_ROOT / "scripts" / "gap-eval" / "src"
 sys.path.insert(0, str(_GAP_EVAL_DIR))
 sys.path.insert(0, str(_REPO_ROOT / "scripts"))
 sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))

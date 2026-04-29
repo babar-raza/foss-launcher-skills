@@ -19,7 +19,7 @@ if str(_PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_DIR))
 
 import change_guard  # noqa: E402
-import knowledge_core  # noqa: E402
+from commands.knowledge import knowledge_core  # noqa: E402
 from change_guard import DECISION_WARN, guard_text  # noqa: E402
 
 _FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"

@@ -19,13 +19,13 @@ any user request.
 
 > **Session gate bootstrap** — run as the very first action, before anything else:
 > ```bash
-> bash scripts/ci/bootstrap_session_gate.sh
+> bash scripts/ci/hooks/bootstrap_session_gate.sh
 > ```
 > Creates `.claude/.agents_read` so all subsequent tool calls are unblocked. Idempotent.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-77 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-77 --scope "*"
 > ```
 
 
@@ -39,7 +39,7 @@ any user request.
      broken (BROKEN). No other classification exists."
 5. Initialize the session ledger (captures dirty-file snapshot for `/commit` scoping):
    ```bash
-   .venv/Scripts/python scripts/pipeline/session_ledger.py init
+   .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py init
    ```
    Record the returned session ID.
 6. Surface backlog briefing (non-blocking — skip gracefully if files absent):
@@ -97,7 +97,7 @@ any user request.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-77 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-77 --status completed
 > ```
 
 ## Verification
@@ -138,21 +138,21 @@ If another operator started work and you need to continue their session:
 1. Run `/session-start` as normal (creates a fresh session)
 2. Inherit the prior session's file tracking:
    ```bash
-   .venv/Scripts/python scripts/pipeline/session_ledger.py inherit
+   .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py inherit
    ```
    This finds the most recent closed session and adopts all its tracked files
    into your new session.
 3. If you know the specific session ID:
    ```bash
-   .venv/Scripts/python scripts/pipeline/session_ledger.py inherit --session-id <id>
+   .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py inherit --session-id <id>
    ```
 4. To selectively adopt files (e.g., only content changes):
    ```bash
-   .venv/Scripts/python scripts/pipeline/session_ledger.py adopt --glob "content/**"
+   .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py adopt --glob "content/**"
    ```
 5. To adopt all dirty files at once:
    ```bash
-   .venv/Scripts/python scripts/pipeline/session_ledger.py adopt --all
+   .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py adopt --all
    ```
 
 ## Hard rules

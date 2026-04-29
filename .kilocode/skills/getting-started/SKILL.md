@@ -64,7 +64,7 @@ automatically when the key is absent. `GITHUB_TOKEN` is required for Steps 3 and
 Write clone URLs into `data/products.json` for all active products:
 
 ```bash
-.venv/Scripts/python scripts/pipeline/update_product_registry.py --token $GITHUB_TOKEN
+.venv/Scripts/python scripts/pipeline/commands/ops/update_product_registry.py --token $GITHUB_TOKEN
 ```
 
 This step is required before cloning FOSS source repos. Without it the product
@@ -112,7 +112,7 @@ cd scripts/pipeline
 To bootstrap all products at once:
 
 ```bash
-.venv/Scripts/python scripts/pipeline/refresh_knowledge.py --all --check
+.venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py --all --check
 ```
 
 ---
@@ -145,7 +145,7 @@ On a fresh clone, locale files translated before the provenance system was intro
 a `provenance:` block. Run the backfill to assign conservative defaults:
 
 ```bash
-.venv/Scripts/python scripts/pipeline/provenance_backfill.py
+.venv/Scripts/python scripts/pipeline/commands/migration/provenance_backfill.py
 ```
 
 This is safe to re-run at any time (idempotent — files that already have a provenance block
@@ -160,7 +160,7 @@ updated manually to `auto_updatable: false` after running `/register-human-conte
 Run the audit tool against your product:
 
 ```bash
-.venv/Scripts/python scripts/pipeline/audit.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform}
 ```
 
 Expected result: `PASS` or a findings list with severity levels.
@@ -171,7 +171,7 @@ If `model.yaml` shows `api_confidence: low`, re-run scout with more verbose logg
 Quick batch check across all products:
 
 ```bash
-.venv/Scripts/python scripts/pipeline/audit.py all --json | .venv/Scripts/python -c "import json,sys; r=json.load(sys.stdin); print(f'{sum(1 for f in r if f[\"level\"]==\"FAIL\")} FAILs found')"
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py all --json | .venv/Scripts/python -c "import json,sys; r=json.load(sys.stdin); print(f'{sum(1 for f in r if f[\"level\"]==\"FAIL\")} FAILs found')"
 ```
 
 ---
@@ -200,4 +200,4 @@ Do not edit any content page before completing these checks:
 - `PROFESSIONALIZE_API_KEY` is optional; TF-IDF fallback is transparent to all consuming skills.
 - The `runs/` directory is git-ignored; FOSS clones are never committed.
 - For production content work, always verify knowledge freshness with `/stale-detect {family} {platform}` (S-13) before writing.
-- Cross-product refresh: `.venv/Scripts/python scripts/pipeline/refresh_knowledge.py --all --check`
+- Cross-product refresh: `.venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py --all --check`

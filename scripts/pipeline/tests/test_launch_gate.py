@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts.pipeline.launch_gate import (
+from launch_gate import (
     STATUS_FAIL,
     STATUS_PASS,
     STATUS_SKIP,
@@ -22,7 +22,7 @@ from scripts.pipeline.launch_gate import (
     gate_l09_hugo_build,
 )
 
-import scripts.pipeline.launch_gate as _lg_mod
+import launch_gate as _lg_mod
 
 
 @pytest.fixture(autouse=True)
@@ -129,7 +129,7 @@ class TestGateL08ProvenanceCoverage:
 
     def test_no_matching_files_returns_skip(self, tmp_path, monkeypatch):
         """When glob finds no .md files the gate should SKIP, not FAIL."""
-        import scripts.pipeline.launch_gate as lg
+        import launch_gate as lg
         lg.configure(repo_root=tmp_path)
         result = gate_l08_provenance_coverage("nonexistent", "platform")
         assert result.status == STATUS_SKIP
@@ -137,7 +137,7 @@ class TestGateL08ProvenanceCoverage:
 
     def test_all_files_have_content_origin_returns_pass(self, tmp_path, monkeypatch):
         """All files correctly provisioned → PASS."""
-        import scripts.pipeline.launch_gate as lg
+        import launch_gate as lg
         lg.configure(repo_root=tmp_path)
 
         d = self._content_root(tmp_path, "docs.aspose.org", "widgets", "net")
@@ -152,7 +152,7 @@ class TestGateL08ProvenanceCoverage:
 
     def test_file_missing_content_origin_returns_fail(self, tmp_path, monkeypatch):
         """One file with provenance block but no content_origin → FAIL."""
-        import scripts.pipeline.launch_gate as lg
+        import launch_gate as lg
         lg.configure(repo_root=tmp_path)
 
         d = self._content_root(tmp_path, "docs.aspose.org", "widgets", "net")
@@ -173,7 +173,7 @@ class TestGateL08ProvenanceCoverage:
     def test_structural_deferred_files_only_returns_pass(self, tmp_path, monkeypatch):
         """All files are structural-deferred (content_origin: unknown + note) → PASS.
         The gate must not flag intentionally deferred index pages."""
-        import scripts.pipeline.launch_gate as lg
+        import launch_gate as lg
         lg.configure(repo_root=tmp_path)
 
         d = self._content_root(tmp_path, "docs.aspose.org", "widgets", "net")

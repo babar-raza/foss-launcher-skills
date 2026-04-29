@@ -42,6 +42,9 @@ from typing import Any
 # ---------------------------------------------------------------------------
 # Imports from sibling pipeline modules (PYTHONPATH=scripts/pipeline)
 # ---------------------------------------------------------------------------
+_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 from knowledge_core import Knowledge
 from content_discovery import discover_content, KNOWLEDGE_ROOT
 

@@ -47,7 +47,7 @@ S-84 handles change-driven refresh; S-87 handles audit-driven repair when S-84 e
 Run gap-eval with `--no-llm`. Reproducible BEFORE snapshot — no LLM variance.
 
 ```bash
-.venv/Scripts/python scripts/gap-eval/run.py {family} {platform} \
+.venv/Scripts/python scripts/gap-eval/src/run.py {family} {platform} \
     --scope {scope} --no-llm \
     --out reports/system-heal/{family}-{platform}/baseline \
     --state-dir reports/system-heal/{family}-{platform}/state
@@ -69,7 +69,7 @@ Run gap-eval with LLM and tier3_cache active. On first run, populates the Tier 3
 on reruns, uses cached results (idempotent for unchanged files).
 
 ```bash
-.venv/Scripts/python scripts/gap-eval/run.py {family} {platform} \
+.venv/Scripts/python scripts/gap-eval/src/run.py {family} {platform} \
     --scope {scope} \
     --out reports/system-heal/{family}-{platform}/extended-baseline \
     --state-dir reports/system-heal/{family}-{platform}/state
@@ -87,7 +87,7 @@ If LLM unavailable: Tier 3 findings go to HOLD bucket with `origin_class: NEEDS_
 ## Phase 3: Origin Classification
 
 ```bash
-.venv/Scripts/python scripts/gap-eval/origin_map.py \
+.venv/Scripts/python scripts/gap-eval/src/origin_map.py \
     reports/system-heal/{family}-{platform}/extended-baseline.json \
     {family} {platform} \
     --out reports/system-heal/{family}-{platform}/annotated-findings.json
@@ -176,7 +176,7 @@ Skip entirely if `--dry-run` is set.
 Run gap-eval on healed content (scoped to files in `heal_log.json` if possible; full scope otherwise):
 
 ```bash
-.venv/Scripts/python scripts/gap-eval/run.py {family} {platform} \
+.venv/Scripts/python scripts/gap-eval/src/run.py {family} {platform} \
     --scope {scope} \
     --out reports/system-heal/{family}-{platform}/post-heal \
     --state-dir reports/system-heal/{family}-{platform}/state

@@ -67,12 +67,40 @@ def run_checks(dry_run: bool, fail_test_gaps: bool) -> int:
     pipeline_root = REPO_ROOT / "scripts" / "pipeline"
 
     # CHECK 1 — Completeness
-    # Every root .py file must be in registry
-    disk_scripts = {
-        f"scripts/pipeline/{p.name}"
-        for p in pipeline_root.glob("*.py")
-        if p.name != "__init__.py"
-    }
+    # Every .py file in commands/, lib/, and root must be in registry
+    disk_scripts = set()
+    # Root scripts (only _bootstrap.py expected post-migration)
+    for p in pipeline_root.glob("*.py"):
+        if p.name != "__init__.py":
+            disk_scripts.add(f"scripts/pipeline/{p.name}")
+    # commands/ subdirectories
+    # Dual-use files exist in both commands/ and lib/ — registry tracks the lib/ re-export
+    lib_basenames = set()
+    lib_dir_tmp = pipeline_root / "lib"
+    if lib_dir_tmp.exists():
+        lib_basenames = {p.name for p in lib_dir_tmp.glob("*.py") if p.name != "__init__.py"}
+    commands_dir = pipeline_root / "commands"
+    if commands_dir.exists():
+        for p in commands_dir.rglob("*.py"):
+            if p.name == "__init__.py":
+                continue
+            # Skip dual-use files tracked via lib/ re-export
+            if p.name in lib_basenames:
+                continue
+            rel = p.relative_to(pipeline_root).as_posix()
+            disk_scripts.add(f"scripts/pipeline/{rel}")
+    # lib/ modules
+    lib_dir = pipeline_root / "lib"
+    if lib_dir.exists():
+        for p in lib_dir.glob("*.py"):
+            if p.name == "__init__.py":
+                continue
+            rel = p.relative_to(pipeline_root).as_posix()
+            disk_scripts.add(f"scripts/pipeline/{rel}")
+    # core/knowledge.py (registered individually; other core/ modules are internal)
+    core_knowledge = pipeline_root / "core" / "knowledge.py"
+    if core_knowledge.exists():
+        disk_scripts.add("scripts/pipeline/core/knowledge.py")
     for unregistered in sorted(disk_scripts - registry_paths):
         errors.append(f"  [CHECK 1] UNREGISTERED: {unregistered} exists on disk but has no registry entry")
 

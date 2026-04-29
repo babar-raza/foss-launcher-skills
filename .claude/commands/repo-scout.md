@@ -45,9 +45,9 @@ where source repos are not cloned.
    ```
    If it doesn't exist, abort with a clear message. Skip this check in pip-install mode.
 
-2. **Verify `scripts/pipeline/scout.py` exists**:
+2. **Verify `scripts/pipeline/commands/knowledge/scout.py` exists**:
    ```
-   ls scripts/pipeline/scout.py
+   ls scripts/pipeline/commands/knowledge/scout.py
    ```
 
 3. **Verify tree-sitter is importable** (already in `.venv` via `scripts/pipeline/requirements.txt`):
@@ -65,7 +65,7 @@ where source repos are not cloned.
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-34 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-34 --scope "*"
 > ```
 
 
@@ -75,7 +75,7 @@ where source repos are not cloned.
 
 2. **Run extraction**:
    ```
-   .venv/Scripts/python scripts/pipeline/scout.py \
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/scout.py \
      {family} {platform} {repo_path} knowledge/{family}/{platform}/scout/
    ```
 
@@ -97,7 +97,7 @@ where source repos are not cloned.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-34 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-34 --status completed
 > ```
 
 ## Post-conditions

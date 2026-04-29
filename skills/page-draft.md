@@ -27,7 +27,7 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-19 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-19 --scope "*"
 > ```
 
 
@@ -111,13 +111,13 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
 
 8. **Write the draft** to the target path from the plan (e.g., `content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`).
 
-9. **Run ground-check**: Execute `.venv/Scripts/python scripts/pipeline/audit.py --files {target_path}` to verify API accuracy.
+9. **Run ground-check**: Execute `.venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {target_path}` to verify API accuracy.
 
 10. **Report**: Print summary of draft — word count, sections, claims used, API tokens verified.
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-19 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-19 --status completed
 > ```
 
 ## Post-conditions

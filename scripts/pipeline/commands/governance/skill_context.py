@@ -38,6 +38,9 @@ import sys
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
+_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 from path_utils import repo_rel
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent  # commands/governance/ -> commands/ -> pipeline/ -> scripts/ -> repo
@@ -157,7 +160,7 @@ def cmd_begin(args: argparse.Namespace) -> int:
     # Use --skip-dar for bootstrap/recovery only.
     skip_dar = getattr(args, "skip_dar", False)
     if not skip_dar:
-        dar_script = _REPO_ROOT / "scripts" / "pipeline" / "check_dar_prerequisites.py"
+        dar_script = _REPO_ROOT / "scripts" / "pipeline" / "commands" / "governance" / "check_dar_prerequisites.py"
         if dar_script.exists():
             result = subprocess.run(
                 [sys.executable, str(dar_script), "--skill", args.skill],

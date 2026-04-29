@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
-_PREFLIGHT = _REPO_ROOT / "scripts" / "pipeline" / "preflight.py"
+_PREFLIGHT = _REPO_ROOT / "scripts" / "pipeline" / "commands" / "launch" / "preflight.py"
 
 
 def _run(path: str, *, json_mode: bool = False) -> subprocess.CompletedProcess:

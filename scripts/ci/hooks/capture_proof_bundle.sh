@@ -2,7 +2,7 @@
 # capture_proof_bundle.sh — Capture a structured proof bundle for a governance operation.
 #
 # Usage:
-#   scripts/ci/capture_proof_bundle.sh <slug> [command1] [command2] ...
+#   scripts/ci/hooks/capture_proof_bundle.sh <slug> [command1] [command2] ...
 #
 # Creates: reports/proofs/{YYYYMMDD}-{slug}/
 #   manifest.json           — structured metadata
@@ -11,9 +11,9 @@
 #   referenced_files.json  — placeholder; populate manually after the run
 #
 # Example:
-#   scripts/ci/capture_proof_bundle.sh family-sync-verify \
-#     "python scripts/pipeline/path_guard.py AGENTS.md" \
-#     "python scripts/ci/check_dar_coverage.py"
+#   scripts/ci/hooks/capture_proof_bundle.sh family-sync-verify \
+#     "python scripts/pipeline/commands/governance/path_guard.py AGENTS.md" \
+#     "python scripts/ci/checks/check_dar_coverage.py"
 #
 # The bundle is written to reports/proofs/ which is in the git allowlist.
 

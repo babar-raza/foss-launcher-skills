@@ -12,7 +12,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-import scripts.pipeline.link_validator as lv
+import link_validator as lv
 
 
 @pytest.fixture(autouse=True)

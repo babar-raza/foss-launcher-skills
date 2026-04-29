@@ -44,7 +44,7 @@ sys.path.insert(0, str(_GAP_EVAL_DIR))  # so `from state import` resolves state.
 sys.path.insert(0, str(_SCRIPTS_DIR / "pipeline"))
 
 from core.env_loader import load_env  # noqa: E402
-from llm_router import EndpointStatus  # noqa: E402
+from lib.llm_router import EndpointStatus  # noqa: E402
 load_env()
 
 
@@ -581,7 +581,7 @@ def _embed_text(text: str) -> list[float] | None:
     Returns the embedding vector or None if all providers fail.
     """
     try:
-        from llm_router import EndpointStatus as _ES
+        from lib.llm_router import EndpointStatus as _ES
         router = _get_router()
     except (ImportError, RuntimeError) as exc:
         log.warning("LLM router unavailable for embedding: %s", exc)
@@ -726,7 +726,7 @@ def tier3_verify(claim: dict, family: str, platform: str, clone_cache: Path) -> 
             reason="llm router unavailable",
         )
 
-    from llm_router import EndpointStatus as _ES
+    from lib.llm_router import EndpointStatus as _ES
     if full_result.status != _ES.OK:
         return Tier3Result(
             verdict=None,
@@ -808,7 +808,7 @@ def _get_router():
     """Return cached LLMRouter instance (lazy init)."""
     global _router
     if _router is None:
-        from llm_router import LLMRouter
+        from lib.llm_router import LLMRouter
         _router = LLMRouter()
     return _router
 
@@ -820,7 +820,7 @@ def _llm_call(system: str, user: str) -> dict | None:
     Delegates to shared LLMRouter.
     """
     try:
-        from llm_router import EndpointStatus as _ES
+        from lib.llm_router import EndpointStatus as _ES
         router = _get_router()
     except (ImportError, RuntimeError) as exc:
         log.warning("LLM router unavailable: %s", exc)
@@ -843,7 +843,7 @@ def _llm_call(system: str, user: str) -> dict | None:
 def _llm_call_full(system: str, user: str):
     """Like _llm_call but returns the full CallResult for metadata extraction."""
     try:
-        from llm_router import EndpointStatus as _ES, CallResult
+        from lib.llm_router import EndpointStatus as _ES, CallResult
         router = _get_router()
     except (ImportError, RuntimeError) as exc:
         log.warning("LLM router unavailable: %s", exc)
@@ -973,7 +973,7 @@ def compute_verdict(findings: list[dict]) -> str:
     # downgrade verdict to CONDITIONAL. Uses fast regex read — no evaluator
     # execution, no knowledge loading, sub-millisecond per file.
     try:
-        from grade_writer import read_grade
+        from lib.grade_writer import read_grade
         for finding in findings:
             filepath = Path(finding.get("file", ""))
             if not filepath.is_absolute():

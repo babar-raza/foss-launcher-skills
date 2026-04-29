@@ -2,8 +2,8 @@
 # check_shell_bash.sh — Validate Git Bash is active on Windows
 #
 # Usage:
-#   source scripts/ci/check_shell_bash.sh           # from another script
-#   bash scripts/ci/check_shell_bash.sh             # direct execution (testing)
+#   source scripts/ci/hooks/check_shell_bash.sh           # from another script
+#   bash scripts/ci/hooks/check_shell_bash.sh             # direct execution (testing)
 #
 # Environment:
 #   _SHELL_CHECK_MODE  warn|block  (default: warn)

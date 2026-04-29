@@ -36,6 +36,9 @@ _PIPELINE_DIR = Path(__file__).resolve().parents[2]  # commands/ops/ -> commands
 if str(_PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_DIR))
 
+_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 from content_discovery import LOCALE_RE, _is_draft  # noqa: E402
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]

@@ -12,14 +12,14 @@
 # Never blocks the caller when sourced — callers decide what to do.
 #
 # Usage (standalone):
-#   bash scripts/ci/check_venv.sh
+#   bash scripts/ci/hooks/check_venv.sh
 #
 # Usage (sourced, warning-only):
 #   source "$(dirname "${BASH_SOURCE[0]}")/check_venv.sh" || true
 #   if [ "${VENV_OK:-0}" != "1" ]; then echo "Warning: venv unhealthy" >&2; fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 VENV_DIR="$REPO_ROOT/.venv"
 VENV_OK=0

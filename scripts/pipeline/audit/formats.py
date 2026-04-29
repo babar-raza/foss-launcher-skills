@@ -38,6 +38,10 @@ from functools import lru_cache
 from pathlib import Path
 from typing import List
 
+import sys  # noqa: E402
+_LIB_DIR = str(Path(__file__).resolve().parents[1] / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 from token_ops import Finding
 
 _log = logging.getLogger(__name__)

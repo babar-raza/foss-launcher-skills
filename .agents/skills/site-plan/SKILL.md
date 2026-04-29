@@ -1,4 +1,4 @@
-<!-- CONTRACT: scripts/pipeline/site_planner.py
+<!-- CONTRACT: scripts/pipeline/commands/launch/site_planner.py
      purpose: produce deterministic pre-generation site manifest for all 5 subdomains
      preconditions: knowledge model bootstrapped; claims.json + api_surface.json + formats.json available
      postcondition: site_plan.yaml written to reports/plans/{family}/{platform}/ with evidence-justified pages
@@ -24,7 +24,7 @@ Produce `reports/plans/{family}/{platform}/site_plan.yaml` — a deterministic, 
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-47 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-47 --scope "*"
 > ```
 
 
@@ -44,7 +44,7 @@ Load `claims.json`, `api_surface.json`, `index.json`, `limitations.md`, `formats
 
 ### Step 5: Detect capability clusters
 ```bash
-.venv/Scripts/python scripts/pipeline/site_planner.py {family} {platform} --detect-clusters
+.venv/Scripts/python scripts/pipeline/commands/launch/site_planner.py {family} {platform} --detect-clusters
 ```
 Each cluster: `name`, `slug`, `claim_count`, `api_method_count`, `snippet_count`, `in_limitations`, `verb`, `slug_convention`.
 
@@ -88,7 +88,7 @@ SITE-PLAN: {family}/{platform} [{mode}]
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-47 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-47 --status completed
 > ```
 
 ## Post-conditions

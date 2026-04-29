@@ -26,14 +26,14 @@ page needs to participate in quality enforcement, evidence validation, and grade
 1. Knowledge bootstrap confirmed for the product in the file's `{family}/{platform}` path
    (run `/knowledge-bootstrap {family} {platform}`)
 2. Grading infrastructure complete: `grade_writer.py` must exist at
-   `scripts/pipeline/grade_writer.py`
+   `scripts/pipeline/lib/grade_writer.py`
 3. Evidence attachment infrastructure complete: `attach_evidence.py` must be available
 
 ## Steps
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-66 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-66 --scope "*"
 > ```
 
 
@@ -64,7 +64,7 @@ replacing this page. Do not change this unless the human explicitly requests it.
 ### Step 3: Attach evidence
 
 ```bash
-python scripts/pipeline/attach_evidence.py --files {filepath}
+python scripts/pipeline/commands/healing/attach_evidence.py --files {filepath}
 ```
 
 This attaches an `evidence:` block with `model_sha`, `claims`, `apis`, and `formats`
@@ -83,7 +83,7 @@ python -m scripts.pipeline.content_eval evaluate --files {filepath}
 
 Then persist the grade:
 ```bash
-python scripts/pipeline/grade_writer.py --files {filepath}
+python scripts/pipeline/lib/grade_writer.py --files {filepath}
 ```
 
 Note the assigned grade. If grade is D or F, consider running S-26 (heal-page) before
@@ -93,7 +93,7 @@ before registering — do not protect a critically-wrong page from automated cor
 ### Step 5: Run content-check gate
 
 ```bash
-python scripts/pipeline/audit.py --files {filepath}
+python scripts/pipeline/commands/content/audit.py --files {filepath}
 ```
 
 A FAIL at this stage means the page has API accuracy problems. Fix them before proceeding.
@@ -118,7 +118,7 @@ Write to `reports/human-content/{family}-{platform}-{slug}-{date}.json`:
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-66 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-66 --status completed
 > ```
 
 ## Post-conditions

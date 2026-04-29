@@ -25,7 +25,7 @@ After a knowledge refresh (S-14), identify which content pages reference changed
 
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-20 --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-20 --scope "*"
 > ```
 
 
@@ -33,7 +33,7 @@ After a knowledge refresh (S-14), identify which content pages reference changed
 
 2. **Auto-refresh knowledge**: Before loading any knowledge artifacts, ensure they are current:
    ```bash
-   .venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform}
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform}
    ```
    - If it prints "refreshed": knowledge was stale and has been rebuilt from the clone cache.
    - If it prints "current": no action needed.
@@ -96,7 +96,7 @@ After a knowledge refresh (S-14), identify which content pages reference changed
    - Update `model_sha` in evidence frontmatter to current value
    - **Record decision after each page**:
      ```bash
-     .venv/Scripts/python scripts/pipeline/refresh_review.py {family} {platform} \
+     .venv/Scripts/python scripts/pipeline/commands/ops/refresh_review.py {family} {platform} \
          --record-decision --path {relative_file_path} \
          --decision {BODY_UPDATED|EVIDENCE_ONLY} \
          --reason "{delta_signal_description}" \
@@ -109,13 +109,13 @@ After a knowledge refresh (S-14), identify which content pages reference changed
      - Blog posts set to `draft: true` → `RETIRED`
    - Also call `record_pages` for tracking:
      ```bash
-     .venv/Scripts/python scripts/pipeline/post_refresh_verify.py {family} {platform} \
+     .venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} \
          --step page_update --updated {space_separated_updated_paths}
      ```
 
 8. **Run ground-check** on each updated page:
    ```bash
-   .venv/Scripts/python scripts/pipeline/audit.py --files {updated-file-path}
+   .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {updated-file-path}
    ```
 
 9. **Update provenance**: For each file where body content was modified, update the provenance mechanism:
@@ -138,7 +138,7 @@ After a knowledge refresh (S-14), identify which content pages reference changed
 
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-20 --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-20 --status completed
 > ```
 
 ## Body-change requirement rules
@@ -157,7 +157,7 @@ whether a metadata-only update is acceptable or whether body content MUST change
 
 ALWAYS use `attach_evidence.py` to update evidence blocks:
 ```bash
-.venv/Scripts/python scripts/pipeline/attach_evidence.py --files {updated-file-path}
+.venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py --files {updated-file-path}
 ```
 NEVER construct evidence YAML manually or via `yaml.dump`. The `evidence/writer.py`
 performs surgical regex-based replacement that preserves non-evidence frontmatter
