@@ -125,3 +125,42 @@ python scripts/pipeline/audit.py --files path1.md     # Specific files (pre-comm
 python scripts/pipeline/audit.py all --json           # Machine-readable output
 ```
 
+
+### Skill locations (per agent)
+
+| Agent | Skills path | Instructions file |
+|-------|------------|-------------------|
+| Claude Code | \ | \ |
+| Codex CLI | \ | \ + \ |
+| Kilo Code | \ | \ |
+| Canonical source | \ | — |
+
+Each tree has a \ at its root describing its contents, invocation syntax, and any divergence from canonical. See [\](skills/README.md) for the primary catalog.
+
+#### Internal skills (auto-invoked sub-routines)
+
+The following 8 skills exist in canonical \ and in \ and \ trees, but are **intentionally absent from \**. They are auto-invoked by other skills and are never called directly by users or agents.
+
+| Slug | ID | Role |
+|------|----|------|
+| \ | S-54 | Pre-condition gate before content or validation commands |
+| \ | S-24 | Attaches knowledge citations; auto-invoked by generation skills |
+| \ | S-01 | Enforces allowed write paths; auto-invoked on every write |
+| \ | S-33 | Pre-write knowledge gate; auto-invoked before content writes |
+| \ | S-55 | Pre-write quality comparison sub-routine |
+| \ | S-17 | Sub-evaluator called by eval-page |
+| \ | S-44 | Planning sub-tool for the remediation pipeline |
+| \ | S-10 | Checkpoint infrastructure |
+
+Source: \.
+
+#### Claude Code-only extras (not registered skills)
+
+The following files exist **only in \**. They are not registered in the skills reference table, have no file in canonical \, and are not present in \ or \ trees.
+
+| File | Role |
+|------|------|
+| \ | Dispatcher: routes to \ (S-52) or \ (S-53) based on argument type. Convenience wrapper; adds no new capability. |
+| \ | Interactive human review gate for SEO recommendations. Claude Code utility; not yet a registered skill. |
+
+Source: \.

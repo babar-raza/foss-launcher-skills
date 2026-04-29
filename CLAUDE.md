@@ -68,4 +68,4 @@ Skills are invoked as slash commands:
 | Operations | `/update-registry`, `/family-sync`, `/translate`, `/getting-started`, `/session-start`, `/commit`, `/backlog` |
 
 Full list and argument syntax: `.claude/commands/README.md`
-Authoritative registry: `AGENTS.md §12`
+Authoritative registry: `AGENTS.md §12` (full detail: [docs/registries/skills.md](docs/registries/skills.md))

@@ -4,8 +4,8 @@ This directory contains the **canonical source** for all registered skills in th
 content pipeline. Skills are the only sanctioned execution mechanism for content work in this
 repo — ad hoc workflows are not permitted (AGENTS.md §6a (full detail: docs/governance/dar-table.md)).
 
-> **Authoritative registry**: [AGENTS.md §12](../AGENTS.md) — machine-validated by CI.
-> This README is a human navigation aid. When AGENTS.md §12 and this file disagree, AGENTS.md wins.
+> **Authoritative registry**: [AGENTS.md §12 (full table: docs/registries/skills.md)](../AGENTS.md) — machine-validated by CI.
+> This README is a human navigation aid. When AGENTS.md §12 (full table: docs/registries/skills.md) and this file disagree, AGENTS.md wins.
 
 ---
 
@@ -61,7 +61,7 @@ Source: `scripts/pipeline/sync_skills.py:INTERNAL_SKILLS`.
 ## Skill Catalog
 
 80 registered skills grouped by functional category. For the machine-validated registry with
-full descriptions, see [AGENTS.md §12](../AGENTS.md).
+full descriptions, see [AGENTS.md §12 (full table: docs/registries/skills.md)](../AGENTS.md).
 
 ### Knowledge & Truth
 
@@ -229,7 +229,7 @@ S-62 (batch-reference) → S-38 (truth-audit, spot-check) → S-24 (evidence-cit
 ## Adding a New Skill
 
 1. Create `skills/{slug}.md` following the structure of an existing skill (Purpose → Pre-conditions → Steps → Post-conditions → Error Handling)
-2. Add an entry to AGENTS.md §12 with the next available S-XX ID
+2. Add an entry to AGENTS.md §12 (full table: docs/registries/skills.md) with the next available S-XX ID
 3. Add a DAR entry in AGENTS.md §6a (full detail: docs/governance/dar-table.md) if the skill has upstream dependencies
 4. Run `python scripts/ci/check_skill_registry.py` — must exit 0
 5. Run `python scripts/ci/check_dar_coverage.py` — must exit 0
