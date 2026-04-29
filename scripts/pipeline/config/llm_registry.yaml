@@ -1,0 +1,41 @@
+# LLM endpoint registry — single source of truth for all pipeline modules.
+#
+# Provider Priority Policy:
+#   1. professionalize (primary) — always tried first
+#   2. ollama (secondary) — fallback when primary unavailable
+#
+# Do NOT add providers without updating llm_router.py EndpointStatus enum.
+
+providers:
+  professionalize:
+    priority: 1
+    base_url: "https://llm.professionalize.com/v1"
+    api_key_env: "PROFESSIONALIZE_API_KEY"
+    chat:
+      endpoint: "/chat/completions"
+      model: "gpt-oss"
+      default_timeout: 90
+      default_temperature: 0.0
+      default_max_tokens: 8000
+    embeddings:
+      endpoint: "/embeddings"
+      model: "qwen3-embedding-8b"
+      default_timeout: 30
+      embed_dimensions: 4096
+
+  ollama:
+    priority: 2
+    base_url: "http://localhost:11434/v1"
+    api_key_env: null
+    preferred_models: ["llama3.2", "llama3.1", "mistral", "qwen2.5"]
+    chat:
+      endpoint: "/chat/completions"
+      model: "llama3.2"
+      default_timeout: 90
+      default_temperature: 0.0
+      default_max_tokens: 8000
+    embeddings:
+      endpoint: "/embeddings"
+      model: "nomic-embed-text"
+      default_timeout: 30
+      embed_dimensions: 768

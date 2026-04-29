@@ -1,0 +1,1780 @@
+# scripts/pipeline/registry.yaml
+# Machine-readable source of truth for all root .py scripts in scripts/pipeline/.
+# INVENTORY.md is GENERATED from this file — do not edit INVENTORY.md directly.
+# Schema docs: scripts/pipeline/PIPELINE.md § Registry Schema
+#
+# kind values:
+#   entrypoint  — has main() / CLI, called by skills/CI/operators
+#   library     — imported by other scripts, no public CLI
+#   one-shot    — maintenance utility, runs once and retained for reruns
+#
+# lifecycle values:  active | maintenance | deprecated
+# cli_contract:      stable | none
+# backing.kind:      skill | workflow | internal
+#
+# Optional fields:
+#   change_impact   — free-text; populated for top hotspots; null by default
+#                     emitted as a column in INVENTORY.md
+#   requires_test   — true/false; if true, CHECK 4 blocks when test_targets is empty
+#                     default: false (existing entries grandfathered)
+
+scripts:
+
+  # ── Tier 1 — CI-blocking / CONTRACT-tagged ─────────────────────────────────
+
+  - path: scripts/pipeline/audit.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: skill
+      ref: content-check
+    test_targets:
+      - scripts/pipeline/tests/test_audit.py
+    deprecated_since: null
+    notes: "wrapper → audit.runner.main()"
+
+  - path: scripts/pipeline/attach_evidence.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: skill
+      ref: evidence-enhance
+    test_targets:
+      - scripts/pipeline/tests/test_attach_evidence_behavior.py
+    requires_test: true
+    deprecated_since: null
+    notes: "wrapper → evidence.runner.main()"
+
+  - path: scripts/pipeline/backtrack_controller.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: backtrack
+    backing:
+      kind: skill
+      ref: causal-backtrack
+    test_targets:
+      - scripts/pipeline/tests/test_backtrack_controller.py
+    deprecated_since: null
+    requires_test: true
+    change_impact: "HIGH: causal orchestrator; depth-guard and cycle-detection logic"
+    notes: "causal backtrack orchestrator; also needs dependency_resolver.py"
+
+  - path: scripts/pipeline/change_guard.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-remediation
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_change_guard.py
+    deprecated_since: null
+    change_impact: "MEDIUM: 5 independent safety checks; leave as-is (no shared logic to extract)"
+    notes: "pre-write knowledge validation gate"
+
+  - path: scripts/pipeline/check_audit_results.py
+    kind: entrypoint
+    lifecycle: deprecated
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: workflow
+      ref: null
+    test_targets: []
+    deprecated_since: "2026-04-17"
+    notes: "deprecated; superseded by unconditional regression check in simulate_pr_checks.sh:130; retained for reference only"
+
+  - path: scripts/pipeline/check_dar_prerequisites.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_check_dar_prerequisites.py
+    requires_test: true
+    deprecated_since: null
+    notes: "DAR prerequisite enforcer; called by skill_context.py begin --check-dar"
+
+  - path: scripts/pipeline/skill_chain.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_skill_chain.py
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-SR-04: resolve ordered DAR prerequisite chain for a skill; --check-session verifies session satisfaction"
+
+  - path: scripts/pipeline/check_grade_downgrade.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-grading
+    backing:
+      kind: workflow
+      ref: content-audit.yml
+    test_targets:
+      - scripts/pipeline/tests/test_check_grade_integrity.py
+    deprecated_since: null
+    notes: "CI: detect grade downgrades in modified files"
+
+  - path: scripts/pipeline/check_grade_integrity.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-grading
+    backing:
+      kind: workflow
+      ref: content-audit.yml
+    test_targets:
+      - scripts/pipeline/tests/test_check_grade_integrity.py
+    deprecated_since: null
+    notes: "CI: validate grade block structure"
+
+  - path: scripts/pipeline/fix_grade_field_order.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: stable
+    owner_domain: content-grading
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_fix_grade_field_order.py
+    deprecated_since: null
+    notes: "One-shot bulk repair: reorder grade frontmatter fields to canonical order"
+
+  - path: scripts/pipeline/check_grade_presence.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-grading
+    backing:
+      kind: workflow
+      ref: content-audit.yml
+    test_targets:
+      - scripts/pipeline/tests/test_check_grade_presence_behavior.py
+    requires_test: true
+    deprecated_since: null
+    notes: "CI: verify grades in frontmatter of modified files"
+
+  - path: scripts/pipeline/check_graded_at_only.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: content-grading
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_check_graded_at_only.py
+    requires_test: true
+    deprecated_since: null
+    notes: "pre-commit hook Step 10 + S-76 Step B.4: classify staged or worktree .md files where only graded_at: changed; Case A = revert, B/C = pass, D = fail-closed"
+
+  - path: scripts/pipeline/check_knowledge_completeness.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "ratio threshold gate; called by refresh_knowledge.py which has integration tests"
+    deprecated_since: null
+    notes: "called by refresh_knowledge.py:52; checks enrichment_ratio / snippet_ratio"
+
+  - path: scripts/pipeline/content_audit.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: skill
+      ref: content-audit
+    test_targets:
+      - scripts/pipeline/tests/test_content_audit.py
+    deprecated_since: null
+    requires_test: true
+    change_impact: "HIGH: 5 mixed responsibilities; tier classification is load-bearing"
+    notes: "semantic prose auditor; code blocks delegated to audit.py"
+
+  - path: scripts/pipeline/cross_platform_audit.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: skill
+      ref: cross-platform
+    test_targets:
+      - scripts/pipeline/tests/test_cross_platform_unittest.py
+    deprecated_since: null
+    notes: "cross-platform format-support consistency audit"
+
+  - path: scripts/pipeline/knowledge_coverage.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: skill
+      ref: coverage-reconcile
+    test_targets:
+      - scripts/pipeline/tests/test_knowledge_coverage.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "per-claim disposition table; 9-state taxonomy; writes reports/coverage/{family}/{platform}/"
+
+  - path: scripts/pipeline/dependency_resolver.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: backtrack
+    backing:
+      kind: skill
+      ref: causal-backtrack
+    test_targets: []
+    test_exempt_reason: "graph operations; covered indirectly by test_backtrack_controller.py integration tests"
+    deprecated_since: null
+    notes: "backtrack dependency graph; shared CONTRACT with backtrack_controller.py"
+
+  - path: scripts/pipeline/embed.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: skill
+      ref: embed-knowledge
+    test_targets:
+      - scripts/pipeline/tests/test_embed.py
+    deprecated_since: null
+    notes: "dual-tier embedding helper; modes: standard, gap-index, findings-index"
+
+  - path: scripts/pipeline/embed_knowledge.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: skill
+      ref: embed-knowledge
+    test_targets: []
+    test_exempt_reason: "thin wrapper: calls embed.main() which has full coverage in test_embed.py"
+    deprecated_since: null
+    notes: "compatibility wrapper → embed.main()"
+
+  - path: scripts/pipeline/enrich.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: skill
+      ref: knowledge-enrich
+    test_targets:
+      - scripts/pipeline/tests/test_enrich.py
+    deprecated_since: null
+    requires_test: true
+    change_impact: "HIGH: LLM-dependent; dedupe/confidence logic is fragile"
+    notes: "LLM-enriched claim generation from scout artifacts"
+
+  - path: scripts/pipeline/evidence_verifier.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-infrastructure
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_evidence_verifier.py
+    deprecated_since: null
+    requires_test: true
+    change_impact: "4 direct consumers migrated to canonical imports (R-3b complete)"
+    notes: "evidence frontmatter validation: verify_evidence — extracted from knowledge_core (R-3a); consumer migration complete (R-3b)"
+
+  - path: scripts/pipeline/index.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: skill
+      ref: truth-index
+    test_targets:
+      - scripts/pipeline/tests/test_index.py
+    deprecated_since: null
+    requires_test: true
+    notes: "knowledge truth index builder; computes api_confidence tier"
+
+  - path: scripts/pipeline/launch_gate.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: workflow
+      ref: launch-product
+    test_targets:
+      - scripts/pipeline/tests/test_launch_gate.py
+    deprecated_since: null
+    notes: "pre-launch readiness checker; 8 automated gates (L-01 through L-08)"
+
+  - path: scripts/pipeline/readiness_scorecard.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: workflow
+      ref: launch-product
+    test_targets:
+      - scripts/pipeline/tests/test_readiness_scorecard.py
+    requires_test: true
+    deprecated_since: null
+    notes: "Stage 8 readiness scorecard for launch-product; collects grades and translation coverage"
+
+  - path: scripts/pipeline/readiness_gate.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: workflow
+      ref: system-heal
+    test_targets: []
+    requires_test: false
+    deprecated_since: null
+    notes: "TC-08 unified readiness gate: aggregates skill-sync, provider-sync, DAR, knowledge staleness, proof index, and launch-gate into one verdict"
+
+  - path: scripts/pipeline/human_review_sampler.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: workflow
+      ref: launch-product
+    test_targets:
+      - scripts/pipeline/tests/test_human_review_sampler.py
+    deprecated_since: null
+    notes: "H-gate sampling and sign-off generation for human review gates H-01 through H-05"
+
+  - path: scripts/pipeline/link_validator.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: skill
+      ref: link-validate
+    test_targets:
+      - scripts/pipeline/tests/test_link_validator.py
+    test_exempt_reason: null
+    deprecated_since: null
+    notes: "cross-subdomain internal link validator"
+
+  - path: scripts/pipeline/no_downgrade_guard.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-remediation
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_no_downgrade_guard.py
+    deprecated_since: null
+    notes: "pre-write grade downgrade protection; used by change_guard.py"
+
+  - path: scripts/pipeline/promote.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: skill
+      ref: truth-merge
+    test_targets:
+      - scripts/pipeline/tests/test_merge_determinism.py
+    deprecated_since: null
+    notes: "scout → merged knowledge promotion; replaces deleted merge.py"
+
+  - path: scripts/pipeline/refresh_knowledge.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: skill
+      ref: knowledge-update
+    test_targets:
+      - scripts/pipeline/tests/test_refresh_knowledge.py
+    deprecated_since: null
+    requires_test: true
+    change_impact: "HIGH: pipeline orchestrator; controls scout→enrich→promote→index sequencing"
+    notes: "knowledge pipeline orchestrator; runs scout → enrich → promote → index"
+
+  - path: scripts/pipeline/refresh_review.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_refresh_review.py
+    requires_test: true
+    deprecated_since: null
+    notes: "record per-page BODY_UPDATED/EVIDENCE_ONLY/NOT_AFFECTED/RETIRED decisions; generate coverage_report.md; Step 13.5 of S-84"
+
+  - path: scripts/pipeline/regenerate_reference.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: skill
+      ref: batch-reference
+    test_targets: []
+    test_exempt_reason: "thin wrapper: calls batch_reference.main() which has full coverage in test_batch_reference.py"
+    deprecated_since: null
+    notes: "regenerate reference pages from api_surface.json"
+
+  - path: scripts/pipeline/remediate.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-remediation
+    backing:
+      kind: skill
+      ref: batch-remediate
+    test_targets:
+      - scripts/pipeline/tests/test_remediate_output_root.py
+    deprecated_since: null
+    notes: "batch content remediation; modes: triage, fix, report, status"
+
+  - path: scripts/pipeline/page_spec.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-generation
+    backing:
+      kind: skill
+      ref: batch-reference
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "dataclass library imported by batch_reference.py; coverage via test_batch_reference.py"
+    deprecated_since: null
+    change_impact: null
+    notes: "PageSpec/SectionPlan/SitePlan dataclasses; bridges site_planner.py output to batch_reference.py input"
+
+  - path: scripts/pipeline/batch_reference.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-generation
+    backing:
+      kind: skill
+      ref: batch-reference
+    test_targets:
+      - scripts/pipeline/tests/test_batch_reference.py
+      - tests/test_batch_reference.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "batch reference page generation from api_surface.json; ERC-* claim fallback when doc empty; --update flag regenerates only classes in knowledge_delta.json modified_apis"
+
+  - path: scripts/pipeline/run_content_eval.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: skill
+      ref: content-eval
+    test_targets: []
+    test_exempt_reason: "thin wrapper: delegates to content_eval.cli which has full coverage"
+    deprecated_since: null
+    change_impact: null
+    notes: "thin wrapper entrypoint for content_eval; enables repo-root invocation without PYTHONPATH"
+
+  - path: scripts/pipeline/scout.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: skill
+      ref: repo-scout
+    test_targets:
+      - scripts/pipeline/tests/test_scout.py
+      - scripts/pipeline/tests/test_scout_extraction.py
+    deprecated_since: null
+    notes: "tree-sitter extraction shim from FOSS repos"
+
+  - path: scripts/pipeline/smoke_test.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: skill
+      ref: code-smoke
+    test_targets:
+      - scripts/pipeline/tests/test_smoke_test.py
+    deprecated_since: null
+    notes: "code block syntax/type checker; never executes code"
+
+  - path: scripts/pipeline/page_impact_assess.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_page_impact_assess.py
+    requires_test: true
+    deprecated_since: null
+    notes: "PIA: score English pages HIGH/MEDIUM/NOT_AFFECTED vs knowledge delta signals; outputs reports/refresh_review/{family}/{platform}/page_impact.json; Step 3.5 of S-84"
+
+  - path: scripts/pipeline/stale_detect.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: skill
+      ref: stale-detect
+    test_targets:
+      - scripts/pipeline/tests/test_stale_detect_unittest.py
+    deprecated_since: null
+    notes: "detect pages with stale evidence relative to knowledge model"
+
+  - path: scripts/pipeline/sync_providers.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_sync_providers.py
+    deprecated_since: null
+    notes: "propagate canonical skills/ to .agents/, .claude/commands/, .kilocode/ trees"
+
+  - path: scripts/pipeline/_skill_constants.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "19-line frozenset constant; indirectly validated by test_sync_skills.py and test_sync_providers.py"
+    deprecated_since: null
+    notes: "Shared constants (INTERNAL_SKILLS frozenset) for sync_skills.py and sync_providers.py."
+
+  - path: scripts/pipeline/sync_skills.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: workflow
+      ref: content-audit.yml
+    test_targets:
+      - scripts/pipeline/tests/test_sync_skills.py
+    deprecated_since: null
+    notes: "CI parity check: canonical skills/ must match all provider copies"
+
+  - path: scripts/pipeline/translation_coverage.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: workflow
+      ref: content-audit.yml
+    test_targets: []
+    test_exempt_reason: "advisory metric; always exits 0; no downstream consumers depend on output format"
+    deprecated_since: null
+    notes: "CI: measure translation coverage across all subdomains"
+
+  - path: scripts/pipeline/truth_audit.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: skill
+      ref: truth-audit
+    test_targets:
+      - scripts/pipeline/tests/test_truth_audit_unittest.py
+    deprecated_since: null
+    notes: "member-level audit wrapper → audit.runner.audit_product()"
+
+  - path: scripts/pipeline/truth_audit_content.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: skill
+      ref: truth-audit-content
+    test_targets:
+      - scripts/pipeline/tests/test_truth_audit_content.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "S-85: line-level content truth audit; decomposes pages into units, verifies against clone cache + knowledge model"
+
+  - path: scripts/pipeline/update_product_registry.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: product-registry
+    backing:
+      kind: skill
+      ref: update-registry
+    test_targets:
+      - scripts/pipeline/tests/test_update_product_registry.py
+    requires_test: true
+    deprecated_since: null
+    notes: "update data/products.json from GitHub org and local knowledge dirs"
+
+  - path: scripts/pipeline/validate_frontmatter.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: workflow
+      ref: content-audit.yml
+    test_targets:
+      - scripts/pipeline/tests/test_validate_frontmatter.py
+    deprecated_since: null
+    notes: "CI: detect structural/key-level frontmatter issues"
+
+  # ── Tier 2 — Active libraries and diagnostics ───────────────────────────────
+
+  - path: scripts/pipeline/heal_controller.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: healing
+    backing:
+      kind: skill
+      ref: system-heal
+    test_targets:
+      - scripts/pipeline/tests/test_heal_controller.py
+    requires_test: true
+    deprecated_since: null
+    notes: "healing pipeline orchestrator: triage → policy → grouping → dispatch → verify"
+
+  - path: scripts/pipeline/heal_policy.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: healing
+    backing:
+      kind: skill
+      ref: system-heal
+    test_targets:
+      - scripts/pipeline/tests/test_heal_policy.py
+    requires_test: true
+    deprecated_since: null
+    notes: "policy table mapping issue class → heal mode + skill"
+
+  - path: scripts/pipeline/llm_router.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: llm-infrastructure
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_llm_router.py
+    requires_test: true
+    deprecated_since: null
+    notes: "shared LLM router with provider fallback chain; replaces per-module _llm_call()"
+
+  - path: scripts/pipeline/verify.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: healing
+    backing:
+      kind: skill
+      ref: system-heal
+    test_targets:
+      - scripts/pipeline/tests/test_verify.py
+    requires_test: true
+    deprecated_since: null
+    notes: "healing verification with regression detection (before/after finding comparison)"
+
+  - path: scripts/pipeline/check_locale_topology.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_check_locale_topology.py
+    deprecated_since: null
+    notes: "compare H2 structure between English and locale files"
+
+  - path: scripts/pipeline/grade_manifest.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-grading
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_grade_manifest.py
+    deprecated_since: null
+    notes: "ARCH-01: external grade manifest — stores per-page operational evaluation state outside .md files"
+
+  - path: scripts/pipeline/grade_writer.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-grading
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_grade_writer.py
+      - scripts/pipeline/tests/test_grade_integration.py
+    deprecated_since: null
+    notes: "read/write grade metadata in YAML frontmatter; style-preserving"
+
+  - path: scripts/pipeline/ground_check.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: skill
+      ref: content-check
+    test_targets: []
+    deprecated_since: null
+    notes: "S-23 grounding ratio gate — verifies backtick identifiers against api_surface.json"
+
+  - path: scripts/pipeline/triage_confirm.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "Layer 2 body-prose scanner; imported by refresh_knowledge.py; coverage via refresh_knowledge tests"
+    deprecated_since: null
+    change_impact: null
+    notes: "RH-201 Layer 2 triage — scans page body prose for stale API class or claim references; used by refresh pipeline to detect false-negative staleness"
+
+  - path: scripts/pipeline/reconcile_triage.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "3-source reconciliation library; imported by refresh pipeline; coverage via test_refresh_validation.py (TestReconcileTriageFinalVerdict + TestTwoLayerModelProof)"
+    deprecated_since: null
+    change_impact: null
+    notes: "RH-203 3-source triage reconciliation — combines layer1_triage, layer2_triage, page_spec into final_verdict; conservative: any stale signal triggers needs_update"
+
+  - path: scripts/pipeline/content_discovery.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-infrastructure
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_content_discovery.py
+    deprecated_since: null
+    requires_test: true
+    change_impact: "9 indirect consumers migrated to canonical imports (R-1b complete)"
+    notes: "content file discovery: discover_content, discover_products, infer_product — extracted from knowledge_core (R-1a); consumer migration complete (R-1b)"
+
+  - path: scripts/pipeline/knowledge_core.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-infrastructure
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_knowledge_core.py
+      - scripts/pipeline/tests/test_knowledge_core_api_surface.py
+    deprecated_since: null
+    requires_test: true
+    change_impact: "6 import sites (Knowledge class only) — run full pytest after any change"
+    notes: "knowledge model loading; all re-exports removed post-R-4; public API: {Knowledge, diff}"
+
+  - path: scripts/pipeline/core/knowledge.py
+    kind: shim
+    lifecycle: active
+    canonical_impl_path: scripts/pipeline/knowledge_core.py
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-infrastructure
+    backing:
+      kind: internal
+      ref: scripts/pipeline/knowledge_core.py
+    test_targets:
+      - scripts/pipeline/tests/test_core_knowledge_shim.py
+    deprecated_since: null
+    requires_test: true
+    change_impact: "backward-compat re-export shim; update if any canonical module moves a symbol"
+    notes: "re-exports 12 symbols from knowledge_core, content_discovery, evidence_verifier, core.markdown; zero production callers as of R-4"
+
+  - path: scripts/pipeline/manual_edit_helpers.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-remediation
+    backing:
+      kind: skill
+      ref: manual-edit
+    test_targets: []
+    test_exempt_reason: "agent-only helpers for S-73 manual-edit skill; not in CI path"
+    deprecated_since: null
+    notes: "helpers for S-73 manual-edit skill; section detection, scope validation"
+
+  - path: scripts/pipeline/org_scanner.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: product-registry
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_update_product_registry.py
+    requires_test: true
+    deprecated_since: null
+    notes: "GitHub org scanner; used by update_product_registry.py"
+
+  - path: scripts/pipeline/repo_patrol.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: product-registry
+    backing:
+      kind: skill
+      ref: repo-patrol
+    test_targets:
+      - scripts/pipeline/tests/test_repo_patrol.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "S-93/S-94: repo discovery scan, change sweep, combined reporting; subcommands: scan, sweep, report"
+
+  - path: scripts/pipeline/path_utils.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-infrastructure
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "single function repo_rel(); pure utility; validated indirectly by 6+ consumer test suites"
+    deprecated_since: null
+    notes: "shared path rendering utilities; provides repo_rel()"
+
+  - path: scripts/pipeline/provenance.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-infrastructure
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_provenance.py
+    deprecated_since: null
+    notes: "read/write provenance metadata in YAML frontmatter"
+
+  - path: scripts/pipeline/section_enhance_validator.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: governance
+    backing:
+      kind: skill
+      ref: section-enhance
+    test_targets:
+      - scripts/pipeline/tests/test_section_enhance_validator.py
+    requires_test: true
+    deprecated_since: null
+    notes: "S-96 Phase 1 audit output validator: artifact completeness, manifest schema, adapter isolation, no-write detection, zero-proposal acceptance, slug validation"
+
+  - path: scripts/pipeline/session_logger.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-infrastructure
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "write-only file logger; no return values; validated by session_ledger integration tests"
+    deprecated_since: null
+    notes: "log skill invocations to reports/session-invocations/"
+
+  - path: scripts/pipeline/token_ops.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_token_extraction.py
+    deprecated_since: null
+    notes: "token extraction and verification against knowledge API surface"
+
+  - path: scripts/pipeline/validate_product_yaml.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: workflow
+      ref: content-audit.yml
+    test_targets:
+      - scripts/pipeline/tests/test_validate_product_yaml.py
+    deprecated_since: null
+    notes: "CI gate: check garbled code blocks and non-literal multi-line scalars"
+
+  - path: scripts/pipeline/validate_plugin_structure.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: workflow
+      ref: null
+    test_targets: []
+    test_exempt_reason: "structural YAML gate; Hugo build step in CI already catches the failures it detects"
+    deprecated_since: null
+    notes: "Structural gate for layout: plugin product pages — checks BODY_LEAK, MISSING_KEY, MISSING_ENABLE"
+
+  - path: scripts/pipeline/complete_plugin_structure.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: skill
+      ref: new-products-page
+    test_targets:
+      - scripts/pipeline/tests/test_complete_plugin_structure.py
+    deprecated_since: null
+    notes: "Inserts missing display-control sections into layout: plugin pages. Idempotent."
+
+  # ── Tier 3 — Governance tools (do NOT move or rename) ──────────────────────
+
+  - path: scripts/pipeline/override_manager.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_override_manager.py
+    requires_test: true
+    deprecated_since: null
+    notes: "GOVERNANCE: override token lifecycle; DO NOT MOVE OR RENAME"
+
+  - path: scripts/pipeline/path_guard.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_path_guard.py
+    deprecated_since: null
+    notes: "GOVERNANCE: forbidden write-path enforcement oracle; DO NOT MOVE OR RENAME"
+
+  - path: scripts/pipeline/plan_check.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_plan_check.py
+    requires_test: true
+    deprecated_since: null
+    notes: "GOVERNANCE: validate slug exists in site plan before content write"
+
+  - path: scripts/pipeline/project_phase_store.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: skill
+      ref: launch-product
+    test_targets:
+      - scripts/pipeline/tests/test_project_phase_store.py
+    deprecated_since: null
+    notes: "GOVERNANCE: checkpoint store for launch orchestration; DO NOT MOVE OR RENAME"
+
+  - path: scripts/pipeline/site_planner.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: skill
+      ref: site-plan
+    test_targets:
+      - scripts/pipeline/tests/test_site_planner.py
+      - scripts/pipeline/tests/test_site_planner_update.py
+    deprecated_since: null
+    change_impact: "MEDIUM: 1756 lines; cluster detection mixed with manifest generation; deferred refactor"
+    notes: "GOVERNANCE: site manifest generator; DO NOT MOVE OR RENAME"
+
+  - path: scripts/pipeline/seed_grade_manifest.py
+    kind: one-shot
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: content-grading
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "one-shot migration script; validates via manifest entry counts"
+    deprecated_since: null
+    notes: "ARCH-05: one-time seeding of grade_manifest.json from existing frontmatter"
+
+  - path: scripts/pipeline/migrate_strip_operational_frontmatter.py
+    kind: one-shot
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: content-grading
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "MIG-01 one-shot migration; validates via inventory + dry-run + post-strip checks"
+    deprecated_since: null
+    notes: "MIG-01: strip operational grade fields from .md frontmatter (Wave 5 migration)"
+
+  - path: scripts/pipeline/session_ledger.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: skill
+      ref: commit
+    test_targets:
+      - scripts/pipeline/tests/test_session_ledger.py
+    deprecated_since: null
+    notes: "GOVERNANCE: session-scoped file touch ledger for /commit scoping"
+
+  - path: scripts/pipeline/report_extract.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: backlog
+    backing:
+      kind: skill
+      ref: backlog
+    test_targets:
+      - scripts/pipeline/tests/test_report_extract.py
+    requires_test: true
+    deprecated_since: null
+    notes: "extract open/unresolved items from markdown reports for backlog harvest"
+
+  - path: scripts/pipeline/harvest_ledger.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: backlog
+    backing:
+      kind: skill
+      ref: backlog
+    test_targets:
+      - scripts/pipeline/tests/test_harvest_ledger.py
+    requires_test: true
+    deprecated_since: null
+    notes: "harvest ledger CRUD — tracks report items processed into backlog"
+
+  - path: scripts/pipeline/skill_run_manager.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_skill_run_manager.py
+    deprecated_since: null
+    notes: "GOVERNANCE: skill run record management; DO NOT MOVE OR RENAME"
+
+  - path: scripts/pipeline/preflight.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_preflight.py
+    requires_test: true
+    deprecated_since: null
+    notes: "GOVERNANCE: universal pre-write preflight check; agent-agnostic enforcement"
+
+  - path: scripts/pipeline/skill_context.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_skill_context.py
+    requires_test: true
+    deprecated_since: null
+    notes: "GOVERNANCE: active-skill state machine for PreToolUse hook enforcement"
+
+  # ── Tier 4 — Kilocode provider integration (→ Phase C deferred) ────────────
+
+  - path: scripts/pipeline/kilocode_compliance.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: kilocode-provider
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "Track B Phase C deferred; not yet in active CI path"
+    deprecated_since: null
+    notes: "compliance tracking for Kilo Code provider; Track B Phase C candidate"
+
+  - path: scripts/pipeline/kilocode_gate.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: kilocode-provider
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_kilocode_gate.py
+    deprecated_since: null
+    notes: "Kilo Code gate: enforce skill-first execution; Track B Phase C candidate"
+
+  - path: scripts/pipeline/kilocode_learning.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: kilocode-provider
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_kilocode_learning.py
+    deprecated_since: null
+    notes: "violation-driven learning for Kilo Code; Track B Phase C candidate"
+
+  - path: scripts/pipeline/kilocode_postcheck.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: kilocode-provider
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_kilocode_postcheck.py
+    deprecated_since: null
+    notes: "post-execution check for Kilo Code; Track B Phase C candidate"
+
+  - path: scripts/pipeline/kilocode_skill_chain.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: kilocode-provider
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_kilocode_skill_chain.py
+    deprecated_since: null
+    notes: "skill chain orchestration for Kilo Code; Track B Phase C candidate"
+
+  - path: scripts/pipeline/kilocode_skill_validator.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: kilocode-provider
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_kilocode_skill_validator.py
+    deprecated_since: null
+    notes: "skill validation for Kilo Code; Track B Phase C candidate"
+
+  # ── Tier 5 — One-time / maintenance utilities ───────────────────────────────
+
+  - path: scripts/pipeline/apply_origin_decisions.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: provenance-maintenance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_apply_origin_decisions.py
+    deprecated_since: null
+    notes: "apply content_origin field decisions from review records"
+
+  - path: scripts/pipeline/audit_content_created_at.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: provenance-maintenance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "one-shot maintenance; no production callers; run manually against live repo"
+    deprecated_since: null
+    notes: "audit created_at field against actual file/git timestamps"
+
+  - path: scripts/pipeline/audit_content_hash.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: provenance-maintenance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_audit_content_hash.py
+    deprecated_since: null
+    notes: "report files where stored content_hash != computed hash"
+
+  - path: scripts/pipeline/audit_content_origin.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: provenance-maintenance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_audit_content_origin.py
+    deprecated_since: null
+    notes: "audit content_origin classification across all content files"
+
+  - path: scripts/pipeline/cleanup_reviewed_field.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: provenance-maintenance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "one-shot migration; run once; no automated path"
+    deprecated_since: null
+    notes: "remove deprecated 'reviewed' field from provenance blocks"
+
+  - path: scripts/pipeline/content_created_at_backfill.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: provenance-maintenance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_content_created_at_backfill.py
+    deprecated_since: null
+    notes: "backfill created_at timestamps for pages missing the field"
+
+  - path: scripts/pipeline/content_hash_backfill.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: provenance-maintenance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "one-shot backfill; run once; no automated path"
+    deprecated_since: null
+    notes: "backfill content_hash values for pages missing the field"
+
+  - path: scripts/pipeline/content_origin_recover.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: provenance-maintenance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_content_origin_recover.py
+    deprecated_since: null
+    notes: "recover content_origin from signals; has local _FRONTMATTER_RE (consolidate A2)"
+
+  - path: scripts/pipeline/fix_last_mechanism.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: provenance-maintenance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_fix_last_mechanism.py
+    deprecated_since: null
+    notes: "repair stale last_mechanism values in provenance blocks"
+
+  - path: scripts/pipeline/logic_version_backfill.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: provenance-maintenance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_logic_version_backfill.py
+    deprecated_since: null
+    notes: "backfill graded_logic_version in provenance blocks"
+
+  - path: scripts/pipeline/normalize_yaml_style.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: provenance-maintenance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_normalize_yaml_style.py
+    deprecated_since: null
+    notes: "normalize YAML formatting; uses strict frontmatter variant (see Phase A2b)"
+
+  - path: scripts/pipeline/provenance_backfill.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: provenance-maintenance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "one-shot backfill; no automated path; run manually against live repo"
+    deprecated_since: null
+    notes: "idempotent provenance block backfill for English pages"
+
+  - path: scripts/pipeline/provenance_normalize_hash.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: provenance-maintenance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_provenance_normalize_hash.py
+    deprecated_since: null
+    notes: "normalize content_hash format in provenance blocks"
+
+  - path: scripts/pipeline/source_sha_backfill.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: provenance-maintenance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_source_sha_backfill.py
+    deprecated_since: null
+    notes: "backfill source_sha in translation provenance blocks"
+
+  - path: scripts/pipeline/structural_lock.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: provenance-maintenance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_structural_lock.py
+    deprecated_since: null
+    notes: "prevent structural overwrites of locked pages"
+
+  # ── Tier 7 — Standalone ops (→ Phase D deferred) ───────────────────────────
+
+  - path: scripts/pipeline/expand_cpp_stubs.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: cpp-platform
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_cpp_stubs.py
+    deprecated_since: null
+    notes: "expand C++ stub definitions; Track B Phase D candidate"
+
+  - path: scripts/pipeline/launch_rollback.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: skill
+      ref: launch-rollback
+    test_targets:
+      - scripts/pipeline/tests/test_launch_rollback.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "S-79: revert one product's generated content files after a flawed launch; reads site_plan.yaml; protects system files"
+
+  - path: scripts/pipeline/post_refresh_verify.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_post_refresh_verify.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "post-refresh verification gate and pipeline progress tracker; --step records steps, --verify gates on required checks"
+
+  - path: scripts/pipeline/retire_page.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_retire_page.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "mark content pages as retired via draft:true + retired_at frontmatter; batch mode reads site_plan.yaml; does not delete files"
+
+  - path: scripts/pipeline/description_coverage_audit.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "read-only audit scanner; validates against knowledge artifacts in knowledge/{family}/{platform}/merged/; no stateful logic to unit-test independently"
+    deprecated_since: null
+    change_impact: null
+    notes: "per-product ERC api-kind member-doc coverage audit; scans claims.json vs api_surface.json; emits stdout table + knowledge/description_coverage_report.json; exit 1 if any product below --min-coverage threshold"
+
+  - path: scripts/pipeline/fix_ta_access.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_fix_ta_access.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "batch repair: fix type_accuracy Access column defects in reference pages; reads api_surface.json writable flags; supports --dry-run, --family, --platform, --files args; idempotent"
+
