@@ -2,7 +2,10 @@
 
 This file contains **no operational rules**. All governance, skill chains,
 write-path enforcement, evidence requirements, and task protocols live
-exclusively in `AGENTS.md`.
+exclusively in `AGENTS.md` (constitutional root) and its child documents:
+- `docs/governance/` — write boundaries, evidence, provenance, DAR, launch gates
+- `docs/workflows/` — skill chains, maintenance, evaluator changes, gap escalation
+- `docs/registries/` — file map, skills registry (Phase 4)
 
 ## Mandatory First Action
 
@@ -27,7 +30,7 @@ These rules are enforced by PreToolUse hooks — violations will be auto-blocked
 | Commit any content change | Invoke `/commit` (S-76) — never run `git commit` directly |
 
 **Inline reasoning bypass is prohibited.** If no skill covers the task, invoke the
-gap escalation protocol (§6b) — do not proceed without a registered skill.
+gap escalation protocol (§6b — full detail: docs/workflows/gap-escalation.md) — do not proceed without a registered skill.
 
 ## After Reading AGENTS.md
 

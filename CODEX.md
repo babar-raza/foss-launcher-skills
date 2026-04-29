@@ -5,7 +5,9 @@
 
 ## Read Order
 
-1. `AGENTS.md` — governance rules, skill chains, evidence requirements
+1. `AGENTS.md` — constitutional governance root (slim version with routing matrix)
+   - Detailed governance: `docs/governance/` (write boundaries, evidence, provenance, DAR, testing seam)
+   - Detailed workflows: `docs/workflows/` (skill chains, maintenance, evaluator changes, gap escalation)
 2. This file (`CODEX.md`)
 3. `knowledge/{family}/{platform}/model.yaml` — for the target product
 4. `knowledge/{family}/{platform}/claims.md` — verify claims are current

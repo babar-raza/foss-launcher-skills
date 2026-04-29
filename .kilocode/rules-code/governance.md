@@ -1,11 +1,13 @@
 # Governance Rules for Kilo Code
 
-> Extracted from `AGENTS.md` — the full authoritative governance file.
-> Always defer to `AGENTS.md` when in doubt.
+> Extracted from `AGENTS.md` (constitutional root) and its child documents.
+> Always defer to `AGENTS.md` when in doubt. Detailed governance lives in:
+> - `docs/governance/` — write boundaries, evidence, provenance, DAR, testing seam
+> - `docs/workflows/` — skill chains, maintenance, evaluator changes, gap escalation
 
 ## Read Order
 
-1. `AGENTS.md` — full governance rules
+1. `AGENTS.md` — constitutional governance root (with routing matrix to child docs)
 2. This file (summary for Kilo Code)
 3. `knowledge/{family}/{platform}/model.yaml` — for the target product
 4. `knowledge/{family}/{platform}/claims.md` — verify claims are current
