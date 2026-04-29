@@ -6,7 +6,7 @@ for each changed .md file.  Warns (does not block) when the two disagree for
 the same content_hash.
 
 Usage (CI):
-    python scripts/ci/check_manifest_consistency.py <file1.md> [file2.md ...]
+    python scripts/ci/checks/check_manifest_consistency.py <file1.md> [file2.md ...]
 
 Exit codes:
     0  — all consistent (or no manifest / no grade)

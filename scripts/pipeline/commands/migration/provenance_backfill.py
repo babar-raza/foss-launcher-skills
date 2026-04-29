@@ -18,7 +18,7 @@ For locale files:
     auto_updatable: true
 
 Usage:
-    python scripts/pipeline/provenance_backfill.py [--dry-run] [--family FAMILY] [--platform PLATFORM]
+    python scripts/pipeline/commands/migration/provenance_backfill.py [--dry-run] [--family FAMILY] [--platform PLATFORM]
 """
 from __future__ import annotations
 

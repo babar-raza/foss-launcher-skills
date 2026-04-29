@@ -1,9 +1,9 @@
 """CI helper: verify that modified content files have grades in frontmatter.
 
 Usage:
-    python scripts/pipeline/check_grade_presence.py --scope modified file1.md file2.md
-    python scripts/pipeline/check_grade_presence.py --scope all
-    python scripts/pipeline/check_grade_presence.py --scope modified --allow-new file1.md
+    python scripts/pipeline/commands/governance/check_grade_presence.py --scope modified file1.md file2.md
+    python scripts/pipeline/commands/governance/check_grade_presence.py --scope all
+    python scripts/pipeline/commands/governance/check_grade_presence.py --scope modified --allow-new file1.md
 """
 import argparse
 import sys

@@ -1,8 +1,8 @@
 """Update data/products.json by scanning the GitHub org and local knowledge dirs.
 
 Usage:
-    python scripts/pipeline/update_product_registry.py [--token TOKEN] [--force]
-    python scripts/pipeline/update_product_registry.py --local-only
+    python scripts/pipeline/commands/ops/update_product_registry.py [--token TOKEN] [--force]
+    python scripts/pipeline/commands/ops/update_product_registry.py --local-only
 
 Modes:
     Default:      Scan GitHub org for FOSS repos, merge with local knowledge dirs.

@@ -382,7 +382,7 @@ if __name__ == "__main__":
     # so we can't fix it here at __main__ time. Instead, print a clear error.
     print(
         "Error: cli.py cannot be invoked directly due to relative imports.\n"
-        "Use: .venv/Scripts/python scripts/pipeline/run_content_eval.py evaluate ...\n"
+        "Use: .venv/Scripts/python scripts/pipeline/commands/content/run_content_eval.py evaluate ...\n"
         "  or: PYTHONPATH=scripts/pipeline .venv/Scripts/python -m content_eval evaluate ...",
         file=_sys.stderr,
     )

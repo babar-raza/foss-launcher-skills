@@ -8,8 +8,8 @@ The script does NOT execute skills — it plans the execution order, enabling
 operators to see exactly what must run before their target skill.
 
 Usage:
-    python scripts/pipeline/skill_chain.py --skill S-21
-    python scripts/pipeline/skill_chain.py --skill page-enhance --check-session
+    python scripts/pipeline/commands/ops/skill_chain.py --skill S-21
+    python scripts/pipeline/commands/ops/skill_chain.py --skill page-enhance --check-session
 
 Options:
     --skill SKILL        Skill S-ID (e.g. S-21) or slug (e.g. page-enhance)

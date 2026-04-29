@@ -3,8 +3,8 @@
 Called by the commit-msg hook and CI workflow to validate "Skills invoked:" declarations.
 
 Usage:
-  python scripts/ci/validate_skill_ids.py S-01 S-23 S-48
-  echo "Skills invoked: [S-01, S-48]" | python scripts/ci/validate_skill_ids.py --stdin
+  python scripts/ci/checks/validate_skill_ids.py S-01 S-23 S-48
+  echo "Skills invoked: [S-01, S-48]" | python scripts/ci/checks/validate_skill_ids.py --stdin
 
 Exit codes:
   0  All IDs are valid (or no IDs provided)

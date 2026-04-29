@@ -18,13 +18,13 @@ Checks every Markdown file under content/products.aspose.org/ (or specified path
 USAGE
 -----
     # Check all product pages (CI mode):
-    python scripts/pipeline/validate_product_yaml.py
+    python scripts/pipeline/commands/content/validate_product_yaml.py
 
     # Strict mode — also exit 1 on non-literal scalars:
-    python scripts/pipeline/validate_product_yaml.py --strict
+    python scripts/pipeline/commands/content/validate_product_yaml.py --strict
 
     # Check a specific file or directory:
-    python scripts/pipeline/validate_product_yaml.py content/products.aspose.org/en/
+    python scripts/pipeline/commands/content/validate_product_yaml.py content/products.aspose.org/en/
 
 EXIT CODES
 ----------
@@ -138,7 +138,7 @@ def validate_paths(
     if warning_count > 0 and not quiet:
         print(
             "  Warnings indicate non-literal YAML scalars — run: "
-            "python scripts/pipeline/normalize_yaml_style.py",
+            "python scripts/pipeline/commands/migration/normalize_yaml_style.py",
             file=sys.stderr,
         )
 

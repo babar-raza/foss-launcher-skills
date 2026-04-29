@@ -14,7 +14,7 @@ Usage (Python import):
         print(f"REGRESSION: {len(report.new_fails)} new FAILs introduced")
 
 Usage (CLI):
-    python scripts/pipeline/verify.py --before-report reports/eval-before.json \\
+    python scripts/pipeline/commands/healing/verify.py --before-report reports/eval-before.json \\
         --files content/docs.aspose.org/en/slides/net/features.md
 """
 

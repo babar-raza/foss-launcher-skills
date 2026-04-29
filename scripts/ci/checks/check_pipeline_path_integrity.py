@@ -10,8 +10,8 @@ Five check categories (each reports file:line on failure):
   CHECK 5 — Skill docs that hardcode paths (skills/commit.md)
 
 Usage:
-    python scripts/ci/check_pipeline_path_integrity.py
-    python scripts/ci/check_pipeline_path_integrity.py --dry-run   # report only, exit 0
+    python scripts/ci/checks/check_pipeline_path_integrity.py
+    python scripts/ci/checks/check_pipeline_path_integrity.py --dry-run   # report only, exit 0
 
 Exit codes:
     0 — all referenced paths exist

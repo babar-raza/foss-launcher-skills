@@ -13,8 +13,8 @@ This script is ADVISORY only — it always exits 0.
 It is designed to be run as a CI step in content-audit.yml.
 
 Usage:
-    python scripts/ci/check_pipeline_size.py
-    python scripts/ci/check_pipeline_size.py --fail-on-alert  # exit 1 if any ALERT
+    python scripts/ci/checks/check_pipeline_size.py
+    python scripts/ci/checks/check_pipeline_size.py --fail-on-alert  # exit 1 if any ALERT
 """
 from __future__ import annotations
 

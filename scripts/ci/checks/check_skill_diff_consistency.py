@@ -12,7 +12,7 @@ locale translation files — family-sync expects changes to family landing pages
 
 Usage:
   # Check all commits in the PR
-  python scripts/ci/check_skill_diff_consistency.py --pr-diff-files file1 file2 ...
+  python scripts/ci/checks/check_skill_diff_consistency.py --pr-diff-files file1 file2 ...
 
 Exit codes:
   0  No suspicious mismatches (or warnings only)

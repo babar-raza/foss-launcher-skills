@@ -55,7 +55,7 @@ def _log(*args, **kwargs):
 def _write_content_check_marker(fp: Path) -> None:
     """Write a pass marker for fp to reports/content-check/.
 
-    The marker is consumed by scripts/ci/check_content_write_hook.sh to confirm
+    The marker is consumed by scripts/ci/hooks/check_content_write_hook.sh to confirm
     that S-23 content-check passed before allowing a Write tool call on the file.
     Encoding: path separators replaced with underscores, matching the shell hook.
 

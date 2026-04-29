@@ -6,7 +6,7 @@ TC-5 removed the write path for 'reviewed:' from provenance_backfill.py, but
 block. This script removes the field to eliminate data noise.
 
 Usage:
-    python scripts/pipeline/cleanup_reviewed_field.py [--apply] [--site SITE]
+    python scripts/pipeline/commands/migration/cleanup_reviewed_field.py [--apply] [--site SITE]
 
     --apply     Actually write changes (default: dry-run)
     --site      Limit to one site (e.g. blog.aspose.org)

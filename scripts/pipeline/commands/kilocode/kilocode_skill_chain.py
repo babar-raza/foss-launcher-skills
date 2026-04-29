@@ -4,7 +4,7 @@ This module verifies that skill chains follow the correct dependency
 order as defined in AGENTS.md §6a (DAR table).
 
 Usage:
-    python scripts/pipeline/kilocode_skill_chain.py <skill1> <skill2> ...
+    python scripts/pipeline/commands/kilocode/kilocode_skill_chain.py <skill1> <skill2> ...
 
 Exit codes:
     0  VALID - skill chain is valid

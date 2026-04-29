@@ -7,8 +7,8 @@ All Python execution in this repo must use .venv/Scripts/python (Windows) or
 venv-installed dependencies are available.
 
 Usage:
-  .venv/Scripts/python scripts/ci/enforce_venv_python.py --check   # report violations, exit 1 if any
-  .venv/Scripts/python scripts/ci/enforce_venv_python.py --fix     # rewrite skill files in place
+  .venv/Scripts/python scripts/ci/checks/enforce_venv_python.py --check   # report violations, exit 1 if any
+  .venv/Scripts/python scripts/ci/checks/enforce_venv_python.py --fix     # rewrite skill files in place
 
 Scans (markdown skill files — auto-fixable):
   skills/*.md                (canonical source of truth — primary target)

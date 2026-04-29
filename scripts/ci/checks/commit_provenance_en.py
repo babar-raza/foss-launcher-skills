@@ -126,7 +126,7 @@ for i in range(0, len(en_files), BATCH_SIZE):
         print(f"\nDebug: Finding failing file in batch {batch_num}...")
         for f in batch:
             r3 = subprocess.run(
-                [str(REPO / ".venv/Scripts/python"), "scripts/pipeline/audit.py", "--files", f],
+                [str(REPO / ".venv/Scripts/python"), "scripts/pipeline/commands/content/audit.py", "--files", f],
                 capture_output=True, text=True, cwd=REPO
             )
             if r3.returncode != 0:

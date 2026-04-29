@@ -5,13 +5,13 @@ field with skill IDs that exist in the canonical registry (skills/registry.json)
 
 Usage:
   # Check commits in current PR branch vs main
-  python scripts/ci/check_commit_skill_provenance.py
+  python scripts/ci/checks/check_commit_skill_provenance.py
 
   # Check specific commit range
-  python scripts/ci/check_commit_skill_provenance.py --range main..HEAD
+  python scripts/ci/checks/check_commit_skill_provenance.py --range main..HEAD
 
   # Check a single commit
-  python scripts/ci/check_commit_skill_provenance.py --commit abc123
+  python scripts/ci/checks/check_commit_skill_provenance.py --commit abc123
 
 Exit codes:
   0  All content commits have valid skill provenance

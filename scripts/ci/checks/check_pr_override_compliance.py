@@ -4,7 +4,7 @@ Called by content-audit.yml for any PR that touches forbidden paths.
 Checks reports/overrides/archived/ for an entry whose scope covers the modified forbidden path.
 
 Usage:
-  python scripts/ci/check_pr_override_compliance.py [file1 file2 ...]
+  python scripts/ci/checks/check_pr_override_compliance.py [file1 file2 ...]
   # Files are the PR diff (git diff --name-only origin/main...HEAD)
 
 Exit codes:
@@ -85,7 +85,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  - {v}")
         print("\nEach forbidden-path write requires a human override token.")
         print("Create a token before committing:")
-        print("  python scripts/pipeline/override_manager.py create \\")
+        print("  python scripts/pipeline/commands/governance/override_manager.py create \\")
         print("    --paths <path> --reason '...' --plan '...'")
         print("Then stage the token file (reports/overrides/pending/*.json) with your commit.")
         print("See AGENTS.md §4 for the override policy.")

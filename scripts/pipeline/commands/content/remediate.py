@@ -1,10 +1,10 @@
 """Batch remediation CLI — reads eval reports and applies auto-fixes at scale.
 
 Usage:
-    python scripts/pipeline/remediate.py triage  <eval-report.json>
-    python scripts/pipeline/remediate.py fix     <eval-report.json> [--dry-run] [--categories ST,RV]
-    python scripts/pipeline/remediate.py report  <eval-report.json>
-    python scripts/pipeline/remediate.py status  <remediation-report.json>
+    python scripts/pipeline/commands/content/remediate.py triage  <eval-report.json>
+    python scripts/pipeline/commands/content/remediate.py fix     <eval-report.json> [--dry-run] [--categories ST,RV]
+    python scripts/pipeline/commands/content/remediate.py report  <eval-report.json>
+    python scripts/pipeline/commands/content/remediate.py status  <remediation-report.json>
 """
 
 from __future__ import annotations

@@ -5,10 +5,10 @@ Finds all hyperlinks pointing to aspose.org subdomains, builds a slug index from
 the local content directory, and reports BROKEN links (target slug not found).
 
 Usage:
-    python scripts/pipeline/link_validator.py {family} {platform}      # scan one product
-    python scripts/pipeline/link_validator.py --files file1.md ...     # scan specific files
-    python scripts/pipeline/link_validator.py all                       # scan all content
-    python scripts/pipeline/link_validator.py --json {family} {platform}  # JSON output
+    python scripts/pipeline/commands/ops/link_validator.py {family} {platform}      # scan one product
+    python scripts/pipeline/commands/ops/link_validator.py --files file1.md ...     # scan specific files
+    python scripts/pipeline/commands/ops/link_validator.py all                       # scan all content
+    python scripts/pipeline/commands/ops/link_validator.py --json {family} {platform}  # JSON output
 
 Exit codes:
     0   No broken links

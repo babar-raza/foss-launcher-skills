@@ -22,7 +22,7 @@ batch_size = 50
 for i in range(0, len(en_files), batch_size):
     batch = en_files[i : i + batch_size]
     r = subprocess.run(
-        [str(REPO / ".venv/Scripts/python"), "scripts/pipeline/audit.py", "--files"] + batch,
+        [str(REPO / ".venv/Scripts/python"), "scripts/pipeline/commands/content/audit.py", "--files"] + batch,
         capture_output=True, text=True, cwd=REPO
     )
     if r.returncode != 0:

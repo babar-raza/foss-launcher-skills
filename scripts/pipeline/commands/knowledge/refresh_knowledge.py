@@ -5,10 +5,10 @@ knowledge/{family}/{platform}/merged/model.yaml.  When they differ (or
 merged/ does not exist yet), runs scout.py then promote.py to rebuild.
 
 Usage:
-    python scripts/pipeline/refresh_knowledge.py {family} {platform}
-    python scripts/pipeline/refresh_knowledge.py --all
-    python scripts/pipeline/refresh_knowledge.py {family} {platform} --check-only
-    python scripts/pipeline/refresh_knowledge.py {family} {platform} --no-auto-fetch
+    python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform}
+    python scripts/pipeline/commands/knowledge/refresh_knowledge.py --all
+    python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform} --check-only
+    python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform} --no-auto-fetch
 
 Flags:
     --check-only        Detect staleness (fetch upstream) but do not run pipeline.
@@ -515,7 +515,7 @@ def refresh(
     try:
         scout_out = KNOWLEDGE_ROOT / family / platform / "scout"
         ok = _run(
-            [sys.executable, "scripts/pipeline/scout.py",
+            [sys.executable, "scripts/pipeline/commands/knowledge/scout.py",
              family, platform, str(clone), str(scout_out)],
             "scout",
         )
@@ -529,7 +529,7 @@ def refresh(
             enrich_ok = False
         else:
             enrich_ok = _run(
-                [sys.executable, "scripts/pipeline/enrich.py", family, platform],
+                [sys.executable, "scripts/pipeline/commands/knowledge/enrich.py", family, platform],
                 "enrich",
             )
         if not enrich_ok:
@@ -549,7 +549,7 @@ def refresh(
                 return "failed"
 
         ok = _run(
-            [sys.executable, "scripts/pipeline/promote.py", family, platform],
+            [sys.executable, "scripts/pipeline/commands/knowledge/promote.py", family, platform],
             "promote",
         )
         if not ok:
@@ -565,7 +565,7 @@ def refresh(
         )
 
         ok = _run(
-            [sys.executable, "scripts/pipeline/index.py", family, platform],
+            [sys.executable, "scripts/pipeline/commands/knowledge/index.py", family, platform],
             "index",
         )
         if not ok:

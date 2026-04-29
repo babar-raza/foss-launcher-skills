@@ -13,9 +13,9 @@ Output:
   COMPLETENESS: FAIL:{reasons}  — failures (blocking)
 
 Usage:
-  python scripts/pipeline/check_knowledge_completeness.py {family} {platform}
-  python scripts/pipeline/check_knowledge_completeness.py --all
-  python scripts/pipeline/check_knowledge_completeness.py --all --strict
+  python scripts/pipeline/commands/knowledge/check_knowledge_completeness.py {family} {platform}
+  python scripts/pipeline/commands/knowledge/check_knowledge_completeness.py --all
+  python scripts/pipeline/commands/knowledge/check_knowledge_completeness.py --all --strict
 """
 from __future__ import annotations
 

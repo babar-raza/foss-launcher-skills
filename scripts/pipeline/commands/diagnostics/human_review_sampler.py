@@ -6,9 +6,9 @@ H-02: Stratified sample of 10 reference pages by class complexity.
 H-03/H-04/H-05: Generate empty sign-off templates (operator fills manually).
 
 Usage:
-    python scripts/pipeline/human_review_sampler.py --family 3d --platform java --gate h01
-    python scripts/pipeline/human_review_sampler.py --family 3d --platform java --gate h02
-    python scripts/pipeline/human_review_sampler.py --family 3d --platform java --gate all
+    python scripts/pipeline/commands/diagnostics/human_review_sampler.py --family 3d --platform java --gate h01
+    python scripts/pipeline/commands/diagnostics/human_review_sampler.py --family 3d --platform java --gate h02
+    python scripts/pipeline/commands/diagnostics/human_review_sampler.py --family 3d --platform java --gate all
 
 Output: reports/human-review/{family}-{platform}-{gate}-sample.md
 """

@@ -3,7 +3,7 @@
 Writes a JSON proof bundle to reports/proof-bundles/ and updates reports/proof-index.json.
 
 Usage:
-  python scripts/ci/generate_proof_bundle.py \\
+  python scripts/ci/checks/generate_proof_bundle.py \\
     --event skill_chain_execution \\
     --slug family-sync-2026-03-31 \\
     --skills S-48,S-23,S-01 \\

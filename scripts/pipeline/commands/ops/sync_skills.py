@@ -7,9 +7,9 @@ Compares content between:
   - .kilocode/skills/{slug}/SKILL.md (Kilo Code)
 
 Usage:
-    python scripts/pipeline/sync_skills.py --check        # verify parity, exit 1 on drift
-    python scripts/pipeline/sync_skills.py --report       # print detailed report
-    python scripts/pipeline/sync_skills.py --list-ids     # list all skill IDs
+    python scripts/pipeline/commands/ops/sync_skills.py --check        # verify parity, exit 1 on drift
+    python scripts/pipeline/commands/ops/sync_skills.py --report       # print detailed report
+    python scripts/pipeline/commands/ops/sync_skills.py --list-ids     # list all skill IDs
 """
 
 from __future__ import annotations

@@ -2,7 +2,7 @@
 
 Allows invoking content_eval from the repo root without any PYTHONPATH prefix:
 
-    python scripts/pipeline/run_content_eval.py [args...]
+    python scripts/pipeline/commands/content/run_content_eval.py [args...]
 
 This is the durable alternative to the ad hoc workaround:
     PYTHONPATH=scripts/pipeline python -m content_eval [args...]

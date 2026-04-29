@@ -1,4 +1,4 @@
-"""Unit tests for scripts/ci/check-blog-slugs.py.
+"""Unit tests for scripts/ci/checks/check-blog-slugs.py.
 
 Coverage:
 - collect_flat_english_files: depth filtering, locale exclusion, index.md exclusion

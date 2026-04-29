@@ -5,7 +5,7 @@ Aggregates findings across all 11 products, clusters them using vector similarit
 names each cluster using LLM, and updates MASTER-SYNTHESIS.md.
 
 Usage:
-    python scripts/gap-eval/synthesize.py [--products all|{family}/{platform},...] [--dry-run]
+    python scripts/gap-eval/src/synthesize.py [--products all|{family}/{platform},...] [--dry-run]
 """
 
 from __future__ import annotations

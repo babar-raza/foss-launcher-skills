@@ -18,7 +18,7 @@ Safety guards:
   - Idempotent: running twice produces the same result
 
 Usage:
-    python scripts/pipeline/apply_origin_decisions.py [--dry-run] [--csv PATH]
+    python scripts/pipeline/commands/migration/apply_origin_decisions.py [--dry-run] [--csv PATH]
 
     --dry-run   Print what would change without writing
     --csv       Path to decisions CSV (default: reports/content_origin_review_queue_class2.csv)

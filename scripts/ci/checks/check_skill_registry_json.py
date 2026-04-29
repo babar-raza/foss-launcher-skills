@@ -7,8 +7,8 @@ Checks:
   4. No orphan entries in registry.json that don't exist in canonical
 
 Usage:
-    python scripts/ci/check_skill_registry_json.py
-    python scripts/ci/check_skill_registry_json.py --json
+    python scripts/ci/checks/check_skill_registry_json.py
+    python scripts/ci/checks/check_skill_registry_json.py --json
 
 Exit codes:
     0  All checks pass
@@ -49,7 +49,7 @@ def check() -> list[str]:
     errors = []
 
     if not REGISTRY_PATH.exists():
-        errors.append("skills/registry.json does not exist. Run: python scripts/pipeline/sync_providers.py")
+        errors.append("skills/registry.json does not exist. Run: python scripts/pipeline/commands/ops/sync_providers.py")
         return errors
 
     try:

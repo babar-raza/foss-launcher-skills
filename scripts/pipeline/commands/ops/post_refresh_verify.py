@@ -18,9 +18,9 @@ Provides two complementary functions:
    Prints the current progress.json in human-readable form.
 
 Usage:
-    python scripts/pipeline/post_refresh_verify.py {family} {platform} --step knowledge_refresh
-    python scripts/pipeline/post_refresh_verify.py {family} {platform} --verify
-    python scripts/pipeline/post_refresh_verify.py {family} {platform} --status
+    python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step knowledge_refresh
+    python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --verify
+    python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --status
 
 progress.json is local-only (gitignored); never committed.
 --verify is read-only; never modifies content or knowledge files.

@@ -2,7 +2,7 @@
 
 Replaces the 12-word placeholder overview with enriched descriptions
 grounded in enriched_claims.json. Run from repo root:
-    python scripts/pipeline/expand_cpp_stubs.py email cpp
+    python scripts/pipeline/commands/knowledge/expand_cpp_stubs.py email cpp
 """
 from __future__ import annotations
 import re

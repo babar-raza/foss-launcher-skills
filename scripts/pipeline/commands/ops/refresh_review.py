@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """refresh_review.py — Per-page decision logging and coverage reporting for post-refresh review.
 
-CONTRACT: scripts/pipeline/refresh_review.py
+CONTRACT: scripts/pipeline/commands/ops/refresh_review.py
   purpose: Record per-page content review decisions (BODY_UPDATED / EVIDENCE_ONLY /
            NOT_AFFECTED / RETIRED) and generate a per-subdomain coverage report after
            a product refresh cycle.
@@ -19,12 +19,12 @@ Decision values:
 
 Usage:
     # Record a per-page decision (called by skills during S-20 and S-84):
-    .venv/Scripts/python scripts/pipeline/refresh_review.py {family} {platform} \\
+    .venv/Scripts/python scripts/pipeline/commands/ops/refresh_review.py {family} {platform} \\
         --record-decision --path {file_path} --decision BODY_UPDATED \\
         --reason "modified_claims CLM-abc cited in paragraph 2" --body-changed
 
     # Generate coverage report after all decisions recorded:
-    .venv/Scripts/python scripts/pipeline/refresh_review.py {family} {platform} --report
+    .venv/Scripts/python scripts/pipeline/commands/ops/refresh_review.py {family} {platform} --report
 """
 from __future__ import annotations
 

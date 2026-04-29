@@ -13,9 +13,9 @@ Rules implemented:
   PQ-05  LONG_UNNORMALIZED    >4 H2 sections and no normalization record
 
 Usage:
-    python scripts/ci/check_plan_quality.py {path...} [--json] [--min-age-days N]
-    python scripts/ci/check_plan_quality.py tests/fixtures/plan-normalize/
-    python scripts/ci/check_plan_quality.py --help
+    python scripts/ci/checks/check_plan_quality.py {path...} [--json] [--min-age-days N]
+    python scripts/ci/checks/check_plan_quality.py tests/fixtures/plan-normalize/
+    python scripts/ci/checks/check_plan_quality.py --help
 """
 from __future__ import annotations
 

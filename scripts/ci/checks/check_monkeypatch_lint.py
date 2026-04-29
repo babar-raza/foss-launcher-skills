@@ -399,7 +399,7 @@ def generate_baseline(test_dirs: list[str] | None = None) -> dict:
 
     return {
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "generator": "scripts/ci/check_monkeypatch_lint.py --baseline",
+        "generator": "scripts/ci/checks/check_monkeypatch_lint.py --baseline",
         "generator_version": "2.0.0",
         "schema_version": 1,
         "totals": totals,

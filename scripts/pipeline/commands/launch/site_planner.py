@@ -6,7 +6,7 @@ producing a structured plan covering all five site sections
 (products, blog, docs, kb, reference).
 
 Usage:
-    python scripts/pipeline/site_planner.py {family} {platform}
+    python scripts/pipeline/commands/launch/site_planner.py {family} {platform}
         [--mode launch|update|section]
         [--section products|docs|blog|kb|reference]
         [--dry-run]
@@ -775,7 +775,7 @@ class PlannerKnowledge:
         if not idx_path.exists():
             print(
                 f"SITE-PLAN ERROR: index.json not found at {idx_path}\n"
-                f"  Fix: python scripts/pipeline/index.py {family} {platform}\n"
+                f"  Fix: python scripts/pipeline/commands/knowledge/index.py {family} {platform}\n"
                 f"  This usually means the knowledge bootstrap chain "
                 f"(S-31 truth-index) did not complete.",
                 file=sys.stderr,

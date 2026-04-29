@@ -9,9 +9,9 @@ Detects:
 - Skill count claims in READMEs that don't match actual disk counts
 
 Usage:
-    python scripts/ci/check_skill_readme_coverage.py
-    python scripts/ci/check_skill_readme_coverage.py --json
-    python scripts/ci/check_skill_readme_coverage.py --fix   # auto-update counts
+    python scripts/ci/checks/check_skill_readme_coverage.py
+    python scripts/ci/checks/check_skill_readme_coverage.py --json
+    python scripts/ci/checks/check_skill_readme_coverage.py --fix   # auto-update counts
 
 Exit codes:
     0  All checks pass (or --fix corrected all count mismatches)

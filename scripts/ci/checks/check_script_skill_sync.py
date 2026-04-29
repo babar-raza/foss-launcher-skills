@@ -8,9 +8,9 @@ Exit codes:
   1 — one or more scripts changed without skill CONTRACT update (advisory warning)
 
 Usage (CI):
-    python scripts/ci/check_script_skill_sync.py          # auto-detects changed files via git
-    python scripts/ci/check_script_skill_sync.py --base main  # diff against specific base branch
-    python scripts/ci/check_script_skill_sync.py --files scripts/pipeline/index.py  # explicit list
+    python scripts/ci/checks/check_script_skill_sync.py          # auto-detects changed files via git
+    python scripts/ci/checks/check_script_skill_sync.py --base main  # diff against specific base branch
+    python scripts/ci/checks/check_script_skill_sync.py --files scripts/pipeline/commands/knowledge/index.py  # explicit list
 
 Notes:
 - Only BLOCKING when the changed script is the PRIMARY backing script in a CONTRACT comment.
@@ -33,7 +33,7 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _SKILLS_DIR = _REPO_ROOT / "skills"
 _SCRIPTS_DIR = _REPO_ROOT / "scripts"
 
-# Matches: <!-- CONTRACT: scripts/pipeline/foo.py ... -->
+# Matches: <!-- CONTRACT: scripts/pipeline/commands/ops/foo.py ... -->
 _CONTRACT_RE = re.compile(
     r"<!--\s*CONTRACT:\s*(scripts/[\w/._-]+\.py)",
     re.IGNORECASE,

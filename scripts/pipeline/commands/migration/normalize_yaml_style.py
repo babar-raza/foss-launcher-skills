@@ -40,13 +40,13 @@ legitimate Python/Java style and must be preserved.
 USAGE
 -----
     # Dry run (show what would change, do not write):
-    python scripts/pipeline/normalize_yaml_style.py --dry-run
+    python scripts/pipeline/commands/migration/normalize_yaml_style.py --dry-run
 
     # Apply to all product pages:
-    python scripts/pipeline/normalize_yaml_style.py
+    python scripts/pipeline/commands/migration/normalize_yaml_style.py
 
     # Apply to a specific file:
-    python scripts/pipeline/normalize_yaml_style.py content/products.aspose.org/en/cells/python/_index.md
+    python scripts/pipeline/commands/migration/normalize_yaml_style.py content/products.aspose.org/en/cells/python/_index.md
 """
 from __future__ import annotations
 

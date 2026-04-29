@@ -1,9 +1,9 @@
 """launch_gate.py -- Pre-launch readiness checker for a FOSS product.
 
 Usage:
-    python scripts/pipeline/launch_gate.py {family} {platform}
-    python scripts/pipeline/launch_gate.py note python
-    python scripts/pipeline/launch_gate.py --fail-fast slides net
+    python scripts/pipeline/commands/launch/launch_gate.py {family} {platform}
+    python scripts/pipeline/commands/launch/launch_gate.py note python
+    python scripts/pipeline/commands/launch/launch_gate.py --fail-fast slides net
 
 Runs 9 automated gates (L-01 through L-09) and prints a pass/fail summary.
 Exit code: 0 if all gates pass, 1 if any gate fails.
@@ -68,7 +68,7 @@ elif _VENV_PYTHON_UNIX.exists():
 else:
     print(
         "ERROR: launch_gate: .venv not found at repo root.\n"
-        "  Recovery: bash scripts/ci/repair_venv.sh\n"
+        "  Recovery: bash scripts/ci/hooks/repair_venv.sh\n"
         "  Or run: /getting-started",
         file=sys.stderr,
     )

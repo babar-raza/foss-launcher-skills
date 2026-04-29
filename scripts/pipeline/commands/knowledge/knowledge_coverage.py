@@ -7,7 +7,7 @@ EXCLUDED_TIER, EXCLUDED_SKIP, EXCLUDED_LIMITATION, DUPLICATE, INTENTIONAL,
 or ORPHANED.
 
 Usage:
-    python scripts/pipeline/knowledge_coverage.py {family} {platform} [options]
+    python scripts/pipeline/commands/knowledge/knowledge_coverage.py {family} {platform} [options]
 
 Options:
     --out-dir PATH    Override output directory (default: reports/coverage/{family}/{platform})

@@ -443,7 +443,7 @@ def run_apply(patches: list[dict], dry_run: bool) -> None:
     if applied_count > 0:
         print()
         print("Run the following to validate:")
-        print("  python scripts/pipeline/audit.py changed --json")
+        print("  python scripts/pipeline/commands/content/audit.py changed --json")
     print("=" * 60)
 
 

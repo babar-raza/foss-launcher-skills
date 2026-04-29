@@ -5,7 +5,7 @@ Used by generators (new-kb-howto, new-docs-page, etc.) to enforce plan
 compliance before writing content.
 
 Usage:
-    python scripts/pipeline/plan_check.py {family} {platform} {section} {slug} [--bypass]
+    python scripts/pipeline/commands/launch/plan_check.py {family} {platform} {section} {slug} [--bypass]
 
 Exit codes:
     0 — slug found in plan, plan doesn't exist, or --bypass active

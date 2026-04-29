@@ -6,7 +6,7 @@ on all Class 3 files (no grade, no evidence, structural navigation pages).
 Does NOT change content_origin — leaves it as unknown.
 
 Usage:
-    python scripts/pipeline/structural_lock.py [--dry-run] [--csv PATH]
+    python scripts/pipeline/commands/governance/structural_lock.py [--dry-run] [--csv PATH]
 
     --dry-run   Print what would change without writing
     --csv       Path to review queue CSV (default: reports/content_origin_review_queue.csv)

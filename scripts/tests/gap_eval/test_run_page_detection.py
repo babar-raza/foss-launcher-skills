@@ -1,7 +1,7 @@
 """Integration tests for gap-eval page-level detection (TEST-03).
 
 Exercises load_site_plan, expected_pages_from_plan, and stage7_missing_sections
-from scripts/gap-eval/run.py using tmp_path fixtures only.
+from scripts/gap-eval/src/run.py using tmp_path fixtures only.
 No real content/ or reports/plans/ paths are touched.
 """
 from __future__ import annotations

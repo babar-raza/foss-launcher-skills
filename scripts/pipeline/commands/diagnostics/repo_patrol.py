@@ -6,9 +6,9 @@ Subcommands:
     report Generate a combined human-readable markdown report from latest scan+sweep.
 
 Usage:
-    python scripts/pipeline/repo_patrol.py scan  [--apply] [--inactive-days N] [--force] [--orgs ORG,...]
-    python scripts/pipeline/repo_patrol.py sweep
-    python scripts/pipeline/repo_patrol.py report
+    python scripts/pipeline/commands/diagnostics/repo_patrol.py scan  [--apply] [--inactive-days N] [--force] [--orgs ORG,...]
+    python scripts/pipeline/commands/diagnostics/repo_patrol.py sweep
+    python scripts/pipeline/commands/diagnostics/repo_patrol.py report
 
 Default behaviour:
     scan:   dry-run — produces patrol_report.json only; --apply also writes to products.json.

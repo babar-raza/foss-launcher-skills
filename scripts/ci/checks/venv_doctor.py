@@ -5,8 +5,8 @@ Reports 7 data points about the repo's .venv state and recommends a repair
 command when the environment is broken.
 
 Usage:
-    .venv/Scripts/python scripts/ci/venv_doctor.py          # human-readable
-    .venv/Scripts/python scripts/ci/venv_doctor.py --json   # machine-readable
+    .venv/Scripts/python scripts/ci/checks/venv_doctor.py          # human-readable
+    .venv/Scripts/python scripts/ci/checks/venv_doctor.py --json   # machine-readable
 
 Exit codes:
     0  All checks passed (.venv is healthy)
@@ -20,8 +20,8 @@ import json
 import sys
 from pathlib import Path
 
-REPAIR_CMD = "bash scripts/ci/repair_venv.sh"
-REPAIR_CMD_FRESH = "bash scripts/ci/repair_venv.sh --fresh"
+REPAIR_CMD = "bash scripts/ci/hooks/repair_venv.sh"
+REPAIR_CMD_FRESH = "bash scripts/ci/hooks/repair_venv.sh --fresh"
 
 KEY_DEPS = ["yaml", "requests", "pytest"]
 OPTIONAL_DEPS = {"dotenv": "python-dotenv"}

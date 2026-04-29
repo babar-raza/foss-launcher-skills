@@ -5,7 +5,7 @@ what fraction are verifiable against the product knowledge model
 (classes, methods, properties, enum members in api_surface.json).
 
 Usage:
-    python scripts/pipeline/ground_check.py {family} {platform} {content_file}
+    python scripts/pipeline/commands/content/ground_check.py {family} {platform} {content_file}
 
 Exit codes:
     0  PASS  -- grounding ratio >= 80%

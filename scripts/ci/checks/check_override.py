@@ -11,7 +11,7 @@ Exit codes:
   1  No override, wrong scope, or expired — commit is blocked
 
 Usage:
-  python scripts/ci/check_override.py <proposed-path>
+  python scripts/ci/checks/check_override.py <proposed-path>
 """
 from __future__ import annotations
 

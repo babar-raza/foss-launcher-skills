@@ -4,9 +4,9 @@ This script provides pre-execution validation for Kilo Code to ensure
 it follows repository-specific rules (AGENTS.md §6a).
 
 Usage:
-    python scripts/pipeline/kilocode_gate.py skill-first <request-type> <content-involved>
-    python scripts/pipeline/kilocode_gate.py path <file-path>
-    python scripts/pipeline/kilocode_gate.py skill <skill-name>
+    python scripts/pipeline/commands/kilocode/kilocode_gate.py skill-first <request-type> <content-involved>
+    python scripts/pipeline/commands/kilocode/kilocode_gate.py path <file-path>
+    python scripts/pipeline/commands/kilocode/kilocode_gate.py skill <skill-name>
 
 Exit codes:
     0  ALLOW - request is permitted
@@ -49,7 +49,7 @@ def check_forbidden_path(file_path: str) -> tuple[bool, str]:
         Tuple of (allowed: bool, reason: str)
     """
     result = subprocess.run(
-        ["python", "scripts/pipeline/path_guard.py", file_path],
+        ["python", "scripts/pipeline/commands/governance/path_guard.py", file_path],
         capture_output=True,
         text=True,
         cwd=str(_REPO_ROOT)

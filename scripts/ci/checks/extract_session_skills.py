@@ -7,11 +7,11 @@ and outputs a "Skills invoked (verified): [S-xx, ...]" declaration string.
 "Attested" would be a manual declaration by the agent.
 
 Usage:
-  python scripts/ci/extract_session_skills.py
-  python scripts/ci/extract_session_skills.py --date 2026-03-31
-  python scripts/ci/extract_session_skills.py --format text     # default: print declaration
-  python scripts/ci/extract_session_skills.py --format ids      # print only IDs
-  python scripts/ci/extract_session_skills.py --format json     # print JSON list
+  python scripts/ci/checks/extract_session_skills.py
+  python scripts/ci/checks/extract_session_skills.py --date 2026-03-31
+  python scripts/ci/checks/extract_session_skills.py --format text     # default: print declaration
+  python scripts/ci/checks/extract_session_skills.py --format ids      # print only IDs
+  python scripts/ci/checks/extract_session_skills.py --format json     # print JSON list
 
 Exit codes:
   0  Skills found and output

@@ -106,7 +106,7 @@ PYTHONPATH=scripts/pipeline .venv/Scripts/python -m pytest scripts/pipeline/test
 .venv/Scripts/python scripts/ci/checks/check_dar_coverage.py
 
 # Check skill sync parity
-.venv/Scripts/python scripts/ci/sync_skills.py --check
+.venv/Scripts/python scripts/pipeline/commands/ops/sync_skills.py --check
 ```
 
 **REGRESSION failures:**

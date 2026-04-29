@@ -7,8 +7,8 @@ then prints a READY TO SHIP / NOT READY verdict.
 Translation coverage is reported informationally but does not block the verdict.
 
 Usage:
-    python scripts/pipeline/readiness_scorecard.py --family slides --platform python
-    python scripts/pipeline/readiness_scorecard.py --family slides --platform python --set-checkpoint
+    python scripts/pipeline/commands/launch/readiness_scorecard.py --family slides --platform python
+    python scripts/pipeline/commands/launch/readiness_scorecard.py --family slides --platform python --set-checkpoint
 """
 
 from __future__ import annotations

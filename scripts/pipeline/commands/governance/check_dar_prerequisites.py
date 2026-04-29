@@ -8,8 +8,8 @@ This script enforces the Downstream Activation Rules at runtime: a downstream sk
 cannot begin its context unless all required upstream skills have a session run record.
 
 Usage:
-    python scripts/pipeline/check_dar_prerequisites.py --skill S-21
-    python scripts/pipeline/check_dar_prerequisites.py --skill page-enhance
+    python scripts/pipeline/commands/governance/check_dar_prerequisites.py --skill S-21
+    python scripts/pipeline/commands/governance/check_dar_prerequisites.py --skill page-enhance
 
 Exit codes:
     0  All prerequisites satisfied (or skill has no DAR prerequisites)

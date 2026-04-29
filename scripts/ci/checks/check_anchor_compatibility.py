@@ -6,8 +6,8 @@ and scripts/ for §N patterns and checks each against the section index
 defined in AGENTS.md.
 
 Usage:
-    python scripts/ci/check_anchor_compatibility.py
-    python scripts/ci/check_anchor_compatibility.py --json
+    python scripts/ci/checks/check_anchor_compatibility.py
+    python scripts/ci/checks/check_anchor_compatibility.py --json
 
 Exit codes:
     0  All references resolve

@@ -6,8 +6,8 @@ based on frontmatter provenance fields. Used by S-49 --refresh to decide
 which files to regenerate vs skip.
 
 Usage:
-    python scripts/pipeline/write_classifier.py cells java
-    python scripts/pipeline/write_classifier.py cells java --output reports/refresh_state/cells/java/write_classification.json
+    python scripts/pipeline/commands/launch/write_classifier.py cells java
+    python scripts/pipeline/commands/launch/write_classifier.py cells java --output reports/refresh_state/cells/java/write_classification.json
 """
 from __future__ import annotations
 

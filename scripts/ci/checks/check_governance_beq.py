@@ -17,8 +17,8 @@ BEQ paths checked:
   BEQ-10: §12 → docs/registries/skills.md + docs/registries/file-map.md
 
 Usage:
-    python scripts/ci/check_governance_beq.py
-    python scripts/ci/check_governance_beq.py --json
+    python scripts/ci/checks/check_governance_beq.py
+    python scripts/ci/checks/check_governance_beq.py --json
 
 Exit codes:
     0  All BEQ paths verified

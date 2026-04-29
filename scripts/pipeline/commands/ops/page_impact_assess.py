@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """page_impact_assess.py — Page Impact Assessment (PIA) for post-refresh content review.
 
-CONTRACT: scripts/pipeline/page_impact_assess.py
+CONTRACT: scripts/pipeline/commands/ops/page_impact_assess.py
   purpose: Score every English content page against the knowledge delta to identify
            which pages need body review after an upstream knowledge refresh.
   inputs:  knowledge/{family}/{platform}/merged/knowledge_delta.json
@@ -16,9 +16,9 @@ Impact score legend:
   NOT_AFFECTED   — no delta signals detected; page topic unrelated to knowledge changes
 
 Usage:
-    .venv/Scripts/python scripts/pipeline/page_impact_assess.py {family} {platform}
-    .venv/Scripts/python scripts/pipeline/page_impact_assess.py cells net --knowledge-root knowledge/
-    .venv/Scripts/python scripts/pipeline/page_impact_assess.py cells net --json
+    .venv/Scripts/python scripts/pipeline/commands/ops/page_impact_assess.py {family} {platform}
+    .venv/Scripts/python scripts/pipeline/commands/ops/page_impact_assess.py cells net --knowledge-root knowledge/
+    .venv/Scripts/python scripts/pipeline/commands/ops/page_impact_assess.py cells net --json
 
 Exit codes:
     0  — assessment complete (even if all pages NOT_AFFECTED)

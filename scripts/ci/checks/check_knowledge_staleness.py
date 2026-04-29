@@ -7,7 +7,7 @@ Parses each changed file's path to derive {family}/{platform}, then checks
 knowledge/{family}/{platform}/model.yaml for stale_since != null.
 
 Usage:
-    python scripts/ci/check_knowledge_staleness.py file1.md file2.md ...
+    python scripts/ci/checks/check_knowledge_staleness.py file1.md file2.md ...
     # Files are from: git diff --name-only origin/main...HEAD -- 'content/**/*.md'
 
 Exit codes:

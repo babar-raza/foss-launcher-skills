@@ -3,7 +3,7 @@
 
 Role: on-demand audit tool for the whole content tree. Run after backfills,
 product launches, or any batch operation that writes grade metadata. Not a CI
-gate — for the per-PR CI gate, see scripts/pipeline/check_grade_integrity.py.
+gate — for the per-PR CI gate, see scripts/pipeline/commands/governance/check_grade_integrity.py.
 
 Checks:
     - Duplicate grade-related keys in a single frontmatter block
@@ -16,7 +16,7 @@ Exit codes:
     1 — one or more ERROR-severity findings
 
 Usage:
-    python scripts/ci/scan_grade_duplicates.py [content_dir]
+    python scripts/ci/checks/scan_grade_duplicates.py [content_dir]
 
 Defaults to scanning ``content/`` relative to the repo root.
 """

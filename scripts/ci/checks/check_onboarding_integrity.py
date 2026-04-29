@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-scripts/ci/check_onboarding_integrity.py
+scripts/ci/checks/check_onboarding_integrity.py
 
 Validates that the operator onboarding path is intact and undrifted.
 

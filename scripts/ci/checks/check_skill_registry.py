@@ -8,9 +8,9 @@ Detects:
 - (--cross-tree) Duplicate S-XX IDs across all 4 provider trees
 
 Usage:
-    python scripts/ci/check_skill_registry.py
-    python scripts/ci/check_skill_registry.py --cross-tree
-    python scripts/ci/check_skill_registry.py --json
+    python scripts/ci/checks/check_skill_registry.py
+    python scripts/ci/checks/check_skill_registry.py --cross-tree
+    python scripts/ci/checks/check_skill_registry.py --json
 
 Exit codes:
     0  All checks pass

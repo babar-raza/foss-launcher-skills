@@ -5,9 +5,9 @@ Does NOT delete files — retired pages are suppressed from production builds
 by Hugo's native draft filtering.
 
 Usage:
-    python scripts/pipeline/retire_page.py <path/to/page.md> [--dry-run]
-    python scripts/pipeline/retire_page.py --from-plan <site_plan.yaml> [--dry-run]
-    python scripts/pipeline/retire_page.py --un-retire --from-delta {family} {platform} [--dry-run]
+    python scripts/pipeline/commands/healing/retire_page.py <path/to/page.md> [--dry-run]
+    python scripts/pipeline/commands/healing/retire_page.py --from-plan <site_plan.yaml> [--dry-run]
+    python scripts/pipeline/commands/healing/retire_page.py --un-retire --from-delta {family} {platform} [--dry-run]
 
 Options:
     --dry-run       Print what would be changed without modifying files.

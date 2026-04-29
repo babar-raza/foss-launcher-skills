@@ -17,7 +17,7 @@ Strategy assignment:
   Class 3 → Strategy C (write-lock + deferral)
 
 Usage:
-    python scripts/pipeline/audit_content_origin.py [--csv PATH] [--site SITE]
+    python scripts/pipeline/commands/content/audit_content_origin.py [--csv PATH] [--site SITE]
 
     --csv   Write per-file CSV to PATH
             (default: reports/content_origin_review_queue.csv)

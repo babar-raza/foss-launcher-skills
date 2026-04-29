@@ -5,10 +5,10 @@ from code blocks and mapping them to claim_ids via the knowledge model index.
 No LLM required. Same inputs → same outputs on every run.
 
 Usage:
-    python scripts/pipeline/attach_evidence.py 3d python          # one product
-    python scripts/pipeline/attach_evidence.py all                 # all products
-    python scripts/pipeline/attach_evidence.py --files path1.md   # specific files
-    python scripts/pipeline/attach_evidence.py 3d python --dry-run # preview, no writes
+    python scripts/pipeline/commands/healing/attach_evidence.py 3d python          # one product
+    python scripts/pipeline/commands/healing/attach_evidence.py all                 # all products
+    python scripts/pipeline/commands/healing/attach_evidence.py --files path1.md   # specific files
+    python scripts/pipeline/commands/healing/attach_evidence.py 3d python --dry-run # preview, no writes
 
 Rules:
     - Pages with audit FAIL findings are skipped (evidence only attests verified content)

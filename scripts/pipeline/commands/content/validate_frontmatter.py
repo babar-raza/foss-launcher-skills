@@ -97,7 +97,7 @@ _BLOG_CONTENT_DEPTH = 3  # parts: family, platform, slug_or_index
 # BCP-47 language tag pattern — matches the penultimate suffix of locale files.
 # e.g. index.ar.md → suffixes[-2] = '.ar' (match → locale)
 #      my-post.v2.md → suffixes[-2] = '.v2' (no match → English)
-# Identical to RE_LANG_SUFFIX in scripts/ci/check-blog-slugs.py for consistency.
+# Identical to RE_LANG_SUFFIX in scripts/ci/checks/check-blog-slugs.py for consistency.
 _LANG_SUFFIX_RE = re.compile(r"\.[a-z]{2}(-[a-zA-Z]{2,4})?$", re.IGNORECASE)
 
 

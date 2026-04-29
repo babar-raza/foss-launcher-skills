@@ -9,8 +9,8 @@ Canonical Windows path: D:/onedrive/Documents/GitHub/aspose.org/runs/.clone_cach
 Resolver: scripts/pipeline/core/clone_cache.py -> cache_root()
 
 Usage:
-    python scripts/ci/check_clone_cache_refs.py
-    python scripts/ci/check_clone_cache_refs.py --dry-run   # report only, exit 0
+    python scripts/ci/checks/check_clone_cache_refs.py
+    python scripts/ci/checks/check_clone_cache_refs.py --dry-run   # report only, exit 0
 
 Exit codes:
     0  clean — no active obsolete references found
@@ -102,7 +102,7 @@ SKIP_PATH_PREFIXES: tuple[str, ...] = (
     "content/",      # generated content pages
     "knowledge/",    # extracted knowledge artifacts
     # This script defines the forbidden patterns as string literals — skip self-scan
-    "scripts/ci/check_clone_cache_refs.py",
+    "scripts/ci/checks/check_clone_cache_refs.py",
     "scripts/ci/checks/check_clone_cache_refs.py",
     # Active healing plans contain historical code samples and resolved gap entries
     "plans/healing/",

@@ -8,7 +8,7 @@ Violation = Python file in scripts/ that:
 
 What is NOT a violation:
   - Files that import ``from provenance import`` or ``import provenance``
-  - ``scripts/pipeline/provenance.py`` itself
+  - ``scripts/pipeline/lib/provenance.py`` itself
   - Test files (under ``*/tests/*``, named ``test_*.py``, or ``*_test.py``)
   - Files that reference ``last_mechanism`` in string literals for
     documentation/logging only — no re.sub/str.replace/file-write context
@@ -16,7 +16,7 @@ What is NOT a violation:
 Exit 0 = clean; Exit 1 = violations found.
 
 Usage:
-    python scripts/ci/check-provenance-writes.py [scripts_root]
+    python scripts/ci/checks/check-provenance-writes.py [scripts_root]
 
 The optional argument overrides the default scripts/ directory (useful for tests).
 """

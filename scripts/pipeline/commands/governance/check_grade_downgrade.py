@@ -8,8 +8,8 @@ falling back to frontmatter on origin/main.  The manifest may have a more
 current operational grade than stale frontmatter (due to WP-01 write policy).
 
 Usage:
-    python scripts/pipeline/check_grade_downgrade.py file1.md file2.md
-    python scripts/pipeline/check_grade_downgrade.py --strict file1.md
+    python scripts/pipeline/commands/governance/check_grade_downgrade.py file1.md file2.md
+    python scripts/pipeline/commands/governance/check_grade_downgrade.py --strict file1.md
 """
 import argparse
 import json

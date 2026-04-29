@@ -11,27 +11,27 @@ This distinction converts undetectable bypass (FU-2 class defect) into documente
 
 Usage:
   # Create a new pending run record before/during skill execution
-  python scripts/pipeline/skill_run_manager.py create \\
+  python scripts/pipeline/commands/ops/skill_run_manager.py create \\
     --skills S-48 S-23 --plan lovely-wandering-reef.md
 
   # Record each skill's invocation detail as you work
-  python scripts/pipeline/skill_run_manager.py record-step \\
+  python scripts/pipeline/commands/ops/skill_run_manager.py record-step \\
     --run-id <id> --skill S-01 --type full \\
     --note "Path validated via path_guard.py"
 
   # Get only the skills valid for "Skills invoked:" (excludes inline_reasoning)
-  python scripts/pipeline/skill_run_manager.py get-declared-skills --run-id <id>
+  python scripts/pipeline/commands/ops/skill_run_manager.py get-declared-skills --run-id <id>
 
   # Validate that declared skills in a commit message match the record
-  python scripts/pipeline/skill_run_manager.py validate \\
+  python scripts/pipeline/commands/ops/skill_run_manager.py validate \\
     --run-id <id> --declared "S-48, S-23, S-01"
 
   # Finalize a run record after the commit
-  python scripts/pipeline/skill_run_manager.py finalize \\
+  python scripts/pipeline/commands/ops/skill_run_manager.py finalize \\
     --run-id <id> --outcome success --commit-sha abc123
 
   # Find the most recent pending (not finalized) run record
-  python scripts/pipeline/skill_run_manager.py find-pending
+  python scripts/pipeline/commands/ops/skill_run_manager.py find-pending
 
 Exit codes:
   0  success / valid

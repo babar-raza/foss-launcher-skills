@@ -4,15 +4,15 @@ Pipeline scripts can call log_invocation() to record that a skill was executed.
 Agents can also call this CLI to log attested invocations manually.
 
 Records are written to reports/session-invocations/YYYY-MM-DD-{pid}.jsonl
-and read by scripts/ci/extract_session_skills.py to auto-populate commit messages.
+and read by scripts/ci/checks/extract_session_skills.py to auto-populate commit messages.
 
 Usage (Python import):
   from session_logger import log_invocation
   log_invocation("S-23", "content-check", args=["--files", "page.md"])
 
 Usage (CLI):
-  python scripts/pipeline/session_logger.py log --skill S-23 --name content-check
-  python scripts/pipeline/session_logger.py log --skill S-23 --name content-check --exit-code 0 --verified
+  python scripts/pipeline/commands/ops/session_logger.py log --skill S-23 --name content-check
+  python scripts/pipeline/commands/ops/session_logger.py log --skill S-23 --name content-check --exit-code 0 --verified
 
 Exit codes:
   0  Always succeeds (logging failures are non-fatal)

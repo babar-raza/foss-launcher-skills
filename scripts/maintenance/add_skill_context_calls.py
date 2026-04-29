@@ -59,7 +59,7 @@ def _instrument_skill(content: str, skill_id: str) -> str | None:
     begin_block = f"""
 > **Skill context gate** — run before step 1:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill {skill_id} --scope "*"
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill {skill_id} --scope "*"
 > ```
 
 """
@@ -68,7 +68,7 @@ def _instrument_skill(content: str, skill_id: str) -> str | None:
     end_block = f"""
 > **Skill context close** — run after the last step:
 > ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill {skill_id} --status completed
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill {skill_id} --status completed
 > ```
 
 """

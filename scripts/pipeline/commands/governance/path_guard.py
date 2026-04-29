@@ -5,9 +5,9 @@ Forbidden governance paths are rejected first, then allowed content prefixes
 are checked, and anything else is denied by default.
 
 Usage:
-    python scripts/pipeline/path_guard.py <path>
-    python scripts/pipeline/path_guard.py --json <path>
-    git diff --cached --name-only | python scripts/pipeline/path_guard.py --stdin
+    python scripts/pipeline/commands/governance/path_guard.py <path>
+    python scripts/pipeline/commands/governance/path_guard.py --json <path>
+    git diff --cached --name-only | python scripts/pipeline/commands/governance/path_guard.py --stdin
 
 Exit codes:
     0  ALLOW - path is in the allowlist (single-path mode)
@@ -100,23 +100,23 @@ FORBIDDEN_EXACT: frozenset[str] = frozenset({
     "docs/OPERATOR_BYPASSES.md",
     # Self-protection: path_guard.py is its own enforcement oracle.
     # Editing it bypasses all guard checks. Requires explicit override token.
-    "scripts/pipeline/path_guard.py",
+    "scripts/pipeline/commands/governance/path_guard.py",
     # Hook script self-protection (TC-08 / DR-05):
     # These scripts ARE in ALLOWED_PREFIXES (scripts/ci/), so an agent with an
     # active skill context scoped to scripts/ci/* could otherwise modify them.
     # Adding them to FORBIDDEN_EXACT blocks that path — hook governance scripts
     # must not be self-modifiable by agents at runtime.
-    "scripts/ci/check_session_gate.sh",
-    "scripts/ci/bootstrap_session_gate.sh",
-    "scripts/ci/check_content_edit_hook.sh",
-    "scripts/ci/check_content_write_hook.sh",
-    "scripts/ci/check_py_write_hook.sh",
-    "scripts/ci/check_write_path_hook.sh",
-    "scripts/ci/check_skill_context_hook.sh",
-    "scripts/ci/check_venv_bash_hook.sh",
-    "scripts/ci/check_destructive_bash_hook.sh",
-    "scripts/ci/find_python.sh",
-    "scripts/ci/check_venv.sh",
+    "scripts/ci/hooks/check_session_gate.sh",
+    "scripts/ci/hooks/bootstrap_session_gate.sh",
+    "scripts/ci/hooks/check_content_edit_hook.sh",
+    "scripts/ci/hooks/check_content_write_hook.sh",
+    "scripts/ci/hooks/check_py_write_hook.sh",
+    "scripts/ci/hooks/check_write_path_hook.sh",
+    "scripts/ci/hooks/check_skill_context_hook.sh",
+    "scripts/ci/hooks/check_venv_bash_hook.sh",
+    "scripts/ci/hooks/check_destructive_bash_hook.sh",
+    "scripts/ci/hooks/find_python.sh",
+    "scripts/ci/hooks/check_venv.sh",
 })
 
 

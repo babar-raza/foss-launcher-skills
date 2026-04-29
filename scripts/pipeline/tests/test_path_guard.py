@@ -123,20 +123,20 @@ class TestForbiddenExactFiles:
 
     @pytest.mark.parametrize("path", [
         # PG-01: session gate hook
-        "scripts/ci/check_session_gate.sh",
+        "scripts/ci/hooks/check_session_gate.sh",
         # PG-02: shared Python resolver
-        "scripts/ci/find_python.sh",
+        "scripts/ci/hooks/find_python.sh",
         # PG-03: destructive Bash guard (TC-06)
-        "scripts/ci/check_destructive_bash_hook.sh",
+        "scripts/ci/hooks/check_destructive_bash_hook.sh",
         # Other hook scripts
-        "scripts/ci/bootstrap_session_gate.sh",
-        "scripts/ci/check_content_edit_hook.sh",
-        "scripts/ci/check_content_write_hook.sh",
-        "scripts/ci/check_py_write_hook.sh",
-        "scripts/ci/check_write_path_hook.sh",
-        "scripts/ci/check_skill_context_hook.sh",
-        "scripts/ci/check_venv_bash_hook.sh",
-        "scripts/ci/check_venv.sh",
+        "scripts/ci/hooks/bootstrap_session_gate.sh",
+        "scripts/ci/hooks/check_content_edit_hook.sh",
+        "scripts/ci/hooks/check_content_write_hook.sh",
+        "scripts/ci/hooks/check_py_write_hook.sh",
+        "scripts/ci/hooks/check_write_path_hook.sh",
+        "scripts/ci/hooks/check_skill_context_hook.sh",
+        "scripts/ci/hooks/check_venv_bash_hook.sh",
+        "scripts/ci/hooks/check_venv.sh",
     ])
     def test_hook_scripts_self_protected(self, path):
         """PG-01..03: All hook governance scripts must be in FORBIDDEN_EXACT (DR-05 / TC-08).

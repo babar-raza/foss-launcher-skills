@@ -5,7 +5,7 @@ skeleton reference pages for all missing classes/enums in a given family+platfor
 without requiring LLM execution, enabling headless/CI batch runs.
 
 Usage:
-    python scripts/pipeline/batch_reference.py {family} {platform} [options]
+    python scripts/pipeline/commands/content/batch_reference.py {family} {platform} [options]
 
 Options:
     --kind class|enum|all   Filter by entry kind (default: all)
@@ -799,7 +799,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
         if require_member_doc_coverage is not None and _cov_pct < require_member_doc_coverage:
             print(
                 f"STOP: member-doc coverage {_cov_pct}% < required {require_member_doc_coverage}%. "
-                f"Run: python scripts/pipeline/enrich.py --family {family} --platform {platform} "
+                f"Run: python scripts/pipeline/commands/knowledge/enrich.py --family {family} --platform {platform} "
                 f"--mode member-doc, then promote.py, then retry."
             )
             sys.exit(1)

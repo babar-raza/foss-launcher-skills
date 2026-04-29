@@ -4,7 +4,7 @@ This script validates skill invocations against registered skills and
 their specifications before execution.
 
 Usage:
-    python scripts/pipeline/kilocode_skill_validator.py <skill-name> <arg1> [arg2 ...]
+    python scripts/pipeline/commands/kilocode/kilocode_skill_validator.py <skill-name> <arg1> [arg2 ...]
 
 Exit codes:
     0  VALID - skill invocation is valid

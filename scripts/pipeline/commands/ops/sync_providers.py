@@ -7,10 +7,10 @@ Also generates skills/registry.json — a machine-readable skill catalog for str
 discovery by any agent platform.
 
 Usage:
-    python scripts/pipeline/sync_providers.py --dry-run           # preview changes
-    python scripts/pipeline/sync_providers.py                     # apply changes
-    python scripts/pipeline/sync_providers.py --create-missing    # also create missing mirrors
-    python scripts/pipeline/sync_providers.py --create-missing --dry-run  # preview creation
+    python scripts/pipeline/commands/ops/sync_providers.py --dry-run           # preview changes
+    python scripts/pipeline/commands/ops/sync_providers.py                     # apply changes
+    python scripts/pipeline/commands/ops/sync_providers.py --create-missing    # also create missing mirrors
+    python scripts/pipeline/commands/ops/sync_providers.py --create-missing --dry-run  # preview creation
 """
 from __future__ import annotations
 
@@ -285,7 +285,7 @@ def generate_registry(dry_run: bool = False) -> bool:
     registry = {
         "schema_version": 1,
         "generated_from": "skills/*.md",
-        "generated_by": "scripts/pipeline/sync_providers.py",
+        "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
         "skill_count": len(skills),
         "skills": skills,
     }

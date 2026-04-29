@@ -1,7 +1,7 @@
 """CI gate: block PRs that introduce new audit FAILs beyond the committed baseline.
 
 Usage:
-    python scripts/ci/check_audit_regression.py <audit-results.json> <baseline-fail-counts.json>
+    python scripts/ci/checks/check_audit_regression.py <audit-results.json> <baseline-fail-counts.json>
 
 Exit codes:
     0 — no regressions (all FAIL counts are within baseline)

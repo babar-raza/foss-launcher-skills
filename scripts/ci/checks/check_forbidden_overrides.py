@@ -5,8 +5,8 @@ override token exists in reports/overrides/ (pending or archived). If any forbid
 file lacks a token, exit 1.
 
 Usage:
-    python scripts/ci/check_forbidden_overrides.py file1 file2 ...
-    python scripts/ci/check_forbidden_overrides.py --stdin   # read file list from stdin
+    python scripts/ci/checks/check_forbidden_overrides.py file1 file2 ...
+    python scripts/ci/checks/check_forbidden_overrides.py --stdin   # read file list from stdin
 
 Exit codes:
     0  all forbidden-path changes have override tokens (or no forbidden-path changes)
@@ -129,7 +129,7 @@ def main(argv: list[str] | None = None) -> int:
             print(v)
         print()
         print("To create an override token:")
-        print("  python scripts/pipeline/override_manager.py create \\")
+        print("  python scripts/pipeline/commands/governance/override_manager.py create \\")
         print("    --paths <path> --reason '...' --plan '...'")
         print("Then commit the token file before or with the forbidden-path edit.")
         return 1

@@ -7,7 +7,7 @@ Only content/ paths are ever touched — system files (scripts/, .agents/, repor
 knowledge/) are explicitly protected.
 
 Usage:
-    python scripts/pipeline/launch_rollback.py {family} {platform} [--dry-run] [--include-locales]
+    python scripts/pipeline/commands/launch/launch_rollback.py {family} {platform} [--dry-run] [--include-locales]
 
 Options:
     --dry-run         Print rollback manifest; do NOT execute any git/fs operations.

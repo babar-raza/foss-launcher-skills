@@ -2,7 +2,7 @@
 """S-43 gap-eval runner — three-tier content verification against clone cache.
 
 Usage:
-    python scripts/gap-eval/run.py {family} {platform} [options]
+    python scripts/gap-eval/src/run.py {family} {platform} [options]
 
 Options:
     --scope         all | products | docs | blog | kb | reference  (default: all)

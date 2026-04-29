@@ -2,9 +2,9 @@
 """render_inventory.py — Validate registry.yaml and generate INVENTORY.md.
 
 Usage:
-    python scripts/ci/render_inventory.py           # validate + generate
-    python scripts/ci/render_inventory.py --check   # validate only (no write)
-    python scripts/ci/render_inventory.py --dry-run # show what would be written
+    python scripts/ci/checks/render_inventory.py           # validate + generate
+    python scripts/ci/checks/render_inventory.py --check   # validate only (no write)
+    python scripts/ci/checks/render_inventory.py --dry-run # show what would be written
 
 Exit codes:
     0 — all checks pass (+ file written unless --check)
@@ -111,7 +111,7 @@ def render_markdown(entries: list[dict]) -> str:
         "# scripts/pipeline — Script Inventory",
         "",
         "> **Generated file** — do not edit directly.",
-        "> Edit `scripts/pipeline/registry.yaml` and run `python scripts/ci/render_inventory.py`.",
+        "> Edit `scripts/pipeline/registry.yaml` and run `python scripts/ci/checks/render_inventory.py`.",
         "",
     ]
 

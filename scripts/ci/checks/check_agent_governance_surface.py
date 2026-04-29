@@ -6,11 +6,11 @@ and deterministic: it inspects tracked markdown/config files and reports
 findings with file/line evidence.
 
 Usage:
-    python scripts/ci/check_agent_governance_surface.py
-    python scripts/ci/check_agent_governance_surface.py --json
-    python scripts/ci/check_agent_governance_surface.py --check-baseline
-    python scripts/ci/check_agent_governance_surface.py --check-baseline --ship
-    python scripts/ci/check_agent_governance_surface.py --baseline-path path/to/baseline.json
+    python scripts/ci/checks/check_agent_governance_surface.py
+    python scripts/ci/checks/check_agent_governance_surface.py --json
+    python scripts/ci/checks/check_agent_governance_surface.py --check-baseline
+    python scripts/ci/checks/check_agent_governance_surface.py --check-baseline --ship
+    python scripts/ci/checks/check_agent_governance_surface.py --baseline-path path/to/baseline.json
 
 Exit codes:
     0  Report generated successfully; baseline check passed if requested
@@ -210,7 +210,7 @@ def analyze_repo(repo_root: Path) -> list[Finding]:
                 title="skills/registry.json does not exist",
                 detail=(
                     "The machine-readable skill registry is missing. Run: "
-                    "python scripts/pipeline/sync_providers.py to generate it."
+                    "python scripts/pipeline/commands/ops/sync_providers.py to generate it."
                 ),
                 evidence=[
                     Evidence(path="skills/registry.json", line=None, excerpt="file not found"),
@@ -239,7 +239,7 @@ def analyze_repo(repo_root: Path) -> list[Finding]:
                         title="skills/registry.json skill count does not match canonical skills/",
                         detail=(
                             f"Registry has {registry.get('skill_count')} skills but canonical "
-                            f"has {canonical_count}. Run: python scripts/pipeline/sync_providers.py"
+                            f"has {canonical_count}. Run: python scripts/pipeline/commands/ops/sync_providers.py"
                         ),
                         evidence=[
                             Evidence(
@@ -272,7 +272,7 @@ def analyze_repo(repo_root: Path) -> list[Finding]:
                 severity="high",
                 title="CODEX.md does not reference the preflight check script",
                 detail=(
-                    "The universal preflight script (scripts/pipeline/preflight.py) provides "
+                    "The universal preflight script (scripts/pipeline/commands/launch/preflight.py) provides "
                     "agent-agnostic pre-write enforcement. CODEX.md should instruct agents to "
                     "run it before every write."
                 ),
@@ -289,7 +289,7 @@ def analyze_repo(repo_root: Path) -> list[Finding]:
                 severity="high",
                 title="Kilo Code governance does not reference the preflight check script",
                 detail=(
-                    "The universal preflight script (scripts/pipeline/preflight.py) provides "
+                    "The universal preflight script (scripts/pipeline/commands/launch/preflight.py) provides "
                     "agent-agnostic pre-write enforcement. .kilocode/rules-code/governance.md "
                     "should instruct agents to run it before every write."
                 ),

@@ -8,7 +8,7 @@ A proof bundle is "corresponding" if:
   - The bundle_id or directory name contains the base name of the compliance observation.
 
 Usage:
-    python scripts/ci/check_proof_bundles.py [--strict]
+    python scripts/ci/checks/check_proof_bundles.py [--strict]
 
 Flags:
     --strict   Exit 1 if any compliance observation lacks a proof bundle (default: warning only)
@@ -155,7 +155,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  MISSING: {m}")
         print()
         print("To create a proof bundle:")
-        print("  bash scripts/ci/capture_proof_bundle.sh <slug> <command1> ...")
+        print("  bash scripts/ci/hooks/capture_proof_bundle.sh <slug> <command1> ...")
 
     if (missing or invalid) and strict:
         return 1

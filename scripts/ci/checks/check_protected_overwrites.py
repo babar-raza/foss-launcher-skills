@@ -6,10 +6,10 @@ Scans staged or PR-changed content files and warns when any file with
 
 Usage:
     # Check staged files (pre-commit hook):
-    python scripts/ci/check_protected_overwrites.py --check-staged
+    python scripts/ci/checks/check_protected_overwrites.py --check-staged
 
     # Check files from a PR diff:
-    python scripts/ci/check_protected_overwrites.py file1.md file2.md ...
+    python scripts/ci/checks/check_protected_overwrites.py file1.md file2.md ...
     # Files from: git diff --name-only origin/main...HEAD -- 'content/**/*.md'
 
 Exit codes:

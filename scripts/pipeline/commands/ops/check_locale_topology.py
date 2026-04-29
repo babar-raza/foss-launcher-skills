@@ -5,16 +5,16 @@ when Hugo renders the locale page. Text translation is expected and ignored; onl
 heading count and positional order are checked.
 
 Usage:
-    python scripts/pipeline/check_locale_topology.py \\
+    python scripts/pipeline/commands/ops/check_locale_topology.py \\
         --source content/docs.aspose.org/en/cells/python/developer-guide/export-formats.md \\
         --locales content/docs.aspose.org/*/cells/python/developer-guide/export-formats.md
 
-    python scripts/pipeline/check_locale_topology.py \\
+    python scripts/pipeline/commands/ops/check_locale_topology.py \\
         --source content/docs.aspose.org/en/cells/python/developer-guide/export-formats.md \\
         --locales content/docs.aspose.org/ca/cells/python/developer-guide/export-formats.md \\
                   content/docs.aspose.org/da/cells/python/developer-guide/export-formats.md
 
-    python scripts/pipeline/check_locale_topology.py --json  # JSON output
+    python scripts/pipeline/commands/ops/check_locale_topology.py --json  # JSON output
 
 Exit codes:
     0 -- all locale files match source H2 topology

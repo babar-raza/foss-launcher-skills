@@ -11,9 +11,9 @@ Aggregates all system-level readiness signals into a single pass/fail verdict:
   G-06  Launch gate            -- launch_gate.py {family} {platform} exits 0
 
 Usage:
-    python scripts/pipeline/readiness_gate.py {family} {platform}
-    python scripts/pipeline/readiness_gate.py note python
-    python scripts/pipeline/readiness_gate.py note python --skip-launch-gate
+    python scripts/pipeline/commands/launch/readiness_gate.py {family} {platform}
+    python scripts/pipeline/commands/launch/readiness_gate.py note python
+    python scripts/pipeline/commands/launch/readiness_gate.py note python --skip-launch-gate
 
 Flags:
     --skip-launch-gate   Skip G-06 (launch_gate) for faster system-level check
@@ -66,7 +66,7 @@ elif _VENV_PYTHON_UNIX.exists():
 else:
     print(
         "ERROR: readiness_gate: .venv not found at repo root.\n"
-        "  Recovery: bash scripts/ci/repair_venv.sh\n"
+        "  Recovery: bash scripts/ci/hooks/repair_venv.sh\n"
         "  Or run: /getting-started",
         file=sys.stderr,
     )

@@ -5,8 +5,8 @@ Used as Stage 8.7 validation gate in S-49 launch-product.
 Checks both session ledger and git diff for locale file changes.
 
 Usage:
-    python scripts/ci/check_locale_untouched.py cells java
-    python scripts/ci/check_locale_untouched.py cells java --report reports/refresh_state/cells/java/translation-skip-report.json
+    python scripts/ci/checks/check_locale_untouched.py cells java
+    python scripts/ci/checks/check_locale_untouched.py cells java --report reports/refresh_state/cells/java/translation-skip-report.json
 
 Exit codes:
     0 — PASS: no locale files touched

@@ -1,7 +1,7 @@
 """CI gate: block PRs where EVALUATOR_LOGIC_VERSION diverges from EVALUATOR_FREEZE_VERSION.
 
 Usage:
-    python scripts/ci/check_evaluator_freeze.py
+    python scripts/ci/checks/check_evaluator_freeze.py
 
 Exit codes:
     0 — freeze not declared (EVALUATOR_FREEZE_VERSION is None) or versions match

@@ -1,4 +1,4 @@
-# CONTRACT: scripts/pipeline/description_coverage_audit.py
+# CONTRACT: scripts/pipeline/commands/diagnostics/description_coverage_audit.py
 #   purpose: per-product member-doc description coverage audit against ERC api-kind claims
 #   inputs: knowledge/{family}/{platform}/merged/claims.json + api_surface.json (all products)
 #   outputs: stdout coverage table + knowledge/description_coverage_report.json
@@ -13,7 +13,7 @@ each registered product, counts ERC api-kind member-doc claims vs total public
 members, and emits a per-product coverage table to stdout plus a JSON report.
 
 Usage:
-    python scripts/pipeline/description_coverage_audit.py [--report PATH]
+    python scripts/pipeline/commands/diagnostics/description_coverage_audit.py [--report PATH]
 
 The JSON report is written to knowledge/description_coverage_report.json by default.
 Exit code 1 if any product is below the minimum threshold (--min-coverage, default 20%).

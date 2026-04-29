@@ -23,9 +23,9 @@ Writes to:
 Claim IDs use prefix ERC- (Enriched Claim) to distinguish from scout claims.
 
 Usage:
-    python scripts/pipeline/enrich.py {family} {platform}
-    python scripts/pipeline/enrich.py cells python
-    python scripts/pipeline/enrich.py 3d net --no-llm   # dry-run without LLM
+    python scripts/pipeline/commands/knowledge/enrich.py {family} {platform}
+    python scripts/pipeline/commands/knowledge/enrich.py cells python
+    python scripts/pipeline/commands/knowledge/enrich.py 3d net --no-llm   # dry-run without LLM
 
 Environment:
     PROFESSIONALIZE_API_KEY   API key for llm.professionalize.com (optional;

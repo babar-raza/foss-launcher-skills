@@ -15,10 +15,10 @@ table row, list item), verifies each against clone cache + knowledge model, and
 produces a structured gap ledger with stable finding IDs and evidence chains.
 
 Usage:
-    python scripts/pipeline/truth_audit_content.py {family} {platform}
-    python scripts/pipeline/truth_audit_content.py {family} {platform} --scope docs
-    python scripts/pipeline/truth_audit_content.py {family} {platform} --no-llm
-    python scripts/pipeline/truth_audit_content.py {family} {platform} --max-units 200
+    python scripts/pipeline/commands/diagnostics/truth_audit_content.py {family} {platform}
+    python scripts/pipeline/commands/diagnostics/truth_audit_content.py {family} {platform} --scope docs
+    python scripts/pipeline/commands/diagnostics/truth_audit_content.py {family} {platform} --no-llm
+    python scripts/pipeline/commands/diagnostics/truth_audit_content.py {family} {platform} --max-units 200
 
 Exit codes:
     0  All units VERIFIED or UNVERIFIABLE
@@ -779,7 +779,7 @@ def verify_unit(
 
 
 # ============================================================================
-# State management (adapted from scripts/gap-eval/state.py)
+# State management (adapted from scripts/gap-eval/src/state.py)
 # ============================================================================
 
 def _state_path(family: str, platform: str) -> Path:

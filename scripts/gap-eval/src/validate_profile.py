@@ -2,10 +2,10 @@
 """Validate gap-eval product profiles against their clone caches.
 
 Usage:
-    python scripts/gap-eval/validate_profile.py {family} {platform}
-    python scripts/gap-eval/validate_profile.py --all
-    python scripts/gap-eval/validate_profile.py --update {family} {platform}
-    python scripts/gap-eval/validate_profile.py --update {family} {platform} --dry-run
+    python scripts/gap-eval/src/validate_profile.py {family} {platform}
+    python scripts/gap-eval/src/validate_profile.py --all
+    python scripts/gap-eval/src/validate_profile.py --update {family} {platform}
+    python scripts/gap-eval/src/validate_profile.py --update {family} {platform} --dry-run
 """
 
 from __future__ import annotations

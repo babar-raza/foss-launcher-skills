@@ -6,20 +6,20 @@ to verify that governed file edits happen inside a skill context.
 
 Usage:
   # Start a skill context (typically at the top of a skill's Steps)
-  python scripts/pipeline/skill_context.py begin \\
+  python scripts/pipeline/commands/governance/skill_context.py begin \\
     --skill S-20 --scope "content/docs.aspose.org/en/words/python/*"
 
   # Check whether a file is within the active scope
-  python scripts/pipeline/skill_context.py check --file <path>
+  python scripts/pipeline/commands/governance/skill_context.py check --file <path>
 
   # Print the current active skill (exit 2 if none)
-  python scripts/pipeline/skill_context.py current
+  python scripts/pipeline/commands/governance/skill_context.py current
 
   # End the skill context
-  python scripts/pipeline/skill_context.py end --skill S-20 --status completed
+  python scripts/pipeline/commands/governance/skill_context.py end --skill S-20 --status completed
 
   # Create a gap-approved temporary context (30-min TTL)
-  python scripts/pipeline/skill_context.py gap \\
+  python scripts/pipeline/commands/governance/skill_context.py gap \\
     --task "description" --report reports/skill-gaps/2026-04-16-foo.md
 
 Exit codes:

@@ -11,8 +11,8 @@ Checks performed:
      pass marker?
 
 Usage:
-    python scripts/pipeline/preflight.py <path>
-    python scripts/pipeline/preflight.py --json <path>
+    python scripts/pipeline/commands/launch/preflight.py <path>
+    python scripts/pipeline/commands/launch/preflight.py --json <path>
 
 Exit codes:
     0  ALLOW — all checks pass
@@ -87,7 +87,7 @@ def check_content_gate(rel_path: str) -> tuple[bool, str]:
         return True, "content-check pass marker found"
     return False, (
         f"Content-check (S-23) not passed. "
-        f"Run: python scripts/pipeline/audit.py --files {rel_path}"
+        f"Run: python scripts/pipeline/commands/content/audit.py --files {rel_path}"
     )
 
 

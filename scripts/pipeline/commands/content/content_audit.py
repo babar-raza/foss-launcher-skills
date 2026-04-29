@@ -5,9 +5,9 @@ the knowledge model: SUPPORTED, PROBABLE, WEAK, UNSUPPORTED, or CONTRADICTED.
 Code blocks are delegated to audit.py's verify_tokens for API accuracy.
 
 Usage:
-    python scripts/pipeline/content_audit.py {family} {platform}
-    python scripts/pipeline/content_audit.py --files path1.md path2.md
-    python scripts/pipeline/content_audit.py all --json
+    python scripts/pipeline/commands/content/content_audit.py {family} {platform}
+    python scripts/pipeline/commands/content/content_audit.py --files path1.md path2.md
+    python scripts/pipeline/commands/content/content_audit.py all --json
 
 Exit codes:
     0  No CONTRADICTED findings

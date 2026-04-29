@@ -4,7 +4,7 @@ This script provides post-execution validation for Kilo Code to ensure
 skill outputs comply with repository rules.
 
 Usage:
-    python scripts/pipeline/kilocode_postcheck.py <skill-name> <output-path> [output-path2 ...]
+    python scripts/pipeline/commands/kilocode/kilocode_postcheck.py <skill-name> <output-path> [output-path2 ...]
 
 Exit codes:
     0  PASS - all outputs are valid
@@ -33,7 +33,7 @@ def check_path(path: str) -> Tuple[bool, str]:
         Tuple of (allowed: bool, reason: str)
     """
     result = subprocess.run(
-        ["python", "scripts/pipeline/path_guard.py", path],
+        ["python", "scripts/pipeline/commands/governance/path_guard.py", path],
         capture_output=True,
         text=True,
         cwd=str(_REPO_ROOT)
@@ -53,7 +53,7 @@ def run_audit(file_path: str) -> dict:
         Dict with audit results
     """
     result = subprocess.run(
-        ["python", "scripts/pipeline/audit.py", "--files", file_path],
+        ["python", "scripts/pipeline/commands/content/audit.py", "--files", file_path],
         capture_output=True,
         text=True,
         cwd=str(_REPO_ROOT)

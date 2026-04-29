@@ -8,9 +8,9 @@ Checks for:
 - Incomplete grade blocks (grade: present but graded_at: missing)
 
 Usage:
-    python scripts/pipeline/check_grade_integrity.py --files f1.md f2.md
-    python scripts/pipeline/check_grade_integrity.py          # scan all content/**/*.md
-    python scripts/pipeline/check_grade_integrity.py --json   # machine-readable
+    python scripts/pipeline/commands/governance/check_grade_integrity.py --files f1.md f2.md
+    python scripts/pipeline/commands/governance/check_grade_integrity.py          # scan all content/**/*.md
+    python scripts/pipeline/commands/governance/check_grade_integrity.py --json   # machine-readable
 """
 
 import argparse

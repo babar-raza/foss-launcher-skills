@@ -6,8 +6,8 @@ pages without touching LLM-generated content sections.  Uses text-level surgery
 (no full YAML round-trip) to preserve scalar styles.
 
 Usage:
-    python scripts/pipeline/complete_plugin_structure.py --files path/to/file.md
-    python scripts/pipeline/complete_plugin_structure.py --dry-run --files path/to/file.md
+    python scripts/pipeline/commands/migration/complete_plugin_structure.py --files path/to/file.md
+    python scripts/pipeline/commands/migration/complete_plugin_structure.py --dry-run --files path/to/file.md
 
 Idempotent: running twice produces identical output.
 """

@@ -11,10 +11,10 @@ Canonical write order (matches corrected grade_writer.py):
   → grade_reasons
 
 Usage:
-    python scripts/pipeline/fix_grade_field_order.py               # dry-run
-    python scripts/pipeline/fix_grade_field_order.py --apply       # write fixes
-    python scripts/pipeline/fix_grade_field_order.py --apply --limit 10  # first 10 only
-    python scripts/pipeline/fix_grade_field_order.py --apply --scope content/blog.aspose.org
+    python scripts/pipeline/commands/migration/fix_grade_field_order.py               # dry-run
+    python scripts/pipeline/commands/migration/fix_grade_field_order.py --apply       # write fixes
+    python scripts/pipeline/commands/migration/fix_grade_field_order.py --apply --limit 10  # first 10 only
+    python scripts/pipeline/commands/migration/fix_grade_field_order.py --apply --scope content/blog.aspose.org
 """
 from __future__ import annotations
 

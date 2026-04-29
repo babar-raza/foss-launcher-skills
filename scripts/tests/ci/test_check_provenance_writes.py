@@ -1,4 +1,4 @@
-"""Unit tests for scripts/ci/check-provenance-writes.py.
+"""Unit tests for scripts/ci/checks/check-provenance-writes.py.
 
 Coverage:
 - _is_excluded: provenance.py exclusion, test file exclusion, tests/ dir exclusion

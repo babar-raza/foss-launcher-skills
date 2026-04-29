@@ -5,7 +5,7 @@ For each non-auto-fixable finding, generates an exact {old, new, rationale}
 substitution grounded in clone cache evidence.
 
 Usage (standalone):
-    python scripts/gap-eval/fix_spec.py {family} {platform}
+    python scripts/gap-eval/src/fix_spec.py {family} {platform}
 
 Or import and call generate_fix_specs() directly from gap-plan.
 """

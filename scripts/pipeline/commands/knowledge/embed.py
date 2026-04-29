@@ -5,15 +5,15 @@ Embeds knowledge artifacts from knowledge/{family}/{platform}/merged/
 into vector stores at knowledge/_vectors/.
 
 Usage:
-    python scripts/pipeline/embed.py {family} {platform}
-    python scripts/pipeline/embed.py all
+    python scripts/pipeline/commands/knowledge/embed.py {family} {platform}
+    python scripts/pipeline/commands/knowledge/embed.py all
 
     # Gap-eval mode: per-product API surface index for S-43 Tier 2 vector search
-    python scripts/pipeline/embed.py gap-index {family} {platform}
-    python scripts/pipeline/embed.py gap-index all
+    python scripts/pipeline/commands/knowledge/embed.py gap-index {family} {platform}
+    python scripts/pipeline/commands/knowledge/embed.py gap-index all
 
     # Synthesis mode: embed all findings for S-45 cross-product clustering
-    python scripts/pipeline/embed.py findings-index
+    python scripts/pipeline/commands/knowledge/embed.py findings-index
 """
 
 import argparse

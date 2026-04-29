@@ -11,38 +11,38 @@ session-touched files only. Files dirty before the session started are excluded.
 
 Usage (CLI):
   # Initialize a new session (captures dirty-file snapshot)
-  python scripts/pipeline/session_ledger.py init
-  python scripts/pipeline/session_ledger.py init --session-id 20260409-143022-a7f3
+  python scripts/pipeline/commands/ops/session_ledger.py init
+  python scripts/pipeline/commands/ops/session_ledger.py init --session-id 20260409-143022-a7f3
 
   # Record a file touch
-  python scripts/pipeline/session_ledger.py record --file content/docs.aspose.org/en/words/python/foo.md --action created
-  python scripts/pipeline/session_ledger.py record --file content/docs.aspose.org/en/words/python/foo.md --action modified --skill S-20
+  python scripts/pipeline/commands/ops/session_ledger.py record --file content/docs.aspose.org/en/words/python/foo.md --action created
+  python scripts/pipeline/commands/ops/session_ledger.py record --file content/docs.aspose.org/en/words/python/foo.md --action modified --skill S-20
 
   # List session-touched files
-  python scripts/pipeline/session_ledger.py list
-  python scripts/pipeline/session_ledger.py list --format json
-  python scripts/pipeline/session_ledger.py list --format paths
+  python scripts/pipeline/commands/ops/session_ledger.py list
+  python scripts/pipeline/commands/ops/session_ledger.py list --format json
+  python scripts/pipeline/commands/ops/session_ledger.py list --format paths
 
   # Get current session ID
-  python scripts/pipeline/session_ledger.py current
+  python scripts/pipeline/commands/ops/session_ledger.py current
 
   # Retroactively adopt dirty files into the session (for pre-existing sessions)
-  python scripts/pipeline/session_ledger.py adopt --all
-  python scripts/pipeline/session_ledger.py adopt --group "content(locale)"
-  python scripts/pipeline/session_ledger.py adopt --glob "content/kb.aspose.org/*"
-  python scripts/pipeline/session_ledger.py adopt --files path/to/file1.md path/to/file2.md
+  python scripts/pipeline/commands/ops/session_ledger.py adopt --all
+  python scripts/pipeline/commands/ops/session_ledger.py adopt --group "content(locale)"
+  python scripts/pipeline/commands/ops/session_ledger.py adopt --glob "content/kb.aspose.org/*"
+  python scripts/pipeline/commands/ops/session_ledger.py adopt --files path/to/file1.md path/to/file2.md
 
   # Show all dirty files with group and adoption status
-  python scripts/pipeline/session_ledger.py dirty
-  python scripts/pipeline/session_ledger.py dirty --format json
+  python scripts/pipeline/commands/ops/session_ledger.py dirty
+  python scripts/pipeline/commands/ops/session_ledger.py dirty --format json
 
   # Show commit candidates (ledger AND git dirty, minus dirty_at_start)
-  python scripts/pipeline/session_ledger.py candidates
-  python scripts/pipeline/session_ledger.py candidates --format json
+  python scripts/pipeline/commands/ops/session_ledger.py candidates
+  python scripts/pipeline/commands/ops/session_ledger.py candidates --format json
 
   # Classify files into commit groups
-  python scripts/pipeline/session_ledger.py groups
-  python scripts/pipeline/session_ledger.py groups --format json
+  python scripts/pipeline/commands/ops/session_ledger.py groups
+  python scripts/pipeline/commands/ops/session_ledger.py groups --format json
 
 Usage (Python import):
   from session_ledger import init_session, record_file, get_candidates, get_current_session_id

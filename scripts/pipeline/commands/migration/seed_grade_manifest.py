@@ -6,7 +6,7 @@ content/ and writes manifest entries so the skip-graded gate (ARCH-02)
 can function without reading frontmatter.
 
 Usage:
-    .venv/Scripts/python scripts/pipeline/seed_grade_manifest.py [--dry-run]
+    .venv/Scripts/python scripts/pipeline/commands/migration/seed_grade_manifest.py [--dry-run]
 
 After seeding, skip-graded gate uses manifest first (ARCH-02).  No .md files
 are modified by this script — it is read-only for content files.

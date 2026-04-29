@@ -27,11 +27,11 @@ Sanctioned locations:
   tests/                Test fixtures and integration tests
 
 Usage:
-    python scripts/ci/check_python_placement.py
-    python scripts/ci/check_python_placement.py --dry-run
-    python scripts/ci/check_python_placement.py --check-staged
-    python scripts/ci/check_python_placement.py --check-baseline
-    python scripts/ci/check_python_placement.py --propose scripts/bad_script.py
+    python scripts/ci/checks/check_python_placement.py
+    python scripts/ci/checks/check_python_placement.py --dry-run
+    python scripts/ci/checks/check_python_placement.py --check-staged
+    python scripts/ci/checks/check_python_placement.py --check-baseline
+    python scripts/ci/checks/check_python_placement.py --propose scripts/bad_script.py
 
 Exit codes:
     0  All blocking rules pass (advisory warnings may still be printed)

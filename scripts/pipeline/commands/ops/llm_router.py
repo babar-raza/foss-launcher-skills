@@ -13,8 +13,8 @@ Usage (library):
         print(result.data)
 
 Usage (CLI probe):
-    python scripts/pipeline/llm_router.py --probe
-    python scripts/pipeline/llm_router.py --probe --provider professionalize
+    python scripts/pipeline/lib/llm_router.py --probe
+    python scripts/pipeline/lib/llm_router.py --probe --provider professionalize
 """
 
 import argparse

@@ -5,7 +5,7 @@ Annotates each gap-eval finding with its most probable pipeline origin class
 and recommended repair route. Classification is deterministic (no LLM calls).
 
 Usage:
-    python scripts/gap-eval/origin_map.py {gap_eval_json} {family} {platform} [options]
+    python scripts/gap-eval/src/origin_map.py {gap_eval_json} {family} {platform} [options]
 
 Options:
     --api-surface   Override path to api_surface.json

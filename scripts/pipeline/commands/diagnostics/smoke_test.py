@@ -13,9 +13,9 @@ Exit codes:
   2 — at least one block FAIL (syntax error)
 
 Usage:
-  python scripts/pipeline/smoke_test.py {family} {platform}
-  python scripts/pipeline/smoke_test.py --files path/to/file.md [path2.md ...]
-  python scripts/pipeline/smoke_test.py --files path/to/file.md --lang java
+  python scripts/pipeline/commands/diagnostics/smoke_test.py {family} {platform}
+  python scripts/pipeline/commands/diagnostics/smoke_test.py --files path/to/file.md [path2.md ...]
+  python scripts/pipeline/commands/diagnostics/smoke_test.py --files path/to/file.md --lang java
 
 Supported languages:
   python     — py_compile syntax + optional mypy type check

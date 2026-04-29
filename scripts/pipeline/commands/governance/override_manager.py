@@ -14,22 +14,22 @@ Token lifecycle:
 
 Usage examples:
   # Create a new pending override token
-  python scripts/pipeline/override_manager.py create \\
+  python scripts/pipeline/commands/governance/override_manager.py create \\
     --paths AGENTS.md --reason "Add grading rules per plan lovely-wandering-reef.md" \\
     --plan lovely-wandering-reef.md
 
   # Validate that a pending token exists and covers a path
-  python scripts/pipeline/override_manager.py validate-for-path AGENTS.md
+  python scripts/pipeline/commands/governance/override_manager.py validate-for-path AGENTS.md
 
   # Consume (archive) a token after its commit
-  python scripts/pipeline/override_manager.py consume \\
+  python scripts/pipeline/commands/governance/override_manager.py consume \\
     --token-id 20260331-142300-agents-md-grading-system --commit-sha abc123
 
   # List all pending tokens
-  python scripts/pipeline/override_manager.py list-pending
+  python scripts/pipeline/commands/governance/override_manager.py list-pending
 
   # Audit all consumed tokens
-  python scripts/pipeline/override_manager.py audit
+  python scripts/pipeline/commands/governance/override_manager.py audit
 
 Exit codes:
   0  success / valid

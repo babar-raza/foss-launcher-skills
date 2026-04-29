@@ -108,7 +108,7 @@ def ensure_clone(family: str, platform: str) -> Path:
     if not url:
         raise RuntimeError(
             f"No clone_url found in data/products.json for {family}/{platform}. "
-            "Either add it via `python scripts/pipeline/update_product_registry.py` "
+            "Either add it via `python scripts/pipeline/commands/ops/update_product_registry.py` "
             "or set ASPOSE_CLONE_CACHE to a pre-populated cache directory."
         )
 

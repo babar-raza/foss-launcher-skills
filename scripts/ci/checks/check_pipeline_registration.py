@@ -24,10 +24,10 @@ Five check categories:
     Every entry with lifecycle=deprecated is noted; caller can review manually.
 
 Usage:
-    python scripts/ci/check_pipeline_registration.py
-    python scripts/ci/check_pipeline_registration.py --dry-run        # exit 0 always
-    python scripts/ci/check_pipeline_registration.py --fail-test-gaps # CHECK 4b blocking
-    python scripts/ci/check_pipeline_registration.py --warn-test-gaps # CHECK 4b warns (default)
+    python scripts/ci/checks/check_pipeline_registration.py
+    python scripts/ci/checks/check_pipeline_registration.py --dry-run        # exit 0 always
+    python scripts/ci/checks/check_pipeline_registration.py --fail-test-gaps # CHECK 4b blocking
+    python scripts/ci/checks/check_pipeline_registration.py --warn-test-gaps # CHECK 4b warns (default)
 
 Exit codes:
     0 — all blocking checks pass

@@ -22,9 +22,9 @@ Guard: exits 1 if knowledge/{family}/{platform}/fl/ exists.
 The fl/ layer has been removed.  If it reappears, something is wrong.
 
 Usage:
-    python scripts/pipeline/promote.py {family} {platform}
-    python scripts/pipeline/promote.py 3d python
-    python scripts/pipeline/promote.py cells python --knowledge-root /alt/path
+    python scripts/pipeline/commands/knowledge/promote.py {family} {platform}
+    python scripts/pipeline/commands/knowledge/promote.py 3d python
+    python scripts/pipeline/commands/knowledge/promote.py cells python --knowledge-root /alt/path
 """
 from __future__ import annotations
 
@@ -817,7 +817,7 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
             "\n  WARNING: enriched_claims.json exists in scout/ but contributed 0 claims.\n"
             "  This usually means enrich.py ran AFTER promote.py.\n"
             "  Correct order: scout → enrich → promote\n"
-            f"  Re-run: python scripts/pipeline/promote.py {family} {platform}"
+            f"  Re-run: python scripts/pipeline/commands/knowledge/promote.py {family} {platform}"
         )
 
     # -----------------------------------------------------------------------

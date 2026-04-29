@@ -24,13 +24,13 @@ Checks
 Usage
 -----
     # Check all plugin product pages:
-    python scripts/pipeline/validate_plugin_structure.py
+    python scripts/pipeline/commands/content/validate_plugin_structure.py
 
     # Check specific files:
-    python scripts/pipeline/validate_plugin_structure.py --files path/to/file.md
+    python scripts/pipeline/commands/content/validate_plugin_structure.py --files path/to/file.md
 
     # Strict mode — also exit 1 on WARN:
-    python scripts/pipeline/validate_plugin_structure.py --strict
+    python scripts/pipeline/commands/content/validate_plugin_structure.py --strict
 
 Exit codes
 ----------

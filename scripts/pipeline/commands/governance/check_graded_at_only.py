@@ -16,9 +16,9 @@ Classification rules (Cases A/B/C/D):
       Print PARSE_FAILURE:<path> to stderr. Exit code 2.
 
 Usage:
-    .venv/Scripts/python scripts/pipeline/check_graded_at_only.py --files-from <list.txt>
-    .venv/Scripts/python scripts/pipeline/check_graded_at_only.py --files-from <list.txt> --mode staged
-    .venv/Scripts/python scripts/pipeline/check_graded_at_only.py --files-from <list.txt> --mode worktree
+    .venv/Scripts/python scripts/pipeline/commands/governance/check_graded_at_only.py --files-from <list.txt>
+    .venv/Scripts/python scripts/pipeline/commands/governance/check_graded_at_only.py --files-from <list.txt> --mode staged
+    .venv/Scripts/python scripts/pipeline/commands/governance/check_graded_at_only.py --files-from <list.txt> --mode worktree
 """
 from __future__ import annotations
 

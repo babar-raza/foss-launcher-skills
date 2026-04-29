@@ -574,7 +574,7 @@ def main():
     import sys
     
     if len(sys.argv) < 2:
-        print("Usage: python scripts/pipeline/knowledge_core.py <command> [args...]")
+        print("Usage: python scripts/pipeline/lib/knowledge_core.py <command> [args...]")
         print("Commands:")
         print("  diff {family} {platform} {repo_path}  — Compare repo SHA with stored SHA")
         sys.exit(0)
@@ -583,7 +583,7 @@ def main():
     
     if command == "diff":
         if len(sys.argv) != 5:
-            print("Usage: python scripts/pipeline/knowledge_core.py diff {family} {platform} {repo_path}")
+            print("Usage: python scripts/pipeline/lib/knowledge_core.py diff {family} {platform} {repo_path}")
             sys.exit(1)
         family = sys.argv[2]
         platform = sys.argv[3]

@@ -7,8 +7,8 @@ This check is ADVISORY (designed to run with continue-on-error: true). It warns 
 mismatches but does not block PRs until adoption is complete.
 
 Usage:
-    python scripts/ci/check_skill_run_records.py --commits sha1 sha2 ...
-    python scripts/ci/check_skill_run_records.py --commits $(git log origin/main...HEAD --format='%H')
+    python scripts/ci/checks/check_skill_run_records.py --commits sha1 sha2 ...
+    python scripts/ci/checks/check_skill_run_records.py --commits $(git log origin/main...HEAD --format='%H')
 
 Exit codes:
     0  all checked commits either have matching records or no records (advisory mode)
@@ -156,14 +156,14 @@ def main(argv: list[str] | None = None) -> int:
         for n in no_record:
             print(n)
         print("  Create skill run records before committing to enable validation.")
-        print("    python scripts/pipeline/skill_run_manager.py create --skills S-xx --plan '...'")
+        print("    python scripts/pipeline/commands/ops/skill_run_manager.py create --skills S-xx --plan '...'")
 
     if mismatches:
         print(f"\nCommits with MISMATCHED skill declarations ({len(mismatches)}):")
         for m in mismatches:
             print(m)
         print("\n  Check reports/skill-runs/ and correct 'Skills invoked:' in the commit message.")
-        print("    Use: python scripts/pipeline/skill_run_manager.py get-declared-skills --run-id <id>")
+        print("    Use: python scripts/pipeline/commands/ops/skill_run_manager.py get-declared-skills --run-id <id>")
         return 1
 
     if no_record:

@@ -16,7 +16,7 @@ A bundle is tagged for a scenario when its INDEX.json entry has:
     "operator_scenario": <int 1-6>
 
 Usage:
-    python scripts/ci/check_proof_matrix.py [--json]
+    python scripts/ci/checks/check_proof_matrix.py [--json]
 
 Exit codes:
     0  all 6 operator scenarios have at least one tagged proof bundle

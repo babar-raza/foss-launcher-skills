@@ -5,9 +5,9 @@ package/install accuracy, prerequisite accuracy, and format direction
 consistency. Returns PASS/WARN/DENY.
 
 Usage:
-    python scripts/pipeline/change_guard.py {family} {platform} "proposed text"
-    python scripts/pipeline/change_guard.py {family} {platform} --file path.md
-    echo "text" | python scripts/pipeline/change_guard.py {family} {platform} --stdin
+    python scripts/pipeline/commands/governance/change_guard.py {family} {platform} "proposed text"
+    python scripts/pipeline/commands/governance/change_guard.py {family} {platform} --file path.md
+    echo "text" | python scripts/pipeline/commands/governance/change_guard.py {family} {platform} --stdin
 
 Exit codes:
     0  PASS - text consistent with knowledge
