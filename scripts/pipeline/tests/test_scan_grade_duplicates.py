@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-_CI_ROOT = Path(__file__).resolve().parent.parent.parent / "ci"
+_CI_ROOT = Path(__file__).resolve().parent.parent.parent / "ci" / "checks"
 if str(_CI_ROOT) not in sys.path:
     sys.path.insert(0, str(_CI_ROOT))
 

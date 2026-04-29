@@ -18,7 +18,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-_PIPELINE_ROOT = Path(__file__).resolve().parent
+_PIPELINE_ROOT = Path(__file__).resolve().parents[2]  # commands/governance/ -> commands/ -> pipeline/
 if str(_PIPELINE_ROOT) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_ROOT))
 

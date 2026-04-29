@@ -211,25 +211,36 @@ class TestPlanNormalizeFixtures(unittest.TestCase):
 
 
 class TestPlanNormalizeAgentsRegistration(unittest.TestCase):
-    """AGENTS.md governance integration."""
+    """AGENTS.md governance integration (including decomposed child docs)."""
 
     def setUp(self):
         self.agents_text = read_text("AGENTS.md")
+        # AGENTS.md may decompose sections to child docs via routing pointers.
+        # Collect the full governance surface for content checks.
+        self.governance_texts = [self.agents_text]
+        for child in [
+            "docs/registries/skills.md",
+            "docs/workflows/mental-model-refresh.md",
+            "docs/workflows/skill-chains.md",
+        ]:
+            p = REPO_ROOT / child
+            if p.exists():
+                self.governance_texts.append(p.read_text(encoding="utf-8", errors="ignore"))
+        self.full_text = "\n".join(self.governance_texts)
 
     def test_s91_in_registry_table(self):
-        self.assertIn("S-91", self.agents_text)
-        self.assertIn("plan-normalize", self.agents_text)
+        self.assertIn("S-91", self.full_text)
+        self.assertIn("plan-normalize", self.full_text)
 
     def test_s91_in_mental_model_refresh(self):
-        """§3 should reference plan-normalize for stale/archive plans."""
-        self.assertIn("plan-normalize", self.agents_text)
-        # The §3 bullet should exist
-        self.assertIn("S-91", self.agents_text)
+        """§3 (or its child doc) should reference plan-normalize for stale/archive plans."""
+        self.assertIn("plan-normalize", self.full_text)
+        self.assertIn("S-91", self.full_text)
 
     def test_plan_execution_gate_section_in_s6(self):
-        """§6 should have the plan execution gate section."""
-        self.assertIn("Plan execution gate", self.agents_text)
-        self.assertIn("execution-ready-as-is: no", self.agents_text)
+        """§6 (or its child doc) should have the plan execution gate section."""
+        self.assertIn("Plan execution gate", self.full_text)
+        self.assertIn("execution-ready-as-is: no", self.full_text)
 
 
 class TestPlanNormalizeSampleVerdict(unittest.TestCase):

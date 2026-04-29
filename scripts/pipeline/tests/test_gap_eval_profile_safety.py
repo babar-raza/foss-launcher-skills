@@ -1053,7 +1053,7 @@ class TestUpdateCommand:
 # TC-03: cells/net profile validation round-trip integration tests
 # ---------------------------------------------------------------------------
 
-_VALIDATE_SCRIPT = str(Path(__file__).resolve().parents[2] / "gap-eval" / "validate_profile.py")
+_VALIDATE_SCRIPT = str(Path(__file__).resolve().parents[2] / "gap-eval" / "src" / "validate_profile.py")
 _CLONE_CACHE = Path(__file__).resolve().parents[3] / "runs" / ".clone_cache" / "aspose_cells_net"
 _CLONE_CACHE_CSPROJ = _CLONE_CACHE / "src" / "Aspose.Cells_FOSS" / "Aspose.Cells_FOSS.csproj"
 _PYTHON = sys.executable

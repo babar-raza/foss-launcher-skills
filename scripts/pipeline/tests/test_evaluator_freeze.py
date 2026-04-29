@@ -5,7 +5,7 @@ import pytest
 from pathlib import Path
 import sys
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "ci"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "ci" / "checks"))
 from check_evaluator_freeze import read_versions, check
 
 

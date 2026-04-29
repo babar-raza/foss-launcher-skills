@@ -28,7 +28,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-_HERE = Path(__file__).resolve().parent
+_HERE = Path(__file__).resolve().parents[2]  # commands/governance/ -> commands/ -> pipeline/
 if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
 

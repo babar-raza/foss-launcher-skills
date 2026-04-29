@@ -1778,3 +1778,37 @@ scripts:
     change_impact: null
     notes: "batch repair: fix type_accuracy Access column defects in reference pages; reads api_surface.json writable flags; supports --dry-run, --family, --platform, --files args; idempotent"
 
+  # ── Migration infrastructure ──────────────────────────────────────────────
+
+  - path: scripts/pipeline/_bootstrap.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: migration-infrastructure
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "migration bootstrap module — tested implicitly by all command imports"
+    deprecated_since: null
+    change_impact: null
+    notes: "shared path/config/env bootstrap for all pipeline commands"
+
+  - path: scripts/pipeline/write_classifier.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: launch
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "classify existing content files as CREATE/REFRESH/PRESERVE/CONFLICT for launch-product refresh mode"
+

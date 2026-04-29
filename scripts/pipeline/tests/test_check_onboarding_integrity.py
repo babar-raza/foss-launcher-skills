@@ -33,7 +33,7 @@ def _find_repo_root(start: Path) -> Path:
     )
 
 
-sys.path.insert(0, str(_find_repo_root(Path(__file__)) / "scripts" / "ci"))
+sys.path.insert(0, str(_find_repo_root(Path(__file__)) / "scripts" / "ci" / "checks"))
 
 import check_onboarding_integrity as module  # noqa: E402
 
