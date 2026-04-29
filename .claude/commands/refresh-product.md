@@ -28,7 +28,7 @@ changes, refreshes knowledge, plans what content needs to change, updates stale 
 generates new pages, retires obsolete pages, validates quality, translates changed pages,
 and commits the result.
 
-This skill is the entry point for the maintenance chain (AGENTS.md §6). Running it ensures
+This skill is the entry point for the maintenance chain (AGENTS.md §6; full detail: [docs/workflows/skill-chains.md](../docs/workflows/skill-chains.md)). Running it ensures
 the full cycle executes in the correct order with progress tracking and a verification gate
 before any commit.
 

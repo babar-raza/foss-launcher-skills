@@ -102,6 +102,6 @@ Write `reports/coverage/{family}/{platform}/{date}-coverage-report.md` with:
 ## Registry
 
 **Skill code**: S-80
-**Status**: REGISTERED — AGENTS.md §12 entry added 2026-04-07
+**Status**: REGISTERED — AGENTS.md §12 / [docs/registries/skills.md](../docs/registries/skills.md) entry added 2026-04-07
 **Script**: `scripts/pipeline/knowledge_coverage.py` (existing — check if compatible)
 **Test**: `scripts/pipeline/tests/test_coverage_reconcile.py` (to be created)

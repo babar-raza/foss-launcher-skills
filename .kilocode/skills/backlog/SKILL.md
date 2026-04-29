@@ -646,7 +646,7 @@ Run structural completeness checks against a plan file and auto-fix what can be 
 | H-10 | Every Taskcard has Allowed paths or Forbidden | WARN | No |
 | H-11 | Plan has `## Backlog Cross-Reference` table | WARN | Yes — generate from TC Backlog ID fields |
 | H-12 | Every Backlog ID in Cross-Reference exists in BACKLOG.md | ERROR | No — report missing |
-| H-13 | No taskcard references AGENTS.md §4 FORBIDDEN paths | ERROR | No — report violation |
+| H-13 | No taskcard references AGENTS.md §4 (full detail: [docs/governance/write-boundaries.md](../docs/governance/write-boundaries.md)) FORBIDDEN paths | ERROR | No — report violation |
 | H-14 | Status not `active` while all taskcards are terminal | WARN | Yes — suggest close |
 
 3. Apply auto-fixes for fixable items

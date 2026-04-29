@@ -292,7 +292,7 @@ READY TO SHIP if:
 ### STAGE 8.5 — Governed Review Gates (H-01 through H-05, executed by S-90)
 
 > **Updated 2026-04-17** — H-gates are now executed by S-90 (`/publish-readiness-review`)
-> per §7c and §7a. The agent performs all 5 gate equivalents. Real human escalation only
+> per §7c and §7a (full detail: [docs/governance/launch-gates.md](../docs/governance/launch-gates.md)). The agent performs all 5 gate equivalents. Real human escalation only
 > per §7c conditions (see AGENTS.md §7c).
 
 **Step 1 — Invoke S-90 as the governed H-gate executor:**

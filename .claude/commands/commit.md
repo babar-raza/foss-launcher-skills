@@ -236,7 +236,7 @@ building the commit plan preview (B.5). They should not appear in the plan at al
 - If `.venv` is absent → skip this step with a warning; the pre-commit hook Step 10 is the fallback safety net
 
 **Implementation note**: `scripts/pipeline/check_graded_at_only.py` is the authoritative
-classifier. See also: AGENTS.md §10b graded_at-only diff rule.
+classifier. See also: AGENTS.md §10b (full detail: [docs/governance/provenance-rules.md](../docs/governance/provenance-rules.md)) graded_at-only diff rule.
 
 ---
 

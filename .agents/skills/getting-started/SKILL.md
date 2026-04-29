@@ -126,7 +126,7 @@ bash scripts/install-hooks.sh
 ```
 
 This installs and verifies all three hooks. The pre-commit hook runs `audit.py` on staged
-content files. The commit-msg hook enforces the `Skills invoked:` field (AGENTS.md §10).
+content files. The commit-msg hook enforces the `Skills invoked:` field (AGENTS.md §10; full detail: [docs/governance/evidence-and-provenance.md](../docs/governance/evidence-and-provenance.md)).
 The post-commit hook handles override token consumption.
 
 **WARN**: If hooks are absent or not executable, re-run `bash scripts/install-hooks.sh`.
@@ -191,7 +191,7 @@ Do not edit any content page before completing these checks:
 
 ## Notes for agents
 
-> **Authoritative source**: The governance rules below are also documented in `AGENTS.md` §2
+> **Authoritative source**: The governance rules below are also documented in `AGENTS.md` §2 (full detail: [docs/governance/read-order.md](../docs/governance/read-order.md))
 > (Read Order) and §9 (Maintenance Workflow). Those sections take precedence if any
 > discrepancy exists. These notes are a quick reference for first-time onboarding only.
 

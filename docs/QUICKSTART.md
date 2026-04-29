@@ -108,6 +108,7 @@ current dirty-file snapshot. Skills will refuse to run without it.
 ```
 
 Prerequisites are handled by the agent reading dependency rules from `AGENTS.md §6a`
+(full detail: [`docs/governance/dar-table.md`](../docs/governance/dar-table.md))
 and running upstream skills first. Completed stages are tracked in
 `reports/phase_state.json` (checkpoint store), so re-running a completed stage is a
 no-op. However, there is no code gate that prevents invoking a downstream skill before

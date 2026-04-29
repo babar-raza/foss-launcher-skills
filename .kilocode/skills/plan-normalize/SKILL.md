@@ -128,7 +128,7 @@ From every `open-actionable` and `verified-current-state` section, extract:
 
 For each capability and next-step claim, attempt verification:
 - **Capability claims** → check referenced files exist; check referenced scripts are
-  present at the stated path; check referenced skills appear in AGENTS.md §12
+  present at the stated path; check referenced skills appear in AGENTS.md §12 / [docs/registries/skills.md](../docs/registries/skills.md)
 - **Next-step claims** → check the referenced command/skill is registered; check its
   preconditions are currently met
 - **Status claims** → cross-reference against backlog item status, HANDOFF.md "What

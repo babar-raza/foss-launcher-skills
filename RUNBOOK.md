@@ -3,8 +3,8 @@ OWNERSHIP: RUNBOOK.md
 AUTHORITY: Terminal command cheatsheet (script-level commands only)
 MUST NOT RESTATE: Policy rules — link to AGENTS.md; never copy governance text
 REVIEW TRIGGERS:
-  - AGENTS.md §12 venv execution policy changes → update all python command blocks
-  - New workflow skills added to AGENTS.md §12 → add matching runbook entry
+  - AGENTS.md §12 / docs/registries/skills.md venv execution policy changes → update all python command blocks
+  - New workflow skills added to AGENTS.md §12 / docs/registries/skills.md → add matching runbook entry
 MAINTAINED BY: Human maintainer · CI: scripts/ci/check_onboarding_integrity.py (Check 5)
 -->
 # RUNBOOK — Aspose.org Operator Guide
@@ -285,7 +285,7 @@ The pre-commit hook runs automatically if installed (Step 1.4).
 
 ## 9. Provenance Operations
 
-See AGENTS.md §10b for the full provenance model. Quick reference:
+See AGENTS.md §10b (full detail: docs/governance/provenance-rules.md) for the full provenance model. Quick reference:
 
 ```bash
 # Backfill provenance on files that lack it (idempotent, safe to re-run)

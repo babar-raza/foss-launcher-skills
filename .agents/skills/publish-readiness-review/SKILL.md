@@ -24,6 +24,7 @@ publish verdict.
 system. When any skill, plan, or report says "escalate to human review", "manual
 review required", "human action required", or equivalent, agents MUST invoke this
 skill rather than halting — see AGENTS.md §7c for the canonical definition.
+(Launch gates: [docs/governance/launch-gates.md](../docs/governance/launch-gates.md))
 
 **When real human escalation is still required** (S-90 routes these, does not execute):
 - Grade F after 2 S-26 passes + 1 S-89 batch pass with no improvement

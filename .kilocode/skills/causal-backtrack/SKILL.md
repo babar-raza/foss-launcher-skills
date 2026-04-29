@@ -33,7 +33,8 @@ The default pipeline behavior writes a grade (e.g. B) when evaluation finds brok
 This skill prevents that: it **traces the broken link back to its upstream cause**, determines
 the correct remediation, and routes control to the responsible stage/skill.
 
-This implements the **causal backtracking and forward replay** system defined in AGENTS.md §6c.
+This implements the **causal backtracking and forward replay** system defined in AGENTS.md §6c
+(full detail: [docs/workflows/causal-backtracking.md](../docs/workflows/causal-backtracking.md)).
 
 ---
 
