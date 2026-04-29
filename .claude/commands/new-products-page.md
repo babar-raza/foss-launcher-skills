@@ -105,7 +105,7 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
     layout: plugin
     family_name: "{ProductName} FOSS"
     plugin_description: "{1-sentence, max 160 chars}"
-    plugin_platform: "{platform display name per §3b}"
+    plugin_platform: "{platform display name per §3b; see [docs/governance/naming-conventions.md](../docs/governance/naming-conventions.md)}"
     head_title: "{ProductName} FOSS for {Platform} | Open-Source {Category} Library"
     head_description: "{SEO description, max 160 chars}"
     title: "{ProductName} FOSS for {Platform display name}"
