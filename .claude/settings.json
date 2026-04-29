@@ -1,32 +1,32 @@
 {
   "permissions": {
     "allow": [
-      "Bash(bash scripts/ci/bootstrap_session_gate.sh)",
+      "Bash(bash scripts/ci/hooks/bootstrap_session_gate.sh)",
       "Bash(.venv/Scripts/python -m pytest tests/test_runner_reference_injection.py -v)",
-      "Bash(.venv/Scripts/python scripts/pipeline/sync_skills.py --check)",
+      "Bash(.venv/Scripts/python scripts/pipeline/commands/ops/sync_skills.py --check)",
       "Bash(echo \"EXIT:$?\")",
       "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/ -q --tb=line --ignore=scripts/pipeline/tests/test_sync_skills.py)",
       "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/test_check_onboarding_integrity.py -v --tb=short)",
       "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/ -q)",
-      "Bash(.venv/Scripts/python scripts/pipeline/post_refresh_verify.py cells net --verify)",
+      "Bash(.venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py cells net --verify)",
       "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/test_embed.py scripts/pipeline/tests/test_tier2_determinism.py scripts/pipeline/tests/test_tier3_result.py scripts/pipeline/tests/test_synthesize_llm.py scripts/pipeline/tests/test_llm_router.py -v --tb=short)",
       "Bash(ls scripts/pipeline/tests/test_format*.py)",
       "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/test_format_cross_reference.py -v)",
       "Bash(.venv/Scripts/python -m unittest scripts.pipeline.tests.test_format_cross_reference -v)",
       "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/test_heal_controller.py -v)",
-      "Bash(.venv/Scripts/python scripts/ci/check_skill_registry_json.py)",
-      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/ci/check_python_placement.py --check-staged)",
+      "Bash(.venv/Scripts/python scripts/ci/checks/check_skill_registry_json.py)",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/ci/checks/check_python_placement.py --check-staged)",
       "Bash(.venv/Scripts/python -c \":*)",
       "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python -m pytest scripts/pipeline/tests/test_readiness_scorecard.py -v)",
       "Bash(PYTHONPATH=\"scripts/pipeline\" .venv/Scripts/python -m pytest scripts/pipeline/tests/test_readiness_scorecard.py scripts/pipeline/tests/test_human_review_sampler.py scripts/pipeline/tests/test_grade_writer.py -v --tb=short)",
-      "Bash(.venv/Scripts/python scripts/ci/check_skill_readme_coverage.py --fix)",
-      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-77 --scope \"scripts/ci/*\")",
-      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-84 --scope \"scripts/ci/\")",
-      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py end --skill S-84 --status completed)",
-      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-84 --scope \"scripts/ci/check_write_path_hook.sh\")",
+      "Bash(.venv/Scripts/python scripts/ci/checks/check_skill_readme_coverage.py --fix)",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-77 --scope \"scripts/ci/*\")",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-84 --scope \"scripts/ci/\")",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-84 --status completed)",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-84 --scope \"scripts/ci/check_write_path_hook.sh\")",
       "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/ -x -q --tb=short)",
-      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/skill_context.py begin --skill S-65 --scope \"*\")",
-      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/repo_patrol.py report)",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-65 --scope \"*\")",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/diagnostics/repo_patrol.py report)",
       "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/test_hk01_integration.py -v)"
     ],
     "additionalDirectories": [
@@ -42,7 +42,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash scripts/ci/check_session_gate.sh"
+            "command": "bash scripts/ci/hooks/check_session_gate.sh"
           }
         ]
       },
@@ -51,11 +51,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash scripts/ci/check_content_edit_hook.sh"
+            "command": "bash scripts/ci/hooks/check_content_edit_hook.sh"
           },
           {
             "type": "command",
-            "command": "bash scripts/ci/check_skill_context_hook.sh"
+            "command": "bash scripts/ci/hooks/check_skill_context_hook.sh"
           }
         ]
       },
@@ -64,11 +64,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash scripts/ci/check_venv_bash_hook.sh"
+            "command": "bash scripts/ci/hooks/check_venv_bash_hook.sh"
           },
           {
             "type": "command",
-            "command": "bash scripts/ci/check_destructive_bash_hook.sh"
+            "command": "bash scripts/ci/hooks/check_destructive_bash_hook.sh"
           }
         ]
       },
@@ -77,19 +77,19 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash scripts/ci/check_write_path_hook.sh"
+            "command": "bash scripts/ci/hooks/check_write_path_hook.sh"
           },
           {
             "type": "command",
-            "command": "bash scripts/ci/check_py_write_hook.sh"
+            "command": "bash scripts/ci/hooks/check_py_write_hook.sh"
           },
           {
             "type": "command",
-            "command": "bash scripts/ci/check_content_write_hook.sh"
+            "command": "bash scripts/ci/hooks/check_content_write_hook.sh"
           },
           {
             "type": "command",
-            "command": "bash scripts/ci/check_skill_context_hook.sh"
+            "command": "bash scripts/ci/hooks/check_skill_context_hook.sh"
           }
         ]
       }

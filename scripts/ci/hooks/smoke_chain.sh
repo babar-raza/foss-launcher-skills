@@ -16,7 +16,7 @@ if [ -z "${PYTHON:-}" ]; then
 fi
 
 echo "=== 1. Knowledge discovery ==="
-(cd scripts/pipeline && $PYTHON -c "import sys; sys.path.insert(0,'.'); from content_discovery import discover_products; assert len(discover_products()) >= 13, 'Expected 13+ products'")
+(cd scripts/pipeline && $PYTHON -c "import sys; sys.path.insert(0,'.'); from lib.content_discovery import discover_products; assert len(discover_products()) >= 13, 'Expected 13+ products'")
 
 echo "=== 2. Site planner ==="
 $PYTHON scripts/pipeline/commands/launch/site_planner.py note python --dry-run > /dev/null

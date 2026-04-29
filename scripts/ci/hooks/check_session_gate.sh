@@ -132,7 +132,7 @@ if [ "$TOOL_NAME" = "Bash" ] && [ -n "$COMMAND" ]; then
     BOOTSTRAP_MATCH=$(printf '%s' "$COMMAND" | "$PYTHON" -c "
 import re, sys
 cmd = sys.stdin.read().strip()
-pattern = re.compile(r'^bash\s+\.{0,2}/?scripts/ci/bootstrap_session_gate\.sh\s*$')
+pattern = re.compile(r'^bash\s+\.{0,2}/?scripts/ci/(hooks/)?bootstrap_session_gate\.sh\s*$')
 print('match' if pattern.match(cmd) else 'no-match')
 " 2>/dev/null || echo "no-match")
     if [ "$BOOTSTRAP_MATCH" = "match" ]; then
