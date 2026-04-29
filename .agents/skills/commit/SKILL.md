@@ -452,45 +452,6 @@ EOF
 
 ---
 
-### H.5 — Safe push after commit
-
-Push after all local commits are created:
-```bash
-git push origin main
-```
-
-**If push is rejected** (`error: failed to push ... non-fast-forward`):
-
-1. **DO NOT run any of:** `git reset origin/HEAD`, `git reset --hard origin/HEAD`,
-   `git reset HEAD~N`, `git checkout -- .`, `git clean -f`, `git push --force`.
-2. Inspect divergence:
-   ```bash
-   git fetch origin
-   git log --oneline origin/main..HEAD   # our commits not on origin
-   git log --oneline HEAD..origin/main   # origin commits we don't have
-   ```
-3. Replay our commits on top of origin:
-   ```bash
-   git rebase origin/main
-   ```
-4. Push again:
-   ```bash
-   git push origin main
-   ```
-5. **If still rejected: STOP.** Do not retry. Report to operator:
-   ```
-   Push rejected after rebase. Manual intervention required.
-   HEAD: <sha>  origin/main: <sha>
-   Divergence: <paste git log output>
-   Manifest: <path>
-   ```
-   Record the SHA, origin SHA, and divergence log before stopping.
-
-**If you are a parallel agent:** Do NOT push at all. Leave files uncommitted.
-The coordinator agent or human operator will commit and push.
-
----
-
 ### I — Post-commit hook cleanup
 
 After **each** commit, run:

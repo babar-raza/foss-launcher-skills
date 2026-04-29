@@ -148,7 +148,7 @@ Do not run any subsequent steps. Exit 0.
     ```
     Recalculates grades against the updated knowledge model and persists them to frontmatter.
     Compare before/after grades: any page regressing to D or F should be flagged for healing
-    before translation (Step 11). Pass `--skip-regrade` to bypass for fast refresh runs.
+    before commit. Pass `--skip-regrade` to bypass for fast refresh runs.
 
 10. **Link validation** (S-65: link-validate):
     ```
@@ -156,25 +156,13 @@ Do not run any subsequent steps. Exit 0.
     ```
     Verify no broken cross-subdomain links were introduced.
 
-11. **Translate changed pages** (S-53: translate-batch):
-    ```
-    /translate {family} {platform}
-    ```
-    **Filter**: Only translate pages where body `content_hash` changed (not just frontmatter/evidence updates).
-    Compare `provenance.content_hash` before and after to identify pages with real content changes.
-    Translating metadata-only changes wastes LLM budget.
-    **LLM_API_KEY absent**: If `LLM_API_KEY` is not set in the environment, this step emits
-    a SKIP-WITH-WARNING and the chain continues. Translation can be re-run separately via
-    `/translate {family} {platform}` once the key is available. This is not a chain-abort condition.
-    - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step translate`
-
-12. **Record step completions**: After each step above, call:
+11. **Record step completions**: After each step above, call:
     ```bash
     .venv/Scripts/python scripts/pipeline/post_refresh_verify.py {family} {platform} --step {step_name}
     ```
     Progress is tracked at `reports/refresh_state/{family}/{platform}/progress.json` (local-only, not committed).
 
-13. **Verification gate** (post_refresh_verify.py --verify):
+12. **Verification gate** (post_refresh_verify.py --verify):
     ```bash
     .venv/Scripts/python scripts/pipeline/post_refresh_verify.py {family} {platform} --verify
     ```
@@ -189,7 +177,7 @@ Do not run any subsequent steps. Exit 0.
     pages with audit failures leave their `model_sha` stale (Check 4) or produce orphaned
     claim citations (Check 2), both of which are caught above.
 
-    **If verification fails**: do NOT proceed to Step 14. Fix the reported issues and re-run
+    **If verification fails**: do NOT proceed to Step 13. Fix the reported issues and re-run
     the failing sub-steps, then re-run `--verify`. Commit only after verification passes.
 
 13.5. **Coverage report**:
@@ -201,7 +189,7 @@ Do not run any subsequent steps. Exit 0.
     - If coverage < 100%: emits WARNING and includes gap in commit message; does NOT abort commit
     - Record progress: `python scripts/pipeline/post_refresh_verify.py {family} {platform} --step coverage_report`
 
-14. **Commit** (S-76: commit):
+13. **Commit** (S-76: commit):
     ```
     /commit
     ```
@@ -238,5 +226,5 @@ will be skipped or produce no-ops on re-run.
 
 - Step 1 (detect): if `update_clone()` fails, log warning and compare against cached local SHA; continue
 - Step 2 (knowledge-update): if scout fails, abort entire cycle; do not write partial delta
-- Step 13 (verify): if fails, list specific issues; do not commit; fix and re-verify
+- Step 12 (verify): if fails, list specific issues; do not commit; fix and re-verify
 - Any step failure: check `--status` to see which steps completed; resume from the failing step

@@ -113,11 +113,6 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
 
 9. **Run ground-check**: Execute `.venv/Scripts/python scripts/pipeline/audit.py --files {target_path}` to verify API accuracy.
 
-9b. **Persist grade** (Universal Skill Contract — AGENTS.md Part 21 §21.5): After writing body content, invoke the grading system in policy mode so the canonical grade is updated only when body content actually changed the grade:
-    ```bash
-    .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {target_path} --write-grade-if-policy-met
-    ```
-
 10. **Report**: Print summary of draft — word count, sections, claims used, API tokens verified.
 
 > **Skill context close** — run after the last step:

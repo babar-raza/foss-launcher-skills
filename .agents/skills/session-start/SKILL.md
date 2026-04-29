@@ -32,7 +32,7 @@ any user request.
 1. Read `AGENTS.md` in full
 2. Read `CLAUDE.md`
 3. Confirm: state the current §2 Read Order aloud
-4. Confirm: state the capability assessment method from AGENTS.md §6b
+4. Confirm: state the capability assessment method from AGENTS.md §6b (full detail: docs/workflows/gap-escalation.md)
    - Also state the anti-reframing rule: "There is no 'forensic', 'ad-hoc', or
      'operator-directed' exemption from skill-first execution. All work matches
      a registered skill (FULL), requires gap escalation (PARTIAL/NONE), or is

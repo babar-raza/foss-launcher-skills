@@ -84,13 +84,11 @@ Omit `{site}` or use `all` to process all supported sites. Omit `{locales}` or u
    ```
 
 7. **Check manifest for failures**: Read the manifest JSON from the path printed by the CLI.
-   - If `summary.failed == 0`: proceed to cache-stats (step 8), then STOP.
-     Do NOT commit or push from within translate-batch. This skill produces
-     translation files only. Committing is the sole responsibility of the
-     calling coordinator or human operator (see Push Coordination below).
+   - If `summary.failed == 0`: proceed to cache-stats and commit.
    - If `summary.failed > 0`: print the list of failed files with their error messages.
-     Ask the operator: "N files failed translation. Retry now or abort?"
+     Ask the operator: "N files failed translation. Retry now, commit partial, or abort?"
      - **Retry**: run `python -m translator batch --family {family} --platform {platform} --site {site} --locales {locales} --retry-failed {manifest_path}`
+     - **Commit partial**: proceed but note failures in the commit body.
      - **Abort**: stop without committing.
 
 8. **On completion**, run cache-stats to confirm cache utilisation:

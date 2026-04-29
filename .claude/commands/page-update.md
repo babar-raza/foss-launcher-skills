@@ -118,11 +118,6 @@ After a knowledge refresh (S-14), identify which content pages reference changed
    .venv/Scripts/python scripts/pipeline/audit.py --files {updated-file-path}
    ```
 
-8b. **Persist grade** (Universal Skill Contract — AGENTS.md Part 21 §21.5): For each BODY_UPDATED page:
-   ```bash
-   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {updated-file-path} --write-grade-if-policy-met
-   ```
-
 9. **Update provenance**: For each file where body content was modified, update the provenance mechanism:
    ```python
    from provenance import update_mechanism

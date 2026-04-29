@@ -460,7 +460,7 @@ escalation item, creating an end-to-end traceable remediation record.
 | Error | Action |
 |-------|--------|
 | Knowledge model missing | Abort — do not edit without knowledge grounding |
-| `audit.py` or `validate_frontmatter.py` not found | Treat as BROKEN skill condition; revert any pending write; produce skill-breakage report per AGENTS.md §6b |
+| `audit.py` or `validate_frontmatter.py` not found | Treat as BROKEN skill condition; revert any pending write; produce skill-breakage report per AGENTS.md §6b (full detail: docs/workflows/gap-escalation.md) |
 | `attach_evidence.py` failure | Revert edit; report as post-edit pipeline error |
 | `content_eval` unavailable | Proceed with audit-proxy grade; log "content_eval unavailable — grade proxy used" |
 | File write permission error | Halt; report filesystem error |

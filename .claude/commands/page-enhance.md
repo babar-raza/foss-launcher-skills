@@ -85,9 +85,9 @@ Enhance a page that scores below the quality bar (grade C or below from S-17/S-2
    .venv/Scripts/python scripts/pipeline/audit.py --files {relative-file-path}
    ```
 
-11. **Re-evaluate and persist grade** (Universal Skill Contract — AGENTS.md Part 21 §21.5): Confirm improvement and update canonical grade if policy met:
+11. **Re-evaluate** to confirm improvement:
     ```bash
-    .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --write-grade-if-policy-met --format json
+    .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json
     ```
 
 12. **Update provenance**: After writing enhanced content, update the provenance mechanism:
