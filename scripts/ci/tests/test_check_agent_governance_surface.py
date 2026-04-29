@@ -6,7 +6,7 @@ import json
 import sys
 from pathlib import Path
 
-_CI_ROOT = Path(__file__).resolve().parent.parent
+_CI_ROOT = Path(__file__).resolve().parent.parent / "checks" 
 for _p in (str(_CI_ROOT),):
     if _p not in sys.path:
         sys.path.insert(0, _p)
@@ -131,7 +131,7 @@ def test_check_baseline_fails_on_new_findings(tmp_path):
 
 
 def test_repo_baseline_allows_current_repo_findings():
-    baseline = _CI_ROOT / "fixtures" / "agent_governance_surface_baseline.json"
+    baseline = _CI_ROOT.parent / "fixtures" / "agent_governance_surface_baseline.json"
     findings = check_agent_governance_surface.analyze_repo(check_agent_governance_surface._REPO_ROOT)
     result = check_agent_governance_surface.compare_to_baseline(findings, baseline)
     assert result["new_findings"] == []

@@ -140,8 +140,8 @@ def test_tc_sg_04_bootstrap_bash_leading_whitespace_exempt():
 
 
 def test_tc_sg_05_other_bash_blocked_when_gate_absent():
-    """TC-SG-05: Arbitrary Bash blocked when gate absent."""
-    assert _run("Bash", {"command": "cat AGENTS.md"}, gate_present=False) == 2
+    """TC-SG-05: Arbitrary (non-read-only) Bash blocked when gate absent."""
+    assert _run("Bash", {"command": "rm -rf /tmp/foo"}, gate_present=False) == 2
 
 
 def test_tc_sg_06_compound_injection_blocked():

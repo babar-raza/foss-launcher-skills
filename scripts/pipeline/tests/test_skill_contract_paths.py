@@ -173,6 +173,12 @@ class TestS12Completeness(unittest.TestCase):
     def test_all_skill_files_registered_in_s12(self):
         agents_text = read_text("AGENTS.md")
         s12_names = self._parse_s12_names(agents_text)
+        # AGENTS.md §12 was decomposed to docs/registries/skills.md
+        child_doc = REPO_ROOT / "docs" / "registries" / "skills.md"
+        if child_doc.exists():
+            s12_names |= self._parse_s12_names(
+                child_doc.read_text(encoding="utf-8", errors="ignore")
+            )
         skills_dir = REPO_ROOT / "skills"
         for skill_path in sorted(skills_dir.glob("*.md")):
             skill_name = skill_path.stem

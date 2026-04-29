@@ -47,7 +47,7 @@ def _run(*args: str, cwd: Path | None = None) -> subprocess.CompletedProcess:
 
 
 # Bring is_valid_filename into scope for unit tests
-sys.path.insert(0, str(REPO_ROOT / "scripts" / "ci"))
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "ci" / "checks"))
 from check_content_filenames import is_valid_filename  # noqa: E402
 
 

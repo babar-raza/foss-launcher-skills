@@ -44,7 +44,7 @@ def test_detects_forbidden_foss_launcher_path(tmp_path):  # TEST_FIXTURE_OBSOLET
     wrapper.write_text(
         f"""
 import sys
-sys.path.insert(0, r'{REPO_ROOT}/scripts/ci')
+sys.path.insert(0, r'{REPO_ROOT}/scripts/ci/checks')
 import check_clone_cache_refs as c
 from pathlib import Path
 
@@ -75,7 +75,7 @@ def test_permits_historical_marker(tmp_path):
     wrapper.write_text(
         f"""
 import sys
-sys.path.insert(0, r'{REPO_ROOT}/scripts/ci')
+sys.path.insert(0, r'{REPO_ROOT}/scripts/ci/checks')
 import check_clone_cache_refs as c
 from pathlib import Path
 
@@ -114,7 +114,7 @@ def test_dry_run_exits_zero_on_violations(tmp_path):
     wrapper.write_text(
         f"""
 import sys
-sys.path.insert(0, r'{REPO_ROOT}/scripts/ci')
+sys.path.insert(0, r'{REPO_ROOT}/scripts/ci/checks')
 import check_clone_cache_refs as c
 from pathlib import Path
 
@@ -145,7 +145,7 @@ def test_permits_fixture_marker(tmp_path):
     wrapper.write_text(
         f"""
 import sys
-sys.path.insert(0, r'{REPO_ROOT}/scripts/ci')
+sys.path.insert(0, r'{REPO_ROOT}/scripts/ci/checks')
 import check_clone_cache_refs as c
 from pathlib import Path
 
@@ -175,7 +175,7 @@ def test_no_broad_test_dir_skip():
     contain the forbidden path, defeating the enforcement guarantee.
     """
     import sys as _sys
-    _sys.path.insert(0, str(REPO_ROOT / "scripts" / "ci"))
+    _sys.path.insert(0, str(REPO_ROOT / "scripts" / "ci" / "checks"))
     import check_clone_cache_refs as c
 
     forbidden_prefixes = [
@@ -209,7 +209,7 @@ def test_permits_prohibition_marker(tmp_path):
     wrapper.write_text(
         f"""
 import sys
-sys.path.insert(0, r'{REPO_ROOT}/scripts/ci')
+sys.path.insert(0, r'{REPO_ROOT}/scripts/ci/checks')
 import check_clone_cache_refs as c
 from pathlib import Path
 
@@ -236,7 +236,7 @@ def test_unmarked_prohibition_still_fails(tmp_path):
     wrapper.write_text(
         f"""
 import sys
-sys.path.insert(0, r'{REPO_ROOT}/scripts/ci')
+sys.path.insert(0, r'{REPO_ROOT}/scripts/ci/checks')
 import check_clone_cache_refs as c
 from pathlib import Path
 

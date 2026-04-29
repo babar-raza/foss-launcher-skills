@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-_CI_DIR = Path(__file__).resolve().parent.parent
+_CI_DIR = Path(__file__).resolve().parent.parent / "checks" 
 if str(_CI_DIR) not in sys.path:
     sys.path.insert(0, str(_CI_DIR))
 

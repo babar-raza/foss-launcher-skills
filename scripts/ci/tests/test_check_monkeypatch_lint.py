@@ -7,7 +7,7 @@ import pytest
 
 import sys
 import os
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "checks"))
 from check_monkeypatch_lint import check_file, main
 
 

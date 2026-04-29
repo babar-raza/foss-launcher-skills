@@ -7,9 +7,15 @@ from pathlib import Path
 
 import pytest
 
-_CI_ROOT = Path(__file__).resolve().parent.parent
+_CI_ROOT = Path(__file__).resolve().parent.parent / "checks"
+_CI_SHIM_DIR = str(Path(__file__).resolve().parent.parent)
+# Remove ci/ root from sys.path to prevent shim shadowing canonical modules
+sys.path[:] = [p for p in sys.path if str(Path(p).resolve()) != _CI_SHIM_DIR or "checks" in p or "tests" in p]
 if str(_CI_ROOT) not in sys.path:
     sys.path.insert(0, str(_CI_ROOT))
+# Clear any cached shim import
+if "enforce_venv_python" in sys.modules:
+    del sys.modules["enforce_venv_python"]
 
 import enforce_venv_python  # noqa: E402
 

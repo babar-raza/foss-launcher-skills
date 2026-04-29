@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(_REPO_ROOT / "scripts" / "ci"))
+sys.path.insert(0, str(_REPO_ROOT / "scripts" / "ci" / "checks"))
 
 from check_skill_registry_json import check, _discover_canonical, REGISTRY_PATH
 

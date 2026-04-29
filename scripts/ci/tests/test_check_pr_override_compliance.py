@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-_CI_ROOT = Path(__file__).resolve().parent.parent
+_CI_ROOT = Path(__file__).resolve().parent.parent / "checks" 
 _PIPELINE_ROOT = _CI_ROOT.parent / "pipeline"
 for _p in (str(_CI_ROOT), str(_PIPELINE_ROOT)):
     if _p not in sys.path:
