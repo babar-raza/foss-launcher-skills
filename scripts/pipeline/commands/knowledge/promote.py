@@ -1,0 +1,871 @@
+"""promote.py — Scout-only knowledge promotion: scout/ → merged/ with optional enrichment.
+
+Replaces merge.py.  The dual-source FL merge architecture has been removed.
+Knowledge is now produced entirely from within this repo:
+
+    scout/              deterministic tree-sitter extraction (S-34)
+    scout/enriched_claims.json   LLM enrichment grounded in api_surface.json (S-37, optional)
+    scout/supplemental_claims.json  temporary bridge (one-time FL absorption, delete after S-37 run)
+
+Reads from:
+    knowledge/{family}/{platform}/scout/
+
+Writes to:
+    knowledge/{family}/{platform}/merged/
+
+Provenance values in merged/claims.json:
+    scout         — deterministic tree-sitter extraction (confidence 1.0)
+    enriched      — LLM-generated, grounded in api_surface.json (S-37)
+    supplemental  — temporary bridge from one-time FL absorption (delete after S-37 runs)
+
+Guard: exits 1 if knowledge/{family}/{platform}/fl/ exists.
+The fl/ layer has been removed.  If it reappears, something is wrong.
+
+Usage:
+    python scripts/pipeline/promote.py {family} {platform}
+    python scripts/pipeline/promote.py 3d python
+    python scripts/pipeline/promote.py cells python --knowledge-root /alt/path
+"""
+from __future__ import annotations
+
+import json
+import re
+import shutil
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+import yaml
+
+from core.constants import _TEST_PATH_PATTERNS, _INTERNAL_PATH_PATTERNS
+
+
+# ---------------------------------------------------------------------------
+# Claim validation (identical to merge.py — kept for safety)
+# ---------------------------------------------------------------------------
+
+def _validate_claims(claims, source_label: str) -> list:
+    """Validate and filter a claims list. Warns on bad entries."""
+    if not isinstance(claims, list):
+        print(f"  WARNING: {source_label} claims is not a list, skipping")
+        return []
+    valid = []
+    for i, c in enumerate(claims):
+        if not isinstance(c, dict):
+            print(f"  WARNING: {source_label} claim #{i} is not a dict, skipping")
+            continue
+        if "text" not in c or "kind" not in c:
+            print(f"  WARNING: {source_label} claim #{i} missing 'text' or 'kind', skipping")
+            continue
+        valid.append(c)
+    if len(valid) < len(claims):
+        print(f"  WARNING: {source_label} {len(claims) - len(valid)} invalid claims filtered")
+    return valid
+
+
+# ---------------------------------------------------------------------------
+# Format-claims reconciliation (A-01 + A-02)
+# ---------------------------------------------------------------------------
+
+_CONTRADICTION_PHRASES = (
+    "read-only",
+    "detect-only",
+    "not supported",
+    "cannot write",
+    "cannot export",
+    "no write",
+    "no export",
+)
+
+_WRITE_DIRECTIONS = frozenset({"export", "both", "readwrite"})
+
+
+def _reconcile_formats_claims(
+    formats_data: list,
+    claims: list,
+    family: str,
+    platform: str,
+) -> list:
+    """Check for contradictions between formats.json directions and claims text.
+
+    For every format whose direction implies write capability (export / both /
+    readwrite), scan the claims list for any claim whose text mentions the
+    format name AND one of the contradiction phrases (e.g. "read-only",
+    "cannot export").
+
+    Returns a list of dicts::
+
+        {"format": name, "direction": direction, "contradicting_claim": claim_text}
+
+    An empty list means no contradictions were detected.
+    Handles a missing / malformed formats_data gracefully (returns []).
+    """
+    if not isinstance(formats_data, list):
+        return []
+
+    contradictions: list = []
+
+    for fmt in formats_data:
+        if not isinstance(fmt, dict):
+            continue
+        raw_name = fmt.get("name", fmt.get("format", ""))
+        if not raw_name:
+            continue
+        direction = fmt.get("direction", "both")
+        if direction not in _WRITE_DIRECTIONS:
+            continue
+
+        name_lower = raw_name.lower().rstrip("_")
+
+        for claim in claims:
+            if not isinstance(claim, dict):
+                continue
+            claim_text = claim.get("text", "")
+            if not isinstance(claim_text, str):
+                continue
+            claim_lower = claim_text.lower()
+            if name_lower not in claim_lower:
+                continue
+            for phrase in _CONTRADICTION_PHRASES:
+                if phrase in claim_lower:
+                    contradictions.append({
+                        "format": raw_name,
+                        "direction": direction,
+                        "contradicting_claim": claim_text,
+                    })
+                    break  # one match per claim is enough
+
+    return contradictions
+
+
+# ---------------------------------------------------------------------------
+# Artifact validation (FR-13)
+# ---------------------------------------------------------------------------
+
+class PromotionValidationError(Exception):
+    """Raised when promoted artifacts fail structural validation."""
+
+
+# Known class/interface names that the scout extractor mistakenly captures as
+# format entries.  These are Java class names, not 3D file format identifiers.
+_FORMAT_CLASS_ARTIFACTS = frozenset({
+    "FILEFORMAT", "FILEFORMATTYPE",
+    # Single-letter entries are always interface-name fragments (e.g. IExporter → "I")
+})
+
+# Heuristic: a single uppercase letter is never a real format identifier.
+_FORMAT_SINGLE_LETTER = re.compile(r"^[A-Z]$")
+
+
+def _is_invalid_format_entry(name: str) -> bool:
+    """Return True if a formats.md row name looks like a class artifact, not a format."""
+    upper = name.strip().upper()
+    if upper in _FORMAT_CLASS_ARTIFACTS:
+        return True
+    if _FORMAT_SINGLE_LETTER.match(upper):
+        return True
+    return False
+
+
+# Java: import lines must not have hyphens between package components
+_JAVA_IMPORT_HYPHEN = re.compile(r"^\s*import\s+[\w.]*-[\w.*]+")
+# .NET: using lines should not contain hyphens (hyphens are illegal in C# namespaces)
+_DOTNET_USING_HYPHEN = re.compile(r"^\s*using\s+[\w.]*-[\w.]+")
+# Python: import/from lines with hyphens in module names
+_PYTHON_IMPORT_HYPHEN = re.compile(r"^\s*(?:import|from)\s+[\w.]*-[\w.]+")
+
+
+def validate_promoted_artifacts(family: str, platform: str, merged_dir: Path) -> list[str]:
+    """Validate formats.md and install.md in merged_dir.
+
+    Returns a list of human-readable error strings.  An empty list means all
+    validations passed.  Callers should raise PromotionValidationError if the
+    list is non-empty.
+    """
+    errors: list[str] = []
+
+    # --- formats.md ---
+    fmt_path = merged_dir / "formats.md"
+    if fmt_path.exists():
+        for lineno, raw_line in enumerate(fmt_path.read_text(encoding="utf-8").splitlines(), 1):
+            line = raw_line.strip()
+            # Skip header, separator, and empty lines
+            if not line or line.startswith("#") or line.startswith("|---") or "Format" in line:
+                continue
+            if not line.startswith("|"):
+                continue
+            parts = [p.strip() for p in line.split("|")]
+            # Table row: | Format | Import | Export |  -> parts[1] is the format name
+            if len(parts) < 2:
+                continue
+            entry_name = parts[1].strip()
+            if not entry_name:
+                continue
+            if _is_invalid_format_entry(entry_name):
+                errors.append(
+                    f"formats.md:{lineno}: invalid format entry '{entry_name}' "
+                    f"(looks like a class/interface name, not a file format identifier) "
+                    f"in {fmt_path}"
+                )
+
+    # --- install.md ---
+    install_path = merged_dir / "install.md"
+    if install_path.exists():
+        content = install_path.read_text(encoding="utf-8")
+        for lineno, raw_line in enumerate(content.splitlines(), 1):
+            if platform == "java":
+                if _JAVA_IMPORT_HYPHEN.match(raw_line):
+                    errors.append(
+                        f"install.md:{lineno}: invalid Java import (hyphens are illegal "
+                        f"in Java package names): '{raw_line.strip()}' in {install_path}"
+                    )
+            elif platform in ("net", "dotnet"):
+                if _DOTNET_USING_HYPHEN.match(raw_line):
+                    errors.append(
+                        f"install.md:{lineno}: invalid .NET using directive (hyphens are "
+                        f"illegal in C# namespace names): '{raw_line.strip()}' in {install_path}"
+                    )
+            elif platform == "python":
+                if _PYTHON_IMPORT_HYPHEN.match(raw_line):
+                    errors.append(
+                        f"install.md:{lineno}: invalid Python import (hyphens are illegal "
+                        f"in Python module names): '{raw_line.strip()}' in {install_path}"
+                    )
+
+    return errors
+
+
+# ---------------------------------------------------------------------------
+# api_surface.md generator (ported from merge.py unchanged)
+# ---------------------------------------------------------------------------
+
+def _generate_api_surface_md(api_list, family: str, model: dict, out_dir: Path) -> None:
+    """Generate human-readable api_surface.md from merged/api_surface.json."""
+    special = {"3d": "3D"}
+    display = special.get(family, family.title())
+    lines = [
+        f"# API Surface — Aspose.{display}",
+        f"<!-- Generated by promote.py from merged/api_surface.json -->",
+        f"<!-- repo_sha: {model.get('repo_sha', 'unknown')} -->",
+        "",
+    ]
+
+    classes = sorted(api_list, key=lambda c: c.get("name", "")) if isinstance(api_list, list) else []
+
+    for cls in classes:
+        name = cls.get("name", "")
+        if not name:
+            continue
+        kind = cls.get("kind", "class_definition")
+        if kind == "function" or name.startswith("test_"):
+            continue
+
+        doc = cls.get("doc", "").strip()
+        bases = cls.get("bases", [])
+
+        lines.append(f"## {name}")
+        if doc:
+            lines.append(f"**Docstring**: {doc}")
+        if bases:
+            lines.append(f"**Bases**: {', '.join(bases)}")
+
+        methods = [m for m in cls.get("methods", [])
+                   if isinstance(m, dict) and not m.get("name", "").startswith("_")]
+        if methods:
+            lines.append("**Methods**:")
+            for m in methods:
+                mname = m.get("name", "")
+                params = ", ".join(p.get("name", "") for p in m.get("params", [])
+                                  if isinstance(p, dict))
+                ret = m.get("return_type", "")
+                sig = f"{mname}({params})"
+                if ret:
+                    sig += f" -> {ret}"
+                lines.append(f"- `{sig}`")
+        else:
+            lines.append("**Methods**: _none_")
+
+        props = cls.get("properties", [])
+        if props:
+            lines.append("**Properties**:")
+            for p in props:
+                if not isinstance(p, dict):
+                    continue
+                pname = p.get("name", "")
+                ptype = p.get("type", "Any")
+                lines.append(f"- `{pname}: {ptype}`")
+
+        enums = cls.get("enum_members", [])
+        if enums:
+            lines.append("**Enum values**:")
+            for e in enums:
+                ename = e.get("name", e) if isinstance(e, dict) else str(e)
+                lines.append(f"- `{ename}`")
+
+        lines.append("")
+
+    md_text = "\n".join(lines) + "\n"
+    (out_dir / "api_surface.md").write_text(md_text, encoding="utf-8")
+    print(f"  api_surface.md: {len(classes)} classes, {len(md_text)} bytes")
+
+
+# ---------------------------------------------------------------------------
+# Snippet promotion (scout-only, no FL merging)
+# ---------------------------------------------------------------------------
+
+def _promote_snippets(scout_dir: Path, merged_dir: Path) -> int:
+    """Copy scout/snippets/ to merged/snippets/, filtering to public API classes only."""
+    scout_snip = scout_dir / "snippets"
+    merged_snip = merged_dir / "snippets"
+
+    if not (scout_snip / "snippets_index.json").exists():
+        print("  Snippets: none available")
+        return 0
+
+    # Build public class name set for filtering
+    _public_class_names: set = set()
+    api_surface_path = merged_dir / "api_surface.json"
+    if api_surface_path.exists():
+        try:
+            _api_list = json.loads(api_surface_path.read_text(encoding="utf-8"))
+            for _c in _api_list:
+                if not isinstance(_c, dict) or _c.get("kind") == "function":
+                    continue
+                _name = _c.get("name", "")
+                if not _name or _name.startswith("_"):
+                    continue
+                _file = _c.get("file", "")
+                if any(p in _file for p in _TEST_PATH_PATTERNS):
+                    continue
+                if any(p in _file for p in _INTERNAL_PATH_PATTERNS):
+                    continue
+                _public_class_names.add(_name)
+        except (json.JSONDecodeError, OSError):
+            pass
+
+    merged_snip.mkdir(parents=True, exist_ok=True)
+
+    try:
+        scout_index: list = json.loads(
+            (scout_snip / "snippets_index.json").read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        scout_index = []
+
+    merged_index = []
+    for i, entry in enumerate(scout_index, 1):
+        if not isinstance(entry, dict):
+            continue
+        src_file = entry.get("file", "")
+        if src_file and (scout_snip / src_file).exists():
+            shutil.copy2(scout_snip / src_file, merged_snip / src_file)
+
+        merged_entry = dict(entry)
+        merged_entry["id"] = f"snippet_{i:03d}"
+        merged_entry["provenance"] = "scout"
+        if _public_class_names:
+            merged_entry["classes_used"] = [
+                c for c in merged_entry.get("classes_used", [])
+                if c in _public_class_names
+            ]
+        merged_index.append(merged_entry)
+
+    (merged_snip / "snippets_index.json").write_text(
+        json.dumps(merged_index, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"  Snippets: {len(merged_index)} (from scout)")
+    return len(merged_index)
+
+
+# ---------------------------------------------------------------------------
+# Main promote function
+# ---------------------------------------------------------------------------
+
+def promote(family: str, platform: str, knowledge_root=None) -> bool:
+    """Promote scout/ knowledge to merged/ with optional enriched/supplemental claims.
+
+    Returns True on success, False on failure.
+    """
+    base = (Path(knowledge_root) if knowledge_root else Path("knowledge")) / family / platform
+    scout_dir = base / "scout"
+    fl_dir = base / "fl"
+    merged_dir = base / "merged"
+
+    # Hard guard: fl/ must not exist
+    if fl_dir.exists():
+        print(
+            f"ERROR: fl/ directory found at {fl_dir}\n"
+            "  The FL knowledge layer has been removed from this repo.\n"
+            "  Delete the fl/ directory and re-run promote.py.\n"
+            "  If you need to re-import external knowledge, use enrich.py (S-37) instead."
+        )
+        return False
+
+    if not (scout_dir / "claims.json").exists():
+        print(f"ERROR: No scout knowledge found for {family}/{platform} "
+              f"(missing {scout_dir / 'claims.json'})")
+        return False
+
+    merged_dir.mkdir(parents=True, exist_ok=True)
+
+    # Load scout data
+    # FIX-12: claims.json may be a flat list (legacy) or a wrapper dict with
+    # {source_sha, claims: [...]}.  Accept both.
+    _raw_claims = json.loads(
+        (scout_dir / "claims.json").read_text(encoding="utf-8"))
+    if isinstance(_raw_claims, dict):
+        scout_claims_raw = _raw_claims.get("claims", [])
+    else:
+        scout_claims_raw = _raw_claims if isinstance(_raw_claims, list) else []
+    scout_claims = _validate_claims(scout_claims_raw, "scout")
+    scout_model: dict = {}
+    if (scout_dir / "model.yaml").exists():
+        scout_model = yaml.safe_load(
+            (scout_dir / "model.yaml").read_text(encoding="utf-8")) or {}
+
+    scout_api: list = []
+    if (scout_dir / "api_surface.json").exists():
+        scout_api = json.loads(
+            (scout_dir / "api_surface.json").read_text(encoding="utf-8"))
+        if not isinstance(scout_api, list):
+            scout_api = []
+
+    print(f"Promote: {family}/{platform}")
+    print(f"  Scout: {len(scout_claims)} claims, {len(scout_api)} classes")
+
+    # -----------------------------------------------------------------------
+    # Build merged claims: scout + enriched (S-37) + supplemental (bridge)
+    # -----------------------------------------------------------------------
+    merged_claims = [{**sc, "provenance": "scout"} for sc in scout_claims]
+    enriched_count = 0
+    supplemental_count = 0
+
+    enriched_path = scout_dir / "enriched_claims.json"
+    if enriched_path.exists():
+        try:
+            enriched_data = json.loads(enriched_path.read_text(encoding="utf-8"))
+            # Staleness check: enriched_claims.json records the api_surface SHA it was
+            # generated from.  If that SHA differs from the current scout api_surface,
+            # the enrichment is stale and claims may reference removed/renamed members.
+            if isinstance(enriched_data, dict):
+                stored_sha = enriched_data.get("api_surface_sha", "")
+                if stored_sha:
+                    import hashlib as _hashlib
+                    current_sha = _hashlib.sha256(
+                        json.dumps(scout_api, sort_keys=True).encode()
+                    ).hexdigest()[:16]
+                    if stored_sha != current_sha:
+                        print(
+                            f"  WARNING: enriched_claims.json is stale — generated from "
+                            f"api_surface SHA {stored_sha!r}, current is {current_sha!r}.\n"
+                            f"  Run /knowledge-enrich {family} {platform} to regenerate."
+                        )
+            enriched_raw = enriched_data.get("claims", []) if isinstance(enriched_data, dict) else enriched_data
+            enriched = _validate_claims(enriched_raw, "enriched")
+            for c in enriched:
+                merged_claims.append({**c, "provenance": "enriched"})
+            enriched_count = len(enriched)
+            print(f"  Enriched: {enriched_count} claims (from enrich.py)")
+        except (json.JSONDecodeError, OSError) as exc:
+            print(f"  WARNING: could not read enriched_claims.json: {exc}")
+
+    supplemental_path = scout_dir / "supplemental_claims.json"
+    if supplemental_path.exists():
+        try:
+            supp_data = json.loads(supplemental_path.read_text(encoding="utf-8"))
+            supp_raw = supp_data.get("claims", []) if isinstance(supp_data, dict) else supp_data
+            supplemental = _validate_claims(supp_raw, "supplemental")
+            for c in supplemental:
+                merged_claims.append({**c, "provenance": "supplemental"})
+            supplemental_count = len(supplemental)
+            print(f"  Supplemental: {supplemental_count} claims (temporary bridge — delete after enrich.py runs)")
+        except (json.JSONDecodeError, OSError) as exc:
+            print(f"  WARNING: could not read supplemental_claims.json: {exc}")
+
+    print(f"  Total claims: {len(merged_claims)}")
+
+    # Claim ID uniqueness check — hard-gate ERC dupes, warn-only for CLM dupes
+    from collections import Counter as _Counter
+    _id_counts = _Counter(c.get("claim_id") for c in merged_claims
+                          if isinstance(c, dict) and c.get("claim_id"))
+    _dupes = {cid: cnt for cid, cnt in _id_counts.items() if cnt > 1}
+    _erc_dupes = {cid: cnt for cid, cnt in _dupes.items() if cid.startswith("ERC-")}
+    _clm_dupes = {cid: cnt for cid, cnt in _dupes.items() if not cid.startswith("ERC-")}
+
+    if _erc_dupes:
+        print(f"  FAIL: {len(_erc_dupes)} duplicate ERC claim_id(s) — aborting write")
+        for _cid, _cnt in sorted(_erc_dupes.items(), key=lambda x: -x[1])[:5]:
+            print(f"    {_cid}: {_cnt} occurrences")
+        return False
+
+    if _clm_dupes:
+        print(f"  WARNING: {len(_clm_dupes)} duplicate CLM claim_id(s) in merged/claims.json")
+        for _cid, _cnt in sorted(_clm_dupes.items(), key=lambda x: -x[1])[:5]:
+            print(f"    {_cid}: {_cnt} occurrences")
+    else:
+        print(f"  Claim ID uniqueness: PASS ({len(_id_counts)} unique IDs)")
+
+    (merged_dir / "claims.json").write_text(
+        json.dumps(merged_claims, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    # -----------------------------------------------------------------------
+    # Copy API surface from scout (always authoritative)
+    # -----------------------------------------------------------------------
+    (merged_dir / "api_surface.json").write_text(
+        json.dumps(scout_api, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"  API surface: {len(scout_api)} classes")
+
+    # -----------------------------------------------------------------------
+    # Copy scout artifacts
+    # -----------------------------------------------------------------------
+    # For formats.json: preserve manually-annotated entries (those with a
+    # "note" field OR "manual": true) that the scout cannot detect (e.g.
+    # file-extension aliases, method-based imports).  These are merged back
+    # after the scout copy so that a plain promote.py run does not silently
+    # erase them.
+    _fmt_preserved: list[dict] = []
+    _fmt_dst = merged_dir / "formats.json"
+    if _fmt_dst.exists():
+        try:
+            _existing = json.loads(_fmt_dst.read_text(encoding="utf-8"))
+            _fmt_preserved = [
+                e for e in _existing
+                if e.get("note") or e.get("manual") is True
+            ]
+        except Exception as exc:
+            import sys as _sys
+            print(f"[promote] WARNING: could not load {_fmt_dst} for note preservation: {exc}",
+                  file=_sys.stderr)
+
+    for fname in ["formats.json", "class_graph.json", "coverage_matrix.json",
+                  "install.md"]:
+        src = scout_dir / fname
+        if src.exists():
+            shutil.copy2(src, merged_dir / fname)
+
+    # Re-inject preserved note/manual entries that are absent from the scout output.
+    if _fmt_preserved and _fmt_dst.exists():
+        try:
+            _new = json.loads(_fmt_dst.read_text(encoding="utf-8"))
+            # Guard: skip entries where format or enum key is missing/None to
+            # prevent (None, None) false-match collisions in the key set.
+            _existing_keys = {
+                (e.get("format"), e.get("enum")) for e in _new
+                if e.get("format") is not None or e.get("enum") is not None
+            }
+            _added = [
+                e for e in _fmt_preserved
+                if (e.get("format"), e.get("enum")) not in _existing_keys
+                and (e.get("format") is not None or e.get("enum") is not None)
+            ]
+            if _added:
+                _new.extend(_added)
+                _fmt_dst.write_text(
+                    json.dumps(_new, indent=2, ensure_ascii=False),
+                    encoding="utf-8")
+                import sys as _sys
+                print(f"[promote] Preserved {len(_added)} note/manual format "
+                      f"entries not present in scout output ({_fmt_dst.name}).",
+                      file=_sys.stderr)
+        except Exception as exc:
+            import sys as _sys
+            print(f"[promote] WARNING: could not re-inject preserved entries "
+                  f"into {_fmt_dst}: {exc}", file=_sys.stderr)
+
+    # Copy limitations.md from scout, then re-append any "Known Documentation
+    # Errors" section that was manually maintained in the merged copy.  That
+    # section survives repeated promote runs; the auto-detected stub table at
+    # the top is always refreshed from the latest scout output.
+    lim_src = scout_dir / "limitations.md"
+    lim_dst = merged_dir / "limitations.md"
+    known_errors_block = ""
+    if lim_dst.exists():
+        existing = lim_dst.read_text(encoding="utf-8")
+        marker = "## Known Documentation Errors"
+        idx = existing.find(marker)
+        if idx != -1:
+            known_errors_block = "\n" + existing[idx:]
+    if lim_src.exists():
+        scout_lim = lim_src.read_text(encoding="utf-8")
+        lim_dst.write_text(scout_lim.rstrip() + known_errors_block + "\n",
+                           encoding="utf-8")
+
+    # -----------------------------------------------------------------------
+    # Promote snippets
+    # -----------------------------------------------------------------------
+    snippet_count = _promote_snippets(scout_dir, merged_dir)
+
+    # -----------------------------------------------------------------------
+    # formats.md
+    # -----------------------------------------------------------------------
+    fmt_path = merged_dir / "formats.json"
+    if fmt_path.exists():
+        formats_raw = json.loads(fmt_path.read_text(encoding="utf-8"))
+        # Normalise display names: strip trailing underscore and capitalise.
+        # e.g. "cfb_" -> "CFB", "msg_" -> "MSG", "eml" -> "EML"
+        _DISPLAY_NAMES: dict[str, str] = {
+            "cfb": "CFB (Compound File Binary)",
+            "cfb_": "CFB (Compound File Binary)",
+            "msg": "MSG (Outlook Message)",
+            "msg_": "MSG (Outlook Message)",
+            "eml": "EML (RFC 5322 / MIME)",
+        }
+
+        def _display(raw: str) -> str:
+            stripped = raw.rstrip("_").lower()
+            return _DISPLAY_NAMES.get(raw.lower(),
+                   _DISPLAY_NAMES.get(stripped, stripped.upper()))
+
+        # Merge per-direction rows: one row per display name with Im/Ex flags.
+        fmt_rows: dict[str, dict[str, bool]] = {}
+        for fmt in formats_raw:
+            raw_name = fmt.get("name", fmt.get("format", ""))
+            if not raw_name:
+                continue
+            display_name = _display(raw_name)
+            direction = fmt.get("direction", "both")
+            row = fmt_rows.setdefault(display_name, {"import": False, "export": False})
+            if direction in ("import", "both"):
+                row["import"] = True
+            if direction in ("export", "both"):
+                row["export"] = True
+            # Treat legacy can_import / can_export fields if present
+            if fmt.get("can_import"):
+                row["import"] = True
+            if fmt.get("can_export"):
+                row["export"] = True
+
+        fmt_lines = ["# Format Support\n",
+                     "| Format | Import | Export |",
+                     "|--------|--------|--------|"]
+        for display_name, flags in sorted(fmt_rows.items()):
+            imp = "Yes" if flags["import"] else "-"
+            exp = "Yes" if flags["export"] else "-"
+            fmt_lines.append(f"| {display_name} | {imp} | {exp} |")
+        (merged_dir / "formats.md").write_text("\n".join(fmt_lines) + "\n", encoding="utf-8")
+
+    # -----------------------------------------------------------------------
+    # forbidden_claims list from limitations.md
+    # -----------------------------------------------------------------------
+    forbidden: list[str] = []
+    lim_path = merged_dir / "limitations.md"
+    if lim_path.exists():
+        for line in lim_path.read_text(encoding="utf-8").splitlines():
+            if "|" not in line or "---" in line:
+                continue
+            parts = [p.strip() for p in line.split("|")]
+            if len(parts) >= 5 and parts[1] == "File":
+                continue
+            if len(parts) >= 5 and (parts[3] or parts[4]):
+                cls = parts[3].strip()
+                meth = parts[4].strip()
+                if cls and meth:
+                    forbidden.append(f"{cls}.{meth}")
+                elif meth:
+                    forbidden.append(meth)   # class-level stub (e.g. C++ empty-body class)
+                elif cls:
+                    forbidden.append(cls)
+
+    # -----------------------------------------------------------------------
+    # model.yaml
+    # -----------------------------------------------------------------------
+    merged_model = {
+        "family": family,
+        "platform": platform,
+        "product_name": scout_model.get("product_name", ""),
+        "version": scout_model.get("version", ""),
+        "license": scout_model.get("license", ""),
+        "repo_url": scout_model.get("repo_url", ""),
+        "repo_sha": scout_model.get("repo_sha", ""),
+        "stale_since": None,
+        "promoted_at": datetime.now(timezone.utc).isoformat(),
+        "source": "scout_and_enriched" if enriched_count > 0 else "scout_only",
+        "enrichment_status": "full" if enriched_count > 0 else "scout-only",
+        "has_conflicts": False,
+        "stats": {
+            "scout_claims": len(scout_claims),
+            "enriched_claims": enriched_count,
+            "supplemental_claims": supplemental_count,
+            "total_claims": len(merged_claims),
+            "class_count": len(scout_api),
+            "forbidden_count": len(forbidden),
+            "snippet_count": snippet_count,
+        },
+    }
+    (merged_dir / "model.yaml").write_text(
+        yaml.dump(merged_model, default_flow_style=False, sort_keys=False),
+        encoding="utf-8",
+    )
+
+    # -----------------------------------------------------------------------
+    # api_surface.md
+    # -----------------------------------------------------------------------
+    _generate_api_surface_md(scout_api, family, merged_model, merged_dir)
+
+    # -----------------------------------------------------------------------
+    # merge_report.md (kept for compatibility — rename eventually to promote_report.md)
+    # -----------------------------------------------------------------------
+    report_lines = [
+        f"# Promote Report: {family}/{platform}",
+        f"Date: {datetime.now(timezone.utc).isoformat()}",
+        f"Scout SHA: {scout_model.get('repo_sha', 'n/a')}",
+        "Source: scout-only (standalone pipeline, no FL dependency)",
+        "",
+        "## Statistics",
+        "| Metric | Value |",
+        "|--------|-------|",
+        f"| Scout claims | {len(scout_claims)} |",
+        f"| Enriched claims (S-37) | {enriched_count} |",
+        f"| Supplemental claims (bridge) | {supplemental_count} |",
+        f"| Total claims | {len(merged_claims)} |",
+        f"| Classes | {len(scout_api)} |",
+        f"| Forbidden claims | {len(forbidden)} |",
+        f"| Snippets | {snippet_count} |",
+        "",
+        "All claims have `provenance: scout | enriched | supplemental` — no FL dependency.",
+    ]
+    if supplemental_count > 0:
+        report_lines.append(
+            f"\nNOTE: {supplemental_count} supplemental claims are a temporary bridge. "
+            "Run enrich.py (S-37) then delete scout/supplemental_claims.json."
+        )
+    (merged_dir / "merge_report.md").write_text("\n".join(report_lines) + "\n", encoding="utf-8")
+
+    # Remove legacy merge_conflicts.md if present
+    conflicts_path = merged_dir / "merge_conflicts.md"
+    if conflicts_path.exists():
+        conflicts_path.unlink()
+
+    print(f"  Forbidden claims: {len(forbidden)}")
+    print(f"  All artifacts written to {merged_dir}")
+
+    # -----------------------------------------------------------------------
+    # Format-claims reconciliation (A-01 + A-02)
+    # -----------------------------------------------------------------------
+    _formats_for_reconcile: list = []
+    _fmt_json_path = merged_dir / "formats.json"
+    if _fmt_json_path.exists():
+        try:
+            _formats_for_reconcile = json.loads(
+                _fmt_json_path.read_text(encoding="utf-8"))
+            if not isinstance(_formats_for_reconcile, list):
+                _formats_for_reconcile = []
+        except (json.JSONDecodeError, OSError):
+            _formats_for_reconcile = []
+
+    _contradictions = _reconcile_formats_claims(
+        _formats_for_reconcile, merged_claims, family, platform)
+
+    if _contradictions:
+        for _c in _contradictions:
+            _msg = (
+                f"  WARNING: format-claims contradiction: "
+                f"format={_c['format']!r} direction={_c['direction']!r} "
+                f"claim={_c['contradicting_claim']!r}"
+            )
+            print(_msg.encode("ascii", "replace").decode("ascii"))
+        _recon_dir = Path("reports") / "knowledge-reconciliation"
+        _recon_dir.mkdir(parents=True, exist_ok=True)
+        _recon_lines = [
+            f"# Format-Claims Reconciliation: {family}/{platform}",
+            f"Date: {datetime.now(timezone.utc).isoformat()}",
+            "",
+            f"Total contradictions detected: {len(_contradictions)}",
+            "",
+            "## Contradictions",
+            "",
+        ]
+        for _idx, _c in enumerate(_contradictions, 1):
+            _recon_lines += [
+                f"### {_idx}. Format `{_c['format']}`",
+                f"- **Direction in formats.json**: `{_c['direction']}`",
+                f"- **Contradicting claim**: {_c['contradicting_claim']}",
+                "",
+            ]
+        _recon_lines += [
+            "---",
+            "_This report is a detection signal only. No claims were removed._",
+            "_Review each contradiction and update formats.json or claims manually._",
+        ]
+        _recon_path = _recon_dir / f"{family}-{platform}.md"
+        _recon_path.write_text("\n".join(_recon_lines) + "\n", encoding="utf-8")
+        print(f"  Reconciliation report written to {_recon_path}")
+    else:
+        _checked = len([f for f in _formats_for_reconcile
+                        if isinstance(f, dict)
+                        and f.get("direction", "both") in _WRITE_DIRECTIONS])
+        print(f"  Format-claims reconciliation: PASS ({_checked} formats checked)")
+
+    # -----------------------------------------------------------------------
+    # Artifact validation (FR-13) — runs after all merged/ writes are complete
+    # -----------------------------------------------------------------------
+    if not getattr(promote, "_skip_validation", False):
+        validation_errors = validate_promoted_artifacts(family, platform, merged_dir)
+        if validation_errors:
+            for err in validation_errors:
+                print(f"  VALIDATION ERROR: {err}")
+            raise PromotionValidationError(
+                f"Promotion of {family}/{platform} failed artifact validation "
+                f"({len(validation_errors)} error(s)). "
+                "Fix the scout extractor or the knowledge artifacts, then re-run promote.py. "
+                "Pass --skip-validation to bypass (not recommended)."
+            )
+        print(f"  Artifact validation: PASS")
+
+    # Ordering guard: warn if enriched_claims.json now exists but contributed 0
+    # claims.  This happens when enrich.py ran AFTER promote.py (wrong order).
+    if enriched_count == 0 and (scout_dir / "enriched_claims.json").exists():
+        print(
+            "\n  WARNING: enriched_claims.json exists in scout/ but contributed 0 claims.\n"
+            "  This usually means enrich.py ran AFTER promote.py.\n"
+            "  Correct order: scout → enrich → promote\n"
+            f"  Re-run: python scripts/pipeline/promote.py {family} {platform}"
+        )
+
+    # -----------------------------------------------------------------------
+    # Pipeline state manifest
+    # -----------------------------------------------------------------------
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # -> pipeline/
+    from core.manifest import write_step_manifest
+    state_path = base / ".pipeline_state.json"
+    write_step_manifest(state_path, "promote", {
+        "scout_claims": len(scout_claims),
+        "enriched_claims": enriched_count,
+        "supplemental_claims": supplemental_count,
+        "total_claims": len(merged_claims),
+        "class_count": len(scout_api),
+    })
+
+    return True
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+def main() -> None:
+    import argparse
+    parser = argparse.ArgumentParser(
+        description="Scout-only knowledge promotion (replaces merge.py).")
+    parser.add_argument("family", help="Product family (e.g. '3d')")
+    parser.add_argument("platform", help="Platform (e.g. 'python')")
+    parser.add_argument("--knowledge-root", default=None,
+                        help="Override knowledge root directory (default: knowledge/)")
+    parser.add_argument("--skip-validation", action="store_true", default=False,
+                        help="Skip artifact validation checks (not recommended)")
+    args = parser.parse_args()
+
+    # Thread the skip-validation flag into the promote function via a function attribute.
+    # This avoids changing the promote() signature (which may be called from tests).
+    promote._skip_validation = args.skip_validation  # type: ignore[attr-defined]
+    try:
+        success = promote(args.family, args.platform, args.knowledge_root)
+    except PromotionValidationError as exc:
+        print(f"\nPROMOTE: FAIL\n{exc}")
+        sys.exit(1)
+    finally:
+        promote._skip_validation = False  # type: ignore[attr-defined]
+    print(f"\nPROMOTE: {'PASS' if success else 'FAIL'}")
+    sys.exit(0 if success else 1)
+
+
+if __name__ == "__main__":
+    main()
