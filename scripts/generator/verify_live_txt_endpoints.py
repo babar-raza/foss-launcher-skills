@@ -127,11 +127,18 @@ def check_consumer_endpoints(out_dir):
                 if raw[:2] == b'\x1f\x8b':
                     raw = gzip.decompress(raw)
                 body = raw.decode('utf-8', errors='replace')
-            # Extract .txt URLs from llms.txt
-            txt_refs = re.findall(r'https?://[^\s)]+\.txt', body)
-            if not txt_refs:
-                rel_refs = re.findall(r'(?:^|\s)(/[^\s)]+\.txt)', body)
-                txt_refs = [f'https://{domain}{p}' for p in rel_refs]
+            # Extract leaf-page links from llms.txt (list items only)
+            # Section headers (## / ###) map to _index.md — may lack .txt
+            # List items (- [Title](url)) are leaf pages with .txt endpoints
+            leaf_links = re.findall(r'^\s*-\s+\[.*?\]\((https?://[^)]+)\)',
+                                    body, re.MULTILINE)
+            txt_refs = []
+            for link in leaf_links:
+                link = link.rstrip('/')
+                if link.endswith('.txt'):
+                    txt_refs.append(link)
+                elif '/' in link.split('//')[1]:
+                    txt_refs.append(link + '.txt')
             domain_results['referenced_urls'] = len(txt_refs)
             # Spot-check up to 5
             spot_urls = txt_refs[:5]
