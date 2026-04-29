@@ -107,7 +107,7 @@ DOMAIN_MAP = {
     "truth_audit.py": "diagnostics",
     "truth_audit_content.py": "diagnostics",
     "provenance_normalize_hash.py": "diagnostics",
-    "evidence_verifier.py": "diagnostics",
+    # evidence_verifier.py is pure library — domain assigned via LIBRARY_FILES, not here
     "repo_patrol.py": "diagnostics",  # Part VI
 
     # === Migration (14) ===

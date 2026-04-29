@@ -3013,7 +3013,7 @@ files:
     target: scripts/pipeline/evidence/writer.py
   scripts/pipeline/evidence_verifier.py:
     classification: library
-    domain: diagnostics
+    domain: lib
     dual_use: false
     external_ref_count: 0
     hook_sensitive: false
