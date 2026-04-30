@@ -69,10 +69,6 @@ ALLOWLIST_FILES = {
     "scripts/pipeline/config/registry.yaml",
     # Monkeypatch baseline — data file keyed by old script names
     "scripts/ci/monkeypatch_baseline.json",
-    # Kilocode governance — human bundle pending (TC-DS.4)
-    ".kilocode/rules-code/governance.md",
-    # Skills registry — auto-generated; regenerate via sync_providers.py (TC-DS.4)
-    "skills/registry.json",
 }
 
 

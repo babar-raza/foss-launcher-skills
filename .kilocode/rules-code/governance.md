@@ -59,7 +59,7 @@ Never write to these paths without explicit human override:
 
 ## Allowed Write Paths
 
-The canonical allowlist is defined in `scripts/pipeline/path_guard.py` (ALLOWED_PREFIXES).
+The canonical allowlist is defined in `scripts/pipeline/commands/governance/path_guard.py` (ALLOWED_PREFIXES).
 Current allowed paths for agent writes:
 
 - `content/docs.aspose.org/en/{family}/{platform}/`
@@ -76,7 +76,7 @@ Current allowed paths for agent writes:
 - `tests/`
 
 **Everything else is DENY by default**, including any path not listed above. When in doubt,
-run `python scripts/pipeline/path_guard.py <path>` to check.
+run `python scripts/pipeline/commands/governance/path_guard.py <path>` to check.
 
 ## Skill-First Execution (AGENTS.md §6a/§6b)
 
@@ -114,7 +114,7 @@ S-25 → S-26 → S-23 → S-25 → S-01 → write (or escalate)
 Before writing any file, run the preflight check to validate the path is allowed:
 
 ```bash
-python scripts/pipeline/preflight.py <path>
+python scripts/pipeline/commands/launch/preflight.py <path>
 ```
 
 This consolidates path guard, Python placement, and content workflow checks into a single
@@ -122,7 +122,7 @@ command. Exit 0 = ALLOW, exit 1 = DENY with guidance. Use `--json` for machine-r
 
 ## Do / Don't
 
-- **Do** run `python scripts/pipeline/preflight.py <path>` before writing any file
+- **Do** run `python scripts/pipeline/commands/launch/preflight.py <path>` before writing any file
 - **Do** check `knowledge/` artifacts before writing any content
 - **Do** include evidence citations in content pages
 - **Do** run ground-check (S-23) before committing content changes
