@@ -1,13 +1,13 @@
-# S-63: Code Smoke — Syntax and Type-Check Python Code Blocks
+# S-63: Code Smoke — Syntax and Type-Check Code Blocks
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform}` or `--files {path1} [path2 ...]`
 
 ## Purpose
 
-Check that Python code blocks in content pages are syntactically valid and
-type-correct. Uses `py_compile` for syntax checking and `mypy` for type
-checking. **Never executes code** — compile/type-check only.
+Check that code blocks in content pages are syntactically valid. Supports
+Python (via `py_compile` and `mypy`), Java, C#, TypeScript, and C++ (via
+tree-sitter grammar parsing). **Never executes code** — syntax-check only.
 
 ## Pre-conditions
 
@@ -84,7 +84,7 @@ checking. **Never executes code** — compile/type-check only.
 | 1 | At least one WARN (type errors only, no syntax errors) |
 | 2 | At least one FAIL (syntax error) |
 
-## Integration with eval-page (Python platform)
+## Integration with eval-page
 
 When `eval-page` is run for a Python-platform product, add this as step 2b:
 
@@ -101,8 +101,8 @@ When `eval-page` is run for a Python-platform product, add this as step 2b:
 - Multi-block examples (variables defined in block 1 used in block 2) are
   checked independently. This may produce false-positive `NameError` or type
   complaints for variables defined in prior blocks.
-- Non-Python code blocks (Java, C#, TypeScript, C++) are not checked by this
-  skill — use platform-specific linting tools for those.
+- Java, C#, TypeScript, and C++ blocks are checked via tree-sitter syntax
+  parsing (grammar-level only — not semantic analysis or type inference).
 - `bash` blocks are never checked.
 - The syntax check only catches compile-time errors, not runtime errors.
 

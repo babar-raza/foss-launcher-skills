@@ -56,7 +56,7 @@
 | new-reference-page | S-60 | Generate API reference pages for reference.aspose.org |
 | new-products-page | S-61 | Generate products.aspose.org landing pages |
 | batch-reference | S-62 | Bulk reference page generation for all missing classes/enums; idempotent |
-| code-smoke | S-63 | Syntax and type-check Python code blocks in content files |
+| code-smoke | S-63 | Syntax and type-check code blocks in content files (Python via py_compile/mypy; Java, C#, TypeScript, C++ via tree-sitter) |
 | getting-started | S-64 | Fresh-clone onboarding: install deps, configure env, bootstrap knowledge, verify |
 | link-validate | S-65 | Validate cross-subdomain internal links in content files; report BROKEN links where the target slug does not exist locally |
 | register-human-content | S-66 | Onboard a human-authored page into quality and provenance systems (sets auto_updatable: false, attaches evidence, assigns grade baseline) |
