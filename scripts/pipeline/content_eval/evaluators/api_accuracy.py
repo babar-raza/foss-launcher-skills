@@ -50,7 +50,17 @@ class ApiAccuracyEvaluator(BaseEvaluator):
 
     def evaluate(self, page: Page, knowledge: Any) -> list[Finding]:
         if not isinstance(knowledge, Knowledge) or not knowledge.available:
-            return []
+            return [Finding(
+                level="WARN",
+                category="AA",
+                filepath=str(page.filepath),
+                line_no=0,
+                message=(
+                    f"UNVERIFIED: knowledge artifacts not available for "
+                    f"{page.family}/{page.platform}. Claims cannot be validated."
+                ),
+                evaluator=self.name,
+            )]
 
         findings: list[Finding] = []
 

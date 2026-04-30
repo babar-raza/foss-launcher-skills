@@ -758,6 +758,11 @@ def run(family: str, platform: str, kind_arg: str = "all",
     model_sha = ""
     model_version = ""
     model_path = KNOWLEDGE_ROOT / family / platform / "merged" / "model.yaml"
+    if not model_path.exists():
+        print(f"STOP: model.yaml not found at {model_path}. "
+              f"Run /truth-merge {family} {platform} to build a complete knowledge model "
+              f"before generating content.")
+        sys.exit(1)
     if model_path.exists():
         try:
             import yaml

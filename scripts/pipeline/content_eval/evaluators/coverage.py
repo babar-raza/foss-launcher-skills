@@ -97,7 +97,17 @@ class CoverageEvaluator(BaseEvaluator):
 
         # Use Knowledge object instead of direct filesystem reads
         if not isinstance(knowledge, object) or not getattr(knowledge, 'available', False):
-            return []
+            return [Finding(
+                level="WARN",
+                category="CG",
+                filepath=str(page.filepath),
+                line_no=0,
+                message=(
+                    f"UNVERIFIED: knowledge artifacts not available for "
+                    f"{page.family}/{page.platform}. Claims cannot be validated."
+                ),
+                evaluator=self.name,
+            )]
 
         all_classes = set(knowledge.classes.keys()) if knowledge.classes else set()
         if not all_classes:

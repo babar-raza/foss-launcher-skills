@@ -26,10 +26,11 @@ when the package exists alongside this file.
 import sys
 from pathlib import Path
 
-# cli-entry-point guard: when invoked directly Python adds scripts/pipeline/ automatically; guard is defensive
+# cli-entry-point guard: _HERE = commands/healing; .parent.parent = scripts/pipeline (where evidence/ lives)
 _HERE = Path(__file__).resolve().parent
-if str(_HERE) not in sys.path:
-    sys.path.insert(0, str(_HERE.parent.parent.parent.parent))  # scripts/pipeline/
+_PIPELINE_ROOT = _HERE.parent.parent  # scripts/pipeline/
+if str(_PIPELINE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PIPELINE_ROOT))
 
 from evidence.runner import main  # noqa: E402
 

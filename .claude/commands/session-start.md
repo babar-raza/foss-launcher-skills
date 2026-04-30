@@ -42,6 +42,27 @@ any user request.
    .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py init
    ```
    Record the returned session ID.
+5a. Knowledge status advisory (non-blocking -- never delays session):
+    Read `data/products.json` to enumerate all FOSS products. For each product entry
+    with a `clone_url` field, check whether merged knowledge is available:
+    - `knowledge/{family}/{platform}/merged/model.yaml` exists AND `stale_since` is null
+      → COMPLETE
+    - model.yaml exists AND `stale_since` is not null
+      → STALE (will block generation and evaluation)
+    - `knowledge/{family}/{platform}/` directory exists but no merged/model.yaml
+      → PARTIAL (scout ran but merge never completed)
+    - Directory is absent entirely
+      → MISSING (no knowledge bootstrap done)
+
+    Output a `KNOWLEDGE STATUS` block summarizing the count of each status class and
+    listing any products that are STALE, PARTIAL, or MISSING by name. Omit COMPLETE
+    products from the list if there are 5 or more COMPLETE entries (just show the count).
+
+    Non-blocking: proceed to step 6 regardless of knowledge status. The block is an
+    advisory only -- it does NOT gate session start. STALE and MISSING products are
+    blocked from generation and content evaluation by the pipeline gates (batch_reference,
+    site_planner, evaluators), not by this check.
+
 6. Surface backlog briefing (non-blocking — skip gracefully if files absent):
    - Read `backlog/REMINDERS.md` — show items where `Due <= today` or `Due = session-start`
    - Read `backlog/HANDOFF.md` — show "What's next" and "Blocked / Waiting"

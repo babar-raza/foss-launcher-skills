@@ -43,6 +43,19 @@ class ForbiddenClaimsEvaluator(BaseEvaluator):
         if not page.family or not page.platform:
             return []
 
+        if knowledge is None or not getattr(knowledge, 'available', False):
+            return [Finding(
+                level="WARN",
+                category="FC",
+                filepath=str(page.filepath),
+                line_no=0,
+                message=(
+                    f"UNVERIFIED: knowledge artifacts not available for "
+                    f"{page.family}/{page.platform}. Claims cannot be validated."
+                ),
+                evaluator=self.name,
+            )]
+
         forbidden = _load_forbidden_claims(page.family, page.platform)
         if not forbidden:
             return []

@@ -306,7 +306,9 @@ class TestForbiddenClaims:
     def test_no_knowledge_no_findings(self):
         page = _make_page("---\ntitle: T\n---\nContent.", "content/docs.aspose.org/en/unknown/unknown/test.md")
         findings = self.evaluator.evaluate(page, None)
-        assert len(findings) == 0
+        assert len(findings) == 1
+        assert findings[0].level == "WARN"
+        assert "UNVERIFIED" in findings[0].message
 
 
 # ---------- Tier 1 change tests ----------
@@ -477,8 +479,9 @@ class TestEvidenceDepth:
     def test_no_knowledge_no_findings(self):
         page = _make_page("---\ntitle: T\n---\nContent.", "content/docs.aspose.org/en/unknown/unknown/test.md")
         findings = self.evaluator.evaluate(page, None)
-        # No knowledge → no evidence expectations
-        assert isinstance(findings, list)
+        # EvidenceDepthEvaluator operates on frontmatter evidence, not the knowledge object.
+        # Short page with no evidence block and no code blocks produces no findings.
+        assert findings == []
 
     def test_page_with_code_but_no_evidence(self):
         """Page with code blocks but no evidence section should flag."""
@@ -957,7 +960,9 @@ class TestProseTruth:
         page = _make_page("---\ntitle: T\n---\nContent.",
                           "content/docs.aspose.org/en/unknown/unknown/test.md")
         findings = self.evaluator.evaluate(page, None)
-        assert len(findings) == 0
+        assert len(findings) == 1
+        assert findings[0].level == "WARN"
+        assert "UNVERIFIED" in findings[0].message
 
     def test_api_claim_against_knowledge(self):
         """API claim for non-existent member should produce finding."""
@@ -1011,7 +1016,9 @@ class TestCoverage:
         page = _make_page("---\ntitle: T\n---\nContent.",
                           "content/docs.aspose.org/en/unknown/unknown/test.md")
         findings = self.evaluator.evaluate(page, None)
-        assert len(findings) == 0
+        assert len(findings) == 1
+        assert findings[0].level == "WARN"
+        assert "UNVERIFIED" in findings[0].message
 
 
 class TestCoverageInterfaceFiltering:

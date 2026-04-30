@@ -122,6 +122,19 @@ class ProseTruthEvaluator(BaseEvaluator):
 
         findings: list[Finding] = []
 
+        if knowledge is None or not getattr(knowledge, 'available', False):
+            findings.append(Finding(
+                level="WARN",
+                category="PT",
+                filepath=str(page.filepath),
+                line_no=0,
+                message=(
+                    f"UNVERIFIED: knowledge artifacts not available for "
+                    f"{page.family}/{page.platform}. Claims cannot be validated."
+                ),
+                evaluator=self.name,
+            ))
+
         # --- API claim verification against knowledge model ---
         # Runs unconditionally when knowledge is available; does NOT require on-disk claims.
         has_knowledge = knowledge is not None and hasattr(knowledge, "classes") and getattr(knowledge, "available", False)
