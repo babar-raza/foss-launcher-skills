@@ -153,7 +153,7 @@ fi
 # 5. Read-only Bash commands: exempt via classifier (TC-DS-01)
 #    Uses classify_bash_readonly.py — fail-closed (exit 1 = not read-only)
 if [ "$TOOL_NAME" = "Bash" ] && [ -n "$COMMAND" ] && [ -n "$PYTHON" ]; then
-    if printf '%s' "$COMMAND" | "$PYTHON" "$SCRIPT_DIR/classify_bash_readonly.py" 2>/dev/null; then
+    if printf '%s' "$COMMAND" | "$PYTHON" "$REPO_ROOT/scripts/ci/checks/classify_bash_readonly.py" 2>/dev/null; then
         exit 0
     fi
 fi
