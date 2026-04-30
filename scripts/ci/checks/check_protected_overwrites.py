@@ -60,10 +60,14 @@ def _was_protected_before(filepath: str) -> bool:
             cwd=REPO_ROOT,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=10,
         )
         if result.returncode != 0:
             return False  # File not in HEAD → new file, not protected
+        if result.stdout is None:
+            return False  # Encoding error reading file -- treat as not protected
         m = _AUTO_UPDATABLE_RE.search(result.stdout)
         if m:
             return m.group(1) == "false"
