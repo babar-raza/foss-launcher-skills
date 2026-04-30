@@ -150,6 +150,50 @@ Applies to:
   (see Section 13 — Internal Metadata Rendering Policy). After any knowledge model update,
   rerun `attach_evidence.py {family} {platform}` to refresh stale blocks.
 
+## 5a. Knowledge Bootstrap Prerequisite (LH-02, added 2026-04-30)
+
+**Knowledge bootstrap is a hard prerequisite for content generation and healing.**
+
+These rules were adopted after the forensic-audit-healing sprint (2026-04-30) confirmed that
+15 of 16 products had no local knowledge, causing content to be generated or evaluated without
+any grounded source to validate against.
+
+### Generation gate
+
+- `/launch-product`, `/new-docs-page`, `/new-blog-post`, `/new-kb-howto`, `/batch-reference`,
+  and all generation skills MUST verify that `knowledge/{family}/{platform}/merged/model.yaml`
+  exists and `stale_since == null` before writing any content page.
+- If knowledge is missing: HARD STOP. Run `/repo-scout`, `/truth-merge` first.
+- If knowledge is stale: HARD STOP. Run `/knowledge-diff`, `/knowledge-update` first.
+- `batch_reference.py` MUST NOT gracefully degrade on missing knowledge. It must exit with
+  error code 1 before writing any pages when `knowledge.available == False`.
+
+### Evaluator gate
+
+- All content evaluators MUST NOT silently return empty findings when knowledge is unavailable.
+- When `knowledge.available == False`, every evaluator MUST return exactly one WARN finding
+  with the text: "UNVERIFIED: knowledge artifacts not available for {family}/{platform}. Claims
+  cannot be validated."
+- Silent skip (returning `[]`) is prohibited -- it causes ungrounded content to pass quality gates.
+
+### Ungrounded content marking
+
+- Content pages generated or evaluated without local knowledge MUST have
+  `provenance.knowledge_status: ungrounded` in their frontmatter.
+- Ungrounded pages MUST NOT receive grade A. The grade ceiling for ungrounded pages is B.
+- Publication readiness review (S-90) MUST fail or produce a WARN when a product has
+  ungrounded pages in any mandatory content section (docs, kb, blog, reference).
+
+### Verification
+
+These rules are enforced by:
+- `scripts/pipeline/tests/content_eval/test_evaluators.py`: `test_no_knowledge_warn()`
+  asserts evaluators return WARN with "UNVERIFIED" on missing knowledge (added STATE 1.5)
+- `scripts/pipeline/tests/test_batch_reference.py`: `test_stale_knowledge_exits` asserts
+  batch_reference exits non-zero when knowledge is stale (covers EH-02 behavior; missing
+  model.yaml path added to same exit code path in STATE 1.5)
+- `audit.py`: will FAIL pages with `knowledge_status: ungrounded` that have grade A
+
 ## 6. Skill Chains by Task
 
 > Full detail: [docs/workflows/skill-chains.md](docs/workflows/skill-chains.md)
