@@ -1,7 +1,7 @@
 # scripts/pipeline — Script Inventory
 
 > **Generated file** — do not edit directly.
-> Edit `scripts/pipeline/registry.yaml` and run `python scripts/ci/render_inventory.py`.
+> Edit `scripts/pipeline/registry.yaml` and run `python scripts/ci/checks/render_inventory.py`.
 
 Total scripts: **112**
 

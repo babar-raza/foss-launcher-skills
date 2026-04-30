@@ -2,7 +2,7 @@
 
 Builds the `evidence:` frontmatter block in content pages by mapping verified API tokens and format references to structured claim IDs from the knowledge model. Fully deterministic — same inputs always produce the same output. No LLM required.
 
-Called by the top-level `attach_evidence.py` CLI entry point.
+Called by the `commands/healing/attach_evidence.py` CLI entry point.
 
 ## CLI Usage
 
@@ -10,22 +10,22 @@ All commands must be run from the repo root.
 
 ```bash
 # One product
-python scripts/pipeline/attach_evidence.py 3d python
+python scripts/pipeline/commands/healing/attach_evidence.py 3d python
 
 # All products
-python scripts/pipeline/attach_evidence.py all
+python scripts/pipeline/commands/healing/attach_evidence.py all
 
 # Specific files
-python scripts/pipeline/attach_evidence.py --files content/docs.aspose.org/en/3d/python/index.md
+python scripts/pipeline/commands/healing/attach_evidence.py --files content/docs.aspose.org/en/3d/python/index.md
 
 # Preview without writing
-python scripts/pipeline/attach_evidence.py 3d python --dry-run
+python scripts/pipeline/commands/healing/attach_evidence.py 3d python --dry-run
 
 # Force re-attach even if model_sha is current
-python scripts/pipeline/attach_evidence.py 3d python --force
+python scripts/pipeline/commands/healing/attach_evidence.py 3d python --force
 
 # Auto-refresh knowledge before attaching
-python scripts/pipeline/attach_evidence.py 3d python --auto-refresh
+python scripts/pipeline/commands/healing/attach_evidence.py 3d python --auto-refresh
 ```
 
 ## Modules

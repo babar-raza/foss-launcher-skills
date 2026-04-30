@@ -238,3 +238,11 @@ When adding a new script, follow the New File Protocol in `PIPELINE.md`.
 - `knowledge/` is the source of truth for all content; always read `model.yaml` before editing pages
 - If `model.yaml` has `stale_since != null`, stop and run `refresh_knowledge.py` (skills S-12, S-14)
 - Evidence frontmatter (`evidence:` block) is internal-only — never expose it to end users
+
+## Post-Migration Layout
+
+The `scripts/pipeline/` directory was reorganized in April 2026.
+Entry points are in `commands/{domain}/` (9 domains), shared libraries in
+`lib/`, and config in `config/`. Only `_bootstrap.py` and `__init__.py`
+remain at the pipeline root. See `PIPELINE.md` for the full directory
+structure and `commands/DOMAINS.md` for domain assignments.

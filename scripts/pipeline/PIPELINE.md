@@ -192,3 +192,14 @@ Downstream consumers: `commands/knowledge/stale_detect.py`,
 `commands/content/remediate.py heal` prevents infinite heal loops via depth guard.
 Escalates to `human_group` after 3 failed attempts. Sidecar persistence via
 `{eval_report.stem}-heal.json`.
+
+## Migration History
+
+The `scripts/` directory was reorganized in April 2026 (Waves 0–11).
+All entry-point scripts now live under `commands/{domain}/`, library
+modules under `lib/`, and configuration under `config/`. The pipeline root
+contains only `_bootstrap.py` and `__init__.py`.
+
+Status: Operationally closed with 4 known LOW issues (non-blocking).
+See `reports/migration/final_clean_room_proof/final_closure_seal.md` for details
+and `commands/DOMAINS.md` for domain assignments.

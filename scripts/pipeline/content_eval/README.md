@@ -108,22 +108,22 @@ Evaluator modules are discovered and registered by `_ensure_loaded()` in `evalua
 
 ```bash
 # 1. Triage: classify findings without modifying files
-python scripts/pipeline/remediate.py triage reports/content_eval/eval-*.json
+python scripts/pipeline/commands/content/remediate.py triage reports/content_eval/eval-*.json
 
 # 2. Fix: apply auto-fixable findings
-python scripts/pipeline/remediate.py fix reports/content_eval/eval-*.json
+python scripts/pipeline/commands/content/remediate.py fix reports/content_eval/eval-*.json
 
 # 3. Dry run to preview changes
-python scripts/pipeline/remediate.py fix reports/content_eval/eval-*.json --dry-run
+python scripts/pipeline/commands/content/remediate.py fix reports/content_eval/eval-*.json --dry-run
 
 # 4. Fix specific categories only
-python scripts/pipeline/remediate.py fix reports/content_eval/eval-*.json --categories ST,RV
+python scripts/pipeline/commands/content/remediate.py fix reports/content_eval/eval-*.json --categories ST,RV
 
 # 5. Full report (triage + fix + report)
-python scripts/pipeline/remediate.py report reports/content_eval/eval-*.json
+python scripts/pipeline/commands/content/remediate.py report reports/content_eval/eval-*.json
 
 # 6. Show status of a remediation report
-python scripts/pipeline/remediate.py status reports/remediation/rem-*.json
+python scripts/pipeline/commands/content/remediate.py status reports/remediation/rem-*.json
 ```
 
 Triage buckets:

@@ -1,6 +1,6 @@
 # audit/ — Content API Accuracy Verification
 
-Verifies that published content pages only reference API members that exist in the merged knowledge model. Called by the top-level `audit.py` CLI entry point.
+Verifies that published content pages only reference API members that exist in the merged knowledge model. Called by the `commands/content/audit.py` CLI entry point.
 
 ## CLI Usage
 
@@ -8,25 +8,25 @@ All commands must be run from the repo root.
 
 ```bash
 # Single product
-python scripts/pipeline/audit.py slides python
+python scripts/pipeline/commands/content/audit.py slides python
 
 # All products
-python scripts/pipeline/audit.py all
+python scripts/pipeline/commands/content/audit.py all
 
 # Specific files
-python scripts/pipeline/audit.py --files content/docs.aspose.org/en/3d/python/index.md
+python scripts/pipeline/commands/content/audit.py --files content/docs.aspose.org/en/3d/python/index.md
 
 # Machine-readable JSON output
-python scripts/pipeline/audit.py all --json
+python scripts/pipeline/commands/content/audit.py all --json
 
 # Skip evidence frontmatter checks
-python scripts/pipeline/audit.py 3d python --no-evidence
+python scripts/pipeline/commands/content/audit.py 3d python --no-evidence
 
 # Check snippet coverage
-python scripts/pipeline/audit.py 3d python --check-snippets
+python scripts/pipeline/commands/content/audit.py 3d python --check-snippets
 
 # Stop on first FAIL product
-python scripts/pipeline/audit.py all --fail-fast
+python scripts/pipeline/commands/content/audit.py all --fail-fast
 ```
 
 Exit code: `0` if no FAIL findings; `1` if any FAIL findings.

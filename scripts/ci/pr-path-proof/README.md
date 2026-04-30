@@ -3,7 +3,7 @@
 Synthetic test scenarios for CI workflow behavior verification.
 
 Each directory contains a scenario with known expected outcomes.
-Run via `scripts/ci/run_proof_harness.sh`.
+Run via `scripts/ci/hooks/run_proof_harness.sh`.
 
 ## Scenarios
 
