@@ -89,7 +89,7 @@ checking. **Never executes code** — compile/type-check only.
 When `eval-page` is run for a Python-platform product, add this as step 2b:
 
 ```
-2b. Run smoke test (Python only):
+2b. Run smoke test (multi-language: Python, C#, Java, C++, TypeScript):
     .venv/Scripts/python scripts/pipeline/commands/diagnostics/smoke_test.py --files {relative-file-path}
     - Exit code 2 (FAIL): count each failing block as an additional FAIL finding in the eval grade
     - Exit code 1 (WARN): count each warning block as an additional WARN finding
