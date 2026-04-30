@@ -111,7 +111,7 @@ def _session_gate_override(tmp_path):
 # 1. check_session_gate.sh
 # =========================================================================
 
-_SESSION_GATE = "scripts/ci/check_session_gate.sh"
+_SESSION_GATE = "scripts/ci/hooks/check_session_gate.sh"
 
 
 class TestSessionGate:
@@ -142,7 +142,7 @@ class TestSessionGate:
     def test_bootstrap_command_exempt(self, tmp_path):
         """Bootstrap command is exempt even without gate file."""
         gate = tmp_path / "no_gate"
-        payload = {"tool_name": "Bash", "tool_input": {"command": "bash scripts/ci/bootstrap_session_gate.sh"}}
+        payload = {"tool_name": "Bash", "tool_input": {"command": "bash scripts/ci/hooks/bootstrap_session_gate.sh"}}
         code = _run_hook(_SESSION_GATE, payload,
                          env_overrides={"SESSION_GATE_OVERRIDE": str(gate)})
         assert code == 0
@@ -166,7 +166,7 @@ class TestSessionGate:
 # 2. check_content_edit_hook.sh
 # =========================================================================
 
-_CONTENT_EDIT = "scripts/ci/check_content_edit_hook.sh"
+_CONTENT_EDIT = "scripts/ci/hooks/check_content_edit_hook.sh"
 
 
 class TestContentEditHook:
@@ -199,7 +199,7 @@ class TestContentEditHook:
 # 3. check_skill_context_hook.sh
 # =========================================================================
 
-_SKILL_CONTEXT = "scripts/ci/check_skill_context_hook.sh"
+_SKILL_CONTEXT = "scripts/ci/hooks/check_skill_context_hook.sh"
 
 
 class TestSkillContextHook:
@@ -238,7 +238,7 @@ class TestSkillContextHook:
 # 4. check_write_path_hook.sh
 # =========================================================================
 
-_WRITE_PATH = "scripts/ci/check_write_path_hook.sh"
+_WRITE_PATH = "scripts/ci/hooks/check_write_path_hook.sh"
 
 
 class TestWritePathHook:
@@ -264,7 +264,7 @@ class TestWritePathHook:
 # 5. check_content_write_hook.sh
 # =========================================================================
 
-_CONTENT_WRITE = "scripts/ci/check_content_write_hook.sh"
+_CONTENT_WRITE = "scripts/ci/hooks/check_content_write_hook.sh"
 
 
 class TestContentWriteHook:
@@ -297,7 +297,7 @@ class TestContentWriteHook:
 # 6. check_py_write_hook.sh
 # =========================================================================
 
-_PY_WRITE = "scripts/ci/check_py_write_hook.sh"
+_PY_WRITE = "scripts/ci/hooks/check_py_write_hook.sh"
 
 
 class TestPyWriteHook:
@@ -330,7 +330,7 @@ class TestPyWriteHook:
 # 7. check_venv_bash_hook.sh
 # =========================================================================
 
-_VENV_BASH = "scripts/ci/check_venv_bash_hook.sh"
+_VENV_BASH = "scripts/ci/hooks/check_venv_bash_hook.sh"
 
 
 class TestVenvBashHook:
@@ -374,7 +374,7 @@ class TestVenvBashHook:
 # 8. check_destructive_bash_hook.sh
 # =========================================================================
 
-_DESTRUCTIVE = "scripts/ci/check_destructive_bash_hook.sh"
+_DESTRUCTIVE = "scripts/ci/hooks/check_destructive_bash_hook.sh"
 
 
 class TestDestructiveBashHook:
@@ -596,7 +596,7 @@ class TestGovBlockHelper:
         """_gov_block produces BLOCKED/REASON/FIX/BYPASS/DOC/HEAL_HINT on stderr."""
         # Source _gov_block.sh and call _gov_block with all 7 args
         script = (
-            'source scripts/ci/_gov_block.sh; '
+            'source scripts/ci/hooks/_gov_block.sh; '
             '_gov_block "Test blocked" "Test reason" "Test fix" "TEST_BYPASS=1" '
             '"docs/TEST.md" "test hint" 2'
         )
@@ -618,7 +618,7 @@ class TestGovBlockHelper:
     def test_gov_block_exit_code_preserved(self):
         """_gov_block uses caller-provided exit code (arg 7)."""
         script = (
-            'source scripts/ci/_gov_block.sh; '
+            'source scripts/ci/hooks/_gov_block.sh; '
             '_gov_block "blocked" "reason" "fix" "bypass" "" "" 1'
         )
         result = subprocess.run(
@@ -633,7 +633,7 @@ class TestGovBlockHelper:
     def test_gov_block_default_exit_code(self):
         """_gov_block defaults to exit 2 when no exit code specified."""
         script = (
-            'source scripts/ci/_gov_block.sh; '
+            'source scripts/ci/hooks/_gov_block.sh; '
             '_gov_block "blocked" "reason" "fix"'
         )
         result = subprocess.run(
@@ -648,7 +648,7 @@ class TestGovBlockHelper:
     def test_gov_block_optional_fields_omitted(self):
         """DOC and HEAL_HINT omitted when empty."""
         script = (
-            'source scripts/ci/_gov_block.sh; '
+            'source scripts/ci/hooks/_gov_block.sh; '
             '_gov_block "blocked" "reason" "fix" "bypass"'
         )
         result = subprocess.run(
@@ -677,7 +677,7 @@ class TestBashReadonlyClassifier:
         import importlib.util
         spec = importlib.util.spec_from_file_location(
             "classify_bash_readonly",
-            str(_REPO_ROOT / "scripts" / "ci" / "classify_bash_readonly.py"),
+            str(_REPO_ROOT / "scripts" / "ci" / "checks" / "classify_bash_readonly.py"),
         )
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)

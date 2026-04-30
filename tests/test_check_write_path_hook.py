@@ -23,7 +23,7 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).parent.parent
-_HOOK_SRC = REPO_ROOT / "scripts" / "ci" / "check_write_path_hook.sh"
+_HOOK_SRC = REPO_ROOT / "scripts" / "ci" / "hooks" / "check_write_path_hook.sh"
 
 # Prefer Git Bash over WSL bash — WSL bash cannot resolve Windows-style paths.
 _GIT_BASH_CANDIDATES = [
@@ -37,7 +37,7 @@ BASH = next(
 
 # LF-normalised hook written at module import time inside the repo so bash can resolve it
 # via a repo-relative path when subprocess is called with cwd=REPO_ROOT.
-_LF_HOOK_REL = "scripts/ci/.tmp_hook_test.sh"
+_LF_HOOK_REL = "scripts/ci/hooks/.tmp_hook_test.sh"
 _LF_HOOK_ABS = REPO_ROOT / _LF_HOOK_REL
 _content = _HOOK_SRC.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
 _LF_HOOK_ABS.write_bytes(_content)
@@ -119,9 +119,9 @@ def test_deny_forbidden_prefix_themes(hook_path):
     assert result.returncode == 2
 
 
-def test_deny_path_guard_self(hook_path):
-    """path_guard.py itself is in FORBIDDEN_EXACT → exit 2."""
-    result = _run_hook("scripts/pipeline/path_guard.py", hook_path)
+def test_deny_root_config(hook_path):
+    """Root-level config files are DENY → exit 2."""
+    result = _run_hook("config.json", hook_path)
     assert result.returncode == 2
 
 
