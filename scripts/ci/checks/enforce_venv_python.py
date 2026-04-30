@@ -72,7 +72,7 @@ SHELL_SCAN_DIRS: list[Path] = [
 # and must never regress to bare python. Added by TC-VE-06.
 GOVERNANCE_CRITICAL_SCRIPTS: list[Path] = [
     REPO_ROOT / "scripts" / "pre-commit-audit.sh",
-    REPO_ROOT / "scripts" / "ci" / "smoke_chain.sh",
+    REPO_ROOT / "scripts" / "ci" / "hooks" / "smoke_chain.sh",
 ]
 
 # Lines in workflow run: blocks that require bare system python (exempt from rule).
