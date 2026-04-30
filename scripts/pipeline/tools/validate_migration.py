@@ -64,7 +64,7 @@ def check_parity(manifest):
 
 
 def check_imports(manifest):
-    """Check that all library modules are importable."""
+    """Check that all library modules are importable via lib.{module}."""
     errors = 0
     checked = 0
     for path, entry in manifest["files"].items():
@@ -73,15 +73,19 @@ def check_imports(manifest):
         if not path.startswith("scripts/pipeline/"):
             continue
         module_name = pathlib.Path(path).stem
+        # Skip _bootstrap — it's infrastructure at pipeline root, not a lib/ module
+        if module_name == "_bootstrap":
+            continue
+        # Post-migration: library modules live in lib/, so test canonical import
+        import_stmt = f"from lib.{module_name} import *"
         try:
-            # Try importing via PYTHONPATH
             r = subprocess.run(
-                [PY, "-c", f"import {module_name}; print('OK')"],
+                [PY, "-c", f"{import_stmt}; print('OK')"],
                 capture_output=True, text=True, timeout=10,
                 env={**__import__("os").environ, "PYTHONPATH": "scripts/pipeline"}
             )
             if r.returncode != 0:
-                print(f"  FAIL: import {module_name}: {r.stderr.strip()[:100]}")
+                print(f"  FAIL: {import_stmt}: {r.stderr.strip()[:100]}")
                 errors += 1
             else:
                 checked += 1

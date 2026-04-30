@@ -36,7 +36,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from triage_confirm import triage_confirm
+from lib.triage_confirm import triage_confirm
 
 
 # ---------------------------------------------------------------------------
