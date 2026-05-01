@@ -8,6 +8,20 @@ from provenance import compute_content_hash, read_provenance
 from provenance_normalize_hash import normalize_file
 
 
+def test_provenance_normalize_hash_importable():
+    """Smoke test: provenance_normalize_hash.py resolves sys.path correctly.
+
+    Guards against regression where _HERE.parent.parent.parent.parent (repo root)
+    was inserted instead of _HERE.parent.parent (scripts/pipeline/), causing
+    ModuleNotFoundError: No module named 'provenance' on every hook invocation.
+    """
+    import provenance_normalize_hash  # noqa: F401
+    from provenance import compute_content_hash, read_provenance, write_provenance  # noqa: F401
+    assert callable(compute_content_hash)
+    assert callable(read_provenance)
+    assert callable(write_provenance)
+
+
 def _write_md(tmp_path: Path, name: str, content: str) -> Path:
     p = tmp_path / name
     p.write_text(textwrap.dedent(content), encoding="utf-8")

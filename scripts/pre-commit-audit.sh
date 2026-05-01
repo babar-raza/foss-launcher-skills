@@ -290,7 +290,7 @@ _pc_step_start "content_hash normalization"
 if [ ${#changed[@]} -gt 0 ]; then
     _tmpfile5=$(mktemp /tmp/hash-norm-XXXXXX.txt 2>/dev/null || mktemp)
     printf '%s\n' "${changed[@]}" > "$_tmpfile5"
-    [ -n "$_HOOK_PYTHON" ] && "$_HOOK_PYTHON" scripts/pipeline/commands/diagnostics/provenance_normalize_hash.py \
+    [ -n "$_HOOK_PYTHON" ] && PYTHONPATH=scripts/pipeline "$_HOOK_PYTHON" scripts/pipeline/commands/diagnostics/provenance_normalize_hash.py \
         --apply --files-from "$_tmpfile5" --auto-stage 2>&1
     rm -f "$_tmpfile5"
     # Non-blocking: normalization errors are logged but do not block the commit.
