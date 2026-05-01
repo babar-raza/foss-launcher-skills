@@ -704,9 +704,17 @@ def _load_update_apis(family: str, platform: str) -> set[str] | None:
 
 # Frontmatter fields that are purely timestamp/metadata and must not trigger
 # a meaningful-change detection in --rebuild-all mode.
+#
+# These fields are written by attach_evidence() / update_mechanism() AFTER
+# _build_page() runs, so they are absent in the new_content from _build_page()
+# but present in the existing file on disk.  Excluding them ensures
+# _has_meaningful_change() only detects actual body/claims/member-desc changes.
 _REBUILD_IGNORE_PREFIXES: tuple[str, ...] = (
-    "content_created_at:",
-    "graded_at:",
+    "content_created_at:",  # write-once timestamp; safe_content_write does not preserve it
+    "graded_at:",           # set by attach_evidence; absent in _build_page output
+    "grade:",               # set by attach_evidence; absent in _build_page output
+    "graded_content_hash:", # set by attach_evidence; absent in _build_page output
+    "content_hash:",        # set by update_mechanism; absent in _build_page output
 )
 
 
@@ -1075,12 +1083,27 @@ def run(family: str, platform: str, kind_arg: str = "all",
                                    model_sha=model_sha, model_version=model_version)
             # Timestamp-only churn guard: in --rebuild-all mode, skip pages where
             # the only differences from the existing file are pure timestamp fields
-            # (content_created_at, graded_at). This prevents committing noise when
-            # the merged knowledge has not meaningfully changed.
+            # (content_created_at, graded_at, grade, graded_content_hash, content_hash).
+            # This prevents committing noise when the merged knowledge has not changed.
             if is_rebuild and not _has_meaningful_change(page_path, content):
                 print(f"  UNCHANGED: {name} — no meaningful changes beyond timestamps, skipping write")
                 unchanged.append(entry)
                 continue
+            # Preserve content_created_at from the existing page (write-once field).
+            # safe_content_write() writes content as-is without timestamp preservation,
+            # so we must carry the original value forward before writing.
+            if is_rebuild and page_path.exists():
+                try:
+                    existing_text = page_path.read_text(encoding="utf-8")
+                    _m = re.search(r"content_created_at:\s*'([^']+)'", existing_text)
+                    if _m:
+                        content = re.sub(
+                            r"content_created_at:\s*'[^']+'",
+                            f"content_created_at: '{_m.group(1)}'",
+                            content,
+                        )
+                except OSError:
+                    pass
             safe_content_write(page_path, content, mechanism="batch-reference")
             # Attach evidence + auto-grade (identical path for new pages and updates)
             # force=True because _build_page already wrote a model_sha; runner would skip otherwise

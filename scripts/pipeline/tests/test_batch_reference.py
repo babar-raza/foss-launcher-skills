@@ -1254,18 +1254,33 @@ class TestRebuildAll:
         assert result["generated"] == 0
 
     def test_has_meaningful_change_detects_timestamp_only(self, tmp_path):
-        """_has_meaningful_change returns False when only timestamp fields differ."""
+        """_has_meaningful_change returns False when only timestamp/grade metadata fields differ.
+
+        Fields ignored: content_created_at, graded_at, grade, graded_content_hash,
+        content_hash.  These are set by attach_evidence() / update_mechanism() and
+        are absent in _build_page() output; comparing them against existing pages
+        would always produce false positives.
+        """
         from batch_reference import _has_meaningful_change
         existing = tmp_path / "page.md"
         existing.write_text(
-            "---\ntitle: Foo\ncontent_created_at: '2026-01-01T00:00:00+00:00'\ngraded_at: '2026-01-01'\n---\nbody\n",
+            "---\ntitle: Foo\n"
+            "  content_created_at: '2026-01-01T00:00:00+00:00'\n"
+            "  content_hash: aabbccdd\n"
+            "grade: A\n"
+            "graded_at: '2026-01-01'\n"
+            "graded_content_hash: \"deadbeef\"\n"
+            "---\nbody\n",
             encoding="utf-8",
         )
         new_content = (
-            "---\ntitle: Foo\ncontent_created_at: '2026-05-01T12:00:00+00:00'\ngraded_at: '2026-05-01'\n---\nbody\n"
+            "---\ntitle: Foo\n"
+            "  content_created_at: '2026-05-01T12:00:00+00:00'\n"
+            # grade/graded_at/graded_content_hash/content_hash absent in _build_page output
+            "---\nbody\n"
         )
         assert not _has_meaningful_change(existing, new_content), (
-            "Should detect timestamp-only change as not meaningful"
+            "Should detect metadata-only change (timestamps + grade fields) as not meaningful"
         )
 
     def test_has_meaningful_change_detects_body_change(self, tmp_path):
@@ -1279,6 +1294,23 @@ class TestRebuildAll:
         new_content = "---\ntitle: Foo\n---\nNew body\n"
         assert _has_meaningful_change(existing, new_content), (
             "Should detect body change as meaningful"
+        )
+
+    def test_rebuild_all_preserves_content_created_at(self, tmp_path):
+        """--rebuild-all must not change content_created_at of existing pages."""
+        merged, page_dir = self._make_setup(tmp_path, ["Alpha"])
+        original_ts = "2026-01-01T00:00:00+00:00"
+        (page_dir / "Alpha.md").write_text(
+            f"---\nprovenance:\n  content_origin: skill-generated\n"
+            f"  auto_updatable: true\n"
+            f"  content_created_at: '{original_ts}'\n---\n# Alpha body text that will change\n",
+            encoding="utf-8",
+        )
+        run("fake", "net", rebuild_all=True, confirm_rebuild=True)
+        written = (page_dir / "Alpha.md").read_text(encoding="utf-8")
+        assert original_ts in written, (
+            f"content_created_at '{original_ts}' must be preserved after rebuild; "
+            f"got:\n{written[:300]}"
         )
 
 
