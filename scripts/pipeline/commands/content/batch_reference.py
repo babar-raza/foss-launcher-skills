@@ -526,14 +526,14 @@ def _build_page(
         mname = m.get("name", "")
         if mname and f"{name}.{mname}" not in seen_api_names:
             seen_api_names.add(f"{name}.{mname}")
-            apis_list.append(f'  - "{name}.{mname}"')
+            apis_list.append(f"  - {name}.{mname}")
     for p in properties:
         if len(apis_list) >= 20:
             break
         pname = p.get("name", "")
         if pname and f"{name}.{pname}" not in seen_api_names:
             seen_api_names.add(f"{name}.{pname}")
-            apis_list.append(f'  - "{name}.{pname}"')
+            apis_list.append(f"  - {name}.{pname}")
     # Frontmatter
     now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S+00:00")
     lines = [
@@ -702,27 +702,30 @@ def _load_update_apis(family: str, platform: str) -> set[str] | None:
         return None
 
 
-# Frontmatter fields that are purely timestamp/metadata and must not trigger
-# a meaningful-change detection in --rebuild-all mode.
-#
-# These fields are written by attach_evidence() / update_mechanism() AFTER
-# _build_page() runs, so they are absent in the new_content from _build_page()
-# but present in the existing file on disk.  Excluding them ensures
-# _has_meaningful_change() only detects actual body/claims/member-desc changes.
-_REBUILD_IGNORE_PREFIXES: tuple[str, ...] = (
-    "content_created_at:",  # write-once timestamp; safe_content_write does not preserve it
-    "graded_at:",           # set by attach_evidence; absent in _build_page output
-    "grade:",               # set by attach_evidence; absent in _build_page output
-    "graded_content_hash:", # set by attach_evidence; absent in _build_page output
-    "content_hash:",        # set by update_mechanism; absent in _build_page output
-)
+_FRONTMATTER_FENCE_RE = re.compile(r"^---\n", re.MULTILINE)
+
+
+def _extract_body(text: str) -> str:
+    """Return the body of a page (everything after the closing frontmatter fence).
+
+    If no frontmatter is found, returns the full text so that comparisons still
+    work (the page is treated as all-body).
+    """
+    # Find the second occurrence of a line that is exactly "---"
+    fences = [m.start() for m in _FRONTMATTER_FENCE_RE.finditer(text)]
+    if len(fences) >= 2:
+        return text[fences[1] + 4:]  # skip "---\n" (4 chars)
+    return text
 
 
 def _has_meaningful_change(existing_path: Path, new_content: str) -> bool:
-    """Return True if *new_content* has meaningful changes vs the existing file.
+    """Return True if *new_content* has a different body than the existing file.
 
-    Ignores lines whose content is solely a timestamp field (content_created_at,
-    graded_at) so that --rebuild-all does not commit timestamp-only churn.
+    Only the content *after* the closing frontmatter fence is compared.  This
+    means evidence metadata (model_sha, apis list, grade, graded_at, content_hash,
+    etc.) and provenance fields (content_created_at, content_hash) are ignored —
+    they are all rewritten by attach_evidence() / update_mechanism() after the
+    body write anyway.
 
     Returns True (treat as changed) if the existing file cannot be read.
     """
@@ -731,13 +734,7 @@ def _has_meaningful_change(existing_path: Path, new_content: str) -> bool:
     except OSError:
         return True
 
-    def _norm(text: str) -> list[str]:
-        return [
-            ln for ln in text.splitlines()
-            if not any(ln.strip().startswith(p) for p in _REBUILD_IGNORE_PREFIXES)
-        ]
-
-    return _norm(existing) != _norm(new_content)
+    return _extract_body(existing).rstrip() != _extract_body(new_content).rstrip()
 
 
 def check_member_doc_coverage(

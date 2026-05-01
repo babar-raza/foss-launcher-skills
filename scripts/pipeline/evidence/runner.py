@@ -77,15 +77,17 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False) -> str:
     # "A reference page with an empty evidence.apis block is a structural gap."
     if "reference.aspose.org" in str(filepath) and not api_refs:
         title = fm.get("title", "")
-        # Title format: "ClassName — Aspose.Note FOSS for Python API Reference"
-        # Index pages have no "—" separator and document no single class — skip them.
-        if "—" in title:
-            class_candidate = title.split("—")[0].strip().split()[0]
-            if class_candidate and class_candidate in knowledge.classes:
-                api_refs.append(class_candidate)
-                cid = knowledge.api_to_claim.get(class_candidate)
-                if cid and cid not in claim_ids:
-                    claim_ids.append(cid)
+        # Extract the class name: supports both "ClassName — Product Reference" and
+        # plain "ClassName" title formats.  The first word before any "—" (or the
+        # full title when no separator exists) is the class candidate.
+        # Index pages are safely excluded because their titles (e.g. "cells Java
+        # Reference") do not appear in knowledge.classes.
+        class_candidate = title.split("—")[0].strip().split()[0] if title else ""
+        if class_candidate and class_candidate in knowledge.classes:
+            api_refs.append(class_candidate)
+            cid = knowledge.api_to_claim.get(class_candidate)
+            if cid and cid not in claim_ids:
+                claim_ids.append(cid)
 
     # Detect format references (page-level aggregate)
     formats = _detect_formats(filepath, knowledge)
