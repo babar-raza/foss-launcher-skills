@@ -537,7 +537,7 @@ def _preflight_check() -> dict[str, str]:
     Uses LLMRouter.probe() — no module-level cache needed.
     """
     try:
-        from llm_router import LLMRouter
+        from lib.llm_router import LLMRouter
         router = LLMRouter()
         raw = router.probe()
         return {name: info.get("status", "unknown") for name, info in raw.items()}
@@ -557,7 +557,7 @@ def _get_router():
     """Return cached LLMRouter instance (lazy init)."""
     global _router
     if _router is None:
-        from llm_router import LLMRouter
+        from lib.llm_router import LLMRouter
         _router = LLMRouter()
     return _router
 
@@ -568,7 +568,7 @@ def _llm_call(prompt_system: str, prompt_user: str) -> tuple[dict | list | None,
     Returns (parsed_data, 'provider/model') or (None, '') on failure.
     """
     try:
-        from llm_router import EndpointStatus
+        from lib.llm_router import EndpointStatus
         router = _get_router()
     except (ImportError, RuntimeError) as exc:
         log.warning("LLM router unavailable: %s", exc)

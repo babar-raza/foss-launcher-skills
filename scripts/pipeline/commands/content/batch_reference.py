@@ -48,9 +48,9 @@ if str(_HERE) not in sys.path:
 from core.env_loader import load_env  # noqa: E402
 load_env()
 
-from knowledge_core import Knowledge  # noqa: E402
+from lib.knowledge_core import Knowledge  # noqa: E402
 from evidence.runner import attach_evidence  # noqa: E402
-from provenance import is_auto_updatable, is_manually_curated, safe_content_write, ProtectedPageError  # noqa: E402
+from lib.provenance import is_auto_updatable, is_manually_curated, safe_content_write, ProtectedPageError  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Constants
