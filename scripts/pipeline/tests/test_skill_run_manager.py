@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sys
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 import pytest
@@ -233,6 +234,88 @@ class TestFinalize:
 # ---------------------------------------------------------------------------
 # TestPathUtils — proves repo_rel() renders safely in and out of repo root
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# TestFindPending
+# ---------------------------------------------------------------------------
+
+class TestFindPending:
+    def _write_pending(self, runs_dir: Path, run_id: str, started_at: str) -> None:
+        """Write a minimal pending run record with the given started_at."""
+        record = {
+            "run_id": run_id,
+            "skills_invoked": ["S-48"],
+            "skill_details": [],
+            "plans_referenced": [],
+            "pre_conditions_verified": False,
+            "outcome": "pending",
+            "started_at": started_at,
+            "completed_at": None,
+            "commit_sha": None,
+            "retroactive": False,
+        }
+        path = runs_dir / f"{run_id}.json"
+        path.write_text(json.dumps(record, indent=2), encoding="utf-8")
+
+    def test_fresh_record_is_returned(self, tmp_path, capsys):
+        """A pending record with a recent started_at is returned by find-pending."""
+        now = datetime.now(tz=timezone.utc)
+        run_id = "20260501-120000-s48"
+        self._write_pending(tmp_path, run_id, now.isoformat().replace("+00:00", "Z"))
+
+        capsys.readouterr()
+        rc = skill_run_manager.main(["find-pending", "--max-age-hours", "48"])
+        assert rc == 0
+        out = capsys.readouterr().out.strip()
+        assert out == run_id
+
+    def test_stale_record_is_skipped(self, tmp_path, capsys):
+        """A pending record older than max-age-hours is skipped (exit 2)."""
+        stale_time = datetime.now(tz=timezone.utc) - timedelta(hours=72)
+        run_id = "20260429-000000-s48"
+        self._write_pending(tmp_path, run_id, stale_time.isoformat().replace("+00:00", "Z"))
+
+        capsys.readouterr()
+        rc = skill_run_manager.main(["find-pending", "--max-age-hours", "48"])
+        assert rc == 2  # no active pending record found
+
+    def test_stale_skipped_fresh_returned(self, tmp_path, capsys):
+        """With a stale and a fresh record, only the fresh one is returned."""
+        stale_time = datetime.now(tz=timezone.utc) - timedelta(hours=72)
+        fresh_time = datetime.now(tz=timezone.utc) - timedelta(hours=1)
+        # Stale record sorts AFTER fresh (lexicographic, older timestamp)
+        stale_id = "20260429-000000-s48-stale"
+        fresh_id = "20260501-110000-s48-fresh"
+        self._write_pending(tmp_path, stale_id, stale_time.isoformat().replace("+00:00", "Z"))
+        self._write_pending(tmp_path, fresh_id, fresh_time.isoformat().replace("+00:00", "Z"))
+
+        capsys.readouterr()
+        rc = skill_run_manager.main(["find-pending", "--max-age-hours", "48"])
+        assert rc == 0
+        out = capsys.readouterr().out.strip()
+        assert out == fresh_id
+
+    def test_finalized_record_not_returned(self, tmp_path, capsys):
+        """A finalized (non-pending) record is not returned even if recent."""
+        run_id = "20260501-120000-s48-done"
+        record = {
+            "run_id": run_id,
+            "skills_invoked": ["S-48"],
+            "skill_details": [],
+            "plans_referenced": [],
+            "pre_conditions_verified": False,
+            "outcome": "success",
+            "started_at": datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z"),
+            "completed_at": datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z"),
+            "commit_sha": "abc123",
+            "retroactive": False,
+        }
+        (tmp_path / f"{run_id}.json").write_text(json.dumps(record), encoding="utf-8")
+
+        capsys.readouterr()
+        rc = skill_run_manager.main(["find-pending"])
+        assert rc == 2
+
 
 import path_utils  # noqa: E402
 

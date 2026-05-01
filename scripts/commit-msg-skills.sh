@@ -72,7 +72,7 @@ fi
 # Step 3: Validate declared skills against pending skill run record (BLOCKING).
 # No bypass path — all content commits must have a matching skill run record.
 
-PENDING_RUN=$(python scripts/pipeline/commands/ops/skill_run_manager.py find-pending 2>/dev/null)
+PENDING_RUN=$(python scripts/pipeline/commands/ops/skill_run_manager.py find-pending --max-age-hours 48 2>/dev/null)
 if [ -n "$PENDING_RUN" ]; then
     declared=$(echo "$msg" | grep -iE 'skills?\s*invoked' | sed 's/.*[Ss]kills\s*[Ii]nvoked[: ]*//' | tr -d '[]')
     validation_result=$(python scripts/pipeline/commands/ops/skill_run_manager.py validate \

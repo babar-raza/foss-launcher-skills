@@ -44,7 +44,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 _LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
@@ -240,8 +240,17 @@ def cmd_finalize(args: argparse.Namespace) -> int:
 
 
 def cmd_find_pending(args: argparse.Namespace) -> int:
-    """Print the most recent pending (outcome=pending) run record ID."""
+    """Print the most recent pending (outcome=pending) run record ID.
+
+    Ignores records older than ``--max-age-hours`` (default 48) to prevent
+    stale records from prior sessions blocking commits in new sessions.
+    A record is considered stale when its ``started_at`` timestamp is more
+    than ``max_age_hours`` in the past.  Stale records are printed to stderr
+    as warnings but not returned as the active pending record.
+    """
     _RUNS_DIR.mkdir(parents=True, exist_ok=True)
+    max_age = getattr(args, "max_age_hours", 48)
+    cutoff = datetime.now(tz=timezone.utc) - timedelta(hours=max_age)
     candidates = [
         f for f in sorted(_RUNS_DIR.glob("*.json"), reverse=True)
         if "retroactive" not in f.name
@@ -249,12 +258,26 @@ def cmd_find_pending(args: argparse.Namespace) -> int:
     for f in candidates:
         try:
             r = _load_record(f)
-            if r.get("outcome") == "pending":
-                print(r["run_id"])
-                return 0
+            if r.get("outcome") != "pending":
+                continue
+            started_raw = r.get("started_at", "")
+            if started_raw:
+                try:
+                    started = datetime.fromisoformat(started_raw)
+                    if started < cutoff:
+                        print(
+                            f"WARN: skipping stale pending record {r['run_id']!r} "
+                            f"(started_at={started_raw}, older than {max_age}h)",
+                            file=sys.stderr,
+                        )
+                        continue
+                except ValueError:
+                    pass  # Unparseable timestamp — include the record
+            print(r["run_id"])
+            return 0
         except (json.JSONDecodeError, OSError):
             continue
-    # No pending record
+    # No pending record within the age window
     return 2
 
 
@@ -308,7 +331,15 @@ def main(argv: list[str] | None = None) -> int:
     p_fin.add_argument("--commit-sha", default="")
 
     # find-pending
-    sub.add_parser("find-pending", help="Print most recent pending run record ID")
+    p_fp = sub.add_parser("find-pending", help="Print most recent pending run record ID")
+    p_fp.add_argument(
+        "--max-age-hours",
+        dest="max_age_hours",
+        type=float,
+        default=48.0,
+        help="Ignore pending records older than this many hours (default: 48). "
+             "Prevents stale records from prior sessions blocking new-session commits.",
+    )
 
     args = parser.parse_args(argv)
     dispatch = {
