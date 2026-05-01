@@ -41,8 +41,12 @@ _GRADE_FIELD_RE = re.compile(
     r"grade_stale_targets|grade_reasons)(?::|[ \t])"
 )
 
-# Continuation lines for YAML lists/maps (indented with 2+ spaces under a grade field)
-_GRADE_CONTINUATION_RE = re.compile(r"^[+-]  ")
+# Continuation lines for YAML lists/maps (indented with 2+ spaces under a grade field).
+# Only match pure list items (lines starting with "  -") or indented scalar values that
+# do NOT contain a colon (which would make them a new field assignment).
+# This prevents false-positives when evidence.claims / evidence.apis lines change —
+# those are indented but are NOT grade fields and should not be classified as grade-only.
+_GRADE_CONTINUATION_RE = re.compile(r"^[+-]  (?:-|[^-\s][^:]*)$")
 
 # The bulk migration annotation that overrides the check
 _BULK_ANNOTATION_RE = re.compile(r"BULK-GRADE-MIGRATION:\s*approved by", re.IGNORECASE)
