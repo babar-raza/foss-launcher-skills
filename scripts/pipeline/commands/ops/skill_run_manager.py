@@ -118,6 +118,7 @@ def cmd_create(args: argparse.Namespace) -> int:
         "completed_at": None,
         "commit_sha": None,
         "retroactive": args.retroactive,
+        "run_type": getattr(args, "run_type", None) or "unknown",
     }
 
     out = _record_path(run_id)
@@ -298,6 +299,14 @@ def main(argv: list[str] | None = None) -> int:
     p_create.add_argument("--plan", default="", help="Plan reference")
     p_create.add_argument("--retroactive", action="store_true",
                           help="Mark as retroactive (documents a past execution)")
+    p_create.add_argument(
+        "--run-type",
+        dest="run_type",
+        default="unknown",
+        choices=["full-s84", "reference-only", "knowledge-only", "targeted", "harness", "unknown"],
+        help="Run type label for this skill run (default: unknown). "
+             "Missing run_type in existing records is tolerated (backward compatible).",
+    )
 
     # record-step
     p_step = sub.add_parser("record-step", help="Add skill step detail to a run record")
