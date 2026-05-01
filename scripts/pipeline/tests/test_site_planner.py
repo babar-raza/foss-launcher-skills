@@ -685,3 +685,106 @@ class TestFamilyIndexEntry:
         family_entries = [p for p in pages if p.get("slug") == "_family_index"]
         assert len(family_entries) == 1
         assert "3d/_index.md" in family_entries[0]["path"]
+
+
+# ---------------------------------------------------------------------------
+# Gate 1 additions: Java-path routing and cells/java slug regression tests
+# ---------------------------------------------------------------------------
+
+def _make_api_surface_cells_java() -> list[dict]:
+    """Build api_surface with real Java-style file paths for cells/java."""
+    return [
+        {"name": "Workbook",
+         "file": "src/main/java/com/aspose/cells_foss/Workbook.java",
+         "methods": ["save", "getWorksheets"]},
+        {"name": "Worksheet",
+         "file": "src/main/java/com/aspose/cells_foss/Worksheet.java",
+         "methods": ["getCells", "setName"]},
+        {"name": "Cell",
+         "file": "src/main/java/com/aspose/cells_foss/Cell.java",
+         "methods": ["putValue", "getType"]},
+        {"name": "AutoFilter",
+         "file": "src/main/java/com/aspose/cells_foss/AutoFilter.java",
+         "methods": ["setRange"]},
+        {"name": "AlignmentValue",
+         "file": "src/main/java/com/aspose/cells_foss/core/AlignmentValue.java",
+         "methods": []},
+        {"name": "AutoFilterModel",
+         "file": "src/main/java/com/aspose/cells_foss/core/AutoFilterModel.java",
+         "methods": ["getFilterType"]},
+        {"name": "NumberFormatValue",
+         "file": "src/main/java/com/aspose/cells_foss/core/NumberFormatValue.java",
+         "methods": []},
+        {"name": "IPackageReader",
+         "file": "src/main/java/com/aspose/cells_foss/packaging/IPackageReader.java",
+         "methods": ["readPart"]},
+    ]
+
+
+def test_class_to_subpackage_java_root_level():
+    """Java root-level path (7-part) routes to cells_foss package name."""
+    result = sp._class_to_subpackage(
+        "src/main/java/com/aspose/cells_foss/Workbook.java"
+    )
+    # parts[-2] = "cells_foss" — root-level package, not a sub-package dir
+    assert result == "cells_foss", f"Expected 'cells_foss', got {result!r}"
+
+
+def test_class_to_subpackage_java_core_subpkg():
+    """Java core sub-package path (8-part) routes to 'core'."""
+    result = sp._class_to_subpackage(
+        "src/main/java/com/aspose/cells_foss/core/AlignmentValue.java"
+    )
+    assert result == "core", f"Expected 'core', got {result!r}"
+
+
+def test_class_to_subpackage_java_packaging_subpkg():
+    """Java packaging sub-package path routes to 'packaging'."""
+    result = sp._class_to_subpackage(
+        "src/main/java/com/aspose/cells_foss/packaging/IPackageReader.java"
+    )
+    assert result == "packaging", f"Expected 'packaging', got {result!r}"
+
+
+def test_cells_java_core_subpkg_gets_descriptive_label():
+    """'core' sub-package in cells family must not produce generic label 'core'."""
+    label = sp._subpkg_to_label("core", family="cells")
+    assert label != "core", (
+        f"'core' sub-package in cells family must not produce generic label 'core'. Got: {label!r}"
+    )
+    assert "cells" in label or "model" in label, (
+        f"Expected descriptive label containing 'cells' or 'model'. Got: {label!r}"
+    )
+
+
+def test_plan_blog_deep_dive_derived_slug_includes_family():
+    """Deep-dive derived slugs must contain the family name."""
+    api = _make_api_surface_family(["formats", "entities", "animation"], family="3d")
+    claims = _make_claims(api, per_class=20)
+    snippet_index = _make_snippet_index_for(api, snippets_per_class=4)
+    clusters = sp.detect_clusters(claims, api, snippet_index, "", family="3d")
+    pages, _, _ = sp.plan_blog("3d", "python", 600, 30, clusters)
+    derived_p3 = [p for p in pages if p.get("weight") == 3 and p.get("source") == "derived"]
+    for p in derived_p3:
+        assert "3d" in p["slug"], (
+            f"Deep-dive derived slug must contain '3d', got: {p['slug']!r}"
+        )
+
+
+def test_plan_blog_cells_java_never_produces_core_in_java():
+    """cells/java must never derive the slug 'core-in-java'."""
+    api = _make_api_surface_cells_java()
+    claims = _make_claims(api, per_class=20)
+    snippet_index = _make_snippet_index_for(api, snippets_per_class=4)
+    clusters = sp.detect_clusters(claims, api, snippet_index, "", family="cells")
+    pages, _, _ = sp.plan_blog("cells", "java", 1500, 30, clusters)
+    all_derived_slugs = [p["slug"] for p in pages if p.get("source") == "derived"]
+    assert "core-in-java" not in all_derived_slugs, (
+        f"'core-in-java' must never be derived for cells/java. Got derived slugs: {all_derived_slugs}"
+    )
+    # Additionally: any weight-3 derived slug must include family identity
+    derived_p3 = [p for p in pages if p.get("weight") == 3 and p.get("source") == "derived"]
+    for p in derived_p3:
+        assert "cells" in p["slug"], (
+            f"cells/java deep-dive derived slug must contain 'cells'. Got: {p['slug']!r}"
+        )

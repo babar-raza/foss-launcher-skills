@@ -1812,3 +1812,158 @@ scripts:
     change_impact: null
     notes: "classify existing content files as CREATE/REFRESH/PRESERVE/CONFLICT for launch-product refresh mode"
 
+  - path: scripts/pipeline/lib/freshness_manifest.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: refresh-architecture
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_freshness_manifest.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "TC-PROD-001 — per-product/per-subdomain freshness manifest I/O. Separates input fingerprints from output state. Atomic write via .tmp + os.replace. Status BASELINED_UNPROVEN on cold-start (never FRESH)."
+
+  - path: scripts/pipeline/lib/dependency_registry.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: refresh-architecture
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_dependency_registry.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "TC-PROD-002A/002B — loads data/refresh-dependencies.json; provides typed SurfaceEntry accessors; validates Phase 0 verified paths (blog no /en/, products at family level, blog .yml config)."
+
+  - path: scripts/pipeline/lib/fingerprint_collector.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: refresh-architecture
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_fingerprint_collector.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "TC-PROD-003 — collects input fingerprints (sha256 hashes) for each (product, subdomain) pair per dependency registry. Shadow-only in Phase 2; never writes production manifests."
+
+  - path: scripts/pipeline/lib/decision_engine.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: refresh-architecture
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_decision_engine.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "TC-PROD-004 — per-surface freshness decision engine. Separates input change from output drift. Shadow-only in Phase 2; does not modify site_planner.py behavior."
+
+  - path: scripts/pipeline/lib/reconciliation_ledger.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: refresh-architecture
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_reconciliation_ledger.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "TC-PROD-005 — cross-surface reconciliation ledger. Enforces surfaces_silently_skipped=0. Shadow-only in Phase 3; does not replace post_refresh_verify.py."
+
+  - path: scripts/pipeline/commands/ops/refresh_harness.py
+    kind: command
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: cli
+    owner_domain: refresh-architecture
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_refresh_harness.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "TC-PROD-006 — forced validation harness. Modes: dry-run, validate-only, force-reconcile, synthetic-input-change. Writes only to scratch_root, never to content/."
+
+  - path: scripts/pipeline/lib/blog_slug_policy.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_blog_slug_policy.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "Shared folder slug policy: classify, validate, derive, repair. Used by inventory scanner and migration helper."
+
+  - path: scripts/pipeline/commands/diagnostics/blog_slug_inventory.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_blog_slug_policy.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "Scans blog.aspose.org for bad folder slugs; produces JSON+MD inventory and repair candidates JSON."
+
+  - path: scripts/pipeline/commands/migration/blog_folder_migrate.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_blog_slug_policy.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "Governed folder slug migration: rename + source_file update + site_plan update + rollback manifest. Never adds slug: or aliases: frontmatter."

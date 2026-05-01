@@ -46,6 +46,33 @@ KNOWLEDGE_ROOT = REPO_ROOT / "knowledge"
 CONTENT_ROOT = REPO_ROOT / "content"
 REPORTS_ROOT = REPO_ROOT / "reports" / "plans"
 
+_REFRESH_FLAGS_PATH = REPO_ROOT / "data" / "refresh-feature-flags.json"
+
+
+def _load_refresh_flags() -> dict:
+    """Load refresh feature flags. Returns safe defaults if file is missing.
+
+    TC-PROD-010A: Used to gate the per-surface decision engine at the SHA gate.
+    All flags default to safe (engine not enforced, behavior unchanged).
+    """
+    defaults = {
+        "refresh_decision_engine_enabled": False,
+        "refresh_decision_engine_shadow": True,
+        "refresh_reconciliation_shadow": True,
+        "refresh_reconciliation_enforced": False,
+        "refresh_manifest_write_enabled": False,
+        "refresh_content_write_enabled": False,
+        "refresh_run_type_label_enabled": True,
+    }
+    if not _REFRESH_FLAGS_PATH.is_file():
+        return defaults
+    try:
+        data = json.loads(_REFRESH_FLAGS_PATH.read_text(encoding="utf-8"))
+        defaults.update(data)
+        return defaults
+    except (OSError, json.JSONDecodeError):
+        return defaults
+
 # Site path patterns (relative to CONTENT_ROOT parent, i.e. REPO_ROOT)
 SITE_PATHS = {
     "products": "content/products.aspose.org/en/{family}/{platform}",
@@ -527,6 +554,17 @@ _SUBPKG_LABEL: dict[str, str] = {
     "_unknown":   "general",
 }
 
+# Family-specific sub-package label overrides.
+# Applied in _subpkg_to_label() before the generic slug_from_category() fallback.
+# Prevents generic sub-package names (e.g. "core") from producing bad cluster labels.
+_FAMILY_SUBPKG_LABELS: dict[str, dict[str, str]] = {
+    "cells": {
+        "core":       "cells-foss-model",    # Value-object/model classes in cells_foss core/
+        "packaging":  "xlsx-packaging",      # OPC/XLSX packaging classes in cells_foss packaging/
+        "cells_foss": "spreadsheet-management",  # Root-level cells_foss classes
+    },
+}
+
 
 def _class_to_subpackage(file_path: str) -> str:
     """Derive sub-package label from a class file path.
@@ -562,6 +600,9 @@ def _subpkg_to_label(subpkg: str, family: str) -> str:
     key = subpkg.lstrip("_").lower()
     if key in _SUBPKG_LABEL:
         return _SUBPKG_LABEL[key]
+    # Family-specific override before generic fallback
+    if family in _FAMILY_SUBPKG_LABELS and key in _FAMILY_SUBPKG_LABELS[family]:
+        return _FAMILY_SUBPKG_LABELS[family][key]
     if key == "" or subpkg == "":
         # Root-level classes → family-specific core capability
         _ROOT_LABELS = {
@@ -1076,7 +1117,11 @@ def plan_blog(
     ]
     if eligible and total_claims >= 500:
         top = eligible[0]
-        dive_derived_slug = f"{top['slug']}-in-{platform}"
+        # Mirror the features slug prefix-deduplication: ensure family identity is present.
+        if top['slug'].startswith(f"{family}-"):
+            dive_derived_slug = f"{top['slug']}-in-{platform}"
+        else:
+            dive_derived_slug = f"{family}-{top['slug']}-in-{platform}"
         dive_path = f"{base}/{dive_derived_slug}/index.md"
         # Check existing for a deep-dive match
         dive_match = _match_existing_to_cluster(
@@ -1925,7 +1970,21 @@ def main() -> None:
                     "SITE-PLAN: No repo change detected. Plan is current.",
                     file=sys.stderr,
                 )
-                sys.exit(0)
+                # TC-PROD-010A: Feature-flag-gated per-surface decision engine.
+                # refresh_reconciliation_enforced=false (default) → advisory mode:
+                #   SHA gate preserved exactly as before; sys.exit(0) fires.
+                # refresh_reconciliation_enforced=true → enforced mode:
+                #   sys.exit(0) bypassed; per-surface decisions govern.
+                _flags = _load_refresh_flags()
+                if not _flags.get("refresh_reconciliation_enforced", False):
+                    sys.exit(0)
+                # Enforced mode: SHA match is an optimization hint only.
+                # Execution continues; per-surface decisions are computed below.
+                print(
+                    "SITE-PLAN: refresh_reconciliation_enforced=true — "
+                    "SHA gate bypassed; per-surface decision engine governs.",
+                    file=sys.stderr,
+                )
 
     # Build plan
     plan, clusters, excluded_topics = build_plan(
