@@ -14,7 +14,14 @@ Options:
     --update                Re-generate pages for classes in knowledge_delta.json
                             modified_apis; skip all other existing pages.
                             Requires merged/knowledge_delta.json to exist.
-                            Falls back to full re-run with a warning if absent.
+                            Falls back to skip-existing mode with a warning if absent.
+    --rebuild-all           Regenerate all existing auto-updatable reference pages
+                            from current merged/claims.json without requiring
+                            knowledge_delta.json. Skips pages with auto_updatable=false
+                            or manually curated pages. Requires --confirm-rebuild when
+                            more than REBUILD_CONFIRM_THRESHOLD pages would be rebuilt.
+    --confirm-rebuild       Required when --rebuild-all would regenerate more than
+                            REBUILD_CONFIRM_THRESHOLD existing pages.
 
 CONTRACT: This script is the backing implementation for S-62 (batch-reference).
 The skill spec in .agents/skills/batch-reference/SKILL.md documents the same
@@ -56,7 +63,8 @@ from lib.provenance import is_auto_updatable, is_manually_curated, safe_content_
 # Constants
 # ---------------------------------------------------------------------------
 
-HEAL_CONFIRM_THRESHOLD = 20  # require --confirm-heal when healing more than this many curated pages
+HEAL_CONFIRM_THRESHOLD = 20    # require --confirm-heal when healing more than this many curated pages
+REBUILD_CONFIRM_THRESHOLD = 20  # require --confirm-rebuild when --rebuild-all targets more than this many pages
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 
@@ -694,6 +702,36 @@ def _load_update_apis(family: str, platform: str) -> set[str] | None:
         return None
 
 
+# Frontmatter fields that are purely timestamp/metadata and must not trigger
+# a meaningful-change detection in --rebuild-all mode.
+_REBUILD_IGNORE_PREFIXES: tuple[str, ...] = (
+    "content_created_at:",
+    "graded_at:",
+)
+
+
+def _has_meaningful_change(existing_path: Path, new_content: str) -> bool:
+    """Return True if *new_content* has meaningful changes vs the existing file.
+
+    Ignores lines whose content is solely a timestamp field (content_created_at,
+    graded_at) so that --rebuild-all does not commit timestamp-only churn.
+
+    Returns True (treat as changed) if the existing file cannot be read.
+    """
+    try:
+        existing = existing_path.read_text(encoding="utf-8")
+    except OSError:
+        return True
+
+    def _norm(text: str) -> list[str]:
+        return [
+            ln for ln in text.splitlines()
+            if not any(ln.strip().startswith(p) for p in _REBUILD_IGNORE_PREFIXES)
+        ]
+
+    return _norm(existing) != _norm(new_content)
+
+
 def check_member_doc_coverage(
     api_surface: list[dict],
     member_erc_index: dict[str, str],
@@ -737,12 +775,19 @@ def check_member_doc_coverage(
 def run(family: str, platform: str, kind_arg: str = "all",
         limit: int | None = None, dry_run: bool = False, update: bool = False,
         require_member_doc_coverage: int | None = None, heal: bool = False,
-        confirm_heal: bool = False, plan_path: str | None = None) -> dict:
+        confirm_heal: bool = False, plan_path: str | None = None,
+        rebuild_all: bool = False, confirm_rebuild: bool = False) -> dict:
     """Run batch reference generation. Returns result dict with counts.
 
     When update=True, only re-generates pages for classes listed in
     knowledge_delta.json modified_apis.  Default mode (update=False) is
     unchanged: skip pages that already exist (idempotent).
+
+    When rebuild_all=True, regenerates all existing auto-updatable pages from
+    current merged/claims.json without requiring knowledge_delta.json.
+    Pages marked auto_updatable=false or manually curated are protected.
+    Requires confirm_rebuild=True when more than REBUILD_CONFIRM_THRESHOLD pages
+    would be overwritten.
     """
     api_surface_path = KNOWLEDGE_ROOT / family / platform / "merged" / "api_surface.json"
     if not api_surface_path.exists():
@@ -910,8 +955,10 @@ def run(family: str, platform: str, kind_arg: str = "all",
         # Load update-eligible APIs from knowledge_delta.json (modified + new + resurrected)
         modified_apis = _load_update_apis(family, platform)
         if modified_apis is None:
-            print("WARN: knowledge_delta.json not found; falling back to full re-run of all pages.")
-            update = False  # degrade to full re-run
+            print("WARN: knowledge_delta.json not found; falling back to skip-existing mode "
+                  "(all existing pages will be skipped, only new pages generated). "
+                  "Use --rebuild-all to regenerate existing pages without a delta.")
+            update = False  # degrade to skip-existing mode
         else:
             print(f"--update mode: {len(modified_apis)} update-eligible API classes in knowledge_delta.json.")
 
@@ -939,6 +986,29 @@ def run(family: str, platform: str, kind_arg: str = "all",
         print(f"Found {total} candidates: {len(to_generate)} to generate, "
               f"{len(to_update)} to update (in modified_apis), "
               f"{len(to_skip)} to skip.")
+    elif rebuild_all:
+        # --rebuild-all: regenerate all existing auto-updatable pages from current merged/claims.json
+        # Does not require knowledge_delta.json.
+        for entry in candidates:
+            name = entry.get("name", "")
+            page_path = output_dir / f"{name}.md"
+            if not page_path.exists():
+                to_generate.append(entry)
+            elif not is_auto_updatable(page_path):
+                print(f"  PROTECTED: {name} — auto_updatable: false, skipping rebuild")
+                to_skip.append(entry)
+            elif is_manually_curated(page_path):
+                print(f"  PROTECTED: {name} — manually curated, skipping rebuild")
+                to_skip.append(entry)
+            else:
+                to_update.append(entry)
+        print(f"--rebuild-all: {len(to_generate)} new, {len(to_update)} eligible for rebuild, "
+              f"{len(to_skip)} protected/skipped.")
+        if len(to_update) > REBUILD_CONFIRM_THRESHOLD and not confirm_rebuild:
+            raise SystemExit(
+                f"--rebuild-all would regenerate {len(to_update)} existing pages. "
+                f"Re-run with --confirm-rebuild to proceed."
+            )
     else:
         for entry in candidates:
             name = entry.get("name", "")
@@ -984,6 +1054,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
 
     generated = []
     updated = []
+    unchanged = []  # pages in to_update with no meaningful change (timestamp-only guard)
     errors = []
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -993,14 +1064,23 @@ def run(family: str, platform: str, kind_arg: str = "all",
     for i, entry in enumerate(to_write, 1):
         name = entry.get("name", "")
         kind = entry.get("kind", "")
+        is_rebuild = rebuild_all and entry in to_update
         is_update = entry in to_update
-        action = "Updating" if is_update else "Generating"
+        action = "Rebuilding" if is_rebuild else ("Updating" if is_update else "Generating")
         print(f"[{i}/{len(to_write)}] {action} page for {name} ({kind})...")
         try:
             page_path = output_dir / f"{name}.md"
             content = _build_page(entry, family, platform, erc_index=erc_index,
                                    member_erc_index=member_erc_index,
                                    model_sha=model_sha, model_version=model_version)
+            # Timestamp-only churn guard: in --rebuild-all mode, skip pages where
+            # the only differences from the existing file are pure timestamp fields
+            # (content_created_at, graded_at). This prevents committing noise when
+            # the merged knowledge has not meaningfully changed.
+            if is_rebuild and not _has_meaningful_change(page_path, content):
+                print(f"  UNCHANGED: {name} — no meaningful changes beyond timestamps, skipping write")
+                unchanged.append(entry)
+                continue
             safe_content_write(page_path, content, mechanism="batch-reference")
             # Attach evidence + auto-grade (identical path for new pages and updates)
             # force=True because _build_page already wrote a model_sha; runner would skip otherwise
@@ -1021,12 +1101,16 @@ def run(family: str, platform: str, kind_arg: str = "all",
     print(f"Platform:  {platform}")
     print(f"Kind:      {kind_arg}")
     print(f"Limit:     {limit if limit is not None else 'none'}")
-    print(f"Mode:      {'update' if update else 'generate-new'}")
+    _mode = "update" if update else ("rebuild-all" if rebuild_all else "generate-new")
+    print(f"Mode:      {_mode}")
     print("")
     print(f"Candidates:   {total}")
     print(f"Generated:    {len(generated)}")
     if update:
         print(f"Updated:      {len(updated)} pages, skipped {len(to_skip)} unchanged")
+    elif rebuild_all:
+        print(f"Rebuilt:      {len(updated)} pages ({len(unchanged)} unchanged/skipped as timestamp-only)")
+        print(f"Protected:    {len(to_skip)} (auto_updatable=false or manually curated)")
     else:
         print(f"Skipped:      {len(to_skip)} (already existed)")
     print(f"Errors:       {len(errors)} (failed to generate)")
@@ -1056,7 +1140,8 @@ def run(family: str, platform: str, kind_arg: str = "all",
             print(f"  - {e.get('name')}  ({msg})")
 
     return {"generated": len(generated), "updated": len(updated),
-            "skipped": len(to_skip), "errors": len(errors)}
+            "skipped": len(to_skip), "errors": len(errors),
+            "unchanged": len(unchanged)}
 
 
 def main():
@@ -1085,6 +1170,15 @@ def main():
                              "systemically broken and need to be regenerated from repo truth.")
     parser.add_argument("--confirm-heal", action="store_true",
                         help=f"Required when --heal would override more than {HEAL_CONFIRM_THRESHOLD} manually-curated pages")
+    parser.add_argument("--rebuild-all", action="store_true",
+                        help="Regenerate all existing auto-updatable reference pages from current "
+                             "merged/claims.json without requiring knowledge_delta.json. "
+                             "Skips pages with auto_updatable=false or manually curated pages. "
+                             f"Requires --confirm-rebuild when more than {REBUILD_CONFIRM_THRESHOLD} "
+                             "pages would be rebuilt.")
+    parser.add_argument("--confirm-rebuild", action="store_true",
+                        help=f"Required when --rebuild-all would regenerate more than "
+                             f"{REBUILD_CONFIRM_THRESHOLD} existing pages")
     parser.add_argument("--plan", default=None, metavar="PATH",
                         help="Path to site_plan.yaml for plan-aware advisory logging. "
                              "Compares api_surface candidates against the plan's reference "
@@ -1110,7 +1204,9 @@ def main():
         require_member_doc_coverage=args.require_member_doc_coverage,
         heal=args.heal,
         confirm_heal=args.confirm_heal,
-        plan_path=args.plan)
+        plan_path=args.plan,
+        rebuild_all=args.rebuild_all,
+        confirm_rebuild=args.confirm_rebuild)
 
 
 if __name__ == "__main__":

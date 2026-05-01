@@ -1107,6 +1107,182 @@ class TestUpdateDeltaBehavior:
 
 
 # ---------------------------------------------------------------------------
+# S62-01: --rebuild-all mode tests
+# ---------------------------------------------------------------------------
+
+class TestRebuildAll:
+    """Tests for the --rebuild-all flag added in S62-01.
+
+    Verifies that existing auto-updatable pages are rebuilt from current
+    merged/claims.json without requiring knowledge_delta.json, and that
+    protection guardrails (auto_updatable=false, manually curated, confirm
+    threshold, timestamp-only churn guard) all work correctly.
+    """
+
+    def _make_setup(self, tmp_path, names: list[str], platform: str = "net") -> tuple:
+        """Create api_surface.json, model.yaml, and pre-existing page files.
+
+        Returns (merged_dir, page_dir).
+        """
+        merged = tmp_path / "knowledge" / "fake" / platform / "merged"
+        merged.mkdir(parents=True)
+        import yaml as _yaml
+        entries = [
+            {"name": n, "kind": "class_declaration", "methods": [], "properties": []}
+            for n in names
+        ]
+        (merged / "api_surface.json").write_text(json.dumps(entries), encoding="utf-8")
+        (merged / "model.yaml").write_text(
+            _yaml.safe_dump({"stale_since": None, "version": "1.0.0", "repo_sha": "abc123"}),
+            encoding="utf-8",
+        )
+        page_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "fake" / platform
+        page_dir.mkdir(parents=True)
+        return merged, page_dir
+
+    def test_rebuild_all_rebuilds_existing(self, tmp_path):
+        """--rebuild-all + --confirm-rebuild rewrites existing auto-updatable pages."""
+        merged, page_dir = self._make_setup(tmp_path, ["Alpha", "Beta"])
+        # Create existing pages as auto-updatable (no manually-curated marker)
+        for name in ("Alpha", "Beta"):
+            (page_dir / f"{name}.md").write_text(
+                "---\nprovenance:\n  content_origin: skill-generated\n"
+                "  auto_updatable: true\n---\n# Original\n",
+                encoding="utf-8",
+            )
+        result = run("fake", "net", rebuild_all=True, confirm_rebuild=True)
+        assert result["updated"] == 2, f"Expected 2 rebuilt; got {result['updated']}"
+        assert result["generated"] == 0
+        assert result["skipped"] == 0
+
+    def test_rebuild_all_requires_confirm_when_gt_threshold(self, tmp_path):
+        """--rebuild-all without --confirm-rebuild raises SystemExit when >THRESHOLD pages."""
+        from batch_reference import REBUILD_CONFIRM_THRESHOLD
+        # Create THRESHOLD+1 pages
+        n = REBUILD_CONFIRM_THRESHOLD + 1
+        names = [f"Class{i:03d}" for i in range(n)]
+        merged, page_dir = self._make_setup(tmp_path, names)
+        for name in names:
+            (page_dir / f"{name}.md").write_text(
+                "---\nprovenance:\n  content_origin: skill-generated\n"
+                "  auto_updatable: true\n---\n# Body\n",
+                encoding="utf-8",
+            )
+        with pytest.raises(SystemExit, match="--confirm-rebuild"):
+            run("fake", "net", rebuild_all=True, confirm_rebuild=False)
+
+    def test_rebuild_all_no_confirm_required_at_threshold(self, tmp_path):
+        """Exactly THRESHOLD pages does NOT require --confirm-rebuild."""
+        from batch_reference import REBUILD_CONFIRM_THRESHOLD
+        names = [f"Class{i:03d}" for i in range(REBUILD_CONFIRM_THRESHOLD)]
+        merged, page_dir = self._make_setup(tmp_path, names)
+        for name in names:
+            (page_dir / f"{name}.md").write_text(
+                "---\nprovenance:\n  content_origin: skill-generated\n"
+                "  auto_updatable: true\n---\n# Body\n",
+                encoding="utf-8",
+            )
+        # Should NOT raise — exactly at threshold
+        result = run("fake", "net", rebuild_all=True, confirm_rebuild=False)
+        assert result["updated"] == REBUILD_CONFIRM_THRESHOLD
+
+    def test_rebuild_all_skips_non_auto_updatable(self, tmp_path):
+        """--rebuild-all skips pages with auto_updatable: false."""
+        merged, page_dir = self._make_setup(tmp_path, ["Safe", "Protected"])
+        (page_dir / "Safe.md").write_text(
+            "---\nprovenance:\n  content_origin: skill-generated\n"
+            "  auto_updatable: true\n---\n# Safe\n",
+            encoding="utf-8",
+        )
+        (page_dir / "Protected.md").write_text(
+            "---\nprovenance:\n  content_origin: skill-generated\n"
+            "  auto_updatable: false\n---\n# Protected\n",
+            encoding="utf-8",
+        )
+        result = run("fake", "net", rebuild_all=True, confirm_rebuild=True)
+        assert result["skipped"] == 1, f"Protected page should be skipped; got {result['skipped']}"
+        assert result["updated"] == 1, f"Safe page should be rebuilt; got {result['updated']}"
+
+    def test_rebuild_all_generates_missing_pages(self, tmp_path):
+        """--rebuild-all generates pages that don't exist yet (same as default mode)."""
+        merged, page_dir = self._make_setup(tmp_path, ["Existing", "New"])
+        (page_dir / "Existing.md").write_text(
+            "---\nprovenance:\n  content_origin: skill-generated\n"
+            "  auto_updatable: true\n---\n# Existing\n",
+            encoding="utf-8",
+        )
+        # "New" has no pre-existing file
+        result = run("fake", "net", rebuild_all=True, confirm_rebuild=True)
+        assert result["generated"] == 1, f"New page should be generated; got {result['generated']}"
+        assert result["updated"] == 1, f"Existing page should be rebuilt; got {result['updated']}"
+        assert (page_dir / "New.md").exists()
+
+    def test_rebuild_all_dry_run(self, tmp_path):
+        """--rebuild-all --dry-run reports candidates without writing."""
+        merged, page_dir = self._make_setup(tmp_path, ["Alpha", "Beta"])
+        for name in ("Alpha", "Beta"):
+            (page_dir / f"{name}.md").write_text(
+                "---\nprovenance:\n  content_origin: skill-generated\n"
+                "  auto_updatable: true\n---\n# Original\n",
+                encoding="utf-8",
+            )
+        original_mtime = (page_dir / "Alpha.md").stat().st_mtime
+        result = run("fake", "net", rebuild_all=True, confirm_rebuild=True, dry_run=True)
+        assert result.get("dry_run") is True
+        assert result["updated"] == 0
+        # Files must be unchanged
+        assert (page_dir / "Alpha.md").stat().st_mtime == original_mtime
+
+    def test_no_delta_update_still_skips_existing(self, tmp_path):
+        """Regression: --update without knowledge_delta.json must skip existing pages.
+
+        This verifies the corrected fallback behavior: 'skip-existing mode' not
+        'full re-run'. The misleading warning text has been fixed; this test
+        guards against future regressions to the old behavior.
+        """
+        merged, page_dir = self._make_setup(tmp_path, ["Alpha"])
+        # No knowledge_delta.json — triggers fallback
+        (page_dir / "Alpha.md").write_text(
+            "---\nprovenance:\n  content_origin: skill-generated\n"
+            "  auto_updatable: true\n---\n# Original\n",
+            encoding="utf-8",
+        )
+        result = run("fake", "net", update=True)
+        # Must skip the existing page, not regenerate it
+        assert result["skipped"] == 1, f"Expected 1 skipped; got {result['skipped']}"
+        assert result["updated"] == 0
+        assert result["generated"] == 0
+
+    def test_has_meaningful_change_detects_timestamp_only(self, tmp_path):
+        """_has_meaningful_change returns False when only timestamp fields differ."""
+        from batch_reference import _has_meaningful_change
+        existing = tmp_path / "page.md"
+        existing.write_text(
+            "---\ntitle: Foo\ncontent_created_at: '2026-01-01T00:00:00+00:00'\ngraded_at: '2026-01-01'\n---\nbody\n",
+            encoding="utf-8",
+        )
+        new_content = (
+            "---\ntitle: Foo\ncontent_created_at: '2026-05-01T12:00:00+00:00'\ngraded_at: '2026-05-01'\n---\nbody\n"
+        )
+        assert not _has_meaningful_change(existing, new_content), (
+            "Should detect timestamp-only change as not meaningful"
+        )
+
+    def test_has_meaningful_change_detects_body_change(self, tmp_path):
+        """_has_meaningful_change returns True when body content differs."""
+        from batch_reference import _has_meaningful_change
+        existing = tmp_path / "page.md"
+        existing.write_text(
+            "---\ntitle: Foo\n---\nOld body\n",
+            encoding="utf-8",
+        )
+        new_content = "---\ntitle: Foo\n---\nNew body\n"
+        assert _has_meaningful_change(existing, new_content), (
+            "Should detect body change as meaningful"
+        )
+
+
+# ---------------------------------------------------------------------------
 # configure() seam (MP-SR03 / TC-04)
 # ---------------------------------------------------------------------------
 
