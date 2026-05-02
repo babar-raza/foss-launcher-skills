@@ -379,8 +379,12 @@ def mode_diff(args: argparse.Namespace, runs_root: pathlib.Path) -> Exit:
     if not manifest:
         return Exit.MISSING_ARTIFACT
 
-    subdomains = [args.subdomain] if getattr(args, "subdomain", None) else None
-    scope = cs.resolve(args.family, args.platform, subdomains)
+    # Use subdomains from the baseline manifest scope, not from args
+    # (args may not have --subdomain when resuming a run)
+    manifest_subdomains = manifest.get("scope", {}).get("subdomains") or None
+    if getattr(args, "subdomain", None):
+        manifest_subdomains = [args.subdomain]
+    scope = cs.resolve(args.family, args.platform, manifest_subdomains)
 
     report = classify_diff(manifest, _REPO_ROOT, scope)
     write_diff_report(report, run_dir / "diff-report.json")
