@@ -725,6 +725,24 @@ def test_T1_15_split_frontmatter_and_body_lossless():
     assert "Body content" in body
 
 
+def test_T1_16_markdown_reference_style_link_detected_and_rewritten():
+    """Reference-style markdown links must be detected and rewritten."""
+    find, rewrite, _ = _get_migrate_fns()
+    body = (
+        "See [core ops][core-ref] for details.\n\n"
+        "[core-ref]: /cells/java/core-in-java/\n"
+    )
+    refs = find(body, "cells", "java", "core-in-java")
+    assert len(refs) == 1, f"Expected 1 ref-style match, got {refs}"
+
+    new_body, count = rewrite(
+        body, "cells", "java", "core-in-java", "aspose-cells-foss-java-ops"
+    )
+    assert count == 1
+    assert "aspose-cells-foss-java-ops" in new_body
+    assert "[core ops][core-ref]" in new_body  # link text preserved
+
+
 # ---------------------------------------------------------------------------
 # T2: Integration tests — inventory scanner with fixture filesystem
 # ---------------------------------------------------------------------------
@@ -1738,8 +1756,12 @@ def test_T4_10_dry_run_inbound_updates_populated_not_written(tmp_path):
     )
 
     entry = manifest["renames"][0]
-    # The dry-run inbound scan should detect the link (count > 0 in result)
+    # The dry-run inbound scan must detect the link (populated, not just present)
     assert "inbound_link_updates" in entry
+    assert len(entry["inbound_link_updates"]) > 0, (
+        "Dry-run inbound_link_updates must be non-empty when a linking post exists"
+    )
+    assert entry["inbound_link_updates"][0]["dry_run"] is True
 
     # File must not be changed
     assert link_file.read_text(encoding="utf-8") == original

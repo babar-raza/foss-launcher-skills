@@ -396,7 +396,8 @@ def add_alias_to_english_index(
     _verify_migration_safety(content_before, new_text, str(index_path), allowed_alias=old_url)
 
     if not dry_run:
-        index_path.write_text(new_text, encoding="utf-8")
+        from core.fs import atomic_write  # noqa: E402
+        atomic_write(index_path, new_text)
 
     return {
         "file": str(index_path),
