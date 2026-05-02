@@ -17,6 +17,7 @@ CLI Commands:
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import yaml
@@ -77,7 +78,7 @@ class Knowledge:
         if not available:
             # Set all data attributes to safe defaults so callers need not guard
             self.__dict__.update(dict(
-                version="", repo_sha="",
+                version="", repo_sha="", claims_hash="",
                 enrichment_status=None, stale_since=None,
                 classes={}, classes_by_import={},
                 methods={}, properties={}, enum_members={},
@@ -208,8 +209,11 @@ class Knowledge:
         claims_path = merged / "claims.json"
         self.claim_ids = set()
         self.api_to_claim = {}  # "ClassName.method" (CLM-) or "ClassName" (ERC-) → claim_id
+        self.claims_hash = ""   # sha256 of claims.json bytes (GAP-14 idempotency tracking)
         if claims_path.exists():
-            claims_list = json.loads(claims_path.read_text(encoding="utf-8"))
+            claims_bytes = claims_path.read_bytes()
+            self.claims_hash = hashlib.sha256(claims_bytes).hexdigest()
+            claims_list = json.loads(claims_bytes.decode("utf-8"))
             # Sort by claim_id so the api_to_claim mapping is order-independent:
             # the lexicographically smallest claim_id always wins for each key.
             # CLM- sorts before ERC- so syntactic method-level keys are registered first.

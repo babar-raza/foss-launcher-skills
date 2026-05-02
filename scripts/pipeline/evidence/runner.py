@@ -92,11 +92,31 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
     existing = fm.get("evidence") or {}
 
     # Already up to date — idempotent skip (bypass with --force)
+    # Also surface WOULD_UPDATE_METADATA when claims_hash differs (GAP-14 Phase 1).
     if not force and isinstance(existing, dict) and \
             existing.get("model_sha") == knowledge.repo_sha:
+        page_claims_hash = existing.get("claims_hash", "")
         if dry_run_records is not None:
-            _append_skip_record(dry_run_records, filepath, "current",
-                                existing_claims=existing.get("claims", []))
+            knowledge_claims_hash = getattr(knowledge, "claims_hash", "")
+            if page_claims_hash and knowledge_claims_hash and \
+                    page_claims_hash != knowledge_claims_hash:
+                # claims.json changed but SHA unchanged — report as WOULD_UPDATE_METADATA
+                dry_run_records.append({
+                    "filepath": str(filepath),
+                    "subdomain": _infer_subdomain(Path(filepath)),
+                    "action": "WOULD_UPDATE_METADATA",
+                    "existing_claims": sorted(existing.get("claims", [])),
+                    "proposed_claims": [],
+                    "added_claims": [],
+                    "stale_claims": [],
+                    "skip_reason": "model_sha current but claims_hash differs",
+                    "token_matches": [],
+                    "current_claims_hash": page_claims_hash,
+                    "knowledge_claims_hash": knowledge_claims_hash,
+                })
+            else:
+                _append_skip_record(dry_run_records, filepath, "current",
+                                    existing_claims=existing.get("claims", []))
         return "SKIP (current)"
 
     platform = knowledge.platform
@@ -179,6 +199,8 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
                 "policy_status": decision.action,
                 "policy_reason": decision.reason,
             })
+        knowledge_claims_hash = getattr(knowledge, "claims_hash", "")
+        page_claims_hash = existing.get("claims_hash", "") if isinstance(existing, dict) else ""
         dry_run_records.append({
             "filepath": str(filepath),
             "subdomain": subdomain,
@@ -189,6 +211,8 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
             "stale_claims": [],
             "skip_reason": None,
             "token_matches": sorted(set(token_matches)),
+            "current_claims_hash": page_claims_hash,
+            "knowledge_claims_hash": knowledge_claims_hash,
         })
 
     if dry_run:
@@ -361,6 +385,11 @@ def main():
                         help="Suppress unscoped-write WARN when --all-subdomains is set")
     parser.add_argument("--auto-refresh", action="store_true",
                         help="Run refresh_knowledge.py before attaching")
+    parser.add_argument("--detect-stale-claims", action="store_true",
+                        help="Report stale/orphan claim IDs (read-only, no writes)")
+    parser.add_argument("--report-json", metavar="OUTFILE",
+                        help="Write stale-claim report JSON to OUTFILE "
+                             "(used with --detect-stale-claims)")
 
     parsed = parser.parse_args()
 
@@ -371,6 +400,32 @@ def main():
     subdomain = parsed.subdomain
     all_subdomains = parsed.all_subdomains and parsed.confirm_all_subdomains
     positional = parsed.args
+    detect_stale = parsed.detect_stale_claims
+
+    # --detect-stale-claims: read-only stale report, no writes
+    if detect_stale:
+        from evidence.claim_validator import report_stale_claims  # noqa: E402
+        if len(positional) >= 2:
+            family, platform = positional[0], positional[1]
+        elif len(positional) == 1 and positional[0] != "all":
+            _log("ERROR: --detect-stale-claims requires family platform arguments")
+            sys.exit(1)
+        else:
+            _log("ERROR: --detect-stale-claims requires 'family platform' arguments")
+            sys.exit(1)
+        report = report_stale_claims(family, platform, subdomain=subdomain)
+        report_json_str = _json.dumps(report, indent=2, sort_keys=True)
+        if parsed.report_json:
+            outfile = Path(parsed.report_json)
+            outfile.parent.mkdir(parents=True, exist_ok=True)
+            outfile.write_text(report_json_str, encoding="utf-8")
+            _log(f"  Stale-claim report written to {outfile}")
+        else:
+            print(report_json_str)
+        _log(f"  Files scanned: {report['total_files_scanned']}, "
+             f"files with stale claims: {report['files_with_stale_claims']}, "
+             f"total stale: {report['total_stale_claims']}")
+        sys.exit(0)
 
     # Accumulate ClaimPlan records when --dry-run-json requested
     dry_run_records = [] if parsed.dry_run_json else None
