@@ -57,6 +57,24 @@ SITE_PATHS = [
 LOCALE_RE = re.compile(r"\.(?:ar|bg|ca|cs|da|de|el|es|et|fa|fi|fr|he|hi|hr|hu|id|it|ja|ko|lt|lv|ms|nl|no|pl|pt|ro|ru|sk|sl|sr|sv|th|tr|uk|vi|zh)\.md$")
 
 
+def _infer_subdomain(filepath: Path) -> str | None:
+    """Return the canonical subdomain name for a content file path.
+
+    Uses the site names from SITE_PATHS as the authority. Returns None when
+    the path is not under any known content site.
+
+    Examples:
+        content/reference.aspose.org/... → "reference.aspose.org"
+        content/blog.aspose.org/...      → "blog.aspose.org"
+        /tmp/other/file.md               → None
+    """
+    parts = filepath.parts
+    for site_name, _ in SITE_PATHS:
+        if site_name in parts:
+            return site_name
+    return None
+
+
 def discover_content(family: str, platform: str, *, skip_drafts: bool = False) -> list[Path]:
     """Find all English content .md files for a family/platform.
 

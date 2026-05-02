@@ -49,6 +49,7 @@ scripts:
       ref: evidence-enhance
     test_targets:
       - scripts/pipeline/tests/test_attach_evidence_behavior.py
+      - scripts/pipeline/tests/test_attach_evidence_subdomain_filter.py
     requires_test: true
     deprecated_since: null
     notes: "wrapper → evidence.runner.main()"
@@ -1896,6 +1897,22 @@ scripts:
     deprecated_since: null
     change_impact: null
     notes: "TC-PROD-005 — cross-surface reconciliation ledger. Enforces surfaces_silently_skipped=0. Shadow-only in Phase 3; does not replace post_refresh_verify.py."
+
+  - path: scripts/pipeline/commands/ops/fingerprint_audit.py
+    kind: command
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: cli
+    owner_domain: refresh-architecture
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "FOLLOWUP-MON-001 — audit runner; correctness verified by live execution; unit tests deferred to Amendment 5"
+    deprecated_since: null
+    change_impact: null
+    notes: "FOLLOWUP-MON-001 — live fingerprint audit across all configured products and surfaces. Writes reports/serene-jingling-rain/monitoring/live-fingerprint-audit.json. Exit 1 if any required fingerprint is None."
 
   - path: scripts/pipeline/commands/ops/refresh_harness.py
     kind: command

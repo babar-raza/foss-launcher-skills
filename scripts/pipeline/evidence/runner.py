@@ -24,6 +24,7 @@ from content_discovery import (  # noqa: E402  (R-1b: was knowledge_core)
     discover_content,
     discover_products,
     infer_product,
+    _infer_subdomain,
 )
 from core.markdown import parse_frontmatter  # noqa: E402  (R-2a: was knowledge_core)
 from token_ops import (  # noqa: E402
@@ -38,16 +39,54 @@ from evidence.mapper import (  # noqa: E402
 from evidence.writer import _write_evidence_to_frontmatter  # noqa: E402
 
 
+_KNOWN_SUBDOMAINS = frozenset(
+    name for name, _ in
+    # avoid importing SITE_PATHS at module level since content_discovery may not
+    # be on sys.path yet during import; resolved lazily in attach_product()
+    [
+        ("products.aspose.org", ""),
+        ("reference.aspose.org", ""),
+        ("docs.aspose.org", ""),
+        ("blog.aspose.org", ""),
+        ("kb.aspose.org", ""),
+    ]
+)
+
+
 def _log(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
-def attach_evidence(filepath, knowledge, dry_run=False, force=False) -> str:
-    """Build and write evidence block for one file. Returns status string."""
+def _append_skip_record(records: list, filepath, reason: str, existing_claims=None):
+    """Append a SKIP record to a dry_run_records accumulator."""
+    from pathlib import Path as _Path
+    records.append({
+        "filepath": str(filepath),
+        "subdomain": _infer_subdomain(_Path(filepath)),
+        "action": "SKIP",
+        "existing_claims": sorted(existing_claims or []),
+        "proposed_claims": [],
+        "added_claims": [],
+        "stale_claims": [],
+        "skip_reason": reason,
+        "token_matches": [],
+    })
+
+
+def attach_evidence(filepath, knowledge, dry_run=False, force=False,
+                    dry_run_records=None) -> str:
+    """Build and write evidence block for one file. Returns status string.
+
+    Args:
+        dry_run_records: When not None, append a ClaimPlan record dict to this
+            list instead of (or in addition to) writing. Used by --dry-run-json.
+    """
     fm = parse_frontmatter(filepath)
 
     # Never attach evidence to draft pages — they are not live content.
     if fm.get("draft") is True:
+        if dry_run_records is not None:
+            _append_skip_record(dry_run_records, filepath, "draft")
         return "SKIP (draft)"
 
     existing = fm.get("evidence") or {}
@@ -55,6 +94,9 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False) -> str:
     # Already up to date — idempotent skip (bypass with --force)
     if not force and isinstance(existing, dict) and \
             existing.get("model_sha") == knowledge.repo_sha:
+        if dry_run_records is not None:
+            _append_skip_record(dry_run_records, filepath, "current",
+                                existing_claims=existing.get("claims", []))
         return "SKIP (current)"
 
     platform = knowledge.platform
@@ -65,10 +107,14 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False) -> str:
     fails = [f for f in findings if f.level == "FAIL"]
     if fails:
         _log(f"  SKIP {filepath}: {len(fails)} audit FAIL(s) — fix before attaching evidence")
+        if dry_run_records is not None:
+            _append_skip_record(dry_run_records, filepath, f"audit FAILs ({len(fails)})",
+                                existing_claims=existing.get("claims", []))
         return "SKIP (audit FAILs)"
 
     # Map verified tokens → claim_ids via deterministic index (aggregate)
     claim_ids, api_refs = _map_tokens_to_evidence(tokens, knowledge)
+    token_matches = [t for t in tokens if t]
 
     # For reference pages: inject the documented class as primary api_ref when no
     # code-block tokens yielded API refs. Reference pages document a class in
@@ -105,6 +151,45 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False) -> str:
         evidence["formats"] = formats
     if sections:
         evidence["sections"] = sections
+
+    existing_claims = existing.get("claims", []) if isinstance(existing, dict) else []
+    proposed_claims = evidence["claims"]
+    added_claims = [c for c in proposed_claims if c not in existing_claims]
+
+    # Append ClaimPlan record when dry_run_records accumulator is provided
+    if dry_run_records is not None:
+        from evidence.claim_policy import ClaimPolicy, PolicyContext  # noqa: E402
+        policy = ClaimPolicy()
+        subdomain = _infer_subdomain(Path(filepath))
+        claim_records = []
+        for cid in proposed_claims:
+            ctx = PolicyContext(
+                filepath=Path(filepath),
+                subdomain=subdomain or "",
+                page_role=fm.get("page_role"),
+                claim_id=cid,
+                claim_kind=None,
+                claim_page_role=None,
+                claim_source=None,
+                token_match_context=None,
+            )
+            decision = policy.evaluate(ctx)
+            claim_records.append({
+                "claim_id": cid,
+                "policy_status": decision.action,
+                "policy_reason": decision.reason,
+            })
+        dry_run_records.append({
+            "filepath": str(filepath),
+            "subdomain": subdomain,
+            "action": "WOULD_UPDATE",
+            "existing_claims": sorted(existing_claims),
+            "proposed_claims": claim_records,
+            "added_claims": sorted(added_claims),
+            "stale_claims": [],
+            "skip_reason": None,
+            "token_matches": sorted(set(token_matches)),
+        })
 
     if dry_run:
         _log(f"  DRY-RUN {filepath}:")
@@ -150,8 +235,26 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False) -> str:
     return "UPDATED" if ok else "ERROR"
 
 
-def attach_product(family, platform, dry_run=False, force=False) -> dict:
-    """Attach evidence to all content files for a product."""
+def attach_product(family, platform, dry_run=False, force=False,
+                   subdomain=None, all_subdomains=False,
+                   dry_run_records=None) -> dict:
+    """Attach evidence to all content files for a product.
+
+    Args:
+        subdomain: When set, restrict to files under this subdomain only.
+            Must be a canonical subdomain name (e.g. "reference.aspose.org").
+            Raises ValueError for unknown subdomain names.
+        all_subdomains: When True with no subdomain, suppresses the Phase 1
+            unscoped-write WARN. Use with --confirm-all-subdomains.
+        dry_run_records: When not None, ClaimPlan records are accumulated here
+            instead of writing. Enables --dry-run-json output.
+    """
+    if subdomain is not None and subdomain not in _KNOWN_SUBDOMAINS:
+        raise ValueError(
+            f"Unknown subdomain {subdomain!r}. "
+            f"Known: {sorted(_KNOWN_SUBDOMAINS)}"
+        )
+
     knowledge = Knowledge(family, platform)
     if not knowledge.available:
         _log(f"  SKIP {family}/{platform}: no knowledge model")
@@ -162,18 +265,31 @@ def attach_product(family, platform, dry_run=False, force=False) -> dict:
         _log(f"  SKIP {family}/{platform}: no content files")
         return {}
 
-    _log(f"  {family}/{platform}: {len(files)} files")
+    # Apply subdomain filter
+    if subdomain is not None:
+        files = [f for f in files if _infer_subdomain(f) == subdomain]
+        if not files:
+            _log(f"  WARN: no files found for subdomain={subdomain!r}")
+            return {}
+    elif not dry_run and not all_subdomains:
+        # Phase 1: warn when running unscoped write across all subdomains
+        _log("  WARN: running across all subdomains; use --subdomain to restrict")
+
+    _log(f"  {family}/{platform}: {len(files)} files"
+         + (f" (subdomain={subdomain})" if subdomain else ""))
     counts = {"UPDATED": 0, "SKIP (current)": 0, "SKIP (draft)": 0,
               "SKIP (audit FAILs)": 0, "DRY-RUN": 0, "ERROR": 0}
     for f in files:
-        status = attach_evidence(f, knowledge, dry_run=dry_run, force=force)
+        status = attach_evidence(f, knowledge, dry_run=dry_run, force=force,
+                                 dry_run_records=dry_run_records)
         counts[status] = counts.get(status, 0) + 1
 
     _log(f"    -> {counts}")
     return counts
 
 
-def attach_files(file_paths, dry_run=False, force=False) -> dict:
+def attach_files(file_paths, dry_run=False, force=False,
+                 dry_run_records=None) -> dict:
     """Attach evidence to specific files."""
     knowledge_cache = {}
     counts = {}
@@ -193,7 +309,8 @@ def attach_files(file_paths, dry_run=False, force=False) -> dict:
         if not knowledge.available:
             _log(f"  SKIP {fp}: no knowledge for {family}/{platform}")
             continue
-        status = attach_evidence(fp, knowledge, dry_run=dry_run, force=force)
+        status = attach_evidence(fp, knowledge, dry_run=dry_run, force=force,
+                                 dry_run_records=dry_run_records)
         counts[status] = counts.get(status, 0) + 1
     _log(f"  -> {counts}")
     return counts
@@ -217,34 +334,82 @@ def _auto_refresh(family, platform):
 
 
 def main():
-    args = sys.argv[1:]
-    dry_run = "--dry-run" in args
-    force = "--force" in args
-    files_mode = "--files" in args
-    auto_refresh = "--auto-refresh" in args
-    args = [a for a in args if not a.startswith("--")]
+    import argparse
+    import json as _json
+
+    parser = argparse.ArgumentParser(
+        prog="attach_evidence",
+        description="Deterministic evidence block generator for content pages.",
+    )
+    parser.add_argument("args", nargs="*",
+                        help="family platform | all | (used with --files: file paths)")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Preview changes; no writes")
+    parser.add_argument("--dry-run-json", metavar="OUTFILE",
+                        help="Write machine-readable ClaimPlan JSON to OUTFILE (implies dry-run)")
+    parser.add_argument("--force", action="store_true",
+                        help="Re-attach even if model_sha matches")
+    parser.add_argument("--files", action="store_true",
+                        help="Positional args are file paths, not family/platform")
+    parser.add_argument("--subdomain", metavar="SUBDOMAIN",
+                        help="Restrict to files under this subdomain only "
+                             "(e.g. reference.aspose.org)")
+    parser.add_argument("--all-subdomains", action="store_true",
+                        help="Explicitly target all subdomains (must pair with "
+                             "--confirm-all-subdomains for write commands)")
+    parser.add_argument("--confirm-all-subdomains", action="store_true",
+                        help="Suppress unscoped-write WARN when --all-subdomains is set")
+    parser.add_argument("--auto-refresh", action="store_true",
+                        help="Run refresh_knowledge.py before attaching")
+
+    parsed = parser.parse_args()
+
+    dry_run = parsed.dry_run or (parsed.dry_run_json is not None)
+    force = parsed.force
+    files_mode = parsed.files
+    auto_refresh = parsed.auto_refresh
+    subdomain = parsed.subdomain
+    all_subdomains = parsed.all_subdomains and parsed.confirm_all_subdomains
+    positional = parsed.args
+
+    # Accumulate ClaimPlan records when --dry-run-json requested
+    dry_run_records = [] if parsed.dry_run_json else None
 
     if files_mode:
         _log("Attaching evidence to specified files...")
-        attach_files(args, dry_run=dry_run, force=force)
-    elif len(args) >= 2:
-        family, platform = args[0], args[1]
+        attach_files(positional, dry_run=dry_run, force=force,
+                     dry_run_records=dry_run_records)
+    elif len(positional) >= 2:
+        family, platform = positional[0], positional[1]
         if auto_refresh:
             _auto_refresh(family, platform)
         _log(f"Attaching evidence for {family}/{platform}...")
-        attach_product(family, platform, dry_run=dry_run, force=force)
-    elif len(args) == 1 and args[0] == "all":
+        attach_product(family, platform, dry_run=dry_run, force=force,
+                       subdomain=subdomain, all_subdomains=all_subdomains,
+                       dry_run_records=dry_run_records)
+    elif len(positional) == 1 and positional[0] == "all":
         products = discover_products()
         _log(f"Attaching evidence for {len(products)} products...")
         total = {}
         for family, platform in products:
             if auto_refresh:
                 _auto_refresh(family, platform)
-            counts = attach_product(family, platform, dry_run=dry_run, force=force)
+            counts = attach_product(family, platform, dry_run=dry_run, force=force,
+                                    subdomain=subdomain, all_subdomains=all_subdomains,
+                                    dry_run_records=dry_run_records)
             for k, v in counts.items():
                 total[k] = total.get(k, 0) + v
         _log(f"\nTotal: {total}")
     else:
-        import attach_evidence as _ae
-        print(_ae.__doc__)
+        parser.print_help()
         sys.exit(1)
+
+    # Write ClaimPlan JSON output
+    if dry_run_records is not None and parsed.dry_run_json:
+        outfile = Path(parsed.dry_run_json)
+        outfile.parent.mkdir(parents=True, exist_ok=True)
+        outfile.write_text(
+            _json.dumps(dry_run_records, indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
+        _log(f"  ClaimPlan written to {outfile} ({len(dry_run_records)} records)")
