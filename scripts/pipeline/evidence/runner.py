@@ -134,7 +134,11 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
 
     # Map verified tokens → claim_ids via deterministic index (aggregate)
     claim_ids, api_refs = _map_tokens_to_evidence(tokens, knowledge)
-    token_matches = [t for t in tokens if t]
+    # Convert Token objects to class_name strings for JSON serialization
+    token_matches = [
+        t.class_name if hasattr(t, "class_name") else str(t)
+        for t in tokens if t
+    ]
 
     # For reference pages: inject the documented class as primary api_ref when no
     # code-block tokens yielded API refs. Reference pages document a class in

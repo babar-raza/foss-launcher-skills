@@ -1,0 +1,9 @@
+[
+  {
+    "claim_id": "ERC-cells-java-aabbccdd",
+    "text": "TestClass provides cell data access and manipulation methods.",
+    "kind": "feature",
+    "page_role": "reference",
+    "api_refs": ["TestClass"]
+  }
+]
