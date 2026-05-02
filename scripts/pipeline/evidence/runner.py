@@ -394,6 +394,12 @@ def main():
     parser.add_argument("--report-json", metavar="OUTFILE",
                         help="Write stale-claim report JSON to OUTFILE "
                              "(used with --detect-stale-claims)")
+    parser.add_argument("--apply-claim-plan", metavar="PLAN_FILE",
+                        help="Apply a previously generated --dry-run-json ClaimPlan")
+    parser.add_argument("--confirm-apply", action="store_true",
+                        help="Required safety flag when using --apply-claim-plan")
+    parser.add_argument("--max-files", type=int, default=20,
+                        help="Maximum files to write per apply run (default: 20)")
 
     parsed = parser.parse_args()
 
@@ -405,6 +411,45 @@ def main():
     all_subdomains = parsed.all_subdomains and parsed.confirm_all_subdomains
     positional = parsed.args
     detect_stale = parsed.detect_stale_claims
+
+    # --apply-claim-plan: gated apply from a pre-generated plan
+    if parsed.apply_claim_plan:
+        if not parsed.confirm_apply:
+            _log("ERROR: --apply-claim-plan requires --confirm-apply flag")
+            sys.exit(1)
+        from evidence.apply_gate import (  # noqa: E402
+            apply_plan, write_ledger_entry, _build_ledger_entry, ApplyGateError,
+        )
+        plan_path = Path(parsed.apply_claim_plan)
+        if not plan_path.exists():
+            _log(f"ERROR: plan file not found: {plan_path}")
+            sys.exit(1)
+        plan = _json.loads(plan_path.read_text(encoding="utf-8"))
+        max_files = parsed.max_files
+        repo_root = Path(__file__).resolve().parents[3]  # scripts/pipeline/evidence/ -> repo root
+        from content_discovery import KNOWLEDGE_ROOT as _KR  # noqa: E402
+        knowledge_root = _KR.parent  # knowledge/ parent = repo root / knowledge -> parent is repo root
+        # Actually knowledge_root for apply_gate is the knowledge/ directory root (families live inside)
+        knowledge_root = _KR
+        try:
+            result = apply_plan(plan, knowledge_root, max_files, repo_root)
+        except ApplyGateError as e:
+            _log(f"APPLY GATE REFUSED: {e}")
+            sys.exit(2)
+        # Write run ledger entry
+        ledger_path = repo_root / "runs" / "ledger" / "claim-apply-ledger.json"
+        entry = _build_ledger_entry(plan, result, f"attach_evidence --apply-claim-plan {plan_path}",
+                                    dry_run_json_path=str(plan_path))
+        write_ledger_entry(entry, ledger_path)
+        _log(f"  Apply result: {result.apply_status} "
+             f"(written={result.files_written}, skipped={result.files_skipped}, "
+             f"warns={result.warn_count}, blocked={result.blocked_count})")
+        _log(f"  Ledger entry written to {ledger_path}")
+        if result.apply_status == "FAIL":
+            for err in result.errors:
+                _log(f"  ERROR: {err}")
+            sys.exit(1)
+        sys.exit(0)
 
     # --detect-stale-claims: read-only stale report, no writes
     if detect_stale:
