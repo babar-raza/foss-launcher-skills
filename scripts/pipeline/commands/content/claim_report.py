@@ -173,6 +173,24 @@ def _print_summary(report: dict) -> None:
     print()
 
 
+def _infer_family_platform(filepath: Path) -> tuple[str, str]:
+    """Infer (family, platform) from a content file path.
+
+    Expects paths like: content/{subdomain}/en/{family}/{platform}/...
+    Returns ('', '') if not inferrable.
+    """
+    parts = filepath.parts
+    try:
+        ci = next(i for i, p in enumerate(parts) if p == "content")
+    except StopIteration:
+        return "", ""
+    if len(parts) < ci + 5:
+        return "", ""
+    family = parts[ci + 3]
+    platform = parts[ci + 4]
+    return family, platform
+
+
 def main(argv=None):
     import argparse
     from knowledge_core import Knowledge  # noqa: E402
@@ -182,27 +200,53 @@ def main(argv=None):
         prog="claim_report",
         description="WARN-only CI claim report for non-reference subdomains.",
     )
-    parser.add_argument("family", help="Product family (e.g. cells)")
-    parser.add_argument("platform", help="Product platform (e.g. java)")
+    parser.add_argument("family", nargs="?", default="",
+                        help="Product family (e.g. cells); optional when --files is used")
+    parser.add_argument("platform", nargs="?", default="",
+                        help="Product platform (e.g. java); optional when --files is used")
+    parser.add_argument("--files", nargs="+", metavar="FILE",
+                        help="Specific files to scan (CI mode); skips discover_content")
     parser.add_argument("--subdomain", metavar="SUBDOMAIN",
                         help="Restrict to this subdomain only")
-    parser.add_argument("--output-json", metavar="OUTFILE",
+    parser.add_argument("--output-json", "--json-out", metavar="OUTFILE",
+                        dest="output_json",
                         help="Write full JSON report to OUTFILE")
+    parser.add_argument("--warn-annotations", action="store_true",
+                        help="Emit GitHub Actions ::warning:: annotations for each issue")
 
     parsed = parser.parse_args(argv)
 
-    knowledge = Knowledge(parsed.family, parsed.platform)
-    if not knowledge.available:
-        print(f"WARN: no knowledge model for {parsed.family}/{parsed.platform}; "
-              "report may be incomplete")
+    if parsed.files:
+        files = [Path(f) for f in parsed.files]
+        family, platform = parsed.family, parsed.platform
+        if not family or not platform:
+            family, platform = _infer_family_platform(files[0])
+    else:
+        family, platform = parsed.family, parsed.platform
+        if not family or not platform:
+            parser.error("family and platform are required when --files is not given")
+        files = None
 
-    files = discover_content(parsed.family, parsed.platform)
-    if parsed.subdomain:
-        from content_discovery import _infer_subdomain  # noqa: E402
-        files = [f for f in files if _infer_subdomain(f) == parsed.subdomain]
+    knowledge = Knowledge(family, platform) if family and platform else None
+    if knowledge is None or not knowledge.available:
+        print(f"WARN: no knowledge model for {family}/{platform}; "
+              "UNKNOWN_CLAIM detection may be incomplete")
+
+    if files is None:
+        files = discover_content(family, platform)
+        if parsed.subdomain:
+            from content_discovery import _infer_subdomain  # noqa: E402
+            files = [f for f in files if _infer_subdomain(f) == parsed.subdomain]
 
     report = scan_files(files, knowledge, subdomain=parsed.subdomain)
     _print_summary(report)
+
+    if parsed.warn_annotations:
+        for rec in report.get("files_with_issues", []):
+            for issue in rec.get("issues", []):
+                fp = rec["filepath"]
+                msg = f"[{issue['issue']}] {issue['message']}"
+                print(f"::warning file={fp}::{msg}")
 
     if parsed.output_json:
         out = Path(parsed.output_json)
