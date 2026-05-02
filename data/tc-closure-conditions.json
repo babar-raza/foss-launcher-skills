@@ -1,0 +1,53 @@
+{
+  "_comment": "TC closure conditions for the refresh architecture harness (TC-PROD-008).",
+  "_version": "1.0",
+  "_description": "Each entry defines conditions that must be met in a shadow reconciliation run for the TC to be considered closeable. Conditions are checked by reconciliation_ledger.check_tc_conditions(). Meeting conditions in shadow mode does NOT automatically close the TC — closure requires human review of the evidence.",
+
+  "TC-108": {
+    "description": "upstream_repo_sha change triggers REGENERATE_UPSTREAM for reference surface",
+    "required_decision": "REGENERATE_UPSTREAM",
+    "required_subdomain": "reference",
+    "required_product_pattern": "",
+    "notes": "Exercise: synthetic upstream_repo_sha change. Harness --triage-case TC-108."
+  },
+
+  "TC-109": {
+    "description": "local_knowledge_sha change triggers REGENERATE_UPSTREAM for reference surface",
+    "required_decision": "REGENERATE_UPSTREAM",
+    "required_subdomain": "reference",
+    "required_product_pattern": "",
+    "notes": "Exercise: synthetic local_knowledge_sha change. Harness --triage-case TC-109."
+  },
+
+  "TC-110": {
+    "description": "generator_code_hash change triggers REGENERATE_GENERATOR for reference surface",
+    "required_decision": "REGENERATE_GENERATOR",
+    "required_subdomain": "reference",
+    "required_product_pattern": "",
+    "notes": "Exercise: synthetic generator_code_hash change. Harness --triage-case TC-110."
+  },
+
+  "TC-111": {
+    "description": "template_hash change triggers REGENERATE_GENERATOR for reference surface",
+    "required_decision": "REGENERATE_GENERATOR",
+    "required_subdomain": "reference",
+    "required_product_pattern": "",
+    "notes": "Exercise: synthetic template_hash change. Harness --triage-case TC-111."
+  },
+
+  "TC-112": {
+    "description": "products_json_hash change triggers REGENERATE_METADATA",
+    "required_decision": "REGENERATE_METADATA",
+    "required_subdomain": "reference",
+    "required_product_pattern": "",
+    "notes": "Exercise: synthetic products_json_hash change. Harness --triage-case TC-112."
+  },
+
+  "TC-205": {
+    "description": "BASELINED_UNPROVEN manifest triggers VALIDATE_ONLY (no proven input-output relationship)",
+    "required_decision": "VALIDATE_ONLY",
+    "required_subdomain": "reference",
+    "required_product_pattern": "",
+    "notes": "Exercise: cold-start with BASELINED_UNPROVEN manifest. Harness --triage-case TC-205."
+  }
+}

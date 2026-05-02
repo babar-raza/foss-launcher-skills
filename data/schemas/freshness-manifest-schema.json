@@ -1,0 +1,163 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FreshnessManifest",
+  "description": "Per-product per-subdomain freshness manifest for the S-84 refresh pipeline",
+  "type": "object",
+  "required": [
+    "manifest_version",
+    "product",
+    "subdomain",
+    "surface_type",
+    "input_fingerprints",
+    "output_state",
+    "manifest_status",
+    "generation_timestamp",
+    "run_id"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "manifest_version": {
+      "type": "string",
+      "description": "Schema version, e.g. '1.0'"
+    },
+    "product": {
+      "type": "string",
+      "description": "Product identifier as 'family/platform', e.g. 'cells/java'"
+    },
+    "subdomain": {
+      "type": "string",
+      "description": "Surface subdomain: reference, products, docs, blog, or kb"
+    },
+    "surface_type": {
+      "type": "string",
+      "description": "Human-readable surface category, e.g. 'api-reference'"
+    },
+    "input_fingerprints": {
+      "type": "object",
+      "description": "Hashes of all inputs that determine whether regeneration is needed",
+      "properties": {
+        "upstream_repo_sha": {
+          "type": ["string", "null"],
+          "description": "git HEAD of upstream clone cache"
+        },
+        "local_knowledge_sha": {
+          "type": ["string", "null"],
+          "description": "repo_sha from knowledge/{f}/{p}/merged/model.yaml"
+        },
+        "knowledge_content_hash": {
+          "type": ["string", "null"],
+          "description": "sha256 of full model.yaml content"
+        },
+        "products_json_hash": {
+          "type": ["string", "null"],
+          "description": "sha256 of relevant product entry in data/products.json"
+        },
+        "template_hash": {
+          "type": ["string", "null"],
+          "description": "sha256 of concatenated theme template files for this subdomain"
+        },
+        "generator_code_hash": {
+          "type": ["string", "null"],
+          "description": "sha256 of the backing generator script (null for agent-executed surfaces)"
+        },
+        "skill_version_hash": {
+          "type": ["string", "null"],
+          "description": "sha256 of the relevant skill .md file content"
+        },
+        "config_hash": {
+          "type": ["string", "null"],
+          "description": "sha256 of the subdomain config file content"
+        }
+      },
+      "additionalProperties": false
+    },
+    "output_state": {
+      "type": "object",
+      "description": "Current state of generated output (separate from input fingerprints)",
+      "required": ["output_exists"],
+      "properties": {
+        "expected_output_paths_source": {
+          "type": ["string", "null"],
+          "description": "How expected output paths are derived: site_planner_output, registry_rules, product_inventory"
+        },
+        "expected_page_count": {
+          "type": ["integer", "null"],
+          "description": "Expected number of output pages"
+        },
+        "actual_page_count": {
+          "type": ["integer", "null"],
+          "description": "Actual number of output pages found on disk"
+        },
+        "output_content_hash": {
+          "type": ["string", "null"],
+          "description": "sha256 of output content at last known good run"
+        },
+        "last_known_good_run_id": {
+          "type": ["string", "null"],
+          "description": "run_id of the last successful generation run"
+        },
+        "output_exists": {
+          "type": "boolean",
+          "description": "Whether the expected output directory/files exist on disk"
+        },
+        "validation_status": {
+          "type": ["string", "null"],
+          "enum": ["PASS", "FAIL", null],
+          "description": "Result of last validation run"
+        }
+      },
+      "additionalProperties": false
+    },
+    "manifest_status": {
+      "type": "string",
+      "description": "Overall freshness status of this surface for this product",
+      "enum": [
+        "FRESH",
+        "BASELINED_UNPROVEN",
+        "REGENERATE_UPSTREAM",
+        "REGENERATE_GENERATOR",
+        "REGENERATE_METADATA",
+        "REGENERATE_POLICY",
+        "RECONCILE_MISSING",
+        "RECONCILE_DRIFTED",
+        "VALIDATE_ONLY",
+        "BLOCKED",
+        "DRY_RUN_PASS",
+        "PARTIAL_PASS"
+      ]
+    },
+    "generation_timestamp": {
+      "type": "string",
+      "description": "ISO 8601 timestamp when this manifest was written"
+    },
+    "command_used": {
+      "type": ["string", "null"],
+      "description": "Exact command invoked to generate this surface"
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Unique identifier for this generation run"
+    },
+    "governance_status": {
+      "type": ["string", "null"],
+      "description": "Governance compliance status: COMPLIANT, NON_COMPLIANT, or null"
+    },
+    "decision": {
+      "type": ["string", "null"],
+      "description": "Final decision for this run: FRESH, REGENERATE_UPSTREAM, etc."
+    },
+    "skip_reason": {
+      "type": ["string", "null"],
+      "description": "Human-readable reason for skipping this surface (if applicable)"
+    },
+    "changed_input_fingerprints": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "List of input fingerprint field names that changed vs stored manifest"
+    },
+    "prior_manifest_ref": {
+      "type": ["string", "null"],
+      "description": "Path to the previous manifest for this product/subdomain"
+    }
+  }
+}
