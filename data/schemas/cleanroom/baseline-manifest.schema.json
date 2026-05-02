@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BaselineManifest",
+  "description": "Per-file content snapshot taken before cleanroom regeneration.",
+  "type": "object",
+  "required": ["run_id", "baseline_git_sha", "captured_at", "scope", "files"],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": { "type": "string" },
+    "baseline_git_sha": { "type": "string", "minLength": 7 },
+    "baseline_branch": { "type": "string" },
+    "captured_at": { "type": "string" },
+    "scope": {
+      "type": "object",
+      "required": ["family"],
+      "properties": {
+        "family": { "type": "string" },
+        "platform": { "type": ["string", "null"] },
+        "subdomains": { "type": "array", "items": { "type": "string" } },
+        "files": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "files": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["sha256", "size_bytes"],
+        "properties": {
+          "sha256": { "type": "string" },
+          "size_bytes": { "type": "integer" },
+          "frontmatter": {
+            "type": "object",
+            "properties": {
+              "title": { "type": ["string", "null"] },
+              "slug": { "type": ["string", "null"] },
+              "grade": { "type": ["string", "null"] },
+              "auto_updatable": { "type": ["boolean", "null"] },
+              "content_origin": { "type": ["string", "null"] },
+              "layout": { "type": ["string", "null"] },
+              "type": { "type": ["string", "null"] },
+              "evidence_present": { "type": ["boolean", "null"] },
+              "provenance_present": { "type": ["boolean", "null"] }
+            }
+          }
+        }
+      }
+    },
+    "_errors": { "type": "array", "items": { "type": "string" } }
+  }
+}

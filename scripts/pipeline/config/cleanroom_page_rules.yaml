@@ -1,0 +1,209 @@
+# cleanroom_page_rules.yaml
+# TC-S96-009: Page-type-aware editorial rules for S-96 cleanroom review classifier.
+#
+# Rules are selected by matching the page profile: subdomain + layout/type field + filename pattern.
+# The editorial_review_classifier.py loads this file and selects the most specific matching profile
+# for each file before applying verdict logic.
+#
+# Field meanings:
+#   match:                 Criteria used to select this profile (subdomain, layout, type, filename)
+#   required_frontmatter:  Fields that MUST be present in frontmatter; absence → BAD_REVERT
+#   protected_frontmatter: Fields that MUST NOT change vs baseline; change → RISKY_REVIEW
+#   evidence_required:     True → missing evidence block → BAD_REVERT
+#   claims_required:       True → invalid/missing claim IDs → BAD_REVERT
+#   apis_required:         True → API references must be traceable to api_surface.json
+#   grade_required:        True → grade field must be present
+#   grade_movement_allowed: Max grade regression levels allowed (null = not applicable)
+#   boilerplate_threshold: Max fraction of body that may be generic boilerplate (0.0-1.0)
+#   churn_tolerance:       none | low | medium — how much formatting churn is tolerated
+#   link_check:            True → check internal links exist in content tree
+#   shortcode_check:       True → check for unclosed Hugo shortcodes
+#   title_must_be_specific: True → generic/placeholder titles → BAD_REVERT
+#   author_must_be_aspose: True → author field must equal "Aspose" (blog only)
+#   path_must_be_directory: True → page must be {slug}/index.md, not {slug}.md (blog only)
+#   evidence_block_forbidden: True → presence of evidence block → RISKY_REVIEW (products only)
+
+version: "1.0"
+schema_version: "S-96-v1"
+
+profiles:
+
+  reference_page:
+    match:
+      subdomain: reference
+      layout: reference-single
+    required_frontmatter:
+      - title
+      - linkTitle
+      - layout
+      - categories
+    protected_frontmatter:
+      - linkTitle
+      - categories
+      - layout
+    evidence_required: true
+    claims_required: true
+    apis_required: true
+    grade_required: false
+    grade_movement_allowed: -1
+    boilerplate_threshold: 0.3
+    churn_tolerance: none
+    link_check: true
+    shortcode_check: true
+    title_must_be_specific: true
+    author_must_be_aspose: false
+    path_must_be_directory: false
+    evidence_block_forbidden: false
+
+  products_page:
+    match:
+      subdomain: products
+      layout: plugin
+    required_frontmatter:
+      - title
+      - description
+      - family_name
+      - plugin_platform
+      - layout
+    protected_frontmatter:
+      - layout
+      - family_name
+      - plugin_platform
+    evidence_required: false
+    claims_required: false
+    apis_required: false
+    grade_required: false
+    grade_movement_allowed: null
+    boilerplate_threshold: 0.5
+    churn_tolerance: low
+    link_check: true
+    shortcode_check: false
+    title_must_be_specific: false
+    author_must_be_aspose: false
+    path_must_be_directory: false
+    evidence_block_forbidden: true
+
+  blog_post:
+    match:
+      subdomain: blog
+    required_frontmatter:
+      - title
+      - description
+      - date
+      - author
+    protected_frontmatter:
+      - date
+      - author
+    evidence_required: true
+    claims_required: true
+    apis_required: true
+    grade_required: false
+    grade_movement_allowed: null
+    boilerplate_threshold: 0.4
+    churn_tolerance: low
+    link_check: true
+    shortcode_check: true
+    title_must_be_specific: true
+    author_must_be_aspose: true
+    path_must_be_directory: true
+    evidence_block_forbidden: false
+
+  docs_page:
+    match:
+      subdomain: docs
+      type: docs
+    required_frontmatter:
+      - title
+      - description
+      - type
+    protected_frontmatter:
+      - type
+    evidence_required: true
+    claims_required: true
+    apis_required: true
+    grade_required: false
+    grade_movement_allowed: -1
+    boilerplate_threshold: 0.35
+    churn_tolerance: low
+    link_check: true
+    shortcode_check: true
+    title_must_be_specific: true
+    author_must_be_aspose: false
+    path_must_be_directory: false
+    evidence_block_forbidden: false
+
+  kb_page:
+    match:
+      subdomain: kb
+      type: topic
+    required_frontmatter:
+      - title
+      - description
+      - type
+      - weight
+      - grade
+    protected_frontmatter:
+      - type
+      - weight
+    evidence_required: true
+    claims_required: true
+    apis_required: true
+    grade_required: true
+    grade_movement_allowed: -1
+    boilerplate_threshold: 0.3
+    churn_tolerance: none
+    link_check: true
+    shortcode_check: true
+    title_must_be_specific: true
+    author_must_be_aspose: false
+    path_must_be_directory: false
+    evidence_block_forbidden: false
+
+  section_index:
+    match:
+      filename: _index.md
+    required_frontmatter:
+      - title
+      - description
+    protected_frontmatter: []
+    evidence_required: false
+    claims_required: false
+    apis_required: false
+    grade_required: false
+    grade_movement_allowed: null
+    boilerplate_threshold: 0.6
+    churn_tolerance: medium
+    link_check: true
+    shortcode_check: false
+    title_must_be_specific: false
+    author_must_be_aspose: false
+    path_must_be_directory: false
+    evidence_block_forbidden: false
+
+# Grade ordering for regression detection (A is best, F is worst)
+grade_order:
+  - A
+  - B
+  - C
+  - D
+  - F
+
+# Churn signal definitions (used by content_diff_classifier.py)
+churn_signals:
+  - timestamp_only
+  - yaml_reorder
+  - whitespace_only
+  - line_wrap_only
+  - shortcode_format
+  - grade_churn
+  - boilerplate_added
+  - same_content_reordered
+
+# Subdomain-to-profile fallback order
+# If no profile matches by layout/type, fall back to the subdomain default
+subdomain_defaults:
+  reference: reference_page
+  blog: blog_post
+  docs: docs_page
+  kb: kb_page
+  products: products_page

@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ScopeManifest",
+  "description": "Output of cleanroom_scope.resolve(). Describes the resolved target scope.",
+  "type": "object",
+  "required": ["family", "subdomains", "locale", "content_roots", "_errors"],
+  "additionalProperties": false,
+  "properties": {
+    "family": { "type": "string" },
+    "platform": { "type": ["string", "null"] },
+    "subdomains": { "type": "array", "items": { "type": "string", "enum": ["reference", "blog", "docs", "kb", "products"] } },
+    "locale": { "type": "string" },
+    "content_roots": { "type": "object", "additionalProperties": { "type": "string" } },
+    "files": { "type": "array", "items": { "type": "string" } },
+    "generation_entry_points": { "type": "object", "additionalProperties": { "type": "object" } },
+    "validation_commands": { "type": "object", "additionalProperties": { "type": "string" } },
+    "page_type_rule_profiles": { "type": "object", "additionalProperties": { "type": "string" } },
+    "knowledge_model_path": { "type": ["string", "null"] },
+    "claims_path": { "type": ["string", "null"] },
+    "api_surface_path": { "type": ["string", "null"] },
+    "site_plan_path": { "type": ["string", "null"] },
+    "_warnings": { "type": "array", "items": { "type": "string" } },
+    "_errors": { "type": "array", "items": { "type": "string" } }
+  }
+}

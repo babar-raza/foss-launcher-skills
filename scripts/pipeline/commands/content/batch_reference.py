@@ -794,6 +794,10 @@ def run(family: str, platform: str, kind_arg: str = "all",
     Requires confirm_rebuild=True when more than REBUILD_CONFIRM_THRESHOLD pages
     would be overwritten.
     """
+    if update and rebuild_all:
+        print("STOP: --update and --rebuild-all are mutually exclusive. Use one or the other.")
+        sys.exit(2)
+
     api_surface_path = KNOWLEDGE_ROOT / family / platform / "merged" / "api_surface.json"
     if not api_surface_path.exists():
         print(f"STOP: api_surface.json not found at {api_surface_path}. "

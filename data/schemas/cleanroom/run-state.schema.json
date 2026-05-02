@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RunState",
+  "description": "Lock and resume state for a cleanroom run.",
+  "type": "object",
+  "required": ["run_id", "target", "started_at", "completed_modes", "resumable"],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": { "type": "string" },
+    "target": {
+      "type": "object",
+      "required": ["family"],
+      "properties": {
+        "family": { "type": "string" },
+        "platform": { "type": ["string", "null"] },
+        "subdomains": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "baseline_git_sha": { "type": ["string", "null"] },
+    "isolated_branch": { "type": ["string", "null"] },
+    "started_at": { "type": "string" },
+    "updated_at": { "type": ["string", "null"] },
+    "current_mode": { "type": ["string", "null"] },
+    "completed_modes": { "type": "array", "items": { "type": "string" } },
+    "failed_mode": { "type": ["string", "null"] },
+    "lock_status": { "type": "string", "enum": ["LOCKED", "UNLOCKED", "STALE"] },
+    "resumable": { "type": "boolean" },
+    "pid": { "type": ["integer", "null"] }
+  }
+}

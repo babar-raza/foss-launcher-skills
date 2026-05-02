@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DecisionLedger",
+  "description": "Per-file keep/revert outcomes from Mode 6 (apply-decision).",
+  "type": "object",
+  "required": ["run_id", "baseline_git_sha", "generated_at", "counts", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": { "type": "string" },
+    "baseline_git_sha": { "type": "string", "minLength": 7 },
+    "generated_at": { "type": "string" },
+    "keep_risky_pending": { "type": "boolean" },
+    "keep_unclear_pending": { "type": "boolean" },
+    "counts": {
+      "type": "object",
+      "properties": {
+        "kept": { "type": "integer" },
+        "reverted": { "type": "integer" },
+        "deleted": { "type": "integer" },
+        "pending_risky": { "type": "integer" },
+        "pending_unclear": { "type": "integer" }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "verdict", "action_taken", "result"],
+        "additionalProperties": false,
+        "properties": {
+          "path": { "type": "string" },
+          "verdict": {
+            "type": "string",
+            "enum": ["GOOD_KEEP", "BAD_REVERT", "RISKY_REVIEW", "UNCLEAR_NEEDS_EVIDENCE"]
+          },
+          "action_taken": {
+            "type": "string",
+            "enum": ["KEPT", "REVERTED_FROM_BASELINE", "DELETED_NEW_FILE", "LEFT_PENDING"]
+          },
+          "method": { "type": ["string", "null"] },
+          "result": {
+            "type": "string",
+            "enum": ["SUCCESS", "FAILED", "SKIPPED"]
+          },
+          "verified": { "type": ["boolean", "null"] },
+          "error": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

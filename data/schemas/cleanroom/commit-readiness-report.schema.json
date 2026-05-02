@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CommitReadinessReport",
+  "description": "Mode 8 commit-readiness checklist result and commit message template.",
+  "type": "object",
+  "required": ["run_id", "baseline_git_sha", "generated_at", "status", "checks"],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": { "type": "string" },
+    "baseline_git_sha": { "type": "string", "minLength": 7 },
+    "generated_at": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["PASS", "FAIL"]
+    },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "baseline_manifest_valid": { "type": "boolean" },
+        "diff_report_valid": { "type": "boolean" },
+        "review_report_complete": { "type": "boolean" },
+        "no_bad_revert_on_disk": { "type": "boolean" },
+        "no_unresolved_risky": { "type": "boolean" },
+        "no_unresolved_unclear": { "type": "boolean" },
+        "content_scope_clean": { "type": "boolean" },
+        "frontmatter_valid": { "type": "boolean" },
+        "audit_passed": { "type": "boolean" },
+        "pytest_passed": { "type": "boolean" },
+        "skill_run_record_exists": { "type": "boolean" },
+        "no_out_of_scope_changes": { "type": "boolean" },
+        "no_unaccepted_churn": { "type": "boolean" },
+        "no_agent_failures": { "type": "boolean" }
+      }
+    },
+    "failed_checks": { "type": "array", "items": { "type": "string" } },
+    "scope": { "type": "string" },
+    "n_kept": { "type": "integer" },
+    "n_reverted": { "type": "integer" },
+    "n_pending": { "type": "integer" },
+    "n_added": { "type": "integer" },
+    "n_edited": { "type": "integer" },
+    "n_deleted": { "type": "integer" },
+    "subdomains": { "type": "array", "items": { "type": "string" } },
+    "replay_level": { "type": "integer", "enum": [1, 2] },
+    "skills_invoked": { "type": "array", "items": { "type": "string" } },
+    "commit_message_template": { "type": ["string", "null"] }
+  }
+}

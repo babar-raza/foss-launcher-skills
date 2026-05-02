@@ -2000,3 +2000,111 @@ scripts:
     deprecated_since: null
     change_impact: null
     notes: "Governed folder slug migration: rename + source_file update + site_plan update + rollback manifest. Never adds slug: or aliases: frontmatter."
+
+  - path: scripts/pipeline/commands/ops/cleanroom_regen.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: skill
+      ref: cleanroom-regen
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_cleanroom_regen_orchestrator.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "S-96 cleanroom regen orchestrator: 8-mode workflow (inspect, snapshot, regenerate-cleanroom, diff, review, apply-decision, verify, commit-ready)"
+
+  - path: scripts/pipeline/commands/ops/cleanroom_manifest.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_cleanroom_manifest.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "S-96 baseline manifest writer: SHA256-based content snapshot with frontmatter extraction; used by cleanroom_regen.py Mode 2"
+
+  - path: scripts/pipeline/commands/ops/content_diff_classifier.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_content_diff_classifier.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "S-96 diff classifier: ADDED/EDITED/DELETED/UNCHANGED/CHURN_ONLY/OUT_OF_SCOPE per-file classification with churn signal detection"
+
+  - path: scripts/pipeline/commands/ops/editorial_review_classifier.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_editorial_review_classifier.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "S-96 editorial review classifier: page-type-aware verdict engine (GOOD_KEEP/BAD_REVERT/RISKY_REVIEW/UNCLEAR); loads cleanroom_page_rules.yaml"
+
+  - path: scripts/pipeline/commands/ops/selective_revert.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_selective_revert.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "S-96 selective revert: restores BAD_REVERT/RISKY files from baseline_git_sha (NEVER HEAD); dry-run mode; verification after revert"
+
+  - path: scripts/pipeline/lib/cleanroom_scope.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_cleanroom_scope.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "S-96 scope resolver: maps family/platform/subdomain to content paths, knowledge paths, and generation entry points; ScopeManifest dataclass"

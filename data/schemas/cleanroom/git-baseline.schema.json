@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GitBaseline",
+  "description": "Git state recorded at snapshot time.",
+  "type": "object",
+  "required": ["run_id", "baseline_git_sha", "branch", "captured_at"],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": { "type": "string" },
+    "baseline_git_sha": { "type": "string", "minLength": 7 },
+    "branch": { "type": "string" },
+    "captured_at": { "type": "string" },
+    "ahead": { "type": ["integer", "null"] },
+    "behind": { "type": ["integer", "null"] },
+    "status_short": { "type": "string" }
+  }
+}

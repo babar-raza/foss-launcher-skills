@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AgentFailures",
+  "description": "Phase B failed pages with retry hints.",
+  "type": "object",
+  "required": ["run_id", "failures"],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": { "type": "string" },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["planned_task_id", "target_path", "error", "retry_hint"],
+        "properties": {
+          "planned_task_id": { "type": "string" },
+          "target_path": { "type": "string" },
+          "subdomain": { "type": ["string", "null"] },
+          "error": { "type": "string" },
+          "retry_hint": { "type": "string" },
+          "failed_at": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}
