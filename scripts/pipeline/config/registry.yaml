@@ -1573,6 +1573,22 @@ scripts:
     deprecated_since: null
     notes: "recover content_origin from signals; has local _FRONTMATTER_RE (consolidate A2)"
 
+  - path: scripts/pipeline/commands/content/claim_report.py
+    kind: command
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: cli
+    owner_domain: claim-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "TC-CLAIM-11 — WARN-only CI report; read-only, exit 0 always; correctness verified by inspection"
+    deprecated_since: null
+    change_impact: null
+    notes: "TC-CLAIM-11 — read-only claim audit for non-reference subdomains. Checks unknown/stale/duplicate/malformed claims and page-role mismatches. Never blocks pipeline."
+
   - path: scripts/pipeline/commands/migration/fix_last_mechanism.py
     kind: one-shot
     lifecycle: maintenance
