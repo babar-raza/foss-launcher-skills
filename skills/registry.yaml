@@ -550,3 +550,9 @@ skills:
     description: Inspect any content section, detect gaps against clone-cache truth, produce read-only proposal pack
     internal: false
     script: null
+
+  - id: S-106
+    name: cleanroom-regen
+    description: 8-mode cleanroom regeneration workflow (inspect/snapshot/regen/diff/review/apply/verify/gate) for one family/platform
+    internal: false
+    script: scripts/pipeline/commands/ops/cleanroom_regen.py
