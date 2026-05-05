@@ -24,11 +24,12 @@ import yaml
 from pathlib import Path
 
 # --- Standalone repo path resolution via config_loader ---
-_HERE = Path(__file__).resolve().parent          # scripts/pipeline/
-_SCRIPTS = _HERE.parent                          # scripts/
+_HERE = Path(__file__).resolve().parent          # scripts/pipeline/commands/knowledge/
+_PIPELINE = _HERE.parent.parent                  # scripts/pipeline/
+_SCRIPTS = _HERE.parent.parent.parent            # scripts/
 import sys as _sys
-if str(_HERE) not in _sys.path:
-    _sys.path.insert(0, str(_HERE))
+if str(_PIPELINE) not in _sys.path:
+    _sys.path.insert(0, str(_PIPELINE))
 if str(_SCRIPTS) not in _sys.path:
     _sys.path.insert(0, str(_SCRIPTS))
 from config_loader import (                       # noqa: E402
@@ -37,7 +38,7 @@ from config_loader import (                       # noqa: E402
 )
 # --------------------------------------------------------
 
-from token_ops import Finding  # noqa: E402 (sibling module)
+from commands.ops.token_ops import Finding  # noqa: E402 (moved to commands/ops/)
 
 
 # ---------------------------------------------------------------------------
