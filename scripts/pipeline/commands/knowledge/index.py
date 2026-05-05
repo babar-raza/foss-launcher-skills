@@ -9,7 +9,7 @@ import sys
 import yaml
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))  # scripts/
 from config_loader import resolve_knowledge_root as _resolve_knowledge_root
 
 KNOWLEDGE_ROOT = _resolve_knowledge_root()

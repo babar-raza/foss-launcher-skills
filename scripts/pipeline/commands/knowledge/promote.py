@@ -23,7 +23,7 @@ import yaml
 from datetime import datetime, timezone
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))  # scripts/
 from config_loader import resolve_knowledge_root as _resolve_knowledge_root
 
 # Same criteria as _is_public_api_entry in index.py — must stay in sync.
