@@ -15,8 +15,11 @@ Atomic write: {path}.tmp → os.replace → {path} so interruption never leaves 
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
+import re
+import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
@@ -267,3 +270,139 @@ def migrate_from_missing(
         "prior_manifest_ref": None,
     }
     return FreshnessManifest(data)
+
+
+# ---------------------------------------------------------------------------
+# TC-A7-004: Real output content hash (replaces placeholder)
+# ---------------------------------------------------------------------------
+
+# Pattern matching a genuine sha256 hash: exactly 64 lowercase hex chars after "sha256:".
+_REAL_HASH_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
+
+
+def is_placeholder_hash(h: Optional[str]) -> bool:
+    """Return True if h is a synthetic placeholder, not a real content hash.
+
+    A real hash matches sha256:<64 lowercase hex chars>.
+    Anything else that starts with "sha256:" is a placeholder —
+    e.g. "sha256:PILOT_BASELINE_OUTPUT" or "sha256:SYNTHETIC_TC108_CHANGED".
+    """
+    if h is None:
+        return False
+    if not h.startswith("sha256:"):
+        return False
+    return not bool(_REAL_HASH_RE.match(h))
+
+
+def compute_output_content_hash(content_root: Path) -> Optional[str]:
+    """Compute a deterministic sha256 hash over all expected output files.
+
+    TC-A7-004: Replaces the placeholder "sha256:PILOT_BASELINE_OUTPUT" with a
+    real hash that enables RECONCILE_DRIFTED detection.
+
+    Algorithm:
+      1. Find all *.md files under content_root (recursive).
+      2. Sort paths lexicographically (using forward-slash-normalised relative paths).
+      3. For each file: concatenate "<relative_path>\\n<content>\\n" (line endings normalised).
+      4. SHA256 the entire concatenation.
+
+    Returns:
+      sha256:<hex> string, or None if content_root does not exist or has no .md files.
+    """
+    if not content_root.is_dir():
+        return None
+    files = sorted(content_root.rglob("*.md"))
+    if not files:
+        return None
+    h = hashlib.sha256()
+    for f in files:
+        rel = str(f.relative_to(content_root)).replace("\\", "/")
+        h.update(rel.encode("utf-8"))
+        h.update(b"\n")
+        content = f.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+        h.update(content)
+        h.update(b"\n")
+    return f"sha256:{h.hexdigest()}"
+
+
+# ---------------------------------------------------------------------------
+# TC-A7-005: Manifest rebuild policy — dirty state detection
+# ---------------------------------------------------------------------------
+
+
+def check_dirty_state(repo_root: Path, generator_path: Optional[str]) -> tuple:
+    """Check whether the generator script has uncommitted working tree changes.
+
+    Used to set dirty_state=True in the manifest when a generator file has been
+    modified but not committed. A manifest with dirty_state=True must not be used
+    as FRESH closure evidence (the generator_code_hash is transient).
+
+    Args:
+        repo_root: Repository root directory.
+        generator_path: Relative path to the generator script (e.g.
+            "scripts/pipeline/commands/content/batch_reference.py"), or None.
+
+    Returns:
+        (is_dirty, dirty_files) where is_dirty=True if the generator has uncommitted
+        changes, and dirty_files lists the modified paths reported by git status.
+    """
+    if not generator_path:
+        return False, []
+    try:
+        result = subprocess.run(
+            ["git", "status", "--porcelain", generator_path],
+            cwd=str(repo_root),
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        dirty_files = [
+            line.strip() for line in result.stdout.splitlines() if line.strip()
+        ]
+        return bool(dirty_files), dirty_files
+    except (subprocess.TimeoutExpired, OSError):
+        return False, []
+
+
+def validate_for_fresh(
+    input_fingerprints: dict,
+    output_content_hash: Optional[str],
+    generator_path: Optional[str] = None,
+    repo_root: Optional[Path] = None,
+    fingerprints_required: Optional[list] = None,
+) -> list:
+    """Validate that all conditions are met before a manifest may be set to FRESH.
+
+    Returns a list of violation strings. Empty list = all conditions met.
+
+    Conditions (TC-A7-005):
+      1. All required input fingerprints must be non-None.
+      2. output_content_hash must be a real hash (not None, not a placeholder).
+      3. generator_path (if any) must not have uncommitted working tree changes.
+    """
+    violations: list = []
+
+    # Check required fingerprints
+    required = fingerprints_required or list(input_fingerprints.keys())
+    missing = [k for k in required if input_fingerprints.get(k) is None]
+    if missing:
+        violations.append(f"Required fingerprints are None: {missing}")
+
+    # Check output hash
+    if output_content_hash is None:
+        violations.append("output_content_hash is None — must be computed before FRESH status")
+    elif is_placeholder_hash(output_content_hash):
+        violations.append(
+            f"output_content_hash is a placeholder ({output_content_hash!r}) — "
+            "compute real hash with compute_output_content_hash()"
+        )
+
+    # Check dirty state
+    if generator_path and repo_root is not None:
+        is_dirty, dirty_files = check_dirty_state(repo_root, generator_path)
+        if is_dirty:
+            violations.append(
+                f"Generator has uncommitted changes — dirty_state=True: {dirty_files}"
+            )
+
+    return violations

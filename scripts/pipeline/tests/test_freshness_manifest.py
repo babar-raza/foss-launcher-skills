@@ -1,4 +1,4 @@
-"""Tests for freshness_manifest.py — Phase 1 (TC-PROD-001).
+"""Tests for freshness_manifest.py — Phase 1 (TC-PROD-001) + TC-A7-004/005.
 
 Covers:
   test_load_save_roundtrip
@@ -13,6 +13,19 @@ Covers:
   test_load_invalid_status_returns_none
   test_save_creates_parent_dirs
   test_manifest_status_vocabulary_complete
+  TC-A7-004:
+  test_output_content_hash_is_real_not_placeholder
+  test_output_content_hash_stable_for_same_content
+  test_modified_expected_output_triggers_different_hash
+  test_missing_expected_output_returns_none
+  test_output_content_hash_normalizes_line_endings
+  TC-A7-005:
+  test_is_placeholder_hash_detects_placeholder
+  test_is_placeholder_hash_accepts_real_hash
+  test_validate_for_fresh_passes_all_conditions
+  test_validate_for_fresh_fails_on_missing_required_fingerprint
+  test_validate_for_fresh_fails_on_placeholder_hash
+  test_validate_for_fresh_fails_on_none_output_hash
 """
 
 from __future__ import annotations
@@ -286,3 +299,164 @@ def test_manifest_status_vocabulary_complete():
         "PARTIAL_PASS",
     }
     assert VALID_STATUSES == expected
+
+
+# ---------------------------------------------------------------------------
+# TC-A7-004 tests: compute_output_content_hash
+# ---------------------------------------------------------------------------
+
+from freshness_manifest import compute_output_content_hash, is_placeholder_hash, validate_for_fresh  # noqa: E402
+
+
+class TestComputeOutputContentHash:
+    """TC-A7-004: deterministic, real content hash."""
+
+    def test_output_content_hash_is_real_not_placeholder(self, tmp_path):
+        """Hash of real files must not match placeholder pattern."""
+        (tmp_path / "a.md").write_text("hello world\n", encoding="utf-8")
+        h = compute_output_content_hash(tmp_path)
+        assert h is not None
+        assert h.startswith("sha256:")
+        # Real hash has 64 lowercase hex chars, not uppercase letters
+        assert not is_placeholder_hash(h)
+        assert len(h) == len("sha256:") + 64
+
+    def test_output_content_hash_stable_for_same_content(self, tmp_path):
+        """Same files produce the same hash across two calls."""
+        (tmp_path / "page.md").write_text("content\n", encoding="utf-8")
+        (tmp_path / "other.md").write_text("other\n", encoding="utf-8")
+        h1 = compute_output_content_hash(tmp_path)
+        h2 = compute_output_content_hash(tmp_path)
+        assert h1 == h2
+
+    def test_modified_expected_output_triggers_different_hash(self, tmp_path):
+        """Modifying one file changes the hash."""
+        f = tmp_path / "page.md"
+        f.write_text("original\n", encoding="utf-8")
+        h1 = compute_output_content_hash(tmp_path)
+        f.write_text("modified\n", encoding="utf-8")
+        h2 = compute_output_content_hash(tmp_path)
+        assert h1 != h2
+
+    def test_missing_expected_output_returns_none(self, tmp_path):
+        """Non-existent directory returns None (triggers RECONCILE_MISSING in engine)."""
+        missing = tmp_path / "nonexistent"
+        assert compute_output_content_hash(missing) is None
+
+    def test_empty_directory_returns_none(self, tmp_path):
+        """Directory with no .md files returns None."""
+        (tmp_path / "other.txt").write_text("hello")
+        assert compute_output_content_hash(tmp_path) is None
+
+    def test_output_content_hash_normalizes_line_endings(self, tmp_path):
+        """CRLF and LF content produce the same hash (line-ending normalisation)."""
+        lf_dir = tmp_path / "lf"
+        lf_dir.mkdir()
+        crlf_dir = tmp_path / "crlf"
+        crlf_dir.mkdir()
+        (lf_dir / "page.md").write_bytes(b"hello\nworld\n")
+        (crlf_dir / "page.md").write_bytes(b"hello\r\nworld\r\n")
+        assert compute_output_content_hash(lf_dir) == compute_output_content_hash(crlf_dir)
+
+    def test_added_file_changes_hash(self, tmp_path):
+        """Adding a new .md file changes the hash."""
+        (tmp_path / "a.md").write_text("a\n", encoding="utf-8")
+        h1 = compute_output_content_hash(tmp_path)
+        (tmp_path / "b.md").write_text("b\n", encoding="utf-8")
+        h2 = compute_output_content_hash(tmp_path)
+        assert h1 != h2
+
+
+# ---------------------------------------------------------------------------
+# TC-A7-005 tests: is_placeholder_hash and validate_for_fresh
+# ---------------------------------------------------------------------------
+
+
+class TestIsPlaceholderHash:
+    """TC-A7-005: placeholder detection."""
+
+    def test_detects_known_placeholder(self):
+        """PILOT_BASELINE_OUTPUT is a placeholder."""
+        assert is_placeholder_hash("sha256:PILOT_BASELINE_OUTPUT") is True
+
+    def test_detects_uppercase_placeholder(self):
+        """ALL_CAPS strings after sha256: are placeholders."""
+        assert is_placeholder_hash("sha256:SYNTHETIC_TC108_CHANGED") is True
+
+    def test_accepts_real_hash(self):
+        """64-char lowercase hex is a real hash."""
+        real = "sha256:" + "a" * 64
+        assert is_placeholder_hash(real) is False
+
+    def test_accepts_real_hash_mixed(self):
+        """Real sha256 hashes contain only hex digits."""
+        real = "sha256:20955f35432933bbe7927b3d21d554f016e9236ae1696e662f363e2fc79e511c"
+        assert is_placeholder_hash(real) is False
+
+    def test_none_is_not_placeholder(self):
+        """None is not a placeholder (it is missing)."""
+        assert is_placeholder_hash(None) is False
+
+
+class TestValidateForFresh:
+    """TC-A7-005: manifest rebuild policy validation."""
+
+    def _fingerprints(self, **overrides):
+        base = {
+            "upstream_repo_sha": "abc123",
+            "generator_code_hash": "sha256:" + "a" * 64,
+        }
+        base.update(overrides)
+        return base
+
+    def test_passes_all_conditions(self):
+        """No violations when all fingerprints present and output hash is real."""
+        fps = self._fingerprints()
+        real_hash = "sha256:" + "b" * 64
+        violations = validate_for_fresh(
+            fps,
+            output_content_hash=real_hash,
+            fingerprints_required=list(fps.keys()),
+        )
+        assert violations == []
+
+    def test_fails_on_missing_required_fingerprint(self):
+        """Missing required fingerprint produces a violation."""
+        fps = {"upstream_repo_sha": None, "generator_code_hash": "sha256:" + "a" * 64}
+        violations = validate_for_fresh(
+            fps,
+            output_content_hash="sha256:" + "b" * 64,
+            fingerprints_required=["upstream_repo_sha", "generator_code_hash"],
+        )
+        assert any("upstream_repo_sha" in v for v in violations)
+
+    def test_fails_on_placeholder_hash(self):
+        """Placeholder output_content_hash produces a violation."""
+        fps = self._fingerprints()
+        violations = validate_for_fresh(
+            fps,
+            output_content_hash="sha256:PILOT_BASELINE_OUTPUT",
+            fingerprints_required=list(fps.keys()),
+        )
+        assert any("placeholder" in v for v in violations)
+
+    def test_fails_on_none_output_hash(self):
+        """None output_content_hash produces a violation."""
+        fps = self._fingerprints()
+        violations = validate_for_fresh(
+            fps,
+            output_content_hash=None,
+            fingerprints_required=list(fps.keys()),
+        )
+        assert any("None" in v for v in violations)
+
+    def test_no_violation_when_generator_path_none(self):
+        """No dirty-state violation when generator_path is None."""
+        fps = self._fingerprints()
+        violations = validate_for_fresh(
+            fps,
+            output_content_hash="sha256:" + "c" * 64,
+            generator_path=None,
+            fingerprints_required=list(fps.keys()),
+        )
+        assert violations == []

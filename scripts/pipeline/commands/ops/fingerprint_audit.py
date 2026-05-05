@@ -77,17 +77,26 @@ def run_audit(
             fp = collect_input_fingerprints(product, surface_name, registry, repo_root=root)
             live = fp.to_dict()
             missing_required = [k for k in required if live.get(k) is None]
+            # TC-A7-007: fingerprints that are None but NOT in fingerprints_required
+            # are N/A for this surface (e.g. skill_version_hash for validate_only surfaces).
+            # They are reported as WARN, not FAIL.
+            not_applicable = [k for k in live if k not in required and live.get(k) is None]
             errors = fp.collection_errors
 
-            status = "OK" if (not missing_required and not errors) else "FAIL"
-            if status == "FAIL":
+            if missing_required or errors:
+                status = "FAIL"
                 all_ok = False
+            elif not_applicable:
+                status = "WARN_NA"  # Not a failure — fingerprint is N/A for this surface
+            else:
+                status = "OK"
 
             results.append({
                 "product": product,
                 "surface": surface_name,
                 "status": status,
                 "missing_required": missing_required,
+                "not_applicable": not_applicable,
                 "collection_errors": errors,
                 "fingerprints": {
                     k: (v[:40] if isinstance(v, str) and len(v) > 40 else v)
@@ -103,6 +112,8 @@ def run_audit(
         "products_count": len(products),
         "results_count": len(results),
         "fail_count": sum(1 for r in results if r.get("status") == "FAIL"),
+        # TC-A7-007: WARN_NA = fingerprint is None but not required for this surface (not a failure)
+        "warn_na_count": sum(1 for r in results if r.get("status") == "WARN_NA"),
         "results": results,
     }
 
@@ -130,6 +141,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Fingerprint audit: {report['overall']}")
     print(f"  Products: {report['products_count']}  Surfaces: {len(report['surfaces_audited'])}")
     print(f"  Failures: {report['fail_count']}/{report['results_count']}")
+    print(f"  WARN_NA:  {report['warn_na_count']}/{report['results_count']}  (N/A fingerprints — not failures)")
     print(f"  Report:   {args.output}")
 
     if report["overall"] == "FAIL":
