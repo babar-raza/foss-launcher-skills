@@ -139,3 +139,74 @@ These are documented PARTIAL differences that are **accepted and require no furt
 - [x] Closure report confirms no writes to aspose.org/content in any session
 - [x] CI (GitHub Actions) extended to 4 workflows
 - [x] TC-V complete — 0 UNVERIFIED skills remaining
+
+
+---
+
+## Phase 2 Re-evaluation Closure (2026-05-05)
+
+**Re-evaluation trigger:** aspose.org received 62+ commits since 2026-04-27 closure.
+**Branch:** `parity-phase2-current-state-migration`
+**Sessions:** 1 (2026-05-05)
+
+### New Gaps Discovered and Closed
+
+| Gap | Description | Status | Commit |
+|-----|-------------|--------|--------|
+| G-NEW-01 | cleanroom-regen skill (S-97/S-106) absent | CLOSED | 54108e4 |
+| G-NEW-02 | scripts/pipeline/commands/ architecture absent | CLOSED | 82b156a |
+| G-NEW-03 | 83 genuinely new scripts (14 ADOPT/ADAPT) | PARTIAL | 82b156a, 54108e4, df68879 |
+| G-NEW-04 | Claims pipeline infrastructure absent | CLOSED | df68879 |
+| G-NEW-12 | scripts/pipeline/lib/ (10 modules ported) | PARTIAL | 82b156a |
+| G-NEW-13 | scripts/pipeline/core/ (7 modules ported) | PARTIAL | 82b156a |
+| G-NEW-14 | scripts/pipeline/config/registry.yaml absent | CLOSED | 82b156a |
+
+### Explicitly Deferred
+
+| Gap | Description | Rationale |
+|-----|-------------|-----------|
+| G-NEW-05 | Kilocode integration layer | aspose-site-specific |
+| G-NEW-06 | 80 SKILL.md contract updates (65 deferred) | 11 highest-priority updated |
+| G-NEW-07 | seo-review skill | No backing script; no P1 need |
+| G-NEW-08 | translate meta-skill wrapper | Lower priority |
+| G-NEW-09 | CI check scripts (54 .py + 19 .sh) | aspose CI structure too site-specific |
+| G-NEW-10/11 | PreToolUse hook matchers | Pending governance decision |
+| G-NEW-15 | check_pipeline_registration.py CI | Deferred 1 sprint |
+
+### Implementation Summary
+
+| Phase | Description | Commits |
+|-------|-------------|---------|
+| Phase 3 | Branch + baseline docs | abaa7d5 |
+| Phase 4 (docs) | Migration map, gap-report update, script classification | 1f67483 |
+| Phase 4 (impl) | commands/ directory structure (7 domains, 26 scripts moved) | 82b156a |
+| Phase 5 | cleanroom-regen (S-106) + 5 supporting ops scripts | 54108e4 |
+| Phase 6 | Claims pipeline (claim_report.py, knowledge_coverage.py) + knowledge_core fix | df68879 |
+| Phase 7 | 11 skill contracts + registry updated to commands/ paths; embed/index/promote ported | d8e4610, 6434c3a |
+
+### Verification Results (Phase 8)
+
+| Check | Result |
+|-------|--------|
+| VER-01: validate_skills.py | PASS (89 skills, 7 internal, 0 violations) |
+| VER-03: Import smoke tests (cleanroom_regen, claim_report, knowledge_coverage, embed, index, promote) | PASS |
+| VER-04: cleanroom_regen.py --help | PASS (8 modes shown) |
+| VER-05: claim_report.py --help | PASS |
+| VER-06: pytest tests/ | PASS (621 passed, 15 skipped) |
+| VER-08: aspose.org/content/ writes | PASS (0 content files modified) |
+
+### Skills Count After Phase 2
+
+| Metric | Before Phase 2 | After Phase 2 |
+|--------|---------------|--------------|
+| Total skills | 88 | 89 |
+| User-callable skills | 81 | 82 |
+| Pipeline scripts in commands/ | 0 | 37+ |
+| Skill contracts referencing commands/ | ~11 | ~22 |
+
+### Safety Audit
+
+- No writes to `aspose.org/content/` at any point in Phase 2
+- All scripts read from aspose.org as read-only source
+- All writes go exclusively to foss-launcher-skills-gitlab on branch `parity-phase2-current-state-migration`
+- Migration map and evidence files committed before implementation began
