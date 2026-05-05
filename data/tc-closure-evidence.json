@@ -89,5 +89,38 @@
       "harness_pilot": "TC-PILOT-001 PASS, TC-PILOT-003 PASS, 3x idempotency FRESH"
     },
     "notes": "TC-HEAL-001 fixed clone cache path (was family/platform subdirectory, now flat aspose_family_platform via core.clone_cache.clone_path). TC-HEAL-002 fixed products.json lookup (was slug/id fields, now family/platform list fields). Both fixes verified with live collection across 8 products."
+  },
+
+  "TC-A7-amendment8": {
+    "status": "CLOSED",
+    "description": "Amendment 7 remediation sprint complete (2026-05-05). All three critical blockers resolved.",
+    "closure_date": "2026-05-05",
+    "commits": [
+      "c88f4c32b48 — fix(pipeline): correct _LIB_DIR path in batch_reference.py (TC-A7-003)",
+      "6dcd71e0970 — fix(pipeline): Amendment 7 remediation — output hashing, manifest policy, fingerprint audit (TC-A7-004/005/006/007)"
+    ],
+    "tc_closures": [
+      "TC-A7-003: batch_reference.py path fix; generator_code_hash consistent (committed=working_tree)",
+      "TC-A7-004: compute_output_content_hash() — real sha256 over 160 .md files",
+      "TC-A7-005: validate_for_fresh() + check_dirty_state() enforce conditions before FRESH",
+      "TC-A7-006: skill_version_hash removed from fingerprints_required for validate_only surfaces",
+      "TC-A7-007: fingerprint_audit.py WARN_NA vs FAIL — 0/80 FAIL confirmed",
+      "TC-A7-009: all 4 requalification gates PASS",
+      "TC-PILOT-004: 3x FRESH idempotency requalified",
+      "TC-MON-002: 16/16 ALIGNED, 0 DANGEROUS",
+      "TC-MON-003: 0/80 FAIL full-surface audit"
+    ],
+    "manifest_state": {
+      "product": "cells/java",
+      "subdomain": "reference",
+      "manifest_status": "FRESH",
+      "run_id": "amendment7-rebuild-20260505",
+      "generator_code_hash": "sha256:c2d9b03f96c00ab7bf7ab09293c219f7 (matches committed batch_reference.py)",
+      "output_content_hash": "sha256:7d100030e22dc893c1c71a29e25ef084 (real hash over 160 .md files)",
+      "all_fingerprints_non_null": true
+    },
+    "test_results": "4020 passed, 16 skipped, 0 failed",
+    "shadow_comparison": "16/16 ALIGNED, 0 DANGEROUS",
+    "enforced_mode": "HARD BLOCK — refresh_reconciliation_enforced=false (unchanged)"
   }
 }
