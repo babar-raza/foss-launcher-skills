@@ -142,3 +142,66 @@ to that site deployment.
 - All classification decisions are based on script headers and declared purpose
 - No test runs performed against aspose.org content (read-only inspection only)
 - foss-launcher is the ONLY write target for ported scripts
+
+
+---
+
+## Deep Inspection Results (2026-05-05 — Subagent Analysis)
+
+Second-pass classification based on 80-100 line inspection of each script
+plus key dependency chain analysis.
+
+### Final Classification Table (14 Scripts)
+
+| Script | Final Classification | Key Evidence |
+|--------|---------------------|-------------|
+| `skill_context.py` | **ADOPT** | Generic governance marker system; no aspose coupling; `configure()` function for test/reuse override |
+| `content_diff_classifier.py` | **ADOPT** | Pure diff logic; works on any baseline manifest; no aspose imports |
+| `editorial_review_classifier.py` | **ADOPT** | Verdict logic (GOOD_KEEP/BAD_REVERT/RISKY_REVIEW/UNCLEAR) domain-agnostic; rules from configurable YAML |
+| `selective_revert.py` | **ADOPT** | Pure git revert engine; no aspose hardcoding |
+| `check_grade_integrity.py` | **ADOPT** | Generic YAML frontmatter validator; parameterizable grade keys; no aspose imports |
+| `cleanroom_regen.py` | **ADAPT** | `parents[4]` repo root detection; `data/schemas/cleanroom/` schema paths; imports `lib.cleanroom_scope` |
+| `cleanroom_manifest.py` | **ADAPT** | Depends on `ScopeManifest` class from `lib.cleanroom_scope`; frontmatter keys (auto_updatable, content_origin) aspose-specific |
+| `claim_report.py` | **ADAPT** | CLM-/ERC- patterns are aspose governance identifiers; imports `evidence.claim_policy` |
+| `knowledge_coverage.py` | **ADAPT** | Disposition taxonomy (USED_EVIDENCE, SURFACE_ONLY, EXCLUDED_*) aspose-specific; imports `content_discovery` |
+| `structural_lock.py` | **ADAPT** | Imports `provenance` module; checks aspose-specific frontmatter keys (auto_updatable, provenance_recovery_note) |
+| `refresh_review.py` | **ADAPT** | Hardcoded `_SUBDOMAIN_ORDER = ["docs", "kb", "blog", "products", "reference"]` |
+| `kilocode_gate.py` | **ADAPT** | Enforces aspose AGENTS.md §6a skill-first rules; imports aspose `path_guard` |
+| `blog_folder_migrate.py` | **ADAPT** | Imports `lib.blog_slug_policy`; hardcoded `content/blog.aspose.org/` structure |
+| `check_grade_downgrade.py` | **ADAPT** | Imports aspose `grade_writer`, `no_downgrade_guard`; hardcoded `reports/grade_manifest.json` |
+
+**Distribution:** 5 ADOPT (direct port), 9 ADAPT (path/config changes), 0 SKIP, 0 DEFER
+
+### Key Dependency Chains
+
+**Aspose-specific libraries (block porting):**
+- `lib.cleanroom_scope` — family/platform/subdomain mapping (aspose product taxonomy)
+- `lib.blog_slug_policy` — blog slug validation rules (aspose blog governance)
+- `lib.provenance` — frontmatter provenance field reader/writer
+- `lib.grade_writer` — grade manifest handling
+- `evidence.claim_policy` — CLM-/ERC- claim validation
+- `content_discovery` — content tree traversal and subdomain inference
+
+**Portable libraries (adopt freely):**
+- `core.env_loader` — .env loading
+- `core.markdown` — YAML frontmatter parsing
+- `lib.path_utils.repo_rel` — repo-relative paths
+
+### Phase 2 Port Status (Cross-Reference)
+
+| Script | Classification | Ported in Phase 2? | Note |
+|--------|---------------|-------------------|------|
+| `cleanroom_regen.py` | ADAPT | YES (commit 54108e4) | pytest path adapted |
+| `cleanroom_manifest.py` | ADAPT | YES (commit 54108e4) | verbatim copy (ScopeManifest resolved by foss cleanroom_scope) |
+| `content_diff_classifier.py` | ADOPT | YES (commit 54108e4) | verbatim copy |
+| `editorial_review_classifier.py` | ADOPT | YES (commit 54108e4) | verbatim copy |
+| `selective_revert.py` | ADOPT | YES (commit 54108e4) | verbatim copy |
+| `claim_report.py` | ADAPT | YES (commit df68879) | evidence.claim_policy replaced with stub |
+| `knowledge_coverage.py` | ADAPT | YES (commit df68879) | disposition taxonomy simplified for foss |
+| `skill_context.py` | ADOPT | NO | deferred (governance hooks not yet wired) |
+| `structural_lock.py` | ADAPT | NO | deferred (provenance module port pending) |
+| `refresh_review.py` | ADAPT | NO | deferred (ops phase) |
+| `kilocode_gate.py` | ADAPT | NO | deferred (G-NEW-05 aspose-specific) |
+| `blog_folder_migrate.py` | ADAPT | NO | deferred (SKIP for foss — blog.aspose.org structure) |
+| `check_grade_downgrade.py` | ADAPT | NO | deferred (CI scripts G-NEW-09) |
+| `check_grade_integrity.py` | ADOPT | NO | deferred (CI scripts G-NEW-09) |
