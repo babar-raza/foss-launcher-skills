@@ -1,0 +1,142 @@
+# scripts/pipeline/config/registry.yaml
+# Script registry for foss-launcher pipeline scripts.
+# Maps script names to their domain, purpose, and dependent skills.
+#
+# Format:
+#   name: script filename (without path)
+#   domain: content | diagnostics | governance | healing | knowledge | launch | ops
+#   purpose: one-line description
+#   skills: list of skill slugs that invoke this script
+#   ported_from: aspose.org source path (if applicable)
+#   status: active | placeholder | adapted
+
+scripts:
+
+  # ops domain
+  - name: cleanroom_regen.py
+    domain: ops
+    purpose: "8-mode cleanroom regeneration orchestrator (S-97)"
+    skills: [cleanroom-regen]
+    ported_from: scripts/pipeline/commands/ops/cleanroom_regen.py
+    status: active
+
+  - name: cleanroom_manifest.py
+    domain: ops
+    purpose: "Baseline snapshot writer for cleanroom regen"
+    skills: [cleanroom-regen]
+    ported_from: scripts/pipeline/commands/ops/cleanroom_manifest.py
+    status: active
+
+  - name: content_diff_classifier.py
+    domain: ops
+    purpose: "Classifies content changes (ADDED/EDITED/DELETED) vs baseline"
+    skills: [cleanroom-regen]
+    ported_from: scripts/pipeline/commands/ops/content_diff_classifier.py
+    status: active
+
+  - name: editorial_review_classifier.py
+    domain: ops
+    purpose: "Applies editorial rubric to classify ADDED/EDITED files"
+    skills: [cleanroom-regen]
+    ported_from: scripts/pipeline/commands/ops/editorial_review_classifier.py
+    status: active
+
+  - name: selective_revert.py
+    domain: ops
+    purpose: "Reverts BAD_REVERT files to baseline SHA"
+    skills: [cleanroom-regen]
+    ported_from: scripts/pipeline/commands/ops/selective_revert.py
+    status: active
+
+  - name: session_ledger.py
+    domain: ops
+    purpose: "Session tracking and commit provenance"
+    skills: [commit, session-start]
+    moved_from: scripts/pipeline/session_ledger.py
+    status: active
+
+  - name: skill_run_manager.py
+    domain: ops
+    purpose: "Records skill run outcomes for audit trail"
+    skills: [commit]
+    moved_from: scripts/pipeline/skill_run_manager.py
+    status: active
+
+  - name: harvest_ledger.py
+    domain: ops
+    purpose: "Harvest ledger for batch operations"
+    skills: []
+    moved_from: scripts/pipeline/harvest_ledger.py
+    status: active
+
+  - name: report_extract.py
+    domain: ops
+    purpose: "Extracts structured data from pipeline reports"
+    skills: []
+    moved_from: scripts/pipeline/report_extract.py
+    status: active
+
+  # governance domain
+  - name: skill_context.py
+    domain: governance
+    purpose: "Active-skill state machine; PreToolUse governance enforcement"
+    skills: [cleanroom-regen]
+    ported_from: scripts/pipeline/commands/governance/skill_context.py
+    status: active
+
+  - name: no_downgrade_guard.py
+    domain: governance
+    purpose: "Blocks grade downgrades in content commits"
+    skills: [commit]
+    moved_from: scripts/pipeline/no_downgrade_guard.py
+    status: active
+
+  - name: plan_check.py
+    domain: governance
+    purpose: "Validates plan format before execution"
+    skills: [plan-normalize]
+    moved_from: scripts/pipeline/plan_check.py
+    status: active
+
+  # content domain
+  - name: claim_report.py
+    domain: content
+    purpose: "WARN-only CI claim report for non-reference subdomains"
+    skills: [knowledge-coverage-audit]
+    ported_from: scripts/pipeline/commands/content/claim_report.py
+    status: active
+
+  - name: knowledge_coverage.py
+    domain: knowledge
+    purpose: "Knowledge coverage tracking - per-claim disposition"
+    skills: [knowledge-coverage-audit]
+    ported_from: scripts/pipeline/commands/knowledge/knowledge_coverage.py
+    status: active
+
+  - name: remediate.py
+    domain: content
+    purpose: "Batch content remediation"
+    skills: [gap-apply, heal-batch]
+    moved_from: scripts/pipeline/remediate.py
+    status: active
+
+  - name: backtrack_controller.py
+    domain: healing
+    purpose: "Causal backtrack controller for healing pipeline"
+    skills: [causal-backtrack]
+    moved_from: scripts/pipeline/backtrack_controller.py
+    status: active
+
+  - name: enrich.py
+    domain: knowledge
+    purpose: "LLM-based knowledge enrichment"
+    skills: [knowledge-enrich]
+    moved_from: scripts/pipeline/enrich.py
+    status: active
+
+  - name: site_planner.py
+    domain: launch
+    purpose: "Site planning - determine pages to create/update/remove"
+    skills: [site-plan, launch-product]
+    moved_from: scripts/pipeline/org_scanner.py
+    status: active
