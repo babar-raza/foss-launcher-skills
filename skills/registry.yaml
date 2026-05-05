@@ -280,7 +280,7 @@ skills:
     name: knowledge-enrich
     description: Generate LLM-enriched semantic claims from scout artifacts; writes enriched_claims.json
     internal: false
-    script: null
+    script: scripts/pipeline/enrich.py
 
   - id: S-62
     name: gap-eval
@@ -523,5 +523,30 @@ skills:
   - id: S-101
     name: locale-patch
     description: Propagate targeted text fixes from fixed English source to all locale translation copies
+    internal: false
+    script: null
+
+  # TC-S-01 to TC-S-04: New skills ported from aspose.org S-93 to S-96 (added 2026-04-24)
+  - id: S-102
+    name: repo-patrol
+    description: Scan GitHub orgs for new FOSS repos, score confidence, produce patrol_report.json
+    internal: false
+    script: null  # scripts/pipeline/repo_patrol.py pending port (TC-P)
+
+  - id: S-103
+    name: change-sweep
+    description: Batch SHA comparison across all active products, produce sweep_report.json; read-only
+    internal: false
+    script: null  # scripts/pipeline/repo_patrol.py pending port (TC-P)
+
+  - id: S-104
+    name: discovery-triage
+    description: Route patrol/sweep reports to backlog actions; MVP never directly invokes S-12 or S-84
+    internal: false
+    script: null
+
+  - id: S-105
+    name: section-enhance
+    description: Inspect any content section, detect gaps against clone-cache truth, produce read-only proposal pack
     internal: false
     script: null

@@ -1,47 +1,56 @@
-# Skill Parity Program — Artifact Index
+# Parity Documents
 
-This directory contains all artifacts produced by the aspose.org → foss-launcher-skills-gitlab
-skill parity and migration program. Treat these files as living documents; they are updated
-as each taskcard completes.
+**Program:** Skill Parity Migration — aspose.org to foss-launcher-skills-gitlab
+**Status:** COMPLETE (2026-04-27)
+**All gaps closed. TC-V complete. Closure report signed off.**
 
-## Program Goal
+---
 
-Ensure `foss-launcher-skills-gitlab` provides equivalent or better practical skill features
-and behavior as the embedded skills system in `aspose.org`, while remaining cleaner,
-better organized, and better governed.
+## Artifact Status
 
-## Reference Repositories
+| Artifact | Status | Last Updated | Description |
+|----------|--------|-------------|-------------|
+| [inventory-aspose.md](inventory-aspose.md) | CURRENT | 2026-04-27 | 96-skill inventory of aspose.org |
+| [inventory-foss.md](inventory-foss.md) | CURRENT | 2026-04-27 | 88-skill inventory of foss-launcher |
+| [parity-matrix.md](parity-matrix.md) | CURRENT | 2026-04-27 Session 3 | Full parity comparison; 0 UNVERIFIED |
+| [gap-report.md](gap-report.md) | CURRENT | 2026-04-27 Session 3 | All gaps closed (G-001 to G-086) |
+| [verification-log.md](verification-log.md) | CURRENT | 2026-04-27 Session 3 | Evidence for all 3 sessions |
+| [closure-report.md](closure-report.md) | COMPLETE | 2026-04-27 Session 3 | Program signed off |
 
-| Repo | Role | Path |
-|------|------|------|
-| `aspose.org` | Reference implementation (READ-ONLY) | `D:\onedrive\Documents\GitHub\aspose.org` |
-| `foss-launcher-skills-gitlab` | Target (all work lands here) | `C:\Users\prora\OneDrive\Documents\GitHub\foss-launcher-skills-gitlab` |
+---
 
-## Artifacts
+## Summary
 
-| File | Status | Description |
-|------|--------|-------------|
-| [inventory-aspose.md](inventory-aspose.md) | COMPLETE | Full normalized skill inventory for aspose.org (76 skills) |
-| [inventory-foss.md](inventory-foss.md) | COMPLETE | Full normalized skill inventory for foss-launcher (42 skills) |
-| [parity-matrix.md](parity-matrix.md) | COMPLETE | Cross-repo capability comparison with parity status |
-| [gap-report.md](gap-report.md) | COMPLETE | All gaps classified with evidence and priority |
-| [id-mapping.md](../../docs/id-mapping.md) | PENDING | Cross-reference of aspose.org S-XX IDs to foss-launcher IDs |
-| [verification-log.md](verification-log.md) | PENDING | Non-destructive verification evidence |
-| [closure-report.md](closure-report.md) | PENDING | Final parity closure summary |
+| Metric | Value |
+|--------|-------|
+| Total aspose skills | 96 |
+| Total foss skills | 88 |
+| Matched skill pairs | 76 |
+| FUNCTIONAL parity | 25 |
+| PARTIAL parity | 51 |
+| UNVERIFIED | 0 |
+| Open gaps | 0 |
 
-## Key Findings (Summary)
+---
 
-- **aspose.org:** 76 skills, 8 internal, 68 user-callable; IDs S-01 to S-92
-- **foss-launcher:** 42 skills (all user-callable); IDs S-01 to S-55
-- **ID divergence:** S-XX numbers diverge after ~S-42. Same ID ≠ same skill. Compare by slug.
-- **Missing from foss-launcher:** 43 skills (41 prompt-only + no-downgrade-guard + content-check status unclear)
-- **Infrastructure gaps:** No CI workflows, no git hooks, sync only covers .claude/commands
-- **foss-launcher advantages:** Evidence pipeline, 16-evaluator content_eval, schema validation, YAML registry, installer scripts
+## Key Outcomes
 
-## Migration Decisions
+- **88 skills** in foss (S-01 to S-105) vs 96 in aspose
+- **8 foss-exclusive innovations** preserved (evidence pipeline, corpus system, RBAC)
+- **13 Python pipeline scripts** ported in session 3
+- **22 AGENTS.md governance sections** (all P1+P2)
+- **4 CI workflows** active
+- **scripts/translator/** fully ported (37 Python files)
+- **TC-V complete**: 67 UNVERIFIED skills classified
 
-| Decision | Choice |
-|----------|--------|
-| Translator system | Port fully (all scripts + skills) |
-| Gap-eval vs evidence pipeline | Port gap-eval as parallel skills; both coexist |
-| New skill IDs | Continue from S-56 in foss-launcher |
+---
+
+## Quick Start
+
+```bash
+# Verify current state
+cd foss-launcher-skills-gitlab
+python scripts/validate_skills.py
+grep "## 9a" AGENTS.md        # P2 governance present
+ls scripts/pipeline/launch_gate.py  # Infrastructure present
+```

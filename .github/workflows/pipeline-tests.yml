@@ -1,0 +1,32 @@
+name: Pipeline Tests
+
+on:
+  push:
+    paths:
+      - 'scripts/pipeline/**'
+      - 'tests/**'
+  pull_request:
+    paths:
+      - 'scripts/pipeline/**'
+      - 'tests/**'
+  workflow_dispatch:
+
+jobs:
+  pipeline-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt || pip install pyyaml pytest
+
+      - name: Run pipeline tests
+        run: pytest tests/ -x -q
+        env:
+          KNOWLEDGE_ROOT: tests/fixtures/knowledge
+          CONTENT_REPO_PATH: tests/fixtures

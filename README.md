@@ -4,7 +4,7 @@ Evidence-based content generation skills for FOSS product documentation. Works w
 
 ## What This Is
 
-A standalone library of 84 agent skills (7 internal sub-routines + 77 user-callable) that power a knowledge-grounded content pipeline:
+A standalone library of 88 agent skills (7 internal sub-routines + 81 user-callable) that power a knowledge-grounded content pipeline:
 
 1. **Discover** FOSS repositories across GitHub organizations
 2. **Extract** truth from FOSS repositories (tree-sitter analysis)
@@ -218,6 +218,10 @@ See `QUICKSTART.md` for a full step-by-step walkthrough.
 | S-99 | translate-page | Translate single page to one or more locales |
 | S-100 | translate-batch | Batch translate entire family/platform to locales |
 | S-101 | locale-patch | Propagate targeted fixes to locale translation copies |
+| S-102 | repo-patrol | Scan GitHub orgs for new repos, score confidence |
+| S-103 | change-sweep | Batch SHA comparison across products |
+| S-104 | discovery-triage | Route patrol/sweep reports to backlog actions |
+| S-105 | section-enhance | Inspect content sections, detect gaps, propose improvements |
 
 ### Internal Sub-routines (not user-callable)
 
@@ -251,7 +255,7 @@ Launch:       S-38 orchestrates:
 
 ```
 foss-launcher-skills/
-├── skills/                    # 84 canonical skill files (77 user-callable + 7 internal)
+├── skills/                    # 88 canonical skill files (81 user-callable + 7 internal)
 │   └── registry.yaml             # Machine-readable skill registry (authoritative IDs)
 ├── scripts/                   # Python tooling
 │   ├── scout.py               # Tree-sitter knowledge extraction

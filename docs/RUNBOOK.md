@@ -243,3 +243,134 @@ These skills are auto-invoked sub-routines. Do not invoke directly:
 - `skills/registry.yaml` — canonical skill registry
 - `docs/parity/` — parity program artifacts
 - `docs/id-mapping.md` — cross-reference of foss IDs to aspose.org IDs
+
+## Git Hooks
+
+The repository ships with optional git hooks for local development. Install them with:
+
+```bash
+bash scripts/install-hooks.sh
+```
+
+### Pre-commit hook (`scripts/pre-commit-audit.sh`)
+
+Runs `audit.py --files` on staged `.md` files before committing. If any FAIL findings
+are detected, the commit is blocked.
+
+**Override** (emergency only):
+```bash
+OVERRIDE_AUDIT=1 git commit -m "..."
+```
+
+### Commit-msg hook (`scripts/commit-msg-skills.sh`)
+
+Validates that the commit message includes a `Skills invoked:` line when content files
+are staged. Format: `Skills invoked: [S-XX, S-YY]`.
+
+### Uninstalling hooks
+
+```bash
+rm .git/hooks/pre-commit .git/hooks/commit-msg
+```
+
+## Override Tokens
+
+When `path_guard.py` blocks a write path and you need a one-time override:
+
+```bash
+# Create override token
+python scripts/pipeline/override_manager.py create --path content/foo/bar.md --reason "emergency fix"
+
+# List active tokens
+python scripts/pipeline/override_manager.py list
+
+# Revoke token after use
+python scripts/pipeline/override_manager.py revoke --token-id {id}
+```
+
+Override tokens expire after 1 hour by default. The post-commit hook auto-revokes
+tokens used in the committed files.
+
+## Session Tracking
+
+The `session_ledger.py` tracks which files were modified in a session to scope commits:
+
+```bash
+# Start a new session
+python scripts/pipeline/session_ledger.py start
+
+# Record a file touch
+python scripts/pipeline/session_ledger.py touch content/docs.aspose.org/en/slides/net/index.md
+
+# Get files for commit scope
+python scripts/pipeline/session_ledger.py list-touched
+
+# Finalize session after commit
+python scripts/pipeline/session_ledger.py finalize --commit-sha $(git rev-parse HEAD)
+```
+
+Sessions are stored in `reports/sessions/` (gitignored).
+
+## Skill Run Records
+
+Track skill invocations for audit trail and commit message validation:
+
+```bash
+# Create a pending run record
+python scripts/pipeline/skill_run_manager.py create --skills S-48 S-23
+
+# Record step completion
+python scripts/pipeline/skill_run_manager.py record-step \
+  --run-id {id} --skill S-48 --type full
+
+# Get declared skills for commit message
+python scripts/pipeline/skill_run_manager.py get-declared-skills --run-id {id}
+
+# Finalize after commit
+python scripts/pipeline/skill_run_manager.py finalize \
+  --run-id {id} --outcome success --commit-sha {sha}
+```
+
+## Launch Gate
+
+Before any product launch, run all automated gates:
+
+```bash
+python scripts/pipeline/launch_gate.py {family} {platform}
+```
+
+Gate IDs and what they check:
+
+| Gate | ID | Check |
+|------|----|-------|
+| Knowledge freshness | L-01 | model.yaml stale_since is null |
+| Evidence coverage | L-02 | All content files have evidence block |
+| API accuracy | L-04 | audit.py exits 0 FAIL |
+| Format truth | L-05 | format evaluator exits 0 FAIL |
+| Pipeline tests | L-07 | pytest tests/ exits 0 |
+
+## Stale Detection
+
+Check which content pages have evidence pointing to an outdated knowledge SHA:
+
+```bash
+# Markdown report
+python scripts/pipeline/stale_detect.py {family} {platform}
+
+# JSON report
+python scripts/pipeline/stale_detect.py {family} {platform} --json
+```
+
+Exit code 0 = no stale pages; exit code 1 = stale pages found.
+
+## Post-Refresh Verification
+
+After running `/refresh-product`, verify the refresh completed correctly:
+
+```bash
+# Check progress
+python scripts/pipeline/post_refresh_verify.py {family} {platform} --status
+
+# Run verification gate
+python scripts/pipeline/post_refresh_verify.py {family} {platform} --verify
+```

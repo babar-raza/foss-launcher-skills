@@ -110,6 +110,10 @@ the two repos assigned IDs independently. The same S-XX number does NOT mean the
 | S-99 | translate-page | S-52 | translate-page | Ported |
 | S-100 | translate-batch | S-53 | translate-batch | Ported |
 | S-101 | locale-patch | S-75 | locale-patch | Ported |
+| S-102 | repo-patrol | S-93 | repo-patrol | Ported 2026-04-27 |
+| S-103 | change-sweep | S-94 | change-sweep | Ported 2026-04-27 |
+| S-104 | discovery-triage | S-95 | discovery-triage | Ported 2026-04-27 |
+| S-105 | section-enhance | S-96 | section-enhance | Ported 2026-04-27 |
 
 ---
 
@@ -125,8 +129,9 @@ the two repos assigned IDs independently. The same S-XX number does NOT mean the
 
 ## Skills Unique to aspose.org (not ported)
 
-None — all aspose.org skills have been ported as of parity program completion.
-Translator scripts (`scripts/translator/`) still need to be ported (TC-012g infrastructure).
+None -- all aspose.org skills have been ported as of 2026-04-27.
+Foss IDs S-102 through S-105 assigned to repo-patrol, change-sweep, discovery-triage, section-enhance.
+Translator scripts (`scripts/translator/`) still need to be ported (TC-P-01 infrastructure).
 
 ---
 

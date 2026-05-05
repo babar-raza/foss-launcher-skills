@@ -1,0 +1,35 @@
+name: Skill Registry Audit
+
+on:
+  push:
+    paths:
+      - 'skills/**'
+      - 'scripts/validate_skills.py'
+      - 'scripts/sync_commands.py'
+  pull_request:
+    paths:
+      - 'skills/**'
+      - 'scripts/validate_skills.py'
+      - 'scripts/sync_commands.py'
+  workflow_dispatch:
+
+jobs:
+  skill-registry-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Validate skill registry
+        run: python scripts/validate_skills.py
+
+      - name: Check command sync
+        run: python scripts/sync_commands.py --check
+        continue-on-error: true

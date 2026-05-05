@@ -1,0 +1,149 @@
+# Translation field policy for aspose.org content types
+# Only fields listed under 'translate' are translated; everything else is preserved.
+
+content_types:
+  products:
+    # Matches: content/products.aspose.org/{lang}/{family}/{platform}/
+    detect_pattern: "products.aspose.org"
+    frontmatter:
+      translate:
+        - family_name
+        - plugin_description
+        - head_title
+        - head_description
+        - title
+        - description
+      translate_nested:
+        # dot-notation paths; [*] means all array elements
+        - "overview.title"
+        - "overview.content"
+        - "content[*].title_left"
+        - "content[*].title_right"
+        - "content[*].content_left"
+        - "content[*].content_right"
+        - "single[*].title"
+        - "single[*].content"
+        - "faq[*].question"
+        - "faq[*].answer"
+        - "testimonialswrapper.title"
+        - "testimonialswrapper.subtitle"
+        - "testimonialswrapper.list[*].content"
+      preserve:
+        - layout
+        - type
+        - plugin_platform
+        - github_url
+        - submenu
+        - more_formats
+        - back_to_top
+        - supportandlearning
+        - enable
+        - weight
+        - date
+        - lastmod
+        - draft
+        - evidence  # CRITICAL: never translate
+    translate_body: true
+
+  docs:
+    # Matches: content/docs.aspose.org/{lang}/{family}/{platform}/
+    detect_pattern: "docs.aspose.org"
+    frontmatter:
+      translate:
+        - title
+        - description
+      translate_nested: []
+      preserve:
+        - page_role
+        - type
+        - weight
+        - date
+        - lastmod
+        - draft
+        - evidence  # CRITICAL: never translate
+    translate_body: true
+
+  kb:
+    # Matches: content/kb.aspose.org/{lang}/{family}/{platform}/
+    detect_pattern: "kb.aspose.org"
+    frontmatter:
+      translate:
+        - title
+        - description
+        - keywords
+      translate_nested: []
+      preserve:
+        - date
+        - lastmod
+        - weight
+        - draft
+        - type
+        - evidence  # CRITICAL: never translate
+    translate_body: true
+
+  reference:
+    # Matches: content/reference.aspose.org/{lang}/{family}/{platform}/
+    detect_pattern: "reference.aspose.org"
+    frontmatter:
+      translate:
+        - linkTitle
+        - title
+        - description
+      translate_nested: []
+      preserve:
+        - layout
+        - type
+        - categories
+        - weight
+        - date
+        - lastmod
+        - draft
+        - evidence  # CRITICAL: never translate
+    translate_body: true
+
+  blog:
+    # Blog uses filename-based translations: index.md -> index.{lang}.md
+    detect_pattern: "blog.aspose.org"
+    frontmatter:
+      translate:
+        - title
+        - seoTitle
+        - description
+        - summary
+      translate_nested: []
+      preserve:
+        - date
+        - draft
+        - author
+        - tags
+        - categories
+        - layout
+        - weight
+        - url
+        - aliases
+        - evidence  # CRITICAL: never translate
+    translate_body: true
+
+# Fields that must NEVER be translated regardless of content type
+universal_preserve:
+  - evidence
+  - type
+  - layout
+  - weight
+  - date
+  - lastmod
+  - draft
+  - slug
+  - url
+  - aliases
+  - github_url
+  - enable
+  - submenu
+  - more_formats
+  - back_to_top
+  - supportandlearning
+  - plugin_platform
+  - platformkey
+  - productkey
+  - productplatform
+  - categories

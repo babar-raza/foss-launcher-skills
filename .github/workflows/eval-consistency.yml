@@ -1,0 +1,35 @@
+name: Eval Consistency
+
+on:
+  push:
+    paths:
+      - 'scripts/pipeline/content_eval/**'
+  pull_request:
+    paths:
+      - 'scripts/pipeline/content_eval/**'
+  schedule:
+    - cron: '0 4 * * 1'  # Weekly Monday 04:00 UTC
+  workflow_dispatch:
+
+jobs:
+  eval-consistency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt || pip install pyyaml pytest
+
+      - name: Run evaluator tests
+        run: pytest tests/ -k "eval" -q
+        continue-on-error: true
+
+      - name: Check evaluator registry
+        run: |
+          cd scripts/pipeline
+          python -c "from content_eval import DEFAULT_EVALUATORS, ALL_EVALUATORS; print(f'Default: {len(DEFAULT_EVALUATORS)}, All: {len(ALL_EVALUATORS)}')" || echo "content_eval not yet importable"

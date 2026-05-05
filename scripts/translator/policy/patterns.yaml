@@ -1,0 +1,55 @@
+# Patterns for content regions that must never be translated.
+# These are applied in order during placeholder protection.
+# Patterns use Python regex syntax.
+
+body_protected:
+  # Hugo shortcodes (block and inline)
+  - name: shortcode_block
+    pattern: '\{\{[<%].*?[%>]\}\}'
+    flags: 16  # DOTALL
+
+  # Fenced code blocks (``` or ~~~)
+  - name: code_fence
+    pattern: '```[\s\S]*?```'
+    flags: 16  # DOTALL
+  - name: code_fence_tilde
+    pattern: '~~~[\s\S]*?~~~'
+    flags: 16  # DOTALL
+
+  # Inline code spans
+  - name: inline_code
+    pattern: '`[^`\n]+`'
+    flags: 0
+
+  # URLs in markdown links [text](url) — protect the URL part only
+  - name: markdown_link_url
+    pattern: '(?<=\]\()([^)]+)(?=\))'
+    flags: 0
+
+  # HTML img src and href
+  - name: html_src
+    pattern: '(?:src|href)="([^"]+)"'
+    flags: 0
+
+  # Block HTML tags
+  - name: block_html
+    pattern: '^<[a-zA-Z][^>]*>[\s\S]*?</[a-zA-Z]+>'
+    flags: 8  # MULTILINE
+
+  # Hugo front matter YAML markers (should never appear in body, but guard against it)
+  - name: yaml_marker
+    pattern: '^---$'
+    flags: 8  # MULTILINE
+
+  # Blockquote markers — protect the > prefix, let content translate
+  - name: blockquote_marker
+    pattern: '^(>\s+)'
+    flags: 8  # MULTILINE
+
+  # Heading markers — protect the ## prefix, let heading text translate
+  - name: heading_marker
+    pattern: '^(#{1,6}\s+)'
+    flags: 8  # MULTILINE
+
+# Placeholder token format
+placeholder_format: "⟦PH_{index:04d}⟧"
