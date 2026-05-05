@@ -448,6 +448,94 @@ class TestFeatureFlagLoader:
 # Invalid mode test
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# TC-CHALLENGE-001: TC-HEAL-003 collection error surfacing in ledger explanation
+# ---------------------------------------------------------------------------
+
+class TestTcChallenge001CollectionErrorSurfacing:
+    """TC-CHALLENGE-001: collection errors must appear in ledger record explanation.
+
+    Root cause: harness lines 308-309 append _collection_errors to the record explanation,
+    but no test verifies this end-to-end. This class closes that gap.
+    """
+
+    def test_collection_error_surfaces_in_record_explanation(self, tmp_path):
+        """Collection errors returned by the collector appear in the ledger record explanation.
+
+        The harness extracts _collection_errors from the fingerprint dict (TC-HEAL-003)
+        and appends them to the record explanation. This test verifies the end-to-end
+        path from collector → harness → ledger record.
+        """
+        # Patch collector to return a _collection_errors entry alongside real fingerprints.
+        # upstream_repo_sha=None simulates a collection failure on a required fingerprint.
+        error_msg = "simulated upstream SHA collection failure"
+        fingerprints_with_errors = {
+            "_collection_errors": [error_msg],
+            "upstream_repo_sha": None,
+            "local_knowledge_sha": "sha_local_xyz",
+        }
+
+        with _patch_registry(), \
+             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
+             patch("refresh_harness.load_manifest", return_value=None), \
+             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
+                 output_exists=True, output_content_hash=None
+             )), \
+             patch("refresh_harness._collect_fingerprints_with_overrides",
+                   return_value=fingerprints_with_errors):
+
+            result = run_harness(
+                product="cells/java",
+                mode="dry-run",
+                scratch_root=tmp_path,
+                subdomains=["reference"],
+                no_write=True,
+            )
+
+        records = result["records"]
+        ref_records = [r for r in records if r["subdomain"] == "reference"]
+        assert len(ref_records) == 1, f"Expected 1 reference record, got {len(ref_records)}"
+
+        explanation = ref_records[0].get("explanation", "")
+        assert error_msg in explanation, (
+            f"Collection error {error_msg!r} must appear in record explanation. "
+            f"Got: {explanation!r}"
+        )
+
+    def test_collection_error_does_not_appear_when_no_errors(self, tmp_path):
+        """When no collection errors occur, explanation does not contain 'collection_errors'."""
+        fingerprints_clean = {
+            "upstream_repo_sha": "sha_abc",
+            "local_knowledge_sha": "sha_local_xyz",
+        }
+
+        with _patch_registry(), \
+             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
+             patch("refresh_harness.load_manifest", return_value=None), \
+             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
+                 output_exists=True, output_content_hash=None
+             )), \
+             patch("refresh_harness._collect_fingerprints_with_overrides",
+                   return_value=fingerprints_clean):
+
+            result = run_harness(
+                product="cells/java",
+                mode="dry-run",
+                scratch_root=tmp_path,
+                subdomains=["reference"],
+                no_write=True,
+            )
+
+        records = result["records"]
+        ref_records = [r for r in records if r["subdomain"] == "reference"]
+        assert len(ref_records) == 1
+        explanation = ref_records[0].get("explanation", "")
+        assert "collection_errors" not in explanation, (
+            f"No errors occurred — 'collection_errors' must not appear in explanation. "
+            f"Got: {explanation!r}"
+        )
+
+
 class TestInvalidMode:
     def test_invalid_mode_raises_value_error(self, tmp_path):
         """run_harness() raises ValueError for invalid mode."""
@@ -461,3 +549,227 @@ class TestInvalidMode:
                     scratch_root=tmp_path,
                     no_write=True,
                 )
+
+
+# ---------------------------------------------------------------------------
+# TC-CHALLENGE-003: validate_for_fresh() gate in harness write path
+# ---------------------------------------------------------------------------
+
+def _make_fresh_stored_manifest(upstream_sha="sha_stored_abc", output_hash="sha256:" + "a" * 64):
+    """Return a FreshnessManifest that represents a prior FRESH run."""
+    from freshness_manifest import FreshnessManifest
+    return FreshnessManifest({
+        "manifest_version": "1.0",
+        "product": "cells/java",
+        "subdomain": "reference",
+        "surface_type": "api-reference",
+        "input_fingerprints": {
+            "upstream_repo_sha": upstream_sha,
+            "local_knowledge_sha": "sha_local_xyz",
+        },
+        "output_state": {
+            "output_exists": True,
+            "output_content_hash": output_hash,
+        },
+        "manifest_status": "FRESH",
+        "generation_timestamp": "2026-05-01T10:00:00Z",
+        "run_id": "pilot-001",
+        "command_used": "batch_reference.py cells java",
+        "governance_status": "COMPLIANT",
+        "decision": "FRESH",
+        "skip_reason": None,
+        "changed_input_fingerprints": [],
+        "prior_manifest_ref": None,
+    })
+
+
+class TestTcChallenge003ValidateForFreshGate:
+    """TC-CHALLENGE-003: validate_for_fresh() called before FRESH is finalized in harness."""
+
+    def test_fresh_blocked_when_required_fingerprint_none(self, tmp_path):
+        """When decide() returns FRESH but a required fingerprint is None, decision becomes BLOCKED.
+
+        Root cause: decision_engine excludes None from changed set (line 134), so a required
+        fingerprint that is None does NOT trigger regen — decide() returns FRESH incorrectly.
+        validate_for_fresh() must catch this before any manifest write.
+        """
+        real_output_hash = "sha256:" + "b" * 64
+        stored = _make_fresh_stored_manifest(
+            upstream_sha="sha_stored_abc",
+            output_hash=real_output_hash,
+        )
+
+        # Fingerprints: upstream_repo_sha is None (collection failure).
+        # Decision engine excludes None → no change detected → would return FRESH.
+        fingerprints_with_none = {"upstream_repo_sha": None, "local_knowledge_sha": "sha_local_xyz"}
+
+        with _patch_registry(), \
+             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
+             patch("refresh_harness.load_manifest", return_value=stored), \
+             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
+                 output_exists=True, output_content_hash=real_output_hash
+             )), \
+             patch("refresh_harness._collect_fingerprints_with_overrides",
+                   return_value=fingerprints_with_none):
+
+            result = run_harness(
+                product="cells/java",
+                mode="dry-run",
+                scratch_root=tmp_path,
+                subdomains=["reference"],
+                no_write=True,
+            )
+
+        records = result["records"]
+        ref_records = [r for r in records if r["subdomain"] == "reference"]
+        assert len(ref_records) == 1
+        # Must be BLOCKED — not FRESH — because upstream_repo_sha is None (required)
+        assert ref_records[0]["decision"] == "BLOCKED", (
+            f"Expected BLOCKED but got {ref_records[0]['decision']!r}. "
+            "TC-CHALLENGE-003: validate_for_fresh() must block FRESH when required fp is None."
+        )
+
+    def test_fresh_not_blocked_when_all_required_fingerprints_present(self, tmp_path):
+        """When all required fingerprints are non-None, FRESH decision is preserved."""
+        real_output_hash = "sha256:" + "c" * 64
+        stored = _make_fresh_stored_manifest(
+            upstream_sha="sha_stored_abc",
+            output_hash=real_output_hash,
+        )
+
+        # All required fingerprints non-None, matching stored → engine returns FRESH
+        # validate_for_fresh() should find no violations → FRESH preserved
+        fingerprints_all_present = {
+            "upstream_repo_sha": "sha_stored_abc",
+            "local_knowledge_sha": "sha_local_xyz",
+        }
+
+        with _patch_registry(), \
+             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
+             patch("refresh_harness.load_manifest", return_value=stored), \
+             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
+                 output_exists=True, output_content_hash=real_output_hash
+             )), \
+             patch("refresh_harness._collect_fingerprints_with_overrides",
+                   return_value=fingerprints_all_present), \
+             patch("refresh_harness.validate_for_fresh", return_value=[]):
+
+            result = run_harness(
+                product="cells/java",
+                mode="dry-run",
+                scratch_root=tmp_path,
+                subdomains=["reference"],
+                no_write=True,
+            )
+
+        records = result["records"]
+        ref_records = [r for r in records if r["subdomain"] == "reference"]
+        assert len(ref_records) == 1
+        assert ref_records[0]["decision"] == "FRESH", (
+            f"Expected FRESH but got {ref_records[0]['decision']!r}. "
+            "All required fingerprints present — should not be blocked."
+        )
+
+    def test_fresh_blocked_when_output_hash_is_placeholder(self, tmp_path):
+        """When decide() returns FRESH but output_content_hash is a placeholder, decision is BLOCKED."""
+        placeholder_hash = "sha256:PILOT_BASELINE_OUTPUT"
+        stored = _make_fresh_stored_manifest(
+            upstream_sha="sha_stored_abc",
+            output_hash=placeholder_hash,
+        )
+
+        fingerprints_matching = {
+            "upstream_repo_sha": "sha_stored_abc",
+            "local_knowledge_sha": "sha_local_xyz",
+        }
+
+        with _patch_registry(), \
+             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
+             patch("refresh_harness.load_manifest", return_value=stored), \
+             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
+                 output_exists=True, output_content_hash=placeholder_hash
+             )), \
+             patch("refresh_harness._collect_fingerprints_with_overrides",
+                   return_value=fingerprints_matching):
+
+            result = run_harness(
+                product="cells/java",
+                mode="dry-run",
+                scratch_root=tmp_path,
+                subdomains=["reference"],
+                no_write=True,
+            )
+
+        records = result["records"]
+        ref_records = [r for r in records if r["subdomain"] == "reference"]
+        assert len(ref_records) == 1
+        assert ref_records[0]["decision"] == "BLOCKED", (
+            f"Expected BLOCKED but got {ref_records[0]['decision']!r}. "
+            "Placeholder output_content_hash must be caught by validate_for_fresh()."
+        )
+
+    def test_fresh_blocked_explanation_contains_violation_details(self, tmp_path):
+        """When FRESH is blocked by validate_for_fresh(), explanation includes violation text."""
+        real_output_hash = "sha256:" + "d" * 64
+        stored = _make_fresh_stored_manifest(
+            upstream_sha="sha_stored_abc",
+            output_hash=real_output_hash,
+        )
+
+        fingerprints_with_none = {"upstream_repo_sha": None, "local_knowledge_sha": "sha_local_xyz"}
+
+        with _patch_registry(), \
+             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
+             patch("refresh_harness.load_manifest", return_value=stored), \
+             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
+                 output_exists=True, output_content_hash=real_output_hash
+             )), \
+             patch("refresh_harness._collect_fingerprints_with_overrides",
+                   return_value=fingerprints_with_none):
+
+            result = run_harness(
+                product="cells/java",
+                mode="dry-run",
+                scratch_root=tmp_path,
+                subdomains=["reference"],
+                no_write=True,
+            )
+
+        records = result["records"]
+        ref_records = [r for r in records if r["subdomain"] == "reference"]
+        assert len(ref_records) == 1
+        explanation = ref_records[0].get("explanation", "")
+        assert "validate_for_fresh" in explanation or "BLOCKED" in explanation, (
+            f"Explanation should mention validate_for_fresh or BLOCKED, got: {explanation!r}"
+        )
+
+    def test_validate_for_fresh_gate_does_not_affect_non_fresh_decisions(self, tmp_path):
+        """Decisions other than FRESH (VALIDATE_ONLY, REGENERATE_*) pass through unchanged."""
+        # No stored manifest → cold start → engine returns VALIDATE_ONLY
+        fingerprints_with_none = {"upstream_repo_sha": None}
+
+        with _patch_registry(), \
+             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
+             patch("refresh_harness.load_manifest", return_value=None), \
+             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
+                 output_exists=True, output_content_hash=None
+             )), \
+             patch("refresh_harness._collect_fingerprints_with_overrides",
+                   return_value=fingerprints_with_none):
+
+            result = run_harness(
+                product="cells/java",
+                mode="dry-run",
+                scratch_root=tmp_path,
+                subdomains=["reference"],
+                no_write=True,
+            )
+
+        records = result["records"]
+        ref_records = [r for r in records if r["subdomain"] == "reference"]
+        assert len(ref_records) == 1
+        # With no stored manifest, engine returns VALIDATE_ONLY — not FRESH
+        # validate_for_fresh gate must NOT run on non-FRESH decisions
+        assert ref_records[0]["decision"] != "FRESH", (
+            "Without stored manifest, decision should not be FRESH."
+        )

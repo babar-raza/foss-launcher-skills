@@ -49,7 +49,7 @@ if _LIB_DIR not in sys.path:
 
 from decision_engine import OutputState, decide
 from dependency_registry import load_registry
-from freshness_manifest import FreshnessManifest, load as load_manifest
+from freshness_manifest import FreshnessManifest, load as load_manifest, validate_for_fresh
 from reconciliation_ledger import (
     BLOCKED,
     DRY_RUN_PASS,
@@ -284,6 +284,38 @@ def run_harness(
 
         # Compute decision
         d = decide(product, subdomain, fingerprints, current_outputs, stored)
+
+        # TC-CHALLENGE-003: When decide() returns FRESH, run validate_for_fresh() to
+        # catch cases where a required fingerprint is None (excluded from changed-set
+        # by design at decision_engine line 134, so decide() cannot detect it).
+        # This gate is required before any manifest write path is enabled.
+        if d.decision == "FRESH":
+            output_hash = current_outputs.output_content_hash if current_outputs else None
+            generator_path = getattr(surface, "backing_generator", None)
+            violations = validate_for_fresh(
+                fingerprints,
+                output_hash,
+                generator_path=generator_path,
+                repo_root=_REPO_ROOT,
+                fingerprints_required=getattr(surface, "fingerprints_required", None),
+            )
+            if violations:
+                import sys as _sys
+                print(
+                    f"[TC-CHALLENGE-003] FRESH blocked for {product}/{subdomain}: {violations}",
+                    file=_sys.stderr,
+                )
+                # Rewrite decision as BLOCKED with violation details
+                from decision_engine import Decision as _Decision
+                d = _Decision(
+                    product=product,
+                    subdomain=subdomain,
+                    decision=BLOCKED,
+                    input_decision=BLOCKED,
+                    output_decision=d.output_decision,
+                    explanation="FRESH blocked by validate_for_fresh: " + "; ".join(violations),
+                    changed_input_fingerprints=[],
+                )
 
         # Determine outcome for this mode
         # In dry-run: no action taken, outcome = SKIP (decision captured only)
