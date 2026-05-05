@@ -23,7 +23,7 @@ Merge `knowledge/{family}/{platform}/scout/` and `knowledge/{family}/{platform}/
 
 Run the merge engine first, then review:
 ```
-python scripts/pipeline/merge.py {family} {platform}
+python scripts/pipeline/commands/knowledge/promote.py {family} {platform}
 ```
 Review `knowledge/{family}/{platform}/merged/merge_report.md` for dual/scout_only/fl_only counts.
 

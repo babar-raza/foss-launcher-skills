@@ -24,7 +24,7 @@ Embed knowledge artifacts into dual vector stores using the three-tier embedding
 ## Steps
 
 1. **Parse arguments**: `{family} {platform}` or `all`
-2. **Run embedding**: `python scripts/pipeline/embed.py {family} {platform}`
+2. **Run embedding**: `python scripts/pipeline/commands/knowledge/embed.py {family} {platform}`
 3. **Verify outputs**: Check that vector files were created in `knowledge/_vectors/`
 4. **Report**: Print which tiers were used and how many vectors were generated
 

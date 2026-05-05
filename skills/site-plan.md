@@ -36,7 +36,7 @@ of all pages a product needs across all 5 subdomains. Consumed by `launch-produc
 
 1. **Run the site planner**:
    ```bash
-   python scripts/pipeline/site_planner.py {family} {platform} \
+   python scripts/pipeline/commands/launch/site_planner.py {family} {platform} \
      [--mode {mode}] [--section {section}] [--dry-run]
    ```
 

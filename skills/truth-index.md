@@ -22,8 +22,8 @@ Generate `index.json` per product from `knowledge/{family}/{platform}/merged/` a
 ## Automated Script
 
 ```
-python scripts/pipeline/index.py {family} {platform}   # Single product
-python scripts/pipeline/index.py all                     # All discovered products
+python scripts/pipeline/commands/knowledge/index.py {family} {platform}   # Single product
+python scripts/pipeline/commands/knowledge/index.py all                     # All discovered products
 ```
 
 The script:

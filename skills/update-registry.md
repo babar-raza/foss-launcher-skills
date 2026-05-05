@@ -63,7 +63,7 @@ Run this skill whenever:
 
 3. **Run discovery**:
    ```bash
-   python scripts/pipeline/update_product_registry.py [--token $GITHUB_TOKEN] [--dry-run] [--local-only] [--force]
+   python scripts/pipeline/commands/ops/update_product_registry.py [--token $GITHUB_TOKEN] [--dry-run] [--local-only] [--force]
    ```
 
    - **GitHub mode** (default): Calls `org_scanner.scan_orgs()` for each org.
@@ -100,7 +100,7 @@ Run this skill whenever:
 | Skill | Scope | Output | When to use |
 |-------|-------|--------|-------------|
 | `discover-products` (S-39) | GitHub org scanner via `scripts/pipeline/discover.py` | Updates `configs/families.yaml` | Normal foss-launcher workflow |
-| `update-registry` (S-73) | Full Aspose org scanner via `scripts/pipeline/update_product_registry.py` | Updates product registry JSON | When you need the full 26-org scan or explicit `data/products.json` output |
+| `update-registry` (S-73) | Full Aspose org scanner via `scripts/pipeline/commands/ops/update_product_registry.py` | Updates product registry JSON | When you need the full 26-org scan or explicit `data/products.json` output |
 
 For most foss-launcher operations, use S-39 (discover-products). Use this skill when
 the full Aspose org scanner is required or when operating in a context that expects the
@@ -121,4 +121,4 @@ the full Aspose org scanner is required or when operating in a context that expe
 | `GITHUB_TOKEN` not set | Pass `--token` flag or set env var; or use `--local-only` |
 | Rate limit exceeded | Wait and retry; or use `--local-only` for cached results |
 | Org not found | Verify org name pattern; check `ASPOSE_ORG` override |
-| Script not found | Verify `scripts/pipeline/update_product_registry.py` exists |
+| Script not found | Verify `scripts/pipeline/commands/ops/update_product_registry.py` exists |

@@ -29,7 +29,7 @@ uses the clone cache for bounded context, and writes `scout/enriched_claims.json
 
 1. **Run enrich**:
    ```bash
-   python scripts/pipeline/enrich.py {family} {platform}
+   python scripts/pipeline/commands/knowledge/enrich.py {family} {platform}
    ```
 
 2. **Expected output**: `knowledge/{family}/{platform}/scout/enriched_claims.json`

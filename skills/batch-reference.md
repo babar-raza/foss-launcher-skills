@@ -106,7 +106,7 @@ Log the tally: `Found {total} candidates: {G} to generate, {S} to skip (already 
 For each entry marked `GENERATE`, invoke the batch generation script:
 
 ```bash
-python scripts/pipeline/batch_reference.py {family} {platform}
+python scripts/pipeline/commands/content/batch_reference.py {family} {platform}
 ```
 
 The script generates class pages using templates from `api_surface.json`. For each page it:
@@ -139,9 +139,9 @@ All member names must come directly from the `members` array in api_surface.json
 After all pages are generated, run a spot-check on the first and last generated page:
 
 ```bash
-python scripts/pipeline/audit.py \
+python scripts/pipeline/commands/content/audit.py \
   --files $CONTENT_REPO_PATH/content/reference.aspose.org/en/{family}/{platform}/{first-ClassName}.md
-python scripts/pipeline/audit.py \
+python scripts/pipeline/commands/content/audit.py \
   --files $CONTENT_REPO_PATH/content/reference.aspose.org/en/{family}/{platform}/{last-ClassName}.md
 ```
 
@@ -172,8 +172,8 @@ Errors:       {errors}
 After a knowledge refresh (S-14), use `--update` to regenerate only pages for classes in `knowledge_delta.json modified_apis`:
 
 ```bash
-python scripts/pipeline/batch_reference.py {family} {platform} --update
-python scripts/pipeline/batch_reference.py {family} {platform} --update --dry-run  # preview only
+python scripts/pipeline/commands/content/batch_reference.py {family} {platform} --update
+python scripts/pipeline/commands/content/batch_reference.py {family} {platform} --update --dry-run  # preview only
 ```
 
 ## Idempotency Guarantee
@@ -187,7 +187,7 @@ should produce `Generated: 0, Skipped: {N}` with no writes.
 
 Before committing the batch output:
 
-1. Run `python scripts/pipeline/audit.py --files $CONTENT_REPO_PATH/content/reference.aspose.org/en/{family}/{platform}/*.md`
+1. Run `python scripts/pipeline/commands/content/audit.py --files $CONTENT_REPO_PATH/content/reference.aspose.org/en/{family}/{platform}/*.md`
 2. Include in the commit message:
    - Knowledge model SHA from `knowledge/{family}/{platform}/model.yaml`
    - `Skills invoked: S-67, S-55, S-24, S-01`

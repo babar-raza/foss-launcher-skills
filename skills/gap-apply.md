@@ -76,7 +76,7 @@ Recommended action: {suggested next step}
 
 2. Run audit on modified files:
    ```bash
-   python scripts/pipeline/audit.py --files {modified-files}
+   python scripts/pipeline/commands/content/audit.py --files {modified-files}
    ```
 
 ## Post-conditions
