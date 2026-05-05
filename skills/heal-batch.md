@@ -58,7 +58,7 @@ correct healing mode (auto, LLM, regen) in a single pass.
 
 4. **Auto mode fixes** (if `--mode auto` or `--mode all`):
    ```bash
-   python scripts/pipeline/remediate.py heal \
+   python scripts/pipeline/commands/content/remediate.py heal \
      --report {eval-report-path} \
      --mode auto \
      [--dry-run]

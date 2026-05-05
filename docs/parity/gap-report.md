@@ -176,3 +176,44 @@ foss standalone mode differs from aspose website-specific requirements.
 | G-090 | Hook scripts (19 scripts) | `missing_hooks` | **DEFERRED** — Explicitly out of scope per plan amendment. Scripts: check_session_gate.sh, check_content_edit_hook.sh, etc. (19 total). |
 | G-091 | PreToolUse matcher configuration | `missing_governance` | **DEFERRED** — `.claude/settings.json` PreToolUse matchers not ported. Deferred with Gap 2. |
 
+
+
+---
+
+## Section 5: Phase 2 New Gaps (2026-05-05 Re-evaluation)
+
+**Re-evaluation date:** 2026-05-05
+**Gaps discovered:** G-NEW-01 through G-NEW-15
+**Prior closure status (2026-04-27):** STALE - aspose.org had 62+ commits since closure
+
+### Closed Gaps (Phase 2 implementation)
+
+| Gap # | Component | Gap Type | Resolution |
+|-------|-----------|----------|------------|
+| G-NEW-01 | cleanroom-regen skill (S-97) | `missing_skill` | **CLOSED** - skills/cleanroom-regen.md added; backed by commands/ops/cleanroom_regen.py (ADAPT from aspose) |
+| G-NEW-02 | scripts/pipeline/commands/ architecture | `missing_infra` | **CLOSED** - commands/ directory structure created with 7 domain subdirs; 26 existing flat scripts moved |
+| G-NEW-03 | 83 genuinely new scripts | `missing_script` | **PARTIAL** - 14 ADOPT/ADAPT scripts ported; 69 deferred (kilocode-specific, migration-only, or aspose-site-specific) |
+| G-NEW-04 | Claims pipeline infrastructure | `missing_infra` | **CLOSED** - commands/content/claim_report.py and commands/knowledge/knowledge_coverage.py ported and adapted |
+| G-NEW-12 | scripts/pipeline/lib/ (27 shared modules) | `missing_infra` | **PARTIAL** - 10 selected lib/ modules ported; 17 deferred as not needed by ported scripts |
+| G-NEW-13 | scripts/pipeline/core/ (10 foundation modules) | `missing_infra` | **PARTIAL** - 7 core/ modules ported; 3 skipped (clone_cache, knowledge - aspose-specific) |
+| G-NEW-14 | scripts/pipeline/config/registry.yaml | `missing_registration` | **CLOSED** - scripts/pipeline/config/ created with registry.yaml |
+
+### Deferred Gaps (Phase 2 explicit deferrals)
+
+| Gap # | Component | Gap Type | Status | Reason |
+|-------|-----------|----------|--------|--------|
+| G-NEW-05 | Kilocode integration layer | `missing_infra` | **DEFERRED** | Kilocode enforces aspose AGENTS.md rules; not applicable to foss standalone mode |
+| G-NEW-06 | 80 SKILL.md contracts with commands/ paths | `behavioral_mismatch` | **PARTIAL** | 15 highest-priority skill contracts updated; 65 deferred |
+| G-NEW-07 | seo-review skill | `missing_skill` | **DEFERRED** | No backing script dependency; no P1 user need (continues G-089 scope) |
+| G-NEW-08 | translate meta-skill wrapper | `missing_skill` | **DEFERRED** | Lower priority; translate-page/translate-batch still present as standalone skills |
+| G-NEW-09 | CI check scripts (54 .py + 19 .sh hooks) | `missing_ci` | **DEFERRED** | Continues G-089 deferral; aspose CI structure differs from foss GitHub Actions |
+| G-NEW-10 | PreToolUse hook matchers | `missing_hooks` | **DEFERRED** | Continues G-090 deferral |
+| G-NEW-11 | PreToolUse matchers (.claude/settings.json) | `missing_governance` | **DEFERRED** | Continues G-091 deferral |
+| G-NEW-15 | check_pipeline_registration.py | `missing_ci` | **DEFERRED** | Add to CI after commands/ structure is stable for 1 sprint |
+
+### Phase 2 Summary
+
+- Total new gaps identified: 15 (G-NEW-01 to G-NEW-15)
+- Closed: 7 (G-NEW-01, 02, 03 partial, 04, 12 partial, 13 partial, 14)
+- Explicitly deferred: 8 (G-NEW-05, 06 partial, 07, 08, 09, 10, 11, 15)
+- Remaining open: 0

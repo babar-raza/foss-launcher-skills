@@ -28,13 +28,13 @@ Run the Python script first to get reproducible, machine-verifiable results:
 
 ```bash
 # For a specific product:
-python scripts/pipeline/content_audit.py {family} {platform} --json
+python scripts/pipeline/commands/content/audit.py {family} {platform} --json
 
 # For specific files:
-python scripts/pipeline/content_audit.py --files {content-file-path} --json
+python scripts/pipeline/commands/content/audit.py --files {content-file-path} --json
 
 # For all products:
-python scripts/pipeline/content_audit.py all --json
+python scripts/pipeline/commands/content/audit.py all --json
 ```
 
 The script classifies every prose paragraph into tiers:

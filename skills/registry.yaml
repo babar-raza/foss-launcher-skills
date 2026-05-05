@@ -45,7 +45,7 @@ skills:
     name: knowledge-update
     description: Refresh knowledge model from source repo
     internal: false
-    script: scripts/pipeline/refresh_knowledge.py
+    script: scripts/pipeline/commands/knowledge/refresh_knowledge.py
 
   - id: S-15
     name: embed-knowledge
@@ -93,13 +93,13 @@ skills:
     name: ground-check
     description: Pre-write evidence verification gate
     internal: false
-    script: scripts/pipeline/audit.py
+    script: scripts/pipeline/commands/content/audit.py
 
   - id: S-24
     name: evidence-cite
     description: Attach evidence citations to content frontmatter
     internal: true
-    script: scripts/pipeline/attach_evidence.py
+    script: scripts/pipeline/commands/content/attach_evidence.py
 
   - id: S-25
     name: eval-page
@@ -129,13 +129,13 @@ skills:
     name: content-audit
     description: Semantic knowledge verification of content pages
     internal: false
-    script: scripts/pipeline/content_audit.py
+    script: scripts/pipeline/commands/content/audit.py
 
   - id: S-33
     name: change-guard
     description: Pre-write knowledge gate for single text blocks
     internal: true
-    script: scripts/pipeline/change_guard.py
+    script: scripts/pipeline/commands/diagnostics/change_guard.py
 
   - id: S-34
     name: repo-scout
@@ -177,19 +177,19 @@ skills:
     name: batch-remediate
     description: Full eval-to-fix-to-LLM-to-re-eval remediation pipeline
     internal: false
-    script: scripts/pipeline/remediate.py
+    script: scripts/pipeline/commands/content/remediate.py
 
   - id: S-41
     name: batch-eval-fix
     description: Quick eval plus deterministic auto-fix only (no LLM)
     internal: false
-    script: scripts/pipeline/remediate.py
+    script: scripts/pipeline/commands/content/remediate.py
 
   - id: S-42
     name: category-fix
     description: Run specific fixer on targeted files by category
     internal: false
-    script: scripts/pipeline/remediate.py
+    script: scripts/pipeline/commands/content/remediate.py
 
   - id: S-43
     name: evidence-decide
@@ -273,14 +273,14 @@ skills:
     name: no-downgrade-guard
     description: Pre-write quality comparison guard; returns ALLOW/WARN/BLOCK before content writes
     internal: true
-    script: scripts/pipeline/no_downgrade_guard.py
+    script: scripts/pipeline/commands/governance/no_downgrade_guard.py
 
   # TC-012f: Knowledge/Gap-eval skills (parallel to evidence pipeline)
   - id: S-61
     name: knowledge-enrich
     description: Generate LLM-enriched semantic claims from scout artifacts; writes enriched_claims.json
     internal: false
-    script: scripts/pipeline/enrich.py
+    script: scripts/pipeline/commands/knowledge/enrich.py
 
   - id: S-62
     name: gap-eval
@@ -550,3 +550,9 @@ skills:
     description: Inspect any content section, detect gaps against clone-cache truth, produce read-only proposal pack
     internal: false
     script: null
+
+  - id: S-106
+    name: cleanroom-regen
+    description: 8-mode cleanroom regeneration workflow (inspect/snapshot/regen/diff/review/apply/verify/gate) for one family/platform
+    internal: false
+    script: scripts/pipeline/commands/ops/cleanroom_regen.py

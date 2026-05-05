@@ -191,3 +191,66 @@ New tests added:       32 (10 claim_index + 22 evaluator)
 | Consistent metadata | All findings include `evaluator=self.name` |
 | Better category codes | EN (not EC collision), SB (not CS collision) |
 
+
+
+---
+
+## Phase 2 Verification Run (2026-05-05)
+
+**Branch:** parity-phase2-current-state-migration
+**Head commit:** 6434c3a
+
+### VER-01: validate_skills.py
+
+```
+PASS: skill registry valid (89 skills, 7 internal, no violations)
+```
+
+### VER-03: Import smoke tests
+
+```
+PYTHONPATH=scripts/pipeline .venv/Scripts/python -c "from commands.ops import cleanroom_regen"
+# -> cleanroom_regen import OK
+
+PYTHONPATH=scripts/pipeline .venv/Scripts/python -c "from commands.content import claim_report"
+# -> claim_report import OK
+
+PYTHONPATH=scripts/pipeline .venv/Scripts/python -c "from commands.knowledge import knowledge_coverage"
+# -> knowledge_coverage import OK
+
+PYTHONPATH=scripts/pipeline .venv/Scripts/python -c "from commands.knowledge import embed"
+# -> embed OK
+
+PYTHONPATH=scripts/pipeline .venv/Scripts/python -c "from commands.knowledge import index"
+# -> index OK
+
+PYTHONPATH=scripts/pipeline .venv/Scripts/python -c "from commands.knowledge import promote"
+# -> promote OK
+```
+
+### VER-04: cleanroom_regen.py --help
+
+```
+usage: cleanroom_regen [-h] --family FAMILY [--platform PLATFORM]
+                       {inspect,snapshot,regenerate-cleanroom,diff,review,apply-decision,verify,commit-ready}
+...
+PASS
+```
+
+### VER-06: pytest tests/
+
+```
+621 passed, 15 skipped in ~50s
+```
+
+### VER-08: aspose.org/content/ safety check
+
+```
+git diff --name-only (in aspose.org):
+  .agents/skills/launch-product/SKILL.md   <- pre-existing (not from Phase 2)
+  .claude/commands/launch-product.md       <- pre-existing (not from Phase 2)
+
+scripts/pipeline/commands/content/batch_reference.py  <- pre-existing unstaged change
+```
+
+Result: PASS — no content/ writes during Phase 2 program.

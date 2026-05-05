@@ -4,7 +4,7 @@ Evidence-based content generation skills for FOSS product documentation. Works w
 
 ## What This Is
 
-A standalone library of 88 agent skills (7 internal sub-routines + 81 user-callable) that power a knowledge-grounded content pipeline:
+A standalone library of 89 agent skills (7 internal sub-routines + 82 user-callable) that power a knowledge-grounded content pipeline:
 
 1. **Discover** FOSS repositories across GitHub organizations
 2. **Extract** truth from FOSS repositories (tree-sitter analysis)
@@ -196,6 +196,7 @@ See `QUICKSTART.md` for a full step-by-step walkthrough.
 | S-60 | launch-rollback | Revert product content to last committed state |
 | S-84 | refresh-product | Full post-launch refresh cycle (14-step chain) |
 | S-87 | delta-site-plan | Incremental site planning after knowledge update |
+| S-106 | cleanroom-regen | 8-mode cleanroom regen workflow (inspect/snapshot/regen/diff/review/apply/verify/gate) |
 | S-93 | system-heal | Audit-driven batch healing |
 
 ### Session & Workflow
@@ -255,7 +256,8 @@ Launch:       S-38 orchestrates:
 
 ```
 foss-launcher-skills/
-├── skills/                    # 88 canonical skill files (81 user-callable + 7 internal)
+├── runs/                      # pipeline run artifacts (gitignored)
+├── skills/                    # 89 canonical skill files (82 user-callable + 7 internal)
 │   └── registry.yaml             # Machine-readable skill registry (authoritative IDs)
 ├── scripts/                   # Python tooling
 │   ├── scout.py               # Tree-sitter knowledge extraction
