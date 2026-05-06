@@ -336,6 +336,26 @@ On re-run, read checkpoint state:
 ```
 Skip completed stages. Print: `Resuming {family}/{platform} from stage N (checkpoint: {name})`
 
+## Write Classification (Refresh Mode)
+
+When re-running S-49 on a product that already has content (refresh mode), each existing file
+must be classified before deciding whether to regenerate or preserve it.
+Use `write_classifier.py` to produce a classification report:
+
+```bash
+.venv/Scripts/python scripts/pipeline/commands/launch/write_classifier.py {family} {platform} --output reports/refresh_state/{family}/{platform}/write_classification.json
+```
+
+Classification categories:
+- **CREATE** -- file does not exist; generate unconditionally
+- **REFRESH** -- `auto_updatable: true`; regenerate from current knowledge
+- **PRESERVE** -- `auto_updatable: false` or `content_origin: human-authored`; do NOT overwrite
+- **CONFLICT** -- unknown origin or conflicting signals; requires human review before proceeding
+
+**STOP condition**: If any file is classified CONFLICT, halt and resolve before continuing.
+Files in the PRESERVE category must be skipped during regeneration steps regardless of checkpoint state.
+Cross-reference: `scripts/pipeline/commands/launch/write_classifier.py` (authoritative classification logic)
+
 ## Checkpoint Storage
 
 Checkpoints are stored via S-10 (`project-phase-store`) in `reports/phase_state.json`.
