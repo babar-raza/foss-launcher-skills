@@ -23,7 +23,7 @@ ARCHIVE_DIR = REPO_ROOT / "reports" / "overrides" / "archived"
 # Legacy archive from simple overrides design:
 LEGACY_ARCHIVE_DIR = REPO_ROOT / "overrides" / "archive"
 
-sys.path.insert(0, str(REPO_ROOT / "scripts" / "pipeline"))
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "pipeline" / "commands" / "governance"))
 from path_guard import check_path
 
 

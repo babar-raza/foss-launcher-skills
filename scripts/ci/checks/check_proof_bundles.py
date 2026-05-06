@@ -30,6 +30,9 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _PIPELINE_DIR = _REPO_ROOT / "scripts" / "pipeline"
 if str(_PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_DIR))
+_LIB_DIR = _PIPELINE_DIR / "lib"
+if str(_LIB_DIR) not in sys.path:
+    sys.path.insert(0, str(_LIB_DIR))
 
 from path_utils import repo_rel  # noqa: E402
 _COMPLIANCE_DIR = _REPO_ROOT / "reports" / "compliance"
