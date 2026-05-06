@@ -142,6 +142,22 @@ if [ $GUARD_EXIT -eq 0 ]; then
     exit 0
 fi
 
+# --- Token-aware PreToolUse (GOV-LIGHT-001) ---
+# If a valid pending override token covers this exact path, allow the write.
+# The pre-commit hook will independently re-validate the token at commit time.
+_TOKEN_EXIT=0
+"$PYTHON" "$REPO_ROOT/scripts/pipeline/commands/governance/override_manager.py" \
+    validate-for-path "$REL_PATH" >/dev/null 2>&1 || _TOKEN_EXIT=$?
+if [ "$_TOKEN_EXIT" = "0" ]; then
+    _AUDIT_DIR="$REPO_ROOT/reports/overrides"
+    mkdir -p "$_AUDIT_DIR"
+    printf '%s|%s|OVERRIDE_TOKEN_PRETOOLUSE|write-allowed\n' \
+        "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$REL_PATH" \
+        >> "$_AUDIT_DIR/pretooluse-audit.log"
+    echo "Override token covers $REL_PATH — write allowed (pre-commit will re-validate)" >&2
+    exit 0
+fi
+
 # DENY — check for human authorization bypass
 if [ "${ROOT_WRITE_AUTHORIZED:-0}" = "1" ]; then
     # Operator has explicitly authorized this write — log it and allow

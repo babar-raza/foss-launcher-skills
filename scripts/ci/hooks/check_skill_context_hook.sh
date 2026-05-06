@@ -192,6 +192,19 @@ if [ "$GOVERNED" != "true" ]; then
     GUARD_EXIT=0
     "$PYTHON" "$REPO_ROOT/scripts/pipeline/commands/governance/path_guard.py" "$FILE_PATH" >/dev/null 2>&1 || GUARD_EXIT=$?
     if [ $GUARD_EXIT -ne 0 ]; then
+        # --- Token-aware PreToolUse (GOV-LIGHT-002) ---
+        _TOKEN_EXIT=0
+        "$PYTHON" "$REPO_ROOT/scripts/pipeline/commands/governance/override_manager.py" \
+            validate-for-path "$FILE_PATH" >/dev/null 2>&1 || _TOKEN_EXIT=$?
+        if [ "$_TOKEN_EXIT" = "0" ]; then
+            _AUDIT_DIR="$REPO_ROOT/reports/overrides"
+            mkdir -p "$_AUDIT_DIR"
+            printf '%s|%s|OVERRIDE_TOKEN_PRETOOLUSE|edit-allowed\n' \
+                "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$FILE_PATH" \
+                >> "$_AUDIT_DIR/pretooluse-audit.log"
+            echo "Override token covers $FILE_PATH — edit allowed (pre-commit will re-validate)" >&2
+            exit 0
+        fi
         _gov_block "Edit/Write denied — $FILE_PATH is not in the allowed path list." \
             "Root-level files and non-allowlisted paths are blocked." \
             "Move file to an allowlisted path (scripts/, content/, reports/, etc.)." \

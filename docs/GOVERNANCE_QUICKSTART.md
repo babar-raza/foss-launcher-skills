@@ -66,7 +66,8 @@ SKIP_DESTRUCTIVE_BASH_CHECK=1
 # Session ledger (pre-commit Step 8)
 SKIP_SESSION_CHECK=1
 
-# Root-level writes (logged to reports/root-writes/audit.log)
+# Any path_guard-denied write (logged to reports/root-writes/audit.log)
+# CAUTION: bypasses ALL denials including forbidden paths; prefer override tokens
 ROOT_WRITE_AUTHORIZED=1
 
 # Commit-msg skill check (3-var model — ALL THREE required, audited)
@@ -86,6 +87,44 @@ GOV_MAINTENANCE_MODE=1 GOV_MAINTENANCE_PLAN=TC-GOV-XX GOV_BYPASS_REASON='reason'
 
 # Token is consumed automatically by post-commit hook
 ```
+
+### Editing Forbidden Paths (Full Workflow)
+
+When an agent needs to edit a file under themes/, layouts/, configs/, or other forbidden paths:
+
+1. **Human creates override token**:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/governance/override_manager.py create \
+     --paths "layouts/_default/section.html" \
+     --reason "Blog section template fix" --plan "task-id"
+   ```
+
+2. **Human sets env var** (interim — until token-aware PreToolUse is implemented):
+   ```bash
+   export ROOT_WRITE_AUTHORIZED=1
+   ```
+
+3. **Agent makes the edit** (audited to reports/root-writes/audit.log)
+
+4. **Human unsets env var**:
+   ```bash
+   unset ROOT_WRITE_AUTHORIZED
+   ```
+
+5. **Human commits** (pre-commit validates the override token covers the path):
+   ```bash
+   git add layouts/_default/section.html
+   git commit -m "fix: blog section template"
+   ```
+   Pre-commit: path_guard DENY → check_forbidden_overrides → token found → ALLOW.
+   Post-commit: token archived automatically.
+
+**Important**: ROOT_WRITE_AUTHORIZED bypasses ALL path_guard denials (not just root-level).
+Only set it for the duration of the specific edit. The pre-commit hook independently
+validates that only token-covered paths are committed.
+
+**After GOV-LIGHT-001**: Steps 2-4 will be replaced by direct token-authorized writes
+(no env var needed).
 
 ## Forbidden Bypass Methods
 

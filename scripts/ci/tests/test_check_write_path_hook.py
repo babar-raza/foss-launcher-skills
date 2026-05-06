@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-_HOOK_REL = "scripts/ci/check_write_path_hook.sh"
+_HOOK_REL = "scripts/ci/hooks/check_write_path_hook.sh"
 
 
 def _find_bash() -> str:
@@ -42,6 +42,8 @@ def _run(file_path: str) -> int:
         cwd=str(_REPO_ROOT),
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     return result.returncode
 
