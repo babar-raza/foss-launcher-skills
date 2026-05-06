@@ -160,8 +160,9 @@ def _collect_fingerprints_with_overrides(
 def _inspect_output_state(product: str, subdomain: str, registry) -> OutputState:
     """Inspect current on-disk output state for (product, subdomain).
 
-    Returns OutputState based on whether the content root directory exists
-    and has files. This is a lightweight check — no content hashing.
+    Returns OutputState including output_content_hash when content exists.
+    The hash is computed live via compute_output_content_hash() so that
+    validate_for_fresh() can verify content integrity.
     """
     try:
         surface = registry.get_surface(subdomain)
@@ -178,7 +179,13 @@ def _inspect_output_state(product: str, subdomain: str, registry) -> OutputState
         content_root = content_root_template.format(family=family, platform=platform)
         content_path = _REPO_ROOT / content_root
         output_exists = content_path.is_dir() and any(content_path.rglob("*.md"))
-        return OutputState(output_exists=output_exists)
+
+        output_hash = None
+        if output_exists:
+            from freshness_manifest import compute_output_content_hash
+            output_hash = compute_output_content_hash(content_path)
+
+        return OutputState(output_exists=output_exists, output_content_hash=output_hash)
     except Exception:
         return OutputState(output_exists=False)
 
