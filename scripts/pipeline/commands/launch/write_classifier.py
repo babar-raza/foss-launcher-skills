@@ -2,8 +2,10 @@
 """Write classifier for launch-product refresh mode.
 
 Classifies existing content files as CREATE/REFRESH/PRESERVE/CONFLICT
-based on frontmatter provenance fields. Used by S-49 --refresh to decide
-which files to regenerate vs skip.
+based on frontmatter provenance fields. Used by S-49 when re-running on
+a product that already has content (checkpoint-aware refresh mode) to
+decide which files to regenerate vs skip. There is no --refresh CLI flag
+on S-49; classification runs as part of the checkpoint-resume workflow.
 
 Usage:
     python scripts/pipeline/commands/launch/write_classifier.py cells java
