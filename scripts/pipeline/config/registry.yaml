@@ -621,6 +621,104 @@ scripts:
     deprecated_since: null
     notes: "code block syntax/type checker; never executes code"
 
+  - path: scripts/pipeline/commands/diagnostics/artifact_completeness.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    deprecated_since: null
+    notes: "SH-10: sprint artifact completeness validator"
+
+  - path: scripts/pipeline/commands/diagnostics/claim_id_validity.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    deprecated_since: null
+    notes: "TC-FN-001B: stale/orphaned claim ID detector"
+
+  - path: scripts/pipeline/commands/diagnostics/interface_inheritance_check.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    deprecated_since: null
+    notes: "SH-13: api_surface interface inheritance gap detector"
+
+  - path: scripts/pipeline/commands/diagnostics/locale_grade_drift.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    deprecated_since: null
+    notes: "SH-02: locale grade drift vs English source enforcer"
+
+  - path: scripts/pipeline/commands/diagnostics/private_api_filter.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    deprecated_since: null
+    notes: "SH-12: internal/private API member exposure detector"
+
+  - path: scripts/pipeline/commands/diagnostics/typescript_api_completeness.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    deprecated_since: null
+    notes: "SH-14: 3d/typescript api_surface completeness check"
+
+  - path: scripts/pipeline/commands/diagnostics/verdict_consistency.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    deprecated_since: null
+    notes: "SH-11: product-verdict.md safety rule consistency check"
+
   - path: scripts/pipeline/commands/ops/page_impact_assess.py
     kind: entrypoint
     lifecycle: active
@@ -1693,6 +1791,34 @@ scripts:
       - scripts/pipeline/tests/test_structural_lock.py
     deprecated_since: null
     notes: "prevent structural overwrites of locked pages"
+
+  - path: scripts/pipeline/commands/governance/local_profile.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    deprecated_since: null
+    notes: "local governance profile reader; returns strict in CI; hook integration deferred"
+
+  - path: scripts/pipeline/commands/governance/local_profile_manager.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    deprecated_since: null
+    notes: "CLI to create/show/expire/validate local governance profiles"
 
   # ── Tier 7 — Standalone ops (→ Phase D deferred) ───────────────────────────
 
