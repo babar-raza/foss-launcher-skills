@@ -471,9 +471,14 @@ def _extract_python_init_attributes(
             continue
         attr_name = node_text(attr_node)
 
-        # Skip private/protected
+        # Skip private/protected unless a matching public @property exists
+        # (indicates a read-only property pattern where the backing field is
+        # the only way to mutate — e.g., Mesh._control_points when
+        # control_points returns list(self._control_points))
         if attr_name.startswith("_"):
-            continue
+            public_name = attr_name.lstrip("_")
+            if public_name not in seen:
+                continue
 
         # Skip duplicates (already found via @property or class-level annotation)
         if attr_name in seen:

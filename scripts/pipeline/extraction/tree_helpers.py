@@ -391,7 +391,8 @@ def _extract_bases(node, language: str) -> list[str]:
     # Java/C#: superclass, interfaces, base_list
     for ch in node.children:
         if ch.type in ("superclass", "type_identifier", "base_list",
-                        "super_interfaces", "class_heritage", "extends_clause",
+                        "super_interfaces", "extends_interfaces",
+                        "class_heritage", "extends_clause",
                         "implements_clause"):
             text = node_text(ch)
             # strip keywords
