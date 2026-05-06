@@ -155,9 +155,44 @@ PLATFORM_SDK_CLASSES = {
     "StringBuilder",       # System.Text.StringBuilder (.NET)
     "WriteLine",           # Console.WriteLine static method (.NET)
     "WriteAllBytes",       # File.WriteAllBytes static method (.NET)
+    "ReadAllBytes",        # File.ReadAllBytes static method (.NET)
     "GetBytes",            # Encoding.GetBytes method (.NET)
     "GetString",           # Encoding.GetString method (.NET)
     "ToArray",             # IEnumerable.ToArray() extension method (.NET)
+    # Java NIO / IO stdlib classes
+    "Files",               # java.nio.file.Files (Java)
+    "Paths",               # java.nio.file.Paths (Java)
+    "Arrays",              # java.util.Arrays (Java)
+    "FileInputStream",     # java.io.FileInputStream (Java)
+    "FileOutputStream",    # java.io.FileOutputStream (Java)
+    # .NET BCL static methods and types in code examples
+    "Combine",             # Path.Combine (.NET)
+    "AppContext",          # System.AppContext (.NET)
+    "CultureInfo",         # System.Globalization.CultureInfo (.NET)
+    "IsNullOrEmpty",       # String.IsNullOrEmpty (.NET)
+    "IsNullOrWhiteSpace",  # String.IsNullOrWhiteSpace (.NET)
+    "CopyTo",              # Stream.CopyTo (.NET)
+    "Exists",              # File.Exists (.NET)
+    "OpenRead",            # File.OpenRead (.NET)
+    "Directory",           # System.IO.Directory (.NET)
+    "GetFiles",            # Directory.GetFiles (.NET)
+    "ChangeExtension",     # Path.ChangeExtension (.NET)
+    "FileInfo",            # System.IO.FileInfo (.NET)
+    "GetFileNameWithoutExtension",  # Path.GetFileNameWithoutExtension (.NET)
+    "GetType",             # Object.GetType (.NET / Java)
+    # ASP.NET framework patterns in examples
+    "Ok",                  # ControllerBase.Ok() (ASP.NET MVC)
+    "Upload",              # IFormFile upload pattern (ASP.NET)
+    "OpenReadStream",      # IFormFile.OpenReadStream() (ASP.NET)
+    # Python stdlib types
+    "NamedTemporaryFile",  # tempfile.NamedTemporaryFile
+    "Walk",                # os.walk
+    # Common constant/formula/value names in code examples
+    "SUM",                 # Excel formula function
+    "Blue",                # Color.Blue enum value (.NET)
+    "Copyright",           # License notice in comments (not a class)
+    "EXTENSIONS",          # Constant/enum (not a product class)
+    "Create",              # Factory method pattern (File.Create, etc.)
 }
 
 

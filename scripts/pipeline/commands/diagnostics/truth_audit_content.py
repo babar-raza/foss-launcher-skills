@@ -420,6 +420,8 @@ def _grep_clone_cache(clone_path: Path, pattern: str, max_results: int = 5) -> l
             ["git", "-C", str(clone_path), "grep", "-n", "-i", "--max-count", str(max_results), pattern],
             capture_output=True, text=True, timeout=10,
         )
+        if result is None or result.stdout is None:
+            return []
         matches = []
         for line in result.stdout.strip().split("\n"):
             if not line or ":" not in line:
