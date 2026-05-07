@@ -17,7 +17,7 @@ import sys
 from pathlib import Path
 
 # Script under test — use repo-relative path to avoid Windows/POSIX conversion issues.
-_SCRIPT_REL = "scripts/ci/check_shell_bash.sh"
+_SCRIPT_REL = "scripts/ci/hooks/check_shell_bash.sh"
 
 # Repo root: four levels above this test file's location.
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent

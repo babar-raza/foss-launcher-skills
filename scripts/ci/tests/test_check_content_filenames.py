@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-CHECKER = REPO_ROOT / "scripts" / "ci" / "check_content_filenames.py"
+CHECKER = REPO_ROOT / "scripts" / "ci" / "checks" / "check_content_filenames.py"
 
 # ---------------------------------------------------------------------------
 # Helpers

@@ -25,9 +25,9 @@ from contextlib import contextmanager
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-_GATE_HOOK_ABS = str(_REPO_ROOT / "scripts" / "ci" / "check_session_gate.sh")
-_SKILL_HOOK_ABS = str(_REPO_ROOT / "scripts" / "ci" / "check_skill_context_hook.sh")
-_BOOTSTRAP_SCRIPT_ABS = str(_REPO_ROOT / "scripts" / "ci" / "bootstrap_session_gate.sh")
+_GATE_HOOK_ABS = str(_REPO_ROOT / "scripts" / "ci" / "hooks" / "check_session_gate.sh")
+_SKILL_HOOK_ABS = str(_REPO_ROOT / "scripts" / "ci" / "hooks" / "check_skill_context_hook.sh")
+_BOOTSTRAP_SCRIPT_ABS = str(_REPO_ROOT / "scripts" / "ci" / "hooks" / "bootstrap_session_gate.sh")
 
 # Temp directory for gate file isolation — never touches .claude/.agents_read
 _TEMP_DIR = Path(tempfile.mkdtemp(prefix="sg_e2e_"))

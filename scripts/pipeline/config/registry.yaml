@@ -1410,6 +1410,78 @@ scripts:
     deprecated_since: null
     notes: "harvest ledger CRUD — tracks report items processed into backlog"
 
+  - path: scripts/pipeline/commands/ops/metrics_schema.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: metrics
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_metrics_schema.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "Slice 1 of METRICS-PLAN-001: inert schema definitions (MetricsEvent, MetricsRow) and validation helpers. No HTTP calls, no event writing."
+
+  - path: scripts/pipeline/commands/ops/metrics_event_ledger.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: metrics
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_metrics_event_ledger.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "Slice 5 of METRICS-PLAN-001: per-run JSONL event ledger. Writes MetricsEvent objects to reports/metrics/events/{run_id}.jsonl."
+
+  - path: scripts/pipeline/commands/ops/professionalize_client.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: metrics
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_professionalize_client.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "Slice 2 of METRICS-PLAN-001: metrics-aware ProfessionalizeClient wrapper. Extracts usage metadata, produces MetricsEvent objects. Inert on import."
+
+  - path: scripts/pipeline/commands/ops/metrics_payload_builder.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: metrics
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_metrics_e2e_workflow_ledger.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "Slice 6 of METRICS-PLAN-001: payload builder - aggregate_events() + build_run_row(). No HTTP calls, no ledger writes, no secrets."
+
   - path: scripts/pipeline/commands/ops/skill_run_manager.py
     kind: entrypoint
     lifecycle: active

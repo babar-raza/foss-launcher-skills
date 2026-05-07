@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-_HOOK_REL = "scripts/ci/check_destructive_bash_hook.sh"
+_HOOK_REL = "scripts/ci/hooks/check_destructive_bash_hook.sh"
 
 
 def _find_bash() -> str:

@@ -60,7 +60,7 @@ Source: `scripts/pipeline/commands/ops/sync_skills.py:INTERNAL_SKILLS`.
 
 ## Skill Catalog
 
-80 registered skills grouped by functional category. For the machine-validated registry with
+81 registered skills grouped by functional category. For the machine-validated registry with
 full descriptions, see [AGENTS.md §12 (full table: docs/registries/skills.md)](../AGENTS.md).
 
 ### Knowledge & Truth

@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-CHECKER = REPO_ROOT / "scripts" / "ci" / "check_clone_cache_refs.py"
+CHECKER = REPO_ROOT / "scripts" / "ci" / "checks" / "check_clone_cache_refs.py"
 
 
 def _run_checker(*extra_args: str, cwd: Path | None = None) -> subprocess.CompletedProcess:

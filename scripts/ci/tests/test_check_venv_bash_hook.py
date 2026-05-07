@@ -22,7 +22,7 @@ from pathlib import Path
 # Use a relative path from the repo root (where pytest is invoked from).
 # Path.resolve() returns a Windows path on Windows; bash expects POSIX paths
 # or a relative path. Using a repo-relative string avoids the conversion issue.
-_HOOK_REL = "scripts/ci/check_venv_bash_hook.sh"
+_HOOK_REL = "scripts/ci/hooks/check_venv_bash_hook.sh"
 
 # Repo root: the directory two levels above this test file's location.
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent

@@ -37,7 +37,7 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
 # Hook uses absolute path — cwd does not need to be the repo root
-_HOOK_ABS = str(_REPO_ROOT / "scripts" / "ci" / "check_session_gate.sh")
+_HOOK_ABS = str(_REPO_ROOT / "scripts" / "ci" / "hooks" / "check_session_gate.sh")
 
 # Temp directory for gate file isolation — never touches .claude/.agents_read
 _TEMP_DIR = Path(tempfile.mkdtemp(prefix="sg_test_"))
