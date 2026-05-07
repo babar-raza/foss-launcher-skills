@@ -21,6 +21,7 @@ Enhance a page that scores below the quality bar (grade C or below from S-17/S-2
 > ```
 
 
+
 0. **Blog folder slug preflight** (blog posts only): If the target file is under `content/blog.aspose.org/`, check the folder slug quality before proceeding.
 
    ```python
@@ -32,16 +33,14 @@ Enhance a page that scores below the quality bar (grade C or below from S-17/S-2
    folder_slug = index_path.parent.name
    # Infer family and platform from path: content/blog.aspose.org/{family}/{platform}/{slug}/index.md
    parts = list(index_path.parts)
-   # path format: content/blog.aspose.org/{family}/{platform}/{slug}/index.md
    blog_idx = next((i for i, p in enumerate(parts) if "blog.aspose.org" in p), None)
    if blog_idx is not None and len(parts) > blog_idx + 3:
        family = parts[blog_idx + 1]
        platform = parts[blog_idx + 2]
-       # Read title from frontmatter
        import re
        text = index_path.read_text(encoding="utf-8")
-       m = re.search(r"^title:\s*["']?([^"'
-]+)["']?", text, re.MULTILINE)
+       m = re.search(r"^title:\s*[\"']?([^\"'
+]+)[\"']?", text, re.MULTILINE)
        title = m.group(1).strip() if m else folder_slug
        classification = classify_folder_slug_quality(folder_slug, title, family, platform)
        if classification in ("BAD_GENERIC", "BAD_FALLBACK", "BAD_NO_PLATFORM"):

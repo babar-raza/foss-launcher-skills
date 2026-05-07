@@ -189,6 +189,28 @@ Do not run any subsequent steps. Exit 0.
     - If coverage < 100%: emits WARNING and includes gap in commit message; does NOT abort commit
     - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step coverage_report`
 
+
+13a. **Two-layer triage gate** (S-92: triage-confirm):
+
+    Before committing, confirm that all updated and generated pages pass the
+    Layer 2 body-prose scanner. This catches residual staleness signals not
+    caught by the SHA-based Layer 1 check.
+
+    For each page in the updated/generated set, run:
+    ```python
+    from triage_confirm import triage_confirm
+    result = triage_confirm(page_path, knowledge)
+    # knowledge must include: api_surface, claims, delta
+    ```
+    Or invoke the skill:
+    ```
+    /triage-confirm {family} {platform}
+    ```
+    - If `result['stale']` is True for any page: log the reasons and re-run
+      the relevant content update step before continuing.
+    - If all pages return `stale: False`: proceed to Step 13.
+    - Record step: `.venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step triage_gate`
+
 13. **Commit** (S-76: commit):
     ```
     /commit

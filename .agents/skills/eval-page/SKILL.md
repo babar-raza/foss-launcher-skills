@@ -50,8 +50,7 @@ For batch evaluation of all pages in a product, use S-51 (content-eval):
    .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json --remediation
    ```
 
-2b. **Run smoke test** (Python platform only — skip for java, net, cpp, typescript):
-   If `{platform}` is `python`, run:
+2b. **Run smoke test** (all platforms — Python, Java, C#, TypeScript, C++):
    ```bash
    .venv/Scripts/python scripts/pipeline/commands/diagnostics/smoke_test.py --files {relative-file-path}
    ```

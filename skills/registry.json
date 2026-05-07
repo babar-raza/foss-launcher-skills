@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
-  "skill_count": 80,
+  "skill_count": 81,
   "skills": [
     {
       "id": "S-01",
@@ -375,8 +375,8 @@
     {
       "id": "S-63",
       "slug": "code-smoke",
-      "name": "Code Smoke — Syntax and Type-Check Python Code Blocks",
-      "description": "Check that Python code blocks in content pages are syntactically valid and",
+      "name": "Code Smoke — Syntax and Type-Check Code Blocks",
+      "description": "Check that code blocks in content pages are syntactically valid.",
       "internal": false,
       "canonical_path": "skills/code-smoke.md"
     },
@@ -643,6 +643,14 @@
       "description": "Inspect any content section in the aspose.org repository -- regardless of subdomain, family, platform, or section depth -- and produce a read-only proposal pack identifying gaps and suggesting improvements grounded in clone-cache truth and knowledge artifacts.",
       "internal": false,
       "canonical_path": "skills/section-enhance.md"
+    },
+    {
+      "id": "S-97",
+      "slug": "cleanroom-regen",
+      "name": "Cleanroom Regen — Regenerate, Diff, Review, Apply, Gate",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/cleanroom-regen.md"
     }
   ]
 }

@@ -209,7 +209,7 @@ Do not run any subsequent steps. Exit 0.
     - If `result['stale']` is True for any page: log the reasons and re-run
       the relevant content update step before continuing.
     - If all pages return `stale: False`: proceed to Step 13.
-    - Record step: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step triage_gate`
+    - Record step: `.venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step triage_gate`
 
 13. **Commit** (S-76: commit):
     ```
