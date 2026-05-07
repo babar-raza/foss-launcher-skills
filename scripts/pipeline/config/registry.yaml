@@ -2306,3 +2306,57 @@ scripts:
     deprecated_since: null
     change_impact: null
     notes: "S-96 scope resolver: maps family/platform/subdomain to content paths, knowledge paths, and generation entry points; ScopeManifest dataclass"
+
+  - path: scripts/pipeline/commands/ops/run_metrics.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: metrics
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_run_metrics.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "Slice 6 of METRICS-PLAN-001: RunMetrics context-manager. Wraps MetricsEventLedger + metrics_payload_builder. Inert on import. No HTTP calls. to_row() returns validated MetricsRow."
+
+  - path: scripts/pipeline/commands/ops/metrics_submitter.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: metrics
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_metrics_submitter.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "Slice 7 of METRICS-PLAN-001: production-safe submission layer. dry_run default, export_json, test_submit, production_submit modes. Token never printed. Endpoint from env."
+
+  - path: scripts/pipeline/commands/ops/submit_metrics.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: scripts/pipeline/commands/ops/submit_metrics.py
+    public_entrypoint: true
+    cli_contract: "python submit_metrics.py --dry-run|--export-json PATH|--test-submit|--production-submit --row-json PATH [--owner-approved] [--show-endpoint]"
+    owner_domain: metrics
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_metrics_submitter.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "Slice 7 CLI: wraps MetricsSubmitter. Default mode is --dry-run. Production requires --owner-approved + env vars."
