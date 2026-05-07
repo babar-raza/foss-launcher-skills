@@ -39,6 +39,12 @@ try:
 except ImportError:
     requests = None  # type: ignore[assignment]
 
+try:
+    from commands.ops.professionalize_client import ProfessionalizeClient  # type: ignore
+    _PROF_CLIENT_AVAILABLE = True
+except ImportError:
+    _PROF_CLIENT_AVAILABLE = False
+
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 log = logging.getLogger(__name__)
 
@@ -81,6 +87,9 @@ class CallResult:
     http_status: int = 0
     error: str = ""
     fallback_artifact: str = ""
+    token_usage: int = 0
+    api_calls_count: int = 0
+    metrics_events: list = field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
@@ -112,6 +121,25 @@ def _sorted_providers(registry: dict) -> list[tuple[str, dict]]:
 
 
 # ---------------------------------------------------------------------------
+# Status mapper for ProfessionalizeClient results
+# ---------------------------------------------------------------------------
+
+def _map_prof_status(prof_result: Any) -> tuple:
+    """Map ProfessionalizeCallResult fields to (EndpointStatus, error_str)."""
+    if prof_result.ok:
+        return EndpointStatus.OK, ""
+    event_status = prof_result.event.status if prof_result.event else "failure"
+    http = prof_result.http_status or 0
+    if event_status == "timeout":
+        return EndpointStatus.UNREACHABLE, prof_result.error_summary or "timeout"
+    if http in (401, 403):
+        return EndpointStatus.AUTH_FAILED, f"HTTP {http}"
+    if http == 0:
+        return EndpointStatus.UNREACHABLE, prof_result.error_summary or "connection error"
+    return EndpointStatus.UNKNOWN, prof_result.error_summary or f"HTTP {http}"
+
+
+# ---------------------------------------------------------------------------
 # LLMRouter
 # ---------------------------------------------------------------------------
 
@@ -121,10 +149,11 @@ class LLMRouter:
     All methods return ``CallResult`` — never raise on network/parse errors.
     """
 
-    def __init__(self, registry_path: Path | None = None):
+    def __init__(self, registry_path: Path | None = None, *, _http_client: Any = None):
         self._registry = _load_registry(registry_path)
         self._providers = _sorted_providers(self._registry)
         self._ollama_models: list[str] | None = None
+        self._http_client = _http_client
 
     # -- Ollama discovery ---------------------------------------------------
 
@@ -281,7 +310,7 @@ class LLMRouter:
             CallResult with ``data`` set to parsed JSON (dict/list) or raw
             string content, depending on json_extract.
         """
-        if requests is None:
+        if requests is None and not _PROF_CLIENT_AVAILABLE:
             return CallResult(
                 status=EndpointStatus.NOT_CONFIGURED,
                 error="requests library not installed",
@@ -289,6 +318,7 @@ class LLMRouter:
 
         first_result: CallResult | None = None
         fallback_artifact = ""
+        accumulated_events: list = []
 
         for name, provider in self._providers:
             api_key = self._get_api_key(provider)
@@ -313,108 +343,165 @@ class LLMRouter:
             temp = temperature if temperature is not None else chat_cfg.get("default_temperature", 0.0)
             mt = max_tokens if max_tokens is not None else chat_cfg.get("default_max_tokens")
 
-            headers = {"Content-Type": "application/json"}
-            if api_key:
-                headers["Authorization"] = f"Bearer {api_key}"
-
-            body: dict[str, Any] = {
-                "model": model,
-                "messages": [
-                    {"role": "system", "content": prompt_system},
-                    {"role": "user", "content": prompt_user},
-                ],
-                "temperature": temp,
-            }
-            if mt:
-                body["max_tokens"] = mt
-
-            start = time.monotonic()
-            try:
-                resp = requests.post(url, json=body, headers=headers, timeout=t)
-                elapsed = (time.monotonic() - start) * 1000
-            except requests.exceptions.Timeout:
-                elapsed = (time.monotonic() - start) * 1000
-                log.warning("%s: timeout after %.0fms — %s", name, elapsed, url)
-                if first_result is None:
-                    first_result = CallResult(
-                        provider=name, endpoint=url, model=model,
-                        status=EndpointStatus.UNREACHABLE,
-                        latency_ms=elapsed, error="timeout",
-                    )
-                continue
-            except Exception as exc:
-                elapsed = (time.monotonic() - start) * 1000
-                log.warning("%s: unreachable — %s: %s", name, url, exc)
-                if first_result is None:
-                    first_result = CallResult(
-                        provider=name, endpoint=url, model=model,
-                        status=EndpointStatus.UNREACHABLE,
-                        latency_ms=elapsed, error=str(exc),
-                    )
-                continue
-
-            if resp.status_code in (401, 403):
-                log.warning("%s: auth_failed (HTTP %d) — %s", name, resp.status_code, url)
-                if first_result is None:
-                    first_result = CallResult(
-                        provider=name, endpoint=url, model=model,
-                        status=EndpointStatus.AUTH_FAILED,
-                        http_status=resp.status_code, latency_ms=elapsed,
-                        error=f"HTTP {resp.status_code}",
-                    )
-                continue
-
-            if resp.status_code == 404 and name == "ollama":
-                log.warning("%s: model_missing (HTTP 404) — %s", name, model)
-                alt_result = self._try_ollama_alternative_models(
-                    provider, chat_cfg, body, headers, t,
-                    json_extract=json_extract, json_array=json_array,
+            # -------------------------------------------------------------- #
+            # ProfessionalizeClient branch (CS-001)                          #
+            # -------------------------------------------------------------- #
+            if name == "professionalize" and _PROF_CLIENT_AVAILABLE:
+                client = self._build_prof_client(provider, call_site_id="CS-001", timeout=t)
+                prof_result = client.chat(
+                    messages=[
+                        {"role": "system", "content": prompt_system},
+                        {"role": "user", "content": prompt_user},
+                    ],
+                    model=model,
+                    temperature=temp,
+                    max_tokens=mt,
                 )
-                if alt_result is not None:
-                    if first_result is not None:
-                        alt_result.fallback_artifact = self._write_fallback_artifact(
-                            alt_result.provider, first_result, "chat"
+                accumulated_events.append(prof_result.event)
+                ep_status, err_str = _map_prof_status(prof_result)
+
+                if not prof_result.ok:
+                    log.warning("%s: %s — %s", name, ep_status.value, url)
+                    if first_result is None:
+                        first_result = CallResult(
+                            provider=name, endpoint=url, model=model,
+                            status=ep_status,
+                            http_status=prof_result.http_status or 0,
+                            latency_ms=float(prof_result.latency_ms or 0),
+                            error=err_str,
+                            token_usage=0,
+                            api_calls_count=prof_result.api_calls_count_delta,
+                            metrics_events=list(accumulated_events),
                         )
-                    return alt_result
-                if first_result is None:
-                    first_result = CallResult(
-                        provider=name, endpoint=url, model=model,
-                        status=EndpointStatus.MODEL_MISSING,
-                        http_status=404, latency_ms=elapsed,
-                        error=f"Model '{model}' not found, no alternatives available",
-                    )
-                continue
+                    continue
 
-            if resp.status_code != 200:
-                log.warning(
-                    "%s: HTTP %d — %s: %s",
-                    name, resp.status_code, url, resp.text[:200],
-                )
-                if first_result is None:
-                    first_result = CallResult(
-                        provider=name, endpoint=url, model=model,
-                        status=EndpointStatus.UNKNOWN,
-                        http_status=resp.status_code, latency_ms=elapsed,
-                        error=f"HTTP {resp.status_code}: {resp.text[:200]}",
-                    )
-                continue
+                content = prof_result.content or ""
+                elapsed = float(prof_result.latency_ms or 0)
+                token_usage_val = prof_result.total_tokens
+                api_calls_val = prof_result.api_calls_count_delta
 
-            # HTTP 200 — parse response
-            try:
-                content = resp.json()["choices"][0]["message"]["content"]
-                if content is None:
-                    raise ValueError("content is null")
-            except (KeyError, IndexError, json.JSONDecodeError, ValueError) as exc:
-                log.warning("%s: parse_failed — %s", name, exc)
-                if first_result is None:
-                    first_result = CallResult(
-                        provider=name, endpoint=url, model=model,
-                        status=EndpointStatus.PARSE_FAILED,
-                        http_status=200, latency_ms=elapsed,
-                        error=f"Response parse failed: {exc}",
-                    )
-                continue
+            else:
+                # ---------------------------------------------------------- #
+                # requests.post transport (ollama or professionalize unavail.)#
+                # ---------------------------------------------------------- #
+                if requests is None:
+                    if first_result is None:
+                        first_result = CallResult(
+                            provider=name,
+                            status=EndpointStatus.NOT_CONFIGURED,
+                            error="requests library not installed",
+                        )
+                    continue
 
+                headers = {"Content-Type": "application/json"}
+                if api_key:
+                    headers["Authorization"] = f"Bearer {api_key}"
+
+                body: dict[str, Any] = {
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": prompt_system},
+                        {"role": "user", "content": prompt_user},
+                    ],
+                    "temperature": temp,
+                }
+                if mt:
+                    body["max_tokens"] = mt
+
+                start = time.monotonic()
+                try:
+                    resp = requests.post(url, json=body, headers=headers, timeout=t)
+                    elapsed = (time.monotonic() - start) * 1000
+                except requests.exceptions.Timeout:
+                    elapsed = (time.monotonic() - start) * 1000
+                    log.warning("%s: timeout after %.0fms — %s", name, elapsed, url)
+                    if first_result is None:
+                        first_result = CallResult(
+                            provider=name, endpoint=url, model=model,
+                            status=EndpointStatus.UNREACHABLE,
+                            latency_ms=elapsed, error="timeout",
+                        )
+                    continue
+                except Exception as exc:
+                    elapsed = (time.monotonic() - start) * 1000
+                    log.warning("%s: unreachable — %s: %s", name, url, exc)
+                    if first_result is None:
+                        first_result = CallResult(
+                            provider=name, endpoint=url, model=model,
+                            status=EndpointStatus.UNREACHABLE,
+                            latency_ms=elapsed, error=str(exc),
+                        )
+                    continue
+
+                if resp.status_code in (401, 403):
+                    log.warning("%s: auth_failed (HTTP %d) — %s", name, resp.status_code, url)
+                    if first_result is None:
+                        first_result = CallResult(
+                            provider=name, endpoint=url, model=model,
+                            status=EndpointStatus.AUTH_FAILED,
+                            http_status=resp.status_code, latency_ms=elapsed,
+                            error=f"HTTP {resp.status_code}",
+                        )
+                    continue
+
+                if resp.status_code == 404 and name == "ollama":
+                    log.warning("%s: model_missing (HTTP 404) — %s", name, model)
+                    alt_result = self._try_ollama_alternative_models(
+                        provider, chat_cfg, body, headers, t,
+                        json_extract=json_extract, json_array=json_array,
+                    )
+                    if alt_result is not None:
+                        if first_result is not None:
+                            alt_result.fallback_artifact = self._write_fallback_artifact(
+                                alt_result.provider, first_result, "chat"
+                            )
+                        alt_result.metrics_events = list(accumulated_events)
+                        return alt_result
+                    if first_result is None:
+                        first_result = CallResult(
+                            provider=name, endpoint=url, model=model,
+                            status=EndpointStatus.MODEL_MISSING,
+                            http_status=404, latency_ms=elapsed,
+                            error=f"Model '{model}' not found, no alternatives available",
+                        )
+                    continue
+
+                if resp.status_code != 200:
+                    log.warning(
+                        "%s: HTTP %d — %s: %s",
+                        name, resp.status_code, url, resp.text[:200],
+                    )
+                    if first_result is None:
+                        first_result = CallResult(
+                            provider=name, endpoint=url, model=model,
+                            status=EndpointStatus.UNKNOWN,
+                            http_status=resp.status_code, latency_ms=elapsed,
+                            error=f"HTTP {resp.status_code}: {resp.text[:200]}",
+                        )
+                    continue
+
+                # HTTP 200 — parse response
+                try:
+                    content = resp.json()["choices"][0]["message"]["content"]
+                    if content is None:
+                        raise ValueError("content is null")
+                except (KeyError, IndexError, json.JSONDecodeError, ValueError) as exc:
+                    log.warning("%s: parse_failed — %s", name, exc)
+                    if first_result is None:
+                        first_result = CallResult(
+                            provider=name, endpoint=url, model=model,
+                            status=EndpointStatus.PARSE_FAILED,
+                            http_status=200, latency_ms=elapsed,
+                            error=f"Response parse failed: {exc}",
+                        )
+                    continue
+
+                token_usage_val = 0
+                api_calls_val = 0
+
+            # -------------------------------------------------------------- #
+            # Shared: JSON extraction + success return                       #
+            # -------------------------------------------------------------- #
             if not json_extract:
                 # Write fallback artifact if this is a secondary provider
                 if first_result is not None:
@@ -426,6 +513,9 @@ class LLMRouter:
                     status=EndpointStatus.OK,
                     data=content, http_status=200, latency_ms=elapsed,
                     fallback_artifact=fallback_artifact,
+                    token_usage=token_usage_val,
+                    api_calls_count=api_calls_val,
+                    metrics_events=list(accumulated_events),
                 )
 
             # Extract JSON from content
@@ -468,10 +558,14 @@ class LLMRouter:
                 status=EndpointStatus.OK,
                 data=parsed, http_status=200, latency_ms=elapsed,
                 fallback_artifact=fallback_artifact,
+                token_usage=token_usage_val,
+                api_calls_count=api_calls_val,
+                metrics_events=list(accumulated_events),
             )
 
         # All providers failed
         if first_result is not None:
+            first_result.metrics_events = list(accumulated_events)
             log.error(
                 "All LLM providers failed. First failure: %s (%s)",
                 first_result.provider, first_result.error,
@@ -481,6 +575,7 @@ class LLMRouter:
         return CallResult(
             status=EndpointStatus.NOT_CONFIGURED,
             error="No providers available",
+            metrics_events=list(accumulated_events),
         )
 
     # -- Embeddings ---------------------------------------------------------
@@ -497,7 +592,7 @@ class LLMRouter:
         Returns CallResult with ``data`` set to list[list[float]] on success.
         Validates returned dimensions against registry ``embed_dimensions``.
         """
-        if requests is None:
+        if requests is None and not _PROF_CLIENT_AVAILABLE:
             return CallResult(
                 status=EndpointStatus.NOT_CONFIGURED,
                 error="requests library not installed",
@@ -505,6 +600,7 @@ class LLMRouter:
 
         first_result: CallResult | None = None
         fallback_artifact = ""
+        accumulated_events: list = []
 
         for name, provider in self._providers:
             embed_cfg = provider.get("embeddings")
@@ -530,133 +626,246 @@ class LLMRouter:
             t = timeout if timeout is not None else embed_cfg.get("default_timeout", 30)
             expected_dims = embed_cfg.get("embed_dimensions")
 
-            headers = {"Content-Type": "application/json"}
-            if api_key:
-                headers["Authorization"] = f"Bearer {api_key}"
+            # -------------------------------------------------------------- #
+            # ProfessionalizeClient branch (CS-002)                          #
+            # -------------------------------------------------------------- #
+            if name == "professionalize" and _PROF_CLIENT_AVAILABLE:
+                client = self._build_prof_client(provider, call_site_id="CS-002", timeout=t)
+                all_vectors: list[list[float]] = []
+                failed = False
+                total_start = time.monotonic()
+                prof_total_tokens = 0
+                prof_api_calls = 0
 
-            all_vectors: list[list[float]] = []
-            failed = False
-            total_start = time.monotonic()
+                for i in range(0, len(texts), batch_size):
+                    batch = texts[i : i + batch_size]
+                    prof_result = client.embed(texts=batch)
+                    accumulated_events.append(prof_result.event)
+                    prof_total_tokens += prof_result.total_tokens
+                    prof_api_calls += prof_result.api_calls_count_delta
 
-            for i in range(0, len(texts), batch_size):
-                batch = texts[i : i + batch_size]
-                start = time.monotonic()
-                try:
-                    resp = requests.post(
-                        url,
-                        json={"model": model, "input": batch},
-                        headers=headers,
-                        timeout=t,
-                    )
-                    elapsed = (time.monotonic() - start) * 1000
-                except requests.exceptions.Timeout:
-                    elapsed = (time.monotonic() - start) * 1000
-                    log.warning("%s: timeout after %.0fms — %s", name, elapsed, url)
-                    if first_result is None:
-                        first_result = CallResult(
-                            provider=name, endpoint=url, model=model,
-                            status=EndpointStatus.UNREACHABLE,
-                            latency_ms=elapsed, error="timeout",
+                    ep_status, err_str = _map_prof_status(prof_result)
+                    if not prof_result.ok:
+                        log.warning("%s: %s — %s", name, ep_status.value, url)
+                        if first_result is None:
+                            first_result = CallResult(
+                                provider=name, endpoint=url, model=model,
+                                status=ep_status,
+                                http_status=prof_result.http_status or 0,
+                                latency_ms=float(prof_result.latency_ms or 0),
+                                error=err_str,
+                                token_usage=prof_total_tokens,
+                                api_calls_count=prof_api_calls,
+                                metrics_events=list(accumulated_events),
+                            )
+                        failed = True
+                        break
+
+                    try:
+                        items = sorted(
+                            prof_result.data or [],
+                            key=lambda x: x.get("index", 0) if isinstance(x, dict) else 0,
                         )
-                    failed = True
-                    break
-                except Exception as exc:
-                    elapsed = (time.monotonic() - start) * 1000
-                    log.warning("%s: unreachable — %s: %s", name, url, exc)
-                    if first_result is None:
-                        first_result = CallResult(
-                            provider=name, endpoint=url, model=model,
-                            status=EndpointStatus.UNREACHABLE,
-                            latency_ms=elapsed, error=str(exc),
+                        for item in items:
+                            all_vectors.append(item["embedding"])
+                    except (KeyError, TypeError) as exc:
+                        log.warning("%s: parse_failed — %s", name, exc)
+                        if first_result is None:
+                            first_result = CallResult(
+                                provider=name, endpoint=url, model=model,
+                                status=EndpointStatus.PARSE_FAILED,
+                                http_status=200,
+                                latency_ms=float(prof_result.latency_ms or 0),
+                                error=f"Embedding parse failed: {exc}",
+                                token_usage=prof_total_tokens,
+                                api_calls_count=prof_api_calls,
+                                metrics_events=list(accumulated_events),
+                            )
+                        failed = True
+                        break
+
+                if failed:
+                    continue
+
+                total_elapsed = (time.monotonic() - total_start) * 1000
+
+                # Dimension validation
+                if expected_dims and all_vectors:
+                    actual_dims = len(all_vectors[0])
+                    if actual_dims != expected_dims:
+                        log.warning(
+                            "%s: dimension mismatch — expected %d, got %d",
+                            name, expected_dims, actual_dims,
                         )
-                    failed = True
-                    break
+                        if first_result is None:
+                            first_result = CallResult(
+                                provider=name, endpoint=url, model=model,
+                                status=EndpointStatus.PARSE_FAILED,
+                                http_status=200, latency_ms=total_elapsed,
+                                error=f"Dimension mismatch: expected {expected_dims}, got {actual_dims}",
+                                token_usage=prof_total_tokens,
+                                api_calls_count=prof_api_calls,
+                                metrics_events=list(accumulated_events),
+                            )
+                        continue
 
-                if resp.status_code in (401, 403):
-                    log.warning(
-                        "%s: auth_failed (HTTP %d) — %s",
-                        name, resp.status_code, url,
+                # Success
+                if first_result is not None:
+                    fallback_artifact = self._write_fallback_artifact(
+                        name, first_result, "embeddings"
                     )
+                return CallResult(
+                    provider=name, endpoint=url, model=model,
+                    status=EndpointStatus.OK,
+                    data=all_vectors, http_status=200, latency_ms=total_elapsed,
+                    fallback_artifact=fallback_artifact,
+                    token_usage=prof_total_tokens,
+                    api_calls_count=prof_api_calls,
+                    metrics_events=list(accumulated_events),
+                )
+
+            else:
+                # ---------------------------------------------------------- #
+                # requests.post batching (ollama or professionalize unavail.) #
+                # ---------------------------------------------------------- #
+                if requests is None:
                     if first_result is None:
                         first_result = CallResult(
-                            provider=name, endpoint=url, model=model,
-                            status=EndpointStatus.AUTH_FAILED,
-                            http_status=resp.status_code, latency_ms=elapsed,
-                            error=f"HTTP {resp.status_code}",
-                        )
-                    failed = True
-                    break
-
-                if resp.status_code != 200:
-                    log.warning(
-                        "%s: HTTP %d — %s: %s",
-                        name, resp.status_code, url, resp.text[:200],
-                    )
-                    if first_result is None:
-                        first_result = CallResult(
-                            provider=name, endpoint=url, model=model,
-                            status=EndpointStatus.UNKNOWN,
-                            http_status=resp.status_code, latency_ms=elapsed,
-                            error=f"HTTP {resp.status_code}: {resp.text[:200]}",
-                        )
-                    failed = True
-                    break
-
-                try:
-                    data = resp.json()
-                    items = sorted(
-                        data.get("data", []), key=lambda x: x.get("index", 0)
-                    )
-                    for item in items:
-                        all_vectors.append(item["embedding"])
-                except (KeyError, json.JSONDecodeError) as exc:
-                    log.warning("%s: parse_failed — %s", name, exc)
-                    if first_result is None:
-                        first_result = CallResult(
-                            provider=name, endpoint=url, model=model,
-                            status=EndpointStatus.PARSE_FAILED,
-                            http_status=200, latency_ms=elapsed,
-                            error=f"Response parse failed: {exc}",
-                        )
-                    failed = True
-                    break
-
-            if failed:
-                continue
-
-            total_elapsed = (time.monotonic() - total_start) * 1000
-
-            # Dimension validation
-            if expected_dims and all_vectors:
-                actual_dims = len(all_vectors[0])
-                if actual_dims != expected_dims:
-                    log.warning(
-                        "%s: dimension mismatch — expected %d, got %d",
-                        name, expected_dims, actual_dims,
-                    )
-                    if first_result is None:
-                        first_result = CallResult(
-                            provider=name, endpoint=url, model=model,
-                            status=EndpointStatus.PARSE_FAILED,
-                            http_status=200, latency_ms=total_elapsed,
-                            error=f"Dimension mismatch: expected {expected_dims}, got {actual_dims}",
+                            provider=name,
+                            status=EndpointStatus.NOT_CONFIGURED,
+                            error="requests library not installed",
                         )
                     continue
 
-            # Success
-            if first_result is not None:
-                fallback_artifact = self._write_fallback_artifact(
-                    name, first_result, "embeddings"
+                headers = {"Content-Type": "application/json"}
+                if api_key:
+                    headers["Authorization"] = f"Bearer {api_key}"
+
+                all_vectors_req: list[list[float]] = []
+                failed_req = False
+                total_start_req = time.monotonic()
+
+                for i in range(0, len(texts), batch_size):
+                    batch = texts[i : i + batch_size]
+                    start = time.monotonic()
+                    try:
+                        resp = requests.post(
+                            url,
+                            json={"model": model, "input": batch},
+                            headers=headers,
+                            timeout=t,
+                        )
+                        elapsed = (time.monotonic() - start) * 1000
+                    except requests.exceptions.Timeout:
+                        elapsed = (time.monotonic() - start) * 1000
+                        log.warning("%s: timeout after %.0fms — %s", name, elapsed, url)
+                        if first_result is None:
+                            first_result = CallResult(
+                                provider=name, endpoint=url, model=model,
+                                status=EndpointStatus.UNREACHABLE,
+                                latency_ms=elapsed, error="timeout",
+                            )
+                        failed_req = True
+                        break
+                    except Exception as exc:
+                        elapsed = (time.monotonic() - start) * 1000
+                        log.warning("%s: unreachable — %s: %s", name, url, exc)
+                        if first_result is None:
+                            first_result = CallResult(
+                                provider=name, endpoint=url, model=model,
+                                status=EndpointStatus.UNREACHABLE,
+                                latency_ms=elapsed, error=str(exc),
+                            )
+                        failed_req = True
+                        break
+
+                    if resp.status_code in (401, 403):
+                        log.warning(
+                            "%s: auth_failed (HTTP %d) — %s",
+                            name, resp.status_code, url,
+                        )
+                        if first_result is None:
+                            first_result = CallResult(
+                                provider=name, endpoint=url, model=model,
+                                status=EndpointStatus.AUTH_FAILED,
+                                http_status=resp.status_code, latency_ms=elapsed,
+                                error=f"HTTP {resp.status_code}",
+                            )
+                        failed_req = True
+                        break
+
+                    if resp.status_code != 200:
+                        log.warning(
+                            "%s: HTTP %d — %s: %s",
+                            name, resp.status_code, url, resp.text[:200],
+                        )
+                        if first_result is None:
+                            first_result = CallResult(
+                                provider=name, endpoint=url, model=model,
+                                status=EndpointStatus.UNKNOWN,
+                                http_status=resp.status_code, latency_ms=elapsed,
+                                error=f"HTTP {resp.status_code}: {resp.text[:200]}",
+                            )
+                        failed_req = True
+                        break
+
+                    try:
+                        data = resp.json()
+                        items = sorted(
+                            data.get("data", []), key=lambda x: x.get("index", 0)
+                        )
+                        for item in items:
+                            all_vectors_req.append(item["embedding"])
+                    except (KeyError, json.JSONDecodeError) as exc:
+                        log.warning("%s: parse_failed — %s", name, exc)
+                        if first_result is None:
+                            first_result = CallResult(
+                                provider=name, endpoint=url, model=model,
+                                status=EndpointStatus.PARSE_FAILED,
+                                http_status=200, latency_ms=elapsed,
+                                error=f"Response parse failed: {exc}",
+                            )
+                        failed_req = True
+                        break
+
+                if failed_req:
+                    continue
+
+                total_elapsed_req = (time.monotonic() - total_start_req) * 1000
+
+                # Dimension validation
+                if expected_dims and all_vectors_req:
+                    actual_dims = len(all_vectors_req[0])
+                    if actual_dims != expected_dims:
+                        log.warning(
+                            "%s: dimension mismatch — expected %d, got %d",
+                            name, expected_dims, actual_dims,
+                        )
+                        if first_result is None:
+                            first_result = CallResult(
+                                provider=name, endpoint=url, model=model,
+                                status=EndpointStatus.PARSE_FAILED,
+                                http_status=200, latency_ms=total_elapsed_req,
+                                error=f"Dimension mismatch: expected {expected_dims}, got {actual_dims}",
+                            )
+                        continue
+
+                # Success
+                if first_result is not None:
+                    fallback_artifact = self._write_fallback_artifact(
+                        name, first_result, "embeddings"
+                    )
+                return CallResult(
+                    provider=name, endpoint=url, model=model,
+                    status=EndpointStatus.OK,
+                    data=all_vectors_req, http_status=200, latency_ms=total_elapsed_req,
+                    fallback_artifact=fallback_artifact,
+                    metrics_events=list(accumulated_events),
                 )
-            return CallResult(
-                provider=name, endpoint=url, model=model,
-                status=EndpointStatus.OK,
-                data=all_vectors, http_status=200, latency_ms=total_elapsed,
-                fallback_artifact=fallback_artifact,
-            )
 
         # All providers failed
         if first_result is not None:
+            first_result.metrics_events = list(accumulated_events)
             log.error(
                 "All embedding providers failed. First failure: %s (%s)",
                 first_result.provider, first_result.error,
@@ -666,6 +875,7 @@ class LLMRouter:
         return CallResult(
             status=EndpointStatus.NOT_CONFIGURED,
             error="No embedding providers available",
+            metrics_events=list(accumulated_events),
         )
 
     # -- Probe --------------------------------------------------------------
@@ -788,6 +998,23 @@ class LLMRouter:
         if not key:
             return None
         return key
+
+    def _build_prof_client(
+        self, provider: dict, *, call_site_id: str, timeout: float
+    ) -> Any:
+        """Build ProfessionalizeClient from provider config for metrics-aware transport."""
+        chat_cfg = provider.get("chat", {})
+        embed_cfg = provider.get("embeddings", {})
+        raw_key = self._get_api_key(provider)
+        return ProfessionalizeClient(
+            base_url=provider["base_url"],
+            api_key=raw_key if raw_key else None,
+            default_chat_model=chat_cfg.get("model"),
+            default_embedding_model=embed_cfg.get("model"),
+            timeout=timeout,
+            http_client=self._http_client,
+            call_site_id=call_site_id,
+        )
 
     @staticmethod
     def _write_fallback_artifact(

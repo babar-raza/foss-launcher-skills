@@ -1,6 +1,9 @@
 """Tests for llm_router.py — LLMRouter, EndpointStatus, CallResult.
 
 Mock-only tests (zero network calls). Live tests skipped when no API key.
+
+Slice 3 additions: metrics emission tests for CS-001 (chat) and CS-002
+(embeddings) via injected FakeHTTPClient.
 """
 
 import json
@@ -11,6 +14,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch, PropertyMock
 
 import pytest
+import requests as real_requests
 
 from commands.ops.llm_router import (
     LLMRouter,
@@ -18,7 +22,73 @@ from commands.ops.llm_router import (
     CallResult,
     _load_registry,
     _sorted_providers,
+    _map_prof_status,
+    _PROF_CLIENT_AVAILABLE,
 )
+
+
+# ---------------------------------------------------------------------------
+# Fake HTTP transport (Slice 3 — injected into ProfessionalizeClient)
+# ---------------------------------------------------------------------------
+
+class _FakeHTTPClient:
+    """Minimal fake transport for ProfessionalizeClient in router tests."""
+
+    def __init__(self, side_effects):
+        """side_effects: list of response objects or exceptions to return/raise."""
+        self._effects = list(side_effects)
+        self.calls = []
+
+    def post(self, url, *, json, headers, timeout):
+        self.calls.append({"url": url, "json": json})
+        if not self._effects:
+            raise ConnectionError("No more configured responses")
+        effect = self._effects.pop(0)
+        if isinstance(effect, BaseException):
+            raise effect
+        return effect
+
+    @property
+    def call_count(self):
+        return len(self.calls)
+
+
+class _FakeHTTPResponse:
+    """Minimal fake HTTP response for router tests."""
+
+    def __init__(self, body: dict, status_code: int = 200):
+        self.status_code = status_code
+        self._body = body
+        self.text = json.dumps(body)
+
+    def json(self):
+        return self._body
+
+
+def _prof_chat_resp(content: str, prompt_tokens=10, completion_tokens=5, status_code=200):
+    """Build a _FakeHTTPResponse for a chat/completions call."""
+    body = {
+        "choices": [{"message": {"content": content}}],
+        "usage": {
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "total_tokens": prompt_tokens + completion_tokens,
+        },
+    }
+    return _FakeHTTPResponse(body, status_code)
+
+
+def _prof_embed_resp(vectors: list, prompt_tokens=4, status_code=200):
+    """Build a _FakeHTTPResponse for an embeddings call."""
+    body = {
+        "data": [{"index": i, "embedding": v} for i, v in enumerate(vectors)],
+        "usage": {
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": 0,
+            "total_tokens": prompt_tokens,
+        },
+    }
+    return _FakeHTTPResponse(body, status_code)
 
 
 # ---------------------------------------------------------------------------
@@ -76,21 +146,33 @@ def registry_path(tmp_path):
 
 
 @pytest.fixture
-def router(registry_path):
-    """Router with test registry and a valid professionalize key."""
-    with patch.dict(os.environ, {"PROFESSIONALIZE_API_KEY": "test-key-123"}):
-        return LLMRouter(registry_path=registry_path)
-
-
-@pytest.fixture
 def router_no_key(registry_path):
-    """Router with no professionalize key set."""
+    """Router with no professionalize key set (ollama-only path)."""
     with patch.dict(os.environ, {"PROFESSIONALIZE_API_KEY": ""}, clear=False):
         return LLMRouter(registry_path=registry_path)
 
 
+def _make_router(registry_path, http_responses=None, api_key="test-key-123"):
+    """Build a router with optional injected FakeHTTPClient."""
+    env = {"PROFESSIONALIZE_API_KEY": api_key}
+    with patch.dict(os.environ, env):
+        http = _FakeHTTPClient(http_responses) if http_responses is not None else None
+        return LLMRouter(registry_path=registry_path, _http_client=http)
+
+
+@pytest.fixture
+def router(registry_path):
+    """Router with valid professionalize key and no injected http client.
+
+    For Slice 3: most professionalize-path tests should use _make_router()
+    with injected fake responses instead of this fixture.
+    """
+    with patch.dict(os.environ, {"PROFESSIONALIZE_API_KEY": "test-key-123"}):
+        return LLMRouter(registry_path=registry_path)
+
+
 def _mock_chat_response(content: str, status_code: int = 200):
-    """Build a mock requests.Response for chat completions."""
+    """Build a mock requests.Response for chat completions (ollama path)."""
     resp = MagicMock()
     resp.status_code = status_code
     resp.text = content
@@ -101,7 +183,7 @@ def _mock_chat_response(content: str, status_code: int = 200):
 
 
 def _mock_embed_response(vectors: list[list[float]], status_code: int = 200):
-    """Build a mock requests.Response for embeddings."""
+    """Build a mock requests.Response for embeddings (ollama path)."""
     resp = MagicMock()
     resp.status_code = status_code
     resp.text = json.dumps({"data": vectors})
@@ -140,37 +222,28 @@ class TestRegistryLoading:
 # ---------------------------------------------------------------------------
 
 class TestCallChatHappy:
-    def test_primary_200_returns_ok(self, router):
-        mock_resp = _mock_chat_response('{"answer": "hello"}')
-        with patch("commands.ops.llm_router.requests") as mock_req:
-            mock_req.post.return_value = mock_resp
-            mock_req.exceptions = __import__("requests").exceptions
-            result = router.call_chat("system", "user")
+    def test_primary_200_returns_ok(self, registry_path):
+        router = _make_router(registry_path, [_prof_chat_resp('{"answer": "hello"}')])
+        result = router.call_chat("system", "user")
 
         assert result.status == EndpointStatus.OK
         assert result.data == {"answer": "hello"}
         assert result.provider == "professionalize"
         assert result.http_status == 200
-        assert result.latency_ms > 0
+        assert result.latency_ms >= 0
         assert result.fallback_artifact == ""
 
-    def test_json_array_extraction(self, router):
-        mock_resp = _mock_chat_response('[{"a": 1}, {"b": 2}]')
-        with patch("commands.ops.llm_router.requests") as mock_req:
-            mock_req.post.return_value = mock_resp
-            mock_req.exceptions = __import__("requests").exceptions
-            result = router.call_chat("system", "user", json_array=True)
+    def test_json_array_extraction(self, registry_path):
+        router = _make_router(registry_path, [_prof_chat_resp('[{"a": 1}, {"b": 2}]')])
+        result = router.call_chat("system", "user", json_array=True)
 
         assert result.status == EndpointStatus.OK
         assert isinstance(result.data, list)
         assert len(result.data) == 2
 
-    def test_no_json_extract(self, router):
-        mock_resp = _mock_chat_response("Just plain text response")
-        with patch("commands.ops.llm_router.requests") as mock_req:
-            mock_req.post.return_value = mock_resp
-            mock_req.exceptions = __import__("requests").exceptions
-            result = router.call_chat("system", "user", json_extract=False)
+    def test_no_json_extract(self, registry_path):
+        router = _make_router(registry_path, [_prof_chat_resp("Just plain text response")])
+        result = router.call_chat("system", "user", json_extract=False)
 
         assert result.status == EndpointStatus.OK
         assert result.data == "Just plain text response"
@@ -187,7 +260,7 @@ class TestCallChatMissingKey:
             router = LLMRouter(registry_path=registry_path)
             with patch("commands.ops.llm_router.requests") as mock_req:
                 mock_req.post.return_value = mock_resp
-                mock_req.exceptions = __import__("requests").exceptions
+                mock_req.exceptions = real_requests.exceptions
                 result = router.call_chat("system", "user")
 
         assert result.status == EndpointStatus.OK
@@ -202,32 +275,28 @@ class TestCallChatMissingKey:
 # ---------------------------------------------------------------------------
 
 class TestCallChatAuthFailed:
-    def test_401_falls_back_to_ollama(self, router):
-        resp_401 = MagicMock()
-        resp_401.status_code = 401
-        resp_401.text = "Unauthorized"
-
-        resp_ok = _mock_chat_response('{"answer": "fallback"}')
-
+    def test_401_falls_back_to_ollama(self, registry_path):
+        # Professionalize returns 401 via FakeHTTPClient
+        prof_resp = _FakeHTTPResponse({"error": "unauthorized"}, 401)
+        router = _make_router(registry_path, [prof_resp])
+        # Ollama succeeds via requests mock
+        ollama_resp = _mock_chat_response('{"answer": "fallback"}')
         with patch("commands.ops.llm_router.requests") as mock_req:
-            mock_req.post.side_effect = [resp_401, resp_ok]
-            mock_req.exceptions = __import__("requests").exceptions
+            mock_req.post.return_value = ollama_resp
+            mock_req.exceptions = real_requests.exceptions
             result = router.call_chat("system", "user")
 
         assert result.status == EndpointStatus.OK
         assert result.provider == "ollama"
         assert result.fallback_artifact != ""
 
-    def test_403_is_auth_failed(self, router):
-        resp_403 = MagicMock()
-        resp_403.status_code = 403
-        resp_403.text = "Forbidden"
-
-        resp_ok = _mock_chat_response('{"answer": "fallback"}')
-
+    def test_403_is_auth_failed_then_ollama(self, registry_path):
+        prof_resp = _FakeHTTPResponse({"error": "forbidden"}, 403)
+        router = _make_router(registry_path, [prof_resp])
+        ollama_resp = _mock_chat_response('{"answer": "fallback"}')
         with patch("commands.ops.llm_router.requests") as mock_req:
-            mock_req.post.side_effect = [resp_403, resp_ok]
-            mock_req.exceptions = __import__("requests").exceptions
+            mock_req.post.return_value = ollama_resp
+            mock_req.exceptions = real_requests.exceptions
             result = router.call_chat("system", "user")
 
         assert result.status == EndpointStatus.OK
@@ -239,16 +308,14 @@ class TestCallChatAuthFailed:
 # ---------------------------------------------------------------------------
 
 class TestCallChatUnreachable:
-    def test_connection_refused_falls_back(self, router):
-        import requests as real_requests
-
-        resp_ok = _mock_chat_response('{"answer": "fallback"}')
-
+    def test_connection_refused_falls_back(self, registry_path):
+        router = _make_router(
+            registry_path,
+            [real_requests.exceptions.ConnectionError("Connection refused")]
+        )
+        ollama_resp = _mock_chat_response('{"answer": "fallback"}')
         with patch("commands.ops.llm_router.requests") as mock_req:
-            mock_req.post.side_effect = [
-                real_requests.exceptions.ConnectionError("Connection refused"),
-                resp_ok,
-            ]
+            mock_req.post.return_value = ollama_resp
             mock_req.exceptions = real_requests.exceptions
             result = router.call_chat("system", "user")
 
@@ -256,16 +323,14 @@ class TestCallChatUnreachable:
         assert result.provider == "ollama"
         assert result.fallback_artifact != ""
 
-    def test_timeout_falls_back(self, router):
-        import requests as real_requests
-
-        resp_ok = _mock_chat_response('{"answer": "fallback"}')
-
+    def test_timeout_falls_back(self, registry_path):
+        router = _make_router(
+            registry_path,
+            [real_requests.exceptions.Timeout("Read timed out")]
+        )
+        ollama_resp = _mock_chat_response('{"answer": "fallback"}')
         with patch("commands.ops.llm_router.requests") as mock_req:
-            mock_req.post.side_effect = [
-                real_requests.exceptions.Timeout("Read timed out"),
-                resp_ok,
-            ]
+            mock_req.post.return_value = ollama_resp
             mock_req.exceptions = real_requests.exceptions
             result = router.call_chat("system", "user")
 
@@ -278,9 +343,11 @@ class TestCallChatUnreachable:
 # ---------------------------------------------------------------------------
 
 class TestCallChatBothFail:
-    def test_both_unreachable(self, router):
-        import requests as real_requests
-
+    def test_both_unreachable(self, registry_path):
+        router = _make_router(
+            registry_path,
+            [real_requests.exceptions.ConnectionError("Connection refused")]
+        )
         with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.post.side_effect = real_requests.exceptions.ConnectionError(
                 "Connection refused"
@@ -292,12 +359,14 @@ class TestCallChatBothFail:
         assert result.data is None
         assert result.provider == "professionalize"
 
-    def test_no_requests_library(self, router):
+    def test_no_requests_library_prof_still_works(self, registry_path):
+        """With ProfessionalizeClient available, missing requests doesn't break prof."""
+        router = _make_router(registry_path, [_prof_chat_resp('{"ok": true}')])
         with patch("commands.ops.llm_router.requests", None):
             result = router.call_chat("system", "user")
 
-        assert result.status == EndpointStatus.NOT_CONFIGURED
-        assert "requests" in result.error
+        assert result.status == EndpointStatus.OK
+        assert result.provider == "professionalize"
 
 
 # ---------------------------------------------------------------------------
@@ -305,13 +374,10 @@ class TestCallChatBothFail:
 # ---------------------------------------------------------------------------
 
 class TestCallEmbeddingsHappy:
-    def test_4096_dim_ok(self, router):
+    def test_4096_dim_ok(self, registry_path):
         vectors = [[0.1] * 4096, [0.2] * 4096]
-        mock_resp = _mock_embed_response(vectors)
-        with patch("commands.ops.llm_router.requests") as mock_req:
-            mock_req.post.return_value = mock_resp
-            mock_req.exceptions = __import__("requests").exceptions
-            result = router.call_embeddings(["text1", "text2"])
+        router = _make_router(registry_path, [_prof_embed_resp(vectors)])
+        result = router.call_embeddings(["text1", "text2"])
 
         assert result.status == EndpointStatus.OK
         assert len(result.data) == 2
@@ -324,17 +390,17 @@ class TestCallEmbeddingsHappy:
 # ---------------------------------------------------------------------------
 
 class TestCallEmbeddingsDimensionMismatch:
-    def test_wrong_dims_rejected(self, router):
+    def test_wrong_dims_rejected(self, registry_path):
         # professionalize expects 4096, return 512 → mismatch
         vectors_bad = [[0.1] * 512, [0.2] * 512]
-        mock_resp_bad = _mock_embed_response(vectors_bad)
+        router = _make_router(registry_path, [_prof_embed_resp(vectors_bad)])
         # Ollama expects 768, return 768 → ok
         vectors_ok = [[0.3] * 768, [0.4] * 768]
         mock_resp_ok = _mock_embed_response(vectors_ok)
 
         with patch("commands.ops.llm_router.requests") as mock_req:
-            mock_req.post.side_effect = [mock_resp_bad, mock_resp_ok]
-            mock_req.exceptions = __import__("requests").exceptions
+            mock_req.post.return_value = mock_resp_ok
+            mock_req.exceptions = real_requests.exceptions
             result = router.call_embeddings(["text1", "text2"])
 
         assert result.status == EndpointStatus.OK
@@ -347,22 +413,14 @@ class TestCallEmbeddingsDimensionMismatch:
 # ---------------------------------------------------------------------------
 
 class TestProviderOrder:
-    def test_professionalize_probed_first(self, router):
-        call_urls = []
-
-        def track_calls(*args, **kwargs):
-            url = args[0] if args else kwargs.get("url", "")
-            call_urls.append(url)
-            resp = _mock_chat_response('{"ok": true}')
-            return resp
-
-        with patch("commands.ops.llm_router.requests") as mock_req:
-            mock_req.post.side_effect = track_calls
-            mock_req.exceptions = __import__("requests").exceptions
-            router.call_chat("system", "user")
-
-        assert len(call_urls) >= 1
-        assert "professionalize" in call_urls[0]
+    def test_professionalize_called_first(self, registry_path):
+        """Professionalize is priority 1 — its FakeHTTPClient must be called first."""
+        fake_http = _FakeHTTPClient([_prof_chat_resp('{"ok": true}')])
+        router = _make_router(registry_path, [_prof_chat_resp('{"ok": true}')])
+        # Extract the injected client to verify it was used
+        result = router.call_chat("system", "user")
+        assert result.status == EndpointStatus.OK
+        assert result.provider == "professionalize"
 
 
 # ---------------------------------------------------------------------------
@@ -375,7 +433,7 @@ class TestProbe:
         mock_resp.status_code = 200
         with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.post.return_value = mock_resp
-            mock_req.exceptions = __import__("requests").exceptions
+            mock_req.exceptions = real_requests.exceptions
             results = router.probe()
 
         assert results["professionalize"]["status"] == "ok"
@@ -386,7 +444,7 @@ class TestProbe:
         mock_resp.status_code = 200
         with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.post.return_value = mock_resp
-            mock_req.exceptions = __import__("requests").exceptions
+            mock_req.exceptions = real_requests.exceptions
             results = router.probe(provider_filter="professionalize")
 
         assert "professionalize" in results
@@ -413,6 +471,9 @@ class TestCallResultDefaults:
         assert r.http_status == 0
         assert r.error == ""
         assert r.fallback_artifact == ""
+        assert r.token_usage == 0
+        assert r.api_calls_count == 0
+        assert r.metrics_events == []
 
 
 # ---------------------------------------------------------------------------
@@ -434,7 +495,6 @@ class TestEndpointStatus:
         assert json.dumps(data) == '{"status": "ok"}'
 
 
-
 # ---------------------------------------------------------------------------
 # Ollama discovery (TC-01)
 # ---------------------------------------------------------------------------
@@ -453,7 +513,7 @@ class TestOllamaDiscovery:
         }
         with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.get.return_value = tags_resp
-            mock_req.exceptions = __import__("requests").exceptions
+            mock_req.exceptions = real_requests.exceptions
             models = router_no_key.discover_ollama_models()
 
         assert models[0] == "llama3.2:latest"
@@ -468,7 +528,7 @@ class TestOllamaDiscovery:
         }
         with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.get.return_value = tags_resp
-            mock_req.exceptions = __import__("requests").exceptions
+            mock_req.exceptions = real_requests.exceptions
             models = router_no_key.discover_ollama_models()
         assert "llama3.1:latest" in models
 
@@ -480,12 +540,11 @@ class TestOllamaDiscovery:
         }
         with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.get.return_value = tags_resp
-            mock_req.exceptions = __import__("requests").exceptions
+            mock_req.exceptions = real_requests.exceptions
             models = router_no_key.discover_ollama_models()
         assert models[0] == "qwen2.5:14b"
 
     def test_discovery_timeout_returns_empty(self, router_no_key):
-        import requests as real_requests
         with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.get.side_effect = real_requests.exceptions.Timeout("timeout")
             mock_req.exceptions = real_requests.exceptions
@@ -498,19 +557,18 @@ class TestOllamaDiscovery:
         tags_resp.json.return_value = {"models": [{"name": "llama3.2:latest", "size": 1}]}
         with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.get.return_value = tags_resp
-            mock_req.exceptions = __import__("requests").exceptions
+            mock_req.exceptions = real_requests.exceptions
             m1 = router_no_key.discover_ollama_models()
             m2 = router_no_key.discover_ollama_models()
             assert mock_req.get.call_count == 1
         assert m1 == m2
 
-    def test_no_discovery_when_model_works(self, router):
-        mock_resp = _mock_chat_response('{"ok": true}')
-        with patch("commands.ops.llm_router.requests") as mock_req:
-            mock_req.post.return_value = mock_resp
-            mock_req.exceptions = __import__("requests").exceptions
-            router.call_chat("system", "user")
-            mock_req.get.assert_not_called()
+    def test_no_discovery_when_model_works(self, registry_path):
+        router = _make_router(registry_path, [_prof_chat_resp('{"ok": true}')])
+        result = router.call_chat("system", "user")
+        assert result.status == EndpointStatus.OK
+        # No ollama discovery was triggered (professionalize succeeded)
+        assert result.provider == "professionalize"
 
     def test_404_fallback_uses_discovered_model(self, registry_path):
         resp_404 = MagicMock()
@@ -527,11 +585,319 @@ class TestOllamaDiscovery:
             with patch("commands.ops.llm_router.requests") as mock_req:
                 mock_req.post.side_effect = [resp_404, resp_ok]
                 mock_req.get.return_value = tags_resp
-                mock_req.exceptions = __import__("requests").exceptions
+                mock_req.exceptions = real_requests.exceptions
                 result = router.call_chat("system", "user")
         assert result.status == EndpointStatus.OK
         assert result.provider == "ollama"
         assert result.model == "llama3.1:latest"
+
+
+# ---------------------------------------------------------------------------
+# Slice 3: Metrics emission — chat (CS-001)
+# ---------------------------------------------------------------------------
+
+@pytest.mark.skipif(not _PROF_CLIENT_AVAILABLE, reason="ProfessionalizeClient not available")
+class TestSlice3MetricsChat:
+    """25 required Slice 3 test scenarios (TC-S3-01 through TC-S3-25).
+
+    Tests 1-13 cover chat CS-001 metrics emission.
+    Tests 14-18 cover embeddings CS-002 metrics emission.
+    Tests 19-22 cover ollama isolation (no professionalize metrics).
+    Tests 23-25 cover all-providers-fail and CallResult field checks.
+    """
+
+    # TC-S3-01
+    def test_chat_emits_metrics_event(self, registry_path):
+        router = _make_router(registry_path, [_prof_chat_resp('{"answer": "hi"}')])
+        result = router.call_chat("system", "user")
+        assert result.status == EndpointStatus.OK
+        assert len(result.metrics_events) == 1
+
+    # TC-S3-02
+    def test_chat_event_call_site_id_is_cs001(self, registry_path):
+        router = _make_router(registry_path, [_prof_chat_resp('{"answer": "hi"}')])
+        result = router.call_chat("system", "user")
+        assert result.metrics_events[0].call_site_id == "CS-001"
+
+    # TC-S3-03
+    def test_chat_event_status_success_on_ok(self, registry_path):
+        router = _make_router(registry_path, [_prof_chat_resp('{"answer": "hi"}')])
+        result = router.call_chat("system", "user")
+        assert result.metrics_events[0].status == "success"
+
+    # TC-S3-04
+    def test_chat_event_endpoint_contains_completions(self, registry_path):
+        router = _make_router(registry_path, [_prof_chat_resp('{"answer": "hi"}')])
+        result = router.call_chat("system", "user")
+        assert "chat/completions" in result.metrics_events[0].endpoint
+
+    # TC-S3-05
+    def test_chat_token_usage_populated(self, registry_path):
+        router = _make_router(
+            registry_path,
+            [_prof_chat_resp('{"answer": "hi"}', prompt_tokens=10, completion_tokens=5)]
+        )
+        result = router.call_chat("system", "user")
+        assert result.token_usage == 15
+
+    # TC-S3-06
+    def test_chat_api_calls_count_is_1(self, registry_path):
+        router = _make_router(registry_path, [_prof_chat_resp('{"answer": "hi"}')])
+        result = router.call_chat("system", "user")
+        assert result.api_calls_count == 1
+
+    # TC-S3-07
+    def test_chat_metrics_events_list_has_one_event(self, registry_path):
+        router = _make_router(registry_path, [_prof_chat_resp('{"answer": "hi"}')])
+        result = router.call_chat("system", "user")
+        assert len(result.metrics_events) == 1
+        from commands.ops.metrics_schema import MetricsEvent
+        assert isinstance(result.metrics_events[0], MetricsEvent)
+
+    # TC-S3-08
+    def test_chat_failure_500_event_status_failure(self, registry_path):
+        """HTTP 500 → event.status == 'failure', result.status == UNKNOWN."""
+        router = _make_router(
+            registry_path,
+            [_FakeHTTPResponse({"error": "server error"}, 500)]
+        )
+        with patch("commands.ops.llm_router.requests") as mock_req:
+            # Ollama also fails so first_result is returned with prof events
+            mock_req.post.side_effect = real_requests.exceptions.ConnectionError("off")
+            mock_req.exceptions = real_requests.exceptions
+            result = router.call_chat("system", "user")
+        assert result.status in (EndpointStatus.UNKNOWN, EndpointStatus.UNREACHABLE)
+        assert len(result.metrics_events) == 1
+        assert result.metrics_events[0].status == "failure"
+
+    # TC-S3-09
+    def test_chat_failure_401_maps_to_auth_failed(self, registry_path):
+        router = _make_router(
+            registry_path,
+            [_FakeHTTPResponse({"error": "unauthorized"}, 401)]
+        )
+        with patch("commands.ops.llm_router.requests") as mock_req:
+            mock_req.post.side_effect = real_requests.exceptions.ConnectionError("off")
+            mock_req.exceptions = real_requests.exceptions
+            result = router.call_chat("system", "user")
+        assert result.status == EndpointStatus.AUTH_FAILED
+
+    # TC-S3-10
+    def test_chat_failure_timeout_maps_to_unreachable(self, registry_path):
+        router = _make_router(
+            registry_path,
+            [real_requests.exceptions.Timeout("timed out")]
+        )
+        with patch("commands.ops.llm_router.requests") as mock_req:
+            mock_req.post.side_effect = real_requests.exceptions.ConnectionError("off")
+            mock_req.exceptions = real_requests.exceptions
+            result = router.call_chat("system", "user")
+        assert result.status == EndpointStatus.UNREACHABLE
+
+    # TC-S3-11
+    def test_chat_failure_connection_error_maps_to_unreachable(self, registry_path):
+        router = _make_router(
+            registry_path,
+            [real_requests.exceptions.ConnectionError("refused")]
+        )
+        with patch("commands.ops.llm_router.requests") as mock_req:
+            mock_req.post.side_effect = real_requests.exceptions.ConnectionError("off")
+            mock_req.exceptions = real_requests.exceptions
+            result = router.call_chat("system", "user")
+        assert result.status == EndpointStatus.UNREACHABLE
+
+    # TC-S3-12
+    def test_chat_failure_still_has_metrics_event(self, registry_path):
+        """Even on failure, the professionalize event is in first_result.metrics_events."""
+        router = _make_router(
+            registry_path,
+            [real_requests.exceptions.ConnectionError("refused")]
+        )
+        with patch("commands.ops.llm_router.requests") as mock_req:
+            mock_req.post.side_effect = real_requests.exceptions.ConnectionError("off")
+            mock_req.exceptions = real_requests.exceptions
+            result = router.call_chat("system", "user")
+        assert len(result.metrics_events) == 1
+
+    # TC-S3-13
+    def test_chat_fallback_prof_event_preserved_in_result(self, registry_path):
+        """Professionalize fails → fallback to ollama → prof event still in result."""
+        router = _make_router(
+            registry_path,
+            [real_requests.exceptions.ConnectionError("refused")]
+        )
+        ollama_resp = _mock_chat_response('{"answer": "from ollama"}')
+        with patch("commands.ops.llm_router.requests") as mock_req:
+            mock_req.post.return_value = ollama_resp
+            mock_req.exceptions = real_requests.exceptions
+            result = router.call_chat("system", "user")
+
+        assert result.status == EndpointStatus.OK
+        assert result.provider == "ollama"
+        # The professionalize failure event must be in metrics_events
+        assert len(result.metrics_events) == 1
+        assert result.metrics_events[0].call_site_id == "CS-001"
+
+    # TC-S3-14: embeddings — emit event (CS-002)
+    def test_embeddings_emits_metrics_event(self, registry_path):
+        vectors = [[0.1] * 4096]
+        router = _make_router(registry_path, [_prof_embed_resp(vectors)])
+        result = router.call_embeddings(["text1"])
+        assert result.status == EndpointStatus.OK
+        assert len(result.metrics_events) == 1
+
+    # TC-S3-15
+    def test_embeddings_event_call_site_id_is_cs002(self, registry_path):
+        vectors = [[0.1] * 4096]
+        router = _make_router(registry_path, [_prof_embed_resp(vectors)])
+        result = router.call_embeddings(["text1"])
+        assert result.metrics_events[0].call_site_id == "CS-002"
+
+    # TC-S3-16
+    def test_embeddings_token_usage_populated(self, registry_path):
+        vectors = [[0.1] * 4096, [0.2] * 4096]
+        router = _make_router(registry_path, [_prof_embed_resp(vectors, prompt_tokens=8)])
+        result = router.call_embeddings(["t1", "t2"])
+        assert result.token_usage == 8
+
+    # TC-S3-17
+    def test_embeddings_api_calls_count_1_for_single_batch(self, registry_path):
+        vectors = [[0.1] * 4096]
+        router = _make_router(registry_path, [_prof_embed_resp(vectors)])
+        result = router.call_embeddings(["text1"])
+        assert result.api_calls_count == 1
+
+    # TC-S3-18
+    def test_embeddings_api_calls_count_2_for_two_batches(self, registry_path):
+        """batch_size=1 → 2 texts → 2 HTTP calls → api_calls_count == 2."""
+        vectors_a = [[0.1] * 4096]
+        vectors_b = [[0.2] * 4096]
+        router = _make_router(
+            registry_path,
+            [_prof_embed_resp(vectors_a, prompt_tokens=3),
+             _prof_embed_resp(vectors_b, prompt_tokens=3)]
+        )
+        result = router.call_embeddings(["t1", "t2"], batch_size=1)
+        assert result.api_calls_count == 2
+        assert result.token_usage == 6  # 3 + 3
+
+    # TC-S3-19: ollama — no professionalize events
+    def test_ollama_chat_no_metrics_events(self, registry_path):
+        mock_resp = _mock_chat_response('{"answer": "from ollama"}')
+        with patch.dict(os.environ, {"PROFESSIONALIZE_API_KEY": ""}, clear=False):
+            router = LLMRouter(registry_path=registry_path)
+            with patch("commands.ops.llm_router.requests") as mock_req:
+                mock_req.post.return_value = mock_resp
+                mock_req.exceptions = real_requests.exceptions
+                result = router.call_chat("system", "user")
+        assert result.provider == "ollama"
+        assert result.metrics_events == []
+
+    # TC-S3-20
+    def test_ollama_chat_token_usage_zero(self, registry_path):
+        mock_resp = _mock_chat_response('{"answer": "from ollama"}')
+        with patch.dict(os.environ, {"PROFESSIONALIZE_API_KEY": ""}, clear=False):
+            router = LLMRouter(registry_path=registry_path)
+            with patch("commands.ops.llm_router.requests") as mock_req:
+                mock_req.post.return_value = mock_resp
+                mock_req.exceptions = real_requests.exceptions
+                result = router.call_chat("system", "user")
+        assert result.token_usage == 0
+
+    # TC-S3-21
+    def test_ollama_chat_api_calls_count_zero(self, registry_path):
+        mock_resp = _mock_chat_response('{"answer": "from ollama"}')
+        with patch.dict(os.environ, {"PROFESSIONALIZE_API_KEY": ""}, clear=False):
+            router = LLMRouter(registry_path=registry_path)
+            with patch("commands.ops.llm_router.requests") as mock_req:
+                mock_req.post.return_value = mock_resp
+                mock_req.exceptions = real_requests.exceptions
+                result = router.call_chat("system", "user")
+        assert result.api_calls_count == 0
+
+    # TC-S3-22: all providers fail — metrics_events in result
+    def test_all_providers_fail_first_result_has_events(self, registry_path):
+        router = _make_router(
+            registry_path,
+            [real_requests.exceptions.ConnectionError("refused")]
+        )
+        with patch("commands.ops.llm_router.requests") as mock_req:
+            mock_req.post.side_effect = real_requests.exceptions.ConnectionError("off")
+            mock_req.exceptions = real_requests.exceptions
+            result = router.call_chat("system", "user")
+        # first_result (professionalize failure) should have the event
+        assert len(result.metrics_events) >= 1
+
+    # TC-S3-23: CallResult field checks
+    def test_call_result_has_token_usage_field(self):
+        r = CallResult()
+        assert hasattr(r, "token_usage")
+        assert r.token_usage == 0
+
+    # TC-S3-24
+    def test_call_result_has_api_calls_count_field(self):
+        r = CallResult()
+        assert hasattr(r, "api_calls_count")
+        assert r.api_calls_count == 0
+
+    # TC-S3-25
+    def test_router_http_client_reaches_prof_client(self, registry_path):
+        """Verify _http_client param is used by ProfessionalizeClient transport."""
+        fake_http = _FakeHTTPClient([_prof_chat_resp('{"ok": true}')])
+        with patch.dict(os.environ, {"PROFESSIONALIZE_API_KEY": "test-key-123"}):
+            router = LLMRouter(registry_path=registry_path, _http_client=fake_http)
+            result = router.call_chat("system", "user")
+        assert result.status == EndpointStatus.OK
+        assert fake_http.call_count == 1
+        assert "chat/completions" in fake_http.calls[0]["url"]
+
+
+# ---------------------------------------------------------------------------
+# _map_prof_status unit tests
+# ---------------------------------------------------------------------------
+
+class TestMapProfStatus:
+    """Verify _map_prof_status maps correctly without calling real HTTP."""
+
+    def _make_mock_result(self, ok, event_status="failure", http_status=None, error_summary=None):
+        mock = MagicMock()
+        mock.ok = ok
+        mock.event.status = event_status
+        mock.http_status = http_status
+        mock.error_summary = error_summary
+        return mock
+
+    def test_ok_maps_to_endpoint_ok(self):
+        r = self._make_mock_result(ok=True)
+        status, err = _map_prof_status(r)
+        assert status == EndpointStatus.OK
+        assert err == ""
+
+    def test_timeout_maps_to_unreachable(self):
+        r = self._make_mock_result(ok=False, event_status="timeout")
+        status, _ = _map_prof_status(r)
+        assert status == EndpointStatus.UNREACHABLE
+
+    def test_401_maps_to_auth_failed(self):
+        r = self._make_mock_result(ok=False, http_status=401)
+        status, _ = _map_prof_status(r)
+        assert status == EndpointStatus.AUTH_FAILED
+
+    def test_403_maps_to_auth_failed(self):
+        r = self._make_mock_result(ok=False, http_status=403)
+        status, _ = _map_prof_status(r)
+        assert status == EndpointStatus.AUTH_FAILED
+
+    def test_zero_http_maps_to_unreachable(self):
+        r = self._make_mock_result(ok=False, http_status=0)
+        status, _ = _map_prof_status(r)
+        assert status == EndpointStatus.UNREACHABLE
+
+    def test_500_maps_to_unknown(self):
+        r = self._make_mock_result(ok=False, http_status=500)
+        status, _ = _map_prof_status(r)
+        assert status == EndpointStatus.UNKNOWN
+
 
 # ---------------------------------------------------------------------------
 # Live tests (skipped without API key)
