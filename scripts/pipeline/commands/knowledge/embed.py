@@ -26,11 +26,18 @@ import sys
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 try:
     import requests
 except ImportError:
     requests = None  # type: ignore[assignment]
+
+try:
+    from commands.ops.professionalize_client import ProfessionalizeClient
+    _PROF_CLIENT_AVAILABLE = True
+except ImportError:
+    _PROF_CLIENT_AVAILABLE = False
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 log = logging.getLogger(__name__)
@@ -105,10 +112,21 @@ def cosine_similarity(vec1: dict[str, float], vec2: dict[str, float]) -> float:
 class EmbeddingClient:
     """Client for OpenAI-compatible /v1/embeddings endpoint."""
 
-    def __init__(self, endpoint: str, model: str, api_key: str = ""):
+    def __init__(
+        self,
+        endpoint: str,
+        model: str,
+        api_key: str = "",
+        *,
+        call_site_id: str | None = None,
+        _http_client: Any = None,
+    ):
         self.endpoint = endpoint.rstrip("/")
         self.model = model
         self.api_key = api_key
+        self._call_site_id = call_site_id  # set to "CS-004" for professionalize tier
+        self._http_client = _http_client   # injected transport for tests
+        self.metrics_events: list = []     # populated by embed_batch per HTTP call
 
     def is_available(self) -> bool:
         """Probe endpoint with trivial request."""
@@ -129,25 +147,55 @@ class EmbeddingClient:
 
     def embed_batch(self, texts: list[str], batch_size: int = 32) -> list[list[float]]:
         """Batch embed texts. Splits into chunks of batch_size."""
-        if requests is None:
-            raise RuntimeError("requests library required for API embeddings: pip install requests")
+        self.metrics_events = []
         all_vectors: list[list[float]] = []
-        for i in range(0, len(texts), batch_size):
-            batch = texts[i : i + batch_size]
-            resp = requests.post(
-                self.endpoint,
-                json={"model": self.model, "input": batch},
-                headers=self._headers(),
-                timeout=30,
+
+        if _PROF_CLIENT_AVAILABLE and self._call_site_id:
+            # Professionalize path: use ProfessionalizeClient for metrics-aware HTTP.
+            # Derive base_url by stripping the /embeddings path component.
+            base_url = self.endpoint
+            if base_url.endswith("/embeddings"):
+                base_url = base_url[: -len("/embeddings")]
+            prof_client = ProfessionalizeClient(
+                base_url=base_url,
+                api_key=self.api_key or None,
+                default_embedding_model=self.model,
+                call_site_id=self._call_site_id,
+                http_client=self._http_client,
             )
-            if resp.status_code != 200:
+            for i in range(0, len(texts), batch_size):
+                batch = texts[i : i + batch_size]
+                result = prof_client.embed(texts=batch)
+                self.metrics_events.append(result.event)
+                if not result.ok:
+                    raise RuntimeError(
+                        f"Embedding API returned failure: {result.error_summary}"
+                    )
+                items = sorted(result.data, key=lambda x: x.get("index", 0))
+                for item in items:
+                    all_vectors.append(item["embedding"])
+        else:
+            # Non-professionalize path (ollama) or ProfessionalizeClient unavailable.
+            if requests is None:
                 raise RuntimeError(
-                    f"Embedding API returned {resp.status_code}: {resp.text[:200]}"
+                    "requests library required for API embeddings: pip install requests"
                 )
-            data = resp.json()
-            items = sorted(data.get("data", []), key=lambda x: x.get("index", 0))
-            for item in items:
-                all_vectors.append(item["embedding"])
+            for i in range(0, len(texts), batch_size):
+                batch = texts[i : i + batch_size]
+                resp = requests.post(
+                    self.endpoint,
+                    json={"model": self.model, "input": batch},
+                    headers=self._headers(),
+                    timeout=30,
+                )
+                if resp.status_code != 200:
+                    raise RuntimeError(
+                        f"Embedding API returned {resp.status_code}: {resp.text[:200]}"
+                    )
+                data = resp.json()
+                items = sorted(data.get("data", []), key=lambda x: x.get("index", 0))
+                for item in items:
+                    all_vectors.append(item["embedding"])
         return all_vectors
 
     def _headers(self) -> dict:
@@ -366,7 +414,9 @@ def embed_knowledge(
         if tier.get("api_key_env"):
             api_key = os.environ.get(tier["api_key_env"], "")
 
-        client = EmbeddingClient(tier["endpoint"], tier["model"], api_key)
+        # Pass call_site_id for professionalize tier so embed_batch emits MetricsEvents.
+        cs_id = "CS-004" if tier.get("provider") == "professionalize" else None
+        client = EmbeddingClient(tier["endpoint"], tier["model"], api_key, call_site_id=cs_id)
 
         if not client.is_available():
             log.info("Tier '%s' (%s) unavailable, skipping", tier["id"], tier["provider"])
