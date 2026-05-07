@@ -797,3 +797,65 @@ class Body:
             assert "doc" in field, (
                 f"Field '{field.get('name')}' must have 'doc' key (TC-01)"
             )
+
+
+# ---------------------------------------------------------------------------
+# Regression: extends_interfaces node type in Java interface inheritance
+# (commit 30c0ba40c34 — fixed 102 false FAIL findings in slides/java)
+# ---------------------------------------------------------------------------
+
+
+class TestJavaExtendsInterfaces:
+    """Regression tests for 'extends_interfaces' node type in _extract_bases().
+
+    Without 'extends_interfaces' in the node-type set, Java interfaces that
+    extend other interfaces are silently missed, producing false FAIL audit
+    findings.  Commit 30c0ba40c34 added the node type; these tests prevent
+    a silent revert.
+    """
+
+    JAVA_INTERFACE_SINGLE_EXTENDS = """
+public interface IAdvancedShape extends IBasicShape {
+    void draw();
+}
+"""
+
+    JAVA_INTERFACE_MULTI_EXTENDS = """
+public interface IShape extends IDrawable, ISerializable {
+    int getArea();
+}
+"""
+
+    JAVA_CLASS_IMPLEMENTS = """
+public class Circle implements IShape {
+    public void draw() {}
+}
+"""
+
+    def test_java_interface_single_extends_captured(self):
+        """Interface extending one interface — parent captured via extends_interfaces."""
+        root = _parse("java", self.JAVA_INTERFACE_SINGLE_EXTENDS)
+        interfaces = scout.collect_nodes(root, {"interface_declaration"})
+        assert interfaces, "Expected interface_declaration node"
+        bases = scout._extract_bases(interfaces[0], "java")
+        assert "IBasicShape" in bases, (
+            "extends_interfaces node type missing from _extract_bases(). "
+            "See commit 30c0ba40c34."
+        )
+
+    def test_java_interface_multi_extends_captured(self):
+        """Interface extending multiple interfaces — all parents captured."""
+        root = _parse("java", self.JAVA_INTERFACE_MULTI_EXTENDS)
+        interfaces = scout.collect_nodes(root, {"interface_declaration"})
+        assert interfaces, "Expected interface_declaration node"
+        bases = scout._extract_bases(interfaces[0], "java")
+        assert "IDrawable" in bases, "First parent in multi-extends not captured"
+        assert "ISerializable" in bases, "Second parent in multi-extends not captured"
+
+    def test_java_class_implements_captured(self):
+        """Class implementing interface — sanity check that implements_clause still works."""
+        root = _parse("java", self.JAVA_CLASS_IMPLEMENTS)
+        classes = scout.collect_nodes(root, {"class_declaration"})
+        assert classes, "Expected class_declaration node"
+        bases = scout._extract_bases(classes[0], "java")
+        assert "IShape" in bases, "implements_clause not captured"

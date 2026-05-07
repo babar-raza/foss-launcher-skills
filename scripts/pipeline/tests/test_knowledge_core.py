@@ -509,3 +509,92 @@ class TestSelfReferentialBasesFilter:
         # Should not hang; self-ref is filtered
         assert k.has_method("AnimationChannel", "play") is True
         assert k.has_method("AnimationChannel", "nonexistent") is False
+
+
+# ---------------------------------------------------------------------------
+# class_graph-FORMAT-001: Array format loading
+# All products use {"child": ..., "parent": ...} array format.
+# Previously the dict-only check silently ignored all class_graph.json files.
+# ---------------------------------------------------------------------------
+
+
+class TestClassGraphArrayFormat:
+    """Regression tests for class_graph.json array format in knowledge_core.py.
+
+    All 16 products use the array format [{"child": "...", "parent": "...", ...}].
+    Previously isinstance(graph, dict) on line 171 silently skipped all arrays,
+    leaving self.parents empty for every product.
+    """
+
+    def _make_knowledge_root(self, tmp_path, api_list, class_graph=None):
+        import yaml as _yaml
+        merged = tmp_path / "test" / "java" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "model.yaml").write_text(
+            _yaml.dump({"version": "1.0", "repo_sha": "test_sha"}),
+            encoding="utf-8",
+        )
+        (merged / "api_surface.json").write_text(
+            json.dumps(api_list), encoding="utf-8",
+        )
+        if class_graph is not None:
+            (merged / "class_graph.json").write_text(
+                json.dumps(class_graph), encoding="utf-8",
+            )
+        return tmp_path
+
+    def test_array_format_parents_populated(self, tmp_path):
+        """Array-format class_graph.json must populate self.parents."""
+        graph = [
+            {"child": "BulletFormat", "parent": "PVIObject", "relationship": "inherits"},
+            {"child": "PVIObject", "parent": "IPresentation", "relationship": "inherits"},
+        ]
+        from knowledge_core import Knowledge
+        k = Knowledge("test", "java", knowledge_root=self._make_knowledge_root(tmp_path, [], graph))
+        assert "PVIObject" in k.parents.get("BulletFormat", []), (
+            "Array-format class_graph.json not loaded. "
+            "Check isinstance(graph, list) branch in knowledge_core.py."
+        )
+        assert "IPresentation" in k.parents.get("PVIObject", [])
+
+    def test_array_format_self_ref_filtered(self, tmp_path):
+        """OBS-03: Self-referential entries in array format must be filtered."""
+        graph = [
+            {"child": "Shape", "parent": "Shape", "relationship": "inherits"},
+            {"child": "Shape", "parent": "IShape", "relationship": "inherits"},
+        ]
+        from knowledge_core import Knowledge
+        k = Knowledge("test", "java", knowledge_root=self._make_knowledge_root(tmp_path, [], graph))
+        parents = k.parents.get("Shape", [])
+        assert "Shape" not in parents, "Self-referential entry must be filtered (OBS-03)"
+        assert "IShape" in parents, "Legitimate parent must be preserved"
+
+    def test_missing_child_or_parent_skipped(self, tmp_path):
+        """Entries with missing child or parent keys must be skipped gracefully."""
+        graph = [
+            {"child": "ValidClass", "parent": "ValidBase", "relationship": "inherits"},
+            {"parent": "OrphanParent", "relationship": "inherits"},   # no child
+            {"child": "OrphanChild", "relationship": "inherits"},      # no parent
+            {"relationship": "inherits"},                               # neither
+        ]
+        from knowledge_core import Knowledge
+        k = Knowledge("test", "java", knowledge_root=self._make_knowledge_root(tmp_path, [], graph))
+        assert "ValidBase" in k.parents.get("ValidClass", [])
+        # Incomplete entries must not raise
+        assert k.parents.get("OrphanChild") is None or "OrphanChild" not in k.parents
+
+    def test_no_class_graph_file_still_loads(self, tmp_path):
+        """Knowledge loads cleanly when class_graph.json is absent."""
+        from knowledge_core import Knowledge
+        k = Knowledge("test", "java", knowledge_root=self._make_knowledge_root(tmp_path, []))
+        assert k.parents == {}
+
+    def test_dict_format_still_works(self, tmp_path):
+        """Existing dict format must still be supported after array branch addition."""
+        graph = {
+            "PVIObject": {"bases": ["IPresentation", "IDisposable"]},
+        }
+        from knowledge_core import Knowledge
+        k = Knowledge("test", "java", knowledge_root=self._make_knowledge_root(tmp_path, [], graph))
+        assert "IPresentation" in k.parents.get("PVIObject", [])
+        assert "IDisposable" in k.parents.get("PVIObject", [])

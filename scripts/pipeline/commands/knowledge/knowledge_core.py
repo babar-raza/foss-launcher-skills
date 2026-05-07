@@ -175,6 +175,16 @@ class Knowledge:
                         self.parents[cls_name] = [b for b in info.get("bases", []) if b != cls_name]
                     elif isinstance(info, list):
                         self.parents[cls_name] = [b for b in info if b != cls_name]
+            elif isinstance(graph, list):
+                # Array format: [{"child": "Foo", "parent": "Bar", ...}, ...]
+                for entry in graph:
+                    if isinstance(entry, dict):
+                        child = entry.get("child")
+                        parent = entry.get("parent")
+                        if child and parent and parent != child:  # OBS-03: filter self-ref
+                            if child not in self.parents:
+                                self.parents[child] = []
+                            self.parents[child].append(parent)
         # Also use bases from api_surface
         for cls in api_list:
             if isinstance(cls, dict) and cls.get("bases"):
