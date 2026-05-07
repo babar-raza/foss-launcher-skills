@@ -42,6 +42,18 @@ sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
 from core.env_loader import load_env  # noqa: E402
 load_env()
 
+try:
+    sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
+    from commands.ops.metrics_schema import (
+        MetricsEvent,
+        generate_event_id,
+        now_iso8601,
+        redact_secret_like_values,
+    )
+    _METRICS_AVAILABLE = True
+except ImportError:
+    _METRICS_AVAILABLE = False
+
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
@@ -92,6 +104,47 @@ _ALLOWED_SITE_PREFIXES = (
 
 
 # ---------------------------------------------------------------------------
+# CS-009 Metrics capture — module-level accumulator
+# ---------------------------------------------------------------------------
+
+# Accumulates MetricsEvent objects for each professionalize HTTP attempt made via
+# _call_llm. Tests read this list. Caller may call metrics_events.clear() between runs.
+metrics_events: list = []
+
+
+def _emit_cs009_event(
+    *,
+    status: str,
+    http_status: int | None,
+    total_tokens: int,
+    latency_ms: int,
+    error_summary: str | None = None,
+) -> None:
+    """Append a MetricsEvent for one professionalize HTTP attempt (CS-009)."""
+    if not _METRICS_AVAILABLE:
+        return
+    safe_error = (
+        redact_secret_like_values(error_summary) if error_summary else None
+    )
+    event = MetricsEvent(
+        event_id=generate_event_id(),
+        call_site_id="CS-009",
+        endpoint=_LLM_BASE_URL.rstrip("/") + "/chat/completions",
+        request_type="seo",
+        status=status,
+        prompt_tokens=0,
+        completion_tokens=0,
+        total_tokens=total_tokens,
+        api_calls_count_delta=1,
+        timestamp=now_iso8601(),
+        http_status=http_status,
+        latency_ms=latency_ms,
+        redacted_error_summary=safe_error,
+    )
+    metrics_events.append(event)
+
+
+# ---------------------------------------------------------------------------
 # LLM call — openai SDK pointed at custom base URL
 # ---------------------------------------------------------------------------
 
@@ -129,6 +182,7 @@ def _call_llm(
 
     last_exc: Exception | None = None
     for attempt in range(1, _LLM_MAX_RETRIES + 1):
+        t0 = time.monotonic()
         try:
             response = client.chat.completions.create(
                 model=model,
@@ -148,10 +202,18 @@ def _call_llm(
                 max_tokens=2048,
                 temperature=0.3,
             )
+            latency_ms = int((time.monotonic() - t0) * 1000)
+            total_tokens = 0
+            if response.usage:
+                total_tokens = getattr(response.usage, "total_tokens", 0) or 0
 
             raw = response.choices[0].message.content
             if not raw:
                 _LOG.warning("LLM returned empty content (attempt %d)", attempt)
+                _emit_cs009_event(
+                    status="failure", http_status=200, total_tokens=total_tokens,
+                    latency_ms=latency_ms, error_summary="empty LLM response",
+                )
                 last_exc = ValueError("empty LLM response")
                 time.sleep(_LLM_RETRY_DELAY)
                 continue
@@ -169,18 +231,38 @@ def _call_llm(
                 _LOG.warning(
                     "LLM response missing keys %s (attempt %d)", missing, attempt
                 )
+                _emit_cs009_event(
+                    status="failure", http_status=200, total_tokens=total_tokens,
+                    latency_ms=latency_ms, error_summary=f"missing schema keys: {missing}",
+                )
                 last_exc = ValueError(f"missing schema keys: {missing}")
                 time.sleep(_LLM_RETRY_DELAY)
                 continue
 
+            _emit_cs009_event(
+                status="success", http_status=200,
+                total_tokens=total_tokens, latency_ms=latency_ms,
+            )
             return parsed
 
         except json.JSONDecodeError as exc:
+            latency_ms = int((time.monotonic() - t0) * 1000)
             _LOG.warning("LLM response not valid JSON (attempt %d): %s", attempt, exc)
+            _emit_cs009_event(
+                status="failure", http_status=None, total_tokens=0,
+                latency_ms=latency_ms, error_summary="JSON decode error",
+            )
             last_exc = exc
             time.sleep(_LLM_RETRY_DELAY)
         except Exception as exc:  # noqa: BLE001
+            latency_ms = int((time.monotonic() - t0) * 1000)
             _LOG.warning("LLM call error (attempt %d): %s", attempt, exc)
+            # Detect timeout via openai SDK exception type when available
+            _status = "timeout" if type(exc).__name__ == "APITimeoutError" else "failure"
+            _emit_cs009_event(
+                status=_status, http_status=None, total_tokens=0,
+                latency_ms=latency_ms, error_summary=str(exc)[:200],
+            )
             last_exc = exc
             time.sleep(_LLM_RETRY_DELAY)
 
