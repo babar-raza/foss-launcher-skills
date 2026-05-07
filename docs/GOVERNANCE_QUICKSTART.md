@@ -98,33 +98,55 @@ When an agent needs to edit a file under themes/, layouts/, configs/, or other f
      --paths "layouts/_default/section.html" \
      --reason "Blog section template fix" --plan "task-id"
    ```
+   Token stored in `reports/overrides/pending/` (gitignored). Expires in 7 days.
 
-2. **Human sets env var** (interim — until token-aware PreToolUse is implemented):
-   ```bash
-   export ROOT_WRITE_AUTHORIZED=1
-   ```
+2. **Agent performs Write/Edit directly** (token-aware PreToolUse — GOV-LIGHT-001/002):
+   - The path hook checks for a valid pending token covering the exact path.
+   - Token found → write/edit allowed. Audit written to `reports/overrides/pretooluse-audit.log`.
+   - No token or wrong path → write/edit blocked (exit 2).
+   - **ROOT_WRITE_AUTHORIZED is not required** for token-covered paths.
+   - **Agents must not create their own override tokens.** Token creation is a human operator action.
 
-3. **Agent makes the edit** (audited to reports/root-writes/audit.log)
-
-4. **Human unsets env var**:
-   ```bash
-   unset ROOT_WRITE_AUTHORIZED
-   ```
-
-5. **Human commits** (pre-commit validates the override token covers the path):
+3. **Human commits** (pre-commit independently revalidates the token):
    ```bash
    git add layouts/_default/section.html
    git commit -m "fix: blog section template"
    ```
    Pre-commit: path_guard DENY → check_forbidden_overrides → token found → ALLOW.
-   Post-commit: token archived automatically.
+   Post-commit: token archived automatically to `reports/overrides/archived/`.
 
-**Important**: ROOT_WRITE_AUTHORIZED bypasses ALL path_guard denials (not just root-level).
-Only set it for the duration of the specific edit. The pre-commit hook independently
-validates that only token-covered paths are committed.
+**When to use ROOT_WRITE_AUTHORIZED instead**: Only for emergency or bootstrap situations
+where a token cannot be pre-created (e.g., when fixing override_manager.py itself). It
+bypasses ALL path_guard denials — not just forbidden paths. Logged to
+`reports/root-writes/audit.log`. Pre-commit still validates token coverage for any
+forbidden-path files included in the commit.
 
-**After GOV-LIGHT-001**: Steps 2-4 will be replaced by direct token-authorized writes
-(no env var needed).
+### Commit Provenance Bypass: SKIP_SKILL_COMMIT_CHECK
+
+`SKIP_SKILL_COMMIT_CHECK` is a **commit-time** bypass for skill provenance checks in
+`commit-msg-skills.sh`. It does **not** grant write or edit access to any path — path
+authorization (PreToolUse hooks) is a completely separate system.
+
+**What it bypasses**: The requirement that commit messages include `Skills invoked: [S-xx]`
+for commits touching governed paths.
+
+**What it does NOT bypass**: PreToolUse hooks, S-23 content checks, S-73 content edit checks.
+
+**Correct usage** (3-var model — ALL THREE required):
+```bash
+SKIP_SKILL_COMMIT_CHECK=1 \
+  GOV_BYPASS_TASKCARD=TC-GOV-XX \
+  GOV_BYPASS_REASON='reason for bypassing skill provenance' \
+  git commit -m "your message"
+```
+
+**Audit trail**: All uses logged to `reports/overrides/env-bypasses.log`.
+
+**Do NOT use SKIP_SKILL_COMMIT_CHECK for**:
+- Content commits — S-23 and S-73 must still pass independently
+- Hiding missing skill runs when a proper skill invocation is required
+- Gaining write access to protected paths — it has zero effect on path authorization
+- Any situation where the commit-msg check is failing for a legitimate governance reason
 
 ## Forbidden Bypass Methods
 
