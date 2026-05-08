@@ -95,6 +95,7 @@ class SubmitResult:
     submitted: bool
     status_code: int | None
     response_summary: str | None
+    response_run_id: str | None
     output_path: str | None
     redacted_endpoint: str | None
     error: str | None
@@ -173,6 +174,7 @@ class MetricsSubmitter:
                 submitted=False,
                 status_code=None,
                 response_summary=None,
+                response_run_id=None,
                 output_path=None,
                 redacted_endpoint=None,
                 error=f"Row validation failed: {'; '.join(validation.errors)}",
@@ -199,6 +201,7 @@ class MetricsSubmitter:
             submitted=False,
             status_code=None,
             response_summary=None,
+            response_run_id=None,
             output_path=None,
             redacted_endpoint=None,
             error=f"Unknown mode: {self.mode}",
@@ -218,6 +221,7 @@ class MetricsSubmitter:
             submitted=False,
             status_code=None,
             response_summary="dry_run — no HTTP call",
+            response_run_id=None,
             output_path=str(out) if out else None,
             redacted_endpoint=None,
             error=None,
@@ -233,6 +237,7 @@ class MetricsSubmitter:
             submitted=False,
             status_code=None,
             response_summary="export_json — payload written to disk",
+            response_run_id=None,
             output_path=str(out),
             redacted_endpoint=None,
             error=None,
@@ -250,6 +255,7 @@ class MetricsSubmitter:
                 submitted=False,
                 status_code=None,
                 response_summary=None,
+                response_run_id=None,
                 output_path=None,
                 redacted_endpoint=None,
                 error=f"test_submit requires test-marked row: {'; '.join(test_validation.errors)}",
@@ -264,6 +270,7 @@ class MetricsSubmitter:
                 submitted=False,
                 status_code=None,
                 response_summary=None,
+                response_run_id=None,
                 output_path=None,
                 redacted_endpoint=None,
                 error=env_error,
@@ -279,6 +286,7 @@ class MetricsSubmitter:
                 submitted=False,
                 status_code=None,
                 response_summary="skipped — already posted",
+                response_run_id=None,
                 output_path=None,
                 redacted_endpoint=None,
                 error="already posted",
@@ -303,6 +311,7 @@ class MetricsSubmitter:
                 submitted=False,
                 status_code=None,
                 response_summary=None,
+                response_run_id=None,
                 output_path=None,
                 redacted_endpoint=None,
                 error="production_submit requires owner_approved=True",
@@ -316,6 +325,7 @@ class MetricsSubmitter:
                 submitted=False,
                 status_code=None,
                 response_summary=None,
+                response_run_id=None,
                 output_path=None,
                 redacted_endpoint=None,
                 error="production_submit must not use job_type='test'",
@@ -330,6 +340,7 @@ class MetricsSubmitter:
                 submitted=False,
                 status_code=None,
                 response_summary=None,
+                response_run_id=None,
                 output_path=None,
                 redacted_endpoint=None,
                 error=env_error,
@@ -345,6 +356,7 @@ class MetricsSubmitter:
                 submitted=False,
                 status_code=None,
                 response_summary="skipped — already posted",
+                response_run_id=None,
                 output_path=None,
                 redacted_endpoint=None,
                 error="already posted",
@@ -395,6 +407,7 @@ class MetricsSubmitter:
                     submitted=False,
                     status_code=None,
                     response_summary=None,
+                    response_run_id=None,
                     output_path=str(output_path) if output_path else None,
                     redacted_endpoint=redacted,
                     error="requests library required: pip install requests",
@@ -424,6 +437,13 @@ class MetricsSubmitter:
             except Exception:
                 summary = f"HTTP {status}"
 
+            # Extract run_id returned by endpoint (safe — it mirrors our payload run_id)
+            response_run_id: str | None = None
+            if isinstance(body, dict):
+                raw = body.get("run_id")
+                if isinstance(raw, str) and raw.strip():
+                    response_run_id = raw.strip()
+
             # Application-level success: HTTP 2xx AND body doesn't signal a non-2xx int status
             body_status = body.get("status") if isinstance(body, dict) else None
             # Only treat as failure if body status is an int outside 2xx range
@@ -441,6 +461,7 @@ class MetricsSubmitter:
                 submitted=is_success,
                 status_code=status,
                 response_summary=summary,
+                response_run_id=response_run_id,
                 output_path=str(output_path) if output_path else None,
                 redacted_endpoint=redacted,
                 error=None if is_success else f"HTTP {status}: {summary}",
@@ -454,6 +475,7 @@ class MetricsSubmitter:
                 submitted=False,
                 status_code=None,
                 response_summary=None,
+                response_run_id=None,
                 output_path=str(output_path) if output_path else None,
                 redacted_endpoint=redacted,
                 error=str(exc),

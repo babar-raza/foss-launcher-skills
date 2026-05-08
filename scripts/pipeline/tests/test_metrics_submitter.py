@@ -806,3 +806,71 @@ class TestFailedDirectory:
         )
         submitter.submit(row)
         assert not failed.exists() or not any(failed.iterdir())
+
+
+# ---------------------------------------------------------------------------
+# GAP-V-003: response_run_id capture tests (4 tests)
+# ---------------------------------------------------------------------------
+
+class TestResponseRunIdCapture:
+    """GAP-V-003: endpoint run_id echoed back in SubmitResult.response_run_id."""
+
+    def test_submit_success_captures_response_run_id(self, monkeypatch, tmp_path):
+        """Successful submit stores endpoint-returned run_id in response_run_id."""
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "testtoken123")
+        row = _make_test_row()
+        fake = _FakeHTTPClient(
+            status_code=200,
+            response_body={"status": 200, "ok": True, "message": "Metrics recorded", "run_id": row.run_id},
+        )
+        result = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT,
+            _http_client=fake,
+            _markers_root=tmp_path / "posted",
+            _failed_root=tmp_path / "failed",
+        ).submit(row)
+        assert result.submitted is True
+        assert result.response_run_id == row.run_id
+
+    def test_response_without_run_id_does_not_crash(self, monkeypatch, tmp_path):
+        """If endpoint omits run_id, response_run_id is None and no exception is raised."""
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "testtoken123")
+        row = _make_test_row()
+        fake = _FakeHTTPClient(
+            status_code=200,
+            response_body={"status": 200, "message": "ok"},
+        )
+        result = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT,
+            _http_client=fake,
+            _markers_root=tmp_path / "posted",
+            _failed_root=tmp_path / "failed",
+        ).submit(row)
+        assert result.submitted is True
+        assert result.response_run_id is None
+
+    def test_token_not_in_submit_result_with_run_id(self, monkeypatch, tmp_path):
+        """response_run_id present but token absent from the full result repr."""
+        fake_token = "secret-tok-xyz-9999"
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, fake_token)
+        row = _make_test_row()
+        fake = _FakeHTTPClient(
+            status_code=200,
+            response_body={"status": 200, "message": "Metrics recorded", "run_id": row.run_id},
+        )
+        result = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT,
+            _http_client=fake,
+            _markers_root=tmp_path / "posted",
+            _failed_root=tmp_path / "failed",
+        ).submit(row)
+        assert result.response_run_id == row.run_id
+        assert fake_token not in str(result)
+
+    def test_dry_run_response_run_id_is_none(self):
+        """Dry-run never has a response_run_id."""
+        result = MetricsSubmitter(mode=MODE_DRY_RUN).submit(_make_test_row())
+        assert result.response_run_id is None

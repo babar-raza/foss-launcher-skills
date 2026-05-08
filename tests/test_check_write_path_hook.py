@@ -10,6 +10,7 @@ Covers:
 - Malformed JSON → exit 2 (fail-closed)
 - CLAUDE_TOOL_INPUT env var path (alternative to stdin) → same result as stdin
 - ROOT_WRITE_AUTHORIZED=1 bypass on DENY path → exit 0
+- Forbidden path (themes/) ALLOWED when valid pending override token exists (GOV-LIGHT-001)
 
 Note on Windows: WSL bash (the default `bash` on Windows PATH) rejects CRLF line endings,
 whereas Git Bash handles them transparently.  We normalise the hook script to LF in a
@@ -18,6 +19,7 @@ temporary file so the tests work under either bash implementation.
 import json
 import os
 import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -220,3 +222,74 @@ def test_root_write_authorized_bypass(hook_path):
     assert result.returncode == 0
     # Bypass should emit a warning, not a block message
     assert b"bypass" in result.stderr.lower() or b"authorized" in result.stderr.lower()
+
+
+# ---------------------------------------------------------------------------
+# Override token integration: GOV-LIGHT-001
+# ---------------------------------------------------------------------------
+
+def test_forbidden_path_allowed_with_valid_override_token(hook_path):
+    """themes/ path is ALLOWED by the hook when a valid pending override token exists.
+
+    GOV-LIGHT-001: check_write_path_hook.sh calls override_manager.py validate-for-path
+    when path_guard returns DENY.  A valid pending token covering the exact path must
+    result in exit 0 (write allowed) and a pretooluse-audit.log entry.
+    """
+    pending_dir = REPO_ROOT / "reports" / "overrides" / "pending"
+    pending_dir.mkdir(parents=True, exist_ok=True)
+
+    token_id = "test-pretooluse-integration-allow"
+    target_path = "themes/default/style.css"
+    token = {
+        "override_id": token_id,
+        "paths": [target_path],
+        "operation": "edit",
+        "reason": "integration test: verify PreToolUse allows write when valid token exists",
+        "plan_reference": "GOV-LIGHT-001-test",
+        "scope_description": "",
+        "authorized_at": datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z"),
+        "retroactive": False,
+        "consumed_by_commit": None,
+    }
+    token_path = pending_dir / f"{token_id}.json"
+    try:
+        token_path.write_text(json.dumps(token, indent=2), encoding="utf-8")
+        result = _run_hook(target_path, hook_path)
+        assert result.returncode == 0, (
+            f"Expected exit 0 (token allows write), got {result.returncode}. "
+            f"stderr: {result.stderr.decode(errors='replace')}"
+        )
+    finally:
+        token_path.unlink(missing_ok=True)
+
+
+def test_forbidden_path_still_blocked_with_wrong_path_token(hook_path):
+    """themes/ path is BLOCKED if pending token covers a different path.
+
+    A token for AGENTS.md must NOT allow a write to themes/default/style.css.
+    """
+    pending_dir = REPO_ROOT / "reports" / "overrides" / "pending"
+    pending_dir.mkdir(parents=True, exist_ok=True)
+
+    token_id = "test-pretooluse-integration-wrong-path"
+    token = {
+        "override_id": token_id,
+        "paths": ["AGENTS.md"],
+        "operation": "edit",
+        "reason": "integration test: wrong-path token must not grant access to other paths",
+        "plan_reference": "GOV-LIGHT-001-test",
+        "scope_description": "",
+        "authorized_at": datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z"),
+        "retroactive": False,
+        "consumed_by_commit": None,
+    }
+    token_path = pending_dir / f"{token_id}.json"
+    try:
+        token_path.write_text(json.dumps(token, indent=2), encoding="utf-8")
+        result = _run_hook("themes/default/style.css", hook_path)
+        assert result.returncode == 2, (
+            f"Expected exit 2 (wrong-path token must not grant access), got {result.returncode}. "
+            f"stderr: {result.stderr.decode(errors='replace')}"
+        )
+    finally:
+        token_path.unlink(missing_ok=True)

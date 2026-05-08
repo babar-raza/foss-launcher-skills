@@ -103,9 +103,15 @@ When an agent needs to edit a file under themes/, layouts/, configs/, or other f
 2. **Agent performs Write/Edit directly** (token-aware PreToolUse — GOV-LIGHT-001/002):
    - The path hook checks for a valid pending token covering the exact path.
    - Token found → write/edit allowed. Audit written to `reports/overrides/pretooluse-audit.log`.
-   - No token or wrong path → write/edit blocked (exit 2).
+   - No token or wrong path → **Write tool** is blocked at PreToolUse (exit 2).
    - **ROOT_WRITE_AUTHORIZED is not required** for token-covered paths.
    - **Agents must not create their own override tokens.** Token creation is a human operator action.
+
+   > **Edit tool gap (GOV-LIGHT-003):** `layouts/` and `themes/` are NOT in the
+   > skill_context hook's governed-path list. The Edit tool on these paths passes all
+   > PreToolUse hooks even without an override token. However, the **pre-commit hook
+   > WILL block the commit** if no valid token exists. Always create the override token
+   > BEFORE editing to avoid stuck uncommitted work.
 
 3. **Human commits** (pre-commit independently revalidates the token):
    ```bash
@@ -148,12 +154,26 @@ SKIP_SKILL_COMMIT_CHECK=1 \
 - Gaining write access to protected paths — it has zero effect on path authorization
 - Any situation where the commit-msg check is failing for a legitimate governance reason
 
+### SKIP_SKILL_CONTEXT_CHECK and Forbidden Paths
+
+`SKIP_SKILL_CONTEXT_CHECK=1` bypasses the **skill context** requirement. It has **zero
+effect on path authorization** for Class B forbidden paths (`themes/`, `layouts/`, etc.).
+
+- `themes/` and `layouts/` are blocked by `path_guard.py`, not by the skill context system.
+- Setting `SKIP_SKILL_CONTEXT_CHECK=1` for a forbidden-path write will still result in
+  a PreToolUse block (exit 2) from `check_write_path_hook.sh`, or a pre-commit failure
+  if Edit was used.
+- The correct mechanism for Class B paths is an override token (see workflow above).
+- `SKIP_SKILL_CONTEXT_CHECK=1` is operator-only and must never be suggested to agents.
+
 ## Forbidden Bypass Methods
 
 | Method | Why Forbidden |
 |--------|--------------|
 | `--no-verify` | Skips ALL hooks; breaks entire audit trail |
 | Direct hook file editing | Hooks are repo-managed; use `bash scripts/install-hooks.sh` |
+| `SKIP_SKILL_CONTEXT_CHECK` for forbidden paths | Does not affect path_guard; Class B paths need override tokens |
+| `ROOT_WRITE_AUTHORIZED` for routine template edits | Broad bypass for all denials; override tokens are the correct Class B mechanism |
 
 ## Which Checks Block What
 

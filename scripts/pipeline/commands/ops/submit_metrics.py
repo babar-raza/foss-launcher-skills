@@ -121,6 +121,8 @@ def print_result(result: SubmitResult, show_endpoint: bool = False) -> None:
     print(f"row_valid:       {result.row_valid}")
     print(f"status_code:     {result.status_code}")
     print(f"response:        {result.response_summary}")
+    if result.response_run_id is not None:
+        print(f"run_id:          {result.response_run_id}")
     print(f"output_path:     {result.output_path}")
     if show_endpoint and result.redacted_endpoint:
         print(f"endpoint:        {result.redacted_endpoint}")
