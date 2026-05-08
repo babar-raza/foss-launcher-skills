@@ -256,14 +256,17 @@ class TestTokenRedaction:
         result_str = str(result)
         assert fake_token not in result_str
 
-    def test_token_not_in_http_call_headers_exposed(self, monkeypatch):
+    def test_token_not_in_http_call_headers_exposed(self, monkeypatch, tmp_path):
         """Token IS sent as ?token= query param to the server, but not in SubmitResult."""
         fake_token = "my-secret-token-xyz"
         monkeypatch.setenv(ENV_ENDPOINT, "https://script.google.com/macros/s/example/exec")
         monkeypatch.setenv(ENV_TOKEN, fake_token)
         http = _FakeHTTPClient()
         row = _make_test_row()
-        result = MetricsSubmitter(mode=MODE_TEST_SUBMIT, _http_client=http).submit(row)
+        result = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT, _http_client=http,
+            _markers_root=tmp_path / "posted", _failed_root=tmp_path / "failed",
+        ).submit(row)
         # Verify token was sent as query param (not in Authorization header)
         assert f"?token={fake_token}" in http.calls[0]["url"]
         assert "Authorization" not in http.calls[0]["headers"]
@@ -282,30 +285,39 @@ class TestTokenRedaction:
 # ---------------------------------------------------------------------------
 
 class TestTestSubmit:
-    def test_test_submit_succeeds_with_fake_http(self, monkeypatch):
+    def test_test_submit_succeeds_with_fake_http(self, monkeypatch, tmp_path):
         monkeypatch.setenv(ENV_ENDPOINT, "https://script.google.com/macros/s/example/exec")
         monkeypatch.setenv(ENV_TOKEN, "test-bearer-token")
         http = _FakeHTTPClient(status_code=200, response_body={"status": "ok"})
         row = _make_test_row()
-        result = MetricsSubmitter(mode=MODE_TEST_SUBMIT, _http_client=http).submit(row)
+        result = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT, _http_client=http,
+            _markers_root=tmp_path / "posted", _failed_root=tmp_path / "failed",
+        ).submit(row)
         assert result.submitted is True
         assert result.status_code == 200
         assert result.error is None
 
-    def test_test_submit_makes_exactly_one_http_call(self, monkeypatch):
+    def test_test_submit_makes_exactly_one_http_call(self, monkeypatch, tmp_path):
         monkeypatch.setenv(ENV_ENDPOINT, "https://script.google.com/macros/s/example/exec")
         monkeypatch.setenv(ENV_TOKEN, "test-bearer-token")
         http = _FakeHTTPClient()
         row = _make_test_row()
-        MetricsSubmitter(mode=MODE_TEST_SUBMIT, _http_client=http).submit(row)
+        MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT, _http_client=http,
+            _markers_root=tmp_path / "posted", _failed_root=tmp_path / "failed",
+        ).submit(row)
         assert len(http.calls) == 1
 
-    def test_test_submit_sends_all_17_fields(self, monkeypatch):
+    def test_test_submit_sends_all_17_fields(self, monkeypatch, tmp_path):
         monkeypatch.setenv(ENV_ENDPOINT, "https://script.google.com/macros/s/example/exec")
         monkeypatch.setenv(ENV_TOKEN, "test-bearer-token")
         http = _FakeHTTPClient()
         row = _make_test_row()
-        MetricsSubmitter(mode=MODE_TEST_SUBMIT, _http_client=http).submit(row)
+        MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT, _http_client=http,
+            _markers_root=tmp_path / "posted", _failed_root=tmp_path / "failed",
+        ).submit(row)
         payload = http.calls[0]["json"]
         assert len(payload) == 17
 
@@ -427,31 +439,40 @@ class TestSchemaValidation:
 # ---------------------------------------------------------------------------
 
 class TestApiErrorHandling:
-    def test_non_200_captured_in_error(self, monkeypatch):
+    def test_non_200_captured_in_error(self, monkeypatch, tmp_path):
         monkeypatch.setenv(ENV_ENDPOINT, "https://example.com")
         monkeypatch.setenv(ENV_TOKEN, "tok")
         http = _FakeHTTPClient(status_code=500, response_body={"error": "internal"})
         row = _make_test_row()
-        result = MetricsSubmitter(mode=MODE_TEST_SUBMIT, _http_client=http).submit(row)
+        result = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT, _http_client=http,
+            _markers_root=tmp_path / "posted", _failed_root=tmp_path / "failed",
+        ).submit(row)
         assert result.submitted is False
         assert result.status_code == 500
         assert "500" in result.error
 
-    def test_connection_error_captured(self, monkeypatch):
+    def test_connection_error_captured(self, monkeypatch, tmp_path):
         monkeypatch.setenv(ENV_ENDPOINT, "https://example.com")
         monkeypatch.setenv(ENV_TOKEN, "tok")
         http = _FakeHTTPClient(exc=ConnectionError("refused"))
         row = _make_test_row()
-        result = MetricsSubmitter(mode=MODE_TEST_SUBMIT, _http_client=http).submit(row)
+        result = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT, _http_client=http,
+            _markers_root=tmp_path / "posted", _failed_root=tmp_path / "failed",
+        ).submit(row)
         assert result.submitted is False
         assert "refused" in result.error
 
-    def test_timeout_captured(self, monkeypatch):
+    def test_timeout_captured(self, monkeypatch, tmp_path):
         monkeypatch.setenv(ENV_ENDPOINT, "https://example.com")
         monkeypatch.setenv(ENV_TOKEN, "tok")
         http = _FakeHTTPClient(exc=TimeoutError("timed out"))
         row = _make_test_row()
-        result = MetricsSubmitter(mode=MODE_TEST_SUBMIT, _http_client=http).submit(row)
+        result = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT, _http_client=http,
+            _markers_root=tmp_path / "posted", _failed_root=tmp_path / "failed",
+        ).submit(row)
         assert result.submitted is False
         assert "timed out" in result.error
 
@@ -483,13 +504,16 @@ class TestNoSecretsInExport:
 # ---------------------------------------------------------------------------
 
 class TestNoHardcodedEndpoint:
-    def test_endpoint_read_from_env(self, monkeypatch):
+    def test_endpoint_read_from_env(self, monkeypatch, tmp_path):
         custom_endpoint = "https://custom-endpoint.example.com/api"
         monkeypatch.setenv(ENV_ENDPOINT, custom_endpoint)
         monkeypatch.setenv(ENV_TOKEN, "tok")
         http = _FakeHTTPClient()
         row = _make_test_row()
-        MetricsSubmitter(mode=MODE_TEST_SUBMIT, _http_client=http).submit(row)
+        MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT, _http_client=http,
+            _markers_root=tmp_path / "posted", _failed_root=tmp_path / "failed",
+        ).submit(row)
         assert len(http.calls) == 1
         assert http.calls[0]["url"].startswith(custom_endpoint)
 
@@ -506,13 +530,16 @@ class TestNoHardcodedEndpoint:
 # ---------------------------------------------------------------------------
 
 class TestNoHardcodedToken:
-    def test_token_read_from_env(self, monkeypatch):
+    def test_token_read_from_env(self, monkeypatch, tmp_path):
         monkeypatch.setenv(ENV_ENDPOINT, "https://example.com")
         custom_token = "my-runtime-token-abc"
         monkeypatch.setenv(ENV_TOKEN, custom_token)
         http = _FakeHTTPClient()
         row = _make_test_row()
-        MetricsSubmitter(mode=MODE_TEST_SUBMIT, _http_client=http).submit(row)
+        MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT, _http_client=http,
+            _markers_root=tmp_path / "posted", _failed_root=tmp_path / "failed",
+        ).submit(row)
         # Token sent as ?token= query param, not Authorization header
         assert f"?token={custom_token}" in http.calls[0]["url"]
         assert "Authorization" not in http.calls[0]["headers"]
@@ -811,6 +838,138 @@ class TestFailedDirectory:
 # ---------------------------------------------------------------------------
 # GAP-V-003: response_run_id capture tests (4 tests)
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# TC-GS-CONTROL-001: TestTestRowHardLimit (6 tests)
+# ---------------------------------------------------------------------------
+
+class TestTestRowHardLimit:
+    """TC-GS-CONTROL-001: runtime hard/soft limit enforcement in _test_submit()."""
+
+    def _write_test_marker(self, markers_dir, run_id: str) -> None:
+        """Write a fake test_submit posted marker."""
+        import datetime
+        markers_dir.mkdir(parents=True, exist_ok=True)
+        (markers_dir / f"{run_id}.posted.json").write_text(
+            json.dumps({
+                "run_id": run_id,
+                "posted_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "mode": "test_submit",
+                "status_code": 200,
+                "response_summary": "ok",
+            }),
+            encoding="utf-8",
+        )
+
+    def test_hard_limit_blocks_submission_when_3_markers_exist(self, tmp_path, monkeypatch):
+        """4th test_submit with 3 existing markers returns hard limit error."""
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "testtoken123")
+        markers = tmp_path / "posted"
+        for i in range(3):
+            self._write_test_marker(markers, f"existing-run-{i}")
+        http = _FakeHTTPClient(status_code=200)
+        submitter = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT,
+            _http_client=http,
+            _markers_root=markers,
+            _failed_root=tmp_path / "failed",
+        )
+        row = _make_test_row()
+        result = submitter.submit(row)
+        assert result.submitted is False
+        assert "hard test row limit" in result.error
+
+    def test_hard_limit_no_http_call(self, tmp_path, monkeypatch):
+        """Hard limit block never reaches HTTP."""
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "testtoken123")
+        markers = tmp_path / "posted"
+        for i in range(3):
+            self._write_test_marker(markers, f"existing-run-{i}")
+        http = _FakeHTTPClient(status_code=200)
+        submitter = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT,
+            _http_client=http,
+            _markers_root=markers,
+            _failed_root=tmp_path / "failed",
+        )
+        submitter.submit(_make_test_row())
+        assert len(http.calls) == 0
+
+    def test_hard_limit_no_new_marker_written(self, tmp_path, monkeypatch):
+        """Hard limit block does not write a new posted marker."""
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "testtoken123")
+        markers = tmp_path / "posted"
+        for i in range(3):
+            self._write_test_marker(markers, f"existing-run-{i}")
+        submitter = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT,
+            _http_client=_FakeHTTPClient(status_code=200),
+            _markers_root=markers,
+            _failed_root=tmp_path / "failed",
+        )
+        submitter.submit(_make_test_row())
+        # Should still be exactly 3 markers (none written for the blocked submit)
+        assert len(list(markers.glob("*.posted.json"))) == 3
+
+    def test_soft_limit_warns_but_allows_submission(self, tmp_path, monkeypatch):
+        """2 existing markers trigger soft-limit warning; 3rd submit still succeeds."""
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "testtoken123")
+        markers = tmp_path / "posted"
+        for i in range(2):
+            self._write_test_marker(markers, f"existing-run-{i}")
+        http = _FakeHTTPClient(status_code=200, response_body={"message": "ok"})
+        submitter = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT,
+            _http_client=http,
+            _markers_root=markers,
+            _failed_root=tmp_path / "failed",
+        )
+        result = submitter.submit(_make_test_row())
+        # Soft limit only warns — submission must proceed
+        assert result.submitted is True
+        assert len(http.calls) == 1
+
+    def test_idempotency_skip_runs_before_limit_check(self, tmp_path, monkeypatch):
+        """Re-submitting an already-posted run_id returns 'already posted', not hard limit error."""
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "testtoken123")
+        markers = tmp_path / "posted"
+        # Write 3 markers (at hard limit), one of which has the same run_id we'll retry
+        row = _make_test_row()
+        self._write_test_marker(markers, row.run_id)  # same run_id
+        self._write_test_marker(markers, "other-run-1")
+        self._write_test_marker(markers, "other-run-2")
+        submitter = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT,
+            _http_client=_FakeHTTPClient(status_code=200),
+            _markers_root=markers,
+            _failed_root=tmp_path / "failed",
+        )
+        result = submitter.submit(row)
+        # Must return "already posted" (idempotency), not hard limit error
+        assert result.submitted is False
+        assert result.error == "already posted"
+
+    def test_missing_markers_directory_treated_as_zero(self, tmp_path, monkeypatch):
+        """No markers directory means count = 0; submission not blocked."""
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "testtoken123")
+        markers = tmp_path / "nonexistent"  # does not exist
+        http = _FakeHTTPClient(status_code=200, response_body={"message": "ok"})
+        submitter = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT,
+            _http_client=http,
+            _markers_root=markers,
+            _failed_root=tmp_path / "failed",
+        )
+        result = submitter.submit(_make_test_row())
+        assert result.submitted is True
+        assert len(http.calls) == 1
+
 
 class TestResponseRunIdCapture:
     """GAP-V-003: endpoint run_id echoed back in SubmitResult.response_run_id."""

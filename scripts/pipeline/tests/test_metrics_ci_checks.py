@@ -358,62 +358,121 @@ class TestCheckMetricsNoSecrets:
 
 class TestCheckMetricsTestPostLimit:
 
+    def _make_posted_marker_raw(self, directory, run_id: str, mode: str = "test_submit") -> None:
+        """Write a minimal posted marker file with the given mode."""
+        import datetime
+        directory.mkdir(parents=True, exist_ok=True)
+        (directory / f"{run_id}.posted.json").write_text(
+            json.dumps({
+                "run_id": run_id,
+                "posted_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "mode": mode,
+                "status_code": 200,
+                "response_summary": "ok",
+            }),
+            encoding="utf-8",
+        )
+
     def test_passes_with_zero_test_responses(self, tmp_path):
-        tests_dir = tmp_path / "tests"
-        tests_dir.mkdir()
-        result = cmtpl.run_check(tests_dir=tests_dir)
+        posted = tmp_path / "posted"
+        posted.mkdir()
+        result = cmtpl.run_check(posted_dir=posted)
         assert result.passed
         assert result.test_row_count == 0
 
     def test_passes_with_two_test_responses(self, tmp_path):
-        tests_dir = tmp_path / "tests"
-        tests_dir.mkdir()
+        posted = tmp_path / "posted"
         for i in range(2):
-            (tests_dir / f"run-{i}.json").write_text(
-                json.dumps({"run_id": f"run-{i}", "job_type": "test", "item_name": "[TEST] row"}),
-                encoding="utf-8",
-            )
-        result = cmtpl.run_check(tests_dir=tests_dir, max_per_sprint=2, hard_limit=3)
+            self._make_posted_marker_raw(posted, f"run-{i}", mode="test_submit")
+        result = cmtpl.run_check(posted_dir=posted, max_per_sprint=2, hard_limit=3)
         assert result.passed
         assert result.test_row_count == 2
 
     def test_warns_at_three_when_max_is_two(self, tmp_path):
-        """3 test rows exceeds soft max (2) but is within hard limit (3)."""
-        tests_dir = tmp_path / "tests"
-        tests_dir.mkdir()
+        """3 test_submit markers exceeds soft max (2) but is within hard limit (3)."""
+        posted = tmp_path / "posted"
         for i in range(3):
-            (tests_dir / f"run-{i}.json").write_text(
-                json.dumps({"run_id": f"run-{i}", "job_type": "test"}),
-                encoding="utf-8",
-            )
-        result = cmtpl.run_check(tests_dir=tests_dir, max_per_sprint=2, hard_limit=3)
+            self._make_posted_marker_raw(posted, f"run-{i}", mode="test_submit")
+        result = cmtpl.run_check(posted_dir=posted, max_per_sprint=2, hard_limit=3)
         # Default: soft warning, not failure
         assert result.passed  # soft limit exceeded but not hard limit
         assert result.max_exceeded
 
     def test_fails_above_hard_limit(self, tmp_path):
-        tests_dir = tmp_path / "tests"
-        tests_dir.mkdir()
+        posted = tmp_path / "posted"
         for i in range(4):
-            (tests_dir / f"run-{i}.json").write_text(
-                json.dumps({"run_id": f"run-{i}", "job_type": "test"}),
-                encoding="utf-8",
-            )
-        result = cmtpl.run_check(tests_dir=tests_dir, max_per_sprint=2, hard_limit=3)
+            self._make_posted_marker_raw(posted, f"run-{i}", mode="test_submit")
+        result = cmtpl.run_check(posted_dir=posted, max_per_sprint=2, hard_limit=3)
         assert not result.passed
         assert result.hard_limit_exceeded
 
-    def test_ignores_dry_run_files(self, tmp_path):
-        tests_dir = tmp_path / "tests"
-        tests_dir.mkdir()
-        (tests_dir / "run-abc.dry.json").write_text(
-            json.dumps({"run_id": "run-abc", "job_type": "knowledge_enrichment"}),
-            encoding="utf-8",
-        )
-        result = cmtpl.run_check(tests_dir=tests_dir, max_per_sprint=2, hard_limit=3)
+    def test_ignores_non_test_submit_markers(self, tmp_path):
+        """production_submit markers are not counted as test rows."""
+        posted = tmp_path / "posted"
+        self._make_posted_marker_raw(posted, "run-prod-1", mode="production_submit")
+        result = cmtpl.run_check(posted_dir=posted, max_per_sprint=2, hard_limit=3)
         assert result.passed
         assert result.test_row_count == 0
-        assert result.dry_run_files_ignored == 1
+
+    # TC-GS-CONTROL-001: new scanner tests for posted/ directory and mode-based detection
+
+    def _make_posted_marker(self, posted_dir, run_id: str, mode: str) -> None:
+        """Write a minimal posted marker file."""
+        import datetime
+        posted_dir.mkdir(parents=True, exist_ok=True)
+        (posted_dir / f"{run_id}.posted.json").write_text(
+            json.dumps({
+                "run_id": run_id,
+                "posted_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "mode": mode,
+                "status_code": 200,
+                "response_summary": "ok",
+            }),
+            encoding="utf-8",
+        )
+
+    def test_scanner_counts_posted_directory_by_mode(self, tmp_path):
+        """Scanner counts test_submit markers in posted/ by mode field; fails at 4."""
+        posted = tmp_path / "posted"
+        for i in range(4):
+            self._make_posted_marker(posted, f"run-ts-{i}", "test_submit")
+        result = cmtpl.run_check(posted_dir=posted, max_per_sprint=2, hard_limit=3)
+        assert result.test_row_count == 4
+        assert result.hard_limit_exceeded is True
+        assert result.passed is False
+
+    def test_scanner_ignores_production_submit_markers(self, tmp_path):
+        """Scanner only counts test_submit; production_submit markers are ignored."""
+        posted = tmp_path / "posted"
+        for i in range(2):
+            self._make_posted_marker(posted, f"run-ts-{i}", "test_submit")
+        for i in range(3):
+            self._make_posted_marker(posted, f"run-ps-{i}", "production_submit")
+        result = cmtpl.run_check(posted_dir=posted, max_per_sprint=2, hard_limit=3)
+        assert result.test_row_count == 2
+        assert result.passed is True  # 2 test rows within limits
+
+    def test_scanner_reports_zero_for_empty_posted_directory(self, tmp_path):
+        """Empty posted/ directory reports 0 test rows and passes."""
+        posted = tmp_path / "posted"
+        posted.mkdir()
+        result = cmtpl.run_check(posted_dir=posted, max_per_sprint=2, hard_limit=3)
+        assert result.test_row_count == 0
+        assert result.passed is True
+
+    def test_real_repo_posted_dir_exceeds_limit(self):
+        """Real repo posted/ directory has 98 test_submit markers — hard limit 3 exceeded."""
+        result = cmtpl.run_check(
+            posted_dir=_REPO_ROOT / "reports" / "metrics" / "posted",
+            max_per_sprint=2,
+            hard_limit=3,
+        )
+        # 98 test_submit markers in the real repo — must fail hard limit
+        assert result.passed is False, (
+            f"Expected FAIL with real repo posted/ (98 test_submit markers > limit 3), "
+            f"got: {result.message}"
+        )
+        assert result.test_row_count >= 3  # at minimum exceeds hard limit
 
 
 # ---------------------------------------------------------------------------
@@ -644,8 +703,8 @@ class TestCrossCutting:
         r2 = cpc.run_check(tmp_path, tmp_path / "reg.yaml")
         assert r1.passed == r2.passed
 
-        r3 = cmtpl.run_check(tests_dir=tmp_path / "tests")
-        r4 = cmtpl.run_check(tests_dir=tmp_path / "tests")
+        r3 = cmtpl.run_check(posted_dir=tmp_path / "posted")
+        r4 = cmtpl.run_check(posted_dir=tmp_path / "posted")
         assert r3.passed == r4.passed
 
     def test_no_check_makes_network_calls(self, monkeypatch):
@@ -665,7 +724,7 @@ class TestCrossCutting:
         cpc.run_check(_REPO_ROOT, _REPO_ROOT / "scripts" / "pipeline" / "config" / "metrics_callsite_registry.yaml")
         cmt.run_check(_REPO_ROOT / "scripts" / "pipeline" / "config" / "metrics_taxonomy.yaml")
         cmns.run_check(_REPO_ROOT)
-        cmtpl.run_check(tests_dir=_REPO_ROOT / "reports" / "metrics" / "tests")
+        cmtpl.run_check(posted_dir=_REPO_ROOT / "reports" / "metrics" / "posted")
         cmels.run_check(events_dir=_REPO_ROOT / "reports" / "metrics" / "events")
         cmsps.run_check(root=_REPO_ROOT)
         cmdp.run_check(root=_REPO_ROOT)
@@ -678,7 +737,7 @@ class TestCrossCutting:
         monkeypatch.delenv("AGENT_METRICS_TOKEN", raising=False)
         # All checks should run without raising
         cmt.run_check(_REPO_ROOT / "scripts" / "pipeline" / "config" / "metrics_taxonomy.yaml")
-        cmtpl.run_check(tests_dir=_REPO_ROOT / "reports" / "metrics" / "tests")
+        cmtpl.run_check(posted_dir=_REPO_ROOT / "reports" / "metrics" / "posted")
         cmels.run_check(events_dir=_REPO_ROOT / "reports" / "metrics" / "events")
 
     def test_no_check_prints_secret_values_in_json_output(self, tmp_path, capsys):

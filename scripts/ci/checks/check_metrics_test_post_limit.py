@@ -1,17 +1,19 @@
 """check_metrics_test_post_limit.py — CI gate: enforce test row count limits.
 
-Counts test-mode row submissions in reports/metrics/tests/ and verifies they
+Counts test_submit posted markers in reports/metrics/posted/ and verifies they
 do not exceed:
   - max_per_sprint (default: 2) — warn or soft-fail
   - hard_limit (default: 3) — always fail
 
-Ignores dry-run files (*.dry.json). No network calls.
+Identification: posted markers with mode == "test_submit".
+Ignores production_submit markers. No network calls.
 
 Slice 9 of Agent Metrics Integration (METRICS-PLAN-001 v7.7).
+TC-GS-CONTROL-001: scanner path and detection fix (2026-05-08).
 
 Usage:
     python scripts/ci/checks/check_metrics_test_post_limit.py
-    python scripts/ci/checks/check_metrics_test_post_limit.py --tests-dir path/to/tests
+    python scripts/ci/checks/check_metrics_test_post_limit.py --posted-dir path/to/posted
     python scripts/ci/checks/check_metrics_test_post_limit.py --max 2 --hard-limit 3
     python scripts/ci/checks/check_metrics_test_post_limit.py --json-output
 
@@ -29,7 +31,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-_DEFAULT_TESTS_DIR = _REPO_ROOT / "reports" / "metrics" / "tests"
+_DEFAULT_POSTED_DIR = _REPO_ROOT / "reports" / "metrics" / "posted"
 
 DEFAULT_MAX_PER_SPRINT = 2
 DEFAULT_HARD_LIMIT = 3
@@ -63,56 +65,44 @@ def _load_json_safe(path: Path) -> dict | None:
         return None
 
 
-def _is_dry_run_file(path: Path) -> bool:
-    return path.name.endswith(".dry.json")
+def _is_test_posted_marker(data: dict) -> bool:
+    """Return True if this posted marker is from a test_submit.
 
-
-def _is_test_row(data: dict) -> bool:
-    """Return True if this payload looks like a test-mode row."""
-    job_type = data.get("job_type", "")
-    item_name = str(data.get("item_name", ""))
-    # Direct test row: job_type == "test" OR item_name starts with [TEST]
-    if job_type == "test":
-        return True
-    if item_name.startswith("[TEST]"):
-        return True
-    # Could be nested under a "row" key (dry-run wrappers)
-    row = data.get("row", {})
-    if isinstance(row, dict):
-        if row.get("job_type") == "test":
-            return True
-        if str(row.get("item_name", "")).startswith("[TEST]"):
-            return True
-    return False
+    Posted markers use mode == "test_submit" to identify test rows.
+    Fields like job_type and item_name are not stored in posted markers.
+    """
+    return data.get("mode") == "test_submit"
 
 
 def run_check(
-    tests_dir: Path,
+    posted_dir: Path | None = None,
     max_per_sprint: int = DEFAULT_MAX_PER_SPRINT,
     hard_limit: int = DEFAULT_HARD_LIMIT,
+    *,
+    tests_dir: Path | None = None,  # deprecated alias for posted_dir
 ) -> PostLimitResult:
+    # Resolve directory: posted_dir takes precedence; tests_dir is a deprecated alias
+    scan_dir = posted_dir if posted_dir is not None else (
+        tests_dir if tests_dir is not None else _DEFAULT_POSTED_DIR
+    )
     result = PostLimitResult(max_per_sprint=max_per_sprint, hard_limit=hard_limit)
 
-    if not tests_dir.exists():
-        result.message = f"Tests directory not found: {tests_dir} — treating as 0 test posts"
+    if not scan_dir.exists():
+        result.message = f"Posted directory not found: {scan_dir} — treating as 0 test posts"
         return result
 
-    for json_file in sorted(tests_dir.glob("*.json")):
-        if _is_dry_run_file(json_file):
-            result.dry_run_files_ignored += 1
-            continue
+    for json_file in sorted(scan_dir.glob("*.json")):
         data = _load_json_safe(json_file)
         if data is None:
             continue
-        is_test = _is_test_row(data)
+        if not _is_test_posted_marker(data):
+            continue
         run_id = data.get("run_id", json_file.stem)
-        job_type = data.get("job_type", "unknown")
-        # Always count all JSON files in tests/ as test rows
         result.test_row_files.append(TestRowFile(
             path=str(json_file),
             run_id=run_id,
-            job_type=job_type,
-            is_test_mode=is_test,
+            job_type="test_submit",
+            is_test_mode=True,
         ))
 
     result.test_row_count = len(result.test_row_files)
@@ -139,7 +129,10 @@ def main(argv: list[str] | None = None) -> int:
         description="Enforce test row posting limits.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("--tests-dir", default=str(_DEFAULT_TESTS_DIR), help="reports/metrics/tests/ path")
+    parser.add_argument("--posted-dir", default=str(_DEFAULT_POSTED_DIR),
+                        help="reports/metrics/posted/ path (default: repo root posted dir)")
+    parser.add_argument("--tests-dir", default=None,
+                        help="Deprecated alias for --posted-dir; use --posted-dir instead")
     parser.add_argument("--max", type=int, default=DEFAULT_MAX_PER_SPRINT,
                         help=f"Max test rows per sprint (default: {DEFAULT_MAX_PER_SPRINT})")
     parser.add_argument("--hard-limit", type=int, default=DEFAULT_HARD_LIMIT,
@@ -149,10 +142,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json-output", action="store_true", help="Print JSON result")
     args = parser.parse_args(argv)
 
+    # --posted-dir takes precedence; --tests-dir is deprecated alias
+    posted_dir = Path(args.posted_dir)
+    tests_dir_arg = Path(args.tests_dir) if args.tests_dir else None
     result = run_check(
-        tests_dir=Path(args.tests_dir),
+        posted_dir=posted_dir,
         max_per_sprint=args.max,
         hard_limit=args.hard_limit,
+        tests_dir=tests_dir_arg,
     )
 
     # Apply strict-max flag

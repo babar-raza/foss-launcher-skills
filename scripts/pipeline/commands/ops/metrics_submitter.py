@@ -84,6 +84,13 @@ VALID_MODES = frozenset({
 })
 
 # ---------------------------------------------------------------------------
+# Test-row posting limits (taxonomy: posting_modes section)
+# ---------------------------------------------------------------------------
+
+_SOFT_TEST_ROW_LIMIT = 2  # max_test_rows_per_sprint
+_HARD_TEST_ROW_LIMIT = 3  # hard_test_row_limit
+
+# ---------------------------------------------------------------------------
 # SubmitResult
 # ---------------------------------------------------------------------------
 
@@ -294,6 +301,33 @@ class MetricsSubmitter:
                 validation_errors=[],
             )
 
+        # Enforce test-row count limits (taxonomy: posting_modes)
+        existing_count = self._count_test_submit_markers()
+        if existing_count >= _HARD_TEST_ROW_LIMIT:
+            return SubmitResult(
+                mode=MODE_TEST_SUBMIT,
+                submitted=False,
+                status_code=None,
+                response_summary=None,
+                response_run_id=None,
+                output_path=None,
+                redacted_endpoint=None,
+                error=(
+                    f"hard test row limit reached: {existing_count}/{_HARD_TEST_ROW_LIMIT} "
+                    f"test rows already posted (hard limit: {_HARD_TEST_ROW_LIMIT})"
+                ),
+                row_valid=True,
+                validation_errors=[],
+            )
+        if existing_count >= _SOFT_TEST_ROW_LIMIT:
+            import logging as _logging
+            _logging.getLogger(__name__).warning(
+                "test row count (%d/%d) at soft limit — hard limit is %d",
+                existing_count,
+                _SOFT_TEST_ROW_LIMIT,
+                _HARD_TEST_ROW_LIMIT,
+            )
+
         out = self._maybe_export(row)
         return self._do_http(row, endpoint, token, MODE_TEST_SUBMIT, out)
 
@@ -370,6 +404,24 @@ class MetricsSubmitter:
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
+
+    def _count_test_submit_markers(self) -> int:
+        """Count existing posted markers with mode='test_submit'.
+
+        Returns 0 if the markers directory does not exist or any file cannot be read.
+        Corrupt/unreadable files are skipped silently.
+        """
+        if not self._markers_root.exists():
+            return 0
+        count = 0
+        for path in self._markers_root.glob("*.posted.json"):
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+                if data.get("mode") == MODE_TEST_SUBMIT:
+                    count += 1
+            except Exception:
+                pass  # skip corrupt files
+        return count
 
     def _read_env(self) -> tuple[str, str, str | None]:
         """Read AGENT_METRICS_ENDPOINT and AGENT_METRICS_TOKEN from env.
