@@ -47,6 +47,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from dotenv import load_dotenv
+
+# Load scripts/pipeline/.env if env vars not already set (override=False: system env wins)
+load_dotenv(Path(__file__).parent.parent.parent / ".env", override=False)
+
 from commands.ops.metrics_schema import (
     MetricsRow,
     ValidationResult,
