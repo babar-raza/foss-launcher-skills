@@ -257,16 +257,17 @@ class TestTokenRedaction:
         assert fake_token not in result_str
 
     def test_token_not_in_http_call_headers_exposed(self, monkeypatch):
-        """Token IS sent in Authorization header to the server, but not in SubmitResult."""
+        """Token IS sent as ?token= query param to the server, but not in SubmitResult."""
         fake_token = "my-secret-token-xyz"
         monkeypatch.setenv(ENV_ENDPOINT, "https://script.google.com/macros/s/example/exec")
         monkeypatch.setenv(ENV_TOKEN, fake_token)
         http = _FakeHTTPClient()
         row = _make_test_row()
         result = MetricsSubmitter(mode=MODE_TEST_SUBMIT, _http_client=http).submit(row)
-        # Verify token was sent in Authorization header (correct)
-        assert http.calls[0]["headers"]["Authorization"] == f"Bearer {fake_token}"
-        # But token must NOT appear in result object
+        # Verify token was sent as query param (not in Authorization header)
+        assert f"?token={fake_token}" in http.calls[0]["url"]
+        assert "Authorization" not in http.calls[0]["headers"]
+        # Token must NOT appear in result object
         assert fake_token not in str(result)
 
     def test_export_json_no_token_field(self, tmp_path):
@@ -490,7 +491,7 @@ class TestNoHardcodedEndpoint:
         row = _make_test_row()
         MetricsSubmitter(mode=MODE_TEST_SUBMIT, _http_client=http).submit(row)
         assert len(http.calls) == 1
-        assert http.calls[0]["url"] == custom_endpoint
+        assert http.calls[0]["url"].startswith(custom_endpoint)
 
     def test_missing_endpoint_env_returns_error_not_fallback(self, monkeypatch):
         monkeypatch.delenv(ENV_ENDPOINT, raising=False)
@@ -512,7 +513,9 @@ class TestNoHardcodedToken:
         http = _FakeHTTPClient()
         row = _make_test_row()
         MetricsSubmitter(mode=MODE_TEST_SUBMIT, _http_client=http).submit(row)
-        assert http.calls[0]["headers"]["Authorization"] == f"Bearer {custom_token}"
+        # Token sent as ?token= query param, not Authorization header
+        assert f"?token={custom_token}" in http.calls[0]["url"]
+        assert "Authorization" not in http.calls[0]["headers"]
 
     def test_missing_token_env_returns_error_not_fallback(self, monkeypatch):
         monkeypatch.setenv(ENV_ENDPOINT, "https://example.com")

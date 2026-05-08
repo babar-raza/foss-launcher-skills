@@ -368,28 +368,43 @@ class MetricsSubmitter:
                     validation_errors=[],
                 )
 
+        # Token passed as query param (endpoint contract); never stored in result
+        url = f"{endpoint}?token={token}"
+
         try:
             resp = http.post(
-                endpoint,
+                url,
                 json=payload,
-                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+                headers={"Content-Type": "application/json"},
                 timeout=30,
             )
             status = resp.status_code
+            body: dict = {}
             try:
                 body = resp.json()
-                summary = str(body.get("status", body))[:200]
+                # Prefer human-readable message; fall back to body status code
+                if isinstance(body, dict) and body.get("message"):
+                    summary = str(body["message"])[:200]
+                else:
+                    summary = str(body.get("status", body))[:200] if isinstance(body, dict) else f"HTTP {status}"
             except Exception:
                 summary = f"HTTP {status}"
 
+            # Application-level success: HTTP 2xx AND body doesn't signal a non-2xx int status
+            body_status = body.get("status") if isinstance(body, dict) else None
+            # Only treat as failure if body status is an int outside 2xx range
+            app_error = isinstance(body_status, int) and not (200 <= body_status < 300)
+            http_ok = 200 <= status < 300
+            is_success = http_ok and not app_error
+
             return SubmitResult(
                 mode=mode,
-                submitted=(200 <= status < 300),
+                submitted=is_success,
                 status_code=status,
                 response_summary=summary,
                 output_path=str(output_path) if output_path else None,
                 redacted_endpoint=redacted,
-                error=None if 200 <= status < 300 else f"HTTP {status}: {summary}",
+                error=None if is_success else f"HTTP {status}: {summary}",
                 row_valid=True,
                 validation_errors=[],
             )
