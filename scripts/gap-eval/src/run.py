@@ -802,6 +802,8 @@ def _get_source_context(claim: dict, clone_cache: Path) -> str:
 
 
 _router = None  # lazy singleton — avoids YAML re-read per call
+_gaeval_metrics_events: list = []  # CS-001 events from LLM calls; reset per run_gap_eval()
+_gaeval_run_id: str | None = None
 
 
 def _get_router():
@@ -834,6 +836,9 @@ def _llm_call(system: str, user: str) -> dict | None:
         json_array=False,
     )
 
+    # CS-001: collect MetricsEvents
+    if hasattr(result, 'metrics_events') and result.metrics_events:
+        _gaeval_metrics_events.extend(result.metrics_events)
     if result.status == _ES.OK:
         log.info("LLM call via %s", result.provider)
         return result.data
@@ -849,13 +854,17 @@ def _llm_call_full(system: str, user: str):
         log.warning("LLM router unavailable: %s", exc)
         return None
 
-    return router.call_chat(
+    result = router.call_chat(
         system, user,
         temperature=0.1,
         timeout=30,
         json_extract=True,
         json_array=False,
     )
+    # CS-001: collect MetricsEvents from full call
+    if result is not None and hasattr(result, 'metrics_events') and result.metrics_events:
+        _gaeval_metrics_events.extend(result.metrics_events)
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -1364,6 +1373,16 @@ def run_gap_eval(
 
     Returns the findings dict suitable for JSON serialisation.
     """
+    global _gaeval_metrics_events, _gaeval_run_id
+    import time as _geval_time
+    t_start = _geval_time.monotonic()
+    _gaeval_metrics_events = []
+    try:
+        from commands.ops.metrics_schema import generate_run_id as _gen_run_id
+        _gaeval_run_id = _gen_run_id()
+    except Exception:
+        _gaeval_run_id = None
+
     from state import load_state, save_state, make_finding_id, merge_findings, build_delta_section  # type: ignore
     from tier3_cache import Tier3Cache  # type: ignore
 
@@ -1598,7 +1617,57 @@ def run_gap_eval(
         # Stage 10: Profile self-update (write discovered_actuals if not already set)
         _update_profile_actuals(family, platform, profile, clone_sha)
 
+    _try_write_gaeval_metrics(family, platform, _gaeval_run_id, _gaeval_metrics_events,
+                              output.get("findings", []), output.get("verdict", "UNKNOWN"), t_start)
     return output
+
+
+def _try_write_gaeval_metrics(
+    family: str,
+    platform: str,
+    run_id,
+    events: list,
+    merged_findings: list,
+    verdict: str,
+    t_start: float,
+) -> None:
+    """Write metrics dry-run JSON for one run_gap_eval() call. Never raises."""
+    if run_id is None:
+        return
+    try:
+        import json as _json
+        import time as _time
+        from commands.ops.run_metrics import RunMetrics
+        from commands.ops.metrics_schema import row_to_dict
+        dry_dir = _REPO_ROOT / "reports" / "metrics" / "dry"
+        dry_dir.mkdir(parents=True, exist_ok=True)
+        dur_ms = max(0, int((_time.monotonic() - t_start) * 1000))
+        disc = len(merged_findings) if merged_findings else 1
+        succ = 1 if verdict == "PASS" else 0
+        fail = 0 if verdict == "PASS" else 1
+        with RunMetrics(
+            run_id=run_id,
+            agent_name="aspose-org-gap-evaluation",
+            job_type="gap_evaluation",
+            product=family,
+            platform=platform,
+            website="aspose.org",
+            website_section="Docs",
+            ledger_root=_REPO_ROOT / "reports" / "metrics" / "events",
+        ) as rm:
+            if events:
+                rm.record_events(events)
+            row = rm.to_row(
+                items_discovered=disc,
+                items_failed=fail,
+                items_succeeded=succ,
+                run_duration_ms=dur_ms,
+            )
+        dry_path = dry_dir / f"{run_id}.dry.json"
+        dry_path.write_text(_json.dumps(row_to_dict(row), indent=2), encoding="utf-8")
+        log.info("Metrics dry-run: %s", dry_path)
+    except Exception as exc:
+        log.debug("Metrics dry-run skipped: %s", exc)
 
 
 def _update_profile_actuals(family: str, platform: str, profile: dict, clone_sha: str) -> None:

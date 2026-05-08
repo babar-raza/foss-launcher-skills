@@ -566,3 +566,243 @@ class TestDefaultMode:
     def test_dry_run_result_mode_field(self):
         result = MetricsSubmitter().submit(_make_test_row())
         assert result.mode == MODE_DRY_RUN
+
+
+# ---------------------------------------------------------------------------
+# GAP-V-001: Idempotency marker tests (9 tests)
+# ---------------------------------------------------------------------------
+
+class TestIdempotencyMarker:
+    """GAP-V-001: {run_id}.posted.json written after success; duplicate submit skipped."""
+
+    def _make_submitter(self, tmp_path, mode=MODE_TEST_SUBMIT, fake_http=None):
+        """Helper: submitter with tmp markers/failed dirs and env vars set."""
+        markers = tmp_path / "posted"
+        failed = tmp_path / "failed"
+        if fake_http is None:
+            fake_http = _FakeHTTPClient(status_code=200, response_body={"message": "ok"})
+        return MetricsSubmitter(
+            mode=mode,
+            _http_client=fake_http,
+            _markers_root=markers,
+            _failed_root=failed,
+        ), markers, failed, fake_http
+
+    def test_marker_written_after_successful_test_submit(self, tmp_path, monkeypatch):
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "testtoken123")
+        row = _make_test_row()
+        submitter, markers, _, _ = self._make_submitter(tmp_path)
+        result = submitter.submit(row)
+        assert result.submitted is True
+        assert (markers / f"{row.run_id}.posted.json").exists()
+
+    def test_marker_contains_expected_fields(self, tmp_path, monkeypatch):
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "testtoken123")
+        row = _make_test_row()
+        submitter, markers, _, _ = self._make_submitter(tmp_path)
+        submitter.submit(row)
+        marker_path = markers / f"{row.run_id}.posted.json"
+        data = json.loads(marker_path.read_text())
+        assert data["run_id"] == row.run_id
+        assert "posted_at" in data
+        assert data["mode"] == MODE_TEST_SUBMIT
+        assert data["status_code"] == 200
+        assert "response_summary" in data
+
+    def test_marker_contains_no_token(self, tmp_path, monkeypatch):
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "supersecrettoken")
+        row = _make_test_row()
+        submitter, markers, _, _ = self._make_submitter(tmp_path)
+        submitter.submit(row)
+        marker_path = markers / f"{row.run_id}.posted.json"
+        content = marker_path.read_text()
+        assert "supersecrettoken" not in content
+
+    def test_duplicate_submit_returns_already_posted(self, tmp_path, monkeypatch):
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "testtoken123")
+        row = _make_test_row()
+        submitter, markers, _, _ = self._make_submitter(tmp_path)
+        first = submitter.submit(row)
+        assert first.submitted is True
+        second = submitter.submit(row)
+        assert second.submitted is False
+        assert second.error == "already posted"
+
+    def test_duplicate_submit_does_not_call_http_again(self, tmp_path, monkeypatch):
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "testtoken123")
+        row = _make_test_row()
+        fake = _FakeHTTPClient(status_code=200, response_body={"message": "ok"})
+        submitter, _, _, _ = self._make_submitter(tmp_path, fake_http=fake)
+        submitter.submit(row)
+        assert len(fake.calls) == 1
+        submitter.submit(row)
+        assert len(fake.calls) == 1  # second call did not go to HTTP
+
+    def test_idempotency_production_mode(self, tmp_path, monkeypatch):
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "testtoken123")
+        row = _make_production_row()
+        markers = tmp_path / "posted"
+        failed = tmp_path / "failed"
+        fake = _FakeHTTPClient(status_code=200, response_body={"message": "ok"})
+        submitter = MetricsSubmitter(
+            mode=MODE_PRODUCTION_SUBMIT,
+            _http_client=fake,
+            _markers_root=markers,
+            _failed_root=failed,
+        )
+        first = submitter.submit(row, owner_approved=True)
+        assert first.submitted is True
+        second = submitter.submit(row, owner_approved=True)
+        assert second.submitted is False
+        assert second.error == "already posted"
+
+    def test_no_marker_on_dry_run(self, tmp_path):
+        row = _make_test_row()
+        markers = tmp_path / "posted"
+        submitter = MetricsSubmitter(
+            mode=MODE_DRY_RUN,
+            _markers_root=markers,
+            _failed_root=tmp_path / "failed",
+        )
+        result = submitter.submit(row)
+        assert result.submitted is False
+        assert not markers.exists() or not any(markers.iterdir())
+
+    def test_no_marker_on_export_json(self, tmp_path):
+        row = _make_test_row()
+        markers = tmp_path / "posted"
+        out = tmp_path / "out.json"
+        submitter = MetricsSubmitter(
+            mode=MODE_EXPORT_JSON,
+            output_path=out,
+            _markers_root=markers,
+            _failed_root=tmp_path / "failed",
+        )
+        result = submitter.submit(row)
+        assert result.submitted is False
+        assert not markers.exists() or not any(markers.iterdir())
+
+    def test_marker_not_written_on_failed_http(self, tmp_path, monkeypatch):
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "testtoken123")
+        row = _make_test_row()
+        markers = tmp_path / "posted"
+        fake = _FakeHTTPClient(status_code=500, response_body={"message": "server error"})
+        submitter = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT,
+            _http_client=fake,
+            _markers_root=markers,
+            _failed_root=tmp_path / "failed",
+        )
+        result = submitter.submit(row)
+        assert result.submitted is False
+        assert not markers.exists() or not any(markers.iterdir())
+
+
+# ---------------------------------------------------------------------------
+# GAP-V-002: Failed directory write tests (6 tests)
+# ---------------------------------------------------------------------------
+
+class TestFailedDirectory:
+    """GAP-V-002: {run_id}.failed.json written on exception or non-2xx."""
+
+    def test_failed_file_written_on_exception(self, tmp_path, monkeypatch):
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "testtoken123")
+        row = _make_test_row()
+        failed = tmp_path / "failed"
+        fake = _FakeHTTPClient(exc=ConnectionError("network failure"))
+        submitter = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT,
+            _http_client=fake,
+            _markers_root=tmp_path / "posted",
+            _failed_root=failed,
+        )
+        result = submitter.submit(row)
+        assert result.submitted is False
+        assert (failed / f"{row.run_id}.failed.json").exists()
+
+    def test_failed_file_contains_expected_fields(self, tmp_path, monkeypatch):
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "testtoken123")
+        row = _make_test_row()
+        failed = tmp_path / "failed"
+        fake = _FakeHTTPClient(exc=ConnectionError("network failure"))
+        submitter = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT,
+            _http_client=fake,
+            _markers_root=tmp_path / "posted",
+            _failed_root=failed,
+        )
+        submitter.submit(row)
+        data = json.loads((failed / f"{row.run_id}.failed.json").read_text())
+        assert data["run_id"] == row.run_id
+        assert "failed_at" in data
+        assert data["mode"] == MODE_TEST_SUBMIT
+        assert "error" in data
+        assert "row" in data
+
+    def test_failed_file_contains_no_token(self, tmp_path, monkeypatch):
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "verysecrettoken999")
+        row = _make_test_row()
+        failed = tmp_path / "failed"
+        fake = _FakeHTTPClient(exc=ConnectionError("oops"))
+        submitter = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT,
+            _http_client=fake,
+            _markers_root=tmp_path / "posted",
+            _failed_root=failed,
+        )
+        submitter.submit(row)
+        content = (failed / f"{row.run_id}.failed.json").read_text()
+        assert "verysecrettoken999" not in content
+
+    def test_failed_file_written_on_non_2xx(self, tmp_path, monkeypatch):
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "testtoken123")
+        row = _make_test_row()
+        failed = tmp_path / "failed"
+        fake = _FakeHTTPClient(status_code=403, response_body={"message": "forbidden"})
+        submitter = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT,
+            _http_client=fake,
+            _markers_root=tmp_path / "posted",
+            _failed_root=failed,
+        )
+        result = submitter.submit(row)
+        assert result.submitted is False
+        assert (failed / f"{row.run_id}.failed.json").exists()
+
+    def test_no_failed_file_on_successful_submit(self, tmp_path, monkeypatch):
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com/exec")
+        monkeypatch.setenv(ENV_TOKEN, "testtoken123")
+        row = _make_test_row()
+        failed = tmp_path / "failed"
+        fake = _FakeHTTPClient(status_code=200, response_body={"message": "ok"})
+        submitter = MetricsSubmitter(
+            mode=MODE_TEST_SUBMIT,
+            _http_client=fake,
+            _markers_root=tmp_path / "posted",
+            _failed_root=failed,
+        )
+        result = submitter.submit(row)
+        assert result.submitted is True
+        assert not failed.exists() or not any(failed.iterdir())
+
+    def test_no_failed_file_on_dry_run(self, tmp_path):
+        row = _make_test_row()
+        failed = tmp_path / "failed"
+        submitter = MetricsSubmitter(
+            mode=MODE_DRY_RUN,
+            _markers_root=tmp_path / "posted",
+            _failed_root=failed,
+        )
+        submitter.submit(row)
+        assert not failed.exists() or not any(failed.iterdir())

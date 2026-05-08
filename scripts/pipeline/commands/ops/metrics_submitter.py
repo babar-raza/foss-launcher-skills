@@ -130,12 +130,16 @@ class MetricsSubmitter:
         output_path: str | Path | None = None,
         *,
         _http_client: Any = None,
+        _markers_root: str | Path | None = None,
+        _failed_root: str | Path | None = None,
     ):
         if mode not in VALID_MODES:
             raise ValueError(f"Invalid mode '{mode}'. Must be one of {sorted(VALID_MODES)}")
         self.mode = mode
         self.output_path = Path(output_path) if output_path else None
         self._http_client = _http_client
+        self._markers_root = Path(_markers_root) if _markers_root else Path("reports/metrics/posted")
+        self._failed_root = Path(_failed_root) if _failed_root else Path("reports/metrics/failed")
 
     # ------------------------------------------------------------------
     # Public
@@ -267,6 +271,21 @@ class MetricsSubmitter:
                 validation_errors=[],
             )
 
+        # Idempotency: skip if already posted
+        marker = self._markers_root / f"{row.run_id}.posted.json"
+        if marker.exists():
+            return SubmitResult(
+                mode=MODE_TEST_SUBMIT,
+                submitted=False,
+                status_code=None,
+                response_summary="skipped — already posted",
+                output_path=None,
+                redacted_endpoint=None,
+                error="already posted",
+                row_valid=True,
+                validation_errors=[],
+            )
+
         out = self._maybe_export(row)
         return self._do_http(row, endpoint, token, MODE_TEST_SUBMIT, out)
 
@@ -314,6 +333,21 @@ class MetricsSubmitter:
                 output_path=None,
                 redacted_endpoint=None,
                 error=env_error,
+                row_valid=True,
+                validation_errors=[],
+            )
+
+        # Idempotency: skip if already posted
+        marker = self._markers_root / f"{row.run_id}.posted.json"
+        if marker.exists():
+            return SubmitResult(
+                mode=MODE_PRODUCTION_SUBMIT,
+                submitted=False,
+                status_code=None,
+                response_summary="skipped — already posted",
+                output_path=None,
+                redacted_endpoint=None,
+                error="already posted",
                 row_valid=True,
                 validation_errors=[],
             )
@@ -397,6 +431,11 @@ class MetricsSubmitter:
             http_ok = 200 <= status < 300
             is_success = http_ok and not app_error
 
+            if is_success:
+                self._write_posted_marker(row, mode, status, summary)
+            else:
+                self._write_failed_record(row, mode, f"HTTP {status}: {summary}")
+
             return SubmitResult(
                 mode=mode,
                 submitted=is_success,
@@ -409,6 +448,7 @@ class MetricsSubmitter:
                 validation_errors=[],
             )
         except Exception as exc:
+            self._write_failed_record(row, mode, str(exc))
             return SubmitResult(
                 mode=mode,
                 submitted=False,
@@ -420,6 +460,40 @@ class MetricsSubmitter:
                 row_valid=True,
                 validation_errors=[],
             )
+
+    def _write_posted_marker(
+        self,
+        row: MetricsRow,
+        mode: str,
+        status_code: int,
+        response_summary: str,
+    ) -> None:
+        """Write {run_id}.posted.json idempotency marker. No token or endpoint value."""
+        import datetime
+        self._markers_root.mkdir(parents=True, exist_ok=True)
+        marker_path = self._markers_root / f"{row.run_id}.posted.json"
+        marker = {
+            "run_id": row.run_id,
+            "posted_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "mode": mode,
+            "status_code": status_code,
+            "response_summary": response_summary[:200],
+        }
+        marker_path.write_text(json.dumps(marker, indent=2), encoding="utf-8")
+
+    def _write_failed_record(self, row: MetricsRow, mode: str, error: str) -> None:
+        """Write {run_id}.failed.json on HTTP exception or non-2xx. No token."""
+        import datetime
+        self._failed_root.mkdir(parents=True, exist_ok=True)
+        failed_path = self._failed_root / f"{row.run_id}.failed.json"
+        record = {
+            "run_id": row.run_id,
+            "failed_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "mode": mode,
+            "error": error[:500],
+            "row": row_to_dict(row),
+        }
+        failed_path.write_text(json.dumps(record, indent=2), encoding="utf-8")
 
     def _maybe_export(self, row: MetricsRow) -> Path | None:
         """Write export if output_path is set, else return None."""

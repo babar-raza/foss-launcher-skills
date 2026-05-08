@@ -35,6 +35,8 @@ _VECTORS_DIR = _REPO_ROOT / "knowledge" / "_vectors" / "_synthesis"
 _SYNTHESIS_PATH = _REPO_ROOT / "reports" / "gap-analysis" / "MASTER-SYNTHESIS.md"
 
 _router = None  # lazy singleton
+_synth_metrics_events: list = []  # CS-001 events from LLM calls; reset per run_synthesis()
+_synth_run_id = None
 
 
 def _get_router():
@@ -312,6 +314,9 @@ def name_cluster(findings_in_cluster: list[dict]) -> dict:
         json_array=False,
     )
 
+    # CS-001: collect MetricsEvents
+    if hasattr(result, 'metrics_events') and result.metrics_events:
+        _synth_metrics_events.extend(result.metrics_events)
     if result.status == EndpointStatus.OK and isinstance(result.data, dict):
         if "pattern_name" in result.data:
             return result.data
@@ -368,6 +373,9 @@ def analyze_root_causes(patterns: list[dict]) -> list[dict]:
         json_array=False,
     )
 
+    # CS-001: collect MetricsEvents
+    if hasattr(result, 'metrics_events') and result.metrics_events:
+        _synth_metrics_events.extend(result.metrics_events)
     if result.status == EndpointStatus.OK and isinstance(result.data, dict):
         return result.data.get("root_causes", [])
 
@@ -448,6 +456,16 @@ def run_synthesis(
 
     Returns synthesis result dict.
     """
+    global _synth_metrics_events, _synth_run_id
+    import time as _synth_time
+    _t_start = _synth_time.monotonic()
+    _synth_metrics_events = []
+    try:
+        from commands.ops.metrics_schema import generate_run_id as _gen_run_id
+        _synth_run_id = _gen_run_id()
+    except Exception:
+        _synth_run_id = None
+
     # Stage 1: Aggregate
     findings = load_all_findings(products)
     if not findings:
@@ -524,6 +542,42 @@ def run_synthesis(
         "repo_verdicts": repo_verdicts,
         "synthesis_update": synthesis_update,
     }
+
+    def _try_write_synth_metrics_dry_run(run_id, events, findings_count, t_start):
+        if run_id is None:
+            return
+        try:
+            import json as _json
+            from commands.ops.run_metrics import RunMetrics
+            from commands.ops.metrics_schema import row_to_dict
+            dry_dir = _REPO_ROOT / "reports" / "metrics" / "dry"
+            dry_dir.mkdir(parents=True, exist_ok=True)
+            dur_ms = max(0, int((_synth_time.monotonic() - t_start) * 1000))
+            with RunMetrics(
+                run_id=run_id,
+                agent_name="aspose-org-gap-evaluation",
+                job_type="gap_synthesis",
+                product="all",
+                platform="all",
+                website="aspose.org",
+                website_section="Docs",
+                ledger_root=_REPO_ROOT / "reports" / "metrics" / "events",
+            ) as rm:
+                if events:
+                    rm.record_events(events)
+                row = rm.to_row(
+                    items_discovered=findings_count,
+                    items_failed=0,
+                    items_succeeded=findings_count,
+                    run_duration_ms=dur_ms,
+                )
+            dry_path = dry_dir / f"{run_id}.dry.json"
+            dry_path.write_text(_json.dumps(row_to_dict(row), indent=2), encoding="utf-8")
+            log.info("Metrics dry-run: %s", dry_path)
+        except Exception as exc:
+            log.debug("Metrics dry-run skipped: %s", exc)
+
+    _try_write_synth_metrics_dry_run(_synth_run_id, _synth_metrics_events, len(findings), _t_start)
 
     if not dry_run:
         # Save synthesis result JSON

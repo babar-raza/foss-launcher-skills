@@ -551,6 +551,8 @@ def _preflight_check() -> dict[str, str]:
 # ---------------------------------------------------------------------------
 
 _router = None  # lazy singleton — avoids YAML re-read per call
+_enrich_metrics_events: list = []  # CS-001 MetricsEvent objects from LLM calls; reset per enrich() call
+_enrich_run_id: str | None = None  # generated per enrich() call
 
 
 def _get_router():
@@ -583,11 +585,64 @@ def _llm_call(prompt_system: str, prompt_user: str) -> tuple[dict | list | None,
         json_array=True,
     )
 
+    # CS-001: collect MetricsEvents from this call
+    if hasattr(result, 'metrics_events') and result.metrics_events:
+        _enrich_metrics_events.extend(result.metrics_events)
     if result.status == EndpointStatus.OK:
         model_info = f"{result.provider}/{result.model}"
         log.info("LLM call via %s", model_info)
         return result.data, model_info
     return None, ""
+
+
+# ---------------------------------------------------------------------------
+# Metrics dry-run helper
+# ---------------------------------------------------------------------------
+
+def _try_write_enrich_metrics(
+    family: str,
+    platform: str,
+    run_id: str | None,
+    events: list,
+    run_stats: dict,
+    t0: float,
+) -> None:
+    """Write metrics dry-run JSON for one enrich() run. Never raises."""
+    if run_id is None:
+        return
+    try:
+        import json as _json
+        from commands.ops.run_metrics import RunMetrics
+        from commands.ops.metrics_schema import row_to_dict
+        dry_dir = _REPO_ROOT / "reports" / "metrics" / "dry"
+        dry_dir.mkdir(parents=True, exist_ok=True)
+        dur_ms = max(0, int((time.monotonic() - t0) * 1000))
+        disc = run_stats.get("batches_attempted", 0)
+        succ = run_stats.get("batches_succeeded", 0)
+        fail = run_stats.get("batches_failed", 0)
+        with RunMetrics(
+            run_id=run_id,
+            agent_name="aspose-org-knowledge-enrichment",
+            job_type="knowledge_enrichment",
+            product=family,
+            platform=platform,
+            website="aspose.org",
+            website_section="Docs",
+            ledger_root=_REPO_ROOT / "reports" / "metrics" / "events",
+        ) as rm:
+            if events:
+                rm.record_events(events)
+            row = rm.to_row(
+                items_discovered=disc,
+                items_failed=fail,
+                items_succeeded=succ,
+                run_duration_ms=dur_ms,
+            )
+        dry_path = dry_dir / f"{run_id}.dry.json"
+        dry_path.write_text(_json.dumps(row_to_dict(row), indent=2), encoding="utf-8")
+        log.info("Metrics dry-run: %s", dry_path)
+    except Exception as exc:
+        log.debug("Metrics dry-run skipped: %s", exc)
 
 
 # ---------------------------------------------------------------------------
@@ -861,6 +916,13 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
     scout_dir = base / "scout"
     out_path = scout_dir / "enriched_claims.json"
 
+    global _enrich_metrics_events, _enrich_run_id
+    _enrich_metrics_events = []
+    try:
+        from commands.ops.metrics_schema import generate_run_id as _gen_run_id
+        _enrich_run_id = _gen_run_id()
+    except Exception:
+        _enrich_run_id = None
     log.info("=== S-37 knowledge-enrich: %s/%s ===", family, platform)
     t0 = time.monotonic()
     run_stats: dict[str, Any] = {
@@ -1231,6 +1293,7 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
         run_stats["duration_seconds"] = round(time.monotonic() - t0, 1)
         _write_enrichment_report(family, platform, run_stats, "failed",
                                  out_path, reports_root=reports_root)
+        _try_write_enrich_metrics(family, platform, _enrich_run_id, _enrich_metrics_events, run_stats, t0)
         return False  # Signal failure instead of success
 
     if new_claims_added <= 0 and existing_enriched and len(batches) > 0:
@@ -1245,6 +1308,7 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
         run_stats["duration_seconds"] = round(time.monotonic() - t0, 1)
         _write_enrichment_report(family, platform, run_stats, "partial",
                                  out_path, reports_root=reports_root)
+        _try_write_enrich_metrics(family, platform, _enrich_run_id, _enrich_metrics_events, run_stats, t0)
         return True  # Existing claims preserved, skip rewrite to avoid metadata churn
 
     run_stats["claims_final"] = len(final_claims)
@@ -1269,6 +1333,7 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
     )
     _write_enrichment_report(family, platform, run_stats, enrichment_status,
                              out_path, reports_root=reports_root)
+    _try_write_enrich_metrics(family, platform, _enrich_run_id, _enrich_metrics_events, run_stats, t0)
     return True
 
 

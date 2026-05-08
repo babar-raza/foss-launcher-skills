@@ -837,6 +837,43 @@ def run_recommendations(
         encoding="utf-8",
     )
     print(f"recommendations.json written to: {output_path}")
+    # Slice 8: Write metrics dry-run for this recommendations run
+    try:
+        import json as _mjson
+        import uuid as _muuid
+        from commands.ops.run_metrics import RunMetrics
+        from commands.ops.metrics_schema import row_to_dict, generate_run_id
+        _mrun_id = generate_run_id()
+        _mdry_dir = _REPO_ROOT / "reports" / "metrics" / "dry"
+        _mdry_dir.mkdir(parents=True, exist_ok=True)
+        _mevents = list(metrics_events)  # snapshot current events
+        _mdisc = output_doc.get("total_input_opportunities", 0)
+        _msucc = output_doc.get("total_recommendations_generated", 0)
+        _mfail = max(0, _mdisc - _msucc)
+        with RunMetrics(
+            run_id=_mrun_id,
+            agent_name="aspose-org-seo",
+            job_type="seo",
+            product="seo",
+            platform="all",
+            website="aspose.org",
+            website_section="Products",
+            ledger_root=_REPO_ROOT / "reports" / "metrics" / "events",
+        ) as _rm:
+            if _mevents:
+                _rm.record_events(_mevents)
+            _mrow = _rm.to_row(
+                items_discovered=_mdisc,
+                items_failed=_mfail,
+                items_succeeded=_msucc,
+                run_duration_ms=0,
+            )
+        (_mdry_dir / f"{_mrun_id}.dry.json").write_text(
+            _mjson.dumps(row_to_dict(_mrow), indent=2), encoding="utf-8"
+        )
+    except Exception:
+        pass  # metrics capture must never break SEO recommendations
+
     return output_doc
 
 
