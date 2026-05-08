@@ -101,9 +101,9 @@ class TestEnrichMetricsWiring:
         assert dry_path.exists(), "Dry-run JSON not written"
         row = json.loads(dry_path.read_text())
         assert row["run_id"] == run_id
-        assert row["job_type"] == "knowledge_enrichment"
-        assert row["product"] == "cells"
-        assert row["platform"] == "java"
+        assert row["job_type"] == "Knowledge Enrichment"
+        assert row["product"] == "Aspose.Cells"
+        assert row["platform"] == "Java"
         assert row["api_calls_count"] == 2
         assert row["token_usage"] == 350
 
@@ -177,8 +177,8 @@ class TestGapEvalRunMetricsWiring:
         dry_path = tmp_path / "reports" / "metrics" / "dry" / f"{run_id}.dry.json"
         assert dry_path.exists()
         row = json.loads(dry_path.read_text())
-        assert row["job_type"] == "gap_evaluation"
-        assert row["product"] == "slides"
+        assert row["job_type"] == "Gap Evaluation"
+        assert row["product"] == "Aspose.Slides"
         assert row["token_usage"] == 180
 
     def test_gaeval_metrics_helper_silent_on_none_run_id(self, tmp_path):

@@ -487,7 +487,7 @@ class TestRunMetricsStatusAndOwner:
         )
         rm.record_event(_event())
         row = rm.to_row(run_duration_ms=0)
-        expected = "aspose.org / Docs / cells / java / knowledge_enrichment"
+        expected = "Cells Java Run"
         assert row.item_name == expected
         rm.close()
 
@@ -779,8 +779,8 @@ class TestHelpers:
         assert _derive_status(0, 0, 0) == "success"
 
     def test_build_item_name(self):
-        name = _build_item_name("aspose.org", "Docs", "cells", "java", "knowledge_enrichment")
-        assert name == "aspose.org / Docs / cells / java / knowledge_enrichment"
+        name = _build_item_name("Aspose.Cells", "Java")
+        assert name == "Cells Java Run"
 
     def test_run_id_property(self, tmp_path):
         run_id = generate_run_id()

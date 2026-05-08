@@ -2307,6 +2307,24 @@ scripts:
     change_impact: null
     notes: "S-96 scope resolver: maps family/platform/subdomain to content paths, knowledge paths, and generation entry points; ScopeManifest dataclass"
 
+  - path: scripts/pipeline/commands/ops/metrics_taxonomy_loader.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: metrics
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_metrics_taxonomy.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "Taxonomy display-name resolution helpers for RunMetrics: resolve_agent_name, resolve_job_type, resolve_product, resolve_platform, build_item_name. Reads metrics_taxonomy.yaml. No HTTP calls."
+
   - path: scripts/pipeline/commands/ops/run_metrics.py
     kind: library
     lifecycle: active

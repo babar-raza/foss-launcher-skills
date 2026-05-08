@@ -49,6 +49,13 @@ from commands.ops.metrics_payload_builder import (
     aggregate_events,
     build_run_row,
 )
+from commands.ops.metrics_taxonomy_loader import (
+    build_item_name as _build_item_name_from_display,
+    resolve_agent_name,
+    resolve_job_type,
+    resolve_platform,
+    resolve_product,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -84,18 +91,13 @@ def _derive_status(
     return "success"
 
 
-def _build_item_name(
-    website: str,
-    website_section: str,
-    product: str,
-    platform: str,
-    job_type: str,
-) -> str:
-    """Build the standard item_name string from run metadata.
+def _build_item_name(product: str, platform: str) -> str:
+    """Build the short item_name string from resolved display names.
 
-    Format: ``"{website} / {website_section} / {product} / {platform} / {job_type}"``
+    Delegates to ``metrics_taxonomy_loader.build_item_name``.
+    Format: ``"{ProductShort} {Platform} Run"`` (target 10–14 chars)
     """
-    return f"{website} / {website_section} / {product} / {platform} / {job_type}"
+    return _build_item_name_from_display(product, platform)
 
 
 # ---------------------------------------------------------------------------
@@ -175,11 +177,11 @@ class RunMetrics:
         validate_rows: bool = True,
     ) -> None:
         self._run_id = run_id
-        self._agent_name = agent_name
+        self._agent_name = resolve_agent_name(agent_name, taxonomy_path=taxonomy_path)
         self._agent_owner = agent_owner
-        self._job_type = job_type
-        self._product = product
-        self._platform = platform
+        self._job_type = resolve_job_type(job_type, taxonomy_path=taxonomy_path)
+        self._product = resolve_product(product, taxonomy_path=taxonomy_path)
+        self._platform = resolve_platform(platform, taxonomy_path=taxonomy_path)
         self._website = website
         self._website_section = website_section
         self._item_name = item_name
@@ -325,13 +327,7 @@ class RunMetrics:
         dur = run_duration_ms if run_duration_ms is not None else self.run_duration_ms
 
         status = _derive_status(disc, succ, fail)
-        item_name = self._item_name or _build_item_name(
-            self._website,
-            self._website_section,
-            self._product,
-            self._platform,
-            self._job_type,
-        )
+        item_name = self._item_name or _build_item_name(self._product, self._platform)
 
         agg = aggregate_events(self._events)
 
