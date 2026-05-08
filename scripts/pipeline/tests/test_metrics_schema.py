@@ -283,9 +283,9 @@ class TestHelpers:
     def test_redact_secret_like_values(self):
         assert "[REDACTED]" in redact_secret_like_values("sk-abc123def456ghi")
         assert "[REDACTED]" in redact_secret_like_values("ghp_abcdefghij1234")
-        assert "[REDACTED]" in redact_secret_like_values("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6")
+        assert "[REDACTED]" in redact_secret_like_values("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6")  # SECRETS_TEST_FIXTURE
         assert "[REDACTED]" in redact_secret_like_values(
-            "/v1/chat?api_key=mysecretvalue123"
+            "/v1/chat?api_key=mysecretvalue123"  # SECRETS_TEST_FIXTURE
         )
 
     def test_redact_clean_value_unchanged(self):

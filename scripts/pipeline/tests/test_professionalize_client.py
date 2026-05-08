@@ -407,7 +407,7 @@ class TestNoDependencies:
 
 class TestExceptionRedaction:
     def test_secret_in_exception_message_is_redacted(self):
-        exc_msg = "Connection error: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.secret"
+        exc_msg = "Connection error: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.secret"  # SECRETS_TEST_FIXTURE
         fake = FakeHTTPClient(raise_exc=Exception(exc_msg))
         result = _client(fake).chat(messages=[{"role": "user", "content": "x"}])
         assert result.error_summary is not None
