@@ -353,3 +353,20 @@ Keys used: `{family}_{platform}_knowledge_ready`, `{family}_{platform}_site_plan
 - If any stage fails unexpectedly, save the last successful checkpoint and halt with instructions
 - Do not skip failed stages — investigate and fix before resuming
 - Stage 6 (truth audit) FAIL count > 0 is a hard stop; do not proceed to Stage 7 or 8
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

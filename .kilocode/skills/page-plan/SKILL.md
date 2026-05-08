@@ -152,3 +152,20 @@ Plan a page's structure before drafting. Compiles relevant claims from knowledge
 | `model.yaml stale_since` warning | Knowledge artifacts are outdated | Run `/knowledge-update {family} {platform}` to refresh |
 | `api_surface.json` missing | Scout extraction not run | Run `/repo-scout {family} {platform}` |
 | Plan YAML validation error | Malformed plan output | Re-run; if persistent, check claims.json for encoding issues |
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.
