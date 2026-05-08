@@ -1015,7 +1015,7 @@ class TestAT17_SecretScanSeededToken:
         bad_file = metrics_dir / "run_events.jsonl"
         # Token intentionally avoids allowlist substrings (fake, test, mock, dummy, example, etc.)
         bad_file.write_text(
-            'AUTH_HEADER = "Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0.SXgbmFVlwQLsJRqmhIcJKZbgNJPKqPHqQLJpRw"\n',
+            'AUTH_HEADER = "Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0.SXgbmFVlwQLsJRqmhIcJKZbgNJPKqPHqQLJpRw"\n',  # SECRETS_TEST_FIXTURE
             encoding="utf-8",
         )
         result = cmns.run_check(root=tmp_path)
