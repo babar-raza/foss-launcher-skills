@@ -175,3 +175,20 @@ fields and avoids duplicate keys.
 - If a page references a removed claim but the paragraph cannot be safely rewritten, flag for human review
 - If audit.py fails after update, list specific issues and attempt one correction pass
 - If no-downgrade-guard BLOCKS a known-accurate update: escalate to S-73 (manual-edit); do not skip
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

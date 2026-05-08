@@ -125,3 +125,20 @@ For batch evaluation of all pages in a product, use S-51 (content-eval):
 - If content_eval module is not available, fall back to running `python scripts/pipeline/commands/content/audit.py --files {path}` for API accuracy check only, and assign grade based on audit results alone
 - If knowledge model is missing, note in output that evaluation is partial (API accuracy and evidence checks will be limited)
 - If the file does not exist, abort with clear message
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

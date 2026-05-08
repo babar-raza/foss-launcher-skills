@@ -233,3 +233,11 @@ DEFECT CLASSIFICATION
 Pre-existing defects never contaminate the validating track's closure decision. See also:
 `test_benchmark_no_unhandled_exceptions` in `test_human_likeness.py` (G-3 guardrail) which
 prevents pre-existing crashes from silently corrupting benchmark results.
+
+---
+
+## Metrics Obligation
+
+Pipeline workflows using `llm.professionalize.com` carry a metrics obligation. Decision records
+that approve new professionalize call sites must note the corresponding `metrics_callsite_registry.yaml`
+entry and the `AGENT_METRICS` capture method. See `AGENTS.md §15`.

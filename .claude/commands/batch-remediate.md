@@ -151,3 +151,20 @@ This is safe for unattended runs and skips the LLM fix pass (Step 6).
 - **S-41 batch-eval-fix**: Lightweight auto-fix only (no LLM pass). Use when you only need deterministic fixes.
 - **S-42 category-fix**: Run a specific category fixer on targeted files.
 - **S-89 heal-batch**: Policy-routed batch healing from an eval report. Routes findings through the heal policy table to auto/llm/regen modes in a single pass. Use `/heal-batch` when you have an existing eval report and want structured dispatching rather than the sequential eval→fix→LLM pipeline of S-40.
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

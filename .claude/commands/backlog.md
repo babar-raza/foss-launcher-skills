@@ -1104,3 +1104,20 @@ All status changes must be logged to `backlog/CHANGELOG.md` with: date, item ID,
 - **Intake dedup is mandatory**: `/backlog add` and `/backlog investigate` run the Relatedness Check before adding. Operator can override, but the check always runs.
 - **No auto-merge**: Relationship detection is automated; merge/group/link actions always require operator confirmation.
 - **Anti-over-merge**: Max 7 children per parent. No cross-priority-tier merge. No cross-plan-file merge. See `/backlog merge` for full rules.
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

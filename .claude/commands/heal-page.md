@@ -168,3 +168,20 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 | Still D/F after 2 passes | Page has structural issues beyond auto-repair | Invoke S-90 (`/publish-readiness-review`) per §7c — S-90 classifies and routes further; real human escalation only if S-90 confirms unresolvable |
 | `audit.py FAIL` persistent | Fabricated API tokens not fixable by LLM | Check api_surface.json; may need `/repo-scout` refresh |
 | `no-downgrade-guard` blocked | Proposed fix would reduce grade | Examine the fix; the guard is protecting correct content |
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

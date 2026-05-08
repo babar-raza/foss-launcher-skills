@@ -493,6 +493,37 @@ If a new site workflow is added, the same flag is required on the `hugo` build s
 
 > Full detail: [docs/workflows/completion-verification.md](docs/workflows/completion-verification.md)
 
+## 15. Metrics Obligation
+
+All workflows and pipeline commands that call `llm.professionalize.com` — directly or
+through `LLMRouter` — carry a mandatory metrics obligation.
+
+**Requirements:**
+
+- Every professionalize HTTP call must be captured as a `MetricsEvent` using the approved
+  infrastructure: `ProfessionalizeClient`, `LLMRouter`, or a registered adapter entry in
+  `scripts/pipeline/config/metrics_callsite_registry.yaml`.
+- Each completed work-slice must aggregate captured events into a validated `MetricsRow`
+  (17 fields) via `RunMetrics`, and persist it locally before any submission is attempted.
+- New professionalize call sites must be registered in `metrics_callsite_registry.yaml`.
+  Unregistered direct calls will fail CI (`check_professionalize_call_sites.py`).
+- Default submission mode is dry-run. Production submission requires explicit owner approval
+  and both `AGENT_METRICS_ENDPOINT` and `AGENT_METRICS_TOKEN` environment variables set
+  locally. Token values must never be committed, printed, or stored in evidence bundles.
+- Non-professionalize calls (Gemini, Ollama, M2M, local models) are excluded from
+  professionalize `token_usage` and `api_calls_count` metrics. Do not mix them.
+- Test rows must use `job_type="test"` and `item_name` prefix `[TEST]`. Maximum 2 per sprint,
+  hard limit 3.
+- Metrics failures must never crash or block the parent pipeline job.
+
+**Governance scripts:** `scripts/ci/checks/check_professionalize_call_sites.py`,
+`check_metrics_taxonomy.py`, `check_metrics_no_secrets.py`,
+`check_metrics_test_post_limit.py`, `check_metrics_event_ledger_schema.py`,
+`check_metrics_sheet_payload_schema.py`, `check_metrics_docs_propagation.py`.
+
+**Reference:** `METRICS-PLAN-001` (`scripts/pipeline/config/metrics_taxonomy.yaml`,
+`metrics_callsite_registry.yaml`).
+
 ## 16. Testing Seam Contract — Tiered Monkeypatch Policy
 
 > Full detail: [docs/governance/testing-seam-contract.md](docs/governance/testing-seam-contract.md)
