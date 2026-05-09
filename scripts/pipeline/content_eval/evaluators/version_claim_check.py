@@ -58,9 +58,9 @@ _NEGATION_RE = re.compile(
 _SEVERITY: dict[str, str] = {
     "reference": "FAIL",
     "products": "FAIL",
-    "kb": "WARN",
-    "blog": "WARN",
-    "docs": "WARN",
+    "kb": "FAIL",    # upgraded: wrong runtime version breaks user installations
+    "blog": "WARN",  # keep WARN: blog is editorial commentary, not instructional
+    "docs": "FAIL",  # upgraded: installation/getting-started guides must be correct
 }
 
 
@@ -148,6 +148,28 @@ def _extract_scannable_lines(page: Page) -> list[tuple[int, str]]:
                 if isinstance(block, dict):
                     val = block.get("content")
                     if isinstance(val, str) and val:
+                        text_fields.append(val)
+
+    # faq.list[].question and faq.list[].answer — products page FAQ section
+    faq_section = fm.get("faq")
+    if isinstance(faq_section, dict):
+        faq_list = faq_section.get("list", [])
+        if isinstance(faq_list, list):
+            for item in faq_list:
+                if isinstance(item, dict):
+                    for field_name in ("question", "answer"):
+                        val = item.get(field_name)
+                        if isinstance(val, str) and val.strip():
+                            text_fields.append(val)
+
+    # features.list[].content / .title / .description
+    features = fm.get("features")
+    if isinstance(features, dict):
+        for item in (features.get("list", []) or []):
+            if isinstance(item, dict):
+                for field_name in ("title", "content", "description"):
+                    val = item.get(field_name)
+                    if isinstance(val, str) and val.strip():
                         text_fields.append(val)
 
     # Split frontmatter text into lines (use line_no=0 for frontmatter)

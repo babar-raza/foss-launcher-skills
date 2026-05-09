@@ -144,6 +144,81 @@ class TestVersionClaimCheck:
         assert len(findings) >= 1
         assert findings[0].level == "FAIL"
 
+    @patch("content_eval.evaluators.version_claim_check._load_runtime_requirement")
+    def test_severity_is_fail_on_kb(self, mock_req):
+        """KB pages should get FAIL severity (upgraded from WARN — ISSUE-02)."""
+        mock_req.return_value = ">=3.10"
+        page = _make_kb_page("font", "python",
+            body="Make sure Python 3.8 is installed before running this example.")
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) >= 1
+        assert findings[0].level == "FAIL", (
+            f"Expected FAIL for KB page version mismatch, got {findings[0].level}"
+        )
+
+    @patch("content_eval.evaluators.version_claim_check._load_runtime_requirement")
+    def test_detects_python_version_in_faq_answer(self, mock_req):
+        """Wrong version in faq.list[].answer must be detected (ISSUE-02 regression)."""
+        mock_req.return_value = ">=3.10"
+        raw = textwrap.dedent("""\
+            ---
+            layout: plugin
+            faq:
+              enable: true
+              list:
+                - question: "What Python version is required?"
+                  answer: "This library requires Python 3.8 or later."
+            ---
+        """)
+        import tempfile as _tf
+        with _tf.NamedTemporaryFile(
+            mode="w", suffix=".md", delete=False, encoding="utf-8",
+            prefix="products_font_python_faq_",
+        ) as f:
+            f.write(raw)
+            f.flush()
+            from content_eval.models import Page as _Page
+            page = _Page.load(Path(f.name))
+            page.family = "font"
+            page.platform = "python"
+            page.subdomain = "products"
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) >= 1, (
+            "Expected VC finding for wrong version in faq.list[].answer — ISSUE-02"
+        )
+        assert any("3.8" in f.message or "3.10" in f.message for f in findings)
+
+    @patch("content_eval.evaluators.version_claim_check._load_runtime_requirement")
+    def test_correct_version_in_faq_answer_passes(self, mock_req):
+        """Correct version in faq.list[].answer must not be flagged."""
+        mock_req.return_value = ">=3.10"
+        raw = textwrap.dedent("""\
+            ---
+            layout: plugin
+            faq:
+              enable: true
+              list:
+                - question: "What Python version is required?"
+                  answer: "This library requires Python 3.10 or later."
+            ---
+        """)
+        import tempfile as _tf
+        with _tf.NamedTemporaryFile(
+            mode="w", suffix=".md", delete=False, encoding="utf-8",
+            prefix="products_font_python_faq_ok_",
+        ) as f:
+            f.write(raw)
+            f.flush()
+            from content_eval.models import Page as _Page
+            page = _Page.load(Path(f.name))
+            page.family = "font"
+            page.platform = "python"
+            page.subdomain = "products"
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) == 0, (
+            f"Expected no findings for correct version in faq.list[].answer, got {findings}"
+        )
+
 
 class TestCapabilityClaimCheck:
 

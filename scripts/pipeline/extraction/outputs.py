@@ -228,6 +228,7 @@ def write_outputs(
         "extracted_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "source": "scout",
         "package_root": package_root,
+        "package_name": manifest.get("name", ""),
         "canonical_import": canonical_imp,
         "install_command": install_cmd,
         "runtime_requirement": runtime_req,

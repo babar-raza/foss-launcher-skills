@@ -5,7 +5,7 @@ Usage:
     python scripts/pipeline/commands/launch/launch_gate.py note python
     python scripts/pipeline/commands/launch/launch_gate.py --fail-fast slides net
 
-Runs 9 automated gates (L-01 through L-09) and prints a pass/fail summary.
+Runs 10 automated gates (L-01 through L-10) and prints a pass/fail summary.
 Exit code: 0 if all gates pass, 1 if any gate fails.
 
 Gates:
@@ -20,6 +20,7 @@ Gates:
     L-07  Pipeline tests        -- pytest scripts/pipeline/tests/ must exit 0
     L-08  Provenance coverage   -- all English content files must have content_origin set
     L-09  Hugo build            -- hugo build for products.aspose.org must exit 0
+    L-10  No coming-soon        -- family _index.md must not contain 'coming soon' placeholder
 
 Flags:
     --fail-fast     Stop after the first failing gate
@@ -569,6 +570,35 @@ def gate_l09_hugo_build(family: str, platform: str) -> GateResult:  # noqa: ARG0
     )
 
 
+def gate_l10_no_coming_soon(family: str, platform: str) -> GateResult:  # noqa: ARG001
+    """L-10: Family _index.md must not contain stale 'coming soon' placeholder text.
+
+    A 'coming soon' string in the family page indicates a pre-existing structural
+    placeholder that was not replaced during launch (ISSUE-04 / CV-HEAL-04).
+    Run /family-sync {family} to replace the placeholder with auto-generated content.
+    """
+    family_page = _CONTENT_ROOT / "products.aspose.org" / "en" / family / "_index.md"
+    if not family_page.exists():
+        return GateResult(
+            "L-10", "No coming-soon placeholder", STATUS_SKIP,
+            "family _index.md not found (new family — will be created during launch)",
+        )
+    try:
+        text = family_page.read_text(encoding="utf-8", errors="replace").lower()
+    except OSError as exc:
+        return GateResult("L-10", "No coming-soon placeholder", STATUS_FAIL, f"read error: {exc}")
+
+    if "coming soon" in text:
+        return GateResult(
+            "L-10", "No coming-soon placeholder", STATUS_FAIL,
+            f"family page contains 'coming soon' placeholder — run /family-sync {family} to replace it",
+        )
+    return GateResult(
+        "L-10", "No coming-soon placeholder", STATUS_PASS,
+        "no 'coming soon' placeholder found in family page",
+    )
+
+
 def _last_nonempty_line(text: str) -> str:
     lines = [l.strip() for l in text.splitlines() if l.strip()]
     return lines[-1] if lines else ""
@@ -588,6 +618,7 @@ _ALL_GATES = [
     gate_l07_pipeline_tests,
     gate_l08_provenance_coverage,
     gate_l09_hugo_build,
+    gate_l10_no_coming_soon,
 ]
 
 

@@ -38,8 +38,12 @@ _PLATFORM_CODE_LANGS: dict[str, set[str]] = {
 # Each returns the full matched import text for reporting
 _IMPORT_PATTERNS: dict[str, list[re.Pattern]] = {
     "python": [
+        # Dot-prefix (proprietary Aspose SDK style): from aspose.font import ...
         re.compile(r"\bfrom\s+(aspose\.\w+(?:\.\w+)*)\s+import\b"),
         re.compile(r"\bimport\s+(aspose\.\w+(?:\.\w+)*)"),
+        # Underscore-prefix (FOSS PyPI style): from aspose_font import ...
+        re.compile(r"\bfrom\s+(aspose_\w+(?:\.\w+)*)\s+import\b"),
+        re.compile(r"\bimport\s+(aspose_\w+(?:\.\w+)*)"),
     ],
     "net": [
         re.compile(r"\busing\s+(Aspose\.\w+(?:\.\w+)*)\s*;"),
@@ -50,6 +54,16 @@ _IMPORT_PATTERNS: dict[str, list[re.Pattern]] = {
     "cpp": [
         re.compile(r"\b(Aspose::\w+(?:::\w+)*)"),
     ],
+    "typescript": [
+        # ES6 named/default/namespace import: import ... from '@aspose/...' or 'aspose-...'
+        re.compile(r"""\bimport\b[^'";\n]*from\s+['"](@aspose/[\w/-]+|aspose-[\w-]+(?:/[\w-]+)*)['"]"""),
+        # CommonJS require: require('@aspose/...')
+        re.compile(r"""\brequire\s*\(\s*['"](@aspose/[\w/-]+|aspose-[\w-]+(?:/[\w-]+)*)['"]"""),
+    ],
+    "javascript": [
+        re.compile(r"""\bimport\b[^'";\n]*from\s+['"](@aspose/[\w/-]+|aspose-[\w-]+(?:/[\w-]+)*)['"]"""),
+        re.compile(r"""\brequire\s*\(\s*['"](@aspose/[\w/-]+|aspose-[\w-]+(?:/[\w-]+)*)['"]"""),
+    ],
 }
 
 
@@ -57,14 +71,19 @@ def _build_allow_prefixes(foss_pkg: str, platform: str) -> set[str]:
     """Build a set of allowed import prefixes from the FOSS package name.
 
     For example:
+        foss_pkg="aspose-font"        → {"aspose-font", "aspose_font"} (python)
         foss_pkg="aspose.slides_foss" → {"aspose.slides_foss"}
-        foss_pkg="aspose.threed"      → {"aspose.threed"}
         foss_pkg="Aspose.Slides.Foss" → {"Aspose.Slides.Foss"}
         foss_pkg="com.aspose.threed"  → {"com.aspose.threed"}
+        foss_pkg="@aspose/3d"         → {"@aspose/3d"} (typescript)
     """
     if not foss_pkg:
         return set()
     prefixes = {foss_pkg}
+    # Python: PyPI package names use hyphens (aspose-font) but import roots use
+    # underscores (aspose_font). Add the underscore form to the allow-list.
+    if platform == "python":
+        prefixes.add(foss_pkg.replace("-", "_"))
     # For C++, also allow namespace::Foss variants
     if platform == "cpp" and "::" in foss_pkg:
         prefixes.add(foss_pkg.replace("::", "::"))
@@ -72,9 +91,12 @@ def _build_allow_prefixes(foss_pkg: str, platform: str) -> set[str]:
 
 
 def _is_allowed(import_path: str, allow_prefixes: set[str]) -> bool:
-    """Check if an import path starts with any allowed FOSS prefix."""
+    """Check if an import path is an exact match or a submodule of an allowed prefix."""
     for prefix in allow_prefixes:
-        if import_path == prefix or import_path.startswith(prefix + ".") or import_path.startswith(prefix + "::"):
+        if (import_path == prefix
+                or import_path.startswith(prefix + ".")
+                or import_path.startswith(prefix + "::")
+                or import_path.startswith(prefix + "/")):  # npm scoped: @aspose/3d/sub
             return True
     return False
 

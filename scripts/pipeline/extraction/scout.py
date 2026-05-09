@@ -14,6 +14,7 @@ import hashlib
 import importlib
 import importlib.util
 import logging
+import re
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -88,6 +89,53 @@ def _cpp_func_name(func_node) -> str:
             if name:
                 return name
     return ""
+
+
+def _is_abstract_class(text: str, class_name: str) -> bool:
+    """Return True if class_name is defined as an abstract base class in text.
+
+    Detects Python ABC patterns:
+      class Foo(ABC): ...
+      class Foo(abc.ABC): ...
+      class Foo(metaclass=ABCMeta): ...
+      class Foo(metaclass=abc.ABCMeta): ...
+    """
+    pattern = re.compile(
+        r"\bclass\s+" + re.escape(class_name) + r"\s*\(",
+        re.MULTILINE,
+    )
+    for m in pattern.finditer(text):
+        # Extract the class header line to check base classes
+        line_start = text.rfind("\n", 0, m.start()) + 1
+        line_end = text.find("\n", m.end())
+        header = text[line_start:line_end if line_end != -1 else len(text)]
+        if re.search(r"\bABC\b|\bABCMeta\b", header):
+            return True
+    return False
+
+
+def _has_concrete_override(pkg_root: Path, method_name: str, ext: str) -> bool:
+    """Return True if any source file has a non-stub implementation of method_name.
+
+    Looks for a method definition that does NOT contain NotImplementedError in its
+    immediate body (first 5 lines after the def). Used to confirm ABC stubs have
+    concrete subclass implementations, making them design-required (not limitations).
+    """
+    if not method_name:
+        return False
+    def_re = re.compile(r"\bdef\s+" + re.escape(method_name) + r"\s*\(")
+    not_impl_re = re.compile(r"NotImplementedError|raise\s+NotImplemented\b")
+    for fpath in _collect_source_files(pkg_root, ext):
+        try:
+            text = fpath.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for m in def_re.finditer(text):
+            # Grab the next ~300 chars (approx. first few lines of the method body)
+            body_snippet = text[m.end():m.end() + 300]
+            if not not_impl_re.search(body_snippet):
+                return True
+    return False
 
 
 class Scout:
@@ -315,17 +363,31 @@ class Scout:
                         enclosing_class = _node_name(node, self.language)
                     node = node.parent
 
+                # Python ABC check: if the enclosing class is abstract and the
+                # method is overridden by at least one concrete subclass, this
+                # NotImplementedError is a design-required stub, not a limitation.
+                classification = "limitation"
+                if self.language == "python" and enclosing_class:
+                    if _is_abstract_class(text, enclosing_class):
+                        classification = "abstract_stub"
+                        ext = _FILE_EXTENSIONS.get(self.language, ".py")
+                        if _has_concrete_override(self.pkg_root, enclosing_method, ext):
+                            # Concrete override exists — skip this as a false limitation
+                            continue
+
                 self.limitations.append({
                     "file": rel,
                     "line": i,
                     "class": enclosing_class,
                     "method": enclosing_method,
                     "text": line.strip(),
+                    "classification": classification,
                 })
-                self._add_claim(
-                    "limitation",
-                    f"Not implemented: {enclosing_class}.{enclosing_method} in {rel}:{i}",
-                    rel, i)
+                if classification != "abstract_stub":
+                    self._add_claim(
+                        "limitation",
+                        f"Not implemented: {enclosing_class}.{enclosing_method} in {rel}:{i}",
+                        rel, i)
 
     # -- C++ empty-body-stub detection -------------------------------------
 

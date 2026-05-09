@@ -20,6 +20,7 @@ from launch_gate import (
     _check_provenance_coverage,
     gate_l08_provenance_coverage,
     gate_l09_hugo_build,
+    gate_l10_no_coming_soon,
 )
 
 import launch_gate as _lg_mod
@@ -202,15 +203,19 @@ class TestGateL08ProvenanceCoverage:
 class TestGateRegistry:
     """Smoke test for the _ALL_GATES registry."""
 
-    def test_gate_count_is_nine(self):
-        """_ALL_GATES must contain exactly 9 entries.
+    def test_gate_count_is_ten(self):
+        """_ALL_GATES must contain exactly 10 entries.
         If this fails, a gate was added or removed without updating this test
-        and the L-01-through-L-09 documentation."""
-        assert len(_ALL_GATES) == 9, (
-            f"Expected 9 gates, found {len(_ALL_GATES)}. "
+        and the L-01-through-L-10 documentation."""
+        assert len(_ALL_GATES) == 10, (
+            f"Expected 10 gates, found {len(_ALL_GATES)}. "
             "Update this test and launch_gate.py docstring when adding/removing gates."
         )
 
-    def test_l09_is_last_gate(self):
-        """L-09 must be the last gate in the registry (ordered by gate number)."""
-        assert _ALL_GATES[-1] is gate_l09_hugo_build
+    def test_l10_is_last_gate(self):
+        """L-10 must be the last gate in the registry (ordered by gate number)."""
+        assert _ALL_GATES[-1] is gate_l10_no_coming_soon
+
+    def test_l09_is_second_to_last(self):
+        """L-09 (Hugo build) must be second-to-last, before L-10."""
+        assert _ALL_GATES[-2] is gate_l09_hugo_build
