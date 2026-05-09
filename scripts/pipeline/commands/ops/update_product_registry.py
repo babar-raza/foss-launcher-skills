@@ -63,8 +63,10 @@ def configure(*, repo_root: "Path | str | None" = None) -> None:
     REGISTRY_PATH = DATA_DIR / "products.json"
 
 _PIPELINE_DIR = Path(__file__).resolve().parents[2]  # commands/ops/ -> commands/ -> pipeline/
-if str(_PIPELINE_DIR) not in sys.path:
-    sys.path.insert(0, str(_PIPELINE_DIR))
+_LIB_DIR = _PIPELINE_DIR / "lib"
+for _p in (str(_PIPELINE_DIR), str(_LIB_DIR)):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 from core.env_loader import load_env  # noqa: E402
 load_env()
 
@@ -202,8 +204,11 @@ def _discover_from_github(orgs: list[str], token: str | None) -> list[dict]:
         from org_scanner import scan_orgs  # noqa: PLC0415  (local import)
     except ImportError:
         # fallback-import guard: when invoked from repo root, scripts/pipeline/ is not on sys.path.
-        # Try absolute import when running from repo root
-        sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # -> pipeline/
+        # Try absolute import when running from repo root; also add lib/ since org_scanner lives there.
+        _pipeline = Path(__file__).resolve().parents[2]
+        for _fb_p in (str(_pipeline), str(_pipeline / "lib")):
+            if _fb_p not in sys.path:
+                sys.path.insert(0, _fb_p)
         from org_scanner import scan_orgs  # type: ignore[no-redef]
 
     products: list[dict] = []
