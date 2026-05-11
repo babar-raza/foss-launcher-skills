@@ -72,6 +72,8 @@ Agents must activate the upstream skill if it has not already been confirmed as 
 | `/discovery-triage` (S-95) | S-93 `/repo-patrol` | When routing patrol findings (patrol_report.json must exist from current or prior session) |
 | `/discovery-triage` (S-95) | S-94 `/change-sweep` | When routing sweep findings (sweep_report.json must exist from current or prior session) |
 | `/section-enhance` (S-96) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | When `stale_since` is not null in `knowledge/{family}/{platform}/merged/model.yaml` |
+| `/content-enrich` (S-98) | S-54 `/knowledge-bootstrap` | Always (knowledge artifacts must exist) |
+| `/content-enrich` (S-98) | S-47 `/site-plan` | Always (site plan must exist for cluster extraction) |
 | Any content write | S-01 `/path-guard` | Always (final gate) |
 
 If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do not continue to the downstream skill.

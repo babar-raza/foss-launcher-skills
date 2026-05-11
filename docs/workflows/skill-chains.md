@@ -90,6 +90,21 @@ S-43 --no-llm (deterministic baseline)          [halts if > 50 findings → use 
 AMBIGUOUS findings and findings with `tier3_non_determinism_flag: true` are never auto-repaired.
 If finding count > 50, S-87 halts and directs to S-44 (gap-plan) + S-46 (gap-apply).
 
+### Post-launch content enrichment (cross-subdomain gap fill)
+
+```
+S-54 (knowledge-bootstrap) → S-47 (site-plan) → S-98 audit → S-98 plan → S-98 execute
+→ S-56/S-57/S-58/S-20 (via handoff manifest) → S-23 (content-check) → S-76 (commit)
+```
+
+S-98 operates in three modes:
+- `audit`: read-only coverage matrix across products/docs/kb/blog/reference
+- `plan` / `dry-run`: candidate generation with denominator invariant; no content writes
+- `execute`: conservative handoff manifest for downstream skill invocation; requires `--allow-local-content-write`
+
+Blog candidates are quality-gated (deferred to backlog unless score >= generate threshold).
+Denominator invariant enforced: `total = generate_now + update_existing + deferred + rejected + blocked`.
+
 ### Enhancement (below rubric quality)
 
 ```
