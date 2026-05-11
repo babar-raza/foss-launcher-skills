@@ -106,6 +106,13 @@ Default weight for unlisted platforms: 80.
       {{< sections cols="4" >}}
       ```
 
+      > **IMPORTANT**: Do NOT add a `linkTitle` field to the family root `_index.md`.
+      > The Hugo sidebar partial (`themes/docs/layouts/partials/utils/title.html`)
+      > prioritizes `LinkTitle` over `Title`. Adding `linkTitle` causes the sidebar
+      > to display the short name (e.g., "Font") instead of "Aspose.{Family} FOSS".
+      > Only platform-level `_index.md` files (step 8) use `linkTitle`.
+      > Enforced by: `scripts/ci/checks/check_family_display_names.py`, launch gate L-11.
+
    d. Run `attach_evidence.py` and `audit.py` on the new file (0 FAIL required).
 
 6. **Derive values**:
