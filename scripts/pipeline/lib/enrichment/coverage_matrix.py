@@ -13,6 +13,10 @@ from typing import Any
 import yaml
 
 from .taxonomy import CoverageStatus, SUBDOMAINS
+from .feature_detector import (
+    extract_feature_groups_from_source,
+    detect_shallow_coverage,
+)
 
 # ---------------------------------------------------------------------------
 # Repo path resolution
@@ -128,9 +132,11 @@ def extract_clusters_from_plan(site_plan: dict) -> list[dict]:
                     "sections_present": set(),
                 }
             clusters[cluster]["sections_present"].add(section_name)
-            # Use highest claim count seen
+            # Use highest claim count and api_method_count seen
             if page.get("claim_count", 0) > clusters[cluster]["claim_count"]:
                 clusters[cluster]["claim_count"] = page["claim_count"]
+            if page.get("api_method_count", 0) > clusters[cluster]["api_method_count"]:
+                clusters[cluster]["api_method_count"] = page["api_method_count"]
 
     # Convert sets to lists for serialization
     result = []
@@ -270,17 +276,57 @@ def build_coverage_matrix(
     clusters = extract_clusters_from_plan(site_plan)
     content_files = _discover_content_files(family, platform)
 
+    # Extract feature groups from source for shallow coverage detection
+    feature_groups = extract_feature_groups_from_source(family, platform)
+
+    plan_meta = site_plan.get("plan", {})
+    total_claims = plan_meta.get("evidence_summary", {}).get("total_claim_count", 0)
+    # Fallback: sum cluster claim counts if plan metadata missing
+    if not total_claims:
+        total_claims = sum(c.get("claim_count", 0) for c in clusters)
+
+    # Identify the largest cluster — the catch-all that likely aggregates
+    # unrelated features.  Feature detection applies only to this cluster,
+    # and only if it holds >40% of total claims (i.e., actually overloaded).
+    largest_cluster = ""
+    if clusters and total_claims > 0:
+        top = clusters[0]  # sorted by claim_count descending
+        if top["claim_count"] / total_claims > 0.4 and top["claim_count"] > 200:
+            largest_cluster = top["category"]
+
     matrix: dict[str, dict[str, str]] = {}
+    shallow_coverage: dict[str, dict[str, dict]] = {}  # cluster -> subdomain -> info
     for cluster in clusters:
         cat = cluster["category"]
         row: dict[str, str] = {}
+        cluster_shallow: dict[str, dict] = {}
+        # Feature groups only apply to the single largest cluster (the catch-all
+        # mega-cluster that aggregates unrelated features). Other large clusters
+        # like "vendor" are well-scoped and don't contain hidden feature groups.
+        cluster_features = feature_groups if cat == largest_cluster else []
+
         for subdomain in SUBDOMAINS:
             status = determine_subdomain_coverage(
                 subdomain, cat, content_files.get(subdomain, []),
                 family, platform,
             )
+
+            # Shallow coverage check for clusters marked "covered"
+            if status == CoverageStatus.COVERED and cluster_features:
+                sc_info = detect_shallow_coverage(
+                    cat, cluster.get("claim_count", 0),
+                    cluster_features, subdomain,
+                    content_files.get(subdomain, []),
+                    family, platform,
+                )
+                if sc_info.get("is_shallow"):
+                    status = CoverageStatus.PARTIALLY_COVERED
+                    cluster_shallow[subdomain] = sc_info
+
             row[subdomain] = status.value
         matrix[cat] = row
+        if cluster_shallow:
+            shallow_coverage[cat] = cluster_shallow
 
     # Summary statistics
     total_cells = len(clusters) * len(SUBDOMAINS)
@@ -305,13 +351,11 @@ def build_coverage_matrix(
         if s == CoverageStatus.PRODUCT_MENTIONED_ONLY.value
     )
 
-    plan_meta = site_plan.get("plan", {})
-
     return {
         "family": family,
         "platform": platform,
         "repo_sha": plan_meta.get("repo_sha", ""),
-        "total_claims": plan_meta.get("evidence_summary", {}).get("total_claim_count", 0),
+        "total_claims": total_claims,
         "cluster_count": len(clusters),
         "clusters": clusters,
         "matrix": matrix,
@@ -334,6 +378,8 @@ def build_coverage_matrix(
             "snippets": "snippets" in knowledge,
             "index": "index" in knowledge,
         },
+        "feature_groups": feature_groups,
+        "shallow_coverage": shallow_coverage,
     }
 
 

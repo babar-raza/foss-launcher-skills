@@ -17,6 +17,7 @@ from .taxonomy import (
     ACTION_TO_DISPOSITION,
     SUBDOMAINS,
 )
+from .feature_detector import generate_feature_candidates
 
 # ---------------------------------------------------------------------------
 # Scoring configuration (DRAFT — configurable, not hardcoded)
@@ -228,6 +229,59 @@ def generate_candidates(audit_result: dict, config: dict | None = None) -> dict:
                 "reason": reason,
                 "claim_count": cluster.get("claim_count", 0),
                 "api_method_count": cluster.get("api_method_count", 0),
+            })
+
+    # Feature-level candidates from shallow coverage (TC-003)
+    shallow_coverage = audit_result.get("shallow_coverage", {})
+    feature_groups = audit_result.get("feature_groups", [])
+    for cluster in clusters:
+        cat = cluster["category"]
+        cluster_shallow = shallow_coverage.get(cat, {})
+        if not cluster_shallow:
+            continue
+        row = matrix.get(cat, {})
+        feat_candidates = generate_feature_candidates(
+            cluster, feature_groups, cluster_shallow, row,
+        )
+        for fc in feat_candidates:
+            subdomain = fc["subdomain"]
+            feature_name = fc["feature_group"]
+
+            # Score using "uncovered" gap severity — the feature itself has
+            # zero dedicated content even though the parent cluster is "covered"
+            feature_score = _score_candidate(
+                cluster, subdomain, "uncovered", total_claims, config,
+            )
+            # Boost score slightly for high-value features
+            feature_score = min(round(feature_score + 0.05, 3), 1.0)
+
+            action = _classify_candidate(
+                subdomain, "partially_covered", feature_score, cluster, config,
+            )
+            disposition = ACTION_TO_DISPOSITION[action]
+
+            # Enforce max pages cap
+            if disposition == CandidateDisposition.GENERATE_NOW and generate_count >= max_pages:
+                action = CandidateAction.DEFER_TO_BACKLOG
+                disposition = CandidateDisposition.DEFERRED_TO_BACKLOG
+
+            if disposition == CandidateDisposition.GENERATE_NOW:
+                generate_count += 1
+
+            reason = _build_reason(action, cluster, subdomain, feature_score)
+
+            candidates.append({
+                "cluster": cat,
+                "feature_group": feature_name,
+                "subdomain": subdomain,
+                "coverage_status": "shallow_covered",
+                "score": feature_score,
+                "action": action.value,
+                "disposition": disposition.value,
+                "reason": reason,
+                "claim_count": cluster.get("claim_count", 0),
+                "api_method_count": cluster.get("api_method_count", 0),
+                "coverage_depth": fc.get("coverage_depth", 0),
             })
 
     # Build denominator breakdown
