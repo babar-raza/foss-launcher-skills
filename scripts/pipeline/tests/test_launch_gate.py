@@ -21,6 +21,7 @@ from launch_gate import (
     gate_l08_provenance_coverage,
     gate_l09_hugo_build,
     gate_l10_no_coming_soon,
+    gate_l11_family_display_name,
 )
 
 import launch_gate as _lg_mod
@@ -203,19 +204,58 @@ class TestGateL08ProvenanceCoverage:
 class TestGateRegistry:
     """Smoke test for the _ALL_GATES registry."""
 
-    def test_gate_count_is_ten(self):
-        """_ALL_GATES must contain exactly 10 entries.
+    def test_gate_count_is_eleven(self):
+        """_ALL_GATES must contain exactly 11 entries.
         If this fails, a gate was added or removed without updating this test
-        and the L-01-through-L-10 documentation."""
-        assert len(_ALL_GATES) == 10, (
-            f"Expected 10 gates, found {len(_ALL_GATES)}. "
+        and the L-01-through-L-11 documentation."""
+        assert len(_ALL_GATES) == 11, (
+            f"Expected 11 gates, found {len(_ALL_GATES)}. "
             "Update this test and launch_gate.py docstring when adding/removing gates."
         )
 
-    def test_l10_is_last_gate(self):
-        """L-10 must be the last gate in the registry (ordered by gate number)."""
-        assert _ALL_GATES[-1] is gate_l10_no_coming_soon
+    def test_l11_is_last_gate(self):
+        """L-11 must be the last gate in the registry (ordered by gate number)."""
+        assert _ALL_GATES[-1] is gate_l11_family_display_name
 
-    def test_l09_is_second_to_last(self):
-        """L-09 (Hugo build) must be second-to-last, before L-10."""
-        assert _ALL_GATES[-2] is gate_l09_hugo_build
+    def test_l09_is_third_to_last(self):
+        """L-09 (Hugo build) must be third-to-last, before L-10 and L-11."""
+        assert _ALL_GATES[-3] is gate_l09_hugo_build
+
+
+# ---------------------------------------------------------------------------
+# L-11 behavior tests
+# ---------------------------------------------------------------------------
+
+class TestL11FamilyDisplayName:
+    """Behavior tests for gate_l11_family_display_name."""
+
+    def test_pass_font(self):
+        """L-11 passes for font (post-fix) across all 3 sites."""
+        result = gate_l11_family_display_name("font", "python")
+        assert result.status == STATUS_PASS
+        assert "Aspose.Font FOSS" in result.detail
+
+    def test_pass_cells(self):
+        result = gate_l11_family_display_name("cells", "python")
+        assert result.status == STATUS_PASS
+
+    def test_pass_words(self):
+        result = gate_l11_family_display_name("words", "python")
+        assert result.status == STATUS_PASS
+
+    def test_skip_unknown_family(self):
+        """Family not in taxonomy should SKIP."""
+        result = gate_l11_family_display_name("nonexistent_family_xyz", "python")
+        assert result.status == STATUS_SKIP
+
+    def test_skip_no_content(self):
+        """Family in taxonomy but no content dirs should SKIP."""
+        import tempfile
+        import launch_gate as lg
+        old_root = lg._CONTENT_ROOT
+        try:
+            lg._CONTENT_ROOT = Path(tempfile.mkdtemp())
+            result = gate_l11_family_display_name("font", "python")
+            assert result.status == STATUS_SKIP
+        finally:
+            lg._CONTENT_ROOT = old_root

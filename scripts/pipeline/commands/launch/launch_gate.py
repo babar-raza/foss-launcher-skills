@@ -5,7 +5,7 @@ Usage:
     python scripts/pipeline/commands/launch/launch_gate.py note python
     python scripts/pipeline/commands/launch/launch_gate.py --fail-fast slides net
 
-Runs 10 automated gates (L-01 through L-10) and prints a pass/fail summary.
+Runs 11 automated gates (L-01 through L-11) and prints a pass/fail summary.
 Exit code: 0 if all gates pass, 1 if any gate fails.
 
 Gates:
@@ -21,6 +21,8 @@ Gates:
     L-08  Provenance coverage   -- all English content files must have content_origin set
     L-09  Hugo build            -- hugo build for products.aspose.org must exit 0
     L-10  No coming-soon        -- family _index.md must not contain 'coming soon' placeholder
+    L-11  Family display name   -- family root _index.md must use canonical "Aspose.{Product} FOSS"
+                                  title and must not have linkTitle
 
 Flags:
     --fail-fast     Stop after the first failing gate
@@ -599,6 +601,105 @@ def gate_l10_no_coming_soon(family: str, platform: str) -> GateResult:  # noqa: 
     )
 
 
+def gate_l11_family_display_name(family: str, platform: str) -> GateResult:  # noqa: ARG001
+    """L-11: Family root _index.md must use canonical display name without linkTitle.
+
+    Checks family-level _index.md across reference/docs/kb to ensure:
+    1. No linkTitle field (causes sidebar to show short name instead of full title)
+    2. title matches "{Canonical Product Name} FOSS" per metrics_taxonomy.yaml
+    """
+    import yaml  # noqa: PLC0415
+
+    taxonomy_path = (
+        _REPO_ROOT / "scripts" / "pipeline" / "config" / "metrics_taxonomy.yaml"
+    )
+    if not taxonomy_path.exists():
+        return GateResult(
+            "L-11", "Family display name", STATUS_SKIP,
+            "metrics_taxonomy.yaml not found",
+        )
+
+    try:
+        with open(taxonomy_path, encoding="utf-8") as f:
+            taxonomy = yaml.safe_load(f)
+        products = taxonomy.get("products", {})
+    except Exception as exc:
+        return GateResult(
+            "L-11", "Family display name", STATUS_FAIL,
+            f"failed to load taxonomy: {exc}",
+        )
+
+    canonical = products.get(family)
+    if not canonical:
+        return GateResult(
+            "L-11", "Family display name", STATUS_SKIP,
+            f"family {family!r} not in taxonomy",
+        )
+
+    expected_title = f"{canonical} FOSS"
+    sites = ["reference.aspose.org", "docs.aspose.org", "kb.aspose.org"]
+    fails: list[str] = []
+    checked = 0
+
+    for site in sites:
+        index_md = _CONTENT_ROOT / site / "en" / family / "_index.md"
+        if not index_md.exists():
+            continue
+        checked += 1
+
+        try:
+            text = index_md.read_text(encoding="utf-8")
+        except OSError as exc:
+            fails.append(f"{site}: read error — {exc}")
+            continue
+
+        if not text.startswith("---"):
+            fails.append(f"{site}: missing frontmatter delimiters")
+            continue
+        end = text.find("\n---", 3)
+        if end == -1:
+            fails.append(f"{site}: unclosed frontmatter")
+            continue
+        try:
+            fm = yaml.safe_load(text[3:end])
+        except yaml.YAMLError as exc:
+            fails.append(f"{site}: YAML parse error — {exc}")
+            continue
+        if not isinstance(fm, dict):
+            fails.append(f"{site}: frontmatter is not a dict")
+            continue
+
+        link_title = fm.get("linkTitle")
+        if link_title is not None:
+            fails.append(
+                f"{site}: linkTitle={link_title!r} present — remove it"
+            )
+
+        title = fm.get("title", "")
+        if title != expected_title:
+            fails.append(
+                f"{site}: title={title!r} != expected {expected_title!r}"
+            )
+
+    if not checked:
+        return GateResult(
+            "L-11", "Family display name", STATUS_SKIP,
+            f"no family root _index.md found for {family}",
+        )
+
+    if fails:
+        return GateResult(
+            "L-11", "Family display name", STATUS_FAIL,
+            f"{len(fails)} issue(s) in family display name",
+            extra_lines=[f"  {f}" for f in fails],
+        )
+
+    return GateResult(
+        "L-11", "Family display name", STATUS_PASS,
+        f"title={expected_title!r}, no linkTitle — {checked} site(s) checked",
+    )
+
+
 def _last_nonempty_line(text: str) -> str:
     lines = [l.strip() for l in text.splitlines() if l.strip()]
     return lines[-1] if lines else ""
@@ -619,6 +720,7 @@ _ALL_GATES = [
     gate_l08_provenance_coverage,
     gate_l09_hugo_build,
     gate_l10_no_coming_soon,
+    gate_l11_family_display_name,
 ]
 
 
@@ -748,7 +850,7 @@ def main(argv: list[str] | None = None) -> int:
 
     gates_to_run = list(_ALL_GATES)
     if args.skip_tests:
-        # Remove L-07 (last gate)
+        # Remove L-07 (pipeline tests) for faster iteration
         gates_to_run = [g for g in gates_to_run if g.__name__ != "gate_l07_pipeline_tests"]
 
     results: list[GateResult] = []
