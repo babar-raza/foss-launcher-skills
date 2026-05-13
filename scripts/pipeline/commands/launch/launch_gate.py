@@ -262,7 +262,7 @@ def gate_l03_forbidden_claims(family: str, platform: str) -> GateResult:
             "no claim text available to test",
         )
 
-    cmd = [_PYTHON, str(_SCRIPTS_PIPELINE / "change_guard.py"), family, platform, sample_text]
+    cmd = [_PYTHON, str(_SCRIPTS_PIPELINE / "commands" / "governance" / "change_guard.py"), family, platform, sample_text]
     rc, stdout, stderr = _run(cmd)
     # exit 0 = PASS, exit 1 = WARN (acceptable), exit 2 = DENY (fail)
     if rc == 0:
@@ -287,7 +287,7 @@ def gate_l04_api_accuracy(family: str, platform: str) -> GateResult:
     audit.py accepts positional 'family platform' arguments directly.
     See scripts/pipeline/audit/runner.py: args[0]=family, args[1]=platform.
     """
-    cmd = [_PYTHON, str(_SCRIPTS_PIPELINE / "audit.py"), family, platform]
+    cmd = [_PYTHON, str(_SCRIPTS_PIPELINE / "commands" / "content" / "audit.py"), family, platform]
     rc, stdout, stderr = _run(cmd)
     if rc == 0:
         return GateResult("L-04", "API accuracy", STATUS_PASS, "audit.py exit 0")
