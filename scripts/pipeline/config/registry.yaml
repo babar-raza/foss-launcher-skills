@@ -2468,3 +2468,37 @@ scripts:
     deprecated_since: null
     change_impact: null
     notes: "S-98 manifest consumer library; load_handoff_manifest, select_candidate, build_skill_invocation, preflight_check"
+
+  - path: scripts/pipeline/lib/enrichment/snapshot_guard.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-enrichment
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_enrichment_snapshot_guard.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "TC-CE-023 pre-write snapshot guard; take_snapshot, restore_snapshot, diff_summary"
+
+  - path: scripts/pipeline/lib/enrichment/delta_adapter.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-enrichment
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_enrichment_delta_adapter.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "TC-CE-024 knowledge delta adapter; resolve_target_file, build_delta, write_delta"

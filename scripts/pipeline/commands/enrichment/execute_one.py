@@ -31,6 +31,8 @@ from enrichment.manifest_consumer import (
     preflight_check,
     select_candidate,
 )
+from enrichment.snapshot_guard import take_snapshot
+from enrichment.delta_adapter import build_delta, write_delta
 
 # ---------------------------------------------------------------------------
 # Repo root for run-plan output
@@ -80,6 +82,8 @@ def main(argv: list[str] | None = None) -> int:
 
     parser.add_argument("--list", action="store_true", help="List all candidates and exit")
     parser.add_argument("--dry-run", action="store_true", help="Write run-plan but mark as dry-run")
+    parser.add_argument("--snapshot", action="store_true", help="Take pre-write snapshot (update_existing only)")
+    parser.add_argument("--build-delta", action="store_true", help="Build knowledge delta adapter output (update_existing only)")
 
     args = parser.parse_args(argv)
 
@@ -111,6 +115,7 @@ def main(argv: list[str] | None = None) -> int:
     # Preflight
     pf = preflight_check(candidate, args.family, args.platform)
     invocation = build_skill_invocation(candidate, args.family, args.platform)
+    is_update = candidate.get("action", "") == "update_existing_docs_page"
 
     # Display
     print(f"Candidate: cluster={candidate.get('cluster')} "
@@ -123,6 +128,35 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  ISSUE: {issue}")
     for warn in pf["warnings"]:
         print(f"  WARN:  {warn}")
+
+    # Snapshot (update_existing only, TC-CE-023)
+    snapshot_dir = None
+    if args.snapshot and is_update and pf["passed"]:
+        target = pf.get("target_exists_at", "")
+        if target:
+            try:
+                snapshot_dir = take_snapshot(
+                    args.family, args.platform, [target],
+                    trigger="execute_one",
+                    candidate_ref=candidate,
+                    repo_root=_REPO_ROOT,
+                )
+                print(f"Snapshot:  {snapshot_dir.relative_to(_REPO_ROOT)}")
+            except (ValueError, FileNotFoundError) as exc:
+                print(f"Snapshot FAILED: {exc}", file=sys.stderr)
+                return 1
+        else:
+            print("Snapshot skipped: no target_exists_at in preflight", file=sys.stderr)
+
+    # Delta adapter (update_existing only, TC-CE-024)
+    delta_path = None
+    if args.build_delta and is_update and pf["passed"]:
+        delta = build_delta(candidate, args.family, args.platform, repo_root=_REPO_ROOT)
+        if "error" not in delta:
+            delta_path = write_delta(delta, args.family, args.platform, repo_root=_REPO_ROOT)
+            print(f"Delta:     {delta_path.relative_to(_REPO_ROOT)}")
+        else:
+            print(f"Delta FAILED: {delta.get('error')}: {delta.get('message', '')}", file=sys.stderr)
 
     # Write run-plan
     plan_path = _write_run_plan(
