@@ -2378,3 +2378,40 @@ scripts:
     deprecated_since: null
     change_impact: null
     notes: "Slice 7 CLI: wraps MetricsSubmitter. Default mode is --dry-run. Production requires --owner-approved + env vars."
+
+  # ── S-96 / S-98 additions (2026-05-11) ──────────────────────────────────────
+
+  - path: scripts/pipeline/commands/enrichment/content_enrich.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-enrichment
+    backing:
+      kind: skill
+      ref: content-enrich
+    test_targets: []
+    test_exempt_reason: "S-98 enrichment orchestrator; integration-tested via coverage_matrix and taxonomy modules; standalone unit tests pending"
+    requires_test: false
+    deprecated_since: null
+    change_impact: null
+    notes: "S-98 content enrichment pipeline; modes: audit, plan, dry-run, execute; reads coverage matrix and taxonomy"
+
+  - path: scripts/pipeline/lib/denominator_reconciler.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-generation
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_denominator_reconciler.py
+    test_exempt_reason: null
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "S-96 L-12 gate: reconcile api_surface scope vs generated reference pages; imported by batch_reference.py _write_generation_manifest()"

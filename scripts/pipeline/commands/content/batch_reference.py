@@ -424,7 +424,25 @@ def _apply_kind_filter(entries: list[dict], kind_arg: str, platform: str) -> lis
         return [e for e in entries if _is_enum(e, platform)]
     if kind_arg == "class":
         return [e for e in entries if not _is_enum(e, platform)]
-    return entries
+    raise ValueError(f"Invalid kind_arg: {kind_arg!r}. Must be 'all', 'enum', or 'class'.")
+
+
+# ---------------------------------------------------------------------------
+# Slug sanitization
+# ---------------------------------------------------------------------------
+
+# Characters that are unsafe in filenames across Windows/macOS/Linux or
+# that conflict with Hugo section separators.
+_UNSAFE_SLUG_RE = re.compile(r'[.:\/\\<>|?*\[\]"]+')
+
+
+def _sanitize_slug(name: str) -> str:
+    """Sanitize a class name into a filesystem-safe slug.
+
+    Replaces dots, colons, and other unsafe characters with underscores.
+    Python PEP 8 names pass through unchanged.
+    """
+    return _UNSAFE_SLUG_RE.sub("_", name)
 
 
 # ---------------------------------------------------------------------------
@@ -949,9 +967,10 @@ def run(family: str, platform: str, kind_arg: str = "all",
 
     def _has_slug_duplicate(name: str) -> Path | None:
         """Return existing path if a slug-normalized duplicate exists."""
-        norm = name.lower().replace("-", "_")
+        sanitized = _sanitize_slug(name)
+        norm = sanitized.lower().replace("-", "_")
         existing = _existing_normalized.get(norm)
-        if existing is not None and existing.stem != name:
+        if existing is not None and existing.stem != sanitized:
             return existing
         return None
 
@@ -974,7 +993,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
     if update:
         for entry in candidates:
             name = entry.get("name", "")
-            page_path = output_dir / f"{name}.md"
+            page_path = output_dir / f"{_sanitize_slug(name)}.md"
             if not page_path.exists():
                 to_generate.append(entry)
             elif name in modified_apis:
@@ -1000,7 +1019,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
         # Does not require knowledge_delta.json.
         for entry in candidates:
             name = entry.get("name", "")
-            page_path = output_dir / f"{name}.md"
+            page_path = output_dir / f"{_sanitize_slug(name)}.md"
             if not page_path.exists():
                 to_generate.append(entry)
             elif not is_auto_updatable(page_path):
@@ -1021,7 +1040,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
     else:
         for entry in candidates:
             name = entry.get("name", "")
-            page_path = output_dir / f"{name}.md"
+            page_path = output_dir / f"{_sanitize_slug(name)}.md"
             if page_path.exists():
                 to_skip.append(entry)
             else:
@@ -1068,7 +1087,16 @@ def run(family: str, platform: str, kind_arg: str = "all",
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Load knowledge once for evidence attachment
-    knowledge = Knowledge(family, platform)
+    knowledge = Knowledge(family, platform, knowledge_root=KNOWLEDGE_ROOT)
+    # LH-02 enforcement: knowledge.available MUST be checked BEFORE any page
+    # writes (AGENTS.md §5a).  The early-exit checks above verify model.yaml
+    # existence and staleness, but Knowledge.available is True only when
+    # api_surface.json is loadable.  This guard closes the gap.
+    if not knowledge.available:
+        print(f"STOP: Knowledge not available for {family}/{platform} "
+              f"(api_surface.json missing or unreadable). "
+              f"Run /repo-scout {family} {platform}, then /truth-merge.")
+        sys.exit(1)
 
     for i, entry in enumerate(to_write, 1):
         name = entry.get("name", "")
@@ -1078,7 +1106,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
         action = "Rebuilding" if is_rebuild else ("Updating" if is_update else "Generating")
         print(f"[{i}/{len(to_write)}] {action} page for {name} ({kind})...")
         try:
-            page_path = output_dir / f"{name}.md"
+            page_path = output_dir / f"{_sanitize_slug(name)}.md"
             content = _build_page(entry, family, platform, erc_index=erc_index,
                                    member_erc_index=member_erc_index,
                                    model_sha=model_sha, model_version=model_version)
@@ -1163,9 +1191,60 @@ def run(family: str, platform: str, kind_arg: str = "all",
         for e, msg in errors:
             print(f"  - {e.get('name')}  ({msg})")
 
+    # Write generation manifest for denominator reconciliation (L-12 gate)
+    _write_generation_manifest(
+        family, platform,
+        api_surface_total=len(api_surface),
+        scope_eligible=total,
+        pages_created=len(generated),
+        pages_updated=len(updated),
+        pages_skipped=len(to_skip),
+        pages_failed=len(errors),
+        pages_unchanged=len(unchanged),
+        model_sha=model_sha,
+    )
+
     return {"generated": len(generated), "updated": len(updated),
             "skipped": len(to_skip), "errors": len(errors),
             "unchanged": len(unchanged)}
+
+
+def _write_generation_manifest(
+    family: str, platform: str, *,
+    api_surface_total: int, scope_eligible: int,
+    pages_created: int, pages_updated: int, pages_skipped: int,
+    pages_failed: int, pages_unchanged: int, model_sha: str,
+) -> None:
+    """Write a generation manifest to reports/generation/{family}-{platform}.yaml."""
+    from datetime import datetime, timezone
+    manifest_dir = REPO_ROOT / "reports" / "generation"
+    manifest_dir.mkdir(parents=True, exist_ok=True)
+    manifest_path = manifest_dir / f"{family}-{platform}.yaml"
+
+    pages_total = pages_created + pages_updated + pages_skipped + pages_unchanged
+    gap = scope_eligible - pages_total
+
+    import yaml
+    manifest = {
+        "family": family,
+        "platform": platform,
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "api_surface_total": api_surface_total,
+        "scope_eligible": scope_eligible,
+        "scope_filtered": api_surface_total - scope_eligible,
+        "pages_created": pages_created,
+        "pages_updated": pages_updated,
+        "pages_skipped": pages_skipped,
+        "pages_unchanged": pages_unchanged,
+        "pages_failed": pages_failed,
+        "denominator_gap": gap,
+        "model_sha": model_sha,
+    }
+    manifest_path.write_text(
+        yaml.dump(manifest, default_flow_style=False, sort_keys=False),
+        encoding="utf-8",
+    )
+    print(f"\nGeneration manifest written to: {manifest_path.relative_to(REPO_ROOT)}")
 
 
 def main():
