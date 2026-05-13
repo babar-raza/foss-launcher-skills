@@ -2140,10 +2140,28 @@ scripts:
       ref: null
     test_targets:
       - scripts/pipeline/tests/test_refresh_harness.py
+      - scripts/pipeline/tests/test_refresh_harness_gate3.py
     test_exempt_reason: null
     deprecated_since: null
     change_impact: null
-    notes: "TC-PROD-006 — forced validation harness. Modes: dry-run, validate-only, force-reconcile, synthetic-input-change. Writes only to scratch_root, never to content/."
+    notes: "TC-PROD-006 — forced validation harness. Modes: dry-run, validate-only, force-reconcile, synthetic-input-change. Writes only to scratch_root, never to content/. Gate 3a: manifest write integration gated by refresh_manifest_write_enabled."
+
+  - path: scripts/pipeline/commands/ops/manifest_restore.py
+    kind: command
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: cli
+    owner_domain: refresh-architecture
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_refresh_harness_gate3.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "Gate 3a restore utility. Restores freshness-manifest.json from freshness-manifest.pre-gate3.json backup using atomic os.replace(). Used when Gate 3b manifest write must be rolled back."
 
   - path: scripts/pipeline/lib/blog_slug_policy.py
     kind: library

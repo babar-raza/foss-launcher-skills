@@ -191,6 +191,209 @@ def _inspect_output_state(product: str, subdomain: str, registry) -> OutputState
 
 
 # ---------------------------------------------------------------------------
+# Gate 3a: Manifest write helpers
+# ---------------------------------------------------------------------------
+
+_STATE_ROOT = _REPO_ROOT / "runs" / "state"
+
+
+def _restore_backup(manifest_path: Path, backup_path: Path) -> None:
+    """Restore manifest from pre-Gate-3 backup using os.replace.
+
+    Called on manifest write failure to ensure the manifest directory
+    is left in a known-good state.
+    """
+    import sys as _sys
+    if backup_path.is_file():
+        try:
+            import os as _os
+            _os.replace(str(backup_path), str(manifest_path))
+            print(
+                f"[GATE3-RESTORE] Backup restored to {manifest_path}",
+                file=_sys.stderr,
+            )
+        except OSError as exc:
+            print(
+                f"[GATE3-RESTORE-FAIL] Could not restore backup: {exc}",
+                file=_sys.stderr,
+            )
+    else:
+        print(
+            f"[GATE3-RESTORE-WARN] No backup found at {backup_path}",
+            file=_sys.stderr,
+        )
+
+
+def _write_manifest_gated(
+    product: str,
+    subdomain: str,
+    fingerprints: dict,
+    current_outputs: OutputState,
+    stored: FreshnessManifest,
+    run_id: str,
+    flags: dict,
+    no_write: bool,
+    state_root: Optional[Path] = None,
+) -> "tuple[bool, str]":
+    """Attempt a gated manifest write after a confirmed FRESH decision.
+
+    Gate 3a: Writes an updated freshness manifest only when all safety conditions
+    are satisfied. Creates a pre-write backup and verifies the written file.
+    Restores the backup on any failure.
+
+    Pre-conditions (caller must ensure):
+      - d.decision == "FRESH"
+      - validate_for_fresh() returned [] (no violations)
+      - refresh_content_write_enabled == False (hard-blocked by caller too)
+
+    Args:
+        product: Product slug "family/platform".
+        subdomain: Surface name.
+        fingerprints: Current input fingerprints (without _collection_errors).
+        current_outputs: Current output state.
+        stored: The existing FRESH manifest on disk (base for update).
+        run_id: Current run identifier.
+        flags: Feature flags dict (from load_feature_flags()).
+        no_write: If True, no write is performed regardless of flags.
+        state_root: Override for manifest state directory (for testing).
+
+    Returns:
+        (written: bool, note: str) where:
+          written=True  -> manifest written and verified successfully
+          written=False -> skipped (note explains why) or FAILED (note contains "FAILED")
+
+    Raises:
+        RuntimeError: If refresh_content_write_enabled=True (HARD_BLOCK).
+    """
+    import sys as _sys
+    import datetime
+    import shutil
+    from freshness_manifest import FreshnessManifest as _FM
+    from freshness_manifest import save as _fm_save
+    from freshness_manifest import load as _fm_load
+
+    effective_state_root: Path = state_root if state_root is not None else _STATE_ROOT
+
+    # HARD_BLOCK: content writes are never permitted — defense-in-depth (caller also checks).
+    if flags.get("refresh_content_write_enabled", False):
+        raise RuntimeError(
+            "HARD_BLOCK: refresh_content_write_enabled=True is not permitted. "
+            "This flag must remain false throughout Gate 3."
+        )
+
+    # Guard: manifest write flag must be enabled.
+    if not flags.get("refresh_manifest_write_enabled", False):
+        return False, "manifest write skipped (refresh_manifest_write_enabled=False)"
+
+    # Guard: enforced mode must be active.
+    if not flags.get("refresh_reconciliation_enforced", False):
+        return False, "manifest write skipped (refresh_reconciliation_enforced=False)"
+
+    # Guard: no_write must be off.
+    if no_write:
+        return False, "manifest write skipped (no_write=True)"
+
+    # Guard: must have an existing manifest to update.
+    if stored is None:
+        return False, "manifest write skipped (no stored manifest)"
+
+    # Resolve manifest and backup paths.
+    family, platform = product.split("/", 1)
+    manifest_dir = effective_state_root / family / platform / subdomain
+    manifest_path = manifest_dir / "freshness-manifest.json"
+    backup_path = manifest_dir / "freshness-manifest.pre-gate3.json"
+
+    if not manifest_path.is_file():
+        return False, "manifest write skipped (manifest file not on disk)"
+
+    # Create pre-write backup (only if not already present from a prior interrupted run).
+    if backup_path.exists():
+        print(
+            f"[GATE3-WARN] Pre-write backup already exists at {backup_path}. "
+            "Using existing backup (may indicate a prior interrupted run).",
+            file=_sys.stderr,
+        )
+    else:
+        shutil.copy2(str(manifest_path), str(backup_path))
+        print(f"[GATE3] Pre-write backup created: {backup_path}", file=_sys.stderr)
+
+    # Build updated manifest from stored baseline.
+    now_ts = (
+        datetime.datetime.now(datetime.timezone.utc)
+        .isoformat()
+        .replace("+00:00", "Z")
+    )
+    data = stored.to_dict()
+    data["manifest_status"] = "FRESH"
+    data["run_id"] = run_id
+    data["generation_timestamp"] = now_ts
+    data["input_fingerprints"] = {
+        k: v for k, v in fingerprints.items() if not k.startswith("_")
+    }
+    data["changed_input_fingerprints"] = []
+    if current_outputs is not None and current_outputs.output_exists:
+        output_state = dict(data.get("output_state", {}))
+        output_state["output_exists"] = True
+        if current_outputs.output_content_hash:
+            output_state["output_content_hash"] = current_outputs.output_content_hash
+        data["output_state"] = output_state
+
+    # Attempt the write using freshness_manifest.save() (atomic os.replace pattern).
+    try:
+        new_manifest = _FM(data)
+        _fm_save(new_manifest, state_root=effective_state_root)
+    except Exception as exc:
+        print(
+            f"[GATE3-FAIL] Manifest write exception for {product}/{subdomain}: {exc}",
+            file=_sys.stderr,
+        )
+        _restore_backup(manifest_path, backup_path)
+        return False, f"manifest write FAILED ({exc}); backup restored"
+
+    # Post-write verification: reload and confirm key fields are correct.
+    try:
+        verified = _fm_load(product, subdomain, state_root=effective_state_root)
+        if verified is None:
+            raise ValueError("re-load returned None after write")
+        if verified.manifest_status != "FRESH":
+            raise ValueError(
+                f"manifest_status mismatch: expected FRESH, got {verified.manifest_status!r}"
+            )
+        if verified.product != product:
+            raise ValueError(f"product mismatch in written manifest: {verified.product!r}")
+        if verified.subdomain != subdomain:
+            raise ValueError(f"subdomain mismatch in written manifest: {verified.subdomain!r}")
+        if verified.run_id != run_id:
+            raise ValueError(f"run_id mismatch in written manifest: {verified.run_id!r}")
+        out_hash = verified.output_state.get("output_content_hash")
+        if out_hash is not None and not out_hash.startswith("sha256:"):
+            raise ValueError(f"output_content_hash is not sha256-prefixed: {out_hash!r}")
+        gcf = verified.input_fingerprints.get("generator_code_hash")
+        if gcf is not None and not gcf.startswith("sha256:"):
+            raise ValueError(f"generator_code_hash is not sha256-prefixed: {gcf!r}")
+    except Exception as exc:
+        print(
+            f"[GATE3-FAIL] Post-write verification failed for {product}/{subdomain}: {exc}",
+            file=_sys.stderr,
+        )
+        _restore_backup(manifest_path, backup_path)
+        return False, f"manifest write VERIFICATION FAILED ({exc}); backup restored"
+
+    # Verification passed — remove backup.
+    try:
+        backup_path.unlink()
+    except OSError:
+        pass  # Non-fatal: backup cleanup failure is acceptable.
+
+    print(
+        f"[GATE3] Manifest write SUCCEEDED for {product}/{subdomain}: "
+        f"run_id={run_id!r}, status=FRESH",
+        file=_sys.stderr,
+    )
+    return True, f"manifest write SUCCEEDED (run_id={run_id!r})"
+
+
+# ---------------------------------------------------------------------------
 # Run
 # ---------------------------------------------------------------------------
 
@@ -324,6 +527,42 @@ def run_harness(
                     changed_input_fingerprints=[],
                 )
 
+        # Gate 3a: gated manifest write (refreshes manifest timestamp on confirmed FRESH decision).
+        # Only executes when refresh_manifest_write_enabled=True, refresh_reconciliation_enforced=True,
+        # refresh_content_write_enabled=False, decision==FRESH, and no_write=False.
+        manifest_write_note = ""
+        if d.decision == "FRESH":
+            _gate3_flags = load_feature_flags()
+            # HARD_BLOCK: content writes are never permitted — halt entire run if detected.
+            if _gate3_flags.get("refresh_content_write_enabled", False):
+                raise RuntimeError(
+                    "HARD_BLOCK: refresh_content_write_enabled=True detected in Gate 3 path. "
+                    "This flag must remain false. Halting run."
+                )
+            if not no_write and _gate3_flags.get("refresh_manifest_write_enabled", False):
+                _written, manifest_write_note = _write_manifest_gated(
+                    product=product,
+                    subdomain=subdomain,
+                    fingerprints=fingerprints,
+                    current_outputs=current_outputs,
+                    stored=stored,
+                    run_id=run_id,
+                    flags=_gate3_flags,
+                    no_write=no_write,
+                )
+                if not _written and "FAILED" in manifest_write_note:
+                    # Write attempted but failed — mark surface BLOCKED.
+                    from decision_engine import Decision as _Decision2
+                    d = _Decision2(
+                        product=product,
+                        subdomain=subdomain,
+                        decision=BLOCKED,
+                        input_decision=d.input_decision,
+                        output_decision=d.output_decision,
+                        explanation=f"Manifest write failed: {manifest_write_note}",
+                        changed_input_fingerprints=[],
+                    )
+
         # Determine outcome for this mode
         # In dry-run: no action taken, outcome = SKIP (decision captured only)
         # In validate-only / synthetic: outcome mirrors decision (no writes)
@@ -342,10 +581,12 @@ def run_harness(
             # In a real run this would point to the manifest file
             manifest_proof_path = f"runs/state/{product}/{subdomain}/freshness-manifest.json"
 
-        # Build explanation: append collection errors so they are visible in ledger records.
+        # Build explanation: append collection errors and manifest write notes.
         explanation = d.explanation
         if fp_collection_errors:
             explanation = (explanation + " | collection_errors: " + "; ".join(fp_collection_errors)).lstrip(" | ")
+        if manifest_write_note:
+            explanation = (explanation + " | " + manifest_write_note).lstrip(" | ")
 
         record = SurfaceRecord(
             product=product,
