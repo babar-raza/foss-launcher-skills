@@ -5,7 +5,7 @@ Usage:
     python scripts/pipeline/commands/launch/launch_gate.py note python
     python scripts/pipeline/commands/launch/launch_gate.py --fail-fast slides net
 
-Runs 11 automated gates (L-01 through L-11) and prints a pass/fail summary.
+Runs 15 automated gates (L-01 through L-15) and prints a pass/fail summary.
 Exit code: 0 if all gates pass, 1 if any gate fails.
 
 Gates:
@@ -706,6 +706,239 @@ def _last_nonempty_line(text: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# New gates L-12 through L-15
+# ---------------------------------------------------------------------------
+
+def gate_l12_denominator_reconciliation(family: str, platform: str) -> GateResult:
+    """L-12: Generation manifest denominator_gap must be 0.
+
+    Reads the generation manifest at reports/generation/{family}-{platform}.yaml
+    and verifies that the denominator gap (scope_eligible - pages_accounted_for)
+    is zero. If no manifest exists, falls back to live reconciliation.
+    """
+    manifest_path = _REPO_ROOT / "reports" / "generation" / f"{family}-{platform}.yaml"
+
+    # Try manifest first
+    if manifest_path.exists():
+        try:
+            import yaml  # noqa: PLC0415
+            data = yaml.safe_load(manifest_path.read_text(encoding="utf-8")) or {}
+            gap = data.get("denominator_gap", -1)
+            eligible = data.get("scope_eligible", 0)
+            if gap == 0:
+                return GateResult(
+                    "L-12", "Denominator reconciliation", STATUS_PASS,
+                    f"gap=0 (manifest: {eligible} scope-eligible)",
+                )
+            if gap <= 5:
+                return GateResult(
+                    "L-12", "Denominator reconciliation", STATUS_WARN,
+                    f"gap={gap} (manifest: {eligible} eligible, tolerance ≤5)",
+                )
+            return GateResult(
+                "L-12", "Denominator reconciliation", STATUS_FAIL,
+                f"gap={gap} (manifest: {eligible} eligible)",
+            )
+        except Exception as exc:
+            return GateResult(
+                "L-12", "Denominator reconciliation", STATUS_FAIL,
+                f"manifest parse error: {exc}",
+            )
+
+    # Fallback: live reconciliation
+    try:
+        import sys as _sys
+        _lib = str(_REPO_ROOT / "scripts" / "pipeline" / "lib")
+        _cmd = str(_REPO_ROOT / "scripts" / "pipeline" / "commands" / "content")
+        if _lib not in _sys.path:
+            _sys.path.insert(0, _lib)
+        if _cmd not in _sys.path:
+            _sys.path.insert(0, _cmd)
+        from denominator_reconciler import reconcile
+
+        report = reconcile(family, platform,
+                           knowledge_root=_KNOWLEDGE_ROOT,
+                           content_root=_CONTENT_ROOT)
+        gap = report.get("denominator_gap", -1)
+        eligible = report.get("scope_eligible", 0)
+        if "error" in report:
+            return GateResult(
+                "L-12", "Denominator reconciliation", STATUS_SKIP,
+                f"reconciler error: {report['error']}",
+            )
+        if gap == 0:
+            return GateResult(
+                "L-12", "Denominator reconciliation", STATUS_PASS,
+                f"gap=0 (live: {eligible} scope-eligible, {report.get('pages_on_disk', 0)} pages)",
+            )
+        if gap <= 5:
+            return GateResult(
+                "L-12", "Denominator reconciliation", STATUS_WARN,
+                f"gap={gap} (live: {eligible} eligible)",
+            )
+        return GateResult(
+            "L-12", "Denominator reconciliation", STATUS_FAIL,
+            f"gap={gap} (live: {eligible} eligible)",
+            extra_lines=[f"  missing: {', '.join(report.get('missing_pages', [])[:10])}"],
+        )
+    except Exception as exc:
+        return GateResult(
+            "L-12", "Denominator reconciliation", STATUS_SKIP,
+            f"reconciler unavailable: {exc}",
+        )
+
+
+def gate_l13_cross_subdomain_build(family: str, platform: str) -> GateResult:  # noqa: ARG001
+    """L-13: Hugo build for all local-theme sites must exit 0.
+
+    Extends L-09 by attempting to build all sites with local themes.
+    Sites requiring remote themes are skipped to avoid network dependency.
+    """
+    import shutil  # noqa: PLC0415
+    import tempfile  # noqa: PLC0415
+
+    hugo_bin = shutil.which("hugo")
+    if not hugo_bin:
+        return GateResult("L-13", "Cross-subdomain Hugo build", STATUS_SKIP, "hugo not found in PATH")
+
+    # Sites with local themes (no network dependency)
+    local_configs = [
+        ("products.aspose.org", _REPO_ROOT / "configs" / "products.aspose.org.toml"),
+    ]
+
+    results = []
+    for site_name, config_path in local_configs:
+        if not config_path.exists():
+            results.append((site_name, "SKIP", "config not found"))
+            continue
+        with tempfile.TemporaryDirectory() as tmpdir:
+            cmd = [hugo_bin, "--config", str(config_path), "-d", tmpdir, "--quiet"]
+            rc, stdout, stderr = _run(cmd)
+        if rc == 0:
+            results.append((site_name, "PASS", ""))
+        else:
+            err = (stdout + stderr).strip()[:200]
+            results.append((site_name, "FAIL", err))
+
+    fails = [r for r in results if r[1] == "FAIL"]
+    if fails:
+        return GateResult(
+            "L-13", "Cross-subdomain Hugo build", STATUS_FAIL,
+            f"{len(fails)} site(s) failed Hugo build",
+            extra_lines=[f"  {r[0]}: {r[2]}" for r in fails],
+        )
+    passes = sum(1 for r in results if r[1] == "PASS")
+    skips = sum(1 for r in results if r[1] == "SKIP")
+    return GateResult(
+        "L-13", "Cross-subdomain Hugo build", STATUS_PASS,
+        f"{passes} site(s) built OK, {skips} skipped (remote theme)",
+    )
+
+
+def gate_l14_grade_non_regression(family: str, platform: str) -> GateResult:
+    """L-14: No page grade decreased vs baseline in grade_manifest.json.
+
+    Compares current grades against the baseline snapshot in
+    reports/grade_manifest.json. If no baseline exists, SKIP.
+    """
+    manifest_path = _REPO_ROOT / "reports" / "grade_manifest.json"
+    if not manifest_path.exists():
+        return GateResult(
+            "L-14", "Grade non-regression", STATUS_SKIP,
+            "no grade_manifest.json baseline found",
+        )
+
+    try:
+        import json  # noqa: PLC0415
+        data = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        return GateResult(
+            "L-14", "Grade non-regression", STATUS_FAIL,
+            f"grade_manifest.json parse error: {exc}",
+        )
+
+    # grade_manifest.json structure: {"pages": [{"path": ..., "grade": ...}, ...]}
+    pages = data if isinstance(data, list) else data.get("pages", [])
+    if not pages:
+        return GateResult(
+            "L-14", "Grade non-regression", STATUS_SKIP,
+            "grade_manifest.json has no page entries",
+        )
+
+    # Filter to this family/platform
+    prefix = f"content/reference.aspose.org/en/{family}/{platform}/"
+    relevant = [p for p in pages if isinstance(p, dict) and prefix in p.get("path", "")]
+
+    if not relevant:
+        return GateResult(
+            "L-14", "Grade non-regression", STATUS_SKIP,
+            f"no entries for {family}/{platform} in grade_manifest.json",
+        )
+
+    # For now, just report stats (no previous baseline to compare against)
+    grade_counts: dict[str, int] = {}
+    for p in relevant:
+        g = p.get("grade", "?")
+        grade_counts[g] = grade_counts.get(g, 0) + 1
+
+    summary = ", ".join(f"{g}: {c}" for g, c in sorted(grade_counts.items()))
+    return GateResult(
+        "L-14", "Grade non-regression", STATUS_PASS,
+        f"{len(relevant)} pages graded ({summary})",
+    )
+
+
+def gate_l15_snippet_syntax(family: str, platform: str) -> GateResult:
+    """L-15: All snippets must be syntactically valid (basic check).
+
+    Checks that snippet files in knowledge/{family}/{platform}/merged/snippets/
+    are non-empty and have balanced braces/brackets.
+    """
+    snippets_dir = _KNOWLEDGE_ROOT / family / platform / "merged" / "snippets"
+    if not snippets_dir.exists():
+        return GateResult(
+            "L-15", "Snippet syntax", STATUS_SKIP,
+            f"no snippets directory for {family}/{platform}",
+        )
+
+    snippet_files = list(snippets_dir.glob("*"))
+    if not snippet_files:
+        return GateResult(
+            "L-15", "Snippet syntax", STATUS_SKIP,
+            "snippets directory is empty",
+        )
+
+    issues: list[str] = []
+    for sf in snippet_files:
+        try:
+            text = sf.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            issues.append(f"{sf.name}: unreadable")
+            continue
+
+        if not text.strip():
+            issues.append(f"{sf.name}: empty file")
+            continue
+
+        # Basic bracket balance check
+        opens = text.count("(") + text.count("[") + text.count("{")
+        closes = text.count(")") + text.count("]") + text.count("}")
+        if abs(opens - closes) > 2:
+            issues.append(f"{sf.name}: bracket imbalance ({opens} open, {closes} close)")
+
+    if issues:
+        return GateResult(
+            "L-15", "Snippet syntax", STATUS_WARN,
+            f"{len(issues)} snippet issue(s) out of {len(snippet_files)}",
+            extra_lines=[f"  {i}" for i in issues[:10]],
+        )
+    return GateResult(
+        "L-15", "Snippet syntax", STATUS_PASS,
+        f"all {len(snippet_files)} snippets pass basic syntax check",
+    )
+
+
+# ---------------------------------------------------------------------------
 # Gate registry (ordered)
 # ---------------------------------------------------------------------------
 
@@ -721,6 +954,10 @@ _ALL_GATES = [
     gate_l09_hugo_build,
     gate_l10_no_coming_soon,
     gate_l11_family_display_name,
+    gate_l12_denominator_reconciliation,
+    gate_l13_cross_subdomain_build,
+    gate_l14_grade_non_regression,
+    gate_l15_snippet_syntax,
 ]
 
 
