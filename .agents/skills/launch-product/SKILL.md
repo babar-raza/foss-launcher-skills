@@ -85,16 +85,28 @@ passes `python scripts/pipeline/commands/content/audit.py --files content/produc
 
 ### STAGE 1.5 — Family Page Sync
 
-**Condition**: Run ONLY when >= 2 platform subdirectories exist under
-`content/products.aspose.org/en/{family}/` after Stage 1 completes.
+**Condition**: Always run after Stage 1 completes, unless checkpoint `family_sync_done` is already `true`.
 
-If only 1 platform subdirectory exists (first launch), skip — family page was just created fresh.
+**Pre-flight — placeholder check**: Before running, inspect
+`content/products.aspose.org/en/{family}/_index.md` for "coming soon" text.
+If the string `coming soon` appears (case-insensitive), the family page has a stale
+placeholder that must be replaced regardless of how many platform subdirectories exist.
+
+**Platform count note**: Even when only 1 platform subdirectory exists (first-family launch),
+run `/family-sync {family}`. The family page may contain a pre-existing "coming soon"
+placeholder that predates the launch and must be overwritten.
 
 **Command**: `/family-sync {family}`
 
 **Checkpoint**: `family_sync_done`
 
-**Skip condition**: only 1 platform subdirectory exists under the family
+**Skip condition**: Checkpoint `family_sync_done` is already `true` AND no "coming soon"
+text is present in `content/products.aspose.org/en/{family}/_index.md`.
+
+**Gate**: Gate L-10 in `launch_gate.py` enforces this as a machine check — if "coming soon"
+remains in the family `_index.md` after Stage 1, the launch gate FAILS and blocks Stage 8
+readiness sign-off. Running `/family-sync {family}` replaces the placeholder with
+auto-generated content and clears the L-10 gate.
 
 **Save checkpoint**: `python scripts/pipeline/commands/ops/project_phase_store.py set {family} {platform} family_sync_done true`
 

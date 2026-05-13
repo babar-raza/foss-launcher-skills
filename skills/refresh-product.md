@@ -25,8 +25,10 @@ Expected format: `{family} {platform}`
 
 Orchestrate the complete post-launch refresh cycle for a single product. Detects upstream
 changes, refreshes knowledge, plans what content needs to change, updates stale pages,
-generates new pages, retires obsolete pages, validates quality, translates changed pages,
-and commits the result.
+generates new pages, retires obsolete pages, validates quality, and commits the result.
+
+Note: Translation runs independently from the refresh chain (AREA9-TRANS-001).
+After refresh, run `translation_coverage.py` to detect locale staleness.
 
 This skill is the entry point for the maintenance chain (AGENTS.md §6; full detail: [docs/workflows/skill-chains.md](../docs/workflows/skill-chains.md)). Running it ensures
 the full cycle executes in the correct order with progress tracking and a verification gate
@@ -179,6 +181,17 @@ Do not run any subsequent steps. Exit 0.
 
     **If verification fails**: do NOT proceed to Step 13. Fix the reported issues and re-run
     the failing sub-steps, then re-run `--verify`. Commit only after verification passes.
+
+12.5. **Hugo build check** (VVR-TC09-001):
+    ```bash
+    bash scripts/ci/hooks/check_hugo_build.sh
+    ```
+    Builds all 5 sites (`products.aspose.org docs.aspose.org kb.aspose.org reference.aspose.org blog.aspose.org`).
+    - If any site FAIL: abort; do not proceed to Step 13.5 or Step 13 (commit).
+    - Invoke S-67 (diagnose-skill-failure) if build fails before retrying.
+    - A passing build does NOT prove rendering completeness (Hugo silently skips missing frontmatter
+      sections via `{{ with }}` guards); use the verification gate (Step 12) for semantic checks.
+    - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step hugo_build`
 
 13.5. **Coverage report**:
     ```bash

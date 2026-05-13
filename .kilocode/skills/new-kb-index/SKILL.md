@@ -1,3 +1,16 @@
+---
+name: new-kb-index
+description: >
+  Scaffold or repair the KB platform `_index.md` section landing page.
+args: "
+
+## Purpose
+
+Creates the Hugo section landing page at "
+---
+
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
 # S-69: New KB Index — Scaffold KB Platform Section Landing Page
 
 Scaffold or repair the KB platform `_index.md` section landing page.
@@ -110,6 +123,12 @@ Default weight for unlisted platforms: 80.
 
       {{< sections cols="4" >}}
       ```
+
+      > **IMPORTANT**: Do NOT add a `linkTitle` field to the family root `_index.md`.
+      > The Hugo sidebar partial prioritizes `LinkTitle` over `Title`; adding
+      > `linkTitle` causes the sidebar to show the short name instead of
+      > "Aspose.{Family} FOSS". Only platform-level `_index.md` files (step 8)
+      > use `linkTitle`. Enforced by: launch gate L-11.
 
    d. Run `attach_evidence.py` and `audit.py` on the new file (0 FAIL required).
 
