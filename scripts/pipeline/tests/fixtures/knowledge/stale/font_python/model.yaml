@@ -1,0 +1,8 @@
+family: font
+platform: python
+version: "24.6.0"
+repo_sha: "fixture_sha_stale_001"
+stale_since: "2026-01-01"
+enrichment_status: "full"
+surface_tier: 2
+package_name: "aspose-font"

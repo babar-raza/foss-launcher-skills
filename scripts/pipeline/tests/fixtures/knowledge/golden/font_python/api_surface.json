@@ -1,0 +1,48 @@
+[
+  {
+    "name": "Font",
+    "kind": "class_definition",
+    "methods": [
+      {"name": "open", "return_type": "Font", "params": ["path"]},
+      {"name": "save", "return_type": "", "params": ["path"]}
+    ],
+    "properties": [
+      {"name": "font_type", "type": "FontType", "line": 10},
+      {"name": "font_names", "type": "MultiLanguageString", "line": 20},
+      {"name": "metrics", "type": "FontMetrics", "line": 30}
+    ],
+    "enum_members": [],
+    "bases": [],
+    "file": "src/aspose_font/font.py",
+    "docstring": "Represents a font object."
+  },
+  {
+    "name": "FontType",
+    "kind": "class_definition",
+    "methods": [],
+    "properties": [],
+    "enum_members": [
+      {"name": "TTF", "value": "1"},
+      {"name": "OTF", "value": "2"},
+      {"name": "TYPE1", "value": "3"}
+    ],
+    "bases": ["Enum"],
+    "file": "src/aspose_font/font.py",
+    "docstring": "Specifies the font type."
+  },
+  {
+    "name": "GlyphId",
+    "kind": "class_definition",
+    "methods": [
+      {"name": "to_glyph_string_id", "return_type": "GlyphStringId", "params": []}
+    ],
+    "properties": [
+      {"name": "value", "type": "int", "line": 5},
+      {"name": "is_null", "type": "bool", "line": 10}
+    ],
+    "enum_members": [],
+    "bases": [],
+    "file": "src/aspose_font/glyphs.py",
+    "docstring": "Represents glyph identifier."
+  }
+]

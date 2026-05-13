@@ -1,0 +1,6 @@
+{
+  "formats": [
+    {"name": "TTF", "description": "TrueType Font format"},
+    {"name": "OTF", "description": "OpenType Font format"}
+  ]
+}
