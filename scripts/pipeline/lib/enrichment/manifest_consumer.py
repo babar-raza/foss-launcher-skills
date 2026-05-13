@@ -58,10 +58,11 @@ def select_candidate(
     cluster: str | None = None,
     index: int | None = None,
     subdomain: str | None = None,
+    feature_group: str | None = None,
 ) -> dict:
     """Select one manifest item.
 
-    Priority: index > cluster > subdomain.
+    Priority: index > cluster+subdomain+feature_group > subdomain.
     Raises ValueError if not found or ambiguous.
     """
     items = manifest.get("manifest_items", [])
@@ -84,10 +85,16 @@ def select_candidate(
             )
         if len(matches) > 1 and subdomain:
             matches = [m for m in matches if m.get("subdomain") == subdomain]
+        if len(matches) > 1 and feature_group:
+            matches = [m for m in matches if m.get("feature_group") == feature_group]
+        if not matches:
+            raise ValueError(
+                f"No items match cluster '{cluster}' with the given filters"
+            )
         if len(matches) > 1:
             raise ValueError(
                 f"Cluster '{cluster}' is ambiguous ({len(matches)} items). "
-                "Narrow with --subdomain or --index."
+                "Narrow with --subdomain, --feature-group, or --index."
             )
         return matches[0]
 
@@ -96,10 +103,16 @@ def select_candidate(
         matches = [it for it in items if it.get("subdomain") == subdomain]
         if not matches:
             raise ValueError(f"No items for subdomain '{subdomain}'")
+        if len(matches) > 1 and feature_group:
+            matches = [m for m in matches if m.get("feature_group") == feature_group]
+        if not matches:
+            raise ValueError(
+                f"No items match subdomain '{subdomain}' with the given filters"
+            )
         if len(matches) > 1:
             raise ValueError(
                 f"Subdomain '{subdomain}' matches {len(matches)} items. "
-                "Narrow with --cluster or --index."
+                "Narrow with --cluster, --feature-group, or --index."
             )
         return matches[0]
 
@@ -197,15 +210,16 @@ def list_candidates(
 
     # Header
     lines = [
-        f"{'Idx':<5} {'Cluster':<20} {'Action':<30} {'Subdomain':<20} {'Score':<6}",
-        f"{'---':<5} {'---':<20} {'---':<30} {'---':<20} {'---':<6}",
+        f"{'Idx':<5} {'Cluster':<20} {'Action':<30} {'Subdomain':<20} {'Score':<6} {'Feature Group':<20}",
+        f"{'---':<5} {'---':<20} {'---':<30} {'---':<20} {'---':<6} {'---':<20}",
     ]
     for i, it in enumerate(manifest.get("manifest_items", [])):
         if subdomain_filter and it.get("subdomain") != subdomain_filter:
             continue
+        fg = it.get("feature_group", "")
         lines.append(
             f"{i:<5} {it.get('cluster', '?'):<20} {it.get('action', '?'):<30} "
-            f"{it.get('subdomain', '?'):<20} {it.get('score', 0):<6.3f}"
+            f"{it.get('subdomain', '?'):<20} {it.get('score', 0):<6.3f} {fg:<20}"
         )
     lines.append(f"\nTotal: {len(items)} candidate(s)")
     return "\n".join(lines)

@@ -79,6 +79,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--index", type=int, default=None, help="Select by index")
     parser.add_argument("--cluster", default=None, help="Select by cluster name")
     parser.add_argument("--subdomain", default=None, help="Filter/narrow by subdomain")
+    parser.add_argument("--feature-group", default=None, help="Filter by feature group (update_existing only)")
 
     parser.add_argument("--list", action="store_true", help="List all candidates and exit")
     parser.add_argument("--dry-run", action="store_true", help="Write run-plan but mark as dry-run")
@@ -106,7 +107,8 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         candidate = select_candidate(
-            manifest, cluster=args.cluster, index=args.index, subdomain=args.subdomain,
+            manifest, cluster=args.cluster, index=args.index,
+            subdomain=args.subdomain, feature_group=args.feature_group,
         )
     except ValueError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

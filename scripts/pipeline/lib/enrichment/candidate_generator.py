@@ -371,14 +371,21 @@ def build_handoff_manifest(
         })
 
     for item in update_items:
-        manifest_items.append({
+        entry = {
             "action": item["action"],
             "cluster": item["cluster"],
             "subdomain": item["subdomain"],
             "score": item["score"],
             "target_skill": _action_to_skill(item["action"]),
             "dry_run": dry_run,
-        })
+        }
+        if item.get("feature_group"):
+            entry["feature_group"] = item["feature_group"]
+        if "coverage_depth" in item:
+            entry["coverage_depth"] = item["coverage_depth"]
+        if item.get("uncovered_apis"):
+            entry["uncovered_apis"] = item["uncovered_apis"]
+        manifest_items.append(entry)
 
     backlog_items = []
     for item in deferred_items:
