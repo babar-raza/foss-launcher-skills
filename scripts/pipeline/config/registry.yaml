@@ -2415,3 +2415,56 @@ scripts:
     deprecated_since: null
     change_impact: null
     notes: "S-96 L-12 gate: reconcile api_surface scope vs generated reference pages; imported by batch_reference.py _write_generation_manifest()"
+
+  # ── S-98 post-pilot healing additions (2026-05-13) ─────────────────────────
+
+  - path: scripts/pipeline/commands/content/validate_chain.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "Single-file validation chain runner; integration-tested via pilot files; standalone unit tests pending"
+    requires_test: false
+    deprecated_since: null
+    change_impact: null
+    notes: "Runs frontmatter + audit + evidence + content_eval chain on a single content file; supports --skip-* and --json flags"
+
+  - path: scripts/pipeline/commands/enrichment/execute_one.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-enrichment
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "Manifest consumer CLI; integration-tested via --list and --dry-run; standalone unit tests pending"
+    requires_test: false
+    deprecated_since: null
+    change_impact: null
+    notes: "S-98 manifest consumer CLI; --list, --index, --cluster, --dry-run; writes run-plan JSON to reports/"
+
+  - path: scripts/pipeline/lib/enrichment/manifest_consumer.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-enrichment
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "Manifest consumer library; integration-tested via execute_one.py; standalone unit tests pending"
+    requires_test: false
+    deprecated_since: null
+    change_impact: null
+    notes: "S-98 manifest consumer library; load_handoff_manifest, select_candidate, build_skill_invocation, preflight_check"
