@@ -1,0 +1,1520 @@
+{
+  "schema_version": 1,
+  "phase": "Phase 6 - taskcard decomposition",
+  "taskcard_count": 96,
+  "taskcards": [
+    {
+      "taskcard_id": "TC-P6-0001",
+      "title": "Freeze Current Parity Inputs",
+      "path": "docs/parity/taskcards/TC-P6-0001-freeze-current-parity-inputs.md",
+      "dependencies": [
+        "Phase 5 complete"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0002",
+      "title": "Create External Content Repo Adapter Contract",
+      "path": "docs/parity/taskcards/TC-P6-0002-create-external-content-repo-adapter-contract.md",
+      "dependencies": [
+        "TC-P6-0001"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0003",
+      "title": "Create Compatibility Shim Policy",
+      "path": "docs/parity/taskcards/TC-P6-0003-create-compatibility-shim-policy.md",
+      "dependencies": [
+        "TC-P6-0001"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0004",
+      "title": "Create Non-Destructive Verification Harness Design",
+      "path": "docs/parity/taskcards/TC-P6-0004-create-non-destructive-verification-harness-design.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0005",
+      "title": "Reconcile backlog Capability",
+      "path": "docs/parity/taskcards/TC-P6-0005-reconcile-backlog-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0006",
+      "title": "Reconcile batch-eval-fix Capability",
+      "path": "docs/parity/taskcards/TC-P6-0006-reconcile-batch-eval-fix-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0007",
+      "title": "Reconcile batch-reference Capability",
+      "path": "docs/parity/taskcards/TC-P6-0007-reconcile-batch-reference-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0008",
+      "title": "Reconcile batch-remediate Capability",
+      "path": "docs/parity/taskcards/TC-P6-0008-reconcile-batch-remediate-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0009",
+      "title": "Reconcile category-fix Capability",
+      "path": "docs/parity/taskcards/TC-P6-0009-reconcile-category-fix-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0010",
+      "title": "Reconcile causal-backtrack Capability",
+      "path": "docs/parity/taskcards/TC-P6-0010-reconcile-causal-backtrack-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0011",
+      "title": "Reconcile change-guard Capability",
+      "path": "docs/parity/taskcards/TC-P6-0011-reconcile-change-guard-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0012",
+      "title": "Reconcile change-sweep Capability",
+      "path": "docs/parity/taskcards/TC-P6-0012-reconcile-change-sweep-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0013",
+      "title": "Reconcile cleanroom-regen Capability",
+      "path": "docs/parity/taskcards/TC-P6-0013-reconcile-cleanroom-regen-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0014",
+      "title": "Reconcile code-smoke Capability",
+      "path": "docs/parity/taskcards/TC-P6-0014-reconcile-code-smoke-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0015",
+      "title": "Reconcile commit Capability",
+      "path": "docs/parity/taskcards/TC-P6-0015-reconcile-commit-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0016",
+      "title": "Reconcile content-audit Capability",
+      "path": "docs/parity/taskcards/TC-P6-0016-reconcile-content-audit-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0017",
+      "title": "Reconcile content-check Capability",
+      "path": "docs/parity/taskcards/TC-P6-0017-reconcile-content-check-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0018",
+      "title": "Reconcile content-enrich Capability",
+      "path": "docs/parity/taskcards/TC-P6-0018-reconcile-content-enrich-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0019",
+      "title": "Reconcile content-eval Capability",
+      "path": "docs/parity/taskcards/TC-P6-0019-reconcile-content-eval-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0020",
+      "title": "Reconcile coverage-reconcile Capability",
+      "path": "docs/parity/taskcards/TC-P6-0020-reconcile-coverage-reconcile-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0021",
+      "title": "Reconcile cross-platform Capability",
+      "path": "docs/parity/taskcards/TC-P6-0021-reconcile-cross-platform-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0022",
+      "title": "Reconcile delta-site-plan Capability",
+      "path": "docs/parity/taskcards/TC-P6-0022-reconcile-delta-site-plan-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0023",
+      "title": "Reconcile diagnose-skill-failure Capability",
+      "path": "docs/parity/taskcards/TC-P6-0023-reconcile-diagnose-skill-failure-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0024",
+      "title": "Reconcile discovery-triage Capability",
+      "path": "docs/parity/taskcards/TC-P6-0024-reconcile-discovery-triage-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0025",
+      "title": "Reconcile embed-knowledge Capability",
+      "path": "docs/parity/taskcards/TC-P6-0025-reconcile-embed-knowledge-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0026",
+      "title": "Reconcile eval-page Capability",
+      "path": "docs/parity/taskcards/TC-P6-0026-reconcile-eval-page-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0027",
+      "title": "Reconcile evidence-cite Capability",
+      "path": "docs/parity/taskcards/TC-P6-0027-reconcile-evidence-cite-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0028",
+      "title": "Reconcile evidence-enhance Capability",
+      "path": "docs/parity/taskcards/TC-P6-0028-reconcile-evidence-enhance-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0029",
+      "title": "Reconcile evidence-repair Capability",
+      "path": "docs/parity/taskcards/TC-P6-0029-reconcile-evidence-repair-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0030",
+      "title": "Reconcile family-sync Capability",
+      "path": "docs/parity/taskcards/TC-P6-0030-reconcile-family-sync-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0031",
+      "title": "Reconcile faq-generate Capability",
+      "path": "docs/parity/taskcards/TC-P6-0031-reconcile-faq-generate-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0032",
+      "title": "Reconcile gap-apply Capability",
+      "path": "docs/parity/taskcards/TC-P6-0032-reconcile-gap-apply-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0033",
+      "title": "Reconcile gap-eval Capability",
+      "path": "docs/parity/taskcards/TC-P6-0033-reconcile-gap-eval-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0034",
+      "title": "Reconcile gap-plan Capability",
+      "path": "docs/parity/taskcards/TC-P6-0034-reconcile-gap-plan-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0035",
+      "title": "Reconcile gap-report Capability",
+      "path": "docs/parity/taskcards/TC-P6-0035-reconcile-gap-report-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0036",
+      "title": "Reconcile getting-started Capability",
+      "path": "docs/parity/taskcards/TC-P6-0036-reconcile-getting-started-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0037",
+      "title": "Reconcile heal-batch Capability",
+      "path": "docs/parity/taskcards/TC-P6-0037-reconcile-heal-batch-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0038",
+      "title": "Reconcile heal-page Capability",
+      "path": "docs/parity/taskcards/TC-P6-0038-reconcile-heal-page-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0039",
+      "title": "Reconcile knowledge-bootstrap Capability",
+      "path": "docs/parity/taskcards/TC-P6-0039-reconcile-knowledge-bootstrap-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0040",
+      "title": "Reconcile knowledge-coverage-audit Capability",
+      "path": "docs/parity/taskcards/TC-P6-0040-reconcile-knowledge-coverage-audit-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0041",
+      "title": "Reconcile knowledge-diff Capability",
+      "path": "docs/parity/taskcards/TC-P6-0041-reconcile-knowledge-diff-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0042",
+      "title": "Reconcile knowledge-enrich Capability",
+      "path": "docs/parity/taskcards/TC-P6-0042-reconcile-knowledge-enrich-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0043",
+      "title": "Reconcile knowledge-update Capability",
+      "path": "docs/parity/taskcards/TC-P6-0043-reconcile-knowledge-update-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0044",
+      "title": "Reconcile launch-product Capability",
+      "path": "docs/parity/taskcards/TC-P6-0044-reconcile-launch-product-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0045",
+      "title": "Reconcile launch-rollback Capability",
+      "path": "docs/parity/taskcards/TC-P6-0045-reconcile-launch-rollback-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0046",
+      "title": "Reconcile link-validate Capability",
+      "path": "docs/parity/taskcards/TC-P6-0046-reconcile-link-validate-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0047",
+      "title": "Reconcile locale-patch Capability",
+      "path": "docs/parity/taskcards/TC-P6-0047-reconcile-locale-patch-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0048",
+      "title": "Reconcile manual-edit Capability",
+      "path": "docs/parity/taskcards/TC-P6-0048-reconcile-manual-edit-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0049",
+      "title": "Reconcile new-blog-post Capability",
+      "path": "docs/parity/taskcards/TC-P6-0049-reconcile-new-blog-post-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0050",
+      "title": "Reconcile new-docs-index Capability",
+      "path": "docs/parity/taskcards/TC-P6-0050-reconcile-new-docs-index-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0051",
+      "title": "Reconcile new-docs-page Capability",
+      "path": "docs/parity/taskcards/TC-P6-0051-reconcile-new-docs-page-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0052",
+      "title": "Reconcile new-kb-faq Capability",
+      "path": "docs/parity/taskcards/TC-P6-0052-reconcile-new-kb-faq-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0053",
+      "title": "Reconcile new-kb-howto Capability",
+      "path": "docs/parity/taskcards/TC-P6-0053-reconcile-new-kb-howto-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0054",
+      "title": "Reconcile new-kb-index Capability",
+      "path": "docs/parity/taskcards/TC-P6-0054-reconcile-new-kb-index-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0055",
+      "title": "Reconcile new-products-page Capability",
+      "path": "docs/parity/taskcards/TC-P6-0055-reconcile-new-products-page-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0056",
+      "title": "Reconcile new-reference-index Capability",
+      "path": "docs/parity/taskcards/TC-P6-0056-reconcile-new-reference-index-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0057",
+      "title": "Reconcile new-reference-page Capability",
+      "path": "docs/parity/taskcards/TC-P6-0057-reconcile-new-reference-page-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0058",
+      "title": "Reconcile no-downgrade-guard Capability",
+      "path": "docs/parity/taskcards/TC-P6-0058-reconcile-no-downgrade-guard-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0059",
+      "title": "Reconcile page-draft Capability",
+      "path": "docs/parity/taskcards/TC-P6-0059-reconcile-page-draft-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0060",
+      "title": "Reconcile page-enhance Capability",
+      "path": "docs/parity/taskcards/TC-P6-0060-reconcile-page-enhance-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0061",
+      "title": "Reconcile page-plan Capability",
+      "path": "docs/parity/taskcards/TC-P6-0061-reconcile-page-plan-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0062",
+      "title": "Reconcile page-retire Capability",
+      "path": "docs/parity/taskcards/TC-P6-0062-reconcile-page-retire-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0063",
+      "title": "Reconcile page-update Capability",
+      "path": "docs/parity/taskcards/TC-P6-0063-reconcile-page-update-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0064",
+      "title": "Reconcile path-guard Capability",
+      "path": "docs/parity/taskcards/TC-P6-0064-reconcile-path-guard-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0065",
+      "title": "Reconcile plan-normalize Capability",
+      "path": "docs/parity/taskcards/TC-P6-0065-reconcile-plan-normalize-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0066",
+      "title": "Reconcile project-phase-store Capability",
+      "path": "docs/parity/taskcards/TC-P6-0066-reconcile-project-phase-store-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0067",
+      "title": "Reconcile publish-readiness-review Capability",
+      "path": "docs/parity/taskcards/TC-P6-0067-reconcile-publish-readiness-review-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0068",
+      "title": "Reconcile refresh-product Capability",
+      "path": "docs/parity/taskcards/TC-P6-0068-reconcile-refresh-product-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0069",
+      "title": "Reconcile refresh-product-page Capability",
+      "path": "docs/parity/taskcards/TC-P6-0069-reconcile-refresh-product-page-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0070",
+      "title": "Reconcile register-human-content Capability",
+      "path": "docs/parity/taskcards/TC-P6-0070-reconcile-register-human-content-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0071",
+      "title": "Reconcile repo-patrol Capability",
+      "path": "docs/parity/taskcards/TC-P6-0071-reconcile-repo-patrol-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0072",
+      "title": "Reconcile repo-scout Capability",
+      "path": "docs/parity/taskcards/TC-P6-0072-reconcile-repo-scout-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0073",
+      "title": "Reconcile rubric-align Capability",
+      "path": "docs/parity/taskcards/TC-P6-0073-reconcile-rubric-align-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0074",
+      "title": "Reconcile section-enhance Capability",
+      "path": "docs/parity/taskcards/TC-P6-0074-reconcile-section-enhance-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0075",
+      "title": "Reconcile seo-review Capability",
+      "path": "docs/parity/taskcards/TC-P6-0075-reconcile-seo-review-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0076",
+      "title": "Reconcile session-start Capability",
+      "path": "docs/parity/taskcards/TC-P6-0076-reconcile-session-start-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0077",
+      "title": "Reconcile site-plan Capability",
+      "path": "docs/parity/taskcards/TC-P6-0077-reconcile-site-plan-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0078",
+      "title": "Reconcile stale-detect Capability",
+      "path": "docs/parity/taskcards/TC-P6-0078-reconcile-stale-detect-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0079",
+      "title": "Reconcile system-heal Capability",
+      "path": "docs/parity/taskcards/TC-P6-0079-reconcile-system-heal-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0080",
+      "title": "Reconcile translate Capability",
+      "path": "docs/parity/taskcards/TC-P6-0080-reconcile-translate-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0081",
+      "title": "Reconcile translate-batch Capability",
+      "path": "docs/parity/taskcards/TC-P6-0081-reconcile-translate-batch-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0082",
+      "title": "Reconcile translate-page Capability",
+      "path": "docs/parity/taskcards/TC-P6-0082-reconcile-translate-page-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0083",
+      "title": "Reconcile triage-confirm Capability",
+      "path": "docs/parity/taskcards/TC-P6-0083-reconcile-triage-confirm-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0084",
+      "title": "Reconcile truth-audit Capability",
+      "path": "docs/parity/taskcards/TC-P6-0084-reconcile-truth-audit-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0085",
+      "title": "Reconcile truth-audit-content Capability",
+      "path": "docs/parity/taskcards/TC-P6-0085-reconcile-truth-audit-content-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0086",
+      "title": "Reconcile truth-index Capability",
+      "path": "docs/parity/taskcards/TC-P6-0086-reconcile-truth-index-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0087",
+      "title": "Reconcile truth-merge Capability",
+      "path": "docs/parity/taskcards/TC-P6-0087-reconcile-truth-merge-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0088",
+      "title": "Reconcile update-registry Capability",
+      "path": "docs/parity/taskcards/TC-P6-0088-reconcile-update-registry-capability.md",
+      "dependencies": [
+        "TC-P6-0001",
+        "TC-P6-0002 for config-related work",
+        "TC-P6-0003 for shim-related work"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0089",
+      "title": "Preserve Standalone Improvement corpus-scan",
+      "path": "docs/parity/taskcards/TC-P6-0089-preserve-standalone-improvement-corpus-scan.md",
+      "dependencies": [
+        "TC-P6-0001"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0090",
+      "title": "Preserve Standalone Improvement discover-products",
+      "path": "docs/parity/taskcards/TC-P6-0090-preserve-standalone-improvement-discover-products.md",
+      "dependencies": [
+        "TC-P6-0001"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0091",
+      "title": "Preserve Standalone Improvement evidence-decide",
+      "path": "docs/parity/taskcards/TC-P6-0091-preserve-standalone-improvement-evidence-decide.md",
+      "dependencies": [
+        "TC-P6-0001"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0092",
+      "title": "Preserve Standalone Improvement evidence-materialize",
+      "path": "docs/parity/taskcards/TC-P6-0092-preserve-standalone-improvement-evidence-materialize.md",
+      "dependencies": [
+        "TC-P6-0001"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0093",
+      "title": "Preserve Standalone Improvement evidence-verify",
+      "path": "docs/parity/taskcards/TC-P6-0093-preserve-standalone-improvement-evidence-verify.md",
+      "dependencies": [
+        "TC-P6-0001"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0094",
+      "title": "Preserve Standalone Improvement ground-check",
+      "path": "docs/parity/taskcards/TC-P6-0094-preserve-standalone-improvement-ground-check.md",
+      "dependencies": [
+        "TC-P6-0001"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0095",
+      "title": "Preserve Standalone Improvement mental-model",
+      "path": "docs/parity/taskcards/TC-P6-0095-preserve-standalone-improvement-mental-model.md",
+      "dependencies": [
+        "TC-P6-0001"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    },
+    {
+      "taskcard_id": "TC-P6-0096",
+      "title": "Preserve Standalone Improvement truth-sync",
+      "path": "docs/parity/taskcards/TC-P6-0096-preserve-standalone-improvement-truth-sync.md",
+      "dependencies": [
+        "TC-P6-0001"
+      ],
+      "forbidden_to_change": [
+        "D:/onedrive/Documents/GitHub/aspose.org/content/**",
+        "D:/onedrive/Documents/GitHub/aspose.org/** unless explicitly read-only",
+        "C:/Users/prora/OneDrive/Documents/GitHub/foss-launcher-skills-gitlab/.git/**",
+        "Any production credentials, tokens, or metrics secrets"
+      ]
+    }
+  ]
+}
