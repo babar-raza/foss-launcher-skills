@@ -4,7 +4,7 @@ Evidence-based content generation skills for FOSS product documentation. Works w
 
 ## What This Is
 
-A standalone library of 89 agent skills (7 internal sub-routines + 82 user-callable) that power a knowledge-grounded content pipeline:
+A standalone library of 92 agent skills (7 internal sub-routines + 85 user-callable) that power a knowledge-grounded content pipeline:
 
 1. **Discover** FOSS repositories across GitHub organizations
 2. **Extract** truth from FOSS repositories (tree-sitter analysis)
@@ -127,6 +127,7 @@ See `QUICKSTART.md` for a full step-by-step walkthrough.
 | S-74 | new-kb-index | Scaffold KB platform section landing page |
 | S-75 | new-docs-index | Scaffold docs platform section landing page |
 | S-76 | new-reference-index | Scaffold reference platform section landing page |
+| S-108 | content-enrich | Post-launch enrichment audit and handoff-manifest workflow |
 
 ### Content Validation
 
@@ -184,6 +185,7 @@ See `QUICKSTART.md` for a full step-by-step walkthrough.
 |----|-------|---------|
 | S-95 | publish-readiness-review | Agent-executed governed inspection with publish verdict |
 | S-97 | triage-confirm | Layer 2 body-prose staleness scanner (read-only) |
+| S-109 | seo-review | Governance-only review gate for pending SEO recommendations |
 
 ### Orchestration / Pipeline
 
@@ -218,6 +220,7 @@ See `QUICKSTART.md` for a full step-by-step walkthrough.
 |----|-------|---------|
 | S-99 | translate-page | Translate single page to one or more locales |
 | S-100 | translate-batch | Batch translate entire family/platform to locales |
+| S-107 | translate | Compatibility dispatcher for page or batch translation |
 | S-101 | locale-patch | Propagate targeted fixes to locale translation copies |
 | S-102 | repo-patrol | Scan GitHub orgs for new repos, score confidence |
 | S-103 | change-sweep | Batch SHA comparison across products |

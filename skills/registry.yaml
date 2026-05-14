@@ -519,6 +519,24 @@ skills:
     internal: false
     script: null
 
+  - id: S-107
+    name: translate
+    description: Compatibility dispatcher that routes to translate-page or translate-batch
+    internal: false
+    script: null
+
+  - id: S-108
+    name: content-enrich
+    description: Post-launch cross-subdomain enrichment audit and handoff-manifest workflow
+    internal: false
+    script: null
+
+  - id: S-109
+    name: seo-review
+    description: Governance-only review gate for pending SEO recommendations
+    internal: false
+    script: null
+
   # TC-012h: Locale skills
   - id: S-101
     name: locale-patch
