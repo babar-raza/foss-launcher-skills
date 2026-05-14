@@ -50,6 +50,7 @@ htmlcov/
 reports/agents/
 reports/conformance/*.json
 reports/content_eval/
+reports/discovery/
 
 # Golden corpus (can be regenerated from content)
 # Uncomment if you want to exclude golden corpus
