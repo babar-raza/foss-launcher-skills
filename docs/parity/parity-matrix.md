@@ -238,6 +238,30 @@ knowledge-enrich (enrich.py ported but registry not updated).
 
 ---
 
+## May 13 Sprint Resume Matrix (2026-05-14)
+
+The May 13 parity sprint was resumed and re-evaluated against current repository state.
+
+Current machine-readable evidence:
+
+- `docs/parity/evidence/phase7-resume-parity-run-final.json`
+- `docs/parity/evidence/phase7-resume-parity-summary-final.txt`
+
+Summary:
+
+| Metric | Value |
+|--------|-------|
+| Compared aspose.org capabilities | 84 |
+| Functional parity proven through different implementation | 84 |
+| Partial parity | 0 |
+| Implemented but not verified | 0 |
+| Gap categories | 0 |
+| Standalone-only capabilities preserved | 8 |
+
+Standalone-only capabilities preserved: `corpus-scan`, `discover-products`, `evidence-decide`, `evidence-materialize`, `evidence-verify`, `ground-check`, `mental-model`, `truth-sync`.
+
+Parity proof is behavior-oriented. The standalone repo intentionally uses compatibility mappings, prompt-orchestration contracts, shared config adapters, and tests rather than copying every aspose.org path or prompt verbatim.
+
 ## Table E: Content Evaluation Infrastructure (Updated 2026-04-30)
 
 **Evaluator Recreation Program (Wave 0-3 complete)**
@@ -301,4 +325,3 @@ knowledge-enrich (enrich.py ported but registry not updated).
 - `code_block_api` uses proper relative imports (removed `sys.path.insert(0, ...)` hack)
 - Consistent `evaluator=self.name` on all Finding objects
 - Python 3.12+ compatible escape sequences
-

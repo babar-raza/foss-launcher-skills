@@ -1,0 +1,1994 @@
+{
+  "gap_category_counts": {},
+  "gaps": [],
+  "phase": "Phase 4 - capability parity analysis",
+  "rows": [
+    {
+      "aspose_id": "S-88",
+      "canonical_name": "backlog",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: Backlog routing is an operator workflow over reports/backlog artifacts.",
+        "Skill text similarity is low (0.0138); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-98",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.0138
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-41",
+      "canonical_name": "batch-eval-fix",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: scripts/pipeline/commands/healing/attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text differs materially but is related (similarity 0.5831).",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone verification index marks this no-gap capability verified: scripts/pipeline/commands/content/remediate.py --help works after import-path repair; 56 related audit/frontmatter/no-downgrade tests passed; compatibility-path-map resolves legacy remediate/evidence script references"
+      ],
+      "foss_id": "S-41",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.5831
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-62",
+      "canonical_name": "batch-reference",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text differs materially but is related (similarity 0.5509).",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone verification index marks this no-gap capability verified: tests/test_batch_reference.py included in 85 passed targeted parity tests; scripts/pipeline/commands/content/batch_reference.py present; skills/registry.yaml provider validation passed"
+      ],
+      "foss_id": "S-67",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.5509
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-40",
+      "canonical_name": "batch-remediate",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: remediate.py -> scripts/pipeline/commands/content/remediate.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text differs materially but is related (similarity 0.7507).",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone verification index marks this no-gap capability verified: scripts/pipeline/commands/content/remediate.py --help exposes triage/fix/report/status; 56 related audit/frontmatter/no-downgrade tests passed; compatibility-path-map resolves legacy remediate.py reference"
+      ],
+      "foss_id": "S-40",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.7507
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-42",
+      "canonical_name": "category-fix",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text differs materially but is related (similarity 0.6774).",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone verification index marks this no-gap capability verified: skills/registry.yaml binds category-fix to scripts/pipeline/commands/content/remediate.py; scripts/validate_skills.py passed with 92 skills and no violations; provider sync checks passed"
+      ],
+      "foss_id": "S-42",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.6774
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-74",
+      "canonical_name": "causal-backtrack",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: scripts/pipeline/lib/dependency_resolver.py -> scripts/pipeline/commands/healing/dependency_resolver.py",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: Backtracking is a governed diagnostic workflow using healing/dependency helpers rather than a single public CLI.",
+        "Skill text similarity is low (0.0798); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-79",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.0798
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-33",
+      "canonical_name": "change-guard",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: scripts/pipeline/commands/governance/change_guard.py -> scripts/pipeline/commands/diagnostics/change_guard.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text differs materially but is related (similarity 0.841).",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone verification index marks this no-gap capability verified: compatibility-path-map resolves governance change_guard.py to standalone diagnostics change_guard.py; scripts/validate_skills.py passed; provider sync checks passed"
+      ],
+      "foss_id": "S-33",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.841
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-94",
+      "canonical_name": "change-sweep",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text differs materially but is related (similarity 0.8285).",
+        "Standalone verification index marks this no-gap capability verified: tests/test_repo_patrol.py included in 85 passed targeted parity tests; scripts/pipeline/repo_patrol.py --help exposes scan/sweep/report; repo-patrol scaffold verification covers change-sweep report contract"
+      ],
+      "foss_id": "S-103",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.8285
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-97",
+      "canonical_name": "cleanroom-regen",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text differs materially but is related (similarity 0.672).",
+        "Standalone verification index marks this no-gap capability verified: scripts/pipeline/commands/ops/cleanroom_regen.py --help exposes all 8 modes; 67 adapter/config/audit tests passed; skills/registry.yaml binds cleanroom-regen to the cleanroom_regen.py command"
+      ],
+      "foss_id": "S-106",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.672
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-63",
+      "canonical_name": "code-smoke",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text differs materially but is related (similarity 0.7766).",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone verification index marks this no-gap capability verified: tests/test_smoke_test.py included in 85 passed targeted parity tests; scripts/pipeline/smoke_test.py present; provider sync checks passed"
+      ],
+      "foss_id": "S-68",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.7766
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-76",
+      "canonical_name": "commit",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: scripts/pipeline/commands/governance/override_manager.py -> scripts/pipeline/commands/ops/override_manager.py; scripts/pipeline/commands/governance/path_guard.py -> scripts/path_guard.py",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: Commit is an operator workflow guarded by registry, path, provenance, and hook checks.",
+        "Skill text similarity is low (0.3331); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-81",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.3331
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-32",
+      "canonical_name": "content-audit",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: scripts/pipeline/commands/content/content_audit.py -> scripts/pipeline/content_audit.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text differs materially but is related (similarity 0.8465).",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone verification index marks this no-gap capability verified: scripts/pipeline/commands/content/audit.py --help works after import-path repair; 56 related audit/frontmatter/no-downgrade tests passed; compatibility-path-map resolves legacy content_audit.py reference"
+      ],
+      "foss_id": "S-32",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.8465
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-23",
+      "canonical_name": "content-check",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text differs materially but is related (similarity 0.7578).",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone verification index marks this no-gap capability verified: tests/test_ground_check.py included in 85 passed targeted parity tests; tests/test_audit_hardening.py included in 67 passed adapter/config/audit tests; scripts/validate_skills.py passed"
+      ],
+      "foss_id": "S-50",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.7578
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "",
+      "canonical_name": "content-enrich",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.0638); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-108",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.0638
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-51",
+      "canonical_name": "content-eval",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text differs materially but is related (similarity 0.6138).",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone verification index marks this no-gap capability verified: tests/test_audit_hardening.py included in 67 passed adapter/config/audit tests; scripts/validate_skills.py confirms registry binding to scripts/pipeline/content_eval/__main__.py; provider sync checks passed"
+      ],
+      "foss_id": "S-48",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.6138
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-80",
+      "canonical_name": "coverage-reconcile",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: Coverage reconciliation is an analysis workflow over knowledge and content dispositions.",
+        "Skill text similarity is low (0.2721); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-85",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.2721
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-36",
+      "canonical_name": "cross-platform",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: Cross-platform verification is orchestrated over content, knowledge, and audit helpers.",
+        "Skill text similarity is low (0.1153); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-36",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.1153
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-82",
+      "canonical_name": "delta-site-plan",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.3317); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-87",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.3317
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-67",
+      "canonical_name": "diagnose-skill-failure",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: scripts/pipeline/commands/governance/override_manager.py -> scripts/pipeline/commands/ops/override_manager.py; scripts/pipeline/commands/healing/attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text differs materially but is related (similarity 0.7637).",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone verification index marks this no-gap capability verified: compatibility-path-map resolves override_manager and attach_evidence references; scripts/check_setup.py --help works; scripts/validate_skills.py passed"
+      ],
+      "foss_id": "S-72",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.7637
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-95",
+      "canonical_name": "discovery-triage",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "Skill text is highly similar (similarity 0.8846).",
+        "Standalone verification index marks this no-gap capability verified: skills/discovery-triage.md provider surfaces present and synced; tests/test_repo_patrol.py included in 85 passed targeted parity tests for upstream patrol/sweep reports; scripts/validate_skills.py passed"
+      ],
+      "foss_id": "S-104",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.8846
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-15",
+      "canonical_name": "embed-knowledge",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.2052); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-15",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.2052
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-25",
+      "canonical_name": "eval-page",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.0885); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-25",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.0885
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-24",
+      "canonical_name": "evidence-cite",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py; scripts/pipeline/commands/healing/attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text is highly similar (similarity 0.9112).",
+        "Standalone verification index marks this no-gap capability verified: tests/test_validate_frontmatter.py included in 56 passed related tests; compatibility-path-map resolves attach_evidence.py references; provider sync checks passed"
+      ],
+      "foss_id": "S-24",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.9112
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-78",
+      "canonical_name": "evidence-enhance",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: scripts/pipeline/commands/healing/attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.136); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-83",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.136
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-72",
+      "canonical_name": "evidence-repair",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: audit.py -> scripts/pipeline/commands/content/audit.py; scripts/pipeline/commands/healing/attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py; validate_frontmatter.py -> scripts/pipeline/commands/content/validate_frontmatter.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.3034); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-77",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.3034
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-48",
+      "canonical_name": "family-sync",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: scripts/pipeline/commands/healing/attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.0894); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-58",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.0894
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-22",
+      "canonical_name": "faq-generate",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: FAQ generation is a content-generation workflow requiring knowledge and evidence gates.",
+        "Skill text similarity is low (0.066); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-22",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.066
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-46",
+      "canonical_name": "gap-apply",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.1957); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-65",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.1957
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-43",
+      "canonical_name": "gap-eval",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.3446); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), ASPOSE_CLONE_CACHE (scripts/content_repo_adapter.py, scripts/pipeline/core/clone_cache.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-62",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.3446
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-44",
+      "canonical_name": "gap-plan",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.2577); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-63",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.2577
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-45",
+      "canonical_name": "gap-report",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.2635); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-64",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.2635
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-64",
+      "canonical_name": "getting-started",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.3021); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-69",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.3021
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-89",
+      "canonical_name": "heal-batch",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: heal_policy.py -> scripts/pipeline/commands/healing/heal_policy.py; verify.py -> scripts/verify.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.1913); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-94",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.1913
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-26",
+      "canonical_name": "heal-page",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: refresh_knowledge.py -> scripts/pipeline/commands/knowledge/refresh_knowledge.py",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: Page healing is an orchestrated workflow over evaluation, remediation, evidence, and verification.",
+        "Skill text similarity is low (0.0671); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-26",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.0671
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-54",
+      "canonical_name": "knowledge-bootstrap",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text differs materially but is related (similarity 0.7295).",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone verification index marks this no-gap capability verified: 67 adapter/config/audit tests passed, including config and clone-cache coverage; tests/test_clone_cache.py passed; provider sync checks passed"
+      ],
+      "foss_id": "S-49",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.7295
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-81",
+      "canonical_name": "knowledge-coverage-audit",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.1891); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-86",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.1891
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-12",
+      "canonical_name": "knowledge-diff",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: Knowledge diff is an orchestration workflow over clone-cache and knowledge artifacts.",
+        "Skill text similarity is low (0.3079); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), ASPOSE_CLONE_CACHE (scripts/content_repo_adapter.py, scripts/pipeline/core/clone_cache.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-12",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.3079
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-37",
+      "canonical_name": "knowledge-enrich",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.1713); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-61",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.1713
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-14",
+      "canonical_name": "knowledge-update",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: refresh_knowledge.py -> scripts/pipeline/commands/knowledge/refresh_knowledge.py; scout.py \u2192 enrich.py \u2192 promote.py \u2192 index.py -> scripts/scout.py; scripts/pipeline/commands/knowledge/scout.py -> scripts/scout.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.0732); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), ASPOSE_CLONE_CACHE (scripts/content_repo_adapter.py, scripts/pipeline/core/clone_cache.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-14",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.0732
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-49",
+      "canonical_name": "launch-product",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: site_planner.py -> scripts/pipeline/commands/launch/site_planner.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.033); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-38",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.033
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-79",
+      "canonical_name": "launch-rollback",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.1906); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-60",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.1906
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-65",
+      "canonical_name": "link-validate",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.3993); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-70",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.3993
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-75",
+      "canonical_name": "locale-patch",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: Locale patching is a governed content-propagation workflow rather than a single script.",
+        "Skill text similarity is low (0.1961); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-101",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.1961
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-73",
+      "canonical_name": "manual-edit",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: scripts/pipeline/commands/governance/change_guard.py -> scripts/pipeline/commands/diagnostics/change_guard.py; scripts/pipeline/commands/governance/path_guard.py -> scripts/path_guard.py; scripts/pipeline/commands/healing/attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.0842); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-78",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.0842
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-57",
+      "canonical_name": "new-blog-post",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py; page_role.py -> scripts/pipeline/content_eval/evaluators/page_role.py; scripts/pipeline/commands/healing/attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.4477); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-52",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.4477
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-70",
+      "canonical_name": "new-docs-index",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: scripts/pipeline/commands/healing/attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.4814); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-75",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.4814
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-56",
+      "canonical_name": "new-docs-page",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: scripts/pipeline/commands/healing/attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.4582); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-51",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.4582
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-59",
+      "canonical_name": "new-kb-faq",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: scripts/pipeline/commands/healing/attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.5027); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-54",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.5027
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-58",
+      "canonical_name": "new-kb-howto",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: scripts/pipeline/commands/healing/attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.3918); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-53",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.3918
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-69",
+      "canonical_name": "new-kb-index",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: scripts/pipeline/commands/healing/attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.4147); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-74",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.4147
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-61",
+      "canonical_name": "new-products-page",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: scripts/pipeline/commands/healing/attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text differs materially but is related (similarity 0.6699).",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone verification index marks this no-gap capability verified: tests/test_plugin_structure_tools.py included in 58 passed product/scout/plugin tests; compatibility-path-map resolves attach_evidence.py references; provider sync checks passed"
+      ],
+      "foss_id": "S-66",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.6699
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-71",
+      "canonical_name": "new-reference-index",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: scripts/pipeline/commands/healing/attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.4008); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-76",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.4008
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-60",
+      "canonical_name": "new-reference-page",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: scripts/pipeline/commands/healing/attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.425); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-55",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.425
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-55",
+      "canonical_name": "no-downgrade-guard",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: audit.py -> scripts/pipeline/commands/content/audit.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.0925); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-56",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.0925
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-19",
+      "canonical_name": "page-draft",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.0444); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-19",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.0444
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-21",
+      "canonical_name": "page-enhance",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: refresh_knowledge.py -> scripts/pipeline/commands/knowledge/refresh_knowledge.py",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: Page enhancement is a governed content workflow over rubric, evidence, and validation helpers.",
+        "Skill text similarity is low (0.061); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-21",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.061
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-18",
+      "canonical_name": "page-plan",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.0725); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-18",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.0725
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-83",
+      "canonical_name": "page-retire",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: stale_detect.py -> scripts/pipeline/commands/ops/stale_detect.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.3517); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-88",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.3517
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-20",
+      "canonical_name": "page-update",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: refresh_knowledge.py -> scripts/pipeline/commands/knowledge/refresh_knowledge.py; scripts/pipeline/commands/healing/attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: Page update is a governed content workflow over stale knowledge, evidence, and validation helpers.",
+        "Skill text similarity is low (0.021); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-20",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.021
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-01",
+      "canonical_name": "path-guard",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text differs materially but is related (similarity 0.8424).",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone verification index marks this no-gap capability verified: tests/test_path_guard.py included in 85 passed targeted parity tests; scripts/path_guard.py bound in skills/registry.yaml; provider sync checks passed"
+      ],
+      "foss_id": "S-01",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.8424
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-91",
+      "canonical_name": "plan-normalize",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: Plan normalization is a governance workflow for reviewing and correcting mixed-context plans.",
+        "Skill text similarity is low (0.0228); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-96",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.0228
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-10",
+      "canonical_name": "project-phase-store",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: Project phase tracking is a skill-level workflow around plan/state artifacts.",
+        "Skill text similarity is low (0.1109); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-10",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.1109
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-90",
+      "canonical_name": "publish-readiness-review",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: scripts/pipeline/lib/token_ops.py -> scripts/pipeline/commands/ops/token_ops.py",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: Readiness review is a governed inspection workflow replacing human-review dead ends.",
+        "Skill text similarity is low (0.119); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-95",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.119
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-84",
+      "canonical_name": "refresh-product",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.2555); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-84",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.2555
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-86",
+      "canonical_name": "refresh-product-page",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: Product page refresh is a governed workflow over generation, no-downgrade, and verification.",
+        "Skill text similarity is low (0.226); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-59",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.226
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-66",
+      "canonical_name": "register-human-content",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py; grade_writer.py -> scripts/pipeline/lib/grade_writer.py; scripts/pipeline/commands/healing/attach_evidence.py -> scripts/pipeline/commands/content/attach_evidence.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.2434); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-71",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.2434
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-93",
+      "canonical_name": "repo-patrol",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text differs materially but is related (similarity 0.7289).",
+        "Standalone verification index marks this no-gap capability verified: tests/test_repo_patrol.py included in 85 passed targeted parity tests; scripts/pipeline/repo_patrol.py --help exposes scan/sweep/report; repo-patrol scaffold verification evidence exists"
+      ],
+      "foss_id": "S-102",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.7289
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-34",
+      "canonical_name": "repo-scout",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: ls scripts/pipeline/commands/knowledge/scout.py -> scripts/scout.py; scripts/pipeline/commands/knowledge/scout.py -> scripts/scout.py; scripts/pipeline/requirements.txt -> scripts/requirements.txt",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text differs materially but is related (similarity 0.5665).",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: ASPOSE_CLONE_CACHE (scripts/content_repo_adapter.py, scripts/pipeline/core/clone_cache.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone verification index marks this no-gap capability verified: tests/test_scout_units.py included in 58 passed product/scout/plugin tests; scripts/scout.py --help works; compatibility-path-map resolves legacy scout.py and requirements references"
+      ],
+      "foss_id": "S-34",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.5665
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-17",
+      "canonical_name": "rubric-align",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.1174); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-17",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.1174
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-96",
+      "canonical_name": "section-enhance",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: Section enhancement is a read-only proposal workflow over content, knowledge, and reports.",
+        "Skill text similarity is low (0.1267); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), ASPOSE_CLONE_CACHE (scripts/content_repo_adapter.py, scripts/pipeline/core/clone_cache.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-105",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.1267
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "",
+      "canonical_name": "seo-review",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.1124); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-109",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.1124
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-77",
+      "canonical_name": "session-start",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: Session start is an operator bootstrap workflow over governance and environment checks.",
+        "Skill text similarity is low (0.2371); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-82",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.2371
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-47",
+      "canonical_name": "site-plan",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.2249); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-57",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.2249
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-13",
+      "canonical_name": "stale-detect",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: Stale detection is an analysis workflow over knowledge diffs and content references.",
+        "Skill text similarity is low (0.5132); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-13",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.5132
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-87",
+      "canonical_name": "system-heal",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.123); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-93",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.123
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "",
+      "canonical_name": "translate",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "Skill text similarity is low (0.4067); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-107",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.4067
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-53",
+      "canonical_name": "translate-batch",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.2071); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-100",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.2071
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-52",
+      "canonical_name": "translate-page",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.4875); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-99",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.4875
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-92",
+      "canonical_name": "triage-confirm",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: refresh_knowledge.py -> scripts/pipeline/commands/knowledge/refresh_knowledge.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.2371); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-97",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.2371
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-38",
+      "canonical_name": "truth-audit",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "Skill text differs materially but is related (similarity 0.6247).",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py)",
+        "Standalone verification index marks this no-gap capability verified: tests/test_audit_hardening.py included in 67 passed adapter/config/audit tests; provider sync checks passed; scripts/validate_skills.py passed"
+      ],
+      "foss_id": "S-47",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.6247
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-85",
+      "canonical_name": "truth-audit-content",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone intentionally implements this as a governed prompt-orchestration workflow: Truth audit content is a line-level inspection workflow over content units and knowledge evidence.",
+        "Skill text similarity is low (0.1498); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: AGENT_METRICS_ENDPOINT (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), AGENT_METRICS_TOKEN (scripts/content_repo_adapter.py, tests/test_content_repo_adapter.py), PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-90",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.1498
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-31",
+      "canonical_name": "truth-index",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.1847); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-31",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.1847
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-35",
+      "canonical_name": "truth-merge",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.1324); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-35",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.1324
+      },
+      "status": "functional parity proven through different implementation"
+    },
+    {
+      "aspose_id": "S-68",
+      "canonical_name": "update-registry",
+      "evidence": [
+        "Standalone record with same canonical_name exists.",
+        "Both sides are registered.",
+        "Standalone provider coverage is equal or broader for provider paths present in aspose.org.",
+        "All aspose.org script dependency paths detected in this record exist at the same standalone relative paths.",
+        "Legacy aspose.org script references are covered by standalone compatibility mappings: clone_cache.py -> scripts/pipeline/core/clone_cache.py; org_scanner.py -> scripts/pipeline/org_scanner.py; refresh_knowledge.py -> scripts/pipeline/commands/knowledge/refresh_knowledge.py; scripts/pipeline/lib/org_scanner.py -> scripts/pipeline/org_scanner.py",
+        "Standalone has at least one detected or registry-declared entrypoint.",
+        "Skill text similarity is low (0.4567); wording differs materially, so parity is based on registry/provider/dependency/governance/verification evidence instead of prompt text identity.",
+        "Standalone supports environment/config keys through shared repo-level adapters/docs/tests: PYTHONPATH (scripts/pipeline/commands/content/claim_report.py, scripts/pipeline/commands/knowledge/knowledge_coverage.py, scripts/pipeline/commands/knowledge/refresh_knowledge.py)",
+        "Standalone suite verification covers this no-gap capability: Full standalone test suite: 738 passed, 15 skipped in 64.96s; scripts/validate_skills.py: PASS: skill registry valid (92 skills, 7 internal, no violations); scripts/sync_agents.py --check: PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/; scripts/sync_commands.py --check: PASS: .claude/commands/ is in sync with skills/"
+      ],
+      "foss_id": "S-73",
+      "gap_categories": [],
+      "gap_count": 0,
+      "gap_details": [],
+      "metrics": {
+        "canonical_text_similarity": 0.4567
+      },
+      "status": "functional parity proven through different implementation"
+    }
+  ],
+  "schema_version": 1,
+  "standalone_only_capabilities": [
+    {
+      "canonical_name": "corpus-scan",
+      "classification": "standalone-only capability",
+      "entrypoints": [
+        "python scripts/golden_index.py",
+        "scripts/corpus_scan.py",
+        "scripts/golden_index.py"
+      ],
+      "foss_id": "S-37",
+      "possible_value": "Potential standalone improvement or capability that must not be regressed.",
+      "provider_paths": {
+        "canonical_markdown": "skills/corpus-scan.md",
+        "claude_command": ".claude/commands/corpus-scan.md",
+        "codex_skill": ".agents/skills/corpus-scan/SKILL.md",
+        "kilocode_skill": ".kilocode/skills/corpus-scan/SKILL.md"
+      }
+    },
+    {
+      "canonical_name": "discover-products",
+      "classification": "standalone-only capability",
+      "entrypoints": [
+        "scripts/discover.py"
+      ],
+      "foss_id": "S-39",
+      "possible_value": "Potential standalone improvement or capability that must not be regressed.",
+      "provider_paths": {
+        "canonical_markdown": "skills/discover-products.md",
+        "claude_command": ".claude/commands/discover-products.md",
+        "codex_skill": ".agents/skills/discover-products/SKILL.md",
+        "kilocode_skill": ".kilocode/skills/discover-products/SKILL.md"
+      }
+    },
+    {
+      "canonical_name": "evidence-decide",
+      "classification": "standalone-only capability",
+      "entrypoints": [
+        "scripts/decide.py"
+      ],
+      "foss_id": "S-43",
+      "possible_value": "Potential standalone improvement or capability that must not be regressed.",
+      "provider_paths": {
+        "canonical_markdown": "skills/evidence-decide.md",
+        "claude_command": ".claude/commands/evidence-decide.md",
+        "codex_skill": ".agents/skills/evidence-decide/SKILL.md",
+        "kilocode_skill": ".kilocode/skills/evidence-decide/SKILL.md"
+      }
+    },
+    {
+      "canonical_name": "evidence-materialize",
+      "classification": "standalone-only capability",
+      "entrypoints": [
+        "scripts/materialize.py"
+      ],
+      "foss_id": "S-44",
+      "possible_value": "Potential standalone improvement or capability that must not be regressed.",
+      "provider_paths": {
+        "canonical_markdown": "skills/evidence-materialize.md",
+        "claude_command": ".claude/commands/evidence-materialize.md",
+        "codex_skill": ".agents/skills/evidence-materialize/SKILL.md",
+        "kilocode_skill": ".kilocode/skills/evidence-materialize/SKILL.md"
+      }
+    },
+    {
+      "canonical_name": "evidence-verify",
+      "classification": "standalone-only capability",
+      "entrypoints": [
+        "scripts/verify.py"
+      ],
+      "foss_id": "S-46",
+      "possible_value": "Potential standalone improvement or capability that must not be regressed.",
+      "provider_paths": {
+        "canonical_markdown": "skills/evidence-verify.md",
+        "claude_command": ".claude/commands/evidence-verify.md",
+        "codex_skill": ".agents/skills/evidence-verify/SKILL.md",
+        "kilocode_skill": ".kilocode/skills/evidence-verify/SKILL.md"
+      }
+    },
+    {
+      "canonical_name": "ground-check",
+      "classification": "standalone-only capability",
+      "entrypoints": [
+        "scripts/pipeline/commands/content/audit.py"
+      ],
+      "foss_id": "S-23",
+      "possible_value": "Potential standalone improvement or capability that must not be regressed.",
+      "provider_paths": {
+        "canonical_markdown": "skills/ground-check.md",
+        "claude_command": ".claude/commands/ground-check.md",
+        "codex_skill": ".agents/skills/ground-check/SKILL.md",
+        "kilocode_skill": ".kilocode/skills/ground-check/SKILL.md"
+      }
+    },
+    {
+      "canonical_name": "mental-model",
+      "classification": "standalone-only capability",
+      "entrypoints": [
+        "scripts/mental_model.py"
+      ],
+      "foss_id": "S-45",
+      "possible_value": "Potential standalone improvement or capability that must not be regressed.",
+      "provider_paths": {
+        "canonical_markdown": "skills/mental-model.md",
+        "claude_command": ".claude/commands/mental-model.md",
+        "codex_skill": ".agents/skills/mental-model/SKILL.md",
+        "kilocode_skill": ".kilocode/skills/mental-model/SKILL.md"
+      }
+    },
+    {
+      "canonical_name": "truth-sync",
+      "classification": "standalone-only capability",
+      "entrypoints": [],
+      "foss_id": "S-30",
+      "possible_value": "Potential standalone improvement or capability that must not be regressed.",
+      "provider_paths": {
+        "canonical_markdown": "skills/truth-sync.md",
+        "claude_command": ".claude/commands/truth-sync.md",
+        "codex_skill": ".agents/skills/truth-sync/SKILL.md",
+        "kilocode_skill": ".kilocode/skills/truth-sync/SKILL.md"
+      }
+    }
+  ],
+  "status_counts": {
+    "functional parity proven through different implementation": 84
+  }
+}

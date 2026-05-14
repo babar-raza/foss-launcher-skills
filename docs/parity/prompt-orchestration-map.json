@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "updated": "2026-05-14",
+  "purpose": "Documents capabilities whose standalone implementation is a governed prompt-orchestration contract rather than a standalone script entrypoint. The parity comparator accepts this only for named capabilities that still have registry/provider coverage.",
+  "capabilities": {
+    "backlog": "Backlog routing is an operator workflow over reports/backlog artifacts.",
+    "causal-backtrack": "Backtracking is a governed diagnostic workflow using healing/dependency helpers rather than a single public CLI.",
+    "commit": "Commit is an operator workflow guarded by registry, path, provenance, and hook checks.",
+    "coverage-reconcile": "Coverage reconciliation is an analysis workflow over knowledge and content dispositions.",
+    "cross-platform": "Cross-platform verification is orchestrated over content, knowledge, and audit helpers.",
+    "faq-generate": "FAQ generation is a content-generation workflow requiring knowledge and evidence gates.",
+    "heal-page": "Page healing is an orchestrated workflow over evaluation, remediation, evidence, and verification.",
+    "knowledge-diff": "Knowledge diff is an orchestration workflow over clone-cache and knowledge artifacts.",
+    "locale-patch": "Locale patching is a governed content-propagation workflow rather than a single script.",
+    "page-enhance": "Page enhancement is a governed content workflow over rubric, evidence, and validation helpers.",
+    "page-update": "Page update is a governed content workflow over stale knowledge, evidence, and validation helpers.",
+    "plan-normalize": "Plan normalization is a governance workflow for reviewing and correcting mixed-context plans.",
+    "project-phase-store": "Project phase tracking is a skill-level workflow around plan/state artifacts.",
+    "publish-readiness-review": "Readiness review is a governed inspection workflow replacing human-review dead ends.",
+    "refresh-product-page": "Product page refresh is a governed workflow over generation, no-downgrade, and verification.",
+    "section-enhance": "Section enhancement is a read-only proposal workflow over content, knowledge, and reports.",
+    "session-start": "Session start is an operator bootstrap workflow over governance and environment checks.",
+    "stale-detect": "Stale detection is an analysis workflow over knowledge diffs and content references.",
+    "truth-audit-content": "Truth audit content is a line-level inspection workflow over content units and knowledge evidence."
+  }
+}

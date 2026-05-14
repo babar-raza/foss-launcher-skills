@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "updated": "2026-05-14",
+  "purpose": "Maps legacy aspose.org script references found in skill prompts to cleaner standalone paths. The parity comparator accepts a mapping only when the target exists.",
+  "mappings": {
+    "attach_evidence.py": "scripts/pipeline/commands/content/attach_evidence.py",
+    "audit.py": "scripts/pipeline/commands/content/audit.py",
+    "clone_cache.py": "scripts/pipeline/core/clone_cache.py",
+    "grade_writer.py": "scripts/pipeline/lib/grade_writer.py",
+    "heal_policy.py": "scripts/pipeline/commands/healing/heal_policy.py",
+    "org_scanner.py": "scripts/pipeline/org_scanner.py",
+    "page_role.py": "scripts/pipeline/content_eval/evaluators/page_role.py",
+    "refresh_knowledge.py": "scripts/pipeline/commands/knowledge/refresh_knowledge.py",
+    "remediate.py": "scripts/pipeline/commands/content/remediate.py",
+    "scout.py": "scripts/scout.py",
+    "site_planner.py": "scripts/pipeline/commands/launch/site_planner.py",
+    "stale_detect.py": "scripts/pipeline/commands/ops/stale_detect.py",
+    "validate_frontmatter.py": "scripts/pipeline/commands/content/validate_frontmatter.py",
+    "verify.py": "scripts/verify.py",
+    "scripts/pipeline/commands/content/content_audit.py": "scripts/pipeline/content_audit.py",
+    "scripts/pipeline/commands/governance/change_guard.py": "scripts/pipeline/commands/diagnostics/change_guard.py",
+    "scripts/pipeline/commands/governance/override_manager.py": "scripts/pipeline/commands/ops/override_manager.py",
+    "scripts/pipeline/commands/governance/path_guard.py": "scripts/path_guard.py",
+    "scripts/pipeline/commands/healing/attach_evidence.py": "scripts/pipeline/commands/content/attach_evidence.py",
+    "scripts/pipeline/commands/knowledge/scout.py": "scripts/scout.py",
+    "scripts/pipeline/lib/dependency_resolver.py": "scripts/pipeline/commands/healing/dependency_resolver.py",
+    "scripts/pipeline/lib/org_scanner.py": "scripts/pipeline/org_scanner.py",
+    "scripts/pipeline/lib/token_ops.py": "scripts/pipeline/commands/ops/token_ops.py",
+    "scripts/pipeline/requirements.txt": "scripts/requirements.txt"
+  }
+}

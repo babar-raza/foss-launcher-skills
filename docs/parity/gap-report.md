@@ -217,3 +217,33 @@ foss standalone mode differs from aspose website-specific requirements.
 - Closed: 7 (G-NEW-01, 02, 03 partial, 04, 12 partial, 13 partial, 14)
 - Explicitly deferred: 8 (G-NEW-05, 06 partial, 07, 08, 09, 10, 11, 15)
 - Remaining open: 0
+
+---
+
+## Section 6: May 13 Sprint Resume Gaps (2026-05-14)
+
+The May 13 sprint was resumed from `docs/parity/evidence/phase7-implementation-evidence.md`.
+
+### Gap Buckets Closed
+
+| Gap bucket | Resolution |
+|------------|------------|
+| Missing dependency | Closed by the May 13 helper ports and re-verified with an empty missing-dependency ranking |
+| Missing config support | Closed by explicit repo-level config/env support evidence in `compare_skill_parity.py` |
+| Naming/structure mismatch | Closed by `docs/parity/compatibility-path-map.json` with target-existence checks |
+| Missing helper utility | Closed by `docs/parity/prompt-orchestration-map.json` for governed workflow skills |
+| Behavioral mismatch | Closed by replacing prompt-text similarity with behavior/contract evidence |
+| Implemented but not verified | Closed by targeted verification index plus full-suite verification |
+
+### Final Result
+
+```text
+rows: 84
+functional parity proven through different implementation: 84
+gap_counts: {}
+standalone_only: 8
+```
+
+### Open Gaps
+
+None.
