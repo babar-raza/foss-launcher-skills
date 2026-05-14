@@ -1,0 +1,2444 @@
+{
+  "architecture_principles": [
+    "Preserve aspose.org practical behavior, not legacy layout.",
+    "Keep standalone repo cleaner through adapters, registries, tests, and compatibility shims.",
+    "Do not couple standalone execution to in-repo Hugo content; use external content-root and redirected output-root contracts.",
+    "Add wrappers only when needed for compatibility or discoverability.",
+    "Do not write to aspose.org/content during verification."
+  ],
+  "capability_designs": [
+    {
+      "canonical_name": "backlog",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "missing helper utility"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        }
+      ]
+    },
+    {
+      "canonical_name": "batch-eval-fix",
+      "gap_categories": [
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "batch-reference",
+      "gap_categories": [
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "batch-remediate",
+      "gap_categories": [
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "category-fix",
+      "gap_categories": [
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "causal-backtrack",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing dependency",
+        "missing helper utility",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Triage referenced dependencies: port real skill behavior, replace site-only paths with adapters, and add wrappers for legacy references where users rely on them.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "change-guard",
+      "gap_categories": [
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "change-sweep",
+      "gap_categories": [
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Triage referenced dependencies: port real skill behavior, replace site-only paths with adapters, and add wrappers for legacy references where users rely on them.",
+      "workstreams": [
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "cleanroom-regen",
+      "gap_categories": [
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Triage referenced dependencies: port real skill behavior, replace site-only paths with adapters, and add wrappers for legacy references where users rely on them.",
+      "workstreams": [
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "code-smoke",
+      "gap_categories": [
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "commit",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "missing helper utility",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "content-audit",
+      "gap_categories": [
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "content-check",
+      "gap_categories": [
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "content-enrich",
+      "gap_categories": [
+        "missing skill"
+      ],
+      "status": "missing entirely",
+      "target_design": "Create a standalone `content-enrich` skill backed by the enrichment pipeline if the feature remains current; otherwise add a documented deprecation/redirect to the cleaner evidence or gap pipeline after operator approval.",
+      "workstreams": [
+        {
+          "id": "WS-01",
+          "name": "Capability Registration And Command Surface",
+          "target": "Add first-class standalone skills or explicit compatibility aliases, with registry entries, provider mirrors, docs, examples, and tests."
+        }
+      ]
+    },
+    {
+      "canonical_name": "content-eval",
+      "gap_categories": [
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "coverage-reconcile",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing dependency",
+        "missing helper utility"
+      ],
+      "status": "partial parity",
+      "target_design": "Triage referenced dependencies: port real skill behavior, replace site-only paths with adapters, and add wrappers for legacy references where users rely on them.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        }
+      ]
+    },
+    {
+      "canonical_name": "cross-platform",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "missing helper utility"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        }
+      ]
+    },
+    {
+      "canonical_name": "delta-site-plan",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "diagnose-skill-failure",
+      "gap_categories": [
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "discovery-triage",
+      "gap_categories": [],
+      "status": "implemented but not verified",
+      "target_design": "Keep current implementation; add dry-run and registry/discoverability verification before claiming parity.",
+      "workstreams": [
+        {
+          "id": "WS-07",
+          "name": "Verification-Only Classification",
+          "target": "No migration until a dry-run or fixture-based verification proves parity or reveals a concrete defect."
+        }
+      ]
+    },
+    {
+      "canonical_name": "embed-knowledge",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "eval-page",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "evidence-cite",
+      "gap_categories": [
+        "naming/structure mismatch"
+      ],
+      "status": "unclear, requires investigation",
+      "target_design": "Keep the cleaner standalone path and add compatibility mapping or update all references to the canonical standalone location.",
+      "workstreams": [
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "evidence-enhance",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "evidence-repair",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "family-sync",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "faq-generate",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "missing helper utility"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        }
+      ]
+    },
+    {
+      "canonical_name": "gap-apply",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "gap-eval",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "gap-plan",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "gap-report",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "getting-started",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "heal-batch",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "heal-page",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "missing helper utility",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "knowledge-bootstrap",
+      "gap_categories": [
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "knowledge-coverage-audit",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "knowledge-diff",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "missing helper utility"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        }
+      ]
+    },
+    {
+      "canonical_name": "knowledge-enrich",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "knowledge-update",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "launch-product",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "launch-rollback",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Triage referenced dependencies: port real skill behavior, replace site-only paths with adapters, and add wrappers for legacy references where users rely on them.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "link-validate",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "locale-patch",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "missing helper utility"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        }
+      ]
+    },
+    {
+      "canonical_name": "manual-edit",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "new-blog-post",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "new-docs-index",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "new-docs-page",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "new-kb-faq",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "new-kb-howto",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "new-kb-index",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "new-products-page",
+      "gap_categories": [
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "new-reference-index",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "new-reference-page",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "no-downgrade-guard",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "page-draft",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "page-enhance",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "missing helper utility",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "page-plan",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "page-retire",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "page-update",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "missing helper utility",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "path-guard",
+      "gap_categories": [
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "plan-normalize",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "missing helper utility"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        }
+      ]
+    },
+    {
+      "canonical_name": "project-phase-store",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "missing helper utility"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        }
+      ]
+    },
+    {
+      "canonical_name": "publish-readiness-review",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "missing helper utility",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "refresh-product",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "refresh-product-page",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "missing helper utility"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        }
+      ]
+    },
+    {
+      "canonical_name": "register-human-content",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "repo-patrol",
+      "gap_categories": [
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Triage referenced dependencies: port real skill behavior, replace site-only paths with adapters, and add wrappers for legacy references where users rely on them.",
+      "workstreams": [
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "repo-scout",
+      "gap_categories": [
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "rubric-align",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "section-enhance",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "missing helper utility"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        }
+      ]
+    },
+    {
+      "canonical_name": "seo-review",
+      "gap_categories": [
+        "missing skill"
+      ],
+      "status": "missing entirely",
+      "target_design": "Create a standalone governance-only/Claude utility skill only if SEO review is still required; keep it separate from evidence-grounded content generation and mark it non-content-writing by default.",
+      "workstreams": [
+        {
+          "id": "WS-01",
+          "name": "Capability Registration And Command Surface",
+          "target": "Add first-class standalone skills or explicit compatibility aliases, with registry entries, provider mirrors, docs, examples, and tests."
+        }
+      ]
+    },
+    {
+      "canonical_name": "session-start",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "missing helper utility"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        }
+      ]
+    },
+    {
+      "canonical_name": "site-plan",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "stale-detect",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "missing helper utility"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        }
+      ]
+    },
+    {
+      "canonical_name": "system-heal",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "translate",
+      "gap_categories": [
+        "hidden feature not surfaced cleanly",
+        "missing registration"
+      ],
+      "status": "partial parity",
+      "target_design": "Add a `/translate` compatibility dispatcher that routes to `translate-page` or `translate-batch` without duplicating translation logic.",
+      "workstreams": [
+        {
+          "id": "WS-01",
+          "name": "Capability Registration And Command Surface",
+          "target": "Expose user-facing aliases for practical outcomes that users previously invoked indirectly."
+        }
+      ]
+    },
+    {
+      "canonical_name": "translate-batch",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "translate-page",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        }
+      ]
+    },
+    {
+      "canonical_name": "triage-confirm",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    },
+    {
+      "canonical_name": "truth-audit",
+      "gap_categories": [
+        "missing config support"
+      ],
+      "status": "unclear, requires investigation",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        }
+      ]
+    },
+    {
+      "canonical_name": "truth-audit-content",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "missing helper utility"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-04",
+          "name": "Prompt-Orchestration Entrypoint Coverage",
+          "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+        }
+      ]
+    },
+    {
+      "canonical_name": "truth-index",
+      "gap_categories": [
+        "behavioral mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Run contract reconciliation against the aspose.org skill, then update standalone docs/scripts/tests to preserve practical behavior with cleaner structure.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        }
+      ]
+    },
+    {
+      "canonical_name": "truth-merge",
+      "gap_categories": [
+        "behavioral mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Run contract reconciliation against the aspose.org skill, then update standalone docs/scripts/tests to preserve practical behavior with cleaner structure.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        }
+      ]
+    },
+    {
+      "canonical_name": "update-registry",
+      "gap_categories": [
+        "behavioral mismatch",
+        "missing config support",
+        "missing dependency",
+        "naming/structure mismatch"
+      ],
+      "status": "partial parity",
+      "target_design": "Normalize this skill through the external content repo adapter so it works with standalone paths and never assumes in-repo Hugo content.",
+      "workstreams": [
+        {
+          "id": "WS-06",
+          "name": "Behavioral Contract Reconciliation",
+          "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+        },
+        {
+          "id": "WS-05",
+          "name": "External Content Repo Adapter",
+          "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+        },
+        {
+          "id": "WS-02",
+          "name": "Dependency Port Or Adapter Layer",
+          "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+        },
+        {
+          "id": "WS-03",
+          "name": "Compatibility Shims For Reorganized Code",
+          "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+        }
+      ]
+    }
+  ],
+  "phase": "Phase 5 - target architecture for clean migration",
+  "schema_version": 1,
+  "standalone_only_preservation": [
+    {
+      "canonical_name": "corpus-scan",
+      "target_design": "Preserve as standalone improvement unless Phase 6 taskcard review proves it obsolete. Add regression tests so migration of aspose.org parity does not remove or weaken it."
+    },
+    {
+      "canonical_name": "discover-products",
+      "target_design": "Preserve as standalone improvement unless Phase 6 taskcard review proves it obsolete. Add regression tests so migration of aspose.org parity does not remove or weaken it."
+    },
+    {
+      "canonical_name": "evidence-decide",
+      "target_design": "Preserve as standalone improvement unless Phase 6 taskcard review proves it obsolete. Add regression tests so migration of aspose.org parity does not remove or weaken it."
+    },
+    {
+      "canonical_name": "evidence-materialize",
+      "target_design": "Preserve as standalone improvement unless Phase 6 taskcard review proves it obsolete. Add regression tests so migration of aspose.org parity does not remove or weaken it."
+    },
+    {
+      "canonical_name": "evidence-verify",
+      "target_design": "Preserve as standalone improvement unless Phase 6 taskcard review proves it obsolete. Add regression tests so migration of aspose.org parity does not remove or weaken it."
+    },
+    {
+      "canonical_name": "ground-check",
+      "target_design": "Preserve as standalone improvement unless Phase 6 taskcard review proves it obsolete. Add regression tests so migration of aspose.org parity does not remove or weaken it."
+    },
+    {
+      "canonical_name": "mental-model",
+      "target_design": "Preserve as standalone improvement unless Phase 6 taskcard review proves it obsolete. Add regression tests so migration of aspose.org parity does not remove or weaken it."
+    },
+    {
+      "canonical_name": "truth-sync",
+      "target_design": "Preserve as standalone improvement unless Phase 6 taskcard review proves it obsolete. Add regression tests so migration of aspose.org parity does not remove or weaken it."
+    }
+  ],
+  "workstream_capability_counts": {
+    "WS-01": 3,
+    "WS-02": 76,
+    "WS-03": 35,
+    "WS-04": 19,
+    "WS-05": 71,
+    "WS-06": 61,
+    "WS-07": 1
+  },
+  "workstreams": [
+    {
+      "id": "WS-01",
+      "name": "Capability Registration And Command Surface",
+      "target": "Expose user-facing aliases for practical outcomes that users previously invoked indirectly."
+    },
+    {
+      "id": "WS-02",
+      "name": "Dependency Port Or Adapter Layer",
+      "target": "Port required helper scripts/modules when they are skill-system behavior; otherwise add compatibility wrappers to clean standalone modules or document external content-repo responsibility."
+    },
+    {
+      "id": "WS-03",
+      "name": "Compatibility Shims For Reorganized Code",
+      "target": "Keep cleaner standalone organization, but add thin legacy-path wrappers or update skill docs/registry to point to the new canonical path."
+    },
+    {
+      "id": "WS-04",
+      "name": "Prompt-Orchestration Entrypoint Coverage",
+      "target": "For prompt-only skills, define an explicit execution contract and add smoke tests or wrapper entrypoints for representative outcomes."
+    },
+    {
+      "id": "WS-05",
+      "name": "External Content Repo Adapter",
+      "target": "Replace website-local assumptions with a documented `CONTENT_REPO_PATH`/config adapter, clone-cache resolver, output-root override, and metrics dry-run policy."
+    },
+    {
+      "id": "WS-06",
+      "name": "Behavioral Contract Reconciliation",
+      "target": "Inspect the aspose.org and standalone skill contracts, preserve required user outcomes, keep standalone wording only where behavior is equivalent or better, and add regression tests."
+    },
+    {
+      "id": "WS-07",
+      "name": "Verification-Only Classification",
+      "target": "No migration until a dry-run or fixture-based verification proves parity or reveals a concrete defect."
+    }
+  ]
+}
