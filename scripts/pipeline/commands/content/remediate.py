@@ -23,11 +23,13 @@ _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE))
 
 # --- Standalone repo path resolution via config_loader ---
-_HERE = Path(__file__).resolve().parent          # scripts/pipeline/
-_SCRIPTS = _HERE.parent                          # scripts/
+_HERE = Path(__file__).resolve().parent
+_PIPELINE = _HERE.parents[1]
+_SCRIPTS = _HERE.parents[2]
 import sys as _sys
-if str(_SCRIPTS) not in _sys.path:
-    _sys.path.insert(0, str(_SCRIPTS))
+for _path in (_SCRIPTS, _PIPELINE):
+    if str(_path) not in _sys.path:
+        _sys.path.insert(0, str(_path))
 from config_loader import (                       # noqa: E402
     resolve_reports_root as _resolve_reports_root,
     resolve_knowledge_root as _resolve_knowledge_root,
