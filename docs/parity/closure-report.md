@@ -2,8 +2,8 @@
 
 **Program:** Skill Parity Migration — aspose.org to foss-launcher-skills-gitlab
 **Status:** COMPLETE
-**Sessions:** 3 (all on 2026-04-27)
-**Final date:** 2026-04-27
+**Sessions:** 3 initial sessions (2026-04-27), Phase 2 re-evaluation (2026-05-05), May 13 sprint resumed and closed on 2026-05-14
+**Final date:** 2026-05-14
 
 ---
 
@@ -210,3 +210,101 @@ These are documented PARTIAL differences that are **accepted and require no furt
 - All scripts read from aspose.org as read-only source
 - All writes go exclusively to foss-launcher-skills-gitlab on branch `parity-phase2-current-state-migration`
 - Migration map and evidence files committed before implementation began
+
+---
+
+## May 13 Parity Sprint Resume Closure (2026-05-14)
+
+**Trigger:** Continue the interrupted May 13 parity sprint, verify the last task hit by a context limit, then continue until all parity work is done.
+
+**Resume point:** `docs/parity/evidence/phase7-implementation-evidence.md`
+
+### Work Completed
+
+| Area | Result |
+|------|--------|
+| Last May 13 slice verification | PASS |
+| Missing dependency gaps | 0 |
+| Missing config support gaps | 0 |
+| Naming/structure mismatch gaps | 0 |
+| Missing helper utility gaps | 0 |
+| Behavioral mismatch gaps | 0 |
+| Current compared aspose.org capabilities | 84 |
+| Functional parity proven | 84 |
+| Standalone-only improvements preserved | 8 |
+
+### Implementation And Evidence Updates
+
+- Added `docs/parity/compatibility-path-map.json` to document legacy aspose.org path references that map to cleaner standalone paths.
+- Added `docs/parity/prompt-orchestration-map.json` to document skills intentionally implemented as governed workflows rather than direct CLI wrappers.
+- Added `docs/parity/evidence/verification-index.json` for targeted capability verification.
+- Added `docs/parity/evidence/suite-verification.json` for full-suite verification.
+- Updated `docs/parity/tools/compare_skill_parity.py` to consume the explicit evidence maps.
+- Fixed direct CLI import path setup in:
+  - `scripts/pipeline/commands/content/audit.py`
+  - `scripts/pipeline/commands/content/remediate.py`
+
+### Final Parity Matrix
+
+Artifacts:
+
+- `docs/parity/evidence/phase7-resume-parity-run-final.json`
+- `docs/parity/evidence/phase7-resume-parity-summary-final.txt`
+
+Result:
+
+```text
+rows: 84
+status_counts:
+  functional parity proven through different implementation: 84
+gap_counts: {}
+standalone_only: 8
+```
+
+Standalone-only improvements preserved:
+
+- `corpus-scan`
+- `discover-products`
+- `evidence-decide`
+- `evidence-materialize`
+- `evidence-verify`
+- `ground-check`
+- `mental-model`
+- `truth-sync`
+
+### Verification
+
+```text
+tests/test_final_helper_contracts.py tests/test_seo_apply_helpers.py: 7 passed
+targeted parity set: 85 passed
+adapter/config/audit set: 67 passed
+product/scout/plugin set: 58 passed, 15 skipped
+audit/frontmatter/no-downgrade set: 56 passed
+full suite: 738 passed, 15 skipped
+```
+
+Registry and provider checks:
+
+```text
+PASS: skill registry valid (92 skills, 7 internal, no violations)
+PASS: .agents/skills/ and .kilocode/skills/ are in sync with skills/
+PASS: .claude/commands/ is in sync with skills/
+PASS: apply.py --help
+PASS: safety.py --help
+PASS: check-blog-slugs.py --content-root tests/fixtures/content
+```
+
+### Safety
+
+- All intended writes were in `foss-launcher-skills-gitlab`.
+- No verification step required writing to `aspose.org/content`.
+- During safety checking, one content diff in `aspose.org/content/websites.aspose.org/en/aspose/org/_index.md` was detected and restored exactly.
+- Final safety check:
+
+```text
+git status --short -- content
+# no output
+
+git diff --quiet -- content/websites.aspose.org/en/aspose/org/_index.md
+# exit 0
+```
