@@ -1,0 +1,7 @@
+family: sample
+platform: python
+discovery_hints: {}
+discovered_actuals: {}
+language_conventions:
+  package_manager: pip
+expected_sections: []
