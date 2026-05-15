@@ -58,6 +58,24 @@ load_env()
 from lib.knowledge_core import Knowledge  # noqa: E402
 from evidence.runner import attach_evidence  # noqa: E402
 from lib.provenance import is_auto_updatable, is_manually_curated, safe_content_write, ProtectedPageError  # noqa: E402
+from lib.backlink_targets import load_target_map, resolve_backlink  # noqa: E402
+
+# ---------------------------------------------------------------------------
+# Backlink target map (loaded lazily, cached for the run)
+# ---------------------------------------------------------------------------
+_backlink_target_map: dict | None = None
+
+
+def _get_backlink_target_map() -> dict | None:
+    """Load and cache the aspose_com_targets.json target map."""
+    global _backlink_target_map
+    if _backlink_target_map is None:
+        try:
+            _backlink_target_map = load_target_map(_DEFAULT_REPO_ROOT)
+        except Exception as exc:
+            LOG.warning("backlink: could not load target map: %s", exc)
+            _backlink_target_map = {}
+    return _backlink_target_map or None
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -691,7 +709,47 @@ def _build_page(
             lines.append(f"| {sig} | {mdoc} |")
         lines.append("")
 
+    # TC-BL-007: Append See Also section with reciprocal aspose.com backlink
+    _tm = _get_backlink_target_map()
+    if _tm:
+        try:
+            chosen_url, _rtype, _rsubdomain, _fallback = resolve_backlink(
+                family, platform, "reference.aspose.org", _tm
+            )
+            if chosen_url:
+                lines.append("## See Also")
+                lines.append("")
+                lines.append(
+                    f"- [{_get_family_display(family, platform)} — Commercial Reference]"
+                    f"({chosen_url})"
+                )
+                lines.append("")
+            else:
+                LOG.warning("backlink: BLOCKED_TARGET for %s/%s — See Also omitted", family, platform)
+        except Exception as exc:
+            LOG.warning("backlink: See Also generation failed for %s/%s: %s", family, platform, exc)
+
     return "\n".join(lines)
+
+
+def _get_family_display(family: str, platform: str) -> str:
+    """Return display name for the See Also link anchor text."""
+    try:
+        import yaml as _yaml
+        fam_map_path = _DEFAULT_REPO_ROOT / "data" / "families.json"
+        if fam_map_path.exists():
+            import json as _json
+            fmap = _json.loads(fam_map_path.read_text(encoding="utf-8"))
+            fam_title = fmap.get(family, f"Aspose.{family.title()}")
+        else:
+            fam_title = f"Aspose.{family.title()}"
+        # platform display
+        plat_map = {"net": ".NET", "python": "Python", "java": "Java", "cpp": "C++",
+                    "nodejs": "Node.js", "ruby": "Ruby", "go": "Go", "android": "Android"}
+        plat_title = plat_map.get(platform, platform.title())
+        return f"{fam_title} for {plat_title}"
+    except Exception:
+        return f"Aspose.{family.title()} for {platform.title()}"
 
 
 # ---------------------------------------------------------------------------

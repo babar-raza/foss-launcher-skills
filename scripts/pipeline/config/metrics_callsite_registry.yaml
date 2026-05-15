@@ -151,13 +151,42 @@ call_sites:
     last_verified: "2026-05-06"
     evidence_reference: "reports/metrics/discovery/aspose-org-llm-call-site-inventory.json"
 
+  CS-010:
+    call_site_id: "CS-010"
+    category: "professionalize_transport"
+    path: "scripts/pipeline/commands/ops/generate_product_backlink_copy.py"
+    function_or_class: "BacklinkCopyGenerator.generate"
+    current_provider: "professionalize"
+    transport_type: "LLMRouter.call_chat (llm_router_native)"
+    base_url_source: "llm_registry.yaml professionalize.base_url (via LLMRouter)"
+    endpoint_source: "/chat/completions (via LLMRouter -> ProfessionalizeClient)"
+    api_key_source: "PROFESSIONALIZE_API_KEY (via LLMRouter)"
+    model_source: "llm_registry.yaml professionalize.models.chat gpt-oss (via LLMRouter)"
+    capture_method: "llm_router_native"
+    allowed_capture_methods: ["llm_router_native", "wrapper_native"]
+    owner_component: "aspose-org-backlink-system"
+    work_slice_context_source: "generate_product_backlink_copy.py batch (plan cuddly-pondering-whisper)"
+    status: "active"
+    usage_metadata_expected: true
+    api_call_count_required: true
+    retry_behavior: "single attempt + one repair retry; template fallback on second failure"
+    batching_behavior: "one page per call"
+    cache_behavior: "SHA-256 file-level cache in reports/backlinks/llm-copy-cache/"
+    stop_condition: "if RunMetrics unavailable use template-only fallback (no live LLM calls)"
+    tests: "scripts/pipeline/tests/test_generate_product_backlink_copy.py"
+    last_verified: "2026-05-14"
+    evidence_reference: "reports/cuddly-pondering-whisper/v5-hardening-evidence.md"
+    notes: "Registered as part of cuddly-pondering-whisper sprint 20260514-181126"
+
 # ── Summary ───────────────────────────────────────────────────────────────── #
 
 summary:
-  total_registered_transport_sites: 5
-  active: 4
+  total_registered_transport_sites: 6
+  active: 5
   disabled: 1
   wrapper_native: 2
+  llm_router_native: 1
   approved_adapter: 3
   direct_bypasses_requiring_adapter: ["CS-004", "CS-008", "CS-009"]
-  boundary_only_not_registered: ["CS-010", "CS-011", "CS-012", "CS-013"]
+  boundary_only_not_registered: ["CS-011", "CS-012", "CS-013"]
+  newly_registered_this_sprint: ["CS-010"]

@@ -2520,3 +2520,142 @@ scripts:
     deprecated_since: null
     change_impact: null
     notes: "TC-CE-024 knowledge delta adapter; resolve_target_file, build_delta, write_delta"
+
+  # ── Backlink system (cuddly-pondering-whisper, 2026-05-14) ───────────────────
+
+  - path: scripts/pipeline/lib/backlink_targets.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_backlink_targets.py
+    deprecated_since: null
+    change_impact: null
+    notes: "TC-BL-002 + TC-BL-DEPTH-003-v5: shared backlink resolution library; load_target_map, classify_page_type, resolve_backlink, count_qualifying_com_links, classify_compliance, ResolutionRecord"
+
+  - path: scripts/pipeline/commands/ops/fetch_aspose_com_targets.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python fetch_aspose_com_targets.py [--dry-run] [--skip-http-verify] [--families FAMILY ...]"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "TC-BL-001: sitemap fetch + HTTP verify; integration-tested via dry-run against live sitemaps; unit tests planned post-pilot"
+    deprecated_since: null
+    change_impact: null
+    notes: "TC-BL-001 + TC-BL-DEPTH-002 + TC-BL-TARGET-MAP-HUGO-SYNC: fetch aspose.com sitemaps, normalize, classify, HTTP-verify, write data/aspose_com_targets.json + data/backlinks/aspose_com_targets.yaml"
+
+  - path: scripts/pipeline/commands/ops/build_page_depth_inventory.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python build_page_depth_inventory.py [--subdomain SUBDOMAIN] [--family FAMILY]"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "TC-BL-DEPTH-001: read-only content walker; integration-tested via full-content run; unit tests planned post-pilot"
+    deprecated_since: null
+    change_impact: null
+    notes: "TC-BL-DEPTH-001: walk all 5 subdomain content roots, classify by §Q.3 page type table, emit reports/backlinks/page_type_depth_inventory.json + .md"
+
+  - path: scripts/pipeline/commands/ops/backlink_audit.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python backlink_audit.py [--subdomain SUBDOMAIN ...] [--family FAMILY] [--platform PLATFORM] [--output PATH]"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "TC-BL-003: integration-tested via full-content audit run; unit tests in test_backlink_targets.py cover underlying library"
+    deprecated_since: null
+    change_impact: null
+    notes: "TC-BL-003: full English content backlink compliance audit; emits JSON report + Markdown summary; statuses: MISSING/COMPLIANT/WRONG_TARGET/OVER_LIMIT/BLOCKED_TARGET/SKIPPED"
+
+  - path: scripts/pipeline/commands/ops/backlink_html_audit.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python backlink_html_audit.py --public-dir PATH [--subdomain SD] [--family FAMILY] [--output PATH]"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "TC-BL-010: integration-tested post Hugo build; validates rendered HTML content areas; unit tests require Hugo build infrastructure"
+    deprecated_since: null
+    change_impact: null
+    notes: "TC-BL-010: rendered HTML validator for post-Hugo backlink verification; counts content-area aspose.com links excluding nav/footer/support-resources; products-specific CTA counting per §Y"
+
+  - path: scripts/pipeline/commands/ops/backlink_backfill.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python backlink_backfill.py [--write] [--subdomain SD ...] [--family F] [--platform P] [--include-protected] [--output PATH]"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "TC-BL-005/006: integration-tested via dry-run on full content; YAML round-trip safety verified on pilot pages; write mode requires explicit --write flag"
+    deprecated_since: null
+    change_impact: null
+    notes: "TC-BL-005/006: backlink insertion engine; products YAML overview.content + Markdown See Also/Related Resources; dry-run default; --write required; idempotent; max-2-link guard; auto_updatable protection; rollback manifest generated"
+
+  - path: scripts/pipeline/commands/ops/generate_product_backlink_copy.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python generate_product_backlink_copy.py [--family FAMILY] [--platform PLATFORM] [--dry-run] [--force-template] [--output PATH]"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "TC-BL-LLM-COPY-001/002/003/004: LLM generation; validated via pilot dry-run on 5 product pages; cache hit proof on second run"
+    deprecated_since: null
+    change_impact: null
+    notes: "TC-BL-LLM-COPY-001–004: LLM-driven products overview backlink copy generator; callsite CS-010; uses LLMRouter via professionalize→Ollama; 10-rule validation + repair retry + template fallback (P-1–P-5); deterministic SHA-256 cache"
+
+  # ── Websites domain ──────────────────────────────────────────────────────
+  - path: scripts/pipeline/commands/websites/sync_domain_products.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python sync_domain_products.py [--dry-run] [--locale LOCALE ...]"
+    owner_domain: websites
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "auto-sync script; regenerates products: block in websites.aspose.org domain pages from data/products.json; integration-tested via dry-run"
+    deprecated_since: null
+    change_impact: null
+    notes: "Regenerates products: block in content/websites.aspose.org English + 36 locale domain pages from authoritative data files"
