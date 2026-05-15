@@ -81,6 +81,41 @@ After a knowledge refresh (S-14), identify which content pages reference changed
    - If ALLOW → proceed with write
 
 7. **Apply updates**:
+
+    **Preserve-first rule** (non-negotiable):
+    - Default action for all content is preserve unchanged. Only content that is
+      the direct target of a delta entry (removed_claims, modified_claims,
+      removed_apis) may be rewritten or removed.
+    - Do NOT modify, remove, reorder, or rewrite any section, paragraph, bullet,
+      table row, code block, link, note, or navigation/reference content that has
+      no corresponding delta target.
+    - Sections with no delta target — including but not limited to: See Also,
+      Related Links, navigation lists, manually authored notes, supplemental
+      references, and appended link collections — must survive update unchanged.
+    - "Not in claims.json" is not a deletion reason.
+    - "Not in api_surface.json" is not a deletion reason.
+    - Content absent from knowledge files is not automatically obsolete.
+    - A delta targeting a parent section does not authorize rewriting all
+      sub-content. Identify the smallest affected unit (sentence, paragraph,
+      bullet, or code block) before editing.
+    - A section containing one targeted paragraph is not globally replaceable.
+      Preserve all sub-content in that section that has no delta target.
+
+    **Add-only delta constraint** (new_claims / new_apis):
+    - new_claims and new_apis are add-only signals. They do not authorize
+      rewriting, reordering, or deleting any existing section or content unit.
+    - Adding new content must not be used as a reason to rewrite a neighboring
+      See Also, Related Links, note, or manually authored block.
+    - If no designated safe insertion location exists, invoke the agent-owned
+      review lane (S-73 / S-90, invoked by the agent on behalf of governance)
+      to choose one, or no-op with evidence.
+
+    **Executor stop rule**:
+    - If you cannot map a delta entry to a specific content unit, stop the
+      mutation and invoke the agent-owned review lane. Do not delete or rebuild
+      the section. Mark as BLOCKED with evidence if no safe agent-owned path
+      exists.
+
    - Rewrite affected paragraphs using current claims from `claims.json`
    - Update code blocks if API surface changed (use snippets from `knowledge/{family}/{platform}/snippets/`)
    - Update `evidence:` frontmatter: remove orphaned claim IDs, add new ones

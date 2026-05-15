@@ -96,9 +96,38 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
     to human review — do not proceed with aggressive rewrites until the new failures are
     understood. If audit.py is clean (no new FAILs), continue.
 
-    - Rewrite entire failing sections from scratch using claims and snippets
-    - Remove sections that cannot be fixed (better to be incomplete than wrong)
-    - Simplify code examples to only verified API calls
+    **Pass 2 scope** (non-negotiable): Operates only on findings present in the
+    Pass 1 report. Every edit must be traceable to a specific FAIL finding by
+    line number or claim ID. If no FAIL finding justifies a proposed edit,
+    invoke the agent-owned review lane (S-73 / S-90) instead of proceeding.
+
+    **Preserve-first rule** (enforced, not advisory):
+    - Do NOT modify, remove, reorder, or rewrite any section, paragraph, bullet,
+      table row, code block, link, note, or navigation/reference content that has
+      zero FAIL findings. This applies regardless of whether that content appears
+      in claims.json or api_surface.json.
+    - Sections with zero FAIL findings — including but not limited to: See Also,
+      Related Links, navigation lists, manually authored notes, supplemental
+      references, and appended link collections — must survive Pass 2 unchanged.
+    - "No knowledge backing" is not a deletion reason.
+    - "Not in claims.json" is not a deletion reason.
+    - A section containing one FAIL finding is not globally failing. Preserve
+      all sub-content in that section that has no associated FAIL finding.
+
+    **Permitted actions** (FAIL-finding-scoped only):
+    - For a content unit (sentence, paragraph, bullet, table row, or code block)
+      that is the direct subject of a FAIL finding: rewrite it using claims and
+      snippets from knowledge/, or remove it if no correct replacement exists.
+      Do not extend changes to neighboring content as a side effect.
+    - Rewriting an entire section requires per-unit evidence that every
+      substantive unit in that section is individually tied to a separate FAIL
+      finding. Provide per-unit evidence before proceeding.
+    - Simplify a code example only when that specific code block is the subject
+      of a FAIL finding (wrong API call, wrong platform code, unverified API token).
+    - If you cannot identify a specific FAIL finding that justifies a proposed edit,
+      stop the mutation and invoke the agent-owned review lane (S-73 or S-90,
+      invoked by the agent on behalf of governance). Mark as BLOCKED with evidence
+      if no safe agent-owned path exists.
 
 12. **Re-evaluate after pass 2**:
     ```bash
