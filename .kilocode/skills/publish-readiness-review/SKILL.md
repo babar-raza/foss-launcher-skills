@@ -222,6 +222,17 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
    - If a class is absent: downgrade to STRUCTURAL-GAP; add to S-38 (truth-audit) queue.
    - Invoke S-38 on the queue if non-empty.
 
+   **7g2. Backlink compliance gate** (TC-BL-003):
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/ops/backlink_audit.py \n     --family {family} --platform {platform}
+   ```
+   For any MISSING pages: remediate before marking READY TO SHIP:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n     --family {family} --platform {platform} --write
+   ```
+   If BLOCKED_TARGET: record in readiness report — do not block READY TO SHIP on
+   BLOCKED_TARGET alone (target site controls the link, not this repo).
+
    **7h. H-05 license accuracy**:
    - Read `LICENSE` file from clone cache at
      `runs/.clone_cache/aspose_{family}_{platform}/LICENSE`

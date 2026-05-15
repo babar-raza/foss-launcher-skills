@@ -49,8 +49,7 @@ capabilities, and rewrites the three text fields to be platform-agnostic.
 7. **Write** updated `_index.md` — use read-modify-write via `yaml.safe_load` + `yaml.dump`; wrap `overview.content` in a `_Literal` helper before serializing so `yaml.dump` emits it as a `|` block scalar; reconstruct as `"---\n{serialized_fm}---\n\n{body}"` ending with `\n`; never prepend a new FM block to the existing file (causes double frontmatter); verify single FM block after write
 7b. **Backlink injection**: After writing, inject the reciprocal aspose.com backlink (idempotent):
     ```bash
-    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \
-      --family {family} --subdomain products.aspose.org --write
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n      --family {family} --subdomain products.aspose.org --write
     ```
     If BLOCKED_TARGET: log WARN and continue.
 8. **Attach evidence** — `python scripts/pipeline/commands/healing/attach_evidence.py --files {path}`

@@ -122,11 +122,10 @@ Before generating any content, you MUST:
 
 8. **Write** to `content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`
 
-8b. **Backlink injection**: After writing, inject the reciprocal aspose.com backlink as a `## See Also`
-    section (idempotent — skips if already present):
+8b. **Backlink injection**: After writing, inject the reciprocal aspose.com backlink as a
+    `## See Also` section (idempotent — skips if already present):
     ```bash
-    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \
-      --family {family} --platform {platform} --subdomain docs.aspose.org --write
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n      --family {family} --platform {platform} --subdomain docs.aspose.org --write
     ```
     If BLOCKED_TARGET: log WARN and continue.
 

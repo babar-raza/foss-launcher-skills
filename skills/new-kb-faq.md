@@ -107,6 +107,13 @@ Generate or update the FAQ page for a product platform.
 
 8. **Write** to `content/kb.aspose.org/en/{family}/{platform}/faq.md`
 
+8b. **Backlink injection**: After writing, ensure the `## See Also` section includes the
+    reciprocal aspose.com backlink (idempotent — skips if already present):
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n      --family {family} --platform {platform} --subdomain kb.aspose.org --write
+    ```
+    If BLOCKED_TARGET: log WARN and continue.
+
 > **Skill context close** — run after the last step:
 > ```bash
 > PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-59 --status completed

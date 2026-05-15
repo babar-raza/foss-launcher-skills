@@ -108,6 +108,18 @@ All outputs written to `reports/enrichment/{family}/{platform}/`:
 - Coverage matrix must be generated before candidates
 - All deferred/rejected candidates must have reasons
 
+## Backlink Compliance
+
+> **Audit note**: `content-enrich` does not inject backlinks directly. Downstream skills
+> (new-blog-post, new-docs-page, new-kb-faq, new-kb-howto, new-products-page,
+> new-reference-page) each carry their own backlink injection step (TC-BL-007).
+> After running a content-enrich batch, verify compliance with:
+> ```bash
+> .venv/Scripts/python scripts/pipeline/commands/ops/backlink_audit.py \n>   --family {family} --platform {platform}
+> ```
+> Any MISSING entries indicate a downstream skill invocation that did not complete its
+> backlink injection step. Re-run the relevant downstream skill to remediate.
+
 ## Pilot Commands
 
 ```bash

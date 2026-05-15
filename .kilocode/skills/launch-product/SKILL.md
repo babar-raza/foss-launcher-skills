@@ -283,6 +283,16 @@ A: N  B: N  C: N  D: N  F: N
 
 ```
 
+**Backlink compliance check** (before printing readiness verdict):
+```bash
+.venv/Scripts/python scripts/pipeline/commands/ops/backlink_audit.py \n  --family {family} --platform {platform}
+```
+For any MISSING pages, re-inject before shipping:
+```bash
+.venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n  --family {family} --platform {platform} --write
+```
+If BLOCKED_TARGET: log WARN — do not block ship decision on BLOCKED_TARGET.
+
 **Print**: `READY TO SHIP` or `NOT READY` with a bullet list of blocking items.
 
 ```

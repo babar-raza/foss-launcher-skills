@@ -159,6 +159,15 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
     If no KB FAQ exists, set `faq: enable: false` (omit the `list` key).
     **Do NOT write to `{family}/_index.md`** — that is the family landing page managed by `/family-sync`.
 
+10b. **Backlink injection**: After writing, inject the reciprocal aspose.com backlink into
+     `overview.content` (idempotent — skips if already present):
+     ```bash
+     .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n       --family {family} --platform {platform} --subdomain products.aspose.org --write
+     ```
+     - Uses LLM copy from `reports/backlinks/llm-copy-cache/` if cached; generates fresh if not.
+     - If BLOCKED_TARGET: log WARN and continue — do not fail this skill.
+     - Target URL comes from `data/aspose_com_targets.json` (must exist before running this skill).
+
 11. **Structural completion**: Run the deterministic skeleton filler to ensure all
     display-control boilerplate sections are present regardless of LLM output variance:
     `.venv/Scripts/python scripts/pipeline/commands/migration/complete_plugin_structure.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`

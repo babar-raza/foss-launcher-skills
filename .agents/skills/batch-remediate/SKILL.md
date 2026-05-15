@@ -132,15 +132,14 @@ This is safe for unattended runs and skips the LLM fix pass (Step 6).
    Reports: {report_paths}
    ```
 
-9b. **Backlink compliance assertion**: After LLM fixes, verify all modified pages still have compliant backlinks (LLM rewrites can erase See Also / Related Resources sections):
+9b. **Backlink compliance assertion**: After LLM fixes, verify all modified pages still
+    have compliant backlinks (LLM rewrites can erase See Also / Related Resources sections):
     ```bash
-    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_audit.py \
-      --family {family} --platform {platform} --subdomain {subdomain}
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_audit.py \n      --family {family} --platform {platform} --subdomain {subdomain}
     ```
-    For any MISSING pages: re-inject:
+    For any MISSING pages, re-inject:
     ```bash
-    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \
-      --family {family} --platform {platform} --subdomain {subdomain} --write
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n      --family {family} --platform {platform} --subdomain {subdomain} --write
     ```
     If BLOCKED_TARGET: log WARN and continue.
 

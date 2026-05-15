@@ -162,8 +162,7 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
 10b. **Backlink injection**: After writing, inject the reciprocal aspose.com backlink into
      `overview.content` (idempotent — skips if already present):
      ```bash
-     .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \
-       --family {family} --platform {platform} --subdomain products.aspose.org --write
+     .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n       --family {family} --platform {platform} --subdomain products.aspose.org --write
      ```
      - Uses LLM copy from `reports/backlinks/llm-copy-cache/` if cached; generates fresh if not.
      - If BLOCKED_TARGET: log WARN and continue — do not fail this skill.
