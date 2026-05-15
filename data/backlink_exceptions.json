@@ -6,7 +6,7 @@
       "reason": "Blog post has 3 aspose.com links all pointing to note/net and note/java (wrong platform). Auto-fix not safe — requires human editorial review to identify which link(s) to remove or replace. Content was authored before backlink policy.",
       "approved_by": "backlink-system-v5",
       "expires": "2027-05-14",
-      "action_required": "Manual edit: remove excess aspose.com links or replace with correct note/python target (https://products.aspose.com/note/python/)"
+      "action_required": "Manual edit: remove excess aspose.com links or add note/python Related Resources section. Correct family target is https://products.aspose.com/note/ (products.aspose.com/note/python/ confirmed 404). Review editorial links at lines 150 and 268."
     }
   ]
 }
