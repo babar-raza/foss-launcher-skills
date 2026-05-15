@@ -158,6 +158,22 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
       If S-90 also cannot resolve the grade (Grade F after 2 S-26 passes + 1 S-89 pass):
       S-90 records the real escalation with concrete reason.
 
+15b. **Backlink compliance check** (add-only safety net — after all healing passes):
+    Verify that the healed page still has a compliant aspose.com content-area backlink
+    in its See Also / Related Resources section. This step is a SAFETY NET: the
+    preserve-first rule (Step 11) must have already prevented any See Also section
+    deletion. This step catches and restores any backlink that was missing before
+    healing or was inadvertently dropped despite preserve-first enforcement.
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_audit.py --family {family} --platform {platform} --subdomain {subdomain}
+    ```
+    If MISSING: re-inject (add-only — never rewrites or restructures existing content):
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py --family {family} --platform {platform} --subdomain {subdomain} --write
+    ```
+    If BLOCKED_TARGET (no valid backlink target exists for this page): log WARN and
+    continue. Do not fail the skill. Do not rebuild or restructure any section.
+
 16. **Report**:
     ```
     HEAL PAGE — {file-path}

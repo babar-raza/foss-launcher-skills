@@ -161,6 +161,24 @@ After a knowledge refresh (S-14), identify which content pages reference changed
    ```
    The `content_hash` will be normalized automatically by the pre-commit hook — do not compute or pass it here.
 
+9b. **Backlink compliance assertion** (add-only safety net — after all updates):
+    Verify that each body-modified page still has a compliant aspose.com content-area
+    backlink in its See Also / Related Resources section. This step is a SAFETY NET:
+    the preserve-first rule (Step 7) must have already prevented any See Also section
+    deletion or modification. This step catches and restores any backlink that was
+    missing before the update or was inadvertently dropped despite preserve-first
+    enforcement.
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_audit.py --family {family} --platform {platform} --subdomain {subdomain}
+    ```
+    For any MISSING pages: re-inject (add-only — never rewrites or restructures existing content):
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py --family {family} --platform {platform} --subdomain {subdomain} --write
+    ```
+    If BLOCKED_TARGET (no valid backlink target for this page): log WARN and continue.
+    Do not fail the skill. Do not rebuild or restructure any section.
+    This step runs once per skill invocation after all pages are updated.
+
 10. **Report**: For each updated page, print:
    ```
    PAGE UPDATE — {file-path}
