@@ -132,6 +132,18 @@ This is safe for unattended runs and skips the LLM fix pass (Step 6).
    Reports: {report_paths}
    ```
 
+9b. **Backlink compliance assertion**: After LLM fixes, verify all modified pages still have compliant backlinks (LLM rewrites can erase See Also / Related Resources sections):
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_audit.py \
+      --family {family} --platform {platform} --subdomain {subdomain}
+    ```
+    For any MISSING pages: re-inject:
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \
+      --family {family} --platform {platform} --subdomain {subdomain} --write
+    ```
+    If BLOCKED_TARGET: log WARN and continue.
+
 > **Skill context close** — run after the last step:
 > ```bash
 > PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-40 --status completed

@@ -14,7 +14,9 @@
       "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/ci/checks/check_python_placement.py --check-staged)",
       "Bash(.venv/Scripts/python scripts/ci/checks/check_skill_readme_coverage.py --fix)",
       "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py *)",
-      "Bash(.venv/Scripts/python scripts/ci/checks/enforce_venv_python.py --check)"
+      "Bash(.venv/Scripts/python scripts/ci/checks/enforce_venv_python.py --check)",
+      "Bash(.venv/Scripts/python scripts/pipeline/commands/ops/skill_context.py --help)",
+      "Bash(grep -E '^[a-z]{2}$')"
     ],
     "additionalDirectories": [
       "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing",

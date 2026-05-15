@@ -118,6 +118,13 @@ All outputs written to `reports/enrichment/{family}/{platform}/`:
 - Denominator check must pass (delta = 0)
 - Coverage matrix must be generated before candidates
 - All deferred/rejected candidates must have reasons
+- After operators invoke downstream skills from the handoff manifest (S-56, S-57, S-58, S-20),
+  those skills include backlink injection steps automatically (TC-BL-009). No additional
+  backlink step is required from S-98 itself. If the enrichment report is run after execution,
+  verify backlink compliance:
+  ```bash
+  .venv/Scripts/python scripts/pipeline/commands/ops/backlink_audit.py --family {family} --platform {platform}
+  ```
 
 ## Pilot Commands
 

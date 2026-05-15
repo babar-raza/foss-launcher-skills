@@ -289,7 +289,16 @@ A: N  B: N  C: N  D: N  F: N
 READY TO SHIP if:
   - 0 D/F pages
   - products + getting-started + first blog post at B+
+  - 0 MISSING backlinks (verified by backlink_audit.py)
 ```
+
+**Backlink compliance check** (run before marking stage complete):
+```bash
+.venv/Scripts/python scripts/pipeline/commands/ops/backlink_audit.py \
+  --family {family} --platform {platform}
+```
+Any MISSING or WRONG_TARGET result blocks READY TO SHIP. Re-run the relevant downstream skill
+(which now includes backlink injection) or use `backlink_backfill.py --write` directly.
 
 > **Grade calibration — reference pages**: Reference page grades reflect both API surface accuracy
 > and description completeness (`description_completeness` evaluator runs alongside the audit tier

@@ -163,6 +163,14 @@ Before generating any content, you MUST:
 7. **Create directory and write** the file to `content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
    - The slug is a directory name, not just a filename — create `{slug}/index.md`
 
+7b. **Backlink injection**: After writing, inject the reciprocal aspose.com backlink as a `## Related Resources`
+    section (idempotent — skips if already present):
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \
+      --family {family} --platform {platform} --subdomain blog.aspose.org --write
+    ```
+    If BLOCKED_TARGET: log WARN and continue.
+
 > **Skill context close** — run after the last step:
 > ```bash
 > PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-57 --status completed

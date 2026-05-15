@@ -222,6 +222,18 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
    - If a class is absent: downgrade to STRUCTURAL-GAP; add to S-38 (truth-audit) queue.
    - Invoke S-38 on the queue if non-empty.
 
+   **7g2. Backlink compliance** (TC-BL-003 gate):
+   For the product being reviewed, run:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/ops/backlink_audit.py \
+     --family {family} --platform {platform}
+   ```
+   - If any in-scope English page shows MISSING or WRONG_TARGET: classify as STRUCTURAL-GAP.
+     Run `backlink_backfill.py --family {family} --platform {platform} --write` to remediate.
+   - If OVER_LIMIT: classify as STRUCTURAL-GAP — manual review needed before release.
+   - If BLOCKED_TARGET: record and escalate to operator (target URL not in map).
+   - This check must show 0 MISSING, 0 WRONG_TARGET, 0 OVER_LIMIT for PUBLISH-READY.
+
    **7h. H-05 license accuracy**:
    - Read `LICENSE` file from clone cache at
      `runs/.clone_cache/aspose_{family}_{platform}/LICENSE`
