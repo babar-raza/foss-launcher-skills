@@ -1222,6 +1222,21 @@ scripts:
     deprecated_since: null
     notes: "CI gate: check garbled code blocks and non-literal multi-line scalars"
 
+  - path: scripts/pipeline/commands/content/detect_code_block_blanks.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: workflow
+      ref: null
+    test_targets: []
+    test_exempt_reason: "diagnostic scanner; validate_plugin_structure.py tests cover the same blank-line detection logic"
+    deprecated_since: null
+    notes: "Diagnostic scanner for spurious blank lines inside YAML-embedded fenced code blocks in layout:plugin pages"
+
   - path: scripts/pipeline/commands/content/validate_plugin_structure.py
     kind: entrypoint
     lifecycle: active
