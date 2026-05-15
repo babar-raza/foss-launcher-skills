@@ -203,6 +203,7 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
 - `install_command` comes from `scout/model.yaml`, NOT from LLM knowledge
 - `canonical_import` must not contain the commercial Aspose package name
 - All code in `single.block` comes from verified `snippets/` — no fabrication
+- **No blank lines inside code fences**: Code fence content in YAML frontmatter strings (e.g. `single.block[].content`) must not have a blank line immediately after the opening `` ```lang `` fence, a blank line immediately before the closing ` ``` ` fence, or blank lines between statements in short code snippets (≤8 code lines). Hugo's Goldmark renderer preserves these blank lines verbatim, producing visible empty lines in `<pre><code>` on the rendered page. The `validate_plugin_structure.py` `CODE_BLOCK_BLANK_LINES` check enforces this for products pages.
 
 ## Post-conditions
 

@@ -199,6 +199,7 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
 
 ## Post-conditions
 - If HEALED: page grade is C or above, ground-check passes
+- **CODE_BLOCK_BLANK_LINES**: For `products` section pages, `validate_plugin_structure.py` must exit 0 on the healed file. If `CODE_BLOCK_BLANK_LINES` errors appear in the validator output, strip blank lines at code fence boundaries and within short snippets (≤8 code lines) before accepting the heal.
 - If ESCALATED: S-90 invoked for further classification; real human escalation only if S-90 confirms unresolvable per §7c
 - All fixes are grounded in knowledge (no fabrication)
 - Evidence frontmatter is current
