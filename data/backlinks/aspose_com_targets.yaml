@@ -10,9 +10,6 @@ targets:
   3d/net:
     http_status: 200
     url: https://products.aspose.com/3d/net/
-  3d/python:
-    http_status: 200
-    url: https://products.aspose.com/3d/python/
   barcode:
     http_status: 200
     url: https://products.aspose.com/barcode/
@@ -55,9 +52,6 @@ targets:
   font:
     http_status: 200
     url: https://products.aspose.com/font/
-  font/python:
-    http_status: 200
-    url: https://products.aspose.com/font/python/
   gis:
     http_status: 200
     url: https://products.aspose.com/gis/
@@ -73,9 +67,6 @@ targets:
   note:
     http_status: 200
     url: https://products.aspose.com/note/
-  note/python:
-    http_status: 200
-    url: https://products.aspose.com/note/python/
   ocr:
     http_status: 200
     url: https://products.aspose.com/ocr/
