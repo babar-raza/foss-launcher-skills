@@ -1,0 +1,12 @@
+{
+  "exceptions": [
+    {
+      "file": "content/blog.aspose.org/note/python/introducing-aspose-note-foss-for-python/index.md",
+      "status": "OVER_LIMIT",
+      "reason": "Blog post has 3 aspose.com links all pointing to note/net and note/java (wrong platform). Auto-fix not safe — requires human editorial review to identify which link(s) to remove or replace. Content was authored before backlink policy.",
+      "approved_by": "backlink-system-v5",
+      "expires": "2027-05-14",
+      "action_required": "Manual edit: remove excess aspose.com links or replace with correct note/python target (https://products.aspose.com/note/python/)"
+    }
+  ]
+}

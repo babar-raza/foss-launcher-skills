@@ -1,0 +1,129 @@
+generated_at: '2026-05-14T13:41:31.541178+00:00'
+source_json_hash: sha256:247c9efd63a277256cfa8f42820670d8688a455c8e5cbe0b18466e1e8b8566b5
+targets:
+  3d:
+    http_status: 200
+    url: https://products.aspose.com/3d/
+  3d/java:
+    http_status: 200
+    url: https://products.aspose.com/3d/java/
+  3d/net:
+    http_status: 200
+    url: https://products.aspose.com/3d/net/
+  3d/python:
+    http_status: 200
+    url: https://products.aspose.com/3d/python/
+  barcode:
+    http_status: 200
+    url: https://products.aspose.com/barcode/
+  cad:
+    http_status: 200
+    url: https://products.aspose.com/cad/
+  cells:
+    http_status: 200
+    url: https://products.aspose.com/cells/
+  cells/java:
+    http_status: 200
+    url: https://products.aspose.com/cells/java/
+  cells/net:
+    http_status: 200
+    url: https://products.aspose.com/cells/net/
+  cells/python:
+    http_status: 200
+    url: https://products.aspose.com/cells/python/
+  diagram:
+    http_status: 200
+    url: https://products.aspose.com/diagram/
+  drawing:
+    http_status: 200
+    url: https://products.aspose.com/drawing/
+  email:
+    http_status: 200
+    url: https://products.aspose.com/email/
+  email/cpp:
+    http_status: 200
+    url: https://products.aspose.com/email/cpp/
+  email/net:
+    http_status: 200
+    url: https://products.aspose.com/email/net/
+  email/python:
+    http_status: 200
+    url: https://products.aspose.com/email/python/
+  finance:
+    http_status: 200
+    url: https://products.aspose.com/finance/
+  font:
+    http_status: 200
+    url: https://products.aspose.com/font/
+  font/python:
+    http_status: 200
+    url: https://products.aspose.com/font/python/
+  gis:
+    http_status: 200
+    url: https://products.aspose.com/gis/
+  html:
+    http_status: 200
+    url: https://products.aspose.com/html/
+  imaging:
+    http_status: 200
+    url: https://products.aspose.com/imaging/
+  medical:
+    http_status: 200
+    url: https://products.aspose.com/medical/
+  note:
+    http_status: 200
+    url: https://products.aspose.com/note/
+  note/python:
+    http_status: 200
+    url: https://products.aspose.com/note/python/
+  ocr:
+    http_status: 200
+    url: https://products.aspose.com/ocr/
+  omr:
+    http_status: 200
+    url: https://products.aspose.com/omr/
+  page:
+    http_status: 200
+    url: https://products.aspose.com/page/
+  pdf:
+    http_status: 200
+    url: https://products.aspose.com/pdf/
+  psd:
+    http_status: 200
+    url: https://products.aspose.com/psd/
+  pub:
+    http_status: 200
+    url: https://products.aspose.com/pub/
+  slides:
+    http_status: 200
+    url: https://products.aspose.com/slides/
+  slides/cpp:
+    http_status: 200
+    url: https://products.aspose.com/slides/cpp/
+  slides/java:
+    http_status: 200
+    url: https://products.aspose.com/slides/java/
+  slides/net:
+    http_status: 200
+    url: https://products.aspose.com/slides/net/
+  slides/python:
+    http_status: 200
+    url: https://products.aspose.com/slides/python/
+  svg:
+    http_status: 200
+    url: https://products.aspose.com/svg/
+  tasks:
+    http_status: 200
+    url: https://products.aspose.com/tasks/
+  tex:
+    http_status: 200
+    url: https://products.aspose.com/tex/
+  words:
+    http_status: 200
+    url: https://products.aspose.com/words/
+  words/python:
+    http_status: 200
+    url: https://products.aspose.com/words/python/
+  zip:
+    http_status: 200
+    url: https://products.aspose.com/zip/
