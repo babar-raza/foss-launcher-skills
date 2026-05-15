@@ -145,8 +145,12 @@ def backfill_products_yaml(
     platforms_map: dict,
     *,
     dry_run: bool = True,
+    target_type: str | None = None,
 ) -> BackfillChange:
-    """Insert backlink into products.aspose.org YAML overview.content."""
+    """Insert backlink into products.aspose.org YAML overview.content.
+
+    target_type: "platform" or "family" — controls anchor text generation.
+    """
     rel = file_path.relative_to(_REPO_ROOT).as_posix()
     raw = file_path.read_text(encoding="utf-8")
 
@@ -205,13 +209,15 @@ def backfill_products_yaml(
 
     # Try to get LLM-generated copy first
     new_content = _get_llm_copy_for_file(rel, current_content, target_url,
-                                          family, platform, families_map, platforms_map)
+                                          family, platform, families_map, platforms_map,
+                                          target_type=target_type)
 
     # Validate new_content has exactly 1 new link to target
     if not _validate_overview_update(current_content, new_content, target_url):
         # Generate fresh template sentence as fallback
         new_content = _apply_overview_template(current_content, target_url,
-                                                family, platform, families_map, platforms_map)
+                                                family, platform, families_map, platforms_map,
+                                                target_type=target_type)
 
     if not dry_run:
         # Modify data dict
@@ -248,6 +254,7 @@ def _get_llm_copy_for_file(
     platform: str | None,
     families_map: dict,
     platforms_map: dict,
+    target_type: str | None = None,
 ) -> str:
     """Get LLM-generated copy for a specific file from the generation report."""
     report_path = _REPO_ROOT / "reports" / "backlinks" / "products_llm_copy_generation.json"
@@ -261,7 +268,8 @@ def _get_llm_copy_for_file(
                         return output
         except Exception:
             pass
-    return _apply_overview_template(current_content, target_url, family, platform, families_map, platforms_map)
+    return _apply_overview_template(current_content, target_url, family, platform, families_map, platforms_map,
+                                    target_type=target_type)
 
 
 def _validate_overview_update(original: str, updated: str, target_url: str) -> bool:
@@ -287,10 +295,15 @@ def _apply_overview_template(
     platform: str | None,
     families_map: dict,
     platforms_map: dict,
+    target_type: str | None = None,
 ) -> str:
-    """Apply template fallback to generate updated overview.content."""
+    """Apply template fallback to generate updated overview.content.
+
+    target_type: "platform" or "family". When "family", anchor omits platform suffix.
+    """
     fam_title = families_map.get(family, f"Aspose.{family.title()}")
-    if platform:
+    # FAMILY-ANCHOR rule: if resolved target is a family URL, never include "for {Platform}"
+    if platform and target_type != "family":
         plat_title = platforms_map.get(platform, platform.title())
         display = f"{fam_title} for {plat_title}"
     else:
@@ -367,20 +380,22 @@ def _build_see_also_entry(
     subdomain: str,
     families_map: dict,
     platforms_map: dict,
+    target_type: str | None = None,
 ) -> str:
-    """Build the See Also / Related Resources list entry."""
+    """Build the See Also / Related Resources list entry.
+
+    target_type: "platform" (use family+platform anchor) or "family" (use family-only anchor).
+    When target_type is "family", platform is omitted from anchor text regardless of source platform.
+    """
     fam_title = families_map.get(family, f"Aspose.{family.title()}")
-    if platform:
+    # FAMILY-ANCHOR rule: if resolved target is a family URL, never include "for {Platform}"
+    if platform and target_type != "family":
         plat_title = platforms_map.get(platform, platform.title())
         display = f"{fam_title} for {plat_title}"
     else:
         display = fam_title
 
-    if subdomain in ("docs.aspose.org", "kb.aspose.org", "reference.aspose.org"):
-        link_text = f"{display} — Commercial Edition"
-    else:
-        link_text = f"{display} — Commercial Edition"
-
+    link_text = f"{display} \u2014 Commercial Edition"
     return f"- [{link_text}]({target_url})"
 
 
@@ -429,8 +444,12 @@ def backfill_markdown(
     platforms_map: dict,
     *,
     dry_run: bool = True,
+    target_type: str | None = None,
 ) -> BackfillChange:
-    """Insert backlink into a Markdown page (docs/kb/reference/blog)."""
+    """Insert backlink into a Markdown page (docs/kb/reference/blog).
+
+    target_type: "platform" or "family" — controls anchor text generation.
+    """
     rel = file_path.relative_to(_REPO_ROOT).as_posix()
     raw = file_path.read_text(encoding="utf-8")
     fm, body = _split_frontmatter(raw)
@@ -457,7 +476,8 @@ def backfill_markdown(
         )
 
     section_header = _get_section_header(subdomain)
-    entry = _build_see_also_entry(target_url, family, platform, subdomain, families_map, platforms_map)
+    entry = _build_see_also_entry(target_url, family, platform, subdomain, families_map, platforms_map,
+                                   target_type=target_type)
 
     # Build the new body
     new_body = _insert_see_also(body, section_header, entry, subdomain)
@@ -707,11 +727,13 @@ def run_backfill(
                     change = backfill_products_yaml(
                         fpath, chosen_url, family or "", platform,
                         families_map, platforms_map, dry_run=dry_run,
+                        target_type=chosen_type,
                     )
                 else:
                     change = backfill_markdown(
                         fpath, chosen_url, family or "", platform,
                         sd, pt.value, families_map, platforms_map, dry_run=dry_run,
+                        target_type=chosen_type,
                     )
                 changes.append(change)
             except Exception as exc:
