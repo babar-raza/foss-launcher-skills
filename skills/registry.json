@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
-  "skill_count": 81,
+  "skill_count": 84,
   "skills": [
     {
       "id": "S-01",
@@ -651,6 +651,31 @@
       "description": "Skill description pending",
       "internal": false,
       "canonical_path": "skills/cleanroom-regen.md"
+    },
+    {
+      "id": "S-98",
+      "slug": "content-enrich",
+      "name": "Content Enrich -- Post-Launch Cross-Subdomain Enrichment",
+      "description": "Audit content coverage across all five subdomains (products, docs, kb, blog, reference) for a launched product, identify enrichment gaps, generate scored candidates with denominator invariant enforcement, and produce governed execution manifests for downstream skill invocation.",
+      "internal": false,
+      "canonical_path": "skills/content-enrich.md"
+    },
+    {
+      "id": "S-99",
+      "slug": "pipeline-harden",
+      "name": "Pipeline Harden — Parameterized Pipeline Hardening Sprint",
+      "description": "Execute a full pipeline hardening sprint for one `{family}/{platform}`.",
+      "internal": false,
+      "canonical_path": "skills/pipeline-harden.md"
+    },
+    {
+      "id": "S-100",
+      "slug": "blog-migrate",
+      "name": "Blog Migrate — Governed Blog Folder Slug Migration",
+      "description": "Migrate blog post folder slugs from WEAK or BAD quality to OK quality by:",
+      "internal": false,
+      "canonical_path": "skills/blog-migrate.md",
+      "args": "``"
     }
   ]
 }
