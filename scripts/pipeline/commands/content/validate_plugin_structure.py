@@ -104,6 +104,103 @@ _SECTIONS_WITH_CONTENT = {
     "single": ["block"],
 }
 
+_FENCE_RE = re.compile(r"^[\s]*```(\w*)")
+
+
+# ---------------------------------------------------------------------------
+# Code-block blank-line helpers
+# ---------------------------------------------------------------------------
+
+
+def _extract_yaml_string_fields_for_code(fm: dict) -> list[tuple[str, str]]:
+    """Return (key_path, value) pairs for string fields likely to contain code fences."""
+    results: list[tuple[str, str]] = []
+    ov = fm.get("overview") or {}
+    if isinstance(ov, dict) and isinstance(ov.get("content"), str):
+        results.append(("overview.content", ov["content"]))
+    ct = fm.get("content") or {}
+    for i, block in enumerate(ct.get("block") or []):
+        if not isinstance(block, dict):
+            continue
+        for side in ("content_left", "content_right"):
+            if isinstance(block.get(side), str):
+                results.append((f"content.block[{i}].{side}", block[side]))
+    sg = fm.get("single") or {}
+    for i, block in enumerate(sg.get("block") or []):
+        if not isinstance(block, dict):
+            continue
+        if isinstance(block.get("content"), str):
+            results.append((f"single.block[{i}].content", block["content"]))
+    return results
+
+
+def _scan_code_fences_for_blanks(text: str, key_path: str, severity: str) -> list[Finding]:
+    """Scan a YAML string value for blank lines at fence boundaries or inside short snippets."""
+    findings: list[Finding] = []
+    lines = text.splitlines()
+    n = len(lines)
+    i = 0
+    while i < n:
+        m = _FENCE_RE.match(lines[i])
+        if m and lines[i].strip().startswith("```") and len(lines[i].strip()) >= 3:
+            # Opening fence — collect code lines until closing fence
+            j = i + 1
+            code_lines: list[str] = []
+            while j < n:
+                stripped_j = lines[j].strip()
+                if stripped_j == "```" or (stripped_j.startswith("```") and len(stripped_j) == 3):
+                    break
+                code_lines.append(lines[j])
+                j += 1
+            closing_idx = j
+
+            non_empty_code = [ln for ln in code_lines if ln.strip()]
+
+            if code_lines and code_lines[0].strip() == "":
+                findings.append(Finding(
+                    severity,
+                    "CODE_BLOCK_BLANK_LINES",
+                    f"{key_path} has blank line immediately after opening code fence "
+                    f"(near field line {i + 1}) — produces unwanted spacing in <pre><code>",
+                ))
+
+            if code_lines and code_lines[-1].strip() == "":
+                findings.append(Finding(
+                    severity,
+                    "CODE_BLOCK_BLANK_LINES",
+                    f"{key_path} has blank line immediately before closing code fence "
+                    f"(near field line {closing_idx}) — produces unwanted spacing in <pre><code>",
+                ))
+
+            if len(non_empty_code) <= 8:
+                for k, line in enumerate(code_lines):
+                    if line.strip() == "" and 0 < k < len(code_lines) - 1:
+                        prev_nonempty = any(code_lines[p].strip() for p in range(k))
+                        next_nonempty = any(code_lines[p].strip() for p in range(k + 1, len(code_lines)))
+                        if prev_nonempty and next_nonempty:
+                            findings.append(Finding(
+                                severity,
+                                "CODE_BLOCK_BLANK_LINES",
+                                f"{key_path} short snippet ({len(non_empty_code)} code lines) "
+                                f"has internal blank line near field line {i + 1 + k} — "
+                                f"produces unwanted spacing in <pre><code>",
+                            ))
+                            break
+
+            i = closing_idx + 1
+        else:
+            i += 1
+    return findings
+
+
+def _check_code_block_blank_lines(fm: dict, is_english: bool) -> list[Finding]:
+    """Check for blank lines at code fence boundaries or inside short code snippets."""
+    severity = "ERROR" if is_english else "WARN"
+    findings: list[Finding] = []
+    for key_path, value in _extract_yaml_string_fields_for_code(fm):
+        findings.extend(_scan_code_fences_for_blanks(value, key_path, severity))
+    return findings
+
 
 # ---------------------------------------------------------------------------
 # Finding dataclass
@@ -230,8 +327,10 @@ def check_file(filepath: Path) -> list[Finding]:
             elif isinstance(val, str) and not val.strip():
                 findings.append(Finding("WARN", "EMPTY_SECTION", f"'{section_name}.{sub_key}' is empty"))
 
-    # --- Check 5: Provenance and evidence (required for English, warn for locale) ---
-    is_english = _is_english_page(filepath)
+    # --- Check 5: Code block blank lines ---
+    findings.extend(_check_code_block_blank_lines(fm, is_english))
+
+    # --- Check 6: Provenance and evidence (required for English, warn for locale) ---
     sev = "FATAL" if is_english else "WARN"
     if "provenance" not in fm:
         findings.append(Finding(sev, "MISSING_KEY", "required key 'provenance' is missing"))

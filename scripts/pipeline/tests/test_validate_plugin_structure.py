@@ -206,6 +206,108 @@ class TestMissingRequiredKeys:
         assert len(fatals) == 1
 
 
+class TestCodeBlockBlankLines:
+    """Verify CODE_BLOCK_BLANK_LINES check detects fence boundary blank lines."""
+
+    def _write_page_with_code(self, tmp_path: Path, content_value: str, english: bool = True) -> Path:
+        """Create a plugin page with custom single.block[0].content value."""
+        locale = "en" if english else "fr"
+        page_dir = tmp_path / "content" / "products.aspose.org" / locale / "test" / "python"
+        page_dir.mkdir(parents=True, exist_ok=True)
+        filepath = page_dir / "_index.md"
+        import yaml
+        single_block = [{"title": "T", "content": content_value}]
+        fm = {
+            "layout": "plugin",
+            "family_name": "Test FOSS",
+            "plugin_description": "Test",
+            "plugin_platform": "Python",
+            "head_title": "Test",
+            "head_description": "Test",
+            "title": "Test",
+            "description": "Test",
+            "github_url": "https://github.com/test",
+            "submenu": {"enable": True},
+            "overview": {"enable": True, "title": "T", "content": "T"},
+            "content": {"enable": True, "block": [{"title_left": "T"}]},
+            "single": {"enable": True, "block": single_block},
+            "supportandlearning": {"enable": True},
+            "more_formats": {"enable": True},
+            "back_to_top": {"enable": True},
+            "provenance": {"content_origin": "skill-generated"},
+            "evidence": {"model_sha": "abc123"},
+        }
+        text = "---\n" + yaml.dump(fm, allow_unicode=True, default_flow_style=False) + "---\n"
+        filepath.write_text(text, encoding="utf-8")
+        return filepath
+
+    def test_blank_after_opening_fence_triggers_error(self, tmp_path):
+        """Blank line immediately after opening code fence must produce CODE_BLOCK_BLANK_LINES ERROR."""
+        filepath = self._write_page_with_code(
+            tmp_path,
+            "Intro.\n\n```python\n\nimport foo\nfoo.run()\n```\n",
+        )
+        findings = check_file(filepath)
+        code_errors = [f for f in findings if f.check_id == "CODE_BLOCK_BLANK_LINES"]
+        assert len(code_errors) >= 1, f"Expected CODE_BLOCK_BLANK_LINES, got: {[str(f) for f in findings]}"
+        assert all(f.severity == "ERROR" for f in code_errors)
+
+    def test_blank_before_closing_fence_triggers_error(self, tmp_path):
+        """Blank line immediately before closing code fence must produce CODE_BLOCK_BLANK_LINES ERROR."""
+        filepath = self._write_page_with_code(
+            tmp_path,
+            "Intro.\n\n```python\nimport foo\nfoo.run()\n\n```\n",
+        )
+        findings = check_file(filepath)
+        code_errors = [f for f in findings if f.check_id == "CODE_BLOCK_BLANK_LINES"]
+        assert len(code_errors) >= 1, f"Expected CODE_BLOCK_BLANK_LINES, got: {[str(f) for f in findings]}"
+        assert all(f.severity == "ERROR" for f in code_errors)
+
+    def test_internal_blank_in_short_snippet_triggers_error(self, tmp_path):
+        """Internal blank line in a short snippet (<=8 code lines) must produce ERROR."""
+        filepath = self._write_page_with_code(
+            tmp_path,
+            "Intro.\n\n```python\nimport foo\n\nfoo.run()\n```\n",
+        )
+        findings = check_file(filepath)
+        code_errors = [f for f in findings if f.check_id == "CODE_BLOCK_BLANK_LINES"]
+        assert len(code_errors) >= 1, f"Expected CODE_BLOCK_BLANK_LINES, got: {[str(f) for f in findings]}"
+        assert all(f.severity == "ERROR" for f in code_errors)
+
+    def test_clean_code_block_passes(self, tmp_path):
+        """Code block with no blank lines at boundaries must not produce CODE_BLOCK_BLANK_LINES."""
+        filepath = self._write_page_with_code(
+            tmp_path,
+            "Intro.\n\n```python\nimport foo\nfoo.run()\n```\n",
+        )
+        findings = check_file(filepath)
+        code_errors = [f for f in findings if f.check_id == "CODE_BLOCK_BLANK_LINES"]
+        assert len(code_errors) == 0, f"Unexpected CODE_BLOCK_BLANK_LINES: {[str(f) for f in code_errors]}"
+
+    def test_blank_lines_in_prose_not_flagged(self, tmp_path):
+        """Blank lines in prose text outside code fences must not produce CODE_BLOCK_BLANK_LINES."""
+        filepath = self._write_page_with_code(
+            tmp_path,
+            "Intro.\n\nSome prose.\n\n```python\nimport foo\n```\n",
+        )
+        findings = check_file(filepath)
+        code_errors = [f for f in findings if f.check_id == "CODE_BLOCK_BLANK_LINES"]
+        assert len(code_errors) == 0, f"Prose blank lines must not be flagged: {[str(f) for f in code_errors]}"
+
+    def test_locale_page_gets_warn_not_error(self, tmp_path):
+        """Locale pages (non-English) with fence blank lines must produce WARN, not ERROR."""
+        filepath = self._write_page_with_code(
+            tmp_path,
+            "Intro.\n\n```python\nimport foo\n\nfoo.run()\n```\n",
+            english=False,
+        )
+        findings = check_file(filepath)
+        code_warns = [f for f in findings if f.check_id == "CODE_BLOCK_BLANK_LINES" and f.severity == "WARN"]
+        code_errors = [f for f in findings if f.check_id == "CODE_BLOCK_BLANK_LINES" and f.severity == "ERROR"]
+        assert len(code_warns) >= 1, f"Expected WARN for locale page, got: {[str(f) for f in findings]}"
+        assert len(code_errors) == 0, f"Locale page must not get ERROR: {[str(f) for f in code_errors]}"
+
+
 class TestMissingEnable:
     """Verify MISSING_ENABLE for core sections without enable: true."""
 
