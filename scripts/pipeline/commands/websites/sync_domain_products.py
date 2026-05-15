@@ -388,7 +388,8 @@ def run(
     # --- Load data sources ---
     try:
         products_data: list[dict] = _load_json(_DATA_DIR / "products.json")
-        families: dict[str, str] = _load_json(_DATA_DIR / "families.json")
+        # All products in the aspose/org domain are FOSS; append the label to display names.
+        families: dict[str, str] = {k: v + " FOSS" for k, v in _load_json(_DATA_DIR / "families.json").items()}
         families_order: list[str] = _load_json(_DATA_DIR / "families_order.json")
         platforms_order: list[str] = _load_json(_DATA_DIR / "platforms_order.json")
     except RuntimeError as exc:
