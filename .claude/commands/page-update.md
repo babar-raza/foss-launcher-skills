@@ -157,7 +157,7 @@ After a knowledge refresh (S-14), identify which content pages reference changed
     ```bash
     .venv/Scripts/python scripts/pipeline/commands/content/validate_plugin_structure.py --files {updated-file-path}
     ```
-    Must exit 0. If `CODE_BLOCK_BLANK_LINES` errors appear, strip blank lines at code fence boundaries and within short code snippets (≤8 lines) before proceeding.
+    Must exit 0. If `CODE_BLOCK_BLANK_LINES` errors appear, strip blank lines at code fence boundaries and within short code snippets (<=8 lines) before proceeding.
 
 9. **Update provenance**: For each file where body content was modified, update the provenance mechanism:
    ```python
