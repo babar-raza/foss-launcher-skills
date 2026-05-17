@@ -36,33 +36,33 @@ _FENCE_RE = re.compile(r"^\s*```(\w*)")
 _FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
 
 
-def _extract_yaml_string_fields(fm: dict) -> list[tuple[str, str]]:
-    """Return (key_path, value) pairs for string fields likely to contain code."""
+def _walk_all_strings(obj: object, path: str = "") -> list[tuple[str, str]]:
+    """Recursively yield (key_path, value) for every string in a YAML object.
+
+    Replaces the prior targeted-field list to ensure no code-bearing field is
+    missed if the product page schema evolves.  All findings are still severity-
+    stratified by locale (EN → ERROR, other → WARN) in the caller.
+    """
     results: list[tuple[str, str]] = []
-
-    # overview.content
-    ov = fm.get("overview") or {}
-    if isinstance(ov, dict) and isinstance(ov.get("content"), str):
-        results.append(("overview.content", ov["content"]))
-
-    # content.block[i].content_left / content_right
-    ct = fm.get("content") or {}
-    for i, block in enumerate(ct.get("block") or []):
-        if not isinstance(block, dict):
-            continue
-        for side in ("content_left", "content_right"):
-            if isinstance(block.get(side), str):
-                results.append((f"content.block[{i}].{side}", block[side]))
-
-    # single.block[i].content
-    sg = fm.get("single") or {}
-    for i, block in enumerate(sg.get("block") or []):
-        if not isinstance(block, dict):
-            continue
-        if isinstance(block.get("content"), str):
-            results.append((f"single.block[{i}].content", block["content"]))
-
+    if isinstance(obj, str):
+        results.append((path, obj))
+    elif isinstance(obj, dict):
+        for k, v in obj.items():
+            child_path = f"{path}.{k}" if path else k
+            results.extend(_walk_all_strings(v, child_path))
+    elif isinstance(obj, list):
+        for idx, v in enumerate(obj):
+            results.extend(_walk_all_strings(v, f"{path}[{idx}]"))
     return results
+
+
+def _extract_yaml_string_fields(fm: dict) -> list[tuple[str, str]]:
+    """Return (key_path, value) pairs for all string fields in the frontmatter.
+
+    Uses recursive walking (_walk_all_strings) so that code blocks in any YAML
+    string field are detected, regardless of schema layout.
+    """
+    return _walk_all_strings(fm)
 
 
 def _scan_code_fences(
