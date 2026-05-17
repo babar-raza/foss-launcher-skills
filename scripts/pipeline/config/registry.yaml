@@ -1237,6 +1237,36 @@ scripts:
     deprecated_since: null
     notes: "Diagnostic scanner for spurious blank lines inside YAML-embedded fenced code blocks in layout:plugin pages"
 
+  - path: scripts/pipeline/commands/content/closure_independent_scan_runner.py
+    kind: entrypoint
+    lifecycle: experimental
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: unstable
+    owner_domain: content-governance
+    backing:
+      kind: workflow
+      ref: null
+    test_targets: []
+    test_exempt_reason: "temporary independent scanner; detect_code_block_blanks.py and validate_plugin_structure.py cover overlapping blank-line detection; this file predates lifecycle=experimental registration"
+    deprecated_since: null
+    notes: "Temporary independent scanner used during production-closure sprint. Scans content/products.aspose.org pages for code block blank-line issues. Fresh implementation, not based on committed detect_code_block_blanks.py. Candidate for removal once closure sprint is complete and detect_code_block_blanks.py coverage is confirmed equivalent."
+
+  - path: scripts/pipeline/commands/content/normalize_code_block_blanks.py
+    kind: entrypoint
+    lifecycle: experimental
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: unstable
+    owner_domain: content-governance
+    backing:
+      kind: workflow
+      ref: null
+    test_targets: []
+    test_exempt_reason: "temporary normalizer; production-closure sprint tool; normalize_code_block_blanks removes blank lines in YAML-embedded code fences; functional coverage via validate_plugin_structure.py and detect_code_block_blanks.py"
+    deprecated_since: null
+    notes: "Phase 3 locale backfill tool for production-closure sprint. Removes blank lines inside code fence regions in product page YAML frontmatter. Candidate for removal once closure sprint is complete."
+
   - path: scripts/pipeline/commands/content/validate_plugin_structure.py
     kind: entrypoint
     lifecycle: active
