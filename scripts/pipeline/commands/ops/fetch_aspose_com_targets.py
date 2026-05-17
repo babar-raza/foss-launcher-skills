@@ -797,7 +797,7 @@ def main(argv: list[str] | None = None) -> int:
 
     repo_root: Path = args.repo_root
 
-    session = requests.Session()
+    session = requests.Session()  # metrics-scan-exempt: web-scraping transport, not professionalize LLM
     session.headers.update({"User-Agent": USER_AGENT})
 
     print("=== fetch_aspose_com_targets.py ===", file=sys.stderr)
