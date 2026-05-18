@@ -720,7 +720,7 @@ def _build_page(
                 lines.append("## See Also")
                 lines.append("")
                 lines.append(
-                    f"- [{_get_family_display(family, platform)} — Commercial Reference]"
+                    f"- [{_get_family_display(family, platform, target_type=_rtype)} — Commercial Reference]"
                     f"({chosen_url})"
                 )
                 lines.append("")
@@ -732,10 +732,13 @@ def _build_page(
     return "\n".join(lines)
 
 
-def _get_family_display(family: str, platform: str) -> str:
-    """Return display name for the See Also link anchor text."""
+def _get_family_display(family: str, platform: str, target_type: str | None = None) -> str:
+    """Return display name for the See Also link anchor text.
+
+    target_type: "platform" or "family" from resolve_backlink().
+    When "family", anchor omits platform suffix (TC-BL-008).
+    """
     try:
-        import yaml as _yaml
         fam_map_path = _DEFAULT_REPO_ROOT / "data" / "families.json"
         if fam_map_path.exists():
             import json as _json
@@ -743,13 +746,15 @@ def _get_family_display(family: str, platform: str) -> str:
             fam_title = fmap.get(family, f"Aspose.{family.title()}")
         else:
             fam_title = f"Aspose.{family.title()}"
-        # platform display
+        # FAMILY-ANCHOR rule: if resolved target is a family URL, never include "for {Platform}"
+        if target_type == "family" or not platform:
+            return fam_title
         plat_map = {"net": ".NET", "python": "Python", "java": "Java", "cpp": "C++",
                     "nodejs": "Node.js", "ruby": "Ruby", "go": "Go", "android": "Android"}
         plat_title = plat_map.get(platform, platform.title())
         return f"{fam_title} for {plat_title}"
     except Exception:
-        return f"Aspose.{family.title()} for {platform.title()}"
+        return f"Aspose.{family.title()}"
 
 
 # ---------------------------------------------------------------------------

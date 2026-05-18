@@ -1367,3 +1367,56 @@ class TestConfigureSeam:
         assert result["generated"] == 1
         page = tmp_path / "content" / "reference.aspose.org" / "en" / "test_fam" / "net" / "Foo.md"
         assert page.exists()
+
+
+# ---------------------------------------------------------------------------
+# TC-BL-008: _get_family_display anchor text tests
+# ---------------------------------------------------------------------------
+
+class TestGetFamilyDisplay:
+    """TC-BL-008: Verify anchor text respects target_type from resolve_backlink."""
+
+    def test_family_rtype_omits_platform(self, tmp_path):
+        """When target_type='family', anchor text must be family-only."""
+        from batch_reference import _get_family_display
+        result = _get_family_display("cells", "java", target_type="family")
+        assert "for" not in result
+        assert "Cells" in result
+
+    def test_platform_rtype_includes_platform(self, tmp_path):
+        """When target_type='platform', anchor text includes 'for Platform'."""
+        from batch_reference import _get_family_display
+        result = _get_family_display("cells", "java", target_type="platform")
+        assert "for Java" in result
+
+    def test_none_rtype_with_platform_includes_platform(self, tmp_path):
+        """When target_type is None but platform is set, includes platform (defensive)."""
+        from batch_reference import _get_family_display
+        result = _get_family_display("cells", "java", target_type=None)
+        assert "for Java" in result
+
+    def test_no_platform_always_family_only(self, tmp_path):
+        """When platform is empty/None, always family-only regardless of target_type."""
+        from batch_reference import _get_family_display
+        result = _get_family_display("cells", "", target_type="platform")
+        assert "for" not in result
+        assert "Cells" in result
+
+    def test_platform_rtype_net_display(self, tmp_path):
+        """Platform display correctly maps 'net' to '.NET'."""
+        from batch_reference import _get_family_display
+        result = _get_family_display("words", "net", target_type="platform")
+        assert result.endswith("for .NET")
+
+    def test_family_rtype_exception_fallback(self, tmp_path):
+        """Family rtype with valid data returns family-only."""
+        from batch_reference import _get_family_display
+        result = _get_family_display("slides", "python", target_type="family")
+        assert "for" not in result
+        assert "Slides" in result
+
+    def test_unknown_rtype_includes_platform(self, tmp_path):
+        """Unknown rtype value with platform set falls through to platform branch."""
+        from batch_reference import _get_family_display
+        result = _get_family_display("pdf", "java", target_type="unknown_value")
+        assert "for Java" in result
