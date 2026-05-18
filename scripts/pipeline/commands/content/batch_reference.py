@@ -1267,9 +1267,55 @@ def run(family: str, platform: str, kind_arg: str = "all",
         model_sha=model_sha,
     )
 
+    # TC-DESIGN-001: Write freshness manifest after successful generation
+    _write_freshness_manifest_if_enabled(
+        family, platform,
+        pages_failed=len(errors),
+        actual_page_count=len(generated) + len(updated) + len(to_skip) + len(unchanged),
+        dry_run=dry_run,
+    )
+
     return {"generated": len(generated), "updated": len(updated),
             "skipped": len(to_skip), "errors": len(errors),
             "unchanged": len(unchanged)}
+
+
+def _write_freshness_manifest_if_enabled(
+    family: str, platform: str, *,
+    pages_failed: int = 0,
+    actual_page_count: int | None = None,
+    dry_run: bool = False,
+) -> None:
+    """TC-DESIGN-001: Write freshness manifest after generation if flag is enabled."""
+    try:
+        flags_path = REPO_ROOT / "data" / "refresh-feature-flags.json"
+        if not flags_path.is_file():
+            return
+        flags = json.loads(flags_path.read_text(encoding="utf-8"))
+        if not flags.get("refresh_generation_manifest_write_enabled", False):
+            print("\nFreshness manifest write skipped (refresh_generation_manifest_write_enabled=false)")
+            return
+
+        from freshness_manifest import write_generation_freshness_manifest
+        from datetime import datetime, timezone
+        run_id = f"batch-reference-{family}-{platform}-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+
+        written, note = write_generation_freshness_manifest(
+            product=f"{family}/{platform}",
+            subdomain="reference",
+            run_id=run_id,
+            repo_root=REPO_ROOT,
+            pages_failed=pages_failed,
+            actual_page_count=actual_page_count,
+            dry_run=dry_run,
+        )
+        if written:
+            print(f"\nFreshness manifest write SUCCEEDED: {note}")
+        else:
+            print(f"\nFreshness manifest write skipped/failed: {note}")
+    except Exception as exc:
+        LOG.warning("Freshness manifest write failed: %s", exc)
+        print(f"\nFreshness manifest write failed: {exc}")
 
 
 def _write_generation_manifest(

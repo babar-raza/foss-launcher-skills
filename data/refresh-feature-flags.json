@@ -5,5 +5,6 @@
   "refresh_reconciliation_enforced": false,
   "refresh_manifest_write_enabled": false,
   "refresh_content_write_enabled": false,
-  "refresh_run_type_label_enabled": true
+  "refresh_run_type_label_enabled": true,
+  "refresh_generation_manifest_write_enabled": false
 }

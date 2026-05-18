@@ -460,3 +460,205 @@ class TestValidateForFresh:
             fingerprints_required=list(fps.keys()),
         )
         assert violations == []
+
+
+# ---------------------------------------------------------------------------
+# TC-DESIGN-001: write_generation_freshness_manifest tests
+# ---------------------------------------------------------------------------
+
+from unittest.mock import patch, MagicMock
+from freshness_manifest import write_generation_freshness_manifest
+
+
+def _mock_fingerprint_set():
+    """Return a mock InputFingerprintSet."""
+    mock = MagicMock()
+    mock.to_dict.return_value = {
+        "upstream_repo_sha": "abc123",
+        "local_knowledge_sha": "abc123",
+        "knowledge_content_hash": "sha256:" + "a" * 64,
+        "products_json_hash": "sha256:" + "b" * 64,
+        "template_hash": "sha256:" + "c" * 64,
+        "generator_code_hash": "sha256:" + "d" * 64,
+        "skill_version_hash": "sha256:" + "e" * 64,
+        "config_hash": "sha256:" + "f" * 64,
+    }
+    mock.collection_errors = []
+    return mock
+
+
+def _mock_surface():
+    mock = MagicMock()
+    mock.content_root = "content/reference.aspose.org/en/{family}/{platform}"
+    return mock
+
+
+def _mock_registry():
+    mock = MagicMock()
+    mock.get_surface.return_value = _mock_surface()
+    return mock
+
+
+class TestWriteGenerationFreshnessManifest:
+    """TC-DESIGN-001: Generation-time freshness manifest writer."""
+
+    def _setup_content(self, tmp_path):
+        """Create minimal content for hash computation."""
+        content_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "cells" / "java"
+        content_dir.mkdir(parents=True)
+        (content_dir / "Workbook.md").write_text("# Workbook\nTest content.", encoding="utf-8")
+        return content_dir
+
+    def _setup_registry(self, tmp_path):
+        """Create a minimal refresh-dependencies.json."""
+        data_dir = tmp_path / "data"
+        data_dir.mkdir(parents=True)
+        reg = {"surfaces": {"reference": {
+            "content_root": "content/reference.aspose.org/en/{family}/{platform}",
+            "fingerprints_required": ["generator_code_hash"],
+        }}}
+        (data_dir / "refresh-dependencies.json").write_text(
+            json.dumps(reg), encoding="utf-8"
+        )
+
+    @patch("freshness_manifest.compute_output_content_hash")
+    def test_writes_manifest_from_live_state(self, mock_hash, tmp_path):
+        """Writer creates a FRESH manifest in the temp state root."""
+        mock_hash.return_value = "sha256:" + "a" * 64
+        state_root = tmp_path / "state"
+        self._setup_content(tmp_path)
+        self._setup_registry(tmp_path)
+
+        with patch("fingerprint_collector.collect_input_fingerprints", return_value=_mock_fingerprint_set()), \
+             patch("dependency_registry.DependencyRegistry", return_value=_mock_registry()):
+            written, note = write_generation_freshness_manifest(
+                "cells/java", "reference", "test-run-001",
+                state_root=state_root, repo_root=tmp_path,
+            )
+        assert written is True
+        assert "SUCCEEDED" in note
+
+        loaded = load("cells/java", "reference", state_root=state_root)
+        assert loaded is not None
+        assert loaded.manifest_status == "FRESH"
+        assert loaded.run_id == "test-run-001"
+        assert loaded.product == "cells/java"
+
+    @patch("freshness_manifest.compute_output_content_hash")
+    def test_creates_backup_before_write(self, mock_hash, tmp_path):
+        """Writer creates a .pre-generation backup of existing manifest."""
+        mock_hash.return_value = "sha256:" + "a" * 64
+        state_root = tmp_path / "state"
+        self._setup_content(tmp_path)
+        self._setup_registry(tmp_path)
+
+        # Create an existing manifest
+        existing = FreshnessManifest(_minimal_manifest_data(run_id="old-run"))
+        save(existing, state_root=state_root)
+        manifest_dir = state_root / "cells" / "java" / "reference"
+        assert (manifest_dir / "freshness-manifest.json").exists()
+
+        with patch("fingerprint_collector.collect_input_fingerprints", return_value=_mock_fingerprint_set()), \
+             patch("dependency_registry.DependencyRegistry", return_value=_mock_registry()):
+            written, note = write_generation_freshness_manifest(
+                "cells/java", "reference", "new-run",
+                state_root=state_root, repo_root=tmp_path,
+            )
+        assert written is True
+        # Backup should be removed on success
+        assert not (manifest_dir / "freshness-manifest.pre-generation.json").exists()
+
+    @patch("freshness_manifest.compute_output_content_hash")
+    def test_removes_backup_on_success(self, mock_hash, tmp_path):
+        """Backup file is removed after successful write and verification."""
+        mock_hash.return_value = "sha256:" + "a" * 64
+        state_root = tmp_path / "state"
+        self._setup_content(tmp_path)
+        self._setup_registry(tmp_path)
+
+        existing = FreshnessManifest(_minimal_manifest_data())
+        save(existing, state_root=state_root)
+
+        with patch("fingerprint_collector.collect_input_fingerprints", return_value=_mock_fingerprint_set()), \
+             patch("dependency_registry.DependencyRegistry", return_value=_mock_registry()):
+            written, _ = write_generation_freshness_manifest(
+                "cells/java", "reference", "run-ok",
+                state_root=state_root, repo_root=tmp_path,
+            )
+        assert written is True
+        backup = state_root / "cells" / "java" / "reference" / "freshness-manifest.pre-generation.json"
+        assert not backup.exists()
+
+    def test_skips_on_dry_run(self, tmp_path):
+        """dry_run=True skips manifest write."""
+        written, note = write_generation_freshness_manifest(
+            "cells/java", "reference", "run-dry",
+            state_root=tmp_path / "state", repo_root=tmp_path,
+            dry_run=True,
+        )
+        assert written is False
+        assert "dry_run" in note
+
+    def test_skips_when_pages_failed(self, tmp_path):
+        """pages_failed > 0 skips manifest write."""
+        written, note = write_generation_freshness_manifest(
+            "cells/java", "reference", "run-fail",
+            state_root=tmp_path / "state", repo_root=tmp_path,
+            pages_failed=3,
+        )
+        assert written is False
+        assert "pages_failed=3" in note
+
+    def test_skips_on_malformed_product(self, tmp_path):
+        """Malformed product (no slash) skips manifest write."""
+        written, note = write_generation_freshness_manifest(
+            "cellsjava", "reference", "run-bad",
+            state_root=tmp_path / "state", repo_root=tmp_path,
+        )
+        assert written is False
+        assert "malformed" in note
+
+    @patch("freshness_manifest.compute_output_content_hash")
+    def test_supports_temp_state_root(self, mock_hash, tmp_path):
+        """Writes to a custom state_root, not the default."""
+        mock_hash.return_value = "sha256:" + "b" * 64
+        custom_state = tmp_path / "custom_state"
+        self._setup_content(tmp_path)
+        self._setup_registry(tmp_path)
+
+        with patch("fingerprint_collector.collect_input_fingerprints", return_value=_mock_fingerprint_set()), \
+             patch("dependency_registry.DependencyRegistry", return_value=_mock_registry()):
+            written, _ = write_generation_freshness_manifest(
+                "cells/java", "reference", "custom-run",
+                state_root=custom_state, repo_root=tmp_path,
+            )
+        assert written is True
+        loaded = load("cells/java", "reference", state_root=custom_state)
+        assert loaded is not None
+        assert loaded.manifest_status == "FRESH"
+
+    @patch("freshness_manifest.compute_output_content_hash")
+    def test_restores_backup_on_verification_failure(self, mock_hash, tmp_path):
+        """On verification failure, backup is restored and write returns False."""
+        mock_hash.return_value = "sha256:" + "a" * 64
+        state_root = tmp_path / "state"
+        self._setup_content(tmp_path)
+        self._setup_registry(tmp_path)
+
+        existing = FreshnessManifest(_minimal_manifest_data(run_id="old-run"))
+        save(existing, state_root=state_root)
+
+        # Patch load to return None (simulate verification failure)
+        with patch("fingerprint_collector.collect_input_fingerprints", return_value=_mock_fingerprint_set()), \
+             patch("dependency_registry.DependencyRegistry", return_value=_mock_registry()):
+            original_load = load
+            def failing_load(p, s, state_root=None):
+                # First call from write, return None to trigger failure
+                return None
+            with patch("freshness_manifest.load", side_effect=failing_load):
+                written, note = write_generation_freshness_manifest(
+                    "cells/java", "reference", "bad-run",
+                    state_root=state_root, repo_root=tmp_path,
+                )
+        assert written is False
+        assert "VERIFICATION FAILED" in note
