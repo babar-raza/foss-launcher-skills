@@ -457,8 +457,6 @@ def write_generation_freshness_manifest(
           written=True  -> manifest written and verified
           written=False -> skipped or failed (note explains why)
     """
-    import sys as _sys
-
     if "/" not in product:
         return False, f"manifest write skipped (malformed product: {product!r})"
 
