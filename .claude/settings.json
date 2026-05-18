@@ -16,7 +16,13 @@
       "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py *)",
       "Bash(.venv/Scripts/python scripts/ci/checks/enforce_venv_python.py --check)",
       "Bash(.venv/Scripts/python scripts/pipeline/commands/ops/skill_context.py --help)",
-      "Bash(grep -E '^[a-z]{2}$')"
+      "Bash(grep -E '^[a-z]{2}$')",
+      "Bash(.venv/Scripts/python -c \"from datetime import datetime; print\\(datetime.now\\(\\).strftime\\(''%Y%m%d-%H%M%S''\\)\\)\")",
+      "Bash(xargs grep -l \"woolly-brewing-lamport\\\\|TC-CSSP-004\\\\|code-snippet-spacing\")",
+      "Bash(for f in *.json proposed-taskcards/../*.json)",
+      "Bash(do echo \"=== $f ===\")",
+      "Bash(.venv/../../.venv/Scripts/python.exe -c \"import json,sys; json.load\\(open\\(''$f''\\)\\); print\\(''OK''\\)\")",
+      "Bash(done)"
     ],
     "additionalDirectories": [
       "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing",
