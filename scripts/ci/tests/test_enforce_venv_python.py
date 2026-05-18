@@ -70,6 +70,47 @@ def test_sh_fence_is_also_replaced(tmp_path):
 
 
 # ---------------------------------------------------------------------------
+# False positive: `python` as CLI argument on a venv-invocation line
+# ---------------------------------------------------------------------------
+
+def test_python_as_platform_arg_on_venv_line_is_not_flagged(tmp_path):
+    """Lines already using .venv/Scripts/python must not flag later 'python' tokens."""
+    src = (
+        "# Skill\n\n```bash\n"
+        "PYTHONPATH=scripts/pipeline .venv/Scripts/python "
+        "scripts/pipeline/commands/enrichment/content_enrich.py font python --mode audit\n"
+        "```\n"
+    )
+    viols, deny = _run_check(tmp_path, ".agents/skills/foo/SKILL.md", src)
+    assert viols == [], f"'python' as platform arg should not be flagged; got: {viols}"
+
+
+def test_python_as_platform_arg_not_corrupted_by_fix(tmp_path):
+    """--fix must not rewrite 'python' platform args on venv lines."""
+    src = (
+        "# Skill\n\n```bash\n"
+        ".venv/Scripts/python scripts/pipeline/commands/enrichment/content_enrich.py "
+        "font python --mode audit\n"
+        "```\n"
+    )
+    out, viols = _run_fix(tmp_path, ".agents/skills/foo/SKILL.md", src)
+    assert out == src, "Fix mode must not alter platform argument 'python'"
+    assert viols == []
+
+
+def test_python_as_platform_arg_with_bin_path(tmp_path):
+    """Linux-style .venv/bin/python lines must also be exempt."""
+    src = (
+        "# Skill\n\n```bash\n"
+        ".venv/bin/python scripts/pipeline/commands/enrichment/content_enrich.py "
+        "slides python --mode dry-run\n"
+        "```\n"
+    )
+    viols, deny = _run_check(tmp_path, ".agents/skills/foo/SKILL.md", src)
+    assert viols == [], f"Linux venv path should also exempt; got: {viols}"
+
+
+# ---------------------------------------------------------------------------
 # Idempotency — already-fixed lines must not be double-replaced
 # ---------------------------------------------------------------------------
 

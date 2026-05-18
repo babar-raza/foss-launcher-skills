@@ -95,6 +95,11 @@ RULES: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"(?<![./\w])pip(?=[ \t]+(?:install|show|freeze|uninstall|check))"), ".venv/Scripts/pip"),
 ]
 
+# Lines containing a venv python/pip invocation already — any additional `python`
+# or `pip` token on the SAME line is a CLI argument (e.g. "font python --mode"),
+# not a bare invocation.  Skip RULES matching for these lines.
+_VENV_INVOCATION_RE = re.compile(r"\.venv/(?:Scripts|bin)/(?:python|pip)\b")
+
 # Deny-only patterns: these are flagged as violations but NOT auto-fixed
 # (the correct fix depends on context — manual skill redesign required).
 DENY_PATTERNS: list[tuple[re.Pattern[str], str]] = [
@@ -119,10 +124,15 @@ def _fix_fence(fence_content: str) -> tuple[str, list[str], list[str]]:
     deny_violations: list[str] = []
     for line in lines:
         new_line = line
-        for pattern, replacement in RULES:
-            if pattern.search(new_line):
-                violations.append(line.rstrip())
-                new_line = pattern.sub(replacement, new_line)
+        # If the line already invokes venv python/pip, any later `python`/`pip`
+        # token is a CLI argument (e.g. "content_enrich.py font python --mode"),
+        # not a bare invocation — skip RULES for this line.
+        line_has_venv = bool(_VENV_INVOCATION_RE.search(line))
+        if not line_has_venv:
+            for pattern, replacement in RULES:
+                if pattern.search(new_line):
+                    violations.append(line.rstrip())
+                    new_line = pattern.sub(replacement, new_line)
         for pattern, description in DENY_PATTERNS:
             if pattern.search(new_line):
                 deny_violations.append(f"{description}: {line.rstrip()}")

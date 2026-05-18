@@ -161,7 +161,7 @@ If post-apply validation fails, rollback using the generated `rollback.json`:
 
 ```bash
 # Read rollback commands
-cat reports/blog-slugs/migration-{timestamp}-rollback.json | python -m json.tool
+cat reports/blog-slugs/migration-{timestamp}-rollback.json | .venv/Scripts/python -m json.tool
 
 # Execute git mv commands from rollback_commands array
 # Restore locale files: git checkout content/blog.aspose.org/{family}/{platform}/{old_slug}/
