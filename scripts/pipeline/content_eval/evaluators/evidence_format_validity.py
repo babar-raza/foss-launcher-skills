@@ -7,6 +7,7 @@ pages may still carry stale evidence.formats entries with invalid extensions (e.
 Checks:
   - Each ext in evidence.formats exists in the product's merged/formats.json
   - Each ext in section-level formats also exists in formats.json
+  - Known false-positive extensions are flagged even if they appear in formats.json
 
 Severity:
   - Invalid top-level evidence.formats ext → WARN (category EFV)
@@ -26,6 +27,16 @@ KNOWLEDGE_ROOT = Path("knowledge")
 
 # Maximum plausible file extension length
 _MAX_EXT_LEN = 8
+
+# Known false-positive extensions that appear in formats.json but aren't real file formats.
+# Mirrors _FALSE_POSITIVE_EXTS in evidence/mapper.py.
+_FALSE_POSITIVE_EXTS = frozenset({
+    "col", "row", "main", "elem", "package", "storage", "value", "address",
+    "flags", "reserved", "clsid", "difat", "double", "black", "el",
+    "font", "binary", "bit", "slice", "pos", "format",
+    "geometry", "mesh", "material", "rotation", "matrix",
+    "argb", "remove", "parts", "i",
+})
 
 
 def _load_valid_exts(family: str, platform: str) -> set[str]:
@@ -77,7 +88,9 @@ class EvidenceFormatValidityEvaluator(BaseEvaluator):
         for fmt in formats:
             if isinstance(fmt, dict) and "ext" in fmt:
                 ext = fmt["ext"]
-                if ext not in valid_exts:
+                if ext not in valid_exts or ext in _FALSE_POSITIVE_EXTS:
+                    reason = ("known false positive" if ext in _FALSE_POSITIVE_EXTS
+                              else "not found in formats.json")
                     findings.append(Finding(
                         level="WARN",
                         category="EFV",
@@ -85,7 +98,7 @@ class EvidenceFormatValidityEvaluator(BaseEvaluator):
                         line_no=1,
                         message=(
                             f"evidence.formats contains invalid extension '{ext}' "
-                            f"not found in formats.json"
+                            f"({reason})"
                         ),
                         suggestion=(
                             f"Remove '{ext}' from evidence.formats — it is a "
@@ -104,7 +117,7 @@ class EvidenceFormatValidityEvaluator(BaseEvaluator):
             for fmt in sec_formats:
                 if isinstance(fmt, dict) and "ext" in fmt:
                     ext = fmt["ext"]
-                    if ext not in valid_exts:
+                    if ext not in valid_exts or ext in _FALSE_POSITIVE_EXTS:
                         findings.append(Finding(
                             level="INFO",
                             category="EFV",

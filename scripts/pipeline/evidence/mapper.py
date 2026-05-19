@@ -35,6 +35,26 @@ from evidence.sections import _parse_sections  # noqa: E402
 # These appear in formats.json as exporter base/registry/factory classes and must be excluded.
 _INTERNAL_FORMAT_NAMES = frozenset({"base", "registry", "factory", "pptxfactory"})
 
+# CV2-003b: Format names that appear in formats.json but are not real file extensions.
+# These are internal class/concept names (CFB structure elements, spreadsheet concepts,
+# enum constants for non-I/O purposes) that the format extractor picks up from source code.
+_FALSE_POSITIVE_EXTS = frozenset({
+    # Spreadsheet structural concepts (cells/python)
+    "col", "row", "main", "elem",
+    # OPC/package concepts (slides/cpp)
+    "package",
+    # CFB/MSG structure elements (email/python)
+    "storage", "value", "address", "flags", "reserved", "clsid", "difat",
+    # Slide rendering internals (slides/python)
+    "double", "black", "el",
+    # Font library internals (font/python)
+    "font", "binary", "bit", "slice", "pos", "format",
+    # 3D scene internals (3d/python)
+    "geometry", "mesh", "material", "rotation", "matrix",
+    # Generic false positives
+    "argb", "remove", "parts", "i",
+})
+
 # Maximum length for a plausible file extension (e.g. "docx"=4, "pptx"=4, "html"=4, "jpeg"=4)
 _MAX_EXT_LEN = 8
 
@@ -61,7 +81,7 @@ def _load_known_formats(knowledge) -> list:
         if not isinstance(entry, dict):
             continue
         ext = entry.get("extension", entry.get("ext", entry.get("format", ""))).lower().lstrip(".")
-        if not ext or ext in _INTERNAL_FORMAT_NAMES or len(ext) > _MAX_EXT_LEN:
+        if not ext or ext in _INTERNAL_FORMAT_NAMES or ext in _FALSE_POSITIVE_EXTS or len(ext) > _MAX_EXT_LEN:
             continue
         support = entry.get("support", entry.get("direction", ""))
         # FIX-06: skip detect-only formats — they have no backing I/O class
