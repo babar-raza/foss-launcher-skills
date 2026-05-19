@@ -62,6 +62,7 @@ def _ensure_loaded():
         description_completeness,
         evidence_completeness,
         evidence_depth,
+        evidence_format_validity,
         forbidden_claims,
         format_completeness,
         format_truth,
@@ -81,4 +82,5 @@ def _ensure_loaded():
         capability_claim_check,
         encoding_check,
         consumer_usefulness,
+        private_api_usage,
     )

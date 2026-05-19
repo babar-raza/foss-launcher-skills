@@ -954,6 +954,19 @@ def run(family: str, platform: str, kind_arg: str = "all",
     if _internal_skipped:
         print(f"Skipped {_internal_skipped} internal/vendor class(es).")
 
+    # H-04e: When __all__ is defined (detected by any "exported" entries),
+    # exclude "conventional" classes — they are implementation details not
+    # intended for public consumption. Only "exported" and "public" remain.
+    _has_exports = any(e.get("visibility") == "exported" for e in candidates)
+    if _has_exports:
+        _conv_before = len(candidates)
+        candidates = [e for e in candidates
+                      if e.get("visibility") != "conventional"]
+        _conv_skipped = _conv_before - len(candidates)
+        if _conv_skipped:
+            print(f"Skipped {_conv_skipped} conventional class(es) "
+                  f"(package defines __all__).")
+
     # Deduplicate name collisions: when multiple api_surface entries share the
     # same class name (e.g. public Document vs internal Document), prefer the
     # entry with the highest visibility tier.

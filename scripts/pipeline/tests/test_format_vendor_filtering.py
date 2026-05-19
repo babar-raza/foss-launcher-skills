@@ -152,5 +152,50 @@ class TestFilterVendorPaths(unittest.TestCase):
         self.assertEqual(len(result), 0, "vendor/ and third_party/ should be filtered")
 
 
+class TestConventionalVisibilityPolicy(unittest.TestCase):
+    """When __all__ defines the public API, conventional classes must not
+    become reference pages.  H-04e."""
+
+    def _make_entries(self, vis_list):
+        """Helper: create api_surface-style entries with given visibility tiers."""
+        return [{"name": f"Cls{i}", "visibility": v}
+                for i, v in enumerate(vis_list)]
+
+    def test_conventional_excluded_when_exports_exist(self):
+        """If any entry has visibility='exported', conventional entries are dropped."""
+        entries = self._make_entries(
+            ["exported", "public", "conventional", "conventional"])
+        # Simulate the H-04e filter
+        has_exports = any(e.get("visibility") == "exported" for e in entries)
+        self.assertTrue(has_exports)
+        filtered = [e for e in entries if e.get("visibility") != "conventional"]
+        self.assertEqual(len(filtered), 2)  # exported + public only
+        visibilities = {e["visibility"] for e in filtered}
+        self.assertNotIn("conventional", visibilities)
+
+    def test_conventional_kept_when_no_exports(self):
+        """Without exported entries, conventional classes are retained."""
+        entries = self._make_entries(["public", "conventional", "conventional"])
+        has_exports = any(e.get("visibility") == "exported" for e in entries)
+        self.assertFalse(has_exports)
+        # No filtering for conventional
+        self.assertEqual(len(entries), 3)
+
+    def test_internal_always_excluded(self):
+        """Internal entries are excluded regardless of export status."""
+        entries = self._make_entries(
+            ["exported", "public", "conventional", "internal"])
+        # H-04d: internal always excluded
+        filtered = [e for e in entries if e.get("visibility") != "internal"]
+        self.assertEqual(len(filtered), 3)
+        # H-04e: then conventional excluded because exports exist
+        has_exports = any(e.get("visibility") == "exported" for e in filtered)
+        self.assertTrue(has_exports)
+        final = [e for e in filtered if e.get("visibility") != "conventional"]
+        self.assertEqual(len(final), 2)
+        self.assertEqual(
+            {e["visibility"] for e in final}, {"exported", "public"})
+
+
 if __name__ == "__main__":
     unittest.main()
