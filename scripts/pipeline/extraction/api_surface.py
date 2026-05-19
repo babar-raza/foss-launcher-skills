@@ -920,6 +920,31 @@ def _cpp_canonical_namespace(cnode) -> str:
 # Core API surface extraction
 # ---------------------------------------------------------------------------
 
+
+def _flatten_inheritance(classes: list[dict]) -> None:
+    """Copy parent methods/properties into child classes (in-place).
+
+    Only copies members that are not already defined on the child
+    (child definitions take precedence over inherited ones).
+    """
+    by_name: dict[str, dict] = {c["name"]: c for c in classes if c.get("name")}
+    for cls in classes:
+        for base_name in cls.get("bases", []):
+            parent = by_name.get(base_name)
+            if parent is None:
+                continue
+            child_method_names = {m["name"] for m in cls.get("methods", [])}
+            for m in parent.get("methods", []):
+                if m["name"] not in child_method_names:
+                    cls.setdefault("methods", []).append(m)
+                    child_method_names.add(m["name"])
+            child_prop_names = {p["name"] for p in cls.get("properties", [])}
+            for p in parent.get("properties", []):
+                if p["name"] not in child_prop_names:
+                    cls.setdefault("properties", []).append(p)
+                    child_prop_names.add(p["name"])
+
+
 def extract_api_surface(
     parser,
     language: str,
@@ -1475,6 +1500,11 @@ def extract_api_surface(
                 family, "api_method",
                 f"Function {fname}({', '.join(p['name'] for p in params)}) -> {ret}",
                 rel, fnode.start_point[0] + 1))
+
+    # TC-HCR-001: Flatten inherited methods/properties into child classes
+    # so that evaluators can verify inherited member access without walking
+    # the inheritance chain at evaluation time.
+    _flatten_inheritance(classes)
 
     scout_report: dict[str, Any] = {
         "files_attempted": files_attempted,

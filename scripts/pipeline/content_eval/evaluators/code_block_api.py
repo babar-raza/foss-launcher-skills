@@ -115,14 +115,10 @@ class CodeBlockApiEvaluator(BaseEvaluator):
                     # external libraries, stdlib, or user code
                     continue
 
-                # Class is known — check if member exists
-                known_methods = knowledge.methods.get(class_name, set())
-                known_props = knowledge.properties.get(class_name, set())
-                known_enums = knowledge.enum_members.get(class_name, set())
-
-                if (member_name not in known_methods
-                        and member_name not in known_props
-                        and member_name not in known_enums):
+                # Class is known — check if member exists (inheritance-aware)
+                if (not knowledge.has_method(class_name, member_name)
+                        and not knowledge.has_property(class_name, member_name)
+                        and not knowledge.has_enum_member(class_name, member_name)):
                     # Member doesn't exist on this class
                     line_offset = block.content[:match.start()].count("\n")
                     abs_line = block.start_line + 1 + line_offset
