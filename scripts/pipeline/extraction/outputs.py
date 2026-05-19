@@ -22,6 +22,25 @@ import yaml
 
 LOG = logging.getLogger("scout")
 
+# ---------------------------------------------------------------------------
+# Registry overrides — products.json entries may contain an "overrides" dict
+# with keys like "product_name" or "license" that supersede manifest values.
+# ---------------------------------------------------------------------------
+_PRODUCTS_JSON = Path(__file__).resolve().parents[3] / "data" / "products.json"
+
+
+def _load_registry_overrides(family: str, platform: str) -> dict[str, str]:
+    """Return override dict from products.json for a given family/platform."""
+    try:
+        products = json.loads(_PRODUCTS_JSON.read_text(encoding="utf-8"))
+        for entry in products:
+            if entry.get("family") == family and entry.get("platform") == platform:
+                return entry.get("overrides", {})
+    except (FileNotFoundError, json.JSONDecodeError, KeyError):
+        pass
+    return {}
+
+
 # Platform → file extension map (imported to avoid circular deps)
 from extraction.tree_helpers import _FILE_EXTENSIONS  # noqa: E402
 
@@ -206,6 +225,20 @@ def write_outputs(
 ) -> None:
     """Write all scout extraction artifacts to *output* directory."""
     output.mkdir(parents=True, exist_ok=True)
+
+    # Apply registry overrides from products.json.  If a product entry has an
+    # "overrides" dict with keys "product_name" or "license", those values
+    # supersede whatever the upstream manifest contains.  This lets us launch
+    # products whose upstream package.json has wrong metadata (e.g. name or
+    # license) without waiting for an upstream fix.
+    overrides = _load_registry_overrides(family, platform)
+    if overrides:
+        manifest = dict(manifest)  # shallow copy — don't mutate caller's dict
+        if "product_name" in overrides:
+            manifest["name"] = overrides["product_name"]
+        if "license" in overrides:
+            manifest["license"] = overrides["license"]
+        LOG.info("Applied registry overrides: %s", list(overrides.keys()))
 
     install_cmd = _install_command(platform, manifest)
     canonical_imp = _canonical_import(platform, manifest, packages)
