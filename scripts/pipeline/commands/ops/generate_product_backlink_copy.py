@@ -269,7 +269,7 @@ def apply_template_fallback(req: BacklinkCopyRequest) -> tuple[str, str]:
 
     if req.page_type == "family":
         # P-3: Family page
-        sentence = f"For the complete commercial product family with enterprise support, visit [{display}]({url})."
+        sentence = f"For the complete commercial product family with dedicated support, visit [{display}]({url})."
         template_id = "P-3"
     elif wc <= 140:
         # P-4: Platform page, compact overview

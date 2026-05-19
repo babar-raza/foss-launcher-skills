@@ -131,7 +131,7 @@ def _get_link_sentence(
             return f"Developers who need the complete commercial API with full production support can use [{display}]({target_url}) alongside these open-source resources."
     else:
         display = fam_title
-        return f"For the complete commercial product family with enterprise support, visit [{display}]({target_url})."
+        return f"For the complete commercial product family with dedicated support, visit [{display}]({target_url})."
 
     return f"The commercial counterpart is [{display}]({target_url})."
 
@@ -313,7 +313,7 @@ def _apply_overview_template(
     wc = len(current_content.split())
 
     if not platform:
-        sentence = f"For the complete commercial product family with enterprise support, visit [{display}]({target_url})."
+        sentence = f"For the complete commercial product family with dedicated support, visit [{display}]({target_url})."
     elif wc <= 140:
         sentence = f"The commercial counterpart is [{display}]({target_url})."
     else:
