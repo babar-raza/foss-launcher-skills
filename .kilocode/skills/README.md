@@ -5,7 +5,7 @@ Each skill is a subdirectory with a `SKILL.md` file inside.
 
 > **Canonical source**: [skills/README.md](../../skills/README.md)
 > **Authoritative registry**: [AGENTS.md §12](../../AGENTS.md)
-> This tree is a full mirror of `skills/` — all 81 registered skills are present.
+> This tree is a full mirror of `skills/` — all 84 registered skills are present.
 > When content diverges from canonical, investigate with `python scripts/pipeline/commands/ops/sync_skills.py --report`.
 
 ---
