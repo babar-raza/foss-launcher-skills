@@ -63,6 +63,41 @@ from extraction.tree_helpers import (
 #: ``excluded_package_segments=frozenset()`` to ``extract_api_surface()``.
 _JAVA_DEFAULT_EXCLUDED_PACKAGE_SEGMENTS: frozenset[str] = frozenset({"internal", "impl"})
 
+# H-04d: Path segments that indicate vendor/internal code for Python/C++.
+_VENDOR_PATH_SEGMENTS: frozenset[str] = frozenset({
+    "vendor", "vendored", "third_party", "thirdparty",
+})
+
+# Private directory names that are exempt from filtering (contain real implementations)
+_EXEMPT_PRIVATE_DIRS: frozenset[str] = frozenset({"_internal"})
+
+
+def _detect_vendor_files(files: list[Path], pkg_root: Path) -> set[Path]:
+    """Return the subset of files that are inside vendor/private directories.
+
+    A directory is considered vendor if its name is in ``_VENDOR_PATH_SEGMENTS``.
+    A directory is considered private if its name starts with ``_`` (but not ``__``)
+    and is not in ``_EXEMPT_PRIVATE_DIRS``.
+
+    These files will still be scanned (so class names appear in api_surface.json
+    for diagnostic purposes) but their entries will have ``visibility: "internal"``.
+    """
+    vendor: set[Path] = set()
+    for fpath in files:
+        try:
+            rel_parts = fpath.relative_to(pkg_root).parts
+        except ValueError:
+            continue
+        for part in rel_parts[:-1]:
+            if part.lower() in _VENDOR_PATH_SEGMENTS:
+                vendor.add(fpath)
+                break
+            if (part.startswith("_") and not part.startswith("__")
+                    and part not in _EXEMPT_PRIVATE_DIRS):
+                vendor.add(fpath)
+                break
+    return vendor
+
 
 def _is_excluded_java_package(package: str, excluded_segments: frozenset[str]) -> bool:
     """Return True if any dot-separated segment of *package* is in *excluded_segments*.
@@ -940,6 +975,10 @@ def extract_api_surface(
     header_ext = _HEADER_EXTENSIONS.get(language, "")
     files = _collect_source_files(pkg_root, ext, header_ext)
 
+    # H-04d: Pre-compute set of files in vendor/private directories.
+    # Classes from these files will be marked visibility="internal".
+    _vendor_files = _detect_vendor_files(files, pkg_root)
+
     class_types = _CLASS_TYPES.get(language, set())
     func_types = _FUNC_TYPES.get(language, set())
 
@@ -1342,6 +1381,9 @@ def extract_api_surface(
                 has_docstring=bool(cdoc),
                 in_module_all=(cname in module_all_names),
             )
+            # H-04d: Override visibility for vendor/private directory classes
+            if fpath in _vendor_files:
+                vis = "internal"
             # OBS-03: Remove self-referential bases (tree-sitter extraction bug)
             bases = [b for b in bases if b != cname]
 

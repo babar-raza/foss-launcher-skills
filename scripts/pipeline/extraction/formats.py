@@ -122,6 +122,45 @@ def _extract_exporter_dict_formats(class_node, language: str) -> list[str]:
     return results
 
 
+# H-04d: Path segments that indicate vendor/internal code.
+# Files under these directories produce false-positive format names.
+_VENDOR_PATH_SEGMENTS = {"vendor", "vendored", "third_party", "thirdparty"}
+
+
+def _filter_vendor_paths(files: list[Path], pkg_root: Path) -> list[Path]:
+    """Remove files in vendor/third-party or private bundled directories.
+
+    Filtered directories:
+    - Names in ``_VENDOR_PATH_SEGMENTS`` (vendor, vendored, third_party, etc.)
+    - ``_``-prefixed directories EXCEPT ``_internal`` (which often contains
+      real I/O implementations that back format enum entries).
+
+    ``_internal`` is exempted because libraries like slides use it for actual
+    exporter/importer classes, while ``_brotli``, ``_icu``, etc. contain
+    transpiled or vendored code that produces false-positive format names.
+    """
+    _EXEMPT_PRIVATE_DIRS = {"_internal"}
+    filtered: list[Path] = []
+    for fpath in files:
+        try:
+            rel_parts = fpath.relative_to(pkg_root).parts
+        except ValueError:
+            filtered.append(fpath)
+            continue
+        skip = False
+        for part in rel_parts[:-1]:
+            if part.lower() in _VENDOR_PATH_SEGMENTS:
+                skip = True
+                break
+            if (part.startswith("_") and not part.startswith("__")
+                    and part not in _EXEMPT_PRIVATE_DIRS):
+                skip = True
+                break
+        if not skip:
+            filtered.append(fpath)
+    return filtered
+
+
 def detect_formats(
     parser,
     language: str,
@@ -156,8 +195,12 @@ def detect_formats(
     ext = _FILE_EXTENSIONS.get(language, ".py")
     header_ext = _HEADER_EXTENSIONS.get(language, "")
     files = _collect_source_files(pkg_root, ext, header_ext)
+    # H-04d: Filter out files in private/vendor/internal directories.
+    # These contain implementation details (transpiled code, I/O helpers)
+    # that produce false-positive format names.
+    files = _filter_vendor_paths(files, pkg_root)
     format_pattern = re.compile(
-        r"(FileFormat|FormatType|SupportedFormat|FileType|SaveFormat|ExportFormat|LoadFormat|ImportFormat|OutputFormat|InputFormat|SourceFormat)",
+        r"(FileFormat|FormatType|SupportedFormat|FileType|SaveFormat|ExportFormat|LoadFormat|ImportFormat|OutputFormat|InputFormat|SourceFormat|FontType)",
         re.IGNORECASE)
     # SaveFormat/ExportFormat enums indicate actual output capability
     save_format_pattern = re.compile(
@@ -176,6 +219,18 @@ def detect_formats(
         "document", "file", "stream", "base", "abstract", "default",
         "generic", "common", "internal", "helper", "utils", "factory",
         "registry",
+        # H-04c: additional false positives observed in global audit (2026-05-19)
+        "font", "binary", "bit", "slice", "pos", "format", "png",
+        "presentation", "decode", "encode", "reserved", "difat",
+        "clsid", "flags", "value", "minimal", "auto", "unknown",
+        "package", "core", "data", "cfb", "xml", "message",
+        "main", "col", "row", "elem", "extension", "content",
+        "index", "header", "table", "shape", "chart", "image",
+        "geometry", "material", "matrix", "mesh", "rotation",
+        "address", "storage", "black", "double", "el", "opt",
+        "chars", "emu", "color", "point", "rect", "size",
+        "underlying", "hex", "method", "class", "module",
+        "ipackage",
     })
 
     for fpath in files:
@@ -305,6 +360,13 @@ def detect_formats(
         "remove", "dir", "parts", "part", "argb", "name", "self",
         "args", "kwargs", "none", "true", "false", "copy", "str",
         "int", "url", "uri", "enum",
+        # H-04c: additional method-name false positives from global audit
+        "main", "col", "row", "elem", "extension", "content",
+        "index", "header", "chart", "image", "shape", "table",
+        "geometry", "material", "matrix", "mesh", "rotation",
+        "address", "storage", "black", "double", "el", "opt",
+        "chars", "emu", "color", "point", "rect", "size",
+        "underlying", "hex",
     })
     _method_fmt_re = re.compile(
         r'\b(?:load_from|save_to|save_as|from|to)_([a-z][a-z0-9]+)\b'
@@ -662,12 +724,35 @@ def _validate_formats(
     formats: list[dict],
     false_positives: frozenset[str],
 ) -> list[dict]:
-    """Remove false-positive format entries and normalize names."""
+    """Remove false-positive format entries and normalize names.
+
+    H-04c: Enhanced validation (2026-05-19):
+    - Reject entries > 12 chars (real format names are short: TTF, XLSX, PPTX)
+    - Reject entries with internal underscores (compound names like decode_bit)
+    - Reject entries matching compound word patterns (AutoFilterXML, etc.)
+    - Enum-sourced entries (f["enum"] is set) bypass length/pattern checks
+      because enum members are authoritative format identifiers.
+    """
+    # CamelCase detection: two or more uppercase letters with lowercase between
+    # them indicates a compound word (e.g. ChartXml, AutoFilterXML, MinimalCFB).
+    # Real format names from suffix stripping are single words (Pptx, Xlsx, Cfb).
+    _CAMELCASE_RE = re.compile(r"[a-z][A-Z]")
     valid: list[dict] = []
     for f in formats:
         name = (f.get("format") or "").strip().strip("_")
         if not name or len(name) < 2 or name.lower() in false_positives:
             continue
+        # Enum-sourced entries are authoritative — keep them
+        if not f.get("enum"):
+            # Non-enum entries come from class-name suffix stripping or method
+            # patterns — apply stricter validation
+            if len(name) > 10:
+                continue
+            if "_" in name:
+                continue
+            # Reject CamelCase compound words (ChartXml, PictureXml, etc.)
+            if _CAMELCASE_RE.search(name):
+                continue
         f["format"] = name
         valid.append(f)
     return valid

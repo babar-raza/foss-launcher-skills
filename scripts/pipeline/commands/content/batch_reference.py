@@ -947,11 +947,17 @@ def run(family: str, platform: str, kind_arg: str = "all",
     # Filter candidates
     candidates = [e for e in api_surface if _passes_platform_scope(e, platform)]
     candidates = _apply_kind_filter(candidates, kind_arg, platform)
+    # H-04d: Exclude internal/vendor classes from reference page generation.
+    _internal_before = len(candidates)
+    candidates = [e for e in candidates if e.get("visibility") != "internal"]
+    _internal_skipped = _internal_before - len(candidates)
+    if _internal_skipped:
+        print(f"Skipped {_internal_skipped} internal/vendor class(es).")
 
     # Deduplicate name collisions: when multiple api_surface entries share the
     # same class name (e.g. public Document vs internal Document), prefer the
     # entry with the highest visibility tier.
-    _VIS_RANK = {"exported": 3, "public": 2, "conventional": 1}
+    _VIS_RANK = {"exported": 3, "public": 2, "conventional": 1, "internal": 0}
     seen_names: dict[str, int] = {}  # name → index in candidates
     dedup = []
     for entry in candidates:
