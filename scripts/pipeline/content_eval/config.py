@@ -35,6 +35,7 @@ ALL_EVALUATORS = [
     "capability_claim_check",
     "encoding_check",
     "consumer_usefulness",
+    "private_api_usage",
 ]
 
 # FREEZE-03: Canonical evaluators — contribute to the frontmatter grade letter.
@@ -84,6 +85,7 @@ EXPERIMENTAL_EVALUATORS = frozenset({
     "structure",
     "version_claim_check",
     "capability_claim_check",
+    "private_api_usage",
 })
 
 # Default evaluators (fast, deterministic, production-ready)
@@ -237,7 +239,9 @@ RISK_LANGUAGE_PATTERNS: list[tuple[str, str, str]] = [
     (r"\bcomplete(?:ly)?\s+(?:support|compatible|implement)", "Overstated completeness", "WARN"),
     (r"\ball\s+(?:features|formats|platforms)\b", "Overbroad claim: 'all'", "WARN"),
     (r"\b100\s*%\s*(?:compatible|accurate|supported)\b", "Unsupported 100% claim", "FAIL"),
-    (r"\benterprise[\s-]?grade\b", "Marketing language: 'enterprise-grade'", "INFO"),
+    (r"\benterprise[\s\-\u2011]?grade\b", "Positioning language: 'enterprise-grade' (advisory)", "INFO"),
+    (r"\benterprise[\s\-\u2011]?(?:ready|level|class)\b", "Positioning language: 'enterprise-ready/level/class' (advisory)", "INFO"),
+    (r"\bcommercial[\s\-]?grade\b", "Positioning language: 'commercial-grade' (advisory)", "INFO"),
     (r"\bproduction[\s-]?ready\b", "Unsupported claim: 'production-ready'", "INFO"),
     (r"\bindustry[\s-]?leading\b", "Marketing language: 'industry-leading'", "WARN"),
     (r"\bzero[\s-]?(?:config|dependency|overhead)\b", "Unsupported 'zero' claim", "WARN"),

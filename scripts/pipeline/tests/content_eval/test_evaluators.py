@@ -195,6 +195,65 @@ class TestRiskLanguage:
         findings = self.evaluator.evaluate(page, None)
         assert len(findings) >= 1, "Reference page prose must still be evaluated for risk language"
 
+    def test_enterprise_grade_unicode_hyphen(self):
+        """enterprise-grade with Unicode non-breaking hyphen U+2011 must be detected."""
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Test
+            ---
+            For enterprise\u2011grade capabilities, see the commercial edition.
+        """))
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) >= 1, "Unicode non-breaking hyphen enterprise-grade must be detected"
+        assert any("enterprise-grade" in f.message.lower() or "enterprise" in f.message.lower() for f in findings)
+
+    def test_enterprise_grade_ascii_hyphen(self):
+        """enterprise-grade with regular ASCII hyphen must be detected."""
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Test
+            ---
+            This is an enterprise-grade library for file processing.
+        """))
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) >= 1, "ASCII hyphen enterprise-grade must be detected"
+
+    def test_enterprise_ready_detected(self):
+        """enterprise-ready must be detected at INFO level."""
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Test
+            ---
+            This enterprise-ready solution handles all file formats.
+        """))
+        findings = self.evaluator.evaluate(page, None)
+        enterprise_findings = [f for f in findings if "enterprise" in f.message.lower()]
+        assert len(enterprise_findings) >= 1, "enterprise-ready must be detected"
+
+    def test_enterprise_level_detected(self):
+        """enterprise-level must be detected at INFO level."""
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Test
+            ---
+            Provides enterprise-level document processing capabilities.
+        """))
+        findings = self.evaluator.evaluate(page, None)
+        enterprise_findings = [f for f in findings if "enterprise" in f.message.lower()]
+        assert len(enterprise_findings) >= 1, "enterprise-level must be detected"
+
+    def test_commercial_grade_detected(self):
+        """commercial-grade must be detected at INFO level."""
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Test
+            ---
+            A commercial-grade PDF processing library.
+        """))
+        findings = self.evaluator.evaluate(page, None)
+        enterprise_findings = [f for f in findings if "commercial-grade" in f.message.lower()]
+        assert len(enterprise_findings) >= 1, "commercial-grade must be detected"
+
 
 class TestStructure:
     def setup_method(self):
