@@ -1,5 +1,5 @@
 """
-TC-S96-006: Cleanroom Regen Orchestrator.
+S-97: Cleanroom Regen Orchestrator (originally TC-S96-006).
 
 CLI entry point for all 8 cleanroom regeneration modes.
 Delegates to helper modules for each mode.
@@ -182,10 +182,21 @@ def mode_snapshot(args: argparse.Namespace, runs_root: pathlib.Path) -> Exit:
     from commands.ops.cleanroom_manifest import capture_baseline
 
     run_dir = runs_root / args.run_id
+
+    # P-11: run_id uniqueness — refuse to overwrite existing run without --resume
+    if run_dir.exists() and (run_dir / "run_state.json").exists():
+        if not getattr(args, "resume", False):
+            print(f"STOP: Run ID {args.run_id!r} already exists. Use --resume to overwrite.")
+            return Exit.LOCK_CONFLICT
+
     run_dir.mkdir(parents=True, exist_ok=True)
 
     subdomains = [args.subdomain] if getattr(args, "subdomain", None) else None
     scope = cs.resolve(args.family, args.platform, subdomains)
+
+    # P-12: warn when content/ is dirty during snapshot
+    if not _git_content_clean():
+        print("[snapshot] WARNING: content/ has uncommitted changes — baseline captures dirty state")
 
     # Write run_state.json
     branch = _git_current_branch()
@@ -261,11 +272,21 @@ def mode_regenerate(args: argparse.Namespace, runs_root: pathlib.Path) -> Exit:
         print(f"STOP: Missing baseline-manifest.json — run snapshot first")
         return Exit.MISSING_ARTIFACT
 
+    # P-4: git-baseline.json gate
+    if not git_baseline_path.exists():
+        print("STOP: Missing git-baseline.json — run snapshot first")
+        return Exit.MISSING_ARTIFACT
+
     # Gate: must be on isolated branch (not main)
     branch = _git_current_branch()
     if branch == "main":
         print(f"STOP: regenerate-cleanroom refused on main branch")
         return Exit.UNSAFE_BRANCH
+
+    # P-6: content/ must be clean before regeneration
+    if not _git_content_clean():
+        print("STOP: content/ has uncommitted changes — commit or stash before regenerating")
+        return Exit.DIRTY_TREE
 
     subdomains = [args.subdomain] if getattr(args, "subdomain", None) else None
     scope = cs.resolve(args.family, args.platform, subdomains)
@@ -284,7 +305,7 @@ def mode_regenerate(args: argparse.Namespace, runs_root: pathlib.Path) -> Exit:
                 "planned_task_id": f"{sub}-placeholder",
                 "subdomain": sub,
                 "skill_id": gen.get("skill", ""),
-                "target_path": f"content/{sub}.aspose.org/{args.family}/{getattr(args, 'platform', '')}",
+                "target_path": scope.content_roots.get(sub, f"content/{sub}.aspose.org/{args.family}/{getattr(args, 'platform', '')}"),
                 "skill_args": {},
                 "status": "PLANNED",
             })
@@ -322,15 +343,65 @@ def mode_regenerate(args: argparse.Namespace, runs_root: pathlib.Path) -> Exit:
         }
         _write_json(run_dir / "agent-execution-ledger.json", ledger)
 
-    # For reference subdomain: emit a minimal regeneration-log
+    # P-1: For reference subdomain, invoke batch_reference.py via subprocess
+    ref_exit_code = None
+    ref_stdout = ""
+    ref_stderr = ""
+    ref_timed_out = False
+    dry_run = getattr(args, "dry_run", False)
+
+    if "reference" in scope.subdomains:
+        batch_ref_path = _REPO_ROOT / "scripts" / "pipeline" / "commands" / "content" / "batch_reference.py"
+        if not batch_ref_path.exists():
+            print(f"STOP: batch_reference.py not found at {batch_ref_path}")
+            return Exit.GENERATION_FAIL
+
+        cmd = [
+            sys.executable, str(batch_ref_path),
+            args.family, getattr(args, "platform", "") or "",
+            "--rebuild-all", "--confirm-rebuild",
+        ]
+        if dry_run:
+            cmd.append("--dry-run")
+
+        print(f"[regenerate-cleanroom] Running: {' '.join(cmd)}")
+        try:
+            result = subprocess.run(
+                cmd,
+                cwd=_REPO_ROOT,
+                capture_output=True, text=True, timeout=1800,
+                env={**os.environ, "PYTHONPATH": str(_REPO_ROOT / "scripts" / "pipeline")},
+            )
+            ref_exit_code = result.returncode
+            ref_stdout = result.stdout
+            ref_stderr = result.stderr
+        except subprocess.TimeoutExpired:
+            ref_exit_code = -1
+            ref_timed_out = True
+            ref_stderr = "TIMEOUT after 1800s"
+        except Exception as e:
+            ref_exit_code = -1
+            ref_stderr = str(e)
+
+        if ref_exit_code != 0:
+            print(f"STOP: batch_reference.py failed (exit={ref_exit_code})")
+            if ref_stderr:
+                print(f"  stderr: {ref_stderr[:500]}")
+
     regen_log = {
         "run_id": args.run_id,
         "generated_at": _now_iso(),
         "level": getattr(args, "level", 1),
+        "dry_run": dry_run,
         "subdomains_processed": scope.subdomains,
+        "reference_exit_code": ref_exit_code,
+        "reference_timed_out": ref_timed_out,
         "entries": [],
     }
     _write_json(run_dir / "regeneration-log.json", regen_log)
+
+    if ref_exit_code is not None and ref_exit_code != 0:
+        return Exit.GENERATION_FAIL
 
     print(f"[regenerate-cleanroom] Phase A complete. Run ID: {args.run_id}")
     if non_ref_subs:
@@ -461,6 +532,7 @@ def mode_review(args: argparse.Namespace, runs_root: pathlib.Path) -> Exit:
     errs = _write_json(run_dir / "review-report.json", review_report, "review-report")
     if errs:
         print(f"[review] Schema errors: {errs}")
+        return Exit.SCHEMA_FAIL
 
     # Write review summary
     _write_review_summary(run_dir, review_report)
@@ -620,19 +692,86 @@ def mode_verify(args: argparse.Namespace, runs_root: pathlib.Path) -> Exit:
     }
     _write_json(run_dir / "test-report.json", test_report, "test-report")
 
+    # P-3/P-14: Run validate_frontmatter if available
+    validators: Dict[str, Any] = {}
+    content_root = _derive_content_root(run_dir, _REPO_ROOT)
+    vf_path = _REPO_ROOT / "scripts" / "pipeline" / "commands" / "content" / "validate_frontmatter.py"
+    if vf_path.exists() and content_root:
+        try:
+            vf_result = subprocess.run(
+                [sys.executable, "-m", "commands.content.validate_frontmatter", str(content_root)],
+                cwd=_REPO_ROOT,
+                capture_output=True, text=True, timeout=120,
+                env={**os.environ, "PYTHONPATH": str(_REPO_ROOT / "scripts" / "pipeline")},
+            )
+            validators["validate_frontmatter"] = {
+                "exit_code": vf_result.returncode,
+                "passed": vf_result.returncode == 0,
+                "output_lines": len(vf_result.stdout.splitlines()),
+            }
+        except Exception as e:
+            validators["validate_frontmatter"] = {
+                "exit_code": -1, "passed": False, "output_lines": 0,
+            }
+    else:
+        validators["validate_frontmatter"] = {
+            "exit_code": -1, "passed": True, "skipped": True,
+            "skip_reason": "validate_frontmatter.py not found" if not vf_path.exists() else "no content root",
+            "output_lines": 0,
+        }
+
+    # P-3/P-15: Run audit.py if knowledge files available
+    knowledge_dir = _REPO_ROOT / "knowledge" / args.family / (getattr(args, "platform", "") or "") / "merged"
+    audit_path = _REPO_ROOT / "scripts" / "pipeline" / "commands" / "content" / "audit.py"
+    if audit_path.exists() and knowledge_dir.exists():
+        try:
+            audit_result = subprocess.run(
+                [sys.executable, str(audit_path), args.family, getattr(args, "platform", "") or ""],
+                cwd=_REPO_ROOT,
+                capture_output=True, text=True, timeout=300,
+                env={**os.environ, "PYTHONPATH": str(_REPO_ROOT / "scripts" / "pipeline")},
+            )
+            validators["audit"] = {
+                "exit_code": audit_result.returncode,
+                "passed": audit_result.returncode == 0,
+                "skipped": False,
+                "skip_reason": None,
+            }
+        except Exception as e:
+            validators["audit"] = {
+                "exit_code": -1, "passed": False, "skipped": False, "skip_reason": None,
+            }
+    else:
+        skip_reason = "audit.py not found" if not audit_path.exists() else f"knowledge dir missing: {knowledge_dir}"
+        validators["audit"] = {
+            "exit_code": -1, "passed": True, "skipped": True, "skip_reason": skip_reason,
+        }
+
+    # Determine overall validator status
+    any_validator_failed = any(
+        not v.get("passed", True) and not v.get("skipped", False)
+        for v in validators.values()
+    )
+
     validator_report = {
         "run_id": args.run_id,
         "generated_at": _now_iso(),
-        "overall_passed": test_passed,
-        "validators": {},
+        "overall_passed": test_passed and not any_validator_failed,
+        "validators": validators,
     }
     _write_json(run_dir / "validator-report.json", validator_report, "validator-report")
 
+    # Return priority: pytest failure > validator failure > OK
     if not test_passed:
         print(f"[verify] Tests FAILED (exit code {exit_code})")
         return Exit.TEST_FAIL
 
-    print(f"[verify] Tests passed: {test_summary.get('passed', 0)}")
+    if any_validator_failed:
+        failed_names = [k for k, v in validators.items() if not v.get("passed", True) and not v.get("skipped", False)]
+        print(f"[verify] Validators FAILED: {failed_names}")
+        return Exit.VALIDATOR_FAIL
+
+    print(f"[verify] Tests passed: {test_summary.get('passed', 0)}, validators OK")
     return Exit.OK
 
 
@@ -700,8 +839,13 @@ def mode_commit_ready(args: argparse.Namespace, runs_root: pathlib.Path) -> Exit
     if not checks["review_report_complete"]:
         failed.append("review_report_complete")
 
-    # No BAD_REVERT found in review report (any bad generation = fail gate)
-    checks["no_bad_revert_on_disk"] = review.get("counts", {}).get("bad_revert", 0) == 0
+    # P-5: Check decision-ledger for unhandled BAD_REVERT (not review counts)
+    bad_not_handled = sum(
+        1 for e in decision.get("entries", [])
+        if e.get("verdict") == "BAD_REVERT"
+        and e.get("action_taken") not in ("REVERTED_FROM_BASELINE", "DELETED_NEW_FILE")
+    )
+    checks["no_bad_revert_on_disk"] = bad_not_handled == 0
     if not checks["no_bad_revert_on_disk"]:
         failed.append("no_bad_revert_on_disk")
 
@@ -726,13 +870,15 @@ def mode_commit_ready(args: argparse.Namespace, runs_root: pathlib.Path) -> Exit
     if not checks["content_scope_clean"]:
         failed.append("content_scope_clean")
 
-    # Frontmatter valid (proxy: validator passed)
-    checks["frontmatter_valid"] = validator.get("overall_passed", False)
+    # Frontmatter valid — from validators dict
+    vf_data = validator.get("validators", {}).get("validate_frontmatter", {})
+    checks["frontmatter_valid"] = vf_data.get("passed", False) if vf_data else validator.get("overall_passed", False)
     if not checks["frontmatter_valid"]:
         failed.append("frontmatter_valid")
 
-    # Audit passed
-    checks["audit_passed"] = validator.get("overall_passed", False)
+    # Audit passed — from validators dict (skipped audits count as passed)
+    audit_data = validator.get("validators", {}).get("audit", {})
+    checks["audit_passed"] = audit_data.get("passed", False) if audit_data else validator.get("overall_passed", False)
     if not checks["audit_passed"]:
         failed.append("audit_passed")
 
@@ -785,11 +931,13 @@ def mode_commit_ready(args: argparse.Namespace, runs_root: pathlib.Path) -> Exit
         family = target.get("family", args.family)
         platform = target.get("platform", getattr(args, "platform", ""))
         subs = target.get("subdomains", [])
+        level = getattr(args, "level", 1)
         commit_msg = (
             f"content({family}/{platform}): cleanroom regen — "
             f"{n_kept} kept, {n_reverted} reverted, {n_pending} pending\n\n"
             f"Run ID: {args.run_id}\n"
             f"Baseline SHA: {baseline_sha}\n"
+            f"Replay level: {level}\n"
             f"Target: {family}/{platform} [{', '.join(subs)}]\n"
             f"Evidence: reports/cleanroom/{args.run_id}/commit-readiness-report.json"
         )
@@ -842,7 +990,24 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--keep-risky-pending", dest="keep_risky_pending", action="store_true")
     p.add_argument("--keep-unclear-pending", dest="keep_unclear_pending", action="store_true")
     p.add_argument("--level", type=int, default=1, choices=[1, 2])
+    p.add_argument("--dry-run", dest="dry_run", action="store_true",
+                   help="Pass --dry-run to batch_reference.py; no content files written")
+    p.add_argument("--resume", action="store_true",
+                   help="Allow overwriting an existing run_id in snapshot mode")
     return p
+
+
+def _derive_content_root(run_dir: pathlib.Path, repo_root: pathlib.Path) -> Optional[str]:
+    """Derive content root from baseline manifest scope for validator scoping."""
+    manifest = _read_json(run_dir / "baseline-manifest.json")
+    if not manifest:
+        return None
+    scope = manifest.get("scope", {})
+    roots = scope.get("content_roots", {})
+    if roots:
+        first_root = next(iter(roots.values()))
+        return str(repo_root / first_root)
+    return str(repo_root / "content")
 
 
 def main(argv: Optional[List[str]] = None) -> Exit:
@@ -870,7 +1035,25 @@ def main(argv: Optional[List[str]] = None) -> Exit:
     }
 
     fn = mode_map[args.mode]
-    return fn(args, runs_root)
+    exit_code = fn(args, runs_root)
+
+    # P-2: persist completed_modes after each successful mode
+    if exit_code == Exit.OK and args.mode != "inspect":
+        run_state_path = runs_root / args.run_id / "run_state.json"
+        try:
+            if run_state_path.exists():
+                state = json.loads(run_state_path.read_text(encoding="utf-8"))
+                modes = state.get("completed_modes", [])
+                if args.mode not in modes:
+                    modes.append(args.mode)
+                    state["completed_modes"] = modes
+                    tmp = run_state_path.with_suffix(".tmp")
+                    tmp.write_text(json.dumps(state, indent=2), encoding="utf-8")
+                    os.replace(tmp, run_state_path)
+        except Exception:
+            pass  # Non-fatal: state update failure should not block the mode result
+
+    return exit_code
 
 
 if __name__ == "__main__":
