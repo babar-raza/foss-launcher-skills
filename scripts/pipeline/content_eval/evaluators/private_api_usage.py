@@ -58,6 +58,14 @@ class PrivateApiUsageEvaluator(BaseEvaluator):
         if not page.code_blocks:
             return []
 
+        # TC-HCR-002B: Load known workaround members from knowledge
+        # knowledge.workaround_members is a dict {(class, member): reason}
+        workaround_dict: dict[tuple[str, str], str] = {}
+        if knowledge is not None:
+            wm = getattr(knowledge, "workaround_members", None)
+            if isinstance(wm, dict):
+                workaround_dict = wm
+
         findings: list[Finding] = []
         reported: set[tuple[str, str]] = set()  # (receiver, member) dedup key
 
@@ -90,6 +98,34 @@ class PrivateApiUsageEvaluator(BaseEvaluator):
 
                 line_offset = block.content[: match.start()].count("\n")
                 abs_line = block.start_line + 1 + line_offset
+
+                # Check if this is a known workaround — downgrade to INFO
+                # Match by member name against any class in workaround_dict
+                workaround_reason = None
+                for (wc, wm), wr in workaround_dict.items():
+                    if member == wm:
+                        workaround_reason = wr
+                        break
+                is_workaround = workaround_reason is not None
+                if is_workaround:
+                    findings.append(Finding(
+                        level="INFO",
+                        category="PA",
+                        filepath=str(page.filepath),
+                        line_no=abs_line,
+                        message=(
+                            f"Code uses known workaround `{receiver}.{member}` "
+                            f"(documented in workarounds.json). "
+                            f"No public mutation API exists for this operation."
+                        ),
+                        suggestion=(
+                            f"This is a known library limitation tracked in "
+                            f"workarounds.json. No action needed unless the "
+                            f"library adds a public API alternative."
+                        ),
+                        evaluator=self.name,
+                    ))
+                    continue
 
                 findings.append(Finding(
                     level="FAIL",

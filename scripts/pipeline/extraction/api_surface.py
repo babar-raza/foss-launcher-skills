@@ -922,13 +922,28 @@ def _cpp_canonical_namespace(cnode) -> str:
 
 
 def _flatten_inheritance(classes: list[dict]) -> None:
-    """Copy parent methods/properties into child classes (in-place).
+    """Copy inherited methods/properties into child classes (in-place).
 
-    Only copies members that are not already defined on the child
-    (child definitions take precedence over inherited ones).
+    Walks the full inheritance tree (not just direct parents) by resolving
+    classes in topological order so parents are populated before children.
+    Child definitions take precedence over inherited ones.
+    Handles cycles via visited-set guard.
     """
     by_name: dict[str, dict] = {c["name"]: c for c in classes if c.get("name")}
-    for cls in classes:
+
+    resolved: set[str] = set()
+
+    def _resolve(cls_name: str, visiting: set[str]) -> None:
+        if cls_name in resolved or cls_name not in by_name:
+            return
+        if cls_name in visiting:  # cycle guard
+            return
+        visiting.add(cls_name)
+        cls = by_name[cls_name]
+        # Resolve parents first so their inherited members are populated
+        for base_name in cls.get("bases", []):
+            _resolve(base_name, visiting)
+        # Copy from each parent (now includes grandparent members)
         for base_name in cls.get("bases", []):
             parent = by_name.get(base_name)
             if parent is None:
@@ -943,6 +958,13 @@ def _flatten_inheritance(classes: list[dict]) -> None:
                 if p["name"] not in child_prop_names:
                     cls.setdefault("properties", []).append(p)
                     child_prop_names.add(p["name"])
+        visiting.discard(cls_name)
+        resolved.add(cls_name)
+
+    for cls in classes:
+        name = cls.get("name")
+        if name:
+            _resolve(name, set())
 
 
 def extract_api_surface(
