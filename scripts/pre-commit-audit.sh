@@ -176,7 +176,7 @@ changed=()
 while IFS= read -r _line; do changed+=("$_line"); done < <(
     git diff --cached --name-only --diff-filter=ACM \
         | grep '^content/.*\.md$' \
-        | grep '/en/'
+        | grep -E '(/en/|^content/blog\.aspose\.org/)'
 )
 if [ ${#changed[@]} -eq 0 ]; then
     _pc_step_end "SKIP"

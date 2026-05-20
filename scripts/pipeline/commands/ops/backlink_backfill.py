@@ -97,45 +97,6 @@ class BackfillManifest:
 # Products YAML insertion (§5.1 / TC-BL-005)
 # ──────────────────────────────────────────────────────────────────────────────
 
-def _get_link_sentence(
-    target_url: str,
-    family: str,
-    platform: str | None,
-    page_type: str,
-    families_map: dict,
-    platforms_map: dict,
-) -> str:
-    """Build the backlink sentence for overview.content (from LLM copy or template)."""
-    # Load LLM-generated copy if available
-    llm_report_path = _REPO_ROOT / "reports" / "backlinks" / "products_llm_copy_generation.json"
-    if llm_report_path.exists():
-        try:
-            records = json.loads(llm_report_path.read_text(encoding="utf-8"))
-            # Build key pattern to find matching record
-            for rec in records:
-                fp = rec.get("file_path", "")
-                if family in fp and (platform is None or platform in fp):
-                    output = rec.get("output_text")
-                    if output:
-                        # Return the full updated overview.content (not just sentence)
-                        return output  # used as full replacement, not just sentence
-        except Exception:
-            pass
-
-    # Template fallback
-    fam_title = families_map.get(family, f"Aspose.{family.title()}")
-    if platform:
-        plat_title = platforms_map.get(platform, platform.title())
-        display = f"{fam_title} for {plat_title}"
-        if page_type == "plugin":
-            return f"Developers who need the complete commercial API with full production support can use [{display}]({target_url}) alongside these open-source resources."
-    else:
-        display = fam_title
-        return f"For the complete commercial product family with dedicated support, visit [{display}]({target_url})."
-
-    return f"The commercial counterpart is [{display}]({target_url})."
-
-
 def backfill_products_yaml(
     file_path: Path,
     target_url: str,

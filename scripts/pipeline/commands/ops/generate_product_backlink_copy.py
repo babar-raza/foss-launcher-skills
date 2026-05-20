@@ -612,9 +612,12 @@ def build_request(
         return None
 
     # Build display name
+    # FAMILY-ANCHOR rule: when the resolved target is a family URL (chosen_type == "family"),
+    # the anchor must NOT include the platform suffix — "Aspose.Font for Python" paired with
+    # products.aspose.com/font/ is misleading. Use family-level display name instead.
     # families.json values already include "Aspose." prefix (e.g., "Aspose.Words")
     fam_title = families_map.get(family, f"Aspose.{family.title()}")
-    if platform:
+    if platform and chosen_type != "family":
         plat_title = platforms_map.get(platform, platform.title())
         display_name = f"{fam_title} for {plat_title}"
     else:

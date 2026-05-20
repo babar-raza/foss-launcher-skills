@@ -524,3 +524,21 @@ class TestNoIndependentUrlConstruction:
         )
         assert "products.aspose.com/cells/java" not in entry
         assert family_url in entry
+
+
+# ── Dead code removal guard ───────────────────────────────────────────────────
+
+
+class TestDeadCodeRemoved:
+    """Guard: _get_link_sentence was dead code with a broken fallback path.
+
+    It was removed in the Backlink QA Sprint (BQA-SYS-2). This test ensures it
+    stays removed and is not accidentally re-introduced by future refactoring.
+    """
+
+    def test_get_link_sentence_does_not_exist(self):
+        """_get_link_sentence must NOT be a member of the backlink_backfill module."""
+        assert not hasattr(_bbm, "_get_link_sentence"), (
+            "_get_link_sentence was dead code and has been removed. "
+            "Do not re-introduce it — use _apply_overview_template or _build_see_also_entry instead."
+        )
