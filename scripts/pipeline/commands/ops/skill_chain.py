@@ -34,9 +34,9 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 
 # Import shared DAR logic from check_dar_prerequisites
-_PIPELINE_DIR = Path(__file__).resolve().parents[2]  # commands/ops/ -> commands/ -> pipeline/
-if str(_PIPELINE_DIR) not in sys.path:
-    sys.path.insert(0, str(_PIPELINE_DIR))
+_GOVERNANCE_DIR = Path(__file__).resolve().parents[1] / "governance"  # commands/ops/ -> commands/governance/
+if str(_GOVERNANCE_DIR) not in sys.path:
+    sys.path.insert(0, str(_GOVERNANCE_DIR))
 
 from check_dar_prerequisites import (  # noqa: E402
     _parse_dar_table,
@@ -122,12 +122,12 @@ def resolve(skill_arg: str) -> tuple[int, list[list[list[str]]]]:
     try:
         agents_text = _DAR_TABLE.read_text(encoding="utf-8")
     except OSError as exc:
-        print(f"WARN: Cannot read AGENTS.md: {exc} -- fail-open", file=sys.stderr)
+        print(f"WARN: Cannot read dar-table.md: {exc} -- fail-open", file=sys.stderr)
         return 2, []
 
     dar_rows = _parse_dar_table(agents_text)
     if not dar_rows:
-        print("WARN: DAR table not found in AGENTS.md -- fail-open", file=sys.stderr)
+        print("WARN: DAR table not found in dar-table.md -- fail-open", file=sys.stderr)
         return 2, []
 
     raw_chain = _resolve_chain(skill_arg, dar_rows)
