@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 #!/usr/bin/env python3
 """readiness_gate.py -- Unified production readiness gate (TC-08).
 
@@ -44,8 +45,10 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
 # Path resolution
 # ---------------------------------------------------------------------------
 
+import os
+
 _HERE = Path(__file__).resolve().parent
-_DEFAULT_REPO_ROOT = _HERE.parent.parent.parent.parent
+_DEFAULT_REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(_HERE.parents[3])))
 _REPO_ROOT = _DEFAULT_REPO_ROOT
 
 

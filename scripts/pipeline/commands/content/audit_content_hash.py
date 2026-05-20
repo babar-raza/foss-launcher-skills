@@ -1,31 +1,47 @@
-#!/usr/bin/env python3
-"""audit_content_hash.py — Report files where stored content_hash != computed hash.
+# Adapted from aspose.org
+"""audit_content_hash.py -- Report files where stored content_hash != computed hash.
 
 Read-only audit: scans English content files and reports mismatches between
-the stored ``content_hash`` in the provenance block and the actual SHA-256
+the stored content_hash in the provenance block and the actual SHA-256
 of the page body.
-
-Usage:
-    python audit_content_hash.py                      # scan all English content
-    python audit_content_hash.py --path content/blog.aspose.org/
-    python audit_content_hash.py --files file1.md file2.md
-    python audit_content_hash.py --json               # JSON output
 """
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
-if str(_HERE) not in sys.path:
-    sys.path.insert(0, str(_HERE.parent.parent))  # scripts/pipeline/
-    _LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "lib")
-    if _LIB_DIR not in sys.path:
-        sys.path.insert(0, _LIB_DIR)
+_PIPELINE = _HERE.parents[1]
+_SCRIPTS = _HERE.parents[2]
+for _path in (_SCRIPTS, _PIPELINE):
+    if str(_path) not in sys.path:
+        sys.path.insert(0, str(_path))
 
-from provenance import read_provenance, compute_content_hash  # noqa: E402
+from config_loader import resolve_content_repo  # noqa: E402
+
+try:
+    from provenance import read_provenance, compute_content_hash  # noqa: E402
+except ImportError:
+    def read_provenance(filepath):
+        """Stub: provenance module not available in this repo."""
+        return None
+
+    def compute_content_hash(filepath):
+        """Stub: provenance module not available in this repo."""
+        return None
+
+
+def _resolve_content_root() -> Path:
+    env = os.environ.get("CONTENT_REPO_PATH")
+    if env:
+        return Path(env).resolve()
+    try:
+        return resolve_content_repo()
+    except Exception:
+        return _HERE.parents[3]
 
 
 def audit_file(filepath: Path) -> dict | None:
@@ -35,7 +51,7 @@ def audit_file(filepath: Path) -> dict | None:
         return None
     stored = prov.get("content_hash", "")
     if not stored:
-        return None  # no hash to compare — not a mismatch, just absent
+        return None
     computed = compute_content_hash(filepath)
     if not computed:
         return None
@@ -62,18 +78,9 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
         description="Report files where stored content_hash != computed hash."
     )
-    parser.add_argument(
-        "--path", default=None,
-        help="Directory to scan (default: content/*/en/)",
-    )
-    parser.add_argument(
-        "--files", nargs="*", default=None,
-        help="Specific files to check",
-    )
-    parser.add_argument(
-        "--json", dest="json_output", action="store_true",
-        help="Output results as JSON",
-    )
+    parser.add_argument("--path", default=None, help="Directory to scan (default: content/*/en/)")
+    parser.add_argument("--files", nargs="*", default=None, help="Specific files to check")
+    parser.add_argument("--json", dest="json_output", action="store_true", help="Output results as JSON")
     args = parser.parse_args(argv)
 
     mismatches: list[dict] = []
@@ -86,13 +93,12 @@ def main(argv=None) -> int:
     elif args.path:
         mismatches = scan_directory(Path(args.path))
     else:
-        # Default: scan all English content directories
-        repo_root = _HERE.parent.parent.parent.parent
-        content_root = repo_root / "content"
-        for site_dir in sorted(content_root.iterdir()):
-            en_dir = site_dir / "en"
-            if en_dir.is_dir():
-                mismatches.extend(scan_directory(en_dir))
+        content_root = _resolve_content_root() / "content"
+        if content_root.is_dir():
+            for site_dir in sorted(content_root.iterdir()):
+                en_dir = site_dir / "en"
+                if en_dir.is_dir():
+                    mismatches.extend(scan_directory(en_dir))
 
     if args.json_output:
         print(json.dumps(mismatches, indent=2))

@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """Anti-drift check: warn when a pipeline script changes without its skill CONTRACT being updated.
 
 Parses CONTRACT comments in skills/ to build a script→skill map, then checks whether
@@ -23,13 +24,14 @@ from __future__ import annotations
 import argparse
 import re
 import subprocess
+import os
 import sys
 from pathlib import Path
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+_REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))
 _SKILLS_DIR = _REPO_ROOT / "skills"
 _SCRIPTS_DIR = _REPO_ROOT / "scripts"
 

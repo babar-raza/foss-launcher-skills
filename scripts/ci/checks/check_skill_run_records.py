@@ -25,7 +25,7 @@ import os
 import sys
 from pathlib import Path
 
-_DEFAULT_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(__file__).resolve().parent.parent.parent.parent))
+_DEFAULT_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
 _REPO_ROOT = _DEFAULT_REPO_ROOT
 _RUNS_DIR = _REPO_ROOT / "reports" / "skill-runs"
 

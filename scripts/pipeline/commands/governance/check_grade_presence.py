@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 """CI helper: verify that modified content files have grades in frontmatter.
 
 Usage:
@@ -17,7 +18,9 @@ if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 
 from grade_writer import read_grade  # noqa: E402
-from content_discovery import LOCALE_RE  # noqa: E402  (R-4: was knowledge_core)
+# Inline LOCALE_RE (foss does not have content_discovery)
+import re as _re_mod  # noqa: E402
+LOCALE_RE = _re_mod.compile(r"\.(?:ar|bg|ca|cs|da|de|el|es|et|fa|fi|fr|he|hi|hr|hu|id|it|ja|ko|lt|lv|ms|nl|no|pl|pt|ro|ru|sk|sl|sr|sv|th|tr|uk|vi|zh)\.md$")
 
 
 def _is_english_content(path: Path) -> bool:
@@ -38,7 +41,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.scope == "all":
-        from content_discovery import discover_content, discover_products  # noqa: E402  (R-1b)
+        # foss stub: content discovery not available
+        raise ImportError(
+            "content_discovery not available in foss. "
+            "Use --scope modified with explicit file list instead of --scope all."
+        )
         files = []
         for family, platform in sorted(discover_products()):
             files.extend(discover_content(family, platform))

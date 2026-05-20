@@ -129,7 +129,14 @@ def load_declared_locales(subdomain: str, repo_root: Path) -> set[str]:
 # Frontmatter field extraction (fast regex, no full YAML parse)
 # ---------------------------------------------------------------------------
 
-from core.markdown import _FRONTMATTER_READER_RE as _FRONTMATTER_RE
+try:
+    from core.markdown import _FRONTMATTER_READER_RE as _FRONTMATTER_RE
+except ImportError:
+    import re as _re_mod
+    _FRONTMATTER_RE = _re_mod.compile(r"^---\s*
+(.*?)
+---\s*(?:
+|$)", _re_mod.DOTALL)
 _TITLE_RE = re.compile(r"^title:\s*['\"]?(.*?)['\"]?\s*$", re.MULTILINE)
 _DESC_RE = re.compile(r"^description:\s*['\"]?(.*?)['\"]?\s*$", re.MULTILINE)
 

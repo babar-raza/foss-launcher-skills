@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 """Verdict consistency validator — SH-11 implementation.
 
 Checks product-verdict.md files against defined safety rules.
@@ -23,14 +24,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[4]
+REPO_ROOT = Path(os.environ.get("FOSS_REPO_ROOT", Path(__file__).resolve().parents[4]))
 
-SCOPED_PRODUCTS = [
+_DEFAULT_SCOPED_PRODUCTS = [
     "cells-java", "cells-net", "cells-python",
     "slides-java", "slides-net", "slides-python", "slides-cpp",
     "words-python",
@@ -38,6 +40,12 @@ SCOPED_PRODUCTS = [
     "note-python",
     "3d-java", "3d-net", "3d-python", "3d-typescript",
 ]
+
+SCOPED_PRODUCTS: list[str] = (
+    os.environ.get("FOSS_SCOPED_PRODUCTS", "").split(",")
+    if os.environ.get("FOSS_SCOPED_PRODUCTS")
+    else _DEFAULT_SCOPED_PRODUCTS
+)
 
 # Products requiring TC-GP-1 (Tier 3 LOW, <40% method coverage)
 TC_GP1_PRODUCTS = {"slides-net", "words-python"}
@@ -172,13 +180,29 @@ def main():
     parser = argparse.ArgumentParser(description="Verdict consistency validator")
     parser.add_argument(
         "--sprint-dir",
-        default="reports/forensic-audit-healing-20260505-1238",
+        default=None,
         help="Sprint directory (relative to repo root)"
     )
     parser.add_argument("--json", action="store_true", help="Output JSON")
     args = parser.parse_args()
 
-    sprint_dir = REPO_ROOT / args.sprint_dir
+    if args.sprint_dir is None:
+        reports_dir = REPO_ROOT / "reports"
+        if reports_dir.exists():
+            candidates = sorted(
+                [d for d in reports_dir.iterdir() if d.is_dir() and "audit" in d.name],
+                key=lambda d: d.stat().st_mtime, reverse=True,
+            )
+            if candidates:
+                sprint_dir = candidates[0]
+            else:
+                print("ERROR: No sprint directories found in reports/", file=sys.stderr)
+                sys.exit(1)
+        else:
+            print("ERROR: reports/ directory not found", file=sys.stderr)
+            sys.exit(1)
+    else:
+        sprint_dir = REPO_ROOT / args.sprint_dir
     if not sprint_dir.exists():
         print(f"ERROR: Sprint directory not found: {sprint_dir}", file=sys.stderr)
         sys.exit(1)

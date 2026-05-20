@@ -26,7 +26,7 @@ import os
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(__file__).resolve().parent.parent.parent.parent))
+_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
 
 # Make shared pipeline utilities importable when this script is run directly.
 _PIPELINE_DIR = _REPO_ROOT / "scripts" / "pipeline"

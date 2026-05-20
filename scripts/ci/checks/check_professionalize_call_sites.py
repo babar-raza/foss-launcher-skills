@@ -34,7 +34,7 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any
 
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(__file__).resolve().parent.parent.parent.parent))
+_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
 _DEFAULT_REGISTRY = _REPO_ROOT / "scripts" / "pipeline" / "config" / "metrics_callsite_registry.yaml"
 
 # Patterns that suggest professionalize transport

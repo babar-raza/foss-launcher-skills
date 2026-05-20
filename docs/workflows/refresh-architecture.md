@@ -100,7 +100,7 @@ All flags live in `data/refresh-feature-flags.json`. Safe defaults are shown.
 | Surface | Status | Generator | Notes |
 |---------|--------|-----------|-------|
 | reference | supported | `batch_reference.py` (script) | Full fingerprint suite |
-| products | validate_only | Agent (S-61/S-48) | No generator_code_hash; skill_version_hash N/A |
+| products | validate_only | Agent (S-66/S-58) | No generator_code_hash; skill_version_hash N/A |
 | docs | validate_only | Agent (S-20) | No generator_code_hash; skill_version_hash N/A |
 | blog | validate_only | Agent (S-20) | No `/en/` prefix; `.yml` config; skill_version_hash N/A |
 | kb | validate_only | Agent (S-20) | No generator_code_hash; skill_version_hash N/A |

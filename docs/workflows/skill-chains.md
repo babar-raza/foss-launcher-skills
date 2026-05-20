@@ -1,8 +1,8 @@
 ---
 # Governance child document — extracted from AGENTS.md
 # Source: AGENTS.md §6
-# Plan: delightful-wondering-hartmanis (TC-04)
-# Extracted: 2026-04-28
+# Ported: 2026-05-20 (parity migration)
+# ID mapping: aspose.org skill IDs remapped to foss-launcher IDs per docs/id-mapping.md
 ---
 
 # Skill Chains by Task
@@ -25,7 +25,7 @@ S-34 (repo-scout) → S-37 (knowledge-enrich) → S-35 (truth-merge) → S-31 (t
 ### Full-product launch (5-subdomain)
 
 ```
-S-54 (knowledge-bootstrap) → S-47 (site-plan) → S-49 (launch-product stages 1–8)
+S-49 (knowledge-bootstrap) → S-57 (site-plan) → S-49 (launch-product stages 1–8)
 ```
 
 Every launch MUST run `/site-plan` after knowledge bootstrap and BEFORE any content generation.
@@ -44,22 +44,22 @@ S-84 orchestrates the 14-step chain internally:
 ```
 S-12 (knowledge-diff — detect + fetch)       [exits early if no SHA change]
 → S-14 (knowledge-update — refresh + write knowledge_delta.json)
-→ S-82 (delta-site-plan — site_planner --mode update)
+→ S-87 (delta-site-plan — site_planner --mode update)
 → S-20 (page-update — update stale pages from knowledge_delta.json)
 → delta-dispatch (generate pages_to_add by type)
-→ S-83 (page-retire --from-plan — retire pages_to_remove; dry-run first)
-→ S-62 --update (batch-reference — regenerate modified_apis reference pages)
-→ S-48 (family-sync)
+→ S-88 (page-retire --from-plan — retire pages_to_remove; dry-run first)
+→ S-67 --update (batch-reference — regenerate modified_apis reference pages)
+→ S-58 (family-sync)
 → S-23 (content-check on all changed files)
-→ S-65 (link-validate)
-→ S-53 (translate-batch — content_hash-changed pages only)
+→ S-70 (link-validate)
+→ S-100 (translate-batch — content_hash-changed pages only)
 → post_refresh_verify --step (progress tracking after each step)
 → post_refresh_verify --verify (verification gate; must exit 0 before commit)
-→ S-76 (commit)
+→ S-81 (commit)
 ```
 
 Progress is tracked at `reports/refresh_state/{family}/{platform}/progress.json`.
-Check status: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --status`
+Check status: `.venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --status`
 
 > **Refresh is complete only when** `reports/refresh_review/{family}/{platform}/coverage_report.md`
 > shows all 5 subdomains with `assessed > 0` and `post_refresh_verify --verify` exits 0 (Check 6).
@@ -68,7 +68,7 @@ Check status: `python scripts/pipeline/commands/ops/post_refresh_verify.py {fami
 ### Audit-driven healing (content wrong but upstream SHA unchanged)
 
 Use when S-84 exits early ("no SHA change") but content is known or suspected to be wrong.
-S-87 (system-heal) is the canonical path — do not run gap-eval manually and then patch files:
+S-93 (system-heal) is the canonical path — do not run gap-eval manually and then patch files:
 
 ```
 /system-heal {family} {platform} [--scope all|docs|products|kb|blog|reference]
@@ -76,25 +76,25 @@ S-87 (system-heal) is the canonical path — do not run gap-eval manually and th
 
 S-87 orchestrates the 8-phase chain internally:
 ```
-S-43 --no-llm (deterministic baseline)          [halts if > 50 findings → use S-44+S-46]
-→ S-43 (extended baseline: LLM + tier3_cache)
+S-62 --no-llm (deterministic baseline)          [halts if > 50 findings → use S-63+S-65]
+→ S-62 (extended baseline: LLM + tier3_cache)
 → origin_map.py (classify CONTENT / PIPELINE / UPSTREAM / AMBIGUOUS)
-→ Phase 4: CONTENT findings → S-74 (broken-link) | S-46 (wrong-pkg/wapi) | S-26 (wrong-claim/missing)
+→ Phase 4: CONTENT findings → S-79 (broken-link) | S-65 (wrong-pkg/wapi) | S-26 (wrong-claim/missing)
 → pipeline-evidence.md (PIPELINE + HOLD bucket — human action required)
 → S-43 (re-verify healed files; regression guard)
-→ S-76 (commit) [only if fixed > 0 and regressions == 0]
+→ S-81 (commit) [only if fixed > 0 and regressions == 0]
 → final-report.md
-→ S-88 /backlog harvest (automatic on final-report.md — extracts unresolved items to backlog)
+→ S-98 /backlog harvest (automatic on final-report.md — extracts unresolved items to backlog)
 ```
 
 AMBIGUOUS findings and findings with `tier3_non_determinism_flag: true` are never auto-repaired.
-If finding count > 50, S-87 halts and directs to S-44 (gap-plan) + S-46 (gap-apply).
+If finding count > 50, S-93 halts and directs to S-63 (gap-plan) + S-65 (gap-apply).
 
 ### Post-launch content enrichment (cross-subdomain gap fill)
 
 ```
-S-54 (knowledge-bootstrap) → S-47 (site-plan) → S-98 audit → S-98 plan → S-98 execute
-→ S-56/S-57/S-58/S-20 (via handoff manifest) → S-23 (content-check) → S-76 (commit)
+S-49 (knowledge-bootstrap) → S-57 (site-plan) → S-98 audit → S-98 plan → S-98 execute
+→ S-56/S-57/S-58/S-20 (via handoff manifest) → S-23 (content-check) → S-81 (commit)
 ```
 
 S-98 operates in three modes:
@@ -170,7 +170,7 @@ evaluation findings and healing actions.
 | Fix type | Mode | Skill | Regen after? | Effort |
 |----------|------|-------|--------------|--------|
 | `auto` | auto | — | No | low |
-| `upstream` | regen | S-80 (causal-backtrack) | Yes | high |
+| `upstream` | regen | S-79 (causal-backtrack) | Yes | high |
 | `human` | human | — | No | high |
 | `skip` | skip | — | No | low |
 
@@ -184,7 +184,7 @@ evaluation findings and healing actions.
   `verify.py` to compare before/after findings. If regression severity is
   `critical` (grade decreased), revert the healing and escalate.
 - **Regen-after findings** (upstream mode) must complete causal backtracking
-  via S-80 before local fixes run. The heal controller enforces this ordering.
+  via S-79 before local fixes run. The heal controller enforces this ordering.
 
 ### 6e. Terminal-Success State (ceiling-reached)
 
@@ -206,7 +206,7 @@ A page is **ceiling-reached** when ALL of the following are true:
 - NOT re-apply prose softening that a prior session confirmed the linter reverts
 - NOT invoke S-21 (page-enhance) again without a changed pre-condition (e.g., new
   knowledge model, updated evaluator, linter rule change)
-- NOT invoke S-78 (evidence-enhance) again if a prior S-78 run returned ESCAPED and
+- NOT invoke S-83 (evidence-enhance) again if a prior S-78 run returned ESCAPED and
   the manual evidence panel is richer than auto-detection output
 
 **Ceiling-reached is not a failure state.** Grade B with 0 FAIL and known
@@ -226,26 +226,26 @@ system artifacts, not content defects.
 
 | Use case | Correct skill | When to use |
 |----------|---------------|-------------|
-| Iterative development (page-by-page improvement) | S-25 (eval-page) or S-51 (content-eval) | During generation/enhancement loops; many times per session |
-| Pre-launch publishability gate | S-43 (gap-eval) | Once per launch cycle; verifies against clone cache truth |
-| Cross-product quality summary | S-45 (gap-report) | Post-launch or periodic; cluster analysis across families |
+| Iterative development (page-by-page improvement) | S-25 (eval-page) or S-48 (content-eval) | During generation/enhancement loops; many times per session |
+| Pre-launch publishability gate | S-62 (gap-eval) | Once per launch cycle; verifies against clone cache truth |
+| Cross-product quality summary | S-64 (gap-report) | Post-launch or periodic; cluster analysis across families |
 
-**Rule:** Use S-43 at most once per launch cycle (expensive; requires clone cache). Use S-25/S-51 during development. Do not use S-43 as a development-loop quality check — it is a launch-readiness gate, not a rapid-iteration tool.
+**Rule:** Use S-62 at most once per launch cycle (expensive; requires clone cache). Use S-25/S-51 during development. Do not use S-62 as a development-loop quality check — it is a launch-readiness gate, not a rapid-iteration tool.
 
 ### Gap remediation (clone-cache verification + wave-ordered fixes)
 
 ```
-S-43 (gap-eval) → S-44 (gap-plan) → S-46 (gap-apply) → S-23 (content-check) → S-01 (path-guard) → write
+S-62 (gap-eval) → S-63 (gap-plan) → S-65 (gap-apply) → S-23 (content-check) → S-01 (path-guard) → write
 ```
 
-Wave 4 items from S-46 are escalated to human review. Address each item via S-73 (manual-edit) with the operator-specified fix — do not apply ad hoc fixes outside the skill chain.
+Wave 4 items from S-46 are escalated to human review. Address each item via S-78 (manual-edit) with the operator-specified fix — do not apply ad hoc fixes outside the skill chain.
 
 ### Evidence gap recovery (validator-blocked commits)
 
 Triggered when `validate_frontmatter.py` (P-03) or `audit.py` (evidence FAIL) blocks a commit.
 
 ```
-S-72 (evidence-repair) → S-23 (content-check) → S-01 (path-guard) → write
+S-77 (evidence-repair) → S-23 (content-check) → S-01 (path-guard) → write
 ```
 
 S-72 runs `attach_evidence.py --force` first (Stage 1). If claims or apis remain empty, it performs a knowledge-grounded reasoning pass (Stage 2). If evidence cannot be confidently populated, it applies the `manual-remediation` escape (P-03 exempt) and writes an escalation entry to `reports/evidence-repair/needs-human-{date}.md`.
@@ -255,12 +255,12 @@ Wave 4 analogue: ESCAPED files are routed to human for manual evidence populatio
 ### Operator-directed targeted edit (specific change specified by operator)
 
 ```
-S-73 (manual-edit) → embedded S-01 (path-guard) → embedded S-24 (evidence-cite) → write
+S-78 (manual-edit) → embedded S-01 (path-guard) → embedded S-24 (evidence-cite) → write
 ```
 
 Use when the operator knows exactly what to change (a specific sentence, frontmatter field, code block, or section) and can specify it. Do not use when the agent should decide what to fix — use S-26 (heal-page), S-21 (page-enhance), or S-20 (page-update) instead.
 
-Wave 4 items from S-46 (gap-apply) must be addressed via S-73. Do not apply ad hoc fixes.
+Wave 4 items from S-65 (gap-apply) must be addressed via S-73. Do not apply ad hoc fixes.
 
 ### Grade semantics and publication readiness
 
@@ -281,7 +281,7 @@ The evaluator suite covers approximately 60% of known defect classes. A grade of
 1. Is the knowledge artifact (api_surface.json, formats.json, claims.json) wrong?
    → Fix upstream: re-run repo-scout (S-34) or knowledge-update (S-14), then regenerate.
 2. Is the content page wrong but the knowledge is correct?
-   → Use S-73 (manual-edit) for targeted fixes.
+   → Use S-78 (manual-edit) for targeted fixes.
 3. Is the page below quality bar (grade C or below) but factually correct?
    → Use S-21 (page-enhance) for grade C, S-26 (heal-page) for grade D/F.
 4. Do not patch content manually for quality issues that should be fixed in the generator —
@@ -362,7 +362,7 @@ to prevent pages that bypassed the skill contract from reaching production.
 ### Plan execution gate
 
 Before executing any plan that meets one or more of the following conditions, run
-`/plan-normalize {plan-file}` (S-91) first:
+`/plan-normalize {plan-file}` (S-96) first:
 
 - Inherited from another agent or session
 - Contains archive, postmortem, sprint, or completed-work sections
@@ -370,7 +370,7 @@ Before executing any plan that meets one or more of the following conditions, ru
 - Contains capability claims without explicit maturity labels
 - Not immediately executed after the planning skill produced it
 
-If S-91 returns `execution-ready-as-is: no`, do not proceed until the blocking
-conditions are resolved. S-91 replaces manual "re-read and judge" reasoning for
+If S-96 returns `execution-ready-as-is: no`, do not proceed until the blocking
+conditions are resolved. S-96 replaces manual "re-read and judge" reasoning for
 plan-normalization. It does not replace specialized planning skills.
 

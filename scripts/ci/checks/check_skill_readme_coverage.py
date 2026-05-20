@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """Check that all skill-containing folders have README.md files.
 
 Detects:
@@ -21,10 +22,11 @@ from __future__ import annotations
 
 import json
 import re
+import os
 import sys
 from pathlib import Path
 
-_DEFAULT_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+_DEFAULT_REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))
 _REPO_ROOT = _DEFAULT_REPO_ROOT
 
 

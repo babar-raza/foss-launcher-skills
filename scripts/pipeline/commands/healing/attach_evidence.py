@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 """Deterministic evidence block generator for content pages.
 
 Builds the `evidence:` frontmatter block by extracting verified API tokens
@@ -32,7 +33,14 @@ _PIPELINE_ROOT = _HERE.parent.parent  # scripts/pipeline/
 if str(_PIPELINE_ROOT) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_ROOT))
 
-from evidence.runner import main  # noqa: E402
+try:
+    from evidence.runner import main  # noqa: E402
+except ImportError:
+    def main():
+        print("ERROR: evidence.runner module not available. ",
+              "Port the evidence/ package to enable this command.",
+              file=__import__("sys").stderr)
+        raise SystemExit(1)
 
 if __name__ == "__main__":
     main()

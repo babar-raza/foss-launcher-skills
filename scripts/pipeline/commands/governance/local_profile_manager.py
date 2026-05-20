@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 """local_profile_manager.py — CLI for managing local governance profiles.
 
 Usage:
@@ -14,7 +15,7 @@ import sys
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent  # governance/ -> commands/ -> pipeline/ -> scripts/ -> repo
 _PROFILE_DIR = _REPO_ROOT / ".local"
 _PROFILE_PATH = _PROFILE_DIR / "governance.json"
 _SCHEMA_VERSION = 1

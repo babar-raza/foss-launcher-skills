@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """
 check_settings_breadth.py — Validate that .claude/settings.json permissions.allow
 entries are narrow and do not grant overbroad auto-approval.
@@ -22,10 +23,11 @@ from __future__ import annotations
 
 import json
 import re
+import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))
 
 DEFAULT_FILES: list[Path] = [
     REPO_ROOT / ".claude" / "settings.json",

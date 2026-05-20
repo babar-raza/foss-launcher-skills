@@ -1,13 +1,15 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
 """Validate basic DAR coverage between AGENTS.md and skills."""
 from __future__ import annotations
 
 import argparse
 import re
+import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[3])))
 
 
 def parse_dar_downstreams(text: str) -> set[str]:

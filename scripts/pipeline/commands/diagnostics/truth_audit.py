@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 #!/usr/bin/env python3
 """Member-level audit wrapper over the deterministic audit engine."""
 
@@ -13,8 +14,25 @@ _PIPELINE_DIR = Path(__file__).resolve().parents[2]  # commands/diagnostics/ -> 
 if str(_PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_DIR))
 
-from audit.reports import report_json, report_text  # noqa: E402
-from audit.runner import audit_product  # noqa: E402
+try:
+    from audit.reports import report_json, report_text  # noqa: E402
+    from audit.runner import audit_product  # noqa: E402
+    _AUDIT_AVAILABLE = True
+except ImportError:
+    _AUDIT_AVAILABLE = False
+
+    def audit_product(*args, **kwargs):
+        raise RuntimeError(
+            "audit module not available in this repo. "
+            "Port scripts/pipeline/audit/ from aspose.org or install as a dependency."
+        )
+
+    def report_json(findings, products):
+        import json as _json
+        return _json.dumps({"error": "audit module not available", "findings": []}, indent=2)
+
+    def report_text(findings, products):
+        return "ERROR: audit module not available in this repo."
 
 
 def run_truth_audit(

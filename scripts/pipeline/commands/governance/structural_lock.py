@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 #!/usr/bin/env python3
 """structural_lock.py — KR-2: write-lock Class 3 structural pages.
 
@@ -27,7 +28,7 @@ if _LIB_DIR not in sys.path:
 
 from provenance import read_provenance, write_provenance  # noqa: E402
 
-_DEFAULT_REPO_ROOT = (_HERE / ".." / ".." / ".." / "..").resolve()  # commands/governance/ -> commands/ -> pipeline/ -> scripts/ -> repo
+_DEFAULT_REPO_ROOT = (_HERE / ".." / "..").resolve()  # pipeline/ -> scripts/ -> repo  # commands/governance/ -> commands/ -> pipeline/ -> scripts/ -> repo
 _REPO_ROOT = _DEFAULT_REPO_ROOT
 _DEFAULT_CSV = _REPO_ROOT / "reports" / "content_origin_review_queue.csv"
 

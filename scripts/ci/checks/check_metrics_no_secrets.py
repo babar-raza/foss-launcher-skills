@@ -24,7 +24,7 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(__file__).resolve().parent.parent.parent.parent))
+_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
 
 # Files and directories to scan
 _SCAN_TARGETS = [

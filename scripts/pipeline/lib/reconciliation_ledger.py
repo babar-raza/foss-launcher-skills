@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/pipeline/lib/ for standalone use
 """reconciliation_ledger.py — TC-PROD-005: Cross-surface reconciliation ledger.
 
 Records the decision, manifest proof, and outcome for every expected surface in a run.
@@ -24,7 +25,7 @@ from pathlib import Path
 from typing import Optional
 
 
-_REPO_ROOT = Path(__file__).resolve().parents[3]
+_REPO_ROOT = Path(os.environ.get("CONTENT_REPO_PATH", str(Path(__file__).resolve().parents[3])))
 
 # Valid run-level statuses
 PASS = "PASS"

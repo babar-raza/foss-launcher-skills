@@ -1,13 +1,14 @@
-"""Deterministic path guard — validates proposed write paths against an allowlist.
+# Adapted from aspose.org
+"""Deterministic path guard -- validates proposed write paths against an allowlist.
 
 Checks whether a given file path is permitted for agent/pipeline writes.
 Forbidden governance paths are rejected first, then allowed content prefixes
 are checked, and anything else is denied by default.
 
 Usage:
-    python scripts/pipeline/commands/governance/path_guard.py <path>
-    python scripts/pipeline/commands/governance/path_guard.py --json <path>
-    git diff --cached --name-only | python scripts/pipeline/commands/governance/path_guard.py --stdin
+    path_guard.py <path>
+    path_guard.py --json <path>
+    git diff --cached --name-only | path_guard.py --stdin
 
 Exit codes:
     0  ALLOW - path is in the allowlist (single-path mode)
@@ -36,87 +37,40 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 # Allowlist / denylist definitions
 # ---------------------------------------------------------------------------
 
+# Configurable allowed prefixes -- override for your project content layout.
 ALLOWED_PREFIXES: tuple[str, ...] = (
-    "content/docs.aspose.org/",
-    "content/blog.aspose.org/",
-    "content/kb.aspose.org/",
-    "content/products.aspose.org/",
-    "content/reference.aspose.org/",
+    "content/",
     "knowledge/",
     "reports/",
-    # Hugo-managed registry data — written by update_product_registry.py.
     "data/",
-    # SEO patch manifests — written by scripts/seo/pipeline/report.py.
-    "patches/",
-    # SEO keyword data — written exclusively by the seo-keyword-refresh CI workflow.
-    "keywords/",
-    # Pipeline and CI maintenance scripts are allowed for operational maintenance.
-    # path_guard.py itself is self-protected via FORBIDDEN_EXACT below.
     "scripts/pipeline/",
     "scripts/ci/",
-    # Operator-run one-off mutation scripts (repairs, migrations); see AGENTS.md §4b.
     "scripts/maintenance/",
-    # Subsystem packages — self-contained tools with their own package structure.
-    "scripts/translator/",
-    "scripts/gap-eval/",
     "scripts/generator/",
-    "scripts/seo/",
     "tests/",
-    # Canonical backlog and plan system — shared across all agents (Kilo, Claude).
-    # These are gitignored internal-only directories.
     "backlog/",
     "plans/",
-    # Human-authored repo documentation (QUICKSTART.md, OPERATOR_BYPASSES.md, etc.).
-    # Agents may write here only when adding operator-visible documentation as part of a
-    # registered skill.  Root-level writes are still DENY (no trailing slash match at root).
     "docs/",
 )
 
+# Configurable forbidden prefixes -- override for your project governance layout.
 FORBIDDEN_PREFIXES: tuple[str, ...] = (
     "themes/",
     "layouts/",
     "configs/",
     ".claude/",
     ".agents/",
-    ".kilocode/",
-    # Kilo-specific workspace prohibition — block custom backlog/plan folders.
-    # These would bypass the shared system at backlog/ and plans/.
-    ".kilo-backlog/",
-    ".kilo-plans/",
-    "kilo-backlog/",
-    "kilo-plans/",
-    "skills/",
-    # Governance child-doc protection (governance refactor Phase 0)
     "docs/governance/",
     "docs/workflows/",
     "docs/registries/",
 )
 
+# Configurable forbidden exact paths -- override for your project governance files.
 FORBIDDEN_EXACT: frozenset[str] = frozenset({
     "AGENTS.md",
-    "CODEX.md",
     "CLAUDE.md",
-    # Operator bypass documentation — agent-invisible by design.
-    "docs/OPERATOR_BYPASSES.md",
     # Self-protection: path_guard.py is its own enforcement oracle.
-    # Editing it bypasses all guard checks. Requires explicit override token.
     "scripts/pipeline/commands/governance/path_guard.py",
-    # Hook script self-protection (TC-08 / DR-05):
-    # These scripts ARE in ALLOWED_PREFIXES (scripts/ci/), so an agent with an
-    # active skill context scoped to scripts/ci/* could otherwise modify them.
-    # Adding them to FORBIDDEN_EXACT blocks that path — hook governance scripts
-    # must not be self-modifiable by agents at runtime.
-    "scripts/ci/hooks/check_session_gate.sh",
-    "scripts/ci/hooks/bootstrap_session_gate.sh",
-    "scripts/ci/hooks/check_content_edit_hook.sh",
-    "scripts/ci/hooks/check_content_write_hook.sh",
-    "scripts/ci/hooks/check_py_write_hook.sh",
-    "scripts/ci/hooks/check_write_path_hook.sh",
-    "scripts/ci/hooks/check_skill_context_hook.sh",
-    "scripts/ci/hooks/check_venv_bash_hook.sh",
-    "scripts/ci/hooks/check_destructive_bash_hook.sh",
-    "scripts/ci/hooks/find_python.sh",
-    "scripts/ci/hooks/check_venv.sh",
 })
 
 

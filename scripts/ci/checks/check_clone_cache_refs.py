@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
 # Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_clone_cache_refs.py — Enforce that no active file references foss-launcher as clone cache.
@@ -25,7 +26,7 @@ import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(__file__).resolve().parents[3]))
+REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[3])))))
 
 # ---------------------------------------------------------------------------
 # Forbidden patterns that indicate the obsolete foss-launcher clone-cache path

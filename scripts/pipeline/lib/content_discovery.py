@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/pipeline/lib/ for standalone use
 """content_discovery.py — Content file discovery helpers.
 
 Extracted from knowledge_core.py (R-1a). Provides constants and functions for
@@ -18,6 +19,7 @@ compatibility with existing consumers (Sprint R-1a). Constants are defined
 here (zero stdlib deps) to avoid a circular import.
 """
 from __future__ import annotations
+import os
 
 import re
 from pathlib import Path
@@ -27,7 +29,10 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 
 _SCRIPT_DIR = Path(__file__).resolve().parent
-_DEFAULT_REPO_ROOT = _SCRIPT_DIR.parent.parent.parent  # scripts/pipeline/lib/ -> pipeline/ -> scripts/ -> repo root
+_DEFAULT_REPO_ROOT = Path(os.environ.get(
+    "CONTENT_REPO_PATH",
+    str(_SCRIPT_DIR.parent.parent.parent),  # scripts/pipeline/lib/ -> pipeline/ -> scripts/ -> repo root
+))
 _REPO_ROOT = _DEFAULT_REPO_ROOT
 
 KNOWLEDGE_ROOT = _REPO_ROOT / "knowledge"
@@ -142,8 +147,6 @@ def infer_product(filepath: Path) -> tuple[str, str] | tuple[None, None]:
 def discover_products() -> list[tuple[str, str]]:
     """Find all products with knowledge models (have api_surface.json)."""
     products = []
-    if not KNOWLEDGE_ROOT.exists():
-        return products
     for family_dir in sorted(KNOWLEDGE_ROOT.iterdir()):
         if not family_dir.is_dir() or family_dir.name.startswith("_"):
             continue

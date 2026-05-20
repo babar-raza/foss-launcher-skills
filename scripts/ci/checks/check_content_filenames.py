@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
 # Adapted from aspose.org scripts/ci/checks/ for standalone use
 """

@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
 # Adapted from aspose.org scripts/ci/checks/ for standalone use
 """
@@ -36,7 +37,7 @@ from pathlib import Path
 # Configuration
 # ---------------------------------------------------------------------------
 
-_DEFAULT_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(__file__).resolve().parent.parent.parent.parent))
+_DEFAULT_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
 REPO_ROOT = _DEFAULT_REPO_ROOT
 
 OPERATOR_DOCS = [

@@ -1,8 +1,4 @@
----
-# Governance child document — ported from aspose.org
-# Source: AGENTS.md §14
-# Ported: 2026-05-20 (parity migration)
----
+<!-- Adapted from aspose.org docs/workflows/ for standalone use -->
 
 # Completion Verification Protocol
 
@@ -20,7 +16,7 @@ When reviewing whether a task, sprint, or acceptance criterion is complete, the 
 1. A criterion is `[x]` (complete) only when it reaches the minimum tier required by the
    governing plan or specification. Where no minimum is stated, Tier 2 (Tested) is the
    default minimum.
-2. `[written]` is not completion — it is the start of the work. Do not mark criteria
+2. `[written]` is not completion -- it is the start of the work. Do not mark criteria
    complete when only Tier 1 (Written) evidence exists.
 3. Sprint summaries must include a tier breakdown (count per tier). A summary that marks
    everything `[x]` without naming verification actions is non-conforming.

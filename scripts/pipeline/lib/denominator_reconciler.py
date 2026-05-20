@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/pipeline/lib/ for standalone use
 """denominator_reconciler.py — Verify page count matches api_surface scope.
 
 Compares the number of scope-eligible api_surface entries against the

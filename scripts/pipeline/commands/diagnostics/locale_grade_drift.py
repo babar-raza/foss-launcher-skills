@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 """Locale grade drift check — SH-02 enforcement for locale pages.
 
 Detects locale pages whose grade is worse than the English source
@@ -21,22 +22,30 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
 from datetime import datetime, timezone
 
-REPO_ROOT = Path(__file__).resolve().parents[4]
+REPO_ROOT = Path(os.environ.get("FOSS_REPO_ROOT", Path(__file__).resolve().parents[4]))
+CONTENT_ROOT = Path(os.environ.get("FOSS_CONTENT_ROOT", REPO_ROOT / "content"))
 
 GRADE_ORDER = {"A": 5, "B": 4, "C": 3, "D": 2, "F": 1}
 FLOOR_GRADE = "B"  # minimum public grade for docs/blog/KB
 
 # Subdomain directories to check (reference is exempt)
-CHECKED_SUBDOMAINS = [
-    "blog.aspose.org",
-    "docs.aspose.org",
-    "kb.aspose.org",
+_DEFAULT_CHECKED_SUBDOMAINS = [
+    "blog",
+    "docs",
+    "kb",
 ]
+
+CHECKED_SUBDOMAINS: list[str] = (
+    os.environ.get("FOSS_CHECKED_SUBDOMAINS", "").split(",")
+    if os.environ.get("FOSS_CHECKED_SUBDOMAINS")
+    else _DEFAULT_CHECKED_SUBDOMAINS
+)
 
 GRADE_RE = re.compile(r"^grade:\s*([A-F])", re.MULTILINE)
 DRAFT_RE = re.compile(r"^draft:\s*true", re.MULTILINE)
@@ -120,19 +129,20 @@ def main():
     all_findings = []
 
     for subdomain in CHECKED_SUBDOMAINS:
-        subdir = REPO_ROOT / "content" / subdomain
-        if not subdir.exists():
-            continue
+        matching_dirs = (
+            [d for d in CONTENT_ROOT.iterdir() if d.is_dir() and subdomain in d.name]
+            if CONTENT_ROOT.exists() else []
+        )
+        for subdir in matching_dirs:
+            if args.family and args.platform:
+                search_dirs = [subdir / args.family / args.platform]
+            elif args.family:
+                search_dirs = list(subdir.glob(f"{args.family}/*/"))
+            else:
+                search_dirs = [subdir]
 
-        if args.family and args.platform:
-            search_dirs = [subdir / args.family / args.platform]
-        elif args.family:
-            search_dirs = list(subdir.glob(f"{args.family}/*/"))
-        else:
-            search_dirs = [subdir]
-
-        for search_dir in search_dirs:
-            all_findings.extend(check_directory(search_dir))
+            for search_dir in search_dirs:
+                all_findings.extend(check_directory(search_dir))
 
     floor_violations = [f for f in all_findings if f["type"] == "GRADE_FLOOR_VIOLATION"]
     drift_findings = [f for f in all_findings if f["type"] == "LOCALE_DRIFT"]

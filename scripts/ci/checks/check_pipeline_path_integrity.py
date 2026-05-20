@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
 """check_pipeline_path_integrity.py — Verify all scripts/pipeline/ path references exist.
 
@@ -21,10 +22,11 @@ from __future__ import annotations
 
 import argparse
 import re
+import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[3])))
 
 # Pattern to extract scripts/pipeline/X.py (or scripts/tests/pipeline/X.py) references
 _PATH_RE = re.compile(r"scripts/(?:pipeline|tests/pipeline)/[\w./]+\.py")

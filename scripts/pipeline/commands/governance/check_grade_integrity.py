@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 """CI helper: detect grade frontmatter anomalies in content files.
 
 Checks for:

@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
 """Behavioral Equivalence (BEQ) check for governance refactor routing.
 
@@ -27,10 +28,11 @@ Exit codes:
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[3])))
 AGENTS_MD = REPO_ROOT / "AGENTS.md"
 
 # BEQ routing table: (beq_id, section_label, child_doc_path, min_lines)

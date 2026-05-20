@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
 """Validate family root display names in fixture or external content roots."""
 from __future__ import annotations

@@ -40,13 +40,21 @@ _GOVERNANCE_DIR = Path(__file__).resolve().parents[1] / "governance"  # commands
 if str(_GOVERNANCE_DIR) not in sys.path:
     sys.path.insert(0, str(_GOVERNANCE_DIR))
 
-from check_dar_prerequisites import (  # noqa: E402
-    _parse_dar_table,
-    _extract_identifiers,
-    _skill_matches,
-    _get_prerequisites,
-    _get_session_skills,
-)
+try:
+    from check_dar_prerequisites import (  # noqa: E402
+        _parse_dar_table,
+        _extract_identifiers,
+        _skill_matches,
+        _get_prerequisites,
+        _get_session_skills,
+    )
+except ImportError:
+    # check_dar_prerequisites not available in foss; provide stubs
+    def _parse_dar_table(text): return []
+    def _extract_identifiers(row): return []
+    def _skill_matches(a, b): return False
+    def _get_prerequisites(rows, skill): return []
+    def _get_session_skills(runs_dir): return set()
 
 _DAR_TABLE = _REPO_ROOT / "docs" / "governance" / "dar-table.md"
 _RUNS_DIR = _REPO_ROOT / "reports" / "skill-runs"

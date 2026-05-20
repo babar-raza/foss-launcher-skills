@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
 """Block bulk grade-only frontmatter rewrites."""
 from __future__ import annotations

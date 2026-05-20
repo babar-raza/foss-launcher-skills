@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
 # Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_protected_overwrites.py — Detect modifications to provenance-protected pages.
@@ -27,7 +28,7 @@ import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(__file__).resolve().parents[3]))
+REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[3])))))
 
 # Fast regex for auto_updatable in frontmatter (no yaml dependency)
 _AUTO_UPDATABLE_RE = re.compile(

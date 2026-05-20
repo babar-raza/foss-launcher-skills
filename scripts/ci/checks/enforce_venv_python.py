@@ -30,12 +30,13 @@ Skips:
 from __future__ import annotations
 
 import argparse
+import os
 import json
 import re
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).parent.parent.parent.parent
+REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(__file__).parent.parent.parent.parent))
 
 # Skill markdown directories — fully auto-fixable
 SCAN_DIRS = [

@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/pipeline/lib/ for standalone use
 """backlink_targets.py — Shared library for aspose.org → aspose.com reciprocal backlink resolution.
 
 Public API:
@@ -14,6 +15,7 @@ This library never raises on expected error paths — always returns a record.
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 from dataclasses import dataclass, field
@@ -21,7 +23,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional
 
-_REPO_ROOT = Path(__file__).resolve().parents[3]
+_REPO_ROOT = Path(os.environ.get("CONTENT_REPO_PATH", str(Path(__file__).resolve().parents[3])))
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -124,18 +126,6 @@ PREFERRED_TARGET_SUBDOMAIN = {
     "blog.aspose.org":      "products.aspose.com",
 }
 
-
-
-
-def configure(*, repo_root: "Path | str | None" = None,
-              subdomain_roots: "dict[str, str] | None" = None) -> None:
-    """Override module-level path constants for testing or alternate layouts."""
-    global _REPO_ROOT, SUBDOMAIN_ROOTS
-    if repo_root is not None:
-        _REPO_ROOT = Path(repo_root)
-    if subdomain_roots is not None:
-        SUBDOMAIN_ROOTS.clear()
-        SUBDOMAIN_ROOTS.update(subdomain_roots)
 
 # ── Data structures ───────────────────────────────────────────────────────────
 

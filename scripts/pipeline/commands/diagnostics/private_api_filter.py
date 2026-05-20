@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 """Internal/private API filter check — SH-12 implementation.
 
 Detects reference pages or content that expose non-public API members.
@@ -20,14 +21,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
 from datetime import datetime, timezone
 
-REPO_ROOT = Path(__file__).resolve().parents[4]
+REPO_ROOT = Path(os.environ.get("FOSS_REPO_ROOT", Path(__file__).resolve().parents[4]))
 KNOWLEDGE_ROOT = REPO_ROOT / "knowledge"
-CONTENT_ROOT = REPO_ROOT / "content"
+CONTENT_ROOT = Path(os.environ.get("FOSS_CONTENT_ROOT", REPO_ROOT / "content"))
 
 SCOPED_PRODUCTS = [
     ("cells", "java"), ("cells", "net"), ("cells", "python"),
@@ -83,7 +85,18 @@ def check_product(family: str, platform: str) -> dict:
     findings = []
     api_surface = load_api_surface(family, platform)
 
-    ref_dir = CONTENT_ROOT / "reference.aspose.org" / "en" / family / platform
+    ref_dir = None
+    if CONTENT_ROOT.exists():
+        for site_dir in CONTENT_ROOT.iterdir():
+            if site_dir.is_dir() and "reference" in site_dir.name:
+                for candidate in [site_dir / "en" / family / platform, site_dir / family / platform]:
+                    if candidate.exists():
+                        ref_dir = candidate
+                        break
+                if ref_dir:
+                    break
+    if ref_dir is None:
+        ref_dir = CONTENT_ROOT / "reference" / "en" / family / platform
     if not ref_dir.exists():
         return {"product": f"{family}/{platform}", "findings": [], "api_surface_loaded": False}
 

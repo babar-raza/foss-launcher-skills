@@ -1,8 +1,8 @@
 ---
 # Governance child document — extracted from AGENTS.md
 # Source: AGENTS.md §6b
-# Plan: delightful-wondering-hartmanis (TC-04)
-# Extracted: 2026-04-28
+# Ported: 2026-05-20 (parity migration)
+# ID mapping: aspose.org skill IDs remapped to foss-launcher IDs per docs/id-mapping.md
 ---
 
 # Capability Classification and Gap Escalation

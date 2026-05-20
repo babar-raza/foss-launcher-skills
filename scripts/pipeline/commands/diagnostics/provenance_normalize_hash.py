@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 #!/usr/bin/env python3
 """provenance_normalize_hash.py — Normalize content_hash in provenance blocks.
 
@@ -19,6 +20,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -135,8 +137,8 @@ def main(argv=None) -> int:
         root = Path(args.path)
         files = sorted(root.rglob("*.md"))
     elif args.scan_all:
-        repo_root = _HERE.parent.parent.parent.parent
-        content_root = repo_root / "content"
+        repo_root = Path(os.environ.get("FOSS_REPO_ROOT", _HERE.parent.parent.parent.parent))
+        content_root = Path(os.environ.get("FOSS_CONTENT_ROOT", repo_root / "content"))
         for site_dir in sorted(content_root.iterdir()):
             en_dir = site_dir / "en"
             if en_dir.is_dir():

@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 """plan_check.py — Code-enforced plan validation gate.
 
 Checks whether a given slug exists in the site plan for a family/platform.
@@ -19,8 +20,10 @@ from pathlib import Path
 
 import yaml
 
+import os
+
 SCRIPT_DIR = Path(__file__).resolve().parent
-REPO_ROOT = SCRIPT_DIR.parent.parent
+REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(SCRIPT_DIR.parents[3])))
 REPORTS_ROOT = REPO_ROOT / "reports" / "plans"
 _DEFAULT_REPORTS_ROOT = REPORTS_ROOT
 

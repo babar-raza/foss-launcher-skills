@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 """local_profile.py — Local governance profile reader.
 
 Reads .local/governance.json to determine the local governance mode.

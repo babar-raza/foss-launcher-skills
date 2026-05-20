@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 """TypeScript api_surface completeness check — SH-14 implementation.
 
 Prevents 3d/typescript partial re-scout from being treated as complete.
@@ -16,13 +17,17 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
 from datetime import datetime, timezone
 
-REPO_ROOT = Path(__file__).resolve().parents[4]
+REPO_ROOT = Path(os.environ.get("FOSS_REPO_ROOT", Path(__file__).resolve().parents[4]))
 KNOWLEDGE_ROOT = REPO_ROOT / "knowledge"
+
+# Clone cache location -- override via FOSS_CLONE_CACHE env var
+CLONE_CACHE = Path(os.environ.get("FOSS_CLONE_CACHE", REPO_ROOT / "runs" / ".clone_cache"))
 
 # TypeScript export patterns to extract class/interface names
 TS_EXPORT_RE = re.compile(
@@ -59,7 +64,7 @@ def load_api_surface_classes(family: str, platform: str) -> set[str]:
 
 def extract_ts_exports_from_clone_cache(family: str, platform: str) -> set[str]:
     """Extract exported class/interface names from TypeScript source."""
-    cache_dir = REPO_ROOT / "runs" / ".clone_cache"
+    cache_dir = CLONE_CACHE
     product_dir_name = f"aspose_{family}_{platform}"
     clone_dir = cache_dir / product_dir_name
 
@@ -129,7 +134,7 @@ def main():
     else:
         results["warning"] = "No TypeScript source exports found in clone cache"
         results["clone_cache_present"] = (
-            REPO_ROOT / "runs" / ".clone_cache" / f"aspose_{family}_{platform}"
+            CLONE_CACHE / f"aspose_{family}_{platform}"
         ).exists()
 
     if args.json:

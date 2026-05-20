@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """Audit agent-governance instruction surfaces for cross-provider drift.
 
 Detects repo-local asymmetries that can cause one agent runtime to follow
@@ -22,11 +23,12 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import os
 import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+_REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))
 _DEFAULT_BASELINE = _REPO_ROOT / "scripts" / "ci" / "fixtures" / "agent_governance_surface_baseline.json"
 
 
@@ -210,7 +212,7 @@ def analyze_repo(repo_root: Path) -> list[Finding]:
                 title="skills/registry.json does not exist",
                 detail=(
                     "The machine-readable skill registry is missing. Run: "
-                    "python scripts/pipeline/commands/ops/sync_providers.py to generate it."
+                    "the sync_providers script to generate it."
                 ),
                 evidence=[
                     Evidence(path="skills/registry.json", line=None, excerpt="file not found"),
@@ -239,7 +241,7 @@ def analyze_repo(repo_root: Path) -> list[Finding]:
                         title="skills/registry.json skill count does not match canonical skills/",
                         detail=(
                             f"Registry has {registry.get('skill_count')} skills but canonical "
-                            f"has {canonical_count}. Run: python scripts/pipeline/commands/ops/sync_providers.py"
+                            f"has {canonical_count}. Run the sync_providers script"
                         ),
                         evidence=[
                             Evidence(
@@ -272,7 +274,7 @@ def analyze_repo(repo_root: Path) -> list[Finding]:
                 severity="high",
                 title="CODEX.md does not reference the preflight check script",
                 detail=(
-                    "The universal preflight script (scripts/pipeline/commands/launch/preflight.py) provides "
+                    "The universal preflight script provides "
                     "agent-agnostic pre-write enforcement. CODEX.md should instruct agents to "
                     "run it before every write."
                 ),
@@ -289,7 +291,7 @@ def analyze_repo(repo_root: Path) -> list[Finding]:
                 severity="high",
                 title="Kilo Code governance does not reference the preflight check script",
                 detail=(
-                    "The universal preflight script (scripts/pipeline/commands/launch/preflight.py) provides "
+                    "The universal preflight script provides "
                     "agent-agnostic pre-write enforcement. .kilocode/rules-code/governance.md "
                     "should instruct agents to run it before every write."
                 ),

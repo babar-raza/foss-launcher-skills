@@ -29,7 +29,10 @@ for _p in [str(_REPO_ROOT / "scripts" / "pipeline" / "lib"),
         sys.path.insert(0, _p)
 
 from dependency_registry import load_registry  # noqa: E402
-from fingerprint_collector import collect_input_fingerprints  # noqa: E402
+try:
+    from fingerprint_collector import collect_input_fingerprints  # noqa: E402
+except ImportError:
+    collect_input_fingerprints = None  # Not available in foss; stub for portability
 
 
 _DEFAULT_OUTPUT = (
@@ -75,6 +78,10 @@ def run_audit(
         required = surface.fingerprints_required
 
         for product in products:
+            if collect_input_fingerprints is None:
+                results.append({"surface": surface_name, "product": product, "error": "fingerprint_collector not available"})
+                all_ok = False
+                continue
             fp = collect_input_fingerprints(product, surface_name, registry, repo_root=root)
             live = fp.to_dict()
             missing_required = [k for k in required if live.get(k) is None]

@@ -1,13 +1,15 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
 """Check for content duplication between AGENTS.md root and child docs.
 
 FAIL if 5+ consecutive identical non-empty lines appear in both root and any child doc.
 """
 from __future__ import annotations
+import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[3])))
 AGENTS_MD = REPO_ROOT / 'AGENTS.md'
 CHILD_DIRS = [
     REPO_ROOT / 'docs' / 'governance',

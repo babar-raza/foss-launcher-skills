@@ -28,7 +28,7 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(__file__).resolve().parent.parent.parent.parent))
+_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
 _DEFAULT_TAXONOMY = _REPO_ROOT / "scripts" / "pipeline" / "config" / "metrics_taxonomy.yaml"
 
 REQUIRED_SECTIONS = [

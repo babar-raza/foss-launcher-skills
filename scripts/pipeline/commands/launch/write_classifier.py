@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 #!/usr/bin/env python3
 """Write classifier for launch-product refresh mode.
 
@@ -46,13 +47,25 @@ def parse_frontmatter_minimal(path: Path) -> dict:
     return result
 
 
+import os
+
+# Default content root patterns -- can be overridden by setting CONTENT_ROOT_PREFIX
+# or by calling configure_content_roots().
+_CONTENT_PREFIX = os.environ.get("CONTENT_ROOT_PREFIX", "content")
+
 CONTENT_ROOTS = {
-    "products": "content/products.aspose.org/en/{family}/{platform}",
-    "docs": "content/docs.aspose.org/en/{family}/{platform}",
-    "kb": "content/kb.aspose.org/en/{family}/{platform}",
-    "blog": "content/blog.aspose.org/{family}/{platform}",
-    "reference": "content/reference.aspose.org/en/{family}/{platform}",
+    "products": f"{_CONTENT_PREFIX}/products.aspose.org/en/{{family}}/{{platform}}",
+    "docs": f"{_CONTENT_PREFIX}/docs.aspose.org/en/{{family}}/{{platform}}",
+    "kb": f"{_CONTENT_PREFIX}/kb.aspose.org/en/{{family}}/{{platform}}",
+    "blog": f"{_CONTENT_PREFIX}/blog.aspose.org/{{family}}/{{platform}}",
+    "reference": f"{_CONTENT_PREFIX}/reference.aspose.org/en/{{family}}/{{platform}}",
 }
+
+
+def configure_content_roots(roots: dict[str, str]) -> None:
+    """Override CONTENT_ROOTS for non-aspose.org deployments."""
+    global CONTENT_ROOTS
+    CONTENT_ROOTS = dict(roots)
 
 
 def classify_file(path: Path) -> dict:

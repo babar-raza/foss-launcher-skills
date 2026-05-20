@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
 """check_new_script_placement.py — Enforce domain placement for new scripts.
 
@@ -19,10 +20,11 @@ from __future__ import annotations
 
 import argparse
 import ast
+import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[3])))
 COMMANDS_DIR = REPO_ROOT / "scripts" / "pipeline" / "commands"
 
 # Recognized domain subdirectories

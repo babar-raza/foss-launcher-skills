@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/pipeline/lib/ for standalone use
 """Token extraction and verification against the knowledge API surface.
 
 Extracted from audit.py. Provides Token, Finding, extract_tokens, verify_tokens.
@@ -19,7 +20,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from knowledge_core import Knowledge
+    from scripts.pipeline.lib.knowledge_core import Knowledge
 
 
 # ---------------------------------------------------------------------------

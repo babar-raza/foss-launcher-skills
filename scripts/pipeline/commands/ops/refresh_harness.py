@@ -128,7 +128,11 @@ def _collect_fingerprints_with_overrides(
     import sys as _sys
     collection_errors = []
     try:
-        from fingerprint_collector import collect_input_fingerprints
+        try:
+            from fingerprint_collector import collect_input_fingerprints
+        except ImportError:
+            collection_errors.append("fingerprint_collector not available in foss")
+            return fingerprints
         fp_set = collect_input_fingerprints(product, subdomain, registry)
         fingerprints = fp_set.to_dict()
         if fp_set.collection_errors:

@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
 # Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_docs_script_refs.py — Docs-layer drift guard for stale script paths.
@@ -25,7 +26,7 @@ import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(__file__).resolve().parents[3]))
+REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[3])))))
 
 # Old root-level paths that should now use canonical subdirectory paths
 STALE_PIPELINE_RE = re.compile(

@@ -32,7 +32,7 @@ import os
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(__file__).resolve().parent.parent.parent.parent))
+_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
 _INDEX_FILE = _REPO_ROOT / "reports" / "proofs" / "INDEX.json"
 
 REQUIRED_SCENARIOS: dict[int, str] = {

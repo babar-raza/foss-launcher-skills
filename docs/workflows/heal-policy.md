@@ -1,8 +1,8 @@
 ---
 # Governance child document — extracted from AGENTS.md
 # Source: AGENTS.md §6d, §6e
-# Plan: delightful-wondering-hartmanis (TC-04)
-# Extracted: 2026-04-28
+# Ported: 2026-05-20 (parity migration)
+# ID mapping: aspose.org skill IDs remapped to foss-launcher IDs per docs/id-mapping.md
 ---
 
 # Heal-Enabled Policy Table and Terminal-Success State
@@ -49,7 +49,7 @@ evaluation findings and healing actions.
 | Fix type | Mode | Skill | Regen after? | Effort |
 |----------|------|-------|--------------|--------|
 | `auto` | auto | — | No | low |
-| `upstream` | regen | S-80 (causal-backtrack) | Yes | high |
+| `upstream` | regen | S-79 (causal-backtrack) | Yes | high |
 | `human` | human | — | No | high |
 | `skip` | skip | — | No | low |
 
@@ -63,7 +63,7 @@ evaluation findings and healing actions.
   `verify.py` to compare before/after findings. If regression severity is
   `critical` (grade decreased), revert the healing and escalate.
 - **Regen-after findings** (upstream mode) must complete causal backtracking
-  via S-80 before local fixes run. The heal controller enforces this ordering.
+  via S-79 before local fixes run. The heal controller enforces this ordering.
 
 ### 6e. Terminal-Success State (ceiling-reached)
 
@@ -85,7 +85,7 @@ A page is **ceiling-reached** when ALL of the following are true:
 - NOT re-apply prose softening that a prior session confirmed the linter reverts
 - NOT invoke S-21 (page-enhance) again without a changed pre-condition (e.g., new
   knowledge model, updated evaluator, linter rule change)
-- NOT invoke S-78 (evidence-enhance) again if a prior S-78 run returned ESCAPED and
+- NOT invoke S-83 (evidence-enhance) again if a prior S-78 run returned ESCAPED and
   the manual evidence panel is richer than auto-detection output
 
 **Ceiling-reached is not a failure state.** Grade B with 0 FAIL and known
@@ -105,9 +105,9 @@ system artifacts, not content defects.
 
 | Use case | Correct skill | When to use |
 |----------|---------------|-------------|
-| Iterative development (page-by-page improvement) | S-25 (eval-page) or S-51 (content-eval) | During generation/enhancement loops; many times per session |
-| Pre-launch publishability gate | S-43 (gap-eval) | Once per launch cycle; verifies against clone cache truth |
-| Cross-product quality summary | S-45 (gap-report) | Post-launch or periodic; cluster analysis across families |
+| Iterative development (page-by-page improvement) | S-25 (eval-page) or S-48 (content-eval) | During generation/enhancement loops; many times per session |
+| Pre-launch publishability gate | S-62 (gap-eval) | Once per launch cycle; verifies against clone cache truth |
+| Cross-product quality summary | S-64 (gap-report) | Post-launch or periodic; cluster analysis across families |
 
-**Rule:** Use S-43 at most once per launch cycle (expensive; requires clone cache). Use S-25/S-51 during development. Do not use S-43 as a development-loop quality check — it is a launch-readiness gate, not a rapid-iteration tool.
+**Rule:** Use S-62 at most once per launch cycle (expensive; requires clone cache). Use S-25/S-51 during development. Do not use S-62 as a development-loop quality check — it is a launch-readiness gate, not a rapid-iteration tool.
 

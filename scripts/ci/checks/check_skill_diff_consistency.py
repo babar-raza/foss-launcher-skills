@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_skill_diff_consistency.py — Warn when declared skills don't match PR diff patterns.
 
 Compares "Skills invoked:" declarations in PR commit messages against the actual
@@ -21,10 +22,11 @@ Exit codes:
 from __future__ import annotations
 
 import re
+import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))
 
 # Skill diff patterns: maps skill ID to (expected_description, path_patterns)
 # path_patterns are checked against the actual changed files
@@ -32,7 +34,7 @@ SKILL_DIFF_PATTERNS: dict[str, tuple[str, list[str]]] = {
     "S-48": (
         "family-sync: updates family landing pages for a product",
         [
-            r"content/products\.aspose\.org/en/",
+            r"content/[^/]+/en/",
             r"content/[^/]+/en/[^/]+/_index\.md",
         ],
     ),

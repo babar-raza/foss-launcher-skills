@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 """Override manager — lifecycle management for forbidden-path write override tokens.
 
 An override token is a structured JSON artifact that records human-approved intent to

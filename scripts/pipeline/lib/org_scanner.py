@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/pipeline/lib/ for standalone use
 """GitHub organisation scanner.
 
 Scans a GitHub organisation for repositories and returns structured metadata.

@@ -39,7 +39,7 @@ Use this matrix to decide what action is required when a specific artifact or sc
 | Publish-readiness review skill changed | Run DAR coverage check to verify alignment; run dry-run on 1 product | Self-test |
 | Path guard script changed | Run path guard tests -- must exit 0 | Self-test |
 | Governance document changed | Verify alignment with session gate document | Self |
-| Running batch reference generation for a product | Verify member-doc ERC coverage >= 20% per product first; if any product is below threshold, run enrich then promote before generating reference pages | Per product |
+| Running batch reference generation for a product | Verify member-doc ERC coverage >= 20% per product first; if below threshold, run enrich then promote before generating reference pages | Per product |
 | `enrich.py --mode member-doc` completed | Run `promote.py` to merge enriched claims, then verify coverage with description coverage audit | Per product |
 | Refresh produces coverage report showing < 100% subdomain coverage | Re-run refresh to fill gaps; or manually run refresh review to assess which subdomains were missed | Per product |
 | Qualifying report written to `reports/` | Automatic harvest via producing skill; safety net via backlog update and session-start advisory | Per report |

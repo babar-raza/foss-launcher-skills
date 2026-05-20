@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_commit_skill_provenance.py — CI check for skill provenance in content commits.
 
 Validates that commits touching content files include a valid "Skills invoked:"
@@ -24,10 +25,11 @@ import argparse
 import json
 import re
 import subprocess
+import os
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+_REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))
 _REGISTRY = _REPO_ROOT / "skills" / "registry.json"
 _SKILL_ID_RE = re.compile(r"S-\d+")
 _SKILLS_INVOKED_RE = re.compile(r"[Ss]kills?\s*[Ii]nvoked", re.IGNORECASE)
@@ -63,7 +65,8 @@ def _commit_touches_content(sha: str) -> bool:
     if result.returncode != 0:
         return False
     return any(
-        line.startswith("content/") and line.endswith(".md")
+        any(line.startswith(prefix.strip()) for prefix in _CONTENT_PREFIXES)
+        and line.endswith(".md")
         for line in result.stdout.strip().split("\n")
     )
 

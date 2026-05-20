@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
 # Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_stale_path_refs.py — Detect stale old-path references after migration.
@@ -21,7 +22,7 @@ import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(__file__).resolve().parents[3]))
+REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[3])))))
 
 # Pattern: scripts/pipeline/{name}.py where name is a lowercase module (not __init__, _bootstrap)
 # This catches old root-level paths like scripts/pipeline/commands/content/audit.py

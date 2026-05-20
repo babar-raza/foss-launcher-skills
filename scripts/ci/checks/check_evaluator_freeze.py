@@ -1,3 +1,4 @@
+# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """CI gate: block PRs where EVALUATOR_LOGIC_VERSION diverges from EVALUATOR_FREEZE_VERSION.
 
 Usage:
@@ -13,11 +14,12 @@ freeze constant will fail CI.  See GRADE_CONTRACT.md for the post-freeze
 change protocol.
 """
 import re
+import os
 import sys
 from pathlib import Path
 
 # Repo-root-relative path to content_eval/__init__.py
-_INIT_PATH = Path(__file__).resolve().parent.parent.parent / "pipeline" / "content_eval" / "__init__.py"
+_INIT_PATH = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent))) / "scripts" / "pipeline" / "content_eval" / "__init__.py"
 
 _RE_LOGIC = re.compile(r'^EVALUATOR_LOGIC_VERSION\s*=\s*"(\d+)"', re.MULTILINE)
 _RE_FREEZE = re.compile(r'^EVALUATOR_FREEZE_VERSION\s*(?::\s*str\s*\|\s*None\s*)?=\s*(.+)', re.MULTILINE)
@@ -79,7 +81,15 @@ def main() -> int:
     if hasattr(sys.stderr, "reconfigure"):
         sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
-    init_path = _INIT_PATH
+    import argparse as _ap
+    _parser = _ap.ArgumentParser(description="Check evaluator freeze consistency.")
+    _parser.add_argument(
+        "--init-path",
+        default=os.environ.get("EVALUATOR_INIT_PATH", str(_INIT_PATH)),
+        help="Path to content_eval/__init__.py",
+    )
+    _args = _parser.parse_args()
+    init_path = Path(_args.init_path)
     if not init_path.exists():
         print(f"ERROR: file not found: {init_path}", file=sys.stderr)
         return 2
