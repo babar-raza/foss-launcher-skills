@@ -1,13 +1,14 @@
-# Refresh Architecture — Manifest-Driven Per-Surface Freshness
+<!-- Adapted from aspose.org docs/workflows/ for standalone use -->
 
-**Plan**: `serene-jingling-rain` (Amendment 8, 2026-05-05)
+# Refresh Architecture -- Manifest-Driven Per-Surface Freshness
+
 **Status**: Advisory/shadow mode active. Enforced mode behind flag (default off).
 
 ---
 
 ## Overview
 
-The refresh architecture replaces the single global SHA-equality gate in `site_planner.py`
+The refresh architecture replaces the single global SHA-equality gate in the site planner
 with a per-surface decision engine backed by durable freshness manifests. Each surface
 (reference, products, docs, blog, kb) gets an independent decision: FRESH, REGENERATE_*,
 RECONCILE_*, VALIDATE_ONLY, or BLOCKED.
@@ -54,7 +55,7 @@ For each (product, subdomain):
   2. Load stored manifest (if any)
   3. Inspect current output state
   4. Call decision_engine.decide() -> returns Decision
-  5. If decision is FRESH: call validate_for_fresh() as a safety gate (TC-CHALLENGE-003)
+  5. If decision is FRESH: call validate_for_fresh() as a safety gate
      - If violations: override decision to BLOCKED, log to stderr
   6. Record in reconciliation ledger
 ```
@@ -91,28 +92,28 @@ All flags live in `data/refresh-feature-flags.json`. Safe defaults are shown.
 }
 ```
 
-**`refresh_reconciliation_enforced` must remain `false` until Amendment 9 completes.**
+**`refresh_reconciliation_enforced` must remain `false` until fully validated.**
 
 ---
 
-## Five Surfaces
+## Content Surfaces
 
 | Surface | Status | Generator | Notes |
 |---------|--------|-----------|-------|
 | reference | supported | `batch_reference.py` (script) | Full fingerprint suite |
-| products | validate_only | Agent (S-66/S-58) | No generator_code_hash; skill_version_hash N/A |
-| docs | validate_only | Agent (S-20) | No generator_code_hash; skill_version_hash N/A |
-| blog | validate_only | Agent (S-20) | No `/en/` prefix; `.yml` config; skill_version_hash N/A |
-| kb | validate_only | Agent (S-20) | No generator_code_hash; skill_version_hash N/A |
+| products | validate_only | Agent (skill-based) | No generator_code_hash |
+| docs | validate_only | Agent (skill-based) | No generator_code_hash |
+| blog | validate_only | Agent (skill-based) | No generator_code_hash |
+| kb | validate_only | Agent (skill-based) | No generator_code_hash |
 
 ---
 
 ## Safety Rules
 
-1. **Never write to `content/`** from the harness unless `refresh_content_write_enabled=true`
+1. **Never write to content directories** from the harness unless `refresh_content_write_enabled=true`
    and an explicit scratch root is provided.
-2. **`validate_for_fresh()` is mandatory** before any FRESH manifest write (TC-CHALLENGE-003).
-3. **Collection errors are logged** to stderr and surfaced in ledger record explanation (TC-HEAL-003).
+2. **`validate_for_fresh()` is mandatory** before any FRESH manifest write.
+3. **Collection errors are logged** to stderr and surfaced in ledger record explanation.
 4. **Manifests with placeholder output_content_hash** (`sha256:[A-Z_]+`) are provisional
    and must not be used as FRESH closure evidence.
 5. **`refresh_reconciliation_enforced=false`** must be confirmed in production flags before
@@ -124,16 +125,19 @@ All flags live in `data/refresh-feature-flags.json`. Safe defaults are shown.
 
 ```bash
 # Dry-run (no writes): cells/java, all surfaces
-.venv/Scripts/python scripts/pipeline/commands/ops/refresh_harness.py   --product cells/java   --mode dry-run   --no-write
+scripts/pipeline/commands/ops/refresh_harness.py \
+  --product cells/java \
+  --mode dry-run \
+  --no-write
 
-# Fingerprint audit: all 16 products, reference surface
-.venv/Scripts/python scripts/pipeline/commands/ops/fingerprint_audit.py
+# Fingerprint audit: all products, reference surface
+scripts/pipeline/commands/ops/fingerprint_audit.py
 ```
 
 ---
 
 ## Related Documents
 
-- [forced-validation.md](forced-validation.md) — Harness modes and synthetic override workflow
-- `scripts/pipeline/lib/freshness_manifest.py` — `validate_for_fresh()` policy
-- `data/refresh-dependencies.json` — Per-surface registry entries
+- [forced-validation.md](forced-validation.md) -- Harness modes and synthetic override workflow
+- `scripts/pipeline/lib/freshness_manifest.py` -- `validate_for_fresh()` policy
+- `data/refresh-dependencies.json` -- Per-surface registry entries
