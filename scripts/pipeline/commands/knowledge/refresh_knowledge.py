@@ -598,6 +598,14 @@ def refresh(
 
         _run_completeness_check(family, platform)
 
+        # Auto-refresh evidence after knowledge update to prevent WARN drift.
+        # Non-fatal: evidence can always be re-attached manually.
+        _run(
+            [sys.executable, "scripts/pipeline/commands/healing/attach_evidence.py",
+             family, platform],
+            "attach-evidence",
+        )
+
         print(f"  {family}/{platform}: refreshed to {head[:10]}")
         return "refreshed"
     finally:

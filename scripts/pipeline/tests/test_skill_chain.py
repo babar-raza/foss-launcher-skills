@@ -49,7 +49,7 @@ def runs_dir(tmp_path):
 
 @pytest.fixture(autouse=True)
 def _configure(dar_md_file, runs_dir):
-    skill_chain.configure(agents_md=dar_md_file, runs_dir=runs_dir)
+    skill_chain.configure(dar_table=dar_md_file, runs_dir=runs_dir)
     yield
     # Reset to defaults after each test
     skill_chain._AGENTS_MD = _PIPELINE_DIR.parent.parent / "AGENTS.md"
@@ -110,7 +110,7 @@ class TestResolve:
         assert chain == []
 
     def test_missing_agents_md_returns_exit_2(self, tmp_path):
-        skill_chain.configure(agents_md=tmp_path / "missing.md")
+        skill_chain.configure(dar_table=tmp_path / "missing.md")
         code, chain = skill_chain.resolve("S-21")
         assert code == 2
         assert chain == []
@@ -118,7 +118,7 @@ class TestResolve:
     def test_empty_agents_md_returns_exit_2(self, tmp_path):
         f = tmp_path / "AGENTS.md"
         f.write_text("# No DAR table here\n", encoding="utf-8")
-        skill_chain.configure(agents_md=f)
+        skill_chain.configure(dar_table=f)
         code, chain = skill_chain.resolve("S-21")
         assert code == 2
 
@@ -159,7 +159,7 @@ class TestMainNoSession:
             assert prereq["satisfied"] is None
 
     def test_fail_open_on_missing_agents_md_exits_2(self, tmp_path):
-        skill_chain.configure(agents_md=tmp_path / "missing.md")
+        skill_chain.configure(dar_table=tmp_path / "missing.md")
         result = skill_chain.main(["--skill", "S-21"])
         assert result == 2
 

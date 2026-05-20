@@ -46,19 +46,19 @@ from check_dar_prerequisites import (  # noqa: E402
     _get_session_skills,
 )
 
-_AGENTS_MD = _REPO_ROOT / "AGENTS.md"
+_DAR_TABLE = _REPO_ROOT / "docs" / "governance" / "dar-table.md"
 _RUNS_DIR = _REPO_ROOT / "reports" / "skill-runs"
 
 
 def configure(
     *,
-    agents_md: "Path | str | None" = None,
+    dar_table: "Path | str | None" = None,
     runs_dir: "Path | str | None" = None,
 ) -> None:
     """Override module-level path constants for testing."""
-    global _AGENTS_MD, _RUNS_DIR
-    if agents_md is not None:
-        _AGENTS_MD = Path(agents_md)
+    global _DAR_TABLE, _RUNS_DIR
+    if dar_table is not None:
+        _DAR_TABLE = Path(dar_table)
     if runs_dir is not None:
         _RUNS_DIR = Path(runs_dir)
 
@@ -120,7 +120,7 @@ def resolve(skill_arg: str) -> tuple[int, list[list[list[str]]]]:
     exit_code 2 means fail-open (AGENTS.md unreadable).
     """
     try:
-        agents_text = _AGENTS_MD.read_text(encoding="utf-8")
+        agents_text = _DAR_TABLE.read_text(encoding="utf-8")
     except OSError as exc:
         print(f"WARN: Cannot read AGENTS.md: {exc} -- fail-open", file=sys.stderr)
         return 2, []

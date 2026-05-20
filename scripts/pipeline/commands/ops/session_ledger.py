@@ -345,6 +345,10 @@ def init_session(session_id: str | None = None) -> str:
         "status": "active",
     }
 
+    # Ensure reports/ subdirectories exist for governance tools
+    for subdir in ("skill-context", "skill-runs", "overrides/pending", "audit"):
+        (_REPO_ROOT / "reports" / subdir).mkdir(parents=True, exist_ok=True)
+
     path = _session_path(session_id)
     _save_manifest(path, manifest)
     _write_active_pointer(session_id)

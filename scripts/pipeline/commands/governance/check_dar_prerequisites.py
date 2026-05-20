@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """DAR prerequisite enforcer — checks if upstream skill prerequisites are satisfied.
 
-Reads the DAR table from AGENTS.md §6a and verifies that required upstream skills
+Reads the DAR table from docs/governance/dar-table.md §6a and verifies that required upstream skills
 have been invoked in the current session (via skill run records in reports/skill-runs/).
 
 This script enforces the Downstream Activation Rules at runtime: a downstream skill
@@ -26,19 +26,19 @@ import sys
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent  # commands/governance/ -> commands/ -> pipeline/ -> scripts/ -> repo
-_AGENTS_MD = _REPO_ROOT / "AGENTS.md"
+_DAR_TABLE = _REPO_ROOT / "docs" / "governance" / "dar-table.md"
 _RUNS_DIR = _REPO_ROOT / "reports" / "skill-runs"
 
 
 def configure(
     *,
-    agents_md: "Path | str | None" = None,
+    dar_table: "Path | str | None" = None,
     runs_dir: "Path | str | None" = None,
 ) -> None:
     """Override module-level path constants for testing."""
-    global _AGENTS_MD, _RUNS_DIR
-    if agents_md is not None:
-        _AGENTS_MD = Path(agents_md)
+    global _DAR_TABLE, _RUNS_DIR
+    if dar_table is not None:
+        _DAR_TABLE = Path(dar_table)
     if runs_dir is not None:
         _RUNS_DIR = Path(runs_dir)
 
@@ -128,14 +128,14 @@ def check(skill_arg: str) -> int:
     """Check DAR prerequisites for skill_arg. Returns exit code."""
     # Load AGENTS.md
     try:
-        agents_text = _AGENTS_MD.read_text(encoding="utf-8")
+        agents_text = _DAR_TABLE.read_text(encoding="utf-8")
     except OSError as exc:
-        print(f"WARN: Cannot read AGENTS.md: {exc} -- fail-open", file=sys.stderr)
+        print(f"WARN: Cannot read dar-table.md: {exc} -- fail-open", file=sys.stderr)
         return 0
 
     dar_rows = _parse_dar_table(agents_text)
     if not dar_rows:
-        print("WARN: DAR table not found in AGENTS.md -- fail-open", file=sys.stderr)
+        print("WARN: DAR table not found in dar-table.md -- fail-open", file=sys.stderr)
         return 0
 
     prereq_groups = _get_prerequisites(dar_rows, skill_arg)

@@ -173,11 +173,11 @@ class TestGetSessionSkills:
 class TestCheck:
     def setup_method(self):
         # Write a real AGENTS.md fragment to a temp file
-        self._orig_agents = cdp._AGENTS_MD
+        self._orig_agents = cdp._DAR_TABLE
         self._orig_runs = cdp._RUNS_DIR
 
     def teardown_method(self):
-        cdp._AGENTS_MD = self._orig_agents
+        cdp._DAR_TABLE = self._orig_agents
         cdp._RUNS_DIR = self._orig_runs
 
     def _configure(self, tmp_path: Path, agents_content: str = _DAR_AGENTS_MD):
@@ -185,7 +185,7 @@ class TestCheck:
         agents_file.write_text(agents_content, encoding="utf-8")
         runs_dir = tmp_path / "skill-runs"
         runs_dir.mkdir()
-        cdp.configure(agents_md=agents_file, runs_dir=runs_dir)
+        cdp.configure(dar_table=agents_file, runs_dir=runs_dir)
         return runs_dir
 
     # --- Acceptance criterion 1: exits 1 when no prerequisite run record ---
@@ -242,7 +242,7 @@ class TestCheck:
     def test_missing_agents_md_exits_0_fail_open(self, tmp_path):
         runs_dir = tmp_path / "skill-runs"
         runs_dir.mkdir()
-        cdp.configure(agents_md=tmp_path / "NONEXISTENT.md", runs_dir=runs_dir)
+        cdp.configure(dar_table=tmp_path / "NONEXISTENT.md", runs_dir=runs_dir)
         result = cdp.check("page-draft")
         assert result == 0
 
@@ -260,11 +260,11 @@ class TestCheck:
 
 class TestMain:
     def setup_method(self):
-        self._orig_agents = cdp._AGENTS_MD
+        self._orig_agents = cdp._DAR_TABLE
         self._orig_runs = cdp._RUNS_DIR
 
     def teardown_method(self):
-        cdp._AGENTS_MD = self._orig_agents
+        cdp._DAR_TABLE = self._orig_agents
         cdp._RUNS_DIR = self._orig_runs
 
     def test_main_exits_1_on_missing_prereq(self, tmp_path):
@@ -272,7 +272,7 @@ class TestMain:
         agents_file.write_text(_DAR_AGENTS_MD, encoding="utf-8")
         runs_dir = tmp_path / "skill-runs"
         runs_dir.mkdir()
-        cdp.configure(agents_md=agents_file, runs_dir=runs_dir)
+        cdp.configure(dar_table=agents_file, runs_dir=runs_dir)
         result = cdp.main(["--skill", "page-draft"])
         assert result == 1
 
@@ -281,6 +281,6 @@ class TestMain:
         agents_file.write_text(_DAR_AGENTS_MD, encoding="utf-8")
         runs_dir = tmp_path / "skill-runs"
         runs_dir.mkdir()
-        cdp.configure(agents_md=agents_file, runs_dir=runs_dir)
+        cdp.configure(dar_table=agents_file, runs_dir=runs_dir)
         result = cdp.main(["--skill", "commit"])
         assert result == 0
