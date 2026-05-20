@@ -101,7 +101,7 @@ to refresh the registry before retrying.
 
 # Step 4: Verify
 .venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform}
-python -m scripts.pipeline.content_eval evaluate {family} {platform}
+.venv/Scripts/python -m scripts.pipeline.content_eval evaluate {family} {platform}
 .venv/Scripts/python scripts/pipeline/commands/diagnostics/truth_audit.py {family} {platform}
 ```
 
@@ -207,7 +207,7 @@ to `[]` so they no longer reference removed classes.
 .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files path/to/file.md
 
 # Content evaluation (multi-dimensional)
-python -m scripts.pipeline.content_eval evaluate {family} {platform}
+.venv/Scripts/python -m scripts.pipeline.content_eval evaluate {family} {platform}
 
 # Deep API verification
 .venv/Scripts/python scripts/pipeline/commands/diagnostics/truth_audit.py {family} {platform}
@@ -272,7 +272,7 @@ The pre-commit hook runs automatically if installed (Step 1.4).
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | `audit.py` reports FAIL on API tokens | Content references API members not in knowledge model | Re-run knowledge pipeline (S3) or fix content |
-| `content_eval` returns "0 pages found" | Running from wrong directory | Run from repo root: `python -m scripts.pipeline.content_eval evaluate {f} {p}` |
+| `content_eval` returns "0 pages found" | Running from wrong directory | Run from repo root: `.venv/Scripts/python -m scripts.pipeline.content_eval evaluate {f} {p}` |
 | `model.yaml` shows `stale_since != null` | Knowledge is outdated | Run `/knowledge-update {family} {platform}` |
 | Pre-commit hook blocks commit | Staged files have API accuracy failures | Fix issues shown in hook output, re-stage |
 | Translation audit finds failures | Structure drift or English leakage | Retranslate failed pages with `/translate {file} --locales {locale}` |
@@ -298,7 +298,7 @@ See AGENTS.md §10b (full detail: docs/governance/provenance-rules.md) for the f
 
 # Check why a translator sync skipped a file
 # Look for: [SKIP] {path} -- auto_updatable=false, requires review
-python -m translator sync --family {f} --platform {p} --site docs.aspose.org --locales {locale}
+.venv/Scripts/python -m translator sync --family {f} --platform {p} --site docs.aspose.org --locales {locale}
 
 # Verify provenance fields in a translated file
 grep -A8 "^provenance:" content/docs.aspose.org/{locale}/{family}/{platform}/_index.md

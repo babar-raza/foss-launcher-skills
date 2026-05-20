@@ -22,6 +22,13 @@ if [ ! -d "$HOOKS_DIR" ]; then
     exit 1
 fi
 
+# Ensure reports/ directories exist for skill context, overrides, and audits
+mkdir -p "$REPO_ROOT/reports/skill-context"
+mkdir -p "$REPO_ROOT/reports/skill-runs"
+mkdir -p "$REPO_ROOT/reports/overrides/pending"
+mkdir -p "$REPO_ROOT/reports/audit"
+echo "reports/ directories ensured."
+
 echo "Installing governance hooks..."
 
 cp "$REPO_ROOT/scripts/pre-commit-audit.sh" "$HOOKS_DIR/pre-commit"

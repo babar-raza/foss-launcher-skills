@@ -275,3 +275,13 @@ aspose.org/
 | [`docs/discovery-workflow.md`](discovery-workflow.md) | Discovery and change detection: patrol, sweep, triage, candidate states, advisory |
 | [`.claude/commands/README.md`](../.claude/commands/README.md) | All available slash commands with argument syntax |
 | [`scripts/pipeline/PIPELINE.md`](../scripts/pipeline/PIPELINE.md) | Pipeline architecture, New File Protocol |
+| [`docs/HARD_STOP_RECOVERY.md`](HARD_STOP_RECOVERY.md) | Hard stop conditions and recovery procedures |
+| [`docs/GOVERNANCE_ENFORCEMENT.md`](GOVERNANCE_ENFORCEMENT.md) | Enforcement mechanisms — hooks, CI checks, pre-commit |
+| [`docs/BYPASS_REGISTRY.md`](BYPASS_REGISTRY.md) | Override token protocol and bypass registry |
+| [`docs/OPERATOR_BYPASSES.md`](OPERATOR_BYPASSES.md) | Operator bypass procedures for blocked operations |
+| [`docs/GOVERNANCE_SCORECARD.md`](GOVERNANCE_SCORECARD.md) | Governance compliance scoring |
+| [`docs/GOVERNANCE_QUICKSTART.md`](GOVERNANCE_QUICKSTART.md) | Governance quick reference |
+| [`docs/skill-quality-gates.md`](skill-quality-gates.md) | Quality gate definitions for skills |
+| [`docs/git-integration-protocol.md`](git-integration-protocol.md) | Git integration protocol |
+| [`docs/report-conventions.md`](report-conventions.md) | Report format conventions |
+| [`docs/STATUS-venv-closure.md`](STATUS-venv-closure.md) | Venv closure rationale (WSL rejection) |
