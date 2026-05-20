@@ -22,6 +22,30 @@ WSL is permanently rejected; see `docs/STATUS-venv-closure.md` for the reason.
 For the full policy, see `AGENTS.md §2b`. CI runs on `ubuntu-latest` (no Windows
 enforcement needed in CI).
 
+## 0. Smoke Test (5 minutes)
+
+Run these checks after setup to verify the system is working:
+
+```bash
+# 1. Verify venv is active and Python is correct
+.venv/Scripts/python --version   # Should print Python 3.x
+
+# 2. Verify tests collect (no import errors)
+.venv/Scripts/python -m pytest scripts/pipeline/tests/ -q --co 2>&1 | tail -3
+
+# 3. Run audit across all products (0 FAIL expected)
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py all
+
+# 4. Verify knowledge model exists for at least one product
+ls knowledge/slides/python/merged/model.yaml
+
+# 5. Verify DAR enforcement is active (should NOT print "fail-open")
+.venv/Scripts/python scripts/pipeline/commands/governance/check_dar_prerequisites.py --skill S-21
+```
+
+**Expected results**: Steps 1-4 should succeed. Step 5 should print either
+"prerequisites satisfied" or "PREREQUISITE FAILURE" -- never "fail-open".
+
 ## 1. Setup (Fresh Clone)
 
 Run `/getting-started` or follow these steps manually:
