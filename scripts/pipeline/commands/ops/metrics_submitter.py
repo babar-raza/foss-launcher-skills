@@ -616,3 +616,48 @@ def _redact_endpoint(endpoint: str) -> str:
     prefix = endpoint[:20]
     suffix = endpoint[-8:]
     return f"{prefix}***{suffix}"
+
+
+# ---------------------------------------------------------------------------
+# Environment variable for production mode
+# ---------------------------------------------------------------------------
+
+ENV_PRODUCTION = "AGENT_METRICS_PRODUCTION"
+
+
+# ---------------------------------------------------------------------------
+# Convenience: try production submit (never raises)
+# ---------------------------------------------------------------------------
+
+def try_production_submit(row: MetricsRow) -> SubmitResult | None:
+    """Attempt production submission if AGENT_METRICS_PRODUCTION=1.
+
+    Returns SubmitResult on attempt, None if production mode is disabled.
+    Never raises — all errors captured in SubmitResult.error.
+    """
+    if os.environ.get(ENV_PRODUCTION, "").strip() != "1":
+        return None
+    import logging
+    _log = logging.getLogger(__name__)
+    try:
+        submitter = MetricsSubmitter(mode=MODE_PRODUCTION_SUBMIT)
+        result = submitter.submit(row, owner_approved=True)
+        if result.submitted:
+            _log.info("Metrics production submit OK: run_id=%s", row.run_id)
+        else:
+            _log.warning("Metrics production submit skipped: %s", result.error)
+        return result
+    except Exception as exc:
+        _log.debug("Metrics production submit failed: %s", exc)
+        return SubmitResult(
+            mode=MODE_PRODUCTION_SUBMIT,
+            submitted=False,
+            status_code=None,
+            response_summary=None,
+            response_run_id=None,
+            output_path=None,
+            redacted_endpoint=None,
+            error=str(exc),
+            row_valid=False,
+            validation_errors=[],
+        )

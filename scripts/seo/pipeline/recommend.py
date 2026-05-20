@@ -871,6 +871,9 @@ def run_recommendations(
         (_mdry_dir / f"{_mrun_id}.dry.json").write_text(
             _mjson.dumps(row_to_dict(_mrow), indent=2), encoding="utf-8"
         )
+        # Slice 16: production submit if AGENT_METRICS_PRODUCTION=1
+        from commands.ops.metrics_submitter import try_production_submit
+        try_production_submit(_mrow)
     except Exception:
         pass  # metrics capture must never break SEO recommendations
 

@@ -1666,6 +1666,9 @@ def _try_write_gaeval_metrics(
         dry_path = dry_dir / f"{run_id}.dry.json"
         dry_path.write_text(_json.dumps(row_to_dict(row), indent=2), encoding="utf-8")
         log.info("Metrics dry-run: %s", dry_path)
+        # Slice 16: production submit if AGENT_METRICS_PRODUCTION=1
+        from commands.ops.metrics_submitter import try_production_submit
+        try_production_submit(row)
     except Exception as exc:
         log.debug("Metrics dry-run skipped: %s", exc)
 
