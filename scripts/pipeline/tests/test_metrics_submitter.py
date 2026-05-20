@@ -374,14 +374,22 @@ class TestProductionSubmitApproval:
         assert "owner_approved" in result.error
         assert len(http.calls) == 0
 
-    def test_owner_approved_true_allows_submit(self, monkeypatch):
+    def test_owner_approved_true_allows_submit(self, tmp_path, monkeypatch):
         monkeypatch.setenv(ENV_ENDPOINT, "https://example.com")
         monkeypatch.setenv(ENV_TOKEN, "tok")
         http = _FakeHTTPClient(status_code=200)
         row = _make_production_row()
-        result = MetricsSubmitter(mode=MODE_PRODUCTION_SUBMIT, _http_client=http).submit(
-            row, owner_approved=True
-        )
+        # Create matching dry-run file (preflight requirement)
+        dry_dir = tmp_path / "dry"
+        dry_dir.mkdir()
+        (dry_dir / f"{row.run_id}.dry.json").write_text("{}", encoding="utf-8")
+        result = MetricsSubmitter(
+            mode=MODE_PRODUCTION_SUBMIT,
+            _http_client=http,
+            _markers_root=tmp_path / "posted",
+            _failed_root=tmp_path / "failed",
+            _dry_root=dry_dir,
+        ).submit(row, owner_approved=True)
         assert result.submitted is True
         assert len(http.calls) == 1
 
@@ -676,12 +684,16 @@ class TestIdempotencyMarker:
         row = _make_production_row()
         markers = tmp_path / "posted"
         failed = tmp_path / "failed"
+        dry_dir = tmp_path / "dry"
+        dry_dir.mkdir()
+        (dry_dir / f"{row.run_id}.dry.json").write_text("{}", encoding="utf-8")
         fake = _FakeHTTPClient(status_code=200, response_body={"message": "ok"})
         submitter = MetricsSubmitter(
             mode=MODE_PRODUCTION_SUBMIT,
             _http_client=fake,
             _markers_root=markers,
             _failed_root=failed,
+            _dry_root=dry_dir,
         )
         first = submitter.submit(row, owner_approved=True)
         assert first.submitted is True
@@ -969,6 +981,107 @@ class TestTestRowHardLimit:
         result = submitter.submit(_make_test_row())
         assert result.submitted is True
         assert len(http.calls) == 1
+
+
+# ---------------------------------------------------------------------------
+# TC-GS-CONTROL-002: Production submit preflight gate tests (5 tests)
+# ---------------------------------------------------------------------------
+
+class TestProductionPreflightGate:
+    """TC-GS-CONTROL-002: production_submit requires matching dry-run file."""
+
+    def _make_dry_file(self, dry_dir: Path, run_id: str) -> None:
+        dry_dir.mkdir(parents=True, exist_ok=True)
+        (dry_dir / f"{run_id}.dry.json").write_text("{}", encoding="utf-8")
+
+    def test_blocks_when_no_dry_run_file(self, tmp_path, monkeypatch):
+        """Production submit blocked when no matching dry-run file exists."""
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com")
+        monkeypatch.setenv(ENV_TOKEN, "tok")
+        row = _make_production_row()
+        http = _FakeHTTPClient(status_code=200)
+        result = MetricsSubmitter(
+            mode=MODE_PRODUCTION_SUBMIT,
+            _http_client=http,
+            _markers_root=tmp_path / "posted",
+            _failed_root=tmp_path / "failed",
+            _dry_root=tmp_path / "dry",  # empty — no dry file
+        ).submit(row, owner_approved=True)
+        assert result.submitted is False
+        assert "dry-run file" in result.error
+        assert row.run_id in result.error
+
+    def test_no_http_call_without_dry_run(self, tmp_path, monkeypatch):
+        """No HTTP call made when dry-run file is missing."""
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com")
+        monkeypatch.setenv(ENV_TOKEN, "tok")
+        row = _make_production_row()
+        http = _FakeHTTPClient(status_code=200)
+        MetricsSubmitter(
+            mode=MODE_PRODUCTION_SUBMIT,
+            _http_client=http,
+            _markers_root=tmp_path / "posted",
+            _failed_root=tmp_path / "failed",
+            _dry_root=tmp_path / "dry",
+        ).submit(row, owner_approved=True)
+        assert len(http.calls) == 0
+
+    def test_allows_submit_with_matching_dry_run(self, tmp_path, monkeypatch):
+        """Production submit succeeds when matching dry-run file exists."""
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com")
+        monkeypatch.setenv(ENV_TOKEN, "tok")
+        row = _make_production_row()
+        dry_dir = tmp_path / "dry"
+        self._make_dry_file(dry_dir, row.run_id)
+        http = _FakeHTTPClient(status_code=200)
+        result = MetricsSubmitter(
+            mode=MODE_PRODUCTION_SUBMIT,
+            _http_client=http,
+            _markers_root=tmp_path / "posted",
+            _failed_root=tmp_path / "failed",
+            _dry_root=dry_dir,
+        ).submit(row, owner_approved=True)
+        assert result.submitted is True
+        assert len(http.calls) == 1
+
+    def test_idempotency_before_preflight(self, tmp_path, monkeypatch):
+        """Idempotency check runs before preflight — re-submit returns 'already posted'."""
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com")
+        monkeypatch.setenv(ENV_TOKEN, "tok")
+        row = _make_production_row()
+        markers = tmp_path / "posted"
+        dry_dir = tmp_path / "dry"
+        self._make_dry_file(dry_dir, row.run_id)
+        http = _FakeHTTPClient(status_code=200, response_body={"message": "ok"})
+        submitter = MetricsSubmitter(
+            mode=MODE_PRODUCTION_SUBMIT,
+            _http_client=http,
+            _markers_root=markers,
+            _failed_root=tmp_path / "failed",
+            _dry_root=dry_dir,
+        )
+        first = submitter.submit(row, owner_approved=True)
+        assert first.submitted is True
+        # Now remove the dry file — idempotency should still return "already posted"
+        (dry_dir / f"{row.run_id}.dry.json").unlink()
+        second = submitter.submit(row, owner_approved=True)
+        assert second.submitted is False
+        assert second.error == "already posted"
+
+    def test_missing_dry_root_directory(self, tmp_path, monkeypatch):
+        """Missing dry root directory causes preflight block (not crash)."""
+        monkeypatch.setenv(ENV_ENDPOINT, "https://example.com")
+        monkeypatch.setenv(ENV_TOKEN, "tok")
+        row = _make_production_row()
+        result = MetricsSubmitter(
+            mode=MODE_PRODUCTION_SUBMIT,
+            _http_client=_FakeHTTPClient(status_code=200),
+            _markers_root=tmp_path / "posted",
+            _failed_root=tmp_path / "failed",
+            _dry_root=tmp_path / "nonexistent_dry",
+        ).submit(row, owner_approved=True)
+        assert result.submitted is False
+        assert "dry-run file" in result.error
 
 
 class TestResponseRunIdCapture:

@@ -22,7 +22,12 @@
       "Bash(for f in *.json proposed-taskcards/../*.json)",
       "Bash(do echo \"=== $f ===\")",
       "Bash(.venv/../../.venv/Scripts/python.exe -c \"import json,sys; json.load\\(open\\(''$f''\\)\\); print\\(''OK''\\)\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(ls \"d:/onedrive/Documents/GitHub/aspose.org/scripts/ci/checks/check_metrics_\"*.py)",
+      "Read(//d/onedrive/Documents/GitHub/aspose.net/**)",
+      "Bash(.venv/Scripts/python.exe -m pytest ops/tests/ scripts/validation/ -q --tb=short)",
+      "Bash(gh pr view 1 --repo aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript --json state,mergeable,mergeStateStatus,headRefOid)",
+      "Bash(ROOT_WRITE_AUTHORIZED=1 echo \"testing env var pass-through\")"
     ],
     "additionalDirectories": [
       "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing",

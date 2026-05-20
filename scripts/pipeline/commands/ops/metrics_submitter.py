@@ -140,6 +140,7 @@ class MetricsSubmitter:
         _http_client: Any = None,
         _markers_root: str | Path | None = None,
         _failed_root: str | Path | None = None,
+        _dry_root: str | Path | None = None,
     ):
         if mode not in VALID_MODES:
             raise ValueError(f"Invalid mode '{mode}'. Must be one of {sorted(VALID_MODES)}")
@@ -148,6 +149,7 @@ class MetricsSubmitter:
         self._http_client = _http_client
         self._markers_root = Path(_markers_root) if _markers_root else Path("reports/metrics/posted")
         self._failed_root = Path(_failed_root) if _failed_root else Path("reports/metrics/failed")
+        self._dry_root = Path(_dry_root) if _dry_root else Path("reports/metrics/dry")
 
     # ------------------------------------------------------------------
     # Public
@@ -394,6 +396,25 @@ class MetricsSubmitter:
                 output_path=None,
                 redacted_endpoint=None,
                 error="already posted",
+                row_valid=True,
+                validation_errors=[],
+            )
+
+        # Preflight: require matching dry-run file before production submission
+        dry_file = self._dry_root / f"{row.run_id}.dry.json"
+        if not dry_file.exists():
+            return SubmitResult(
+                mode=MODE_PRODUCTION_SUBMIT,
+                submitted=False,
+                status_code=None,
+                response_summary=None,
+                response_run_id=None,
+                output_path=None,
+                redacted_endpoint=None,
+                error=(
+                    f"production_submit requires a matching dry-run file: "
+                    f"{dry_file} not found"
+                ),
                 row_valid=True,
                 validation_errors=[],
             )
