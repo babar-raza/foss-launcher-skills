@@ -78,3 +78,39 @@ This sprint ported **203 files** across all deferred infrastructure layers.
 
 4. **Hook path adaptation**: Some CI hooks may reference aspose.org-specific paths
    internally. These should be audited when hooks are activated for the foss repo.
+
+## Self-Review Corrections (2026-05-20, post-sprint)
+
+### Stub modules resolved
+
+At initial closure, 8 modules were file-present but contained only
+`raise NotImplementedError` stubs. These have been replaced with full
+implementations ported from aspose.org:
+
+- `lib/evidence_verifier.py` (116 lines) — was crash-path for core/knowledge.py
+- `lib/blog_slug_policy.py` (315 lines)
+- `lib/grade_manifest.py` (189 lines)
+- `lib/reconcile_triage.py` (245 lines)
+- `lib/section_enhance_validator.py` (360 lines)
+- `lib/triage_confirm.py` (103 lines)
+- `core/env_loader.py` (24 lines) — was crash-path for knowledge/scout.py
+- `core/prereqs.py` (136 lines)
+
+Additionally, `core/markdown.py` was upgraded from a simplified version to the
+full aspose.org implementation (adding `_FRONTMATTER_RE`, `parse_frontmatter`,
+`extract_frontmatter_body`, `_FRONTMATTER_WRITER_RE`).
+
+### Background agent late arrival
+
+13 content pipeline command files received standalone adaptations from a
+background agent that completed after the initial closure. These adaptations
+(configurable repo root, import guards, `# Adapted from aspose.org` headers)
+are consistent with the prior batch and have been committed.
+
+### Corrected parity claims
+
+The initial closure report's "Lib modules 29/29 = 100%" and "Core modules
+10/10 = 100%" were technically true by file count but misleading — 8 files
+were non-functional stubs. The corrected state is:
+- Lib modules: 29/29 functional (all stubs replaced)
+- Core modules: 10/10 functional (env_loader, prereqs, markdown all complete)

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Adapted from aspose.org
 """
 normalize_code_block_blanks.py — Phase 3 locale backfill for production-closure sprint.
 
@@ -38,8 +39,8 @@ import json
 import os
 from pathlib import Path
 
-REPO = Path(os.getcwd())
-DEFAULT_PRODUCTS = REPO / "content" / "products.aspose.org"
+REPO = Path(os.environ.get("CONTENT_REPO_PATH", os.getcwd()))
+DEFAULT_PRODUCTS = REPO / "content" / "products"
 
 SHORT_SNIPPET_THRESHOLD = 8
 

@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 """Deterministic page specification — load site plans and reconcile with disk.
 
 Bridges the gap between site_planner.py (YAML plan output) and batch_reference.py
@@ -17,7 +18,20 @@ from typing import Any
 
 import yaml
 
-_DEFAULT_ROOT = Path(__file__).resolve().parents[4]
+
+
+def _resolve_repo_root() -> Path:
+    """Return the repo root via $CONTENT_REPO_PATH or config_loader."""
+    import os as _os
+    env = _os.environ.get("CONTENT_REPO_PATH")
+    if env:
+        return Path(env).resolve()
+    try:
+        return resolve_content_repo()
+    except Exception:
+        return _HERE.parents[3]
+
+_DEFAULT_ROOT = _resolve_repo_root()
 _ROOT = _DEFAULT_ROOT
 
 

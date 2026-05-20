@@ -1,16 +1,23 @@
 #!/usr/bin/env python3
+# Adapted from aspose.org
 """Temporary independent scanner for production-closure sprint.
 Recursively scans ALL string fields in product page frontmatter.
 Fresh implementation -- not based on committed detect_code_block_blanks.py."""
 import re
 import json
+import os
 import sys
 from pathlib import Path
 
 import yaml
 
 FENCE = re.compile(r"^[ \t]*```")
-PRODUCTS = Path("content/products.aspose.org")
+# Default scan path: configurable via --path or $CONTENT_REPO_PATH
+_CONTENT_REPO = os.environ.get("CONTENT_REPO_PATH", "")
+if _CONTENT_REPO:
+    PRODUCTS = Path(_CONTENT_REPO) / "content" / "products"
+else:
+    PRODUCTS = Path("content/products")
 
 
 def all_strings(obj, path=""):
@@ -77,7 +84,7 @@ def scan_file(md_path):
                  "severity": "ERROR", "check_id": "YAML_ERR", "detail": str(exc)}]
 
     path_str = str(md_path).replace("\\", "/")
-    is_en = ("/en/" in path_str) and ("products.aspose.org" in path_str)
+    is_en = ("/en/" in path_str) and ("products" in path_str)
 
     results = []
     for key_path, value in all_strings(fm):

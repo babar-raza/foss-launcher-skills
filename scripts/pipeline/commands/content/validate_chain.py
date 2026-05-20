@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 """validate_chain.py — Single-file validation chain runner.
 
 Runs frontmatter validation, API audit, evidence check, and content evaluation
@@ -12,12 +13,27 @@ Usage:
 import sys
 from pathlib import Path
 
-_PIPELINE_ROOT = Path(__file__).resolve().parents[2]
-if str(_PIPELINE_ROOT) not in sys.path:
-    sys.path.insert(0, str(_PIPELINE_ROOT))
-_LIB_DIR = str(_PIPELINE_ROOT / "lib")
-if _LIB_DIR not in sys.path:
-    sys.path.insert(0, _LIB_DIR)
+_HERE = Path(__file__).resolve().parent
+_PIPELINE = _HERE.parents[1]
+_SCRIPTS = _HERE.parents[2]
+_COMMANDS = _HERE.parent
+for _path in (_SCRIPTS, _PIPELINE):
+    if str(_path) not in sys.path:
+        sys.path.insert(0, str(_path))
+
+from config_loader import resolve_content_repo  # noqa: E402
+
+
+def _resolve_repo_root() -> Path:
+    """Return the repo root via $CONTENT_REPO_PATH or config_loader."""
+    env = os.environ.get("CONTENT_REPO_PATH")
+    if env:
+        return Path(env).resolve()
+    try:
+        return resolve_content_repo()
+    except Exception:
+        return _HERE.parents[3]
+
 
 import argparse
 import json
@@ -28,7 +44,7 @@ import subprocess
 # Helpers
 # ---------------------------------------------------------------------------
 
-_REPO_ROOT = _PIPELINE_ROOT.parents[1]  # scripts/pipeline -> scripts -> repo
+_REPO_ROOT = _resolve_repo_root()
 
 _VENV_PYTHON = (
     str(_REPO_ROOT / ".venv" / "Scripts" / "python")

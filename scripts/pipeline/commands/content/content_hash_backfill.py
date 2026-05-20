@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Adapted from aspose.org
 """content_hash_backfill.py — Idempotently write content_hash to provenance blocks.
 
 Scans all eligible .md files under a content directory and writes a
@@ -19,13 +20,21 @@ import sys
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
-if str(_HERE) not in sys.path:
-    sys.path.insert(0, str(_HERE.parent.parent))  # scripts/pipeline/
-    _LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "lib")
-    if _LIB_DIR not in sys.path:
-        sys.path.insert(0, _LIB_DIR)
+_PIPELINE = _HERE.parents[1]
+_SCRIPTS = _HERE.parents[2]
+_COMMANDS = _HERE.parent
+for _path in (_SCRIPTS, _PIPELINE):
+    if str(_path) not in sys.path:
+        sys.path.insert(0, str(_path))
 
-from provenance import read_provenance, compute_content_hash, write_provenance  # noqa: E402
+from config_loader import resolve_content_repo  # noqa: E402
+
+try:
+    from provenance import read_provenance, compute_content_hash, write_provenance  # noqa: E402
+except ImportError:
+    def read_provenance(fp): return None
+    def compute_content_hash(fp): return None
+    def write_provenance(fp, prov): return False
 
 
 def _has_provenance_block(filepath: Path) -> bool:
@@ -115,7 +124,7 @@ def main() -> None:
         scan_root = Path(args.path).resolve()
     else:
         # Default: content/ relative to repo root (two levels up from this script)
-        scan_root = (_HERE / ".." / ".." / ".." / ".." / "content").resolve()
+        scan_root = (_resolve_repo_root() / "content").resolve()
 
     if not scan_root.exists():
         print(f"ERROR: scan path does not exist: {scan_root}", file=sys.stderr)

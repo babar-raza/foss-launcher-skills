@@ -102,3 +102,38 @@
 - These are functional references consistent with foss's `content_repo_adapter.py` design
 - The adapter pattern (`ASPOSE_CONTENT_ROOT`) is the established approach for external content access
 - **Verdict**: ACCEPTABLE (by design — foss operates against external content repos)
+
+## Self-Review Corrections (post-sprint)
+
+### Stub modules
+
+At initial evidence recording, 8 lib/core modules were file-present stubs
+containing `raise NotImplementedError`. This meant:
+- `core/knowledge.py` crashed on import (unguarded `from evidence_verifier import verify_evidence`)
+- `commands/knowledge/scout.py` crashed on import (unguarded `from core.env_loader import load_env`)
+
+All 8 stubs have been replaced with full implementations.
+Import verification re-run (all pass):
+```
+from core.knowledge import Knowledge          → OK
+from core.env_loader import load_env          → OK
+from core.prereqs import require_all          → OK
+import evidence_verifier                      → OK
+import blog_slug_policy                       → OK
+import grade_manifest                         → OK
+import triage_confirm                         → OK
+import section_enhance_validator              → OK
+import reconcile_triage                       → OK
+```
+
+### core/markdown.py upgrade
+
+Upgraded from simplified 23-line version to full 80-line version matching
+aspose.org's implementation. Added missing symbols: `_FRONTMATTER_RE`,
+`_FRONTMATTER_WRITER_RE`, `parse_frontmatter`, `extract_frontmatter_body`.
+
+### Post-correction verification
+
+- **Test suite**: 752 passed, 15 skipped (unchanged)
+- **validate_skills.py**: PASS (92 skills)
+- **All module imports**: PASS (9/9 previously-stub modules)

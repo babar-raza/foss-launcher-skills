@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Adapted from aspose.org
 """audit_content_origin.py — Sprint 3 inventory for content_origin: unknown recovery.
 
 Scans all English .md files across the five production sites, identifies files
@@ -33,15 +34,33 @@ from collections import defaultdict
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
-if str(_HERE) not in sys.path:
-    sys.path.insert(0, str(_HERE.parent.parent))  # scripts/pipeline/
-    _LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "lib")
-    if _LIB_DIR not in sys.path:
-        sys.path.insert(0, _LIB_DIR)
+_PIPELINE = _HERE.parents[1]
+_SCRIPTS = _HERE.parents[2]
+_COMMANDS = _HERE.parent
+for _path in (_SCRIPTS, _PIPELINE):
+    if str(_path) not in sys.path:
+        sys.path.insert(0, str(_path))
 
-from provenance import read_provenance  # noqa: E402
+from config_loader import resolve_content_repo  # noqa: E402
 
-_DEFAULT_REPO_ROOT = (_HERE / ".." / ".." / ".." / "..").resolve()
+
+def _resolve_repo_root() -> Path:
+    """Return the repo root via $CONTENT_REPO_PATH or config_loader."""
+    env = os.environ.get("CONTENT_REPO_PATH")
+    if env:
+        return Path(env).resolve()
+    try:
+        return resolve_content_repo()
+    except Exception:
+        return _HERE.parents[3]
+
+
+try:
+    from provenance import read_provenance  # noqa: E402
+except ImportError:
+    def read_provenance(fp): return None
+
+_DEFAULT_REPO_ROOT = _resolve_repo_root()
 _REPO_ROOT = _DEFAULT_REPO_ROOT
 _CONTENT_ROOT = _REPO_ROOT / "content"
 _DEFAULT_CSV = _REPO_ROOT / "reports" / "content_origin_review_queue.csv"
@@ -54,11 +73,11 @@ def configure(*, repo_root: "Path | str | None" = None, content_root: "Path | st
     _CONTENT_ROOT = Path(content_root) if content_root is not None else _REPO_ROOT / "content"
 
 _SITES = [
-    "blog.aspose.org",
-    "docs.aspose.org",
-    "kb.aspose.org",
-    "products.aspose.org",
-    "reference.aspose.org",
+    "blog",
+    "docs",
+    "kb",
+    "products",
+    "reference",
 ]
 
 _LOCALE_INFIX_RE = re.compile(

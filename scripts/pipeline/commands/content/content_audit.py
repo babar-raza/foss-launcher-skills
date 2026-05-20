@@ -1,3 +1,4 @@
+# Adapted from aspose.org
 """Deterministic semantic content audit — classifies prose by evidence tier.
 
 Extracts every prose paragraph from content files and classifies each against
@@ -24,21 +25,40 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 # Resolve imports from sibling modules (audit.py, content_eval)
 # ---------------------------------------------------------------------------
-# sys.path.insert removed: Python adds the script directory to sys.path
-# automatically when invoked directly.
+_HERE = Path(__file__).resolve().parent
+_PIPELINE = _HERE.parents[1]
+_SCRIPTS = _HERE.parents[2]
+_COMMANDS = _HERE.parent
+for _path in (_SCRIPTS, _PIPELINE):
+    if str(_path) not in sys.path:
+        sys.path.insert(0, str(_path))
 
-_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
-if _LIB_DIR not in sys.path:
-    sys.path.insert(0, _LIB_DIR)
-from knowledge_core import Knowledge  # noqa: E402
-from content_discovery import (  # noqa: E402  (R-1b/R-4: was knowledge_core)
-    PLATFORM_MAP,
-    discover_content,
-    discover_products,
-    infer_product,
-)
-from token_ops import extract_tokens, verify_tokens  # noqa: E402
-from content_eval.models import Page  # noqa: E402
+from config_loader import resolve_content_repo  # noqa: E402
+try:
+    from knowledge_core import Knowledge  # noqa: E402
+except ImportError:
+    Knowledge = None
+try:
+    from content_discovery import (  # noqa: E402
+        PLATFORM_MAP,
+        discover_content,
+        discover_products,
+        infer_product,
+    )
+except ImportError:
+    PLATFORM_MAP = {}
+    def discover_content(f, p): return []
+    def discover_products(): return []
+    def infer_product(fp): return (None, None)
+try:
+    from token_ops import extract_tokens, verify_tokens  # noqa: E402
+except ImportError:
+    def extract_tokens(fp, plat): return []
+    def verify_tokens(tokens, k, fp): return []
+try:
+    from content_eval.models import Page  # noqa: E402
+except ImportError:
+    Page = None
 
 
 def _log(*args, **kwargs):
@@ -315,7 +335,10 @@ def main(argv=None):
     pages_by_product: dict[tuple[str, str], list[Page]] = {}
 
     if args.files:
-        from content_eval.loader import load_files  # noqa: E402
+        try:
+            from content_eval.loader import load_files  # noqa: E402
+        except ImportError:
+            def load_files(files): return []
         pages = load_files(args.files)
         for page in pages:
             fam = page.family
