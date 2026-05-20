@@ -1,0 +1,192 @@
+# Metrics Callsite Registry for aspose.org Agent Metrics
+# Slice 1 of Agent Metrics Integration (METRICS-PLAN-001 v7.1)
+#
+# This registry covers ONLY current professionalize transport call sites.
+# Non-professionalize calls (Gemini, Ollama, M2M) are NOT registered here.
+# They are documented in metrics_taxonomy.yaml non_professionalize_boundaries.
+#
+# No secrets. No API keys. No endpoint tokens.
+# No future adoption or migration planning.
+
+version: "1.0"
+plan_version: "7.1"
+date_created: "2026-05-06"
+slice_0_evidence: "reports/metrics/discovery/aspose-org-callsite-reconciliation.json"
+
+# ── Allowed capture methods ───────────────────────────────────────────────── #
+
+allowed_capture_methods:
+  - wrapper_native       # Uses ProfessionalizeClient directly
+  - llm_router_native    # Routed through LLMRouter which uses ProfessionalizeClient
+  - approved_adapter     # Existing code wrapped with metrics adapter shim
+  - legacy_temporary     # Temporary ungoverned; must have follow-up taskcard
+  - blocked              # Not allowed; CI will reject
+
+# ── Professionalize Transport Call Sites ──────────────────────────────────── #
+
+call_sites:
+  CS-001:
+    call_site_id: "CS-001"
+    category: "professionalize_transport"
+    path: "scripts/pipeline/commands/ops/llm_router.py"
+    function_or_class: "LLMRouter.call_chat"
+    current_provider: "professionalize"
+    transport_type: "requests.post"
+    base_url_source: "llm_registry.yaml professionalize.base_url"
+    endpoint_source: "/chat/completions"
+    api_key_source: "PROFESSIONALIZE_API_KEY"
+    model_source: "llm_registry.yaml professionalize.models.chat (gpt-oss)"
+    capture_method: "wrapper_native"
+    allowed_capture_methods: ["wrapper_native"]
+    owner_component: "aspose-org-knowledge-enrichment"
+    work_slice_context_source: "CS-003 (enrich.py), CS-005 (run.py), CS-006 (fix_spec.py), CS-007 (synthesize.py)"
+    status: "active"
+    usage_metadata_expected: true
+    api_call_count_required: true
+    retry_behavior: "single attempt per provider, fallback to ollama"
+    batching_behavior: "none"
+    cache_behavior: "none"
+    tests: "test_router_chat_emits_event"
+    last_verified: "2026-05-06"
+    evidence_reference: "reports/metrics/discovery/aspose-org-llm-call-site-inventory.json"
+
+  CS-002:
+    call_site_id: "CS-002"
+    category: "professionalize_transport"
+    path: "scripts/pipeline/commands/ops/llm_router.py"
+    function_or_class: "LLMRouter.call_embeddings"
+    current_provider: "professionalize"
+    transport_type: "requests.post"
+    base_url_source: "llm_registry.yaml professionalize.base_url"
+    endpoint_source: "/embeddings"
+    api_key_source: "PROFESSIONALIZE_API_KEY"
+    model_source: "llm_registry.yaml professionalize.models.embeddings (qwen3-embedding-8b)"
+    capture_method: "wrapper_native"
+    allowed_capture_methods: ["wrapper_native"]
+    owner_component: "aspose-org-knowledge-embedding"
+    work_slice_context_source: "CS-005 (run.py), CS-007 (synthesize.py)"
+    status: "active"
+    usage_metadata_expected: true
+    api_call_count_required: true
+    retry_behavior: "single attempt per provider, fallback to ollama"
+    batching_behavior: "none"
+    cache_behavior: "none"
+    tests: "test_router_embedding_emits_event"
+    last_verified: "2026-05-06"
+    evidence_reference: "reports/metrics/discovery/aspose-org-llm-call-site-inventory.json"
+
+  CS-004:
+    call_site_id: "CS-004"
+    category: "professionalize_transport"
+    path: "scripts/pipeline/commands/knowledge/embed.py"
+    function_or_class: "EmbeddingClient.embed_batch"
+    current_provider: "professionalize"
+    transport_type: "requests.post"
+    base_url_source: "hardcoded https://llm.professionalize.com/v1/embeddings"
+    endpoint_source: "/embeddings"
+    api_key_source: "PROFESSIONALIZE_API_KEY"
+    model_source: "hardcoded qwen3-embedding-8b in embed config"
+    capture_method: "approved_adapter"
+    allowed_capture_methods: ["approved_adapter", "wrapper_native"]
+    owner_component: "aspose-org-knowledge-embedding"
+    work_slice_context_source: "embed.py batch context"
+    status: "active"
+    usage_metadata_expected: true
+    api_call_count_required: true
+    retry_behavior: "none (raises on failure)"
+    batching_behavior: "batch_size=32"
+    cache_behavior: "none"
+    tests: "test_embed_adapter_emits_event"
+    last_verified: "2026-05-06"
+    evidence_reference: "reports/metrics/discovery/aspose-org-llm-call-site-inventory.json"
+
+  CS-008:
+    call_site_id: "CS-008"
+    category: "professionalize_transport"
+    path: "scripts/translator/backends/llm.py"
+    function_or_class: "LLMBackend.translate / LLMBackend.translate_batch"
+    current_provider: "professionalize"
+    transport_type: "requests.post via Session"
+    base_url_source: "LLM_API_BASE_URL env or hardcoded https://llm.professionalize.com/v1"
+    endpoint_source: "/chat/completions"
+    api_key_source: "LLM_API_KEY"
+    model_source: "LLM_MODEL env or hardcoded 'recommended'"
+    capture_method: "approved_adapter"
+    allowed_capture_methods: ["approved_adapter", "wrapper_native"]
+    owner_component: "aspose-org-translator"
+    work_slice_context_source: "translator CLI batch context"
+    status: "active"
+    usage_metadata_expected: true
+    api_call_count_required: true
+    retry_behavior: "exponential backoff, max_retries=3"
+    batching_behavior: "translate_batch packs multiple texts per request"
+    cache_behavior: "SQLite translation cache (separate from API call counting)"
+    tests: "test_translator_adapter_emits_event"
+    last_verified: "2026-05-06"
+    evidence_reference: "reports/metrics/discovery/aspose-org-llm-call-site-inventory.json"
+
+  CS-009:
+    call_site_id: "CS-009"
+    category: "professionalize_transport"
+    path: "scripts/seo/pipeline/recommend.py"
+    function_or_class: "_call_llm"
+    current_provider: "professionalize"
+    transport_type: "openai.OpenAI SDK"
+    base_url_source: "hardcoded https://llm.professionalize.com/v1/"
+    endpoint_source: "/chat/completions (via OpenAI SDK)"
+    api_key_source: "LITELLM_KEY"
+    model_source: "hardcoded 'recommended'"
+    capture_method: "approved_adapter"
+    allowed_capture_methods: ["approved_adapter", "wrapper_native"]
+    owner_component: "aspose-org-seo-recommendation"
+    work_slice_context_source: "SEO pipeline recommend context"
+    status: "disabled"
+    status_reason: "LITELLM_KEY is NOT_SET in current environment"
+    usage_metadata_expected: true
+    api_call_count_required: true
+    retry_behavior: "max_retries=3 with delay"
+    batching_behavior: "none"
+    cache_behavior: "none"
+    tests: "test_seo_adapter_emits_event"
+    last_verified: "2026-05-06"
+    evidence_reference: "reports/metrics/discovery/aspose-org-llm-call-site-inventory.json"
+
+  CS-010:
+    call_site_id: "CS-010"
+    category: "professionalize_transport"
+    path: "scripts/pipeline/commands/ops/generate_product_backlink_copy.py"
+    function_or_class: "BacklinkCopyGenerator.generate"
+    current_provider: "professionalize"
+    transport_type: "LLMRouter.call_chat (llm_router_native)"
+    base_url_source: "llm_registry.yaml professionalize.base_url (via LLMRouter)"
+    endpoint_source: "/chat/completions (via LLMRouter -> ProfessionalizeClient)"
+    api_key_source: "PROFESSIONALIZE_API_KEY (via LLMRouter)"
+    model_source: "llm_registry.yaml professionalize.models.chat gpt-oss (via LLMRouter)"
+    capture_method: "llm_router_native"
+    allowed_capture_methods: ["llm_router_native", "wrapper_native"]
+    owner_component: "aspose-org-backlink-system"
+    work_slice_context_source: "generate_product_backlink_copy.py batch (plan cuddly-pondering-whisper)"
+    status: "active"
+    usage_metadata_expected: true
+    api_call_count_required: true
+    retry_behavior: "single attempt + one repair retry; template fallback on second failure"
+    batching_behavior: "one page per call"
+    cache_behavior: "SHA-256 file-level cache in reports/backlinks/llm-copy-cache/"
+    stop_condition: "if RunMetrics unavailable use template-only fallback (no live LLM calls)"
+    tests: "scripts/pipeline/tests/test_generate_product_backlink_copy.py"
+    last_verified: "2026-05-14"
+    evidence_reference: "reports/cuddly-pondering-whisper/v5-hardening-evidence.md"
+    notes: "Registered as part of cuddly-pondering-whisper sprint 20260514-181126"
+
+# ── Summary ───────────────────────────────────────────────────────────────── #
+
+summary:
+  total_registered_transport_sites: 6
+  active: 5
+  disabled: 1
+  wrapper_native: 2
+  llm_router_native: 1
+  approved_adapter: 3
+  direct_bypasses_requiring_adapter: ["CS-004", "CS-008", "CS-009"]
+  boundary_only_not_registered: ["CS-011", "CS-012", "CS-013"]
+  newly_registered_this_sprint: ["CS-010"]

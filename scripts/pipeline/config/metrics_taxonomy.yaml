@@ -1,0 +1,244 @@
+# Metrics Taxonomy for aspose.org Agent Metrics
+# Slice 1 of Agent Metrics Integration (METRICS-PLAN-001 v7.1)
+# Current professionalize call capture only. No future adoption planning.
+# No secrets. No endpoint tokens. No API keys.
+
+version: "1.0"
+plan_version: "7.1"
+date_created: "2026-05-06"
+
+# ── Owner ─────────────────────────────────────────────────────────────────── #
+
+agent_owner: "Babar Raza"
+
+# ── Website Mapping ───────────────────────────────────────────────────────── #
+# Verified in Slice 0: all subdomains map to "aspose.org" for posted website.
+
+default_website_mapping:
+  docs.aspose.org:
+    website: "aspose.org"
+    section: "Docs"
+  blog.aspose.org:
+    website: "aspose.org"
+    section: "Blog"
+  kb.aspose.org:
+    website: "aspose.org"
+    section: "KB"
+  products.aspose.org:
+    website: "aspose.org"
+    section: "Products"
+  reference.aspose.org:
+    website: "aspose.org"
+    section: "Reference"
+
+website_sections:
+  - "Docs"
+  - "Blog"
+  - "KB"
+  - "Products"
+  - "Reference"
+
+# ── Products (Aspose family keys) ────────────────────────────────────────── #
+# Source: content/products.aspose.org/en/ directory listing, verified 2026-05-06.
+
+products:
+  "3d": "Aspose.3D"
+  barcode: "Aspose.BarCode"
+  cad: "Aspose.CAD"
+  cells: "Aspose.Cells"
+  diagram: "Aspose.Diagram"
+  drawing: "Aspose.Drawing"
+  email: "Aspose.Email"
+  finance: "Aspose.Finance"
+  font: "Aspose.Font"
+  gis: "Aspose.GIS"
+  html: "Aspose.HTML"
+  imaging: "Aspose.Imaging"
+  medical: "Aspose.Medical"
+  note: "Aspose.Note"
+  ocr: "Aspose.OCR"
+  omr: "Aspose.OMR"
+  page: "Aspose.Page"
+  pdf: "Aspose.PDF"
+  psd: "Aspose.PSD"
+  pub: "Aspose.PUB"
+  slides: "Aspose.Slides"
+  svg: "Aspose.SVG"
+  tasks: "Aspose.Tasks"
+  tex: "Aspose.TeX"
+  words: "Aspose.Words"
+  zip: "Aspose.ZIP"
+  _all: "Aspose.Total"
+
+# ── Platforms ─────────────────────────────────────────────────────────────── #
+# Source: data/platforms.json, verified 2026-05-06.
+
+platforms:
+  python: "Python"
+  net: ".NET"
+  java: "Java"
+  cpp: "C++"
+  typescript: "TypeScript"
+  javascript: "JavaScript"
+  nodejs: "Node.js"
+  php: "PHP"
+  go: "Go"
+  ruby: "Ruby"
+  android: "Android"
+  swift: "Swift"
+
+# ── Agents (current pipeline components only) ────────────────────────────── #
+
+agents:
+  aspose-org-knowledge-enrichment:
+    display_name: "FOSS Launcher"
+    description: "Knowledge enrichment via LLMRouter chat"
+    entry_point: "scripts/pipeline/commands/knowledge/enrich.py"
+    call_sites: ["CS-003"]
+    transport_via: "LLMRouter (CS-001)"
+
+  aspose-org-knowledge-embedding:
+    display_name: "FOSS Launcher"
+    description: "Batch embedding worker"
+    entry_point: "scripts/pipeline/commands/knowledge/embed.py"
+    call_sites: ["CS-004"]
+    transport_via: "direct professionalize (CS-004)"
+
+  aspose-org-gap-evaluation:
+    display_name: "FOSS Launcher"
+    description: "Gap evaluation via LLMRouter"
+    entry_point: "scripts/gap-eval/src/run.py"
+    call_sites: ["CS-005"]
+    transport_via: "LLMRouter (CS-001, CS-002)"
+
+  aspose-org-gap-synthesis:
+    display_name: "FOSS Launcher"
+    description: "Gap synthesis via LLMRouter"
+    entry_point: "scripts/gap-eval/src/synthesize.py"
+    call_sites: ["CS-007"]
+    transport_via: "LLMRouter (CS-001, CS-002)"
+
+  aspose-org-fix-specification:
+    display_name: "FOSS Launcher"
+    description: "Fix specification via LLMRouter"
+    entry_point: "scripts/gap-eval/src/fix_spec.py"
+    call_sites: ["CS-006"]
+    transport_via: "LLMRouter (CS-001)"
+
+  aspose-org-translator:
+    display_name: "FOSS Launcher"
+    description: "Content translation via LLM backend"
+    entry_point: "scripts/translator/cli.py"
+    call_sites: ["CS-008"]
+    transport_via: "direct professionalize (CS-008)"
+
+  aspose-org-seo-recommendation:
+    display_name: "FOSS Launcher"
+    description: "SEO recommendation via OpenAI SDK"
+    entry_point: "scripts/seo/pipeline/recommend.py"
+    call_sites: ["CS-009"]
+    transport_via: "direct professionalize OpenAI SDK (CS-009)"
+
+# ── Job Types (current work only) ────────────────────────────────────────── #
+
+job_types:
+  knowledge_enrichment:
+    display_name: "Knowledge Enrichment"
+    agent: "aspose-org-knowledge-enrichment"
+    description: "Enrich knowledge base with LLM-generated claims"
+
+  knowledge_embedding:
+    display_name: "Knowledge Embedding"
+    agent: "aspose-org-knowledge-embedding"
+    description: "Generate embeddings for knowledge artifacts"
+
+  gap_evaluation:
+    display_name: "Gap Evaluation"
+    agent: "aspose-org-gap-evaluation"
+    description: "Evaluate content gaps against knowledge"
+
+  gap_synthesis:
+    display_name: "Gap Synthesis"
+    agent: "aspose-org-gap-synthesis"
+    description: "Synthesize gap evaluation results"
+
+  fix_specification:
+    display_name: "Fix Specification"
+    agent: "aspose-org-fix-specification"
+    description: "Generate fix specifications from gap analysis"
+
+  content_translation:
+    display_name: "Content Translation"
+    agent: "aspose-org-translator"
+    description: "Translate content pages to target locales"
+
+  seo_recommendation:
+    display_name: "SEO Recommendation"
+    agent: "aspose-org-seo-recommendation"
+    description: "Generate SEO recommendations for content"
+
+  test:
+    display_name: "test"
+    agent: null
+    description: "Test-mode job type for safe posting validation"
+
+# ── Field Derivation Rules ────────────────────────────────────────────────── #
+
+field_derivation_rules:
+  timestamp: "UTC ISO-8601 at post time"
+  agent_name: "agents[component].display_name — e.g. 'FOSS Launcher'"
+  agent_owner: "Hardcoded: Babar Raza"
+  job_type: "job_types[key].display_name — e.g. 'Knowledge Enrichment'"
+  run_id: "UUID4 per work slice"
+  status: "success | partial_success | failure, derived from item counts"
+  product: "products[family] display name — e.g. 'Aspose.Cells'"
+  platform: "platforms[platform] display name — e.g. 'Java', '.NET'"
+  website: "From default_website_mapping, keyed by site_id"
+  website_section: "From default_website_mapping section, never blank"
+  item_name: "Title case short description, 10-14 chars — e.g. 'Cells Java Run'"
+  items_discovered: "Total items scheduled in batch"
+  items_failed: "Items with errors"
+  items_succeeded: "Items completed successfully"
+  run_duration_ms: "Wall-clock milliseconds"
+  token_usage: "Sum total_tokens from professionalize events only"
+  api_calls_count: "Count HTTP requests to professionalize only"
+
+# ── Non-Professionalize Boundaries ────────────────────────────────────────── #
+# These are NOT professionalize call sites. Documented here only to enforce
+# exclusion from professionalize token_usage and api_calls_count.
+# No migration recommendations. No future adoption planning.
+
+non_professionalize_boundaries:
+  gemini:
+    call_site_ids: ["CS-010", "CS-011"]
+    provider: "Google Gemini"
+    sdk: "google.generativeai"
+    excluded_from_token_usage: true
+    excluded_from_api_calls_count: true
+    migration_out_of_scope: true
+
+  ollama:
+    call_site_ids: ["CS-012"]
+    provider: "Ollama local"
+    transport: "HTTP to localhost"
+    excluded_from_token_usage: true
+    excluded_from_api_calls_count: true
+    migration_out_of_scope: true
+
+  m2m100:
+    call_site_ids: ["CS-013"]
+    provider: "M2M100 local inference"
+    transport: "local torch (no HTTP)"
+    excluded_from_token_usage: true
+    excluded_from_api_calls_count: true
+    migration_out_of_scope: true
+
+# ── Posting Modes ─────────────────────────────────────────────────────────── #
+
+posting_modes:
+  dry_run_default: true
+  test_mode_job_type: "test"
+  test_mode_item_prefix: "[TEST] "
+  max_test_rows_per_sprint: 2
+  hard_test_row_limit: 3
+  production_requires_owner_approval: true
