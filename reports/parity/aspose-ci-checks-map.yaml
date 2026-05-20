@@ -1,0 +1,493 @@
+# reports/parity/aspose-ci-checks-map.yaml
+# Generated 2026-05-15 — PAR-009
+# 63 CI checks in aspose.org scripts/ci/checks/
+
+ci_checks:
+website_specific
+    gap_classification: missing_governance
+
+  - filename: check-provenance-writes.py
+    path: scripts/ci/checks/check-provenance-writes.py
+    domain: provenance
+    size_bytes: 6653
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_agent_governance_surface.py
+    path: scripts/ci/checks/check_agent_governance_surface.py
+    domain: skill_governance
+    size_bytes: 18718
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_agents_md_size.py
+    path: scripts/ci/checks/check_agents_md_size.py
+    domain: skill_governance
+    size_bytes: 933
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_anchor_compatibility.py
+    path: scripts/ci/checks/check_anchor_compatibility.py
+    domain: link_integrity
+    size_bytes: 5384
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_audit_regression.py
+    path: scripts/ci/checks/check_audit_regression.py
+    domain: content_quality
+    size_bytes: 4900
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_clone_cache_refs.py
+    path: scripts/ci/checks/check_clone_cache_refs.py
+    domain: knowledge
+    size_bytes: 9523
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_commit_skill_provenance.py
+    path: scripts/ci/checks/check_commit_skill_provenance.py
+    domain: skill_governance
+    size_bytes: 5016
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_content_filenames.py
+    path: scripts/ci/checks/check_content_filenames.py
+    domain: content_quality
+    size_bytes: 7562
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_dar_coverage.py
+    path: scripts/ci/checks/check_dar_coverage.py
+    domain: other
+    size_bytes: 10738
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_docs_script_refs.py
+    path: scripts/ci/checks/check_docs_script_refs.py
+    domain: pipeline_integrity
+    size_bytes: 6054
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_evaluator_freeze.py
+    path: scripts/ci/checks/check_evaluator_freeze.py
+    domain: content_quality
+    size_bytes: 3106
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+website_specific
+    gap_classification: missing_governance
+
+  - filename: check_forbidden_overrides.py
+    path: scripts/ci/checks/check_forbidden_overrides.py
+    domain: other
+    size_bytes: 5332
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_governance_beq.py
+    path: scripts/ci/checks/check_governance_beq.py
+    domain: skill_governance
+    size_bytes: 4354
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_governance_duplication.py
+    path: scripts/ci/checks/check_governance_duplication.py
+    domain: skill_governance
+    size_bytes: 1907
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_governance_link_paths.py
+    path: scripts/ci/checks/check_governance_link_paths.py
+    domain: skill_governance
+    size_bytes: 1725
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_grade_churn.py
+    path: scripts/ci/checks/check_grade_churn.py
+    domain: content_quality
+    size_bytes: 6958
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_knowledge_staleness.py
+    path: scripts/ci/checks/check_knowledge_staleness.py
+    domain: knowledge
+    size_bytes: 4478
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_locale_untouched.py
+    path: scripts/ci/checks/check_locale_untouched.py
+    domain: locale
+    size_bytes: 5132
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_manifest_consistency.py
+    path: scripts/ci/checks/check_manifest_consistency.py
+    domain: other
+    size_bytes: 3385
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_metrics_docs_propagation.py
+    path: scripts/ci/checks/check_metrics_docs_propagation.py
+    domain: metrics
+    size_bytes: 10335
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_metrics_event_ledger_schema.py
+    path: scripts/ci/checks/check_metrics_event_ledger_schema.py
+    domain: metrics
+    size_bytes: 9041
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_metrics_no_secrets.py
+    path: scripts/ci/checks/check_metrics_no_secrets.py
+    domain: metrics
+    size_bytes: 8965
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_metrics_sheet_payload_schema.py
+    path: scripts/ci/checks/check_metrics_sheet_payload_schema.py
+    domain: metrics
+    size_bytes: 12070
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_metrics_taxonomy.py
+    path: scripts/ci/checks/check_metrics_taxonomy.py
+    domain: metrics
+    size_bytes: 10779
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_metrics_test_post_limit.py
+    path: scripts/ci/checks/check_metrics_test_post_limit.py
+    domain: metrics
+    size_bytes: 7119
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_monkeypatch_lint.py
+    path: scripts/ci/checks/check_monkeypatch_lint.py
+    domain: other
+    size_bytes: 21593
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_new_script_placement.py
+    path: scripts/ci/checks/check_new_script_placement.py
+    domain: pipeline_integrity
+    size_bytes: 4016
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_onboarding_integrity.py
+    path: scripts/ci/checks/check_onboarding_integrity.py
+    domain: other
+    size_bytes: 14832
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_override.py
+    path: scripts/ci/checks/check_override.py
+    domain: other
+    size_bytes: 3527
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_pipeline_path_integrity.py
+    path: scripts/ci/checks/check_pipeline_path_integrity.py
+    domain: pipeline_integrity
+    size_bytes: 4508
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_pipeline_registration.py
+    path: scripts/ci/checks/check_pipeline_registration.py
+    domain: pipeline_integrity
+    size_bytes: 8869
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_pipeline_root_clean.py
+    path: scripts/ci/checks/check_pipeline_root_clean.py
+    domain: pipeline_integrity
+    size_bytes: 1953
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_pipeline_size.py
+    path: scripts/ci/checks/check_pipeline_size.py
+    domain: pipeline_integrity
+    size_bytes: 2776
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_plan_quality.py
+    path: scripts/ci/checks/check_plan_quality.py
+    domain: other
+    size_bytes: 9218
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+website_specific
+    gap_classification: missing_governance
+
+  - filename: check_pr_override_compliance.py
+    path: scripts/ci/checks/check_pr_override_compliance.py
+    domain: other
+    size_bytes: 3912
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_professionalize_call_sites.py
+    path: scripts/ci/checks/check_professionalize_call_sites.py
+    domain: other
+    size_bytes: 15692
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_proof_bundles.py
+    path: scripts/ci/checks/check_proof_bundles.py
+    domain: provenance
+    size_bytes: 6051
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_proof_matrix.py
+    path: scripts/ci/checks/check_proof_matrix.py
+    domain: provenance
+    size_bytes: 4311
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_protected_overwrites.py
+    path: scripts/ci/checks/check_protected_overwrites.py
+    domain: other
+    size_bytes: 4886
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_python_placement.py
+    path: scripts/ci/checks/check_python_placement.py
+    domain: other
+    size_bytes: 13166
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_script_skill_sync.py
+    path: scripts/ci/checks/check_script_skill_sync.py
+    domain: skill_governance
+    size_bytes: 5478
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_settings_breadth.py
+    path: scripts/ci/checks/check_settings_breadth.py
+    domain: other
+    size_bytes: 7840
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_skill_diff_consistency.py
+    path: scripts/ci/checks/check_skill_diff_consistency.py
+    domain: skill_governance
+    size_bytes: 7142
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_skill_readme_coverage.py
+    path: scripts/ci/checks/check_skill_readme_coverage.py
+    domain: skill_governance
+    size_bytes: 8950
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_skill_registry.py
+    path: scripts/ci/checks/check_skill_registry.py
+    domain: skill_governance
+    size_bytes: 9070
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_skill_registry_json.py
+    path: scripts/ci/checks/check_skill_registry_json.py
+    domain: skill_governance
+    size_bytes: 3687
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_skill_run_records.py
+    path: scripts/ci/checks/check_skill_run_records.py
+    domain: skill_governance
+    size_bytes: 6671
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: check_stale_path_refs.py
+    path: scripts/ci/checks/check_stale_path_refs.py
+    domain: knowledge
+    size_bytes: 5116
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: classify_bash_readonly.py
+    path: scripts/ci/checks/classify_bash_readonly.py
+    domain: other
+    size_bytes: 8803
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: commit_provenance_en.py
+    path: scripts/ci/checks/commit_provenance_en.py
+    domain: provenance
+    size_bytes: 6590
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: enforce_venv_python.py
+    path: scripts/ci/checks/enforce_venv_python.py
+    domain: other
+    size_bytes: 20342
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: extract_session_skills.py
+    path: scripts/ci/checks/extract_session_skills.py
+    domain: skill_governance
+    size_bytes: 3624
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: find_all_fail_files.py
+    path: scripts/ci/checks/find_all_fail_files.py
+    domain: other
+    size_bytes: 1569
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: find_fail_files.py
+    path: scripts/ci/checks/find_fail_files.py
+    domain: other
+    size_bytes: 685
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: generate_proof_bundle.py
+    path: scripts/ci/checks/generate_proof_bundle.py
+    domain: provenance
+    size_bytes: 5998
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: parse_audit_fails.py
+    path: scripts/ci/checks/parse_audit_fails.py
+    domain: content_quality
+    size_bytes: 528
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: render_inventory.py
+    path: scripts/ci/checks/render_inventory.py
+    domain: other
+    size_bytes: 7187
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: scan_grade_duplicates.py
+    path: scripts/ci/checks/scan_grade_duplicates.py
+    domain: content_quality
+    size_bytes: 5201
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: validate_skill_ids.py
+    path: scripts/ci/checks/validate_skill_ids.py
+    domain: skill_governance
+    size_bytes: 2763
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance
+
+  - filename: venv_doctor.py
+    path: scripts/ci/checks/venv_doctor.py
+    domain: other
+    size_bytes: 5472
+    foss_equivalent: null
+    portability: portable
+    gap_classification: missing_governance

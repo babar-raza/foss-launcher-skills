@@ -28,13 +28,7 @@ Fully automated — no manual pattern identification required.
 
 ## Steps
 
-1. **Run the cross-product synthesis**:
-   ```bash
-   python scripts/gap-eval/gap_report.py \
-     [--products all|{family/platform},...] \
-     [--k {cluster_count}] \
-     [--dry-run]
-   ```
+1. **Run the cross-product synthesis** with `/gap-report`, using existing `reports/gap-analysis/*.json` inputs.
 
 2. **Output**: `reports/gap-analysis/MASTER-SYNTHESIS.md`
 

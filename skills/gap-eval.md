@@ -29,7 +29,7 @@ the evidence pipeline uses knowledge model artifacts. Both pipelines coexist and
 2. Profile must exist at `scripts/gap-eval/profiles/{family}/{platform}.yaml`
    - If missing, run will create a minimal auto-detected profile
 3. Optional (Tier 2): API vectors at `knowledge/_vectors/{family}/{platform}/api.vectors.json`
-   - Build with: `python scripts/pipeline/embed.py gap-index {family} {platform}`
+   - Build with: `python scripts/embed.py gap-index {family} {platform}`
 4. Optional (Tier 3 LLM): `LLM_API_KEY` env var set (falls back to Ollama)
 
 ## Steps
@@ -41,7 +41,7 @@ the evidence pipeline uses knowledge model artifacts. Both pipelines coexist and
 
 2. **(Optional) Build API surface vectors** for Tier 2:
    ```bash
-   python scripts/pipeline/embed.py gap-index {family} {platform}
+   python scripts/embed.py gap-index {family} {platform}
    ```
    Skip if vectors already exist.
 

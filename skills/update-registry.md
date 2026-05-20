@@ -99,7 +99,7 @@ Run this skill whenever:
 
 | Skill | Scope | Output | When to use |
 |-------|-------|--------|-------------|
-| `discover-products` (S-39) | GitHub org scanner via `scripts/pipeline/discover.py` | Updates `configs/families.yaml` | Normal foss-launcher workflow |
+| `discover-products` (S-39) | GitHub org scanner via `scripts/discover.py` | Updates `configs/families.yaml` | Normal foss-launcher workflow |
 | `update-registry` (S-73) | Full Aspose org scanner via `scripts/pipeline/commands/ops/update_product_registry.py` | Updates product registry JSON | When you need the full 26-org scan or explicit `data/products.json` output |
 
 For most foss-launcher operations, use S-39 (discover-products). Use this skill when

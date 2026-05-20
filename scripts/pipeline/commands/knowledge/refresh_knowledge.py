@@ -2,7 +2,7 @@
 
 Compares repo HEAD in the clone cache against the repo_sha recorded in
 knowledge/{family}/{platform}/merged/model.yaml.  When they differ (or
-merged/ does not exist yet), runs scout.py then merge.py to rebuild.
+merged/ does not exist yet), runs scripts/scout.py then scripts/merge.py to rebuild.
 
 Usage:
     python scripts/pipeline/refresh_knowledge.py {family} {platform}
@@ -28,7 +28,7 @@ import sys
 import yaml
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[4]
 KNOWLEDGE_ROOT = REPO_ROOT / "knowledge"
 _REGISTRY_PATH = REPO_ROOT / "data" / "products.json"
 
@@ -168,7 +168,7 @@ def refresh(family: str, platform: str, *, check_only: bool = False, auto_clone:
 
     scout_out = KNOWLEDGE_ROOT / family / platform / "scout"
     ok = _run(
-        [sys.executable, "scripts/pipeline/scout.py",
+        [sys.executable, "scripts/scout.py",
          family, platform, str(clone), str(scout_out)],
         "scout",
     )
@@ -176,7 +176,7 @@ def refresh(family: str, platform: str, *, check_only: bool = False, auto_clone:
         return "failed"
 
     ok = _run(
-        [sys.executable, "scripts/pipeline/merge.py", family, platform],
+        [sys.executable, "scripts/merge.py", family, platform],
         "merge",
     )
     if not ok:

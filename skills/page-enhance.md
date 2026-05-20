@@ -39,7 +39,7 @@ Enhance a content page to meet the quality bar based on the gap analysis produce
       - Do NOT add claims with confidence < 0.5 or provenance = "llm_fallback"
 
    b. **Evidence density below B**:
-      - Identify factual paragraphs without citation comments
+      - Identify factual sections not represented in the YAML `evidence:` frontmatter block
       - Match each to the closest claim in claims.json
       - Prepare for S-24 (evidence-cite) to attach proper citations
       - Rewrite vague paragraphs to be more specific and citable

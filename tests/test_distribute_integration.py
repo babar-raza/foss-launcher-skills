@@ -4,11 +4,25 @@ import sys
 from pathlib import Path
 
 import pytest
+import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DISTRIBUTE_SCRIPT = REPO_ROOT / "tools" / "distribute.py"
 SKILLS_DIR = REPO_ROOT / "skills"
 OUTPUT_DIR = REPO_ROOT / "output" / "distributed"
+
+
+def _internal_skill_count() -> int:
+    return len(_internal_skill_names())
+
+
+def _internal_skill_names() -> set[str]:
+    registry = yaml.safe_load((SKILLS_DIR / "registry.yaml").read_text(encoding="utf-8"))
+    return {
+        entry["name"]
+        for entry in registry["skills"]
+        if entry.get("internal") is True
+    }
 
 
 def _run_distribute(target: Path):
@@ -46,7 +60,7 @@ def test_distribute_script_skill_count(tmp_path):
     _run_distribute(tmp_path)
     skill_count = len(list(SKILLS_DIR.glob("*.md")))
     claude_count = len(list((tmp_path / ".claude" / "commands").glob("*.md")))
-    assert claude_count == skill_count
+    assert claude_count == skill_count - _internal_skill_count()
 
 
 def test_distribute_no_frontmatter_in_claude_commands(tmp_path):
@@ -76,6 +90,21 @@ def test_distribute_repo_scout_skill_in_agents(tmp_path):
     assert (tmp_path / ".agents" / "skills" / "repo-scout" / "SKILL.md").exists()
 
 
+def test_distribute_script_excludes_internal_skills_from_claude(tmp_path):
+    _run_distribute(tmp_path)
+
+    for name in _internal_skill_names():
+        assert not (tmp_path / ".claude" / "commands" / f"{name}.md").exists()
+
+
+def test_distribute_script_keeps_internal_skills_in_agent_mirrors(tmp_path):
+    _run_distribute(tmp_path)
+
+    for name in _internal_skill_names():
+        assert (tmp_path / ".agents" / "skills" / name / "SKILL.md").exists()
+        assert (tmp_path / ".kilocode" / "skills" / name / "SKILL.md").exists()
+
+
 # ---------------------------------------------------------------------------
 # Persistent output to output/distributed/ (for manual inspection)
 # ---------------------------------------------------------------------------
@@ -87,4 +116,4 @@ def test_distribute_to_output_dir():
     assert result.returncode == 0, f"distribute.py failed:\n{result.stderr}"
     skill_count = len(list(SKILLS_DIR.glob("*.md")))
     claude_count = len(list((OUTPUT_DIR / ".claude" / "commands").glob("*.md")))
-    assert claude_count == skill_count
+    assert claude_count == skill_count - _internal_skill_count()

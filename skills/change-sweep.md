@@ -13,7 +13,7 @@ purpose: Batch SHA comparison across all active launched products; detect upstre
 preconditions:
   - Registry (configs/families.yaml or products JSON) exists with active launched products
   - Clone cache populated or network available to fetch
-  - scripts/pipeline/repo_patrol.py present (TC-P port pending)
+  - scripts/pipeline/commands/diagnostics/repo_patrol.py present
 postcondition: reports/discovery/sweep_report.json created; reports/discovery/history/ updated
 idempotent: yes (read-only; only fetches upstream clones)
 verified: '2026-04-27 (ported from aspose S-94)'
@@ -33,7 +33,7 @@ changes that require documentation updates.
 
 1. Run the sweep:
    ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/repo_patrol.py sweep
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/diagnostics/repo_patrol.py sweep
    ```
    This fetches upstream for all active launched products and compares SHAs.
 
@@ -43,7 +43,7 @@ changes that require documentation updates.
    ```
    Or generate the markdown summary:
    ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/repo_patrol.py report
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/diagnostics/repo_patrol.py report
    cat reports/discovery/combined_report.md
    ```
 

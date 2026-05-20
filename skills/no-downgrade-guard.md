@@ -23,19 +23,19 @@ Uses content_eval grade as a quality proxy for both the existing and proposed co
 
 ```bash
 # Inline proposed content:
-python scripts/pipeline/no_downgrade_guard.py {target-path} "{proposed-markdown}"
+python scripts/pipeline/commands/governance/no_downgrade_guard.py {target-path} "{proposed-markdown}"
 
 # From a file:
-python scripts/pipeline/no_downgrade_guard.py {target-path} --proposed-file /tmp/draft.md
+python scripts/pipeline/commands/governance/no_downgrade_guard.py {target-path} --proposed-file /tmp/draft.md
 
 # From stdin:
-cat /tmp/draft.md | python scripts/pipeline/no_downgrade_guard.py {target-path} --stdin
+cat /tmp/draft.md | python scripts/pipeline/commands/governance/no_downgrade_guard.py {target-path} --stdin
 
 # JSON output:
-python scripts/pipeline/no_downgrade_guard.py {target-path} --proposed-file /tmp/draft.md --json
+python scripts/pipeline/commands/governance/no_downgrade_guard.py {target-path} --proposed-file /tmp/draft.md --json
 
 # Operator override (bypass guard):
-python scripts/pipeline/no_downgrade_guard.py {target-path} --proposed-file /tmp/draft.md --force-regenerate
+python scripts/pipeline/commands/governance/no_downgrade_guard.py {target-path} --proposed-file /tmp/draft.md --force-regenerate
 ```
 
 ## Decision Matrix

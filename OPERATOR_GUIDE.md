@@ -15,6 +15,18 @@ WSL is permanently rejected due to environment-variable boundary failures.
 For the full policy, see `AGENTS.md §2b`. CI runs on `ubuntu-latest` (no Windows
 enforcement needed in CI).
 
+## Python Virtual Environment — Platform Paths
+
+Examples throughout this guide use the **Windows Git Bash** path for the virtual environment.
+Adapt for your platform:
+
+| Platform | Activate | Python binary |
+|----------|----------|---------------|
+| Windows (Git Bash) | `source .venv/Scripts/activate` | `.venv/Scripts/python` |
+| Linux / macOS | `source .venv/bin/activate` | `.venv/bin/python` |
+
+All `.venv/Scripts/python` references in this guide become `.venv/bin/python` on Linux/macOS.
+
 ---
 
 ## §1 — What Is This System?
@@ -51,7 +63,7 @@ describes a procedure that an AI agent follows step by step.
 |---------|-----------|
 | `skills/knowledge-update.md` | Procedure document for the knowledge-update skill |
 | `/knowledge-update 3d python` | How you invoke it — only inside an AI agent session |
-| `scripts/pipeline/refresh_knowledge.py` | The backing script the agent calls automatically |
+| `scripts/pipeline/commands/knowledge/refresh_knowledge.py` | The backing script the agent calls automatically |
 
 ---
 
@@ -78,7 +90,7 @@ describes a procedure that an AI agent follows step by step.
 Every script-backed skill has a **CONTRACT comment** at the top of the skill file:
 
 ```markdown
-<!-- CONTRACT: scripts/pipeline/refresh_knowledge.py (runs scout.py + enrich.py + promote.py + index.py)
+<!-- CONTRACT: scripts/pipeline/commands/knowledge/refresh_knowledge.py (runs scout.py + enrich.py + promote.py + index.py)
      postcondition: refresh_knowledge.py executes all 4 pipeline steps
      postcondition: writes merged/pipeline_run.json confirming all 4 steps ran
      note: step 7 (stale flag clear) still requires explicit agent action
@@ -103,18 +115,18 @@ If you need to run a skill's script portions without an active agent session:
 > Claude Code's PreToolUse enforcement hooks only fire inside Claude Code. They do NOT
 > run when you execute scripts from a terminal directly. To compensate, run these
 > equivalents manually after any content changes:
-> - API accuracy: `.venv/Scripts/python scripts/pipeline/audit.py {family} {platform}`
+> - API accuracy: `.venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform}`
 
 ### knowledge-update
 Runs all 4 knowledge pipeline steps:
 ```bash
-.venv/Scripts/python scripts/pipeline/refresh_knowledge.py {family} {platform} {clone_cache_path}
+.venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform} {clone_cache_path}
 # Confirms completion: check knowledge/{family}/{platform}/merged/pipeline_run.json
 ```
 
 ### content-check
 ```bash
-CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python scripts/pipeline/audit.py {family} {platform}
+CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform}
 ```
 
 ### batch-eval-fix
@@ -122,9 +134,9 @@ CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python scripts/pipeline/audit.p
 # Step 1: Evaluate
 CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation
 # Step 2: Auto-fix
-.venv/Scripts/python scripts/pipeline/remediate.py fix {eval-report-path}
+.venv/Scripts/python scripts/pipeline/commands/content/remediate.py fix {eval-report-path}
 # Step 3: Refresh evidence
-CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python scripts/pipeline/attach_evidence.py --files {modified-files}
+CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python scripts/pipeline/commands/content/attach_evidence.py --files {modified-files}
 ```
 
 ### translate
@@ -145,7 +157,7 @@ CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python scripts/translator/cli.p
 .venv/Scripts/python scripts/sync_agents.py --check
 
 # API accuracy audit (requires CONTENT_REPO_PATH set)
-CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python scripts/pipeline/audit.py all
+CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python scripts/pipeline/commands/content/audit.py all
 
 # Content quality evaluation for a product
 CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python -m scripts.pipeline.content_eval evaluate 3d python --format json
@@ -189,7 +201,7 @@ bash scripts/install-hooks.sh
 ## §8 — Diagnosing Failures
 
 ### Audit reports unexpected FAILs
-1. Run the audit: `CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python scripts/pipeline/audit.py {family} {platform}`
+1. Run the audit: `CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform}`
 2. For stale claim IDs: re-run `attach_evidence.py` for the affected product
 3. For missing API member: re-run `refresh_knowledge.py` (knowledge model may be stale)
 4. In an agent session: `/diagnose-skill-failure` classifies failures into CONFIG / DATA /

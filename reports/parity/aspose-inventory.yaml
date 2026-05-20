@@ -1,0 +1,929 @@
+# reports/parity/aspose-inventory.yaml
+# Generated 2026-05-15 — PAR-009
+# 84 aspose.org skills
+
+skills:
+  - canonical_slug: path-guard
+    aspose_id: S-01
+    aspose_path: skills/path-guard.md
+    aspose_size_kb: 2.15
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: true
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: project-phase-store
+    aspose_id: S-10
+    aspose_path: skills/project-phase-store.md
+    aspose_size_kb: 2.28
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: true
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: knowledge-diff
+    aspose_id: S-12
+    aspose_path: skills/knowledge-diff.md
+    aspose_size_kb: 5.44
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: stale-detect
+    aspose_id: S-13
+    aspose_path: skills/stale-detect.md
+    aspose_size_kb: 4.36
+    aspose_script: scripts/pipeline/commands/knowledge/stale_detect.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: knowledge-update
+    aspose_id: S-14
+    aspose_path: skills/knowledge-update.md
+    aspose_size_kb: 6.77
+    aspose_script: scripts/pipeline/commands/knowledge/refresh_knowledge.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: embed-knowledge
+    aspose_id: S-15
+    aspose_path: skills/embed-knowledge.md
+    aspose_size_kb: 6.29
+    aspose_script: scripts/pipeline/commands/knowledge/embed_knowledge.py
+    aspose_script_exists: true
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 3, 5, 6]
+    notes: null
+
+  - canonical_slug: rubric-align
+    aspose_id: S-17
+    aspose_path: skills/rubric-align.md
+    aspose_size_kb: 3.62
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: true
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: page-plan
+    aspose_id: S-18
+    aspose_path: skills/page-plan.md
+    aspose_size_kb: 7.0
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: page-draft
+    aspose_id: S-19
+    aspose_path: skills/page-draft.md
+    aspose_size_kb: 7.16
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: page-update
+    aspose_id: S-20
+    aspose_path: skills/page-update.md
+    aspose_size_kb: 11.89
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: page-enhance
+    aspose_id: S-21
+    aspose_path: skills/page-enhance.md
+    aspose_size_kb: 6.92
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: faq-generate
+    aspose_id: S-22
+    aspose_path: skills/faq-generate.md
+    aspose_size_kb: 6.15
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: content-check
+    aspose_id: S-23
+    aspose_path: skills/content-check.md
+    aspose_size_kb: 8.43
+    aspose_script: scripts/pipeline/commands/content/ground_check.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: evidence-cite
+    aspose_id: S-24
+    aspose_path: skills/evidence-cite.md
+    aspose_size_kb: 3.86
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: true
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: eval-page
+    aspose_id: S-25
+    aspose_path: skills/eval-page.md
+    aspose_size_kb: 5.58
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: heal-page
+    aspose_id: S-26
+    aspose_path: skills/heal-page.md
+    aspose_size_kb: 10.85
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: truth-index
+    aspose_id: S-31
+    aspose_path: skills/truth-index.md
+    aspose_size_kb: 6.06
+    aspose_script: scripts/pipeline/commands/knowledge/index.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: content-audit
+    aspose_id: S-32
+    aspose_path: skills/content-audit.md
+    aspose_size_kb: 3.64
+    aspose_script: scripts/pipeline/commands/content/content_audit.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: change-guard
+    aspose_id: S-33
+    aspose_path: skills/change-guard.md
+    aspose_size_kb: 3.15
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: true
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: repo-scout
+    aspose_id: S-34
+    aspose_path: skills/repo-scout.md
+    aspose_size_kb: 5.52
+    aspose_script: scripts/pipeline/commands/knowledge/scout.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: truth-merge
+    aspose_id: S-35
+    aspose_path: skills/truth-merge.md
+    aspose_size_kb: 5.32
+    aspose_script: scripts/pipeline/commands/knowledge/promote.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: cross-platform
+    aspose_id: S-36
+    aspose_path: skills/cross-platform.md
+    aspose_size_kb: 5.94
+    aspose_script: scripts/pipeline/commands/content/cross_platform_audit.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: knowledge-enrich
+    aspose_id: S-37
+    aspose_path: skills/knowledge-enrich.md
+    aspose_size_kb: 6.22
+    aspose_script: scripts/pipeline/commands/knowledge/enrich.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: truth-audit
+    aspose_id: S-38
+    aspose_path: skills/truth-audit.md
+    aspose_size_kb: 11.97
+    aspose_script: scripts/pipeline/commands/diagnostics/truth_audit.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: batch-remediate
+    aspose_id: S-40
+    aspose_path: skills/batch-remediate.md
+    aspose_size_kb: 8.5
+    aspose_script: scripts/pipeline/commands/content/remediate.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: batch-eval-fix
+    aspose_id: S-41
+    aspose_path: skills/batch-eval-fix.md
+    aspose_size_kb: 3.2
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: category-fix
+    aspose_id: S-42
+    aspose_path: skills/category-fix.md
+    aspose_size_kb: 4.92
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: gap-eval
+    aspose_id: S-43
+    aspose_path: skills/gap-eval.md
+    aspose_size_kb: 5.82
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    portability_barrier: "CRITICAL: scripts/gap-eval/src/run.py has hardcoded aspose.org content paths; not portable without $CONTENT_REPO_PATH refactor"
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: gap-plan
+    aspose_id: S-44
+    aspose_path: skills/gap-plan.md
+    aspose_size_kb: 4.16
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: true
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: gap-report
+    aspose_id: S-45
+    aspose_path: skills/gap-report.md
+    aspose_size_kb: 4.76
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: gap-apply
+    aspose_id: S-46
+    aspose_path: skills/gap-apply.md
+    aspose_size_kb: 7.49
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: site-plan
+    aspose_id: S-47
+    aspose_path: skills/site-plan.md
+    aspose_size_kb: 5.44
+    aspose_script: scripts/pipeline/commands/launch/site_planner.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: family-sync
+    aspose_id: S-48
+    aspose_path: skills/family-sync.md
+    aspose_size_kb: 3.46
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: launch-product
+    aspose_id: S-49
+    aspose_path: skills/launch-product.md
+    aspose_size_kb: 16.43
+    aspose_script: scripts/pipeline/commands/ops/project_phase_store.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: content-eval
+    aspose_id: S-51
+    aspose_path: skills/content-eval.md
+    aspose_size_kb: 4.34
+    aspose_script: scripts/pipeline/commands/content/run_content_eval.py
+    aspose_script_exists: true
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 3, 5, 6]
+    notes: null
+
+  - canonical_slug: translate-page
+    aspose_id: S-52
+    aspose_path: skills/translate-page.md
+    aspose_size_kb: 5.68
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: translate-batch
+    aspose_id: S-53
+    aspose_path: skills/translate-batch.md
+    aspose_size_kb: 7.17
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: knowledge-bootstrap
+    aspose_id: S-54
+    aspose_path: skills/knowledge-bootstrap.md
+    aspose_size_kb: 5.93
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: true
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: no-downgrade-guard
+    aspose_id: S-55
+    aspose_path: skills/no-downgrade-guard.md
+    aspose_size_kb: 3.71
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: true
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: new-docs-page
+    aspose_id: S-56
+    aspose_path: skills/new-docs-page.md
+    aspose_size_kb: 8.68
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: new-blog-post
+    aspose_id: S-57
+    aspose_path: skills/new-blog-post.md
+    aspose_size_kb: 10.11
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: new-kb-howto
+    aspose_id: S-58
+    aspose_path: skills/new-kb-howto.md
+    aspose_size_kb: 7.66
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: new-kb-faq
+    aspose_id: S-59
+    aspose_path: skills/new-kb-faq.md
+    aspose_size_kb: 6.76
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: new-reference-page
+    aspose_id: S-60
+    aspose_path: skills/new-reference-page.md
+    aspose_size_kb: 12.29
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: new-products-page
+    aspose_id: S-61
+    aspose_path: skills/new-products-page.md
+    aspose_size_kb: 11.94
+    aspose_script: scripts/pipeline/commands/migration/complete_plugin_structure.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: batch-reference
+    aspose_id: S-62
+    aspose_path: skills/batch-reference.md
+    aspose_size_kb: 13.29
+    aspose_script: scripts/pipeline/commands/content/batch_reference.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: code-smoke
+    aspose_id: S-63
+    aspose_path: skills/code-smoke.md
+    aspose_size_kb: 4.58
+    aspose_script: scripts/pipeline/commands/diagnostics/smoke_test.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: getting-started
+    aspose_id: S-64
+    aspose_path: skills/getting-started.md
+    aspose_size_kb: 8.34
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: link-validate
+    aspose_id: S-65
+    aspose_path: skills/link-validate.md
+    aspose_size_kb: 2.92
+    aspose_script: scripts/pipeline/commands/ops/link_validator.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: register-human-content
+    aspose_id: S-66
+    aspose_path: skills/register-human-content.md
+    aspose_size_kb: 4.87
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: diagnose-skill-failure
+    aspose_id: S-67
+    aspose_path: skills/diagnose-skill-failure.md
+    aspose_size_kb: 6.98
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: update-registry
+    aspose_id: S-68
+    aspose_path: skills/update-registry.md
+    aspose_size_kb: 5.73
+    aspose_script: scripts/pipeline/commands/ops/update_product_registry.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: new-kb-index
+    aspose_id: S-69
+    aspose_path: skills/new-kb-index.md
+    aspose_size_kb: 6.94
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: new-docs-index
+    aspose_id: S-70
+    aspose_path: skills/new-docs-index.md
+    aspose_size_kb: 7.17
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: new-reference-index
+    aspose_id: S-71
+    aspose_path: skills/new-reference-index.md
+    aspose_size_kb: 7.14
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: evidence-repair
+    aspose_id: S-72
+    aspose_path: skills/evidence-repair.md
+    aspose_size_kb: 11.39
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: manual-edit
+    aspose_id: S-73
+    aspose_path: skills/manual-edit.md
+    aspose_size_kb: 21.19
+    aspose_script: scripts/pipeline/lib/manual_edit_helpers.py
+    aspose_script_exists: true
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 3, 5, 6]
+    notes: null
+
+  - canonical_slug: causal-backtrack
+    aspose_id: S-74
+    aspose_path: skills/causal-backtrack.md
+    aspose_size_kb: 7.81
+    aspose_script: scripts/pipeline/lib/dependency_resolver.py
+    aspose_script_exists: true
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 3, 5, 6]
+    notes: null
+
+  - canonical_slug: locale-patch
+    aspose_id: S-75
+    aspose_path: skills/locale-patch.md
+    aspose_size_kb: 4.31
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: commit
+    aspose_id: S-76
+    aspose_path: skills/commit.md
+    aspose_size_kb: 20.97
+    aspose_script: scripts/pipeline/commands/ops/session_ledger.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: session-start
+    aspose_id: S-77
+    aspose_path: skills/session-start.md
+    aspose_size_kb: 7.17
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: evidence-enhance
+    aspose_id: S-78
+    aspose_path: skills/evidence-enhance.md
+    aspose_size_kb: 9.97
+    aspose_script: scripts/pipeline/commands/healing/attach_evidence.py
+    aspose_script_exists: true
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 3, 5, 6]
+    notes: null
+
+  - canonical_slug: launch-rollback
+    aspose_id: S-79
+    aspose_path: skills/launch-rollback.md
+    aspose_size_kb: 3.87
+    aspose_script: scripts/pipeline/commands/launch/launch_rollback.py
+    aspose_script_exists: true
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 3, 5, 6]
+    notes: null
+
+  - canonical_slug: coverage-reconcile
+    aspose_id: S-80
+    aspose_path: skills/coverage-reconcile.md
+    aspose_size_kb: 4.2
+    aspose_script: scripts/pipeline/commands/knowledge/knowledge_coverage.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: knowledge-coverage-audit
+    aspose_id: S-81
+    aspose_path: skills/knowledge-coverage-audit.md
+    aspose_size_kb: 7.22
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: delta-site-plan
+    aspose_id: S-82
+    aspose_path: skills/delta-site-plan.md
+    aspose_size_kb: 3.65
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: page-retire
+    aspose_id: S-83
+    aspose_path: skills/page-retire.md
+    aspose_size_kb: 3.92
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: refresh-product
+    aspose_id: S-84
+    aspose_path: skills/refresh-product.md
+    aspose_size_kb: 12.42
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: truth-audit-content
+    aspose_id: S-85
+    aspose_path: skills/truth-audit-content.md
+    aspose_size_kb: 8.47
+    aspose_script: scripts/pipeline/commands/diagnostics/truth_audit_content.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: refresh-product-page
+    aspose_id: S-86
+    aspose_path: skills/refresh-product-page.md
+    aspose_size_kb: 4.83
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: system-heal
+    aspose_id: S-87
+    aspose_path: skills/system-heal.md
+    aspose_size_kb: 12.59
+    aspose_script: scripts/pipeline/commands/healing/verify.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: backlog
+    aspose_id: S-88
+    aspose_path: skills/backlog.md
+    aspose_size_kb: 54.39
+    aspose_script: scripts/pipeline/commands/ops/harvest_ledger.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: heal-batch
+    aspose_id: S-89
+    aspose_path: skills/heal-batch.md
+    aspose_size_kb: 6.17
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: publish-readiness-review
+    aspose_id: S-90
+    aspose_path: skills/publish-readiness-review.md
+    aspose_size_kb: 18.03
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: plan-normalize
+    aspose_id: S-91
+    aspose_path: skills/plan-normalize.md
+    aspose_size_kb: 13.93
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: triage-confirm
+    aspose_id: S-92
+    aspose_path: skills/triage-confirm.md
+    aspose_size_kb: 3.93
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: repo-patrol
+    aspose_id: S-93
+    aspose_path: skills/repo-patrol.md
+    aspose_size_kb: 2.21
+    aspose_script: scripts/pipeline/commands/diagnostics/repo_patrol.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: change-sweep
+    aspose_id: S-94
+    aspose_path: skills/change-sweep.md
+    aspose_size_kb: 1.95
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: discovery-triage
+    aspose_id: S-95
+    aspose_path: skills/discovery-triage.md
+    aspose_size_kb: 3.27
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: section-enhance
+    aspose_id: S-96
+    aspose_path: skills/section-enhance.md
+    aspose_size_kb: 21.75
+    aspose_script: scripts/pipeline/lib/section_enhance_validator.py
+    aspose_script_exists: true
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 3, 5, 6]
+    notes: null
+
+  - canonical_slug: cleanroom-regen
+    aspose_id: S-97
+    aspose_path: skills/cleanroom-regen.md
+    aspose_size_kb: 10.57
+    aspose_script: scripts/pipeline/commands/ops/cleanroom_regen.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: content-enrich
+    aspose_id: S-98
+    aspose_path: skills/content-enrich.md
+    aspose_size_kb: 5.88
+    aspose_script: scripts/pipeline/commands/enrichment/content_enrich.py
+    aspose_script_exists: true
+    aspose_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    notes: null
+
+  - canonical_slug: pipeline-harden
+    aspose_id: S-99
+    aspose_path: skills/pipeline-harden.md
+    aspose_size_kb: 18.6
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null
+
+  - canonical_slug: blog-migrate
+    aspose_id: S-100
+    aspose_path: skills/blog-migrate.md
+    aspose_size_kb: 7.65
+    aspose_script: null
+    aspose_script_exists: false
+    aspose_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    notes: null

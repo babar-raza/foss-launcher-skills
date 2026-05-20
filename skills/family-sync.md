@@ -55,13 +55,13 @@ capabilities, and rewrites the three text fields to be platform-agnostic.
 
 8. **Reattach evidence**:
    ```bash
-   python scripts/pipeline/attach_evidence.py \
+   python scripts/pipeline/commands/content/attach_evidence.py \
      --files $CONTENT_REPO_PATH/content/products.aspose.org/en/{family}/_index.md
    ```
 
 9. **Run audit**:
    ```bash
-   python scripts/pipeline/audit.py \
+   python scripts/pipeline/commands/content/audit.py \
      --files $CONTENT_REPO_PATH/content/products.aspose.org/en/{family}/_index.md
    ```
    Must exit with 0 FAIL.

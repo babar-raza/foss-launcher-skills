@@ -27,10 +27,7 @@ Produces a machine-applicable plan ready for S-65 (gap-apply).
 
 ## Steps
 
-1. **Load gap-eval report**:
-   ```bash
-   python scripts/gap-eval/gap_plan.py {family} {platform} [--dry-run]
-   ```
+1. **Load gap-eval report** from `reports/gap-analysis/{family}-{platform}.json`.
 
 2. **Wave assignment**: Findings are assigned to waves by severity and fix complexity:
 

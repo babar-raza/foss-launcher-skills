@@ -69,7 +69,7 @@ python scripts/check_setup.py
 **DATA failures:**
 ```bash
 # Check evidence block
-python scripts/pipeline/audit.py --files {filepath}
+python scripts/pipeline/commands/content/audit.py --files {filepath}
 
 # Validate frontmatter structure
 python -c "import yaml; yaml.safe_load(open('{filepath}').read())"

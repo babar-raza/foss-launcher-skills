@@ -46,7 +46,7 @@ Systematically fix a content page that received a grade of D or below from S-25 
       - Correct direction (import/export/both) or remove if format is unsupported
 
    d. **Missing evidence citations**:
-      - Identify factual paragraphs without `<!-- evidence: ... -->` comments
+      - Identify factual sections not represented in the YAML `evidence:` frontmatter block
       - Match each to the closest claim in claims.json
       - Mark for S-24 (evidence-cite) to attach proper citations
 

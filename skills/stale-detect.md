@@ -29,7 +29,7 @@ Map upstream repository changes (detected by S-12) to content pages that may nee
    - `content/kb.aspose.org/en/{family}/{platform}/`
    - `content/reference.aspose.org/en/{family}/{platform}/`
 4. **For each content page**:
-   - Read evidence citations (`<!-- evidence: claim_id=... -->`)
+   - Read claim IDs from YAML `evidence:` frontmatter
    - Check if cited claims have changed or been removed
    - Check if page references classes/methods that no longer exist
    - Check if page mentions formats whose support status changed

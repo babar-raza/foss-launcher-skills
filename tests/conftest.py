@@ -5,6 +5,7 @@ and config tests. Import these by placing tests in the tests/ directory;
 pytest discovers conftest.py automatically.
 """
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -13,6 +14,32 @@ import pytest
 
 # Ensure scripts/ is importable for all tests
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+
+
+# ---------------------------------------------------------------------------
+# Safety guard — prevent tests from writing to aspose.org content
+# ---------------------------------------------------------------------------
+
+_FORBIDDEN_CONTENT_PATH_FRAGMENTS = (
+    "aspose.org",
+    "D:/onedrive/Documents/GitHub/aspose.org",
+    "D:\\onedrive\\Documents\\GitHub\\aspose.org",
+)
+
+
+def pytest_configure(config):
+    """Abort the test session if CONTENT_REPO_PATH points to aspose.org content."""
+    content_repo = os.environ.get("CONTENT_REPO_PATH", "")
+    if content_repo:
+        normalized = content_repo.replace("\\", "/").lower()
+        for fragment in _FORBIDDEN_CONTENT_PATH_FRAGMENTS:
+            if fragment.replace("\\", "/").lower() in normalized:
+                pytest.exit(
+                    f"\n\nSAFETY ABORT: CONTENT_REPO_PATH='{content_repo}' points to "
+                    f"aspose.org.\nTests must not run against production content.\n"
+                    f"Set CONTENT_REPO_PATH to a sandbox/test directory instead.\n",
+                    returncode=3,
+                )
 
 
 # ---------------------------------------------------------------------------

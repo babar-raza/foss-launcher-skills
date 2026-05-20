@@ -162,7 +162,7 @@ Arguments: `{family} {platform} [{repo-path}]`
 The skill calls:
 
 ```bash
-python scripts/pipeline/scout.py \
+python scripts/scout.py \
   words python /repos/aspose-words-python \
   knowledge/words/python/scout/
 ```
@@ -206,7 +206,7 @@ With scout outputs in place, run three more skills to build the full knowledge m
 /truth-merge words python
 ```
 
-This runs `scripts/pipeline/merge.py words python` and produces:
+This runs `scripts/merge.py words python` and produces:
 
 ```
 knowledge/words/python/merged/
@@ -229,7 +229,7 @@ Check `merge_report.md` to confirm claim counts look reasonable. A `scout_only` 
 /truth-index words python
 ```
 
-This runs `scripts/pipeline/index.py words python` and writes:
+This runs `scripts/index.py words python` and writes:
 
 ```
 knowledge/words/python/merged/index.json   # api_confidence, forbidden_claims, stats
@@ -281,7 +281,7 @@ A `WARN` result means minor ungrounded claims — review and fix before committi
 You can also run the audit script directly against the output file:
 
 ```bash
-python scripts/pipeline/audit.py --files \
+python scripts/pipeline/commands/content/audit.py --files \
   /path/to/content-repo/content/docs.aspose.org/en/words/python/getting-started/installation.md
 ```
 
@@ -398,7 +398,7 @@ reports/
 
 ### Success criteria
 
-- Every page in `content/` has `<!-- evidence: ... -->` citations in the body
+- Every page in `content/` has a YAML `evidence:` frontmatter block; body-level `<!-- evidence: ... -->` comments are legacy and must not be used
 - `model.yaml` shows `stale_since: null`
 - `index.json` shows `api_confidence: "high"`
 - All ground-check reports show `RESULT: PASS` or `RESULT: WARN`
@@ -492,23 +492,23 @@ Using the wrong identifier causes scripts to write artifacts to the wrong path a
 To audit a single content file:
 
 ```bash
-python scripts/pipeline/audit.py --files path/to/file.md
+python scripts/pipeline/commands/content/audit.py --files path/to/file.md
 ```
 
 To audit all content for a product:
 
 ```bash
-python scripts/pipeline/audit.py words python
+python scripts/pipeline/commands/content/audit.py words python
 ```
 
 To audit all products:
 
 ```bash
-python scripts/pipeline/audit.py all
+python scripts/pipeline/commands/content/audit.py all
 ```
 
 Machine-readable JSON output:
 
 ```bash
-python scripts/pipeline/audit.py all --json
+python scripts/pipeline/commands/content/audit.py all --json
 ```

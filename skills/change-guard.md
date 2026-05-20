@@ -28,16 +28,16 @@ Run the Python script first to get a reproducible PASS/WARN/DENY decision:
 
 ```bash
 # Inline text:
-python scripts/pipeline/change_guard.py {family} {platform} "proposed text here"
+python scripts/pipeline/commands/diagnostics/change_guard.py {family} {platform} "proposed text here"
 
 # From a file:
-python scripts/pipeline/change_guard.py {family} {platform} --file path/to/draft.md
+python scripts/pipeline/commands/diagnostics/change_guard.py {family} {platform} --file path/to/draft.md
 
 # From stdin:
-echo "proposed text" | python scripts/pipeline/change_guard.py {family} {platform} --stdin
+echo "proposed text" | python scripts/pipeline/commands/diagnostics/change_guard.py {family} {platform} --stdin
 
 # JSON output:
-python scripts/pipeline/change_guard.py {family} {platform} "proposed text" --json
+python scripts/pipeline/commands/diagnostics/change_guard.py {family} {platform} "proposed text" --json
 ```
 
 The script checks each sentence for:

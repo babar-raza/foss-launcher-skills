@@ -48,7 +48,7 @@ Evaluate a content page and assign a letter grade (A–F) based on a weighted ru
    - Score: 0–100
 
 5. **Score Evidence (25%)**:
-   - Count paragraphs with `<!-- evidence: ... -->` citation comments
+   - Inspect the YAML `evidence:` frontmatter block for claim/API coverage
    - Citation density = cited paragraphs / total factual paragraphs
    - Check all `claim_id` references exist in claims.json
    - Check no forbidden claims are asserted

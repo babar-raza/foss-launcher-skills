@@ -68,11 +68,12 @@ if [ "$STANDALONE" = true ]; then
 
 else
     # --- Embedded mode (original behavior) ---
-    # 1. Copy scripts
+    # 1. Copy scripts package tree
     echo "--- Copying scripts/ ---"
     mkdir -p "$TARGET/scripts"
-    cp "$SCRIPT_DIR/scripts/"*.py "$TARGET/scripts/" 2>/dev/null || true
-    cp "$SCRIPT_DIR/scripts/requirements.txt" "$TARGET/scripts/" 2>/dev/null || true
+    cp -R "$SCRIPT_DIR/scripts/." "$TARGET/scripts/"
+    find "$TARGET/scripts" -type d -name "__pycache__" -prune -exec rm -rf {} +
+    find "$TARGET/scripts" -type f -name "*.pyc" -delete
     echo "Done."
 
     # 2. Copy configs/

@@ -20,7 +20,7 @@ Run the complete remediation pipeline for all content pages of a product: evalua
 1. **Knowledge bootstrap**: Run `/knowledge-bootstrap {family} {platform}` and check status:
    - `STOP:partial` → halt (see printed message)
    - Any other status (`READY`, `BOOTSTRAPPED`, `REFRESHED`, `WARN:conflicts`) → continue
-2. `scripts/pipeline/content_eval` and `scripts/pipeline/remediate.py` are available.
+2. `scripts/pipeline/content_eval` and `scripts/pipeline/commands/content/remediate.py` are available.
 
 ## Steps
 
@@ -43,7 +43,7 @@ Run the complete remediation pipeline for all content pages of a product: evalua
 4. **Run triage + auto-fix**:
 
    ```bash
-   python scripts/pipeline/remediate.py fix {eval-report-path}
+   python scripts/pipeline/commands/content/remediate.py fix {eval-report-path}
    ```
 
    Parse the remediation report to get: fixes applied, LLM queue, human queue.
@@ -71,7 +71,7 @@ Run the complete remediation pipeline for all content pages of a product: evalua
 
    c. Write the fixed file.
 
-   d. Run ground-check: `python scripts/pipeline/audit.py --files {path}`
+   d. Run ground-check: `python scripts/pipeline/commands/content/audit.py --files {path}`
 
    e. If audit returns FAIL after the fix, revert the file and add to human queue.
 

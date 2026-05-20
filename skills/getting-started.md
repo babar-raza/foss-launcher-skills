@@ -26,7 +26,7 @@ each step depends on the previous.
 Install all pipeline dependencies:
 
 ```bash
-pip install -r requirements.txt
+pip install -r scripts/requirements.txt
 ```
 
 Key packages required:
@@ -82,14 +82,14 @@ python scripts/check_setup.py
 Discover FOSS repositories and update the product list:
 
 ```bash
-python scripts/pipeline/discover.py --token $GITHUB_TOKEN
+python scripts/discover.py --token $GITHUB_TOKEN
 ```
 
 This uses the discover-products skill (S-39). Run after adding new products.
 Alternatively scan by family:
 
 ```bash
-python scripts/pipeline/discover.py --family 3d --token $GITHUB_TOKEN
+python scripts/discover.py --family 3d --token $GITHUB_TOKEN
 ```
 
 ---
@@ -99,7 +99,7 @@ python scripts/pipeline/discover.py --family 3d --token $GITHUB_TOKEN
 Run the pipeline to extract knowledge from the FOSS source repo:
 
 ```bash
-python scripts/pipeline/refresh_knowledge.py --family {family} --platform {platform}
+python scripts/pipeline/commands/knowledge/refresh_knowledge.py --family {family} --platform {platform}
 ```
 
 **Expected outputs after completion:**
@@ -112,7 +112,7 @@ python scripts/pipeline/refresh_knowledge.py --family {family} --platform {platf
 To bootstrap all products at once:
 
 ```bash
-python scripts/pipeline/refresh_knowledge.py --all
+python scripts/pipeline/commands/knowledge/refresh_knowledge.py --all
 ```
 
 ---
@@ -147,7 +147,7 @@ python scripts/check_setup.py --family {family} --platform {platform}
 Quick batch check across all configured products:
 
 ```bash
-python scripts/pipeline/audit.py --all
+python scripts/pipeline/commands/content/audit.py --all
 ```
 
 Expected result: `PASS` or a findings list with severity levels.

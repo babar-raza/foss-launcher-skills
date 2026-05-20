@@ -47,7 +47,7 @@ page title, description, headings, body prose, or code blocks.
 
 2. **Pre-condition check**: Run audit to confirm page already passes:
    ```bash
-   python scripts/pipeline/audit.py --files {path}
+   python scripts/pipeline/commands/content/audit.py --files {path}
    ```
    If any FAIL → REFUSE: "Use S-77 (evidence-repair) for failing pages."
 
@@ -59,12 +59,12 @@ page title, description, headings, body prose, or code blocks.
 
 4. **Run attach_evidence with --force**:
    ```bash
-   python scripts/pipeline/attach_evidence.py --files {path} --force
+   python scripts/pipeline/commands/content/attach_evidence.py --files {path} --force
    ```
 
 5. **Verify enhancement did not degrade**:
    ```bash
-   python scripts/pipeline/audit.py --files {path}
+   python scripts/pipeline/commands/content/audit.py --files {path}
    python -m scripts.pipeline.content_eval evaluate --files {path} --format json
    ```
    - If any new FAIL → REVERT: restore original evidence block

@@ -1,0 +1,220 @@
+# reports/parity/foss-test-coverage-map.yaml
+# Generated 2026-05-15 — PAR-010
+# 58 test files mapped
+
+test_files:
+  - filename: test_audit_hardening.py
+    covers_skills: []
+
+  - filename: test_batch_reference.py
+    covers_skills:
+      - batch-reference
+
+  - filename: test_check_setup.py
+    covers_skills:
+      - repo-scout
+
+  - filename: test_check_setup_readiness.py
+    covers_skills: []
+
+  - filename: test_claim_index.py
+    covers_skills:
+      - content-eval
+
+  - filename: test_claim_lookup.py
+    covers_skills: []
+
+  - filename: test_clone_cache.py
+    covers_skills: []
+
+  - filename: test_config_fail_fast.py
+    covers_skills: []
+
+  - filename: test_config_loader.py
+    covers_skills: []
+
+  - filename: test_conftest_fixtures.py
+    covers_skills: []
+
+  - filename: test_content_enrich_scaffold.py
+    covers_skills:
+      - content-enrich
+
+  - filename: test_content_repo_adapter.py
+    covers_skills: []
+
+  - filename: test_corpus_scan_units.py
+    covers_skills:
+      - corpus-scan
+
+  - filename: test_cross_platform_and_enrich.py
+    covers_skills: []
+
+  - filename: test_cross_platform_audit.py
+    covers_skills:
+      - cross-platform
+
+  - filename: test_decide.py
+    covers_skills:
+      - mental-model
+
+  - filename: test_differ.py
+    covers_skills: []
+
+  - filename: test_discover.py
+    covers_skills: []
+
+  - filename: test_distribute.py
+    covers_skills: []
+
+  - filename: test_distribute_integration.py
+    covers_skills:
+      - repo-scout
+
+  - filename: test_e2e_pipeline.py
+    covers_skills:
+      - path-guard
+      - truth-index
+
+  - filename: test_evaluator_new.py
+    covers_skills:
+      - content-eval
+
+  - filename: test_final_helper_contracts.py
+    covers_skills: []
+
+  - filename: test_gap_eval_helpers.py
+    covers_skills:
+      - gap-eval
+
+  - filename: test_gap_eval_scaffold.py
+    covers_skills:
+      - gap-eval
+
+  - filename: test_golden_conformance.py
+    covers_skills: []
+
+  - filename: test_golden_index.py
+    covers_skills: []
+
+  - filename: test_governance_checks.py
+    covers_skills:
+      - knowledge-bootstrap
+
+  - filename: test_grade_churn_guards.py
+    covers_skills:
+      - commit
+
+  - filename: test_grade_writer.py
+    covers_skills: []
+
+  - filename: test_ground_check.py
+    covers_skills:
+      - ground-check
+
+  - filename: test_healing_refresh_helpers.py
+    covers_skills:
+      - page-enhance
+      - site-plan
+
+  - filename: test_hooks.py
+    covers_skills:
+      - commit
+
+  - filename: test_index.py
+    covers_skills:
+      - discover-products
+
+  - filename: test_launcher_adapter.py
+    covers_skills: []
+
+  - filename: test_maintenance_truth_sync_helpers.py
+    covers_skills:
+      - truth-audit
+      - truth-audit-content
+
+  - filename: test_materialize.py
+    covers_skills: []
+
+  - filename: test_mental_model.py
+    covers_skills:
+      - mental-model
+
+  - filename: test_merge_units.py
+    covers_skills: []
+
+  - filename: test_no_downgrade_guard.py
+    covers_skills:
+      - no-downgrade-guard
+
+  - filename: test_ops_log.py
+    covers_skills:
+      - ground-check
+      - launch-product
+      - path-guard
+
+  - filename: test_path_guard.py
+    covers_skills:
+      - getting-started
+      - new-docs-page
+      - path-guard
+
+  - filename: test_phase_readiness_rollback_link_tools.py
+    covers_skills:
+      - launch-rollback
+      - project-phase-store
+      - site-plan
+      - truth-audit
+
+  - filename: test_plugin_structure_tools.py
+    covers_skills: []
+
+  - filename: test_pre_write.py
+    covers_skills: []
+
+  - filename: test_production_readiness_contracts.py
+    covers_skills:
+      - knowledge-update
+
+  - filename: test_refresh_golden.py
+    covers_skills: []
+
+  - filename: test_repo_patrol.py
+    covers_skills:
+      - repo-patrol
+
+  - filename: test_schema_validate.py
+    covers_skills: []
+
+  - filename: test_scout_units.py
+    covers_skills: []
+
+  - filename: test_seo_apply_helpers.py
+    covers_skills: []
+
+  - filename: test_skill_context.py
+    covers_skills: []
+
+  - filename: test_smoke_test.py
+    covers_skills: []
+
+  - filename: test_sync_agents.py
+    covers_skills:
+      - path-guard
+
+  - filename: test_sync_commands.py
+    covers_skills: []
+
+  - filename: test_validate_frontmatter.py
+    covers_skills: []
+
+  - filename: test_validate_skills.py
+    covers_skills:
+      - category-fix
+      - evidence-verify
+      - launch-product
+      - path-guard
+      - truth-audit
+
+  - filename: test_verify.py
+    covers_skills: []

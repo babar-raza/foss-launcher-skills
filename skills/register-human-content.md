@@ -51,7 +51,7 @@ page needs to participate in quality enforcement, evidence validation, and grade
 
 5. **Attach evidence**:
    ```bash
-   python scripts/pipeline/attach_evidence.py --files {filepath} --force
+   python scripts/pipeline/commands/content/attach_evidence.py --files {filepath} --force
    ```
 
 6. **Assign baseline grade**:
@@ -62,7 +62,7 @@ page needs to participate in quality enforcement, evidence validation, and grade
 
 7. **Run audit**:
    ```bash
-   python scripts/pipeline/audit.py --files {filepath}
+   python scripts/pipeline/commands/content/audit.py --files {filepath}
    ```
    Human-authored pages with audit FAILs should be reviewed — report but do not block registration.
 

@@ -39,6 +39,23 @@ def parse_skill(text: str):
     return "", text
 
 
+def load_internal_skill_names(skills_dir: Path) -> set[str]:
+    """Return skill names marked internal in skills/registry.yaml."""
+    registry_path = skills_dir / "registry.yaml"
+    if not registry_path.exists():
+        return set()
+
+    text = registry_path.read_text(encoding="utf-8")
+    internal_names: set[str] = set()
+    for match in re.finditer(r"(?ms)^\s*-\s+id:.*?(?=^\s*-\s+id:|\Z)", text):
+        block = match.group(0)
+        name_match = re.search(r"(?m)^\s+name:\s*([^\s#]+)", block)
+        internal_match = re.search(r"(?m)^\s+internal:\s*true\s*(?:#.*)?$", block)
+        if name_match and internal_match:
+            internal_names.add(name_match.group(1).strip("\"'"))
+    return internal_names
+
+
 def distribute(skills_dir: Path, target_dir: Path):
     """Read skills from skills_dir and write agent directories under target_dir."""
     skills = sorted(skills_dir.glob("*.md"))
@@ -47,6 +64,7 @@ def distribute(skills_dir: Path, target_dir: Path):
         sys.exit(1)
 
     counts = {agent: 0 for agent in AGENT_TARGETS}
+    internal_skill_names = load_internal_skill_names(skills_dir)
 
     for skill_path in skills:
         name = skill_path.stem
@@ -55,6 +73,12 @@ def distribute(skills_dir: Path, target_dir: Path):
 
         for agent, path_fn in AGENT_TARGETS.items():
             out_path = target_dir / path_fn(name)
+
+            if agent == "claude" and name in internal_skill_names:
+                if out_path.exists():
+                    out_path.unlink()
+                continue
+
             out_path.parent.mkdir(parents=True, exist_ok=True)
 
             if agent == "claude":

@@ -123,7 +123,7 @@ Before generating any content, you MUST:
 
 After generating the reference page:
 
-1. **Run evidence citation**: Execute `/evidence-cite content/reference.aspose.org/en/{family}/{platform}/{classname-slug}.md` to attach `<!-- evidence: api=... -->` comments
+1. **Run evidence citation**: Execute `/evidence-cite content/reference.aspose.org/en/{family}/{platform}/{classname-slug}.md` to write the YAML `evidence:` frontmatter block
 2. **Run content check**: Execute `/content-check content/reference.aspose.org/en/{family}/{platform}/{classname-slug}.md` to validate structure and knowledge alignment
 3. **Pre-write gate**: Run `python scripts/pre_write.py {output-file}` before committing
    - Exit 0 (PASS/WARN): proceed

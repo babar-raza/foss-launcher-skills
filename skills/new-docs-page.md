@@ -97,7 +97,7 @@ Before generating any content, you MUST:
 
 After generating the page:
 
-1. **Run evidence citation**: Execute `/evidence-cite content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md` to attach `<!-- evidence: ... -->` comments
+1. **Run evidence citation**: Execute `/evidence-cite content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md` to write the YAML `evidence:` frontmatter block
 2. **Run content check**: Execute `/content-check content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md` to validate structure and knowledge alignment
 3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
 4. **Pre-write gate**: Run `python scripts/pre_write.py {output-file}` before committing

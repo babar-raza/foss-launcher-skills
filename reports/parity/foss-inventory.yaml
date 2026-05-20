@@ -1,0 +1,1257 @@
+# reports/parity/foss-inventory.yaml
+# Generated 2026-05-15 — PAR-010
+# 92 foss-launcher skills
+#
+# Layer stats:
+#   Layer 1 (file exists):         92/92
+#   Layer 2 (registered):          92/92
+#   Layer 3 (script binding):      26/92
+#   Layer 4 (script has main):     22/92
+#   Layer 5 (content depth >=1KB): 92/92
+#   Layer 6 (deps available):      90/92
+#   Layer 7 (test coverage):       28/92
+#   Layer 8 (non-destructive):     18/92
+#   ALL 8 layers (full parity):     4/92 — path-guard, ground-check, evidence-verify, no-downgrade-guard
+#
+# Assumption verification:
+#   A3: docs/id-mapping.md VERIFIED COMPLETE (all 92 foss IDs mapped; 10 foss-only noted)
+#   A8: 10 foss-only skills VERIFIED — no aspose.org equivalents found
+
+skills:
+  - canonical_slug: path-guard
+    foss_id: S-01
+    foss_path: skills/path-guard.md
+    foss_size_kb: 1.96
+    foss_script: scripts/path_guard.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: true
+    layers_passed: [1, 2, 3, 4, 5, 6, 7, 8]
+    parity_status: implemented_not_verified
+    covering_tests:
+      - test_e2e_pipeline.py
+      - test_ops_log.py
+      - test_path_guard.py
+      - test_sync_agents.py
+      - test_validate_skills.py
+    notes: null
+
+  - canonical_slug: project-phase-store
+    foss_id: S-10
+    foss_path: skills/project-phase-store.md
+    foss_size_kb: 3.02
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: true
+    layers_passed: [1, 2, 5, 6, 7, 8]
+    parity_status: governance_only
+    covering_tests:
+      - test_phase_readiness_rollback_link_tools.py
+    notes: null
+
+  - canonical_slug: knowledge-diff
+    foss_id: S-12
+    foss_path: skills/knowledge-diff.md
+    foss_size_kb: 1.9
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: stale-detect
+    foss_id: S-13
+    foss_path: skills/stale-detect.md
+    foss_size_kb: 2.08
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: knowledge-update
+    foss_id: S-14
+    foss_path: skills/knowledge-update.md
+    foss_size_kb: 3.99
+    foss_script: scripts/pipeline/commands/knowledge/refresh_knowledge.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6, 7]
+    parity_status: implemented_not_verified
+    covering_tests:
+      - test_production_readiness_contracts.py
+    notes: null
+
+  - canonical_slug: embed-knowledge
+    foss_id: S-15
+    foss_path: skills/embed-knowledge.md
+    foss_size_kb: 1.57
+    foss_script: scripts/embed.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    parity_status: implemented_not_verified
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: rubric-align
+    foss_id: S-17
+    foss_path: skills/rubric-align.md
+    foss_size_kb: 4.05
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: true
+    layers_passed: [1, 2, 5, 6, 8]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: page-plan
+    foss_id: S-18
+    foss_path: skills/page-plan.md
+    foss_size_kb: 5.54
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: page-draft
+    foss_id: S-19
+    foss_path: skills/page-draft.md
+    foss_size_kb: 4.51
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: page-update
+    foss_id: S-20
+    foss_path: skills/page-update.md
+    foss_size_kb: 3.67
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: page-enhance
+    foss_id: S-21
+    foss_path: skills/page-enhance.md
+    foss_size_kb: 4.57
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 7]
+    parity_status: governance_only
+    covering_tests:
+      - test_healing_refresh_helpers.py
+    notes: null
+
+  - canonical_slug: faq-generate
+    foss_id: S-22
+    foss_path: skills/faq-generate.md
+    foss_size_kb: 3.56
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: ground-check
+    foss_id: S-23
+    foss_path: skills/ground-check.md
+    foss_size_kb: 5.49
+    foss_script: scripts/pipeline/commands/content/audit.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6, 7, 8]
+    parity_status: implemented_not_verified
+    covering_tests:
+      - test_ground_check.py
+      - test_ops_log.py
+    notes: null
+
+  - canonical_slug: evidence-cite
+    foss_id: S-24
+    foss_path: skills/evidence-cite.md
+    foss_size_kb: 4.13
+    foss_script: scripts/pipeline/commands/content/attach_evidence.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: true
+    layers_passed: [1, 2, 3, 4, 5, 6, 8]
+    parity_status: implemented_not_verified
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: eval-page
+    foss_id: S-25
+    foss_path: skills/eval-page.md
+    foss_size_kb: 5.22
+    foss_script: scripts/pipeline/content_eval/__main__.py
+    foss_script_exists: true
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 3, 5, 6]
+    parity_status: unclear
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: heal-page
+    foss_id: S-26
+    foss_path: skills/heal-page.md
+    foss_size_kb: 4.36
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: truth-sync
+    foss_id: S-30
+    foss_path: skills/truth-sync.md
+    foss_size_kb: 3.06
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: truth-index
+    foss_id: S-31
+    foss_path: skills/truth-index.md
+    foss_size_kb: 1.47
+    foss_script: scripts/index.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6, 7]
+    parity_status: implemented_not_verified
+    covering_tests:
+      - test_e2e_pipeline.py
+    notes: null
+
+  - canonical_slug: content-audit
+    foss_id: S-32
+    foss_path: skills/content-audit.md
+    foss_size_kb: 3.4
+    foss_script: scripts/pipeline/commands/content/audit.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6, 8]
+    parity_status: implemented_not_verified
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: change-guard
+    foss_id: S-33
+    foss_path: skills/change-guard.md
+    foss_size_kb: 2.92
+    foss_script: scripts/pipeline/commands/diagnostics/change_guard.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: true
+    layers_passed: [1, 2, 3, 4, 5, 6, 8]
+    parity_status: implemented_not_verified
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: repo-scout
+    foss_id: S-34
+    foss_path: skills/repo-scout.md
+    foss_size_kb: 5.2
+    foss_script: scripts/scout.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6, 7]
+    parity_status: implemented_not_verified
+    covering_tests:
+      - test_check_setup.py
+      - test_distribute_integration.py
+    notes: null
+
+  - canonical_slug: truth-merge
+    foss_id: S-35
+    foss_path: skills/truth-merge.md
+    foss_size_kb: 2.26
+    foss_script: scripts/merge.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    parity_status: implemented_not_verified
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: cross-platform
+    foss_id: S-36
+    foss_path: skills/cross-platform.md
+    foss_size_kb: 2.35
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 7]
+    parity_status: governance_only
+    covering_tests:
+      - test_cross_platform_audit.py
+    notes: null
+
+  - canonical_slug: corpus-scan
+    foss_id: S-37
+    foss_path: skills/corpus-scan.md
+    foss_size_kb: 4.04
+    foss_script: scripts/corpus_scan.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6, 7]
+    parity_status: implemented_not_verified
+    covering_tests:
+      - test_corpus_scan_units.py
+    notes: null
+
+  - canonical_slug: launch-product
+    foss_id: S-38
+    foss_path: skills/launch-product.md
+    foss_size_kb: 13.9
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 7]
+    parity_status: governance_only
+    covering_tests:
+      - test_ops_log.py
+      - test_validate_skills.py
+    notes: null
+
+  - canonical_slug: discover-products
+    foss_id: S-39
+    foss_path: skills/discover-products.md
+    foss_size_kb: 3.74
+    foss_script: scripts/discover.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6, 7]
+    parity_status: implemented_not_verified
+    covering_tests:
+      - test_index.py
+    notes: null
+
+  - canonical_slug: batch-remediate
+    foss_id: S-40
+    foss_path: skills/batch-remediate.md
+    foss_size_kb: 5.74
+    foss_script: scripts/pipeline/commands/content/remediate.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    parity_status: implemented_not_verified
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: batch-eval-fix
+    foss_id: S-41
+    foss_path: skills/batch-eval-fix.md
+    foss_size_kb: 2.68
+    foss_script: scripts/pipeline/commands/content/remediate.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    parity_status: implemented_not_verified
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: category-fix
+    foss_id: S-42
+    foss_path: skills/category-fix.md
+    foss_size_kb: 3.43
+    foss_script: scripts/pipeline/commands/content/remediate.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6, 7]
+    parity_status: implemented_not_verified
+    covering_tests:
+      - test_validate_skills.py
+    notes: null
+
+  - canonical_slug: evidence-decide
+    foss_id: S-43
+    foss_path: skills/evidence-decide.md
+    foss_size_kb: 1.85
+    foss_script: scripts/decide.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    parity_status: implemented_not_verified
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: evidence-materialize
+    foss_id: S-44
+    foss_path: skills/evidence-materialize.md
+    foss_size_kb: 1.97
+    foss_script: scripts/materialize.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    parity_status: implemented_not_verified
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: mental-model
+    foss_id: S-45
+    foss_path: skills/mental-model.md
+    foss_size_kb: 1.75
+    foss_script: scripts/mental_model.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6, 7]
+    parity_status: implemented_not_verified
+    covering_tests:
+      - test_decide.py
+      - test_mental_model.py
+    notes: null
+
+  - canonical_slug: evidence-verify
+    foss_id: S-46
+    foss_path: skills/evidence-verify.md
+    foss_size_kb: 2.04
+    foss_script: scripts/verify.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6, 7, 8]
+    parity_status: implemented_not_verified
+    covering_tests:
+      - test_validate_skills.py
+    notes: null
+
+  - canonical_slug: truth-audit
+    foss_id: S-47
+    foss_path: skills/truth-audit.md
+    foss_size_kb: 9.61
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 7, 8]
+    parity_status: governance_only
+    covering_tests:
+      - test_maintenance_truth_sync_helpers.py
+      - test_phase_readiness_rollback_link_tools.py
+      - test_validate_skills.py
+    notes: null
+
+  - canonical_slug: content-eval
+    foss_id: S-48
+    foss_path: skills/content-eval.md
+    foss_size_kb: 2.52
+    foss_script: scripts/pipeline/content_eval/__main__.py
+    foss_script_exists: true
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 3, 5, 6, 7]
+    parity_status: unclear
+    covering_tests:
+      - test_claim_index.py
+      - test_evaluator_new.py
+    notes: null
+
+  - canonical_slug: knowledge-bootstrap
+    foss_id: S-49
+    foss_path: skills/knowledge-bootstrap.md
+    foss_size_kb: 3.84
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: true
+    layers_passed: [1, 2, 5, 6, 7, 8]
+    parity_status: governance_only
+    covering_tests:
+      - test_governance_checks.py
+    notes: null
+
+  - canonical_slug: content-check
+    foss_id: S-50
+    foss_path: skills/content-check.md
+    foss_size_kb: 6.51
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 8]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: new-docs-page
+    foss_id: S-51
+    foss_path: skills/new-docs-page.md
+    foss_size_kb: 5.34
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 7]
+    parity_status: governance_only
+    covering_tests:
+      - test_path_guard.py
+    notes: null
+
+  - canonical_slug: new-blog-post
+    foss_id: S-52
+    foss_path: skills/new-blog-post.md
+    foss_size_kb: 5.85
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: new-kb-howto
+    foss_id: S-53
+    foss_path: skills/new-kb-howto.md
+    foss_size_kb: 5.09
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: new-kb-faq
+    foss_id: S-54
+    foss_path: skills/new-kb-faq.md
+    foss_size_kb: 5.32
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: new-reference-page
+    foss_id: S-55
+    foss_path: skills/new-reference-page.md
+    foss_size_kb: 5.68
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: no-downgrade-guard
+    foss_id: S-56
+    foss_path: skills/no-downgrade-guard.md
+    foss_size_kb: 3.01
+    foss_script: scripts/pipeline/commands/governance/no_downgrade_guard.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: true
+    layers_passed: [1, 2, 3, 4, 5, 6, 7, 8]
+    parity_status: implemented_not_verified
+    covering_tests:
+      - test_no_downgrade_guard.py
+    notes: null
+
+  - canonical_slug: site-plan
+    foss_id: S-57
+    foss_path: skills/site-plan.md
+    foss_size_kb: 3.0
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 7]
+    parity_status: governance_only
+    covering_tests:
+      - test_healing_refresh_helpers.py
+      - test_phase_readiness_rollback_link_tools.py
+    notes: null
+
+  - canonical_slug: family-sync
+    foss_id: S-58
+    foss_path: skills/family-sync.md
+    foss_size_kb: 2.95
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: refresh-product-page
+    foss_id: S-59
+    foss_path: skills/refresh-product-page.md
+    foss_size_kb: 2.57
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: launch-rollback
+    foss_id: S-60
+    foss_path: skills/launch-rollback.md
+    foss_size_kb: 3.48
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 7]
+    parity_status: governance_only
+    covering_tests:
+      - test_phase_readiness_rollback_link_tools.py
+    notes: null
+
+  - canonical_slug: knowledge-enrich
+    foss_id: S-61
+    foss_path: skills/knowledge-enrich.md
+    foss_size_kb: 2.26
+    foss_script: scripts/pipeline/commands/knowledge/enrich.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    parity_status: implemented_not_verified
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: gap-eval
+    foss_id: S-62
+    foss_path: skills/gap-eval.md
+    foss_size_kb: 3.27
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 7]
+    parity_status: governance_only
+    covering_tests:
+      - test_gap_eval_helpers.py
+      - test_gap_eval_scaffold.py
+    notes: null
+
+  - canonical_slug: gap-plan
+    foss_id: S-63
+    foss_path: skills/gap-plan.md
+    foss_size_kb: 2.32
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: gap-report
+    foss_id: S-64
+    foss_path: skills/gap-report.md
+    foss_size_kb: 2.08
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: gap-apply
+    foss_id: S-65
+    foss_path: skills/gap-apply.md
+    foss_size_kb: 2.8
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: new-products-page
+    foss_id: S-66
+    foss_path: skills/new-products-page.md
+    foss_size_kb: 8.31
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: batch-reference
+    foss_id: S-67
+    foss_path: skills/batch-reference.md
+    foss_size_kb: 7.94
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 7]
+    parity_status: governance_only
+    covering_tests:
+      - test_batch_reference.py
+    notes: null
+
+  - canonical_slug: code-smoke
+    foss_id: S-68
+    foss_path: skills/code-smoke.md
+    foss_size_kb: 4.39
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: getting-started
+    foss_id: S-69
+    foss_path: skills/getting-started.md
+    foss_size_kb: 4.64
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 7]
+    parity_status: governance_only
+    covering_tests:
+      - test_path_guard.py
+    notes: null
+
+  - canonical_slug: link-validate
+    foss_id: S-70
+    foss_path: skills/link-validate.md
+    foss_size_kb: 2.57
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 8]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: register-human-content
+    foss_id: S-71
+    foss_path: skills/register-human-content.md
+    foss_size_kb: 3.26
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: diagnose-skill-failure
+    foss_id: S-72
+    foss_path: skills/diagnose-skill-failure.md
+    foss_size_kb: 5.81
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 8]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: update-registry
+    foss_id: S-73
+    foss_path: skills/update-registry.md
+    foss_size_kb: 5.07
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: new-kb-index
+    foss_id: S-74
+    foss_path: skills/new-kb-index.md
+    foss_size_kb: 4.06
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: new-docs-index
+    foss_id: S-75
+    foss_path: skills/new-docs-index.md
+    foss_size_kb: 4.23
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: new-reference-index
+    foss_id: S-76
+    foss_path: skills/new-reference-index.md
+    foss_size_kb: 4.44
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: evidence-repair
+    foss_id: S-77
+    foss_path: skills/evidence-repair.md
+    foss_size_kb: 4.74
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: manual-edit
+    foss_id: S-78
+    foss_path: skills/manual-edit.md
+    foss_size_kb: 4.65
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: causal-backtrack
+    foss_id: S-79
+    foss_path: skills/causal-backtrack.md
+    foss_size_kb: 4.3
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: commit
+    foss_id: S-81
+    foss_path: skills/commit.md
+    foss_size_kb: 7.24
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 7]
+    parity_status: governance_only
+    covering_tests:
+      - test_grade_churn_guards.py
+      - test_hooks.py
+    notes: null
+
+  - canonical_slug: session-start
+    foss_id: S-82
+    foss_path: skills/session-start.md
+    foss_size_kb: 3.16
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: evidence-enhance
+    foss_id: S-83
+    foss_path: skills/evidence-enhance.md
+    foss_size_kb: 2.88
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: refresh-product
+    foss_id: S-84
+    foss_path: skills/refresh-product.md
+    foss_size_kb: 4.06
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: coverage-reconcile
+    foss_id: S-85
+    foss_path: skills/coverage-reconcile.md
+    foss_size_kb: 2.88
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: knowledge-coverage-audit
+    foss_id: S-86
+    foss_path: skills/knowledge-coverage-audit.md
+    foss_size_kb: 3.36
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 8]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: delta-site-plan
+    foss_id: S-87
+    foss_path: skills/delta-site-plan.md
+    foss_size_kb: 2.65
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: page-retire
+    foss_id: S-88
+    foss_path: skills/page-retire.md
+    foss_size_kb: 3.29
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: truth-audit-content
+    foss_id: S-90
+    foss_path: skills/truth-audit-content.md
+    foss_size_kb: 4.42
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 7, 8]
+    parity_status: governance_only
+    covering_tests:
+      - test_maintenance_truth_sync_helpers.py
+    notes: null
+
+  - canonical_slug: system-heal
+    foss_id: S-93
+    foss_path: skills/system-heal.md
+    foss_size_kb: 3.88
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: heal-batch
+    foss_id: S-94
+    foss_path: skills/heal-batch.md
+    foss_size_kb: 4.47
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: publish-readiness-review
+    foss_id: S-95
+    foss_path: skills/publish-readiness-review.md
+    foss_size_kb: 4.17
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 8]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: plan-normalize
+    foss_id: S-96
+    foss_path: skills/plan-normalize.md
+    foss_size_kb: 4.28
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: triage-confirm
+    foss_id: S-97
+    foss_path: skills/triage-confirm.md
+    foss_size_kb: 4.86
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: backlog
+    foss_id: S-98
+    foss_path: skills/backlog.md
+    foss_size_kb: 4.13
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: translate-page
+    foss_id: S-99
+    foss_path: skills/translate-page.md
+    foss_size_kb: 3.79
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: translate-batch
+    foss_id: S-100
+    foss_path: skills/translate-batch.md
+    foss_size_kb: 3.23
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: locale-patch
+    foss_id: S-101
+    foss_path: skills/locale-patch.md
+    foss_size_kb: 3.5
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: repo-patrol
+    foss_id: S-102
+    foss_path: skills/repo-patrol.md
+    foss_size_kb: 2.98
+    foss_script: null  # scripts/pipeline/repo_patrol.py pending port (TC-P)
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 3, 5, 7]
+    parity_status: documented_not_implemented
+    covering_tests:
+      - test_repo_patrol.py
+    notes: null
+
+  - canonical_slug: change-sweep
+    foss_id: S-103
+    foss_path: skills/change-sweep.md
+    foss_size_kb: 2.52
+    foss_script: null  # scripts/pipeline/repo_patrol.py pending port (TC-P)
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 3, 5]
+    parity_status: documented_not_implemented
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: discovery-triage
+    foss_id: S-104
+    foss_path: skills/discovery-triage.md
+    foss_size_kb: 3.73
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: section-enhance
+    foss_id: S-105
+    foss_path: skills/section-enhance.md
+    foss_size_kb: 7.62
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: cleanroom-regen
+    foss_id: S-106
+    foss_path: skills/cleanroom-regen.md
+    foss_size_kb: 7.61
+    foss_script: scripts/pipeline/commands/ops/cleanroom_regen.py
+    foss_script_exists: true
+    foss_script_has_main: true
+    internal: false
+    layers_passed: [1, 2, 3, 4, 5, 6]
+    parity_status: implemented_not_verified
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: translate
+    foss_id: S-107
+    foss_path: skills/translate.md
+    foss_size_kb: 2.66
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null
+
+  - canonical_slug: content-enrich
+    foss_id: S-108
+    foss_path: skills/content-enrich.md
+    foss_size_kb: 3.15
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 7]
+    parity_status: governance_only
+    covering_tests:
+      - test_content_enrich_scaffold.py
+    notes: null
+
+  - canonical_slug: seo-review
+    foss_id: S-109
+    foss_path: skills/seo-review.md
+    foss_size_kb: 2.59
+    foss_script: null
+    foss_script_exists: false
+    foss_script_has_main: false
+    internal: false
+    layers_passed: [1, 2, 5, 6, 8]
+    parity_status: governance_only
+    covering_tests: []
+    notes: null

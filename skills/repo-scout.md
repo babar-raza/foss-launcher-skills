@@ -48,9 +48,9 @@ where source repos are not cloned.
    ```
    If it doesn't exist, abort with a clear message. Skip this check in pip-install mode.
 
-2. **Verify `scripts/pipeline/scout.py` exists**:
+2. **Verify `scripts/scout.py` exists**:
    ```
-   ls scripts/pipeline/scout.py
+   ls scripts/scout.py
    ```
 
 3. **Verify tree-sitter is importable** — first check the user site-packages:
@@ -79,7 +79,7 @@ where source repos are not cloned.
 
 3. **Run extraction**:
    ```
-   PYTHONPATH="$USER_SITE" python scripts/pipeline/scout.py \
+   PYTHONPATH="$USER_SITE" python scripts/scout.py \
      {family} {platform} {repo_path} knowledge/{family}/{platform}/scout/
    ```
 
@@ -116,7 +116,7 @@ After a pip-install scout run, if `.py` snippet files already exist in `scout/sn
 from a previous source-repo run, they are preserved. Run `rebuild_snippet_index.py` to
 re-index them:
 ```
-python scripts/pipeline/rebuild_snippet_index.py {family} {platform}
+python scripts/maintenance/rebuild_snippet_index.py {family} {platform}
 ```
 
 ## Error handling

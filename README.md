@@ -425,7 +425,7 @@ knowledge/merged/ → page-plan → page-draft → ground-check → evidence-cit
 ### The validation pipeline (two complementary tools):
 
 ```
-Pre-write gate:   scripts/pipeline/audit.py       (S-23 ground-check)
+Pre-write gate:   scripts/pipeline/commands/content/audit.py       (S-23 ground-check)
                   → verifies API tokens, evidence frontmatter, internal links
                   → FAIL blocks the write
 

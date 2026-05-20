@@ -68,3 +68,4 @@ scripts/_content_check.py
 # Install artifacts
 install.log
 /.cloned
+.pytest_venv/

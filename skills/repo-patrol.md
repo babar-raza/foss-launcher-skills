@@ -13,7 +13,7 @@ purpose: Scan GitHub orgs for new FOSS repos, diff against registry, score confi
 preconditions:
   - GITHUB_TOKEN env var set (or --token arg)
   - configs/families.yaml exists
-  - scripts/pipeline/repo_patrol.py present (TC-P port pending)
+  - scripts/pipeline/commands/diagnostics/repo_patrol.py present
 postcondition: reports/discovery/patrol_report.json created; reports/discovery/history/ updated
 idempotent: yes (--dry-run by default; --apply writes registry)
 verified: '2026-04-27 (ported from aspose S-93)'
@@ -33,13 +33,13 @@ added to the Aspose GitHub organisations.
 
 - `GITHUB_TOKEN` env var set (or `--token` arg supplied)
 - `configs/families.yaml` exists (may be empty -- repo_patrol reads the registry for known products)
-- `scripts/pipeline/repo_patrol.py` present (ported from aspose.org)
+- `scripts/pipeline/commands/diagnostics/repo_patrol.py` present (ported from aspose.org)
 
 ## Steps
 
 1. Run the patrol scan:
    ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/repo_patrol.py scan
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/diagnostics/repo_patrol.py scan
    ```
    - Default: dry-run (produces report only, does not modify registry)
    - With `--apply`: also writes discovered candidates to registry
@@ -52,7 +52,7 @@ added to the Aspose GitHub organisations.
    ```
    Or generate the markdown summary:
    ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/repo_patrol.py report
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/diagnostics/repo_patrol.py report
    cat reports/discovery/combined_report.md
    ```
 

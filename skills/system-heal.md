@@ -75,7 +75,7 @@ issues requiring human action.
 
 8. **Verification gate**:
    ```bash
-   python scripts/pipeline/post_refresh_verify.py {family} {platform} --scope {scope}
+   python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --scope {scope}
    ```
 
 9. **Summary report**:

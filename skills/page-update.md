@@ -28,7 +28,7 @@ Update an existing content page after S-14 (knowledge-update) has refreshed the 
 
 3. **Load current knowledge**: `index.json`, `claims.json`, `api_surface.json`, `formats.json`
 
-4. **Extract existing citations**: Parse all `<!-- evidence: claim_id=X -->` comments in the file
+4. **Extract existing citations**: Parse the YAML `evidence:` frontmatter block for claim IDs
    - Build a list of referenced claim_ids
    - Build a list of referenced API names
    - Build a list of referenced format claims

@@ -66,7 +66,7 @@ No upstream change detected for {family}/{platform}. No content update needed.
    - `blog/` → `/new-blog-post {family} {platform} {slug}`
    - `kb/faq` → `/new-kb-faq {family} {platform}`
    - `kb/howto` → `/new-kb-howto {family} {platform} {slug}`
-   - `reference/` → `python scripts/pipeline/batch_reference.py {family} {platform} --update`
+   - `reference/` → `python scripts/pipeline/commands/content/batch_reference.py {family} {platform} --update`
 
 6. **Retire obsolete pages** (S-88: page-retire):
    ```bash
@@ -76,7 +76,7 @@ No upstream change detected for {family}/{platform}. No content update needed.
 
 7. **Update reference pages for modified APIs** (S-67: batch-reference --update):
    ```bash
-   python scripts/pipeline/batch_reference.py {family} {platform} --update
+   python scripts/pipeline/commands/content/batch_reference.py {family} {platform} --update
    ```
 
 8. **Family page sync** (S-58: family-sync):
@@ -86,7 +86,7 @@ No upstream change detected for {family}/{platform}. No content update needed.
 
 9. **Verification gate** — run before commit:
    ```bash
-   python scripts/pipeline/post_refresh_verify.py {family} {platform} --full-check
+   python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --full-check
    ```
    Must return `PASS` on all checks. If any FAIL → route to S-93 (system-heal).
 

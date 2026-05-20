@@ -2,6 +2,107 @@
 
 ---
 
+## PRD-006/007/008: Minimum-Ship Fix Sprint
+
+**Date**: 2026-05-15
+**Agents**: B (Implementation), D (Docs), C (Tests/Verification)
+**Scope**: 8 minimum-ship blockers identified by production-readiness audit. All fixed, verified, and documented.
+**Verdict**: READY TO SHIP
+
+### Fixes Applied (S1–S8)
+
+| ID | Fix | File(s) |
+|----|-----|---------|
+| S1 | requirements path: `requirements.txt` → `scripts/requirements.txt` | `skills/getting-started.md` |
+| S2 | launch-product Phase 1.5 IDs: S-40/S-41 → S-44/S-45 | `skills/launch-product.md` |
+| S3 | RUNBOOK script paths updated to `scripts/pipeline/commands/ops/` | `docs/RUNBOOK.md` |
+| S4 | S-23 registry script: `scripts/pipeline/audit.py` → `scripts/pipeline/commands/content/audit.py` | `skills/registry.yaml` |
+| S5 | PIPELINE.md module tree rewritten to reflect actual `commands/*/` sub-package layout | `docs/PIPELINE.md` |
+| S6 | `data/products.json` created (empty array) for refresh_knowledge.py auto-clone | `data/products.json` (new) |
+| S7 | Translator backend requirement documented; `requires: translator_backend` added to S-99/100/107/101 | `skills/registry.yaml`, `docs/RUNBOOK.md` |
+| S8 | `backlog/` directory created with README for S-82 session-start | `backlog/README.md` (new) |
+
+### Docs Added
+
+- `OPERATOR_GUIDE.md`: Added Python venv platform path table (Windows/Linux/macOS)
+
+### Test Changes
+
+- `tests/test_production_readiness_contracts.py`: Fixed `audit_files` → `audit_page` (correct function name)
+- Mirror sync run: 2 commands updated, 4 agents/kilocode updated
+
+### Test Results
+
+| Metric | Before | After |
+|--------|--------|-------|
+| validate_skills | FAIL (2 violations) | PASS (0 violations) |
+| pytest failures | 2 | 1 (pre-existing Windows encoding) |
+| pytest passes | 750 | 751 (+1) |
+| production contracts | 8/9 pass | 9/9 pass |
+
+### Evidence
+
+- `reports/agents/B_implementation/PRD-006/evidence.md`
+- `reports/agents/B_implementation/PRD-006/self-review.md` (59/60)
+- `reports/agents/D_docs/PRD-007/evidence.md`
+- `reports/agents/D_docs/PRD-007/self-review.md` (57/60)
+- `reports/agents/C_tests/PRD-008/evidence.md`
+- `reports/agents/C_tests/PRD-008/self-review.md` (59/60)
+
+---
+
+## PRD-005: Ops Readiness Pilot Evidence
+
+**Date**: 2026-05-14
+**Agent**: E_ops
+**Scope**: Non-destructive readiness pilots, validators, path scans, and final evidence artifacts.
+**Verdict**: CONDITIONAL / BLOCKED FOR CLEAN READINESS
+
+### Evidence artifacts
+
+- `reports/agents/E_ops/PRD-005/evidence.md`
+- `reports/agents/E_ops/PRD-005/self_review.md`
+- `reports/agents/E_ops/PRD-005/claim-coverage-2026-05-14.md`
+
+### Commands run
+
+```bash
+./.venv/Scripts/python.exe scripts/validate_skills.py
+./.venv/Scripts/python.exe scripts/sync_commands.py --check
+./.venv/Scripts/python.exe scripts/sync_agents.py --check
+./.venv/Scripts/python.exe scripts/check_setup.py
+./.venv/Scripts/python.exe scripts/validate_skills.py --help
+./.venv/Scripts/python.exe scripts/sync_commands.py --help
+./.venv/Scripts/python.exe scripts/sync_agents.py --help
+PYTHONIOENCODING=utf-8 ./.venv/Scripts/python.exe scripts/sync_commands.py --help
+PYTHONIOENCODING=utf-8 ./.venv/Scripts/python.exe scripts/sync_agents.py --help
+./.venv/Scripts/python.exe scripts/pipeline/audit.py --help
+./.venv/Scripts/python.exe scripts/pipeline/commands/content/audit.py --help
+./.venv/Scripts/python.exe -m scripts.pipeline.content_eval --help
+./.venv/Scripts/python.exe scripts/readme_sync.py --check
+./.venv/Scripts/python.exe scripts/verify_claims.py --output-dir reports/agents/E_ops/PRD-005 --json
+./.venv/Scripts/python.exe scripts/verify_claims.py --output-dir reports/agents/E_ops/PRD-005
+./.venv/Scripts/python.exe -m pytest tests/test_validate_skills.py tests/test_sync_agents.py tests/test_check_setup.py -q
+./.venv/Scripts/python.exe -m pytest tests -q
+```
+
+### Results
+
+- Registry and standalone sync CLIs passed.
+- Focused governance tests passed: 72 passed.
+- Full suite failed: 734 passed, 15 skipped, 4 failed.
+- Distribution tests still emit 85 skills while registry validation reports 92.
+- Test helpers report mirror drift despite standalone sync CLIs passing; this requires orchestrator integration.
+- Sync help commands crash on Windows cp1252 unless UTF-8 output is forced.
+- Legacy `scripts/pipeline/audit.py` help fails with `ModuleNotFoundError: config_loader`; current command path help passes.
+- README freshness check is stale for `scripts/content_repo_adapter.py`.
+
+### Code changes
+
+None. Agent E did not edit code, skills, configs, or content.
+
+---
+
 ## Phase 10: Hook Hardening + Claim Verification + GitLab CI
 
 **Date**: 2026-04-22

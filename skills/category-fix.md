@@ -49,7 +49,7 @@ Run a specific category fixer on targeted files. Useful for surgical fixes when 
 4. **Run targeted fix**:
 
    ```bash
-   python scripts/pipeline/remediate.py fix {report-path} --categories {category}
+   python scripts/pipeline/commands/content/remediate.py fix {report-path} --categories {category}
    ```
 
 5. **For LLM-needed findings** in the category (RL, AA, PC, FC, PT, CP):
@@ -62,7 +62,7 @@ Run a specific category fixer on targeted files. Useful for surgical fixes when 
      - **FC** (forbidden claims): Remove the sentence containing the forbidden claim.
      - **PT** (prose truth): Correct factual errors using `claims.json`.
      - **CP** (code plausibility): Replace with verified snippet from `snippets/` or rewrite using `api_surface.json`.
-   - Run ground-check after each file: `python scripts/pipeline/audit.py --files {path}`
+   - Run ground-check after each file: `python scripts/pipeline/commands/content/audit.py --files {path}`
    - If audit returns FAIL, revert the file and report as human-needed.
 
 6. **Re-evaluate** the fixed files:

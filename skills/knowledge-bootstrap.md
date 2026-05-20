@@ -55,7 +55,7 @@ This command always prints exactly one of the following as its final output line
 3. **Check staleness**: Read `knowledge/{family}/{platform}/merged/model.yaml` or `index.json`:
    - If `stale_since` is not null OR `stale: true`:
      - Announce: "Knowledge for {family}/{platform} is stale — refreshing."
-     - Run: `python scripts/pipeline/refresh_knowledge.py {family} {platform}`
+     - Run: `python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform}`
      - Reload index.json.
      - Output: `KNOWLEDGE: REFRESHED`
      - Stop here (calling command continues from this status).

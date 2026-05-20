@@ -37,7 +37,7 @@ API members and site plan exclusions.
 
 1. **Run the coverage script**:
    ```bash
-   python scripts/pipeline/knowledge_coverage.py {family} {platform}
+   python scripts/pipeline/commands/knowledge/knowledge_coverage.py {family} {platform}
    ```
    This produces:
    - `reports/coverage/{family}/{platform}/knowledge_coverage.json`

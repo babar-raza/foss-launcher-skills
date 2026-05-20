@@ -32,18 +32,14 @@ Full gap remediation pipeline: `S-62 → S-63 → S-65 → S-23 → S-56 → wri
 
 ### Wave 1 — Auto-fixes (deterministic)
 
-```bash
-python scripts/gap-eval/apply_wave1.py {family} {platform} [--dry-run]
-```
+Use the normalized gap plan from `/gap-plan {family} {platform}` and apply the Wave 1 deterministic fixes it names.
 
 Wave 1 applies deterministic fixes: wrong API names, format strings, structural corrections.
 All Wave 1 fixes are idempotent and safe to re-run.
 
 ### Wave 2 — LLM substitutions
 
-```bash
-python scripts/gap-eval/apply_wave2.py {family} {platform} [--dry-run]
-```
+Continue from the normalized gap plan and apply Wave 2 substitutions only after reviewing the generated fix specs.
 
 Wave 2 applies pre-computed old→new substitutions from `fix_specs.json`.
 Each substitution is verified by running the ground-check (S-23) after application.

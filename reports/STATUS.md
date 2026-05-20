@@ -1,6 +1,42 @@
 # Status Report
 
-**Last updated**: 2026-04-21
+**PRD-005 Ops Readiness Pilot (2026-05-14)**: **CONDITIONAL / BLOCKED FOR CLEAN READINESS**
+  - PASS: `scripts/validate_skills.py` -> 92 skills, 7 internal, no violations
+  - PASS: `scripts/sync_commands.py --check`
+  - PASS: `scripts/sync_agents.py --check`
+  - PASS: focused governance tests -> 72 passed
+  - FAIL/BLOCKED: full suite -> 734 passed, 15 skipped, 4 failed
+  - FAIL: `scripts/sync_commands.py --help` and `scripts/sync_agents.py --help` crash on Windows cp1252 due Unicode arrow; pass with `PYTHONIOENCODING=utf-8`
+  - FAIL: `scripts/pipeline/audit.py --help` wrapper cannot import `config_loader`; current `scripts/pipeline/commands/content/audit.py --help` passes
+  - BLOCKED: `scripts/check_setup.py` reports missing `CONTENT_REPO_PATH` and absent `tree_sitter`
+  - FAIL: `scripts/readme_sync.py --check` reports missing README structure entry for `content_repo_adapter.py`
+  - Evidence: `reports/agents/E_ops/PRD-005/evidence.md`
+  - Self-review: 55/60 in `reports/agents/E_ops/PRD-005/self_review.md`
+
+**PRD-006/007/008 Minimum-Ship Fixes (2026-05-15)**: **PASS — READY TO SHIP**
+  - PASS: `scripts/validate_skills.py` → 92 skills, 7 internal, no violations
+  - PASS: `scripts/sync_commands.py --check`
+  - PASS: `scripts/sync_agents.py --check`
+  - PASS: full suite → 751 passed, 15 skipped, 1 pre-existing failure (Windows cp1252 encoding in test_launcher_adapter.py — confirmed pre-existing, not a regression)
+  - PASS: all 9 production-readiness contracts in `tests/test_production_readiness_contracts.py`
+  - Fixes: S1 (requirements path), S2 (launch-product Phase 1.5 IDs), S3 (RUNBOOK paths), S4 (S-23 registry → real audit.py), S5 (PIPELINE.md tree), S6 (data/products.json), S7 (translator backend docs), S8 (backlog/ directory)
+  - Evidence: `reports/agents/B_implementation/PRD-006/evidence.md`, `reports/agents/C_tests/PRD-008/evidence.md`, `reports/agents/D_docs/PRD-007/evidence.md`
+
+**PAR-009/010/011/012 Parity Analysis Phases 2–6 (2026-05-15)**: **COMPLETE**
+  - DONE: `reports/parity/aspose-inventory.yaml` — 84 skills, all 8-layer assessed
+  - DONE: `reports/parity/aspose-ci-checks-map.yaml` — 63 CI checks mapped by domain
+  - DONE: `reports/parity/aspose-governance-map.yaml` — 22 governance/workflow docs mapped
+  - DONE: `reports/parity/foss-inventory.yaml` — 92 skills, all 8-layer assessed
+  - DONE: `reports/parity/foss-test-coverage-map.yaml` — 58 test files mapped to skills
+  - DONE: `reports/parity/parity-matrix.md` — 82 shared + 2 aspose-only + 10 foss-only
+  - DONE: `reports/parity/gap-report.md` — 81 skills with classified gaps
+  - DONE: `reports/parity/foss-advantages.md` — 10 unique skills + 5 infra advantages documented
+  - DONE: `reports/parity/target-architecture.md` — 7 gap categories with design decisions
+  - DONE: `reports/parity/taskcards/TC-INDEX.md` — 76 taskcards (CF/VF/RG/GV/LB/CI/SC/SK/TS)
+  - Key findings: 58 governance_only skills (no backing scripts), 52 size divergences, 59 missing CI checks, 22 missing governance docs
+  - Next: PAR-013 Wave 1 implementation (CF-001, VF-001, RG-001, GV-001..GV-005)
+
+**Last updated**: 2026-05-15
 **Branch**: main
 **Baseline (import session)**: 224 tests passed, 15 skipped
 **Post-import**: 230 tests passed, 15 skipped (+6 new config tests)

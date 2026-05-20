@@ -58,7 +58,7 @@ Retiring on a single signal without operator confirmation risks premature retire
 
    c. **Set draft: true** in frontmatter:
       ```bash
-      python scripts/pipeline/retire_page.py --files {path}
+      python scripts/pipeline/commands/healing/retire_page.py --files {path}
       ```
       Or manually: add `draft: true` to YAML frontmatter.
 
@@ -69,7 +69,7 @@ Retiring on a single signal without operator confirmation risks premature retire
 
    e. **Run audit** (should now be skipped by draft status in production):
       ```bash
-      python scripts/pipeline/audit.py --files {path}
+      python scripts/pipeline/commands/content/audit.py --files {path}
       ```
 
 4. **Summary report**:

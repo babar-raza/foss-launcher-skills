@@ -59,7 +59,7 @@ Do **not** use for: multi-file changes, agent-decided repairs, knowledge-driven 
 
 2. **Freshness check**:
    ```bash
-   python scripts/pipeline/check_staleness.py {family} {platform}
+   /knowledge-diff {family} {platform}
    ```
    If stale → STOP: "Knowledge is stale. Run S-12 (knowledge-diff) then S-14 (knowledge-update) first."
 
@@ -74,12 +74,12 @@ Do **not** use for: multi-file changes, agent-decided repairs, knowledge-driven 
 
 5. **Reattach evidence**:
    ```bash
-   python scripts/pipeline/attach_evidence.py --files {path} --force
+   python scripts/pipeline/commands/content/attach_evidence.py --files {path} --force
    ```
 
 6. **Audit**:
    ```bash
-   python scripts/pipeline/audit.py --files {path}
+   python scripts/pipeline/commands/content/audit.py --files {path}
    ```
    Must exit with 0 FAIL.
 

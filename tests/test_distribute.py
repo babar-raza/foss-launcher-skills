@@ -7,7 +7,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from tools.distribute import distribute, parse_skill  # noqa: E402
+from tools.distribute import distribute, load_internal_skill_names, parse_skill  # noqa: E402
 
 SKILLS_DIR = REPO_ROOT / "skills"
 
@@ -83,7 +83,7 @@ def test_distribute_skill_count_matches(tmp_path):
     distribute(SKILLS_DIR, tmp_path)
     skill_files = list(SKILLS_DIR.glob("*.md"))
     claude_files = list((tmp_path / ".claude" / "commands").glob("*.md"))
-    assert len(claude_files) == len(skill_files)
+    assert len(claude_files) == len(skill_files) - len(load_internal_skill_names(SKILLS_DIR))
 
 
 def test_distribute_claude_strips_frontmatter(tmp_path):
@@ -111,6 +111,25 @@ def test_distribute_kilocode_keeps_frontmatter(tmp_path):
             assert content.startswith("---"), f"{skill_dir.name}/SKILL.md must start with frontmatter"
 
 
+def test_distribute_agent_mirrors_include_internal_skills(tmp_path):
+    distribute(SKILLS_DIR, tmp_path)
+
+    for name in load_internal_skill_names(SKILLS_DIR):
+        assert (tmp_path / ".agents" / "skills" / name / "SKILL.md").exists()
+        assert (tmp_path / ".kilocode" / "skills" / name / "SKILL.md").exists()
+
+
+def test_distribute_removes_stale_internal_claude_command(tmp_path):
+    internal_name = next(iter(load_internal_skill_names(SKILLS_DIR)))
+    stale_command = tmp_path / ".claude" / "commands" / f"{internal_name}.md"
+    stale_command.parent.mkdir(parents=True)
+    stale_command.write_text("# stale internal mirror\n", encoding="utf-8")
+
+    distribute(SKILLS_DIR, tmp_path)
+
+    assert not stale_command.exists()
+
+
 def test_distribute_idempotent(tmp_path):
     distribute(SKILLS_DIR, tmp_path)
     files_first = {
@@ -130,4 +149,12 @@ def test_distribute_all_three_targets_equal_count(tmp_path):
     claude_count = len(list((tmp_path / ".claude" / "commands").glob("*.md")))
     codex_count = len(list((tmp_path / ".agents" / "skills").iterdir()))
     kilo_count = len(list((tmp_path / ".kilocode" / "skills").iterdir()))
-    assert claude_count == codex_count == kilo_count
+    assert claude_count == codex_count - len(load_internal_skill_names(SKILLS_DIR))
+    assert codex_count == kilo_count
+
+
+def test_distribute_omits_internal_skills_from_claude(tmp_path):
+    distribute(SKILLS_DIR, tmp_path)
+    for internal_name in load_internal_skill_names(SKILLS_DIR):
+        assert not (tmp_path / ".claude" / "commands" / f"{internal_name}.md").exists()
+        assert (tmp_path / ".agents" / "skills" / internal_name / "SKILL.md").exists()

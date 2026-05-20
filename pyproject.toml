@@ -28,7 +28,7 @@ dev = [
 ]
 
 [project.scripts]
-foss-audit     = "scripts.audit:main"
+foss-audit     = "scripts.pipeline.commands.content.audit:main"
 foss-check     = "scripts.check_setup:main"
 foss-materialize = "scripts.materialize:main"
 foss-verify    = "scripts.verify:main"

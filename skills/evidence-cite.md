@@ -29,7 +29,7 @@ Do **not** include a `ground_check:` field — it is self-reported and unverifia
 Run `attach_evidence.py`. It is deterministic and requires no LLM:
 
 ```bash
-python scripts/pipeline/attach_evidence.py --files {content-file-path}
+python scripts/pipeline/commands/content/attach_evidence.py --files {content-file-path}
 ```
 
 This script:
@@ -80,7 +80,7 @@ evidence:
 ## Pre-conditions
 1. Content file must exist
 2. `knowledge/{family}/{platform}/merged/` must exist
-3. Run `python scripts/pipeline/audit.py --files {path}` first — fix all FAIL findings before attaching evidence
+3. Run `python scripts/pipeline/commands/content/audit.py --files {path}` first — fix all FAIL findings before attaching evidence
 
 ## Post-conditions
 - Content file frontmatter contains a valid `evidence:` block
@@ -94,5 +94,5 @@ evidence:
 
 When `knowledge/{family}/{platform}/merged/model.yaml` is updated (new product version):
 - `audit.py` will emit WARN "Evidence stale: model updated" for all pages with old `model_sha`
-- Fix by rerunning: `python scripts/pipeline/attach_evidence.py {family} {platform}`
+- Fix by rerunning: `python scripts/pipeline/commands/content/attach_evidence.py {family} {platform}`
 - This is safe to run at any time; pages already current are skipped

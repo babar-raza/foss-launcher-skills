@@ -48,12 +48,15 @@ if ($Standalone) {
 } else {
     # --- Embedded mode (original behavior) ---
 
-    # 1. Copy scripts
+    # 1. Copy scripts package tree
     Write-Host "--- Copying scripts/ ---" -ForegroundColor Yellow
     $scriptsTarget = Join-Path $Target "scripts"
     if (-not (Test-Path $scriptsTarget)) { New-Item -ItemType Directory -Path $scriptsTarget | Out-Null }
-    Copy-Item "$ScriptDir\scripts\*.py" $scriptsTarget -Force -ErrorAction SilentlyContinue
-    Copy-Item "$ScriptDir\scripts\requirements.txt" $scriptsTarget -Force -ErrorAction SilentlyContinue
+    Copy-Item "$ScriptDir\scripts\*" $scriptsTarget -Recurse -Force
+    Get-ChildItem $scriptsTarget -Recurse -Directory -Filter "__pycache__" -ErrorAction SilentlyContinue |
+        Remove-Item -Recurse -Force
+    Get-ChildItem $scriptsTarget -Recurse -File -Filter "*.pyc" -ErrorAction SilentlyContinue |
+        Remove-Item -Force
     Write-Host "Done."
 
     # 2. Copy configs/

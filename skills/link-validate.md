@@ -31,13 +31,13 @@ Use before publishing to catch stale cross-site links that would result in 404s 
 
    ```bash
    # One product:
-   python scripts/pipeline/link_validator.py {family} {platform}
+   python scripts/pipeline/commands/ops/link_validator.py {family} {platform}
 
    # Specific files:
-   python scripts/pipeline/link_validator.py --files path/to/file.md
+   python scripts/pipeline/commands/ops/link_validator.py --files path/to/file.md
 
    # All content:
-   python scripts/pipeline/link_validator.py all
+   python scripts/pipeline/commands/ops/link_validator.py all
    ```
 
 2. **Review BROKEN findings**. Each BROKEN finding shows:
@@ -53,7 +53,7 @@ Use before publishing to catch stale cross-site links that would result in 404s 
 
 4. **JSON output for CI integration**:
    ```bash
-   python scripts/pipeline/link_validator.py {family} {platform} --json \
+   python scripts/pipeline/commands/ops/link_validator.py {family} {platform} --json \
      > reports/link-validation/{family}-{platform}-{timestamp}.json
    ```
 

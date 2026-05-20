@@ -109,13 +109,13 @@ Default weight for unlisted platforms: 80.
 
 9. **Attach evidence**:
    ```bash
-   python scripts/pipeline/attach_evidence.py \
+   python scripts/pipeline/commands/content/attach_evidence.py \
      --files $CONTENT_REPO_PATH/content/docs.aspose.org/en/{family}/{platform}/_index.md
    ```
 
 10. **Run audit**:
     ```bash
-    python scripts/pipeline/audit.py \
+    python scripts/pipeline/commands/content/audit.py \
       --files $CONTENT_REPO_PATH/content/docs.aspose.org/en/{family}/{platform}/_index.md
     ```
     Must exit with 0 FAIL before confirming success.

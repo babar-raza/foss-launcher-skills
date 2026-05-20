@@ -164,13 +164,13 @@ If no existing content is found for a site type → WARN and proceed (generation
 
 After knowledge extraction, materialize evidence and build the decision manifest:
 
-### Step 1.5a — Materialize evidence (S-40)
+### Step 1.5a — Materialize evidence (S-44)
 
 Invoke: `/evidence-materialize {family} {platform}`
 
 Expected output: `evidence/{family}/{platform}/pef.json`
 
-### Step 1.5b — Build mental model (S-41)
+### Step 1.5b — Build mental model (S-45)
 
 Invoke: `/mental-model {family} {platform}`
 

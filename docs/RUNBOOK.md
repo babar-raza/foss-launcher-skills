@@ -78,6 +78,20 @@ page-update → new pages → page-retire → reference update → family-sync �
 
 ### 6. Translate content
 
+> **Backend requirement**: Translation skills (S-99, S-100, S-107, S-101) require a translation
+> backend that must be configured separately. Before invoking any translation skill, run the
+> preflight check to confirm availability:
+> ```bash
+> python -m translator preflight
+> ```
+> Three backends are supported: `llm` (requires `LLM_API_KEY`), `m2m` (local model, no API key),
+> and `ollama` (self-hosted). Configure the backend in `scripts/translator/` before running.
+> If the backend is not installed, translation commands will fail with `ModuleNotFoundError`.
+> Install the translator extra dependencies with:
+> ```bash
+> pip install -r scripts/translator/requirements.txt
+> ```
+
 ```
 # Single page:
 /translate-page content/docs.aspose.org/en/{family}/{platform}/{page}.md fr,de,ar
@@ -279,13 +293,13 @@ When `path_guard.py` blocks a write path and you need a one-time override:
 
 ```bash
 # Create override token
-python scripts/pipeline/override_manager.py create --path content/foo/bar.md --reason "emergency fix"
+python scripts/pipeline/commands/ops/override_manager.py create --path content/foo/bar.md --reason "emergency fix"
 
 # List active tokens
-python scripts/pipeline/override_manager.py list
+python scripts/pipeline/commands/ops/override_manager.py list
 
 # Revoke token after use
-python scripts/pipeline/override_manager.py revoke --token-id {id}
+python scripts/pipeline/commands/ops/override_manager.py revoke --token-id {id}
 ```
 
 Override tokens expire after 1 hour by default. The post-commit hook auto-revokes
@@ -297,16 +311,16 @@ The `session_ledger.py` tracks which files were modified in a session to scope c
 
 ```bash
 # Start a new session
-python scripts/pipeline/session_ledger.py start
+python scripts/pipeline/commands/ops/session_ledger.py start
 
 # Record a file touch
-python scripts/pipeline/session_ledger.py touch content/docs.aspose.org/en/slides/net/index.md
+python scripts/pipeline/commands/ops/session_ledger.py touch content/docs.aspose.org/en/slides/net/index.md
 
 # Get files for commit scope
-python scripts/pipeline/session_ledger.py list-touched
+python scripts/pipeline/commands/ops/session_ledger.py list-touched
 
 # Finalize session after commit
-python scripts/pipeline/session_ledger.py finalize --commit-sha $(git rev-parse HEAD)
+python scripts/pipeline/commands/ops/session_ledger.py finalize --commit-sha $(git rev-parse HEAD)
 ```
 
 Sessions are stored in `reports/sessions/` (gitignored).
@@ -317,17 +331,17 @@ Track skill invocations for audit trail and commit message validation:
 
 ```bash
 # Create a pending run record
-python scripts/pipeline/skill_run_manager.py create --skills S-48 S-23
+python scripts/pipeline/commands/ops/skill_run_manager.py create --skills S-48 S-23
 
 # Record step completion
-python scripts/pipeline/skill_run_manager.py record-step \
+python scripts/pipeline/commands/ops/skill_run_manager.py record-step \
   --run-id {id} --skill S-48 --type full
 
 # Get declared skills for commit message
-python scripts/pipeline/skill_run_manager.py get-declared-skills --run-id {id}
+python scripts/pipeline/commands/ops/skill_run_manager.py get-declared-skills --run-id {id}
 
 # Finalize after commit
-python scripts/pipeline/skill_run_manager.py finalize \
+python scripts/pipeline/commands/ops/skill_run_manager.py finalize \
   --run-id {id} --outcome success --commit-sha {sha}
 ```
 
@@ -336,7 +350,7 @@ python scripts/pipeline/skill_run_manager.py finalize \
 Before any product launch, run all automated gates:
 
 ```bash
-python scripts/pipeline/launch_gate.py {family} {platform}
+python scripts/pipeline/commands/launch/launch_gate.py {family} {platform}
 ```
 
 Gate IDs and what they check:
@@ -355,10 +369,10 @@ Check which content pages have evidence pointing to an outdated knowledge SHA:
 
 ```bash
 # Markdown report
-python scripts/pipeline/stale_detect.py {family} {platform}
+python scripts/pipeline/commands/ops/stale_detect.py {family} {platform}
 
 # JSON report
-python scripts/pipeline/stale_detect.py {family} {platform} --json
+python scripts/pipeline/commands/ops/stale_detect.py {family} {platform} --json
 ```
 
 Exit code 0 = no stale pages; exit code 1 = stale pages found.
@@ -369,8 +383,8 @@ After running `/refresh-product`, verify the refresh completed correctly:
 
 ```bash
 # Check progress
-python scripts/pipeline/post_refresh_verify.py {family} {platform} --status
+python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --status
 
 # Run verification gate
-python scripts/pipeline/post_refresh_verify.py {family} {platform} --verify
+python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --verify
 ```

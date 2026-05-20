@@ -48,13 +48,13 @@ For each file:
 
 1. **Run attach_evidence.py with --force**:
    ```bash
-   python scripts/pipeline/attach_evidence.py --files {path} --force
+   python scripts/pipeline/commands/content/attach_evidence.py --files {path} --force
    ```
 
 2. **Verify Stage 1 result**:
    ```bash
-   python scripts/pipeline/validate_frontmatter.py {path}
-   python scripts/pipeline/audit.py --files {path}
+   python scripts/pipeline/commands/content/validate_frontmatter.py {path}
+   python scripts/pipeline/commands/content/audit.py --files {path}
    ```
    - If both exit 0 → report **REPAIRED (auto)** and stop.
    - If either still fails → proceed to Stage 2.
@@ -79,8 +79,8 @@ For each file:
 
 8. **Verify Stage 2 result**:
    ```bash
-   python scripts/pipeline/validate_frontmatter.py {path}
-   python scripts/pipeline/audit.py --files {path}
+   python scripts/pipeline/commands/content/validate_frontmatter.py {path}
+   python scripts/pipeline/commands/content/audit.py --files {path}
    ```
    - If both exit 0 → report **REPAIRED (reasoning)** and stop.
    - If either still fails → proceed to Safe-Escape.

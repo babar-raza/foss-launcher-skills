@@ -32,7 +32,7 @@ a complete picture of what changes are needed.
 
 1. **Run the site planner in update mode**:
    ```bash
-   python scripts/pipeline/site_planner.py {family} {platform} --mode update
+   python scripts/pipeline/commands/launch/site_planner.py {family} {platform} --mode update
    ```
 
 2. **Review the delta output**:

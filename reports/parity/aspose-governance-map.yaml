@@ -1,0 +1,157 @@
+# reports/parity/aspose-governance-map.yaml
+# Generated 2026-05-15 — PAR-009
+
+governance_docs:
+  - filename: changelog.md
+    path: docs/governance/changelog.md
+    category: governance
+    size_bytes: 3718
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: dar-table.md
+    path: docs/governance/dar-table.md
+    category: governance
+    size_bytes: 14519
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: evidence-and-provenance.md
+    path: docs/governance/evidence-and-provenance.md
+    category: governance
+    size_bytes: 10176
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: launch-gates.md
+    path: docs/governance/launch-gates.md
+    category: governance
+    size_bytes: 14734
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: naming-conventions.md
+    path: docs/governance/naming-conventions.md
+    category: governance
+    size_bytes: 3488
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: provenance-rules.md
+    path: docs/governance/provenance-rules.md
+    category: governance
+    size_bytes: 23274
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: python-placement.md
+    path: docs/governance/python-placement.md
+    category: governance
+    size_bytes: 3280
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: read-order.md
+    path: docs/governance/read-order.md
+    category: governance
+    size_bytes: 5987
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: testing-seam-contract.md
+    path: docs/governance/testing-seam-contract.md
+    category: governance
+    size_bytes: 7622
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: write-boundaries.md
+    path: docs/governance/write-boundaries.md
+    category: governance
+    size_bytes: 11080
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: causal-backtracking.md
+    path: docs/workflows/causal-backtracking.md
+    category: workflow
+    size_bytes: 4539
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: change-trigger-matrix.md
+    path: docs/workflows/change-trigger-matrix.md
+    category: workflow
+    size_bytes: 4890
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: claim-injection.md
+    path: docs/workflows/claim-injection.md
+    category: workflow
+    size_bytes: 7236
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: completion-verification.md
+    path: docs/workflows/completion-verification.md
+    category: workflow
+    size_bytes: 1702
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: evaluator-changes.md
+    path: docs/workflows/evaluator-changes.md
+    category: workflow
+    size_bytes: 14692
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: forced-validation.md
+    path: docs/workflows/forced-validation.md
+    category: workflow
+    size_bytes: 4435
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: gap-escalation.md
+    path: docs/workflows/gap-escalation.md
+    category: workflow
+    size_bytes: 7247
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: heal-policy.md
+    path: docs/workflows/heal-policy.md
+    category: workflow
+    size_bytes: 5753
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: maintenance.md
+    path: docs/workflows/maintenance.md
+    category: workflow
+    size_bytes: 1470
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: mental-model-refresh.md
+    path: docs/workflows/mental-model-refresh.md
+    category: workflow
+    size_bytes: 1735
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: refresh-architecture.md
+    path: docs/workflows/refresh-architecture.md
+    category: workflow
+    size_bytes: 5744
+    foss_equivalent: null
+    gap_classification: missing_documentation
+
+  - filename: skill-chains.md
+    path: docs/workflows/skill-chains.md
+    category: workflow
+    size_bytes: 19432
+    foss_equivalent: null
+    gap_classification: missing_documentation

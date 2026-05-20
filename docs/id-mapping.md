@@ -114,6 +114,10 @@ the two repos assigned IDs independently. The same S-XX number does NOT mean the
 | S-103 | change-sweep | S-94 | change-sweep | Ported 2026-04-27 |
 | S-104 | discovery-triage | S-95 | discovery-triage | Ported 2026-04-27 |
 | S-105 | section-enhance | S-96 | section-enhance | Ported 2026-04-27 |
+| S-106 | cleanroom-regen | S-97 | cleanroom-regen | Ported; aspose S-97 |
+| S-107 | translate | *(none)* | *(none)* | foss-only dispatcher skill |
+| S-108 | content-enrich | S-83 | content-enrich | Ported; aspose S-83 |
+| S-109 | seo-review | *(none)* | *(none)* | foss-only governance gate |
 
 ---
 
@@ -126,12 +130,15 @@ the two repos assigned IDs independently. The same S-XX number does NOT mean the
 | S-45 | mental-model | foss evidence pipeline (new) |
 | S-46 | evidence-verify | foss evidence pipeline (new) |
 | S-48 | content-eval | foss multi-dimensional evaluator (new) |
+| S-107 | translate | foss dispatcher: routes to translate-page or translate-batch |
+| S-109 | seo-review | foss governance gate for SEO recommendations |
 
-## Skills Unique to aspose.org (not ported)
+## Skills Unique to aspose.org (not ported to foss-launcher)
 
-None -- all aspose.org skills have been ported as of 2026-04-27.
-Foss IDs S-102 through S-105 assigned to repo-patrol, change-sweep, discovery-triage, section-enhance.
-Translator scripts (`scripts/translator/`) still need to be ported (TC-P-01 infrastructure).
+| aspose.org ID | Name | Notes |
+|---|---|---|
+| S-99 | pipeline-harden | Pipeline hardening/maintenance workflow (18.6KB); high relevance — port recommended |
+| S-100 | blog-migrate | Blog migration workflow (7.65KB); lower relevance for standalone repo |
 
 ---
 

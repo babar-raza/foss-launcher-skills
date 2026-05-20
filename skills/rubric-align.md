@@ -41,7 +41,7 @@ Evaluate a content page against a quality rubric and produce a detailed gap anal
 
 4. **Score each dimension** (A through F):
    - **Completeness**: Count relevant claims from claims.json; count how many appear in content
-   - **Evidence density**: Count factual paragraphs; count those with `<!-- evidence: -->` comments
+   - **Evidence density**: Count factual sections and compare them with claim/API coverage in the YAML `evidence:` frontmatter block
    - **Code quality**: Check language identifiers, API verification, snippet provenance
    - **Structure**: Check frontmatter, headings, dividers, template section order
    - **API accuracy**: Cross-reference all class/method names against api_surface.json

@@ -152,7 +152,7 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
 
 12. **Attach evidence**:
     ```bash
-    python scripts/pipeline/attach_evidence.py \
+    python scripts/pipeline/commands/content/attach_evidence.py \
       --files $CONTENT_REPO_PATH/content/products.aspose.org/en/{family}/{platform}/_index.md
     ```
 
@@ -165,7 +165,7 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
 
 14. **Run audit**:
     ```bash
-    python scripts/pipeline/audit.py \
+    python scripts/pipeline/commands/content/audit.py \
       --files $CONTENT_REPO_PATH/content/products.aspose.org/en/{family}/{platform}/_index.md
     ```
     Must exit with 0 FAIL before committing.
@@ -180,7 +180,7 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
 
 16. **Run smoke test** (Python platform only):
     ```bash
-    python scripts/pipeline/smoke_test.py \
+    python scripts/pipeline/commands/diagnostics/smoke_test.py \
       --files $CONTENT_REPO_PATH/content/products.aspose.org/en/{family}/{platform}/_index.md
     ```
     Must exit 0.
