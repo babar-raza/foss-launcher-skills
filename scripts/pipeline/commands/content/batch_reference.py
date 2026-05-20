@@ -31,6 +31,7 @@ verified: 2026-04-07
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import logging
 import re
@@ -729,7 +730,33 @@ def _build_page(
         except Exception as exc:
             LOG.warning("backlink: See Also generation failed for %s/%s: %s", family, platform, exc)
 
-    return "\n".join(lines)
+    # TC-GATE4B: Compute content_hash from the body so the commit hook's
+    # provenance_normalize_hash step is a no-op (hash already correct).
+    # This prevents the RECONCILE_DRIFTED loop where generator omits
+    # content_hash, hook adds it, and manifest output drifts.
+    #
+    # Body is everything after the closing "---\n" of frontmatter.
+    # Use the EXACT same regex as provenance.compute_content_hash to ensure
+    # identical body extraction (provenance._FRONTMATTER_RE).
+    full_text = "\n".join(lines)
+    _FM_RE = re.compile(r"^(---\s*\n)(.*?)(\n---\s*(?:\n|$))", re.DOTALL)
+    fm_match = _FM_RE.match(full_text)
+    body = full_text[fm_match.end():] if fm_match else full_text
+    # Normalize body the same way provenance.compute_content_hash does:
+    # CRLF->LF, strip trailing whitespace per line
+    normalized = "\n".join(
+        line.rstrip() for line in body.replace("\r\n", "\n").splitlines()
+    )
+    content_hash = hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:32]
+    # Insert content_hash into provenance block (after content_created_at line)
+    lines_out = []
+    inserted = False
+    for line in lines:
+        lines_out.append(line)
+        if not inserted and line.strip().startswith("content_created_at:"):
+            lines_out.append(f"  content_hash: {content_hash}")
+            inserted = True
+    return "\n".join(lines_out)
 
 
 def _get_family_display(family: str, platform: str, target_type: str | None = None) -> str:

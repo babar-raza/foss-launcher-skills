@@ -1420,3 +1420,91 @@ class TestGetFamilyDisplay:
         from batch_reference import _get_family_display
         result = _get_family_display("pdf", "java", target_type="unknown_value")
         assert "for Java" in result
+
+
+# ---------------------------------------------------------------------------
+# TC-GATE4B: content_hash stability — generator output matches hook computation
+# ---------------------------------------------------------------------------
+
+
+class TestContentHashStability:
+    """Verify _build_page includes content_hash that matches provenance.compute_content_hash.
+
+    This prevents the RECONCILE_DRIFTED loop where the generator omits content_hash,
+    the commit hook adds it, and the manifest output hash drifts from the generation
+    snapshot — causing Gate 4B to fail after commit.
+    """
+
+    @staticmethod
+    def _make_entry(**overrides):
+        base = {
+            "name": "StabilityTest",
+            "kind": "class",
+            "methods": [{"name": "run", "params": [], "returns": "void", "doc": ""}],
+            "properties": [{"name": "val", "type": "int", "access": "Read", "doc": ""}],
+            "bases": [],
+            "doc": "",
+        }
+        base.update(overrides)
+        return base
+
+    def test_build_page_includes_content_hash(self):
+        """_build_page output must contain a content_hash line."""
+        import re
+        result = _build_page(self._make_entry(), "cells", "java",
+                             model_sha="abc", model_version="1.0")
+        assert re.search(r"content_hash:\s+[0-9a-f]{32}", result), \
+            "Generator must include content_hash in provenance block"
+
+    def test_content_hash_matches_hook_computation(self, tmp_path):
+        """Generator content_hash must equal provenance.compute_content_hash on the same text."""
+        import re
+        from lib.provenance import compute_content_hash
+
+        result = _build_page(self._make_entry(), "cells", "java",
+                             model_sha="abc", model_version="1.0")
+        gen_hash = re.search(r"content_hash:\s+([0-9a-f]{32})", result).group(1)
+
+        tmp_file = tmp_path / "test.md"
+        tmp_file.write_text(result, encoding="utf-8")
+        hook_hash = compute_content_hash(tmp_file)
+
+        assert gen_hash == hook_hash, (
+            f"Generator hash {gen_hash} != hook hash {hook_hash}. "
+            "This will cause RECONCILE_DRIFTED after commit."
+        )
+
+    def test_content_hash_stable_across_categories(self, tmp_path):
+        """content_hash is correct for class, enum, and interface pages."""
+        import re
+        from lib.provenance import compute_content_hash
+
+        for kind, category in [("class", "Class"), ("enum", "Enum"), ("interface", "Interface")]:
+            entry = self._make_entry(kind=kind)
+            if kind == "enum":
+                entry["enum_members"] = [{"name": "A"}, {"name": "B"}]
+            result = _build_page(entry, "cells", "java",
+                                 model_sha="abc", model_version="1.0")
+            gen_hash = re.search(r"content_hash:\s+([0-9a-f]{32})", result).group(1)
+            tmp_file = tmp_path / f"test_{kind}.md"
+            tmp_file.write_text(result, encoding="utf-8")
+            hook_hash = compute_content_hash(tmp_file)
+            assert gen_hash == hook_hash, \
+                f"{kind}: generator {gen_hash} != hook {hook_hash}"
+
+    def test_hook_normalization_is_noop_after_generation(self, tmp_path):
+        """After writing _build_page output, provenance_normalize_hash must not change the file."""
+        from provenance_normalize_hash import normalize_file
+
+        result = _build_page(self._make_entry(), "cells", "java",
+                             model_sha="abc", model_version="1.0")
+        tmp_file = tmp_path / "test.md"
+        tmp_file.write_text(result, encoding="utf-8")
+        original = tmp_file.read_text(encoding="utf-8")
+
+        status = normalize_file(tmp_file, apply=True, auto_stage=False)
+        assert status == "skipped", f"Expected 'skipped' (hash already correct), got '{status}'"
+
+        after = tmp_file.read_text(encoding="utf-8")
+        assert original == after, \
+            "provenance_normalize_hash must be a no-op on freshly generated pages"
