@@ -54,6 +54,22 @@ scripts:
     deprecated_since: null
     notes: "wrapper → evidence.runner.main()"
 
+  - path: scripts/pipeline/commands/healing/repair_grade_reasons_yaml.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: healing
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "one-shot repair script; detection and fix logic verified manually (242 files fixed, WARN 285->51)"
+    deprecated_since: null
+    notes: "repairs malformed grade_reasons YAML in frontmatter (bare list items after graded_content_hash:); same corruption class as commit 04a445a1a7"
+
   - path: scripts/pipeline/commands/healing/backtrack_controller.py
     kind: entrypoint
     lifecycle: active
