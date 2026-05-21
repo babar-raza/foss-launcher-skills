@@ -27,7 +27,8 @@
       "Read(//d/onedrive/Documents/GitHub/aspose.net/**)",
       "Bash(.venv/Scripts/python.exe -m pytest ops/tests/ scripts/validation/ -q --tb=short)",
       "Bash(gh pr view 1 --repo aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript --json state,mergeable,mergeStateStatus,headRefOid)",
-      "Bash(ROOT_WRITE_AUTHORIZED=1 echo \"testing env var pass-through\")"
+      "Bash(ROOT_WRITE_AUTHORIZED=1 echo \"testing env var pass-through\")",
+      "Bash(.venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py groups --format json)"
     ],
     "additionalDirectories": [
       "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing",
