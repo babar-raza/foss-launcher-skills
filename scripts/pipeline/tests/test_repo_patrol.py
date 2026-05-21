@@ -138,7 +138,7 @@ class TestCmdScan:
         repos = [_make_repo("Aspose.PDF-FOSS-for-Python")]
 
         # T3-MOCK: target=org_scanner.scan_orgs reason="HTTP boundary" removal=PERMANENT
-        with patch("org_scanner.scan_orgs", return_value=repos):
+        with patch("lib.org_scanner.scan_orgs", return_value=repos):
             report = repo_patrol.cmd_scan(orgs=["test-org"], apply=False)
 
         assert report["summary"]["new_candidates"] == 1
@@ -152,7 +152,7 @@ class TestCmdScan:
         (tmp_path / "data" / "products.json").write_text("[]")
         repos = [_make_repo("Aspose.PDF-FOSS-for-Python")]
 
-        with patch("org_scanner.scan_orgs", return_value=repos):
+        with patch("lib.org_scanner.scan_orgs", return_value=repos):
             report = repo_patrol.cmd_scan(orgs=["test-org"], apply=True)
 
         reg = json.loads((tmp_path / "data" / "products.json").read_text())
@@ -165,7 +165,7 @@ class TestCmdScan:
         (tmp_path / "data" / "products.json").write_text(json.dumps(reg))
         repos = [_make_repo("Aspose.PDF-FOSS-for-Python")]
 
-        with patch("org_scanner.scan_orgs", return_value=repos):
+        with patch("lib.org_scanner.scan_orgs", return_value=repos):
             report = repo_patrol.cmd_scan(orgs=["test-org"])
 
         assert report["summary"]["new_candidates"] == 0
@@ -177,7 +177,7 @@ class TestCmdScan:
         (tmp_path / "data" / "products.json").write_text(json.dumps(reg))
         repos = [_make_repo("Aspose.PDF-FOSS-for-Python")]
 
-        with patch("org_scanner.scan_orgs", return_value=repos):
+        with patch("lib.org_scanner.scan_orgs", return_value=repos):
             report = repo_patrol.cmd_scan(orgs=["test-org"], force=False)
 
         assert report["summary"]["skipped"] == 1
@@ -186,7 +186,7 @@ class TestCmdScan:
         (tmp_path / "data" / "products.json").write_text("[]")
         repos = [_make_repo("random-unrelated-repo")]
 
-        with patch("org_scanner.scan_orgs", return_value=repos):
+        with patch("lib.org_scanner.scan_orgs", return_value=repos):
             report = repo_patrol.cmd_scan(orgs=["test-org"])
 
         assert report["summary"]["unclassifiable"] >= 1
@@ -196,7 +196,7 @@ class TestCmdScan:
         (tmp_path / "data" / "products.json").write_text(json.dumps(reg))
         repos = [_make_repo("Aspose.PDF-FOSS-for-Python", archived=True)]
 
-        with patch("org_scanner.scan_orgs", return_value=repos):
+        with patch("lib.org_scanner.scan_orgs", return_value=repos):
             report = repo_patrol.cmd_scan(orgs=["test-org"])
 
         assert report["summary"]["status_changes"] == 1
@@ -207,7 +207,7 @@ class TestCmdScan:
         (tmp_path / "data" / "products.json").write_text(json.dumps(reg))
         repos = [_make_repo("Aspose.PDF-FOSS-for-Python", pushed_days=200)]
 
-        with patch("org_scanner.scan_orgs", return_value=repos):
+        with patch("lib.org_scanner.scan_orgs", return_value=repos):
             report = repo_patrol.cmd_scan(orgs=["test-org"])
 
         assert report["summary"]["status_changes"] == 1
@@ -218,7 +218,7 @@ class TestCmdScan:
         (tmp_path / "data" / "products.json").write_text(json.dumps(reg))
         repos = [_make_repo("Aspose.PDF-FOSS-for-Python", pushed_days=50)]
 
-        with patch("org_scanner.scan_orgs", return_value=repos):
+        with patch("lib.org_scanner.scan_orgs", return_value=repos):
             report = repo_patrol.cmd_scan(orgs=["test-org"], inactive_days=30)
 
         assert report["summary"]["status_changes"] == 1

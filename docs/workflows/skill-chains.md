@@ -52,7 +52,6 @@ S-12 (knowledge-diff — detect + fetch)       [exits early if no SHA change]
 → S-48 (family-sync)
 → S-23 (content-check on all changed files)
 → S-65 (link-validate)
-→ S-53 (translate-batch — content_hash-changed pages only)
 → post_refresh_verify --step (progress tracking after each step)
 → post_refresh_verify --verify (verification gate; must exit 0 before commit)
 → S-76 (commit)
@@ -358,6 +357,31 @@ the same `Write` call as the frontmatter) achieves `verified_at_creation` per §
 **Launch gate enforcement:** `launch_gate.py` Check 2b (L-02b) blocks launch for any English
 page missing `content_origin` in its provenance block. This check fires at the launch gate
 to prevent pages that bypassed the skill contract from reaching production.
+
+### Change sweep routing (S-94 → S-14 semantic classification) — VVR-TC04-001
+
+When S-94 (change-sweep) detects a SHA change for a product, it does **not** directly
+invoke S-84 (refresh-product). Instead, S-94 routes to S-14 (knowledge-diff) for semantic
+classification first:
+
+```
+S-94 (change-sweep) — detects SHA changes across all products
+  → S-14 (knowledge-diff) — semantic classification of what changed
+      → HIGH/MEDIUM impact  → S-12 (knowledge-update) full pipeline, then S-84 content chain
+      → LOW impact          → S-84 (refresh-product) directly, or defer to backlog
+```
+
+**Classification logic (S-14)**:
+- S-14 compares the upstream SHA against the cached `merged/model.yaml` SHA
+- It classifies the delta as HIGH, MEDIUM, or LOW impact based on changed API members
+  and claim-bearing files
+- HIGH/MEDIUM impact: S-12 runs the full scout → enrich → promote → index pipeline,
+  then S-84 completes the content update chain
+- LOW impact: S-84 may run without re-running S-12, or operator defers to the next
+  scheduled sweep cycle via backlog
+
+**Rule**: S-95 (discovery-triage) NEVER directly invokes S-12 or S-84. All sweep findings
+route to backlog items only. The operator reviews and manually triggers the appropriate chain.
 
 ### Plan execution gate
 

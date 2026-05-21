@@ -91,7 +91,7 @@ def _make_router_registry(tmp_path: Path) -> Path:
                     "endpoint": "/embeddings",
                     "model": "qwen3-embedding-8b",
                     "default_timeout": 30,
-                    "embed_dimensions": 4096,
+                    "embed_dimensions": 4,
                 },
             },
             "ollama": {

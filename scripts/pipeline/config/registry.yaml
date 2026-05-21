@@ -2770,3 +2770,19 @@ scripts:
     deprecated_since: null
     change_impact: null
     notes: "Regenerates products: block in content/websites.aspose.org English + 36 locale domain pages from authoritative data files"
+
+  - path: scripts/pipeline/commands/ops/assemble_evidence_bundle.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "new script, E2E tested manually; unit tests in future sprint"
+    deprecated_since: null
+    notes: "bundles evidence artifacts for a product; validates HEAD SHA against model.yaml and evidence frontmatter"

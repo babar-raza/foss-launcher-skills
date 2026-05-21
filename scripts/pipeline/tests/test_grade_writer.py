@@ -1115,3 +1115,78 @@ class TestD1GradedAtRemoval:
             f"D-1 discrepancy: grade_writer={CANONICAL_FRONTMATTER_FIELDS}, "
             f"MIG-01={mig01_fields}"
         )
+
+
+# ---------------------------------------------------------------------------
+# SR-09: Orphan guard repair — write_grade on pre-corrupted files
+# ---------------------------------------------------------------------------
+
+class TestOrphanGuardRepair:
+    """write_grade() must produce valid YAML even when the input file has
+    orphaned grade keys or bare root-level list items from a prior corrupt write."""
+
+    def test_write_on_pre_corrupted_file_cleans_orphans(self):
+        """write_grade on a file with orphaned bare list items must produce valid YAML."""
+        import yaml
+        corrupted_fm = textwrap.dedent("""\
+            ---
+            title: T
+            grade: C
+            graded_content_hash: "abc123abc123abc123abc123abc123ab"
+            grade_reasons:
+              - "old reason"
+            - orphaned item
+            ---
+            Body.
+        """)
+        p = _tmp_file(corrupted_fm)
+        try:
+            ok = write_grade(p, "A", model_sha="sha1", grade_reasons=["clean reason"])
+            assert ok, "write_grade must return True on pre-corrupted file"
+            text = p.read_text(encoding="utf-8")
+            # Must be valid YAML
+            parts = text.split("---")
+            assert len(parts) >= 3, "Frontmatter delimiters must be intact"
+            parsed = yaml.safe_load(parts[1])
+            assert isinstance(parsed, dict), "Frontmatter must parse as a dict"
+            # Must have exactly one grade_reasons block
+            assert text.count("grade_reasons:") == 1
+            # Orphaned item must be gone
+            assert "orphaned item" not in text
+            # New content must be present
+            assert "clean reason" in text
+            assert "grade: A" in text
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_write_on_file_with_duplicate_grade_block_cleans_extras(self):
+        """write_grade on a file with two grade blocks (non-contiguous) must produce valid YAML."""
+        import yaml
+        # Simulate a file where a second grade block leaked outside the first
+        corrupted_fm = textwrap.dedent("""\
+            ---
+            title: T
+            grade: C
+            graded_content_hash: "abc123abc123abc123abc123abc123ab"
+            grade_reasons:
+              - "first block reason"
+            some_other_key: value
+            grade: D
+            graded_content_hash: "def456def456def456def456def456de"
+            ---
+            Body.
+        """)
+        p = _tmp_file(corrupted_fm)
+        try:
+            ok = write_grade(p, "B", model_sha="sha2", grade_reasons=["repair reason"])
+            assert ok, "write_grade must return True on file with duplicate grade blocks"
+            text = p.read_text(encoding="utf-8")
+            parts = text.split("---")
+            assert len(parts) >= 3
+            parsed = yaml.safe_load(parts[1])
+            assert isinstance(parsed, dict), "Frontmatter must parse as a dict"
+            assert text.count("grade_reasons:") == 1
+            assert "repair reason" in text
+            assert "grade: B" in text
+        finally:
+            p.unlink(missing_ok=True)

@@ -10,6 +10,11 @@ import re
 import sys
 from pathlib import Path
 
+try:
+    import yaml as _yaml  # pyyaml -- used for post-write YAML validation
+except ImportError:
+    _yaml = None  # type: ignore[assignment]
+
 _HERE = Path(__file__).resolve().parent
 if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
@@ -273,21 +278,43 @@ def write_grade(
         if existing_stripped == proposed_stripped:
             _log(f"  SKIP {filepath}: grade block unchanged except graded_at -- idempotent no-write")
             return True
-        # Guard: warn if any grade key appears outside the matched block (non-contiguous).
-        # Non-contiguous keys survive the replace, creating orphaned duplicates.
-        outside = fm_text[: m.start()] + fm_text[m.end() :]
-        for key in _GRADE_LINE_KEYS:
-            if re.search(rf"^{re.escape(key)}:", outside, re.MULTILINE):
-                _log(
-                    f"  WARN {filepath}: grade key '{key}' found outside the contiguous "
-                    "grade block -- orphaned key may survive after write."
-                )
+        # Guard: remove orphaned grade keys and bare list items outside the matched block.
+        # Non-contiguous grade keys and root-level bare "- " items (invalid in YAML mapping)
+        # survive a naive replace, leaving corrupt frontmatter that Hugo cannot parse.
+        outside_before = fm_text[: m.start()]
+        outside_after = fm_text[m.end() :]
+        # Strip stray grade-key lines (and their indented continuations)
+        cleaned_before = _GRADE_BLOCK_RE.sub("", outside_before)
+        cleaned_after = _GRADE_BLOCK_RE.sub("", outside_after)
+        # Strip bare root-level list items (always invalid inside a YAML mapping)
+        _bare_list_re = re.compile(r'^- [^\n]*\n?', re.MULTILINE)
+        cleaned_before = _bare_list_re.sub("", cleaned_before)
+        cleaned_after = _bare_list_re.sub("", cleaned_after)
+        if cleaned_before != outside_before or cleaned_after != outside_after:
+            _log(
+                f"  WARN {filepath}: removed orphaned grade keys or bare list items outside "
+                "grade block -- frontmatter was corrupt; investigate the source of the prior write."
+            )
+            fm_text = cleaned_before + m.group() + cleaned_after
         # Replace existing grade block; preserve trailing \n only if original had one
         trail = "\n" if m.group().endswith("\n") else ""
         new_fm = _GRADE_BLOCK_RE.sub(grade_block + trail, fm_text, count=1)
     else:
         # Append after frontmatter content
         new_fm = fm_text.rstrip("\n") + "\n" + grade_block
+
+    # Post-write YAML validation: verify new frontmatter is parseable before writing.
+    # Turns silent corruption into an immediate error at the write site.
+    if _yaml is not None:
+        try:
+            _yaml.safe_load(new_fm)
+        except Exception as _exc:
+            _log(
+                f"  ERROR {filepath}: write_grade produced invalid YAML -- aborting write.\n"
+                f"    Error: {_exc}\n"
+                f"    Frontmatter (first 300 chars): {new_fm[:300]!r}"
+            )
+            return False
 
     new_text = f"{open_fence}{new_fm}{close_fence}{body}"
     atomic_write(filepath, new_text)

@@ -1,0 +1,7 @@
+# Shared dependencies for all governance CI workflows.
+# Update this file when adding imports to any module tested by these workflows.
+# All .github/workflows/*-governance.yml files install from here.
+pyyaml>=6.0
+pytest
+python-dotenv>=1.0
+requests>=2.28

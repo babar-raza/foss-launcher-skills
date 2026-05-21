@@ -9,8 +9,10 @@
 name: refresh-product
 id: S-84
 description: >
-  Orchestrate the full post-launch product refresh cycle: detect changes, update
-  knowledge, plan delta, update content, retire obsolete pages, validate, and commit.
+  Re-generate content for a single product after knowledge update: detect upstream
+  changes, refresh knowledge model, plan delta, update stale pages, generate new pages,
+  retire obsolete pages, validate quality, and commit. Translation runs via separate
+  cadence (AREA9-TRANS-001) and is not part of this chain.
 args: "{family} {platform}"
 ---
 
@@ -23,12 +25,14 @@ Expected format: `{family} {platform}`
 
 ## Purpose
 
-Orchestrate the complete post-launch refresh cycle for a single product. Detects upstream
-changes, refreshes knowledge, plans what content needs to change, updates stale pages,
-generates new pages, retires obsolete pages, validates quality, and commits the result.
+Re-generate content for a single product after a knowledge update. Detects upstream
+changes, refreshes the knowledge model, plans what content needs to change, updates stale
+pages, generates new pages, retires obsolete pages, validates quality, and commits the
+result.
 
-Note: Translation runs independently from the refresh chain (AREA9-TRANS-001).
-After refresh, run `translation_coverage.py` to detect locale staleness.
+**Translation is not part of this chain** — it was decoupled in AREA9-TRANS-001 and runs
+via a separate cadence. After refresh, run `translation_coverage.py` to detect locale
+staleness and trigger translation independently.
 
 This skill is the entry point for the maintenance chain (AGENTS.md §6; full detail: [docs/workflows/skill-chains.md](../docs/workflows/skill-chains.md)). Running it ensures
 the full cycle executes in the correct order with progress tracking and a verification gate

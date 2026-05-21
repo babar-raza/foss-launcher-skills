@@ -42,6 +42,7 @@ ALLOWED_PREFIXES: tuple[str, ...] = (
     "content/kb.aspose.org/",
     "content/products.aspose.org/",
     "content/reference.aspose.org/",
+    "content/www.aspose.org/",
     "knowledge/",
     "reports/",
     # Hugo-managed registry data — written by update_product_registry.py.

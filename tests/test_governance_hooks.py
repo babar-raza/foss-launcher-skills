@@ -481,6 +481,70 @@ class TestCommitMsgSkills:
         )
         assert result.returncode == 0
 
+    def test_human_commit_no_skills_invoked_exits_0(self):
+        """TC-GOV-15: Human commit (no 'Skills invoked:' line) -> exit 0.
+
+        NOTE: In subprocess tests, git diff --cached is empty (no staged files),
+        so hook exits 0 at the content_staged check before reaching
+        human-commit detection. Full integration test uses tests/governance_pilot.sh.
+        This test verifies the hook does not regress to exit 1 for this path.
+        """
+        import tempfile
+        env = dict(os.environ)
+        for key in list(env.keys()):
+            if key.startswith("SKIP_") or key.startswith("GOV_"):
+                del env[key]
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+            f.write("fix: manual correction to blog frontmatter\n")
+            msg_file = f.name
+        try:
+            result = subprocess.run(
+                [_BASH, _COMMIT_MSG, msg_file],
+                env=env,
+                cwd=str(_REPO_ROOT),
+                capture_output=True,
+                text=True,
+                timeout=15,
+            )
+            assert result.returncode == 0, (
+                f"Expected exit 0 for human commit (no 'Skills invoked:'), got {result.returncode}.\n"
+                f"stdout: {result.stdout}\nstderr: {result.stderr}"
+            )
+        finally:
+            os.unlink(msg_file)
+
+    def test_agent_commit_with_skills_invoked_does_not_exit_as_human(self):
+        """TC-GOV-15 regression: commit with 'Skills invoked:' bypasses human-commit detection.
+
+        Hook continues to Step 1 validation (not human-commit path).
+        Without staged content, exits 0 at content_staged check.
+        Confirms human-commit block does NOT intercept agent-format messages.
+        """
+        import tempfile
+        env = dict(os.environ)
+        for key in list(env.keys()):
+            if key.startswith("SKIP_") or key.startswith("GOV_"):
+                del env[key]
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+            f.write("fix: update docs\n\nSkills invoked: [S-76]\n")
+            msg_file = f.name
+        try:
+            result = subprocess.run(
+                [_BASH, _COMMIT_MSG, msg_file],
+                env=env,
+                cwd=str(_REPO_ROOT),
+                capture_output=True,
+                text=True,
+                timeout=15,
+            )
+            # Exits 0 because no content staged — but must NOT print human-commit INFO
+            assert result.returncode == 0
+            assert "Human commit detected" not in result.stdout, (
+                "Human-commit path incorrectly intercepted an agent-format message."
+            )
+        finally:
+            os.unlink(msg_file)
+
 
 # =========================================================================
 # 10. Regression suite

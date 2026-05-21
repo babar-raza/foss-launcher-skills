@@ -354,4 +354,24 @@ class EvalRunner:
 
         # ARCH-03: Persist manifest after all entries are written
         save_manifest(manifest)
+
+        # Post-write corruption scan: catch any files that _write_grade could not
+        # fully repair (e.g. pre-existing corruption classes the orphan guard missed).
+        # Uses repair_grade_reasons_yaml as a safety net — in steady state the count
+        # should always be 0.  A non-zero count is a signal to investigate grade_writer.py.
+        try:
+            from commands.healing.repair_grade_reasons_yaml import repair_file as _repair_file  # noqa
+            written_paths = [p.filepath for p in pages]
+            repaired = [fp for fp in written_paths if _repair_file(fp, dry_run=False)]
+            if repaired:
+                import logging as _logging
+                _logging.getLogger(__name__).warning(
+                    "POST-EVAL: repair_grade_reasons_yaml fixed %d file(s) after batch write. "
+                    "This indicates a write path issue — investigate grade_writer.py. Files: %s",
+                    len(repaired),
+                    [str(p) for p in repaired],
+                )
+        except ImportError:
+            pass  # repair script unavailable — not fatal
+
         return grade_counts
