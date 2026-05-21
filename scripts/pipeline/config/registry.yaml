@@ -2442,6 +2442,56 @@ scripts:
     change_impact: null
     notes: "Slice 7 CLI: wraps MetricsSubmitter. Default mode is --dry-run. Production requires --owner-approved + env vars."
 
+  # ── fix(pipeline): blog 404 sprint ops scripts (2026-05-20) ─────────────────
+
+  - path: scripts/pipeline/commands/ops/batch_gen_missing.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: "python batch_gen_missing.py"
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "write-only batch orchestrator; invokes existing pipeline commands; no return values to unit-test"
+    requires_test: false
+    deprecated_since: null
+    notes: "Batch-generate all missing site plan pages; used during sprint execution"
+
+  - path: scripts/pipeline/commands/ops/enrich_reference_stubs.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: "python enrich_reference_stubs.py [--dry-run] [--family FAMILY] [--platform PLATFORM]"
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "write-only batch enricher; validated by post-run content diff; no deterministic return values"
+    requires_test: false
+    deprecated_since: null
+    notes: "Batch-enrich reference page stubs with Description prose from api_surface.json"
+
+  - path: scripts/pipeline/commands/ops/fix_broken_links.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: "python fix_broken_links.py [--dry-run] [--path PATH]"
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "write-only link fixer; three fix categories validated by manual spot-check; no deterministic return values"
+    requires_test: false
+    deprecated_since: null
+    notes: "Batch fix broken internal links: cross-subdomain relative links, missing /en/ prefix, dead anchor refs"
+
   # ── S-96 / S-98 additions (2026-05-11) ──────────────────────────────────────
 
   - path: scripts/pipeline/commands/enrichment/content_enrich.py
