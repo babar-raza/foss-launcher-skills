@@ -30,7 +30,7 @@ Arguments for each skill are documented in the `**Arguments**` line at the top o
 
 ## This Tree vs Canonical
 
-This tree (77 files) differs from the canonical `skills/` (84 files) in two ways:
+This tree (77 files) differs from the canonical `skills/` (85 files) in two ways:
 
 ### 1. Internal sub-routines are omitted (8 skills)
 

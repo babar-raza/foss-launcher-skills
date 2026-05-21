@@ -64,6 +64,7 @@
 | update-registry | S-68 | Scan all 26 aspose-{family}-foss GitHub orgs, discover FOSS repos, and write data/products.json (supports --dry-run, --local-only, --force) |
 | new-kb-index | S-69 | Scaffold KB platform section landing page |
 | new-docs-index | S-70 | Scaffold Docs platform section landing page |
+| new-blog-index | S-101 | Scaffold Blog platform section landing page |
 | new-reference-index | S-71 | Scaffold Reference platform section landing page |
 | evidence-repair | S-72 | Repair evidence frontmatter for validator-blocked pages (P-03 or audit FAIL); evidence-frontmatter-only; never modifies body content; fail-closed; supports --dry-run |
 | manual-edit | S-73 | Operator-directed targeted content edit: applies a human-specified targeted change (frontmatter, wording, code block, section rewrite) to a single file under full path-guard, evidence, provenance, and audit trail governance; revert-on-failure; single file per invocation |
