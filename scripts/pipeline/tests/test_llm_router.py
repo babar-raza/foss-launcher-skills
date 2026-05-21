@@ -900,6 +900,46 @@ class TestMapProfStatus:
 
 
 # ---------------------------------------------------------------------------
+# JSON repair and same-provider retry tests (TC-4a / TC-4b)
+# ---------------------------------------------------------------------------
+
+def test_json_repair_recovers_malformed_json(registry_path):
+    """TC-4a: json_repair recovers malformed JSON → status OK, data returned."""
+    try:
+        import json_repair  # noqa: F401  # skip test if not installed
+    except ImportError:
+        pytest.skip("json_repair not installed")
+
+    malformed = '{"a": 1"b": 2}'  # missing comma — classic parse failure
+    response = _prof_chat_resp(f"Here is your data: {malformed}")
+    router = _make_router(registry_path, http_responses=[response])
+
+    result = router.call_chat("sys", "user", json_extract=True)
+
+    assert result.status == EndpointStatus.OK
+    assert isinstance(result.data, dict)
+    assert result.data.get("a") == 1
+    assert result.data.get("b") == 2
+
+
+def test_parse_retry_makes_second_http_call(registry_path):
+    """TC-4b: When repair unavailable and attempt 0 fails, retry makes new HTTP call."""
+    malformed = '{"x": 1"y": 2}'   # missing comma
+    good = '{"x": 1, "y": 2}'
+    responses = [
+        _prof_chat_resp(malformed),  # attempt 0: malformed
+        _prof_chat_resp(good),       # attempt 1: valid
+    ]
+    router = _make_router(registry_path, http_responses=responses)
+
+    with patch("commands.ops.llm_router._HAS_JSON_REPAIR", False):
+        result = router.call_chat("sys", "user", json_extract=True)
+
+    assert result.status == EndpointStatus.OK
+    assert result.data == {"x": 1, "y": 2}
+
+
+# ---------------------------------------------------------------------------
 # Live tests (skipped without API key)
 # ---------------------------------------------------------------------------
 

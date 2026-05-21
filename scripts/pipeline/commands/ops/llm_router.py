@@ -45,6 +45,12 @@ try:
 except ImportError:
     _PROF_CLIENT_AVAILABLE = False
 
+try:
+    import json_repair as _json_repair
+    _HAS_JSON_REPAIR = True
+except ImportError:
+    _HAS_JSON_REPAIR = False
+
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 log = logging.getLogger(__name__)
 
@@ -344,211 +350,258 @@ class LLMRouter:
             mt = max_tokens if max_tokens is not None else chat_cfg.get("default_max_tokens")
 
             # -------------------------------------------------------------- #
-            # ProfessionalizeClient branch (CS-001)                          #
+            # Per-provider attempt loop (max 2 tries on JSON parse failure) #
             # -------------------------------------------------------------- #
-            if name == "professionalize" and _PROF_CLIENT_AVAILABLE:
-                client = self._build_prof_client(provider, call_site_id="CS-001", timeout=t)
-                prof_result = client.chat(
-                    messages=[
-                        {"role": "system", "content": prompt_system},
-                        {"role": "user", "content": prompt_user},
-                    ],
-                    model=model,
-                    temperature=temp,
-                    max_tokens=mt,
-                )
-                accumulated_events.append(prof_result.event)
-                ep_status, err_str = _map_prof_status(prof_result)
+            parsed = None
+            _parse_attempt = 0
+            while _parse_attempt < 2:
+                _skip = False  # True → break inner loop; outer loop advances
 
-                if not prof_result.ok:
-                    log.warning("%s: %s — %s", name, ep_status.value, url)
-                    if first_result is None:
-                        first_result = CallResult(
-                            provider=name, endpoint=url, model=model,
-                            status=ep_status,
-                            http_status=prof_result.http_status or 0,
-                            latency_ms=float(prof_result.latency_ms or 0),
-                            error=err_str,
-                            token_usage=0,
-                            api_calls_count=prof_result.api_calls_count_delta,
-                            metrics_events=list(accumulated_events),
-                        )
-                    continue
-
-                content = prof_result.content or ""
-                elapsed = float(prof_result.latency_ms or 0)
-                token_usage_val = prof_result.total_tokens
-                api_calls_val = prof_result.api_calls_count_delta
-
-            else:
                 # ---------------------------------------------------------- #
-                # requests.post transport (ollama or professionalize unavail.)#
+                # ProfessionalizeClient branch (CS-001)                      #
                 # ---------------------------------------------------------- #
-                if requests is None:
-                    if first_result is None:
-                        first_result = CallResult(
-                            provider=name,
-                            status=EndpointStatus.NOT_CONFIGURED,
-                            error="requests library not installed",
-                        )
-                    continue
-
-                headers = {"Content-Type": "application/json"}
-                if api_key:
-                    headers["Authorization"] = f"Bearer {api_key}"
-
-                body: dict[str, Any] = {
-                    "model": model,
-                    "messages": [
-                        {"role": "system", "content": prompt_system},
-                        {"role": "user", "content": prompt_user},
-                    ],
-                    "temperature": temp,
-                }
-                if mt:
-                    body["max_tokens"] = mt
-
-                start = time.monotonic()
-                try:
-                    resp = requests.post(url, json=body, headers=headers, timeout=t)
-                    elapsed = (time.monotonic() - start) * 1000
-                except requests.exceptions.Timeout:
-                    elapsed = (time.monotonic() - start) * 1000
-                    log.warning("%s: timeout after %.0fms — %s", name, elapsed, url)
-                    if first_result is None:
-                        first_result = CallResult(
-                            provider=name, endpoint=url, model=model,
-                            status=EndpointStatus.UNREACHABLE,
-                            latency_ms=elapsed, error="timeout",
-                        )
-                    continue
-                except Exception as exc:
-                    elapsed = (time.monotonic() - start) * 1000
-                    log.warning("%s: unreachable — %s: %s", name, url, exc)
-                    if first_result is None:
-                        first_result = CallResult(
-                            provider=name, endpoint=url, model=model,
-                            status=EndpointStatus.UNREACHABLE,
-                            latency_ms=elapsed, error=str(exc),
-                        )
-                    continue
-
-                if resp.status_code in (401, 403):
-                    log.warning("%s: auth_failed (HTTP %d) — %s", name, resp.status_code, url)
-                    if first_result is None:
-                        first_result = CallResult(
-                            provider=name, endpoint=url, model=model,
-                            status=EndpointStatus.AUTH_FAILED,
-                            http_status=resp.status_code, latency_ms=elapsed,
-                            error=f"HTTP {resp.status_code}",
-                        )
-                    continue
-
-                if resp.status_code == 404 and name == "ollama":
-                    log.warning("%s: model_missing (HTTP 404) — %s", name, model)
-                    alt_result = self._try_ollama_alternative_models(
-                        provider, chat_cfg, body, headers, t,
-                        json_extract=json_extract, json_array=json_array,
+                if name == "professionalize" and _PROF_CLIENT_AVAILABLE:
+                    client = self._build_prof_client(provider, call_site_id="CS-001", timeout=t)
+                    prof_result = client.chat(
+                        messages=[
+                            {"role": "system", "content": prompt_system},
+                            {"role": "user", "content": prompt_user},
+                        ],
+                        model=model,
+                        temperature=temp,
+                        max_tokens=mt,
                     )
-                    if alt_result is not None:
-                        if first_result is not None:
-                            alt_result.fallback_artifact = self._write_fallback_artifact(
-                                alt_result.provider, first_result, "chat"
+                    accumulated_events.append(prof_result.event)
+                    ep_status, err_str = _map_prof_status(prof_result)
+
+                    if not prof_result.ok:
+                        log.warning("%s: %s — %s", name, ep_status.value, url)
+                        if first_result is None:
+                            first_result = CallResult(
+                                provider=name, endpoint=url, model=model,
+                                status=ep_status,
+                                http_status=prof_result.http_status or 0,
+                                latency_ms=float(prof_result.latency_ms or 0),
+                                error=err_str,
+                                token_usage=0,
+                                api_calls_count=prof_result.api_calls_count_delta,
+                                metrics_events=list(accumulated_events),
                             )
-                        alt_result.metrics_events = list(accumulated_events)
-                        return alt_result
-                    if first_result is None:
-                        first_result = CallResult(
-                            provider=name, endpoint=url, model=model,
-                            status=EndpointStatus.MODEL_MISSING,
-                            http_status=404, latency_ms=elapsed,
-                            error=f"Model '{model}' not found, no alternatives available",
-                        )
-                    continue
+                        _skip = True
+                    else:
+                        content = prof_result.content or ""
+                        elapsed = float(prof_result.latency_ms or 0)
+                        token_usage_val = prof_result.total_tokens
+                        api_calls_val = prof_result.api_calls_count_delta
 
-                if resp.status_code != 200:
-                    log.warning(
-                        "%s: HTTP %d — %s: %s",
-                        name, resp.status_code, url, resp.text[:200],
+                else:
+                    # -------------------------------------------------------- #
+                    # requests.post transport (ollama / professionalize unavail)#
+                    # -------------------------------------------------------- #
+                    if requests is None:
+                        if first_result is None:
+                            first_result = CallResult(
+                                provider=name,
+                                status=EndpointStatus.NOT_CONFIGURED,
+                                error="requests library not installed",
+                            )
+                        _skip = True
+
+                    if not _skip:
+                        headers = {"Content-Type": "application/json"}
+                        if api_key:
+                            headers["Authorization"] = f"Bearer {api_key}"
+
+                        body: dict[str, Any] = {
+                            "model": model,
+                            "messages": [
+                                {"role": "system", "content": prompt_system},
+                                {"role": "user", "content": prompt_user},
+                            ],
+                            "temperature": temp,
+                        }
+                        if mt:
+                            body["max_tokens"] = mt
+
+                        start = time.monotonic()
+                        try:
+                            resp = requests.post(url, json=body, headers=headers, timeout=t)
+                            elapsed = (time.monotonic() - start) * 1000
+                        except requests.exceptions.Timeout:
+                            elapsed = (time.monotonic() - start) * 1000
+                            log.warning("%s: timeout after %.0fms — %s", name, elapsed, url)
+                            if first_result is None:
+                                first_result = CallResult(
+                                    provider=name, endpoint=url, model=model,
+                                    status=EndpointStatus.UNREACHABLE,
+                                    latency_ms=elapsed, error="timeout",
+                                )
+                            _skip = True
+                        except Exception as exc:
+                            elapsed = (time.monotonic() - start) * 1000
+                            log.warning("%s: unreachable — %s: %s", name, url, exc)
+                            if first_result is None:
+                                first_result = CallResult(
+                                    provider=name, endpoint=url, model=model,
+                                    status=EndpointStatus.UNREACHABLE,
+                                    latency_ms=elapsed, error=str(exc),
+                                )
+                            _skip = True
+
+                    if not _skip and resp.status_code in (401, 403):
+                        log.warning("%s: auth_failed (HTTP %d) — %s", name, resp.status_code, url)
+                        if first_result is None:
+                            first_result = CallResult(
+                                provider=name, endpoint=url, model=model,
+                                status=EndpointStatus.AUTH_FAILED,
+                                http_status=resp.status_code, latency_ms=elapsed,
+                                error=f"HTTP {resp.status_code}",
+                            )
+                        _skip = True
+
+                    if not _skip and resp.status_code == 404 and name == "ollama":
+                        log.warning("%s: model_missing (HTTP 404) — %s", name, model)
+                        alt_result = self._try_ollama_alternative_models(
+                            provider, chat_cfg, body, headers, t,
+                            json_extract=json_extract, json_array=json_array,
+                        )
+                        if alt_result is not None:
+                            if first_result is not None:
+                                alt_result.fallback_artifact = self._write_fallback_artifact(
+                                    alt_result.provider, first_result, "chat"
+                                )
+                            alt_result.metrics_events = list(accumulated_events)
+                            return alt_result
+                        if first_result is None:
+                            first_result = CallResult(
+                                provider=name, endpoint=url, model=model,
+                                status=EndpointStatus.MODEL_MISSING,
+                                http_status=404, latency_ms=elapsed,
+                                error=f"Model '{model}' not found, no alternatives available",
+                            )
+                        _skip = True
+
+                    if not _skip and resp.status_code != 200:
+                        log.warning(
+                            "%s: HTTP %d — %s: %s",
+                            name, resp.status_code, url, resp.text[:200],
+                        )
+                        if first_result is None:
+                            first_result = CallResult(
+                                provider=name, endpoint=url, model=model,
+                                status=EndpointStatus.UNKNOWN,
+                                http_status=resp.status_code, latency_ms=elapsed,
+                                error=f"HTTP {resp.status_code}: {resp.text[:200]}",
+                            )
+                        _skip = True
+
+                    if not _skip:
+                        # HTTP 200 — parse response
+                        try:
+                            content = resp.json()["choices"][0]["message"]["content"]
+                            if content is None:
+                                raise ValueError("content is null")
+                        except (KeyError, IndexError, json.JSONDecodeError, ValueError) as exc:
+                            log.warning("%s: parse_failed — %s", name, exc)
+                            if first_result is None:
+                                first_result = CallResult(
+                                    provider=name, endpoint=url, model=model,
+                                    status=EndpointStatus.PARSE_FAILED,
+                                    http_status=200, latency_ms=elapsed,
+                                    error=f"Response parse failed: {exc}",
+                                )
+                            _skip = True
+
+                    if not _skip:
+                        token_usage_val = 0
+                        api_calls_val = 0
+
+                if _skip:
+                    break  # exit inner loop; outer for-loop advances to next provider
+
+                # -------------------------------------------------------------- #
+                # Shared: JSON extraction + repair + retry                       #
+                # -------------------------------------------------------------- #
+                if not json_extract:
+                    if first_result is not None:
+                        fallback_artifact = self._write_fallback_artifact(
+                            name, first_result, "chat"
+                        )
+                    return CallResult(
+                        provider=name, endpoint=url, model=model,
+                        status=EndpointStatus.OK,
+                        data=content, http_status=200, latency_ms=elapsed,
+                        fallback_artifact=fallback_artifact,
+                        token_usage=token_usage_val,
+                        api_calls_count=api_calls_val,
+                        metrics_events=list(accumulated_events),
                     )
-                    if first_result is None:
-                        first_result = CallResult(
-                            provider=name, endpoint=url, model=model,
-                            status=EndpointStatus.UNKNOWN,
-                            http_status=resp.status_code, latency_ms=elapsed,
-                            error=f"HTTP {resp.status_code}: {resp.text[:200]}",
-                        )
-                    continue
 
-                # HTTP 200 — parse response
-                try:
-                    content = resp.json()["choices"][0]["message"]["content"]
-                    if content is None:
-                        raise ValueError("content is null")
-                except (KeyError, IndexError, json.JSONDecodeError, ValueError) as exc:
-                    log.warning("%s: parse_failed — %s", name, exc)
+                if json_array:
+                    pattern = r"(\[.*\]|\{.*\})"
+                else:
+                    pattern = r"\{.*\}"
+                m = re.search(pattern, content, re.DOTALL)
+                if not m:
+                    log.warning("%s: parse_failed — no JSON found in response", name)
                     if first_result is None:
                         first_result = CallResult(
                             provider=name, endpoint=url, model=model,
                             status=EndpointStatus.PARSE_FAILED,
                             http_status=200, latency_ms=elapsed,
-                            error=f"Response parse failed: {exc}",
+                            error="No JSON found in response",
                         )
-                    continue
+                    break  # no point retrying; model returned no JSON block
 
-                token_usage_val = 0
-                api_calls_val = 0
+                raw_json_str = m.group(1) if json_array else m.group()
+                try:
+                    parsed = json.loads(raw_json_str)
+                    break  # success — exit inner loop
+                except json.JSONDecodeError as exc:
+                    # --- Repair pass: try json_repair before spending another HTTP call ---
+                    if _HAS_JSON_REPAIR:
+                        try:
+                            repaired = _json_repair.repair_json(
+                                raw_json_str, return_objects=True
+                            )
+                        except Exception:
+                            repaired = None
+                        if repaired:
+                            log.info(
+                                "%s: json_repair succeeded on parse_attempt %d",
+                                name, _parse_attempt,
+                            )
+                            parsed = repaired
+                            break  # repaired — exit inner loop as success
 
-            # -------------------------------------------------------------- #
-            # Shared: JSON extraction + success return                       #
-            # -------------------------------------------------------------- #
-            if not json_extract:
-                # Write fallback artifact if this is a secondary provider
-                if first_result is not None:
-                    fallback_artifact = self._write_fallback_artifact(
-                        name, first_result, "chat"
-                    )
-                return CallResult(
-                    provider=name, endpoint=url, model=model,
-                    status=EndpointStatus.OK,
-                    data=content, http_status=200, latency_ms=elapsed,
-                    fallback_artifact=fallback_artifact,
-                    token_usage=token_usage_val,
-                    api_calls_count=api_calls_val,
-                    metrics_events=list(accumulated_events),
-                )
+                    # --- Retry pass: one more HTTP call to the same provider ---
+                    if _parse_attempt == 0:
+                        log.info(
+                            "%s: parse_failed on attempt 0 (repair unavailable/failed),"
+                            " retrying same provider: %s",
+                            name, exc,
+                        )
+                        _parse_attempt += 1
+                        continue  # re-enter while loop → new HTTP call
 
-            # Extract JSON from content
-            if json_array:
-                pattern = r"(\[.*\]|\{.*\})"
-            else:
-                pattern = r"\{.*\}"
-            m = re.search(pattern, content, re.DOTALL)
-            if not m:
-                log.warning("%s: parse_failed — no JSON found in response", name)
-                if first_result is None:
-                    first_result = CallResult(
-                        provider=name, endpoint=url, model=model,
-                        status=EndpointStatus.PARSE_FAILED,
-                        http_status=200, latency_ms=elapsed,
-                        error="No JSON found in response",
-                    )
-                continue
+                    # _parse_attempt == 1 also failed — give up on this provider
+                    log.warning("%s: parse_failed — invalid JSON: %s", name, exc)
+                    if first_result is None:
+                        first_result = CallResult(
+                            provider=name, endpoint=url, model=model,
+                            status=EndpointStatus.PARSE_FAILED,
+                            http_status=200, latency_ms=elapsed,
+                            error=f"Invalid JSON: {exc}",
+                        )
+                    break  # exit inner loop; outer for-loop advances to next provider
 
-            try:
-                parsed = json.loads(m.group(1) if json_array else m.group())
-            except json.JSONDecodeError as exc:
-                log.warning("%s: parse_failed — invalid JSON: %s", name, exc)
-                if first_result is None:
-                    first_result = CallResult(
-                        provider=name, endpoint=url, model=model,
-                        status=EndpointStatus.PARSE_FAILED,
-                        http_status=200, latency_ms=elapsed,
-                        error=f"Invalid JSON: {exc}",
-                    )
-                continue
+            # ---------------------------------------------------------------- #
+            # End of inner attempt loop                                        #
+            # ---------------------------------------------------------------- #
+            if parsed is None:
+                continue  # outer for-loop: try next provider
 
-            # Success — write fallback artifact if we fell back
+            # Success — write fallback artifact if we fell back from another provider
             if first_result is not None:
                 fallback_artifact = self._write_fallback_artifact(
                     name, first_result, "chat"
