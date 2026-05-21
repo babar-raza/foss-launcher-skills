@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
-  "skill_count": 84,
+  "skill_count": 85,
   "skills": [
     {
       "id": "S-01",
@@ -676,6 +676,14 @@
       "internal": false,
       "canonical_path": "skills/blog-migrate.md",
       "args": "``"
+    },
+    {
+      "id": "S-101",
+      "slug": "new-blog-index",
+      "name": "New Blog Index — Scaffold Blog Platform Section Branch Bundle",
+      "description": "Creates the Hugo branch bundle at",
+      "internal": false,
+      "canonical_path": "skills/new-blog-index.md"
     }
   ]
 }

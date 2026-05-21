@@ -116,9 +116,6 @@ auto-generated content and clears the L-10 gate.
 **Pre-condition**: Verify `reports/plans/{family}/{platform}/site_plan.yaml` exists.
 If missing, STOP and re-run Stage 0.5.
 
-**Step 0 — Blog platform index**: `/new-blog-index {family} {platform}`
-(self-idempotent — skips if `_index.md` already exists with title)
-
 **Read**: `reports/plans/{family}/{platform}/site_plan.yaml` → `sections.blog.pages`
 
 **Commands**: For each entry with `page_class: generated`, run in order:
