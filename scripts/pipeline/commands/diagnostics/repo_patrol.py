@@ -164,7 +164,7 @@ def score_confidence(repo: dict, *, clone_path: "Path | None" = None) -> float:
         score += 0.15
 
     # Name quality signal
-    from update_product_registry import _classify_repo, _REPO_PATTERN_FOSS
+    from commands.ops.update_product_registry import _classify_repo, _REPO_PATTERN_FOSS
     pair = _classify_repo(repo.get("name", ""))
     if pair is not None:
         m = _REPO_PATTERN_FOSS.match(repo.get("name", ""))
@@ -218,8 +218,8 @@ def cmd_scan(
 
     Returns the patrol report dict.
     """
-    from org_scanner import scan_orgs
-    from update_product_registry import _classify_repo, _DEFAULT_ORGS
+    from lib.org_scanner import scan_orgs
+    from commands.ops.update_product_registry import _classify_repo, _DEFAULT_ORGS
 
     if orgs is None:
         env_orgs = os.environ.get("ASPOSE_ORG", "")
