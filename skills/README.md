@@ -234,7 +234,8 @@ S-62 (batch-reference) → S-38 (truth-audit, spot-check) → S-24 (evidence-cit
 4. Run `python scripts/ci/checks/check_skill_registry.py` — must exit 0
 5. Run `python scripts/ci/checks/check_dar_coverage.py` — must exit 0
 6. **Update the catalog table in this file** (skills/README.md) — add the new skill in the correct category
-7. The sync mechanism (`sync_skills.py`) will flag if agent-specific mirrors diverge
+7. Run `python scripts/ci/fix_skill_counts.py` — reconciles "N registered skills" counts across all four README files
+8. The sync mechanism (`sync_skills.py`) will flag if agent-specific mirrors diverge
 
 ---
 
