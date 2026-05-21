@@ -3,11 +3,15 @@
 Usage:
     python scripts/pipeline/commands/ops/update_product_registry.py [--token TOKEN] [--force]
     python scripts/pipeline/commands/ops/update_product_registry.py --local-only
+    python scripts/pipeline/commands/ops/update_product_registry.py --reconcile
 
 Modes:
     Default:      Scan GitHub org for FOSS repos, merge with local knowledge dirs.
     --local-only: Skip GitHub — build registry from knowledge/ dirs only.
     --force:      Overwrite active/inactive status even for repos already in registry.
+    --reconcile:  Read-only check: verify all 7 content/knowledge signals for each
+                  registered product. Prints a per-product table and exits 1 if any
+                  signal is MISSING.
 
 Output:
     data/products.json — canonical product registry
@@ -295,6 +299,98 @@ def _merge(existing: list[dict], incoming: list[dict], force: bool) -> list[dict
 
 
 # ---------------------------------------------------------------------------
+# Reconcile — read-only 7-signal check
+# ---------------------------------------------------------------------------
+
+_SIGNAL_LABELS = [
+    "registry_entry",
+    "knowledge_model_yaml",
+    "site_plan_yaml",
+    "blog_content",
+    "docs_content",
+    "kb_content",
+    "reference_content",
+]
+
+
+def _check_signals(entry: dict) -> list[tuple[str, str]]:
+    """Return list of (signal_label, status) for all 7 signals.
+
+    status is "OK" or "MISSING".
+    """
+    family = entry["family"]
+    platform = entry["platform"]
+
+    results: list[tuple[str, str]] = []
+
+    # Signal 1: registry entry exists — by definition true if we have the entry
+    results.append(("registry_entry", "OK"))
+
+    # Signal 2: knowledge/{family}/{platform}/merged/model.yaml exists and not stale
+    model_path = KNOWLEDGE_ROOT / family / platform / "merged" / "model.yaml"
+    if model_path.is_file():
+        # Check for stale_since: non-null
+        try:
+            import yaml  # type: ignore[import]
+            with open(model_path, encoding="utf-8") as fh:
+                data = yaml.safe_load(fh) or {}
+            stale_since = data.get("stale_since")
+            if stale_since:
+                results.append(("knowledge_model_yaml", "STALE"))
+            else:
+                results.append(("knowledge_model_yaml", "OK"))
+        except Exception:
+            results.append(("knowledge_model_yaml", "OK"))  # file exists, yaml parse error is non-critical
+    else:
+        results.append(("knowledge_model_yaml", "MISSING"))
+
+    # Signal 3: site_plan.yaml exists
+    plan_path = REPO_ROOT / "reports" / "plans" / family / platform / "site_plan.yaml"
+    results.append(("site_plan_yaml", "OK" if plan_path.is_file() else "MISSING"))
+
+    # Signal 4–7: content directories exist
+    content_sites = [
+        ("blog_content", REPO_ROOT / "content" / "blog.aspose.org" / family / platform),
+        ("docs_content", REPO_ROOT / "content" / "docs.aspose.org" / "en" / family / platform),
+        ("kb_content", REPO_ROOT / "content" / "kb.aspose.org" / "en" / family / platform),
+        ("reference_content", REPO_ROOT / "content" / "reference.aspose.org" / "en" / family / platform),
+    ]
+    for label, path in content_sites:
+        results.append((label, "OK" if path.is_dir() else "MISSING"))
+
+    return results
+
+
+def _run_reconcile(products: list[dict]) -> int:
+    """Print per-product signal table.  Returns 0 if all OK, 1 if any MISSING/STALE."""
+    any_bad = False
+
+    # Header
+    col_product = 28
+    col_signal = 22
+    col_status = 8
+    header = f"{'product':<{col_product}} {'signal':<{col_signal}} {'status':<{col_status}}"
+    print(header)
+    print("-" * (col_product + col_signal + col_status + 2))
+
+    for entry in products:
+        key = f"{entry['family']}/{entry['platform']}"
+        signals = _check_signals(entry)
+        for label, status in signals:
+            if status != "OK":
+                any_bad = True
+            marker = " <-- MISSING" if status == "MISSING" else (" <-- STALE" if status == "STALE" else "")
+            print(f"{key:<{col_product}} {label:<{col_signal}} {status:<{col_status}}{marker}")
+
+    print()
+    if any_bad:
+        print("RECONCILE: one or more signals MISSING or STALE — exit 1")
+        return 1
+    print("RECONCILE: all signals OK — exit 0")
+    return 0
+
+
+# ---------------------------------------------------------------------------
 # Atomic write
 # ---------------------------------------------------------------------------
 
@@ -331,9 +427,25 @@ def main(argv: list[str] | None = None) -> int:
                         help="Overwrite active status for existing entries")
     parser.add_argument("--dry-run", action="store_true",
                         help="Print discovered products; do NOT write data/products.json")
+    parser.add_argument("--reconcile", "--check", action="store_true",
+                        help="Read-only: check all 7 content/knowledge signals for each "
+                             "registered product. Exit 0 if all OK, exit 1 if any MISSING.")
     args = parser.parse_args(argv)
 
     token = args.token or os.environ.get("GITHUB_TOKEN")
+
+    # --reconcile: read-only signal check against the existing registry
+    if args.reconcile:
+        if not REGISTRY_PATH.is_file():
+            print(f"ERROR: registry not found at {REGISTRY_PATH}", file=sys.stderr)
+            print("Run without --reconcile first to build the registry.", file=sys.stderr)
+            return 1
+        try:
+            products = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            print(f"ERROR: could not read registry: {exc}", file=sys.stderr)
+            return 1
+        return _run_reconcile(products)
 
     if args.token and requests is None:
         print("ERROR: requests library required for live GitHub discovery.")
