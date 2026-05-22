@@ -275,7 +275,7 @@ def _apply_overview_template(
     wc = len(current_content.split())
 
     enterprise_suffix = build_enterprise_anchor_suffix(target_url, target_type or "platform")
-    anchor = f"[{display} {enterprise_suffix}]({target_url})"
+    anchor = f"[{display} \u2014 {enterprise_suffix}]({target_url})"
 
     if enterprise_suffix == "Enterprise Product Family":
         sentence = f"For the enterprise product family, see {anchor}."

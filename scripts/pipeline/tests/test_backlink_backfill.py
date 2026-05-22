@@ -818,3 +818,119 @@ class TestDomainAwareOverviewTemplate:
         assert "Enterprise Product" in result
         assert "Enterprise Product Family" not in result
         assert "products.aspose.com/slides/net/" in result
+
+
+# ── Em-dash style enforcement ─────────────────────────────────────────────────
+
+
+class TestEmDashStyleEnforcement:
+    """Anchor style consistency: BOTH _apply_overview_template and _build_see_also_entry
+    MUST use em-dash (U+2014) between the display name and the Enterprise suffix.
+
+    Canonical style: [Aspose.Slides for Java — Enterprise Documentation](...)
+    Forbidden style: [Aspose.Slides for Java Enterprise Documentation](...)
+
+    Style decision: em-dash is canonical (99% of all content links, 3293 vs 30).
+    This class enforces the lock across all generation paths.
+    """
+
+    EM_DASH = "\u2014"
+
+    def test_overview_template_uses_em_dash_for_products_family(self):
+        """_apply_overview_template must use em-dash for products.aspose.com family target."""
+        content = "Aspose.Slides FOSS. MIT-licensed."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/slides/",
+            family="slides", platform="java",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert self.EM_DASH in result, (
+            "STYLE_BUG: _apply_overview_template must use em-dash in anchor text. "
+            f"Got: {result!r}"
+        )
+        assert "Aspose.Slides \u2014 Enterprise Product Family" in result
+
+    def test_overview_template_uses_em_dash_for_products_platform(self):
+        """_apply_overview_template must use em-dash for products.aspose.com platform target."""
+        content = "Aspose.Slides FOSS for .NET. MIT-licensed and open-source on GitHub."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/slides/net/",
+            family="slides", platform="net",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert self.EM_DASH in result, "em-dash missing from overview anchor"
+        assert "Aspose.Slides for .NET \u2014 Enterprise Product" in result
+
+    def test_overview_template_uses_em_dash_for_docs_target(self):
+        """_apply_overview_template must use em-dash for docs.aspose.com target."""
+        content = "Aspose.Slides FOSS for Java. MIT-licensed."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://docs.aspose.com/slides/java/",
+            family="slides", platform="java",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert self.EM_DASH in result, "em-dash missing from docs overview anchor"
+        assert "Aspose.Slides for Java \u2014 Enterprise Documentation" in result
+
+    def test_overview_template_uses_em_dash_for_reference_target(self):
+        """_apply_overview_template must use em-dash for reference.aspose.com target."""
+        content = "Aspose.Slides FOSS for .NET. MIT-licensed."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://reference.aspose.com/slides/net/",
+            family="slides", platform="net",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert self.EM_DASH in result, "em-dash missing from reference overview anchor"
+        assert "Aspose.Slides for .NET \u2014 Enterprise API Reference" in result
+
+    def test_see_also_entry_uses_em_dash(self):
+        """_build_see_also_entry must use em-dash (already canonical — guard against regression)."""
+        entry = _build_see_also_entry(
+            target_url="https://products.aspose.com/slides/net/",
+            family="slides", platform="net",
+            subdomain="docs.aspose.org",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert self.EM_DASH in entry, "em-dash missing from See Also entry"
+        assert "Aspose.Slides for .NET \u2014 Enterprise Product" in entry
+
+    def test_both_generators_produce_em_dash_for_same_target(self):
+        """Both generators must use em-dash — style consistency across generation paths."""
+        overview = _apply_overview_template(
+            current_content="Aspose.Slides FOSS for .NET. MIT-licensed on GitHub.",
+            target_url="https://products.aspose.com/slides/net/",
+            family="slides", platform="net",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        see_also = _build_see_also_entry(
+            target_url="https://products.aspose.com/slides/net/",
+            family="slides", platform="net",
+            subdomain="products.aspose.org",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert self.EM_DASH in overview, f"No em-dash in overview: {overview!r}"
+        assert self.EM_DASH in see_also, f"No em-dash in see_also: {see_also!r}"
+
+    def test_no_space_before_em_dash_and_space_after(self):
+        """Style: '{display} — {suffix}' — one space before, one space after em-dash."""
+        entry = _build_see_also_entry(
+            target_url="https://reference.aspose.com/slides/net/",
+            family="slides", platform="net",
+            subdomain="reference.aspose.org",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        # Pattern: " — " (space-emdash-space)
+        assert " \u2014 " in entry, f"Expected ' — ' (space-em-space) in: {entry!r}"
+        assert " —" not in entry and "  —" not in entry, f"Double-space before em-dash is forbidden in: {entry!r}"

@@ -99,8 +99,8 @@ Rules:
 - Insert exactly one Markdown link: [anchor text](target URL)
 - Target URL must be exactly: {resolved_target_url}
 - Place the link near the end of the overview, before the final sentence mentioning MIT license or GitHub.
-- Anchor text must use Enterprise positioning (e.g., "Aspose.Words for Python Enterprise Product", "Aspose.Cells Enterprise Product Family").
-- For platform pages use "{{Family}} for {{Platform}} Enterprise Product"; for family pages use "{{Family}} Enterprise Product Family".
+- Anchor text must use Enterprise positioning with em dash separator (e.g., "Aspose.Words for Python — Enterprise Product", "Aspose.Cells — Enterprise Product Family").
+- For platform pages use "{{Family}} for {{Platform}} — Enterprise Product"; for family pages use "{{Family}} — Enterprise Product Family".
 - Do not add hype, "buy now", "click here", "best", "ultimate", or sales language.
 - Do not duplicate any sentence.
 - Preserve all existing text, including MIT license statements and GitHub references.
@@ -277,17 +277,17 @@ def apply_template_fallback(req: BacklinkCopyRequest) -> tuple[str, str]:
 
     if req.page_type == "family":
         # P-3: Family page
-        sentence = f"For the enterprise product family, see [{display} Enterprise Product Family]({url})."
+        sentence = f"For the enterprise product family, see [{display} \u2014 Enterprise Product Family]({url})."
         template_id = "P-3"
     elif wc <= 140:
         # P-4: Platform page, compact overview
-        sentence = f"For enterprise features and support, see [{display} Enterprise Product]({url})."
+        sentence = f"For enterprise features and support, see [{display} \u2014 Enterprise Product]({url})."
         template_id = "P-4"
     else:
         # P-1: Platform page, API bridge (default for long overviews)
         sentence = (
             f"Developers requiring enterprise features and production support can use "
-            f"[{display} Enterprise Product]({url}) alongside these open-source libraries."
+            f"[{display} \u2014 Enterprise Product]({url}) alongside these open-source libraries."
         )
         template_id = "P-1"
 
