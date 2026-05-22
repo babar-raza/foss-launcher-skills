@@ -273,14 +273,14 @@ def _apply_overview_template(
     # Measure word count
     wc = len(current_content.split())
 
-    if not platform:
-        sentence = f"For the complete commercial product family with dedicated support, visit [{display}]({target_url})."
+    if not platform or target_type == "family":
+        sentence = f"For the enterprise product family, see [{display} Enterprise Product Family]({target_url})."
     elif wc <= 140:
-        sentence = f"The commercial counterpart is [{display}]({target_url})."
+        sentence = f"For enterprise features and support, see [{display} Enterprise Product]({target_url})."
     else:
         sentence = (
-            f"Developers who need the complete commercial API with full production support can use "
-            f"[{display}]({target_url}) alongside these open-source resources."
+            f"Developers requiring enterprise features and production support can use "
+            f"[{display} Enterprise Product]({target_url}) alongside these open-source libraries."
         )
 
     text = current_content.rstrip()
@@ -356,7 +356,8 @@ def _build_see_also_entry(
     else:
         display = fam_title
 
-    link_text = f"{display} \u2014 Commercial Edition"
+    enterprise_suffix = "Enterprise Product" if (platform and target_type != "family") else "Enterprise Product Family"
+    link_text = f"{display} \u2014 {enterprise_suffix}"
     return f"- [{link_text}]({target_url})"
 
 

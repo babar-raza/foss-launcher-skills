@@ -173,6 +173,7 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
     ```
     If BLOCKED_TARGET (no valid backlink target exists for this page): log WARN and
     continue. Do not fail the skill. Do not rebuild or restructure any section.
+    **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
 
 16. **Report**:
     ```

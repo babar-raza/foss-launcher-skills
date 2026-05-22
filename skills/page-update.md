@@ -175,6 +175,7 @@ After a knowledge refresh (S-14), identify which content pages reference changed
     If BLOCKED_TARGET (no valid backlink target for this page): log WARN and continue.
     Do not fail the skill. Do not rebuild or restructure any section.
     This step runs once per skill invocation after all pages are updated.
+    **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
 
 10. **Report**: For each updated page, print:
    ```

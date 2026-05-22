@@ -41,7 +41,7 @@ sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
 log = logging.getLogger(__name__)
 
 SCRIPT_VERSION = "1.0.0"
-PROMPT_VERSION = "v1.0"
+PROMPT_VERSION = "v2.0"
 CALLSITE_ID = "CS-010"
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -87,19 +87,20 @@ class CopyGenerationRecord:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# System prompt (§S.3 — v1.0)
+# System prompt (§S.3 — v2.0 — enterprise anchor policy)
 # ──────────────────────────────────────────────────────────────────────────────
 
 def build_system_prompt(resolved_target_url: str) -> str:
     return f"""You are a technical copywriter for an open-source developer library.
 Your task is to insert exactly one natural Markdown hyperlink into the provided product overview text.
-The link must point to the commercial counterpart of the open-source library.
+The link must point to the enterprise product on Aspose.com for this open-source library.
 
 Rules:
 - Insert exactly one Markdown link: [anchor text](target URL)
 - Target URL must be exactly: {resolved_target_url}
 - Place the link near the end of the overview, before the final sentence mentioning MIT license or GitHub.
-- Anchor text must identify the commercial product naturally (e.g., "Aspose.Words for Python", "Aspose.Cells commercial edition").
+- Anchor text must use Enterprise positioning (e.g., "Aspose.Words for Python Enterprise Product", "Aspose.Cells Enterprise Product Family").
+- For platform pages use "{{Family}} for {{Platform}} Enterprise Product"; for family pages use "{{Family}} Enterprise Product Family".
 - Do not add hype, "buy now", "click here", "best", "ultimate", or sales language.
 - Do not duplicate any sentence.
 - Preserve all existing text, including MIT license statements and GitHub references.
@@ -170,7 +171,14 @@ def save_cache_entry(cache_dir: Path, cache_key: str, entry: dict) -> None:
 # Validation (§S.4 — 10 rules)
 # ──────────────────────────────────────────────────────────────────────────────
 
-_FORBIDDEN_PHRASES = ["buy now", "click here", "full-featured commercial edition"]
+_FORBIDDEN_PHRASES = [
+    "buy now",
+    "click here",
+    "full-featured commercial edition",
+    "commercial edition",
+    "commercial product family",
+    "commercial counterpart",
+]
 _MD_LINK_RE = re.compile(r'\[([^\]]+)\]\(([^)]+)\)')
 _ASPOSE_COM_URL_RE = re.compile(r'https?://[a-z0-9-]+\.aspose\.com/[^\s\)]*', re.IGNORECASE)
 
@@ -269,17 +277,17 @@ def apply_template_fallback(req: BacklinkCopyRequest) -> tuple[str, str]:
 
     if req.page_type == "family":
         # P-3: Family page
-        sentence = f"For the complete commercial product family with dedicated support, visit [{display}]({url})."
+        sentence = f"For the enterprise product family, see [{display} Enterprise Product Family]({url})."
         template_id = "P-3"
     elif wc <= 140:
         # P-4: Platform page, compact overview
-        sentence = f"The commercial counterpart is [{display}]({url})."
+        sentence = f"For enterprise features and support, see [{display} Enterprise Product]({url})."
         template_id = "P-4"
     else:
         # P-1: Platform page, API bridge (default for long overviews)
         sentence = (
-            f"Developers who need the complete commercial API with full production support can use "
-            f"[{display}]({url}) alongside these open-source resources."
+            f"Developers requiring enterprise features and production support can use "
+            f"[{display} Enterprise Product]({url}) alongside these open-source libraries."
         )
         template_id = "P-1"
 

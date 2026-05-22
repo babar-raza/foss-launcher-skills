@@ -153,8 +153,8 @@ class TestBuildSeeAlsoEntry:
         assert "for .NET" in entry
         assert "Aspose.Slides" in entry
 
-    def test_entry_contains_commercial_edition_suffix(self):
-        """The entry must always end with '-- Commercial Edition'."""
+    def test_entry_contains_enterprise_product_family_suffix(self):
+        """The entry must use 'Enterprise Product Family' suffix for family-type targets."""
         entry = _build_see_also_entry(
             target_url="https://products.aspose.com/font/",
             family="font",
@@ -164,7 +164,8 @@ class TestBuildSeeAlsoEntry:
             platforms_map=PLATFORMS_MAP,
             target_type="family",
         )
-        assert "Commercial Edition" in entry
+        assert "Enterprise Product Family" in entry
+        assert "Commercial Edition" not in entry
 
     def test_url_and_anchor_are_consistent(self):
         """The URL in the entry must match the target_url passed in.
@@ -207,8 +208,8 @@ class TestFontPythonFamilyFallback:
     """Regression: products.aspose.com/font/python/ is a confirmed 404.
 
     The resolver falls back to the family URL https://products.aspose.com/font/
-    with chosen_type='family'. The anchor must be 'Aspose.Font -- Commercial Edition',
-    not 'Aspose.Font for Python -- Commercial Edition'.
+    with chosen_type='family'. The anchor must be 'Aspose.Font -- Enterprise Product Family',
+    not 'Aspose.Font for Python -- Enterprise Product'.
     """
 
     FAMILY_URL = "https://products.aspose.com/font/"
@@ -320,6 +321,28 @@ class TestApplyOverviewTemplate:
         # Original content must be preserved
         assert "MIT-licensed" in result
 
+    def test_family_fallback_uses_enterprise_product_family_anchor(self):
+        """When platform source falls back to family URL (target_type='family'),
+        the overview sentence must use 'Enterprise Product Family', not 'Enterprise Product'.
+
+        Regression guard for: _apply_overview_template previously selected P-4 (platform
+        template) whenever platform was truthy, even with target_type='family'.
+        """
+        content = "Aspose.Font FOSS."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/font/",
+            family="font",
+            platform="python",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert "Enterprise Product Family" in result
+        assert "Enterprise Product" in result  # substring is fine
+        assert "for Python" not in result
+        assert "Commercial" not in result
+
     def test_platform_target_type_includes_platform_in_overview(self):
         """target_type='platform' must produce 'for Python' in overview sentence."""
         content = (
@@ -403,7 +426,7 @@ class TestBackfillMarkdownIdempotency:
 
             ## See Also
 
-            - [Aspose.Words for Python -- Commercial Edition](https://products.aspose.com/words/python/)
+            - [Aspose.Words for Python -- Enterprise Product](https://products.aspose.com/words/python/)
         """)
         f = self._make_file(tmp_path, body)
         change = backfill_markdown(
@@ -438,7 +461,7 @@ class TestBackfillMarkdownIdempotency:
             target_type="platform",
         )
         assert change.skipped is False
-        assert "See Also" in change.after_snippet or "Commercial Edition" in change.after_snippet
+        assert "See Also" in change.after_snippet or "Enterprise Product" in change.after_snippet
 
     def test_second_run_is_idempotent_after_write(self, tmp_path):
         """Running backfill_markdown twice (write=True then dry_run=True) skips on second run."""
