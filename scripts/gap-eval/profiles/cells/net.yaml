@@ -1,6 +1,6 @@
 discovered_actuals:
   format_files_found: null
-  last_baseline_sha: 447707096215151f08c12f5b92e88212b654be7e
+  last_baseline_sha: b5965a725ecca4d07b05d17aebd060806bf72e5c
   package_name: Aspose.Cells.FOSS
   package_source_actual: src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj
 discovery_hints:

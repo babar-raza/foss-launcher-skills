@@ -14,11 +14,11 @@ discovery_hints:
   runtime_requirement_source: pom.xml
 
 discovered_actuals:
-  package_name: "com.aspose:aspose-cells-foss"
+  package_name: "com.aspose:cells-foss"
   import_path: "com.aspose.cells"
   package_source_actual: pom.xml
   format_files_found: null
-  last_baseline_sha: fa8e4650e5d8baaa534c6e1e478ee6a985ac6f76
+  last_baseline_sha: b8cfeff24af8c33a128f0e17db8fee25490100d7
 
 language_conventions:
   method_naming: camelCase
