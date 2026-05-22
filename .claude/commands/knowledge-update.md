@@ -94,6 +94,23 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
 6. **Verify stale flag cleared**: Confirm `knowledge/{family}/{platform}/merged/model.yaml` has
    `stale_since: null`. This is automated by `refresh_knowledge.py` — no manual edit needed.
 
+6a. **Sync gap-eval profile** — re-derive `discovered_actuals.package_name` from the freshly
+    updated clone cache to prevent silent drift when upstream package identifiers change:
+    ```bash
+    # Dry-run first — shows current stored value vs derived value without writing
+    .venv/Scripts/python scripts/gap-eval/src/validate_profile.py --update {family} {platform} --dry-run
+
+    # Write the derived value if it differs from stored (no-op if already in sync)
+    .venv/Scripts/python scripts/gap-eval/src/validate_profile.py --update {family} {platform}
+
+    # Confirm PASS with updated profile
+    .venv/Scripts/python scripts/gap-eval/src/validate_profile.py {family} {platform}
+    ```
+    If any command logs `ERROR: Profile not found` or `ERROR: Build file not found`, the
+    product has no gap-eval profile yet — skip this step and note it in the diff report.
+    If it logs `ERROR: Cannot resolve clone cache base`, the cache was not populated — abort
+    and investigate Step 2 before proceeding.
+
 7. **Diff report**: Read `merged/knowledge_delta.json` to summarize:
    - New claims added (`new_claims`)
    - Claims removed (`removed_claims`)
@@ -116,6 +133,8 @@ has `stale_since != null` or after upstream repo changes detected by S-12 (knowl
 - `merged/knowledge_delta.json` exists with semantic diff of what changed
 - `merged.bak/` does NOT exist (always cleaned up by refresh_knowledge.py)
 - A diff summary is printed showing what changed
+- Gap-eval profile `discovered_actuals.package_name` reflects the current clone cache build
+  file for the updated family/platform (validated by `validate_profile.py {family} {platform}`)
 
 ## Error handling
 
