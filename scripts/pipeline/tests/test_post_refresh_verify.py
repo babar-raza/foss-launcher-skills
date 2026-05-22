@@ -447,7 +447,7 @@ class TestWriteReconciliationDeltaPath:
                 "platform": "net",
                 "delta": {
                     "pages_to_add": [],
-                    "pages_to_update": [{"path": p} for p in pages_to_update],
+                    "pages_to_update": pages_to_update,  # strings (actual site_plan format)
                     "pages_to_remove": [],
                     "pages_renamed": [],
                 },

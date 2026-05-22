@@ -443,10 +443,16 @@ def write_reconciliation(
         except Exception:
             pass
 
+    def _entry_path(entry: "str | dict") -> str:
+        """Extract file path from a delta entry — accepts both str and dict formats."""
+        if isinstance(entry, str):
+            return entry
+        return entry.get("path") or entry.get("slug", "")
+
     # Compute executed: check existence of pages_to_add paths
     pages_added = 0
     for entry in delta_pages_to_add:
-        slug = entry.get("path") or entry.get("slug", "")
+        slug = _entry_path(entry)
         if slug:
             target = REPO_ROOT / slug if not Path(slug).is_absolute() else Path(slug)
             if target.exists():
@@ -458,7 +464,7 @@ def write_reconciliation(
     metadata_only_files: list[str] = []
 
     for entry in delta_pages_to_update:
-        path_str = entry.get("path", "")
+        path_str = _entry_path(entry)
         if not path_str:
             continue
         full_path = REPO_ROOT / path_str
@@ -478,7 +484,7 @@ def write_reconciliation(
     # For pages_to_remove: check if draft:true was set
     pages_removed = 0
     for entry in delta_pages_to_remove:
-        path_str = entry.get("path", "")
+        path_str = _entry_path(entry)
         if not path_str:
             continue
         full_path = REPO_ROOT / path_str
