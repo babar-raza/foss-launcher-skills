@@ -179,7 +179,7 @@ def score_confidence(repo: dict, *, clone_path: "Path | None" = None) -> float:
         if any((clone_path / n).is_file() for n in readme_names):
             score += 0.15
 
-        src_extensions = {".py", ".java", ".cs", ".ts", ".js", ".cpp", ".h"}
+        src_extensions = {".py", ".java", ".cs", ".ts", ".js", ".cpp", ".h", ".go"}
         has_src = False
         for child in clone_path.rglob("*"):
             if child.suffix in src_extensions and child.is_file():

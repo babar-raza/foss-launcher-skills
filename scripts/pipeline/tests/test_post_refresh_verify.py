@@ -428,3 +428,103 @@ class TestCheck6CoverageCompleteness:
         )
 
         assert passed
+
+
+# ---------------------------------------------------------------------------
+# G-12 regression: write_reconciliation reads delta from plan.delta, not sp.delta
+# ---------------------------------------------------------------------------
+
+class TestWriteReconciliationDeltaPath:
+    """G-12 regression: site_plan.yaml delta lives at plan.delta, not top-level delta."""
+
+    def _write_site_plan(self, plans_dir: Path, pages_to_update: list) -> None:
+        import yaml
+        site_plan = {
+            "plan": {
+                "schema_version": 2,
+                "plan_version": 2,
+                "family": "cells",
+                "platform": "net",
+                "delta": {
+                    "pages_to_add": [],
+                    "pages_to_update": [{"path": p} for p in pages_to_update],
+                    "pages_to_remove": [],
+                    "pages_renamed": [],
+                },
+            }
+        }
+        plans_dir.mkdir(parents=True, exist_ok=True)
+        (plans_dir / "site_plan.yaml").write_text(yaml.dump(site_plan), encoding="utf-8")
+
+    def _write_progress(self, refresh_dir: Path, steps: list) -> None:
+        import json
+        refresh_dir.mkdir(parents=True, exist_ok=True)
+        (refresh_dir / "progress.json").write_text(
+            json.dumps({"steps": steps, "pages_updated": []}), encoding="utf-8"
+        )
+
+    def test_reads_planned_from_plan_delta_not_top_level(self, tmp_path):
+        """write_reconciliation must read delta from plan.delta (G-12 fix)."""
+        import json
+        plans_dir = tmp_path / "reports" / "plans" / "cells" / "net"
+        refresh_dir = tmp_path / "refresh_state" / "cells" / "net"
+        paths = [
+            "content/docs.aspose.org/en/cells/net/page1.md",
+            "content/docs.aspose.org/en/cells/net/page2.md",
+        ]
+        self._write_site_plan(plans_dir, paths)
+        self._write_progress(refresh_dir, ["page_update"])
+
+        post_refresh_verify.configure(
+            repo_root=tmp_path,
+            reports_root=tmp_path / "refresh_state",
+        )
+        try:
+            recon_path = post_refresh_verify.write_reconciliation(
+                "cells", "net", require_content_steps=False
+            )
+            recon = json.loads(recon_path.read_text(encoding="utf-8"))
+            assert recon["planned"]["pages_to_update"] == 2, (
+                "G-12: planned.pages_to_update must be 2, not 0. "
+                "write_reconciliation is reading from the wrong YAML key."
+            )
+        finally:
+            post_refresh_verify.configure()
+
+    def test_top_level_delta_key_ignored(self, tmp_path):
+        """A top-level 'delta' key in site_plan.yaml must NOT be read (G-12 regression)."""
+        import json, yaml
+        plans_dir = tmp_path / "reports" / "plans" / "cells" / "net"
+        refresh_dir = tmp_path / "refresh_state" / "cells" / "net"
+        plans_dir.mkdir(parents=True, exist_ok=True)
+        # Write site_plan with delta at the WRONG (old) location — should be ignored
+        bad_plan = {
+            "delta": {"pages_to_update": [{"path": "content/docs.aspose.org/en/cells/net/p.md"}]},
+            "plan": {
+                "schema_version": 2,
+                "plan_version": 2,
+                "family": "cells",
+                "platform": "net",
+                "delta": {"pages_to_add": [], "pages_to_update": [], "pages_to_remove": [], "pages_renamed": []},
+            },
+        }
+        (plans_dir / "site_plan.yaml").write_text(yaml.dump(bad_plan), encoding="utf-8")
+        refresh_dir.mkdir(parents=True, exist_ok=True)
+        (refresh_dir / "progress.json").write_text(
+            json.dumps({"steps": ["page_update"], "pages_updated": []}), encoding="utf-8"
+        )
+
+        post_refresh_verify.configure(
+            repo_root=tmp_path,
+            reports_root=tmp_path / "refresh_state",
+        )
+        try:
+            recon_path = post_refresh_verify.write_reconciliation(
+                "cells", "net", require_content_steps=False
+            )
+            recon = json.loads(recon_path.read_text(encoding="utf-8"))
+            assert recon["planned"]["pages_to_update"] == 0, (
+                "Top-level 'delta' key must be ignored; planned must come from plan.delta"
+            )
+        finally:
+            post_refresh_verify.configure()

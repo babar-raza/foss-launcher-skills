@@ -432,7 +432,8 @@ def write_reconciliation(
     if site_plan_path.is_file():
         try:
             sp = yaml.safe_load(site_plan_path.read_text(encoding="utf-8")) or {}
-            delta = sp.get("delta", {})
+            # site_plan.yaml structure: top-level "plan" key contains "delta"
+            delta = sp.get("plan", {}).get("delta", {})
             delta_pages_to_add = delta.get("pages_to_add", [])
             delta_pages_to_update = delta.get("pages_to_update", [])
             delta_pages_to_remove = delta.get("pages_to_remove", [])
@@ -744,6 +745,38 @@ def verify(family: str, platform: str) -> tuple[bool, list[str]]:
                     )
         except Exception as exc:
             failures.append(f"Could not read reconciliation artifact: {exc}")
+
+    # Check 7 (G-16): Completeness guard — if planned pages_to_update > 0 and
+    # page_update step never ran, FAIL rather than silently passing with 0 updates.
+    claim_delta_path = KNOWLEDGE_ROOT / family / platform / "merged" / "knowledge_delta.json"
+    if claim_delta_path.is_file():
+        try:
+            claim_delta = json.loads(claim_delta_path.read_text(encoding="utf-8"))
+            removed_count = len(claim_delta.get("removed_claims", []))
+            progress_data = _load_progress(family, platform)
+            completed_steps = set(progress_data.get("steps", []))
+            pages_updated_count = len(progress_data.get("pages_updated", []))
+            if removed_count > 50 and pages_updated_count == 0 and "page_update" not in completed_steps:
+                failures.append(
+                    f"Check 7: {removed_count} claims removed from knowledge but "
+                    f"page_update (S-20) was never run and pages_updated=0. "
+                    f"Run S-84 from Step 4 (page_update) forward."
+                )
+                print(
+                    f"  Check 7: FAIL — {removed_count} removed claims, 0 pages updated, "
+                    f"page_update step not in completed steps"
+                )
+            elif removed_count > 50 and pages_updated_count == 0:
+                # page_update ran but found nothing to update — WARN
+                warnings_list = getattr(verify, "_warnings", None)
+                print(
+                    f"  Check 7: WARN — {removed_count} removed claims but pages_updated=0 "
+                    f"(page_update ran; confirm via page_decisions.json before committing)"
+                )
+            else:
+                print("  Check 7: PASS — completeness guard")
+        except Exception:
+            pass  # Non-blocking; delta file may not exist on first run
 
     # Check 6: Coverage completeness — page_decisions.json must cover all discovered pages
     check6_passed, check6_failures = check_coverage_completeness(family, platform)

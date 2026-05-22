@@ -124,6 +124,7 @@ _PLATFORM_MAP = {
     "typescript": "typescript",
     "javascript": "javascript",
     "nodejs": "nodejs",
+    "go": "go",
 }
 
 
