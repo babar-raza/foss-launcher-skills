@@ -721,7 +721,7 @@ def _build_page(
                 lines.append("## See Also")
                 lines.append("")
                 lines.append(
-                    f"- [{_get_family_display(family, platform, target_type=_rtype)} — Commercial Reference]"
+                    f"- [{_get_family_display(family, platform, target_type=_rtype)} — Enterprise API Reference]"
                     f"({chosen_url})"
                 )
                 lines.append("")

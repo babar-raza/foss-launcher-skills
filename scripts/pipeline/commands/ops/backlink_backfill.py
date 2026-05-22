@@ -40,6 +40,7 @@ sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
 from lib.backlink_targets import (
     COMPLIANT,
     PageType,
+    build_enterprise_anchor_suffix,
     classify_compliance,
     classify_page_type,
     count_qualifying_com_links,
@@ -273,15 +274,43 @@ def _apply_overview_template(
     # Measure word count
     wc = len(current_content.split())
 
-    if not platform or target_type == "family":
-        sentence = f"For the enterprise product family, see [{display} Enterprise Product Family]({target_url})."
-    elif wc <= 140:
-        sentence = f"For enterprise features and support, see [{display} Enterprise Product]({target_url})."
-    else:
-        sentence = (
-            f"Developers requiring enterprise features and production support can use "
-            f"[{display} Enterprise Product]({target_url}) alongside these open-source libraries."
-        )
+    enterprise_suffix = build_enterprise_anchor_suffix(target_url, target_type or "platform")
+    anchor = f"[{display} {enterprise_suffix}]({target_url})"
+
+    if enterprise_suffix == "Enterprise Product Family":
+        sentence = f"For the enterprise product family, see {anchor}."
+    elif enterprise_suffix == "Enterprise Documentation":
+        if wc <= 140:
+            sentence = f"For enterprise documentation, see {anchor}."
+        else:
+            sentence = (
+                f"Developers requiring enterprise documentation and production support can reference "
+                f"{anchor} alongside these open-source libraries."
+            )
+    elif enterprise_suffix == "Enterprise API Reference":
+        if wc <= 140:
+            sentence = f"For the enterprise API reference, see {anchor}."
+        else:
+            sentence = (
+                f"Developers requiring the enterprise API reference can use "
+                f"{anchor} alongside these open-source libraries."
+            )
+    elif enterprise_suffix == "Enterprise Knowledge Base":
+        if wc <= 140:
+            sentence = f"For the enterprise knowledge base, see {anchor}."
+        else:
+            sentence = (
+                f"Developers requiring enterprise knowledge base resources can reference "
+                f"{anchor} alongside these open-source libraries."
+            )
+    else:  # Enterprise Product (products.aspose.com platform target)
+        if wc <= 140:
+            sentence = f"For enterprise features and support, see {anchor}."
+        else:
+            sentence = (
+                f"Developers requiring enterprise features and production support can use "
+                f"{anchor} alongside these open-source libraries."
+            )
 
     text = current_content.rstrip()
 
@@ -356,7 +385,7 @@ def _build_see_also_entry(
     else:
         display = fam_title
 
-    enterprise_suffix = "Enterprise Product" if (platform and target_type != "family") else "Enterprise Product Family"
+    enterprise_suffix = build_enterprise_anchor_suffix(target_url, target_type or "platform")
     link_text = f"{display} \u2014 {enterprise_suffix}"
     return f"- [{link_text}]({target_url})"
 

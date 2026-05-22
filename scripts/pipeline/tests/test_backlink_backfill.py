@@ -35,6 +35,7 @@ from commands.ops.backlink_backfill import (
     _apply_overview_template,
     backfill_markdown,
 )
+from lib.backlink_targets import build_enterprise_anchor_suffix
 
 # ── Shared fixtures ──────────────────────────────────────────────────────────
 
@@ -565,3 +566,255 @@ class TestDeadCodeRemoved:
             "_get_link_sentence was dead code and has been removed. "
             "Do not re-introduce it — use _apply_overview_template or _build_see_also_entry instead."
         )
+
+
+# ── Domain-aware anchor suffix (build_enterprise_anchor_suffix) ───────────────
+
+
+class TestBuildEnterpriseAnchorSuffix:
+    """Unit tests for build_enterprise_anchor_suffix in lib/backlink_targets.py.
+
+    Policy:
+    - products.aspose.com/family/ → "Enterprise Product Family"
+    - products.aspose.com/family/platform/ → "Enterprise Product"
+    - docs.aspose.com/* → "Enterprise Documentation"
+    - reference.aspose.com/* → "Enterprise API Reference"
+    - kb.aspose.com/* → "Enterprise Knowledge Base"
+    - Unknown domain → "Enterprise Product" (safe fallback)
+    """
+
+    @pytest.mark.parametrize("url,target_type,expected", [
+        # products.aspose.com family
+        ("https://products.aspose.com/slides/", "family", "Enterprise Product Family"),
+        ("https://products.aspose.com/words/", "family", "Enterprise Product Family"),
+        # products.aspose.com platform
+        ("https://products.aspose.com/slides/net/", "platform", "Enterprise Product"),
+        ("https://products.aspose.com/words/python/", "platform", "Enterprise Product"),
+        # docs.aspose.com — any path, any target_type → Documentation
+        ("https://docs.aspose.com/slides/java/", "platform", "Enterprise Documentation"),
+        ("https://docs.aspose.com/slides/net/", "platform", "Enterprise Documentation"),
+        ("https://docs.aspose.com/slides/", "family", "Enterprise Documentation"),
+        # reference.aspose.com — any path → API Reference
+        ("https://reference.aspose.com/slides/net/", "platform", "Enterprise API Reference"),
+        ("https://reference.aspose.com/slides/", "family", "Enterprise API Reference"),
+        # kb.aspose.com
+        ("https://kb.aspose.com/slides/net/", "platform", "Enterprise Knowledge Base"),
+    ])
+    def test_suffix_by_domain_and_type(self, url, target_type, expected):
+        result = build_enterprise_anchor_suffix(url, target_type)
+        assert result == expected, (
+            f"URL={url!r} target_type={target_type!r}: "
+            f"expected {expected!r}, got {result!r}"
+        )
+
+    def test_docs_never_enterprise_product_family(self):
+        """REGRESSION: docs.aspose.com target must NEVER produce 'Enterprise Product Family'."""
+        suffix = build_enterprise_anchor_suffix(
+            "https://docs.aspose.com/slides/java/", "family"
+        )
+        assert suffix != "Enterprise Product Family", (
+            "docs.aspose.com target produced 'Enterprise Product Family' — "
+            "this was the anchor-target domain mismatch bug. Must be 'Enterprise Documentation'."
+        )
+        assert suffix == "Enterprise Documentation"
+
+    def test_docs_never_enterprise_product(self):
+        """docs.aspose.com platform target must NOT be 'Enterprise Product'."""
+        suffix = build_enterprise_anchor_suffix(
+            "https://docs.aspose.com/slides/net/", "platform"
+        )
+        assert suffix == "Enterprise Documentation"
+        assert "Product" not in suffix
+
+    def test_products_family_never_enterprise_product(self):
+        """products.aspose.com family URL must be 'Enterprise Product Family', not 'Enterprise Product'."""
+        suffix = build_enterprise_anchor_suffix(
+            "https://products.aspose.com/slides/", "family"
+        )
+        assert suffix == "Enterprise Product Family"
+
+    def test_unknown_domain_falls_back_to_enterprise_product(self):
+        """Unknown domain uses safe fallback 'Enterprise Product'."""
+        suffix = build_enterprise_anchor_suffix(
+            "https://purchase.aspose.com/buy", "platform"
+        )
+        assert suffix == "Enterprise Product"
+
+
+# ── Domain-aware See Also entries ─────────────────────────────────────────────
+
+
+class TestDomainAwareSeeAlsoEntry:
+    """Verify _build_see_also_entry produces correct anchors for each target domain.
+
+    The critical regression: before this fix, docs.aspose.com targets produced
+    'Enterprise Product Family' or 'Enterprise Product' anchors — wrong domain.
+    """
+
+    def test_docs_target_produces_enterprise_documentation_anchor(self):
+        """docs.aspose.com target → 'Enterprise Documentation' in anchor text."""
+        entry = _build_see_also_entry(
+            target_url="https://docs.aspose.com/slides/java/",
+            family="slides",
+            platform="java",
+            subdomain="docs.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert "Enterprise Documentation" in entry
+        assert "Enterprise Product" not in entry.replace("Enterprise Documentation", "")
+        assert "docs.aspose.com/slides/java/" in entry
+
+    def test_docs_target_never_enterprise_product_family(self):
+        """REGRESSION: docs.aspose.com must NEVER produce 'Enterprise Product Family'."""
+        entry = _build_see_also_entry(
+            target_url="https://docs.aspose.com/slides/java/",
+            family="slides",
+            platform="java",
+            subdomain="docs.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert "Enterprise Product Family" not in entry, (
+            f"docs.aspose.com entry must not contain 'Enterprise Product Family': {entry!r}"
+        )
+        assert "Enterprise Documentation" in entry
+
+    def test_reference_platform_produces_api_reference_anchor(self):
+        """reference.aspose.com platform target → 'Enterprise API Reference'."""
+        entry = _build_see_also_entry(
+            target_url="https://reference.aspose.com/slides/net/",
+            family="slides",
+            platform="net",
+            subdomain="reference.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert "Enterprise API Reference" in entry
+        assert "Enterprise Product" not in entry.replace("Enterprise API Reference", "")
+
+    def test_products_family_target_produces_enterprise_product_family(self):
+        """products.aspose.com family target → 'Enterprise Product Family'."""
+        entry = _build_see_also_entry(
+            target_url="https://products.aspose.com/slides/",
+            family="slides",
+            platform="java",
+            subdomain="products.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert "Enterprise Product Family" in entry
+
+    def test_products_platform_target_produces_enterprise_product(self):
+        """products.aspose.com platform target → 'Enterprise Product'."""
+        entry = _build_see_also_entry(
+            target_url="https://products.aspose.com/slides/net/",
+            family="slides",
+            platform="net",
+            subdomain="products.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert "Enterprise Product" in entry
+        assert "Enterprise Product Family" not in entry
+
+
+# ── Domain-aware overview template ────────────────────────────────────────────
+
+
+class TestDomainAwareOverviewTemplate:
+    """Verify _apply_overview_template produces correct sentences for each target domain.
+
+    Regression guard for the anchor-target semantic mismatch:
+    [Aspose.Slides for Java — Enterprise Product Family](https://docs.aspose.com/slides/java/)
+    ↑ anchor says "Enterprise Product Family" but target is docs.aspose.com → wrong
+    """
+
+    def test_docs_target_produces_enterprise_documentation_sentence(self):
+        """docs.aspose.com target must produce 'Enterprise Documentation' in sentence."""
+        content = "Aspose.Slides FOSS for Java is an open-source slides library. MIT-licensed."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://docs.aspose.com/slides/java/",
+            family="slides",
+            platform="java",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert "Enterprise Documentation" in result
+        assert "Enterprise Product Family" not in result, (
+            "REGRESSION: docs.aspose.com overview must not contain 'Enterprise Product Family'"
+        )
+        assert "docs.aspose.com/slides/java/" in result
+
+    def test_docs_family_target_never_enterprise_product_family(self):
+        """REGRESSION: docs.aspose.com with target_type='family' must NOT produce 'Enterprise Product Family'."""
+        content = "Aspose.Slides FOSS."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://docs.aspose.com/slides/java/",
+            family="slides",
+            platform="java",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert "Enterprise Product Family" not in result, (
+            f"docs.aspose.com overview must not contain 'Enterprise Product Family': {result!r}"
+        )
+        assert "Enterprise Documentation" in result
+
+    def test_reference_target_produces_api_reference_sentence(self):
+        """reference.aspose.com target must produce 'Enterprise API Reference'."""
+        content = "Aspose.Slides FOSS for .NET is a presentation library. MIT-licensed."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://reference.aspose.com/slides/net/",
+            family="slides",
+            platform="net",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert "Enterprise API Reference" in result
+        assert "Enterprise Product Family" not in result
+
+    def test_products_family_target_produces_enterprise_product_family_sentence(self):
+        """products.aspose.com family target must produce 'Enterprise Product Family'."""
+        content = "Aspose.Slides FOSS. MIT-licensed."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/slides/",
+            family="slides",
+            platform="java",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert "Enterprise Product Family" in result
+        assert "docs.aspose.com" not in result
+
+    def test_products_platform_target_produces_enterprise_product_sentence(self):
+        """products.aspose.com platform target must produce 'Enterprise Product'."""
+        content = (
+            "Aspose.Slides FOSS for .NET is a presentation library with extensive format support. "
+            "It handles PPTX, PPT, ODP, and more. MIT-licensed and open-source on GitHub."
+        )
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/slides/net/",
+            family="slides",
+            platform="net",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert "Enterprise Product" in result
+        assert "Enterprise Product Family" not in result
+        assert "products.aspose.com/slides/net/" in result

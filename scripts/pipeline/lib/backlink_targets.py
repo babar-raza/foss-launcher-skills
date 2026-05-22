@@ -355,6 +355,82 @@ def resolve_backlink(
         return None, None, None, f"family target not found for {family} — target-map defect"
 
 
+# ── Anchor suffix policy (§anchor-v3) ────────────────────────────────────────
+
+_PRODUCTS_ASPOSE_RE = re.compile(r'https?://products\.aspose\.com/', re.IGNORECASE)
+_DOCS_ASPOSE_RE     = re.compile(r'https?://docs\.aspose\.com/',     re.IGNORECASE)
+_REF_ASPOSE_RE      = re.compile(r'https?://reference\.aspose\.com/', re.IGNORECASE)
+_KB_ASPOSE_RE       = re.compile(r'https?://kb\.aspose\.com/',        re.IGNORECASE)
+
+
+def build_enterprise_anchor_suffix(target_url: str, target_type: str) -> str:
+    """
+    Return the Enterprise anchor suffix for target_url domain and type.
+
+    Anchor text MUST be derived from the target domain (§anchor-v3):
+      products.aspose.com family   -> "Enterprise Product Family"
+      products.aspose.com platform -> "Enterprise Product"
+      docs.aspose.com (any)        -> "Enterprise Documentation"
+      reference.aspose.com (any)   -> "Enterprise API Reference"
+      kb.aspose.com (any)          -> "Enterprise Knowledge Base"
+      unknown domain               -> "Enterprise Product" (safe fallback)
+
+    Args:
+        target_url:  The resolved target URL.
+        target_type: "family" or "platform" (only relevant for products.aspose.com).
+    """
+    if _PRODUCTS_ASPOSE_RE.search(target_url):
+        return "Enterprise Product Family" if target_type == "family" else "Enterprise Product"
+    if _DOCS_ASPOSE_RE.search(target_url):
+        return "Enterprise Documentation"
+    if _REF_ASPOSE_RE.search(target_url):
+        return "Enterprise API Reference"
+    if _KB_ASPOSE_RE.search(target_url):
+        return "Enterprise Knowledge Base"
+    return "Enterprise Product"  # unknown domain — safe fallback
+
+
+def validate_anchor_suffix(anchor_text: str, target_url: str, target_type: str) -> list[str]:
+    """
+    Validate anchor_text uses the correct Enterprise suffix for target_url.
+    Returns a list of error strings (empty = valid).
+    """
+    errors: list[str] = []
+    is_docs = bool(_DOCS_ASPOSE_RE.search(target_url))
+    is_ref  = bool(_REF_ASPOSE_RE.search(target_url))
+    is_kb   = bool(_KB_ASPOSE_RE.search(target_url))
+    is_prod = bool(_PRODUCTS_ASPOSE_RE.search(target_url))
+
+    if is_docs or is_ref or is_kb:
+        if "Enterprise Product Family" in anchor_text:
+            errors.append(
+                f"ANCHOR_DOMAIN_MISMATCH: 'Enterprise Product Family' for non-products URL {target_url!r}"
+            )
+        if "Enterprise Product" in anchor_text and "Enterprise Product Family" not in anchor_text:
+            errors.append(
+                f"ANCHOR_DOMAIN_MISMATCH: 'Enterprise Product' for non-products URL {target_url!r}"
+            )
+    if is_prod and "Enterprise Documentation" in anchor_text:
+        errors.append(
+            f"ANCHOR_DOMAIN_MISMATCH: 'Enterprise Documentation' for products URL {target_url!r}"
+        )
+    if is_prod and "Enterprise API Reference" in anchor_text:
+        errors.append(
+            f"ANCHOR_DOMAIN_MISMATCH: 'Enterprise API Reference' for products URL {target_url!r}"
+        )
+    if is_prod and target_type == "family" and (
+        "Enterprise Product" in anchor_text and "Enterprise Product Family" not in anchor_text
+    ):
+        errors.append(
+            f"ANCHOR_TYPE_MISMATCH: family URL {target_url!r} has platform-level anchor text"
+        )
+    if is_prod and target_type == "platform" and "Enterprise Product Family" in anchor_text:
+        errors.append(
+            f"ANCHOR_TYPE_MISMATCH: platform URL {target_url!r} has family-level anchor text"
+        )
+    return errors
+
+
 # ── Link extraction ───────────────────────────────────────────────────────────
 
 def count_qualifying_com_links(body_text: str) -> tuple[int, list[str]]:
