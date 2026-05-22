@@ -12,7 +12,7 @@ set -e
 
 # Shell preflight (Windows-only; warn mode until Phase 4 hardens to block)
 # shellcheck source=scripts/ci/hooks/check_shell_bash.sh
-source "$(dirname "$0")/ci/check_shell_bash.sh" || exit 1
+source "$(dirname "$0")/ci/hooks/check_shell_bash.sh" || exit 1
 
 REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 HOOKS_DIR="$REPO_ROOT/.git/hooks"
@@ -46,7 +46,7 @@ echo "  post-commit -> scripts/post-commit-override.sh"
 # reference-transaction: inlined so hook is self-contained (no path dependency).
 # Heredoc (not cp) ensures executable bit on Windows NTFS (core.fileMode=false).
 cat > "$HOOKS_DIR/reference-transaction" << 'HOOKEOF'
-#!/bin/bash
+#!/bin/sh
 [ "$1" = "committed" ] || exit 0
 GIT_DIR=$(git rev-parse --git-dir 2>/dev/null) || exit 0
 SHALLOW="$GIT_DIR/shallow"

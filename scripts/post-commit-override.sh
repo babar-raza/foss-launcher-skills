@@ -15,6 +15,21 @@ PENDING_DIR="reports/overrides/pending"
 token_files=$(find "$PENDING_DIR" -maxdepth 1 -name "*.json" -not -name ".gitkeep" 2>/dev/null)
 [ -z "$token_files" ] && exit 0
 
+# ---------------------------------------------------------------------------
+# DR-01: Central .venv Python resolver — no system Python fallback.
+# Mirrors the pattern used in pre-commit-audit.sh and commit-msg-skills.sh.
+# When .venv is absent, skip token consumption with a diagnostic warning.
+# ---------------------------------------------------------------------------
+if [ -f ".venv/Scripts/python" ]; then
+    _HOOK_PYTHON=".venv/Scripts/python"
+elif [ -f ".venv/bin/python" ]; then
+    _HOOK_PYTHON=".venv/bin/python"
+else
+    echo "[post-commit] WARN: .venv not found — override token consumption skipped." >&2
+    echo "  Recovery: bash scripts/ci/hooks/repair_venv.sh" >&2
+    exit 0
+fi
+
 COMMIT_SHA=$(git rev-parse HEAD 2>/dev/null)
 if [ -z "$COMMIT_SHA" ]; then
     echo "post-commit-override: could not get HEAD SHA -- tokens NOT consumed" >&2
@@ -25,7 +40,7 @@ consumed=0
 for token_file in $token_files; do
     token_id=$(basename "$token_file" .json)
     echo "Consuming override token: $token_id"
-    python scripts/pipeline/commands/governance/override_manager.py consume \
+    "$_HOOK_PYTHON" scripts/pipeline/commands/governance/override_manager.py consume \
         --token-id "$token_id" \
         --commit-sha "$COMMIT_SHA"
     if [ $? -eq 0 ]; then
