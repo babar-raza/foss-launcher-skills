@@ -52,6 +52,9 @@ def _install_command(family, platform, version=""):
         gid = "com.aspose"
         aid = f"aspose-{family}-foss"
         return f"<dependency><groupId>{gid}</groupId><artifactId>{aid}</artifactId></dependency>"
+    elif platform == "go":
+        module = f"github.com/aspose-{family}-foss/aspose-{family}-foss-for-go"
+        return f"go get {module}"
     return f"pip install {pkg}"
 
 
@@ -178,11 +181,11 @@ def build_index(family, platform):
         print(f"  SKIP {family}/{platform}: no model.yaml")
         return None
 
-    model = yaml.safe_load((merged_dir / "model.yaml").read_text())
-    claims = json.loads((merged_dir / "claims.json").read_text()) if (merged_dir / "claims.json").exists() else []
-    api = json.loads((merged_dir / "api_surface.json").read_text()) if (merged_dir / "api_surface.json").exists() else []
-    formats = json.loads((merged_dir / "formats.json").read_text()) if (merged_dir / "formats.json").exists() else []
-    class_graph = json.loads((merged_dir / "class_graph.json").read_text()) if (merged_dir / "class_graph.json").exists() else {}
+    model = yaml.safe_load((merged_dir / "model.yaml").read_text(encoding="utf-8"))
+    claims = json.loads((merged_dir / "claims.json").read_text(encoding="utf-8")) if (merged_dir / "claims.json").exists() else []
+    api = json.loads((merged_dir / "api_surface.json").read_text(encoding="utf-8")) if (merged_dir / "api_surface.json").exists() else []
+    formats = json.loads((merged_dir / "formats.json").read_text(encoding="utf-8")) if (merged_dir / "formats.json").exists() else []
+    class_graph = json.loads((merged_dir / "class_graph.json").read_text(encoding="utf-8")) if (merged_dir / "class_graph.json").exists() else {}
 
     # Build the public API view once — reused for all downstream metrics.
     # Excludes test functions, private members, test-file classes, and
@@ -192,6 +195,16 @@ def build_index(family, platform):
     api_with_methods    = sum(1 for c in public_api if c.get("methods"))
     api_with_properties = sum(1 for c in public_api if c.get("properties"))
     api_with_enums      = sum(1 for c in public_api if c.get("enum_members"))
+
+    # Go-specific: methods are top-level method_declaration nodes with receiver types,
+    # not nested inside type declarations. The scout extracts them as separate "function"
+    # entries. Count all exported function entries as a proxy for method richness.
+    if platform == "go" and api_with_methods == 0 and isinstance(api, list):
+        go_functions = sum(1 for e in api if isinstance(e, dict) and e.get("kind") == "function"
+                           and e.get("name", "").startswith(tuple("ABCDEFGHIJKLMNOPQRSTUVWXYZ")))
+        if go_functions > 0:
+            # Go types presumed to have methods — use function count as approximation.
+            api_with_methods = min(api_total, go_functions)
 
     if api_total > 0:
         method_pct = api_with_methods / api_total
@@ -220,7 +233,7 @@ def build_index(family, platform):
     lim_path = merged_dir / "limitations.md"
     if lim_path.exists():
         in_doc_errors = False
-        for line in lim_path.read_text().splitlines():
+        for line in lim_path.read_text(encoding="utf-8").splitlines():
             if "Known Documentation Errors" in line:
                 in_doc_errors = True
                 continue

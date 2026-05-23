@@ -32,6 +32,7 @@ PLATFORM_TO_LANG: dict[str, str] = {
     "typescript": "typescript",
     "javascript": "javascript",
     "nodejs": "javascript",
+    "go": "go",
 }
 
 _CLASS_TYPES: dict[str, set[str]] = {
@@ -104,6 +105,7 @@ _FILE_EXTENSIONS: dict[str, str] = {
     "cpp": ".cpp",
     "typescript": ".ts",
     "javascript": ".js",
+    "go": ".go",
 }
 
 _HEADER_EXTENSIONS: dict[str, str | list[str]] = {
