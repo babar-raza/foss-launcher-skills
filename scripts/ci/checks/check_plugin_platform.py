@@ -19,7 +19,7 @@ except ImportError:
 
 # Canonical values from AGENTS.md Section 3b.
 # Update this set when a new platform is added to the repo.
-CANONICAL_PLUGIN_PLATFORMS = {".NET", "Python", "Java", "C++", "TypeScript"}
+CANONICAL_PLUGIN_PLATFORMS = {".NET", "Python", "Java", "C++", "TypeScript", "Go"}
 
 PRODUCTS_ROOT = Path(__file__).resolve().parents[3] / "content" / "products.aspose.org"
 

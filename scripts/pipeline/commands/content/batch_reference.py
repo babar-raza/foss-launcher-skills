@@ -136,6 +136,7 @@ _CLASS_KINDS_BY_PLATFORM: dict[str, set[str]] = {
                    "type_alias_declaration"},
     "javascript": {"class_declaration"},
     "nodejs":     {"class_declaration"},
+    "go":         {"type_spec"},
 }
 
 _CPP_ABSTRACT_BASES: frozenset[str] = frozenset({
