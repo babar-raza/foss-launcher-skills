@@ -109,8 +109,12 @@ _DEFAULT_ORGS = [
 
 # Pattern: Aspose.{Family}-FOSS-for-{Platform}  (e.g. Aspose.3D-FOSS-for-Python)
 # Also accepts legacy: aspose-{family}-{platform}
+# Also accepts lowercase foss-for: aspose-{family}-foss-for-{platform} (e.g. aspose-pdf-foss-for-go)
 _REPO_PATTERN_FOSS = re.compile(
     r"^Aspose\.([A-Za-z0-9]+)-FOSS-for-([A-Za-z0-9.]+)$"
+)
+_REPO_PATTERN_FOSS_LOWER = re.compile(
+    r"^aspose-([a-z0-9]+)-foss-for-([a-z0-9]+)$"
 )
 _REPO_PATTERN_LEGACY = re.compile(r"^aspose-([a-z0-9]+)-([a-z0-9]+)$")
 
@@ -148,6 +152,13 @@ def _classify_repo(repo_name: str) -> tuple[str, str] | None:
         platform_raw = m.group(2).lower()  # "Python" → "python", ".NET" → ".net"
         platform = _PLATFORM_MAP.get(platform_raw, platform_raw)
         return family, platform
+
+    # Lowercase foss-for convention: aspose-pdf-foss-for-go
+    m = _REPO_PATTERN_FOSS_LOWER.match(repo_name.lower())
+    if m:
+        platform_raw = m.group(2)
+        platform = _PLATFORM_MAP.get(platform_raw, platform_raw)
+        return m.group(1), platform
 
     # Legacy convention: aspose-3d-python
     m = _REPO_PATTERN_LEGACY.match(repo_name.lower())
