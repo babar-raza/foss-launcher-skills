@@ -193,6 +193,10 @@ PLATFORM_SDK_CLASSES = {
     "Copyright",           # License notice in comments (not a class)
     "EXTENSIONS",          # Constant/enum (not a product class)
     "Create",              # Factory method pattern (File.Create, etc.)
+    # Go stdlib (fmt package) — appear in Go code examples but not product API
+    "Printf",              # fmt.Printf (Go fmt package)
+    "Println",             # fmt.Println (Go fmt package)
+    "Sprintf",             # fmt.Sprintf (Go fmt package)
 }
 
 
