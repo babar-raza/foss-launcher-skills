@@ -313,24 +313,9 @@ def _apply_overview_template(
             )
 
     text = current_content.rstrip()
-
-    # Find insertion point before MIT/GitHub closing sentence
-    closing_patterns = [r'[Ii]t is MIT', r'[Oo]pen.source on GitHub', r'MIT license', r'GitHub']
-    sentences = list(re.finditer(r'(?<=[.!?])\s+(?=[A-Z])', text))
-    insert_at = len(text)
-    for pattern in closing_patterns:
-        for m in reversed(sentences):
-            tail = text[m.end():]
-            if re.search(pattern, tail[:100]):
-                insert_at = m.end()
-                break
-        if insert_at < len(text):
-            break
-
-    if insert_at >= len(text):
-        return text + " " + sentence
-    else:
-        return text[:insert_at].rstrip() + " " + sentence + " " + text[insert_at:].lstrip()
+    # CTA must be the final sentence — always append unconditionally.
+    # Never insert mid-text: license/FOSS-closing sentences must precede the CTA, not follow it.
+    return text + " " + sentence
 
 
 def _rewrite_yaml_file(raw: str, data: dict, fm_text: str) -> str | None:

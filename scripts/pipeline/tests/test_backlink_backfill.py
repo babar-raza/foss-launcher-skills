@@ -934,3 +934,93 @@ class TestEmDashStyleEnforcement:
         # Pattern: " — " (space-emdash-space)
         assert " \u2014 " in entry, f"Expected ' — ' (space-em-space) in: {entry!r}"
         assert " —" not in entry and "  —" not in entry, f"Double-space before em-dash is forbidden in: {entry!r}"
+
+
+# ── CTA end-placement enforcement ──────────────────────────────────────────────────────────────────────────────
+
+
+class TestCtaEndPlacement:
+    """_apply_overview_template must always produce the CTA as the final sentence.
+
+    The enterprise CTA is an exit link. It must appear at the very end of overview.content
+    so it never interrupts license terms, FOSS-identity statements, runtime requirements,
+    or platform-compatibility paragraphs.
+
+    Regression guard: the prior implementation inserted the CTA before MIT/GitHub closing
+    sentences, producing FAIL_INTERRUPTS_LICENSE_FLOW and FAIL_WRONG_TRANSITION patterns
+    across 11 product pages.
+    """
+
+    def test_cta_is_final_when_content_ends_with_mit_sentence(self):
+        """CTA must follow (not precede) a trailing MIT license sentence."""
+        content = (
+            "Aspose.Cells FOSS for .NET runs on Windows, macOS, and Linux. "
+            "The MIT License permits unrestricted commercial use with no royalties."
+        )
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/cells/net/",
+            family="cells", platform="net",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        mit_pos = result.find("MIT License")
+        cta_pos = result.find("products.aspose.com/cells/net/")
+        assert mit_pos >= 0 and cta_pos >= 0
+        assert mit_pos < cta_pos, (
+            f"MIT sentence (pos {mit_pos}) must precede CTA (pos {cta_pos}). Got: {result!r}"
+        )
+
+    def test_cta_is_final_when_content_ends_with_github_sentence(self):
+        """CTA must follow (not precede) a trailing GitHub/open-source sentence."""
+        content = (
+            "Aspose.Words FOSS for Python converts documents programmatically. "
+            "It is MIT-licensed and fully open-source on GitHub."
+        )
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/words/python/",
+            family="words", platform="python",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        github_pos = result.find("open-source on GitHub")
+        cta_pos = result.find("products.aspose.com/words/python/")
+        assert github_pos >= 0 and cta_pos >= 0
+        assert github_pos < cta_pos, (
+            f"GitHub sentence (pos {github_pos}) must precede CTA (pos {cta_pos}). Got: {result!r}"
+        )
+
+    def test_cta_is_final_with_no_closing_sentence(self):
+        """CTA must be appended at end when there is no special closing sentence."""
+        content = "Aspose.Slides FOSS for Java supports PPTX round-trip editing."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/slides/java/",
+            family="slides", platform="java",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert result.rstrip().endswith(")."), f"CTA must be final: {result!r}"
+        assert result.count("products.aspose.com/slides/java/") == 1
+
+    def test_cta_is_final_with_multiline_content(self):
+        """CTA must be appended at end for multi-paragraph content."""
+        content = (
+            "Aspose.Font FOSS for Python loads TTF, OTF, and WOFF fonts.\n\n"
+            "The library exposes a FontLoader API. "
+            "Aspose.Font FOSS is MIT licensed and installable from PyPI with pip install."
+        )
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/font/",
+            family="font", platform="python",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        mit_pos = result.find("MIT licensed")
+        cta_pos = result.find("products.aspose.com/font/")
+        assert mit_pos >= 0 and cta_pos >= 0
+        assert mit_pos < cta_pos, (
+            f"MIT sentence (pos {mit_pos}) must precede CTA (pos {cta_pos})"
+        )
