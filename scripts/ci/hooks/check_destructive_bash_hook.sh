@@ -17,6 +17,7 @@
 #   rm -rf /               (system-level mass deletion)
 #   rm -rf ~               (home directory mass deletion)
 #   Remove-Item -Recurse on root or home paths (PowerShell)
+#   hugo -d public*    (relative destination writes artifacts into repo root)
 #
 # Allowed despite destructive appearance:
 #   git push --force-with-lease   (safe force: checks remote state first)
@@ -202,6 +203,17 @@ while IFS= read -r _line; do
     if echo "$_stripped" | grep -qi 'Remove-Item.*-Recurse\|Remove-Item.*-r\b'; then
         if echo "$_stripped" | grep -qE '(C:\\\\|/|~)' && echo "$_stripped" | grep -qEi 'Remove-Item\s+(C:\\\\|/\s|~)'; then
             _block "$_stripped" "Remove-Item -Recurse on root or home path destroys critical directories"
+        fi
+    fi
+
+    # --- hugo with relative public* destination (TC-HUGO-03) ---
+    # Blocked: hugo ... -d public<anything>  or  --destination public<anything>
+    # These write build artifacts into the repo root, bloating git status.
+    # Allowed: hugo server (no -d), hugo ... -d /tmp/..., hugo ... -d $(mktemp -d)
+    # Reference: scripts/ci/hooks/check_hugo_build.sh uses mktemp -d correctly.
+    if echo "$_stripped" | grep -qE '(^|[;|&])\s*hugo\b'; then
+        if echo "$_stripped" | grep -qE -- '(-d|--destination)[[:space:]]+public'; then
+            _block "$_stripped" "hugo with a relative 'public*' destination writes build output into the repo root -- use a system temp dir instead: tmpdir=\$(mktemp -d) then hugo -d \"\$tmpdir\". See docs/governance/write-boundaries.md \u00a7Hugo Output Discipline."
         fi
     fi
 

@@ -184,3 +184,35 @@ def test_reset_head_allowed():
 
 def test_reset_head_file_allowed():
     assert _run("git reset HEAD -- content/foo.md") == 0
+
+
+# New blocks: hugo relative-public destination (TC-HUGO-03)
+
+def test_db_11_hugo_d_public_relative_blocked():
+    """DB-11: hugo -d public-whatever/ -> exit 2."""
+    assert _run("hugo --config configs/x.toml -d public-whatever/ --quiet") == 2
+
+
+def test_db_12_hugo_destination_public_iv_blocked():
+    """DB-12: hugo --destination public-iv-docs/ -> exit 2."""
+    assert _run("hugo --config configs/x.toml --destination public-iv-docs/") == 2
+
+
+def test_db_13_hugo_d_public_slash_blocked():
+    """DB-13: hugo -d public/ -> exit 2 (bare public/ is also blocked)."""
+    assert _run("hugo --config configs/x.toml -d public/ --quiet") == 2
+
+
+def test_db_14_hugo_server_no_d_allowed():
+    """DB-14: hugo server (no -d flag) -> exit 0."""
+    assert _run("hugo server --config configs/x.toml") == 0
+
+
+def test_db_15_hugo_d_tmp_allowed():
+    """DB-15: hugo -d /tmp/hugo-out -> exit 0 (absolute temp path)."""
+    assert _run("hugo --config configs/x.toml -d /tmp/hugo-out --quiet") == 0
+
+
+def test_db_16_hugo_d_mktemp_subshell_allowed():
+    """DB-16: hugo -d $(mktemp -d) -> exit 0 (subshell literal, not public*)."""
+    assert _run("hugo --config configs/x.toml -d $(mktemp -d) --quiet") == 0

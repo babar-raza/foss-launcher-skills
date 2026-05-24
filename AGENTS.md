@@ -423,6 +423,7 @@ escalation item where S-90 can perform the inspection. The distinction between "
   - Any plan, prompt, memory entry, or documentation that presents `foss-launcher` as the current
     clone-cache location is invalid and must be corrected before use.
 - Commit a `.md` file whose sole staged diff from HEAD is a changed `graded_at:` timestamp. The pre-commit hook Step 10 auto-reverts such files; using `--no-verify` to bypass this gate is prohibited.
+- **No `hugo -d <relative-path>` from the Bash tool.** All agent Hugo builds must write to a system temp dir (`$(mktemp -d)` in bash, `tempfile.mkdtemp()` in Python subprocesses). Relative destinations like `public-as-*` or `public-iv-*` write full-site HTML artifacts into the repo root, bloating git status and risking accidental commits. Enforcement: PreToolUse Bash hook (`scripts/ci/hooks/check_destructive_bash_hook.sh`). Reference implementation: `scripts/ci/hooks/check_hugo_build.sh`. Rule documentation: `docs/governance/write-boundaries.md §Hugo Output Discipline`.
 
 ## 12. File Map
 
