@@ -2834,3 +2834,35 @@ scripts:
     test_exempt_reason: "new script; integration-tested via S-84 Step 9.6 and grade-remediate workflow; unit tests in future sprint"
     deprecated_since: null
     notes: "Scan content pages for D/F grades and stale grades (graded_content_hash mismatch); used in S-84 Step 9.6 and grade-remediate skill; outputs reports/refresh_review/{family}/{platform}/grade_remediation_report.json"
+
+  - path: scripts/pipeline/commands/launch/api_symbol_validator.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "launch validator; verifies Go API symbols in content code blocks against api_surface.json; integration-tested via pdf/go sprint closure"
+    deprecated_since: null
+    notes: "Validate Go API symbols in content code blocks; checks pdf.Symbol references against api_surface.json exported types and functions"
+
+  - path: scripts/pipeline/commands/launch/marketing_truth_validator.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "launch validator; checks products pages for forbidden claim patterns (XMP, PDF/A) vs clone-cache source; integration-tested via pdf/go sprint closure"
+    deprecated_since: null
+    notes: "Validate marketing claims in products pages; checks for forbidden capability claims not backed by clone-cache source"
