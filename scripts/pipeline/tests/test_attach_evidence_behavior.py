@@ -234,3 +234,103 @@ class TestAuditFailGate:
         assert counts.get("SKIP (audit FAILs)") == 1, f"Expected SKIP (audit FAILs): {counts}"
         text = f.read_text(encoding="utf-8")
         assert "evidence:" not in text, "Evidence block must NOT be written when FAILs present"
+
+
+# ---------------------------------------------------------------------------
+# Section 4 — content_substance hardening for reference pages (SFX-4 BATCH 4)
+# ---------------------------------------------------------------------------
+
+class TestContentSubstanceHardeningForReference:
+    """Verify that attach_evidence() runs ContentSubstanceEvaluator for reference pages.
+
+    Before this hardening, a reference page stub with <50 prose words could receive
+    grade A from attach_evidence() because only verify_tokens() and
+    DescriptionCompletenessEvaluator were run.  After hardening, a stub page
+    must produce a grade of C or lower.
+    """
+
+    def _make_reference_stub(self, tmp_path: Path) -> Path:
+        """Write a minimal reference page that sits on a reference.aspose.org path."""
+        ref_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "go"
+        ref_dir.mkdir(parents=True)
+        stub = ref_dir / "FakeType.md"
+        stub.write_text(
+            "---\n"
+            "title: FakeType\n"
+            "weight: 10\n"
+            "---\n\n"
+            "FakeType is a class in Aspose.PDF FOSS for Go.\n",
+            encoding="utf-8",
+        )
+        return stub
+
+    def test_stub_reference_page_does_not_get_grade_a(self, tmp_path):
+        """A reference page stub (<50 prose words) must not receive grade A."""
+        import evidence.runner as er
+        import grade_writer  # noqa: F401
+        import content_eval.models  # noqa: F401
+        import content_eval  # noqa: F401
+
+        stub = self._make_reference_stub(tmp_path)
+        fk = _FakeKnowledge(repo_sha="sha_cs_test", platform="go")
+
+        captured_grades: list[str] = []
+
+        def fake_write_grade(path, grade, **kwargs):
+            captured_grades.append(grade)
+
+        with (
+            patch.object(er, "infer_product", return_value=("pdf", "go")),
+            patch("evidence.runner.Knowledge", return_value=fk),
+            patch("evidence.runner.extract_tokens", return_value=[]),
+            patch("evidence.runner.verify_tokens", return_value=[]),
+            patch("evidence.runner._map_tokens_to_evidence", return_value=([], [])),
+            patch("evidence.runner._detect_formats", return_value=[]),
+            patch("evidence.runner._build_sections_evidence", return_value=[]),
+            patch("grade_writer.write_grade", side_effect=fake_write_grade),
+            patch.object(content_eval, "EVALUATOR_LOGIC_VERSION", "v1"),
+        ):
+            counts = er.attach_files([stub])
+
+        assert counts.get("UPDATED") == 1, f"Expected UPDATED, got {counts}"
+        assert len(captured_grades) == 1, f"write_grade should be called once: {captured_grades}"
+        grade = captured_grades[0]
+        # Stub page (<50 prose words) must NOT receive grade A via attach_evidence
+        assert grade != "A", (
+            f"Stub reference page received grade A — ContentSubstanceEvaluator "
+            f"is not being applied. Got grade: {grade}"
+        )
+
+    def test_evaluator_tier_includes_content_substance_when_cs_fires(self, tmp_path):
+        """When ContentSubstanceEvaluator produces findings, tier must include 'content_substance'."""
+        import evidence.runner as er
+        import grade_writer  # noqa: F401
+        import content_eval.models  # noqa: F401
+        import content_eval  # noqa: F401
+
+        stub = self._make_reference_stub(tmp_path)
+        fk = _FakeKnowledge(repo_sha="sha_cs_tier", platform="go")
+
+        captured_tiers: list[str] = []
+
+        def fake_write_grade(path, grade, evaluator_tier="audit", **kwargs):
+            captured_tiers.append(evaluator_tier)
+
+        with (
+            patch.object(er, "infer_product", return_value=("pdf", "go")),
+            patch("evidence.runner.Knowledge", return_value=fk),
+            patch("evidence.runner.extract_tokens", return_value=[]),
+            patch("evidence.runner.verify_tokens", return_value=[]),
+            patch("evidence.runner._map_tokens_to_evidence", return_value=([], [])),
+            patch("evidence.runner._detect_formats", return_value=[]),
+            patch("evidence.runner._build_sections_evidence", return_value=[]),
+            patch("grade_writer.write_grade", side_effect=fake_write_grade),
+            patch.object(content_eval, "EVALUATOR_LOGIC_VERSION", "v1"),
+        ):
+            er.attach_files([stub])
+
+        assert len(captured_tiers) == 1, f"write_grade not called: {captured_tiers}"
+        tier = captured_tiers[0]
+        assert "content_substance" in tier, (
+            f"evaluator_tier must include 'content_substance' when CS fires. Got: {tier}"
+        )

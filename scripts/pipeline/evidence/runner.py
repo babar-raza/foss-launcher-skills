@@ -238,22 +238,32 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
         fail_count = 0
         evaluator_tier = "audit"
 
-        # For reference pages: also run description_completeness to catch empty
-        # description tables. attach_evidence normally uses only verify_tokens()
-        # (audit tier), which checks API accuracy but not content completeness.
-        # Without this, pages with 100% empty description cells grade A because
-        # verify_tokens() finds 0 FAILs when all API names are structurally correct.
+        # For reference pages: also run description_completeness and content_substance
+        # to catch empty description tables and stub pages. attach_evidence normally uses
+        # only verify_tokens() (audit tier), which checks API accuracy but not completeness.
+        # Without description_completeness: pages with 100% empty description cells grade A.
+        # Without content_substance: pages with <50 prose words silently grade A.
         if "reference.aspose.org" in str(filepath):
             try:
                 from content_eval.evaluators.description_completeness import (  # noqa: E402
                     DescriptionCompletenessEvaluator,
                 )
+                from content_eval.evaluators.content_substance import (  # noqa: E402
+                    ContentSubstanceEvaluator,
+                )
                 page = Page.load(Path(filepath))
                 dc_findings = DescriptionCompletenessEvaluator().evaluate(page, knowledge)
-                fail_count += sum(1 for f in dc_findings if f.level == "FAIL")
-                warn_count += sum(1 for f in dc_findings if f.level == "WARN")
+                cs_findings = ContentSubstanceEvaluator().evaluate(page, knowledge)
+                extra = dc_findings + cs_findings
+                fail_count += sum(1 for f in extra if f.level == "FAIL")
+                warn_count += sum(1 for f in extra if f.level == "WARN")
+                tiers = ["audit"]
                 if dc_findings:
-                    evaluator_tier = "audit,description_completeness"
+                    tiers.append("description_completeness")
+                if cs_findings:
+                    tiers.append("content_substance")
+                if len(tiers) > 1:
+                    evaluator_tier = ",".join(tiers)
             except Exception:
                 pass  # never block evidence writing on evaluator errors
 
