@@ -315,3 +315,190 @@ class TestVerdictPrecedence:
         assert _VERDICT_EXIT["PAGE_MAPPING_MISSED_IMPACT"] == 2
         assert _VERDICT_EXIT["GUARD_ERROR_BLOCKED"] == 4
         assert _VERDICT_EXIT["GUARD_ERROR_WARN"] == 5
+        # v2 verdicts
+        assert _VERDICT_EXIT["GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT"] == 1
+        assert _VERDICT_EXIT["EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED"] == 0
+
+
+# ---------------------------------------------------------------------------
+# Guard v2: Generated-page masking tests (page_impact_data)
+# ---------------------------------------------------------------------------
+
+def _make_page_decisions_with_paths(entries: list[tuple[str, bool, str]]) -> dict:
+    """Build page_decisions dict with explicit paths.
+    entries: list of (path, body_hash_changed, decision)
+    """
+    pages = {}
+    for path, body_changed, decision in entries:
+        pages[path] = {"body_hash_changed": body_changed, "decision": decision}
+    return {"pages": pages}
+
+
+def _make_page_impact(entries: list[tuple[str, str, str]]) -> dict:
+    """Build page_impact dict.
+    entries: list of (path, subdomain, pia_score)
+    """
+    return {
+        "pages": [
+            {"path": path, "subdomain": sub, "pia_score": score}
+            for path, sub, score in entries
+        ]
+    }
+
+
+class TestGuardV2GeneratedPageMasking:
+    """Tests for GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT detection (v2)."""
+
+    def test_font_python_masking_defect_blocked(self, tmp_path):
+        """font/python case: 6 generated reference pages changed + 68 HIGH_IMPACT
+        docs/kb pages EVIDENCE_ONLY → GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT, exit 1."""
+        sd = _make_source_delta(
+            source_changed=True,
+            source_change_impact="HIGH",
+            diff_available=True,
+            claim_delta_count=5,
+            files_classified=[
+                {"path": "src/font.py", "category": "DEFINITELY_USER_FACING", "reason": "src"}
+            ],
+        )
+        # 6 reference stubs changed (generated)
+        ref_entries = [
+            (f"content/reference.aspose.org/en/font/python/Class{i}.md", True, "BODY_UPDATED")
+            for i in range(6)
+        ]
+        # 5 HIGH_IMPACT docs pages EVIDENCE_ONLY
+        docs_entries = [
+            (f"content/docs.aspose.org/en/font/python/guide{i}.md", False, "EVIDENCE_ONLY")
+            for i in range(5)
+        ]
+        pd = _make_page_decisions_with_paths(ref_entries + docs_entries)
+        pi = _make_page_impact(
+            [(f"content/docs.aspose.org/en/font/python/guide{i}.md", "docs", "HIGH_IMPACT")
+             for i in range(5)]
+        )
+        with patch("commands.ops.semantic_refresh_guard._count_grade_issues", return_value=0):
+            verdict, confidence, proof = evaluate(
+                "font", "python", sd, pd, {}, repo_root=tmp_path, page_impact_data=pi
+            )
+        assert verdict == "GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT", (
+            f"Expected GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT, got {verdict}"
+        )
+        assert _VERDICT_EXIT[verdict] == 1
+        assert any("GENERATED_ONLY" in p for p in proof)
+
+    def test_existing_content_page_updated_verified(self, tmp_path):
+        """Existing docs page changed → EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED, exit 0."""
+        sd = _make_source_delta(
+            source_changed=True,
+            source_change_impact="HIGH",
+            diff_available=True,
+            claim_delta_count=0,
+        )
+        # 1 docs page changed + 1 reference page changed
+        pd = _make_page_decisions_with_paths([
+            ("content/docs.aspose.org/en/font/python/guide.md", True, "BODY_UPDATED"),
+            ("content/reference.aspose.org/en/font/python/Class.md", True, "BODY_UPDATED"),
+            ("content/docs.aspose.org/en/font/python/other.md", False, "EVIDENCE_ONLY"),
+        ])
+        pi = _make_page_impact([
+            ("content/docs.aspose.org/en/font/python/guide.md", "docs", "HIGH_IMPACT"),
+            ("content/docs.aspose.org/en/font/python/other.md", "docs", "HIGH_IMPACT"),
+        ])
+        with patch("commands.ops.semantic_refresh_guard._count_grade_issues", return_value=0):
+            verdict, confidence, proof = evaluate(
+                "font", "python", sd, pd, {}, repo_root=tmp_path, page_impact_data=pi
+            )
+        assert verdict == "EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED"
+        assert _VERDICT_EXIT[verdict] == 0
+
+    def test_generated_only_no_high_impact_existing_passes(self, tmp_path):
+        """Generated reference pages changed + NO HIGH/MEDIUM existing pages → BODY_UPDATED_VERIFIED."""
+        sd = _make_source_delta(
+            source_changed=True,
+            source_change_impact="HIGH",
+            diff_available=True,
+            claim_delta_count=0,
+        )
+        # Only reference pages changed, no HIGH_IMPACT existing pages
+        pd = _make_page_decisions_with_paths([
+            ("content/reference.aspose.org/en/font/python/Class.md", True, "BODY_UPDATED"),
+            ("content/docs.aspose.org/en/font/python/low.md", False, "EVIDENCE_ONLY"),
+        ])
+        pi = _make_page_impact([
+            ("content/docs.aspose.org/en/font/python/low.md", "docs", "LOW_IMPACT"),
+        ])
+        with patch("commands.ops.semantic_refresh_guard._count_grade_issues", return_value=0):
+            verdict, confidence, proof = evaluate(
+                "font", "python", sd, pd, {}, repo_root=tmp_path, page_impact_data=pi
+            )
+        # No HIGH/MEDIUM existing pages → generated-only change is acceptable
+        # ref_body=1, existing_body=0, hm_eo=0 → does NOT fire GENERATED_ONLY
+        assert verdict in ("BODY_UPDATED_VERIFIED", "EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED",
+                           "GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT")
+        # Specifically: hm_eo=0 means condition not met → falls through
+        assert verdict != "GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT"
+        assert _VERDICT_EXIT[verdict] == 0
+
+    def test_no_page_impact_falls_back_to_v1_behavior(self, tmp_path):
+        """Without page_impact_data, body_changed > 0 → BODY_UPDATED_VERIFIED (backward compat)."""
+        sd = _make_source_delta(
+            source_changed=True,
+            source_change_impact="HIGH",
+            diff_available=True,
+            claim_delta_count=0,
+        )
+        pd = _make_page_decisions(body_changed_count=6)
+        with patch("commands.ops.semantic_refresh_guard._count_grade_issues", return_value=0):
+            # No page_impact_data → backward compat
+            verdict, confidence, proof = evaluate(
+                "font", "python", sd, pd, {}, repo_root=tmp_path, page_impact_data=None
+            )
+        assert verdict == "BODY_UPDATED_VERIFIED"
+        assert _VERDICT_EXIT[verdict] == 0
+
+    def test_cells_java_still_blocked_with_page_impact(self, tmp_path):
+        """cells/java: modified_claims + body=0 → PAGE_MAPPING_MISSED_IMPACT (priority 3 wins)."""
+        sd = _make_source_delta(
+            source_changed=True,
+            source_change_impact="HIGH",
+            diff_available=True,
+            claim_delta_count=92,
+            removed_claims=92,
+            files_classified=[
+                {"path": "src/Workbook.java", "category": "DEFINITELY_USER_FACING", "reason": "src"}
+            ],
+        )
+        pd = _make_page_decisions(body_changed_count=0, evidence_only=304)
+        pi = _make_page_impact([
+            ("content/docs.aspose.org/en/cells/java/guide.md", "docs", "HIGH_IMPACT"),
+        ])
+        verdict, confidence, proof = evaluate(
+            "cells", "java", sd, pd, {}, repo_root=tmp_path, page_impact_data=pi
+        )
+        assert verdict == "PAGE_MAPPING_MISSED_IMPACT"
+        assert _VERDICT_EXIT[verdict] == 2
+
+    def test_generated_masking_does_not_override_claim_extraction(self, tmp_path):
+        """CLAIM_EXTRACTION_MISSED_DELTA (priority 2) fires before generated masking check."""
+        sd = _make_source_delta(
+            source_changed=True,
+            source_change_impact="HIGH",
+            diff_available=True,
+            claim_delta_count=0,  # no claim delta
+            files_classified=[
+                {"path": "src/font.py", "category": "DEFINITELY_USER_FACING", "reason": "src"}
+            ],
+        )
+        # Even with reference body changes present
+        pd = _make_page_decisions_with_paths([
+            ("content/reference.aspose.org/en/font/python/Class.md", True, "BODY_UPDATED"),
+        ])
+        pi = _make_page_impact([
+            ("content/docs.aspose.org/en/font/python/guide.md", "docs", "HIGH_IMPACT"),
+        ])
+        verdict, confidence, proof = evaluate(
+            "font", "python", sd, pd, {}, repo_root=tmp_path, page_impact_data=pi
+        )
+        # Priority 2 (CLAIM_EXTRACTION) fires before priority 8 (GENERATED_ONLY)
+        assert verdict == "CLAIM_EXTRACTION_MISSED_DELTA"
+        assert _VERDICT_EXIT[verdict] == 2

@@ -1,18 +1,25 @@
 #!/usr/bin/env python3
-"""semantic_refresh_guard.py — Post-update semantic refresh guard.
+"""semantic_refresh_guard.py — Post-update semantic refresh guard (v2).
 
 CONTRACT: scripts/pipeline/commands/ops/semantic_refresh_guard.py
   purpose: After page-update completes, verify that HIGH/MEDIUM/UNKNOWN source changes
-           produced appropriate body updates. Blocks refresh acceptance when unproven noops detected.
+           produced appropriate body updates. Blocks refresh acceptance when unproven noops
+           detected or when only generated reference pages changed while existing HIGH/MEDIUM
+           impacted content pages remained EVIDENCE_ONLY.
            Consumes semantic_source_delta.json (from semantic_source_classifier.py, Step 4.5)
            and page_decisions.json (from refresh_review.py, post page-update).
-  inputs:  family, platform, --source-delta (REQUIRED), --page-decisions (REQUIRED)
+           Optionally consumes page_impact.json (from page_impact_assess.py) to distinguish
+           generated reference pages from existing impacted content pages.
+  inputs:  family, platform, --source-delta (REQUIRED), --page-decisions (REQUIRED),
+           --page-impact (optional: reports/refresh_review/{family}/{platform}/page_impact.json)
   outputs: reports/refresh_review/{family}/{platform}/semantic_refresh_verdict.json
   idempotent: yes — overwrites on re-run
 
 Exit codes:
-  0 = SEMANTIC_NOOP_PROVEN | BODY_UPDATED_VERIFIED | GRADING_REMEDIATION_REQUIRED (accept allowed)
-  1 = REFRESH_BLOCKED_UNPROVEN_NOOP | SEMANTIC_REFRESH_REQUIRED (commit blocked)
+  0 = SEMANTIC_NOOP_PROVEN | BODY_UPDATED_VERIFIED | EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED
+      | GRADING_REMEDIATION_REQUIRED (accept allowed)
+  1 = REFRESH_BLOCKED_UNPROVEN_NOOP | SEMANTIC_REFRESH_REQUIRED
+      | GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT (commit blocked)
   2 = CLAIM_EXTRACTION_MISSED_DELTA | PAGE_MAPPING_MISSED_IMPACT (commit blocked)
   4 = GUARD_ERROR_BLOCKED (infra error + HIGH/MEDIUM/UNKNOWN source change — commit blocked)
   5 = GUARD_ERROR_WARN (infra error + source_changed=false or INTERNAL_ONLY — warn only)
@@ -25,7 +32,10 @@ Verdict precedence (highest priority wins):
   5. REFRESH_BLOCKED_UNPROVEN_NOOP  (generic catch-all: body=0, no diagnosis)
   6. GRADING_REMEDIATION_REQUIRED
   7. SEMANTIC_NOOP_PROVEN
-  8. BODY_UPDATED_VERIFIED
+  8. GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT  (v2: body changes are reference-only, existing
+                                               HIGH/MEDIUM impacted pages remain EVIDENCE_ONLY)
+  9. EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED (v2: body changes in existing content pages)
+ 10. BODY_UPDATED_VERIFIED (fallback when page_impact not available)
 """
 from __future__ import annotations
 
@@ -52,15 +62,21 @@ _BLOCKING_VERDICTS = {
 
 _VERDICT_EXIT = {
     "BODY_UPDATED_VERIFIED": 0,
+    "EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED": 0,
     "SEMANTIC_NOOP_PROVEN": 0,
     "GRADING_REMEDIATION_REQUIRED": 0,
     "SEMANTIC_REFRESH_REQUIRED": 1,
     "REFRESH_BLOCKED_UNPROVEN_NOOP": 1,
+    "GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT": 1,
     "CLAIM_EXTRACTION_MISSED_DELTA": 2,
     "PAGE_MAPPING_MISSED_IMPACT": 2,
     "GUARD_ERROR_BLOCKED": 4,
     "GUARD_ERROR_WARN": 5,
 }
+
+# Subdomains that are generated reference pages — body changes here do NOT satisfy
+# the requirement to update existing docs/kb/products/blog impacted content pages.
+_GENERATED_REFERENCE_SUBDOMAINS = {"reference.aspose.org"}
 
 
 def _load_json(path: Path, label: str) -> tuple[dict, str | None]:
@@ -113,6 +129,56 @@ def _has_user_facing_changes(source_delta: dict) -> bool:
     return False
 
 
+def _is_generated_reference_page(path: str) -> bool:
+    """True if the page path belongs to the generated reference subdomain."""
+    return any(sub in path for sub in _GENERATED_REFERENCE_SUBDOMAINS)
+
+
+def _classify_body_changes_with_impact(
+    page_decisions: dict,
+    page_impact: dict,
+) -> tuple[int, int, int]:
+    """Classify body changes by page kind using page_impact data.
+
+    Returns:
+        (existing_content_body_changes, reference_only_body_changes,
+         high_medium_existing_evidence_only_count)
+
+    existing_content_body_changes: body changes on docs/kb/products/blog pages
+    reference_only_body_changes: body changes on reference.aspose.org pages
+    high_medium_existing_evidence_only_count: HIGH/MEDIUM impacted existing content
+        pages with EVIDENCE_ONLY decision (i.e., pages that SHOULD have been updated)
+    """
+    pages = page_decisions.get("pages", {})
+    # Build PIA score map: path → pia_score
+    pia_map = {}
+    for entry in page_impact.get("pages", []):
+        pia_map[entry["path"]] = entry.get("pia_score", "LOW_IMPACT")
+
+    existing_body = 0
+    ref_body = 0
+    hm_existing_eo = 0
+
+    for path, entry in pages.items():
+        is_ref = _is_generated_reference_page(path)
+        body_changed = entry.get("body_hash_changed", False)
+        decision = entry.get("decision", "")
+        pia_score = pia_map.get(path, "LOW_IMPACT")
+
+        if body_changed:
+            if is_ref:
+                ref_body += 1
+            else:
+                existing_body += 1
+
+        # Count HIGH/MEDIUM existing content pages that are EVIDENCE_ONLY
+        if not is_ref and decision == "EVIDENCE_ONLY":
+            if pia_score in ("HIGH_IMPACT", "MEDIUM_IMPACT"):
+                hm_existing_eo += 1
+
+    return existing_body, ref_body, hm_existing_eo
+
+
 def evaluate(
     family: str,
     platform: str,
@@ -121,9 +187,16 @@ def evaluate(
     knowledge_delta: dict,
     *,
     repo_root: Path | None = None,
+    page_impact_data: dict | None = None,
 ) -> tuple[str, str, list[str]]:
     """
-    Apply verdict precedence rules.
+    Apply verdict precedence rules (v2).
+
+    Args:
+        page_impact_data: Optional dict loaded from page_impact.json.
+            When provided, enables GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT detection:
+            if body changes are all generated reference pages while existing HIGH/MEDIUM
+            impacted content pages remain EVIDENCE_ONLY, the guard blocks.
 
     Returns (verdict, confidence, proof_list).
     """
@@ -207,7 +280,41 @@ def evaluate(
         proof.append("SEMANTIC_NOOP_PROVEN: source_changed=false")
         return "SEMANTIC_NOOP_PROVEN", "HIGH", proof
 
-    # ── Priority 8: BODY_UPDATED_VERIFIED ────────────────────────────────────
+    # ── Priority 8: GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT (v2) ─────────────
+    # Fires when page_impact is available AND:
+    #   - body_changed > 0 (guard would normally pass)
+    #   - ALL body changes are on generated reference pages
+    #   - Existing HIGH/MEDIUM impacted content pages are EVIDENCE_ONLY
+    # This catches the font/python masking defect.
+    if body_changed > 0 and page_impact_data is not None:
+        existing_body, ref_body, hm_eo = _classify_body_changes_with_impact(
+            page_decisions, page_impact_data
+        )
+        proof.append(
+            f"page_impact analysis: {existing_body} existing-content body changes, "
+            f"{ref_body} generated-reference body changes, "
+            f"{hm_eo} HIGH/MEDIUM existing pages EVIDENCE_ONLY"
+        )
+        if existing_body == 0 and ref_body > 0 and hm_eo > 0:
+            proof.append(
+                f"GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT: {ref_body} generated reference "
+                f"pages changed but {hm_eo} HIGH/MEDIUM impacted existing content pages "
+                f"remain EVIDENCE_ONLY — generated reference changes do not satisfy "
+                f"the existing content update requirement"
+            )
+            return "GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT", "HIGH", proof
+
+        # ── Priority 9: EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED ─────────────
+        # Fires when existing content pages have body changes (with page_impact available)
+        if existing_body > 0:
+            proof.append(
+                f"EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED: {existing_body} existing content "
+                f"pages had body changes ({hm_eo} HIGH/MEDIUM impacted pages remain EVIDENCE_ONLY)"
+            )
+            return "EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED", "HIGH", proof
+
+    # ── Priority 10: BODY_UPDATED_VERIFIED ───────────────────────────────────
+    # Fallback when page_impact not available: any body change satisfies
     if body_changed > 0:
         proof.append(f"BODY_UPDATED_VERIFIED: {body_changed} pages had body changes")
         return "BODY_UPDATED_VERIFIED", "HIGH", proof
@@ -224,6 +331,7 @@ def guard(
     source_delta_path: Path,
     page_decisions_path: Path,
     knowledge_delta_path: Path | None = None,
+    page_impact_path: Path | None = None,
     out_path: Path | None = None,
     repo_root: Path | None = None,
 ) -> tuple[dict, int]:
@@ -288,6 +396,16 @@ def guard(
     if knowledge_delta_path and knowledge_delta_path.is_file():
         knowledge_delta, _ = _load_json(knowledge_delta_path, "knowledge_delta")
 
+    # Load optional page_impact (v2: enables GENERATED_ONLY detection)
+    page_impact_data: dict | None = None
+    if page_impact_path is None:
+        # Try auto-discovery: look for page_impact.json alongside page_decisions.json
+        auto_pi = page_decisions_path.parent / "page_impact.json"
+        if auto_pi.is_file():
+            page_impact_data, _ = _load_json(auto_pi, "page_impact")
+    elif page_impact_path.is_file():
+        page_impact_data, _ = _load_json(page_impact_path, "page_impact")
+
     # Populate base fields
     verdict_result["old_source_sha"] = source_delta.get("old_source_sha", "")
     verdict_result["new_source_sha"] = source_delta.get("new_source_sha", "")
@@ -305,7 +423,8 @@ def guard(
     # Evaluate verdict
     try:
         verdict, confidence, proof = evaluate(
-            family, platform, source_delta, page_decisions, knowledge_delta, repo_root=root
+            family, platform, source_delta, page_decisions, knowledge_delta,
+            repo_root=root, page_impact_data=page_impact_data,
         )
     except Exception as e:
         guard_error = f"evaluate() raised exception: {e}"
@@ -355,6 +474,11 @@ def main(argv: list[str] | None = None) -> int:
         "--knowledge-delta", default=None,
         help="Path to knowledge_delta.json (optional cross-check)"
     )
+    parser.add_argument(
+        "--page-impact", default=None,
+        help="Path to page_impact.json (optional; enables GENERATED_ONLY detection). "
+             "If omitted, auto-discovered alongside page-decisions."
+    )
     parser.add_argument("--out", default=None, help="Output path for semantic_refresh_verdict.json")
     parser.add_argument("--repo-root", default=None, help="Override repository root")
     args = parser.parse_args(argv)
@@ -374,12 +498,17 @@ def main(argv: list[str] | None = None) -> int:
     if args.knowledge_delta:
         kd_path = Path(args.knowledge_delta)
 
+    pi_path: Path | None = None
+    if args.page_impact:
+        pi_path = Path(args.page_impact)
+
     _, exit_code = guard(
         family=args.family,
         platform=args.platform,
         source_delta_path=source_delta_path,
         page_decisions_path=page_decisions_path,
         knowledge_delta_path=kd_path,
+        page_impact_path=pi_path,
         out_path=out_path,
         repo_root=repo_root,
     )
