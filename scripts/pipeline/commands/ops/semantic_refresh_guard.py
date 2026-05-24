@@ -19,10 +19,10 @@ Exit codes:
 
 Verdict precedence (highest priority wins):
   1. GUARD_ERROR_BLOCKED
-  2. REFRESH_BLOCKED_UNPROVEN_NOOP
-  3. CLAIM_EXTRACTION_MISSED_DELTA
-  4. PAGE_MAPPING_MISSED_IMPACT
-  5. SEMANTIC_REFRESH_REQUIRED
+  2. CLAIM_EXTRACTION_MISSED_DELTA  (specific: user-facing files + claim_delta=0)
+  3. PAGE_MAPPING_MISSED_IMPACT     (specific: claims exist but don't reach pages)
+  4. SEMANTIC_REFRESH_REQUIRED      (claim delta > 0, body unchanged)
+  5. REFRESH_BLOCKED_UNPROVEN_NOOP  (generic catch-all: body=0, no diagnosis)
   6. GRADING_REMEDIATION_REQUIRED
   7. SEMANTIC_NOOP_PROVEN
   8. BODY_UPDATED_VERIFIED
@@ -151,7 +151,35 @@ def evaluate(
     # ── Priority 1: Guard Error Blocked ──────────────────────────────────────
     # (handled in guard() below, not here)
 
-    # ── Priority 2: REFRESH_BLOCKED_UNPROVEN_NOOP ────────────────────────────
+    # ── Priority 2: CLAIM_EXTRACTION_MISSED_DELTA ────────────────────────────
+    # Only fires when source has DEFINITELY/PROBABLY user-facing files AND claim delta is 0.
+    # Checked before REFRESH_BLOCKED so specific diagnosis wins over generic block.
+    if has_user_facing and claim_delta_count == 0 and source_changed:
+        proof.append(
+            "CLAIM_EXTRACTION_MISSED_DELTA: user-facing source files changed but claim_delta_count=0"
+        )
+        return "CLAIM_EXTRACTION_MISSED_DELTA", "HIGH", proof
+
+    # ── Priority 3: PAGE_MAPPING_MISSED_IMPACT ────────────────────────────────
+    # modified_claims or removed_claims exist but 0 body changes
+    if (removed_claims > 0 or modified_claims > 0) and body_changed == 0:
+        proof.append(
+            f"PAGE_MAPPING_MISSED_IMPACT: {modified_claims} modified_claims + {removed_claims} "
+            f"removed_claims exist but 0 body changes in page_decisions"
+        )
+        return "PAGE_MAPPING_MISSED_IMPACT", "HIGH", proof
+
+    # ── Priority 4: SEMANTIC_REFRESH_REQUIRED ────────────────────────────────
+    # claim delta > 0 (any type) but 0 body changes and source is user-facing
+    if claim_delta_count > 0 and body_changed == 0 and has_user_facing:
+        proof.append(
+            f"SEMANTIC_REFRESH_REQUIRED: claim_delta_count={claim_delta_count}, body_changed=0, "
+            f"user-facing source changes present"
+        )
+        return "SEMANTIC_REFRESH_REQUIRED", "MEDIUM", proof
+
+    # ── Priority 5: REFRESH_BLOCKED_UNPROVEN_NOOP ────────────────────────────
+    # Generic catch-all: HIGH/MEDIUM/UNKNOWN impact + body=0 with no more specific diagnosis
     if (source_changed and source_impact in _BLOCKING_IMPACTS and body_changed == 0
             and source_impact != "INTERNAL_ONLY"):
         # Check if we have proof it's internal-only
@@ -164,32 +192,6 @@ def evaluate(
                 f"BLOCKED: source_impact={source_impact}, body_changed=0, no internal-only proof"
             )
             return "REFRESH_BLOCKED_UNPROVEN_NOOP", "HIGH", proof
-
-    # ── Priority 3: CLAIM_EXTRACTION_MISSED_DELTA ────────────────────────────
-    # Only fires when source has DEFINITELY/PROBABLY user-facing files AND claim delta is 0
-    if has_user_facing and claim_delta_count == 0 and source_changed:
-        proof.append(
-            "CLAIM_EXTRACTION_MISSED_DELTA: user-facing source files changed but claim_delta_count=0"
-        )
-        return "CLAIM_EXTRACTION_MISSED_DELTA", "HIGH", proof
-
-    # ── Priority 4: PAGE_MAPPING_MISSED_IMPACT ────────────────────────────────
-    # modified_claims or removed_claims exist but 0 body changes
-    if (removed_claims > 0 or modified_claims > 0) and body_changed == 0:
-        proof.append(
-            f"PAGE_MAPPING_MISSED_IMPACT: {modified_claims} modified_claims + {removed_claims} "
-            f"removed_claims exist but 0 body changes in page_decisions"
-        )
-        return "PAGE_MAPPING_MISSED_IMPACT", "HIGH", proof
-
-    # ── Priority 5: SEMANTIC_REFRESH_REQUIRED ────────────────────────────────
-    # claim delta > 0 (any type) but 0 body changes and source is user-facing
-    if claim_delta_count > 0 and body_changed == 0 and has_user_facing:
-        proof.append(
-            f"SEMANTIC_REFRESH_REQUIRED: claim_delta_count={claim_delta_count}, body_changed=0, "
-            f"user-facing source changes present"
-        )
-        return "SEMANTIC_REFRESH_REQUIRED", "MEDIUM", proof
 
     # ── Priority 6: GRADING_REMEDIATION_REQUIRED ─────────────────────────────
     if grade_issues > 0:

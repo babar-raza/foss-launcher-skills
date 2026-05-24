@@ -2786,3 +2786,51 @@ scripts:
     test_exempt_reason: "new script, E2E tested manually; unit tests in future sprint"
     deprecated_since: null
     notes: "bundles evidence artifacts for a product; validates HEAD SHA against model.yaml and evidence frontmatter"
+
+  - path: scripts/pipeline/commands/ops/semantic_refresh_guard.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_semantic_refresh_guard.py
+    requires_test: true
+    deprecated_since: null
+    notes: "Post-update semantic guard: verifies HIGH/MEDIUM source changes produced body updates; exit codes 0/1/2/4/5 for CI integration; part of G-12/G-13 pipeline hardening"
+
+  - path: scripts/pipeline/commands/ops/semantic_source_classifier.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_semantic_source_classifier.py
+    requires_test: true
+    deprecated_since: null
+    notes: "Pre-update classifier: classifies upstream source diff files by semantic type (api_surface/test/docs/config/internal) to distinguish semantic vs non-semantic changes before page_update runs"
+
+  - path: scripts/pipeline/commands/ops/grade_remediation_check.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "new script; integration-tested via S-84 Step 9.6 and grade-remediate workflow; unit tests in future sprint"
+    deprecated_since: null
+    notes: "Scan content pages for D/F grades and stale grades (graded_content_hash mismatch); used in S-84 Step 9.6 and grade-remediate skill; outputs reports/refresh_review/{family}/{platform}/grade_remediation_report.json"
