@@ -3,7 +3,15 @@
 > **Generated file** — do not edit directly.
 > Edit `scripts/pipeline/registry.yaml` and run `python scripts/ci/checks/render_inventory.py`.
 
-Total scripts: **112**
+Total scripts: **115**
+
+## Semantic Refresh Guard (3 files)
+
+| Script | Kind | Lifecycle | Backing | Change Impact | Notes |
+|--------|------|-----------|---------|---------------|-------|
+| `semantic_source_classifier.py` | entrypoint | active | internal | HIGH | Pre-update source classifier; classifies upstream diff by file type; produces semantic_source_delta.json; S-84 Step 4.5 |
+| `semantic_refresh_guard.py` | entrypoint | active | internal | HIGH | Post-update semantic guard; reads source_delta + page_decisions; enforces fail-closed verdict; S-84 Step 11.5 |
+| `grade_remediation_check.py` | entrypoint | active | internal | — | D/F grade scanner with stale-grade detection; outputs grade_remediation_report.json; S-84 Step 9.6 |
 
 ## Content Quality (15 files)
 

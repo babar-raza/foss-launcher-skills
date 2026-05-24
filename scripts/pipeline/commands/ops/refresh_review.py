@@ -41,7 +41,21 @@ if str(_PIPELINE_DIR) not in sys.path:
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 _REVIEW_ROOT = _REPO_ROOT / "reports" / "refresh_review"
 
-VALID_DECISIONS = frozenset({"BODY_UPDATED", "EVIDENCE_ONLY", "NOT_AFFECTED", "RETIRED"})
+VALID_DECISIONS = frozenset({
+    # Core page-update decisions
+    "BODY_UPDATED", "EVIDENCE_ONLY", "NOT_AFFECTED", "RETIRED",
+    # delta-dispatch decisions (bypass page-update)
+    "GENERATED",
+    # Semantic guard verdicts (post-update, S-84 Step 11.5)
+    "SEMANTIC_NOOP_PROVEN",
+    "REFRESH_BLOCKED_UNPROVEN_NOOP",
+    "CLAIM_EXTRACTION_MISSED_DELTA",
+    "PAGE_MAPPING_MISSED_IMPACT",
+    # Grade remediation decisions (S-84 Step 9.6 / S-96)
+    "GRADING_REPAIRED",
+    "GRADING_BLOCKED",
+    "TASKCARD_CREATED",
+})
 
 _SUBDOMAIN_ORDER = ["docs", "kb", "blog", "products", "reference", "unknown"]
 
