@@ -196,15 +196,17 @@ def build_index(family, platform):
     api_with_properties = sum(1 for c in public_api if c.get("properties"))
     api_with_enums      = sum(1 for c in public_api if c.get("enum_members"))
 
-    # Go-specific: methods are top-level method_declaration nodes with receiver types,
-    # not nested inside type declarations. The scout extracts them as separate "function"
-    # entries. Count all exported function entries as a proxy for method richness.
-    if platform == "go" and api_with_methods == 0 and isinstance(api, list):
-        go_functions = sum(1 for e in api if isinstance(e, dict) and e.get("kind") == "function"
-                           and e.get("name", "").startswith(tuple("ABCDEFGHIJKLMNOPQRSTUVWXYZ")))
-        if go_functions > 0:
-            # Go types presumed to have methods — use function count as approximation.
-            api_with_methods = min(api_total, go_functions)
+    # SFX-3: Go-specific heuristic removed. api_surface.py (SFX-1) now correctly
+    # associates receiver methods with their parent types, so api_with_methods
+    # reflects real method counts. If still 0, that indicates a genuine extraction
+    # gap — not a false negative to paper over.
+    if platform == "go" and api_with_methods == 0:
+        import logging as _log
+        _log.getLogger(__name__).warning(
+            "Go platform: zero method-associations found in api_surface.json. "
+            "Run scout with the updated api_surface.py (SFX-1 fix) to populate methods. "
+            "api_confidence will reflect actual extraction quality."
+        )
 
     if api_total > 0:
         method_pct = api_with_methods / api_total

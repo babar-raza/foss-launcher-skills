@@ -96,6 +96,13 @@ _NOT_IMPL_PATTERNS: dict[str, re.Pattern[str]] = {
                               re.IGNORECASE),
     "typescript": re.compile(r'throw\s+new\s+Error\s*\(\s*"not implemented"',
                               re.IGNORECASE),
+    # SFX-5: Go uses errors.New/fmt.Errorf with "not implemented" strings, or panic.
+    "go": re.compile(
+        r'errors\.New\s*\(\s*"not implemented"\s*\)'
+        r'|fmt\.Errorf\s*\(\s*"not implemented[^"]*"\s*\)'
+        r'|panic\s*\(\s*"not implemented[^"]*"\s*\)',
+        re.IGNORECASE,
+    ),
 }
 
 _FILE_EXTENSIONS: dict[str, str] = {

@@ -240,6 +240,37 @@ def _extract_return_type(node, language: str) -> str:
     return ""
 
 
+def _extract_go_receiver_type(fnode) -> str:
+    """Extract the receiver type name from a Go method_declaration node.
+
+    Returns the bare type name (without pointer prefix) or "" if none.
+    E.g. for ``func (d *Document) Save(...)``, returns ``"Document"``.
+    """
+    if fnode.type != "method_declaration":
+        return ""
+    # The receiver is the first parameter_list child of the method node.
+    # tree-sitter-go field name is "receiver".
+    recv_list = child_by_field(fnode, "receiver")
+    if recv_list is None:
+        # Fallback: first parameter_list child
+        for ch in fnode.children:
+            if ch.type == "parameter_list":
+                recv_list = ch
+                break
+    if recv_list is None:
+        return ""
+    for ch in recv_list.children:
+        if ch.type == "parameter_declaration":
+            for pch in ch.children:
+                if pch.type == "pointer_type":
+                    for ppch in pch.children:
+                        if ppch.type == "type_identifier":
+                            return node_text(ppch)
+                elif pch.type == "type_identifier":
+                    return node_text(pch)
+    return ""
+
+
 # ---------------------------------------------------------------------------
 # Doc comment extraction
 # ---------------------------------------------------------------------------
@@ -917,6 +948,58 @@ def _cpp_canonical_namespace(cnode) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Go receiver method association (SFX-1)
+# ---------------------------------------------------------------------------
+
+
+def _associate_go_methods(classes: list[dict]) -> list[dict]:
+    """Post-process Go entries: move receiver methods into their parent type.
+
+    In Go, method declarations are top-level AST nodes with a receiver
+    parameter that names the type they belong to (e.g. ``func (d *Document)
+    Save(...) error``).  The main extraction loop cannot find them as children
+    of the type node, so it records them as ``kind="function"`` entries with
+    a ``receiver_type`` field.  This pass relocates each such entry into the
+    ``methods[]`` list of the matching type entry and removes it from the
+    top-level list.
+    """
+    # Map type name → index in classes list
+    type_map: dict[str, int] = {}
+    for i, entry in enumerate(classes):
+        if entry.get("kind") in ("type_spec", "type_declaration"):
+            type_map[entry["name"]] = i
+
+    to_remove: set[int] = set()
+    for i, entry in enumerate(classes):
+        if entry.get("kind") != "function":
+            continue
+        receiver = entry.get("receiver_type", "")
+        if not receiver:
+            continue
+        recv_name = receiver.lstrip("*").strip()
+        if recv_name not in type_map:
+            continue
+        parent = classes[type_map[recv_name]]
+        method_entry = {
+            "name": entry["name"],
+            "doc": entry.get("doc", ""),
+            "params": entry.get("params", []),
+            "return_type": entry.get("return_type", ""),
+            "line": entry.get("line", 0),
+            "file": entry.get("file", ""),
+            "is_constructor": False,
+        }
+        if not isinstance(parent.get("methods"), list):
+            parent["methods"] = []
+        parent["methods"].append(method_entry)
+        to_remove.add(i)
+
+    LOG.debug("SFX-1: moved %d receiver methods into %d Go types",
+              len(to_remove), len(type_map))
+    return [e for i, e in enumerate(classes) if i not in to_remove]
+
+
+# ---------------------------------------------------------------------------
 # Core API surface extraction
 # ---------------------------------------------------------------------------
 
@@ -1117,7 +1200,13 @@ def extract_api_surface(
 
             is_enum = cnode.type in ("enum_declaration", "enum_definition",
                                      "enum_specifier")
-            cdoc = _extract_doc_comment(cnode, language)
+            # SFX-2: For Go type_spec nodes, the godoc comment precedes the
+            # parent type_declaration node, not the type_spec itself.  Pass
+            # the parent when available so _extract_doc_comment can find it.
+            if language == "go" and cnode.type == "type_spec" and cnode.parent is not None:
+                cdoc = _extract_doc_comment(cnode.parent, language)
+            else:
+                cdoc = _extract_doc_comment(cnode, language)
             bases = _extract_bases(cnode, language)
 
             # Python: detect enums by base class inheritance
@@ -1506,7 +1595,13 @@ def extract_api_surface(
             ret = _extract_return_type(fnode, language)
             fdoc = _extract_doc_comment(fnode, language)
 
-            classes.append({
+            # SFX-1: For Go methods, capture receiver type so _associate_go_methods
+            # can move them into their parent type's methods[] list later.
+            receiver_type = ""
+            if language == "go":
+                receiver_type = _extract_go_receiver_type(fnode)
+
+            func_entry: dict[str, Any] = {
                 "name": fname,
                 "kind": "function",
                 "doc": fdoc,
@@ -1517,11 +1612,21 @@ def extract_api_surface(
                 "properties": [],
                 "params": params,
                 "return_type": ret,
-            })
+            }
+            if receiver_type:
+                func_entry["receiver_type"] = receiver_type
+            classes.append(func_entry)
             claims.append(_make_claim(
                 family, "api_method",
                 f"Function {fname}({', '.join(p['name'] for p in params)}) -> {ret}",
                 rel, fnode.start_point[0] + 1))
+
+    # SFX-1: Associate Go receiver methods with their parent type entries.
+    # Go methods are top-level nodes (not children of type nodes), so the
+    # collect_nodes pass inside the class loop finds 0 methods. This pass
+    # moves them into the correct type's methods[] list.
+    if language == "go":
+        classes = _associate_go_methods(classes)
 
     # TC-HCR-001: Flatten inherited methods/properties into child classes
     # so that evaluators can verify inherited member access without walking

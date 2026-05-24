@@ -92,6 +92,9 @@ def _install_command(platform: str, manifest: dict) -> str:
         return f"npm install {name}" if name else ""
     if platform == "cpp":
         return ""
+    if platform == "go":
+        module = manifest.get("name", "")
+        return f"go get {module}" if module else ""
     return ""
 
 
@@ -128,6 +131,12 @@ def _canonical_import(platform: str, manifest: dict,
         ns = _common_cpp_namespace(packages)
         if ns:
             return f"#include <{ns.replace('::', '/')}/...>"
+    if platform == "go":
+        module = manifest.get("name", "")
+        if module:
+            # Use last path segment as the default alias
+            alias = module.rstrip("/").rsplit("/", 1)[-1].replace("-", "")
+            return f'import {alias} "{module}"'
     return ""
 
 
@@ -250,10 +259,19 @@ def write_outputs(
     prop_count = sum(len(c.get("properties", [])) for c in classes)
     enum_count = sum(1 for c in classes if _is_enum_class(c))
 
+    # SFX-9: For Go the manifest "name" is the module path (github.com/...),
+    # not a human-readable product name. Use the explicit product_name key
+    # from overrides or fall back to a properly-capitalized default.
+    _platform_display = {"go": "Go"}.get(platform, platform.title())
+    _default_product_name = f"Aspose.{family.upper()}-FOSS for {_platform_display}"
+    _product_name = manifest.get("product_name") or (
+        manifest.get("name", "") if platform not in ("go",) else ""
+    ) or _default_product_name
+
     model = {
         "family": family,
         "platform": platform,
-        "product_name": manifest.get("name", f"Aspose.{family.upper()}-FOSS for {platform}"),
+        "product_name": _product_name,
         "version": manifest.get("version", ""),
         "license": manifest.get("license", ""),
         "repo_sha": repo_sha,
@@ -325,7 +343,16 @@ def write_outputs(
                 f"| {lim['file']} | {lim['line']} | {lim['class']} "
                 f"| {lim['method']} | `{lim['text'][:80]}` |")
     else:
-        lim_lines.append("No NotImplementedError patterns detected.")
+        # SFX-5: Emit a language-accurate "none detected" message.
+        _go_patterns = ('errors.New("not implemented")', 'fmt.Errorf("not implemented")',
+                        'panic("not implemented")')
+        if platform == "go":
+            lim_lines.append(
+                "No Go unimplemented patterns detected "
+                f"(patterns searched: {', '.join(_go_patterns)})."
+            )
+        else:
+            lim_lines.append("No NotImplementedError patterns detected.")
     (output / "limitations.md").write_text(
         "\n".join(lim_lines) + "\n", encoding="utf-8")
     LOG.info("Wrote limitations.md (%d entries)", len(limitations))

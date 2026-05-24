@@ -31,6 +31,8 @@ def parse_manifest(repo: Path, platform: str) -> dict[str, Any]:
         return _parse_js_manifest(repo)
     if platform == "cpp":
         return _parse_cpp_manifest(repo)
+    if platform == "go":
+        return _parse_go_manifest(repo)
     return {}
 
 
@@ -202,6 +204,25 @@ def _parse_js_manifest(repo: Path) -> dict[str, Any]:
             info["engines_node"] = (data.get("engines") or {}).get("node", "")
         except (json.JSONDecodeError, OSError):
             pass
+    return info
+
+
+def _parse_go_manifest(repo: Path) -> dict[str, Any]:
+    """Extract identity fields from go.mod."""
+    info: dict[str, Any] = {}
+    go_mod = repo / "go.mod"
+    if not go_mod.exists():
+        return info
+    text = go_mod.read_text(encoding="utf-8", errors="replace")
+    # Module path (first non-blank line: "module github.com/...")
+    m = re.search(r"^module\s+(\S+)", text, re.MULTILINE)
+    if m:
+        info["name"] = m.group(1)
+    # Go version requirement
+    m = re.search(r"^go\s+([\d.]+)", text, re.MULTILINE)
+    if m:
+        info["go_version"] = m.group(1)
+        info["runtime_requirement"] = f"Go {m.group(1)}+"
     return info
 
 

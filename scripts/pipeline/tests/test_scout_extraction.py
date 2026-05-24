@@ -859,3 +859,132 @@ public class Circle implements IShape {
         assert classes, "Expected class_declaration node"
         bases = scout._extract_bases(classes[0], "java")
         assert "IShape" in bases, "implements_clause not captured"
+
+
+# ---------------------------------------------------------------------------
+# SFX-1: Go receiver method association
+# ---------------------------------------------------------------------------
+
+from extraction.api_surface import extract_api_surface, _extract_go_receiver_type, _associate_go_methods
+
+
+class TestGoReceiverMethodAssociation:
+    """SFX-1: Receiver methods must be nested under their parent type after extraction.
+
+    In Go, ``func (d *Document) Save(...) error`` is a top-level AST node.
+    The scout must detect the receiver type and move the method entry into
+    Document.methods[] rather than leaving it at the top level.
+    """
+
+    GO_SRC = """\
+package pdf
+
+// Document represents a PDF document.
+type Document struct{}
+
+// Save writes the PDF to disk.
+func (d *Document) Save(path string) error { return nil }
+
+// Open opens a PDF file from disk.
+func Open(path string) (*Document, error) { return nil, nil }
+"""
+
+    def _extract(self):
+        """Run extract_api_surface on the Go fixture and return all entries."""
+        import tempfile
+        from pathlib import Path
+        parser = scout.get_parser("go")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root_dir = Path(tmpdir)
+            src = root_dir / "document.go"
+            src.write_text(self.GO_SRC)
+            classes, _, _, _, _ = extract_api_surface(
+                parser, "go", root_dir, root_dir, "testfamily"
+            )
+        return classes
+
+    def test_document_entry_has_save_method(self):
+        """Document type must have Save in its methods[] list."""
+        classes = self._extract()
+        type_entries = {e["name"]: e for e in classes
+                        if e.get("kind") in ("type_spec", "type_declaration")}
+        assert "Document" in type_entries, "Document type not found in extracted entries"
+        method_names = [m["name"] for m in type_entries["Document"].get("methods", [])]
+        assert "Save" in method_names, (
+            f"Save not in Document.methods[]. methods={method_names!r}\n"
+            "SFX-1 receiver method association may not be working."
+        )
+
+    def test_save_not_at_top_level(self):
+        """Save must NOT appear as a standalone top-level function entry."""
+        classes = self._extract()
+        top_func_names = [e["name"] for e in classes if e.get("kind") == "function"]
+        assert "Save" not in top_func_names, (
+            "Save still appears as top-level function — SFX-1 did not remove it."
+        )
+
+    def test_open_remains_top_level_function(self):
+        """Package-level functions without receivers stay at top level."""
+        classes = self._extract()
+        top_func_names = [e["name"] for e in classes if e.get("kind") == "function"]
+        assert "Open" in top_func_names, (
+            "Open (package-level func without receiver) must remain a top-level entry."
+        )
+
+    def test_receiver_type_helper(self):
+        """_extract_go_receiver_type must return the bare type name."""
+        root = _parse("go", self.GO_SRC)
+        method_decls = scout.collect_nodes(root, {"method_declaration"})
+        assert method_decls, "No method_declaration nodes found in Go source"
+        recv_type = _extract_go_receiver_type(method_decls[0])
+        assert recv_type == "Document", (
+            f"Expected 'Document', got {recv_type!r}"
+        )
+
+
+# ---------------------------------------------------------------------------
+# SFX-2: Go godoc comment extraction for type declarations
+# ---------------------------------------------------------------------------
+
+class TestGoGodocTypeExtraction:
+    """SFX-2: Godoc comments preceding type declarations must be extracted."""
+
+    GO_TYPE_WITH_GODOC = """\
+package pdf
+
+// Document represents a PDF document in Aspose.PDF.
+type Document struct{}
+"""
+
+    GO_TYPE_NO_GODOC = """\
+package pdf
+
+type Page struct{}
+"""
+
+    def _get_type_doc(self, code: str, type_name: str) -> str:
+        """Extract doc for a named Go type using the full extraction pipeline."""
+        import tempfile
+        from pathlib import Path
+        parser = scout.get_parser("go")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root_dir = Path(tmpdir)
+            (root_dir / "types.go").write_text(code)
+            classes, _, _, _, _ = extract_api_surface(
+                parser, "go", root_dir, root_dir, "testfamily"
+            )
+        return next(
+            (e.get("doc", "") for e in classes if e["name"] == type_name),
+            None
+        )
+
+    def test_godoc_extracted_for_type(self):
+        """Godoc comment before type declaration must be captured in doc field."""
+        doc = self._get_type_doc(self.GO_TYPE_WITH_GODOC, "Document")
+        assert doc, "Expected non-empty doc for Document — SFX-2 godoc fix may not be working"
+        assert "PDF document" in doc, f"Unexpected doc content: {doc!r}"
+
+    def test_no_godoc_returns_empty(self):
+        """Types without godoc must have empty doc (not crash)."""
+        doc = self._get_type_doc(self.GO_TYPE_NO_GODOC, "Page")
+        assert doc == "", f"Expected empty doc for Page, got: {doc!r}"
