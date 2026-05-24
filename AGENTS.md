@@ -104,6 +104,8 @@ Applies to:
 
 > Full detail: [docs/workflows/mental-model-refresh.md](docs/workflows/mental-model-refresh.md)
 
+- **Filesystem hygiene check**: At session start, run `ls | grep '^public-'` in the repo root to detect stale Hugo build artifact directories. If any exist (e.g., `public-sq-*`, `public-as-*`, `public-iv-*`), delete them with `rm -rf <dirname>`. These dirs are gitignored and do not affect `git status`, but waste disk space and may confuse rendered validation scans. Do NOT delete `public/` (Hugo default output, used by `hugo server`).
+
 ## 3a. Platform Folder Naming
 
 > Full detail: [docs/governance/naming-conventions.md](docs/governance/naming-conventions.md)
@@ -423,7 +425,7 @@ escalation item where S-90 can perform the inspection. The distinction between "
   - Any plan, prompt, memory entry, or documentation that presents `foss-launcher` as the current
     clone-cache location is invalid and must be corrected before use.
 - Commit a `.md` file whose sole staged diff from HEAD is a changed `graded_at:` timestamp. The pre-commit hook Step 10 auto-reverts such files; using `--no-verify` to bypass this gate is prohibited.
-- **No `hugo -d <relative-path>` from the Bash tool.** All agent Hugo builds must write to a system temp dir (`$(mktemp -d)` in bash, `tempfile.mkdtemp()` in Python subprocesses). Relative destinations like `public-as-*` or `public-iv-*` write full-site HTML artifacts into the repo root, bloating git status and risking accidental commits. Enforcement: PreToolUse Bash hook (`scripts/ci/hooks/check_destructive_bash_hook.sh`). Reference implementation: `scripts/ci/hooks/check_hugo_build.sh`. Rule documentation: `docs/governance/write-boundaries.md §Hugo Output Discipline`.
+- **No `hugo -d <relative-path>` from the Bash tool.** All agent Hugo builds must write to a system temp dir (`$(mktemp -d)` in bash, `tempfile.mkdtemp()` in Python subprocesses). Any relative destination (including patterns like `public-as-*`, `public-iv-*`, `public-sq-*`, or any other `public-<suffix>` name) writes full-site HTML artifacts into the repo root, bloating git status and risking accidental commits. **Using `SKIP_DESTRUCTIVE_BASH_CHECK=1` to bypass this block is prohibited for agent sessions.** Use `tmpdir=$(mktemp -d)` in Bash or `tempfile.mkdtemp()` in Python instead. Enforcement: PreToolUse Bash hook (`scripts/ci/hooks/check_destructive_bash_hook.sh`). Reference implementation: `scripts/ci/hooks/check_hugo_build.sh`. Rule documentation: `docs/governance/write-boundaries.md §Hugo Output Discipline`.
 
 ## 12. File Map
 
