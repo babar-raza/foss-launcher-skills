@@ -213,14 +213,17 @@ Do not run any subsequent steps. Exit 0.
         {family} {platform} \
         --source-delta reports/refresh_review/{family}/{platform}/semantic_source_delta.json \
         --page-decisions reports/refresh_review/{family}/{platform}/page_decisions.json \
-        --knowledge-delta knowledge/{family}/{platform}/merged/knowledge_delta.json
+        --page-impact reports/refresh_review/{family}/{platform}/page_impact.json \n        --knowledge-delta knowledge/{family}/{platform}/merged/knowledge_delta.json
     ```
     Writes: `reports/refresh_review/{family}/{platform}/semantic_refresh_verdict.json`
-    - **Exit 0**: SEMANTIC_NOOP_PROVEN / BODY_UPDATED_VERIFIED / GRADING_REMEDIATION_REQUIRED → continue to Step 12
-    - **Exit 1**: REFRESH_BLOCKED_UNPROVEN_NOOP / SEMANTIC_REFRESH_REQUIRED → **DO NOT commit**; investigate source-to-body trace
+    - **Exit 0**: SEMANTIC_NOOP_PROVEN / BODY_UPDATED_VERIFIED / EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED / GRADING_REMEDIATION_REQUIRED → continue to Step 12
+    - **Exit 1**: REFRESH_BLOCKED_UNPROVEN_NOOP / SEMANTIC_REFRESH_REQUIRED / GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT → **DO NOT commit**; investigate source-to-body trace
+      - GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT: body changes only on generated reference stubs; re-run page-update targeting existing impacted content pages
     - **Exit 2**: CLAIM_EXTRACTION_MISSED_DELTA / PAGE_MAPPING_MISSED_IMPACT → **DO NOT commit**; flag as S-37 knowledge gap
     - **Exit 4**: GUARD_ERROR_BLOCKED (infra error + HIGH/MEDIUM/UNKNOWN source) → **DO NOT commit**; investigate guard failure
     - **Exit 5**: GUARD_ERROR_WARN (infra error + source_changed=false or INTERNAL_ONLY) → warn; continue
+
+    Note: `--page-impact` is auto-discovered alongside `--page-decisions` when omitted.
 
     **ENFORCEMENT**: If `semantic_refresh_verdict.json` is absent after this step, treat as exit 4.
     Final refresh acceptance REQUIRES `semantic_refresh_verdict.json` with exit 0 verdict.

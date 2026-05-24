@@ -51,6 +51,9 @@ VALID_DECISIONS = frozenset({
     "REFRESH_BLOCKED_UNPROVEN_NOOP",
     "CLAIM_EXTRACTION_MISSED_DELTA",
     "PAGE_MAPPING_MISSED_IMPACT",
+    # Guard v2 body-update quality verdicts (S-84 Step 11.5 w/ page_impact.json)
+    "GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT",
+    "EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED",
     # Grade remediation decisions (S-84 Step 9.6 / S-96)
     "GRADING_REPAIRED",
     "GRADING_BLOCKED",
