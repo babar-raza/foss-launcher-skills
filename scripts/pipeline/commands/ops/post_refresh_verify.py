@@ -784,6 +784,62 @@ def verify(family: str, platform: str) -> tuple[bool, list[str]]:
         except Exception:
             pass  # Non-blocking; delta file may not exist on first run
 
+    # Check 8 (G-16): Tracking-gap and stale-prose detection.
+    # CASE A: execution_reconciliation.json shows files_with_body_diff > 0 but
+    #         progress.json pages_updated is empty — S-20 changed files but did not
+    #         register the paths via --updated CLI arg.  Tracking gap, not content failure.
+    # CASE B: prose_stale_scan report exists with hits — G-15 scan found stale prose
+    #         references to removed APIs that have not yet been remediated.
+    recon_path_c8 = REPORTS_ROOT / family / platform / "execution_reconciliation.json"
+    files_with_body_diff_c8 = 0
+    if recon_path_c8.is_file():
+        try:
+            recon_c8 = json.loads(recon_path_c8.read_text(encoding="utf-8"))
+            files_with_body_diff_c8 = (
+                recon_c8.get("body_changes", {}).get("files_with_body_diff", 0)
+            )
+        except Exception:
+            pass  # Non-blocking; malformed reconciliation is ignored
+
+    progress_data_c8 = _load_progress(family, platform)
+    pages_updated_c8 = progress_data_c8.get("pages_updated", [])
+
+    if files_with_body_diff_c8 > 0 and len(pages_updated_c8) == 0:
+        print(
+            f"  Check 8: WARN (Case A) — execution_reconciliation shows "
+            f"{files_with_body_diff_c8} file(s) with body diff but progress.json "
+            f"pages_updated=[]. S-20 may have run without --updated tracking. "
+            f"Verify page_decisions.json covers updated files before committing."
+        )
+    else:
+        if files_with_body_diff_c8 == 0 and recon_path_c8.is_file():
+            print("  Check 8 Case A: PASS — no untracked body-diff files")
+        elif not recon_path_c8.is_file():
+            print("  Check 8 Case A: SKIP — execution_reconciliation.json not present")
+
+    # CASE B: prose stale scan
+    prose_stale_path = (
+        REPO_ROOT / "reports" / "gap-analysis" /
+        f"{family}-{platform}-prose-stale.json"
+    )
+    if prose_stale_path.is_file():
+        try:
+            prose_data = json.loads(prose_stale_path.read_text(encoding="utf-8"))
+            hits = prose_data.get("hits", [])
+            hit_count = len(hits)
+            if hit_count > 0:
+                print(
+                    f"  Check 8: WARN (Case B) — {hit_count} stale prose reference(s) "
+                    f"found for removed APIs in {prose_stale_path.name}. "
+                    f"Run remediation (e.g. /page-update or /heal-page) to clear stale prose."
+                )
+            else:
+                print("  Check 8 Case B: PASS — prose stale scan has 0 hits")
+        except Exception:
+            pass  # Non-blocking
+    else:
+        print("  Check 8 Case B: SKIP — no prose-stale scan report found")
+
     # Check 6: Coverage completeness — page_decisions.json must cover all discovered pages
     check6_passed, check6_failures = check_coverage_completeness(family, platform)
     failures.extend(check6_failures)

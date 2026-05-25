@@ -10,10 +10,12 @@ CONTRACT: scripts/pipeline/commands/ops/page_impact_assess.py
   idempotent: yes — overwrites output on each run
 
 Impact score legend:
-  HIGH_IMPACT    — page body contains a class or method name matching modified_apis or removed_apis
-  MEDIUM_IMPACT  — page body contains a keyword matching modified_claims or removed_claims topics
-  LOW_IMPACT     — no strong delta signals found; page may still benefit from review
-  NOT_AFFECTED   — no delta signals detected; page topic unrelated to knowledge changes
+  HIGH_IMPACT           — page body contains a class or method name matching modified_apis or removed_apis
+  MEDIUM_IMPACT         — page body contains a keyword matching modified_claims or removed_claims topics
+  LOW_IMPACT            — no strong delta signals found; page may still benefit from review
+  NOT_AFFECTED          — no delta signals detected; page topic unrelated to knowledge changes
+  ENRICHMENT_CANDIDATE  — page covers a feature cluster that has new_apis but does not yet
+                          reference those new API member names (add-only coverage gap)
 
 Usage:
     .venv/Scripts/python scripts/pipeline/commands/ops/page_impact_assess.py {family} {platform}
@@ -190,6 +192,159 @@ def _score_page(
     return "LOW_IMPACT", []
 
 
+# ---------------------------------------------------------------------------
+# ENRICHMENT_CANDIDATE detection
+# ---------------------------------------------------------------------------
+
+# Cluster definitions: each entry maps a cluster name to the set of
+# lowercase keywords that signal a page discusses that topic cluster.
+# A minimum of _ENRICHMENT_MIN_KEYWORDS matches is required before the
+# cluster check fires (avoids false positives on generic index pages).
+_CLUSTER_KEYWORDS: dict[str, set[str]] = {
+    "Charts": {
+        "chart", "charts", "chartcollection", "charttype", "chartmodel",
+        "embedded", "getcharts", "getcount", "getcharttype",
+    },
+    "Comments": {
+        "comment", "comments", "commentcollection", "commentmodel",
+        "note", "author", "getcomment", "addcomment", "getnote",
+    },
+    "Pictures": {
+        "picture", "pictures", "picturecollection", "picturemodel",
+        "image", "imagetype", "getpictures", "embedded",
+        "getimagedata", "getcontenttype",
+    },
+    "Shapes": {
+        "shape", "shapes", "shapecollection", "shapemodel",
+        "autoshape", "autoshapetype", "drawing", "getshapes",
+        "geometrytype", "getgeometrytype",
+    },
+    "Tables": {
+        "listobject", "listobjectcollection", "listcolumn",
+        "listcolumnmodel", "tablestyle", "tablestyletype",
+        "totalscalculation", "table", "structured",
+        "gettables", "displayname", "showtotals",
+    },
+}
+
+_ENRICHMENT_MIN_KEYWORDS = 3  # minimum cluster keyword matches to fire
+
+
+def _cluster_for_api(api_name: str) -> str | None:
+    """Return the cluster name that owns api_name, or None if unrecognised."""
+    a = api_name.lower()
+    for cluster, keywords in _CLUSTER_KEYWORDS.items():
+        if a in keywords:
+            return cluster
+    # Also check prefix matching for compound names
+    for cluster, keywords in _CLUSTER_KEYWORDS.items():
+        for kw in keywords:
+            if a.startswith(kw) or kw.startswith(a):
+                return cluster
+    return None
+
+
+def detect_enrichment_candidates(
+    pages: list[tuple[Path, str]],
+    knowledge_delta: dict,
+    api_surface: list[dict] | None = None,
+) -> list[dict]:
+    """Detect ENRICHMENT_CANDIDATE pages.
+
+    A page is an ENRICHMENT_CANDIDATE when:
+    - Its body contains >= _ENRICHMENT_MIN_KEYWORDS keywords from a cluster's
+      keyword set (the page discusses that cluster's topic)
+    - The page body does NOT already mention the new API member names that
+      were added in this delta's new_apis list for that cluster
+    - There are new_apis in the delta that belong to the cluster
+
+    Args:
+        pages: list of (Path, subdomain) pairs (output of _discover_pages)
+        knowledge_delta: parsed knowledge_delta.json dict
+        api_surface: parsed api_surface.json list (unused; reserved for future
+                     use to cross-check class membership)
+
+    Returns:
+        list of dicts, each with keys:
+          page_path   — repo-relative path string
+          cluster_name — name of the feature cluster
+          missing_apis — list of new API names not yet present in the page body
+          confidence   — float 0.0–1.0 (keyword match ratio vs threshold)
+    """
+    new_apis: list[str] = knowledge_delta.get("new_apis", [])
+    if not new_apis:
+        return []
+
+    # Group new_apis by cluster
+    cluster_new_apis: dict[str, list[str]] = {}
+    for api_name in new_apis:
+        cluster = _cluster_for_api(api_name)
+        if cluster is not None:
+            cluster_new_apis.setdefault(cluster, []).append(api_name)
+
+    if not cluster_new_apis:
+        return []
+
+    candidates: list[dict] = []
+
+    for path, subdomain in pages:
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+
+        # Strip frontmatter
+        if text.startswith("---"):
+            end = text.find("\n---", 3)
+            body = text[end + 4:] if end != -1 else text
+        else:
+            body = text
+
+        body_lower = body.lower()
+        body_tokens = set(re.findall(r"\b[a-z][a-z0-9]{2,}\b", body_lower))
+
+        try:
+            rel_path = str(path.relative_to(path.parents[len(path.parts) - 1])).replace("\\", "/")
+        except Exception:
+            rel_path = str(path).replace("\\", "/")
+
+        for cluster_name, new_api_list in cluster_new_apis.items():
+            cluster_kws = _CLUSTER_KEYWORDS[cluster_name]
+
+            # Count how many cluster keywords appear in the body
+            kw_matches = cluster_kws.intersection(body_tokens)
+            match_count = len(kw_matches)
+
+            if match_count < _ENRICHMENT_MIN_KEYWORDS:
+                continue  # page does not discuss this cluster
+
+            # Check which new API names are missing from the page body
+            missing_apis = [
+                api for api in new_api_list
+                if api.lower() not in body_tokens
+            ]
+
+            if not missing_apis:
+                continue  # page already references all new APIs in this cluster
+
+            # Confidence: ratio of keyword matches to the cluster keyword set size,
+            # clamped to [0.0, 1.0].  Scaled by the fraction of missing APIs.
+            kw_ratio = min(1.0, match_count / max(len(cluster_kws), 1))
+            missing_ratio = len(missing_apis) / max(len(new_api_list), 1)
+            confidence = round(kw_ratio * missing_ratio, 4)
+
+            candidates.append({
+                "page_path": str(path).replace("\\", "/"),
+                "subdomain": subdomain,
+                "cluster_name": cluster_name,
+                "missing_apis": missing_apis,
+                "keyword_matches": sorted(kw_matches),
+                "confidence": confidence,
+            })
+
+    return candidates
+
+
 def assess_product(
     family: str,
     platform: str,
@@ -264,6 +419,8 @@ def assess_product(
         summary[score] = summary.get(score, 0) + 1
         summary["total"] += 1
 
+    enrichment_candidates = detect_enrichment_candidates(page_pairs, delta)
+
     return {
         "family": family,
         "platform": platform,
@@ -272,6 +429,8 @@ def assess_product(
         "claim_keyword_count": len(claim_keywords),
         "pages": pages_data,
         "summary": summary,
+        "enrichment_candidates": enrichment_candidates,
+        "enrichment_candidates_count": len(enrichment_candidates),
     }
 
 
@@ -319,10 +478,11 @@ def main(argv: list[str] | None = None) -> int:
     out_path = out_dir / "page_impact.json"
     out_path.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"PIA complete: {result['summary']['total']} pages assessed")
-    print(f"  HIGH_IMPACT:   {result['summary']['HIGH_IMPACT']}")
-    print(f"  MEDIUM_IMPACT: {result['summary']['MEDIUM_IMPACT']}")
-    print(f"  LOW_IMPACT:    {result['summary']['LOW_IMPACT']}")
-    print(f"  NOT_AFFECTED:  {result['summary']['NOT_AFFECTED']}")
+    print(f"  HIGH_IMPACT:            {result['summary']['HIGH_IMPACT']}")
+    print(f"  MEDIUM_IMPACT:          {result['summary']['MEDIUM_IMPACT']}")
+    print(f"  LOW_IMPACT:             {result['summary']['LOW_IMPACT']}")
+    print(f"  NOT_AFFECTED:           {result['summary']['NOT_AFFECTED']}")
+    print(f"  ENRICHMENT_CANDIDATES:  {result['enrichment_candidates_count']}")
     print(f"  Output: {out_path}")
 
     if args.json:

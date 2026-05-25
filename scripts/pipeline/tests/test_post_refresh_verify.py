@@ -528,3 +528,170 @@ class TestWriteReconciliationDeltaPath:
             )
         finally:
             post_refresh_verify.configure()
+
+
+# ---------------------------------------------------------------------------
+# Check 8 (G-16): Tracking-gap and stale-prose detection
+# ---------------------------------------------------------------------------
+
+class TestCheck8FilesWithBodyDiffMismatch:
+    """Check 8 Case A: files_with_body_diff > 0 but pages_updated=[] is a WARN (no FAIL)."""
+
+    def _write_reconciliation(self, refresh_dir: Path, files_with_body_diff: int) -> None:
+        """Write a minimal execution_reconciliation.json with given files_with_body_diff."""
+        refresh_dir.mkdir(parents=True, exist_ok=True)
+        recon = {
+            "planned": {"pages_to_update": files_with_body_diff, "pages_to_add": 0, "pages_to_remove": 0},
+            "executed": {"pages_updated": 0, "pages_added": 0, "pages_removed": 0},
+            "skipped": {"pages_update_skipped": 0},
+            "body_changes": {
+                "files_with_body_diff": files_with_body_diff,
+                "files_metadata_only": 0,
+                "metadata_only_files": [],
+            },
+        }
+        (refresh_dir / "execution_reconciliation.json").write_text(
+            json.dumps(recon), encoding="utf-8"
+        )
+
+    def _write_progress(self, refresh_dir: Path, pages_updated: list) -> None:
+        refresh_dir.mkdir(parents=True, exist_ok=True)
+        (refresh_dir / "progress.json").write_text(
+            json.dumps({"steps": ["page_update"], "pages_updated": pages_updated}),
+            encoding="utf-8",
+        )
+
+    def test_check8_case_a_warn_does_not_add_failure(self, tmp_path):
+        """Case A: files_with_body_diff > 0 and pages_updated=[] -> WARN only, no hard FAIL."""
+        _setup_knowledge(tmp_path, "cells", "net")
+        refresh_dir = tmp_path / "refresh_state" / "cells" / "net"
+        self._write_reconciliation(refresh_dir, files_with_body_diff=3)
+        self._write_progress(refresh_dir, pages_updated=[])
+
+        passed, failures = post_refresh_verify.verify("cells", "net")
+
+        # Check 8 Case A is a WARN — it must NOT add to failures list
+        c8_failures = [f for f in failures if "Check 8" in f]
+        assert len(c8_failures) == 0, (
+            f"Check 8 Case A must not produce hard failures; got: {c8_failures}"
+        )
+
+    def test_check8_case_a_no_warn_when_pages_updated_populated(self, tmp_path):
+        """Case A: files_with_body_diff > 0 and pages_updated is non-empty -> no issue."""
+        _setup_knowledge(tmp_path, "cells", "net")
+        refresh_dir = tmp_path / "refresh_state" / "cells" / "net"
+        self._write_reconciliation(refresh_dir, files_with_body_diff=3)
+        self._write_progress(
+            refresh_dir,
+            pages_updated=["content/docs.aspose.org/en/cells/net/page1.md"],
+        )
+
+        passed, failures = post_refresh_verify.verify("cells", "net")
+
+        c8_failures = [f for f in failures if "Check 8" in f]
+        assert len(c8_failures) == 0
+
+    def test_check8_case_a_no_warn_when_body_diff_zero(self, tmp_path):
+        """Case A: files_with_body_diff == 0 -> PASS regardless of pages_updated."""
+        _setup_knowledge(tmp_path, "cells", "net")
+        refresh_dir = tmp_path / "refresh_state" / "cells" / "net"
+        self._write_reconciliation(refresh_dir, files_with_body_diff=0)
+        self._write_progress(refresh_dir, pages_updated=[])
+
+        passed, failures = post_refresh_verify.verify("cells", "net")
+
+        c8_failures = [f for f in failures if "Check 8" in f]
+        assert len(c8_failures) == 0
+
+    def test_check8_case_a_no_warn_when_no_reconciliation(self, tmp_path):
+        """Case A: execution_reconciliation.json absent -> SKIP (no failures, no warn)."""
+        _setup_knowledge(tmp_path, "cells", "net")
+        # No reconciliation file written
+        passed, failures = post_refresh_verify.verify("cells", "net")
+
+        c8_failures = [f for f in failures if "Check 8" in f]
+        assert len(c8_failures) == 0
+
+
+class TestCheck8ProseStaleWarn:
+    """Check 8 Case B: prose_stale_scan JSON with hits -> WARN only, no hard FAIL."""
+
+    def _write_prose_stale(self, gap_dir: Path, family: str, platform: str, hits: list) -> None:
+        gap_dir.mkdir(parents=True, exist_ok=True)
+        report = {"family": family, "platform": platform, "hits": hits}
+        (gap_dir / f"{family}-{platform}-prose-stale.json").write_text(
+            json.dumps(report), encoding="utf-8"
+        )
+
+    def test_check8_case_b_warn_does_not_add_failure(self, tmp_path):
+        """Case B: prose-stale report with hits -> WARN only, not a hard FAIL."""
+        _setup_knowledge(tmp_path, "cells", "net")
+        gap_dir = tmp_path / "reports" / "gap-analysis"
+        self._write_prose_stale(gap_dir, "cells", "net", hits=[
+            {"file": "content/docs.aspose.org/en/cells/net/page1.md", "api": "OldMethod"},
+            {"file": "content/docs.aspose.org/en/cells/net/page2.md", "api": "OldClass"},
+        ])
+
+        passed, failures = post_refresh_verify.verify("cells", "net")
+
+        # Case B must NOT produce hard failures
+        c8_failures = [f for f in failures if "Check 8" in f]
+        assert len(c8_failures) == 0, (
+            f"Check 8 Case B must not produce hard failures; got: {c8_failures}"
+        )
+
+    def test_check8_case_b_pass_when_hits_empty(self, tmp_path):
+        """Case B: prose-stale report exists but hits=[] -> PASS."""
+        _setup_knowledge(tmp_path, "cells", "net")
+        gap_dir = tmp_path / "reports" / "gap-analysis"
+        self._write_prose_stale(gap_dir, "cells", "net", hits=[])
+
+        passed, failures = post_refresh_verify.verify("cells", "net")
+
+        c8_failures = [f for f in failures if "Check 8" in f]
+        assert len(c8_failures) == 0
+
+    def test_check8_case_b_skip_when_no_report(self, tmp_path):
+        """Case B: no prose-stale report -> SKIP (no failures)."""
+        _setup_knowledge(tmp_path, "cells", "net")
+        # No prose-stale report written
+
+        passed, failures = post_refresh_verify.verify("cells", "net")
+
+        c8_failures = [f for f in failures if "Check 8" in f]
+        assert len(c8_failures) == 0
+
+    def test_check8_both_cases_clean_passes(self, tmp_path):
+        """Both Case A and Case B clean -> overall no Check 8 failures."""
+        _setup_knowledge(tmp_path, "cells", "net")
+        refresh_dir = tmp_path / "refresh_state" / "cells" / "net"
+        refresh_dir.mkdir(parents=True, exist_ok=True)
+        recon = {
+            "planned": {"pages_to_update": 2, "pages_to_add": 0, "pages_to_remove": 0},
+            "executed": {"pages_updated": 2, "pages_added": 0, "pages_removed": 0},
+            "skipped": {"pages_update_skipped": 0},
+            "body_changes": {
+                "files_with_body_diff": 2,
+                "files_metadata_only": 0,
+                "metadata_only_files": [],
+            },
+        }
+        (refresh_dir / "execution_reconciliation.json").write_text(
+            json.dumps(recon), encoding="utf-8"
+        )
+        (refresh_dir / "progress.json").write_text(
+            json.dumps({
+                "steps": ["page_update"],
+                "pages_updated": [
+                    "content/docs.aspose.org/en/cells/net/page1.md",
+                    "content/docs.aspose.org/en/cells/net/page2.md",
+                ],
+            }),
+            encoding="utf-8",
+        )
+        # No prose-stale report -> Case B skip
+
+        passed, failures = post_refresh_verify.verify("cells", "net")
+
+        c8_failures = [f for f in failures if "Check 8" in f]
+        assert len(c8_failures) == 0
