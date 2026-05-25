@@ -1232,7 +1232,7 @@ def generate_grouped_index(
     # Update provenance: set auto_updatable to true, content_origin to skill-generated
     fm_text = re.sub(r"auto_updatable:\s*(true|false)", "auto_updatable: true", fm_text)
     fm_text = re.sub(r"content_origin:\s*\S+", "content_origin: skill-generated", fm_text)
-    fm_text = re.sub(r"last_mechanism:\s*\S+", "last_mechanism: batch-reference-index", fm_text)
+    fm_text = re.sub(r"last_mechanism:\s*\S+", "last_mechanism: skill", fm_text)
     # Remove recovery note if present (no longer structural-page after healing)
     fm_text = re.sub(r"\n\s*provenance_recovery_note:\s*\S+", "", fm_text)
 
@@ -1278,7 +1278,7 @@ def generate_grouped_index(
     try:
         safe_content_write(
             index_path, full_content,
-            mechanism="batch-reference-index",
+            mechanism="skill",
             force=needs_force,
             reason=force_reason if needs_force else "",
         )
