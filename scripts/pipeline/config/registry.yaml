@@ -2931,6 +2931,54 @@ scripts:
     deprecated_since: null
     notes: "Validates lane manifest files used by the lane-owned commit model"
 
+  - path: scripts/pipeline/commands/ops/lane_overlap_check.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: release-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "Lane overlap detector; diagnostic-only, no content writes"
+    deprecated_since: null
+    notes: "Detects overlapping owned_path_prefixes across active lane manifest files"
+
+  - path: scripts/pipeline/commands/ops/dirty_classifier.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: release-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "Diagnostic utility; classifies dirty working tree files into lane categories; no content writes"
+    deprecated_since: null
+    notes: "Parses git status --porcelain and classifies dirty files by lane ownership"
+
+  - path: scripts/pipeline/commands/ops/lane_evidence_schema.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: release-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "Schema validator for lane evidence requirements; diagnostic-only, no content writes"
+    deprecated_since: null
+    notes: "Defines and validates minimum evidence required at each pilot stage for lane commits"
+
   - path: scripts/pipeline/commands/ops/validate_evidence_bundle.py
     kind: entrypoint
     lifecycle: active
