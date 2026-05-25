@@ -2866,3 +2866,35 @@ scripts:
     test_exempt_reason: "launch validator; checks products pages for forbidden claim patterns (XMP, PDF/A) vs clone-cache source; integration-tested via pdf/go sprint closure"
     deprecated_since: null
     notes: "Validate marketing claims in products pages; checks for forbidden capability claims not backed by clone-cache source"
+
+  - path: scripts/pipeline/commands/ops/prose_stale_scan.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "G-15 removed-API prose scanner; diagnostic utility scanning content for stale API references"
+    deprecated_since: null
+    notes: "Scan content files for prose references to removed APIs no longer in the product"
+
+  - path: scripts/pipeline/commands/ops/semantic_body_update_planner.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "Report-only planner for semantic body updates; produces S-73 scope proposals, no content writes"
+    deprecated_since: null
+    notes: "Report-only planner selecting pages needing body updates based on source delta and page_impact"

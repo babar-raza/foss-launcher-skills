@@ -228,15 +228,11 @@ def _extract_return_type(node, language: str) -> str:
         if type_node:
             return node_text(type_node)
 
-    # Go: bare type node after parameter_list
+    # Go: use "result" field for method_declaration / function_declaration
     if language == "go":
-        found_params = False
-        for ch in node.children:
-            if ch.type == "parameter_list":
-                found_params = True
-                continue
-            if found_params and ch.type not in ("{", "block"):
-                return node_text(ch)
+        result = child_by_field(node, "result")
+        if result:
+            return node_text(result)
     return ""
 
 

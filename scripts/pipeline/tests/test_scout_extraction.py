@@ -988,3 +988,34 @@ type Page struct{}
         """Types without godoc must have empty doc (not crash)."""
         doc = self._get_type_doc(self.GO_TYPE_NO_GODOC, "Page")
         assert doc == "", f"Expected empty doc for Page, got: {doc!r}"
+
+
+class TestGoMethodReturnType:
+    """SFX-2B: Go method_declaration return_type must be the actual type, not the method name."""
+
+    GO_METHODS = b"""\
+func (d *DestinationFitBH) Top() float64 { return d.top }
+func (d *DestinationFitBH) Page() *Page { return d.page }
+func (f *ButtonField) Value() string { return "" }
+func (f *ButtonField) SetValue(s string) error { return nil }
+func (f *ButtonField) SetReadOnly(v bool) { setFlag(f.node, fieldFlagReadOnly, v) }
+"""
+
+    def test_go_method_return_type_extracted(self):
+        """Method return type must be the actual Go type, not the method name."""
+        from extraction.api_surface import _extract_return_type
+        from extraction.tree_helpers import get_parser, node_text
+
+        parser = get_parser("go")
+        tree = parser.parse(self.GO_METHODS)
+        results = {}
+        for node in tree.root_node.children:
+            if node.type == "method_declaration":
+                name = node_text(node.child_by_field_name("name"))
+                ret = _extract_return_type(node, "go")
+                results[name] = ret
+        assert results["Top"] == "float64"
+        assert results["Page"] == "*Page"
+        assert results["Value"] == "string"
+        assert results["SetValue"] == "error"
+        assert results["SetReadOnly"] == ""  # void method has no return type
