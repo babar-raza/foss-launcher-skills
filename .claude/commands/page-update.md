@@ -62,6 +62,11 @@ After a knowledge refresh (S-14), identify which content pages reference changed
      - If `LLM_API_KEY` absent and page is `MEDIUM_IMPACT` only (not citation-matched):
        flag as `NEEDS_HUMAN_REVIEW` in page_decisions.json; do not silently skip.
      - If `page_impact.json` absent: skip PIA-match path with a WARN; citation-match still runs.
+     - **PIA enforcement**: HIGH/MEDIUM impacted existing pages MUST NOT silently remain
+       EVIDENCE_ONLY after page-update completes. If citation-match finds no overlap but PIA
+       scores the page HIGH_IMPACT, the page MUST be reviewed for body update or classified
+       with a no-op proof. The semantic refresh guard (Step 11.5) will detect and block
+       commits when this obligation is not met.
    - De-duplicate: pages found by both paths are processed once
 
 5. **For each affected page**, produce an update plan:

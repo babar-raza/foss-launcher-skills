@@ -229,6 +229,25 @@ Do not run any subsequent steps. Exit 0.
     Final refresh acceptance REQUIRES `semantic_refresh_verdict.json` with exit 0 verdict.
     - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step semantic_refresh_guard`
 
+11.6. **Body-update planner routing** (when Step 11.5 exits 1 or 2):
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/semantic_body_update_planner.py \
+        {family} {platform} \
+        --source-delta reports/refresh_review/{family}/{platform}/semantic_source_delta.json \
+        --page-impact reports/refresh_review/{family}/{platform}/page_impact.json \
+        --knowledge-delta knowledge/{family}/{platform}/merged/knowledge_delta.json \
+        --page-decisions reports/refresh_review/{family}/{platform}/page_decisions.json \
+        --max-pages 10
+    ```
+    Status routing:
+    - BODY_UPDATES_PLANNED: invoke S-73 per page, then re-run Step 11.5
+    - SOURCE_EVIDENCE_UNAVAILABLE: fail-closed, log as external gate
+    - GAP_CLASSIFIED: taskcard to backlog
+    - NO_IMPACTED_EXISTING_PAGES: investigate page_impact scoring
+
+    **Generated reference pages are never counted as satisfying existing docs/kb/product obligations.**
+    - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step body_update_planner`
+
 12. **Verification gate** (post_refresh_verify.py --verify):
     ```bash
     .venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --verify

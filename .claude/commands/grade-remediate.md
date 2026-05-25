@@ -150,9 +150,13 @@ Write: `reports/refresh-pipeline-investigation/05-grading-remediation-results.md
 ## Acceptance gate
 
 At least one of:
-- One page has real body repair + re-grade proof (grade improved after body change)
-- Content mutation explicitly blocked by S-73 hook with recorded evidence
-- All D/F pages classified as PIPELINE-class (no CONTENT_FIXABLE pages exist)
+- Net finding count decreases (WARN or FAIL count goes down)
+- Grade letter improves (e.g. D -> C)
+- False-positive evaluator issue proven with evidence and taskcarded
+- Source-gap or external gate documented with exact blocker
+
+A mere body hash change with net-neutral or increased finding count
+is NOT sufficient for GRADING_REPAIRED status.
 
 ## Integration with S-84
 
