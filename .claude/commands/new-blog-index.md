@@ -1,5 +1,5 @@
 <!-- CONTRACT: agent-executed
-     postcondition: content/blog.aspose.org/{family}/{platform}/_index.md exists with title frontmatter
+     postcondition: content/blog.aspose.org/{family}/{platform}/_index.md exists with title and linkTitle frontmatter
      postcondition: Hugo can generate section index page for /{family}/{platform}/
      verified: 2026-05-20
      depends_on: []
@@ -71,6 +71,7 @@ For any unlisted platform key, capitalise the first letter.
    ```
    ---
    title: "{taxonomy_term} for {Platform display}"
+   linkTitle: "{Platform display}"
    ---
    ```
 
