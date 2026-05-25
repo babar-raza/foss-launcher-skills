@@ -5,6 +5,7 @@ Family root display-name linter for reference/docs/kb sites.
 Scans family-level _index.md files (one directory below en/) and validates:
   V-01  linkTitle must NOT exist at family root level
   V-02  title must match "{Canonical Product Name} FOSS"
+  V-03  subtitle must exist and not exceed 55 visible characters
 
 Canonical product names are loaded from metrics_taxonomy.yaml.
 
@@ -101,6 +102,25 @@ def check_file(
             f"WARN {rel}: family {family!r} not found in taxonomy — "
             f"cannot validate title={title!r}"
         )
+
+    # V-03: subtitle must exist for homepage card display (55-char hard max)
+    subtitle = fm.get("subtitle")
+    if subtitle is None:
+        violations.append(
+            f"FAIL {rel}: V-03 subtitle missing "
+            f"(family root must have a subtitle for homepage card display)"
+        )
+    elif not isinstance(subtitle, str) or not subtitle.strip():
+        violations.append(
+            f"FAIL {rel}: V-03 subtitle is empty or non-string"
+        )
+    else:
+        char_count = len(subtitle)
+        if char_count > 55:
+            violations.append(
+                f"FAIL {rel}: V-03 subtitle is {char_count} chars "
+                f"(hard max: 55 for card display)"
+            )
 
     return violations
 

@@ -60,30 +60,30 @@ class TestParseFrontmatter:
 
 class TestCheckFile:
     def test_pass_canonical(self):
-        p = _tmp_md("---\ntitle: Aspose.Font FOSS\n---\nBody\n")
+        p = _tmp_md("---\ntitle: Aspose.Font FOSS\nsubtitle: Font loading and conversion\n---\nBody\n")
         violations = check_file(p, "font", TAXONOMY)
         assert violations == []
 
     def test_fail_linktitle_present(self):
-        p = _tmp_md("---\ntitle: Aspose.Font FOSS\nlinkTitle: Font\n---\nBody\n")
+        p = _tmp_md("---\ntitle: Aspose.Font FOSS\nsubtitle: Font loading and conversion\nlinkTitle: Font\n---\nBody\n")
         violations = check_file(p, "font", TAXONOMY)
         assert len(violations) == 1
         assert "V-01" in violations[0]
         assert "linkTitle" in violations[0]
 
     def test_fail_title_mismatch(self):
-        p = _tmp_md("---\ntitle: Font Library\n---\nBody\n")
+        p = _tmp_md("---\ntitle: Font Library\nsubtitle: Font loading and conversion\n---\nBody\n")
         violations = check_file(p, "font", TAXONOMY)
         assert len(violations) == 1
         assert "V-02" in violations[0]
 
     def test_fail_both(self):
-        p = _tmp_md("---\ntitle: Font\nlinkTitle: Font\n---\nBody\n")
+        p = _tmp_md("---\ntitle: Font\nsubtitle: Font loading and conversion\nlinkTitle: Font\n---\nBody\n")
         violations = check_file(p, "font", TAXONOMY)
         assert len(violations) == 2
 
     def test_warn_not_in_taxonomy(self):
-        p = _tmp_md("---\ntitle: Aspose.NewProduct FOSS\n---\nBody\n")
+        p = _tmp_md("---\ntitle: Aspose.NewProduct FOSS\nsubtitle: Some product description\n---\nBody\n")
         violations = check_file(p, "newproduct", TAXONOMY)
         assert len(violations) == 1
         assert "WARN" in violations[0]
@@ -96,11 +96,52 @@ class TestCheckFile:
         assert "unparsable" in violations[0]
 
     def test_pass_cells(self):
-        p = _tmp_md("---\ntitle: Aspose.Cells FOSS\n---\nBody\n")
+        p = _tmp_md("---\ntitle: Aspose.Cells FOSS\nsubtitle: Spreadsheet processing\n---\nBody\n")
         violations = check_file(p, "cells", TAXONOMY)
         assert violations == []
 
     def test_pass_words(self):
-        p = _tmp_md("---\ntitle: Aspose.Words FOSS\n---\nBody\n")
+        p = _tmp_md("---\ntitle: Aspose.Words FOSS\nsubtitle: Word document processing\n---\nBody\n")
         violations = check_file(p, "words", TAXONOMY)
         assert violations == []
+
+
+class TestV03Subtitle:
+    def test_subtitle_missing(self):
+        p = _tmp_md("---\ntitle: Aspose.Font FOSS\n---\nBody\n")
+        violations = check_file(p, "font", TAXONOMY)
+        assert len(violations) == 1
+        assert "V-03" in violations[0]
+        assert "missing" in violations[0]
+
+    def test_subtitle_empty_string(self):
+        p = _tmp_md("---\ntitle: Aspose.Font FOSS\nsubtitle: \"\"\n---\nBody\n")
+        violations = check_file(p, "font", TAXONOMY)
+        assert len(violations) == 1
+        assert "V-03" in violations[0]
+        assert "empty" in violations[0]
+
+    def test_subtitle_valid(self):
+        p = _tmp_md("---\ntitle: Aspose.Font FOSS\nsubtitle: Font loading, rendering, and conversion\n---\nBody\n")
+        violations = check_file(p, "font", TAXONOMY)
+        assert violations == []
+
+    def test_subtitle_exactly_55(self):
+        sub = "A" * 55
+        p = _tmp_md(f"---\ntitle: Aspose.Font FOSS\nsubtitle: {sub}\n---\nBody\n")
+        violations = check_file(p, "font", TAXONOMY)
+        assert violations == []
+
+    def test_subtitle_over_55(self):
+        sub = "A" * 60
+        p = _tmp_md(f"---\ntitle: Aspose.Font FOSS\nsubtitle: {sub}\n---\nBody\n")
+        violations = check_file(p, "font", TAXONOMY)
+        assert len(violations) == 1
+        assert "V-03" in violations[0]
+        assert "hard max" in violations[0]
+
+    def test_subtitle_whitespace_only(self):
+        p = _tmp_md("---\ntitle: Aspose.Font FOSS\nsubtitle: \"   \"\n---\nBody\n")
+        violations = check_file(p, "font", TAXONOMY)
+        assert len(violations) == 1
+        assert "V-03" in violations[0]
