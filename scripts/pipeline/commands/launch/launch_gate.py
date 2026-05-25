@@ -5,7 +5,7 @@ Usage:
     python scripts/pipeline/commands/launch/launch_gate.py note python
     python scripts/pipeline/commands/launch/launch_gate.py --fail-fast slides net
 
-Runs 15 automated gates (L-01 through L-15) and prints a pass/fail summary.
+Runs 16 automated gates (L-01 through L-16) and prints a pass/fail summary.
 Exit code: 0 if all gates pass, 1 if any gate fails.
 
 Gates:
@@ -23,6 +23,8 @@ Gates:
     L-10  No coming-soon        -- family _index.md must not contain 'coming soon' placeholder
     L-11  Family display name   -- family root _index.md must use canonical "Aspose.{Product} FOSS"
                                   title and must not have linkTitle
+    L-16  Platform linkTitle    -- platform _index.md must have canonical linkTitle matching
+                                  data/platforms.json; fails on missing, wrong, or forbidden labels
 
 Flags:
     --fail-fast     Stop after the first failing gate
@@ -57,8 +59,11 @@ _REPO_ROOT = _DEFAULT_REPO_ROOT
 
 def configure(*, repo_root: "Path | str | None" = None) -> None:
     """Override module-level path constants for testing."""
-    global _REPO_ROOT
+    global _REPO_ROOT, _KNOWLEDGE_ROOT, _CONTENT_ROOT, _SCRIPTS_PIPELINE
     _REPO_ROOT = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
+    _KNOWLEDGE_ROOT = _REPO_ROOT / "knowledge"
+    _CONTENT_ROOT = _REPO_ROOT / "content"
+    _SCRIPTS_PIPELINE = _REPO_ROOT / "scripts" / "pipeline"
 
 # Prefer the project virtualenv; fall back to system Python.
 _VENV_PYTHON_WIN = _REPO_ROOT / ".venv" / "Scripts" / "python.exe"
@@ -938,6 +943,113 @@ def gate_l15_snippet_syntax(family: str, platform: str) -> GateResult:
     )
 
 
+def gate_l16_platform_linktitle(family: str, platform: str) -> GateResult:
+    """L-16: Platform _index.md must have canonical linkTitle matching registry.
+
+    Checks platform-level _index.md across reference/docs/kb/blog to ensure:
+    1. linkTitle (or linktitle) frontmatter field is present.
+    2. The value matches the canonical display name from data/platforms.json.
+    3. The rendered badge label does not contain forbidden patterns.
+    """
+    import yaml  # noqa: PLC0415
+
+    platforms_path = _REPO_ROOT / "data" / "platforms.json"
+    if not platforms_path.exists():
+        return GateResult(
+            "L-16", "Platform linkTitle", STATUS_SKIP,
+            "data/platforms.json not found",
+        )
+
+    try:
+        import json as _json
+        registry = _json.loads(platforms_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        return GateResult(
+            "L-16", "Platform linkTitle", STATUS_FAIL,
+            f"failed to load platforms.json: {exc}",
+        )
+
+    expected = registry.get(platform)
+    if not expected:
+        return GateResult(
+            "L-16", "Platform linkTitle", STATUS_FAIL,
+            f"platform slug {platform!r} not in data/platforms.json — register it first",
+        )
+
+    sites = [
+        ("reference", _CONTENT_ROOT / "reference.aspose.org" / "en"),
+        ("docs", _CONTENT_ROOT / "docs.aspose.org" / "en"),
+        ("kb", _CONTENT_ROOT / "kb.aspose.org" / "en"),
+        ("blog", _CONTENT_ROOT / "blog.aspose.org"),
+    ]
+    forbidden = ["Knowledge Base", "Documentation", "API Reference", "FOSS for"]
+    fails: list[str] = []
+    checked = 0
+
+    for site_name, base in sites:
+        index_md = base / family / platform / "_index.md"
+        if not index_md.exists():
+            continue
+        checked += 1
+
+        try:
+            text = index_md.read_text(encoding="utf-8")
+        except OSError as exc:
+            fails.append(f"{site_name}: read error — {exc}")
+            continue
+
+        if not text.startswith("---"):
+            fails.append(f"{site_name}: missing frontmatter delimiters")
+            continue
+        end = text.find("\n---", 3)
+        if end == -1:
+            fails.append(f"{site_name}: unclosed frontmatter")
+            continue
+        try:
+            fm = yaml.safe_load(text[3:end])
+        except yaml.YAMLError as exc:
+            fails.append(f"{site_name}: YAML parse error — {exc}")
+            continue
+        if not isinstance(fm, dict):
+            fails.append(f"{site_name}: frontmatter is not a dict")
+            continue
+
+        lt = fm.get("linkTitle") or fm.get("linktitle")
+        if lt is None:
+            fails.append(f"{site_name}: linkTitle missing")
+            continue
+
+        if lt != expected:
+            fails.append(
+                f"{site_name}: linkTitle={lt!r} != expected {expected!r}"
+            )
+
+        rendered = lt or fm.get("title", "")
+        for pat in forbidden:
+            if pat in rendered:
+                fails.append(
+                    f"{site_name}: badge label {rendered!r} contains forbidden {pat!r}"
+                )
+
+    if not checked:
+        return GateResult(
+            "L-16", "Platform linkTitle", STATUS_SKIP,
+            f"no platform _index.md found for {family}/{platform}",
+        )
+
+    if fails:
+        return GateResult(
+            "L-16", "Platform linkTitle", STATUS_FAIL,
+            f"{len(fails)} issue(s) in platform linkTitle",
+            extra_lines=[f"  {f}" for f in fails],
+        )
+
+    return GateResult(
+        "L-16", "Platform linkTitle", STATUS_PASS,
+        f"linkTitle={expected!r} correct across {checked} site(s)",
+    )
+
+
 # ---------------------------------------------------------------------------
 # Gate registry (ordered)
 # ---------------------------------------------------------------------------
@@ -958,6 +1070,7 @@ _ALL_GATES = [
     gate_l13_cross_subdomain_build,
     gate_l14_grade_non_regression,
     gate_l15_snippet_syntax,
+    gate_l16_platform_linktitle,
 ]
 
 

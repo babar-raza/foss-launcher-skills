@@ -77,6 +77,11 @@ def main():
 
                 rel = idx.relative_to(REPO_ROOT)
 
+                if expected is None:
+                    violations.append(
+                        f"UNKNOWN_PLATFORM_SLUG: {rel} -- slug '{slug}' not in data/platforms.json"
+                    )
+
                 if lt is None:
                     violations.append(f"MISSING_LINKTITLE: {rel}")
 

@@ -204,19 +204,19 @@ class TestGateL08ProvenanceCoverage:
 class TestGateRegistry:
     """Smoke test for the _ALL_GATES registry."""
 
-    def test_gate_count_is_fifteen(self):
-        """_ALL_GATES must contain exactly 15 entries.
+    def test_gate_count_is_sixteen(self):
+        """_ALL_GATES must contain exactly 16 entries.
         If this fails, a gate was added or removed without updating this test
-        and the L-01-through-L-15 documentation."""
-        assert len(_ALL_GATES) == 15, (
-            f"Expected 15 gates, found {len(_ALL_GATES)}. "
+        and the L-01-through-L-16 documentation."""
+        assert len(_ALL_GATES) == 16, (
+            f"Expected 16 gates, found {len(_ALL_GATES)}. "
             "Update this test and launch_gate.py docstring when adding/removing gates."
         )
 
-    def test_l15_is_last_gate(self):
-        """L-15 must be the last gate in the registry."""
-        from launch_gate import gate_l15_snippet_syntax
-        assert _ALL_GATES[-1] is gate_l15_snippet_syntax
+    def test_l16_is_last_gate(self):
+        """L-16 must be the last gate in the registry."""
+        from launch_gate import gate_l16_platform_linktitle
+        assert _ALL_GATES[-1] is gate_l16_platform_linktitle
 
     def test_l11_precedes_new_gates(self):
         """L-11 should precede L-12..L-15 in the registry."""
