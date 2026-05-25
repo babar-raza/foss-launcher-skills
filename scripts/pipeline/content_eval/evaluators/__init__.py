@@ -82,5 +82,6 @@ def _ensure_loaded():
         capability_claim_check,
         encoding_check,
         consumer_usefulness,
+        cta_wording,
         private_api_usage,
     )

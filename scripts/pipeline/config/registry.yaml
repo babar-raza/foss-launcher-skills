@@ -2898,3 +2898,51 @@ scripts:
     test_exempt_reason: "Report-only planner for semantic body updates; produces S-73 scope proposals, no content writes"
     deprecated_since: null
     notes: "Report-only planner selecting pages needing body updates based on source delta and page_impact"
+
+  - path: scripts/pipeline/commands/diagnostics/audit_family_subtitles.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "Diagnostic utility; reads subtitle presence/length/content from _index.md files; no writes"
+    deprecated_since: null
+    notes: "Audit family-level _index.md subtitles across docs/kb/reference sites; used by subtitle governance sprint"
+
+  - path: scripts/pipeline/commands/ops/lane_manifest.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: release-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "Lane manifest JSON schema validator; diagnostic-only, no content writes"
+    deprecated_since: null
+    notes: "Validates lane manifest files used by the lane-owned commit model"
+
+  - path: scripts/pipeline/commands/ops/validate_evidence_bundle.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: release-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "CLI validator for ZIP evidence bundles; diagnostic-only, no content writes"
+    deprecated_since: null
+    notes: "Validates sprint evidence ZIP bundles for structural completeness and SHA consistency"

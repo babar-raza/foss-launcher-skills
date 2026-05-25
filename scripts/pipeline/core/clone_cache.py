@@ -117,7 +117,7 @@ def ensure_clone(family: str, platform: str) -> Path:
 
     try:
         result = subprocess.run(
-            ["git", "clone", "--depth", "1", url, str(p)],
+            ["git", "clone", "--depth", "2", url, str(p)],
             capture_output=False,
             timeout=300,
         )
@@ -169,7 +169,7 @@ def update_clone(family: str, platform: str) -> Optional[str]:
 
     try:
         fetch = subprocess.run(
-            ["git", "fetch", "--depth=1", "origin"],
+            ["git", "fetch", "--depth=2", "origin"],
             cwd=str(p),
             capture_output=True,
             text=True,

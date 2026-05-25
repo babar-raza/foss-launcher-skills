@@ -512,6 +512,11 @@ def refresh(
     # Backup merged/ so we can compute a semantic delta after refresh.
     _backup_merged(merged_dir, bak_dir)
 
+    # Preserve current model SHA as previous_repo_sha for source-diff support.
+    # This must happen before promote.py overwrites repo_sha with the new HEAD.
+    if current:
+        _write_model_field(family, platform, "previous_repo_sha", current)
+
     try:
         scout_out = KNOWLEDGE_ROOT / family / platform / "scout"
         ok = _run(

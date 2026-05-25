@@ -203,6 +203,18 @@ def classify(
         _write_output(result, out_path)
         return result, 0
 
+    # Detect all-zero sentinel SHA indicating no prior baseline exists.
+    _ALL_ZERO_SHA = "0" * 40
+    if old_sha == _ALL_ZERO_SHA:
+        result["diff_available"] = False
+        result["source_change_impact"] = "SOURCE_BASELINE_MISSING"
+        result["proof"].append(
+            f"SOURCE_BASELINE_MISSING: old_sha is all-zeros sentinel — "
+            f"no prior baseline SHA stored in model.yaml"
+        )
+        _write_output(result, out_path)
+        return result, 2
+
     diff_lines, err, shallow = _run_git_diff(clone_path, old_sha, new_sha)
 
     if shallow or (not diff_lines and err):

@@ -37,6 +37,7 @@ ALL_EVALUATORS = [
     "consumer_usefulness",
     "private_api_usage",
     "evidence_format_validity",
+    "cta_wording",
 ]
 
 # FREEZE-03: Canonical evaluators — contribute to the frontmatter grade letter.
@@ -88,6 +89,7 @@ EXPERIMENTAL_EVALUATORS = frozenset({
     "capability_claim_check",
     "private_api_usage",
     "evidence_format_validity",
+    "cta_wording",
 })
 
 # Default evaluators (fast, deterministic, production-ready)
