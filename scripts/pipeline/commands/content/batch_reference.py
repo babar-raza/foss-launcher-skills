@@ -902,6 +902,405 @@ def _has_meaningful_change(existing_path: Path, new_content: str) -> bool:
     return _extract_body(existing).rstrip() != _extract_body(new_content).rstrip()
 
 
+# ---------------------------------------------------------------------------
+# Grouped index generation
+# ---------------------------------------------------------------------------
+
+# Family-specific group label overrides for human-friendly headings.
+# Keys are lowercased package/module tail segments; values are display labels.
+_GROUP_LABEL_OVERRIDES: dict[str, dict[str, str]] = {
+    "email": {
+        "cfb": "CFB Format (Compound File Binary)",
+        "msg": "MSG Format",
+    },
+    "font": {
+        "cff": "CFF Font Handling",
+        "eot": "EOT Font Handling",
+        "ttf": "TrueType Font Handling",
+        "type1": "Type1 Font Handling",
+        "woff": "WOFF / WOFF2 Handling",
+        "_brotli": "Brotli Compression (Internal)",
+    },
+}
+
+
+def _derive_group_key(entry: dict, family: str, platform: str) -> str:
+    """Extract a package/module group key from an api_surface entry.
+
+    Returns the most informative subpackage segment from the ``file`` path.
+    For entries at the package root, returns ``"core"``.
+    """
+    file_path = entry.get("file", "")
+    if not file_path:
+        return "core"
+
+    parts = file_path.replace("\\", "/").split("/")
+
+    if platform == "python":
+        # Pattern: src/aspose_font/ttf/tables/name.py  or  aspose/email_foss/cfb/reader.py
+        # Find the family package root and return the next segment
+        for i, p in enumerate(parts):
+            if family.replace("-", "_") in p.replace("-", "_").lower():
+                if i + 1 < len(parts) - 1:  # -1 to skip the filename
+                    return parts[i + 1]
+                return "core"
+        return "core"
+
+    elif platform in ("java", "net"):
+        # Pattern: src/main/java/org/aspose/pdf/operators/SetColor.java
+        # Find 'aspose' then family, then take the next segment(s)
+        for i, p in enumerate(parts):
+            if p.lower() == family.lower() and i + 1 < len(parts) - 1:
+                next_seg = parts[i + 1]
+                if next_seg.endswith(".java") or next_seg.endswith(".cs"):
+                    return "core"
+                return next_seg
+        return "core"
+
+    elif platform == "go":
+        # Pattern: pkg/api/document.go or internal/cos/stream.go
+        for i, p in enumerate(parts):
+            if p in ("pkg", "internal", "api") and i + 1 < len(parts) - 1:
+                return parts[i + 1]
+        # Fallback: use second-to-last directory
+        if len(parts) >= 3:
+            return parts[-2]
+        return "core"
+
+    elif platform in ("cpp", "typescript"):
+        # Similar to Java pattern
+        for i, p in enumerate(parts):
+            if p.lower() == family.lower() and i + 1 < len(parts) - 1:
+                next_seg = parts[i + 1]
+                if "." in next_seg:  # filename
+                    return "core"
+                return next_seg
+        return "core"
+
+    return "core"
+
+
+def _group_label(key: str, family: str, platform: str) -> str:
+    """Convert a group key to a human-readable heading."""
+    overrides = _GROUP_LABEL_OVERRIDES.get(family, {})
+    if key in overrides:
+        return overrides[key]
+    if key == "core":
+        return "Core API"
+    # Title-case the key, replace underscores with spaces
+    label = key.replace("_", " ").replace("-", " ").title()
+    return label
+
+
+def _build_grouped_index_body(
+    api_surface: list[dict],
+    family: str,
+    platform: str,
+    erc_index: dict[str, dict] | None = None,
+) -> str:
+    """Build the grouped markdown body for a reference platform _index.md.
+
+    Groups api_surface entries by package/module, then by type category.
+    Returns the markdown body (no frontmatter).
+    """
+    from collections import defaultdict
+
+    # Group by package key
+    groups: dict[str, list[dict]] = defaultdict(list)
+    for entry in api_surface:
+        key = _derive_group_key(entry, family, platform)
+        groups[key].append(entry)
+
+    # Sort groups: "core" first, then alphabetically
+    sorted_keys = sorted(groups.keys(), key=lambda k: ("" if k == "core" else k))
+
+    lines: list[str] = []
+
+    for gkey in sorted_keys:
+        entries = groups[gkey]
+        label = _group_label(gkey, family, platform)
+
+        # Sub-group by category
+        by_cat: dict[str, list[dict]] = defaultdict(list)
+        for e in entries:
+            cat = _category(e, platform)
+            by_cat[cat].append(e)
+
+        # Sort categories: Class first, then Interface, Struct, Enum
+        cat_order = {"Class": 0, "Interface": 1, "Struct": 2, "Enum": 3}
+        sorted_cats = sorted(by_cat.keys(), key=lambda c: cat_order.get(c, 99))
+
+        # Determine section heading
+        # If there's only one category and it's Class, use the group label directly
+        # If there are multiple categories, append category name to sub-tables
+        multi_cat = len(sorted_cats) > 1
+
+        lines.append(f"## {label}")
+        lines.append("")
+
+        for cat in sorted_cats:
+            cat_entries = sorted(by_cat[cat], key=lambda e: e.get("name", ""))
+
+            if multi_cat and cat != "Class":
+                # Add a sub-heading for non-Class categories
+                cat_plural = {
+                    "Enum": "Enumerations",
+                    "Interface": "Interfaces",
+                    "Struct": "Structs",
+                }.get(cat, f"{cat}es")
+                lines.append(f"### {cat_plural}")
+                lines.append("")
+
+            # Table header
+            col_name = {
+                "Enum": "Enumeration",
+                "Interface": "Interface",
+                "Struct": "Struct",
+            }.get(cat, "Class")
+            lines.append(f"| {col_name} | Description |")
+            lines.append("|---|---|")
+
+            for e in cat_entries:
+                name = e.get("name", "?")
+                doc = e.get("doc", "").strip()
+                # Truncate to first sentence
+                if doc:
+                    doc = doc.split("\n")[0].split(". ")[0]
+                    if not doc.endswith("."):
+                        doc += "."
+                elif erc_index and name in erc_index:
+                    # Fallback to ERC claim description
+                    erc = erc_index[name]
+                    doc = erc.get("description", "").split("\n")[0].split(". ")[0]
+                    if doc and not doc.endswith("."):
+                        doc += "."
+                if not doc:
+                    doc = f"{cat} in the {family.title()} API."
+                # Escape pipes in doc
+                doc = doc.replace("|", "\\|")
+                lines.append(f"| `{name}` | {doc} |")
+
+            lines.append("")
+
+        lines.append("---")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+def _is_flat_index(index_path: Path) -> bool:
+    """Return True if a reference _index.md uses only {{< children >}} without grouped tables."""
+    if not index_path.exists():
+        return False
+    text = index_path.read_text(encoding="utf-8")
+    # Extract body after frontmatter
+    if text.startswith("---"):
+        end = text.find("---", 3)
+        if end != -1:
+            body = text[end + 3:].strip()
+        else:
+            body = text.strip()
+    else:
+        body = text.strip()
+    # Strip See Also section
+    import re as _re
+    body = _re.sub(r"##\s*See Also.*", "", body, flags=_re.DOTALL).strip()
+    lines = [l.strip() for l in body.splitlines() if l.strip()]
+    has_h2 = any(l.startswith("## ") for l in lines)
+    has_table = any(l.startswith("|") for l in lines)
+    if has_h2 and has_table:
+        return False
+    return "{{< children" in body
+
+
+def _auto_heal_flat_index(family: str, platform: str) -> None:
+    """During --update/--rebuild-all, auto-heal a flat reference _index.md if possible."""
+    index_path = CONTENT_ROOT / "reference.aspose.org" / "en" / family / platform / "_index.md"
+    if not _is_flat_index(index_path):
+        return
+    api_path = KNOWLEDGE_ROOT / family / platform / "merged" / "api_surface.json"
+    if not api_path.exists():
+        return
+    api = json.loads(api_path.read_text(encoding="utf-8"))
+    if len(api) < 5:
+        return
+    print(f"\nAuto-healing flat reference index for {family}/{platform}...")
+    result = generate_grouped_index(family, platform, dry_run=False)
+    if result and result.get("written"):
+        print(f"  Flat index healed: {result.get('entry_count', 0)} entries grouped")
+    else:
+        reason = result.get("reason", "unknown") if result else "no result"
+        print(f"  Flat index heal skipped: {reason}")
+
+
+def detect_flat_indexes() -> list[dict]:
+    """Scan all reference platforms and return those with flat indexes that could be grouped."""
+    ref_root = CONTENT_ROOT / "reference.aspose.org" / "en"
+    results = []
+    if not ref_root.is_dir():
+        return results
+    for family_dir in sorted(ref_root.iterdir()):
+        if not family_dir.is_dir():
+            continue
+        for plat_dir in sorted(family_dir.iterdir()):
+            if not plat_dir.is_dir():
+                continue
+            index_path = plat_dir / "_index.md"
+            if not _is_flat_index(index_path):
+                continue
+            api_path = KNOWLEDGE_ROOT / family_dir.name / plat_dir.name / "merged" / "api_surface.json"
+            if not api_path.exists():
+                continue
+            api = json.loads(api_path.read_text(encoding="utf-8"))
+            if len(api) >= 5:
+                results.append({
+                    "family": family_dir.name,
+                    "platform": plat_dir.name,
+                    "api_count": len(api),
+                    "path": str(index_path),
+                })
+    return results
+
+
+def generate_grouped_index(
+    family: str,
+    platform: str,
+    dry_run: bool = False,
+) -> dict:
+    """Generate a grouped reference _index.md from api_surface.json metadata.
+
+    Returns a result dict with keys: written, skipped, reason, path, body_preview.
+    """
+    api_surface_path = KNOWLEDGE_ROOT / family / platform / "merged" / "api_surface.json"
+    if not api_surface_path.exists():
+        return {"written": False, "skipped": True, "reason": "api_surface.json missing",
+                "path": "", "body_preview": ""}
+
+    api_surface = json.loads(api_surface_path.read_text(encoding="utf-8"))
+    if len(api_surface) < 5:
+        return {"written": False, "skipped": True,
+                "reason": f"api_surface too small ({len(api_surface)} entries, need >= 5)",
+                "path": "", "body_preview": ""}
+
+    # Filter to platform-appropriate entries
+    entries = [e for e in api_surface if _passes_platform_scope(e, platform)]
+    entries = [e for e in entries if e.get("name") not in _JAVA_INTERNAL_CLASSES]
+    entries = [e for e in entries if e.get("visibility") != "internal"]
+
+    if len(entries) < 5:
+        return {"written": False, "skipped": True,
+                "reason": f"filtered entries too small ({len(entries)})",
+                "path": "", "body_preview": ""}
+
+    # Load model metadata
+    model_sha = ""
+    model_version = ""
+    model_path = KNOWLEDGE_ROOT / family / platform / "merged" / "model.yaml"
+    if model_path.exists():
+        try:
+            import yaml
+            model = yaml.safe_load(model_path.read_text(encoding="utf-8")) or {}
+            model_sha = model.get("repo_sha", "") or ""
+            model_version = model.get("version", "") or ""
+        except Exception:
+            pass
+
+    # Build ERC index for description fallback
+    erc_index = _build_erc_index(family, platform)
+
+    # Generate grouped body
+    body = _build_grouped_index_body(entries, family, platform, erc_index=erc_index)
+
+    # Read existing _index.md to preserve/update frontmatter
+    index_path = CONTENT_ROOT / family / platform / "_index.md"
+    if not index_path.exists():
+        return {"written": False, "skipped": True,
+                "reason": f"_index.md does not exist at {index_path}",
+                "path": str(index_path), "body_preview": ""}
+
+    existing_text = index_path.read_text(encoding="utf-8")
+
+    # Parse existing frontmatter
+    fm_match = re.match(r"^---\n(.*?)\n---", existing_text, re.DOTALL)
+    if not fm_match:
+        return {"written": False, "skipped": True,
+                "reason": "Cannot parse existing frontmatter",
+                "path": str(index_path), "body_preview": ""}
+
+    fm_text = fm_match.group(1)
+
+    # Update provenance: set auto_updatable to true, content_origin to skill-generated
+    fm_text = re.sub(r"auto_updatable:\s*(true|false)", "auto_updatable: true", fm_text)
+    fm_text = re.sub(r"content_origin:\s*\S+", "content_origin: skill-generated", fm_text)
+    fm_text = re.sub(r"last_mechanism:\s*\S+", "last_mechanism: batch-reference-index", fm_text)
+    # Remove recovery note if present (no longer structural-page after healing)
+    fm_text = re.sub(r"\n\s*provenance_recovery_note:\s*\S+", "", fm_text)
+
+    # Build intro paragraph
+    _PLAT_DISPLAY = {
+        "net": ".NET", "java": "Java", "python": "Python",
+        "cpp": "C++", "typescript": "TypeScript", "go": "Go",
+        "nodejs": "Node.js",
+    }
+    plat_display = _PLAT_DISPLAY.get(platform, platform.capitalize())
+    version_str = f" v{model_version}" if model_version else ""
+    intro = (f"API reference for **Aspose.{family.capitalize()} FOSS for "
+             f"{plat_display}**{version_str}. "
+             f"{len(entries)} public types organized by module.\n")
+
+    # Compose full page
+    full_content = f"---\n{fm_text}\n---\n\n{intro}\n{body}"
+
+    # Add See Also section
+    full_content += f"\n## See Also\n\n"
+    full_content += f"- [Aspose.{family.capitalize()} — Enterprise API Reference]"
+    full_content += f"(https://reference.aspose.com/{family}/)\n"
+
+    if dry_run:
+        preview = "\n".join(full_content.splitlines()[:40])
+        print(f"DRY-RUN: {family}/{platform} — {len(entries)} entries, "
+              f"{len(body.splitlines())} body lines")
+        return {"written": False, "skipped": False, "reason": "dry-run",
+                "path": str(index_path), "body_preview": preview,
+                "entry_count": len(entries), "body_lines": len(body.splitlines())}
+
+    # Check if manually curated — never overwrite
+    if is_manually_curated(index_path):
+        return {"written": False, "skipped": True,
+                "reason": "manually curated — skipping",
+                "path": str(index_path), "body_preview": ""}
+
+    # Determine if force is needed
+    needs_force = not is_auto_updatable(index_path)
+    force_reason = ("ref-structure-healing: structural-page recovery — "
+                    "replacing flat children shortcode with grouped API tables")
+
+    try:
+        safe_content_write(
+            index_path, full_content,
+            mechanism="batch-reference-index",
+            force=needs_force,
+            reason=force_reason if needs_force else "",
+        )
+    except ProtectedPageError as exc:
+        return {"written": False, "skipped": True,
+                "reason": f"ProtectedPageError: {exc}",
+                "path": str(index_path), "body_preview": ""}
+
+    # Attach evidence
+    knowledge = Knowledge(family, platform, knowledge_root=KNOWLEDGE_ROOT)
+    if knowledge.available:
+        attach_evidence(index_path, knowledge, force=True)
+
+    print(f"WRITTEN: {family}/{platform}/_index.md — {len(entries)} entries, "
+          f"{len(body.splitlines())} body lines, force={needs_force}")
+
+    return {"written": True, "skipped": False, "reason": "success",
+            "path": str(index_path), "body_preview": "",
+            "entry_count": len(entries), "body_lines": len(body.splitlines()),
+            "force_used": needs_force}
+
+
 def check_member_doc_coverage(
     api_surface: list[dict],
     member_erc_index: dict[str, str],
@@ -1378,6 +1777,10 @@ def run(family: str, platform: str, kind_arg: str = "all",
         dry_run=dry_run,
     )
 
+    # Auto-heal flat reference index if running in --update or --rebuild-all mode
+    if (update or rebuild_all) and not dry_run:
+        _auto_heal_flat_index(family, platform)
+
     return {"generated": len(generated), "updated": len(updated),
             "skipped": len(to_skip), "errors": len(errors),
             "unchanged": len(unchanged)}
@@ -1498,6 +1901,10 @@ def main():
                         help="Path to site_plan.yaml for plan-aware advisory logging. "
                              "Compares api_surface candidates against the plan's reference "
                              "section and logs mismatches (does not filter candidates).")
+    parser.add_argument("--generate-index", action="store_true",
+                        help="Generate a grouped _index.md for the reference platform root "
+                             "from api_surface.json metadata. Groups API entries by "
+                             "package/module and type category. Use --dry-run to preview.")
     parser.add_argument("--knowledge-root", default=None, metavar="DIR",
                         help="Override knowledge root path (default: <repo>/knowledge)")
     parser.add_argument("--content-root", default=None, metavar="DIR",
@@ -1510,6 +1917,20 @@ def main():
             knowledge_root=Path(args.knowledge_root) if args.knowledge_root else None,
             content_root=Path(args.content_root) if args.content_root else None,
         )
+
+    if args.generate_index:
+        result = generate_grouped_index(args.family, args.platform, dry_run=args.dry_run)
+        if result.get("written"):
+            print(f"SUCCESS: Grouped index written to {result['path']}")
+        elif result.get("skipped"):
+            print(f"SKIPPED: {result.get('reason', 'unknown')}")
+        elif args.dry_run:
+            print(f"DRY-RUN complete: {result.get('entry_count', 0)} entries, "
+                  f"{result.get('body_lines', 0)} body lines")
+            if result.get("body_preview"):
+                print("--- Preview (first 40 lines) ---")
+                print(result["body_preview"])
+        sys.exit(0)
 
     run(args.family, args.platform,
         kind_arg=args.kind,
