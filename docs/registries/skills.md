@@ -55,7 +55,7 @@
 | new-kb-faq | S-59 | Generate or update FAQ page for a product platform |
 | new-reference-page | S-60 | Generate API reference pages for reference.aspose.org |
 | new-products-page | S-61 | Generate products.aspose.org landing pages |
-| batch-reference | S-62 | Bulk reference page generation for all missing classes/enums; idempotent |
+| batch-reference | S-62 | Bulk reference page generation for all missing classes/enums; idempotent; `--generate-index` produces grouped reference index from api_surface.json metadata |
 | code-smoke | S-63 | Syntax and type-check code blocks in content files (Python via py_compile/mypy; Java, C#, TypeScript, C++ via tree-sitter) |
 | getting-started | S-64 | Fresh-clone onboarding: install deps, configure env, bootstrap knowledge, verify |
 | link-validate | S-65 | Validate cross-subdomain internal links in content files; report BROKEN links where the target slug does not exist locally |
@@ -116,7 +116,8 @@
 | `.github/workflows/content-audit.yml` | CI — blocks PRs with API accuracy FAILs |
 | `scripts/pipeline/content_eval/` | Multi-dimensional content evaluation (16 evaluators); run via `python scripts/pipeline/commands/content/run_content_eval.py evaluate {family} {platform}` (no PYTHONPATH needed) or `python -m content_eval ...` from `scripts/pipeline/`. DEFAULT_EVALUATORS = 9 (fast/deterministic); ALL_EVALUATORS = 16. |
 | `scripts/pipeline/commands/content/run_content_eval.py` | Wrapper entrypoint for content_eval — invoke from repo root without any PYTHONPATH prefix. Use this instead of `PYTHONPATH=scripts/pipeline python -m content_eval`. |
-| `scripts/pipeline/commands/content/batch_reference.py` | Backing script for S-62 (batch-reference) — generates template-based reference pages from api_surface.json for headless/CI runs. CLI: `python scripts/pipeline/commands/content/batch_reference.py {family} {platform} [--kind class\|enum\|all] [--limit N] [--dry-run]`. |
+| `scripts/pipeline/commands/content/batch_reference.py` | Backing script for S-62 (batch-reference) — generates template-based reference pages from api_surface.json for headless/CI runs. CLI: `python scripts/pipeline/commands/content/batch_reference.py {family} {platform} [--kind class\|enum\|all] [--limit N] [--dry-run] [--generate-index]`. `--generate-index` produces a grouped reference _index.md with semantic tables; auto-heals flat indexes during `--update`/`--rebuild-all`. |
+| `scripts/ci/checks/check_reference_index_structure.py` | CI validator — warns when reference _index.md uses flat `{{< children >}}` while grouped metadata (api_surface.json with 5+ entries) is available. Exit 0 = clean, 1 = warnings. |
 | `scripts/pipeline/commands/knowledge/refresh_knowledge.py` | Runs the full knowledge pipeline (scout→enrich→promote→index), auto-clears `stale_since` in `merged/model.yaml` after successful refresh, and writes `merged/knowledge_delta.json` with semantic diff. CLI: `python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform} [--no-auto-fetch] [--check-only]`. |
 | `scripts/pipeline/commands/healing/retire_page.py` | Retire content pages via `draft: true` + `retired_at` frontmatter (Hugo standard); backs S-83 (page-retire). CLI: `python scripts/pipeline/commands/healing/retire_page.py {file-path} [--dry-run]` or `--from-plan {site_plan_path}`. |
 | `scripts/pipeline/commands/ops/post_refresh_verify.py` | Post-refresh verification gate and progress tracker; backs S-84 (refresh-product). CLI: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step {name}` / `--verify` / `--status`. |

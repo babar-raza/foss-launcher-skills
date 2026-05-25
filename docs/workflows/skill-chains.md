@@ -292,6 +292,22 @@ The evaluator suite covers approximately 60% of known defect classes. A grade of
 batch-reference → /truth-audit (spot-check) → S-24 (evidence-cite) → S-01 (path-guard) → write
 ```
 
+### Grouped reference index generation
+
+When a reference platform root `_index.md` uses flat `{{< children >}}` and
+`api_surface.json` has 5+ entries, the grouped index generator replaces it with
+semantically organized tables:
+
+```
+S-71 (scaffold) → batch-reference --generate-index (grouped tables) → S-62 (class pages)
+```
+
+During refresh, `batch-reference --update` and `--rebuild-all` automatically
+detect flat indexes and heal them via `_auto_heal_flat_index()`.
+
+CI validator: `scripts/ci/checks/check_reference_index_structure.py` warns on
+flat pages where grouped metadata is available.
+
 Platform scope rules enforced by `batch-reference`:
 - **cpp / python**: concrete classes only (skip `^I[A-Z].*` abstract types and known C++ base classes); enums included
 - **java / net**: interfaces, concrete classes, structs, and enums all included
