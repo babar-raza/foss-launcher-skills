@@ -31,6 +31,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
 
 from lib.backlink_targets import (
+    FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE,
     PageType,
     classify_compliance,
     classify_page_type,
@@ -201,9 +202,11 @@ def audit_file(
 
     link_count, link_urls = count_qualifying_com_links(body_text)
 
-    # Determine compliance status (pass family/platform for full fallback chain check)
+    # Determine compliance status (A2 P0: pass chosen_target_type/subdomain for FAMILY_FALLBACK detection)
     status = classify_compliance(link_count, link_urls, chosen_url,
-                                  family=family, platform=platform)
+                                  family=family, platform=platform,
+                                  chosen_target_type=chosen_type,
+                                  chosen_target_subdomain=chosen_sd)
 
     # Build resolution evidence string
     if chosen_url:

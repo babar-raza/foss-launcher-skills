@@ -24,6 +24,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from lib.backlink_targets import (
     PageType,
     MISSING, COMPLIANT, WRONG_TARGET, OVER_LIMIT, BLOCKED_TARGET,
+    FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE,
+    PREFERRED_TARGET_SUBDOMAIN,
     classify_page_type,
     resolve_backlink,
     count_qualifying_com_links,
@@ -430,3 +432,207 @@ class TestLoadTargetMap:
         data_path.write_text("not valid json", encoding="utf-8")
         with pytest.raises(Exception):  # json.JSONDecodeError or ValueError
             load_target_map(tmp_path)
+
+
+# ── P0 A2: TestPlatformLandingAuthority tests ─────────────────────────────────
+# Fixed: C-10 KB subdomain bug (PREFERRED_TARGET_SUBDOMAIN["kb.aspose.org"] was "docs.aspose.com")
+
+def make_kb_target_map(tmp_path: Path) -> dict:
+    """Target map with KB entries for platform landing authority tests."""
+    targets = {
+        "products.aspose.com": {
+            "families": {
+                "words":  {"url": "https://products.aspose.com/words/",  "http_status": 200, "redirect_chain": []},
+                "cells":  {"url": "https://products.aspose.com/cells/",  "http_status": 200, "redirect_chain": []},
+                "pdf":    {"url": "https://products.aspose.com/pdf/",    "http_status": 200, "redirect_chain": []},
+            },
+            "platforms": {
+                "words/net":    {"url": "https://products.aspose.com/words/net/",    "http_status": 200, "redirect_chain": []},
+                "words/python": {"url": "https://products.aspose.com/words/python/", "http_status": 200, "redirect_chain": []},
+                "cells/python": {"url": "https://products.aspose.com/cells/python/", "http_status": 200, "redirect_chain": []},
+            },
+        },
+        "docs.aspose.com": {
+            "families": {
+                "words": {"url": "https://docs.aspose.com/words/", "http_status": 200, "redirect_chain": []},
+                "pdf":   {"url": "https://docs.aspose.com/pdf/",   "http_status": 200, "redirect_chain": []},
+            },
+            "platforms": {
+                "words/net":  {"url": "https://docs.aspose.com/words/net/",  "http_status": 200, "redirect_chain": []},
+                "pdf/go-cpp": {"url": "https://docs.aspose.com/pdf/go-cpp/", "http_status": 200, "redirect_chain": []},
+            },
+        },
+        "reference.aspose.com": {
+            "families": {
+                "words": {"url": "https://reference.aspose.com/words/", "http_status": 200, "redirect_chain": []},
+            },
+            "platforms": {
+                "words/net": {"url": "https://reference.aspose.com/words/net/", "http_status": 200, "redirect_chain": []},
+            },
+        },
+        "kb.aspose.com": {
+            "families": {
+                "cells": {"url": "https://kb.aspose.com/cells/", "http_status": 200, "redirect_chain": []},
+                "words": {"url": "https://kb.aspose.com/words/", "http_status": 200, "redirect_chain": []},
+            },
+            "platforms": {
+                "cells/java":   {"url": "https://kb.aspose.com/cells/java/",   "http_status": 200, "redirect_chain": []},
+                "cells/python": {"url": "https://kb.aspose.com/cells/python/", "http_status": 200, "redirect_chain": []},
+                "words/net":    {"url": "https://kb.aspose.com/words/net/",    "http_status": 200, "redirect_chain": []},
+            },
+        },
+    }
+    data = {
+        "schema_version": "1.0",
+        "provenance": {"generated_at": "2026-01-01T00:00:00Z", "total_targets": 20},
+        "targets": targets,
+        "all_urls": {},
+        "unavailable_sources": [],
+        "family_platform_matrix": {},
+    }
+    data_path = tmp_path / "data" / "aspose_com_targets.json"
+    data_path.parent.mkdir(parents=True, exist_ok=True)
+    data_path.write_text(json.dumps(data), encoding="utf-8")
+    return data
+
+
+class TestPlatformLandingAuthority:
+
+    def get_map(self, tmp_path: Path) -> dict:
+        return make_kb_target_map(tmp_path)
+
+    # Test 1: KB source resolves to kb.aspose.com, NOT docs.aspose.com (C-10 regression test)
+    def test_kb_cells_java_resolves_to_kb_subdomain_not_docs(self, tmp_path):
+        tm = self.get_map(tmp_path)
+        url, utype, sd, reason = resolve_backlink("cells", "java", "kb.aspose.org", tm)
+        assert url is not None
+        assert "kb.aspose.com" in url
+        assert "docs.aspose.com" not in url
+        assert url == "https://kb.aspose.com/cells/java/"
+        assert utype == "platform"
+        assert reason is None
+
+    # Test 2: Constant value check — PREFERRED_TARGET_SUBDOMAIN["kb.aspose.org"] == "kb.aspose.com"
+    def test_kb_preferred_subdomain_constant_is_kb_aspose_com(self):
+        assert PREFERRED_TARGET_SUBDOMAIN["kb.aspose.org"] == "kb.aspose.com"
+
+    # Test 3: KB missing platform falls back to kb.aspose.com family, NOT docs.aspose.com
+    def test_kb_missing_platform_falls_through_to_kb_family_not_docs_family(self, tmp_path):
+        tm = self.get_map(tmp_path)
+        # "cells/go" not in kb.aspose.com platforms — falls back to family
+        url, utype, sd, reason = resolve_backlink("cells", "go", "kb.aspose.org", tm)
+        assert url is not None
+        assert "kb.aspose.com" in url
+        assert "docs.aspose.com" not in url
+        assert utype == "family"
+        assert reason is not None  # fallback reason present
+
+    # Test 4: products.aspose.org/words/python → platform target, NOT family
+    def test_products_words_python_resolves_platform_not_family(self, tmp_path):
+        tm = self.get_map(tmp_path)
+        url, utype, sd, reason = resolve_backlink("words", "python", "products.aspose.org", tm)
+        assert url == "https://products.aspose.com/words/python/"
+        assert utype == "platform"
+        assert "words/python" in url
+        assert reason is None
+
+    # Test 5: Products family fallback only when platform missing from map
+    def test_products_family_fallback_only_when_platform_missing_from_map(self, tmp_path):
+        tm = self.get_map(tmp_path)
+        # "words/ruby" not in any map
+        url, utype, sd, reason = resolve_backlink("words", "ruby", "products.aspose.org", tm)
+        assert url is not None
+        assert utype == "family"
+        assert reason is not None  # fallback_reason is non-None
+
+    # Test 6: FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE detected by classify_compliance
+    def test_family_fallback_while_platform_available_status_detected(self, tmp_path):
+        # Page body has family URL; resolver returns platform URL → FAMILY_FALLBACK
+        chosen_url = "https://kb.aspose.com/cells/java/"
+        existing_urls = ["https://kb.aspose.com/cells/"]  # family-level link in page body
+        status = classify_compliance(
+            1, existing_urls, chosen_url,
+            family="cells", platform="java",
+            chosen_target_type="platform",
+            chosen_target_subdomain="kb.aspose.com",
+        )
+        assert status == FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE
+
+    # Test 7: Canonical override applied when loaded and http_verified: true
+    def test_platform_canonical_override_applied_when_loaded(self, tmp_path):
+        tm = self.get_map(tmp_path)
+        # Mock override: pdf/go → go-cpp (verified)
+        overrides = {
+            "overrides": {
+                "pdf/go": {
+                    "target_platform": "go-cpp",
+                    "http_verified": True,
+                    "verification_date": "2026-05-26",
+                }
+            }
+        }
+        # docs.aspose.com/pdf/go-cpp/ is HTTP 200 in our test map
+        url, utype, sd, reason = resolve_backlink(
+            "pdf", "go", "docs.aspose.org", tm, canonical_overrides=overrides
+        )
+        assert url == "https://docs.aspose.com/pdf/go-cpp/"
+        assert utype == "platform"
+        assert reason is None
+
+    # Test 8: Unverified override entry NOT applied (http_verified: false)
+    def test_no_unverified_override_accepted(self, tmp_path):
+        tm = self.get_map(tmp_path)
+        # Override exists but http_verified: false → must NOT be used
+        overrides = {
+            "overrides": {
+                "pdf/go": {
+                    "target_platform": "go-cpp",
+                    "http_verified": False,  # unverified — must NOT be applied
+                    "verification_date": None,
+                }
+            }
+        }
+        url, utype, sd, reason = resolve_backlink(
+            "pdf", "go", "docs.aspose.org", tm, canonical_overrides=overrides
+        )
+        # pdf/go not in docs.aspose.com map → falls back to family
+        # Override NOT applied because http_verified is False
+        assert url != "https://docs.aspose.com/pdf/go-cpp/"
+        # Should fall back to family (docs.aspose.com/pdf/ is HTTP 200)
+        assert url == "https://docs.aspose.com/pdf/"
+        assert utype == "family"
+
+    # Test 9: Docs pages unaffected by KB fix (regression test)
+    def test_docs_pages_unaffected_by_kb_fix(self, tmp_path):
+        tm = self.get_map(tmp_path)
+        url, utype, sd, reason = resolve_backlink("words", "net", "docs.aspose.org", tm)
+        assert url == "https://docs.aspose.com/words/net/"
+        assert sd == "docs.aspose.com"
+        assert utype == "platform"
+
+    # Test 10: Products pages unaffected by KB fix (regression test)
+    def test_products_pages_unaffected_by_kb_fix(self, tmp_path):
+        tm = self.get_map(tmp_path)
+        url, utype, sd, reason = resolve_backlink("cells", "python", "products.aspose.org", tm)
+        assert sd == "products.aspose.com"
+        assert "products.aspose.com" in url
+
+    # Test 11: Reference pages unaffected by KB fix (regression test)
+    def test_reference_pages_unaffected_by_kb_fix(self, tmp_path):
+        tm = self.get_map(tmp_path)
+        url, utype, sd, reason = resolve_backlink("words", "net", "reference.aspose.org", tm)
+        assert url == "https://reference.aspose.com/words/net/"
+        assert sd == "reference.aspose.com"
+
+    # Test 12: FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE is an audit failure, NOT COMPLIANT
+    def test_family_fallback_while_platform_available_is_audit_failure_not_compliant(self, tmp_path):
+        chosen_url = "https://kb.aspose.com/cells/java/"
+        existing_urls = ["https://kb.aspose.com/cells/"]
+        status = classify_compliance(
+            1, existing_urls, chosen_url,
+            family="cells", platform="java",
+            chosen_target_type="platform",
+            chosen_target_subdomain="kb.aspose.com",
+        )
+        assert status == FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE
+        assert status != COMPLIANT

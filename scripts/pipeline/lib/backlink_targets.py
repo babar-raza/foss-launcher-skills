@@ -103,6 +103,8 @@ WRONG_TARGET    = "WRONG_TARGET"
 OVER_LIMIT      = "OVER_LIMIT"
 BLOCKED_TARGET  = "BLOCKED_TARGET"
 SKIPPED         = "SKIPPED"
+# P0 A2: page uses a family-level link when a verified platform-level target exists
+FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE = "FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE"
 
 
 # ── Subdomain content roots ───────────────────────────────────────────────────
@@ -118,7 +120,7 @@ SUBDOMAIN_ROOTS = {
 # Preferred reciprocal subdomain per source (§4.1)
 PREFERRED_TARGET_SUBDOMAIN = {
     "docs.aspose.org":      "docs.aspose.com",
-    "kb.aspose.org":        "docs.aspose.com",
+    "kb.aspose.org":        "kb.aspose.com",
     "reference.aspose.org": "reference.aspose.com",
     "products.aspose.org":  "products.aspose.com",
     "blog.aspose.org":      "products.aspose.com",
@@ -303,6 +305,7 @@ def resolve_backlink(
     target_map: dict,
     *,
     exact_deep_match_enabled: bool = False,
+    canonical_overrides: Optional[dict] = None,
 ) -> tuple[Optional[str], Optional[str], Optional[str], Optional[str]]:
     """
     Resolve the best backlink target URL per §Q.4 default fallback matrix.
@@ -311,6 +314,9 @@ def resolve_backlink(
 
     exact_deep_match_enabled: If True, attempt exact deep URL lookup (future enhancement).
     Default is False per §J.1.
+
+    canonical_overrides: Optional dict loaded from platform_canonical_overrides.yaml.
+    Only entries with http_verified: true are applied. (A2 P0)
     """
     if not family:
         return None, None, None, "no family detected"
@@ -318,6 +324,17 @@ def resolve_backlink(
     preferred_sd = PREFERRED_TARGET_SUBDOMAIN.get(source_subdomain, "products.aspose.com")
 
     if platform:
+        # Check canonical override first (A2 P0 — only http_verified: true entries used)
+        if canonical_overrides:
+            override_key = f"{family}/{platform}"
+            override = canonical_overrides.get("overrides", {}).get(override_key)
+            if override and override.get("http_verified") is True:
+                override_platform = override.get("target_platform")
+                if override_platform:
+                    url = _lookup_platform(target_map, preferred_sd, family, override_platform)
+                    if url:
+                        return url, "platform", preferred_sd, None
+
         # Try platform URL on preferred subdomain
         url = _lookup_platform(target_map, preferred_sd, family, platform)
         if url:
@@ -462,6 +479,9 @@ def classify_compliance(
     status_on_blocked: str = BLOCKED_TARGET,
     family: Optional[str] = None,
     platform: Optional[str] = None,
+    *,
+    chosen_target_type: Optional[str] = None,
+    chosen_target_subdomain: Optional[str] = None,
 ) -> str:
     """
     Return compliance status.
@@ -469,6 +489,8 @@ def classify_compliance(
     existing_urls: the actual URLs found
     chosen_target_url: from resolve_backlink (None = BLOCKED_TARGET)
     family/platform: used to build the full acceptable fallback URL set per §Q.4
+    chosen_target_type: "platform" or "family" from resolve_backlink (A2 P0)
+    chosen_target_subdomain: e.g. "kb.aspose.com" from resolve_backlink (A2 P0)
     """
     if chosen_target_url is None:
         return status_on_blocked
@@ -484,6 +506,15 @@ def classify_compliance(
     # All entries are normalized (stripped trailing slash, lowercased) for comparison.
     def _norm(u: str) -> str:
         return u.rstrip("/").lower()
+
+    # A2 P0: Detect FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE before computing acceptable set.
+    # If resolver found a platform-level target but existing URL is the family-level URL
+    # on the same subdomain, the page is using a broader link than necessary.
+    if chosen_target_type == "platform" and chosen_target_subdomain and family:
+        family_url_on_sd = _norm(f"https://{chosen_target_subdomain}/{family}/")
+        for url in existing_urls:
+            if _norm(url) == family_url_on_sd:
+                return FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE
 
     acceptable: set[str] = {_norm(chosen_target_url)}
     if family:
