@@ -201,6 +201,22 @@ Do not run any subsequent steps. Exit 0.
     ```
     Verify no broken cross-subdomain links were introduced.
 
+10.5. **Backlink audit and backfill** (cross-subdomain See Also injection):
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_audit.py {family} {platform}
+    ```
+    If missing backlinks detected:
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py {family} {platform} --dry-run
+    ```
+    Review dry-run output. If acceptable:
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py {family} {platform}
+    ```
+    - If backfill modifies files: re-run Step 9 (content-check) on affected files
+    - If backfill fails: WARN but do not block refresh (backlinks are additive)
+    - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step backlink_backfill`
+
 11. **Record step completions**: After each step above, call:
     ```bash
     .venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step {step_name}
