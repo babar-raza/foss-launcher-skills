@@ -2994,3 +2994,19 @@ scripts:
     test_exempt_reason: "CLI validator for ZIP evidence bundles; diagnostic-only, no content writes"
     deprecated_since: null
     notes: "Validates sprint evidence ZIP bundles for structural completeness and SHA consistency"
+
+  - path: scripts/pipeline/commands/ops/validate_clean_working_tree_bundle.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: release-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "Specialized bundle validator; diagnostic-only, no content writes"
+    deprecated_since: null
+    notes: "Validates clean-working-tree plan/pilot bundles for structural completeness and consistency (10 checks)"
