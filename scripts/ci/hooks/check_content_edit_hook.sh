@@ -35,6 +35,27 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
+# Skill-context bypass — allow Edit when S-73 (manual-edit) context is active.
+# Scope enforcement is delegated to check_skill_context_hook.sh (which runs second).
+# This hook only gates "has operator invoked S-73?"; the second hook gates "is this file in scope?".
+ACTIVE_FILE="$REPO_ROOT/reports/skill-context/ACTIVE.json"
+if [ -f "$ACTIVE_FILE" ]; then
+    source "$(dirname "${BASH_SOURCE[0]}")/find_python.sh" || true
+    if [ -n "${PYTHON:-}" ]; then
+        ACTIVE_SKILL=$(printf '%s' "$(cat "$ACTIVE_FILE")" | "$PYTHON" -c "
+import json, sys
+try:
+    print(json.load(sys.stdin).get('skill_id', ''))
+except Exception:
+    pass
+" 2>/dev/null || true)
+        if [ "$ACTIVE_SKILL" = "S-73" ]; then
+            # S-73 is active — defer scope enforcement to check_skill_context_hook.sh
+            exit 0
+        fi
+    fi
+fi
+
 # Resolve Python via shared resolver (venv-only, no python3 fallback — DR-01)
 source "$(dirname "${BASH_SOURCE[0]}")/find_python.sh" || true
 
