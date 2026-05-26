@@ -60,6 +60,7 @@ _TRANSPORT_CODE_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
 # Files/dirs that are always excluded (boundary systems, generated files, etc.)
 _ALWAYS_EXCLUDE_PATHS = {
     ".venv", "venv", "__pycache__", ".git", "node_modules",
+    ".kilo",                                    # Git worktrees — copies of repo scripts, not our transport
     "runs",                                     # Clone cache — FOSS code, not our transport
     "scripts/ci",                               # CI check scripts reference patterns as strings, not calls
     # Core metrics infrastructure — these ARE the approved transport layer, not new call sites
