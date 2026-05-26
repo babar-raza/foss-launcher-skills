@@ -1,0 +1,52 @@
+"""Unit tests for lane_evidence_schema.py."""
+import tempfile, unittest
+from pathlib import Path
+from lane_evidence_schema import get_schema, check_evidence
+
+class TestGetSchema(unittest.TestCase):
+    def test_pilot_1_ids(self):
+        ids=[r["id"] for r in get_schema(1)]
+        self.assertIn("lane-manifest",ids); self.assertIn("overlap-check",ids); self.assertIn("dirty-classifier",ids)
+    def test_pilot_2_ids(self):
+        ids=[r["id"] for r in get_schema(2)]
+        self.assertIn("s23-audit",ids); self.assertIn("rollback-drill",ids); self.assertIn("commit-sha",ids)
+    def test_pilot_3_ids(self):
+        ids=[r["id"] for r in get_schema(3)]
+        self.assertIn("generation-manifest",ids); self.assertIn("repeatability-proof",ids)
+    def test_invalid_pilot(self):
+        with self.assertRaises(ValueError): get_schema(99)
+    def test_all_have_required_fields(self):
+        for pilot in [1,2,3]:
+            for req in get_schema(pilot):
+                self.assertIn("id",req); self.assertIn("description",req); self.assertIn("required",req)
+    def test_pilot2_superset_pilot1(self):
+        p1={r["id"] for r in get_schema(1) if r["required"]}
+        p2={r["id"] for r in get_schema(2)}
+        missing=p1-p2; missing.discard("state-transition-log")
+        self.assertEqual(missing,set())
+
+class TestCheckEvidence(unittest.TestCase):
+    def test_empty_dir_has_fails(self):
+        with tempfile.TemporaryDirectory() as d:
+            results=check_evidence(1,Path(d))
+        self.assertTrue(len([r for r in results if r["status"]=="FAIL"])>0)
+    def test_files_found(self):
+        with tempfile.TemporaryDirectory() as d:
+            p=Path(d)
+            (p/"lane_manifest.json").write_text("{}",encoding="utf-8")
+            (p/"overlap_check.txt").write_text("PASS",encoding="utf-8")
+            (p/"dirty_classifier.json").write_text("{}",encoding="utf-8")
+            (p/"state_transition_log.txt").write_text("",encoding="utf-8")
+            results=check_evidence(1,p)
+        self.assertEqual(len([r for r in results if r["status"]=="PASS"]),4)
+    def test_optional_warn(self):
+        with tempfile.TemporaryDirectory() as d:
+            p=Path(d)
+            (p/"lane_manifest.json").write_text("{}",encoding="utf-8")
+            (p/"overlap_check.txt").write_text("PASS",encoding="utf-8")
+            (p/"dirty_classifier.json").write_text("{}",encoding="utf-8")
+            (p/"state_transition_log.txt").write_text("",encoding="utf-8")
+            results=check_evidence(1,p)
+        self.assertTrue(len([r for r in results if r["status"]=="WARN"])>=1)
+
+if __name__=="__main__": unittest.main()
