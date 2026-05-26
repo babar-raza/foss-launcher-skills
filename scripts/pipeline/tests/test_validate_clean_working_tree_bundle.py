@@ -4,6 +4,10 @@ from pathlib import Path
 from validate_clean_working_tree_bundle import (
     validate, check1_required_deliverables, check4_verdict_consistency,
     check5_p0_tooling, check6_contradiction_repair, check7_dirty_tree_classified,
+    check11_safety_section_no_unclassified_stash,
+    check12_commits_have_git_log_proof,
+    check13_pilot_pass_requires_evidence_schema,
+    check14_validator_source_referenced,
     REQUIRED_DELIVERABLES, P0_TOOL_NAMES,
 )
 
@@ -86,8 +90,79 @@ class TestCheck7(unittest.TestCase):
         try: self.assertEqual(check7_dirty_tree_classified(bp, ["readme.md"])["status"], "FAIL")
         finally: bp.unlink(missing_ok=True)
 
+class TestCheck11(unittest.TestCase):
+    def test_no_stash_passes(self):
+        bp = _make_bundle({"executive-summary.md": "All safe. No stash operations."})
+        try: self.assertEqual(check11_safety_section_no_unclassified_stash(bp, ["executive-summary.md"])["status"], "PASS")
+        finally: bp.unlink(missing_ok=True)
+
+    def test_unclassified_stash_fails(self):
+        bp = _make_bundle({"executive-summary.md": "Safety: Saved working directory and index state WIP on main: abc1234 fix"})
+        try: self.assertEqual(check11_safety_section_no_unclassified_stash(bp, ["executive-summary.md"])["status"], "FAIL")
+        finally: bp.unlink(missing_ok=True)
+
+    def test_classified_stash_passes(self):
+        content = "Stash classified: benign settings-only change.\nSaved working directory and index state WIP on main: abc"
+        bp = _make_bundle({"executive-summary.md": content})
+        try: self.assertEqual(check11_safety_section_no_unclassified_stash(bp, ["executive-summary.md"])["status"], "PASS")
+        finally: bp.unlink(missing_ok=True)
+
+
+class TestCheck12(unittest.TestCase):
+    def test_no_commits_passes(self):
+        bp = _make_bundle({"executive-summary.md": "No commits in this sprint."})
+        try: self.assertEqual(check12_commits_have_git_log_proof(bp, ["executive-summary.md"])["status"], "PASS")
+        finally: bp.unlink(missing_ok=True)
+
+    def test_sha_no_proof_fails(self):
+        bp = _make_bundle({"executive-summary.md": "Committed: abc1234 fix things"})
+        try: self.assertEqual(check12_commits_have_git_log_proof(bp, ["executive-summary.md"])["status"], "FAIL")
+        finally: bp.unlink(missing_ok=True)
+
+    def test_sha_with_git_log_passes(self):
+        files = {"executive-summary.md": "Committed: abc1234 fix things", "git-log.txt": "abc1234 stuff"}
+        bp = _make_bundle(files)
+        try: self.assertEqual(check12_commits_have_git_log_proof(bp, list(files.keys()))["status"], "PASS")
+        finally: bp.unlink(missing_ok=True)
+
+
+class TestCheck13(unittest.TestCase):
+    def test_no_pilot_pass_skips(self):
+        bp = _make_bundle({"executive-summary.md": "No pilot yet."})
+        try: self.assertEqual(check13_pilot_pass_requires_evidence_schema(bp, ["executive-summary.md"])["status"], "PASS")
+        finally: bp.unlink(missing_ok=True)
+
+    def test_pilot_pass_no_schema_fails(self):
+        bp = _make_bundle({"executive-summary.md": "Pilot 1 PASS complete."})
+        try: self.assertEqual(check13_pilot_pass_requires_evidence_schema(bp, ["executive-summary.md"])["status"], "FAIL")
+        finally: bp.unlink(missing_ok=True)
+
+    def test_pilot_pass_with_schema_passes(self):
+        files = {"executive-summary.md": "Pilot 1 PASS.", "independent-verification.md": "lane_evidence_schema check PASS"}
+        bp = _make_bundle(files)
+        try: self.assertEqual(check13_pilot_pass_requires_evidence_schema(bp, list(files.keys()))["status"], "PASS")
+        finally: bp.unlink(missing_ok=True)
+
+
+class TestCheck14(unittest.TestCase):
+    def test_source_in_bundle_passes(self):
+        bp = _make_bundle({"validate_clean_working_tree_bundle.py": "# source"})
+        try: self.assertEqual(check14_validator_source_referenced(bp, ["validate_clean_working_tree_bundle.py"])["status"], "PASS")
+        finally: bp.unlink(missing_ok=True)
+
+    def test_referenced_in_text_passes(self):
+        bp = _make_bundle({"executive-summary.md": "Ran validate_clean_working_tree_bundle at commit abc"})
+        try: self.assertEqual(check14_validator_source_referenced(bp, ["executive-summary.md"])["status"], "PASS")
+        finally: bp.unlink(missing_ok=True)
+
+    def test_no_reference_fails(self):
+        bp = _make_bundle({"executive-summary.md": "Nothing relevant."})
+        try: self.assertEqual(check14_validator_source_referenced(bp, ["executive-summary.md"])["status"], "FAIL")
+        finally: bp.unlink(missing_ok=True)
+
+
 class TestValidateDir(unittest.TestCase):
-    def test_has_10_checks(self):
+    def test_has_14_checks(self):
         import tempfile
         with tempfile.TemporaryDirectory() as d:
             p = Path(d)
@@ -99,7 +174,7 @@ class TestValidateDir(unittest.TestCase):
             logs.mkdir()
             (logs / "preflight.txt").write_text(PREFLIGHT, encoding="utf-8")
             report = validate(p)
-        self.assertEqual(report["total_checks"], 10)
+        self.assertEqual(report["total_checks"], 14)
     def test_nonexistent(self):
         self.assertEqual(validate(Path("/nonexistent/x.zip"))["overall"], "FAIL")
 

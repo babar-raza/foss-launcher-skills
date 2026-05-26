@@ -191,6 +191,13 @@ def validate_directory(dirpath: Path) -> list[str]:
 
 
 def main(argv: list[str] | None = None) -> int:
+    # Backward-compatible shim: strip leading 'validate' subcommand if present.
+    # Allows both old-style  (--file X) and documented-style (validate --file X).
+    if argv is None:
+        argv = sys.argv[1:]
+    if argv and argv[0] == "validate":
+        argv = list(argv[1:])
+
     parser = argparse.ArgumentParser(
         description="Validate lane manifest JSON files."
     )

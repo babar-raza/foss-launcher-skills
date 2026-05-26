@@ -49,4 +49,53 @@ class TestCheckEvidence(unittest.TestCase):
             results=check_evidence(1,p)
         self.assertTrue(len([r for r in results if r["status"]=="WARN"])>=1)
 
+    # Regression: LANE-*.json must be recognised as lane-manifest evidence (Defect 1)
+    def test_lane_id_json_recognised_as_manifest(self):
+        """LANE-A.json must satisfy the lane-manifest requirement."""
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d)
+            (p / "LANE-A.json").write_text("{}", encoding="utf-8")
+            (p / "overlap_check.txt").write_text("PASS", encoding="utf-8")
+            (p / "dirty_classifier.json").write_text("{}", encoding="utf-8")
+            (p / "state_transition_log.txt").write_text("", encoding="utf-8")
+            results = check_evidence(1, p)
+        lm = next(r for r in results if r["id"] == "lane-manifest")
+        self.assertEqual(lm["status"], "PASS",
+                         "LANE-A.json must satisfy lane-manifest evidence requirement")
+
+    def test_lane_numbered_json_recognised(self):
+        """LANE-1.json must also satisfy the lane-manifest requirement."""
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d)
+            (p / "LANE-1.json").write_text("{}", encoding="utf-8")
+            (p / "overlap_check.txt").write_text("PASS", encoding="utf-8")
+            (p / "dirty_classifier.json").write_text("{}", encoding="utf-8")
+            (p / "state_transition_log.txt").write_text("", encoding="utf-8")
+            results = check_evidence(1, p)
+        lm = next(r for r in results if r["id"] == "lane-manifest")
+        self.assertEqual(lm["status"], "PASS",
+                         "LANE-1.json must satisfy lane-manifest evidence requirement")
+
+    def test_irrelevant_json_does_not_satisfy_manifest(self):
+        """A random JSON file must NOT satisfy lane-manifest requirement."""
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d)
+            (p / "results.json").write_text("{}", encoding="utf-8")
+            results = check_evidence(1, p)
+        lm = next(r for r in results if r["id"] == "lane-manifest")
+        self.assertEqual(lm["status"], "FAIL")
+
+    def test_pilot1_full_pass_with_lane_id_files(self):
+        """Full Pilot 1 evidence dir using LANE-*.json must have 0 required failures."""
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d)
+            (p / "LANE-A.json").write_text("{}", encoding="utf-8")
+            (p / "overlap_check_PASS.txt").write_text("PASS", encoding="utf-8")
+            (p / "dirty_classifier_output.json").write_text("{}", encoding="utf-8")
+            (p / "state_transition_log.txt").write_text("transitions", encoding="utf-8")
+            results = check_evidence(1, p)
+        required_fails = [r for r in results if r["required"] and r["status"] == "FAIL"]
+        self.assertEqual(required_fails, [],
+                         f"Required evidence items failed: {required_fails}")
+
 if __name__=="__main__": unittest.main()

@@ -160,5 +160,43 @@ class TestValidateDirectory(unittest.TestCase):
         self.assertTrue(any("Directory not found" in e for e in errors))
 
 
+class TestValidateSubcommand(unittest.TestCase):
+    """Regression: CLI must accept 'validate' subcommand prefix (Defect 2)."""
+
+    def _write_valid(self, path: Path) -> None:
+        path.write_text(json.dumps(_make_valid_manifest()), encoding="utf-8")
+
+    def test_validate_subcommand_with_file(self):
+        """lane_manifest.py validate --file X must work identically to --file X."""
+        from lane_manifest import main
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "LANE-A.json"
+            self._write_valid(p)
+            # Old-style: --file X
+            rc_old = main(["--file", str(p)])
+            # New-style: validate --file X
+            rc_new = main(["validate", "--file", str(p)])
+        self.assertEqual(rc_old, 0)
+        self.assertEqual(rc_new, 0, "validate subcommand must succeed for valid manifest")
+
+    def test_validate_subcommand_with_dir(self):
+        """lane_manifest.py validate --dir X must work identically to --dir X."""
+        from lane_manifest import main
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "LANE-A.json"
+            self._write_valid(p)
+            rc_new = main(["validate", "--dir", str(d)])
+        self.assertEqual(rc_new, 0, "validate --dir must succeed for valid manifest directory")
+
+    def test_validate_subcommand_invalid_manifests(self):
+        """validate subcommand must return non-zero for invalid manifests."""
+        from lane_manifest import main
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "LANE-A.json"
+            p.write_text(json.dumps({"lane_id": "LANE-A"}), encoding="utf-8")  # missing fields
+            rc = main(["validate", "--file", str(p)])
+        self.assertNotEqual(rc, 0, "validate must fail for invalid manifest")
+
+
 if __name__ == "__main__":
     unittest.main()

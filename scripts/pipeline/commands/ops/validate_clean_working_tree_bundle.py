@@ -2,17 +2,21 @@
 
 Specialized validator preventing previous-bundle defects from recurring silently.
 
-Checks (10 total):
-  1. Required deliverables exist in bundle
-  2. Required command logs exist in bundle
-  3. SHA-256 manifest exists and verifies
-  4. Final verdict consistent with blocked_items
-  5. PLAN_HARDENED_READY_FOR_DOCS_ONLY_PILOT requires P0 tooling proof
-  6. Contradictions resolved must have repair evidence (not just accepted-as-is)
-  7. Dirty-tree state classified
-  8. Missing taskcards documented
-  9. Bundle path recorded
+Checks (14 total):
+  1.  Required deliverables exist in bundle
+  2.  Required command logs exist in bundle
+  3.  SHA-256 manifest exists and verifies
+  4.  Final verdict consistent with blocked_items
+  5.  PLAN_HARDENED_READY_FOR_DOCS_ONLY_PILOT requires P0 tooling proof
+  6.  Contradictions resolved must have repair evidence (not just accepted-as-is)
+  7.  Dirty-tree state classified
+  8.  Missing taskcards documented
+  9.  Bundle path recorded
   10. Final git status captured
+  11. Safety section free of unclassified stash/reset/clean output
+  12. Claimed commits have git-log proof
+  13. Pilot PASS claims require lane-evidence-schema PASS proof
+  14. Validator source/tests are referenced or SHA-proven in bundle
 """
 from __future__ import annotations
 
@@ -170,6 +174,107 @@ def check10_git_status_captured(bp: Path, names: list[str]) -> dict:
     return _c("git_status_captured", False, "No git status captured")
 
 
+# ---------------------------------------------------------------------------
+# New hardening checks (11–14)
+# ---------------------------------------------------------------------------
+
+_STASH_PATTERNS = re.compile(
+    r"(saved working directory|stash@\{|wip on \w+:|git stash pop|git stash drop)",
+    re.I,
+)
+_SAFE_SECTION_MARKERS = re.compile(
+    r"(stash.*classified|no stash|stash.*benign|stash.*investigation|stash.*not a violation)",
+    re.I,
+)
+
+
+def check11_safety_section_no_unclassified_stash(bp: Path, names: list[str]) -> dict:
+    """Safety section must not contain stash/reset output without classification."""
+    for frag in ["executive-summary", "plan-state", "final-verdict", "safety"]:
+        t = _read(bp, frag)
+        if not t:
+            continue
+        if _STASH_PATTERNS.search(t):
+            if _SAFE_SECTION_MARKERS.search(t):
+                return _c("safety_no_unclassified_stash", True,
+                           f"Stash output in {frag} but classified/explained")
+            return _c("safety_no_unclassified_stash", False,
+                       f"Stash/reset output in {frag} without classification")
+    return _c("safety_no_unclassified_stash", True, "No unclassified stash output found")
+
+
+def check12_commits_have_git_log_proof(bp: Path, names: list[str]) -> dict:
+    """If commits are claimed, a git-log proof file must be present."""
+    # Check whether any file claims a commit SHA
+    sha_pattern = re.compile(r"\b[0-9a-f]{7,40}\b")
+    commit_claimed = False
+    for frag in ["final-verdict", "executive-summary", "plan-state"]:
+        t = _read(bp, frag)
+        if t and sha_pattern.search(t):
+            commit_claimed = True
+            break
+
+    if not commit_claimed:
+        return _c("commits_have_git_log_proof", True, "No commit SHAs claimed — skip")
+
+    has_log = any("git-log" in n or "git_log" in n or "gitlog" in n for n in names)
+    if not has_log:
+        # Also accept if preflight or a command-log contains git log output
+        for frag in ["preflight", "command-log"]:
+            t = _read(bp, frag)
+            if t and re.search(r"[0-9a-f]{7,40}\s+(commit|fix|feat|content|docs)\(", t):
+                has_log = True
+                break
+    return _c("commits_have_git_log_proof", has_log,
+               "git-log proof present" if has_log else "Commits claimed but no git-log proof")
+
+
+_PILOT_PASS_PATTERN = re.compile(r"pilot\s*[123]\s*(?:pass|complete|verified|accepted)", re.I)
+_EVIDENCE_SCHEMA_PASS = re.compile(r"lane.evidence.schema.*pass|evidence.*schema.*pass", re.I)
+
+
+def check13_pilot_pass_requires_evidence_schema(bp: Path, names: list[str]) -> dict:
+    """Pilot PASS claims require lane-evidence-schema PASS proof."""
+    for frag in ["executive-summary", "final-verdict", "independent-verification", "plan-state"]:
+        t = _read(bp, frag)
+        if t and _PILOT_PASS_PATTERN.search(t):
+            # A pilot PASS is claimed — look for evidence schema proof
+            for check_frag in ["independent-verification", "defect-repair", "repair-loop"]:
+                ct = _read(bp, check_frag)
+                if ct and _EVIDENCE_SCHEMA_PASS.search(ct):
+                    return _c("pilot_pass_has_evidence_schema", True,
+                               "Pilot PASS backed by evidence-schema PASS proof")
+            # Also accept if the names list includes an evidence-schema output
+            if any("evidence_schema" in n or "evidence-schema" in n for n in names):
+                return _c("pilot_pass_has_evidence_schema", True,
+                           "Evidence-schema artifact in bundle")
+            return _c("pilot_pass_has_evidence_schema", False,
+                       "Pilot PASS claimed but no lane-evidence-schema PASS proof found")
+    return _c("pilot_pass_has_evidence_schema", True, "No pilot PASS claim found — skip")
+
+
+def check14_validator_source_referenced(bp: Path, names: list[str]) -> dict:
+    """Validator source/tests must be referenced or SHA-proven in bundle."""
+    validator_names = [
+        "validate_clean_working_tree_bundle",
+        "lane_evidence_schema",
+        "lane_manifest",
+    ]
+    # Accept if any source file is directly in the bundle
+    for v in validator_names:
+        if any(v in n for n in names):
+            return _c("validator_source_referenced", True,
+                       f"Validator source in bundle: {v}")
+    # Accept if a SHA/commit reference appears in executive-summary or plan-state
+    for frag in ["executive-summary", "plan-state", "preflight"]:
+        t = _read(bp, frag)
+        if t and any(v in t for v in validator_names):
+            return _c("validator_source_referenced", True,
+                       f"Validator referenced in {frag}")
+    return _c("validator_source_referenced", False,
+               "No validator source, test, or SHA reference found in bundle")
+
+
 def validate(bp: Path) -> dict:
     if not bp.exists():
         return {
@@ -184,6 +289,10 @@ def validate(bp: Path) -> dict:
         check5_p0_tooling(bp, names), check6_contradiction_repair(bp, names),
         check7_dirty_tree_classified(bp, names), check8_missing_taskcards(bp, names),
         check9_bundle_path_recorded(bp, names), check10_git_status_captured(bp, names),
+        check11_safety_section_no_unclassified_stash(bp, names),
+        check12_commits_have_git_log_proof(bp, names),
+        check13_pilot_pass_requires_evidence_schema(bp, names),
+        check14_validator_source_referenced(bp, names),
     ]
     pc = sum(1 for c in checks if c["status"] == "PASS")
     fc = sum(1 for c in checks if c["status"] == "FAIL")

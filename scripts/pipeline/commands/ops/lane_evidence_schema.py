@@ -18,10 +18,20 @@ import json
 import sys
 from pathlib import Path
 
-# Evidence requirements per pilot stage
+# Evidence requirements per pilot stage.
+# Each requirement may include:
+#   "name_prefixes": extra filename-prefix patterns (case-insensitive) to match
+#     in addition to id-derived stems.  Used so that LANE-*.json files are
+#     recognised as lane-manifest evidence without requiring a file rename.
 PILOT_EVIDENCE: dict[int, list[dict]] = {
     1: [
-        {"id": "lane-manifest", "description": "Lane manifest JSON exists and is valid", "required": True},
+        {
+            "id": "lane-manifest",
+            "description": "Lane manifest JSON exists and is valid",
+            "required": True,
+            # LANE-A.json, LANE-1.json, etc. are valid lane-manifest evidence
+            "name_prefixes": ["LANE-"],
+        },
         {"id": "overlap-check", "description": "Overlap checker output (PASS)", "required": True},
         {"id": "dirty-classifier", "description": "Dirty-tree classification output", "required": True},
         {"id": "state-transition-log", "description": "State machine transition log", "required": True},
@@ -78,8 +88,17 @@ def check_evidence(pilot: int, evidence_dir: Path) -> list[dict]:
         matching_files = []
 
         if evidence_dir.is_dir():
+            name_prefixes = req.get("name_prefixes", [])
             for f in evidence_dir.rglob("*"):
-                if req["id"].replace("-", "_") in f.stem or req["id"].replace("-", "-") in f.stem:
+                stem_lower = f.stem.lower()
+                name_lower = f.name.lower()
+                id_underscore = req["id"].replace("-", "_")
+                id_hyphen = req["id"]
+                if (
+                    id_underscore in stem_lower
+                    or id_hyphen in stem_lower
+                    or any(name_lower.startswith(p.lower()) for p in name_prefixes)
+                ):
                     found = True
                     matching_files.append(str(f.relative_to(evidence_dir)))
 
