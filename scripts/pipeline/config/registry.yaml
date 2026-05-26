@@ -3009,4 +3009,84 @@ scripts:
     requires_test: false
     test_exempt_reason: "Specialized bundle validator; diagnostic-only, no content writes"
     deprecated_since: null
-    notes: "Validates clean-working-tree plan/pilot bundles for structural completeness and consistency (10 checks)"
+    notes: "Validates clean-working-tree plan/pilot bundles for structural completeness and consistency (14 checks)"
+
+  - path: scripts/pipeline/commands/ops/lane_diff_checker.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: release-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "Diagnostic lane checker; reads git diff output against manifest; no content writes"
+    deprecated_since: null
+    notes: "Lane-owned diff checker (TC-LCM-04 + TC-LCM-06): validates changed files are within lane scope and flags shared-file touches"
+
+  - path: scripts/pipeline/commands/ops/lane_staging_checker.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: release-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "Diagnostic staging checker; reads git diff --cached against manifest; no content writes"
+    deprecated_since: null
+    notes: "Exact-path staging checker (TC-LCM-05): verifies all staged files are within lane owned_path_prefixes"
+
+  - path: scripts/pipeline/commands/ops/lane_rollback_plan.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: release-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "Read-only rollback plan generator; no git mutations, produces plan document only"
+    deprecated_since: null
+    notes: "Rollback plan validator (TC-LCM-09): produces safe revert order from lane dependency graph and commit SHAs (read-only, no destructive actions)"
+
+  - path: scripts/pipeline/commands/ops/lane_commit_map_validator.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: release-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "Diagnostic; reads git log to verify commit SHA ancestry; no writes"
+    deprecated_since: null
+    notes: "Lane commit map validator (TC-LCM-DEFERRED-01): verifies lane manifest commit SHAs appear in git history"
+
+  - path: scripts/pipeline/lib/reference_filter.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: reference
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "Shared filter library with no standalone CLI; covered indirectly by batch_reference tests"
+    deprecated_since: null
+    notes: "Two-step API surface filter shared by batch_reference.py and check_reference_index_structure.py (TC-REF-09)"
