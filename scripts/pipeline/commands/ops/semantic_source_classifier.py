@@ -100,6 +100,15 @@ def _aggregate_impact(categories: list[str]) -> str:
     return "MEDIUM"  # mixed with UNKNOWN → conservative
 
 
+_git_diff_fn = None  # injected via configure(); falls back to _run_git_diff if None
+
+
+def configure(*, git_diff_fn=None) -> None:
+    """Inject test seams. Call with no args to reset to production defaults."""
+    global _git_diff_fn
+    _git_diff_fn = git_diff_fn
+
+
 def _run_git_diff(clone_path: Path, old_sha: str, new_sha: str) -> tuple[list[str], str, bool]:
     """Run git diff --name-status. Returns (lines, error, shallow_clone_issue)."""
     try:
@@ -215,7 +224,8 @@ def classify(
         _write_output(result, out_path)
         return result, 2
 
-    diff_lines, err, shallow = _run_git_diff(clone_path, old_sha, new_sha)
+    diff_fn = _git_diff_fn if _git_diff_fn is not None else _run_git_diff
+    diff_lines, err, shallow = diff_fn(clone_path, old_sha, new_sha)
 
     if shallow or (not diff_lines and err):
         result["diff_available"] = False

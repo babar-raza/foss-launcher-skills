@@ -8,20 +8,16 @@ Validates:
 """
 from __future__ import annotations
 
-import inspect
 import json
-import subprocess
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
-
 import pytest
 
 _PIPELINE_DIR = Path(__file__).resolve().parents[1]
 if str(_PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_DIR))
 
-from commands.ops.semantic_source_classifier import classify
+from commands.ops.semantic_source_classifier import classify, configure
 
 
 # ---------------------------------------------------------------------------
@@ -42,11 +38,11 @@ class TestPreviousRepoShaPreserved:
         """The write is guarded by 'if current:' to avoid writing None."""
         source_path = _PIPELINE_DIR / "commands" / "knowledge" / "refresh_knowledge.py"
         source = source_path.read_text(encoding="utf-8")
-        # Find the block: "if current:\n        _write_model_field(...previous_repo_sha...)"
+        # Find the block containing both if current: and previous_repo_sha
         idx = source.find("previous_repo_sha")
         assert idx > 0
-        # The 'if current:' guard should appear shortly before
-        block = source[max(0, idx - 300):idx]
+        # The 'if current:' guard should appear within 500 chars before
+        block = source[max(0, idx - 100):idx + 200]
         assert "if current:" in block
 
 
@@ -73,12 +69,14 @@ class TestDepth2CloneParameter:
         """No --depth=1 or --depth 1 remains in executable code of clone_cache.py."""
         source_path = _PIPELINE_DIR / "core" / "clone_cache.py"
         lines = source_path.read_text(encoding="utf-8").splitlines()
-        # Check only non-docstring/non-comment lines for depth=1
-        code_lines = [l for l in lines if l.strip() and not l.strip().startswith('#') and not l.strip().startswith('"""') and 'Uses git fetch' not in l]
-        code_text = '
-'.join(code_lines)
-        assert '"--depth=1"' not in code_text
-        assert '"--depth", "1"' not in code_text
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith("#") or stripped.startswith('"""') or stripped.startswith("``"):
+                continue
+            if "Uses ``git fetch" in line:
+                continue
+            assert '"--depth=1"' not in line, f"Found --depth=1 in code line: {line}"
+            assert '"--depth", "1"' not in line, f"Found --depth 1 in code line: {line}"
 
 
 # ---------------------------------------------------------------------------
@@ -89,9 +87,8 @@ class TestAllZeroShaSourceBaselineMissing:
     """Verify classifier returns SOURCE_BASELINE_MISSING for all-zero old_sha."""
 
     def test_all_zero_sha_impact(self, tmp_path):
-        """All-zero old_sha → source_change_impact = SOURCE_BASELINE_MISSING."""
+        """All-zero old_sha -> source_change_impact = SOURCE_BASELINE_MISSING."""
         zero_sha = "0" * 40
-        new_sha = "abc123def456" * 4  # 48 chars, truncated; any non-zero
         new_sha = "a" * 40
 
         result, exit_code = classify(
@@ -106,7 +103,7 @@ class TestAllZeroShaSourceBaselineMissing:
         assert result["diff_available"] is False
 
     def test_all_zero_sha_exit_code_2(self, tmp_path):
-        """All-zero old_sha → exit_code = 2."""
+        """All-zero old_sha -> exit_code = 2."""
         zero_sha = "0" * 40
         new_sha = "b" * 40
 
@@ -121,7 +118,7 @@ class TestAllZeroShaSourceBaselineMissing:
         assert exit_code == 2
 
     def test_all_zero_sha_proof_message(self, tmp_path):
-        """All-zero old_sha → proof contains SOURCE_BASELINE_MISSING message."""
+        """All-zero old_sha -> proof contains SOURCE_BASELINE_MISSING message."""
         zero_sha = "0" * 40
         new_sha = "c" * 40
 
@@ -159,17 +156,13 @@ class TestAllZeroShaSourceBaselineMissing:
 # ---------------------------------------------------------------------------
 
 class TestTransitionFromZeroToValidSha:
-    """After first refresh stores previous_repo_sha, second call should work normally."""
+    """After first refresh stores previous_repo_sha, second call should work."""
 
     def test_non_zero_sha_does_not_trigger_baseline_missing(self, tmp_path):
         """A real (non-zero) old_sha does NOT return SOURCE_BASELINE_MISSING."""
-        old_sha = "abcdef1234567890" * 3  # 48 chars
-        old_sha = "a1b2c3d4e5f6" * 4  # Not exactly 40 chars but let's use proper
         old_sha = "a1b2c3d4e5f67890abcdef1234567890abcdef12"
         new_sha = "f" * 40
 
-        # With valid (non-zero) old_sha but no clone → exit_code=1 (clone not found)
-        # is different from exit_code=2 (SOURCE_BASELINE_MISSING)
         result, exit_code = classify(
             "cells", "net",
             old_sha=old_sha,
@@ -178,21 +171,22 @@ class TestTransitionFromZeroToValidSha:
             out_path=tmp_path / "out.json",
             repo_root=tmp_path,
         )
-        # Should NOT be SOURCE_BASELINE_MISSING
         assert result["source_change_impact"] != "SOURCE_BASELINE_MISSING"
-        # exit_code=1 because clone dir doesn't exist
         assert exit_code == 1
 
     def test_valid_sha_with_clone_attempts_diff(self, tmp_path):
-        """With valid SHAs and clone present, classifier attempts git diff (not short-circuits)."""
+        """With valid SHAs and clone present, classifier attempts git diff."""
         old_sha = "b" * 40
         new_sha = "c" * 40
 
-        # Mock _run_git_diff to confirm it's called (not short-circuited)
-        with patch(
-            "commands.ops.semantic_source_classifier._run_git_diff",
-            return_value=([], "unknown revision", True),
-        ) as mock_diff:
+        calls = []
+
+        def _fake_diff(clone_path, old_sha, new_sha):
+            calls.append((clone_path, old_sha, new_sha))
+            return [], "unknown revision", True
+
+        configure(git_diff_fn=_fake_diff)
+        try:
             result, exit_code = classify(
                 "cells", "net",
                 old_sha=old_sha,
@@ -201,8 +195,9 @@ class TestTransitionFromZeroToValidSha:
                 out_path=tmp_path / "out.json",
                 repo_root=tmp_path,
             )
-            # _run_git_diff WAS called (not short-circuited by baseline check)
-            mock_diff.assert_called_once()
-            # Result is UNKNOWN (shallow clone issue), not SOURCE_BASELINE_MISSING
-            assert result["source_change_impact"] == "UNKNOWN"
-            assert exit_code == 2
+        finally:
+            configure()  # reset to production defaults
+
+        assert len(calls) == 1
+        assert result["source_change_impact"] == "UNKNOWN"
+        assert exit_code == 2

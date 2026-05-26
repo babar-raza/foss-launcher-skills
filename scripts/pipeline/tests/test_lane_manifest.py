@@ -106,12 +106,15 @@ class TestValidateManifest(unittest.TestCase):
 
 class TestValidateFile(unittest.TestCase):
     def test_valid_file(self):
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False, encoding="utf-8"
-        ) as f:
-            json.dump(_make_valid_manifest(), f)
-            f.flush()
-            errors = validate_file(Path(f.name))
+        import os
+        tmpdir = tempfile.mkdtemp()
+        path = Path(tmpdir) / "LANE-A.json"
+        try:
+            path.write_text(json.dumps(_make_valid_manifest()), encoding="utf-8")
+            errors = validate_file(path)
+        finally:
+            path.unlink(missing_ok=True)
+            os.rmdir(tmpdir)
         self.assertEqual(errors, [])
 
     def test_nonexistent_file(self):
