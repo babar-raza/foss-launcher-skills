@@ -2736,6 +2736,176 @@ scripts:
     change_impact: null
     notes: "TC-BL-005/006: backlink insertion engine; products YAML overview.content + Markdown See Also/Related Resources; dry-run default; --write required; idempotent; max-2-link guard; auto_updatable protection; rollback manifest generated"
 
+  - path: scripts/pipeline/commands/ops/backlink_build_deep_index.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python backlink_build_deep_index.py [--families FAMILY ...] [--output PATH]"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "BL-DEEP-EXEC-v3.1: Layer 1 verified endpoint inventory builder; integration-tested via pilot P1-A; unit coverage via test_backlink_targets.py"
+    deprecated_since: null
+    change_impact: null
+    notes: "BL-DEEP-EXEC-v3.1 Layer 1: reads all_urls from aspose_com_targets.json, classifies endpoint types, writes deep_target_index.json to data/backlinks/workspace/ (gitignored)"
+
+  - path: scripts/pipeline/commands/ops/backlink_build_candidates.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python backlink_build_candidates.py [--family FAMILY] [--platform PLATFORM] [--subdomain SD] [--no-ai] [--ai-enrichment PATH] [--output PATH]"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "BL-DEEP-EXEC-v3.1: Layer 2 candidate generation; integration-tested via pilot matrix; unit coverage in test_backlink_targets.py"
+    deprecated_since: null
+    change_impact: null
+    notes: "BL-DEEP-EXEC-v3.1 Layer 2: 3-stage scoring (exact/metadata/semantic); AI boost max +0.05; --no-ai flag for deterministic-only; writes candidate_graph.json to workspace/"
+
+  - path: scripts/pipeline/commands/ops/backlink_approve_authority.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python backlink_approve_authority.py [--auto-only] [--output PATH]"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "BL-DEEP-EXEC-v3.1: Layer 3 authority builder; integration-tested via pilot matrix; unit coverage in test_backlink_targets.py + test_backlink_anchor.py"
+    deprecated_since: null
+    change_impact: null
+    notes: "BL-DEEP-EXEC-v3.1 Layer 3: reads candidate_graph.json, applies confidence bands (AAE/RR/BLK), writes backlink_authority.json; stores anchor_template_id + anchor_config_hash + rendered_anchor_text per record"
+
+  - path: scripts/pipeline/commands/ops/backlink_ai_enrich.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python backlink_ai_enrich.py [--family FAMILY] [--platform PLATFORM] [--output PATH]"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "BL-DEEP-EXEC-v3.1: Layer 1.5 AI advisory enrichment; requires LLM infrastructure; unit coverage in test_backlink_targets.py (TestAIEnrichment)"
+    deprecated_since: null
+    change_impact: null
+    notes: "BL-DEEP-EXEC-v3.1 Layer 1.5: CS-011 (qwen3-embedding-8b) + CS-012 (gpt-oss); advisory only; AI never authority; graceful degradation with --no-ai; writes ai_enrichment_index.json"
+
+  - path: scripts/pipeline/commands/ops/backlink_adjudicate_review.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python backlink_adjudicate_review.py [--candidate-graph PATH] [--authority PATH] [--overrides PATH] [--dry-run]"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "BL-DEEP-EXEC-v3.1: three-tier adjudication (T1 deterministic, T2 AI-assisted, T3 operator escalation); unit coverage in test_backlink_targets.py (TestAgentAdjudication)"
+    deprecated_since: null
+    change_impact: null
+    notes: "BL-DEEP-EXEC-v3.1: CS-013 (gpt-oss) for REVIEW_REQUIRED adjudication; closed-set labels; T2 advisory only; T3 generates operator escalation packets; --dry-run default"
+
+  - path: scripts/pipeline/commands/ops/backlink_build_enterprise_candidate_inventory.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python backlink_build_enterprise_candidate_inventory.py [--subdomain SD] [--output PATH]"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "BL-DEEP-EXEC-v3.1: Layer 0.4 variant inventory; integration-tested via A4 audit matrix; unit coverage in test_backlink_targets.py (TestPlatformVariantAuthority)"
+    deprecated_since: null
+    change_impact: null
+    notes: "BL-DEEP-EXEC-v3.1 Layer 0.4: reads all_urls, groups bridge variants (python-net, go-cpp, nodejs-net etc) by canonical base per family/subdomain; writes enterprise_target_candidate_inventory.json"
+
+  - path: scripts/pipeline/commands/ops/backlink_build_platform_variant_authority.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python backlink_build_platform_variant_authority.py [--subdomain SD] [--overrides PATH] [--output PATH]"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "BL-DEEP-EXEC-v3.1: Layer 0.6 variant authority; reads Layer 0.4 + overrides YAML; unit coverage in test_backlink_targets.py (TestPlatformVariantAuthority)"
+    deprecated_since: null
+    change_impact: null
+    notes: "BL-DEEP-EXEC-v3.1 Layer 0.6: exact→override→single-variant auto-select→multiple-variant REVIEW_REQUIRED policy; writes platform_variant_authority.json; REVIEW_REQUIRED does NOT fall through to family fallback"
+
+  - path: scripts/pipeline/commands/ops/backlink_compare_tracks.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python backlink_compare_tracks.py --track-a PATH --track-b PATH [--output PATH]"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "BL-DEEP-EXEC-v3.1: Track A (deterministic) vs Track B (AI-assisted) comparison; integration-tested via two-track pilot P19"
+    deprecated_since: null
+    change_impact: null
+    notes: "BL-DEEP-EXEC-v3.1: compares authority files from deterministic and AI-assisted runs; Track B must be >= Track A approvals and introduce zero new false positives"
+
+  - path: scripts/pipeline/commands/ops/backlink_run_validators.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python backlink_run_validators.py [--output PATH]"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "BL-DEEP-EXEC-v3.1: V1-V27 validator orchestrator; self-validating by design; integration-tested via Phase P4 pilots"
+    deprecated_since: null
+    change_impact: null
+    notes: "BL-DEEP-EXEC-v3.1: runs all 27 validators in sequence; writes validator_summary.json; exit code 0=all PASS, 1=any FAIL"
+
+  - path: scripts/pipeline/commands/ops/backlink_validate_migration.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python backlink_validate_migration.py [--validate-bundle PATH] [--manifest PATH] [--output PATH]"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "BL-DEEP-EXEC-v3.1: V26 evidence bundle manifest validator; integration-tested at P5 sprint close"
+    deprecated_since: null
+    change_impact: null
+    notes: "BL-DEEP-EXEC-v3.1: validates evidence bundle ZIP against manifest; all required_entries must be present; V26 pass condition: missing_entries=[]"
+
   - path: scripts/pipeline/commands/ops/generate_product_backlink_copy.py
     kind: entrypoint
     lifecycle: active
