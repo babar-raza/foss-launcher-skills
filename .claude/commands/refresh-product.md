@@ -363,3 +363,17 @@ will be skipped or produce no-ops on re-run.
 - Step 2 (knowledge-update): if scout fails, abort entire cycle; do not write partial delta
 - Step 12 (verify): if fails, list specific issues; do not commit; fix and re-verify
 - Any step failure: check `--status` to see which steps completed; resume from the failing step
+
+
+## Enterprise Backlink Policy
+
+Do not construct enterprise URLs manually.
+Use `backlink_backfill.py` for insertion. Use `backlink_audit.py` for compliance.
+All links must come from the verified target map or approved deep authority.
+See `docs/governance/backlink-policy.md` for full policy.
+
+## Anchor Text Governance
+
+Anchor texts must not be hand-written, improved, or modified during content edits.
+All anchor text comes from the approved config pipeline (anchor_text_registry.yaml).
+Page-specific wording requires an approved entry in data/backlinks/anchor_overrides.yaml.
