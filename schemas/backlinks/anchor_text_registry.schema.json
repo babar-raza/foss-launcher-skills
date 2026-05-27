@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Anchor Text Registry",
+  "description": "Defines anchor text templates for enterprise backlinks",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "templates",
+    "safe_fallback"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "config_hash": {
+      "type": "string"
+    },
+    "templates": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "template_id",
+          "suffix",
+          "anchor_text",
+          "applies_to",
+          "enabled"
+        ],
+        "properties": {
+          "template_id": {
+            "type": "string"
+          },
+          "suffix": {
+            "type": "string"
+          },
+          "anchor_text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fallback_to": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "applies_to": {
+            "type": "object"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "sentence_wrappers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "template_id",
+          "text"
+        ],
+        "properties": {
+          "template_id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "deprecated_long_form": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "safe_fallback": {
+      "type": "object",
+      "required": [
+        "template_id"
+      ],
+      "properties": {
+        "template_id": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "display_platform_policy": {
+      "type": "object",
+      "properties": {
+        "lookup_key_type": {
+          "type": "string"
+        },
+        "bridge_slug_behavior": {
+          "type": "string"
+        },
+        "canonical_resolution": {
+          "type": "string"
+        },
+        "fallback_when_key_absent": {
+          "type": "string"
+        },
+        "known_bridge_slugs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Platform Variant Registry",
+  "description": "Maps enterprise bridge slugs to canonical local platform names",
+  "type": "object",
+  "required": ["schema_version", "canonical_platforms", "variants"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "canonical_platforms": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "variants": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["canonical", "local_equivalent"],
+        "properties": {
+          "canonical": {"type": "string"},
+          "local_equivalent": {"type": "boolean"},
+          "evidence": {"type": "string"},
+          "subdomains_with_variants": {"type": "array", "items": {"type": "string"}},
+          "note": {"type": "string"}
+        }
+      }
+    }
+  }
+}

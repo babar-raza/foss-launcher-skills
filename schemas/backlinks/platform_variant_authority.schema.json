@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Platform Variant Authority",
+  "description": "Layer 0.6: Per-request-key canonical enterprise target selection",
+  "type": "object",
+  "required": ["schema_version", "authority"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "authority": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["request_key", "decision", "allowed_for_generation"],
+        "properties": {
+          "request_key": {"type": "string"},
+          "source_prefix": {"type": "string"},
+          "family": {"type": "string"},
+          "local_slug": {"type": "string"},
+          "canonical_base": {"type": "string"},
+          "expected_path": {"type": "string"},
+          "expected_status": {"type": "string"},
+          "canonical_target_path": {"type": ["string", "null"]},
+          "canonical_target_url": {"type": ["string", "null"]},
+          "decision": {
+            "type": "string",
+            "enum": ["AUTO_APPROVE_EXACT", "AUTO_APPROVE_SINGLE_VARIANT", "EXPLICIT_OVERRIDE", "REVIEW_REQUIRED", "BLOCKED", "VARIANT_CANDIDATES_NOT_IN_MAP"]
+          },
+          "allowed_for_generation": {"type": "boolean"},
+          "alternatives": {"type": "array"},
+          "selection_reason": {"type": ["string", "null"]},
+          "review_reason": {"type": ["string", "null"]}
+        }
+      }
+    }
+  }
+}

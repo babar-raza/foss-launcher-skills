@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Deep Target Index",
+  "description": "Layer 1: Verified HTTP 200 enterprise endpoint inventory from all_urls",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "total_endpoints",
+    "type_counts",
+    "target_map_hash",
+    "index"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "families_filter": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "total_endpoints": {
+      "type": "integer"
+    },
+    "type_counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer"
+      }
+    },
+    "target_map_hash": {
+      "type": "string"
+    },
+    "index": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "url",
+          "path",
+          "http_status",
+          "subdomain_key",
+          "type"
+        ],
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "http_status": {
+            "type": "integer"
+          },
+          "subdomain_key": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "family": {
+            "type": "string"
+          },
+          "platform_slug": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "class_name": {
+            "type": "string"
+          },
+          "member_name": {
+            "type": "string"
+          },
+          "article_slug": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

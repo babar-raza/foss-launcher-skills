@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Enterprise Target Candidate Inventory",
+  "description": "Layer 0.4: Grouped variant slugs by canonical platform per family/subdomain",
+  "type": "object",
+  "required": ["schema_version", "inventory"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "inventory": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["canonical_slug", "variants", "exact_slug_verified"],
+            "properties": {
+              "canonical_slug": {"type": "string"},
+              "variants": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["slug", "path", "url", "http_status"],
+                  "properties": {
+                    "slug": {"type": "string"},
+                    "path": {"type": "string"},
+                    "url": {"type": ["string", "null"]},
+                    "http_status": {"type": "integer"}
+                  }
+                }
+              },
+              "exact_slug_verified": {"type": "boolean"}
+            }
+          }
+        }
+      }
+    }
+  }
+}
