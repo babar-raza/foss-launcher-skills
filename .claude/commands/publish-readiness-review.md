@@ -392,3 +392,17 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
 | S-73 (manual-edit) | Step 7f/7j, for format corrections and UNKNOWN_CLASS fixes |
 | S-74 (causal-backtrack) | Step 7e, for broken-link upstream resolution |
 | /batch-reference (S-62) | Step 7d, for STRUCTURAL-GAP reference pages |
+
+
+## Enterprise Backlink Policy
+
+Do not construct enterprise URLs manually.
+Use `backlink_backfill.py` for insertion. Use `backlink_audit.py` for compliance.
+All links must come from the verified target map or approved deep authority.
+See `docs/governance/backlink-policy.md` for full policy.
+
+## Anchor Text Governance
+
+Anchor texts must not be hand-written, improved, or modified during content edits.
+All anchor text comes from the approved config pipeline (anchor_text_registry.yaml).
+Page-specific wording requires an approved entry in data/backlinks/anchor_overrides.yaml.
