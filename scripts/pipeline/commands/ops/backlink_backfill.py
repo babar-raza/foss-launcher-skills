@@ -40,15 +40,28 @@ sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
 from lib.backlink_targets import (
     COMPLIANT,
     PageType,
-    build_enterprise_anchor_suffix,
     classify_compliance,
     classify_page_type,
     count_qualifying_com_links,
+    load_anchor_registry,
     load_target_map,
     resolve_backlink,
+    select_anchor_template_id,
 )
 
 SCRIPT_VERSION = "1.0.0"
+
+
+def _anchor_suffix_for(target_url: str, target_type: str) -> str:
+    """Return the enterprise suffix string for the given target URL and type.
+
+    Uses the anchor registry via select_anchor_template_id + registry suffix lookup.
+    Replaces the deprecated build_enterprise_anchor_suffix() in insertion paths (V21).
+    """
+    registry = load_anchor_registry()
+    tid = select_anchor_template_id(target_url, target_type)
+    return registry.get("templates", {}).get(tid, {}).get("suffix", "Enterprise Product")
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Safety constants (§8.3)
@@ -274,7 +287,7 @@ def _apply_overview_template(
     # Measure word count
     wc = len(current_content.split())
 
-    enterprise_suffix = build_enterprise_anchor_suffix(target_url, target_type or "platform")
+    enterprise_suffix = _anchor_suffix_for(target_url, target_type or "platform")
     anchor = f"[{display} \u2014 {enterprise_suffix}]({target_url})"
 
     if enterprise_suffix == "Enterprise Product Family":
@@ -370,7 +383,7 @@ def _build_see_also_entry(
     else:
         display = fam_title
 
-    enterprise_suffix = build_enterprise_anchor_suffix(target_url, target_type or "platform")
+    enterprise_suffix = _anchor_suffix_for(target_url, target_type or "platform")
     link_text = f"{display} \u2014 {enterprise_suffix}"
     return f"- [{link_text}]({target_url})"
 
@@ -757,6 +770,14 @@ def main() -> int:
     parser.add_argument("--output",
                         help="Output manifest JSON path (default: reports/backlinks/backfill_...)")
     parser.add_argument("--target-map", help="Path to data/aspose_com_targets.json")
+    parser.add_argument(
+        "--deep", action="store_true", default=False,
+        help="Enable deep authority lookup (reads backlink_authority.json if present)",
+    )
+    parser.add_argument(
+        "--authority", default=None,
+        help="Path to backlink_authority.json (default: data/backlinks/workspace/backlink_authority.json)",
+    )
     args = parser.parse_args()
 
     repo_root = _REPO_ROOT

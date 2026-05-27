@@ -454,6 +454,20 @@ def main() -> int:
         "--show-compliant", action="store_true",
         help="Include COMPLIANT records in console output (verbose)",
     )
+    parser.add_argument(
+        "--deep", action="store_true", default=False,
+        help="Enable deep authority lookup (reads backlink_authority.json if present)",
+    )
+    parser.add_argument(
+        "--authority", default=None,
+        help="Path to backlink_authority.json (default: data/backlinks/workspace/backlink_authority.json)",
+    )
+    parser.add_argument(
+        "--kb-anchor-mode",
+        choices=["LEGACY_COMPAT_MODE", "CANONICAL_POST_P0_MODE"],
+        default="LEGACY_COMPAT_MODE",
+        help="KB anchor compliance mode (default: LEGACY_COMPAT_MODE)",
+    )
     args = parser.parse_args()
 
     repo_root = _REPO_ROOT

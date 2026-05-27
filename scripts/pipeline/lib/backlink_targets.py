@@ -33,15 +33,21 @@ KNOWN_FAMILIES = {
 
 PLATFORM_ALIASES: dict[str, str] = {
     "net": "net", "dotnet": "net", "csharp": "net", "net60": "net", "net48": "net", "net40": "net",
-    "python": "python", "py": "python", "python3": "python", "python-net": "python", "python-java": "python",
+    "python": "python", "py": "python", "python3": "python", "python-net": "python",
+    "python-java": "python", "python-cpp": "python",
     "java": "java", "java8": "java", "java11": "java", "java-android": "java",
     "cpp": "cpp", "c-plus-plus": "cpp", "cplusplus": "cpp", "c++": "cpp",
     "nodejs": "nodejs", "node": "nodejs", "node-js": "nodejs", "javascript": "nodejs", "js": "nodejs",
-    "android": "android", "android-java": "android",
+    "nodejs-net": "nodejs", "nodejs-java": "nodejs", "nodejs-cpp": "nodejs", "javascript-cpp": "nodejs",
+    "android": "android", "android-java": "android", "androidjava": "android",
     "cloud": "cloud", "rest-api": "cloud", "api": "cloud", "saas": "cloud",
     "ruby": "ruby", "ruby-net": "ruby",
-    "go": "go", "golang": "go",
+    "go": "go", "golang": "go", "go-cpp": "go",
+    "php": "php", "php-java": "php",
     "typescript": "typescript",
+    # Enterprise-only bridge slugs (no local aspose.org equivalent)
+    "jasperreports": "jasperreports",
+    "rust": "rust", "rust-cpp": "rust",
 }
 
 LOCALE_CODES = {
@@ -106,6 +112,65 @@ SKIPPED         = "SKIPPED"
 # P0 A2: page uses a family-level link when a verified platform-level target exists
 FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE = "FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE"
 
+# A7-03: KB anchor transition statuses (LEGACY_COMPAT_MODE vs CANONICAL_POST_P0_MODE)
+ACCEPTABLE_LEGACY_KB_PRE_P0     = "ACCEPTABLE_LEGACY_KB_PRE_P0"
+CANONICAL_KB_POST_P0            = "CANONICAL_KB_POST_P0"
+UPGRADE_CANDIDATE_NOT_YET_FIXED = "UPGRADE_CANDIDATE_NOT_YET_FIXED"
+
+# A7-03: KB anchor transition mode names
+LEGACY_COMPAT_MODE      = "LEGACY_COMPAT_MODE"
+CANONICAL_POST_P0_MODE  = "CANONICAL_POST_P0_MODE"
+
+# A3: Resolution kind identifiers
+class ResolutionKind:
+    EXACT_VERIFIED             = "EXACT_VERIFIED"
+    APPROVED_DEEP_AUTHORITY    = "APPROVED_DEEP_AUTHORITY"
+    PLATFORM_CANONICAL         = "PLATFORM_CANONICAL"
+    BEST_VERIFIED_ANCESTOR     = "BEST_VERIFIED_ANCESTOR"
+    FAMILY_FALLBACK            = "FAMILY_FALLBACK"
+    ROOT_FALLBACK              = "ROOT_FALLBACK"
+    BLOCKED_NO_VERIFIED_TARGET = "BLOCKED_NO_VERIFIED_TARGET"
+    AMBIGUOUS_PLATFORM_TARGETS = "AMBIGUOUS_PLATFORM_TARGETS"
+    AUTHORITY_STALE_FALLBACK   = "AUTHORITY_STALE_FALLBACK"
+
+# A3: Ancestor fallback audit status constants
+EXACT_VERIFIED_TARGET           = "EXACT_VERIFIED_TARGET"
+ANCESTOR_FALLBACK_USED          = "ANCESTOR_FALLBACK_USED"
+PLATFORM_FALLBACK_USED          = "PLATFORM_FALLBACK_USED"
+FAMILY_FALLBACK_USED            = "FAMILY_FALLBACK_USED"
+ROOT_FALLBACK_USED              = "ROOT_FALLBACK_USED"
+NO_VERIFIED_FALLBACK            = "NO_VERIFIED_FALLBACK"
+SKIPPED_CLOSER_VERIFIED_PARENT  = "SKIPPED_CLOSER_VERIFIED_PARENT"
+UNVERIFIED_CHILD_TARGET_BLOCKED = "UNVERIFIED_CHILD_TARGET_BLOCKED"
+
+# A5-L6: Source-type policy statuses
+STRUCTURAL_PAGE_SKIP = "STRUCTURAL_PAGE_SKIP"   # auto_updatable: false, no slot
+DEFERRED_NO_TARGETS  = "DEFERRED_NO_TARGETS"    # DOCS_ARTICLE/BLOG_POST: no deep targets available
+
+# A4: Variant authority audit statuses
+EXACT_PLATFORM_VERIFIED              = "EXACT_PLATFORM_VERIFIED"
+VARIANT_CANONICAL_SELECTED           = "VARIANT_CANONICAL_SELECTED"
+VARIANT_REVIEW_REQUIRED              = "VARIANT_REVIEW_REQUIRED"
+VARIANT_BLOCKED_NO_POLICY            = "VARIANT_BLOCKED_NO_POLICY"
+ANCESTOR_FALLBACK_AFTER_NO_VARIANT   = "ANCESTOR_FALLBACK_AFTER_NO_VARIANT"
+VARIANT_CANDIDATES_NOT_IN_MAP        = "VARIANT_CANDIDATES_NOT_IN_MAP"
+SITEMAP_COVERAGE_GAP                 = "SITEMAP_COVERAGE_GAP"
+MULTIPLE_VARIANTS_REQUIRES_REVIEW    = "MULTIPLE_VARIANTS_REQUIRES_REVIEW"
+
+# A5-L5: Conflict resolution audit statuses
+CONFLICT_RESOLVED_BY_TIER1           = "CONFLICT_RESOLVED_BY_TIER1"
+CONFLICT_RESOLVED_BY_AI_ASSIST       = "CONFLICT_RESOLVED_BY_AI_ASSIST"
+CONFLICT_ESCALATED_TO_OPERATOR       = "CONFLICT_ESCALATED_TO_OPERATOR"
+CONFLICT_ANCHOR_AUTO_CORRECTED       = "CONFLICT_ANCHOR_AUTO_CORRECTED"
+CONFLICT_NAMESPACE_MISMATCH_BLOCKED  = "CONFLICT_NAMESPACE_MISMATCH_BLOCKED"
+
+# A9 (L9): AI status constants
+AI_ENRICHED_PRIMARY         = "AI_ENRICHED_PRIMARY"
+AI_ENRICHED_FALLBACK        = "AI_ENRICHED_FALLBACK"
+AI_UNAVAILABLE_DEGRADED     = "AI_UNAVAILABLE_DEGRADED"
+AI_EXPLICITLY_DISABLED      = "AI_EXPLICITLY_DISABLED"
+AI_DEGRADATION_RATE_WARNING = "AI_DEGRADATION_RATE_WARNING"
+
 
 # ── Subdomain content roots ───────────────────────────────────────────────────
 
@@ -124,6 +189,24 @@ PREFERRED_TARGET_SUBDOMAIN = {
     "reference.aspose.org": "reference.aspose.com",
     "products.aspose.org":  "products.aspose.com",
     "blog.aspose.org":      "products.aspose.com",
+}
+
+# A3: Host map for URL composition — ONLY used in resolve_best_verified_ancestor() / _resolve_deep()
+HOST_MAP: dict = {
+    "docs":      "docs.aspose.com",
+    "kb":        "kb.aspose.com",
+    "products":  "products.aspose.com",
+    "reference": "reference.aspose.com",
+    "blog":      "blog.aspose.com",
+}
+
+# A3: Source subdomain → HOST_MAP prefix key
+SOURCE_TO_TARGET_PREFIX: dict = {
+    "docs.aspose.org":      "docs",
+    "kb.aspose.org":        "kb",
+    "reference.aspose.org": "reference",
+    "products.aspose.org":  "products",
+    "blog.aspose.org":      "blog",
 }
 
 
@@ -146,6 +229,20 @@ class ResolutionRecord:
     status: str = MISSING
     warning_messages: list[str] = field(default_factory=list)
     resolution_evidence: str = ""
+
+
+@dataclass
+class AncestorResolutionResult:
+    """Result of resolve_best_verified_ancestor(). Pure data — no I/O."""
+    requested_path: str
+    selected_path: Optional[str]
+    selected_url: Optional[str]
+    resolution_kind: str
+    fallback_depth: int           # 0=exact, 1=one level up, -1=blocked
+    fallback_chain: list          # [{path, status, url}, ...]
+    fallback_reason: Optional[str]
+    root_fallback_used: bool
+    verified: bool
 
 
 # ── Target map loading ────────────────────────────────────────────────────────
@@ -298,6 +395,161 @@ def _lookup_family(target_map: dict, subdomain: str, family: str) -> Optional[st
     return None
 
 
+# ── A3: Ancestor fallback functions ──────────────────────────────────────────
+
+def build_ancestor_chain(full_path: str) -> list:
+    """
+    Build ancestor chain from most-specific to least-specific.
+    full_path: e.g. "docs/cells/python/developer-guide"
+    Returns: ["docs/cells/python/developer-guide", "docs/cells/python", "docs/cells", "docs"]
+
+    The last entry is always the single-segment subdomain prefix.
+    Pure function. No I/O.
+    """
+    segments = full_path.strip("/").split("/")
+    return ["/".join(segments[:i]) for i in range(len(segments), 0, -1)]
+
+
+def _compose_ancestor_url(path: str) -> Optional[str]:
+    """
+    Compose full URL from a path-only key using HOST_MAP.
+    path "docs/cells/python" → "https://docs.aspose.com/cells/python/"
+    path "docs" (root)       → "https://docs.aspose.com/"
+    Returns None if first segment not in HOST_MAP.
+    """
+    parts = path.strip("/").split("/")
+    prefix = parts[0] if parts else ""
+    host = HOST_MAP.get(prefix)
+    if not host:
+        return None
+    if len(parts) == 1:
+        return f"https://{host}/"
+    rest = "/".join(parts[1:])
+    return f"https://{host}/{rest}/"
+
+
+def resolve_best_verified_ancestor(
+    full_path: str,
+    target_map: dict,
+    *,
+    allowed_root_fallback: bool = True,
+    policy_context: Optional[dict] = None,
+) -> AncestorResolutionResult:
+    """
+    Walk ancestor chain from most-specific to least-specific.
+    Returns the first ancestor whose full URL appears in target_map["all_urls"] with http_status==200.
+
+    Pure function. No I/O. No HTTP. No LLM.
+
+    full_path: path-only with HOST_MAP prefix as first segment.
+      e.g. "docs/cells/python/developer-guide" or "kb/cells/java/article-slug"
+    allowed_root_fallback: if False, blocks selection of the single-segment root.
+    """
+    chain = build_ancestor_chain(full_path)
+    all_urls = target_map.get("all_urls", {})
+    fallback_chain: list = []
+
+    for depth, path in enumerate(chain):
+        url = _compose_ancestor_url(path)
+        if url is None:
+            fallback_chain.append({"path": path, "status": "invalid_prefix", "url": None})
+            continue
+
+        is_root = (len(path.strip("/").split("/")) == 1)
+
+        # Block root if not allowed
+        if is_root and depth > 0 and not allowed_root_fallback:
+            fallback_chain.append({"path": path, "status": "root_fallback_blocked", "url": url})
+            continue
+
+        entry = all_urls.get(url)
+        if entry and entry.get("http_status") == 200:
+            fallback_chain.append({"path": path, "status": "verified_200", "url": url})
+            if depth == 0:
+                kind = ResolutionKind.EXACT_VERIFIED
+            elif is_root:
+                kind = ResolutionKind.ROOT_FALLBACK
+            else:
+                kind = ResolutionKind.BEST_VERIFIED_ANCESTOR
+            return AncestorResolutionResult(
+                requested_path=full_path,
+                selected_path=path,
+                selected_url=url,
+                resolution_kind=kind,
+                fallback_depth=depth,
+                fallback_chain=fallback_chain,
+                fallback_reason=None if depth == 0 else "exact_child_not_in_all_urls",
+                root_fallback_used=(is_root and depth > 0),
+                verified=True,
+            )
+        else:
+            status = "missing_or_unverified" if entry is None else f"http_{entry.get('http_status', 'unknown')}"
+            fallback_chain.append({"path": path, "status": status, "url": url})
+
+    # No ancestor verified
+    return AncestorResolutionResult(
+        requested_path=full_path,
+        selected_path=None,
+        selected_url=None,
+        resolution_kind=ResolutionKind.BLOCKED_NO_VERIFIED_TARGET,
+        fallback_depth=-1,
+        fallback_chain=fallback_chain,
+        fallback_reason="no_verified_ancestor_in_all_urls",
+        root_fallback_used=False,
+        verified=False,
+    )
+
+
+def _resolve_deep(
+    authority: dict,
+    source_file: str,
+) -> Optional[tuple]:
+    """
+    Look up source_file in deep backlink authority (Layer 3).
+
+    Returns (url, type, subdomain, None) if a valid approved deep target exists,
+    or None to fall back to v1 resolution.
+
+    Checks (in order):
+      1. source_file present in authority["authority"]
+      2. allowed_for_generation: true
+      3. anchor_config_hash matches active config (if registry available)
+      4. Compose URL via HOST_MAP[target_subdomain]/target_path/
+
+    Never reads Layer 1 or Layer 2. No HTTP calls. No LLM calls.
+    """
+    auth_records = authority.get("authority", {})
+    record = auth_records.get(source_file)
+    if record is None:
+        return None
+
+    if not record.get("allowed_for_generation", False):
+        return None
+
+    target_subdomain = record.get("target_subdomain")
+    target_path = record.get("target_path", "")
+    if not target_subdomain or not target_path:
+        return None
+
+    host = HOST_MAP.get(target_subdomain)
+    if not host:
+        return None
+
+    # Check anchor config hash staleness if registry is accessible
+    stored_hash = record.get("anchor_config_hash")
+    if stored_hash:
+        try:
+            active_hash = compute_anchor_config_hash()
+            if active_hash != stored_hash:
+                # Anchor config has changed — authority record is stale
+                return None
+        except Exception:
+            pass  # Registry unavailable — proceed without hash check
+
+    url = f"https://{host}/{target_path.strip('/')}/"
+    return url, "platform", target_subdomain, None
+
+
 def resolve_backlink(
     family: Optional[str],
     platform: Optional[str],
@@ -306,20 +558,31 @@ def resolve_backlink(
     *,
     exact_deep_match_enabled: bool = False,
     canonical_overrides: Optional[dict] = None,
+    authority: Optional[dict] = None,
+    source_file: Optional[str] = None,
 ) -> tuple[Optional[str], Optional[str], Optional[str], Optional[str]]:
     """
     Resolve the best backlink target URL per §Q.4 default fallback matrix.
     Returns (chosen_url, chosen_type, chosen_subdomain, fallback_reason).
     chosen_url is None on BLOCKED_TARGET.
 
-    exact_deep_match_enabled: If True, attempt exact deep URL lookup (future enhancement).
-    Default is False per §J.1.
+    exact_deep_match_enabled: If True, consult deep backlink authority (Layer 3).
+    Default is False per §J.1 — v1 behavior is byte-identical when False.
 
     canonical_overrides: Optional dict loaded from platform_canonical_overrides.yaml.
     Only entries with http_verified: true are applied. (A2 P0)
+
+    authority: Layer 3 approved backlink authority dict (loaded from backlink_authority.json).
+    source_file: Repo-relative path of the source content file for authority lookup.
     """
     if not family:
         return None, None, None, "no family detected"
+
+    # Step 1: Deep authority lookup (opt-in only, default disabled)
+    if exact_deep_match_enabled and authority and source_file:
+        deep_result = _resolve_deep(authority, source_file)
+        if deep_result:
+            return deep_result
 
     preferred_sd = PREFERRED_TARGET_SUBDOMAIN.get(source_subdomain, "products.aspose.com")
 
@@ -533,3 +796,363 @@ def classify_compliance(
 
     # Links exist but none match acceptable fallback chain → WRONG_TARGET
     return WRONG_TARGET
+
+
+# A7-03: KB anchor transition classifier
+def classify_kb_anchor_status(
+    existing_urls: list,
+    kb_anchor_mode: str = LEGACY_COMPAT_MODE,
+) -> str:
+    """
+    Classify KB anchor status based on existing URLs and the active kb_anchor_mode.
+
+    Returns:
+      CANONICAL_KB_POST_P0            — page already has kb.aspose.com link (correct)
+      ACCEPTABLE_LEGACY_KB_PRE_P0     — page has docs.aspose.com link in LEGACY_COMPAT_MODE
+      UPGRADE_CANDIDATE_NOT_YET_FIXED — page has docs.aspose.com link in CANONICAL_POST_P0_MODE
+      MISSING                          — no qualifying KB or docs link found
+
+    Pure function. No I/O.
+    """
+    for url in existing_urls:
+        if "kb.aspose.com" in url:
+            return CANONICAL_KB_POST_P0
+    for url in existing_urls:
+        if "docs.aspose.com" in url:
+            if kb_anchor_mode == CANONICAL_POST_P0_MODE:
+                return UPGRADE_CANDIDATE_NOT_YET_FIXED
+            return ACCEPTABLE_LEGACY_KB_PRE_P0
+    return MISSING
+
+
+# ── A4: Platform variant authority ────────────────────────────────────────────
+
+# A4 audit status constants
+EXACT_PLATFORM_VERIFIED              = "EXACT_PLATFORM_VERIFIED"
+VARIANT_CANONICAL_SELECTED           = "VARIANT_CANONICAL_SELECTED"
+VARIANT_REVIEW_REQUIRED              = "VARIANT_REVIEW_REQUIRED"
+VARIANT_BLOCKED_NO_POLICY            = "VARIANT_BLOCKED_NO_POLICY"
+FAMILY_FALLBACK_WHILE_VARIANT_AVAILABLE = "FAMILY_FALLBACK_WHILE_VARIANT_AVAILABLE"
+ANCESTOR_FALLBACK_AFTER_NO_VARIANT   = "ANCESTOR_FALLBACK_AFTER_NO_VARIANT"
+VARIANT_CANDIDATES_NOT_IN_MAP        = "VARIANT_CANDIDATES_NOT_IN_MAP"
+VARIANT_CANDIDATE_UNVERIFIED         = "VARIANT_CANDIDATE_UNVERIFIED"
+SITEMAP_COVERAGE_GAP                 = "SITEMAP_COVERAGE_GAP"
+MULTIPLE_VARIANTS_REQUIRES_REVIEW    = "MULTIPLE_VARIANTS_REQUIRES_REVIEW"
+
+
+def load_platform_variant_registry(registry_path: Optional[Path] = None) -> dict:
+    """
+    Load data/backlinks/platform_variant_registry.yaml.
+    Returns the parsed registry dict or empty dict if file missing.
+    Pure function once file is loaded — no I/O side effects.
+    """
+    import yaml  # local import to avoid top-level dep when yaml absent
+    if registry_path is None:
+        registry_path = Path(__file__).resolve().parents[3] / "data" / "backlinks" / "platform_variant_registry.yaml"
+    if not registry_path.exists():
+        return {}
+    return yaml.safe_load(registry_path.read_text(encoding="utf-8")) or {}
+
+
+def load_variant_authority(authority_path: Optional[Path] = None) -> dict:
+    """
+    Load data/backlinks/workspace/platform_variant_authority.json.
+    Returns the parsed authority dict keyed by request_key.
+    Returns empty dict if file missing (graceful — system falls through to ancestor walk).
+    """
+    if authority_path is None:
+        authority_path = (
+            Path(__file__).resolve().parents[3]
+            / "data" / "backlinks" / "workspace" / "platform_variant_authority.json"
+        )
+    if not authority_path.exists():
+        return {}
+    import json as _json
+    data = _json.loads(authority_path.read_text(encoding="utf-8"))
+    # Index by request_key for O(1) lookup
+    if isinstance(data, list):
+        return {rec["request_key"]: rec for rec in data if "request_key" in rec}
+    if isinstance(data, dict) and "authority" in data:
+        return {rec["request_key"]: rec for rec in data["authority"] if "request_key" in rec}
+    return {}
+
+
+def resolve_variant_target(
+    request_key: str,
+    variant_authority: dict,
+    overrides: Optional[dict] = None,
+) -> Optional[dict]:
+    """
+    Look up request_key in the variant authority.
+    Returns the authority record if allowed_for_generation is True, else None.
+    Pure function. No I/O. No HTTP.
+
+    Args:
+        request_key: e.g. "reference/words/python-net"
+        variant_authority: loaded from load_variant_authority()
+        overrides: canonical overrides dict (optional)
+    Returns:
+        dict with at least {"canonical_target_url": str, "decision": str} or None
+    """
+    if overrides:
+        ovr = overrides.get(request_key)
+        if ovr and ovr.get("http_verified") and ovr.get("canonical_target_url"):
+            return {"canonical_target_url": ovr["canonical_target_url"],
+                    "decision": "EXPLICIT_OVERRIDE", "allowed_for_generation": True}
+
+    rec = variant_authority.get(request_key)
+    if rec is None:
+        return None
+    if not rec.get("allowed_for_generation", False):
+        return None
+    return rec
+
+
+# ── A5-Prep: Link Slot Registry ───────────────────────────────────────────────
+
+from dataclasses import dataclass, field as dc_field
+from typing import List
+
+@dataclass
+class SlotConfig:
+    slot_id: str
+    description: str
+    insertion_section: str
+    max_per_page: int
+    eligible_page_types: List[str]
+    eligible_target_types: List[str]
+    fallback_slot: Optional[str]
+    enabled: bool
+
+
+_SLOT_REGISTRY_CACHE: Optional[dict] = None
+_SLOT_REGISTRY_PATH: Optional[Path] = None
+
+
+def load_slot_registry(registry_path: Optional[Path] = None) -> dict:
+    """
+    Load data/backlinks/link_slot_registry.yaml.
+    Returns dict keyed by slot_id -> SlotConfig.
+    Raises FileNotFoundError if missing.
+    Caches after first load.
+    """
+    global _SLOT_REGISTRY_CACHE, _SLOT_REGISTRY_PATH
+    path = Path(registry_path) if registry_path else (_REPO_ROOT / "data" / "backlinks" / "link_slot_registry.yaml")
+    if _SLOT_REGISTRY_CACHE is not None and _SLOT_REGISTRY_PATH == path:
+        return _SLOT_REGISTRY_CACHE
+    if not path.exists():
+        raise FileNotFoundError(f"Slot registry not found: {path}")
+    import yaml
+    raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    slots: dict = {}
+    for slot_id, cfg in raw.get("slots", {}).items():
+        slots[slot_id] = SlotConfig(
+            slot_id=slot_id,
+            description=cfg.get("description", ""),
+            insertion_section=cfg.get("insertion_section", "## See Also"),
+            max_per_page=cfg.get("max_per_page", 1),
+            eligible_page_types=cfg.get("eligible_page_types", []),
+            eligible_target_types=cfg.get("eligible_target_types", []),
+            fallback_slot=cfg.get("fallback_slot"),
+            enabled=cfg.get("enabled", True),
+        )
+    _SLOT_REGISTRY_CACHE = slots
+    _SLOT_REGISTRY_PATH = path
+    return slots
+
+
+def get_slot_for_page_type(page_type_str: str, registry: Optional[dict] = None) -> Optional[SlotConfig]:
+    """
+    Return the most specific enabled SlotConfig for the given PageType string.
+    Returns None for BLOCKED/SKIP page types.
+    """
+    _BLOCKED_TYPES = {
+        "BLOG_ARCHIVE", "BLOG_UTILITY", "SUBDOMAIN_ROOT",
+        "LOCALE_FILE", "LOCALE_DIR", "UNKNOWN_PATTERN",
+        "PRODUCTS_ROOT",
+    }
+    if page_type_str in _BLOCKED_TYPES:
+        return None
+    if registry is None:
+        try:
+            registry = load_slot_registry()
+        except FileNotFoundError:
+            return None
+    for slot_id in ("enterprise_deep_primary", "enterprise_platform_landing", "enterprise_family_landing"):
+        slot = registry.get(slot_id)
+        if slot is None or not slot.enabled:
+            continue
+        if page_type_str in slot.eligible_page_types:
+            return slot
+    return None
+
+
+def slot_fallback_chain(slot_id: str, registry: dict) -> List[str]:
+    """Return ordered chain of slot IDs from slot_id following fallback_slot links."""
+    chain = []
+    current = slot_id
+    visited = set()
+    while current and current not in visited:
+        chain.append(current)
+        visited.add(current)
+        slot = registry.get(current)
+        current = slot.fallback_slot if slot else None
+    return chain
+
+
+# ── A6: Anchor Text Registry ──────────────────────────────────────────────────
+
+import hashlib as _hashlib
+
+
+class AnchorPolicyError(Exception):
+    """Raised when render_anchor_text() is called for a SKIP/BLOCKED page type or bridge slug."""
+
+
+# Audit status constants (A6)
+AUTHORITY_ANCHOR_STALE     = "AUTHORITY_ANCHOR_STALE"
+ANCHOR_CONFIG_HASH_MISMATCH = "ANCHOR_CONFIG_HASH_MISMATCH"
+
+
+# SKIP/BLOCKED PageTypes — render_anchor_text() raises AnchorPolicyError for these
+_ANCHOR_SKIP_TYPES = frozenset({
+    "BLOG_ARCHIVE", "BLOG_UTILITY", "SUBDOMAIN_ROOT", "LOCALE_FILE",
+    "LOCALE_DIR", "UNKNOWN_PATTERN", "PRODUCTS_ROOT",
+})
+_ANCHOR_DEFERRED_TYPES = frozenset({"DOCS_ARTICLE", "BLOG_POST"})
+
+_ANCHOR_REGISTRY_CACHE: Optional[dict] = None
+_ANCHOR_REGISTRY_PATH_CACHE: Optional[Path] = None
+
+
+def load_anchor_registry(registry_path: Optional[Path] = None) -> dict:
+    """
+    Load data/backlinks/anchor_text_registry.yaml.
+    Raises FileNotFoundError if missing (not silently graceful — same as load_target_map).
+    Caches after first load.
+    """
+    global _ANCHOR_REGISTRY_CACHE, _ANCHOR_REGISTRY_PATH_CACHE
+    path = Path(registry_path) if registry_path else (
+        _REPO_ROOT / "data" / "backlinks" / "anchor_text_registry.yaml"
+    )
+    if _ANCHOR_REGISTRY_CACHE is not None and _ANCHOR_REGISTRY_PATH_CACHE == path:
+        return _ANCHOR_REGISTRY_CACHE
+    if not path.exists():
+        raise FileNotFoundError(f"Anchor text registry not found: {path}")
+    import yaml
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    _ANCHOR_REGISTRY_CACHE = data
+    _ANCHOR_REGISTRY_PATH_CACHE = path
+    return data
+
+
+def compute_anchor_config_hash(registry_path: Optional[Path] = None) -> str:
+    """
+    Compute deterministic semantic hash of anchor_text_registry.yaml.
+
+    Algorithm (A7-06 canonical JSON):
+      1. Parse YAML with yaml.safe_load()
+      2. Remove 'config_hash' key if present
+      3. json.dumps(data, sort_keys=True, ensure_ascii=False, separators=(',', ':'))
+      4. SHA-256 of UTF-8 bytes
+      5. Return "sha256:" + full hexdigest
+
+    Comments and whitespace do NOT affect the hash.
+    Key ordering is stable (sort_keys=True).
+    """
+    import json as _json
+    import yaml
+    path = Path(registry_path) if registry_path else (
+        _REPO_ROOT / "data" / "backlinks" / "anchor_text_registry.yaml"
+    )
+    if not path.exists():
+        raise FileNotFoundError(f"Anchor text registry not found for hashing: {path}")
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    data.pop("config_hash", None)
+    canonical = _json.dumps(data, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    digest = _hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    return "sha256:" + digest
+
+
+def render_anchor_text(
+    template_id: str,
+    family: str,
+    platform: Optional[str],
+    target_url: str,
+    registry: dict,
+    families_map: dict,
+    platforms_map: dict,
+) -> str:
+    """
+    Render anchor link text from registry template.
+
+    INVARIANT: platform MUST be canonical key (e.g., "python"), NEVER bridge slug (e.g., "python-net").
+    Bridge slugs are rejected with AnchorPolicyError (A7-12).
+
+    Raises:
+        AnchorPolicyError: if template_id not found, bridge slug passed, or SKIP/BLOCKED page type
+    """
+    import json as _json
+    # Check bridge slugs
+    policy = registry.get("display_platform_policy", {})
+    known_bridges = set(policy.get("known_bridge_slugs", []))
+    if platform in known_bridges:
+        raise AnchorPolicyError(
+            f"Bridge slug {platform!r} passed as platform to render_anchor_text(). "
+            f"Pass canonical key instead (e.g., 'python' for 'python-net')."
+        )
+
+    templates = registry.get("templates", {})
+    if template_id not in templates:
+        raise AnchorPolicyError(f"Unknown template_id: {template_id!r}")
+
+    template = templates[template_id]
+    fam = families_map.get(family, f"Aspose.{family.title()}")
+    text = template["anchor_text"]
+    text = text.replace("{fam}", fam)
+
+    if platform:
+        plat_display = platforms_map.get(platform, platform.title())
+        text = text.replace("{plat}", plat_display)
+
+    return text
+
+
+def select_anchor_template_id(
+    target_url: str,
+    target_type: str,
+    source_subdomain: Optional[str] = None,
+) -> str:
+    """
+    Select the appropriate anchor template_id from target_url, target_type, and optional source_subdomain.
+
+    Selection order:
+      1. (source_subdomain, target_subdomain, target_type) match
+      2. (target_subdomain, target_type) match
+      3. safe_fallback template_id
+    """
+    # Determine target subdomain from URL
+    target_sd = None
+    for sd in ("reference.aspose.com", "docs.aspose.com", "kb.aspose.com",
+               "products.aspose.com", "blog.aspose.com"):
+        if sd in target_url:
+            target_sd = sd
+            break
+
+    # Blog source always targets products
+    if source_subdomain == "blog.aspose.org":
+        if target_type == "family":
+            return "blog-products-family"
+        return "blog-products-platform"
+
+    if target_sd == "docs.aspose.com":
+        return "docs-family" if target_type == "family" else "docs-platform"
+    elif target_sd == "kb.aspose.com":
+        return "kb-family" if target_type == "family" else "kb-platform"
+    elif target_sd == "reference.aspose.com":
+        return "reference-family" if target_type == "family" else "reference-platform"
+    elif target_sd == "products.aspose.com":
+        return "products-family" if target_type == "family" else "products-platform"
+
+    # Unknown domain — safe fallback
+    return "products-platform"
