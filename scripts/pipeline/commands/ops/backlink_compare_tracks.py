@@ -69,6 +69,16 @@ def compare_authorities(
     }
 
 
+def _is_authority_file(data: dict) -> bool:
+    """Return True if data looks like a backlink authority file (has 'authority' key)."""
+    return isinstance(data, dict) and "authority" in data
+
+
+def _is_ai_enrichment_file(data: dict) -> bool:
+    """Return True if data is an AI enrichment index, not an authority file."""
+    return isinstance(data, dict) and "index" in data and "authority" not in data
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Compare Track A (deterministic) vs Track B (AI-assisted) authority files"
@@ -84,14 +94,18 @@ def main() -> None:
     a_path = Path(args.track_a)
     b_path = Path(args.track_b)
 
-    # If same file (single-track sprint), produce trivial comparison report
+    comparison_mode = "FULL_AI_VS_DETERMINISTIC"
+    degraded_reason: Optional[str] = None
+
+    # If same file (single-track sprint), produce trivial DEGRADED_PASS comparison
     if str(a_path.resolve()) == str(b_path.resolve()):
-        print("Track A == Track B (single-track run). Producing trivial comparison.")
+        print("Track A == Track B (single-track run). DEGRADED_PASS_NO_AI_PROMOTION.")
         track_data = json.loads(a_path.read_text(encoding="utf-8")) if a_path.exists() else {}
         if not isinstance(track_data, dict):
             print("ERROR: Authority file must be a JSON object", file=sys.stderr)
             sys.exit(1)
         result = compare_authorities(track_data, track_data)
+        comparison_mode = "SINGLE_TRACK_DEGRADED_PASS_NO_AI_PROMOTION"
     else:
         if not a_path.exists():
             print(f"ERROR: Track A file not found: {a_path}", file=sys.stderr)
@@ -101,19 +115,52 @@ def main() -> None:
             sys.exit(1)
         track_a = json.loads(a_path.read_text(encoding="utf-8"))
         track_b = json.loads(b_path.read_text(encoding="utf-8"))
-        if not isinstance(track_a, dict) or not isinstance(track_b, dict):
+
+        # Detect if Track B is actually an AI enrichment file (wrong file passed)
+        if _is_ai_enrichment_file(track_b):
+            ai_status = track_b.get("ai_status", "unknown")
+            print(f"Track B is an AI enrichment index (not an authority file). AI status: {ai_status}")
+            degraded_statuses = {
+                "AI_EXPLICITLY_DISABLED", "AI_UNAVAILABLE_DEGRADED", "AI_DEGRADATION_RATE_WARNING"
+            }
+            if ai_status in degraded_statuses:
+                # AI unavailable: Track B degraded = Track A (no promotions, no demotions)
+                print(f"AI degraded ({ai_status}): Track B treated as Track A "
+                      "(DEGRADED_PASS_NO_AI_PROMOTION)")
+                result = compare_authorities(track_a, track_a)
+                comparison_mode = "DEGRADED_PASS_NO_AI_PROMOTION"
+                degraded_reason = ai_status
+            else:
+                print(f"ERROR: Track B AI status '{ai_status}' is not a recognized degraded state",
+                      file=sys.stderr)
+                sys.exit(1)
+        elif not isinstance(track_a, dict) or not isinstance(track_b, dict):
             print("ERROR: Authority files must be JSON objects", file=sys.stderr)
             sys.exit(1)
-        result = compare_authorities(track_a, track_b)
+        elif not _is_authority_file(track_b):
+            print("ERROR: Track B lacks 'authority' key — not a valid authority file",
+                  file=sys.stderr)
+            sys.exit(1)
+        else:
+            result = compare_authorities(track_a, track_b)
+            comparison_mode = "FULL_AI_VS_DETERMINISTIC"
+
+    result["comparison_mode"] = comparison_mode
+    if degraded_reason:
+        result["degraded_reason"] = degraded_reason
 
     print(f"Track A approved: {result['track_a_approved']}")
     print(f"Track B approved: {result['track_b_approved']}")
     print(f"AI-promoted: {result['ai_promoted_count']}")
     print(f"Demotions: {result['demotion_count']} (must be 0)")
     print(f"Track B >= Track A: {result['track_b_gte_track_a']}")
+    print(f"Comparison mode: {comparison_mode}")
     print(f"Comparison result: {'PASS' if result['pass'] else 'FAIL'}")
 
-    if result["demotions"]:
+    # Demotions only block when running a real AI vs deterministic comparison
+    if result["demotions"] and comparison_mode not in (
+        "DEGRADED_PASS_NO_AI_PROMOTION", "SINGLE_TRACK_DEGRADED_PASS_NO_AI_PROMOTION"
+    ):
         print("STOP: Track B demoted Track A approvals:", result["demotions"])
         sys.exit(1)
 

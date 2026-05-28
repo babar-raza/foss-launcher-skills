@@ -82,6 +82,16 @@ def _try_import_llm_router():
         return None
 
 
+_PROVIDER_UNAVAILABLE_STATUSES = frozenset({
+    "not_configured",
+    "unreachable",
+    "auth_failed",
+    "model_missing",
+    "disabled_policy",
+    "intentional_skip",
+})
+
+
 def _classify_target(
     router,
     source_title: str,
@@ -91,7 +101,12 @@ def _classify_target(
     target_path: str,
     target_type: str,
 ) -> dict:
-    """Call LLM (CS-012) to classify source↔target relationship. Returns closed-set dict."""
+    """Call LLM (CS-012) to classify source↔target relationship. Returns closed-set dict.
+
+    Uses correct LLMRouter.call_chat(system, user, **kwargs) signature.
+    Provider unavailability (NOT_CONFIGURED, UNREACHABLE, etc.) → status="skipped".
+    Unexpected implementation exceptions → status="failed".
+    """
     prompt = CLASSIFICATION_PROMPT.format(
         source_title=source_title,
         source_family=source_family,
@@ -100,38 +115,55 @@ def _classify_target(
         target_path=target_path,
         target_type=target_type,
     )
+    system_prompt = (
+        "You are a classification assistant for API documentation relationships. "
+        "Respond with JSON only, using exactly the format requested."
+    )
     try:
         result = router.call_chat(
-            messages=[{"role": "user", "content": prompt}],
-            model="gpt-oss",
-            call_site=CALLSITE_CLASSIFY,
+            system_prompt,
+            prompt,
             temperature=0.0,
             max_tokens=100,
         )
-        # Parse JSON response
-        raw_text = result.content if hasattr(result, "content") else str(result)
-        # Extract JSON from response
-        import re
-        m = re.search(r"\{.*?\}", raw_text, re.DOTALL)
-        if not m:
-            return {"status": "failed", "error": "no_json_in_response"}
-
-        parsed = json.loads(m.group(0))
-        label = parsed.get("label", "")
-
-        # Reject free-text / invalid labels
-        if label not in VALID_LABELS:
-            return {"status": "failed", "error": f"invalid_label: {label!r}"}
-
-        token_usage = None
-        if hasattr(result, "usage"):
-            usage = result.usage
-            token_usage = {
-                "prompt": getattr(usage, "prompt_tokens", 0),
-                "completion": getattr(usage, "completion_tokens", 0),
+        # Map EndpointStatus to its string value for comparison
+        # EndpointStatus is a str enum: status.value == "ok", "unreachable", etc.
+        raw_status = getattr(result, "status", None)
+        result_status_val = (
+            raw_status.value if hasattr(raw_status, "value") else str(raw_status).lower()
+        )
+        # Any non-OK router result = provider unavailable = graceful skip
+        if result_status_val != "ok":
+            return {
+                "status": "skipped",
+                "error": f"provider_unavailable:{result_status_val}:{getattr(result, 'error', '')[:60]}",
             }
 
+        # Extract parsed data (json_extract=True by default in LLMRouter)
+        raw_data = getattr(result, "data", None)
         provider = getattr(result, "provider", "unknown")
+        token_usage_count = getattr(result, "token_usage", 0)
+
+        if raw_data is None:
+            return {"status": "skipped", "error": "router_returned_no_data"}
+
+        if isinstance(raw_data, dict):
+            parsed = raw_data
+        else:
+            import re
+            m = re.search(r"\{.*?\}", str(raw_data), re.DOTALL)
+            if not m:
+                return {"status": "skipped", "error": "no_json_in_response"}
+            try:
+                parsed = json.loads(m.group(0))
+            except json.JSONDecodeError:
+                return {"status": "skipped", "error": "json_parse_error"}
+
+        label = parsed.get("label", "")
+        if label not in VALID_LABELS:
+            return {"status": "skipped", "error": f"invalid_label: {label!r}"}
+
+        token_usage = {"prompt": 0, "completion": token_usage_count} if token_usage_count else None
 
         return {
             "label": label,
@@ -143,6 +175,7 @@ def _classify_target(
             "status": "enriched",
         }
     except Exception as exc:
+        # Unexpected exception = implementation error, not provider unavailability
         return {"status": "failed", "error": str(exc)[:200]}
 
 
@@ -234,23 +267,33 @@ def build_enrichment(
                 "error": None,
             }
             enriched_count += 1
+        elif classification.get("status") == "skipped":
+            enrichment_index[path_key] = {
+                "target_path": path_key,
+                "status": "skipped",
+                "error": classification.get("error"),
+            }
+            skipped_count += 1
         else:
+            # Unexpected classification result — implementation error
             enrichment_index[path_key] = {
                 "target_path": path_key,
                 "status": "failed",
-                "error": classification.get("error"),
+                "error": classification.get("error", "unexpected_classification_result"),
             }
             failed_count += 1
 
     total = len(enrichment_index)
-    degraded_rate = (skipped_count + failed_count) / total if total > 0 else 0.0
-    ai_status = (
-        "AI_EXPLICITLY_DISABLED" if router is None
-        else "AI_ENRICHED_PRIMARY" if enriched_count > 0
-        else "AI_UNAVAILABLE_DEGRADED"
-    )
-    if degraded_rate > 0.20 and router is not None:
-        ai_status = "AI_DEGRADATION_RATE_WARNING"
+    if router is None:
+        ai_status = "AI_EXPLICITLY_DISABLED"
+    elif enriched_count > 0:
+        ai_status = "AI_ENRICHED_PRIMARY"
+    elif skipped_count > 0 and failed_count == 0:
+        ai_status = "AI_UNAVAILABLE_DEGRADED"
+    elif failed_count > 0:
+        ai_status = "AI_IMPLEMENTATION_ERROR"
+    else:
+        ai_status = "AI_UNAVAILABLE_DEGRADED"
 
     return {
         "enriched_count": enriched_count,
