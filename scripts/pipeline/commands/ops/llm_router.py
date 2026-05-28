@@ -241,7 +241,7 @@ class LLMRouter:
         for alt_model in candidates:
             log.info("Ollama: trying alternative model %s", alt_model)
             alt_body = {**body, "model": alt_model}
-            url = provider["base_url"].rstrip("/") + chat_cfg["endpoint"]
+            url = self._resolve_base_url(provider) + chat_cfg["endpoint"]
             start = time.monotonic()
             try:
                 resp = requests.post(url, json=alt_body, headers=headers, timeout=timeout)
@@ -343,7 +343,7 @@ class LLMRouter:
                 continue
 
             chat_cfg = provider.get("chat", {})
-            url = provider["base_url"].rstrip("/") + chat_cfg["endpoint"]
+            url = self._resolve_base_url(provider) + chat_cfg["endpoint"]
             model = chat_cfg["model"]
             t = timeout if timeout is not None else chat_cfg.get("default_timeout", 90)
             temp = temperature if temperature is not None else chat_cfg.get("default_temperature", 0.0)
@@ -674,7 +674,7 @@ class LLMRouter:
                 )
                 continue
 
-            url = provider["base_url"].rstrip("/") + embed_cfg["endpoint"]
+            url = self._resolve_base_url(provider) + embed_cfg["endpoint"]
             model = embed_cfg["model"]
             t = timeout if timeout is not None else embed_cfg.get("default_timeout", 30)
             expected_dims = embed_cfg.get("embed_dimensions")
@@ -960,7 +960,7 @@ class LLMRouter:
                 continue
 
             chat_cfg = provider.get("chat", {})
-            url = provider["base_url"].rstrip("/") + chat_cfg["endpoint"]
+            url = self._resolve_base_url(provider) + chat_cfg["endpoint"]
             model = chat_cfg["model"]
 
             headers = {"Content-Type": "application/json"}
@@ -1036,6 +1036,21 @@ class LLMRouter:
     # -- Helpers ------------------------------------------------------------
 
     @staticmethod
+    def _resolve_base_url(provider: dict) -> str:
+        """Return effective base_url for provider.
+
+        If provider has a ``base_url_env`` field and that env var is set,
+        the env var value takes precedence over the hardcoded ``base_url``.
+        Trailing slashes are stripped for consistent endpoint construction.
+        """
+        base_url_env = provider.get("base_url_env")
+        if base_url_env:
+            env_url = os.environ.get(base_url_env, "").strip().rstrip("/")
+            if env_url:
+                return env_url
+        return provider["base_url"].rstrip("/")
+
+    @staticmethod
     def _get_api_key(provider: dict) -> str | None:
         """Return API key for provider.
 
@@ -1043,11 +1058,19 @@ class LLMRouter:
             - "" (empty string) if no api_key_env configured (no key needed)
             - None if api_key_env is configured but env var is empty/absent
             - The key string otherwise
+
+        Checks api_key_env first; falls back to api_key_env_fallback when
+        the primary env var is absent (supports GPT_OSS_API_KEY as fallback
+        for PROFESSIONALIZE_API_KEY).
         """
         env_var = provider.get("api_key_env")
         if not env_var:
             return ""  # No key required (e.g. Ollama)
         key = os.environ.get(env_var, "").strip()
+        if not key:
+            fallback_var = provider.get("api_key_env_fallback")
+            if fallback_var:
+                key = os.environ.get(fallback_var, "").strip()
         if not key:
             return None
         return key
@@ -1055,12 +1078,17 @@ class LLMRouter:
     def _build_prof_client(
         self, provider: dict, *, call_site_id: str, timeout: float
     ) -> Any:
-        """Build ProfessionalizeClient from provider config for metrics-aware transport."""
+        """Build ProfessionalizeClient from provider config for metrics-aware transport.
+
+        base_url_env (if present in registry) takes precedence over base_url,
+        allowing GPT_OSS_ENDPOINT to override the hardcoded base URL.
+        """
         chat_cfg = provider.get("chat", {})
         embed_cfg = provider.get("embeddings", {})
         raw_key = self._get_api_key(provider)
+        base_url = self._resolve_base_url(provider)
         return ProfessionalizeClient(
-            base_url=provider["base_url"],
+            base_url=base_url,
             api_key=raw_key if raw_key else None,
             default_chat_model=chat_cfg.get("model"),
             default_embedding_model=embed_cfg.get("model"),

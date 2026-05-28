@@ -120,11 +120,15 @@ def _classify_target(
         "Respond with JSON only, using exactly the format requested."
     )
     try:
+        # max_tokens=500: gpt-oss is a reasoning model; it uses tokens for
+        # reasoning_content before outputting the JSON answer. 100 tokens were
+        # insufficient, leaving content None (finish_reason=length). 500 is
+        # enough for reasoning (~300 tokens) + JSON output (~60 tokens).
         result = router.call_chat(
             system_prompt,
             prompt,
             temperature=0.0,
-            max_tokens=100,
+            max_tokens=500,
         )
         # Map EndpointStatus to its string value for comparison
         # EndpointStatus is a str enum: status.value == "ok", "unreachable", etc.

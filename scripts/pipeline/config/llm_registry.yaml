@@ -10,7 +10,9 @@ providers:
   professionalize:
     priority: 1
     base_url: "https://llm.professionalize.com/v1"
+    base_url_env: "GPT_OSS_ENDPOINT"           # env override takes precedence over base_url
     api_key_env: "PROFESSIONALIZE_API_KEY"
+    api_key_env_fallback: "GPT_OSS_API_KEY"    # checked when api_key_env is absent
     chat:
       endpoint: "/chat/completions"
       model: "gpt-oss"
