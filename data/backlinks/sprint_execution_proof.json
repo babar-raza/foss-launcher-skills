@@ -1,0 +1,59 @@
+{
+  "sprint_id": "BL-DEEP-EXEC-v3.1-FINISH-LINE-RECOVERY",
+  "plan": "wiggly-watching-finch.md",
+  "plan_version": "v3.1/A7",
+  "amendment_stack": "v2.0 -> A1 -> A2/P0 -> A3 -> A4 -> A5 -> A6 -> A7",
+  "executed_at": "2026-05-28",
+  "verdict": "ACCEPTED",
+  "target": "BACKLINKS_V2_FULL_STACK_V3_1_IMPLEMENTED_VERIFIED_COMMITTED_PUSH_PROHIBITED",
+  "tests": {
+    "command": ".venv/Scripts/python -m pytest test_backlink_targets.py test_backlink_backfill.py test_backlink_anchor.py -v",
+    "passed": 249,
+    "skipped": 1,
+    "failed": 0,
+    "gate": ">=248",
+    "gate_met": true
+  },
+  "validators": {
+    "total": 27,
+    "passed": 27,
+    "failed": 0,
+    "overall": "PASS"
+  },
+  "pipeline": {
+    "p1_deep_index": "1227 endpoints (3d family)",
+    "p2_candidates": "89 sources, 3240 candidates, 66 AUTO_APPROVE_EXACT",
+    "p2_5_ai_enrichment": "AI_DEGRADATION_RATE_WARNING (expected - AI unavailable)",
+    "p3_authority": "66 approved, 3 review, 0 blocked",
+    "a4_inventory": "176 variant URLs, 171 canonical platforms",
+    "a4_variant_authority": "168 approved, 4 REVIEW_REQUIRED"
+  },
+  "pilots": {
+    "total": 32,
+    "pass": 30,
+    "ai_degradation_expected": 1,
+    "deferred_architectural": 1,
+    "content_writes": 0,
+    "content_diff": "EMPTY"
+  },
+  "evidence_bundle": {
+    "path": "reports/backlinks/evidence-bundle-BL-DEEP-EXEC-v3.1-finish-line-recovery.zip",
+    "sha256": "8f12c522e541b46f7f5f04c65ebaa46e41d07c1701fde1c592f2e23431667116",
+    "files": 111,
+    "size_bytes": 291161
+  },
+  "amendments_covered": {
+    "v2_0_base": "IMPLEMENTED",
+    "A1": "IMPLEMENTED",
+    "A2_P0": "IMPLEMENTED",
+    "A3": "IMPLEMENTED",
+    "A4": "IMPLEMENTED",
+    "A5": "IMPLEMENTED",
+    "A6": "IMPLEMENTED",
+    "A7": "IMPLEMENTED"
+  },
+  "forbidden_paths_unchanged": true,
+  "content_unchanged": true,
+  "push_prohibited": true,
+  "push_attempted": false
+}
