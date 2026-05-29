@@ -69,6 +69,37 @@ _FEATURE_FLAGS_PATH = _REPO_ROOT / "data" / "refresh-feature-flags.json"
 
 
 # ---------------------------------------------------------------------------
+# configure() seam — T1/T2 compliance (AGENTS.md §16.2)
+# ---------------------------------------------------------------------------
+
+_cfg_registry_path = None
+_cfg_load_registry_fn = None
+_cfg_load_manifest_fn = None
+_cfg_inspect_output_state_fn = None
+_cfg_collect_fingerprints_fn = None
+_cfg_validate_for_fresh_fn = None
+
+
+def configure(
+    registry_path=None,
+    load_registry_fn=None,
+    load_manifest_fn=None,
+    inspect_output_state_fn=None,
+    collect_fingerprints_fn=None,
+    validate_for_fresh_fn=None,
+) -> None:
+    """Inject test dependencies. Call configure() with no args to reset to production defaults."""
+    global _cfg_registry_path, _cfg_load_registry_fn, _cfg_load_manifest_fn
+    global _cfg_inspect_output_state_fn, _cfg_collect_fingerprints_fn, _cfg_validate_for_fresh_fn
+    _cfg_registry_path = registry_path
+    _cfg_load_registry_fn = load_registry_fn
+    _cfg_load_manifest_fn = load_manifest_fn
+    _cfg_inspect_output_state_fn = inspect_output_state_fn
+    _cfg_collect_fingerprints_fn = collect_fingerprints_fn
+    _cfg_validate_for_fresh_fn = validate_for_fresh_fn
+
+
+# ---------------------------------------------------------------------------
 # Feature flag loader
 # ---------------------------------------------------------------------------
 
@@ -431,8 +462,9 @@ def run_harness(
     if mode not in _VALID_MODES:
         raise ValueError(f"Invalid mode {mode!r}. Must be one of: {sorted(_VALID_MODES)}")
 
-    if not _REGISTRY_PATH.is_file():
-        raise ValueError(f"Registry not found: {_REGISTRY_PATH}")
+    _eff_registry_path = _cfg_registry_path if _cfg_registry_path is not None else _REGISTRY_PATH
+    if not _eff_registry_path.is_file():
+        raise ValueError(f"Registry not found: {_eff_registry_path}")
 
     synthetic_overrides = synthetic_overrides or {}
 
@@ -440,7 +472,8 @@ def run_harness(
     if not run_id:
         run_id = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d-%H%M%S")
 
-    registry = load_registry(_REGISTRY_PATH)
+    _eff_load_registry = _cfg_load_registry_fn if _cfg_load_registry_fn is not None else load_registry
+    registry = _eff_load_registry(_eff_registry_path)
     tc_conditions = load_tc_closure_conditions(repo_root=_REPO_ROOT)
 
     # Determine which subdomains to evaluate
@@ -468,12 +501,13 @@ def run_harness(
             continue
 
         # Collect fingerprints (with in-memory overrides for synthetic mode)
+        _eff_collect = _cfg_collect_fingerprints_fn if _cfg_collect_fingerprints_fn is not None else _collect_fingerprints_with_overrides
         if mode == "synthetic-input-change":
-            fingerprints = _collect_fingerprints_with_overrides(
+            fingerprints = _eff_collect(
                 product, subdomain, registry, synthetic_overrides
             )
         elif mode in ("dry-run", "validate-only", "force-reconcile"):
-            fingerprints = _collect_fingerprints_with_overrides(
+            fingerprints = _eff_collect(
                 product, subdomain, registry, {}
             )
         else:
@@ -487,10 +521,12 @@ def run_harness(
         if mode == "force-reconcile":
             stored = None
         else:
-            stored = load_manifest(product, subdomain)
+            _eff_load_manifest = _cfg_load_manifest_fn if _cfg_load_manifest_fn is not None else load_manifest
+            stored = _eff_load_manifest(product, subdomain)
 
         # Inspect output state
-        current_outputs = _inspect_output_state(product, subdomain, registry)
+        _eff_inspect = _cfg_inspect_output_state_fn if _cfg_inspect_output_state_fn is not None else _inspect_output_state
+        current_outputs = _eff_inspect(product, subdomain, registry)
 
         # Compute decision
         d = decide(product, subdomain, fingerprints, current_outputs, stored)
@@ -502,7 +538,8 @@ def run_harness(
         if d.decision == "FRESH":
             output_hash = current_outputs.output_content_hash if current_outputs else None
             generator_path = getattr(surface, "backing_generator", None)
-            violations = validate_for_fresh(
+            _eff_validate = _cfg_validate_for_fresh_fn if _cfg_validate_for_fresh_fn is not None else validate_for_fresh
+            violations = _eff_validate(
                 fingerprints,
                 output_hash,
                 generator_path=generator_path,

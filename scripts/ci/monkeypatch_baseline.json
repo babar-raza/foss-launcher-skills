@@ -224,7 +224,7 @@
     },
     "scripts/pipeline/tests/test_refresh_harness.py": {
       "T1": 0,
-      "T2": 77,
+      "T2": 0,
       "T3": 0,
       "T4": 0
     },
@@ -355,7 +355,7 @@
   "schema_version": 1,
   "totals": {
     "T1": 0,
-    "T2": 488,
+    "T2": 411,
     "T3": 26,
     "T4": 11
   }

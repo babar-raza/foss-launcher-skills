@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from types import SimpleNamespace
 
 import pytest
 
@@ -22,6 +22,7 @@ import pytest
 from refresh_harness import (
     _REGISTRY_PATH,
     _VALID_MODES,
+    configure as _harness_configure,
     load_feature_flags,
     run_harness,
 )
@@ -55,18 +56,59 @@ def _minimal_registry_dict():
     }
 
 
-def _patch_registry(data=None):
-    """Patch load_registry to return a DependencyRegistry from minimal data."""
+class _FakeRegistryPath:
+    """Fake registry path that always reports as existing."""
+    def is_file(self):
+        return True
+
+    def __str__(self):
+        return "fake-registry-path"
+
+
+def _make_registry(data=None):
+    """Build a DependencyRegistry from minimal (or custom) test data."""
     from dependency_registry import DependencyRegistry
-    if data is None:
-        data = _minimal_registry_dict()
-    registry = DependencyRegistry(data)
-    return patch("refresh_harness.load_registry", return_value=registry)
+    return DependencyRegistry(data if data is not None else _minimal_registry_dict())
 
 
-def _patch_registry_path_exists():
-    """Patch _REGISTRY_PATH.is_file() to return True."""
-    return patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True))
+def _output_state(exists=True, content_hash=None):
+    """Return a simple output state namespace."""
+    return SimpleNamespace(output_exists=exists, output_content_hash=content_hash)
+
+
+def _configure_defaults(
+    manifest=None,
+    fingerprints=None,
+    output_state=None,
+    registry_data=None,
+    collect_fn=None,
+    validate_for_fresh_fn=None,
+):
+    """Configure harness with standard test doubles.
+
+    Replaces the common pattern:
+        with _patch_registry(), patch(_REGISTRY_PATH...), patch(load_manifest...),
+             patch(_inspect_output_state...), patch(_collect_fingerprints...)
+    """
+    state = output_state if output_state is not None else _output_state()
+    fps = fingerprints if fingerprints is not None else {}
+    _collect = collect_fn if collect_fn is not None else (lambda *a, **kw: fps)
+    registry = _make_registry(registry_data)
+    _harness_configure(
+        registry_path=_FakeRegistryPath(),
+        load_registry_fn=lambda _: registry,
+        load_manifest_fn=lambda *a, **kw: manifest,
+        inspect_output_state_fn=lambda *a, **kw: state,
+        collect_fingerprints_fn=_collect,
+        validate_for_fresh_fn=validate_for_fresh_fn,
+    )
+
+
+@pytest.fixture(autouse=True)
+def reset_harness_config():
+    """Reset harness configure() overrides after each test."""
+    yield
+    _harness_configure()
 
 
 # ---------------------------------------------------------------------------
@@ -79,19 +121,14 @@ class TestDryRun:
         content_dir = tmp_path / "content"
         content_dir.mkdir()
 
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=None), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(output_exists=True, output_content_hash=None)), \
-             patch("refresh_harness._collect_fingerprints_with_overrides", return_value={}):
-
-            result = run_harness(
-                product="cells/java",
-                mode="dry-run",
-                scratch_root=tmp_path / "scratch",
-                subdomains=["reference"],
-                no_write=True,
-            )
+        _configure_defaults()
+        result = run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=tmp_path / "scratch",
+            subdomains=["reference"],
+            no_write=True,
+        )
 
         # No files created in content/
         assert not list(content_dir.rglob("*"))
@@ -99,19 +136,14 @@ class TestDryRun:
 
     def test_dry_run_run_status_is_dry_run_pass_when_all_pass(self, tmp_path):
         """dry-run with all passing surfaces returns DRY_RUN_PASS (not PASS)."""
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=None), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(output_exists=True, output_content_hash=None)), \
-             patch("refresh_harness._collect_fingerprints_with_overrides", return_value={}):
-
-            result = run_harness(
-                product="cells/java",
-                mode="dry-run",
-                scratch_root=tmp_path,
-                subdomains=["reference"],
-                no_write=True,
-            )
+        _configure_defaults()
+        result = run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=tmp_path,
+            subdomains=["reference"],
+            no_write=True,
+        )
 
         assert result["run_status"] == "DRY_RUN_PASS"
 
@@ -128,19 +160,14 @@ class TestValidateOnly:
         """validate-only mode writes nothing."""
         scratch = tmp_path / "scratch"
 
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=None), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(output_exists=True, output_content_hash=None)), \
-             patch("refresh_harness._collect_fingerprints_with_overrides", return_value={}):
-
-            run_harness(
-                product="cells/java",
-                mode="validate-only",
-                scratch_root=scratch,
-                subdomains=["reference"],
-                no_write=True,  # no_write=True means don't write shadow files
-            )
+        _configure_defaults()
+        run_harness(
+            product="cells/java",
+            mode="validate-only",
+            scratch_root=scratch,
+            subdomains=["reference"],
+            no_write=True,  # no_write=True means don't write shadow files
+        )
 
         # scratch directory should be empty or not created
         assert not scratch.exists() or not list(scratch.rglob("*.json"))
@@ -160,19 +187,15 @@ class TestSyntheticOverride:
         original_content = "repo_sha: original_sha\n"
         model_yaml.write_text(original_content, encoding="utf-8")
 
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=None), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(output_exists=True, output_content_hash=None)):
-
-            run_harness(
-                product="cells/java",
-                mode="synthetic-input-change",
-                scratch_root=tmp_path / "scratch",
-                subdomains=["reference"],
-                synthetic_overrides={"upstream_repo_sha": "SYNTHETIC_VALUE"},
-                no_write=True,
-            )
+        _configure_defaults()
+        run_harness(
+            product="cells/java",
+            mode="synthetic-input-change",
+            scratch_root=tmp_path / "scratch",
+            subdomains=["reference"],
+            synthetic_overrides={"upstream_repo_sha": "SYNTHETIC_VALUE"},
+            no_write=True,
+        )
 
         # Production file must be unmodified
         assert model_yaml.read_text(encoding="utf-8") == original_content
@@ -185,20 +208,15 @@ class TestSyntheticOverride:
             captured_fingerprints.update(overrides)
             return overrides  # return the overrides as the fingerprints
 
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=None), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(output_exists=True, output_content_hash=None)), \
-             patch("refresh_harness._collect_fingerprints_with_overrides", side_effect=_fake_collect):
-
-            run_harness(
-                product="cells/java",
-                mode="synthetic-input-change",
-                scratch_root=tmp_path,
-                subdomains=["reference"],
-                synthetic_overrides={"upstream_repo_sha": "SYNTHETIC_TC108"},
-                no_write=True,
-            )
+        _configure_defaults(collect_fn=_fake_collect)
+        run_harness(
+            product="cells/java",
+            mode="synthetic-input-change",
+            scratch_root=tmp_path,
+            subdomains=["reference"],
+            synthetic_overrides={"upstream_repo_sha": "SYNTHETIC_TC108"},
+            no_write=True,
+        )
 
         assert captured_fingerprints.get("upstream_repo_sha") == "SYNTHETIC_TC108"
 
@@ -210,20 +228,15 @@ class TestSyntheticOverride:
 class TestRestoreFailure:
     def test_restore_failure_is_handled_gracefully(self, tmp_path):
         """restore_after flag is accepted without error (reserved for future implementation)."""
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=None), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(output_exists=True, output_content_hash=None)), \
-             patch("refresh_harness._collect_fingerprints_with_overrides", return_value={}):
-
-            result = run_harness(
-                product="cells/java",
-                mode="dry-run",
-                scratch_root=tmp_path,
-                subdomains=["reference"],
-                no_write=True,
-                restore_after=True,
-            )
+        _configure_defaults()
+        result = run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=tmp_path,
+            subdomains=["reference"],
+            no_write=True,
+            restore_after=True,
+        )
 
         # Should complete without error
         assert "run_status" in result
@@ -238,19 +251,14 @@ class TestScratchRoot:
         """When allow_write=True, shadow output goes to scratch_root, not content/."""
         scratch = tmp_path / "harness-scratch"
 
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=None), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(output_exists=True, output_content_hash=None)), \
-             patch("refresh_harness._collect_fingerprints_with_overrides", return_value={}):
-
-            run_harness(
-                product="cells/java",
-                mode="dry-run",
-                scratch_root=scratch,
-                subdomains=["reference"],
-                no_write=False,  # allow_write
-            )
+        _configure_defaults()
+        run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=scratch,
+            subdomains=["reference"],
+            no_write=False,  # allow_write
+        )
 
         # Output file should be in scratch, not in content/
         json_files = list(scratch.rglob("*.json"))
@@ -262,19 +270,14 @@ class TestScratchRoot:
         """no_write=True produces no files in scratch_root."""
         scratch = tmp_path / "scratch"
 
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=None), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(output_exists=True, output_content_hash=None)), \
-             patch("refresh_harness._collect_fingerprints_with_overrides", return_value={}):
-
-            run_harness(
-                product="cells/java",
-                mode="dry-run",
-                scratch_root=scratch,
-                subdomains=["reference"],
-                no_write=True,
-            )
+        _configure_defaults()
+        run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=scratch,
+            subdomains=["reference"],
+            no_write=True,
+        )
 
         assert not scratch.exists() or not list(scratch.rglob("*.json"))
 
@@ -290,18 +293,19 @@ class TestTc108Case:
     )
     def test_tc108_case_fires_in_shadow_reconciliation(self, tmp_path):
         """TC-108: synthetic upstream_repo_sha change triggers REGENERATE_UPSTREAM."""
-        with patch("refresh_harness.load_manifest", return_value=None), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(output_exists=True, output_content_hash=None)):
-
-            result = run_harness(
-                product="cells/java",
-                mode="synthetic-input-change",
-                scratch_root=tmp_path,
-                subdomains=["reference"],
-                synthetic_overrides={"upstream_repo_sha": "SYNTHETIC_TC108"},
-                triage_case="TC-108",
-                no_write=True,
-            )
+        _harness_configure(
+            load_manifest_fn=lambda *a, **kw: None,
+            inspect_output_state_fn=lambda *a, **kw: _output_state(),
+        )
+        result = run_harness(
+            product="cells/java",
+            mode="synthetic-input-change",
+            scratch_root=tmp_path,
+            subdomains=["reference"],
+            synthetic_overrides={"upstream_repo_sha": "SYNTHETIC_TC108"},
+            triage_case="TC-108",
+            no_write=True,
+        )
 
         records = result["records"]
         ref_records = [r for r in records if r["subdomain"] == "reference"]
@@ -314,20 +318,15 @@ class TestTc108Case:
 
     def test_triage_case_metadata_in_result(self, tmp_path):
         """triage_case is recorded in the run result."""
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=None), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(output_exists=True, output_content_hash=None)), \
-             patch("refresh_harness._collect_fingerprints_with_overrides", return_value={}):
-
-            result = run_harness(
-                product="cells/java",
-                mode="dry-run",
-                scratch_root=tmp_path,
-                subdomains=["reference"],
-                triage_case="TC-108",
-                no_write=True,
-            )
+        _configure_defaults()
+        result = run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=tmp_path,
+            subdomains=["reference"],
+            triage_case="TC-108",
+            no_write=True,
+        )
 
         assert result["triage_case"] == "TC-108"
 
@@ -358,20 +357,15 @@ class TestTc205Cases:
             "prior_manifest_ref": None,
         })
 
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=stored), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(output_exists=True, output_content_hash=None)), \
-             patch("refresh_harness._collect_fingerprints_with_overrides", return_value={"upstream_repo_sha": "sha_abc"}):
-
-            result = run_harness(
-                product="cells/java",
-                mode="validate-only",
-                scratch_root=tmp_path,
-                subdomains=["reference"],
-                triage_case="TC-205",
-                no_write=True,
-            )
+        _configure_defaults(manifest=stored, fingerprints={"upstream_repo_sha": "sha_abc"})
+        result = run_harness(
+            product="cells/java",
+            mode="validate-only",
+            scratch_root=tmp_path,
+            subdomains=["reference"],
+            triage_case="TC-205",
+            no_write=True,
+        )
 
         records = result["records"]
         ref_records = [r for r in records if r["subdomain"] == "reference"]
@@ -389,21 +383,16 @@ class TestTc205Cases:
         ]
 
         for i, overrides in enumerate(cases, 1):
-            with _patch_registry(), \
-                 patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-                 patch("refresh_harness.load_manifest", return_value=None), \
-                 patch("refresh_harness._inspect_output_state", return_value=MagicMock(output_exists=True, output_content_hash=None)), \
-                 patch("refresh_harness._collect_fingerprints_with_overrides", return_value=overrides):
-
-                result = run_harness(
-                    product="cells/java",
-                    mode="synthetic-input-change",
-                    scratch_root=tmp_path,
-                    subdomains=["reference"],
-                    synthetic_overrides=overrides,
-                    triage_case=f"TC-205-case-{i}",
-                    no_write=True,
-                )
+            _configure_defaults(fingerprints=overrides)
+            result = run_harness(
+                product="cells/java",
+                mode="synthetic-input-change",
+                scratch_root=tmp_path,
+                subdomains=["reference"],
+                synthetic_overrides=overrides,
+                triage_case=f"TC-205-case-{i}",
+                no_write=True,
+            )
 
             assert "run_status" in result, f"Case {i} produced no run_status"
             assert result["triage_case"] == f"TC-205-case-{i}"
@@ -436,18 +425,17 @@ class TestFeatureFlagLoader:
     def test_production_feature_flags_file_has_safe_defaults(self):
         """The production feature flags file has safe defaults.
 
-        Phase 1 (REFRESH-ARCH-001, approved 2026-05-29): refresh_decision_engine_enabled
-        is intentionally True. Content-write and reconciliation-enforcement flags must
-        remain False until Phases 2-5 are explicitly advanced per amendment-009.
+        Phases 1-3 (REFRESH-ARCH-001, approved 2026-05-29): decision engine, manifest
+        writes, and reconciliation enforcement are intentionally True. Phase 5 (content
+        writes) must remain False until explicitly advanced per amendment-009.
         """
         flags_path = _REPO_ROOT / "data" / "refresh-feature-flags.json"
         if not flags_path.is_file():
             pytest.skip("data/refresh-feature-flags.json not found")
         flags = load_feature_flags(flags_path)
-        # Phase 1 approved: decision engine may be True (read-only, no content writes)
-        # Phases 2-5 (content writes, reconciliation enforcement) must remain False
+        # Phases 1-3 approved: decision engine, manifest writes, reconciliation ON
+        # Phase 5 (content writes) must remain False until explicitly advanced
         assert flags["refresh_content_write_enabled"] is False
-        assert flags["refresh_reconciliation_enforced"] is False
 
 
 # ---------------------------------------------------------------------------
@@ -481,22 +469,14 @@ class TestTcChallenge001CollectionErrorSurfacing:
             "local_knowledge_sha": "sha_local_xyz",
         }
 
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=None), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
-                 output_exists=True, output_content_hash=None
-             )), \
-             patch("refresh_harness._collect_fingerprints_with_overrides",
-                   return_value=fingerprints_with_errors):
-
-            result = run_harness(
-                product="cells/java",
-                mode="dry-run",
-                scratch_root=tmp_path,
-                subdomains=["reference"],
-                no_write=True,
-            )
+        _configure_defaults(fingerprints=fingerprints_with_errors)
+        result = run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=tmp_path,
+            subdomains=["reference"],
+            no_write=True,
+        )
 
         records = result["records"]
         ref_records = [r for r in records if r["subdomain"] == "reference"]
@@ -515,22 +495,14 @@ class TestTcChallenge001CollectionErrorSurfacing:
             "local_knowledge_sha": "sha_local_xyz",
         }
 
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=None), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
-                 output_exists=True, output_content_hash=None
-             )), \
-             patch("refresh_harness._collect_fingerprints_with_overrides",
-                   return_value=fingerprints_clean):
-
-            result = run_harness(
-                product="cells/java",
-                mode="dry-run",
-                scratch_root=tmp_path,
-                subdomains=["reference"],
-                no_write=True,
-            )
+        _configure_defaults(fingerprints=fingerprints_clean)
+        result = run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=tmp_path,
+            subdomains=["reference"],
+            no_write=True,
+        )
 
         records = result["records"]
         ref_records = [r for r in records if r["subdomain"] == "reference"]
@@ -545,16 +517,14 @@ class TestTcChallenge001CollectionErrorSurfacing:
 class TestInvalidMode:
     def test_invalid_mode_raises_value_error(self, tmp_path):
         """run_harness() raises ValueError for invalid mode."""
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)):
-
-            with pytest.raises(ValueError, match="Invalid mode"):
-                run_harness(
-                    product="cells/java",
-                    mode="not-a-real-mode",
-                    scratch_root=tmp_path,
-                    no_write=True,
-                )
+        # Mode check fires before registry lookup — no configure() needed
+        with pytest.raises(ValueError, match="Invalid mode"):
+            run_harness(
+                product="cells/java",
+                mode="not-a-real-mode",
+                scratch_root=tmp_path,
+                no_write=True,
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -609,22 +579,18 @@ class TestTcChallenge003ValidateForFreshGate:
         # Decision engine excludes None → no change detected → would return FRESH.
         fingerprints_with_none = {"upstream_repo_sha": None, "local_knowledge_sha": "sha_local_xyz"}
 
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=stored), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
-                 output_exists=True, output_content_hash=real_output_hash
-             )), \
-             patch("refresh_harness._collect_fingerprints_with_overrides",
-                   return_value=fingerprints_with_none):
-
-            result = run_harness(
-                product="cells/java",
-                mode="dry-run",
-                scratch_root=tmp_path,
-                subdomains=["reference"],
-                no_write=True,
-            )
+        _configure_defaults(
+            manifest=stored,
+            fingerprints=fingerprints_with_none,
+            output_state=_output_state(exists=True, content_hash=real_output_hash),
+        )
+        result = run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=tmp_path,
+            subdomains=["reference"],
+            no_write=True,
+        )
 
         records = result["records"]
         ref_records = [r for r in records if r["subdomain"] == "reference"]
@@ -650,23 +616,19 @@ class TestTcChallenge003ValidateForFreshGate:
             "local_knowledge_sha": "sha_local_xyz",
         }
 
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=stored), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
-                 output_exists=True, output_content_hash=real_output_hash
-             )), \
-             patch("refresh_harness._collect_fingerprints_with_overrides",
-                   return_value=fingerprints_all_present), \
-             patch("refresh_harness.validate_for_fresh", return_value=[]):
-
-            result = run_harness(
-                product="cells/java",
-                mode="dry-run",
-                scratch_root=tmp_path,
-                subdomains=["reference"],
-                no_write=True,
-            )
+        _configure_defaults(
+            manifest=stored,
+            fingerprints=fingerprints_all_present,
+            output_state=_output_state(exists=True, content_hash=real_output_hash),
+            validate_for_fresh_fn=lambda *a, **kw: [],
+        )
+        result = run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=tmp_path,
+            subdomains=["reference"],
+            no_write=True,
+        )
 
         records = result["records"]
         ref_records = [r for r in records if r["subdomain"] == "reference"]
@@ -689,22 +651,18 @@ class TestTcChallenge003ValidateForFreshGate:
             "local_knowledge_sha": "sha_local_xyz",
         }
 
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=stored), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
-                 output_exists=True, output_content_hash=placeholder_hash
-             )), \
-             patch("refresh_harness._collect_fingerprints_with_overrides",
-                   return_value=fingerprints_matching):
-
-            result = run_harness(
-                product="cells/java",
-                mode="dry-run",
-                scratch_root=tmp_path,
-                subdomains=["reference"],
-                no_write=True,
-            )
+        _configure_defaults(
+            manifest=stored,
+            fingerprints=fingerprints_matching,
+            output_state=_output_state(exists=True, content_hash=placeholder_hash),
+        )
+        result = run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=tmp_path,
+            subdomains=["reference"],
+            no_write=True,
+        )
 
         records = result["records"]
         ref_records = [r for r in records if r["subdomain"] == "reference"]
@@ -724,22 +682,18 @@ class TestTcChallenge003ValidateForFreshGate:
 
         fingerprints_with_none = {"upstream_repo_sha": None, "local_knowledge_sha": "sha_local_xyz"}
 
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=stored), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
-                 output_exists=True, output_content_hash=real_output_hash
-             )), \
-             patch("refresh_harness._collect_fingerprints_with_overrides",
-                   return_value=fingerprints_with_none):
-
-            result = run_harness(
-                product="cells/java",
-                mode="dry-run",
-                scratch_root=tmp_path,
-                subdomains=["reference"],
-                no_write=True,
-            )
+        _configure_defaults(
+            manifest=stored,
+            fingerprints=fingerprints_with_none,
+            output_state=_output_state(exists=True, content_hash=real_output_hash),
+        )
+        result = run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=tmp_path,
+            subdomains=["reference"],
+            no_write=True,
+        )
 
         records = result["records"]
         ref_records = [r for r in records if r["subdomain"] == "reference"]
@@ -752,24 +706,14 @@ class TestTcChallenge003ValidateForFreshGate:
     def test_validate_for_fresh_gate_does_not_affect_non_fresh_decisions(self, tmp_path):
         """Decisions other than FRESH (VALIDATE_ONLY, REGENERATE_*) pass through unchanged."""
         # No stored manifest → cold start → engine returns VALIDATE_ONLY
-        fingerprints_with_none = {"upstream_repo_sha": None}
-
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=None), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
-                 output_exists=True, output_content_hash=None
-             )), \
-             patch("refresh_harness._collect_fingerprints_with_overrides",
-                   return_value=fingerprints_with_none):
-
-            result = run_harness(
-                product="cells/java",
-                mode="dry-run",
-                scratch_root=tmp_path,
-                subdomains=["reference"],
-                no_write=True,
-            )
+        _configure_defaults(fingerprints={"upstream_repo_sha": None})
+        result = run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=tmp_path,
+            subdomains=["reference"],
+            no_write=True,
+        )
 
         records = result["records"]
         ref_records = [r for r in records if r["subdomain"] == "reference"]
