@@ -128,10 +128,14 @@ class EvidenceDepthEvaluator(BaseEvaluator):
                 evaluator=self.name,
             ))
 
-        # Check model_sha staleness
+        # Check model_sha staleness — skip for draft pages (EVIDENCE-DRAFT-STALE-001):
+        # after a knowledge refresh, draft pages accumulate stale model_sha because
+        # attach_evidence.py skips them; auditing stale evidence on unpublished pages
+        # produces FAIL noise for pages that will be updated before they go live.
+        _is_draft = bool(fm.get("draft", False))
         model_sha = evidence.get("model_sha", "")
         current_sha = ""
-        if model_sha and page.family and page.platform:
+        if not _is_draft and model_sha and page.family and page.platform:
             model_path = KNOWLEDGE_ROOT / page.family / page.platform / "merged" / "model.yaml"
             if model_path.exists():
                 import yaml
@@ -153,7 +157,7 @@ class EvidenceDepthEvaluator(BaseEvaluator):
 
         # --- Per-section evidence checks ---
         sections = evidence.get("sections", [])
-        if sections:
+        if sections and not _is_draft:
             findings.extend(
                 self._evaluate_sections(page, evidence, sections, current_sha)
             )
