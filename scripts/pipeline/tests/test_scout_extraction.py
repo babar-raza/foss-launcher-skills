@@ -726,6 +726,39 @@ class UntypedAttrs:
         texts = [c["text"] for c in claims]
         assert any("jpeg_quality" in t for t in texts)
 
+    PYTHON_CLASS_BACKING_FIELD = """
+class Mesh:
+    @property
+    def control_points(self):
+        return list(self._control_points)
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def __init__(self):
+        self._control_points = []
+        self._name = "default"
+        self.vertex_count: int = 0
+"""
+
+    def test_private_backing_fields_excluded_even_with_public_property(self):
+        """Private _backing fields must never appear in API surface even when a
+        matching public @property exists (PRIVATE-API-REF-001 regression guard)."""
+        root = _parse("python", self.PYTHON_CLASS_BACKING_FIELD)
+        classes = scout.collect_nodes(root, {"class_definition"})
+        props, claims = _extract_python_init_attributes(
+            classes[0], "Mesh", "test.py", "3d",
+            existing_names={"control_points", "name"},
+        )
+        names = [p["name"] for p in props]
+        assert "_control_points" not in names
+        assert "_name" not in names
+        assert "vertex_count" in names
+        claim_texts = [c["text"] for c in claims]
+        assert not any("_control_points" in t for t in claim_texts)
+        assert not any("._name" in t for t in claim_texts)
+
 
 # ---------------------------------------------------------------------------
 # TC-01 regression guard: property "doc" field in extracted output
