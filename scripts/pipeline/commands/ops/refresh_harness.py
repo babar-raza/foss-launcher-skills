@@ -78,6 +78,8 @@ _cfg_load_manifest_fn = None
 _cfg_inspect_output_state_fn = None
 _cfg_collect_fingerprints_fn = None
 _cfg_validate_for_fresh_fn = None
+_cfg_load_feature_flags_fn = None
+_cfg_write_manifest_gated_fn = None
 
 
 def configure(
@@ -87,16 +89,21 @@ def configure(
     inspect_output_state_fn=None,
     collect_fingerprints_fn=None,
     validate_for_fresh_fn=None,
+    load_feature_flags_fn=None,
+    write_manifest_gated_fn=None,
 ) -> None:
     """Inject test dependencies. Call configure() with no args to reset to production defaults."""
     global _cfg_registry_path, _cfg_load_registry_fn, _cfg_load_manifest_fn
     global _cfg_inspect_output_state_fn, _cfg_collect_fingerprints_fn, _cfg_validate_for_fresh_fn
+    global _cfg_load_feature_flags_fn, _cfg_write_manifest_gated_fn
     _cfg_registry_path = registry_path
     _cfg_load_registry_fn = load_registry_fn
     _cfg_load_manifest_fn = load_manifest_fn
     _cfg_inspect_output_state_fn = inspect_output_state_fn
     _cfg_collect_fingerprints_fn = collect_fingerprints_fn
     _cfg_validate_for_fresh_fn = validate_for_fresh_fn
+    _cfg_load_feature_flags_fn = load_feature_flags_fn
+    _cfg_write_manifest_gated_fn = write_manifest_gated_fn
 
 
 # ---------------------------------------------------------------------------
@@ -265,6 +272,8 @@ def _write_manifest_gated(
     flags: dict,
     no_write: bool,
     state_root: Optional[Path] = None,
+    _save_fn=None,
+    _load_fn=None,
 ) -> "tuple[bool, str]":
     """Attempt a gated manifest write after a confirmed FRESH decision.
 
@@ -300,8 +309,10 @@ def _write_manifest_gated(
     import datetime
     import shutil
     from freshness_manifest import FreshnessManifest as _FM
-    from freshness_manifest import save as _fm_save
-    from freshness_manifest import load as _fm_load
+    from freshness_manifest import save as _fm_save_default
+    from freshness_manifest import load as _fm_load_default
+    _fm_save = _save_fn if _save_fn is not None else _fm_save_default
+    _fm_load = _load_fn if _load_fn is not None else _fm_load_default
 
     effective_state_root: Path = state_root if state_root is not None else _STATE_ROOT
 
@@ -569,7 +580,8 @@ def run_harness(
         # refresh_content_write_enabled=False, decision==FRESH, and no_write=False.
         manifest_write_note = ""
         if d.decision == "FRESH":
-            _gate3_flags = load_feature_flags()
+            _eff_load_ff = _cfg_load_feature_flags_fn if _cfg_load_feature_flags_fn is not None else load_feature_flags
+            _gate3_flags = _eff_load_ff()
             # HARD_BLOCK: content writes are never permitted — halt entire run if detected.
             if _gate3_flags.get("refresh_content_write_enabled", False):
                 raise RuntimeError(
@@ -577,7 +589,8 @@ def run_harness(
                     "This flag must remain false. Halting run."
                 )
             if not no_write and _gate3_flags.get("refresh_manifest_write_enabled", False):
-                _written, manifest_write_note = _write_manifest_gated(
+                _eff_wmg = _cfg_write_manifest_gated_fn if _cfg_write_manifest_gated_fn is not None else _write_manifest_gated
+                _written, manifest_write_note = _eff_wmg(
                     product=product,
                     subdomain=subdomain,
                     fingerprints=fingerprints,

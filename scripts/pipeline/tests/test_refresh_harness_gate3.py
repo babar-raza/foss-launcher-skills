@@ -24,7 +24,7 @@ import json
 import os
 import shutil
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from types import SimpleNamespace
 
 import pytest
 
@@ -33,6 +33,7 @@ from refresh_harness import (
     _REGISTRY_PATH,
     _write_manifest_gated,
     _restore_backup,
+    configure as _harness_configure,
     load_feature_flags,
     run_harness,
 )
@@ -107,14 +108,11 @@ def _make_state_dir(tmp_path: Path, manifest_data: dict) -> Path:
 
 
 def _make_output_state(output_hash: str = _REAL_HASH_C):
-    out = MagicMock()
-    out.output_exists = True
-    out.output_content_hash = output_hash
-    return out
+    return SimpleNamespace(output_exists=True, output_content_hash=output_hash)
 
 
-def _patch_registry():
-    """Patch registry to return a minimal DependencyRegistry."""
+def _make_registry():
+    """Return a minimal DependencyRegistry (no patching)."""
     from dependency_registry import DependencyRegistry
     data = {
         "reference": {
@@ -133,8 +131,14 @@ def _patch_registry():
             "status": "supported",
         }
     }
-    registry = DependencyRegistry(data)
-    return patch("refresh_harness.load_registry", return_value=registry)
+    return DependencyRegistry(data)
+
+
+@pytest.fixture(autouse=True)
+def reset_harness_config():
+    """Reset refresh_harness.configure() overrides after each test."""
+    yield
+    _harness_configure()
 
 
 # ---------------------------------------------------------------------------
@@ -351,7 +355,6 @@ class TestWriteManifestGatedSuccess:
 
         backup_existed_before_save = []
 
-        original_save = None
         from freshness_manifest import save as real_save
 
         def _spy_save(manifest, state_root=None):
@@ -359,22 +362,21 @@ class TestWriteManifestGatedSuccess:
             backup_existed_before_save.append(backup_path.exists())
             return real_save(manifest, state_root=state_root)
 
-        with patch("refresh_harness._write_manifest_gated.__globals__", {}) if False else \
-             patch("freshness_manifest.save", side_effect=_spy_save):
-            _write_manifest_gated(
-                product="cells/java",
-                subdomain="reference",
-                fingerprints={
-                    "upstream_repo_sha": "sha_stored_abc",
-                    "local_knowledge_sha": "sha_local_xyz",
-                },
-                current_outputs=_make_output_state(),
-                stored=stored,
-                run_id="gate3a-backup-001",
-                flags=_GATE3_WRITE_FLAGS,
-                no_write=False,
-                state_root=state_root,
-            )
+        _write_manifest_gated(
+            product="cells/java",
+            subdomain="reference",
+            fingerprints={
+                "upstream_repo_sha": "sha_stored_abc",
+                "local_knowledge_sha": "sha_local_xyz",
+            },
+            current_outputs=_make_output_state(),
+            stored=stored,
+            run_id="gate3a-backup-001",
+            flags=_GATE3_WRITE_FLAGS,
+            no_write=False,
+            state_root=state_root,
+            _save_fn=_spy_save,
+        )
 
         assert backup_existed_before_save == [True], (
             "Backup must exist at the moment save() is called. "
@@ -443,18 +445,21 @@ class TestWriteManifestGatedFailure:
         stored = _make_stored_manifest(**original_data)
         manifest_path = state_root / "cells" / "java" / "reference" / "freshness-manifest.json"
 
-        with patch("freshness_manifest.save", side_effect=OSError("disk full")):
-            written, note = _write_manifest_gated(
-                product="cells/java",
-                subdomain="reference",
-                fingerprints={"upstream_repo_sha": "sha_stored_abc"},
-                current_outputs=_make_output_state(),
-                stored=stored,
-                run_id="gate3a-fail-001",
-                flags=_GATE3_WRITE_FLAGS,
-                no_write=False,
-                state_root=state_root,
-            )
+        def _fail_save(*a, **kw):
+            raise OSError("disk full")
+
+        written, note = _write_manifest_gated(
+            product="cells/java",
+            subdomain="reference",
+            fingerprints={"upstream_repo_sha": "sha_stored_abc"},
+            current_outputs=_make_output_state(),
+            stored=stored,
+            run_id="gate3a-fail-001",
+            flags=_GATE3_WRITE_FLAGS,
+            no_write=False,
+            state_root=state_root,
+            _save_fn=_fail_save,
+        )
 
         assert not written
         assert "FAILED" in note
@@ -470,20 +475,20 @@ class TestWriteManifestGatedFailure:
         stored = _make_stored_manifest(**original_data)
         manifest_path = state_root / "cells" / "java" / "reference" / "freshness-manifest.json"
 
-        # Patch load inside the function to simulate verification failure.
-        # We allow save() to succeed (manifest is written) but load() returns None.
-        with patch("freshness_manifest.load", return_value=None):
-            written, note = _write_manifest_gated(
-                product="cells/java",
-                subdomain="reference",
-                fingerprints={"upstream_repo_sha": "sha_stored_abc"},
-                current_outputs=_make_output_state(),
-                stored=stored,
-                run_id="gate3a-verify-fail-001",
-                flags=_GATE3_WRITE_FLAGS,
-                no_write=False,
-                state_root=state_root,
-            )
+        # Allow save() to succeed (manifest is written) but load() returns None
+        # to simulate post-write verification failure.
+        written, note = _write_manifest_gated(
+            product="cells/java",
+            subdomain="reference",
+            fingerprints={"upstream_repo_sha": "sha_stored_abc"},
+            current_outputs=_make_output_state(),
+            stored=stored,
+            run_id="gate3a-verify-fail-001",
+            flags=_GATE3_WRITE_FLAGS,
+            no_write=False,
+            state_root=state_root,
+            _load_fn=lambda *a, **kw: None,
+        )
 
         assert not written
         assert "VERIFICATION FAILED" in note
@@ -546,25 +551,25 @@ class TestRunHarnessGate3aIntegration:
         }
         current_hash = _REAL_HASH_B  # matches stored hash → FRESH
 
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=stored), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
-                 output_exists=True, output_content_hash=current_hash
-             )), \
-             patch("refresh_harness._collect_fingerprints_with_overrides",
-                   return_value=fingerprints_fresh), \
-             patch("refresh_harness.validate_for_fresh", return_value=[]), \
-             patch("refresh_harness.load_feature_flags", return_value=_GATE3_WRITE_FLAGS):
-
-            result = run_harness(
-                product="cells/java",
-                mode="validate-only",
-                scratch_root=tmp_path / "scratch",
-                subdomains=["reference"],
-                no_write=True,  # no_write=True prevents write
-                run_id="gate3a-integration-001",
-            )
+        _harness_configure(
+            registry_path=SimpleNamespace(is_file=lambda: True),
+            load_registry_fn=lambda *a, **kw: _make_registry(),
+            load_manifest_fn=lambda *a, **kw: stored,
+            inspect_output_state_fn=lambda *a, **kw: SimpleNamespace(
+                output_exists=True, output_content_hash=current_hash
+            ),
+            collect_fingerprints_fn=lambda *a, **kw: dict(fingerprints_fresh),
+            validate_for_fresh_fn=lambda *a, **kw: [],
+            load_feature_flags_fn=lambda *a, **kw: _GATE3_WRITE_FLAGS,
+        )
+        result = run_harness(
+            product="cells/java",
+            mode="validate-only",
+            scratch_root=tmp_path / "scratch",
+            subdomains=["reference"],
+            no_write=True,  # no_write=True prevents write
+            run_id="gate3a-integration-001",
+        )
 
         # With no_write=True, no manifest write should occur regardless of flags.
         backup_path = state_root / "cells" / "java" / "reference" / "freshness-manifest.pre-gate3.json"
@@ -580,46 +585,46 @@ class TestRunHarnessGate3aIntegration:
         }
         hard_block_flags = dict(_GATE3_WRITE_FLAGS, refresh_content_write_enabled=True)
 
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=stored), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
-                 output_exists=True, output_content_hash=_REAL_HASH_B
-             )), \
-             patch("refresh_harness._collect_fingerprints_with_overrides",
-                   return_value=fingerprints_fresh), \
-             patch("refresh_harness.validate_for_fresh", return_value=[]), \
-             patch("refresh_harness.load_feature_flags", return_value=hard_block_flags):
-
-            with pytest.raises(RuntimeError, match="HARD_BLOCK"):
-                run_harness(
-                    product="cells/java",
-                    mode="validate-only",
-                    scratch_root=tmp_path / "scratch",
-                    subdomains=["reference"],
-                    no_write=False,  # allow_write to reach write path
-                    run_id="gate3a-integration-hardblock",
-                )
+        _harness_configure(
+            registry_path=SimpleNamespace(is_file=lambda: True),
+            load_registry_fn=lambda *a, **kw: _make_registry(),
+            load_manifest_fn=lambda *a, **kw: stored,
+            inspect_output_state_fn=lambda *a, **kw: SimpleNamespace(
+                output_exists=True, output_content_hash=_REAL_HASH_B
+            ),
+            collect_fingerprints_fn=lambda *a, **kw: dict(fingerprints_fresh),
+            validate_for_fresh_fn=lambda *a, **kw: [],
+            load_feature_flags_fn=lambda *a, **kw: hard_block_flags,
+        )
+        with pytest.raises(RuntimeError, match="HARD_BLOCK"):
+            run_harness(
+                product="cells/java",
+                mode="validate-only",
+                scratch_root=tmp_path / "scratch",
+                subdomains=["reference"],
+                no_write=False,  # allow_write to reach write path
+                run_id="gate3a-integration-hardblock",
+            )
 
     def test_validate_only_no_write_on_non_fresh_decision(self, tmp_path):
         """VALIDATE_ONLY decision → manifest_write_note is empty, no write attempted."""
         # No stored manifest → cold start → VALIDATE_ONLY
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=None), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
-                 output_exists=True, output_content_hash=_REAL_HASH_C
-             )), \
-             patch("refresh_harness._collect_fingerprints_with_overrides",
-                   return_value={"upstream_repo_sha": "sha_abc"}):
-
-            result = run_harness(
-                product="cells/java",
-                mode="dry-run",
-                scratch_root=tmp_path / "scratch",
-                subdomains=["reference"],
-                no_write=True,
-            )
+        _harness_configure(
+            registry_path=SimpleNamespace(is_file=lambda: True),
+            load_registry_fn=lambda *a, **kw: _make_registry(),
+            load_manifest_fn=lambda *a, **kw: None,
+            inspect_output_state_fn=lambda *a, **kw: SimpleNamespace(
+                output_exists=True, output_content_hash=_REAL_HASH_C
+            ),
+            collect_fingerprints_fn=lambda *a, **kw: {"upstream_repo_sha": "sha_abc"},
+        )
+        result = run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=tmp_path / "scratch",
+            subdomains=["reference"],
+            no_write=True,
+        )
 
         records = result["records"]
         ref_records = [r for r in records if r["subdomain"] == "reference"]
@@ -629,21 +634,22 @@ class TestRunHarnessGate3aIntegration:
 
     def test_dry_run_behavior_unchanged_by_gate3a(self, tmp_path):
         """Dry-run mode with no_write=True is not affected by Gate 3a code."""
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=None), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
-                 output_exists=True, output_content_hash=None
-             )), \
-             patch("refresh_harness._collect_fingerprints_with_overrides", return_value={}):
-
-            result = run_harness(
-                product="cells/java",
-                mode="dry-run",
-                scratch_root=tmp_path / "scratch",
-                subdomains=["reference"],
-                no_write=True,
-            )
+        _harness_configure(
+            registry_path=SimpleNamespace(is_file=lambda: True),
+            load_registry_fn=lambda *a, **kw: _make_registry(),
+            load_manifest_fn=lambda *a, **kw: None,
+            inspect_output_state_fn=lambda *a, **kw: SimpleNamespace(
+                output_exists=True, output_content_hash=None
+            ),
+            collect_fingerprints_fn=lambda *a, **kw: {},
+        )
+        result = run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=tmp_path / "scratch",
+            subdomains=["reference"],
+            no_write=True,
+        )
 
         assert result["run_status"] == "DRY_RUN_PASS"
         assert result["surfaces_silently_skipped"] == 0
@@ -658,27 +664,26 @@ class TestRunHarnessGate3aIntegration:
             "local_knowledge_sha": "sha_local_xyz",
         }
 
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=stored), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
-                 output_exists=True, output_content_hash=_REAL_HASH_B
-             )), \
-             patch("refresh_harness._collect_fingerprints_with_overrides",
-                   return_value=fingerprints_fresh), \
-             patch("refresh_harness.validate_for_fresh", return_value=[]), \
-             patch("refresh_harness.load_feature_flags", return_value=_GATE3_WRITE_FLAGS), \
-             patch("refresh_harness._write_manifest_gated",
-                   return_value=(True, "manifest write SUCCEEDED (run_id='test-001')")):
-
-            result = run_harness(
-                product="cells/java",
-                mode="validate-only",
-                scratch_root=tmp_path / "scratch",
-                subdomains=["reference"],
-                no_write=False,
-                run_id="test-001",
-            )
+        _harness_configure(
+            registry_path=SimpleNamespace(is_file=lambda: True),
+            load_registry_fn=lambda *a, **kw: _make_registry(),
+            load_manifest_fn=lambda *a, **kw: stored,
+            inspect_output_state_fn=lambda *a, **kw: SimpleNamespace(
+                output_exists=True, output_content_hash=_REAL_HASH_B
+            ),
+            collect_fingerprints_fn=lambda *a, **kw: dict(fingerprints_fresh),
+            validate_for_fresh_fn=lambda *a, **kw: [],
+            load_feature_flags_fn=lambda *a, **kw: _GATE3_WRITE_FLAGS,
+            write_manifest_gated_fn=lambda *a, **kw: (True, "manifest write SUCCEEDED (run_id='test-001')"),
+        )
+        result = run_harness(
+            product="cells/java",
+            mode="validate-only",
+            scratch_root=tmp_path / "scratch",
+            subdomains=["reference"],
+            no_write=False,
+            run_id="test-001",
+        )
 
         records = result["records"]
         ref_records = [r for r in records if r["subdomain"] == "reference"]
@@ -694,27 +699,26 @@ class TestRunHarnessGate3aIntegration:
             "local_knowledge_sha": "sha_local_xyz",
         }
 
-        with _patch_registry(), \
-             patch("refresh_harness._REGISTRY_PATH", MagicMock(is_file=lambda: True)), \
-             patch("refresh_harness.load_manifest", return_value=stored), \
-             patch("refresh_harness._inspect_output_state", return_value=MagicMock(
-                 output_exists=True, output_content_hash=_REAL_HASH_B
-             )), \
-             patch("refresh_harness._collect_fingerprints_with_overrides",
-                   return_value=fingerprints_fresh), \
-             patch("refresh_harness.validate_for_fresh", return_value=[]), \
-             patch("refresh_harness.load_feature_flags", return_value=_GATE3_WRITE_FLAGS), \
-             patch("refresh_harness._write_manifest_gated",
-                   return_value=(False, "manifest write FAILED (disk full); backup restored")):
-
-            result = run_harness(
-                product="cells/java",
-                mode="validate-only",
-                scratch_root=tmp_path / "scratch",
-                subdomains=["reference"],
-                no_write=False,
-                run_id="test-fail-001",
-            )
+        _harness_configure(
+            registry_path=SimpleNamespace(is_file=lambda: True),
+            load_registry_fn=lambda *a, **kw: _make_registry(),
+            load_manifest_fn=lambda *a, **kw: stored,
+            inspect_output_state_fn=lambda *a, **kw: SimpleNamespace(
+                output_exists=True, output_content_hash=_REAL_HASH_B
+            ),
+            collect_fingerprints_fn=lambda *a, **kw: dict(fingerprints_fresh),
+            validate_for_fresh_fn=lambda *a, **kw: [],
+            load_feature_flags_fn=lambda *a, **kw: _GATE3_WRITE_FLAGS,
+            write_manifest_gated_fn=lambda *a, **kw: (False, "manifest write FAILED (disk full); backup restored"),
+        )
+        result = run_harness(
+            product="cells/java",
+            mode="validate-only",
+            scratch_root=tmp_path / "scratch",
+            subdomains=["reference"],
+            no_write=False,
+            run_id="test-fail-001",
+        )
 
         records = result["records"]
         ref_records = [r for r in records if r["subdomain"] == "reference"]
@@ -830,15 +834,18 @@ class TestManifestRestoreUtility:
 class TestProductionFlagsSafety:
     """Verify the production feature flags file never has write flags enabled."""
 
-    def test_production_flags_manifest_write_disabled(self):
-        """data/refresh-feature-flags.json has refresh_manifest_write_enabled=False."""
+    def test_production_flags_manifest_write_enabled(self):
+        """data/refresh-feature-flags.json has refresh_manifest_write_enabled=True.
+
+        Phase 2 (REFRESH-ARCH-001, approved 2026-05-29): manifest writes are
+        intentionally enabled. Phase 5 (content writes) must remain False.
+        """
         flags_path = _REPO_ROOT / "data" / "refresh-feature-flags.json"
         if not flags_path.is_file():
             pytest.skip("data/refresh-feature-flags.json not found")
         flags = load_feature_flags(flags_path)
-        assert flags["refresh_manifest_write_enabled"] is False, (
-            "Production manifest write flag must be False. "
-            "Gate 3b has NOT been approved yet."
+        assert flags["refresh_manifest_write_enabled"] is True, (
+            "Phase 2 approved — refresh_manifest_write_enabled must be True."
         )
 
     def test_production_flags_content_write_disabled(self):
@@ -851,12 +858,16 @@ class TestProductionFlagsSafety:
             "Production content write flag must be False."
         )
 
-    def test_production_flags_enforced_disabled(self):
-        """data/refresh-feature-flags.json has refresh_reconciliation_enforced=False."""
+    def test_production_flags_enforced_enabled(self):
+        """data/refresh-feature-flags.json has refresh_reconciliation_enforced=True.
+
+        Phase 3 (REFRESH-ARCH-001, approved 2026-05-29): reconciliation enforcement
+        is intentionally True. Phase 5 (content writes) must remain False.
+        """
         flags_path = _REPO_ROOT / "data" / "refresh-feature-flags.json"
         if not flags_path.is_file():
             pytest.skip("data/refresh-feature-flags.json not found")
         flags = load_feature_flags(flags_path)
-        assert flags["refresh_reconciliation_enforced"] is False, (
-            "Production enforced flag must be False outside of Gate 3b execution."
+        assert flags["refresh_reconciliation_enforced"] is True, (
+            "Phase 3 approved — refresh_reconciliation_enforced must be True."
         )
