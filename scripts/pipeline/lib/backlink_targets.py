@@ -63,6 +63,11 @@ LOCALE_RE = re.compile(r'\.(?:' + '|'.join(LOCALE_CODES) + r')\.md$')
 # *.aspose.com/* link pattern (§2.2)
 COM_LINK_RE = re.compile(r'https?://[a-z0-9.-]+\.aspose\.com/[^\s"\')\]]*', re.IGNORECASE)
 
+# Subdomains that are NOT qualifying enterprise product links (community/support only)
+NON_QUALIFYING_COM_HOSTS: frozenset[str] = frozenset([
+    "forum.aspose.com",
+])
+
 # Code fence detection
 CODE_FENCE_RE = re.compile(r'```.*?```', re.DOTALL)
 INLINE_CODE_RE = re.compile(r'`[^`]+`')
@@ -726,9 +731,13 @@ def count_qualifying_com_links(body_text: str) -> tuple[int, list[str]]:
     # Find all aspose.com URLs
     urls = COM_LINK_RE.findall(stripped)
     # Clean up (remove trailing punctuation sometimes captured)
+    # Also exclude non-qualifying subdomains (e.g. forum.aspose.com)
     cleaned = []
     for u in urls:
         u = u.rstrip('.,;:)"\'')
+        host = u.split("/")[2].lower() if u.count("/") >= 2 else ""
+        if host in NON_QUALIFYING_COM_HOSTS:
+            continue
         cleaned.append(u)
     return len(cleaned), cleaned
 

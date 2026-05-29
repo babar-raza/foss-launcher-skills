@@ -397,6 +397,22 @@ class TestCountQualifyingLinks:
         count, _ = count_qualifying_com_links(text)
         assert count == 1
 
+    def test_forum_aspose_com_not_counted(self):
+        """forum.aspose.com is community support, not a qualifying enterprise product link."""
+        text = "For support, visit the [Aspose Forum](https://forum.aspose.com/c/cells) here."
+        count, _ = count_qualifying_com_links(text)
+        assert count == 0
+
+    def test_forum_not_counted_alongside_real_link(self):
+        """forum link mixed with a real enterprise link — only real link counts."""
+        text = (
+            "See [KB](https://kb.aspose.com/cells/python/) and "
+            "[Forum](https://forum.aspose.com/c/cells) here."
+        )
+        count, urls = count_qualifying_com_links(text)
+        assert count == 1
+        assert any("kb.aspose.com" in u for u in urls)
+
 
 # ── classify_compliance tests ─────────────────────────────────────────────────
 
