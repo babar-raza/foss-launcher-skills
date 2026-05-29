@@ -434,12 +434,18 @@ class TestFeatureFlagLoader:
         assert flags["refresh_content_write_enabled"] is False
 
     def test_production_feature_flags_file_has_safe_defaults(self):
-        """The production feature flags file has safe defaults (engine disabled)."""
+        """The production feature flags file has safe defaults.
+
+        Phase 1 (REFRESH-ARCH-001, approved 2026-05-29): refresh_decision_engine_enabled
+        is intentionally True. Content-write and reconciliation-enforcement flags must
+        remain False until Phases 2-5 are explicitly advanced per amendment-009.
+        """
         flags_path = _REPO_ROOT / "data" / "refresh-feature-flags.json"
         if not flags_path.is_file():
             pytest.skip("data/refresh-feature-flags.json not found")
         flags = load_feature_flags(flags_path)
-        assert flags["refresh_decision_engine_enabled"] is False
+        # Phase 1 approved: decision engine may be True (read-only, no content writes)
+        # Phases 2-5 (content writes, reconciliation enforcement) must remain False
         assert flags["refresh_content_write_enabled"] is False
         assert flags["refresh_reconciliation_enforced"] is False
 

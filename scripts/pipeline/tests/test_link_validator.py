@@ -224,3 +224,164 @@ class TestValidateFiles:
             "Leaf bundle link should resolve after index.md fix; "
             f"got: {findings}"
         )
+
+
+# ---------------------------------------------------------------------------
+# Locale file scanning (--include-locales / include_locales=True)
+# ---------------------------------------------------------------------------
+
+class TestLocaleFileDiscovery:
+
+    def test_english_only_by_default(self, tmp_path):
+        """discover_files() without include_locales returns only English /en/ files."""
+        content = tmp_path / "content"
+        content.mkdir()
+        # English doc
+        en_file = content / "docs.aspose.org" / "en" / "cells" / "python" / "_index.md"
+        en_file.parent.mkdir(parents=True)
+        en_file.write_text("---\ntitle: en\n---\n", encoding="utf-8")
+        # Locale subdirectory
+        ar_file = content / "docs.aspose.org" / "ar" / "cells" / "python" / "_index.md"
+        ar_file.parent.mkdir(parents=True)
+        ar_file.write_text("---\ntitle: ar\n---\n", encoding="utf-8")
+        lv.configure(content_root=content)
+        files = lv.discover_files("cells", "python")
+        assert en_file in files
+        assert ar_file not in files
+
+    def test_locale_subdir_included_with_flag(self, tmp_path):
+        """discover_files(include_locales=True) includes locale subdirectory files."""
+        content = tmp_path / "content"
+        content.mkdir()
+        en_file = content / "docs.aspose.org" / "en" / "cells" / "python" / "_index.md"
+        en_file.parent.mkdir(parents=True)
+        en_file.write_text("---\ntitle: en\n---\n", encoding="utf-8")
+        ar_file = content / "docs.aspose.org" / "ar" / "cells" / "python" / "_index.md"
+        ar_file.parent.mkdir(parents=True)
+        ar_file.write_text("---\ntitle: ar\n---\n", encoding="utf-8")
+        lv.configure(content_root=content)
+        files = lv.discover_files("cells", "python", include_locales=True)
+        assert en_file in files
+        assert ar_file in files
+
+    def test_inline_locale_variant_included_with_flag(self, tmp_path):
+        """discover_files(include_locales=True) picks up index.ar.md co-located with index.md."""
+        content = tmp_path / "content"
+        content.mkdir()
+        # Blog-style: no /en/ prefix
+        blog_dir = content / "blog.aspose.org" / "cells" / "python" / "my-post"
+        blog_dir.mkdir(parents=True)
+        en_file = blog_dir / "index.md"
+        ar_file = blog_dir / "index.ar.md"
+        en_file.write_text("---\ntitle: en\n---\n", encoding="utf-8")
+        ar_file.write_text("---\ntitle: ar\n---\n", encoding="utf-8")
+        lv.configure(content_root=content)
+        files = lv.discover_files("cells", "python", include_locales=True)
+        assert ar_file in files
+
+    def test_locale_file_with_broken_link_caught(self, tmp_path):
+        """Locale file containing broken HTTPS cross-subdomain link is reported BROKEN."""
+        content = tmp_path / "content"
+        content.mkdir()
+        # English target slug does NOT exist
+        lv.configure(content_root=content, repo_root=tmp_path)
+        # Locale source file with a broken link to docs.aspose.org
+        blog_dir = content / "blog.aspose.org" / "cells" / "python" / "intro"
+        blog_dir.mkdir(parents=True)
+        locale_file = blog_dir / "index.ar.md"
+        locale_file.write_text(
+            "---\ntitle: ar\n---\n"
+            "See [docs](https://docs.aspose.org/cells/python/missing-page/) for details.\n",
+            encoding="utf-8",
+        )
+        lv.configure(content_root=content, repo_root=tmp_path)
+        files = lv.discover_files("cells", "python", include_locales=True)
+        assert locale_file in files
+        idx = lv._build_slug_index()
+        findings = lv.validate_files(files, idx)
+        broken = [f for f in findings if f.level == "BROKEN"]
+        assert len(broken) == 1
+        assert "missing-page" in broken[0].slug
+
+
+# ---------------------------------------------------------------------------
+# Anchor validation (--check-anchors)
+# ---------------------------------------------------------------------------
+
+class TestAnchorValidation:
+
+    def test_heading_to_anchor_basic(self):
+        assert lv._heading_to_anchor("Install the Package") == "install-the-package"
+
+    def test_heading_to_anchor_strips_punctuation(self):
+        assert lv._heading_to_anchor("Set up: Quick-start!") == "set-up-quick-start"
+
+    def test_heading_to_anchor_lowercase(self):
+        assert lv._heading_to_anchor("MyClass") == "myclass"
+
+    def test_anchor_warn_for_unknown_fragment(self, tmp_path):
+        """Fragment not found in target page headings emits WARN."""
+        content = tmp_path / "content"
+        content.mkdir()
+        # Target page with known heading
+        target_dir = content / "docs.aspose.org" / "en" / "cells" / "python"
+        target_dir.mkdir(parents=True)
+        target_file = target_dir / "features.md"
+        target_file.write_text("---\ntitle: test\n---\n## Installation\n\nSome content.\n", encoding="utf-8")
+        # Source file linking with an unknown anchor
+        src_dir = content / "kb.aspose.org" / "en" / "cells" / "python"
+        src_dir.mkdir(parents=True)
+        src_file = src_dir / "howto.md"
+        src_file.write_text(
+            "See [features](https://docs.aspose.org/cells/python/features/#nonexistent-section) for more.\n",
+            encoding="utf-8",
+        )
+        lv.configure(content_root=content, repo_root=tmp_path)
+        idx = lv._build_slug_index()
+        anchor_idx = lv._build_anchor_index()
+        findings = lv.validate_files([src_file], idx, anchor_index=anchor_idx)
+        warns = [f for f in findings if f.level == "WARN"]
+        assert len(warns) == 1
+        assert "nonexistent-section" in warns[0].message
+
+    def test_anchor_no_warn_for_known_fragment(self, tmp_path):
+        """Fragment matching a known heading does not emit WARN."""
+        content = tmp_path / "content"
+        content.mkdir()
+        target_dir = content / "docs.aspose.org" / "en" / "cells" / "python"
+        target_dir.mkdir(parents=True)
+        target_file = target_dir / "features.md"
+        target_file.write_text("---\ntitle: test\n---\n## Installation\n\nSome content.\n", encoding="utf-8")
+        src_dir = content / "kb.aspose.org" / "en" / "cells" / "python"
+        src_dir.mkdir(parents=True)
+        src_file = src_dir / "howto.md"
+        src_file.write_text(
+            "See [features](https://docs.aspose.org/cells/python/features/#installation) for more.\n",
+            encoding="utf-8",
+        )
+        lv.configure(content_root=content, repo_root=tmp_path)
+        idx = lv._build_slug_index()
+        anchor_idx = lv._build_anchor_index()
+        findings = lv.validate_files([src_file], idx, anchor_index=anchor_idx)
+        # No WARN — anchor matches known heading
+        warns = [f for f in findings if f.level == "WARN"]
+        assert warns == []
+
+    def test_no_anchor_warn_without_anchor_index(self, tmp_path):
+        """Fragment is silently stripped (no WARN) when anchor_index is None."""
+        content = tmp_path / "content"
+        content.mkdir()
+        target_dir = content / "docs.aspose.org" / "en" / "cells" / "python"
+        target_dir.mkdir(parents=True)
+        (target_dir / "features.md").write_text("---\ntitle: test\n---\n", encoding="utf-8")
+        src_dir = content / "kb.aspose.org" / "en" / "cells" / "python"
+        src_dir.mkdir(parents=True)
+        src_file = src_dir / "howto.md"
+        src_file.write_text(
+            "See [features](https://docs.aspose.org/cells/python/features/#any-anchor) for more.\n",
+            encoding="utf-8",
+        )
+        lv.configure(content_root=content, repo_root=tmp_path)
+        idx = lv._build_slug_index()
+        findings = lv.validate_files([src_file], idx, anchor_index=None)
+        assert findings == []

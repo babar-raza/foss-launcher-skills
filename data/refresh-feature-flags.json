@@ -1,5 +1,5 @@
 {
-  "refresh_decision_engine_enabled": false,
+  "refresh_decision_engine_enabled": true,
   "refresh_decision_engine_shadow": true,
   "refresh_reconciliation_shadow": true,
   "refresh_reconciliation_enforced": false,

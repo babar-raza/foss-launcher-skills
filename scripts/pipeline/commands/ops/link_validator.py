@@ -147,19 +147,28 @@ def extract_links(filepath: Path) -> list[tuple[str, str]]:
     return urls
 
 
-def validate_files(files: list[Path], slug_index: dict[str, set[str]]) -> list[LinkFinding]:
+def validate_files(
+    files: list[Path],
+    slug_index: dict[str, set[str]],
+    anchor_index: "dict[str, set[str]] | None" = None,
+) -> list[LinkFinding]:
     findings: list[LinkFinding] = []
     for filepath in files:
         for url, subdomain, path in extract_links(filepath):
             if subdomain not in KNOWN_SUBDOMAINS:
                 continue
-            # Normalize path: remove query strings and anchors
+            # Strip query/fragment from path for slug lookup
             clean_path = re.split(r"[?#]", path)[0].rstrip("/")
+            # Extract anchor fragment from the full URL (path already strips it via _URL_PARSE_RE)
+            fragment = url.split("#", 1)[1].split("?")[0] if "#" in url else ""
             if not clean_path:
                 clean_path = "/"
             known_slugs = slug_index.get(subdomain, set())
-            # Check exact match or with trailing slash
-            if clean_path.lower() not in known_slugs and (clean_path.lower() + "/") not in known_slugs:
+            slug_found = (
+                clean_path.lower() in known_slugs
+                or (clean_path.lower() + "/") in known_slugs
+            )
+            if not slug_found:
                 findings.append(LinkFinding(
                     level="BROKEN",
                     source_file=str(filepath.relative_to(REPO_ROOT)),
@@ -168,18 +177,134 @@ def validate_files(files: list[Path], slug_index: dict[str, set[str]]) -> list[L
                     slug=clean_path,
                     message=f"Link target not found in local content: {subdomain}{clean_path}",
                 ))
+            elif fragment and anchor_index is not None:
+                # Slug exists — validate anchor fragment (non-blocking WARN)
+                slug_key = f"{subdomain}:{clean_path.lower()}/"
+                known_anchors = anchor_index.get(slug_key, set())
+                if known_anchors and _heading_to_anchor(fragment) not in known_anchors:
+                    findings.append(LinkFinding(
+                        level="WARN",
+                        source_file=str(filepath.relative_to(REPO_ROOT)),
+                        url=url,
+                        subdomain=subdomain,
+                        slug=clean_path,
+                        message=f"Anchor '#{fragment}' not found in headings of {subdomain}{clean_path}",
+                    ))
     return findings
 
 
-def discover_files(family: str, platform: str) -> list[Path]:
-    """Find all English content files for the given product."""
-    files = []
+def _heading_to_anchor(text: str) -> str:
+    """Convert heading text to a Hugo anchor ID.
+
+    Hugo lowercases, replaces whitespace runs with '-', and drops characters
+    that are not alphanumeric, '-', or '_'.
+    """
+    anchor = text.strip().lower()
+    anchor = re.sub(r"[^\w\s-]", "", anchor)
+    anchor = re.sub(r"\s+", "-", anchor)
+    return anchor.strip("-")
+
+
+def _build_anchor_index() -> "dict[str, set[str]]":
+    """Return a mapping from '{subdomain}:{slug}' to set of heading anchor IDs.
+
+    Only called when anchor validation is enabled (--check-anchors).
+    """
+    index: dict[str, set[str]] = {}
+    _HEADING_RE = re.compile(r"^#{1,6}\s+(.*)", re.MULTILINE)
+
+    for md_file in CONTENT_ROOT.rglob("*.md"):
+        rel = md_file.relative_to(CONTENT_ROOT).as_posix()
+        parts = rel.split("/", 1)
+        if len(parts) != 2:
+            continue
+        subdomain, path = parts
+        if subdomain not in KNOWN_SUBDOMAINS:
+            continue
+        if path.endswith("/_index.md"):
+            slug = "/" + path[: -len("/_index.md")] + "/"
+        elif path.endswith("/index.md"):
+            slug = "/" + path[: -len("/index.md")] + "/"
+        elif path.endswith(".md"):
+            slug = "/" + path[:-3] + "/"
+        else:
+            continue
+        if slug.lower().startswith("/en/"):
+            slug = slug[3:]
+        key = f"{subdomain}:{slug.lower()}"
+        try:
+            text = md_file.read_text(encoding="utf-8", errors="ignore")
+        except Exception:
+            continue
+        anchors = {_heading_to_anchor(m.group(1)) for m in _HEADING_RE.finditer(text)}
+        if anchors:
+            index.setdefault(key, set()).update(anchors)
+    return index
+
+
+# Locale code pattern: 2-char or 2+2-char (e.g., ar, zh, zh-cn)
+_LOCALE_RE = re.compile(r"^[a-z]{2}(?:-[a-z]{2})?$", re.I)
+
+
+def discover_files(
+    family: str,
+    platform: str,
+    *,
+    include_locales: bool = False,
+) -> list[Path]:
+    """Find content files for the given product.
+
+    Always includes English files from sites with an /en/ prefix tree.
+    When ``include_locales=True``, also includes:
+
+    - Locale subdirectory structure: ``{site}/{locale}/{family}/{platform}/``
+      (e.g., ``docs.aspose.org/ar/cells/python/``)
+    - Inline locale variants co-located with non-en English files: any
+      ``*.{locale}.md`` file under ``{site}/{family}/{platform}/``
+      (e.g., ``blog.aspose.org/3d/java/post/index.ar.md``)
+    """
+    seen: set[Path] = set()
+    files: list[Path] = []
+
+    def _add(p: Path) -> None:
+        if p not in seen:
+            seen.add(p)
+            files.append(p)
+
     for site_dir in CONTENT_ROOT.iterdir():
         if not site_dir.is_dir():
             continue
+
+        # English files under /en/ prefix (docs, kb, reference, products)
         en_dir = site_dir / "en" / family / platform
         if en_dir.exists():
-            files.extend(en_dir.rglob("*.md"))
+            for p in en_dir.rglob("*.md"):
+                _add(p)
+
+        if not include_locales:
+            continue
+
+        # Locale subdirectory structure: {site}/{locale}/{family}/{platform}/
+        for child in site_dir.iterdir():
+            if not child.is_dir() or child.name.lower() == "en":
+                continue
+            if not _LOCALE_RE.match(child.name):
+                continue
+            locale_target = child / family / platform
+            if locale_target.exists():
+                for p in locale_target.rglob("*.md"):
+                    _add(p)
+
+        # Inline locale variants co-located with non-en English files
+        # (blog.aspose.org/{family}/{platform}/{post}/index.ar.md)
+        direct_dir = site_dir / family / platform
+        if direct_dir.exists():
+            for p in direct_dir.rglob("*"):
+                if p.is_file() and re.match(
+                    r"^.+\.([a-z]{2}|[a-z]{2}-[a-z]{2})\.md$", p.name, re.I
+                ):
+                    _add(p)
+
     return files
 
 
@@ -189,6 +314,18 @@ def main() -> int:
     parser.add_argument("platform", nargs="?", help="platform (when target is family)")
     parser.add_argument("--files", nargs="+", help="Specific files to check")
     parser.add_argument("--json", action="store_true", help="JSON output")
+    parser.add_argument(
+        "--include-locales",
+        action="store_true",
+        default=False,
+        help="Also scan locale variant files (index.ar.md, locale subdirs, etc.)",
+    )
+    parser.add_argument(
+        "--check-anchors",
+        action="store_true",
+        default=False,
+        help="Emit WARN when a link's #fragment anchor does not match a known heading",
+    )
     args = parser.parse_args()
 
     # Collect target files
@@ -198,7 +335,7 @@ def main() -> int:
     elif args.target == "all":
         files = list(CONTENT_ROOT.rglob("*.md"))
     elif args.target and args.platform:
-        files = discover_files(args.target, args.platform)
+        files = discover_files(args.target, args.platform, include_locales=args.include_locales)
     else:
         parser.print_help()
         return 1
@@ -212,13 +349,24 @@ def main() -> int:
     total_slugs = sum(len(v) for v in slug_index.values())
     print(f"  Index: {total_slugs} slugs across {len(KNOWN_SUBDOMAINS)} subdomains", file=sys.stderr)
 
+    anchor_index = None
+    if args.check_anchors:
+        print("Building anchor index...", file=sys.stderr)
+        anchor_index = _build_anchor_index()
+        total_anchors = sum(len(v) for v in anchor_index.values())
+        print(f"  Anchors: {total_anchors} headings across {len(anchor_index)} pages", file=sys.stderr)
+
     print(f"Scanning {len(files)} file(s) for cross-subdomain links...", file=sys.stderr)
-    findings = validate_files(files, slug_index)
+    findings = validate_files(files, slug_index, anchor_index=anchor_index)
+
+    broken = [f for f in findings if f.level == "BROKEN"]
+    warns = [f for f in findings if f.level == "WARN"]
 
     if args.json:
         output = {
             "files_scanned": len(files),
-            "broken": len([f for f in findings if f.level == "BROKEN"]),
+            "broken": len(broken),
+            "warnings": len(warns),
             "findings": [asdict(f) for f in findings],
         }
         print(json.dumps(output, indent=2))
@@ -226,16 +374,17 @@ def main() -> int:
         if not findings:
             print(f"Link validation: OK — no broken cross-subdomain links in {len(files)} file(s).")
         else:
-            broken = [f for f in findings if f.level == "BROKEN"]
-            print(f"Link validation: {len(broken)} BROKEN link(s) found\n")
+            if broken:
+                print(f"Link validation: {len(broken)} BROKEN link(s) found\n")
+            if warns:
+                print(f"Link validation: {len(warns)} WARN anchor(s)\n")
             for f in findings:
                 print(f"  [{f.level}] {f.source_file}")
                 print(f"         URL: {f.url}")
                 print(f"         {f.message}")
                 print()
 
-    broken_count = sum(1 for f in findings if f.level == "BROKEN")
-    return 1 if broken_count > 0 else 0
+    return 1 if len(broken) > 0 else 0
 
 
 if __name__ == "__main__":

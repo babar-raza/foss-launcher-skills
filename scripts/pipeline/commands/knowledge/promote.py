@@ -157,6 +157,85 @@ _FORMAT_CLASS_ARTIFACTS = frozenset({
 _FORMAT_SINGLE_LETTER = re.compile(r"^[A-Z]$")
 
 
+# ---------------------------------------------------------------------------
+# Go doc fallback: name-inference for trivial getters/setters (GODOC-GO-001)
+# ---------------------------------------------------------------------------
+
+def _camel_to_words(name: str) -> str:
+    """Split a CamelCase identifier into space-separated lowercase words.
+
+    Examples::
+
+        TextStyle   → text style
+        URL         → url
+        ReadOnly    → read only
+        DefaultCell → default cell
+    """
+    # Insert space before uppercase letters that follow lowercase/digit
+    result = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", name)
+    # Insert space in runs like 'URLPath' → 'URL Path'
+    result = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1 \2", result)
+    return result.lower()
+
+
+def _apply_godoc_fallback(api_surface: list, platform: str) -> int:
+    """Infer docstrings for empty-doc methods in Go api_surface (in-place).
+
+    Only runs when *platform* is ``'go'``.  Applies deterministic name-based
+    inference for trivial accessor/setter patterns so that reference pages no
+    longer render empty description rows.
+
+    Patterns handled:
+
+    * ``Set{Name}(val)``   → "Sets the {name} value."
+    * ``Is{Name}() bool``  → "Returns true if {name} is set."
+    * ``Has{Name}() bool`` → "Returns true if {name} is present."
+    * ``{Name}() T``       → "Returns the {name}."  (generic getter)
+
+    All inferred entries are tagged ``doc_source: "name_inference"`` for
+    auditability.  Existing non-empty ``doc`` fields are **never** overwritten.
+
+    Returns the number of methods that received inferred documentation.
+    """
+    if platform != "go":
+        return 0
+
+    count = 0
+    for cls in api_surface:
+        for method in cls.get("methods", []):
+            if method.get("doc"):
+                continue  # Never overwrite existing docs
+
+            name = method.get("name", "")
+            return_type = (method.get("return_type") or "").strip()
+            n_params = len(method.get("params") or [])
+
+            inferred: str | None = None
+
+            if name.startswith("Set") and len(name) > 3 and n_params >= 1:
+                words = _camel_to_words(name[3:])
+                inferred = f"Sets the {words} value."
+
+            elif name.startswith("Is") and len(name) > 2 and n_params == 0:
+                words = _camel_to_words(name[2:])
+                inferred = f"Returns true if {words} is set."
+
+            elif name.startswith("Has") and len(name) > 3 and n_params == 0:
+                words = _camel_to_words(name[3:])
+                inferred = f"Returns true if {words} is present."
+
+            elif n_params == 0 and return_type and return_type not in ("void", "error"):
+                words = _camel_to_words(name)
+                inferred = f"Returns the {words}."
+
+            if inferred:
+                method["doc"] = inferred
+                method["doc_source"] = "name_inference"
+                count += 1
+
+    return count
+
+
 def _is_invalid_format_entry(name: str) -> bool:
     """Return True if a formats.md row name looks like a class artifact, not a format."""
     upper = name.strip().upper()
@@ -508,7 +587,11 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
 
     # -----------------------------------------------------------------------
     # Copy API surface from scout (always authoritative)
+    # Apply Go name-inference fallback for undocumented trivial accessors
     # -----------------------------------------------------------------------
+    _godoc_inferred = _apply_godoc_fallback(scout_api, platform)
+    if _godoc_inferred:
+        print(f"  GoDoc fallback: {_godoc_inferred} method(s) inferred from name patterns (doc_source: name_inference)")
     (merged_dir / "api_surface.json").write_text(
         json.dumps(scout_api, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"  API surface: {len(scout_api)} classes")

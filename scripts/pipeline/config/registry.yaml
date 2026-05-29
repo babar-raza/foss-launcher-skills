@@ -1270,18 +1270,19 @@ scripts:
 
   - path: scripts/pipeline/commands/content/normalize_code_block_blanks.py
     kind: entrypoint
-    lifecycle: experimental
+    lifecycle: active
     canonical_impl_path: null
     public_entrypoint: true
-    cli_contract: unstable
+    cli_contract: stable
     owner_domain: content-governance
     backing:
       kind: workflow
       ref: null
-    test_targets: []
-    test_exempt_reason: "temporary normalizer; production-closure sprint tool; normalize_code_block_blanks removes blank lines in YAML-embedded code fences; functional coverage via validate_plugin_structure.py and detect_code_block_blanks.py"
+    test_targets:
+      - scripts/pipeline/tests/test_normalize_code_block_blanks.py
+    test_exempt_reason: null
     deprecated_since: null
-    notes: "Phase 3 locale backfill tool for production-closure sprint. Removes blank lines inside code fence regions in product page YAML frontmatter. Candidate for removal once closure sprint is complete."
+    notes: "Locale code-block blank-line normalizer (S-101). Removes spurious blank lines inside YAML-frontmatter code fence regions. Handles 3 YAML formats: literal block, single-quoted, double-quoted. EN pages skipped. 54 unit tests added 2026-05-29."
 
   - path: scripts/pipeline/commands/content/validate_plugin_structure.py
     kind: entrypoint

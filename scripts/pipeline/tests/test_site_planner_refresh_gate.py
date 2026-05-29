@@ -91,17 +91,19 @@ class TestGlobalExitNotCalledWhenEngineEnabled:
         assert would_exit is True
 
     def test_production_flags_have_safe_defaults(self):
-        """Production feature flags have refresh_reconciliation_enforced=False.
+        """Production feature flags have content-write and reconciliation-enforced off.
 
-        This verifies that Phase 5 advisory mode is the default — the SHA gate
-        still fires as before, preserving existing behavior.
+        Phase 1 (refresh_decision_engine_enabled) was approved and enabled on 2026-05-29
+        (Amendment 9 — peppy-marinating-manatee v2). Content writes and reconciliation
+        enforcement remain off until Phases 2-5 are explicitly advanced.
         """
         flags_path = _REPO_ROOT / "data" / "refresh-feature-flags.json"
         if not flags_path.is_file():
             pytest.skip("data/refresh-feature-flags.json not found")
         flags = _load_flags_from_file(flags_path)
         assert flags["refresh_reconciliation_enforced"] is False
-        assert flags["refresh_decision_engine_enabled"] is False
+        # Phase 1 enabled (Amendment 9 approved 2026-05-29) — decision engine ON
+        assert flags["refresh_decision_engine_enabled"] is True
         assert flags["refresh_content_write_enabled"] is False
 
 
