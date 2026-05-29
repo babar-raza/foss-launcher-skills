@@ -33,6 +33,7 @@ from token_ops import (  # noqa: E402
 )
 from evidence.mapper import (  # noqa: E402
     _map_tokens_to_evidence,
+    _api_name_fallback_match,
     _detect_formats,
     _build_sections_evidence,
 )
@@ -134,6 +135,19 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
 
     # Map verified tokens → claim_ids via deterministic index (aggregate)
     claim_ids, api_refs = _map_tokens_to_evidence(tokens, knowledge)
+
+    # CLAIM-EXTRACT-001: fallback for modified APIs mentioned in prose but not code blocks.
+    # Scans body text for modified_apis from knowledge_delta.json; avoids double-counting
+    # refs already captured by code-block token extraction above.
+    already_matched = set(api_refs) | {r.split(".")[0] for r in api_refs}
+    fb_claims, fb_refs = _api_name_fallback_match(filepath, knowledge, already_matched)
+    for cid in fb_claims:
+        if cid not in claim_ids:
+            claim_ids.append(cid)
+    for ref in fb_refs:
+        if ref not in api_refs:
+            api_refs.append(ref)
+
     # Convert Token objects to class_name strings for JSON serialization
     token_matches = [
         t.class_name if hasattr(t, "class_name") else str(t)

@@ -22,13 +22,29 @@ _LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 
-from content_discovery import KNOWLEDGE_ROOT  # noqa: E402  (R-4: was knowledge_core)
+from content_discovery import KNOWLEDGE_ROOT as _DEFAULT_KNOWLEDGE_ROOT  # noqa: E402  (R-4: was knowledge_core)
 from token_ops import (  # noqa: E402
     PLATFORM_SDK_CLASSES,
     PROPERTY_CHAIN_CLASSES,
     extract_tokens,
 )
 from evidence.sections import _parse_sections  # noqa: E402
+
+# Module-level knowledge root, overridable via configure() for testing
+KNOWLEDGE_ROOT = _DEFAULT_KNOWLEDGE_ROOT
+
+
+def configure(knowledge_root=None) -> None:
+    """Override module-level singletons for testing.
+
+    Call configure() in test setUp/teardown to inject fake dependencies
+    without patching guarded path constants directly (T1 compliance).
+
+    Args:
+        knowledge_root: Override for KNOWLEDGE_ROOT. Pass None to reset to default.
+    """
+    global KNOWLEDGE_ROOT  # noqa: PLW0603
+    KNOWLEDGE_ROOT = knowledge_root if knowledge_root is not None else _DEFAULT_KNOWLEDGE_ROOT
 
 
 # Internal implementation class names extracted by scout that are not user-facing formats.
@@ -176,6 +192,80 @@ def _map_tokens_to_evidence(tokens, knowledge) -> tuple[list, list]:
             claim_ids.append(cid)
         if member:
             api_refs.append(f"{cls}.{member}")
+
+    return claim_ids, api_refs
+
+
+def _load_delta_modified_apis(knowledge) -> set:
+    """Load the set of modified API names from knowledge_delta.json.
+
+    Returns an empty set if the delta file does not exist or has no modified_apis.
+    """
+    delta_path = (KNOWLEDGE_ROOT / knowledge.family / knowledge.platform
+                  / "merged" / "knowledge_delta.json")
+    if not delta_path.exists():
+        return set()
+    try:
+        delta = json.loads(delta_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return set()
+    return set(delta.get("modified_apis", []))
+
+
+def _api_name_fallback_match(filepath, knowledge, already_matched: set) -> tuple[list, list]:
+    """Fallback: scan page body prose for modified API names not captured by token extraction.
+
+    Reads knowledge_delta.json for modified_apis and searches the page body text (outside
+    code blocks) for word-boundary occurrences of those API names. Only adds matches for
+    APIs that (a) exist in the current knowledge model, (b) are in the modified_apis list,
+    and (c) were not already captured by code-block token extraction.
+
+    Args:
+        filepath: Path to the content file.
+        knowledge: Knowledge model instance.
+        already_matched: Set of ref strings (e.g. "ClassName" or "ClassName.member")
+            already captured by _map_tokens_to_evidence — avoids double-counting.
+
+    Returns (claim_ids: list[str], api_refs: list[str]).
+    """
+    modified_apis = _load_delta_modified_apis(knowledge)
+    if not modified_apis:
+        return [], []
+
+    # Read page content; strip YAML frontmatter before scanning
+    try:
+        text = filepath.read_text(encoding="utf-8")
+    except OSError:
+        return [], []
+
+    if text.startswith("---"):
+        end_fm = text.find("\n---", 3)
+        if end_fm != -1:
+            text = text[end_fm + 4:]
+
+    # Remove fenced code blocks to limit matches to prose text only.
+    # This prevents re-matching APIs already captured by token extraction.
+    text_prose = re.sub(r"```[\s\S]*?```", " ", text)
+
+    claim_ids = []
+    api_refs = []
+    seen = set()
+
+    for api_name in sorted(modified_apis):  # sorted for determinism
+        if api_name in seen:
+            continue
+        if api_name not in knowledge.classes:
+            continue
+        if api_name in already_matched:
+            continue
+        if not re.search(rf"\b{re.escape(api_name)}\b", text_prose):
+            continue
+        cid = knowledge.api_to_claim.get(api_name)
+        if not cid:
+            continue
+        seen.add(api_name)
+        claim_ids.append(cid)
+        api_refs.append(api_name)
 
     return claim_ids, api_refs
 
