@@ -68,7 +68,7 @@
     },
     "scripts/pipeline/tests/test_attach_evidence_behavior.py": {
       "T1": 0,
-      "T2": 17,
+      "T2": 0,
       "T3": 0,
       "T4": 0
     },
