@@ -138,9 +138,17 @@ def _model_sha(family: str, platform: str) -> str | None:
 def _run(cmd: list[str], label: str) -> bool:
     print(f"  [{label}] {' '.join(cmd)}")
     env = os.environ.copy()
+    # Always include scripts/pipeline so sub-scripts (promote.py, index.py) can import
+    # core.* and other pipeline modules regardless of how the parent was invoked.
+    pipeline_root = str(REPO_ROOT / "scripts" / "pipeline")
+    existing = env.get("PYTHONPATH", "")
+    parts = [p for p in existing.split(os.pathsep) if p] if existing else []
+    if pipeline_root not in parts:
+        parts.insert(0, pipeline_root)
+    env["PYTHONPATH"] = os.pathsep.join(parts)
     user_site = site.getusersitepackages()
-    if user_site and os.path.isdir(user_site):
-        env["PYTHONPATH"] = user_site + os.pathsep + env.get("PYTHONPATH", "")
+    if user_site and os.path.isdir(user_site) and user_site not in parts:
+        env["PYTHONPATH"] = env["PYTHONPATH"] + os.pathsep + user_site
     result = subprocess.run(cmd, cwd=str(REPO_ROOT), env=env)
     if result.returncode != 0:
         print(f"  [{label}] FAILED (exit {result.returncode})")
