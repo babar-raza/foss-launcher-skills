@@ -566,6 +566,7 @@ def run_backfill(
     platform_filter: str | None = None,
     dry_run: bool = True,
     include_protected: bool = False,
+    files_filter: set[str] | None = None,
 ) -> BackfillManifest:
     """Run backfill across all matching content. Returns a BackfillManifest."""
     ts = datetime.now(timezone.utc).isoformat()
@@ -585,6 +586,12 @@ def run_backfill(
             continue
 
         for fpath in sorted(root.rglob("*.md")):
+            # --files-from filter (canary/scoped apply)
+            if files_filter is not None:
+                rel_repo = fpath.relative_to(repo_root).as_posix()
+                if rel_repo not in files_filter:
+                    continue
+
             # Family/platform filter
             if family_filter or platform_filter:
                 rel = fpath.relative_to(root).as_posix()
@@ -778,6 +785,11 @@ def main() -> int:
         "--authority", default=None,
         help="Path to backlink_authority.json (default: data/backlinks/workspace/backlink_authority.json)",
     )
+    parser.add_argument(
+        "--files-from", default=None,
+        help="Path to a text file listing repo-relative content paths (one per line). "
+             "When set, only those files are processed (canary/scoped apply).",
+    )
     args = parser.parse_args()
 
     repo_root = _REPO_ROOT
@@ -798,6 +810,17 @@ def main() -> int:
     mode = "DRY-RUN" if dry_run else "WRITE"
     print(f"Running backfill [{mode}]...", file=sys.stderr)
 
+    # Load --files-from if provided
+    files_filter: set[str] | None = None
+    if args.files_from:
+        ff_path = Path(args.files_from)
+        if not ff_path.exists():
+            print(f"FATAL: --files-from path not found: {ff_path}", file=sys.stderr)
+            return 1
+        lines = ff_path.read_text(encoding="utf-8").splitlines()
+        files_filter = {ln.strip() for ln in lines if ln.strip() and not ln.startswith("#")}
+        print(f"  --files-from: {len(files_filter)} files scoped", file=sys.stderr)
+
     manifest = run_backfill(
         repo_root=repo_root,
         target_map=target_map,
@@ -806,6 +829,7 @@ def main() -> int:
         platform_filter=args.platform,
         dry_run=dry_run,
         include_protected=args.include_protected,
+        files_filter=files_filter,
     )
 
     # Write manifest

@@ -709,6 +709,52 @@ VALIDATORS = [
 ]
 
 
+_ARTIFACT_NAMES: dict[str, str] = {
+    "V1-Schema": "v1_schema_validation.json",
+    "V2-AuthorityIntegrity": "v2_authority_integrity.json",
+    "V3-ContentBacklink": "v3_content_backlink.json",
+    "V4-CodeBypass": "v4_code_bypass.txt",
+    "V5-SkillText": "v5_skill_text.txt",
+    "V6-PilotRegression": "v6_pilot_regression.txt",
+    "V7-Staleness": "v7_staleness.json",
+    "V8-EvidenceBundle": "v8_evidence_policy.json",
+    "V9-AIBoundary": "v9_ai_boundary.txt",
+    "V10-ScoreCap": "v10_score_cap.json",
+    "V11-AIDegradation": "v11_ai_degradation.json",
+    "V12-AIProvenance": "v12_ai_provenance.json",
+    "V13-ChainCompleteness": "v13_chain_completeness.json",
+    "V14-NoSkipInvariant": "v14_no_skip.json",
+    "V15-NoIO": "v15_no_io.txt",
+    "V16-RootFallback": "v16_root_fallback.json",
+    "V17-AnchorRegistrySchema": "v17_anchor_registry_schema.json",
+    "V18-CurrentAnchorCompat": "v18_current_anchor_compatibility.json",
+    "V19-ConfigMutationProof": "v19_config_mutation_proof.json",
+    "V20-AuthorityAnchorConfigHash": "v20_authority_anchor_config_hash.json",
+    "V21-BackfillAnchorBoundary": "v21_backfill_anchor_boundary.json",
+    "V22-AnchorOverrideIntegrity": "v22_anchor_override_integrity.json",
+    "V23-PageTypeAnchorCoverage": "v23_page_type_anchor_coverage.json",
+    "V24-ActiveVerdictUniqueness": "v24_active_verdict_uniqueness.json",
+    "V25-SkillAnchorCoverage": "v25_skill_anchor_coverage.json",
+    "V26-EvidenceBundleManifest": "v26_evidence_bundle_manifest.json",
+    "V27-BridgeSlugDisplaySafety": "v27_bridge_slug_display_safety.json",
+}
+
+
+def _write_artifact(artifacts_dir: Optional[Path], name: str, result: dict) -> None:
+    """Write individual validator artifact file to artifacts_dir."""
+    if artifacts_dir is None:
+        return
+    filename = _ARTIFACT_NAMES.get(name)
+    if not filename:
+        return
+    out = artifacts_dir / filename
+    if filename.endswith(".txt"):
+        content = f"validator: {name}\npass: {result['pass']}\ndetail: {result['detail']}\n"
+        out.write_text(content, encoding="utf-8")
+    else:
+        out.write_text(json.dumps(result, indent=2), encoding="utf-8")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Run all V1-V27 validators for BL-DEEP-EXEC sprint"
@@ -716,7 +762,19 @@ def main() -> None:
     parser.add_argument("--output", default=str(SPRINT_DIR / "validator_summary.json"))
     parser.add_argument("--dry-run", action="store_true", help="Report only; do not write output file")
     parser.add_argument("--quiet", action="store_true")
+    parser.add_argument("--artifacts-dir",
+                        help="Directory to write individual v1-v27 artifact files")
+    parser.add_argument("--final-closure", action="store_true",
+                        help="Strict final mode: --artifacts-dir required")
     args = parser.parse_args()
+
+    artifacts_dir: Optional[Path] = None
+    if args.artifacts_dir:
+        artifacts_dir = Path(args.artifacts_dir)
+        artifacts_dir.mkdir(parents=True, exist_ok=True)
+    elif args.final_closure:
+        print("ERROR: --final-closure requires --artifacts-dir", file=sys.stderr)
+        sys.exit(1)
 
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -730,6 +788,7 @@ def main() -> None:
             r = _result(fn.__name__, False, f"EXCEPTION: {e}")
         name = r["name"]
         results[name] = r
+        _write_artifact(artifacts_dir, name, r)
         status = "PASS" if r["pass"] else "FAIL"
         if not args.quiet:
             print(f"  {status}  {name}: {r['detail']}")
@@ -748,7 +807,14 @@ def main() -> None:
     }
     if not args.dry_run:
         out_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
-        print(f"Written: {out_path}")
+        if artifacts_dir:
+            (artifacts_dir / "validator_summary.json").write_text(
+                json.dumps(summary, indent=2), encoding="utf-8"
+            )
+        if not args.quiet:
+            print(f"Written: {out_path}")
+            if artifacts_dir:
+                print(f"Artifacts written to: {artifacts_dir}")
 
     print(f"\nValidator summary: {overall} ({summary['pass_count']}/{summary['total']} PASS)")
 
