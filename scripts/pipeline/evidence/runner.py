@@ -50,6 +50,11 @@ _cfg_map_tokens_fn = None
 _cfg_detect_formats_fn = None
 _cfg_build_sections_fn = None
 _cfg_write_evidence_fn = None
+_cfg_infer_product_fn = None
+_cfg_knowledge_fn = None
+_cfg_write_grade_fn = None
+_cfg_compute_grade_fn = None
+_cfg_evaluator_logic_version = None
 
 
 def configure(
@@ -59,16 +64,28 @@ def configure(
     detect_formats_fn=None,
     build_sections_fn=None,
     write_evidence_fn=None,
+    infer_product_fn=None,
+    knowledge_fn=None,
+    write_grade_fn=None,
+    compute_grade_fn=None,
+    evaluator_logic_version=None,
 ) -> None:
     """Inject test dependencies. Call configure() with no args to reset."""
     global _cfg_extract_tokens_fn, _cfg_verify_tokens_fn, _cfg_map_tokens_fn
     global _cfg_detect_formats_fn, _cfg_build_sections_fn, _cfg_write_evidence_fn
+    global _cfg_infer_product_fn, _cfg_knowledge_fn
+    global _cfg_write_grade_fn, _cfg_compute_grade_fn, _cfg_evaluator_logic_version
     _cfg_extract_tokens_fn = extract_tokens_fn
     _cfg_verify_tokens_fn = verify_tokens_fn
     _cfg_map_tokens_fn = map_tokens_fn
     _cfg_detect_formats_fn = detect_formats_fn
     _cfg_build_sections_fn = build_sections_fn
     _cfg_write_evidence_fn = write_evidence_fn
+    _cfg_infer_product_fn = infer_product_fn
+    _cfg_knowledge_fn = knowledge_fn
+    _cfg_write_grade_fn = write_grade_fn
+    _cfg_compute_grade_fn = compute_grade_fn
+    _cfg_evaluator_logic_version = evaluator_logic_version
 
 
 _KNOWN_SUBDOMAINS = frozenset(
@@ -282,9 +299,12 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
     ok = _eff_write_evidence(filepath, evidence)
     if ok:
         # Auto-grade: pages reaching here have 0 FAILs (line 58 returns on FAILs).
-        from content_eval.models import compute_grade, Page  # noqa: E402
-        from content_eval import EVALUATOR_LOGIC_VERSION  # noqa: E402
-        from grade_writer import write_grade  # noqa: E402
+        from content_eval.models import compute_grade as _cg_default, Page  # noqa: E402
+        from content_eval import EVALUATOR_LOGIC_VERSION as _elv_default  # noqa: E402
+        from grade_writer import write_grade as _wg_default  # noqa: E402
+        compute_grade = _cfg_compute_grade_fn if _cfg_compute_grade_fn is not None else _cg_default
+        EVALUATOR_LOGIC_VERSION = _cfg_evaluator_logic_version if _cfg_evaluator_logic_version is not None else _elv_default
+        write_grade = _cfg_write_grade_fn if _cfg_write_grade_fn is not None else _wg_default
         warn_count = sum(1 for f in findings if f.level == "WARN")
         fail_count = 0
         evaluator_tier = "audit"
@@ -380,6 +400,8 @@ def attach_product(family, platform, dry_run=False, force=False,
 def attach_files(file_paths, dry_run=False, force=False,
                  dry_run_records=None) -> dict:
     """Attach evidence to specific files."""
+    _eff_infer_product = _cfg_infer_product_fn if _cfg_infer_product_fn is not None else infer_product
+    _eff_knowledge = _cfg_knowledge_fn if _cfg_knowledge_fn is not None else Knowledge
     knowledge_cache = {}
     counts = {}
     for fp in file_paths:
@@ -387,13 +409,13 @@ def attach_files(file_paths, dry_run=False, force=False,
         if not fp.exists():
             _log(f"  SKIP {fp}: not found")
             continue
-        family, platform = infer_product(fp)
+        family, platform = _eff_infer_product(fp)
         if not family:
             _log(f"  SKIP {fp}: cannot infer product")
             continue
         key = (family, platform)
         if key not in knowledge_cache:
-            knowledge_cache[key] = Knowledge(family, platform)
+            knowledge_cache[key] = _eff_knowledge(family, platform)
         knowledge = knowledge_cache[key]
         if not knowledge.available:
             _log(f"  SKIP {fp}: no knowledge for {family}/{platform}")

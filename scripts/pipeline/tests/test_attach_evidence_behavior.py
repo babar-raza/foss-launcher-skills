@@ -12,7 +12,7 @@ from __future__ import annotations
 import subprocess
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from types import SimpleNamespace
 
 import pytest
 
@@ -43,17 +43,27 @@ def _make_content_file(path: Path, with_frontmatter: bool = True) -> Path:
 class _FakeKnowledge:
     """Minimal duck-type substitute. No disk I/O required."""
 
-    def __init__(self, repo_sha="abc12345", version="1.0.0", platform="python"):
+    def __init__(self, repo_sha="abc12345", version="1.0.0", family="cells", platform="python"):
         self.available = True
         self.repo_sha = repo_sha
         self.version = version
+        self.family = family
         self.platform = platform
         self.claim_ids = set()
         self.classes = {}
+        self.api_to_claim = {}
 
     def has_method(self, *_): return False
     def has_property(self, *_): return False
     def has_enum_member(self, *_): return False
+
+
+@pytest.fixture(autouse=True)
+def reset_runner_config():
+    """Reset evidence.runner.configure() overrides after each test."""
+    import evidence.runner as er
+    yield
+    er.configure()
 
 
 # ---------------------------------------------------------------------------
@@ -117,31 +127,22 @@ class TestAttachFilesUnit:
     """Tests for evidence.runner.attach_files() using mocked Knowledge and helpers."""
 
     def _run_attach_files(self, file_path, fake_knowledge, second_call=False):
-        """Invoke attach_files with all heavyweight dependencies mocked.
-
-        write_grade / compute_grade / EVALUATOR_LOGIC_VERSION are lazy local
-        imports inside attach_evidence(), so they must be patched at their
-        source modules, not at evidence.runner.
-        """
+        """Invoke attach_files with all heavyweight dependencies replaced via configure()."""
         import evidence.runner as er
-        # Ensure source modules are imported so patch targets exist
-        import grade_writer  # noqa: F401
-        import content_eval.models  # noqa: F401
-        import content_eval  # noqa: F401
 
-        with (
-            patch.object(er, "infer_product", return_value=("cells", "python")),
-            patch("evidence.runner.Knowledge", return_value=fake_knowledge),
-            patch("evidence.runner.extract_tokens", return_value=[]),
-            patch("evidence.runner.verify_tokens", return_value=[]),
-            patch("evidence.runner._map_tokens_to_evidence", return_value=([], [])),
-            patch("evidence.runner._detect_formats", return_value=[]),
-            patch("evidence.runner._build_sections_evidence", return_value=[]),
-            patch("grade_writer.write_grade"),
-            patch("content_eval.models.compute_grade", return_value="B"),
-            patch.object(content_eval, "EVALUATOR_LOGIC_VERSION", "v1"),
-        ):
-            counts = er.attach_files([file_path])
+        er.configure(
+            infer_product_fn=lambda fp: ("cells", "python"),
+            knowledge_fn=lambda f, p: fake_knowledge,
+            extract_tokens_fn=lambda *a, **kw: [],
+            verify_tokens_fn=lambda *a, **kw: [],
+            map_tokens_fn=lambda *a, **kw: ([], []),
+            detect_formats_fn=lambda *a, **kw: [],
+            build_sections_fn=lambda *a, **kw: [],
+            write_grade_fn=lambda *a, **kw: None,
+            compute_grade_fn=lambda f, w: "B",
+            evaluator_logic_version="v1",
+        )
+        counts = er.attach_files([file_path])
         return counts
 
     def test_evidence_block_written(self, tmp_path):
@@ -210,26 +211,24 @@ class TestAttachFilesUnit:
 class TestAuditFailGate:
     def test_audit_fail_prevents_evidence(self, tmp_path):
         """Pages with audit FAIL findings must be skipped; evidence must NOT be written."""
-        from unittest.mock import MagicMock
         import evidence.runner as er
 
         f = _make_content_file(tmp_path / "page.md")
         fk = _FakeKnowledge(repo_sha="sha005")
 
         # Simulate a FAIL finding
-        fake_fail = MagicMock()
-        fake_fail.level = "FAIL"
+        fake_fail = SimpleNamespace(level="FAIL")
 
-        with (
-            patch.object(er, "infer_product", return_value=("cells", "python")),
-            patch("evidence.runner.Knowledge", return_value=fk),
-            patch("evidence.runner.extract_tokens", return_value=[]),
-            patch("evidence.runner.verify_tokens", return_value=[fake_fail]),
-            patch("evidence.runner._map_tokens_to_evidence", return_value=([], [])),
-            patch("evidence.runner._detect_formats", return_value=[]),
-            patch("evidence.runner._build_sections_evidence", return_value=[]),
-        ):
-            counts = er.attach_files([f])
+        er.configure(
+            infer_product_fn=lambda fp: ("cells", "python"),
+            knowledge_fn=lambda f, p: fk,
+            extract_tokens_fn=lambda *a, **kw: [],
+            verify_tokens_fn=lambda *a, **kw: [fake_fail],
+            map_tokens_fn=lambda *a, **kw: ([], []),
+            detect_formats_fn=lambda *a, **kw: [],
+            build_sections_fn=lambda *a, **kw: [],
+        )
+        counts = er.attach_files([f])
 
         assert counts.get("SKIP (audit FAILs)") == 1, f"Expected SKIP (audit FAILs): {counts}"
         text = f.read_text(encoding="utf-8")
@@ -267,30 +266,27 @@ class TestContentSubstanceHardeningForReference:
     def test_stub_reference_page_does_not_get_grade_a(self, tmp_path):
         """A reference page stub (<50 prose words) must not receive grade A."""
         import evidence.runner as er
-        import grade_writer  # noqa: F401
-        import content_eval.models  # noqa: F401
-        import content_eval  # noqa: F401
 
         stub = self._make_reference_stub(tmp_path)
-        fk = _FakeKnowledge(repo_sha="sha_cs_test", platform="go")
+        fk = _FakeKnowledge(repo_sha="sha_cs_test", family="pdf", platform="go")
 
         captured_grades: list[str] = []
 
         def fake_write_grade(path, grade, **kwargs):
             captured_grades.append(grade)
 
-        with (
-            patch.object(er, "infer_product", return_value=("pdf", "go")),
-            patch("evidence.runner.Knowledge", return_value=fk),
-            patch("evidence.runner.extract_tokens", return_value=[]),
-            patch("evidence.runner.verify_tokens", return_value=[]),
-            patch("evidence.runner._map_tokens_to_evidence", return_value=([], [])),
-            patch("evidence.runner._detect_formats", return_value=[]),
-            patch("evidence.runner._build_sections_evidence", return_value=[]),
-            patch("grade_writer.write_grade", side_effect=fake_write_grade),
-            patch.object(content_eval, "EVALUATOR_LOGIC_VERSION", "v1"),
-        ):
-            counts = er.attach_files([stub])
+        er.configure(
+            infer_product_fn=lambda fp: ("pdf", "go"),
+            knowledge_fn=lambda f, p: fk,
+            extract_tokens_fn=lambda *a, **kw: [],
+            verify_tokens_fn=lambda *a, **kw: [],
+            map_tokens_fn=lambda *a, **kw: ([], []),
+            detect_formats_fn=lambda *a, **kw: [],
+            build_sections_fn=lambda *a, **kw: [],
+            write_grade_fn=fake_write_grade,
+            evaluator_logic_version="v1",
+        )
+        counts = er.attach_files([stub])
 
         assert counts.get("UPDATED") == 1, f"Expected UPDATED, got {counts}"
         assert len(captured_grades) == 1, f"write_grade should be called once: {captured_grades}"
@@ -304,30 +300,27 @@ class TestContentSubstanceHardeningForReference:
     def test_evaluator_tier_includes_content_substance_when_cs_fires(self, tmp_path):
         """When ContentSubstanceEvaluator produces findings, tier must include 'content_substance'."""
         import evidence.runner as er
-        import grade_writer  # noqa: F401
-        import content_eval.models  # noqa: F401
-        import content_eval  # noqa: F401
 
         stub = self._make_reference_stub(tmp_path)
-        fk = _FakeKnowledge(repo_sha="sha_cs_tier", platform="go")
+        fk = _FakeKnowledge(repo_sha="sha_cs_tier", family="pdf", platform="go")
 
         captured_tiers: list[str] = []
 
         def fake_write_grade(path, grade, evaluator_tier="audit", **kwargs):
             captured_tiers.append(evaluator_tier)
 
-        with (
-            patch.object(er, "infer_product", return_value=("pdf", "go")),
-            patch("evidence.runner.Knowledge", return_value=fk),
-            patch("evidence.runner.extract_tokens", return_value=[]),
-            patch("evidence.runner.verify_tokens", return_value=[]),
-            patch("evidence.runner._map_tokens_to_evidence", return_value=([], [])),
-            patch("evidence.runner._detect_formats", return_value=[]),
-            patch("evidence.runner._build_sections_evidence", return_value=[]),
-            patch("grade_writer.write_grade", side_effect=fake_write_grade),
-            patch.object(content_eval, "EVALUATOR_LOGIC_VERSION", "v1"),
-        ):
-            er.attach_files([stub])
+        er.configure(
+            infer_product_fn=lambda fp: ("pdf", "go"),
+            knowledge_fn=lambda f, p: fk,
+            extract_tokens_fn=lambda *a, **kw: [],
+            verify_tokens_fn=lambda *a, **kw: [],
+            map_tokens_fn=lambda *a, **kw: ([], []),
+            detect_formats_fn=lambda *a, **kw: [],
+            build_sections_fn=lambda *a, **kw: [],
+            write_grade_fn=fake_write_grade,
+            evaluator_logic_version="v1",
+        )
+        er.attach_files([stub])
 
         assert len(captured_tiers) == 1, f"write_grade not called: {captured_tiers}"
         tier = captured_tiers[0]
