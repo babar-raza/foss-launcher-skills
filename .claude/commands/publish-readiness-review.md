@@ -90,6 +90,18 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
    Apply `--scope` filter. Apply `--grade-filter` by reading `graded_at` + `graded_grade` from
    page frontmatter. Apply `draft: true` exclusion (skip draft pages).
 
+**4g. Blog coverage check** (non-blocking advisory — runs after roster is built):
+   Count `content/blog.aspose.org/{family}/{platform}/**/*.md` (excluding `draft: true`).
+   If count = 0 AND the product is not in `launch_tier: placeholder` status:
+   - Emit a `COVERAGE_GAP` entry in the inspection manifest under `coverage_gaps`:
+     ```json
+     {"type": "COVERAGE_GAP", "subdomain": "blog.aspose.org",
+      "family": "{family}", "platform": "{platform}",
+      "message": "Product has reference/docs but no blog coverage"}
+     ```
+   - Surface as a human action advisory: "No blog posts for {family}/{platform} — consider /new-blog-post"
+   - This check is advisory only; it does NOT block PUBLISH-READY status or prevent Step 7 routing.
+
 5. **Inspect each page** — for each page in the roster, perform bounded inspection:
 
    **5a. Read current grade and findings**:
