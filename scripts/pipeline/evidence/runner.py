@@ -40,6 +40,37 @@ from evidence.mapper import (  # noqa: E402
 from evidence.writer import _write_evidence_to_frontmatter  # noqa: E402
 
 
+# ---------------------------------------------------------------------------
+# configure() seam — T1/T2 compliance (AGENTS.md §16.2)
+# ---------------------------------------------------------------------------
+
+_cfg_extract_tokens_fn = None
+_cfg_verify_tokens_fn = None
+_cfg_map_tokens_fn = None
+_cfg_detect_formats_fn = None
+_cfg_build_sections_fn = None
+_cfg_write_evidence_fn = None
+
+
+def configure(
+    extract_tokens_fn=None,
+    verify_tokens_fn=None,
+    map_tokens_fn=None,
+    detect_formats_fn=None,
+    build_sections_fn=None,
+    write_evidence_fn=None,
+) -> None:
+    """Inject test dependencies. Call configure() with no args to reset."""
+    global _cfg_extract_tokens_fn, _cfg_verify_tokens_fn, _cfg_map_tokens_fn
+    global _cfg_detect_formats_fn, _cfg_build_sections_fn, _cfg_write_evidence_fn
+    _cfg_extract_tokens_fn = extract_tokens_fn
+    _cfg_verify_tokens_fn = verify_tokens_fn
+    _cfg_map_tokens_fn = map_tokens_fn
+    _cfg_detect_formats_fn = detect_formats_fn
+    _cfg_build_sections_fn = build_sections_fn
+    _cfg_write_evidence_fn = write_evidence_fn
+
+
 _KNOWN_SUBDOMAINS = frozenset(
     name for name, _ in
     # avoid importing SITE_PATHS at module level since content_discovery may not
@@ -123,8 +154,10 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
     platform = knowledge.platform
 
     # Extract and verify API tokens (page-level)
-    tokens = extract_tokens(filepath, platform)
-    findings = verify_tokens(tokens, knowledge, filepath)
+    _eff_extract_tokens = _cfg_extract_tokens_fn if _cfg_extract_tokens_fn is not None else extract_tokens
+    _eff_verify_tokens = _cfg_verify_tokens_fn if _cfg_verify_tokens_fn is not None else verify_tokens
+    tokens = _eff_extract_tokens(filepath, platform)
+    findings = _eff_verify_tokens(tokens, knowledge, filepath)
     fails = [f for f in findings if f.level == "FAIL"]
     if fails:
         _log(f"  SKIP {filepath}: {len(fails)} audit FAIL(s) — fix before attaching evidence")
@@ -134,7 +167,8 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
         return "SKIP (audit FAILs)"
 
     # Map verified tokens → claim_ids via deterministic index (aggregate)
-    claim_ids, api_refs = _map_tokens_to_evidence(tokens, knowledge)
+    _eff_map_tokens = _cfg_map_tokens_fn if _cfg_map_tokens_fn is not None else _map_tokens_to_evidence
+    claim_ids, api_refs = _eff_map_tokens(tokens, knowledge)
 
     # CLAIM-EXTRACT-001: fallback for modified APIs mentioned in prose but not code blocks.
     # Scans body text for modified_apis from knowledge_delta.json; avoids double-counting
@@ -174,10 +208,12 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
                 claim_ids.append(cid)
 
     # Detect format references (page-level aggregate)
-    formats = _detect_formats(filepath, knowledge)
+    _eff_detect_formats = _cfg_detect_formats_fn if _cfg_detect_formats_fn is not None else _detect_formats
+    formats = _eff_detect_formats(filepath, knowledge)
 
     # Build per-section evidence breakdown
-    sections = _build_sections_evidence(filepath, knowledge)
+    _eff_build_sections = _cfg_build_sections_fn if _cfg_build_sections_fn is not None else _build_sections_evidence
+    sections = _eff_build_sections(filepath, knowledge)
 
     evidence = {
         "model_sha": knowledge.repo_sha,
@@ -242,7 +278,8 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
                  f"claims={len(sec['claims'])}, apis={len(sec['apis'])}")
         return "DRY-RUN"
 
-    ok = _write_evidence_to_frontmatter(filepath, evidence)
+    _eff_write_evidence = _cfg_write_evidence_fn if _cfg_write_evidence_fn is not None else _write_evidence_to_frontmatter
+    ok = _eff_write_evidence(filepath, evidence)
     if ok:
         # Auto-grade: pages reaching here have 0 FAILs (line 58 returns on FAILs).
         from content_eval.models import compute_grade, Page  # noqa: E402

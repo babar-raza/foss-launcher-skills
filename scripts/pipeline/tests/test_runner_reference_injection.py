@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
@@ -25,7 +24,7 @@ _PIPELINE_DIR = Path(__file__).resolve().parent.parent
 if str(_PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_DIR))
 
-from evidence.runner import attach_evidence  # noqa: E402
+from evidence.runner import attach_evidence, configure as _runner_configure  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -35,10 +34,11 @@ from evidence.runner import attach_evidence  # noqa: E402
 class _FakeKnowledge:
     """Minimal duck-type substitute for Knowledge; no disk I/O required."""
 
-    def __init__(self, repo_sha="abc12345", version="1.0.0", platform="python"):
+    def __init__(self, repo_sha="abc12345", version="1.0.0", family="cells", platform="python"):
         self.available = True
         self.repo_sha = repo_sha
         self.version = version
+        self.family = family
         self.platform = platform
         self.classes: dict = {}        # {ClassName: anything}
         self.api_to_claim: dict = {}   # {ClassName: claim_id}
@@ -51,6 +51,13 @@ class _FakeKnowledge:
 # ---------------------------------------------------------------------------
 # Test helpers
 # ---------------------------------------------------------------------------
+
+@pytest.fixture(autouse=True)
+def reset_runner_config():
+    """Reset evidence.runner configure() overrides after each test."""
+    yield
+    _runner_configure()
+
 
 def _write_md(path: Path, title: str) -> Path:
     """Write a minimal markdown file with title in frontmatter."""
@@ -71,10 +78,10 @@ def _run_attach(
     initial_claim_ids: list | None = None,
 ) -> dict:
     """
-    Run attach_evidence() with all I/O-heavy deps mocked.
+    Run attach_evidence() with all I/O-heavy deps replaced via configure().
 
-    Returns the evidence dict that was passed to _write_evidence_to_frontmatter.
-    _write_evidence_to_frontmatter returns False so the auto-grade block is skipped.
+    Returns the evidence dict that was passed to write_evidence.
+    write_evidence returns False so the auto-grade block is skipped.
     """
     captured: dict = {}
 
@@ -85,13 +92,15 @@ def _run_attach(
         captured.update(evidence)
         return False  # skip auto-grade; function returns "ERROR" but we ignore it
 
-    with patch("evidence.runner.extract_tokens", return_value=[]), \
-         patch("evidence.runner.verify_tokens", return_value=[]), \
-         patch("evidence.runner._map_tokens_to_evidence", side_effect=fake_map), \
-         patch("evidence.runner._detect_formats", return_value=[]), \
-         patch("evidence.runner._build_sections_evidence", return_value=[]), \
-         patch("evidence.runner._write_evidence_to_frontmatter", side_effect=fake_write):
-        attach_evidence(filepath, knowledge, force=True)
+    _runner_configure(
+        extract_tokens_fn=lambda *a, **kw: [],
+        verify_tokens_fn=lambda *a, **kw: [],
+        map_tokens_fn=fake_map,
+        detect_formats_fn=lambda *a, **kw: [],
+        build_sections_fn=lambda *a, **kw: [],
+        write_evidence_fn=fake_write,
+    )
+    attach_evidence(filepath, knowledge, force=True)
 
     return captured
 

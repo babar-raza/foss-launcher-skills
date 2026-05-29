@@ -2958,6 +2958,23 @@ scripts:
     deprecated_since: null
     notes: "bundles evidence artifacts for a product; validates HEAD SHA against model.yaml and evidence frontmatter"
 
+  - path: scripts/pipeline/commands/ops/detect_unlaunched.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_detect_unlaunched.py
+    requires_test: false
+    test_exempt_reason: null
+    deprecated_since: null
+    notes: "GOV-UNLAUNCHED-DETECT-001: scan knowledge/ for products with merged/scout model.yaml but zero substantive content; advisory/non-blocking"
+
   - path: scripts/pipeline/commands/ops/semantic_refresh_guard.py
     kind: entrypoint
     lifecycle: active
