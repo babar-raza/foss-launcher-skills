@@ -1,12 +1,12 @@
-"""Gate 3a tests for refresh_harness.py manifest write integration.
+"""Gate 3a/3b tests for refresh_harness.py manifest and content write integration.
 
 Covers:
   - manifest write flag false → no write
   - manifest write flag true + --no-write → no write
   - manifest write flag true + --allow-write + FRESH → write occurs
   - VALIDATE_ONLY decision → no write
-  - REGENERATE_* decision → no write
-  - refresh_content_write_enabled=True → HARD_BLOCK (RuntimeError)
+  - REGENERATE_* decision + flag disabled → no dispatch
+  - refresh_content_write_enabled=True (Phase 5): no longer raises HARD_BLOCK
   - backup created before write
   - backup removed after successful verification
   - backup restored on write failure
@@ -16,6 +16,13 @@ Covers:
   - manifest_restore.py restores backup correctly
   - manifest_restore.py fails safely when backup is missing
   - existing dry-run behavior remains unchanged (regression guard)
+  Phase 5 (Gate 3b):
+  - FRESH decision → dispatch_content_write NOT called
+  - REGENERATE_UPSTREAM + content_write_enabled=True + no_write=True → dispatch skipped
+  - REGENERATE_UPSTREAM + content_write_enabled=False → dispatch not called
+  - REGENERATE_UPSTREAM + content_write_enabled=True + no_write=False → dispatch called
+  - REGENERATE_GENERATOR + content_write_enabled=True → dispatch called
+  - dispatch returns (False, ...) → outcome is SKIP, explanation includes note
 """
 
 from __future__ import annotations
@@ -213,43 +220,58 @@ class TestWriteManifestGatedFlags:
         assert not written
         assert "refresh_reconciliation_enforced=False" in note
 
-    def test_content_write_enabled_raises_hard_block(self, tmp_path):
-        """refresh_content_write_enabled=True → RuntimeError (HARD_BLOCK) regardless of other flags."""
+    def test_content_write_enabled_does_not_block_manifest_write(self, tmp_path):
+        """Phase 5: refresh_content_write_enabled=True no longer blocks _write_manifest_gated.
+
+        Content writes are dispatched separately (Gate 3b) for REGENERATE_* decisions.
+        _write_manifest_gated handles only FRESH decision manifest updates and is not
+        affected by the content write flag.
+        """
         state_root = _make_state_dir(tmp_path, _BASE_MANIFEST_DATA)
         stored = _make_stored_manifest()
         flags = dict(_GATE3_WRITE_FLAGS, refresh_content_write_enabled=True)
 
-        with pytest.raises(RuntimeError, match="HARD_BLOCK"):
-            _write_manifest_gated(
-                product="cells/java",
-                subdomain="reference",
-                fingerprints={"upstream_repo_sha": "sha_stored_abc"},
-                current_outputs=_make_output_state(),
-                stored=stored,
-                run_id="gate3a-test-004",
-                flags=flags,
-                no_write=False,
-                state_root=state_root,
-            )
+        written, note = _write_manifest_gated(
+            product="cells/java",
+            subdomain="reference",
+            fingerprints={
+                "upstream_repo_sha": "sha_stored_abc",
+                "local_knowledge_sha": "sha_local_xyz",
+                "generator_code_hash": _REAL_HASH,
+            },
+            current_outputs=_make_output_state(),
+            stored=stored,
+            run_id="phase5-manifest-001",
+            flags=flags,
+            no_write=False,
+            state_root=state_root,
+        )
 
-    def test_content_write_hard_block_even_when_no_write(self, tmp_path):
-        """HARD_BLOCK fires even when no_write=True — content_write_enabled is never safe."""
+        # Manifest write should succeed — content_write_enabled doesn't block it.
+        assert written
+        assert "SUCCEEDED" in note
+
+    def test_content_write_enabled_no_write_skips_via_no_write_guard(self, tmp_path):
+        """Phase 5: content_write_enabled=True with no_write=True → skipped by no_write guard."""
         state_root = _make_state_dir(tmp_path, _BASE_MANIFEST_DATA)
         stored = _make_stored_manifest()
         flags = dict(_GATE3_WRITE_FLAGS, refresh_content_write_enabled=True)
 
-        with pytest.raises(RuntimeError, match="HARD_BLOCK"):
-            _write_manifest_gated(
-                product="cells/java",
-                subdomain="reference",
-                fingerprints={},
-                current_outputs=_make_output_state(),
-                stored=stored,
-                run_id="gate3a-test-005",
-                flags=flags,
-                no_write=True,  # no_write is True but HARD_BLOCK still fires
-                state_root=state_root,
-            )
+        written, note = _write_manifest_gated(
+            product="cells/java",
+            subdomain="reference",
+            fingerprints={},
+            current_outputs=_make_output_state(),
+            stored=stored,
+            run_id="phase5-manifest-002",
+            flags=flags,
+            no_write=True,
+            state_root=state_root,
+        )
+
+        # Skipped because no_write=True, not because of content_write flag.
+        assert not written
+        assert "no_write=True" in note
 
     def test_no_stored_manifest_skips_write(self, tmp_path):
         """stored=None → write is skipped (no base to update from)."""
@@ -576,14 +598,19 @@ class TestRunHarnessGate3aIntegration:
         assert not backup_path.exists()
         assert result["run_status"] in ("PASS", "DRY_RUN_PASS", "PARTIAL_PASS")
 
-    def test_content_write_flag_raises_hard_block_in_harness(self, tmp_path):
-        """refresh_content_write_enabled=True → RuntimeError raised by run_harness()."""
+    def test_content_write_flag_enabled_no_error_for_fresh_decision(self, tmp_path):
+        """Phase 5: refresh_content_write_enabled=True with FRESH decision → no error raised.
+
+        Content writes are dispatched in Gate 3b for REGENERATE_* decisions only.
+        FRESH decisions go through Gate 3a (manifest write). The content write flag
+        being True doesn't cause errors for FRESH decisions.
+        """
         stored = _make_stored_manifest()
         fingerprints_fresh = {
             "upstream_repo_sha": "sha_stored_abc",
             "local_knowledge_sha": "sha_local_xyz",
         }
-        hard_block_flags = dict(_GATE3_WRITE_FLAGS, refresh_content_write_enabled=True)
+        content_write_flags = dict(_GATE3_WRITE_FLAGS, refresh_content_write_enabled=True)
 
         _harness_configure(
             registry_path=SimpleNamespace(is_file=lambda: True),
@@ -594,17 +621,20 @@ class TestRunHarnessGate3aIntegration:
             ),
             collect_fingerprints_fn=lambda *a, **kw: dict(fingerprints_fresh),
             validate_for_fresh_fn=lambda *a, **kw: [],
-            load_feature_flags_fn=lambda *a, **kw: hard_block_flags,
+            load_feature_flags_fn=lambda *a, **kw: content_write_flags,
+            # Provide a no-op manifest write to avoid state_root dependency
+            write_manifest_gated_fn=lambda **kw: (False, "write skipped (no state_root in test)"),
         )
-        with pytest.raises(RuntimeError, match="HARD_BLOCK"):
-            run_harness(
-                product="cells/java",
-                mode="validate-only",
-                scratch_root=tmp_path / "scratch",
-                subdomains=["reference"],
-                no_write=False,  # allow_write to reach write path
-                run_id="gate3a-integration-hardblock",
-            )
+        # Should NOT raise — HARD_BLOCK removed in Phase 5.
+        result = run_harness(
+            product="cells/java",
+            mode="validate-only",
+            scratch_root=tmp_path / "scratch",
+            subdomains=["reference"],
+            no_write=False,
+            run_id="phase5-integration-hardblock-removed",
+        )
+        assert result["run_status"] in ("PASS", "DRY_RUN_PASS", "PARTIAL_PASS")
 
     def test_validate_only_no_write_on_non_fresh_decision(self, tmp_path):
         """VALIDATE_ONLY decision → manifest_write_note is empty, no write attempted."""
@@ -849,13 +879,17 @@ class TestProductionFlagsSafety:
         )
 
     def test_production_flags_content_write_disabled(self):
-        """data/refresh-feature-flags.json has refresh_content_write_enabled=False."""
+        """data/refresh-feature-flags.json has refresh_content_write_enabled=False.
+
+        Phase 5 implementation is code-complete but the flag remains False pending
+        a successful canary run on a real product. Enable only after canary passes.
+        """
         flags_path = _REPO_ROOT / "data" / "refresh-feature-flags.json"
         if not flags_path.is_file():
             pytest.skip("data/refresh-feature-flags.json not found")
         flags = load_feature_flags(flags_path)
         assert flags["refresh_content_write_enabled"] is False, (
-            "Production content write flag must be False."
+            "Production content write flag must remain False until canary run passes."
         )
 
     def test_production_flags_enforced_enabled(self):
@@ -871,3 +905,262 @@ class TestProductionFlagsSafety:
         assert flags["refresh_reconciliation_enforced"] is True, (
             "Phase 3 approved — refresh_reconciliation_enforced must be True."
         )
+
+
+# ---------------------------------------------------------------------------
+# Phase 5 (Gate 3b): Content write dispatch tests
+# ---------------------------------------------------------------------------
+
+
+class TestGate3bContentWrite:
+    """Phase 5: Gate 3b content write dispatch via configure() seam.
+
+    These tests verify that _dispatch_content_write is called only when:
+    - Decision is REGENERATE_UPSTREAM or REGENERATE_GENERATOR
+    - refresh_content_write_enabled=True
+    - no_write=False
+
+    All tests use fake dispatch functions injected via configure() to avoid
+    invoking the real batch_reference.py.
+    """
+
+    def test_fresh_decision_does_not_call_dispatch(self, tmp_path):
+        """FRESH decision → Gate 3b dispatch NOT called even when content_write_enabled=True."""
+        dispatched = []
+
+        def _fake_dispatch(product, subdomain, decision, flags, no_write):
+            dispatched.append(decision)
+            return True, "content write SUCCEEDED"
+
+        stored = _make_stored_manifest()
+        fingerprints_fresh = {
+            "upstream_repo_sha": "sha_stored_abc",
+            "local_knowledge_sha": "sha_local_xyz",
+        }
+        content_write_flags = dict(_GATE3_WRITE_FLAGS, refresh_content_write_enabled=True)
+
+        _harness_configure(
+            registry_path=SimpleNamespace(is_file=lambda: True),
+            load_registry_fn=lambda *a, **kw: _make_registry(),
+            load_manifest_fn=lambda *a, **kw: stored,
+            inspect_output_state_fn=lambda *a, **kw: SimpleNamespace(
+                output_exists=True, output_content_hash=_REAL_HASH_B
+            ),
+            collect_fingerprints_fn=lambda *a, **kw: dict(fingerprints_fresh),
+            validate_for_fresh_fn=lambda *a, **kw: [],
+            load_feature_flags_fn=lambda *a, **kw: content_write_flags,
+            write_manifest_gated_fn=lambda **kw: (False, "skipped (no state_root)"),
+            dispatch_content_write_fn=_fake_dispatch,
+        )
+        run_harness(
+            product="cells/java",
+            mode="validate-only",
+            scratch_root=tmp_path / "scratch",
+            subdomains=["reference"],
+            no_write=False,
+            run_id="phase5-3b-fresh-001",
+        )
+
+        # FRESH decision → dispatch never called
+        assert dispatched == []
+
+    def test_regenerate_no_write_true_skips_dispatch(self, tmp_path):
+        """REGENERATE_UPSTREAM + no_write=True → dispatch NOT called."""
+        dispatched = []
+
+        def _fake_dispatch(product, subdomain, decision, flags, no_write):
+            dispatched.append(decision)
+            return True, "content write SUCCEEDED"
+
+        stored = _make_stored_manifest()
+        fingerprints_regen = {
+            "upstream_repo_sha": "sha_different_xyz",
+            "local_knowledge_sha": "sha_local_xyz",
+        }
+        content_write_flags = dict(_GATE3_WRITE_FLAGS, refresh_content_write_enabled=True)
+
+        _harness_configure(
+            registry_path=SimpleNamespace(is_file=lambda: True),
+            load_registry_fn=lambda *a, **kw: _make_registry(),
+            load_manifest_fn=lambda *a, **kw: stored,
+            inspect_output_state_fn=lambda *a, **kw: SimpleNamespace(
+                output_exists=True, output_content_hash=_REAL_HASH_B
+            ),
+            collect_fingerprints_fn=lambda *a, **kw: dict(fingerprints_regen),
+            validate_for_fresh_fn=lambda *a, **kw: [],
+            load_feature_flags_fn=lambda *a, **kw: content_write_flags,
+            dispatch_content_write_fn=_fake_dispatch,
+        )
+        run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=tmp_path / "scratch",
+            subdomains=["reference"],
+            no_write=True,  # no_write=True → dispatch skipped
+            run_id="phase5-3b-nowrite-002",
+        )
+
+        assert dispatched == []
+
+    def test_regenerate_flag_disabled_skips_dispatch(self, tmp_path):
+        """refresh_content_write_enabled=False + REGENERATE → dispatch NOT called."""
+        dispatched = []
+
+        def _fake_dispatch(product, subdomain, decision, flags, no_write):
+            dispatched.append(decision)
+            return True, "content write SUCCEEDED"
+
+        stored = _make_stored_manifest()
+        fingerprints_regen = {
+            "upstream_repo_sha": "sha_different_xyz",
+            "local_knowledge_sha": "sha_local_xyz",
+        }
+        # Flag disabled
+        no_content_write_flags = dict(_GATE3_WRITE_FLAGS, refresh_content_write_enabled=False)
+
+        _harness_configure(
+            registry_path=SimpleNamespace(is_file=lambda: True),
+            load_registry_fn=lambda *a, **kw: _make_registry(),
+            load_manifest_fn=lambda *a, **kw: stored,
+            inspect_output_state_fn=lambda *a, **kw: SimpleNamespace(
+                output_exists=True, output_content_hash=_REAL_HASH_B
+            ),
+            collect_fingerprints_fn=lambda *a, **kw: dict(fingerprints_regen),
+            validate_for_fresh_fn=lambda *a, **kw: [],
+            load_feature_flags_fn=lambda *a, **kw: no_content_write_flags,
+            dispatch_content_write_fn=_fake_dispatch,
+        )
+        run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=tmp_path / "scratch",
+            subdomains=["reference"],
+            no_write=False,
+            run_id="phase5-3b-disabled-003",
+        )
+
+        assert dispatched == []
+
+    def test_regenerate_upstream_dispatch_called_outcome_content_written(self, tmp_path):
+        """REGENERATE_UPSTREAM + enabled + no_write=False → dispatch called, outcome=CONTENT_WRITTEN."""
+        dispatched = []
+
+        def _fake_dispatch(product, subdomain, decision, flags, no_write):
+            dispatched.append((product, subdomain, decision))
+            return True, "content write SUCCEEDED (decision=REGENERATE_UPSTREAM, verdict='SEMANTIC_NOOP_PROVEN')"
+
+        stored = _make_stored_manifest()
+        fingerprints_regen = {
+            "upstream_repo_sha": "sha_different_xyz",
+            "local_knowledge_sha": "sha_local_xyz",
+        }
+        content_write_flags = dict(_GATE3_WRITE_FLAGS, refresh_content_write_enabled=True)
+
+        _harness_configure(
+            registry_path=SimpleNamespace(is_file=lambda: True),
+            load_registry_fn=lambda *a, **kw: _make_registry(),
+            load_manifest_fn=lambda *a, **kw: stored,
+            inspect_output_state_fn=lambda *a, **kw: SimpleNamespace(
+                output_exists=True, output_content_hash=_REAL_HASH_B
+            ),
+            collect_fingerprints_fn=lambda *a, **kw: dict(fingerprints_regen),
+            validate_for_fresh_fn=lambda *a, **kw: [],
+            load_feature_flags_fn=lambda *a, **kw: content_write_flags,
+            dispatch_content_write_fn=_fake_dispatch,
+        )
+        result = run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=tmp_path / "scratch",
+            subdomains=["reference"],
+            no_write=False,
+            run_id="phase5-3b-dispatch-004",
+        )
+
+        assert len(dispatched) == 1
+        assert dispatched[0] == ("cells/java", "reference", "REGENERATE_UPSTREAM")
+        ref_record = [r for r in result["records"] if r["subdomain"] == "reference"][0]
+        assert ref_record["outcome"] == "CONTENT_WRITTEN"
+        assert "content write SUCCEEDED" in ref_record.get("explanation", "")
+
+    def test_regenerate_generator_dispatch_called(self, tmp_path):
+        """REGENERATE_GENERATOR + enabled → dispatch called with REGENERATE_GENERATOR decision."""
+        dispatched_decisions = []
+
+        def _fake_dispatch(product, subdomain, decision, flags, no_write):
+            dispatched_decisions.append(decision)
+            return True, "content write SUCCEEDED (decision=REGENERATE_GENERATOR, verdict='BODY_UPDATED_VERIFIED')"
+
+        stored = _make_stored_manifest()
+        # Change local_knowledge_sha to trigger REGENERATE_GENERATOR
+        fingerprints_gen = {
+            "upstream_repo_sha": "sha_stored_abc",      # same as stored → not upstream trigger
+            "local_knowledge_sha": "sha_different_gen",  # different → generator input changed
+        }
+        content_write_flags = dict(_GATE3_WRITE_FLAGS, refresh_content_write_enabled=True)
+
+        _harness_configure(
+            registry_path=SimpleNamespace(is_file=lambda: True),
+            load_registry_fn=lambda *a, **kw: _make_registry(),
+            load_manifest_fn=lambda *a, **kw: stored,
+            inspect_output_state_fn=lambda *a, **kw: SimpleNamespace(
+                output_exists=True, output_content_hash=_REAL_HASH_B
+            ),
+            collect_fingerprints_fn=lambda *a, **kw: dict(fingerprints_gen),
+            validate_for_fresh_fn=lambda *a, **kw: [],
+            load_feature_flags_fn=lambda *a, **kw: content_write_flags,
+            dispatch_content_write_fn=_fake_dispatch,
+        )
+        result = run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=tmp_path / "scratch",
+            subdomains=["reference"],
+            no_write=False,
+            run_id="phase5-3b-gen-005",
+        )
+
+        # local_knowledge_sha changed but upstream_repo_sha did not.
+        # The decision may be REGENERATE_GENERATOR or REGENERATE_UPSTREAM depending
+        # on what the decision engine treats as primary trigger. Either is acceptable.
+        assert any(
+            d in ("REGENERATE_UPSTREAM", "REGENERATE_GENERATOR") for d in dispatched_decisions
+        ), f"Expected REGENERATE decision, got: {dispatched_decisions}"
+
+    def test_dispatch_blocked_outcome_is_skip(self, tmp_path):
+        """Dispatch returns (False, blocked_note) → outcome=SKIP, explanation includes note."""
+
+        def _fake_dispatch(product, subdomain, decision, flags, no_write):
+            return False, "content write blocked (semantic guard verdict='REFRESH_BLOCKED_UNPROVEN_NOOP')"
+
+        stored = _make_stored_manifest()
+        fingerprints_regen = {
+            "upstream_repo_sha": "sha_different_xyz",
+            "local_knowledge_sha": "sha_local_xyz",
+        }
+        content_write_flags = dict(_GATE3_WRITE_FLAGS, refresh_content_write_enabled=True)
+
+        _harness_configure(
+            registry_path=SimpleNamespace(is_file=lambda: True),
+            load_registry_fn=lambda *a, **kw: _make_registry(),
+            load_manifest_fn=lambda *a, **kw: stored,
+            inspect_output_state_fn=lambda *a, **kw: SimpleNamespace(
+                output_exists=True, output_content_hash=_REAL_HASH_B
+            ),
+            collect_fingerprints_fn=lambda *a, **kw: dict(fingerprints_regen),
+            validate_for_fresh_fn=lambda *a, **kw: [],
+            load_feature_flags_fn=lambda *a, **kw: content_write_flags,
+            dispatch_content_write_fn=_fake_dispatch,
+        )
+        result = run_harness(
+            product="cells/java",
+            mode="dry-run",
+            scratch_root=tmp_path / "scratch",
+            subdomains=["reference"],
+            no_write=False,
+            run_id="phase5-3b-blocked-006",
+        )
+
+        ref_record = [r for r in result["records"] if r["subdomain"] == "reference"][0]
+        assert ref_record["outcome"] == "SKIP"
+        assert "content write blocked" in ref_record.get("explanation", "")

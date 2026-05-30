@@ -80,6 +80,7 @@ _cfg_collect_fingerprints_fn = None
 _cfg_validate_for_fresh_fn = None
 _cfg_load_feature_flags_fn = None
 _cfg_write_manifest_gated_fn = None
+_cfg_dispatch_content_write_fn = None
 
 
 def configure(
@@ -91,11 +92,12 @@ def configure(
     validate_for_fresh_fn=None,
     load_feature_flags_fn=None,
     write_manifest_gated_fn=None,
+    dispatch_content_write_fn=None,
 ) -> None:
     """Inject test dependencies. Call configure() with no args to reset to production defaults."""
     global _cfg_registry_path, _cfg_load_registry_fn, _cfg_load_manifest_fn
     global _cfg_inspect_output_state_fn, _cfg_collect_fingerprints_fn, _cfg_validate_for_fresh_fn
-    global _cfg_load_feature_flags_fn, _cfg_write_manifest_gated_fn
+    global _cfg_load_feature_flags_fn, _cfg_write_manifest_gated_fn, _cfg_dispatch_content_write_fn
     _cfg_registry_path = registry_path
     _cfg_load_registry_fn = load_registry_fn
     _cfg_load_manifest_fn = load_manifest_fn
@@ -104,6 +106,7 @@ def configure(
     _cfg_validate_for_fresh_fn = validate_for_fresh_fn
     _cfg_load_feature_flags_fn = load_feature_flags_fn
     _cfg_write_manifest_gated_fn = write_manifest_gated_fn
+    _cfg_dispatch_content_write_fn = dispatch_content_write_fn
 
 
 # ---------------------------------------------------------------------------
@@ -234,6 +237,133 @@ def _inspect_output_state(product: str, subdomain: str, registry) -> OutputState
 
 _STATE_ROOT = _REPO_ROOT / "runs" / "state"
 
+# Verdicts that allow Phase 5 content writes (semantic guard exit_code == 0).
+_PHASE5_PASSING_VERDICTS = frozenset({
+    "BODY_UPDATED_VERIFIED",
+    "EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED",
+    "SEMANTIC_NOOP_PROVEN",
+    "GRADING_REMEDIATION_REQUIRED",
+})
+# Verdicts that require aborting the run entirely (exit_code == 2).
+_PHASE5_ABORT_VERDICTS = frozenset({
+    "CLAIM_EXTRACTION_MISSED_DELTA",
+    "PAGE_MAPPING_MISSED_IMPACT",
+})
+
+
+def _dispatch_content_write(
+    product: str,
+    subdomain: str,
+    decision: str,
+    flags: dict,
+    no_write: bool,
+) -> "tuple[bool, str]":
+    """Dispatch a content regeneration for a REGENERATE_UPSTREAM or REGENERATE_GENERATOR decision.
+
+    Gate 3b: Called when refresh_content_write_enabled=True and the decision is a
+    REGENERATE_* type. Reads the semantic_refresh_verdict.json produced by
+    semantic_refresh_guard.py for this product to determine whether writes are safe.
+
+    Pre-conditions (caller must ensure):
+      - decision in ("REGENERATE_UPSTREAM", "REGENERATE_GENERATOR")
+      - refresh_content_write_enabled == True
+      - no_write == False
+
+    Verdicts and behaviour:
+      - Exit 0 verdicts (PASSING) → invoke batch_reference.py --update
+      - Exit 1 verdicts (BLOCKING) → skip with BLOCKED note; run continues
+      - Exit 2 verdicts (ABORT) → raise RuntimeError; caller must stop the run
+      - No verdict file → skip with advisory note
+
+    Returns:
+        (written: bool, note: str) where:
+          written=True  → batch_reference.py --update succeeded
+          written=False → skipped or FAILED (note explains why)
+
+    Raises:
+        RuntimeError: If verdict is an abort-class (exit_code 2).
+    """
+    import sys as _sys
+    import subprocess
+
+    family, platform = product.split("/", 1)
+    verdict_path = (
+        _REPO_ROOT / "reports" / "refresh_review" / family / platform
+        / "semantic_refresh_verdict.json"
+    )
+
+    if not verdict_path.is_file():
+        print(
+            f"[PHASE5-SKIP] No semantic_refresh_verdict.json for {product}/{subdomain} — "
+            "content write skipped (run semantic_refresh_guard.py first)",
+            file=_sys.stderr,
+        )
+        return False, "content write skipped (no semantic_refresh_verdict.json found)"
+
+    try:
+        verdict_data = json.loads(verdict_path.read_text(encoding="utf-8"))
+        verdict_name = verdict_data.get("verdict", "UNKNOWN")
+    except Exception as exc:
+        print(
+            f"[PHASE5-SKIP] Failed to read verdict for {product}/{subdomain}: {exc}",
+            file=_sys.stderr,
+        )
+        return False, f"content write skipped (verdict read failed: {exc})"
+
+    # Exit 2 class: abort the run — manual investigation required.
+    if verdict_name in _PHASE5_ABORT_VERDICTS:
+        raise RuntimeError(
+            f"PHASE5_ABORT: semantic guard verdict={verdict_name!r} for "
+            f"{product}/{subdomain} requires manual investigation before content writes."
+        )
+
+    # Exit 1 class: blocked — skip write, continue run.
+    if verdict_name not in _PHASE5_PASSING_VERDICTS:
+        print(
+            f"[PHASE5-BLOCKED] Semantic guard verdict={verdict_name!r} for "
+            f"{product}/{subdomain} — content write blocked",
+            file=_sys.stderr,
+        )
+        return False, f"content write blocked (semantic guard verdict={verdict_name!r})"
+
+    # Exit 0 class: invoke batch_reference.py --update
+    batch_script = (
+        _REPO_ROOT / "scripts" / "pipeline" / "commands" / "content" / "batch_reference.py"
+    )
+    cmd = [sys.executable, str(batch_script), family, platform, "--update"]
+    print(
+        f"[PHASE5] Content write dispatched for {product}/{subdomain} "
+        f"(decision={decision}, verdict={verdict_name!r})",
+        file=_sys.stderr,
+    )
+
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+        if result.returncode != 0:
+            print(
+                f"[PHASE5-FAIL] batch_reference.py exited {result.returncode} for "
+                f"{product}/{subdomain}: {result.stderr[:500]}",
+                file=_sys.stderr,
+            )
+            return False, f"content write FAILED (batch_reference.py returned {result.returncode})"
+        print(
+            f"[PHASE5-OK] Content write succeeded for {product}/{subdomain}",
+            file=_sys.stderr,
+        )
+        return True, f"content write SUCCEEDED (decision={decision}, verdict={verdict_name!r})"
+    except subprocess.TimeoutExpired:
+        print(
+            f"[PHASE5-TIMEOUT] Content write timed out for {product}/{subdomain}",
+            file=_sys.stderr,
+        )
+        return False, "content write FAILED (batch_reference.py timeout)"
+    except Exception as exc:
+        print(
+            f"[PHASE5-ERROR] Content write error for {product}/{subdomain}: {exc}",
+            file=_sys.stderr,
+        )
+        return False, f"content write FAILED ({exc})"
+
 
 def _restore_backup(manifest_path: Path, backup_path: Path) -> None:
     """Restore manifest from pre-Gate-3 backup using os.replace.
@@ -284,7 +414,6 @@ def _write_manifest_gated(
     Pre-conditions (caller must ensure):
       - d.decision == "FRESH"
       - validate_for_fresh() returned [] (no violations)
-      - refresh_content_write_enabled == False (hard-blocked by caller too)
 
     Args:
         product: Product slug "family/platform".
@@ -302,8 +431,6 @@ def _write_manifest_gated(
           written=True  -> manifest written and verified successfully
           written=False -> skipped (note explains why) or FAILED (note contains "FAILED")
 
-    Raises:
-        RuntimeError: If refresh_content_write_enabled=True (HARD_BLOCK).
     """
     import sys as _sys
     import datetime
@@ -315,13 +442,6 @@ def _write_manifest_gated(
     _fm_load = _load_fn if _load_fn is not None else _fm_load_default
 
     effective_state_root: Path = state_root if state_root is not None else _STATE_ROOT
-
-    # HARD_BLOCK: content writes are never permitted — defense-in-depth (caller also checks).
-    if flags.get("refresh_content_write_enabled", False):
-        raise RuntimeError(
-            "HARD_BLOCK: refresh_content_write_enabled=True is not permitted. "
-            "This flag must remain false throughout Gate 3."
-        )
 
     # Guard: manifest write flag must be enabled.
     if not flags.get("refresh_manifest_write_enabled", False):
@@ -575,19 +695,15 @@ def run_harness(
                     changed_input_fingerprints=[],
                 )
 
+        # Gate 3: load feature flags once for both Gate 3a and Gate 3b.
+        _eff_load_ff = _cfg_load_feature_flags_fn if _cfg_load_feature_flags_fn is not None else load_feature_flags
+        _gate3_flags = _eff_load_ff()
+
         # Gate 3a: gated manifest write (refreshes manifest timestamp on confirmed FRESH decision).
-        # Only executes when refresh_manifest_write_enabled=True, refresh_reconciliation_enforced=True,
-        # refresh_content_write_enabled=False, decision==FRESH, and no_write=False.
+        # Executes when refresh_manifest_write_enabled=True, refresh_reconciliation_enforced=True,
+        # decision==FRESH, and no_write=False.
         manifest_write_note = ""
         if d.decision == "FRESH":
-            _eff_load_ff = _cfg_load_feature_flags_fn if _cfg_load_feature_flags_fn is not None else load_feature_flags
-            _gate3_flags = _eff_load_ff()
-            # HARD_BLOCK: content writes are never permitted — halt entire run if detected.
-            if _gate3_flags.get("refresh_content_write_enabled", False):
-                raise RuntimeError(
-                    "HARD_BLOCK: refresh_content_write_enabled=True detected in Gate 3 path. "
-                    "This flag must remain false. Halting run."
-                )
             if not no_write and _gate3_flags.get("refresh_manifest_write_enabled", False):
                 _eff_wmg = _cfg_write_manifest_gated_fn if _cfg_write_manifest_gated_fn is not None else _write_manifest_gated
                 _written, manifest_write_note = _eff_wmg(
@@ -613,6 +729,22 @@ def run_harness(
                         changed_input_fingerprints=[],
                     )
 
+        # Gate 3b: content write dispatch for REGENERATE decisions (Phase 5).
+        # Executes when refresh_content_write_enabled=True, decision is REGENERATE_UPSTREAM
+        # or REGENERATE_GENERATOR, and no_write=False. Reads semantic_refresh_verdict.json
+        # to determine whether the write is safe. Exit-2 verdicts raise RuntimeError.
+        content_write_note = ""
+        if d.decision in ("REGENERATE_UPSTREAM", "REGENERATE_GENERATOR"):
+            if not no_write and _gate3_flags.get("refresh_content_write_enabled", False):
+                _eff_dcw = (
+                    _cfg_dispatch_content_write_fn
+                    if _cfg_dispatch_content_write_fn is not None
+                    else _dispatch_content_write
+                )
+                _wrote_content, content_write_note = _eff_dcw(
+                    product, subdomain, d.decision, _gate3_flags, no_write
+                )
+
         # Determine outcome for this mode
         # In dry-run: no action taken, outcome = SKIP (decision captured only)
         # In validate-only / synthetic: outcome mirrors decision (no writes)
@@ -623,6 +755,11 @@ def run_harness(
             outcome = BLOCKED
         elif d.decision == "FRESH":
             outcome = "SKIP"
+        elif d.decision in ("REGENERATE_UPSTREAM", "REGENERATE_GENERATOR"):
+            if content_write_note and "SUCCEEDED" in content_write_note:
+                outcome = "CONTENT_WRITTEN"
+            else:
+                outcome = "SKIP"  # write skipped or not enabled
         else:
             outcome = "SKIP"  # shadow mode: observe, don't act
 
@@ -631,12 +768,14 @@ def run_harness(
             # In a real run this would point to the manifest file
             manifest_proof_path = f"runs/state/{product}/{subdomain}/freshness-manifest.json"
 
-        # Build explanation: append collection errors and manifest write notes.
+        # Build explanation: append collection errors, manifest write notes, and content write notes.
         explanation = d.explanation
         if fp_collection_errors:
             explanation = (explanation + " | collection_errors: " + "; ".join(fp_collection_errors)).lstrip(" | ")
         if manifest_write_note:
             explanation = (explanation + " | " + manifest_write_note).lstrip(" | ")
+        if content_write_note:
+            explanation = (explanation + " | " + content_write_note).lstrip(" | ")
 
         record = SurfaceRecord(
             product=product,
