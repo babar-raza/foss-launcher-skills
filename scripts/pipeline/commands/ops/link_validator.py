@@ -115,6 +115,29 @@ def _build_slug_index() -> dict[str, set[str]]:
         # Also add without trailing slash
         index[subdomain].add(slug.lower().rstrip("/"))
 
+        # Phase 1b: parse Hugo frontmatter aliases so that alias slugs are also
+        # recognised as valid link targets (avoids false BROKEN reports).
+        try:
+            raw = md_file.read_text(encoding="utf-8", errors="ignore")
+            fm_match = re.match(r"^---\s*\n(.*?)\n---", raw, re.DOTALL)
+            if fm_match:
+                fm_text = fm_match.group(1)
+                in_aliases = False
+                for line in fm_text.splitlines():
+                    if re.match(r"^aliases\s*:", line):
+                        in_aliases = True
+                        continue
+                    if in_aliases:
+                        item = re.match(r"^\s*-\s+(.+)", line)
+                        if item:
+                            alias = item.group(1).strip().rstrip("/")
+                            index[subdomain].add(alias.lower())
+                            index[subdomain].add(alias.lower() + "/")
+                        elif line and not line[0].isspace():
+                            in_aliases = False
+        except OSError:
+            pass
+
     # Phase 2: Hugo auto-generates section list pages for every non-empty directory,
     # even without a _index.md. Register all content subdirectories as valid slugs.
     for subdomain in KNOWN_SUBDOMAINS:
