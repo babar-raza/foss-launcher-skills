@@ -1,7 +1,19 @@
+# Archived Document
+
+Archived: 2026-05-30
+
+Reason: Superseded by the docs architecture refactor. This file is retained for history only; do not use it as current operating guidance.
+
+Successor: See docs/README.md for the current documentation map and canonical references.
+
+Original path: docs/_archive/root-orphans/governance-quickstart-pre-refactor.md
+
+---
+
 # Governance Quickstart
 
 Concise operator guide to the aspose.org governance system.
-For full details, see AGENTS.md. For bypass details, see [BYPASS_REGISTRY.md](BYPASS_REGISTRY.md).
+For full details, see AGENTS.md. This archived file originally linked to the old root bypass registry, now archived as `docs/_archive/root-orphans/bypass-registry-operator-note.md`.
 
 ## How Governance Works
 
@@ -216,7 +228,7 @@ bash scripts/install-hooks.sh
 
 ## Related Documentation
 
-- [BYPASS_REGISTRY.md](BYPASS_REGISTRY.md) -- Full bypass mechanism catalog
-- [HARD_STOP_RECOVERY.md](HARD_STOP_RECOVERY.md) -- Recovery protocols for unconditional halts
+- `docs/_archive/root-orphans/bypass-registry-operator-note.md` -- archived bypass mechanism catalog
+- [Hard-stop recovery](../../operations/hard-stop-recovery.md) -- current recovery protocol
 - AGENTS.md -- Complete governance specification
 - docs/OPERATOR_BYPASSES.md -- Operator bypass protocols

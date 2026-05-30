@@ -1,3 +1,15 @@
+# Archived Document
+
+Archived: 2026-05-30
+
+Reason: Superseded by the docs architecture refactor. This file is retained for history only; do not use it as current operating guidance.
+
+Successor: See docs/README.md for the current documentation map and canonical references.
+
+Original path: docs/_archive/root-orphans/skill-quality-gates-pre-refactor.md
+
+---
+
 # Skill Quality Gates
 
 This document describes the skill quality gate system: what gates exist, when
@@ -19,7 +31,7 @@ hard-to-reverse errors.
 | `content-check` | S-23 | Before committing any content page edit | Audits evidence, claim IDs, and frontmatter validity | — |
 | `ground-check` | S-24 | After content generation, before commit | Verifies factual grounding against knowledge model | — |
 
-Cross-reference: `AGENTS.md §12` / [`docs/registries/skills.md`](governance/../registries/skills.md) for the authoritative skill registry table.
+Cross-reference: `AGENTS.md §12` / [current skills reference](../../reference/skills.md) for the active skill registry summary.
 
 ### Monkeypatch compliance
 

@@ -1,3 +1,15 @@
+# Archived Document
+
+Archived: 2026-05-30
+
+Reason: Superseded by the docs architecture refactor. This file is retained for history only; do not use it as current operating guidance.
+
+Successor: See docs/README.md for the current documentation map and canonical references.
+
+Original path: docs/_archive/root-orphans/governance-enforcement-pre-refactor.md
+
+---
+
 # Governance Enforcement — Operator Reference
 
 **Status**: CONDITIONAL GO

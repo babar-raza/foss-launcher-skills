@@ -1,3 +1,15 @@
+# Archived Document
+
+Archived: 2026-05-30
+
+Reason: Superseded by the docs architecture refactor. This file is retained for history only; do not use it as current operating guidance.
+
+Successor: See docs/README.md for the current documentation map and canonical references.
+
+Original path: docs/_archive/root-orphans/operator-bypasses-human-only.md
+
+---
+
 # Operator Bypass Variables
 
 > **This file is for human operators only.** It is in the AGENTS.md §4 forbidden
