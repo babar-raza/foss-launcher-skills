@@ -639,12 +639,12 @@ def _build_page(
         _lc10_prose.append(
             f"This {category.lower()} provides {len(_all_mnames)} "
             f"{'method' if len(_all_mnames) == 1 else 'methods'} "
-            f"for working with {name} objects in Go programs."
+            f"for working with {name} objects in {_plat_disp} programs."
         )
         _lc10_prose.append(f"Available methods include: {_listed}.")
         _lc10_prose.append(
-            f"All exported members are accessible to any Go application "
-            f"after adding the package via `go get github.com/aspose-pdf-foss/aspose-pdf-foss-for-go`."
+            f"All public members are accessible to any {_plat_disp} application "
+            f"after installing the Aspose.{_fam_disp} FOSS for {_plat_disp} package."
         )
     if _all_pnames:
         _plisted = ", ".join(f"`{n}`" for n in _all_pnames[:6])
