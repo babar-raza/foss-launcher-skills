@@ -1,3 +1,15 @@
+# Archived Document
+
+Archived: 2026-05-30
+
+Reason: Superseded by the docs architecture refactor. This file is retained for history only; do not use it as current operating guidance.
+
+Successor: See docs/README.md for the current documentation map and canonical references.
+
+Original path: docs/_archive/pre-refactor/registries/file-map.md
+
+---
+
 <!-- Source: AGENTS.md §12 File Map
      Plan: delightful-wondering-hartmanis
      Extracted: 2026-04-29 -->

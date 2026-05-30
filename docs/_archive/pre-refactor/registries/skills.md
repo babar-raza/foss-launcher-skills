@@ -1,3 +1,15 @@
+# Archived Document
+
+Archived: 2026-05-30
+
+Reason: Superseded by the docs architecture refactor. This file is retained for history only; do not use it as current operating guidance.
+
+Successor: See docs/README.md for the current documentation map and canonical references.
+
+Original path: docs/_archive/pre-refactor/registries/skills.md
+
+---
+
 <!-- Source: AGENTS.md §12 Skills Reference
      Plan: delightful-wondering-hartmanis
      Extracted: 2026-04-29 -->
@@ -142,7 +154,7 @@ python scripts/pipeline/commands/content/audit.py all --json           # Machine
 | Kilo Code | \ | \ |
 | Canonical source | \ | — |
 
-Each tree has a \ at its root describing its contents, invocation syntax, and any divergence from canonical. See [\](skills/README.md) for the primary catalog.
+Each tree has a README at its root describing its contents, invocation syntax, and any divergence from canonical. See [current skills reference](../../../reference/skills.md) for the active catalog.
 
 #### Internal skills (auto-invoked sub-routines)
 
