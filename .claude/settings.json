@@ -29,11 +29,15 @@
       "Bash(gh pr view 1 --repo aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript --json state,mergeable,mergeStateStatus,headRefOid)",
       "Bash(ROOT_WRITE_AUTHORIZED=1 echo \"testing env var pass-through\")",
       "Bash(.venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py groups --format json)",
-      "Bash(.venv/Scripts/python -c \":*)"
+      "Bash(.venv/Scripts/python -c \":*)",
+      "Bash(xargs grep -l \"wiggly\\\\|watching-finch\\\\|v3\\\\.1.*A7\\\\|amendment.*A7\")",
+      "Bash(xargs grep -l \"BL-DEEP.*plan\\\\|backlink.*plan.*v3\\\\|v2\\\\.0.*A1.*A2\\\\|whole.*plan\")",
+      "Read(//c/Users/prora/.config/kilo/**)"
     ],
     "additionalDirectories": [
       "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing",
-      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing"
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing",
+      "d:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\backlinks\\sprint-BL-DEEP-v3.1-final-artifact-consistency-repair"
     ]
   },
   "hooks": {
