@@ -357,6 +357,14 @@ def main(argv: list[str] | None = None):
     p_report.add_argument("eval_report", help="Path to content_eval JSON report")
     p_report.set_defaults(func=_cmd_report)
 
+    # heal (alias for fix with specific defaults)
+    p_heal = sub.add_parser("heal", help="Triage + apply auto-fixes (alias for fix)")
+    p_heal.add_argument("eval_report", help="Path to content_eval JSON report")
+    p_heal.add_argument("--dry-run", action="store_true", help="Show what would change")
+    p_heal.add_argument("--categories", help="Comma-separated category codes (e.g. ST,RV)")
+    p_heal.add_argument("--after-report", dest="after_report", help="Path to write after-report")
+    p_heal.set_defaults(func=_cmd_fix)
+
     # status
     p_status = sub.add_parser("status", help="Show remaining items from remediation report")
     p_status.add_argument("remediation_report", help="Path to remediation JSON report")
