@@ -580,3 +580,9 @@ skills:
     description: 8-mode cleanroom regeneration workflow (inspect/snapshot/regen/diff/review/apply/verify/gate) for one family/platform
     internal: false
     script: scripts/pipeline/commands/ops/cleanroom_regen.py
+
+  - id: S-110
+    name: pipeline-harden
+    description: Run deep investigation and systematic hardening of the content pipeline for a family/platform
+    internal: false
+    script: null
