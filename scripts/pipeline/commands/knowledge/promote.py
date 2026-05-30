@@ -158,7 +158,8 @@ _FORMAT_SINGLE_LETTER = re.compile(r"^[A-Z]$")
 
 
 # ---------------------------------------------------------------------------
-# Go doc fallback: name-inference for trivial getters/setters (GODOC-GO-001)
+# Multi-platform doc fallback: name-inference for trivial getters/setters
+# Originally GODOC-GO-001 (Go only); extended to Python/Java/C#/C++.
 # ---------------------------------------------------------------------------
 
 def _camel_to_words(name: str) -> str:
@@ -178,30 +179,72 @@ def _camel_to_words(name: str) -> str:
     return result.lower()
 
 
+def _snake_to_words(name: str) -> str:
+    """Convert a snake_case identifier to space-separated lowercase words.
+
+    Examples::
+
+        font_name   → font name
+        is_bold     → is bold
+        get_glyphs  → get glyphs
+    """
+    return name.replace("_", " ").lower()
+
+
 def _apply_godoc_fallback(api_surface: list, platform: str) -> int:
-    """Infer docstrings for empty-doc methods in Go api_surface (in-place).
+    """Infer docstrings for empty-doc methods and properties (in-place).
 
-    Only runs when *platform* is ``'go'``.  Applies deterministic name-based
-    inference for trivial accessor/setter patterns so that reference pages no
-    longer render empty description rows.
+    Applies deterministic name-based inference for trivial accessor/setter
+    patterns so that reference pages no longer render empty description rows.
+    Originally Go-only (GODOC-GO-001); extended to Python, Java, C#, C++.
 
-    Patterns handled:
+    **Method patterns by platform:**
 
+    Go / C# (net) / C++ (cpp):
     * ``Set{Name}(val)``   → "Sets the {name} value."
     * ``Is{Name}() bool``  → "Returns true if {name} is set."
     * ``Has{Name}() bool`` → "Returns true if {name} is present."
-    * ``{Name}() T``       → "Returns the {name}."  (generic getter)
+    * ``Get{Name}()``      → "Returns the {name}."
+    * ``{Name}() T``       → "Returns the {name}."  (generic Go getter)
+
+    Java (camelCase prefixes):
+    * ``set{Name}(val)``   → "Sets the {name} value."
+    * ``is{Name}()``       → "Returns true if {name} is set."
+    * ``has{Name}()``      → "Returns true if {name} is present."
+    * ``get{Name}()``      → "Returns the {name}."
+
+    Python (snake_case prefixes):
+    * ``set_{name}(val)``  → "Sets the {name} value."
+    * ``is_{name}()``      → "Returns true if {name} is set."
+    * ``has_{name}()``     → "Returns true if {name} is present."
+    * ``get_{name}()``     → "Returns the {name}."
+
+    **Property inference (all platforms):**
+    * writable=True  → "Gets or sets the {name}."
+    * writable=False → "Gets the {name}."
 
     All inferred entries are tagged ``doc_source: "name_inference"`` for
     auditability.  Existing non-empty ``doc`` fields are **never** overwritten.
 
-    Returns the number of methods that received inferred documentation.
+    Returns the number of members (methods + properties) that received
+    inferred documentation.
     """
-    if platform != "go":
+    # Platforms that use PascalCase accessors (same as original Go logic)
+    _PASCAL_PLATFORMS = {"go", "net", "cpp"}
+    # Platforms that use camelCase accessors (Java, TypeScript)
+    _CAMEL_PLATFORMS = {"java", "typescript"}
+    # Platforms that use snake_case accessors (Python)
+    _SNAKE_PLATFORMS = {"python"}
+
+    if platform not in _PASCAL_PLATFORMS | _CAMEL_PLATFORMS | _SNAKE_PLATFORMS:
         return 0
 
     count = 0
+
     for cls in api_surface:
+        # ------------------------------------------------------------------
+        # Method inference
+        # ------------------------------------------------------------------
         for method in cls.get("methods", []):
             if method.get("doc"):
                 continue  # Never overwrite existing docs
@@ -212,26 +255,86 @@ def _apply_godoc_fallback(api_surface: list, platform: str) -> int:
 
             inferred: str | None = None
 
-            if name.startswith("Set") and len(name) > 3 and n_params >= 1:
-                words = _camel_to_words(name[3:])
-                inferred = f"Sets the {words} value."
+            if platform in _PASCAL_PLATFORMS:
+                # PascalCase: Go / C# / C++
+                if name.startswith("Set") and len(name) > 3 and n_params >= 1:
+                    words = _camel_to_words(name[3:])
+                    inferred = f"Sets the {words} value."
+                elif name.startswith("Get") and len(name) > 3 and n_params == 0 and return_type:
+                    words = _camel_to_words(name[3:])
+                    inferred = f"Returns the {words}."
+                elif name.startswith("Is") and len(name) > 2 and n_params == 0:
+                    words = _camel_to_words(name[2:])
+                    inferred = f"Returns true if {words} is set."
+                elif name.startswith("Has") and len(name) > 3 and n_params == 0:
+                    words = _camel_to_words(name[3:])
+                    inferred = f"Returns true if {words} is present."
+                elif (platform == "go" and n_params == 0
+                      and return_type and return_type not in ("void", "error")):
+                    # Generic Go getter: Name() T (no Get prefix needed)
+                    words = _camel_to_words(name)
+                    inferred = f"Returns the {words}."
 
-            elif name.startswith("Is") and len(name) > 2 and n_params == 0:
-                words = _camel_to_words(name[2:])
-                inferred = f"Returns true if {words} is set."
+            elif platform in _CAMEL_PLATFORMS:
+                # camelCase: Java
+                if name.startswith("set") and len(name) > 3 and name[3].isupper() and n_params >= 1:
+                    words = _camel_to_words(name[3:])
+                    inferred = f"Sets the {words} value."
+                elif name.startswith("get") and len(name) > 3 and name[3].isupper() and n_params == 0:
+                    words = _camel_to_words(name[3:])
+                    inferred = f"Returns the {words}."
+                elif name.startswith("is") and len(name) > 2 and name[2].isupper() and n_params == 0:
+                    words = _camel_to_words(name[2:])
+                    inferred = f"Returns true if {words} is set."
+                elif name.startswith("has") and len(name) > 3 and name[3].isupper() and n_params == 0:
+                    words = _camel_to_words(name[3:])
+                    inferred = f"Returns true if {words} is present."
 
-            elif name.startswith("Has") and len(name) > 3 and n_params == 0:
-                words = _camel_to_words(name[3:])
-                inferred = f"Returns true if {words} is present."
-
-            elif n_params == 0 and return_type and return_type not in ("void", "error"):
-                words = _camel_to_words(name)
-                inferred = f"Returns the {words}."
+            elif platform in _SNAKE_PLATFORMS:
+                # snake_case: Python
+                if name.startswith("set_") and len(name) > 4 and n_params >= 1:
+                    words = _snake_to_words(name[4:])
+                    inferred = f"Sets the {words} value."
+                elif name.startswith("get_") and len(name) > 4 and n_params == 0:
+                    words = _snake_to_words(name[4:])
+                    inferred = f"Returns the {words}."
+                elif name.startswith("is_") and len(name) > 3 and n_params == 0:
+                    words = _snake_to_words(name[3:])
+                    inferred = f"Returns true if {words} is set."
+                elif name.startswith("has_") and len(name) > 4 and n_params == 0:
+                    words = _snake_to_words(name[4:])
+                    inferred = f"Returns true if {words} is present."
 
             if inferred:
                 method["doc"] = inferred
                 method["doc_source"] = "name_inference"
                 count += 1
+
+        # ------------------------------------------------------------------
+        # Property inference (all platforms)
+        # ------------------------------------------------------------------
+        for prop in cls.get("properties", []):
+            if prop.get("doc"):
+                continue  # Never overwrite existing docs
+
+            pname = prop.get("name", "")
+            if not pname:
+                continue
+
+            # Convert property name to human-readable words
+            if "_" in pname:
+                words = _snake_to_words(pname)
+            else:
+                words = _camel_to_words(pname)
+
+            if prop.get("writable"):
+                inferred = f"Gets or sets the {words}."
+            else:
+                inferred = f"Gets the {words}."
+
+            prop["doc"] = inferred
+            prop["doc_source"] = "name_inference"
+            count += 1
 
     return count
 

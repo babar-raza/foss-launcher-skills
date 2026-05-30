@@ -26,7 +26,7 @@ class TestContentSubstance:
         self.evaluator = ContentSubstanceEvaluator()
 
     def test_stub_page_fail(self):
-        """Page with <50 prose words → FAIL."""
+        """Docs page with <50 prose words → FAIL."""
         page = _make_page(textwrap.dedent("""\
             ---
             title: Rendering
@@ -39,6 +39,65 @@ class TestContentSubstance:
         assert len(cs_findings) == 1
         assert cs_findings[0].level == "FAIL"
         assert "stub" in cs_findings[0].message.lower()
+
+    def test_reference_small_class_with_table_not_stub(self):
+        """Reference page with thin prose but a populated Properties table → no stub FAIL."""
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: AdjustValue
+            ---
+            ## Overview
+
+            `AdjustValue` is a class in Aspose.Slides FOSS for .NET.
+            Represents a geometry shape adjustment value.
+
+            ## Properties
+
+            | Name | Type | Access | Description |
+            |------|------|--------|-------------|
+            | `Name` | `string` | Read | Gets the name. |
+            | `RawValue` | `int` | Read/Write | Gets or sets the raw value. |
+        """), "content/reference.aspose.org/en/slides/net/AdjustValue.md")
+        findings = self.evaluator.evaluate(page, None)
+        cs_findings = [f for f in findings if f.category == "CS" and f.level == "FAIL"]
+        assert len(cs_findings) == 0  # Table content counts as substance
+
+    def test_reference_enum_page_with_values_table_not_stub(self):
+        """Reference enum page with Values table → no stub FAIL."""
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: AfterAnimationType
+            ---
+            ## Overview
+
+            `AfterAnimationType` is an enum in Aspose.Slides FOSS for Python.
+            Represents the after animation type of an animation effect.
+
+            ## Values
+
+            | Value | Description |
+            |-------|-------------|
+            | `DO_NOT_DIM` | Object remains fully visible |
+            | `COLOR` | Object color changes |
+        """), "content/reference.aspose.org/en/slides/python/AfterAnimationType.md")
+        findings = self.evaluator.evaluate(page, None)
+        cs_fails = [f for f in findings if f.category == "CS" and f.level == "FAIL"]
+        assert len(cs_fails) == 0  # Enum values table counts as substance
+
+    def test_reference_truly_empty_page_is_stub(self):
+        """Reference page with < 10 prose words AND no table → FAIL."""
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: EmptyClass
+            ---
+            ## Overview
+
+            Coming soon.
+        """), "content/reference.aspose.org/en/slides/net/EmptyClass.md")
+        findings = self.evaluator.evaluate(page, None)
+        cs_fails = [f for f in findings if f.category == "CS" and f.level == "FAIL"]
+        assert len(cs_fails) == 1
+        assert "stub" in cs_fails[0].message.lower()
 
     def test_reference_no_code_thin_prose_warn(self):
         """Reference page with 0 code blocks and <200 words → WARN."""

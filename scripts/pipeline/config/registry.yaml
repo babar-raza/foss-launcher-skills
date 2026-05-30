@@ -3278,3 +3278,71 @@ scripts:
     test_exempt_reason: "Shared filter library with no standalone CLI; covered indirectly by batch_reference tests"
     deprecated_since: null
     notes: "Two-step API surface filter shared by batch_reference.py and check_reference_index_structure.py (TC-REF-09)"
+
+  - path: scripts/pipeline/commands/ops/backlink_capture_current_anchors.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "BL-DEEP-v3.1 investigation utility; one-shot; integration-tested via pilot run"
+    deprecated_since: null
+    change_impact: null
+    notes: "BL-DEEP-v3.1 anchor investigation: captures current anchor state for comparison"
+
+  - path: scripts/pipeline/commands/ops/backlink_generate_anchor_inventory.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "BL-DEEP-v3.1 investigation utility; one-shot; integration-tested via pilot run"
+    deprecated_since: null
+    change_impact: null
+    notes: "BL-DEEP-v3.1 anchor investigation: generates anchor inventory for deep target analysis"
+
+  - path: scripts/pipeline/batch_regrade.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python batch_regrade.py [--dry-run] [--family FAMILY] [--platform PLATFORM]"
+    owner_domain: grading
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "One-shot maintenance utility for re-grading Grade C reference pages after evaluator updates; no stable CLI contract"
+    deprecated_since: null
+    change_impact: null
+    notes: "Batch re-grades all non-draft Grade C reference pages using current evaluators (description_completeness + content_substance); used after evaluator logic changes"
+
+  - path: scripts/pipeline/translate_subtitles.py
+    kind: one-shot
+    lifecycle: maintenance
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python translate_subtitles.py [--dry-run] [--locale LOCALES]"
+    owner_domain: localization
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    test_exempt_reason: "One-shot maintenance utility for FD-LOCALE-001 subtitle translation; translates only subtitle: frontmatter field"
+    deprecated_since: null
+    change_impact: null
+    notes: "FD-LOCALE-001: translates untranslated subtitle: fields in locale _index.md files; uses LLM translation backend"
