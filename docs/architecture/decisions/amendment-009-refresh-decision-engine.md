@@ -57,13 +57,27 @@ Phase 1 through Phase 5 must be applied sequentially. Each phase requires all re
 **Verified**: DRY_RUN_PASS on canary cells/java; 35/35 harness tests pass.
 **Effect**: Generation state tracked in manifest; prevents orphaned manifests.
 
-### Phase 5 — Content Writes (NOT YET IMPLEMENTED)
+### Phase 5 — Content Writes (CODE-COMPLETE 2026-05-30; flag pending canary)
 
 | Flag | Value |
 |------|-------|
-| `refresh_content_write_enabled` | false (leave off — not yet implemented) |
+| `refresh_content_write_enabled` | **false** (pending canary run) |
 
-**Status**: Implementation not yet built. The harness hard-blocks this flag (`HARD_BLOCK` in `_maybe_write_manifest()`). No code path reads this flag to enable content regeneration. Leave `false` until the content-write pipeline is implemented and wired to this flag.
+**Status**: Implementation complete. `_dispatch_content_write()` added to `refresh_harness.py`; Gate 3b dispatches `batch_reference.py --update` for `REGENERATE_UPSTREAM`/`REGENERATE_GENERATOR` decisions when the flag is True. Hard-block guards removed. 35/35 harness tests pass (6 new Phase 5 tests added). Full test suite: 5799 pass, 0 fail.
+
+**Design decisions made (2026-05-30)**:
+- Scope: reference subdomain only (batch_reference.py --update). Docs/blog regeneration deferred to Phase 6+.
+- Decision triggers: `REGENERATE_UPSTREAM` and `REGENERATE_GENERATOR` only. Metadata/policy decisions do not trigger content writes.
+- Scope per run: product-by-product (safest; consistent with Phases 1-4).
+- Semantic guard integration: `semantic_refresh_verdict.json` is read before each dispatch; exit-2 verdicts abort the run; exit-1 verdicts block the write (run continues); exit-0 verdicts allow the write.
+- Passing verdicts (exit 0): `BODY_UPDATED_VERIFIED`, `EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED`, `SEMANTIC_NOOP_PROVEN`, `GRADING_REMEDIATION_REQUIRED`.
+- Abort verdicts (exit 2): `CLAIM_EXTRACTION_MISSED_DELTA`, `PAGE_MAPPING_MISSED_IMPACT`.
+
+**To enable**: Set `refresh_content_write_enabled: true` in `data/refresh-feature-flags.json` after:
+1. Running `semantic_refresh_guard.py` on cells/java → exit 0
+2. Running `refresh_knowledge.py cells java` in dry-run → 0 errors
+3. Verifying content pages regenerated correctly
+4. Updating this document with canary results
 
 ---
 
@@ -106,4 +120,4 @@ To advance from Phase N to Phase N+1:
 3. Update `data/refresh-feature-flags.json` for the next phase flag
 4. Document the advance in the commit message with: `feat(refresh): advance REFRESH-ARCH-001 to Phase N+1`
 
-Phases 2–4 applied 2026-05-29 (peppy-marinating-manatee v3). Phase 5 (content writes) deferred — implementation not yet built; harness hard-blocks the flag as defense-in-depth.
+Phases 2–4 applied 2026-05-29 (peppy-marinating-manatee v3). Phase 5 implementation complete 2026-05-30 (peppy-marinating-manatee v5 sprint); flag remains false pending canary run on cells/java.
