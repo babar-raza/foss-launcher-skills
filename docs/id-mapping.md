@@ -118,6 +118,7 @@ the two repos assigned IDs independently. The same S-XX number does NOT mean the
 | S-107 | translate | *(none)* | *(none)* | foss-only dispatcher skill |
 | S-108 | content-enrich | S-83 | content-enrich | Ported; aspose S-83 |
 | S-109 | seo-review | *(none)* | *(none)* | foss-only governance gate |
+| S-110 | pipeline-harden | *(none)* | pipeline-harden | Ported from aspose.org S-99; foss-new ID to avoid collision with translate-page |
 
 ---
 
@@ -137,7 +138,6 @@ the two repos assigned IDs independently. The same S-XX number does NOT mean the
 
 | aspose.org ID | Name | Notes |
 |---|---|---|
-| S-99 | pipeline-harden | Pipeline hardening/maintenance workflow (18.6KB); high relevance — port recommended |
 | S-100 | blog-migrate | Blog migration workflow (7.65KB); lower relevance for standalone repo |
 
 ---
