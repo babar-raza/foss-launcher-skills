@@ -1,6 +1,6 @@
 ---
 name: truth-audit
-id: S-38
+id: S-47
 description: >
   Line-by-line verification of every API claim in content files against
   api_surface.json. Extracts class names, method names, property names,
@@ -10,7 +10,7 @@ description: >
 args: "{family} {platform}"
 ---
 
-# S-38: Truth Audit — Member-Level API Verification
+# S-47: Truth Audit — Member-Level API Verification
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform}` — e.g. `3d java`
@@ -192,7 +192,7 @@ Files checked: {N}
 
 | Skill | Layer | What it catches |
 |-------|-------|----------------|
-| **S-38 truth-audit** | Member-level | Fabricated methods, properties, wrong types, wrong signatures |
+| **S-47 truth-audit** | Member-level | Fabricated methods, properties, wrong types, wrong signatures |
 | S-32 content-audit | Claim-level | Claims that contradict known facts in claims.json |
 | S-33 change-guard | Block-level | Pre-write check for single text blocks |
 | content-check | Structure-level | Frontmatter, file paths, class-name existence |

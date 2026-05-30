@@ -116,7 +116,7 @@ _POLICY_TABLE: dict[tuple[str, str], HealPolicy] = {
     # --- Upstream-blocked findings ---
     ("upstream", "*"): HealPolicy(
         heal_mode="regen",
-        skill="S-80",  # causal-backtrack
+        skill="S-79",  # causal-backtrack
         description="Upstream dependency — backtrack before local fix",
         regen_after=True,
         effort="high",
