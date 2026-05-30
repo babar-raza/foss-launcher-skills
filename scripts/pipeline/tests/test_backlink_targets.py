@@ -894,7 +894,7 @@ class TestBestVerifiedAncestorFallback:
     # Test 15: No HTTP calls during resolution (requests not imported in backlink_targets)
     def test_no_http_calls_during_resolution(self):
         import importlib
-        import scripts.pipeline.lib.backlink_targets as bt_module
+        import lib.backlink_targets as bt_module  # scripts/pipeline/ is in sys.path
         # Verify requests/httpx/aiohttp/urllib.request are NOT imported
         source = ""
         try:
@@ -911,7 +911,7 @@ class TestBestVerifiedAncestorFallback:
     # Test 16: No LLM imports in backlink_targets module
     def test_no_llm_imports_in_backlink_targets_module(self):
         import inspect
-        import scripts.pipeline.lib.backlink_targets as bt_module
+        import lib.backlink_targets as bt_module  # scripts/pipeline/ is in sys.path
         source = inspect.getsource(bt_module)
         for forbidden in ("llm_router", "professionalize_client", "LLMRouter"):
             assert forbidden not in source, (
