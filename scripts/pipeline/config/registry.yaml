@@ -1015,6 +1015,20 @@ scripts:
     deprecated_since: null
     notes: "S-23 grounding ratio gate — verifies backtick identifiers against api_surface.json"
 
+  - path: scripts/pipeline/commands/content/fix_blog_index_metadata.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-repair
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    deprecated_since: null
+    notes: "Repair blog FOSS title and categories metadata; modes: --dry-run (default), --apply"
+
   - path: scripts/pipeline/lib/triage_confirm.py
     kind: library
     lifecycle: active

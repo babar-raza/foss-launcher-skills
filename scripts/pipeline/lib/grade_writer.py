@@ -75,6 +75,29 @@ _EVALUATOR_VERSIONS_BLOCK_RE = re.compile(
 _EVALUATOR_VERSION_ENTRY_RE = re.compile(r'^\s{2}(\w+):\s*"?([^"\n]+?)"?\s*$', re.MULTILINE)
 
 
+def _strip_orphaned_list_items(text: str) -> str:
+    """Strip bare root-level YAML list items that have no valid parent mapping key.
+
+    A list item (line starting with '- ') is considered orphaned when the
+    preceding non-blank line does NOT end with ':' (i.e., it is not a YAML
+    mapping key that opens a sequence).  Valid list items such as those under
+    'categories:' or 'tags:' are preserved.
+
+    This replaces the previous unconditional regex approach which caused valid
+    category and tag values to be stripped as a side-effect of grade-block
+    cleanup (bug introduced with the bare-list-item orphan guard).
+    """
+    lines = text.split('\n')
+    out: list[str] = []
+    for line in lines:
+        if re.match(r'^- ', line):
+            prev_nonempty = next((ln for ln in reversed(out) if ln.strip()), '')
+            if not prev_nonempty.rstrip().endswith(':'):
+                continue  # genuinely orphaned — strip
+        out.append(line)
+    return '\n'.join(out)
+
+
 # ---------------------------------------------------------------------------
 # Public helpers
 # ---------------------------------------------------------------------------
@@ -286,10 +309,10 @@ def write_grade(
         # Strip stray grade-key lines (and their indented continuations)
         cleaned_before = _GRADE_BLOCK_RE.sub("", outside_before)
         cleaned_after = _GRADE_BLOCK_RE.sub("", outside_after)
-        # Strip bare root-level list items (always invalid inside a YAML mapping)
-        _bare_list_re = re.compile(r'^- [^\n]*\n?', re.MULTILINE)
-        cleaned_before = _bare_list_re.sub("", cleaned_before)
-        cleaned_after = _bare_list_re.sub("", cleaned_after)
+        # Strip bare root-level list items that are truly orphaned (no parent YAML key).
+        # Uses context-aware helper to preserve valid categories/tags list items.
+        cleaned_before = _strip_orphaned_list_items(cleaned_before)
+        cleaned_after = _strip_orphaned_list_items(cleaned_after)
         if cleaned_before != outside_before or cleaned_after != outside_after:
             _log(
                 f"  WARN {filepath}: removed orphaned grade keys or bare list items outside "

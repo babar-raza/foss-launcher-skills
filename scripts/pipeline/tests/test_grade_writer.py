@@ -1190,3 +1190,93 @@ class TestOrphanGuardRepair:
             assert "grade: B" in text
         finally:
             p.unlink(missing_ok=True)
+
+
+# ---------------------------------------------------------------------------
+# TC-GW-002: categories/tags preservation regression tests
+# ---------------------------------------------------------------------------
+
+class TestListItemPreservation:
+    """Regression tests for _strip_orphaned_list_items — verify that write_grade()
+    does NOT strip valid YAML list items under categories: or tags: keys."""
+
+    def test_categories_preserved_through_write_grade(self, tmp_path):
+        p = tmp_path / "page.md"
+        p.write_text(textwrap.dedent("""\
+            ---
+            title: Test
+            categories:
+            - Aspose.Words
+            ---
+
+            Body.
+        """), encoding="utf-8")
+        ok = write_grade(p, "A", model_sha="sha1")
+        assert ok
+        text = p.read_text(encoding="utf-8")
+        assert "categories:" in text
+        assert "- Aspose.Words" in text
+
+    def test_tags_preserved_through_write_grade(self, tmp_path):
+        p = tmp_path / "page.md"
+        p.write_text(textwrap.dedent("""\
+            ---
+            title: Test
+            tags:
+            - python
+            ---
+
+            Body.
+        """), encoding="utf-8")
+        ok = write_grade(p, "A", model_sha="sha1")
+        assert ok
+        text = p.read_text(encoding="utf-8")
+        assert "tags:" in text
+        assert "- python" in text
+
+    def test_orphaned_bare_list_item_stripped(self, tmp_path):
+        """A stray root-level '- orphaned' line NOT under any key must be removed."""
+        # Simulate the corruption that write_grade is designed to fix:
+        # a grade block that somehow left a dangling list item.
+        # We inject it directly into the frontmatter outside any mapping key.
+        raw = "---\ntitle: Test\n- orphaned\ngrade: B\ngraded_content_hash: \"abc\"\ngrade_reasons:\n  - some reason\n---\n\nBody.\n"
+        p = tmp_path / "page.md"
+        p.write_text(raw, encoding="utf-8")
+        ok = write_grade(p, "A", model_sha="sha2")
+        assert ok
+        text = p.read_text(encoding="utf-8")
+        assert "- orphaned" not in text
+
+    def test_categories_survive_repeated_write_grade_calls(self, tmp_path):
+        p = tmp_path / "page.md"
+        p.write_text(textwrap.dedent("""\
+            ---
+            title: Test
+            categories:
+            - Aspose.Cells
+            ---
+
+            Body.
+        """), encoding="utf-8")
+        write_grade(p, "A", model_sha="sha1")
+        write_grade(p, "B", model_sha="sha2")
+        text = p.read_text(encoding="utf-8")
+        assert "categories:" in text
+        assert "- Aspose.Cells" in text
+
+    def test_strip_orphaned_list_items_unit(self):
+        """Unit test for _strip_orphaned_list_items() directly."""
+        from grade_writer import _strip_orphaned_list_items
+
+        # Valid items under mapping keys must be preserved
+        text_with_valid = "categories:\n- Aspose.Words\ntags:\n- python\n"
+        result = _strip_orphaned_list_items(text_with_valid)
+        assert "- Aspose.Words" in result
+        assert "- python" in result
+
+        # Orphaned item (no preceding key line) must be stripped
+        text_with_orphan = "title: Test\n- orphaned\ndescription: desc\n"
+        result = _strip_orphaned_list_items(text_with_orphan)
+        assert "- orphaned" not in result
+        assert "title: Test" in result
+        assert "description: desc" in result
