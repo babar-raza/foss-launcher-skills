@@ -1453,8 +1453,50 @@ def extract_api_surface(
                     for member in body.children:
                         if member.type == "access_specifier":
                             access = node_text(member).strip().rstrip(":")
+                        elif member.type == "function_definition" and access == "public":
+                            # Inline method definition (has body): void SetBold(bool v) { ... }
+                            fdecl = find_child_by_type(member, "function_declarator")
+                            if fdecl is None:
+                                for _wrapper_type in ("reference_declarator", "pointer_declarator"):
+                                    _wrapper = find_child_by_type(member, _wrapper_type)
+                                    if _wrapper:
+                                        fdecl = find_child_by_type(_wrapper, "function_declarator")
+                                        if fdecl:
+                                            break
+                            if fdecl is not None:
+                                mname = ""
+                                for ch in fdecl.children:
+                                    if ch.type in ("identifier", "field_identifier", "destructor_name"):
+                                        mname = node_text(ch)
+                                        break
+                                if mname and not mname.startswith("_"):
+                                    params = _extract_method_params(fdecl, language)
+                                    ret = _extract_return_type(member, language)
+                                    mdoc = _extract_doc_comment(member, language)
+                                    methods.append({
+                                        "name": mname,
+                                        "params": params,
+                                        "return_type": ret,
+                                        "doc": mdoc,
+                                        "line": member.start_point[0] + 1,
+                                        "is_constructor": False,
+                                    })
+                                    claims.append(_make_claim(
+                                        family, "api_method",
+                                        f"{cname}.{mname}({', '.join(p['name'] for p in params)}) -> {ret}",
+                                        rel, member.start_point[0] + 1))
                         elif member.type == "field_declaration" and access == "public":
                             fdecl = find_child_by_type(member, "function_declarator")
+                            # Support reference/pointer return types: T& GetFoo() or T* GetFoo()
+                            # tree-sitter wraps function_declarator inside reference_declarator
+                            # or pointer_declarator in these cases, so direct search misses them.
+                            if fdecl is None:
+                                for _wrapper_type in ("reference_declarator", "pointer_declarator"):
+                                    _wrapper = find_child_by_type(member, _wrapper_type)
+                                    if _wrapper:
+                                        fdecl = find_child_by_type(_wrapper, "function_declarator")
+                                        if fdecl:
+                                            break
                             if fdecl is not None:
                                 # Method declaration (no body) — common in header files
                                 mname = ""
