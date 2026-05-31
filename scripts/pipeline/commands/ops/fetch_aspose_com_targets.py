@@ -91,6 +91,8 @@ PLATFORM_ALIASES: dict[str, str] = {
     "ruby": "ruby", "ruby-net": "ruby",
     # go
     "go": "go", "golang": "go",
+    # typescript
+    "typescript": "typescript",
 }
 
 CANONICAL_PLATFORMS = set(PLATFORM_ALIASES.values())

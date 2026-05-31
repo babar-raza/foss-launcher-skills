@@ -16,6 +16,7 @@ canonical_platforms:
   - android
   - php
   - ruby
+  - typescript
   - jasperreports   # Enterprise-only; no local source pages
   - rust            # Enterprise-only; no local source pages
 
@@ -120,6 +121,12 @@ variants:
     evidence: "473 HTTP 200 in reference.aspose.com all_urls"
     subdomains_with_variants: [reference]
     note: "Enterprise-only; no aspose.org source pages"
+
+  # TypeScript
+  typescript:
+    canonical: typescript
+    local_equivalent: true
+    evidence: "local platform dirs use typescript (cells/typescript, 3d/typescript, etc.)"
 
   # Standard platforms (no enterprise-side variants)
   net:
