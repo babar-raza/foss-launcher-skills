@@ -78,7 +78,7 @@ _TECHNICAL_CONTEXT_RE = re.compile(
     r"|ensures?\s+(?:that\s+)?(?:the\s+)?(?:object|instance|value|result)"
     r"|guaranteed\s+to\s+(?:be|return|succeed)"
     r"|all\s+(?:examples?|code\s+(?:examples?|samples?|snippets?)|snippets?)\b"
-    r"|\|\s*none\s*\|"
+    r"|\|\s*`?none`?\s*\|"
     r")",
     re.IGNORECASE,
 )

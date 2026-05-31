@@ -445,11 +445,21 @@ def build_target_map(
         file=sys.stderr,
     )
 
-    # Subdomains that must be synthesized (no useful product-level sitemaps)
-    SYNTHESIZE_SUBDOMAINS = {"products.aspose.com", "docs.aspose.com"}
+    # Subdomains that must be synthesized (no useful product-level sitemaps).
+    # When --products-sitemap is active, products.aspose.com is fetched from its
+    # real sitemap instead of being synthesized from local content.
+    if getattr(args, "products_sitemap", False):
+        SYNTHESIZE_SUBDOMAINS = {"docs.aspose.com"}
+        print(
+            "[TC-002] --products-sitemap active: products.aspose.com will be fetched "
+            "from real sitemap instead of synthesized from local content.",
+            file=__import__("sys").stderr,
+        )
+    else:
+        SYNTHESIZE_SUBDOMAINS = {"products.aspose.com", "docs.aspose.com"}
 
     # Handle synthesis subdomains first
-    for subdomain in ("products.aspose.com", "docs.aspose.com"):
+    for subdomain in sorted(SYNTHESIZE_SUBDOMAINS):
         priority = "P0"
         print(f"[{priority}] Synthesizing URLs for {subdomain} ...", file=sys.stderr)
         candidates = synthesize_urls_for_subdomain(subdomain, families_platforms, filter_families)
@@ -792,6 +802,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--repo-root", type=Path, default=REPO_ROOT,
         help="Override repo root path.",
+    )
+    parser.add_argument(
+        "--products-sitemap",
+        action="store_true",
+        dest="products_sitemap",
+        help=(
+            "Fetch products.aspose.com from its live sitemap instead of synthesizing "
+            "from local content. Opt-in only — enables discovery of variant product URLs "
+            "(e.g., python-net, python-java) not visible via local content synthesis. "
+            "Requires live HTTP access. Default: synthesize from local content (TC-002)."
+        ),
     )
     args = parser.parse_args(argv)
 

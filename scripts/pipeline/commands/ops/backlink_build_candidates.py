@@ -7,13 +7,18 @@ a candidate graph with scored matches per source page.
 Stage 0: hard filters (http_status=200, family, platform, target type)
 Stage 1: exact match (deterministic; ≥0.90 → AUTO_APPROVE_EXACT)
 Stage 2: metadata match (deterministic; always REVIEW_REQUIRED max)
+Stage 3: TF-IDF semantic (opt-in --semantic; score 0.30–0.49; NEVER AUTO_APPROVE)
 AI boost: optional, max +0.05; reads ai_enrichment_index.json if --ai-enrichment given
+
+Stage 3 invariant: STAGE3_MAX_SCORE=0.49 < THRESHOLD_AUTO_APPROVE_EXACT=0.90.
+Semantic matches can NEVER reach AUTO_APPROVE regardless of score.
 
 Output: data/backlinks/workspace/candidate_graph.json (gitignored)
 
 Usage:
     .venv/Scripts/python backlink_build_candidates.py --family 3d --platform java \\
-        --subdomain reference.aspose.org [--no-ai] [--ai-enrichment PATH] [--dry-run]
+        --subdomain reference.aspose.org [--no-ai] [--ai-enrichment PATH] [--dry-run] \\
+        [--semantic]
 """
 from __future__ import annotations
 
@@ -33,6 +38,10 @@ from lib.backlink_targets import PLATFORM_ALIASES
 THRESHOLD_AUTO_APPROVE_EXACT = 0.90
 THRESHOLD_REVIEW_REQUIRED_MIN = 0.50
 MAX_AI_BOOST = 0.05
+
+# Stage 3 semantic scoring bounds (invariant: STAGE3_MAX_SCORE < THRESHOLD_AUTO_APPROVE_EXACT)
+THRESHOLD_STAGE3_MIN = 0.30   # minimum cosine to include a semantic candidate
+STAGE3_MAX_SCORE = 0.49       # semantic matches NEVER reach AUTO_APPROVE (0.90)
 
 DEEP_INDEX_PATH = REPO_ROOT / "data" / "backlinks" / "workspace" / "deep_target_index.json"
 CANDIDATE_GRAPH_PATH = REPO_ROOT / "data" / "backlinks" / "workspace" / "candidate_graph.json"
@@ -176,6 +185,71 @@ def _stage1_score_kb(entry: dict, source: dict) -> float:
     return 0.0
 
 
+def _build_tfidf_corpus(index: dict) -> tuple[list[str], list[list[str]]]:
+    """
+    Build a list of target paths and their tokenised text for TF-IDF IDF computation.
+
+    Returns: (path_keys, token_lists)
+    """
+    path_keys: list[str] = []
+    token_lists: list[list[str]] = []
+    for path_key, entry in index.items():
+        text_parts = [
+            entry.get("path", ""),
+            entry.get("class_name", "") or "",
+            entry.get("namespace", "") or "",
+            entry.get("article_slug", "") or "",
+        ]
+        tokens = _tokenize(" ".join(filter(None, text_parts)))
+        path_keys.append(path_key)
+        token_lists.append(tokens)
+    return path_keys, token_lists
+
+
+def build_tfidf_idf(token_lists: list[list[str]]) -> dict:
+    """Compute IDF dict over all target documents using embed.py utilities."""
+    from commands.knowledge.embed import compute_idf
+    return compute_idf(token_lists)
+
+
+def _stage3_score_semantic(
+    entry: dict,
+    source: dict,
+    idf_dict: dict,
+    path_keys: list[str],
+    token_lists: list[list[str]],
+) -> float:
+    """
+    Stage 3: TF-IDF cosine similarity between source title tokens and target tokens.
+
+    Returns a score in [0.0, STAGE3_MAX_SCORE].
+    NEVER returns a value that could reach AUTO_APPROVE_EXACT (0.90).
+    """
+    from commands.knowledge.embed import compute_tfidf_vector, cosine_similarity
+
+    src_tokens = _tokenize(source.get("title", ""))
+    if not src_tokens:
+        return 0.0
+
+    # Build target token list for this entry
+    text_parts = [
+        entry.get("path", ""),
+        entry.get("class_name", "") or "",
+        entry.get("namespace", "") or "",
+        entry.get("article_slug", "") or "",
+    ]
+    tgt_tokens = _tokenize(" ".join(filter(None, text_parts)))
+    if not tgt_tokens:
+        return 0.0
+
+    src_vec = compute_tfidf_vector(src_tokens, idf_dict)
+    tgt_vec = compute_tfidf_vector(tgt_tokens, idf_dict)
+
+    cosine = cosine_similarity(src_vec, tgt_vec)
+    # Cap at STAGE3_MAX_SCORE — semantic matches NEVER reach AUTO_APPROVE
+    return min(float(cosine), STAGE3_MAX_SCORE)
+
+
 def _determine_decision(final_score: float, ai_boost: float) -> str:
     if final_score >= THRESHOLD_AUTO_APPROVE_EXACT:
         # If AI boost was required to cross threshold, still AUTO_APPROVE_EXACT
@@ -186,13 +260,13 @@ def _determine_decision(final_score: float, ai_boost: float) -> str:
     return "BLOCKED"
 
 
-def score_candidate(entry: dict, source: dict, ai_signals: Optional[dict] = None) -> dict:
+def score_candidate(entry: dict, source: dict, ai_signals: Optional[dict] = None, tfidf_data: Optional[tuple] = None) -> dict:
     """
     Score a single (source, target) candidate pair.
 
     Returns: {
-        source_key, target_path, stage1_score, stage2_score, ai_boost,
-        ai_boost_applied, ai_signals, final_score, decision
+        source_key, target_path, stage1_score, stage2_score, stage3_score,
+        ai_boost, ai_boost_applied, ai_signals, semantic_used, final_score, decision
     }
     """
     target_type = entry.get("type", "")
@@ -212,6 +286,14 @@ def score_candidate(entry: dict, source: dict, ai_signals: Optional[dict] = None
         if any(w in path for w in _tokenize(title_lower) if len(w) > 3):
             stage2 = 0.55  # REVIEW_REQUIRED
 
+    # Stage 3: TF-IDF semantic (opt-in; only when Stage 1 and Stage 2 both miss)
+    stage3: Optional[float] = None
+    if stage1 == 0.0 and stage2 is None and tfidf_data is not None:
+        path_keys, token_lists, idf_dict = tfidf_data
+        stage3_raw = _stage3_score_semantic(entry, source, idf_dict, path_keys, token_lists)
+        if stage3_raw >= THRESHOLD_STAGE3_MIN:
+            stage3 = stage3_raw
+
     # AI boost
     ai_boost = 0.0
     ai_boost_applied = False
@@ -225,7 +307,7 @@ def score_candidate(entry: dict, source: dict, ai_signals: Optional[dict] = None
             ai_boost = min(0.03, MAX_AI_BOOST)
             ai_boost_applied = True
 
-    base_score = stage1 if stage1 > 0.0 else (stage2 or 0.0)
+    base_score = stage1 if stage1 > 0.0 else (stage2 if stage2 is not None else (stage3 or 0.0))
     final_score = min(1.0, base_score + ai_boost)
 
     # AI disagreement: if AI says unrelated but deterministic is high → REVIEW_REQUIRED
@@ -244,9 +326,11 @@ def score_candidate(entry: dict, source: dict, ai_signals: Optional[dict] = None
         "target_path": entry["path"],
         "stage1_score": round(stage1, 4),
         "stage2_score": round(stage2, 4) if stage2 is not None else None,
+        "stage3_score": round(stage3, 4) if stage3 is not None else None,
         "ai_boost": round(ai_boost, 4),
         "ai_boost_applied": ai_boost_applied,
         "ai_signals": ai_signals,
+        "semantic_used": tfidf_data is not None and stage3 is not None,
         "final_score": round(final_score, 4),
         "decision": decision,
         "ai_disagrees": ai_disagrees,
@@ -260,6 +344,7 @@ def build_candidates(
     source_pages: list[dict],
     ai_enrichment: Optional[dict] = None,
     families_filter: Optional[list[str]] = None,
+    tfidf_data: Optional[tuple] = None,
 ) -> dict:
     """
     Build candidate graph for all source pages against deep target index.
@@ -294,7 +379,7 @@ def build_candidates(
                     "llm_classification"
                 )
 
-            c = score_candidate(entry, source, ai_signals)
+            c = score_candidate(entry, source, ai_signals, tfidf_data)
             if c["final_score"] > 0.0 or c.get("decision") != "BLOCKED":
                 src_candidates.append(c)
 
@@ -336,6 +421,15 @@ def main() -> None:
     parser.add_argument("--ai-enrichment", default=None,
                         help="Path to ai_enrichment_index.json (Layer 1.5)")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--semantic",
+        action="store_true",
+        help=(
+            "Enable Stage 3 TF-IDF semantic matching (opt-in; score 0.30-0.49; "
+            "NEVER AUTO_APPROVE). Only activates when Stage 1 and Stage 2 both produce "
+            "no signal. Invariant: STAGE3_MAX_SCORE=0.49 < THRESHOLD_AUTO_APPROVE_EXACT=0.90."
+        ),
+    )
     args = parser.parse_args()
 
     deep_index_path = Path(args.deep_index)
@@ -377,10 +471,20 @@ def main() -> None:
 
     print(f"Found {len(source_pages)} source pages")
 
+    # Build TF-IDF corpus (Stage 3, only when --semantic is active)
+    tfidf_data = None
+    if args.semantic:
+        print("Building TF-IDF corpus for Stage 3 semantic matching ...")
+        index_entries = deep_index.get("index", {})
+        path_keys, token_lists = _build_tfidf_corpus(index_entries)
+        idf_dict = build_tfidf_idf(token_lists)
+        tfidf_data = (path_keys, token_lists, idf_dict)
+        print(f"TF-IDF corpus: {len(path_keys)} documents, {len(idf_dict)} unique terms")
+
     # Build candidates
     print("Building candidate graph ...")
     families_filter = [args.family]
-    graph = build_candidates(deep_index, source_pages, ai_enrichment, families_filter)
+    graph = build_candidates(deep_index, source_pages, ai_enrichment, families_filter, tfidf_data)
     stats = graph["stats"]
 
     print(f"Candidates: {stats['total_candidates']} across {stats['total_sources']} sources")
@@ -406,6 +510,7 @@ def main() -> None:
         "subdomain": subdomain,
         "deep_index_hash": deep_index_hash,
         "ai_enrichment_used": ai_enrichment is not None,
+        "semantic_used": args.semantic,
         "stats": stats,
         "sources": graph["sources"],
         "candidates": graph["candidates"],
