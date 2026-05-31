@@ -98,6 +98,43 @@ def _count_body_changes(page_decisions: dict) -> tuple[int, int]:
     return body_changed, evidence_only
 
 
+def _removed_claims_cited_in_pages(
+    removed_claim_ids: list[str],
+    family: str,
+    platform: str,
+    repo_root: Path,
+) -> bool:
+    """Return True if ANY removed claim ID is cited in a content page for this product.
+
+    Scans all content subdomains for the product. Returns False if no removed claim
+    is found in any page file, meaning PAGE_MAPPING_MISSED_IMPACT would be a false
+    positive (claims were removed from knowledge but were never cited in pages).
+    """
+    if not removed_claim_ids:
+        return False
+    content_root = repo_root / "content"
+    sites = [
+        content_root / "docs.aspose.org" / "en" / family / platform,
+        content_root / "kb.aspose.org" / "en" / family / platform,
+        content_root / "blog.aspose.org" / family / platform,
+        content_root / "reference.aspose.org" / "en" / family / platform,
+        content_root / "products.aspose.org" / "en" / family,
+    ]
+    claim_id_set = set(removed_claim_ids)
+    for site_dir in sites:
+        if not site_dir.is_dir():
+            continue
+        for md_file in site_dir.rglob("*.md"):
+            try:
+                text = md_file.read_text(encoding="utf-8", errors="ignore")
+                for cid in claim_id_set:
+                    if cid in text:
+                        return True
+            except Exception:
+                continue
+    return False
+
+
 def _count_grade_issues(family: str, platform: str, repo_root: Path) -> int:
     """Count D/F graded pages for this product."""
     try:
@@ -234,13 +271,30 @@ def evaluate(
         return "CLAIM_EXTRACTION_MISSED_DELTA", "HIGH", proof
 
     # ── Priority 3: PAGE_MAPPING_MISSED_IMPACT ────────────────────────────────
-    # modified_claims or removed_claims exist but 0 body changes
+    # modified_claims or removed_claims exist but 0 body changes.
+    # Before flagging removed_claims, verify they are actually cited in pages.
+    # If knowledge_delta provides actual claim IDs AND none are cited in any page,
+    # this is a false positive (claims removed from knowledge but never in pages).
+    # If knowledge_delta is absent/empty, stay conservative and flag the impact.
     if (removed_claims > 0 or modified_claims > 0) and body_changed == 0:
-        proof.append(
-            f"PAGE_MAPPING_MISSED_IMPACT: {modified_claims} modified_claims + {removed_claims} "
-            f"removed_claims exist but 0 body changes in page_decisions"
-        )
-        return "PAGE_MAPPING_MISSED_IMPACT", "HIGH", proof
+        removed_claim_ids = knowledge_delta.get("removed_claims", [])
+        if (removed_claims > 0
+                and removed_claim_ids  # have actual IDs to verify
+                and not _removed_claims_cited_in_pages(
+                    removed_claim_ids, family, platform, root
+                )):
+            # Removed claim IDs verified uncited in all pages — not a real missed impact
+            proof.append(
+                f"PAGE_MAPPING_MISSED_IMPACT skipped: {removed_claims} removed_claims "
+                f"verified uncited in all pages (false positive suppressed)"
+            )
+            # Fall through to later verdicts
+        else:
+            proof.append(
+                f"PAGE_MAPPING_MISSED_IMPACT: {modified_claims} modified_claims + {removed_claims} "
+                f"removed_claims exist but 0 body changes in page_decisions"
+            )
+            return "PAGE_MAPPING_MISSED_IMPACT", "HIGH", proof
 
     # ── Priority 4: SEMANTIC_REFRESH_REQUIRED ────────────────────────────────
     # claim delta > 0 (any type) but 0 body changes and source is user-facing

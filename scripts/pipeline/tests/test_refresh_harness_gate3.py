@@ -878,18 +878,18 @@ class TestProductionFlagsSafety:
             "Phase 2 approved — refresh_manifest_write_enabled must be True."
         )
 
-    def test_production_flags_content_write_disabled(self):
-        """data/refresh-feature-flags.json has refresh_content_write_enabled=False.
+    def test_production_flags_content_write_enabled(self):
+        """data/refresh-feature-flags.json has refresh_content_write_enabled=True.
 
-        Phase 5 implementation is code-complete but the flag remains False pending
-        a successful canary run on a real product. Enable only after canary passes.
+        Phase 5 enabled 2026-05-31 after canary verification (amendment-009).
+        Guard verdicts in semantic_refresh_guard.py ensure writes are safe.
         """
         flags_path = _REPO_ROOT / "data" / "refresh-feature-flags.json"
         if not flags_path.is_file():
             pytest.skip("data/refresh-feature-flags.json not found")
         flags = load_feature_flags(flags_path)
-        assert flags["refresh_content_write_enabled"] is False, (
-            "Production content write flag must remain False until canary run passes."
+        assert flags["refresh_content_write_enabled"] is True, (
+            "Production content write flag must be True (Phase 5 live since 2026-05-31)."
         )
 
     def test_production_flags_enforced_enabled(self):

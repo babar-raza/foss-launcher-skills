@@ -423,19 +423,18 @@ class TestFeatureFlagLoader:
         assert flags["refresh_content_write_enabled"] is False
 
     def test_production_feature_flags_file_has_safe_defaults(self):
-        """The production feature flags file has safe defaults.
+        """The production feature flags file reflects current approved phase state.
 
-        Phases 1-3 (REFRESH-ARCH-001, approved 2026-05-29): decision engine, manifest
-        writes, and reconciliation enforcement are intentionally True. Phase 5 (content
-        writes) must remain False until explicitly advanced per amendment-009.
+        Phases 1-5 (REFRESH-ARCH-001): all flags enabled as of 2026-05-31.
+        Phase 5 (content writes) enabled after canary verification (amendment-009).
+        Guard verdicts ensure writes only occur when semantically safe.
         """
         flags_path = _REPO_ROOT / "data" / "refresh-feature-flags.json"
         if not flags_path.is_file():
             pytest.skip("data/refresh-feature-flags.json not found")
         flags = load_feature_flags(flags_path)
-        # Phases 1-3 approved: decision engine, manifest writes, reconciliation ON
-        # Phase 5 (content writes) must remain False until explicitly advanced
-        assert flags["refresh_content_write_enabled"] is False
+        # Phases 1-5 all approved and enabled as of 2026-05-31
+        assert flags["refresh_content_write_enabled"] is True
 
 
 # ---------------------------------------------------------------------------

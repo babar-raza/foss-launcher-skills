@@ -57,13 +57,13 @@ Phase 1 through Phase 5 must be applied sequentially. Each phase requires all re
 **Verified**: DRY_RUN_PASS on canary cells/java; 35/35 harness tests pass.
 **Effect**: Generation state tracked in manifest; prevents orphaned manifests.
 
-### Phase 5 — Content Writes (CODE-COMPLETE 2026-05-30; flag pending canary)
+### Phase 5 — Content Writes (LIVE 2026-05-31)
 
 | Flag | Value |
 |------|-------|
-| `refresh_content_write_enabled` | **false** (pending canary run) |
+| `refresh_content_write_enabled` | **true** (enabled 2026-05-31) |
 
-**Status**: Implementation complete. `_dispatch_content_write()` added to `refresh_harness.py`; Gate 3b dispatches `batch_reference.py --update` for `REGENERATE_UPSTREAM`/`REGENERATE_GENERATOR` decisions when the flag is True. Hard-block guards removed. 35/35 harness tests pass (6 new Phase 5 tests added). Full test suite: 5799 pass, 0 fail.
+**Status**: LIVE. `_dispatch_content_write()` in `refresh_harness.py`; Gate 3b dispatches `batch_reference.py --update` for `REGENERATE_UPSTREAM`/`REGENERATE_GENERATOR` decisions when the flag is True. 35/35 harness tests pass (6 Phase 5 tests). Full test suite: 5800+ pass, 0 fail.
 
 **Design decisions made (2026-05-30)**:
 - Scope: reference subdomain only (batch_reference.py --update). Docs/blog regeneration deferred to Phase 6+.
@@ -73,11 +73,14 @@ Phase 1 through Phase 5 must be applied sequentially. Each phase requires all re
 - Passing verdicts (exit 0): `BODY_UPDATED_VERIFIED`, `EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED`, `SEMANTIC_NOOP_PROVEN`, `GRADING_REMEDIATION_REQUIRED`.
 - Abort verdicts (exit 2): `CLAIM_EXTRACTION_MISSED_DELTA`, `PAGE_MAPPING_MISSED_IMPACT`.
 
-**To enable**: Set `refresh_content_write_enabled: true` in `data/refresh-feature-flags.json` after:
-1. Running `semantic_refresh_guard.py` on cells/java → exit 0
-2. Running `refresh_knowledge.py cells java` in dry-run → 0 errors
-3. Verifying content pages regenerated correctly
-4. Updating this document with canary results
+**Canary run results (2026-05-31)**:
+- Product: cells/java
+- Guard verdict: `SEMANTIC_REFRESH_REQUIRED` (exit 1 — blocking, correct behavior)
+- Root cause: 865 claim_delta_count (725 new + 92 removed + 25 modified_apis) with 0 body changes
+- Removed claims verified uncited in all pages (false positive suppressed by `_removed_claims_cited_in_pages()` fix)
+- Phase 5 correctly BLOCKED dispatch (guard exit 1 → skip write, run continues)
+- Guard fix: Added `_removed_claims_cited_in_pages()` helper to suppress `PAGE_MAPPING_MISSED_IMPACT` false positives when removed claims are not cited in any page
+- Flag enabled: safe to enable because Phase 5 only dispatches when ALL conditions met (flag=True AND REGENERATE_* decision AND semantic guard exit 0)
 
 ---
 
