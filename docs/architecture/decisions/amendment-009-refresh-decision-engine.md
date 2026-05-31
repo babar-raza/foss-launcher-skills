@@ -63,7 +63,9 @@ Phase 1 through Phase 5 must be applied sequentially. Each phase requires all re
 |------|-------|
 | `refresh_content_write_enabled` | **true** (enabled 2026-05-31) |
 
-**Status**: LIVE. `_dispatch_content_write()` in `refresh_harness.py`; Gate 3b dispatches `batch_reference.py --update` for `REGENERATE_UPSTREAM`/`REGENERATE_GENERATOR` decisions when the flag is True. 35/35 harness tests pass (6 Phase 5 tests). Full test suite: 5800+ pass, 0 fail.
+**Status**: LIVE. `_dispatch_content_write()` in `refresh_harness.py`; Gate 3b dispatches `batch_reference.py --update` for `REGENERATE_UPSTREAM`/`REGENERATE_GENERATOR` decisions when the flag is True. 35/35 harness tests pass (6 Phase 5 tests). Full test suite: 5804 pass, 0 fail.
+
+**Post-enablement fix (2026-05-31, commit fb5db179af)**: A third safety-gate test in `test_site_planner_refresh_gate.py::test_production_flags_have_safe_defaults` was missed during Phase 5 enablement and still asserted `refresh_content_write_enabled is False`. Fixed to assert `is True` with updated docstring. Three total safety-gate tests now correctly reflect Phase 5 live state.
 
 **Design decisions made (2026-05-30)**:
 - Scope: reference subdomain only (batch_reference.py --update). Docs/blog regeneration deferred to Phase 6+.
