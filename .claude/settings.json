@@ -32,7 +32,8 @@
       "Bash(.venv/Scripts/python -c \":*)",
       "Bash(xargs grep -l \"wiggly\\\\|watching-finch\\\\|v3\\\\.1.*A7\\\\|amendment.*A7\")",
       "Bash(xargs grep -l \"BL-DEEP.*plan\\\\|backlink.*plan.*v3\\\\|v2\\\\.0.*A1.*A2\\\\|whole.*plan\")",
-      "Read(//c/Users/prora/.config/kilo/**)"
+      "Read(//c/Users/prora/.config/kilo/**)",
+      "Bash(.venv/Scripts/python -m pytest scripts/maintenance/supervisor/tests/test_supervisor.py -q)"
     ],
     "additionalDirectories": [
       "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing",
@@ -100,5 +101,28 @@
         ]
       }
     ]
+  },
+  "_supervisor_mcp_pre_existing": {},
+  "mcpServers": {
+    "task-master-ai": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "--package=task-master-ai@0.43.1",
+        "task-master-ai"
+      ],
+      "env": {}
+    },
+    "claude-flow": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "--package=claude-flow@3.10.13",
+        "claude-flow",
+        "mcp",
+        "start"
+      ],
+      "env": {}
+    }
   }
 }
