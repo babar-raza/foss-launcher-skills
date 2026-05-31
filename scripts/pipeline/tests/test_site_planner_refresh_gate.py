@@ -91,19 +91,19 @@ class TestGlobalExitNotCalledWhenEngineEnabled:
         assert would_exit is True
 
     def test_production_flags_have_safe_defaults(self):
-        """Production feature flags have content-write off.
+        """Production feature flags — all phases enabled as of 2026-05-31.
 
-        Phases 1-3 (REFRESH-ARCH-001, approved 2026-05-29): decision engine, manifest
-        writes, and reconciliation enforcement are intentionally True. Phase 5 (content
-        writes) must remain False until explicitly advanced per amendment-009.
+        Phases 1-5 (REFRESH-ARCH-001): decision engine, manifest writes, reconciliation
+        enforcement, and content writes all enabled. Phase 5 advanced per amendment-009
+        after canary verification on 2026-05-31.
         """
         flags_path = _REPO_ROOT / "data" / "refresh-feature-flags.json"
         if not flags_path.is_file():
             pytest.skip("data/refresh-feature-flags.json not found")
         flags = _load_flags_from_file(flags_path)
-        # Phases 1-3 approved — decision engine, manifest writes, reconciliation ON
+        # Phases 1-5 approved — all flags ON as of 2026-05-31
         assert flags["refresh_decision_engine_enabled"] is True
-        assert flags["refresh_content_write_enabled"] is False
+        assert flags["refresh_content_write_enabled"] is True
 
 
 # ---------------------------------------------------------------------------
