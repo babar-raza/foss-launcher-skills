@@ -524,7 +524,11 @@ def _resolve_deep(
     Never reads Layer 1 or Layer 2. No HTTP calls. No LLM calls.
     """
     auth_records = authority.get("authority", {})
+    # Normalize path separators — authority keys may use \ (Windows) or / (POSIX)
     record = auth_records.get(source_file)
+    if record is None:
+        alt_key = source_file.replace("/", "\\")
+        record = auth_records.get(alt_key)
     if record is None:
         return None
 

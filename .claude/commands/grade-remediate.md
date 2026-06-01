@@ -1,5 +1,5 @@
 <!-- CONTRACT: agent-executed
-Skill: S-96
+Skill: S-107
 Name: grade-remediate
 Version: 1.0
 Status: active
@@ -8,7 +8,7 @@ Outputs: grade_remediation_report.json, per-page repair evidence
 Governed by: S-73 (manual-edit) for body changes; S-23 (content-check) for validation
 -->
 
-# S-96: Grade Remediate — Repair D/F Graded Pages
+# S-107: Grade Remediate — Repair D/F Graded Pages
 
 Scan `{family}/{platform}` for D/F graded pages and attempt controlled body repair for
 CONTENT_FIXABLE findings. Produces a per-page decision record:

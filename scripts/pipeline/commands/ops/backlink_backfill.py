@@ -567,6 +567,8 @@ def run_backfill(
     dry_run: bool = True,
     include_protected: bool = False,
     files_filter: set[str] | None = None,
+    exact_deep_match_enabled: bool = False,
+    authority: dict | None = None,
 ) -> BackfillManifest:
     """Run backfill across all matching content. Returns a BackfillManifest."""
     ts = datetime.now(timezone.utc).isoformat()
@@ -635,6 +637,9 @@ def run_backfill(
                 platform=platform,
                 source_subdomain=sd,
                 target_map=target_map,
+                exact_deep_match_enabled=exact_deep_match_enabled,
+                authority=authority,
+                source_file=fpath.relative_to(repo_root).as_posix(),
             )
             if not chosen_url:
                 changes.append(BackfillChange(
@@ -706,15 +711,26 @@ def run_backfill(
                     family=family, platform=platform,
                 )
                 if compliance == COMPLIANT:
-                    changes.append(BackfillChange(
-                        file=fpath.relative_to(repo_root).as_posix(),
-                        subdomain=sd, family=family, platform=platform,
-                        page_type=pt.value, target_url=chosen_url,
-                        action="skip", before_snippet="", after_snippet="",
-                        skipped=True, skip_reason="Already COMPLIANT",
-                        dry_run=dry_run,
-                    ))
-                    continue
+                    # Deep upgrade: if --deep provides a more specific URL than what's
+                    # already on the page, replace the existing landing link with the deep link.
+                    deep_upgrade = (
+                        exact_deep_match_enabled
+                        and chosen_url
+                        and chosen_url not in existing_urls
+                        and any(chosen_url.startswith(u.rstrip("/")) or u.rstrip("/") in chosen_url
+                                for u in existing_urls)
+                    )
+                    if not deep_upgrade:
+                        changes.append(BackfillChange(
+                            file=fpath.relative_to(repo_root).as_posix(),
+                            subdomain=sd, family=family, platform=platform,
+                            page_type=pt.value, target_url=chosen_url,
+                            action="skip", before_snippet="", after_snippet="",
+                            skipped=True, skip_reason="Already COMPLIANT",
+                            dry_run=dry_run,
+                        ))
+                        continue
+                    # Fall through to backfill — will replace existing link with deep link
                 # WRONG_TARGET with room to add — fall through to backfill
 
             # Apply backfill
@@ -759,6 +775,161 @@ def run_backfill(
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# KB Upgrade — replace docs.aspose.com links with kb.aspose.com in KB pages
+# ──────────────────────────────────────────────────────────────────────────────
+
+_DOCS_LINK_RE = re.compile(
+    r"- \[([^\]]*?Enterprise Documentation[^\]]*?)\]\(https://docs\.aspose\.com/([^)]+)\)"
+)
+
+
+def run_kb_upgrade(
+    repo_root: Path,
+    target_map: dict,
+    *,
+    dry_run: bool = True,
+    family_filter: str | None = None,
+    platform_filter: str | None = None,
+) -> BackfillManifest:
+    """Replace docs.aspose.com enterprise links with kb.aspose.com in KB pages.
+
+    Two cases:
+    1. Page has BOTH docs.aspose.com + kb.aspose.com links → remove docs line.
+    2. Page has ONLY docs.aspose.com link → replace URL + anchor text with kb equivalent.
+    Only replaces if kb.aspose.com/{family}/{platform}/ is verified HTTP 200 in target map.
+    """
+    ts = datetime.now(timezone.utc).isoformat()
+    families_map, platforms_map = _load_display_maps(repo_root)
+    all_urls = target_map.get("all_urls", {})
+    kb_root = repo_root / SUBDOMAIN_ROOTS["kb.aspose.org"]
+
+    changes: list[BackfillChange] = []
+    errors: list[dict] = []
+    candidates = 0
+
+    for fpath in sorted(kb_root.rglob("*.md")):
+        # Family/platform filter
+        rel = fpath.relative_to(kb_root).as_posix()
+        parts = rel.split("/")
+        if family_filter and (len(parts) < 1 or parts[0] != family_filter):
+            continue
+        if platform_filter and (len(parts) < 2 or parts[1] != platform_filter):
+            continue
+
+        candidates += 1
+        rel_repo = fpath.relative_to(repo_root).as_posix()
+
+        try:
+            raw = fpath.read_text(encoding="utf-8")
+        except Exception as exc:
+            errors.append({"file": rel_repo, "error": str(exc)})
+            continue
+
+        # Only process files with docs.aspose.com enterprise links
+        if "docs.aspose.com" not in raw:
+            continue
+
+        fm, body = _split_frontmatter(raw)
+        docs_matches = list(_DOCS_LINK_RE.finditer(body))
+        if not docs_matches:
+            continue
+
+        has_kb_link = bool(re.search(r"https://kb\.aspose\.com/", body))
+        new_body = body
+
+        for match in reversed(docs_matches):  # reverse to preserve offsets
+            docs_path = match.group(2).rstrip("/")  # e.g. "3d/java"
+            docs_path_parts = docs_path.split("/")
+            if len(docs_path_parts) < 1:
+                continue
+            fam = docs_path_parts[0]
+            plat = docs_path_parts[1] if len(docs_path_parts) > 1 else None
+
+            # Check if kb.aspose.com equivalent is verified
+            if plat:
+                kb_url = f"https://kb.aspose.com/{fam}/{plat}/"
+            else:
+                kb_url = f"https://kb.aspose.com/{fam}/"
+            kb_entry = all_urls.get(kb_url)
+            kb_verified = kb_entry and kb_entry.get("http_status") == 200
+
+            if has_kb_link:
+                # Case 1: both links exist — remove the docs.aspose.com line
+                line_start = body.rfind("\n", 0, match.start())
+                line_end = body.find("\n", match.end())
+                if line_start == -1:
+                    line_start = 0
+                if line_end == -1:
+                    line_end = len(body)
+                # Remove the entire line (including leading newline)
+                before_snippet = body[max(0, line_start):line_end + 1]
+                new_body = new_body[:line_start] + new_body[line_end:]
+                changes.append(BackfillChange(
+                    file=rel_repo, subdomain="kb.aspose.org",
+                    family=fam, platform=plat, page_type="kb_upgrade",
+                    target_url=kb_url,
+                    action="kb_upgrade_remove_docs_line",
+                    before_snippet=before_snippet.strip()[:200],
+                    after_snippet="(line removed)",
+                    skipped=False, skip_reason="", dry_run=dry_run,
+                ))
+            elif kb_verified:
+                # Case 2: only docs link — replace URL + anchor text
+                fam_title = families_map.get(fam, f"Aspose.{fam.title()}")
+                if plat:
+                    plat_title = platforms_map.get(plat, plat.title())
+                    display = f"{fam_title} for {plat_title}"
+                else:
+                    display = fam_title
+                new_link_text = f"{display} \u2014 Enterprise Knowledge Base"
+                new_entry = f"- [{new_link_text}]({kb_url})"
+                before_snippet = match.group(0)[:200]
+                new_body = new_body[:match.start()] + new_entry + new_body[match.end():]
+                changes.append(BackfillChange(
+                    file=rel_repo, subdomain="kb.aspose.org",
+                    family=fam, platform=plat, page_type="kb_upgrade",
+                    target_url=kb_url,
+                    action="kb_upgrade_replace_docs_with_kb",
+                    before_snippet=before_snippet,
+                    after_snippet=new_entry[:200],
+                    skipped=False, skip_reason="", dry_run=dry_run,
+                ))
+            else:
+                # KB URL not verified — keep docs link as-is
+                changes.append(BackfillChange(
+                    file=rel_repo, subdomain="kb.aspose.org",
+                    family=fam, platform=plat, page_type="kb_upgrade",
+                    target_url=kb_url,
+                    action="skip", before_snippet=match.group(0)[:200],
+                    after_snippet="",
+                    skipped=True,
+                    skip_reason=f"kb.aspose.com equivalent not verified: {kb_url}",
+                    dry_run=dry_run,
+                ))
+
+        if new_body != body and not dry_run:
+            fpath.write_text(fm + new_body, encoding="utf-8")
+
+    modified = sum(1 for c in changes if not c.skipped)
+    skipped = sum(1 for c in changes if c.skipped)
+    return BackfillManifest(
+        generated_at=ts,
+        generator=f"backlink_backfill.py v{SCRIPT_VERSION} --kb-upgrade",
+        dry_run=dry_run,
+        total_candidates=candidates,
+        total_modified=modified,
+        total_skipped=skipped,
+        total_errors=len(errors),
+        changes=[asdict(c) for c in changes],
+        errors=errors,
+        rollback_commands=[
+            f"git checkout HEAD -- {c.file}"
+            for c in changes if not c.skipped and not dry_run
+        ],
+    )
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # CLI
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -789,6 +960,12 @@ def main() -> int:
         "--files-from", default=None,
         help="Path to a text file listing repo-relative content paths (one per line). "
              "When set, only those files are processed (canary/scoped apply).",
+    )
+    parser.add_argument(
+        "--kb-upgrade", action="store_true", default=False,
+        help="Upgrade KB pages: replace docs.aspose.com enterprise links with "
+             "kb.aspose.com equivalents (or remove docs.aspose.com line when "
+             "kb.aspose.com link already present).",
     )
     args = parser.parse_args()
 
@@ -821,22 +998,48 @@ def main() -> int:
         files_filter = {ln.strip() for ln in lines if ln.strip() and not ln.startswith("#")}
         print(f"  --files-from: {len(files_filter)} files scoped", file=sys.stderr)
 
-    manifest = run_backfill(
-        repo_root=repo_root,
-        target_map=target_map,
-        subdomains=args.subdomain,
-        family_filter=args.family,
-        platform_filter=args.platform,
-        dry_run=dry_run,
-        include_protected=args.include_protected,
-        files_filter=files_filter,
-    )
+    # Load deep authority if --deep
+    authority_data = None
+    if args.deep:
+        authority_path = (Path(args.authority) if args.authority
+                          else repo_root / "data" / "backlinks" / "workspace" / "backlink_authority.json")
+        if authority_path.exists():
+            authority_data = json.loads(authority_path.read_text(encoding="utf-8"))
+            print(f"  --deep: loaded authority from {authority_path} "
+                  f"({len(authority_data.get('authority', {}))} records)", file=sys.stderr)
+        else:
+            print(f"WARNING: --deep but authority not found: {authority_path}", file=sys.stderr)
+
+    if args.kb_upgrade:
+        print(f"Running KB upgrade [{mode}]...", file=sys.stderr)
+        manifest = run_kb_upgrade(
+            repo_root=repo_root,
+            target_map=target_map,
+            dry_run=dry_run,
+            family_filter=args.family,
+            platform_filter=args.platform,
+        )
+    else:
+        manifest = run_backfill(
+            repo_root=repo_root,
+            target_map=target_map,
+            subdomains=args.subdomain,
+            family_filter=args.family,
+            platform_filter=args.platform,
+            dry_run=dry_run,
+            include_protected=args.include_protected,
+            files_filter=files_filter,
+            exact_deep_match_enabled=bool(args.deep and authority_data),
+            authority=authority_data,
+        )
 
     # Write manifest
     reports_dir = repo_root / "reports" / "backlinks"
     reports_dir.mkdir(parents=True, exist_ok=True)
 
-    prefix = "backfill_dry_run" if dry_run else "backfill_write"
+    prefix = "kb_upgrade_dry_run" if args.kb_upgrade and dry_run else \
+             "kb_upgrade_write" if args.kb_upgrade else \
+             "backfill_dry_run" if dry_run else "backfill_write"
     if args.output:
         json_out = Path(args.output)
     else:
