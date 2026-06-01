@@ -137,4 +137,21 @@ The Phase 5 ALLOW write path was proven at two levels:
 
 **What this proves**: The dispatch mechanism works end-to-end — real verdict parsing, real subprocess invocation, real batch_reference.py execution, real content modification. The remaining untested piece is the full pipeline orchestration (refresh_knowledge.py → decision engine → guard → dispatch) producing exit-0 naturally, which requires upstream changes that create SEMANTIC_NOOP_PROVEN or BODY_UPDATED_VERIFIED conditions.
 
+### Phase 5 Guard Redesign: INITIAL_REFRESH_ALLOWED (2026-06-01)
+
+**Problem**: Phase 5 had a structural deadlock. Priority 4 blocks when `claim_delta > 0 AND body_changed == 0`. The harness only dispatches reference pages, which triggers Priority 8 (generated-only body change insufficient). Priority 9 (first exit-0 path) requires existing content page body changes that the harness has no mechanism to produce.
+
+**Solution (Option C — one-time gate release)**: New Priority 4b verdict `INITIAL_REFRESH_ALLOWED` inserted between Priority 4 and Priority 5. Fires when:
+- `claim_delta > 0` (upstream knowledge changed)
+- `body_changed == 0` (no content updates yet)
+- `dispatch_history.json` does not exist (no prior automated write for this product)
+
+After successful dispatch, the harness writes `runs/state/{family}/{platform}/dispatch_history.json` to track first-write state. Subsequent runs require body changes (existing Priority 4/8/9 logic).
+
+**Canary proof (cells/java, 2026-06-01)**: Guard produced INITIAL_REFRESH_ALLOWED → harness decision REGENERATE_UPSTREAM → `[PHASE5-OK]` → reference pages regenerated → `dispatch_history.json` written. Full chain: semantic guard → decision engine → harness dispatch → batch_reference.py → content written.
+
+**Commit**: 99fe2696eb. 4 new tests (2 guard, 2 harness). 5843 pass, 0 fail.
+
+**Future work (Option A)**: Two-phase dispatch — after regenerating reference pages, run heal-page on HIGH/MEDIUM existing content pages identified by PIA. This satisfies Priority 9 naturally for subsequent runs. Planned for next sprint.
+
 Test suite: 5829 passed, 0 failed.
