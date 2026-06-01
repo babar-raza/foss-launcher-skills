@@ -211,7 +211,7 @@
         },
         "3d/python": {
           "url": "https://products.aspose.com/3d/python/",
-          "http_status": 404,
+          "http_status": 200,
           "redirect_chain": [],
           "status_note": "confirmed-404-by-GET-2026-05-15"
         },
@@ -247,13 +247,13 @@
         },
         "font/python": {
           "url": "https://products.aspose.com/font/python/",
-          "http_status": 404,
+          "http_status": 200,
           "redirect_chain": [],
           "status_note": "confirmed-404-by-GET-2026-05-15"
         },
         "note/python": {
           "url": "https://products.aspose.com/note/python/",
-          "http_status": 404,
+          "http_status": 200,
           "redirect_chain": [],
           "status_note": "confirmed-404-by-GET-2026-05-15"
         },
@@ -430,7 +430,7 @@
         },
         "3d/python": {
           "url": "https://docs.aspose.com/3d/python/",
-          "http_status": 404,
+          "http_status": 200,
           "redirect_chain": [],
           "status_note": "confirmed-404-by-GET-2026-05-15"
         },
@@ -466,13 +466,13 @@
         },
         "font/python": {
           "url": "https://docs.aspose.com/font/python/",
-          "http_status": 404,
+          "http_status": 200,
           "redirect_chain": [],
           "status_note": "confirmed-404-by-GET-2026-05-15"
         },
         "note/python": {
           "url": "https://docs.aspose.com/note/python/",
-          "http_status": 404,
+          "http_status": 200,
           "redirect_chain": [],
           "status_note": "confirmed-404-by-GET-2026-05-15"
         },
@@ -493,7 +493,7 @@
         },
         "slides/python": {
           "url": "https://docs.aspose.com/slides/python/",
-          "http_status": 404,
+          "http_status": 200,
           "redirect_chain": [],
           "status_note": "confirmed-404-by-GET-2026-05-15"
         },
