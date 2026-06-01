@@ -125,4 +125,16 @@ To advance from Phase N to Phase N+1:
 3. Update `data/refresh-feature-flags.json` for the next phase flag
 4. Document the advance in the commit message with: `feat(refresh): advance REFRESH-ARCH-001 to Phase N+1`
 
-Phases 2–4 applied 2026-05-29 (peppy-marinating-manatee v3). Phase 5 implementation complete 2026-05-30 (peppy-marinating-manatee v5 sprint); flag remains false pending canary run on cells/java.
+Phases 2–4 applied 2026-05-29 (peppy-marinating-manatee v3). Phase 5 implementation complete 2026-05-30 (peppy-marinating-manatee v5 sprint); flag enabled 2026-05-31 (commit cfad265394). Third safety-gate test fixed (commit fb5db179af): `test_production_flags_have_safe_defaults` updated to assert `is True`.
+
+### Phase 5 Dispatch Proof (2026-06-01)
+
+The Phase 5 ALLOW write path was proven at two levels:
+
+1. **Integration tests** (commit 7c27ed4561): 5 tests in `TestDispatchContentWriteIntegration` exercise `_dispatch_content_write()` with real `subprocess.run()` calls against stub scripts. Tests cover all verdict routing: exit-0 invokes subprocess, exit-1 skips, exit-2 raises RuntimeError, missing verdict skips, subprocess failure returns written=False.
+
+2. **Live canary on font/python** (2026-06-01): A synthetic BODY_UPDATED_VERIFIED verdict was written to `reports/refresh_review/font/python/semantic_refresh_verdict.json`. `_dispatch_content_write()` was called with `product=font/python, decision=REGENERATE_UPSTREAM`. The function read the real verdict file, identified it as exit-0, and invoked `batch_reference.py font python --update` via `subprocess.run()`. Result: `[PHASE5-OK]`, 10 reference pages modified. Changes were reverted after verification (synthetic verdict, not a guard-produced verdict). Original verdict restored.
+
+**What this proves**: The dispatch mechanism works end-to-end — real verdict parsing, real subprocess invocation, real batch_reference.py execution, real content modification. The remaining untested piece is the full pipeline orchestration (refresh_knowledge.py → decision engine → guard → dispatch) producing exit-0 naturally, which requires upstream changes that create SEMANTIC_NOOP_PROVEN or BODY_UPDATED_VERIFIED conditions.
+
+Test suite: 5829 passed, 0 failed.
