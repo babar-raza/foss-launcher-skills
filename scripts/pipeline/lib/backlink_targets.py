@@ -389,6 +389,11 @@ def _lookup_platform(target_map: dict, subdomain: str, family: str, platform: st
     entry = target_map.get("targets", {}).get(subdomain, {}).get("platforms", {}).get(key)
     if entry and entry.get("http_status") == 200:
         return entry.get("url")
+    # A9: Fallback to all_urls when targets entry is stale or missing
+    fallback_url = f"https://{subdomain}/{family}/{platform}/"
+    all_entry = target_map.get("all_urls", {}).get(fallback_url)
+    if all_entry and all_entry.get("http_status") == 200:
+        return fallback_url
     return None
 
 
@@ -397,6 +402,11 @@ def _lookup_family(target_map: dict, subdomain: str, family: str) -> Optional[st
     entry = target_map.get("targets", {}).get(subdomain, {}).get("families", {}).get(family)
     if entry and entry.get("http_status") == 200:
         return entry.get("url")
+    # A9: Fallback to all_urls when targets entry is stale or missing
+    fallback_url = f"https://{subdomain}/{family}/"
+    all_entry = target_map.get("all_urls", {}).get(fallback_url)
+    if all_entry and all_entry.get("http_status") == 200:
+        return fallback_url
     return None
 
 

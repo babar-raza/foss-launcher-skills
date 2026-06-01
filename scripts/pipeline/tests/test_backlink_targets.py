@@ -54,6 +54,8 @@ from lib.backlink_targets import (
     classify_compliance,
     classify_kb_anchor_status,
     load_target_map,
+    _lookup_platform,
+    _lookup_family,
 )
 
 
@@ -1714,3 +1716,81 @@ class TestDeepBacklinks:
         }
         assert mock_authority_record["allowed_for_generation"] is False
         # Verifies the invariant: REVIEW_REQUIRED → never inserted
+
+
+class TestAllUrlsFallback:
+    """A9: Tests for all_urls fallback in _lookup_platform() and _lookup_family().
+
+    When the targets dict has a stale 404 or missing entry but all_urls has
+    the same URL verified HTTP 200, the lookup functions should return the URL.
+    """
+
+    def _make_target_map(self, targets_platforms=None, targets_families=None, all_urls=None):
+        """Helper to build a target_map with both targets and all_urls."""
+        tm = {"targets": {}, "all_urls": all_urls or {}}
+        if targets_platforms or targets_families:
+            sd = {}
+            if targets_platforms:
+                sd["platforms"] = targets_platforms
+            if targets_families:
+                sd["families"] = targets_families
+            tm["targets"]["products.aspose.com"] = sd
+        return tm
+
+    def test_lookup_platform_all_urls_fallback(self):
+        """targets has 3d/python with status=404; all_urls has it at 200 → returns URL."""
+        tm = self._make_target_map(
+            targets_platforms={"3d/python": {"url": "https://products.aspose.com/3d/python/", "http_status": 404}},
+            all_urls={"https://products.aspose.com/3d/python/": {"http_status": 200}},
+        )
+        result = _lookup_platform(tm, "products.aspose.com", "3d", "python")
+        assert result == "https://products.aspose.com/3d/python/"
+
+    def test_lookup_family_all_urls_fallback(self):
+        """targets has family with status=404; all_urls has it at 200 → returns URL."""
+        tm = self._make_target_map(
+            targets_families={"words": {"url": "https://products.aspose.com/words/", "http_status": 404}},
+            all_urls={"https://products.aspose.com/words/": {"http_status": 200}},
+        )
+        result = _lookup_family(tm, "products.aspose.com", "words")
+        assert result == "https://products.aspose.com/words/"
+
+    def test_lookup_platform_neither_source_returns_none(self):
+        """Neither targets nor all_urls has the URL with 200 → returns None."""
+        tm = self._make_target_map(
+            targets_platforms={"pdf/java": {"url": "https://products.aspose.com/pdf/java/", "http_status": 404}},
+            all_urls={"https://products.aspose.com/pdf/java/": {"http_status": 404}},
+        )
+        result = _lookup_platform(tm, "products.aspose.com", "pdf", "java")
+        assert result is None
+
+    def test_resolve_backlink_uses_all_urls_fallback(self):
+        """Full resolve_backlink where targets has 404 but all_urls has 200 → platform URL returned."""
+        tm = {
+            "targets": {
+                "products.aspose.com": {
+                    "platforms": {"3d/python": {"url": "https://products.aspose.com/3d/python/", "http_status": 404}},
+                    "families": {"3d": {"url": "https://products.aspose.com/3d/", "http_status": 200}},
+                }
+            },
+            "all_urls": {
+                "https://products.aspose.com/3d/python/": {"http_status": 200},
+                "https://products.aspose.com/3d/": {"http_status": 200},
+            },
+        }
+        url, kind, sd, reason = resolve_backlink("3d", "python", "blog.aspose.org", tm)
+        assert url == "https://products.aspose.com/3d/python/"
+        assert kind == "platform"
+
+    def test_blog_preferred_subdomain_unchanged(self):
+        """Regression guard: blog.aspose.org still prefers products.aspose.com (D-A9-02)."""
+        assert PREFERRED_TARGET_SUBDOMAIN["blog.aspose.org"] == "products.aspose.com"
+
+    def test_targets_200_takes_precedence_over_all_urls(self):
+        """When targets has status=200, the targets URL is used (all_urls not consulted)."""
+        tm = self._make_target_map(
+            targets_platforms={"words/net": {"url": "https://products.aspose.com/words/net/", "http_status": 200}},
+            all_urls={"https://products.aspose.com/words/net/": {"http_status": 200}},
+        )
+        result = _lookup_platform(tm, "products.aspose.com", "words", "net")
+        assert result == "https://products.aspose.com/words/net/"
