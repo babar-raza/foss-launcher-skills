@@ -111,6 +111,45 @@ class TestSlugFromMarkdownFiles:
 
 
 # ---------------------------------------------------------------------------
+# Phase 1b: Hugo aliases (multi-line and inline YAML)
+# ---------------------------------------------------------------------------
+
+class TestAliasIndexing:
+
+    def _make_with_aliases(self, tmp_path, frontmatter: str) -> dict:
+        content = tmp_path / "content"
+        content.mkdir()
+        p = content / "blog.aspose.org" / "cells" / "python" / "new-slug" / "index.md"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(f"---\n{frontmatter}\n---\nBody.\n", encoding="utf-8")
+        lv.configure(content_root=content)
+        return lv._build_slug_index()
+
+    def test_multiline_aliases_indexed(self, tmp_path):
+        idx = self._make_with_aliases(tmp_path, "title: t\naliases:\n  - /cells/python/old-slug/")
+        slugs = idx["blog.aspose.org"]
+        assert "/cells/python/old-slug" in slugs
+        assert "/cells/python/old-slug/" in slugs
+
+    def test_inline_aliases_indexed(self, tmp_path):
+        idx = self._make_with_aliases(tmp_path, "title: t\naliases: [/cells/python/old-slug/]")
+        slugs = idx["blog.aspose.org"]
+        assert "/cells/python/old-slug" in slugs
+        assert "/cells/python/old-slug/" in slugs
+
+    def test_inline_multiple_aliases(self, tmp_path):
+        idx = self._make_with_aliases(tmp_path, "title: t\naliases: [/cells/python/old-a/, /cells/python/old-b/]")
+        slugs = idx["blog.aspose.org"]
+        assert "/cells/python/old-a" in slugs
+        assert "/cells/python/old-b" in slugs
+
+    def test_inline_quoted_aliases(self, tmp_path):
+        idx = self._make_with_aliases(tmp_path, 'title: t\naliases: ["/cells/python/quoted-slug/"]')
+        slugs = idx["blog.aspose.org"]
+        assert "/cells/python/quoted-slug" in slugs
+
+
+# ---------------------------------------------------------------------------
 # Phase 2: Hugo auto-section directory slugs
 # ---------------------------------------------------------------------------
 

@@ -1029,6 +1029,34 @@ scripts:
     deprecated_since: null
     notes: "Repair blog FOSS title and categories metadata; modes: --dry-run (default), --apply"
 
+  - path: scripts/pipeline/commands/content/fix_blog_slugs.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-repair
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    deprecated_since: null
+    notes: "Apply SEO-optimized slug renames to blog posts with Hugo aliases; modes: --dry-run, --apply"
+
+  - path: scripts/pipeline/commands/diagnostics/audit_blog_slugs.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: diagnostics
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    deprecated_since: null
+    notes: "SEO slug audit for blog posts with optional AI-proposed replacements; --ai flag for LLM proposals"
+
   - path: scripts/pipeline/lib/triage_confirm.py
     kind: library
     lifecycle: active

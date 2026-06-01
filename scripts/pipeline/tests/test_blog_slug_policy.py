@@ -1959,3 +1959,165 @@ def test_T4_18_verify_migration_safety_raises_if_locale_gets_aliases(tmp_path):
 
     with pytest.raises(RuntimeError, match="aliases"):
         _verify_migration_safety(before, after, "index.ar.md", allowed_alias=None)
+
+
+# ---------------------------------------------------------------------------
+# Unit: validate_seo_slug
+# ---------------------------------------------------------------------------
+
+def test_validate_seo_slug_accepts_good_slug():
+    violations = bsp.validate_seo_slug("java-excel-xlsx-library")
+    assert violations == []
+
+
+def test_validate_seo_slug_rejects_too_few_words():
+    violations = bsp.validate_seo_slug("java-excel")
+    assert any("too few" in v for v in violations)
+
+
+def test_validate_seo_slug_rejects_too_many_words():
+    violations = bsp.validate_seo_slug("java-excel-xlsx-charts-formulas-styling")
+    assert any("too many" in v for v in violations)
+
+
+def test_validate_seo_slug_rejects_long_slug():
+    violations = bsp.validate_seo_slug("a" * 30 + "-" + "b" * 31)
+    assert any("too long" in v for v in violations)
+
+
+def test_validate_seo_slug_rejects_generic_verbs():
+    violations = bsp.validate_seo_slug("introducing-cells-java-library")
+    assert any("generic verb" in v for v in violations)
+
+
+def test_validate_seo_slug_rejects_stopwords():
+    violations = bsp.validate_seo_slug("cells-for-java-library")
+    assert any("stopword" in v for v in violations)
+
+
+def test_validate_seo_slug_rejects_invalid_chars():
+    violations = bsp.validate_seo_slug("Java-Excel-Library")
+    assert any("invalid" in v for v in violations)
+
+
+# ---------------------------------------------------------------------------
+# Unit: generate_seo_slug
+# ---------------------------------------------------------------------------
+
+class _FakeCallResult:
+    """Minimal call result stub for testing."""
+    def __init__(self, status, data=None):
+        self.status = status
+        self.data = data
+
+
+class _FakeEndpointStatus:
+    OK = "ok"
+    UNREACHABLE = "unreachable"
+
+
+class _FakeRouter:
+    """Fake LLMRouter that returns a configurable slug string."""
+    def __init__(self, slug_response: str | None = None, fail: bool = False):
+        self._slug = slug_response
+        self._fail = fail
+        self.calls: list[dict] = []
+
+    def call_chat(self, system, user, *, temperature=None, max_tokens=None, json_extract=True):
+        self.calls.append({"system": system, "user": user})
+        if self._fail:
+            return _FakeCallResult(status=_FakeEndpointStatus.UNREACHABLE)
+        return _FakeCallResult(status=_FakeEndpointStatus.OK, data=self._slug)
+
+
+def test_generate_seo_slug_uses_llm_response(monkeypatch):
+    """When LLM returns a valid slug, generate_seo_slug uses it."""
+    # Patch the import inside generate_seo_slug
+    import types
+    fake_mod = types.ModuleType("commands.ops.llm_router")
+    fake_mod.EndpointStatus = _FakeEndpointStatus
+    monkeypatch.setitem(sys.modules, "commands.ops.llm_router", fake_mod)
+
+    router = _FakeRouter(slug_response="java-excel-xlsx-library")
+    result = bsp.generate_seo_slug(
+        title="Introducing Aspose.Cells FOSS for Java",
+        description="A free Excel library",
+        summary="",
+        family="cells",
+        platform="java",
+        llm_router=router,
+    )
+    assert result == "java-excel-xlsx-library"
+    assert len(router.calls) == 1
+
+
+def test_generate_seo_slug_falls_back_on_invalid_llm_response(monkeypatch):
+    """When LLM returns an invalid slug, falls back to deterministic."""
+    import types
+    fake_mod = types.ModuleType("commands.ops.llm_router")
+    fake_mod.EndpointStatus = _FakeEndpointStatus
+    monkeypatch.setitem(sys.modules, "commands.ops.llm_router", fake_mod)
+
+    # "ab" is too short / too few words — should fail validation
+    router = _FakeRouter(slug_response="ab")
+    result = bsp.generate_seo_slug(
+        title="Introducing Aspose.Cells FOSS for Java",
+        description="A free Excel library",
+        summary="",
+        family="cells",
+        platform="java",
+        llm_router=router,
+    )
+    # Should be deterministic fallback, not "ab"
+    assert result != "ab"
+    assert len(result) > 5
+
+
+def test_generate_seo_slug_falls_back_on_llm_failure(monkeypatch):
+    """When LLM is unreachable, falls back to deterministic."""
+    import types
+    fake_mod = types.ModuleType("commands.ops.llm_router")
+    fake_mod.EndpointStatus = _FakeEndpointStatus
+    monkeypatch.setitem(sys.modules, "commands.ops.llm_router", fake_mod)
+
+    router = _FakeRouter(fail=True)
+    result = bsp.generate_seo_slug(
+        title="Introducing Aspose.Cells FOSS for Java",
+        description="A free Excel library",
+        summary="",
+        family="cells",
+        platform="java",
+        llm_router=router,
+    )
+    assert len(result) > 5
+    assert "cells" in result
+
+
+def test_generate_seo_slug_no_router_uses_deterministic():
+    """When no router is provided, uses deterministic fallback."""
+    result = bsp.generate_seo_slug(
+        title="Working with 3D Formats in Java",
+        description="Convert OBJ, STL, glTF files",
+        summary="",
+        family="3d",
+        platform="java",
+        llm_router=None,
+    )
+    assert len(result) > 5
+    assert "3d" in result
+
+
+def test_generate_seo_slug_strips_backticks_from_llm(monkeypatch):
+    """LLM sometimes wraps slug in backticks — should be stripped."""
+    import types
+    fake_mod = types.ModuleType("commands.ops.llm_router")
+    fake_mod.EndpointStatus = _FakeEndpointStatus
+    monkeypatch.setitem(sys.modules, "commands.ops.llm_router", fake_mod)
+
+    router = _FakeRouter(slug_response="`java-excel-xlsx-library`")
+    result = bsp.generate_seo_slug(
+        title="Test", description="Test", summary="",
+        family="cells", platform="java",
+        llm_router=router,
+    )
+    assert result == "java-excel-xlsx-library"

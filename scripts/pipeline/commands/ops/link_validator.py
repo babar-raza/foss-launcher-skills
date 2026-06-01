@@ -125,7 +125,16 @@ def _build_slug_index() -> dict[str, set[str]]:
                 in_aliases = False
                 for line in fm_text.splitlines():
                     if re.match(r"^aliases\s*:", line):
-                        in_aliases = True
+                        # Handle inline YAML array: aliases: [/path1/, /path2/]
+                        inline = re.search(r"\[(.+)\]", line)
+                        if inline:
+                            for part in inline.group(1).split(","):
+                                alias = part.strip().strip("'\"").rstrip("/")
+                                if alias:
+                                    index[subdomain].add(alias.lower())
+                                    index[subdomain].add(alias.lower() + "/")
+                        else:
+                            in_aliases = True
                         continue
                     if in_aliases:
                         item = re.match(r"^\s*-\s+(.+)", line)
