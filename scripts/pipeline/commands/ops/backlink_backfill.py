@@ -39,6 +39,8 @@ sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
 
 from lib.backlink_targets import (
     COMPLIANT,
+    FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE,
+    HOST_MAP,
     PageType,
     classify_compliance,
     classify_page_type,
@@ -709,8 +711,14 @@ def run_backfill(
                 compliance = classify_compliance(
                     link_count, existing_urls, chosen_url,
                     family=family, platform=platform,
+                    chosen_target_type=chosen_type,
+                    chosen_target_subdomain=chosen_sd,
                 )
-                if compliance == COMPLIANT:
+                if compliance == FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE:
+                    # Page has family-level link but platform-level is available.
+                    # Replace the family link with the platform link.
+                    pass  # fall through to backfill
+                elif compliance == COMPLIANT:
                     # Deep upgrade: if --deep provides a more specific URL than what's
                     # already on the page, replace the existing landing link with the deep link.
                     deep_upgrade = (
@@ -846,10 +854,11 @@ def run_kb_upgrade(
             plat = docs_path_parts[1] if len(docs_path_parts) > 1 else None
 
             # Check if kb.aspose.com equivalent is verified
+            kb_host = HOST_MAP["kb"]
             if plat:
-                kb_url = f"https://kb.aspose.com/{fam}/{plat}/"
+                kb_url = f"https://{kb_host}/{fam}/{plat}/"
             else:
-                kb_url = f"https://kb.aspose.com/{fam}/"
+                kb_url = f"https://{kb_host}/{fam}/"
             kb_entry = all_urls.get(kb_url)
             kb_verified = kb_entry and kb_entry.get("http_status") == 200
 

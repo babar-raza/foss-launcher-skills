@@ -658,6 +658,28 @@ def build_target_map(
             ),
         }
 
+    # A9/A10: Reconcile targets with all_urls — all_urls is authoritative for
+    # HTTP status since it contains every URL from both synthesis and sitemaps.
+    # If all_urls says 200 but targets says non-200, update targets to match.
+    reconciled = 0
+    for sd, sd_data in targets.items():
+        for key, entry in sd_data.get("platforms", {}).items():
+            url = entry.get("url")
+            if url and entry.get("http_status") != 200:
+                au = all_urls_flat.get(url, {})
+                if au.get("http_status") == 200:
+                    entry["http_status"] = 200
+                    reconciled += 1
+        for fam, entry in sd_data.get("families", {}).items():
+            url = entry.get("url")
+            if url and entry.get("http_status") != 200:
+                au = all_urls_flat.get(url, {})
+                if au.get("http_status") == 200:
+                    entry["http_status"] = 200
+                    reconciled += 1
+    if reconciled:
+        print(f"  Reconciled {reconciled} targets entries from all_urls", file=sys.stderr)
+
     output_json_str = ""  # placeholder for hash computation
     output_data = {
         "schema_version": "1.0",
