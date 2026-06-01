@@ -10,8 +10,8 @@ CONTRACT: scripts/pipeline/commands/ops/page_impact_assess.py
   idempotent: yes — overwrites output on each run
 
 Impact score legend:
-  HIGH_IMPACT           — page body contains a class or method name matching modified_apis or removed_apis
-  MEDIUM_IMPACT         — page body contains a keyword matching modified_claims or removed_claims topics
+  HIGH_IMPACT           — page body contains a class or method name matching modified_apis, removed_apis, or new_apis
+  MEDIUM_IMPACT         — page body contains a keyword matching modified_claims, removed_claims, or new_claims topics
   LOW_IMPACT            — no strong delta signals found; page may still benefit from review
   NOT_AFFECTED          — no delta signals detected; page topic unrelated to knowledge changes
   ENRICHMENT_CANDIDATE  — page covers a feature cluster that has new_apis but does not yet
@@ -95,9 +95,9 @@ def _load_delta(knowledge_root: Path, family: str, platform: str) -> dict:
 
 
 def _extract_api_names(delta: dict) -> set[str]:
-    """Extract class and method names from modified_apis and removed_apis."""
+    """Extract class and method names from modified_apis, removed_apis, and new_apis."""
     names: set[str] = set()
-    for key in ("modified_apis", "removed_apis"):
+    for key in ("modified_apis", "removed_apis", "new_apis"):
         for entry in delta.get(key, []):
             if isinstance(entry, str):
                 names.add(entry.lower())
@@ -117,7 +117,7 @@ def _extract_api_names(delta: dict) -> set[str]:
 
 
 def _extract_claim_keywords(delta: dict) -> set[str]:
-    """Extract significant keywords from modified/removed claim text."""
+    """Extract significant keywords from modified/removed/new claim text."""
     keywords: set[str] = set()
     stopwords = {
         "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
@@ -130,7 +130,7 @@ def _extract_claim_keywords(delta: dict) -> set[str]:
         "returns", "return", "true", "false", "null", "none",
         "new", "get", "set", "add", "use", "used", "using",
     }
-    for key in ("modified_claims", "removed_claims"):
+    for key in ("modified_claims", "removed_claims", "new_claims"):
         for entry in delta.get(key, []):
             if isinstance(entry, str):
                 text = entry

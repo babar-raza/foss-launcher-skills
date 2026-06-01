@@ -215,8 +215,8 @@ class TestSubdomainCoverage:
 # ---------------------------------------------------------------------------
 
 class TestEmptyDelta:
-    def test_empty_delta_all_not_affected(self, tmp_path, monkeypatch):
-        """When delta has no modified/removed APIs or claims, all pages are NOT_AFFECTED."""
+    def test_truly_empty_delta_all_not_affected(self, tmp_path, monkeypatch):
+        """When delta has no signals at all (no new/modified/removed), all pages are NOT_AFFECTED."""
         page_impact_assess.configure(repo_root=tmp_path)
 
         d = tmp_path / "content" / "docs.aspose.org" / "en" / "fam" / "plat"
@@ -224,7 +224,7 @@ class TestEmptyDelta:
         _write_page(d, "page2.md", "About spreadsheet operations")
 
         knowledge_dir = tmp_path / "knowledge" / "fam" / "plat"
-        _write_delta(knowledge_dir, {"new_claims": ["CLM-001"], "new_apis": ["NewClass"]})
+        _write_delta(knowledge_dir, {})
 
         result = page_impact_assess.assess_product(
             "fam", "plat",
@@ -232,9 +232,27 @@ class TestEmptyDelta:
             knowledge_root=tmp_path / "knowledge",
         )
 
-        # new_claims and new_apis don't generate api_names signals (only modified/removed do)
         for p in result["pages"]:
             assert p["pia_score"] == "NOT_AFFECTED"
+
+    def test_new_apis_generate_signals_not_not_affected(self, tmp_path, monkeypatch):
+        """new_apis now generate api_name signals — pages are scored, not NOT_AFFECTED."""
+        page_impact_assess.configure(repo_root=tmp_path)
+
+        d = tmp_path / "content" / "docs.aspose.org" / "en" / "fam" / "plat"
+        _write_page(d, "page1.md", "Uses Workbook class extensively")
+
+        knowledge_dir = tmp_path / "knowledge" / "fam" / "plat"
+        _write_delta(knowledge_dir, {"new_apis": ["NewClass"]})
+
+        result = page_impact_assess.assess_product(
+            "fam", "plat",
+            content_root=tmp_path / "content",
+            knowledge_root=tmp_path / "knowledge",
+        )
+
+        # new_apis generate api_names → _score_page is called → LOW_IMPACT (no match)
+        assert result["pages"][0]["pia_score"] == "LOW_IMPACT"
 
 
 # ---------------------------------------------------------------------------
@@ -362,3 +380,109 @@ class TestLowImpactDetection:
         assert result["summary"]["NOT_AFFECTED"] == 1
         assert result["summary"]["LOW_IMPACT"] == 0
         assert result["pages"][0]["pia_score"] == "NOT_AFFECTED"
+
+
+# ---------------------------------------------------------------------------
+# PAGE-MAP-001: new_claims and new_apis now generate PIA signals
+# ---------------------------------------------------------------------------
+
+class TestNewClaimsNewApisScoring:
+    """Verify that new_claims and new_apis from knowledge delta are included
+    in PIA scoring (PAGE-MAP-001 fix)."""
+
+    def test_new_apis_extracted_by_extract_api_names(self):
+        """_extract_api_names includes new_apis entries."""
+        delta = {"new_apis": ["AsyncConverter", {"name": "StreamProcessor", "methods": ["Process"]}]}
+        names = page_impact_assess._extract_api_names(delta)
+        assert "asyncconverter" in names
+        assert "streamprocessor" in names
+        assert "process" in names
+
+    def test_new_claims_extracted_by_extract_claim_keywords(self):
+        """_extract_claim_keywords includes new_claims entries."""
+        delta = {"new_claims": [
+            {"claim_id": "CLM-test-001", "text": "supports asynchronous conversion for large documents"},
+        ]}
+        keywords = page_impact_assess._extract_claim_keywords(delta)
+        assert "asynchronous" in keywords
+        assert "conversion" in keywords
+        assert "documents" in keywords
+        assert "large" in keywords
+
+    def test_new_apis_match_produces_high_impact(self, tmp_path):
+        """Page body mentioning a new_apis class name → HIGH_IMPACT."""
+        page = _write_page(
+            tmp_path, "convert-guide.md",
+            "Use the AsyncConverter class to process documents asynchronously.",
+        )
+        api_names = page_impact_assess._extract_api_names({"new_apis": ["AsyncConverter"]})
+        score, signals = page_impact_assess._score_page(page, api_names, set())
+        assert score == "HIGH_IMPACT"
+        assert any("api:asyncconverter" == s for s in signals)
+
+    def test_new_claims_keywords_produce_medium_impact(self, tmp_path):
+        """Page body with ≥2 keywords from new_claims → MEDIUM_IMPACT."""
+        delta = {"new_claims": [
+            {"claim_id": "CLM-test-001", "text": "supports brotli compression for font subsetting"},
+        ]}
+        page = _write_page(
+            tmp_path, "font-guide.md",
+            "This guide covers brotli compression and font subsetting techniques.",
+        )
+        keywords = page_impact_assess._extract_claim_keywords(delta)
+        score, signals = page_impact_assess._score_page(page, set(), keywords)
+        assert score == "MEDIUM_IMPACT"
+        assert any(s.startswith("kw:") for s in signals)
+
+    def test_single_new_claim_keyword_stays_low_impact(self, tmp_path):
+        """Single keyword match from new_claims is below threshold → LOW_IMPACT."""
+        delta = {"new_claims": [
+            {"claim_id": "CLM-test-002", "text": "supports brotli compression"},
+        ]}
+        page = _write_page(
+            tmp_path, "overview.md",
+            "General overview with only brotli mentioned once.",
+        )
+        keywords = page_impact_assess._extract_claim_keywords(delta)
+        score, _ = page_impact_assess._score_page(page, set(), keywords)
+        assert score == "LOW_IMPACT"
+
+    def test_assess_product_new_apis_high_impact_end_to_end(self, tmp_path):
+        """End-to-end: assess_product with new_apis in delta → matching page is HIGH_IMPACT."""
+        page_impact_assess.configure(repo_root=tmp_path)
+
+        d = tmp_path / "content" / "docs.aspose.org" / "en" / "test" / "py"
+        _write_page(d, "converter.md", "The AsyncConverter handles batch processing efficiently.")
+        _write_page(d, "unrelated.md", "This page has nothing to do with conversion.")
+
+        knowledge_dir = tmp_path / "knowledge" / "test" / "py"
+        _write_delta(knowledge_dir, {"new_apis": ["AsyncConverter"]})
+
+        result = page_impact_assess.assess_product(
+            "test", "py",
+            content_root=tmp_path / "content",
+            knowledge_root=tmp_path / "knowledge",
+        )
+
+        scores = {p["path"].split("/")[-1]: p["pia_score"] for p in result["pages"]}
+        assert scores["converter.md"] == "HIGH_IMPACT"
+        assert scores["unrelated.md"] == "LOW_IMPACT"
+        assert result["summary"]["HIGH_IMPACT"] == 1
+
+    def test_modified_claims_still_work_regression(self, tmp_path):
+        """Regression: modified_claims keyword extraction unchanged after adding new_claims."""
+        delta = {
+            "modified_claims": [
+                {"claim_id": "CLM-001", "text": "spreadsheet rendering performance improved"},
+            ]
+        }
+        page = _write_page(
+            tmp_path, "perf.md",
+            "Spreadsheet rendering and performance benchmarks are discussed here.",
+        )
+        keywords = page_impact_assess._extract_claim_keywords(delta)
+        assert "spreadsheet" in keywords
+        assert "rendering" in keywords
+        assert "performance" in keywords
+        score, _ = page_impact_assess._score_page(page, set(), keywords)
+        assert score == "MEDIUM_IMPACT"
