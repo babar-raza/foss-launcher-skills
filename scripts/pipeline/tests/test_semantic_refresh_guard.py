@@ -556,3 +556,66 @@ class TestInitialRefreshAllowed:
         verdict, confidence, proof = evaluate("cells", "java", sd, pd, {}, repo_root=tmp_path)
         assert verdict == "SEMANTIC_REFRESH_REQUIRED"
         assert _VERDICT_EXIT[verdict] == 1
+
+
+# ---------------------------------------------------------------------------
+# Priority 4c: EXISTING_PAGES_PENDING_UPDATE
+# ---------------------------------------------------------------------------
+
+class TestExistingPagesPendingUpdate:
+    """Tests for the EXISTING_PAGES_PENDING_UPDATE verdict: when dispatch_history
+    exists AND pending_page_updates.json lists pages not yet updated, block the
+    second refresh cycle until agent-assisted content updates are completed."""
+
+    def _setup_state(self, tmp_path, *, pending_pages=None):
+        """Create dispatch_history.json and optionally pending_page_updates.json."""
+        state_dir = tmp_path / "runs" / "state" / "cells" / "java"
+        state_dir.mkdir(parents=True, exist_ok=True)
+        (state_dir / "dispatch_history.json").write_text(
+            '{"first_dispatch_at": "2026-01-01T00:00:00Z"}'
+        )
+        if pending_pages is not None:
+            (state_dir / "pending_page_updates.json").write_text(
+                json.dumps(pending_pages)
+            )
+
+    def test_pending_pages_blocks_second_cycle(self, tmp_path):
+        """dispatch_history + non-empty pending_page_updates → EXISTING_PAGES_PENDING_UPDATE."""
+        sd = _make_source_delta(
+            source_changed=True,
+            source_change_impact="HIGH",
+            diff_available=True,
+            claim_delta_count=100,
+            modified_claims=0,
+            removed_claims=0,
+            files_classified=[
+                {"path": "src/core.py", "category": "DEFINITELY_USER_FACING", "reason": "src"}
+            ],
+        )
+        pd = _make_page_decisions(body_changed_count=0)
+        self._setup_state(tmp_path, pending_pages=[
+            {"path": "content/docs.aspose.org/en/cells/java/guide.md", "pia_score": "HIGH_IMPACT", "signals": ["api:Workbook"]},
+        ])
+        verdict, confidence, proof = evaluate("cells", "java", sd, pd, {}, repo_root=tmp_path)
+        assert verdict == "EXISTING_PAGES_PENDING_UPDATE"
+        assert _VERDICT_EXIT[verdict] == 1
+        assert any("EXISTING_PAGES_PENDING_UPDATE" in p for p in proof)
+
+    def test_empty_pending_falls_through_to_semantic_refresh(self, tmp_path):
+        """dispatch_history + empty pending_page_updates → SEMANTIC_REFRESH_REQUIRED."""
+        sd = _make_source_delta(
+            source_changed=True,
+            source_change_impact="HIGH",
+            diff_available=True,
+            claim_delta_count=100,
+            modified_claims=0,
+            removed_claims=0,
+            files_classified=[
+                {"path": "src/core.py", "category": "DEFINITELY_USER_FACING", "reason": "src"}
+            ],
+        )
+        pd = _make_page_decisions(body_changed_count=0)
+        self._setup_state(tmp_path, pending_pages=[])
+        verdict, confidence, proof = evaluate("cells", "java", sd, pd, {}, repo_root=tmp_path)
+        assert verdict == "SEMANTIC_REFRESH_REQUIRED"
+        assert _VERDICT_EXIT[verdict] == 1

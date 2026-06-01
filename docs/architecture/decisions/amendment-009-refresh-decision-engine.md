@@ -152,6 +152,29 @@ After successful dispatch, the harness writes `runs/state/{family}/{platform}/di
 
 **Commit**: 99fe2696eb. 4 new tests (2 guard, 2 harness). 5843 pass, 0 fail.
 
-**Future work (Option A)**: Two-phase dispatch — after regenerating reference pages, run heal-page on HIGH/MEDIUM existing content pages identified by PIA. This satisfies Priority 9 naturally for subsequent runs. Planned for next sprint.
+### Phase 5 Organic E2E Proof: cells/cpp (2026-06-01)
 
-Test suite: 5829 passed, 0 failed.
+**First non-synthetic-primed E2E proof**. cells/cpp had 77 new APIs and 658 new claims in its pending knowledge delta. No `dispatch_history.json` existed (never previously dispatched).
+
+**Prerequisite generation**: `semantic_source_classifier.py` → `semantic_source_delta.json`; `page_decision_engine.py` → `page_decisions.json`; `page_impact_assess.py` → `page_impact.json` (215/216 HIGH_IMPACT pages).
+
+**Execution**: Guard → INITIAL_REFRESH_ALLOWED → harness REGENERATE_UPSTREAM → `batch_reference.py cells cpp --update` → 196 reference pages regenerated → `[PHASE5-OK]` → `dispatch_history.json` written.
+
+**Limitation**: Still uses `synthetic-input-change` mode (stored manifest fingerprints match current knowledge). Truly organic trigger requires upstream code change → knowledge refresh → fingerprint drift.
+
+### Phase 5 Second-Cycle Routing: EXISTING_PAGES_PENDING_UPDATE (2026-06-01)
+
+**Problem**: After INITIAL_REFRESH_ALLOWED fires once, subsequent runs are blocked by Priority 4 (SEMANTIC_REFRESH_REQUIRED) because existing content pages (docs/kb/blog) haven't been updated. No deterministic body updater exists — all existing content update mechanisms (S-20 page-update, S-26 heal-page) require LLM/agent execution.
+
+**Design decision**: Phase 5 handles reference pages only. Route existing content page updates to a **post-Phase-5 agent workflow** rather than building an untested deterministic updater.
+
+**Implementation**:
+1. `semantic_body_update_dispatch.py` — reads `page_impact.json`, filters HIGH/MEDIUM pages (excluding reference), writes `pending_page_updates.json` as agent handoff manifest
+2. Harness advisory — after successful batch_reference dispatch, generates `pending_page_updates.json` and prints `[PHASE5-ADVISORY]` with count of pages needing agent update
+3. Guard Priority 4c — `EXISTING_PAGES_PENDING_UPDATE` verdict fires when `dispatch_history.json` exists AND `pending_page_updates.json` has entries. Blocks second refresh cycle until agent completes content updates.
+
+**Agent handoff**: Operator runs `/page-update {family} {platform}` or `/heal-page` on listed pages. Once body changes are recorded in `page_decisions.json`, Priority 4c no longer fires and the product is considered fully refreshed.
+
+**Files**: `semantic_body_update_dispatch.py` (NEW), `refresh_harness.py` (advisory), `semantic_refresh_guard.py` (Priority 4c), 6 new tests (4 dispatch, 2 guard).
+
+Test suite: 5829+ passed, 0 failed.

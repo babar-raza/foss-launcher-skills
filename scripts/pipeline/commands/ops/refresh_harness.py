@@ -368,6 +368,34 @@ def _dispatch_content_write(
             f"[PHASE5-OK] Content write succeeded for {product}/{subdomain}",
             file=_sys.stderr,
         )
+        # Advisory: generate pending_page_updates.json for existing content pages
+        try:
+            from commands.ops.semantic_body_update_dispatch import generate_pending_updates
+            impact_path = (
+                _REPO_ROOT / "reports" / "refresh_review" / family / platform
+                / "page_impact.json"
+            )
+            if impact_path.is_file():
+                pending = generate_pending_updates(
+                    impact_path, family=family, platform=platform
+                )
+                if pending:
+                    out = _STATE_ROOT / family / platform / "pending_page_updates.json"
+                    out.parent.mkdir(parents=True, exist_ok=True)
+                    out.write_text(
+                        json.dumps(pending, indent=2, ensure_ascii=False),
+                        encoding="utf-8",
+                    )
+                    print(
+                        f"[PHASE5-ADVISORY] {len(pending)} HIGH/MEDIUM existing pages "
+                        f"need agent-assisted update — see pending_page_updates.json",
+                        file=_sys.stderr,
+                    )
+        except Exception as _adv_exc:
+            print(
+                f"[PHASE5-WARN] Failed to generate pending_page_updates: {_adv_exc}",
+                file=_sys.stderr,
+            )
         return True, f"content write SUCCEEDED (decision={decision}, verdict={verdict_name!r})"
     except subprocess.TimeoutExpired:
         print(

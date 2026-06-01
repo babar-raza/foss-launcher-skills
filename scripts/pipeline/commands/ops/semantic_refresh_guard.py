@@ -58,6 +58,7 @@ _BLOCKING_VERDICTS = {
     "CLAIM_EXTRACTION_MISSED_DELTA",
     "PAGE_MAPPING_MISSED_IMPACT",
     "SEMANTIC_REFRESH_REQUIRED",
+    "EXISTING_PAGES_PENDING_UPDATE",
 }
 
 _VERDICT_EXIT = {
@@ -66,6 +67,7 @@ _VERDICT_EXIT = {
     "SEMANTIC_NOOP_PROVEN": 0,
     "GRADING_REMEDIATION_REQUIRED": 0,
     "INITIAL_REFRESH_ALLOWED": 0,
+    "EXISTING_PAGES_PENDING_UPDATE": 1,
     "SEMANTIC_REFRESH_REQUIRED": 1,
     "REFRESH_BLOCKED_UNPROVEN_NOOP": 1,
     "GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT": 1,
@@ -312,6 +314,22 @@ def evaluate(
                 f"but no prior dispatch recorded — allowing first automated write"
             )
             return "INITIAL_REFRESH_ALLOWED", "HIGH", proof
+
+        # ── Priority 4c: EXISTING_PAGES_PENDING_UPDATE ──────────────────
+        # Second cycle: dispatch_history exists but pending_page_updates.json
+        # lists pages that haven't been updated yet.
+        pending_path = root / "runs" / "state" / family / platform / "pending_page_updates.json"
+        if dispatch_state.exists() and pending_path.is_file():
+            try:
+                pending = json.loads(pending_path.read_text(encoding="utf-8"))
+                if pending:
+                    proof.append(
+                        f"EXISTING_PAGES_PENDING_UPDATE: {len(pending)} HIGH/MEDIUM existing pages "
+                        f"need agent-assisted update before second refresh cycle"
+                    )
+                    return "EXISTING_PAGES_PENDING_UPDATE", "MEDIUM", proof
+            except (OSError, json.JSONDecodeError):
+                pass
 
         proof.append(
             f"SEMANTIC_REFRESH_REQUIRED: claim_delta_count={claim_delta_count}, body_changed=0, "
