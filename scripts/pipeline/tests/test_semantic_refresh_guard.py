@@ -318,6 +318,8 @@ class TestVerdictPrecedence:
         # v2 verdicts
         assert _VERDICT_EXIT["GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT"] == 1
         assert _VERDICT_EXIT["EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED"] == 0
+        # v3 verdict (initial refresh)
+        assert _VERDICT_EXIT["INITIAL_REFRESH_ALLOWED"] == 0
 
 
 # ---------------------------------------------------------------------------
@@ -502,3 +504,55 @@ class TestGuardV2GeneratedPageMasking:
         # Priority 2 (CLAIM_EXTRACTION) fires before priority 8 (GENERATED_ONLY)
         assert verdict == "CLAIM_EXTRACTION_MISSED_DELTA"
         assert _VERDICT_EXIT[verdict] == 2
+
+
+# ---------------------------------------------------------------------------
+# Priority 4b: INITIAL_REFRESH_ALLOWED
+# ---------------------------------------------------------------------------
+
+class TestInitialRefreshAllowed:
+    """Tests for the INITIAL_REFRESH_ALLOWED verdict that breaks the chicken-and-egg
+    deadlock: when claim_delta > 0, body_changed == 0, and no prior harness dispatch
+    has been recorded, allow the first automated write."""
+
+    def test_no_dispatch_history_allows_initial_refresh(self, tmp_path):
+        """claim_delta > 0 (new_claims only), body=0, no dispatch_history.json → INITIAL_REFRESH_ALLOWED."""
+        sd = _make_source_delta(
+            source_changed=True,
+            source_change_impact="HIGH",
+            diff_available=True,
+            claim_delta_count=100,
+            modified_claims=0,
+            removed_claims=0,
+            files_classified=[
+                {"path": "src/core.py", "category": "DEFINITELY_USER_FACING", "reason": "src"}
+            ],
+        )
+        pd = _make_page_decisions(body_changed_count=0)
+        # No dispatch_history.json exists in tmp_path/runs/state/cells/java/
+        verdict, confidence, proof = evaluate("cells", "java", sd, pd, {}, repo_root=tmp_path)
+        assert verdict == "INITIAL_REFRESH_ALLOWED"
+        assert _VERDICT_EXIT[verdict] == 0
+        assert any("no prior dispatch recorded" in p for p in proof)
+
+    def test_dispatch_history_exists_blocks_refresh(self, tmp_path):
+        """claim_delta > 0, body=0, dispatch_history.json EXISTS → SEMANTIC_REFRESH_REQUIRED."""
+        sd = _make_source_delta(
+            source_changed=True,
+            source_change_impact="HIGH",
+            diff_available=True,
+            claim_delta_count=100,
+            modified_claims=0,
+            removed_claims=0,
+            files_classified=[
+                {"path": "src/core.py", "category": "DEFINITELY_USER_FACING", "reason": "src"}
+            ],
+        )
+        pd = _make_page_decisions(body_changed_count=0)
+        # Create dispatch_history.json to simulate prior dispatch
+        dispatch_state = tmp_path / "runs" / "state" / "cells" / "java" / "dispatch_history.json"
+        dispatch_state.parent.mkdir(parents=True, exist_ok=True)
+        dispatch_state.write_text('{"first_dispatch_at": "2026-01-01T00:00:00Z"}')
+        verdict, confidence, proof = evaluate("cells", "java", sd, pd, {}, repo_root=tmp_path)
+        assert verdict == "SEMANTIC_REFRESH_REQUIRED"
+        assert _VERDICT_EXIT[verdict] == 1

@@ -1294,3 +1294,52 @@ class TestDispatchContentWriteIntegration:
         assert written is False
         assert "FAILED" in note
         assert marker.exists(), "Subprocess should have been invoked (exit code checked after)"
+
+    def test_initial_refresh_allowed_verdict_passes_dispatch(self, tmp_path, monkeypatch):
+        """INITIAL_REFRESH_ALLOWED verdict triggers subprocess and writes dispatch_history.json."""
+        import refresh_harness as rh
+
+        self._make_verdict(tmp_path, "INITIAL_REFRESH_ALLOWED", "test", "py")
+        _stub, marker = self._make_stub_script(tmp_path, exit_code=0)
+        monkeypatch.setattr(rh, "_REPO_ROOT", tmp_path)
+        monkeypatch.setattr(rh, "_STATE_ROOT", tmp_path / "runs" / "state")
+
+        written, note = rh._dispatch_content_write(
+            product="test/py",
+            subdomain="reference",
+            decision="REGENERATE_UPSTREAM",
+            flags={"refresh_content_write_enabled": True},
+            no_write=False,
+        )
+
+        assert written is True
+        assert "SUCCEEDED" in note
+        assert marker.exists(), "Stub script was not invoked"
+        # Verify dispatch_history.json was written
+        dispatch_state = tmp_path / "runs" / "state" / "test" / "py" / "dispatch_history.json"
+        assert dispatch_state.exists(), "dispatch_history.json was not written after successful dispatch"
+        import json
+        history = json.loads(dispatch_state.read_text())
+        assert history["decision"] == "REGENERATE_UPSTREAM"
+        assert history["verdict"] == "INITIAL_REFRESH_ALLOWED"
+
+    def test_dispatch_history_not_written_on_failure(self, tmp_path, monkeypatch):
+        """Failed dispatch (exit code 1) must NOT write dispatch_history.json."""
+        import refresh_harness as rh
+
+        self._make_verdict(tmp_path, "INITIAL_REFRESH_ALLOWED", "test", "py")
+        _stub, marker = self._make_stub_script(tmp_path, exit_code=1)
+        monkeypatch.setattr(rh, "_REPO_ROOT", tmp_path)
+        monkeypatch.setattr(rh, "_STATE_ROOT", tmp_path / "runs" / "state")
+
+        written, note = rh._dispatch_content_write(
+            product="test/py",
+            subdomain="reference",
+            decision="REGENERATE_UPSTREAM",
+            flags={"refresh_content_write_enabled": True},
+            no_write=False,
+        )
+
+        assert written is False
+        dispatch_state = tmp_path / "runs" / "state" / "test" / "py" / "dispatch_history.json"
+        assert not dispatch_state.exists(), "dispatch_history.json should NOT be written on failed dispatch"

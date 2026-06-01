@@ -65,6 +65,7 @@ _VERDICT_EXIT = {
     "EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED": 0,
     "SEMANTIC_NOOP_PROVEN": 0,
     "GRADING_REMEDIATION_REQUIRED": 0,
+    "INITIAL_REFRESH_ALLOWED": 0,
     "SEMANTIC_REFRESH_REQUIRED": 1,
     "REFRESH_BLOCKED_UNPROVEN_NOOP": 1,
     "GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT": 1,
@@ -299,6 +300,19 @@ def evaluate(
     # ── Priority 4: SEMANTIC_REFRESH_REQUIRED ────────────────────────────────
     # claim delta > 0 (any type) but 0 body changes and source is user-facing
     if claim_delta_count > 0 and body_changed == 0 and has_user_facing:
+        # ── Priority 4b: INITIAL_REFRESH_ALLOWED ──────────────────────────
+        # First-time automated write: no prior harness dispatch recorded.
+        # Allows the initial content generation to proceed, breaking the
+        # chicken-and-egg deadlock where the guard blocks writes because
+        # pages aren't updated, but pages can't update without writes.
+        dispatch_state = root / "runs" / "state" / family / platform / "dispatch_history.json"
+        if not dispatch_state.exists():
+            proof.append(
+                f"INITIAL_REFRESH_ALLOWED: claim_delta={claim_delta_count}, body_changed=0, "
+                f"but no prior dispatch recorded — allowing first automated write"
+            )
+            return "INITIAL_REFRESH_ALLOWED", "HIGH", proof
+
         proof.append(
             f"SEMANTIC_REFRESH_REQUIRED: claim_delta_count={claim_delta_count}, body_changed=0, "
             f"user-facing source changes present"

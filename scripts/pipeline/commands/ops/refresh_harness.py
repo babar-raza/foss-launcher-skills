@@ -243,6 +243,7 @@ _PHASE5_PASSING_VERDICTS = frozenset({
     "EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED",
     "SEMANTIC_NOOP_PROVEN",
     "GRADING_REMEDIATION_REQUIRED",
+    "INITIAL_REFRESH_ALLOWED",
 })
 # Verdicts that require aborting the run entirely (exit_code == 2).
 _PHASE5_ABORT_VERDICTS = frozenset({
@@ -346,6 +347,23 @@ def _dispatch_content_write(
                 file=_sys.stderr,
             )
             return False, f"content write FAILED (batch_reference.py returned {result.returncode})"
+        # Record dispatch in state so INITIAL_REFRESH_ALLOWED won't fire again
+        dispatch_state = _STATE_ROOT / family / platform / "dispatch_history.json"
+        try:
+            dispatch_state.parent.mkdir(parents=True, exist_ok=True)
+            from datetime import datetime, timezone
+            dispatch_state.write_text(json.dumps({
+                "first_dispatch_at": datetime.now(timezone.utc).isoformat(),
+                "decision": decision,
+                "verdict": verdict_name,
+                "product": product,
+                "subdomain": subdomain,
+            }), encoding="utf-8")
+        except OSError as _st_exc:
+            print(
+                f"[PHASE5-WARN] Failed to write dispatch_history.json: {_st_exc}",
+                file=_sys.stderr,
+            )
         print(
             f"[PHASE5-OK] Content write succeeded for {product}/{subdomain}",
             file=_sys.stderr,
