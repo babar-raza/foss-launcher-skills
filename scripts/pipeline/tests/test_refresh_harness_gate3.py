@@ -1164,3 +1164,133 @@ class TestGate3bContentWrite:
         ref_record = [r for r in result["records"] if r["subdomain"] == "reference"][0]
         assert ref_record["outcome"] == "SKIP"
         assert "content write blocked" in ref_record.get("explanation", "")
+
+
+class TestDispatchContentWriteIntegration:
+    """Integration tests for _dispatch_content_write() with real subprocess calls.
+
+    These tests exercise the real dispatch function (not mocked) to verify:
+    - Verdict file parsing from disk
+    - Verdict-to-action routing (PASS/BLOCK/ABORT)
+    - Real subprocess invocation via subprocess.run()
+    """
+
+    def _make_verdict(self, tmp_path, verdict_name, family="test", platform="py"):
+        verdict_dir = tmp_path / "reports" / "refresh_review" / family / platform
+        verdict_dir.mkdir(parents=True, exist_ok=True)
+        verdict_path = verdict_dir / "semantic_refresh_verdict.json"
+        import json
+        verdict_path.write_text(json.dumps({
+            "verdict": verdict_name,
+            "proof": [f"test verdict: {verdict_name}"],
+        }), encoding="utf-8")
+        return verdict_path
+
+    def _make_stub_script(self, tmp_path, exit_code=0):
+        """Create a stub batch_reference.py that writes a marker and exits."""
+        script_dir = tmp_path / "scripts" / "pipeline" / "commands" / "content"
+        script_dir.mkdir(parents=True, exist_ok=True)
+        marker = tmp_path / "dispatch_marker.txt"
+        stub = script_dir / "batch_reference.py"
+        stub.write_text(
+            f"import sys\n"
+            f"from pathlib import Path\n"
+            f"Path({str(marker)!r}).write_text('dispatched:' + ':'.join(sys.argv[1:]))\n"
+            f"sys.exit({exit_code})\n",
+            encoding="utf-8",
+        )
+        return stub, marker
+
+    def test_passing_verdict_invokes_subprocess(self, tmp_path, monkeypatch):
+        """Exit-0 verdict (BODY_UPDATED_VERIFIED) triggers real subprocess invocation."""
+        import refresh_harness as rh
+
+        self._make_verdict(tmp_path, "BODY_UPDATED_VERIFIED", "test", "py")
+        _stub, marker = self._make_stub_script(tmp_path, exit_code=0)
+        monkeypatch.setattr(rh, "_REPO_ROOT", tmp_path)
+
+        written, note = rh._dispatch_content_write(
+            product="test/py",
+            subdomain="reference",
+            decision="REGENERATE_UPSTREAM",
+            flags={"refresh_content_write_enabled": True},
+            no_write=False,
+        )
+
+        assert written is True
+        assert "SUCCEEDED" in note
+        assert marker.exists(), "Stub script was not invoked — subprocess.run() not called"
+        assert "test:py:--update" in marker.read_text()
+
+    def test_blocking_verdict_skips_subprocess(self, tmp_path, monkeypatch):
+        """Exit-1 verdict (SEMANTIC_REFRESH_REQUIRED) skips subprocess."""
+        import refresh_harness as rh
+
+        self._make_verdict(tmp_path, "SEMANTIC_REFRESH_REQUIRED", "test", "py")
+        _stub, marker = self._make_stub_script(tmp_path, exit_code=0)
+        monkeypatch.setattr(rh, "_REPO_ROOT", tmp_path)
+
+        written, note = rh._dispatch_content_write(
+            product="test/py",
+            subdomain="reference",
+            decision="REGENERATE_UPSTREAM",
+            flags={"refresh_content_write_enabled": True},
+            no_write=False,
+        )
+
+        assert written is False
+        assert "blocked" in note
+        assert not marker.exists(), "Subprocess was invoked despite BLOCKING verdict"
+
+    def test_abort_verdict_raises_runtime_error(self, tmp_path, monkeypatch):
+        """Exit-2 verdict (CLAIM_EXTRACTION_MISSED_DELTA) raises RuntimeError."""
+        import refresh_harness as rh
+
+        self._make_verdict(tmp_path, "CLAIM_EXTRACTION_MISSED_DELTA", "test", "py")
+        monkeypatch.setattr(rh, "_REPO_ROOT", tmp_path)
+
+        with pytest.raises(RuntimeError, match="PHASE5_ABORT"):
+            rh._dispatch_content_write(
+                product="test/py",
+                subdomain="reference",
+                decision="REGENERATE_UPSTREAM",
+                flags={"refresh_content_write_enabled": True},
+                no_write=False,
+            )
+
+    def test_missing_verdict_skips_write(self, tmp_path, monkeypatch):
+        """No verdict file on disk → write skipped with advisory note."""
+        import refresh_harness as rh
+
+        monkeypatch.setattr(rh, "_REPO_ROOT", tmp_path)
+
+        written, note = rh._dispatch_content_write(
+            product="test/py",
+            subdomain="reference",
+            decision="REGENERATE_UPSTREAM",
+            flags={"refresh_content_write_enabled": True},
+            no_write=False,
+        )
+
+        assert written is False
+        assert "no semantic_refresh_verdict.json" in note
+
+    def test_subprocess_failure_returns_false(self, tmp_path, monkeypatch):
+        """Subprocess returning non-zero exit code → written=False, FAILED note."""
+        import refresh_harness as rh
+
+        self._make_verdict(tmp_path, "SEMANTIC_NOOP_PROVEN", "test", "py")
+        _stub, marker = self._make_stub_script(tmp_path, exit_code=1)
+        monkeypatch.setattr(rh, "_REPO_ROOT", tmp_path)
+
+        written, note = rh._dispatch_content_write(
+            product="test/py",
+            subdomain="reference",
+            decision="REGENERATE_UPSTREAM",
+            flags={"refresh_content_write_enabled": True},
+            no_write=False,
+        )
+
+        assert written is False
+        assert "FAILED" in note
+        assert marker.exists(), "Subprocess should have been invoked (exit code checked after)"

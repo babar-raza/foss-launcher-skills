@@ -679,9 +679,18 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
         return False
 
     if _clm_dupes:
-        print(f"  WARNING: {len(_clm_dupes)} duplicate CLM claim_id(s) in merged/claims.json")
+        _excess = sum(v - 1 for v in _clm_dupes.values())
+        print(f"  WARNING: {len(_clm_dupes)} duplicate CLM claim_id(s) — deduplicating ({_excess} excess removed)")
         for _cid, _cnt in sorted(_clm_dupes.items(), key=lambda x: -x[1])[:5]:
             print(f"    {_cid}: {_cnt} occurrences")
+        _seen_ids: set[str] = set()
+        _deduped: list[dict] = []
+        for _c in merged_claims:
+            _cid = _c.get("claim_id")
+            if _cid not in _seen_ids:
+                _deduped.append(_c)
+                _seen_ids.add(_cid)
+        merged_claims = _deduped
     else:
         print(f"  Claim ID uniqueness: PASS ({len(_id_counts)} unique IDs)")
 
