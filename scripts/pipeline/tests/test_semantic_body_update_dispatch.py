@@ -86,3 +86,26 @@ class TestGeneratePendingUpdates:
         p.write_text(json.dumps({"pages": []}))
         result = generate_pending_updates(p, family="x", platform="y")
         assert result == []
+
+
+class TestIntegrationPdfJavaPageImpact:
+    """Integration test using real page_impact.json if available."""
+
+    _IMPACT_PATH = Path(__file__).resolve().parents[3] / "reports" / "refresh_review" / "pdf" / "java" / "page_impact.json"
+
+    @pytest.mark.skipif(
+        not Path(__file__).resolve().parents[3].joinpath(
+            "reports", "refresh_review", "pdf", "java", "page_impact.json"
+        ).is_file(),
+        reason="reports/refresh_review/pdf/java/page_impact.json not present",
+    )
+    def test_real_pdf_java_impact_produces_nonempty_result(self):
+        result = generate_pending_updates(
+            self._IMPACT_PATH, family="pdf", platform="java"
+        )
+        assert len(result) > 0, "pdf/java page_impact.json should have HIGH/MEDIUM pages"
+        for entry in result:
+            assert "reference.aspose.org" not in entry["path"], (
+                f"Reference pages must be excluded: {entry['path']}"
+            )
+            assert entry["pia_score"] in ("HIGH_IMPACT", "MEDIUM_IMPACT")

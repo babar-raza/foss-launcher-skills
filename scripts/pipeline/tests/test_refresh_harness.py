@@ -722,3 +722,108 @@ class TestTcChallenge003ValidateForFreshGate:
         assert ref_records[0]["decision"] != "FRESH", (
             "Without stored manifest, decision should not be FRESH."
         )
+
+
+# ---------------------------------------------------------------------------
+# Auto mode tests
+# ---------------------------------------------------------------------------
+
+class TestAutoMode:
+    """auto mode: collects real fingerprints, detects drift from manifest, writes if gates allow."""
+
+    def test_auto_is_a_valid_mode(self):
+        assert "auto" in _VALID_MODES
+
+    def test_auto_mode_with_stale_manifest_fires_regenerate(self, tmp_path):
+        """When manifest has old fingerprints and current differ, auto mode → REGENERATE_UPSTREAM."""
+        stored = _make_fresh_stored_manifest(
+            upstream_sha="OLD_SHA",
+            output_hash="sha256:" + "b" * 64,
+        )
+        _configure_defaults(
+            manifest=stored,
+            fingerprints={
+                "upstream_repo_sha": "NEW_SHA",
+                "local_knowledge_sha": "NEW_SHA",
+            },
+            output_state=_output_state(exists=True, content_hash="sha256:" + "b" * 64),
+        )
+        result = run_harness(
+            product="cells/java",
+            mode="auto",
+            scratch_root=tmp_path,
+            subdomains=["reference"],
+            no_write=True,
+        )
+        records = result["records"]
+        ref_records = [r for r in records if r["subdomain"] == "reference"]
+        assert len(ref_records) == 1
+        assert ref_records[0]["decision"] == "REGENERATE_UPSTREAM"
+
+    def test_auto_mode_with_fresh_manifest_returns_fresh(self, tmp_path):
+        """When manifest matches current fingerprints, auto mode → FRESH."""
+        from freshness_manifest import FreshnessManifest
+        stored = FreshnessManifest({
+            "manifest_version": "1.0",
+            "product": "cells/java",
+            "subdomain": "reference",
+            "surface_type": "api-reference",
+            "input_fingerprints": {
+                "upstream_repo_sha": "SAME_SHA",
+                "local_knowledge_sha": "SAME_SHA",
+            },
+            "output_state": {
+                "output_exists": True,
+                "output_content_hash": "sha256:" + "c" * 64,
+            },
+            "manifest_status": "FRESH",
+            "generation_timestamp": "2026-05-01T10:00:00Z",
+            "run_id": "auto-test-001",
+            "command_used": "batch_reference.py cells java",
+            "governance_status": "COMPLIANT",
+            "decision": "FRESH",
+            "skip_reason": None,
+            "changed_input_fingerprints": [],
+            "prior_manifest_ref": None,
+        })
+        _configure_defaults(
+            manifest=stored,
+            fingerprints={
+                "upstream_repo_sha": "SAME_SHA",
+                "local_knowledge_sha": "SAME_SHA",
+            },
+            output_state=_output_state(exists=True, content_hash="sha256:" + "c" * 64),
+            validate_for_fresh_fn=lambda *a, **kw: [],
+        )
+        result = run_harness(
+            product="cells/java",
+            mode="auto",
+            scratch_root=tmp_path,
+            subdomains=["reference"],
+            no_write=True,
+        )
+        records = result["records"]
+        ref_records = [r for r in records if r["subdomain"] == "reference"]
+        assert len(ref_records) == 1
+        assert ref_records[0]["decision"] == "FRESH"
+
+    def test_auto_mode_no_manifest_returns_validate_only(self, tmp_path):
+        """When no manifest exists (first run), auto mode → VALIDATE_ONLY (graceful)."""
+        _configure_defaults(
+            manifest=None,
+            fingerprints={
+                "upstream_repo_sha": "SOME_SHA",
+                "local_knowledge_sha": "SOME_SHA",
+            },
+        )
+        result = run_harness(
+            product="cells/java",
+            mode="auto",
+            scratch_root=tmp_path,
+            subdomains=["reference"],
+            no_write=True,
+        )
+        records = result["records"]
+        ref_records = [r for r in records if r["subdomain"] == "reference"]
+        assert len(ref_records) == 1
+        assert ref_records[0]["decision"] == "VALIDATE_ONLY"

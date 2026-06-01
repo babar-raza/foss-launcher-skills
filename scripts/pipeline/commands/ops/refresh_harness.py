@@ -62,7 +62,7 @@ from reconciliation_ledger import (
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 
-_VALID_MODES = frozenset({"dry-run", "validate-only", "force-reconcile", "synthetic-input-change"})
+_VALID_MODES = frozenset({"dry-run", "validate-only", "force-reconcile", "synthetic-input-change", "auto"})
 
 _REGISTRY_PATH = _REPO_ROOT / "data" / "refresh-dependencies.json"
 _FEATURE_FLAGS_PATH = _REPO_ROOT / "data" / "refresh-feature-flags.json"
@@ -375,7 +375,13 @@ def _dispatch_content_write(
                 _REPO_ROOT / "reports" / "refresh_review" / family / platform
                 / "page_impact.json"
             )
-            if impact_path.is_file():
+            if not impact_path.is_file():
+                print(
+                    f"[PHASE5-INFO] No page_impact.json for {family}/{platform} "
+                    f"— skipping advisory (run page_impact_assess.py to generate)",
+                    file=_sys.stderr,
+                )
+            else:
                 pending = generate_pending_updates(
                     impact_path, family=family, platform=platform
                 )
@@ -388,12 +394,20 @@ def _dispatch_content_write(
                     )
                     print(
                         f"[PHASE5-ADVISORY] {len(pending)} HIGH/MEDIUM existing pages "
-                        f"need agent-assisted update — see pending_page_updates.json",
+                        f"need agent-assisted update — see {out}",
+                        file=_sys.stderr,
+                    )
+                else:
+                    print(
+                        f"[PHASE5-INFO] page_impact.json exists for {family}/{platform} "
+                        f"but 0 HIGH/MEDIUM non-reference pages found — no advisory needed",
                         file=_sys.stderr,
                     )
         except Exception as _adv_exc:
+            import traceback as _tb
             print(
-                f"[PHASE5-WARN] Failed to generate pending_page_updates: {_adv_exc}",
+                f"[PHASE5-ERROR] Failed to generate pending_page_updates for "
+                f"{family}/{platform}: {_adv_exc}\n{_tb.format_exc()}",
                 file=_sys.stderr,
             )
         return True, f"content write SUCCEEDED (decision={decision}, verdict={verdict_name!r})"
@@ -683,7 +697,7 @@ def run_harness(
             fingerprints = _eff_collect(
                 product, subdomain, registry, synthetic_overrides
             )
-        elif mode in ("dry-run", "validate-only", "force-reconcile"):
+        elif mode in ("dry-run", "validate-only", "force-reconcile", "auto"):
             fingerprints = _eff_collect(
                 product, subdomain, registry, {}
             )
