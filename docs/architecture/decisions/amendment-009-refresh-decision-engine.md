@@ -209,3 +209,23 @@ Test suite: 5829+ passed, 0 failed.
 3. Two distinct upstream change types are correctly handled: docs-only (NOOP) vs user-facing (INITIAL_REFRESH_ALLOWED)
 4. `batch_reference.py --update` regenerates only affected pages using the knowledge delta
 5. The full chain is operational for any of the 23 tracked upstream repositories
+
+### Harness Auto Mode (2026-06-01)
+
+**Problem**: The harness required two separate invocations to refresh a product: `validate-only` to detect fingerprint drift, then `synthetic-input-change --fingerprint local_knowledge_sha=X` to write content. This forced manual two-step operation.
+
+**Root cause**: The mode name didn't gate writes — only `no_write` flag and feature flags did. But `validate-only` was treated as observation-only by convention, and `synthetic-input-change` required explicit fingerprint injection even when the manifest already had stale values.
+
+**Solution**: Added `mode=auto` — collects real fingerprints (same as validate-only), compares against stored manifest, and writes content if REGENERATE_* decision fires and all safety gates pass (feature flags, semantic guard verdict, manifest backup/restore).
+
+**Safety**: All existing gates remain: `refresh_content_write_enabled` flag, `semantic_refresh_verdict.json` must exist with passing verdict, `--allow-write` required. Auto mode adds no new write paths — it combines existing validate-only fingerprint collection with the existing write dispatch already used by synthetic-input-change.
+
+**Limitation**: Auto mode requires a stored manifest with old fingerprints to detect drift. First-run products (no manifest) get `VALIDATE_ONLY` — use `synthetic-input-change` for bootstrapping.
+
+### Advisory Path Hardening (2026-06-01)
+
+Fixed silent failure in the `pending_page_updates.json` advisory path (refresh_harness.py). The path could fail three ways without logging: (1) `page_impact.json` missing → silent skip, (2) 0 qualifying pages → silent skip, (3) exception → swallowed with WARN-level message. All three now produce explicit `[PHASE5-INFO]` or `[PHASE5-ERROR]` messages with actionable guidance.
+
+### Orphaned Reference Page Retirement (2026-06-01)
+
+10 pdf/java reference pages retired (SetLineJoin, SetLineWidth, etc.) — classes confirmed removed upstream via `knowledge_delta.json`. 56 additional orphans identified as Java scout extraction gaps (enum/interface types exist in source but scout doesn't extract them). Filed as PDF-JAVA-SCOUT-ENUM-GAP-001.
