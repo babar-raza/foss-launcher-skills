@@ -188,5 +188,12 @@ summary:
   llm_router_native: 1
   approved_adapter: 3
   direct_bypasses_requiring_adapter: ["CS-004", "CS-008", "CS-009"]
+  # CS-011 (qwen3-embedding-8b in backlink_ai_enrich.py): Gemini boundary — no professionalize
+  #   metrics infrastructure. Uses non-professionalize provider. Test AT-8 enforces exclusion.
+  # CS-012 (gpt-oss classify in backlink_ai_enrich.py): Ollama boundary — local HTTP, no events.
+  #   Advisory-only Layer 1.5; AI is never authority. Test AT-8 enforces exclusion.
+  # CS-013 (gpt-oss adjudicate in backlink_adjudicate_review.py): M2M100 boundary — local torch,
+  #   no professionalize events. Test AT-9 + test_cs013_m2m_not_registered enforce exclusion.
+  # Exclusion is intentional and test-enforced. Do NOT register these without updating AT-8/AT-9.
   boundary_only_not_registered: ["CS-011", "CS-012", "CS-013"]
   newly_registered_this_sprint: ["CS-010"]

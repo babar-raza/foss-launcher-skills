@@ -33,7 +33,9 @@
       "Bash(xargs grep -l \"wiggly\\\\|watching-finch\\\\|v3\\\\.1.*A7\\\\|amendment.*A7\")",
       "Bash(xargs grep -l \"BL-DEEP.*plan\\\\|backlink.*plan.*v3\\\\|v2\\\\.0.*A1.*A2\\\\|whole.*plan\")",
       "Read(//c/Users/prora/.config/kilo/**)",
-      "Bash(.venv/Scripts/python -m pytest scripts/maintenance/supervisor/tests/test_supervisor.py -q)"
+      "Bash(.venv/Scripts/python -m pytest scripts/maintenance/supervisor/tests/test_supervisor.py -q)",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/ops/semantic_refresh_guard.py pdf java --source-delta reports/refresh_review/pdf/java/semantic_source_delta.json --page-decisions reports/refresh_review/pdf/java/page_decisions.json --knowledge-delta knowledge/pdf/java/merged/knowledge_delta.json)",
+      "Bash(echo \"EXIT_CODE:$?\")"
     ],
     "additionalDirectories": [
       "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing",
