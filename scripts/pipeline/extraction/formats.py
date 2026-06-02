@@ -211,7 +211,7 @@ def detect_formats(
     load_format_pattern = re.compile(
         r"(LoadFormat|ImportFormat|InputFormat|SourceFormat)", re.IGNORECASE)
     importer_pattern = re.compile(
-        r"(Importer|Exporter|Reader|Writer|Loader|Saver)", re.IGNORECASE)
+        r"(Importer|Exporter|Reader|Writer|Loader|Saver|Serializer)", re.IGNORECASE)
 
     # H-04: False-positive format names to reject after suffix stripping
     _FALSE_POSITIVE_NAMES = frozenset({
@@ -311,10 +311,10 @@ def detect_formats(
 
             if importer_pattern.search(cname):
                 direction = "import"
-                if re.search(r"(Exporter|Writer|Saver)", cname, re.IGNORECASE):
+                if re.search(r"(Exporter|Writer|Saver|Serializer)", cname, re.IGNORECASE):
                     direction = "export"
                 fmt_name = re.sub(
-                    r"(Importer|Exporter|Reader|Writer|Loader|Saver|Factory|Registry)", "",
+                    r"(Importer|Exporter|Reader|Writer|Loader|Saver|Serializer|Factory|Registry)", "",
                     cname, flags=re.IGNORECASE).strip().strip("_")
                 # H-04: reject empty, too-short, or common-word false positives
                 if fmt_name and len(fmt_name) >= 2 and fmt_name.lower() not in _FALSE_POSITIVE_NAMES:
@@ -656,7 +656,7 @@ def _cross_reference_enum_directions(
 
     # Noise suffixes that remain after Exporter/Reader stripping
     # (e.g. DocFileReader → "DocFile"; strip "File" → "Doc" to match "DOC")
-    _impl_noise_re = re.compile(r"(?:file|document|format|core)+$", re.IGNORECASE)
+    _impl_noise_re = re.compile(r"(?:file|document|workbook|format|core)+$", re.IGNORECASE)
 
     def _has_backing(fmt_name: str, impl_set: set[str],
                      method_set: set[str]) -> bool:

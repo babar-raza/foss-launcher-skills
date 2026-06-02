@@ -99,7 +99,16 @@ class TestFontPythonFormatExtraction(unittest.TestCase):
         )
 
     def test_format_names_are_plausible(self):
-        """All format names should be short, alphanumeric, uppercase identifiers."""
+        """All format names should be short and alphanumeric.
+
+        Enum-sourced entries (e.g. FontType.TTF) must be all-uppercase identifiers.
+        Non-enum entries from I/O backing classes (e.g. TtfSerializer → "Ttf") may be
+        PascalCase — they are stripped class names, not enum member names.
+        Both must be short (<=12 chars) and contain only word characters.
+
+        Updated A13 W.1: Serializer-derived non-enum entries are now included;
+        they are single-word PascalCase (Ttf, Cff) not multi-word CamelCase.
+        """
         for f in self._formats:
             name = f["format"]
             self.assertLessEqual(
@@ -107,9 +116,15 @@ class TestFontPythonFormatExtraction(unittest.TestCase):
                 f"Format name too long (likely false positive): {name}"
             )
             self.assertRegex(
-                name, r"^[A-Z][A-Z0-9_]+$",
-                f"Format name doesn't match expected pattern: {name}"
+                name, r"^[A-Za-z][A-Za-z0-9_]+$",
+                f"Format name contains unexpected characters: {name}"
             )
+            # Enum-sourced entries must be uppercase identifiers
+            if f.get("enum"):
+                self.assertRegex(
+                    name, r"^[A-Z][A-Z0-9_]+$",
+                    f"Enum format name must be uppercase: {name}"
+                )
 
 
 class TestFilterVendorPaths(unittest.TestCase):

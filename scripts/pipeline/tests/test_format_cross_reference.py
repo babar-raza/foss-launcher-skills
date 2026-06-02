@@ -592,5 +592,59 @@ class TestSourceFormatPatternFix(unittest.TestCase):
         self.assertFalse(bool(_SAVE_PAT.search("SourceFormat")))
 
 
+class TestSerializerBackingPattern(unittest.TestCase):
+    """Regression test: *Serializer* classes must be recognised as I/O backing.
+
+    Root cause guarded (CELLS-CPP-FORMAT-SCAN-001 / A13 W.1):
+      XlsxWorkbookSerializer in cells/cpp was not matched by the backing-class
+      pattern (Importer|Exporter|Reader|Writer|Loader|Saver) → XLSX marked
+      enum_only/functional:false → 2 CF FAILs on products/cells/cpp page.
+
+    Fix: 'Serializer' added to importer_pattern + export direction check +
+    suffix-stripping regex; 'workbook' added to _impl_noise_re.
+    """
+
+    def test_serializer_class_backs_xlsx_export(self):
+        """XlsxWorkbookSerializer (stripped → XlsxWorkbook) must back SaveFormat.XLSX."""
+        # Simulate output of detect_formats() for cells/cpp:
+        # - SaveFormat.XLSX enum entry (from XlsxSaveFormat enum)
+        # - XlsxWorkbook non-enum export entry (from XlsxWorkbookSerializer after strip)
+        formats = [
+            {"format": "XLSX", "enum": "SaveFormat", "direction": "export"},
+            {"format": "XlsxWorkbook", "enum": "", "direction": "export"},
+        ]
+        result = _cross_reference_enum_directions(formats, _SAVE_PAT, _LOAD_PAT)
+        xlsx = next(f for f in result if f["format"] == "XLSX")
+        self.assertEqual(
+            xlsx["direction"], "export",
+            "SaveFormat.XLSX must NOT be demoted to enum_only when XlsxWorkbookSerializer exists"
+        )
+        self.assertTrue(
+            xlsx.get("functional", False),
+            "SaveFormat.XLSX must be functional:true when XlsxWorkbookSerializer exists"
+        )
+
+    def test_serializer_class_without_noise_suffix_backs_directly(self):
+        """A Serializer class whose stripped name exactly matches a format is backed."""
+        # e.g. XlsxSerializer → strip "Serializer" → "Xlsx" → backs XLSX directly
+        formats = [
+            {"format": "XLSX", "enum": "SaveFormat", "direction": "export"},
+            {"format": "Xlsx", "enum": "", "direction": "export"},
+        ]
+        result = _cross_reference_enum_directions(formats, _SAVE_PAT, _LOAD_PAT)
+        xlsx = next(f for f in result if f["format"] == "XLSX")
+        self.assertEqual(xlsx["direction"], "export")
+        self.assertTrue(xlsx.get("functional", False))
+
+    def test_non_serializer_class_still_demoted(self):
+        """SaveFormat entry without ANY backing class is still demoted to enum_only."""
+        formats = [
+            {"format": "ODS", "enum": "SaveFormat", "direction": "export"},
+        ]
+        result = _cross_reference_enum_directions(formats, _SAVE_PAT, _LOAD_PAT)
+        ods = next(f for f in result if f["format"] == "ODS")
+        self.assertEqual(ods["direction"], "enum_only")
+
+
 if __name__ == "__main__":
     unittest.main()

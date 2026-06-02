@@ -8,14 +8,14 @@ Grade floor policy (TC-GP-2):
 - Reference pages are exempt (known false-positive issue pending characterization).
 - Draft pages (draft: true) are exempt from grade floor.
 
-KNOWN GAP (LOCALE-KB-GRADE-001, 2026-06-02):
-This script uses rglob("index.md") + parent.glob("index.*.md") to find co-located
-locale files (e.g., index.md + index.ar.md in the same directory). It does NOT
-detect the directory-separated locale convention used by KB pages, where English
-content lives at en/{path} and locale content at {locale}/{path} as separate files
-in separate directories. As a result, ~140 KB locale pages with grade C (TC-GP-2
-floor violations) are NOT detected. Fixing this requires extending this script to
-walk both en/ and locale/ trees and correlate by relative path — see LOCALE-KB-GRADE-001.
+Two locale conventions are detected:
+
+1. Co-located (docs/blog): English page at en/{path}/index.md, locale variant at
+   en/{path}/index.{locale}.md in the same directory. Handled by check_directory().
+
+2. Dir-separated (KB): English page at en/{path}, locale copy at {locale}/{path}
+   in separate top-level directories. Handled by check_dir_separated_locales().
+   (LOCALE-KB-GRADE-001 — fixed A13 W.2 2026-06-02)
 
 Usage:
     .venv/Scripts/python scripts/pipeline/commands/diagnostics/locale_grade_drift.py
@@ -34,6 +34,7 @@ import re
 import sys
 from pathlib import Path
 from datetime import datetime, timezone
+from typing import Iterator
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
@@ -64,11 +65,133 @@ def parse_md(path: Path) -> dict:
     }
 
 
-def check_directory(subdir: Path) -> list[dict]:
-    """Check all locale variants in a directory against the English source."""
+def _get_locale_codes(content_root: Path) -> list[str]:
+    """Return locale directory names (ar, fr, de, ...) in content_root.
+
+    Scans direct subdirectories of content_root that are not 'en' and contain
+    at least one .md file. Returns sorted list of locale codes.
+    """
+    codes = []
+    if not content_root.exists():
+        return codes
+    for d in sorted(content_root.iterdir()):
+        if not d.is_dir() or d.name == "en":
+            continue
+        # Check for at least one .md file to confirm it's a locale tree
+        if any(True for _ in d.rglob("*.md") if True):
+            codes.append(d.name)
+    return codes
+
+
+def _iter_dir_separated_pairs(
+    content_root: Path,
+    locale_codes: list[str],
+    en_sub: Path | None = None,
+) -> Iterator[tuple[Path, Path, str]]:
+    """Yield (en_file, locale_file, locale_code) for dir-separated locale pairs.
+
+    Walks content_root/en/ (or en_sub if provided) for all .md files.
+    For each file, checks if a corresponding file exists at
+    content_root/{locale_code}/{relative_path_from_en_root}.
+
+    en_sub: optional subdirectory within en/ to restrict the scan
+            (e.g. content_root/en/email/net/). Must be inside content_root/en/.
+    """
+    en_root = content_root / "en"
+    if not en_root.exists():
+        return
+    scan_root = en_sub if (en_sub is not None and en_sub.exists()) else en_root
+    for en_file in scan_root.rglob("*.md"):
+        rel = en_file.relative_to(en_root)
+        for locale_code in locale_codes:
+            locale_file = content_root / locale_code / rel
+            if locale_file.exists():
+                yield en_file, locale_file, locale_code
+
+
+def check_dir_separated_locales(
+    content_root: Path,
+    family_filter: str | None = None,
+    platform_filter: str | None = None,
+    _repo_root: Path | None = None,
+) -> list[dict]:
+    """Check dir-separated locale pairs (KB convention) for grade drift.
+
+    Finds locale codes in content_root, then walks content_root/en/ and
+    correlates with content_root/{locale}/ by relative path.
+
+    Applies the same grade floor (TC-GP-2) and drift checks as check_directory().
+
+    _repo_root: override REPO_ROOT for relative path computation (tests only).
+    """
+    findings = []
+    locale_codes = _get_locale_codes(content_root)
+    if not locale_codes:
+        return findings
+
+    repo_root = _repo_root or REPO_ROOT
+
+    # Narrow scan to en_sub if family/platform filters provided
+    en_sub: Path | None = None
+    if family_filter and platform_filter:
+        en_sub = content_root / "en" / family_filter / platform_filter
+    elif family_filter:
+        en_sub = content_root / "en" / family_filter
+
+    floor_val = GRADE_ORDER.get(FLOOR_GRADE, 4)
+    for en_file, locale_file, locale_code in _iter_dir_separated_pairs(
+        content_root, locale_codes, en_sub
+    ):
+        english_info = parse_md(en_file)
+        english_grade = english_info["grade"]
+
+        locale_info = parse_md(locale_file)
+        locale_grade = locale_info["grade"]
+        is_draft = locale_info["draft"]
+
+        if is_draft:
+            continue
+        if locale_grade is None:
+            continue
+
+        locale_val = GRADE_ORDER.get(locale_grade, 0)
+
+        if locale_val < floor_val:
+            findings.append({
+                "type": "GRADE_FLOOR_VIOLATION",
+                "file": str(locale_file.relative_to(repo_root)),
+                "locale_grade": locale_grade,
+                "english_grade": english_grade,
+                "floor": FLOOR_GRADE,
+                "is_draft": False,
+                "locale_code": locale_code,
+                "convention": "dir_separated",
+            })
+        elif english_grade and locale_val < GRADE_ORDER.get(english_grade, 0):
+            findings.append({
+                "type": "LOCALE_DRIFT",
+                "file": str(locale_file.relative_to(repo_root)),
+                "locale_grade": locale_grade,
+                "english_grade": english_grade,
+                "floor": FLOOR_GRADE,
+                "is_draft": False,
+                "locale_code": locale_code,
+                "convention": "dir_separated",
+            })
+
+    return findings
+
+
+def check_directory(subdir: Path, _repo_root: Path | None = None) -> list[dict]:
+    """Check all locale variants in a directory against the English source.
+
+    _repo_root: override REPO_ROOT for relative path computation (tests only).
+    """
     findings = []
     if not subdir.exists():
         return findings
+
+    repo_root = _repo_root or REPO_ROOT
 
     # Walk: for each English index.md, find locale variants
     for english_file in subdir.rglob("index.md"):
@@ -98,7 +221,7 @@ def check_directory(subdir: Path) -> list[dict]:
             if locale_val < floor_val:
                 findings.append({
                     "type": "GRADE_FLOOR_VIOLATION",
-                    "file": str(locale_file.relative_to(REPO_ROOT)),
+                    "file": str(locale_file.relative_to(repo_root)),
                     "locale_grade": locale_grade,
                     "english_grade": english_grade,
                     "floor": FLOOR_GRADE,
@@ -109,7 +232,7 @@ def check_directory(subdir: Path) -> list[dict]:
             elif english_grade and locale_val < GRADE_ORDER.get(english_grade, 0):
                 findings.append({
                     "type": "LOCALE_DRIFT",
-                    "file": str(locale_file.relative_to(REPO_ROOT)),
+                    "file": str(locale_file.relative_to(repo_root)),
                     "locale_grade": locale_grade,
                     "english_grade": english_grade,
                     "floor": FLOOR_GRADE,
@@ -133,6 +256,7 @@ def main():
         if not subdir.exists():
             continue
 
+        # Co-located convention: docs/blog use index.md + index.{locale}.md siblings
         if args.family and args.platform:
             search_dirs = [subdir / args.family / args.platform]
         elif args.family:
@@ -142,6 +266,14 @@ def main():
 
         for search_dir in search_dirs:
             all_findings.extend(check_directory(search_dir))
+
+        # Dir-separated convention: KB uses en/{path} + {locale}/{path} trees
+        if (subdir / "en").exists():
+            all_findings.extend(check_dir_separated_locales(
+                subdir,
+                family_filter=args.family,
+                platform_filter=args.platform,
+            ))
 
     floor_violations = [f for f in all_findings if f["type"] == "GRADE_FLOOR_VIOLATION"]
     drift_findings = [f for f in all_findings if f["type"] == "LOCALE_DRIFT"]

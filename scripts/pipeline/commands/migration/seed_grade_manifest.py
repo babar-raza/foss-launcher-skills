@@ -7,9 +7,19 @@ can function without reading frontmatter.
 
 Usage:
     .venv/Scripts/python scripts/pipeline/commands/migration/seed_grade_manifest.py [--dry-run]
+    PYTHONPATH="scripts/pipeline;scripts/pipeline/lib" .venv/Scripts/python \\
+        scripts/pipeline/commands/migration/seed_grade_manifest.py
 
 After seeding, skip-graded gate uses manifest first (ARCH-02).  No .md files
 are modified by this script — it is read-only for content files.
+
+IMPORTANT — MANUAL TRIGGER REQUIRED (added A13 W.4 2026-06-02):
+    reports/grade_manifest.json is NOT auto-regenerated. It will drift as
+    `--write-grade-if-policy-met` writes grades to individual pages. Re-run
+    this script manually after any batch grade operation (batch_regrade,
+    content-eval batch, or a series of targeted grade writes). The manifest is
+    not served to users but misleads pipeline operators if stale.
+    Recommended: re-run after each sprint that includes grade writes.
 """
 from __future__ import annotations
 
