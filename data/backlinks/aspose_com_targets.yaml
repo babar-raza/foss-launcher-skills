@@ -1,5 +1,5 @@
-generated_at: '2026-05-14T13:41:31.541178+00:00'
-source_json_hash: sha256:247c9efd63a277256cfa8f42820670d8688a455c8e5cbe0b18466e1e8b8566b5
+generated_at: '2026-06-02T11:13:09.845379+00:00'
+source_json_hash: sha256:f5486cd938a2679677cb9e962b8ab862dd695d61b512f86b4ec4cca9a669657d
 targets:
   3d:
     http_status: 200
@@ -10,6 +10,12 @@ targets:
   3d/net:
     http_status: 200
     url: https://products.aspose.com/3d/net/
+  3d/python:
+    http_status: 200
+    url: https://products.aspose.com/3d/python/
+  3d/typescript:
+    http_status: 200
+    url: https://products.aspose.com/3d/typescript/
   barcode:
     http_status: 200
     url: https://products.aspose.com/barcode/
@@ -19,6 +25,9 @@ targets:
   cells:
     http_status: 200
     url: https://products.aspose.com/cells/
+  cells/cpp:
+    http_status: 200
+    url: https://products.aspose.com/cells/cpp/
   cells/java:
     http_status: 200
     url: https://products.aspose.com/cells/java/
@@ -28,6 +37,9 @@ targets:
   cells/python:
     http_status: 200
     url: https://products.aspose.com/cells/python/
+  cells/typescript:
+    http_status: 200
+    url: https://products.aspose.com/cells/typescript/
   diagram:
     http_status: 200
     url: https://products.aspose.com/diagram/
@@ -52,6 +64,9 @@ targets:
   font:
     http_status: 200
     url: https://products.aspose.com/font/
+  font/python:
+    http_status: 200
+    url: https://products.aspose.com/font/python/
   gis:
     http_status: 200
     url: https://products.aspose.com/gis/
@@ -67,6 +82,9 @@ targets:
   note:
     http_status: 200
     url: https://products.aspose.com/note/
+  note/python:
+    http_status: 200
+    url: https://products.aspose.com/note/python/
   ocr:
     http_status: 200
     url: https://products.aspose.com/ocr/
@@ -79,6 +97,12 @@ targets:
   pdf:
     http_status: 200
     url: https://products.aspose.com/pdf/
+  pdf/go:
+    http_status: 200
+    url: https://products.aspose.com/pdf/go/
+  pdf/java:
+    http_status: 200
+    url: https://products.aspose.com/pdf/java/
   psd:
     http_status: 200
     url: https://products.aspose.com/psd/
