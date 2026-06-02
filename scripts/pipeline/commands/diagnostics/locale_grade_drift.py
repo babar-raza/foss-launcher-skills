@@ -8,6 +8,15 @@ Grade floor policy (TC-GP-2):
 - Reference pages are exempt (known false-positive issue pending characterization).
 - Draft pages (draft: true) are exempt from grade floor.
 
+KNOWN GAP (LOCALE-KB-GRADE-001, 2026-06-02):
+This script uses rglob("index.md") + parent.glob("index.*.md") to find co-located
+locale files (e.g., index.md + index.ar.md in the same directory). It does NOT
+detect the directory-separated locale convention used by KB pages, where English
+content lives at en/{path} and locale content at {locale}/{path} as separate files
+in separate directories. As a result, ~140 KB locale pages with grade C (TC-GP-2
+floor violations) are NOT detected. Fixing this requires extending this script to
+walk both en/ and locale/ trees and correlate by relative path — see LOCALE-KB-GRADE-001.
+
 Usage:
     .venv/Scripts/python scripts/pipeline/commands/diagnostics/locale_grade_drift.py
     .venv/Scripts/python scripts/pipeline/commands/diagnostics/locale_grade_drift.py --family email --platform cpp
