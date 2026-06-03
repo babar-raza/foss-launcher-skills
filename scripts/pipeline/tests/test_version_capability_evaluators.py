@@ -189,6 +189,51 @@ class TestVersionClaimCheck:
         assert any("3.8" in f.message or "3.10" in f.message for f in findings)
 
     @patch("content_eval.evaluators.version_claim_check._load_runtime_requirement")
+    def test_netstandard2_compat_with_dotnet6(self, mock_req):
+        """netstandard2.0 target is compatible with .NET 6.0 — no finding (TC-VERSION-CLAIM-FP)."""
+        mock_req.return_value = "netstandard2.0"
+        page = _make_products_page("cells", "net",
+            frontmatter_extra="Supports .NET 6.0 and .NET 8.0 applications.")
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) == 0, (
+            f"Expected no findings for .NET 6.0/8.0 with netstandard2.0 target, got {findings}"
+        )
+
+    @patch("content_eval.evaluators.version_claim_check._load_runtime_requirement")
+    def test_net8_forward_compat_with_net9(self, mock_req):
+        """net8.0 target is forward-compatible with .NET 9.0 runtime — no finding."""
+        mock_req.return_value = "net8.0"
+        page = _make_products_page("email", "net",
+            frontmatter_extra="Works with .NET 9.0 applications.")
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) == 0, (
+            f"Expected no findings for .NET 9.0 with net8.0 target (forward compat), got {findings}"
+        )
+
+    @patch("content_eval.evaluators.version_claim_check._load_runtime_requirement")
+    def test_upgrade_context_skipped(self, mock_req):
+        """Upgrade-context mention should be skipped by negation regex."""
+        mock_req.return_value = ">=3.10"
+        page = _make_kb_page("email", "python",
+            body="If you are on Python 3.9 or earlier, upgrade to 3.10.")
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) == 0, (
+            f"Expected no findings for upgrade-context mention, got {findings}"
+        )
+
+    @patch("content_eval.evaluators.version_claim_check._load_runtime_requirement")
+    def test_dotnet_downgrade_still_flagged(self, mock_req):
+        """.NET 7.0 claim with net8.0 target must still be flagged (downgrade)."""
+        mock_req.return_value = "net8.0"
+        page = _make_products_page("email", "net",
+            frontmatter_extra="Built for .NET 7.0 applications.")
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) >= 1, (
+            "Expected FAIL for .NET 7.0 with net8.0 target (downgrade claim)"
+        )
+        assert findings[0].category == "VC"
+
+    @patch("content_eval.evaluators.version_claim_check._load_runtime_requirement")
     def test_correct_version_in_faq_answer_passes(self, mock_req):
         """Correct version in faq.list[].answer must not be flagged."""
         mock_req.return_value = ">=3.10"

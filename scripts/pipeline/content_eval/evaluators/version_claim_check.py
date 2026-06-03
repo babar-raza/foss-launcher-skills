@@ -48,9 +48,10 @@ _CMAKE_VERSION_RE = re.compile(
     re.IGNORECASE,
 )
 
-# Negation context — skip lines that say "does not require" etc.
+# Negation/upgrade context — skip lines about old/unsupported versions.
 _NEGATION_RE = re.compile(
-    r"\b(?:not|no\s+longer|without|don'?t|doesn'?t|removed|deprecated)\b",
+    r"\b(?:not|no\s+longer|without|don'?t|doesn'?t|removed|deprecated"
+    r"|upgrade|earlier|older|previous|prior|minimum)\b",
     re.IGNORECASE,
 )
 
@@ -79,12 +80,50 @@ def _load_runtime_requirement(family: str, platform: str) -> str:
     return ""
 
 
-def _extract_major_version(version_str: str) -> float | None:
-    """Extract the major (or major.minor) version number from a string."""
-    m = re.search(r"(\d+(?:\.\d+)?)", version_str)
+def _extract_major_version(version_str: str) -> tuple[int, int] | None:
+    """Extract version as (major, minor) tuple from a string.
+
+    Uses tuple comparison to avoid float truncation (e.g. 3.10 != 3.1).
+    """
+    m = re.search(r"(\d+)(?:\.(\d+))?", version_str)
     if m:
-        return float(m.group(1))
+        major = int(m.group(1))
+        minor = int(m.group(2)) if m.group(2) else 0
+        return (major, minor)
     return None
+
+
+def _is_compatible(
+    claimed: tuple[int, int],
+    required: tuple[int, int],
+    platform: str,
+    runtime_req_raw: str,
+) -> bool:
+    """Return True if the claimed version is compatible with the requirement.
+
+    Handles forward-compatibility: newer runtimes run older-targeted libraries.
+    Also handles netstandard2.x → .NET 6.0+ compatibility.
+    """
+    if platform in ("net", "dotnet"):
+        # netstandard2.x (required <= 2.1) is compatible with .NET 6.0+
+        if required <= (2, 1) and claimed >= (6, 0):
+            return True
+        # Forward compat: netN.0 target works on .NET (N+x).0 runtime
+        if claimed >= required:
+            return True
+    elif platform == "python":
+        # Python forward compat: >=3.X is satisfied by any 3.Y where Y >= X
+        if claimed >= required:
+            return True
+    elif platform in ("java", "kotlin"):
+        # Java forward compat: JDK N+ works on JDK N+x
+        if claimed >= required:
+            return True
+    elif platform == "cpp":
+        # CMake forward compat
+        if claimed >= required:
+            return True
+    return False
 
 
 def _platform_regex(platform: str) -> re.Pattern | None:
@@ -215,8 +254,8 @@ class VersionClaimCheckEvaluator(BaseEvaluator):
                 if claimed_version is None:
                     continue
 
-                # Flag if claimed version differs from actual requirement
-                if claimed_version != req_version:
+                # Flag if claimed version is incompatible with requirement
+                if not _is_compatible(claimed_version, req_version, page.platform, runtime_req):
                     findings.append(Finding(
                         level=level,
                         category="VC",
