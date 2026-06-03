@@ -646,5 +646,57 @@ class TestSerializerBackingPattern(unittest.TestCase):
         self.assertEqual(ods["direction"], "enum_only")
 
 
+class TestLoadSaveOptionsPattern(unittest.TestCase):
+    """Regression test: *LoadOptions/*SaveOptions classes as format backing.
+
+    Root cause guarded (PDF-JAVA-FORMAT-IMPORT-001 / A15):
+      pdf/java HtmlLoadOptions was not detected as an importer → Html marked
+      enum_only → CF FAILs on reference pages.
+
+    Fix: load_save_options_pattern added to detect_formats() Pass 1b;
+    HtmlLoadOptions → Html import, HtmlSaveOptions → Html export.
+    """
+
+    def test_save_options_backs_save_format_enum(self):
+        """HtmlSaveOptions (export) backs SaveFormat.Html → stays export, not enum_only."""
+        formats = [
+            {"format": "Html", "enum": "SaveFormat", "direction": "export"},
+            # From SaveOptions detection (Pass 1b)
+            {"format": "Html", "enum": "", "direction": "export"},
+            # From LoadOptions detection (Pass 1b)
+            {"format": "Html", "enum": "", "direction": "import"},
+        ]
+        result = _cross_reference_enum_directions(formats, _SAVE_PAT, _LOAD_PAT)
+        html_enum = next(f for f in result if f["format"] == "Html" and f.get("enum"))
+        self.assertEqual(
+            html_enum["direction"], "export",
+            "SaveFormat.Html must stay 'export' when HtmlSaveOptions exists"
+        )
+        self.assertTrue(
+            html_enum.get("functional", False),
+            "SaveFormat.Html must be functional:true with SaveOptions backing"
+        )
+
+    def test_pdf_save_options_backs_save_format(self):
+        """PdfSaveOptions entry backs SaveFormat.Pdf → keeps export."""
+        formats = [
+            {"format": "Pdf", "enum": "SaveFormat", "direction": "export"},
+            {"format": "Pdf", "enum": "", "direction": "export"},
+        ]
+        result = _cross_reference_enum_directions(formats, _SAVE_PAT, _LOAD_PAT)
+        pdf_enum = next(f for f in result if f["format"] == "Pdf" and f.get("enum"))
+        self.assertEqual(pdf_enum["direction"], "export")
+        self.assertTrue(pdf_enum.get("functional", False))
+
+    def test_load_options_without_enum_still_emitted(self):
+        """LoadOptions entry stands alone when no matching enum exists."""
+        formats = [
+            {"format": "Html", "enum": "", "direction": "import"},
+        ]
+        result = _cross_reference_enum_directions(formats, _SAVE_PAT, _LOAD_PAT)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["direction"], "import")
+
+
 if __name__ == "__main__":
     unittest.main()

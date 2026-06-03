@@ -212,6 +212,10 @@ def detect_formats(
         r"(LoadFormat|ImportFormat|InputFormat|SourceFormat)", re.IGNORECASE)
     importer_pattern = re.compile(
         r"(Importer|Exporter|Reader|Writer|Loader|Saver|Serializer)", re.IGNORECASE)
+    # LoadOptions/SaveOptions classes signal constructor-based import/export
+    # (e.g. HtmlLoadOptions → HTML import, PdfSaveOptions → PDF export).
+    load_save_options_pattern = re.compile(
+        r"^(\w+?)(Load|Save|Import|Export)Options$")
 
     # H-04: False-positive format names to reject after suffix stripping
     _FALSE_POSITIVE_NAMES = frozenset({
@@ -240,7 +244,10 @@ def detect_formats(
         except OSError:
             continue
 
-        if not format_pattern.search(text) and not importer_pattern.search(text):
+        if (not format_pattern.search(text)
+                and not importer_pattern.search(text)
+                and "LoadOptions" not in text
+                and "SaveOptions" not in text):
             continue
 
         tree = parser.parse(text.encode("utf-8"))
@@ -346,6 +353,31 @@ def detect_formats(
                                 "line": cn.start_point[0] + 1,
                                 "direction": direction,
                             })
+
+            # Pass 1b: LoadOptions/SaveOptions classes indicate constructor-based
+            # format support.  E.g. HtmlLoadOptions → Html import,
+            # PdfSaveOptions → Pdf export.  Catches libraries (pdf/java, 3d/java)
+            # where import is via `new Document(stream, loadOptions)` rather than
+            # a dedicated Reader/Importer class.
+            m_opts = load_save_options_pattern.match(cname)
+            if m_opts and not importer_pattern.search(cname):
+                fmt_name = m_opts.group(1)
+                opts_type = m_opts.group(2).lower()  # "load", "save", "import", "export"
+                direction = "import" if opts_type in ("load", "import") else "export"
+                if (fmt_name
+                        and len(fmt_name) >= 2
+                        and fmt_name.lower() not in _FALSE_POSITIVE_NAMES):
+                    formats.append({
+                        "format": fmt_name,
+                        "enum": "",
+                        "value": "",
+                        "file": rel,
+                        "line": cn.start_point[0] + 1,
+                        "direction": direction,
+                    })
+                    _add_claim("format_support",
+                               f"{direction} support for {fmt_name} via {cname}",
+                               rel, cn.start_point[0] + 1)
 
     # Second pass: scan method names for format signals embedded in naming
     # conventions (e.g., load_from_eml, save_to_eml).  Catches formats that

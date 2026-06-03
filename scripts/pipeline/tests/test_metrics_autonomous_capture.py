@@ -996,19 +996,11 @@ class TestAT15_IdempotencyPreventsDouble:
 class TestAT16_DocPropagationCheckPasses:
     """AT-16: check_metrics_docs_propagation --strict passes on the live repo."""
 
-    @pytest.mark.skipif(
-        not os.environ.get("METRICS_STRICT_DOCS"),
-        reason=(
-            "Strict docs propagation check skipped — "
-            "set METRICS_STRICT_DOCS=1 after Slices 10 and 11 are complete"
-        ),
-    )
     def test_docs_propagation_strict_passes_live_repo(self):
         """check_metrics_docs_propagation --strict returns exit code 0.
 
-        Requires Slices 10 and 11 (metrics obligation docs/skill propagation) to be
-        complete. Gated by METRICS_STRICT_DOCS=1 until then. The checker itself
-        documents: 'Becomes strict after Slices 10 and 11 are complete.'
+        Slices 10 and 11 (metrics obligation docs/skill propagation) confirmed
+        complete 2026-06-03: present=46, pending=0, missing=0. Skip gate removed.
         """
         result = subprocess.run(
             [sys.executable,
