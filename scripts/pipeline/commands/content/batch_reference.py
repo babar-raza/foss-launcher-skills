@@ -385,7 +385,16 @@ def _is_enum(entry: dict, platform: str) -> bool:
 
 
 def _passes_platform_scope(entry: dict, platform: str) -> bool:
-    """Return True if the entry should be included in the candidate list."""
+    """Return True if the entry should be included in the candidate list.
+
+    DIVERGENCE NOTE (TC-REF-11, 2026-06-03):
+    This function includes platform-specific exclusions (C++ I-prefix/abstract
+    bases, Python I-prefix, Java internal classes, .NET namespace internals)
+    that are NOT present in the shared library at
+    scripts/pipeline/lib/reference_filter.py.  The shared library is used for
+    CI staleness checks and returns higher counts (safe direction: over-flags).
+    This function is the authoritative filter for content generation.
+    """
     kind = entry.get("kind", "")
     name = entry.get("name", "")
 
