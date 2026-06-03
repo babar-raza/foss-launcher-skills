@@ -19,6 +19,7 @@ import json
 import re
 import sys
 from collections import defaultdict
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
@@ -26,7 +27,25 @@ sys.path.insert(0, str(_HERE))
 from _common import REPO_ROOT, base_args, safe_emit
 
 
-def validate(repo_root=None):
+def _parse_eval_timestamp(filename: str) -> str:
+    """Extract sortable timestamp from eval-YYYYMMDD-HHMMSS.json filename."""
+    m = re.match(r"eval-(\d{8}-\d{6})\.json$", filename)
+    return m.group(1) if m else ""
+
+
+def _filter_eval_files(
+    eval_files: list[Path],
+    max_age_days: int | None = None,
+) -> list[Path]:
+    """Filter eval files by age if max_age_days is set."""
+    if max_age_days is None:
+        return eval_files
+    cutoff = datetime.now(timezone.utc) - timedelta(days=max_age_days)
+    cutoff_str = cutoff.strftime("%Y%m%d-%H%M%S")
+    return [f for f in eval_files if _parse_eval_timestamp(f.name) >= cutoff_str]
+
+
+def validate(repo_root=None, *, dedup: bool = True, max_age_days: int | None = None):
     root = Path(repo_root or REPO_ROOT)
     reports_dir = root / "reports"
 
@@ -50,30 +69,59 @@ def validate(repo_root=None):
         pages_clean_total = 0
         pages_with_findings_total = 0
         pages_evaluated_total = 0
-        # Track per-page FAIL counts across all reports
-        page_fail_counts: dict = defaultdict(int)
-        page_warn_counts: dict = defaultdict(int)
 
-        for eval_file in sorted(eval_dir.glob("eval-*.json")):
+        eval_files = sorted(eval_dir.glob("eval-*.json"))
+        eval_files = _filter_eval_files(eval_files, max_age_days)
+
+        # --- Phase 1: collect per-page findings with report timestamps ---
+        # page_path -> {timestamp: str, fails: int, warns: int}
+        page_latest: dict[str, dict] = {}
+
+        for eval_file in eval_files:
             result["eval_reports_found"].append(eval_file.name)
+            file_ts = _parse_eval_timestamp(eval_file.name)
             try:
                 data = json.loads(eval_file.read_text(encoding="utf-8"))
                 summary = data.get("summary", {})
-                # Accumulate severity totals from summary.by_severity (FAIL/WARN/INFO)
                 by_sev = summary.get("by_severity", {})
                 for sev, count in by_sev.items():
                     severity_totals[sev] += count
                 pages_clean_total += summary.get("pages_clean", 0)
                 pages_with_findings_total += summary.get("pages_with_findings", 0)
                 pages_evaluated_total += summary.get("pages_evaluated", 0)
-                # Build per-page heal list from findings array
+
+                # Collect per-page findings from this report
+                report_page_fails: dict[str, int] = defaultdict(int)
+                report_page_warns: dict[str, int] = defaultdict(int)
                 for finding in data.get("findings", []):
                     page_path = finding.get("file", "unknown")
                     level = finding.get("level", "").upper()
                     if level == "FAIL":
-                        page_fail_counts[page_path] += 1
+                        report_page_fails[page_path] += 1
                     elif level == "WARN":
-                        page_warn_counts[page_path] += 1
+                        report_page_warns[page_path] += 1
+
+                # For dedup mode: only keep findings from the latest report per page
+                all_pages = set(report_page_fails) | set(report_page_warns)
+                for page_path in all_pages:
+                    existing = page_latest.get(page_path)
+                    if dedup:
+                        if existing is None or file_ts > existing["timestamp"]:
+                            page_latest[page_path] = {
+                                "timestamp": file_ts,
+                                "fails": report_page_fails.get(page_path, 0),
+                                "warns": report_page_warns.get(page_path, 0),
+                            }
+                    else:
+                        # Legacy accumulation mode
+                        if existing is None:
+                            page_latest[page_path] = {
+                                "timestamp": file_ts,
+                                "fails": 0,
+                                "warns": 0,
+                            }
+                        page_latest[page_path]["fails"] += report_page_fails.get(page_path, 0)
+                        page_latest[page_path]["warns"] += report_page_warns.get(page_path, 0)
             except Exception as exc:
                 result["warnings"].append(f"Could not parse {eval_file.name}: {exc}")
 
@@ -85,13 +133,15 @@ def validate(repo_root=None):
         }
 
         # Pages needing heal: at least one FAIL-level finding
-        for page_path, fail_count in sorted(page_fail_counts.items()):
-            result["pages_needing_heal"].append({
-                "path": page_path,
-                "grade": "F" if fail_count >= 3 else "D",
-                "fail_count": fail_count,
-                "warn_count": page_warn_counts.get(page_path, 0),
-            })
+        for page_path, info in sorted(page_latest.items()):
+            fail_count = info["fails"]
+            if fail_count > 0:
+                result["pages_needing_heal"].append({
+                    "path": page_path,
+                    "grade": "F" if fail_count >= 3 else "D",
+                    "fail_count": fail_count,
+                    "warn_count": info["warns"],
+                })
 
     # ---- API audit from reports/audit/ ----
     audit_dir = reports_dir / "audit"
@@ -117,9 +167,17 @@ def validate(repo_root=None):
 
 def main():
     parser = base_args("Assess evidence quality from reports/ directories")
+    parser.add_argument(
+        "--max-age-days", type=int, default=None,
+        help="Only include eval reports from the last N days (default: all)",
+    )
+    parser.add_argument(
+        "--no-dedup", action="store_true",
+        help="Disable per-page deduplication (legacy accumulation mode)",
+    )
     args = parser.parse_args()
 
-    data = validate()
+    data = validate(dedup=not args.no_dedup, max_age_days=args.max_age_days)
 
     summary = {
         "status": "VALIDATION_COMPLETE",

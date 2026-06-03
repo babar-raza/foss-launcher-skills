@@ -167,6 +167,114 @@ class TestValidateSchema(unittest.TestCase):
         self.assertIn("grade_summary", r)
 
 
+class TestValidateDedup(unittest.TestCase):
+    """Tests for validate.py deduplication of per-page findings."""
+
+    def _make_eval_report(self, tmp, filename, findings):
+        """Create a minimal eval-*.json with given findings."""
+        eval_dir = Path(tmp) / "reports" / "content_eval"
+        eval_dir.mkdir(parents=True, exist_ok=True)
+        data = {
+            "schema_version": "1.0",
+            "generated_at": "2026-06-01T00:00:00Z",
+            "scope": {},
+            "summary": {
+                "total_findings": len(findings),
+                "pages_evaluated": 1,
+                "pages_clean": 0 if findings else 1,
+                "pages_with_findings": 1 if findings else 0,
+                "by_severity": {},
+                "by_category": {},
+            },
+            "findings": findings,
+        }
+        for f in findings:
+            sev = f.get("level", "INFO")
+            data["summary"]["by_severity"][sev] = (
+                data["summary"]["by_severity"].get(sev, 0) + 1
+            )
+        (eval_dir / filename).write_text(json.dumps(data), encoding="utf-8")
+        # Also create empty audit dir to avoid warning
+        (Path(tmp) / "reports" / "audit").mkdir(parents=True, exist_ok=True)
+
+    def test_dedup_keeps_only_latest_report_per_page(self):
+        """Same page in two reports: only latest report's findings counted."""
+        m = _import("validate")
+        page = "/content/docs/test.md"
+        with tempfile.TemporaryDirectory() as tmp:
+            # Older report: 2 FAILs for the page
+            self._make_eval_report(tmp, "eval-20260601-100000.json", [
+                {"file": page, "level": "FAIL", "evaluator": "e1",
+                 "id": "1", "category": "X", "line": 1, "message": "old1", "suggestion": ""},
+                {"file": page, "level": "FAIL", "evaluator": "e2",
+                 "id": "2", "category": "X", "line": 2, "message": "old2", "suggestion": ""},
+            ])
+            # Newer report: 0 FAILs for the page (fixed)
+            self._make_eval_report(tmp, "eval-20260602-100000.json", [
+                {"file": page, "level": "WARN", "evaluator": "e1",
+                 "id": "3", "category": "X", "line": 1, "message": "warn1", "suggestion": ""},
+            ])
+
+            r = m.validate(repo_root=tmp, dedup=True)
+            # Page should NOT appear in pages_needing_heal (0 FAILs in latest report)
+            heal_paths = [p["path"] for p in r["pages_needing_heal"]]
+            self.assertNotIn(page, heal_paths)
+
+    def test_no_dedup_accumulates_across_reports(self):
+        """With dedup=False, findings from all reports are accumulated."""
+        m = _import("validate")
+        page = "/content/docs/test.md"
+        with tempfile.TemporaryDirectory() as tmp:
+            self._make_eval_report(tmp, "eval-20260601-100000.json", [
+                {"file": page, "level": "FAIL", "evaluator": "e1",
+                 "id": "1", "category": "X", "line": 1, "message": "f1", "suggestion": ""},
+            ])
+            self._make_eval_report(tmp, "eval-20260602-100000.json", [
+                {"file": page, "level": "FAIL", "evaluator": "e2",
+                 "id": "2", "category": "X", "line": 2, "message": "f2", "suggestion": ""},
+            ])
+
+            r = m.validate(repo_root=tmp, dedup=False)
+            heal = [p for p in r["pages_needing_heal"] if p["path"] == page]
+            self.assertEqual(len(heal), 1)
+            self.assertEqual(heal[0]["fail_count"], 2)  # Accumulated
+
+    def test_max_age_days_filters_old_reports(self):
+        """Old reports excluded when max_age_days is set."""
+        m = _import("validate")
+        page = "/content/docs/test.md"
+        with tempfile.TemporaryDirectory() as tmp:
+            # Report from 30+ days ago
+            self._make_eval_report(tmp, "eval-20260501-100000.json", [
+                {"file": page, "level": "FAIL", "evaluator": "e1",
+                 "id": "1", "category": "X", "line": 1, "message": "old", "suggestion": ""},
+            ])
+            # Recent report (today-ish)
+            self._make_eval_report(tmp, "eval-20260603-100000.json", [])
+
+            r = m.validate(repo_root=tmp, max_age_days=7)
+            heal_paths = [p["path"] for p in r["pages_needing_heal"]]
+            self.assertNotIn(page, heal_paths)  # Old report excluded
+
+    def test_dedup_latest_report_wins(self):
+        """When latest report has FAILs, they are counted correctly."""
+        m = _import("validate")
+        page = "/content/docs/test.md"
+        with tempfile.TemporaryDirectory() as tmp:
+            # Older: 0 FAILs
+            self._make_eval_report(tmp, "eval-20260601-100000.json", [])
+            # Newer: 1 FAIL
+            self._make_eval_report(tmp, "eval-20260602-100000.json", [
+                {"file": page, "level": "FAIL", "evaluator": "e1",
+                 "id": "1", "category": "X", "line": 1, "message": "new", "suggestion": ""},
+            ])
+
+            r = m.validate(repo_root=tmp, dedup=True)
+            heal = [p for p in r["pages_needing_heal"] if p["path"] == page]
+            self.assertEqual(len(heal), 1)
+            self.assertEqual(heal[0]["fail_count"], 1)
+
+
 class TestCompareSchema(unittest.TestCase):
     def setUp(self):
         self.m = _import("compare")
