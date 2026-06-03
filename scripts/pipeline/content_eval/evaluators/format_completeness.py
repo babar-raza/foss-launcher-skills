@@ -61,12 +61,27 @@ def _normalize(name: str) -> str:
     Lowercases, strips leading dots, trailing underscores, trailing asterisks,
     and all internal underscores so that e.g. 'PDF_', '.PDF', 'pdf*' all
     compare equal to 'pdf'.
+
+    Also strips parenthetical annotations and slash-variants so that
+    human-readable names like 'OBJ(Wavefront)' or 'GLTF2.0/GLB' match
+    their knowledge-side canonical forms ('Obj', 'Gltf').
     """
     n = name.strip().lower()
+    # Strip parenthetical suffixes: "obj(wavefront)" -> "obj"
+    paren_idx = n.find("(")
+    if paren_idx > 0:
+        n = n[:paren_idx]
+    # Strip slash-variants: "gltf2.0/glb" -> "gltf2.0"
+    slash_idx = n.find("/")
+    if slash_idx > 0:
+        n = n[:slash_idx]
     n = n.replace(" ", "")
     n = n.lstrip(".")
     n = n.rstrip("_*")
     n = n.replace("_", "")
+    # Strip embedded dots and version suffixes for fuzzy matching:
+    # "gltf2.0" -> "gltf20", "pdf1.7" -> "pdf17"
+    n = n.replace(".", "")
     return n
 
 
@@ -79,6 +94,8 @@ _FORMAT_ALIASES: dict[str, str] = {
     "microsoft3mf": "3mf",
     "excelopenxml": "xlsx",   # "Excel Open XML" display name → formats.json key
     "xlsx": "excelopenxml",   # reverse alias for safety
+    "gltf": "gltf20",         # knowledge "Gltf" → page "GLTF2.0/GLB" normalized to "gltf20"
+    "mime": "eml",             # knowledge "Mime" → page "EML" (RFC 5322 email format)
 }
 
 
@@ -239,6 +256,20 @@ def _is_feature_page(page: Page) -> bool:
     return False
 
 
+def _prefix_match(page_name: str, known: dict[str, str]) -> bool:
+    """Return True if page_name is a versioned variant of a known format.
+
+    Handles cases like 'gltf20' (from 'GLTF2.0/GLB') matching 'gltf',
+    where the page name adds version digits to the knowledge canonical name.
+    """
+    for known_name in known:
+        if page_name.startswith(known_name) and page_name[len(known_name):].isdigit():
+            return True
+        if known_name.startswith(page_name):
+            return True
+    return False
+
+
 class FormatCompletenessEvaluator(BaseEvaluator):
     """Check format support tables for phantom entries and missing formats.
 
@@ -280,7 +311,7 @@ class FormatCompletenessEvaluator(BaseEvaluator):
         for line_no, norm in table_entries:
             if norm in reported_phantoms:
                 continue
-            if norm not in known_formats:
+            if norm not in known_formats and not _prefix_match(norm, known_formats):
                 reported_phantoms.add(norm)
                 findings.append(Finding(
                     level="FAIL",
