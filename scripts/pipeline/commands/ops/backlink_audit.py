@@ -68,6 +68,7 @@ STATUS_WRONG_TARGET   = "WRONG_TARGET"
 STATUS_OVER_LIMIT     = "OVER_LIMIT"
 STATUS_BLOCKED_TARGET = "BLOCKED_TARGET"
 STATUS_SKIPPED        = "SKIPPED"
+STATUS_FAMILY_FALLBACK = FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE
 
 
 @dataclass
@@ -96,6 +97,7 @@ class AuditTotals:
     wrong_target: int = 0
     over_limit: int = 0
     blocked_target: int = 0
+    family_fallback: int = 0
     skipped: int = 0
     errors: int = 0
 
@@ -297,6 +299,7 @@ def run_audit(
         elif s == STATUS_WRONG_TARGET: totals.wrong_target += 1
         elif s == STATUS_OVER_LIMIT:   totals.over_limit += 1
         elif s == STATUS_BLOCKED_TARGET: totals.blocked_target += 1
+        elif s == STATUS_FAMILY_FALLBACK: totals.family_fallback += 1
         elif s == STATUS_SKIPPED:      totals.skipped += 1
 
     return records, totals
@@ -313,12 +316,15 @@ def build_report(
 
     def _counter() -> dict:
         return {"missing": 0, "compliant": 0, "wrong_target": 0,
-                "over_limit": 0, "blocked_target": 0, "skipped": 0}
+                "over_limit": 0, "blocked_target": 0,
+                "family_fallback": 0, "skipped": 0}
 
     key_map = {
         STATUS_MISSING: "missing", STATUS_COMPLIANT: "compliant",
         STATUS_WRONG_TARGET: "wrong_target", STATUS_OVER_LIMIT: "over_limit",
-        STATUS_BLOCKED_TARGET: "blocked_target", STATUS_SKIPPED: "skipped",
+        STATUS_BLOCKED_TARGET: "blocked_target",
+        STATUS_FAMILY_FALLBACK: "family_fallback",
+        STATUS_SKIPPED: "skipped",
     }
 
     for rec in records:
