@@ -2852,14 +2852,15 @@ scripts:
     lifecycle: active
     canonical_impl_path: null
     public_entrypoint: true
-    cli_contract: "python backlink_adjudicate_review.py [--candidate-graph PATH] [--authority PATH] [--overrides PATH] [--dry-run]"
+    cli_contract: "python backlink_adjudicate_review.py [--candidate-graph PATH] [--authority PATH] [--write] [--dry-run] [--max-candidates N] [--threshold F]"
     owner_domain: backlinks
     backing:
       kind: internal
       ref: null
-    requires_test: false
-    test_targets: []
-    test_exempt_reason: "BL-DEEP-EXEC-v3.1: three-tier adjudication (T1 deterministic, T2 AI-assisted, T3 operator escalation); unit coverage in test_backlink_targets.py (TestAgentAdjudication)"
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_backlink_adjudicate_review.py
+    test_exempt_reason: null
     deprecated_since: null
     change_impact: null
     notes: "BL-DEEP-EXEC-v3.1: CS-013 (gpt-oss) for REVIEW_REQUIRED adjudication; closed-set labels; T2 advisory only; T3 generates operator escalation packets; --dry-run default"

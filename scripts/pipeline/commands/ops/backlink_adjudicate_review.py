@@ -272,7 +272,7 @@ def _tier2_ai_adjudicate(
     candidates: list[dict],
     *,
     dry_run: bool = True,
-    promote_threshold: float = 0.85,
+    promote_threshold: float = 0.70,
 ) -> list[dict]:
     """
     Tier 2: AI-assisted adjudication.
@@ -281,7 +281,7 @@ def _tier2_ai_adjudicate(
     If AI unavailable, marks all as AI_UNAVAILABLE_DEGRADED.
 
     Args:
-        promote_threshold: Minimum final_score for PROMOTE_WITH_JUSTIFICATION (default 0.85).
+        promote_threshold: Minimum final_score for PROMOTE_WITH_JUSTIFICATION (default 0.70).
 
     Returns list of adjudication result dicts.
     """
@@ -315,8 +315,8 @@ def adjudicate_review_required(
     authority: Optional[dict],
     *,
     dry_run: bool = True,
-    max_candidates: int = 50,
-    promote_threshold: float = 0.85,
+    max_candidates: int = 0,
+    promote_threshold: float = 0.70,
 ) -> dict:
     """
     Process REVIEW_REQUIRED candidates through three-tier adjudication.
@@ -325,10 +325,12 @@ def adjudicate_review_required(
     Returns: {adjudicated, escalated, rejected, tier_stats}
     """
     # Collect REVIEW_REQUIRED candidates
-    rr_candidates = [
+    all_rr = [
         c for c in candidate_graph.get("candidates", [])
         if c.get("decision") == "REVIEW_REQUIRED"
-    ][:max_candidates]
+    ]
+    total_rr_count = len(all_rr)
+    rr_candidates = all_rr[:max_candidates] if max_candidates > 0 else all_rr
 
     tier1_resolved = []
     tier2_inputs = []
@@ -365,7 +367,7 @@ def adjudicate_review_required(
     rejected = [r for r in tier2_results if r["adjudication_result"] == "REJECT"]
 
     return {
-        "total_review_required": len(rr_candidates),
+        "total_review_required": total_rr_count,
         "tier1_already_approved": len(tier1_resolved),
         "tier2_processed": len(tier2_inputs),
         "promoted": promoted,
@@ -392,9 +394,10 @@ def main() -> None:
                         help="Report without writing authority changes")
     parser.add_argument("--write", action="store_true", default=False,
                         help="Promote qualifying RR records to AUTO_APPROVE_EXACT in authority")
-    parser.add_argument("--max-candidates", type=int, default=50)
-    parser.add_argument("--threshold", type=float, default=0.85,
-                        help="Minimum final_score for Tier 2 promotion (default: 0.85)")
+    parser.add_argument("--max-candidates", type=int, default=0,
+                        help="Max candidates to process (0 = unlimited, default: 0)")
+    parser.add_argument("--threshold", type=float, default=0.70,
+                        help="Minimum final_score for Tier 2 promotion (default: 0.70)")
     args = parser.parse_args()
 
     # Default to dry-run if neither flag is set
