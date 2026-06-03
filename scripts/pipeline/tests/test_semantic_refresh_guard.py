@@ -601,8 +601,8 @@ class TestExistingPagesPendingUpdate:
         assert _VERDICT_EXIT[verdict] == 1
         assert any("EXISTING_PAGES_PENDING_UPDATE" in p for p in proof)
 
-    def test_empty_pending_falls_through_to_semantic_refresh(self, tmp_path):
-        """dispatch_history + empty pending_page_updates → SEMANTIC_REFRESH_REQUIRED."""
+    def test_empty_pending_no_manifest_falls_through(self, tmp_path):
+        """dispatch_history + empty pending + no manifest → SEMANTIC_REFRESH_REQUIRED."""
         sd = _make_source_delta(
             source_changed=True,
             source_change_impact="HIGH",
@@ -618,4 +618,95 @@ class TestExistingPagesPendingUpdate:
         self._setup_state(tmp_path, pending_pages=[])
         verdict, confidence, proof = evaluate("cells", "java", sd, pd, {}, repo_root=tmp_path)
         assert verdict == "SEMANTIC_REFRESH_REQUIRED"
+        assert _VERDICT_EXIT[verdict] == 1
+
+
+# ---------------------------------------------------------------------------
+# Priority 4d: REFRESH_CYCLE_COMPLETE
+# ---------------------------------------------------------------------------
+
+class TestRefreshCycleComplete:
+    """Tests for REFRESH_CYCLE_COMPLETE: when dispatch completed, pending is empty,
+    and freshness manifest is FRESH, the guard should pass (exit 0)."""
+
+    def _setup_state(self, tmp_path, *, pending_pages=None, manifest=None):
+        """Create dispatch_history, pending_page_updates, and optionally manifest."""
+        state_dir = tmp_path / "runs" / "state" / "cells" / "java"
+        state_dir.mkdir(parents=True, exist_ok=True)
+        (state_dir / "dispatch_history.json").write_text(
+            '{"first_dispatch_at": "2026-01-01T00:00:00Z"}'
+        )
+        if pending_pages is not None:
+            (state_dir / "pending_page_updates.json").write_text(
+                json.dumps(pending_pages)
+            )
+        if manifest is not None:
+            ref_dir = state_dir / "reference"
+            ref_dir.mkdir(parents=True, exist_ok=True)
+            (ref_dir / "freshness-manifest.json").write_text(
+                json.dumps(manifest)
+            )
+
+    def _make_sd(self):
+        return _make_source_delta(
+            source_changed=True,
+            source_change_impact="HIGH",
+            diff_available=True,
+            claim_delta_count=100,
+            modified_claims=0,
+            removed_claims=0,
+            files_classified=[
+                {"path": "src/core.py", "category": "DEFINITELY_USER_FACING", "reason": "src"}
+            ],
+        )
+
+    def test_dispatch_complete_with_fresh_manifest(self, tmp_path):
+        """dispatch + empty pending + FRESH manifest → REFRESH_CYCLE_COMPLETE, exit 0."""
+        sd = self._make_sd()
+        pd = _make_page_decisions(body_changed_count=0)
+        self._setup_state(tmp_path, pending_pages=[], manifest={
+            "manifest_status": "FRESH",
+            "run_id": "20260601-160456",
+        })
+        verdict, confidence, proof = evaluate("cells", "java", sd, pd, {}, repo_root=tmp_path)
+        assert verdict == "REFRESH_CYCLE_COMPLETE"
+        assert _VERDICT_EXIT[verdict] == 0
+        assert confidence == "HIGH"
+        assert any("REFRESH_CYCLE_COMPLETE" in p for p in proof)
+        assert any("20260601-160456" in p for p in proof)
+
+    def test_no_manifest_falls_through(self, tmp_path):
+        """dispatch + empty pending + no manifest → SEMANTIC_REFRESH_REQUIRED."""
+        sd = self._make_sd()
+        pd = _make_page_decisions(body_changed_count=0)
+        self._setup_state(tmp_path, pending_pages=[])
+        # No manifest created
+        verdict, confidence, proof = evaluate("cells", "java", sd, pd, {}, repo_root=tmp_path)
+        assert verdict == "SEMANTIC_REFRESH_REQUIRED"
+        assert _VERDICT_EXIT[verdict] == 1
+
+    def test_stale_manifest_falls_through(self, tmp_path):
+        """dispatch + empty pending + manifest_status != FRESH → SEMANTIC_REFRESH_REQUIRED."""
+        sd = self._make_sd()
+        pd = _make_page_decisions(body_changed_count=0)
+        self._setup_state(tmp_path, pending_pages=[], manifest={
+            "manifest_status": "STALE",
+            "run_id": "old-run",
+        })
+        verdict, confidence, proof = evaluate("cells", "java", sd, pd, {}, repo_root=tmp_path)
+        assert verdict == "SEMANTIC_REFRESH_REQUIRED"
+        assert _VERDICT_EXIT[verdict] == 1
+
+    def test_pending_nonempty_still_blocks(self, tmp_path):
+        """dispatch + non-empty pending → EXISTING_PAGES_PENDING_UPDATE (4c takes priority)."""
+        sd = self._make_sd()
+        pd = _make_page_decisions(body_changed_count=0)
+        self._setup_state(tmp_path, pending_pages=[
+            {"path": "content/docs/guide.md", "pia_score": "HIGH_IMPACT"},
+        ], manifest={
+            "manifest_status": "FRESH",
+            "run_id": "20260601-160456",
+        })
+        verdict, confidence, proof = evaluate("cells", "java", sd, pd, {}, repo_root=tmp_path)
+        assert verdict == "EXISTING_PAGES_PENDING_UPDATE"
         assert _VERDICT_EXIT[verdict] == 1

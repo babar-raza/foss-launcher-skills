@@ -51,7 +51,7 @@ if str(_PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_DIR))
 
 _BLOCKING_IMPACTS = {"HIGH", "MEDIUM", "UNKNOWN"}
-_PASSING_VERDICTS = {"BODY_UPDATED_VERIFIED", "SEMANTIC_NOOP_PROVEN", "GRADING_REMEDIATION_REQUIRED"}
+_PASSING_VERDICTS = {"BODY_UPDATED_VERIFIED", "SEMANTIC_NOOP_PROVEN", "GRADING_REMEDIATION_REQUIRED", "REFRESH_CYCLE_COMPLETE"}
 _BLOCKING_VERDICTS = {
     "GUARD_ERROR_BLOCKED",
     "REFRESH_BLOCKED_UNPROVEN_NOOP",
@@ -67,6 +67,7 @@ _VERDICT_EXIT = {
     "SEMANTIC_NOOP_PROVEN": 0,
     "GRADING_REMEDIATION_REQUIRED": 0,
     "INITIAL_REFRESH_ALLOWED": 0,
+    "REFRESH_CYCLE_COMPLETE": 0,
     "EXISTING_PAGES_PENDING_UPDATE": 1,
     "SEMANTIC_REFRESH_REQUIRED": 1,
     "REFRESH_BLOCKED_UNPROVEN_NOOP": 1,
@@ -330,6 +331,28 @@ def evaluate(
                     return "EXISTING_PAGES_PENDING_UPDATE", "MEDIUM", proof
             except (OSError, json.JSONDecodeError):
                 pass
+
+        # ── Priority 4d: REFRESH_CYCLE_COMPLETE ───────────────────────────
+        # Dispatch history exists, pending is empty (or absent), and
+        # freshness manifest is FRESH.  This means the initial refresh
+        # cycle completed successfully — pages were regenerated, and no
+        # further agent-assisted updates are outstanding.
+        manifest_path = (
+            root / "runs" / "state" / family / platform
+            / "reference" / "freshness-manifest.json"
+        )
+        if manifest_path.is_file():
+            try:
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                if manifest.get("manifest_status") == "FRESH":
+                    proof.append(
+                        f"REFRESH_CYCLE_COMPLETE: dispatch_history exists, "
+                        f"pending_page_updates empty, freshness manifest FRESH "
+                        f"(run_id={manifest.get('run_id', 'unknown')})"
+                    )
+                    return "REFRESH_CYCLE_COMPLETE", "HIGH", proof
+            except (OSError, json.JSONDecodeError):
+                pass  # Fall through to SEMANTIC_REFRESH_REQUIRED
 
         proof.append(
             f"SEMANTIC_REFRESH_REQUIRED: claim_delta_count={claim_delta_count}, body_changed=0, "
