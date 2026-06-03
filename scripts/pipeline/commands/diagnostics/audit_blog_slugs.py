@@ -88,6 +88,7 @@ class BlogPost:
     description: str
     summary: str
     seo_pattern: str
+    auto_updatable: bool = True
     proposed_slug: str = ""
     seo_violations: list[str] = field(default_factory=list)
 
@@ -117,6 +118,9 @@ def scan_blog_posts(content_root: Path) -> list[BlogPost]:
         except yaml.YAMLError:
             continue
 
+        prov = fm.get("provenance") or {}
+        au = prov.get("auto_updatable", True)
+
         posts.append(BlogPost(
             family=family,
             platform=platform,
@@ -125,6 +129,7 @@ def scan_blog_posts(content_root: Path) -> list[BlogPost]:
             description=fm.get("description", "") or "",
             summary=fm.get("summary", "") or "",
             seo_pattern=classify_seo_pattern(slug),
+            auto_updatable=au is not False,
         ))
 
     return posts
@@ -183,7 +188,14 @@ def generate_report(
     lines.append("-" * 160)
 
     for p in filtered:
-        proposed = p.proposed_slug if p.proposed_slug else "(no change)" if p.seo_pattern == "good" else "(run with --ai)"
+        if not p.auto_updatable:
+            proposed = "[LOCKED]"
+        elif p.proposed_slug:
+            proposed = p.proposed_slug
+        elif p.seo_pattern == "good":
+            proposed = "(no change)"
+        else:
+            proposed = "(run with --ai)"
         title_trunc = p.title[:60] + "..." if len(p.title) > 60 else p.title
         lines.append(
             f"{p.seo_pattern:15s} | {p.family}/{p.platform:10s} | {p.slug:50s} | {proposed:40s} | {title_trunc}"
@@ -226,7 +238,7 @@ def main() -> int:
             print(f"WARNING: LLM router unavailable ({exc}), skipping AI proposals",
                   file=sys.stderr)
 
-        need_proposal = [p for p in posts if p.seo_pattern != "good"]
+        need_proposal = [p for p in posts if p.seo_pattern != "good" and p.auto_updatable]
         for i, p in enumerate(need_proposal, 1):
             print(f"  [{i}/{len(need_proposal)}] Generating slug for {p.family}/{p.platform}/{p.slug}...",
                   file=sys.stderr)

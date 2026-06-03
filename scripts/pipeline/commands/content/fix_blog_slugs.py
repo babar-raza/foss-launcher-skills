@@ -167,6 +167,22 @@ def apply_slug_rename(
         result["error"] = f"Target directory already exists: {new_dir}"
         return result
 
+    # Guard: skip posts marked auto_updatable: false
+    index_md = old_dir / "index.md"
+    if index_md.is_file():
+        try:
+            fm_match = re.match(
+                r"^---\s*\n(.*?)\n---", index_md.read_text(encoding="utf-8"), re.DOTALL
+            )
+            if fm_match:
+                data = yaml.safe_load(fm_match.group(1)) or {}
+                prov = data.get("provenance") or {}
+                if prov.get("auto_updatable") is False:
+                    result["error"] = "Skipped: auto_updatable is false"
+                    return result
+        except Exception:
+            pass  # If we can't parse, proceed — _update_frontmatter will catch errors
+
     if dry_run:
         result["applied"] = False
         return result
@@ -183,8 +199,11 @@ def apply_slug_rename(
             result["error"] = f"Frontmatter update failed for {md_file.name}: {exc}"
             return result
 
-    # Rename directory
-    shutil.move(str(old_dir), str(new_dir))
+    # Rename directory — prefer atomic os.rename, fall back to shutil for cross-device
+    try:
+        old_dir.rename(new_dir)
+    except OSError:
+        shutil.move(str(old_dir), str(new_dir))
     result["applied"] = True
     return result
 

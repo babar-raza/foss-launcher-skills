@@ -2121,3 +2121,38 @@ def test_generate_seo_slug_strips_backticks_from_llm(monkeypatch):
         llm_router=router,
     )
     assert result == "java-excel-xlsx-library"
+
+
+# ---------------------------------------------------------------------------
+# TC-HARD-001: auto_updatable guard in fix_blog_slugs.py
+# ---------------------------------------------------------------------------
+
+def test_fix_skips_auto_updatable_false(tmp_path):
+    """apply_slug_rename() should skip posts where auto_updatable is False."""
+    from commands.content.fix_blog_slugs import apply_slug_rename
+    from commands.diagnostics.audit_blog_slugs import BlogPost
+
+    # Set up a blog post with auto_updatable: false
+    blog_dir = tmp_path / "blog.aspose.org" / "cells" / "python" / "old-slug"
+    blog_dir.mkdir(parents=True)
+    (blog_dir / "index.md").write_text(
+        "---\n"
+        "title: Test\n"
+        "provenance:\n"
+        "  auto_updatable: false\n"
+        "---\n"
+        "Body\n",
+        encoding="utf-8",
+    )
+
+    post = BlogPost(
+        family="cells", platform="python", slug="old-slug",
+        title="Test", description="", summary="", seo_pattern="introducing",
+    )
+
+    result = apply_slug_rename(tmp_path, post, "new-slug", dry_run=False)
+    assert result["error"] == "Skipped: auto_updatable is false"
+    assert result["applied"] is False
+    # Directory should NOT have been renamed
+    assert blog_dir.is_dir()
+    assert not (tmp_path / "blog.aspose.org" / "cells" / "python" / "new-slug").exists()
