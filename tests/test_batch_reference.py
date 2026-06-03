@@ -16,8 +16,10 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 _PIPELINE_DIR = Path(__file__).resolve().parents[1] / "scripts" / "pipeline"
-if str(_PIPELINE_DIR) not in sys.path:
-    sys.path.insert(0, str(_PIPELINE_DIR))
+_CONTENT_CMD_DIR = _PIPELINE_DIR / "commands" / "content"
+for _d in (_PIPELINE_DIR, _CONTENT_CMD_DIR):
+    if str(_d) not in sys.path:
+        sys.path.insert(0, str(_d))
 
 
 # ---------------------------------------------------------------------------
@@ -86,8 +88,9 @@ def batch_env(tmp_path, monkeypatch):
 
     # Stub Knowledge and attach_evidence to avoid needing a real knowledge model
     mock_knowledge = MagicMock()
-    mock_knowledge.available = False  # skip attach_evidence
-    monkeypatch.setattr(br, "Knowledge", lambda f, p: mock_knowledge)
+    mock_knowledge.available = True
+    monkeypatch.setattr(br, "Knowledge", lambda f, p, **kw: mock_knowledge)
+    monkeypatch.setattr(br, "attach_evidence", lambda *a, **kw: None)
 
     yield tmp_path, family, platform, merged, output_dir
     br.configure()

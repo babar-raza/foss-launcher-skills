@@ -22,7 +22,26 @@ from __future__ import annotations
 from typing import Sequence
 
 # ---------------------------------------------------------------------------
-# Platform-specific kind allowlists (mirrors batch_reference.py)
+# Platform-specific kind allowlists
+#
+# DIVERGENCE NOTE (TC-REF-11, 2026-06-03):
+# This module implements the GENERAL filter chain (kind allowlist + internal
+# path/name exclusions + visibility check).  batch_reference.py implements
+# the same general chain PLUS four platform-specific exclusions that are NOT
+# replicated here:
+#   1. C++  — ^I[A-Z] interface-prefix names excluded
+#   2. C++  — _CPP_ABSTRACT_BASES frozenset (BaseSlide, GeometryShape, …)
+#   3. Python — ^I[A-Z] interface-prefix names excluded
+#   4. Java — _JAVA_INTERNAL_CLASSES set excluded
+#   5. .NET — .Internal. / .internal. in class_import namespace excluded
+#
+# Impact: This library returns HIGHER counts than batch_reference.py for
+# affected platforms.  This is the SAFE direction — the CI staleness check
+# (check_reference_index_structure.py) over-flags rather than under-flags.
+# The generator (batch_reference.py) uses its own filter and produces
+# correct output regardless of this library's counts.
+#
+# To unify: see TC-REF-11 Option A in the plan (pipeline-harden sprint).
 # ---------------------------------------------------------------------------
 
 _ENUM_KINDS: frozenset[str] = frozenset({

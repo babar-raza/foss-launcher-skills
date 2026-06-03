@@ -5,15 +5,25 @@ Tier 1: Deterministic (single verified variant, explicit override, exact slug HT
 Tier 2: AI-assisted (LLMRouter classification, advisory only)
 Tier 3: Operator escalation (human review packet for ambiguous cases)
 
+Modes:
+    --dry-run (default): Report only, no authority writes
+    --write:             Promote qualifying RR records to AUTO_APPROVE_EXACT in authority
+
 Usage:
+    # Report only (default):
     .venv/Scripts/python backlink_adjudicate_review.py \\
         --candidate-graph data/backlinks/workspace/candidate_graph.json \\
+        --authority data/backlinks/workspace/backlink_authority.json
+
+    # Write promotions to authority:
+    .venv/Scripts/python backlink_adjudicate_review.py \\
         --authority data/backlinks/workspace/backlink_authority.json \\
-        --dry-run
+        --write
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 from datetime import datetime, timezone
@@ -23,9 +33,21 @@ from typing import Optional
 REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "pipeline"))
 
+from lib.backlink_targets import (
+    PLATFORM_ALIASES,
+    compute_anchor_config_hash,
+    load_anchor_registry,
+    render_anchor_text,
+    select_anchor_template_id,
+)
+
 CANDIDATE_GRAPH_PATH = REPO_ROOT / "data" / "backlinks" / "workspace" / "candidate_graph.json"
 AUTHORITY_PATH = REPO_ROOT / "data" / "backlinks" / "workspace" / "backlink_authority.json"
 ADJUDICATION_REPORT_PATH = REPO_ROOT / "reports" / "backlinks" / "adjudication"
+FAMILIES_PATH = REPO_ROOT / "data" / "families.json"
+METRICS_TAXONOMY_PATH = REPO_ROOT / "scripts" / "pipeline" / "config" / "metrics_taxonomy.yaml"
+
+POLICY_VERSION = "1.0.0"
 
 # Closed-set AI labels
 VALID_AI_LABELS = frozenset({
@@ -34,12 +56,232 @@ VALID_AI_LABELS = frozenset({
 })
 
 
-def _tier2_ai_adjudicate(candidates: list[dict], *, dry_run: bool = True) -> list[dict]:
+# ── Helpers shared with backlink_approve_authority.py ─────────────────────────
+
+_SUBDOMAIN_TO_HOST = {
+    "reference": "reference.aspose.com",
+    "kb": "kb.aspose.com",
+    "docs": "docs.aspose.com",
+    "products": "products.aspose.com",
+    "blog": "blog.aspose.com",
+}
+
+_SOURCE_SD_TO_TARGET_SD = {
+    "reference.aspose.org": "reference",
+    "kb.aspose.org": "kb",
+    "docs.aspose.org": "docs",
+    "products.aspose.org": "products",
+    "blog.aspose.org": "blog",
+}
+
+
+def _infer_subdomain(source_subdomain: str, target_path: str) -> str:
+    """Infer target subdomain from source subdomain."""
+    return _SOURCE_SD_TO_TARGET_SD.get(source_subdomain, "reference")
+
+
+def _infer_target_type(target_path: str, subdomain: str) -> str:
+    """Infer target type from path depth and subdomain."""
+    parts = target_path.strip("/").split("/")
+    if subdomain == "reference":
+        if len(parts) >= 4:
+            return "reference_class"
+        if len(parts) >= 3:
+            return "reference_namespace"
+        return "platform_landing"
+    if subdomain == "kb":
+        if len(parts) >= 3:
+            return "kb_article"
+        return "platform_landing"
+    return "platform_landing"
+
+
+def _compute_source_hash(source: dict) -> str:
+    """Compute a stable hash for a source record."""
+    canonical = json.dumps({
+        "source_key": source.get("source_key", ""),
+        "source_path": source.get("source_path", ""),
+    }, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    return "sha256:" + hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:16]
+
+
+def _load_families_map() -> dict:
+    """Load data/families.json -> {family_key: display_name}."""
+    if FAMILIES_PATH.exists():
+        raw = json.loads(FAMILIES_PATH.read_text(encoding="utf-8"))
+        if isinstance(raw, list):
+            return {item["key"]: item.get("title", item["key"].title()) for item in raw if "key" in item}
+        if isinstance(raw, dict):
+            return raw
+    return {}
+
+
+def _load_platforms_map() -> dict:
+    """Load metrics_taxonomy.yaml platforms block -> {platform_key: display_name}."""
+    if METRICS_TAXONOMY_PATH.exists():
+        try:
+            import yaml
+            data = yaml.safe_load(METRICS_TAXONOMY_PATH.read_text(encoding="utf-8")) or {}
+            return data.get("platforms", {})
+        except Exception:
+            pass
+    return {
+        "net": ".NET", "java": "Java", "cpp": "C++", "python": "Python",
+        "nodejs": "Node.js", "go": "Go", "android": "Android", "php": "PHP",
+        "ruby": "Ruby",
+    }
+
+
+def promote_to_authority(
+    promoted: list[dict],
+    candidate_graph: dict,
+    authority: dict,
+    *,
+    anchor_registry: Optional[dict] = None,
+    families_map: Optional[dict] = None,
+    platforms_map: Optional[dict] = None,
+) -> dict:
+    """
+    Promote adjudicated REVIEW_REQUIRED records to AUTO_APPROVE_EXACT in authority.
+
+    Pure business logic — no I/O.
+
+    Args:
+        promoted: List of promoted result dicts from adjudicate_review_required()
+        candidate_graph: Full candidate graph (for source lookup)
+        authority: Existing authority dict (mutated in place)
+        anchor_registry: Anchor text registry for rendering
+        families_map: Family display names
+        platforms_map: Platform display names
+
+    Returns: {promoted_count, skipped_count, errors}
+    """
+    if families_map is None:
+        families_map = {}
+    if platforms_map is None:
+        platforms_map = {}
+
+    # Build lookup: source_key -> source record
+    sources_by_key = {s.get("source_key", ""): s for s in candidate_graph.get("sources", [])}
+    # Build lookup: source_key -> best candidate record
+    candidates_by_key: dict = {}
+    for c in candidate_graph.get("candidates", []):
+        sk = c.get("source_key", "")
+        if sk not in candidates_by_key or c.get("final_score", 0.0) > candidates_by_key[sk].get("final_score", 0.0):
+            candidates_by_key[sk] = c
+
+    anchor_config_hash = None
+    if anchor_registry is not None:
+        try:
+            anchor_config_hash = compute_anchor_config_hash()
+        except Exception:
+            anchor_config_hash = "sha256:unavailable"
+
+    target_index_hash = candidate_graph.get("deep_index_hash", "sha256:unknown")
+    auth_records = authority.setdefault("authority", {})
+    now = datetime.now(timezone.utc).isoformat()
+
+    promoted_count = 0
+    skipped_count = 0
+    errors: list[str] = []
+
+    for p in promoted:
+        source_key = p.get("source_key", "")
+        source = sources_by_key.get(source_key)
+        candidate = candidates_by_key.get(source_key)
+        if source is None or candidate is None:
+            errors.append(f"Source/candidate not found for {source_key}")
+            skipped_count += 1
+            continue
+
+        source_path = source.get("source_path", "")
+        family = source.get("family", "")
+        platform = source.get("platform") or ""
+        subdomain = source.get("subdomain", "")
+
+        raw_target_path = candidate.get("target_path", "")
+        target_subdomain = _infer_subdomain(subdomain, raw_target_path)
+
+        # Strip subdomain prefix from target_path if present
+        sd_prefix = target_subdomain + "/"
+        if raw_target_path.startswith(sd_prefix):
+            target_path = raw_target_path[len(sd_prefix):]
+        else:
+            target_path = raw_target_path
+
+        # Compute anchor text
+        rendered_anchor = None
+        template_id = None
+        rendered_source = None
+        if anchor_registry is not None:
+            try:
+                canonical_plat = PLATFORM_ALIASES.get(platform, platform) if platform else platform
+                target_url = f"https://{_SUBDOMAIN_TO_HOST.get(target_subdomain, 'reference.aspose.com')}/{target_path}/"
+                target_type = _infer_target_type(target_path, target_subdomain)
+                template_id = select_anchor_template_id(
+                    target_url, target_type, subdomain,
+                )
+                rendered_anchor = render_anchor_text(
+                    template_id=template_id,
+                    family=family,
+                    platform=canonical_plat or None,
+                    target_url=target_url,
+                    registry=anchor_registry,
+                    families_map=families_map,
+                    platforms_map=platforms_map,
+                )
+                rendered_source = f"anchor_text_registry.yaml:templates.{template_id}"
+            except Exception as exc:
+                rendered_anchor = f"Aspose.{family.title()} — Enterprise Reference"
+                rendered_source = f"fallback:{exc}"
+
+        auth_records[source_path] = {
+            "source_path": source_path,
+            "source_key": source_key,
+            "family": family,
+            "platform": platform,
+            "target_path": target_path,
+            "target_subdomain": target_subdomain,
+            "decision": "AUTO_APPROVE_EXACT",
+            "score": candidate.get("final_score", 0.0),
+            "stage1_score": candidate.get("stage1_score", 0.0),
+            "ai_boost": candidate.get("ai_boost", 0.0),
+            "allowed_for_generation": True,
+            "adjudication_result": p.get("adjudication_result", "PROMOTE_WITH_JUSTIFICATION"),
+            "adjudicated_from": "REVIEW_REQUIRED",
+            "anchor_template_id": template_id,
+            "anchor_config_hash": anchor_config_hash,
+            "rendered_anchor_text": rendered_anchor,
+            "rendered_anchor_source": rendered_source,
+            "source_hash": _compute_source_hash(source),
+            "target_index_hash": target_index_hash,
+            "policy_version": POLICY_VERSION,
+            "approved_at": now,
+            "freshness_status": "FRESH",
+        }
+        promoted_count += 1
+
+    return {
+        "promoted_count": promoted_count,
+        "skipped_count": skipped_count,
+        "errors": errors,
+    }
+
+
+def _tier2_ai_adjudicate(
+    candidates: list[dict],
+    *,
+    dry_run: bool = True,
+    promote_threshold: float = 0.85,
+) -> list[dict]:
     """
     Tier 2: AI-assisted adjudication.
 
     Attempts LLMRouter classification for REVIEW_REQUIRED candidates.
     If AI unavailable, marks all as AI_UNAVAILABLE_DEGRADED.
+
+    Args:
+        promote_threshold: Minimum final_score for PROMOTE_WITH_JUSTIFICATION (default 0.85).
 
     Returns list of adjudication result dicts.
     """
@@ -58,7 +300,7 @@ def _tier2_ai_adjudicate(candidates: list[dict], *, dry_run: bool = True) -> lis
         # In dry-run mode or if AI unavailable: escalate to Tier 3
         # Real AI call would use LLMRouter(model="gpt-oss", ...) with CS-013
         final_score = c.get("final_score", 0.0)
-        if final_score >= 0.85:
+        if final_score >= promote_threshold:
             result["adjudication_result"] = "PROMOTE_WITH_JUSTIFICATION"
         elif final_score >= 0.60:
             result["adjudication_result"] = "ESCALATE_TO_OPERATOR"
@@ -74,6 +316,7 @@ def adjudicate_review_required(
     *,
     dry_run: bool = True,
     max_candidates: int = 50,
+    promote_threshold: float = 0.85,
 ) -> dict:
     """
     Process REVIEW_REQUIRED candidates through three-tier adjudication.
@@ -111,7 +354,9 @@ def adjudicate_review_required(
             tier2_inputs.append(c)
 
     # Tier 2: AI-assisted
-    tier2_results = _tier2_ai_adjudicate(tier2_inputs, dry_run=dry_run)
+    tier2_results = _tier2_ai_adjudicate(
+        tier2_inputs, dry_run=dry_run, promote_threshold=promote_threshold,
+    )
 
     promoted = [r for r in tier2_results if r["adjudication_result"] in (
         "PROMOTE_AUTO_APPROVE", "PROMOTE_PLATFORM_CANONICAL", "PROMOTE_WITH_JUSTIFICATION"
@@ -143,10 +388,18 @@ def main() -> None:
     parser.add_argument("--candidate-graph", default=str(CANDIDATE_GRAPH_PATH))
     parser.add_argument("--authority", default=str(AUTHORITY_PATH))
     parser.add_argument("--output-dir", default=str(ADJUDICATION_REPORT_PATH))
-    parser.add_argument("--dry-run", action="store_true", default=True,
-                        help="Report without writing authority changes (default: True)")
+    parser.add_argument("--dry-run", action="store_true", default=False,
+                        help="Report without writing authority changes")
+    parser.add_argument("--write", action="store_true", default=False,
+                        help="Promote qualifying RR records to AUTO_APPROVE_EXACT in authority")
     parser.add_argument("--max-candidates", type=int, default=50)
+    parser.add_argument("--threshold", type=float, default=0.85,
+                        help="Minimum final_score for Tier 2 promotion (default: 0.85)")
     args = parser.parse_args()
+
+    # Default to dry-run if neither flag is set
+    if not args.write:
+        args.dry_run = True
 
     graph_path = Path(args.candidate_graph)
     if not graph_path.exists():
@@ -177,6 +430,7 @@ def main() -> None:
         authority,
         dry_run=args.dry_run,
         max_candidates=args.max_candidates,
+        promote_threshold=args.threshold,
     )
 
     stats = result["tier_stats"]
@@ -185,7 +439,51 @@ def main() -> None:
     print(f"Tier 2 escalated (-> Tier 3): {stats['tier2_escalated']}")
     print(f"Tier 2 rejected: {stats['tier2_rejected']}")
 
-    if args.dry_run:
+    if args.write and not args.dry_run:
+        # Promotion write path
+        promoted = result["promoted"]
+        if not promoted:
+            print("No records to promote. Nothing to write.")
+        elif authority is None:
+            print("ERROR: --write requires an existing authority file", file=sys.stderr)
+            sys.exit(1)
+        else:
+            # Load anchor registry
+            anchor_registry = None
+            try:
+                anchor_registry = load_anchor_registry()
+                print("Anchor text registry loaded.")
+            except FileNotFoundError:
+                print("WARNING: anchor_text_registry.yaml not found — anchors will use fallback.")
+
+            families_map = _load_families_map()
+            platforms_map = _load_platforms_map()
+
+            promo_result = promote_to_authority(
+                promoted,
+                candidate_graph,
+                authority,
+                anchor_registry=anchor_registry,
+                families_map=families_map,
+                platforms_map=platforms_map,
+            )
+
+            print(f"Promoted: {promo_result['promoted_count']}")
+            print(f"Skipped: {promo_result['skipped_count']}")
+            if promo_result["errors"]:
+                for err in promo_result["errors"]:
+                    print(f"  ERROR: {err}", file=sys.stderr)
+
+            # Write updated authority
+            authority["generated_at"] = datetime.now(timezone.utc).isoformat()
+            auth_path.write_text(
+                json.dumps(authority, indent=2, ensure_ascii=False),
+                encoding="utf-8",
+            )
+            print(f"Authority updated: {auth_path}")
+            print(f"Total authority records: {len(authority.get('authority', {}))}")
+    else:
+        # Dry-run report
         print("Dry-run: no authority records written.")
         out_dir = Path(args.output_dir)
         out_dir.mkdir(parents=True, exist_ok=True)

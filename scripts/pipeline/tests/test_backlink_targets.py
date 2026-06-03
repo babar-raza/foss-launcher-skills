@@ -1794,3 +1794,254 @@ class TestAllUrlsFallback:
         )
         result = _lookup_platform(tm, "products.aspose.com", "words", "net")
         assert result == "https://products.aspose.com/words/net/"
+
+
+# ── TestPromoteToAuthority (TC-S — adjudication promotion path) ──────────────
+
+# Import the promotion function from the adjudication script
+import importlib.util
+_adjudicate_spec = importlib.util.spec_from_file_location(
+    "backlink_adjudicate_review",
+    str(Path(__file__).resolve().parents[1] / "commands" / "ops" / "backlink_adjudicate_review.py"),
+)
+_adjudicate_mod = importlib.util.module_from_spec(_adjudicate_spec)
+_adjudicate_spec.loader.exec_module(_adjudicate_mod)
+promote_to_authority = _adjudicate_mod.promote_to_authority
+adjudicate_review_required = _adjudicate_mod.adjudicate_review_required
+
+
+def _make_candidate_graph(candidates, sources=None):
+    """Build a minimal candidate_graph dict for testing."""
+    if sources is None:
+        # Derive sources from candidates
+        seen = set()
+        sources = []
+        for c in candidates:
+            sk = c.get("source_key", "")
+            if sk not in seen:
+                seen.add(sk)
+                parts = sk.split("/")
+                sources.append({
+                    "source_key": sk,
+                    "source_path": f"content/reference.aspose.org/en/{'/'.join(parts[1:])}.md" if len(parts) > 1 else f"content/{sk}.md",
+                    "family": parts[1] if len(parts) > 1 else "unknown",
+                    "platform": parts[2] if len(parts) > 2 else "",
+                    "subdomain": "reference.aspose.org",
+                })
+    return {
+        "candidates": candidates,
+        "sources": sources,
+        "deep_index_hash": "sha256:test123",
+    }
+
+
+class TestPromoteToAuthority:
+    """TC-S: Unit tests for the adjudication → authority promotion path."""
+
+    def _promoted_record(self, source_key="reference/3d/java/a3dobject",
+                         target_path="3d/java/com.aspose.threed/a3dobject",
+                         adjudication_result="PROMOTE_WITH_JUSTIFICATION"):
+        return {
+            "source_key": source_key,
+            "target_path": target_path,
+            "original_decision": "REVIEW_REQUIRED",
+            "tier": 2,
+            "ai_label": None,
+            "ai_confidence": None,
+            "adjudication_result": adjudication_result,
+            "ai_status": "AI_EXPLICITLY_DISABLED",
+        }
+
+    def _candidate(self, source_key="reference/3d/java/a3dobject",
+                    target_path="3d/java/com.aspose.threed/a3dobject",
+                    final_score=0.85, decision="REVIEW_REQUIRED"):
+        return {
+            "source_key": source_key,
+            "target_path": target_path,
+            "stage1_score": final_score,
+            "ai_boost": 0.0,
+            "final_score": final_score,
+            "decision": decision,
+        }
+
+    def test_promoted_record_has_auto_approve_exact_decision(self):
+        """Promoted record must have decision=AUTO_APPROVE_EXACT."""
+        promoted = [self._promoted_record()]
+        candidate = self._candidate()
+        graph = _make_candidate_graph([candidate])
+        authority = {"authority": {}}
+
+        result = promote_to_authority(promoted, graph, authority)
+
+        assert result["promoted_count"] == 1
+        assert result["skipped_count"] == 0
+        record = list(authority["authority"].values())[0]
+        assert record["decision"] == "AUTO_APPROVE_EXACT"
+
+    def test_promoted_record_has_allowed_for_generation_true(self):
+        """Promoted record must have allowed_for_generation=True."""
+        promoted = [self._promoted_record()]
+        graph = _make_candidate_graph([self._candidate()])
+        authority = {"authority": {}}
+
+        promote_to_authority(promoted, graph, authority)
+
+        record = list(authority["authority"].values())[0]
+        assert record["allowed_for_generation"] is True
+
+    def test_promoted_record_has_target_subdomain(self):
+        """Promoted record must have target_subdomain set."""
+        promoted = [self._promoted_record()]
+        graph = _make_candidate_graph([self._candidate()])
+        authority = {"authority": {}}
+
+        promote_to_authority(promoted, graph, authority)
+
+        record = list(authority["authority"].values())[0]
+        assert record["target_subdomain"] is not None
+        assert record["target_subdomain"] == "reference"
+
+    def test_promoted_record_has_adjudication_provenance(self):
+        """Promoted record preserves adjudication_result and adjudicated_from fields."""
+        promoted = [self._promoted_record()]
+        graph = _make_candidate_graph([self._candidate()])
+        authority = {"authority": {}}
+
+        promote_to_authority(promoted, graph, authority)
+
+        record = list(authority["authority"].values())[0]
+        assert record["adjudication_result"] == "PROMOTE_WITH_JUSTIFICATION"
+        assert record["adjudicated_from"] == "REVIEW_REQUIRED"
+
+    def test_promoted_record_has_rendered_anchor_text_with_registry(self):
+        """When anchor_registry is provided, rendered_anchor_text must be populated."""
+        promoted = [self._promoted_record()]
+        graph = _make_candidate_graph([self._candidate()])
+        authority = {"authority": {}}
+
+        # Use a minimal mock anchor registry
+        registry = {
+            "templates": {
+                "reference-platform": {
+                    "anchor_text": "{fam} for {plat} — Enterprise API Reference",
+                },
+            },
+            "display_platform_policy": {"known_bridge_slugs": ["python-net", "go-cpp"]},
+        }
+
+        promote_to_authority(
+            promoted, graph, authority,
+            anchor_registry=registry,
+            families_map={"3d": "Aspose.3D"},
+            platforms_map={"java": "Java"},
+        )
+
+        record = list(authority["authority"].values())[0]
+        assert record["rendered_anchor_text"] is not None
+        assert "Aspose.3D" in record["rendered_anchor_text"]
+        assert "Java" in record["rendered_anchor_text"]
+
+    def test_promoted_record_uses_fallback_without_registry(self):
+        """Without anchor_registry, rendered_anchor_text is None."""
+        promoted = [self._promoted_record()]
+        graph = _make_candidate_graph([self._candidate()])
+        authority = {"authority": {}}
+
+        promote_to_authority(promoted, graph, authority)
+
+        record = list(authority["authority"].values())[0]
+        assert record["rendered_anchor_text"] is None
+
+    def test_missing_source_key_skipped(self):
+        """If source_key is not found in candidate graph, the record is skipped."""
+        promoted = [self._promoted_record(source_key="reference/missing/family/class")]
+        graph = _make_candidate_graph([self._candidate()])  # different source_key
+        authority = {"authority": {}}
+
+        result = promote_to_authority(promoted, graph, authority)
+
+        assert result["promoted_count"] == 0
+        assert result["skipped_count"] == 1
+        assert len(result["errors"]) == 1
+
+    def test_multiple_promotions(self):
+        """Multiple records can be promoted in a single call."""
+        promoted = [
+            self._promoted_record(source_key="reference/3d/java/a3dobject",
+                                  target_path="3d/java/com.aspose.threed/a3dobject"),
+            self._promoted_record(source_key="reference/pdf/java/document",
+                                  target_path="pdf/java/com.aspose.pdf/document"),
+        ]
+        candidates = [
+            self._candidate(source_key="reference/3d/java/a3dobject",
+                           target_path="3d/java/com.aspose.threed/a3dobject"),
+            self._candidate(source_key="reference/pdf/java/document",
+                           target_path="pdf/java/com.aspose.pdf/document"),
+        ]
+        graph = _make_candidate_graph(candidates)
+        authority = {"authority": {}}
+
+        result = promote_to_authority(promoted, graph, authority)
+
+        assert result["promoted_count"] == 2
+        assert len(authority["authority"]) == 2
+
+    def test_promotion_merges_with_existing_authority(self):
+        """Promoted records merge into existing authority without overwriting other entries."""
+        promoted = [self._promoted_record()]
+        graph = _make_candidate_graph([self._candidate()])
+        existing_record = {
+            "source_path": "content/reference.aspose.org/en/words/java/document.md",
+            "decision": "AUTO_APPROVE_EXACT",
+            "allowed_for_generation": True,
+        }
+        authority = {"authority": {
+            "content/reference.aspose.org/en/words/java/document.md": existing_record,
+        }}
+
+        result = promote_to_authority(promoted, graph, authority)
+
+        assert result["promoted_count"] == 1
+        assert len(authority["authority"]) == 2
+        # Existing record preserved
+        assert authority["authority"]["content/reference.aspose.org/en/words/java/document.md"] == existing_record
+
+    def test_adjudicate_then_promote_roundtrip(self):
+        """Full roundtrip: adjudicate RR candidates, then promote qualifying ones."""
+        candidates = [
+            {
+                "source_key": "reference/3d/java/a3dobject",
+                "target_path": "3d/java/com.aspose.threed/a3dobject",
+                "stage1_score": 0.85,
+                "ai_boost": 0.0,
+                "final_score": 0.85,
+                "decision": "REVIEW_REQUIRED",
+            },
+            {
+                "source_key": "reference/pdf/java/lowscore",
+                "target_path": "pdf/java/com.aspose.pdf/lowscore",
+                "stage1_score": 0.40,
+                "ai_boost": 0.0,
+                "final_score": 0.40,
+                "decision": "REVIEW_REQUIRED",
+            },
+        ]
+        graph = _make_candidate_graph(candidates)
+        authority = {"authority": {}}
+
+        adj_result = adjudicate_review_required(graph, authority, dry_run=True, max_candidates=100)
+
+        # First candidate (0.85) should be PROMOTE_WITH_JUSTIFICATION
+        # Second candidate (0.40) should be REJECT
+        assert len(adj_result["promoted"]) == 1
+        assert len(adj_result["rejected"]) == 1
+        assert adj_result["promoted"][0]["source_key"] == "reference/3d/java/a3dobject"
+
+        # Now promote
+        promo_result = promote_to_authority(adj_result["promoted"], graph, authority)
+        assert promo_result["promoted_count"] == 1
+
+        record = authority["authority"][list(authority["authority"].keys())[0]]
+        assert record["decision"] == "AUTO_APPROVE_EXACT"
+        assert record["allowed_for_generation"] is True
+        assert record["adjudicated_from"] == "REVIEW_REQUIRED"

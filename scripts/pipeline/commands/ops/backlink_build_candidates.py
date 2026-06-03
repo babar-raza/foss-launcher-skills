@@ -26,8 +26,17 @@ import argparse
 import json
 import re
 import sys
+from datetime import date, datetime
 from pathlib import Path
 from typing import Optional
+
+
+class _DateEncoder(json.JSONEncoder):
+    """Encode date/datetime objects as ISO strings."""
+    def default(self, o):
+        if isinstance(o, (date, datetime)):
+            return o.isoformat()
+        return super().default(o)
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "pipeline"))
@@ -516,7 +525,7 @@ def main() -> None:
         "candidates": graph["candidates"],
     }
 
-    out_path.write_text(json.dumps(output, indent=2, ensure_ascii=False), encoding="utf-8")
+    out_path.write_text(json.dumps(output, indent=2, ensure_ascii=False, cls=_DateEncoder), encoding="utf-8")
     print(f"Written: {out_path}")
 
 

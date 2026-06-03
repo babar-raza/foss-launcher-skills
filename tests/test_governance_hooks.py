@@ -599,7 +599,8 @@ class TestRegressionSuite:
         )
         # Should find 0 executable hits (test files excluded by path, hook blocks are ok)
         lines = [l for l in result.stdout.strip().splitlines()
-                 if l and "/tests/" not in l and "check_destructive" not in l]
+                 if l and "/tests/" not in l and "check_destructive" not in l
+                 and "check_settings_breadth" not in l]
         assert len(lines) == 0, (
             f"Found git push in pipeline/translator/ci scripts: {lines}"
         )
