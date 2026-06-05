@@ -21,7 +21,11 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from extraction.formats import _cross_reference_enum_directions, _scan_save_dispatch
+from extraction.formats import (
+    _cross_reference_enum_directions,
+    _scan_save_dispatch,
+    _scan_document_ctor_imports,
+)
 
 # Re-create the patterns used by detect_formats() for test use.
 _SAVE_PAT = re.compile(r"(SaveFormat|ExportFormat|OutputFormat)", re.IGNORECASE)
@@ -696,6 +700,90 @@ class TestLoadSaveOptionsPattern(unittest.TestCase):
         result = _cross_reference_enum_directions(formats, _SAVE_PAT, _LOAD_PAT)
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["direction"], "import")
+
+
+class TestDocumentCtorImports(unittest.TestCase):
+    """Tests for _scan_document_ctor_imports() — Pass 1c.
+
+    Root cause guarded (PDF-JAVA-FORMAT-IMPORT-001):
+      pdf/java loads PDFs via `new Document(path)` without a PdfLoadOptions
+      class, so Pass 1b never emits a PDF import entry.  Pass 1c fills this
+      gap by detecting constructor-based import in Document.java/.cs.
+    """
+
+    def _write_file(self, tmp: Path, name: str, content: str) -> Path:
+        fpath = tmp / name
+        fpath.write_text(content, encoding="utf-8")
+        return fpath
+
+    def test_constructor_pdf_import_detected(self):
+        """Document(String filePath) constructor → Pdf import entry emitted."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "Document.java", """\
+public class Document {
+    public Document(String filePath) throws IOException {
+        this.load(filePath);
+    }
+    public Document() {}
+}
+""")
+            result = _scan_document_ctor_imports(
+                [src], tmp, "java", "pdf", set()
+            )
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0]["format"], "Pdf")
+            self.assertEqual(result[0]["direction"], "import")
+            self.assertEqual(result[0]["enum"], "")
+
+    def test_no_duplicate_when_load_options_exists(self):
+        """Pass 1c skipped when import for primary format already detected."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "Document.java", """\
+public class Document {
+    public Document(String filePath) throws IOException {
+        this.load(filePath);
+    }
+}
+""")
+            # Simulate Pass 1b already emitted a Pdf import via PdfLoadOptions
+            result = _scan_document_ctor_imports(
+                [src], tmp, "java", "pdf", {"pdf"}
+            )
+            self.assertEqual(len(result), 0,
+                             "Pass 1c must not duplicate an already-detected import")
+
+    def test_python_language_skipped(self):
+        """Pass 1c does nothing for Python — only applies to Java/C#."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "Document.py", """\
+class Document:
+    def __init__(self, file_path: str):
+        self._load(file_path)
+""")
+            result = _scan_document_ctor_imports(
+                [src], tmp, "python", "pdf", set()
+            )
+            self.assertEqual(len(result), 0)
+
+    def test_ctor_with_load_options_param_skipped(self):
+        """Constructor that takes LoadOptions is not emitted (Pass 1b already handles it)."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "Document.java", """\
+public class Document {
+    public Document(String filePath, HtmlLoadOptions options) throws IOException {
+        this.load(filePath, options);
+    }
+}
+""")
+            result = _scan_document_ctor_imports(
+                [src], tmp, "java", "pdf", set()
+            )
+            self.assertEqual(len(result), 0,
+                             "LoadOptions constructor must be skipped (Pass 1b handles it)")
 
 
 if __name__ == "__main__":

@@ -161,6 +161,59 @@ def _filter_vendor_paths(files: list[Path], pkg_root: Path) -> list[Path]:
     return filtered
 
 
+def _scan_document_ctor_imports(
+    files: list[Path],
+    repo: Path,
+    language: str,
+    family: str,
+    existing_import_fmts: set[str],
+) -> list[dict]:
+    """Pass 1c: Detect primary-document-class constructor import (Java/C# only).
+
+    Libraries like pdf/java load files via ``new Document(path)`` without a
+    dedicated ``XxxLoadOptions`` class (which Pass 1b requires).  This pass
+    scans for a file named ``Document.java``/``Document.cs`` containing a
+    constructor that accepts ``String``, ``InputStream``, ``Path``, or ``File``
+    parameters **without** a ``LoadOptions``-typed parameter, and emits one
+    import entry for the library's primary format (``family.title()``).
+
+    Does nothing when:
+    - language is not Java or C#
+    - an import entry for the primary format already exists (prevents duplicates
+      when Pass 1b detected a ``XxxLoadOptions`` class for the same format)
+    """
+    if language not in ("java", "csharp"):
+        return []
+    primary_fmt = family.title()
+    if primary_fmt.lower() in existing_import_fmts:
+        return []
+
+    _ctor_path_re = re.compile(
+        r'\bDocument\s*\(\s*(?:String|InputStream|Path|File)\b',
+    )
+    _ctor_options_re = re.compile(r'LoadOptions', re.IGNORECASE)
+
+    for fpath in files:
+        if fpath.stem != "Document":
+            continue
+        rel = str(fpath.relative_to(repo)).replace("\\", "/")
+        try:
+            text = fpath.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for i, line in enumerate(text.splitlines(), 1):
+            if _ctor_path_re.search(line) and not _ctor_options_re.search(line):
+                return [{
+                    "format": primary_fmt,
+                    "enum": "",
+                    "value": "",
+                    "file": rel,
+                    "line": i,
+                    "direction": "import",
+                }]
+    return []
+
+
 def detect_formats(
     parser,
     language: str,
@@ -378,6 +431,22 @@ def detect_formats(
                     _add_claim("format_support",
                                f"{direction} support for {fmt_name} via {cname}",
                                rel, cn.start_point[0] + 1)
+
+    # Pass 1c: primary-document-class constructor import (Java/C# only).
+    # Handles libraries like pdf/java where `new Document(path)` is the import
+    # path but no dedicated PdfLoadOptions class exists for Pass 1b to detect.
+    _existing_import_fmts = {
+        f["format"].lower() for f in formats if f.get("direction") == "import"
+    }
+    for entry in _scan_document_ctor_imports(
+        files, repo, language, family, _existing_import_fmts
+    ):
+        formats.append(entry)
+        _add_claim(
+            "format_support",
+            f"import support for {entry['format']} via Document constructor",
+            entry["file"], entry["line"],
+        )
 
     # Second pass: scan method names for format signals embedded in naming
     # conventions (e.g., load_from_eml, save_to_eml).  Catches formats that
