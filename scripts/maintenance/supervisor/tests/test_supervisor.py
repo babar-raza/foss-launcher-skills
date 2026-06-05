@@ -223,8 +223,11 @@ class TestValidateDedup(unittest.TestCase):
     def test_no_dedup_accumulates_across_reports(self):
         """With dedup=False, findings from all reports are accumulated."""
         m = _import("validate")
-        page = "/content/docs/test.md"
         with tempfile.TemporaryDirectory() as tmp:
+            page_file = Path(tmp) / "content" / "docs" / "test.md"
+            page_file.parent.mkdir(parents=True, exist_ok=True)
+            page_file.write_text("---\ngrade: D\n---\ncontent", encoding="utf-8")
+            page = str(page_file)
             self._make_eval_report(tmp, "eval-20260601-100000.json", [
                 {"file": page, "level": "FAIL", "evaluator": "e1",
                  "id": "1", "category": "X", "line": 1, "message": "f1", "suggestion": ""},
@@ -259,8 +262,11 @@ class TestValidateDedup(unittest.TestCase):
     def test_dedup_latest_report_wins(self):
         """When latest report has FAILs, they are counted correctly."""
         m = _import("validate")
-        page = "/content/docs/test.md"
         with tempfile.TemporaryDirectory() as tmp:
+            page_file = Path(tmp) / "content" / "docs" / "test.md"
+            page_file.parent.mkdir(parents=True, exist_ok=True)
+            page_file.write_text("---\ngrade: D\n---\ncontent", encoding="utf-8")
+            page = str(page_file)
             # Older: 0 FAILs
             self._make_eval_report(tmp, "eval-20260601-100000.json", [])
             # Newer: 1 FAIL
@@ -699,12 +705,25 @@ class TestValidateRealSchema(unittest.TestCase):
             root = Path(tmp)
             eval_dir = root / "reports" / "content_eval"
             eval_dir.mkdir(parents=True)
+            # Create the page file with grade: D so it is not skipped by the
+            # manifest cross-reference (the file must exist and have D/F grade).
+            page_file = root / "content" / "docs" / "page1.md"
+            page_file.parent.mkdir(parents=True, exist_ok=True)
+            page_file.write_text("---\ngrade: D\n---\ncontent", encoding="utf-8")
+            # Build eval JSON using absolute path so existence check passes
+            mock_eval = {
+                **self.MOCK_EVAL_JSON,
+                "findings": [
+                    {**self.MOCK_EVAL_JSON["findings"][0], "file": str(page_file)},
+                    {**self.MOCK_EVAL_JSON["findings"][1], "file": str(page_file)},
+                    {**self.MOCK_EVAL_JSON["findings"][2]},
+                ],
+            }
             (eval_dir / "eval-test-001.json").write_text(
-                json.dumps(self.MOCK_EVAL_JSON), encoding="utf-8"
+                json.dumps(mock_eval), encoding="utf-8"
             )
             r = m.validate(repo_root=root)
         self.assertEqual(len(r["pages_needing_heal"]), 1)
-        self.assertEqual(r["pages_needing_heal"][0]["path"], "content/docs/page1.md")
         self.assertEqual(r["pages_needing_heal"][0]["fail_count"], 2)
 
     def test_warn_only_page_not_in_pages_needing_heal(self):

@@ -45,6 +45,39 @@ def _filter_eval_files(
     return [f for f in eval_files if _parse_eval_timestamp(f.name) >= cutoff_str]
 
 
+def _load_manifest_grades(root: Path) -> dict[str, str]:
+    """Load {normalized_path -> grade} from reports/grade_manifest.json.
+
+    Returns empty dict if manifest is absent or unreadable.
+    Paths are normalised to forward-slash absolute strings.
+    """
+    manifest_path = root / "reports" / "grade_manifest.json"
+    if not manifest_path.exists():
+        return {}
+    try:
+        data = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            return {}
+        # Each value is a dict with a "grade" key (A|B|C|D|F)
+        return {k.replace("\\", "/"): v.get("grade", "") for k, v in data.items()
+                if isinstance(v, dict)}
+    except Exception:
+        return {}
+
+
+_GRADE_RE = re.compile(r"^grade:\s*([A-F])", re.MULTILINE)
+
+
+def _frontmatter_grade(page_path: str) -> str:
+    """Return the grade from a page's YAML frontmatter, or '' if unreadable/absent."""
+    try:
+        text = Path(page_path).read_text(encoding="utf-8", errors="replace")
+        m = _GRADE_RE.search(text)
+        return m.group(1) if m else ""
+    except Exception:
+        return ""
+
+
 def validate(repo_root=None, *, dedup: bool = True, max_age_days: int | None = None):
     root = Path(repo_root or REPO_ROOT)
     reports_dir = root / "reports"
@@ -132,10 +165,35 @@ def validate(repo_root=None, *, dedup: bool = True, max_age_days: int | None = N
             "severity_totals": dict(severity_totals),
         }
 
-        # Pages needing heal: at least one FAIL-level finding
+        # Load grade manifest to cross-reference accepted grades.
+        # Pages with grade A, B, or C in grade_manifest.json are NOT actionable
+        # (C = accepted evaluator ceiling; A/B = healed). Only D/F pages need healing.
+        manifest_grades = _load_manifest_grades(root)
+
+        # Pages needing heal: at least one FAIL-level finding AND explicitly grade D/F.
+        # Pages graded A/B/C (accepted states) are excluded. Pages not in the grade
+        # manifest are checked via frontmatter grade as a fallback. Pages whose files no
+        # longer exist (ghost entries in old eval reports) are skipped unconditionally.
         for page_path, info in sorted(page_latest.items()):
             fail_count = info["fails"]
             if fail_count > 0:
+                # Skip ghost entries — file was deleted since the eval report was written.
+                if not Path(page_path).exists():
+                    continue
+                # Normalise path for manifest lookup (backslash → forward slash)
+                norm_path = page_path.replace("\\", "/")
+                manifest_grade = manifest_grades.get(norm_path, "")
+                if manifest_grade:
+                    # Manifest is authoritative: skip A/B/C, include D/F only.
+                    if manifest_grade in ("A", "B", "C"):
+                        continue
+                else:
+                    # Page not in manifest — fall back to frontmatter grade.
+                    # Only flag if frontmatter explicitly says D or F; all other states
+                    # (A/B/C, no grade, structural index pages) are not actionable here.
+                    fm_grade = _frontmatter_grade(page_path)
+                    if fm_grade not in ("D", "F"):
+                        continue
                 result["pages_needing_heal"].append({
                     "path": page_path,
                     "grade": "F" if fail_count >= 3 else "D",
