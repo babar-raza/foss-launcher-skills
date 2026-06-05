@@ -59,3 +59,66 @@ Perform this 2-step check after any of the following, before writing grades:
 - `refresh_knowledge.py` or `scout.py` re-run (regenerates formats.json, claims.json)
 - `promote.py` run (merges scout + enriched artifacts into merged/)
 - Manual edits to `knowledge/*/merged/*.json`
+
+---
+
+## Post-Sprint Checklist (WP-02)
+
+> Added: snuggly-doodling-waffle sprint, 2026-06-05.
+> Root cause: HANDOFF.md was stale twice (2026-06-03, pre-healing; 2026-06-05, post-healing)
+> because no protocol enforced supervisor re-run after healing sprints. Grade manifest
+> regeneration was also undocumented as a required post-sprint step.
+
+Run these steps after **every healing sprint** or batch content operation before the next session:
+
+### Step 1 — Refresh HANDOFF.md
+
+```bash
+PYTHONPATH="$(pwd)/scripts/pipeline:$(pwd)/scripts/pipeline/lib" .venv/Scripts/python \
+  scripts/maintenance/supervisor/orchestrate.py --execute
+```
+
+Verify: `backlog/HANDOFF.md` does **not** reference items that were just closed/healed.
+
+### Step 2 — Regenerate Grade Manifest
+
+```bash
+# Dry-run first to confirm entry count is sane (~4,000+ entries expected):
+PYTHONPATH="$(pwd)/scripts/pipeline:$(pwd)/scripts/pipeline/lib" .venv/Scripts/python \
+  scripts/pipeline/commands/migration/seed_grade_manifest.py --dry-run
+
+# Write for real:
+PYTHONPATH="$(pwd)/scripts/pipeline:$(pwd)/scripts/pipeline/lib" .venv/Scripts/python \
+  scripts/pipeline/commands/migration/seed_grade_manifest.py
+```
+
+Verify: `reports/grade_manifest.json` timestamp is newer than the healing sprint commit.
+
+### Step 3 — Verify Grade Summary
+
+```bash
+PYTHONPATH="$(pwd)/scripts/pipeline:$(pwd)/scripts/pipeline/lib" .venv/Scripts/python \
+  -m content_eval grade-summary --json
+```
+
+Expected: `distribution.D == 0`, `distribution.F == 0` after a successful healing sprint.
+
+### Step 4 — Content Check and Link Validate
+
+```bash
+PYTHONPATH="$(pwd)/scripts/pipeline:$(pwd)/scripts/pipeline/lib" .venv/Scripts/python \
+  scripts/pipeline/commands/content/audit.py --all
+```
+
+Expected: FAIL: 0. Any FAIL blocks commit.
+
+### Step 5 — Commit
+
+Use `/commit` skill — never `git commit` directly.
+
+> **Note on supervisor vs. grade-manifest discrepancy**: The supervisor (`orchestrate.py`)
+> reads eval JSON reports in `reports/content_eval/` — it does NOT read `grade_manifest.json`.
+> After a healing sprint that writes grades via `grade_writer.py` (frontmatter update only),
+> the supervisor will still show healed pages as "needing heal" until `content-eval` is re-run
+> to regenerate fresh eval reports. This is tracked in SUPERVISOR-STALE-EVAL-001. The
+> grade_manifest is the production truth for content quality; the supervisor view is informational.
