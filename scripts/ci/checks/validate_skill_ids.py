@@ -23,8 +23,11 @@ SKILLS_CHILD_DOC = REPO_ROOT / "docs" / "registries" / "skills.md"
 
 # Regex to extract skill registry rows: | skill-name | S-nn | description |
 _ROW_RE = re.compile(r"^\|\s*[\w\-]+\s*\|\s*(S-\d+)\s*\|", re.MULTILINE)
-# Regex to extract S-nn patterns from arbitrary text
-_ID_RE = re.compile(r"S-\d+", re.IGNORECASE)
+# Regex to extract S-nn patterns from arbitrary text.
+# Word boundaries prevent matching "S-NNN" substrings inside backlog IDs
+# like NOTE-PYTHON-REF-DRAFTS-001 (where "S-001" appears as a substring).
+# re.IGNORECASE is intentionally removed — skill IDs are always uppercase S-.
+_ID_RE = re.compile(r"\bS-\d+\b")
 
 
 def load_registry() -> frozenset[str]:
