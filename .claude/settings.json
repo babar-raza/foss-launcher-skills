@@ -35,7 +35,8 @@
       "Read(//c/Users/prora/.config/kilo/**)",
       "Bash(.venv/Scripts/python -m pytest scripts/maintenance/supervisor/tests/test_supervisor.py -q)",
       "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/ops/semantic_refresh_guard.py pdf java --source-delta reports/refresh_review/pdf/java/semantic_source_delta.json --page-decisions reports/refresh_review/pdf/java/page_decisions.json --knowledge-delta knowledge/pdf/java/merged/knowledge_delta.json)",
-      "Bash(echo \"EXIT_CODE:$?\")"
+      "Bash(echo \"EXIT_CODE:$?\")",
+      "Bash(gpg --list-keys --keyid-format LONG packages@aspose.org)"
     ],
     "additionalDirectories": [
       "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing",
