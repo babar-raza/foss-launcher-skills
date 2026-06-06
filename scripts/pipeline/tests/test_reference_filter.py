@@ -284,3 +284,137 @@ class TestIsStaleGroupedIndex:
         )
         assert is_stale  # 0 rows / 2 expected = 0% < 10%
         assert rows == 0
+
+
+# ---------------------------------------------------------------------------
+# TC-REF-11: Platform-specific exclusion tests (unified from batch_reference.py)
+# ---------------------------------------------------------------------------
+
+class TestCppExclusions:
+    """TC-REF-11 exclusions 1 & 2: C++ I-prefix names and abstract bases."""
+
+    def test_cpp_iprefix_class_excluded(self):
+        assert not _passes_platform_scope(
+            {"kind": "class_specifier", "name": "IShape", "file": "include/ishape.h"}, "cpp"
+        )
+
+    def test_cpp_iprefix_struct_excluded(self):
+        assert not _passes_platform_scope(
+            {"kind": "struct_specifier", "name": "IMetrics", "file": "include/i_metrics.h"}, "cpp"
+        )
+
+    def test_cpp_iprefix_lowercase_second_char_passes(self):
+        # "Ia..." has lowercase 'a' — does NOT match ^I[A-Z] pattern
+        assert _passes_platform_scope(
+            {"kind": "class_specifier", "name": "Iambic", "file": "include/iambic.h"}, "cpp"
+        )
+
+    def test_cpp_abstract_base_excluded(self):
+        for name in _CPP_ABSTRACT_BASES:
+            assert not _passes_platform_scope(
+                {"kind": "class_specifier", "name": name, "file": "include/base.h"}, "cpp"
+            ), f"{name} should be excluded as abstract base"
+
+    def test_cpp_no_path_filter(self):
+        # C++ does NOT filter by /internal/ path (name-based rules only)
+        assert _passes_platform_scope(
+            {"kind": "class_specifier", "name": "FontBase", "file": "include/internal/base.h"}, "cpp"
+        )
+
+    def test_cpp_enum_iprefix_passes(self):
+        # enum_specifier always passes for C++ regardless of name
+        assert _passes_platform_scope(
+            {"kind": "enum_specifier", "name": "IFontKind", "file": "include/font_kind.h"}, "cpp"
+        )
+
+    def test_cpp_abstract_bases_frozenset_size(self):
+        assert len(_CPP_ABSTRACT_BASES) == 4
+
+
+class TestPythonExclusions:
+    """TC-REF-11 exclusion 3: Python I-prefix names."""
+
+    def test_python_iprefix_excluded(self):
+        assert not _passes_platform_scope(
+            {"kind": "class_definition", "name": "IConverter", "file": "src/iconv.py"}, "python"
+        )
+
+    def test_python_iprefix_requires_capital_second_char(self):
+        # "Image" — 'I' followed by lowercase 'm', not excluded
+        assert _passes_platform_scope(
+            {"kind": "class_definition", "name": "Image", "file": "src/image.py"}, "python"
+        )
+
+    def test_python_regular_class_passes(self):
+        assert _passes_platform_scope(
+            {"kind": "class_definition", "name": "FontLoader", "file": "src/loader.py"}, "python"
+        )
+
+
+class TestJavaExclusions:
+    """TC-REF-11 exclusion 4: Java _JAVA_INTERNAL_CLASSES."""
+
+    def test_all_internal_classes_excluded_for_java(self):
+        for name in _JAVA_INTERNAL_CLASSES:
+            assert not _passes_platform_scope(
+                {"kind": "class_declaration", "name": name, "file": "src/Foo.java"}, "java"
+            ), f"{name} should be excluded for java"
+
+    def test_java_internal_name_passes_for_net(self):
+        assert _passes_platform_scope(
+            {"kind": "class_declaration", "name": "AppPropertiesPart", "file": "src/Foo.java"}, "net"
+        )
+
+    def test_java_internal_name_passes_for_python(self):
+        assert _passes_platform_scope(
+            {"kind": "class_definition", "name": "BaseCollection", "file": "src/base.py"}, "python"
+        )
+
+    def test_java_internal_name_passes_for_cpp(self):
+        assert _passes_platform_scope(
+            {"kind": "class_specifier", "name": "Template", "file": "include/template.h"}, "cpp"
+        )
+
+    def test_java_internal_frozenset_size(self):
+        assert len(_JAVA_INTERNAL_CLASSES) == 31
+
+    def test_java_public_class_passes(self):
+        assert _passes_platform_scope(
+            {"kind": "class_declaration", "name": "Presentation", "file": "src/Presentation.java"}, "java"
+        )
+
+
+class TestNetExclusions:
+    """TC-REF-11 exclusion 5: .NET .Internal. / .internal. namespace."""
+
+    def test_net_internal_namespace_excluded(self):
+        assert not _passes_platform_scope(
+            {"kind": "class_declaration", "name": "CacheManager",
+             "file": "src/CacheManager.cs", "class_import": "Aspose.Slides.Internal.CacheManager"}, "net"
+        )
+
+    def test_net_lowercase_internal_namespace_excluded(self):
+        assert not _passes_platform_scope(
+            {"kind": "class_declaration", "name": "Helper",
+             "file": "src/Helper.cs", "class_import": "Aspose.Slides.internal.Helper"}, "net"
+        )
+
+    def test_net_public_namespace_passes(self):
+        assert _passes_platform_scope(
+            {"kind": "class_declaration", "name": "Presentation",
+             "file": "src/Presentation.cs", "class_import": "Aspose.Slides.Presentation"}, "net"
+        )
+
+    def test_net_no_class_import_passes(self):
+        # Entries without class_import should not be excluded by .Internal. check
+        assert _passes_platform_scope(
+            {"kind": "class_declaration", "name": "FontConverter", "file": "src/FontConverter.cs"}, "net"
+        )
+
+    def test_net_internal_not_applied_to_java(self):
+        # .Internal. namespace check must NOT block java entries
+        assert _passes_platform_scope(
+            {"kind": "class_declaration", "name": "CacheManager",
+             "file": "src/CacheManager.java",
+             "class_import": "Aspose.Slides.Internal.CacheManager"}, "java"
+        )
