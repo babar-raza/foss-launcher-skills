@@ -3255,11 +3255,12 @@ scripts:
     backing:
       kind: internal
       ref: null
-    test_targets: []
-    requires_test: false
-    test_exempt_reason: "CLI validator for ZIP evidence bundles; diagnostic-only, no content writes"
+    test_targets:
+      - scripts/pipeline/tests/test_validate_evidence_bundle.py
+    requires_test: true
+    test_exempt_reason: null
     deprecated_since: null
-    notes: "Validates sprint evidence ZIP bundles for structural completeness and SHA consistency"
+    notes: "Validates sprint evidence ZIP bundles for structural completeness and SHA consistency (10 checks)"
 
   - path: scripts/pipeline/commands/ops/validate_clean_working_tree_bundle.py
     kind: entrypoint
