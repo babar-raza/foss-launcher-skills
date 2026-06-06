@@ -1,10 +1,13 @@
-"""Tests for the shared reference API surface filter (TC-REF-09).
+"""Tests for the shared reference API surface filter (TC-REF-09 / TC-REF-11).
 
 Covers:
 - filter_api_surface() for each supported platform
 - filtered_count()
 - count_index_table_rows()
 - is_stale_grouped_index()
+- Platform-specific exclusions unified from batch_reference.py (TC-REF-11):
+    C++ I-prefix / abstract bases, Python I-prefix,
+    Java _JAVA_INTERNAL_CLASSES, .NET .Internal. namespace
 """
 import pytest
 from scripts.pipeline.lib.reference_filter import (
@@ -13,6 +16,8 @@ from scripts.pipeline.lib.reference_filter import (
     count_index_table_rows,
     is_stale_grouped_index,
     _passes_platform_scope,
+    _CPP_ABSTRACT_BASES,
+    _JAVA_INTERNAL_CLASSES,
 )
 
 
@@ -56,6 +61,11 @@ CPP_API = [
     {"kind": "class_specifier", "name": "FontBase", "file": "include/font_base.h", "visibility": "public"},
     {"kind": "struct_specifier", "name": "FontMetrics", "file": "include/font_metrics.h", "visibility": "public"},
     {"kind": "enum_specifier", "name": "FontKind", "file": "include/font_kind.h", "visibility": "public"},
+    # I-prefix interface excluded (TC-REF-11 exclusion 1)
+    {"kind": "class_specifier", "name": "IFontRenderer", "file": "include/ifont_renderer.h", "visibility": "public"},
+    # Abstract base excluded (TC-REF-11 exclusion 2)
+    {"kind": "class_specifier", "name": "BaseSlide", "file": "include/base_slide.h", "visibility": "public"},
+    # Note: C++ does NOT filter by path — InternalBase in include/internal/ passes through
     {"kind": "class_specifier", "name": "InternalBase", "file": "include/internal/base.h", "visibility": "public"},
 ]
 
@@ -148,7 +158,11 @@ class TestFilterApiSurface:
         assert "FontBase" in names
         assert "FontMetrics" in names
         assert "FontKind" in names
-        assert "InternalBase" not in names
+        # C++ does NOT filter by path (unlike other platforms); InternalBase passes
+        assert "InternalBase" in names
+        # I-prefix and abstract bases are excluded (TC-REF-11)
+        assert "IFontRenderer" not in names
+        assert "BaseSlide" not in names
 
     def test_unknown_platform_returns_empty(self):
         api = [{"kind": "class_definition", "name": "Foo", "file": "x.py", "visibility": "public"}]

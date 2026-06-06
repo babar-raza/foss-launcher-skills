@@ -55,6 +55,38 @@ VALID_AI_LABELS = frozenset({
     "weakly_related", "unrelated",
 })
 
+# CS-013: adjudication-time LLM classification
+CALLSITE_AI_ADJUDICATE = "CS-013"
+
+_PROVIDER_UNAVAILABLE_STATUSES = frozenset({
+    "not_configured", "unreachable", "auth_failed",
+    "model_missing", "disabled_policy", "intentional_skip",
+})
+
+_ADJUDICATION_PROMPT = """\
+You are classifying the relationship between an aspose.org source page and an aspose.com target API endpoint.
+
+Source: {source_title} ({source_family}/{source_platform})
+Target: {target_path}
+
+Classify the relationship as exactly one of:
+- exact_api_class: Target is the direct enterprise API reference for this source page
+- related_api_class: Target is a related class in the same namespace/family
+- same_topic: Target covers the same topic but different type
+- weakly_related: Some topical overlap but not a direct match
+- unrelated: No meaningful relationship
+
+Respond with JSON only: {{"label": "...", "confidence": "high|medium|low", "reasoning": "one sentence"}}"""
+
+
+def _try_import_llm_router():
+    """Try to import and instantiate LLMRouter; return None if unavailable."""
+    try:
+        from commands.ops.llm_router import LLMRouter  # type: ignore
+        return LLMRouter()
+    except Exception:
+        return None
+
 
 # ── Helpers shared with backlink_approve_authority.py ─────────────────────────
 
@@ -282,21 +314,42 @@ def _tier2_ai_adjudicate(
     promote_threshold: float = 0.70,
 ) -> list[dict]:
     """
-    Tier 2: AI-assisted adjudication.
+    Tier 2: AI-assisted adjudication (CS-013).
 
-    Attempts LLMRouter classification for REVIEW_REQUIRED candidates.
-    If AI unavailable, marks all as AI_UNAVAILABLE_DEGRADED.
+    When dry_run=True: skips LLM call; uses score-based decisions only
+    (ai_status: AI_EXPLICITLY_DISABLED).
+
+    When dry_run=False: calls LLMRouter (gpt-oss, CS-013) to classify each candidate.
+    If AI unavailable or raises: falls back to score-based logic
+    (ai_status: AI_UNAVAILABLE_DEGRADED) — graceful degradation, no crash.
+
+    Score boost rules (base score >= 0.85 required):
+      exact_api_class  → +0.05
+      related_api_class → +0.03
+
+    AI override rules (applied before score-based fallback):
+      unrelated + score >= 0.80  → ESCALATE_TO_OPERATOR (mandatory human check)
+      exact/related_api_class + score < promote_threshold → ESCALATE_TO_OPERATOR
+        (surfaces 0.55 dead-zone candidates to Tier 3 instead of silently REJECTing)
 
     Args:
-        promote_threshold: Minimum final_score for PROMOTE_WITH_JUSTIFICATION (default 0.70).
+        promote_threshold: Minimum effective_score for PROMOTE_WITH_JUSTIFICATION (default 0.70).
 
     Returns list of adjudication result dicts.
     """
+    router = None
+    if not dry_run:
+        router = _try_import_llm_router()
+
     results = []
     for c in candidates:
+        source_key = c.get("source_key", "")
+        target_path = c.get("target_path", "")
+        base_score = c.get("final_score", 0.0)
+
         result = {
-            "source_key": c.get("source_key", ""),
-            "target_path": c.get("target_path", ""),
+            "source_key": source_key,
+            "target_path": target_path,
             "original_decision": c.get("decision", ""),
             "tier": 2,
             "ai_label": None,
@@ -304,15 +357,80 @@ def _tier2_ai_adjudicate(
             "adjudication_result": None,
             "ai_status": "AI_EXPLICITLY_DISABLED" if dry_run else "AI_UNAVAILABLE_DEGRADED",
         }
-        # In dry-run mode or if AI unavailable: escalate to Tier 3
-        # Real AI call would use LLMRouter(model="gpt-oss", ...) with CS-013
-        final_score = c.get("final_score", 0.0)
-        if final_score >= promote_threshold:
+
+        effective_score = base_score
+        ai_label = None
+
+        if not dry_run and router is not None:
+            # Derive source context from source_key path (e.g. "docs/cells/java/page.md")
+            parts = source_key.replace("\\", "/").split("/")
+            source_title = parts[-1].replace(".md", "").replace("-", " ").title() if parts else source_key
+            source_family = parts[1] if len(parts) > 1 else "unknown"
+            source_platform = parts[2] if len(parts) > 2 else "unknown"
+
+            prompt = _ADJUDICATION_PROMPT.format(
+                source_title=source_title,
+                source_family=source_family,
+                source_platform=source_platform,
+                target_path=target_path,
+            )
+            system_prompt = (
+                "You are a classification assistant for API documentation relationships. "
+                "Respond with JSON only, using exactly the format requested."
+            )
+            try:
+                llm_result = router.call_chat(
+                    system_prompt, prompt, temperature=0.0, max_tokens=500,
+                )
+                raw_status = getattr(llm_result, "status", None)
+                status_val = (
+                    raw_status.value
+                    if hasattr(raw_status, "value")
+                    else str(raw_status).lower()
+                )
+                if status_val == "ok":
+                    raw_data = getattr(llm_result, "data", None)
+                    if isinstance(raw_data, dict):
+                        parsed = raw_data
+                    elif raw_data is not None:
+                        import re as _re
+                        m = _re.search(r"\{.*?\}", str(raw_data), _re.DOTALL)
+                        parsed = json.loads(m.group(0)) if m else {}
+                    else:
+                        parsed = {}
+                    label = parsed.get("label", "")
+                    if label in VALID_AI_LABELS:
+                        ai_label = label
+                        result["ai_label"] = ai_label
+                        result["ai_confidence"] = parsed.get("confidence", "low")
+                        result["ai_status"] = "AI_CLASSIFIED"
+                        # Score boost (only when base score meets eligibility threshold)
+                        if base_score >= 0.85:
+                            if ai_label == "exact_api_class":
+                                effective_score = min(base_score + 0.05, 1.0)
+                            elif ai_label == "related_api_class":
+                                effective_score = min(base_score + 0.03, 1.0)
+                elif status_val in _PROVIDER_UNAVAILABLE_STATUSES:
+                    result["ai_status"] = "AI_UNAVAILABLE_DEGRADED"
+                else:
+                    result["ai_status"] = "AI_UNAVAILABLE_DEGRADED"
+            except Exception:
+                result["ai_status"] = "AI_UNAVAILABLE_DEGRADED"
+
+        # Determine adjudication_result
+        if ai_label == "unrelated" and effective_score >= 0.80:
+            # Mandatory human review: high-confidence candidate classified unrelated
+            result["adjudication_result"] = "ESCALATE_TO_OPERATOR"
+        elif ai_label in ("exact_api_class", "related_api_class") and effective_score < promote_threshold:
+            # AI-confirmed relevant but below threshold: surface dead-zone to Tier 3
+            result["adjudication_result"] = "ESCALATE_TO_OPERATOR"
+        elif effective_score >= promote_threshold:
             result["adjudication_result"] = "PROMOTE_WITH_JUSTIFICATION"
-        elif final_score >= 0.60:
+        elif effective_score >= 0.60:
             result["adjudication_result"] = "ESCALATE_TO_OPERATOR"
         else:
             result["adjudication_result"] = "REJECT"
+
         results.append(result)
     return results
 

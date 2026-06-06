@@ -9,6 +9,14 @@ Filter chain (two steps):
   Step 1 — _passes_platform_scope(): kind allowlist + path/name exclusions
   Step 2 — visibility != "internal"
 
+TC-REF-11 (2026-06-06): Filter fully unified with batch_reference.py.  All five
+platform-specific exclusions are now present in both implementations:
+  1. C++  — ^I[A-Z] interface-prefix names excluded
+  2. C++  — _CPP_ABSTRACT_BASES frozenset (BaseSlide, GeometryShape, …)
+  3. Python — ^I[A-Z] interface-prefix names excluded
+  4. Java — _JAVA_INTERNAL_CLASSES set excluded
+  5. .NET — .Internal. / .internal. in class_import namespace excluded
+
 Usage::
 
     from scripts.pipeline.lib.reference_filter import filter_api_surface, filtered_count
@@ -19,35 +27,57 @@ Usage::
 
 from __future__ import annotations
 
+import re
 from typing import Sequence
-
-# ---------------------------------------------------------------------------
-# Platform-specific kind allowlists
-#
-# DIVERGENCE NOTE (TC-REF-11, 2026-06-03):
-# This module implements the GENERAL filter chain (kind allowlist + internal
-# path/name exclusions + visibility check).  batch_reference.py implements
-# the same general chain PLUS four platform-specific exclusions that are NOT
-# replicated here:
-#   1. C++  — ^I[A-Z] interface-prefix names excluded
-#   2. C++  — _CPP_ABSTRACT_BASES frozenset (BaseSlide, GeometryShape, …)
-#   3. Python — ^I[A-Z] interface-prefix names excluded
-#   4. Java — _JAVA_INTERNAL_CLASSES set excluded
-#   5. .NET — .Internal. / .internal. in class_import namespace excluded
-#
-# Impact: This library returns HIGHER counts than batch_reference.py for
-# affected platforms.  This is the SAFE direction — the CI staleness check
-# (check_reference_index_structure.py) over-flags rather than under-flags.
-# The generator (batch_reference.py) uses its own filter and produces
-# correct output regardless of this library's counts.
-#
-# To unify: see TC-REF-11 Option A in the plan (pipeline-harden sprint).
-# ---------------------------------------------------------------------------
 
 _ENUM_KINDS: frozenset[str] = frozenset({
     "enum_specifier",       # C++
     "enum_declaration",     # Java / C#
     "enum_definition",      # alternative TS / C++
+})
+
+# C++ abstract base classes that must not appear as public API reference pages.
+# These are internal implementation bases that are not part of the public API.
+_CPP_ABSTRACT_BASES: frozenset[str] = frozenset({
+    "BaseSlide", "GeometryShape", "PVIObject", "GraphicalObject",
+})
+
+# Java internal implementation classes that must not appear as public API reference pages.
+# These classes live in org.aspose.slides.foss.internal.* packages and were retired
+# (draft: true) during the slides gap-eval sprint.  Adding them here prevents
+# batch-reference from re-generating those pages on the next run.
+_JAVA_INTERNAL_CLASSES: frozenset[str] = frozenset({
+    "AppPropertiesPart",
+    "AuthorData",
+    "BaseCollection",
+    "BulkTextFormat",
+    "CommentAuthorsPart",
+    "CommentData",
+    "CommentsPart",
+    "ContentTypesManager",
+    "CorePropertiesPart",
+    "CustomPropertiesPart",
+    "ExporterBase",
+    "ExporterRegistry",
+    "ImageUtils",
+    "LayoutSlidePart",
+    "MasterReference",
+    "MasterSlidePart",
+    "NotesSlidePart",
+    "Ns",
+    "OpcPackage",
+    "PptxConstants",
+    "PptxExporter",
+    "PptxExporterFactory",
+    "PresentationPart",
+    "RelationshipsManager",
+    "RelsHelper",
+    "ShapeFactory",
+    "ShapeTypeMapping",
+    "SlidePart",
+    "SlideReference",
+    "TableStyleMapping",
+    "Template",
 })
 
 _CLASS_KINDS_BY_PLATFORM: dict[str, set[str]] = {
@@ -73,23 +103,58 @@ _INTERNAL_PATH_MARKERS = ("/internal/", "\\internal\\", "/_internal/", "\\_inter
 def _passes_platform_scope(entry: dict, platform: str) -> bool:
     """Step 1 filter: kind allowlist + path/name exclusions.
 
-    Mirrors the logic in batch_reference.py::_passes_platform_scope() for the
-    general (non-cpp) path.
+    Mirrors batch_reference.py::_passes_platform_scope() exactly (TC-REF-11).
+
+    C++ is handled with a dedicated early-return block using name-based rules
+    (I-prefix and abstract bases) without path filtering, matching the generator.
+    All other platforms apply the universal internal-path guard first.
     """
     kind = entry.get("kind", "")
     name = entry.get("name", "")
-    file_path = entry.get("file", "")
 
-    # Path exclusions: internal packages
+    # C++ uses name-based exclusion rules; no internal-path check.
+    if platform == "cpp":
+        if kind == "enum_specifier":
+            return True
+        if kind in ("class_specifier", "struct_specifier"):
+            if re.match(r"^I[A-Z]", name):
+                return False
+            if name in _CPP_ABSTRACT_BASES:
+                return False
+            return True
+        return False
+
+    # Universal guard: classes whose source file lives under an `internal` or
+    # `_internal` package segment are implementation internals, regardless of
+    # platform.
+    file_path = entry.get("file", "")
     for marker in _INTERNAL_PATH_MARKERS:
         if marker in file_path:
             return False
 
-    # Name exclusion: private/dunder symbols
+    # Name exclusion: private/dunder symbols (Python private).
     if name.startswith("_"):
         return False
 
-    # Kind allowlist (platform-specific)
+    if platform == "python":
+        if kind != "class_definition":
+            return False
+        if re.match(r"^I[A-Z]", name):
+            return False
+        return True
+
+    if platform == "java":
+        if name in _JAVA_INTERNAL_CLASSES:
+            return False
+        return kind in _CLASS_KINDS_BY_PLATFORM.get("java", set()) or kind in _ENUM_KINDS
+
+    # FIX-02: .NET namespace-based internal exclusion.
+    if platform == "net":
+        class_import = entry.get("class_import", "")
+        if ".Internal." in class_import or ".internal." in class_import:
+            return False
+
+    # TypeScript, JavaScript, nodejs, go, and any remaining platforms.
     class_kinds = _CLASS_KINDS_BY_PLATFORM.get(platform, set())
     return kind in class_kinds or kind in _ENUM_KINDS
 

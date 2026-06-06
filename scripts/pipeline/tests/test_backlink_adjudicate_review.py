@@ -288,3 +288,97 @@ class TestNullAnchorGuard:
         )
         assert proc.returncode == 1, f"Expected exit 1, got {proc.returncode}"
         assert "mutually exclusive" in proc.stderr.lower() or "mutually exclusive" in proc.stdout.lower()
+
+
+# ── CS-013: LLMRouter wiring (Tier 2 AI adjudication) ────────────────────────
+
+
+class TestTier2AIAdjudication:
+    """Tests for CS-013 LLMRouter integration in _tier2_ai_adjudicate()."""
+
+    def test_dry_run_preserves_ai_explicitly_disabled(self):
+        """dry_run=True: ai_status is AI_EXPLICITLY_DISABLED, score-based result unchanged."""
+        candidates = [_make_candidate("docs/cells/java/sk1.md", "ref/cells/java/X", 0.88)]
+        results = _tier2_ai_adjudicate(candidates, dry_run=True, promote_threshold=0.70)
+        r = results[0]
+        assert r["ai_status"] == "AI_EXPLICITLY_DISABLED"
+        assert r["adjudication_result"] == "PROMOTE_WITH_JUSTIFICATION"
+        assert r["ai_label"] is None
+
+    def test_ai_exact_boost_promotes(self):
+        """dry_run=False, LLM returns exact_api_class with base >= 0.85: boosted score promotes."""
+        from unittest.mock import MagicMock, patch
+        mock_router = MagicMock()
+        mock_result = MagicMock()
+        mock_result.status.value = "ok"
+        mock_result.data = {"label": "exact_api_class", "confidence": "high", "reasoning": "direct match"}
+        mock_router.call_chat.return_value = mock_result
+
+        with patch(
+            "commands.ops.backlink_adjudicate_review._try_import_llm_router",
+            return_value=mock_router,
+        ):
+            candidates = [_make_candidate("docs/cells/java/sk1.md", "ref/cells/java/X", 0.87)]
+            results = _tier2_ai_adjudicate(candidates, dry_run=False, promote_threshold=0.70)
+
+        r = results[0]
+        assert r["ai_status"] == "AI_CLASSIFIED"
+        assert r["ai_label"] == "exact_api_class"
+        assert r["adjudication_result"] == "PROMOTE_WITH_JUSTIFICATION"
+
+    def test_ai_unrelated_high_base_forces_escalation(self):
+        """dry_run=False, LLM returns unrelated + score >= 0.80: ESCALATE_TO_OPERATOR."""
+        from unittest.mock import MagicMock, patch
+        mock_router = MagicMock()
+        mock_result = MagicMock()
+        mock_result.status.value = "ok"
+        mock_result.data = {"label": "unrelated", "confidence": "high", "reasoning": "no match"}
+        mock_router.call_chat.return_value = mock_result
+
+        with patch(
+            "commands.ops.backlink_adjudicate_review._try_import_llm_router",
+            return_value=mock_router,
+        ):
+            candidates = [_make_candidate("docs/cells/java/sk1.md", "ref/cells/java/X", 0.83)]
+            results = _tier2_ai_adjudicate(candidates, dry_run=False, promote_threshold=0.70)
+
+        r = results[0]
+        assert r["ai_status"] == "AI_CLASSIFIED"
+        assert r["adjudication_result"] == "ESCALATE_TO_OPERATOR"
+
+    def test_ai_unavailable_degrades_gracefully(self):
+        """dry_run=False, LLMRouter raises: AI_UNAVAILABLE_DEGRADED, score-based fallback, no crash."""
+        from unittest.mock import MagicMock, patch
+        mock_router = MagicMock()
+        mock_router.call_chat.side_effect = RuntimeError("connection refused")
+
+        with patch(
+            "commands.ops.backlink_adjudicate_review._try_import_llm_router",
+            return_value=mock_router,
+        ):
+            candidates = [_make_candidate("docs/cells/java/sk1.md", "ref/cells/java/X", 0.55)]
+            results = _tier2_ai_adjudicate(candidates, dry_run=False, promote_threshold=0.70)
+
+        r = results[0]
+        assert r["ai_status"] == "AI_UNAVAILABLE_DEGRADED"
+        assert r["adjudication_result"] == "REJECT"  # 0.55 < 0.60 floor
+
+    def test_ai_exact_label_surfaces_dead_zone_to_tier3(self):
+        """dry_run=False, LLM returns exact_api_class + score 0.55 (below threshold): ESCALATE."""
+        from unittest.mock import MagicMock, patch
+        mock_router = MagicMock()
+        mock_result = MagicMock()
+        mock_result.status.value = "ok"
+        mock_result.data = {"label": "exact_api_class", "confidence": "high", "reasoning": "clear match"}
+        mock_router.call_chat.return_value = mock_result
+
+        with patch(
+            "commands.ops.backlink_adjudicate_review._try_import_llm_router",
+            return_value=mock_router,
+        ):
+            candidates = [_make_candidate("docs/email/net/sk1.md", "ref/email/net/X", 0.55)]
+            results = _tier2_ai_adjudicate(candidates, dry_run=False, promote_threshold=0.70)
+
+        r = results[0]
+        assert r["ai_status"] == "AI_CLASSIFIED"
+        assert r["adjudication_result"] == "ESCALATE_TO_OPERATOR"  # surfaces dead zone

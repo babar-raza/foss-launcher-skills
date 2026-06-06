@@ -60,6 +60,11 @@ from lib.knowledge_core import Knowledge  # noqa: E402
 from evidence.runner import attach_evidence  # noqa: E402
 from lib.provenance import is_auto_updatable, is_manually_curated, safe_content_write, ProtectedPageError  # noqa: E402
 from lib.backlink_targets import load_target_map, resolve_backlink  # noqa: E402
+from lib.reference_filter import (  # noqa: E402
+    _passes_platform_scope,
+    _CPP_ABSTRACT_BASES,
+    _JAVA_INTERNAL_CLASSES,
+)
 
 # ---------------------------------------------------------------------------
 # Backlink target map (loaded lazily, cached for the run)
@@ -138,48 +143,6 @@ _CLASS_KINDS_BY_PLATFORM: dict[str, set[str]] = {
     "nodejs":     {"class_declaration"},
     "go":         {"type_spec"},
 }
-
-_CPP_ABSTRACT_BASES: frozenset[str] = frozenset({
-    "BaseSlide", "GeometryShape", "PVIObject", "GraphicalObject",
-})
-
-# Java internal implementation classes that must not appear as public API reference pages.
-# These classes live in org.aspose.slides.foss.internal.* packages and were retired
-# (draft: true) during the slides gap-eval sprint.  Adding them here prevents
-# batch-reference from re-generating those pages on the next run.
-_JAVA_INTERNAL_CLASSES: frozenset[str] = frozenset({
-    "AppPropertiesPart",
-    "AuthorData",
-    "BaseCollection",
-    "BulkTextFormat",
-    "CommentAuthorsPart",
-    "CommentData",
-    "CommentsPart",
-    "ContentTypesManager",
-    "CorePropertiesPart",
-    "CustomPropertiesPart",
-    "ExporterBase",
-    "ExporterRegistry",
-    "ImageUtils",
-    "LayoutSlidePart",
-    "MasterReference",
-    "MasterSlidePart",
-    "NotesSlidePart",
-    "Ns",
-    "OpcPackage",
-    "PptxConstants",
-    "PptxExporter",
-    "PptxExporterFactory",
-    "PresentationPart",
-    "RelationshipsManager",
-    "RelsHelper",
-    "ShapeFactory",
-    "ShapeTypeMapping",
-    "SlidePart",
-    "SlideReference",
-    "TableStyleMapping",
-    "Template",
-})
 
 _PLATFORM_TO_LANG: dict[str, str] = {
     "python": "python",
@@ -384,65 +347,9 @@ def _is_enum(entry: dict, platform: str) -> bool:
     return False
 
 
-def _passes_platform_scope(entry: dict, platform: str) -> bool:
-    """Return True if the entry should be included in the candidate list.
-
-    DIVERGENCE NOTE (TC-REF-11, 2026-06-03):
-    This function includes platform-specific exclusions (C++ I-prefix/abstract
-    bases, Python I-prefix, Java internal classes, .NET namespace internals)
-    that are NOT present in the shared library at
-    scripts/pipeline/lib/reference_filter.py.  The shared library is used for
-    CI staleness checks and returns higher counts (safe direction: over-flags).
-    This function is the authoritative filter for content generation.
-    """
-    kind = entry.get("kind", "")
-    name = entry.get("name", "")
-
-    if platform == "cpp":
-        if kind == "enum_specifier":
-            return True
-        if kind in ("class_specifier", "struct_specifier"):
-            if re.match(r"^I[A-Z]", name):
-                return False
-            if name in _CPP_ABSTRACT_BASES:
-                return False
-            return True
-        return False
-
-    # Universal guard: classes whose source file lives under an `internal` or
-    # `_internal` package segment are implementation internals, regardless of
-    # platform.  api_surface.json carries the `file` field (path relative to
-    # clone root).  Also exclude underscore-prefixed names (Python private).
-    _file = entry.get("file", "")
-    if "/internal/" in _file or "\\internal\\" in _file \
-       or "/_internal/" in _file or "\\_internal\\" in _file:
-        return False
-    if name.startswith("_"):
-        return False
-
-    if platform == "python":
-        if kind != "class_definition":
-            return False
-        if re.match(r"^I[A-Z]", name):
-            return False
-        return True  # includes both regular classes and enum subclasses
-
-    if platform == "java":
-        if entry.get("name") in _JAVA_INTERNAL_CLASSES:
-            return False
-        return kind in _CLASS_KINDS_BY_PLATFORM.get("java", set()) or kind in _ENUM_KINDS
-
-    # FIX-02: .NET namespace-based internal exclusion
-    if platform == "net":
-        class_import = entry.get("class_import", "")
-        if ".Internal." in class_import or ".internal." in class_import:
-            return False
-
-    # .NET, TypeScript, JavaScript
-    class_kinds = _CLASS_KINDS_BY_PLATFORM.get(platform, set())
-    if kind in class_kinds or kind in _ENUM_KINDS:
-        return True
-    return False
+# _passes_platform_scope is imported from lib.reference_filter (TC-REF-11).
+# The authoritative implementation now lives there and is shared with the CI
+# validator (check_reference_index_structure.py).  Do not re-define it here.
 
 
 def _apply_kind_filter(entries: list[dict], kind_arg: str, platform: str) -> list[dict]:
@@ -1193,7 +1100,6 @@ def generate_grouped_index(
 
     # Filter to platform-appropriate entries
     entries = [e for e in api_surface if _passes_platform_scope(e, platform)]
-    entries = [e for e in entries if e.get("name") not in _JAVA_INTERNAL_CLASSES]
     entries = [e for e in entries if e.get("visibility") != "internal"]
 
     if len(entries) < 5:
