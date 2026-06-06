@@ -3425,3 +3425,165 @@ scripts:
     deprecated_since: null
     change_impact: null
     notes: "FD-LOCALE-001: translates untranslated subtitle: fields in locale _index.md files; uses LLM translation backend"
+
+  # ── Autonomous Content Tooling (ACT) — Wave 1 ────────────────────────────
+
+  - path: scripts/pipeline/lib/fact_graph.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [tests/test_fact_graph.py]
+    deprecated_since: null
+    change_impact: "Core knowledge representation; changes affect all downstream consumers"
+    notes: "Canonical fact graph schema, Fact/FactGraph classes, compile_fact_graph()"
+
+  - path: scripts/pipeline/lib/product_state.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [tests/test_product_state.py]
+    deprecated_since: null
+    change_impact: "Product lifecycle state machine; changes affect autonomous runner"
+    notes: "Phase/StopReason enums, ProductState with validated transitions, infer_phase()"
+
+  - path: scripts/pipeline/lib/external_signals.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [tests/test_external_signals.py]
+    deprecated_since: null
+    change_impact: null
+    notes: "Advisory external signal schema; ExternalSignal always advisory=True"
+
+  - path: scripts/pipeline/commands/knowledge/fact_graph_compiler.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python fact_graph_compiler.py {family} {platform} [--output PATH]"
+    owner_domain: knowledge
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [tests/test_fact_graph.py]
+    deprecated_since: null
+    change_impact: null
+    notes: "CLI wrapper for compile_fact_graph(); reads merged/ artifacts, writes fact_graph.json"
+
+  - path: scripts/pipeline/commands/content/page_plan_compiler.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python page_plan_compiler.py {family} {platform} --fact-graph PATH [--output PATH]"
+    owner_domain: content
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [tests/test_page_plan_compiler.py]
+    deprecated_since: null
+    change_impact: null
+    notes: "Deterministic page plan from fact graph; no LLM, no content/ writes"
+
+  - path: scripts/pipeline/commands/knowledge/skill_seekers_adapter.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python skill_seekers_adapter.py {family} {platform} [--input PATH] [--output PATH]"
+    owner_domain: knowledge
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [tests/test_external_signals.py]
+    deprecated_since: null
+    change_impact: null
+    notes: "Advisory adapter for Skill Seekers; produces ExternalSignal batch; empty if not installed"
+
+  - path: scripts/pipeline/commands/ops/autonomous_runner.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python autonomous_runner.py --dry-run --family F --platform P --output-dir PATH"
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [tests/test_autonomous_runner.py]
+    deprecated_since: null
+    change_impact: "Autonomous pipeline orchestration; --dry-run mandatory"
+    notes: "Dry-run only runner; reads/infers product state, emits next_action.json + audit_log.jsonl"
+
+  - path: scripts/pipeline/lib/schema_validators.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [tests/test_schema_validators.py]
+    deprecated_since: null
+    change_impact: null
+    notes: "Schema validators for ACT pipeline JSON outputs; validate_fact_graph, validate_page_plan, etc."
+
+  - path: scripts/pipeline/commands/content/shadow_content_generator.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "{family} {platform} --page-plan PATH --fact-graph PATH --output-dir PATH [--page-types T] [--limit N] [--dry-run]"
+    owner_domain: content
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [tests/test_shadow_pilot.py]
+    deprecated_since: null
+    change_impact: "Shadow content generation; outputs to reports/ only, never content/"
+    notes: "Generates draft markdown candidates from page_plan + fact_graph. Safety: _is_forbidden_output blocks content/ writes."
+
+  - path: scripts/pipeline/lib/claim_mapper.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [tests/test_shadow_pilot.py]
+    deprecated_since: null
+    change_impact: null
+    notes: "Claim mapping and verification for shadow candidates; extract_fact_refs, build_claim_map, verify_candidates."
