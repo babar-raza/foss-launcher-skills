@@ -35,6 +35,11 @@ class Phase(str, Enum):
     QUALITY_EVALUATED = "quality_evaluated"
     REGRESSION_PASSED = "regression_passed"
     READY_FOR_REVIEW = "ready_for_review"
+    # Agent Decision Board phases
+    AGENT_REVIEWED = "agent_reviewed"
+    REPAIR_REQUIRED = "repair_required"
+    APPROVED_FOR_DRAFT_WRITE = "approved_for_draft_write"
+    DRAFT_WRITTEN = "draft_written"
     BLOCKED_EXTERNAL = "blocked_external"
     RETRYABLE_FAILURE = "retryable_failure"
     QUARANTINED = "quarantined"
@@ -53,6 +58,11 @@ class StopReason(str, Enum):
     QUARANTINED_REPEATED_FAILURE = "quarantined_repeated_failure"
     READY_FOR_PUBLISH_APPROVAL = "ready_for_publish_approval"
     READY_FOR_HUMAN_REVIEW = "ready_for_human_review"
+    READY_FOR_AGENT_REVIEW = "ready_for_agent_review"
+    AGENT_APPROVED = "agent_approved_for_draft_write"
+    REPAIR_NEEDED = "repair_needed"
+    DRAFT_WRITE_COMPLETE = "draft_write_complete"
+    NON_DELEGABLE = "non_delegable_human_required"
     RETRYABLE_FAILURE = "retryable_failure"
 
 
@@ -68,12 +78,17 @@ ALLOWED_TRANSITIONS: dict[Phase, set[Phase]] = {
     Phase.CLAIMS_VERIFIED: {Phase.QUALITY_EVALUATED, Phase.RETRYABLE_FAILURE},
     Phase.QUALITY_EVALUATED: {Phase.REGRESSION_PASSED, Phase.RETRYABLE_FAILURE},
     Phase.REGRESSION_PASSED: {Phase.READY_FOR_REVIEW},
-    Phase.READY_FOR_REVIEW: {Phase.BLOCKED_EXTERNAL, Phase.DISCOVERED},
-    Phase.BLOCKED_EXTERNAL: {Phase.READY_FOR_REVIEW, Phase.DISCOVERED},
+    Phase.READY_FOR_REVIEW: {Phase.AGENT_REVIEWED, Phase.BLOCKED_EXTERNAL, Phase.DISCOVERED},
+    # Agent Decision Board phases
+    Phase.AGENT_REVIEWED: {Phase.APPROVED_FOR_DRAFT_WRITE, Phase.REPAIR_REQUIRED, Phase.QUARANTINED, Phase.BLOCKED_EXTERNAL},
+    Phase.REPAIR_REQUIRED: {Phase.AGENT_REVIEWED, Phase.QUARANTINED, Phase.RETRYABLE_FAILURE},
+    Phase.APPROVED_FOR_DRAFT_WRITE: {Phase.DRAFT_WRITTEN, Phase.BLOCKED_EXTERNAL, Phase.RETRYABLE_FAILURE},
+    Phase.DRAFT_WRITTEN: {Phase.DISCOVERED},  # Cycle back for next iteration
+    Phase.BLOCKED_EXTERNAL: {Phase.READY_FOR_REVIEW, Phase.AGENT_REVIEWED, Phase.DISCOVERED},
     Phase.RETRYABLE_FAILURE: {
         Phase.SNAPSHOT_CAPTURED, Phase.FACTS_EXTRACTED, Phase.FACTS_VERIFIED,
         Phase.PLAN_COMPILED, Phase.CONTENT_GENERATED, Phase.CLAIMS_VERIFIED,
-        Phase.QUALITY_EVALUATED, Phase.QUARANTINED,
+        Phase.QUALITY_EVALUATED, Phase.AGENT_REVIEWED, Phase.QUARANTINED,
     },
     Phase.QUARANTINED: {Phase.DISCOVERED},  # Only manual reset
 }
@@ -123,7 +138,13 @@ class ProductState:
         elif to_phase == Phase.BLOCKED_EXTERNAL:
             self.stop_reason = StopReason.BLOCKED_EXTERNAL_APPROVAL.value
         elif to_phase == Phase.READY_FOR_REVIEW:
-            self.stop_reason = StopReason.READY_FOR_HUMAN_REVIEW.value
+            self.stop_reason = StopReason.READY_FOR_AGENT_REVIEW.value
+        elif to_phase == Phase.APPROVED_FOR_DRAFT_WRITE:
+            self.stop_reason = StopReason.AGENT_APPROVED.value
+        elif to_phase == Phase.REPAIR_REQUIRED:
+            self.stop_reason = StopReason.REPAIR_NEEDED.value
+        elif to_phase == Phase.DRAFT_WRITTEN:
+            self.stop_reason = StopReason.DRAFT_WRITE_COMPLETE.value
         else:
             self.stop_reason = StopReason.CONTINUE.value
             if from_phase == Phase.RETRYABLE_FAILURE:
@@ -144,6 +165,8 @@ class ProductState:
         """Check if current phase is a terminal/blocking state."""
         return Phase(self.phase) in {
             Phase.READY_FOR_REVIEW,
+            Phase.APPROVED_FOR_DRAFT_WRITE,
+            Phase.DRAFT_WRITTEN,
             Phase.BLOCKED_EXTERNAL,
             Phase.QUARANTINED,
         }

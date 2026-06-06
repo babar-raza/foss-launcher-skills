@@ -91,6 +91,8 @@ def validate_product_state(data: dict) -> list[str]:
         "discovered", "source_changed", "snapshot_captured", "facts_extracted",
         "facts_verified", "plan_compiled", "content_generated", "claims_verified",
         "quality_evaluated", "regression_passed", "ready_for_review",
+        "agent_reviewed", "repair_required", "approved_for_draft_write",
+        "draft_written",
         "blocked_external", "retryable_failure", "quarantined",
     }
     if "phase" in data and data["phase"] not in valid_phases:
