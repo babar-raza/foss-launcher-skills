@@ -3587,3 +3587,67 @@ scripts:
     deprecated_since: null
     change_impact: null
     notes: "Claim mapping and verification for shadow candidates; extract_fact_refs, build_claim_map, verify_candidates."
+
+  - path: scripts/pipeline/lib/agent_decision_board.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [tests/test_shadow_pilot.py]
+    deprecated_since: null
+    change_impact: "Agent decision board for shadow candidates; replaces human review for routine decisions"
+    notes: "Evaluates shadow candidates using quality scoring + claim verification → APPROVED_FOR_DRAFT_WRITE/REPAIR_REQUIRED/QUARANTINED"
+
+  - path: scripts/pipeline/lib/candidate_repair.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [tests/test_shadow_pilot.py]
+    deprecated_since: null
+    change_impact: "Automated repair for REPAIR_REQUIRED candidates (metadata, stubs, forbidden terms)"
+    notes: "Deterministic fixes only (no LLM). Low-word-count issues flagged but not auto-fixed."
+
+  - path: scripts/pipeline/lib/content_quality.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [tests/test_shadow_pilot.py]
+    deprecated_since: null
+    change_impact: "10-gate quality scoring for shadow candidates; used by agent_decision_board"
+    notes: "score_candidate() → CandidateScore with per-gate QualityGate verdicts; no LLM dependency"
+
+  - path: scripts/pipeline/lib/controlled_draft_writer.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [tests/test_shadow_pilot.py]
+    deprecated_since: null
+    change_impact: "Safe content/ writes for agent-approved candidates; rollback manifest written before any write"
+    notes: "Writes only when: APPROVED_FOR_DRAFT_WRITE + draft:true + shadow_candidate:true + verified claims + rollback manifest exists"
