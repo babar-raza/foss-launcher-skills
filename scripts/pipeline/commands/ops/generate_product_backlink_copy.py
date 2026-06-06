@@ -99,12 +99,12 @@ Rules:
 - Insert exactly one Markdown link: [anchor text](target URL)
 - Target URL must be exactly: {resolved_target_url}
 - Place the link near the end of the overview, before the final sentence mentioning MIT license or GitHub.
-- Anchor text must use Enterprise positioning with em dash separator (e.g., "Aspose.Words for Python — Enterprise Product", "Aspose.Cells — Enterprise Product Family").
-- For platform pages use "{{Family}} for {{Platform}} — Enterprise Product"; for family pages use "{{Family}} — Enterprise Product Family".
+- Anchor text must use an em dash separator (e.g., "Aspose.Words for Python — Product Suite", "Aspose.Cells — Product Suite").
+- For platform pages use "{{Family}} for {{Platform}} — Product Suite"; for family pages use "{{Family}} — Product Suite".
 - Do not add hype, "buy now", "click here", "best", "ultimate", or sales language.
 - Do not use vague leads: forbidden phrases include "For more capabilities", "For more advanced capabilities", "For more advanced functionality", "For more features", "For additional features", "For additional capabilities", "For extended functionality", "refer to the [", "consider [".
 - Do not use deprecated commercial wording: forbidden phrases include "commercial edition", "commercial licensing", "commercial support", "commercial version", "commercial product family".
-- The lead sentence MUST NOT repeat what the anchor already says. If the anchor says "Enterprise Product Family", the lead must not also say "enterprise product family". Write a concrete capability or use-case instead.
+- The lead sentence MUST NOT repeat what the anchor already says. Write a concrete capability or use-case instead.
 - Prefer the pattern: "To {{concrete verb phrase about what the developer gains}}, see the [{{Anchor}}]({{url}})."
 - Do not close with "alongside these open-source resources" or "alongside these open-source libraries".
 - Do not duplicate any sentence.
@@ -260,16 +260,12 @@ def validate_output(original: str, output: str, target_url: str) -> tuple[bool, 
     # Rule 8: YAML round-trip (deferred — checked in backfill when writing YAML)
     # We note this as DEFERRED_TO_BACKFILL — not a failure at generation time
 
-    # Rule 9: repetitive enterprise anchor — lead must not restate what the anchor already says
-    # e.g. "for the enterprise product family, see [... Enterprise Product Family]" is FAIL
+    # Rule 9: repetitive anchor — lead must not restate what the anchor already says
+    # e.g. "to access the product suite, see [... Product Suite]" is FAIL
     anchor_text_lower = links[0][0].lower()
     lead_text = _MD_LINK_RE.split(output)[0].lower()
-    if "enterprise product family" in anchor_text_lower and "enterprise product family" in lead_text:
-        return False, "Repetitive: anchor already says 'Enterprise Product Family' — lead sentence must not repeat it"
-    if "enterprise product" in anchor_text_lower and "enterprise product" in lead_text:
-        # "enterprise product family" covered above; check non-family platform repetition
-        if "enterprise product family" not in anchor_text_lower:
-            return False, "Repetitive: anchor already says 'Enterprise Product' — lead sentence must not repeat it"
+    if "product suite" in anchor_text_lower and "product suite" in lead_text:
+        return False, "Repetitive: anchor already says 'Product Suite' — lead sentence must not repeat it"
 
     return True, ""
 
@@ -313,17 +309,17 @@ def apply_template_fallback(req: BacklinkCopyRequest) -> tuple[str, str]:
 
     if req.page_type == "family":
         # P-3: Family page — lead must NOT restate "enterprise product family" (Rule 9)
-        sentence = f"To access the complete API with production-grade support, see [{display} \u2014 Enterprise Product Family]({url})."
+        sentence = f"To access the complete API with production-grade support, see [{display} \u2014 Product Suite]({url})."
         template_id = "P-3"
     elif wc <= 140:
         # P-4: Platform page, compact overview
-        sentence = f"To access production-grade features and dedicated support, see [{display} \u2014 Enterprise Product]({url})."
+        sentence = f"To access production-grade features and dedicated support, see [{display} \u2014 Product Suite]({url})."
         template_id = "P-4"
     else:
         # P-1: Platform page, API bridge (default for long overviews)
         sentence = (
-            f"To access the complete {display} API with production-grade support and enterprise features, "
-            f"see [{display} \u2014 Enterprise Product]({url})."
+            f"To access the complete {display} API with production-grade support and extended features, "
+            f"see [{display} \u2014 Product Suite]({url})."
         )
         template_id = "P-1"
 
