@@ -9,8 +9,11 @@ Checks performed:
   3. Contains bundle-validation.json
   4. All files listed in manifest exist in ZIP
   5. HEAD SHA values are consistent across files
-  6. No PROPOSED/IN_PROGRESS taskcards (if taskcard-state file exists)
+  6. No PROPOSED/IN_PROGRESS taskcards (handles flat, nested, and list formats)
   7. 00-final-verdict.md exists in ZIP
+  8. bundle-validation.json recorded ZIP size/SHA matches actual ZIP (sidecar pattern allowed)
+  9. evidence-checksums.sha256 file exists (WARN if absent, not FAIL)
+ 10. All taskcards have terminal statuses (not CLOSED_SCAFFOLDED, CLOSED_CLASSIFIED, etc.)
 
 Usage:
     python validate_evidence_bundle.py <path-to-bundle.zip>
@@ -29,6 +32,15 @@ import zipfile
 
 SHA_PATTERN = re.compile(r"\b[0-9a-f]{40}\b")
 TASKCARD_BAD_STATES = {"PROPOSED", "IN_PROGRESS"}
+TASKCARD_TERMINAL_STATUSES = {
+    "CLOSED_VERIFIED", "CLOSED_IMPLEMENTED_VERIFIED", "CLOSED_SKIPPED_WITH_REASON",
+    "BLOCKED_EXTERNAL_GATE", "BLOCKED_GOVERNANCE", "COMPLETE",
+}
+# Top-level metadata keys in nested taskcard-state files; not card IDs.
+_TASKCARD_META_KEYS = frozenset(
+    {"sprint", "head", "generated_at", "note", "note_zip_stats",
+     "open_taskcards", "proposed_or_in_progress", "taskcards"}
+)
 
 
 def check_zip_readable(path: str) -> dict:
@@ -151,6 +163,26 @@ def check_head_consistency(zf: zipfile.ZipFile) -> dict:
             "detail": f"Multiple HEAD SHAs found: {dict(sha_sources)}"}
 
 
+def _iter_taskcard_statuses(data):
+    """Yield (card_id, status_str) from any taskcard-state format."""
+    if isinstance(data, dict):
+        if "taskcards" in data and isinstance(data["taskcards"], list):
+            # Nested format: {"taskcards": [{"id": "T-1", "status": "..."}, ...]}
+            for item in data["taskcards"]:
+                if isinstance(item, dict):
+                    yield (item.get("id", "?"), item.get("status", item.get("state", "")))
+        else:
+            # Flat format: {"card_id": "STATUS", ...}
+            for card_id, state in data.items():
+                if card_id not in _TASKCARD_META_KEYS:
+                    yield (card_id, state if isinstance(state, str) else str(state))
+    elif isinstance(data, list):
+        # Bare list format: [{"id": "T-1", "status": "..."}, ...]
+        for item in data:
+            if isinstance(item, dict):
+                yield (item.get("id", "?"), item.get("status", item.get("state", "")))
+
+
 def check_no_open_taskcards(zf: zipfile.ZipFile) -> dict:
     """Check 6: No PROPOSED/IN_PROGRESS taskcards if taskcard-state exists."""
     state_files = [n for n in zf.namelist() if "taskcard-state" in n.lower()]
@@ -164,23 +196,80 @@ def check_no_open_taskcards(zf: zipfile.ZipFile) -> dict:
             data = json.loads(zf.read(sf))
         except (json.JSONDecodeError, Exception):
             continue
-        if isinstance(data, dict):
-            for card_id, state in data.items():
-                s = state if isinstance(state, str) else str(state)
-                if s.upper() in TASKCARD_BAD_STATES:
-                    bad_entries.append(f"{card_id}={s}")
-        elif isinstance(data, list):
-            for item in data:
-                if isinstance(item, dict):
-                    s = item.get("state", item.get("status", ""))
-                    if str(s).upper() in TASKCARD_BAD_STATES:
-                        bad_entries.append(str(item))
+        for card_id, s in _iter_taskcard_statuses(data):
+            if str(s).upper() in TASKCARD_BAD_STATES:
+                bad_entries.append(f"{card_id}={s}")
 
     if bad_entries:
         return {"check": "no_open_taskcards", "status": "FAIL",
                 "detail": f"Open taskcards: {bad_entries}"}
     return {"check": "no_open_taskcards", "status": "PASS",
             "detail": "No PROPOSED/IN_PROGRESS taskcards"}
+
+
+def check_zip_stats_consistent(path: str, zf: zipfile.ZipFile) -> dict:
+    """Check 8: bundle-validation.json recorded ZIP stats match actual ZIP."""
+    bv_files = [n for n in zf.namelist() if n.endswith("bundle-validation.json")]
+    if not bv_files:
+        return {"check": "zip_stats_consistent", "status": "FAIL",
+                "detail": "No bundle-validation.json found to read ZIP stats from"}
+    try:
+        data = json.loads(zf.read(bv_files[0]))
+    except json.JSONDecodeError:
+        return {"check": "zip_stats_consistent", "status": "FAIL",
+                "detail": "bundle-validation.json is not valid JSON"}
+    recorded_size = data.get("final_zip_size_bytes")
+    recorded_sha = data.get("final_zip_sha256")
+    # Sidecar pattern: null/absent fields mean external sidecar holds stats — allowed.
+    if recorded_size is None or recorded_sha is None:
+        return {"check": "zip_stats_consistent", "status": "PASS",
+                "detail": "ZIP stats absent in bundle-validation.json (sidecar pattern) "
+                          "— external verification required"}
+    actual_size = os.path.getsize(path)
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    actual_sha = h.hexdigest()
+    if actual_size != recorded_size or actual_sha != recorded_sha:
+        return {"check": "zip_stats_consistent", "status": "FAIL",
+                "detail": (f"Size mismatch: recorded={recorded_size} actual={actual_size}; "
+                           f"SHA256 mismatch: recorded={recorded_sha} actual={actual_sha}")}
+    return {"check": "zip_stats_consistent", "status": "PASS",
+            "detail": f"ZIP stats consistent: {actual_size}B / {actual_sha[:16]}..."}
+
+
+def check_checksums_file_exists(zf: zipfile.ZipFile) -> dict:
+    """Check 9: evidence-checksums.sha256 file exists in bundle."""
+    matches = [n for n in zf.namelist()
+               if "checksums" in n.lower() and n.endswith(".sha256")]
+    if matches:
+        return {"check": "checksums_file_exists", "status": "PASS",
+                "detail": f"Found: {matches}"}
+    return {"check": "checksums_file_exists", "status": "WARN",
+            "detail": "No *checksums*.sha256 found (older bundles may predate this convention)"}
+
+
+def check_taskcard_terminal_status(zf: zipfile.ZipFile) -> dict:
+    """Check 10: All taskcards have terminal statuses (not CLOSED_SCAFFOLDED etc.)."""
+    state_files = [n for n in zf.namelist() if "taskcard-state" in n.lower()]
+    if not state_files:
+        return {"check": "taskcard_terminal_status", "status": "FAIL",
+                "detail": "No taskcard-state file found"}
+    non_terminal = []
+    for sf in state_files:
+        try:
+            data = json.loads(zf.read(sf))
+        except Exception:
+            continue
+        for card_id, s in _iter_taskcard_statuses(data):
+            if s and str(s).upper() not in TASKCARD_TERMINAL_STATUSES:
+                non_terminal.append(f"{card_id}={s}")
+    if non_terminal:
+        return {"check": "taskcard_terminal_status", "status": "FAIL",
+                "detail": f"Non-terminal taskcards: {non_terminal}"}
+    return {"check": "taskcard_terminal_status", "status": "PASS",
+            "detail": "All taskcards have terminal statuses"}
 
 
 def check_final_verdict_exists(zf: zipfile.ZipFile) -> dict:
@@ -229,6 +318,9 @@ def validate(path: str) -> dict:
         results.append(check_head_consistency(zf))
         results.append(check_no_open_taskcards(zf))
         results.append(check_final_verdict_exists(zf))
+        results.append(check_zip_stats_consistent(path, zf))
+        results.append(check_checksums_file_exists(zf))
+        results.append(check_taskcard_terminal_status(zf))
 
     # Metadata
     meta = compute_zip_metadata(path)
