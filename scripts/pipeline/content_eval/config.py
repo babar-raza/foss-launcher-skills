@@ -89,7 +89,6 @@ EXPERIMENTAL_EVALUATORS = frozenset({
     "capability_claim_check",
     "private_api_usage",
     "evidence_format_validity",
-    "cta_wording",
 })
 
 # Default evaluators (fast, deterministic, production-ready)
@@ -123,6 +122,7 @@ DEFAULT_EVALUATORS = [
     "capability_claim_check",
     "encoding_check",
     "consumer_usefulness",
+    "cta_wording",  # graduated from EXPERIMENTAL 2026-06-09 (TC-CTA-GRADUATION)
 ]
 
 # Platform foreign-code patterns: (regex, description)
