@@ -203,15 +203,18 @@ Do not run any subsequent steps. Exit 0.
 
 10.5. **Backlink audit and backfill** (cross-subdomain See Also injection):
     ```bash
-    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_audit.py {family} {platform}
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_audit.py \
+        --family {family} --platform {platform}
     ```
     If missing backlinks detected:
     ```bash
-    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py {family} {platform} --dry-run
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \
+        --family {family} --platform {platform}
     ```
     Review dry-run output. If acceptable:
     ```bash
-    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py {family} {platform}
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \
+        --family {family} --platform {platform} --write
     ```
     - If backfill modifies files: re-run Step 9 (content-check) on affected files
     - If backfill fails: WARN but do not block refresh (backlinks are additive)
