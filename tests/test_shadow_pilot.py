@@ -39,7 +39,27 @@ from commands.content.shadow_content_generator import (
     main as shadow_main,
 )
 from commands.content.page_plan_compiler import compile_page_plan
-from commands.ops.autonomous_runner import determine_next_action, run_shadow_pipeline
+from commands.ops.autonomous_runner import (
+    determine_next_action, run_shadow_pipeline, run_agent_review_pipeline,
+)
+from lib.content_quality import (
+    CandidateScore, score_candidate, score_candidates_dir,
+    CONTENT_QUALITY_VERSION, MIN_WORD_COUNTS,
+)
+from lib.agent_decision_board import (
+    BoardDecision, BoardVerdict, DecisionType,
+    review_candidate as board_review_candidate,
+    review_candidates as board_review_candidates,
+    is_delegable,
+)
+from lib.candidate_repair import (
+    repair_candidate as do_repair_candidate,
+    repair_candidates_dir,
+)
+from lib.controlled_draft_writer import (
+    check_write_guards, write_approved_candidates,
+    WriteGuardError, RollbackManifest,
+)
 from lib.schema_validators import (
     validate_claim_map,
     validate_claim_verification_report,
@@ -323,7 +343,7 @@ class TestRunnerStateProgression:
         state = ProductState(
             family="pdf", platform="go",
             phase=Phase.READY_FOR_REVIEW.value,
-            stop_reason=StopReason.READY_FOR_HUMAN_REVIEW.value,
+            stop_reason=StopReason.READY_FOR_AGENT_REVIEW.value,
         )
         action = determine_next_action(state)
         assert action["action_id"] == "stop"
@@ -367,7 +387,7 @@ class TestRunnerStateProgression:
         for phase in path:
             state.transition(phase)
         assert state.phase == Phase.READY_FOR_REVIEW.value
-        assert state.stop_reason == StopReason.READY_FOR_HUMAN_REVIEW.value
+        assert state.stop_reason == StopReason.READY_FOR_AGENT_REVIEW.value
         assert state.is_terminal()
 
 
@@ -525,7 +545,7 @@ class TestRunnerShadowOrchestration:
         # via the actual test fixture graph
         summary = _run_synthetic_shadow(graph, tmp_path)
         assert summary["final_phase"] == "ready_for_review"
-        assert summary["stop_reason"] == "ready_for_human_review"
+        assert summary["stop_reason"] == "ready_for_agent_review"
 
     def test_shadow_pipeline_produces_artifacts(self, tmp_path):
         graph = _make_graph()
@@ -593,3 +613,332 @@ def _run_synthetic_shadow(graph: FactGraph, output_dir: Path) -> dict:
 
     append_audit_log(audit_path, {"event": "test_complete", "phase": state.phase})
     return _finalize(state, output_dir, "synthetic test")
+
+
+# ---------------------------------------------------------------------------
+# Content Quality Scoring Tests
+# ---------------------------------------------------------------------------
+
+def _make_candidate(
+    title="Test Class",
+    family="pdf",
+    platform="go",
+    page_type="reference",
+    body_sections=None,
+    fact_refs=None,
+    extra_fm=None,
+):
+    """Build a valid candidate markdown for testing."""
+    fm_lines = [
+        f'title: "{title}"',
+        "draft: true",
+        "shadow_candidate: true",
+        "generator_version: 1.0.0",
+        f"family: {family}",
+        f"platform: {platform}",
+    ]
+    if extra_fm:
+        fm_lines.extend(extra_fm)
+    fm = "\n".join(fm_lines)
+
+    if body_sections is None:
+        body_sections = ["## Description\n\nThis is a test class for PDF processing.",
+                         "## Methods\n\n- `Open()` — opens a document.\n- `Close()` — closes.",
+                         "## See Also\n\n- [Related](link)"]
+    body = "\n\n".join(body_sections)
+
+    if fact_refs is None:
+        fact_refs = ["<!-- fact_ref: FG-abc123def456 -->"]
+    body += "\n" + "\n".join(fact_refs)
+
+    return f"---\n{fm}\n---\n\n{body}\n"
+
+
+class TestContentQualityScoring:
+    def test_perfect_candidate_passes_all_gates(self):
+        content = _make_candidate()
+        score = score_candidate(content, "test.md", "reference")
+        assert score.passed is True
+        assert score.failed_gates == 0
+        assert score.total_gates == 10
+
+    def test_missing_draft_fails_gate(self):
+        content = _make_candidate().replace("draft: true", "draft: false")
+        score = score_candidate(content, "test.md", "reference")
+        assert score.passed is False
+        failed_ids = [g.gate_id for g in score.gates if not g.passed]
+        assert "draft_true" in failed_ids
+
+    def test_missing_fact_refs_fails_gate(self):
+        content = _make_candidate(fact_refs=[])
+        score = score_candidate(content, "test.md", "reference")
+        assert score.passed is False
+        failed_ids = [g.gate_id for g in score.gates if not g.passed]
+        assert "has_fact_refs" in failed_ids
+
+    def test_forbidden_terms_detected(self):
+        content = _make_candidate(body_sections=[
+            "## Description\n\nThis is a TODO placeholder for testing.",
+            "## Methods\n\n- `Open()`",
+            "## See Also\n\n- link",
+        ])
+        score = score_candidate(content, "test.md", "reference")
+        failed_ids = [g.gate_id for g in score.gates if not g.passed]
+        assert "no_forbidden_terms" in failed_ids
+
+    def test_score_candidates_dir(self, tmp_path):
+        (tmp_path / "a.md").write_text(_make_candidate(title="A"), encoding="utf-8")
+        (tmp_path / "b.md").write_text(_make_candidate(title="B"), encoding="utf-8")
+        scores = score_candidates_dir(tmp_path)
+        assert len(scores) == 2
+        assert all(s.passed for s in scores)
+
+    def test_low_word_count(self):
+        content = _make_candidate(body_sections=["## Description\n\nShort."])
+        score = score_candidate(content, "test.md", "reference")
+        failed_ids = [g.gate_id for g in score.gates if not g.passed]
+        assert "min_word_count" in failed_ids
+
+
+# ---------------------------------------------------------------------------
+# Agent Decision Board Tests
+# ---------------------------------------------------------------------------
+
+class TestAgentDecisionBoard:
+    def test_perfect_candidate_approved(self):
+        content = _make_candidate()
+        decision = board_review_candidate(content, "test.md", "reference")
+        assert decision.decision == DecisionType.APPROVED.value
+        assert decision.gate_pass_ratio == 1.0
+
+    def test_broken_candidate_repair_required(self):
+        content = _make_candidate().replace("draft: true", "draft: false")
+        decision = board_review_candidate(content, "test.md", "reference")
+        assert decision.decision in (DecisionType.REPAIR_REQUIRED.value, DecisionType.QUARANTINED.value)
+
+    def test_batch_review_all_approved(self, tmp_path):
+        for i in range(3):
+            (tmp_path / f"page_{i}.md").write_text(
+                _make_candidate(title=f"Page {i}"), encoding="utf-8",
+            )
+        verdict = board_review_candidates(tmp_path, "pdf", "go")
+        assert verdict.verdict == "approved_for_draft_write"
+        assert verdict.approved == 3
+
+    def test_delegability_first_launch(self, tmp_path):
+        content_dir = tmp_path / "content"
+        content_dir.mkdir()
+        delegable, reason = is_delegable("newprod", "newplat", content_dir)
+        assert delegable is False
+        assert "first launch" in reason
+
+    def test_delegability_existing_product(self, tmp_path):
+        content_dir = tmp_path / "content"
+        ref_dir = content_dir / "reference.aspose.org" / "en" / "pdf" / "go"
+        ref_dir.mkdir(parents=True)
+        (ref_dir / "page.md").write_text("existing", encoding="utf-8")
+        delegable, reason = is_delegable("pdf", "go", content_dir)
+        assert delegable is True
+
+    def test_non_delegable_verdict(self, tmp_path):
+        content_dir = tmp_path / "content"
+        content_dir.mkdir()
+        cands = tmp_path / "candidates"
+        cands.mkdir()
+        (cands / "page.md").write_text(_make_candidate(), encoding="utf-8")
+        verdict = board_review_candidates(
+            cands, "newprod", "newplat", content_dir=content_dir,
+        )
+        assert verdict.verdict == "non_delegable_human_required"
+        assert verdict.non_delegable == 1
+
+    def test_verdict_serialization(self, tmp_path):
+        cands = tmp_path / "candidates"
+        cands.mkdir()
+        (cands / "page.md").write_text(_make_candidate(), encoding="utf-8")
+        verdict = board_review_candidates(cands, "pdf", "go")
+        verdict.write(tmp_path / "verdict.json")
+        data = json.loads((tmp_path / "verdict.json").read_text(encoding="utf-8"))
+        assert data["schema_version"] == "1.0.0"
+        assert data["approved"] == 1
+
+
+# ---------------------------------------------------------------------------
+# Candidate Repair Tests
+# ---------------------------------------------------------------------------
+
+class TestCandidateRepair:
+    def test_repair_draft_false(self):
+        content = _make_candidate().replace("draft: true", "draft: false")
+        result = do_repair_candidate(content, "test.md", "reference", "pdf", "go")
+        assert any(a.gate_id == "draft_true" for a in result.actions)
+        assert "draft: true" in result.repaired_content
+
+    def test_repair_shadow_marker(self):
+        content = _make_candidate().replace("shadow_candidate: true", "shadow_candidate: false")
+        result = do_repair_candidate(content, "test.md", "reference", "pdf", "go")
+        assert any(a.gate_id == "shadow_marker" for a in result.actions)
+
+    def test_cannot_repair_missing_facts(self):
+        content = _make_candidate(fact_refs=[])
+        result = do_repair_candidate(content, "test.md", "reference", "pdf", "go")
+        assert "has_fact_refs" in result.remaining_failures
+
+    def test_repair_forbidden_terms(self):
+        content = _make_candidate(body_sections=[
+            "## Description\n\nThis contains a TODO item and FIXME note with enough words for the minimum.",
+            "## Methods\n\n- `Open()` method opens and processes documents for various operations.",
+            "## See Also\n\n- [Related](link)",
+        ])
+        result = do_repair_candidate(content, "test.md", "reference", "pdf", "go")
+        assert "TODO" not in result.repaired_content
+        assert "FIXME" not in result.repaired_content
+
+    def test_batch_repair(self, tmp_path):
+        content = _make_candidate().replace("draft: true", "draft: false")
+        (tmp_path / "broken.md").write_text(content, encoding="utf-8")
+        results = repair_candidates_dir(tmp_path, family="pdf", platform="go", write_back=True)
+        assert len(results) == 1
+        repaired = (tmp_path / "broken.md").read_text(encoding="utf-8")
+        assert "draft: true" in repaired
+
+
+# ---------------------------------------------------------------------------
+# Controlled Draft Writer Tests
+# ---------------------------------------------------------------------------
+
+class TestControlledDraftWriter:
+    def test_write_guard_blocks_non_approved(self):
+        verdict = BoardVerdict(verdict="repair_required", approved=0)
+        errors = check_write_guards(verdict, dry_run=True)
+        assert len(errors) > 0
+        assert any("approved" in e or "repair" in e for e in errors)
+
+    def test_write_guard_passes_approved(self):
+        verdict = BoardVerdict(verdict="approved_for_draft_write", approved=5)
+        errors = check_write_guards(verdict, dry_run=True)
+        assert len(errors) == 0
+
+    def test_write_guard_blocks_live_mode(self):
+        verdict = BoardVerdict(verdict="approved_for_draft_write", approved=5)
+        errors = check_write_guards(verdict, dry_run=False)
+        assert any("dry_run" in e or "live" in e for e in errors)
+
+    def test_dry_run_write_produces_manifest(self, tmp_path):
+        cands = tmp_path / "candidates"
+        cands.mkdir()
+        (cands / "page.md").write_text(_make_candidate(), encoding="utf-8")
+
+        verdict = BoardVerdict(
+            family="pdf", platform="go",
+            verdict="approved_for_draft_write", approved=1,
+            decisions=[BoardDecision(
+                candidate_path="page.md",
+                decision=DecisionType.APPROVED.value,
+                gate_pass_ratio=1.0,
+            )],
+        )
+        out = tmp_path / "output"
+        out.mkdir()
+        manifest = write_approved_candidates(
+            cands, verdict, {"page.md": "reference"},
+            tmp_path, out, dry_run=True,
+        )
+        assert manifest.dry_run is True
+        assert len(manifest.files_written) == 1
+        assert (out / "rollback_manifest.json").exists()
+
+    def test_rollback_manifest_round_trip(self, tmp_path):
+        manifest = RollbackManifest(family="pdf", platform="go", dry_run=True)
+        manifest.write(tmp_path / "manifest.json")
+        loaded = RollbackManifest.read(tmp_path / "manifest.json")
+        assert loaded.family == "pdf"
+        assert loaded.dry_run is True
+
+
+# ---------------------------------------------------------------------------
+# New Product State Phases Tests
+# ---------------------------------------------------------------------------
+
+class TestNewProductStatePhases:
+    def test_ready_for_review_to_agent_reviewed(self):
+        state = ProductState(phase=Phase.READY_FOR_REVIEW.value)
+        state.transition(Phase.AGENT_REVIEWED, reason="reviewed")
+        assert state.phase == Phase.AGENT_REVIEWED.value
+
+    def test_agent_reviewed_to_approved(self):
+        state = ProductState(phase=Phase.AGENT_REVIEWED.value)
+        state.transition(Phase.APPROVED_FOR_DRAFT_WRITE, reason="all passed")
+        assert state.phase == Phase.APPROVED_FOR_DRAFT_WRITE.value
+        assert state.stop_reason == StopReason.AGENT_APPROVED.value
+
+    def test_agent_reviewed_to_repair(self):
+        state = ProductState(phase=Phase.AGENT_REVIEWED.value)
+        state.transition(Phase.REPAIR_REQUIRED, reason="3 need repair")
+        assert state.phase == Phase.REPAIR_REQUIRED.value
+        assert state.stop_reason == StopReason.REPAIR_NEEDED.value
+
+    def test_agent_reviewed_to_quarantine(self):
+        state = ProductState(phase=Phase.AGENT_REVIEWED.value)
+        state.transition(Phase.QUARANTINED, reason="too many failures")
+        assert state.phase == Phase.QUARANTINED.value
+
+    def test_approved_to_draft_written(self):
+        state = ProductState(phase=Phase.APPROVED_FOR_DRAFT_WRITE.value)
+        state.transition(Phase.DRAFT_WRITTEN, reason="wrote 5 files")
+        assert state.phase == Phase.DRAFT_WRITTEN.value
+        assert state.stop_reason == StopReason.DRAFT_WRITE_COMPLETE.value
+
+    def test_repair_back_to_agent_reviewed(self):
+        state = ProductState(phase=Phase.REPAIR_REQUIRED.value)
+        state.transition(Phase.AGENT_REVIEWED, reason="re-reviewed after repair")
+        assert state.phase == Phase.AGENT_REVIEWED.value
+
+    def test_full_pipeline_to_draft_written(self):
+        state = ProductState(family="pdf", platform="go")
+        phases = [
+            Phase.SNAPSHOT_CAPTURED, Phase.FACTS_EXTRACTED, Phase.FACTS_VERIFIED,
+            Phase.PLAN_COMPILED, Phase.CONTENT_GENERATED, Phase.CLAIMS_VERIFIED,
+            Phase.QUALITY_EVALUATED, Phase.REGRESSION_PASSED, Phase.READY_FOR_REVIEW,
+            Phase.AGENT_REVIEWED, Phase.APPROVED_FOR_DRAFT_WRITE, Phase.DRAFT_WRITTEN,
+        ]
+        for phase in phases:
+            state.transition(phase)
+        assert state.phase == Phase.DRAFT_WRITTEN.value
+
+    def test_approved_is_terminal(self):
+        state = ProductState(phase=Phase.APPROVED_FOR_DRAFT_WRITE.value)
+        assert state.is_terminal()
+
+    def test_draft_written_is_terminal(self):
+        state = ProductState(phase=Phase.DRAFT_WRITTEN.value)
+        assert state.is_terminal()
+
+
+# ---------------------------------------------------------------------------
+# Agent Review Pipeline Integration Test
+# ---------------------------------------------------------------------------
+
+class TestAgentReviewPipeline:
+    def test_agent_review_reaches_approved(self, tmp_path):
+        """End-to-end: shadow pipeline + agent review → APPROVED or BLOCKED_EXTERNAL."""
+        output_dir = tmp_path / "agent_review"
+        output_dir.mkdir(parents=True)
+
+        # Use content_dir pointing to existing content/ so it's not first-launch
+        repo_root = Path(__file__).resolve().parents[1]
+        content_dir = repo_root / "content"
+
+        summary = run_agent_review_pipeline(
+            "pdf", "go", output_dir, content_dir=content_dir,
+        )
+
+        # Pipeline completes to either APPROVED (existing product) or
+        # BLOCKED_EXTERNAL (if no existing content for pdf/go)
+        assert summary["final_phase"] in (
+            Phase.APPROVED_FOR_DRAFT_WRITE.value,
+            Phase.BLOCKED_EXTERNAL.value,
+            Phase.REPAIR_REQUIRED.value,
+        )
+        assert (output_dir / "product_state.json").exists()
+        assert (output_dir / "agent_verdict.json").exists()

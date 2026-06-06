@@ -50,7 +50,7 @@ class TestNextAction:
         state = ProductState(
             family="pdf", platform="go",
             phase=Phase.READY_FOR_REVIEW.value,
-            stop_reason=StopReason.READY_FOR_HUMAN_REVIEW.value,
+            stop_reason=StopReason.READY_FOR_AGENT_REVIEW.value,
         )
         action = determine_next_action(state)
         assert action["action_id"] == "stop"
@@ -65,7 +65,9 @@ class TestNextActionSchema:
     def test_all_actionable_phases_have_commands(self):
         """Every non-terminal phase should produce a command."""
         terminal = {Phase.READY_FOR_REVIEW.value, Phase.BLOCKED_EXTERNAL.value,
-                    Phase.QUARANTINED.value, Phase.RETRYABLE_FAILURE.value}
+                    Phase.QUARANTINED.value, Phase.RETRYABLE_FAILURE.value,
+                    Phase.AGENT_REVIEWED.value, Phase.REPAIR_REQUIRED.value,
+                    Phase.APPROVED_FOR_DRAFT_WRITE.value, Phase.DRAFT_WRITTEN.value}
         for phase in Phase:
             if phase.value in terminal:
                 continue

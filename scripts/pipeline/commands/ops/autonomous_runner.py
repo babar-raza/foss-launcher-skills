@@ -2,18 +2,18 @@
 
 Reads product state (or infers from artifacts), determines next action,
 and emits a next_action.json + audit_log.jsonl. NEVER dispatches content
-writes or publishes.
+writes or publishes without explicit dry_run=False.
 
-Supports two modes:
-  --mode single    (default) Emit next action only.
-  --mode shadow    Run full shadow pipeline: fact graph -> page plan ->
-                   generate candidates -> claim verify -> quality validate ->
-                   state transitions -> READY_FOR_REVIEW or QUARANTINED.
+Supports modes:
+  --mode single         (default) Emit next action only.
+  --mode shadow         Run full shadow pipeline through READY_FOR_REVIEW.
+  --mode agent-review   Run shadow pipeline + Agent Decision Board review.
+  --mode draft-write-dry-run  Full pipeline including dry-run content/ write.
 
 Usage:
     python scripts/pipeline/commands/ops/autonomous_runner.py \\
         --dry-run --family {f} --platform {p} --output-dir PATH \\
-        [--mode shadow] [--max-steps 20]
+        [--mode shadow|agent-review|draft-write-dry-run] [--max-steps 20]
 
 The --dry-run flag is MANDATORY. The runner will refuse to start without it.
 """
@@ -32,7 +32,7 @@ if str(_PIPELINE_ROOT) not in sys.path:
 
 from lib.product_state import Phase, ProductState, StopReason, infer_phase
 
-RUNNER_SCHEMA_VERSION = "1.1.0"
+RUNNER_SCHEMA_VERSION = "2.0.0"
 
 # Phase -> next command mapping
 PHASE_ACTIONS: dict[str, dict[str, str]] = {
@@ -89,7 +89,11 @@ PHASE_ACTIONS: dict[str, dict[str, str]] = {
 }
 
 STOP_ACTIONS: dict[str, str] = {
-    Phase.READY_FOR_REVIEW.value: "Awaiting human review",
+    Phase.READY_FOR_REVIEW.value: "Ready for agent review",
+    Phase.AGENT_REVIEWED.value: "Agent review complete",
+    Phase.APPROVED_FOR_DRAFT_WRITE.value: "Approved for draft write",
+    Phase.REPAIR_REQUIRED.value: "Candidates need repair",
+    Phase.DRAFT_WRITTEN.value: "Draft content written",
     Phase.BLOCKED_EXTERNAL.value: "Blocked on external approval",
     Phase.QUARANTINED.value: "Quarantined — manual intervention required",
     Phase.RETRYABLE_FAILURE.value: "Retrying previous stage",
@@ -303,6 +307,191 @@ def run_shadow_pipeline(
     return _finalize(state, output_dir, "all gates passed")
 
 
+def run_agent_review_pipeline(
+    family: str,
+    platform: str,
+    output_dir: Path,
+    max_steps: int = 20,
+    content_dir: Path | None = None,
+) -> dict:
+    """Run shadow pipeline + Agent Decision Board review.
+
+    Extends run_shadow_pipeline with:
+      - Agent Decision Board review of all candidates
+      - Candidate repair for REPAIR_REQUIRED candidates
+      - Final verdict: APPROVED_FOR_DRAFT_WRITE, REPAIR_REQUIRED, or QUARANTINED
+    """
+    from lib.agent_decision_board import review_candidates, DecisionType
+    from lib.candidate_repair import repair_candidates_dir
+    from lib.content_quality import score_candidates_dir
+
+    audit_path = output_dir / "audit_log.jsonl"
+
+    # Step 1: Run shadow pipeline first
+    shadow_result = run_shadow_pipeline(family, platform, output_dir, max_steps)
+
+    if shadow_result["final_phase"] != Phase.READY_FOR_REVIEW.value:
+        return shadow_result
+
+    # Load state from shadow output
+    state = ProductState.read(output_dir / "product_state.json")
+    candidates_dir = output_dir / "candidates"
+
+    def log(event: str, **kwargs):
+        append_audit_log(audit_path, {
+            "event": event, "family": family, "platform": platform,
+            "phase": state.phase, **kwargs,
+        })
+
+    # Build page_type_map from page plan
+    page_plan = json.loads((output_dir / "page_plan.json").read_text(encoding="utf-8"))
+    page_type_map: dict[str, str] = {}
+    for sd_data in page_plan.get("subdomains", {}).values():
+        for page in sd_data.get("pages", []):
+            slug = page.get("slug", "")
+            safe_name = slug.replace("/", "_").replace("\\", "_").replace(":", "_").replace("<", "_").replace(">", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("|", "_") + ".md"
+            page_type_map[safe_name] = page.get("page_type", "reference")
+
+    # Step 9: Agent Decision Board review
+    log("step_start", action="agent_review")
+    verdict = review_candidates(
+        candidates_dir, family, platform,
+        page_type_map=page_type_map,
+        content_dir=content_dir,
+    )
+    state.transition(Phase.AGENT_REVIEWED, reason=f"reviewed {verdict.total_candidates} candidates")
+
+    # Save verdict
+    verdict.write(output_dir / "agent_verdict.json")
+    log("step_complete", action="agent_review",
+        approved=verdict.approved, repair=verdict.repair_required,
+        quarantined=verdict.quarantined, non_delegable=verdict.non_delegable)
+
+    # Step 10: Repair if needed
+    if verdict.repair_required > 0:
+        log("step_start", action="candidate_repair")
+        repair_results = repair_candidates_dir(
+            candidates_dir, page_type_map, family, platform,
+            write_back=True,
+        )
+        repaired_count = sum(1 for r in repair_results if r.repaired)
+        still_broken = sum(1 for r in repair_results if not r.repaired and r.actions)
+        log("step_complete", action="candidate_repair",
+            repaired=repaired_count, still_broken=still_broken)
+
+        # Re-run agent review after repair
+        verdict = review_candidates(
+            candidates_dir, family, platform,
+            page_type_map=page_type_map,
+            content_dir=content_dir,
+        )
+        verdict.write(output_dir / "agent_verdict_post_repair.json")
+
+    # Determine final state
+    if verdict.verdict == "non_delegable_human_required":
+        state.transition(Phase.BLOCKED_EXTERNAL, reason="non-delegable decision requires human")
+        return _finalize(state, output_dir, "non-delegable — human review required")
+
+    if verdict.verdict == "quarantined":
+        state.transition(Phase.QUARANTINED, reason=f"{verdict.quarantined} candidates quarantined")
+        return _finalize(state, output_dir, f"{verdict.quarantined} quarantined")
+
+    if verdict.verdict == "repair_required":
+        state.transition(Phase.REPAIR_REQUIRED, reason=f"{verdict.repair_required} still need repair")
+        return _finalize(state, output_dir, f"{verdict.repair_required} still need repair after auto-fix")
+
+    if verdict.verdict == "approved_for_draft_write":
+        state.transition(Phase.APPROVED_FOR_DRAFT_WRITE,
+                         reason=f"all {verdict.approved} candidates approved")
+        return _finalize(state, output_dir, f"all {verdict.approved} candidates approved for draft write")
+
+    # Mixed or unexpected
+    state.transition(Phase.REPAIR_REQUIRED, reason=f"mixed verdict: {verdict.verdict}")
+    return _finalize(state, output_dir, f"mixed verdict: {verdict.verdict}")
+
+
+def run_draft_write_pipeline(
+    family: str,
+    platform: str,
+    output_dir: Path,
+    repo_root: Path,
+    max_steps: int = 20,
+    content_dir: Path | None = None,
+    dry_run: bool = True,
+) -> dict:
+    """Full pipeline: shadow + agent review + controlled draft write.
+
+    Always dry_run=True unless explicitly overridden (and even then,
+    the write guard enforces dry_run=True in current version).
+    """
+    from lib.controlled_draft_writer import write_approved_candidates, WriteGuardError
+    from lib.agent_decision_board import BoardVerdict
+
+    # Run agent review pipeline first
+    review_result = run_agent_review_pipeline(
+        family, platform, output_dir, max_steps, content_dir,
+    )
+
+    if review_result["final_phase"] != Phase.APPROVED_FOR_DRAFT_WRITE.value:
+        return review_result
+
+    # Load verdict and state
+    state = ProductState.read(output_dir / "product_state.json")
+    candidates_dir = output_dir / "candidates"
+
+    # Load page_type_map
+    page_plan = json.loads((output_dir / "page_plan.json").read_text(encoding="utf-8"))
+    page_type_map: dict[str, str] = {}
+    for sd_data in page_plan.get("subdomains", {}).values():
+        for page in sd_data.get("pages", []):
+            slug = page.get("slug", "")
+            safe_name = slug.replace("/", "_").replace("\\", "_").replace(":", "_").replace("<", "_").replace(">", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("|", "_") + ".md"
+            page_type_map[safe_name] = page.get("page_type", "reference")
+
+    # Load verdict
+    verdict_path = output_dir / "agent_verdict.json"
+    if (output_dir / "agent_verdict_post_repair.json").exists():
+        verdict_path = output_dir / "agent_verdict_post_repair.json"
+    verdict_data = json.loads(verdict_path.read_text(encoding="utf-8"))
+    verdict = BoardVerdict(**{
+        k: v for k, v in verdict_data.items()
+        if k in BoardVerdict.__dataclass_fields__ and k != "decisions"
+    })
+
+    # Reconstruct decisions
+    from lib.agent_decision_board import BoardDecision
+    verdict.decisions = [BoardDecision(**d) for d in verdict_data.get("decisions", [])]
+
+    # Attempt controlled write
+    audit_path = output_dir / "audit_log.jsonl"
+    try:
+        manifest = write_approved_candidates(
+            candidates_dir, verdict, page_type_map,
+            repo_root, output_dir, dry_run=dry_run,
+        )
+        append_audit_log(audit_path, {
+            "event": "draft_write",
+            "family": family, "platform": platform,
+            "dry_run": dry_run,
+            "files_written": len(manifest.files_written),
+        })
+
+        if not dry_run:
+            state.transition(Phase.DRAFT_WRITTEN,
+                             reason=f"wrote {len(manifest.files_written)} files to content/")
+        return _finalize(state, output_dir,
+                         f"{'dry-run: would write' if dry_run else 'wrote'} "
+                         f"{len(manifest.files_written)} files")
+
+    except WriteGuardError as e:
+        append_audit_log(audit_path, {
+            "event": "draft_write_blocked",
+            "family": family, "platform": platform,
+            "error": str(e),
+        })
+        return _finalize(state, output_dir, f"write blocked: {e}")
+
+
 def _finalize(state: ProductState, output_dir: Path, reason: str) -> dict:
     """Write final state and next_action, return summary."""
     # Write product state
@@ -341,8 +530,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--platform", required=True, help="Platform")
     parser.add_argument("--output-dir", required=True, help="Output directory")
     parser.add_argument("--state-file", help="Path to existing product_state.json (otherwise inferred)")
-    parser.add_argument("--mode", choices=["single", "shadow"], default="single",
-                        help="single: emit next action only; shadow: run full shadow pipeline")
+    parser.add_argument("--mode", choices=["single", "shadow", "agent-review", "draft-write-dry-run"],
+                        default="single",
+                        help="single: next action; shadow: full shadow; agent-review: +board review; draft-write-dry-run: +dry-run write")
     parser.add_argument("--max-steps", type=int, default=20,
                         help="Max steps for shadow mode (default: 20)")
     args = parser.parse_args(argv)
@@ -362,6 +552,32 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  Transitions: {summary['transitions']}")
         print(f"  Reason: {summary['reason']}")
         return 0 if summary["final_phase"] == Phase.READY_FOR_REVIEW.value else 1
+
+    if args.mode == "agent-review":
+        print(f"Running agent review pipeline for {args.family}/{args.platform}...")
+        repo_root = Path(__file__).resolve().parents[4]
+        content_dir = repo_root / "content"
+        summary = run_agent_review_pipeline(
+            args.family, args.platform, output_dir, args.max_steps,
+            content_dir=content_dir,
+        )
+        print(f"  Final phase: {summary['final_phase']}")
+        print(f"  Stop reason: {summary['stop_reason']}")
+        print(f"  Reason: {summary['reason']}")
+        return 0 if summary["final_phase"] == Phase.APPROVED_FOR_DRAFT_WRITE.value else 1
+
+    if args.mode == "draft-write-dry-run":
+        print(f"Running draft-write-dry-run pipeline for {args.family}/{args.platform}...")
+        repo_root = Path(__file__).resolve().parents[4]
+        content_dir = repo_root / "content"
+        summary = run_draft_write_pipeline(
+            args.family, args.platform, output_dir, repo_root,
+            args.max_steps, content_dir=content_dir, dry_run=True,
+        )
+        print(f"  Final phase: {summary['final_phase']}")
+        print(f"  Stop reason: {summary['stop_reason']}")
+        print(f"  Reason: {summary['reason']}")
+        return 0
 
     # Single mode — original behavior
     if args.state_file:

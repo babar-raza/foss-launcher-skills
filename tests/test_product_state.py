@@ -53,7 +53,7 @@ class TestValidTransitions:
         for phase in happy_path:
             state.transition(phase)
         assert state.phase == Phase.READY_FOR_REVIEW.value
-        assert state.stop_reason == StopReason.READY_FOR_HUMAN_REVIEW.value
+        assert state.stop_reason == StopReason.READY_FOR_AGENT_REVIEW.value
         assert len(state.transition_history) == len(happy_path)
 
     def test_discovered_to_source_changed(self):
@@ -71,7 +71,7 @@ class TestValidTransitions:
         state.transition(Phase.BLOCKED_EXTERNAL)
         assert state.stop_reason == StopReason.BLOCKED_EXTERNAL_APPROVAL.value
         state.transition(Phase.READY_FOR_REVIEW)
-        assert state.stop_reason == StopReason.READY_FOR_HUMAN_REVIEW.value
+        assert state.stop_reason == StopReason.READY_FOR_AGENT_REVIEW.value
 
 
 # ---------------------------------------------------------------------------
@@ -153,7 +153,7 @@ class TestStopReasons:
     def test_ready_for_review(self):
         state = ProductState(phase=Phase.REGRESSION_PASSED.value)
         state.transition(Phase.READY_FOR_REVIEW)
-        assert state.stop_reason == StopReason.READY_FOR_HUMAN_REVIEW.value
+        assert state.stop_reason == StopReason.READY_FOR_AGENT_REVIEW.value
 
 
 # ---------------------------------------------------------------------------
