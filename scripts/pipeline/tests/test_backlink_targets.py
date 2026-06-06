@@ -1838,6 +1838,9 @@ def _make_candidate_graph(candidates, sources=None):
 class TestPromoteToAuthority:
     """TC-S: Unit tests for the adjudication → authority promotion path."""
 
+    def _minimal_registry(self):
+        return {"templates": {"default": {"pattern": "Aspose.{family} {platform} API", "fallback": True}}}
+
     def _promoted_record(self, source_key="reference/3d/java/a3dobject",
                          target_path="3d/java/com.aspose.threed/a3dobject",
                          adjudication_result="PROMOTE_WITH_JUSTIFICATION"):
@@ -1871,7 +1874,7 @@ class TestPromoteToAuthority:
         graph = _make_candidate_graph([candidate])
         authority = {"authority": {}}
 
-        result = promote_to_authority(promoted, graph, authority)
+        result = promote_to_authority(promoted, graph, authority, anchor_registry=self._minimal_registry())
 
         assert result["promoted_count"] == 1
         assert result["skipped_count"] == 0
@@ -1884,7 +1887,7 @@ class TestPromoteToAuthority:
         graph = _make_candidate_graph([self._candidate()])
         authority = {"authority": {}}
 
-        promote_to_authority(promoted, graph, authority)
+        promote_to_authority(promoted, graph, authority, anchor_registry=self._minimal_registry())
 
         record = list(authority["authority"].values())[0]
         assert record["allowed_for_generation"] is True
@@ -1895,7 +1898,7 @@ class TestPromoteToAuthority:
         graph = _make_candidate_graph([self._candidate()])
         authority = {"authority": {}}
 
-        promote_to_authority(promoted, graph, authority)
+        promote_to_authority(promoted, graph, authority, anchor_registry=self._minimal_registry())
 
         record = list(authority["authority"].values())[0]
         assert record["target_subdomain"] is not None
@@ -1907,7 +1910,7 @@ class TestPromoteToAuthority:
         graph = _make_candidate_graph([self._candidate()])
         authority = {"authority": {}}
 
-        promote_to_authority(promoted, graph, authority)
+        promote_to_authority(promoted, graph, authority, anchor_registry=self._minimal_registry())
 
         record = list(authority["authority"].values())[0]
         assert record["adjudication_result"] == "PROMOTE_WITH_JUSTIFICATION"
@@ -1942,15 +1945,17 @@ class TestPromoteToAuthority:
         assert "Java" in record["rendered_anchor_text"]
 
     def test_promoted_record_uses_fallback_without_registry(self):
-        """Without anchor_registry, rendered_anchor_text is None."""
+        """Without anchor_registry, record is skipped (null anchor guard prevents promotion)."""
         promoted = [self._promoted_record()]
         graph = _make_candidate_graph([self._candidate()])
         authority = {"authority": {}}
 
-        promote_to_authority(promoted, graph, authority)
+        result = promote_to_authority(promoted, graph, authority, anchor_registry=None)
 
-        record = list(authority["authority"].values())[0]
-        assert record["rendered_anchor_text"] is None
+        assert result["promoted_count"] == 0
+        assert len(result.get("skipped", [])) == 1
+        assert result["skipped"][0]["reason"] == "null_anchor_text"
+        assert len(authority["authority"]) == 0
 
     def test_missing_source_key_skipped(self):
         """If source_key is not found in candidate graph, the record is skipped."""
@@ -1981,7 +1986,7 @@ class TestPromoteToAuthority:
         graph = _make_candidate_graph(candidates)
         authority = {"authority": {}}
 
-        result = promote_to_authority(promoted, graph, authority)
+        result = promote_to_authority(promoted, graph, authority, anchor_registry=self._minimal_registry())
 
         assert result["promoted_count"] == 2
         assert len(authority["authority"]) == 2
@@ -1999,7 +2004,7 @@ class TestPromoteToAuthority:
             "content/reference.aspose.org/en/words/java/document.md": existing_record,
         }}
 
-        result = promote_to_authority(promoted, graph, authority)
+        result = promote_to_authority(promoted, graph, authority, anchor_registry=self._minimal_registry())
 
         assert result["promoted_count"] == 1
         assert len(authority["authority"]) == 2
@@ -2038,7 +2043,7 @@ class TestPromoteToAuthority:
         assert adj_result["promoted"][0]["source_key"] == "reference/3d/java/a3dobject"
 
         # Now promote
-        promo_result = promote_to_authority(adj_result["promoted"], graph, authority)
+        promo_result = promote_to_authority(adj_result["promoted"], graph, authority, anchor_registry=self._minimal_registry())
         assert promo_result["promoted_count"] == 1
 
         record = authority["authority"][list(authority["authority"].keys())[0]]

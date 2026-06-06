@@ -184,6 +184,7 @@ def promote_to_authority(
     promoted_count = 0
     skipped_count = 0
     errors: list[str] = []
+    skipped: list[dict] = []
 
     for p in promoted:
         source_key = p.get("source_key", "")
@@ -235,6 +236,11 @@ def promote_to_authority(
                 rendered_anchor = f"Aspose.{family.title()} — Enterprise Reference"
                 rendered_source = f"fallback:{exc}"
 
+        if rendered_anchor is None:
+            skipped.append({"source_key": source_key, "reason": "null_anchor_text"})
+            skipped_count += 1
+            continue
+
         auth_records[source_path] = {
             "source_path": source_path,
             "source_key": source_key,
@@ -265,6 +271,7 @@ def promote_to_authority(
         "promoted_count": promoted_count,
         "skipped_count": skipped_count,
         "errors": errors,
+        "skipped": skipped,
     }
 
 
@@ -399,6 +406,10 @@ def main() -> None:
     parser.add_argument("--threshold", type=float, default=0.70,
                         help="Minimum final_score for Tier 2 promotion (default: 0.70)")
     args = parser.parse_args()
+
+    if args.write and args.dry_run:
+        print("ERROR: --write and --dry-run are mutually exclusive", file=sys.stderr)
+        sys.exit(1)
 
     # Default to dry-run if neither flag is set
     if not args.write:

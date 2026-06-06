@@ -152,8 +152,9 @@ class TestAuthorityWriteIntegration:
             "target_path": "reference/cells/java/com.aspose.cells/Workbook",
             "adjudication_result": "PROMOTE_WITH_JUSTIFICATION",
         }]
+        anchor_registry = {"templates": {"default": {"pattern": "Aspose.{family} {platform} API", "fallback": True}}}
         authority = _make_authority()
-        result = promote_to_authority(promoted, graph, authority)
+        result = promote_to_authority(promoted, graph, authority, anchor_registry=anchor_registry)
         assert result["promoted_count"] == 1
         assert result["skipped_count"] == 0
 
@@ -242,10 +243,48 @@ class TestEndToEnd:
         result = adjudicate_review_required(graph, authority, dry_run=False, promote_threshold=0.70)
         assert len(result["promoted"]) == 1
 
-        promo_result = promote_to_authority(result["promoted"], graph, authority)
+        anchor_registry = {"templates": {"default": {"pattern": "Aspose.{family} {platform} API", "fallback": True}}}
+        promo_result = promote_to_authority(result["promoted"], graph, authority, anchor_registry=anchor_registry)
         assert promo_result["promoted_count"] == 1
 
         rec = authority["authority"]["docs/cells/java/page1.md"]
         assert rec["allowed_for_generation"] is True
         assert rec["target_subdomain"] == "docs"
         assert rec["adjudicated_from"] == "REVIEW_REQUIRED"
+
+
+# ── Null anchor guard ─────────────────────────────────────────────────────────
+
+
+class TestNullAnchorGuard:
+    def test_null_anchor_text_skipped(self):
+        """When anchor_registry=None, promoted records are skipped (null anchor guard)."""
+        graph = _make_graph(
+            sources=[_make_source("sk1", "docs/cells/java/page1.md")],
+            candidates=[_make_candidate("sk1", "cells/java/com.aspose.cells/Workbook", 0.75)],
+        )
+        promoted = [{
+            "source_key": "sk1",
+            "target_path": "cells/java/com.aspose.cells/Workbook",
+            "adjudication_result": "PROMOTE_WITH_JUSTIFICATION",
+        }]
+        authority = _make_authority()
+        result = promote_to_authority(promoted, graph, authority, anchor_registry=None)
+        # Guard: null anchor → skipped, not promoted
+        assert result["promoted_count"] == 0, "FAIL: null anchor was not blocked"
+        assert len(result.get("skipped", [])) == 1, "FAIL: skipped list not populated"
+        assert result["skipped"][0]["reason"] == "null_anchor_text"
+        # Authority must NOT contain the source page
+        assert "docs/cells/java/page1.md" not in authority["authority"]
+
+    def test_write_and_dry_run_conflict(self):
+        """CLI: --write and --dry-run together → exit code 1 with error message."""
+        import subprocess
+        script = str(REPO_ROOT / "scripts" / "pipeline" / "commands" / "ops" / "backlink_adjudicate_review.py")
+        env = {**__import__("os").environ, "PYTHONPATH": str(REPO_ROOT / "scripts" / "pipeline")}
+        proc = subprocess.run(
+            [sys.executable, script, "--write", "--dry-run"],
+            capture_output=True, text=True, env=env,
+        )
+        assert proc.returncode == 1, f"Expected exit 1, got {proc.returncode}"
+        assert "mutually exclusive" in proc.stderr.lower() or "mutually exclusive" in proc.stdout.lower()
