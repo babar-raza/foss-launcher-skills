@@ -2865,6 +2865,24 @@ scripts:
     change_impact: null
     notes: "BL-DEEP-EXEC-v3.1: CS-013 (gpt-oss) for REVIEW_REQUIRED adjudication; closed-set labels; T2 advisory only; T3 generates operator escalation packets; --dry-run default"
 
+  - path: scripts/pipeline/commands/ops/backlink_expand_reference_index.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python backlink_expand_reference_index.py [--index PATH] [--targets family/platform ...] [--dry-run]"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_backlink_expand_reference_index.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "TIER3-RESIDUAL-001: Expands deep_target_index with synthetic reference_class entries from api_surface.json for families whose reference pages are not on live reference.aspose.com (font/python, note/python, slides/*). Enables stage1 exact class_name match for these families."
+
   - path: scripts/pipeline/commands/ops/backlink_build_enterprise_candidate_inventory.py
     kind: entrypoint
     lifecycle: active
