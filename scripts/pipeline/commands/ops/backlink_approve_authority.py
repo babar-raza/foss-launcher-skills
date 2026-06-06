@@ -15,7 +15,19 @@ Authority records include anchor provenance:
 Output: data/backlinks/workspace/backlink_authority.json (gitignored)
 
 Usage:
-    .venv/Scripts/python backlink_approve_authority.py --auto-only [--family 3d] [--platform java]
+    # Full rebuild (all families at once — safe, no merge needed):
+    .venv/Scripts/python backlink_approve_authority.py --auto-only
+
+    # Per-family run — MUST use --merge to preserve other families:
+    .venv/Scripts/python backlink_approve_authority.py --auto-only --family font --merge
+    .venv/Scripts/python backlink_approve_authority.py --auto-only --family note --merge
+
+    # Per-family WITHOUT --merge OVERWRITES the entire authority file (data loss for other families).
+
+Full backlink pipeline sequence (after running this script, inject backlinks into content):
+    1. backlink_build_candidates.py       → candidate_graph_{family}.json (Layer 2)
+    2. backlink_approve_authority.py      → backlink_authority.json (Layer 3)
+    3. backlink_backfill.py --write       → content/ files (Layer 4, actual injection)
 """
 from __future__ import annotations
 
@@ -310,6 +322,42 @@ def _infer_target_type(target_path: str, subdomain: str) -> str:
     return "platform_landing"
 
 
+# ── Merge helper ───────────────────────────────────────────────────────────────
+
+def merge_authority(
+    existing_auth: dict,
+    new_auth: dict,
+    family: str,
+    platform: Optional[str] = None,
+) -> dict:
+    """
+    Merge new authority records for a single family into an existing authority dict.
+
+    Removes all existing records where record['family'] == family
+    (and record['platform'] == platform if platform is not None), then
+    adds all records from new_auth. All other families are preserved unchanged.
+
+    Pure function — no I/O.
+
+    Args:
+        existing_auth: {source_path: record} — current authority dict (may be empty)
+        new_auth:      {source_path: record} — new records for `family`
+        family:        family to replace (e.g., "font")
+        platform:      if set, only replace records matching this platform
+
+    Returns:
+        merged {source_path: record} dict
+    """
+    merged: dict = dict(existing_auth)
+    for k in list(merged.keys()):
+        rec = merged[k]
+        if rec.get("family") == family:
+            if platform is None or rec.get("platform") == platform:
+                del merged[k]
+    merged.update(new_auth)
+    return merged
+
+
 # ── Main ───────────────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -324,6 +372,13 @@ def main() -> None:
     parser.add_argument("--output", default=str(AUTHORITY_PATH))
     parser.add_argument("--dry-run", action="store_true",
                         help="Print stats without writing output")
+    parser.add_argument("--merge", action="store_true",
+                        help=(
+                            "Merge new records into existing authority file instead of overwriting. "
+                            "Removes existing records for --family (and --platform if set), then "
+                            "adds new records. Preserves all other families. "
+                            "Recommended when running per-family to avoid cross-family data loss."
+                        ))
     args = parser.parse_args()
 
     graph_path = Path(args.candidate_graph)
@@ -372,15 +427,48 @@ def main() -> None:
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    output = {
-        "schema_version": "1.0.0",
-        "family": args.family,
-        "platform": args.platform,
-        "policy_version": POLICY_VERSION,
-        "generated_at": datetime.now(timezone.utc).isoformat(),
-        "stats": stats,
-        "authority": result["authority"],
-    }
+    if args.merge and out_path.exists():
+        existing = json.loads(out_path.read_text(encoding="utf-8"))
+        existing_auth: dict = existing.get("authority", {})
+        old_count = sum(
+            1 for r in existing_auth.values()
+            if r.get("family") == args.family
+            and (args.platform is None or r.get("platform") == args.platform)
+        )
+        merged_auth = merge_authority(
+            existing_auth, result["authority"], args.family, args.platform
+        )
+        print(f"Merge: removed {old_count} existing {args.family} records, "
+              f"added {len(result['authority'])} new records. "
+              f"Total: {len(merged_auth)} records across all families.")
+        # Recompute stats from full merged authority
+        aae = sum(1 for r in merged_auth.values() if r.get("decision") == "AUTO_APPROVE_EXACT")
+        rr = sum(1 for r in merged_auth.values() if r.get("decision") == "REVIEW_REQUIRED")
+        blk = sum(1 for r in merged_auth.values() if r.get("decision") == "BLOCKED")
+        output = {
+            "schema_version": "1.0.0",
+            "family": None,
+            "platform": None,
+            "policy_version": POLICY_VERSION,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "stats": {
+                "approved_count": aae,
+                "review_count": rr,
+                "blocked_count": blk,
+                "total_sources": len(merged_auth),
+            },
+            "authority": merged_auth,
+        }
+    else:
+        output = {
+            "schema_version": "1.0.0",
+            "family": args.family,
+            "platform": args.platform,
+            "policy_version": POLICY_VERSION,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "stats": stats,
+            "authority": result["authority"],
+        }
 
     out_path.write_text(json.dumps(output, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"Written: {out_path}")

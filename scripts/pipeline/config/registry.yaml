@@ -2818,17 +2818,18 @@ scripts:
     lifecycle: active
     canonical_impl_path: null
     public_entrypoint: true
-    cli_contract: "python backlink_approve_authority.py [--auto-only] [--output PATH]"
+    cli_contract: "python backlink_approve_authority.py [--auto-only] [--family FAMILY] [--platform PLATFORM] [--merge] [--output PATH] [--dry-run]"
     owner_domain: backlinks
     backing:
       kind: internal
       ref: null
-    requires_test: false
-    test_targets: []
-    test_exempt_reason: "BL-DEEP-EXEC-v3.1: Layer 3 authority builder; integration-tested via pilot matrix; unit coverage in test_backlink_targets.py + test_backlink_anchor.py"
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_backlink_approve_authority.py
+    test_exempt_reason: null
     deprecated_since: null
     change_impact: null
-    notes: "BL-DEEP-EXEC-v3.1 Layer 3: reads candidate_graph.json, applies confidence bands (AAE/RR/BLK), writes backlink_authority.json; stores anchor_template_id + anchor_config_hash + rendered_anchor_text per record"
+    notes: "BL-DEEP-EXEC-v3.1 Layer 3: reads candidate_graph.json, applies confidence bands (AAE/RR/BLK), writes backlink_authority.json; --merge flag preserves cross-family records (TC-AUTHORITY-MERGE-SAFETY-001). Full pipeline: build_candidates -> approve_authority --merge -> backfill --write"
 
   - path: scripts/pipeline/commands/ops/backlink_ai_enrich.py
     kind: entrypoint
