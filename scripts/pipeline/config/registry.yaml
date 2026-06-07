@@ -3651,3 +3651,19 @@ scripts:
     deprecated_since: null
     change_impact: "Safe content/ writes for agent-approved candidates; rollback manifest written before any write"
     notes: "Writes only when: APPROVED_FOR_DRAFT_WRITE + draft:true + shadow_candidate:true + verified claims + rollback manifest exists"
+
+  - path: scripts/pipeline/lib/llm_candidate_enricher.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    deprecated_since: null
+    change_impact: "LLM enrichment for shadow candidates below quality gates; bounded by fact graph, never invents facts"
+    notes: "Calls llm.professionalize.com (gpt-oss); enriches stubs failing min_word_count or needing fact_ref injection; fact-graph-bounded"
