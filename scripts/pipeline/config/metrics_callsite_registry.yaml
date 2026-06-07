@@ -189,8 +189,8 @@ call_sites:
     endpoint_source: "/chat/completions"
     api_key_source: "PROFESSIONALIZE_API_KEY"
     model_source: "DEFAULT_MODEL = gpt-oss (hardcoded)"
-    capture_method: "direct_bypass"
-    allowed_capture_methods: ["direct_bypass"]
+    capture_method: "legacy_temporary"
+    allowed_capture_methods: ["legacy_temporary"]
     owner_component: "aspose-org-act-pipeline"
     work_slice_context_source: "shadow content enrichment; ACT pipeline shadow mode only"
     status: "active"
