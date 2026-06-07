@@ -178,16 +178,43 @@ call_sites:
     evidence_reference: "reports/cuddly-pondering-whisper/v5-hardening-evidence.md"
     notes: "Registered as part of cuddly-pondering-whisper sprint 20260514-181126"
 
+  CS-014:
+    call_site_id: "CS-014"
+    category: "professionalize_transport"
+    path: "scripts/pipeline/lib/llm_candidate_enricher.py"
+    function_or_class: "_call_llm"
+    current_provider: "professionalize"
+    transport_type: "urllib.request.urlopen (direct)"
+    base_url_source: "DEFAULT_BASE_URL = https://llm.professionalize.com/v1 (hardcoded)"
+    endpoint_source: "/chat/completions"
+    api_key_source: "PROFESSIONALIZE_API_KEY"
+    model_source: "DEFAULT_MODEL = gpt-oss (hardcoded)"
+    capture_method: "direct_bypass"
+    allowed_capture_methods: ["direct_bypass"]
+    owner_component: "aspose-org-act-pipeline"
+    work_slice_context_source: "shadow content enrichment; ACT pipeline shadow mode only"
+    status: "active"
+    usage_metadata_expected: false
+    api_call_count_required: false
+    retry_behavior: "none — single attempt; caller handles errors"
+    batching_behavior: "one candidate per call (shadow pipeline)"
+    cache_behavior: "none"
+    stop_condition: "dry-run by default; only called when shadow pipeline is active"
+    tests: "none (requires_test: false in registry.yaml)"
+    last_verified: "2026-06-07"
+    evidence_reference: "reports/PLAN_SOURCES.md (POST-BL-DEEP-HARDEN A10)"
+    notes: "ACT shadow content enricher; direct urllib call; registered POST-BL-DEEP-HARDEN A10"
+
 # ── Summary ───────────────────────────────────────────────────────────────── #
 
 summary:
-  total_registered_transport_sites: 6
-  active: 5
+  total_registered_transport_sites: 7
+  active: 6
   disabled: 1
   wrapper_native: 2
   llm_router_native: 1
   approved_adapter: 3
-  direct_bypasses_requiring_adapter: ["CS-004", "CS-008", "CS-009"]
+  direct_bypasses_requiring_adapter: ["CS-004", "CS-008", "CS-009", "CS-014"]
   # CS-011 (qwen3-embedding-8b in backlink_ai_enrich.py): Gemini boundary — no professionalize
   #   metrics infrastructure. Uses non-professionalize provider. Test AT-8 enforces exclusion.
   # CS-012 (gpt-oss classify in backlink_ai_enrich.py): Ollama boundary — local HTTP, no events.
@@ -196,4 +223,4 @@ summary:
   #   no professionalize events. Test AT-9 + test_cs013_m2m_not_registered enforce exclusion.
   # Exclusion is intentional and test-enforced. Do NOT register these without updating AT-8/AT-9.
   boundary_only_not_registered: ["CS-011", "CS-012", "CS-013"]
-  newly_registered_this_sprint: ["CS-010"]
+  newly_registered_this_sprint: ["CS-010", "CS-014"]
