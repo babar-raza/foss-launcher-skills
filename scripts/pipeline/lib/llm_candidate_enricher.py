@@ -27,7 +27,7 @@ import urllib.error
 ENRICHER_VERSION = "1.0.0"
 DEFAULT_MODEL = "gpt-oss"
 DEFAULT_BASE_URL = "https://llm.professionalize.com/v1"
-DEFAULT_MAX_TOKENS = 350
+DEFAULT_MAX_TOKENS = 600
 DEFAULT_TEMPERATURE = 0.0
 
 # Min words to target when expanding stubs (slightly above gate thresholds)
@@ -90,10 +90,14 @@ def _parse_frontmatter(content: str) -> tuple[dict[str, str], str]:
 
 
 def _call_llm(prompt: str, config: LLMEnricherConfig) -> str:
-    """Call LLM endpoint. Returns generated text or raises."""
+    """Call LLM endpoint. Returns generated text or raises.
+
+    Prepends /no_think to suppress reasoning tokens on thinking-mode models
+    (e.g. gpt-oss). Falls back to reasoning_content if content is None.
+    """
     payload = json.dumps({
         "model": config.model,
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": [{"role": "user", "content": f"/no_think\n{prompt}"}],
         "max_tokens": config.max_tokens,
         "temperature": config.temperature,
     }).encode("utf-8")
@@ -107,9 +111,11 @@ def _call_llm(prompt: str, config: LLMEnricherConfig) -> str:
         },
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=30) as resp:
+    with urllib.request.urlopen(req, timeout=60) as resp:
         data = json.loads(resp.read().decode("utf-8"))
-    return data["choices"][0]["message"]["content"].strip()
+    msg = data["choices"][0]["message"]
+    content = msg.get("content") or msg.get("reasoning_content") or ""
+    return content.strip()
 
 
 def _build_reference_prompt(
