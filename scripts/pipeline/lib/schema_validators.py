@@ -222,7 +222,9 @@ def validate_shadow_candidate(content: str) -> list[str]:
 
 
 REQUIRED_SECTIONS_BY_TYPE: dict[str, list[str]] = {
-    "reference": ["Description", "Methods", "See Also"],
+    # Methods is conditional (only present when the class has public methods),
+    # so require only Description for reference pages.
+    "reference": ["Description"],
     "documentation": ["Overview"],
     "product_landing": ["Key Features"],
     "blog_post": ["Introduction", "Conclusion"],

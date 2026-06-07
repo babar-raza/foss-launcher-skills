@@ -115,7 +115,47 @@ def _call_llm(prompt: str, config: LLMEnricherConfig) -> str:
         data = json.loads(resp.read().decode("utf-8"))
     msg = data["choices"][0]["message"]
     content = msg.get("content") or msg.get("reasoning_content") or ""
-    return content.strip()
+    return _clean_llm_output(content.strip())
+
+
+def _clean_llm_output(text: str, max_words: int = 100) -> str:
+    """Clean and bound LLM output for use as a description.
+
+    Handles thinking-mode models that leak reasoning into the content field.
+    Truncates at max_words and strips meta-language.
+    """
+    if not text:
+        return text
+
+    # Strip thinking-mode preamble patterns
+    meta_patterns = [
+        r"^We need to write.*?\.\s*",
+        r"^The user (wants|asks|requested).*?\.\s*",
+        r"^I (need|should|will|must|can).*?\.\s*",
+        r"^Let me.*?\.\s*",
+        r"^Here is.*?:\s*",
+        r"^Here's.*?:\s*",
+    ]
+    for pat in meta_patterns:
+        text = re.sub(pat, "", text, flags=re.IGNORECASE | re.DOTALL)
+        text = text.strip()
+
+    # If text is very long (likely reasoning leaked), take first 2 paragraphs
+    paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
+    if len(text.split()) > max_words and paragraphs:
+        # Find first paragraph that looks like actual content (not meta)
+        for para in paragraphs:
+            words = para.split()
+            if len(words) >= 10 and not re.match(
+                r"^(we need|the user|i (need|should|will)|let me|here)", para, re.I
+            ):
+                text = para
+                break
+        else:
+            # Fallback: first max_words words
+            text = " ".join(text.split()[:max_words])
+
+    return text.strip()
 
 
 def _build_reference_prompt(
@@ -300,17 +340,38 @@ def enrich_candidate(
                         methods, claims,
                     )
                     description = _call_llm(prompt, config)
+                    # Extract existing fact_refs in description section before replacing
+                    existing_refs: list[str] = []
+                    if "## Description" in current_body:
+                        desc_match = re.search(
+                            r"## Description\n+(.*?)(?=\n##|\Z)", current_body, re.DOTALL,
+                        )
+                        if desc_match:
+                            existing_refs = re.findall(
+                                r"<!-- fact_ref: (FG-[a-f0-9]+) -->", desc_match.group(1),
+                            )
+                    # Build new description with refs preserved
+                    refs_block = "\n".join(
+                        f"<!-- fact_ref: {r} -->" for r in existing_refs
+                    )
+                    new_desc_content = description
+                    if refs_block:
+                        new_desc_content = f"{description}\n\n{refs_block}"
                     # Replace description section
                     if "## Description" in current_body:
                         current_body = re.sub(
                             r"(## Description\n+).*?((?=\n##)|\Z)",
-                            f"\\1{description}\n\n",
+                            f"\\1{new_desc_content}\n\n",
                             current_body,
                             flags=re.DOTALL,
                         )
                     else:
-                        current_body = f"## Description\n\n{description}\n\n{current_body}"
+                        current_body = f"## Description\n\n{new_desc_content}\n\n{current_body}"
                 else:
+                    # Preserve existing fact_refs before LLM expansion
+                    original_refs = re.findall(
+                        r"<!-- fact_ref: (FG-[a-f0-9]+) -->", current_body,
+                    )
                     claims = _get_overview_claims(
                         fm.get("family", ""), fm.get("platform", ""), facts,
                     )
@@ -318,8 +379,16 @@ def enrich_candidate(
                         title, page_type, fm.get("family", ""), fm.get("platform", ""),
                         claims, current_body, target,
                     )
-                    current_body = _call_llm(prompt, config)
-                    # Ensure fact refs preserved from original
+                    new_body = _call_llm(prompt, config)
+                    if len(new_body.split()) >= 10:
+                        current_body = new_body
+                    # Re-inject any fact_refs the LLM dropped
+                    llm_refs = re.findall(r"<!-- fact_ref: (FG-[a-f0-9]+) -->", current_body)
+                    for ref_id in original_refs:
+                        if ref_id not in llm_refs:
+                            current_body = current_body.rstrip() + f"\n\n<!-- fact_ref: {ref_id} -->\n"
+                            result.fact_refs_added += 1
+                    # Still no refs — inject from provenance
                     if not re.search(r"<!-- fact_ref:", current_body):
                         _, injected = _inject_fact_refs(current_body, provenance_ids, facts_index)
                         result.fact_refs_added += injected
