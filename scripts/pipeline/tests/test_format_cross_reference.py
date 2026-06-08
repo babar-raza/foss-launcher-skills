@@ -754,17 +754,63 @@ public class Document {
             self.assertEqual(len(result), 0,
                              "Pass 1c must not duplicate an already-detected import")
 
-    def test_python_language_skipped(self):
-        """Pass 1c does nothing for Python — only applies to Java/C#."""
+    def test_python_document_ctor_import_detected(self):
+        """document.py with file_path param → primary-format import entry for Python."""
         with tempfile.TemporaryDirectory() as tmp:
             tmp = Path(tmp)
-            src = self._write_file(tmp, "Document.py", """\
+            src = self._write_file(tmp, "document.py", """\
 class Document:
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str = None):
         self._load(file_path)
 """)
             result = _scan_document_ctor_imports(
+                [src], tmp, "python", "words", set()
+            )
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0]["format"], "Words")
+            self.assertEqual(result[0]["direction"], "import")
+
+    def test_python_workbook_ctor_import_detected(self):
+        """workbook.py with file_path param → Cells import entry."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "workbook.py", """\
+class Workbook:
+    def __init__(self, file_path=None, password=None):
+        self._load(file_path)
+""")
+            result = _scan_document_ctor_imports(
+                [src], tmp, "python", "cells", set()
+            )
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0]["format"], "Cells")
+            self.assertEqual(result[0]["direction"], "import")
+
+    def test_python_non_primary_stem_skipped(self):
+        """Python file with non-primary stem (e.g. formatter.py) → no result."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "formatter.py", """\
+class Formatter:
+    def __init__(self, file_path: str = None):
+        pass
+""")
+            result = _scan_document_ctor_imports(
                 [src], tmp, "python", "pdf", set()
+            )
+            self.assertEqual(len(result), 0)
+
+    def test_python_no_duplicate_when_import_already_detected(self):
+        """Pass 1c (Python) skipped when import for primary format already exists."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "workbook.py", """\
+class Workbook:
+    def __init__(self, file_path=None):
+        pass
+""")
+            result = _scan_document_ctor_imports(
+                [src], tmp, "python", "cells", {"cells"}
             )
             self.assertEqual(len(result), 0)
 
@@ -784,6 +830,62 @@ public class Document {
             )
             self.assertEqual(len(result), 0,
                              "LoadOptions constructor must be skipped (Pass 1b handles it)")
+
+
+class TestFamilyFormatAllowlist(unittest.TestCase):
+    """Tests for the per-family format allowlist (EMAIL-CPP-FORMATS-001 fix).
+
+    Root cause guarded: "cfb" was in _FALSE_POSITIVE_NAMES to suppress
+    cells/python internal CFBWriter/CFBReader classes (used for XLSX encryption,
+    not a user-facing format).  But email/cpp's cfb_reader/cfb_writer are
+    genuine user-visible formats (Compound File Binary = .msg container).
+    Fix: _FAMILY_FORMAT_ALLOWLISTS per-family dict overrides the global list.
+    """
+
+    def _write_cfb_hpp(self, tmp: Path) -> Path:
+        fpath = tmp / "cfb_reader.hpp"
+        fpath.write_text("""\
+namespace aspose::email::foss::cfb {
+class cfb_reader {
+public:
+    void read(const char* path);
+    void parse();
+};
+}
+""", encoding="utf-8")
+        return fpath
+
+    def test_cfb_allowed_for_email_family(self):
+        """cfb_reader in email/cpp → 'cfb import' entry detected."""
+        from extraction.tree_helpers import get_parser
+        from extraction.formats import detect_formats
+        parser = get_parser("cpp")
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            self._write_cfb_hpp(tmp)
+            formats, _ = detect_formats(parser, "cpp", tmp, tmp, "email")
+            cfb_entries = [e for e in formats if e["format"].lower() == "cfb"]
+            self.assertTrue(
+                len(cfb_entries) > 0,
+                f"email family must detect cfb_reader as 'cfb import'; got formats: "
+                f"{[e['format'] for e in formats]}",
+            )
+            self.assertEqual(cfb_entries[0]["direction"], "import")
+
+    def test_cfb_blocked_for_cells_family(self):
+        """cfb_reader in cells context → no cfb entry (internal encryption impl)."""
+        from extraction.tree_helpers import get_parser
+        from extraction.formats import detect_formats
+        parser = get_parser("cpp")
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            self._write_cfb_hpp(tmp)
+            formats, _ = detect_formats(parser, "cpp", tmp, tmp, "cells")
+            cfb_entries = [e for e in formats if e["format"].lower() == "cfb"]
+            self.assertEqual(
+                len(cfb_entries), 0,
+                f"cells family must not detect cfb_reader; got: {cfb_entries}",
+            )
 
 
 if __name__ == "__main__":

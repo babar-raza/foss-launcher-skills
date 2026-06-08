@@ -168,24 +168,56 @@ def _scan_document_ctor_imports(
     family: str,
     existing_import_fmts: set[str],
 ) -> list[dict]:
-    """Pass 1c: Detect primary-document-class constructor import (Java/C# only).
+    """Pass 1c: Detect primary-document-class constructor import (Java/C#/Python).
 
     Libraries like pdf/java load files via ``new Document(path)`` without a
     dedicated ``XxxLoadOptions`` class (which Pass 1b requires).  This pass
-    scans for a file named ``Document.java``/``Document.cs`` containing a
-    constructor that accepts ``String``, ``InputStream``, ``Path``, or ``File``
-    parameters **without** a ``LoadOptions``-typed parameter, and emits one
-    import entry for the library's primary format (``family.title()``).
+    scans for a primary class file containing a constructor that accepts a file
+    path parameter and emits one import entry for the library's primary format
+    (``family.title()``).
+
+    Java/C#: scans ``Document.java``/``Document.cs`` for constructors accepting
+    ``String``, ``InputStream``, ``Path``, or ``File`` without a ``LoadOptions``
+    parameter.
+
+    Python: scans files whose stem matches common primary class names
+    (``workbook``, ``document``, ``presentation``, ``spreadsheet``) for
+    ``def __init__(self, file_path/filepath/path/filename=...)`` signatures.
 
     Does nothing when:
-    - language is not Java or C#
+    - language is not Java, C#, or Python
     - an import entry for the primary format already exists (prevents duplicates
       when Pass 1b detected a ``XxxLoadOptions`` class for the same format)
     """
-    if language not in ("java", "csharp"):
+    if language not in ("java", "csharp", "python"):
         return []
     primary_fmt = family.title()
     if primary_fmt.lower() in existing_import_fmts:
+        return []
+
+    if language == "python":
+        _py_primary_stems = frozenset({"document", "workbook", "presentation", "spreadsheet"})
+        _py_ctor_re = re.compile(
+            r'def\s+__init__\s*\(\s*self\s*,\s*(?:file_path|filepath|path|filename|file_name)\b',
+        )
+        for fpath in files:
+            if fpath.stem.lower() not in _py_primary_stems:
+                continue
+            rel = str(fpath.relative_to(repo)).replace("\\", "/")
+            try:
+                text = fpath.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            for i, line in enumerate(text.splitlines(), 1):
+                if _py_ctor_re.search(line):
+                    return [{
+                        "format": primary_fmt,
+                        "enum": "",
+                        "value": "",
+                        "file": rel,
+                        "line": i,
+                        "direction": "import",
+                    }]
         return []
 
     _ctor_path_re = re.compile(
@@ -277,6 +309,8 @@ def detect_formats(
         "generic", "common", "internal", "helper", "utils", "factory",
         "registry",
         # H-04c: additional false positives observed in global audit (2026-05-19)
+        # Note: "cfb" is kept here (blocks cells/python internal CFBWriter/CFBReader
+        # encryption-impl classes); email family overrides via _allowed_fmt_overrides.
         "font", "binary", "bit", "slice", "pos", "format", "png",
         "presentation", "decode", "encode", "reserved", "difat",
         "clsid", "flags", "value", "minimal", "auto", "unknown",
@@ -289,6 +323,14 @@ def detect_formats(
         "underlying", "hex", "method", "class", "module",
         "ipackage",
     })
+    # Per-family allowlist: format names that are genuine user-visible formats
+    # for a specific family but are false positives everywhere else.
+    # e.g. "cfb" is an internal impl detail in cells/python but a real user
+    # format in email/cpp (Compound File Binary = .msg container).
+    _FAMILY_FORMAT_ALLOWLISTS: dict[str, frozenset[str]] = {
+        "email": frozenset({"cfb"}),
+    }
+    _allowed_fmt_overrides = _FAMILY_FORMAT_ALLOWLISTS.get(family, frozenset())
 
     for fpath in files:
         rel = str(fpath.relative_to(repo)).replace("\\", "/")
@@ -377,7 +419,10 @@ def detect_formats(
                     r"(Importer|Exporter|Reader|Writer|Loader|Saver|Serializer|Factory|Registry)", "",
                     cname, flags=re.IGNORECASE).strip().strip("_")
                 # H-04: reject empty, too-short, or common-word false positives
-                if fmt_name and len(fmt_name) >= 2 and fmt_name.lower() not in _FALSE_POSITIVE_NAMES:
+                _fmt_lower = fmt_name.lower()
+                if (fmt_name and len(fmt_name) >= 2
+                        and (_fmt_lower not in _FALSE_POSITIVE_NAMES
+                             or _fmt_lower in _allowed_fmt_overrides)):
                     # Validate: if the primary I/O method is a stub, demote to detect-only
                     if direction in ("export", "import"):
                         io_methods = _find_io_methods(cn, direction, language)
@@ -417,9 +462,11 @@ def detect_formats(
                 fmt_name = m_opts.group(1)
                 opts_type = m_opts.group(2).lower()  # "load", "save", "import", "export"
                 direction = "import" if opts_type in ("load", "import") else "export"
+                _fmt_lower_b = fmt_name.lower()
                 if (fmt_name
                         and len(fmt_name) >= 2
-                        and fmt_name.lower() not in _FALSE_POSITIVE_NAMES):
+                        and (_fmt_lower_b not in _FALSE_POSITIVE_NAMES
+                             or _fmt_lower_b in _allowed_fmt_overrides)):
                     formats.append({
                         "format": fmt_name,
                         "enum": "",
@@ -570,7 +617,7 @@ def detect_formats(
 
     # H-04: Post-extraction validation — remove false-positive entries and
     # normalize format names (strip trailing underscores, reject common words).
-    formats = _validate_formats(formats, _FALSE_POSITIVE_NAMES)
+    formats = _validate_formats(formats, _FALSE_POSITIVE_NAMES, _allowed_fmt_overrides)
     return formats, claims
 
 
@@ -824,6 +871,7 @@ def _cross_reference_enum_directions(
 def _validate_formats(
     formats: list[dict],
     false_positives: frozenset[str],
+    allowlist: frozenset[str] = frozenset(),
 ) -> list[dict]:
     """Remove false-positive format entries and normalize names.
 
@@ -833,6 +881,9 @@ def _validate_formats(
     - Reject entries matching compound word patterns (AutoFilterXML, etc.)
     - Enum-sourced entries (f["enum"] is set) bypass length/pattern checks
       because enum members are authoritative format identifiers.
+
+    allowlist: per-family overrides for names that are in false_positives globally
+    but are genuine user-visible formats for a specific family (e.g. "cfb" for email).
     """
     # CamelCase detection: two or more uppercase letters with lowercase between
     # them indicates a compound word (e.g. ChartXml, AutoFilterXML, MinimalCFB).
@@ -841,7 +892,9 @@ def _validate_formats(
     valid: list[dict] = []
     for f in formats:
         name = (f.get("format") or "").strip().strip("_")
-        if not name or len(name) < 2 or name.lower() in false_positives:
+        if not name or len(name) < 2:
+            continue
+        if name.lower() in false_positives and name.lower() not in allowlist:
             continue
         # Enum-sourced entries are authoritative — keep them
         if not f.get("enum"):
