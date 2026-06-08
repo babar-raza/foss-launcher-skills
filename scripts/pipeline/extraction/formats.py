@@ -802,28 +802,37 @@ def _cross_reference_enum_directions(
             stub_export_fmts.add(fmt_lower)
             stub_import_fmts.add(fmt_lower)
 
-    # Noise suffixes that remain after Exporter/Reader stripping
-    # (e.g. DocFileReader → "DocFile"; strip "File" → "Doc" to match "DOC")
-    _impl_noise_re = re.compile(r"(?:file|document|workbook|format|core)+$", re.IGNORECASE)
+    # Noise suffixes that remain after Exporter/Reader stripping.
+    # Patterns handle both simple cases (DocFileReader → doc) and compound
+    # prefix-format naming (XlsxWorkbookWorksheetLoader → xlsx):
+    #   "xlsxworkbookworksheet" → strip "workbookworksheet" → "xlsx"
+    # Compound-word suffixes are stripped iteratively via the + quantifier.
+    _impl_noise_re = re.compile(
+        r"(?:file|document|workbook|worksheet|format|core|comments|pictures)+$",
+        re.IGNORECASE,
+    )
 
     def _has_backing(fmt_name: str, impl_set: set[str],
                      method_set: set[str]) -> bool:
         """Check if fmt_name has a backing implementation.
 
         FIX-13: Three-layer matching:
-        1. Suffix match against I/O class format names (original logic)
-        2. Exact match against method-derived format names
-        3. Noise-stripped suffix match (original logic)
+        1. Exact match against method-derived format names
+        2. Suffix match against I/O class format names (e.g. PdfExporter → pdf)
+        3. Noise-stripped suffix match (e.g. DocFileReader → doc; XlsxWorkbookWorksheet → xlsx)
+           The noise regex also strips compound suffixes like "workbookworksheet" so that
+           prefix-format names (cells/net: XlsxWorkbookWorksheetLoader) reduce to the
+           bare format name (xlsx) and are matched by suffix in this layer.
         """
         needle = fmt_name.lower()
         # Layer 1: exact match in method-derived formats
         if needle in method_set:
             return True
-        # Layer 2: suffix match against I/O class names
+        # Layer 2 + 3: suffix match, with and without noise suffix stripping
         for impl in impl_set:
             if impl.endswith(needle):
                 return True
-            # Layer 3: strip noise suffixes and retry
+            # Layer 3: strip noise suffixes and retry suffix match
             stripped = _impl_noise_re.sub("", impl)
             if stripped and len(stripped) >= 2 and stripped.endswith(needle):
                 return True

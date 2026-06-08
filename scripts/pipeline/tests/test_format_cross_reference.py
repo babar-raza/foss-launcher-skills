@@ -127,6 +127,46 @@ class TestCrossReferenceEnumDirections(unittest.TestCase):
         self.assertEqual(xlsx["direction"], "enum_only")
         self.assertEqual(doc["direction"], "import")
 
+    def test_prefix_format_named_io_class_backs_loadformat(self):
+        """LoadFormat.XLSX keeps 'import' when XlsxWorkbookLoader exists (prefix-format naming).
+
+        Root cause guarded (CELLS-NET-FORMATS-001): cells/net uses prefix-format
+        naming (XlsxWorkbookWorksheetLoader) not suffix-format (WorkbookXlsxLoader).
+        _impl_noise_re strips compound suffixes ("workbookworksheet") so that Layer 3
+        noise-stripped suffix match reduces the impl to "xlsx" and matches correctly.
+        """
+        formats = [
+            {"format": "XLSX", "enum": "LoadFormat", "direction": "import"},
+            {"format": "CSV", "enum": "LoadFormat", "direction": "import"},
+            {"format": "XlsxWorkbookComments", "enum": "", "direction": "import"},
+            {"format": "XlsxWorkbookWorksheet", "enum": "", "direction": "import"},
+        ]
+        result = _cross_reference_enum_directions(formats, _SAVE_PAT, _LOAD_PAT)
+        xlsx = next(f for f in result if f["format"] == "XLSX")
+        csv = next(f for f in result if f["format"] == "CSV")
+        self.assertEqual(xlsx["direction"], "import",
+                         "XLSX must be backed by XlsxWorkbook* prefix-format I/O class")
+        self.assertEqual(csv["direction"], "enum_only",
+                         "CSV has no backing class and must be enum_only")
+
+    def test_prefix_format_named_io_class_backs_saveformat(self):
+        """SaveFormat.XLSX keeps 'export' when XlsxWorkbookWorksheet writer exists.
+
+        Note: the non-enum entry uses the POST-suffix-stripping name (Writer already
+        removed by the main scan loop), so "XlsxWorkbookWorksheet" not "...Writer".
+        """
+        formats = [
+            {"format": "XLSX", "enum": "SaveFormat", "direction": "export"},
+            {"format": "CSV", "enum": "SaveFormat", "direction": "export"},
+            {"format": "XlsxWorkbookWorksheet", "enum": "", "direction": "export"},
+        ]
+        result = _cross_reference_enum_directions(formats, _SAVE_PAT, _LOAD_PAT)
+        xlsx = next(f for f in result if f["format"] == "XLSX")
+        csv = next(f for f in result if f["format"] == "CSV")
+        self.assertEqual(xlsx["direction"], "export",
+                         "XLSX must be backed by XlsxWorkbook* prefix-format I/O class")
+        self.assertEqual(csv["direction"], "enum_only")
+
     # ------------------------------------------------------------------
     # ExportFormat / OutputFormat variations
     # ------------------------------------------------------------------
