@@ -1,31 +1,32 @@
-family: cells
-platform: typescript
-version: 1
-
-discovery_hints:
-  package_source_file: package.json
-  package_extraction: "json:.name"
-  language: typescript
-  format_source_glob: "src/**/formats/*.ts"
-  stub_search_hints:
-    - "throw new Error('Not implemented')"
-    - "// TODO"
-  runtime_requirement_source: package.json
-
 discovered_actuals:
-  package_name: "@aspose/cells"
-  package_source_actual: package.json
   format_files_found: null
   last_baseline_sha: 391d48024264757add58fa7355a73b5d46b48962
-
-language_conventions:
-  method_naming: camelCase
-  enum_values: PascalCase
-  pass_by: reference
-
+  package_name: excel-cells
+  package_source_actual: package.json
+discovery_hints:
+  format_source_glob: src/**/formats/*.ts
+  language: typescript
+  package_extraction: json:.name
+  package_source_file: package.json
+  runtime_requirement_source: package.json
+  stub_search_hints:
+  - throw new Error('Not implemented')
+  - // TODO
 expected_sections:
-  - {site: products, mandatory: true}
-  - {site: docs, mandatory: true}
-  - {site: kb, mandatory: true}
-  - {site: reference, mandatory: true}
-  - {site: blog, mandatory: false}
+- mandatory: true
+  site: products
+- mandatory: true
+  site: docs
+- mandatory: true
+  site: kb
+- mandatory: true
+  site: reference
+- mandatory: false
+  site: blog
+family: cells
+language_conventions:
+  enum_values: PascalCase
+  method_naming: camelCase
+  pass_by: reference
+platform: typescript
+version: 1
