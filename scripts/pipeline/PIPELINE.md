@@ -193,6 +193,79 @@ Downstream consumers: `commands/knowledge/stale_detect.py`,
 Escalates to `human_group` after 3 failed attempts. Sidecar persistence via
 `{eval_report.stem}-heal.json`.
 
+## Autonomous Content Tooling (ACT)
+
+ACT is a dry-run-only shadow pipeline for generating and validating content candidates
+without touching `content/`. All writes go to `reports/` shadow directories.
+
+### ACT Modules (lib/)
+
+| Module | Purpose |
+|--------|---------|
+| `fact_graph.py` | FactGraph schema, I/O, deterministic Fact records |
+| `product_state.py` | State machine: phases, transitions, stop reasons |
+| `external_signals.py` | Advisory external signal schema (never overrides source facts) |
+| `content_quality.py` | 10-gate deterministic quality scorer for shadow candidates |
+| `agent_decision_board.py` | APPROVED/REPAIR/QUARANTINE decisions per candidate |
+| `candidate_repair.py` | Deterministic multi-pass auto-fix (up to 3 passes) |
+| `controlled_draft_writer.py` | Safe write layer — currently locked dry_run=True |
+| `llm_candidate_enricher.py` | LLM-based stub expansion via llm.professionalize.com |
+
+### ACT Entry Points (commands/)
+
+| Script | Location | Mode |
+|--------|----------|------|
+| `fact_graph_compiler.py` | `commands/knowledge/` | Reads merged/ → fact_graph.json |
+| `page_plan_compiler.py` | `commands/content/` | fact_graph → page_plan.json |
+| `autonomous_runner.py` | `commands/ops/` | Orchestrates pipeline; dry-run only |
+
+### ACT Runner Modes
+
+```
+python autonomous_runner.py --dry-run --mode single --family {f} --platform {p}
+python autonomous_runner.py --dry-run --mode shadow --family {f} --platform {p}
+python autonomous_runner.py --dry-run --mode agent-review --family {f} --platform {p}
+python autonomous_runner.py --dry-run --mode draft-write-dry-run --family {f} --platform {p}
+```
+
+### ACT Product State Phases
+
+```
+DISCOVERED → SNAPSHOT_CAPTURED → FACTS_EXTRACTED → FACTS_VERIFIED
+  → PLAN_COMPILED → CONTENT_GENERATED → CLAIMS_VERIFIED
+  → QUALITY_EVALUATED → REGRESSION_PASSED → READY_FOR_REVIEW
+  → AGENT_REVIEWED → APPROVED_FOR_DRAFT_WRITE → DRAFT_WRITTEN
+```
+
+### ACT Safety Invariants
+
+- `controlled_draft_writer.py` has a permanent live-write lock (`dry_run must be True`)
+- All candidate files carry `shadow_candidate: true` in frontmatter
+- Write guard checks 5 conditions before any file operation
+- RollbackManifest records every write with SHA256 for full reversal
+
+### ACT Tests
+
+All ACT tests live in the root-level `tests/` directory (covered by pytest.ini testpaths):
+
+```
+tests/test_fact_graph.py          (19 tests)
+tests/test_product_state.py       (27 tests)
+tests/test_page_plan_compiler.py  (12 tests)
+tests/test_external_signals.py    (10 tests)
+tests/test_autonomous_runner.py   (12 tests)
+tests/test_schema_validators.py   (27 tests)
+tests/test_shadow_pilot.py        (75 tests)  ← Wave 2 integration tests
+```
+
+Run all ACT tests: `.venv/Scripts/python -m pytest tests/test_shadow_pilot.py tests/test_product_state.py tests/test_autonomous_runner.py tests/test_fact_graph.py tests/test_page_plan_compiler.py tests/test_external_signals.py tests/test_schema_validators.py`
+
+### ACT LLM Call Site
+
+`llm_candidate_enricher.py` is registered as CS-014 in
+`scripts/pipeline/config/metrics_callsite_registry.yaml`.
+Uses `PROFESSIONALIZE_API_KEY` env var. Model: `gpt-oss`.
+
 ## Migration History
 
 The `scripts/` directory was reorganized in April 2026 (Waves 0–11).
