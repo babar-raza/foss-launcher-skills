@@ -38,7 +38,8 @@
       "Bash(echo \"EXIT_CODE:$?\")",
       "Bash(gpg --list-keys --keyid-format LONG packages@aspose.org)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://llm.professionalize.com/v1/models\" -H \"Authorization: Bearer $GPT_OSS_API_KEY\")",
-      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/ci/checks/check_reference_index_structure.py)"
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/ci/checks/check_reference_index_structure.py)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" -X POST https://llm.professionalize.com/v1/chat/completions -H \"Authorization: Bearer $PROFESSIONALIZE_API_KEY\" -H \"Content-Type: application/json\" -d '{\"\"model\"\":\"\"gpt-oss\"\",\"\"messages\"\":[{\"\"role\"\":\"\"user\"\",\"\"content\"\":\"\"ping\"\"}],\"\"max_tokens\"\":5}')"
     ],
     "additionalDirectories": [
       "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing",
