@@ -1122,3 +1122,284 @@ func (f *ButtonField) SetReadOnly(v bool) { setFlag(f.node, fieldFlagReadOnly, v
         assert results["Value"] == "string"
         assert results["SetValue"] == "error"
         assert results["SetReadOnly"] == ""  # void method has no return type
+
+
+# ---------------------------------------------------------------------------
+# GO-006: Go package name extraction from source files
+# ---------------------------------------------------------------------------
+
+class TestGoPackageNameExtraction:
+    """GO-006: _extract_go_package_name must read declared package name from source.
+
+    The module path (e.g. github.com/aspose-pdf-foss/aspose-pdf-foss-for-go) is NOT
+    the package name.  The package name (e.g. asposepdf) must be read from the
+    ``package <name>`` declaration in the first non-test .go file at repo root.
+    """
+
+    def test_extracts_package_name_from_go_file(self):
+        """_extract_go_package_name returns declared name from first non-test .go file."""
+        import tempfile
+        from pathlib import Path
+        from extraction.package_manifest import _extract_go_package_name
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo = Path(tmpdir)
+            (repo / "annotation.go").write_text("package asposepdf\n\ntype Annotation struct{}\n")
+            result = _extract_go_package_name(repo)
+        assert result == "asposepdf", f"Expected 'asposepdf', got {result!r}"
+
+    def test_skips_test_files(self):
+        """_extract_go_package_name must not read from *_test.go files."""
+        import tempfile
+        from pathlib import Path
+        from extraction.package_manifest import _extract_go_package_name
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo = Path(tmpdir)
+            # Only a _test.go file — should return ""
+            (repo / "annotation_test.go").write_text("package asposepdf_test\n")
+            result = _extract_go_package_name(repo)
+        assert result == "", f"Expected empty string (no non-test .go), got {result!r}"
+
+    def test_skips_package_main(self):
+        """_extract_go_package_name must skip files with 'package main'."""
+        import tempfile
+        from pathlib import Path
+        from extraction.package_manifest import _extract_go_package_name
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo = Path(tmpdir)
+            (repo / "cmd.go").write_text("package main\n\nfunc main() {}\n")
+            (repo / "doc.go").write_text("package mypkg\n\n// Package mypkg provides ...\n")
+            result = _extract_go_package_name(repo)
+        assert result == "mypkg", f"Expected 'mypkg', got {result!r}"
+
+    def test_parse_go_manifest_includes_package_name(self):
+        """_parse_go_manifest must include package_name key when source file present."""
+        import tempfile
+        from pathlib import Path
+        from extraction.package_manifest import _parse_go_manifest
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo = Path(tmpdir)
+            (repo / "go.mod").write_text(
+                "module github.com/aspose-pdf-foss/aspose-pdf-foss-for-go\n\ngo 1.24\n"
+            )
+            (repo / "doc.go").write_text("package asposepdf\n\n// Package asposepdf ...\n")
+            info = _parse_go_manifest(repo)
+        assert info.get("package_name") == "asposepdf", (
+            f"Expected package_name='asposepdf', got {info!r}"
+        )
+        assert info.get("name") == "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"
+
+
+# ---------------------------------------------------------------------------
+# GO-004: Go snippet extraction from ExampleXxx functions and _examples/ dirs
+# ---------------------------------------------------------------------------
+
+class TestGoSnippetExtraction:
+    """GO-004: Snippet extractor must handle Go ExampleXxx functions and _examples/ dirs."""
+
+    GO_EXAMPLE_TEST_SRC = """\
+package asposepdf_test
+
+import (
+    pdf "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"
+)
+
+func ExampleNewDocumentFromFormat() {
+    doc := pdf.NewDocumentFromFormat(pdf.PageFormatA4)
+    doc.Save("out.pdf")
+}
+
+func ExampleDocument_Split() {
+    doc, _ := pdf.Open("in.pdf")
+    pages, _ := doc.Split()
+    _ = pages
+}
+
+func helperFunc() {}
+"""
+
+    GO_MAIN_EXAMPLE_SRC = """\
+package main
+
+import (
+    pdf "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"
+)
+
+func main() {
+    doc := pdf.NewDocumentFromFormat(pdf.PageFormatA4)
+    doc.Save("blank.pdf")
+}
+"""
+
+    def _extract_snippet_functions(self, src: str, is_example_dir: bool = False):
+        from extraction.snippets import _collect_snippet_functions
+        from extraction.tree_helpers import get_parser, _FUNC_TYPES, _CLASS_TYPES
+        parser = get_parser("go")
+        tree = parser.parse(src.encode("utf-8"))
+        func_types = _FUNC_TYPES.get("go", set())
+        class_types = _CLASS_TYPES.get("go", set())
+        return _collect_snippet_functions(
+            tree.root_node, "go", func_types, class_types, src,
+            is_example_dir=is_example_dir,
+        )
+
+    def test_example_functions_extracted(self):
+        """ExampleXxx functions must be captured as snippets."""
+        results = self._extract_snippet_functions(self.GO_EXAMPLE_TEST_SRC)
+        names = [r[0] for r in results]
+        assert "ExampleNewDocumentFromFormat" in names, (
+            f"ExampleNewDocumentFromFormat not in {names!r}"
+        )
+        assert "ExampleDocument_Split" in names, (
+            f"ExampleDocument_Split not in {names!r}"
+        )
+
+    def test_helper_func_not_extracted(self):
+        """Non-Example functions must NOT be captured."""
+        results = self._extract_snippet_functions(self.GO_EXAMPLE_TEST_SRC)
+        names = [r[0] for r in results]
+        assert "helperFunc" not in names, f"helperFunc should not be in snippets: {names!r}"
+
+    def test_main_extracted_in_example_dir(self):
+        """main() function in _examples/ dir (is_example_dir=True) must be captured."""
+        results = self._extract_snippet_functions(
+            self.GO_MAIN_EXAMPLE_SRC, is_example_dir=True
+        )
+        names = [r[0] for r in results]
+        assert "main" in names, f"main not captured from example dir: {names!r}"
+
+    def test_main_not_extracted_outside_example_dir(self):
+        """main() must NOT be captured when is_example_dir=False."""
+        results = self._extract_snippet_functions(
+            self.GO_MAIN_EXAMPLE_SRC, is_example_dir=False
+        )
+        names = [r[0] for r in results]
+        assert "main" not in names, f"main should not be captured outside example dir: {names!r}"
+
+
+# ---------------------------------------------------------------------------
+# GO-005: Go package root detection
+# ---------------------------------------------------------------------------
+
+class TestGoPackageRootDetection:
+    """GO-005: detect_package_root must validate go.mod for Go repos."""
+
+    def test_flat_layout_returns_repo_root(self):
+        """Flat layout (go.mod at root) must return repo root."""
+        import tempfile
+        from pathlib import Path
+        from extraction.package_root import detect_package_root
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo = Path(tmpdir)
+            (repo / "go.mod").write_text(
+                "module github.com/example/mylib\n\ngo 1.21\n"
+            )
+            result = detect_package_root(repo, "go")
+        assert result == repo, f"Expected repo root, got {result!r}"
+
+    def test_nested_layout_returns_subdir(self):
+        """Nested layout (go.mod in a subdir) must return that subdir."""
+        import tempfile
+        from pathlib import Path
+        from extraction.package_root import detect_package_root
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo = Path(tmpdir)
+            lib = repo / "lib"
+            lib.mkdir()
+            (lib / "go.mod").write_text(
+                "module github.com/example/mylib\n\ngo 1.21\n"
+            )
+            result = detect_package_root(repo, "go")
+        assert result == lib, f"Expected {lib!r}, got {result!r}"
+
+    def test_no_go_mod_falls_back_to_repo(self):
+        """When no go.mod is found, must fall back to repo root."""
+        import tempfile
+        from pathlib import Path
+        from extraction.package_root import detect_package_root
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo = Path(tmpdir)
+            result = detect_package_root(repo, "go")
+        assert result == repo, f"Expected repo fallback, got {result!r}"
+
+
+# ---------------------------------------------------------------------------
+# GO-011: Go struct field extraction
+# ---------------------------------------------------------------------------
+
+class TestGoStructFieldExtraction:
+    """GO-011: Exported struct fields must appear in properties[] for Go types."""
+
+    GO_RENDER_OPTIONS_SRC = """\
+package asposepdf
+
+// RenderOptions configures rendering.
+type RenderOptions struct {
+    DPI        float64
+    Background *Color
+    unexported int
+}
+
+// Color represents an RGBA colour.
+type Color struct {
+    R, G, B, A float64
+}
+"""
+
+    def _extract(self, src: str):
+        """Run extract_api_surface on Go fixture and return all entries."""
+        import tempfile
+        from pathlib import Path
+        parser = scout.get_parser("go")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root_dir = Path(tmpdir)
+            (root_dir / "render.go").write_text(src)
+            classes, _, _, _, _ = extract_api_surface(
+                parser, "go", root_dir, root_dir, "testfamily"
+            )
+        return classes
+
+    def test_render_options_has_dpi_property(self):
+        """RenderOptions.DPI must appear in properties[]."""
+        classes = self._extract(self.GO_RENDER_OPTIONS_SRC)
+        type_map = {e["name"]: e for e in classes}
+        ro = type_map.get("RenderOptions")
+        assert ro is not None, "RenderOptions type not found"
+        prop_names = [p["name"] for p in ro.get("properties", [])]
+        assert "DPI" in prop_names, f"DPI not in properties: {prop_names!r}"
+
+    def test_render_options_has_background_property(self):
+        """RenderOptions.Background must appear in properties[]."""
+        classes = self._extract(self.GO_RENDER_OPTIONS_SRC)
+        type_map = {e["name"]: e for e in classes}
+        ro = type_map.get("RenderOptions")
+        assert ro is not None, "RenderOptions type not found"
+        prop_names = [p["name"] for p in ro.get("properties", [])]
+        assert "Background" in prop_names, f"Background not in properties: {prop_names!r}"
+
+    def test_unexported_field_excluded(self):
+        """unexported (lowercase) fields must NOT appear in properties[]."""
+        classes = self._extract(self.GO_RENDER_OPTIONS_SRC)
+        type_map = {e["name"]: e for e in classes}
+        ro = type_map.get("RenderOptions")
+        assert ro is not None, "RenderOptions type not found"
+        prop_names = [p["name"] for p in ro.get("properties", [])]
+        assert "unexported" not in prop_names, (
+            f"unexported should not be in properties: {prop_names!r}"
+        )
+
+    def test_multi_name_field_declaration(self):
+        """Multi-name field decl (R, G, B, A float64) must produce one property per name."""
+        classes = self._extract(self.GO_RENDER_OPTIONS_SRC)
+        type_map = {e["name"]: e for e in classes}
+        color = type_map.get("Color")
+        assert color is not None, "Color type not found"
+        prop_names = [p["name"] for p in color.get("properties", [])]
+        for ch in ("R", "G", "B", "A"):
+            assert ch in prop_names, f"Color.{ch} not in properties: {prop_names!r}"

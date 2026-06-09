@@ -134,8 +134,11 @@ def _canonical_import(platform: str, manifest: dict,
     if platform == "go":
         module = manifest.get("name", "")
         if module:
-            # Use last path segment as the default alias
-            alias = module.rstrip("/").rsplit("/", 1)[-1].replace("-", "")
+            # Prefer the declared package name (e.g. "asposepdf") over the
+            # module-path-derived alias (e.g. "asposepdffossforgo").
+            pkg_name = manifest.get("package_name", "")
+            alias = (pkg_name if pkg_name and pkg_name != "main"
+                     else module.rstrip("/").rsplit("/", 1)[-1].replace("-", ""))
             return f'import {alias} "{module}"'
     return ""
 

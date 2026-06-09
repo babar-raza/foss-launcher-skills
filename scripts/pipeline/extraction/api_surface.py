@@ -941,6 +941,70 @@ def _cpp_canonical_namespace(cnode) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Go struct field extraction (GO-011)
+# ---------------------------------------------------------------------------
+
+
+def _extract_go_struct_fields(
+    cnode,
+    cname: str,
+    rel: str,
+    family: str,
+) -> tuple[list[dict], list[dict]]:
+    """Extract exported fields from a Go struct type_spec node.
+
+    Walks type_spec → struct_type → field_declaration_list → field_declaration
+    and captures field_identifier nodes whose name begins with an uppercase letter
+    (Go convention for exported identifiers).
+
+    Returns (properties, claims).
+    """
+    properties: list[dict] = []
+    claims: list[dict] = []
+
+    # Go struct body: struct_type → field_declaration_list → field_declaration*
+    struct_body = find_child_by_type(cnode, "struct_type")
+    if struct_body is None:
+        return properties, claims
+    field_list = find_child_by_type(struct_body, "field_declaration_list")
+    if field_list is None:
+        return properties, claims
+
+    for field_decl in field_list.children:
+        if field_decl.type != "field_declaration":
+            continue
+        # field_declaration children: field_identifier* type_node
+        field_names: list[str] = []
+        type_node = None
+        for ch in field_decl.children:
+            if ch.type == "field_identifier":
+                field_names.append(node_text(ch))
+            else:
+                # Last non-identifier child is the type
+                type_node = ch
+
+        ftype = node_text(type_node) if type_node else ""
+        for fname in field_names:
+            if not fname or not fname[0].isupper():
+                continue  # skip unexported fields
+            properties.append({
+                "name": fname,
+                "type": ftype,
+                "kind": "property",
+                "access_mode": "readwrite",
+                "doc": "",
+                "line": field_decl.start_point[0] + 1,
+            })
+            claims.append(_make_claim(
+                family, "api_method",
+                f"{cname}.{fname} field of type {ftype}",
+                rel, field_decl.start_point[0] + 1,
+            ))
+
+    return properties, claims
+
+
+# ---------------------------------------------------------------------------
 # Go receiver method association (SFX-1)
 # ---------------------------------------------------------------------------
 
@@ -1546,6 +1610,13 @@ def extract_api_surface(
                                     family, "api_method",
                                     f"{cname}.{fname} data member of type {ftype}",
                                     rel, member.start_point[0] + 1))
+
+            # Go exported struct fields (e.g. RenderOptions.DPI, Rectangle.LLX)
+            if language == "go":
+                extra_props, extra_claims = _extract_go_struct_fields(
+                    cnode, cname, rel, family)
+                properties.extend(extra_props)
+                claims.extend(extra_claims)
 
             vis = visibility_tier(
                 cnode, language,

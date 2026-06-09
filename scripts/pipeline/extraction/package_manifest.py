@@ -207,6 +207,27 @@ def _parse_js_manifest(repo: Path) -> dict[str, Any]:
     return info
 
 
+def _extract_go_package_name(repo: Path) -> str:
+    """Return the declared package name from the first non-test .go file at repo root.
+
+    Scans *.go files at repo root (excludes *_test.go and files in subdirs).
+    Returns the package name string, or "" if none found.  Skips ``package main``.
+    """
+    for go_file in sorted(repo.glob("*.go")):
+        if go_file.name.endswith("_test.go"):
+            continue
+        try:
+            text = go_file.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        m = re.search(r"^package\s+(\w+)", text, re.MULTILINE)
+        if m:
+            pkg = m.group(1)
+            if pkg != "main":
+                return pkg
+    return ""
+
+
 def _parse_go_manifest(repo: Path) -> dict[str, Any]:
     """Extract identity fields from go.mod."""
     info: dict[str, Any] = {}
@@ -223,6 +244,10 @@ def _parse_go_manifest(repo: Path) -> dict[str, Any]:
     if m:
         info["go_version"] = m.group(1)
         info["runtime_requirement"] = f"Go {m.group(1)}+"
+    # Package name from source (distinct from module path)
+    pkg_name = _extract_go_package_name(repo)
+    if pkg_name:
+        info["package_name"] = pkg_name
     return info
 
 

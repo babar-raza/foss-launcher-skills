@@ -3,14 +3,17 @@
 Extracted from scout.py (step 4.2). Contains:
 - detect_package_root(repo, platform) — dispatch function
 - _detect_python_root, _detect_dotnet_root, _detect_java_root,
-  _detect_js_root, _detect_cpp_root — language-specific implementations
+  _detect_js_root, _detect_cpp_root, _detect_go_root — language-specific implementations
 
 No Scout class dependencies — these are pure functions usable in isolation.
 """
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
+
+LOG = logging.getLogger("scout.package_root")
 
 
 def detect_package_root(repo: Path, platform: str) -> Path:
@@ -25,6 +28,8 @@ def detect_package_root(repo: Path, platform: str) -> Path:
         return _detect_js_root(repo, platform)
     if platform == "cpp":
         return _detect_cpp_root(repo)
+    if platform == "go":
+        return _detect_go_root(repo)
     return repo
 
 
@@ -111,4 +116,26 @@ def _detect_cpp_root(repo: Path) -> Path:
     src = repo / "src"
     if src.is_dir():
         return src
+    return repo
+
+
+def _detect_go_root(repo: Path) -> Path:
+    """Return the Go package root inside *repo*.
+
+    For flat-layout repos (go.mod at root), returns *repo*.
+    For nested layouts (go.mod inside a subdirectory), returns that subdirectory.
+    Logs a warning if no go.mod is found and falls back to *repo*.
+    """
+    # Flat layout: go.mod at repo root (most common for FOSS Go libraries)
+    if (repo / "go.mod").exists():
+        return repo
+    # Nested layout: find first go.mod in immediate subdirectories
+    try:
+        for candidate in sorted(repo.iterdir()):
+            if candidate.is_dir() and (candidate / "go.mod").exists():
+                LOG.info("Go package root detected at %s (nested layout)", candidate)
+                return candidate
+    except OSError:
+        pass
+    LOG.warning("No go.mod found under %s — falling back to repo root", repo)
     return repo

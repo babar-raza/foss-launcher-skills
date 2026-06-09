@@ -135,6 +135,18 @@ def _collect_snippet_functions(
                         (block_name, call_node,
                          call_node.start_point[0] + 1))
 
+    elif language == "go":
+        # Go testable examples: ExampleXxx functions in *_test.go files.
+        # main() functions in _examples/ dirs (is_example_dir=True).
+        for fn in collect_nodes(root, func_types):
+            fname = _node_name(fn, language)
+            if not fname:
+                continue
+            if fname.startswith("Example"):
+                results.append((fname, fn, fn.start_point[0] + 1))
+            elif is_example_dir and fname == "main":
+                results.append((fname, fn, fn.start_point[0] + 1))
+
     return results
 
 
@@ -176,9 +188,9 @@ def extract_snippets(
             format_names.add(fname.lower())
 
     snippet_dirs = ["tests", "test", "examples", "example", "samples", "demo",
-                     "ApiExamples", "api_examples"]
+                     "ApiExamples", "api_examples", "_examples"]
     _example_dirs = {"examples", "example", "samples", "demo",
-                     "ApiExamples", "api_examples"}
+                     "ApiExamples", "api_examples", "_examples"}
     ext = _FILE_EXTENSIONS.get(language, ".py")
     func_types = _FUNC_TYPES.get(language, set())
     class_types = _CLASS_TYPES.get(language, set())
