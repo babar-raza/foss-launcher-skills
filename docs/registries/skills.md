@@ -61,7 +61,7 @@
 | new-kb-howto | S-58 | Generate KB how-to articles |
 | new-kb-index | S-69 | Scaffold KB platform section landing page |
 | new-products-page | S-61 | Generate products.aspose.org landing pages |
-| new-reference-index | S-71 | Scaffold Reference platform section landing page |
+| new-reference-index | S-71 | Scaffold Reference platform section landing page ([index structure](../reference/reference-index-structure.md)) |
 | new-reference-page | S-60 | Generate API reference pages |
 | no-downgrade-guard | S-55 | Pre-write quality comparison sub-routine |
 | page-draft | S-19 | Draft initial page content |

@@ -19,3 +19,4 @@ References:
 - [Content contracts](../reference/content-contracts.md)
 - [File contracts](../reference/file-contracts.md)
 - [CLI reference](../reference/cli.md)
+- [Reference index structure](../reference/reference-index-structure.md) — grouped-index design, filter chain, CI enforcement

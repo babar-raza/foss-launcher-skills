@@ -128,6 +128,7 @@ These CI checks enforce the migration architecture:
 | `check_new_script_placement.py` | New scripts in recognized domain dirs; all have docstrings |
 | `check_stale_path_refs.py` | No old root-level paths in docs/skills/workflows |
 | `check_pipeline_registration.py` | Every script registered; backing skills exist; shim integrity |
+| `check_reference_index_structure.py` | Reference `_index.md` pages use grouped tables, not flat `{{< children >}}`. [Design doc](../../docs/reference/reference-index-structure.md) |
 
 ## Root Budget
 

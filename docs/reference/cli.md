@@ -92,6 +92,9 @@ Checks:
 
 ## Batch Reference
 
+> See [Reference Index Structure](reference-index-structure.md) for the grouped-index
+> design, filter chain, and CI enforcement.
+
 Entrypoint: `scripts/pipeline/commands/content/batch_reference.py`
 
 ```bash
