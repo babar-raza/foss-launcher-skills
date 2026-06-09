@@ -196,13 +196,19 @@ def _scan_document_ctor_imports(
     ``def __init__(self, file_path/filepath/path/filename=...)`` signatures.
 
     Does nothing when:
-    - language is not Java, C#, or Python
+    - language is not Java, C#, Python, TypeScript, or JavaScript
     - an import entry for the primary format already exists (prevents duplicates
       when Pass 1b detected a ``XxxLoadOptions`` class for the same format)
+
+    TypeScript/JavaScript: scans files whose stem matches common primary class names
+    (``workbook``, ``document``, ``presentation``, ``spreadsheet``) for
+    ``static [async] load(filePath/path/file...)`` signatures — the pattern used by
+    libraries like cells/typescript where ``Workbook.load(filePath)`` is the import
+    entry point rather than a constructor.
     """
-    if language not in ("java", "csharp", "python"):
+    if language not in ("java", "csharp", "python", "typescript", "javascript"):
         return []
-    if language == "python":
+    if language in ("python", "typescript", "javascript"):
         primary_fmt = _FAMILY_PYTHON_PRIMARY_FMT.get(family, family.title())
     else:
         primary_fmt = family.title()
@@ -224,6 +230,31 @@ def _scan_document_ctor_imports(
                 continue
             for i, line in enumerate(text.splitlines(), 1):
                 if _py_ctor_re.search(line):
+                    return [{
+                        "format": primary_fmt,
+                        "enum": "",
+                        "value": "",
+                        "file": rel,
+                        "line": i,
+                        "direction": "import",
+                    }]
+        return []
+
+    if language in ("typescript", "javascript"):
+        _ts_primary_stems = frozenset({"document", "workbook", "presentation", "spreadsheet"})
+        _ts_static_load_re = re.compile(
+            r'static\s+(?:async\s+)?load\s*\(\s*(?:file[Pp]ath|filePath|path|file)\b',
+        )
+        for fpath in files:
+            if fpath.stem.lower() not in _ts_primary_stems:
+                continue
+            rel = str(fpath.relative_to(repo)).replace("\\", "/")
+            try:
+                text = fpath.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            for i, line in enumerate(text.splitlines(), 1):
+                if _ts_static_load_re.search(line):
                     return [{
                         "format": primary_fmt,
                         "enum": "",
@@ -257,6 +288,86 @@ def _scan_document_ctor_imports(
                     "line": i,
                     "direction": "import",
                 }]
+    return []
+
+
+def _scan_ts_ooxml_writer_export(
+    files: list[Path],
+    repo: Path,
+    family: str,
+    language: str,
+    existing_export_fmts: set[str],
+) -> list[dict]:
+    """Pass 1d: Detect TypeScript/JavaScript OOXML writer as XLSX export proof.
+
+    Libraries like cells/typescript export XLSX via a generic ``save(filePath)``
+    method that calls a ``writeToZip()``-style internal writer generating OOXML
+    structure (``xl/workbook.xml``, ``[Content_Types].xml``, ``_rels/.rels``).
+    No dedicated ``XlsxWriter`` class exists, so Pass 1 (I/O class detection)
+    never fires.
+
+    This pass looks for the combination of:
+    1. A ``save(filePath)`` method signature on a primary-stem source file.
+    2. OOXML-path string literals in the same file (e.g. ``"xl/workbook"``,
+       ``"[Content_Types]"``, ``"_rels/.rels"``).
+
+    When both signals are present the file is classified as an XLSX exporter and
+    one export entry is emitted for the family's primary format.
+
+    IMPORTANT — scope is intentionally narrow:
+    - Only fires for TypeScript/JavaScript.
+    - Only fires for primary-stem files (workbook, document, presentation, …).
+    - Requires OOXML-specific path strings, not just any ZIP writer.
+    - Does NOT emit entries for CSV/JSON/MARKDOWN even when detectFormat() dispatch
+      maps those extensions to the same writeToZip() path (library bug — those
+      save calls write XLSX binary with the wrong extension and are NOT functional).
+
+    Does nothing when:
+    - language is not TypeScript or JavaScript
+    - an export entry for the primary format already exists
+    """
+    if language not in ("typescript", "javascript"):
+        return []
+    primary_fmt = _FAMILY_PYTHON_PRIMARY_FMT.get(family, family.title())
+    if primary_fmt.lower() in existing_export_fmts:
+        return []
+
+    _ts_primary_stems = frozenset({"document", "workbook", "presentation", "spreadsheet"})
+    # Signal 1: public/instance save() method accepting a file path argument
+    _ts_save_re = re.compile(
+        r'(?:public\s+)?(?:async\s+)?save\s*\(\s*\w',
+    )
+    # Signal 2: OOXML-specific path string literals (confirms the writer is xlsx)
+    _ooxml_path_re = re.compile(
+        r'"(?:xl/workbook|\[Content_Types\]|_rels/\.rels)',
+    )
+
+    for fpath in files:
+        if fpath.stem.lower() not in _ts_primary_stems:
+            continue
+        rel = str(fpath.relative_to(repo)).replace("\\", "/")
+        try:
+            text = fpath.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        if not _ts_save_re.search(text):
+            continue
+        if not _ooxml_path_re.search(text):
+            continue
+        # Both signals found — locate the save() line for provenance
+        save_line = 0
+        for i, ln in enumerate(text.splitlines(), 1):
+            if _ts_save_re.search(ln):
+                save_line = i
+                break
+        return [{
+            "format": primary_fmt,
+            "enum": "",
+            "value": "",
+            "file": rel,
+            "line": save_line,
+            "direction": "export",
+        }]
     return []
 
 
@@ -493,9 +604,11 @@ def detect_formats(
                                f"{direction} support for {fmt_name} via {cname}",
                                rel, cn.start_point[0] + 1)
 
-    # Pass 1c: primary-document-class constructor import (Java/C# only).
+    # Pass 1c: primary-document-class constructor/static-load import.
     # Handles libraries like pdf/java where `new Document(path)` is the import
     # path but no dedicated PdfLoadOptions class exists for Pass 1b to detect.
+    # Also handles TypeScript/JavaScript libraries like cells/typescript where
+    # `static async Workbook.load(filePath)` is the import entry point.
     _existing_import_fmts = {
         f["format"].lower() for f in formats if f.get("direction") == "import"
     }
@@ -506,6 +619,25 @@ def detect_formats(
         _add_claim(
             "format_support",
             f"import support for {entry['format']} via Document constructor",
+            entry["file"], entry["line"],
+        )
+
+    # Pass 1d: TypeScript/JavaScript OOXML writer export detection.
+    # Handles libraries like cells/typescript where Workbook.save(filePath) calls
+    # a writeToZip()-style internal writer that generates OOXML structure
+    # (xl/workbook.xml, [Content_Types].xml, _rels/.rels) — proof of XLSX export.
+    # CSV/JSON/MARKDOWN are NOT upgraded even if detectFormat() dispatches them to
+    # the same writeToZip() path (library bug — those paths write XLSX binary).
+    _existing_export_fmts = {
+        f["format"].lower() for f in formats if f.get("direction") == "export"
+    }
+    for entry in _scan_ts_ooxml_writer_export(
+        files, repo, family, language, _existing_export_fmts
+    ):
+        formats.append(entry)
+        _add_claim(
+            "format_support",
+            f"export support for {entry['format']} via OOXML writer",
             entry["file"], entry["line"],
         )
 

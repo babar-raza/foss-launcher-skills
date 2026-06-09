@@ -929,5 +929,322 @@ public:
             )
 
 
+class TestDocumentCtorImportsTypeScript(unittest.TestCase):
+    """Tests for TypeScript static load() detection in _scan_document_ctor_imports().
+
+    Root cause guarded (CELLS-TYPESCRIPT-FORMATS-001):
+      cells/typescript uses `static async load(filePath)` on Workbook, not a
+      constructor or LoadOptions class.  Pass 1c previously excluded TypeScript
+      (formats.py:203 `if language not in ("java", "csharp", "python")`).
+      Fix: extend Pass 1c to recognise TypeScript/JavaScript static load().
+    """
+
+    def _write_file(self, tmp: Path, name: str, content: str) -> Path:
+        fpath = tmp / name
+        fpath.write_text(content, encoding="utf-8")
+        return fpath
+
+    def test_ts_static_load_detected_as_xlsx_import(self):
+        """workbook.ts with static async load(filePath) → xlsx import entry emitted."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "workbook.ts", """\
+export class Workbook {
+    static async load(filePath: string, password?: string): Promise<Workbook> {
+        const workbook = new Workbook(false);
+        await workbook.loadFile(filePath);
+        return workbook;
+    }
+}
+""")
+            result = _scan_document_ctor_imports(
+                [src], tmp, "typescript", "cells", set()
+            )
+            self.assertEqual(len(result), 1,
+                             "static async load(filePath) on workbook.ts must emit 1 import entry")
+            self.assertEqual(result[0]["direction"], "import")
+            # cells maps to "xlsx" via _FAMILY_PYTHON_PRIMARY_FMT
+            self.assertEqual(result[0]["format"].lower(), "xlsx")
+            self.assertEqual(result[0]["enum"], "")
+
+    def test_ts_static_load_primary_stem_filter(self):
+        """TypeScript utility.ts (non-primary stem) with static async load → no entry.
+
+        Root cause guarded: stem filter must prevent false positives from helper/util
+        classes that coincidentally define a static load() method.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "utility.ts", """\
+export class Utility {
+    static async load(filePath: string): Promise<Utility> {
+        return new Utility();
+    }
+}
+""")
+            result = _scan_document_ctor_imports(
+                [src], tmp, "typescript", "cells", set()
+            )
+            self.assertEqual(len(result), 0,
+                             "Non-primary stem (utility) must not emit import entry")
+
+    def test_ts_static_load_no_duplicate_when_import_exists(self):
+        """TypeScript Pass 1c skipped when import for primary format already detected."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "workbook.ts", """\
+export class Workbook {
+    static async load(filePath: string): Promise<Workbook> {
+        return new Workbook();
+    }
+}
+""")
+            # Simulate Pass 1b already emitting an xlsx import entry
+            result = _scan_document_ctor_imports(
+                [src], tmp, "typescript", "cells", {"xlsx"}
+            )
+            self.assertEqual(len(result), 0,
+                             "Pass 1c must not duplicate an already-detected import")
+
+    def test_ts_javascript_static_load_also_detected(self):
+        """JavaScript workbook.js with static load(filePath) → import entry emitted.
+
+        TypeScript and JavaScript share the same static load() pattern.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "workbook.js", """\
+class Workbook {
+    static async load(filePath) {
+        const wb = new Workbook();
+        await wb.loadFile(filePath);
+        return wb;
+    }
+}
+""")
+            result = _scan_document_ctor_imports(
+                [src], tmp, "javascript", "cells", set()
+            )
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0]["direction"], "import")
+            self.assertEqual(result[0]["format"].lower(), "xlsx")
+
+    def test_java_ctor_import_still_detected_after_ts_extension(self):
+        """Java Document(String filePath) constructor → Pdf import entry still emitted.
+
+        Regression guard: TypeScript extension must not break existing Java support.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "Document.java", """\
+public class Document {
+    public Document(String filePath) throws IOException {
+        this.load(filePath);
+    }
+    public Document() {}
+}
+""")
+            result = _scan_document_ctor_imports(
+                [src], tmp, "java", "pdf", set()
+            )
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0]["format"], "Pdf")
+            self.assertEqual(result[0]["direction"], "import")
+
+    def test_python_workbook_ctor_import_still_detected_after_ts_extension(self):
+        """workbook.py with __init__(file_path) → xlsx import entry still emitted.
+
+        Regression guard: TypeScript extension must not break existing Python support.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "workbook.py", """\
+class Workbook:
+    def __init__(self, file_path=None, password=None):
+        self._load(file_path)
+""")
+            result = _scan_document_ctor_imports(
+                [src], tmp, "python", "cells", set()
+            )
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0]["format"], "xlsx")
+            self.assertEqual(result[0]["direction"], "import")
+
+
+class TestTsOoXmlWriterExport(unittest.TestCase):
+    """Tests for _scan_ts_ooxml_writer_export() — Pass 1d TypeScript OOXML writer detection.
+
+    Root cause guarded (CELLS-TYPESCRIPT-FORMATS-001):
+      cells/typescript Workbook.save(filePath) calls writeToZip() which generates
+      OOXML structure (xl/workbook.xml, [Content_Types].xml, _rels/.rels).  This is
+      a confirmed XLSX writer but the extractor had no way to recognise generic-save
+      + OOXML-path signals as XLSX proof.
+
+      CRITICAL: CSV/JSON/MARKDOWN also route through the same writeToZip() call
+      (library bug — save("file.csv") writes XLSX binary) and must NOT be upgraded
+      to functional.  Only XLSX gains functional:true from this detection.
+    """
+
+    def _write_file(self, tmp: Path, name: str, content: str) -> Path:
+        fpath = tmp / name
+        fpath.write_text(content, encoding="utf-8")
+        return fpath
+
+    def test_ts_ooxml_writer_detected_as_xlsx_export(self):
+        """workbook.ts with save() + OOXML paths → xlsx export entry emitted."""
+        from extraction.formats import _scan_ts_ooxml_writer_export
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "workbook.ts", """\
+export class Workbook {
+    async save(filePath: string): Promise<void> {
+        const zip = await createZipWriter();
+        await this.writeToZip(zip);
+        await writeFile(filePath, data);
+    }
+    private async writeToZip(zip: any): Promise<void> {
+        await addZipEntry(zip, "[Content_Types].xml", this.generateContentTypes());
+        await addZipEntry(zip, "_rels/.rels", this.generateRels());
+        await addZipEntry(zip, "xl/workbook.xml", this.generateWorkbook());
+    }
+}
+""")
+            result = _scan_ts_ooxml_writer_export(
+                [src], tmp, "cells", "typescript", set()
+            )
+            self.assertEqual(len(result), 1,
+                             "save() + xl/workbook.xml path must emit 1 export entry")
+            self.assertEqual(result[0]["direction"], "export")
+            self.assertEqual(result[0]["format"].lower(), "xlsx")
+            self.assertEqual(result[0]["enum"], "")
+
+    def test_ts_no_ooxml_writer_no_export_entry(self):
+        """workbook.ts with save() but NO OOXML paths → no export entry emitted.
+
+        Root cause guarded: a generic save() without OOXML path evidence must not
+        be mistakenly classified as an XLSX exporter.
+        """
+        from extraction.formats import _scan_ts_ooxml_writer_export
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "workbook.ts", """\
+export class Workbook {
+    async save(filePath: string): Promise<void> {
+        // Write some data
+        await writeFile(filePath, this.data);
+    }
+}
+""")
+            result = _scan_ts_ooxml_writer_export(
+                [src], tmp, "cells", "typescript", set()
+            )
+            self.assertEqual(len(result), 0,
+                             "save() without OOXML paths must NOT emit export entry")
+
+    def test_ts_csv_enum_not_emitted_by_ooxml_writer_detection(self):
+        """OOXML writer detection emits XLSX only — CSV must NOT appear in result.
+
+        Root cause guarded (CELLS-TYPESCRIPT-FORMATS-001):
+          workbook.ts detectFormat() branches to CSV, JSON, MARKDOWN — but all
+          three call the same writeToZip() path (library bug: writes XLSX binary).
+          The extractor must emit ONLY xlsx from the OOXML-writer signal, never CSV.
+        """
+        from extraction.formats import _scan_ts_ooxml_writer_export
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            # Workbook with SaveFormat enum (including CSV) AND OOXML writer
+            src = self._write_file(tmp, "workbook.ts", """\
+export enum SaveFormat {
+    XLSX = "xlsx",
+    CSV = "csv",
+    JSON = "json",
+}
+
+export class Workbook {
+    async save(filePath: string): Promise<void> {
+        const format = this.detectFormat(filePath);
+        const zip = await createZipWriter();
+        await addZipEntry(zip, "[Content_Types].xml", "...");
+        await addZipEntry(zip, "xl/workbook.xml", "...");
+        await writeFile(filePath, data);
+    }
+    private detectFormat(filePath: string): SaveFormat {
+        if (filePath.endsWith(".csv")) return SaveFormat.CSV;
+        if (filePath.endsWith(".json")) return SaveFormat.JSON;
+        return SaveFormat.XLSX;
+    }
+}
+""")
+            result = _scan_ts_ooxml_writer_export(
+                [src], tmp, "cells", "typescript", set()
+            )
+            emitted_formats = {e["format"].lower() for e in result}
+            self.assertNotIn("csv", emitted_formats,
+                             "CSV must NOT be emitted — save('file.csv') writes XLSX binary")
+            self.assertNotIn("json", emitted_formats,
+                             "JSON must NOT be emitted — save('file.json') writes XLSX binary")
+
+    def test_ts_ooxml_writer_no_duplicate_when_export_exists(self):
+        """Pass 1d skipped when export for primary format already detected."""
+        from extraction.formats import _scan_ts_ooxml_writer_export
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "workbook.ts", """\
+export class Workbook {
+    async save(filePath: string): Promise<void> {
+        await addZipEntry(zip, "xl/workbook.xml", "...");
+    }
+}
+""")
+            result = _scan_ts_ooxml_writer_export(
+                [src], tmp, "cells", "typescript", {"xlsx"}
+            )
+            self.assertEqual(len(result), 0,
+                             "Must not duplicate an already-detected export")
+
+    def test_ts_ooxml_writer_primary_stem_filter(self):
+        """TypeScript utility.ts (non-primary stem) with OOXML paths → no entry.
+
+        Root cause guarded: OOXML paths in helper/utility classes must not trigger
+        xlsx export detection.
+        """
+        from extraction.formats import _scan_ts_ooxml_writer_export
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "utility.ts", """\
+export class ZipUtils {
+    async save(filePath: string): Promise<void> {
+        await addZipEntry(zip, "xl/workbook.xml", "...");
+        await writeFile(filePath, data);
+    }
+}
+""")
+            result = _scan_ts_ooxml_writer_export(
+                [src], tmp, "cells", "typescript", set()
+            )
+            self.assertEqual(len(result), 0,
+                             "Non-primary stem (utility) must not emit export entry")
+
+    def test_ts_ooxml_writer_javascript_also_detected(self):
+        """JavaScript workbook.js with save() + OOXML paths → export entry emitted."""
+        from extraction.formats import _scan_ts_ooxml_writer_export
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "workbook.js", """\
+class Workbook {
+    async save(filePath) {
+        await addZipEntry(zip, "[Content_Types].xml", contentTypes);
+        await addZipEntry(zip, "xl/workbook.xml", workbookXml);
+        await writeFile(filePath, data);
+    }
+}
+""")
+            result = _scan_ts_ooxml_writer_export(
+                [src], tmp, "cells", "javascript", set()
+            )
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0]["direction"], "export")
+
+
 if __name__ == "__main__":
     unittest.main()
