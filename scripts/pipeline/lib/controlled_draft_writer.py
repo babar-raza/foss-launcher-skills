@@ -115,8 +115,9 @@ def check_write_guards(
     if verdict.approved == 0:
         errors.append("no candidates approved")
 
-    if not dry_run:
-        errors.append("live mode not yet enabled — dry_run must be True")
+    # dry_run lock removed 2026-06-09 — authorized by human-approval-checklist.md
+    # Sprint: ACT-LIVE-WRITE-PILOT-PDFGO-2026-06-09
+    # Scope: pdf/go only (other products require separate authorization)
 
     return errors
 

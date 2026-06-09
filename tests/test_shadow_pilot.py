@@ -821,10 +821,11 @@ class TestControlledDraftWriter:
         errors = check_write_guards(verdict, dry_run=True)
         assert len(errors) == 0
 
-    def test_write_guard_blocks_live_mode(self):
+    def test_write_guard_allows_live_mode(self):
+        """Live mode is allowed after dry_run lock removal (2026-06-09, pdf/go pilot)."""
         verdict = BoardVerdict(verdict="approved_for_draft_write", approved=5)
         errors = check_write_guards(verdict, dry_run=False)
-        assert any("dry_run" in e or "live" in e for e in errors)
+        assert not any("dry_run" in e or "live" in e for e in errors)
 
     def test_dry_run_write_produces_manifest(self, tmp_path):
         cands = tmp_path / "candidates"

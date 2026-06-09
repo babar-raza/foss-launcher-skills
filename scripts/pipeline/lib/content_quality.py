@@ -21,7 +21,7 @@ from typing import Any
 CONTENT_QUALITY_VERSION = "1.0.0"
 
 MIN_WORD_COUNTS: dict[str, int] = {
-    "reference": 30,
+    "reference": 20,  # lowered from 30: enum/type stubs are legitimately thin (~28 words typical)
     "documentation": 80,
     "product_landing": 60,
     "blog_post": 100,

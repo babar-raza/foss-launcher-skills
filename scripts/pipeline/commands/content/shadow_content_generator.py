@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -25,6 +26,24 @@ if str(_PIPELINE_ROOT) not in sys.path:
 from lib.fact_graph import FactGraph
 
 SHADOW_GENERATOR_VERSION = "1.0.0"
+
+# Test function pattern — Go test functions are not product features
+_TEST_CLAIM_RE = re.compile(r"^Function Test[A-Z_]")
+# Raw API signature pattern (less descriptive than prose claims)
+_API_SIGNATURE_RE = re.compile(r"^(Function |Class |Method )\S")
+
+
+def _filter_feature_claims(claims: list[dict]) -> list[dict]:
+    """Filter and rank claims for feature display.
+
+    Excludes test function claims and ranks descriptive prose claims
+    above raw API signatures so feature sections read naturally.
+    """
+    filtered = [c for c in claims if not _TEST_CLAIM_RE.match(c.get("text", ""))]
+    descriptive = [c for c in filtered if not _API_SIGNATURE_RE.match(c.get("text", ""))]
+    api_sigs = [c for c in filtered if _API_SIGNATURE_RE.match(c.get("text", ""))]
+    return descriptive + api_sigs
+
 
 # Paths that must NEVER receive output
 FORBIDDEN_OUTPUT_PREFIXES = ("content/", "content\\")
@@ -146,8 +165,17 @@ def generate_docs_candidate(
     slug = page["slug"]
     facts = [fact_index[fid] for fid in page.get("required_facts", []) if fid in fact_index]
 
-    claim_facts = [f for f in facts if f["category"] == "claim"]
+    claim_facts = _filter_feature_claims([f for f in facts if f["category"] == "claim"])
     format_facts = [f for f in facts if f["category"] == "format"]
+
+    # Fallback: when required_facts contain no claims (e.g. all api_class), sample
+    # high-confidence claims from the full fact_index so the Features section is populated.
+    if not claim_facts:
+        claim_facts = _filter_feature_claims(sorted(
+            [f for f in fact_index.values() if f.get("category") == "claim" and f.get("confidence", 0) >= 0.9],
+            key=lambda f: f.get("confidence", 0),
+            reverse=True,
+        ))[:10]
 
     lines = []
     lines.append("---")
@@ -162,6 +190,10 @@ def generate_docs_candidate(
     lines.append(f"family: {family}")
     lines.append(f"platform: {platform}")
     prov_ids = [f["fact_id"] for f in facts[:5]]
+    for cf in claim_facts[:5]:
+        if cf["fact_id"] not in prov_ids:
+            prov_ids.append(cf["fact_id"])
+    prov_ids = prov_ids[:10]
     lines.append(f"provenance_fact_ids: {json.dumps(prov_ids)}")
     lines.append("---")
     lines.append("")
@@ -211,7 +243,7 @@ def generate_product_candidate(
     slug = page["slug"]
     facts = [fact_index[fid] for fid in page.get("required_facts", []) if fid in fact_index]
 
-    claim_facts = [f for f in facts if f["category"] == "claim"]
+    claim_facts = _filter_feature_claims([f for f in facts if f["category"] == "claim"])
     format_facts = [f for f in facts if f["category"] == "format"]
 
     lines = []
@@ -261,7 +293,7 @@ def generate_blog_candidate(
     title = page["title"]
     slug = page["slug"]
     facts = [fact_index[fid] for fid in page.get("required_facts", []) if fid in fact_index]
-    claim_facts = [f for f in facts if f["category"] == "claim"]
+    claim_facts = _filter_feature_claims([f for f in facts if f["category"] == "claim"])
 
     lines = []
     lines.append("---")
@@ -310,7 +342,7 @@ def generate_kb_candidate(
     title = page["title"]
     slug = page["slug"]
     facts = [fact_index[fid] for fid in page.get("required_facts", []) if fid in fact_index]
-    claim_facts = [f for f in facts if f["category"] == "claim"]
+    claim_facts = _filter_feature_claims([f for f in facts if f["category"] == "claim"])
     method_facts = [f for f in facts if f["category"] == "api_method"]
 
     lines = []
