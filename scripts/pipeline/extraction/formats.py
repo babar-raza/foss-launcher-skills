@@ -161,6 +161,14 @@ def _filter_vendor_paths(files: list[Path], pkg_root: Path) -> list[Path]:
     return filtered
 
 
+_FAMILY_PYTHON_PRIMARY_FMT: dict[str, str] = {
+    # Maps family name to the specific primary file format emitted by the ctor scan
+    # for Python libraries where the primary class loads one well-known format.
+    # Families absent from this map fall back to family.title() (generic sentinel).
+    "cells": "xlsx",  # Workbook.__init__(file_path) always loads .xlsx
+}
+
+
 def _scan_document_ctor_imports(
     files: list[Path],
     repo: Path,
@@ -173,8 +181,11 @@ def _scan_document_ctor_imports(
     Libraries like pdf/java load files via ``new Document(path)`` without a
     dedicated ``XxxLoadOptions`` class (which Pass 1b requires).  This pass
     scans for a primary class file containing a constructor that accepts a file
-    path parameter and emits one import entry for the library's primary format
-    (``family.title()``).
+    path parameter and emits one import entry for the library's primary format.
+
+    For Python families listed in ``_FAMILY_PYTHON_PRIMARY_FMT`` the emitted
+    format name is the actual file extension (e.g. ``xlsx`` for cells).  Other
+    Python families fall back to ``family.title()`` as a generic sentinel.
 
     Java/C#: scans ``Document.java``/``Document.cs`` for constructors accepting
     ``String``, ``InputStream``, ``Path``, or ``File`` without a ``LoadOptions``
@@ -191,7 +202,10 @@ def _scan_document_ctor_imports(
     """
     if language not in ("java", "csharp", "python"):
         return []
-    primary_fmt = family.title()
+    if language == "python":
+        primary_fmt = _FAMILY_PYTHON_PRIMARY_FMT.get(family, family.title())
+    else:
+        primary_fmt = family.title()
     if primary_fmt.lower() in existing_import_fmts:
         return []
 

@@ -811,7 +811,7 @@ class Document:
             self.assertEqual(result[0]["direction"], "import")
 
     def test_python_workbook_ctor_import_detected(self):
-        """workbook.py with file_path param → Cells import entry."""
+        """workbook.py with file_path param → xlsx import entry (cells uses _FAMILY_PYTHON_PRIMARY_FMT)."""
         with tempfile.TemporaryDirectory() as tmp:
             tmp = Path(tmp)
             src = self._write_file(tmp, "workbook.py", """\
@@ -823,7 +823,7 @@ class Workbook:
                 [src], tmp, "python", "cells", set()
             )
             self.assertEqual(len(result), 1)
-            self.assertEqual(result[0]["format"], "Cells")
+            self.assertEqual(result[0]["format"], "xlsx")
             self.assertEqual(result[0]["direction"], "import")
 
     def test_python_non_primary_stem_skipped(self):
@@ -849,8 +849,9 @@ class Workbook:
     def __init__(self, file_path=None):
         pass
 """)
+            # cells maps to "xlsx" via _FAMILY_PYTHON_PRIMARY_FMT; pass "xlsx" as existing
             result = _scan_document_ctor_imports(
-                [src], tmp, "python", "cells", {"cells"}
+                [src], tmp, "python", "cells", {"xlsx"}
             )
             self.assertEqual(len(result), 0)
 
