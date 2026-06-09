@@ -1279,6 +1279,31 @@ func main() {
         names = [r[0] for r in results]
         assert "main" not in names, f"main should not be captured outside example dir: {names!r}"
 
+    def test_root_level_test_file_scanned(self):
+        """ExampleXxx in *_test.go at repo root must be captured by extract_snippets."""
+        import tempfile
+        from extraction.snippets import extract_snippets
+        from extraction.tree_helpers import get_parser
+
+        parser = get_parser("go")
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            # Put go.mod + package source so pkg_root == repo
+            (repo / "go.mod").write_text("module example.com/test\n\ngo 1.21\n")
+            (repo / "lib.go").write_text("package mylib\n\nfunc Hello() {}\n")
+            # Root-level test file with ExampleXxx — NOT inside tests/ or _examples/
+            (repo / "examples_test.go").write_text(
+                'package mylib_test\n\n'
+                'func ExampleHello() {\n'
+                '    // demonstrate Hello\n'
+                '}\n'
+            )
+            result = extract_snippets(parser, "go", repo, repo, [], [])
+            names = [s["source_function"] for s in result]
+            assert "ExampleHello" in names, (
+                f"ExampleHello not found in root-level test scan: {names!r}"
+            )
+
 
 # ---------------------------------------------------------------------------
 # GO-005: Go package root detection

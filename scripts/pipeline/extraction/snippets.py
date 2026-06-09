@@ -282,6 +282,69 @@ def extract_snippets(
         if snippet_counter >= MAX_SNIPPETS:
             break
 
+    # Go-specific: scan *_test.go at package/repo root for ExampleXxx funcs.
+    # Go testable examples live in *_test.go files alongside the package source,
+    # not inside a tests/ subdirectory — so the snippet_dirs loop misses them.
+    if language == "go" and snippet_counter < MAX_SNIPPETS:
+        _visited_test: set[Path] = set()
+        for _base in _search_bases:
+            for test_file in sorted(_base.glob("*_test.go"))[:MAX_FILES]:
+                if test_file in _visited_test:
+                    continue
+                _visited_test.add(test_file)
+                if snippet_counter >= MAX_SNIPPETS:
+                    break
+                rel = str(test_file.relative_to(repo)).replace("\\", "/")
+                try:
+                    src = test_file.read_bytes()
+                except OSError:
+                    continue
+                tree = parser.parse(src)
+                text = src.decode("utf-8", errors="replace")
+                root = tree.root_node
+                func_nodes = _collect_snippet_functions(
+                    root, language, func_types, class_types, text,
+                    is_example_dir=False)
+                for fn_name, fn_node, fn_line in func_nodes:
+                    if snippet_counter >= MAX_SNIPPETS:
+                        break
+                    if any(s.get("source_function") == fn_name for s in snippets):
+                        continue
+                    code = node_text(fn_node)
+                    if not code.strip():
+                        continue
+
+                    classes_used: list[str] = []
+                    methods_used: list[str] = []
+                    formats_ref: list[str] = []
+                    code_lower = code.lower()
+                    for cname in api_class_names:
+                        if cname in code:
+                            classes_used.append(cname)
+                            for mname in api_method_index.get(cname, set()):
+                                if (f"{cname}.{mname}" in code
+                                        or f".{mname}(" in code):
+                                    methods_used.append(f"{cname}.{mname}")
+                    for fmt_name in format_names:
+                        if fmt_name in code_lower:
+                            formats_ref.append(fmt_name)
+
+                    snippet_id = f"snippet_{snippet_counter + 1:03d}"
+                    snippets.append({
+                        "id": snippet_id,
+                        "file": f"{snippet_id}{ext}",
+                        "source_file": rel,
+                        "source_function": fn_name,
+                        "source_line": fn_line,
+                        "language": language,
+                        "code": code[:5000],
+                        "valid": not fn_node.has_error,
+                        "classes_used": sorted(set(classes_used)),
+                        "methods_used": sorted(set(methods_used)),
+                        "formats_referenced": sorted(set(formats_ref)),
+                    })
+                    snippet_counter += 1
+
     # README fenced code blocks (as whole-file snippets)
     for readme_name in ("README.md", "readme.md", "README.rst"):
         if snippet_counter >= MAX_SNIPPETS:
