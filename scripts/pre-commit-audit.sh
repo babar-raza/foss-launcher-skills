@@ -564,4 +564,34 @@ if [ ${#staged_test_files[@]} -gt 0 ]; then
 fi
 _pc_step_end "PASS"
 
+# ---------------------------------------------------------------------------
+_pc_step_start "Go code block vet"
+# Step 12: Go code blocks — advisory vet of ```go fences in staged Go content
+# ---------------------------------------------------------------------------
+# Advisory mode: warns but does not block. Remove --advisory to enforce once
+# Go toolchain is available and all existing content passes.
+staged_go_content=()
+while IFS= read -r _gline; do staged_go_content+=("$_gline"); done < <(
+    git diff --cached --name-only --diff-filter=ACM | grep -E '^content/.*/go/' || true
+)
+if [ ${#staged_go_content[@]} -gt 0 ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_go_code_blocks.py" ]; then
+        # Determine content dir from first staged file
+        _go_content_dir=$(dirname "${staged_go_content[0]}")
+        # Walk up to the platform root (content/.../go/)
+        while [[ "$_go_content_dir" != */go && "$_go_content_dir" != "." ]]; do
+            _go_content_dir=$(dirname "$_go_content_dir")
+        done
+        if [ "$_go_content_dir" != "." ]; then
+            _go_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_go_code_blocks.py "$_go_content_dir" --advisory 2>&1)
+            _go_exit=$?
+            if [ -n "$_go_out" ]; then
+                echo "$_go_out" | sed 's/^/[Step 12] /' >&2
+            fi
+            # Advisory mode: never block commit regardless of _go_exit.
+        fi
+    fi
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0
