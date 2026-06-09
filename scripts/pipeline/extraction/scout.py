@@ -627,13 +627,25 @@ class Scout:
                 has_methods = bool(cls.get("methods"))
                 has_properties = bool(cls.get("properties"))
                 if has_methods and not has_properties:
-                    print(
-                        f"WARNING: Python class {cls['name']} in {cls['file']} "
-                        f"has {len(cls['methods'])} method(s) but zero properties — "
-                        f"possible missed dataclass fields. "
-                        f"Check extraction/api_surface.py _extract_python_annotated_fields.",
-                        file=sys.stderr,
+                    # Suppress for service/helper classes with an explicit __init__
+                    # that takes ≤ 1 param (after self/cls are excluded by api_surface).
+                    # These classes legitimately store only private (_underscore) state
+                    # via no-arg init or single dependency-injection param.
+                    # e.g. ShapeRenderer(writer), HyperlinkXMLSaver() — no public props.
+                    ctor = next(
+                        (m for m in cls.get("methods", []) if m.get("is_constructor")),
+                        None,
                     )
+                    if ctor is not None and len(ctor.get("params", [])) <= 1:
+                        pass  # service class — not a dataclass extraction bug
+                    else:
+                        print(
+                            f"WARNING: Python class {cls['name']} in {cls['file']} "
+                            f"has {len(cls['methods'])} method(s) but zero properties — "
+                            f"possible missed dataclass fields. "
+                            f"Check extraction/api_surface.py _extract_python_annotated_fields.",
+                            file=sys.stderr,
+                        )
                 elif not has_methods and not has_properties:
                     print(
                         f"WARNING: Python class {cls['name']} in {cls['file']} "

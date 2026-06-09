@@ -564,6 +564,76 @@ class TestScoutGuardrailWarnings:
                          if "CFBDocument" in l and "WARNING" in l]
         assert warning_lines == [], f"Unexpected warnings: {warning_lines}"
 
+    def test_guardrail_suppressed_for_service_class_no_arg_init(self):
+        """Service class with __init__(self) — no data params — must NOT warn."""
+        classes = [{
+            "name": "HyperlinkXMLSaver",
+            "kind": "class_definition",
+            "file": "pkg/xml_hyperlink_handler.py",
+            "methods": [
+                # __init__(self) — self already filtered, so params=[]
+                {"name": "__init__", "params": [], "return_type": "", "doc": "",
+                 "line": 2, "is_constructor": True},
+                {"name": "format_hyperlinks_xml",
+                 "params": [{"name": "worksheet"}], "return_type": "", "doc": "",
+                 "line": 5, "is_constructor": False},
+                {"name": "get_hyperlink_relationships",
+                 "params": [{"name": "worksheet"}], "return_type": "", "doc": "",
+                 "line": 10, "is_constructor": False},
+            ],
+            "properties": [],
+        }]
+        stderr = self._capture_guardrail(classes)
+        warning_lines = [l for l in stderr.splitlines()
+                         if "HyperlinkXMLSaver" in l and "WARNING" in l]
+        assert warning_lines == [], f"Unexpected warnings: {warning_lines}"
+
+    def test_guardrail_suppressed_for_service_class_single_injection_param(self):
+        """Service class with __init__(self, writer) must NOT trigger the guardrail.
+
+        Pattern: dependency-injection single-param constructor stores private state
+        as self._writer. Zero public properties is expected and correct.
+        """
+        classes = [{
+            "name": "ShapeRenderer",
+            "kind": "class_definition",
+            "file": "pkg/pdf_writer/shape_renderer.py",
+            "methods": [
+                # __init__(self, writer) — self filtered, writer remains
+                {"name": "__init__", "params": [{"name": "writer"}], "return_type": "",
+                 "doc": "", "line": 2, "is_constructor": True},
+                {"name": "render_shape",
+                 "params": [{"name": "pdf"}, {"name": "shape"}], "return_type": "",
+                 "doc": "", "line": 5, "is_constructor": False},
+            ],
+            "properties": [],
+        }]
+        stderr = self._capture_guardrail(classes)
+        warning_lines = [l for l in stderr.splitlines()
+                         if "ShapeRenderer" in l and "WARNING" in l]
+        assert warning_lines == [], f"Unexpected warnings: {warning_lines}"
+
+    def test_guardrail_fires_for_explicit_init_with_multiple_data_params(self):
+        """Explicit __init__ with 2+ data params still fires — may have missed fields."""
+        classes = [{
+            "name": "MissingPropsDataclass",
+            "kind": "class_definition",
+            "file": "pkg/models.py",
+            "methods": [
+                # __init__(self, name, value, count) — self filtered, 3 params
+                {"name": "__init__",
+                 "params": [{"name": "name"}, {"name": "value"}, {"name": "count"}],
+                 "return_type": "", "doc": "", "line": 2, "is_constructor": True},
+                {"name": "validate", "params": [], "return_type": "", "doc": "",
+                 "line": 8, "is_constructor": False},
+            ],
+            "properties": [],
+        }]
+        stderr = self._capture_guardrail(classes)
+        assert "MissingPropsDataclass" in stderr
+        assert "WARNING" in stderr
+        assert "zero properties" in stderr
+
 
 # ---------------------------------------------------------------------------
 # Bug fix: Python class docstring extraction (_extract_doc_comment)
