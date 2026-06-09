@@ -28,7 +28,19 @@ from typing import Any
 
 from lib.agent_decision_board import BoardVerdict, DecisionType
 
-WRITER_VERSION = "1.0.0"
+WRITER_VERSION = "1.1.0"
+
+# Allowed rollback target root prefixes (relative to repo_root).
+# rollback() refuses to delete files outside these roots even if the manifest
+# specifies an arbitrary target_path. Prevents crafted manifests from escaping
+# the approved write area.
+ALLOWED_ROLLBACK_ROOTS: tuple[str, ...] = (
+    "content/reference.aspose.org/",
+    "content/docs.aspose.org/",
+    "content/products.aspose.org/",
+    "content/blog.aspose.org/",
+    "content/kb.aspose.org/",
+)
 
 # Subdomain -> content path pattern
 SUBDOMAIN_PATHS: dict[str, str] = {
@@ -210,11 +222,58 @@ def write_approved_candidates(
     return manifest
 
 
+class RollbackPathError(Exception):
+    """Raised when a rollback target path fails the allowlist guard."""
+
+
+def _validate_rollback_target(target_path: str, repo_root: Path) -> Path:
+    """Validate that a rollback target path is safe to delete.
+
+    Checks:
+    1. Path resolves inside repo_root (no absolute-path escape).
+    2. No path traversal (../../ or similar).
+    3. Resolved path starts with one of ALLOWED_ROLLBACK_ROOTS.
+
+    Returns the resolved absolute Path on success.
+    Raises RollbackPathError on any violation.
+    """
+    # Reject absolute paths from manifests
+    if Path(target_path).is_absolute():
+        raise RollbackPathError(
+            f"BLOCKED: rollback target is an absolute path: {target_path!r}. "
+            "Only relative paths under ALLOWED_ROLLBACK_ROOTS are permitted."
+        )
+
+    # Resolve to absolute, check it stays within repo_root
+    resolved = (repo_root / target_path).resolve()
+    try:
+        resolved.relative_to(repo_root.resolve())
+    except ValueError:
+        raise RollbackPathError(
+            f"BLOCKED: rollback target escapes repo root: {target_path!r} "
+            f"resolves to {resolved} which is outside {repo_root.resolve()}"
+        )
+
+    # Check against allowed rollback roots
+    rel_from_root = resolved.relative_to(repo_root.resolve()).as_posix()
+    if not any(rel_from_root.startswith(root) for root in ALLOWED_ROLLBACK_ROOTS):
+        raise RollbackPathError(
+            f"BLOCKED: rollback target {target_path!r} is not under any "
+            f"approved rollback root. Allowed roots: {ALLOWED_ROLLBACK_ROOTS}"
+        )
+
+    return resolved
+
+
 def rollback(manifest_path: Path, repo_root: Path) -> list[str]:
     """Roll back a previous write operation using its manifest.
 
     Deletes files that were created new. For files that overwrote
     existing content, warns but does not auto-restore (use git checkout).
+
+    Safety: target paths are validated against ALLOWED_ROLLBACK_ROOTS before
+    any deletion. Crafted manifests with path traversal or arbitrary paths
+    will raise RollbackPathError before any file is touched.
 
     Returns list of actions taken.
     """
@@ -225,8 +284,12 @@ def rollback(manifest_path: Path, repo_root: Path) -> list[str]:
         actions.append("manifest was dry-run — no files to roll back")
         return actions
 
+    # Validate ALL target paths before touching any file (fail-first)
     for record in manifest.files_written:
-        target = repo_root / record.target_path
+        _validate_rollback_target(record.target_path, repo_root)
+
+    for record in manifest.files_written:
+        target = _validate_rollback_target(record.target_path, repo_root)
         if not target.exists():
             actions.append(f"SKIP: {record.target_path} already deleted")
             continue

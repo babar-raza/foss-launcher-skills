@@ -58,7 +58,9 @@ from lib.candidate_repair import (
 )
 from lib.controlled_draft_writer import (
     check_write_guards, write_approved_candidates,
-    WriteGuardError, RollbackManifest,
+    WriteGuardError, RollbackManifest, WriteRecord,
+    RollbackPathError, ALLOWED_ROLLBACK_ROOTS, _validate_rollback_target,
+    rollback,
 )
 from lib.schema_validators import (
     validate_claim_map,
@@ -942,3 +944,202 @@ class TestAgentReviewPipeline:
         )
         assert (output_dir / "product_state.json").exists()
         assert (output_dir / "agent_verdict.json").exists()
+
+
+# ---------------------------------------------------------------------------
+# Rollback Path Allowlist Guard Tests (Lane 5)
+# ---------------------------------------------------------------------------
+
+class TestRollbackPathGuard:
+    """Tests for the rollback() path allowlist guard.
+
+    These tests ensure that a crafted manifest cannot cause rollback() to
+    delete files outside the approved ACT write roots.
+    """
+
+    def _make_live_manifest(self, tmp_path: Path, record: WriteRecord) -> Path:
+        """Create a non-dry-run manifest with one record, written to tmp_path."""
+        manifest = RollbackManifest(
+            family="pdf", platform="go",
+            timestamp="2026-06-08T00:00:00+00:00",
+            dry_run=False,  # live manifest
+            files_written=[record],
+        )
+        mp = tmp_path / "rollback_manifest.json"
+        manifest.write(mp)
+        return mp
+
+    def test_allowed_root_passes(self, tmp_path):
+        """Valid content/ target under approved root passes validation."""
+        repo_root = tmp_path / "repo"
+        repo_root.mkdir()
+        target = "content/reference.aspose.org/en/pdf/go/SomeClass.md"
+        result = _validate_rollback_target(target, repo_root)
+        assert result == (repo_root / target).resolve()
+
+    def test_path_traversal_blocked(self, tmp_path):
+        """Path traversal (../../) in target_path raises RollbackPathError.
+
+        Path resolution normalizes the traversal; the guard catches it via
+        either the repo-root escape check or the allowed-root prefix check.
+        Either way, RollbackPathError is raised.
+        """
+        repo_root = tmp_path / "repo"
+        repo_root.mkdir()
+        with pytest.raises(RollbackPathError):
+            _validate_rollback_target(
+                "content/reference.aspose.org/../../etc/passwd",
+                repo_root,
+            )
+
+    def test_absolute_path_blocked(self, tmp_path):
+        """Absolute path in target_path raises RollbackPathError.
+
+        On Unix, is_absolute() catches it early. On Windows, /path resolves
+        to a drive-relative path; the repo-root escape check catches it.
+        Either way, RollbackPathError is raised before any deletion.
+        """
+        repo_root = tmp_path / "repo"
+        repo_root.mkdir()
+        with pytest.raises(RollbackPathError):
+            _validate_rollback_target("/etc/passwd", repo_root)
+
+    def test_outside_allowed_root_blocked(self, tmp_path):
+        """Target outside ALLOWED_ROLLBACK_ROOTS raises RollbackPathError."""
+        repo_root = tmp_path / "repo"
+        repo_root.mkdir()
+        with pytest.raises(RollbackPathError, match="not under any approved rollback root"):
+            _validate_rollback_target("scripts/pipeline/lib/evil.py", repo_root)
+
+    def test_windows_style_traversal_blocked(self, tmp_path):
+        """Windows-style traversal with forward slashes is also blocked."""
+        repo_root = tmp_path / "repo"
+        repo_root.mkdir()
+        with pytest.raises(RollbackPathError):
+            _validate_rollback_target(
+                "content/reference.aspose.org/../../../etc/hosts",
+                repo_root,
+            )
+
+    def test_dry_run_manifest_returns_early(self, tmp_path):
+        """Dry-run manifests skip all file operations without path validation."""
+        manifest = RollbackManifest(
+            family="pdf", platform="go",
+            timestamp="2026-06-08T00:00:00+00:00",
+            dry_run=True,
+            files_written=[WriteRecord(
+                source_path="shadow/evil.md",
+                target_path="/etc/passwd",
+                sha256="abc",
+                page_type="reference",
+                created_new=True,
+            )],
+        )
+        mp = tmp_path / "manifest.json"
+        manifest.write(mp)
+        # Should return early with "dry-run" message, never reaching path validation
+        actions = rollback(mp, tmp_path)
+        assert any("dry-run" in a for a in actions)
+
+    def test_hash_mismatch_warns_not_deletes(self, tmp_path):
+        """Modified-hash records produce WARN, not deletion."""
+        repo_root = tmp_path / "repo"
+        (repo_root / "content" / "reference.aspose.org" / "en" / "pdf" / "go").mkdir(
+            parents=True
+        )
+        target_file = (
+            repo_root / "content/reference.aspose.org/en/pdf/go/Test.md"
+        )
+        target_file.write_text("modified content")
+
+        record = WriteRecord(
+            source_path="shadow/Test.md",
+            target_path="content/reference.aspose.org/en/pdf/go/Test.md",
+            sha256="0" * 64,  # wrong SHA
+            page_type="reference",
+            created_new=True,
+        )
+        mp = self._make_live_manifest(tmp_path, record)
+        actions = rollback(mp, repo_root)
+        assert any("WARN" in a for a in actions)
+        assert target_file.exists()  # not deleted
+
+    def test_created_new_false_warns_not_deletes(self, tmp_path):
+        """created_new=False records produce WARN, not deletion."""
+        repo_root = tmp_path / "repo"
+        (repo_root / "content" / "reference.aspose.org" / "en" / "pdf" / "go").mkdir(
+            parents=True
+        )
+        target_file = (
+            repo_root / "content/reference.aspose.org/en/pdf/go/Existing.md"
+        )
+        content = b"original content"
+        target_file.write_bytes(content)
+        import hashlib
+        sha = hashlib.sha256(content).hexdigest()
+
+        record = WriteRecord(
+            source_path="shadow/Existing.md",
+            target_path="content/reference.aspose.org/en/pdf/go/Existing.md",
+            sha256=sha,
+            page_type="reference",
+            created_new=False,  # was an overwrite, not a new file
+        )
+        mp = self._make_live_manifest(tmp_path, record)
+        actions = rollback(mp, repo_root)
+        assert any("WARN" in a for a in actions)
+        assert target_file.exists()  # not deleted
+
+    def test_allowed_roots_constant_covers_all_subdomains(self):
+        """ALLOWED_ROLLBACK_ROOTS must cover all 5 ACT subdomains."""
+        expected_prefixes = {
+            "content/reference.aspose.org/",
+            "content/docs.aspose.org/",
+            "content/products.aspose.org/",
+            "content/blog.aspose.org/",
+            "content/kb.aspose.org/",
+        }
+        for prefix in expected_prefixes:
+            assert prefix in ALLOWED_ROLLBACK_ROOTS, f"Missing: {prefix}"
+
+    def test_crafted_manifest_blocked_before_any_file_touched(self, tmp_path):
+        """Fail-first validation: if any path is invalid, no files are deleted."""
+        repo_root = tmp_path / "repo"
+        # Create a legitimate file in an allowed root
+        safe_dir = repo_root / "content/reference.aspose.org/en/pdf/go"
+        safe_dir.mkdir(parents=True)
+        safe_file = safe_dir / "Safe.md"
+        safe_file.write_text("safe content")
+
+        # Manifest has one valid record followed by one path-traversal record
+        import hashlib
+        safe_sha = hashlib.sha256(b"safe content").hexdigest()
+        manifest = RollbackManifest(
+            family="pdf", platform="go",
+            timestamp="2026-06-08T00:00:00+00:00",
+            dry_run=False,
+            files_written=[
+                WriteRecord(
+                    source_path="shadow/Safe.md",
+                    target_path="content/reference.aspose.org/en/pdf/go/Safe.md",
+                    sha256=safe_sha,
+                    page_type="reference",
+                    created_new=True,
+                ),
+                WriteRecord(
+                    source_path="shadow/evil.md",
+                    target_path="../../etc/passwd",  # traversal attack
+                    sha256="abc",
+                    page_type="reference",
+                    created_new=True,
+                ),
+            ],
+        )
+        mp = tmp_path / "manifest.json"
+        manifest.write(mp)
+
+        with pytest.raises(RollbackPathError):
+            rollback(mp, repo_root)
+
+        # Safe file must NOT have been deleted (fail-first validation)
+        assert safe_file.exists()

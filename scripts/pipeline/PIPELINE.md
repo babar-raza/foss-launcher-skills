@@ -239,10 +239,25 @@ DISCOVERED → SNAPSHOT_CAPTURED → FACTS_EXTRACTED → FACTS_VERIFIED
 
 ### ACT Safety Invariants
 
-- `controlled_draft_writer.py` has a permanent live-write lock (`dry_run must be True`)
+- `controlled_draft_writer.py` has a permanent live-write lock (`dry_run must be True` at line ~107)
 - All candidate files carry `shadow_candidate: true` in frontmatter
 - Write guard checks 5 conditions before any file operation
 - RollbackManifest records every write with SHA256 for full reversal
+- **Rollback path guard** (`ALLOWED_ROLLBACK_ROOTS`): `rollback()` validates all target paths
+  before touching any file. Rejects path traversal, absolute paths, and paths outside
+  `content/{reference,docs,products,blog,kb}.aspose.org/`. Raises `RollbackPathError` on violation.
+- writer version `1.1.0` since addition of rollback path guard
+
+### ACT Readiness Levels
+
+| Level | Meaning | Current |
+|-------|---------|---------|
+| Shadow ready | Candidates generated in reports/ | YES |
+| Agent-review ready | 10-gate agent board evaluates all candidates | YES |
+| Draft-write-dry-run ready | Full pipeline in dry-run mode | YES |
+| CI ready | `.github/workflows/act-pipeline.yml` runs on push/PR | YES |
+| Live-write blocked | `dry_run=True` locked; needs human authorization | BLOCKED |
+| Publish/deploy blocked | draft:true; needs PROD_AWS_* and explicit step | BLOCKED |
 
 ### ACT Tests
 
@@ -255,10 +270,17 @@ tests/test_page_plan_compiler.py  (12 tests)
 tests/test_external_signals.py    (10 tests)
 tests/test_autonomous_runner.py   (12 tests)
 tests/test_schema_validators.py   (27 tests)
-tests/test_shadow_pilot.py        (75 tests)  ← Wave 2 integration tests
+tests/test_shadow_pilot.py        (85 tests)  ← Wave 2 + rollback guard tests
 ```
 
-Run all ACT tests: `.venv/Scripts/python -m pytest tests/test_shadow_pilot.py tests/test_product_state.py tests/test_autonomous_runner.py tests/test_fact_graph.py tests/test_page_plan_compiler.py tests/test_external_signals.py tests/test_schema_validators.py`
+Total: 192 tests. Run all:
+```
+.venv/Scripts/python -m pytest tests/test_shadow_pilot.py tests/test_product_state.py \
+  tests/test_autonomous_runner.py tests/test_fact_graph.py tests/test_page_plan_compiler.py \
+  tests/test_external_signals.py tests/test_schema_validators.py
+```
+
+CI: `.github/workflows/act-pipeline.yml` (scoped to ACT paths, no secrets, no deploy steps)
 
 ### ACT LLM Call Site
 
