@@ -52,6 +52,7 @@ capabilities, and rewrites the three text fields to be platform-agnostic.
     .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n      --family {family} --subdomain products.aspose.org --write
     ```
     If BLOCKED_TARGET: log WARN and continue.
+    **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
 8. **Attach evidence** — `python scripts/pipeline/commands/healing/attach_evidence.py --files {path}`
 9. **Audit** — `python scripts/pipeline/commands/content/audit.py --files {path}` — must exit 0 FAIL
 

@@ -140,32 +140,11 @@ Before generating any content, you MUST:
      - `[API Reference](https://reference.aspose.org/{family}/{platform}/)`
 
 5. **Constraints**:
-   - **Tone**: Write in technical/informational tone. Describe what the API does, not how
-     impressive it is. Use specific technical details and concrete code examples.
-   - **Forbidden words — WARN/FAIL level (DO NOT use in prose; evaluator will flag)**:
-     - `seamless` / `seamlessly` → say "direct" or restructure the sentence
-     - `best in class` / `best available` / `best possible` → remove; describe the specific capability
-     - `fastest` → remove; use specific complexity or benchmark data if verifiable
-     - `high-performance` → remove; describe throughput or memory in concrete terms
-     - `fully supports` / `fully supported` → say "supports" or enumerate what is specifically supported
-     - `completely support/compatible/implement` → same as above
-     - `all features` / `all formats` / `all platforms` → enumerate specifically or remove
-     - `100% compatible/accurate/supported` → remove; overstated and unverifiable
-     - `industry-leading` → remove; marketing language with no technical content
-     - `zero-config` / `zero-dependency` / `zero-overhead` → remove unless provably true with citation
-     - `no limitations` → never use; a FAIL finding; there are always limitations
-     - `unlimited` → remove; overstated claim
-     - `guarantees` → say "returns", "produces", or describe the specific contract
-     - `perfect` / `perfectly` → remove
-     - `flawless` → remove
-   - **Advisory words — INFO level (avoid where possible)**:
-     - `robust` → say "reliable", "stable", or describe the specific quality
-     - `powerful` → remove; describe the capability that makes it useful
-     - `lightweight` → describe by dependency count or install size instead
-     - `out of the box` → say "by default" or "without configuration"
-   - **Post-generation check**: Before finalizing, scan your draft for every WARN-level
-     forbidden word above. If any appear in prose (not inside code blocks or backtick names),
-     rewrite those sentences. Do not submit a draft containing WARN-level forbidden words.
+   - **Tone**: Write in technical/informational tone. Avoid marketing language such as
+     "powerful", "robust", "seamlessly", "cutting-edge", "industry-leading", "comprehensive",
+     "state-of-the-art", "best-in-class", and similar superlatives. Focus on what the API
+     does, not on selling it. Use specific technical details and concrete code examples.
+     The `consumer_usefulness` evaluator will FAIL posts that read as marketing copy.
    - `author` is always exactly `Aspose`
    - `tags` is always `[]`
    - `categories` uses the format `Aspose.{Family}` with a capital F and correct family name casing (e.g. `Aspose.3D`, `Aspose.Cells`, `Aspose.Slides`)
@@ -195,6 +174,7 @@ Before generating any content, you MUST:
     .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n      --family {family} --platform {platform} --subdomain blog.aspose.org --write
     ```
     If BLOCKED_TARGET: log WARN and continue.
+    **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
 
 > **Skill context close** — run after the last step:
 > ```bash
@@ -232,17 +212,3 @@ the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
 - Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
   `token_usage` and `api_calls_count`.
 - Metrics failures must not crash or block the parent pipeline job.
-
-
-## Enterprise Backlink Policy
-
-Do not construct enterprise URLs manually.
-Use `backlink_backfill.py` for insertion. Use `backlink_audit.py` for compliance.
-All links must come from the verified target map or approved deep authority.
-See `docs/governance/backlink-policy.md` for full policy.
-
-## Anchor Text Governance
-
-Anchor texts must not be hand-written, improved, or modified during content edits.
-All anchor text comes from the approved config pipeline (anchor_text_registry.yaml).
-Page-specific wording requires an approved entry in data/backlinks/anchor_overrides.yaml.

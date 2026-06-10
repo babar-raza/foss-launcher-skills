@@ -93,13 +93,6 @@ any user request.
      Advisory is informational only — do NOT invoke S-93, S-94, or S-95 automatically.
    - Output a `BACKLOG BRIEFING` block (see format below)
    - If `backlog/` directory does not exist, output: `BACKLOG: not configured (run /backlog to set up)`
-   - **Step 6g — Unlaunched product detection** (non-blocking advisory — never blocks session):
-     ```bash
-     PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/ops/detect_unlaunched.py
-     ```
-     If any UNLAUNCHED products are listed, include them in the BACKLOG BRIEFING under a
-     `UNLAUNCHED PRODUCTS:` sub-section. Advisory only — do NOT auto-launch products.
-     Graceful skip if script is missing.
 7. Only then accept the user's task
 
 > **Skill context close** — run after the last step:

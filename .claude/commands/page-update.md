@@ -62,11 +62,6 @@ After a knowledge refresh (S-14), identify which content pages reference changed
      - If `LLM_API_KEY` absent and page is `MEDIUM_IMPACT` only (not citation-matched):
        flag as `NEEDS_HUMAN_REVIEW` in page_decisions.json; do not silently skip.
      - If `page_impact.json` absent: skip PIA-match path with a WARN; citation-match still runs.
-     - **PIA enforcement**: HIGH/MEDIUM impacted existing pages MUST NOT silently remain
-       EVIDENCE_ONLY after page-update completes. If citation-match finds no overlap but PIA
-       scores the page HIGH_IMPACT, the page MUST be reviewed for body update or classified
-       with a no-op proof. The semantic refresh guard (Step 11.5) will detect and block
-       commits when this obligation is not met.
    - De-duplicate: pages found by both paths are processed once
 
 5. **For each affected page**, produce an update plan:
@@ -189,6 +184,7 @@ After a knowledge refresh (S-14), identify which content pages reference changed
     If BLOCKED_TARGET (no valid backlink target for this page): log WARN and continue.
     Do not fail the skill. Do not rebuild or restructure any section.
     This step runs once per skill invocation after all pages are updated.
+    **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
 
 10. **Report**: For each updated page, print:
    ```
@@ -256,17 +252,3 @@ the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
 - Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
   `token_usage` and `api_calls_count`.
 - Metrics failures must not crash or block the parent pipeline job.
-
-
-## Enterprise Backlink Policy
-
-Do not construct enterprise URLs manually.
-Use `backlink_backfill.py` for insertion. Use `backlink_audit.py` for compliance.
-All links must come from the verified target map or approved deep authority.
-See `docs/governance/backlink-policy.md` for full policy.
-
-## Anchor Text Governance
-
-Anchor texts must not be hand-written, improved, or modified during content edits.
-All anchor text comes from the approved config pipeline (anchor_text_registry.yaml).
-Page-specific wording requires an approved entry in data/backlinks/anchor_overrides.yaml.

@@ -99,20 +99,6 @@ Do not run any subsequent steps. Exit 0.
    - **If `knowledge_delta.json` absent**: step is skipped with WARNING; chain continues
    - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step page_impact_assess`
 
-4.5. **Pre-update source semantic classification** (S-84 Step 4.5):
-   ```bash
-   .venv/Scripts/python scripts/pipeline/commands/ops/semantic_source_classifier.py \
-       {family} {platform} \
-       --old-sha {stored_sha} --new-sha {current_sha} \
-       --knowledge-delta knowledge/{family}/{platform}/merged/knowledge_delta.json
-   ```
-   Writes: `reports/refresh_review/{family}/{platform}/semantic_source_delta.json`
-   - Exit 0: classification complete — proceed to Step 4 (page-update)
-   - Exit 1: clone not found → HALT; run S-34 (repo-scout) first to populate clone cache
-   - Exit 2: shallow clone, diff unavailable → UNKNOWN written to JSON; proceed (guard in Step 11.5 will fail-closed)
-   **Note**: page_decisions.json does NOT exist yet at this stage — the classifier must NOT reference it.
-   - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step semantic_source_classifier`
-
 4. **Update stale existing pages** (S-20: page-update):
    ```
    /page-update {family} {platform}
@@ -162,7 +148,7 @@ Do not run any subsequent steps. Exit 0.
    ```
    Run on all pages updated, generated, or modified in Steps 4-7.
 
-9.5. **Re-grade changed pages** (TC-P3-03: post-refresh re-grading) — AMENDED:
+9.5. **Re-grade changed pages** (TC-P3-03: post-refresh re-grading):
     ```bash
     .venv/Scripts/python -m content_eval evaluate {family} {platform} --write-grade
     ```
@@ -170,102 +156,17 @@ Do not run any subsequent steps. Exit 0.
     Compare before/after grades: any page regressing to D or F should be flagged for healing
     before commit. Pass `--skip-regrade` to bypass for fast refresh runs.
 
-    **Stale grade detection** (new): After re-grading, detect EVIDENCE_ONLY pages whose
-    `graded_content_hash` differs from current body — these pages were skipped by re-grading
-    but may have stale grades from before the refresh:
-    ```bash
-    .venv/Scripts/python scripts/pipeline/commands/ops/grade_remediation_check.py \
-        {family} {platform} --stale-grades --list
-    ```
-    Pages where `graded_content_hash != sha256(current body)` MUST be re-graded regardless
-    of body_hash_changed flag. If any found, re-run evaluator on those pages specifically.
-
-9.6. **Grade remediation for D/F pages** (S-96: grade-remediate):
-    After Step 9.5, scan for D/F pages:
-    ```bash
-    .venv/Scripts/python scripts/pipeline/commands/ops/grade_remediation_check.py \
-        {family} {platform} --grade-filter D,F --list
-    ```
-    If any found, invoke S-96:
-    ```
-    /grade-remediate {family} {platform} --grade-filter D,F --max 10
-    ```
-    - Pages with CONTENT_FIXABLE findings → repaired via S-73 (manual-edit)
-    - Pages with PIPELINE-class findings → taskcard created in `backlog/BACKLOG.md`
-    - Grade failures do NOT abort commit; they are tracked for follow-up remediation.
-    - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step grade_remediation`
-
 10. **Link validation** (S-65: link-validate):
     ```
     /link-validate {family} {platform}
     ```
     Verify no broken cross-subdomain links were introduced.
 
-10.5. **Backlink audit and backfill** (cross-subdomain See Also injection):
-    ```bash
-    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_audit.py \
-        --family {family} --platform {platform}
-    ```
-    If missing backlinks detected:
-    ```bash
-    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \
-        --family {family} --platform {platform}
-    ```
-    Review dry-run output. If acceptable:
-    ```bash
-    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \
-        --family {family} --platform {platform} --write
-    ```
-    - If backfill modifies files: re-run Step 9 (content-check) on affected files
-    - If backfill fails: WARN but do not block refresh (backlinks are additive)
-    - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step backlink_backfill`
-
 11. **Record step completions**: After each step above, call:
     ```bash
     .venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step {step_name}
     ```
     Progress is tracked at `reports/refresh_state/{family}/{platform}/progress.json` (local-only, not committed).
-
-11.5. **Post-update semantic refresh guard** (S-84 Step 11.5) — ENFORCEMENT:
-    ```bash
-    .venv/Scripts/python scripts/pipeline/commands/ops/semantic_refresh_guard.py \
-        {family} {platform} \
-        --source-delta reports/refresh_review/{family}/{platform}/semantic_source_delta.json \
-        --page-decisions reports/refresh_review/{family}/{platform}/page_decisions.json \
-        --page-impact reports/refresh_review/{family}/{platform}/page_impact.json \n        --knowledge-delta knowledge/{family}/{platform}/merged/knowledge_delta.json
-    ```
-    Writes: `reports/refresh_review/{family}/{platform}/semantic_refresh_verdict.json`
-    - **Exit 0**: SEMANTIC_NOOP_PROVEN / BODY_UPDATED_VERIFIED / EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED / GRADING_REMEDIATION_REQUIRED → continue to Step 12
-    - **Exit 1**: REFRESH_BLOCKED_UNPROVEN_NOOP / SEMANTIC_REFRESH_REQUIRED / GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT → **DO NOT commit**; investigate source-to-body trace
-      - GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT: body changes only on generated reference stubs; re-run page-update targeting existing impacted content pages
-    - **Exit 2**: CLAIM_EXTRACTION_MISSED_DELTA / PAGE_MAPPING_MISSED_IMPACT → **DO NOT commit**; flag as S-37 knowledge gap
-    - **Exit 4**: GUARD_ERROR_BLOCKED (infra error + HIGH/MEDIUM/UNKNOWN source) → **DO NOT commit**; investigate guard failure
-    - **Exit 5**: GUARD_ERROR_WARN (infra error + source_changed=false or INTERNAL_ONLY) → warn; continue
-
-    Note: `--page-impact` is auto-discovered alongside `--page-decisions` when omitted.
-
-    **ENFORCEMENT**: If `semantic_refresh_verdict.json` is absent after this step, treat as exit 4.
-    Final refresh acceptance REQUIRES `semantic_refresh_verdict.json` with exit 0 verdict.
-    - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step semantic_refresh_guard`
-
-11.6. **Body-update planner routing** (when Step 11.5 exits 1 or 2):
-    ```bash
-    .venv/Scripts/python scripts/pipeline/commands/ops/semantic_body_update_planner.py \
-        {family} {platform} \
-        --source-delta reports/refresh_review/{family}/{platform}/semantic_source_delta.json \
-        --page-impact reports/refresh_review/{family}/{platform}/page_impact.json \
-        --knowledge-delta knowledge/{family}/{platform}/merged/knowledge_delta.json \
-        --page-decisions reports/refresh_review/{family}/{platform}/page_decisions.json \
-        --max-pages 10
-    ```
-    Status routing:
-    - BODY_UPDATES_PLANNED: invoke S-73 per page, then re-run Step 11.5
-    - SOURCE_EVIDENCE_UNAVAILABLE: fail-closed, log as external gate
-    - GAP_CLASSIFIED: taskcard to backlog
-    - NO_IMPACTED_EXISTING_PAGES: investigate page_impact scoring
-
-    **Generated reference pages are never counted as satisfying existing docs/kb/product obligations.**
-    - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step body_update_planner`
 
 12. **Verification gate** (post_refresh_verify.py --verify):
     ```bash
@@ -366,17 +267,3 @@ will be skipped or produce no-ops on re-run.
 - Step 2 (knowledge-update): if scout fails, abort entire cycle; do not write partial delta
 - Step 12 (verify): if fails, list specific issues; do not commit; fix and re-verify
 - Any step failure: check `--status` to see which steps completed; resume from the failing step
-
-
-## Enterprise Backlink Policy
-
-Do not construct enterprise URLs manually.
-Use `backlink_backfill.py` for insertion. Use `backlink_audit.py` for compliance.
-All links must come from the verified target map or approved deep authority.
-See `docs/governance/backlink-policy.md` for full policy.
-
-## Anchor Text Governance
-
-Anchor texts must not be hand-written, improved, or modified during content edits.
-All anchor text comes from the approved config pipeline (anchor_text_registry.yaml).
-Page-specific wording requires an approved entry in data/backlinks/anchor_overrides.yaml.

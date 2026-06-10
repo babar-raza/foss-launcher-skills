@@ -142,6 +142,7 @@ This is safe for unattended runs and skips the LLM fix pass (Step 6).
     .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n      --family {family} --platform {platform} --subdomain {subdomain} --write
     ```
     If BLOCKED_TARGET: log WARN and continue.
+    **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
 
 > **Skill context close** — run after the last step:
 > ```bash

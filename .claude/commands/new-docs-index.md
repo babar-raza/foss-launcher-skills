@@ -66,7 +66,7 @@ Default weight for unlisted platforms: 80.
    print `SKIP: _index.md already complete` and stop — do not overwrite.
 
 5. **Ensure family index exists**: Check if `content/docs.aspose.org/en/{family}/_index.md` exists.
-   If it already exists AND contains `subtitle:` in its frontmatter, skip to step 6. If it exists but lacks `subtitle:`, read `model.yaml`, derive a 5–8 word summary, add the `subtitle` field to the existing frontmatter (preserving all other fields), run `attach_evidence.py` and `audit.py` on the updated file (0 FAIL required), then continue to step 6. If missing, create it:
+   If it already exists, skip to step 6. If missing, create it:
 
    a. Read `data/families_order.json` and find the 0-based index of `{family}`. Compute
       `weight = (index + 1) * 10`. If the family is not listed, use weight 100.

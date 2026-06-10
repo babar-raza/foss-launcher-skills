@@ -147,6 +147,7 @@ The script generates all class pages using templates from `api_surface.json`. Fo
 - Appends a `## See Also` section with the reciprocal aspose.com backlink via
   `backlink_targets.resolve_backlink()` (TC-BL-007). If BLOCKED_TARGET, omits See Also —
   generation continues.
+  **Anchor policy v2**: reference targets → `Aspose.{Family} [for {Platform}] — Enterprise API Reference`; platform targets within overview → `Enterprise Product`; family targets → `Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
 
 > **Contract note (Fix 10, 2026-04-07)**: Prior to Fix 8, `batch_reference.py` wrote pages
 > without a `provenance:` block and without calling `attach_evidence()`. This meant reference
@@ -279,17 +280,3 @@ by `/new-reference-page`). Before committing the batch output:
    - Knowledge model SHA from `knowledge/{family}/{platform}/model.yaml`
    - `Skills invoked: [batch-reference, /new-reference-page, S-24, S-01]`
    - Count: `Generated {N} reference pages for {family}/{platform}`
-
-
-## Enterprise Backlink Policy
-
-Do not construct enterprise URLs manually.
-Use `backlink_backfill.py` for insertion. Use `backlink_audit.py` for compliance.
-All links must come from the verified target map or approved deep authority.
-See `docs/governance/backlink-policy.md` for full policy.
-
-## Anchor Text Governance
-
-Anchor texts must not be hand-written, improved, or modified during content edits.
-All anchor text comes from the approved config pipeline (anchor_text_registry.yaml).
-Page-specific wording requires an approved entry in data/backlinks/anchor_overrides.yaml.

@@ -292,6 +292,7 @@ For any MISSING pages, re-inject before shipping:
 .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n  --family {family} --platform {platform} --write
 ```
 If BLOCKED_TARGET: log WARN — do not block ship decision on BLOCKED_TARGET.
+    **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
 
 **Print**: `READY TO SHIP` or `NOT READY` with a bullet list of blocking items.
 

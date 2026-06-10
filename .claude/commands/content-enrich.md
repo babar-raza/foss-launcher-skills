@@ -132,17 +132,3 @@ PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/enric
 # slides/python audit (second repo validation)
 PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/enrichment/content_enrich.py slides python --mode audit
 ```
-
-
-## Enterprise Backlink Policy
-
-Do not construct enterprise URLs manually.
-Use `backlink_backfill.py` for insertion. Use `backlink_audit.py` for compliance.
-All links must come from the verified target map or approved deep authority.
-See `docs/governance/backlink-policy.md` for full policy.
-
-## Anchor Text Governance
-
-Anchor texts must not be hand-written, improved, or modified during content edits.
-All anchor text comes from the approved config pipeline (anchor_text_registry.yaml).
-Page-specific wording requires an approved entry in data/backlinks/anchor_overrides.yaml.

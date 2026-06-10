@@ -1,7 +1,7 @@
 <!-- CONTRACT: agent-executed
-     postcondition: content/blog.aspose.org/{family}/{platform}/_index.md exists with FOSS title, linkTitle, and categories = [taxonomy_term]
+     postcondition: content/blog.aspose.org/{family}/{platform}/_index.md exists with title frontmatter
      postcondition: Hugo can generate section index page for /{family}/{platform}/
-     verified: 2026-05-31
+     verified: 2026-05-20
      depends_on: []
 -->
 # S-101: New Blog Index — Scaffold Blog Platform Section Branch Bundle
@@ -61,8 +61,8 @@ For any unlisted platform key, capitalise the first letter.
    `"No blog posts found at content/blog.aspose.org/{family}/{platform}/. Create posts first."`
 
 5. **Check idempotency**: If `content/blog.aspose.org/{family}/{platform}/_index.md`
-   already exists AND its `title:` contains `FOSS for` AND `categories:` is non-empty,
-   print `SKIP: _index.md already complete` and stop — do not overwrite.
+   already exists AND contains `title:` in its frontmatter, print
+   `SKIP: _index.md already complete` and stop — do not overwrite.
 
 6. **Determine platform display name** from the table above.
 
@@ -70,17 +70,14 @@ For any unlisted platform key, capitalise the first letter.
 
    ```
    ---
-   title: "{taxonomy_term} FOSS for {Platform display}"
-   linkTitle: "{Platform display}"
-   categories:
-   - {taxonomy_term}
+   title: "{taxonomy_term} for {Platform display}"
    ---
    ```
 
    No `evidence:`, `provenance:`, or `grade:` blocks — this is a structural
    branch bundle with no meaningful content body.
 
-8. **Confirm** by printing the output file path, the title used, and the categories set.
+8. **Confirm** by printing the output file path and the title used.
 
 > **Skill context close** — run after the last step:
 > ```bash

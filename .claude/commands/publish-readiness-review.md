@@ -90,18 +90,6 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
    Apply `--scope` filter. Apply `--grade-filter` by reading `graded_at` + `graded_grade` from
    page frontmatter. Apply `draft: true` exclusion (skip draft pages).
 
-**4g. Blog coverage check** (non-blocking advisory — runs after roster is built):
-   Count `content/blog.aspose.org/{family}/{platform}/**/*.md` (excluding `draft: true`).
-   If count = 0 AND the product is not in `launch_tier: placeholder` status:
-   - Emit a `COVERAGE_GAP` entry in the inspection manifest under `coverage_gaps`:
-     ```json
-     {"type": "COVERAGE_GAP", "subdomain": "blog.aspose.org",
-      "family": "{family}", "platform": "{platform}",
-      "message": "Product has reference/docs but no blog coverage"}
-     ```
-   - Surface as a human action advisory: "No blog posts for {family}/{platform} — consider /new-blog-post"
-   - This check is advisory only; it does NOT block PUBLISH-READY status or prevent Step 7 routing.
-
 5. **Inspect each page** — for each page in the roster, perform bounded inspection:
 
    **5a. Read current grade and findings**:
@@ -404,17 +392,3 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
 | S-73 (manual-edit) | Step 7f/7j, for format corrections and UNKNOWN_CLASS fixes |
 | S-74 (causal-backtrack) | Step 7e, for broken-link upstream resolution |
 | /batch-reference (S-62) | Step 7d, for STRUCTURAL-GAP reference pages |
-
-
-## Enterprise Backlink Policy
-
-Do not construct enterprise URLs manually.
-Use `backlink_backfill.py` for insertion. Use `backlink_audit.py` for compliance.
-All links must come from the verified target map or approved deep authority.
-See `docs/governance/backlink-policy.md` for full policy.
-
-## Anchor Text Governance
-
-Anchor texts must not be hand-written, improved, or modified during content edits.
-All anchor text comes from the approved config pipeline (anchor_text_registry.yaml).
-Page-specific wording requires an approved entry in data/backlinks/anchor_overrides.yaml.

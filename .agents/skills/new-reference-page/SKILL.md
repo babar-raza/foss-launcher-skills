@@ -167,6 +167,7 @@ Before generating any content, you MUST:
     .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n      --family {family} --platform {platform} --subdomain reference.aspose.org --write
     ```
     If BLOCKED_TARGET: log WARN and continue.
+    **Anchor policy v2**: reference targets → `Aspose.{Family} [for {Platform}] — Enterprise API Reference` (governed by `docs/governance/positioning-policy.md`).
 
 > **Skill context close** — run after the last step:
 > ```bash

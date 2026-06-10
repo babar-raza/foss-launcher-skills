@@ -544,7 +544,7 @@
       "id": "S-84",
       "slug": "refresh-product",
       "name": "Refresh Product — Full Post-Launch Refresh Orchestration",
-      "description": "Orchestrate the complete post-launch refresh cycle for a single product.",
+      "description": "Re-generate content for a single product after a knowledge update.",
       "internal": false,
       "canonical_path": "skills/refresh-product.md"
     },

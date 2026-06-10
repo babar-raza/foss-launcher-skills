@@ -113,6 +113,7 @@ Generate or update the FAQ page for a product platform.
     .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n      --family {family} --platform {platform} --subdomain kb.aspose.org --write
     ```
     If BLOCKED_TARGET: log WARN and continue.
+    **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
 
 > **Skill context close** — run after the last step:
 > ```bash
@@ -135,17 +136,3 @@ After generating or updating the FAQ:
 8. **Confirm** by printing the output path and a count of FAQ items written or added.
    After writing, verify the body contains ≥1 `###` heading. If absent, regenerate — the page
    will fail `_check_faq` Rule 3 on the next evaluation.
-
-
-## Enterprise Backlink Policy
-
-Do not construct enterprise URLs manually.
-Use `backlink_backfill.py` for insertion. Use `backlink_audit.py` for compliance.
-All links must come from the verified target map or approved deep authority.
-See `docs/governance/backlink-policy.md` for full policy.
-
-## Anchor Text Governance
-
-Anchor texts must not be hand-written, improved, or modified during content edits.
-All anchor text comes from the approved config pipeline (anchor_text_registry.yaml).
-Page-specific wording requires an approved entry in data/backlinks/anchor_overrides.yaml.

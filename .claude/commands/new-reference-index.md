@@ -66,7 +66,7 @@ Default weight for unlisted platforms: 80.
    `{{< children >}}` in the body, print `SKIP: _index.md already complete` and stop.
 
 5. **Ensure family index exists**: Check if `content/reference.aspose.org/en/{family}/_index.md` exists.
-   If it already exists AND contains `subtitle:` in its frontmatter, skip to step 6. If it exists but lacks `subtitle:`, read `model.yaml`, derive a 5–8 word summary, add the `subtitle` field to the existing frontmatter (preserving all other fields), run `attach_evidence.py` and `audit.py` on the updated file (0 FAIL required), then continue to step 6. If missing, create it:
+   If it already exists, skip to step 6. If missing, create it:
 
    a. Read `data/families_order.json` and find the 0-based index of `{family}`. Compute
       `weight = (index + 1) * 10`. If the family is not listed, use weight 100.
@@ -164,34 +164,20 @@ Default weight for unlisted platforms: 80.
    by design: structural index pages receive `content_origin: unknown` with `auto_updatable: false`
    at creation time (structural-deferred classification per Phase N provenance governance).
 
-9. **Upgrade to grouped index** (if metadata available): Check if
-   `knowledge/{family}/{platform}/merged/api_surface.json` exists with 5+ entries.
-   If yes, run:
-   ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/batch_reference.py      {family} {platform} --generate-index
-   ```
-   This replaces the flat `{{< children >}}` body with grouped tables organized by
-   package/module. The generator handles provenance, evidence attachment, and audit
-   internally. If the generator succeeds, skip steps 10-11 (evidence + audit) as
-   they are handled by the generator. Proceed directly to step 12 (confirm).
-
-   If api_surface.json is missing or has < 5 entries, keep the `{{< children >}}`
-   scaffold from step 8 and continue to step 10.
-
-10. **Attach evidence**: Run:
+9. **Attach evidence**: Run:
    ```bash
    .venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py \
      --files content/reference.aspose.org/en/{family}/{platform}/_index.md
    ```
 
-11. **Run audit**: Run:
+10. **Run audit**: Run:
     ```bash
     .venv/Scripts/python scripts/pipeline/commands/content/audit.py \
       --files content/reference.aspose.org/en/{family}/{platform}/_index.md
     ```
     Must exit with 0 FAIL before confirming success.
 
-12. **Confirm** by printing the output file path and the values used for `linkTitle`, `weight`,
+11. **Confirm** by printing the output file path and the values used for `linkTitle`, `weight`,
     `version`, and the first line of the body.
 
 > **Skill context close** — run after the last step:

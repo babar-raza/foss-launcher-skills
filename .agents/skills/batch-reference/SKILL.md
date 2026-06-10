@@ -147,6 +147,7 @@ The script generates all class pages using templates from `api_surface.json`. Fo
 - Appends a `## See Also` section with the reciprocal aspose.com backlink via
   `backlink_targets.resolve_backlink()` (TC-BL-007). If BLOCKED_TARGET, omits See Also —
   generation continues.
+  **Anchor policy v2**: reference targets → `Aspose.{Family} [for {Platform}] — Enterprise API Reference`; platform targets within overview → `Enterprise Product`; family targets → `Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
 
 > **Contract note (Fix 10, 2026-04-07)**: Prior to Fix 8, `batch_reference.py` wrote pages
 > without a `provenance:` block and without calling `attach_evidence()`. This meant reference

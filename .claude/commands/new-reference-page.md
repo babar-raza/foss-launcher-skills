@@ -167,6 +167,7 @@ Before generating any content, you MUST:
     .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n      --family {family} --platform {platform} --subdomain reference.aspose.org --write
     ```
     If BLOCKED_TARGET: log WARN and continue.
+    **Anchor policy v2**: reference targets → `Aspose.{Family} [for {Platform}] — Enterprise API Reference` (governed by `docs/governance/positioning-policy.md`).
 
 > **Skill context close** — run after the last step:
 > ```bash
@@ -242,17 +243,3 @@ the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
 - Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
   `token_usage` and `api_calls_count`.
 - Metrics failures must not crash or block the parent pipeline job.
-
-
-## Enterprise Backlink Policy
-
-Do not construct enterprise URLs manually.
-Use `backlink_backfill.py` for insertion. Use `backlink_audit.py` for compliance.
-All links must come from the verified target map or approved deep authority.
-See `docs/governance/backlink-policy.md` for full policy.
-
-## Anchor Text Governance
-
-Anchor texts must not be hand-written, improved, or modified during content edits.
-All anchor text comes from the approved config pipeline (anchor_text_registry.yaml).
-Page-specific wording requires an approved entry in data/backlinks/anchor_overrides.yaml.

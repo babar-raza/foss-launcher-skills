@@ -426,7 +426,7 @@ scripts:
     backing:
       kind: workflow
       ref: system-heal
-    test_targets: []
+    test_targets: ["scripts/pipeline/tests/test_readiness_gate.py"]
     requires_test: false
     deprecated_since: null
     notes: "TC-08 unified readiness gate: aggregates skill-sync, provider-sync, DAR, knowledge staleness, proof index, and launch-gate into one verdict"
@@ -648,6 +648,7 @@ scripts:
       kind: internal
       ref: null
     test_targets: []
+    test_exempt_reason: "Diagnostic script validated by manual inspection"
     deprecated_since: null
     notes: "SH-10: sprint artifact completeness validator"
 
@@ -662,6 +663,7 @@ scripts:
       kind: internal
       ref: null
     test_targets: []
+    test_exempt_reason: "Diagnostic script validated by manual inspection"
     deprecated_since: null
     notes: "TC-FN-001B: stale/orphaned claim ID detector"
 
@@ -676,6 +678,7 @@ scripts:
       kind: internal
       ref: null
     test_targets: []
+    test_exempt_reason: "Diagnostic script for one-shot analysis"
     deprecated_since: null
     notes: "SH-13: api_surface interface inheritance gap detector"
 
@@ -689,7 +692,7 @@ scripts:
     backing:
       kind: internal
       ref: null
-    test_targets: []
+    test_targets: ["scripts/pipeline/tests/test_locale_grade_drift.py"]
     deprecated_since: null
     notes: "SH-02: locale grade drift vs English source enforcer"
 
@@ -704,6 +707,7 @@ scripts:
       kind: internal
       ref: null
     test_targets: []
+    test_exempt_reason: "Diagnostic script for audit filtering"
     deprecated_since: null
     notes: "SH-12: internal/private API member exposure detector"
 
@@ -718,6 +722,7 @@ scripts:
       kind: internal
       ref: null
     test_targets: []
+    test_exempt_reason: "Diagnostic script for coverage reporting"
     deprecated_since: null
     notes: "SH-14: 3d/typescript api_surface completeness check"
 
@@ -732,6 +737,7 @@ scripts:
       kind: internal
       ref: null
     test_targets: []
+    test_exempt_reason: "Diagnostic script for cross-platform checks"
     deprecated_since: null
     notes: "SH-11: product-verdict.md safety rule consistency check"
 
@@ -1011,7 +1017,7 @@ scripts:
     backing:
       kind: skill
       ref: content-check
-    test_targets: []
+    test_targets: ["scripts/pipeline/tests/test_ground_check.py"]
     deprecated_since: null
     notes: "S-23 grounding ratio gate — verifies backtick identifiers against api_surface.json"
 
@@ -1026,6 +1032,7 @@ scripts:
       kind: internal
       ref: null
     test_targets: []
+    test_exempt_reason: "Fix script validated by CI check_blog_platform_indexes.py"
     deprecated_since: null
     notes: "Repair blog FOSS title and categories metadata; modes: --dry-run (default), --apply"
 
@@ -1040,6 +1047,7 @@ scripts:
       kind: internal
       ref: null
     test_targets: []
+    test_exempt_reason: "Fix script validated by CI check-blog-slugs.py"
     deprecated_since: null
     notes: "Apply SEO-optimized slug renames to blog posts with Hugo aliases; modes: --dry-run, --apply"
 
@@ -1054,6 +1062,7 @@ scripts:
       kind: internal
       ref: null
     test_targets: []
+    test_exempt_reason: "Diagnostic script for blog slug auditing"
     deprecated_since: null
     notes: "SEO slug audit for blog posts with optional AI-proposed replacements; --ai flag for LLM proposals"
 
@@ -1978,7 +1987,7 @@ scripts:
     backing:
       kind: internal
       ref: null
-    test_targets: []
+    test_targets: ["scripts/pipeline/tests/test_local_profile.py"]
     deprecated_since: null
     notes: "local governance profile reader; returns strict in CI; hook integration deferred"
 
@@ -1993,6 +2002,7 @@ scripts:
       kind: internal
       ref: null
     test_targets: []
+    test_exempt_reason: "Governance utility for local profile management"
     deprecated_since: null
     notes: "CLI to create/show/expire/validate local governance profiles"
 
@@ -2126,7 +2136,7 @@ scripts:
       kind: internal
       ref: null
     test_targets: []
-    test_exempt_reason: null
+    test_exempt_reason: "Launch utility for write classification"
     deprecated_since: null
     change_impact: null
     notes: "classify existing content files as CREATE/REFRESH/PRESERVE/CONFLICT for launch-product refresh mode"
@@ -3664,6 +3674,7 @@ scripts:
       ref: null
     requires_test: false
     test_targets: []
+    test_exempt_reason: "Library with integration coverage via calling scripts"
     deprecated_since: null
     change_impact: "LLM enrichment for shadow candidates below quality gates; bounded by fact graph, never invents facts"
     notes: "Calls llm.professionalize.com (gpt-oss); enriches stubs failing min_word_count or needing fact_ref injection; fact-graph-bounded"

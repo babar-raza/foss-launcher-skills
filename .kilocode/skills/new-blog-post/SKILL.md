@@ -140,6 +140,11 @@ Before generating any content, you MUST:
      - `[API Reference](https://reference.aspose.org/{family}/{platform}/)`
 
 5. **Constraints**:
+   - **Tone**: Write in technical/informational tone. Avoid marketing language such as
+     "powerful", "robust", "seamlessly", "cutting-edge", "industry-leading", "comprehensive",
+     "state-of-the-art", "best-in-class", and similar superlatives. Focus on what the API
+     does, not on selling it. Use specific technical details and concrete code examples.
+     The `consumer_usefulness` evaluator will FAIL posts that read as marketing copy.
    - `author` is always exactly `Aspose`
    - `tags` is always `[]`
    - `categories` uses the format `Aspose.{Family}` with a capital F and correct family name casing (e.g. `Aspose.3D`, `Aspose.Cells`, `Aspose.Slides`)
@@ -169,6 +174,7 @@ Before generating any content, you MUST:
     .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n      --family {family} --platform {platform} --subdomain blog.aspose.org --write
     ```
     If BLOCKED_TARGET: log WARN and continue.
+    **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
 
 > **Skill context close** — run after the last step:
 > ```bash

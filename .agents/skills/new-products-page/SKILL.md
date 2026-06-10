@@ -167,6 +167,7 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
      - Uses LLM copy from `reports/backlinks/llm-copy-cache/` if cached; generates fresh if not.
      - If BLOCKED_TARGET: log WARN and continue — do not fail this skill.
      - Target URL comes from `data/aspose_com_targets.json` (must exist before running this skill).
+     - **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
 
 11. **Structural completion**: Run the deterministic skeleton filler to ensure all
     display-control boilerplate sections are present regardless of LLM output variance:
