@@ -1,3 +1,11 @@
+---
+name: pipeline-harden
+id: S-110
+description: Run deep investigation and systematic hardening of the content pipeline for a family/platform
+category: ops
+internal: false
+---
+
 # S-110: Pipeline Harden — Parameterized Pipeline Hardening Sprint
 
 **Arguments**: $ARGUMENTS
