@@ -186,6 +186,10 @@ def _is_blog_content_file(path: Path) -> bool:
     path_str = str(path).replace("\\", "/")
     if _BLOG_ROOT_MARKER not in path_str:
         return False
+    # _index.md files are Hugo section landing pages, not blog posts.
+    # They have no narrative content or code blocks — empty evidence is correct.
+    if path.name == "_index.md":
+        return False
     # Locale files have a BCP-47 language tag as the penultimate suffix:
     #   index.ar.md    → suffixes ['.ar',    '.md'] → suffixes[-2] = '.ar'    → match
     #   index.zh-CN.md → suffixes ['.zh-CN', '.md'] → suffixes[-2] = '.zh-CN' → match

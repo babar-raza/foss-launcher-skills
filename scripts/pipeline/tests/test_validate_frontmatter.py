@@ -482,6 +482,22 @@ class TestBlogEvidence:
         finally:
             p.unlink(missing_ok=True)
 
+    def test_blog_index_md_excluded_from_p03(self):
+        """_index.md section landing pages are NOT blog posts — exempt from P-03."""
+        tmpdir, p = _blog_file(_BLOG_EMPTY_CLAIMS, filename="_index.md")
+        # Move file up to {family}/{platform}/_index.md (depth 3, matching production)
+        target_dir = p.parent.parent  # from .../test-slug/ to .../python/
+        target = target_dir / "_index.md"
+        p.rename(target)
+        try:
+            errors = check_file(target)
+            blog_errs = [e for e in errors if e.check == "blog_evidence"]
+            assert blog_errs == [], (
+                f"_index.md section pages should be excluded from P-03, got: {blog_errs}"
+            )
+        finally:
+            shutil.rmtree(tmpdir)
+
 
 class TestMissingContentOriginWarning:
     """Check 2b: provenance block present but content_origin absent → warning."""
