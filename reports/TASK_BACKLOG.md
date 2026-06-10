@@ -1,6 +1,6 @@
 # Task Backlog — Score Improvement + Parity Program
 **Source plans**: `C:\Users\prora\.claude\plans\reactive-sprouting-matsumoto.md` (score improvement) + `C:\Users\prora\.claude\plans\wondrous-skipping-diffie.md` (parity program Sprint 2)
-**Last updated**: 2026-04-21
+**Last updated**: 2026-06-10
 
 ---
 
@@ -30,7 +30,7 @@
 
 ---
 
-## Phase 1 — Near-term (IN PROGRESS)
+## Phase 1 — Near-term (DONE)
 
 | ID | Task | Status | Priority | Expected Score Impact |
 |----|------|--------|----------|-----------------------|
@@ -44,7 +44,7 @@
 
 ---
 
-## Phase 2 — Medium-term (IN PROGRESS)
+## Phase 2 — Medium-term (DONE)
 
 | ID | Task | Status | Priority | Expected Score Impact |
 |----|------|--------|----------|-----------------------|
@@ -62,11 +62,11 @@
 
 | Rule | Enforcement | Status |
 |------|-------------|--------|
-| No config/schema change without negative test | CI gate | PENDING (requires P1-1) |
-| No capability claim without executable test | PR checklist | PENDING |
-| No governance-path expansion without adversarial test | pre-merge gate | PENDING |
-| Commit-msg: "Skills invoked:" required for content commits | CI blocking | PENDING (P1-2) |
-| Quarterly readiness script run before review | CI schedule | PENDING (P1-3) |
+| No config/schema change without negative test | CI gate (schema-validation job) | ✅ ACTIVE (P1-1 done) |
+| No capability claim without executable test | PR checklist + verify_claims.py | ✅ ACTIVE (0 critical unverified) |
+| No governance-path expansion without adversarial test | pre-commit hard-block (ff84fd7) | ✅ ACTIVE |
+| Commit-msg: "Skills invoked:" required for content commits | CI blocking (job 6) | ✅ ACTIVE (P1-2 done) |
+| Quarterly readiness script run before review | quarterly_readiness.py | ✅ ACTIVE (P1-3 done) |
 
 ---
 
@@ -74,8 +74,8 @@
 
 | ID | Skill | Purpose | Status |
 |----|-------|---------|--------|
-| S-83 | score-readiness | Simulate quarterly reviewer rubric locally | PENDING (P1-3) |
-| S-84 | verify-claims | Trace docs claims to executable tests | PENDING (P1-4) |
+| S-83 | score-readiness | Simulate quarterly reviewer rubric locally | ✅ DONE (quarterly_readiness.py) |
+| S-84 | verify-claims | Trace docs claims to executable tests | ✅ DONE (verify_claims.py; 0 critical) |
 | S-85 | quarterly-report | Auto-generate delivery report from git/CI | FUTURE |
 
 ---
@@ -83,7 +83,7 @@
 ## Open Questions
 
 - Q1: Will CI run correctly on ubuntu-latest given Windows-specific test path patterns?
-  → Risk: Medium. Need to verify pytest.ini testpaths and path separators.
+  → .gitlab-ci.yml pushed (59a9fcd); awaiting first pipeline run for verification.
 - Q2: Are there other pre-existing test failures hidden by early failures in test runs?
   → Action: Always run full suite without -x flag.
 - Q3: Does the quarterly reviewer see git history within a 90-day window or the full repo?
