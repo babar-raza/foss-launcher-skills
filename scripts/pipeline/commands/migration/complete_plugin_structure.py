@@ -66,7 +66,9 @@ def complete_file(filepath: Path, dry_run: bool = False) -> bool:
             print(f"  WOULD ADD  {filepath.name}: {key}")
         return True
 
-    atomic_write(filepath, f"{open_fence}{'\n'.join(fm_lines)}{close_fence}{body}")
+    newline = chr(10)
+    joined_fm = newline.join(fm_lines)
+    atomic_write(filepath, f"{open_fence}{joined_fm}{close_fence}{body}")
     for key, _ in missing:
         print(f"  ADDED  {filepath.name}: {key}")
     return True
