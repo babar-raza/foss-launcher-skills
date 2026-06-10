@@ -410,6 +410,10 @@ class TestCLI:
 
     def test_cli_with_family_platform_and_valid_knowledge(self, tmp_path):
         """CLI with existing valid knowledge (email/python: 488 claims, 36 classes) should exit 0."""
+        from pathlib import Path
+        knowledge_path = Path(__file__).resolve().parent.parent / "knowledge" / "email" / "python" / "merged" / "model.yaml"
+        if not knowledge_path.exists():
+            pytest.skip("knowledge/email/python/merged/model.yaml not present (gitignored)")
         env = os.environ.copy()
         env["CONTENT_REPO_PATH"] = str(tmp_path)
         code, stdout, _ = self._run("--family", "email", "--platform", "python", env=env)
