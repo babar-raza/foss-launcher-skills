@@ -4,7 +4,7 @@ Evidence-based content generation skills for FOSS product documentation. Works w
 
 ## What This Is
 
-A standalone library of 92 agent skills (7 internal sub-routines + 85 user-callable) that power a knowledge-grounded content pipeline:
+A standalone library of 93 agent skills (7 internal sub-routines + 86 user-callable) that power a knowledge-grounded content pipeline:
 
 1. **Discover** FOSS repositories across GitHub organizations
 2. **Extract** truth from FOSS repositories (tree-sitter analysis)
@@ -212,6 +212,7 @@ See `QUICKSTART.md` for a full step-by-step walkthrough.
 | S-81 | commit | Stage and commit with structured conventional commits |
 | S-82 | session-start | Mandatory session initialization gate |
 | S-96 | plan-normalize | Execution-safe plan quality gate |
+| S-110 | pipeline-harden | Parameterized pipeline hardening sprint |
 | S-98 | backlog | Unified planning and backlog management (22 subcommands) |
 
 ### Translation
@@ -260,7 +261,7 @@ Launch:       S-38 orchestrates:
 ```
 foss-launcher-skills/
 ├── runs/                      # pipeline run artifacts (gitignored)
-├── skills/                    # 89 canonical skill files (82 user-callable + 7 internal)
+├── skills/                    # 93 canonical skill files (86 user-callable + 7 internal)
 │   └── registry.yaml             # Machine-readable skill registry (authoritative IDs)
 ├── scripts/                   # Python tooling
 │   ├── scout.py               # Tree-sitter knowledge extraction
@@ -291,6 +292,8 @@ foss-launcher-skills/
 │   ├── verify.py              # Deterministic content verification
 │   ├── quarterly_readiness.py # Simulate quarterly reviewer rubric; output: reports/score-readiness-{date}.md
 │   ├── verify_claims.py       # Trace AGENTS.md/skill claims to implementing tests
+│   ├── content_repo_adapter.py # Content repo path resolution adapter
+│   ├── local_gate.py          # Local pre-push validation gate
 │   ├── generate_status.py     # Auto-generate STATUS.md test-count entries
 │   ├── claim_lookup.py        # Deterministic claim ID resolver from PEF
 │   └── requirements.txt
@@ -313,6 +316,8 @@ foss-launcher-skills/
 ├── repos/                     # Cloned FOSS repositories
 ├── tests/                     # Test suite (10 test files + fixtures)
 ├── output/                    # Generated content (install tests)
+├── backlog/                   # Planning and task backlog files
+├── data/                      # Static data files
 ├── plans/                     # Page plans and healing workflows
 ├── reports/
 │   ├── agents/                # Agent session audit logs
