@@ -122,6 +122,8 @@ governance-tests:
 
 commit-provenance:
   stage: test
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq git > /dev/null
   script:
     - |
       python -c "
@@ -154,3 +156,17 @@ commit-provenance:
       "
   rules:
     - if: $CI_PIPELINE_SOURCE == "push"
+
+security-scan:
+  stage: validate
+  # Security gates are blocking — bandit baseline is clean (nosec-annotated)
+  script:
+    - pip install bandit pip-audit
+    - python scripts/ci/checks/check_sast_bandit.py
+    - python scripts/ci/checks/check_dependency_audit.py
+  rules:
+    - changes:
+        - scripts/**/*
+        - pyproject.toml
+    - if: $CI_PIPELINE_SOURCE == "web"
+
