@@ -192,6 +192,11 @@ def _map_tokens_to_evidence(tokens, knowledge) -> tuple[list, list]:
             claim_ids.append(cid)
         if member:
             api_refs.append(f"{cls}.{member}")
+        elif tok.kind == "constructor":
+            # Constructor usage → add bare class name as api_ref so blog
+            # posts that import+construct (without calling methods) still
+            # get evidence.apis populated.
+            api_refs.append(cls)
 
     return claim_ids, api_refs
 
