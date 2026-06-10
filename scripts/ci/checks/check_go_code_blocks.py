@@ -50,6 +50,11 @@ def _needs_package_wrapper(code: str) -> bool:
     return not re.search(r"^\s*package\s+\w+", code, re.MULTILINE)
 
 
+def _has_leading_import(code: str) -> bool:
+    """True when the block starts with an import declaration (no package line)."""
+    return bool(re.search(r"^\s*import\s", code, re.MULTILINE))
+
+
 def _infer_imports(code: str) -> list[str]:
     imports: list[str] = []
     for pattern, import_line in _IMPORT_HEURISTICS:
@@ -63,6 +68,60 @@ def _infer_imports(code: str) -> list[str]:
 
 
 def _wrap_fragment(code: str) -> str:
+    if _has_leading_import(code):
+        # Block already has import declarations — extract them and wrap
+        # only the non-import body in func main().
+        import_lines: list[str] = []
+        body_lines: list[str] = []
+        in_import_block = False
+        past_imports = False
+        for line in code.splitlines():
+            stripped = line.strip()
+            if not past_imports:
+                if stripped.startswith("import ") and "(" not in stripped:
+                    # Single-line import: import pdf "..."
+                    import_lines.append(line)
+                    continue
+                if stripped == "import (" or stripped.startswith("import ("):
+                    in_import_block = True
+                    import_lines.append(line)
+                    continue
+                if in_import_block:
+                    import_lines.append(line)
+                    if stripped == ")":
+                        in_import_block = False
+                    continue
+                if stripped == "" and not body_lines:
+                    continue  # skip blank lines between imports and body
+                past_imports = True
+            body_lines.append(line)
+        indented = "\n".join("\t" + line for line in body_lines)
+        extra = _infer_imports("\n".join(body_lines))
+        # Merge user imports with inferred ones (avoid duplicates)
+        existing = "\n".join(import_lines)
+        merged: list[str] = []
+        for imp in extra:
+            if imp.strip().strip('"') not in existing:
+                merged.append(imp)
+        if import_lines:
+            # Rebuild as import block
+            all_imports = "import (\n"
+            # Extract import paths from existing lines
+            for il in import_lines:
+                s = il.strip()
+                if s in ("import (", ")") or s.startswith("import ("):
+                    continue
+                if s.startswith("import "):
+                    all_imports += "\t" + s[7:].strip() + "\n"
+                else:
+                    all_imports += "\t" + s + "\n"
+            for m in merged:
+                all_imports += m + "\n"
+            all_imports += ")\n"
+        else:
+            all_imports = ""
+        return f"package main\n\n{all_imports}\nfunc main() {{\n{indented}\n}}\n"
+
     imports = _infer_imports(code)
     import_block = ""
     if imports:
@@ -135,9 +194,10 @@ def check_content_dir(
     content_dir: Path,
     go_exe: str,
     module_path: str = _PDF_GO_MODULE,
-    go_version: str = "1.21",
+    go_version: str = "1.24",
 ) -> list[str]:
     """Check all Go code blocks in *content_dir*. Returns list of error strings."""
+    content_dir = content_dir.resolve()
     errors: list[str] = []
     for md_file in sorted(content_dir.rglob("*.md")):
         try:
@@ -150,6 +210,16 @@ def check_content_dir(
         rel = str(md_file.relative_to(REPO_ROOT)).replace("\\", "/")
         for i, block in enumerate(blocks):
             if not block.strip():
+                continue
+            # Skip import-only blocks (no executable code to vet)
+            stripped_lines = [
+                ln for ln in block.strip().splitlines()
+                if ln.strip() and not re.match(
+                    r'^\s*(import\s|import\s*\(|\)|"[^"]*"$|[a-zA-Z]+\s+"[^"]*"$)',
+                    ln,
+                )
+            ]
+            if not stripped_lines:
                 continue
             err = _vet_block(go_exe, block, rel, i, module_path, go_version)
             if err:
@@ -179,9 +249,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--go-version",
-        default="1.21",
+        default="1.24",
         dest="go_version",
-        help="Go version for generated go.mod (default: 1.21)",
+        help="Go version for generated go.mod (default: 1.24)",
     )
     args = parser.parse_args(argv)
 

@@ -566,10 +566,10 @@ _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
 _pc_step_start "Go code block vet"
-# Step 12: Go code blocks — advisory vet of ```go fences in staged Go content
+# Step 12: Go code blocks — strict vet of ```go fences in staged Go content
 # ---------------------------------------------------------------------------
-# Advisory mode: warns but does not block. Remove --advisory to enforce once
-# Go toolchain is available and all existing content passes.
+# Enforcing mode: blocks commit on go vet failure. If Go is not on PATH the
+# checker returns exit 2 and the commit is blocked — install Go to proceed.
 staged_go_content=()
 while IFS= read -r _gline; do staged_go_content+=("$_gline"); done < <(
     git diff --cached --name-only --diff-filter=ACM | grep -E '^content/.*/go/' || true
@@ -583,12 +583,15 @@ if [ ${#staged_go_content[@]} -gt 0 ]; then
             _go_content_dir=$(dirname "$_go_content_dir")
         done
         if [ "$_go_content_dir" != "." ]; then
-            _go_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_go_code_blocks.py "$_go_content_dir" --advisory 2>&1)
+            _go_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_go_code_blocks.py "$_go_content_dir" 2>&1)
             _go_exit=$?
             if [ -n "$_go_out" ]; then
                 echo "$_go_out" | sed 's/^/[Step 12] /' >&2
             fi
-            # Advisory mode: never block commit regardless of _go_exit.
+            if [ "$_go_exit" -ne 0 ]; then
+                _pc_step_end "FAIL"
+                _pc_exit 1
+            fi
         fi
     fi
 fi
