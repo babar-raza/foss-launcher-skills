@@ -12,7 +12,7 @@ variables:
 default:
   image: python:${PYTHON_VERSION}-slim
   before_script:
-    - pip install --quiet pyyaml pytest pytest-mock jsonschema
+    - pip install --quiet pyyaml pytest pytest-mock jsonschema pytest-cov
 
 cache:
   paths:
@@ -112,7 +112,8 @@ schema-validation:
 governance-tests:
   stage: test
   script:
-    - python -m pytest tests/ -v --tb=short -m "not scout" --ignore=tests/test_e2e_pipeline.py
+    - python -m pytest tests/ -v --tb=short -m "not scout" --ignore=tests/test_e2e_pipeline.py --cov=scripts --cov-report=term-missing
+  coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+)%/'
   rules:
     - changes:
         - scripts/**/*

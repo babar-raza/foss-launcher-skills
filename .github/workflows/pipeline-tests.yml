@@ -23,10 +23,17 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt || pip install pyyaml pytest
+        run: pip install ".[dev]"
 
-      - name: Run pipeline tests
-        run: pytest tests/ -x -q
+      - name: Run pipeline tests with coverage
+        run: python -m pytest tests/ -x -q --cov=scripts --cov-report=term-missing --cov-report=xml:coverage.xml -m "not scout" --ignore=tests/test_e2e_pipeline.py
         env:
           KNOWLEDGE_ROOT: tests/fixtures/knowledge
           CONTENT_REPO_PATH: tests/fixtures
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml

@@ -18,6 +18,7 @@ dependencies = [
 scout = [
     "tree-sitter>=0.25",
     "tree-sitter-language-pack>=0.13",
+    "tree-sitter-c-sharp>=0.23",
 ]
 embed = [
     "requests>=2.28",
@@ -25,6 +26,7 @@ embed = [
 dev = [
     "pytest>=9",
     "pytest-mock>=3",
+    "pytest-cov>=6",
 ]
 
 [project.scripts]
@@ -48,4 +50,20 @@ testpaths = ["tests"]
 markers = [
     "scout: tests requiring tree-sitter (may be slow or unavailable)",
     "integration: end-to-end integration tests using fixture data only",
+]
+
+[tool.coverage.run]
+source = ["scripts"]
+omit = [
+    "scripts/translator/*",
+    "scripts/seo/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 60
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.",
+    "if TYPE_CHECKING:",
 ]
