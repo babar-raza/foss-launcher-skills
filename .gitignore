@@ -4,12 +4,14 @@ repos/
 /output
 /plans
 /knowledge
-/.kilocode
-/.agents
+/.kilocode/*
+!/.kilocode/skills/
 
-# Generated agent-specific skill directories
-/.claude
-/.agents
+# Generated agent-specific skill directories (keep synced command/skill mirrors)
+/.claude/*
+!/.claude/commands/
+/.agents/*
+!/.agents/skills/
 
 # Python cache and bytecode
 __pycache__/
