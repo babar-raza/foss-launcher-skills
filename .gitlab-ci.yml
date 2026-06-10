@@ -12,6 +12,7 @@ variables:
 default:
   image: python:${PYTHON_VERSION}-slim
   before_script:
+    - apt-get update -qq && apt-get install -y -qq git > /dev/null 2>&1 || true
     - pip install --quiet pyyaml pytest pytest-mock jsonschema pytest-cov
 
 cache:
@@ -122,8 +123,6 @@ governance-tests:
 
 commit-provenance:
   stage: test
-  before_script:
-    - apt-get update -qq && apt-get install -y -qq git > /dev/null
   script:
     - |
       python -c "

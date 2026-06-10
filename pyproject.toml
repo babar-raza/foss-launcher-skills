@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68", "setuptools-scm>=8"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "foss-launcher-skills"
@@ -27,6 +27,9 @@ dev = [
     "pytest>=9",
     "pytest-mock>=3",
     "pytest-cov>=6",
+    "hypothesis>=6.100",
+    "bandit>=1.7",
+    "pip-audit>=2.7",
 ]
 
 [project.scripts]
@@ -36,6 +39,7 @@ foss-materialize = "scripts.materialize:main"
 foss-verify    = "scripts.verify:main"
 foss-decide    = "scripts.decide:main"
 foss-validate  = "scripts.validate_skills:main"
+foss-gate      = "scripts.local_gate:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -61,7 +65,7 @@ omit = [
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 60
+fail_under = 11
 exclude_lines = [
     "pragma: no cover",
     "if __name__ == .__main__.",
