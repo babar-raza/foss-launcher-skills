@@ -42,6 +42,53 @@ def _read_backlog_priority(repo_root):
         return [], f"BACKLOG_READ_ERROR: {exc}"
 
 
+def _update_prior_outcomes(validation: dict, repo_root: Path) -> int:
+    """Update post_grade in outcomes.json from current validation results.
+
+    For each outcome entry missing post_grade, look up the product's current
+    grade summary from validation and populate it.
+
+    Returns count of outcomes updated.
+    """
+    from datetime import datetime, timezone
+
+    outcomes_path = repo_root / ".supervisor" / "state" / "outcomes.json"
+    if not outcomes_path.exists():
+        return 0
+    try:
+        outcomes = json.loads(outcomes_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return 0
+    if not isinstance(outcomes, list):
+        return 0
+
+    # Build grade summary from validation
+    grade_summary = validation.get("summary", {}).get("by_severity", {})
+
+    updated = 0
+    now = datetime.now(timezone.utc).isoformat()
+    for entry in outcomes:
+        if entry.get("post_grade") is not None:
+            continue
+        if not entry.get("family") or not entry.get("platform"):
+            continue
+        # Populate post_grade with the overall grade summary (not per-product yet)
+        entry["post_grade"] = grade_summary or "UNKNOWN"
+        entry["timestamp_end"] = now
+        updated += 1
+
+    if updated:
+        try:
+            outcomes_path.write_text(
+                json.dumps(outcomes, indent=2, ensure_ascii=False, default=str),
+                encoding="utf-8",
+            )
+        except OSError:
+            return 0
+
+    return updated
+
+
 def compare(discovery, validation, repo_root=None):
     root = Path(repo_root or REPO_ROOT)
     actions = []
@@ -118,6 +165,9 @@ def compare(discovery, validation, repo_root=None):
 
     status = "NO_ACTIONS_READY" if not actions else "ACTIONS_READY"
 
+    # Outcome tracking (TC-SUPER-001): populate post_grade for prior outcomes
+    outcomes_updated = _update_prior_outcomes(validation, root)
+
     return {
         "status": status,
         "actions": actions,
@@ -125,6 +175,7 @@ def compare(discovery, validation, repo_root=None):
         "backlog_status": backlog_status,
         "backlog_priority_ids": backlog_ids,
         "warnings": warnings,
+        "outcomes_updated": outcomes_updated,
     }
 
 

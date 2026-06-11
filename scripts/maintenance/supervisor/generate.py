@@ -66,6 +66,43 @@ def _format_target(action):
     return f"Action: {atype}"
 
 
+def _record_outcome(entry: dict, repo_root: Path) -> None:
+    """Append an outcome entry to .supervisor/state/outcomes.json.
+
+    Gracefully skips on any I/O error (outcome tracking is advisory, never blocks).
+    """
+    try:
+        outcomes_path = repo_root / ".supervisor" / "state" / "outcomes.json"
+        outcomes_path.parent.mkdir(parents=True, exist_ok=True)
+        existing = []
+        if outcomes_path.exists():
+            try:
+                existing = json.loads(outcomes_path.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                existing = []
+        if not isinstance(existing, list):
+            existing = []
+        existing.append(entry)
+        outcomes_path.write_text(
+            json.dumps(existing, indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
+    except OSError:
+        pass  # Advisory — never block on outcome tracking failure
+
+
+def _load_outcomes(repo_root: Path) -> list[dict]:
+    """Load existing outcomes from .supervisor/state/outcomes.json."""
+    outcomes_path = repo_root / ".supervisor" / "state" / "outcomes.json"
+    if not outcomes_path.exists():
+        return []
+    try:
+        data = json.loads(outcomes_path.read_text(encoding="utf-8"))
+        return data if isinstance(data, list) else []
+    except (json.JSONDecodeError, OSError):
+        return []
+
+
 def generate(action_plan, dry_run=True, repo_root=None):
     root = Path(repo_root or REPO_ROOT)
     now = datetime.now(timezone.utc)
@@ -129,6 +166,20 @@ def generate(action_plan, dry_run=True, repo_root=None):
         backlog_context=backlog_context,
         evidence_expected=evidence_expected,
     )
+
+    # Outcome tracking (TC-SUPER-001): record pre-grade for this action
+    outcome_entry = {
+        "run_id": run_id,
+        "action_type": atype,
+        "family": selected.get("family", ""),
+        "platform": selected.get("platform", ""),
+        "timestamp_start": now.isoformat(),
+        "timestamp_end": None,
+        "pre_grade": None,
+        "post_grade": None,
+        "delta": None,
+    }
+    _record_outcome(outcome_entry, root)
 
     return {
         "status": "GENERATE_COMPLETE",

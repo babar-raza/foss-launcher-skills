@@ -803,5 +803,137 @@ class TestMCPStructure(unittest.TestCase):
                       "rollback anchor _supervisor_mcp_pre_existing must be in settings.json")
 
 
+class TestOutcomeTracking(unittest.TestCase):
+    """TC-SUPER-001: Outcome tracking in generate.py and compare.py."""
+
+    def test_generate_writes_outcomes_json(self):
+        """generate() writes an outcome entry to .supervisor/state/outcomes.json."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "backlog").mkdir()
+            action_plan = {
+                "status": "ACTIONS_READY",
+                "actions": [{
+                    "type": "REFRESH_PRODUCT",
+                    "family": "cells",
+                    "platform": "net",
+                    "priority": 1,
+                    "reason": "stale",
+                    "suggested_skills": ["/knowledge-update cells net"],
+                }],
+            }
+            import generate
+            generate.generate(action_plan, dry_run=True, repo_root=root)
+
+            outcomes_path = root / ".supervisor" / "state" / "outcomes.json"
+            self.assertTrue(outcomes_path.exists(), "outcomes.json must be created")
+            data = json.loads(outcomes_path.read_text(encoding="utf-8"))
+            self.assertIsInstance(data, list)
+            self.assertEqual(len(data), 1)
+            entry = data[0]
+            self.assertEqual(entry["action_type"], "REFRESH_PRODUCT")
+            self.assertEqual(entry["family"], "cells")
+            self.assertEqual(entry["platform"], "net")
+            self.assertIsNotNone(entry["timestamp_start"])
+            self.assertIsNone(entry["post_grade"])
+
+    def test_compare_populates_post_grade(self):
+        """compare() reads outcomes.json and fills post_grade from validation."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "backlog").mkdir()
+            state_dir = root / ".supervisor" / "state"
+            state_dir.mkdir(parents=True)
+
+            # Write an incomplete outcome (no post_grade)
+            outcomes = [{
+                "run_id": "test-001",
+                "action_type": "HEAL_PAGES",
+                "family": "pdf",
+                "platform": "go",
+                "timestamp_start": "2026-06-01T00:00:00",
+                "timestamp_end": None,
+                "pre_grade": None,
+                "post_grade": None,
+                "delta": None,
+            }]
+            (state_dir / "outcomes.json").write_text(
+                json.dumps(outcomes), encoding="utf-8"
+            )
+
+            discovery = {"missing_products": [], "stale_products": [], "warnings": []}
+            validation = {
+                "pages_needing_heal": [],
+                "warnings": [],
+                "summary": {"by_severity": {"A": 50, "B": 20, "C": 5}},
+            }
+            import compare
+            result = compare.compare(discovery, validation, repo_root=root)
+            self.assertEqual(result["outcomes_updated"], 1)
+
+            # Verify outcomes.json was updated
+            updated = json.loads((state_dir / "outcomes.json").read_text(encoding="utf-8"))
+            self.assertIsNotNone(updated[0]["post_grade"])
+            self.assertIsNotNone(updated[0]["timestamp_end"])
+
+    def test_compare_skips_already_completed_outcomes(self):
+        """compare() does not overwrite outcomes that already have post_grade."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "backlog").mkdir()
+            state_dir = root / ".supervisor" / "state"
+            state_dir.mkdir(parents=True)
+
+            outcomes = [{
+                "run_id": "test-001",
+                "action_type": "HEAL_PAGES",
+                "family": "pdf",
+                "platform": "go",
+                "timestamp_start": "2026-06-01T00:00:00",
+                "timestamp_end": "2026-06-01T01:00:00",
+                "pre_grade": {"A": 45},
+                "post_grade": {"A": 50, "B": 20},
+                "delta": None,
+            }]
+            (state_dir / "outcomes.json").write_text(
+                json.dumps(outcomes), encoding="utf-8"
+            )
+
+            import compare
+            result = compare.compare(
+                {"missing_products": [], "stale_products": [], "warnings": []},
+                {"pages_needing_heal": [], "warnings": [], "summary": {"by_severity": {}}},
+                repo_root=root,
+            )
+            self.assertEqual(result["outcomes_updated"], 0)
+
+    def test_missing_outcomes_file_graceful(self):
+        """compare() handles missing outcomes.json gracefully."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "backlog").mkdir()
+            import compare
+            result = compare.compare(
+                {"missing_products": [], "stale_products": [], "warnings": []},
+                {"pages_needing_heal": [], "warnings": [], "summary": {}},
+                repo_root=root,
+            )
+            self.assertEqual(result["outcomes_updated"], 0)
+
+    def test_generate_no_actions_still_records_outcome(self):
+        """generate() records outcome even when NO_ACTIONS_READY."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "backlog").mkdir()
+            action_plan = {"status": "NO_ACTIONS_READY", "actions": []}
+            import generate
+            generate.generate(action_plan, dry_run=True, repo_root=root)
+
+            outcomes_path = root / ".supervisor" / "state" / "outcomes.json"
+            self.assertTrue(outcomes_path.exists())
+            data = json.loads(outcomes_path.read_text(encoding="utf-8"))
+            self.assertEqual(data[0]["action_type"], "NO_ACTIONS_READY")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
