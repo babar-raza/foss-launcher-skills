@@ -328,9 +328,29 @@ def _extract_doc_comment(node, language: str) -> str:
             return _first_sentence(cleaned)
     elif style == "godoc":
         if txt.strip().startswith("//"):
-            lines = txt.strip().splitlines()
-            cleaned = " ".join(l.lstrip("/ ").strip() for l in lines)
-            return _first_sentence(cleaned)
+            # Go doc comments are per-line nodes in tree-sitter-go.
+            # Walk back through consecutive adjacent-line comment nodes to collect
+            # the full doc block (stop at a gap indicating a different comment block).
+            lines_with_row: list[tuple[int, str]] = [(prev.start_point[0], txt)]
+            cur = prev.prev_named_sibling
+            while cur is not None and cur.type == "comment":
+                cur_row = cur.start_point[0]
+                last_row = lines_with_row[0][0]
+                if last_row - cur_row > 1:
+                    break  # line gap — belongs to a different comment block
+                lines_with_row.insert(0, (cur_row, node_text(cur)))
+                cur = cur.prev_named_sibling
+            comment_lines = [ln for _, ln in lines_with_row]
+            # Extract the summary paragraph: lines before the first blank `//`
+            para_lines: list[str] = []
+            for ln in comment_lines:
+                bare = ln.strip().lstrip("/").strip()
+                if not bare:  # blank `//` line ends the summary paragraph
+                    break
+                para_lines.append(bare)
+            cleaned = " ".join(para_lines)
+            if cleaned:
+                return _first_sentence(cleaned)
 
     return ""
 
