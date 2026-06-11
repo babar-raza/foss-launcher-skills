@@ -105,6 +105,13 @@ def generate_description(class_name, api_entry, family, platform, page_text):
             f"a contract with {len(non_ctor_methods)} method{'s' if len(non_ctor_methods) != 1 else ''}. "
             f"Classes that implement this interface must provide concrete implementations for all declared operations."
         )
+    elif platform == "go":
+        # Go uses types (structs/named types), not classes
+        parts.append(
+            f"`{class_name}` is a type in the Aspose.{fam_label} FOSS library for {plat_label} "
+            f"that exposes {len(non_ctor_methods)} method{'s' if len(non_ctor_methods) != 1 else ''} "
+            f"for programmatic use."
+        )
     else:
         base_clause = ""
         if bases:
@@ -145,12 +152,14 @@ def generate_description(class_name, api_entry, family, platform, page_text):
         for name, desc in page_prop_descs[:3]:
             prop_info.append(f"the `{name}` property ({desc.rstrip('.').lower()})")
         if prop_info:
+            type_noun = "type" if platform == "go" else "class"
             parts.append(
-                f"The class also provides {', '.join(prop_info)}."
+                f"The {type_noun} also provides {', '.join(prop_info)}."
             )
 
     # --- Paragraph 4: Constructor info ---
-    if constructors and not is_enum and not is_interface:
+    # Go has no constructors (uses NewXxx() factory functions instead)
+    if constructors and not is_enum and not is_interface and platform != "go":
         if len(constructors) == 1:
             parts.append(
                 f"Instances are created through a single constructor that initializes the object with default values."

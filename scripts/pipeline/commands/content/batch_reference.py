@@ -152,6 +152,7 @@ _PLATFORM_TO_LANG: dict[str, str] = {
     "typescript": "typescript",
     "javascript": "javascript",
     "nodejs": "javascript",
+    "go": "go",
 }
 
 # ERC-* claim kinds treated as prose-eligible for reference page descriptions
@@ -402,6 +403,9 @@ def _category(entry: dict, platform: str) -> str:
         bases = entry.get("bases", [])
         if any(b in _PY_ENUM_BASES for b in bases):
             return "Enum"
+    # Go type_spec is always a "Type" (Go has no classes)
+    if platform == "go" and kind == "type_spec":
+        return "Type"
     # For all other cases, use the kind field
     if "interface" in kind:
         return "Interface"
