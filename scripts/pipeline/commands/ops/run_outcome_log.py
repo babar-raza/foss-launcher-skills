@@ -29,6 +29,14 @@ Usage:
     summary = summarize_run(correlation_id)
     # {"total": 2, "success": 1, "failure": 1, "duration_ms_total": 1200, ...}
 
+Concurrency:
+    This module assumes single-process, single-thread execution. The log_outcome()
+    append operation is not protected by a file lock. Concurrent calls from multiple
+    processes will produce interleaved writes and may corrupt the JSONL log.
+    Guarantee: callers MUST ensure only one process writes to a given log file at a time.
+    Enforcement: the skill pipeline serializes all skill execution through a single
+    local_gate.py process; no parallel skill execution is supported.
+
     checkpoint_run(correlation_id, {"last_skill": "S-26", "page": "my-page.md"})
     state = resume_from_checkpoint(correlation_id)
     # {"last_skill": "S-26", "page": "my-page.md"}
