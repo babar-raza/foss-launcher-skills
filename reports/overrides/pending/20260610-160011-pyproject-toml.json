@@ -1,0 +1,16 @@
+{
+  "override_id": "20260610-160011-pyproject-toml",
+  "paths": [
+    "pyproject.toml",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "github/workflows/pipeline-tests.yml"
+  ],
+  "operation": "edit",
+  "reason": "Rating-healing sprint: align coverage gate, create CHANGELOG, add release process, fix CI",
+  "plan_reference": "virtual-watching-honey.md",
+  "scope_description": "RC-RATE-001 RC-RATE-002 RC-RATE-003 RC-RATE-008: pyproject.toml fail_under, CHANGELOG.md, CONTRIBUTING.md release process, pipeline-tests.yml coverage gate",
+  "authorized_at": "2026-06-10T16:00:11.790907Z",
+  "retroactive": false,
+  "consumed_by_commit": null
+}

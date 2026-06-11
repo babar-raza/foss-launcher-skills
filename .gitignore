@@ -71,3 +71,11 @@ scripts/_content_check.py
 install.log
 /.cloned
 .pytest_venv/
+
+# Local tool state and CI artifacts
+/.kilo/
+/.local/
+coverage.json
+/reports/skill-context/
+/reports/overrides/pretooluse-audit.log
+*.zip
