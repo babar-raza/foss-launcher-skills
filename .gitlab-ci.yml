@@ -158,7 +158,6 @@ commit-provenance:
 
 security-scan:
   stage: validate
-  allow_failure: true  # non-blocking until baseline clean— bandit baseline is clean (nosec-annotated)
   script:
     - pip install bandit pip-audit
     - python scripts/ci/checks/check_sast_bandit.py
