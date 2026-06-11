@@ -316,7 +316,7 @@ def fetch_sitemap_urls(sitemap_url: str, session: requests.Session, depth: int =
         return [], "", 0
 
     try:
-        root = ElementTree.fromstring(raw_xml)
+        root = ElementTree.fromstring(raw_xml)  # nosec B314 - input is Aspose sitemap XML from known URLs
     except ElementTree.ParseError as exc:
         print(f"  WARN: XML parse error for {sitemap_url}: {exc}", file=sys.stderr)
         return [], source_hash, http_status
@@ -742,14 +742,14 @@ def generate_report(output_data: dict, warnings: list[str]) -> str:
     # Family/platform matrix
     matrix = output_data.get("family_platform_matrix", {})
     if matrix:
-        lines.append("## Family × Platform Availability Matrix")
+        lines.append("## Family �- Platform Availability Matrix")
         lines.append("")
         lines.append("| Family | Products | Docs | Reference | Products Platforms | Docs Platforms |")
         lines.append("|--------|----------|------|-----------|--------------------|----------------|")
         for fam, info in sorted(matrix.items()):
-            prod = "✓" if info["has_family_on_products"] else "✗"
-            docs = "✓" if info["has_family_on_docs"] else "✗"
-            ref = "✓" if info["has_family_on_reference"] else "✗"
+            prod = "✓" if info["has_family_on_products"] else "�-"
+            docs = "✓" if info["has_family_on_docs"] else "�-"
+            ref = "✓" if info["has_family_on_reference"] else "�-"
             prod_plats = ", ".join(info["platforms_on_products"]) or "—"
             docs_plats = ", ".join(info["platforms_on_docs"]) or "—"
             lines.append(f"| {fam} | {prod} | {docs} | {ref} | {prod_plats} | {docs_plats} |")

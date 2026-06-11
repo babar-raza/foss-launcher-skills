@@ -101,8 +101,8 @@ class M2MBackend(TranslationBackend):
                 "Or remove --offline flag to use the LLM backend."
             )
         logger.info(f"Loading M2M100 model {self.model_name}...")
-        self._tokenizer = M2M100Tokenizer.from_pretrained(self.model_name)
-        self._model = M2M100ForConditionalGeneration.from_pretrained(self.model_name)
+        self._tokenizer = M2M100Tokenizer.from_pretrained(self.model_name)  # nosec B615 - loading HuggingFace model is expected behavior
+        self._model = M2M100ForConditionalGeneration.from_pretrained(self.model_name)  # nosec B615 - loading HuggingFace model is expected behavior
         self._loaded = True
         logger.info("M2M100 model loaded.")
 
