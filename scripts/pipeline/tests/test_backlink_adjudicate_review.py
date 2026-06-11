@@ -15,6 +15,7 @@ from commands.ops.backlink_adjudicate_review import (
     promote_to_authority,
     _tier2_ai_adjudicate,
     _tier2_semantic_confirm,
+    _load_page_texts,
     _sc_tokenize,
     _sc_cosine,
 )
@@ -552,3 +553,85 @@ class TestSemanticConfirmIntegration:
         result = adjudicate_review_required(graph, None, dry_run=True)
         # semantic_promoted should be 0 when disabled
         assert result["tier_stats"]["semantic_promoted"] == 0
+
+
+class TestLoadPageTexts:
+    """Tests for _load_page_texts() — path resolution correctness."""
+
+    def test_source_path_cwd_independent(self, tmp_path):
+        """Source paths resolve correctly regardless of CWD (uses repo_root join)."""
+        # Create a fake source file at tmp_path/content/docs/cells/java/sk1.md
+        content_dir = tmp_path / "content"
+        src_dir = content_dir / "docs" / "cells" / "java"
+        src_dir.mkdir(parents=True)
+        src_file = src_dir / "sk1.md"
+        src_file.write_text("source page text", encoding="utf-8")
+
+        graph = {
+            "sources": [
+                {
+                    "source_key": "docs/cells/java/sk1",
+                    "source_path": "content/docs/cells/java/sk1.md",
+                }
+            ],
+            "candidates": [],
+        }
+        texts = _load_page_texts(graph, content_dir)
+        assert "docs/cells/java/sk1" in texts
+        assert texts["docs/cells/java/sk1"] == "source page text"
+
+    def test_target_exact_case_match(self, tmp_path):
+        """Target slugs matching exact-case filenames resolve correctly."""
+        content_dir = tmp_path / "content"
+        ref_dir = content_dir / "reference.aspose.org" / "en" / "3d" / "net"
+        ref_dir.mkdir(parents=True)
+        (ref_dir / "scene.md").write_text("scene page text", encoding="utf-8")
+
+        graph = {
+            "sources": [],
+            "candidates": [
+                {"target_path": "reference/3d/net/scene", "score": 0.9},
+            ],
+        }
+        texts = _load_page_texts(graph, content_dir)
+        assert "reference/3d/net/scene" in texts
+        assert texts["reference/3d/net/scene"] == "scene page text"
+
+    def test_target_case_insensitive_pascalcase(self, tmp_path):
+        """Target slug 'a3dobject' resolves to PascalCase file 'A3DObject.md'."""
+        content_dir = tmp_path / "content"
+        ref_dir = content_dir / "reference.aspose.org" / "en" / "3d" / "net"
+        ref_dir.mkdir(parents=True)
+        (ref_dir / "A3DObject.md").write_text("A3DObject page text", encoding="utf-8")
+
+        graph = {
+            "sources": [],
+            "candidates": [
+                {"target_path": "reference/3d/net/a3dobject", "score": 0.9},
+            ],
+        }
+        texts = _load_page_texts(graph, content_dir)
+        assert "reference/3d/net/a3dobject" in texts
+        assert texts["reference/3d/net/a3dobject"] == "A3DObject page text"
+
+    def test_missing_source_skipped_gracefully(self, tmp_path):
+        """Missing source files are silently skipped (no exception)."""
+        content_dir = tmp_path / "content"
+        content_dir.mkdir(parents=True)
+        graph = {
+            "sources": [
+                {"source_key": "sk1", "source_path": "content/nonexistent.md"}
+            ],
+            "candidates": [],
+        }
+        texts = _load_page_texts(graph, content_dir)
+        assert "sk1" not in texts
+
+    def test_diagnostic_output_printed(self, tmp_path, capsys):
+        """Diagnostic line showing load counts is printed to stdout."""
+        content_dir = tmp_path / "content"
+        content_dir.mkdir(parents=True)
+        graph = {"sources": [], "candidates": []}
+        _load_page_texts(graph, content_dir)
+        out = capsys.readouterr().out
+        assert "[page_texts]" in out
