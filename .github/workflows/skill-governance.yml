@@ -199,3 +199,19 @@ jobs:
               sys.exit(1)
           print('PASS: config.yaml validates against config.schema.json')
           "
+
+  # ── Job 9: Security scan (SAST + dependency audit) ────────────────────────
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install ".[dev]"
+      - name: Run SAST scan (bandit)
+        run: python scripts/ci/checks/check_sast_bandit.py
+      - name: Run dependency audit (pip-audit)
+        run: python scripts/ci/checks/check_dependency_audit.py
