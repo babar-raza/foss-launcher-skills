@@ -320,6 +320,7 @@ foss-launcher-skills/
 ├── data/                      # Static data files
 ├── plans/                     # Page plans and healing workflows
 ├── reports/
+├── reviews/                  # Project assessment and scoring reviews
 │   ├── agents/                # Agent session audit logs
 │   └── conformance/           # Golden conformance reports
 ├── config.yaml                # Site paths, governance, corpus settings
