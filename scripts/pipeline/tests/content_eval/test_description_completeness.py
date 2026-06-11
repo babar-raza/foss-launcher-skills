@@ -355,3 +355,64 @@ class TestDescriptionCompleteness:
         assert len(dc_findings) == 0, (
             "Page with dc_exempt: true must not produce DC findings"
         )
+
+    def test_3row_2empty_no_fail(self):
+        """3-row table with 2 empty cells → no FAIL (TC-EVAL-002 boundary).
+
+        Before the small-table guard, percentage path: 2/3 = 67% > _FAIL_EMPTY_PCT
+        would have triggered FAIL. Now: small-table path applies (3 < _SMALL_TABLE_ROWS),
+        and absolute-count check: 2 < _FAIL_EMPTY_MIN(3) → no FAIL.
+        (2 >= _WARN_EMPTY_MIN(2) → WARN is acceptable, but must not be FAIL.)
+        """
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: SimpleClass
+            ---
+            ## Properties
+
+            | Name | Description |
+            |------|-------------|
+            | alpha | The alpha property |
+            | beta | |
+            | gamma | |
+        """))
+        findings = self.evaluator.evaluate(page, None)
+        dc_findings = [f for f in findings if f.category == "DC"]
+        fail_findings = [f for f in dc_findings if f.level == "FAIL"]
+        assert len(fail_findings) == 0, (
+            "3-row table with 2 empty cells must NOT produce FAIL — "
+            "small-table guard applies (< _SMALL_TABLE_ROWS), and 2 < _FAIL_EMPTY_MIN(3)"
+        )
+
+    def test_10row_6empty_still_fails(self):
+        """10-row table with 6 empty cells → FAIL (TC-EVAL-002 regression guard).
+
+        Large tables (>= _SMALL_TABLE_ROWS) use percentage path: 60% > _FAIL_EMPTY_PCT
+        AND 6 >= _FAIL_EMPTY_MIN → FAIL fires. Small-table guard must not suppress this.
+        """
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: BigClass
+            ---
+            ## Methods
+
+            | Method | Description |
+            |--------|-------------|
+            | open | Opens the resource |
+            | close | Closes the resource |
+            | read | |
+            | write | |
+            | seek | |
+            | flush | |
+            | stat | |
+            | chmod | |
+            | unlink | |
+            | sync | |
+        """))
+        findings = self.evaluator.evaluate(page, None)
+        dc_findings = [f for f in findings if f.category == "DC"]
+        assert len(dc_findings) >= 1, "10-row table with 6 empty must produce a finding"
+        assert dc_findings[0].level == "FAIL", (
+            "10-row table with 6 empty cells (60% > _FAIL_EMPTY_PCT, 6 >= _FAIL_EMPTY_MIN) "
+            "must FAIL — small-table guard must not suppress large-table findings"
+        )

@@ -260,3 +260,83 @@ class TestRegistration:
         """Threshold lowered from 0.30 to 0.25 (TC-EVAL-001) to eliminate
         the dead zone where knowledge regeneration caused grade instability."""
         assert _SIMILARITY_THRESHOLD == 0.25
+
+
+# ---------------------------------------------------------------------------
+# Threshold boundary tests (TC-EVAL-001)
+# ---------------------------------------------------------------------------
+
+class TestThresholdBoundary:
+    """Verify behavioral boundaries at the lowered 0.25 threshold.
+
+    These tests mock get_claim_index to return controlled cosine values,
+    isolating the threshold logic from TF-IDF implementation details.
+    Under the old threshold (0.30): similarities 0.26-0.29 caused
+    grade instability. These tests confirm the new threshold eliminates
+    that dead zone.
+    """
+
+    def _make_mock_index(self, similarity: float):
+        """Return a mock ClaimIndex that always reports a fixed similarity."""
+        from unittest.mock import MagicMock
+        idx = MagicMock()
+        idx.available = True
+        idx.best_similarity.return_value = similarity
+        return idx
+
+    def test_similarity_028_no_warn(self):
+        """Similarity 0.28 is above threshold 0.25 → no WARN.
+
+        Under the old threshold (0.30) this would have produced WARN,
+        causing grade instability in the 0.25-0.35 dead zone.
+        """
+        page = _make_page(
+            "This library supports reading PDF documents with embedded fonts."
+        )
+        ev = ProseGroundingEvaluator()
+        mock_index = self._make_mock_index(0.28)
+        with patch(
+            "content_eval.evaluators.prose_grounding.get_claim_index",
+            return_value=mock_index,
+        ):
+            findings = ev.evaluate(page, None)
+        pg_findings = [f for f in findings if f.category == "PG"]
+        assert len(pg_findings) == 0, (
+            f"similarity 0.28 >= threshold 0.25 should NOT produce WARN; "
+            f"got {pg_findings}"
+        )
+
+    def test_similarity_024_produces_warn(self):
+        """Similarity 0.24 is below threshold 0.25 → WARN produced."""
+        page = _make_page(
+            "This library supports reading PDF documents with embedded fonts."
+        )
+        ev = ProseGroundingEvaluator()
+        mock_index = self._make_mock_index(0.24)
+        with patch(
+            "content_eval.evaluators.prose_grounding.get_claim_index",
+            return_value=mock_index,
+        ):
+            findings = ev.evaluate(page, None)
+        pg_findings = [f for f in findings if f.category == "PG"]
+        assert len(pg_findings) >= 1, (
+            "similarity 0.24 < threshold 0.25 should produce at least one WARN"
+        )
+        assert pg_findings[0].level == "WARN"
+
+    def test_similarity_025_boundary_no_warn(self):
+        """Similarity exactly at threshold 0.25 → no WARN (boundary is exclusive)."""
+        page = _make_page(
+            "This library supports reading PDF documents with embedded fonts."
+        )
+        ev = ProseGroundingEvaluator()
+        mock_index = self._make_mock_index(0.25)
+        with patch(
+            "content_eval.evaluators.prose_grounding.get_claim_index",
+            return_value=mock_index,
+        ):
+            findings = ev.evaluate(page, None)
+        pg_findings = [f for f in findings if f.category == "PG"]
+        assert len(pg_findings) == 0, (
+            "similarity == threshold 0.25 should NOT produce WARN (not strictly less than)"
+        )

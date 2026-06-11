@@ -91,6 +91,132 @@ def _try_import_llm_router():
         return None
 
 
+# ── Source-text loader for --semantic-confirm ────────────────────────────────
+
+# Maps target_path subdomain prefix → content subdirectory
+_TARGET_SD_TO_CONTENT_DIR: dict[str, str] = {
+    "reference": "reference.aspose.org/en",
+    "docs": "docs.aspose.org/en",
+    "kb": "kb.aspose.org/en",
+    "products": "products.aspose.org/en",
+    "blog": "blog.aspose.org",
+}
+
+
+def _load_page_texts(
+    candidate_graph: dict,
+    content_root: Path,
+) -> dict[str, str]:
+    """Build source_key/target_path → page text dict for semantic confirmation.
+
+    Reads source page files directly from source_path field. For target pages,
+    resolves target_path (e.g. 'reference/3d/java/a3dobject') to a content
+    file by trying {slug}.md and {slug}/index.md variants, with a
+    case-insensitive fallback for PascalCase reference filenames.
+
+    Uses resolved absolute paths to avoid CWD dependency.
+    Gracefully skips missing files without raising.
+    """
+    texts: dict[str, str] = {}
+    # Resolve once so source path joins are CWD-independent
+    abs_content_root = content_root.resolve()
+    repo_root = abs_content_root.parent
+
+    # Source pages: source_key → source_path (relative to repo root)
+    sources_attempted = 0
+    sources_loaded = 0
+    for src in candidate_graph.get("sources", []):
+        sk = src.get("source_key", "")
+        sp = src.get("source_path", "")
+        if not sk or not sp:
+            continue
+        sources_attempted += 1
+        try:
+            fpath = repo_root / sp
+            if fpath.exists():
+                texts[sk] = fpath.read_text(encoding="utf-8", errors="replace")
+                sources_loaded += 1
+        except Exception:
+            pass
+
+    # Target pages: target_path → resolve to content file
+    seen_targets: set[str] = set()
+    targets_resolved = 0
+    targets_unresolved = 0
+    for cand in candidate_graph.get("candidates", []):
+        tp = cand.get("target_path", "")
+        if not tp or tp in seen_targets:
+            continue
+        seen_targets.add(tp)
+
+        # Split off subdomain prefix: "reference/3d/java/..." → ("reference", "3d/java/...")
+        parts = tp.strip("/").split("/", 1)
+        if len(parts) < 2:
+            targets_unresolved += 1
+            continue
+        sd, rest = parts[0], parts[1]
+        content_subdir = _TARGET_SD_TO_CONTENT_DIR.get(sd)
+        if not content_subdir:
+            targets_unresolved += 1
+            continue
+
+        base = abs_content_root / content_subdir / rest
+        found = False
+
+        # Exact-case paths first (fast path)
+        for candidate_path in (
+            Path(str(base) + ".md"),
+            base / "index.md",
+            base / "_index.md",
+        ):
+            if candidate_path.exists():
+                try:
+                    texts[tp] = candidate_path.read_text(encoding="utf-8", errors="replace")
+                    found = True
+                except Exception:
+                    pass
+                break
+
+        # Case-insensitive fallback for PascalCase reference filenames
+        # e.g. slug "a3dobject" matches file "A3DObject.md"
+        if not found and base.parent.exists():
+            slug_lower = base.name.lower()
+            for candidate_path in base.parent.glob("*.md"):
+                if candidate_path.stem.lower() == slug_lower:
+                    try:
+                        texts[tp] = candidate_path.read_text(encoding="utf-8", errors="replace")
+                        found = True
+                    except Exception:
+                        pass
+                    break
+            if not found:
+                for subdir in base.parent.glob("*/"):
+                    if subdir.name.lower() == slug_lower:
+                        for idx in (subdir / "index.md", subdir / "_index.md"):
+                            if idx.exists():
+                                try:
+                                    texts[tp] = idx.read_text(encoding="utf-8", errors="replace")
+                                    found = True
+                                except Exception:
+                                    pass
+                                break
+                        if found:
+                            break
+
+        if found:
+            targets_resolved += 1
+        else:
+            targets_unresolved += 1
+
+    total_targets = len(seen_targets)
+    print(
+        f"  [page_texts] sources: {sources_loaded}/{sources_attempted} loaded, "
+        f"targets: {targets_resolved}/{total_targets} resolved, "
+        f"{targets_unresolved} unresolved"
+    )
+    return texts
+
+
 # ── Helpers shared with backlink_approve_authority.py ─────────────────────────
 
 _SUBDOMAIN_TO_HOST = {
@@ -667,6 +793,8 @@ def main() -> None:
                         help="Minimum final_score for Tier 2 promotion (default: 0.70)")
     parser.add_argument("--semantic-confirm", action="store_true", default=False,
                         help="Enable TF-IDF semantic confirmation for ESCALATE_TO_OPERATOR candidates")
+    parser.add_argument("--content-root", default="content",
+                        help="Content root for semantic-confirm text loading (default: content)")
     args = parser.parse_args()
 
     if args.write and args.dry_run:
@@ -701,6 +829,13 @@ def main() -> None:
                    if c.get("decision") == "REVIEW_REQUIRED")
     print(f"REVIEW_REQUIRED candidates: {rr_count}")
 
+    source_texts: dict[str, str] = {}
+    if args.semantic_confirm:
+        content_root = Path(args.content_root)
+        print(f"Loading page texts for semantic confirmation from {content_root} ...")
+        source_texts = _load_page_texts(candidate_graph, content_root)
+        print(f"Loaded {len(source_texts)} page texts.")
+
     result = adjudicate_review_required(
         candidate_graph,
         authority,
@@ -708,6 +843,7 @@ def main() -> None:
         max_candidates=args.max_candidates,
         promote_threshold=args.threshold,
         semantic_confirm=args.semantic_confirm,
+        source_texts=source_texts,
     )
 
     stats = result["tier_stats"]
