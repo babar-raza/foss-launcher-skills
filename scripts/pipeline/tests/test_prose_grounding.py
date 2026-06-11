@@ -256,5 +256,7 @@ class TestRegistration:
         _ensure_loaded()
         assert "prose_grounding" in _REGISTRY
 
-    def test_threshold_is_030(self):
-        assert _SIMILARITY_THRESHOLD == 0.30
+    def test_threshold_is_025(self):
+        """Threshold lowered from 0.30 to 0.25 (TC-EVAL-001) to eliminate
+        the dead zone where knowledge regeneration caused grade instability."""
+        assert _SIMILARITY_THRESHOLD == 0.25

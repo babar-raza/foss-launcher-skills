@@ -14,6 +14,9 @@ from commands.ops.backlink_adjudicate_review import (
     adjudicate_review_required,
     promote_to_authority,
     _tier2_ai_adjudicate,
+    _tier2_semantic_confirm,
+    _sc_tokenize,
+    _sc_cosine,
 )
 
 
@@ -382,3 +385,170 @@ class TestTier2AIAdjudication:
         r = results[0]
         assert r["ai_status"] == "AI_CLASSIFIED"
         assert r["adjudication_result"] == "ESCALATE_TO_OPERATOR"  # surfaces dead zone
+
+
+# ── TC-BLINK-001: Semantic Confirmation Tests ────────────────────────────────
+
+
+class TestSemanticConfirmHelpers:
+    def test_sc_tokenize_basic(self):
+        tokens = _sc_tokenize("The Workbook class provides spreadsheet data export")
+        assert "workbook" in tokens
+        assert "spreadsheet" in tokens
+        assert "the" not in tokens  # stopword
+
+    def test_sc_cosine_identical(self):
+        tokens = _sc_tokenize("workbook spreadsheet cells export data")
+        sim = _sc_cosine(tokens, tokens)
+        assert abs(sim - 1.0) < 1e-9
+
+    def test_sc_cosine_orthogonal(self):
+        a = _sc_tokenize("workbook spreadsheet cells export")
+        b = _sc_tokenize("raspberry banana strawberry grape")
+        sim = _sc_cosine(a, b)
+        assert sim < 0.1
+
+    def test_sc_cosine_empty(self):
+        assert _sc_cosine([], ["hello"]) == 0.0
+        assert _sc_cosine(["hello"], []) == 0.0
+
+
+class TestSemanticConfirmCaseA:
+    """Case A: unrelated + high score → check TF-IDF similarity."""
+
+    def test_unrelated_high_score_similar_content_promoted(self):
+        """unrelated + score 0.82 + high cosine → reclassified, promoted."""
+        escalated = [{
+            "source_key": "docs/cells/java/workbook-export.md",
+            "target_path": "ref/cells/java/Workbook",
+            "ai_label": "unrelated",
+            "effective_score": 0.82,
+            "adjudication_result": "ESCALATE_TO_OPERATOR",
+        }]
+        # Same topic text: nearly identical (high token overlap → cosine > 0.80)
+        source_texts = {
+            "docs/cells/java/workbook-export.md": (
+                "workbook class export spreadsheet data xlsx csv file format "
+                "output save method cells worksheets"
+            ),
+            "ref/cells/java/Workbook": (
+                "workbook class export spreadsheet data xlsx csv file format "
+                "output save method cells"
+            ),
+        }
+        results = _tier2_semantic_confirm(escalated, source_texts)
+        assert results[0]["adjudication_result"] == "PROMOTE_WITH_JUSTIFICATION"
+        assert results[0].get("semantic_override") is True
+        assert "semantic_similarity" in results[0]
+
+    def test_unrelated_high_score_different_content_stays_escalated(self):
+        """unrelated + score 0.82 + low cosine → still ESCALATE_TO_OPERATOR."""
+        escalated = [{
+            "source_key": "docs/cells/java/workbook-export.md",
+            "target_path": "ref/email/net/SmtpClient",
+            "ai_label": "unrelated",
+            "effective_score": 0.82,
+            "adjudication_result": "ESCALATE_TO_OPERATOR",
+        }]
+        source_texts = {
+            "docs/cells/java/workbook-export.md": (
+                "The Workbook class provides methods to export spreadsheet data "
+                "to various file formats including XLSX and CSV"
+            ),
+            "ref/email/net/SmtpClient": (
+                "SmtpClient manages SMTP email connections for sending messages "
+                "through mail servers with authentication"
+            ),
+        }
+        results = _tier2_semantic_confirm(escalated, source_texts)
+        assert results[0]["adjudication_result"] == "ESCALATE_TO_OPERATOR"
+
+    def test_unrelated_high_score_no_target_text_stays_escalated(self):
+        """unrelated + high score but no target text → stays ESCALATE."""
+        escalated = [{
+            "source_key": "docs/cells/java/sk1.md",
+            "target_path": "ref/cells/java/X",
+            "ai_label": "unrelated",
+            "effective_score": 0.85,
+            "adjudication_result": "ESCALATE_TO_OPERATOR",
+        }]
+        results = _tier2_semantic_confirm(escalated, {})
+        assert results[0]["adjudication_result"] == "ESCALATE_TO_OPERATOR"
+
+
+class TestSemanticConfirmCaseB:
+    """Case B: exact/related API class + low score → check anchor validity."""
+
+    def test_exact_api_low_score_valid_anchor_promoted(self):
+        """exact_api_class + score 0.66 + valid anchor → promoted at 0.65 threshold."""
+        escalated = [{
+            "source_key": "docs/pdf/go/document.md",
+            "target_path": "ref/pdf/go/Document",
+            "ai_label": "exact_api_class",
+            "effective_score": 0.66,
+            "adjudication_result": "ESCALATE_TO_OPERATOR",
+        }]
+        anchor_valid = {"docs/pdf/go/document.md": True}
+        results = _tier2_semantic_confirm(escalated, {}, anchor_valid=anchor_valid)
+        assert results[0]["adjudication_result"] == "PROMOTE_WITH_JUSTIFICATION"
+        assert results[0].get("semantic_override") is True
+
+    def test_exact_api_low_score_invalid_anchor_stays_escalated(self):
+        """exact_api_class + score 0.66 + invalid anchor → stays ESCALATE."""
+        escalated = [{
+            "source_key": "docs/pdf/go/document.md",
+            "target_path": "ref/pdf/go/Document",
+            "ai_label": "exact_api_class",
+            "effective_score": 0.66,
+            "adjudication_result": "ESCALATE_TO_OPERATOR",
+        }]
+        anchor_valid = {"docs/pdf/go/document.md": False}
+        results = _tier2_semantic_confirm(escalated, {}, anchor_valid=anchor_valid)
+        assert results[0]["adjudication_result"] == "ESCALATE_TO_OPERATOR"
+
+    def test_exact_api_very_low_score_not_promoted(self):
+        """exact_api_class + score 0.50 (below 0.65) + valid anchor → NOT promoted."""
+        escalated = [{
+            "source_key": "docs/pdf/go/document.md",
+            "target_path": "ref/pdf/go/Document",
+            "ai_label": "exact_api_class",
+            "effective_score": 0.50,
+            "adjudication_result": "ESCALATE_TO_OPERATOR",
+        }]
+        anchor_valid = {"docs/pdf/go/document.md": True}
+        results = _tier2_semantic_confirm(escalated, {}, anchor_valid=anchor_valid)
+        assert results[0]["adjudication_result"] == "ESCALATE_TO_OPERATOR"
+
+    def test_related_api_low_score_valid_anchor_promoted(self):
+        """related_api_class + score 0.67 + valid anchor → promoted."""
+        escalated = [{
+            "source_key": "docs/cells/net/range.md",
+            "target_path": "ref/cells/net/Range",
+            "ai_label": "related_api_class",
+            "effective_score": 0.67,
+            "adjudication_result": "ESCALATE_TO_OPERATOR",
+        }]
+        anchor_valid = {"docs/cells/net/range.md": True}
+        results = _tier2_semantic_confirm(escalated, {}, anchor_valid=anchor_valid)
+        assert results[0]["adjudication_result"] == "PROMOTE_WITH_JUSTIFICATION"
+
+
+class TestSemanticConfirmIntegration:
+    def test_semantic_confirm_flag_in_adjudicate(self):
+        """semantic_confirm=True activates the confirmation layer."""
+        candidates = [_make_candidate("docs/cells/java/sk1.md", "ref/cells/java/Workbook", 0.65)]
+        sources = [{"source_key": "docs/cells/java/sk1.md", "source_path": "docs/cells/java/sk1.md"}]
+        graph = _make_graph(sources, candidates)
+        result = adjudicate_review_required(
+            graph, None, dry_run=True, semantic_confirm=True,
+        )
+        assert "semantic_promoted" in result["tier_stats"]
+
+    def test_semantic_confirm_off_by_default(self):
+        """semantic_confirm defaults to False."""
+        candidates = [_make_candidate("docs/cells/java/sk1.md", "ref/cells/java/Workbook", 0.65)]
+        sources = [{"source_key": "docs/cells/java/sk1.md", "source_path": "docs/cells/java/sk1.md"}]
+        graph = _make_graph(sources, candidates)
+        result = adjudicate_review_required(graph, None, dry_run=True)
+        # semantic_promoted should be 0 when disabled
+        assert result["tier_stats"]["semantic_promoted"] == 0

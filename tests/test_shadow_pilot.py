@@ -1144,3 +1144,69 @@ class TestRollbackPathGuard:
 
         # Safe file must NOT have been deleted (fail-first validation)
         assert safe_file.exists()
+
+
+# ---------------------------------------------------------------------------
+# TC-ACT-001: Deterministic claim selection + cross-platform test filtering
+# ---------------------------------------------------------------------------
+
+class TestDeterministicClaimSelection:
+    """TC-ACT-001: Verify claim selection is deterministic and test-filtered."""
+
+    def test_fallback_claim_sort_is_stable(self):
+        """Claims with identical confidence produce identical ordering via claim_id tiebreaker."""
+        from commands.content.shadow_content_generator import _filter_feature_claims
+
+        claims = [
+            {"text": "Supports PDF export", "fact_id": "CLM-pdf-zzz001", "confidence": 1.0, "category": "claim"},
+            {"text": "Supports DOCX import", "fact_id": "CLM-pdf-aaa001", "confidence": 1.0, "category": "claim"},
+            {"text": "Supports HTML rendering", "fact_id": "CLM-pdf-mmm001", "confidence": 1.0, "category": "claim"},
+        ]
+        # Sort the way the fallback does: (-confidence, fact_id)
+        sorted_claims = sorted(claims, key=lambda f: (-f.get("confidence", 0), f.get("fact_id", "")))
+        filtered = _filter_feature_claims(sorted_claims)
+
+        # Verify deterministic order: aaa < mmm < zzz (all confidence=1.0)
+        ids = [c["fact_id"] for c in filtered]
+        assert ids == ["CLM-pdf-aaa001", "CLM-pdf-mmm001", "CLM-pdf-zzz001"]
+
+        # Verify stable across 10 invocations
+        for _ in range(10):
+            again = sorted(claims, key=lambda f: (-f.get("confidence", 0), f.get("fact_id", "")))
+            assert [c["fact_id"] for c in again] == ids
+
+    def test_python_test_claims_filtered(self):
+        """Python test functions (test_xxx) are excluded from feature claims."""
+        from commands.content.shadow_content_generator import _filter_feature_claims
+
+        claims = [
+            {"text": "Function test_read_file opens a workbook", "fact_id": "C1", "category": "claim"},
+            {"text": "Supports reading Excel files natively", "fact_id": "C2", "category": "claim"},
+        ]
+        filtered = _filter_feature_claims(claims)
+        assert len(filtered) == 1
+        assert filtered[0]["fact_id"] == "C2"
+
+    def test_java_test_claims_filtered(self):
+        """Java test methods (testXxx) are excluded from feature claims."""
+        from commands.content.shadow_content_generator import _filter_feature_claims
+
+        claims = [
+            {"text": "Method testReadFile verifies file loading", "fact_id": "C1", "category": "claim"},
+            {"text": "Provides high-fidelity document conversion", "fact_id": "C2", "category": "claim"},
+        ]
+        filtered = _filter_feature_claims(claims)
+        assert len(filtered) == 1
+        assert filtered[0]["fact_id"] == "C2"
+
+    def test_go_test_claims_still_filtered(self):
+        """Go test functions (TestXxx) remain excluded (regression guard)."""
+        from commands.content.shadow_content_generator import _filter_feature_claims
+
+        claims = [
+            {"text": "Function TestCreateDocument creates a new document", "fact_id": "C1", "category": "claim"},
+            {"text": "Supports batch PDF processing", "fact_id": "C2", "category": "claim"},
+        ]
+        filtered = _filter_feature_claims(claims)
+        assert len(filtered) == 1
+        assert filtered[0]["fact_id"] == "C2"

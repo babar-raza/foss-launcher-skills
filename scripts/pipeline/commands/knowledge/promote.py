@@ -29,15 +29,131 @@ Usage:
 from __future__ import annotations
 
 import json
+import math
 import re
 import shutil
 import sys
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
 
 from core.constants import _TEST_PATH_PATTERNS, _INTERNAL_PATH_PATTERNS
+
+
+# ---------------------------------------------------------------------------
+# TF-IDF semantic dedup helpers (TC-KNOW-001)
+# ---------------------------------------------------------------------------
+
+_TFIDF_STOPWORDS = frozenset(
+    "a about above after again against all am an and any are as at be because "
+    "been before being below between both but by can could did do does doing "
+    "down during each few for from further get got had has have having he her "
+    "here hers herself him himself his how i if in into is it its itself just "
+    "let like me might more most my myself no nor not now of off on once only "
+    "or other our ours ourselves out over own re same shall she should so some "
+    "such than that the their theirs them themselves then there these they this "
+    "those through to too under until up us very was we were what when where "
+    "which while who whom why will with you your yours yourself yourselves".split()
+)
+
+_SEMANTIC_DEDUP_THRESHOLD = 0.90  # cosine > 0.90 → merge
+
+
+def _tfidf_tokenize(text: str) -> list[str]:
+    words = re.findall(r"[a-z0-9_]+", text.lower())
+    return [w for w in words if len(w) > 2 and w not in _TFIDF_STOPWORDS]
+
+
+def _tfidf_cosine(vec1: dict[str, float], vec2: dict[str, float]) -> float:
+    keys = set(vec1) & set(vec2)
+    if not keys:
+        return 0.0
+    dot = sum(vec1[k] * vec2[k] for k in keys)
+    mag1 = math.sqrt(sum(v * v for v in vec1.values()))
+    mag2 = math.sqrt(sum(v * v for v in vec2.values()))
+    if mag1 == 0 or mag2 == 0:
+        return 0.0
+    return dot / (mag1 * mag2)
+
+
+def _semantic_dedup_claims(claims: list[dict]) -> list[dict]:
+    """Remove semantically duplicate claims using TF-IDF cosine similarity.
+
+    For pairs with cosine > _SEMANTIC_DEDUP_THRESHOLD (0.90), keeps the claim
+    with higher confidence and attaches the other's claim_id as merged_from.
+    """
+    if len(claims) < 2:
+        return claims
+
+    # Build TF-IDF vectors
+    texts = [c.get("text", "") for c in claims]
+    tokenized = [_tfidf_tokenize(t) for t in texts]
+
+    # IDF
+    n = len(tokenized)
+    df: dict[str, int] = {}
+    for doc in tokenized:
+        for term in set(doc):
+            df[term] = df.get(term, 0) + 1
+    idf = {term: math.log(1 + n / count) for term, count in df.items()}
+
+    # TF-IDF vectors (sparse)
+    vectors: list[dict[str, float]] = []
+    for doc in tokenized:
+        tf = Counter(doc)
+        total = len(doc) or 1
+        vec = {t: (c / total) * idf.get(t, 0.0) for t, c in tf.items()}
+        vectors.append(vec)
+
+    # Find pairs to merge (greedy: higher-confidence claim absorbs lower)
+    merged_into: dict[int, int] = {}  # loser_idx → winner_idx
+    for i in range(len(claims)):
+        if i in merged_into:
+            continue
+        for j in range(i + 1, len(claims)):
+            if j in merged_into:
+                continue
+            sim = _tfidf_cosine(vectors[i], vectors[j])
+            if sim > _SEMANTIC_DEDUP_THRESHOLD:
+                ci = claims[i].get("confidence", 0)
+                cj = claims[j].get("confidence", 0)
+                if ci >= cj:
+                    winner, loser = i, j
+                else:
+                    winner, loser = j, i
+                merged_into[loser] = winner
+
+    # Build result
+    result: list[dict] = []
+    merge_log: list[str] = []
+    for idx, claim in enumerate(claims):
+        if idx in merged_into:
+            winner_idx = merged_into[idx]
+            loser_id = claim.get("claim_id", "?")
+            winner_id = claims[winner_idx].get("claim_id", "?")
+            merge_log.append(f"    {loser_id} → {winner_id}")
+            # Attach merged_from to winner
+            winner = claims[winner_idx]
+            existing = winner.get("merged_from", [])
+            if not isinstance(existing, list):
+                existing = [existing]
+            if loser_id not in existing:
+                existing.append(loser_id)
+            winner["merged_from"] = existing
+        else:
+            result.append(claim)
+
+    if merge_log:
+        print(f"  Semantic dedup: merged {len(merge_log)} near-duplicate claim(s) "
+              f"(threshold={_SEMANTIC_DEDUP_THRESHOLD})")
+        for line in merge_log[:10]:
+            print(line)
+        if len(merge_log) > 10:
+            print(f"    ... and {len(merge_log) - 10} more")
+
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -694,6 +810,18 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
     else:
         print(f"  Claim ID uniqueness: PASS ({len(_id_counts)} unique IDs)")
 
+    # Optional semantic dedup: merge near-duplicate claims by TF-IDF cosine similarity.
+    # Gated behind promote._semantic_dedup flag (set via --semantic-dedup CLI arg).
+    if getattr(promote, "_semantic_dedup", False):
+        _pre_count = len(merged_claims)
+        merged_claims = _semantic_dedup_claims(merged_claims)
+        _post_count = len(merged_claims)
+        if _pre_count != _post_count:
+            print(f"  Semantic dedup: {_pre_count} → {_post_count} claims "
+                  f"({_pre_count - _post_count} removed)")
+    else:
+        print("  Semantic dedup: skipped (use --semantic-dedup to enable)")
+
     (merged_dir / "claims.json").write_text(
         json.dumps(merged_claims, indent=2, ensure_ascii=False), encoding="utf-8")
 
@@ -1046,11 +1174,16 @@ def main() -> None:
                         help="Override knowledge root directory (default: knowledge/)")
     parser.add_argument("--skip-validation", action="store_true", default=False,
                         help="Skip artifact validation checks (not recommended)")
+    parser.add_argument("--semantic-dedup", action="store_true", default=False,
+                        help="Enable TF-IDF semantic dedup of near-duplicate claims (cosine > 0.90)")
+    parser.add_argument("--no-semantic-dedup", dest="semantic_dedup", action="store_false",
+                        help="Explicitly disable semantic dedup (default)")
     args = parser.parse_args()
 
-    # Thread the skip-validation flag into the promote function via a function attribute.
+    # Thread flags into the promote function via function attributes.
     # This avoids changing the promote() signature (which may be called from tests).
     promote._skip_validation = args.skip_validation  # type: ignore[attr-defined]
+    promote._semantic_dedup = args.semantic_dedup  # type: ignore[attr-defined]
     try:
         success = promote(args.family, args.platform, args.knowledge_root)
     except PromotionValidationError as exc:
@@ -1058,6 +1191,7 @@ def main() -> None:
         sys.exit(1)
     finally:
         promote._skip_validation = False  # type: ignore[attr-defined]
+        promote._semantic_dedup = False  # type: ignore[attr-defined]
     print(f"\nPROMOTE: {'PASS' if success else 'FAIL'}")
     sys.exit(0 if success else 1)
 

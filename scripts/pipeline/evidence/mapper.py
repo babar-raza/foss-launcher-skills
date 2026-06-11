@@ -3,12 +3,17 @@
 Extracted from attach_evidence.py (Phase 5). Maps API tokens to claim_ids
 and api_refs, detects format references in content, and builds per-section
 evidence breakdowns.
+
+TC-EVID-001: Added _semantic_match_claims() for TF-IDF cosine-based
+evidence attachment (supplements keyword matching).
 """
 from __future__ import annotations
 
 import json
+import math
 import re
 import sys
+from collections import Counter
 from pathlib import Path
 
 # sibling-import guard: sub-packages must add the pipeline root so they can
@@ -345,3 +350,95 @@ def _build_sections_evidence(filepath, knowledge) -> list:
         result.append(entry)
 
     return result
+
+
+# ---------------------------------------------------------------------------
+# Semantic evidence matching (TC-EVID-001)
+# ---------------------------------------------------------------------------
+
+_SEMANTIC_STOPWORDS = frozenset(
+    "a about above after again against all am an and any are as at be because "
+    "been before being below between both but by can could did do does doing "
+    "down during each few for from further get got had has have having he her "
+    "here hers herself him himself his how i if in into is it its itself just "
+    "let like me might more most my myself no nor not now of off on once only "
+    "or other our ours ourselves out over own re same shall she should so some "
+    "such than that the their theirs them themselves then there these they this "
+    "those through to too under until up us very was we were what when where "
+    "which while who whom why will with you your yours yourself yourselves".split()
+)
+
+_SEMANTIC_MATCH_THRESHOLD = 0.85  # cosine above this → match
+
+
+def _sem_tokenize(text: str) -> list[str]:
+    words = re.findall(r"[a-z0-9_]+", text.lower())
+    return [w for w in words if len(w) > 2 and w not in _SEMANTIC_STOPWORDS]
+
+
+def _sem_cosine(vec1: dict[str, float], vec2: dict[str, float]) -> float:
+    keys = set(vec1) & set(vec2)
+    if not keys:
+        return 0.0
+    dot = sum(vec1[k] * vec2[k] for k in keys)
+    mag1 = math.sqrt(sum(v * v for v in vec1.values()))
+    mag2 = math.sqrt(sum(v * v for v in vec2.values()))
+    if mag1 == 0 or mag2 == 0:
+        return 0.0
+    return dot / (mag1 * mag2)
+
+
+def _semantic_match_claims(
+    prose_text: str,
+    claims: list[dict],
+    *,
+    threshold: float = _SEMANTIC_MATCH_THRESHOLD,
+) -> list[str]:
+    """Match prose text against claims using TF-IDF cosine similarity.
+
+    Returns list of claim_ids that match above threshold.
+    This supplements keyword matching — union the results with
+    token-based claim_ids for broader evidence coverage.
+
+    Args:
+        prose_text: Prose text from a page section (not code blocks).
+        claims: List of claim dicts with at least 'claim_id' and 'text' keys.
+        threshold: Cosine similarity threshold for a match.
+    """
+    if not prose_text.strip() or not claims:
+        return []
+
+    prose_tokens = _sem_tokenize(prose_text)
+    if len(prose_tokens) < 3:
+        return []
+
+    claim_tokens_list = [_sem_tokenize(c.get("text", "")) for c in claims]
+
+    # Build IDF over all documents (prose + claims)
+    all_docs = [prose_tokens] + claim_tokens_list
+    n = len(all_docs)
+    df: dict[str, int] = {}
+    for doc in all_docs:
+        for term in set(doc):
+            df[term] = df.get(term, 0) + 1
+    idf = {term: math.log(1 + n / count) for term, count in df.items()}
+
+    def to_vec(tokens: list[str]) -> dict[str, float]:
+        tf = Counter(tokens)
+        total = len(tokens) or 1
+        return {t: (c / total) * idf.get(t, 0.0) for t, c in tf.items()}
+
+    prose_vec = to_vec(prose_tokens)
+    matched_ids: list[str] = []
+
+    for claim, ctokens in zip(claims, claim_tokens_list):
+        if len(ctokens) < 2:
+            continue
+        claim_vec = to_vec(ctokens)
+        sim = _sem_cosine(prose_vec, claim_vec)
+        if sim >= threshold:
+            cid = claim.get("claim_id", "")
+            if cid:
+                matched_ids.append(cid)
+
+    return matched_ids

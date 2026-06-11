@@ -274,6 +274,57 @@ class TestDescriptionCompleteness:
             "'Enum' is in categories"
         )
 
+    def test_small_table_2_empty_gets_warn_not_fail(self):
+        """Small table (4 rows, 2 empty = 50%) → WARN via absolute-count path.
+
+        TC-EVAL-002: Before the small-table guard, 50% would hit _FAIL_EMPTY_PCT
+        boundary. Now for tables < _SMALL_TABLE_ROWS (6), only absolute count
+        applies: 2 >= _WARN_EMPTY_MIN(2) → WARN, 2 < _FAIL_EMPTY_MIN(3) → not FAIL.
+        """
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Scene
+            ---
+            ## Properties
+
+            | Name | Description |
+            |------|-------------|
+            | root_node | The root node of the scene |
+            | library | The asset library for resources |
+            | animation_clips | |
+            | current_camera | |
+        """))
+        findings = self.evaluator.evaluate(page, None)
+        dc_findings = [f for f in findings if f.category == "DC"]
+        assert len(dc_findings) == 1
+        assert dc_findings[0].level == "WARN", (
+            "Small table with 2 empty cells should get WARN (absolute-count "
+            "path), not FAIL (percentage path would give 50% = boundary)"
+        )
+
+    def test_small_table_3_empty_gets_fail(self):
+        """Small table (4 rows, 3 empty) → FAIL via absolute-count path.
+
+        TC-EVAL-002: 3 >= _FAIL_EMPTY_MIN(3) → FAIL even on small tables.
+        """
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Scene
+            ---
+            ## Properties
+
+            | Name | Description |
+            |------|-------------|
+            | root_node | The root node of the scene graph |
+            | library | |
+            | animation_clips | |
+            | current_camera | |
+        """))
+        findings = self.evaluator.evaluate(page, None)
+        dc_findings = [f for f in findings if f.category == "DC"]
+        assert len(dc_findings) == 1
+        assert dc_findings[0].level == "FAIL"
+
     def test_dc_exempt_page_skipped(self):
         """Page with dc_exempt: true → zero DC findings regardless of empty cells.
 

@@ -48,7 +48,16 @@ def scan_product(
     *,
     content_root: Path = Path("content"),
     knowledge_root: Path = Path("knowledge"),
+    claim_delta: bool = False,
 ) -> dict:
+    """Scan a product for stale evidence.
+
+    Args:
+        claim_delta: When True, a stale_model_sha page is only marked stale if
+            its cited claims were actually removed from the current knowledge.
+            Pages whose cited claims are all still present get an INFO-level
+            'stale_model_sha_no_impact' issue instead. (TC-STALE-001)
+    """
     knowledge = Knowledge(family, platform, knowledge_root=knowledge_root)
     if not knowledge.available:
         raise FileNotFoundError(
@@ -58,6 +67,7 @@ def scan_product(
     enrichment_status = knowledge.enrichment_status or "full"
 
     pages = []
+    stale_sha_skipped = 0  # count of pages where SHA differs but claims are all present
     for path in discover_content_files(content_root, family, platform):
         frontmatter = parse_frontmatter(path)
         evidence = frontmatter.get("evidence")
@@ -71,12 +81,24 @@ def scan_product(
             if not model_sha:
                 issues.append("missing_model_sha")
             elif model_sha != knowledge.repo_sha:
-                issues.append("stale_model_sha")
+                claims = evidence.get("claims") or []
+                orphaned_claims = [claim for claim in claims if claim not in knowledge.claim_ids]
 
-            claims = evidence.get("claims") or []
-            orphaned_claims = [claim for claim in claims if claim not in knowledge.claim_ids]
-            if orphaned_claims:
-                issues.append("orphaned_claims")
+                if claim_delta and claims and not orphaned_claims:
+                    # SHA changed but all cited claims still exist — no impact
+                    issues.append("stale_model_sha_no_impact")
+                    stale_sha_skipped += 1
+                else:
+                    issues.append("stale_model_sha")
+
+                if orphaned_claims:
+                    issues.append("orphaned_claims")
+            else:
+                # SHA matches — still check for orphaned claims
+                claims = evidence.get("claims") or []
+                orphaned_claims = [claim for claim in claims if claim not in knowledge.claim_ids]
+                if orphaned_claims:
+                    issues.append("orphaned_claims")
 
         if issues:
             pages.append({
@@ -85,15 +107,25 @@ def scan_product(
                 "orphaned_claims": orphaned_claims,
             })
 
-    return {
+    # Only count pages with actionable issues as stale
+    actionable_issues = {"missing_evidence", "missing_model_sha", "stale_model_sha", "orphaned_claims"}
+    stale_count = sum(
+        1 for p in pages
+        if any(i in actionable_issues for i in p["issues"])
+    )
+
+    result = {
         "family": family,
         "platform": platform,
         "knowledge_repo_sha": knowledge.repo_sha,
         "enrichment_status": enrichment_status,
         "files_scanned": len(discover_content_files(content_root, family, platform)),
-        "stale_pages": len(pages),
+        "stale_pages": stale_count,
         "pages": pages,
     }
+    if claim_delta:
+        result["claim_delta_skipped"] = stale_sha_skipped
+    return result
 
 
 def _to_markdown(report: dict) -> str:
@@ -136,6 +168,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--knowledge-root", type=Path, default=Path("knowledge"))
     parser.add_argument("--json", action="store_true", help="Emit JSON instead of markdown")
     parser.add_argument("--output", type=Path, help="Optional report output path")
+    parser.add_argument(
+        "--claim-delta", action="store_true",
+        help="Only mark stale if cited claims were actually removed from knowledge",
+    )
     args = parser.parse_args(argv)
 
     report = scan_product(
@@ -143,6 +179,7 @@ def main(argv: list[str] | None = None) -> int:
         args.platform,
         content_root=args.content_root,
         knowledge_root=args.knowledge_root,
+        claim_delta=args.claim_delta,
     )
     output = json.dumps(report, indent=2, ensure_ascii=False) if args.json else _to_markdown(report)
 

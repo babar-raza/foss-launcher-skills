@@ -27,8 +27,12 @@ from lib.fact_graph import FactGraph
 
 SHADOW_GENERATOR_VERSION = "1.0.0"
 
-# Test function pattern — Go test functions are not product features
-_TEST_CLAIM_RE = re.compile(r"^Function Test[A-Z_]")
+# Test function pattern — exclude test functions across all platforms
+_TEST_CLAIM_RE = re.compile(
+    r"^Function Test[A-Z_]"       # Go: TestXxx
+    r"|^Function test_"            # Python: test_xxx
+    r"|^Method test[A-Z]"          # Java: testXxx convention
+)
 # Raw API signature pattern (less descriptive than prose claims)
 _API_SIGNATURE_RE = re.compile(r"^(Function |Class |Method )\S")
 
@@ -170,11 +174,11 @@ def generate_docs_candidate(
 
     # Fallback: when required_facts contain no claims (e.g. all api_class), sample
     # high-confidence claims from the full fact_index so the Features section is populated.
+    # Sort by (-confidence, claim_id) for deterministic ordering across reruns.
     if not claim_facts:
         claim_facts = _filter_feature_claims(sorted(
             [f for f in fact_index.values() if f.get("category") == "claim" and f.get("confidence", 0) >= 0.9],
-            key=lambda f: f.get("confidence", 0),
-            reverse=True,
+            key=lambda f: (-f.get("confidence", 0), f.get("fact_id", "")),
         ))[:10]
 
     lines = []

@@ -25,7 +25,10 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
+import re as _re_mod
 import sys
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -307,6 +310,124 @@ def promote_to_authority(
     }
 
 
+# ── TF-IDF semantic confirmation (TC-BLINK-001) ──────────────────────────────
+
+_SC_STOPWORDS = frozenset(
+    "a about above after again against all am an and any are as at be because "
+    "been before being below between both but by can could did do does doing "
+    "down during each few for from further get got had has have having he her "
+    "here hers herself him himself his how i if in into is it its itself just "
+    "let like me might more most my myself no nor not now of off on once only "
+    "or other our ours ourselves out over own re same shall she should so some "
+    "such than that the their theirs them themselves then there these they this "
+    "those through to too under until up us very was we were what when where "
+    "which while who whom why will with you your yours yourself yourselves "
+    "import from return def class self none true false".split()
+)
+
+_SC_SIMILARITY_THRESHOLD = 0.80
+_SC_ANCHOR_LOWER_THRESHOLD = 0.65
+
+
+def _sc_tokenize(text: str) -> list[str]:
+    """Tokenize text for semantic confirmation TF-IDF."""
+    words = _re_mod.findall(r"[a-z][a-z0-9_]*", text.lower())
+    return [w for w in words if len(w) > 2 and w not in _SC_STOPWORDS]
+
+
+def _sc_cosine(tokens_a: list[str], tokens_b: list[str]) -> float:
+    """TF-IDF cosine similarity between two token lists."""
+    if not tokens_a or not tokens_b:
+        return 0.0
+    all_docs = [tokens_a, tokens_b]
+    df: dict[str, int] = {}
+    for doc in all_docs:
+        for term in set(doc):
+            df[term] = df.get(term, 0) + 1
+    idf = {term: math.log(1 + 2 / count) for term, count in df.items()}
+
+    def to_tfidf(tokens: list[str]) -> dict[str, float]:
+        tf = Counter(tokens)
+        total = len(tokens) or 1
+        return {t: (c / total) * idf.get(t, 0.0) for t, c in tf.items()}
+
+    vec_a = to_tfidf(tokens_a)
+    vec_b = to_tfidf(tokens_b)
+    keys = set(vec_a) & set(vec_b)
+    if not keys:
+        return 0.0
+    dot = sum(vec_a[k] * vec_b[k] for k in keys)
+    mag_a = math.sqrt(sum(v * v for v in vec_a.values()))
+    mag_b = math.sqrt(sum(v * v for v in vec_b.values()))
+    if mag_a == 0 or mag_b == 0:
+        return 0.0
+    return dot / (mag_a * mag_b)
+
+
+def _tier2_semantic_confirm(
+    escalated: list[dict],
+    source_texts: dict[str, str],
+    *,
+    anchor_valid: dict[str, bool] | None = None,
+) -> list[dict]:
+    """Semantic confirmation layer between Tier 2 and Tier 3.
+
+    For ESCALATE_TO_OPERATOR candidates:
+      a. unrelated + high score: embed source + target text via TF-IDF.
+         If cosine > 0.80 → reclassify as same_topic, promote.
+         Otherwise → keep ESCALATE_TO_OPERATOR.
+      b. exact_api_class/related_api_class + low score: if anchor is valid,
+         lower promotion threshold to 0.65.
+
+    Args:
+        escalated: List of Tier 2 result dicts with adjudication_result == ESCALATE_TO_OPERATOR.
+        source_texts: Mapping source_key → page text content (for TF-IDF).
+        anchor_valid: Optional mapping source_key → whether anchor renders valid URL.
+
+    Returns: Updated list of result dicts (some may be reclassified).
+    """
+    if anchor_valid is None:
+        anchor_valid = {}
+
+    updated = []
+    for r in escalated:
+        result = dict(r)  # copy
+        source_key = result.get("source_key", "")
+        ai_label = result.get("ai_label")
+        effective_score = result.get("effective_score", result.get("original_score", 0.0))
+
+        # Case A: unrelated + high score → check semantic similarity
+        if ai_label == "unrelated" and effective_score >= 0.80:
+            source_text = source_texts.get(source_key, "")
+            target_path = result.get("target_path", "")
+            target_text = source_texts.get(target_path, "")
+
+            if source_text and target_text:
+                tokens_a = _sc_tokenize(source_text)
+                tokens_b = _sc_tokenize(target_text)
+                similarity = _sc_cosine(tokens_a, tokens_b)
+
+                result["semantic_similarity"] = round(similarity, 4)
+                if similarity >= _SC_SIMILARITY_THRESHOLD:
+                    result["ai_label"] = "same_topic"
+                    result["adjudication_result"] = "PROMOTE_WITH_JUSTIFICATION"
+                    result["semantic_override"] = True
+                    result["semantic_reason"] = f"TF-IDF cosine {similarity:.2f} >= {_SC_SIMILARITY_THRESHOLD}"
+
+        # Case B: exact/related API class + low score → check anchor validity
+        elif ai_label in ("exact_api_class", "related_api_class") and effective_score < 0.70:
+            if anchor_valid.get(source_key, False):
+                if effective_score >= _SC_ANCHOR_LOWER_THRESHOLD:
+                    result["adjudication_result"] = "PROMOTE_WITH_JUSTIFICATION"
+                    result["semantic_override"] = True
+                    result["semantic_reason"] = (
+                        f"Valid anchor + {ai_label} at {effective_score:.2f} >= {_SC_ANCHOR_LOWER_THRESHOLD}"
+                    )
+
+        updated.append(result)
+    return updated
+
+
 def _tier2_ai_adjudicate(
     candidates: list[dict],
     *,
@@ -442,6 +563,9 @@ def adjudicate_review_required(
     dry_run: bool = True,
     max_candidates: int = 0,
     promote_threshold: float = 0.70,
+    semantic_confirm: bool = False,
+    source_texts: dict[str, str] | None = None,
+    anchor_valid: dict[str, bool] | None = None,
 ) -> dict:
     """
     Process REVIEW_REQUIRED candidates through three-tier adjudication.
@@ -491,6 +615,23 @@ def adjudicate_review_required(
     escalated = [r for r in tier2_results if r["adjudication_result"] == "ESCALATE_TO_OPERATOR"]
     rejected = [r for r in tier2_results if r["adjudication_result"] == "REJECT"]
 
+    # Semantic confirmation layer (TC-BLINK-001)
+    semantic_promoted = 0
+    if semantic_confirm and escalated:
+        confirmed = _tier2_semantic_confirm(
+            escalated,
+            source_texts or {},
+            anchor_valid=anchor_valid,
+        )
+        # Re-partition: some escalated may now be promoted
+        new_promoted = [r for r in confirmed if r["adjudication_result"] in (
+            "PROMOTE_AUTO_APPROVE", "PROMOTE_PLATFORM_CANONICAL", "PROMOTE_WITH_JUSTIFICATION"
+        )]
+        still_escalated = [r for r in confirmed if r["adjudication_result"] == "ESCALATE_TO_OPERATOR"]
+        semantic_promoted = len(new_promoted)
+        promoted.extend(new_promoted)
+        escalated = still_escalated
+
     return {
         "total_review_required": total_rr_count,
         "tier1_already_approved": len(tier1_resolved),
@@ -503,6 +644,7 @@ def adjudicate_review_required(
             "tier2_promoted": len(promoted),
             "tier2_escalated": len(escalated),
             "tier2_rejected": len(rejected),
+            "semantic_promoted": semantic_promoted,
         },
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
@@ -523,6 +665,8 @@ def main() -> None:
                         help="Max candidates to process (0 = unlimited, default: 0)")
     parser.add_argument("--threshold", type=float, default=0.70,
                         help="Minimum final_score for Tier 2 promotion (default: 0.70)")
+    parser.add_argument("--semantic-confirm", action="store_true", default=False,
+                        help="Enable TF-IDF semantic confirmation for ESCALATE_TO_OPERATOR candidates")
     args = parser.parse_args()
 
     if args.write and args.dry_run:
@@ -563,6 +707,7 @@ def main() -> None:
         dry_run=args.dry_run,
         max_candidates=args.max_candidates,
         promote_threshold=args.threshold,
+        semantic_confirm=args.semantic_confirm,
     )
 
     stats = result["tier_stats"]

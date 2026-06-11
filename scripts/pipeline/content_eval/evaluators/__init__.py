@@ -84,4 +84,5 @@ def _ensure_loaded():
         consumer_usefulness,
         cta_wording,
         private_api_usage,
+        code_prose_alignment,
     )

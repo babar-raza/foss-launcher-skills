@@ -14,6 +14,11 @@ _DESC_HEADERS = {"description", "summary", "returns", "remarks"}
 # Minimum data rows to evaluate a table (skip tiny tables)
 _MIN_DATA_ROWS = 3
 
+# Tables below this row count use absolute-count checks only (not percentage).
+# This prevents grade instability where one cell change in a 3-4 row table
+# swings a 67% → FAIL to 33% → no-finding.
+_SMALL_TABLE_ROWS = 6
+
 # Thresholds — tightened from 70/40 to 50/25 to catch majority-empty tables sooner.
 _FAIL_EMPTY_PCT = 50  # >50% empty → FAIL
 _WARN_EMPTY_PCT = 25  # >25% empty → WARN
@@ -155,7 +160,31 @@ class DescriptionCompletenessEvaluator(BaseEvaluator):
 
             pct = int(100 * empty / total)
 
-            if pct > _FAIL_EMPTY_PCT and empty >= _FAIL_EMPTY_MIN:
+            # For small tables (< _SMALL_TABLE_ROWS), use absolute count
+            # checks only — percentage thresholds are too volatile when one
+            # cell change swings the result by 25-33%.
+            if total < _SMALL_TABLE_ROWS:
+                if empty >= _FAIL_EMPTY_MIN:
+                    findings.append(Finding(
+                        level="FAIL",
+                        category="DC",
+                        filepath=str(page.filepath),
+                        line_no=table["header_line"],
+                        message=f"Table has {empty}/{total} empty description cells — reference content incomplete",
+                        suggestion="Populate description cells with meaningful text for each API member",
+                        evaluator=self.name,
+                    ))
+                elif empty >= _WARN_EMPTY_MIN:
+                    findings.append(Finding(
+                        level="WARN",
+                        category="DC",
+                        filepath=str(page.filepath),
+                        line_no=table["header_line"],
+                        message=f"Table has {empty}/{total} empty description cells",
+                        suggestion="Add descriptions for undocumented API members",
+                        evaluator=self.name,
+                    ))
+            elif pct > _FAIL_EMPTY_PCT and empty >= _FAIL_EMPTY_MIN:
                 findings.append(Finding(
                     level="FAIL",
                     category="DC",

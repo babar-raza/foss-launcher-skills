@@ -552,3 +552,62 @@ class TestSetStaleSinceExceptionPropagation:
              patch.object(_rk, "_set_stale_since", side_effect=boom):
             with pytest.raises(RuntimeError, match="disk full"):
                 refresh("cells", "python")
+
+
+# ---------------------------------------------------------------------------
+# TC-DAG-001: Extractor hash detection
+# ---------------------------------------------------------------------------
+
+class TestExtractorHashDetection:
+    """TC-DAG-001: Re-extraction is triggered when extractor source files change."""
+
+    def test_compute_extractor_hash_returns_string(self):
+        """_compute_extractor_hash returns a 16-char hex string."""
+        h = _rk._compute_extractor_hash()
+        assert isinstance(h, str)
+        assert len(h) == 16
+        # Must be hex
+        int(h, 16)
+
+    def test_compute_extractor_hash_is_deterministic(self):
+        """Same extractor files produce same hash across calls."""
+        h1 = _rk._compute_extractor_hash()
+        h2 = _rk._compute_extractor_hash()
+        assert h1 == h2
+
+    def test_extractor_changed_triggers_refresh(self, tmp_path):
+        """When repo SHA matches but extractor hash differs, refresh proceeds (not 'current')."""
+        with _patch_clone_dir(tmp_path), _patch_head("same_sha"), _patch_model("same_sha"), \
+             patch.object(_rk, "_update_clone", return_value=None), \
+             patch.object(_rk, "_stored_extractor_hash", return_value="old_hash_12345678"), \
+             patch.object(_rk, "_compute_extractor_hash", return_value="new_hash_87654321"), \
+             patch.object(_rk, "_set_stale_since"), \
+             patch.object(_rk, "_run", return_value=True), \
+             patch.object(_rk, "_clear_stale_since"), \
+             patch.object(_rk, "_save_extractor_hash"), \
+             patch.object(_rk, "_run_completeness_check"):
+            result = refresh("cells", "net")
+            # Should NOT return "current" — extractor changed
+            assert result != "current"
+
+    def test_extractor_unchanged_returns_current(self, tmp_path):
+        """When repo SHA matches AND extractor hash matches, return 'current'."""
+        with _patch_clone_dir(tmp_path), _patch_head("same_sha"), _patch_model("same_sha"), \
+             patch.object(_rk, "_update_clone", return_value=None), \
+             patch.object(_rk, "_stored_extractor_hash", return_value="same_hash_12345"), \
+             patch.object(_rk, "_compute_extractor_hash", return_value="same_hash_12345"), \
+             patch.object(_rk, "_has_pending_delta", return_value=False), \
+             patch.object(_rk, "_clear_stale_since"):
+            result = refresh("cells", "net")
+            assert result == "current"
+
+    def test_no_stored_hash_returns_current(self, tmp_path):
+        """When no extractor_hash in model.yaml (first run), skip check — return 'current'."""
+        with _patch_clone_dir(tmp_path), _patch_head("same_sha"), _patch_model("same_sha"), \
+             patch.object(_rk, "_update_clone", return_value=None), \
+             patch.object(_rk, "_stored_extractor_hash", return_value=None), \
+             patch.object(_rk, "_compute_extractor_hash", return_value="any_hash"), \
+             patch.object(_rk, "_has_pending_delta", return_value=False), \
+             patch.object(_rk, "_clear_stale_since"):
+            result = refresh("cells", "net")
+            assert result == "current"

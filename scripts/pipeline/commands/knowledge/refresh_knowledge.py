@@ -135,6 +135,54 @@ def _model_sha(family: str, platform: str) -> str | None:
     return None
 
 
+def _stored_extractor_hash(family: str, platform: str) -> str | None:
+    """Return extractor_hash from merged/model.yaml if present."""
+    path = KNOWLEDGE_ROOT / family / platform / "merged" / "model.yaml"
+    if path.exists():
+        try:
+            data = yaml.safe_load(path.read_text(encoding="utf-8"))
+            if data:
+                return data.get("extractor_hash")
+        except Exception:
+            pass
+    return None
+
+
+def _compute_extractor_hash() -> str:
+    """Compute a hash of the extractor source files.
+
+    When extractors change (formats.py, api_surface.py, scout.py),
+    knowledge should be re-extracted even if the upstream repo SHA
+    hasn't changed. This hash detects extractor code changes.
+    """
+    import hashlib
+    extraction_dir = REPO_ROOT / "scripts" / "pipeline" / "extraction"
+    extractor_files = sorted([
+        extraction_dir / "formats.py",
+        extraction_dir / "api_surface.py",
+        extraction_dir / "scout.py",
+    ])
+    h = hashlib.sha256()
+    for fp in extractor_files:
+        if fp.exists():
+            h.update(fp.read_bytes())
+    return h.hexdigest()[:16]
+
+
+def _save_extractor_hash(family: str, platform: str, ext_hash: str) -> None:
+    """Write extractor_hash to merged/model.yaml."""
+    path = KNOWLEDGE_ROOT / family / platform / "merged" / "model.yaml"
+    if not path.exists():
+        return
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        data["extractor_hash"] = ext_hash
+        with atomic_write(path) as f:
+            yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
+    except Exception as exc:
+        print(f"  {family}/{platform}: WARN — could not save extractor_hash: {exc}")
+
+
 def _run(cmd: list[str], label: str) -> bool:
     print(f"  [{label}] {' '.join(cmd)}")
     env = os.environ.copy()
@@ -479,7 +527,15 @@ def refresh(
         # If fetch fails, continue with existing clone HEAD (degraded mode)
 
     current = _model_sha(family, platform)
-    if current == head:
+
+    # TC-DAG-001: Also detect extractor code changes. When extractors are
+    # modified (formats.py, api_surface.py, scout.py), re-extraction is needed
+    # even if the upstream repo SHA is unchanged.
+    ext_hash = _compute_extractor_hash()
+    stored_ext_hash = _stored_extractor_hash(family, platform)
+    extractor_changed = stored_ext_hash is not None and stored_ext_hash != ext_hash
+
+    if current == head and not extractor_changed:
         # RH-202: Check for pending delta — downstream planners (refresh-product,
         # batch_reference) should read knowledge_delta.json directly to detect
         # unconsumed semantic changes even when no new refresh is needed.
@@ -505,6 +561,13 @@ def refresh(
         except Exception as exc:
             print(f"  {family}/{platform}: WARN — could not clear stale_since (current path): {exc}")
         return "current"
+
+    if extractor_changed and current == head:
+        print(
+            f"  {family}/{platform}: EXTRACTOR CHANGED — "
+            f"stored={stored_ext_hash} vs current={ext_hash} "
+            f"(repo SHA unchanged: {head[:10]})"
+        )
 
     print(f"  {family}/{platform}: STALE — model={current and current[:10]} vs clone={head[:10]}")
 
@@ -618,6 +681,12 @@ def refresh(
              family, platform],
             "attach-evidence",
         )
+
+        # TC-DAG-001: Save current extractor hash so future runs detect changes.
+        try:
+            _save_extractor_hash(family, platform, _compute_extractor_hash())
+        except Exception as exc:
+            print(f"  {family}/{platform}: WARN — could not save extractor_hash: {exc}")
 
         print(f"  {family}/{platform}: refreshed to {head[:10]}")
         return "refreshed"

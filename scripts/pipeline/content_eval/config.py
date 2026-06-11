@@ -38,6 +38,7 @@ ALL_EVALUATORS = [
     "private_api_usage",
     "evidence_format_validity",
     "cta_wording",
+    "code_prose_alignment",  # TC-EVAL-003: EXPERIMENTAL
 ]
 
 # FREEZE-03: Canonical evaluators — contribute to the frontmatter grade letter.
@@ -89,6 +90,7 @@ EXPERIMENTAL_EVALUATORS = frozenset({
     "capability_claim_check",
     "private_api_usage",
     "evidence_format_validity",
+    "code_prose_alignment",  # TC-EVAL-003: EXPERIMENTAL, pending calibration
 })
 
 # Default evaluators (fast, deterministic, production-ready)

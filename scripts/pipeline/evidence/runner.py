@@ -5,6 +5,7 @@ per-product evidence block generation and frontmatter writing.
 """
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -36,6 +37,7 @@ from evidence.mapper import (  # noqa: E402
     _api_name_fallback_match,
     _detect_formats,
     _build_sections_evidence,
+    _semantic_match_claims,
 )
 from evidence.writer import _write_evidence_to_frontmatter  # noqa: E402
 
@@ -55,6 +57,7 @@ _cfg_knowledge_fn = None
 _cfg_write_grade_fn = None
 _cfg_compute_grade_fn = None
 _cfg_evaluator_logic_version = None
+_cfg_semantic_evidence = False
 
 
 def configure(
@@ -69,12 +72,14 @@ def configure(
     write_grade_fn=None,
     compute_grade_fn=None,
     evaluator_logic_version=None,
+    semantic_evidence=False,
 ) -> None:
     """Inject test dependencies. Call configure() with no args to reset."""
     global _cfg_extract_tokens_fn, _cfg_verify_tokens_fn, _cfg_map_tokens_fn
     global _cfg_detect_formats_fn, _cfg_build_sections_fn, _cfg_write_evidence_fn
     global _cfg_infer_product_fn, _cfg_knowledge_fn
     global _cfg_write_grade_fn, _cfg_compute_grade_fn, _cfg_evaluator_logic_version
+    global _cfg_semantic_evidence
     _cfg_extract_tokens_fn = extract_tokens_fn
     _cfg_verify_tokens_fn = verify_tokens_fn
     _cfg_map_tokens_fn = map_tokens_fn
@@ -86,6 +91,7 @@ def configure(
     _cfg_write_grade_fn = write_grade_fn
     _cfg_compute_grade_fn = compute_grade_fn
     _cfg_evaluator_logic_version = evaluator_logic_version
+    _cfg_semantic_evidence = semantic_evidence
 
 
 _KNOWN_SUBDOMAINS = frozenset(
@@ -198,6 +204,25 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
     for ref in fb_refs:
         if ref not in api_refs:
             api_refs.append(ref)
+
+    # TC-EVID-001: Semantic evidence matching — supplement keyword matches with
+    # TF-IDF cosine-based claim matching on prose text (outside code blocks).
+    if _cfg_semantic_evidence and hasattr(knowledge, "claims"):
+        try:
+            page_text = filepath.read_text(encoding="utf-8")
+            # Strip frontmatter
+            if page_text.startswith("---"):
+                end_fm = page_text.find("\n---", 3)
+                if end_fm != -1:
+                    page_text = page_text[end_fm + 4:]
+            # Strip code blocks to get prose only
+            prose_only = re.sub(r"```[\s\S]*?```", " ", page_text)
+            sem_claims = _semantic_match_claims(prose_only, knowledge.claims)
+            for cid in sem_claims:
+                if cid not in claim_ids:
+                    claim_ids.append(cid)
+        except (OSError, AttributeError):
+            pass  # Graceful degradation
 
     # Convert Token objects to class_name strings for JSON serialization
     token_matches = [
