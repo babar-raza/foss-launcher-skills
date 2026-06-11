@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [0.2.0] - 2026-06-11
+
 ### Added
 - `adaptive_retry.py` — retry wrapper with exponential backoff and static fallback map (S-21→S-26, S-26→S-78, S-20→S-21, S-25→S-32)
 - `run_outcome_log.py` — append-only JSONL log for skill execution outcomes with correlation ID support, run-level metrics summary, and checkpoint/resume capability
@@ -37,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.1.0] — 2026-04-01
+## [0.1.0] - 2026-04-01
 
 ### Added
 - Initial standalone port from aspose.org infrastructure (203 core files)
