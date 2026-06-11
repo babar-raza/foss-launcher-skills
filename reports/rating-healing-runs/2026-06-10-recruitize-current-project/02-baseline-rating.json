@@ -1,0 +1,46 @@
+{
+  "sprint_id": "2026-06-10-recruitize-current-project",
+  "reviewer_run": false,
+  "reviewer_run_status": "REVIEWER_RUN_NOT_EXECUTED",
+  "confidence": "MEDIUM",
+  "date": "2026-06-10",
+  "baseline": {
+    "agentic_raw": 5.25,
+    "engineering_raw": 4.0,
+    "readiness_raw": 3.25,
+    "agentic_normalized": 0.583,
+    "engineering_normalized": 0.444,
+    "readiness_normalized": 0.361,
+    "estimated_score": 45.6,
+    "estimated_bucket": "40-50",
+    "estimated_label": "S4 Usable Readiness",
+    "gate_risk": "LOW — all dims above 0.2 threshold"
+  },
+  "subdimensions": {
+    "agentic": {
+      "stateManagement": {"score": 3, "evidence": "append-only JSONL, no checkpoint/resume"},
+      "flowOrchestration": {"score": 6, "evidence": "multi-step skill pipeline, session limits"},
+      "boundaryEnforcement": {"score": 7, "evidence": "path_guard.py, pre_write.py enforced"},
+      "adaptationCapability": {"score": 5, "evidence": "adaptive_retry.py static fallback map"}
+    },
+    "engineering": {
+      "ciCdPractice": {"score": 5, "evidence": "GitHub Actions + GitLab CI, multi-stage"},
+      "testDepth": {"score": 5, "evidence": "810 tests, property-based, security tests"},
+      "observability": {"score": 2, "evidence": "ops.log append-only, no correlation IDs"},
+      "qualityGating": {"score": 4, "evidence": "fail_under=11 in pyproject.toml inconsistency"}
+    },
+    "readiness": {
+      "ownershipClarity": {"score": 4, "evidence": "CODEOWNERS on disk, untracked"},
+      "releaseDiscipline": {"score": 2, "evidence": "no CHANGELOG.md, no release process"},
+      "incidentReadiness": {"score": 4, "evidence": "incident-response.md on disk, untracked"},
+      "compliancePosture": {"score": 3, "evidence": "SECURITY.md on disk, untracked"}
+    }
+  },
+  "top_low_score_causes": [
+    "observability (2/9) — RC-RATE-004",
+    "releaseDiscipline (2/9) — RC-RATE-003, RC-RATE-008",
+    "stateManagement (3/9) — RC-RATE-005",
+    "compliancePosture (3/9) — RC-RATE-006",
+    "qualityGating (4/9) — RC-RATE-001"
+  ]
+}
