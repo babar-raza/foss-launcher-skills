@@ -206,7 +206,32 @@ def _scan_document_ctor_imports(
     libraries like cells/typescript where ``Workbook.load(filePath)`` is the import
     entry point rather than a constructor.
     """
-    if language not in ("java", "csharp", "python", "typescript", "javascript"):
+    if language not in ("java", "csharp", "python", "typescript", "javascript", "go"):
+        return []
+    if language == "go":
+        # Go: detect func Open(path string) or func Open(path string, ...) in *.go files
+        _go_open_re = re.compile(r'^func\s+Open\s*\(\s*\w+\s+string\b')
+        primary_fmt = family.title()
+        if primary_fmt.lower() in existing_import_fmts:
+            return []
+        for fpath in files:
+            if not fpath.suffix == ".go":
+                continue
+            rel = str(fpath.relative_to(repo)).replace("\\", "/")
+            try:
+                text = fpath.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            for i, line in enumerate(text.splitlines(), 1):
+                if _go_open_re.match(line):
+                    return [{
+                        "format": primary_fmt,
+                        "enum": "",
+                        "value": "",
+                        "file": rel,
+                        "line": i,
+                        "direction": "import",
+                    }]
         return []
     if language in ("python", "typescript", "javascript"):
         primary_fmt = _FAMILY_PYTHON_PRIMARY_FMT.get(family, family.title())
