@@ -1,0 +1,39 @@
+## git status (after hardening sprint lanes complete)
+
+Working tree clean after all hardening sprint commits.
+
+## git log --oneline -10 (post-hardening sprint)
+
+(To be recorded after all hardening lane commits are complete)
+
+Most recent commits at time of evidence generation:
+
+3511124 docs(run_outcome_log): add concurrency single-process guarantee to module docstring
+73d2fc8 feat(maturity): add ADRs, runbooks, input validation, raise coverage gate
+e7d8f68 fix(ci): add hypothesis to default before_script for test_property_based.py
+8f66969 feat(ci): add security-scan job to skill-governance GitHub Actions workflow
+b72c6c1 docs(readme): add reviews/ directory to project tree
+303a7f2 feat(ci): add adaptive_retry, run_outcome_log modules and security/property tests
+e37b4a3 docs(governance): add CHANGELOG, CODEOWNERS, CONTRIBUTING, SECURITY and review artifacts
+633012c feat(ci): promote security-scan to blocking job
+1e8ece9 fix(sast): correct nosec annotations to match actual bandit test IDs
+6eb9432 feat(ci): track local_gate.py for foss-gate entrypoint
+
+## Key tracked artifacts (verified present in git)
+
+docs/adr/001-skill-chain-design.md
+docs/adr/002-path-guard-governance.md
+docs/adr/003-evidence-first-content.md
+docs/runbooks/skill-failure-recovery.md
+docs/runbooks/stale-knowledge-recovery.md
+CODEOWNERS
+CHANGELOG.md
+CONTRIBUTING.md
+SECURITY.md
+scripts/pipeline/commands/ops/adaptive_retry.py
+scripts/pipeline/commands/ops/run_outcome_log.py
+tests/test_adaptive_retry.py
+tests/test_run_outcome_log.py
+tests/test_property_based.py
+tests/test_security_basics.py
+.github/workflows/pipeline-tests.yml
