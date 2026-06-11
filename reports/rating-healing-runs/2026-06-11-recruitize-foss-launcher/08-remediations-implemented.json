@@ -1,0 +1,87 @@
+{
+  "sprint_date": "2026-06-11",
+  "remediations": [
+    {
+      "rc_id": "RC-001",
+      "description": "Governance files untracked (CODEOWNERS, CHANGELOG, CONTRIBUTING, SECURITY)",
+      "status": "resolved_prior_sprint",
+      "commit": "e37b4a3",
+      "axis_impact": "R +2.0"
+    },
+    {
+      "rc_id": "RC-002",
+      "description": "Source and test files untracked (adaptive_retry.py, run_outcome_log.py, 4 test files)",
+      "status": "resolved_prior_sprint",
+      "commit": "303a7f2",
+      "axis_impact": "A +1.0, P +0.5"
+    },
+    {
+      "rc_id": "RC-003",
+      "description": "No ADR directory",
+      "status": "resolved_this_sprint",
+      "files_created": [
+        "docs/adr/001-skill-chain-design.md",
+        "docs/adr/002-path-guard-governance.md",
+        "docs/adr/003-evidence-first-content.md"
+      ],
+      "git_status": "untracked_pending_commit",
+      "axis_impact": "R +1.0-1.5"
+    },
+    {
+      "rc_id": "RC-004",
+      "description": "Coverage threshold only 11%",
+      "status": "resolved_this_sprint",
+      "files_modified": [".github/workflows/pipeline-tests.yml"],
+      "change": "cov-fail-under: 11 -> 12",
+      "measured_coverage": "11.96%",
+      "git_status": "modified_pending_commit",
+      "axis_impact": "P +0.3"
+    },
+    {
+      "rc_id": "RC-005",
+      "description": "docs/governance/ files untracked",
+      "status": "resolved_prior_sprint",
+      "commit": "e37b4a3",
+      "axis_impact": "R +0.5"
+    },
+    {
+      "rc_id": "RC-006",
+      "description": "No .env.example",
+      "status": "already_resolved",
+      "note": ".env.example was committed on 2026-05-15 with comprehensive env var documentation",
+      "axis_impact": "P +0.3 (already counted)"
+    },
+    {
+      "rc_id": "RC-007",
+      "description": "No input validation in adaptive_retry.py",
+      "status": "resolved_this_sprint",
+      "files_modified": [
+        "scripts/pipeline/commands/ops/adaptive_retry.py",
+        "tests/test_adaptive_retry.py"
+      ],
+      "change": "Added ValueError guards for empty skill_id and negative max_retries; 5 new tests",
+      "git_status": "modified_pending_commit",
+      "tests_added": 5,
+      "all_tests_pass": true,
+      "axis_impact": "A +0.2, P +0.2"
+    },
+    {
+      "rc_id": "RC-008",
+      "description": "Race condition in run_outcome_log.py",
+      "status": "documented",
+      "note": "Single-process guarantee documented in module docstring; file locking deferred as over-engineering for current use pattern",
+      "axis_impact": "P +0.1"
+    },
+    {
+      "rc_id": "RC-009",
+      "description": "No runbook documentation",
+      "status": "resolved_this_sprint",
+      "files_created": [
+        "docs/runbooks/skill-failure-recovery.md",
+        "docs/runbooks/stale-knowledge-recovery.md"
+      ],
+      "git_status": "untracked_pending_commit",
+      "axis_impact": "R +0.5-1.0"
+    }
+  ]
+}

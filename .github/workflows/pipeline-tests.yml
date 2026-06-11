@@ -26,7 +26,7 @@ jobs:
         run: pip install ".[dev]"
 
       - name: Run pipeline tests with coverage
-        run: python -m pytest tests/ -x -q --cov=scripts --cov-report=term-missing --cov-report=xml:coverage.xml --cov-fail-under=11 -m "not scout" --ignore=tests/test_e2e_pipeline.py
+        run: python -m pytest tests/ -x -q --cov=scripts --cov-report=term-missing --cov-report=xml:coverage.xml --cov-fail-under=12 -m "not scout" --ignore=tests/test_e2e_pipeline.py
         env:
           KNOWLEDGE_ROOT: tests/fixtures/knowledge
           CONTENT_REPO_PATH: tests/fixtures

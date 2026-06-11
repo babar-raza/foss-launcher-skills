@@ -1,0 +1,86 @@
+{
+  "sprint_date": "2026-06-11",
+  "target_project": "foss-launcher-skills-gitlab",
+  "reviewer_project_modified": false,
+  "changes": [
+    {
+      "file": "scripts/pipeline/commands/ops/adaptive_retry.py",
+      "type": "source_fix",
+      "status": "modified",
+      "git_status": "untracked",
+      "root_causes_addressed": ["RC-007"],
+      "description": "Added input validation: ValueError for empty/non-string skill_id and negative max_retries"
+    },
+    {
+      "file": "tests/test_adaptive_retry.py",
+      "type": "test_fix",
+      "status": "modified",
+      "git_status": "untracked",
+      "root_causes_addressed": ["RC-007"],
+      "description": "Added 5 new tests for invalid input handling (empty skill_id, None, whitespace, negative max_retries, zero retries)"
+    },
+    {
+      "file": "docs/adr/001-skill-chain-design.md",
+      "type": "docs_governance",
+      "status": "created",
+      "git_status": "untracked",
+      "root_causes_addressed": ["RC-003"],
+      "description": "ADR documenting rationale for 93-skill chain architecture"
+    },
+    {
+      "file": "docs/adr/002-path-guard-governance.md",
+      "type": "docs_governance",
+      "status": "created",
+      "git_status": "untracked",
+      "root_causes_addressed": ["RC-003"],
+      "description": "ADR documenting rationale for write-path protection governance"
+    },
+    {
+      "file": "docs/adr/003-evidence-first-content.md",
+      "type": "docs_governance",
+      "status": "created",
+      "git_status": "untracked",
+      "root_causes_addressed": ["RC-003"],
+      "description": "ADR documenting rationale for evidence-first content generation"
+    },
+    {
+      "file": "docs/runbooks/skill-failure-recovery.md",
+      "type": "docs_governance",
+      "status": "created",
+      "git_status": "untracked",
+      "root_causes_addressed": ["RC-009"],
+      "description": "Runbook for skill failure recovery with P1/P2/P3 severity tiers"
+    },
+    {
+      "file": "docs/runbooks/stale-knowledge-recovery.md",
+      "type": "docs_governance",
+      "status": "created",
+      "git_status": "untracked",
+      "root_causes_addressed": ["RC-009"],
+      "description": "Runbook for stale knowledge model recovery"
+    },
+    {
+      "file": ".github/workflows/pipeline-tests.yml",
+      "type": "ci_gate_fix",
+      "status": "modified",
+      "git_status": "modified_uncommitted",
+      "root_causes_addressed": ["RC-004"],
+      "description": "Raised --cov-fail-under from 11 to 12 (measured 11.96% locally)"
+    }
+  ],
+  "pre_existing_files_to_commit": [
+    "CHANGELOG.md",
+    "CODEOWNERS",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "docs/governance/incident-response.md",
+    "docs/governance/reviewer-readiness-checklist.md",
+    "scripts/pipeline/commands/ops/run_outcome_log.py",
+    "tests/test_property_based.py",
+    "tests/test_run_outcome_log.py",
+    "tests/test_security_basics.py",
+    "scripts/ci/checks/parse_audit_fails.py",
+    "scripts/pipeline/commands/ops/fetch_aspose_com_targets.py",
+    "scripts/translator/backends/m2m.py"
+  ]
+}

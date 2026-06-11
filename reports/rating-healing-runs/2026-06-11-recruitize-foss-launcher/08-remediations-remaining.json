@@ -1,0 +1,52 @@
+{
+  "remaining_remediations": [
+    {
+      "description": "Commit new untracked files from this sprint",
+      "priority": "CRITICAL",
+      "files": [
+        "docs/adr/001-skill-chain-design.md",
+        "docs/adr/002-path-guard-governance.md",
+        "docs/adr/003-evidence-first-content.md",
+        "docs/runbooks/skill-failure-recovery.md",
+        "docs/runbooks/stale-knowledge-recovery.md",
+        "reports/rating-healing-runs/2026-06-11-recruitize-foss-launcher/"
+      ],
+      "modified_files": [
+        ".github/workflows/pipeline-tests.yml",
+        "scripts/pipeline/commands/ops/adaptive_retry.py",
+        "tests/test_adaptive_retry.py"
+      ],
+      "axis_impact": "R +1.0 (ADRs + runbooks), P +0.3 (coverage threshold), A +0.2 (validation)"
+    },
+    {
+      "description": "Add release automation workflow (semver tagging)",
+      "priority": "MEDIUM",
+      "axis_impact": "R +0.5",
+      "rationale": "Explicit release workflow in CI provides R3 release discipline evidence"
+    },
+    {
+      "description": "Add SLA definitions",
+      "priority": "MEDIUM",
+      "axis_impact": "R +0.5",
+      "rationale": "Even informal SLA documentation provides R4 (Governed) evidence"
+    },
+    {
+      "description": "Add structured logging (OpenTelemetry or JSON logs)",
+      "priority": "MEDIUM",
+      "axis_impact": "P +0.5-1.0",
+      "rationale": "Structured logging config is P5 (Observable) evidence"
+    },
+    {
+      "description": "Raise coverage threshold further (beyond 12%)",
+      "priority": "LOW",
+      "axis_impact": "P +0.5-2.0 depending on target",
+      "rationale": "P6 requires 80% coverage; current 12% is far from P6 but incremental improvement signals intent"
+    },
+    {
+      "description": "Add Dockerfile or docker-compose",
+      "priority": "LOW",
+      "axis_impact": "P +0.5, R +0.5",
+      "rationale": "Containerization provides P4 evidence and R1 deployment documentation"
+    }
+  ]
+}

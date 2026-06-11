@@ -1,0 +1,52 @@
+{
+  "reviewer_run": false,
+  "reviewer_run_status": "REVIEWER_RUN_NOT_EXECUTED",
+  "reviewer_run_reason": "Recruitize requires blog/announcement context and live repo access; cannot be invoked as standalone repo scorer",
+  "confidence": "medium",
+  "baseline_date": "2026-06-11",
+  "git_tracked_state": {
+    "untracked_critical_files": [
+      "CHANGELOG.md",
+      "CODEOWNERS",
+      "CONTRIBUTING.md",
+      "SECURITY.md",
+      "docs/governance/incident-response.md",
+      "docs/governance/reviewer-readiness-checklist.md",
+      "scripts/pipeline/commands/ops/adaptive_retry.py",
+      "scripts/pipeline/commands/ops/run_outcome_log.py",
+      "tests/test_adaptive_retry.py",
+      "tests/test_property_based.py",
+      "tests/test_run_outcome_log.py",
+      "tests/test_security_basics.py"
+    ],
+    "modified_files": [
+      ".github/workflows/pipeline-tests.yml",
+      "scripts/ci/checks/parse_audit_fails.py",
+      "scripts/pipeline/commands/ops/fetch_aspose_com_targets.py",
+      "scripts/translator/backends/m2m.py"
+    ]
+  },
+  "estimated_scores": {
+    "A_agentic": 4.0,
+    "P_practices": 3.0,
+    "R_readiness": 1.5,
+    "V_verification": null,
+    "S_composite_estimated": 10
+  },
+  "score_range": {
+    "S_low": 8,
+    "S_high": 15
+  },
+  "top_lowering_factors": [
+    "CODEOWNERS untracked — R axis missing ownership signal",
+    "CHANGELOG.md untracked — R axis missing release discipline signal",
+    "CONTRIBUTING.md untracked — R axis missing process signal",
+    "Coverage threshold 11% — P axis weak enforcement signal",
+    "New test files untracked — P axis missing test evidence",
+    "No ADR directory — R5 evidence absent",
+    "No runbooks — R6 evidence absent",
+    "No .env.example — P5 config hygiene absent",
+    "adaptive_retry.py untracked — A axis state management evidence invisible",
+    "run_outcome_log.py untracked — A axis checkpoint/resume evidence invisible"
+  ]
+}

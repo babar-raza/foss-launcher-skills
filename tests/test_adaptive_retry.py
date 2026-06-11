@@ -100,3 +100,59 @@ class TestRetrySkill:
         assert "S-26" in _FALLBACK_MAP
         assert "S-20" in _FALLBACK_MAP
         assert "S-25" in _FALLBACK_MAP
+
+    def test_empty_skill_id_raises_value_error(self):
+        """Empty string skill_id raises ValueError."""
+        with pytest.raises(ValueError, match="skill_id must be a non-empty string"):
+            retry_skill(
+                skill_id="",
+                execute_fn=lambda: "done",
+                sleep_fn=lambda _: None,
+            )
+
+    def test_whitespace_only_skill_id_raises_value_error(self):
+        """Whitespace-only skill_id raises ValueError."""
+        with pytest.raises(ValueError, match="skill_id must be a non-empty string"):
+            retry_skill(
+                skill_id="   ",
+                execute_fn=lambda: "done",
+                sleep_fn=lambda _: None,
+            )
+
+    def test_non_string_skill_id_raises_value_error(self):
+        """Non-string skill_id raises ValueError."""
+        with pytest.raises(ValueError, match="skill_id must be a non-empty string"):
+            retry_skill(
+                skill_id=None,  # type: ignore[arg-type]
+                execute_fn=lambda: "done",
+                sleep_fn=lambda _: None,
+            )
+
+    def test_negative_max_retries_raises_value_error(self):
+        """Negative max_retries raises ValueError."""
+        with pytest.raises(ValueError, match="max_retries must be >= 0"):
+            retry_skill(
+                skill_id="S-21",
+                execute_fn=lambda: "done",
+                max_retries=-1,
+                sleep_fn=lambda _: None,
+            )
+
+    def test_zero_max_retries_runs_exactly_once(self):
+        """max_retries=0 means one attempt, no retries."""
+        call_count = 0
+
+        def counter():
+            nonlocal call_count
+            call_count += 1
+            raise RuntimeError("fail")
+
+        result = retry_skill(
+            skill_id="S-21",
+            execute_fn=counter,
+            max_retries=0,
+            sleep_fn=lambda _: None,
+        )
+        assert result["status"] == "exhausted"
+        assert result["attempts"] == 1
+        assert call_count == 1

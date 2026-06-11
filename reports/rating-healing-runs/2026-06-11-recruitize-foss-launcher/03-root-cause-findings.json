@@ -1,0 +1,122 @@
+{
+  "findings": [
+    {
+      "id": "RC-001",
+      "title": "Governance Files Untracked in Git",
+      "score_dimension": "R (Readiness)",
+      "current_score": 1.5,
+      "surface_symptom": "CODEOWNERS, CHANGELOG.md, CONTRIBUTING.md, SECURITY.md exist on disk but not in git",
+      "base_cause": "Files written to disk but never staged or committed",
+      "causal_chain": "Reviewer clones git repo -> cannot see untracked files -> R axis missing ownership + release discipline signals -> R near 1.5 -> sigmoid gate fires -> S near zero",
+      "reality_classification": "governance/evidence weakness",
+      "rating_impact": "CRITICAL: R near 1.5 triggers sigmoid gate, collapsing S from ~35 to ~8-15",
+      "remediation_type": "governance/taskcard fix",
+      "proof_needed": "git ls-files shows CODEOWNERS, CHANGELOG.md, CONTRIBUTING.md, SECURITY.md all tracked"
+    },
+    {
+      "id": "RC-002",
+      "title": "New Source and Test Files Untracked",
+      "score_dimension": "A (Agentic), P (Practices)",
+      "current_score_A": 4.0,
+      "current_score_P": 3.0,
+      "surface_symptom": "adaptive_retry.py, run_outcome_log.py, and 4 test files exist on disk but not in git",
+      "base_cause": "Files written to disk but never staged or committed",
+      "causal_chain": "Reviewer clones git -> misses state management evidence -> A stays at A4 instead of A5 / P misses behavior test evidence",
+      "reality_classification": "governance/evidence weakness",
+      "rating_impact": "HIGH: A misses A5 checkpoint/approval evidence; P misses test depth evidence",
+      "remediation_type": "governance/taskcard fix",
+      "proof_needed": "git ls-files shows all new scripts and test files"
+    },
+    {
+      "id": "RC-003",
+      "title": "No ADR Directory",
+      "score_dimension": "R (Readiness)",
+      "current_score": 1.5,
+      "surface_symptom": "No docs/adr/ directory exists",
+      "base_cause": "Architecture decisions made but never documented in ADR format",
+      "causal_chain": "No ADR directory -> reviewer misses R5 (Auditable) evidence -> R capped below R5",
+      "reality_classification": "documentation trust weakness",
+      "rating_impact": "HIGH: ADR directory worth +1.0-1.5 R points per scoring reference",
+      "remediation_type": "docs/source consistency fix",
+      "proof_needed": "docs/adr/ exists with >=2 meaningful ADR files"
+    },
+    {
+      "id": "RC-004",
+      "title": "Coverage Threshold Only 11%",
+      "score_dimension": "P (Practices)",
+      "current_score": 3.0,
+      "surface_symptom": "--cov-fail-under=11 in pytest CI command",
+      "base_cause": "Threshold set artificially low to allow CI to pass during development phase",
+      "causal_chain": "11% threshold signals to reviewer that test enforcement is nominal, not meaningful -> P stays below P4",
+      "reality_classification": "CI/local gate weakness",
+      "rating_impact": "MEDIUM: raises P from P3 boundary towards P4",
+      "remediation_type": "CI/local gate fix",
+      "proof_needed": "pipeline-tests.yml shows --cov-fail-under>=30; CI passes"
+    },
+    {
+      "id": "RC-005",
+      "title": "docs/governance/ Files Untracked",
+      "score_dimension": "R (Readiness)",
+      "current_score": 1.5,
+      "surface_symptom": "docs/governance/incident-response.md and reviewer-readiness-checklist.md untracked",
+      "base_cause": "Files written to disk but never staged",
+      "causal_chain": "Reviewer cannot see incident response docs -> R6 evidence absent",
+      "reality_classification": "governance/evidence weakness",
+      "rating_impact": "HIGH: incident response docs worth +0.5-1.0 R points",
+      "remediation_type": "governance/taskcard fix",
+      "proof_needed": "git ls-files shows docs/governance/*.md tracked"
+    },
+    {
+      "id": "RC-006",
+      "title": "No .env.example File",
+      "score_dimension": "P (Practices)",
+      "current_score": 3.0,
+      "surface_symptom": "No .env.example documenting required environment variables",
+      "base_cause": "Configuration driven by env vars but no reference documented",
+      "causal_chain": "No .env.example -> P5 config hygiene signal absent -> P stays below P5",
+      "reality_classification": "documentation trust weakness",
+      "rating_impact": "MEDIUM: P5 component worth +0.3-0.5 P points",
+      "remediation_type": "docs/source consistency fix",
+      "proof_needed": ".env.example present with accurate env var list"
+    },
+    {
+      "id": "RC-007",
+      "title": "No Input Validation in adaptive_retry.py",
+      "score_dimension": "A (Agentic), P (Practices)",
+      "current_score_A": 4.0,
+      "surface_symptom": "skill_id parameter accepts empty strings; max_retries accepts negative values",
+      "base_cause": "Guard clauses missing from public API",
+      "causal_chain": "Missing validation -> negative max_retries causes logic error (loop runs once) -> reduces code quality signal",
+      "reality_classification": "real source/logic weakness",
+      "rating_impact": "MEDIUM: quality signal; demonstrates boundary enforcement when fixed",
+      "remediation_type": "source fix",
+      "proof_needed": "ValueError raised for empty skill_id and max_retries < 0; tests pass"
+    },
+    {
+      "id": "RC-008",
+      "title": "Concurrent Write Risk in run_outcome_log.py",
+      "score_dimension": "P (Practices)",
+      "current_score": 3.0,
+      "surface_symptom": "No file locking on JSONL append operations",
+      "base_cause": "JSONL log designed for single-process use but not documented or enforced",
+      "causal_chain": "Undocumented single-process assumption -> concurrent writes could corrupt log -> reliability signal weak",
+      "reality_classification": "real source/logic weakness",
+      "rating_impact": "MEDIUM: reliability improvement",
+      "remediation_type": "source fix",
+      "proof_needed": "Concurrency constraint documented; or filelock added; tests pass"
+    },
+    {
+      "id": "RC-009",
+      "title": "No Runbook Documentation",
+      "score_dimension": "R (Readiness)",
+      "current_score": 1.5,
+      "surface_symptom": "No docs/runbooks/ directory",
+      "base_cause": "Failure mode recovery procedures exist as institutional knowledge but not committed to repo",
+      "causal_chain": "No runbooks -> R6 (Controlled) evidence absent -> R capped below R6",
+      "reality_classification": "documentation trust weakness",
+      "rating_impact": "MEDIUM: runbooks worth +0.5-1.0 R points",
+      "remediation_type": "docs/source consistency fix",
+      "proof_needed": "docs/runbooks/ present with >=2 runbook files"
+    }
+  ]
+}

@@ -14,6 +14,10 @@ Usage (programmatic):
     )
     if result["status"] == "exhausted":
         print("Fallback suggested:", result["fallback_suggested"])
+
+Concurrency:
+    retry_skill is stateless and safe to call from multiple threads or
+    processes concurrently. Each call is fully independent.
 """
 
 from __future__ import annotations
@@ -54,15 +58,28 @@ def retry_skill(
     """Execute a skill with retry, backoff, and fallback suggestion.
 
     Args:
-        skill_id: The skill S-ID being executed.
+        skill_id: The skill S-ID being executed. Must be a non-empty string.
         execute_fn: Callable that runs the skill. Must raise on failure.
         max_retries: Maximum number of retry attempts (total attempts = max_retries + 1).
+                     Must be >= 0.
         backoff_base: Base for exponential backoff in seconds.
         sleep_fn: Sleep function (injectable for testing).
 
     Returns:
         Dict with keys: status, attempts, fallback_suggested, error_chain, last_result.
+
+    Raises:
+        ValueError: If skill_id is empty or not a string, or if max_retries < 0.
     """
+    if not isinstance(skill_id, str) or not skill_id.strip():
+        raise ValueError(
+            f"skill_id must be a non-empty string, got {skill_id!r}"
+        )
+    if max_retries < 0:
+        raise ValueError(
+            f"max_retries must be >= 0, got {max_retries!r}"
+        )
+
     error_chain: list[str] = []
     last_result = None
 
