@@ -1369,34 +1369,87 @@ def run(family: str, platform: str, kind_arg: str = "all",
             print(f"Skipped {_conv_skipped} conventional class(es) "
                   f"(package defines __all__).")
 
-    # Deduplicate name collisions: when multiple api_surface entries share the
-    # same class name (e.g. public Document vs internal Document), prefer the
-    # entry with the highest visibility tier.
+    # Merge or deduplicate name collisions: when multiple api_surface entries
+    # share the same class name, they may be partial-class fragments (same
+    # visibility) or genuinely distinct types (different visibility).
+    # Partial classes: merge methods, properties, bases, and doc strings.
+    # Different-visibility duplicates: prefer the highest visibility tier.
     _VIS_RANK = {"exported": 3, "public": 2, "conventional": 1, "internal": 0}
-    seen_names: dict[str, int] = {}  # name → index in candidates
+    seen_names: dict[str, int] = {}  # name → index in dedup list
     dedup = []
+    _merge_count = 0
     for entry in candidates:
         name = entry.get("name", "")
         rank = _VIS_RANK.get(entry.get("visibility", "conventional"), 1)
         if name in seen_names:
             prev_idx = seen_names[name]
-            prev_rank = _VIS_RANK.get(dedup[prev_idx].get("visibility", "conventional"), 1)
-            if rank > prev_rank:
+            prev = dedup[prev_idx]
+            prev_rank = _VIS_RANK.get(prev.get("visibility", "conventional"), 1)
+            if rank == prev_rank:
+                # Same visibility — likely partial class fragments: merge members.
+                prev_methods = prev.get("methods", [])
+                new_methods = entry.get("methods", [])
+                prev_props = prev.get("properties", [])
+                new_props = entry.get("properties", [])
+                prev_bases = prev.get("bases", [])
+                new_bases = entry.get("bases", [])
+                # Merge methods (deduplicate by name+params signature)
+                existing_sigs = {
+                    (m.get("name", ""), str(m.get("params", "")))
+                    for m in prev_methods
+                }
+                for m in new_methods:
+                    sig = (m.get("name", ""), str(m.get("params", "")))
+                    if sig not in existing_sigs:
+                        prev_methods.append(m)
+                        existing_sigs.add(sig)
+                # Merge properties (deduplicate by name)
+                existing_pnames = {p.get("name", "") for p in prev_props}
+                for p in new_props:
+                    if p.get("name", "") not in existing_pnames:
+                        prev_props.append(p)
+                        existing_pnames.add(p.get("name", ""))
+                # Merge bases (deduplicate)
+                existing_bases = set(prev_bases)
+                for b in new_bases:
+                    if b not in existing_bases:
+                        prev_bases.append(b)
+                        existing_bases.add(b)
+                prev["methods"] = prev_methods
+                prev["properties"] = prev_props
+                prev["bases"] = prev_bases
+                # Prefer the doc from the entry with more methods (main file)
+                if not prev.get("doc") and entry.get("doc"):
+                    prev["doc"] = entry["doc"]
+                elif entry.get("doc") and len(new_methods) > len(prev_methods) - len(new_methods):
+                    prev["doc"] = entry["doc"]
+                # Track merged source files for provenance
+                if len(new_methods) + len(new_props) > 0:
+                    prev.setdefault("_merged_files", [prev.get("file", "")])
+                    prev["_merged_files"].append(entry.get("file", ""))
+                _merge_count += 1
+                print(f"  MERGE: {name} — merged {entry.get('file','')} "
+                      f"into {prev.get('file','')} "
+                      f"(+{len(new_methods)} methods, +{len(new_props)} properties)")
+            elif rank > prev_rank:
                 print(f"  DEDUP: {name} — preferring {entry.get('file','')} "
                       f"(visibility={entry.get('visibility','?')}) over "
-                      f"{dedup[prev_idx].get('file','')} "
-                      f"(visibility={dedup[prev_idx].get('visibility','?')})")
+                      f"{prev.get('file','')} "
+                      f"(visibility={prev.get('visibility','?')})")
                 dedup[prev_idx] = entry  # replace with higher-visibility entry
             else:
-                print(f"  DEDUP: {name} — keeping {dedup[prev_idx].get('file','')} "
-                      f"(visibility={dedup[prev_idx].get('visibility','?')}), "
+                print(f"  DEDUP: {name} — keeping {prev.get('file','')} "
+                      f"(visibility={prev.get('visibility','?')}), "
                       f"skipping {entry.get('file','')} "
                       f"(visibility={entry.get('visibility','?')})")
         else:
             seen_names[name] = len(dedup)
             dedup.append(entry)
-    if len(dedup) < len(candidates):
-        print(f"Deduplicated {len(candidates) - len(dedup)} name collision(s).")
+    if _merge_count:
+        print(f"Merged {_merge_count} partial-class fragment(s).")
+    if len(dedup) < len(candidates) - _merge_count:
+        print(f"Deduplicated {len(candidates) - len(dedup) - _merge_count} "
+              f"name collision(s).")
     candidates = dedup
 
     if limit is not None:

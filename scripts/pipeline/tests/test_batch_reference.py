@@ -509,7 +509,7 @@ class TestNameCollisionDedup:
         assert "save" in content
         assert result["generated"] == 1  # only 1 page, not 2
 
-    def test_keeps_first_when_same_visibility(self, tmp_path):
+    def test_merges_same_visibility_partial_class(self, tmp_path):
         entries = [
             {"name": "Widget", "kind": "class_definition",
              "file": "a.py", "visibility": "public",
@@ -518,7 +518,7 @@ class TestNameCollisionDedup:
             {"name": "Widget", "kind": "class_definition",
              "file": "b.py", "visibility": "public",
              "methods": [{"name": "second_method", "params": [], "return_type": "", "doc": "", "line": 1}],
-             "properties": []},
+             "properties": [{"name": "extra_prop", "type": "str", "doc": "", "line": 1}]},
         ]
         _make_api_surface(tmp_path, entries, "words", "python")
         out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "words" / "python"
@@ -529,8 +529,10 @@ class TestNameCollisionDedup:
         page = out_dir / "Widget.md"
         assert page.exists()
         content = page.read_text(encoding="utf-8")
-        # First entry wins when visibility is equal
+        # Both partial-class fragments should be merged into one page
         assert "first_method" in content
+        assert "second_method" in content
+        assert "extra_prop" in content
         assert result["generated"] == 1
 
     def test_no_collision_passes_through(self, tmp_path):
