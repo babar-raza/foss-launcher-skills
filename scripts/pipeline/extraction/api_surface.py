@@ -1649,6 +1649,14 @@ def extract_api_surface(
             # OBS-03: Remove self-referential bases (tree-sitter extraction bug)
             bases = [b for b in bases if b != cname]
 
+            # Extract class-level modifiers (C#/Java: static, abstract, sealed)
+            # Uses the same tree-sitter pattern as _extract_const_fields (L664).
+            _cls_mods: set[str] = set()
+            if language in ("csharp", "java"):
+                for _ch in cnode.children:
+                    if _ch.type in ("modifiers", "modifier"):
+                        _cls_mods.update(node_text(_ch).lower().split())
+
             cls_record: dict[str, Any] = {
                 "name": cname,
                 "kind": cnode.type,
@@ -1660,6 +1668,12 @@ def extract_api_surface(
                 "properties": properties,
                 "visibility": vis,
             }
+            if "static" in _cls_mods:
+                cls_record["is_static"] = True
+            if "abstract" in _cls_mods:
+                cls_record["is_abstract"] = True
+            if "sealed" in _cls_mods:
+                cls_record["is_sealed"] = True
             if is_enum:
                 cls_record["enum_members"] = enum_members
 

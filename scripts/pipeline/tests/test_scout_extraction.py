@@ -1428,3 +1428,47 @@ type Color struct {
         prop_names = [p["name"] for p in color.get("properties", [])]
         for ch in ("R", "G", "B", "A"):
             assert ch in prop_names, f"Color.{ch} not in properties: {prop_names!r}"
+
+
+# ---------------------------------------------------------------------------
+# Class-level modifier extraction (is_static, is_abstract, is_sealed)
+# ---------------------------------------------------------------------------
+
+class TestCSharpClassModifiers:
+    """C# class-level modifiers (static, abstract, sealed) must be captured."""
+
+    CS_STATIC = "public static class DateFormatter { public static string Format(string s) { return s; } }"
+    CS_ABSTRACT = "public abstract class BaseDoc { public abstract void Save(); }"
+    CS_SEALED = "public sealed class FinalDoc { public void Close() {} }"
+    CS_PLAIN = "public class RegularDoc { public void Open() {} }"
+
+    @staticmethod
+    def _get_cls_mods(code: str) -> set[str]:
+        """Extract class-level modifiers using the same pattern as api_surface.py."""
+        root = _parse("csharp", code)
+        classes = scout.collect_nodes(root, {"class_declaration"})
+        assert len(classes) >= 1, "No class_declaration found"
+        cnode = classes[0]
+        mods: set[str] = set()
+        for ch in cnode.children:
+            if ch.type in ("modifiers", "modifier"):
+                mods.update(scout.node_text(ch).lower().split())
+        return mods
+
+    def test_static_class_detected(self):
+        mods = self._get_cls_mods(self.CS_STATIC)
+        assert "static" in mods
+
+    def test_abstract_class_detected(self):
+        mods = self._get_cls_mods(self.CS_ABSTRACT)
+        assert "abstract" in mods
+
+    def test_sealed_class_detected(self):
+        mods = self._get_cls_mods(self.CS_SEALED)
+        assert "sealed" in mods
+
+    def test_plain_class_no_modifiers(self):
+        mods = self._get_cls_mods(self.CS_PLAIN)
+        assert "static" not in mods
+        assert "abstract" not in mods
+        assert "sealed" not in mods
