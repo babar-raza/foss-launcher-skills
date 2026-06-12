@@ -294,6 +294,8 @@ foss-launcher-skills/
 │   ├── verify_claims.py       # Trace AGENTS.md/skill claims to implementing tests
 │   ├── content_repo_adapter.py # Content repo path resolution adapter
 │   ├── local_gate.py          # Local pre-push validation gate
+│   ├── pipeline_orchestrator.py # Stateful multi-skill pipeline run orchestrator with HITL gate and JSON persistence
+│   ├── generate_release_receipt.py # Generate verifiable release attestation (R5 governance artifact)
 │   ├── generate_status.py     # Auto-generate STATUS.md test-count entries
 │   ├── claim_lookup.py        # Deterministic claim ID resolver from PEF
 │   └── requirements.txt
