@@ -51,6 +51,12 @@ Skills in the `DAR_EXCEPTIONS` set in `scripts/ci/checks/check_dar_coverage.py`
 are excluded from this table. See the script for justifications (Category B
 orchestrators managing their own chains, Category C false positives).
 
+## Metrics Obligation
+
+Pipeline workflows using `llm.professionalize.com` carry a metrics obligation. Decision records
+that approve new professionalize call sites must note the corresponding `metrics_callsite_registry.yaml`
+entry and the `AGENT_METRICS` capture method. See `AGENTS.md §15`.
+
 ## Related
 
 - [AGENTS.md §6a](../../AGENTS.md) — DAR governance rules

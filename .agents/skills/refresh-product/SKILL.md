@@ -177,6 +177,20 @@ Do not run any subsequent steps. Exit 0.
     ```
     Progress is tracked at `reports/refresh_state/{family}/{platform}/progress.json` (local-only, not committed).
 
+11.6. **Body-update planner routing**:
+    After Step 11, classify each updated page by what type of change was made:
+    - `BODY_UPDATED` — prose body content was modified
+    - `EVIDENCE_ONLY` — only `evidence.model_sha` or claim IDs were updated (no body change)
+    - `NOT_AFFECTED` — page was scanned but required no update
+    Route pages with `EVIDENCE_ONLY` status to `/grade-remediate` for grade recalculation
+    rather than full re-evaluation. Do not commit `EVIDENCE_ONLY` changes without
+    verifying the grade is still accurate for the current content.
+
+    **SOURCE_EVIDENCE_UNAVAILABLE** — if the clone cache is absent or the source
+    baseline for a page cannot be fetched, the planner must fail-closed: do not
+    update the page and emit `SOURCE_EVIDENCE_UNAVAILABLE` in the decision record.
+    Proceeding without source evidence risks silent quality regression.
+
 12. **Verification gate** (post_refresh_verify.py --verify):
     ```bash
     .venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --verify
@@ -212,6 +226,9 @@ Do not run any subsequent steps. Exit 0.
     ```
     Writes `reports/refresh_review/{family}/{platform}/coverage_report.md` with per-subdomain
     counts (total, body_updated, evidence_only, not_affected, retired).
+    - **Generated reference pages are never counted** toward coverage percentage —
+      only human-authored and LLM-authored non-reference pages contribute to the coverage
+      numerator. Auto-generated reference pages have their own quality gate (audit.py).
     - If coverage < 100%: emits WARNING and includes gap in commit message; does NOT abort commit
     - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step coverage_report`
 

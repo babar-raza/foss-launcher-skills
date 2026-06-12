@@ -63,6 +63,9 @@ After a knowledge refresh (S-14), identify which content pages reference changed
        flag as `NEEDS_HUMAN_REVIEW` in page_decisions.json; do not silently skip.
      - If `page_impact.json` absent: skip PIA-match path with a WARN; citation-match still runs.
    - De-duplicate: pages found by both paths are processed once
+   - **PIA enforcement**: `HIGH_IMPACT` pages from `page_impact.json` MUST be
+     processed even if the citation-match path found no overlap. Skipping HIGH_IMPACT
+     pages violates the page-update contract and leaves stale content in place.
 
 5. **For each affected page**, produce an update plan:
    - Map each removed/modified claim to the paragraph(s) that reference it

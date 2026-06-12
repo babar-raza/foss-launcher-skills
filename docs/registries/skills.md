@@ -37,6 +37,7 @@
 | family-sync | S-48 | Update family-level products page |
 | faq-generate | S-22 | Generate FAQ section |
 | gap-apply | S-46 | Execute wave-ordered fix specs |
+| grade-remediate | S-102 | Remediate D/F grade pages to meet the minimum quality bar |
 | gap-eval | S-43 | Content verification against clone cache |
 | gap-plan | S-44 | Wave-ordered remediation planning |
 | gap-report | S-45 | Cross-product gap synthesis report |
