@@ -113,7 +113,7 @@ schema-validation:
 governance-tests:
   stage: test
   script:
-    - python -m pytest tests/ -v --tb=short -m "not scout" --ignore=tests/test_e2e_pipeline.py --cov=scripts --cov-report=term-missing
+    - python -m pytest tests/ -v --tb=short -m "not scout and not integration" --cov=scripts --cov-report=term-missing
   coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+)%/'
   rules:
     - changes:
