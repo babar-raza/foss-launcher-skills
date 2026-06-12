@@ -129,6 +129,15 @@ Do not run any subsequent steps. Exit 0.
    .venv/Scripts/python scripts/pipeline/commands/content/batch_reference.py {family} {platform} --update
    ```
    - Regenerates only reference pages for classes in `knowledge_delta.json modified_apis`
+   - **Two-step regeneration rule** (MANDATORY when `removed_apis > 0`):
+     If `knowledge_delta.json` has `removed_apis` count > 0, run a second pass:
+     ```
+     .venv/Scripts/python scripts/pipeline/commands/content/batch_reference.py {family} {platform} --rebuild-all
+     ```
+     Without this second pass, reference pages for classes NOT in `modified_apis` may retain
+     phantom methods that were removed as side-effects of the deleted classes. Proven by
+     `pdf/java` sprint (2026-06-12): `Rectangle.md` had phantom `fromCOSArray`/`toCOSArray`
+     that survived `--update`; only resolved by `--rebuild-all`.
    - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step reference_update`
    - **Write execution reconciliation** (after all content steps complete):
      ```bash
