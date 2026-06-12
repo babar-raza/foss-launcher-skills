@@ -211,10 +211,18 @@ def _extract_scannable_lines(page: Page) -> list[tuple[int, str]]:
                     if isinstance(val, str) and val.strip():
                         text_fields.append(val)
 
-    # Split frontmatter text into lines (use line_no=0 for frontmatter)
+    # Split frontmatter text into lines with code-fence filtering (line_no=0 for frontmatter).
+    # Frontmatter text fields (e.g. single.block[].content) can contain fenced code blocks;
+    # skip lines inside those fences so evaluators remain prose-only (design intent).
     for text in text_fields:
+        in_code_block = False
         for raw_line in text.splitlines():
             stripped = raw_line.strip()
+            if stripped.startswith("```"):
+                in_code_block = not in_code_block
+                continue
+            if in_code_block:
+                continue
             if stripped and not stripped.startswith("#"):
                 lines.append((0, stripped))
 

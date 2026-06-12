@@ -37,6 +37,9 @@ EVALUATOR_FREEZE_VERSION: str | None = "17"
 #   code_syntax_check:    1→2 (tree-sitter integration)
 #   consumer_usefulness:  1→2 (purpose framing + code-context signals)
 #   risk_language:        1→2 (API reference table suppression)
+# Version history (evaluators bumped at v17):
+#   capability_claim_check: 1→2 (FP-001: code-fence filtering in _extract_scannable_lines;
+#                                 code blocks in YAML frontmatter text fields are now skipped)
 EVALUATOR_VERSIONS: dict[str, str] = {
     "api_accuracy": "2",  # v2: TS/JS built-ins (Error, JSON, Buffer, Worker, GLB, etc.) added to PLATFORM_SDK_CLASSES
     "api_backtick": "1",
@@ -66,7 +69,7 @@ EVALUATOR_VERSIONS: dict[str, str] = {
     "member_validity": "1",
     "prose_grounding": "1",
     "version_claim_check": "1",
-    "capability_claim_check": "1",
+    "capability_claim_check": "2",  # v2: code-fence filtering in _extract_scannable_lines (FP-001 fix)
     "encoding_check": "1",
     "consumer_usefulness": "2",
 }

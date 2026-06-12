@@ -544,3 +544,79 @@ class TestCapabilityClaimCheckHardening:
         findings = self.evaluator.evaluate(page, None)
         assert len(findings) >= 1
         assert findings[0].category == "CF"
+
+
+class TestCapabilityClaimCheckCodeFenceFiltering:
+    """FP-001 regression tests: code blocks in frontmatter YAML must not trigger claims.
+
+    Root cause: _extract_scannable_lines processes frontmatter text fields without
+    code-fence filtering. A C# variable 'doc' in 'using var doc = Document.Open(...)'
+    inside a fenced code block matched the DOC format token with direction='none',
+    producing 4 false-positive FAILs on the pdf/net products page.
+
+    Fix: code-fence tracking added to frontmatter text field processing in
+    _extract_scannable_lines (version_claim_check.py, 2026-06-12).
+    """
+
+    def setup_method(self):
+        self.evaluator = get_evaluator("capability_claim_check")()
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_code_block_variable_name_does_not_trigger(self, mock_formats):
+        """FP-001: 'using var doc = Document.Open(...)' in a fenced code block must not flag.
+
+        The variable 'doc' inside a ```csharp block matches the DOC format token
+        and Open() matches the import verb, but this is a code context, not a prose claim.
+        """
+        mock_formats.return_value = {"doc": "none"}
+        page = _make_products_page("pdf", "net",
+            frontmatter_extra=textwrap.dedent("""\
+                Open PDF documents easily.
+                ```csharp
+                using var doc = Document.Open("sample.pdf");
+                Console.WriteLine(doc.Pages.Count);
+                ```
+                Simple and reliable.
+            """))
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) == 0, (
+            f"Expected 0 findings for code-block variable, got {len(findings)}: "
+            f"{[f.message for f in findings]}"
+        )
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_prose_claim_after_code_block_still_triggers(self, mock_formats):
+        """Prose claims following a code block must still be evaluated."""
+        mock_formats.return_value = {"doc": "none"}
+        page = _make_products_page("pdf", "net",
+            frontmatter_extra=textwrap.dedent("""\
+                ```csharp
+                using var doc = Document.Open("file.pdf");
+                ```
+                This library can open and parse DOC files directly.
+            """))
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) >= 1, "Expected FAIL for prose claim after code block"
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_multiple_code_blocks_all_filtered(self, mock_formats):
+        """Multiple fenced code blocks in one frontmatter field are all filtered."""
+        mock_formats.return_value = {"doc": "none", "csv": "export"}
+        page = _make_products_page("pdf", "net",
+            frontmatter_extra=textwrap.dedent("""\
+                Example one:
+                ```csharp
+                var doc = new Document("file.pdf");
+                ```
+                Example two:
+                ```python
+                import csv
+                with open("data.csv") as f:
+                    reader = csv.reader(f)
+                ```
+                Both examples show API usage.
+            """))
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) == 0, (
+            f"Code-block lines must not trigger: {[f.message for f in findings]}"
+        )

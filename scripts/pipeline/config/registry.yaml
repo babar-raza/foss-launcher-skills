@@ -3582,6 +3582,42 @@ scripts:
     change_impact: "Shadow content generation; outputs to reports/ only, never content/"
     notes: "Generates draft markdown candidates from page_plan + fact_graph. Safety: _is_forbidden_output blocks content/ writes."
 
+  - path: scripts/pipeline/commands/content/cross_page_consistency.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "{family} {platform} [--content-root PATH] [--knowledge-root PATH] [--output PATH]"
+    owner_domain: content
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets:
+      - scripts/pipeline/tests/test_cross_page_consistency.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: "Read-only analysis; writes contradiction report to --output path only"
+    notes: "TC-CONSIST-001: detects contradictory factual claims across pages within a product"
+
+  - path: scripts/pipeline/commands/launch/publish_classifier.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: launch
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets:
+      - scripts/pipeline/tests/test_publish_classifier.py
+    test_exempt_reason: "Library with direct test coverage via test_publish_classifier.py"
+    deprecated_since: null
+    change_impact: "Deterministic classification only; no file writes; used by S-90 publish readiness review"
+    notes: "TC-S90-001: automates S-90 inspection classification (PUBLISH_READY/ACCEPTABLE_GRADE_C/NEEDS_ACTION/BLOCKED)"
+
   - path: scripts/pipeline/lib/claim_mapper.py
     kind: library
     lifecycle: active
