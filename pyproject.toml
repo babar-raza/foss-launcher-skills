@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "foss-launcher-skills"
-version = "0.1.0"
+version = "0.2.0"
 description = "Standalone skills system for FOSS product documentation generation"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -65,7 +65,9 @@ omit = [
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 11
+# Current enforced threshold: 12% (matching CI --cov-fail-under=12).
+# This is the honest current baseline. Target: 70% (tracked in backlog).
+fail_under = 12
 exclude_lines = [
     "pragma: no cover",
     "if __name__ == .__main__.",

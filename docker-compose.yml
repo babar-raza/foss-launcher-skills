@@ -1,0 +1,55 @@
+name: foss-launcher-skills
+
+# Docker Compose for local development and CI smoke testing.
+#
+# Usage:
+#   docker compose build           # Build the image
+#   docker compose run gate        # Run local quality gate
+#   docker compose run validate    # Validate skill registry
+#
+# Environment:
+#   Copy .env.example to .env and populate before running content-writing skills.
+
+services:
+  # Primary service: runs the local quality gate
+  gate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: foss-launcher-skills:latest
+    volumes:
+      # Mount knowledge artifacts read-only (populated by scout/merge skills)
+      - ./knowledge:/app/knowledge:ro
+      # Mount output directories read-write for generated artifacts
+      - ./output:/app/output
+      - ./reports:/app/reports
+      - ./runs:/app/runs
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - KNOWLEDGE_ROOT=/app/knowledge
+    command: ["--help"]
+
+  # Skill registry validator
+  validate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: foss-launcher-skills:latest
+    volumes:
+      - ./skills:/app/skills:ro
+    entrypoint: ["foss-validate"]
+    command: ["--help"]
+
+  # Check environment setup
+  check:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: foss-launcher-skills:latest
+    env_file:
+      - path: .env
+        required: false
+    entrypoint: ["foss-check"]
+    command: []

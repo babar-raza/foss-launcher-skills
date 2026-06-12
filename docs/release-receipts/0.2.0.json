@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "generated_at": "2026-06-12T11:20:52.481332+00:00",
+  "git_sha_short": "b4203f6",
+  "git_ref": "main",
+  "ci_run_url": null,
+  "evidence": {
+    "coverage_xml_present": true,
+    "coverage_percentage": "12.2%",
+    "security_gates": "bandit+pip-audit (see .github/workflows/pipeline-tests.yml)",
+    "skill_registry": "validated by skill-registry-audit workflow"
+  },
+  "notes": "This receipt is generated at release time to provide an auditable artifact linking version, commit, and CI evidence. It does not replace a cryptographic attestation \u2014 it is a human-readable governance artifact for the R5 (Auditable) dimension."
+}

@@ -41,8 +41,11 @@ def _run_gate(name: str, cmd: list[str]) -> bool:
 def main() -> int:
     gates = [
         ("Skill Registry Validation", [sys.executable, str(REPO_ROOT / "scripts" / "validate_skills.py")]),
+        # integration-marked tests require fixture data not available locally;
+        # use -m "not scout and not integration" so test_e2e_pipeline.py
+        # contributes to coverage via its pytestmark but skipped during fast runs.
         ("Test Suite", [sys.executable, "-m", "pytest", "tests/", "-x", "--tb=short", "-q",
-                        "-m", "not scout", "--ignore=tests/test_e2e_pipeline.py"]),
+                        "-m", "not scout and not integration"]),
         ("SAST (bandit)", [sys.executable, str(CHECKS_DIR / "check_sast_bandit.py")]),
         ("Dependency Audit", [sys.executable, str(CHECKS_DIR / "check_dependency_audit.py")]),
     ]

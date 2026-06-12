@@ -3,12 +3,18 @@ name: Pipeline Tests
 on:
   push:
     paths:
-      - 'scripts/pipeline/**'
+      - 'scripts/**'
       - 'tests/**'
+      - 'pyproject.toml'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
   pull_request:
     paths:
-      - 'scripts/pipeline/**'
+      - 'scripts/**'
       - 'tests/**'
+      - 'pyproject.toml'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
   workflow_dispatch:
 
 jobs:
@@ -26,10 +32,21 @@ jobs:
         run: pip install ".[dev]"
 
       - name: Run pipeline tests with coverage
-        run: python -m pytest tests/ -x -q --cov=scripts --cov-report=term-missing --cov-report=xml:coverage.xml --cov-fail-under=12 -m "not scout" --ignore=tests/test_e2e_pipeline.py
+        run: |
+          python -m pytest tests/ -x -q \
+            --cov=scripts \
+            --cov-report=term-missing \
+            --cov-report=xml:coverage.xml \
+            --cov-fail-under=12 \
+            -m "not scout and not integration"
         env:
           KNOWLEDGE_ROOT: tests/fixtures/knowledge
           CONTENT_REPO_PATH: tests/fixtures
+
+      - name: Generate release receipt
+        run: python scripts/generate_release_receipt.py
+        env:
+          GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Upload coverage artifact
         if: always()
@@ -38,9 +55,16 @@ jobs:
           name: coverage-report
           path: coverage.xml
 
+      - name: Upload release receipt artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-receipt
+          path: docs/release-receipts/
+
   security-scan:
     runs-on: ubuntu-latest
-    # Security gates are blocking � bandit baseline is clean (nosec-annotated)
+    # Security gates are blocking — bandit baseline is clean (nosec-annotated)
     steps:
       - uses: actions/checkout@v4
 
@@ -57,3 +81,14 @@ jobs:
 
       - name: Run dependency audit (pip-audit)
         run: python scripts/ci/checks/check_dependency_audit.py
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image (smoke test — no push)
+        run: docker build -t foss-launcher-skills:ci-test .
+
+      - name: Verify image entry point responds
+        run: docker run --rm foss-launcher-skills:ci-test --help

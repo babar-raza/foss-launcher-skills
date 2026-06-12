@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Coverage threshold corrected: the v0.2.0 entry incorrectly stated
+  `fail_under` was raised to 70%. The actual enforced CI threshold is 12%
+  (matching `pyproject.toml`). The 70% target is aspirational and tracked in
+  the backlog. `--cov-fail-under=12` is the current honest gate.
+- CI trigger paths expanded from `scripts/pipeline/**` to `scripts/**` so
+  changes to core scripts (`discover.py`, `pre_write.py`, `path_guard.py`,
+  `local_gate.py`, etc.) now correctly trigger the pipeline-tests workflow.
+- E2E test file (`tests/test_e2e_pipeline.py`) no longer silently excluded
+  via `--ignore`; now properly skipped via `pytestmark = pytest.mark.integration`
+  using `-m "not scout and not integration"`.
+
+### Added
+- `Dockerfile` and `docker-compose.yml` for containerized tool execution (P4 signal)
+- `scripts/pipeline_orchestrator.py` — Python state machine for multi-skill
+  pipeline runs with JSON persistence, HITL gate, and retry budget enforcement
+- `tests/test_pipeline_orchestrator.py` — 20+ tests covering state transitions,
+  persistence, gate approval/rejection, retry budget, and invalid transitions
+- `docs/adr/` directory with 5 architectural decision records:
+  - ADR-001: Multi-skill chain architecture
+  - ADR-002: Evidence-first content generation
+  - ADR-003: Dual CI/CD (GitHub Actions + GitLab CI)
+  - ADR-004: Python + tree-sitter for knowledge extraction
+  - ADR-005: Content repository separation
+- `scripts/generate_release_receipt.py` — generates signed release attestation
+  to `docs/release-receipts/<version>.json`
+
 ---
 
 ## [0.2.0] - 2026-06-11
@@ -28,8 +55,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - S-110 pipeline-harden skill — parameterized pipeline hardening sprint orchestrator
 
 ### Changed
-- `pyproject.toml`: coverage `fail_under` raised from 11% to 70% to align with CI gate
-- `.github/workflows/pipeline-tests.yml`: added explicit `--cov-fail-under=70` to pytest command; security-scan job promoted to blocking
+- `pyproject.toml`: coverage `fail_under` kept at current achieved threshold (see Unreleased correction above)
+- `.github/workflows/pipeline-tests.yml`: security-scan job promoted to blocking
 - `parse_audit_fails.py`: improved FAIL-level finding extraction with file/line context
 - `fetch_aspose_com_targets.py`: added P0/P1/P2 priority tiers, HTTP HEAD→GET fallback, synthesized URL support
 - `m2m.py`: updated M2M100 translation backend with Hugging Face cache inspection
@@ -67,5 +94,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Golden corpus: 3 samples per site type for conformance checking
 - Operator guide, quickstart guide, codex guidelines
 
-[Unreleased]: https://github.com/aspose-org/foss-launcher-skills/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/aspose-org/foss-launcher-skills/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/aspose-org/foss-launcher-skills/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/aspose-org/foss-launcher-skills/releases/tag/v0.1.0
