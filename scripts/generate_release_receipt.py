@@ -95,7 +95,7 @@ def _read_coverage_percentage() -> "str | None":
         return None
     try:
         import xml.etree.ElementTree as ET  # noqa: N814, PLC0415
-        tree = ET.parse(cov_xml)
+        tree = ET.parse(cov_xml)  # nosec B314 — internal CI artifact, not user-supplied
         root = tree.getroot()
         line_rate = root.get("line-rate", "")
         if line_rate:

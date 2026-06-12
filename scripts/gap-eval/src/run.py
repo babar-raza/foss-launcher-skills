@@ -196,9 +196,17 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     del args.state_dir
 
-    config = {"content_root": args.content_root} if args.content_root else None
+    # CLI --content-root takes priority over CONTENT_REPO_PATH env var
+    if args.content_root:
+        env_with_override = dict(os.environ)
+        env_with_override["CONTENT_REPO_PATH"] = args.content_root
+        config = None
+        _env_for_content = env_with_override
+    else:
+        config = None
+        _env_for_content = os.environ
     try:
-        content_root = resolve_content_root(config, os.environ)
+        content_root = resolve_content_root(config, _env_for_content)
         output_root = resolve_output_root(args.output_root)
         clone_cache = resolve_clone_cache()
     except Exception as exc:

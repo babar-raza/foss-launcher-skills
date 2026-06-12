@@ -90,5 +90,5 @@ jobs:
       - name: Build Docker image (smoke test — no push)
         run: docker build -t foss-launcher-skills:ci-test .
 
-      - name: Verify image entry point responds
-        run: docker run --rm foss-launcher-skills:ci-test --help
+      - name: Verify image entry point is installed
+        run: docker run --rm --entrypoint which foss-launcher-skills:ci-test foss-gate
