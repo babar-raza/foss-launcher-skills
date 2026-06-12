@@ -150,6 +150,19 @@ _VERB_KEYWORDS: list[tuple[list[str], str]] = [
     (["document-manage"],                                     "load"),      # document-management → load
     (["core-manage"],                                         "work-with"), # core-management (generic) → work-with
     (["theme-styl"],                                          "add"),       # theme-styling → add
+    # --- PDF clusters ---
+    (["annotations-form"],                                    "add"),       # annotations-forms → add
+    (["text-extract"],                                        "extract"),   # text-extraction → extract
+    (["content-oper"],                                        "work-with"), # content-operations → work-with
+    (["facades-api"],                                         "work-with"), # facades-api → work-with
+    (["logical-struct"],                                      "create"),    # logical-structure → create
+    (["page-generat"],                                        "create"),    # page-generation → create
+    (["graphics-draw"],                                       "add"),       # graphics-drawing → add
+    (["devices-render"],                                      "render"),    # devices-rendering → render
+    (["conversion-optim"],                                    "convert"),   # conversion-optimization → convert
+    (["security-sign"],                                       "add"),       # security-signatures → add
+    (["navigation-action"],                                   "add"),       # navigation-actions → add
+    (["metadata-util"],                                       "extract"),   # metadata-utilities → extract
 ]
 
 # Clusters that should NOT generate KB howto pages (reference-only).
@@ -563,6 +576,37 @@ _FAMILY_SUBPKG_LABELS: dict[str, dict[str, str]] = {
         "packaging":  "xlsx-packaging",      # OPC/XLSX packaging classes in cells_foss packaging/
         "cells_foss": "spreadsheet-management",  # Root-level cells_foss classes
     },
+    "pdf": {
+        "annotations":      "annotations-forms",
+        "forms":            "annotations-forms",
+        "text":             "text-extraction",
+        "content":          "content-operations",
+        "facades":          "facades-api",
+        "logicalstructure": "logical-structure",
+        "tagged":           "logical-structure",
+        "structure":        "logical-structure",
+        "generator":        "page-generation",
+        "stamps":           "page-generation",
+        "drawing":          "graphics-drawing",
+        "shading":          "graphics-drawing",
+        "color":            "graphics-drawing",
+        "vector":           "graphics-drawing",
+        "devices":          "devices-rendering",
+        "printing":         "devices-rendering",
+        "converters":       "conversion-optimization",
+        "optimization":     "conversion-optimization",
+        "html":             "conversion-optimization",
+        "security":         "security-signatures",
+        "navigation":       "navigation-actions",
+        "actions":          "navigation-actions",
+        "xmp":              "metadata-utilities",
+        "collections":      "metadata-utilities",
+        "artifacts":        "metadata-utilities",
+        "functions":        "metadata-utilities",
+        "geometry":         "metadata-utilities",
+        "interop":          "metadata-utilities",
+        "groupprocessor":   "metadata-utilities",
+    },
 }
 
 
@@ -590,7 +634,17 @@ def _class_to_subpackage(file_path: str) -> str:
             return "formats"
         if "." not in subpkg:
             return subpkg
-    # Root-level: org/top_pkg/ClassName.py (3 parts) → return ""
+    elif len(parts) == 3 and parts[0].lower() == "src":
+        # C# flat-src layout: src/{SubDir}/Class.cs (3 parts)
+        # PascalCase directory names (Annotations, Text, Forms) are sub-packages.
+        # Dotted names (Aspose.Slides.Foss) or underscored names (cells_foss)
+        # are namespace roots, not sub-packages.
+        # Guard: parts[0] must be "src" to distinguish from Python layouts
+        # like aspose/threed/Scene.py where parts[1] is a package root.
+        candidate = parts[1]
+        if "." not in candidate and "_" not in candidate:
+            return candidate
+    # Root-level → return ""
     return ""
 
 
@@ -598,11 +652,11 @@ def _subpkg_to_label(subpkg: str, family: str) -> str:
     """Map sub-package directory name to capability cluster label."""
     # Normalize: strip leading underscores, lowercase for lookup
     key = subpkg.lstrip("_").lower()
-    if key in _SUBPKG_LABEL:
-        return _SUBPKG_LABEL[key]
-    # Family-specific override before generic fallback
+    # Family-specific override first (prevents cross-family label collisions)
     if family in _FAMILY_SUBPKG_LABELS and key in _FAMILY_SUBPKG_LABELS[family]:
         return _FAMILY_SUBPKG_LABELS[family][key]
+    if key in _SUBPKG_LABEL:
+        return _SUBPKG_LABEL[key]
     if key == "" or subpkg == "":
         # Root-level classes → family-specific core capability
         _ROOT_LABELS = {
@@ -611,6 +665,7 @@ def _subpkg_to_label(subpkg: str, family: str) -> str:
             "cells": "spreadsheet-management",
             "email": "email-processing",
             "note": "document-management",
+            "pdf": "document-management",
         }
         return _ROOT_LABELS.get(family, "core-management")
     # Generic: use slug form of sub-package name

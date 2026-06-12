@@ -614,6 +614,60 @@ class TestLoadPageTexts:
         assert "reference/3d/net/a3dobject" in texts
         assert texts["reference/3d/net/a3dobject"] == "A3DObject page text"
 
+    def test_target_namespace_stripping_java(self, tmp_path):
+        """Java namespace prefix in target_path is stripped for reference targets.
+
+        Candidate graphs use paths like 'reference/pdf/java/com.aspose.pdf/annotation'
+        but content files are flat: reference.aspose.org/en/pdf/java/Annotation.md.
+        """
+        content_dir = tmp_path / "content"
+        ref_dir = content_dir / "reference.aspose.org" / "en" / "pdf" / "java"
+        ref_dir.mkdir(parents=True)
+        (ref_dir / "Annotation.md").write_text("annotation page text", encoding="utf-8")
+
+        graph = {
+            "sources": [],
+            "candidates": [
+                {"target_path": "reference/pdf/java/com.aspose.pdf/annotation", "score": 0.9},
+            ],
+        }
+        texts = _load_page_texts(graph, content_dir)
+        assert "reference/pdf/java/com.aspose.pdf/annotation" in texts
+        assert texts["reference/pdf/java/com.aspose.pdf/annotation"] == "annotation page text"
+
+    def test_target_namespace_stripping_csharp(self, tmp_path):
+        """C# namespace prefix (e.g. 'aspose.cells') is stripped for reference targets."""
+        content_dir = tmp_path / "content"
+        ref_dir = content_dir / "reference.aspose.org" / "en" / "cells" / "net"
+        ref_dir.mkdir(parents=True)
+        (ref_dir / "Workbook.md").write_text("workbook page text", encoding="utf-8")
+
+        graph = {
+            "sources": [],
+            "candidates": [
+                {"target_path": "reference/cells/net/aspose.cells/workbook", "score": 0.9},
+            ],
+        }
+        texts = _load_page_texts(graph, content_dir)
+        assert "reference/cells/net/aspose.cells/workbook" in texts
+        assert texts["reference/cells/net/aspose.cells/workbook"] == "workbook page text"
+
+    def test_target_non_reference_no_namespace_stripping(self, tmp_path):
+        """Non-reference targets (docs, kb) should NOT strip segments with dots."""
+        content_dir = tmp_path / "content"
+        kb_dir = content_dir / "kb.aspose.org" / "en" / "pdf" / "java"
+        kb_dir.mkdir(parents=True)
+        (kb_dir / "convert-pdf.md").write_text("kb text", encoding="utf-8")
+
+        graph = {
+            "sources": [],
+            "candidates": [
+                {"target_path": "kb/pdf/java/convert-pdf", "score": 0.9},
+            ],
+        }
+        texts = _load_page_texts(graph, content_dir)
+        assert "kb/pdf/java/convert-pdf" in texts
+
     def test_missing_source_skipped_gracefully(self, tmp_path):
         """Missing source files are silently skipped (no exception)."""
         content_dir = tmp_path / "content"

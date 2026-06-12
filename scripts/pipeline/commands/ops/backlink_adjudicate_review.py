@@ -160,6 +160,18 @@ def _load_page_texts(
             targets_unresolved += 1
             continue
 
+        # Strip language-namespace segments from reference target paths.
+        # Candidate graphs use e.g. "reference/pdf/java/com.aspose.pdf/annotation"
+        # but content files are flat: reference.aspose.org/en/pdf/java/Annotation.md
+        # Remove any path segment containing a dot (Java/C#/Python namespace).
+        if sd == "reference":
+            rest_parts = rest.split("/")
+            # Keep family, platform (first 2), then strip dot-segments, keep slug
+            # e.g. ["pdf","java","com.aspose.pdf","annotation"] → ["pdf","java","annotation"]
+            filtered = [s for i, s in enumerate(rest_parts)
+                        if i < 2 or "." not in s]
+            rest = "/".join(filtered)
+
         base = abs_content_root / content_subdir / rest
         found = False
 

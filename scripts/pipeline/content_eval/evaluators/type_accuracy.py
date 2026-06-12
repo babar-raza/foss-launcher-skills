@@ -24,6 +24,11 @@ Checks performed
 4. **Property access mode mismatch** — if a reference page Property table shows
    "Read" access for a property that api_surface.json marks as ``writable: true``,
    emits FAIL. (all platforms, reference subdomain only)
+
+6. **Static/abstract class instantiation** — if a C# or Java code block uses
+   ``new ClassName(`` where ``ClassName`` is marked ``is_static: true`` or
+   ``is_abstract: true`` in api_surface.json, emits WARN.
+   (C#/Java only, all subdomains)
 """
 
 from __future__ import annotations
@@ -66,6 +71,17 @@ _STATIC_DECL_RE = re.compile(
 # Code-block language tags that map to C++
 _CPP_LANGS = {"cpp", "c++", "cxx"}
 
+# Code-block language tags for C# and Java (Check 6)
+_CSHARP_LANGS = frozenset({"csharp", "cs", "c#"})
+_JAVA_LANGS = frozenset({"java"})
+_MANAGED_LANGS = _CSHARP_LANGS | _JAVA_LANGS
+
+# Pattern 6: new ClassName( — instantiation in C#/Java code
+_INSTANTIATION_RE = re.compile(
+    r"\bnew\s+(?P<cls>[A-Z][A-Za-z0-9_]*)\s*[\(\{]",
+    re.MULTILINE,
+)
+
 # Pattern 4: Property table row — | `PropName` | SomeType | Read | Description |
 # Captures prop name and access value (Read / Read/Write / Write)
 _PROP_TABLE_ROW_RE = re.compile(
@@ -88,10 +104,11 @@ KNOWLEDGE_ROOT = Path("knowledge")
 
 
 class TypeAccuracyEvaluator(BaseEvaluator):
-    """Detects known type mismatch patterns in C++ reference/docs pages.
+    """Detects type mismatch patterns in generated pages.
 
-    Platform guard: only runs on pages where ``page.platform == "cpp"``.
-    Findings are WARN or INFO — never FAIL — to stay conservative.
+    Checks 1-3: C++ only (string&, float geometry, static modifier).
+    Check 4-5: all platforms, reference pages only (property access, return types).
+    Check 6: C#/Java (static/abstract class instantiation).
     """
 
     name = "type_accuracy"
@@ -112,6 +129,14 @@ class TypeAccuracyEvaluator(BaseEvaluator):
         # but api_surface has a non-void return type
         if page.subdomain == "reference" and api_surface:
             findings.extend(self._check_reference_void_mismatch(page, api_surface))
+
+        # Check 6: static/abstract class instantiation (C#/Java)
+        if page.platform in ("net", "java") and api_surface:
+            managed_blocks = [b for b in page.code_blocks if b.lang in _MANAGED_LANGS]
+            for block in managed_blocks:
+                findings.extend(self._check_static_class_instantiation(
+                    block.content, block.start_line, page, api_surface
+                ))
 
         # Checks 1-3: C++ only
         if page.platform == "cpp":
@@ -231,6 +256,71 @@ class TypeAccuracyEvaluator(BaseEvaluator):
                 ))
             # If is_static_in_surface is True → correct, no finding
             # If is_static_in_surface is None → not found, skip (api may be incomplete)
+
+        return findings
+
+    # ------------------------------------------------------------------
+    # Check 6: static/abstract class instantiation (C#/Java)
+    # ------------------------------------------------------------------
+
+    def _check_static_class_instantiation(
+        self,
+        code: str,
+        start_line: int,
+        page: Page,
+        api_surface: list[dict],
+    ) -> list[Finding]:
+        """Emit WARN when ``new ClassName(`` targets a static or abstract class."""
+        findings: list[Finding] = []
+        # Build lookup: class name → api_surface entry (only entries with modifiers)
+        cls_index: dict[str, dict] = {}
+        for entry in api_surface:
+            name = entry.get("name", "")
+            if name and (entry.get("is_static") or entry.get("is_abstract")):
+                cls_index[name] = entry
+
+        if not cls_index:
+            return findings
+
+        for m in _INSTANTIATION_RE.finditer(code):
+            cls_name = m.group("cls")
+            entry = cls_index.get(cls_name)
+            if entry is None:
+                continue
+
+            line_no = start_line + code[: m.start()].count("\n")
+            if entry.get("is_static"):
+                findings.append(Finding(
+                    level="WARN",
+                    category="TA",
+                    filepath=str(page.filepath),
+                    line_no=line_no,
+                    message=(
+                        f"Class `{cls_name}` is static — cannot be "
+                        f"instantiated with `new {cls_name}()`"
+                    ),
+                    suggestion=(
+                        f"Remove `new {cls_name}()` — call static methods "
+                        f"directly: `{cls_name}.MethodName(...)`"
+                    ),
+                    evaluator=self.name,
+                ))
+            elif entry.get("is_abstract"):
+                findings.append(Finding(
+                    level="WARN",
+                    category="TA",
+                    filepath=str(page.filepath),
+                    line_no=line_no,
+                    message=(
+                        f"Class `{cls_name}` is abstract — cannot be "
+                        f"instantiated with `new {cls_name}()`"
+                    ),
+                    suggestion=(
+                        f"Use a concrete subclass or factory method "
+                        f"instead of `new {cls_name}()`"
+                    ),
+                    evaluator=self.name,
+                ))
 
         return findings
 

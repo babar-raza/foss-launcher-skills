@@ -788,3 +788,91 @@ def test_plan_blog_cells_java_never_produces_core_in_java():
         assert "cells" in p["slug"], (
             f"cells/java deep-dive derived slug must contain 'cells'. Got: {p['slug']!r}"
         )
+
+
+# ---------------------------------------------------------------------------
+# C# flat-src layout clustering tests (PDF/.NET page expansion)
+# ---------------------------------------------------------------------------
+
+def _make_csharp_api_surface(dirs: dict[str, int], family: str = "pdf") -> list[dict]:
+    """Build api_surface with C# flat-src paths: src/{Dir}/Class.cs."""
+    entries = []
+    idx = 0
+    for dirname, count in dirs.items():
+        for _ in range(count):
+            name = f"Class{idx}"
+            if dirname:
+                file_path = f"src/{dirname}/{name}.cs"
+            else:
+                file_path = f"src/{name}.cs"
+            entries.append({
+                "name": name,
+                "file": file_path,
+                "methods": [f"method_{idx}_a"],
+            })
+            idx += 1
+    return entries
+
+
+def test_class_to_subpackage_csharp_3part():
+    """3-part C# path with PascalCase dir returns the directory name."""
+    assert sp._class_to_subpackage("src/Annotations/MyClass.cs") == "Annotations"
+    assert sp._class_to_subpackage("src/Text/TextFragment.cs") == "Text"
+    assert sp._class_to_subpackage("src/Forms/Field.cs") == "Forms"
+
+
+def test_class_to_subpackage_csharp_dotted_root():
+    """3-part C# path with dotted dir (namespace root) returns empty string."""
+    assert sp._class_to_subpackage("src/Aspose.Slides.Foss/Presentation.cs") == ""
+
+
+def test_class_to_subpackage_csharp_underscored_root():
+    """3-part C# path with underscored dir (namespace root) returns empty string."""
+    assert sp._class_to_subpackage("src/Aspose.Cells_FOSS/Workbook.cs") == ""
+    assert sp._class_to_subpackage("src/cells_foss/Workbook.cs") == ""
+
+
+def test_class_to_subpackage_python_unchanged():
+    """Python 3-part paths must still return empty string (no regression)."""
+    assert sp._class_to_subpackage("aspose/threed/Scene.py") == ""
+
+
+def test_subpkg_to_label_pdf_family_override():
+    """PDF family overrides must take priority over cross-family labels."""
+    assert sp._subpkg_to_label("drawing", "pdf") == "graphics-drawing"
+    assert sp._subpkg_to_label("drawing", "slides") == "drawing-shapes"
+    assert sp._subpkg_to_label("annotations", "pdf") == "annotations-forms"
+
+
+def test_detect_clusters_pdf_layout():
+    """C# flat-src layout for PDF must produce multiple clusters, not 1-2."""
+    dirs = {
+        "Annotations": 10, "Forms": 5, "Text": 8, "Content": 6,
+        "Facades": 4, "Security": 3, "Devices": 3, "Navigation": 3,
+        "": 5,  # root-level
+    }
+    api = _make_csharp_api_surface(dirs, family="pdf")
+    claims = _make_claims(api, per_class=10)
+    clusters = sp.detect_clusters(claims, api, [], "", family="pdf")
+    categories = [c["category"] for c in clusters]
+    assert len(clusters) >= 5, (
+        f"Expected >=5 clusters for PDF, got {len(clusters)}: {categories}"
+    )
+    assert "annotations-forms" in categories
+    assert "text-extraction" in categories
+    assert "document-management" in categories
+
+
+def test_detect_clusters_3d_unchanged():
+    """3D clustering must remain unchanged after the C# fix."""
+    subpkgs = ["formats", "formats", "formats",
+               "entities", "entities",
+               "animation",
+               "shading",
+               "", ""]
+    api_surface = _make_api_surface(subpkgs)
+    claims = _make_claims(api_surface, per_class=10)
+    clusters = sp.detect_clusters(claims, api_surface, [], "", family="3d")
+    assert 4 <= len(clusters) <= 10, (
+        f"3D regression: expected 4-10 clusters, got {len(clusters)}"
+    )

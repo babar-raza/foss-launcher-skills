@@ -133,7 +133,7 @@ def _semantic_dedup_claims(claims: list[dict]) -> list[dict]:
             winner_idx = merged_into[idx]
             loser_id = claim.get("claim_id", "?")
             winner_id = claims[winner_idx].get("claim_id", "?")
-            merge_log.append(f"    {loser_id} → {winner_id}")
+            merge_log.append(f"    {loser_id} -> {winner_id}")
             # Attach merged_from to winner
             winner = claims[winner_idx]
             existing = winner.get("merged_from", [])
@@ -562,6 +562,15 @@ def _generate_api_surface_md(api_list, family: str, model: dict, out_dir: Path) 
         bases = cls.get("bases", [])
 
         lines.append(f"## {name}")
+        modifiers = []
+        if cls.get("is_static"):
+            modifiers.append("static")
+        if cls.get("is_abstract"):
+            modifiers.append("abstract")
+        if cls.get("is_sealed"):
+            modifiers.append("sealed")
+        if modifiers:
+            lines.append(f"**Modifiers**: {', '.join(modifiers)}")
         if doc:
             lines.append(f"**Docstring**: {doc}")
         if bases:
@@ -796,7 +805,7 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
 
     if _clm_dupes:
         _excess = sum(v - 1 for v in _clm_dupes.values())
-        print(f"  WARNING: {len(_clm_dupes)} duplicate CLM claim_id(s) — deduplicating ({_excess} excess removed)")
+        print(f"  WARNING: {len(_clm_dupes)} duplicate CLM claim_id(s) - deduplicating ({_excess} excess removed)")
         for _cid, _cnt in sorted(_clm_dupes.items(), key=lambda x: -x[1])[:5]:
             print(f"    {_cid}: {_cnt} occurrences")
         _seen_ids: set[str] = set()
@@ -817,7 +826,7 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
         merged_claims = _semantic_dedup_claims(merged_claims)
         _post_count = len(merged_claims)
         if _pre_count != _post_count:
-            print(f"  Semantic dedup: {_pre_count} → {_post_count} claims "
+            print(f"  Semantic dedup: {_pre_count} -> {_post_count} claims "
                   f"({_pre_count - _post_count} removed)")
     else:
         print("  Semantic dedup: skipped (use --semantic-dedup to enable)")
@@ -835,6 +844,17 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
     (merged_dir / "api_surface.json").write_text(
         json.dumps(scout_api, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"  API surface: {len(scout_api)} classes")
+    # Validate: warn about remaining same-name entries without distinct class_import
+    from collections import Counter as _Counter
+    _name_counts = _Counter(c.get("name", "") for c in scout_api if isinstance(c, dict))
+    for _dup_name, _dup_cnt in sorted(_name_counts.items()):
+        if _dup_cnt <= 1:
+            continue
+        _dup_entries = [c for c in scout_api if isinstance(c, dict) and c.get("name") == _dup_name]
+        _dup_imports = {c.get("class_import", "") for c in _dup_entries}
+        if len(_dup_imports) < _dup_cnt:
+            print(f"  WARNING: {_dup_name} has {_dup_cnt} entries but only "
+                  f"{len(_dup_imports)} distinct class_import values")
 
     # -----------------------------------------------------------------------
     # Copy scout artifacts
@@ -1139,7 +1159,7 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
         print(
             "\n  WARNING: enriched_claims.json exists in scout/ but contributed 0 claims.\n"
             "  This usually means enrich.py ran AFTER promote.py.\n"
-            "  Correct order: scout → enrich → promote\n"
+            "  Correct order: scout -> enrich -> promote\n"
             f"  Re-run: python scripts/pipeline/commands/knowledge/promote.py {family} {platform}"
         )
 
