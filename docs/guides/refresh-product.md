@@ -30,6 +30,35 @@ Goal: update existing generated content after upstream source changes.
 - Content changes map to changed APIs, claims, formats, or planned surfaces.
 - Audit and evaluator checks pass.
 
+## Two-Step Reference Page Regeneration
+
+When a knowledge delta contains `removed_apis` (classes removed from the FOSS source),
+reference pages for classes **not in `modified_apis`** may retain phantom methods —
+methods that only existed because they were defined in the now-deleted classes and
+were inherited or referenced by still-existing classes.
+
+**When this applies**: `knowledge_delta.json` has `removed_apis` count > 0.
+
+**Pattern**:
+```bash
+# Step 1 — update only modified classes
+.venv/Scripts/python scripts/pipeline/commands/content/batch_reference.py {family} {platform} --update
+
+# Step 2 — rebuild all to clear phantom methods in non-modified classes
+.venv/Scripts/python scripts/pipeline/commands/content/batch_reference.py {family} {platform} --rebuild-all
+```
+
+**Why step 2 is required**: `--update` regenerates only classes listed in
+`modified_apis`. Classes not in that list are skipped — even if they had
+phantom methods from the removed classes as side effects. Only `--rebuild-all`
+regenerates every reference page and removes those phantom entries.
+
+**Proof**: `pdf/java` sprint 2026-06-12 — `Rectangle.md` was not in `modified_apis`
+but had phantom `fromCOSArray`/`toCOSArray` methods that survived `--update`.
+Only resolved by `--rebuild-all` after `COSBase` and related COS classes were removed.
+
+This rule is also encoded in the `refresh-product` skill spec (S-84, Step 7).
+
 ## References
 
 - [CLI reference](../reference/cli.md#site-planner)
