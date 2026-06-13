@@ -73,6 +73,7 @@ Enhance a page that scores below the quality bar (grade C or below from S-17/S-2
    - Read `knowledge/{family}/{platform}/merged/api_surface.json`
    - Read `knowledge/{family}/{platform}/merged/limitations.md`
    - Read `knowledge/{family}/{platform}/snippets/` for available code examples
+   - **Respect class modifiers**: If `api_surface.json` shows `is_static: true` for a class, never use `new ClassName()` in code fixes — call static methods directly. For abstract classes, show derived-class instantiation or factory patterns.
 
 5. **Read the current page content**.
 

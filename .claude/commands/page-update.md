@@ -73,6 +73,7 @@ After a knowledge refresh (S-14), identify which content pages reference changed
    - For modified claims: identify specific sentences that need updating
    - For API changes (renamed/removed methods): find code blocks and prose mentioning old names
    - For added claims: identify if any existing section should incorporate new information
+   - **Respect class modifiers**: If `api_surface.json` shows `is_static: true` for a class, never use `new ClassName()` in code updates — call static methods directly. For abstract classes, show derived-class instantiation or factory patterns.
 
    **Blog post strategy** (pages under `content/blog.aspose.org/`):
    Blog posts are narrative content — surgical paragraph patching destroys coherence.

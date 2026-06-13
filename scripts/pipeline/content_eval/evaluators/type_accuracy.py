@@ -273,10 +273,18 @@ class TypeAccuracyEvaluator(BaseEvaluator):
         """Emit WARN when ``new ClassName(`` targets a static or abstract class."""
         findings: list[Finding] = []
         # Build lookup: class name → api_surface entry (only entries with modifiers)
+        # Java caveat: `static class` in Java means "nested static" (instantiable).
+        # Only C# `static class` means "cannot be instantiated".  So skip
+        # is_static for Java pages; is_abstract applies to both languages.
+        is_java = page.platform == "java"
         cls_index: dict[str, dict] = {}
         for entry in api_surface:
             name = entry.get("name", "")
-            if name and (entry.get("is_static") or entry.get("is_abstract")):
+            if not name:
+                continue
+            if entry.get("is_abstract"):
+                cls_index[name] = entry
+            elif entry.get("is_static") and not is_java:
                 cls_index[name] = entry
 
         if not cls_index:

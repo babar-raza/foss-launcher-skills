@@ -461,8 +461,8 @@ class TestStaticClassInstantiation:
         static_warn = [f for f in findings if "static" in f.message or "abstract" in f.message]
         assert len(static_warn) == 0
 
-    def test_java_platform_static_class(self):
-        """Java page: new StaticClass() also detected."""
+    def test_java_static_class_is_allowed(self):
+        """Java static class → no finding (Java static = nested static, instantiable)."""
         _write_api_surface("pdf", "java", [
             {"name": "StaticHelper", "kind": "class_declaration",
              "is_static": True, "methods": [], "properties": [], "visibility": "public"},
@@ -474,7 +474,22 @@ class TestStaticClassInstantiation:
         """))
         findings = self.ev.evaluate(page, None)
         static_warn = [f for f in findings if "static" in f.message and f.level == "WARN"]
-        assert len(static_warn) == 1
+        assert len(static_warn) == 0
+
+    def test_java_abstract_class_produces_warn(self):
+        """Java abstract class → WARN (abstract applies to both languages)."""
+        _write_api_surface("pdf", "java", [
+            {"name": "AbstractProcessor", "kind": "class_declaration",
+             "is_abstract": True, "methods": [], "properties": [], "visibility": "public"},
+        ], root=self._knowledge_root)
+        page = _java_page(textwrap.dedent("""\
+            ```java
+            AbstractProcessor p = new AbstractProcessor();
+            ```
+        """))
+        findings = self.ev.evaluate(page, None)
+        abstract_warn = [f for f in findings if "abstract" in f.message and f.level == "WARN"]
+        assert len(abstract_warn) == 1
 
     def test_python_platform_not_checked(self):
         """Python platform pages are not checked by Check 6."""

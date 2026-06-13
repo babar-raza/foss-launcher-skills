@@ -52,6 +52,7 @@ Heal a page that received grade D or below from S-25 (eval-page). Applies target
    - Read `knowledge/{family}/{platform}/merged/formats.json`
    - Read `knowledge/{family}/{platform}/merged/limitations.md`
    - Read `knowledge/{family}/{platform}/snippets/` for code replacements
+   - **Respect class modifiers**: If `api_surface.json` shows `is_static: true` for a class, never use `new ClassName()` in code fixes — call static methods directly. For abstract classes, show derived-class instantiation or factory patterns.
 
 5. **Read the current page content**.
 
