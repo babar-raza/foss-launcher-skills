@@ -676,6 +676,9 @@ def _tier2_ai_adjudicate(
             except Exception:
                 result["ai_status"] = "AI_UNAVAILABLE_DEGRADED"
 
+        # Store effective_score in result for downstream layers (semantic-confirm)
+        result["effective_score"] = effective_score
+
         # Determine adjudication_result
         if ai_label == "unrelated" and effective_score >= 0.80:
             # Mandatory human review: high-confidence candidate classified unrelated
@@ -803,6 +806,8 @@ def main() -> None:
                         help="Max candidates to process (0 = unlimited, default: 0)")
     parser.add_argument("--threshold", type=float, default=0.70,
                         help="Minimum final_score for Tier 2 promotion (default: 0.70)")
+    parser.add_argument("--classify", action="store_true", default=False,
+                        help="Enable AI classification without writing to authority (report-only)")
     parser.add_argument("--semantic-confirm", action="store_true", default=False,
                         help="Enable TF-IDF semantic confirmation for ESCALATE_TO_OPERATOR candidates")
     parser.add_argument("--content-root", default="content",
@@ -812,9 +817,12 @@ def main() -> None:
     if args.write and args.dry_run:
         print("ERROR: --write and --dry-run are mutually exclusive", file=sys.stderr)
         sys.exit(1)
+    if args.write and args.classify:
+        print("ERROR: --write and --classify are mutually exclusive", file=sys.stderr)
+        sys.exit(1)
 
-    # Default to dry-run if neither flag is set
-    if not args.write:
+    # Default to dry-run if neither --write nor --classify is set
+    if not args.write and not args.classify:
         args.dry_run = True
 
     graph_path = Path(args.candidate_graph)
@@ -926,9 +934,25 @@ def main() -> None:
         if result["escalated"]:
             lines.append("## Operator Escalations\n\n")
             for e in result["escalated"][:10]:
-                lines.append(f"- `{e['source_key']}` → `{e['target_path']}`\n")
+                lines.append(f"- `{e['source_key']}` -> `{e['target_path']}`\n")
         report_path.write_text("".join(lines), encoding="utf-8")
         print(f"Report written: {report_path}")
+
+        # JSON report with full details for calibration/inspection
+        json_report = {
+            "generated_at": result["generated_at"],
+            "total_review_required": result["total_review_required"],
+            "tier_stats": stats,
+            "promoted": result["promoted"],
+            "escalated": result["escalated"],
+            "rejected_sample": result["rejected"][:50],
+        }
+        json_path = out_dir / "tier2_results.json"
+        json_path.write_text(
+            json.dumps(json_report, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        print(f"JSON report written: {json_path}")
 
 
 if __name__ == "__main__":

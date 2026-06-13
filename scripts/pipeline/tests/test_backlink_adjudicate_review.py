@@ -689,3 +689,114 @@ class TestLoadPageTexts:
         _load_page_texts(graph, content_dir)
         out = capsys.readouterr().out
         assert "[page_texts]" in out
+
+
+# ── TC-TUNE-TEST-001: Synthetic ESCALATE Injection Tests ─────────────────────
+
+
+class TestSemanticConfirmThresholds:
+    """Threshold boundary tests for _tier2_semantic_confirm() Case A and Case B."""
+
+    def test_case_a_high_similarity_promotes(self):
+        """Case A: unrelated + score 0.83 + high TF-IDF cosine -> PROMOTE."""
+        # Nearly identical texts -> cosine well above 0.80
+        base = (
+            "workbook class spreadsheet export data xlsx csv file format "
+            "output save method cells worksheets range pivot table chart "
+            "formula calculation style conditional"
+        )
+        escalated = [{
+            "source_key": "docs/cells/java/workbook.md",
+            "target_path": "ref/cells/java/Workbook",
+            "ai_label": "unrelated",
+            "effective_score": 0.83,
+            "adjudication_result": "ESCALATE_TO_OPERATOR",
+        }]
+        source_texts = {
+            "docs/cells/java/workbook.md": base,
+            "ref/cells/java/Workbook": base,
+        }
+        results = _tier2_semantic_confirm(escalated, source_texts)
+        r = results[0]
+        assert r["adjudication_result"] == "PROMOTE_WITH_JUSTIFICATION"
+        assert r["semantic_override"] is True
+        assert r["semantic_similarity"] >= 0.80
+
+    def test_case_a_low_similarity_stays_escalated(self):
+        """Case A: unrelated + score 0.83 + low TF-IDF cosine -> stays ESCALATE."""
+        escalated = [{
+            "source_key": "docs/cells/java/workbook.md",
+            "target_path": "ref/email/net/SmtpClient",
+            "ai_label": "unrelated",
+            "effective_score": 0.83,
+            "adjudication_result": "ESCALATE_TO_OPERATOR",
+        }]
+        source_texts = {
+            "docs/cells/java/workbook.md": (
+                "workbook class spreadsheet export data xlsx csv file"
+            ),
+            "ref/email/net/SmtpClient": (
+                "smtp client send email message connection authentication server"
+            ),
+        }
+        results = _tier2_semantic_confirm(escalated, source_texts)
+        r = results[0]
+        assert r["adjudication_result"] == "ESCALATE_TO_OPERATOR"
+        assert r["semantic_similarity"] < 0.80
+
+    def test_case_b_valid_anchor_promotes_at_lower_threshold(self):
+        """Case B: exact_api_class + score 0.66 + valid anchor -> PROMOTE at 0.65."""
+        escalated = [{
+            "source_key": "docs/pdf/net/document.md",
+            "target_path": "ref/pdf/net/Document",
+            "ai_label": "exact_api_class",
+            "effective_score": 0.66,
+            "adjudication_result": "ESCALATE_TO_OPERATOR",
+        }]
+        anchor_valid = {"docs/pdf/net/document.md": True}
+        results = _tier2_semantic_confirm(escalated, {}, anchor_valid=anchor_valid)
+        r = results[0]
+        assert r["adjudication_result"] == "PROMOTE_WITH_JUSTIFICATION"
+        assert r["semantic_override"] is True
+
+    def test_case_b_no_anchor_stays_escalated(self):
+        """Case B: exact_api_class + score 0.66 + no valid anchor -> stays ESCALATE."""
+        escalated = [{
+            "source_key": "docs/pdf/net/document.md",
+            "target_path": "ref/pdf/net/Document",
+            "ai_label": "exact_api_class",
+            "effective_score": 0.66,
+            "adjudication_result": "ESCALATE_TO_OPERATOR",
+        }]
+        results = _tier2_semantic_confirm(escalated, {})
+        r = results[0]
+        assert r["adjudication_result"] == "ESCALATE_TO_OPERATOR"
+
+    def test_case_b_below_anchor_threshold_stays_escalated(self):
+        """Case B: exact_api_class + score 0.60 (below 0.65) + valid anchor -> stays ESCALATE."""
+        escalated = [{
+            "source_key": "docs/pdf/net/document.md",
+            "target_path": "ref/pdf/net/Document",
+            "ai_label": "exact_api_class",
+            "effective_score": 0.60,
+            "adjudication_result": "ESCALATE_TO_OPERATOR",
+        }]
+        anchor_valid = {"docs/pdf/net/document.md": True}
+        results = _tier2_semantic_confirm(escalated, {}, anchor_valid=anchor_valid)
+        r = results[0]
+        assert r["adjudication_result"] == "ESCALATE_TO_OPERATOR"
+
+    def test_case_b_related_api_valid_anchor_promotes(self):
+        """Case B: related_api_class + score 0.68 + valid anchor -> PROMOTE."""
+        escalated = [{
+            "source_key": "docs/cells/net/range.md",
+            "target_path": "ref/cells/net/Range",
+            "ai_label": "related_api_class",
+            "effective_score": 0.68,
+            "adjudication_result": "ESCALATE_TO_OPERATOR",
+        }]
+        anchor_valid = {"docs/cells/net/range.md": True}
+        results = _tier2_semantic_confirm(escalated, {}, anchor_valid=anchor_valid)
+        r = results[0]
+        assert r["adjudication_result"] == "PROMOTE_WITH_JUSTIFICATION"
+        assert r["semantic_override"] is True
