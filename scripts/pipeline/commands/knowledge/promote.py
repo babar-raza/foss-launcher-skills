@@ -107,14 +107,26 @@ def _semantic_dedup_claims(claims: list[dict]) -> list[dict]:
         vec = {t: (c / total) * idf.get(t, 0.0) for t, c in tf.items()}
         vectors.append(vec)
 
+    # Kinds exempt from semantic dedup (TF-IDF can't distinguish overloads)
+    _EXACT_ONLY_KINDS = frozenset({"api_method", "api_constructor", "api_property",
+                                    "format_support"})
+
     # Find pairs to merge (greedy: higher-confidence claim absorbs lower)
-    merged_into: dict[int, int] = {}  # loser_idx → winner_idx
+    merged_into: dict[int, int] = {}  # loser_idx -> winner_idx
     for i in range(len(claims)):
         if i in merged_into:
             continue
         for j in range(i + 1, len(claims)):
             if j in merged_into:
                 continue
+            # Skip semantic dedup for API signature claims — require exact text match
+            kind_i = claims[i].get("kind", "")
+            kind_j = claims[j].get("kind", "")
+            if kind_i in _EXACT_ONLY_KINDS or kind_j in _EXACT_ONLY_KINDS:
+                text_i = (claims[i].get("text", "") or claims[i].get("description", "")).strip()
+                text_j = (claims[j].get("text", "") or claims[j].get("description", "")).strip()
+                if text_i != text_j:
+                    continue
             sim = _tfidf_cosine(vectors[i], vectors[j])
             if sim > _SEMANTIC_DEDUP_THRESHOLD:
                 ci = claims[i].get("confidence", 0)
@@ -783,7 +795,7 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
             for c in supplemental:
                 merged_claims.append({**c, "provenance": "supplemental"})
             supplemental_count = len(supplemental)
-            print(f"  Supplemental: {supplemental_count} claims (temporary bridge — delete after enrich.py runs)")
+            print(f"  Supplemental: {supplemental_count} claims (temporary bridge - delete after enrich.py runs)")
         except (json.JSONDecodeError, OSError) as exc:
             print(f"  WARNING: could not read supplemental_claims.json: {exc}")
 
@@ -798,7 +810,7 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
     _clm_dupes = {cid: cnt for cid, cnt in _dupes.items() if not cid.startswith("ERC-")}
 
     if _erc_dupes:
-        print(f"  FAIL: {len(_erc_dupes)} duplicate ERC claim_id(s) — aborting write")
+        print(f"  FAIL: {len(_erc_dupes)} duplicate ERC claim_id(s) - aborting write")
         for _cid, _cnt in sorted(_erc_dupes.items(), key=lambda x: -x[1])[:5]:
             print(f"    {_cid}: {_cnt} occurrences")
         return False

@@ -90,7 +90,7 @@ EXPERIMENTAL_EVALUATORS = frozenset({
     "capability_claim_check",
     "private_api_usage",
     "evidence_format_validity",
-    "code_prose_alignment",  # TC-EVAL-003: EXPERIMENTAL, pending calibration
+    # code_prose_alignment: graduated to DEFAULT (TC-PROMOTE-001, 2026-06-13)
 })
 
 # Default evaluators (fast, deterministic, production-ready)
@@ -125,6 +125,7 @@ DEFAULT_EVALUATORS = [
     "encoding_check",
     "consumer_usefulness",
     "cta_wording",  # graduated from EXPERIMENTAL 2026-06-09 (TC-CTA-GRADUATION)
+    "code_prose_alignment",  # graduated from EXPERIMENTAL 2026-06-13 (TC-PROMOTE-001), WARN-only
 ]
 
 # Platform foreign-code patterns: (regex, description)

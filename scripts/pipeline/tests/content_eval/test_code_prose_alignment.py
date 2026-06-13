@@ -155,13 +155,13 @@ class TestCodeProseAlignment:
 
 
 class TestRegistration:
-    def test_in_experimental_evaluators(self):
-        from content_eval.config import EXPERIMENTAL_EVALUATORS
-        assert "code_prose_alignment" in EXPERIMENTAL_EVALUATORS
-
-    def test_not_in_default_evaluators(self):
+    def test_in_default_evaluators(self):
         from content_eval.config import DEFAULT_EVALUATORS
-        assert "code_prose_alignment" not in DEFAULT_EVALUATORS
+        assert "code_prose_alignment" in DEFAULT_EVALUATORS
+
+    def test_not_in_experimental_evaluators(self):
+        from content_eval.config import EXPERIMENTAL_EVALUATORS
+        assert "code_prose_alignment" not in EXPERIMENTAL_EVALUATORS
 
     def test_self_registers_via_name(self):
         from content_eval.evaluators import _ensure_loaded, _REGISTRY
