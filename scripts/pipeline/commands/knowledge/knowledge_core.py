@@ -215,6 +215,14 @@ class Knowledge:
                     for i in range(1, len(mod_parts)):
                         self.valid_imports.add(".".join(mod_parts[:i]))
 
+        # C#/.NET: supplement valid_imports with canonical_namespace values.
+        # Directory-path-derived imports (above) do not capture C# namespaces
+        # which are declared in source code, not reflected in directory structure.
+        if self.platform in ("net", "dotnet"):
+            for cls in api_list:
+                if isinstance(cls, dict) and cls.get("canonical_namespace"):
+                    self.valid_imports.add(cls["canonical_namespace"])
+
         # Claims index (for evidence validation and api_to_claim mapping)
         claims_path = merged / "claims.json"
         self.claim_ids = set()
