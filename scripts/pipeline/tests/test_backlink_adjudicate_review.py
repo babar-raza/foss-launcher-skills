@@ -6,6 +6,7 @@ import json
 import pytest
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "pipeline"))
@@ -800,3 +801,175 @@ class TestSemanticConfirmThresholds:
         r = results[0]
         assert r["adjudication_result"] == "PROMOTE_WITH_JUSTIFICATION"
         assert r["semantic_override"] is True
+
+
+# ── TC-H-001 / TC-H-002: CLI --classify Infrastructure Tests ────────────────
+
+from commands.ops.backlink_adjudicate_review import main as adjudicate_main
+
+
+class TestClassifyFlag:
+    """Tests for --classify CLI flag behavior."""
+
+    def _make_canned_result(self):
+        """Return a canned adjudication result dict for mocking."""
+        return {
+            "total_review_required": 10,
+            "tier1_already_approved": 3,
+            "tier2_processed": 7,
+            "promoted": [
+                {"source_key": "sk1", "target_path": "ref/x/Y",
+                 "adjudication_result": "PROMOTE_WITH_JUSTIFICATION",
+                 "effective_score": 0.75},
+            ],
+            "escalated": [
+                {"source_key": "sk2", "target_path": "ref/x/Z",
+                 "adjudication_result": "ESCALATE_TO_OPERATOR",
+                 "ai_label": "related_api_class",
+                 "effective_score": 0.55},
+            ],
+            "rejected": [
+                {"source_key": f"sk{i}", "target_path": f"ref/x/R{i}",
+                 "adjudication_result": "REJECT"}
+                for i in range(5)
+            ],
+            "tier_stats": {
+                "tier1_count": 3,
+                "tier2_promoted": 1,
+                "tier2_escalated": 1,
+                "tier2_rejected": 5,
+                "semantic_promoted": 0,
+            },
+            "generated_at": "2026-06-13T00:00:00+00:00",
+        }
+
+    def test_classify_and_write_mutually_exclusive(self):
+        """--write and --classify together should exit with error."""
+        with pytest.raises(SystemExit):
+            with patch(
+                "sys.argv",
+                ["prog", "--write", "--classify",
+                 "--candidate-graph", "dummy.json",
+                 "--authority", "dummy.json"],
+            ):
+                adjudicate_main()
+
+    def test_classify_and_dry_run_mutually_exclusive(self):
+        """--classify and --dry-run together should exit with error."""
+        with pytest.raises(SystemExit):
+            with patch(
+                "sys.argv",
+                ["prog", "--classify", "--dry-run",
+                 "--candidate-graph", "dummy.json",
+                 "--authority", "dummy.json"],
+            ):
+                adjudicate_main()
+
+    def test_classify_flag_enables_ai_without_write(self, tmp_path):
+        """--classify sets dry_run=False, produces report, does NOT touch authority."""
+        # Create minimal candidate graph and authority files
+        graph = _make_graph(
+            sources=[_make_source("sk1", "docs/cells/java/page1.md")],
+            candidates=[_make_candidate("sk1", "ref/cells/java/X", 0.55)],
+        )
+        authority = _make_authority({})
+        graph_path = tmp_path / "graph.json"
+        graph_path.write_text(json.dumps(graph), encoding="utf-8")
+        auth_path = tmp_path / "auth.json"
+        auth_path.write_text(json.dumps(authority), encoding="utf-8")
+        out_dir = tmp_path / "output"
+
+        canned = self._make_canned_result()
+
+        with patch("sys.argv", [
+            "prog", "--classify",
+            "--candidate-graph", str(graph_path),
+            "--authority", str(auth_path),
+            "--output-dir", str(out_dir),
+        ]):
+            with patch(
+                "commands.ops.backlink_adjudicate_review.adjudicate_review_required",
+                return_value=canned,
+            ) as mock_adj:
+                adjudicate_main()
+
+        # Verify AI was enabled (dry_run=False)
+        call_kwargs = mock_adj.call_args[1]
+        assert call_kwargs["dry_run"] is False
+
+        # Verify authority was NOT modified
+        auth_after = json.loads(auth_path.read_text(encoding="utf-8"))
+        assert auth_after == authority
+
+        # Verify report was written
+        assert (out_dir / "tier2_results.md").exists()
+
+    def test_report_json_output(self, tmp_path):
+        """--classify produces JSON report with expected keys."""
+        graph = _make_graph(
+            sources=[_make_source("sk1", "docs/cells/java/page1.md")],
+            candidates=[_make_candidate("sk1", "ref/cells/java/X", 0.55)],
+        )
+        authority = _make_authority({})
+        graph_path = tmp_path / "graph.json"
+        graph_path.write_text(json.dumps(graph), encoding="utf-8")
+        auth_path = tmp_path / "auth.json"
+        auth_path.write_text(json.dumps(authority), encoding="utf-8")
+        out_dir = tmp_path / "output"
+
+        canned = self._make_canned_result()
+
+        with patch("sys.argv", [
+            "prog", "--classify",
+            "--candidate-graph", str(graph_path),
+            "--authority", str(auth_path),
+            "--output-dir", str(out_dir),
+        ]):
+            with patch(
+                "commands.ops.backlink_adjudicate_review.adjudicate_review_required",
+                return_value=canned,
+            ):
+                adjudicate_main()
+
+        json_path = out_dir / "tier2_results.json"
+        assert json_path.exists()
+        data = json.loads(json_path.read_text(encoding="utf-8"))
+        assert "generated_at" in data
+        assert "total_review_required" in data
+        assert "tier_stats" in data
+        assert "promoted" in data
+        assert "escalated" in data
+        assert "rejected_sample" in data
+        assert len(data["escalated"]) == 1
+        assert data["escalated"][0]["ai_label"] == "related_api_class"
+
+
+# ── TC-H-003: effective_score in write path ──────────────────────────────────
+
+
+class TestEffectiveScoreInWritePath:
+    """Verify effective_score in result dict doesn't break authority write path."""
+
+    def test_promote_to_authority_with_effective_score(self):
+        """promote_to_authority handles result dicts containing effective_score."""
+        promoted = [{
+            "source_key": "sk1",
+            "target_path": "reference/cells/java/Workbook",
+            "adjudication_result": "PROMOTE_WITH_JUSTIFICATION",
+            "effective_score": 0.75,
+            "final_score": 0.75,
+        }]
+        graph = _make_graph(
+            sources=[_make_source("sk1", "docs/cells/java/page1.md")],
+            candidates=[_make_candidate("sk1", "reference/cells/java/Workbook", 0.75)],
+        )
+        authority = _make_authority({})
+
+        result = promote_to_authority(
+            promoted, graph, authority,
+            anchor_registry=None,
+            families_map=None,
+            platforms_map=None,
+        )
+        assert result["promoted_count"] >= 0
+        assert not result["errors"]

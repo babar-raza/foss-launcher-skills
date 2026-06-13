@@ -820,6 +820,9 @@ def main() -> None:
     if args.write and args.classify:
         print("ERROR: --write and --classify are mutually exclusive", file=sys.stderr)
         sys.exit(1)
+    if args.classify and args.dry_run:
+        print("ERROR: --classify and --dry-run are mutually exclusive", file=sys.stderr)
+        sys.exit(1)
 
     # Default to dry-run if neither --write nor --classify is set
     if not args.write and not args.classify:
