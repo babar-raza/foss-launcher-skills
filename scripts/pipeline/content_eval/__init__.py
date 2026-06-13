@@ -64,7 +64,7 @@ EVALUATOR_VERSIONS: dict[str, str] = {
     "prose_claim_binding": "1",
     "api_completeness": "1",
     "code_syntax_check": "2",
-    "namespace_correctness": "1",
+    "namespace_correctness": "2",  # v2: C# allow-list from api_surface.json canonical_namespace, not NuGet PackageId
     "format_completeness": "1",
     "member_validity": "1",
     "prose_grounding": "1",

@@ -1,18 +1,19 @@
 """Namespace correctness evaluator — verifies import/using statements match FOSS packages.
 
 H-15: Checks that code blocks use the correct FOSS package namespace, not
-proprietary Aspose namespaces. The correct namespace is derived from
-``knowledge/{family}/{platform}/model.yaml`` ``package_name`` field.
+proprietary Aspose namespaces.
 
-The evaluator loads the FOSS package_name and builds an allow-list of import
-prefixes. Any import matching ``aspose.*`` / ``Aspose.*`` / ``com.aspose.*``
-that is NOT in the allow-list is flagged as proprietary.
+For C#/.NET the allow-list is built from ``canonical_namespace`` values in
+``api_surface.json`` — the actual source-code namespaces — NOT from the NuGet
+package name (which is the *PackageId*, not a compilable namespace).  For other
+platforms the allow-list is derived from ``model.yaml`` ``package_name``.
 
 Emits FAIL for proprietary namespace in FOSS documentation code blocks.
 """
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 from typing import Any
@@ -22,7 +23,14 @@ import yaml
 from ..models import Finding, Page
 from . import BaseEvaluator
 
-KNOWLEDGE_ROOT = Path("knowledge")
+_DEFAULT_KNOWLEDGE_ROOT = Path(__file__).resolve().parents[4] / "knowledge"
+KNOWLEDGE_ROOT = _DEFAULT_KNOWLEDGE_ROOT
+
+
+def configure(*, knowledge_root: "Path | str | None" = None) -> None:
+    """Override module-level path constants for testing."""
+    global KNOWLEDGE_ROOT
+    KNOWLEDGE_ROOT = Path(knowledge_root) if knowledge_root is not None else _DEFAULT_KNOWLEDGE_ROOT
 
 # Platform → expected code block language tags
 _PLATFORM_CODE_LANGS: dict[str, set[str]] = {
@@ -67,16 +75,41 @@ _IMPORT_PATTERNS: dict[str, list[re.Pattern]] = {
 }
 
 
-def _build_allow_prefixes(foss_pkg: str, platform: str) -> set[str]:
-    """Build a set of allowed import prefixes from the FOSS package name.
+def _load_canonical_namespaces(family: str, platform: str) -> set[str]:
+    """Load unique canonical_namespace values from api_surface.json.
 
-    For example:
-        foss_pkg="aspose-font"        → {"aspose-font", "aspose_font"} (python)
-        foss_pkg="aspose.slides_foss" → {"aspose.slides_foss"}
-        foss_pkg="Aspose.Slides.Foss" → {"Aspose.Slides.Foss"}
-        foss_pkg="com.aspose.threed"  → {"com.aspose.threed"}
-        foss_pkg="@aspose/3d"         → {"@aspose/3d"} (typescript)
+    For C#/.NET the NuGet PackageId (e.g. ``Aspose.Pdf.Foss``) is NOT a valid
+    namespace.  The real namespaces live in ``canonical_namespace`` fields
+    extracted from source code (e.g. ``Aspose.Pdf``, ``Aspose.Pdf.Text``).
     """
+    api_path = KNOWLEDGE_ROOT / family / platform / "merged" / "api_surface.json"
+    if not api_path.exists():
+        return set()
+    try:
+        entries = json.loads(api_path.read_text(encoding="utf-8"))
+        return {
+            e["canonical_namespace"]
+            for e in entries
+            if e.get("canonical_namespace")
+        }
+    except Exception:
+        return set()
+
+
+def _build_allow_prefixes(foss_pkg: str, platform: str,
+                          canonical_namespaces: set[str] | None = None) -> set[str]:
+    """Build a set of allowed import prefixes.
+
+    For C#/.NET (``platform="net"``), uses ``canonical_namespaces`` from
+    api_surface.json — the actual source-code namespaces.  The NuGet PackageId
+    is deliberately excluded because it is not a compilable namespace.
+
+    For other platforms the FOSS package name is the import root.
+    """
+    # C#/.NET: use real source-code namespaces, not the NuGet PackageId
+    if platform == "net" and canonical_namespaces:
+        return canonical_namespaces
+
     if not foss_pkg:
         return set()
     prefixes = {foss_pkg}
@@ -90,8 +123,16 @@ def _build_allow_prefixes(foss_pkg: str, platform: str) -> set[str]:
     return prefixes
 
 
-def _is_allowed(import_path: str, allow_prefixes: set[str]) -> bool:
-    """Check if an import path is an exact match or a submodule of an allowed prefix."""
+def _is_allowed(import_path: str, allow_prefixes: set[str],
+                exact_only: bool = False) -> bool:
+    """Check if an import path is allowed.
+
+    When *exact_only* is True (C# with canonical namespaces), only exact
+    matches are accepted — prefix matching is disabled because the canonical
+    set already enumerates every valid namespace at every depth.
+    """
+    if exact_only:
+        return import_path in allow_prefixes
     for prefix in allow_prefixes:
         if (import_path == prefix
                 or import_path.startswith(prefix + ".")
@@ -118,7 +159,13 @@ class NamespaceCorrectnessEvaluator(BaseEvaluator):
 
         # Load FOSS package name and build allow-list
         foss_pkg = self._load_package_name(page.family, page.platform)
-        allow_prefixes = _build_allow_prefixes(foss_pkg, page.platform)
+        canonical_ns = _load_canonical_namespaces(page.family, page.platform)
+        allow_prefixes = _build_allow_prefixes(foss_pkg, page.platform,
+                                               canonical_ns)
+        # C# with canonical namespaces: exact match only (the canonical set
+        # already contains every valid namespace — prefix matching would let
+        # the NuGet PackageId slip through as a child of the root namespace)
+        use_exact = bool(page.platform == "net" and canonical_ns)
 
         # If no package_name configured, skip evaluation (can't determine
         # what's proprietary vs FOSS without a reference)
@@ -136,13 +183,20 @@ class NamespaceCorrectnessEvaluator(BaseEvaluator):
                 for m in pattern.finditer(block.content):
                     import_path = m.group(1)
 
-                    # Check if this import matches the FOSS package
-                    if _is_allowed(import_path, allow_prefixes):
+                    # Check if this import matches a known FOSS namespace
+                    if _is_allowed(import_path, allow_prefixes, use_exact):
                         continue
 
                     line_no = block.start_line + block.content[:m.start()].count("\n")
-                    matched_text = m.group(0)
-                    suggestion = f"Use the FOSS package namespace `{foss_pkg}` instead of `{import_path}`"
+                    if canonical_ns:
+                        suggestion = (
+                            f"Use a valid source-code namespace instead of "
+                            f"`{import_path}`. Known namespaces: "
+                            + ", ".join(f"`{ns}`" for ns in sorted(canonical_ns)[:5])
+                            + (" ..." if len(canonical_ns) > 5 else "")
+                        )
+                    else:
+                        suggestion = f"Use the FOSS package namespace `{foss_pkg}` instead of `{import_path}`"
 
                     findings.append(Finding(
                         level="FAIL",
@@ -150,8 +204,8 @@ class NamespaceCorrectnessEvaluator(BaseEvaluator):
                         filepath=str(page.filepath),
                         line_no=line_no,
                         message=(
-                            f"Proprietary namespace `{import_path}` in FOSS "
-                            f"documentation code (expected `{foss_pkg}`)"
+                            f"Invalid namespace `{import_path}` in FOSS "
+                            f"documentation code block"
                         ),
                         suggestion=suggestion,
                         evaluator=self.name,
