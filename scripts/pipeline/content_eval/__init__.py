@@ -60,7 +60,7 @@ EVALUATOR_VERSIONS: dict[str, str] = {
     "evidence_depth": "1",
     "code_plausibility": "1",
     "coverage": "1",
-    "type_accuracy": "1",
+    "type_accuracy": "2",  # v2: Check 6 — static/abstract class instantiation (C#/Java)
     "prose_claim_binding": "1",
     "api_completeness": "1",
     "code_syntax_check": "2",

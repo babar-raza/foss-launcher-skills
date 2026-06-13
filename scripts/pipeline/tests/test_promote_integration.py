@@ -358,6 +358,54 @@ class TestPromoteWithMissingScout:
 
 
 # ---------------------------------------------------------------------------
+# Test: api_surface.md modifier rendering
+# ---------------------------------------------------------------------------
+
+class TestApiSurfaceMdModifiers:
+    """Verify that is_static/is_abstract/is_sealed render in api_surface.md."""
+
+    def test_static_class_shows_modifier(self, tmp_path):
+        """Class with is_static: true → '**Modifiers**: static' in markdown."""
+        api_list = [
+            {"name": "FieldDateTimeFormatter", "is_static": True,
+             "methods": [], "properties": [], "bases": []},
+        ]
+        promote_mod._generate_api_surface_md(api_list, "pdf", {"repo_sha": "test"}, tmp_path)
+        md = (tmp_path / "api_surface.md").read_text(encoding="utf-8")
+        assert "**Modifiers**: static" in md
+
+    def test_abstract_sealed_class_shows_modifiers(self, tmp_path):
+        """Class with both is_abstract and is_sealed → both listed."""
+        api_list = [
+            {"name": "BaseProcessor", "is_abstract": True, "is_sealed": True,
+             "methods": [], "properties": [], "bases": []},
+        ]
+        promote_mod._generate_api_surface_md(api_list, "pdf", {"repo_sha": "test"}, tmp_path)
+        md = (tmp_path / "api_surface.md").read_text(encoding="utf-8")
+        assert "**Modifiers**: abstract, sealed" in md
+
+    def test_regular_class_no_modifier_line(self, tmp_path):
+        """Class without modifier flags → no **Modifiers** line."""
+        api_list = [
+            {"name": "RegularClass",
+             "methods": [], "properties": [], "bases": []},
+        ]
+        promote_mod._generate_api_surface_md(api_list, "pdf", {"repo_sha": "test"}, tmp_path)
+        md = (tmp_path / "api_surface.md").read_text(encoding="utf-8")
+        assert "**Modifiers**" not in md
+
+    def test_false_modifier_no_line(self, tmp_path):
+        """Class with is_static: false → no **Modifiers** line (falsy values)."""
+        api_list = [
+            {"name": "InstanceClass", "is_static": False,
+             "methods": [], "properties": [], "bases": []},
+        ]
+        promote_mod._generate_api_surface_md(api_list, "pdf", {"repo_sha": "test"}, tmp_path)
+        md = (tmp_path / "api_surface.md").read_text(encoding="utf-8")
+        assert "**Modifiers**" not in md
+
+
+# ---------------------------------------------------------------------------
 # TC-A12: Promote edge-case tests (merge-conflict, idempotency, large-batch)
 # ---------------------------------------------------------------------------
 

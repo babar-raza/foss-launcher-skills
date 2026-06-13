@@ -110,6 +110,7 @@ Before generating any content, you MUST:
    - Shell/terminal commands always use ` ```bash `
    - `---` divider between every major section
    - Class names, method names, package paths must exactly match what you read from reference content — no invented API
+   - **Respect class modifiers**: If api_surface.md shows `**Modifiers**: static` for a class, never use `new ClassName()` — call static methods directly. For abstract classes, show derived-class instantiation or factory patterns.
    - **Internal links within docs.aspose.org**: use relative paths (`../slug/`)
    - **Cross-subdomain links** (to kb, blog, reference): use absolute `https://` URLs without `/en/` — e.g. `https://kb.aspose.org/{family}/{platform}/slug/`
    - Do not add a `sidebar:` key unless the section `_index.md` uses it

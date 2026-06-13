@@ -158,6 +158,7 @@ Before generating any content, you MUST:
      `canonical_import`. Never use the commercial Aspose package name. If `canonical_import`
      is empty, STOP and run `/repo-scout {family} {platform}` first.
    - All class names and method names must match what you read from reference content — no invented API
+   - **Respect class modifiers**: If api_surface.md shows `**Modifiers**: static` for a class, never use `new ClassName()` — call static methods directly on the type (e.g. `ClassName.Method(...)`). If a class has no static modifier, instantiate it before calling instance methods. If no **Modifiers** line is present, assume a regular (instantiable) class. For abstract classes, show derived-class instantiation or factory patterns.
 
 6. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
    - Target path: `content/blog.aspose.org/{family}/{platform}/{slug}/index.md`

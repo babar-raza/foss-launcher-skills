@@ -6,6 +6,8 @@ import tempfile
 import textwrap
 from pathlib import Path
 
+import pytest
+
 # sys.path is set by tests/conftest.py — no manual insert needed here.
 from content_eval.models import Page
 from content_eval.evaluators.type_accuracy import TypeAccuracyEvaluator
@@ -347,3 +349,163 @@ class TestMultipleFindings:
         warn = [f for f in findings if f.level == "WARN" and f.category == "TA"]
         # Expect: 1 string& WARN + 2 float-geometry WARNs (x and y)
         assert len(warn) >= 3
+
+
+# ---------------------------------------------------------------------------
+# Helpers for C#/Java tests (Check 6)
+# ---------------------------------------------------------------------------
+
+def _csharp_page(body: str) -> Page:
+    """Create a .NET platform docs page with C# code blocks."""
+    content = textwrap.dedent(f"""\
+        ---
+        title: Test
+        ---
+        {body}
+    """)
+    return _make_page(content, "content/docs.aspose.org/en/pdf/net/test.md")
+
+
+def _java_page(body: str) -> Page:
+    """Create a Java platform docs page."""
+    content = textwrap.dedent(f"""\
+        ---
+        title: Test
+        ---
+        {body}
+    """)
+    return _make_page(content, "content/docs.aspose.org/en/pdf/java/test.md")
+
+
+def _write_api_surface(family: str, platform: str, classes: list[dict],
+                       root: Path | None = None) -> None:
+    """Write a temporary api_surface.json for tests.
+
+    When *root* is provided, writes under that directory instead of the real
+    ``knowledge/`` tree — keeping tests isolated from production artifacts.
+    """
+    import json
+    base = root if root is not None else Path("knowledge")
+    merged_dir = base / family / platform / "merged"
+    merged_dir.mkdir(parents=True, exist_ok=True)
+    (merged_dir / "api_surface.json").write_text(
+        json.dumps(classes), encoding="utf-8"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Test: Check 6 — static class instantiation (C#/Java)
+# ---------------------------------------------------------------------------
+
+class TestStaticClassInstantiation:
+    @pytest.fixture(autouse=True)
+    def _setup(self, tmp_path, monkeypatch):
+        """Write api_surface.json into tmp_path and redirect KNOWLEDGE_ROOT."""
+        import content_eval.evaluators.type_accuracy as _ta_mod
+        monkeypatch.setattr(_ta_mod, "KNOWLEDGE_ROOT", tmp_path)
+        self._knowledge_root = tmp_path
+        self.ev = TypeAccuracyEvaluator()
+        _write_api_surface("pdf", "net", [
+            {"name": "FieldDateTimeFormatter", "kind": "class_declaration",
+             "is_static": True, "methods": [], "properties": [], "visibility": "public"},
+            {"name": "FieldNumberCurrencyFormatter", "kind": "class_declaration",
+             "methods": [], "properties": [], "visibility": "public"},
+            {"name": "AbstractBase", "kind": "class_declaration",
+             "is_abstract": True, "methods": [], "properties": [], "visibility": "public"},
+        ], root=tmp_path)
+
+    def test_new_static_class_produces_warn(self):
+        """new FieldDateTimeFormatter() → WARN (static class)."""
+        page = _csharp_page(textwrap.dedent("""\
+            ```csharp
+            var fmt = new FieldDateTimeFormatter();
+            ```
+        """))
+        findings = self.ev.evaluate(page, None)
+        static_warn = [f for f in findings if "static" in f.message and f.level == "WARN"]
+        assert len(static_warn) == 1
+        assert static_warn[0].category == "TA"
+        assert "FieldDateTimeFormatter" in static_warn[0].message
+
+    def test_new_regular_class_no_finding(self):
+        """new FieldNumberCurrencyFormatter() → no finding (not static)."""
+        page = _csharp_page(textwrap.dedent("""\
+            ```csharp
+            var fmt = new FieldNumberCurrencyFormatter();
+            ```
+        """))
+        findings = self.ev.evaluate(page, None)
+        static_warn = [f for f in findings if "static" in f.message or "abstract" in f.message]
+        assert len(static_warn) == 0
+
+    def test_new_abstract_class_produces_warn(self):
+        """new AbstractBase() → WARN (abstract class)."""
+        page = _csharp_page(textwrap.dedent("""\
+            ```csharp
+            var obj = new AbstractBase();
+            ```
+        """))
+        findings = self.ev.evaluate(page, None)
+        abstract_warn = [f for f in findings if "abstract" in f.message and f.level == "WARN"]
+        assert len(abstract_warn) == 1
+        assert "AbstractBase" in abstract_warn[0].message
+
+    def test_class_not_in_surface_no_finding(self):
+        """new UnknownClass() → no finding (not in api_surface)."""
+        page = _csharp_page(textwrap.dedent("""\
+            ```csharp
+            var obj = new UnknownClass();
+            ```
+        """))
+        findings = self.ev.evaluate(page, None)
+        static_warn = [f for f in findings if "static" in f.message or "abstract" in f.message]
+        assert len(static_warn) == 0
+
+    def test_java_platform_static_class(self):
+        """Java page: new StaticClass() also detected."""
+        _write_api_surface("pdf", "java", [
+            {"name": "StaticHelper", "kind": "class_declaration",
+             "is_static": True, "methods": [], "properties": [], "visibility": "public"},
+        ], root=self._knowledge_root)
+        page = _java_page(textwrap.dedent("""\
+            ```java
+            StaticHelper h = new StaticHelper();
+            ```
+        """))
+        findings = self.ev.evaluate(page, None)
+        static_warn = [f for f in findings if "static" in f.message and f.level == "WARN"]
+        assert len(static_warn) == 1
+
+    def test_python_platform_not_checked(self):
+        """Python platform pages are not checked by Check 6."""
+        _write_api_surface("pdf", "python", [
+            {"name": "StaticHelper", "kind": "class_declaration",
+             "is_static": True, "methods": [], "properties": [], "visibility": "public"},
+        ], root=self._knowledge_root)
+        content = textwrap.dedent("""\
+            ---
+            title: Test
+            ---
+            ```python
+            obj = StaticHelper()
+            ```
+        """)
+        page = _make_page(content, "content/docs.aspose.org/en/pdf/python/test.md")
+        findings = self.ev.evaluate(page, None)
+        static_warn = [f for f in findings if "static" in f.message]
+        assert len(static_warn) == 0
+
+    def test_missing_is_static_field_no_finding(self):
+        """Class without is_static key → no finding (graceful degradation)."""
+        _write_api_surface("pdf", "net", [
+            {"name": "OldClass", "kind": "class_declaration",
+             "methods": [], "properties": [], "visibility": "public"},
+        ], root=self._knowledge_root)
+        page = _csharp_page(textwrap.dedent("""\
+            ```csharp
+            var obj = new OldClass();
+            ```
+        """))
+        findings = self.ev.evaluate(page, None)
+        static_warn = [f for f in findings if "static" in f.message or "abstract" in f.message]
+        assert len(static_warn) == 0
