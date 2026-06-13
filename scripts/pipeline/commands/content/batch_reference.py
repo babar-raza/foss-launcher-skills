@@ -382,6 +382,19 @@ def _sanitize_slug(name: str) -> str:
     return _UNSAFE_SLUG_RE.sub("_", name)
 
 
+def _entry_slug(entry: dict) -> str:
+    """Return the filesystem slug for an api_surface entry.
+
+    When ``_slug_suffix`` is set (same-name classes in different namespaces),
+    appends the suffix to disambiguate: ``Color`` → ``Color-Drawing``.
+    """
+    base = _sanitize_slug(entry.get("name", ""))
+    suffix = entry.get("_slug_suffix", "")
+    if suffix:
+        return f"{base}-{_sanitize_slug(suffix)}"
+    return base
+
+
 # ---------------------------------------------------------------------------
 # Category label
 # ---------------------------------------------------------------------------
@@ -1369,88 +1382,19 @@ def run(family: str, platform: str, kind_arg: str = "all",
             print(f"Skipped {_conv_skipped} conventional class(es) "
                   f"(package defines __all__).")
 
-    # Merge or deduplicate name collisions: when multiple api_surface entries
-    # share the same class name, they may be partial-class fragments (same
-    # visibility) or genuinely distinct types (different visibility).
-    # Partial classes: merge methods, properties, bases, and doc strings.
-    # Different-visibility duplicates: prefer the highest visibility tier.
-    _VIS_RANK = {"exported": 3, "public": 2, "conventional": 1, "internal": 0}
-    seen_names: dict[str, int] = {}  # name → index in dedup list
-    dedup = []
-    _merge_count = 0
-    for entry in candidates:
-        name = entry.get("name", "")
-        rank = _VIS_RANK.get(entry.get("visibility", "conventional"), 1)
-        if name in seen_names:
-            prev_idx = seen_names[name]
-            prev = dedup[prev_idx]
-            prev_rank = _VIS_RANK.get(prev.get("visibility", "conventional"), 1)
-            if rank == prev_rank:
-                # Same visibility — likely partial class fragments: merge members.
-                prev_methods = prev.get("methods", [])
-                new_methods = entry.get("methods", [])
-                prev_props = prev.get("properties", [])
-                new_props = entry.get("properties", [])
-                prev_bases = prev.get("bases", [])
-                new_bases = entry.get("bases", [])
-                # Merge methods (deduplicate by name+params signature)
-                existing_sigs = {
-                    (m.get("name", ""), str(m.get("params", "")))
-                    for m in prev_methods
-                }
-                for m in new_methods:
-                    sig = (m.get("name", ""), str(m.get("params", "")))
-                    if sig not in existing_sigs:
-                        prev_methods.append(m)
-                        existing_sigs.add(sig)
-                # Merge properties (deduplicate by name)
-                existing_pnames = {p.get("name", "") for p in prev_props}
-                for p in new_props:
-                    if p.get("name", "") not in existing_pnames:
-                        prev_props.append(p)
-                        existing_pnames.add(p.get("name", ""))
-                # Merge bases (deduplicate)
-                existing_bases = set(prev_bases)
-                for b in new_bases:
-                    if b not in existing_bases:
-                        prev_bases.append(b)
-                        existing_bases.add(b)
-                prev["methods"] = prev_methods
-                prev["properties"] = prev_props
-                prev["bases"] = prev_bases
-                # Prefer the doc from the entry with more methods (main file)
-                if not prev.get("doc") and entry.get("doc"):
-                    prev["doc"] = entry["doc"]
-                elif entry.get("doc") and len(new_methods) > len(prev_methods) - len(new_methods):
-                    prev["doc"] = entry["doc"]
-                # Track merged source files for provenance
-                if len(new_methods) + len(new_props) > 0:
-                    prev.setdefault("_merged_files", [prev.get("file", "")])
-                    prev["_merged_files"].append(entry.get("file", ""))
-                _merge_count += 1
-                print(f"  MERGE: {name} — merged {entry.get('file','')} "
-                      f"into {prev.get('file','')} "
-                      f"(+{len(new_methods)} methods, +{len(new_props)} properties)")
-            elif rank > prev_rank:
-                print(f"  DEDUP: {name} — preferring {entry.get('file','')} "
-                      f"(visibility={entry.get('visibility','?')}) over "
-                      f"{prev.get('file','')} "
-                      f"(visibility={prev.get('visibility','?')})")
-                dedup[prev_idx] = entry  # replace with higher-visibility entry
-            else:
-                print(f"  DEDUP: {name} — keeping {prev.get('file','')} "
-                      f"(visibility={prev.get('visibility','?')}), "
-                      f"skipping {entry.get('file','')} "
-                      f"(visibility={entry.get('visibility','?')})")
-        else:
-            seen_names[name] = len(dedup)
-            dedup.append(entry)
-    if _merge_count:
-        print(f"Merged {_merge_count} partial-class fragment(s).")
-    if len(dedup) < len(candidates) - _merge_count:
-        print(f"Deduplicated {len(candidates) - len(dedup) - _merge_count} "
-              f"name collision(s).")
-    candidates = dedup
+    # api_surface is already consolidated at extraction time (consolidate_classes
+    # in api_surface.py).  Remaining same-name entries have distinct namespaces.
+    # Disambiguate their output slugs so each gets its own page file.
+    from collections import Counter as _Counter
+    _name_counts = _Counter(e.get("name", "") for e in candidates)
+    _collisions = {n for n, c in _name_counts.items() if c > 1}
+    if _collisions:
+        for entry in candidates:
+            if entry.get("name", "") in _collisions:
+                ns = entry.get("canonical_namespace", "")
+                if ns:
+                    entry["_slug_suffix"] = ns.rsplit(".", 1)[-1]
+        print(f"  {len(_collisions)} name collision(s) disambiguated by namespace")
 
     if limit is not None:
         candidates = candidates[:limit]
@@ -1502,9 +1446,9 @@ def run(family: str, platform: str, kind_arg: str = "all",
             norm = existing.stem.lower().replace("-", "_")
             _existing_normalized[norm] = existing
 
-    def _has_slug_duplicate(name: str) -> Path | None:
+    def _has_slug_duplicate(entry: dict) -> Path | None:
         """Return existing path if a slug-normalized duplicate exists."""
-        sanitized = _sanitize_slug(name)
+        sanitized = _entry_slug(entry)
         norm = sanitized.lower().replace("-", "_")
         existing = _existing_normalized.get(norm)
         if existing is not None and existing.stem != sanitized:
@@ -1530,7 +1474,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
     if update:
         for entry in candidates:
             name = entry.get("name", "")
-            page_path = output_dir / f"{_sanitize_slug(name)}.md"
+            page_path = output_dir / f"{_entry_slug(entry)}.md"
             if not page_path.exists():
                 to_generate.append(entry)
             elif name in modified_apis:
@@ -1556,7 +1500,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
         # Does not require knowledge_delta.json.
         for entry in candidates:
             name = entry.get("name", "")
-            page_path = output_dir / f"{_sanitize_slug(name)}.md"
+            page_path = output_dir / f"{_entry_slug(entry)}.md"
             if not page_path.exists():
                 to_generate.append(entry)
             elif not is_auto_updatable(page_path):
@@ -1577,11 +1521,11 @@ def run(family: str, platform: str, kind_arg: str = "all",
     else:
         for entry in candidates:
             name = entry.get("name", "")
-            page_path = output_dir / f"{_sanitize_slug(name)}.md"
+            page_path = output_dir / f"{_entry_slug(entry)}.md"
             if page_path.exists():
                 to_skip.append(entry)
             else:
-                dup_path = _has_slug_duplicate(name)
+                dup_path = _has_slug_duplicate(entry)
                 if dup_path is not None:
                     print(f"  DEDUP-SLUG: {name} — slug-duplicate of {dup_path.stem}, skipping")
                     to_skip.append(entry)
@@ -1643,7 +1587,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
         action = "Rebuilding" if is_rebuild else ("Updating" if is_update else "Generating")
         print(f"[{i}/{len(to_write)}] {action} page for {name} ({kind})...")
         try:
-            page_path = output_dir / f"{_sanitize_slug(name)}.md"
+            page_path = output_dir / f"{_entry_slug(entry)}.md"
             content = _build_page(entry, family, platform, erc_index=erc_index,
                                    member_erc_index=member_erc_index,
                                    model_sha=model_sha, model_version=model_version)

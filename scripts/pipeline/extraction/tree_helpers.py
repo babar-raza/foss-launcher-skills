@@ -78,7 +78,7 @@ _IMPORT_TYPES: dict[str, set[str]] = {
 
 _MODULE_TYPES: dict[str, set[str]] = {
     "java": {"package_declaration"},
-    "csharp": {"namespace_declaration"},
+    "csharp": {"namespace_declaration", "file_scoped_namespace_declaration"},
     "javascript": set(),
     "typescript": set(),
     "go": {"package_clause"},

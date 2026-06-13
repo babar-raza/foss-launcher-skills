@@ -29,7 +29,14 @@ def pascal_to_kebab(name: str) -> str:
 
 
 def merge_partial_classes(classes: list[dict]) -> dict[str, dict]:
-    """Merge partial class definitions (e.g. MapiMessage appears 3x)."""
+    """Merge partial class definitions (e.g. MapiMessage appears 3x).
+
+    NOTE: As of 2026-06-13, consolidation now happens at extraction time
+    via ``consolidate_classes()`` in api_surface.py. When this migration
+    script reads merged/api_surface.json, duplicates are already resolved.
+    This function is kept for backward compatibility but is effectively a
+    no-op on consolidated data.
+    """
     merged: dict[str, dict] = {}
     for cls in classes:
         name = cls["name"]

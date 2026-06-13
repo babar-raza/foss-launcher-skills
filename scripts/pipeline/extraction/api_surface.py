@@ -960,6 +960,37 @@ def _cpp_canonical_namespace(cnode) -> str:
     return "::".join(parts)
 
 
+def _csharp_canonical_namespace(cnode) -> str:
+    """Walk up from a C# class node to find the enclosing namespace.
+
+    Handles block-scoped (``namespace X { class Y {} }``) and file-scoped
+    (``namespace X; class Y {}``) forms.
+    """
+    # Block-scoped: walk up through namespace_declaration ancestors
+    parts: list[str] = []
+    parent = cnode.parent
+    while parent is not None:
+        if parent.type == "namespace_declaration":
+            for ch in parent.children:
+                if ch.type in ("qualified_name", "identifier"):
+                    parts.append(node_text(ch))
+                    break
+        parent = parent.parent
+    if parts:
+        parts.reverse()
+        return ".".join(parts)
+    # File-scoped: find sibling file_scoped_namespace_declaration at root
+    cu = cnode
+    while cu.parent is not None:
+        cu = cu.parent
+    for ch in cu.children:
+        if ch.type == "file_scoped_namespace_declaration":
+            for sub in ch.children:
+                if sub.type in ("qualified_name", "identifier"):
+                    return node_text(sub)
+    return ""
+
+
 # ---------------------------------------------------------------------------
 # Go struct field extraction (GO-011)
 # ---------------------------------------------------------------------------
@@ -1077,6 +1108,190 @@ def _associate_go_methods(classes: list[dict]) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
+# Partial-class consolidation
+# ---------------------------------------------------------------------------
+
+
+_VIS_RANK = {"exported": 3, "public": 2, "conventional": 1, "internal": 0}
+
+
+def _merge_members(target: dict, source: dict) -> None:
+    """Merge methods, properties, and bases from *source* into *target*."""
+    # Methods: dedup by (name, params_str)
+    existing_sigs: set[tuple[str, str]] = {
+        (m.get("name", ""), str(m.get("params", "")))
+        for m in target.get("methods", [])
+    }
+    for m in source.get("methods", []):
+        sig = (m.get("name", ""), str(m.get("params", "")))
+        if sig not in existing_sigs:
+            target.setdefault("methods", []).append(m)
+            existing_sigs.add(sig)
+    # Properties: dedup by name
+    existing_pnames: set[str] = {p.get("name", "") for p in target.get("properties", [])}
+    for p in source.get("properties", []):
+        if p.get("name", "") not in existing_pnames:
+            target.setdefault("properties", []).append(p)
+            existing_pnames.add(p.get("name", ""))
+    # Bases: dedup
+    existing_bases = set(target.get("bases", []))
+    for b in source.get("bases", []):
+        if b not in existing_bases:
+            target.setdefault("bases", []).append(b)
+            existing_bases.add(b)
+    # Doc: prefer entry with more content
+    if not target.get("doc") and source.get("doc"):
+        target["doc"] = source["doc"]
+    # Provenance
+    src_file = source.get("file", "")
+    if src_file:
+        target.setdefault("_merged_files", [target.get("file", "")])
+        if src_file not in target["_merged_files"]:
+            target["_merged_files"].append(src_file)
+    # Class-level modifiers: union (e.g., is_static from one fragment)
+    for mod_key in ("is_static", "is_abstract", "is_sealed", "is_partial"):
+        if source.get(mod_key):
+            target[mod_key] = True
+
+
+def consolidate_classes(classes: list[dict], language: str) -> list[dict]:
+    """Merge partial classes, disambiguate same-name-different-namespace, dedup enums.
+
+    Must run BEFORE ``_flatten_inheritance`` so the by-name dict used for
+    inheritance resolution is correct.
+
+    Categories handled:
+      1. Same namespace + ``is_partial`` → MERGE members
+      2. Same namespace + stub (no bases, fewer members) → KEEP full, discard stub
+      3. Same namespace + compat shim (bases reference the other) → DISCARD shim
+      4. Different namespace → KEEP BOTH (distinct ``class_import``)
+      5. Identical enums (same enum_members or both empty) → DEDUP
+      6. Fallback (no namespace, same visibility) → MERGE (backward compat)
+
+    Returns a new list.
+    """
+    from collections import Counter, defaultdict
+
+    name_counts = Counter(c.get("name", "") for c in classes)
+    # Fast path: if no duplicates at all, return as-is
+    dup_names = {n for n, cnt in name_counts.items() if cnt > 1 and n}
+    if not dup_names:
+        return list(classes)
+
+    groups: dict[str, list[int]] = defaultdict(list)
+    for i, c in enumerate(classes):
+        n = c.get("name", "")
+        if n in dup_names:
+            groups[n].append(i)
+
+    discard: set[int] = set()
+    merge_count = 0
+
+    for name, indices in groups.items():
+        entries = [classes[i] for i in indices]
+
+        # Sub-group by canonical_namespace (or class_import minus name)
+        ns_groups: dict[str, list[int]] = defaultdict(list)
+        for idx in indices:
+            e = classes[idx]
+            ns = e.get("canonical_namespace", "")
+            if not ns:
+                ci = e.get("class_import", "")
+                if ci and ci != e.get("name", ""):
+                    ns = ci.rsplit(".", 1)[0] if "." in ci else ""
+            ns_groups[ns].append(idx)
+
+        # If all entries share the same namespace (or all empty), handle as same-ns
+        # If they differ, keep all (different namespaces = different types)
+        for ns, ns_indices in ns_groups.items():
+            if len(ns_indices) < 2:
+                continue
+
+            ns_entries = [classes[i] for i in ns_indices]
+            kinds = [e.get("kind", "") for e in ns_entries]
+
+            # Category 5: identical enums
+            if all("enum" in k for k in kinds):
+                # Keep first, discard rest
+                for i in ns_indices[1:]:
+                    discard.add(i)
+                continue
+
+            # Category 1: partial classes (at least one has is_partial)
+            any_partial = any(e.get("is_partial") for e in ns_entries)
+            if any_partial:
+                # Pick the entry with the most total members as primary
+                def _member_count(e: dict) -> int:
+                    return len(e.get("methods", [])) + len(e.get("properties", []))
+                primary_idx = max(ns_indices, key=lambda i: _member_count(classes[i]))
+                primary = classes[primary_idx]
+                for i in ns_indices:
+                    if i == primary_idx:
+                        continue
+                    _merge_members(primary, classes[i])
+                    discard.add(i)
+                    merge_count += 1
+                LOG.debug("MERGE-PARTIAL: %s — %d fragments → 1",
+                          name, len(ns_indices))
+                continue
+
+            # Category 3: compat shim (one's bases list references the other by name)
+            # Must run BEFORE stub-discard: a shim has bases (referencing the
+            # real class), so the stub heuristic would wrongly keep the shim.
+            shim_found = False
+            for i in ns_indices:
+                bases = classes[i].get("bases", [])
+                for b in bases:
+                    short_base = b.rsplit(".", 1)[-1] if "." in b else b
+                    if short_base == name:
+                        discard.add(i)
+                        shim_found = True
+                        LOG.debug("DISCARD-SHIM: %s — %s inherits from same-name type",
+                                  name, classes[i].get("file", ""))
+                        break
+            if shim_found:
+                continue
+
+            # Category 2: stub vs full (one has bases, others don't)
+            with_bases = [i for i in ns_indices if classes[i].get("bases")]
+            without_bases = [i for i in ns_indices if not classes[i].get("bases")]
+            if with_bases and without_bases:
+                for i in without_bases:
+                    discard.add(i)
+                LOG.debug("DISCARD-STUB: %s — kept %d with bases, discarded %d stubs",
+                          name, len(with_bases), len(without_bases))
+                continue
+
+            # Category 6: fallback — merge on same visibility (backward compat)
+            vis_groups: dict[int, list[int]] = defaultdict(list)
+            for i in ns_indices:
+                rank = _VIS_RANK.get(classes[i].get("visibility", "conventional"), 1)
+                vis_groups[rank].append(i)
+            for rank, vis_indices in vis_groups.items():
+                if len(vis_indices) < 2:
+                    continue
+                primary_idx = max(vis_indices,
+                                  key=lambda i: (len(classes[i].get("methods", []))
+                                                 + len(classes[i].get("properties", []))))
+                primary = classes[primary_idx]
+                for i in vis_indices:
+                    if i == primary_idx:
+                        continue
+                    _merge_members(primary, classes[i])
+                    discard.add(i)
+                    merge_count += 1
+                LOG.debug("MERGE-FALLBACK: %s — %d entries with rank %d → 1",
+                          name, len(vis_indices), rank)
+
+    if merge_count:
+        LOG.info("consolidate_classes: merged %d partial-class fragment(s)", merge_count)
+    if discard:
+        LOG.info("consolidate_classes: discarded %d duplicate(s)", len(discard) - merge_count)
+
+    return [c for i, c in enumerate(classes) if i not in discard]
+
+
+# ---------------------------------------------------------------------------
 # Core API surface extraction
 # ---------------------------------------------------------------------------
 
@@ -1089,7 +1304,16 @@ def _flatten_inheritance(classes: list[dict]) -> None:
     Child definitions take precedence over inherited ones.
     Handles cycles via visited-set guard.
     """
-    by_name: dict[str, dict] = {c["name"]: c for c in classes if c.get("name")}
+    # Use class_import as key when available for namespace-aware resolution;
+    # also index by short name as fallback for base-class lookup.
+    by_name: dict[str, dict] = {}
+    for c in classes:
+        key = c.get("class_import") or c.get("name", "")
+        if key:
+            by_name[key] = c
+        short = c.get("name", "")
+        if short and short not in by_name:
+            by_name[short] = c
 
     resolved: set[str] = set()
 
@@ -1674,10 +1898,12 @@ def extract_api_surface(
                 cls_record["is_abstract"] = True
             if "sealed" in _cls_mods:
                 cls_record["is_sealed"] = True
+            if "partial" in _cls_mods:
+                cls_record["is_partial"] = True
             if is_enum:
                 cls_record["enum_members"] = enum_members
 
-            # FR-15: canonical_namespace (C++) and class_package (Java)
+            # FR-15: canonical_namespace (C++, C#) and class_package (Java)
             if language == "cpp":
                 canonical_ns = _cpp_canonical_namespace(cnode)
                 if canonical_ns:
@@ -1690,6 +1916,13 @@ def extract_api_surface(
                 if java_file_package:
                     cls_record["class_package"] = java_file_package
                     cls_record["class_import"] = f"{java_file_package}.{cname}"
+                else:
+                    cls_record["class_import"] = cname
+            elif language == "csharp":
+                canonical_ns = _csharp_canonical_namespace(cnode)
+                if canonical_ns:
+                    cls_record["canonical_namespace"] = canonical_ns
+                    cls_record["class_import"] = f"{canonical_ns}.{cname}"
                 else:
                     cls_record["class_import"] = cname
             elif language == "python":
@@ -1767,6 +2000,11 @@ def extract_api_surface(
     # moves them into the correct type's methods[] list.
     if language == "go":
         classes = _associate_go_methods(classes)
+
+    # Consolidate partial classes, deduplicate enums, disambiguate same-name
+    # types in different namespaces.  Must run BEFORE _flatten_inheritance so
+    # the by-name dict used for inheritance resolution is correct.
+    classes = consolidate_classes(classes, language)
 
     # TC-HCR-001: Flatten inherited methods/properties into child classes
     # so that evaluators can verify inherited member access without walking
