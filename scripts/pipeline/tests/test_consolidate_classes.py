@@ -4,13 +4,11 @@ namespace disambiguation, enum dedup, and fallback merge.
 Covers the six consolidation categories defined in
 extraction/api_surface.py:consolidate_classes().
 """
-import sys
 from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "extraction"))
-from api_surface import consolidate_classes, _merge_members
+from extraction.api_surface import consolidate_classes, _merge_members
 
 
 # ---------------------------------------------------------------------------

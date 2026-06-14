@@ -63,7 +63,7 @@ _IMPORT_VERB_RE = re.compile(
     re.IGNORECASE,
 )
 _BOTH_VERB_RE = re.compile(
-    r"\b(?:support|handle|process|convert)\b",
+    r"\b(?:support(?:s|ed)?|handle|process|convert)\b",
     re.IGNORECASE,
 )
 
@@ -378,6 +378,11 @@ class FormatTruthEvaluator(BaseEvaluator):
                     # to the variant, not the format as a whole.
                     pre_text = line_text[:_pos]
                     if _VARIANT_QUALIFIER_RE.search(pre_text):
+                        continue
+                    # If direction is unknown we cannot determine what is being negated:
+                    # prose like "is not tagged as page content" matches _NEGATION_RE
+                    # but carries no format I/O claim.  Skip to avoid false positives.
+                    if line_neg_dir is None:
                         continue
                     # If the negated direction is not covered by known_dir, it's correct
                     if line_neg_dir == "export" and known_dir == "import":

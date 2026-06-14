@@ -53,7 +53,7 @@ EVALUATOR_VERSIONS: dict[str, str] = {
     "page_role": "1",
     "structure": "1",
     "prose_truth": "2",  # v2: fires without claims/formats,
-    "format_truth": "1",
+    "format_truth": "2",  # v2: skip negation check when no direction verb present (eliminates FP on method descriptions)
     "install_recipe": "1",
     "limitations_check": "1",
     "risk_language": "2",

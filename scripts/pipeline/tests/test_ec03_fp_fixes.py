@@ -210,3 +210,33 @@ class TestProseTruthMarkdownTableNoneExclusion:
         assert not table_cell_re.search(phrase), (
             f"Table-cell pattern should NOT match prose claim: {phrase!r}"
         )
+
+
+class TestFormatTruthNegationDirectionGuard:
+    """F2-FIX: _NEGATION_RE must not fire on lines with no format direction verb.
+
+    Prose like "is not tagged as page content" or "are not overwritten" matches
+    _NEGATION_RE and may also contain a format token (e.g. PDF on a pdf-library
+    page).  Without a direction verb (import/export/save/load/support/...) we
+    cannot determine what is being negated — the line is a method description,
+    not a format support claim.
+    """
+
+    def test_no_direction_verb_returns_none(self):
+        """_claim_direction returns None when no I/O verb is present."""
+        from content_eval.evaluators.format_truth import _claim_direction
+        assert _claim_direction("The method is not tagged as page content") is None
+        assert _claim_direction("Properties are not overwritten by default") is None
+        assert _claim_direction("Feature is not yet implemented") is None
+
+    def test_support_verb_detected(self):
+        """'support' is a direction verb — _claim_direction must NOT return None."""
+        from content_eval.evaluators.format_truth import _claim_direction
+        result = _claim_direction("PDF is not supported")
+        assert result is not None, "'support' verb must yield a direction, not None"
+
+    def test_save_verb_detected(self):
+        """'save' is an export verb — must yield 'export' or 'both'."""
+        from content_eval.evaluators.format_truth import _claim_direction
+        result = _claim_direction("Cannot save PDF files")
+        assert result in ("export", "both"), f"Expected export/both, got {result}"
