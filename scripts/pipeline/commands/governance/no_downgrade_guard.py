@@ -23,7 +23,8 @@ from content_discovery import infer_product  # noqa: E402  (R-1b: was knowledge_
 from evidence_verifier import verify_evidence  # noqa: E402  (R-3b: was knowledge_core)
 from core.markdown import parse_frontmatter, extract_frontmatter_body  # R-2a: was knowledge_core
 from token_ops import extract_tokens, verify_tokens
-from content_eval.models import compute_grade
+from content_eval.models import compute_grade, Page
+from content_eval.evaluators.type_accuracy import TypeAccuracyEvaluator
 from grade_writer import read_grade
 
 
@@ -49,6 +50,16 @@ def _evaluate_file(path: Path, family: str, platform: str) -> dict:
 
     findings = verify_tokens(extract_tokens(path, platform), knowledge, path)
     findings.extend(verify_evidence(parse_frontmatter(path), knowledge, path))
+    # TC-24: Run type_accuracy evaluator so TA findings reach the guard.
+    try:
+        page = Page.load(path)
+        if page is not None:
+            page.family = family
+            page.platform = platform
+            ta_ev = TypeAccuracyEvaluator()
+            findings.extend(ta_ev.evaluate(page, None))
+    except Exception:
+        pass  # type_accuracy is best-effort in the guard
     fails = [f for f in findings if f.level == "FAIL"]
     warns = [f for f in findings if f.level == "WARN"]
     return {
