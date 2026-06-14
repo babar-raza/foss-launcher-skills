@@ -1,9 +1,13 @@
-"""Tests for no_downgrade_guard.py — structural regression checks."""
+"""Tests for no_downgrade_guard.py — structural regression + TA escalation."""
+
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import pytest
 from no_downgrade_guard import (
     _structural_check,
     _decision,
+    compare_content,
     DECISION_ALLOW,
     DECISION_WARN,
     DECISION_BLOCK,
@@ -178,3 +182,133 @@ class TestDecisionMatrix:
 
     def test_c_to_b_allows(self):
         assert _decision("C", "B", True) == DECISION_ALLOW
+
+
+class TestTAEscalation:
+    """TC-24: TA-specific WARN → BLOCK escalation in compare_content."""
+
+    def _fake_evaluate(self, grade, findings):
+        """Return a factory for _evaluate_file that yields controlled results."""
+        def _evaluate_file(path, family, platform):
+            fails = [f for f in findings if f["level"] == "FAIL"]
+            warns = [f for f in findings if f["level"] == "WARN"]
+            return {
+                "grade": grade,
+                "fail_count": len(fails),
+                "warn_count": len(warns),
+                "findings": findings,
+            }
+        return _evaluate_file
+
+    def test_a_to_c_with_ta_finding_blocks(self, monkeypatch, tmp_path):
+        """A→C regression caused by TA finding → BLOCK (not WARN)."""
+        import no_downgrade_guard as mod
+        existing_path = tmp_path / "page.md"
+        existing_path.write_text("---\ntitle: Test\n---\nBody.", encoding="utf-8")
+
+        # Existing page is grade A, proposed is grade C with TA finding
+        calls = {"n": 0}
+        def _eval(path, family, platform):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                return {"grade": "A", "fail_count": 0, "warn_count": 0,
+                        "findings": [], "from_stored": False}
+            return {"grade": "C", "fail_count": 1, "warn_count": 0,
+                    "findings": [{"level": "FAIL", "message": "static class",
+                                  "line": 10, "category": "TA"}]}
+
+        monkeypatch.setattr(mod, "_evaluate_file", _eval)
+        monkeypatch.setattr(mod, "read_grade", lambda p: None)
+        result = compare_content(existing_path, "---\ntitle: T\n---\nNew.",
+                                 family="pdf", platform="net")
+        assert result["decision"] == DECISION_BLOCK
+        assert "type accuracy" in result["reason"]
+
+    def test_a_to_c_without_ta_finding_warns(self, monkeypatch, tmp_path):
+        """A→C regression without TA findings → WARN (unchanged)."""
+        import no_downgrade_guard as mod
+        existing_path = tmp_path / "page.md"
+        existing_path.write_text("---\ntitle: Test\n---\nBody.", encoding="utf-8")
+
+        calls = {"n": 0}
+        def _eval(path, family, platform):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                return {"grade": "A", "fail_count": 0, "warn_count": 0,
+                        "findings": [], "from_stored": False}
+            return {"grade": "C", "fail_count": 0, "warn_count": 3,
+                    "findings": [{"level": "WARN", "message": "prose issue",
+                                  "line": 5, "category": "PG"}]}
+
+        monkeypatch.setattr(mod, "_evaluate_file", _eval)
+        monkeypatch.setattr(mod, "read_grade", lambda p: None)
+        result = compare_content(existing_path, "---\ntitle: T\n---\nNew.",
+                                 family="pdf", platform="net")
+        assert result["decision"] == DECISION_WARN
+
+    def test_b_to_c_with_ta_finding_blocks(self, monkeypatch, tmp_path):
+        """B→C regression caused by TA finding → BLOCK."""
+        import no_downgrade_guard as mod
+        existing_path = tmp_path / "page.md"
+        existing_path.write_text("---\ntitle: Test\n---\nBody.", encoding="utf-8")
+
+        calls = {"n": 0}
+        def _eval(path, family, platform):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                return {"grade": "B", "fail_count": 0, "warn_count": 1,
+                        "findings": [], "from_stored": False}
+            return {"grade": "C", "fail_count": 1, "warn_count": 0,
+                    "findings": [{"level": "FAIL", "message": "abstract class",
+                                  "line": 12, "category": "TA"}]}
+
+        monkeypatch.setattr(mod, "_evaluate_file", _eval)
+        monkeypatch.setattr(mod, "read_grade", lambda p: None)
+        result = compare_content(existing_path, "---\ntitle: T\n---\nNew.",
+                                 family="pdf", platform="net")
+        assert result["decision"] == DECISION_BLOCK
+
+    def test_a_to_d_unchanged(self, monkeypatch, tmp_path):
+        """A→D is already BLOCK regardless of findings — no change."""
+        import no_downgrade_guard as mod
+        existing_path = tmp_path / "page.md"
+        existing_path.write_text("---\ntitle: Test\n---\nBody.", encoding="utf-8")
+
+        calls = {"n": 0}
+        def _eval(path, family, platform):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                return {"grade": "A", "fail_count": 0, "warn_count": 0,
+                        "findings": [], "from_stored": False}
+            return {"grade": "D", "fail_count": 5, "warn_count": 0,
+                    "findings": [{"level": "FAIL", "message": "bad",
+                                  "line": 1, "category": "AA"}]}
+
+        monkeypatch.setattr(mod, "_evaluate_file", _eval)
+        monkeypatch.setattr(mod, "read_grade", lambda p: None)
+        result = compare_content(existing_path, "---\ntitle: T\n---\nNew.",
+                                 family="pdf", platform="net")
+        assert result["decision"] == DECISION_BLOCK
+
+    def test_force_regenerate_bypasses_ta_escalation(self, monkeypatch, tmp_path):
+        """--force-regenerate bypasses all guards including TA escalation."""
+        import no_downgrade_guard as mod
+        existing_path = tmp_path / "page.md"
+        existing_path.write_text("---\ntitle: Test\n---\nBody.", encoding="utf-8")
+
+        calls = {"n": 0}
+        def _eval(path, family, platform):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                return {"grade": "A", "fail_count": 0, "warn_count": 0,
+                        "findings": [], "from_stored": False}
+            return {"grade": "C", "fail_count": 1, "warn_count": 0,
+                    "findings": [{"level": "FAIL", "message": "static class",
+                                  "line": 10, "category": "TA"}]}
+
+        monkeypatch.setattr(mod, "_evaluate_file", _eval)
+        monkeypatch.setattr(mod, "read_grade", lambda p: None)
+        result = compare_content(existing_path, "---\ntitle: T\n---\nNew.",
+                                 family="pdf", platform="net",
+                                 force_regenerate=True)
+        assert result["decision"] == DECISION_ALLOW

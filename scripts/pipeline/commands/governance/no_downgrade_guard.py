@@ -205,6 +205,21 @@ def compare_content(target_path: Path, proposed_text: str, family: str | None = 
             DECISION_BLOCK: "proposed content regresses beyond the allowed quality floor",
         }[decision]
 
+    # TC-24: Escalate WARN → BLOCK when type-accuracy findings cause the
+    # grade regression.  This makes the guard a hard gate for TA-caused
+    # A→C / B→C transitions while leaving non-TA WARN behaviour unchanged.
+    if decision == DECISION_WARN:
+        ta_findings = [
+            f for f in proposed["findings"]
+            if f.get("category") == "TA"
+        ]
+        if ta_findings:
+            decision = DECISION_BLOCK
+            reason = (
+                f"type accuracy findings block this regression: "
+                f"{len(ta_findings)} TA issue(s)"
+            )
+
     result = {
         "decision": decision,
         "reason": reason,

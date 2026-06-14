@@ -415,17 +415,17 @@ class TestStaticClassInstantiation:
         ], root=tmp_path)
 
     def test_new_static_class_produces_warn(self):
-        """new FieldDateTimeFormatter() → WARN (static class)."""
+        """new FieldDateTimeFormatter() → FAIL (static class, C#)."""
         page = _csharp_page(textwrap.dedent("""\
             ```csharp
             var fmt = new FieldDateTimeFormatter();
             ```
         """))
         findings = self.ev.evaluate(page, None)
-        static_warn = [f for f in findings if "static" in f.message and f.level == "WARN"]
-        assert len(static_warn) == 1
-        assert static_warn[0].category == "TA"
-        assert "FieldDateTimeFormatter" in static_warn[0].message
+        static_fail = [f for f in findings if "static" in f.message and f.level == "FAIL"]
+        assert len(static_fail) == 1
+        assert static_fail[0].category == "TA"
+        assert "FieldDateTimeFormatter" in static_fail[0].message
 
     def test_new_regular_class_no_finding(self):
         """new FieldNumberCurrencyFormatter() → no finding (not static)."""

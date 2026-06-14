@@ -299,7 +299,7 @@ class TypeAccuracyEvaluator(BaseEvaluator):
             line_no = start_line + code[: m.start()].count("\n")
             if entry.get("is_static"):
                 findings.append(Finding(
-                    level="WARN",
+                    level="FAIL",
                     category="TA",
                     filepath=str(page.filepath),
                     line_no=line_no,
