@@ -3191,6 +3191,22 @@ scripts:
     deprecated_since: null
     notes: "Audit family-level _index.md subtitles across docs/kb/reference sites; used by subtitle governance sprint"
 
+  - path: scripts/pipeline/commands/diagnostics/calibrate_check6.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "Calibration scan; reads content pages and writes JSON report under reports/calibration/; no content writes"
+    deprecated_since: null
+    notes: "Check 6 (static/abstract class instantiation) calibration scanner — runs TypeAccuracyEvaluator across family/platform content pages and writes per-product findings to reports/calibration/check6-{family}-{platform}.json"
+
   - path: scripts/pipeline/commands/ops/lane_manifest.py
     kind: entrypoint
     lifecycle: active
