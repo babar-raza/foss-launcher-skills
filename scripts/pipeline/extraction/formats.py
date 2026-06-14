@@ -446,7 +446,7 @@ def detect_formats(
     load_format_pattern = re.compile(
         r"(LoadFormat|ImportFormat|InputFormat|SourceFormat)", re.IGNORECASE)
     importer_pattern = re.compile(
-        r"(Importer|Exporter|Reader|Writer|Loader|Saver|Serializer)", re.IGNORECASE)
+        r"(Importer|Exporter|Reader|Writer|Loader|Saver|Serializer|Device)", re.IGNORECASE)
     # LoadOptions/SaveOptions classes signal constructor-based import/export
     # (e.g. HtmlLoadOptions → HTML import, PdfSaveOptions → PDF export).
     load_save_options_pattern = re.compile(
@@ -466,7 +466,7 @@ def detect_formats(
         "clsid", "flags", "value", "minimal", "auto", "unknown",
         "package", "core", "data", "cfb", "xml", "message",
         "main", "col", "row", "elem", "extension", "content",
-        "index", "header", "table", "shape", "chart", "image",
+        "page", "index", "header", "table", "shape", "chart", "image",
         "geometry", "material", "matrix", "mesh", "rotation",
         "address", "storage", "black", "double", "el", "opt",
         "chars", "emu", "color", "point", "rect", "size",
@@ -563,10 +563,10 @@ def detect_formats(
 
             if importer_pattern.search(cname):
                 direction = "import"
-                if re.search(r"(Exporter|Writer|Saver|Serializer)", cname, re.IGNORECASE):
+                if re.search(r"(Exporter|Writer|Saver|Serializer|Device)", cname, re.IGNORECASE):
                     direction = "export"
                 fmt_name = re.sub(
-                    r"(Importer|Exporter|Reader|Writer|Loader|Saver|Serializer|Factory|Registry)", "",
+                    r"(Importer|Exporter|Reader|Writer|Loader|Saver|Serializer|Factory|Registry|Device)", "",
                     cname, flags=re.IGNORECASE).strip().strip("_")
                 # H-04: reject empty, too-short, or common-word false positives
                 _fmt_lower = fmt_name.lower()
