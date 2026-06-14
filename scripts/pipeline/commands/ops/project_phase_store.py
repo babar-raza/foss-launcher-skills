@@ -99,6 +99,27 @@ def get_record(state: dict, family: str, platform: str) -> dict:
     return _normalize_record(state.get(_product_key(family, platform), {}))
 
 
+def validate_completion(state: dict, family: str, platform: str) -> list[str]:
+    """Check for inconsistencies in a product's phase state.
+
+    Returns a list of warning strings (empty if consistent).
+    """
+    warnings: list[str] = []
+    record = get_record(state, family, platform)
+    vals = record.get("values", {})
+
+    if vals.get("readiness_done"):
+        hgate_dir = Path("reports") / "human-review"
+        slug = f"{family}-{platform}"
+        for gate in ("h01", "h02", "h03", "h04", "h05"):
+            gate_file = hgate_dir / f"{slug}-{gate}-sample.md"
+            if not gate_file.is_file():
+                warnings.append(
+                    f"readiness_done=true but H-gate file missing: {gate_file.name}"
+                )
+    return warnings
+
+
 def set_value(state: dict, family: str, platform: str, key: str, value, updated_by: str) -> dict:
     product_key = _product_key(family, platform)
     record = get_record(state, family, platform)
@@ -208,6 +229,8 @@ def main(argv: list[str] | None = None) -> int:
         record = set_value(state, args.family, args.platform, key, _parse_value(raw_value), args.updated_by)
         save_state(state_path, state)
         _emit_mutation("set", args.family, args.platform, key, record["values"][key], True, args.json)
+        for w in validate_completion(state, args.family, args.platform):
+            print(f"WARN: {w}", file=os.sys.stderr)
         return 0
 
     changed = clear_value(state, args.family, args.platform, args.key)

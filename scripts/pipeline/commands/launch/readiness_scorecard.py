@@ -210,6 +210,10 @@ def compute_verdict(
     """
     blockers: list[str] = []
 
+    # Criterion 0: phase_state entry must exist
+    if not checkpoints:
+        blockers.append("No phase_state entry — product not registered in launch tracking")
+
     # Criterion 1: 0 D/F pages
     df_count = grades.get("D", 0) + grades.get("F", 0)
     if df_count > 0:
