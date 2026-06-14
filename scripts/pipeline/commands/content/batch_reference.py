@@ -1396,6 +1396,23 @@ def run(family: str, platform: str, kind_arg: str = "all",
                     entry["_slug_suffix"] = ns.rsplit(".", 1)[-1]
         print(f"  {len(_collisions)} name collision(s) disambiguated by namespace")
 
+    # Clean up stale undisambiguated pages when disambiguated versions will be
+    # generated.  After consolidation, a collision set {Color-Pdf.md, Color-Drawing.md}
+    # supersedes the old merged Color.md.
+    if _collisions and not dry_run:
+        _ref_dir = CONTENT_ROOT / family / platform
+        _stale_removed = 0
+        for _cname in sorted(_collisions):
+            _old = _ref_dir / f"{_sanitize_slug(_cname)}.md"
+            if _old.exists():
+                try:
+                    _old.unlink()
+                    _stale_removed += 1
+                except OSError:
+                    pass
+        if _stale_removed:
+            print(f"  Removed {_stale_removed} stale undisambiguated page(s)")
+
     if limit is not None:
         candidates = candidates[:limit]
 

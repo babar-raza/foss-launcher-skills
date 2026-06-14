@@ -97,7 +97,8 @@ def _load_known_formats(knowledge) -> list:
     if not isinstance(known_formats, list):
         return []
 
-    result = []
+    # First pass: collect direction per ext, merging import+export → both.
+    ext_directions: dict[str, str] = {}
     for entry in known_formats:
         if not isinstance(entry, dict):
             continue
@@ -112,7 +113,17 @@ def _load_known_formats(knowledge) -> list:
         # I/O implementation throws or is absent)
         if entry.get("functional") is False:
             continue
-        result.append({"ext": ext, "support": support})
+        existing = ext_directions.get(ext)
+        if existing is None:
+            ext_directions[ext] = support
+        elif existing != support:
+            # Merge import + export → both
+            if {existing, support} <= {"import", "export"}:
+                ext_directions[ext] = "both"
+            elif "both" in (existing, support):
+                ext_directions[ext] = "both"
+
+    result = [{"ext": ext, "support": sup} for ext, sup in ext_directions.items()]
     return result
 
 
