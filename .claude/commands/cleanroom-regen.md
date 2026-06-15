@@ -114,6 +114,11 @@ PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/ops/c
   - SKIPPED_WITH_REASON requires non-empty `agent_notes`
   - Phase B does NOT proceed to Mode 4 (diff) until all entries are terminal
 
+**Pre-write quality check (Phase B)**: After all Phase B entries reach terminal state, invoke `no-downgrade-guard` on each COMPLETED output file before proceeding to Mode 4:
+   - If BLOCK → mark file as FAILED in ledger with reason; revert to baseline
+   - If WARN → log warning in `agent-failures.json`; continue (operator reviews in Mode 5)
+   - If ALLOW → no action needed
+
 **Output:** `regeneration-log.json` (reference), `regeneration-plan.json`, `agent-execution-ledger.json`
 
 ---

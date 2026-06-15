@@ -62,13 +62,18 @@ pages and applies targeted improvements to bring them to grade C or above.
    - `PHANTOM_APIS` → run `/evidence-repair {slug}` (S-72)
    - `HASH_ONLY_REGRESSION` → see rejection rule below (do NOT blindly re-grade)
 
-4. **Re-grade after fix**:
+4. **Pre-write quality check**: After applying any fix, invoke `no-downgrade-guard` before finalizing:
+   - If BLOCK → revert the fix; do not re-grade; report the blocking reason
+   - If WARN → present the warning to the user; await confirmation before re-grading
+   - If ALLOW → proceed to re-grade
+
+5. **Re-grade after fix**:
    ```bash
    .venv/Scripts/python -m content_eval evaluate {family} {platform} --write-grade --files {page_path}
    ```
    Target: grade C or above. If page remains D/F after fix, escalate to S-73 (manual-edit).
 
-5. **Verify no regressions** on neighboring pages:
+6. **Verify no regressions** on neighboring pages:
    ```bash
    .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {page_path}
    ```

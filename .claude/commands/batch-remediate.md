@@ -90,13 +90,18 @@ This is safe for unattended runs and skips the LLM fix pass (Step 6).
       - **Too few FAQ questions (RV)**: Load `claims.json` for the product. Diff claim topics against existing `## ` question headings. Generate 3-5 new Q&A sections as `## Question?\n\nAnswer grounded in claim...`. Each answer must cite at least one claim from knowledge. Append after existing FAQ content.
       - **Missing reference table (RV)**: Load `api_surface.json`. Find the class matching the page's `linkTitle` field. Extract methods and properties. Generate a markdown table: `| Name | Return Type | Description |`. Every row must come from `api_surface.json` — no fabricated members. Insert after `## Overview` section.
 
-   c. Write the fixed file.
+   c. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
+      - If BLOCK → do not write; revert the file and add to human queue
+      - If WARN → present the warning to the user; await confirmation before writing
+      - If ALLOW → proceed with write
 
-   d. Run ground-check: `python scripts/pipeline/commands/content/audit.py --files {path}`
+   d. Write the fixed file.
 
-   e. If audit returns FAIL after the fix, revert the file and add to human queue.
+   e. Run ground-check: `python scripts/pipeline/commands/content/audit.py --files {path}`
 
-   f. Maximum 2 LLM passes per file. If findings persist after 2 passes, escalate to human queue.
+   f. If audit returns FAIL after the fix, revert the file and add to human queue.
+
+   g. Maximum 2 LLM passes per file. If findings persist after 2 passes, escalate to human queue.
 
 7. **Run re-evaluation**:
 
