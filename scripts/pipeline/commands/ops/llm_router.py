@@ -189,7 +189,7 @@ class LLMRouter:
             if resp.status_code != 200:
                 log.warning("Ollama /api/tags returned HTTP %d", resp.status_code)
                 return self._ollama_models
-            data = resp.json()
+            data = json.loads(resp.content.decode("utf-8"))
         except Exception as exc:
             log.debug("Ollama discovery failed: %s", exc)
             return self._ollama_models
@@ -255,10 +255,10 @@ class LLMRouter:
                 continue
 
             try:
-                content = resp.json()["choices"][0]["message"]["content"]
+                content = json.loads(resp.content.decode("utf-8"))["choices"][0]["message"]["content"]
                 if content is None:
                     raise ValueError("content is null")
-            except (KeyError, IndexError, json.JSONDecodeError, ValueError):
+            except (KeyError, IndexError, json.JSONDecodeError, ValueError, UnicodeDecodeError):
                 continue
 
             if not json_extract:
@@ -498,10 +498,10 @@ class LLMRouter:
                     if not _skip:
                         # HTTP 200 — parse response
                         try:
-                            content = resp.json()["choices"][0]["message"]["content"]
+                            content = json.loads(resp.content.decode("utf-8"))["choices"][0]["message"]["content"]
                             if content is None:
                                 raise ValueError("content is null")
-                        except (KeyError, IndexError, json.JSONDecodeError, ValueError) as exc:
+                        except (KeyError, IndexError, json.JSONDecodeError, ValueError, UnicodeDecodeError) as exc:
                             log.warning("%s: parse_failed — %s", name, exc)
                             if first_result is None:
                                 first_result = CallResult(
@@ -863,7 +863,7 @@ class LLMRouter:
                         break
 
                     try:
-                        data = resp.json()
+                        data = json.loads(resp.content.decode("utf-8"))
                         items = sorted(
                             data.get("data", []), key=lambda x: x.get("index", 0)
                         )

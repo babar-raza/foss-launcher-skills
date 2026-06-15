@@ -142,6 +142,7 @@ class _FakeHTTPResponse:
         self.status_code = status_code
         self._body = body
         self.text = json.dumps(body)
+        self.content = json.dumps(body).encode("utf-8")
 
     def json(self):
         return self._body
@@ -289,12 +290,7 @@ class TestAT03_DirectRequestsAdapter:
                     raise effect
                 return effect
 
-        resp = MagicMock()
-        resp.status_code = 200
-        resp.json.return_value = {
-            "choices": [{"message": {"content": "Hola"}}],
-            "usage": {"prompt_tokens": 20, "completion_tokens": 15, "total_tokens": 35},
-        }
+        resp = _prof_chat_resp("Hola", prompt_tokens=20, completion_tokens=15)
         session = _FakeHTTPSession(side_effects)
         return LLMBackend(
             api_key="test-key-cs008",
@@ -305,36 +301,21 @@ class TestAT03_DirectRequestsAdapter:
         )
 
     def test_translate_records_one_api_call(self):
-        resp = MagicMock()
-        resp.status_code = 200
-        resp.json.return_value = {
-            "choices": [{"message": {"content": "Hola"}}],
-            "usage": {"prompt_tokens": 20, "completion_tokens": 15, "total_tokens": 35},
-        }
+        resp = _prof_chat_resp("Hola", prompt_tokens=20, completion_tokens=15)
         backend = self._make_llm_backend_with_fake([resp])
         backend.translate("Hello", "en", "es")
         assert len(backend.metrics_events) == 1
         assert backend.metrics_events[0].api_calls_count_delta == 1
 
     def test_translate_records_token_usage(self):
-        resp = MagicMock()
-        resp.status_code = 200
-        resp.json.return_value = {
-            "choices": [{"message": {"content": "Hola"}}],
-            "usage": {"prompt_tokens": 20, "completion_tokens": 15, "total_tokens": 35},
-        }
+        resp = _prof_chat_resp("Hola", prompt_tokens=20, completion_tokens=15)
         backend = self._make_llm_backend_with_fake([resp])
         backend.translate("Hello", "en", "es")
         agg = aggregate_events(backend.metrics_events)
         assert agg.total_tokens == 35
 
     def test_translate_event_call_site_id_cs008(self):
-        resp = MagicMock()
-        resp.status_code = 200
-        resp.json.return_value = {
-            "choices": [{"message": {"content": "Hola"}}],
-            "usage": {"prompt_tokens": 5, "completion_tokens": 5, "total_tokens": 10},
-        }
+        resp = _prof_chat_resp("Hola", prompt_tokens=5, completion_tokens=5)
         backend = self._make_llm_backend_with_fake([resp])
         backend.translate("Hi", "en", "es")
         assert backend.metrics_events[0].call_site_id == "CS-008"
@@ -389,19 +370,11 @@ class TestAT05_RetryCountsThreeAttempts:
                 self.call_count = 0
 
             def _make_error(self, code):
-                r = MagicMock()
-                r.status_code = code
-                r.json.return_value = {"error": f"HTTP {code}"}
-                return r
+                body = {"error": f"HTTP {code}"}
+                return _FakeHTTPResponse(body, status_code=code)
 
             def _make_success(self):
-                r = MagicMock()
-                r.status_code = 200
-                r.json.return_value = {
-                    "choices": [{"message": {"content": "Hola"}}],
-                    "usage": {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15},
-                }
-                return r
+                return _prof_chat_resp("Hola", prompt_tokens=10, completion_tokens=5)
 
             def post(self, url, json=None, timeout=None, **kwargs):
                 self.call_count += 1
@@ -430,19 +403,11 @@ class TestAT05_RetryCountsThreeAttempts:
                 ]
 
             def _err(self, code):
-                r = MagicMock()
-                r.status_code = code
-                r.json.return_value = {"error": str(code)}
-                return r
+                body = {"error": str(code)}
+                return _FakeHTTPResponse(body, status_code=code)
 
             def _ok(self):
-                r = MagicMock()
-                r.status_code = 200
-                r.json.return_value = {
-                    "choices": [{"message": {"content": "ok"}}],
-                    "usage": {"prompt_tokens": 5, "completion_tokens": 5, "total_tokens": 10},
-                }
-                return r
+                return _prof_chat_resp("ok", prompt_tokens=5, completion_tokens=5)
 
             def post(self, url, **kwargs):
                 return self._responses.pop(0)
@@ -504,10 +469,7 @@ class TestAT07_OllamaExcluded:
     def test_ollama_chat_produces_empty_events_list(self, tmp_path):
         from commands.ops.llm_router import LLMRouter
         import requests as _real_requests
-        mock_resp = MagicMock()
-        mock_resp.status_code = 200
-        mock_resp.text = '{"answer": "from ollama"}'
-        mock_resp.json.return_value = {"choices": [{"message": {"content": "ollama says hi"}}]}
+        mock_resp = _prof_chat_resp("ollama says hi")
 
         with patch.dict(os.environ, {"PROFESSIONALIZE_API_KEY": ""}, clear=False):
             router = LLMRouter(registry_path=_make_router_registry(tmp_path))
