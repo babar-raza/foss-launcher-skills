@@ -522,5 +522,109 @@ class TestLoopIntegration(unittest.TestCase):
         self.assertEqual(trace["status"], "LOOP_BLOCKED")
 
 
+# ============================================================
+# EXTENDED NEGATIVE CONTROLS (taskcard transitions, evidence mismatch, reroute contradictions)
+# ============================================================
+
+from loop_controller import validate_taskcard_transition, VALID_TRANSITIONS
+
+
+class TestNegativeControlsExtended(unittest.TestCase):
+    """Negative controls for taskcard state transitions and extended scenarios."""
+
+    # ---- Taskcard state transition controls ----
+
+    def test_nc_taskcard_skip_verified(self):
+        """IMPLEMENTED → ACCEPTED is invalid (must go through VERIFIED + SCORED)."""
+        self.assertFalse(validate_taskcard_transition("IMPLEMENTED", "ACCEPTED"))
+
+    def test_nc_taskcard_skip_scored(self):
+        """VERIFIED → ACCEPTED is invalid (must be SCORED first)."""
+        self.assertFalse(validate_taskcard_transition("VERIFIED", "ACCEPTED"))
+
+    def test_nc_rerouted_to_accepted(self):
+        """REROUTED → ACCEPTED is invalid (must be REWORKED first)."""
+        self.assertFalse(validate_taskcard_transition("REROUTED", "ACCEPTED"))
+
+    def test_nc_proposed_to_accepted(self):
+        """PROPOSED → ACCEPTED is invalid (cannot skip everything)."""
+        self.assertFalse(validate_taskcard_transition("PROPOSED", "ACCEPTED"))
+
+    def test_nc_terminal_state_no_outgoing(self):
+        """Terminal states (ACCEPTED, BLOCKED_EXTERNAL, DEFERRED) have no valid transitions."""
+        for terminal in ["ACCEPTED", "ACCEPTED_WITH_LIMITATIONS", "BLOCKED_EXTERNAL", "DEFERRED_WITH_REASON"]:
+            self.assertEqual(VALID_TRANSITIONS[terminal], [], f"{terminal} should have no outgoing transitions")
+
+    def test_nc_unknown_state_returns_false(self):
+        """Unknown source state returns False."""
+        self.assertFalse(validate_taskcard_transition("NONEXISTENT", "READY"))
+
+    # ---- Valid transitions (positive controls) ----
+
+    def test_pc_proposed_to_ready(self):
+        self.assertTrue(validate_taskcard_transition("PROPOSED", "READY"))
+
+    def test_pc_scored_to_rerouted(self):
+        self.assertTrue(validate_taskcard_transition("SCORED", "REROUTED"))
+
+    def test_pc_reworked_to_verified(self):
+        self.assertTrue(validate_taskcard_transition("REWORKED", "VERIFIED"))
+
+    # ---- Reroute contradiction controls ----
+
+    def test_nc_rerouted_accepted_without_reeval(self):
+        """STRUCTURED_NOT_GREEN with rerouted taskcard must NOT produce ACCEPT."""
+        yaml = textwrap.dedent("""\
+            outcome: NOT_GREEN
+            scores:
+              accuracy: 4
+              completeness: 4
+            evidence_files:
+              - log.md
+            taskcards:
+              - id: TC-001
+                status: REROUTED
+        """)
+        d = _make_evidence_dir(summary_yaml=yaml, evidence_files={"log.md": "ok"})
+        cls, _ = classify_summary(d)
+        self.assertEqual(cls, LoopClassification.STRUCTURED_NOT_GREEN)
+        decision = compute_decision(cls, True, True, retry_count=0)
+        self.assertNotEqual(decision["action"], "ACCEPT")
+
+    def test_nc_evidence_manifest_mismatch(self):
+        """Evidence files list referencing non-existent file → EVIDENCE_MISSING."""
+        yaml = textwrap.dedent("""\
+            outcome: ALL_GREEN
+            scores:
+              accuracy: 5
+              completeness: 5
+            evidence_files:
+              - this-file-does-not-exist.md
+            taskcards:
+              - id: TC-001
+                status: ACCEPTED
+        """)
+        d = _make_evidence_dir(summary_yaml=yaml)
+        cls, details = classify_summary(d)
+        self.assertEqual(cls, LoopClassification.EVIDENCE_MISSING)
+
+    def test_nc_summary_all_green_reroute_contradiction(self):
+        """outcome=ALL_GREEN + taskcard status=REROUTED → CONTRADICTORY."""
+        yaml = textwrap.dedent("""\
+            outcome: ALL_GREEN
+            scores:
+              accuracy: 5
+              completeness: 5
+            evidence_files:
+              - log.md
+            taskcards:
+              - id: TC-001
+                status: REROUTED
+        """)
+        d = _make_evidence_dir(summary_yaml=yaml, evidence_files={"log.md": "ok"})
+        cls, details = classify_summary(d)
+        self.assertEqual(cls, LoopClassification.CONTRADICTORY)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -40,6 +40,37 @@ class LoopClassification(str, Enum):
 
 
 # ---------------------------------------------------------------------------
+# Taskcard state transition validator
+# ---------------------------------------------------------------------------
+
+VALID_TRANSITIONS: dict[str, list[str]] = {
+    "PROPOSED": ["READY", "BLOCKED", "DEFERRED_WITH_REASON"],
+    "READY": ["IN_PROGRESS", "BLOCKED"],
+    "BLOCKED": ["READY", "BLOCKED_EXTERNAL", "DEFERRED_WITH_REASON"],
+    "IN_PROGRESS": ["IMPLEMENTED", "BLOCKED"],
+    "IMPLEMENTED": ["VERIFIED", "IN_PROGRESS"],
+    "VERIFIED": ["SCORED"],
+    "SCORED": ["ACCEPTED", "ACCEPTED_WITH_LIMITATIONS", "REROUTED"],
+    "REROUTED": ["REWORKING", "BLOCKED_EXTERNAL"],
+    "REWORKING": ["REWORKED", "BLOCKED"],
+    "REWORKED": ["VERIFIED"],
+    # Terminal states have no valid outgoing transitions
+    "ACCEPTED": [],
+    "ACCEPTED_WITH_LIMITATIONS": [],
+    "BLOCKED_EXTERNAL": [],
+    "DEFERRED_WITH_REASON": [],
+}
+
+
+def validate_taskcard_transition(from_state: str, to_state: str) -> bool:
+    """Return True if transitioning from from_state to to_state is valid."""
+    allowed = VALID_TRANSITIONS.get(from_state.upper())
+    if allowed is None:
+        return False
+    return to_state.upper() in allowed
+
+
+# ---------------------------------------------------------------------------
 # YAML parser (minimal, no PyYAML dependency required)
 # ---------------------------------------------------------------------------
 
