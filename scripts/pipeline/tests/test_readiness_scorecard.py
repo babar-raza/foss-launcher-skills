@@ -175,7 +175,17 @@ class TestCheckpointCriteria:
         assert ready is False
         assert any("truth_audit_done" in b for b in blockers)
 
-
+    def test_empty_checkpoints_blocks_readiness(self):
+        """Criterion 0: empty checkpoints dict must block (no phase_state entry)."""
+        ready, blockers = compute_verdict(
+            _passing_grades(),
+            _passing_coverage(),
+            {},
+            _passing_hgates(),
+            skip_human_review=True,
+        )
+        assert ready is False
+        assert any("phase_state" in b.lower() or "not registered" in b.lower() for b in blockers)
 
 
 # ---------------------------------------------------------------------------

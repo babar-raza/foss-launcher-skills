@@ -128,6 +128,74 @@ class ProjectPhaseStoreTests(unittest.TestCase):
             self.assertIn("corrupt", backup.name)
 
 
+class ValidateCompletionTests(unittest.TestCase):
+    def test_readiness_done_with_all_hgates_no_warnings(self):
+        """readiness_done=true with all H-gate files present → no warnings."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            hgate_dir = root / "reports" / "human-review"
+            hgate_dir.mkdir(parents=True)
+            for gate in ("h01", "h02", "h03", "h04", "h05"):
+                (hgate_dir / f"pdf-net-{gate}-sample.md").write_text(
+                    f"# H-{gate}\nresult: PASS\n", encoding="utf-8"
+                )
+            state = {
+                "pdf/net": {
+                    "values": {"readiness_done": True},
+                    "updated_by": "test",
+                    "updated_at": "2026-06-15",
+                }
+            }
+            import os
+            old_cwd = os.getcwd()
+            os.chdir(root)
+            try:
+                warnings = project_phase_store.validate_completion(state, "pdf", "net")
+            finally:
+                os.chdir(old_cwd)
+            self.assertEqual(warnings, [])
+
+    def test_readiness_done_with_missing_hgates_warns(self):
+        """readiness_done=true with missing H-gate files → warnings returned."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            hgate_dir = root / "reports" / "human-review"
+            hgate_dir.mkdir(parents=True)
+            # Only create h01 and h02
+            for gate in ("h01", "h02"):
+                (hgate_dir / f"pdf-net-{gate}-sample.md").write_text(
+                    f"# H-{gate}\nresult: PASS\n", encoding="utf-8"
+                )
+            state = {
+                "pdf/net": {
+                    "values": {"readiness_done": True},
+                    "updated_by": "test",
+                    "updated_at": "2026-06-15",
+                }
+            }
+            import os
+            old_cwd = os.getcwd()
+            os.chdir(root)
+            try:
+                warnings = project_phase_store.validate_completion(state, "pdf", "net")
+            finally:
+                os.chdir(old_cwd)
+            self.assertEqual(len(warnings), 3)  # h03, h04, h05 missing
+            self.assertTrue(all("missing" in w.lower() for w in warnings))
+
+    def test_readiness_not_done_with_missing_hgates_no_warnings(self):
+        """readiness_done=false with missing H-gate files → no warnings."""
+        state = {
+            "pdf/net": {
+                "values": {"readiness_done": False},
+                "updated_by": "test",
+                "updated_at": "2026-06-15",
+            }
+        }
+        warnings = project_phase_store.validate_completion(state, "pdf", "net")
+        self.assertEqual(warnings, [])
+
+
 class NoDowngradeGuardTests(unittest.TestCase):
     def test_new_file_is_allow(self):
         with fake_content_target() as target:
