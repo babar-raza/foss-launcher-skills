@@ -312,3 +312,250 @@ class TestTAEscalation:
                                  family="pdf", platform="net",
                                  force_regenerate=True)
         assert result["decision"] == DECISION_ALLOW
+
+
+# ---------------------------------------------------------------------------
+# TC-26: Integration test — real _evaluate_file path (NOT mocked)
+# ---------------------------------------------------------------------------
+
+class TestEvaluateFileIntegration:
+    """TC-26: Exercise real _evaluate_file → TypeAccuracyEvaluator wiring.
+
+    These tests call _evaluate_file directly WITHOUT monkeypatching it.
+    They prove that the wiring fix (0b6a08e4ea) is regression-protected:
+    TypeAccuracyEvaluator is invoked inside _evaluate_file and TA-category
+    findings appear in the output.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _setup_knowledge(self, tmp_path, monkeypatch):
+        """Create minimal synthetic knowledge that satisfies both roots.
+
+        Gap O: content_discovery.KNOWLEDGE_ROOT and type_accuracy.KNOWLEDGE_ROOT
+        are independent variables.  We must configure BOTH.
+        """
+        import content_discovery as _cd_mod
+        import content_eval.evaluators.type_accuracy as _ta_mod
+
+        knowledge_root = tmp_path / "knowledge"
+        merged = knowledge_root / "pdf" / "net" / "merged"
+        merged.mkdir(parents=True)
+
+        # model.yaml — required by Knowledge.__init__ (knowledge_core.py:94)
+        (merged / "model.yaml").write_text(
+            "family: pdf\nplatform: net\nversion: '1.0'\nrepo_sha: test123\n",
+            encoding="utf-8",
+        )
+
+        # api_surface.json — one static class for Check 6 to find
+        import json
+        (merged / "api_surface.json").write_text(
+            json.dumps([{
+                "name": "StaticHelper",
+                "kind": "class_declaration",
+                "is_static": True,
+                "methods": [],
+                "properties": [],
+                "visibility": "public",
+            }]),
+            encoding="utf-8",
+        )
+
+        # Configure BOTH knowledge roots (Gap O)
+        monkeypatch.setattr(_cd_mod, "KNOWLEDGE_ROOT", knowledge_root)
+        monkeypatch.setattr(_ta_mod, "KNOWLEDGE_ROOT", knowledge_root)
+
+        self._tmp_path = tmp_path
+        self._knowledge_root = knowledge_root
+
+    def test_evaluate_file_produces_ta_findings(self):
+        """_evaluate_file returns TA FAIL finding for new StaticHelper()."""
+        from no_downgrade_guard import _evaluate_file
+
+        # Create a markdown page with a C# code block instantiating the static class
+        page_path = self._tmp_path / "test-page.md"
+        page_path.write_text(
+            "---\ntitle: Test Page\n---\n\n"
+            "## Example\n\n"
+            "```csharp\n"
+            "var helper = new StaticHelper();\n"
+            "```\n",
+            encoding="utf-8",
+        )
+
+        result = _evaluate_file(page_path, "pdf", "net")
+
+        # Verify TA-category findings exist in the output
+        ta_findings = [
+            f for f in result["findings"]
+            if f.get("category") == "TA"
+        ]
+        assert len(ta_findings) >= 1, (
+            f"Expected TA findings but got none. All findings: {result['findings']}"
+        )
+        assert ta_findings[0]["level"] == "FAIL"
+        assert "StaticHelper" in ta_findings[0]["message"]
+        assert "static" in ta_findings[0]["message"].lower()
+
+    def test_evaluate_file_no_ta_for_regular_class(self):
+        """_evaluate_file returns no TA findings for non-static class."""
+        from no_downgrade_guard import _evaluate_file
+
+        page_path = self._tmp_path / "test-page2.md"
+        page_path.write_text(
+            "---\ntitle: Test Page\n---\n\n"
+            "## Example\n\n"
+            "```csharp\n"
+            "var obj = new SomeOtherClass();\n"
+            "```\n",
+            encoding="utf-8",
+        )
+
+        result = _evaluate_file(page_path, "pdf", "net")
+
+        ta_findings = [
+            f for f in result["findings"]
+            if f.get("category") == "TA"
+        ]
+        assert len(ta_findings) == 0, (
+            f"Expected 0 TA findings for unknown class but got: {ta_findings}"
+        )
+
+
+# ---------------------------------------------------------------------------
+# TC-27: Guard degradation tests
+# ---------------------------------------------------------------------------
+
+class TestEvaluateFileDegradation:
+    """TC-27: Document guard behavior when evaluator components fail.
+
+    Three categories:
+      A) Knowledge unavailable → explicit FileNotFoundError
+      B) TypeAccuracyEvaluator fails → silent degradation (except Exception: pass)
+      C) Knowledge exists but no matching class → quiet no-op (0 TA findings)
+    """
+
+    # --- Group A: Knowledge unavailable → explicit raise ---
+
+    def test_knowledge_unavailable_raises(self, tmp_path, monkeypatch):
+        """_evaluate_file raises FileNotFoundError when knowledge is missing."""
+        import content_discovery as _cd_mod
+
+        # Point knowledge root at empty directory — no family/platform data
+        empty_knowledge = tmp_path / "empty_knowledge"
+        empty_knowledge.mkdir()
+        monkeypatch.setattr(_cd_mod, "KNOWLEDGE_ROOT", empty_knowledge)
+
+        page_path = tmp_path / "page.md"
+        page_path.write_text("---\ntitle: T\n---\nBody.", encoding="utf-8")
+
+        from no_downgrade_guard import _evaluate_file
+        with pytest.raises(FileNotFoundError, match="no_such_family/no_such_plat"):
+            _evaluate_file(page_path, "no_such_family", "no_such_plat")
+
+    # --- Group B: TypeAccuracyEvaluator fails → silent degradation ---
+
+    def test_evaluator_exception_swallowed(self, tmp_path, monkeypatch):
+        """If TypeAccuracyEvaluator.evaluate() raises, _evaluate_file still returns."""
+        import content_discovery as _cd_mod
+        import content_eval.evaluators.type_accuracy as _ta_mod
+
+        # Set up valid knowledge so _evaluate_file gets past the Knowledge check
+        knowledge_root = tmp_path / "knowledge"
+        merged = knowledge_root / "pdf" / "net" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "model.yaml").write_text(
+            "family: pdf\nplatform: net\nversion: '1.0'\nrepo_sha: x\n",
+            encoding="utf-8",
+        )
+        import json
+        (merged / "api_surface.json").write_text("[]", encoding="utf-8")
+        monkeypatch.setattr(_cd_mod, "KNOWLEDGE_ROOT", knowledge_root)
+        monkeypatch.setattr(_ta_mod, "KNOWLEDGE_ROOT", knowledge_root)
+
+        # Make TypeAccuracyEvaluator.evaluate() raise
+        monkeypatch.setattr(
+            _ta_mod.TypeAccuracyEvaluator, "evaluate",
+            lambda self, page, knowledge: (_ for _ in ()).throw(RuntimeError("boom")),
+        )
+
+        page_path = tmp_path / "page.md"
+        page_path.write_text(
+            "---\ntitle: T\n---\n```csharp\nvar x = new Foo();\n```\n",
+            encoding="utf-8",
+        )
+
+        from no_downgrade_guard import _evaluate_file
+        result = _evaluate_file(page_path, "pdf", "net")
+
+        # Should return without raising — evaluator failure is swallowed
+        assert "grade" in result
+        ta_findings = [f for f in result["findings"] if f.get("category") == "TA"]
+        assert len(ta_findings) == 0, "TA findings should be absent when evaluator throws"
+
+    def test_page_load_returns_none_no_ta(self, tmp_path, monkeypatch):
+        """If Page.load() returns None, TA evaluator is skipped silently."""
+        import content_discovery as _cd_mod
+        import content_eval.evaluators.type_accuracy as _ta_mod
+        from content_eval.models import Page
+
+        knowledge_root = tmp_path / "knowledge"
+        merged = knowledge_root / "pdf" / "net" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "model.yaml").write_text(
+            "family: pdf\nplatform: net\nversion: '1.0'\nrepo_sha: x\n",
+            encoding="utf-8",
+        )
+        import json
+        (merged / "api_surface.json").write_text("[]", encoding="utf-8")
+        monkeypatch.setattr(_cd_mod, "KNOWLEDGE_ROOT", knowledge_root)
+        monkeypatch.setattr(_ta_mod, "KNOWLEDGE_ROOT", knowledge_root)
+
+        # Make Page.load return None
+        monkeypatch.setattr(Page, "load", staticmethod(lambda path: None))
+
+        page_path = tmp_path / "page.md"
+        page_path.write_text(
+            "---\ntitle: T\n---\n```csharp\nvar x = new Foo();\n```\n",
+            encoding="utf-8",
+        )
+
+        from no_downgrade_guard import _evaluate_file
+        result = _evaluate_file(page_path, "pdf", "net")
+
+        assert "grade" in result
+        ta_findings = [f for f in result["findings"] if f.get("category") == "TA"]
+        assert len(ta_findings) == 0
+
+    # --- Group C: Knowledge exists but no matching class → quiet no-op ---
+
+    def test_empty_api_surface_no_ta_findings(self, tmp_path, monkeypatch):
+        """Knowledge exists with empty api_surface → 0 TA findings (quiet no-op)."""
+        import content_discovery as _cd_mod
+        import content_eval.evaluators.type_accuracy as _ta_mod
+
+        knowledge_root = tmp_path / "knowledge"
+        merged = knowledge_root / "pdf" / "net" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "model.yaml").write_text(
+            "family: pdf\nplatform: net\nversion: '1.0'\nrepo_sha: x\n",
+            encoding="utf-8",
+        )
+        import json
+        (merged / "api_surface.json").write_text("[]", encoding="utf-8")
+        monkeypatch.setattr(_cd_mod, "KNOWLEDGE_ROOT", knowledge_root)
+        monkeypatch.setattr(_ta_mod, "KNOWLEDGE_ROOT", knowledge_root)
+
+        page_path = tmp_path / "page.md"
+        page_path.write_text(
+            "---\ntitle: T\n---\n```csharp\nvar x = new SomeClass();\n```\n",
+            encoding="utf-8",
+        )
+
+        from no_downgrade_guard import _evaluate_file
+        result = _evaluate_file(page_path, "pdf", "net")
+
+        # Function returns normally; TA findings absent because api_surface is empty
+        assert "grade" in result
+        ta_findings = [f for f in result["findings"] if f.get("category") == "TA"]
+        assert len(ta_findings) == 0
