@@ -1,0 +1,50 @@
+# Summary Parser Contract -- rules for classifying Prompt 3 output
+schema_version: "1.0.0"
+
+input_file: "stage3-final-sprint-summary.yaml"
+
+required_structured_keys:
+  - outcome            # str: ALL_GREEN | NOT_GREEN | BLOCKED
+  - scores             # dict: dimension_name -> int (1-5)
+  - taskcards           # list of dicts with id + status
+  - evidence_files      # list of str (file paths)
+
+classifications:
+  STRUCTURED_ALL_GREEN:
+    condition: "All 4 keys present, outcome=ALL_GREEN, all scores >= threshold, evidence complete"
+    action: ACCEPT
+  STRUCTURED_NOT_GREEN:
+    condition: "All 4 keys present, but outcome != ALL_GREEN or scores below threshold"
+    action: RETRY
+  PROSE_ONLY:
+    condition: "YAML parses but outcome key is absent"
+    action: RETRY
+  MISSING:
+    condition: "File absent, empty, or invalid YAML"
+    action: RETRY
+  CONTRADICTORY:
+    condition: "outcome=ALL_GREEN but scores < threshold or taskcards show failures"
+    action: BLOCK
+  EVIDENCE_MISSING:
+    condition: "evidence_files key absent, empty, or declared files not on disk"
+    action: RETRY
+  SCORES_MISSING:
+    condition: "scores key absent or empty dict"
+    action: RETRY
+  TASKCARDS_INCOMPLETE:
+    condition: "taskcards key absent or entries lack status field"
+    action: RETRY
+  BLOCKED_EXTERNAL:
+    condition: "outcome == BLOCKED"
+    action: BLOCK
+
+decision_tree_priority:
+  - MISSING              # check first: file exists and parses?
+  - PROSE_ONLY           # then: has outcome key?
+  - SCORES_MISSING       # then: has scores?
+  - EVIDENCE_MISSING     # then: has evidence_files and they exist?
+  - TASKCARDS_INCOMPLETE # then: has taskcards with status?
+  - BLOCKED_EXTERNAL     # then: outcome == BLOCKED?
+  - CONTRADICTORY        # then: cross-validation
+  - STRUCTURED_ALL_GREEN # then: everything passes
+  - STRUCTURED_NOT_GREEN # fallback

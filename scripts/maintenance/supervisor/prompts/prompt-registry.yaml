@@ -1,0 +1,144 @@
+# Post-Sprint Loop Prompt Registry
+# Registers all prompt assets with stable IDs, descriptions, inputs, outputs,
+# successor rules, and validation rules.
+registry_version: "1.0.0"
+prompt_folder: "scripts/maintenance/supervisor/prompts/"
+schema_folder: "scripts/maintenance/supervisor/schemas/"
+
+prompts:
+  PSL-P1:
+    id: PSL-P1
+    name: "Post-Sprint Audit"
+    file: "prompt1-post-sprint-audit.md"
+    stage: 1
+    description: "Strict evidence audit with L1/L2/L3 issue discovery and next-stage recommendation"
+    required_inputs:
+      - "Sprint evidence (evidence bundle, summary, logs, or repository state)"
+    required_outputs:
+      - stage1-sprint-audit-summary.md
+      - stage1-achievement-proof-summary.md
+      - stage1-final-outcome-impact.md
+      - stage1-l1-execution-issues.yaml
+      - stage1-l2-integration-issues.yaml
+      - stage1-l3-system-weaknesses.yaml
+      - stage1-root-cause-map.md
+      - stage1-claim-classification-matrix.csv
+      - stage1-evidence-quality-verdict.md
+      - stage1-next-stage-recommendation.yaml
+    successor_rules:
+      SPRINT_ALL_GREEN_VERIFIED: "adversarial_review"
+      SPRINT_REQUIRES_PLAN_HARDENING: "PSL-P2"
+      SPRINT_REQUIRES_REEXECUTION: "PSL-P2 -> PSL-P3"
+      SPRINT_REQUIRES_EVIDENCE_REPAIR: "PSL-P3 (evidence lane)"
+      SPRINT_SUMMARY_INSUFFICIENT: "PSL-P1 (rerun)"
+      SPRINT_BLOCKED_EXTERNAL: "blocker_packaging"
+    validation_schema: "stage1-issue-model-schema.yaml"
+
+  PSL-P2:
+    id: PSL-P2
+    name: "Plan Hardening"
+    file: "prompt2-plan-hardening.md"
+    stage: 2
+    description: "Harden plan from audit findings; produce taskcards and execution-ready plan"
+    required_inputs:
+      - "Stage 1 outputs (L1/L2/L3 issues, recommendation)"
+      - "Active master plan (if available)"
+    required_outputs:
+      - stage2-input-interpretation.md
+      - stage2-issues-extracted-from-stage1.md
+      - stage2-plan-gap-analysis.md
+      - stage2-master-plan-delta.md
+      - stage2-enhanced-master-plan.md
+      - stage2-taskcard-index.yaml
+      - stage2-execution-dag.yaml
+      - stage2-lane-ownership-map.yaml
+      - stage2-gate-model.md
+      - stage2-verification-matrix.md
+      - stage2-evidence-contract.md
+      - stage2-quality-scoring-rubric.md
+      - stage2-reroute-rules.md
+      - stage2-anti-overclaim-rules.md
+      - stage2-ready-for-execution-verdict.yaml
+    successor_rules:
+      PLAN_HARDENED_FROM_AUDIT_READY_FOR_EXECUTION: "PSL-P3"
+      PLAN_HARDENED_FROM_AUDIT_WITH_PARTIAL_CONTEXT: "PSL-P3"
+      PLAN_NOT_READY_AUDIT_PLAN_MISMATCH: "PSL-P1"
+      PLAN_NOT_READY_MISSING_ACTIVE_PLAN: "PSL-P1"
+      BLOCKED_EXTERNAL: "blocker_packaging"
+    validation_schema: "stage2-taskcard-contract.yaml"
+
+  PSL-P3:
+    id: PSL-P3
+    name: "Controlled Execution"
+    file: "prompt3-controlled-execution.md"
+    stage: 3
+    description: "Gated taskcard execution with quality scoring, reroute, and self-review"
+    required_inputs:
+      - "Stage 2 outputs (plan, taskcards, verification matrix)"
+      - "Repository state"
+    required_outputs:
+      - stage3-preflight-state.md
+      - stage3-execution-log.md
+      - stage3-lane-status.yaml
+      - stage3-taskcard-status.yaml
+      - stage3-verification-results.md
+      - stage3-quality-evaluations.yaml
+      - stage3-reroute-log.yaml
+      - stage3-evidence-manifest.yaml
+      - stage3-final-sprint-summary.yaml
+      - stage3-final-sprint-summary.md
+      - stage3-self-review-l1-execution-issues.yaml
+      - stage3-self-review-l2-integration-issues.yaml
+      - stage3-self-review-l3-system-weaknesses.yaml
+    successor_rules:
+      EXECUTION_COMPLETE_VERIFIED: "loop_controller -> ACCEPT"
+      EXECUTION_COMPLETE_WITH_LIMITATIONS: "loop_controller -> ACCEPT or RETRY"
+      EXECUTION_REROUTED_REWORK_REQUIRED: "PSL-P2 -> PSL-P3"
+      PLAN_NOT_READY_HEALED_ONLY: "PSL-P3 (re-execute)"
+      BLOCKED_BY_FAILED_GATE: "PSL-P2"
+      BLOCKED_EXTERNAL: "blocker_packaging"
+    validation_schema: "stage3-quality-scoring-rubric.yaml"
+
+  PSL-LC:
+    id: PSL-LC
+    name: "Loop Controller"
+    file: "prompt-loop-controller.md"
+    stage: controller
+    description: "Summary parsing, next-stage decision, reroute, and all-green acceptance"
+    backing_script: "scripts/maintenance/supervisor/loop_controller.py"
+    required_inputs:
+      - "Stage 3 final sprint summary YAML"
+      - "Evidence manifest"
+    required_outputs:
+      - loop-summary-classification.yaml
+      - loop-decision.yaml
+      - loop-open-items.yaml
+      - loop-next-stage-inputs.md
+      - loop-final-state-verdict.md
+    validation_schema: "loop-decision-state-machine.yaml"
+
+  PSL-OC:
+    id: PSL-OC
+    name: "Output Contracts"
+    file: "prompt-output-contracts.md"
+    stage: reference
+    description: "Required output schemas for all stages"
+
+  PSL-PA:
+    id: PSL-PA
+    name: "Project Adapter Template"
+    file: "project-adapter-template.md"
+    stage: reference
+    description: "Template for project-specific adapter configuration"
+    validation_schema: "project-adapter-contract.yaml"
+
+schemas:
+  - stage1-issue-model-schema.yaml
+  - stage2-taskcard-contract.yaml
+  - stage3-quality-scoring-rubric.yaml
+  - taskcard-state-machine.yaml
+  - summary-parser-contract.yaml
+  - loop-decision-state-machine.yaml
+  - evidence-bundle-contract.yaml
+  - project-adapter-contract.yaml
+  - governance-contract.yaml

@@ -3730,3 +3730,22 @@ scripts:
     deprecated_since: null
     change_impact: "LLM enrichment for shadow candidates below quality gates; bounded by fact graph, never invents facts"
     notes: "Calls llm.professionalize.com (gpt-oss); enriches stubs failing min_word_count or needing fact_ref injection; fact-graph-bounded"
+
+  # ── Supervisor — Post-Sprint Autonomy Loop ─────────────────────────────────
+
+  - path: scripts/maintenance/supervisor/loop_controller.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: supervisor
+    backing:
+      kind: skill
+      ref: sprint-loop
+    requires_test: true
+    test_targets:
+      - scripts/maintenance/supervisor/tests/test_loop_controller.py
+    deprecated_since: null
+    change_impact: "Post-sprint review decisions; fail-closed — only STRUCTURED_ALL_GREEN with passing scores produces ACCEPT"
+    notes: "Reads stage3 summary YAML, classifies outcome, validates evidence bundle, checks quality scores, emits loop decision"

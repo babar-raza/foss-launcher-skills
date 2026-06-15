@@ -1,0 +1,77 @@
+# Project Adapter: aspose.org
+# Concrete adapter configuration for the aspose.org Hugo multi-site monorepo
+adapter_version: "1.0.0"
+
+project:
+  name: "aspose.org"
+  repo_root: "."  # Resolved at runtime via _common.find_repo_root()
+  branch: "main"
+
+paths:
+  evidence_dir: "reports/supervisor/"
+  plan_dir: "plans/"
+  taskcard_dir: "reports/supervisor/taskcards/"
+  prompt_dir: "scripts/maintenance/supervisor/prompts/"
+  prompt_registry: "scripts/maintenance/supervisor/prompts/prompt-registry.yaml"
+  reports_dir: "reports/"
+  supervisor_state_dir: ".supervisor/state/"
+
+commands:
+  test:
+    - "cd scripts/maintenance/supervisor && python -m pytest tests/ -v"
+  validate:
+    - "python scripts/pipeline/commands/governance/path_guard.py"
+    - "python scripts/pipeline/commands/content/audit.py --files"
+  build: []
+  governance_check:
+    - "python scripts/pipeline/commands/governance/path_guard.py"
+    - "python scripts/pipeline/commands/governance/skill_context.py status"
+  lint:
+    - "python -m py_compile"
+
+constraints:
+  protected_paths:
+    - "AGENTS.md"
+    - "CLAUDE.md"
+    - "CODEX.md"
+    - "themes/"
+    - "layouts/"
+    - "configs/"
+  allowed_mutation_paths:
+    - "scripts/maintenance/supervisor/"
+    - "reports/"
+    - ".supervisor/state/"
+    - ".supervisor/memory/"
+    - ".local/"
+  forbidden_actions:
+    - "Modify AGENTS.md"
+    - "Modify path_guard.py ALLOWED_PREFIXES"
+    - "Write to content/ without skill context"
+    - "Direct git commit without /commit skill"
+
+docs:
+  docs_paths:
+    - "docs/"
+  skills_paths:
+    - "scripts/maintenance/supervisor/prompts/"
+    - ".claude/commands/"
+  agent_instruction_paths:
+    - "AGENTS.md"
+    - "CLAUDE.md"
+
+gates:
+  project_specific_gates:
+    - name: "path_guard"
+      script: "scripts/pipeline/commands/governance/path_guard.py"
+      blocking: true
+    - name: "skill_context"
+      script: "scripts/pipeline/commands/governance/skill_context.py"
+      blocking: true
+    - name: "content_check"
+      script: "scripts/pipeline/commands/content/audit.py"
+      blocking: true
+  external_blockers: []
+
+packaging:
+  final_package_format: "zip"
+  evidence_bundle_path: ".local/evidences/"

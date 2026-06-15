@@ -1,0 +1,89 @@
+# Taskcard State Machine -- valid states and transitions
+schema_version: "1.0.0"
+
+states:
+  PROPOSED:
+    description: "Taskcard created, not yet ready for execution"
+    terminal: false
+  READY:
+    description: "Taskcard reviewed and ready for execution"
+    terminal: false
+  BLOCKED:
+    description: "Taskcard blocked by dependency or external factor"
+    terminal: false
+  IN_PROGRESS:
+    description: "Taskcard being actively worked on"
+    terminal: false
+  IMPLEMENTED:
+    description: "Implementation complete, not yet verified"
+    terminal: false
+  VERIFIED:
+    description: "Verification passed"
+    terminal: false
+  SCORED:
+    description: "Quality scoring completed"
+    terminal: false
+  REROUTED:
+    description: "Score below threshold, rerouted to rework"
+    terminal: false
+  REWORKING:
+    description: "Rework in progress after reroute"
+    terminal: false
+  REWORKED:
+    description: "Rework complete, needs re-verification"
+    terminal: false
+  ACCEPTED:
+    description: "All dimensions >= threshold, accepted"
+    terminal: true
+  ACCEPTED_WITH_LIMITATIONS:
+    description: "Accepted with documented caveats"
+    terminal: true
+  BLOCKED_EXTERNAL:
+    description: "Blocked by true external dependency"
+    terminal: true
+  DEFERRED_WITH_REASON:
+    description: "Explicitly deferred with documented reason"
+    terminal: true
+
+transitions:
+  PROPOSED:
+    - READY
+    - BLOCKED
+    - DEFERRED_WITH_REASON
+  READY:
+    - IN_PROGRESS
+    - BLOCKED
+  BLOCKED:
+    - READY
+    - BLOCKED_EXTERNAL
+    - DEFERRED_WITH_REASON
+  IN_PROGRESS:
+    - IMPLEMENTED
+    - BLOCKED
+  IMPLEMENTED:
+    - VERIFIED
+    - IN_PROGRESS          # verification failed, needs rework
+  VERIFIED:
+    - SCORED
+  SCORED:
+    - ACCEPTED
+    - ACCEPTED_WITH_LIMITATIONS
+    - REROUTED
+  REROUTED:
+    - REWORKING
+    - BLOCKED_EXTERNAL
+  REWORKING:
+    - REWORKED
+    - BLOCKED
+  REWORKED:
+    - VERIFIED             # must go through verification again
+
+invalid_transitions:
+  - from: PROPOSED
+    to: ACCEPTED           # cannot skip verification and scoring
+  - from: IMPLEMENTED
+    to: ACCEPTED           # must be verified and scored first
+  - from: VERIFIED
+    to: ACCEPTED           # must be scored first
+  - from: REROUTED
+    to: ACCEPTED           # must be reworked and re-verified first

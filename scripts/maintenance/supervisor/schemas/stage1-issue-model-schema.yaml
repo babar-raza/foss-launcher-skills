@@ -1,0 +1,56 @@
+# Stage 1 Issue Model Schema -- defines the structure of L1/L2/L3 issue records
+# Used by: prompt1-post-sprint-audit.md, loop_controller.py
+schema_version: "1.0.0"
+
+required_fields:
+  - issue_id          # string, unique within the audit run
+  - issue_level       # enum: L1 | L2 | L3
+  - title             # string, concise description
+  - description       # string, detailed description
+  - evidence          # string, what evidence supports this finding
+  - missing_evidence  # string, what evidence is absent
+  - root_cause        # string, underlying cause (not just symptom)
+  - why_not_only_symptom  # string, explains why root_cause is structural
+  - affected_files    # list of strings (file paths)
+  - affected_components   # list of strings
+  - affected_connection_points  # list of strings
+  - severity          # enum: critical | high | medium | low
+  - blocker           # boolean
+  - recurrence_risk   # enum: high | medium | low
+  - required_fix_type # string
+  - requires_plan_update      # boolean
+  - requires_taskcard         # boolean
+  - requires_system_healing   # boolean
+  - requires_reexecution      # boolean
+  - requires_governance_change  # boolean
+  - requires_evidence_repair    # boolean
+  - recommended_next_stage      # string
+  - acceptance_impact           # string
+
+issue_levels:
+  L1:
+    name: "Sprint Execution Issues"
+    description: "Issues in the sprint's own execution"
+  L2:
+    name: "Integration and Connect-Point Issues"
+    description: "Issues where sprint work failed to connect into the system"
+  L3:
+    name: "System Weakness Issues"
+    description: "Deeper weaknesses that allowed the sprint to fall short"
+
+severity_values:
+  - critical   # Blocks acceptance; must be fixed before proceeding
+  - high       # Significant gap; should be fixed in current cycle
+  - medium     # Notable gap; can be deferred with justification
+  - low        # Minor; informational
+
+claim_classifications:
+  - ACCEPTED_VERIFIED
+  - ACCEPTED_WITH_LIMITATIONS
+  - PARTIAL
+  - UNVERIFIED
+  - FAILED
+  - STALE
+  - MISLEADING
+  - DAMAGED_OR_REGRESSED
+  - EXTERNAL_BLOCKED

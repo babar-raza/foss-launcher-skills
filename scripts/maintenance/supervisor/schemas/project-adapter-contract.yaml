@@ -1,0 +1,63 @@
+# Project Adapter Contract -- required fields for project adapters
+schema_version: "1.0.0"
+
+required_sections:
+  project:
+    required_fields:
+      - name
+      - repo_root
+      - branch
+  paths:
+    required_fields:
+      - evidence_dir
+      - plan_dir
+      - taskcard_dir
+      - prompt_dir
+      - reports_dir
+  commands:
+    required_fields:
+      - test
+      - validate
+    optional_fields:
+      - build
+      - governance_check
+      - lint
+  constraints:
+    required_fields:
+      - allowed_mutation_paths
+    optional_fields:
+      - protected_paths
+      - forbidden_actions
+  docs:
+    optional_fields:
+      - docs_paths
+      - skills_paths
+      - agent_instruction_paths
+  gates:
+    optional_fields:
+      - project_specific_gates
+      - external_blockers
+  packaging:
+    required_fields:
+      - final_package_format
+    optional_fields:
+      - evidence_bundle_path
+
+validation_rules:
+  repo_root_exists:
+    description: "project.repo_root must point to an existing directory"
+    blocking: true
+  evidence_dir_writable:
+    description: "paths.evidence_dir must be writable"
+    blocking: true
+  test_commands_non_empty:
+    description: "commands.test must have at least one command"
+    blocking: true
+  validate_commands_non_empty:
+    description: "commands.validate must have at least one command"
+    blocking: true
+  mutation_paths_non_empty:
+    description: "constraints.allowed_mutation_paths must list at least one path"
+    blocking: true
+
+incomplete_adapter_action: "Block execution until adapter is repaired"

@@ -1,0 +1,67 @@
+# Stage 3 Quality Scoring Rubric -- 15-dimension scoring system
+# Used by: prompt3-controlled-execution.md, loop_controller.py
+schema_version: "1.0.0"
+
+scoring:
+  scale_min: 1
+  scale_max: 5
+  acceptance_threshold: 4   # Any dimension below this triggers reroute
+  max_retries: 2             # After this many reroutes, escalate
+
+dimensions:
+  requirement_correctness:
+    description: "Does the implementation match the stated requirement?"
+    weight: required
+  implementation_correctness:
+    description: "Is the code/change logically correct?"
+    weight: required
+  integration_completeness:
+    description: "Is the change integrated into all downstream consumers?"
+    weight: required
+  pipeline_compatibility:
+    description: "Does the change work within the existing pipeline?"
+    weight: required
+  governance_compliance:
+    description: "Does the change follow project governance rules?"
+    weight: required
+  evidence_completeness:
+    description: "Is the evidence bundle complete and accurate?"
+    weight: required
+  test_coverage:
+    description: "Are there tests proving the change works?"
+    weight: required
+  validator_coverage:
+    description: "Do validators enforce the new behavior?"
+    weight: required
+  repeatability:
+    description: "Does the change produce consistent results across reruns?"
+    weight: required
+  idempotency:
+    description: "Can the change be safely re-applied?"
+    weight: required
+  downstream_consumer_readiness:
+    description: "Are downstream consumers ready to use this change?"
+    weight: required
+  agentic_consumption_quality:
+    description: "Can agents use this change without human guidance?"
+    weight: required
+  rollback_safety_quality:
+    description: "Can this change be safely rolled back if needed?"
+    weight: required
+  documentation_sync_quality:
+    description: "Are docs, skills, and agent instructions updated?"
+    weight: required
+  production_readiness:
+    description: "Is this change ready for production use?"
+    weight: required
+
+reroute_rules:
+  below_threshold:
+    action: "REROUTED"
+    description: "Mark taskcard REROUTED, create reroute reason, repair, rescore"
+  after_max_retries:
+    action: "ESCALATE"
+    description: "Escalate to human decision if still below threshold after max retries"
+  external_blocker:
+    action: "BLOCKED_EXTERNAL"
+    description: "Document external blocker with evidence"
