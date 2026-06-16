@@ -198,6 +198,14 @@ def write_approved_candidates(
 
         # Verify candidate still has draft: true
         content = src.read_text(encoding="utf-8")
+        if "\ufffd" in content:
+            # U+FFFD in a candidate file indicates encoding corruption —
+            # silently skip rather than propagating corrupted bytes to content/
+            import logging as _logging
+            _logging.getLogger(__name__).error(
+                "Skipping candidate %s: contains U+FFFD encoding corruption", src
+            )
+            continue
         if "draft: true" not in content:
             continue
         if "shadow_candidate: true" not in content:

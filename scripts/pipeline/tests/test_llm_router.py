@@ -60,6 +60,7 @@ class _FakeHTTPResponse:
         self.status_code = status_code
         self._body = body
         self.text = json.dumps(body)
+        self.content = json.dumps(body).encode("utf-8")
 
     def json(self):
         return self._body
@@ -176,9 +177,9 @@ def _mock_chat_response(content: str, status_code: int = 200):
     resp = MagicMock()
     resp.status_code = status_code
     resp.text = content
-    resp.json.return_value = {
-        "choices": [{"message": {"content": content}}]
-    }
+    _body = {"choices": [{"message": {"content": content}}]}
+    resp.json.return_value = _body
+    resp.content = json.dumps(_body).encode("utf-8")
     return resp
 
 
@@ -186,12 +187,14 @@ def _mock_embed_response(vectors: list[list[float]], status_code: int = 200):
     """Build a mock requests.Response for embeddings (ollama path)."""
     resp = MagicMock()
     resp.status_code = status_code
-    resp.text = json.dumps({"data": vectors})
-    resp.json.return_value = {
+    _body = {
         "data": [
             {"index": i, "embedding": v} for i, v in enumerate(vectors)
         ]
     }
+    resp.text = json.dumps({"data": vectors})
+    resp.json.return_value = _body
+    resp.content = json.dumps(_body).encode("utf-8")
     return resp
 
 
@@ -504,13 +507,15 @@ class TestOllamaDiscovery:
         """Mock /api/tags -> verify preferred order with exact names."""
         tags_resp = MagicMock()
         tags_resp.status_code = 200
-        tags_resp.json.return_value = {
+        _tags_body = {
             "models": [
                 {"name": "mistral:7b", "size": 4000000000},
                 {"name": "llama3.2:latest", "size": 2000000000},
                 {"name": "llama3.1:latest", "size": 3000000000},
             ]
         }
+        tags_resp.json.return_value = _tags_body
+        tags_resp.content = json.dumps(_tags_body).encode("utf-8")
         with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.get.return_value = tags_resp
             mock_req.exceptions = real_requests.exceptions
@@ -523,9 +528,9 @@ class TestOllamaDiscovery:
     def test_discovery_base_name_match(self, router_no_key):
         tags_resp = MagicMock()
         tags_resp.status_code = 200
-        tags_resp.json.return_value = {
-            "models": [{"name": "llama3.1:latest", "size": 3000000000}]
-        }
+        _tags_body = {"models": [{"name": "llama3.1:latest", "size": 3000000000}]}
+        tags_resp.json.return_value = _tags_body
+        tags_resp.content = json.dumps(_tags_body).encode("utf-8")
         with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.get.return_value = tags_resp
             mock_req.exceptions = real_requests.exceptions
@@ -535,9 +540,9 @@ class TestOllamaDiscovery:
     def test_discovery_preserves_exact_tags(self, router_no_key):
         tags_resp = MagicMock()
         tags_resp.status_code = 200
-        tags_resp.json.return_value = {
-            "models": [{"name": "qwen2.5:14b", "size": 8000000000}]
-        }
+        _tags_body = {"models": [{"name": "qwen2.5:14b", "size": 8000000000}]}
+        tags_resp.json.return_value = _tags_body
+        tags_resp.content = json.dumps(_tags_body).encode("utf-8")
         with patch("commands.ops.llm_router.requests") as mock_req:
             mock_req.get.return_value = tags_resp
             mock_req.exceptions = real_requests.exceptions
@@ -577,9 +582,9 @@ class TestOllamaDiscovery:
         resp_ok = _mock_chat_response('{"answer": "from discovered"}')
         tags_resp = MagicMock()
         tags_resp.status_code = 200
-        tags_resp.json.return_value = {
-            "models": [{"name": "llama3.1:latest", "size": 3000000000}]
-        }
+        _tags_body = {"models": [{"name": "llama3.1:latest", "size": 3000000000}]}
+        tags_resp.json.return_value = _tags_body
+        tags_resp.content = json.dumps(_tags_body).encode("utf-8")
         with patch.dict(os.environ, {"PROFESSIONALIZE_API_KEY": ""}, clear=False):
             router = LLMRouter(registry_path=registry_path)
             with patch("commands.ops.llm_router.requests") as mock_req:

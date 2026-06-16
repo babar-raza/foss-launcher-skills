@@ -12,6 +12,7 @@ Slice 2 of Agent Metrics Integration (METRICS-PLAN-001 v7.1).
 
 from __future__ import annotations
 
+import json as _json
 import time
 from dataclasses import dataclass
 from typing import Any, Protocol, runtime_checkable
@@ -371,7 +372,7 @@ class ProfessionalizeClient:
             latency_ms = _safe_latency_ms(time.monotonic() - t0)
             http_status = resp.status_code
 
-            body = resp.json()
+            body = _json.loads(resp.content.decode("utf-8"))
             prompt_tokens, completion_tokens, total_tokens = _extract_usage(body)
 
             extracted, extract_error = result_extractor(body)
@@ -390,10 +391,10 @@ class ProfessionalizeClient:
             status = "timeout"
             error_summary = "Request timed out"
 
-        except ValueError as exc:
+        except (ValueError, UnicodeDecodeError) as exc:
             latency_ms = _safe_latency_ms(time.monotonic() - t0)
             status = "failure"
-            error_summary = redact_secret_like_values(f"JSON decode error: {exc}")
+            error_summary = redact_secret_like_values(f"Decode error: {exc}")
 
         except Exception as exc:  # noqa: BLE001
             latency_ms = _safe_latency_ms(time.monotonic() - t0)

@@ -37,6 +37,13 @@ class FakeResponse:
         self.status_code = status_code
         self._body = body or {}
         self._raise_json = raise_json
+        # Provide .content as UTF-8 bytes so the fixed code path works:
+        # _json.loads(resp.content.decode("utf-8")) requires bytes on resp.content.
+        # When raise_json=True, simulate invalid JSON bytes to trigger ValueError.
+        if raise_json:
+            self.content = b"not-valid-json"
+        else:
+            self.content = json.dumps(self._body).encode("utf-8")
 
     def json(self) -> dict:
         if self._raise_json:
