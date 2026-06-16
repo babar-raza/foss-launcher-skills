@@ -609,8 +609,17 @@ while IFS= read -r _eline; do staged_content_md+=("$_eline"); done < <(
 )
 if [ ${#staged_content_md[@]} -gt 0 ]; then
     if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/check_content_encoding.py" ]; then
-        _enc_out=$("$_HOOK_PYTHON" scripts/ci/check_content_encoding.py "${staged_content_md[@]}" 2>&1)
-        _enc_exit=$?
+        # Batch to avoid OS argument list limit (hits at ~800+ files)
+        _enc_exit=0
+        _enc_out=""
+        _batch_size=200
+        for (( _ei=0; _ei<${#staged_content_md[@]}; _ei+=_batch_size )); do
+            _batch=("${staged_content_md[@]:$_ei:$_batch_size}")
+            _batch_out=$("$_HOOK_PYTHON" scripts/ci/check_content_encoding.py "${_batch[@]}" 2>&1)
+            _batch_code=$?
+            _enc_out+="$_batch_out"
+            if [ $_batch_code -ne 0 ]; then _enc_exit=1; fi
+        done
         if [ -n "$_enc_out" ]; then
             echo "$_enc_out" | sed 's/^/[Step 13] /' >&2
         fi
