@@ -101,7 +101,7 @@ correct healing mode (auto, llm, regen) in a single pass.
 - LLM-mode findings have structured invocation descriptors for agent execution
 - Regen-mode findings have structured invocation descriptors with `regen_after` flags
 - If `--after-report` provided: verification confirms no regressions introduced
-- No-downgrade-guard is enforced by the underlying auto-fixers
+- No-downgrade-guard is invoked by the batch-remediate skill prompt (S-40 Step 6c). remediate.py does not invoke the guard programmatically.
 
 ## Modes
 
