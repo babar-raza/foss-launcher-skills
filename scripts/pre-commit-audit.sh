@@ -597,4 +597,29 @@ if [ ${#staged_go_content[@]} -gt 0 ]; then
 fi
 _pc_step_end "PASS"
 
+# ---------------------------------------------------------------------------
+_pc_step_start "encoding guard"
+# Step 13: Content encoding — reject U+FFFD replacement characters in staged content
+# Guard prevents encoding corruption (e.g., charset misdetection in LLM responses)
+# from reaching the live site. Scans staged content/*.md files for EF BF BD bytes.
+# ---------------------------------------------------------------------------
+staged_content_md=()
+while IFS= read -r _eline; do staged_content_md+=("$_eline"); done < <(
+    git diff --cached --name-only --diff-filter=ACM | grep -E '^content/.*\.md$' || true
+)
+if [ ${#staged_content_md[@]} -gt 0 ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/check_content_encoding.py" ]; then
+        _enc_out=$("$_HOOK_PYTHON" scripts/ci/check_content_encoding.py "${staged_content_md[@]}" 2>&1)
+        _enc_exit=$?
+        if [ -n "$_enc_out" ]; then
+            echo "$_enc_out" | sed 's/^/[Step 13] /' >&2
+        fi
+        if [ $_enc_exit -ne 0 ]; then
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    fi
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0
