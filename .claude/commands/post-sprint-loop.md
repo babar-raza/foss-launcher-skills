@@ -1,4 +1,26 @@
-# Post-Sprint Autonomy Loop
+<!-- CONTRACT: agent-executed
+     purpose: execute the correct post-sprint review stage (P1/P2/P3) based on persisted state,
+              validate outputs, classify the result, and loop until ACCEPTED, BLOCKED, or ESCALATED
+     preconditions: sprint_loop.py is present; .supervisor/state/ is writable; .local/evidences/ is writable
+     postcondition: sprint state advances one stage, or terminal state reached with evidence bundle
+     idempotent: yes — re-running on a completed stage re-validates and re-decides without side-effects
+     verified: 2026-06-15
+     backing_script: scripts/maintenance/supervisor/sprint_loop.py
+-->
+---
+name: post-sprint-loop
+id: S-103
+description: >
+  Post-sprint autonomy loop. Reads persisted loop state, injects templates for the current
+  stage (P1/P2/P3), executes the appropriate prompt, validates outputs (with auto-repair),
+  classifies the result via loop_controller, and advances state. Loops until ACCEPTED,
+  BLOCKED, or ESCALATED. Replaces manual Prompt 1 → 2 → 3 handoff.
+args: "[--sprint-id <id>]"
+---
+
+# S-103: Post-Sprint Autonomy Loop
+
+**Arguments**: `[--sprint-id <id>]` (only needed on first run; auto-detected from state thereafter)
 
 Execute the next stage of the post-sprint autonomy loop based on current state.
 

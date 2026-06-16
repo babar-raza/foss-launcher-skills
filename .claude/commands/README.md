@@ -63,7 +63,7 @@ Source: `scripts/pipeline/commands/ops/sync_skills.py:KNOWN_EXCEPTIONS` and `INT
 
 ---
 
-## Skill List (79 registered skills available in this tree)
+## Skill List (82 registered skills available in this tree)
 
 | ID | Slug | Category |
 |----|------|----------|
@@ -140,6 +140,9 @@ Source: `scripts/pipeline/commands/ops/sync_skills.py:KNOWN_EXCEPTIONS` and `INT
 | S-98 | `content-enrich` | Operations |
 | S-99 | `pipeline-harden` | Operations |
 | S-100 | `blog-migrate` | Operations |
+| S-101 | `new-blog-index` | Generation |
+| S-102 | `grade-remediate` | Repair |
+| S-103 | `post-sprint-loop` | Operations |
 
 ---
 

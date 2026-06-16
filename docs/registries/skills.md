@@ -73,6 +73,7 @@
 | path-guard | S-01 | Enforce allowed write paths |
 | pipeline-harden | S-99 | Parameterized pipeline hardening sprint |
 | plan-normalize | S-91 | Execution-safe plan quality gate |
+| post-sprint-loop | S-103 | Post-sprint autonomy loop: P1 audit → P2 plan-harden → P3 execute with auto-classify and retry |
 | project-phase-store | S-10 | Track generation phase state |
 | publish-readiness-review | S-90 | Agent-executed governed inspection |
 | refresh-product | S-84 | Full post-launch product refresh orchestration |

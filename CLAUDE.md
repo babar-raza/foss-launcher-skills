@@ -65,7 +65,7 @@ Skills are invoked as slash commands:
 | Generation | `/page-plan`, `/page-draft`, `/faq-generate`, `/new-docs-page`, `/launch-product`, `/batch-reference` |
 | Repair | `/page-update`, `/page-enhance`, `/heal-page`, `/batch-remediate`, `/gap-apply`, `/evidence-repair` |
 | Validation | `/content-check`, `/eval-page`, `/content-eval`, `/gap-eval`, `/content-audit`, `/link-validate` |
-| Operations | `/update-registry`, `/family-sync`, `/translate`, `/getting-started`, `/session-start`, `/commit`, `/backlog` |
+| Operations | `/update-registry`, `/family-sync`, `/translate`, `/getting-started`, `/session-start`, `/commit`, `/backlog`, `/post-sprint-loop` |
 
 Full list and argument syntax: `.claude/commands/README.md`
 Authoritative registry: `AGENTS.md §12` (full detail: [docs/registries/skills.md](docs/registries/skills.md))
