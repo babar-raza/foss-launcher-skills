@@ -76,8 +76,38 @@ _FALSE_POSITIVE_EXTS = frozenset({
     "argb", "remove", "parts", "i",
 })
 
+# CV2-003c: Format names that collide with common English words.
+# These require stronger contextual evidence (file extension pattern, enum
+# reference, or format-table context) to avoid false positives from prose.
+_AMBIGUOUS_FORMAT_EXTS = frozenset({
+    "text",   # words/python plain-text format — "text" appears constantly in prose
+})
+
 # Maximum length for a plausible file extension (e.g. "docx"=4, "pptx"=4, "html"=4, "jpeg"=4)
 _MAX_EXT_LEN = 8
+
+
+def _has_format_context(ext: str, text_lower: str) -> bool:
+    """Check if an ambiguous format name appears in a format-indicating context.
+
+    For format names that collide with common English words (e.g. "text"),
+    the bare word match produces too many false positives.  This function
+    requires stronger evidence before accepting the match.
+    """
+    e = re.escape(ext)
+    # 1. File extension usage: .text (dot-prefixed)
+    if re.search(rf'\.{e}\b', text_lower):
+        return True
+    # 2. Enum reference: SaveFormat.Text, LoadFormat.Text
+    if re.search(rf'(?:save|load|export|import)format\.{e}\b', text_lower):
+        return True
+    # 3. Save/load method with ext: save_to_text, export_to_text, to_text()
+    if re.search(rf'(?:save|export|convert|load|import|to)[-_]{e}\b', text_lower):
+        return True
+    # 4. Code pattern: save("...text") / save('...text')
+    if re.search(rf'''save\s*\([^)]*\.{e}''', text_lower):
+        return True
+    return False
 
 
 def _load_known_formats(knowledge) -> list:
@@ -140,6 +170,12 @@ def _detect_formats(filepath, knowledge) -> list:
         ext = entry["ext"]
         if ext in seen_exts:
             continue
+        # CV2-003c: ambiguous format names need contextual evidence
+        if ext in _AMBIGUOUS_FORMAT_EXTS:
+            if _has_format_context(ext, text):
+                result.append(entry)
+                seen_exts.add(ext)
+            continue
         if re.search(rf'\.{re.escape(ext)}\b|(?<![a-z]){re.escape(ext)}(?![a-z])', text):
             result.append(entry)
             seen_exts.add(ext)
@@ -158,6 +194,12 @@ def _detect_formats_in_text(text, knowledge) -> list:
     for entry in known:
         ext = entry["ext"]
         if ext in seen_exts:
+            continue
+        # CV2-003c: ambiguous format names need contextual evidence
+        if ext in _AMBIGUOUS_FORMAT_EXTS:
+            if _has_format_context(ext, text_lower):
+                result.append(entry)
+                seen_exts.add(ext)
             continue
         if re.search(rf'\.{re.escape(ext)}\b|(?<![a-z]){re.escape(ext)}(?![a-z])', text_lower):
             result.append(entry)

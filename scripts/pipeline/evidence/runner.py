@@ -128,6 +128,40 @@ def _append_skip_record(records: list, filepath, reason: str, existing_claims=No
     })
 
 
+def _build_audit_grade_reasons(
+    grade: str,
+    fail_count: int,
+    warn_count: int,
+    findings: list,
+    extra_findings: list | None = None,
+) -> list[str]:
+    """Build grade_reasons for audit-tier grading in evidence runner.
+
+    Simpler than EvalReport.grade_reasons() because the evidence runner only
+    runs audit-tier checks (verify_tokens) plus optionally
+    description_completeness and content_substance for reference pages.
+
+    Only accesses .level, .line_no, .message on findings — attributes common
+    to both token_ops.Finding and content_eval.models.Finding.
+    """
+    reasons: list[str] = []
+    if fail_count == 0 and warn_count == 0:
+        reasons.append("No findings -> grade A")
+        return reasons
+
+    all_findings = list(findings) + (extra_findings or [])
+    if fail_count > 0:
+        reasons.append(f"{fail_count} FAIL finding(s) [audit] -> base grade {grade}")
+        fails = [f for f in all_findings if f.level == "FAIL"]
+        if fails:
+            loc = f" (line {fails[0].line_no})" if fails[0].line_no else ""
+            reasons.append(f"audit FAIL: {fails[0].message}{loc}")
+    elif warn_count > 0:
+        reasons.append(f"{warn_count} WARN finding(s) [audit] -> base grade {grade}")
+
+    return reasons
+
+
 def attach_evidence(filepath, knowledge, dry_run=False, force=False,
                     dry_run_records=None) -> str:
     """Build and write evidence block for one file. Returns status string.
@@ -333,6 +367,7 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
         warn_count = sum(1 for f in findings if f.level == "WARN")
         fail_count = 0
         evaluator_tier = "audit"
+        extra_findings: list = []
 
         # For reference pages: also run description_completeness and content_substance
         # to catch empty description tables and stub pages. attach_evidence normally uses
@@ -351,6 +386,7 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
                 dc_findings = DescriptionCompletenessEvaluator().evaluate(page, knowledge)
                 cs_findings = ContentSubstanceEvaluator().evaluate(page, knowledge)
                 extra = dc_findings + cs_findings
+                extra_findings = extra
                 fail_count += sum(1 for f in extra if f.level == "FAIL")
                 warn_count += sum(1 for f in extra if f.level == "WARN")
                 tiers = ["audit"]
@@ -364,8 +400,12 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
                 pass  # never block evidence writing on evaluator errors
 
         grade = compute_grade(fail_count, warn_count)
+        reasons = _build_audit_grade_reasons(
+            grade, fail_count, warn_count, findings, extra_findings,
+        )
         write_grade(filepath, grade, model_sha=knowledge.repo_sha,
-                    evaluator_tier=evaluator_tier, logic_version=EVALUATOR_LOGIC_VERSION)
+                    evaluator_tier=evaluator_tier, logic_version=EVALUATOR_LOGIC_VERSION,
+                    grade_reasons=reasons)
     return "UPDATED" if ok else "ERROR"
 
 

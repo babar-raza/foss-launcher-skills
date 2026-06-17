@@ -255,6 +255,9 @@ def write_grade(
         _log(f"  SKIP {filepath}: invalid grade '{grade}'")
         return False
 
+    if grade_reasons is None and grade != "A":
+        _log(f"  WARN {filepath}: write_grade called without grade_reasons for grade={grade}")
+
     try:
         text = filepath.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError) as exc:
