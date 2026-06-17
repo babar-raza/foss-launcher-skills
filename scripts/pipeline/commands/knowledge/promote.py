@@ -1040,7 +1040,8 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
             "enriched_claims": enriched_count,
             "supplemental_claims": supplemental_count,
             "total_claims": len(merged_claims),
-            "class_count": len(scout_api),
+            # TC-SYS-015: match outputs.py formula — exclude "function" entries
+            "class_count": sum(1 for c in scout_api if c.get("kind") != "function"),
             "forbidden_count": len(forbidden),
             "snippet_count": snippet_count,
         },
@@ -1186,7 +1187,8 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
         "enriched_claims": enriched_count,
         "supplemental_claims": supplemental_count,
         "total_claims": len(merged_claims),
-        "class_count": len(scout_api),
+        # TC-SYS-015: match outputs.py formula — exclude "function" entries
+        "class_count": sum(1 for c in scout_api if c.get("kind") != "function"),
     })
 
     return True

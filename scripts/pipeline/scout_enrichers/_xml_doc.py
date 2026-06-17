@@ -111,6 +111,19 @@ def enrich_xml_doc(classes: list[dict], repo_dir: Path) -> int:
                 mname = md.get("name", "")
                 if not mname:
                     continue
+                # Use the method's own line number (0-based in source)
+                # to extract the doc comment for THIS specific overload,
+                # not the first overload that happens to have a comment.
+                md_line = md.get("line")
+                if md_line is not None:
+                    idx = md_line - 1  # 1-based → 0-based
+                    if 0 <= idx < len(lines):
+                        doc = _extract_xml_doc_comment(lines, idx)
+                        if doc:
+                            md["doc"] = doc
+                            enriched += 1
+                    continue
+                # Fallback for records without line info (legacy)
                 for ml in method_lines.get(mname, []):
                     doc = _extract_xml_doc_comment(lines, ml)
                     if doc:

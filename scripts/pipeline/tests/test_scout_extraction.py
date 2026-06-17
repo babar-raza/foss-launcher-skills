@@ -903,6 +903,145 @@ class Body:
 
 
 # ---------------------------------------------------------------------------
+# TC-SYS-005: Go variadic parameter extraction
+# ---------------------------------------------------------------------------
+
+from extraction.api_surface import _extract_method_params
+
+
+class TestGoVariadicParams:
+    """Go variadic parameters (...Type) must be extracted with ... prefix."""
+
+    GO_VARIADIC_METHOD = '''
+func (d *Document) Extract(ranges ...PageRange) (*Document, error) {
+    return nil, nil
+}
+'''
+
+    GO_VARIADIC_POINTER = '''
+func (d *Document) Append(others ...*Document) {
+}
+'''
+
+    GO_REGULAR_PARAMS = '''
+func (d *Document) Save(path string, opts SaveOptions) error {
+    return nil
+}
+'''
+
+    def test_variadic_param_extracted(self):
+        root = _parse("go", self.GO_VARIADIC_METHOD)
+        mnode = scout.collect_nodes(root, {"method_declaration"})[0]
+        params = _extract_method_params(mnode, "go")
+        assert len(params) == 1
+        assert params[0]["name"] == "ranges"
+        assert params[0]["type"] == "...PageRange"
+
+    def test_variadic_pointer_param(self):
+        root = _parse("go", self.GO_VARIADIC_POINTER)
+        mnode = scout.collect_nodes(root, {"method_declaration"})[0]
+        params = _extract_method_params(mnode, "go")
+        assert len(params) == 1
+        assert params[0]["name"] == "others"
+        assert "..." in params[0]["type"]
+
+    def test_regular_params_unchanged(self):
+        root = _parse("go", self.GO_REGULAR_PARAMS)
+        mnode = scout.collect_nodes(root, {"method_declaration"})[0]
+        params = _extract_method_params(mnode, "go")
+        assert len(params) == 2
+        assert params[0]["name"] == "path"
+        assert "..." not in params[0]["type"]
+
+
+# ---------------------------------------------------------------------------
+# TC-SYS-019: Python property mutability detection
+# ---------------------------------------------------------------------------
+
+
+class TestPythonPropertyMutability:
+    """Properties with @setter decorators and @dataclass fields must be writable."""
+
+    PYTHON_PROP_WITH_SETTER = '''
+class MapiMessage:
+    @property
+    def subject(self) -> str:
+        """The message subject."""
+        return self._subject
+
+    @subject.setter
+    def subject(self, value: str) -> None:
+        self._subject = value
+
+    @property
+    def body(self) -> str:
+        return self._body
+'''
+
+    PYTHON_PROP_READ_ONLY = '''
+class ReadOnlyClass:
+    @property
+    def name(self) -> str:
+        return self._name
+'''
+
+    PYTHON_DATACLASS = '''
+@dataclass
+class MapiRecipient:
+    display_name: str
+    email_address: str
+    recipient_type: int
+'''
+
+    PYTHON_FROZEN_DATACLASS = '''
+@dataclass(frozen=True)
+class FrozenPoint:
+    x: float
+    y: float
+'''
+
+    def test_property_with_setter_is_writable(self):
+        root = _parse("python", self.PYTHON_PROP_WITH_SETTER)
+        classes = scout.collect_nodes(root, {"class_definition"})
+        props, _ = _extract_python_properties(classes[0], "MapiMessage", "msg.py", "email")
+        subj = next((p for p in props if p["name"] == "subject"), None)
+        assert subj is not None
+        assert subj["writable"] is True, "Property with @setter must be writable"
+
+    def test_property_without_setter_is_read_only(self):
+        root = _parse("python", self.PYTHON_PROP_READ_ONLY)
+        classes = scout.collect_nodes(root, {"class_definition"})
+        props, _ = _extract_python_properties(classes[0], "ReadOnlyClass", "ro.py", "email")
+        name_prop = next((p for p in props if p["name"] == "name"), None)
+        assert name_prop is not None
+        assert name_prop["writable"] is False, "Property without setter must be read-only"
+
+    def test_read_only_body_without_setter(self):
+        root = _parse("python", self.PYTHON_PROP_WITH_SETTER)
+        classes = scout.collect_nodes(root, {"class_definition"})
+        props, _ = _extract_python_properties(classes[0], "MapiMessage", "msg.py", "email")
+        body = next((p for p in props if p["name"] == "body"), None)
+        assert body is not None
+        assert body["writable"] is False, "Property 'body' has no setter — must be read-only"
+
+    def test_dataclass_fields_writable(self):
+        root = _parse("python", self.PYTHON_DATACLASS)
+        classes = scout.collect_nodes(root, {"class_definition"})
+        fields, _ = _extract_python_annotated_fields(classes[0], "MapiRecipient", "msg.py", "email")
+        assert len(fields) >= 3
+        for f in fields:
+            assert f["writable"] is True, f"@dataclass field '{f['name']}' must be writable"
+
+    def test_frozen_dataclass_fields_not_writable(self):
+        root = _parse("python", self.PYTHON_FROZEN_DATACLASS)
+        classes = scout.collect_nodes(root, {"class_definition"})
+        fields, _ = _extract_python_annotated_fields(classes[0], "FrozenPoint", "point.py", "email")
+        assert len(fields) >= 2
+        for f in fields:
+            assert f["writable"] is False, f"@dataclass(frozen=True) field '{f['name']}' must be read-only"
+
+
+# ---------------------------------------------------------------------------
 # Regression: extends_interfaces node type in Java interface inheritance
 # (commit 30c0ba40c34 — fixed 102 false FAIL findings in slides/java)
 # ---------------------------------------------------------------------------
@@ -1472,3 +1611,47 @@ class TestCSharpClassModifiers:
         assert "static" not in mods
         assert "abstract" not in mods
         assert "sealed" not in mods
+
+
+# ---------------------------------------------------------------------------
+# TC-SYS-007: XML doc comment tag preservation
+# ---------------------------------------------------------------------------
+
+class TestXmlDocCommentTagPreservation:
+    """TC-SYS-007: <paramref>, <typeparamref>, <see> names preserved in doc extraction."""
+
+    def _extract_docs(self):
+        from extraction.api_surface import _extract_doc_comment
+        from extraction.tree_helpers import collect_nodes
+        code = (
+            "class Foo {\n"
+            '/// <summary>Merge every page of <paramref name="documents"/> into a new destination.</summary>\n'
+            "public void MergeDocuments(Document[] documents) { }\n"
+            '/// <summary>See <see cref="Document.Save"/> for details.</summary>\n'
+            "public void Save(string path) { }\n"
+            '/// <summary>Returns <typeparamref name="T"/> value.</summary>\n'
+            "public object GetValue() { return default; }\n"
+            "}\n"
+        )
+        root = _parse("csharp", code)
+        methods = collect_nodes(root, {"method_declaration"})
+        docs = {}
+        for m in methods:
+            for ch in m.children:
+                if ch.type == "identifier":
+                    name = ch.text.decode()
+                    docs[name] = _extract_doc_comment(m, "csharp")
+                    break
+        return docs
+
+    def test_paramref_name_preserved(self):
+        docs = self._extract_docs()
+        assert "documents" in docs.get("MergeDocuments", "")
+
+    def test_see_cref_name_preserved(self):
+        docs = self._extract_docs()
+        assert "Save" in docs.get("Save", "")
+
+    def test_typeparamref_name_preserved(self):
+        docs = self._extract_docs()
+        assert "T" in docs.get("GetValue", "")

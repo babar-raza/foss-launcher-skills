@@ -451,6 +451,28 @@ class TestBuildPageApiEvidence:
         api_lines = re.findall(r'"BigClass\.\w+"', page)
         assert len(api_lines) <= 20
 
+    def test_method_count_consistent_with_overloads(self):
+        """TC-SYS-016: description and overview prose must use the same method count.
+
+        When a class has method overloads (same name, different params), the
+        frontmatter description and overview prose must both report total
+        method entries (including overloads), not unique names.
+        """
+        methods = [
+            {"name": "Save", "params": [{"name": "path", "type": "string"}],
+             "return_type": "void", "doc": ""},
+            {"name": "Save", "params": [{"name": "path", "type": "string"},
+                                         {"name": "opts", "type": "SaveOptions"}],
+             "return_type": "void", "doc": ""},
+            {"name": "Open", "params": [], "return_type": "Document", "doc": ""},
+        ]
+        entry = self._entry_with_members("Document", methods=methods)
+        page = _build_page(entry, "pdf", "net")
+        # Both the description and the overview prose should say "3 methods"
+        assert "3 methods" in page
+        # Should NOT say "2 methods" (which would be unique name count)
+        assert "2 methods" not in page
+
     def test_run_writes_model_sha_in_generated_page(self, tmp_path):
         """run() reads model_sha from model.yaml and passes it to _build_page."""
         sha = "deadbeef1234567890"
@@ -1514,3 +1536,99 @@ class TestContentHashStability:
         after = tmp_file.read_text(encoding="utf-8")
         assert original == after, \
             "provenance_normalize_hash must be a no-op on freshly generated pages"
+
+
+# ---------------------------------------------------------------------------
+# RC-001 fallback description tests
+# ---------------------------------------------------------------------------
+
+
+class TestRC001FallbackDescriptions:
+    """Verify that method/property cells never have empty description when doc and ERC are absent.
+
+    RC-001 root cause: api_surface.json 'doc' field empty + no ERC claim → blank cell → DC FAIL.
+    Fix: signature-based fallback in batch_reference.py inserted after ERC lookup block.
+    """
+
+    @staticmethod
+    def _make_entry(name="Widget", props=None, methods=None):
+        return {
+            "name": name,
+            "kind": "class",
+            "doc": "",
+            "bases": [],
+            "properties": props or [],
+            "methods": methods or [],
+        }
+
+    def test_method_with_no_doc_gets_fallback_description(self):
+        """Method with empty 'doc' and no ERC entry must produce non-empty description cell."""
+        entry = self._make_entry(
+            name="Widget",
+            methods=[{"name": "render", "doc": "", "params": [], "returns": "void",
+                      "is_constructor": False}],
+        )
+        result = _build_page(entry, "cells", "java", model_sha="abc", model_version="1.0",
+                             erc_index={})
+        assert "Calls render on this Widget instance." in result, (
+            "RC-001 fix: method with no doc and no ERC must produce fallback description"
+        )
+
+    def test_second_overload_of_same_method_has_empty_description(self):
+        """Only the first overload of an undocumented method gets a fallback; the rest remain empty."""
+        entry = self._make_entry(
+            name="Widget",
+            methods=[
+                {"name": "render", "doc": "", "params": [], "returns": "void",
+                 "is_constructor": False},
+                {"name": "render", "doc": "", "params": [{"name": "opts", "type": "str"}],
+                 "returns": "void", "is_constructor": False},
+            ],
+        )
+        result = _build_page(entry, "cells", "java", model_sha="abc", model_version="1.0",
+                             erc_index={})
+        # Exactly one fallback description expected (not two)
+        assert result.count("Calls render on this Widget instance.") == 1, (
+            "RC-001 fix: only first overload of undocumented method should have fallback description"
+        )
+
+    def test_property_with_no_doc_gets_fallback_description(self):
+        """Property with empty 'doc' and no ERC entry must produce non-empty description cell."""
+        entry = self._make_entry(
+            name="Widget",
+            props=[{"name": "color", "type": "str", "access": "Read", "doc": ""}],
+        )
+        result = _build_page(entry, "cells", "java", model_sha="abc", model_version="1.0",
+                             erc_index={})
+        assert "The color property of Widget." in result, (
+            "RC-001 fix: property with no doc and no ERC must produce fallback description"
+        )
+
+    def test_method_with_erc_description_uses_erc_not_fallback(self):
+        """When member_erc_index provides a description, it must be used instead of the RC-001 fallback."""
+        entry = self._make_entry(
+            name="Widget",
+            methods=[{"name": "render", "doc": "", "params": [], "returns": "void",
+                      "is_constructor": False}],
+        )
+        member_erc_index = {"Widget.render": "Renders the widget to the output stream."}
+        result = _build_page(entry, "cells", "java", model_sha="abc", model_version="1.0",
+                             member_erc_index=member_erc_index)
+        assert "Renders the widget to the output stream." in result, \
+            "ERC description must take priority over RC-001 fallback"
+        assert "Calls render on this Widget instance." not in result, \
+            "RC-001 fallback must not appear when ERC description is present"
+
+    def test_method_with_source_doc_uses_source_not_fallback(self):
+        """When source 'doc' is non-empty, it must be used instead of the RC-001 fallback."""
+        entry = self._make_entry(
+            name="Widget",
+            methods=[{"name": "render", "doc": "Draws the widget.", "params": [],
+                      "returns": "void", "is_constructor": False}],
+        )
+        result = _build_page(entry, "cells", "java", model_sha="abc", model_version="1.0",
+                             erc_index={})
+        assert "Draws the widget." in result, \
+            "Source doc must take priority over RC-001 fallback"
+        assert "Calls render on this Widget instance." not in result, \
+            "RC-001 fallback must not appear when source doc is present"

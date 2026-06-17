@@ -92,6 +92,36 @@ class TestIsDuplicate:
         existing = [{"text": "a b c d e f g h i j"}]
         assert _is_duplicate(claim, existing)
 
+    def test_api_method_overloads_not_merged(self):
+        """Method overloads that differ only by one parameter must survive dedup."""
+        candidate = {"text": "Document.Save(string, SaveOptions)", "kind": "api_method"}
+        existing = [{"text": "Document.Save(string)", "kind": "api_method"}]
+        assert not _is_duplicate(candidate, existing)
+
+    def test_api_method_exact_duplicate_still_merged(self):
+        """Identical api_method claims are still detected as duplicates."""
+        candidate = {"text": "Document.Save(string)", "kind": "api_method"}
+        existing = [{"text": "Document.Save(string)", "kind": "api_method"}]
+        assert _is_duplicate(candidate, existing)
+
+    def test_feature_claims_still_use_jaccard(self):
+        """Non-API claims above 0.7 Jaccard overlap are still merged."""
+        candidate = {"text": "workbook loads xlsx spreadsheet files save", "kind": "feature"}
+        existing = [{"text": "workbook loads xlsx spreadsheet files export", "kind": "feature"}]
+        assert _is_duplicate(candidate, existing)
+
+    def test_api_constructor_overloads_not_merged(self):
+        """Constructor overloads must survive dedup."""
+        candidate = {"text": "Workbook(string, LoadOptions)", "kind": "api_constructor"}
+        existing = [{"text": "Workbook(string)", "kind": "api_constructor"}]
+        assert not _is_duplicate(candidate, existing)
+
+    def test_mixed_kind_api_vs_feature_uses_exact(self):
+        """When one claim is api_method, exact match is required even if other is feature."""
+        candidate = {"text": "workbook loads xlsx spreadsheet files save", "kind": "api_method"}
+        existing = [{"text": "workbook loads xlsx spreadsheet files export", "kind": "feature"}]
+        assert not _is_duplicate(candidate, existing)
+
 
 # ---------------------------------------------------------------------------
 # _validate_claim — filtering

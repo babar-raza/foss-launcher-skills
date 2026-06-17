@@ -569,9 +569,11 @@ def _build_page(
         _listed = ", ".join(f"`{n}`" for n in _all_mnames[:_preview_count])
         if len(_all_mnames) > _preview_count:
             _listed += f", and {len(_all_mnames) - _preview_count} additional methods"
+        # TC-SYS-016: use method_count (len(methods)) not len(_all_mnames) to
+        # match the frontmatter description count and the methods table row count.
         _lc10_prose.append(
-            f"This {category.lower()} provides {len(_all_mnames)} "
-            f"{'method' if len(_all_mnames) == 1 else 'methods'} "
+            f"This {category.lower()} provides {method_count} "
+            f"{'method' if method_count == 1 else 'methods'} "
             f"for working with {name} objects in {_plat_disp} programs."
         )
         _lc10_prose.append(f"Available methods include: {_listed}.")
@@ -597,14 +599,12 @@ def _build_page(
         # Two sentences ensure the page meets the content_substance >=50 word threshold
         # even when the type has no members and api_surface.json has no doc text.
         _lc10_prose.append(
-            f"This {category.lower()} represents a value type in the "
-            f"Aspose.{_fam_disp} FOSS for {_plat_disp} type system "
-            f"and is used with other exported types in the package."
+            f"This {category.lower()} is part of the public API of "
+            f"Aspose.{_fam_disp} FOSS for {_plat_disp}."
         )
         _lc10_prose.append(
-            f"It is part of the public API exposed by the `pdf` package "
-            f"and can be passed to or returned from functions and methods "
-            f"that work with {name} values in your Go application."
+            f"It can be used with other exported types in the package "
+            f"when working with {name} values in your {_plat_disp} application."
         )
     lines.append("")
     for _lp in _lc10_prose:
@@ -658,6 +658,10 @@ def _build_page(
             # to individual color constants, so this is the correct fallback.
             if not pdoc and not writable and _is_color_type(ptype):
                 pdoc = _color_constant_desc(pname)
+            # RC-001 fallback: when no doc or ERC description is available, generate a
+            # minimal signature-based description so description cells are not blank.
+            if not pdoc:
+                pdoc = f"The {pname} property of {name}."
             lines.append(f"| `{pname}` | `{ptype_md}` | {access} | {pdoc} |")
         lines.append("")
 
@@ -680,6 +684,13 @@ def _build_page(
                 mdoc = member_erc_index.get(f"{name}.{mname}", "")
                 if mdoc:
                     _described_method_names.add(mname)
+            # RC-001 fallback: when no doc or ERC description is available for the first
+            # overload, generate a minimal signature-based description so the description
+            # cell is not blank. Subsequent overloads of the same name remain empty (the
+            # method name is added to _described_method_names to prevent duplicate fallbacks).
+            if not mdoc and mname not in _described_method_names:
+                mdoc = f"Calls {mname} on this {name} instance."
+                _described_method_names.add(mname)
 
             param_strs = []
             for p in params:

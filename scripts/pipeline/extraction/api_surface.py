@@ -154,7 +154,8 @@ def _extract_method_params(node, language: str) -> list[dict[str, str]]:
                         "optional_parameter", "typed_parameter",
                         "default_parameter", "typed_default_parameter",
                         "identifier", "parameter_declaration",
-                        "optional_parameter_declaration"):
+                        "optional_parameter_declaration",
+                        "variadic_parameter_declaration"):
             pname = ""
             ptype = ""
 
@@ -200,6 +201,9 @@ def _extract_method_params(node, language: str) -> list[dict[str, str]]:
                 ptype = node_text(type_node).lstrip(":").strip()
 
             if pname:
+                # TC-SYS-005: Go variadic params — preserve ... prefix in type
+                if ch.type == "variadic_parameter_declaration" and ptype:
+                    ptype = f"...{ptype}"
                 params.append({"name": pname, "type": ptype})
     return params
 
@@ -321,9 +325,37 @@ def _extract_doc_comment(node, language: str) -> str:
             return _first_sentence(cleaned)
     elif style == "xml_doc":
         if txt.strip().startswith("///"):
-            lines = txt.strip().splitlines()
-            cleaned = " ".join(l.lstrip("/ ").strip() for l in lines)
-            # strip XML tags
+            # C# XML doc comments are per-line nodes in tree-sitter-c-sharp.
+            # Walk back through consecutive adjacent-line comment nodes to
+            # collect the full doc block (same pattern as godoc below).
+            xml_lines_with_row: list[tuple[int, str]] = [(prev.start_point[0], txt)]
+            cur = prev.prev_named_sibling
+            while cur is not None and cur.type == "comment":
+                cur_txt = node_text(cur)
+                if not cur_txt.strip().startswith("///"):
+                    break  # not an XML doc comment line
+                cur_row = cur.start_point[0]
+                last_row = xml_lines_with_row[0][0]
+                if last_row - cur_row > 1:
+                    break  # line gap — belongs to a different comment block
+                xml_lines_with_row.insert(0, (cur_row, cur_txt))
+                cur = cur.prev_named_sibling
+            # Verify the comment block is immediately above the node
+            # (last comment line must be on the line before the declaration).
+            last_comment_row = xml_lines_with_row[-1][0]
+            if node.start_point[0] - last_comment_row > 1:
+                return ""  # gap between comment and declaration — not our doc
+            xml_comment_lines = [ln for _, ln in xml_lines_with_row]
+            cleaned = " ".join(l.lstrip("/ ").strip() for l in xml_comment_lines)
+            # TC-SYS-007: preserve names from <paramref>, <typeparamref>,
+            # and <see> tags before stripping remaining XML markup.
+            cleaned = re.sub(
+                r'<(?:paramref|typeparamref)\s+name="([^"]+)"\s*/?>',
+                r"\1", cleaned)
+            cleaned = re.sub(
+                r'<see\s+cref="([^"]+)"\s*/?>',
+                lambda m: m.group(1).rsplit(".", 1)[-1], cleaned)
+            # strip remaining XML tags
             cleaned = re.sub(r"<[^>]+>", "", cleaned).strip()
             return _first_sentence(cleaned)
     elif style == "godoc":
@@ -370,6 +402,24 @@ def _extract_python_properties(
     claims: list[dict] = []
 
     func_nodes = collect_nodes(cnode, {"function_definition"})
+
+    # TC-SYS-019: pre-scan for @name.setter decorators to detect writable properties.
+    setter_names: set[str] = set()
+    for fn in func_nodes:
+        dec = find_child_by_type(fn, "decorator")
+        if dec is None:
+            prev = fn.prev_named_sibling
+            if prev and prev.type == "decorator":
+                dec = prev
+        if dec is None:
+            continue
+        dec_text = node_text(dec)
+        # Match @prop_name.setter patterns
+        if ".setter" in dec_text:
+            fn_name = _node_name(fn, "python")
+            if fn_name:
+                setter_names.add(fn_name)
+
     for fn in func_nodes:
         # check for @property decorator
         dec = find_child_by_type(fn, "decorator")
@@ -390,6 +440,7 @@ def _extract_python_properties(
         properties.append({
             "name": pname,
             "type": ret,
+            "writable": pname in setter_names,
             "doc": _extract_doc_comment(fn, "python"),
             "line": fn.start_point[0] + 1,
         })
@@ -430,6 +481,22 @@ def _extract_python_annotated_fields(
     if body is None:
         return fields, claims
 
+    # TC-SYS-019: detect @dataclass decorator on the class — if present and not
+    # frozen=True, all annotated fields are writable by default.
+    is_dataclass = False
+    is_frozen = False
+    dec = find_child_by_type(cnode, "decorator")
+    if dec is None:
+        prev = cnode.prev_named_sibling
+        if prev and prev.type == "decorator":
+            dec = prev
+    if dec is not None:
+        dec_text = node_text(dec)
+        if "dataclass" in dec_text:
+            is_dataclass = True
+            if "frozen=True" in dec_text or "frozen = True" in dec_text:
+                is_frozen = True
+
     for stmt in body.children:
         if stmt.type != "assignment":
             continue
@@ -458,6 +525,7 @@ def _extract_python_annotated_fields(
         fields.append({
             "name": fname,
             "type": ftype,
+            "writable": is_dataclass and not is_frozen,
             "doc": "",
             "line": stmt.start_point[0] + 1,
         })

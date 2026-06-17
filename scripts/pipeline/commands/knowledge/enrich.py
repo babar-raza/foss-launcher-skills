@@ -735,12 +735,29 @@ def _tokenize(text: str) -> set[str]:
     return set(re.findall(r"[a-z0-9_]+", text.lower()))
 
 
+# Kinds exempt from Jaccard dedup — require exact text match to avoid
+# merging method overloads that share most tokens.  Mirrors the guard in
+# promote.py (_semantic_dedup_claims).
+_EXACT_ONLY_KINDS = frozenset({
+    "api_method", "api_constructor", "api_property", "format_support",
+})
+
+
 def _is_duplicate(candidate: dict, existing_claims: list) -> bool:
     """Return True if candidate text overlaps with any existing claim above threshold."""
     c_tokens = _tokenize(candidate.get("text", ""))
     if not c_tokens:
         return False
+    c_kind = candidate.get("kind", "")
     for ec in existing_claims:
+        # For API signature claims, require exact text match (not Jaccard)
+        ec_kind = ec.get("kind", "")
+        if c_kind in _EXACT_ONLY_KINDS or ec_kind in _EXACT_ONLY_KINDS:
+            c_text = candidate.get("text", "").strip()
+            e_text = ec.get("text", "").strip()
+            if c_text == e_text:
+                return True
+            continue
         e_tokens = _tokenize(ec.get("text", ""))
         union = c_tokens | e_tokens
         if not union:
