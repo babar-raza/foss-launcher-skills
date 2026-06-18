@@ -67,7 +67,22 @@ def regrade_file(fp: Path, knowledge: Knowledge, dry_run: bool = False) -> str:
         print(f"  DRY-RUN {fp}: C -> {new_grade} (fail={fail_count} warn={warn_count})")
         return f"WOULD_UPDATE_{new_grade}"
 
-    result = write_grade(fp, new_grade, model_sha=knowledge.repo_sha)
+    all_findings = findings + extra
+    if fail_count == 0 and warn_count == 0:
+        reasons = ["No findings -> grade A"]
+    else:
+        reasons = []
+        for finding in all_findings:
+            level = getattr(finding, "level", "")
+            if level in ("FAIL", "WARN"):
+                msg = getattr(finding, "message", str(finding))
+                line_no = getattr(finding, "line_no", None)
+                loc = f" (line {line_no})" if line_no else ""
+                reasons.append(f"{level}{loc}: {msg}")
+        if not reasons:
+            reasons = [f"{fail_count} FAIL, {warn_count} WARN -> grade {new_grade}"]
+
+    result = write_grade(fp, new_grade, model_sha=knowledge.repo_sha, grade_reasons=reasons)
     if result:
         return new_grade
     return "ERROR"
