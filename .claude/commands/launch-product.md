@@ -210,14 +210,26 @@ automatically if `_index.md` already has `linkTitle`, `layout: list`, and `{{< c
 **Commands**:
 1. `/new-reference-index {family} {platform}`
 2. `/batch-reference {family} {platform}`
+3. Run grouped index generation (required — upgrades flat scaffold to grouped tables):
+   ```bash
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python \
+     scripts/pipeline/commands/content/batch_reference.py \
+     {family} {platform} --generate-index
+   ```
+   Expected: `WRITTEN: {family}/{platform}/_index.md — N entries, N body lines`.
+   If `skipped: manually-curated` → that platform's index is manually curated; skip.
+   If `skipped: _index.md does not exist` → re-run Step 1 first.
 
 Step 1 is self-idempotent — skips if `_index.md` already has `layout: list` and
 `{{< children >}}`. Step 2 is idempotent — skips existing class pages automatically.
+Step 3 is idempotent — regenerates the grouped body from current `api_surface.json`
+and calls `attach_evidence()` internally with `force=True`.
 
 **Post-generation note**: As of Fix 8 (2026-04-07), `batch_reference.py` calls
 `attach_evidence()` internally after writing each class page. This means no separate
 evidence attachment step is needed after Stage 5 — grading (`grade:`, `graded_at:`)
-and evidence (`apis:`, `claims:`) are written during generation.
+and evidence (`apis:`, `claims:`) are written during generation. Step 3 similarly
+calls `attach_evidence()` with `force=True` after writing the grouped index.
 
 **Checkpoint**: `reference_done`
 
