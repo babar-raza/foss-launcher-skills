@@ -900,14 +900,24 @@ def _derive_group_key(entry: dict, family: str, platform: str) -> str:
         return "core"
 
     elif platform in ("java", "net"):
-        # Pattern: src/main/java/org/aspose/pdf/operators/SetColor.java
-        # Find 'aspose' then family, then take the next segment(s)
+        # Primary pattern: src/main/java/org/aspose/pdf/operators/SetColor.java
+        # Find the family name as a directory segment, then take the next segment.
         for i, p in enumerate(parts):
             if p.lower() == family.lower() and i + 1 < len(parts) - 1:
                 next_seg = parts[i + 1]
                 if next_seg.endswith(".java") or next_seg.endswith(".cs"):
                     return "core"
                 return next_seg
+        # .NET-specific fallback: repos that use src/{Namespace}/{Class}.cs layout
+        # (no family-name directory segment in path, e.g. src/Annotations/Class.cs).
+        if platform == "net":
+            for i, p in enumerate(parts):
+                if p.lower() == "src" and i + 1 < len(parts) - 1:
+                    next_seg = parts[i + 1]
+                    ext = next_seg.rsplit(".", 1)[-1].lower() if "." in next_seg else ""
+                    if ext in ("cs", "vb", "fs"):
+                        return "core"  # file directly under src/ — no namespace
+                    return next_seg.lower()
         return "core"
 
     elif platform == "go":

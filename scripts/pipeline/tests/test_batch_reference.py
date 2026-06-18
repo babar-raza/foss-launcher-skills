@@ -22,7 +22,8 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import batch_reference as _br
 from batch_reference import (_passes_platform_scope, _apply_kind_filter, _is_enum, run,
-                              _build_erc_index, _build_page, check_member_doc_coverage)
+                              _build_erc_index, _build_page, check_member_doc_coverage,
+                              _derive_group_key)
 
 
 # ---------------------------------------------------------------------------
@@ -1632,3 +1633,80 @@ class TestRC001FallbackDescriptions:
             "Source doc must take priority over RC-001 fallback"
         assert "Calls render on this Widget instance." not in result, \
             "RC-001 fallback must not appear when source doc is present"
+
+
+# ---------------------------------------------------------------------------
+# _derive_group_key — path-pattern grouping
+# ---------------------------------------------------------------------------
+
+class TestDeriveGroupKey:
+    """Tests for _derive_group_key — covers all platform path patterns.
+
+    Regression guard: pdf/net was returning 'core' for every entry because
+    _derive_group_key only searched for the family name as a directory segment
+    (works for Java paths like org/aspose/pdf/annotations/Class.java) but
+    .NET repos use src/{Namespace}/Class.cs with no family-name segment.
+    """
+
+    # --- .NET: src/{Namespace}/Class.cs layout (e.g. pdf/net) ---
+
+    def test_net_namespace_directory(self):
+        e = {"file": "src/Annotations/AnnotClass.cs", "name": "AnnotClass"}
+        assert _derive_group_key(e, "pdf", "net") == "annotations"
+
+    def test_net_namespace_nested(self):
+        e = {"file": "src/Annotations/JavascriptExtensions/FieldFormatter.cs", "name": "FieldFormatter"}
+        assert _derive_group_key(e, "pdf", "net") == "annotations"
+
+    def test_net_drawing_namespace(self):
+        e = {"file": "src/Drawing/ImageFormat.cs", "name": "ImageFormat"}
+        assert _derive_group_key(e, "pdf", "net") == "drawing"
+
+    def test_net_facades_namespace(self):
+        e = {"file": "src/Facades/FormattedText.cs", "name": "FormattedText"}
+        assert _derive_group_key(e, "pdf", "net") == "facades"
+
+    def test_net_root_cs_file_returns_core(self):
+        # Class file directly under src/ (no namespace subdirectory)
+        e = {"file": "src/Document.cs", "name": "Document"}
+        assert _derive_group_key(e, "pdf", "net") == "core"
+
+    def test_net_vb_root_file_returns_core(self):
+        e = {"file": "src/Helper.vb", "name": "Helper"}
+        assert _derive_group_key(e, "pdf", "net") == "core"
+
+    # --- Java: org/aspose/{family}/{namespace}/Class.java layout ---
+
+    def test_java_namespace_after_family(self):
+        e = {"file": "src/main/java/org/aspose/pdf/annotations/Annotation.java", "name": "Annotation"}
+        assert _derive_group_key(e, "pdf", "java") == "annotations"
+
+    def test_java_core_when_class_directly_under_family(self):
+        e = {"file": "src/main/java/org/aspose/pdf/Document.java", "name": "Document"}
+        assert _derive_group_key(e, "pdf", "java") == "core"
+
+    def test_java_engine_namespace(self):
+        e = {"file": "src/main/java/org/aspose/pdf/engine/Engine.java", "name": "Engine"}
+        assert _derive_group_key(e, "pdf", "java") == "engine"
+
+    # --- Python: src/aspose_{family}/{module}/class.py layout ---
+
+    def test_python_submodule(self):
+        e = {"file": "src/aspose_tex/presentation/device.py", "name": "Device"}
+        assert _derive_group_key(e, "tex", "python") == "presentation"
+
+    def test_python_core_when_no_submodule(self):
+        e = {"file": "src/aspose_tex/__init__.py", "name": "TeXJob"}
+        assert _derive_group_key(e, "tex", "python") == "core"
+
+    # --- Edge cases ---
+
+    def test_empty_file_returns_core(self):
+        assert _derive_group_key({"file": "", "name": "X"}, "pdf", "net") == "core"
+
+    def test_missing_file_key_returns_core(self):
+        assert _derive_group_key({"name": "X"}, "pdf", "net") == "core"
+
+    def test_unknown_platform_returns_core(self):
+        e = {"file": "src/Foo/Bar.cs", "name": "Bar"}
+        assert _derive_group_key(e, "pdf", "unknown") == "core"
