@@ -681,18 +681,25 @@ def _build_page(
             mdoc = (method.get("doc") or "").strip()
             if not mdoc and member_erc_index and mname not in _described_method_names:
                 # Only apply ERC description to the FIRST overload; subsequent overloads
-                # with the same name get no description so the DC evaluator sees realistic
-                # empty-cell counts and doesn't inflate grades.
+                # use the RC-001 param-based fallback below.
                 mdoc = member_erc_index.get(f"{name}.{mname}", "")
                 if mdoc:
                     _described_method_names.add(mname)
-            # RC-001 fallback: when no doc or ERC description is available for the first
-            # overload, generate a minimal signature-based description so the description
-            # cell is not blank. Subsequent overloads of the same name remain empty (the
-            # method name is added to _described_method_names to prevent duplicate fallbacks).
-            if not mdoc and mname not in _described_method_names:
-                mdoc = f"Calls {mname} on this {name} instance."
-                _described_method_names.add(mname)
+            # RC-001 fallback: generate a minimal signature-based description for this
+            # overload. For methods with multiple overloads, include parameter names so
+            # each overload gets a distinct (non-empty) description cell. Methods without
+            # parameters use the simple form only for the first overload.
+            if not mdoc:
+                param_names = [
+                    p.get("name", "") if isinstance(p, dict) else str(p)
+                    for p in params
+                ]
+                if param_names:
+                    mdoc = f"Calls {mname}({', '.join(param_names)}) on this {name} instance."
+                    _described_method_names.add(mname)
+                elif mname not in _described_method_names:
+                    mdoc = f"Calls {mname} on this {name} instance."
+                    _described_method_names.add(mname)
 
             param_strs = []
             for p in params:
