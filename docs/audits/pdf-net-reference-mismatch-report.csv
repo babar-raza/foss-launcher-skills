@@ -1,0 +1,4 @@
+file,claimed_class,source_found,classification,reason,severity
+"ID.md (missing)","ID","yes — src/Content/Operators.cs:1167","MISSING_PAGE","Windows NTFS case-insensitive filesystem: ID.md collides with Id.md; only Id.md was generated","MEDIUM"
+"TiffDevice.md","TiffDevice","yes","MISLEADING_CONTENT","BinarizeBradley method listed as usable; source throws NotImplementedException (src/Devices/TiffDevice.cs:176)","LOW"
+"DocumentCollection.md","DocumentCollection","yes","MISLEADING_CONTENT","GetEnumerator method listed as usable; source throws NotImplementedException (src/PdfCoreTypes.cs:12)","LOW"
