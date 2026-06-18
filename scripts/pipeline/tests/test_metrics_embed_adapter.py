@@ -53,7 +53,7 @@ def _embed_resp(vectors: list[list[float]], total_tokens: int = 100) -> MagicMoc
     resp = MagicMock()
     resp.status_code = 200
     data = [{"object": "embedding", "index": i, "embedding": v} for i, v in enumerate(vectors)]
-    resp.json.return_value = {
+    body = {
         "object": "list",
         "data": data,
         "usage": {
@@ -61,6 +61,8 @@ def _embed_resp(vectors: list[list[float]], total_tokens: int = 100) -> MagicMoc
             "total_tokens": total_tokens,
         },
     }
+    resp.content = json.dumps(body).encode("utf-8")
+    resp.json.return_value = body
     return resp
 
 

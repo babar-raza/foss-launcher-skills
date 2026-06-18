@@ -3207,6 +3207,22 @@ scripts:
     deprecated_since: null
     notes: "Check 6 (static/abstract class instantiation) calibration scanner — runs TypeAccuracyEvaluator across family/platform content pages and writes per-product findings to reports/calibration/check6-{family}-{platform}.json"
 
+  - path: scripts/pipeline/commands/diagnostics/launch_dashboard.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: launch
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    test_exempt_reason: "Read-only diagnostics dashboard; aggregates readiness state from phase_state and H-gate files; no content writes"
+    deprecated_since: null
+    notes: "Launch Hardening Dashboard — aggregate readiness state for all products"
+
   - path: scripts/pipeline/commands/ops/lane_manifest.py
     kind: entrypoint
     lifecycle: active
@@ -3741,8 +3757,8 @@ scripts:
     cli_contract: stable
     owner_domain: supervisor
     backing:
-      kind: skill
-      ref: sprint-loop
+      kind: internal
+      ref: null
     requires_test: true
     test_targets:
       - scripts/maintenance/supervisor/tests/test_loop_controller.py

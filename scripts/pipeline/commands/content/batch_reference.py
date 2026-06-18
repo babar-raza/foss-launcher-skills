@@ -585,7 +585,8 @@ def _build_page(
         _plisted = ", ".join(f"`{n}`" for n in _all_pnames[:6])
         if len(_all_pnames) > 6:
             _plisted += f", and {len(_all_pnames) - 6} more"
-        _lc10_prose.append(f"Properties: {_plisted}.")
+        _prop_label = "Accessor methods" if platform == "cpp" else "Properties"
+        _lc10_prose.append(f"{_prop_label}: {_plisted}.")
     if category == "Enum" and _all_enames and not _lc10_prose:
         _elisted = ", ".join(f"`{e}`" for e in _all_enames[:12])
         if len(_all_enames) > 12:
@@ -629,9 +630,10 @@ def _build_page(
             lines.append(f"| `{mname}` | {mdoc} |")
         lines.append("")
 
-    # Properties section
+    # Properties section (C++ has no language-level properties — use "Accessor Methods")
     if properties:
-        lines.append("## Properties")
+        _prop_heading = "Accessor Methods" if platform == "cpp" else "Properties"
+        lines.append(f"## {_prop_heading}")
         lines.append("")
         lines.append("| Name | Type | Access | Description |")
         lines.append("|------|------|--------|-------------|")
