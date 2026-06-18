@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import batch_reference as _br
 from batch_reference import (_passes_platform_scope, _apply_kind_filter, _is_enum, run,
                               _build_erc_index, _build_page, check_member_doc_coverage,
-                              _derive_group_key)
+                              _derive_group_key, _normalize_doc_for_index)
 
 
 # ---------------------------------------------------------------------------
@@ -1710,3 +1710,70 @@ class TestDeriveGroupKey:
     def test_unknown_platform_returns_core(self):
         e = {"file": "src/Foo/Bar.cs", "name": "Bar"}
         assert _derive_group_key(e, "pdf", "unknown") == "core"
+
+
+# ---------------------------------------------------------------------------
+# TC-RI: _normalize_doc_for_index regression tests
+# ---------------------------------------------------------------------------
+
+
+def test_normalize_strips_cr():
+    assert "\r" not in _normalize_doc_for_index("foo\r bar\r baz")
+    assert _normalize_doc_for_index("foo\r bar") == "foo bar"
+
+
+def test_normalize_javadoc_code():
+    assert _normalize_doc_for_index("use {@code Foo}") == "use `Foo`"
+    assert _normalize_doc_for_index("use {@code  Foo }") == "use `Foo`"
+    # No-space edge case (invalid javadoc but defensive)
+    result = _normalize_doc_for_index("use {@codeFoo}")
+    assert "{@code" not in result
+
+
+def test_normalize_javadoc_link_simple():
+    assert _normalize_doc_for_index("see {@link Bar}") == "see Bar"
+
+
+def test_normalize_javadoc_link_qualified():
+    # Qualified name: extract simple name
+    result = _normalize_doc_for_index("see {@link org.aspose.pdf.devices.Margins}")
+    assert result == "see Margins"
+
+
+def test_normalize_javadoc_link_with_hash():
+    # Method reference: extract method name
+    result = _normalize_doc_for_index("see {@link Foo#bar}")
+    assert result == "see bar"
+
+
+def test_normalize_html_code_tag():
+    assert _normalize_doc_for_index("a <code>X</code> b") == "a `X` b"
+    assert _normalize_doc_for_index("a <CODE>X</CODE> b") == "a `X` b"
+
+
+def test_normalize_margins_case():
+    """Regression test for the known Margins defect in pdf/java."""
+    raw = (
+        "Page margins in printer/device units, used by the C# printing API\r"
+        " (<code>Aspose.Pdf.Devices.Margins</code>) for {@code PageSettings.Margins}\r"
+        " and {@code PrinterSettings.DefaultPageSettings.Margins}."
+    )
+    out = _normalize_doc_for_index(raw)
+    assert "\r" not in out
+    assert "{@code" not in out
+    assert "<code>" not in out.lower()
+    # Must be a single logical line (no embedded newlines)
+    assert "\n" not in out
+    # Backtick-wrapped code present
+    assert "`PageSettings.Margins`" in out
+    assert "`Aspose.Pdf.Devices.Margins`" in out
+
+
+def test_normalize_empty_string():
+    assert _normalize_doc_for_index("") == ""
+
+
+def test_normalize_no_javadoc():
+    """Strings without JavaDoc/HTML tokens must pass through unchanged (minus whitespace)."""
+    plain = "Represents a PDF document."
+    assert _normalize_doc_for_index(plain) == plain

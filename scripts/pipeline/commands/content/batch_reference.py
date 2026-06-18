@@ -955,6 +955,54 @@ def _group_label(key: str, family: str, platform: str) -> str:
     return label
 
 
+def _normalize_doc_for_index(doc: str) -> str:
+    """Normalize a raw doc string for safe use in a markdown table cell.
+
+    Strips bare CR characters, converts JavaDoc inline tags to markdown,
+    strips HTML tags, and collapses whitespace. Does NOT truncate —
+    truncation is handled by the caller's split('. ')[0] logic.
+    """
+    # 1. Strip bare CR characters (from CRLF source files stored as CR-only in JSON)
+    doc = doc.replace("\r", " ")
+    # 2. Collapse whitespace created by CR removal
+    doc = re.sub(r"\s+", " ", doc).strip()
+    # 3. {@code X} -> `X` (use \s* to handle both "{@code Foo}" and no-space edge cases)
+    doc = re.sub(
+        r"\{@code\s*([^}]*)\}",
+        lambda m: f"`{m.group(1).strip()}`" if m.group(1).strip() else "",
+        doc,
+    )
+    # 4. {@link pkg.Class#method} -> simple name (last segment after . or #)
+    def _link_to_name(m: re.Match) -> str:  # type: ignore[type-arg]
+        text = m.group(1).strip()
+        for sep in ("#", "."):
+            if sep in text:
+                text = text.rsplit(sep, 1)[-1]
+        return text
+
+    doc = re.sub(r"\{@link\s*([^}]*)\}", _link_to_name, doc)
+    # 5. {@literal X} -> X
+    doc = re.sub(
+        r"\{@literal\s*([^}]*)\}",
+        lambda m: m.group(1).strip(),
+        doc,
+    )
+    # 6. Strip any remaining {@...} tags
+    doc = re.sub(r"\{@\w+[^}]*\}", "", doc)
+    # 7. <code>X</code> -> `X`
+    doc = re.sub(
+        r"<code>(.*?)</code>",
+        lambda m: f"`{m.group(1).strip()}`" if m.group(1).strip() else "",
+        doc,
+        flags=re.IGNORECASE,
+    )
+    # 8. Strip remaining HTML tags
+    doc = re.sub(r"<[^>]+>", "", doc)
+    # 9. Final whitespace normalization
+    doc = re.sub(r"\s+", " ", doc).strip()
+    return doc
+
+
 def _build_grouped_index_body(
     api_surface: list[dict],
     family: str,
@@ -1025,8 +1073,8 @@ def _build_grouped_index_body(
 
             for e in cat_entries:
                 name = e.get("name", "?")
-                doc = e.get("doc", "").strip()
-                # Truncate to first sentence
+                doc = _normalize_doc_for_index(e.get("doc", "").strip())
+                # Truncate to first sentence (after normalization, \r no longer breaks split)
                 if doc:
                     doc = doc.split("\n")[0].split(". ")[0]
                     if not doc.endswith("."):
@@ -1034,7 +1082,8 @@ def _build_grouped_index_body(
                 elif erc_index and name in erc_index:
                     # Fallback to ERC claim description
                     erc = erc_index[name]
-                    doc = erc.get("description", "").split("\n")[0].split(". ")[0]
+                    doc = _normalize_doc_for_index(erc.get("description", ""))
+                    doc = doc.split("\n")[0].split(". ")[0] if doc else doc
                     if doc and not doc.endswith("."):
                         doc += "."
                 if not doc:
