@@ -201,7 +201,9 @@ def run(check_staleness: bool = True) -> int:
             print(f"    Fix:    .venv/Scripts/python scripts/pipeline/commands/content/"
                   f"batch_reference.py {w['family']} {w['platform']} --generate-index")
             print()
-        exit_code = 1
+        # Flat index in a product with >=5 API entries is a launch blocker.
+        # Use exit code 2 (FAIL) so CI gates block the deploy.
+        exit_code = 2
 
     if stale_warnings:
         print(f"ADVISORY: {len(stale_warnings)} grouped reference index page(s) may be "
