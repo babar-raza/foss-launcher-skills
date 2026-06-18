@@ -202,3 +202,120 @@ def test_update_fallback_when_delta_absent(batch_env, capsys):
     assert result["generated"] == 1  # ClassC
     assert result["skipped"] == 2    # ClassA, ClassB
     assert (output_dir / "ClassA.md").read_text(encoding="utf-8") == "old ClassA"
+
+
+# ---------------------------------------------------------------------------
+# Regression: ERC key bug fix (TC-GDF-001)
+# Verifies that _build_grouped_index_body uses erc["text"] not erc["description"]
+# ---------------------------------------------------------------------------
+
+def test_build_grouped_index_uses_erc_text_not_description():
+    """Bug regression (TC-GDF-001): index must use erc['text'], not erc['description'].
+
+    Before fix: erc.get("description", "") always returned "" because ERC claims
+    store the description under key "text". This caused ALL ERC-covered entries to
+    fall through to the generic fallback "Class in the Pdf API.".
+    After fix: erc.get("text", "") correctly retrieves the ERC description.
+    """
+    import batch_reference as br
+
+    entry_no_doc = {
+        "name": "GoToAction",
+        "kind": "class_declaration",
+        "doc": "",
+        "file": "src/GoToAction.cs",
+        "line": 1,
+        "bases": [],
+        "methods": [{"name": "Execute", "params": [], "return_type": "void",
+                     "doc": "", "line": 5, "is_constructor": False}],
+        "properties": [],
+        "enum_members": [],
+        "canonical_namespace": "Aspose.Pdf.Actions",
+    }
+    # ERC index stores claims under "text" key (not "description")
+    erc_index = {
+        "GoToAction": {
+            "claim_id": "ERC-001",
+            "text": "Navigates to a specified destination within the PDF document.",
+            "description": "",   # old buggy code read this key — must NOT be used
+            "kind": "api",
+            "confidence": 0.9,
+        }
+    }
+    body = br._build_grouped_index_body([entry_no_doc], "pdf", "net", erc_index=erc_index)
+    assert "Navigates to a specified destination" in body, (
+        "ERC 'text' value must appear in index table — key was wrong before fix"
+    )
+    assert "Class in the Pdf API." not in body, (
+        "Generic fallback must not appear when ERC text is available"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Regression: synthesized fallback uses member counts (TC-GDF-002)
+# ---------------------------------------------------------------------------
+
+def test_build_grouped_index_synthesized_fallback_no_doc_no_erc():
+    """TC-GDF-002: when no doc AND no ERC, description uses member counts, not generic text."""
+    import batch_reference as br
+
+    entry = {
+        "name": "SomeClass",
+        "kind": "class_declaration",
+        "doc": "",
+        "file": "src/SomeClass.cs",
+        "line": 1,
+        "bases": [],
+        "methods": [
+            {"name": "m1", "params": [], "return_type": "void",
+             "doc": "", "line": 2, "is_constructor": False},
+            {"name": "m2", "params": [], "return_type": "void",
+             "doc": "", "line": 3, "is_constructor": False},
+        ],
+        "properties": [
+            {"name": "Prop1", "type": "string", "doc": "", "line": 4, "writable": True}
+        ],
+        "enum_members": [],
+        "canonical_namespace": "Aspose.Pdf",
+    }
+    body = br._build_grouped_index_body([entry], "pdf", "net", erc_index={})
+    assert "Class in the Pdf API." not in body, (
+        "Old generic text must not appear when member counts are available"
+    )
+    assert "method" in body.lower(), "Description must mention method count"
+    assert "propert" in body.lower(), "Description must mention property count"
+
+
+# ---------------------------------------------------------------------------
+# Regression: empty-member fallback is more specific than old generic (TC-GDF-003)
+# ---------------------------------------------------------------------------
+
+def test_build_grouped_index_empty_entry_fallback_not_bare_generic():
+    """TC-GDF-003: entry with no doc, no ERC, no members must not use bare generic.
+
+    The old fallback was 'Class in the Pdf API.' — a string that the
+    GenericDescriptionCheckEvaluator now flags as a FAIL. The new fallback
+    includes the platform so it reads 'Class in the Pdf NET API.' which is
+    more specific and does NOT match the banned pattern.
+    """
+    import batch_reference as br
+    import re
+
+    entry = {
+        "name": "EmptyMarker",
+        "kind": "class_declaration",
+        "doc": "",
+        "file": "src/EmptyMarker.cs",
+        "line": 1,
+        "bases": [],
+        "methods": [],
+        "properties": [],
+        "enum_members": [],
+        "canonical_namespace": "Aspose.Pdf",
+    }
+    body = br._build_grouped_index_body([entry], "pdf", "net", erc_index={})
+    # Exact old string must NOT appear
+    old_pattern = re.compile(r"Class in the Pdf API\.")
+    assert not old_pattern.search(body), (
+        f"Old exact generic text still present in: {body[:300]}"
+    )

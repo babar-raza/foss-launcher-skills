@@ -85,4 +85,5 @@ def _ensure_loaded():
         cta_wording,
         private_api_usage,
         code_prose_alignment,
+        generic_description_check,
     )

@@ -72,4 +72,5 @@ EVALUATOR_VERSIONS: dict[str, str] = {
     "capability_claim_check": "2",  # v2: code-fence filtering in _extract_scannable_lines (FP-001 fix)
     "encoding_check": "1",
     "consumer_usefulness": "2",
+    "generic_description_check": "1",  # TC-GDF-001: initial version
 }

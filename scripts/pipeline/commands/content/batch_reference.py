@@ -1080,14 +1080,45 @@ def _build_grouped_index_body(
                     if not doc.endswith("."):
                         doc += "."
                 elif erc_index and name in erc_index:
-                    # Fallback to ERC claim description
+                    # Fallback to ERC claim text (key is "text", not "description")
                     erc = erc_index[name]
-                    doc = _normalize_doc_for_index(erc.get("description", ""))
+                    doc = _normalize_doc_for_index(erc.get("text", ""))
                     doc = doc.split("\n")[0].split(". ")[0] if doc else doc
                     if doc and not doc.endswith("."):
                         doc += "."
                 if not doc:
-                    doc = f"{cat} in the {family.title()} API."
+                    # Synthesize a meaningful description from available metadata.
+                    # Do NOT repeat the class name — column 1 already has it.
+                    method_count = len(e.get("methods", []))
+                    prop_count = len(e.get("properties", []))
+                    enum_count = len(e.get("enum_members") or e.get("members", []))
+                    bases = e.get("bases", [])
+                    count_parts = []
+                    if method_count:
+                        count_parts.append(
+                            f"{method_count} {'method' if method_count == 1 else 'methods'}"
+                        )
+                    if prop_count:
+                        count_parts.append(
+                            f"{prop_count} {'property' if prop_count == 1 else 'properties'}"
+                        )
+                    if enum_count:
+                        count_parts.append(
+                            f"{enum_count} {'member' if enum_count == 1 else 'members'}"
+                        )
+                    if count_parts:
+                        doc = f"{cat} with {' and '.join(count_parts)}."
+                    else:
+                        base_name = ""
+                        if bases:
+                            b = bases[0]
+                            base_name = (
+                                b.get("name", "") if isinstance(b, dict) else str(b)
+                            ).strip()
+                        if base_name and base_name != name:
+                            doc = f"{cat} extending {base_name}."
+                        else:
+                            doc = f"{cat} in the {family.title()} {platform.upper()} API."
                 # Escape pipes in doc
                 doc = doc.replace("|", "\\|")
                 lines.append(f"| `{name}` | {doc} |")

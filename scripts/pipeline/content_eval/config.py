@@ -39,6 +39,7 @@ ALL_EVALUATORS = [
     "evidence_format_validity",
     "cta_wording",
     "code_prose_alignment",  # TC-EVAL-003: EXPERIMENTAL
+    "generic_description_check",  # TC-GDF-001: detect generic fallback descriptions in _index.md
 ]
 
 # FREEZE-03: Canonical evaluators — contribute to the frontmatter grade letter.
@@ -91,6 +92,7 @@ EXPERIMENTAL_EVALUATORS = frozenset({
     "private_api_usage",
     "evidence_format_validity",
     # code_prose_alignment: graduated to DEFAULT (TC-PROMOTE-001, 2026-06-13)
+    "generic_description_check",  # TC-GDF-001: EXPERIMENTAL — index placeholder detection
 })
 
 # Default evaluators (fast, deterministic, production-ready)
@@ -126,6 +128,7 @@ DEFAULT_EVALUATORS = [
     "consumer_usefulness",
     "cta_wording",  # graduated from EXPERIMENTAL 2026-06-09 (TC-CTA-GRADUATION)
     "code_prose_alignment",  # graduated from EXPERIMENTAL 2026-06-13 (TC-PROMOTE-001), WARN-only
+    "generic_description_check",  # TC-GDF-001: EXPERIMENTAL — detect placeholder descriptions in _index.md
 ]
 
 # Platform foreign-code patterns: (regex, description)
