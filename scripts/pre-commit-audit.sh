@@ -642,7 +642,7 @@ _pc_step_start "KB slug quality"
 # ---------------------------------------------------------------------------
 staged_kb_howto=()
 while IFS= read -r _kline; do staged_kb_howto+=("$_kline"); done < <(
-    git diff --cached --name-only --diff-filter=ACM \
+    git diff --cached --name-only --diff-filter=ACR \
         | grep -E '^content/kb\.aspose\.org/.*how-to-.*\.md$' || true
 )
 if [ ${#staged_kb_howto[@]} -gt 0 ]; then
