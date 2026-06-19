@@ -631,4 +631,40 @@ if [ ${#staged_content_md[@]} -gt 0 ]; then
 fi
 _pc_step_end "PASS"
 
+# ---------------------------------------------------------------------------
+_pc_step_start "KB slug quality"
+# Step 14: KB how-to slug quality gate (TC-KBS-007)
+# Checks staged content/kb.aspose.org/**/how-to-*.md filenames for defects:
+#   C1 — single-token noun > 12 chars (CamelCase namespace leak)
+#   C2 — verb-noun duplication (e.g. how-to-extract-text-extraction-*)
+#   C3 — primary noun word in generic-noun banlist (e.g. "core", "content")
+# Only staged KB how-to files are checked — pre-existing slugs are not blocked.
+# ---------------------------------------------------------------------------
+staged_kb_howto=()
+while IFS= read -r _kline; do staged_kb_howto+=("$_kline"); done < <(
+    git diff --cached --name-only --diff-filter=ACM \
+        | grep -E '^content/kb\.aspose\.org/.*how-to-.*\.md$' || true
+)
+if [ ${#staged_kb_howto[@]} -gt 0 ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_kb_slug_quality.py" ]; then
+        _kb_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_kb_slug_quality.py \
+            "${staged_kb_howto[@]}" 2>&1)
+        _kb_exit=$?
+        if [ -n "$_kb_out" ]; then
+            echo "$_kb_out" | sed 's/^/[Step 14] /'
+        fi
+        if [ $_kb_exit -ne 0 ]; then
+            echo ""
+            echo "BLOCKED: Staged KB how-to slug(s) have quality defects (see above)."
+            echo "  Fix the slug in site_planner.py and regenerate, or choose a better filename."
+            echo "  See docs/governance/ for KB slug naming rules."
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    else
+        echo "[Step 14] SKIP: .venv not found or check_kb_slug_quality.py missing." >&2
+    fi
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0
