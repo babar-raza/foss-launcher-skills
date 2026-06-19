@@ -156,5 +156,117 @@ class TestPlanKbPlaceholderTier(unittest.TestCase):
         self.assertGreater(len(pages), 0, "No pages generated even for _index/FAQ")
 
 
+
+class TestKBSlugRegressions(unittest.TestCase):
+    """Regression tests for KB slug defects D-1 and D-2.
+
+    D-1 (TC-KBS-001): C# namespace "JavascriptExtensions" must produce
+    hyphenated label "javascript-extensions", not the opaque token
+    "javascriptextensions". Root cause: CamelCase leaked into slug.
+
+    D-2 (TC-KBS-003): Cluster "text-extraction" with verb "extract" must
+    produce noun "text", not "text-extraction" (verb-noun duplication).
+    Root cause: _VERB_NOMINAL_FORMS["extract"] = ["extraction"] strips the
+    nominal suffix, but the content file predated the fix.
+    """
+
+    # ------------------------------------------------------------------
+    # D-1 unit tests — TC-KBS-001 (_subpkg_to_label CamelCase fix)
+    # ------------------------------------------------------------------
+
+    def test_subpkg_to_label_javascript_extensions_pascal_case(self):
+        """TC-KBS-001: PascalCase 'JavascriptExtensions' -> 'javascript-extensions'."""
+        from site_planner import _subpkg_to_label
+        result = _subpkg_to_label("JavascriptExtensions", "pdf")
+        self.assertEqual(
+            result,
+            "javascript-extensions",
+            f"TC-KBS-001 regression: expected 'javascript-extensions', got {result!r}. "
+            "CamelCase C# namespace must be split into kebab-case.",
+        )
+
+    def test_subpkg_to_label_javascript_extensions_lowercase(self):
+        """TC-KBS-001: All-lowercase 'javascriptextensions' also maps via explicit override."""
+        from site_planner import _subpkg_to_label
+        result = _subpkg_to_label("javascriptextensions", "pdf")
+        self.assertEqual(
+            result,
+            "javascript-extensions",
+            f"TC-KBS-001 regression: lowercase variant should also produce "
+            f"'javascript-extensions', got {result!r}",
+        )
+
+    # ------------------------------------------------------------------
+    # D-2 unit test — TC-KBS-003 (_kb_noun_from_cluster extraction fix)
+    # ------------------------------------------------------------------
+
+    def test_kb_noun_strips_extraction_nominal_form(self):
+        """TC-KBS-003: 'text-extraction' + verb 'extract' -> noun 'text' (not 'text-extraction')."""
+        from site_planner import _kb_noun_from_cluster
+        result = _kb_noun_from_cluster("text-extraction", "pdf", "extract")
+        self.assertEqual(
+            result,
+            "text",
+            f"TC-KBS-003 regression: expected noun 'text', got {result!r}. "
+            "Nominal form 'extraction' must be stripped when verb is 'extract'.",
+        )
+
+    # ------------------------------------------------------------------
+    # D-1 end-to-end slug test
+    # ------------------------------------------------------------------
+
+    def test_slug_d1_javascript_extensions_end_to_end(self):
+        """TC-KBS-001 e2e: cluster 'javascript-extensions' -> 'how-to-work-with-javascript-extensions-dotnet'."""
+        clusters = [_make_cluster("javascript-extensions")]
+        pages = plan_kb(
+            family="pdf",
+            platform="net",
+            clusters=clusters,
+            total_claims=50,
+            snippet_count=1,
+            tier="placeholder",
+            existing=[],
+        )
+        howto_slugs = [p["slug"] for p in pages if "how-to" in p.get("slug", "")]
+        self.assertIn(
+            "how-to-work-with-javascript-extensions-dotnet",
+            howto_slugs,
+            "D-1 e2e: correct hyphenated slug not found in plan output",
+        )
+        self.assertNotIn(
+            "how-to-work-with-javascriptextensions-dotnet",
+            howto_slugs,
+            "D-1 e2e: old defective slug (missing hyphen) must not appear in plan",
+        )
+
+    # ------------------------------------------------------------------
+    # D-2 end-to-end slug test
+    # ------------------------------------------------------------------
+
+    def test_slug_d2_text_extraction_end_to_end(self):
+        """TC-KBS-003 e2e: cluster 'text-extraction' -> 'how-to-extract-text-dotnet' (not double-verb)."""
+        clusters = [_make_cluster("text-extraction")]
+        pages = plan_kb(
+            family="pdf",
+            platform="net",
+            clusters=clusters,
+            total_claims=50,
+            snippet_count=1,
+            tier="placeholder",
+            existing=[],
+        )
+        howto_slugs = [p["slug"] for p in pages if "how-to" in p.get("slug", "")]
+        self.assertIn(
+            "how-to-extract-text-dotnet",
+            howto_slugs,
+            "D-2 e2e: correct de-duplicated slug not found in plan output",
+        )
+        self.assertNotIn(
+            "how-to-extract-text-extraction-dotnet",
+            howto_slugs,
+            "D-2 e2e: old defective double-verb slug must not appear in plan",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
