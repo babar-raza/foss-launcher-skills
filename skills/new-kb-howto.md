@@ -36,14 +36,31 @@ Generate a new KB how-to article.
 1. **Parse** `$ARGUMENTS` into: `family`, `platform`, `slug` (slug becomes the filename and title source).
 
    **Step 0a — Slug self-check (HALT guard):** After parsing the slug, extract the noun
-   part (strip `how-to-{verb}-` prefix and `-{platform}` suffix). If the noun part is a
-   **single word longer than 12 characters** (e.g. "javascriptextensions", "logicalstructure"),
-   HALT immediately and report:
+   part (strip `how-to-{verb}-` prefix and `-{platform}` suffix). Check TWO conditions:
+
+   **Condition 1 — CamelCase leak (C1):** If the noun is a **single word longer than
+   12 characters** (e.g. "javascriptextensions", "logicalstructure"), HALT immediately:
    > "HALT: The slug noun `{noun}` appears to be an unsplit CamelCase namespace name.
-   > This slug was likely generated from a C# namespace that is not registered in
+   > This slug was likely generated from a C# namespace not registered in
    > `_FAMILY_SUBPKG_LABELS`. Do NOT proceed — fix the slug in site_planner.py first,
    > then re-run `/new-kb-howto`."
-   Do not generate any content until this is resolved.
+
+   **Condition 2 — Context-free compound (C4):** If the noun is hyphenated (compound
+   noun) and **none of its words start with a product-family keyword** for `{family}`,
+   HALT:
+   > "HALT: The slug noun `{noun}` contains no `{family}`-specific keyword.
+   > The slug is ambiguous without URL path context — it does not self-identify the
+   > product. This was likely generated from a merged cluster label without a family
+   > prefix. Fix the label in `_FAMILY_SUBPKG_LABELS['{family}']` first, then
+   > re-run `/new-kb-howto`."
+   >
+   > Family keyword reference (from `_FAMILY_PRODUCT_KEYWORDS` in site_planner.py):
+   > pdf → pdf, xmp, javascript | cells → cell, xlsx, workbook, spreadsheet, excel |
+   > slides → slide, presentation, pptx | words → word, docx, paragraph |
+   > email → email, mailbox, mime, smtp | 3d → 3d, mesh, scene, material |
+   > font → font, glyph, ttf, woff
+
+   Do not generate any content until both conditions are cleared.
 
 2. **Read existing KB content for reference** (do not copy text — read only to confirm patterns):
    - Read one existing how-to file from `content/kb.aspose.org/en/{family}/{platform}/` to confirm exact frontmatter fields
