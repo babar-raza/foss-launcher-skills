@@ -17,6 +17,12 @@ Checks KB how-to filenames for known slug defect patterns:
     The first word of the noun is in the banned-generic list
     (e.g. "core", "content", "utilities") — too ambiguous for a KB URL.
 
+  Check C4 — Compound noun without product-family keyword (TC-KBS-016)
+    A hyphenated noun where none of the words match the product family's
+    keyword set (e.g. "annotations-forms" for "pdf" family has neither
+    "pdf" nor "annotation" nor any other pdf-specific word).
+    Slug is context-dependent without URL path — fails completeness standard.
+
 Usage — staged-file mode (pre-commit hook):
     python check_kb_slug_quality.py FILE [FILE ...]
     Exit 1 if any FILE has a defective how-to slug; exit 0 otherwise.
@@ -83,6 +89,24 @@ _KB_GENERIC_NOUNS: frozenset[str] = frozenset({
     "general", "data", "model", "helpers", "services",
 })
 
+# C4: Product-family keyword sets — must stay in sync with
+# site_planner._FAMILY_PRODUCT_KEYWORDS (TC-KBS-016).
+# Only terms specific to this family — generic terms ("annotation", "form",
+# "text", "page") are excluded so ambiguous slugs cannot pass C4 incorrectly.
+_FAMILY_PRODUCT_KEYWORDS: dict[str, frozenset[str]] = {
+    "pdf":    frozenset({"pdf", "xmp", "javascript"}),
+    "cells":  frozenset({"cell", "workbook", "worksheet", "xlsx", "excel",
+                         "formula", "chart", "ooxml", "spreadsheet"}),
+    "slides": frozenset({"slide", "presentation", "powerpoint", "pptx",
+                         "shape"}),
+    "words":  frozenset({"word", "docx", "paragraph"}),
+    "email":  frozenset({"email", "mailbox", "mime", "smtp", "imap", "calendar"}),
+    "3d":     frozenset({"3d", "scene", "mesh", "material", "animation",
+                         "geometry", "node", "fbx", "gltf", "obj"}),
+    "font":   frozenset({"font", "glyph", "cff", "eot", "type1", "ttf",
+                         "woff", "opentype"}),
+}
+
 # Long English nouns that are legitimate KB slug components but are
 # > 12 chars without hyphens.  These are NOT CamelCase namespace leaks.
 # Keep this list minimal — only add words you are certain are real.
@@ -116,11 +140,12 @@ def _parse_verb_noun(inner: str) -> tuple[str, str]:
     return "", inner
 
 
-def check_slug(stem: str) -> tuple[str, str] | None:
+def check_slug(stem: str, family: str = "") -> tuple[str, str] | None:
     """Return (check_id, message) if the slug is defective, else None.
 
     ``stem`` is the filename without the ``.md`` extension, e.g.
     ``how-to-work-with-javascriptextensions-dotnet``.
+    ``family`` is the product family (e.g. "pdf", "cells") used for C4 check.
     Files that are not how-to slugs always return None.
     """
     if not stem.startswith("how-to-"):
@@ -169,6 +194,22 @@ def check_slug(stem: str) -> tuple[str, str] | None:
             "Add a more specific label to _FAMILY_SUBPKG_LABELS in site_planner.py.",
         )
 
+    # Check C4: compound noun without product-family keyword (TC-KBS-016).
+    # Prefix matching handles plurals: "materials" matches keyword "material".
+    # Only runs when family is known.
+    if "-" in noun and family:
+        family_keywords = _FAMILY_PRODUCT_KEYWORDS.get(family, frozenset())
+        noun_words = noun.split("-")
+        if family_keywords and not any(
+            word.startswith(kw) for word in noun_words for kw in family_keywords
+        ):
+            return (
+                "C4",
+                f"compound noun '{noun}' contains no {family!r} product keyword — "
+                "slug is ambiguous without URL path context. "
+                "Prefix noun with family term or update _FAMILY_SUBPKG_LABELS in site_planner.py.",
+            )
+
     return None
 
 
@@ -176,12 +217,26 @@ def check_slug(stem: str) -> tuple[str, str] | None:
 # Modes
 # ---------------------------------------------------------------------------
 
+def _extract_family(path: str | Path) -> str:
+    """Extract product family from a KB content path.
+
+    Expected path structure: .../kb.aspose.org/en/{family}/{platform}/...
+    Returns empty string if family cannot be determined.
+    """
+    parts = Path(path).parts
+    for i, part in enumerate(parts):
+        if part == "en" and i + 1 < len(parts):
+            return parts[i + 1]
+    return ""
+
+
 def check_files(paths: list[str]) -> int:
     """Staged-file mode: check the given file paths. Return 1 if any fail."""
     failures: list[tuple[str, str, str]] = []
     for p in paths:
         stem = Path(p).stem
-        result = check_slug(stem)
+        family = _extract_family(p)
+        result = check_slug(stem, family=family)
         if result is not None:
             check_id, msg = result
             failures.append((p, check_id, msg))
@@ -205,7 +260,8 @@ def scan_root(kb_root: Path) -> list[tuple[Path, str, str]]:
     failures: list[tuple[Path, str, str]] = []
     for md in sorted(kb_root.rglob("*.md")):
         stem = md.stem
-        result = check_slug(stem)
+        family = _extract_family(md)
+        result = check_slug(stem, family=family)
         if result is not None:
             check_id, msg = result
             failures.append((md, check_id, msg))

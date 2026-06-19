@@ -839,9 +839,10 @@ def test_class_to_subpackage_python_unchanged():
 
 def test_subpkg_to_label_pdf_family_override():
     """PDF family overrides must take priority over cross-family labels."""
-    assert sp._subpkg_to_label("drawing", "pdf") == "graphics-drawing"
+    # RC-5 fix (TC-KBS-015): pdf labels now include product qualifier
+    assert sp._subpkg_to_label("drawing", "pdf") == "pdf-graphics"
     assert sp._subpkg_to_label("drawing", "slides") == "drawing-shapes"
-    assert sp._subpkg_to_label("annotations", "pdf") == "annotations-forms"
+    assert sp._subpkg_to_label("annotations", "pdf") == "pdf-annotations"
 
 
 def test_detect_clusters_pdf_layout():
@@ -858,7 +859,7 @@ def test_detect_clusters_pdf_layout():
     assert len(clusters) >= 5, (
         f"Expected >=5 clusters for PDF, got {len(clusters)}: {categories}"
     )
-    assert "annotations-forms" in categories
+    assert "pdf-annotations" in categories
     assert "text-extraction" in categories
     assert "document-management" in categories
 
@@ -908,11 +909,28 @@ class TestKbSlugLabelFixes:
         )
 
     def test_pdf_existing_labels_unchanged(self):
-        """Regression: adding new pdf label must not disturb existing ones."""
-        assert sp._subpkg_to_label("annotations", "pdf") == "annotations-forms"
+        """Regression: RC-5 label change must not disturb other pdf labels."""
+        # RC-5 fix: annotations and forms now map to pdf-annotations
+        assert sp._subpkg_to_label("annotations", "pdf") == "pdf-annotations"
+        assert sp._subpkg_to_label("forms", "pdf") == "pdf-annotations"
         assert sp._subpkg_to_label("text", "pdf") == "text-extraction"
         assert sp._subpkg_to_label("facades", "pdf") == "facades-api"
         assert sp._subpkg_to_label("security", "pdf") == "security-signatures"
+
+    def test_pdf_rc5_labels_have_pdf_qualifier(self):
+        """TC-KBS-015: RC-5 merged cluster labels include pdf product qualifier."""
+        # annotations-forms cluster → pdf-annotations
+        assert sp._subpkg_to_label("annotations", "pdf") == "pdf-annotations"
+        assert sp._subpkg_to_label("forms", "pdf") == "pdf-annotations"
+        # graphics-drawing cluster → pdf-graphics
+        assert sp._subpkg_to_label("drawing", "pdf") == "pdf-graphics"
+        assert sp._subpkg_to_label("shading", "pdf") == "pdf-graphics"
+        assert sp._subpkg_to_label("color", "pdf") == "pdf-graphics"
+        assert sp._subpkg_to_label("vector", "pdf") == "pdf-graphics"
+        # metadata-utilities cluster → pdf-metadata
+        assert sp._subpkg_to_label("xmp", "pdf") == "pdf-metadata"
+        assert sp._subpkg_to_label("collections", "pdf") == "pdf-metadata"
+        assert sp._subpkg_to_label("artifacts", "pdf") == "pdf-metadata"
 
 
 class TestCamelCaseSplitter:
@@ -943,9 +961,9 @@ class TestCamelCaseSplitter:
 
     def test_lookup_table_takes_priority_over_splitter(self):
         """Existing lookup table entries are not overridden by the splitter."""
-        # "annotations" is in _FAMILY_SUBPKG_LABELS["pdf"]
+        # "annotations" is in _FAMILY_SUBPKG_LABELS["pdf"] (RC-5: now pdf-annotations)
         result = sp._subpkg_to_label("annotations", "pdf")
-        assert result == "annotations-forms", (
+        assert result == "pdf-annotations", (
             f"Lookup table should win; got {result!r}"
         )
 
@@ -1041,3 +1059,50 @@ class TestKbSlugValidator:
         """Fixed verb-noun slug (after TC-KBS-003) passes validation."""
         pages = [self._make_page("how-to-extract-text-dotnet")]
         sp._validate_kb_slugs(pages, "pdf", "net")  # no exception
+
+    # C4 tests (TC-KBS-016) ------------------------------------
+
+    def test_c4_compound_without_family_keyword_raises_for_derived(self):
+        """C4: compound noun with no pdf keyword raises ValueError for derived."""
+        # "annotations-forms" has neither "pdf" nor any pdf-specific word
+        pages = [self._make_page("how-to-add-annotations-forms-dotnet")]
+        with pytest.raises(ValueError, match="lacks product-family qualifier"):
+            sp._validate_kb_slugs(pages, "pdf", "net")
+
+    def test_c4_graphics_drawing_raises_for_derived(self):
+        """C4: 'graphics-drawing' has no pdf keyword → raises for derived."""
+        pages = [self._make_page("how-to-add-graphics-drawing-dotnet")]
+        with pytest.raises(ValueError, match="lacks product-family qualifier"):
+            sp._validate_kb_slugs(pages, "pdf", "net")
+
+    def test_c4_metadata_utilities_raises_for_derived(self):
+        """C4: 'metadata-utilities' has no pdf keyword → raises for derived."""
+        pages = [self._make_page("how-to-extract-metadata-utilities-dotnet")]
+        with pytest.raises(ValueError, match="lacks product-family qualifier"):
+            sp._validate_kb_slugs(pages, "pdf", "net")
+
+    def test_c4_pdf_annotations_passes(self):
+        """C4: 'pdf-annotations' contains 'pdf' → passes for pdf family."""
+        pages = [self._make_page("how-to-add-pdf-annotations-dotnet")]
+        sp._validate_kb_slugs(pages, "pdf", "net")  # no exception
+
+    def test_c4_pdf_graphics_passes(self):
+        """C4: 'pdf-graphics' contains 'pdf' → passes for pdf family."""
+        pages = [self._make_page("how-to-add-pdf-graphics-dotnet")]
+        sp._validate_kb_slugs(pages, "pdf", "net")  # no exception
+
+    def test_c4_pdf_metadata_passes(self):
+        """C4: 'pdf-metadata' contains 'pdf' → passes for pdf family."""
+        pages = [self._make_page("how-to-extract-pdf-metadata-dotnet")]
+        sp._validate_kb_slugs(pages, "pdf", "net")  # no exception
+
+    def test_c4_discovered_slug_warns_not_raises(self):
+        """C4: compound without family keyword warns but does not raise for discovered."""
+        pages = [self._make_page("how-to-add-annotations-forms-dotnet", source="discovered")]
+        sp._validate_kb_slugs(pages, "pdf", "net")  # must not raise
+
+    def test_c4_unknown_family_no_check(self):
+        """C4: family with no keyword set defined → no C4 check applied."""
+        pages = [self._make_page("how-to-work-with-arbitrary-compound-dotnet")]
+        # "unknown-family" has no entry in _FAMILY_PRODUCT_KEYWORDS → C4 skipped
+        sp._validate_kb_slugs(pages, "unknown-family", "net")  # no exception

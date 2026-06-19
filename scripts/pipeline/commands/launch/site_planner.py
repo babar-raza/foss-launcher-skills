@@ -599,8 +599,10 @@ _FAMILY_SUBPKG_LABELS: dict[str, dict[str, str]] = {
         "validation": "data-validation",     # Data validation rules (TC-KBS-005)
     },
     "pdf": {
-        "annotations":          "annotations-forms",
-        "forms":                "annotations-forms",
+        # RC-5 fix (TC-KBS-015): merged labels now include "pdf" product qualifier
+        # so slugs are self-contained without URL path context.
+        "annotations":          "pdf-annotations",   # was "annotations-forms"
+        "forms":                "pdf-annotations",   # was "annotations-forms"
         "text":                 "text-extraction",
         "content":              "content-operations",
         "facades":              "facades-api",
@@ -609,10 +611,10 @@ _FAMILY_SUBPKG_LABELS: dict[str, dict[str, str]] = {
         "structure":            "logical-structure",
         "generator":            "page-generation",
         "stamps":               "page-generation",
-        "drawing":              "graphics-drawing",
-        "shading":              "graphics-drawing",
-        "color":                "graphics-drawing",
-        "vector":               "graphics-drawing",
+        "drawing":              "pdf-graphics",      # was "graphics-drawing"
+        "shading":              "pdf-graphics",      # was "graphics-drawing"
+        "color":                "pdf-graphics",      # was "graphics-drawing"
+        "vector":               "pdf-graphics",      # was "graphics-drawing"
         "devices":              "devices-rendering",
         "printing":             "devices-rendering",
         "converters":           "conversion-optimization",
@@ -621,13 +623,13 @@ _FAMILY_SUBPKG_LABELS: dict[str, dict[str, str]] = {
         "security":             "security-signatures",
         "navigation":           "navigation-actions",
         "actions":              "navigation-actions",
-        "xmp":                  "metadata-utilities",
-        "collections":          "metadata-utilities",
-        "artifacts":            "metadata-utilities",
-        "functions":            "metadata-utilities",
-        "geometry":             "metadata-utilities",
-        "interop":              "metadata-utilities",
-        "groupprocessor":       "metadata-utilities",
+        "xmp":                  "pdf-metadata",      # was "metadata-utilities"
+        "collections":          "pdf-metadata",      # was "metadata-utilities"
+        "artifacts":            "pdf-metadata",      # was "metadata-utilities"
+        "functions":            "pdf-metadata",      # was "metadata-utilities"
+        "geometry":             "pdf-metadata",      # was "metadata-utilities"
+        "interop":              "pdf-metadata",      # was "metadata-utilities"
+        "groupprocessor":       "pdf-metadata",      # was "metadata-utilities"
         "javascriptextensions": "javascript-extensions",  # TC-KBS-001: C# namespace fix
     },
 }
@@ -1453,6 +1455,28 @@ _KB_GENERIC_NOUNS = frozenset({
     "general", "data", "model", "helpers", "services",
 })
 
+# C4: Product-family keyword sets for compound-noun context check (TC-KBS-016).
+# A compound noun (noun with hyphens) passes C4 if at least one of its
+# hyphen-separated words appears in the family keyword set — confirming
+# the slug identifies the product without URL path context.
+_FAMILY_PRODUCT_KEYWORDS: dict[str, frozenset[str]] = {
+    # Only include terms that are specific to this product family.
+    # Generic terms ("annotation", "form", "text", "page", "document") are
+    # intentionally excluded — they apply to many families and would cause
+    # ambiguous slugs to pass C4 incorrectly.
+    "pdf":    frozenset({"pdf", "xmp", "javascript"}),
+    "cells":  frozenset({"cell", "workbook", "worksheet", "xlsx", "excel",
+                         "formula", "chart", "ooxml", "spreadsheet"}),
+    "slides": frozenset({"slide", "presentation", "powerpoint", "pptx",
+                         "shape"}),
+    "words":  frozenset({"word", "docx", "paragraph"}),
+    "email":  frozenset({"email", "mailbox", "mime", "smtp", "imap", "calendar"}),
+    "3d":     frozenset({"3d", "scene", "mesh", "material", "animation",
+                         "geometry", "node", "fbx", "gltf", "obj"}),
+    "font":   frozenset({"font", "glyph", "cff", "eot", "type1", "ttf",
+                         "woff", "opentype"}),
+}
+
 
 def _validate_kb_slugs(
     pages: list[dict],
@@ -1538,6 +1562,26 @@ def _validate_kb_slugs(
                 f"  primary noun word {primary!r} is in _KB_GENERIC_NOUNS — "
                 f"add a specific label to _FAMILY_SUBPKG_LABELS[{family!r}]"
             )
+            continue
+
+        # Check 4 (C4): compound noun without product-family keyword (TC-KBS-016).
+        # A hyphenated noun that contains no family-specific keyword is
+        # context-dependent — its meaning changes with the URL path prefix.
+        # Prefix matching handles plurals: "materials" matches keyword "material".
+        # Only enforced for source=derived; warn for source=discovered.
+        if "-" in noun:
+            family_keywords = _FAMILY_PRODUCT_KEYWORDS.get(family, frozenset())
+            noun_words = noun.split("-")
+            if family_keywords and not any(
+                word.startswith(kw) for word in noun_words for kw in family_keywords
+            ):
+                _fail_or_warn(
+                    f"KB slug compound noun lacks product-family qualifier: {slug!r}\n"
+                    f"  noun={noun!r} contains no word from the {family!r} "
+                    f"keyword set — slug is ambiguous without URL context.\n"
+                    f"  Prefix noun with family term (e.g. '{family}-{noun}') "
+                    f"or update label in _FAMILY_SUBPKG_LABELS[{family!r}]"
+                )
 
 
 def plan_kb(
