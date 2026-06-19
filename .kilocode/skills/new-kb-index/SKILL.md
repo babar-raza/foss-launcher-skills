@@ -84,18 +84,14 @@ Default weight for unlisted platforms: 80.
    a. Read `data/families_order.json` and find the 0-based index of `{family}`. Compute
       `weight = (index + 1) * 10`. If the family is not listed, use weight 100.
 
-   b. Look up the family icon from this table:
+   b. Look up the family's canonical icon from `data/family_icons.yaml`. This is the
+      single source of truth — do NOT use a hardcoded table. Read the file and find
+      the entry for `{family}`. If no entry exists for this family, STOP and add one
+      to `data/family_icons.yaml` first (choosing an unused icon), then proceed.
 
-      | Family | Icon |
-      |--------|------|
-      | words | `pencil-alt` |
-      | cells | `table` |
-      | email | `mail` |
-      | slides | `presentation-chart-bar` |
-      | note | `document-text` |
-      | 3d | `cube` |
-      | pdf | `document` |
-      | *other* | `document` |
+      To check available unused icons, run:
+        python scripts/ci/checks/check_family_icon_uniqueness.py
+      The output lists unused icons on any FAIL; on OK, all icons are assigned.
 
    c. Write `content/kb.aspose.org/en/{family}/_index.md`:
 
@@ -104,7 +100,7 @@ Default weight for unlisted platforms: 80.
       title: Aspose.{Family} FOSS
       subtitle: {5–8 word summary from model.yaml description}
       description: "Aspose.{Family} FOSS knowledge base: how-to guides and troubleshooting for {domain from model.yaml} without {key dependency, e.g. Microsoft Office}."
-      icon: {icon from table above}
+      icon: {icon from data/family_icons.yaml for this family}
       layout: wide
       weight: {weight from step 5a}
       provenance:
