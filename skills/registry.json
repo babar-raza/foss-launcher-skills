@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
-  "skill_count": 85,
+  "skill_count": 86,
   "skills": [
     {
       "id": "S-01",
@@ -684,6 +684,14 @@
       "description": "Creates the Hugo branch bundle at",
       "internal": false,
       "canonical_path": "skills/new-blog-index.md"
+    },
+    {
+      "id": "S-102",
+      "slug": "grade-remediate",
+      "name": "Grade Remediate — Fix D/F Grade Pages",
+      "description": "Remediate D/F grade pages by improving content to meet quality bar",
+      "internal": false,
+      "canonical_path": "skills/grade-remediate.md"
     }
   ]
 }

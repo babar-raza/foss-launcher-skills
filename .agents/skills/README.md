@@ -5,7 +5,7 @@ Each skill is a subdirectory with a `SKILL.md` file inside.
 
 > **Canonical source**: [skills/README.md](../../skills/README.md)
 > **Authoritative registry**: [AGENTS.md §12](../../AGENTS.md)
-> This tree is a full mirror of `skills/` — all 85 registered skills are present.
+> This tree is a full mirror of `skills/` — all 86 registered skills are present.
 > When content diverges from canonical, investigate with `python scripts/pipeline/commands/ops/sync_skills.py --report`.
 
 ---
@@ -35,7 +35,7 @@ Directory structure:
 
 ## Skill List (72 skills — full canonical set)
 
-All 85 registered skills are present in this tree. Internal sub-routines are included here
+All 86 registered skills are present in this tree. Internal sub-routines are included here
 (unlike the Claude Code tree) because Codex invokes them directly when orchestrating skill chains.
 
 | ID | Slug | Category | Internal? |
