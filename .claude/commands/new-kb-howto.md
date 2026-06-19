@@ -35,6 +35,16 @@ Generate a new KB how-to article.
 
 1. **Parse** `$ARGUMENTS` into: `family`, `platform`, `slug` (slug becomes the filename and title source).
 
+   **Step 0a — Slug self-check (HALT guard):** After parsing the slug, extract the noun
+   part (strip `how-to-{verb}-` prefix and `-{platform}` suffix). If the noun part is a
+   **single word longer than 12 characters** (e.g. "javascriptextensions", "logicalstructure"),
+   HALT immediately and report:
+   > "HALT: The slug noun `{noun}` appears to be an unsplit CamelCase namespace name.
+   > This slug was likely generated from a C# namespace that is not registered in
+   > `_FAMILY_SUBPKG_LABELS`. Do NOT proceed — fix the slug in site_planner.py first,
+   > then re-run `/new-kb-howto`."
+   Do not generate any content until this is resolved.
+
 2. **Read existing KB content for reference** (do not copy text — read only to confirm patterns):
    - Read one existing how-to file from `content/kb.aspose.org/en/{family}/{platform}/` to confirm exact frontmatter fields
    - Read `content/reference.aspose.org/en/{family}/{platform}/_index.md` to identify available classes, methods, and package names you may reference
