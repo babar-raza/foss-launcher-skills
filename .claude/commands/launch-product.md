@@ -112,6 +112,45 @@ auto-generated content and clears the L-10 gate.
 
 ---
 
+### STAGE 1.7 — Refresh Backlink Target Map
+
+**Condition**: Always run after Stage 1.5 completes, unless checkpoint `target_map_refreshed` is already `true`.
+
+**Purpose**: `data/aspose_com_targets.json` is synthesized from `content/products.aspose.org/en/` by
+`fetch_aspose_com_targets.py`. Stage 1 created `content/products.aspose.org/en/{family}/{platform}/`
+but the JSON has not been regenerated yet. Stage 2 blog posts call `backlink_backfill.py` (S-57 Step 7b),
+which reads this JSON to resolve platform-level backlinks. Without this refresh, `_lookup_platform()` falls
+back to the family-level URL, producing wrong anchor text in all generated blog posts.
+
+**Pre-flight check**: Verify the external platform URL is live before regenerating:
+```bash
+curl -s -o /dev/null -w "%{http_code}" "https://products.aspose.com/{family}/{platform}/"
+```
+If 404: the `products.aspose.com/{family}/{platform}/` page is not yet deployed. STOP — deploy the
+products site first (Hugo build + S3 sync + CDN purge), then retry this stage. Do NOT proceed to
+Stage 2 until this returns 200, or blog posts will link to a broken URL.
+
+**Command**:
+```bash
+PYTHONPATH=scripts/pipeline .venv/Scripts/python \
+  scripts/pipeline/commands/ops/fetch_aspose_com_targets.py
+```
+
+**Success check**: Verify the new platform entry appears with http_status 200:
+```bash
+python -c "import json; d=json.load(open('data/aspose_com_targets.json')); \
+  e=d['targets']['products.aspose.com']['platforms'].get('{family}/{platform}'); \
+  print('OK' if e and e.get('http_status')==200 else 'MISSING/FAIL', e)"
+```
+
+If MISSING or http_status != 200: the deployment pre-flight check failed or was skipped. Do not proceed.
+
+**Checkpoint**: `target_map_refreshed`
+
+**Save checkpoint**: `python scripts/pipeline/commands/ops/project_phase_store.py set {family} {platform} target_map_refreshed true`
+
+---
+
 ### STAGE 2 — Blog Posts
 **Pre-condition**: Verify `reports/plans/{family}/{platform}/site_plan.yaml` exists.
 If missing, STOP and re-run Stage 0.5.

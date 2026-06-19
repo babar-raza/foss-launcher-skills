@@ -1,5 +1,5 @@
-generated_at: '2026-06-02T11:13:09.845379+00:00'
-source_json_hash: sha256:f5486cd938a2679677cb9e962b8ab862dd695d61b512f86b4ec4cca9a669657d
+generated_at: '2026-06-19T18:15:04.205521+00:00'
+source_json_hash: sha256:8e6e8eb6608a7b5cfc94854c1e5e39a87a0af2867ef0c4fb3ffdea386f654c27
 targets:
   3d:
     http_status: 200
@@ -94,6 +94,9 @@ targets:
   page:
     http_status: 200
     url: https://products.aspose.com/page/
+  page/python:
+    http_status: 200
+    url: https://products.aspose.com/page/python/
   pdf:
     http_status: 200
     url: https://products.aspose.com/pdf/
@@ -103,6 +106,9 @@ targets:
   pdf/java:
     http_status: 200
     url: https://products.aspose.com/pdf/java/
+  pdf/net:
+    http_status: 200
+    url: https://products.aspose.com/pdf/net/
   psd:
     http_status: 200
     url: https://products.aspose.com/psd/
@@ -133,6 +139,9 @@ targets:
   tex:
     http_status: 200
     url: https://products.aspose.com/tex/
+  tex/python:
+    http_status: 200
+    url: https://products.aspose.com/tex/python/
   words:
     http_status: 200
     url: https://products.aspose.com/words/
