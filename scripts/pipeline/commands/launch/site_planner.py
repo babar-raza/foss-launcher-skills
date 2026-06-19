@@ -218,11 +218,32 @@ def _kb_noun_from_cluster(category: str, family: str, verb: str = "") -> str:
             base = base[: -len(suffix)]
             break
     # Strip verb to avoid duplication (e.g. "export-rendering" with verb "export")
+    # TC-KBS-003: also strip nominal forms (-{verb}ion, -{verb}ing) to prevent
+    # slugs like "how-to-extract-text-extraction" where verb "extract" appears
+    # in the noun as "extraction".
+    _VERB_NOMINAL_FORMS: dict[str, list[str]] = {
+        "extract":  ["extraction"],
+        "convert":  ["conversion"],
+        "render":   ["rendering"],
+        "optimize": ["optimization"],
+        "parse":    ["parsing"],
+        "create":   ["creation"],
+        "generate": ["generation"],
+        "compress": ["compression"],
+        "encrypt":  ["encryption"],
+        "protect":  ["protection"],
+    }
     if verb:
         if base.startswith(f"{verb}-") and len(base) > len(verb) + 1:
             base = base[len(verb) + 1:]
         elif base.endswith(f"-{verb}") and len(base) > len(verb) + 1:
             base = base[: -(len(verb) + 1)]
+        else:
+            # Strip nominal forms of the verb (e.g. "-extraction" when verb="extract")
+            for form in _VERB_NOMINAL_FORMS.get(verb, []):
+                if base.endswith(f"-{form}") and len(base) > len(form) + 1:
+                    base = base[: -(len(form) + 1)]
+                    break
     # Prefix generic/ambiguous nouns with family name
     _GENERIC_NOUNS = {"models", "files", "data", "objects", "items", "elements", "scenes"}
     if base in _GENERIC_NOUNS:
@@ -575,37 +596,39 @@ _FAMILY_SUBPKG_LABELS: dict[str, dict[str, str]] = {
         "core":       "cells-foss-model",    # Value-object/model classes in cells_foss core/
         "packaging":  "xlsx-packaging",      # OPC/XLSX packaging classes in cells_foss packaging/
         "cells_foss": "spreadsheet-management",  # Root-level cells_foss classes
+        "validation": "data-validation",     # Data validation rules (TC-KBS-005)
     },
     "pdf": {
-        "annotations":      "annotations-forms",
-        "forms":            "annotations-forms",
-        "text":             "text-extraction",
-        "content":          "content-operations",
-        "facades":          "facades-api",
-        "logicalstructure": "logical-structure",
-        "tagged":           "logical-structure",
-        "structure":        "logical-structure",
-        "generator":        "page-generation",
-        "stamps":           "page-generation",
-        "drawing":          "graphics-drawing",
-        "shading":          "graphics-drawing",
-        "color":            "graphics-drawing",
-        "vector":           "graphics-drawing",
-        "devices":          "devices-rendering",
-        "printing":         "devices-rendering",
-        "converters":       "conversion-optimization",
-        "optimization":     "conversion-optimization",
-        "html":             "conversion-optimization",
-        "security":         "security-signatures",
-        "navigation":       "navigation-actions",
-        "actions":          "navigation-actions",
-        "xmp":              "metadata-utilities",
-        "collections":      "metadata-utilities",
-        "artifacts":        "metadata-utilities",
-        "functions":        "metadata-utilities",
-        "geometry":         "metadata-utilities",
-        "interop":          "metadata-utilities",
-        "groupprocessor":   "metadata-utilities",
+        "annotations":          "annotations-forms",
+        "forms":                "annotations-forms",
+        "text":                 "text-extraction",
+        "content":              "content-operations",
+        "facades":              "facades-api",
+        "logicalstructure":     "logical-structure",
+        "tagged":               "logical-structure",
+        "structure":            "logical-structure",
+        "generator":            "page-generation",
+        "stamps":               "page-generation",
+        "drawing":              "graphics-drawing",
+        "shading":              "graphics-drawing",
+        "color":                "graphics-drawing",
+        "vector":               "graphics-drawing",
+        "devices":              "devices-rendering",
+        "printing":             "devices-rendering",
+        "converters":           "conversion-optimization",
+        "optimization":         "conversion-optimization",
+        "html":                 "conversion-optimization",
+        "security":             "security-signatures",
+        "navigation":           "navigation-actions",
+        "actions":              "navigation-actions",
+        "xmp":                  "metadata-utilities",
+        "collections":          "metadata-utilities",
+        "artifacts":            "metadata-utilities",
+        "functions":            "metadata-utilities",
+        "geometry":             "metadata-utilities",
+        "interop":              "metadata-utilities",
+        "groupprocessor":       "metadata-utilities",
+        "javascriptextensions": "javascript-extensions",  # TC-KBS-001: C# namespace fix
     },
 }
 
@@ -668,8 +691,14 @@ def _subpkg_to_label(subpkg: str, family: str) -> str:
             "pdf": "document-management",
         }
         return _ROOT_LABELS.get(family, "core-management")
-    # Generic: use slug form of sub-package name
-    return slug_from_category(key)
+    # TC-KBS-002: For unmapped PascalCase names (e.g. C# namespace dirs like
+    # "JavaScriptExtensions"), split on CamelCase word boundaries before
+    # slugifying. Without this, "JavaScriptExtensions" → "javascriptextensions"
+    # (an opaque token). With it → "javascript-extensions" (readable slug).
+    _camel_boundary = re.compile(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
+    split = _camel_boundary.sub("-", subpkg).lower().strip("-")
+    split = re.sub(r"-{2,}", "-", split)
+    return slug_from_category(split)
 
 
 def detect_clusters(
@@ -1413,6 +1442,104 @@ def plan_docs(
     return pages
 
 
+# ---------------------------------------------------------------------------
+# KB slug quality validator (TC-KBS-004)
+# ---------------------------------------------------------------------------
+
+# Nouns that are meaningful only with a domain qualifier — "core", "content",
+# "utilities" etc. reveal nothing about the product feature being described.
+_KB_GENERIC_NOUNS = frozenset({
+    "core", "content", "utilities", "util", "base", "common",
+    "general", "data", "model", "helpers", "services",
+})
+
+
+def _validate_kb_slugs(
+    pages: list[dict],
+    family: str,
+    platform: str,
+) -> None:
+    """Raise ValueError if any source=derived KB how-to slug is defective.
+
+    Three checks (applied only to source=derived pages):
+    1. Single-token noun with no hyphens and length > 12 — likely a CamelCase
+       namespace name that was not split (e.g. "javascriptextensions").
+    2. Verb-noun duplication — verb appears as the start of the noun
+       (e.g. "extract" → noun starts with "extract" or "extraction").
+    3. Generic noun — primary noun word is in _KB_GENERIC_NOUNS.
+
+    For source=discovered pages (existing deployed URLs), a warning is logged
+    but no exception is raised — live URLs must not be broken.
+    """
+    # Build verb list (longest first) so compound verbs like "work-with" are
+    # matched before their single-word prefixes ("work").
+    _known_verbs: list[str] = sorted(
+        {v for _, v in _VERB_KEYWORDS} | {"work-with"},
+        key=len,
+        reverse=True,
+    )
+
+    plat_suffix = KB_PLATFORM_SUFFIX.get(platform, platform)
+    for page in pages:
+        slug = page.get("slug", "")
+        source = page.get("source", "")
+        if not slug.startswith("how-to-"):
+            continue
+        # Strip leading "how-to-" and trailing "-{plat_suffix}"
+        inner = slug[7:]
+        if inner.endswith(f"-{plat_suffix}"):
+            inner = inner[: -(len(plat_suffix) + 1)]
+        # Find verb by matching known verb prefixes (longest first to handle
+        # compound verbs like "work-with" before single-word "work").
+        verb = ""
+        noun = inner
+        for kv in _known_verbs:
+            if inner.startswith(kv + "-") and len(inner) > len(kv) + 1:
+                verb = kv
+                noun = inner[len(kv) + 1:]
+                break
+        if not noun:
+            continue
+
+        _log = logging.getLogger(__name__)
+
+        def _fail_or_warn(msg: str) -> None:
+            if source == "derived":
+                raise ValueError(msg)
+            _log.warning("KB slug quality warning (source=%s): %s", source, msg)
+
+        # Check 1: single-token noun (no hyphens, length > 12) — CamelCase leak
+        if "-" not in noun and len(noun) > 12:
+            _fail_or_warn(
+                f"KB slug noun appears to be an unsplit CamelCase token: {slug!r}\n"
+                f"  noun={noun!r} — add label to "
+                f"_FAMILY_SUBPKG_LABELS[{family!r}] or rely on TC-KBS-002 splitter"
+            )
+            continue
+
+        # Check 2: verb-noun duplication — verb appears at the start OR end of
+        # the noun, including nominal forms (e.g. "extract" matches "extraction").
+        verb_forms = [verb] + [verb + s for s in ("ion", "ing", "tion", "ation")]
+        noun_parts = noun.split("-")
+        if (any(noun.startswith(f) for f in verb_forms)
+                or any(noun.endswith("-" + f) for f in verb_forms)
+                or any(part in verb_forms for part in noun_parts)):
+            _fail_or_warn(
+                f"KB slug has verb-noun duplication: {slug!r}\n"
+                f"  verb={verb!r} appears in noun={noun!r}"
+            )
+            continue
+
+        # Check 3: generic noun (primary word only)
+        primary = noun.split("-")[0]
+        if primary in _KB_GENERIC_NOUNS:
+            _fail_or_warn(
+                f"KB slug noun is too generic: {slug!r}\n"
+                f"  primary noun word {primary!r} is in _KB_GENERIC_NOUNS — "
+                f"add a specific label to _FAMILY_SUBPKG_LABELS[{family!r}]"
+            )
+
+
 def plan_kb(
     family: str,
     platform: str,
@@ -1519,6 +1646,9 @@ def plan_kb(
             )
         howto_weight += 10
         howto_count += 1
+
+    # TC-KBS-004: validate derived KB how-to slugs — raises ValueError on bad slugs
+    _validate_kb_slugs(pages, family, platform)
 
     # Troubleshooting — conditional (derived only when threshold met)
     trouble_derived = False

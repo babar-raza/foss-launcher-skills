@@ -876,3 +876,168 @@ def test_detect_clusters_3d_unchanged():
     assert 4 <= len(clusters) <= 10, (
         f"3D regression: expected 4-10 clusters, got {len(clusters)}"
     )
+
+
+# ---------------------------------------------------------------------------
+# TC-KBS-006 — KB slug fix tests
+# Tests for TC-KBS-001, TC-KBS-002, TC-KBS-003, TC-KBS-004, TC-KBS-005
+# ---------------------------------------------------------------------------
+
+class TestKbSlugLabelFixes:
+    """TC-KBS-001 + TC-KBS-005: verify _FAMILY_SUBPKG_LABELS entries."""
+
+    def test_javascriptextensions_maps_to_readable_label(self):
+        """TC-KBS-001: C# namespace JavaScriptExtensions → javascript-extensions."""
+        result = sp._subpkg_to_label("JavaScriptExtensions", "pdf")
+        assert result == "javascript-extensions", (
+            f"Expected 'javascript-extensions', got {result!r}"
+        )
+
+    def test_cells_validation_maps_to_data_validation(self):
+        """TC-KBS-005: 'validation' subpkg in cells → data-validation."""
+        result = sp._subpkg_to_label("validation", "cells")
+        assert result == "data-validation", (
+            f"Expected 'data-validation', got {result!r}"
+        )
+
+    def test_cells_packaging_maps_to_xlsx_packaging(self):
+        """Pre-existing: 'packaging' subpkg in cells → xlsx-packaging."""
+        result = sp._subpkg_to_label("packaging", "cells")
+        assert result == "xlsx-packaging", (
+            f"Expected 'xlsx-packaging', got {result!r}"
+        )
+
+    def test_pdf_existing_labels_unchanged(self):
+        """Regression: adding new pdf label must not disturb existing ones."""
+        assert sp._subpkg_to_label("annotations", "pdf") == "annotations-forms"
+        assert sp._subpkg_to_label("text", "pdf") == "text-extraction"
+        assert sp._subpkg_to_label("facades", "pdf") == "facades-api"
+        assert sp._subpkg_to_label("security", "pdf") == "security-signatures"
+
+
+class TestCamelCaseSplitter:
+    """TC-KBS-002: CamelCase word-boundary splitter in _subpkg_to_label()."""
+
+    def test_unmapped_camel_case_is_hyphenated(self):
+        """An unmapped PascalCase namespace gets split on word boundaries."""
+        # "LogicalStructure" is not in _FAMILY_SUBPKG_LABELS["email"] or _SUBPKG_LABEL
+        result = sp._subpkg_to_label("LogicalStructure", "email")
+        assert result == "logical-structure", (
+            f"CamelCase splitter gave {result!r}"
+        )
+
+    def test_multi_word_camel_case_split(self):
+        """Multi-word PascalCase splits correctly."""
+        # "PageGeneration" not in any lookup for "words"
+        result = sp._subpkg_to_label("PageGeneration", "words")
+        assert result == "page-generation", (
+            f"Multi-word split gave {result!r}"
+        )
+
+    def test_acronym_camel_case_split(self):
+        """Acronym boundary (e.g. XmlProcessing) splits correctly."""
+        result = sp._subpkg_to_label("XmlProcessing", "email")
+        assert result == "xml-processing", (
+            f"Acronym split gave {result!r}"
+        )
+
+    def test_lookup_table_takes_priority_over_splitter(self):
+        """Existing lookup table entries are not overridden by the splitter."""
+        # "annotations" is in _FAMILY_SUBPKG_LABELS["pdf"]
+        result = sp._subpkg_to_label("annotations", "pdf")
+        assert result == "annotations-forms", (
+            f"Lookup table should win; got {result!r}"
+        )
+
+    def test_single_word_unmapped_unchanged(self):
+        """A single-word lowercase name has no camel boundary — stays as-is."""
+        result = sp._subpkg_to_label("widgets", "email")
+        assert result == "widgets", f"Single word gave {result!r}"
+
+
+class TestVerbNounDedup:
+    """TC-KBS-003: Nominal-form verb stripping in _kb_noun_from_cluster()."""
+
+    def test_extraction_stripped_when_verb_is_extract(self):
+        """'text-extraction' with verb 'extract' → noun 'text' (not 'text-extraction')."""
+        noun = sp._kb_noun_from_cluster("text-extraction", "pdf", verb="extract")
+        assert noun == "text", f"Got {noun!r}"
+
+    def test_conversion_stripped_when_verb_is_convert(self):
+        """'format-conversion' with verb 'convert' → 'format'."""
+        noun = sp._kb_noun_from_cluster("format-conversion", "pdf", verb="convert")
+        assert noun == "format", f"Got {noun!r}"
+
+    def test_rendering_stripped_when_verb_is_render(self):
+        """'image-rendering' with verb 'render' → 'image'."""
+        noun = sp._kb_noun_from_cluster("image-rendering", "3d", verb="render")
+        assert noun == "image", f"Got {noun!r}"
+
+    def test_exact_verb_suffix_still_works(self):
+        """Original exact verb-suffix stripping still works (regression)."""
+        # "export-rendering" with verb "export" → prefix "export-" stripped → "rendering"
+        noun = sp._kb_noun_from_cluster("export-rendering", "3d", verb="export")
+        assert noun == "rendering", f"Got {noun!r}"
+
+    def test_no_verb_no_change(self):
+        """Without a verb, no stripping occurs."""
+        noun = sp._kb_noun_from_cluster("text-extraction", "pdf", verb="")
+        # suffix "-support" etc. not present; no stripping
+        assert "text" in noun, f"No-verb case gave {noun!r}"
+
+
+class TestKbSlugValidator:
+    """TC-KBS-004: _validate_kb_slugs() gate."""
+
+    def _make_page(self, slug: str, source: str = "derived") -> dict:
+        return {
+            "slug": slug,
+            "source": source,
+            "path": f"content/kb.aspose.org/en/pdf/net/{slug}.md",
+            "type": "topic",
+        }
+
+    def test_camel_leak_raises_for_derived(self):
+        """Unsplit CamelCase noun raises ValueError for source=derived."""
+        pages = [self._make_page("how-to-work-with-javascriptextensions-dotnet")]
+        with pytest.raises(ValueError, match="unsplit CamelCase"):
+            sp._validate_kb_slugs(pages, "pdf", "net")
+
+    def test_verb_noun_duplication_raises_for_derived(self):
+        """Verb-noun duplication raises ValueError for source=derived."""
+        pages = [self._make_page("how-to-extract-text-extraction-dotnet")]
+        with pytest.raises(ValueError, match="verb-noun duplication"):
+            sp._validate_kb_slugs(pages, "pdf", "net")
+
+    def test_generic_noun_raises_for_derived(self):
+        """Generic primary noun raises ValueError for source=derived."""
+        pages = [self._make_page("how-to-work-with-core-dotnet")]
+        with pytest.raises(ValueError, match="too generic"):
+            sp._validate_kb_slugs(pages, "pdf", "net")
+
+    def test_camel_leak_warns_not_raises_for_discovered(self):
+        """Unsplit CamelCase noun does NOT raise for source=discovered (existing URL)."""
+        pages = [self._make_page(
+            "how-to-work-with-javascriptextensions-dotnet", source="discovered"
+        )]
+        # Must not raise — existing URLs must not be broken
+        sp._validate_kb_slugs(pages, "pdf", "net")
+
+    def test_good_slug_passes(self):
+        """A well-formed slug passes validation without error."""
+        pages = [self._make_page("how-to-work-with-javascript-extensions-dotnet")]
+        sp._validate_kb_slugs(pages, "pdf", "net")  # no exception
+
+    def test_non_howto_slug_ignored(self):
+        """Non-how-to slugs (faq, use-cases) are not validated."""
+        pages = [
+            self._make_page("faq"),
+            self._make_page("use-cases"),
+            self._make_page("_index"),
+        ]
+        sp._validate_kb_slugs(pages, "pdf", "net")  # no exception
+
+    def test_good_extract_slug_passes(self):
+        """Fixed verb-noun slug (after TC-KBS-003) passes validation."""
+        pages = [self._make_page("how-to-extract-text-dotnet")]
+        sp._validate_kb_slugs(pages, "pdf", "net")  # no exception
