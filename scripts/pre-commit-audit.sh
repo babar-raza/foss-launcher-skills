@@ -665,6 +665,27 @@ if [ ${#staged_kb_howto[@]} -gt 0 ]; then
         echo "[Step 14] SKIP: .venv not found or check_kb_slug_quality.py missing." >&2
     fi
 fi
+_pc_step_start "Blog post standards"
+# Step 15: Blog post standards gate (check_blog_post_standards.py)
+# Checks staged blog.aspose.org post frontmatter for tag leakage, category
+# format, Related Resources section, and platform target registration.
+staged_blog_posts=()
+while IFS= read -r _bline; do staged_blog_posts+=("$_bline"); done < <(
+    git diff --cached --name-only --diff-filter=ACR         | grep -E '^content/blog\.aspose\.org/[^/]+/[^/]+/[^/]+/index\.md$' || true
+)
+if [ ${#staged_blog_posts[@]} -gt 0 ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_blog_post_standards.py" ]; then
+        _blog_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_blog_post_standards.py             "${staged_blog_posts[@]}" 2>&1)
+        _blog_exit=$?
+        if [ -n "$_blog_out" ]; then
+            echo "$_blog_out" | sed 's/^/[Step 15] /'
+        fi
+        if [ $_blog_exit -ne 0 ]; then
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    fi
+fi
 _pc_step_end "PASS"
 
 _pc_exit 0

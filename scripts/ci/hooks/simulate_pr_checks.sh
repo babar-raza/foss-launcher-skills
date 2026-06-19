@@ -146,6 +146,9 @@ run_step "Check reports/ not tracked (local-only boundary)" "blocking" \
 run_step "Check blog slug hygiene" "blocking" \
     "$PYTHON" scripts/ci/checks/check-blog-slugs.py
 
+run_step "Check blog post standards" "blocking" \
+    "$PYTHON" scripts/ci/checks/check_blog_post_standards.py --scan --root content
+
 run_step "Check content filename conventions" "blocking" \
     "$PYTHON" scripts/ci/checks/check_content_filenames.py
 
