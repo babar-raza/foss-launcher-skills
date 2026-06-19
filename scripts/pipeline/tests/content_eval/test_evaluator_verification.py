@@ -1,8 +1,9 @@
 """Synthetic evaluator verification tests.
 
-Run with: .venv/Scripts/python scripts/tests/test_evaluator_verification.py
+Run with: .venv/Scripts/python -m pytest scripts/pipeline/tests/content_eval/test_evaluator_verification.py -v
 """
 
+import sys
 import tempfile
 import json
 from pathlib import Path
@@ -16,7 +17,7 @@ from content_eval.evaluators.limitations_check import ProductsFeatureLimitations
 # ============================================================
 # TEST 1: java_awt_contamination
 # ============================================================
-def test_java_awt_contamination():
+def test_java_awt_contamination(tmp_path):
     print("=" * 60)
     print("TEST 1: java_awt_contamination")
     print("=" * 60)
@@ -35,7 +36,7 @@ def test_java_awt_contamination():
         "```\n"
     )
 
-    tmp_dir = Path("content/docs.aspose.org/en/slides/java")
+    tmp_dir = tmp_path / "content/docs.aspose.org/en/slides/java"
     tmp_dir.mkdir(parents=True, exist_ok=True)
 
     with tempfile.NamedTemporaryFile(
@@ -55,15 +56,11 @@ def test_java_awt_contamination():
         for f in findings:
             print(f"    [{f.level}] {f.message[:80]}")
         print()
-        if awt_findings and awt_findings[0].level == "FAIL":
-            print("  RESULT: PASS — java_awt_contamination correctly fires FAIL")
-            return True
-        elif not awt_findings:
-            print("  RESULT: FAIL — no java_awt_contamination finding raised")
-            return False
-        else:
-            print(f"  RESULT: FAIL — finding raised but wrong level: {awt_findings[0].level}")
-            return False
+        assert awt_findings, "no java_awt_contamination finding raised"
+        assert awt_findings[0].level == "FAIL", (
+            f"expected FAIL, got {awt_findings[0].level}"
+        )
+        print("  RESULT: PASS — java_awt_contamination correctly fires FAIL")
     finally:
         tmppath.unlink(missing_ok=True)
 
@@ -71,7 +68,7 @@ def test_java_awt_contamination():
 # ============================================================
 # TEST 2: net_null_unsafe_textframe
 # ============================================================
-def test_net_null_unsafe_textframe():
+def test_net_null_unsafe_textframe(tmp_path):
     print()
     print("=" * 60)
     print("TEST 2: net_null_unsafe_textframe")
@@ -90,7 +87,7 @@ def test_net_null_unsafe_textframe():
         "```\n"
     )
 
-    tmp_dir = Path("content/docs.aspose.org/en/slides/net")
+    tmp_dir = tmp_path / "content/docs.aspose.org/en/slides/net"
     tmp_dir.mkdir(parents=True, exist_ok=True)
 
     with tempfile.NamedTemporaryFile(
@@ -111,15 +108,11 @@ def test_net_null_unsafe_textframe():
         print()
         # The specific FR-17a check is the one about .TextFrame.Text = without AddTextFrame
         specific = [f for f in findings if "AddTextFrame" in f.message]
-        if specific and specific[0].level == "WARN":
-            print("  RESULT: PASS — net_null_unsafe_textframe correctly fires WARN")
-            return True
-        elif not specific:
-            print("  RESULT: FAIL — no net_null_unsafe_textframe finding raised")
-            return False
-        else:
-            print(f"  RESULT: FAIL — finding raised but wrong level: {specific[0].level}")
-            return False
+        assert specific, "no net_null_unsafe_textframe finding raised"
+        assert specific[0].level == "WARN", (
+            f"expected WARN, got {specific[0].level}"
+        )
+        print("  RESULT: PASS — net_null_unsafe_textframe correctly fires WARN")
     finally:
         tmppath.unlink(missing_ok=True)
 
@@ -127,7 +120,7 @@ def test_net_null_unsafe_textframe():
 # ============================================================
 # TEST 3: reference_void_mismatch
 # ============================================================
-def test_reference_void_mismatch():
+def test_reference_void_mismatch(tmp_path):
     print()
     print("=" * 60)
     print("TEST 3: reference_void_mismatch")
@@ -150,7 +143,7 @@ def test_reference_void_mismatch():
     )
 
     # Write to the reference path so metadata inference works
-    ref_dir = Path("content/reference.aspose.org/en/slides/java")
+    ref_dir = tmp_path / "content/reference.aspose.org/en/slides/java"
     ref_dir.mkdir(parents=True, exist_ok=True)
     tmpfile = ref_dir / "AdjustValue_test_verify.md"
     tmpfile.write_text(content, encoding="utf-8")
@@ -166,23 +159,16 @@ def test_reference_void_mismatch():
         for f in findings:
             print(f"    [{f.level}] {f.message[:90]}")
         print()
-        if void_mismatch and any(f.level == "FAIL" for f in void_mismatch):
-            print("  RESULT: PASS — reference_void_mismatch correctly fires FAIL")
-            return True
-        elif not void_mismatch:
-            print("  RESULT: FAIL — no void_mismatch finding raised")
-            # Debug: check what api_surface has
-            api_path = Path("knowledge/slides/java/merged/api_surface.json")
-            if api_path.exists():
-                data = json.loads(api_path.read_text())
-                for entry in data:
-                    if entry.get("name") == "AdjustValue":
-                        print(f"  DEBUG: api_surface AdjustValue methods: {[m.get('name') + '->' + str(m.get('return_type')) for m in entry.get('methods', [])[:5]]}")
-                        break
-            return False
-        else:
-            print(f"  RESULT: PARTIAL — findings raised but no FAIL: {[(f.level, f.message[:50]) for f in void_mismatch]}")
-            return False
+        assert void_mismatch, (
+            "no void_mismatch finding raised; "
+            "check that knowledge/slides/java/merged/api_surface.json is present and "
+            "AdjustValue.initInternal has a non-void return type"
+        )
+        assert any(f.level == "FAIL" for f in void_mismatch), (
+            f"expected FAIL in void_mismatch findings, got "
+            f"{[(f.level, f.message[:50]) for f in void_mismatch]}"
+        )
+        print("  RESULT: PASS — reference_void_mismatch correctly fires FAIL")
     finally:
         tmpfile.unlink(missing_ok=True)
 
@@ -190,7 +176,7 @@ def test_reference_void_mismatch():
 # ============================================================
 # TEST 4: products_feature_violates_limitations
 # ============================================================
-def test_products_feature_violates_limitations():
+def test_products_feature_violates_limitations(tmp_path):
     print()
     print("=" * 60)
     print("TEST 4: products_feature_violates_limitations")
@@ -225,12 +211,13 @@ def test_products_feature_violates_limitations():
         "- Export to XLSX with full fidelity\n"
     )
 
-    tmp_products_dir = Path("content/products.aspose.org/en/cells/python")
+    tmp_products_dir = tmp_path / "content/products.aspose.org/en/cells/python"
     tmp_products_dir.mkdir(parents=True, exist_ok=True)
     tmpfile = tmp_products_dir / "_test_verify_products.md"
     tmpfile.write_text(products_content, encoding="utf-8")
 
-    # Write synthetic limitations.md with bullet format
+    # The evaluator reads limitations.md from the real knowledge path (not via the
+    # Knowledge argument). We must write the synthetic file there and restore afterward.
     lim_dir = Path("knowledge/cells/python/merged")
     lim_dir.mkdir(parents=True, exist_ok=True)
     lim_backup = lim_dir / "limitations.md"
@@ -242,9 +229,9 @@ def test_products_feature_violates_limitations():
         "- combo chart: not supported, raises NotImplementedError\n"
         "- standard encryption: not yet implemented\n"
     )
-    lim_backup.write_text(synthetic_lim, encoding="utf-8")
 
     try:
+        lim_backup.write_text(synthetic_lim, encoding="utf-8")
         page = Page.load(tmpfile)
         print(f"\n  Synthetic test: family={page.family!r} platform={page.platform!r} subdomain={page.subdomain!r}")
         e = ProductsFeatureLimitationsEvaluator()
@@ -254,35 +241,17 @@ def test_products_feature_violates_limitations():
             print(f"    [{f.level}] {f.message[:90]}")
         print()
         fail_findings = [f for f in findings if f.level == "FAIL"]
-        if fail_findings:
-            print("  RESULT: PASS — products_feature_violates_limitations correctly fires FAIL")
-            return True
-        else:
-            print("  RESULT: FAIL — no FAIL findings raised")
-            return False
+        assert fail_findings, "no FAIL findings raised by products_feature_violates_limitations"
+        print("  RESULT: PASS — products_feature_violates_limitations correctly fires FAIL")
     finally:
         tmpfile.unlink(missing_ok=True)
         # Restore original limitations.md
         if original_lim is not None:
             lim_backup.write_text(original_lim, encoding="utf-8")
+        elif lim_backup.exists():
+            lim_backup.unlink()
 
 
 if __name__ == "__main__":
-    results = {}
-    results["java_awt_contamination"] = test_java_awt_contamination()
-    results["net_null_unsafe_textframe"] = test_net_null_unsafe_textframe()
-    results["reference_void_mismatch"] = test_reference_void_mismatch()
-    results["products_feature_violates_limitations"] = test_products_feature_violates_limitations()
-
-    print()
-    print("=" * 60)
-    print("SUMMARY")
-    print("=" * 60)
-    for name, passed in results.items():
-        status = "PASS" if passed else "FAIL"
-        print(f"  {status}  {name}")
-
-    all_passed = all(results.values())
-    print()
-    print(f"Overall: {'ALL PASS' if all_passed else 'SOME FAILED'}")
-    sys.exit(0 if all_passed else 1)
+    import pytest as _pytest
+    sys.exit(_pytest.main([__file__, "-v"]))
