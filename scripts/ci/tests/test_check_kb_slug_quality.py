@@ -1,7 +1,9 @@
 """Tests for scripts/ci/checks/check_kb_slug_quality.py.
 
 Coverage:
-  Unit — check_slug() rule table: C1 (CamelCase leak), C2 (verb-noun dup), C3 (generic noun)
+  Unit — check_slug() rule table: C1 (CamelCase leak), C2 (verb-noun dup),
+          C3 (generic noun), C4 (compound noun without product-family keyword)
+  Unit — _extract_family(): family extraction from KB content paths
   Integration — CLI staged-file mode, scan mode, exit codes
 """
 from __future__ import annotations
@@ -15,9 +17,9 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[3]
 CHECKER = REPO_ROOT / "scripts" / "ci" / "checks" / "check_kb_slug_quality.py"
 
-# Import the module-level function for unit tests
+# Import the module-level functions for unit tests
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "ci" / "checks"))
-from check_kb_slug_quality import check_slug  # noqa: E402
+from check_kb_slug_quality import check_slug, _extract_family  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -250,3 +252,116 @@ class TestCLINoArgsDefaultsScanMode:
             cwd=str(tmp_path),
         )
         assert result.returncode == 0
+
+
+# ===========================================================================
+# Unit tests — C4 check (compound noun without product-family keyword)
+# TC-KBS-019: these tests verify regression safety for C4 logic in the
+# CI gate (check_kb_slug_quality.py). The check_slug() function receives
+# an explicit `family` arg when called from check_files() / scan_root(),
+# which derive it from the file path via _extract_family().
+# ===========================================================================
+
+class TestCheckSlugC4ProductKeyword:
+    def test_c4_old_rc5_annotations_forms_fails_for_pdf(self):
+        """Original RC-5 slug: 'annotations-forms' has no pdf keyword → C4 FAIL."""
+        result = check_slug("how-to-add-annotations-forms-dotnet", family="pdf")
+        assert result is not None, "Expected C4 violation for old RC-5 slug"
+        check_id, msg = result
+        assert check_id == "C4", f"Expected C4, got {check_id}: {msg}"
+        assert "pdf" in msg
+
+    def test_c4_old_rc5_graphics_drawing_fails_for_pdf(self):
+        """Original RC-5 slug: 'graphics-drawing' has no pdf keyword → C4 FAIL."""
+        result = check_slug("how-to-add-graphics-drawing-dotnet", family="pdf")
+        assert result is not None
+        assert result[0] == "C4"
+
+    def test_c4_old_rc5_metadata_utilities_fails_for_pdf(self):
+        """Original RC-5 slug: 'metadata-utilities' has no pdf keyword → C4 FAIL."""
+        result = check_slug("how-to-extract-metadata-utilities-dotnet", family="pdf")
+        assert result is not None
+        assert result[0] == "C4"
+
+    def test_c4_qualified_pdf_annotations_passes(self):
+        """New qualified slug: 'pdf-annotations' — 'pdf' is a pdf keyword → PASS."""
+        result = check_slug("how-to-add-pdf-annotations-dotnet", family="pdf")
+        assert result is None, f"Expected PASS, got: {result}"
+
+    def test_c4_qualified_pdf_graphics_passes(self):
+        """New qualified slug: 'pdf-graphics' — 'pdf' is a pdf keyword → PASS."""
+        result = check_slug("how-to-add-pdf-graphics-dotnet", family="pdf")
+        assert result is None
+
+    def test_c4_qualified_pdf_metadata_passes(self):
+        """New qualified slug: 'pdf-metadata' — 'pdf' is a pdf keyword → PASS."""
+        result = check_slug("how-to-extract-pdf-metadata-dotnet", family="pdf")
+        assert result is None
+
+    def test_c4_without_family_arg_does_not_trigger(self):
+        """C4 is skipped when no family is provided (e.g. path without en/ segment)."""
+        # Without family, only C1/C2/C3 apply. annotations-forms passes all three.
+        result = check_slug("how-to-add-annotations-forms-dotnet")
+        # May be None or fail C1/C2/C3, but NOT C4
+        if result:
+            assert result[0] != "C4"
+
+    def test_c4_cells_xlsx_keyword_passes(self):
+        """cells family slug with 'xlsx' keyword → PASS (xlsx is in cells keyword set)."""
+        result = check_slug("how-to-work-with-xlsx-packaging-dotnet", family="cells")
+        assert result is None
+
+    def test_c4_3d_materials_prefix_match_passes(self):
+        """3d family slug: 'materials-shading' — 'materials'.startswith('material') → PASS."""
+        result = check_slug("how-to-add-materials-shading-python", family="3d")
+        assert result is None
+
+
+# ===========================================================================
+# Unit tests — _extract_family()
+# Verifies that the family-extraction helper correctly parses KB content paths.
+# ===========================================================================
+
+class TestExtractFamily:
+    def test_extract_family_pdf_net(self):
+        path = "content/kb.aspose.org/en/pdf/net/how-to-add-pdf-annotations-dotnet.md"
+        assert _extract_family(path) == "pdf"
+
+    def test_extract_family_cells_java(self):
+        path = "content/kb.aspose.org/en/cells/java/how-to-work-with-cell-model-java.md"
+        assert _extract_family(path) == "cells"
+
+    def test_extract_family_email_cpp(self):
+        path = "content/kb.aspose.org/en/email/cpp/how-to-convert-eml-to-msg-cpp.md"
+        assert _extract_family(path) == "email"
+
+    def test_extract_family_no_en_segment_returns_empty(self):
+        path = "some/other/path/to/file.md"
+        assert _extract_family(path) == ""
+
+    def test_extract_family_windows_style_path(self):
+        """Windows backslash paths (from scan mode on Windows) are handled."""
+        import os
+        path = str(Path("content") / "kb.aspose.org" / "en" / "slides" / "net" / "how-to-apply-3d-effects-dotnet.md")
+        assert _extract_family(path) == "slides"
+
+
+# ===========================================================================
+# Integration tests — C4 via CLI (staged-file mode)
+# Verifies that the CLI correctly propagates family context and applies C4.
+# The _make_kb_file helper creates files under en/pdf/net/ so family="pdf".
+# ===========================================================================
+
+class TestCLIStageC4:
+    def test_c4_old_rc5_slug_via_cli_exits_1(self, tmp_path):
+        """CLI exits 1 on old RC-5 slug with pdf family context from path."""
+        p = _make_kb_file(tmp_path, "how-to-add-annotations-forms-dotnet")
+        result = _run(str(p))
+        assert result.returncode == 1, result.stdout + result.stderr
+        assert "C4" in result.stdout, f"Expected C4 in output:\n{result.stdout}"
+
+    def test_c4_qualified_pdf_slug_via_cli_exits_0(self, tmp_path):
+        """CLI exits 0 on new qualified pdf slug."""
+        p = _make_kb_file(tmp_path, "how-to-add-pdf-annotations-dotnet")
+        result = _run(str(p))
+        assert result.returncode == 0, result.stdout + result.stderr

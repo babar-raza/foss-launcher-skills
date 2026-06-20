@@ -94,13 +94,18 @@ _KB_GENERIC_NOUNS: frozenset[str] = frozenset({
 # Only terms specific to this family — generic terms ("annotation", "form",
 # "text", "page") are excluded so ambiguous slugs cannot pass C4 incorrectly.
 _FAMILY_PRODUCT_KEYWORDS: dict[str, frozenset[str]] = {
-    "pdf":    frozenset({"pdf", "xmp", "javascript"}),
+    # TC-KBS-020 calibration (2026-06-20) — confirmed false positives removed:
+    #   pdf   → added "facades"  (Aspose.PDF.Facades namespace — pdf-specific)
+    #   email → added "eml", "msg", "attachment"
+    #   words → added "doc"  (.doc is the Word binary file format — words-specific)
+    "pdf":    frozenset({"pdf", "xmp", "javascript", "facades"}),
     "cells":  frozenset({"cell", "workbook", "worksheet", "xlsx", "excel",
                          "formula", "chart", "ooxml", "spreadsheet"}),
     "slides": frozenset({"slide", "presentation", "powerpoint", "pptx",
                          "shape"}),
-    "words":  frozenset({"word", "docx", "paragraph"}),
-    "email":  frozenset({"email", "mailbox", "mime", "smtp", "imap", "calendar"}),
+    "words":  frozenset({"word", "docx", "paragraph", "doc"}),
+    "email":  frozenset({"email", "mailbox", "mime", "smtp", "imap", "calendar",
+                         "eml", "msg", "attachment"}),
     "3d":     frozenset({"3d", "scene", "mesh", "material", "animation",
                          "geometry", "node", "fbx", "gltf", "obj"}),
     "font":   frozenset({"font", "glyph", "cff", "eot", "type1", "ttf",

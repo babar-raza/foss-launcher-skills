@@ -55,9 +55,9 @@ Generate a new KB how-to article.
    > re-run `/new-kb-howto`."
    >
    > Family keyword reference (from `_FAMILY_PRODUCT_KEYWORDS` in site_planner.py):
-   > pdf → pdf, xmp, javascript | cells → cell, xlsx, workbook, spreadsheet, excel |
-   > slides → slide, presentation, pptx | words → word, docx, paragraph |
-   > email → email, mailbox, mime, smtp | 3d → 3d, mesh, scene, material |
+   > pdf → pdf, xmp, javascript, facades | cells → cell, xlsx, workbook, spreadsheet, excel |
+   > slides → slide, presentation, pptx | words → word, docx, paragraph, doc |
+   > email → email, mailbox, mime, smtp, eml, msg, attachment | 3d → 3d, mesh, scene, material |
    > font → font, glyph, ttf, woff
 
    Do not generate any content until both conditions are cleared.
