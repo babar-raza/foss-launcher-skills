@@ -1777,3 +1777,206 @@ def test_normalize_no_javadoc():
     """Strings without JavaDoc/HTML tokens must pass through unchanged (minus whitespace)."""
     plain = "Represents a PDF document."
     assert _normalize_doc_for_index(plain) == plain
+
+
+# ---------------------------------------------------------------------------
+# Phase A/B/C — Case-collision prevention (RC-001 / deferred fix)
+# ---------------------------------------------------------------------------
+
+def _make_case_collision_surface(tmp_path: Path, family: str = "fake",
+                                 platform: str = "net") -> tuple[Path, Path]:
+    """Create api_surface with Id (Aspose.Pdf) and ID (Aspose.Pdf.Operators).
+
+    Returns (content_dir, api_surface_path).
+    """
+    entries = [
+        {
+            "name": "Id",
+            "kind": "class_declaration",
+            "visibility": "public",
+            "canonical_namespace": "Aspose.Pdf",
+            "description": "Pair of byte strings that make up the /ID array in the PDF trailer.",
+            "methods": [],
+            "properties": [],
+        },
+        {
+            "name": "ID",
+            "kind": "class_declaration",
+            "visibility": "public",
+            "canonical_namespace": "Aspose.Pdf.Operators",
+            "description": "ID — Begin image data (after the inline-image dictionary).",
+            "methods": [],
+            "properties": [],
+        },
+    ]
+    _make_api_surface(tmp_path, entries, family=family, platform=platform)
+    content_dir = tmp_path / "content" / "reference.aspose.org" / "en" / family / platform
+    content_dir.mkdir(parents=True, exist_ok=True)
+    return content_dir, tmp_path / "knowledge" / family / platform / "merged" / "api_surface.json"
+
+
+def test_case_collision_existing_wins(tmp_path):
+    """Phase A: Id.md pre-exists → Id keeps slug, ID gets -Operators suffix.
+
+    Expected: skipped=1 (Id), generated=1 (ID-Operators.md), no ID.md created.
+    """
+    content_dir, _ = _make_case_collision_surface(tmp_path)
+    # Pre-create Id.md to simulate a committed reference page
+    (content_dir / "Id.md").write_text("existing-id-page", encoding="utf-8")
+
+    result = run("fake", "net")
+
+    assert result["skipped"] == 1, f"Expected 1 skipped, got {result['skipped']}"
+    assert result["generated"] == 1, f"Expected 1 generated, got {result['generated']}"
+    assert result["errors"] == 0, f"Expected 0 errors, got {result['errors']}"
+    # The generated file must be ID-Operators.md
+    assert (content_dir / "ID-Operators.md").exists(), "ID-Operators.md should have been created"
+    # Use case-sensitive directory listing: on Windows NTFS, Path.exists("ID.md") would match
+    # Id.md (case-insensitive FS), so we enumerate actual stored names to check distinctness.
+    actual_names = {f.name for f in content_dir.iterdir() if f.suffix == ".md"}
+    assert "ID.md" not in actual_names, (
+        f"ID.md must NOT appear as a separate file entry (would collide with Id.md on Windows). "
+        f"Actual files: {sorted(actual_names)}"
+    )
+    # Id.md must be unchanged
+    assert (content_dir / "Id.md").read_text(encoding="utf-8") == "existing-id-page"
+
+
+def test_case_collision_fresh_both_disambiguated(tmp_path):
+    """Phase A: No pre-existing files → both entries get namespace-suffix disambiguation.
+
+    Expected: generated=2, Id-Pdf.md + ID-Operators.md created, Id.md does NOT exist.
+    """
+    content_dir, _ = _make_case_collision_surface(tmp_path)
+    # No pre-existing files
+
+    result = run("fake", "net")
+
+    assert result["generated"] == 2, f"Expected 2 generated, got {result['generated']}"
+    assert result["errors"] == 0, f"Expected 0 errors, got {result['errors']}"
+    # Both entries should get namespace suffixes since neither pre-exists
+    assert (content_dir / "Id-Pdf.md").exists(), "Id-Pdf.md should have been created"
+    assert (content_dir / "ID-Operators.md").exists(), "ID-Operators.md should have been created"
+    # Un-suffixed Id.md must NOT be created (would be a Windows NTFS collision hazard)
+    assert not (content_dir / "Id.md").exists(), "Id.md must NOT exist when both entries are fresh"
+
+
+def test_case_collision_update_mode(tmp_path):
+    """Phase A + B: --update mode; Id.md + ID-Operators.md pre-exist; ID modified.
+
+    Expected: Id skipped (unchanged), ID-Operators.md updated (in modified_apis).
+    """
+    content_dir, _ = _make_case_collision_surface(tmp_path)
+    (content_dir / "Id.md").write_text("existing-id-page", encoding="utf-8")
+    (content_dir / "ID-Operators.md").write_text("existing-id-operators-page", encoding="utf-8")
+
+    # Write knowledge_delta.json with ID as a modified API
+    merged_dir = tmp_path / "knowledge" / "fake" / "net" / "merged"
+    (merged_dir / "knowledge_delta.json").write_text(
+        '{"modified_apis": ["ID"], "new_apis": [], "resurrected_apis": []}',
+        encoding="utf-8",
+    )
+
+    result = run("fake", "net", update=True)
+
+    # Id is not in modified_apis and its page exists → skipped
+    assert result["skipped"] >= 1, f"Expected at least 1 skipped, got {result['skipped']}"
+    # ID (now slug ID-Operators) is in modified_apis and page exists → updated
+    assert result["updated"] == 1, f"Expected 1 updated, got {result['updated']}"
+    assert result["errors"] == 0, f"Expected 0 errors, got {result['errors']}"
+    # Id.md must be untouched
+    assert (content_dir / "Id.md").read_text(encoding="utf-8") == "existing-id-page"
+
+
+def test_case_collision_rebuild_all_mode(tmp_path):
+    """Phase A + B: --rebuild-all; both pre-existing pages rebuilt; no un-suffixed ID.md created.
+
+    Expected: updated=2, no ID.md file at any point.
+    """
+    content_dir, _ = _make_case_collision_surface(tmp_path)
+    (content_dir / "Id.md").write_text("existing-id-page", encoding="utf-8")
+    (content_dir / "ID-Operators.md").write_text("existing-id-operators-page", encoding="utf-8")
+
+    result = run("fake", "net", rebuild_all=True, confirm_rebuild=True)
+
+    assert result["updated"] == 2, f"Expected 2 updated, got {result['updated']}"
+    assert result["errors"] == 0, f"Expected 0 errors, got {result['errors']}"
+    # Use case-sensitive listing to verify no un-suffixed ID.md was written as a distinct entry
+    actual_names = {f.name for f in content_dir.iterdir() if f.suffix == ".md"}
+    assert "ID.md" not in actual_names, (
+        f"ID.md must NOT appear as a separate file entry after rebuild-all. "
+        f"Actual files: {sorted(actual_names)}"
+    )
+    # Both expected pages must still exist
+    assert "Id.md" in actual_names, "Id.md should still exist after rebuild-all"
+    assert "ID-Operators.md" in actual_names, "ID-Operators.md should still exist after rebuild-all"
+
+
+def test_within_batch_dedup_defensive(tmp_path, capsys):
+    """Phase C backstop: two entries with empty namespace both reach write loop.
+
+    Phase A cannot disambiguate (no canonical_namespace) → Phase C catches the second entry.
+    Expected: errors=1, only one page written, WITHIN-BATCH-DEDUP in stdout.
+    """
+    # Two entries that produce identical lower-slugs, neither with a namespace
+    entries = [
+        {
+            "name": "Foo",
+            "kind": "class_declaration",
+            "visibility": "public",
+            "canonical_namespace": "",  # empty → Phase A cannot disambiguate
+            "description": "First Foo.",
+            "methods": [],
+            "properties": [],
+        },
+        {
+            "name": "FOO",
+            "kind": "class_declaration",
+            "visibility": "public",
+            "canonical_namespace": "",  # empty → Phase A cannot disambiguate
+            "description": "Second FOO.",
+            "methods": [],
+            "properties": [],
+        },
+    ]
+    _make_api_surface(tmp_path, entries, family="fake", platform="net")
+
+    result = run("fake", "net")
+
+    captured = capsys.readouterr()
+    assert result["errors"] == 1, f"Expected 1 error from Phase C dedup, got {result['errors']}"
+    assert "WITHIN-BATCH-DEDUP" in captured.out, "Phase C log line missing from stdout"
+    # Only ONE of the two pages should have been written
+    content_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "fake" / "net"
+    md_files = [f for f in content_dir.glob("*.md") if f.stem.lower() == "foo"]
+    assert len(md_files) == 1, f"Expected exactly 1 foo*.md page, found {len(md_files)}: {md_files}"
+
+
+def test_pdf_net_id_regression(tmp_path):
+    """Regression: Id (Aspose.Pdf) + ID (Aspose.Pdf.Operators) with Id.md pre-existing.
+
+    Reproduces the exact pdf/net case-collision scenario (Id.md committed, ID never got a page).
+    After the fix: Id.md must be unchanged; ID-Operators.md must be generated; no errors.
+    """
+    content_dir, _ = _make_case_collision_surface(tmp_path)
+    original_id_content = "---\ntitle: Id\n---\nId page content.\n"
+    (content_dir / "Id.md").write_text(original_id_content, encoding="utf-8")
+
+    result = run("fake", "net")
+
+    # No errors — case-collision handled cleanly
+    assert result["errors"] == 0, f"Expected 0 errors (regression), got {result['errors']}"
+    # Id.md must be unchanged (pre-existing wins)
+    assert (content_dir / "Id.md").read_text(encoding="utf-8") == original_id_content, \
+        "Id.md content must not be modified"
+    # ID-Operators.md must have been generated (the missing page from the original bug)
+    assert (content_dir / "ID-Operators.md").exists(), \
+        "ID-Operators.md must be generated — this was the missing page in the original bug"
+    # Use case-sensitive listing: on Windows NTFS Path.exists("ID.md") matches Id.md,
+    # so enumerate actual stored names to verify no un-suffixed ID.md was written.
+    actual_names = {f.name for f in content_dir.iterdir() if f.suffix == ".md"}
+    assert "ID.md" not in actual_names, (
+        f"ID.md must NOT appear as a separate file entry — "
+        f"creating it would silently overwrite Id.md on Windows NTFS. "
+        f"Actual files: {sorted(actual_names)}"
+    )

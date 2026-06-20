@@ -1506,6 +1506,49 @@ def run(family: str, platform: str, kind_arg: str = "all",
                     entry["_slug_suffix"] = ns.rsplit(".", 1)[-1]
         print(f"  {len(_collisions)} name collision(s) disambiguated by namespace")
 
+    # Phase A: Case-collision detection.
+    # Catches entries whose slugs are case-identical on Windows NTFS (e.g., Id vs ID).
+    # The existing name-exact block above only catches entries with the same .name string;
+    # Phase A catches entries whose names differ only by case (e.g., "Id" vs "ID").
+    # Existing committed file on disk wins its slug; new entry gets namespace-suffix
+    # disambiguation.  _case_dir is a local because output_dir is defined later (line ~1530).
+    _case_dir = CONTENT_ROOT / family / platform  # output_dir not yet defined here
+    # Build a case-SENSITIVE set of filenames actually stored on disk.
+    # Path.exists() is case-insensitive on Windows NTFS, so "ID.md" would
+    # match a file stored as "Id.md".  iterdir() returns the real stored name.
+    _existing_exact: set[str] = (
+        {f.name for f in _case_dir.iterdir() if f.suffix == ".md"}
+        if _case_dir.is_dir() else set()
+    )
+    _slug_by_lower: dict[str, list[dict]] = {}
+    for _ce in candidates:
+        _cl = _entry_slug(_ce).lower()
+        _slug_by_lower.setdefault(_cl, []).append(_ce)
+    _case_only_collisions = {k: v for k, v in _slug_by_lower.items() if len(v) > 1}
+    if _case_only_collisions:
+        for _cl, _cgroup in _case_only_collisions.items():
+            # The entry whose exact-case slug file already exists on disk keeps its slug.
+            # On a normal clone all committed files are present, so the first found wins.
+            # CRITICAL: use _existing_exact (case-sensitive iterdir set), not Path.exists()
+            # which is case-insensitive on Windows NTFS.
+            _existing_on_disk = None
+            for _ce in _cgroup:
+                if f"{_entry_slug(_ce)}.md" in _existing_exact:
+                    _existing_on_disk = _ce
+                    break
+            for _ce in _cgroup:
+                if _ce is _existing_on_disk:
+                    continue  # Preserve existing committed file's slug unchanged
+                if not _ce.get("_slug_suffix"):  # Don't override name-exact disambiguation
+                    _cns = _ce.get("canonical_namespace", "")
+                    if _cns:
+                        _ce["_slug_suffix"] = _cns.rsplit(".", 1)[-1]
+                    else:
+                        print(f"  WARN: case-collision for '{_ce.get('name')}' but "
+                              f"canonical_namespace is empty — cannot auto-disambiguate; "
+                              f"Phase C backstop will catch if both reach write loop")
+        print(f"  {len(_case_only_collisions)} case-only collision(s) auto-disambiguated by namespace")
+
     # Clean up stale undisambiguated pages when disambiguated versions will be
     # generated.  After consolidation, a collision set {Color-Pdf.md, Color-Drawing.md}
     # supersedes the old merged Color.md.
@@ -1603,7 +1646,13 @@ def run(family: str, platform: str, kind_arg: str = "all",
             name = entry.get("name", "")
             page_path = output_dir / f"{_entry_slug(entry)}.md"
             if not page_path.exists():
-                to_generate.append(entry)
+                # Phase B backstop: catch cross-run case collisions Phase A could not resolve
+                _dup = _has_slug_duplicate(entry)
+                if _dup is not None:
+                    print(f"  DEDUP-SLUG: {name} — slug-duplicate of {_dup.stem}, skipping")
+                    to_skip.append(entry)
+                else:
+                    to_generate.append(entry)
             elif name in modified_apis:
                 # Respect provenance protection: skip pages marked auto_updatable: false
                 # or pages that were manually curated (manual-edit-skill, human-edit, etc.)
@@ -1629,7 +1678,13 @@ def run(family: str, platform: str, kind_arg: str = "all",
             name = entry.get("name", "")
             page_path = output_dir / f"{_entry_slug(entry)}.md"
             if not page_path.exists():
-                to_generate.append(entry)
+                # Phase B backstop: catch cross-run case collisions Phase A could not resolve
+                _dup = _has_slug_duplicate(entry)
+                if _dup is not None:
+                    print(f"  DEDUP-SLUG: {name} — slug-duplicate of {_dup.stem}, skipping")
+                    to_skip.append(entry)
+                else:
+                    to_generate.append(entry)
             elif not is_auto_updatable(page_path):
                 print(f"  PROTECTED: {name} — auto_updatable: false, skipping rebuild")
                 to_skip.append(entry)
@@ -1692,6 +1747,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
     updated = []
     unchanged = []  # pages in to_update with no meaningful change (timestamp-only guard)
     errors = []
+    _seen_lower_slugs: set[str] = set()  # Phase C: within-run case-collision backstop
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Load knowledge once for evidence attachment
@@ -1715,6 +1771,14 @@ def run(family: str, platform: str, kind_arg: str = "all",
         print(f"[{i}/{len(to_write)}] {action} page for {name} ({kind})...")
         try:
             page_path = output_dir / f"{_entry_slug(entry)}.md"
+            # Phase C backstop: catch any case-collisions Phase A could not resolve
+            # (e.g., entry with empty canonical_namespace that could not be auto-disambiguated).
+            # Placed before _build_page() to avoid wasting an LLM call on a discarded page.
+            _page_lower = _entry_slug(entry).lower()
+            if _page_lower in _seen_lower_slugs:
+                print(f"  WITHIN-BATCH-DEDUP: {name} — case-collision with already-written slug, skipping")
+                errors.append((entry, "within-batch case-collision"))
+                continue
             content = _build_page(entry, family, platform, erc_index=erc_index,
                                    member_erc_index=member_erc_index,
                                    model_sha=model_sha, model_version=model_version)
@@ -1742,6 +1806,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
                 except OSError:
                     pass
             safe_content_write(page_path, content, mechanism="batch-reference")
+            _seen_lower_slugs.add(_page_lower)  # Phase C: mark slug consumed after successful write
             # Attach evidence + auto-grade (identical path for new pages and updates)
             # force=True because _build_page already wrote a model_sha; runner would skip otherwise
             if knowledge.available:
