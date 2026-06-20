@@ -365,3 +365,94 @@ class TestCLIStageC4:
         p = _make_kb_file(tmp_path, "how-to-add-pdf-annotations-dotnet")
         result = _run(str(p))
         assert result.returncode == 0, result.stdout + result.stderr
+
+
+# ===========================================================================
+# Sync test — _FAMILY_PRODUCT_KEYWORDS must be identical in both source files
+# TC-KBS-023 (v2.2): Two copies of this dict exist:
+#   - scripts/ci/checks/check_kb_slug_quality.py  (CI gate)
+#   - scripts/pipeline/commands/launch/site_planner.py (plan_kb validator)
+# They must remain identical. This test detects future divergence without
+# requiring an import of site_planner (which has heavy pipeline dependencies).
+# ===========================================================================
+
+
+class TestFamilyKeywordDictSync:
+    """TC-KBS-023: _FAMILY_PRODUCT_KEYWORDS must be identical in CI gate and pipeline."""
+
+    _CI_GATE = REPO_ROOT / "scripts" / "ci" / "checks" / "check_kb_slug_quality.py"
+    _PLANNER = (
+        REPO_ROOT
+        / "scripts"
+        / "pipeline"
+        / "commands"
+        / "launch"
+        / "site_planner.py"
+    )
+
+    @staticmethod
+    def _parse_keyword_dict(source_path: Path) -> dict:
+        """Extract _FAMILY_PRODUCT_KEYWORDS from source file via AST (no import needed).
+
+        Handles both frozenset({...}) call syntax and bare set {..} literals.
+        """
+        import ast
+
+        tree = ast.parse(
+            source_path.read_text(encoding="utf-8"), filename=str(source_path)
+        )
+        for node in ast.walk(tree):
+            if not (
+                isinstance(node, ast.AnnAssign)
+                and isinstance(node.target, ast.Name)
+                and node.target.id == "_FAMILY_PRODUCT_KEYWORDS"
+                and isinstance(node.value, ast.Dict)
+            ):
+                continue
+            result: dict = {}
+            for k_node, v_node in zip(node.value.keys, node.value.values):
+                family = ast.literal_eval(k_node)
+                if isinstance(v_node, ast.Call) and len(v_node.args) == 1:
+                    inner = v_node.args[0]
+                    if isinstance(inner, ast.Set):
+                        result[family] = frozenset(
+                            ast.literal_eval(elt) for elt in inner.elts
+                        )
+                    else:
+                        raise AssertionError(
+                            f"Unexpected frozenset arg in {source_path}: {ast.dump(inner)}"
+                        )
+                elif isinstance(v_node, ast.Set):
+                    result[family] = frozenset(
+                        ast.literal_eval(elt) for elt in v_node.elts
+                    )
+                else:
+                    raise AssertionError(
+                        f"Unexpected value type for '{family}' in {source_path}"
+                    )
+            return result
+        raise AssertionError(
+            f"_FAMILY_PRODUCT_KEYWORDS not found in {source_path}"
+        )
+
+    def test_family_product_keywords_in_sync(self):
+        """_FAMILY_PRODUCT_KEYWORDS must be identical in CI gate and pipeline validator.
+
+        If this test fails: both files must be edited together — update the dict
+        in check_kb_slug_quality.py AND site_planner.py in the same commit.
+        See TC-KBS-023 in the plan for the rationale.
+        """
+        ci_dict = self._parse_keyword_dict(self._CI_GATE)
+        pipeline_dict = self._parse_keyword_dict(self._PLANNER)
+
+        assert set(ci_dict.keys()) == set(pipeline_dict.keys()), (
+            f"Family key sets differ:\n"
+            f"  ci_gate only:  {sorted(set(ci_dict) - set(pipeline_dict))}\n"
+            f"  pipeline only: {sorted(set(pipeline_dict) - set(ci_dict))}"
+        )
+        for family in sorted(ci_dict):
+            assert ci_dict[family] == pipeline_dict[family], (
+                f"Keyword set mismatch for family '{family}':\n"
+                f"  ci_gate only:  {sorted(ci_dict[family] - pipeline_dict[family])}\n"
+                f"  pipeline only: {sorted(pipeline_dict[family] - ci_dict[family])}"
+            )
