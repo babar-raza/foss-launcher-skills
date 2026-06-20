@@ -1980,3 +1980,66 @@ def test_pdf_net_id_regression(tmp_path):
         f"creating it would silently overwrite Id.md on Windows NTFS. "
         f"Actual files: {sorted(actual_names)}"
     )
+
+
+def test_generate_grouped_index_gi01_uses_entry_slug(tmp_path):
+    """GI-01 fix: generate_grouped_index() must emit 'ID-Operators' slug, not bare 'ID'.
+
+    Before the fix: _build_grouped_index_body() used e.get("name") -> produced | `ID` |
+    which links to ID/ (a broken path; the page is at ID-Operators/).
+    After the fix: Phase A disambiguation inside generate_grouped_index() sets _slug_suffix
+    on the ID entry so _entry_slug() returns 'ID-Operators'.
+    """
+    # generate_grouped_index() requires >= 5 entries; add padding beyond Id/ID
+    extra_entries = [
+        {"name": "Document", "kind": "class_declaration", "visibility": "public",
+         "canonical_namespace": "Aspose.Pdf", "description": "Represents a PDF document.",
+         "methods": [], "properties": []},
+        {"name": "Page", "kind": "class_declaration", "visibility": "public",
+         "canonical_namespace": "Aspose.Pdf", "description": "Represents a PDF page.",
+         "methods": [], "properties": []},
+        {"name": "Cell", "kind": "class_declaration", "visibility": "public",
+         "canonical_namespace": "Aspose.Pdf.Text", "description": "Represents a table cell.",
+         "methods": [], "properties": []},
+    ]
+    entries = [
+        {"name": "Id", "kind": "class_declaration", "visibility": "public",
+         "canonical_namespace": "Aspose.Pdf",
+         "description": "Pair of byte strings that make up the /ID array in the PDF trailer.",
+         "methods": [], "properties": []},
+        {"name": "ID", "kind": "class_declaration", "visibility": "public",
+         "canonical_namespace": "Aspose.Pdf.Operators",
+         "description": "ID — Begin image data (after the inline-image dictionary).",
+         "methods": [], "properties": []},
+    ] + extra_entries
+    _make_api_surface(tmp_path, entries, family="fake", platform="net")
+    content_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "fake" / "net"
+    content_dir.mkdir(parents=True, exist_ok=True)
+    # Pre-create Id.md — this is the "winning" committed page that keeps its slug
+    (content_dir / "Id.md").write_text("---\ntitle: Id\n---\nId page.\n", encoding="utf-8")
+    # Create a minimal valid _index.md so generate_grouped_index() can read/update frontmatter
+    (content_dir / "_index.md").write_text(
+        "---\ntitle: Fake NET Reference\ncategories: []\n"
+        "provenance:\n  content_origin: skill-generated\n  last_mechanism: skill\n"
+        "  auto_updatable: true\n---\n\nIndex.\n",
+        encoding="utf-8",
+    )
+
+    result = _br.generate_grouped_index("fake", "net", dry_run=True)
+
+    assert not result.get("skipped"), (
+        f"generate_grouped_index should not be skipped. Reason: {result.get('reason')}"
+    )
+    body = result.get("body_preview", "")
+    # The table must use the namespace-disambiguated slug, not the raw class name
+    assert "ID-Operators" in body, (
+        f"Expected 'ID-Operators' slug in index body — GI-01 root fix not applied.\n"
+        f"Body preview:\n{body}"
+    )
+    # Verify the raw 'ID' slug does NOT appear as a table cell anchor
+    # (it would create a link to /ID/ which doesn't exist — only /ID-Operators/ does)
+    import re as _re
+    assert not _re.search(r"\| `ID` \|", body), (
+        f"Bare '| `ID` |' cell must NOT appear — would produce a broken link.\n"
+        f"Body preview:\n{body}"
+    )

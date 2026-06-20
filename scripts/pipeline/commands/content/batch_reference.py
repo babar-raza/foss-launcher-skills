@@ -1121,7 +1121,10 @@ def _build_grouped_index_body(
                             doc = f"{cat} in the {family.title()} {platform.upper()} API."
                 # Escape pipes in doc
                 doc = doc.replace("|", "\\|")
-                lines.append(f"| `{name}` | {doc} |")
+                # GI-01: use _entry_slug(e) so case-variant entries (e.g. ID vs Id) emit
+                # the namespace-disambiguated slug that matches the committed .md filename.
+                # For the common case (no _slug_suffix) _entry_slug() returns the raw name.
+                lines.append(f"| `{_entry_slug(e)}` | {doc} |")
 
             lines.append("")
 
@@ -1233,6 +1236,34 @@ def generate_grouped_index(
         return {"written": False, "skipped": True,
                 "reason": f"filtered entries too small ({len(entries)})",
                 "path": "", "body_preview": ""}
+
+    # GI-01: Apply the same Phase A case-collision disambiguation used in run() so that
+    # _build_grouped_index_body() emits the correct slug (e.g. "ID-Operators" not "ID").
+    # Without this, generate_grouped_index() would use raw entry names, producing broken
+    # links for case-variant API types (e.g. Id vs ID on pdf/net).
+    _gi_content_dir = CONTENT_ROOT / family / platform
+    _gi_existing_exact: set[str] = (
+        {f.name for f in _gi_content_dir.iterdir() if f.suffix == ".md"}
+        if _gi_content_dir.is_dir() else set()
+    )
+    _gi_slug_by_lower: dict[str, list[dict]] = {}
+    for _gie in entries:
+        _gi_slug_by_lower.setdefault(_entry_slug(_gie).lower(), []).append(_gie)
+    for _gi_lower, _gi_group in _gi_slug_by_lower.items():
+        if len(_gi_group) < 2:
+            continue
+        _gi_winner = None
+        for _gie in _gi_group:
+            if f"{_entry_slug(_gie)}.md" in _gi_existing_exact:
+                _gi_winner = _gie
+                break
+        for _gie in _gi_group:
+            if _gie is _gi_winner:
+                continue
+            if not _gie.get("_slug_suffix"):
+                _cns = _gie.get("canonical_namespace", "")
+                if _cns:
+                    _gie["_slug_suffix"] = _cns.rsplit(".", 1)[-1]
 
     # Load model metadata
     model_sha = ""
