@@ -492,6 +492,9 @@ def _match_existing_to_cluster(
                                    "formula", "csv", "worksheet"],
         "comments": ["comment", "add-comment"],
         "theme-styling": ["theme", "style", "format-text"],
+        # SQ-10: concat-form synonyms for pages generated before CamelCase splitting was fixed
+        "javascript-extensions": ["javascriptextensions"],
+        "logical-structure": ["logicalstructure"],
     }
 
     synonyms = _CLUSTER_SYNONYMS.get(cluster_slug, [])

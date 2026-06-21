@@ -1106,3 +1106,87 @@ class TestKbSlugValidator:
         pages = [self._make_page("how-to-work-with-arbitrary-compound-dotnet")]
         # "unknown-family" has no entry in _FAMILY_PRODUCT_KEYWORDS → C4 skipped
         sp._validate_kb_slugs(pages, "unknown-family", "net")  # no exception
+
+
+# ---------------------------------------------------------------------------
+# SQ-10: _match_existing_to_cluster concat-synonym fix
+# TC-SQ-10-001 / TC-SQ-10-002
+# ---------------------------------------------------------------------------
+
+def _make_existing_doc_page(slug: str) -> dict:
+    """Build a minimal existing-page record for docs section testing."""
+    return {
+        "slug": f"developer-guide/{slug}",
+        "path": f"content/docs.aspose.org/en/pdf/net/developer-guide/{slug}.md",
+        "frontmatter_cluster": "",
+        "title": slug,
+        "auto_updatable": True,
+    }
+
+
+class TestMatchExistingToClusterSQ10:
+    """Regression tests for SQ-10: concat-form old slugs map to new hyphenated clusters."""
+
+    def test_javascriptextensions_maps_to_javascript_extensions_cluster(self):
+        """TC-SQ-10-001: existing 'javascriptextensions' docs page matches
+        'javascript-extensions' cluster via synonym lookup."""
+        existing = [_make_existing_doc_page("javascriptextensions")]
+        result = sp._match_existing_to_cluster(
+            existing_pages=existing,
+            cluster_category="javascript-extensions",
+            cluster_slug="javascript-extensions",
+            cluster_class_names=[],
+            section="docs",
+            family="pdf",
+        )
+        assert result is not None, (
+            "Expected 'javascriptextensions' page to match 'javascript-extensions' cluster"
+        )
+        assert "javascriptextensions" in result["slug"]
+
+    def test_logicalstructure_maps_to_logical_structure_cluster(self):
+        """TC-SQ-10-002: existing 'logicalstructure' docs page matches
+        'logical-structure' cluster via synonym lookup."""
+        existing = [_make_existing_doc_page("logicalstructure")]
+        result = sp._match_existing_to_cluster(
+            existing_pages=existing,
+            cluster_category="logical-structure",
+            cluster_slug="logical-structure",
+            cluster_class_names=[],
+            section="docs",
+            family="pdf",
+        )
+        assert result is not None, (
+            "Expected 'logicalstructure' page to match 'logical-structure' cluster"
+        )
+        assert "logicalstructure" in result["slug"]
+
+    def test_javascript_extensions_hyphen_matches_directly(self):
+        """TC-SQ-10-003: new 'javascript-extensions' page matches via priority-2 substring."""
+        existing = [_make_existing_doc_page("javascript-extensions")]
+        result = sp._match_existing_to_cluster(
+            existing_pages=existing,
+            cluster_category="javascript-extensions",
+            cluster_slug="javascript-extensions",
+            cluster_class_names=[],
+            section="docs",
+            family="pdf",
+        )
+        assert result is not None, (
+            "Expected 'javascript-extensions' page to match 'javascript-extensions' cluster"
+        )
+
+    def test_unrelated_page_does_not_match(self):
+        """TC-SQ-10-004: page with unrelated slug does not match."""
+        existing = [_make_existing_doc_page("annotations-forms")]
+        result = sp._match_existing_to_cluster(
+            existing_pages=existing,
+            cluster_category="javascript-extensions",
+            cluster_slug="javascript-extensions",
+            cluster_class_names=[],
+            section="docs",
+            family="pdf",
+        )
+        assert result is None, (
+            "Expected unrelated page to NOT match 'javascript-extensions' cluster"
+        )
