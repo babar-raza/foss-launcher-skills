@@ -44,6 +44,13 @@ draft: false
 
 Some content.
 
+## Getting Started
+
+- [Getting Started](https://docs.aspose.org/pdf/net/getting-started/)
+- [Developer Guide](https://docs.aspose.org/pdf/net/developer-guide/)
+- [KB Articles](https://kb.aspose.org/pdf/net/)
+- [API Reference](https://reference.aspose.org/pdf/net/)
+
 ## Related Resources
 
 - [Aspose.PDF for .NET — Enterprise Product](https://products.aspose.com/pdf/net/)
@@ -294,6 +301,11 @@ categories:
 tags: []
 draft: false
 ---
+## Getting Started
+
+- [Getting Started](https://docs.aspose.org/cells/net/getting-started/)
+- [KB Articles](https://kb.aspose.org/cells/net/)
+
 ## Related Resources
 - [Aspose.Cells for .NET — Enterprise Product](https://products.aspose.com/cells/net/)
 """
@@ -338,3 +350,112 @@ def test_check_files_skips_non_blog_post(tmp_path):
     index.write_text("---\ntitle: Section\n---\n", encoding="utf-8")
     result = check_files([str(index)], _FAMILY_ROUTES, _PLATFORMS)
     assert result == 0
+
+
+# ---------------------------------------------------------------------------
+# C6 — Getting Started section
+# ---------------------------------------------------------------------------
+
+def test_c6_fail_no_getting_started(tmp_path):
+    """Post with Related Resources but no Getting Started triggers C6 FAIL."""
+    content = """\
+---
+title: Test Post
+author: Aspose
+categories:
+- Aspose.PDF
+tags: []
+draft: false
+---
+Content here.
+
+## Related Resources
+
+- [Aspose.PDF for .NET — Enterprise Product](https://products.aspose.com/pdf/net/)
+"""
+    post = _make_post(tmp_path, "pdf", "net", "my-post", content)
+    findings = _check_post(post, "pdf", "net", _FAMILY_ROUTES, _PLATFORMS)
+    assert any(f.check == "C6" and f.level == "FAIL" for f in findings)
+
+
+def test_c6_pass_with_getting_started_docs(tmp_path):
+    """Post with Getting Started section pointing to docs.aspose.org passes C6."""
+    content = """\
+---
+title: Test Post
+author: Aspose
+categories:
+- Aspose.PDF
+tags: []
+draft: false
+---
+Content here.
+
+## Getting Started
+
+- [Getting Started](https://docs.aspose.org/pdf/net/getting-started/)
+
+## Related Resources
+
+- [Aspose.PDF for .NET — Enterprise Product](https://products.aspose.com/pdf/net/)
+"""
+    post = _make_post(tmp_path, "pdf", "net", "my-post", content)
+    findings = _check_post(post, "pdf", "net", _FAMILY_ROUTES, _PLATFORMS)
+    assert not any(f.check == "C6" for f in findings)
+
+
+def test_c6_pass_with_getting_started_kb(tmp_path):
+    """Post with Getting Started section pointing to kb.aspose.org passes C6."""
+    content = """\
+---
+title: Test Post
+author: Aspose
+categories:
+- Aspose.Cells
+tags: []
+draft: false
+---
+
+## Getting Started
+
+- [KB Articles](https://kb.aspose.org/cells/net/)
+
+## Related Resources
+
+- [Aspose.Cells for .NET — Enterprise Product](https://products.aspose.com/cells/net/)
+"""
+    post = _make_post(tmp_path, "cells", "net", "my-post", content)
+    findings = _check_post(post, "cells", "net", _FAMILY_ROUTES, _PLATFORMS)
+    assert not any(f.check == "C6" for f in findings)
+
+
+def test_c6_pass_complete_post(tmp_path):
+    """A fully correct post with both sections produces zero FAIL findings."""
+    post = _make_post(tmp_path, "pdf", "net", "my-post", _GOOD_POST)
+    findings = _check_post(post, "pdf", "net", _FAMILY_ROUTES, _PLATFORMS)
+    assert not any(f.level == "FAIL" for f in findings)
+
+
+def test_c6_fail_getting_started_no_aspose_link(tmp_path):
+    """Getting Started section without an aspose.org link still triggers C6."""
+    content = """\
+---
+title: Test Post
+author: Aspose
+categories:
+- Aspose.PDF
+tags: []
+draft: false
+---
+
+## Getting Started
+
+See the README for details.
+
+## Related Resources
+
+- [Aspose.PDF for .NET — Enterprise Product](https://products.aspose.com/pdf/net/)
+"""
+    post = _make_post(tmp_path, "pdf", "net", "my-post", content)
+    findings = _check_post(post, "pdf", "net", _FAMILY_ROUTES, _PLATFORMS)
+    assert any(f.check == "C6" and f.level == "FAIL" for f in findings)

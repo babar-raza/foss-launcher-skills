@@ -20,6 +20,11 @@ Checks blog.aspose.org post frontmatter for production defect patterns:
     family/platform must appear in products.aspose.com.platforms in
     data/aspose_com_targets.json.
 
+  C6 — Getting Started section present
+    Post body must contain ## Getting Started with at least one link to
+    docs.aspose.org, kb.aspose.org, or reference.aspose.org. This section
+    provides platform cross-links and is required on all live blog posts.
+
 Scope:
     Files matching content/blog.aspose.org/{family}/{platform}/{slug}/index.md
     (5 path segments after content root). Excludes _index.md section pages.
@@ -183,6 +188,19 @@ def _check_post(
             "C3", "FAIL",
             "Missing '## Related Resources' section with products.aspose.com/ link. "
             "Run backlink_backfill.py or add the section manually.",
+        ))
+
+    # C6 — Getting Started section with aspose.org platform links
+    has_getting_started = bool(re.search(
+        r"##\s+Getting\s+Started\b[^\n]*\n(?:[^\n]*\n)*?[^\n]*(docs|kb|reference)\.aspose\.org/",
+        body,
+        re.IGNORECASE,
+    ))
+    if not has_getting_started:
+        findings.append(Finding(
+            "C6", "FAIL",
+            "Missing '## Getting Started' section with docs/kb/reference.aspose.org links. "
+            "Add the section before ## Related Resources.",
         ))
 
     # C4 — No type: post (warning only)
