@@ -178,6 +178,16 @@ Before generating any content, you MUST:
     If BLOCKED_TARGET: log WARN and continue.
     **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
 
+7c. **Blog post standards check** (C1–C6): Verify the generated post passes all blog post
+    quality gates, including C6 (`## Getting Started` with docs/kb/reference.aspose.org links):
+    ```bash
+    .venv/Scripts/python scripts/ci/checks/check_blog_post_standards.py \
+      content/blog.aspose.org/{family}/{platform}/{slug}/index.md
+    ```
+    If any FAIL (especially C6 — missing Getting Started section, or C3 — missing Related
+    Resources): fix the post before committing. The `## Getting Started` section must appear
+    in the post body with the standard 4 navigation links (see template structure above, §4).
+
 > **Skill context close** — run after the last step:
 > ```bash
 > PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-57 --status completed
