@@ -688,4 +688,30 @@ if [ ${#staged_blog_posts[@]} -gt 0 ]; then
 fi
 _pc_step_end "PASS"
 
+# Step 16: Docs developer-guide slug quality gate (SQ-08 / D1 check)
+# Checks staged docs developer-guide pages for concatenated CamelCase slugs
+# (e.g., "javascriptextensions" instead of "javascript-extensions").
+staged_docs_guide=()
+while IFS= read -r _dgline; do staged_docs_guide+=("$_dgline"); done < <(
+    git diff --cached --name-only --diff-filter=ACR \
+        | grep -E '^content/docs\.aspose\.org/en/[^/]+/[^/]+/developer-guide/[^/]+\.md$' || true
+)
+if [ ${#staged_docs_guide[@]} -gt 0 ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_docs_slug_quality.py" ]; then
+        _docs_slug_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_docs_slug_quality.py \
+            "${staged_docs_guide[@]}" 2>&1)
+        _docs_slug_exit=$?
+        if [ -n "$_docs_slug_out" ]; then
+            echo "$_docs_slug_out" | sed 's/^/[Step 16] /'
+        fi
+        if [ $_docs_slug_exit -ne 0 ]; then
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    else
+        echo "[Step 16] SKIP: .venv not found or check_docs_slug_quality.py missing." >&2
+    fi
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0
