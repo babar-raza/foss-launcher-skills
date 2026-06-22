@@ -63,6 +63,7 @@ The clone cache is managed by `scripts/pipeline/core/clone_cache.py`.
 | `docs/development/` | Contributor documentation. |
 | `docs/_audit/` | Audit and planning artifacts. |
 | `docs/_archive/` | Historical/superseded docs. |
+| `docs/content-system/` | Hugo content system reference: page resolution, themes, localization, content types. |
 
 The `docs/` root may contain only `README.md` plus directories. Any other root-level file is a root orphan.
 

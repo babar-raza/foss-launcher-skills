@@ -35,3 +35,10 @@ Content filenames must follow the validators enforced by CI and pre-commit check
 ## Provenance
 
 Provenance belongs in frontmatter, not inline comments. Pages generated or evaluated without knowledge must not be treated as fully grounded.
+
+## Hugo Rendering
+
+For theme assignment, layout selection, shortcode availability per site, data file
+consumption, frontmatter contracts per content type, link generation rules, locale
+rules, allowed/forbidden edit paths, post-change inspection, the evidence contract,
+common failure modes, and the agent edit checklist, see [hugo-rendering.md](hugo-rendering.md).
