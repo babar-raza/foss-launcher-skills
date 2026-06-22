@@ -64,7 +64,7 @@ Default weight for unlisted platforms: 80.
 4. **Check idempotency / repair mode**:
    - If `content/docs.aspose.org/en/{family}/{platform}/_index.md` does **not** exist → proceed to Step 5 (create mode).
    - If file exists AND body contains `## Key capabilities` → print `SKIP: platform _index.md already enriched` and stop.
-   - If file exists but body **lacks** `## Key capabilities` → proceed in **repair mode**: enrich the existing page without replacing its frontmatter or existing body_intro; only add the capabilities section and update the provenance `last_mechanism` field to `new-docs-index-repair`.
+   - If file exists but body **lacks** `## Key capabilities` → proceed in **repair mode**: enrich the existing page without replacing its frontmatter or existing body_intro; only add the capabilities section and update the provenance `last_mechanism` field to `page-update`.
 
 5. **Ensure family index exists**: Check if `content/docs.aspose.org/en/{family}/_index.md` exists.
    If it already exists, skip to step 6. If missing, create it:
@@ -178,7 +178,7 @@ Default weight for unlisted platforms: 80.
    - Read the existing file content.
    - Insert the `## Key capabilities` section between the existing body_intro paragraph and the
      "Select a section to begin:" line (or directly before `{{< sections >}}` if that line is absent).
-   - Update `provenance.last_mechanism` to `new-docs-index-repair`.
+   - Update `provenance.last_mechanism` to `page-update`.
    - Do not change any frontmatter fields other than `last_mechanism`.
    - Do not remove or alter the existing body_intro paragraph.
 
