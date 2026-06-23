@@ -93,6 +93,7 @@ class BackfillChange:
     skipped: bool = False
     skip_reason: str = ""
     dry_run: bool = True
+    warning_messages: list = field(default_factory=list)
 
 
 @dataclass
@@ -265,6 +266,155 @@ def _validate_overview_update(original: str, updated: str, target_url: str) -> b
     return True
 
 
+# ── Prose Integration Machinery (Phase 4 — TC-BL-005) ────────────────────────
+
+# Jaccard near-duplicate detection threshold (module-level for easy adjustment)
+_NEAR_DUPLICATE_THRESHOLD = 0.65
+
+# Tokens too common to be discriminating for Jaccard similarity
+_JACCARD_NOISE_WORDS = frozenset({
+    "the", "a", "an", "and", "or", "for", "to", "in", "of", "on", "with",
+    "see", "use", "can", "is", "are", "this", "that", "these", "those",
+    "from", "at", "by", "as", "it", "its", "be", "was", "were", "have",
+    "has", "had", "not", "but", "also", "more", "may",
+})
+
+# Prohibited marketing claims in LLM-generated text
+_PROHIBITED_PHRASES = [
+    "industry-leading", "best-in-class", "only solution",
+    "guarantee", "guaranteed", "unparalleled", "world-class",
+]
+
+
+def _tokenize_sentence(text: str) -> set[str]:
+    """Tokenize sentence into a word set for Jaccard comparison.
+    Strips URLs first, then excludes Aspose.*, Enterprise* tokens and noise words.
+    URL tokens (https, com, etc.) are excluded to avoid inflating the denominator.
+    """
+    # Strip URLs before tokenizing so URL components don't affect similarity
+    text_no_urls = re.sub(r'https?://\S+', '', text)
+    words = re.findall(r"[a-zA-Z]+", text_no_urls.lower())
+    return {
+        w for w in words
+        if w not in _JACCARD_NOISE_WORDS
+        and not w.startswith("aspose")
+        and not w.startswith("enterprise")
+        and len(w) > 2
+    }
+
+
+def _detect_near_duplicate(existing_text: str, candidate_sentence: str) -> list[str]:
+    """Return list of existing sentences with Jaccard similarity >= threshold.
+
+    Tokenizes each sentence in existing_text and computes Jaccard similarity
+    against candidate_sentence. Excludes URL tokens and Aspose.*/Enterprise*
+    tokens from the comparison (too common to be discriminating).
+
+    Returns list of near-duplicate sentence strings (empty = no duplicates found).
+    """
+    candidate_tokens = _tokenize_sentence(candidate_sentence)
+    if not candidate_tokens:
+        return []
+
+    # Split existing text into sentences by '. ', '\n', or bullet markers
+    sentence_parts = re.split(r'(?<=[.!?])\s+|\n+|(?=^- )', existing_text, flags=re.MULTILINE)
+    duplicates = []
+    for part in sentence_parts:
+        part = part.strip()
+        if len(part) < 10:
+            continue
+        part_tokens = _tokenize_sentence(part)
+        if not part_tokens:
+            continue
+        intersection = candidate_tokens & part_tokens
+        union = candidate_tokens | part_tokens
+        if union and (len(intersection) / len(union)) >= _NEAR_DUPLICATE_THRESHOLD:
+            duplicates.append(part)
+    return duplicates
+
+
+def _extract_affected_section(body: str, section_header: str) -> str:
+    """Extract section body from header to next ## heading or EOF."""
+    escaped = re.escape(section_header)
+    result = _find_section(body, rf"^{escaped}\s*$")
+    if result is None:
+        return ""
+    _, content_start = result
+    # Find next ## heading (any level >= 2) after content_start
+    next_heading = re.search(r'^#{2,}\s', body[content_start:], re.MULTILINE)
+    if next_heading:
+        return body[content_start: content_start + next_heading.start()]
+    return body[content_start:]
+
+
+def _validate_prose(section_text: str, entry: str, target_url: str) -> list[str]:
+    """Validate that injected entry appears correctly in section_text.
+
+    Checks:
+    1. entry string (or its bullet form) is present in section_text
+    2. target_url is present unchanged in section_text
+    3. No duplicate bullets for target_url
+
+    Returns list of error strings (empty = valid).
+    """
+    errors: list[str] = []
+    normalized_entry = entry.strip().lstrip("- ").strip()
+
+    if normalized_entry and normalized_entry not in section_text:
+        errors.append(
+            f"PROSE_ANCHOR_MISSING: entry anchor not found in section after injection"
+        )
+    if target_url.rstrip("/") not in section_text:
+        errors.append(
+            f"PROSE_URL_MISSING: target URL {target_url!r} not found in section after injection"
+        )
+    # Count bullet occurrences for this URL
+    url_count = section_text.count(target_url.rstrip("/"))
+    if url_count > 1:
+        errors.append(
+            f"PROSE_DUPLICATE: target URL appears {url_count} times in section"
+        )
+    return errors
+
+
+def _validate_llm_output(
+    original: str, updated: str, target_url: str, anchor_text: str
+) -> list[str]:
+    """Validate LLM-generated overview.content update.
+
+    Checks:
+    1. anchor_text is present as a substring in updated
+    2. target_url is present (unchanged) in updated
+    3. No prohibited marketing phrases
+    4. Retained prose ratio >= 0.80
+
+    Returns list of error strings (empty = valid).
+    """
+    errors: list[str] = []
+
+    if anchor_text not in updated:
+        errors.append(
+            f"LLM_ANCHOR_MISSING: anchor text {anchor_text!r} not found in updated content"
+        )
+    if target_url.rstrip("/") not in updated:
+        errors.append(
+            f"LLM_URL_MISSING: target URL {target_url!r} not found in updated content"
+        )
+    for phrase in _PROHIBITED_PHRASES:
+        if phrase.lower() in updated.lower():
+            errors.append(
+                f"LLM_UNSUPPORTED_CLAIM: prohibited phrase {phrase!r} found in updated content"
+            )
+    # Retained prose ratio check (reuses _validate_overview_update logic)
+    stripped_orig = re.sub(r'\[[^\]]+\]\([^)]+\)', '', original).strip()
+    stripped_upd = re.sub(r'\[[^\]]+\]\([^)]+\)', '', updated).strip()
+    if stripped_orig and len(stripped_upd) / len(stripped_orig) < 0.80:
+        errors.append(
+            f"LLM_LOW_RETENTION: retained prose ratio {len(stripped_upd)/len(stripped_orig):.2f} < 0.80"
+        )
+    return errors
+
+
 def _apply_overview_template(
     current_content: str,
     target_url: str,
@@ -318,6 +468,8 @@ def _apply_overview_template(
                 f"Developers requiring enterprise knowledge base resources can reference "
                 f"{anchor} alongside these open-source libraries."
             )
+    elif enterprise_suffix == "Enterprise Blog":
+        sentence = f"For enterprise tutorials, see {anchor}."
     else:  # Enterprise Product (products.aspose.com platform target)
         if wc <= 140:
             sentence = f"For enterprise features and support, see {anchor}."
@@ -328,6 +480,12 @@ def _apply_overview_template(
             )
 
     text = current_content.rstrip()
+
+    # Phase 4: near-duplicate suppression for YAML overview
+    dups = _detect_near_duplicate(text, sentence)
+    if dups:
+        return text + f"\n<!-- NEAR_DUPLICATE_SUPPRESSED: {dups[0][:60]} -->"
+
     # CTA must be the final sentence — always append unconditionally.
     # Never insert mid-text: license/FOSS-closing sentences must precede the CTA, not follow it.
     return text + " " + sentence
@@ -424,6 +582,35 @@ def _get_section_header(subdomain: str) -> str:
     return SEE_ALSO_HEADER
 
 
+def _scrub_wrong_section_links(body: str, section_header: str, wrong_domain: str) -> tuple[str, int]:
+    """Remove bullet entries linking to wrong_domain from a named section.
+
+    Used to scrub stale products.aspose.com links from blog Related Resources
+    sections before inserting the correct blog.aspose.com link (Phase 6.3 / F4).
+
+    Returns (new_body, count_removed).
+    """
+    header_pattern = rf"^{re.escape(section_header)}\s*$"
+    existing = _find_section(body, header_pattern)
+    if not existing:
+        return body, 0
+
+    _, content_start = existing
+    next_heading = re.search(r'^\s*##', body[content_start:], re.MULTILINE)
+    section_end = content_start + next_heading.start() if next_heading else len(body)
+
+    section_text = body[content_start:section_end]
+    bullet_re = re.compile(
+        r'^- \[.*?\]\(https?://' + re.escape(wrong_domain) + r'[^\)]*\)\n?',
+        re.MULTILINE,
+    )
+    new_section, count = bullet_re.subn('', section_text)
+    if count == 0:
+        return body, 0
+
+    return body[:content_start] + new_section + body[section_end:], count
+
+
 def backfill_markdown(
     file_path: Path,
     target_url: str,
@@ -455,6 +642,19 @@ def backfill_markdown(
             skipped=True, skip_reason="Already contains target URL (idempotent)", dry_run=dry_run,
         )
 
+    # Phase 6.3: For blog posts, scrub stale wrong-section products.aspose.com links
+    # before the max-link guard. Without this, blog posts at MAX_QUALIFYING_LINKS
+    # would be blocked even though all their links are wrong-section (F4).
+    warnings_acc: list[str] = []
+    if subdomain == "blog.aspose.org":
+        body, scrubbed = _scrub_wrong_section_links(
+            body, RELATED_RESOURCES_HEADER, "products.aspose.com/"
+        )
+        if scrubbed > 0:
+            warnings_acc.append(
+                f"SCRUBBED_WRONG_SECTION: removed {scrubbed} products.aspose.com link(s) before insertion"
+            )
+
     # Max-link guard
     link_count, _ = count_qualifying_com_links(body)
     if link_count >= MAX_QUALIFYING_LINKS:
@@ -470,8 +670,21 @@ def backfill_markdown(
     entry = _build_see_also_entry(target_url, family, platform, subdomain, families_map, platforms_map,
                                    target_type=target_type)
 
+    # Phase 4: near-duplicate detection before injection (accumulator pattern, F5-safe)
+    dups = _detect_near_duplicate(body, entry)
+    if dups:
+        warnings_acc.append(
+            f"NEAR_DUPLICATE_DETECTED: similarity>={_NEAR_DUPLICATE_THRESHOLD} with: {dups[0][:80]}"
+        )
+
     # Build the new body
     new_body = _insert_see_also(body, section_header, entry, subdomain)
+
+    # Phase 4: prose validation after injection
+    section_after = _extract_affected_section(new_body, section_header)
+    prose_errors = _validate_prose(section_after, entry, target_url)
+    if prose_errors:
+        warnings_acc.extend(prose_errors)
 
     if not dry_run:
         new_raw = fm + new_body
@@ -483,6 +696,7 @@ def backfill_markdown(
         action="md_see_also" if subdomain != "blog.aspose.org" else "md_related_resources",
         before_snippet=body[:200], after_snippet=new_body[:200],
         dry_run=dry_run,
+        warning_messages=warnings_acc,
     )
 
 
@@ -673,6 +887,17 @@ def run_backfill(
                     link_count, _ = count_qualifying_com_links(body)
             except Exception:
                 link_count = 0
+
+            # Phase 6.3 (outer loop): For blog posts, if ALL qualifying links are wrong-section
+            # products.aspose.com links, they will be scrubbed by backfill_markdown(). Reset
+            # link_count so the max-link guard doesn't block before scrubbing can run (F4).
+            if sd == "blog.aspose.org" and link_count >= MAX_QUALIFYING_LINKS:
+                try:
+                    _, _existing_urls = count_qualifying_com_links(body)
+                    if _existing_urls and all("products.aspose.com/" in u for u in _existing_urls):
+                        link_count = 0  # all wrong-section; backfill_markdown() will scrub them
+                except Exception:
+                    pass
 
             if link_count > 0:
                 # Page already has aspose.com links — check compliance:
