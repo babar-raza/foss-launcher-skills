@@ -202,6 +202,57 @@ PYTHONPATH=scripts/pipeline .venv/Scripts/python \
 
 ---
 
+## 11. Same-Section Mapping Table (§4.1)
+
+Each source subdomain resolves to a specific same-section target on aspose.com.
+Cross-section fallback to `products.aspose.com` is **prohibited** except for
+`products.aspose.org` (self-referential). Wrong-section links are worse than no link.
+
+| Source | Preferred target | Resolution strategy | Cross-section fallback |
+|---|---|---|---|
+| `docs.aspose.org` | `docs.aspose.com` | platform → family lookup | BLOCKED (no products fallback) |
+| `kb.aspose.org` | `kb.aspose.com` | platform → family lookup | BLOCKED |
+| `reference.aspose.org` | `reference.aspose.com` | platform → family lookup | BLOCKED |
+| `products.aspose.org` | `products.aspose.com` | platform → family lookup | products self-fallback |
+| `blog.aspose.org` | `blog.aspose.com` | ancestor chain (ROOT_FALLBACK) | BLOCKED |
+
+---
+
+## 12. blog.aspose.org Resolution Policy
+
+`blog.aspose.com` has no family/platform structured landing pages. The only
+HTTP-200-verified URL is the root `https://blog.aspose.com/`.
+
+- Resolution uses `resolve_best_verified_ancestor("blog/{family}/{platform}", target_map)`.
+- Always resolves to ROOT_FALLBACK `https://blog.aspose.com/` (HTTP 200 verified).
+- Anchor text: `{fam} — Enterprise Blog` (template: `blog-family`).
+- Sentence wrapper: "For enterprise tutorials, see {anchor}."
+- If `blog.aspose.com` adds category pages (`/pdf/`, `/cells/` etc.) in future, the
+  ancestor chain will find them automatically — no code change required.
+
+---
+
+## 13. Prose Integration Policy
+
+Near-duplicate detection and prose validation run on every backfill injection:
+
+- `_detect_near_duplicate(existing_text, candidate_sentence)` — Jaccard similarity
+  ≥ 0.65 (after URL-stripping, excluding Aspose.*/Enterprise* tokens and noise words).
+  Detection records a `NEAR_DUPLICATE_DETECTED` warning in `BackfillChange.warning_messages`.
+  Warning does NOT suppress injection — the link is still inserted.
+- `_validate_prose(section_text, entry, target_url)` — after injection, confirms:
+  - Entry anchor text substring is present in section text.
+  - Target URL is present unchanged.
+  - No duplicate bullet for the same target URL.
+  Errors are appended to `BackfillChange.warning_messages`.
+- `_validate_llm_output(original, updated, target_url, anchor_text)` — for YAML
+  overview updates, validates anchor presence, URL presence, retained prose ratio ≥ 0.80,
+  and absence of prohibited phrases (industry-leading, best-in-class, only solution, guarantee).
+- Warning messages are recorded in `BackfillChange.warning_messages`; they do **not**
+  suppress the injection. Review warnings after each backfill run.
+
+---
+
 ## Related Documents
 
 - `docs/backlinks-v3-reference.md` — Full architecture, layer scripts, invariants
