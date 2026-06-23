@@ -193,7 +193,7 @@ PREFERRED_TARGET_SUBDOMAIN = {
     "kb.aspose.org":        "kb.aspose.com",
     "reference.aspose.org": "reference.aspose.com",
     "products.aspose.org":  "products.aspose.com",
-    "blog.aspose.org":      "products.aspose.com",
+    "blog.aspose.org":      "blog.aspose.com",
 }
 
 # A3: Host map for URL composition — ONLY used in resolve_best_verified_ancestor() / _resolve_deep()
@@ -605,6 +605,31 @@ def resolve_backlink(
 
     preferred_sd = PREFERRED_TARGET_SUBDOMAIN.get(source_subdomain, "products.aspose.com")
 
+    # D1 FIX: blog.aspose.org uses ancestor chain resolution because blog.aspose.com
+    # has no family/platform structured landing pages (only root at https://blog.aspose.com/).
+    # resolve_best_verified_ancestor() walks: blog/pdf/net → blog/pdf → blog/
+    # The root https://blog.aspose.com/ is HTTP 200 in all_urls, so ROOT_FALLBACK is guaranteed.
+    if source_subdomain == "blog.aspose.org":
+        path_parts = ["blog"]
+        if family:
+            path_parts.append(family)
+        if platform:
+            path_parts.append(platform)
+        ancestor_path = "/".join(path_parts)
+        ancestor_result = resolve_best_verified_ancestor(
+            ancestor_path, target_map, allowed_root_fallback=True
+        )
+        if ancestor_result.selected_url:
+            # ROOT_FALLBACK has no platform match — always treat as "family" type
+            ttype = "family"
+            return (
+                ancestor_result.selected_url,
+                ttype,
+                "blog.aspose.com",
+                ancestor_result.fallback_reason,
+            )
+        return None, None, None, f"no blog.aspose.com ancestor found for {family}/{platform}"
+
     if platform:
         # Check canonical override first (A2 P0 — only http_verified: true entries used)
         if canonical_overrides:
@@ -627,18 +652,18 @@ def resolve_backlink(
         if url:
             return url, "family", preferred_sd, f"platform {family}/{platform} not found on {preferred_sd}"
 
-        # Fallback: platform URL on products.aspose.com
-        if preferred_sd != "products.aspose.com":
+        # No cross-section fallback to products.aspose.com for non-products sources.
+        # Wrong-section links are worse than no link. Return BLOCKED.
+        # Exception: products.aspose.org is self-referential; allow products self-fallback.
+        if preferred_sd == "products.aspose.com":
             url = _lookup_platform(target_map, "products.aspose.com", family, platform)
             if url:
-                return url, "platform", "products.aspose.com", f"{preferred_sd} missing; fell back to products"
+                return url, "platform", "products.aspose.com", "products self-fallback"
+            url = _lookup_family(target_map, "products.aspose.com", family)
+            if url:
+                return url, "family", "products.aspose.com", "products self-fallback family"
 
-        # Fallback: family URL on products.aspose.com
-        url = _lookup_family(target_map, "products.aspose.com", family)
-        if url:
-            return url, "family", "products.aspose.com", f"platform and preferred subdomain unavailable; family fallback on products"
-
-        return None, None, None, f"no safe target after full fallback chain for {family}/{platform}"
+        return None, None, None, f"no same-section target for {family}/{platform} on {preferred_sd}"
 
     else:
         # Family-only resolution
@@ -646,12 +671,13 @@ def resolve_backlink(
         if url:
             return url, "family", preferred_sd, None
 
-        if preferred_sd != "products.aspose.com":
+        # No cross-section fallback for non-products sources.
+        if preferred_sd == "products.aspose.com":
             url = _lookup_family(target_map, "products.aspose.com", family)
             if url:
-                return url, "family", "products.aspose.com", f"preferred subdomain missing family; fell back to products"
+                return url, "family", "products.aspose.com", "products self-fallback family"
 
-        return None, None, None, f"family target not found for {family} — target-map defect"
+        return None, None, None, f"no same-section family target for {family} on {preferred_sd}"
 
 
 # ── Anchor suffix policy (§anchor-v3) ────────────────────────────────────────
@@ -660,6 +686,7 @@ _PRODUCTS_ASPOSE_RE = re.compile(r'https?://products\.aspose\.com/', re.IGNORECA
 _DOCS_ASPOSE_RE     = re.compile(r'https?://docs\.aspose\.com/',     re.IGNORECASE)
 _REF_ASPOSE_RE      = re.compile(r'https?://reference\.aspose\.com/', re.IGNORECASE)
 _KB_ASPOSE_RE       = re.compile(r'https?://kb\.aspose\.com/',        re.IGNORECASE)
+_BLOG_ASPOSE_RE     = re.compile(r'https?://blog\.aspose\.com/',      re.IGNORECASE)
 
 
 def build_enterprise_anchor_suffix(target_url: str, target_type: str) -> str:
@@ -686,6 +713,8 @@ def build_enterprise_anchor_suffix(target_url: str, target_type: str) -> str:
         return "Enterprise API Reference"
     if _KB_ASPOSE_RE.search(target_url):
         return "Enterprise Knowledge Base"
+    if _BLOG_ASPOSE_RE.search(target_url):
+        return "Enterprise Blog"
     return "Enterprise Product"  # unknown domain — safe fallback
 
 
@@ -699,6 +728,14 @@ def validate_anchor_suffix(anchor_text: str, target_url: str, target_type: str) 
     is_ref  = bool(_REF_ASPOSE_RE.search(target_url))
     is_kb   = bool(_KB_ASPOSE_RE.search(target_url))
     is_prod = bool(_PRODUCTS_ASPOSE_RE.search(target_url))
+    is_blog = bool(_BLOG_ASPOSE_RE.search(target_url))
+
+    if is_blog:
+        if "Enterprise Blog" not in anchor_text:
+            errors.append(
+                f"ANCHOR_DOMAIN_MISMATCH: blog URL {target_url!r} must use 'Enterprise Blog' suffix"
+            )
+        return errors
 
     if is_docs or is_ref or is_kb:
         if "Enterprise Product Family" in anchor_text:
@@ -803,8 +840,9 @@ def classify_compliance(
                 return FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE
 
     acceptable: set[str] = {_norm(chosen_target_url)}
-    if family:
-        # Products family/platform are always the final-resort fallbacks for any page type
+    if family and chosen_target_subdomain != "blog.aspose.com":
+        # Products family/platform are acceptable fallbacks for non-blog page types.
+        # Blog pages must use blog.aspose.com — products.aspose.com is WRONG_TARGET for blog.
         acceptable.add(_norm(f"https://products.aspose.com/{family}/"))
         if platform:
             acceptable.add(_norm(f"https://products.aspose.com/{family}/{platform}/"))
@@ -1162,11 +1200,13 @@ def select_anchor_template_id(
             target_sd = sd
             break
 
-    # Blog source always targets products
-    if source_subdomain == "blog.aspose.org":
-        if target_type == "family":
-            return "blog-products-family"
-        return "blog-products-platform"
+    # Blog source with blog.aspose.com target uses blog-family/platform templates (D1 fix)
+    if source_subdomain == "blog.aspose.org" and target_sd == "blog.aspose.com":
+        return "blog-family" if target_type == "family" else "blog-platform"
+
+    # Blog source with products target (legacy, deprecated — used only while old links exist)
+    if source_subdomain == "blog.aspose.org" and target_sd == "products.aspose.com":
+        return "blog-products-family" if target_type == "family" else "blog-products-platform"
 
     if target_sd == "docs.aspose.com":
         return "docs-family" if target_type == "family" else "docs-platform"
@@ -1176,6 +1216,8 @@ def select_anchor_template_id(
         return "reference-family" if target_type == "family" else "reference-platform"
     elif target_sd == "products.aspose.com":
         return "products-family" if target_type == "family" else "products-platform"
+    elif target_sd == "blog.aspose.com":
+        return "blog-family" if target_type == "family" else "blog-platform"
 
     # Unknown domain — safe fallback
     return "products-platform"

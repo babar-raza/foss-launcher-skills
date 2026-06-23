@@ -107,6 +107,7 @@ templates:
       target_subdomain: products.aspose.com
       target_type: platform
     enabled: true
+    deprecated: true
 
   blog-products-family:
     template_id: "blog-products-family"
@@ -116,6 +117,29 @@ templates:
     applies_to:
       source_subdomain: blog.aspose.org
       target_subdomain: products.aspose.com
+      target_type: family
+    enabled: true
+    deprecated: true
+
+  blog-platform:
+    template_id: "blog-platform"
+    suffix: "Enterprise Blog"
+    anchor_text: "{fam} for {plat} — Enterprise Blog"
+    fallback_to: "blog-family"
+    applies_to:
+      source_subdomain: blog.aspose.org
+      target_subdomain: blog.aspose.com
+      target_type: platform
+    enabled: true
+
+  blog-family:
+    template_id: "blog-family"
+    suffix: "Enterprise Blog"
+    anchor_text: "{fam} — Enterprise Blog"
+    fallback_to: null
+    applies_to:
+      source_subdomain: blog.aspose.org
+      target_subdomain: blog.aspose.com
       target_type: family
     enabled: true
 
@@ -147,6 +171,14 @@ sentence_wrappers:
     template_id: "wrap-kb-platform"
     text: "For the enterprise knowledge base, see {anchor}."
     deprecated_long_form: "Developers requiring enterprise knowledge base resources can reference {anchor} alongside these open-source libraries."
+
+  blog-platform:
+    template_id: "wrap-blog-platform"
+    text: "For enterprise blog posts and tutorials, see {anchor}."
+
+  blog-family:
+    template_id: "wrap-blog-family"
+    text: "For enterprise tutorials, see {anchor}."
 
 # Fallback lookup order:
 #   1. Match (source_subdomain, target_subdomain, target_type)
