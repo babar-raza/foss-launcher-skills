@@ -56,6 +56,8 @@ from lib.backlink_targets import (
     load_target_map,
     _lookup_platform,
     _lookup_family,
+    build_enterprise_anchor_suffix,
+    validate_anchor_suffix,
 )
 
 
@@ -136,7 +138,10 @@ def make_target_map(tmp_path: Path) -> dict:
         "schema_version": "1.0",
         "provenance": {"generated_at": "2026-01-01T00:00:00Z", "total_targets": 10},
         "targets": targets,
-        "all_urls": {},
+        "all_urls": {
+            # blog.aspose.com root — HTTP 200 required for blog ancestor chain ROOT_FALLBACK
+            "https://blog.aspose.com/": {"http_status": 200},
+        },
         "unavailable_sources": [],
         "family_platform_matrix": {},
     }
@@ -311,12 +316,13 @@ class TestResolveBacklink:
         url, utype, sd, reason = resolve_backlink("words", "net", "reference.aspose.org", tm)
         assert url is not None  # must not return None
 
-    def test_blog_post_products_preferred(self, tmp_path):
-        """blog-post → products.aspose.com/{fam}/{plat}/"""
+    def test_blog_post_blog_preferred(self, tmp_path):
+        """blog-post → blog.aspose.com/ (root, via ancestor chain ROOT_FALLBACK)"""
         tm = self.get_map(tmp_path)
         url, utype, sd, reason = resolve_backlink("words", "net", "blog.aspose.org", tm)
-        assert url == "https://products.aspose.com/words/net/"
-        assert sd == "products.aspose.com"
+        assert url == "https://blog.aspose.com/"
+        assert sd == "blog.aspose.com"
+        assert utype == "family"  # ROOT_FALLBACK is treated as family type
 
     def test_platform_not_found_falls_back_to_family(self, tmp_path):
         """Platform missing on preferred subdomain → family fallback."""
@@ -1765,7 +1771,8 @@ class TestAllUrlsFallback:
         assert result is None
 
     def test_resolve_backlink_uses_all_urls_fallback(self):
-        """Full resolve_backlink where targets has 404 but all_urls has 200 → platform URL returned."""
+        """Full resolve_backlink where targets has 404 but all_urls has 200 → platform URL returned.
+        Uses products.aspose.org source (self-referential) to exercise all_urls fallback logic."""
         tm = {
             "targets": {
                 "products.aspose.com": {
@@ -1778,13 +1785,13 @@ class TestAllUrlsFallback:
                 "https://products.aspose.com/3d/": {"http_status": 200},
             },
         }
-        url, kind, sd, reason = resolve_backlink("3d", "python", "blog.aspose.org", tm)
+        url, kind, sd, reason = resolve_backlink("3d", "python", "products.aspose.org", tm)
         assert url == "https://products.aspose.com/3d/python/"
         assert kind == "platform"
 
-    def test_blog_preferred_subdomain_unchanged(self):
-        """Regression guard: blog.aspose.org still prefers products.aspose.com (D-A9-02)."""
-        assert PREFERRED_TARGET_SUBDOMAIN["blog.aspose.org"] == "products.aspose.com"
+    def test_blog_preferred_subdomain_corrected(self):
+        """Regression guard: blog.aspose.org correctly prefers blog.aspose.com (D1 fix — BL-REPAIR-001)."""
+        assert PREFERRED_TARGET_SUBDOMAIN["blog.aspose.org"] == "blog.aspose.com"
 
     def test_targets_200_takes_precedence_over_all_urls(self):
         """When targets has status=200, the targets URL is used (all_urls not consulted)."""
@@ -2050,3 +2057,87 @@ class TestPromoteToAuthority:
         assert record["decision"] == "AUTO_APPROVE_EXACT"
         assert record["allowed_for_generation"] is True
         assert record["adjudicated_from"] == "REVIEW_REQUIRED"
+
+
+# ── TC-BL-NEG: Negative controls for D1/D2 fix (BL-REPAIR-001) ───────────────
+
+class TestBlogResolutionNegativeControls:
+    """
+    Negative-control tests validating the D1 fix (blog.aspose.org → blog.aspose.com).
+    All tests use in-process mock target_map with blog.aspose.com root at HTTP 200.
+    """
+
+    def _make_tm(self, extra_all_urls: dict | None = None) -> dict:
+        """Minimal target map with blog.aspose.com root and docs/products platforms."""
+        all_urls = {
+            "https://blog.aspose.com/": {"http_status": 200},
+        }
+        if extra_all_urls:
+            all_urls.update(extra_all_urls)
+        return {
+            "targets": {
+                "products.aspose.com": {
+                    "families": {"pdf": {"url": "https://products.aspose.com/pdf/", "http_status": 200}},
+                    "platforms": {"pdf/net": {"url": "https://products.aspose.com/pdf/net/", "http_status": 200}},
+                },
+                "docs.aspose.com": {
+                    "families": {"pdf": {"url": "https://docs.aspose.com/pdf/", "http_status": 200}},
+                    "platforms": {"pdf/net": {"url": "https://docs.aspose.com/pdf/net/", "http_status": 200}},
+                },
+            },
+            "all_urls": all_urls,
+            "unavailable_sources": [],
+            "family_platform_matrix": {},
+        }
+
+    def test_bl_neg_001_blog_resolves_to_blog_not_products(self):
+        """TC-BL-NEG-001: blog.aspose.org source → selected_url contains blog.aspose.com (NOT products)."""
+        tm = self._make_tm()
+        url, ttype, subdomain, reason = resolve_backlink("pdf", "net", "blog.aspose.org", tm)
+        assert url is not None, "Expected blog.aspose.com URL, got None"
+        assert "products.aspose.com" not in (url or ""), f"Must not resolve to products: {url}"
+        assert "blog.aspose.com" in url, f"Must resolve to blog.aspose.com: {url}"
+
+    def test_bl_neg_002_blog_resolves_to_root(self):
+        """TC-BL-NEG-002: blog.aspose.org source → selected_url == 'https://blog.aspose.com/'"""
+        tm = self._make_tm()
+        url, ttype, subdomain, reason = resolve_backlink("pdf", "net", "blog.aspose.org", tm)
+        assert url == "https://blog.aspose.com/", f"Expected root URL, got {url!r}"
+        assert subdomain == "blog.aspose.com"
+
+    def test_bl_neg_003_docs_pdf_net_resolves_to_docs(self):
+        """TC-BL-NEG-003: docs.aspose.org source with pdf/net → resolves to docs.aspose.com/pdf/net/"""
+        tm = self._make_tm()
+        url, ttype, subdomain, reason = resolve_backlink("pdf", "net", "docs.aspose.org", tm)
+        assert url == "https://docs.aspose.com/pdf/net/", f"Got {url!r}"
+        assert subdomain == "docs.aspose.com"
+
+    def test_bl_neg_004_docs_unknown_family_returns_none(self):
+        """TC-BL-NEG-004: docs.aspose.org with unknown family → returns None (BLOCKED, NOT products)."""
+        tm = self._make_tm()
+        url, ttype, subdomain, reason = resolve_backlink("unknownfam", "net", "docs.aspose.org", tm)
+        assert url is None, f"Expected BLOCKED (None), got {url!r}"
+        assert subdomain is None
+
+    def test_bl_neg_005_products_resolves_to_products(self):
+        """TC-BL-NEG-005: products.aspose.org source → resolves to products.aspose.com (unchanged)."""
+        tm = self._make_tm()
+        url, ttype, subdomain, reason = resolve_backlink("pdf", "net", "products.aspose.org", tm)
+        assert url == "https://products.aspose.com/pdf/net/", f"Got {url!r}"
+        assert subdomain == "products.aspose.com"
+
+    def test_bl_neg_006_build_suffix_for_blog_url(self):
+        """TC-BL-NEG-006: build_enterprise_anchor_suffix for blog.aspose.com URL → 'Enterprise Blog'"""
+        suffix = build_enterprise_anchor_suffix("https://blog.aspose.com/", "family")
+        assert suffix == "Enterprise Blog", f"Got {suffix!r}"
+
+    def test_bl_neg_007_validate_rejects_enterprise_product_for_blog(self):
+        """TC-BL-NEG-007: validate_anchor_suffix rejects 'Enterprise Product' for blog.aspose.com URL."""
+        errs = validate_anchor_suffix("PDF for .NET — Enterprise Product", "https://blog.aspose.com/", "family")
+        assert len(errs) > 0, "Expected validation errors for wrong suffix on blog URL"
+        assert any("Enterprise Blog" in e for e in errs), f"Expected Enterprise Blog mention in errors: {errs}"
+
+    def test_bl_neg_008_validate_rejects_enterprise_documentation_for_products(self):
+        """TC-BL-NEG-008: validate_anchor_suffix rejects 'Enterprise Documentation' for products URL."""
+        errs = validate_anchor_suffix("PDF — Enterprise Documentation", "https://products.aspose.com/pdf/", "family")
+        assert len(errs) > 0, "Expected validation errors for Enterprise Documentation on products URL"

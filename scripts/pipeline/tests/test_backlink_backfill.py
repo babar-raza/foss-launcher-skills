@@ -1024,3 +1024,130 @@ class TestCtaEndPlacement:
         assert mit_pos < cta_pos, (
             f"MIT sentence (pos {mit_pos}) must precede CTA (pos {cta_pos})"
         )
+
+
+# ── TC-BF-NEG: Negative controls for prose integration (BL-REPAIR-001) ───────
+
+class TestBackfillNegativeControls:
+    """
+    Negative-control tests for backfill prose integration.
+    All tests pass after Phase 4 prose machinery implementation.
+    """
+
+    def _make_blog_file(self, tmp_path: Path, body: str) -> Path:
+        """Create a minimal blog index.md for testing."""
+        content = (
+            "---\ntitle: Test Post\ncategories: [Aspose.Words]\nauthor: Test\n---\n"
+            + body
+        )
+        f = tmp_path / "index.md"
+        f.write_text(content, encoding="utf-8")
+        return f
+
+    def test_bf_neg_002_exact_url_idempotent_skip(self, tmp_path, monkeypatch):
+        """TC-BF-NEG-002: exact URL already in body → idempotent skip, skipped=True."""
+        monkeypatch.setattr(_bbm, "_REPO_ROOT", tmp_path)
+        target_url = "https://blog.aspose.com/"
+        body_content = (
+            "## Related Resources\n\n"
+            f"- [Aspose.Words — Enterprise Blog]({target_url})\n"
+        )
+        f = self._make_blog_file(tmp_path, body_content)
+        result = backfill_markdown(
+            file_path=f,
+            target_url=target_url,
+            family="words", platform="net",
+            subdomain="blog.aspose.org",
+            page_type="blog_post",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            dry_run=True,
+        )
+        assert result.skipped is True, f"Expected skipped=True; skip_reason={result.skip_reason!r}"
+        assert "idempotent" in result.skip_reason.lower() or "already" in result.skip_reason.lower()
+
+    def test_bf_neg_008_validate_overview_update_low_ratio(self):
+        """TC-BF-NEG-008: products YAML: retained-text ratio < 0.80 → _validate_overview_update() False."""
+        from commands.ops.backlink_backfill import _validate_overview_update
+        original = "A" * 100  # 100 chars of prose
+        # Updated has only 50% of original text remaining (ratio = 0.5 < 0.80)
+        updated = ("A" * 50) + " [Enterprise Product](https://products.aspose.com/words/)"
+        result = _validate_overview_update(original, updated, "https://products.aspose.com/words/")
+        assert result is False, "Expected False for low retained-text ratio"
+
+    def test_bf_neg_001_near_duplicate_warning_accumulated(self, tmp_path, monkeypatch):
+        """TC-BF-NEG-001: near-duplicate in existing body → warning_messages non-empty, single link injected."""
+        monkeypatch.setattr(_bbm, "_REPO_ROOT", tmp_path)
+        from commands.ops.backlink_backfill import _detect_near_duplicate
+        # Body sentence shares enough tokens with the entry to trigger Jaccard >= 0.65.
+        # After URL-stripping, entry tokens ≈ {words, net, blog}.
+        # Body below: tokens = {words, net, blog, resources} → similarity = 3/4 = 0.75 >= 0.65
+        body_content = (
+            "See Aspose.Words for .NET blog resources.\n\n"
+            "## Related Resources\n\n"
+        )
+        f = self._make_blog_file(tmp_path, body_content)
+        target_url = "https://blog.aspose.com/"
+        result = backfill_markdown(
+            file_path=f,
+            target_url=target_url,
+            family="words", platform="net",
+            subdomain="blog.aspose.org",
+            page_type="blog_post",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            dry_run=True,
+        )
+        assert result.skipped is False, "Should inject even when near-duplicate detected"
+        assert hasattr(result, "warning_messages"), "BackfillChange must have warning_messages field"
+        assert len(result.warning_messages) > 0, "Expected near-duplicate warning"
+        assert any("NEAR_DUPLICATE" in w for w in result.warning_messages)
+
+    def test_bf_neg_003_llm_output_missing_anchor_text(self):
+        """TC-BF-NEG-003: LLM output missing anchor text → _validate_llm_output() returns errors."""
+        from commands.ops.backlink_backfill import _validate_llm_output
+        original = "Aspose.Words FOSS for .NET provides document conversion."
+        updated = "Aspose.Words FOSS for .NET provides document conversion. For more, see https://blog.aspose.com/."
+        errors = _validate_llm_output(original, updated, "https://blog.aspose.com/", "Aspose.Words — Enterprise Blog")
+        assert any("anchor" in e.lower() for e in errors), f"Expected anchor error; got {errors}"
+
+    def test_bf_neg_004_llm_output_missing_target_url(self):
+        """TC-BF-NEG-004: LLM output missing target URL → _validate_llm_output() returns errors."""
+        from commands.ops.backlink_backfill import _validate_llm_output
+        original = "Aspose.Words FOSS for .NET provides document conversion."
+        updated = "Aspose.Words FOSS for .NET provides document conversion. For more, see [Aspose.Words — Enterprise Blog](https://wrong.com/)."
+        errors = _validate_llm_output(original, updated, "https://blog.aspose.com/", "Aspose.Words — Enterprise Blog")
+        assert any("url" in e.lower() for e in errors), f"Expected URL error; got {errors}"
+
+    def test_bf_neg_005_llm_output_unsupported_claim(self):
+        """TC-BF-NEG-005: LLM output with 'industry-leading' → unsupported_claim error."""
+        from commands.ops.backlink_backfill import _validate_llm_output
+        original = "Aspose.Words FOSS for .NET provides document conversion."
+        anchor_text = "Aspose.Words — Enterprise Blog"
+        target_url = "https://blog.aspose.com/"
+        updated = (
+            f"Aspose.Words FOSS is an industry-leading library. "
+            f"For enterprise tutorials, see [{anchor_text}]({target_url})."
+        )
+        errors = _validate_llm_output(original, updated, target_url, anchor_text)
+        assert any("industry" in e.lower() or "unsupported" in e.lower() for e in errors), \
+            f"Expected unsupported_claim error; got {errors}"
+
+    def test_bf_neg_006_validate_prose_anchor_unchanged(self, tmp_path):
+        """TC-BF-NEG-006: after injection, _validate_prose() confirms entry anchor unchanged."""
+        from commands.ops.backlink_backfill import _validate_prose
+        anchor_text = "Aspose.Words — Enterprise Blog"
+        target_url = "https://blog.aspose.com/"
+        entry = f"- [{anchor_text}]({target_url})"
+        section_text = f"## Related Resources\n\n{entry}\n"
+        errors = _validate_prose(section_text, entry, target_url)
+        assert errors == [], f"Expected no errors for correct anchor; got {errors}"
+
+    def test_bf_neg_007_validate_prose_url_unchanged(self, tmp_path):
+        """TC-BF-NEG-007: after injection, _validate_prose() confirms entry URL unchanged."""
+        from commands.ops.backlink_backfill import _validate_prose
+        anchor_text = "Aspose.Words — Enterprise Blog"
+        target_url = "https://blog.aspose.com/"
+        entry = f"- [{anchor_text}]({target_url})"
+        # Simulate a corrupted injection where URL differs
+        bad_section = f"## Related Resources\n\n- [{anchor_text}](https://wrong.com/)\n"
+        errors = _validate_prose(bad_section, entry, target_url)
+        assert len(errors) > 0, "Expected errors when URL is missing from section"
