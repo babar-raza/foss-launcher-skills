@@ -13,9 +13,9 @@
 | §2a | [Source-of-Truth Hierarchy](#2a-source-of-truth-hierarchy) | Conflict resolution |
 | §2b | [Shell Execution Policy](#2b-shell-execution-policy-windows-local-operations) | Windows shell rule |
 | §3 | [Mental Model Refresh](#3-mental-model-refresh-protocol) | → [docs/workflows/mental-model-refresh.md](docs/workflows/mental-model-refresh.md) |
-| §4 | [Allowed Write Paths](#4-allowed-write-paths-enforced-by-s-01-path-guard) | → [docs/governance/write-boundaries.md](docs/governance/write-boundaries.md) |
-| §4b | [Python File Placement](#4b-python-file-placement-rules) | → [docs/governance/python-placement.md](docs/governance/python-placement.md) |
-| §4c | [Content Filename Conventions](#4c-content-filename-conventions-tc-new-01-enforced-2026-04-25) | → [docs/governance/write-boundaries.md](docs/governance/write-boundaries.md) |
+| §4 | [Allowed Write Paths](#4-allowed-write-paths-enforced-by-s-01-path-guard) | → [docs/reference/governance-gates.md](docs/reference/governance-gates.md) |
+| §4b | [Python File Placement](#4b-python-file-placement-rules) | → [docs/development/python-placement.md](docs/development/python-placement.md) |
+| §4c | [Content Filename Conventions](#4c-content-filename-conventions-tc-new-01-enforced-2026-04-25) | → [docs/reference/governance-gates.md](docs/reference/governance-gates.md) |
 | §5 | [Evidence Requirements](#5-evidence-requirements-non-negotiable) | Non-negotiable grounding |
 | §6 | [Skill Chains by Task](#6-skill-chains-by-task) | → [docs/workflows/skill-chains.md](docs/workflows/skill-chains.md) |
 | §6a | [Skill-First Mandate](#6a-skill-first-execution-mandate) | → [docs/governance/dar-table.md](docs/governance/dar-table.md) |
@@ -31,10 +31,10 @@
 | §9a | [Evaluator Change Checklist](#9a-evaluator-change-checklist) | → [docs/workflows/evaluator-changes.md](docs/workflows/evaluator-changes.md) |
 | §9b | [Regeneration Triggers](#9b-regeneration-after-extraction-script-changes) | → [docs/workflows/change-trigger-matrix.md](docs/workflows/change-trigger-matrix.md) |
 | §9c | [Change-Trigger Matrix](#9c-change-trigger-matrix) | → [docs/workflows/change-trigger-matrix.md](docs/workflows/change-trigger-matrix.md) |
-| §10 | [Evidence Proof in Commits](#10-evidence-proof-in-commits) | → [docs/governance/evidence-and-provenance.md](docs/governance/evidence-and-provenance.md) |
-| §10a | [Verification Standards](#10a-verification-standards-for-fixes) | → [docs/governance/evidence-and-provenance.md](docs/governance/evidence-and-provenance.md) |
-| §10b | [Content Provenance Rules](#10b-content-provenance-rules) | → [docs/governance/provenance-rules.md](docs/governance/provenance-rules.md) |
-| §10c | [Output-Location Discipline](#10c-output-location-discipline) | → [docs/governance/evidence-and-provenance.md](docs/governance/evidence-and-provenance.md) |
+| §10 | [Evidence Proof in Commits](#10-evidence-proof-in-commits) | → [docs/_archive/pre-refactor/governance/evidence-and-provenance.md](docs/_archive/pre-refactor/governance/evidence-and-provenance.md) |
+| §10a | [Verification Standards](#10a-verification-standards-for-fixes) | → [docs/_archive/pre-refactor/governance/evidence-and-provenance.md](docs/_archive/pre-refactor/governance/evidence-and-provenance.md) |
+| §10b | [Content Provenance Rules](#10b-content-provenance-rules) | → [docs/_archive/pre-refactor/governance/provenance-rules.md](docs/_archive/pre-refactor/governance/provenance-rules.md) |
+| §10c | [Output-Location Discipline](#10c-output-location-discipline) | → [docs/_archive/pre-refactor/governance/evidence-and-provenance.md](docs/_archive/pre-refactor/governance/evidence-and-provenance.md) |
 | §11 | [Prohibited Actions](#11-prohibited-actions) | Hard prohibitions |
 | §12 | [File Map](#12-file-map) | All scripts, skills, paths |
 | §13 | [Internal Metadata Policy](#13-internal-metadata-rendering-policy) | Evidence panel hiding |
@@ -108,23 +108,23 @@ Applies to:
 
 ## 3a. Platform Folder Naming
 
-> Full detail: [docs/governance/naming-conventions.md](docs/governance/naming-conventions.md)
+> Full detail: [docs/_archive/pre-refactor/governance/naming-conventions.md](docs/_archive/pre-refactor/governance/naming-conventions.md) *(archived)*
 
 ## 3b. `plugin_platform` Display Name (products.aspose.org)
 
-> Full detail: [docs/governance/naming-conventions.md](docs/governance/naming-conventions.md)
+> Full detail: [docs/_archive/pre-refactor/governance/naming-conventions.md](docs/_archive/pre-refactor/governance/naming-conventions.md) *(archived)*
 
 ## 4. Allowed Write Paths (enforced by S-01 path-guard)
 
-> Full detail: [docs/governance/write-boundaries.md](docs/governance/write-boundaries.md)
+> Full detail: [docs/reference/governance-gates.md](docs/reference/governance-gates.md)
 
 ## 4b. Python File Placement Rules
 
-> Full detail: [docs/governance/python-placement.md](docs/governance/python-placement.md)
+> Full detail: [docs/development/python-placement.md](docs/development/python-placement.md)
 
 ## 4c. Content Filename Conventions (TC-NEW-01, enforced 2026-04-25)
 
-> Full detail: [docs/governance/write-boundaries.md](docs/governance/write-boundaries.md)
+> Full detail: [docs/reference/governance-gates.md](docs/reference/governance-gates.md)
 
 ## 5. Evidence Requirements (non-negotiable)
 
@@ -280,7 +280,7 @@ The following always cause immediate halt (no agent override):
 
 ## 7a. Launch-Readiness Gates
 
-> Full detail: [docs/governance/launch-gates.md](docs/governance/launch-gates.md)
+> Full detail: [docs/_archive/pre-refactor/governance/launch-gates.md](docs/_archive/pre-refactor/governance/launch-gates.md) *(archived)*
 
 ## 7b. Human-Review Risk Tiers
 
@@ -369,19 +369,19 @@ escalation item where S-90 can perform the inspection. The distinction between "
 
 ## 10. Evidence Proof in Commits
 
-> Full detail: [docs/governance/evidence-and-provenance.md](docs/governance/evidence-and-provenance.md)
+> Full detail: [docs/_archive/pre-refactor/governance/evidence-and-provenance.md](docs/_archive/pre-refactor/governance/evidence-and-provenance.md) *(archived)*
 
 ## 10a. Verification Standards for Fixes
 
-> Full detail: [docs/governance/evidence-and-provenance.md](docs/governance/evidence-and-provenance.md)
+> Full detail: [docs/_archive/pre-refactor/governance/evidence-and-provenance.md](docs/_archive/pre-refactor/governance/evidence-and-provenance.md) *(archived)*
 
 ## 10b. Content Provenance Rules
 
-> Full detail: [docs/governance/provenance-rules.md](docs/governance/provenance-rules.md)
+> Full detail: [docs/_archive/pre-refactor/governance/provenance-rules.md](docs/_archive/pre-refactor/governance/provenance-rules.md) *(archived)*
 
 ## 10c. Output-Location Discipline
 
-> Full detail: [docs/governance/evidence-and-provenance.md](docs/governance/evidence-and-provenance.md)
+> Full detail: [docs/_archive/pre-refactor/governance/evidence-and-provenance.md](docs/_archive/pre-refactor/governance/evidence-and-provenance.md) *(archived)*
 
 ## 11. Prohibited Actions
 
@@ -425,7 +425,7 @@ escalation item where S-90 can perform the inspection. The distinction between "
   - Any plan, prompt, memory entry, or documentation that presents `foss-launcher` as the current
     clone-cache location is invalid and must be corrected before use.
 - Commit a `.md` file whose sole staged diff from HEAD is a changed `graded_at:` timestamp. The pre-commit hook Step 10 auto-reverts such files; using `--no-verify` to bypass this gate is prohibited.
-- **No `hugo -d <relative-path>` from the Bash tool.** All agent Hugo builds must write to a system temp dir (`$(mktemp -d)` in bash, `tempfile.mkdtemp()` in Python subprocesses). Any relative destination (including patterns like `public-as-*`, `public-iv-*`, `public-sq-*`, or any other `public-<suffix>` name) writes full-site HTML artifacts into the repo root, bloating git status and risking accidental commits. **Using `SKIP_DESTRUCTIVE_BASH_CHECK=1` to bypass this block is prohibited for agent sessions.** Use `tmpdir=$(mktemp -d)` in Bash or `tempfile.mkdtemp()` in Python instead. Enforcement: PreToolUse Bash hook (`scripts/ci/hooks/check_destructive_bash_hook.sh`). Reference implementation: `scripts/ci/hooks/check_hugo_build.sh`. Rule documentation: `docs/governance/write-boundaries.md §Hugo Output Discipline`.
+- **No `hugo -d <relative-path>` from the Bash tool.** All agent Hugo builds must write to a system temp dir (`$(mktemp -d)` in bash, `tempfile.mkdtemp()` in Python subprocesses). Any relative destination (including patterns like `public-as-*`, `public-iv-*`, `public-sq-*`, or any other `public-<suffix>` name) writes full-site HTML artifacts into the repo root, bloating git status and risking accidental commits. **Using `SKIP_DESTRUCTIVE_BASH_CHECK=1` to bypass this block is prohibited for agent sessions.** Use `tmpdir=$(mktemp -d)` in Bash or `tempfile.mkdtemp()` in Python instead. Enforcement: PreToolUse Bash hook (`scripts/ci/hooks/check_destructive_bash_hook.sh`). Reference implementation: `scripts/ci/hooks/check_hugo_build.sh`. Rule documentation: `docs/_archive/pre-refactor/governance/write-boundaries.md §Hugo Output Discipline`.
 
 ## 12. File Map
 
