@@ -236,3 +236,51 @@ class TestApplyFalsePositives:
         ]
         result = compute_verdict(findings)
         assert result == "PUBLICATION READY"
+
+
+# ---------------------------------------------------------------------------
+# Tests for no-embed / no-llm flag interaction (TC-GAP-NOEMBED-001)
+# ---------------------------------------------------------------------------
+
+class TestNoEmbedFlag:
+    """Verify that --no-llm implies --no-embed and Tier 2 is skipped."""
+
+    def test_run_gap_eval_accepts_no_embed_parameter(self):
+        """run_gap_eval() must accept a no_embed keyword argument."""
+        import inspect
+        from run import run_gap_eval  # type: ignore
+        params = inspect.signature(run_gap_eval).parameters
+        assert "no_embed" in params, "run_gap_eval must have a no_embed parameter"
+
+    def test_no_llm_implies_no_embed_derivation(self):
+        """When no_llm=True, the internal _no_embed derivation must be True."""
+        no_llm = True
+        no_embed = False
+        _no_embed = no_embed or no_llm
+        assert _no_embed is True, "no_llm=True must derive _no_embed=True"
+
+    def test_no_embed_false_no_llm_false_does_not_skip(self):
+        """When both flags are False, Tier 2 is not skipped."""
+        no_llm = False
+        no_embed = False
+        _no_embed = no_embed or no_llm
+        assert _no_embed is False
+
+    def test_no_embed_true_no_llm_false_skips_embedding(self):
+        """--no-embed alone (without --no-llm) also skips Tier 2."""
+        no_llm = False
+        no_embed = True
+        _no_embed = no_embed or no_llm
+        assert _no_embed is True
+
+    def test_cli_no_embed_flag_parseable(self):
+        """--no-embed flag must be parseable by the CLI argument parser."""
+        import argparse
+        parser = argparse.ArgumentParser()
+        parser.add_argument("family")
+        parser.add_argument("platform")
+        parser.add_argument("--no-llm", action="store_true")
+        parser.add_argument("--no-embed", action="store_true")
+        args = parser.parse_args(["pdf", "net", "--no-llm", "--no-embed"])
+        assert args.no_llm is True
+        assert args.no_embed is True

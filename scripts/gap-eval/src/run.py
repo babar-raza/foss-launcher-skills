@@ -1360,6 +1360,7 @@ def run_gap_eval(
     out_override: str | None = None,
     state_dir: Path | None = None,
     no_llm: bool = False,
+    no_embed: bool = False,
     dry_run: bool = False,
     seed: int = 42,
     max_stage2_entries: int = 0,
@@ -1404,6 +1405,9 @@ def run_gap_eval(
             f"Re-run /knowledge-bootstrap {family} {platform}."
         )
     clone_sha = get_clone_sha(clone_path)
+
+    # --no-llm implies --no-embed: both Tier 3 (LLM) and Tier 2 (embeddings) require network.
+    _no_embed = no_embed or no_llm
 
     llm_tier = "none"
     if not no_llm:
@@ -1481,8 +1485,8 @@ def run_gap_eval(
                     raw_findings.append(finding)
                     continue
 
-                # Tier 2
-                if api_names:
+                # Tier 2 (skipped when --no-embed or --no-llm: embedding endpoint required)
+                if api_names and not _no_embed:
                     t2 = tier2_verify(claim, family, platform)
                     if t2:
                         verdict_t2, conf_t2 = t2
@@ -1706,7 +1710,12 @@ def main() -> None:
                         choices=["all", "products", "docs", "blog", "kb", "reference"])
     parser.add_argument("--out", default=None, help="Override output path stem (no extension)")
     parser.add_argument("--state-dir", type=Path, default=None)
-    parser.add_argument("--no-llm", action="store_true", help="Skip Tier 3 LLM verification")
+    parser.add_argument("--no-llm", action="store_true",
+                        help="Skip Tier 3 LLM verification and Tier 2 embeddings (implies --no-embed). "
+                             "Safe for offline/disconnected operation.")
+    parser.add_argument("--no-embed", action="store_true",
+                        help="Skip Tier 2 embedding-based vector search. "
+                             "Use when embedding endpoints are unavailable. Implied by --no-llm.")
     parser.add_argument("--dry-run", action="store_true", help="Run without writing output files")
     parser.add_argument("--seed", type=int, default=42,
                         help="Random seed for deterministic Stage 2 sampling (default: 42)")
@@ -1726,9 +1735,11 @@ def main() -> None:
     args = parser.parse_args()
 
     no_llm = args.no_llm
+    no_embed = args.no_embed or no_llm  # --no-llm implies --no-embed
     max_stage2 = args.max_stage2_entries
     if args.deterministic:
         no_llm = True
+        no_embed = True
         max_stage2 = 0
 
     if args.reset_state_dry_run:
@@ -1768,6 +1779,7 @@ def main() -> None:
             out_override=args.out,
             state_dir=args.state_dir,
             no_llm=no_llm,
+            no_embed=no_embed,
             dry_run=args.dry_run,
             seed=args.seed,
             max_stage2_entries=max_stage2,
