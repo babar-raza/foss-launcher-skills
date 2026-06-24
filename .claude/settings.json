@@ -40,7 +40,22 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://llm.professionalize.com/v1/models\" -H \"Authorization: Bearer $GPT_OSS_API_KEY\")",
       "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/ci/checks/check_reference_index_structure.py)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" -X POST https://llm.professionalize.com/v1/chat/completions -H \"Authorization: Bearer $PROFESSIONALIZE_API_KEY\" -H \"Content-Type: application/json\" -d '{\"\"model\"\":\"\"gpt-oss\"\",\"\"messages\"\":[{\"\"role\"\":\"\"user\"\",\"\"content\"\":\"\"ping\"\"}],\"\"max_tokens\"\":5}')",
-      "Bash(grep -l \"ACT-AGENT-DECISION-BOARD\\\\|agent.decision.board\\\\|controlled.draft.write\\\\|CONTROLLED-DRAFT-WRITE\" \"C:\\\\Users\\\\prora\\\\.claude\\\\plans\"/*.md)"
+      "Bash(grep -l \"ACT-AGENT-DECISION-BOARD\\\\|agent.decision.board\\\\|controlled.draft.write\\\\|CONTROLLED-DRAFT-WRITE\" \"C:\\\\Users\\\\prora\\\\.claude\\\\plans\"/*.md)",
+      "Bash(ls scripts/pipeline/tests/test_*.py)",
+      "Bash(.venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-73 --scope \"scripts/pipeline/content_eval/evaluators/namespace_correctness.py\")",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python -c \"from commands.ops.skill_context import SkillContext; sc = SkillContext\\(\\); sc.begin\\(''S-73'', ''scripts/pipeline/tests/test_backlink_adjudicate_review.py''\\)\")",
+      "Bash(.venv/Scripts/python -c \"import scripts.maintenance.supervisor.loop_controller as lc; print\\(''LoopClassification members:'', [e.value for e in lc.LoopClassification]\\); print\\(''Functions:'', [f for f in dir\\(lc\\) if not f.startswith\\(''_''\\)]\\)\")",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/override_manager.py create --path \".claude/commands/heal-batch.md\" --reason \"TC-34: correct false claim about no-downgrade-guard enforcement in heal-batch.md line 104\")",
+      "Bash(.venv/Scripts/python --version)",
+      "Bash(.venv/Scripts/python -c \"import yaml; d=yaml.safe_load\\(open\\(''knowledge/pdf/net/merged/model.yaml''\\)\\); print\\(''repo_sha:'', d.get\\(''repo_sha'',''?''\\)\\); print\\(''stale_since:'', d.get\\(''stale_since'',''?''\\)\\); print\\(''enrichment_status:'', d.get\\(''enrichment_status'',''?''\\)\\)\")",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py pdf net --force --subdomain reference.aspose.org)",
+      "Bash(.venv/Scripts/python scripts/pipeline/commands/governance/path_guard.py content/products.aspose.org/en/tex/python/_index.md)",
+      "Bash(.venv/Scripts/python scripts/pipeline/commands/knowledge/enrich.py slides net)",
+      "Bash(gh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Java/actions/runners --jq '.runners[] | {name,status,labels: [.labels[].name]}')",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/override_manager.py list-pending)",
+      "Read(//c/Users/prora/AppData/Local/Temp/claude/d--onedrive-Documents-GitHub-aspose-org/tasks/**)",
+      "Bash(ls /c/Users/prora/AppData/Local/Temp/claude/d--onedrive-Documents-GitHub-aspose-org/tasks/byeyiul49*)",
+      "Read(//c/Users/prora/AppData/Local/Temp/claude/**)"
     ],
     "additionalDirectories": [
       "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing",
