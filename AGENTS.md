@@ -529,7 +529,7 @@ through `LLMRouter` — carry a mandatory metrics obligation.
 
 ## 16. Testing Seam Contract — Tiered Monkeypatch Policy
 
-> Full detail: [docs/governance/testing-seam-contract.md](docs/governance/testing-seam-contract.md)
+> Full detail: [docs/development/testing-seams.md](docs/development/testing-seams.md) *(moved)*
 
 ## Operating Standard
 
