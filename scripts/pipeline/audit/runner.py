@@ -225,6 +225,7 @@ def main():
     args = [a for a in args if not a.startswith("--")]
 
     products_summary = None  # populated in "all" batch mode only; used for quality trend
+    files_scanned = 0  # tracks actual number of files examined (not findings count)
 
     if files_from_mode:
         # Read file paths from a text file (one path per line); handles large file lists
@@ -238,16 +239,19 @@ def main():
         findings = audit_files(file_list, check_evidence=check_evidence,
                                check_snippets=check_snippets)
         products_checked = ["(file mode)"]
+        files_scanned = len(file_list)
     elif files_mode:
         findings = audit_files(args, check_evidence=check_evidence,
                                check_snippets=check_snippets)
         products_checked = ["(file mode)"]
+        files_scanned = len(args)
     elif len(args) >= 2:
         family, platform = args[0], args[1]
         _log(f"Auditing {family}/{platform}...")
         findings = audit_product(family, platform, check_evidence=check_evidence,
                                  check_snippets=check_snippets)
         products_checked = [f"{family}/{platform}"]
+        files_scanned = len(set(str(f.filepath) for f in findings))
     elif len(args) == 1 and args[0] == "all":
         products = discover_products()
         _log(f"Auditing {len(products)} products...")
@@ -260,6 +264,7 @@ def main():
                                              check_snippets=check_snippets)
             findings.extend(product_findings)
             products_checked.append(f"{family}/{platform}")
+            files_scanned += len(set(str(f.filepath) for f in product_findings))
             # Collect per-product warn breakdown for trend tracking
             warn_by_type: dict[str, int] = {}
             for f in product_findings:
@@ -282,7 +287,7 @@ def main():
         sys.exit(1)
 
     if json_mode:
-        print(report_json(findings, products_checked))
+        print(report_json(findings, products_checked, files_scanned=files_scanned))
     else:
         report = report_text(findings, products_checked)
         print()

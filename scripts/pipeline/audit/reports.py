@@ -104,14 +104,15 @@ def report_text(all_findings, products_checked) -> str:
     return "\n".join(lines)
 
 
-def report_json(all_findings, products_checked) -> str:
+def report_json(all_findings, products_checked, files_scanned: int = 0) -> str:
     """Generate machine-readable JSON report."""
     return json.dumps({
         "date": datetime.now(timezone.utc).isoformat(),
         "products_checked": products_checked,
         "total_fails": sum(1 for f in all_findings if f.level == "FAIL"),
         "total_warns": sum(1 for f in all_findings if f.level == "WARN"),
-        "total_checked": len(all_findings),
+        "total_checked": files_scanned,
+        "total_findings": len(all_findings),
         "findings": [
             {
                 "level": f.level,
