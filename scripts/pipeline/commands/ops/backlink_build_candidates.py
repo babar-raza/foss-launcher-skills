@@ -95,7 +95,8 @@ def scan_source_page(md_path: Path) -> Optional[dict]:
 
     title = fm.get("title") or md_path.stem
     # Derive family/platform from path segments
-    # Expected: content/{subdomain}/en/{family}/{platform}/...
+    # Primary: content/{subdomain}/en/{family}/{platform}/... (docs, kb, reference)
+    # Fallback: content/{subdomain}/{family}/{platform}/... (blog — filename-based locale, no /en/)
     parts = md_path.parts
     # Find 'en' segment
     try:
@@ -103,8 +104,14 @@ def scan_source_page(md_path: Path) -> Optional[dict]:
         family = parts[en_idx + 1] if en_idx + 1 < len(parts) else None
         platform_raw = parts[en_idx + 2] if en_idx + 2 < len(parts) else None
     except StopIteration:
-        family = None
-        platform_raw = None
+        # No /en/ directory — use subdomain segment as anchor (blog.aspose.org pattern)
+        try:
+            sub_idx = next(i for i, p in enumerate(parts) if p.endswith(".aspose.org"))
+            family = parts[sub_idx + 1] if sub_idx + 1 < len(parts) else None
+            platform_raw = parts[sub_idx + 2] if sub_idx + 2 < len(parts) else None
+        except StopIteration:
+            family = None
+            platform_raw = None
 
     if not family:
         return None
@@ -463,7 +470,11 @@ def main() -> None:
 
     # Scan source pages
     subdomain = args.subdomain or f"reference.aspose.org"
-    content_dir = REPO_ROOT / "content" / subdomain / "en" / args.family
+    # Auto-detect /en/ vs no /en/ directory (blog.aspose.org uses filename-based
+    # localization with no /en/ dir; docs/kb/reference use /en/ directory structure)
+    _en_path = REPO_ROOT / "content" / subdomain / "en" / args.family
+    _no_en_path = REPO_ROOT / "content" / subdomain / args.family
+    content_dir = _en_path if _en_path.exists() else _no_en_path
     if args.platform:
         content_dir = content_dir / args.platform
 
@@ -474,6 +485,10 @@ def main() -> None:
     print(f"Scanning source pages under {content_dir} ...")
     source_pages = []
     for md_file in content_dir.rglob("*.md"):
+        # Skip locale variants (e.g. index.ar.md has stem "index.ar" containing a dot)
+        # Only English source files (index.md, _index.md) should be scanned
+        if "." in md_file.stem:
+            continue
         page = scan_source_page(md_file)
         if page:
             source_pages.append(page)
