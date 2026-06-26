@@ -136,12 +136,13 @@
 | ID | Title | Deferred | Reason | Review Date |
 |----|-------|----------|--------|-------------|
 | CSSP-LOCALE-NORM-001 | CLOSED 2026-05-29 — registered as S-101 (normalize-code-blocks); 54 unit tests added; registry.yaml test_exempt_reason cleared; lifecycle: active; re-invocable skill for future locale translation runs | 2026-05-17 | Registered as S-101; test file: test_normalize_code_block_blanks.py | 2027-05-29 |
-| BL-AUTHORITY-REBUILD-001 | BLOCKED: build_candidates.py hardcodes /en/ path (content/{subdomain}/en/{family}) which does not match blog.aspose.org structure (no /en/ segment). Script cannot discover blog source pages. V2/V7/V20 validators all PASS with current 1488 records. Fix requires extending build_candidates.py to handle non-en path structures. | 2026-06-25 | L2-002; structural code gap in build_candidates.py; validators passing; low urgency | 2026-09-25 |
+| BL-AUTHORITY-NONBLOG-001 | See Recently Completed — DONE 2026-06-26 via backlink_merge_candidate_graphs.py (TC-POST-005) | — | — | — |
 
 ## Recently Completed
 
 | ID | Title | Completed | Evidence |
 |----|-------|-----------|----------|
+| BL-AUTHORITY-NONBLOG-001 | Non-blog authority records rebuilt via backlink_merge_candidate_graphs.py (TC-POST-005). 2548 records restored (2705 baseline ±10%); V2/V7/V20 validators PASS. build_candidates.py blog /en/ fix also committed (TC-POST-002 Phase A, 12 tests). | 2026-06-26 | commit 7c936f05a4 (merge script + 14 tests); commit a3d191bc47 (build_candidates 3-part fix); 2548 records; V2 PASS V7 PASS V20 PASS |
 | BL-LOCALE-HEAL-001 | 323 locale blog files healed — replaced products.aspose.com bullets with blog.aspose.com Enterprise Blog links across 10 families. 36 remaining files have products links only as inline body text (correct, not backlinks). GATE-L02/L03 PASS: 0 bullet-form products links in any locale file. | 2026-06-26 | commit 47f732b00d; skill run 20260626-101455-s75; grep count=0 bullet violations |
 | BL-VALIDATE-FM-DRAFT-001 | validate_frontmatter.py _check_blog_evidence() draft exemption added. draft: true posts skip evidence completeness checks (consistent with runner.py L176). 3 new tests added: draft+empty-claims passes, draft+no-evidence passes, non-draft+empty-claims still fails (regression guard). | 2026-06-26 | commit fe1bf9fee3; 32 tests pass (was 29) |
 | BL-EVIDENCE-RUNNER-CLAIMS-001 | runner.py SHA-match skip now guards on claims is not None. claims=None (YAML null, never attached) triggers re-attachment without --force. claims=[] (valid empty, no API calls) still skips. 3 new tests added; existing idempotency test preserved. | 2026-06-26 | commit fe1bf9fee3; 13 attach_evidence tests pass (was 10) |
