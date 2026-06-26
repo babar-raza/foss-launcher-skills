@@ -495,6 +495,8 @@ def _match_existing_to_cluster(
         # SQ-10: concat-form synonyms for pages generated before CamelCase splitting was fixed
         "javascript-extensions": ["javascriptextensions"],
         "logical-structure": ["logicalstructure"],
+        # font family root cluster renamed from core-management → font-management
+        "font-management": ["core", "font", "core-management"],
     }
 
     synonyms = _CLUSTER_SYNONYMS.get(cluster_slug, [])
@@ -692,6 +694,7 @@ def _subpkg_to_label(subpkg: str, family: str) -> str:
             "slides": "presentation-management",
             "cells": "spreadsheet-management",
             "email": "email-processing",
+            "font": "font-management",
             "note": "document-management",
             "pdf": "document-management",
         }
