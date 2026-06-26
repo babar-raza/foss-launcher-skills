@@ -322,6 +322,26 @@ evidence:
 Body text.
 """
 
+_BLOG_DRAFT_TRUE_EMPTY_CLAIMS = """\
+---
+title: Draft Blog Post
+draft: true
+evidence:
+  model_sha: abc123
+  claims: []
+  apis: []
+---
+Body text.
+"""
+
+_BLOG_DRAFT_TRUE_NO_EVIDENCE = """\
+---
+title: Draft Blog Post
+draft: true
+---
+Body text.
+"""
+
 _BLOG_MANUAL_REMEDIATION = """\
 ---
 title: Test Blog Post
@@ -453,6 +473,46 @@ class TestBlogEvidence:
             ]
             assert claims_api_errs == [], (
                 f"manual-remediation should bypass claims/apis check, got: {claims_api_errs}"
+            )
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def test_draft_true_with_empty_claims_passes(self):
+        """draft: true blog posts must pass P-03 even with empty claims/apis (BL-VALIDATE-FM-DRAFT-001).
+
+        evidence/runner.py cannot attach evidence to draft posts (skips at ~L176),
+        so requiring populated evidence on draft posts creates an impossible state.
+        """
+        tmpdir, p = _blog_file(_BLOG_DRAFT_TRUE_EMPTY_CLAIMS)
+        try:
+            errors = check_file(p)
+            blog_errs = [e for e in errors if e.check == "blog_evidence"]
+            assert blog_errs == [], (
+                f"draft: true post should pass P-03 evidence checks, got: {blog_errs}"
+            )
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def test_draft_true_without_evidence_block_passes(self):
+        """draft: true blog posts with no evidence block must also pass P-03."""
+        tmpdir, p = _blog_file(_BLOG_DRAFT_TRUE_NO_EVIDENCE)
+        try:
+            errors = check_file(p)
+            blog_errs = [e for e in errors if e.check == "blog_evidence"]
+            assert blog_errs == [], (
+                f"draft: true post with no evidence block should pass P-03, got: {blog_errs}"
+            )
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def test_draft_false_with_empty_claims_still_fails(self):
+        """draft: false posts with empty claims must still fail P-03 (regression guard)."""
+        tmpdir, p = _blog_file(_BLOG_EMPTY_CLAIMS)
+        try:
+            errors = check_file(p)
+            checks = [e.check for e in errors]
+            assert "blog_evidence" in checks, (
+                "draft: false post with empty claims must still fail P-03"
             )
         finally:
             shutil.rmtree(tmpdir)

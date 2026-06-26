@@ -203,6 +203,74 @@ class TestAttachFilesUnit:
         assert text.startswith("---")
         assert "evidence:" in text
 
+    def test_null_claims_same_sha_triggers_reattach(self, tmp_path):
+        """Page with current model_sha but null claims (YAML null) must be re-attached.
+
+        Root cause BL-EVIDENCE-RUNNER-CLAIMS-001: SHA-match skip fired even when claims
+        was None (YAML null), meaning evidence block was manually set or partially written.
+        Fix: only skip when claims is not None. claims=[] (empty list) is still a valid
+        complete state for pages with no API claims.
+        """
+        # Write a page that already has evidence with correct SHA but claims: null (YAML)
+        f = tmp_path / "page_null_claims.md"
+        f.write_text(
+            "---\ntitle: Null Claims Page\n"
+            "evidence:\n"
+            "  model_sha: sha-null-test\n"
+            "  model_version: 1.0.0\n"
+            "  claims:\n"       # YAML null — becomes Python None
+            "  apis:\n"
+            "---\n\n# Content\n",
+            encoding="utf-8",
+        )
+        fk = _FakeKnowledge(repo_sha="sha-null-test")
+
+        counts = self._run_attach_files(f, fk)
+
+        assert counts.get("UPDATED") == 1, (
+            f"Page with claims=null + matching SHA must be UPDATED (not SKIP): {counts}"
+        )
+
+    def test_empty_list_claims_same_sha_skips(self, tmp_path):
+        """Page with current model_sha and claims=[] must still SKIP.
+
+        claims=[] is a valid complete state for pages with no API calls.
+        Only claims=None (YAML null, never attached) triggers re-attachment.
+        """
+        f = tmp_path / "page_empty_claims.md"
+        f.write_text(
+            "---\ntitle: Empty Claims Page\n"
+            "evidence:\n"
+            "  model_sha: sha-empty-list\n"
+            "  model_version: 1.0.0\n"
+            "  claims: []\n"    # explicit empty list — valid complete state
+            "  apis: []\n"
+            "---\n\n# Content\n",
+            encoding="utf-8",
+        )
+        fk = _FakeKnowledge(repo_sha="sha-empty-list")
+
+        counts = self._run_attach_files(f, fk)
+
+        assert counts.get("SKIP (current)") == 1, (
+            f"Page with claims=[] + matching SHA must SKIP (current): {counts}"
+        )
+
+    def test_populated_claims_same_sha_still_skips(self, tmp_path):
+        """Regression guard: page with current SHA and non-empty claims must still SKIP."""
+        # First call writes the evidence block with populated claims
+        f = _make_content_file(tmp_path / "page_populated.md")
+        fk = _FakeKnowledge(repo_sha="sha-stable")
+
+        counts_first = self._run_attach_files(f, fk)
+        assert counts_first.get("UPDATED") == 1, f"First call must be UPDATED: {counts_first}"
+
+        # Second call: same SHA, claims now non-null ([] from mock) → must SKIP
+        counts_second = self._run_attach_files(f, fk)
+        assert counts_second.get("SKIP (current)") == 1, (
+            f"Non-null claims + same SHA must SKIP (current): {counts_second}"
+        )
+
 
 # ---------------------------------------------------------------------------
 # Section 3 — Audit FAIL gate

@@ -182,8 +182,15 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
 
     # Already up to date — idempotent skip (bypass with --force)
     # Also surface WOULD_UPDATE_METADATA when claims_hash differs (GAP-14 Phase 1).
+    # Guard: only skip when claims is not None. claims=None means evidence was never
+    # fully attached (e.g. manual `claims: null` in YAML after partial run); re-attach.
+    # claims=[] is a valid complete state for pages with no API claims; still skip.
+    _existing_claims_not_null = (
+        isinstance(existing, dict) and existing.get("claims") is not None
+    )
     if not force and isinstance(existing, dict) and \
-            existing.get("model_sha") == knowledge.repo_sha:
+            existing.get("model_sha") == knowledge.repo_sha and \
+            _existing_claims_not_null:
         page_claims_hash = existing.get("claims_hash", "")
         if dry_run_records is not None:
             knowledge_claims_hash = getattr(knowledge, "claims_hash", "")

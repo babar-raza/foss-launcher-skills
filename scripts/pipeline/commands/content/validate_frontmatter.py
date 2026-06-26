@@ -231,6 +231,12 @@ def _check_blog_evidence(
             detail="blog post missing `draft` field — add `draft: false`",
         ))
 
+    # Skip evidence completeness checks for draft posts — evidence/runner.py cannot
+    # attach evidence to draft posts (runner skips when draft: true, runner.py ~L176),
+    # so requiring populated evidence on draft posts creates an impossible state.
+    if fm.get("draft") is True:
+        return
+
     # Skip evidence completeness check for remediation-state files
     provenance = fm.get("provenance") or {}
     if isinstance(provenance, dict):
