@@ -3747,6 +3747,144 @@ scripts:
     change_impact: "LLM enrichment for shadow candidates below quality gates; bounded by fact graph, never invents facts"
     notes: "Calls llm.professionalize.com (gpt-oss); enriches stubs failing min_word_count or needing fact_ref injection; fact-graph-bounded"
 
+  # ── Body Refresh Pipeline (S-104 through S-108) ────────────────────────────
+
+  - path: scripts/pipeline/commands/knowledge/semantic_diff.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge
+    backing:
+      kind: skill
+      ref: S-104
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/knowledge/test_semantic_diff.py
+    deprecated_since: null
+    change_impact: "Converts knowledge_delta.json string arrays into typed semantic change objects; drives body_impact.py and body_refresh.py"
+    notes: "S-104 semantic-diff; output: reports/refresh_review/{family}/{platform}/semantic_changes.json"
+
+  - path: scripts/pipeline/commands/content/claim_parser.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/content/test_claim_parser.py
+    deprecated_since: null
+    change_impact: "Parses docs/KB/blog page bodies into atomic claims; feeds body_impact.py section matching"
+    notes: "Wave 2; output: reports/refresh_review/{family}/{platform}/claim_maps/*.claim_map.json"
+
+  - path: scripts/pipeline/commands/content/body_impact.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/content/test_body_impact.py
+    deprecated_since: null
+    change_impact: "Maps semantic changes to specific body sections; feeds body_refresh.py for surgical updates"
+    notes: "Wave 3; extends semantic_body_update_planner.py (C-010); output: body_impact.json"
+
+  - path: scripts/pipeline/commands/content/body_refresh.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content
+    backing:
+      kind: skill
+      ref: S-105
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/content/test_body_refresh.py
+    deprecated_since: null
+    change_impact: "CORE FIX: executes body prose updates for docs/KB/blog; closes first failing boundary (knowledge_delta to body prose); uses safe_content_write + S-73 context"
+    notes: "S-105 body-refresh; LLM callsite: body_refresh_paragraph_rewrite (CS-015); supports --dry-run and --execute modes"
+
+  - path: scripts/pipeline/commands/content/refresh_oracle.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content
+    backing:
+      kind: skill
+      ref: S-106
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/content/test_refresh_oracle.py
+    deprecated_since: null
+    change_impact: "Validates refreshed content against source truth; composes prose_stale_scan.py (C-005); queues missed cross-page propagation"
+    notes: "S-106 refresh-oracle; output: oracle_verdicts/*.yaml"
+
+  - path: scripts/pipeline/commands/content/frontmatter_body_consistency.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content
+    backing:
+      kind: skill
+      ref: S-108
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/content/test_frontmatter_body_consistency.py
+    deprecated_since: null
+    change_impact: "Checks paired-claim consistency between frontmatter evidence and body prose; detects contradictions"
+    notes: "S-108 frontmatter-body-consistency; non-critical path; findings: FINDING_FORMAT_CONTRADICTION, FINDING_PACKAGE_MISMATCH, FINDING_REMOVED_API_IN_BODY"
+
+  - path: scripts/pipeline/commands/content/locale_refresh_handoff.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content
+    backing:
+      kind: skill
+      ref: S-107
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/content/test_locale_refresh_handoff.py
+    deprecated_since: null
+    change_impact: "Queues locale equivalents for re-translation after body updates; routes to S-75 (small) or S-56 (large)"
+    notes: "S-107 locale-refresh-handoff; threshold: 3 sentences; output: locale_handoff.yaml"
+
+  - path: scripts/pipeline/commands/knowledge/scan_stale.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/knowledge/test_scan_stale.py
+    deprecated_since: null
+    change_impact: "Enumerates all products with stale_since set; authoritative input for backfill protocol"
+    notes: "Wave 10; exit 0=no stale, 1=stale found; stale_since only set by S-12 (stale_detect)"
+
   # ── Supervisor — Post-Sprint Autonomy Loop ─────────────────────────────────
 
   - path: scripts/maintenance/supervisor/loop_controller.py

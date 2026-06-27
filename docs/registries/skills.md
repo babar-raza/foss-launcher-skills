@@ -74,6 +74,11 @@
 | pipeline-harden | S-99 | Parameterized pipeline hardening sprint |
 | plan-normalize | S-91 | Execution-safe plan quality gate |
 | post-sprint-loop | S-103 | Post-sprint autonomy loop: P1 audit → P2 plan-harden → P3 execute with auto-classify and retry |
+| semantic-diff | S-104 | Converts knowledge_delta.json string arrays into typed semantic change objects; outputs semantic_changes.json |
+| body-refresh | S-105 | Body prose refresh executor (CORE FIX); closes first failing boundary knowledge_delta.json → docs/KB/blog body prose; supports --dry-run and --execute; LLM callsite CS-015 |
+| refresh-oracle | S-106 | Validates refreshed content against source truth; composes prose_stale_scan.py; queues missed cross-page propagation |
+| locale-refresh-handoff | S-107 | Queues locale equivalents for re-translation; routes <3 sentences to S-75, >=3 to S-56 |
+| frontmatter-body-consistency | S-108 | Checks paired-claim consistency between frontmatter evidence and body prose |
 | project-phase-store | S-10 | Track generation phase state |
 | publish-readiness-review | S-90 | Agent-executed governed inspection |
 | refresh-product | S-84 | Full post-launch product refresh orchestration |

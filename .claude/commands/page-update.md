@@ -50,6 +50,51 @@ After a knowledge refresh (S-14), identify which content pages reference changed
    fall back to stale_detect scan — scan all pages for evidence.model_sha mismatch to find affected pages.
    Log: `WARN: knowledge_delta.json not found; falling back to stale_detect scan for affected pages.`
 
+3a. **Semantic diff** — convert knowledge_delta.json into typed semantic change objects:
+    ```bash
+    PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.knowledge.semantic_diff {family} {platform}
+    ```
+    Output: `reports/refresh_review/{family}/{platform}/semantic_changes.json`
+    Skip if `knowledge_delta.json` is absent (falls through to Step 4 citation-match path).
+
+3b. **Claim inventory** — parse all docs/KB/blog page bodies into atomic claims:
+    ```bash
+    PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.content.claim_parser \
+        {family} {platform} --all-pages \
+        --output reports/refresh_review/{family}/{platform}/claim_maps/
+    ```
+    Output: per-page `*.claim_map.json` files in `claim_maps/`.
+
+3c. **Body impact mapping** — match semantic changes to specific body sections:
+    ```bash
+    PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.content.body_impact {family} {platform}
+    ```
+    Output: `reports/refresh_review/{family}/{platform}/body_impact.json`
+    Impact levels: DEFINITE | HIGHLY_LIKELY | POSSIBLE_REVIEW_REQUIRED | VERIFIED_UNAFFECTED
+
+3d. **Body refresh — dry run** (review plan before executing):
+    ```bash
+    PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.content.body_refresh \
+        {family} {platform} --dry-run
+    ```
+    Review the plan output. Confirm that DEFINITE/HIGHLY_LIKELY sections are correct targets.
+
+3e. **Body refresh — execute** (write body prose updates):
+    ```bash
+    PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.content.body_refresh \
+        {family} {platform} --execute
+    ```
+    Receipts written to: `reports/refresh_review/{family}/{platform}/receipts/*.yaml`
+    Each receipt records: verdict (BODY_UPDATED | SKIPPED_*), sections changed, and content hashes.
+
+3f. **Refresh oracle** — validate refreshed content against source truth:
+    ```bash
+    PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.content.refresh_oracle \
+        {family} {platform} --receipts reports/refresh_review/{family}/{platform}/receipts/
+    ```
+    Output: `reports/refresh_review/{family}/{platform}/oracle_verdicts/*.yaml`
+    Any FAIL verdict must be resolved before proceeding to Step 4.
+
 4. **Find affected pages** (dual-path logic: citation-match + PIA-match):
    - For product-wide scope: scan all `.md` files under the product's content paths (docs, kb, blog, reference)
    - Read each page's `evidence:` frontmatter
