@@ -166,8 +166,8 @@ def _select_update_type(change: dict, section: dict) -> str:
             return UT_EXAMPLE
         return UT_SURGICAL
 
-    if change_type == "API_SIGNATURE_CHANGED":
-        return UT_SURGICAL
+    if change_type in ("API_ADDED", "API_RESURRECTED", "API_MODIFIED", "API_SIGNATURE_CHANGED"):
+        return UT_REWRITE
 
     if change_type in ("FEATURE_REMOVED",):
         return UT_REMOVAL
@@ -198,6 +198,7 @@ def _match_change_to_sections(change: dict, claim_map: dict) -> list[dict]:
             impacts.append(
                 {
                     "section_id": section["section_id"],
+                    "change_id": change.get("change_id", ""),
                     "heading": section["heading"],
                     "lines": [section["start_line"], section["end_line"]],
                     "reason": f"{change_type} reference to {symbol}",
@@ -210,12 +211,13 @@ def _match_change_to_sections(change: dict, claim_map: dict) -> list[dict]:
             impacts.append(
                 {
                     "section_id": section["section_id"],
+                    "change_id": change.get("change_id", ""),
                     "heading": section["heading"],
                     "lines": [section["start_line"], section["end_line"]],
                     "reason": f"keyword match for {symbol} ({change_type})",
                     "impact_level": IL_HIGHLY_LIKELY,
                     "required_action": REQUIRED_ACTIONS[IL_HIGHLY_LIKELY],
-                    "update_type": UT_SURGICAL,
+                    "update_type": _select_update_type(change, section),
                 }
             )
 

@@ -9,6 +9,8 @@ Aggregates all system-level readiness signals into a single pass/fail verdict:
   G-04  Knowledge staleness    -- knowledge model stale_since must be null
   G-05  Proof index complete   -- every directory in reports/proofs/ is in INDEX.json
   G-06  Launch gate            -- launch_gate.py {family} {platform} exits 0
+  G-07  Cross-platform consistency -- cross_platform_audit.py {family} --json exits 0
+  G-07  Cross-platform consistency -- cross_platform_audit.py {family} exits 0
 
 Usage:
     python scripts/pipeline/commands/launch/readiness_gate.py {family} {platform}
@@ -119,7 +121,7 @@ def _run(cmd: list[str]) -> tuple[int, str]:
 
 def gate_g01_skill_sync(env: dict | None = None) -> GateResult:
     """G-01: sync_skills.py --check exits 0."""
-    script = _REPO_ROOT / "scripts" / "pipeline" / "sync_skills.py"
+    script = _REPO_ROOT / "scripts" / "pipeline" / "commands" / "ops" / "sync_skills.py"
     rc, out = _run([_PYTHON, str(script), "--check"])
     if rc == 0:
         return GateResult("G-01", "Skill sync parity", STATUS_PASS, "sync_skills --check passed")
@@ -128,7 +130,7 @@ def gate_g01_skill_sync(env: dict | None = None) -> GateResult:
 
 def gate_g02_provider_sync(env: dict | None = None) -> GateResult:
     """G-02: sync_providers.py --dry-run exits 0."""
-    script = _REPO_ROOT / "scripts" / "pipeline" / "sync_providers.py"
+    script = _REPO_ROOT / "scripts" / "pipeline" / "commands" / "ops" / "sync_providers.py"
     rc, out = _run([_PYTHON, str(script), "--dry-run"])
     if rc == 0:
         return GateResult("G-02", "Provider sync", STATUS_PASS, "sync_providers --dry-run passed")
@@ -137,7 +139,7 @@ def gate_g02_provider_sync(env: dict | None = None) -> GateResult:
 
 def gate_g03_dar_coverage(env: dict | None = None) -> GateResult:
     """G-03: check_dar_coverage.py exits 0."""
-    script = _REPO_ROOT / "scripts" / "ci" / "check_dar_coverage.py"
+    script = _REPO_ROOT / "scripts" / "ci" / "checks" / "check_dar_coverage.py"
     rc, out = _run([_PYTHON, str(script)])
     if rc == 0:
         return GateResult("G-03", "DAR coverage", STATUS_PASS, "check_dar_coverage passed")
@@ -203,6 +205,34 @@ def gate_g06_launch_gate(family: str, platform: str) -> GateResult:
     return GateResult("G-06", "Launch gate", STATUS_FAIL, summary)
 
 
+def gate_g07_cross_platform(family: str) -> GateResult:
+    """G-07: cross_platform_audit.py exits 0 (no cross-platform discrepancies)."""
+    script = _REPO_ROOT / "scripts" / "pipeline" / "commands" / "content" / "cross_platform_audit.py"
+    rc, out = _run([_PYTHON, str(script), family, "--json"])
+    if rc == 0:
+        return GateResult("G-07", "Cross-platform consistency", STATUS_PASS, f"cross_platform_audit {family}: no discrepancies")
+    # rc == 1 means discrepancies found
+    try:
+        import json
+        report = json.loads(out)
+        issues = report.get("issues", [])
+        issue_count = len(issues)
+        if issue_count > 0:
+            # Summarize first few issues
+            issue_summaries = []
+            for issue in issues[:3]:
+                fmt = issue.get("format", "unknown")
+                platforms = issue.get("platforms", {})
+                detail = ", ".join(f"{p}={d}" for p, d in sorted(platforms.items()))
+                issue_summaries.append(f"{fmt}: {detail}")
+            summary = f"{issue_count} discrepancy(ies): {'; '.join(issue_summaries)}"
+        else:
+            summary = f"exit code {rc}: {out[:200]}"
+    except Exception:
+        summary = f"exit code {rc}: {out[:200]}"
+    return GateResult("G-07", "Cross-platform consistency", STATUS_FAIL, summary)
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -227,6 +257,7 @@ def main(argv: list[str] | None = None) -> int:
     gates.append(gate_g03_dar_coverage())
     gates.append(gate_g04_knowledge_staleness(family, platform))
     gates.append(gate_g05_proof_index())
+    gates.append(gate_g07_cross_platform(family))
 
     if args.skip_launch_gate:
         gates.append(GateResult("G-06", "Launch gate", STATUS_SKIP, "skipped via --skip-launch-gate"))

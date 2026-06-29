@@ -234,3 +234,37 @@ def test_output_written_to_body_impact_json(tmp_path):
     loaded = json.loads(out_path.read_text(encoding="utf-8"))
     assert isinstance(loaded, list)
     assert len(loaded) == 1
+
+
+def test_api_added_uses_rewrite_strategy_for_keyword_match(tmp_path):
+    """API additions need rewrite, not surgical replacement with no old symbol."""
+    changes = [_make_change("NewAnnotationApi", change_type="API_ADDED")]
+    cm = {
+        "page_path": "content/docs.aspose.org/en/pdf/net/page.md",
+        "sections": [
+            {
+                "section_id": "annotations",
+                "heading": "## Annotations",
+                "start_line": 0,
+                "end_line": 10,
+                "claims": [
+                    {
+                        "sentence": "Annotation workflows support document markup.",
+                        "line_number": 5,
+                        "detected_symbols": [],
+                        "detected_formats": [],
+                        "detected_features": ["annotation"],
+                        "detected_versions": [],
+                        "claim_type": "FEATURE_CLAIM",
+                    }
+                ],
+            }
+        ],
+    }
+    _setup_reports(tmp_path, "pdf", "net", changes, [cm])
+
+    impacts = bi.run("pdf", "net")
+    section = impacts[0]["affected_sections"][0]
+    assert section["impact_level"] == bi.IL_HIGHLY_LIKELY
+    assert section["update_type"] == bi.UT_REWRITE
+    assert section["change_id"] == "CHG-pdf-net-0001"

@@ -266,6 +266,36 @@ def test_existing_claims_are_merged():
     assert "CLM-NEW" in result
 
 
+def test_existing_claims_pruned_when_not_in_current_knowledge():
+    """Stale evidence claims must not survive a refreshed knowledge model."""
+    original = textwrap.dedent("""\
+        ---
+        title: Page
+        evidence:
+          model_sha: old_sha
+          model_version: '1.0'
+          claims:
+          - CLM-KEEP
+          - CLM-STALE
+          apis: []
+        ---
+
+        Body.
+    """)
+    result = _apply_evidence(original, {
+        "model_sha": "new_sha",
+        "model_version": "1.1",
+        "claims": ["CLM-NEW"],
+        "apis": [],
+        "_valid_claim_ids": {"CLM-KEEP", "CLM-NEW"},
+    })
+
+    assert "CLM-KEEP" in result
+    assert "CLM-NEW" in result
+    assert "CLM-STALE" not in result
+    assert "_valid_claim_ids" not in result
+
+
 def test_idempotent_on_second_run():
     """Running writer twice must not duplicate the evidence block."""
     original = textwrap.dedent("""\

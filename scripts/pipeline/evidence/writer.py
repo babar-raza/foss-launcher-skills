@@ -124,8 +124,14 @@ def _write_evidence_to_frontmatter(filepath, evidence_dict) -> bool:
         open_fence, fm_text, close_fence = m.group(1), m.group(2), m.group(3)
         body = text[m.end():]
 
-        # Merge claims: read from existing evidence block only (no full YAML parse)
+        # Merge claims: read from existing evidence block only (no full YAML parse).
+        # When the runner supplies the current knowledge claim set, preserve only
+        # existing manual claims that still exist in that model. This keeps manual
+        # evidence stable without carrying orphan claim IDs across refreshes.
+        valid_claim_ids = evidence_dict.pop("_valid_claim_ids", None)
         existing_claims = _extract_existing_claims(fm_text)
+        if valid_claim_ids is not None:
+            existing_claims = [c for c in existing_claims if c in valid_claim_ids]
         merged_claims = sorted(set(
             existing_claims + list(evidence_dict.get("claims", []))
         ))

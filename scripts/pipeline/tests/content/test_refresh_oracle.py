@@ -96,6 +96,74 @@ def test_invalid_symbol_detected(tmp_path):
     assert any("NonExistentClass" in f["detail"] for f in findings)
 
 
+def test_namespace_and_member_tokens_are_allowed(tmp_path):
+    """Namespaces and known members should not be treated as invalid classes."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n"
+        "Use `Aspose.Pdf`, `Pages`, `Document.Save`, `IndexOutOfBoundsException`, and `Sheet1`.\n",
+    )
+    api_surface = {"Aspose", "Aspose.Pdf", "Document", "Pages", "Document.Save"}
+    findings = ro._validate_api_symbols(str(page), api_surface)
+    assert findings == []
+
+
+def test_load_api_surface_includes_namespaces_and_members(tmp_path):
+    """api_surface loader exposes class imports, namespace prefixes, methods, and properties."""
+    _setup(tmp_path)
+    api_dir = tmp_path / "knowledge" / "pdf" / "net" / "merged"
+    api_dir.mkdir(parents=True, exist_ok=True)
+    (api_dir / "api_surface.json").write_text(
+        json.dumps([
+            {
+                "name": "Document",
+                "canonical_namespace": "Aspose.Pdf",
+                "class_import": "Aspose.Pdf.Document",
+                "methods": [{"name": "Save"}],
+                "properties": [{"name": "Pages"}],
+            }
+        ]),
+        encoding="utf-8",
+    )
+
+    tokens = ro._load_api_surface("pdf", "net")
+    assert {"Aspose", "Aspose.Pdf", "Aspose.Pdf.Document", "Document.Save", "Pages"} <= tokens
+
+
+def test_load_api_surface_includes_bases_and_enum_members(tmp_path):
+    """api_surface loader exposes inherited base tokens and enum member constants."""
+    _setup(tmp_path, family="cells", platform="java")
+    api_dir = tmp_path / "knowledge" / "cells" / "java" / "merged"
+    api_dir.mkdir(parents=True, exist_ok=True)
+    (api_dir / "api_surface.json").write_text(
+        json.dumps([
+            {
+                "name": "Workbook",
+                "bases": ["AutoCloseable"],
+                "methods": [],
+                "properties": [],
+            },
+            {
+                "name": "CellValueType",
+                "enum_members": [
+                    {"name": "STRING"},
+                    {"name": "NUMBER"},
+                    {"name": "BOOLEAN"},
+                    {"name": "DATE_TIME"},
+                ],
+                "methods": [],
+                "properties": [],
+            },
+        ]),
+        encoding="utf-8",
+    )
+
+    tokens = ro._load_api_surface("cells", "java")
+    assert {"AutoCloseable", "STRING", "NUMBER", "BOOLEAN", "DATE_TIME"} <= tokens
+    assert {"CellValueType.STRING", "CellValueType.DATE_TIME"} <= tokens
+
+
 def test_frontmatter_body_inconsistency_detected(tmp_path):
     """Format listed in frontmatter but denied in body produces FM contradiction."""
     page = _make_page(
@@ -153,6 +221,17 @@ def test_verdict_written_to_oracle_verdicts_dir(tmp_path):
     assert loaded["refresh_oracle_verdict"]["verdict"] == ro.VERDICT_PASS
 
 
+def test_verdict_filename_uses_hash_to_avoid_long_path_collisions(tmp_path):
+    """Long page paths with the same prefix should not overwrite each other's verdicts."""
+    _setup(tmp_path)
+    prefix = "content/blog.aspose.org/cells/java/java-excel-formulas-styling-api/index"
+    ro._emit_verdict(f"{prefix}.bg.md", [], "pdf", "net")
+    ro._emit_verdict(f"{prefix}.ca.md", [], "pdf", "net")
+
+    verdicts_dir = tmp_path / "reports" / "pdf" / "net" / "oracle_verdicts"
+    assert len(list(verdicts_dir.glob("*.yaml"))) == 2
+
+
 def test_fail_verdict_on_findings(tmp_path):
     """Verdict is FAIL when any finding exists."""
     _setup(tmp_path)
@@ -172,3 +251,42 @@ def test_idempotency(tmp_path):
     v2 = ro._emit_verdict("content/page.md", [], "pdf", "net", source_revision="abc")
     assert v1["verdict"] == v2["verdict"]
     assert v1["claims_checked"] == v2["claims_checked"]
+
+
+def test_cross_page_check_ignores_receipt_covered_page(tmp_path, monkeypatch):
+    """A BODY_UPDATED receipt means a definite impact on that page was not missed."""
+    page = _make_page(
+        tmp_path,
+        "content/page.md",
+        "---\ntitle: Test\n---\n\n## Overview\n\nUse `Document`.\n",
+    )
+    reports = _setup(tmp_path)
+    reports.mkdir(parents=True, exist_ok=True)
+    receipts = reports / "receipts"
+    receipts.mkdir()
+    (receipts / "RCP-001.yaml").write_text(
+        yaml.safe_dump({
+            "content_refresh_receipt": {
+                "page_path": str(page),
+                "verdict": "BODY_UPDATED",
+            }
+        }),
+        encoding="utf-8",
+    )
+    api_dir = tmp_path / "knowledge" / "pdf" / "net" / "merged"
+    api_dir.mkdir(parents=True, exist_ok=True)
+    (api_dir / "api_surface.json").write_text(
+        json.dumps([{"name": "Document"}]), encoding="utf-8"
+    )
+    monkeypatch.setattr(
+        ro,
+        "_run_cross_page_propagation_check",
+        lambda f, p: [{
+            "finding_type": ro.FINDING_MISSED_IMPACT,
+            "page_path": str(page),
+            "detail": "definite impact",
+        }],
+    )
+
+    verdicts = ro.run("pdf", "net", receipts_dir=str(receipts))
+    assert verdicts[0]["verdict"] == ro.VERDICT_PASS

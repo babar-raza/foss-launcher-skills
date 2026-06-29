@@ -304,6 +304,8 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
         "claims": sorted(set(claim_ids)),
         "apis": sorted(set(api_refs)),
     }
+    if hasattr(knowledge, "claim_ids"):
+        evidence["_valid_claim_ids"] = set(knowledge.claim_ids)
     if formats:
         evidence["formats"] = formats
     if sections:

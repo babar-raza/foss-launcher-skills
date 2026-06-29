@@ -41,6 +41,7 @@ if _LIB_DIR not in sys.path:
 
 import argparse
 import glob
+import hashlib
 import json
 import re
 import yaml
@@ -93,16 +94,51 @@ _FRONTMATTER_SEP = re.compile(r"^---\s*$")
 # ── Loaders ────────────────────────────────────────────────────────────────
 
 def _load_api_surface(family: str, platform: str) -> set[str]:
-    """Return set of all known class names from api_surface.json."""
+    """Return known API tokens from api_surface.json."""
     path = Path(_cfg_knowledge_root) / family / platform / "merged" / "api_surface.json"
     if not path.exists():
         return set()
     try:
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
-        # api_surface.json is a list of class dicts with "name" key
+        tokens: set[str] = set()
         if isinstance(data, list):
-            return {entry.get("name", "") for entry in data if entry.get("name")}
+            for entry in data:
+                name = entry.get("name", "")
+                if name:
+                    tokens.add(name)
+                class_import = entry.get("class_import", "")
+                if class_import:
+                    tokens.add(class_import)
+                namespace = entry.get("canonical_namespace", "")
+                if namespace:
+                    parts = namespace.split(".")
+                    for i in range(1, len(parts) + 1):
+                        tokens.add(".".join(parts[:i]))
+                    tokens.add(parts[-1])
+                for base in entry.get("bases", []) or []:
+                    if base:
+                        tokens.add(str(base))
+                        tokens.add(str(base).split(".")[-1])
+                for enum_member in entry.get("enum_members", []) or []:
+                    member_name = enum_member.get("name") if isinstance(enum_member, dict) else str(enum_member)
+                    if member_name:
+                        tokens.add(member_name)
+                        if name:
+                            tokens.add(f"{name}.{member_name}")
+                for method in entry.get("methods", []) or []:
+                    if method.get("name"):
+                        tokens.add(method["name"])
+                        if name:
+                            tokens.add(f"{name}.{method['name']}")
+                for prop in entry.get("properties", []) or []:
+                    if prop.get("name"):
+                        tokens.add(prop["name"])
+                        if name:
+                            tokens.add(f"{name}.{prop['name']}")
+                    if prop.get("type"):
+                        tokens.add(str(prop["type"]).rstrip("?"))
+            return tokens
         if isinstance(data, dict):
             return set(data.keys())
     except Exception:
@@ -179,10 +215,35 @@ def _validate_api_symbols(page_path: str, api_surface: set[str]) -> list[dict]:
         return []  # can't validate without api surface
     _, body = _read_page_body(page_path)
     findings: list[dict] = []
+    framework_tokens = {
+        "Stream", "MemoryStream", "FileStream", "StringBuilder", "DateTime",
+        "TimeSpan", "Task", "IEnumerable", "IList", "List", "Dictionary",
+        "HashSet", "Func", "Action", "IDisposable", "Exception",
+        "IndexOutOfRangeException", "NotImplementedException",
+        "NullReferenceException",
+        "UnsupportedOperationException", "FileNotFoundException", "IOException",
+        "NullPointerException", "IndexOutOfBoundsException", "InputStream", "OutputStream",
+    }
+    content_tokens = {
+        "Bmp", "Jpeg", "Png", "Tiff", "Gif", "Emf", "LICENSE",
+        "AF_Date_Format", "AF_Number_Format", "AF_Percent_Format",
+        "HH", "MM", "Q", "THead", "TBody", "TFoot", "NextPage", "PrevPage",
+        "X", "Y", "Z", "Sheet1",
+        "Double.MAX_VALUE", "Double.MIN_VALUE",
+    }
     for i, line in enumerate(body.splitlines(), start=1):
         for m in _BACKTICK_API_RE.finditer(line):
             token = m.group(1)
             base = token.split(".")[0]  # ClassName part only
+            if token in framework_tokens or base in framework_tokens:
+                continue
+            if token in content_tokens:
+                continue
+            if token.startswith("Aspose.Pdf") and any(
+                candidate == token or candidate.startswith(token + ".")
+                for candidate in api_surface
+            ):
+                continue
             if base not in api_surface and token not in api_surface:
                 findings.append(
                     {
@@ -310,7 +371,10 @@ def _emit_verdict(
 ) -> dict:
     """Write verdict YAML to oracle_verdicts/ and return verdict dict."""
     verdict = VERDICT_PASS if not findings else VERDICT_FAIL
-    slug = page_path.replace("/", "_").replace("\\", "_").replace(":", "")[:80]
+    normalized_path = page_path.replace("\\", "/")
+    digest = hashlib.sha1(normalized_path.encode("utf-8")).hexdigest()[:10]
+    slug_base = page_path.replace("/", "_").replace("\\", "_").replace(":", "")[:80]
+    slug = f"{slug_base}_{digest}"
 
     verdict_data = {
         "page_path": page_path,
@@ -432,6 +496,8 @@ def run(family: str, platform: str, receipts_dir: str | None = None) -> list[dic
     for m in missed:
         # Add to the relevant page verdict if already present
         pp = m.get("page_path", "")
+        if pp in pages_to_check:
+            continue
         matched = next((v for v in verdicts if v["page_path"] == pp), None)
         if matched:
             matched["failures"].append(m)

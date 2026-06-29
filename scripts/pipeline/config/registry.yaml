@@ -2841,6 +2841,24 @@ scripts:
     change_impact: null
     notes: "BL-DEEP-EXEC-v3.1 Layer 3: reads candidate_graph.json, applies confidence bands (AAE/RR/BLK), writes backlink_authority.json; --merge flag preserves cross-family records (TC-AUTHORITY-MERGE-SAFETY-001). Full pipeline: build_candidates -> approve_authority --merge -> backfill --write"
 
+  - path: scripts/pipeline/commands/ops/backlink_merge_candidate_graphs.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python backlink_merge_candidate_graphs.py --inputs cg1.json cg2.json --output cg_merged.json --family FAMILY"
+    owner_domain: backlinks
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_backlink_merge_candidate_graphs.py
+    test_exempt_reason: null
+    deprecated_since: null
+    change_impact: null
+    notes: "Merges per-subdomain candidate_graph JSON files for the same family before approve_authority --merge"
+
   - path: scripts/pipeline/commands/ops/backlink_ai_enrich.py
     kind: entrypoint
     lifecycle: active
@@ -3758,7 +3776,7 @@ scripts:
     owner_domain: knowledge
     backing:
       kind: skill
-      ref: S-104
+      ref: semantic-diff
     requires_test: true
     test_targets:
       - scripts/pipeline/tests/knowledge/test_semantic_diff.py
@@ -3809,7 +3827,7 @@ scripts:
     owner_domain: content
     backing:
       kind: skill
-      ref: S-105
+      ref: body-refresh
     requires_test: true
     test_targets:
       - scripts/pipeline/tests/content/test_body_refresh.py
@@ -3826,7 +3844,7 @@ scripts:
     owner_domain: content
     backing:
       kind: skill
-      ref: S-106
+      ref: refresh-oracle
     requires_test: true
     test_targets:
       - scripts/pipeline/tests/content/test_refresh_oracle.py
@@ -3843,7 +3861,7 @@ scripts:
     owner_domain: content
     backing:
       kind: skill
-      ref: S-108
+      ref: frontmatter-body-consistency
     requires_test: true
     test_targets:
       - scripts/pipeline/tests/content/test_frontmatter_body_consistency.py
@@ -3860,13 +3878,30 @@ scripts:
     owner_domain: content
     backing:
       kind: skill
-      ref: S-107
+      ref: locale-refresh-handoff
     requires_test: true
     test_targets:
       - scripts/pipeline/tests/content/test_locale_refresh_handoff.py
     deprecated_since: null
     change_impact: "Queues locale equivalents for re-translation after body updates; routes to S-75 (small) or S-56 (large)"
     notes: "S-107 locale-refresh-handoff; threshold: 3 sentences; output: locale_handoff.yaml"
+
+  - path: scripts/pipeline/commands/ops/localization_incident.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: localization-incident-response
+    backing:
+      kind: skill
+      ref: production-localization-incident
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_localization_incident.py
+    deprecated_since: null
+    change_impact: "S-109 production localization incident orchestration; fail-closed state/evidence/taskcard runner, composes S-52/S-53/S-99"
+    notes: "Writes incident state/evidence under .local/evidences and reports/localization; no direct translation, content mutation, or deployment"
 
   - path: scripts/pipeline/commands/knowledge/scan_stale.py
     kind: entrypoint

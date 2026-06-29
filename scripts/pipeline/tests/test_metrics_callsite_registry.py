@@ -24,7 +24,7 @@ ALLOWED_CAPTURE_METHODS = {
     "blocked",
 }
 
-EXPECTED_TRANSPORT_IDS = {"CS-001", "CS-002", "CS-004", "CS-008", "CS-009", "CS-010", "CS-014"}
+EXPECTED_TRANSPORT_IDS = {"CS-001", "CS-002", "CS-004", "CS-008", "CS-009", "CS-010", "CS-014", "CS-015"}
 BOUNDARY_ONLY_IDS = {"CS-011", "CS-012", "CS-013"}
 
 # Values that must NOT appear as endpoint_source

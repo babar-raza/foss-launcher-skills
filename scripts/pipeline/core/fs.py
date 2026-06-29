@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import hashlib
 import os
+import time
+import uuid
 from pathlib import Path
 
 
@@ -22,7 +24,38 @@ def atomic_write(path: Path, content: str, encoding: str = "utf-8") -> None:
     tmp = path.with_suffix(path.suffix + ".tmp")
     try:
         tmp.write_text(content, encoding=encoding)
-        tmp.replace(path)
+        last_exc: OSError | None = None
+        for attempt in range(5):
+            try:
+                tmp.replace(path)
+                last_exc = None
+                break
+            except PermissionError as exc:
+                last_exc = exc
+                if os.name != "nt" or attempt == 4:
+                    raise
+                time.sleep(0.2 * (attempt + 1))
+        if last_exc is not None:
+            raise last_exc
+    except PermissionError:
+        if os.name != "nt":
+            raise
+        backup = path.with_name(f"{path.name}.bak-{uuid.uuid4().hex}")
+        try:
+            path.replace(backup)
+            try:
+                tmp.replace(path)
+            except Exception:
+                backup.replace(path)
+                raise
+            finally:
+                backup.unlink(missing_ok=True)
+        except Exception:
+            try:
+                tmp.unlink(missing_ok=True)
+            except OSError:
+                pass
+            raise
     except Exception:
         try:
             tmp.unlink(missing_ok=True)

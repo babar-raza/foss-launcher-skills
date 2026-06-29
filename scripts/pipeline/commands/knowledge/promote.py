@@ -775,8 +775,10 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
                         print(
                             f"  WARNING: enriched_claims.json is stale — generated from "
                             f"api_surface SHA {stored_sha!r}, current is {current_sha!r}.\n"
-                            f"  Run /knowledge-enrich {family} {platform} to regenerate."
+                            f"  Run /knowledge-enrich {family} {platform} to regenerate. "
+                            "Ignoring stale enriched claims for this promotion."
                         )
+                        enriched_data = {"claims": []}
             enriched_raw = enriched_data.get("claims", []) if isinstance(enriched_data, dict) else enriched_data
             enriched = _validate_claims(enriched_raw, "enriched")
             for c in enriched:

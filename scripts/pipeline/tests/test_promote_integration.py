@@ -183,6 +183,32 @@ class TestPromoteFullPipeline:
             f"Expected {len(SCOUT_CLAIMS)} claims in merged output, got {len(claims)}"
         )
 
+    def test_stale_enriched_claims_are_ignored(self, tmp_path):
+        """Enriched claims tied to an old API surface must not be promoted."""
+        kr = _setup_scout(tmp_path)
+        scout_dir = kr / "test" / "python" / "scout"
+        (scout_dir / "enriched_claims.json").write_text(
+            json.dumps({
+                "api_surface_sha": "old-api-sha",
+                "claims": [
+                    {
+                        "claim_id": "CLM-test-stale-enriched",
+                        "text": "Stale enriched claim from a previous API surface.",
+                        "kind": "api_method",
+                    }
+                ],
+            }),
+            encoding="utf-8",
+        )
+
+        promote_mod.promote("test", "python", knowledge_root=str(kr))
+
+        merged_path = kr / "test" / "python" / "merged" / "claims.json"
+        data = json.loads(merged_path.read_text(encoding="utf-8"))
+        claims = data if isinstance(data, list) else data.get("claims", [])
+        claim_ids = {c["claim_id"] for c in claims}
+        assert "CLM-test-stale-enriched" not in claim_ids
+
 
 class TestPromoteFormatsNotePreservation:
     """Manually-annotated formats.json entries (with 'note' field) must survive promote."""

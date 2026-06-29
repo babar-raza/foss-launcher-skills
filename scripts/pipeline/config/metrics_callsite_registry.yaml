@@ -220,6 +220,9 @@ call_sites:
     model_source: "llm_registry.yaml professionalize.models.chat (gpt-oss)"
     capture_method: "llm_router_native"
     allowed_capture_methods: ["llm_router_native"]
+    owner_component: "aspose-org-body-refresh"
+    work_slice_context_source: "body_refresh.py PARAGRAPH_REWRITE path (S-105 dazzling-strolling-shell)"
+    status: "active"
     callsite_name: "body_refresh_paragraph_rewrite"
     usage_metadata_expected: false
     api_call_count_required: false

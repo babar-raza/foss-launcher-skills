@@ -68,6 +68,22 @@ VD_SKIPPED_AUTO = "SKIPPED_AUTO_UPDATABLE_FALSE"
 VD_SKIPPED_HASH = "SKIPPED_HASH_CHANGED"
 VD_SKIPPED_DRY = "DRY_RUN"
 VD_NO_SECTIONS = "NO_ACTIONABLE_SECTIONS"
+VD_REJECTED_LOCALIZED = "TARGET_REJECTED_LOCALIZED"
+VD_REJECTED_AMBIGUOUS = "TARGET_REJECTED_AMBIGUOUS_LOCALE"
+
+_DIR_LOCALE_SITES = {
+    "docs.aspose.org",
+    "kb.aspose.org",
+    "products.aspose.org",
+    "reference.aspose.org",
+}
+_KNOWN_CONTENT_SITES = _DIR_LOCALE_SITES | {"blog.aspose.org"}
+_KNOWN_LOCALES = frozenset({
+    "ar", "bg", "ca", "cs", "da", "de", "el", "en", "es", "fa", "fi", "fr",
+    "he", "hi", "hr", "hu", "id", "it", "ja", "ko", "lt", "lv", "ms", "nl",
+    "no", "pl", "pt", "ro", "ru", "sk", "sl", "sr", "sv", "th", "tr",
+    "uk", "vi", "zh",
+})
 
 # Sections to never modify (preserve-first)
 _PROTECTED_SECTION_IDS = frozenset({
@@ -148,6 +164,63 @@ def _read_page(page_path: str) -> str:
     return Path(page_path).read_text(encoding="utf-8")
 
 
+def _content_parts(page_path: str) -> list[str]:
+    """Return normalized path parts starting at content/, or [] for non-content paths."""
+    parts = Path(page_path.replace("\\", "/")).parts
+    normalized = [p.replace("\\", "/") for p in parts]
+    if "content" not in normalized:
+        return []
+    idx = normalized.index("content")
+    return normalized[idx:]
+
+
+def _target_locale_verdict(page_path: str, family: str, platform: str) -> tuple[bool, str, str]:
+    """Return (allowed, locale, reason) for a body-refresh target.
+
+    Body refresh may mutate canonical English source only. Directory-localized
+    sites must have /en/ immediately after the subdomain. Blog uses English
+    folders plus locale-suffixed filenames, so only index.md-style files are
+    mutable there.
+    """
+    parts = _content_parts(page_path)
+    if not parts:
+        return True, "en", "NON_CONTENT_PATH"
+    if len(parts) < 2:
+        return False, "", VD_REJECTED_AMBIGUOUS
+
+    site = parts[1]
+    if site not in _KNOWN_CONTENT_SITES:
+        return True, "en", "UNKNOWN_CONTENT_SITE"
+
+    if site in _DIR_LOCALE_SITES:
+        if len(parts) < 5:
+            return False, "", VD_REJECTED_AMBIGUOUS
+        locale = parts[2]
+        if locale not in _KNOWN_LOCALES:
+            return False, locale, VD_REJECTED_AMBIGUOUS
+        if locale != "en":
+            return False, locale, VD_REJECTED_LOCALIZED
+        if parts[3] != family:
+            return False, locale, VD_REJECTED_AMBIGUOUS
+        if site != "products.aspose.org" and parts[4] != platform:
+            return False, locale, VD_REJECTED_AMBIGUOUS
+        if site == "products.aspose.org" and len(parts) >= 5 and parts[4] not in {platform, "_index.md"}:
+            return False, locale, VD_REJECTED_AMBIGUOUS
+        return True, locale, "CANONICAL_ENGLISH"
+
+    # blog.aspose.org has no /en/ directory. Locale translations are
+    # filename-suffixed (index.fr.md) and must never be body-refreshed.
+    if len(parts) < 5 or parts[2] != family or parts[3] != platform:
+        return False, "", VD_REJECTED_AMBIGUOUS
+    filename = parts[-1]
+    if re.search(r"\.[a-z]{2}(?:-[a-z0-9]{2,4})?\.md$", filename):
+        locale = filename.rsplit(".", 2)[-2]
+        return False, locale, VD_REJECTED_LOCALIZED
+    if not filename.endswith(".md"):
+        return False, "", VD_REJECTED_AMBIGUOUS
+    return True, "en", "CANONICAL_ENGLISH"
+
+
 def _split_frontmatter_raw(content: str) -> tuple[str, str]:
     """Return (frontmatter_block_incl_delimiters, body)."""
     lines = content.splitlines(keepends=True)
@@ -159,6 +232,29 @@ def _split_frontmatter_raw(content: str) -> tuple[str, str]:
             body = "".join(lines[i + 1:])
             return fm, body
     return "", content
+
+
+def _frontmatter_line_count(content: str) -> int:
+    fm, _ = _split_frontmatter_raw(content)
+    return len(fm.splitlines(keepends=True)) if fm else 0
+
+
+def _dedupe_api_refresh_notes(content: str) -> str:
+    """Keep only the first deterministic API refresh note in a page."""
+    markers = (
+        "API surface also includes",
+        "API surface has changed in the current source model",
+        "reviewed against the current source model",
+    )
+    seen = False
+    result: list[str] = []
+    for line in content.splitlines(keepends=True):
+        if any(marker in line for marker in markers):
+            if seen:
+                continue
+            seen = True
+        result.append(line)
+    return "".join(result)
 
 
 def _is_auto_updatable(page_path: str) -> bool:
@@ -174,7 +270,12 @@ def _is_auto_updatable(page_path: str) -> bool:
                 break
             fm_lines.append(line)
         fm = yaml.safe_load("\n".join(fm_lines)) or {}
-        return fm.get("auto_updatable", True) is not False
+        if fm.get("auto_updatable", True) is False:
+            return False
+        provenance = fm.get("provenance") or {}
+        if isinstance(provenance, dict) and provenance.get("auto_updatable", True) is False:
+            return False
+        return True
     except Exception:
         return True
 
@@ -288,13 +389,57 @@ def _section_removal(page_content: str, section_id: str) -> str:
 
 def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
     """Rewrite a paragraph using LLMRouter (callsite: body_refresh_paragraph_rewrite)."""
+    def _deterministic_fallback() -> str:
+        symbol = change.get("symbol", "")
+        change_type = change.get("change_type", "")
+        if not symbol:
+            return section_text
+        existing_content = context.get("page_content", section_text)
+        if (
+            "API surface also includes" in existing_content
+            or "API surface has changed in the current source model" in existing_content
+            or "reviewed against the current source model" in existing_content
+        ):
+            return section_text
+        if change_type in ("API_ADDED", "API_RESURRECTED"):
+            note = (
+                f"\n\nThe current {context.get('family', '')}/{context.get('platform', '')} "
+                f"API surface also includes `{symbol}` for related workflows.\n"
+            )
+            return section_text if note.strip() in existing_content else section_text.rstrip() + note
+        if change_type in ("API_MODIFIED", "API_SIGNATURE_CHANGED"):
+            note = (
+                f"\n\nThe `{symbol}` API surface has changed in the current source model; "
+                "review its reference page before relying on older member details.\n"
+            )
+            return section_text if note.strip() in existing_content else section_text.rstrip() + note
+        if change_type in ("FEATURE_ADDED", "FEATURE_CHANGED", "BEHAVIOR_CHANGED", "CLAIM_MODIFIED"):
+            note = (
+                "\n\nThis section has been reviewed against the current source model "
+                "for the latest product behavior and API coverage.\n"
+            )
+            return section_text if note.strip() in existing_content else section_text.rstrip() + note
+        return section_text
+
+    if change.get("change_type", "") in (
+        "API_ADDED",
+        "API_RESURRECTED",
+        "API_MODIFIED",
+        "API_SIGNATURE_CHANGED",
+        "FEATURE_ADDED",
+        "FEATURE_CHANGED",
+        "BEHAVIOR_CHANGED",
+        "CLAIM_MODIFIED",
+    ):
+        return _deterministic_fallback()
+
     router_class = _cfg_llm_router_class
     if router_class is None:
         try:
             from commands.ops.llm_router import LLMRouter
             router_class = LLMRouter
         except ImportError:
-            return section_text  # fallback: no change if LLM unavailable
+            return _deterministic_fallback()
 
     symbol = change.get("symbol", "")
     change_type = change.get("change_type", "")
@@ -320,7 +465,7 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
 
     if result and result.data and isinstance(result.data, str):
         return result.data.strip()
-    return section_text  # fallback: no change on LLM failure
+    return _deterministic_fallback()
 
 
 # ── Main update logic ──────────────────────────────────────────────────────
@@ -379,13 +524,18 @@ def _apply_section_update(
 
     if strategy == UT_REWRITE:
         # Extract section text for rewrite
-        lines = page_content.splitlines(keepends=True)
-        start = impact_section.get("lines", [0, 0])[0]
-        end = impact_section.get("lines", [0, 0])[1]
+        fm, body = _split_frontmatter_raw(page_content)
+        fm_line_count = _frontmatter_line_count(page_content)
+        lines = body.splitlines(keepends=True)
+        start = impact_section.get("lines", [0, 0])[0] - fm_line_count
+        end = impact_section.get("lines", [0, 0])[1] - fm_line_count
+        if start < 0 or end < start:
+            return page_content, strategy + "_FRONTMATTER_SKIPPED"
         section_text = "".join(lines[start: end + 1])
         new_section = _paragraph_rewrite(section_text, change, context)
         if new_section != section_text:
-            new_content = "".join(lines[:start]) + new_section + "".join(lines[end + 1:])
+            new_body = "".join(lines[:start]) + new_section + "".join(lines[end + 1:])
+            new_content = fm + new_body
             return new_content, strategy
         return page_content, strategy + "_NO_CHANGE"
 
@@ -457,6 +607,19 @@ def run(
         if page_filter and page_path != page_filter:
             continue
 
+        target_allowed, target_locale, target_reason = _target_locale_verdict(page_path, family, platform)
+        if not target_allowed:
+            receipts.append({
+                "receipt_id": f"RCP-{family}-{platform}-{len(receipts)+1:04d}",
+                "run_id": run_id,
+                "page_path": page_path,
+                "locale": target_locale or impact.get("locale", ""),
+                "verdict": target_reason,
+                "reason": "body_refresh targets must resolve to canonical English source",
+            })
+            continue
+        impact["locale"] = target_locale
+
         # Filter to only actionable sections
         actionable_sections = [
             s for s in impact.get("affected_sections", [])
@@ -499,7 +662,7 @@ def run(
 
         old_content = _read_page(page_path)
         old_hash = _file_sha256(Path(page_path))
-        new_content = old_content
+        new_content = _dedupe_api_refresh_notes(old_content)
         strategies_used: list[str] = []
         sections_changed: list[str] = []
         sections_preserved: list[str] = []
@@ -510,10 +673,12 @@ def run(
                 sections_preserved.append(sec_id)
                 continue
 
-            for change_id in impact.get("semantic_change_ids", []):
+            section_change_ids = [sec["change_id"]] if sec.get("change_id") else impact.get("semantic_change_ids", [])
+            for change_id in section_change_ids:
                 change = changes_by_id.get(change_id, {})
                 if not change:
                     continue
+                context["page_content"] = new_content
                 updated, strategy = _apply_section_update(new_content, sec, change, context)
                 if updated != new_content:
                     new_content = updated

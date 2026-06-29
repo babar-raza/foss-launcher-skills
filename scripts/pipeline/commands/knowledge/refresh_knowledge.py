@@ -151,9 +151,9 @@ def _stored_extractor_hash(family: str, platform: str) -> str | None:
 def _compute_extractor_hash() -> str:
     """Compute a hash of the extractor source files.
 
-    When extractors change (formats.py, api_surface.py, scout.py),
-    knowledge should be re-extracted even if the upstream repo SHA
-    hasn't changed. This hash detects extractor code changes.
+    When extraction or promotion logic changes, knowledge should be rebuilt
+    even if the upstream repo SHA hasn't changed. Promotion changes can alter
+    merged claims and deltas without changing scout output.
     """
     import hashlib
     extraction_dir = REPO_ROOT / "scripts" / "pipeline" / "extraction"
@@ -161,6 +161,7 @@ def _compute_extractor_hash() -> str:
         extraction_dir / "formats.py",
         extraction_dir / "api_surface.py",
         extraction_dir / "scout.py",
+        REPO_ROOT / "scripts" / "pipeline" / "commands" / "knowledge" / "promote.py",
     ])
     h = hashlib.sha256()
     for fp in extractor_files:
@@ -177,8 +178,7 @@ def _save_extractor_hash(family: str, platform: str, ext_hash: str) -> None:
     try:
         data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
         data["extractor_hash"] = ext_hash
-        with atomic_write(path) as f:
-            yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
+        atomic_write(path, yaml.safe_dump(data, default_flow_style=False, allow_unicode=True))
     except Exception as exc:
         print(f"  {family}/{platform}: WARN — could not save extractor_hash: {exc}")
 
