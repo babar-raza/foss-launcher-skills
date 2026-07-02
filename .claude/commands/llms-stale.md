@@ -60,3 +60,7 @@ After content changes:
 - `/llms-generate` — regenerate to fix stale outputs
 - `/llms-coverage` — check structural presence of outputs
 - `/llms-fidelity` — check content quality of outputs
+
+## Metrics Obligation
+
+This skill does not invoke LLM endpoints directly. No metrics obligation applies (METRICS-PLAN-001). It performs hash comparison against existing outputs only.

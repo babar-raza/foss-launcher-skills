@@ -58,3 +58,7 @@ Script reports `TC-07 decision: DEFERRED (all text/plain)` when no octet-stream 
 
 - `/llms-generate` — regenerate outputs before verifying
 - `/llms-coverage` — audit local coverage (no HTTP required)
+
+## Metrics Obligation
+
+This skill does not invoke LLM endpoints directly. No metrics obligation applies (METRICS-PLAN-001). It performs HTTP verification of deployed endpoints only.

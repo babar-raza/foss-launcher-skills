@@ -57,3 +57,11 @@ then rerun and `diff /tmp/r1.sha /tmp/r2.sha` → empty diff.
 - `/llms-coverage` — audit coverage gap between content and outputs
 - `/llms-fidelity` — audit content fidelity (source vs output comparison)
 - `/llms-verify` — verify live HTTP endpoints after deployment
+
+## Metrics Obligation
+
+This skill invokes the `llms-generate` pipeline which calls LLM endpoints to produce text outputs. The run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All LLM calls must use `LLMRouter` or a registered adapter in `metrics_callsite_registry.yaml`.
+- Per-call `MetricsEvent` records must be captured and aggregated via `RunMetrics`.
+- Metrics failures must not crash or block the parent pipeline job.

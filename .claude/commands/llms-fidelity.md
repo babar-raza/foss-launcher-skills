@@ -70,3 +70,7 @@ To confirm the auditor correctly rejects false-complete outputs:
 
 - `/llms-generate` — regenerate to fix fidelity issues
 - `/llms-coverage` — check presence (not quality)
+
+## Metrics Obligation
+
+This skill does not invoke LLM endpoints directly. No metrics obligation applies (METRICS-PLAN-001). It audits pre-generated output content against source pages only.

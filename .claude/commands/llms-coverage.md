@@ -55,3 +55,7 @@ Use this for regression comparison after regeneration.
 - `/llms-generate` — regenerate outputs to fix coverage gaps
 - `/llms-fidelity` — verify content quality (not just presence)
 - `/llms-stale` — detect hash-level staleness
+
+## Metrics Obligation
+
+This skill does not invoke LLM endpoints directly. No metrics obligation applies (METRICS-PLAN-001). It reads and compares pre-generated outputs only.
