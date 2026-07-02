@@ -9,6 +9,7 @@ from pathlib import Path
 from normalize_code_block_blanks import (
     _compress_2plus_blanks,
     _fix_dq_value,
+    _has_unescaped_quote,
     _normalize_block_literal,
     _normalize_block_single_quoted,
     _normalize_dq_block,
@@ -460,21 +461,114 @@ def test_main_idempotent_on_already_clean_pages(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Multi-line double-quoted YAML with YAML folding — known limitation (GAP-CSSP-R09)
+# Multi-line double-quoted YAML with YAML line folding (GAP-CSSP-R09 — now handled)
 # ---------------------------------------------------------------------------
 
-def test_fix_dq_value_does_not_handle_multiline_folded_yaml():
-    """Document known limitation: _fix_dq_value handles only single-line DQ scalars.
+def test_has_unescaped_quote_basic():
+    assert _has_unescaped_quote('"hello"')
+    assert _has_unescaped_quote('ends with "')
+    assert not _has_unescaped_quote('\\"escaped\\"')
+    assert not _has_unescaped_quote('no quote here')
+    assert not _has_unescaped_quote('')
 
-    Multi-line double-quoted YAML using YAML line folding (trailing backslash on
-    physical lines) is NOT normalized by _fix_dq_value or _normalize_fm_lines.
-    Such pages require a direct S-73 edit rather than automated normalization.
-    The EN pdf/net page (block[1]) was fixed this way (2026-07-02).
+
+def test_has_unescaped_quote_mixed():
+    # Escaped then unescaped
+    assert _has_unescaped_quote('\\"escaped\\" then "open')
+    # Only escaped
+    assert not _has_unescaped_quote('\\"only escaped\\"')
+
+
+def test_dq_multiline_blank_inside_code_fence_removed():
+    """_normalize_fm_lines fixes blank lines in multi-physical-line DQ scalars.
+
+    The continuation line carries \\n\\n inside a code fence; _fix_dq_value
+    is applied to it via in_dq_multiline tracking.
     """
-    # Key line has " but no ``` or \n — single-line DQ pattern does not match.
-    key_line = '    content: "intro'
-    assert "```" not in key_line
+    fm = (
+        "\n"
+        "single:\n"
+        "  enable: true\n"
+        "  block:\n"
+        '  - title: Add a Watermark\n'
+        '    content: "Stamp a watermark onto page 1.\\\n'
+        '      \\n\\n```csharp\\nusing Aspose.Pdf;\\n\\n\\\n'
+        '      var input = System.IO.File.ReadAllBytes(\\"report.pdf\\");\\\n'
+        '      \\n```\\n"\n'
+    )
+    result = _normalize_fm_lines(fm)
+    # The \n\n inside the code fence (after 'using Aspose.Pdf;') must be removed.
+    # Output is rewritten as a single physical line (fold markers collapsed).
+    assert "Aspose.Pdf;\\n\\n" not in result
+    assert "Aspose.Pdf;\\nvar" in result
+    # Prose \n\n before the opening fence must be preserved
+    assert "\\n\\n```csharp" in result
 
-    # Continuation line has \n and ``` but no " — also does not match.
-    continuation = "      \\n```csharp\\nusing Aspose.Pdf;\\n\\n"
-    assert '"' not in continuation
+
+def test_dq_multiline_no_change_when_clean():
+    """_normalize_fm_lines does not modify a multi-line DQ value that has no blanks."""
+    fm = (
+        "\n"
+        "single:\n"
+        "  enable: true\n"
+        "  block:\n"
+        '  - title: Add a Watermark\n'
+        '    content: "Stamp a watermark.\\\n'
+        '      \\n\\n```csharp\\nusing Aspose.Pdf;\\\n'
+        '      var input = System.IO.File.ReadAllBytes(\\"report.pdf\\");\\\n'
+        '      \\n```\\n"\n'
+    )
+    result = _normalize_fm_lines(fm)
+    assert result == fm
+
+
+def test_dq_multiline_state_reset_after_closing_quote():
+    """in_dq_multiline tracking resets when the DQ scalar closes."""
+    # Two consecutive DQ values: the first is multiline, the second is single-line.
+    # The second must also be processed correctly.
+    fm = (
+        "\n"
+        "single:\n"
+        "  block:\n"
+        '  - title: First\n'
+        '    content: "prose\\\n'
+        '      \\n\\n```csharp\\nA;\\n\\n\\\n'
+        '      B;\\\n'
+        '      \\n```\\n"\n'
+        '  - title: Second\n'
+        '    content: "prose\\n\\n```csharp\\nX;\\n\\nY;\\n```\\n"\n'
+    )
+    result = _normalize_fm_lines(fm)
+    # Both blanks inside code fences must be removed
+    assert "A;\\n\\n" not in result       # first value fixed (blank removed)
+    assert "X;\\n\\nY;" not in result     # second value fixed
+    assert "A;\\nB;" in result            # single-line rewrite: fold markers collapsed
+    assert "X;\\nY;" in result
+
+
+def test_dq_multiline_pdf_net_watermark_pattern():
+    """Reproduce the exact pdf/net Watermark block defect and verify automated fix.
+
+    Before fix (2026-07-02): required direct S-73 edit (GAP-CSSP-R09 limitation).
+    After fix: _normalize_fm_lines handles it automatically.
+    """
+    # Exact pattern from content/products.aspose.org/en/pdf/net/_index.md pre-fix
+    fm = (
+        "\n"
+        "single:\n"
+        "  enable: true\n"
+        "  block:\n"
+        '  - title: Add a Watermark Annotation\n'
+        '    content: "Stamp a watermark onto page 1 of an existing document and round-trip\\\n'
+        '      \\ through serialization.\\n\\n```csharp\\nusing Aspose.Pdf;\\n\\n\\\n'
+        '      var input = System.IO.File.ReadAllBytes(\\"report.pdf\\");\\nusing var doc = Document.Open(input);\\n\\\n'
+        '      doc.Pages[1].Annotations.AddWatermarkAnnotation(\\n    new Rectangle(0, 0, 612,\\\n'
+        '      \\ 792), \\"CONFIDENTIAL\\");\\nvar saved = doc.ToArray();\\nSystem.IO.File.WriteAllBytes(\\"\\\n'
+        '      watermarked.pdf\\", saved);\\n```\\n"\n'
+    )
+    result = _normalize_fm_lines(fm)
+    # \n\n inside code fence (after 'using Aspose.Pdf;') must be removed
+    assert "Aspose.Pdf;\\n\\n" not in result
+    assert "Aspose.Pdf;\\nvar" in result  # single-line rewrite: fold markers collapsed
+    # Prose \n\n (before ```csharp) must be preserved
+    assert "serialization.\\n\\n```csharp" in result

@@ -17,10 +17,11 @@ Three YAML formats are handled, each with different blank-line semantics:
      - 2+ blank lines in raw → \\n\\n in parsed → blank in code (defect)
      - Fix: compress 2+ consecutive blank runs to 0
 
-  3. Double-quoted single-line (content: "...", with \\n encoded as backslash-n)
+  3. Double-quoted (content: "...", with \\n encoded as backslash-n)
+     - Single physical line OR multi-physical-line with YAML line-fold (trailing \\)
      - 1 \\n\\n (2 backslash-n chars) → 1 blank in parsed (defect)
      - Fix: after splitting on backslash-n, remove ALL empty virtual lines
-            inside code fence regions
+            inside code fence regions; each physical line processed independently
 
 Rules applied (matching detect_code_block_blanks.py):
   1. BLANK_AFTER_OPEN_FENCE    — blank after opening fence    (all snippet lengths)
@@ -215,31 +216,127 @@ def _fix_dq_value(raw_line):
 
 
 # ---------------------------------------------------------------------------
+# Helpers: multi-physical-line double-quoted YAML scalar handling (GAP-CSSP-R09)
+# ---------------------------------------------------------------------------
+
+def _has_unescaped_quote(s):
+    """Return True if s contains a double-quote not immediately preceded by backslash.
+
+    Used to detect whether a double-quoted YAML scalar has been closed on the
+    current physical line or continues to the next via a line-fold backslash.
+    """
+    j = 0
+    while j < len(s):
+        if s[j] == '\\':
+            j += 2  # skip escape pair (e.g. \" or \\)
+        elif s[j] == '"':
+            return True
+        else:
+            j += 1
+    return False
+
+
+def _join_dq_fold(physical_lines):
+    """Join physical lines of a multi-line DQ YAML scalar into one raw YAML line.
+
+    Applies YAML double-quoted scalar line-fold rules:
+      - Trailing \\ on a physical line = fold: remove it and strip leading whitespace
+        on the next physical line before joining.
+      - \\ followed by a space at the start of a continuation (after lstrip) = literal
+        space in the parsed value; replace with a single space.
+
+    The result is a single (possibly long) physical line containing the full raw
+    YAML double-quoted scalar: key: "...full content...".
+    """
+    parts = []
+    for idx, line in enumerate(physical_lines):
+        if idx == 0:
+            s = line.rstrip()
+            parts.append(s[:-1] if s.endswith('\\') else line)
+        else:
+            content = line.lstrip()
+            if content.startswith('\\ '):
+                content = ' ' + content[2:]
+            s = content.rstrip()
+            parts.append(s[:-1] if s.endswith('\\') else content)
+    return ''.join(parts)
+
+
+def _fix_dq_multiline_value(physical_lines):
+    """Fix blank lines in code fences within a multi-physical-line DQ YAML scalar.
+
+    Joins all physical lines into a single logical raw YAML line (via
+    _join_dq_fold), applies _fix_dq_value to remove blank lines inside code
+    fences, then returns either [fixed_single_line] (if changed) or the
+    original physical_lines list (if unchanged).
+    """
+    joined = _join_dq_fold(physical_lines)
+    fixed = _fix_dq_value(joined)
+    if fixed == joined:
+        return physical_lines
+    return [fixed]
+
+
+# ---------------------------------------------------------------------------
 # Raw frontmatter normalization with YAML context tracking
 # ---------------------------------------------------------------------------
 
 def _normalize_fm_lines(fm_text):
     """Normalize code block blank lines in raw YAML frontmatter.
 
-    Tracks the current YAML scalar format (literal | vs single-quoted) to apply
-    the correct blank-line removal strategy for each code fence region found.
+    Tracks the current YAML scalar format (literal | vs single-quoted vs
+    multi-physical-line double-quoted) to apply the correct blank-line removal
+    strategy for each code fence region found.
+
+    Multi-physical-line double-quoted scalars (GAP-CSSP-R09):
+      content: "prose...\\
+        \\n\\n```csharp\\nusing Aspose.Pdf;\\n\\n\\
+        var input = ...
+    All physical lines are buffered, joined via _join_dq_fold into a single
+    logical line, then fixed by _fix_dq_value and written back (as one line
+    if changed, or as original physical lines if unchanged).
     """
     lines = fm_text.split("\n")
     result = []
 
     literal_block_mode = False   # True when inside a | or > block scalar
     literal_base_indent = 0      # indentation level of the literal block's key
+    in_dq_multiline = False      # True when buffering a multi-physical-line DQ scalar
+    dq_buffer = []               # accumulated physical lines of the current DQ value
 
     i = 0
     while i < len(lines):
         line = lines[i]
+        stripped = line.rstrip()
 
-        # --- Handle double-quoted single-line values first ---
-        if _LNL in line and "```" in line and '"' in line:
-            if re.match(r"^[ \t]*[\w][\w_-]*\s*:", line):
-                result.append(_fix_dq_value(line))
-                i += 1
-                continue
+        # --- Multi-physical-line DQ scalar: buffer continuation lines ---
+        if in_dq_multiline:
+            dq_buffer.append(line)
+            if not stripped.endswith('\\'):
+                # Last physical line of the DQ value — flush and fix
+                in_dq_multiline = False
+                result.extend(_fix_dq_multiline_value(dq_buffer))
+                dq_buffer = []
+            i += 1
+            continue
+
+        # --- Double-quoted key line: detect single-line vs start of multi-line ---
+        if (not literal_block_mode
+                and '"' in line
+                and re.match(r"^[ \t]*[\w][\w_-]*\s*:", line)):
+            m = re.match(r'^[ \t]*[\w][\w_-]*\s*:\s*"', line)
+            if m and stripped.endswith('\\') and not _has_unescaped_quote(line[m.end():]):
+                # Start of multi-physical-line DQ value: begin buffering
+                in_dq_multiline = True
+                dq_buffer = [line]
+            else:
+                # Single-line DQ value: apply fix immediately
+                if _LNL in line and "```" in line:
+                    result.append(_fix_dq_value(line))
+                else:
+                    result.append(line)
+            i += 1
+            continue
 
         # --- Detect literal block scalar start ---
         m_lit = _LITERAL_BLOCK_RE.match(line)
