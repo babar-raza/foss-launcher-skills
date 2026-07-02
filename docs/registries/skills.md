@@ -79,6 +79,7 @@
 | refresh-oracle | S-106 | Validates refreshed content against source truth; composes prose_stale_scan.py; queues missed cross-page propagation |
 | locale-refresh-handoff | S-107 | Queues locale equivalents for re-translation; routes <3 sentences to S-75, >=3 to S-56 |
 | frontmatter-body-consistency | S-108 | Checks paired-claim consistency between frontmatter evidence and body prose |
+| production-localization-incident | S-109 | Production localization incident orchestration: containment, forensics, review packets, S-52/S-53/S-99 routing, deployment/live/CDN gates, monitoring, resume, and closeout |
 | project-phase-store | S-10 | Track generation phase state |
 | publish-readiness-review | S-90 | Agent-executed governed inspection |
 | refresh-product | S-84 | Full post-launch product refresh orchestration |

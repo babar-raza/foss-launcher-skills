@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
-  "skill_count": 86,
+  "skill_count": 93,
   "skills": [
     {
       "id": "S-01",
@@ -689,9 +689,68 @@
       "id": "S-102",
       "slug": "grade-remediate",
       "name": "Grade Remediate — Fix D/F Grade Pages",
-      "description": "Remediate D/F grade pages by improving content to meet quality bar",
+      "description": "After a knowledge refresh or content update cycle, some pages may be graded D or F",
       "internal": false,
-      "canonical_path": "skills/grade-remediate.md"
+      "canonical_path": "skills/grade-remediate.md",
+      "args": "`{family} {platform}`"
+    },
+    {
+      "id": "S-103",
+      "slug": "post-sprint-loop",
+      "name": "Post-Sprint Autonomy Loop",
+      "description": "Run the persisted post-sprint autonomy loop through P1 audit, P2 plan hardening, and P3 controlled execution.",
+      "internal": false,
+      "canonical_path": "skills/post-sprint-loop.md",
+      "args": "`[--sprint-id <id>]` (only needed on first run; auto-detected from state thereafter)"
+    },
+    {
+      "id": "S-104",
+      "slug": "semantic-diff",
+      "name": "Semantic Diff",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/semantic-diff.md"
+    },
+    {
+      "id": "S-105",
+      "slug": "body-refresh",
+      "name": "Body Refresh",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/body-refresh.md"
+    },
+    {
+      "id": "S-106",
+      "slug": "refresh-oracle",
+      "name": "Refresh Oracle",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/refresh-oracle.md"
+    },
+    {
+      "id": "S-107",
+      "slug": "locale-refresh-handoff",
+      "name": "Locale Refresh Handoff",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/locale-refresh-handoff.md"
+    },
+    {
+      "id": "S-108",
+      "slug": "frontmatter-body-consistency",
+      "name": "Frontmatter Body Consistency",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/frontmatter-body-consistency.md"
+    },
+    {
+      "id": "S-109",
+      "slug": "production-localization-incident",
+      "name": "Production Localization Incident — Contain, Investigate, Repair, Verify, and Close Localized Production Incidents",
+      "description": "Orchestrate production localization incidents without duplicating translation or pipeline-hardening behavior.",
+      "internal": false,
+      "canonical_path": "skills/production-localization-incident.md",
+      "args": "``"
     }
   ]
 }
