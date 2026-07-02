@@ -26,12 +26,41 @@ PILOT_PAGES = {
     'blog.aspose.org': [],
 }
 
+# ---------------------------------------------------------------------------
+# Content structure helpers (used by both CONTENT_CHECKS and audit_fidelity)
+# ---------------------------------------------------------------------------
+
+def count_table_rows(text: str) -> int:
+    """Count markdown table rows (lines starting with '|')."""
+    return len([ln for ln in text.splitlines() if ln.strip().startswith('|')])
+
+
+def count_code_fences(text: str) -> int:
+    """Count triple-backtick code fence markers."""
+    return text.count('```')
+
+
+def count_h2(text: str) -> int:
+    """Count H2 headings (lines starting with '## ')."""
+    return len(re.findall(r'^## .+', text, re.MULTILINE))
+
+
+# ---------------------------------------------------------------------------
+# Content quality checks applied to fetched .txt body
+# ---------------------------------------------------------------------------
+
 CONTENT_CHECKS = [
     ('no_angle_shortcodes', lambda body: '{{' not in body),
     ('no_percent_shortcodes', lambda body: '{%' not in body),
     ('has_title', lambda body: '\n# ' in body or body.startswith('# ')),
     ('no_evidence', lambda body: 'claim_id' not in body and 'model_sha' not in body),
     ('no_grading', lambda body: 'graded_content_hash' not in body),
+    # Code fences must come in pairs (odd count = unclosed fence)
+    ('even_code_fences', lambda body: count_code_fences(body) % 2 == 0),
+    # Tables must have at least 2 rows (header + separator) or none at all
+    ('table_rows_valid', lambda body: count_table_rows(body) == 0 or count_table_rows(body) >= 2),
+    # Pages longer than 300 chars should have at least one H2 section header
+    ('h2_present_if_long', lambda body: count_h2(body) >= 1 or len(body) <= 300),
 ]
 
 

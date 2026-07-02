@@ -52,6 +52,11 @@
 | launch-product | S-49 | 5-subdomain full documentation launch orchestrator |
 | launch-rollback | S-79 | Revert one product's generated content files |
 | link-validate | S-65 | Validate cross-subdomain internal links |
+| llms-coverage | S-LG-03 | Audit coverage gap between content and llms-output (gate: ≥95% per domain) |
+| llms-fidelity | S-LG-04 | Audit content fidelity source vs output (gate: ≥90% overall score) |
+| llms-generate | S-LG-01 | Regenerate all llms-output .txt files and llms.txt indexes for all 5 subdomains |
+| llms-stale | S-LG-05 | Detect stale or missing llms-output .txt files via provenance manifest hash check |
+| llms-verify | S-LG-02 | Verify live HTTP endpoints for deployed llms-output .txt pages |
 | locale-patch | S-75 | Propagate targeted text fixes to locale files |
 | manual-edit | S-73 | Operator-directed targeted content edit |
 | new-blog-index | S-101 | Scaffold Blog platform section landing page |

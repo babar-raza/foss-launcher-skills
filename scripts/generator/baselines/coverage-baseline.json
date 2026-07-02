@@ -1,0 +1,22 @@
+{
+  "blog.aspose.org": {
+    "total_eligible": 110,
+    "has_output": 110
+  },
+  "docs.aspose.org": {
+    "total_eligible": 345,
+    "has_output": 344
+  },
+  "kb.aspose.org": {
+    "total_eligible": 263,
+    "has_output": 262
+  },
+  "products.aspose.org": {
+    "total_eligible": 50,
+    "has_output": 49
+  },
+  "reference.aspose.org": {
+    "total_eligible": 4451,
+    "has_output": 4450
+  }
+}
