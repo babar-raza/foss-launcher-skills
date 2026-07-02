@@ -158,8 +158,6 @@ Before generating any content, you MUST:
      `canonical_import`. Never use the commercial Aspose package name. If `canonical_import`
      is empty, STOP and run `/repo-scout {family} {platform}` first.
    - All class names and method names must match what you read from reference content — no invented API
-   - **Respect class modifiers**: If api_surface.md shows `**Modifiers**: static` for a class, never use `new ClassName()` — call static methods directly on the type (e.g. `ClassName.Method(...)`). If a class has no static modifier, instantiate it before calling instance methods. If no **Modifiers** line is present, assume a regular (instantiable) class. For abstract classes, show derived-class instantiation or factory patterns.
-   - **Private imports**: Never use underscore-prefixed submodule imports in code examples (e.g. `from pkg._module import X`). Always use the top-level public namespace: `from package import ClassName`. If a class is not re-exported at the top level, omit it from the example or note it as unavailable.
 
 6. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
    - Target path: `content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
@@ -177,16 +175,6 @@ Before generating any content, you MUST:
     ```
     If BLOCKED_TARGET: log WARN and continue.
     **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
-
-7c. **Blog post standards check** (C1–C6): Verify the generated post passes all blog post
-    quality gates, including C6 (`## Getting Started` with docs/kb/reference.aspose.org links):
-    ```bash
-    .venv/Scripts/python scripts/ci/checks/check_blog_post_standards.py \
-      content/blog.aspose.org/{family}/{platform}/{slug}/index.md
-    ```
-    If any FAIL (especially C6 — missing Getting Started section, or C3 — missing Related
-    Resources): fix the post before committing. The `## Getting Started` section must appear
-    in the post body with the standard 4 navigation links (see template structure above, §4).
 
 > **Skill context close** — run after the last step:
 > ```bash

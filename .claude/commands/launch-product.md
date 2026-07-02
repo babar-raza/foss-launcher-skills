@@ -112,45 +112,6 @@ auto-generated content and clears the L-10 gate.
 
 ---
 
-### STAGE 1.7 — Refresh Backlink Target Map
-
-**Condition**: Always run after Stage 1.5 completes, unless checkpoint `target_map_refreshed` is already `true`.
-
-**Purpose**: `data/aspose_com_targets.json` is synthesized from `content/products.aspose.org/en/` by
-`fetch_aspose_com_targets.py`. Stage 1 created `content/products.aspose.org/en/{family}/{platform}/`
-but the JSON has not been regenerated yet. Stage 2 blog posts call `backlink_backfill.py` (S-57 Step 7b),
-which reads this JSON to resolve platform-level backlinks. Without this refresh, `_lookup_platform()` falls
-back to the family-level URL, producing wrong anchor text in all generated blog posts.
-
-**Pre-flight check**: Verify the external platform URL is live before regenerating:
-```bash
-curl -s -o /dev/null -w "%{http_code}" "https://products.aspose.com/{family}/{platform}/"
-```
-If 404: the `products.aspose.com/{family}/{platform}/` page is not yet deployed. STOP — deploy the
-products site first (Hugo build + S3 sync + CDN purge), then retry this stage. Do NOT proceed to
-Stage 2 until this returns 200, or blog posts will link to a broken URL.
-
-**Command**:
-```bash
-PYTHONPATH=scripts/pipeline .venv/Scripts/python \
-  scripts/pipeline/commands/ops/fetch_aspose_com_targets.py
-```
-
-**Success check**: Verify the new platform entry appears with http_status 200:
-```bash
-python -c "import json; d=json.load(open('data/aspose_com_targets.json')); \
-  e=d['targets']['products.aspose.com']['platforms'].get('{family}/{platform}'); \
-  print('OK' if e and e.get('http_status')==200 else 'MISSING/FAIL', e)"
-```
-
-If MISSING or http_status != 200: the deployment pre-flight check failed or was skipped. Do not proceed.
-
-**Checkpoint**: `target_map_refreshed`
-
-**Save checkpoint**: `python scripts/pipeline/commands/ops/project_phase_store.py set {family} {platform} target_map_refreshed true`
-
----
-
 ### STAGE 2 — Blog Posts
 **Pre-condition**: Verify `reports/plans/{family}/{platform}/site_plan.yaml` exists.
 If missing, STOP and re-run Stage 0.5.
@@ -249,26 +210,14 @@ automatically if `_index.md` already has `linkTitle`, `layout: list`, and `{{< c
 **Commands**:
 1. `/new-reference-index {family} {platform}`
 2. `/batch-reference {family} {platform}`
-3. Run grouped index generation (required — upgrades flat scaffold to grouped tables):
-   ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python \
-     scripts/pipeline/commands/content/batch_reference.py \
-     {family} {platform} --generate-index
-   ```
-   Expected: `WRITTEN: {family}/{platform}/_index.md — N entries, N body lines`.
-   If `skipped: manually-curated` → that platform's index is manually curated; skip.
-   If `skipped: _index.md does not exist` → re-run Step 1 first.
 
 Step 1 is self-idempotent — skips if `_index.md` already has `layout: list` and
 `{{< children >}}`. Step 2 is idempotent — skips existing class pages automatically.
-Step 3 is idempotent — regenerates the grouped body from current `api_surface.json`
-and calls `attach_evidence()` internally with `force=True`.
 
 **Post-generation note**: As of Fix 8 (2026-04-07), `batch_reference.py` calls
 `attach_evidence()` internally after writing each class page. This means no separate
 evidence attachment step is needed after Stage 5 — grading (`grade:`, `graded_at:`)
-and evidence (`apis:`, `claims:`) are written during generation. Step 3 similarly
-calls `attach_evidence()` with `force=True` after writing the grouped index.
+and evidence (`apis:`, `claims:`) are written during generation.
 
 **Checkpoint**: `reference_done`
 

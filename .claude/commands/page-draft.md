@@ -40,7 +40,6 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
    - Read `knowledge/{family}/{platform}/merged/api_surface.json` for API verification
    - Read referenced snippets from `knowledge/{family}/{platform}/snippets/`
    - Read `knowledge/{family}/{platform}/merged/install.md` for install instructions (if getting-started page)
-   - **Respect class modifiers**: If `api_surface.json` shows `is_static: true` for a class, never use `new ClassName()` — call static methods directly. For abstract classes, show derived-class instantiation or factory patterns.
 
 4. **Generate frontmatter** appropriate to the page type:
 

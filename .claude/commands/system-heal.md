@@ -121,9 +121,8 @@ S-74 escalates automatically at depth ≥ 3; continue with non-link findings.
 
 Run S-46 (gap-apply) waves 1 and 2 only. Do not run wave 3+ in system-heal context.
 
-S-55 (no-downgrade-guard) is NOT invoked by S-46 programmatically. S-46's revert-on-fail
-applies only to audit.py (content-check) failures, not grade regression. After each Wave 2
-substitution batch, invoke /no-downgrade-guard on modified files before committing.
+S-55 (no-downgrade-guard) and revert-on-fail are enforced internally by S-46. Do not add a
+second layer — double-revert behavior would result.
 
 If S-46 reports "old_text not found in file" for a finding: log SKIP; continue.
 

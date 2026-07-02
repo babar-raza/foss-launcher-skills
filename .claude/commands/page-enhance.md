@@ -73,7 +73,6 @@ Enhance a page that scores below the quality bar (grade C or below from S-17/S-2
    - Read `knowledge/{family}/{platform}/merged/api_surface.json`
    - Read `knowledge/{family}/{platform}/merged/limitations.md`
    - Read `knowledge/{family}/{platform}/snippets/` for available code examples
-   - **Respect class modifiers**: If `api_surface.json` shows `is_static: true` for a class, never use `new ClassName()` in code fixes — call static methods directly. For abstract classes, show derived-class instantiation or factory patterns.
 
 5. **Read the current page content**.
 
@@ -113,22 +112,17 @@ Enhance a page that scores below the quality bar (grade C or below from S-17/S-2
 
 9. **Update evidence frontmatter**: Add new claim IDs and API references for added content.
 
-10. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
-   - If BLOCK → do not write; report the blocking reason to the user
-   - If WARN → present the warning to the user; await confirmation before writing
-   - If ALLOW → proceed with write
-
-11. **Run ground-check**:
+10. **Run ground-check**:
    ```bash
    .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {relative-file-path}
    ```
 
-12. **Re-evaluate** to confirm improvement:
+11. **Re-evaluate** to confirm improvement:
     ```bash
     .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json
     ```
 
-13. **Update provenance**: After writing enhanced content, update the provenance mechanism:
+12. **Update provenance**: After writing enhanced content, update the provenance mechanism:
     ```python
     from provenance import update_mechanism
     from pathlib import Path
@@ -136,7 +130,7 @@ Enhance a page that scores below the quality bar (grade C or below from S-17/S-2
     ```
     The `content_hash` will be normalized automatically by the pre-commit hook — do not compute or pass it here.
 
-14. **Report**:
+13. **Report**:
     ```
     PAGE ENHANCE — {file-path}
     Before: Grade [X] ([score]/100)

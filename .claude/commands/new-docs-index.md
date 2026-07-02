@@ -61,10 +61,9 @@ Default weight for unlisted platforms: 80.
    - `version` — for version references if needed
    - `install_command` or `requirements` — for the platform requirement sentence
 
-4. **Check idempotency / repair mode**:
-   - If `content/docs.aspose.org/en/{family}/{platform}/_index.md` does **not** exist → proceed to Step 5 (create mode).
-   - If file exists AND body contains `## Key capabilities` → print `SKIP: platform _index.md already enriched` and stop.
-   - If file exists but body **lacks** `## Key capabilities` → proceed in **repair mode**: enrich the existing page without replacing its frontmatter or existing body_intro; only add the capabilities section and update the provenance `last_mechanism` field to `page-update`.
+4. **Check idempotency**: If `content/docs.aspose.org/en/{family}/{platform}/_index.md` already
+   exists AND contains `linktitle` in frontmatter AND contains `layout: list` in frontmatter AND contains `{{< sections >}}` in the body,
+   print `SKIP: _index.md already complete` and stop — do not overwrite.
 
 5. **Ensure family index exists**: Check if `content/docs.aspose.org/en/{family}/_index.md` exists.
    If it already exists, skip to step 6. If missing, create it:
@@ -153,34 +152,10 @@ Default weight for unlisted platforms: 80.
 
    {body_intro from step 6}
 
-   ## Key capabilities
-
-   {3–6 capability bullet points — see derivation rule below}
-
    Select a section to begin:
 
    {{< sections >}}
    ```
-
-   **Capability bullet derivation rule** (apply in repair mode and create mode):
-   1. Load `knowledge/{family}/{platform}/merged/claims.json`.
-   2. Filter claims where `kind == "feature"` — these are ERC enriched narrative sentences
-      (e.g. "The library provides page manipulation capabilities such as…").
-   3. If ≥ 3 `feature` claims found: take the first 3–6, ordered by claim_id.
-      Format each as: `- {first sentence of claim text, ending with a period}`
-   4. If < 3 `feature` claims found: supplement with `api_class` claims whose docstring
-      field is non-empty (read from `knowledge/{family}/{platform}/merged/api_surface.json`
-      or from `## ClassName` headings with `**Docstring**:` in `api_surface.md`).
-      Format each as: `- {Docstring first sentence} (\`{ClassName}\`)`
-   5. Always produce 3 bullets minimum, 6 maximum.
-
-   **Repair mode behaviour** (Step 4 sent execution here because file exists but lacks `## Key capabilities`):
-   - Read the existing file content.
-   - Insert the `## Key capabilities` section between the existing body_intro paragraph and the
-     "Select a section to begin:" line (or directly before `{{< sections >}}` if that line is absent).
-   - Update `provenance.last_mechanism` to `page-update`.
-   - Do not change any frontmatter fields other than `last_mechanism`.
-   - Do not remove or alter the existing body_intro paragraph.
 
    Note: the `evidence:` and `grade:` blocks are written by `attach_evidence.py` in the next
    step — do not add them manually. The `provenance:` block above is included in the template
@@ -195,49 +170,6 @@ Default weight for unlisted platforms: 80.
    .venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py \
      --files content/docs.aspose.org/en/{family}/{platform}/_index.md
    ```
-
-9a. **Repair section _index.md card metadata**: For each section in `[getting-started, developer-guide]`:
-
-   a. Read `content/docs.aspose.org/en/{family}/{platform}/{section}/_index.md` frontmatter.
-
-   b. Check if `icon:` field is present in frontmatter.
-
-   c. Check if `subtitle:` field is present in frontmatter.
-
-   d. If BOTH present → skip this section (no edit needed).
-
-   e. If EITHER missing → apply repairs:
-      - For `getting-started`: set `icon: academic-cap`
-        and `subtitle:` = first sentence of the section's `description:` frontmatter field.
-      - For `developer-guide`: set `icon: book-open`
-        and `subtitle:` = first sentence of the section's `description:` frontmatter field.
-      - If `description:` is multi-line, use only the first sentence (text up to the first period).
-      - If `description:` is absent, use fallback:
-        - `getting-started` → `"Install and configure the library."`
-        - `developer-guide` → `"Task-oriented guides for common operations."`
-
-   f. Run `path_guard.py` on the section file before editing:
-      ```bash
-      PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/path_guard.py \
-        content/docs.aspose.org/en/{family}/{platform}/{section}/_index.md
-      ```
-
-   g. Apply edit: insert `icon:` and `subtitle:` immediately after `linktitle:` in frontmatter
-      (or after `title:` if `linktitle:` is absent). Do not alter any other frontmatter field.
-
-   h. Run `audit.py` and `validate_frontmatter.py` on the section file after editing:
-      ```bash
-      PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/audit.py \
-        --files content/docs.aspose.org/en/{family}/{platform}/{section}/_index.md
-      PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/validate_frontmatter.py \
-        content/docs.aspose.org/en/{family}/{platform}/{section}/_index.md
-      ```
-
-   i. Run `attach_evidence.py` on the section file:
-      ```bash
-      .venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py \
-        --files content/docs.aspose.org/en/{family}/{platform}/{section}/_index.md
-      ```
 
 10. **Run audit**: Run:
     ```bash

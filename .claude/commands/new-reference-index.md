@@ -62,10 +62,8 @@ Default weight for unlisted platforms: 80.
    - `formats` or top-level capability summary — for the description's format/operation list
 
 4. **Check idempotency**: If `content/reference.aspose.org/en/{family}/{platform}/_index.md`
-   already exists AND is GROUPED (body after frontmatter contains `## ` headings and `|` table
-   rows, not just `{{< children >}}`), print `SKIP: _index.md already grouped` and stop.
-   If the file exists but is FLAT (body is only `{{< children >}}`), skip to step 10a to upgrade it.
-   If the file does not exist, proceed through steps 5–11 to create it.
+   already exists AND contains `layout: list` in frontmatter AND contains
+   `{{< children >}}` in the body, print `SKIP: _index.md already complete` and stop.
 
 5. **Ensure family index exists**: Check if `content/reference.aspose.org/en/{family}/_index.md` exists.
    If it already exists, skip to step 6. If missing, create it:
@@ -174,24 +172,6 @@ Default weight for unlisted platforms: 80.
       --files content/reference.aspose.org/en/{family}/{platform}/_index.md
     ```
     Must exit with 0 FAIL before confirming success.
-
-10a. **Upgrade to grouped index** (if `knowledge/{family}/{platform}/merged/api_surface.json`
-     exists): Run:
-     ```bash
-     PYTHONPATH=scripts/pipeline .venv/Scripts/python \
-       scripts/pipeline/commands/content/batch_reference.py \
-       {family} {platform} --generate-index
-     ```
-     Expected: `WRITTEN: {family}/{platform}/_index.md — N entries, N body lines`.
-     If `skipped: _index.md does not exist` → unexpected; report error (step 8 should have written it).
-     If `skipped: manually-curated` → page is human-curated; skip (do not overwrite).
-     If `knowledge/{family}/{platform}/merged/api_surface.json` does not yet exist (knowledge
-     not bootstrapped), skip this step — S-62 will call `_auto_heal_flat_index()` after
-     `--rebuild-all` once classes are generated.
-
-     This step is idempotent: running it on an already-grouped index regenerates it from the
-     current `api_surface.json` (desired after knowledge updates). It calls `attach_evidence()`
-     internally with `force=True`, so no separate evidence attachment is needed.
 
 11. **Confirm** by printing the output file path and the values used for `linkTitle`, `weight`,
     `version`, and the first line of the body.

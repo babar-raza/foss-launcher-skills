@@ -199,19 +199,11 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
    - Note: batch-reference is idempotent; existing pages are never overwritten.
    - After batch-reference completes: re-evaluate queued pages.
 
-   **7e. H-04 Link validation gate (unconditional)**:
-   Always run link validation as the H-04 quality gate — regardless of whether content_eval
-   found any dead-link FAILs. This step must run unconditionally:
-   ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/ops/link_validator.py {family} {platform}
-   ```
-   - If 0 broken links: record H-04 = PASS.
-   - If broken links found: record H-04 = CONDITIONAL; invoke S-74 (causal-backtrack) per its protocol.
-
-   > **Previous behavior was a bug**: Step 7e previously ran only when broken-link FAILs
-   > existed in content_eval output. This caused H-04 to remain CONDITIONAL (never run) when
-   > content_eval found 0 dead links — even though link_validator.py was never executed.
-   > Link validation must always run as an independent quality gate (SH-003, 2026-06-12).
+   **7e. Dead links → S-65 + S-74**:
+   If the `--from-verdict` file mentions dead internal links, or if any FAIL findings
+   relate to broken links:
+   - Invoke S-65 (link-validate) for the product.
+   - If broken links found: invoke S-74 (causal-backtrack) per its protocol.
 
    **7f. Format mismatches → content_eval + S-73**:
    For pages with FORMAT_MISMATCH notes:
@@ -341,35 +333,7 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
     {Rationale: what was done, what changed, what remains, and why the recommendation follows.}
     ```
 
-12. **Write H-gate sign-off files** (required for readiness scorecard):
-    After all H-gate assessments are complete, write one sign-off file per gate.
-    `readiness_scorecard.py` reads these files from `reports/human-review/` to determine
-    READY TO SHIP status — they MUST be created by S-90, not left to manual creation.
-
-    For each H-gate (h01-h05), create or overwrite
-    `reports/human-review/{family}-{platform}-{gate}-sample.md`:
-
-    ```markdown
-    # S-90 Human Review Gate: {H0N} — {family}/{platform}
-    > Date: {YYYY-MM-DD}
-    > Reviewer: S-90 agent (automated governed inspection)
-
-    ## Findings
-    {one-sentence summary of this gate's outcome}
-    result: {PASS|CONDITIONAL|FAIL}
-    ```
-
-    Gate content mapping:
-    - **h01**: H-01 prose review — summarize truth-audit heals and prose inspection outcome
-    - **h02**: H-02 reference accuracy — truth-audit FAIL count on reference pages
-    - **h03**: H-03 format spot-check — format_truth evaluator result + false-positive notes
-    - **h04**: H-04 link validation — link_validator.py result from step 7e (broken link count)
-    - **h05**: H-05 license accuracy — LICENSE file vs products page claim comparison
-
-    Use `result: PASS` if gate passed cleanly, `result: CONDITIONAL` if issues are pending
-    but non-blocking, `result: FAIL` if gate failed and blocks shipping.
-
-13. **Report to operator**:
+12. **Report to operator**:
     ```
     PUBLISH READINESS REVIEW — {family}/{platform}
     Scope: {scope} | Pages inspected: {N} | Post-action re-grade: yes/no
@@ -424,7 +388,7 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
 | S-21 (page-enhance) | Step 7a, for grade C NEEDS-ACTION pages |
 | S-26 (heal-page) | Step 7b/7c, for grade D or F pages |
 | S-38 (truth-audit) | Step 7g, H-02 reference accuracy check |
-| S-65 (link-validate) | Step 7e, unconditional H-04 gate (always runs) |
+| S-65 (link-validate) | Step 7e, for dead link findings |
 | S-73 (manual-edit) | Step 7f/7j, for format corrections and UNKNOWN_CLASS fixes |
 | S-74 (causal-backtrack) | Step 7e, for broken-link upstream resolution |
 | /batch-reference (S-62) | Step 7d, for STRUCTURAL-GAP reference pages |

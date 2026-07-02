@@ -151,7 +151,6 @@ Before generating any content, you MUST:
    - `layout: single` must always be present — bypasses `layouts/_default/section.html` and uses `themes/docs/layouts/_default/single.html`
    - Class name, parent class, package name, and property names must match what you read from the reference index — do not invent API surface
    - Code examples use the platform's code fence language: `python` (Python), `csharp` (.NET), `java` (Java), `cpp` (C++), `typescript` (TypeScript)
-   - **Respect class modifiers**: If api_surface.json shows `is_static: true` for a class, never use `new ClassName()` — call static methods directly on the type (e.g. `ClassName.Method(...)`). If a class has `is_abstract: true`, show derived-class instantiation or factory patterns. If neither flag is present, assume a regular (instantiable) class.
    - The `---` divider separates Examples, Properties, Methods, and See Also blocks
 
 6. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:

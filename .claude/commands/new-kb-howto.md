@@ -111,8 +111,6 @@ Generate a new KB how-to article.
    - Use `---` horizontal divider between each step inside `{{% steps %}}`
    - **Package name** always comes from `knowledge/{family}/{platform}/scout/model.yaml` → `canonical_import`. Never use the commercial Aspose package name.
    - Class names, method names, and import paths must exactly match what appears in the reference content you read — do not invent new API names
-   - **Respect class modifiers**: If api_surface.md shows `**Modifiers**: static` for a class, never use `new ClassName()` — call static methods directly. For abstract classes, show derived-class instantiation or factory patterns.
-   - **Private imports**: Never use underscore-prefixed submodule imports in code examples (e.g. `from pkg._module import X`). Always use the top-level public namespace: `from package import ClassName`. If a class is not re-exported at the top level, omit it from the example or note it as unavailable.
    - All cross-subdomain links must be absolute `https://` URLs without `/en/` (e.g. `https://docs.aspose.org/{family}/{platform}/...`)
    - All claims must be backed by entries in `knowledge/{family}/{platform}/merged/claims.json`
 

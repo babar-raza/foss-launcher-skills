@@ -99,63 +99,13 @@ Do not run any subsequent steps. Exit 0.
    - **If `knowledge_delta.json` absent**: step is skipped with WARNING; chain continues
    - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step page_impact_assess`
 
-3.6. **Semantic diff** — convert delta into typed semantic change objects:
-   ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.knowledge.semantic_diff {family} {platform}
-   ```
-   Output: `reports/refresh_review/{family}/{platform}/semantic_changes.json`
-   Skip if `knowledge_delta.json` absent.
-
-3.7. **Claim inventory** — parse all docs/KB/blog page bodies into atomic claims:
-   ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.content.claim_parser \
-       {family} {platform} --all-pages \
-       --output reports/refresh_review/{family}/{platform}/claim_maps/
-   ```
-   Output: per-page `*.claim_map.json` files in `claim_maps/`.
-
-3.8. **Body impact mapping** — match semantic changes to specific body sections:
-   ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.content.body_impact {family} {platform}
-   ```
-   Output: `reports/refresh_review/{family}/{platform}/body_impact.json`
-   This feeds into the body_refresh step inside S-20 (Step 4).
-
 4. **Update stale existing pages** (S-20: page-update):
    ```
    /page-update {family} {platform}
    ```
    - Reads `knowledge_delta.json` to find affected pages
-   - Internally runs body refresh sub-steps (3a-3f): semantic_diff → claim_parser → body_impact → body_refresh (dry-run + execute)
    - Updates stale paragraphs; uses blog regeneration rule for blog posts
    - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step page_update`
-
-4.5. **Refresh oracle** — validate all refreshed content against source truth:
-   ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.content.refresh_oracle \
-       {family} {platform} --receipts reports/refresh_review/{family}/{platform}/receipts/
-   ```
-   Output: `reports/refresh_review/{family}/{platform}/oracle_verdicts/*.yaml`
-   Any FAIL verdict must be resolved before proceeding to Step 5.
-   - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step refresh_oracle`
-
-4.6. **Frontmatter/body consistency check** — verify paired-claim integrity:
-   ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.content.frontmatter_body_consistency \
-       {family} {platform}
-   ```
-   Detects contradictions between frontmatter evidence fields and body prose
-   (format claims, package names, removed API references).
-   Findings are WARNING-level — log and continue; do not abort the chain.
-   - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step frontmatter_body_consistency`
-
-4.7. **Locale refresh handoff** — queue locale equivalents for re-translation:
-   ```bash
-   PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.content.locale_refresh_handoff \
-       {family} {platform} --receipts reports/refresh_review/{family}/{platform}/receipts/
-   ```
-   Output: `reports/refresh_review/{family}/{platform}/locale_handoff.yaml`
-   Routes pages with <3 changed sentences to S-75 (locale-patch) and ≥3 to S-56 (translate batch).
 
 5. **Delta dispatch — generate new pages**:
    For each page in `delta.pages_to_add` from the site_plan.yaml delta section:
