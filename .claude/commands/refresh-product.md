@@ -157,6 +157,21 @@ Do not run any subsequent steps. Exit 0.
    ```
    Run on all pages updated, generated, or modified in Steps 4-7.
 
+9b. **Normalize blank lines in code fences on changed products pages** (GAP-CSSP-R02):
+    ```bash
+    PYTHONPATH=scripts/pipeline .venv/Scripts/python \
+      scripts/pipeline/commands/content/normalize_code_block_blanks.py
+    ```
+    - Run after Step 4 (page-update) has written or refreshed the products page.
+    - Covers the English products page and all locale copies in one pass (idempotent).
+    - If normalizer reports changed files: include normalized files in the commit.
+    - If normalizer exits non-zero: inspect error_files; do not proceed to Step 9.5.
+    - **Known limitation (GAP-CSSP-R09):** Multi-line double-quoted YAML scalars using
+      YAML line folding (trailing `\` on physical lines) are not handled automatically.
+      If validate_plugin_structure.py (run via Step 9's content-check) reports a
+      `CODE_BLOCK_BLANK_LINES` ERROR after normalization, perform a direct S-73 edit
+      to remove the offending `\n\n` escape sequence.
+
 9.5. **Re-grade changed pages** (TC-P3-03: post-refresh re-grading):
     ```bash
     .venv/Scripts/python -m content_eval evaluate {family} {platform} --write-grade

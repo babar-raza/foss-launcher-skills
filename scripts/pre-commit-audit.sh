@@ -714,4 +714,39 @@ if [ ${#staged_docs_guide[@]} -gt 0 ]; then
 fi
 _pc_step_end "PASS"
 
+# ---------------------------------------------------------------------------
+_pc_step_start "code fence blank lines"
+# Step 16.5: CODE_BLOCK_BLANK_LINES check on staged products pages (GAP-CSSP-R04/R05)
+# Blocks commits that stage products.aspose.org _index.md files with blank lines
+# inside code fences (layout: plugin pages). EN pages: ERROR (blocking).
+# Locale pages with short snippets: ERROR (blocking). Long snippets: WARN (non-blocking).
+# ---------------------------------------------------------------------------
+staged_products_pages=()
+while IFS= read -r _pline; do staged_products_pages+=("$_pline"); done < <(
+    git diff --cached --name-only --diff-filter=ACM \
+        | grep -E '^content/products\.aspose\.org/.*/_index\.md$' || true
+)
+if [ ${#staged_products_pages[@]} -gt 0 ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/pipeline/commands/content/validate_plugin_structure.py" ]; then
+        echo "[Step 16.5] Checking CODE_BLOCK_BLANK_LINES on ${#staged_products_pages[@]} staged products page(s)..."
+        PYTHONPATH=scripts/pipeline "$_HOOK_PYTHON" \
+            scripts/pipeline/commands/content/validate_plugin_structure.py \
+            --files "${staged_products_pages[@]}"
+        _cssp_exit=$?
+        if [ $_cssp_exit -ne 0 ]; then
+            echo ""
+            echo "BLOCKED: Blank lines in code fences detected in staged products page(s) (see above)."
+            echo "  Fix: PYTHONPATH=scripts/pipeline .venv/Scripts/python \\"
+            echo "         scripts/pipeline/commands/content/normalize_code_block_blanks.py"
+            echo "  For multi-line double-quoted YAML scalars (line folding), edit manually:"
+            echo "    remove offending \\\\n\\\\n escape sequences inside code fence regions."
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    else
+        echo "[Step 16.5] SKIP: .venv not found or validate_plugin_structure.py missing." >&2
+    fi
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0
