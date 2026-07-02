@@ -19,11 +19,16 @@ else
     _HOOK_PYTHON=""
 fi
 
-# Enforce Codex co-authorship on every commit created through this hook.
+# Add the Codex co-author trailer only for agent-authored messages. Human
+# commits normally have no "Skills invoked:" line and must not be modified.
 if [ -n "$1" ] && [ -f "$1" ]; then
-    _codex_trailer="Co-authored-by: Codex <codex@openai.com>"
-    if ! grep -qiF "$_codex_trailer" "$1"; then
-        printf '\n%s\n' "$_codex_trailer" >> "$1"
+    msg=$(cat "$1")
+    if echo "$msg" | grep -qiE 'skills?\s*invoked'; then
+        _codex_trailer="Co-authored-by: Codex <codex@openai.com>"
+        if ! grep -qiF "$_codex_trailer" "$1"; then
+            printf '\n%s\n' "$_codex_trailer" >> "$1"
+            msg=$(cat "$1")
+        fi
     fi
 fi
 
