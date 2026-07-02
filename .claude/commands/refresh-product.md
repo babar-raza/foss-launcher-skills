@@ -180,6 +180,21 @@ Do not run any subsequent steps. Exit 0.
     Compare before/after grades: any page regressing to D or F should be flagged for healing
     before commit. Pass `--skip-regrade` to bypass for fast refresh runs.
 
+9.7. **Locale topology quality gate** (RG-004):
+
+    After locale propagation (translation runs or locale files updated), verify that
+    all locale copies share the same H2 heading structure as the English source:
+    ```bash
+    PYTHONPATH=scripts/pipeline .venv/Scripts/python \
+      scripts/pipeline/commands/ops/check_locale_topology.py \
+      --source content/{site}/{family}/{platform}/_index.md \
+      --locales content/{site}/*/{{family}}/{platform}/_index.md \
+      --json
+    ```
+    Expected output: `"mismatches": []`. If mismatches are found, inspect the locale
+    files listed and either fix the locale manually (S-75) or re-translate that locale.
+    Do not commit locale pages with H2 structure mismatches — they will render incorrectly.
+
 10. **Link validation** (S-65: link-validate):
     ```
     /link-validate {family} {platform}

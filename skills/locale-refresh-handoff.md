@@ -18,3 +18,19 @@ PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.content.locale_refr
 ```
 
 Output: `reports/refresh_review/{family}/{platform}/locale_handoff.yaml`
+
+## Quality Gate (RG-004)
+
+After locale propagation completes, run the topology check before committing locale files:
+
+```bash
+PYTHONPATH=scripts/pipeline .venv/Scripts/python \
+  scripts/pipeline/commands/ops/check_locale_topology.py \
+  --source content/{site}/{family}/{platform}/_index.md \
+  --locales content/{site}/*/{{family}}/{platform}/_index.md \
+  --json
+```
+
+Expected: `"mismatches": []`. Any mismatch indicates a locale file is missing or has
+extra H2 headings compared to the English source. Fix via S-75 (locale-patch) or
+re-translation before committing.

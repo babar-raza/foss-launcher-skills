@@ -71,6 +71,13 @@ VD_NO_SECTIONS = "NO_ACTIONABLE_SECTIONS"
 VD_REJECTED_LOCALIZED = "TARGET_REJECTED_LOCALIZED"
 VD_REJECTED_AMBIGUOUS = "TARGET_REJECTED_AMBIGUOUS_LOCALE"
 
+# Minimum confidence threshold for semantic changes.  Changes classified by
+# semantic_diff.py with confidence < this value are skipped and require human
+# review (RG-007 gate).  Rationale: 0.60 = non-user-visible API changes
+# (highest false-positive risk); 0.70 gate captures these while preserving
+# 0.80 claims and 0.95 user-visible API changes from being blocked.
+_MIN_CONFIDENCE_THRESHOLD: float = 0.70
+
 _DIR_LOCALE_SITES = {
     "docs.aspose.org",
     "kb.aspose.org",
@@ -684,6 +691,12 @@ def run(
             for change_id in section_change_ids:
                 change = changes_by_id.get(change_id, {})
                 if not change:
+                    continue
+                # RG-007: confidence gate — skip changes below threshold to prevent
+                # low-confidence false-positive body edits from propagating automatically.
+                change_confidence = change.get("confidence", 1.0)
+                if change_confidence < _MIN_CONFIDENCE_THRESHOLD:
+                    sections_preserved.append(f"{sec_id}[LOW_CONFIDENCE:{change_confidence:.2f}]")
                     continue
                 context["page_content"] = new_content
                 updated, strategy = _apply_section_update(new_content, sec, change, context)

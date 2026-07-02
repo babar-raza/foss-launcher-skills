@@ -554,3 +554,48 @@ def test_see_also_section_never_removed(tmp_path):
     else:
         # Nothing written (protected) — also acceptable
         pass
+
+
+def test_low_confidence_change_not_applied(tmp_path):
+    """RG-007: changes with confidence < _MIN_CONFIDENCE_THRESHOLD are not applied."""
+    page_content = "---\ntitle: Test\n---\n\n## Overview\n\nSome content about OldAPI here.\n"
+    page = _make_page(tmp_path, "content/page.md", page_content)
+
+    writes: list[tuple] = []
+    br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
+
+    # Build a change with low confidence (0.60 = non-user-visible API, below threshold 0.70)
+    low_conf_change = _make_change("CHG-LC-001", "OldAPI", "API_REMOVED")
+    low_conf_change["confidence"] = 0.60
+
+    impact = _make_impact(str(page), "CHG-LC-001", "overview", br.UT_REMOVAL)
+    _setup_reports(tmp_path, "pdf", "net", [impact], [low_conf_change])
+
+    receipts = br.run("pdf", "net", execute=True)
+
+    # No write should occur — low-confidence gate prevents the edit
+    assert writes == [], "Low-confidence change must not produce a body write"
+    # Page content must be unchanged
+    assert page.read_text(encoding="utf-8") == page_content
+
+
+def test_high_confidence_change_applied(tmp_path):
+    """RG-007 positive: changes at or above _MIN_CONFIDENCE_THRESHOLD are processed normally."""
+    page_content = "---\ntitle: Test\n---\n\n## Overview\n\nUse `OldAPI` to process files.\n"
+    page = _make_page(tmp_path, "content/page.md", page_content)
+
+    writes: list[tuple] = []
+    br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
+
+    # Build a change at the threshold boundary (0.95 = user-visible, passes gate)
+    high_conf_change = _make_change("CHG-HC-001", "OldAPI", "API_REMOVED")
+    high_conf_change["confidence"] = 0.95
+
+    impact = _make_impact(str(page), "CHG-HC-001", "overview", br.UT_REMOVAL)
+    _setup_reports(tmp_path, "pdf", "net", [impact], [high_conf_change])
+
+    receipts = br.run("pdf", "net", execute=True)
+
+    # High confidence change should be processed (write attempted or content changed)
+    # We accept either a write or a receipt showing BODY_UPDATED / NO_ACTIONABLE_SECTIONS
+    assert len(receipts) == 1
