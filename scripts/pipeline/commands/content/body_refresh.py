@@ -394,6 +394,13 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
         change_type = change.get("change_type", "")
         if not symbol:
             return section_text
+        # Guard: require at least 10 characters of prose content in the section
+        # before injecting a note.  Empty sections, zero-content zones (between
+        # frontmatter and first heading), and whitespace-only slices must not
+        # receive isolated API-change notes — doing so produces incoherent
+        # content or orphaned sentences with no surrounding context (RG-002).
+        if len(section_text.strip()) < 10:
+            return section_text
         existing_content = context.get("page_content", section_text)
         if (
             "API surface also includes" in existing_content

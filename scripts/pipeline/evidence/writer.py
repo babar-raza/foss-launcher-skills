@@ -94,15 +94,25 @@ def _build_evidence_yaml(evidence_dict: dict) -> str:
 
     This is safe because evidence contains only simple scalars and lists of
     strings — no multi-line code-block content. PyYAML produces clean output.
+
+    Note: yaml.dump emits blank lines between complex sequence items (e.g. sections
+    entries that contain nested formats dicts). Those blank lines would break
+    _EVIDENCE_BLOCK_RE on subsequent runs because the regex stops at blank lines.
+    We collapse consecutive blank lines to single newlines to keep the block
+    regex-matchable across re-runs (idempotency fix for RG-001).
     """
+    import re
     import yaml
 
-    return yaml.dump(
+    raw = yaml.dump(
         {"evidence": evidence_dict},
         default_flow_style=False,
         allow_unicode=True,
         sort_keys=False,
     )
+    # Collapse consecutive blank lines that yaml.dump inserts between complex
+    # list items.  A single trailing newline is preserved.
+    return re.sub(r"\n{2,}", "\n", raw)
 
 
 def _write_evidence_to_frontmatter(filepath, evidence_dict) -> bool:

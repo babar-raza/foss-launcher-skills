@@ -364,15 +364,41 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
         return "DRY-RUN"
 
     _eff_write_evidence = _cfg_write_evidence_fn if _cfg_write_evidence_fn is not None else _write_evidence_to_frontmatter
+
+    # Capture pre-attach graded_content_hash so we can skip write_grade() when
+    # the body is unchanged (evidence-only update).  Evidence attach only modifies
+    # frontmatter — the body never changes — so if graded_content_hash already
+    # matches the body we are about to re-grade, the existing grade is still valid
+    # and re-grading risks a false regression (RG-003 fix).
+    _pre_attach_graded_hash = existing.get("graded_content_hash", "") if isinstance(existing, dict) else ""
+
     ok = _eff_write_evidence(filepath, evidence)
     if ok:
         # Auto-grade: pages reaching here have 0 FAILs (line 58 returns on FAILs).
         from content_eval.models import compute_grade as _cg_default, Page  # noqa: E402
         from content_eval import EVALUATOR_LOGIC_VERSION as _elv_default  # noqa: E402
-        from grade_writer import write_grade as _wg_default  # noqa: E402
+        from grade_writer import write_grade as _wg_default, content_hash as _ch  # noqa: E402
         compute_grade = _cfg_compute_grade_fn if _cfg_compute_grade_fn is not None else _cg_default
         EVALUATOR_LOGIC_VERSION = _cfg_evaluator_logic_version if _cfg_evaluator_logic_version is not None else _elv_default
         write_grade = _cfg_write_grade_fn if _cfg_write_grade_fn is not None else _wg_default
+
+        # RG-003: Skip write_grade() when body is unchanged since last grading.
+        # Evidence attach only touches frontmatter; when the body hash matches the
+        # stored graded_content_hash the existing grade was computed against this
+        # exact body and re-running evaluators adds no new signal — it only risks
+        # a spurious grade regression from nondeterministic WARN findings.
+        try:
+            _post_text = filepath.read_text(encoding="utf-8")
+            from core.markdown import _FRONTMATTER_WRITER_RE as _FM_RE  # noqa: E402
+            _fm_m = _FM_RE.match(_post_text)
+            _current_body = _post_text[_fm_m.end():] if _fm_m else _post_text
+            _current_body_hash = _ch(_current_body)
+        except Exception:
+            _current_body_hash = ""
+
+        if _pre_attach_graded_hash and _current_body_hash and _pre_attach_graded_hash == _current_body_hash:
+            return "UPDATED"  # body unchanged — preserve existing grade, skip re-grade
+
         warn_count = sum(1 for f in findings if f.level == "WARN")
         fail_count = 0
         evaluator_tier = "audit"
