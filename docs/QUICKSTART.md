@@ -50,6 +50,9 @@ All content is **agent-generated** and grounded in **knowledge models** built fr
 
 **Skills** are procedures in `.claude/commands/` that AI agents follow. You invoke them with `/skill-name {args}` inside a Claude session — they are not CLI commands.
 
+**Codex commit rule**: When Codex creates any commit in this repository, the
+commit message must include `Co-authored-by: Codex <codex@openai.com>`.
+
 ---
 
 ## Step 3: Verify a Product is Working (5 minutes)
