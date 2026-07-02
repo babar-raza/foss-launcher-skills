@@ -599,3 +599,90 @@ def test_high_confidence_change_applied(tmp_path):
     # High confidence change should be processed (write attempted or content changed)
     # We accept either a write or a receipt showing BODY_UPDATED / NO_ACTIONABLE_SECTIONS
     assert len(receipts) == 1
+
+
+# ── RG-010: Hyperlink preservation guard ───────────────────────────────────
+
+def test_paragraph_rewrite_enterprise_link_stripped_triggers_fallback():
+    """RG-010: LLM output stripping enterprise (products.aspose.com) links must fall back to section_text."""
+    section_text = (
+        "See [Aspose.3D for Java](https://products.aspose.com/3d/java/) "
+        "for enterprise features.\n"
+    )
+
+    class LinkStrippingLLM:
+        class MockResult:
+            data = "See the enterprise product for additional features."
+        def call_chat(self, *a, **kw):
+            return self.MockResult()
+        def __init__(self):
+            pass
+
+    br.configure(llm_router_class=LinkStrippingLLM)
+    change = {"change_id": "CHG-RG010-001", "symbol": "Document3D", "change_type": "PROSE_REFINED"}
+    context = {"family": "3d", "platform": "java"}
+
+    result = br._paragraph_rewrite(section_text, change, context)
+
+    # LLM stripped the enterprise link — guard must return original section_text
+    assert result == section_text, (
+        "RG-010: Must fall back to section_text when LLM strips enterprise link"
+    )
+
+
+def test_paragraph_rewrite_enterprise_link_preserved_accepts_llm_output():
+    """RG-010: LLM output that preserves enterprise links should be accepted."""
+    section_text = (
+        "See [Aspose.3D for Java](https://products.aspose.com/3d/java/) "
+        "for enterprise features.\n"
+    )
+    llm_rewrite = (
+        "For enterprise capabilities, see "
+        "[Aspose.3D for Java](https://products.aspose.com/3d/java/)."
+    )
+
+    class LinkPreservingLLM:
+        class MockResult:
+            data = llm_rewrite
+        def call_chat(self, *a, **kw):
+            return self.MockResult()
+        def __init__(self):
+            pass
+
+    br.configure(llm_router_class=LinkPreservingLLM)
+    change = {"change_id": "CHG-RG010-002", "symbol": "Document3D", "change_type": "PROSE_REFINED"}
+    context = {"family": "3d", "platform": "java"}
+
+    result = br._paragraph_rewrite(section_text, change, context)
+
+    # LLM preserved the enterprise link — LLM output must be accepted
+    assert result == llm_rewrite, (
+        "RG-010: LLM output must be accepted when enterprise link is preserved"
+    )
+
+
+def test_paragraph_rewrite_internal_link_stripped_triggers_fallback():
+    """RG-010: LLM output stripping internal aspose.org links must fall back to section_text."""
+    section_text = (
+        "Learn more in the [PDF documentation](https://docs.aspose.org/pdf/net/overview/) "
+        "for full API coverage.\n"
+    )
+
+    class LinkStrippingLLM:
+        class MockResult:
+            data = "Learn more in the PDF documentation for full API coverage."
+        def call_chat(self, *a, **kw):
+            return self.MockResult()
+        def __init__(self):
+            pass
+
+    br.configure(llm_router_class=LinkStrippingLLM)
+    change = {"change_id": "CHG-RG010-003", "symbol": "PdfDocument", "change_type": "PROSE_REFINED"}
+    context = {"family": "pdf", "platform": "net"}
+
+    result = br._paragraph_rewrite(section_text, change, context)
+
+    # Internal link stripped — guard must return original section_text
+    assert result == section_text, (
+        "RG-010: Must fall back to section_text when LLM strips internal aspose.org link"
+    )

@@ -478,7 +478,35 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
     )
 
     if result and result.data and isinstance(result.data, str):
-        return result.data.strip()
+        llm_output = result.data.strip()
+        # RG-010: Hyperlink preservation guard.
+        # After LLM rewrite, verify all enterprise and internal links from the
+        # original section_text are present in the LLM output.  If any are missing,
+        # fall back to _deterministic_fallback() rather than accepting a rewrite
+        # that strips user-navigable links (including enterprise cross-product links
+        # inserted by backlink_backfill.py).
+        _ENTERPRISE_LINK_RE = re.compile(
+            r'\[([^\]]+)\]\((https://products\.aspose\.com[^)]*)\)'
+        )
+        _INTERNAL_LINK_RE = re.compile(
+            r'\[([^\]]+)\]\((https?://(?:docs|kb|blog|products)\.aspose\.org[^)]*)\)'
+        )
+        original_enterprise = set(_ENTERPRISE_LINK_RE.findall(section_text))
+        original_internal = set(_INTERNAL_LINK_RE.findall(section_text))
+        if original_enterprise or original_internal:
+            rewritten_enterprise = set(_ENTERPRISE_LINK_RE.findall(llm_output))
+            rewritten_internal = set(_INTERNAL_LINK_RE.findall(llm_output))
+            stripped = (
+                (original_enterprise - rewritten_enterprise)
+                | (original_internal - rewritten_internal)
+            )
+            if stripped:
+                print(
+                    f"LINK_PRESERVATION_FALLBACK: LLM stripped {len(stripped)} link(s) "
+                    f"— using deterministic fallback"
+                )
+                return _deterministic_fallback()
+        return llm_output
     return _deterministic_fallback()
 
 
