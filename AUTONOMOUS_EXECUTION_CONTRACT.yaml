@@ -1,0 +1,13 @@
+autonomous_execution_contract:
+  selected_mechanism: autonomous_supervision
+  mechanism_type: autonomous_supervision
+  entry_point: .supervisor/
+  invocation: Local Supervisor Control Plane (deterministic, no LLM)
+  governing_state: .supervisor/state/
+  task_source: backlog/BACKLOG.md + backlog/inbox.md + audit findings
+  continuation_source: .supervisor/state/loop-state.json
+  continuation_consumer: supervisor orchestration loop
+  stop_evaluator: Mission-aware stop evaluation (Section 13 of protocol)
+  resume_strategy: Rediscover state from .supervisor/state/ + backlog + git; reuse same mission identity
+  rejected_alternative: autonomous_cycle
+  mechanism_locked: true

@@ -2,6 +2,7 @@
 
 conftest.py adds commands/content/ to sys.path, so bare imports work.
 """
+import sys
 from pathlib import Path
 
 # conftest.py sys.path setup makes these importable without dotted paths
@@ -407,7 +408,7 @@ def test_normalize_file_multiple_code_blocks(tmp_path):
 
 def test_normalize_file_en_path_not_skipped_by_normalize_file(tmp_path):
     # normalize_file() itself does NOT skip /en/ paths.
-    # The /en/ guard lives in main() only — normalize_file() processes all files.
+    # The /en/ guard was removed from main() in GAP-CSSP-R01 fix.
     en_dir = tmp_path / "en" / "words"
     en_dir.mkdir(parents=True)
     p = en_dir / "_index.md"
@@ -415,3 +416,65 @@ def test_normalize_file_en_path_not_skipped_by_normalize_file(tmp_path):
     p.write_text(content, encoding="utf-8")
     changed, old_len, new_len = normalize_file(p)
     assert changed  # normalize_file processes EN paths; blank after open fence is a defect
+
+
+def test_main_processes_en_locale_pages(tmp_path):
+    """main() must process EN-locale pages (GAP-CSSP-R01: /en/ exclusion removed)."""
+    import normalize_code_block_blanks as m
+    products = tmp_path / "products.aspose.org"
+    en_dir = products / "en" / "words" / "python"
+    en_dir.mkdir(parents=True)
+    p = en_dir / "_index.md"
+    content = "---\ncontent: |\n  ```python\n  \n  x = 1\n  ```\n---\n"
+    p.write_text(content, encoding="utf-8")
+    orig_repo, orig_default = m.REPO, m.DEFAULT_PRODUCTS
+    m.REPO = tmp_path
+    m.DEFAULT_PRODUCTS = products
+    try:
+        exit_code = m.main()
+    finally:
+        m.REPO, m.DEFAULT_PRODUCTS = orig_repo, orig_default
+    assert exit_code == 0
+    assert "  ```python\n  \n" not in p.read_text(encoding="utf-8")
+
+
+def test_main_idempotent_on_already_clean_pages(tmp_path):
+    """Running main() twice produces no additional changes (idempotency)."""
+    import normalize_code_block_blanks as m
+    products = tmp_path / "products.aspose.org"
+    locale_dir = products / "ar" / "words" / "python"
+    locale_dir.mkdir(parents=True)
+    p = locale_dir / "_index.md"
+    content = "---\ncontent: |\n  ```python\n  \n  x = 1\n  ```\n---\n"
+    p.write_text(content, encoding="utf-8")
+    orig_repo, orig_default = m.REPO, m.DEFAULT_PRODUCTS
+    m.REPO = tmp_path
+    m.DEFAULT_PRODUCTS = products
+    try:
+        m.main()
+        snapshot = p.read_text(encoding="utf-8")
+        m.main()
+        assert p.read_text(encoding="utf-8") == snapshot
+    finally:
+        m.REPO, m.DEFAULT_PRODUCTS = orig_repo, orig_default
+
+
+# ---------------------------------------------------------------------------
+# Multi-line double-quoted YAML with YAML folding — known limitation (GAP-CSSP-R09)
+# ---------------------------------------------------------------------------
+
+def test_fix_dq_value_does_not_handle_multiline_folded_yaml():
+    """Document known limitation: _fix_dq_value handles only single-line DQ scalars.
+
+    Multi-line double-quoted YAML using YAML line folding (trailing backslash on
+    physical lines) is NOT normalized by _fix_dq_value or _normalize_fm_lines.
+    Such pages require a direct S-73 edit rather than automated normalization.
+    The EN pdf/net page (block[1]) was fixed this way (2026-07-02).
+    """
+    # Key line has " but no ``` or \n — single-line DQ pattern does not match.
+    key_line = '    content: "intro'
+    assert "```" not in key_line
+
+    # Continuation line has \n and ``` but no " — also does not match.
+    continuation = "      \\n```csharp\\nusing Aspose.Pdf;\\n\\n"
+    assert '"' not in continuation

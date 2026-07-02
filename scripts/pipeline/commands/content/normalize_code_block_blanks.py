@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-normalize_code_block_blanks.py — Phase 3 locale backfill for production-closure sprint.
+normalize_code_block_blanks.py — Remove spurious blank lines from products page code fences.
 
 Removes spurious blank lines inside code fence regions in product page YAML frontmatter.
 Matches the exact same detection logic as detect_code_block_blanks.py / validate_plugin_structure.py.
+Covers ALL locales including English (en/).
 
 Three YAML formats are handled, each with different blank-line semantics:
 
@@ -346,10 +347,6 @@ def main():
     error_files = []
 
     for md in sorted(scan_path.rglob("_index.md")):
-        path_str = str(md).replace("\\", "/")
-        if "/en/" in path_str:
-            continue  # EN pages fixed in prior sprint
-
         rel = str(md.relative_to(REPO)).replace("\\", "/")
         try:
             changed, old_len, new_len = normalize_file(md, dry_run=dry_run)

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Production Localization Incident State",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "incident_id",
+    "status",
+    "repository_revision",
+    "containment_state",
+    "scope_state",
+    "findings",
+    "gap_ids",
+    "taskcards",
+    "updated_at",
+    "exact_next_action"
+  ],
+  "properties": {
+    "schema_version": {"type": "integer"},
+    "incident_id": {"type": "string"},
+    "status": {"type": "string"},
+    "repository_revision": {"type": "string"},
+    "production_revision": {"type": ["string", "null"]},
+    "active_taskcard": {"type": ["string", "null"]},
+    "active_batch": {"type": ["string", "null"]},
+    "containment_state": {"type": "string"},
+    "scope_state": {"type": "string"},
+    "findings": {"type": "array"},
+    "gap_ids": {"type": "array", "items": {"type": "string"}},
+    "taskcards": {"type": "array", "items": {"type": "string"}},
+    "repair_batches": {"type": "array"},
+    "deployment_batches": {"type": "array"},
+    "review_packets": {"type": "array"},
+    "human_approvals": {"type": "array"},
+    "live_verification_state": {"type": "string"},
+    "monitoring_state": {"type": "string"},
+    "last_verified_checkpoint": {"type": ["string", "null"]},
+    "exact_next_action": {"type": "string"},
+    "updated_at": {"type": "string"}
+  },
+  "additionalProperties": true
+}
