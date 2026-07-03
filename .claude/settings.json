@@ -55,7 +55,8 @@
       "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/override_manager.py list-pending)",
       "Read(//c/Users/prora/AppData/Local/Temp/claude/d--onedrive-Documents-GitHub-aspose-org/tasks/**)",
       "Bash(ls /c/Users/prora/AppData/Local/Temp/claude/d--onedrive-Documents-GitHub-aspose-org/tasks/byeyiul49*)",
-      "Read(//c/Users/prora/AppData/Local/Temp/claude/**)"
+      "Read(//c/Users/prora/AppData/Local/Temp/claude/**)",
+      "Bash(.venv/Scripts/python scripts/pipeline/commands/governance/override_manager.py --help)"
     ],
     "additionalDirectories": [
       "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing",
