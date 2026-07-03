@@ -22,18 +22,49 @@
 #
 overrides:
   # pdf/go -> go-cpp: docs.aspose.com/pdf/go/ returns 404; docs.aspose.com/pdf/go-cpp/ returns 200.
-  # Local platform "go" has no direct match; go-cpp is the verified canonical.
+  # Also: products.aspose.com/pdf/go/ returns 404 (verified 2026-07-03); go-cpp is the canonical.
+  # products.aspose.com/pdf/go-cpp/ returns 200 (verified 2026-07-03, commit bb68a63a22).
   pdf/go:
     target_platform: "go-cpp"
     http_verified: true
-    verification_date: "2026-05-26"
-    verification_url: "https://docs.aspose.com/pdf/go-cpp/"
-    notes: "docs.aspose.com/pdf/go/ HTTP 404; docs.aspose.com/pdf/go-cpp/ HTTP 200 confirmed"
+    verification_date: "2026-07-03"
+    verification_url: "https://products.aspose.com/pdf/go-cpp/"
+    notes: "docs.aspose.com/pdf/go/ HTTP 404; docs.aspose.com/pdf/go-cpp/ HTTP 200 (2026-05-26). products.aspose.com/pdf/go/ HTTP 404; products.aspose.com/pdf/go-cpp/ HTTP 200 (2026-07-03, commit bb68a63a22)."
 
-  # words/python-net: products.aspose.com/words/python/ HTTP 200 (current correct behavior).
-  # products.aspose.com/words/python-net/ also HTTP 200, but policy unclear -- REVIEW_REQUIRED.
-  # Not adding override until policy selects python vs python-net for local platform "python".
-  # words/python:
-  #   target_platform: "python-net"
-  #   http_verified: false    # BLOCKED: policy decision needed; see sprint report
-  #   notes: "REVIEW_REQUIRED -- python/ and python-net/ both HTTP 200; need policy decision"
+  # Policy decision (commit bb68a63a22, 2026-07-03): For products.aspose.com, all Python API
+  # products that use the .NET runtime are exposed under the python-net slug, not python/.
+  # HTTP HEAD verification conducted 2026-07-03 against live products.aspose.com:
+  #   /cells/python-net/  -> 200 OK
+  #   /email/python-net/  -> 200 OK
+  #   /slides/python-net/ -> 200 OK
+  #   /words/python-net/  -> 200 OK
+  # Canonical python/ pages also return 200 but are the FOSS landing pages; enterprise pages
+  # are consistently at python-net/ for these four families. Override scope: products.aspose.org
+  # source pages only (resolve_backlink checks subdomain before applying overrides).
+  cells/python:
+    target_platform: "python-net"
+    http_verified: true
+    verification_date: "2026-07-03"
+    verification_url: "https://products.aspose.com/cells/python-net/"
+    notes: "products.aspose.com/cells/python-net/ HTTP 200. Policy: enterprise Python product uses python-net slug. Commit bb68a63a22."
+
+  email/python:
+    target_platform: "python-net"
+    http_verified: true
+    verification_date: "2026-07-03"
+    verification_url: "https://products.aspose.com/email/python-net/"
+    notes: "products.aspose.com/email/python-net/ HTTP 200. Policy: enterprise Python product uses python-net slug. Commit bb68a63a22."
+
+  slides/python:
+    target_platform: "python-net"
+    http_verified: true
+    verification_date: "2026-07-03"
+    verification_url: "https://products.aspose.com/slides/python-net/"
+    notes: "products.aspose.com/slides/python-net/ HTTP 200. Policy: enterprise Python product uses python-net slug. Commit bb68a63a22."
+
+  words/python:
+    target_platform: "python-net"
+    http_verified: true
+    verification_date: "2026-07-03"
+    verification_url: "https://products.aspose.com/words/python-net/"
+    notes: "products.aspose.com/words/python-net/ HTTP 200. Policy: enterprise Python product uses python-net slug. Commit bb68a63a22."

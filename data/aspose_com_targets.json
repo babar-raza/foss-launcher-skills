@@ -62,7 +62,9 @@
       }
     ],
     "output_hash": "sha256:8e6e8eb6608a7b5cfc94854c1e5e39a87a0af2867ef0c4fb3ffdea386f654c27",
-    "total_targets": 80026
+    "total_targets": 80031,
+    "patched_at": "2026-07-03T00:00:00+00:00",
+    "patch_note": "Manual patch 2026-07-03 (TC-DATA-002): pdf/go HTTP 200->404 (live verification); added pdf/go-cpp, cells/python-net, email/python-net, slides/python-net, words/python-net HTTP 200 (live HTTP HEAD verified, commit bb68a63a22)."
   },
   "targets": {
     "docs.aspose.com": {
@@ -532,7 +534,7 @@
         },
         "pdf/go": {
           "url": "https://products.aspose.com/pdf/go/",
-          "http_status": 200,
+          "http_status": 404,
           "redirect_chain": []
         },
         "pdf/java": {
@@ -572,6 +574,31 @@
         },
         "words/python": {
           "url": "https://products.aspose.com/words/python/",
+          "http_status": 200,
+          "redirect_chain": []
+        },
+        "pdf/go-cpp": {
+          "url": "https://products.aspose.com/pdf/go-cpp/",
+          "http_status": 200,
+          "redirect_chain": []
+        },
+        "cells/python-net": {
+          "url": "https://products.aspose.com/cells/python-net/",
+          "http_status": 200,
+          "redirect_chain": []
+        },
+        "email/python-net": {
+          "url": "https://products.aspose.com/email/python-net/",
+          "http_status": 200,
+          "redirect_chain": []
+        },
+        "slides/python-net": {
+          "url": "https://products.aspose.com/slides/python-net/",
+          "http_status": 200,
+          "redirect_chain": []
+        },
+        "words/python-net": {
+          "url": "https://products.aspose.com/words/python-net/",
           "http_status": 200,
           "redirect_chain": []
         }
@@ -2047,7 +2074,7 @@
       "redirect_chain": []
     },
     "https://products.aspose.com/pdf/go/": {
-      "http_status": 200,
+      "http_status": 404,
       "type": "platform-products",
       "family": "pdf",
       "platform": "go",
@@ -561646,6 +561673,41 @@
       "family": "html",
       "platform": null,
       "redirect_chain": []
+    },
+    "https://products.aspose.com/pdf/go-cpp/": {
+      "family": "pdf",
+      "platform": "go-cpp",
+      "http_status": 200,
+      "redirect_chain": [],
+      "type": "platform-products"
+    },
+    "https://products.aspose.com/cells/python-net/": {
+      "family": "cells",
+      "platform": "python-net",
+      "http_status": 200,
+      "redirect_chain": [],
+      "type": "platform-products"
+    },
+    "https://products.aspose.com/email/python-net/": {
+      "family": "email",
+      "platform": "python-net",
+      "http_status": 200,
+      "redirect_chain": [],
+      "type": "platform-products"
+    },
+    "https://products.aspose.com/slides/python-net/": {
+      "family": "slides",
+      "platform": "python-net",
+      "http_status": 200,
+      "redirect_chain": [],
+      "type": "platform-products"
+    },
+    "https://products.aspose.com/words/python-net/": {
+      "family": "words",
+      "platform": "python-net",
+      "http_status": 200,
+      "redirect_chain": [],
+      "type": "platform-products"
     }
   },
   "unavailable_sources": [],
