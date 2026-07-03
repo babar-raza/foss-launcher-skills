@@ -50,7 +50,7 @@ if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 from _skill_constants import INTERNAL_SKILLS
 
-_ID_RE = re.compile(r"^#\s+(S-\d+):")
+_ID_RE = re.compile(r"^#\s+(S-[A-Z0-9-]+):")
 
 # Documentation files that coexist with skills but are not skills themselves
 _NON_SKILL_SLUGS: set[str] = {"readme"}
@@ -221,8 +221,12 @@ def list_skill_ids() -> list[tuple[str, str, str]]:
     def sort_key(item):
         sid = item[0]
         if sid == "NONE":
-            return (999,)
-        return (int(sid.split("-")[1]),)
+            return (999, sid)
+        parts = sid.split("-")
+        try:
+            return (int(parts[-1]), sid)
+        except (ValueError, IndexError):
+            return (998, sid)
 
     return sorted(results, key=sort_key)
 

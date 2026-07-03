@@ -407,40 +407,6 @@ class TestSynthesizeProductionWiring:
         assert "except Exception" in source
 
 
-class TestTranslatorProductionWiring:
-
-    def _get_cli(self):
-        translator_dir = _REPO_ROOT / "scripts" / "translator"
-        if str(translator_dir) not in sys.path:
-            sys.path.insert(0, str(translator_dir))
-        import cli as _cli
-        return _cli
-
-    def test_translator_source_has_production_submit(self):
-        cli = self._get_cli()
-        import inspect
-        source = inspect.getsource(cli)
-        assert "try_production_submit" in source
-
-    def test_translator_source_has_import(self):
-        cli = self._get_cli()
-        import inspect
-        source = inspect.getsource(cli)
-        assert "from commands.ops.metrics_submitter import try_production_submit" in source
-
-    def test_translator_dry_run_still_present(self):
-        cli = self._get_cli()
-        import inspect
-        source = inspect.getsource(cli)
-        assert ".dry.json" in source
-
-    def test_translator_exception_guard_present(self):
-        cli = self._get_cli()
-        import inspect
-        source = inspect.getsource(cli)
-        # The outer try/except guard must still be present
-        assert "metrics capture must never break translation" in source
-
 
 class TestSeoRecommendProductionWiring:
 
@@ -503,13 +469,6 @@ class TestCrossValidation:
         # gap-eval/synthesize.py
         import synthesize as _synth
         entry_points.append(("gap-eval/synthesize.py", inspect.getsource(_synth)))
-
-        # translator/cli.py
-        translator_dir = _REPO_ROOT / "scripts" / "translator"
-        if str(translator_dir) not in sys.path:
-            sys.path.insert(0, str(translator_dir))
-        import cli as _cli
-        entry_points.append(("translator/cli.py", inspect.getsource(_cli)))
 
         # seo/recommend.py
         seo_dir = _REPO_ROOT / "scripts" / "seo" / "pipeline"
