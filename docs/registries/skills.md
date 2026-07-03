@@ -84,7 +84,7 @@
 | refresh-oracle | S-106 | Validates refreshed content against source truth; composes prose_stale_scan.py; queues missed cross-page propagation |
 | locale-refresh-handoff | S-107 | Queues locale equivalents for re-translation; routes <3 sentences to S-75, >=3 to S-56 |
 | frontmatter-body-consistency | S-108 | Checks paired-claim consistency between frontmatter evidence and body prose |
-| production-localization-incident | S-109 | Production localization incident orchestration: containment, forensics, review packets, S-52/S-53/S-99 routing, deployment/live/CDN gates, monitoring, resume, and closeout |
+| production-localization-incident | S-109 | Production localization incident orchestration: containment, forensics, review packets, S-HT-01/S-HT-02/S-99 routing, deployment/live/CDN gates, monitoring, resume, and closeout |
 | project-phase-store | S-10 | Track generation phase state |
 | publish-readiness-review | S-90 | Agent-executed governed inspection |
 | refresh-product | S-84 | Full post-launch product refresh orchestration |
@@ -98,8 +98,8 @@
 | site-plan | S-47 | Production-grade pre-generation site manifest |
 | stale-detect | S-13 | Identify stale content pages |
 | system-heal | S-87 | Audit-driven content healing |
-| translate-batch | S-53 | Batch translate all pages for a family/platform |
-| translate-page | S-52 | Translate a single English content page |
+| ht-translate | S-HT-01 | Single-page translation via hugo-translator (explicit --site profile required) |
+| ht-translate-batch | S-HT-02 | Batch translation via hugo-translator (explicit --site profile required) |
 | triage-confirm | S-92 | Layer 2 body-prose staleness scanner |
 | truth-audit | S-38 | Member-level API verification |
 | truth-audit-content | S-85 | Line-level content truth audit |

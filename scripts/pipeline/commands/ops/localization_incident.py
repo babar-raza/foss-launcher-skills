@@ -33,8 +33,8 @@ _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 REPO_ROOT = _DEFAULT_REPO_ROOT
 
 REQUIRED_SKILLS = {
-    "S-52": "translate-page",
-    "S-53": "translate-batch",
+    "S-HT-01": "ht-translate",
+    "S-HT-02": "ht-translate-batch",
     "S-99": "pipeline-harden",
 }
 
@@ -439,8 +439,8 @@ def validate_gap_report(gap_report: Path | None) -> dict[str, Any]:
         "live-site evidence",
         "deployment",
         "CDN",
-        "S-52",
-        "S-53",
+        "S-HT-01",
+        "S-HT-02",
         "S-99",
     ]
     missing_terms = [term for term in expected if term.lower() not in text.lower()]
@@ -454,7 +454,7 @@ def validate_gap_report(gap_report: Path | None) -> dict[str, Any]:
             "controlled deployment verification",
         ],
         "existing_exact_matches": [],
-        "existing_partial_matches": ["S-52", "S-53", "S-99"],
+        "existing_partial_matches": ["S-HT-01", "S-HT-02", "S-99"],
         "missing_capabilities": [] if missing_terms else [
             "end-to-end production localization incident orchestration"
         ],
@@ -809,7 +809,7 @@ def execute_affected_ledger(request: IncidentRequest, paths: IncidentPaths) -> t
             "review_packet": repo_rel(paths.reports_root / "review-packets" / f"{item['locale']}.md"),
             "taskcard_id": page_task_id,
             "recommended_action": "CREATE_TRANSLATED_PAGE" if not item["locale_exists"] else "REVIEW_AND_RETRANSLATE_AFFECTED_SEGMENTS",
-            "required_skills": ["S-109", "S-52", "S-53"],
+            "required_skills": ["S-109", "S-HT-01", "S-HT-02"],
             "ready_for_repair": item["locale_exists"] or "MISSING_SEGMENT" in issue_types,
         }
         entries.append(entry)
@@ -824,10 +824,10 @@ def execute_affected_ledger(request: IncidentRequest, paths: IncidentPaths) -> t
             "affected_pages": [item["locale_path"]],
             "source_path": item["source_path"],
             "issue_types": issue_types,
-            "required_skills": ["S-109", "S-52", "S-53"],
+            "required_skills": ["S-109", "S-HT-01", "S-HT-02"],
             "allowed_paths": request.allowed_paths,
             "forbidden_paths": request.forbidden_paths,
-            "evidence_requirements": ["affected ledger", "agent review", "S-53 validation"],
+            "evidence_requirements": ["affected ledger", "agent review", "S-HT-02 validation"],
             "updated_at": utc_now(),
         }
         write_json(page_task_dir / f"{page_task_id}.json", page_task)
@@ -873,7 +873,7 @@ def execute_missing_disposition(request: IncidentRequest, paths: IncidentPaths) 
             "localized_path": item["locale_path"],
             "source_exists": source_exists,
             "disposition": action,
-            "required_skill": "S-53",
+            "required_skill": "S-HT-02",
             "protected_terms_required": sorted(PROTECTED_TERMS),
             "priority": "P0",
         }
@@ -940,10 +940,10 @@ def execute_agent_review(request: IncidentRequest, paths: IncidentPaths) -> tupl
 
 def execute_producer_readiness(request: IncidentRequest, paths: IncidentPaths) -> tuple[dict[str, Any], list[str]]:
     checks = {
-        "translate_page_skill_present": (REPO_ROOT / "skills" / "translate-page.md").exists(),
-        "translate_batch_skill_present": (REPO_ROOT / "skills" / "translate-batch.md").exists(),
+        "ht_translate_skill_present": (REPO_ROOT / "skills" / "ht-translate.md").exists(),
+        "ht_translate_batch_skill_present": (REPO_ROOT / "skills" / "ht-translate-batch.md").exists(),
         "pipeline_harden_skill_present": (REPO_ROOT / "skills" / "pipeline-harden.md").exists(),
-        "translator_directory_present": (REPO_ROOT / "scripts" / "translator").exists(),
+        "hugo_translator_present": Path("C:/Users/prora/OneDrive/Documents/GitHub/hugo-translator/config/site_profiles").exists(),
         "affected_ledger_present": (REPO_ROOT / "reports" / "localization" / "affected-localized-pages.yaml").exists(),
         "agent_review_present": (paths.reports_root / "agent-review.json").exists(),
     }
@@ -958,9 +958,9 @@ def execute_producer_readiness(request: IncidentRequest, paths: IncidentPaths) -
         "incident_id": request.incident_id,
         "checks": checks,
         "systemic_producer_routes": [{"incident_type": item, "required_skill": "S-99"} for item in request.incident_types if item in s99_routes],
-        "translation_routes": [{"required_skill": "S-53", "scope": "affected ledger", "protected_terms": sorted(PROTECTED_TERMS)}],
+        "translation_routes": [{"required_skill": "S-HT-02", "scope": "affected ledger", "protected_terms": sorted(PROTECTED_TERMS)}],
         "mass_backfill_allowed": False,
-        "reason_mass_backfill_blocked": "Rectification must wait for governed S-53 batch manifest and preview verification.",
+        "reason_mass_backfill_blocked": "Rectification must wait for governed S-HT-02 batch manifest and preview verification.",
         "verdict": "PRODUCER_READINESS_RECORDED_REPAIR_NOT_STARTED" if not blockers else "PRODUCER_READINESS_BLOCKED",
     }
     return result, blockers
@@ -1007,7 +1007,7 @@ def create_taskcards(request: IncidentRequest, paths: IncidentPaths) -> list[dic
             "affected_locales": request.suspected_locales,
             "affected_pages": [],
             "dependencies": [] if index == 1 else [f"{request.incident_id}-TC-{index-1:02d}"],
-            "required_skills": ["S-109"] + (["S-52", "S-53"] if task_type == "TRANSLATION_RECTIFICATION" else []) + (["S-99"] if task_type == "PIPELINE_HARDENING" else []),
+            "required_skills": ["S-109"] + (["S-HT-01", "S-HT-02"] if task_type == "TRANSLATION_RECTIFICATION" else []) + (["S-99"] if task_type == "PIPELINE_HARDENING" else []),
             "required_commands": ["localization-incident"],
             "allowed_paths": request.allowed_paths,
             "forbidden_paths": request.forbidden_paths,
@@ -1205,11 +1205,11 @@ def run_execute(args: argparse.Namespace) -> int:
             "verdict": artifact["verdict"],
         }]
         state["last_verified_checkpoint"] = "agent-review"
-        state["exact_next_action"] = "Run producer readiness before S-53 rectification."
+        state["exact_next_action"] = "Run producer readiness before S-HT-02 rectification."
     elif phase == "producer-readiness":
         artifact, blockers = execute_producer_readiness(request, paths)
         state["last_verified_checkpoint"] = "producer-readiness"
-        state["exact_next_action"] = "Prepare governed S-53 rectification manifest; do not mass backfill outside ledger."
+        state["exact_next_action"] = "Prepare governed S-HT-02 rectification manifest; do not mass backfill outside ledger."
     elif phase == "live-verify":
         artifact, blockers = execute_live_verify(request, paths, include_locales=args.include_locales)
         state["live_verification_state"] = "BLOCKED_OR_FAILED" if blockers else "SNAPSHOT_CAPTURED"
@@ -1288,7 +1288,7 @@ def execute_triage(request: IncidentRequest, state: dict[str, Any]) -> dict[str,
             "contain production risk",
             "inventory affected localized pages",
             "generate review packets",
-            "route rectification through S-52/S-53",
+            "route rectification through S-HT-01/S-HT-02 (hugo-translator)",
             "route producer defects through S-99",
             "block closeout without live/CDN/monitoring/idempotency proof",
         ],

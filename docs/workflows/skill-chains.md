@@ -54,6 +54,69 @@ S-12 (knowledge-diff) → S-14 (knowledge-update) → S-82 (delta-site-plan)
 S-73 (manual-edit) → S-23 (content-check) → S-90 (system-heal if multi-page)
 ```
 
+## Translation (Single Page)
+
+```
+/ht-translate {src_path} {site} {locales}
+  -> hugo-translator CLI (--site explicit, --validation-mode normal, --force-accept)
+  -> dry-run pass
+  -> live translation to OUTPUT_TMP
+  -> manual review of output
+  -> copy step to content/{site}/{lang}/
+  -> /commit (S-76)
+```
+
+The `{site}` argument is mandatory. No site profile = no translation.
+Valid site profiles: `docs.aspose.org`, `kb.aspose.org`, `products.aspose.org`,
+`reference.aspose.org`, `blog.aspose.org`, `www.aspose.org`.
+
+## Translation (Batch)
+
+```
+/ht-translate-batch {family} {platform} {site} {locales}
+  -> scope estimation (warn if >500 jobs)
+  -> hugo-translator CLI (--site explicit, --validation-mode normal, --force-accept)
+  -> dry-run pass
+  -> live batch translation to OUTPUT_TMP
+  -> spot-check 3-5 output files
+  -> copy step to content/{site}/{lang}/
+  -> /commit (S-76)
+```
+
+www.aspose.org requires `--force-retranslate --force-restart`.
+blog.aspose.org must use m2m100_418m model only (not m2m100_1.2b -- OOM).
+
+## Locale Patch (Targeted Fix)
+
+```
+S-75 (locale-patch) -> patch discovery -> apply -> validate_frontmatter.py
+```
+
+## Post-Body-Refresh Re-Translation
+
+```
+S-105 (body-refresh) -> S-107 (locale-refresh-handoff)
+  -> < 3 sentences changed: S-75 (locale-patch)
+  -> >= 3 sentences changed: S-56 (new-docs-page) for full re-translation
+```
+
+## Production Localization Incident
+
+```
+S-109 (production-localization-incident)
+  -> containment + forensics
+  -> rectification via S-HT-01 / S-HT-02 (hugo-translator, explicit --site)
+  -> hardening via S-99 (pipeline-harden)
+```
+
+## Retired Translation Paths (DO NOT USE)
+
+The following are permanently retired and must not be recreated:
+- `/translate` -> was dispatcher to S-52/S-53; now tombstone
+- `S-52 translate-page` -> deleted; internal `python -m translator` package deleted
+- `S-53 translate-batch` -> deleted; internal `python -m translator` package deleted
+- `scripts/translator/` -> deleted; no fallback
+
 ## Archive
 
 Pre-refactor version:
