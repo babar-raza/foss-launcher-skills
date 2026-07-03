@@ -64,7 +64,7 @@
     "output_hash": "sha256:8e6e8eb6608a7b5cfc94854c1e5e39a87a0af2867ef0c4fb3ffdea386f654c27",
     "total_targets": 80031,
     "patched_at": "2026-07-03T00:00:00+00:00",
-    "patch_note": "Manual patch 2026-07-03 (TC-DATA-002): pdf/go HTTP 200->404 (live verification); added pdf/go-cpp, cells/python-net, email/python-net, slides/python-net, words/python-net HTTP 200 (live HTTP HEAD verified, commit bb68a63a22)."
+    "patch_note": "Manual patch 2026-07-03 (TC-DATA-002): pdf/go HTTP 200->404 (live verification); added pdf/go-cpp, cells/python-net, email/python-net, slides/python-net, words/python-net HTTP 200 (live HTTP HEAD verified, commit bb68a63a22). Manual patch 2026-07-03 (TC-BL-010): corrected 3d/python, 3d/typescript, font/python, note/python platform entries from http_status 200→404 (live HTTP HEAD verified: all return 404; datasource was generated with --skip-http-verify); added 3d/python-net HTTP 200 (live verified)."
   },
   "targets": {
     "docs.aspose.com": {
@@ -469,12 +469,17 @@
         },
         "3d/python": {
           "url": "https://products.aspose.com/3d/python/",
+          "http_status": 404,
+          "redirect_chain": []
+        },
+        "3d/python-net": {
+          "url": "https://products.aspose.com/3d/python-net/",
           "http_status": 200,
           "redirect_chain": []
         },
         "3d/typescript": {
           "url": "https://products.aspose.com/3d/typescript/",
-          "http_status": 200,
+          "http_status": 404,
           "redirect_chain": []
         },
         "cells/cpp": {
@@ -519,12 +524,12 @@
         },
         "font/python": {
           "url": "https://products.aspose.com/font/python/",
-          "http_status": 200,
+          "http_status": 404,
           "redirect_chain": []
         },
         "note/python": {
           "url": "https://products.aspose.com/note/python/",
-          "http_status": 200,
+          "http_status": 404,
           "redirect_chain": []
         },
         "page/python": {
@@ -1864,14 +1869,21 @@
       "redirect_chain": []
     },
     "https://products.aspose.com/3d/python/": {
-      "http_status": 200,
+      "http_status": 404,
       "type": "platform-products",
       "family": "3d",
       "platform": "python",
       "redirect_chain": []
     },
-    "https://products.aspose.com/3d/typescript/": {
+    "https://products.aspose.com/3d/python-net/": {
       "http_status": 200,
+      "type": "platform-products",
+      "family": "3d",
+      "platform": "python-net",
+      "redirect_chain": []
+    },
+    "https://products.aspose.com/3d/typescript/": {
+      "http_status": 404,
       "type": "platform-products",
       "family": "3d",
       "platform": "typescript",
@@ -1990,7 +2002,7 @@
       "redirect_chain": []
     },
     "https://products.aspose.com/font/python/": {
-      "http_status": 200,
+      "http_status": 404,
       "type": "platform-products",
       "family": "font",
       "platform": "python",
@@ -2032,7 +2044,7 @@
       "redirect_chain": []
     },
     "https://products.aspose.com/note/python/": {
-      "http_status": 200,
+      "http_status": 404,
       "type": "platform-products",
       "family": "note",
       "platform": "python",

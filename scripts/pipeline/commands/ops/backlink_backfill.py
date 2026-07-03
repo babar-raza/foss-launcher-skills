@@ -164,7 +164,28 @@ def backfill_products_yaml(
     overview = data.get("overview", {}) or {}
     current_content = overview.get("content", "") or ""
 
-    # Idempotency: check if target URL already present
+    # Oscillation guard: detect if link was previously injected (frontmatter field set)
+    # but was externally removed from content. WARN and skip rather than silently re-injecting.
+    # The guard uses the `enterprise_backlink_injected` YAML frontmatter field (not an HTML comment
+    # in content) so rendered pages stay clean.
+    _injected_marker_url = (data.get("enterprise_backlink_injected") or "").rstrip("/")
+    if _injected_marker_url and target_url.rstrip("/") not in current_content:
+        import logging as _log_osc
+        _log_osc.getLogger(__name__).warning(
+            "OSCILLATION_GUARD: %s — enterprise_backlink_injected frontmatter field present but "
+            "link removed externally from content. Skipping re-injection. "
+            "Inspect and manually restore if intended.",
+            rel,
+        )
+        return BackfillChange(
+            file=rel, subdomain="products.aspose.org", family=family, platform=platform,
+            page_type="products-plugin" if platform else "products-family",
+            target_url=target_url, action="yaml_overview",
+            before_snippet=current_content[:200], after_snippet="",
+            skipped=True, skip_reason="oscillation_guard", dry_run=dry_run,
+        )
+
+    # Idempotency: check if target URL already present in content
     if target_url.rstrip("/") in current_content:
         return BackfillChange(
             file=rel, subdomain="products.aspose.org", family=family, platform=platform,
@@ -198,7 +219,9 @@ def backfill_products_yaml(
                                                 target_type=target_type)
 
     if not dry_run:
-        # Modify data dict
+        # Set oscillation guard in frontmatter (NOT as HTML comment in content)
+        data["enterprise_backlink_injected"] = target_url.rstrip("/") + "/"
+        # Modify data dict with clean content (no HTML comment appended)
         if "overview" not in data or not isinstance(data.get("overview"), dict):
             data["overview"] = {}
         data["overview"]["content"] = new_content

@@ -68,3 +68,14 @@ overrides:
     verification_date: "2026-07-03"
     verification_url: "https://products.aspose.com/words/python-net/"
     notes: "products.aspose.com/words/python-net/ HTTP 200. Policy: enterprise Python product uses python-net slug. Commit bb68a63a22."
+
+  # 3d/python -> python-net: products.aspose.com/3d/python/ returns 404 (verified 2026-07-03, TC-BL-010).
+  # products.aspose.com/3d/python-net/ returns 200 (verified 2026-07-03).
+  # Unlike cells/email/slides/words where /python/ also returns 200 (FOSS landing),
+  # 3d/python/ simply does not exist — enterprise product is only at python-net.
+  3d/python:
+    target_platform: "python-net"
+    http_verified: true
+    verification_date: "2026-07-03"
+    verification_url: "https://products.aspose.com/3d/python-net/"
+    notes: "products.aspose.com/3d/python/ HTTP 404. products.aspose.com/3d/python-net/ HTTP 200 (live verified 2026-07-03, TC-BL-010). Enterprise 3D Python product uses python-net slug."

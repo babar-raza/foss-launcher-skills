@@ -549,7 +549,7 @@ while IFS= read -r _tline; do staged_test_files+=("$_tline"); done < <(
 )
 if [ ${#staged_test_files[@]} -gt 0 ]; then
     if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_monkeypatch_lint.py" ]; then
-        _lint_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_monkeypatch_lint.py --strict --tier 1,2 -- "${staged_test_files[@]}" 2>&1)
+        _lint_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_monkeypatch_lint.py --strict --tier 1,2 --compare-baseline scripts/ci/monkeypatch_baseline.json -- "${staged_test_files[@]}" 2>&1)
         _lint_exit=$?
         if [ -n "$_lint_out" ]; then
             echo "$_lint_out" | sed 's/^/[Step 11] /' >&2
@@ -745,6 +745,40 @@ if [ ${#staged_products_pages[@]} -gt 0 ]; then
         fi
     else
         echo "[Step 16.5] SKIP: .venv not found or validate_plugin_structure.py missing." >&2
+    fi
+fi
+_pc_step_end "PASS"
+
+# ---------------------------------------------------------------------------
+_pc_step_start "enterprise link syntax"
+# Step 17: Enterprise markdown link syntax gate (TC-BL-011).
+# Validates that all staged content files have syntactically correct markdown
+# link syntax for *.aspose.com enterprise URLs — specifically that every
+# link opener ](https:// has a matching closing ).
+# Catches the bug class from bb68a63a22 (unclosed parenthesis).
+# ---------------------------------------------------------------------------
+staged_content_files=()
+while IFS= read -r _clf; do staged_content_files+=("$_clf"); done < <(
+    git diff --cached --name-only --diff-filter=ACM \
+        | grep -E '^content/.*/(index|_index)\.md$' || true
+)
+if [ ${#staged_content_files[@]} -gt 0 ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_enterprise_link_syntax.py" ]; then
+        echo "[Step 17] Checking enterprise link syntax in ${#staged_content_files[@]} staged content file(s)..."
+        _ent_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_enterprise_link_syntax.py \
+            "${staged_content_files[@]}" 2>&1)
+        _ent_exit=$?
+        if [ $_ent_exit -ne 0 ]; then
+            echo "$_ent_out" | sed 's/^/[Step 17] /'
+            echo ""
+            echo "BLOCKED: Broken enterprise markdown link syntax detected (see above)."
+            echo "  Fix: ensure every [text](https://...) link has a closing ) after the URL."
+            echo "  Common mistake: [text](https://url/path/. is missing the closing )"
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    else
+        echo "[Step 17] SKIP: .venv not found or check_enterprise_link_syntax.py missing." >&2
     fi
 fi
 _pc_step_end "PASS"

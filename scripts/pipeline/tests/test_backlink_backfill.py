@@ -1151,3 +1151,138 @@ class TestBackfillNegativeControls:
         bad_section = f"## Related Resources\n\n- [{anchor_text}](https://wrong.com/)\n"
         errors = _validate_prose(bad_section, entry, target_url)
         assert len(errors) > 0, "Expected errors when URL is missing from section"
+
+
+# ── Oscillation guard tests (TC-BL-005) ──────────────────────────────────────
+
+class TestOscillationGuard:
+    """Tests for the oscillation guard added in TC-BL-005.
+
+    The guard detects when an enterprise-backlink marker is present in YAML
+    overview.content but the actual link URL has been removed externally.
+    In that case, the backfill should WARN and SKIP (not silently re-inject).
+    """
+
+    _YAML_TMPL = """\
+---
+layout: plugin
+family_name: Aspose.Test FOSS
+{extra_fm}overview:
+  enable: true
+  content: '{content}'
+---
+"""
+
+    def _make_yaml_file(self, tmp_path, content: str, extra_fm: dict | None = None) -> "Path":
+        """Write a minimal YAML frontmatter file for oscillation guard tests.
+
+        extra_fm: optional dict of extra top-level frontmatter keys to inject
+                  (e.g. {"enterprise_backlink_injected": "https://..."}).
+        """
+        fm_lines = ""
+        if extra_fm:
+            for k, v in extra_fm.items():
+                fm_lines += f'{k}: "{str(v)}"\n'
+        text = self._YAML_TMPL.replace("{extra_fm}", fm_lines).replace("{content}", content)
+        p = tmp_path / "_index.md"
+        p.write_text(text, encoding="utf-8")
+        return p
+
+    def test_oscillation_guard_triggers_when_marker_present_url_absent(self, tmp_path, monkeypatch):
+        """TC-BL-005-05-A: frontmatter field set but URL removed from content -> oscillation_guard."""
+        monkeypatch.setattr(_bbm, "_REPO_ROOT", tmp_path)
+        target_url = "https://products.aspose.com/3d/python-net/"
+        # Frontmatter has the injected marker but content does NOT have the URL
+        content = "Some overview text about Aspose.3D FOSS library. No enterprise link."
+        fpath = self._make_yaml_file(
+            tmp_path, content,
+            extra_fm={"enterprise_backlink_injected": target_url},
+        )
+
+        result = _bbm.backfill_products_yaml(
+            file_path=fpath,
+            target_url=target_url,
+            family="3d",
+            platform="python",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            dry_run=True,
+        )
+
+        assert result.skipped is True
+        assert result.skip_reason == "oscillation_guard"
+
+    def test_oscillation_guard_does_not_trigger_when_url_present(self, tmp_path, monkeypatch):
+        """TC-BL-005-05-B: frontmatter field AND URL in content -> idempotent (not oscillation_guard)."""
+        monkeypatch.setattr(_bbm, "_REPO_ROOT", tmp_path)
+        target_url = "https://products.aspose.com/3d/python-net/"
+        # Content has the actual link AND frontmatter has the injected field
+        content = (
+            "See [Aspose.3D for Python \u2014 Enterprise Product]"
+            "(https://products.aspose.com/3d/python-net/) for enterprise features."
+        )
+        fpath = self._make_yaml_file(
+            tmp_path, content,
+            extra_fm={"enterprise_backlink_injected": target_url},
+        )
+
+        result = _bbm.backfill_products_yaml(
+            file_path=fpath,
+            target_url=target_url,
+            family="3d",
+            platform="python",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            dry_run=True,
+        )
+
+        assert result.skipped is True
+        assert result.skip_reason == "Already contains target URL (idempotent)"
+
+    def test_oscillation_guard_does_not_trigger_without_marker(self, tmp_path, monkeypatch):
+        """TC-BL-005-05-C: no frontmatter field, no URL -> injection proceeds (not oscillation_guard)."""
+        monkeypatch.setattr(_bbm, "_REPO_ROOT", tmp_path)
+        target_url = "https://products.aspose.com/3d/python-net/"
+        content = "Some overview text about Aspose.3D FOSS library. No enterprise link yet."
+        fpath = self._make_yaml_file(tmp_path, content)  # no extra_fm
+
+        result = _bbm.backfill_products_yaml(
+            file_path=fpath,
+            target_url=target_url,
+            family="3d",
+            platform="python",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            dry_run=True,
+        )
+
+        assert result.skipped is False
+        assert result.skip_reason is None or result.skip_reason == ""
+
+    def test_oscillation_guard_marker_embedded_on_write(self, tmp_path, monkeypatch):
+        """TC-BL-005-05-D: after --write, frontmatter has enterprise_backlink_injected; no HTML comment in content."""
+        monkeypatch.setattr(_bbm, "_REPO_ROOT", tmp_path)
+        target_url = "https://products.aspose.com/3d/python-net/"
+        content = "Some overview text about Aspose.3D FOSS library. No enterprise link yet."
+        fpath = self._make_yaml_file(tmp_path, content)
+
+        result = _bbm.backfill_products_yaml(
+            file_path=fpath,
+            target_url=target_url,
+            family="3d",
+            platform="python",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            dry_run=False,
+        )
+
+        assert result.skipped is False
+        written = fpath.read_text(encoding="utf-8")
+        # Frontmatter must have the injected field
+        assert "enterprise_backlink_injected" in written, (
+            f"enterprise_backlink_injected not found in written file. Got:\n{written[:500]}"
+        )
+        # Content must NOT contain any HTML comment
+        assert "<!--" not in written, (
+            f"HTML comment found in written file (should use frontmatter only). Got:\n{written[:500]}"
+        )
