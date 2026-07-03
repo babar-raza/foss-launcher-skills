@@ -791,6 +791,16 @@ def run_backfill(
     families_map, platforms_map = _load_display_maps(repo_root)
     target_subdomains = subdomains or list(SUBDOMAIN_ROOTS.keys())
 
+    # Load canonical platform overrides (A2 P0 — only http_verified: true entries applied)
+    canonical_overrides: dict | None = None
+    _overrides_path = repo_root / "data" / "backlinks" / "platform_canonical_overrides.yaml"
+    if _overrides_path.exists():
+        try:
+            import yaml as _yaml_ovr
+            canonical_overrides = _yaml_ovr.safe_load(_overrides_path.read_text(encoding="utf-8"))
+        except Exception as _exc:
+            print(f"  WARN: Could not load canonical overrides: {_exc}", file=sys.stderr)
+
     changes: list[BackfillChange] = []
     errors: list[dict] = []
     candidates = 0
@@ -854,6 +864,7 @@ def run_backfill(
                 source_subdomain=sd,
                 target_map=target_map,
                 exact_deep_match_enabled=exact_deep_match_enabled,
+                canonical_overrides=canonical_overrides,
                 authority=authority,
                 source_file=fpath.relative_to(repo_root).as_posix(),
             )
