@@ -1703,7 +1703,7 @@ class TestPythonSubModuleNormalization:
 # ---------------------------------------------------------------------------
 
 class TestMavenTripleSegmentGroupId:
-    """groupId has 4 dotted segments (e.g. org.aspose.cells.foss)."""
+    """groupId has 4 dotted segments (e.g. com.aspose.cells.foss)."""
 
     def _make_claim(self, value: str) -> dict:
         return {"type": "package-declaration", "value": value, "file": "test.md", "line": 1}
@@ -1715,10 +1715,10 @@ class TestMavenTripleSegmentGroupId:
         }
 
     def test_triple_segment_subpackage_accepted(self):
-        """org.aspose.cells.foss.Workbook must pass when expected contains that groupId."""
+        """com.aspose.cells.foss.Workbook must pass when expected contains that groupId."""
         result = tier1_verify(
-            self._make_claim("org.aspose.cells.foss.Workbook"),
-            set(), self._profile("org.aspose.cells.foss:aspose-cells-foss"), "cells", "java",
+            self._make_claim("com.aspose.cells.foss.Workbook"),
+            set(), self._profile("com.aspose.cells.foss:aspose-cells-foss"), "cells", "java",
         )
         assert result is None, f"Sub-package of triple-segment groupId should pass, got: {result}"
 
@@ -1726,7 +1726,7 @@ class TestMavenTripleSegmentGroupId:
         """com.aspose.slides.foss.Presentation must be flagged when cells groupId is expected."""
         result = tier1_verify(
             self._make_claim("com.aspose.slides.foss.Presentation"),
-            set(), self._profile("org.aspose.cells.foss:aspose-cells-foss"), "cells", "java",
+            set(), self._profile("com.aspose.cells.foss:aspose-cells-foss"), "cells", "java",
         )
         assert result is not None, "Cross-family import must be flagged as wrong-package"
 

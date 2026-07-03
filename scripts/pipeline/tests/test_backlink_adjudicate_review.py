@@ -150,11 +150,11 @@ class TestAuthorityWriteIntegration:
         """Promoted record must have target_subdomain, rendered_anchor_text, allowed_for_generation."""
         graph = _make_graph(
             sources=[_make_source("sk1", "docs/cells/java/page1.md")],
-            candidates=[_make_candidate("sk1", "reference/cells/java/org.aspose.cells/Workbook", 0.75)],
+            candidates=[_make_candidate("sk1", "reference/cells/java/com.aspose.cells/Workbook", 0.75)],
         )
         promoted = [{
             "source_key": "sk1",
-            "target_path": "reference/cells/java/org.aspose.cells/Workbook",
+            "target_path": "reference/cells/java/com.aspose.cells/Workbook",
             "adjudication_result": "PROMOTE_WITH_JUSTIFICATION",
         }]
         anchor_registry = {"templates": {"default": {"pattern": "Aspose.{family} {platform} API", "fallback": True}}}
@@ -175,11 +175,11 @@ class TestAuthorityWriteIntegration:
         """When anchor registry is provided, rendered_anchor_text must be non-null."""
         graph = _make_graph(
             sources=[_make_source("sk1", "docs/cells/java/page1.md")],
-            candidates=[_make_candidate("sk1", "cells/java/org.aspose.cells/Workbook", 0.75)],
+            candidates=[_make_candidate("sk1", "cells/java/com.aspose.cells/Workbook", 0.75)],
         )
         promoted = [{
             "source_key": "sk1",
-            "target_path": "cells/java/org.aspose.cells/Workbook",
+            "target_path": "cells/java/com.aspose.cells/Workbook",
             "adjudication_result": "PROMOTE_WITH_JUSTIFICATION",
         }]
         # Minimal anchor registry with a fallback template
@@ -266,11 +266,11 @@ class TestNullAnchorGuard:
         """When anchor_registry=None, promoted records are skipped (null anchor guard)."""
         graph = _make_graph(
             sources=[_make_source("sk1", "docs/cells/java/page1.md")],
-            candidates=[_make_candidate("sk1", "cells/java/org.aspose.cells/Workbook", 0.75)],
+            candidates=[_make_candidate("sk1", "cells/java/com.aspose.cells/Workbook", 0.75)],
         )
         promoted = [{
             "source_key": "sk1",
-            "target_path": "cells/java/org.aspose.cells/Workbook",
+            "target_path": "cells/java/com.aspose.cells/Workbook",
             "adjudication_result": "PROMOTE_WITH_JUSTIFICATION",
         }]
         authority = _make_authority()

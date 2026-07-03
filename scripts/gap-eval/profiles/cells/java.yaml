@@ -15,7 +15,7 @@ discovery_hints:
 
 discovered_actuals:
   package_name: "com.aspose:cells-foss"
-  import_path: "org.aspose.cells"
+  import_path: "com.aspose.cells"
   package_source_actual: pom.xml
   format_files_found: null
   last_baseline_sha: b8cfeff24af8c33a128f0e17db8fee25490100d7
