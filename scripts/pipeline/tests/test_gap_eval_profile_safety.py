@@ -1582,7 +1582,7 @@ class TestJavaMavenSubpackage:
     def test_maven_unrelated_package_flagged(self):
         """A completely different Aspose package should still be flagged."""
         result = tier1_verify(
-            self._make_claim("org.aspose.cells.foss.Workbook"),
+            self._make_claim("com.aspose.cells.foss.Workbook"),
             set(), self._profile("org.aspose.slides.foss:aspose-slides-foss"), "slides", "java",
         )
         assert result is not None and result["type"] == "wrong-package"
