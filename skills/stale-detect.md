@@ -76,8 +76,8 @@ After stale-detect identifies modified English source pages, the translate-batch
 should be invoked to regenerate their translated counterparts:
 
   Trigger: any English page under content/{site}/en/ is written or updated
-  Action: run `python -m translator sync --site {site} --family {family} --platform {platform}`
-  Or use the translate-batch skill for explicit batch runs
+  Action: use `/ht-translate-batch {family} {platform} {site} {changed_locales}` (S-HT-02)
+  Note: the internal translator is retired; use hugo-translator with explicit --site profile
 
 This integration ensures translations stay in sync with English source changes automatically.
 

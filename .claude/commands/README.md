@@ -56,7 +56,7 @@ counterpart in `skills/`, `.agents/skills/`, or `.kilocode/skills/`.
 
 | File | Role |
 |------|------|
-| `translate.md` | Dispatcher: routes to `/translate-page` (S-52) or `/translate-batch` (S-53) based on argument type. Convenience wrapper only — adds no new capability. |
+| `translate.md` | RETIRED TOMBSTONE: permanently retired; instructs callers to use hugo-translator with explicit --site profile. |
 | `seo-review.md` | Interactive human review gate for SEO recommendations. Claude Code-only utility; not yet a first-class registered skill. |
 
 Source: `scripts/pipeline/commands/ops/sync_skills.py:KNOWN_EXCEPTIONS` and `INTERNAL_SKILLS`.
@@ -96,8 +96,8 @@ Source: `scripts/pipeline/commands/ops/sync_skills.py:KNOWN_EXCEPTIONS` and `INT
 | S-48 | `family-sync` | Operations |
 | S-49 | `launch-product` | Operations |
 | S-51 | `content-eval` | Validation |
-| S-52 | `translate-page` | Operations |
-| S-53 | `translate-batch` | Operations |
+| S-HT-01 | `ht-translate` | Operations |
+| S-HT-02 | `ht-translate-batch` | Operations |
 | S-56 | `new-docs-page` | Generation |
 | S-57 | `new-blog-post` | Generation |
 | S-58 | `new-kb-howto` | Generation |
