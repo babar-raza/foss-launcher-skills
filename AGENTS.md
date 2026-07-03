@@ -86,6 +86,18 @@ When a conflict exists between two artifacts, this hierarchy governs which one i
 
 ## 2b. Shell Execution Policy (Windows Local Operations)
 
+### Git Push — Non-Interactive Token Auth
+
+The GCM credential dialog does not open in agent Bash sessions (no TTY).
+Use `GH_TOKEN` (always set in the environment) with the `x-access-token` URL scheme:
+
+```bash
+git push "https://x-access-token:${GH_TOKEN}@github.com/Aspose/aspose.org.git" main
+```
+
+Note: `GITHUB_PAT` is also set but does **not** work for push to this repo — only `GH_TOKEN` does.
+The remote URL in `.git/config` uses lowercase `aspose` but GitHub redirects to `Aspose`; both work.
+
 ### Rule
 All local repo operations on Windows MUST be performed in Git Bash
 (MSYS2/MINGW64, provided by Git for Windows). This is not a preference —

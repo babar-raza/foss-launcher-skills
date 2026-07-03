@@ -19,6 +19,17 @@ Do not begin any task, respond to any request, or invoke any skill until
 path error), stop and report the failure — do not proceed with cached memory
 of its contents.
 
+## Git Push (Non-Interactive)
+
+Agent Bash sessions have no TTY — GCM credential dialogs do not appear.
+Use `GH_TOKEN` (always present in env) with `x-access-token`:
+
+```bash
+git push "https://x-access-token:${GH_TOKEN}@github.com/Aspose/aspose.org.git" main
+```
+
+`GITHUB_PAT` is also set but **does not work** for push to this repo.
+
 ## Behavioral Mandates (enforced by hooks)
 
 These rules are enforced by PreToolUse hooks — violations will be auto-blocked:
