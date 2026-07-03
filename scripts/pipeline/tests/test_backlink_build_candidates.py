@@ -1,9 +1,12 @@
-"""test_backlink_build_candidates.py — Tests for blog.aspose.org path support.
+"""test_backlink_build_candidates.py — Tests for blog.aspose.org path support
+and Stage 1c blog-source x platform_products scoring rule.
 
 Tests cover:
-- scan_source_page() with blog path (no /en/ segment) → correct family/platform
-- scan_source_page() with reference path (has /en/) → existing behaviour unchanged
-- Locale-variant filter: stem contains dot → skipped by rglob filter
+- scan_source_page() with blog path (no /en/ segment) -> correct family/platform
+- scan_source_page() with reference path (has /en/) -> existing behaviour unchanged
+- Locale-variant filter: stem contains dot -> skipped by rglob filter
+- _stage1_score_blog_product(): blog source x platform_products AUTO_APPROVE
+- _stage1_score_blog_product(): negative controls (non-blog, non-platform_products)
 
 Uses real content files already present in the repo (no tmp_path) to avoid
 the REPO_ROOT.relative_to() constraint in scan_source_page().
@@ -23,7 +26,11 @@ import pytest
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
 
-from commands.ops.backlink_build_candidates import scan_source_page
+from commands.ops.backlink_build_candidates import (
+    scan_source_page,
+    _stage1_score_blog_product,
+    THRESHOLD_AUTO_APPROVE_EXACT,
+)
 
 
 # ── Real file anchors ─────────────────────────────────────────────────────────
@@ -137,3 +144,89 @@ class TestLocaleFileFilter:
 
         assert {f.name for f in kept} == {"index.md", "_index.md"}
         assert len(skipped) == 4, f"Expected 4 locale files skipped, got: {[f.name for f in skipped]}"
+
+
+# ── Tests: _stage1_score_blog_product() ──────────────────────────────────────
+
+class TestStage1BlogProduct:
+    """Stage 1c: blog source x platform_products deterministic identity rule.
+
+    A blog.aspose.org source for family=X, platform=Y MUST reach AUTO_APPROVE_EXACT
+    against the platform_products entry for (family=X, platform=Y).
+    """
+
+    def _blog_source(self, family="font", platform="python"):
+        return {
+            "source_key": f"blog/{family}/{platform}/some-slug",
+            "title": "Some Blog Post Title",
+            "family": family,
+            "platform": platform,
+            "subdomain": "blog.aspose.org",
+        }
+
+    def _entry(self, entry_type="platform_products", family="font", platform="python"):
+        return {
+            "type": entry_type,
+            "family": family,
+            "platform": platform,
+            "path": f"products/{family}/{platform}",
+        }
+
+    # ----------- Positive: must AUTO_APPROVE -----------
+
+    def test_blog_source_platform_products_reaches_threshold(self):
+        score = _stage1_score_blog_product(self._entry(), self._blog_source())
+        assert score >= THRESHOLD_AUTO_APPROVE_EXACT, (
+            f"Expected >= {THRESHOLD_AUTO_APPROVE_EXACT}, got {score}"
+        )
+
+    def test_blog_source_platform_products_exact_score(self):
+        score = _stage1_score_blog_product(self._entry(), self._blog_source())
+        assert score == 0.90
+
+    def test_blog_source_different_family_still_applies(self):
+        src = self._blog_source(family="cells", platform="java")
+        ent = self._entry(family="cells", platform="java")
+        score = _stage1_score_blog_product(ent, src)
+        assert score == 0.90
+
+    # ----------- Negative controls (must NOT fire) -----------
+
+    def test_non_blog_subdomain_returns_zero(self):
+        src = self._blog_source()
+        src["subdomain"] = "reference.aspose.org"
+        score = _stage1_score_blog_product(self._entry(), src)
+        assert score == 0.0, "Should return 0.0 for non-blog subdomain"
+
+    def test_docs_subdomain_returns_zero(self):
+        src = self._blog_source()
+        src["subdomain"] = "docs.aspose.org"
+        score = _stage1_score_blog_product(self._entry(), src)
+        assert score == 0.0
+
+    def test_kb_subdomain_returns_zero(self):
+        src = self._blog_source()
+        src["subdomain"] = "kb.aspose.org"
+        score = _stage1_score_blog_product(self._entry(), src)
+        assert score == 0.0
+
+    def test_reference_class_target_type_returns_zero(self):
+        ent = self._entry(entry_type="reference_class")
+        score = _stage1_score_blog_product(ent, self._blog_source())
+        assert score == 0.0, "Should return 0.0 for non-platform_products target"
+
+    def test_family_landing_target_type_returns_zero(self):
+        ent = self._entry(entry_type="family_landing")
+        score = _stage1_score_blog_product(ent, self._blog_source())
+        assert score == 0.0
+
+    def test_platform_docs_root_target_type_returns_zero(self):
+        ent = self._entry(entry_type="platform_docs_root")
+        score = _stage1_score_blog_product(ent, self._blog_source())
+        assert score == 0.0
+
+    def test_missing_subdomain_field_returns_zero(self):
+        src = self._blog_source()
+        del src["subdomain"]
+        score = _stage1_score_blog_product(self._entry(), src)
+        assert score == 0.0

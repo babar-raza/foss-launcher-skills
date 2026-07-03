@@ -6,6 +6,9 @@ a candidate graph with scored matches per source page.
 
 Stage 0: hard filters (http_status=200, family, platform, target type)
 Stage 1: exact match (deterministic; ≥0.90 → AUTO_APPROVE_EXACT)
+  1a: reference_class / reference_namespace — title == class_name
+  1b: kb_article — Jaccard slug match ≥0.6
+  1c: blog_source × platform_products — family+platform identity match
 Stage 2: metadata match (deterministic; always REVIEW_REQUIRED max)
 Stage 3: TF-IDF semantic (opt-in --semantic; score 0.30–0.49; NEVER AUTO_APPROVE)
 AI boost: optional, max +0.05; reads ai_enrichment_index.json if --ai-enrichment given
@@ -198,6 +201,27 @@ def _stage1_score_kb(entry: dict, source: dict) -> float:
     if jaccard >= 0.5 and common >= 2:
         return 0.80  # REVIEW_REQUIRED
 
+
+def _stage1_score_blog_product(entry: dict, source: dict) -> float:
+    """Stage 1c: blog source × platform_products target identity match.
+
+    A page in blog.aspose.org/{family}/{platform}/ unambiguously belongs to
+    that family+platform.  When the target is the platform_products landing
+    page for the same family+platform, the relationship is deterministic and
+    requires no prose matching — return AUTO_APPROVE_EXACT (0.90).
+
+    Only fires when:
+      - source subdomain is blog.aspose.org
+      - target type is 'platform_products'
+      - family and platform already match (enforced by Stage 0)
+    """
+    if source.get("subdomain") != "blog.aspose.org":
+        return 0.0
+    if entry.get("type") != "platform_products":
+        return 0.0
+    # Stage 0 already confirmed family+platform match; this is AUTO_APPROVE territory.
+    return 0.90
+
     return 0.0
 
 
@@ -293,6 +317,8 @@ def score_candidate(entry: dict, source: dict, ai_signals: Optional[dict] = None
         stage1 = _stage1_score_reference(entry, source)
     elif target_type == "kb_article":
         stage1 = _stage1_score_kb(entry, source)
+    elif target_type == "platform_products":
+        stage1 = _stage1_score_blog_product(entry, source)
 
     # Stage 2: metadata match (always REVIEW_REQUIRED max, never AUTO_APPROVE)
     if stage1 == 0.0:
