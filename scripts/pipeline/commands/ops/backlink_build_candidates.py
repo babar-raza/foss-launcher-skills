@@ -58,6 +58,33 @@ STAGE3_MAX_SCORE = 0.49       # semantic matches NEVER reach AUTO_APPROVE (0.90)
 DEEP_INDEX_PATH = REPO_ROOT / "data" / "backlinks" / "workspace" / "deep_target_index.json"
 CANDIDATE_GRAPH_PATH = REPO_ROOT / "data" / "backlinks" / "workspace" / "candidate_graph.json"
 
+# HEAL-003: AI namespace guard constants
+_AI_NAMESPACES = frozenset({
+    "aspose.cells.ai", "aspose.pdf.ai", "aspose.slides.ai",
+    "aspose.words.ai", "aspose.3d.ai",
+})
+
+# HEAL-004: KB topic-coherence action verbs and complementary pairs
+_KB_ACTION_VERBS = [
+    "convert", "create", "save", "load", "add", "format", "insert",
+    "extract", "export", "import", "read", "write", "protect", "secure",
+    "remove", "build", "merge", "split", "search", "replace", "sign",
+    "encrypt", "compress", "render", "print", "watermark", "stamp",
+]
+_KB_COMPLEMENTARY: dict[str, set] = {
+    "save": {"export", "write"},
+    "export": {"save", "convert"},
+    "load": {"import", "read"},
+    "import": {"load", "convert"},
+    "create": {"build", "write", "add"},
+    "build": {"create", "write"},
+    "protect": {"secure", "encrypt"},
+    "secure": {"protect", "encrypt"},
+    "encrypt": {"protect", "secure"},
+    "merge": {"split", "combine"},
+    "split": {"merge"},
+}
+
 
 # ── Source Page Scanner ───────────────────────────────────────────────────────
 
@@ -225,6 +252,52 @@ def _stage1_score_blog_product(entry: dict, source: dict) -> float:
     return 0.0
 
 
+def _make_blocked_result(source: dict, entry_path: str, ai_signals=None) -> dict:
+    """Construct a BLOCKED scoring result dict for early-exit guards."""
+    return {
+        "source_key": source.get("source_key", ""),
+        "target_path": entry_path,
+        "stage1_score": 0.0,
+        "stage2_score": None,
+        "stage3_score": None,
+        "ai_boost": 0.0,
+        "ai_boost_applied": False,
+        "ai_signals": ai_signals,
+        "semantic_used": False,
+        "final_score": 0.0,
+        "decision": "BLOCKED",
+        "ai_disagrees": False,
+    }
+
+
+def _stage1_score_kb_coherence(entry: dict, source: dict) -> float:
+    """Stage 1d: KB source x KB target topic-coherence guard.
+
+    Returns 0.90 if source and target share the same or complementary action verb
+    (e.g., convert-convert, save-export), 0.0 otherwise (hard block).
+    Returns 0.0 if either slug has no extractable action verb (treated as incoherent).
+    Only fires when source subdomain is kb.aspose.org AND target type is kb_article.
+    """
+    if source.get("subdomain") != "kb.aspose.org":
+        return 0.0
+    if entry.get("type") != "kb_article":
+        return 0.0
+
+    src_slug = (source.get("source_key") or "").split("/")[-1].lower().replace("_", "-")
+    tgt_slug = (entry.get("article_slug") or entry.get("path", "").split("/")[-1] or "").lower().replace("_", "-")
+
+    src_verb = next((v for v in _KB_ACTION_VERBS if v in src_slug), None)
+    tgt_verb = next((v for v in _KB_ACTION_VERBS if v in tgt_slug), None)
+
+    if not src_verb or not tgt_verb:
+        return 0.0  # Cannot determine coherence — treat as incoherent (hard block)
+    if src_verb == tgt_verb:
+        return 0.90
+    if tgt_verb in _KB_COMPLEMENTARY.get(src_verb, set()):
+        return 0.90
+    return 0.0  # Incoherent verb pair — hard block
+
+
 def _build_tfidf_corpus(index: dict) -> tuple[list[str], list[list[str]]]:
     """
     Build a list of target paths and their tokenised text for TF-IDF IDF computation.
@@ -309,6 +382,41 @@ def score_candidate(entry: dict, source: dict, ai_signals: Optional[dict] = None
         ai_boost, ai_boost_applied, ai_signals, semantic_used, final_score, decision
     }
     """
+    # ── HEAL-002: Block method-level targets for reference class sources ─────
+    # reference.aspose.org class pages should link to commercial class pages
+    # (depth-5), not to specific methods/constructors (depth-6+).
+    _entry_path = entry.get("path", "") or ""
+    _path_depth = len(_entry_path.split("/"))
+    if source.get("subdomain") == "reference.aspose.org" and _path_depth >= 6:
+        return _make_blocked_result(source, _entry_path, ai_signals)
+
+    # ── HEAL-003: Block known namespace false-positive patterns ─────────────
+    _tgt_parts = _entry_path.split("/")
+    _src_slug_lower = (source.get("source_key") or "").split("/")[-1].lower()
+
+    # Pattern A: AI-namespace targets for non-AI sources
+    if len(_tgt_parts) >= 4 and _tgt_parts[3].lower() in _AI_NAMESPACES:
+        _src_combined = (source.get("source_key") or "") + " " + (source.get("title") or "")
+        if not any(kw in _src_combined.lower() for kw in ("ai", "inference", "prompt")):
+            return _make_blocked_result(source, _entry_path, ai_signals)
+
+    # Pattern B: Font property attractor — decodedfontname for font-slug sources
+    if "font" in _src_slug_lower and "decodedfontname" in _entry_path.lower():
+        return _make_blocked_result(source, _entry_path, ai_signals)
+
+    # Pattern C: Text profile shape attractor — texture/material sources vs profiles/Text
+    if any(kw in _src_slug_lower for kw in ("texture", "material", "shader")):
+        if ("profiles" in _entry_path.lower()
+                and len(_tgt_parts) >= 5
+                and _tgt_parts[4].lower() == "text"):
+            return _make_blocked_result(source, _entry_path, ai_signals)
+
+    # Pattern D: Static factory method attractors for enum/type sources
+    _FACTORY_SLUGS = frozenset({"fromargb", "importvaluefromjson", "parse", "tryparse"})
+    if len(_tgt_parts) >= 6 and _tgt_parts[5].lower() in _FACTORY_SLUGS:
+        if any(kw in _src_slug_lower for kw in ("color", "depth", "type", "kind", "mode", "flag", "field")):
+            return _make_blocked_result(source, _entry_path, ai_signals)
+
     target_type = entry.get("type", "")
     stage1 = 0.0
     stage2 = None
@@ -319,6 +427,15 @@ def score_candidate(entry: dict, source: dict, ai_signals: Optional[dict] = None
         stage1 = _stage1_score_kb(entry, source)
     elif target_type == "platform_products":
         stage1 = _stage1_score_blog_product(entry, source)
+
+    # ── HEAL-004: KB topic-coherence hard gate ───────────────────────────────
+    # kb.aspose.org source × kb_article target: topic verb must match or be complementary.
+    # Returns 0.0 → BLOCKED early return (Stage 2 cannot override topic mismatch).
+    if source.get("subdomain") == "kb.aspose.org" and target_type == "kb_article":
+        stage1d = _stage1_score_kb_coherence(entry, source)
+        if stage1d == 0.0:
+            return _make_blocked_result(source, _entry_path, ai_signals)
+        stage1 = max(stage1, stage1d)
 
     # Stage 2: metadata match (always REVIEW_REQUIRED max, never AUTO_APPROVE)
     if stage1 == 0.0:
