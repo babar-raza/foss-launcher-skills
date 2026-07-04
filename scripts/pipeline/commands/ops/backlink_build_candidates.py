@@ -227,6 +227,7 @@ def _stage1_score_kb(entry: dict, source: dict) -> float:
         return 0.90
     if jaccard >= 0.5 and common >= 2:
         return 0.80  # REVIEW_REQUIRED
+    return 0.0  # no match — pre-existing missing return fixed
 
 
 def _stage1_score_blog_product(entry: dict, source: dict) -> float:

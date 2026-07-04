@@ -30,6 +30,7 @@ from commands.ops.backlink_build_candidates import (
     scan_source_page,
     score_candidate,
     _stage1_score_blog_product,
+    _stage1_score_kb,
     _stage1_score_kb_coherence,
     THRESHOLD_AUTO_APPROVE_EXACT,
 )
@@ -422,3 +423,40 @@ class TestHeal004:
         ent["type"] = "reference_class"
         result = _stage1_score_kb_coherence(ent, self._kb_source())
         assert result == 0.0
+
+
+# ── Tests: HEAL-BUG-001 — _stage1_score_kb missing return 0.0 ────────────────
+
+class TestStage1KbNoMatch:
+    """_stage1_score_kb must return 0.0 (float) when no Jaccard threshold met.
+
+    Pre-existing bug: function had no fallback return, yielding implicit None.
+    This caused TypeError at score_candidate() base_score comparison for
+    reference sources scored against kb_article targets in live builds.
+    """
+
+    def _entry(self, slug="how-to-render-glb"):
+        return {
+            "type": "kb_article",
+            "article_slug": slug,
+            "path": f"kb/3d/java/{slug}",
+            "family": "3d",
+            "platform": "java",
+        }
+
+    def test_unrelated_title_returns_float_zero(self):
+        """Unrelated source title vs KB slug → 0.0 (not None)."""
+        source = {"title": "A3DObject", "source_key": "reference/3d/java/a3dobject",
+                  "family": "3d", "platform": "java", "subdomain": "reference.aspose.org"}
+        result = _stage1_score_kb(self._entry(), source)
+        assert result == 0.0, f"Expected 0.0, got {result!r}"
+        assert isinstance(result, float), f"Expected float, got {type(result).__name__}"
+
+    def test_reference_source_kb_target_does_not_crash(self):
+        """score_candidate must not raise TypeError for reference source × kb_article target."""
+        entry = self._entry()
+        source = {"title": "A3DObject", "source_key": "reference/3d/java/a3dobject",
+                  "family": "3d", "platform": "java", "subdomain": "reference.aspose.org"}
+        result = score_candidate(entry, source)
+        assert result is not None
+        assert isinstance(result.get("final_score"), float)
