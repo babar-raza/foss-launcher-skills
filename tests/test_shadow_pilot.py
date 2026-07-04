@@ -925,11 +925,18 @@ class TestNewProductStatePhases:
 class TestAgentReviewPipeline:
     def test_agent_review_reaches_approved(self, tmp_path):
         """End-to-end: shadow pipeline + agent review → APPROVED or BLOCKED_EXTERNAL."""
+        repo_root = Path(__file__).resolve().parents[1]
+        knowledge_merged = repo_root / "knowledge" / "pdf" / "go" / "merged"
+        if not knowledge_merged.exists():
+            pytest.skip(
+                "knowledge/pdf/go/merged not present — "
+                "integration test requires local knowledge artifacts (gitignored)"
+            )
+
         output_dir = tmp_path / "agent_review"
         output_dir.mkdir(parents=True)
 
         # Use content_dir pointing to existing content/ so it's not first-launch
-        repo_root = Path(__file__).resolve().parents[1]
         content_dir = repo_root / "content"
 
         summary = run_agent_review_pipeline(
