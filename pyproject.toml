@@ -65,8 +65,11 @@ omit = [
 
 [tool.coverage.report]
 show_missing = true
-# Current enforced threshold: 12% (matching CI --cov-fail-under=12).
-# This is the honest current baseline. Target: 70% (tracked in backlog).
+# Current enforced threshold: 12% (measured coverage is 12.99%).
+# Sprint 3 added tests for local_gate, generate_release_receipt, check_sast_bandit,
+# check_dependency_audit, and orchestrator skill execution (100% on orchestrator).
+# Threshold kept at 12 because 12.99 < 13.00 (float compare in pytest-cov).
+# Target: 70% (tracked in backlog — requires testing large pipeline modules).
 fail_under = 12
 exclude_lines = [
     "pragma: no cover",

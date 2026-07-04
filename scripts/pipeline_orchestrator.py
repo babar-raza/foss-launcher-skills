@@ -22,6 +22,8 @@ CLI usage (from repo root, using venv interpreter):
     $ .venv/bin/python scripts/pipeline_orchestrator.py complete <run_id>
     $ .venv/bin/python scripts/pipeline_orchestrator.py fail <run_id>
     $ .venv/bin/python scripts/pipeline_orchestrator.py retry <run_id>
+    $ .venv/bin/python scripts/pipeline_orchestrator.py run-chain <run_id> \\
+          --skills scripts/local_gate.py,scripts/path_guard.py
 
 State is persisted to: runs/.pipeline_state/<run_id>.json
 """
@@ -29,6 +31,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 from datetime import datetime, timezone
 from enum import Enum
@@ -49,6 +52,7 @@ from ops_log import log_entry  # noqa: E402  # type: ignore[import]
 REPO_ROOT = Path(__file__).resolve().parent.parent
 STATE_DIR = REPO_ROOT / "runs" / ".pipeline_state"
 MAX_RETRIES = 3
+SKILL_TIMEOUT = 300  # seconds per skill subprocess
 
 
 # ---------------------------------------------------------------------------
@@ -190,6 +194,10 @@ class PipelineOrchestrator:
             "attempt": 1,
             "metadata": metadata or {},
             "events": [{"ts": now, "from": None, "to": RunState.PENDING.value}],
+            "skill_queue": [],
+            "skill_index": 0,
+            "skill_results": [],
+            "gate_raised_at": None,
         }
         path.parent.mkdir(parents=True, exist_ok=True)
         tmp = path.with_suffix(".tmp")
@@ -245,6 +253,186 @@ class PipelineOrchestrator:
         """Return True if the run is in a terminal state (COMPLETE or FAILED)."""
         return self.current_state() in (RunState.COMPLETE, RunState.FAILED)
 
+    # ------------------------------------------------------------------ #
+    # Skill execution                                                      #
+    # ------------------------------------------------------------------ #
+
+    def load_skills(self, skill_specs: list[dict]) -> dict:
+        """Persist a skill queue into the run state.
+
+        Each spec is a dict with keys:
+            id (str): Skill identifier for logging (e.g. "S-23").
+            script (str): Path to the Python script, relative to repo root.
+            args (list[str], optional): Extra CLI args for the script.
+            requires_gate (bool, optional): If True, pause for HITL approval
+                before executing this skill.
+
+        Raises FileNotFoundError if no state exists for this run.
+        Raises ValueError if the run is in a terminal state.
+        """
+        data = self._load()
+        if RunState(data["state"]) in (RunState.COMPLETE, RunState.FAILED):
+            raise ValueError(
+                f"Cannot load skills into terminal run {self.run_id!r} "
+                f"(state={data['state']!r})."
+            )
+        normalised = []
+        for spec in skill_specs:
+            normalised.append({
+                "id": str(spec.get("id", "")),
+                "script": str(spec.get("script", "")),
+                "args": list(spec.get("args", [])),
+                "requires_gate": bool(spec.get("requires_gate", False)),
+            })
+        data["skill_queue"] = normalised
+        data["skill_index"] = 0
+        data["skill_results"] = []
+        data["gate_raised_at"] = None
+        data["updated_at"] = self._now()
+        self._save(data)
+        return data
+
+    def execute_next_skill(self) -> dict:
+        """Execute the next skill in the queue.
+
+        - If the next skill has ``requires_gate=True`` and the gate has not yet
+          been raised for it, transitions to GATE_WAITING and returns. The
+          caller must call ``approve_gate()`` (then call this method again) or
+          ``reject_gate()``.
+        - Runs the skill script via subprocess. On success increments
+          ``skill_index`` and logs a PASS entry. On failure transitions to
+          FAILED and logs a FAIL entry.
+        - If all skills have been executed successfully, transitions to
+          COMPLETE.
+
+        Returns the current state dict after the operation.
+        Raises ValueError if the run is not in RUNNING state.
+        """
+        data = self._load()
+        state = RunState(data["state"])
+        if state != RunState.RUNNING:
+            raise ValueError(
+                f"execute_next_skill requires RUNNING state, got {state.value!r}. "
+                "Call approve_gate() first if in GATE_WAITING."
+            )
+
+        queue = data.get("skill_queue", [])
+        idx = data.get("skill_index", 0)
+
+        if idx >= len(queue):
+            return self.complete()
+
+        spec = queue[idx]
+        gate_raised_at = data.get("gate_raised_at")
+
+        # Raise gate before this skill if required (and not already raised for it)
+        if spec.get("requires_gate") and gate_raised_at != idx:
+            data["gate_raised_at"] = idx
+            data["updated_at"] = self._now()
+            self._save(data)
+            return self._transition(RunState.GATE_WAITING)
+
+        # Run the skill
+        script = spec.get("script", "")
+        extra_args = spec.get("args", [])
+        skill_id = spec.get("id", script)
+        cmd = [sys.executable, script] + extra_args
+
+        try:
+            proc = subprocess.run(
+                cmd,
+                cwd=str(REPO_ROOT),
+                timeout=SKILL_TIMEOUT,
+                capture_output=True,
+                text=True,
+            )
+        except subprocess.TimeoutExpired:
+            reason = f"skill {skill_id!r} timed out after {SKILL_TIMEOUT}s"
+            self._record_skill_result(data, idx, spec, -1, "", reason)
+            self._save(data)  # persist result before transitioning
+            try:
+                log_entry(skill=skill_id, status="FAIL", errors=[reason])
+            except Exception:  # pragma: no cover
+                pass
+            return self.fail(reason=reason)
+        except Exception as exc:
+            reason = f"skill {skill_id!r} failed to launch: {exc}"
+            self._record_skill_result(data, idx, spec, -1, "", reason)
+            self._save(data)  # persist result before transitioning
+            try:
+                log_entry(skill=skill_id, status="FAIL", errors=[reason])
+            except Exception:  # pragma: no cover
+                pass
+            return self.fail(reason=reason)
+
+        stderr_text = proc.stderr.strip() if proc.stderr else ""
+        stdout_text = proc.stdout.strip() if proc.stdout else ""
+
+        if proc.returncode != 0:
+            reason = (
+                f"skill {skill_id!r} exited {proc.returncode}"
+                + (f": {stderr_text[:200]}" if stderr_text else "")
+            )
+            self._record_skill_result(data, idx, spec, proc.returncode, stdout_text, reason)
+            self._save(data)  # persist result before transitioning
+            try:
+                log_entry(skill=skill_id, status="FAIL", errors=[reason])
+            except Exception:  # pragma: no cover
+                pass
+            return self.fail(reason=reason)
+
+        # Success — advance index and persist
+        self._record_skill_result(data, idx, spec, 0, stdout_text, "")
+        data["skill_index"] = idx + 1
+        data["updated_at"] = self._now()
+        self._save(data)
+        try:
+            log_entry(skill=skill_id, status="PASS")
+        except Exception:  # pragma: no cover
+            pass
+
+        # If all skills complete, mark run done
+        if data["skill_index"] >= len(queue):
+            return self.complete()
+
+        return self._load()
+
+    def execute_all_skills(self) -> dict:
+        """Drive the skill queue to completion or until a gate or failure.
+
+        Calls ``execute_next_skill()`` in a loop until the run reaches a
+        terminal state (COMPLETE or FAILED) or GATE_WAITING (requires operator
+        action). Returns the final state dict.
+        """
+        while True:
+            state = self.current_state()
+            if state in (RunState.COMPLETE, RunState.FAILED, RunState.GATE_WAITING):
+                break
+            if state != RunState.RUNNING:
+                break
+            self.execute_next_skill()
+        return self._load()
+
+    @staticmethod
+    def _record_skill_result(
+        data: dict,
+        idx: int,
+        spec: dict,
+        exit_code: int,
+        stdout: str,
+        error: str,
+    ) -> None:
+        """Append a skill result entry (mutates data in place, does not save)."""
+        data.setdefault("skill_results", []).append({
+            "index": idx,
+            "id": spec.get("id", ""),
+            "script": spec.get("script", ""),
+            "exit_code": exit_code,
+            "stdout": stdout[:500] if stdout else "",
+            "error": error,
+            "logged_at": datetime.now(timezone.utc).isoformat(),
+        })
+
 
 # ---------------------------------------------------------------------------
 # CLI
@@ -272,6 +460,29 @@ def _build_parser() -> argparse.ArgumentParser:
         p.add_argument("run_id", help="Unique run identifier.")
         if has_reason:
             p.add_argument("--reason", default="", help="Optional reason text.")
+
+    # run-chain: start + load skills + execute all
+    p_chain = sub.add_parser(
+        "run-chain",
+        help="Start a run, load a skill chain, and execute to completion.",
+    )
+    p_chain.add_argument("run_id", help="Unique run identifier.")
+    p_chain.add_argument(
+        "--skills",
+        required=True,
+        help=(
+            "Comma-separated script paths relative to repo root, "
+            "e.g. scripts/local_gate.py,scripts/path_guard.py"
+        ),
+    )
+    p_chain.add_argument(
+        "--gate-before",
+        default="",
+        help=(
+            "Comma-separated script paths that should pause for gate approval "
+            "before execution, e.g. scripts/pre_write.py"
+        ),
+    )
 
     return parser
 
@@ -312,6 +523,39 @@ def main(argv: "list[str] | None" = None) -> int:
         elif args.command == "retry":
             data = orch.retry()
             print(f"Retry started. State: {data['state']}, Attempt: {data['attempt']}")
+
+        elif args.command == "run-chain":
+            gate_before = set(
+                s.strip() for s in args.gate_before.split(",") if s.strip()
+            )
+            skill_specs = []
+            for script in args.skills.split(","):
+                script = script.strip()
+                if not script:
+                    continue
+                skill_specs.append({
+                    "id": Path(script).stem,
+                    "script": script,
+                    "args": [],
+                    "requires_gate": script in gate_before,
+                })
+            data = orch.start_run()
+            orch.load_skills(skill_specs)
+            data = orch.execute_all_skills()
+            print(f"Run {args.run_id!r} finished. State: {data['state']}")
+            if data.get("skill_results"):
+                for r in data["skill_results"]:
+                    status = "OK" if r["exit_code"] == 0 else "FAIL"
+                    print(f"  [{status}] {r['id']} (exit {r['exit_code']})")
+            if data["state"] == RunState.GATE_WAITING.value:
+                idx = data.get("skill_index", 0)
+                queue = data.get("skill_queue", [])
+                pending = queue[idx]["id"] if idx < len(queue) else "?"
+                print(
+                    f"  Paused at gate before skill {pending!r}. "
+                    "Run gate-approve to continue."
+                )
+                return 2  # special exit code: gate waiting
 
     except (FileNotFoundError, FileExistsError, ValueError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
