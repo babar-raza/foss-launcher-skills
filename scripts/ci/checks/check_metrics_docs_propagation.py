@@ -68,6 +68,20 @@ _LLM_SKILL_KEYWORDS = [
     "knowledge_enrich", "translate", "gap-eval", "seo", "recommend",
 ]
 
+# Markers that indicate a skill file has been permanently retired.
+# Retired files cannot call LLMs, so the metrics obligation is N/A.
+_RETIRED_MARKERS = [
+    "PERMANENTLY RETIRED",
+    "permanently retired",
+    "## RETIRED",
+    "has been deleted",
+    "has been retired",
+]
+
+
+def _is_retired_skill(text: str) -> bool:
+    return any(m in text for m in _RETIRED_MARKERS)
+
 
 @dataclass
 class PropagationItem:
@@ -140,6 +154,13 @@ def _check_skill_file(path: Path, root: Path | None = None) -> PropagationItem:
     if not path.exists():
         return PropagationItem(path=rel, description="Skill file", status="FILE_NOT_FOUND")
     text = path.read_text(encoding="utf-8", errors="ignore")
+    if _is_retired_skill(text):
+        return PropagationItem(
+            path=rel, description="Skill file (retired)",
+            status="NOT_APPLICABLE",
+            llm_usage_detected=False,
+            note="Retired skill — metrics obligation N/A (no LLM calls possible)",
+        )
     is_llm = _has_llm_usage(text)
     if not is_llm:
         return PropagationItem(

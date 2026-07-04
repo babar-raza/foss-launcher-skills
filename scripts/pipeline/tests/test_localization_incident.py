@@ -16,12 +16,12 @@ def _isolate_repo(tmp_path):
     (tmp_path / "docs" / "registries").mkdir(parents=True)
     (tmp_path / "docs" / "registries" / "skills.md").write_text(
         "| Skill | ID | Purpose |\n"
-        "| translate-page | S-52 | Translate page |\n"
-        "| translate-batch | S-53 | Translate batch |\n"
+        "| ht-translate | S-HT-01 | Translate page via hugo-translator |\n"
+        "| ht-translate-batch | S-HT-02 | Batch translate via hugo-translator |\n"
         "| pipeline-harden | S-99 | Harden pipeline |\n",
         encoding="utf-8",
     )
-    for slug in ("translate-page", "translate-batch", "pipeline-harden"):
+    for slug in ("ht-translate", "ht-translate-batch", "pipeline-harden"):
         (tmp_path / "skills").mkdir(exist_ok=True)
         (tmp_path / "skills" / f"{slug}.md").write_text("# skill\n", encoding="utf-8")
     yield
@@ -65,7 +65,7 @@ def _gap_report(tmp_path: Path) -> Path:
     path = tmp_path / "reports" / "skill-gaps" / "gap.md"
     path.parent.mkdir(parents=True)
     path.write_text(
-        "production localization incident with live-site evidence, deployment, CDN, S-52, S-53, S-99",
+        "production localization incident with live-site evidence, deployment, CDN, S-HT-01, S-HT-02, S-99",
         encoding="utf-8",
     )
     return path

@@ -270,6 +270,10 @@ class TestAT02_LLMRouterEmbedding:
 # AT-3: Direct requests adapter (CS-008) records 1 api_call + tokens
 # ===========================================================================
 
+@pytest.mark.skip(
+    reason="translator.backends.llm deleted in translator retirement sprint (commit e4c65304a6); "
+           "LLMBackend metrics now covered by professionalize_client.py metrics path"
+)
 class TestAT03_DirectRequestsAdapter:
     """AT-3: Layer 3 — CS-008 LLMBackend emits MetricsEvent per HTTP attempt."""
 
@@ -353,6 +357,10 @@ class TestAT04_OpenAISDKAdapter:
 # AT-5: Retry sends 3 HTTP requests → api_calls_count=3
 # ===========================================================================
 
+@pytest.mark.skip(
+    reason="translator.backends.llm deleted in translator retirement sprint (commit e4c65304a6); "
+           "retry metrics now exercised via professionalize_client.py test suite"
+)
 class TestAT05_RetryCountsThreeAttempts:
     """AT-5: 3 HTTP attempts to professionalize → api_calls_count=3."""
 
@@ -538,6 +546,10 @@ class TestAT08_GeminiCallsExcluded:
 class TestAT09_M2MCallsExcluded:
     """AT-9: M2M100 (CS-013) has no metrics infrastructure — boundary exclusion."""
 
+    @pytest.mark.skip(
+        reason="scripts/translator/backends/m2m.py deleted in translator retirement sprint "
+               "(commit e4c65304a6); M2M boundary exclusion is now a historical artifact"
+    )
     def test_m2m_backend_has_no_metrics_imports(self):
         """translator/backends/m2m.py does not import MetricsEvent or LLMRouter."""
         src = (_REPO_ROOT / "scripts" / "translator" / "backends" / "m2m.py").read_text(encoding="utf-8")
@@ -546,6 +558,10 @@ class TestAT09_M2MCallsExcluded:
         assert "ProfessionalizeClient" not in src, "m2m.py must not import ProfessionalizeClient"
         assert "llm.professionalize.com" not in src, "m2m.py must not reference professionalize URL"
 
+    @pytest.mark.skip(
+        reason="scripts/translator/backends/m2m.py deleted in translator retirement sprint "
+               "(commit e4c65304a6); M2M local-model verification no longer applicable"
+    )
     def test_m2m_backend_is_local_model_no_http(self):
         """M2M100 uses local torch/transformers model — no external HTTP calls."""
         src = (_REPO_ROOT / "scripts" / "translator" / "backends" / "m2m.py").read_text(encoding="utf-8")

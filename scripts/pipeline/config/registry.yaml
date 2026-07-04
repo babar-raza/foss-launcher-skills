@@ -1383,6 +1383,21 @@ scripts:
     deprecated_since: null
     notes: "GOVERNANCE: override token lifecycle; DO NOT MOVE OR RENAME"
 
+  - path: scripts/pipeline/commands/governance/deletion_governance_manager.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    test_exempt_reason: "Governance lifecycle tool; integration-tested via pre-commit Step 0b"
+    deprecated_since: null
+    notes: "GOVERNANCE: Deletion Governance Record (DGR) lifecycle manager; DO NOT MOVE OR RENAME"
+
   - path: scripts/pipeline/commands/governance/path_guard.py
     kind: entrypoint
     lifecycle: active
