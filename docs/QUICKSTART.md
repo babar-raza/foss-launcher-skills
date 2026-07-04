@@ -143,6 +143,7 @@ See [heal content guide](guides/heal-content.md).
 | Clone cache empty | Run `/knowledge-update {family} {platform}` |
 | Commit blocked by missing skill run record | Run `skill_run_manager.py create --skills S-73 --run-type targeted` |
 | `stale_since` is set in model.yaml | Run `/knowledge-diff` then `/knowledge-update` before content tasks |
+| `git rm` deletion commits without DGR check | Pre-commit hook is stale — re-run `bash scripts/install-hooks.sh` then verify with `diff .git/hooks/pre-commit scripts/pre-commit-audit.sh` |
 
 For hook installation issues, see [hook-installation guide](operations/hook-installation.md).
 For venv enforcement policy, see [docs/STATUS-venv-closure.md](STATUS-venv-closure.md).

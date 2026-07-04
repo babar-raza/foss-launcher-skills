@@ -157,7 +157,19 @@ If a T-01 deletion is needed urgently and the 7-day TTL is a blocker:
 ### Hook Installation
 
 The pre-commit gate runs from `.git/hooks/pre-commit`, which is **not tracked by git**.
-After cloning or pulling major pre-commit updates, sync the installed hook from the source:
+The canonical installer handles all hooks (pre-commit, commit-msg, post-commit,
+reference-transaction) in one step:
+
+```bash
+bash scripts/install-hooks.sh
+```
+
+Run this after cloning and after any governance update that changes
+`scripts/pre-commit-audit.sh` (look for "Step 0b deletion gate" in commit messages
+as a signal to re-run). If the deletion gate is not firing on `git rm`, the hook is
+likely stale — re-run the installer.
+
+To sync only the pre-commit hook manually:
 
 ```bash
 cp scripts/pre-commit-audit.sh .git/hooks/pre-commit

@@ -55,6 +55,7 @@ The content audit workflow runs checks for:
 - Clone cache reference checks.
 - Pipeline registration.
 - Python placement.
+- **Deletion approvals (GUARD-DEL-01)**: blocks PRs containing ungoverned T-00 or T-01 deletions without a valid DGR. See [deletion governance](../DELETION_GOVERNANCE.md).
 
 ## Docs Root Hygiene
 
