@@ -71,6 +71,11 @@ ALLOWED_PREFIXES: tuple[str, ...] = (
     # Agents may write here only when adding operator-visible documentation as part of a
     # registered skill.  Root-level writes are still DENY (no trailing slash match at root).
     "docs/",
+    # Deletion Governance Records — tracked, CI-visible YAML files (DGRs).
+    # Agents write here when creating deletion approvals via deletion_governance_manager.py.
+    "deletion-approvals/",
+    # Website maintenance scripts (clean_locales.py, etc.) — governed batch ops.
+    "scripts/website/",
 )
 
 FORBIDDEN_PREFIXES: tuple[str, ...] = (

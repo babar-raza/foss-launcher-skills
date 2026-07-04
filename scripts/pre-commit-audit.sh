@@ -104,6 +104,28 @@ fi
 _pc_step_end "PASS"
 
 # ---------------------------------------------------------------------------
+_pc_step_start "deletion gate"
+# Step 0b: Staged deletion gate — blocks Tier 0 and Tier 1 without DGR
+# DELETION_GATE_PHASE=2 = blocking (exit 2); unset or 1 = warn-only (exit 0)
+if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_staged_deletions.py" ]; then
+    DELETION_GATE_PHASE=2 "$_HOOK_PYTHON" scripts/ci/checks/check_staged_deletions.py --check-staged
+    _del_status=$?
+    if [ $_del_status -eq 2 ]; then
+        echo ""
+        echo "BLOCKED: Staged deletion requires a Deletion Governance Record (DGR)."
+        echo "  Create: \"$_HOOK_PYTHON\" scripts/pipeline/commands/governance/deletion_governance_manager.py create \\"
+        echo "    --files <path> --reason '...' --plan '<plan>' --class T-01"
+        echo "  Commit DGR to deletion-approvals/ BEFORE staging the deletion."
+        echo "  See docs/DELETION_GOVERNANCE.md"
+        _pc_step_end "FAIL"
+        _pc_exit 2
+    fi
+    _pc_step_end "PASS"
+else
+    _pc_step_end "SKIP"
+fi
+
+# ---------------------------------------------------------------------------
 _pc_step_start "forbidden paths"
 # Step 1: Forbidden-path enforcement
 # ---------------------------------------------------------------------------

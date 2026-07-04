@@ -439,6 +439,59 @@ escalation item where S-90 can perform the inspection. The distinction between "
 - Commit a `.md` file whose sole staged diff from HEAD is a changed `graded_at:` timestamp. The pre-commit hook Step 10 auto-reverts such files; using `--no-verify` to bypass this gate is prohibited.
 - **No `hugo -d <relative-path>` from the Bash tool.** All agent Hugo builds must write to a system temp dir (`$(mktemp -d)` in bash, `tempfile.mkdtemp()` in Python subprocesses). Any relative destination (including patterns like `public-as-*`, `public-iv-*`, `public-sq-*`, or any other `public-<suffix>` name) writes full-site HTML artifacts into the repo root, bloating git status and risking accidental commits. **Using `SKIP_DESTRUCTIVE_BASH_CHECK=1` to bypass this block is prohibited for agent sessions.** Use `tmpdir=$(mktemp -d)` in Bash or `tempfile.mkdtemp()` in Python instead. Enforcement: PreToolUse Bash hook (`scripts/ci/hooks/check_destructive_bash_hook.sh`). Reference implementation: `scripts/ci/hooks/check_hugo_build.sh`. Rule documentation: `docs/_archive/pre-refactor/governance/write-boundaries.md §Hugo Output Discipline`.
 
+## 11a. Deletion Governance (DGR Protocol)
+
+> Full detail: [docs/DELETION_GOVERNANCE.md](docs/DELETION_GOVERNANCE.md)
+> Plan: `humming-wondering-storm`
+> Added: 2026-07-04
+
+**D-1: No tracked file may be deleted without a Deletion Governance Record (DGR).**
+A DGR is a YAML file committed to `deletion-approvals/` that records the approver,
+reason, affected paths, tier classification, and a 7-day expiry.
+
+**D-2: Deletion scope.**
+All of the following on tracked paths require a DGR: `git rm`, `os.remove`,
+`Path.unlink`, `shutil.rmtree`. Renames (`git mv`) of T-00/T-01 source paths
+also require a DGR.
+
+**D-3: Content retirement = `draft: true`, never `git rm`.**
+Mark obsolete content pages with `draft: true` via skill S-83 (page-retire).
+Do not delete content files with `git rm` — always retire via draft mechanism.
+
+**D-4: Human gate procedure for T-01 deletions.**
+1. Create DGR: `python scripts/pipeline/commands/governance/deletion_governance_manager.py create --files <path> --reason '...' --plan '<plan>' --class T-01`
+2. Stage and commit the DGR to `deletion-approvals/`
+3. Stage the deletion: `git rm <path>`
+4. Commit with token: message body must include `Deletion-Approved: DGR-<id>`
+5. Consume: `deletion_governance_manager.py consume --dgr-id <id> --commit-sha <sha>`
+
+**D-5: T-00 paths can never be deleted.**
+T-00 includes: AGENTS.md, CLAUDE.md, path_guard.py, all `scripts/ci/hooks/` files,
+and any path under FORBIDDEN_PREFIXES. No DGR path exists for T-00 paths.
+Pre-commit Step 0b, commit-msg hook, and CI GUARD-DEL-01 all block T-00 deletions.
+
+**D-6: Rename of T-00/T-01 source path requires DGR with redirect plan.**
+`git mv content/old/_index.md content/new/_index.md` exposes the source path as D/R
+in git diff. If the source is T-01, a DGR with `operation: rename` and
+`redirect_plan` field is required. If source is T-00, the rename is blocked.
+
+**Tier summary:**
+
+| Tier | Paths | Gate |
+|------|-------|------|
+| T-00 | FORBIDDEN_EXACT + FORBIDDEN_PREFIXES | Always blocked; no DGR path |
+| T-01 | content/, knowledge/, scripts/pipeline/, scripts/ci/, tests/, data/ | DGR required |
+| T-02 | docs/, scripts/maintenance/, scripts/seo/ | Advisory warning only |
+| T-03 | Gitignored / unprotected | Silent pass |
+
+**Implementation artifacts:**
+- `scripts/ci/checks/check_staged_deletions.py` — pre-commit gate
+- `scripts/pipeline/commands/governance/deletion_governance_manager.py` — DGR manager CLI
+- `scripts/ci/checks/check_pr_deletion_approvals.py` — CI gate
+- `scripts/ci/checks/validate_dgr_token.py` — commit-msg DGR token validator
+- `deletion-approvals/` — tracked DGR storage (CI-visible)
+- `docs/DELETION_GOVERNANCE.md` — operator documentation
+
 ## 12. File Map
 
 > Full detail: [docs/registries/file-map.md](docs/registries/file-map.md) (content paths, environment, scripts reference)
