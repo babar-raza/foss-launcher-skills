@@ -1,0 +1,13 @@
+{
+  "override_id": "20260704-083015-skills-registry-yaml",
+  "paths": [
+    "skills/registry.yaml"
+  ],
+  "operation": "edit",
+  "reason": "Add S-111 to S-115 governance capability skills for cross-agent parity protocol (nifty-coalescing-barto)",
+  "plan_reference": "",
+  "scope_description": "",
+  "authorized_at": "2026-07-04T08:30:15.216722Z",
+  "retroactive": false,
+  "consumed_by_commit": null
+}

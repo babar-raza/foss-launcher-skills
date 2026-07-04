@@ -1,0 +1,1815 @@
+canonical_registry: skills/registry.yaml
+capabilities:
+- adapters:
+    agent_skill: .agents\skills\path-guard\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\path-guard.md
+    canonical_exists: true
+    claude_command: null
+    claude_command_exists: false
+    kilo_skill: .kilocode\skills\path-guard\SKILL.md
+    kilo_skill_exists: true
+  category: governance
+  description: Enforce allowed write paths
+  id: S-01
+  idempotency: guaranteed
+  internal: true
+  mutating: false
+  name: path-guard
+  operation_type: validate
+  script: scripts/path_guard.py
+- adapters:
+    agent_skill: .agents\skills\project-phase-store\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\project-phase-store.md
+    canonical_exists: true
+    claude_command: null
+    claude_command_exists: false
+    kilo_skill: .kilocode\skills\project-phase-store\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Record page creation intent as a YAML plan file
+  id: S-10
+  idempotency: unknown
+  internal: true
+  mutating: null
+  name: project-phase-store
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\knowledge-diff\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\knowledge-diff.md
+    canonical_exists: true
+    claude_command: .claude\commands\knowledge-diff.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\knowledge-diff\SKILL.md
+    kilo_skill_exists: true
+  category: knowledge
+  description: Detect upstream repo changes since last knowledge extraction
+  id: S-12
+  idempotency: guaranteed
+  internal: false
+  mutating: false
+  name: knowledge-diff
+  operation_type: validate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\stale-detect\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\stale-detect.md
+    canonical_exists: true
+    claude_command: .claude\commands\stale-detect.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\stale-detect\SKILL.md
+    kilo_skill_exists: true
+  category: knowledge
+  description: Identify content pages affected by upstream changes
+  id: S-13
+  idempotency: guaranteed
+  internal: false
+  mutating: false
+  name: stale-detect
+  operation_type: validate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\knowledge-update\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\knowledge-update.md
+    canonical_exists: true
+    claude_command: .claude\commands\knowledge-update.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\knowledge-update\SKILL.md
+    kilo_skill_exists: true
+  category: knowledge
+  description: Refresh knowledge model from source repo
+  id: S-14
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: knowledge-update
+  operation_type: generate
+  script: scripts/pipeline/commands/knowledge/refresh_knowledge.py
+- adapters:
+    agent_skill: .agents\skills\embed-knowledge\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\embed-knowledge.md
+    canonical_exists: true
+    claude_command: .claude\commands\embed-knowledge.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\embed-knowledge\SKILL.md
+    kilo_skill_exists: true
+  category: knowledge
+  description: Generate vector embeddings for knowledge retrieval
+  id: S-15
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: embed-knowledge
+  operation_type: generate
+  script: scripts/embed.py
+- adapters:
+    agent_skill: .agents\skills\rubric-align\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\rubric-align.md
+    canonical_exists: true
+    claude_command: null
+    claude_command_exists: false
+    kilo_skill: .kilocode\skills\rubric-align\SKILL.md
+    kilo_skill_exists: true
+  category: governance
+  description: Align content to quality rubric and identify gaps
+  id: S-17
+  idempotency: guaranteed
+  internal: true
+  mutating: false
+  name: rubric-align
+  operation_type: validate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\page-plan\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\page-plan.md
+    canonical_exists: true
+    claude_command: .claude\commands\page-plan.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\page-plan\SKILL.md
+    kilo_skill_exists: true
+  category: content
+  description: Plan page structure before drafting
+  id: S-18
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: page-plan
+  operation_type: generate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\page-draft\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\page-draft.md
+    canonical_exists: true
+    claude_command: .claude\commands\page-draft.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\page-draft\SKILL.md
+    kilo_skill_exists: true
+  category: content
+  description: Draft initial page content from knowledge model
+  id: S-19
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: page-draft
+  operation_type: generate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\page-update\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\page-update.md
+    canonical_exists: true
+    claude_command: .claude\commands\page-update.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\page-update\SKILL.md
+    kilo_skill_exists: true
+  category: content
+  description: Update page after knowledge model change
+  id: S-20
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: page-update
+  operation_type: generate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\page-enhance\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\page-enhance.md
+    canonical_exists: true
+    claude_command: .claude\commands\page-enhance.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\page-enhance\SKILL.md
+    kilo_skill_exists: true
+  category: content
+  description: Enhance page quality to meet rubric bar
+  id: S-21
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: page-enhance
+  operation_type: generate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\faq-generate\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\faq-generate.md
+    canonical_exists: true
+    claude_command: .claude\commands\faq-generate.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\faq-generate\SKILL.md
+    kilo_skill_exists: true
+  category: content
+  description: Generate FAQ section from knowledge model
+  id: S-22
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: faq-generate
+  operation_type: generate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\ground-check\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\ground-check.md
+    canonical_exists: true
+    claude_command: .claude\commands\ground-check.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\ground-check\SKILL.md
+    kilo_skill_exists: true
+  category: quality
+  description: Pre-write evidence verification gate
+  id: S-23
+  idempotency: guaranteed
+  internal: false
+  mutating: false
+  name: ground-check
+  operation_type: validate
+  script: scripts/pipeline/commands/content/audit.py
+- adapters:
+    agent_skill: .agents\skills\evidence-cite\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\evidence-cite.md
+    canonical_exists: true
+    claude_command: null
+    claude_command_exists: false
+    kilo_skill: .kilocode\skills\evidence-cite\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Attach evidence citations to content frontmatter
+  id: S-24
+  idempotency: unknown
+  internal: true
+  mutating: null
+  name: evidence-cite
+  operation_type: unknown
+  script: scripts/pipeline/commands/content/attach_evidence.py
+- adapters:
+    agent_skill: .agents\skills\eval-page\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\eval-page.md
+    canonical_exists: true
+    claude_command: .claude\commands\eval-page.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\eval-page\SKILL.md
+    kilo_skill_exists: true
+  category: quality
+  description: Evaluate page quality and assign A-F grade
+  id: S-25
+  idempotency: guaranteed
+  internal: false
+  mutating: false
+  name: eval-page
+  operation_type: validate
+  script: scripts/pipeline/content_eval/__main__.py
+- adapters:
+    agent_skill: .agents\skills\heal-page\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\heal-page.md
+    canonical_exists: true
+    claude_command: .claude\commands\heal-page.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\heal-page\SKILL.md
+    kilo_skill_exists: true
+  category: quality
+  description: Fix low-quality page to reach passing grade
+  id: S-26
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: heal-page
+  operation_type: generate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\truth-sync\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\truth-sync.md
+    canonical_exists: true
+    claude_command: .claude\commands\truth-sync.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\truth-sync\SKILL.md
+    kilo_skill_exists: true
+  category: knowledge
+  description: Import external FOSS-Launcher knowledge into fl/
+  id: S-30
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: truth-sync
+  operation_type: generate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\truth-index\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\truth-index.md
+    canonical_exists: true
+    claude_command: .claude\commands\truth-index.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\truth-index\SKILL.md
+    kilo_skill_exists: true
+  category: knowledge
+  description: Generate knowledge index from merged artifacts
+  id: S-31
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: truth-index
+  operation_type: generate
+  script: scripts/index.py
+- adapters:
+    agent_skill: .agents\skills\content-audit\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\content-audit.md
+    canonical_exists: true
+    claude_command: .claude\commands\content-audit.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\content-audit\SKILL.md
+    kilo_skill_exists: true
+  category: quality
+  description: Semantic knowledge verification of content pages
+  id: S-32
+  idempotency: guaranteed
+  internal: false
+  mutating: false
+  name: content-audit
+  operation_type: validate
+  script: scripts/pipeline/commands/content/audit.py
+- adapters:
+    agent_skill: .agents\skills\change-guard\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\change-guard.md
+    canonical_exists: true
+    claude_command: null
+    claude_command_exists: false
+    kilo_skill: .kilocode\skills\change-guard\SKILL.md
+    kilo_skill_exists: true
+  category: governance
+  description: Pre-write knowledge gate for single text blocks
+  id: S-33
+  idempotency: guaranteed
+  internal: true
+  mutating: false
+  name: change-guard
+  operation_type: validate
+  script: scripts/pipeline/commands/diagnostics/change_guard.py
+- adapters:
+    agent_skill: .agents\skills\repo-scout\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\repo-scout.md
+    canonical_exists: true
+    claude_command: .claude\commands\repo-scout.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\repo-scout\SKILL.md
+    kilo_skill_exists: true
+  category: knowledge
+  description: Extract API truth from FOSS repository
+  id: S-34
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: repo-scout
+  operation_type: generate
+  script: scripts/scout.py
+- adapters:
+    agent_skill: .agents\skills\truth-merge\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\truth-merge.md
+    canonical_exists: true
+    claude_command: .claude\commands\truth-merge.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\truth-merge\SKILL.md
+    kilo_skill_exists: true
+  category: knowledge
+  description: Merge scout and external knowledge sources
+  id: S-35
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: truth-merge
+  operation_type: generate
+  script: scripts/merge.py
+- adapters:
+    agent_skill: .agents\skills\cross-platform\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\cross-platform.md
+    canonical_exists: true
+    claude_command: .claude\commands\cross-platform.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\cross-platform\SKILL.md
+    kilo_skill_exists: true
+  category: quality
+  description: Family-wide consistency check across platforms
+  id: S-36
+  idempotency: guaranteed
+  internal: false
+  mutating: false
+  name: cross-platform
+  operation_type: validate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\corpus-scan\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\corpus-scan.md
+    canonical_exists: true
+    claude_command: .claude\commands\corpus-scan.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\corpus-scan\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Build golden corpus profile for a site type
+  id: S-37
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: corpus-scan
+  operation_type: unknown
+  script: scripts/corpus_scan.py
+- adapters:
+    agent_skill: .agents\skills\launch-product\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\launch-product.md
+    canonical_exists: true
+    claude_command: .claude\commands\launch-product.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\launch-product\SKILL.md
+    kilo_skill_exists: true
+  category: orchestration
+  description: Orchestrate full FOSS product launch end-to-end
+  id: S-38
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: launch-product
+  operation_type: orchestrate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\discover-products\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\discover-products.md
+    canonical_exists: true
+    claude_command: .claude\commands\discover-products.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\discover-products\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Scan GitHub org to discover FOSS product repos
+  id: S-39
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: discover-products
+  operation_type: unknown
+  script: scripts/discover.py
+- adapters:
+    agent_skill: .agents\skills\batch-remediate\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\batch-remediate.md
+    canonical_exists: true
+    claude_command: .claude\commands\batch-remediate.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\batch-remediate\SKILL.md
+    kilo_skill_exists: true
+  category: quality
+  description: Full eval-to-fix-to-LLM-to-re-eval remediation pipeline
+  id: S-40
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: batch-remediate
+  operation_type: orchestrate
+  script: scripts/pipeline/commands/content/remediate.py
+- adapters:
+    agent_skill: .agents\skills\batch-eval-fix\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\batch-eval-fix.md
+    canonical_exists: true
+    claude_command: .claude\commands\batch-eval-fix.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\batch-eval-fix\SKILL.md
+    kilo_skill_exists: true
+  category: quality
+  description: Quick eval plus deterministic auto-fix only (no LLM)
+  id: S-41
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: batch-eval-fix
+  operation_type: orchestrate
+  script: scripts/pipeline/commands/content/remediate.py
+- adapters:
+    agent_skill: .agents\skills\category-fix\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\category-fix.md
+    canonical_exists: true
+    claude_command: .claude\commands\category-fix.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\category-fix\SKILL.md
+    kilo_skill_exists: true
+  category: quality
+  description: Run specific fixer on targeted files by category
+  id: S-42
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: category-fix
+  operation_type: orchestrate
+  script: scripts/pipeline/commands/content/remediate.py
+- adapters:
+    agent_skill: .agents\skills\evidence-decide\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\evidence-decide.md
+    canonical_exists: true
+    claude_command: .claude\commands\evidence-decide.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\evidence-decide\SKILL.md
+    kilo_skill_exists: true
+  category: knowledge
+  description: Determine per-page content action from evidence
+  id: S-43
+  idempotency: guaranteed
+  internal: false
+  mutating: false
+  name: evidence-decide
+  operation_type: validate
+  script: scripts/decide.py
+- adapters:
+    agent_skill: .agents\skills\evidence-materialize\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\evidence-materialize.md
+    canonical_exists: true
+    claude_command: .claude\commands\evidence-materialize.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\evidence-materialize\SKILL.md
+    kilo_skill_exists: true
+  category: knowledge
+  description: Build canonical Product Evidence File from merged knowledge
+  id: S-44
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: evidence-materialize
+  operation_type: generate
+  script: scripts/materialize.py
+- adapters:
+    agent_skill: .agents\skills\mental-model\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\mental-model.md
+    canonical_exists: true
+    claude_command: .claude\commands\mental-model.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\mental-model\SKILL.md
+    kilo_skill_exists: true
+  category: knowledge
+  description: Build product mental model and capability tiers from PEF
+  id: S-45
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: mental-model
+  operation_type: generate
+  script: scripts/mental_model.py
+- adapters:
+    agent_skill: .agents\skills\evidence-verify\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\evidence-verify.md
+    canonical_exists: true
+    claude_command: .claude\commands\evidence-verify.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\evidence-verify\SKILL.md
+    kilo_skill_exists: true
+  category: quality
+  description: Deterministic content verification against PEF
+  id: S-46
+  idempotency: guaranteed
+  internal: false
+  mutating: false
+  name: evidence-verify
+  operation_type: validate
+  script: scripts/verify.py
+- adapters:
+    agent_skill: .agents\skills\truth-audit\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\truth-audit.md
+    canonical_exists: true
+    claude_command: .claude\commands\truth-audit.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\truth-audit\SKILL.md
+    kilo_skill_exists: true
+  category: quality
+  description: Member-level API verification against knowledge surface
+  id: S-47
+  idempotency: guaranteed
+  internal: false
+  mutating: false
+  name: truth-audit
+  operation_type: validate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\content-eval\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\content-eval.md
+    canonical_exists: true
+    claude_command: .claude\commands\content-eval.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\content-eval\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Multi-dimensional content evaluation against repo truth
+  id: S-48
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: content-eval
+  operation_type: unknown
+  script: scripts/pipeline/content_eval/__main__.py
+- adapters:
+    agent_skill: .agents\skills\knowledge-bootstrap\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\knowledge-bootstrap.md
+    canonical_exists: true
+    claude_command: null
+    claude_command_exists: false
+    kilo_skill: .kilocode\skills\knowledge-bootstrap\SKILL.md
+    kilo_skill_exists: true
+  category: governance
+  description: Shared pre-condition gate for knowledge state detection
+  id: S-49
+  idempotency: guaranteed
+  internal: true
+  mutating: false
+  name: knowledge-bootstrap
+  operation_type: validate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\content-check\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\content-check.md
+    canonical_exists: true
+    claude_command: .claude\commands\content-check.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\content-check\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Structural and quality check on a content file pre-commit
+  id: S-50
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: content-check
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\new-docs-page\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\new-docs-page.md
+    canonical_exists: true
+    claude_command: .claude\commands\new-docs-page.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\new-docs-page\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Generate a new documentation page for docs.aspose.org
+  id: S-51
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: new-docs-page
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\new-blog-post\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\new-blog-post.md
+    canonical_exists: true
+    claude_command: .claude\commands\new-blog-post.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\new-blog-post\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Generate a new blog post for blog.aspose.org
+  id: S-52
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: new-blog-post
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\new-kb-howto\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\new-kb-howto.md
+    canonical_exists: true
+    claude_command: .claude\commands\new-kb-howto.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\new-kb-howto\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Generate a new KB how-to article for kb.aspose.org
+  id: S-53
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: new-kb-howto
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\new-kb-faq\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\new-kb-faq.md
+    canonical_exists: true
+    claude_command: .claude\commands\new-kb-faq.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\new-kb-faq\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Generate or update the FAQ page for a product platform
+  id: S-54
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: new-kb-faq
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\new-reference-page\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\new-reference-page.md
+    canonical_exists: true
+    claude_command: .claude\commands\new-reference-page.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\new-reference-page\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Generate a new API reference page for reference.aspose.org
+  id: S-55
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: new-reference-page
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\no-downgrade-guard\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\no-downgrade-guard.md
+    canonical_exists: true
+    claude_command: null
+    claude_command_exists: false
+    kilo_skill: .kilocode\skills\no-downgrade-guard\SKILL.md
+    kilo_skill_exists: true
+  category: governance
+  description: Pre-write quality comparison guard; returns ALLOW/WARN/BLOCK before
+    content writes
+  id: S-56
+  idempotency: guaranteed
+  internal: true
+  mutating: false
+  name: no-downgrade-guard
+  operation_type: validate
+  script: scripts/pipeline/commands/governance/no_downgrade_guard.py
+- adapters:
+    agent_skill: .agents\skills\knowledge-enrich\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\knowledge-enrich.md
+    canonical_exists: true
+    claude_command: .claude\commands\knowledge-enrich.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\knowledge-enrich\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Generate LLM-enriched semantic claims from scout artifacts; writes
+    enriched_claims.json
+  id: S-61
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: knowledge-enrich
+  operation_type: unknown
+  script: scripts/pipeline/commands/knowledge/enrich.py
+- adapters:
+    agent_skill: .agents\skills\gap-eval\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\gap-eval.md
+    canonical_exists: true
+    claude_command: .claude\commands\gap-eval.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\gap-eval\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Evaluate content against clone cache ground truth using three-tier
+    architecture; produces PUBLICATION READY verdict
+  id: S-62
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: gap-eval
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\gap-plan\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\gap-plan.md
+    canonical_exists: true
+    claude_command: .claude\commands\gap-plan.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\gap-plan\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Convert gap-eval findings into wave-ordered remediation plan with old→new
+    substitutions
+  id: S-63
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: gap-plan
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\gap-report\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\gap-report.md
+    canonical_exists: true
+    claude_command: .claude\commands\gap-report.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\gap-report\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Synthesize gap-eval findings across all products into cross-product
+    MASTER-SYNTHESIS
+  id: S-64
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: gap-report
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\gap-apply\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\gap-apply.md
+    canonical_exists: true
+    claude_command: .claude\commands\gap-apply.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\gap-apply\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Execute wave-ordered fix specs from gap-plan; applies Wave 1 auto-fixes
+    through Wave 4 escalation
+  id: S-65
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: gap-apply
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\site-plan\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\site-plan.md
+    canonical_exists: true
+    claude_command: .claude\commands\site-plan.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\site-plan\SKILL.md
+    kilo_skill_exists: true
+  category: orchestration
+  description: Produce a deterministic evidence-bound site manifest across all 5 subdomains
+  id: S-57
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: site-plan
+  operation_type: generate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\family-sync\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\family-sync.md
+    canonical_exists: true
+    claude_command: .claude\commands\family-sync.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\family-sync\SKILL.md
+    kilo_skill_exists: true
+  category: orchestration
+  description: Update the family-level products page to reflect all currently launched
+    platforms
+  id: S-58
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: family-sync
+  operation_type: generate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\refresh-product-page\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\refresh-product-page.md
+    canonical_exists: true
+    claude_command: .claude\commands\refresh-product-page.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\refresh-product-page\SKILL.md
+    kilo_skill_exists: true
+  category: orchestration
+  description: Re-generate a products.aspose.org landing page with latest template
+    via full S-66 pipeline
+  id: S-59
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: refresh-product-page
+  operation_type: generate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\launch-rollback\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\launch-rollback.md
+    canonical_exists: true
+    claude_command: .claude\commands\launch-rollback.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\launch-rollback\SKILL.md
+    kilo_skill_exists: true
+  category: orchestration
+  description: Revert one product's generated content files to last committed state
+    without touching system files
+  id: S-60
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: launch-rollback
+  operation_type: migrate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\new-products-page\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\new-products-page.md
+    canonical_exists: true
+    claude_command: .claude\commands\new-products-page.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\new-products-page\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Generate or update the products.aspose.org landing page for a FOSS
+    product
+  id: S-66
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: new-products-page
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\register-human-content\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\register-human-content.md
+    canonical_exists: true
+    claude_command: .claude\commands\register-human-content.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\register-human-content\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Onboard human-authored content pages into quality and provenance systems
+  id: S-71
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: register-human-content
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\link-validate\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\link-validate.md
+    canonical_exists: true
+    claude_command: .claude\commands\link-validate.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\link-validate\SKILL.md
+    kilo_skill_exists: true
+  category: quality
+  description: Validate cross-subdomain internal links; reports BROKEN links where
+    target slug does not exist
+  id: S-70
+  idempotency: guaranteed
+  internal: false
+  mutating: false
+  name: link-validate
+  operation_type: validate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\batch-reference\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\batch-reference.md
+    canonical_exists: true
+    claude_command: .claude\commands\batch-reference.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\batch-reference\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Generate reference pages in bulk for all missing classes/enums in a
+    family+platform
+  id: S-67
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: batch-reference
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\code-smoke\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\code-smoke.md
+    canonical_exists: true
+    claude_command: .claude\commands\code-smoke.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\code-smoke\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Syntax and type-check Python code blocks in content pages; never executes
+    code
+  id: S-68
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: code-smoke
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\getting-started\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\getting-started.md
+    canonical_exists: true
+    claude_command: .claude\commands\getting-started.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\getting-started\SKILL.md
+    kilo_skill_exists: true
+  category: utility
+  description: Bootstrap the repo environment from a fresh clone to a content-ready
+    state
+  id: S-69
+  idempotency: guaranteed
+  internal: false
+  mutating: false
+  name: getting-started
+  operation_type: validate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\diagnose-skill-failure\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\diagnose-skill-failure.md
+    canonical_exists: true
+    claude_command: .claude\commands\diagnose-skill-failure.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\diagnose-skill-failure\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Governed diagnostic procedure for skill failures; classifies as CONFIG/DATA/CODE/GOVERNANCE/REGRESSION
+  id: S-72
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: diagnose-skill-failure
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\update-registry\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\update-registry.md
+    canonical_exists: true
+    claude_command: .claude\commands\update-registry.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\update-registry\SKILL.md
+    kilo_skill_exists: true
+  category: utility
+  description: Discover and register FOSS repositories from Aspose GitHub organisations
+  id: S-73
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: update-registry
+  operation_type: generate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\commit\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\commit.md
+    canonical_exists: true
+    claude_command: .claude\commands\commit.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\commit\SKILL.md
+    kilo_skill_exists: true
+  category: utility
+  description: Stage and commit working tree changes with structured conventional
+    commits
+  id: S-81
+  idempotency: not-guaranteed
+  internal: false
+  mutating: true
+  name: commit
+  operation_type: write
+  script: null
+- adapters:
+    agent_skill: .agents\skills\new-kb-index\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\new-kb-index.md
+    canonical_exists: true
+    claude_command: .claude\commands\new-kb-index.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\new-kb-index\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Scaffold or repair the KB platform section landing page with required
+    frontmatter and children shortcode
+  id: S-74
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: new-kb-index
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\new-docs-index\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\new-docs-index.md
+    canonical_exists: true
+    claude_command: .claude\commands\new-docs-index.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\new-docs-index\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Scaffold or repair the docs platform section landing page with required
+    frontmatter and sections shortcode
+  id: S-75
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: new-docs-index
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\new-reference-index\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\new-reference-index.md
+    canonical_exists: true
+    claude_command: .claude\commands\new-reference-index.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\new-reference-index\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Scaffold or repair the reference platform section landing page with
+    required frontmatter and children shortcode
+  id: S-76
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: new-reference-index
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\evidence-repair\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\evidence-repair.md
+    canonical_exists: true
+    claude_command: .claude\commands\evidence-repair.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\evidence-repair\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Repair evidence frontmatter blocks on validator-blocked pages; two-stage
+    auto-attach then LLM reasoning
+  id: S-77
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: evidence-repair
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\manual-edit\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\manual-edit.md
+    canonical_exists: true
+    claude_command: .claude\commands\manual-edit.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\manual-edit\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Apply operator-specified targeted content edit under full governance;
+    minimal-edit principle
+  id: S-78
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: manual-edit
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\causal-backtrack\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\causal-backtrack.md
+    canonical_exists: true
+    claude_command: .claude\commands\causal-backtrack.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\causal-backtrack\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Resolve upstream dependency failures by tracing broken links back to
+    root cause and routing to responsible skill
+  id: S-79
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: causal-backtrack
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\session-start\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\session-start.md
+    canonical_exists: true
+    claude_command: .claude\commands\session-start.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\session-start\SKILL.md
+    kilo_skill_exists: true
+  category: governance
+  description: Mandatory session initialization gate; reads governance files and loads
+    backlog before any task
+  id: S-82
+  idempotency: guaranteed
+  internal: false
+  mutating: false
+  name: session-start
+  operation_type: validate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\evidence-enhance\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\evidence-enhance.md
+    canonical_exists: true
+    claude_command: .claude\commands\evidence-enhance.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\evidence-enhance\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Improve section-level evidence coverage on passing pages; governed
+    entry point for attach_evidence --force
+  id: S-83
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: evidence-enhance
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\page-retire\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\page-retire.md
+    canonical_exists: true
+    claude_command: .claude\commands\page-retire.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\page-retire\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Retire obsolete content pages by setting draft:true; preserves history
+    and allows rollback
+  id: S-88
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: page-retire
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\heal-batch\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\heal-batch.md
+    canonical_exists: true
+    claude_command: .claude\commands\heal-batch.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\heal-batch\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Batch healing from content_eval report; routes findings to auto/LLM/regen
+    heal modes
+  id: S-94
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: heal-batch
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\coverage-reconcile\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\coverage-reconcile.md
+    canonical_exists: true
+    claude_command: .claude\commands\coverage-reconcile.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\coverage-reconcile\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Full disposition table for every knowledge unit showing used/stored/orphaned/excluded
+    status
+  id: S-85
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: coverage-reconcile
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\knowledge-coverage-audit\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\knowledge-coverage-audit.md
+    canonical_exists: true
+    claude_command: .claude\commands\knowledge-coverage-audit.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\knowledge-coverage-audit\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Per-claim disposition table; foundational observability for no-silent-knowledge-loss
+  id: S-86
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: knowledge-coverage-audit
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\truth-audit-content\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\truth-audit-content.md
+    canonical_exists: true
+    claude_command: .claude\commands\truth-audit-content.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\truth-audit-content\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Line-level content truth audit; decomposes pages into units and verifies
+    each against knowledge model
+  id: S-90
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: truth-audit-content
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\publish-readiness-review\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\publish-readiness-review.md
+    canonical_exists: true
+    claude_command: .claude\commands\publish-readiness-review.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\publish-readiness-review\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Agent-executed governed inspection; replaces human-review dead-ends
+    with bounded verdict
+  id: S-95
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: publish-readiness-review
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\plan-normalize\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\plan-normalize.md
+    canonical_exists: true
+    claude_command: .claude\commands\plan-normalize.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\plan-normalize\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Execution-safe plan quality gate; classifies sections, verifies claims,
+    recommends next item
+  id: S-96
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: plan-normalize
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\refresh-product\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\refresh-product.md
+    canonical_exists: true
+    claude_command: .claude\commands\refresh-product.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\refresh-product\SKILL.md
+    kilo_skill_exists: true
+  category: orchestration
+  description: Orchestrate the full post-launch product refresh cycle; 14-step chain
+    with checkpoint resume
+  id: S-84
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: refresh-product
+  operation_type: orchestrate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\delta-site-plan\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\delta-site-plan.md
+    canonical_exists: true
+    claude_command: .claude\commands\delta-site-plan.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\delta-site-plan\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Incremental site planning after a knowledge update; produces pages_to_add/update/remove
+    delta
+  id: S-87
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: delta-site-plan
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\system-heal\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\system-heal.md
+    canonical_exists: true
+    claude_command: .claude\commands\system-heal.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\system-heal\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Audit-driven content healing; classifies findings as CONTENT/PIPELINE/KNOWLEDGE
+    and heals automatically
+  id: S-93
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: system-heal
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\triage-confirm\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\triage-confirm.md
+    canonical_exists: true
+    claude_command: .claude\commands\triage-confirm.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\triage-confirm\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Layer 2 body-prose staleness scanner; detects stale API references
+    and orphaned claims; read-only
+  id: S-97
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: triage-confirm
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\backlog\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\backlog.md
+    canonical_exists: true
+    claude_command: .claude\commands\backlog.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\backlog\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Unified backlog management with 22 subcommands; maintains durable planning
+    state across sessions
+  id: S-98
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: backlog
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\translate-page\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\translate-page.md
+    canonical_exists: true
+    claude_command: .claude\commands\translate-page.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\translate-page\SKILL.md
+    kilo_skill_exists: true
+  category: translation
+  description: Translate a single English content page to one or more target locales;
+    preserves evidence and code blocks
+  id: S-99
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: translate-page
+  operation_type: generate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\translate-batch\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\translate-batch.md
+    canonical_exists: true
+    claude_command: .claude\commands\translate-batch.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\translate-batch\SKILL.md
+    kilo_skill_exists: true
+  category: translation
+  description: Batch translate all English content pages for a family/platform to
+    target locales
+  id: S-100
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: translate-batch
+  operation_type: generate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\translate\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\translate.md
+    canonical_exists: true
+    claude_command: .claude\commands\translate.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\translate\SKILL.md
+    kilo_skill_exists: true
+  category: translation
+  description: Compatibility dispatcher that routes to translate-page or translate-batch
+  id: S-107
+  idempotency: best-effort
+  internal: false
+  mutating: true
+  name: translate
+  operation_type: orchestrate
+  script: null
+- adapters:
+    agent_skill: .agents\skills\content-enrich\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\content-enrich.md
+    canonical_exists: true
+    claude_command: .claude\commands\content-enrich.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\content-enrich\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Post-launch cross-subdomain enrichment audit and handoff-manifest workflow
+  id: S-108
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: content-enrich
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\seo-review\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\seo-review.md
+    canonical_exists: true
+    claude_command: .claude\commands\seo-review.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\seo-review\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Governance-only review gate for pending SEO recommendations
+  id: S-109
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: seo-review
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\locale-patch\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\locale-patch.md
+    canonical_exists: true
+    claude_command: .claude\commands\locale-patch.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\locale-patch\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Propagate targeted text fixes from fixed English source to all locale
+    translation copies
+  id: S-101
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: locale-patch
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\repo-patrol\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\repo-patrol.md
+    canonical_exists: true
+    claude_command: .claude\commands\repo-patrol.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\repo-patrol\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Scan GitHub orgs for new FOSS repos, score confidence, produce patrol_report.json
+  id: S-102
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: repo-patrol
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\change-sweep\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\change-sweep.md
+    canonical_exists: true
+    claude_command: .claude\commands\change-sweep.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\change-sweep\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Batch SHA comparison across all active products, produce sweep_report.json;
+    read-only
+  id: S-103
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: change-sweep
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\discovery-triage\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\discovery-triage.md
+    canonical_exists: true
+    claude_command: .claude\commands\discovery-triage.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\discovery-triage\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Route patrol/sweep reports to backlog actions; MVP never directly invokes
+    S-12 or S-84
+  id: S-104
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: discovery-triage
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\section-enhance\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\section-enhance.md
+    canonical_exists: true
+    claude_command: .claude\commands\section-enhance.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\section-enhance\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Inspect any content section, detect gaps against clone-cache truth,
+    produce read-only proposal pack
+  id: S-105
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: section-enhance
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\cleanroom-regen\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\cleanroom-regen.md
+    canonical_exists: true
+    claude_command: .claude\commands\cleanroom-regen.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\cleanroom-regen\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: 8-mode cleanroom regeneration workflow (inspect/snapshot/regen/diff/review/apply/verify/gate)
+    for one family/platform
+  id: S-106
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: cleanroom-regen
+  operation_type: unknown
+  script: scripts/pipeline/commands/ops/cleanroom_regen.py
+- adapters:
+    agent_skill: .agents\skills\pipeline-harden\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\pipeline-harden.md
+    canonical_exists: true
+    claude_command: .claude\commands\pipeline-harden.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\pipeline-harden\SKILL.md
+    kilo_skill_exists: true
+  category: unknown
+  description: Run deep investigation and systematic hardening of the content pipeline
+    for a family/platform
+  id: S-110
+  idempotency: unknown
+  internal: false
+  mutating: null
+  name: pipeline-harden
+  operation_type: unknown
+  script: null
+- adapters:
+    agent_skill: .agents\skills\capability-status\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\capability-status.md
+    canonical_exists: true
+    claude_command: .claude\commands\capability-status.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\capability-status\SKILL.md
+    kilo_skill_exists: true
+  category: governance
+  description: Report current parity status across all agent adapter surfaces (Claude,
+    Codex, KiloCode)
+  id: S-111
+  idempotency: guaranteed
+  internal: false
+  mutating: false
+  name: capability-status
+  operation_type: validate
+  script: tools/capability_sync/validate_semantic_parity.py
+- adapters:
+    agent_skill: .agents\skills\sync-capabilities\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\sync-capabilities.md
+    canonical_exists: true
+    claude_command: .claude\commands\sync-capabilities.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\sync-capabilities\SKILL.md
+    kilo_skill_exists: true
+  category: governance
+  description: Run full capability sync pipeline (inventory, generate adapters, update
+    indexes, detect drift, validate parity, emit reports)
+  id: S-112
+  idempotency: guaranteed
+  internal: false
+  mutating: true
+  name: sync-capabilities
+  operation_type: orchestrate
+  script: tools/capability_sync/run_sync.py
+- adapters:
+    agent_skill: .agents\skills\validate-capability-parity\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\validate-capability-parity.md
+    canonical_exists: true
+    claude_command: .claude\commands\validate-capability-parity.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\validate-capability-parity\SKILL.md
+    kilo_skill_exists: true
+  category: governance
+  description: Validate semantic parity across all adapter surfaces; emit .governance/generated/parity-report.yaml
+  id: S-113
+  idempotency: guaranteed
+  internal: false
+  mutating: false
+  name: validate-capability-parity
+  operation_type: validate
+  script: tools/capability_sync/validate_semantic_parity.py
+- adapters:
+    agent_skill: .agents\skills\detect-capability-drift\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\detect-capability-drift.md
+    canonical_exists: true
+    claude_command: .claude\commands\detect-capability-drift.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\detect-capability-drift\SKILL.md
+    kilo_skill_exists: true
+  category: governance
+  description: Detect stale generated adapters by hash comparison; emit .governance/generated/drift-report.yaml
+  id: S-114
+  idempotency: guaranteed
+  internal: false
+  mutating: false
+  name: detect-capability-drift
+  operation_type: validate
+  script: tools/capability_sync/detect_adapter_drift.py
+- adapters:
+    agent_skill: .agents\skills\scaffold-capability\SKILL.md
+    agent_skill_exists: true
+    canonical: skills\scaffold-capability.md
+    canonical_exists: true
+    claude_command: .claude\commands\scaffold-capability.md
+    claude_command_exists: true
+    kilo_skill: .kilocode\skills\scaffold-capability\SKILL.md
+    kilo_skill_exists: true
+  category: governance
+  description: Create a new capability with canonical contract, registry entry, Claude
+    command adapter, and agent skill adapter
+  id: S-115
+  idempotency: guaranteed
+  internal: false
+  mutating: true
+  name: scaffold-capability
+  operation_type: generate
+  script: null
+internal_capabilities: 7
+public_capabilities: 91
+schema_version: 1
+total_capabilities: 98

@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "capability.schema.json",
+  "title": "Capability Contract",
+  "description": "Canonical contract for a governed capability in the foss-launcher-skills system. Every capability registered in skills/registry.yaml must satisfy this schema.",
+  "type": "object",
+  "required": [
+    "capability_id",
+    "canonical_name",
+    "version",
+    "category",
+    "purpose",
+    "supported_agents",
+    "operation_type",
+    "mutating"
+  ],
+  "properties": {
+    "capability_id": {
+      "type": "string",
+      "description": "Unique stable identifier. Format: S-NNN (e.g. S-23, S-112).",
+      "pattern": "^S-[0-9]+$"
+    },
+    "canonical_name": {
+      "type": "string",
+      "description": "Kebab-case name matching the skill file stem (e.g. 'ground-check').",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version of the contract (e.g. '1.0.0').",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "category": {
+      "type": "string",
+      "description": "Functional category of the capability.",
+      "enum": [
+        "governance",
+        "knowledge",
+        "content",
+        "quality",
+        "translation",
+        "orchestration",
+        "utility"
+      ]
+    },
+    "purpose": {
+      "type": "string",
+      "description": "One-sentence purpose statement."
+    },
+    "description": {
+      "type": "string",
+      "description": "Extended description (may be multi-paragraph)."
+    },
+    "supported_agents": {
+      "type": "array",
+      "description": "Agent types that can execute this capability.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "CLAUDE_CODE",
+          "CODEX",
+          "KILO_CODE",
+          "GENERIC_AGENT",
+          "CI",
+          "SUPERVISOR"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "operation_type": {
+      "type": "string",
+      "description": "Primary operation performed.",
+      "enum": [
+        "validate",
+        "generate",
+        "write",
+        "orchestrate",
+        "migrate"
+      ]
+    },
+    "mutating": {
+      "type": "boolean",
+      "description": "Whether this capability changes tracked repository files."
+    },
+    "internal": {
+      "type": "boolean",
+      "description": "If true, skill is not exposed as a Claude Code slash command."
+    },
+    "inputs": {
+      "type": "array",
+      "description": "Named input parameters.",
+      "items": {
+        "type": "object",
+        "required": ["name", "required"],
+        "properties": {
+          "name": {"type": "string"},
+          "type": {"type": "string"},
+          "required": {"type": "boolean"},
+          "description": {"type": "string"}
+        }
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "description": "Named output artifacts or values.",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {"type": "string"},
+          "type": {"type": "string"},
+          "path_template": {"type": "string"},
+          "description": {"type": "string"}
+        }
+      }
+    },
+    "allowed_paths": {
+      "type": "array",
+      "description": "Paths this capability is allowed to write to.",
+      "items": {"type": "string"}
+    },
+    "forbidden_paths": {
+      "type": "array",
+      "description": "Paths this capability must never write to.",
+      "items": {"type": "string"}
+    },
+    "preconditions": {
+      "type": "array",
+      "description": "Conditions that must be true before execution.",
+      "items": {"type": "string"}
+    },
+    "postconditions": {
+      "type": "array",
+      "description": "Conditions that must be true after successful execution.",
+      "items": {"type": "string"}
+    },
+    "evidence_contract": {
+      "type": "string",
+      "description": "Evidence requirements (e.g. 'frontmatter proof block required')."
+    },
+    "idempotency_contract": {
+      "type": "string",
+      "description": "Idempotency guarantee.",
+      "enum": ["guaranteed", "best-effort", "not-guaranteed"]
+    },
+    "failure_contract": {
+      "type": "string",
+      "description": "Behavior on failure (exit code, output, side effects)."
+    },
+    "recovery_contract": {
+      "type": "string",
+      "description": "How to recover from a failed execution."
+    },
+    "deprecation_status": {
+      "type": "string",
+      "description": "Deprecation state.",
+      "enum": ["active", "deprecated", "removed"]
+    },
+    "supersedes": {
+      "type": "array",
+      "description": "Capability IDs that this capability supersedes.",
+      "items": {"type": "string", "pattern": "^S-[0-9]+$"}
+    },
+    "composed_capabilities": {
+      "type": "array",
+      "description": "For composite capabilities: the atomic capability IDs composed.",
+      "items": {"type": "string", "pattern": "^S-[0-9]+$"}
+    },
+    "implementation": {
+      "type": "string",
+      "description": "Path to the backing script or null."
+    },
+    "canonical_contract_path": {
+      "type": "string",
+      "description": "Path to the canonical skill Markdown file (e.g. skills/ground-check.md)."
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,374 @@
+# .governance/capabilities/registry.yaml
+# Capability contract registry — extends skills/registry.yaml with rich contract metadata.
+#
+# Canonical source of truth: skills/registry.yaml
+# This file EXTENDS (not replaces) that registry with:
+#   - supported_agents: which agents can execute each capability
+#   - operation_type: read-only | write | generate | validate | orchestrate | migrate
+#   - mutating: whether the capability changes tracked files
+#   - category: governance | knowledge | content | quality | translation | orchestration | utility
+#   - idempotency: guaranteed | best-effort | not-guaranteed
+#
+# Do not edit skill names, IDs, descriptions, or scripts here — edit skills/registry.yaml.
+# Run: python tools/capability_sync/run_sync.py to regenerate generated/ artifacts.
+
+schema_version: 1
+generated_from: skills/registry.yaml
+supported_agents:
+  - CLAUDE_CODE
+  - CODEX
+  - KILO_CODE
+  - GENERIC_AGENT
+  - CI
+  - SUPERVISOR
+
+adapter_roots:
+  claude_code: .claude/commands/
+  codex: .agents/skills/
+  kilocode: .kilocode/skills/
+  canonical: skills/
+
+# ---------------------------------------------------------------------------
+# Per-capability contract extensions (keyed by skill ID)
+# All fields here are ADDITIONS to what skills/registry.yaml provides.
+# ---------------------------------------------------------------------------
+
+capability_metadata:
+
+  # ── Governance ─────────────────────────────────────────────────────────────
+
+  S-01:
+    category: governance
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+    description_extended: Enforce allowed write paths against configurable allowlist and denylist.
+    preconditions:
+      - path_guard.py must be on PYTHONPATH
+    failure_contract: exits 2 on DENY; exits 0 on ALLOW
+
+  S-17:
+    category: governance
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+
+  S-33:
+    category: governance
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+
+  S-49:
+    category: governance
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+
+  S-56:
+    category: governance
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+
+  S-82:
+    category: governance
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+
+  S-111:
+    category: governance
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+    description_extended: >
+      Reports current parity status across all agent surfaces.
+      Reads skills/registry.yaml and compares .claude/commands/, .agents/skills/,
+      .kilocode/skills/ for completeness.
+
+  S-112:
+    category: governance
+    operation_type: orchestrate
+    mutating: true
+    idempotency: guaranteed
+    description_extended: >
+      Runs full sync pipeline: inventory → validate → generate → update indexes
+      → detect drift → validate parity → emit reports.
+
+  S-113:
+    category: governance
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+    description_extended: >
+      Validates semantic parity across all adapter surfaces.
+      Emits .governance/generated/parity-report.yaml.
+
+  S-114:
+    category: governance
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+    description_extended: >
+      Detects stale generated adapters by hashing canonical bodies and comparing
+      to deployed adapters. Emits .governance/generated/drift-report.yaml.
+
+  S-115:
+    category: governance
+    operation_type: generate
+    mutating: true
+    idempotency: guaranteed
+    description_extended: >
+      Scaffolds a new capability: creates canonical skill contract, updates registry,
+      generates Claude command adapter, generates agent skill adapter.
+
+  # ── Knowledge Pipeline ─────────────────────────────────────────────────────
+
+  S-12:
+    category: knowledge
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+
+  S-13:
+    category: knowledge
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+
+  S-14:
+    category: knowledge
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  S-15:
+    category: knowledge
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  # ── Content Generation ─────────────────────────────────────────────────────
+
+  S-18:
+    category: content
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  S-19:
+    category: content
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  S-20:
+    category: content
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  S-21:
+    category: content
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  S-22:
+    category: content
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  S-23:
+    category: quality
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+
+  S-25:
+    category: quality
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+
+  S-26:
+    category: quality
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  # ── Truth Pipeline ──────────────────────────────────────────────────────────
+
+  S-30:
+    category: knowledge
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  S-31:
+    category: knowledge
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  S-32:
+    category: quality
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+
+  S-34:
+    category: knowledge
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  S-35:
+    category: knowledge
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  S-36:
+    category: quality
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+
+  S-47:
+    category: quality
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+
+  # ── Batch Operations ────────────────────────────────────────────────────────
+
+  S-40:
+    category: quality
+    operation_type: orchestrate
+    mutating: true
+    idempotency: best-effort
+
+  S-41:
+    category: quality
+    operation_type: orchestrate
+    mutating: true
+    idempotency: best-effort
+
+  S-42:
+    category: quality
+    operation_type: orchestrate
+    mutating: true
+    idempotency: best-effort
+
+  # ── Evidence Pipeline ───────────────────────────────────────────────────────
+
+  S-43:
+    category: knowledge
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+
+  S-44:
+    category: knowledge
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  S-45:
+    category: knowledge
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  S-46:
+    category: quality
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+
+  # ── Orchestration ───────────────────────────────────────────────────────────
+
+  S-38:
+    category: orchestration
+    operation_type: orchestrate
+    mutating: true
+    idempotency: best-effort
+
+  S-57:
+    category: orchestration
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  S-58:
+    category: orchestration
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  S-59:
+    category: orchestration
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  S-60:
+    category: orchestration
+    operation_type: migrate
+    mutating: true
+    idempotency: best-effort
+
+  S-84:
+    category: orchestration
+    operation_type: orchestrate
+    mutating: true
+    idempotency: best-effort
+
+  # ── Utility ─────────────────────────────────────────────────────────────────
+
+  S-69:
+    category: utility
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+
+  S-70:
+    category: quality
+    operation_type: validate
+    mutating: false
+    idempotency: guaranteed
+
+  S-73:
+    category: utility
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  S-81:
+    category: utility
+    operation_type: write
+    mutating: true
+    idempotency: not-guaranteed
+
+  # ── Translation ─────────────────────────────────────────────────────────────
+
+  S-99:
+    category: translation
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  S-100:
+    category: translation
+    operation_type: generate
+    mutating: true
+    idempotency: best-effort
+
+  S-107:
+    category: translation
+    operation_type: orchestrate
+    mutating: true
+    idempotency: best-effort

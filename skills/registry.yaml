@@ -586,3 +586,35 @@ skills:
     description: Run deep investigation and systematic hardening of the content pipeline for a family/platform
     internal: false
     script: null
+
+  # Cross-agent capability parity governance (S-111 to S-115)
+  # Added 2026-07-04 — nifty-coalescing-barto parity protocol
+  - id: S-111
+    name: capability-status
+    description: Report current parity status across all agent adapter surfaces (Claude, Codex, KiloCode)
+    internal: false
+    script: tools/capability_sync/validate_semantic_parity.py
+
+  - id: S-112
+    name: sync-capabilities
+    description: Run full capability sync pipeline (inventory, generate adapters, update indexes, detect drift, validate parity, emit reports)
+    internal: false
+    script: tools/capability_sync/run_sync.py
+
+  - id: S-113
+    name: validate-capability-parity
+    description: Validate semantic parity across all adapter surfaces; emit .governance/generated/parity-report.yaml
+    internal: false
+    script: tools/capability_sync/validate_semantic_parity.py
+
+  - id: S-114
+    name: detect-capability-drift
+    description: Detect stale generated adapters by hash comparison; emit .governance/generated/drift-report.yaml
+    internal: false
+    script: tools/capability_sync/detect_adapter_drift.py
+
+  - id: S-115
+    name: scaffold-capability
+    description: Create a new capability with canonical contract, registry entry, Claude command adapter, and agent skill adapter
+    internal: false
+    script: null

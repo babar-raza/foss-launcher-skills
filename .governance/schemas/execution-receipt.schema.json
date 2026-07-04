@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "execution-receipt.schema.json",
+  "title": "Capability Execution Receipt",
+  "description": "Agent-neutral receipt emitted by any agent (Claude Code, Codex, KiloCode, CI) after executing a governed capability. Both Claude Code and Codex must emit this same schema — the supervisor and task-close system must not require different evidence based on agent vendor.",
+  "type": "object",
+  "required": [
+    "receipt_id",
+    "capability_id",
+    "agent_type",
+    "adapter_type",
+    "canonical_contract",
+    "started_at",
+    "completed_at",
+    "verdict"
+  ],
+  "properties": {
+    "receipt_id": {
+      "type": "string",
+      "description": "Unique receipt identifier (UUID v4 recommended).",
+      "minLength": 1
+    },
+    "capability_id": {
+      "type": "string",
+      "description": "Skill ID that was executed (e.g. S-23).",
+      "pattern": "^S-[0-9]+$"
+    },
+    "capability_version": {
+      "type": "string",
+      "description": "Semantic version of the capability contract at execution time.",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "agent_type": {
+      "type": "string",
+      "description": "Type of agent that executed the capability.",
+      "enum": ["CLAUDE_CODE", "CODEX", "KILO_CODE", "GENERIC_AGENT", "CI", "SUPERVISOR"]
+    },
+    "adapter_type": {
+      "type": "string",
+      "description": "Type of adapter used to invoke the capability.",
+      "enum": ["COMMAND", "SKILL", "SCRIPT", "COMPOSITE"]
+    },
+    "adapter_path": {
+      "type": "string",
+      "description": "Path to the adapter file used (e.g. .claude/commands/ground-check.md)."
+    },
+    "canonical_contract": {
+      "type": "string",
+      "description": "Path to the canonical skill contract (e.g. skills/ground-check.md)."
+    },
+    "implementation": {
+      "type": ["string", "null"],
+      "description": "Path to the backing script, if any."
+    },
+    "task_id": {
+      "type": "string",
+      "description": "Taskcard or plan ID this execution belongs to."
+    },
+    "invocation": {
+      "type": "string",
+      "description": "Full invocation string used (e.g. '/ground-check family=3d platform=python')."
+    },
+    "normalized_inputs": {
+      "type": "object",
+      "description": "Key-value map of resolved input parameters after normalization.",
+      "additionalProperties": true
+    },
+    "started_at": {
+      "type": "string",
+      "description": "ISO 8601 UTC timestamp when execution started.",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "description": "ISO 8601 UTC timestamp when execution completed.",
+      "format": "date-time"
+    },
+    "changed_paths": {
+      "type": "array",
+      "description": "Repository-relative paths of files created or modified.",
+      "items": {"type": "string"}
+    },
+    "validation_results": {
+      "type": "array",
+      "description": "Results of postcondition checks.",
+      "items": {
+        "type": "object",
+        "required": ["check", "result"],
+        "properties": {
+          "check": {"type": "string"},
+          "result": {"type": "string", "enum": ["PASS", "FAIL", "SKIP", "WARN"]},
+          "detail": {"type": "string"}
+        }
+      }
+    },
+    "evidence_paths": {
+      "type": "array",
+      "description": "Paths to evidence artifacts produced (e.g. frontmatter proof files).",
+      "items": {"type": "string"}
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Stable key for detecting duplicate executions (e.g. 'S-23:family:platform:sha')."
+    },
+    "verdict": {
+      "type": "string",
+      "description": "Overall execution verdict.",
+      "enum": ["PASS", "FAIL", "PARTIAL", "SKIPPED"]
+    },
+    "failure_reason": {
+      "type": "string",
+      "description": "Human-readable failure reason, present when verdict is FAIL or PARTIAL."
+    }
+  },
+  "additionalProperties": false
+}

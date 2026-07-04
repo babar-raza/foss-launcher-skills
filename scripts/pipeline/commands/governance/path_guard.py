@@ -51,6 +51,17 @@ ALLOWED_PREFIXES: tuple[str, ...] = (
     "backlog/",
     "plans/",
     "docs/",
+    # Cross-agent governance layer: capability registry, schemas, reports, pilots
+    ".governance/",
+    # Unified capability sync tooling
+    "tools/",
+    # Skill contracts and generated adapters (modified under skill context + override token)
+    "skills/",
+    ".claude/commands/",
+    ".agents/skills/",
+    ".kilocode/skills/",
+    # Root-level scripts (pre-commit hooks, sync scripts not under sub-prefixes)
+    "scripts/",
 )
 
 # Configurable forbidden prefixes -- override for your project governance layout.

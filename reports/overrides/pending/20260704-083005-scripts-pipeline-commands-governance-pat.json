@@ -1,0 +1,13 @@
+{
+  "override_id": "20260704-083005-scripts-pipeline-commands-governance-pat",
+  "paths": [
+    "scripts/pipeline/commands/governance/path_guard.py"
+  ],
+  "operation": "edit",
+  "reason": "Expand path_guard.py ALLOWED_PREFIXES to include .governance/ and tools/ for cross-agent parity governance implementation (nifty-coalescing-barto)",
+  "plan_reference": "",
+  "scope_description": "",
+  "authorized_at": "2026-07-04T08:30:05.209596Z",
+  "retroactive": false,
+  "consumed_by_commit": null
+}

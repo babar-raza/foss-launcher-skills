@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "adapter-manifest.schema.json",
+  "title": "Adapter Manifest",
+  "description": "Manifest entry for a generated adapter (Claude command or agent skill). Emitted by tools/capability_sync/ when generating adapter files.",
+  "type": "object",
+  "required": [
+    "capability_id",
+    "canonical_name",
+    "adapter_type",
+    "adapter_path",
+    "canonical_contract",
+    "generated",
+    "generated_hash"
+  ],
+  "properties": {
+    "capability_id": {
+      "type": "string",
+      "description": "Skill ID (e.g. S-23).",
+      "pattern": "^S-[0-9]+$"
+    },
+    "canonical_name": {
+      "type": "string",
+      "description": "Kebab-case skill name."
+    },
+    "adapter_type": {
+      "type": "string",
+      "description": "Which agent surface this adapter serves.",
+      "enum": ["CLAUDE_COMMAND", "CODEX_SKILL", "KILO_SKILL"]
+    },
+    "adapter_path": {
+      "type": "string",
+      "description": "Repository-relative path to the adapter file."
+    },
+    "canonical_contract": {
+      "type": "string",
+      "description": "Repository-relative path to the canonical skill Markdown."
+    },
+    "generated": {
+      "type": "boolean",
+      "description": "True if this adapter was generated from the canonical contract; false if hand-written."
+    },
+    "generated_hash": {
+      "type": "string",
+      "description": "SHA-256 hash of the canonical contract body at generation time. Used for drift detection."
+    },
+    "generated_at": {
+      "type": "string",
+      "description": "ISO 8601 UTC timestamp when the adapter was last generated.",
+      "format": "date-time"
+    },
+    "generator": {
+      "type": "string",
+      "description": "Path to the generator script that produced this adapter.",
+      "default": "tools/capability_sync/generate_claude_commands.py"
+    },
+    "internal": {
+      "type": "boolean",
+      "description": "Whether the skill is internal (excluded from Claude command adapters)."
+    },
+    "parity_status": {
+      "type": "string",
+      "description": "Parity status at last validation.",
+      "enum": [
+        "FULL_PARITY",
+        "CLAUDE_ADAPTER_MISSING",
+        "AGENT_SKILL_ADAPTER_MISSING",
+        "SEMANTIC_DRIFT",
+        "VERSION_DRIFT",
+        "DEPRECATED_INCONSISTENTLY",
+        "UNKNOWN"
+      ]
+    }
+  },
+  "additionalProperties": false
+}
