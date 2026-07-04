@@ -471,7 +471,11 @@ def build_target_map(
 
         for url, url_type, family, platform in candidates:
             if args.skip_http_verify:
-                http_st, rchain, via, retries = 200, [], "skipped", 0
+                # GOVERNANCE GUARD: store -1 (UNVERIFIED), never 200.
+                # _lookup_platform() checks http_status == 200, so unverified URLs
+                # will be rejected by the resolver and never injected into content.
+                # Storing 200 here was the root cause of the 2026-07-04 bad injection incident.
+                http_st, rchain, via, retries = -1, [], "skipped", 0
             else:
                 http_st, rchain, via, retries = verify_url(url, session)
 
@@ -555,7 +559,11 @@ def build_target_map(
 
             # Verify HTTP status
             if args.skip_http_verify:
-                http_st, rchain, via, retries = 200, [], "skipped", 0
+                # GOVERNANCE GUARD: store -1 (UNVERIFIED), never 200.
+                # _lookup_platform() checks http_status == 200, so unverified URLs
+                # will be rejected by the resolver and never injected into content.
+                # Storing 200 here was the root cause of the 2026-07-04 bad injection incident.
+                http_st, rchain, via, retries = -1, [], "skipped", 0
             else:
                 http_st, rchain, via, retries = verify_url(norm, session)
 

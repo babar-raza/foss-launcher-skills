@@ -217,6 +217,37 @@ def approve_candidates(
             else:
                 target_path = raw_target_path
 
+            # KB depth restriction: KB source pages must not link to KB article pages.
+            # Article pages have > 2 path segments (family/platform/article-slug).
+            # Platform-level links (family/platform) are allowed; article-level are not.
+            source_subdomain = source.get("subdomain", "")
+            if source_subdomain == "kb.aspose.org" and target_subdomain == "kb":
+                path_segments = [s for s in target_path.strip("/").split("/") if s]
+                if len(path_segments) > 2:
+                    blocked_count += 1
+                    authority[source_path] = {
+                        "source_path": source_path,
+                        "source_key": source.get("source_key", ""),
+                        "family": family,
+                        "platform": platform,
+                        "target_path": target_path,
+                        "target_subdomain": target_subdomain,
+                        "decision": "BLOCKED",
+                        "block_reason": "KB_ARTICLE_DEPTH",
+                        "score": top.get("final_score", 0.0),
+                        "allowed_for_generation": False,
+                        "anchor_template_id": None,
+                        "anchor_config_hash": None,
+                        "rendered_anchor_text": None,
+                        "rendered_anchor_source": None,
+                        "source_hash": _compute_source_hash(source),
+                        "target_index_hash": target_index_hash,
+                        "policy_version": POLICY_VERSION,
+                        "approved_at": datetime.now(timezone.utc).isoformat(),
+                        "freshness_status": "FRESH",
+                    }
+                    continue
+
             # Compute anchor
             rendered_anchor = None
             template_id = None

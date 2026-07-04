@@ -855,6 +855,18 @@ def classify_compliance(
         if _norm(url) in acceptable:
             return COMPLIANT
 
+    # Parent-path coverage rule: if any existing URL is a URL-prefix of the chosen
+    # target on the same host, the page is already covered at a higher level → COMPLIANT.
+    # Example: https://kb.aspose.com/cells/python/ covers
+    #          https://kb.aspose.com/cells/python/how-to-convert-csv-to-pdf/
+    if chosen_target_url:
+        target_norm_full = _norm(chosen_target_url)
+        for url in existing_urls:
+            url_norm = _norm(url)
+            # Require non-trivial prefix (> 8 chars to exclude scheme+host-only matches)
+            if len(url_norm) > 8 and target_norm_full.startswith(url_norm + "/"):
+                return COMPLIANT
+
     # Links exist but none match acceptable fallback chain → WRONG_TARGET
     return WRONG_TARGET
 

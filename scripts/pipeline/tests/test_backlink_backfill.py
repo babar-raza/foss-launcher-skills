@@ -1074,6 +1074,72 @@ class TestBackfillNegativeControls:
         result = _validate_overview_update(original, updated, "https://products.aspose.com/words/")
         assert result is False, "Expected False for low retained-text ratio"
 
+    def _make_docs_file(self, tmp_path: Path, body: str) -> Path:
+        """Create a minimal docs page for testing."""
+        content = (
+            "---\ntitle: Test Docs Page\nauto_updatable: true\n---\n"
+            + body
+        )
+        f = tmp_path / "page.md"
+        f.write_text(content, encoding="utf-8")
+        return f
+
+    # TC-4: NEAR_DUPLICATE hard-block (2026-07-04)
+    def test_near_duplicate_hard_block_at_high_similarity(self, tmp_path, monkeypatch):
+        """TC-BF-NEG-HARD-001: Jaccard sim >= 0.90 → injection hard-blocked (skipped=True, NEAR_DUPLICATE_HARD_BLOCK)."""
+        monkeypatch.setattr(_bbm, "_REPO_ROOT", tmp_path)
+        # Build a body where the existing "See Also" entry has nearly identical tokens
+        # to the candidate entry. After URL-stripping, both reduce to {cells, python, knowledge, base}.
+        # Jaccard of {cells,python,knowledge,base} vs {cells,python,knowledge,base} = 1.0 >= 0.90.
+        body_content = (
+            "Some content about Aspose.Cells for Python.\n\n"
+            "## See Also\n\n"
+            "- [Aspose.Cells for Python \u2014 Enterprise Knowledge Base](https://kb.aspose.com/cells/python/)\n"
+        )
+        f = self._make_docs_file(tmp_path, body_content)
+        # Target is an article-level URL on the same family/platform KB
+        target_url = "https://kb.aspose.com/cells/python/how-to-convert-csv-to-pdf-in-python/"
+        result = backfill_markdown(
+            file_path=f,
+            target_url=target_url,
+            family="cells", platform="python",
+            subdomain="docs.aspose.org",
+            page_type="docs_page",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            dry_run=True,
+        )
+        assert result.skipped is True, (
+            f"Expected hard-block skipped=True; got skipped={result.skipped}, reason={result.skip_reason!r}"
+        )
+        assert "NEAR_DUPLICATE_HARD_BLOCK" in result.skip_reason, (
+            f"Expected NEAR_DUPLICATE_HARD_BLOCK in skip_reason; got: {result.skip_reason!r}"
+        )
+
+    def test_near_duplicate_below_hard_block_still_warns(self, tmp_path, monkeypatch):
+        """TC-BF-NEG-HARD-002: 0.65 <= Jaccard < 0.90 → warning-only, injection proceeds."""
+        monkeypatch.setattr(_bbm, "_REPO_ROOT", tmp_path)
+        # Body tokens ≈ {words, net, blog} — same as in existing TC-BF-NEG-001.
+        # Similarity 0.75 is above warn threshold (0.65) but below hard-block (0.90).
+        body_content = (
+            "See Aspose.Words for .NET blog resources.\n\n"
+            "## Related Resources\n\n"
+        )
+        f = self._make_blog_file(tmp_path, body_content)
+        target_url = "https://blog.aspose.com/"
+        result = backfill_markdown(
+            file_path=f,
+            target_url=target_url,
+            family="words", platform="net",
+            subdomain="blog.aspose.org",
+            page_type="blog_post",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            dry_run=True,
+        )
+        assert result.skipped is False, "Should inject when similarity is below hard-block threshold"
+        assert any("NEAR_DUPLICATE" in w for w in result.warning_messages), (
+            "Expected near-duplicate warning in warning_messages"
+        )
+
     def test_bf_neg_001_near_duplicate_warning_accumulated(self, tmp_path, monkeypatch):
         """TC-BF-NEG-001: near-duplicate in existing body → warning_messages non-empty, single link injected."""
         monkeypatch.setattr(_bbm, "_REPO_ROOT", tmp_path)

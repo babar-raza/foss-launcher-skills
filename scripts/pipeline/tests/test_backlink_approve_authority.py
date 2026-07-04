@@ -20,7 +20,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "pipeline"))
 
-from commands.ops.backlink_approve_authority import _infer_subdomain, merge_authority
+from commands.ops.backlink_approve_authority import _infer_subdomain, approve_candidates, merge_authority
 
 
 # ── Fixtures ───────────────────────────────────────────────────────────────────
@@ -339,3 +339,114 @@ class TestMergeAuthorityAddOnly:
         }
         merged = merge_authority(existing, new_blog, family="cells", add_only=True)
         assert merged["blog/cells/python/post.md"]["decision"] == "AUTO_APPROVE_EXACT"
+
+
+# ── TC-5: KB article-depth restriction (2026-07-04) ───────────────────────────
+
+def _make_kb_candidate_graph(
+    source_path: str,
+    family: str,
+    platform: str,
+    target_path: str,
+    score: float = 0.95,
+) -> dict:
+    """Build a minimal candidate_graph dict for approve_candidates testing."""
+    source_key = f"kb:{family}:{platform}:{source_path}"
+    return {
+        "deep_index_hash": "sha256:test",
+        "sources": [
+            {
+                "source_path": source_path,
+                "source_key": source_key,
+                "subdomain": "kb.aspose.org",
+                "family": family,
+                "platform": platform,
+            }
+        ],
+        "candidates": [
+            {
+                "source_key": source_key,
+                "target_path": target_path,
+                "decision": "AUTO_APPROVE_EXACT",
+                "final_score": score,
+                "stage1_score": score,
+                "ai_boost": 0.0,
+            }
+        ],
+    }
+
+
+class TestKBDepthRestriction:
+    """TC-5: KB source pages must not link to KB article pages (> 2 path segments)."""
+
+    def test_kb_article_target_blocked(self):
+        """TC-AUTH-KB-DEPTH-001: KB source with article-level KB target (3 segments) → BLOCKED."""
+        graph = _make_kb_candidate_graph(
+            source_path="content/kb.aspose.org/en/cells/python/how-to-convert-csv-to-json-python.md",
+            family="cells",
+            platform="python",
+            target_path="cells/python/how-to-convert-csv-to-pdf-in-python",
+        )
+        result = approve_candidates(graph)
+        auth = result["authority"]
+        source_path = "content/kb.aspose.org/en/cells/python/how-to-convert-csv-to-json-python.md"
+        assert source_path in auth, "Expected authority record for source"
+        record = auth[source_path]
+        assert record["decision"] == "BLOCKED", (
+            f"Expected BLOCKED for KB article-depth violation; got {record['decision']!r}"
+        )
+        assert record.get("block_reason") == "KB_ARTICLE_DEPTH", (
+            f"Expected block_reason=KB_ARTICLE_DEPTH; got {record.get('block_reason')!r}"
+        )
+        assert record["allowed_for_generation"] is False
+
+    def test_kb_platform_target_allowed(self):
+        """TC-AUTH-KB-DEPTH-002: KB source with platform-level KB target (2 segments) → AUTO_APPROVE_EXACT."""
+        graph = _make_kb_candidate_graph(
+            source_path="content/kb.aspose.org/en/cells/python/how-to-convert-csv-to-json-python.md",
+            family="cells",
+            platform="python",
+            target_path="cells/python",
+        )
+        result = approve_candidates(graph)
+        auth = result["authority"]
+        source_path = "content/kb.aspose.org/en/cells/python/how-to-convert-csv-to-json-python.md"
+        record = auth[source_path]
+        assert record["decision"] == "AUTO_APPROVE_EXACT", (
+            f"Expected AUTO_APPROVE_EXACT for platform-level KB target; got {record['decision']!r}"
+        )
+        assert record["allowed_for_generation"] is True
+
+    def test_non_kb_source_not_restricted(self):
+        """TC-AUTH-KB-DEPTH-003: docs source with article-level KB target is NOT restricted by KB depth rule."""
+        # The KB depth restriction only applies when source subdomain is kb.aspose.org.
+        source_key = "docs:cells:python:content/docs.aspose.org/en/cells/python/overview.md"
+        graph = {
+            "deep_index_hash": "sha256:test",
+            "sources": [
+                {
+                    "source_path": "content/docs.aspose.org/en/cells/python/overview.md",
+                    "source_key": source_key,
+                    "subdomain": "docs.aspose.org",
+                    "family": "cells",
+                    "platform": "python",
+                }
+            ],
+            "candidates": [
+                {
+                    "source_key": source_key,
+                    "target_path": "cells/python/how-to-convert-csv-to-pdf-in-python",
+                    "decision": "AUTO_APPROVE_EXACT",
+                    "final_score": 0.95,
+                    "stage1_score": 0.95,
+                    "ai_boost": 0.0,
+                }
+            ],
+        }
+        result = approve_candidates(graph)
+        source_path = "content/docs.aspose.org/en/cells/python/overview.md"
+        record = result["authority"][source_path]
+        # docs source: KB depth restriction does NOT apply → should be auto-approved
+        assert record["decision"] == "AUTO_APPROVE_EXACT", (
+            f"KB depth restriction incorrectly applied to docs source; got {record['decision']!r}"
+        )

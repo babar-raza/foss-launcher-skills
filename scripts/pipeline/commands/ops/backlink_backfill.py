@@ -293,6 +293,8 @@ def _validate_overview_update(original: str, updated: str, target_url: str) -> b
 
 # Jaccard near-duplicate detection threshold (module-level for easy adjustment)
 _NEAR_DUPLICATE_THRESHOLD = 0.65
+# At or above this similarity, injection is hard-blocked (not just warned)
+_NEAR_DUPLICATE_HARD_BLOCK_THRESHOLD = 0.90
 
 # Tokens too common to be discriminating for Jaccard similarity
 _JACCARD_NOISE_WORDS = frozenset({
@@ -354,6 +356,31 @@ def _detect_near_duplicate(existing_text: str, candidate_sentence: str) -> list[
         if union and (len(intersection) / len(union)) >= _NEAR_DUPLICATE_THRESHOLD:
             duplicates.append(part)
     return duplicates
+
+
+def _near_dup_max_score(existing_text: str, candidate_sentence: str) -> float:
+    """Return the maximum Jaccard similarity between candidate and any sentence in existing_text.
+
+    Uses the same tokenization as _detect_near_duplicate. Returns 0.0 if no
+    comparison is possible (empty tokens or text).
+    """
+    candidate_tokens = _tokenize_sentence(candidate_sentence)
+    if not candidate_tokens:
+        return 0.0
+    sentence_parts = re.split(r'(?<=[.!?])\s+|\n+|(?=^- )', existing_text, flags=re.MULTILINE)
+    max_score = 0.0
+    for part in sentence_parts:
+        part = part.strip()
+        if len(part) < 10:
+            continue
+        part_tokens = _tokenize_sentence(part)
+        if not part_tokens:
+            continue
+        intersection = candidate_tokens & part_tokens
+        union = candidate_tokens | part_tokens
+        if union:
+            max_score = max(max_score, len(intersection) / len(union))
+    return max_score
 
 
 def _extract_affected_section(body: str, section_header: str) -> str:
@@ -694,6 +721,18 @@ def backfill_markdown(
                                    target_type=target_type)
 
     # Phase 4: near-duplicate detection before injection (accumulator pattern, F5-safe)
+    # Hard-block at high similarity — prevents duplicate anchor text with different URL.
+    _nd_score = _near_dup_max_score(body, entry)
+    if _nd_score >= _NEAR_DUPLICATE_HARD_BLOCK_THRESHOLD:
+        action = "md_see_also" if subdomain != "blog.aspose.org" else "md_related_resources"
+        return BackfillChange(
+            file=rel, subdomain=subdomain, family=family, platform=platform,
+            page_type=page_type, target_url=target_url,
+            action=action, before_snippet=body[:200], after_snippet="",
+            skipped=True,
+            skip_reason=f"NEAR_DUPLICATE_HARD_BLOCK: sim={_nd_score:.3f}",
+            dry_run=dry_run,
+        )
     dups = _detect_near_duplicate(body, entry)
     if dups:
         warnings_acc.append(
