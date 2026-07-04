@@ -157,6 +157,7 @@ def audit_file(
     file_path: Path,
     repo_root: Path,
     target_map: dict,
+    canonical_overrides: dict | None = None,
 ) -> AuditRecord:
     """Audit a single file and return an AuditRecord."""
     rel = file_path.relative_to(repo_root).as_posix()
@@ -192,6 +193,7 @@ def audit_file(
         platform=platform,
         source_subdomain=subdomain or "",
         target_map=target_map,
+        canonical_overrides=canonical_overrides,
     )
 
     # Read body text and count qualifying links
@@ -268,6 +270,7 @@ def run_audit(
     subdomains: list[str] | None = None,
     family_filter: str | None = None,
     platform_filter: str | None = None,
+    canonical_overrides: dict | None = None,
 ) -> tuple[list[AuditRecord], AuditTotals]:
     """Run audit across all matching content files. Returns (records, totals)."""
     files = walk_content(repo_root, subdomains, family_filter, platform_filter)
@@ -278,7 +281,7 @@ def run_audit(
 
     for fpath in files:
         try:
-            rec = audit_file(fpath, repo_root, target_map)
+            rec = audit_file(fpath, repo_root, target_map, canonical_overrides=canonical_overrides)
         except Exception as exc:
             rel = fpath.relative_to(repo_root).as_posix()
             rec = AuditRecord(
@@ -492,6 +495,16 @@ def main() -> int:
 
     target_map_hash = target_map.get("provenance", {}).get("output_hash", "unknown")
 
+    # Load canonical platform overrides (A2 P0 — same as backfill tool)
+    canonical_overrides: dict | None = None
+    _overrides_path = repo_root / "data" / "backlinks" / "platform_canonical_overrides.yaml"
+    if _overrides_path.exists():
+        try:
+            import yaml as _yaml_ovr
+            canonical_overrides = _yaml_ovr.safe_load(_overrides_path.read_text(encoding="utf-8"))
+        except Exception as _exc:
+            print(f"  WARN: Could not load canonical overrides: {_exc}", file=sys.stderr)
+
     # Determine output paths
     reports_dir = repo_root / "reports" / "backlinks"
     reports_dir.mkdir(parents=True, exist_ok=True)
@@ -511,6 +524,7 @@ def main() -> int:
         subdomains=args.subdomain,
         family_filter=args.family,
         platform_filter=args.platform,
+        canonical_overrides=canonical_overrides,
     )
 
     # Build and write report
