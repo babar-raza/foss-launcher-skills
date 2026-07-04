@@ -25,7 +25,7 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 REGISTRY_PATH = _REPO_ROOT / "skills" / "registry.json"
 CANONICAL_DIR = _REPO_ROOT / "skills"
 
-_ID_RE = re.compile(r"^#\s+(S-\d+):")
+_ID_RE = re.compile(r"^#\s+(S-[A-Z0-9-]+):")
 
 
 def _discover_canonical() -> dict[str, str]:

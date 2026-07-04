@@ -221,7 +221,7 @@ def analyze_repo(repo_root: Path) -> list[Finding]:
         try:
             registry = json.loads(registry_path.read_text(encoding="utf-8"))
             # Count canonical skills that have S-XX IDs (matching registry generator logic)
-            _id_re = re.compile(r"^#\s+(S-\d+):")
+            _id_re = re.compile(r"^#\s+(S-[A-Z0-9-]+):")
             canonical_count = 0
             skills_dir = repo_root / "skills"
             if skills_dir.is_dir():

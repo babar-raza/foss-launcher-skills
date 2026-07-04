@@ -2,14 +2,6 @@
   "version": 1,
   "findings": [
     {
-      "finding_id": "CODEX_MISSING_VENV_RULE",
-      "severity": "high"
-    },
-    {
-      "finding_id": "CODEX_MISSING_READ_FIRST_RULE",
-      "severity": "medium"
-    },
-    {
       "finding_id": "INTERNAL_SKILL_EXECUTION_ASYMMETRY",
       "severity": "medium"
     },
@@ -20,10 +12,6 @@
     {
       "finding_id": "OPERATOR_GUIDE_MISSING_CODEX_INVOCATION",
       "severity": "high"
-    },
-    {
-      "finding_id": "README_SLASH_COMMAND_ONLY",
-      "severity": "medium"
     }
   ]
 }

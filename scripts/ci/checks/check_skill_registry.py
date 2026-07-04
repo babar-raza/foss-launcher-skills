@@ -38,11 +38,11 @@ PROVIDER_TREES = {
 
 # Regex for AGENTS.md §12 table rows: | slug | S-XX | description |
 _REGISTRY_ROW_RE = re.compile(
-    r"^\|\s*([\w-]+)\s*\|\s*(S-\d+)\s*\|", re.MULTILINE
+    r"^\|\s*([\w-]+)\s*\|\s*(S-[A-Z0-9-]+)\s*\|", re.MULTILINE
 )
 
 # Regex for S-XX in skill file headers: # S-XX: Name or # S-XX — Name
-_SKILL_ID_RE = re.compile(r"#\s*(S-\d+)")
+_SKILL_ID_RE = re.compile(r"#\s*(S-[A-Z0-9-]+)")
 
 
 def _load_skills_source() -> str:

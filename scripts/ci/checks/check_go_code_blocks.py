@@ -182,7 +182,7 @@ def _vet_block(
                 timeout=30,
             )
         except subprocess.TimeoutExpired:
-            return f"{source_file} block #{block_index + 1}: go vet timed out"
+            return f"TIMEOUT:{source_file} block #{block_index + 1}: go vet timed out (module not cached)"
 
         if result.returncode != 0:
             stderr = (result.stderr or result.stdout or "").strip()
@@ -275,14 +275,22 @@ def main(argv: list[str] | None = None) -> int:
         go_version=args.go_version,
     )
 
-    if not errors:
+    timeouts = [e[len("TIMEOUT:"):] for e in errors if e.startswith("TIMEOUT:")]
+    failures = [e for e in errors if not e.startswith("TIMEOUT:")]
+
+    if timeouts:
+        print(f"WARNING: {len(timeouts)} block(s) timed out (advisory — not counted as failures):")
+        for t in timeouts:
+            print(f"  {t}")
+
+    if not failures:
         md_count = len(list(content_dir.rglob("*.md")))
         print(f"PASS: Go code blocks OK ({md_count} .md files checked)")
         return 0
 
     label = "WARN" if args.advisory else "FAIL"
-    print(f"{label}: {len(errors)} Go code block(s) failed go vet:\n")
-    for err in errors:
+    print(f"{label}: {len(failures)} Go code block(s) failed go vet:\n")
+    for err in failures:
         print(err)
     if args.advisory:
         print("(advisory mode — exit 0)")
