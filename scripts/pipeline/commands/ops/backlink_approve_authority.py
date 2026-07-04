@@ -25,9 +25,9 @@ Usage:
     # Per-family WITHOUT --merge OVERWRITES the entire authority file (data loss for other families).
 
 Full backlink pipeline sequence (after running this script, inject backlinks into content):
-    1. backlink_build_candidates.py       → candidate_graph_{family}.json (Layer 2)
-    2. backlink_approve_authority.py      → backlink_authority.json (Layer 3)
-    3. backlink_backfill.py --write       → content/ files (Layer 4, actual injection)
+    1. backlink_build_candidates.py       -> candidate_graph_{family}.json (Layer 2)
+    2. backlink_approve_authority.py      -> backlink_authority.json (Layer 3)
+    3. backlink_backfill.py --write       -> content/ files (Layer 4, actual injection)
 """
 from __future__ import annotations
 
@@ -64,7 +64,7 @@ STALENESS_AGING_DAYS = 90
 # ── Display name helpers ───────────────────────────────────────────────────────
 
 def _load_families_map() -> dict:
-    """Load data/families.json → {family_key: display_name}."""
+    """Load data/families.json -> {family_key: display_name}."""
     if FAMILIES_PATH.exists():
         raw = json.loads(FAMILIES_PATH.read_text(encoding="utf-8"))
         if isinstance(raw, list):
@@ -75,7 +75,7 @@ def _load_families_map() -> dict:
 
 
 def _load_platforms_map() -> dict:
-    """Load metrics_taxonomy.yaml platforms block → {platform_key: display_name}."""
+    """Load metrics_taxonomy.yaml platforms block -> {platform_key: display_name}."""
     if METRICS_TAXONOMY_PATH.exists():
         try:
             import yaml
@@ -301,14 +301,28 @@ _SOURCE_SD_TO_TARGET_SD = {
 
 
 def _infer_subdomain(source_subdomain: str, target_path: str) -> str:
-    """Infer target subdomain from source subdomain."""
+    """Infer target subdomain from target_path prefix; fall back to source subdomain mapping.
+
+    Target path prefix takes precedence because Stage 1c (blog-to-products) and other
+    cross-subdomain candidates carry paths like 'products/cells/python-net', which must
+    resolve to 'products', not the source-side default ('blog').
+    """
+    for prefix, subdomain in (
+        ("products/", "products"),
+        ("reference/", "reference"),
+        ("docs/", "docs"),
+        ("kb/", "kb"),
+        ("blog/", "blog"),
+    ):
+        if target_path.startswith(prefix):
+            return subdomain
     return _SOURCE_SD_TO_TARGET_SD.get(source_subdomain, "reference")
 
 
 def _infer_target_type(target_path: str, subdomain: str) -> str:
     """Infer target type from path depth and subdomain."""
     parts = target_path.strip("/").split("/")
-    # e.g. "3d/java/com.aspose.threed/a3dobject" → 4 segments → reference_class
+    # e.g. "3d/java/com.aspose.threed/a3dobject" -> 4 segments -> reference_class
     if subdomain == "reference":
         if len(parts) >= 4:
             return "reference_class"
@@ -329,13 +343,18 @@ def merge_authority(
     new_auth: dict,
     family: str,
     platform: Optional[str] = None,
+    add_only: bool = False,
 ) -> dict:
     """
     Merge new authority records for a single family into an existing authority dict.
 
-    Removes all existing records where record['family'] == family
-    (and record['platform'] == platform if platform is not None), then
-    adds all records from new_auth. All other families are preserved unchanged.
+    Unless add_only=True, removes all existing records where record['family'] == family
+    (and record['platform'] == platform if platform is not None), then adds all records
+    from new_auth. All other families are preserved unchanged.
+
+    When add_only=True, skips removal — only adds/updates records from new_auth.
+    Use when building supplemental records (e.g. blog->products) on top of an
+    existing authority that already has reference->reference records for the same family.
 
     Pure function — no I/O.
 
@@ -344,16 +363,18 @@ def merge_authority(
         new_auth:      {source_path: record} — new records for `family`
         family:        family to replace (e.g., "font")
         platform:      if set, only replace records matching this platform
+        add_only:      if True, skip removal step (additive merge only)
 
     Returns:
         merged {source_path: record} dict
     """
     merged: dict = dict(existing_auth)
-    for k in list(merged.keys()):
-        rec = merged[k]
-        if rec.get("family") == family:
-            if platform is None or rec.get("platform") == platform:
-                del merged[k]
+    if not add_only:
+        for k in list(merged.keys()):
+            rec = merged[k]
+            if rec.get("family") == family:
+                if platform is None or rec.get("platform") == platform:
+                    del merged[k]
     merged.update(new_auth)
     return merged
 
@@ -378,6 +399,13 @@ def main() -> None:
                             "Removes existing records for --family (and --platform if set), then "
                             "adds new records. Preserves all other families. "
                             "Recommended when running per-family to avoid cross-family data loss."
+                        ))
+    parser.add_argument("--add-only", action="store_true",
+                        help=(
+                            "Used with --merge: skip the removal step. Only adds/updates records "
+                            "from the new candidate graph without removing existing family records. "
+                            "Use when adding supplemental candidates (e.g. blog->products Stage 1c) "
+                            "on top of an authority that already has reference records for the family."
                         ))
     args = parser.parse_args()
 
@@ -435,10 +463,13 @@ def main() -> None:
             if r.get("family") == args.family
             and (args.platform is None or r.get("platform") == args.platform)
         )
+        add_only = getattr(args, "add_only", False)
         merged_auth = merge_authority(
-            existing_auth, result["authority"], args.family, args.platform
+            existing_auth, result["authority"], args.family, args.platform,
+            add_only=add_only,
         )
-        print(f"Merge: removed {old_count} existing {args.family} records, "
+        removed_msg = "(add-only, no removal)" if add_only else f"removed {old_count} existing {args.family} records,"
+        print(f"Merge: {removed_msg} "
               f"added {len(result['authority'])} new records. "
               f"Total: {len(merged_auth)} records across all families.")
         # Recompute stats from full merged authority
