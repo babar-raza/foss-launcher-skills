@@ -273,8 +273,9 @@
         },
         "page/python": {
           "url": "https://docs.aspose.com/page/python/",
-          "http_status": 200,
-          "redirect_chain": []
+          "http_status": -1,
+          "redirect_chain": [],
+          "validated_via": "manual-correction-2026-07-04-TC-HEAL-007"
         },
         "pdf/go": {
           "url": "https://docs.aspose.com/pdf/go/",
@@ -313,8 +314,9 @@
         },
         "tex/python": {
           "url": "https://docs.aspose.com/tex/python/",
-          "http_status": 200,
-          "redirect_chain": []
+          "http_status": -1,
+          "redirect_chain": [],
+          "validated_via": "manual-correction-2026-07-04-TC-HEAL-007"
         },
         "words/python": {
           "url": "https://docs.aspose.com/words/python/",
@@ -1715,11 +1717,12 @@
       "redirect_chain": []
     },
     "https://docs.aspose.com/page/python/": {
-      "http_status": 200,
+      "http_status": -1,
       "type": "platform-docs",
       "family": "page",
       "platform": "python",
-      "redirect_chain": []
+      "redirect_chain": [],
+      "validated_via": "manual-correction-2026-07-04-TC-HEAL-007"
     },
     "https://docs.aspose.com/pdf/": {
       "http_status": 200,
@@ -1820,11 +1823,12 @@
       "redirect_chain": []
     },
     "https://docs.aspose.com/tex/python/": {
-      "http_status": 200,
+      "http_status": -1,
       "type": "platform-docs",
       "family": "tex",
       "platform": "python",
-      "redirect_chain": []
+      "redirect_chain": [],
+      "validated_via": "manual-correction-2026-07-04-TC-HEAL-007"
     },
     "https://docs.aspose.com/words/": {
       "http_status": 200,
