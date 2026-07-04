@@ -88,6 +88,18 @@ if ! "$PYTHON" scripts/readme_sync.py --check 2>/dev/null; then
   # README staleness is a warning, not a hard blocker
 fi
 
+# ── Step 6: Capability adapter drift (advisory) ─────────────────────────────
+echo "[pre-commit] Step 6: Capability adapter drift check ..."
+if [ -f "tools/capability_sync/detect_adapter_drift.py" ]; then
+  if ! "$PYTHON" tools/capability_sync/detect_adapter_drift.py --check 2>/dev/null; then
+    echo "  WARN: Capability adapter drift detected — run 'python tools/capability_sync/run_sync.py' to repair"
+    echo "        Or use '/sync-capabilities' skill to regenerate all adapters."
+    # Advisory only — does not block commit. CI enforces this strictly.
+  fi
+else
+  echo "  SKIP: tools/capability_sync/ not found (optional governance layer)"
+fi
+
 # ── Summary ──────────────────────────────────────────────────────────────────
 echo ""
 if [[ $ERRORS -eq 0 ]]; then

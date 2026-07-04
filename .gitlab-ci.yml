@@ -108,6 +108,30 @@ schema-validation:
         - configs/schemas/**/*
     - if: $CI_PIPELINE_SOURCE == "web"
 
+# ── Capability parity validation ────────────────────────────────────────────
+
+capability-parity:
+  stage: validate
+  script:
+    - python tools/capability_sync/validate_semantic_parity.py --check
+    - python tools/capability_sync/detect_adapter_drift.py --check
+    - python tools/capability_sync/detect_orphans.py --check
+    - python tools/capability_sync/validate_discoverability.py --check
+  rules:
+    - changes:
+        - skills/**/*
+        - .claude/commands/**/*
+        - .agents/skills/**/*
+        - .kilocode/skills/**/*
+        - tools/**/*
+        - .governance/**/*
+    - if: $CI_PIPELINE_SOURCE == "web"
+  artifacts:
+    when: always
+    paths:
+      - .governance/generated/
+    expire_in: 30 days
+
 # ── Stage: test ─────────────────────────────────────────────────────────────
 
 governance-tests:
