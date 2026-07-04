@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
-  "skill_count": 93,
+  "skill_count": 98,
   "skills": [
     {
       "id": "S-01",
@@ -283,22 +283,6 @@
       "description": "Run a comprehensive, multi-dimensional evaluation of content pages against repo truth.",
       "internal": false,
       "canonical_path": "skills/content-eval.md"
-    },
-    {
-      "id": "S-52",
-      "slug": "translate-page",
-      "name": "Translate Page — Single Page Translation",
-      "description": "Skill description pending",
-      "internal": false,
-      "canonical_path": "skills/translate-page.md"
-    },
-    {
-      "id": "S-53",
-      "slug": "translate-batch",
-      "name": "Translate Batch — Batch Translation for Family/Platform",
-      "description": "Skill description pending",
-      "internal": false,
-      "canonical_path": "skills/translate-batch.md"
     },
     {
       "id": "S-54",
@@ -751,6 +735,62 @@
       "internal": false,
       "canonical_path": "skills/production-localization-incident.md",
       "args": "``"
+    },
+    {
+      "id": "S-HT-02",
+      "slug": "ht-translate-batch",
+      "name": "HT-Translate-Batch — Batch Translation via Hugo-Translator",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/ht-translate-batch.md"
+    },
+    {
+      "id": "S-HT-01",
+      "slug": "ht-translate",
+      "name": "HT-Translate — Single Page Translation via Hugo-Translator",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/ht-translate.md"
+    },
+    {
+      "id": "S-LG-03",
+      "slug": "llms-coverage",
+      "name": "llms-coverage — Audit Coverage Gap",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/llms-coverage.md"
+    },
+    {
+      "id": "S-LG-04",
+      "slug": "llms-fidelity",
+      "name": "llms-fidelity — Audit Content Fidelity",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/llms-fidelity.md"
+    },
+    {
+      "id": "S-LG-01",
+      "slug": "llms-generate",
+      "name": "llms-generate — Regenerate All LLMs Outputs",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/llms-generate.md"
+    },
+    {
+      "id": "S-LG-05",
+      "slug": "llms-stale",
+      "name": "llms-stale — Detect Stale LLMs Outputs",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/llms-stale.md"
+    },
+    {
+      "id": "S-LG-02",
+      "slug": "llms-verify",
+      "name": "llms-verify — Verify Live .txt Endpoints",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/llms-verify.md"
     }
   ]
 }

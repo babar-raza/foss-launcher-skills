@@ -169,23 +169,6 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
      - Target URL comes from `data/aspose_com_targets.json` (must exist before running this skill).
      - **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
 
-10.5. **Normalize blank lines in code fences** (GAP-CSSP-R03):
-    ```bash
-    PYTHONPATH=scripts/pipeline .venv/Scripts/python \
-      scripts/pipeline/commands/content/normalize_code_block_blanks.py
-    ```
-    Removes spurious blank lines from YAML-embedded code fences across all products pages,
-    including the newly written English page. Must run BEFORE Step 13 (validate_plugin_structure.py)
-    so that the validator confirms the normalized file, not the raw LLM output.
-    If the normalizer reports `Errors: > 0`: inspect error_files and fix before proceeding.
-
-    **Known limitation (GAP-CSSP-R09):** The normalizer handles literal block (`|`),
-    single-quoted, and single-line double-quoted YAML scalars. Multi-line double-quoted
-    scalars using YAML line folding (trailing `\` on physical lines) are NOT automatically
-    normalized. If the newly written page uses that format and validate (Step 13) reports
-    a `CODE_BLOCK_BLANK_LINES` ERROR, perform a direct S-73 edit to remove the offending
-    `\n\n` escape sequence.
-
 11. **Structural completion**: Run the deterministic skeleton filler to ensure all
     display-control boilerplate sections are present regardless of LLM output variance:
     `.venv/Scripts/python scripts/pipeline/commands/migration/complete_plugin_structure.py --files content/products.aspose.org/en/{family}/{platform}/_index.md`
@@ -258,12 +241,3 @@ the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
 - Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
   `token_usage` and `api_calls_count`.
 - Metrics failures must not crash or block the parent pipeline job.
-
-## Enterprise Backlink Policy
-
-All enterprise links generated or modified by this skill must comply with
-[docs/governance/backlink-policy.md](../docs/governance/backlink-policy.md):
-- Links must originate exclusively from `backlink_authority.json` (Layer 3)
-- No manual URL construction or interpolation permitted
-- Anchor text sourced from `anchor_text_registry.yaml` only
-- Cross-section fallback to `products.aspose.com` is prohibited for non-products sources

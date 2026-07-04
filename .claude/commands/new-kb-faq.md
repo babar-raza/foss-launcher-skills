@@ -136,12 +136,3 @@ After generating or updating the FAQ:
 8. **Confirm** by printing the output path and a count of FAQ items written or added.
    After writing, verify the body contains ≥1 `###` heading. If absent, regenerate — the page
    will fail `_check_faq` Rule 3 on the next evaluation.
-
-## Enterprise Backlink Policy
-
-All enterprise links generated or modified by this skill must comply with
-[docs/governance/backlink-policy.md](../docs/governance/backlink-policy.md):
-- Links must originate exclusively from `backlink_authority.json` (Layer 3)
-- No manual URL construction or interpolation permitted
-- Anchor text sourced from `anchor_text_registry.yaml` only
-- Cross-section fallback to `products.aspose.com` is prohibited for non-products sources

@@ -157,21 +157,6 @@ Do not run any subsequent steps. Exit 0.
    ```
    Run on all pages updated, generated, or modified in Steps 4-7.
 
-9b. **Normalize blank lines in code fences on changed products pages** (GAP-CSSP-R02):
-    ```bash
-    PYTHONPATH=scripts/pipeline .venv/Scripts/python \
-      scripts/pipeline/commands/content/normalize_code_block_blanks.py
-    ```
-    - Run after Step 4 (page-update) has written or refreshed the products page.
-    - Covers the English products page and all locale copies in one pass (idempotent).
-    - If normalizer reports changed files: include normalized files in the commit.
-    - If normalizer exits non-zero: inspect error_files; do not proceed to Step 9.5.
-    - **Known limitation (GAP-CSSP-R09):** Multi-line double-quoted YAML scalars using
-      YAML line folding (trailing `\` on physical lines) are not handled automatically.
-      If validate_plugin_structure.py (run via Step 9's content-check) reports a
-      `CODE_BLOCK_BLANK_LINES` ERROR after normalization, perform a direct S-73 edit
-      to remove the offending `\n\n` escape sequence.
-
 9.5. **Re-grade changed pages** (TC-P3-03: post-refresh re-grading):
     ```bash
     .venv/Scripts/python -m content_eval evaluate {family} {platform} --write-grade
@@ -179,21 +164,6 @@ Do not run any subsequent steps. Exit 0.
     Recalculates grades against the updated knowledge model and persists them to frontmatter.
     Compare before/after grades: any page regressing to D or F should be flagged for healing
     before commit. Pass `--skip-regrade` to bypass for fast refresh runs.
-
-9.7. **Locale topology quality gate** (RG-004):
-
-    After locale propagation (translation runs or locale files updated), verify that
-    all locale copies share the same H2 heading structure as the English source:
-    ```bash
-    PYTHONPATH=scripts/pipeline .venv/Scripts/python \
-      scripts/pipeline/commands/ops/check_locale_topology.py \
-      --source content/{site}/{family}/{platform}/_index.md \
-      --locales content/{site}/*/{{family}}/{platform}/_index.md \
-      --json
-    ```
-    Expected output: `"mismatches": []`. If mismatches are found, inspect the locale
-    files listed and either fix the locale manually (S-75) or re-translate that locale.
-    Do not commit locale pages with H2 structure mismatches — they will render incorrectly.
 
 10. **Link validation** (S-65: link-validate):
     ```
@@ -323,12 +293,3 @@ will be skipped or produce no-ops on re-run.
 - Step 2 (knowledge-update): if scout fails, abort entire cycle; do not write partial delta
 - Step 12 (verify): if fails, list specific issues; do not commit; fix and re-verify
 - Any step failure: check `--status` to see which steps completed; resume from the failing step
-
-## Enterprise Backlink Policy
-
-All enterprise links generated or modified by this skill must comply with
-[docs/governance/backlink-policy.md](../docs/governance/backlink-policy.md):
-- Links must originate exclusively from `backlink_authority.json` (Layer 3)
-- No manual URL construction or interpolation permitted
-- Anchor text sourced from `anchor_text_registry.yaml` only
-- Cross-section fallback to `products.aspose.com` is prohibited for non-products sources

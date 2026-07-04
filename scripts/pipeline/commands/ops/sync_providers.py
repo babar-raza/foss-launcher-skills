@@ -69,7 +69,7 @@ if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 from _skill_constants import INTERNAL_SKILLS
 
-_ID_RE = re.compile(r"^#\s+(S-\d+):")
+_ID_RE = re.compile(r"^#\s+(S-[A-Z0-9-]+):")
 _PURPOSE_RE = re.compile(r"^##\s+Purpose\s*$", re.MULTILINE)
 _ARGS_RE = re.compile(r"\*\*Arguments\*\*:\s*(.+)")
 
@@ -231,7 +231,7 @@ REGISTRY_PATH = CANONICAL_DIR / "registry.json"
 def _extract_title(text: str) -> str:
     """Extract skill title from the # S-XX: Title heading."""
     for line in text[:1500].splitlines():
-        m = re.match(r"^#\s+S-\d+:\s*(.+)", line)
+        m = re.match(r"^#\s+S-[A-Z0-9-]+:\s*(.+)", line)
         if m:
             # Strip trailing markup like " — Foo" keeping " — Foo" as part of the name
             return m.group(1).strip()

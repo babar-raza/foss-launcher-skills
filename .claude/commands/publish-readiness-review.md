@@ -392,12 +392,3 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
 | S-73 (manual-edit) | Step 7f/7j, for format corrections and UNKNOWN_CLASS fixes |
 | S-74 (causal-backtrack) | Step 7e, for broken-link upstream resolution |
 | /batch-reference (S-62) | Step 7d, for STRUCTURAL-GAP reference pages |
-
-## Enterprise Backlink Policy
-
-All enterprise links generated or modified by this skill must comply with
-[docs/governance/backlink-policy.md](../docs/governance/backlink-policy.md):
-- Links must originate exclusively from `backlink_authority.json` (Layer 3)
-- No manual URL construction or interpolation permitted
-- Anchor text sourced from `anchor_text_registry.yaml` only
-- Cross-section fallback to `products.aspose.com` is prohibited for non-products sources
