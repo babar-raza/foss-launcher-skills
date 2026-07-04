@@ -43,6 +43,11 @@ KNOWN_EXCEPTIONS = {
     # Claude uses unified 'translate' router instead of split skills
     ("claude", "translate-batch"): "Claude uses unified translate router",
     ("claude", "translate-page"): "Claude uses unified translate router",
+    # Agents/kilocode: orphan mirrors from retired translator workflow; T-00 prevents deletion
+    ("agents", "translate-batch"): "Orphan mirror from translator retirement; T-00 path prevents deletion",
+    ("agents", "translate-page"): "Orphan mirror from translator retirement; T-00 path prevents deletion",
+    ("kilocode", "translate-batch"): "Orphan mirror from translator retirement; T-00 path prevents deletion",
+    ("kilocode", "translate-page"): "Orphan mirror from translator retirement; T-00 path prevents deletion",
 }
 
 _LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
