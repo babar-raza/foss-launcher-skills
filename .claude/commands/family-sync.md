@@ -65,3 +65,12 @@ capabilities, and rewrites the three text fields to be platform-agnostic.
 
 - Standalone: `/family-sync {family}`
 - From `launch-product`: Stage 1.5 — after products page, when family has >= 2 platforms
+
+## Enterprise Backlink Policy
+
+All enterprise links generated or modified by this skill must comply with
+[docs/governance/backlink-policy.md](../docs/governance/backlink-policy.md):
+- Links must originate exclusively from `backlink_authority.json` (Layer 3)
+- No manual URL construction or interpolation permitted
+- Anchor text sourced from `anchor_text_registry.yaml` only
+- Cross-section fallback to `products.aspose.com` is prohibited for non-products sources

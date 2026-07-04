@@ -280,3 +280,12 @@ by `/new-reference-page`). Before committing the batch output:
    - Knowledge model SHA from `knowledge/{family}/{platform}/model.yaml`
    - `Skills invoked: [batch-reference, /new-reference-page, S-24, S-01]`
    - Count: `Generated {N} reference pages for {family}/{platform}`
+
+## Enterprise Backlink Policy
+
+All enterprise links generated or modified by this skill must comply with
+[docs/governance/backlink-policy.md](../docs/governance/backlink-policy.md):
+- Links must originate exclusively from `backlink_authority.json` (Layer 3)
+- No manual URL construction or interpolation permitted
+- Anchor text sourced from `anchor_text_registry.yaml` only
+- Cross-section fallback to `products.aspose.com` is prohibited for non-products sources

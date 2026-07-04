@@ -323,3 +323,12 @@ will be skipped or produce no-ops on re-run.
 - Step 2 (knowledge-update): if scout fails, abort entire cycle; do not write partial delta
 - Step 12 (verify): if fails, list specific issues; do not commit; fix and re-verify
 - Any step failure: check `--status` to see which steps completed; resume from the failing step
+
+## Enterprise Backlink Policy
+
+All enterprise links generated or modified by this skill must comply with
+[docs/governance/backlink-policy.md](../docs/governance/backlink-policy.md):
+- Links must originate exclusively from `backlink_authority.json` (Layer 3)
+- No manual URL construction or interpolation permitted
+- Anchor text sourced from `anchor_text_registry.yaml` only
+- Cross-section fallback to `products.aspose.com` is prohibited for non-products sources
