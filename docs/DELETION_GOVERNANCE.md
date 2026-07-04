@@ -149,10 +149,26 @@ If a T-01 deletion is needed urgently and the 7-day TTL is a blocker:
 
 | Gate | File | When |
 |------|------|------|
-| Pre-commit Step 0b | `scripts/pre-commit-audit.sh` | Every `git commit` |
+| Pre-commit Step 0b | `scripts/pre-commit-audit.sh` (installed as `.git/hooks/pre-commit`) | Every `git commit` |
 | commit-msg DGR token | `.git/hooks/commit-msg` | Every `git commit` with staged deletions |
 | CI GUARD-DEL-01 | `.github/workflows/content-audit.yml` | Every PR |
 | `clean_locales.py` guard | `scripts/website/clean_locales.py` | Script execution |
+
+### Hook Installation
+
+The pre-commit gate runs from `.git/hooks/pre-commit`, which is **not tracked by git**.
+After cloning or pulling major pre-commit updates, sync the installed hook from the source:
+
+```bash
+cp scripts/pre-commit-audit.sh .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+Verify the installed hook matches the source:
+
+```bash
+diff .git/hooks/pre-commit scripts/pre-commit-audit.sh && echo "Hook is current"
+```
 
 ---
 
