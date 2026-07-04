@@ -170,7 +170,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install test dependencies
-        run: pip install pyyaml pytest pytest-mock jsonschema pytest-cov
+        run: pip install pyyaml pytest pytest-mock jsonschema pytest-cov hypothesis
       - name: Run governance tests with coverage
         run: python -m pytest tests/ -v --tb=short -m "not scout and not integration" --ignore=tests/test_e2e_pipeline.py --cov=scripts --cov-report=term-missing
         continue-on-error: false
