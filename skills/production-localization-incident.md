@@ -168,6 +168,22 @@ Run:
 .venv/Scripts/python scripts/pipeline/commands/ops/sync_skills.py --check
 ```
 
+## LLM Metrics Obligation
+
+If this skill or its sub-skills (`agent-review` phase, S-52, S-53) invoke
+`llm.professionalize.com` directly or through `LLMRouter`, the run carries a
+**metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.
+
 ## Initial Incident Request
 
 For the 2026-06-29 production incident, create a request JSON under `reports/localization/production-translation-incident-request.json` with entry point `https://products.aspose.org/pdf/net/`, family `pdf`, platform `net`, suspected site `products.aspose.org`, suspected locales, incident types `PARTIAL_TRANSLATION`, `ENGLISH_INJECTION`, `TEMPLATE_LOCALIZATION_FAILURE`, and `PUBLICATION_GATE_BYPASS`, execution mode `INVESTIGATION_ONLY`, and evidence root `.local/evidences/production-localization-incident-2026-06-29`.
