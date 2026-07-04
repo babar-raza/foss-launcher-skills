@@ -1,0 +1,13 @@
+{
+  "override_id": "20260704-033917-gitlab-ci-yml",
+  "paths": [
+    "gitlab-ci.yml"
+  ],
+  "operation": "edit",
+  "reason": "CI forensic audit: add --cov-fail-under=12 to GitLab governance-tests job (GL-01)",
+  "plan_reference": "",
+  "scope_description": "",
+  "authorized_at": "2026-07-04T03:39:17.092537Z",
+  "retroactive": false,
+  "consumed_by_commit": null
+}

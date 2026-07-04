@@ -27,9 +27,8 @@ jobs:
 
       - name: Run evaluator tests
         run: pytest tests/ -k "eval" -q
-        continue-on-error: true
 
       - name: Check evaluator registry
         run: |
           cd scripts/pipeline
-          python -c "from content_eval import DEFAULT_EVALUATORS, ALL_EVALUATORS; print(f'Default: {len(DEFAULT_EVALUATORS)}, All: {len(ALL_EVALUATORS)}')" || echo "content_eval not yet importable"
+          python -c "from content_eval.config import DEFAULT_EVALUATORS, ALL_EVALUATORS; print(f'Default: {len(DEFAULT_EVALUATORS)}, All: {len(ALL_EVALUATORS)}')" || echo "content_eval.config not yet importable"

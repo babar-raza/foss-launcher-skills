@@ -20,6 +20,8 @@ on:
 jobs:
   pipeline-tests:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # required: git push for release receipt commit on main
     steps:
       - uses: actions/checkout@v4
 
@@ -55,7 +57,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git add docs/release-receipts/
           git diff --staged --quiet || git commit -m "chore(receipt): update release receipt [skip ci]"
-          git push
+          git push origin HEAD:main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

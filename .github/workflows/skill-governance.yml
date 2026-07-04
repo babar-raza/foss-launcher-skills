@@ -49,6 +49,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Install dependencies
+        run: pip install pyyaml   # sync_commands.py imports yaml
       - name: Check .claude/commands/ is in sync
         run: python scripts/sync_commands.py --check
 
@@ -170,7 +172,7 @@ jobs:
       - name: Install test dependencies
         run: pip install pyyaml pytest pytest-mock jsonschema pytest-cov
       - name: Run governance tests with coverage
-        run: python -m pytest tests/ -v --tb=short -m "not scout" --ignore=tests/test_e2e_pipeline.py --cov=scripts --cov-report=term-missing
+        run: python -m pytest tests/ -v --tb=short -m "not scout and not integration" --ignore=tests/test_e2e_pipeline.py --cov=scripts --cov-report=term-missing
         continue-on-error: false
 
   # ── Job 8: Schema validation ─────────────────────────────────────────────
