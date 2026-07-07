@@ -32,7 +32,35 @@ kb, and reference pages. Uses `project-phase-store` (S-10) for checkpoint-based 
 - `KNOWLEDGE: STOP:partial` → halt and explain; do not proceed
 - `KNOWLEDGE: REFRESHED` → halt: "Knowledge refreshed from upstream changes. Run `/knowledge-diff`
   to review what changed, then re-run `/launch-product {family} {platform}`."
-- Any other status → continue to Stage 0.5
+- Any other status → run the knowledge quality gate below before continuing to Stage 0.5
+
+**Knowledge quality gate** (agent-executable; governed by AGENTS.md §7d):
+
+After knowledge bootstrap completes, read `knowledge/{family}/{platform}/merged/model.yaml`
+and verify minimum thresholds:
+
+| Field | Minimum | Current value |
+|-------|---------|---------------|
+| `stats.class_count` | 5 | _read from model.yaml_ |
+| `stats.total_claims` | 20 | _read from model.yaml_ |
+| `stats.snippet_count` | 3 | _read from model.yaml_ |
+| `enrichment_status` | not `"error"` and not absent | _read from model.yaml_ |
+
+**If ALL thresholds pass**: print summary and continue to Stage 0.5.
+
+**If ANY threshold fails** — HARD BLOCK. Do not continue. Print:
+```
+KNOWLEDGE QUALITY GATE BLOCKED — {family}/{platform}
+  class_count:        {actual} / 5   [PASS|FAIL]
+  total_claims:       {actual} / 20  [PASS|FAIL]
+  snippet_count:      {actual} / 3   [PASS|FAIL]
+  enrichment_status:  {value}        [PASS|FAIL]
+
+To unblock:
+  Option 1: Improve FOSS repo, re-run /knowledge-bootstrap {family} {platform}
+  Option 2: Type  KNOWLEDGE_QUALITY_OVERRIDE: {reason}
+            (recorded in evidence bundle; launch continues with reduced scope)
+```
 
 **Save checkpoint**: `python scripts/pipeline/commands/ops/project_phase_store.py set {family} {platform} knowledge_ready true`
 

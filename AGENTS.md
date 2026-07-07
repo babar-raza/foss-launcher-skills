@@ -264,7 +264,7 @@ The following always cause immediate halt (no agent override):
 
 - S-01 path-guard returns `DENY`
 - S-23 content-check returns `FAIL` after 2 retries
-- `knowledge/model.yaml.api_confidence = "low"`
+- Knowledge quality gate fails in `/launch-product` Stage 0 — see §7d below
 - Page grade = F (critical finding) from S-25
 - Agent classifies requirement as NONE (no skill covers it) and proceeds with ad hoc work —
   unconditional STOP; produce a gap escalation report (§6b) instead
@@ -346,6 +346,36 @@ When any skill, plan, report, or governance section says **"human-review require
 **For all other cases, S-90 is the governed execution path.** Do not halt and write an
 escalation item where S-90 can perform the inspection. The distinction between "inspection"
 (agent-executable) and "escalation" (truly external dependency) is governed by this section.
+
+## 7d. Agent-Executable Knowledge Quality Gate
+
+> **Added 2026-07-07** — replaces the `api_confidence` hard-stop (removed 2026-07-07, was unimplemented).
+
+When executing `/launch-product` (S-49) Stage 0 (Knowledge Bootstrap), the agent MUST run
+the knowledge quality check before advancing to Stage 0.5. This gate is **agent-executable**:
+the agent performs the check, not a human.
+
+**Minimum thresholds** (read from `knowledge/{family}/{platform}/merged/model.yaml`):
+
+| Field | Minimum | Source path |
+|-------|---------|-------------|
+| `stats.class_count` | 5 | `model.yaml` |
+| `stats.total_claims` | 20 | `model.yaml` |
+| `stats.snippet_count` | 3 | `model.yaml` |
+| `enrichment_status` | not `"error"` and not absent | `model.yaml` |
+
+**Gate behavior**:
+- **All thresholds met**: advance to Stage 0.5.
+- **Any threshold fails**: HARD BLOCK — do not advance to Stage 0.5. Print which thresholds
+  failed and their current vs. minimum values. The block can only be lifted by:
+  1. Improving the knowledge model (re-run `/knowledge-bootstrap` after FOSS repo is more complete), OR
+  2. Explicit human override: the human types `KNOWLEDGE_QUALITY_OVERRIDE: {reason}` in
+     the session. The agent records the override in the evidence bundle and proceeds with
+     reduced scope expectations.
+
+**This gate is part of the skill chain** — agents execute it, not humans. The §7c interpretation
+("invoke S-90 rather than halting") does NOT apply here; this gate runs before any content
+exists. If the knowledge model fails these thresholds, S-90 has nothing to inspect.
 
 ## 8. Escalation Conditions (invoke S-90 first; escalate to real human only for these)
 
