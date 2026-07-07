@@ -166,3 +166,136 @@ def test_report_stale_unavailable_knowledge(tmp_path):
 
     assert "error" in report
     assert report["total_files_scanned"] == 0
+
+
+# ---------------------------------------------------------------------------
+# detect_stale_apis tests  (TC-CLAIM-06)
+# ---------------------------------------------------------------------------
+
+def _write_md_with_apis(tmp_path: Path, name: str, apis: list[str]) -> Path:
+    """Write a minimal content .md file with given evidence.apis."""
+    apis_yaml = "[" + ", ".join(repr(a) for a in apis) + "]"
+    lines = [
+        "---",
+        "title: Test Page",
+        "evidence:",
+        "  model_sha: abc123",
+        "  claims: []",
+        f"  apis: {apis_yaml}",
+        "---",
+        "# Test",
+        "",
+        "Some content here.",
+    ]
+    p = tmp_path / name
+    p.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return p
+
+
+def _knowledge_with_classes(classes: set[str]) -> MagicMock:
+    """Return a mock Knowledge object with the given class names."""
+    k = MagicMock()
+    k.classes = classes
+    k.available = True
+    return k
+
+
+def test_detect_stale_apis_finds_unknown_class(tmp_path):
+    from evidence.claim_validator import detect_stale_apis
+    f = _write_md_with_apis(tmp_path, "test.md", ["BarCodeReader.read_bar_codes", "GhostClass.method"])
+    k = _knowledge_with_classes({"BarCodeReader"})
+    stale = detect_stale_apis(f, k)
+    assert stale == ["GhostClass.method"]
+
+
+def test_detect_stale_apis_passes_on_valid_class(tmp_path):
+    from evidence.claim_validator import detect_stale_apis
+    f = _write_md_with_apis(tmp_path, "test.md", ["BarCodeReader.read_bar_codes", "BarCodeGenerator"])
+    k = _knowledge_with_classes({"BarCodeReader", "BarCodeGenerator"})
+    stale = detect_stale_apis(f, k)
+    assert stale == []
+
+
+def test_detect_stale_apis_empty_apis_returns_empty(tmp_path):
+    from evidence.claim_validator import detect_stale_apis
+    f = _write_md_with_apis(tmp_path, "test.md", [])
+    k = _knowledge_with_classes({"BarCodeReader"})
+    stale = detect_stale_apis(f, k)
+    assert stale == []
+
+
+def test_detect_stale_apis_no_evidence_block(tmp_path):
+    from evidence.claim_validator import detect_stale_apis
+    content = "---\ntitle: Test\n---\n# Test\n"
+    f = tmp_path / "no_evidence.md"
+    f.write_text(content, encoding="utf-8")
+    k = _knowledge_with_classes({"BarCodeReader"})
+    stale = detect_stale_apis(f, k)
+    assert stale == []
+
+
+def test_detect_stale_apis_class_only_entry(tmp_path):
+    """Entries without a dot (bare class names) are also validated."""
+    from evidence.claim_validator import detect_stale_apis
+    f = _write_md_with_apis(tmp_path, "test.md", ["KnownClass", "UnknownClass"])
+    k = _knowledge_with_classes({"KnownClass"})
+    stale = detect_stale_apis(f, k)
+    assert stale == ["UnknownClass"]
+
+
+def test_detect_stale_apis_multiple_unknown(tmp_path):
+    from evidence.claim_validator import detect_stale_apis
+    f = _write_md_with_apis(tmp_path, "test.md",
+                             ["Good.method", "Bad1.foo", "Bad2.bar"])
+    k = _knowledge_with_classes({"Good"})
+    stale = detect_stale_apis(f, k)
+    assert sorted(stale) == ["Bad1.foo", "Bad2.bar"]
+
+
+def test_report_stale_apis_produces_valid_json(tmp_path):
+    from evidence.claim_validator import report_stale_apis
+
+    f = _write_md_with_apis(tmp_path, "test.md", ["GhostClass.method"])
+
+    with patch("evidence.claim_validator.discover_content") as mock_disc, \
+         patch("knowledge_core.Knowledge") as mock_klass:
+        mock_klass.return_value = _knowledge_with_classes(set())
+        mock_disc.return_value = [f]
+
+        report = report_stale_apis("barcode", "python")
+        serialised = json.dumps(report)
+        parsed = json.loads(serialised)
+        assert "stale" in parsed
+        assert "total_files_scanned" in parsed
+        assert "total_stale_apis" in parsed
+
+
+def test_report_stale_apis_no_content_files_modified(tmp_path):
+    """report_stale_apis must not modify any file."""
+    from evidence.claim_validator import report_stale_apis
+
+    f = _write_md_with_apis(tmp_path, "test.md", ["GhostClass.method"])
+    content_before = f.read_bytes()
+
+    with patch("evidence.claim_validator.discover_content") as mock_disc, \
+         patch("knowledge_core.Knowledge") as mock_klass:
+        mock_klass.return_value = _knowledge_with_classes(set())
+        mock_disc.return_value = [f]
+
+        report_stale_apis("barcode", "python")
+
+    assert f.read_bytes() == content_before, "report_stale_apis modified a content file"
+
+
+def test_report_stale_apis_unavailable_knowledge(tmp_path):
+    from evidence.claim_validator import report_stale_apis
+
+    k = MagicMock()
+    k.available = False
+
+    with patch("knowledge_core.Knowledge") as mock_klass:
+        mock_klass.return_value = k
+        report = report_stale_apis("barcode", "python")
+
+    assert "error" in report
+    assert report["total_files_scanned"] == 0
