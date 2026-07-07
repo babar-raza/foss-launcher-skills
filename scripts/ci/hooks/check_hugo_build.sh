@@ -42,6 +42,35 @@ for site in $REQUESTED_SITES; do
         continue
     fi
 
+    # reference.aspose.org: build per-family segment to isolate failures
+    if [ "$site" = "reference.aspose.org" ]; then
+        ref_fail=0
+        for segment in shared 3d cells email font note page pdf slides tex words; do
+            famtmp=$(mktemp -d)
+            echo -n "  Building $site [$segment]... "
+            if hugo --config "$config" \
+                    --renderSegments "$segment" \
+                    -d "$famtmp" \
+                    --quiet 2>"$famtmp/stderr.txt"; then
+                echo "PASS"
+            else
+                echo "FAIL"
+                sed 's/^/    /' "$famtmp/stderr.txt" | head -10
+                ref_fail=$((ref_fail + 1))
+            fi
+            rm -rf "$famtmp"
+        done
+        if [ $ref_fail -eq 0 ]; then
+            echo "Building $site... PASS (11/11 segments)"
+            PASS=$((PASS + 1))
+        else
+            echo "Building $site... FAIL ($ref_fail segment(s) failed)"
+            FAIL=$((FAIL + 1))
+            EXIT=1
+        fi
+        continue
+    fi
+
     tmpdir=$(mktemp -d)
     trap "rm -rf '$tmpdir'" EXIT
 
