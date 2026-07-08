@@ -36,6 +36,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from core.fs import atomic_write  # noqa: E402
+from core.constants import _INTERNAL_PATH_PATTERNS  # noqa: E402  (C1-SYS filter)
 _LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
@@ -443,7 +444,8 @@ def _match_existing_to_cluster(
     # Skip section-index and fixed pages
     skip_slugs = {"_index", "faq", "use-cases", "troubleshooting",
                   "getting-started/_index", "developer-guide/_index",
-                  "getting-started/installation", "getting-started/license",
+                  "getting-started/installation", "getting-started/quickstart",
+                  "getting-started/license",
                   "developer-guide/features"}
 
     candidates = [p for p in existing_pages if p["slug"] not in skip_slugs]
@@ -576,6 +578,7 @@ _SUBPKG_LABEL: dict[str, str] = {
     "opc":        "package-management",
     "drawing":    "drawing-shapes",
     "internal":   "internal-utilities",
+    "private":    "internal-utilities",  # C1-SYS: _private/_internal/_impl → skip cluster
     "foss":       "core-api",
     "apppropertiespart":   "app-properties",
     "commentspart":        "comments",
@@ -597,6 +600,19 @@ _SUBPKG_LABEL: dict[str, str] = {
 # Applied in _subpkg_to_label() before the generic slug_from_category() fallback.
 # Prevents generic sub-package names (e.g. "core") from producing bad cluster labels.
 _FAMILY_SUBPKG_LABELS: dict[str, dict[str, str]] = {
+    "barcode": {
+        "":          "barcode-generation",   # Root-level Barcode/BarcodeService classes
+        "encoders":  "barcode-generation",   # Encoder implementation classes
+        "models":    "encode-options",       # Options/model classes (EncodeOptions, etc.)
+        "renderers": "barcode-rendering",    # SvgRenderer, PngRenderer, PdfRenderer
+        "parsers":   "input-parsing",        # Parser implementation classes
+        "profiles":  "symbology-profiles",   # Symbology profile registry
+        "standards": "barcode-standards",    # Standards/validation classes
+        "text":      "text-rendering",       # Text rendering classes
+        "qr":        "qr-generation",        # QR-specific classes
+        # Note: "_internal" direct children fall through to
+        # _SUBPKG_LABEL["internal"] = "internal-utilities" → KB_SKIP_CLUSTERS
+    },
     "cells": {
         "core":       "cells-foss-model",    # Value-object/model classes in cells_foss core/
         "packaging":  "xlsx-packaging",      # OPC/XLSX packaging classes in cells_foss packaging/
@@ -691,6 +707,7 @@ def _subpkg_to_label(subpkg: str, family: str) -> str:
         # Root-level classes → family-specific core capability
         _ROOT_LABELS = {
             "3d": "scene-management",
+            "barcode": "barcode-generation",
             "slides": "presentation-management",
             "cells": "spreadsheet-management",
             "email": "email-processing",
@@ -748,8 +765,18 @@ def detect_clusters(
             continue
         cls_name = entry.get("name", "")
         file_path = entry.get("file", "")
-        if cls_name:
-            class_to_subpkg[cls_name] = _class_to_subpackage(file_path)
+        if not cls_name:
+            continue
+        # C1-SYS: Exclude classes in private implementation subtrees
+        # (_internal/, _private/, _impl/) that are NOT explicitly re-exported
+        # via package __init__.py.__all__ (exported_via_package_init field set
+        # by scout PY-INIT-001).  This ensures implementation-private helper
+        # classes (encoders, parsers, strategy objects, etc.) do not pollute
+        # content clusters across all future families and platforms.
+        if (any(pat in file_path for pat in _INTERNAL_PATH_PATTERNS)
+                and not entry.get("exported_via_package_init")):
+            continue
+        class_to_subpkg[cls_name] = _class_to_subpackage(file_path)
 
     # ----- 2. Build sub-package → cluster label map -----
     subpkg_label: dict[str, str] = {
@@ -1320,6 +1347,21 @@ def plan_docs(
             "mandatory": True,
             "page_class": "fixed",
             "note": "Installation guide",
+        }
+    )
+    # C2-SYS: Quickstart is mandatory for every product on docs.aspose.org.
+    # Every docs.aspose.org/{family}/{platform}/getting-started/quickstart page
+    # provides the minimal working code example for the product.
+    pages.append(
+        {
+            "slug": _page_slug(f"{base}/getting-started/quickstart.md", family, platform),
+            "path": f"{base}/getting-started/quickstart.md",
+            "type": "docs",
+            "page_role": "howto_article",
+            "weight": 12,
+            "mandatory": True,
+            "page_class": "fixed",
+            "note": "Quickstart guide — first working example",
         }
     )
     if has_license and license_path:

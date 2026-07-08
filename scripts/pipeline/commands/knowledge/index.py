@@ -73,6 +73,11 @@ def _is_public_api_entry(entry: dict) -> bool:
     Excludes free functions, private names, test-file entries, and internal
     implementation directories.  Uses only fields already present in every
     api_surface.json record (kind, name, file) so no schema change is needed.
+
+    PY-INIT-001: If the scout set exported_via_package_init=True (see
+    extraction/api_surface.py _mark_package_init_exports), the entry is
+    public regardless of its physical file path.  This handles packages that
+    define classes in _internal/ and re-export them via __init__.py.__all__.
     """
     if not isinstance(entry, dict):
         return False
@@ -84,6 +89,9 @@ def _is_public_api_entry(entry: dict) -> bool:
     file = entry.get("file", "")
     if any(pat in file for pat in _TEST_PATH_PATTERNS):
         return False
+    # PY-INIT-001: explicit package-level re-export overrides path filter.
+    if entry.get("exported_via_package_init"):
+        return True
     if any(pat in file for pat in _INTERNAL_PATH_PATTERNS):
         return False
     return True

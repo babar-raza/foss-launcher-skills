@@ -1419,6 +1419,47 @@ def _flatten_inheritance(classes: list[dict]) -> None:
             _resolve(name, set())
 
 
+def _mark_package_init_exports(classes: list[dict], source_files: list[Path]) -> None:
+    """Mark Python classes re-exported via any package __init__.py.__all__.
+
+    PY-INIT-001: Packages that define classes in _internal/ and re-export them
+    from __init__.py use a legitimate "implementation hiding" pattern.  The
+    per-file __all__ extraction (S-1) only sets visibility="exported" when the
+    class definition and __all__ are in the SAME file.  Cross-file re-exports
+    from __init__.py are invisible to that check.
+
+    This post-pass unions all __all__ names from every __init__.py in the
+    source tree and sets exported_via_package_init=True on matching classes.
+    index.py._is_public_api_entry() checks this flag before applying the
+    /_internal/ path filter, so re-exported classes are counted as public API.
+    """
+    package_all_names: set[str] = set()
+    for src_file in source_files:
+        if src_file.name != "__init__.py":
+            continue
+        # Only read __init__.py files that are NOT inside a private implementation
+        # subtree (a directory starting with a single "_", e.g. _internal/).
+        # This ensures we only aggregate exports from the package's public interface
+        # modules, not from internal subpackage init files.
+        if any(p.startswith("_") and not p.startswith("__")
+               for p in src_file.parts):
+            continue
+        try:
+            content = src_file.read_text(encoding="utf-8", errors="replace")
+            match = re.search(r"__all__\s*=\s*\[([^\]]*)\]", content, re.DOTALL)
+            if match:
+                package_all_names.update(re.findall(r'["\'](\w+)["\']', match.group(1)))
+        except OSError:
+            pass
+
+    if not package_all_names:
+        return
+
+    for entry in classes:
+        if entry.get("name") in package_all_names:
+            entry["exported_via_package_init"] = True
+
+
 def extract_api_surface(
     parser,
     language: str,
@@ -2078,6 +2119,15 @@ def extract_api_surface(
     # so that evaluators can verify inherited member access without walking
     # the inheritance chain at evaluation time.
     _flatten_inheritance(classes)
+
+    # PY-INIT-001: Mark classes re-exported via any package __init__.py.__all__.
+    # The per-file __all__ extraction (S-1) only fires when __all__ and class
+    # definitions share the same file.  Packages that define classes in _internal/
+    # and re-export them from __init__.py have their public API understated by
+    # _is_public_api_entry() in index.py.  This post-pass adds the field
+    # exported_via_package_init: true so index.py can override the path filter.
+    if language == "python":
+        _mark_package_init_exports(classes, files)
 
     scout_report: dict[str, Any] = {
         "files_attempted": files_attempted,
