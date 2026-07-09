@@ -126,11 +126,14 @@ def _passes_platform_scope(entry: dict, platform: str) -> bool:
 
     # Universal guard: classes whose source file lives under an `internal` or
     # `_internal` package segment are implementation internals, regardless of
-    # platform.
-    file_path = entry.get("file", "")
-    for marker in _INTERNAL_PATH_MARKERS:
-        if marker in file_path:
-            return False
+    # platform.  PY-INIT-001: classes re-exported via a package __init__.py
+    # (exported_via_package_init=True) bypass this guard — they are public API
+    # despite living in _internal/.
+    if not entry.get("exported_via_package_init", False):
+        file_path = entry.get("file", "")
+        for marker in _INTERNAL_PATH_MARKERS:
+            if marker in file_path:
+                return False
 
     # Name exclusion: private/dunder symbols (Python private).
     if name.startswith("_"):
