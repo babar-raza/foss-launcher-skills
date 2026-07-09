@@ -951,6 +951,66 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
     snippet_count = _promote_snippets(scout_dir, merged_dir)
 
     # -----------------------------------------------------------------------
+    # Cross-reference formats with not_implemented (KG-S06-1 fix)
+    # -----------------------------------------------------------------------
+    # If a format's primary render/export method is in the not_implemented
+    # list (raises NotImplementedError), annotate the format entry with a
+    # caveat so downstream content generation knows the format is declared
+    # but not functional.
+    _fmt_xref_path = merged_dir / "formats.json"
+    if _fmt_xref_path.exists() and lim_dst.exists():
+        try:
+            _xref_formats = json.loads(
+                _fmt_xref_path.read_text(encoding="utf-8"))
+            _xref_lim = lim_dst.read_text(encoding="utf-8")
+            # Extract not-implemented method names (e.g., "PdfRenderer.render")
+            _not_impl: set[str] = set()
+            for _lim_line in _xref_lim.splitlines():
+                if "|" not in _lim_line or "---" in _lim_line:
+                    continue
+                _lim_parts = [p.strip() for p in _lim_line.split("|")]
+                if len(_lim_parts) >= 5 and _lim_parts[1] != "File":
+                    _cls = _lim_parts[3].strip() if len(_lim_parts) > 3 else ""
+                    _meth = _lim_parts[4].strip() if len(_lim_parts) > 4 else ""
+                    if _cls and _meth:
+                        _not_impl.add(f"{_cls}.{_meth}")
+                    elif _cls:
+                        _not_impl.add(_cls)
+
+            # Match format names to renderer class names
+            # e.g., format "pdf" -> "PdfRenderer.render"
+            _xref_changed = False
+            for _xfmt in _xref_formats:
+                _fname = (_xfmt.get("format") or _xfmt.get("name") or "").lower()
+                if not _fname:
+                    continue
+                # Check for {Format}Renderer.render or Barcode.to_{format}
+                _renderer_key = f"{_fname.capitalize()}Renderer.render"
+                _method_key = f"Barcode.to_{_fname}"
+                _matching = [k for k in _not_impl
+                             if k.lower() == _renderer_key.lower()
+                             or k.lower() == _method_key.lower()]
+                if _matching and not _xfmt.get("caveat"):
+                    _xfmt["caveat"] = (
+                        f"NotImplementedError — {', '.join(_matching)} "
+                        f"raise NotImplementedError"
+                    )
+                    _xref_changed = True
+                    import sys as _sys
+                    print(f"[promote] Annotated format '{_fname}' with "
+                          f"not-implemented caveat: {_matching}",
+                          file=_sys.stderr)
+
+            if _xref_changed:
+                _fmt_xref_path.write_text(
+                    json.dumps(_xref_formats, indent=2, ensure_ascii=False),
+                    encoding="utf-8")
+        except Exception as exc:
+            import sys as _sys
+            print(f"[promote] WARNING: format/not_implemented cross-ref "
+                  f"failed: {exc}", file=_sys.stderr)
+
+    # -----------------------------------------------------------------------
     # formats.md
     # -----------------------------------------------------------------------
     fmt_path = merged_dir / "formats.json"

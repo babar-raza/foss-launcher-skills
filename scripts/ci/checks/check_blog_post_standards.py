@@ -10,8 +10,10 @@ Checks blog.aspose.org post frontmatter for production defect patterns:
     categories must be present and contain the canonical taxonomy_term
     from data/blog_family_routes.yaml (e.g., "Aspose.PDF").
 
-  C3 — Related Resources section present
-    Post body must contain ## Related Resources with a products.aspose.com/ link.
+  C3 — Enterprise product link present
+    Post body must contain a products.aspose.com/ link (in any section).
+    The link may appear in prose, Related Resources, or any other section.
+    Only one instance is required — duplicates should be avoided.
 
   C4 — No type: post [WARNING only, exit 0]
     type: post is an old S-57 template artifact. Does not block commit.
@@ -177,17 +179,13 @@ def _check_post(
             f"(got {categories!r}). Fix: categories:\\n- {taxonomy_term}",
         ))
 
-    # C3 — Related Resources section with products.aspose.com link
-    has_related = bool(re.search(
-        r"##\s+Related\s+Resources\b[^\n]*\n(?:[^\n]*\n)*?[^\n]*products\.aspose\.com/",
-        body,
-        re.IGNORECASE,
-    ))
-    if not has_related:
+    # C3 — Enterprise product link anywhere in body
+    has_enterprise_link = "products.aspose.com/" in body
+    if not has_enterprise_link:
         findings.append(Finding(
             "C3", "FAIL",
-            "Missing '## Related Resources' section with products.aspose.com/ link. "
-            "Run backlink_backfill.py or add the section manually.",
+            "Missing products.aspose.com/ link in post body. "
+            "Add an enterprise product link in any section (prose or Related Resources).",
         ))
 
     # C6 — Getting Started section with aspose.org platform links

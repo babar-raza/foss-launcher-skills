@@ -33,7 +33,7 @@ from extraction.api_surface import _is_stub_throw
 
 # I/O method names by direction — used to find primary methods in Exporter/Importer classes
 _IO_METHOD_NAMES: dict[str, set[str]] = {
-    "export": {"export", "save", "write", "serialize"},
+    "export": {"export", "save", "write", "serialize", "render"},
     "import": {"import_", "load", "read", "deserialize", "parse"},
 }
 
@@ -446,7 +446,7 @@ def detect_formats(
     load_format_pattern = re.compile(
         r"(LoadFormat|ImportFormat|InputFormat|SourceFormat)", re.IGNORECASE)
     importer_pattern = re.compile(
-        r"(Importer|Exporter|Reader|Writer|Loader|Saver|Serializer|Device)", re.IGNORECASE)
+        r"(Importer|Exporter|Reader|Writer|Loader|Saver|Serializer|Device|Renderer)", re.IGNORECASE)
     # LoadOptions/SaveOptions classes signal constructor-based import/export
     # (e.g. HtmlLoadOptions → HTML import, PdfSaveOptions → PDF export).
     load_save_options_pattern = re.compile(
@@ -479,6 +479,7 @@ def detect_formats(
     # format in email/cpp (Compound File Binary = .msg container).
     _FAMILY_FORMAT_ALLOWLISTS: dict[str, frozenset[str]] = {
         "email": frozenset({"cfb"}),
+        "barcode": frozenset({"png"}),
     }
     _allowed_fmt_overrides = _FAMILY_FORMAT_ALLOWLISTS.get(family, frozenset())
 
@@ -563,10 +564,10 @@ def detect_formats(
 
             if importer_pattern.search(cname):
                 direction = "import"
-                if re.search(r"(Exporter|Writer|Saver|Serializer|Device)", cname, re.IGNORECASE):
+                if re.search(r"(Exporter|Writer|Saver|Serializer|Device|Renderer)", cname, re.IGNORECASE):
                     direction = "export"
                 fmt_name = re.sub(
-                    r"(Importer|Exporter|Reader|Writer|Loader|Saver|Serializer|Factory|Registry|Device)", "",
+                    r"(Importer|Exporter|Reader|Writer|Loader|Saver|Serializer|Factory|Registry|Device|Renderer)", "",
                     cname, flags=re.IGNORECASE).strip().strip("_")
                 # H-04: reject empty, too-short, or common-word false positives
                 _fmt_lower = fmt_name.lower()

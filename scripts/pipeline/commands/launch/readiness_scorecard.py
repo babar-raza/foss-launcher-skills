@@ -87,6 +87,49 @@ def _count_locale_coverage(site: str, family: str, platform: str) -> dict:
     }
 
 
+def _compute_parity(family: str, platform: str) -> dict[str, dict]:
+    """Compare page counts vs other launched products of the same platform (SH-04).
+
+    Returns per-subdomain dict with keys: target_count, peer_median, gap_pct, peers.
+    """
+    import statistics
+
+    results = {}
+    for site in _SUBDOMAINS:
+        target_count = _count_en_pages(site, family, platform)
+        # Find all other families that have this platform on this subdomain
+        site_root = _CONTENT / site
+        peer_counts = []
+        if site == "blog.aspose.org":
+            search_root = site_root
+        else:
+            search_root = site_root / "en"
+        if search_root.is_dir():
+            for fam_dir in sorted(search_root.iterdir()):
+                if not fam_dir.is_dir() or fam_dir.name.startswith("."):
+                    continue
+                if fam_dir.name == family:
+                    continue
+                # Check if this family has the target platform
+                if site == "blog.aspose.org":
+                    plat_dir = fam_dir / platform
+                else:
+                    plat_dir = fam_dir / platform
+                if plat_dir.is_dir():
+                    count = _count_en_pages(site, fam_dir.name, platform)
+                    if count > 0:
+                        peer_counts.append(count)
+        peer_median = statistics.median(peer_counts) if peer_counts else 0
+        gap_pct = ((target_count - peer_median) / peer_median * 100) if peer_median > 0 else 0
+        results[site] = {
+            "target_count": target_count,
+            "peer_median": peer_median,
+            "gap_pct": gap_pct,
+            "peer_count": len(peer_counts),
+        }
+    return results
+
+
 def _count_en_pages(site: str, family: str, platform: str) -> int:
     """Count English source pages for a subdomain."""
     site_root = _CONTENT / site
@@ -318,6 +361,25 @@ def main():
             print(f"  {site:25s} {cov['locales_present']:2d}/{cov['total_locales']} locales "
                   f"({cov['coverage']:5.1%})  {cov['total_files']:4d} files  "
                   f"[{en_pages} EN pages]")
+        print()
+
+        # Content parity (SH-04 — informational, not a launch blocker)
+        parity = _compute_parity(family, platform)
+        has_parity_warning = False
+        print("Content volume parity (informational — not a launch blocker):")
+        for site in _SUBDOMAINS:
+            p = parity[site]
+            if p["peer_count"] == 0:
+                print(f"  {site:25s} {p['target_count']:3d} pages  (no peers for comparison)")
+                continue
+            marker = ""
+            if p["gap_pct"] < -40:
+                marker = "  ⚠ WARNING: >40% below peer median"
+                has_parity_warning = True
+            print(f"  {site:25s} {p['target_count']:3d} pages  "
+                  f"(peer median: {p['peer_median']:.0f}, gap: {p['gap_pct']:+.0f}%){marker}")
+        if not has_parity_warning:
+            print("  All subdomains within parity range.")
         print()
 
         # Human review gates

@@ -214,10 +214,10 @@ draft: false
 
 
 # ---------------------------------------------------------------------------
-# C3 — Related Resources section
+# C3 — Enterprise product link
 # ---------------------------------------------------------------------------
 
-def test_c3_fail_missing_related_resources(tmp_path):
+def test_c3_fail_missing_enterprise_link(tmp_path):
     content = """\
 ---
 title: Test
@@ -227,11 +227,33 @@ categories:
 tags: []
 draft: false
 ---
-No related resources section here.
+No enterprise link here.
 """
     post = _make_post(tmp_path, "pdf", "net", "my-post", content)
     findings = _check_post(post, "pdf", "net", _FAMILY_ROUTES, _PLATFORMS)
     assert any(f.check == "C3" and f.level == "FAIL" for f in findings)
+
+
+def test_c3_pass_enterprise_link_in_prose(tmp_path):
+    """C3 passes when products.aspose.com link is in prose, not Related Resources."""
+    content = """\
+---
+title: Test
+author: Aspose
+categories:
+- Aspose.PDF
+tags: []
+draft: false
+---
+For enterprise features, see [Aspose.PDF](https://products.aspose.com/pdf/net/).
+
+## Getting Started
+
+- [Docs](https://docs.aspose.org/pdf/net/getting-started/)
+"""
+    post = _make_post(tmp_path, "pdf", "net", "my-post", content)
+    findings = _check_post(post, "pdf", "net", _FAMILY_ROUTES, _PLATFORMS)
+    assert not any(f.check == "C3" for f in findings)
 
 
 def test_c3_pass_has_related_resources(tmp_path):

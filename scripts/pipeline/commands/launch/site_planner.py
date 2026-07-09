@@ -1234,7 +1234,14 @@ def plan_blog(
         and not c["in_limitations"]
         and c["category"] != _kf_cat
     ]
-    if eligible and total_claims >= 500:
+    # SH-01: sliding-scale threshold for 3rd blog post
+    # Large APIs (500+ claims): always eligible
+    # Medium APIs (200-499 claims): eligible if snippets and topic clusters exist
+    deep_dive_eligible = (
+        total_claims >= 500
+        or (total_claims >= 200 and snippet_count >= 5 and len(eligible) >= 1)
+    )
+    if eligible and deep_dive_eligible:
         top = eligible[0]
         # Mirror the features slug prefix-deduplication: ensure family identity is present.
         if top['slug'].startswith(f"{family}-"):
@@ -1675,7 +1682,15 @@ def plan_kb(
         }
     )
 
-    # FAQ — always
+    # FAQ — always; min_faq_items scales with knowledge volume (SH-06)
+    # More claims → more FAQ items (200-499: 5, 500-999: 6, 1000+: 8)
+    _min_faq = 5
+    if total_claims >= 1000:
+        _min_faq = 8
+    elif total_claims >= 500:
+        _min_faq = 7
+    elif total_claims >= 300:
+        _min_faq = 6
     pages.append(
         {
             "slug": "faq",
@@ -1685,6 +1700,7 @@ def plan_kb(
             "mandatory": True,
             "page_class": "fixed",
             "note": "Frequently asked questions",
+            "min_faq_items": _min_faq,
         }
     )
 
@@ -1751,7 +1767,9 @@ def plan_kb(
 
     # Troubleshooting — conditional (derived only when threshold met)
     trouble_derived = False
-    if howto_count >= 6 and platform in TROUBLE_PLATFORMS:
+    # SH-02: lowered from 6 to 3 — any product with 3+ how-tos has enough
+    # surface area for a troubleshooting page
+    if howto_count >= 3 and platform in TROUBLE_PLATFORMS:
         trouble_derived = True
         pages.append(
             {
@@ -1766,7 +1784,9 @@ def plan_kb(
         )
 
     # Use cases — conditional
-    if total_claims >= 500 and snippet_count >= 8:
+    # SH-03: lowered from 500/8 — small-API products with 200+ claims
+    # and 3+ snippets have enough material for a use-cases overview
+    if total_claims >= 200 and snippet_count >= 3:
         pages.append(
             {
                 "slug": "use-cases",
