@@ -128,6 +128,9 @@ Before generating any content, you MUST:
    `## Open Source & Licensing`
    - 2–3 sentences: MIT license, link to repo or PyPI, commercial use allowed
    - Do not include pricing or comparison with paid products
+   - **Do NOT add enterprise product links here.** Step 7b (backlink injection) adds the
+     enterprise link automatically in `## Related Resources`. Manually adding enterprise links
+     in the body causes duplicates when the backfill system runs.
 
    `---`
 

@@ -379,6 +379,74 @@ actioned by S-90's fix-skill invocations). If S-90 verdict is BLOCKED, the launc
 
 ---
 
+### STAGE 9 — Deployment Infrastructure Verification
+
+Before committing content, verify and update deployment infrastructure so that the
+new family's pages are built and deployed correctly across all 5 subdomains.
+
+**Step 1 — Hugo segments (reference.aspose.org only):**
+Check `configs/reference.aspose.org.toml` for `[[segments.{family}.includes]]`.
+If missing, add after the last existing segment block:
+```toml
+  [[segments.{family}.includes]]
+    path = "{/{family},/{family}/**}"
+```
+Without this, `hugo --renderSegments {family}` produces no output and reference
+pages will not deploy.
+
+**Step 2 — GitHub Actions matrix (reference.aspose.org only):**
+Check `aspose.org-workflows/.github/workflows/reference.aspose.org.yml` line ~18
+for the `segment:` matrix array. If `{family}` is missing, add it alphabetically.
+Without this, the deploy workflow never runs for this family's reference pages.
+
+**Step 3 — Change detection config:**
+Check `aspose.org-workflows/scripts/config.py` `SITE_FAMILIES` dict. Add `{family}`
+to all subdomain lists where content was generated (typically: docs, kb, reference,
+blog). This controls which site workflows are triggered by the change scanner.
+
+**Step 4 — Blog family routes:**
+Check `data/blog_family_routes.yaml` for `{family}` entry. If missing, add
+`taxonomy_slug` and `taxonomy_term` (should already exist if `/new-blog-index` was run).
+
+**Step 5 — Family order and icons:**
+Check `data/families_order.json` for family position and `data/family_icons.yaml`
+for icon assignment. Both should exist if earlier stages ran correctly.
+
+**Note**: Steps 1-3 are CRITICAL for deployment. Steps 4-5 are verification only
+(should already be configured by earlier stages). Other sites (products, docs, kb,
+blog) use whole-site Hugo builds and auto-include new families without config changes.
+
+After completing these checks, commit the aspose.org changes (including any config
+updates) via `/commit`, push, then commit and push the aspose.org-workflows changes
+separately.
+
+---
+
+### STAGE 10 — Content Parity Check (SH-05, informational)
+
+Before final commit, compare the launching product's content volume against peers:
+
+1. **Count pages per subdomain** for the launching product (use `_count_en_pages` logic):
+   - Blog posts, docs pages, KB articles, reference pages, products pages
+
+2. **Identify 3 closest peers** by API surface size:
+   - Read `api_surface.json` for the launching product → count entries
+   - Find 3 other LIVE products on the same platform with closest entry counts
+   - Count their pages per subdomain
+
+3. **Compute gap**: For each subdomain, compare target count vs peer median:
+   - Gap > -40%: OK
+   - Gap -40% to -50%: WARN — document the gap in evidence
+   - Gap < -50%: ALERT — list specific missing page types (troubleshooting, use-cases, blog posts)
+
+4. **Record in evidence**: Write parity results to
+   `reports/launches/{plan-name}/parity-check.yaml`
+
+5. **Operator decision**: This stage is informational. Operator may override and proceed
+   if the gap is justified (e.g., small API surface naturally means fewer pages).
+
+---
+
 ## Resume Behavior
 
 On re-run, read checkpoint state:

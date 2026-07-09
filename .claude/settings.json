@@ -59,7 +59,8 @@
       "Bash(.venv/Scripts/python scripts/pipeline/commands/governance/override_manager.py --help)",
       "Bash(.venv/Scripts/python -m translator preflight --verbose)",
       "Bash(PYTHONPATH=\"scripts/pipeline;scripts/pipeline/lib\" .venv/Scripts/python scripts/pipeline/commands/ops/semantic_refresh_guard.py pdf java --source-delta reports/refresh_review/pdf/java/semantic_source_delta.json --page-decisions reports/refresh_review/pdf/java/page_decisions.json --out /tmp/guard_pdf_java_current.json)",
-      "Bash(hugo --config configs/reference.aspose.org.toml --renderToMemory --logLevel warn)"
+      "Bash(hugo --config configs/reference.aspose.org.toml --renderToMemory --logLevel warn)",
+      "WebFetch(domain:products.aspose.org)"
     ],
     "additionalDirectories": [
       "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing",
