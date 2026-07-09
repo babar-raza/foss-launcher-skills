@@ -1352,3 +1352,71 @@ family_name: Aspose.Test FOSS
         assert "<!--" not in written, (
             f"HTML comment found in written file (should use frontmatter only). Got:\n{written[:500]}"
         )
+
+
+# ── YAML style preservation tests ────────────────────────────────────────────
+
+class TestRewriteYamlLiteralBlockScalar:
+    """Verify _rewrite_yaml_file preserves | block scalar style for multi-line strings."""
+
+    def test_multiline_content_uses_literal_block_scalar(self):
+        """Multi-line strings must be serialized with | style, not single-quoted flow."""
+        from commands.ops.backlink_backfill import _rewrite_yaml_file
+        raw = (
+            "---\n"
+            "overview:\n"
+            "  content: |\n"
+            "    First paragraph.\n"
+            "\n"
+            "    ```python\n"
+            "    import foo\n"
+            "    ```\n"
+            "---\n"
+        )
+        import yaml
+        data = yaml.safe_load(raw.split("---")[1])
+        # Simulate backfill modifying content
+        data["overview"]["content"] += "\nFor enterprise, see [link](https://example.com).\n"
+        result = _rewrite_yaml_file(raw, data, raw.split("---")[1])
+        assert result is not None
+        # Must NOT contain single-quoted flow scalar wrapping entire content
+        assert "content: '" not in result, (
+            f"Content wrapped in single quotes (flow scalar). Got:\n{result[:400]}"
+        )
+        # Must NOT contain double-quoted \n escapes
+        assert 'content: "' not in result, (
+            f"Content wrapped in double quotes (escaped newlines). Got:\n{result[:400]}"
+        )
+        # Must contain | block scalar indicator
+        assert "content: |" in result, (
+            f"Expected | block scalar for content. Got:\n{result[:400]}"
+        )
+
+    def test_single_line_strings_not_affected(self):
+        """Single-line strings should remain plain (no | style needed)."""
+        from commands.ops.backlink_backfill import _rewrite_yaml_file
+        raw = "---\ntitle: Simple Title\n---\n"
+        import yaml
+        data = yaml.safe_load(raw.split("---")[1])
+        data["enterprise_backlink_injected"] = "https://example.com/"
+        result = _rewrite_yaml_file(raw, data, raw.split("---")[1])
+        assert result is not None
+        assert "title: Simple Title" in result
+
+    def test_round_trip_preserves_content_semantics(self):
+        """Content must be semantically identical after round-trip through _LiteralDumper."""
+        from commands.ops.backlink_backfill import _rewrite_yaml_file
+        original_content = (
+            "First paragraph with code.\n\n"
+            "```python\nimport aspose\nbc = aspose.generate()\n```\n\n"
+            "Second paragraph.\n"
+        )
+        raw = f"---\noverview:\n  content: |\n    placeholder\n---\n"
+        import yaml
+        data = yaml.safe_load(raw.split("---")[1])
+        data["overview"]["content"] = original_content
+        result = _rewrite_yaml_file(raw, data, raw.split("---")[1])
+        assert result is not None
+        # Re-parse and verify content is identical
+        new_data = yaml.safe_load(result.split("---")[1])
+        assert new_data["overview"]["content"] == original_content

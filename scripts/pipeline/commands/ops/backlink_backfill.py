@@ -54,6 +54,30 @@ from lib.backlink_targets import (
 SCRIPT_VERSION = "1.0.0"
 
 
+# ---------------------------------------------------------------------------
+# YAML literal block scalar dumper — forces | style for multi-line strings.
+# Plain yaml.dump converts | blocks to single-quoted flow scalars or
+# double-quoted \n-escaped strings, breaking Hugo rendering of code blocks.
+# Matches the approach in normalize_yaml_style.py.
+# ---------------------------------------------------------------------------
+
+import yaml as _yaml_module
+
+
+class _LiteralDumper(_yaml_module.Dumper):
+    """YAML dumper that serializes all multi-line strings as | literal block scalars."""
+    pass
+
+
+def _literal_str_representer(dumper, data):
+    if "\n" in data:
+        return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="|")
+    return dumper.represent_scalar("tag:yaml.org,2002:str", data)
+
+
+_LiteralDumper.add_representer(str, _literal_str_representer)
+
+
 def _anchor_suffix_for(target_url: str, target_type: str) -> str:
     """Return the enterprise suffix string for the given target URL and type.
 
@@ -542,13 +566,20 @@ def _apply_overview_template(
 
 
 def _rewrite_yaml_file(raw: str, data: dict, fm_text: str) -> str | None:
-    """Rewrite the raw file preserving frontmatter structure."""
+    """Rewrite the raw file preserving frontmatter structure.
+
+    Uses _LiteralDumper to force | block scalar style for all multi-line
+    strings.  Plain yaml.dump destroys block scalar styles — converting them
+    to single-quoted flow scalars or double-quoted \\n-escaped strings — which
+    breaks Hugo rendering of code blocks in product page content fields.
+    """
     try:
         import yaml as _yaml
 
-        # Dump modified data back to YAML
+        # Dump modified data back to YAML with literal block scalar style
         new_fm = _yaml.dump(
             data,
+            Dumper=_LiteralDumper,
             allow_unicode=True,
             default_flow_style=False,
             sort_keys=False,

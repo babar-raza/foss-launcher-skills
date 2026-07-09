@@ -330,6 +330,29 @@ def check_file(filepath: Path) -> list[Finding]:
     # --- Check 5: Code block blank lines ---
     findings.extend(_check_code_block_blank_lines(fm, is_english))
 
+    # --- Check 5b: YAML scalar style — multi-line content must use | block scalars ---
+    # Detect single-quoted flow scalars or double-quoted \n-escaped strings wrapping
+    # content fields.  These are produced by yaml.dump round-trips that destroy the
+    # original | block scalar style.
+    # Scoped to content/overview keys only — FAQ answer fields legitimately use
+    # single quotes for strings containing apostrophes (e.g., Microsoft's).
+    _style_sev = "ERROR" if is_english else "WARN"
+    _CONTENT_KEY_RE = r"(?:content|content_left|content_right|plugin_description)"
+    # Double-quoted with \n escape (content: "...\n...")
+    if re.search(_CONTENT_KEY_RE + r':\s*"[^"]*\\n[^"]*"', fm_raw):
+        findings.append(Finding(
+            _style_sev, "YAML_FLOW_SCALAR",
+            "multi-line content field uses double-quoted \\n-escaped format "
+            "instead of | block scalar — likely caused by yaml.dump round-trip",
+        ))
+    # Single-quoted multi-line flow scalar (content: '...\n  continuation')
+    if re.search(_CONTENT_KEY_RE + r":\s*'[^\n]*\n\s+\S", fm_raw, re.MULTILINE):
+        findings.append(Finding(
+            _style_sev, "YAML_FLOW_SCALAR",
+            "multi-line content field uses single-quoted flow scalar format "
+            "instead of | block scalar — likely caused by yaml.dump round-trip",
+        ))
+
     # --- Check 6: Provenance and evidence (required for English, warn for locale) ---
     sev = "FATAL" if is_english else "WARN"
     if "provenance" not in fm:

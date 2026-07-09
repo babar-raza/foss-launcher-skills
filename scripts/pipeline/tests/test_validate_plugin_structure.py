@@ -346,3 +346,124 @@ class TestMissingEnable:
             and "overview" in f.message
         ]
         assert len(enable_errors) == 1
+
+
+class TestYamlFlowScalarDetection:
+    """Verify YAML_FLOW_SCALAR check detects non-literal-block multi-line content."""
+
+    def test_single_quoted_flow_scalar_detected(self, tmp_path):
+        """Single-quoted wrapping of multi-line content is flagged."""
+        page_dir = tmp_path / "content" / "products.aspose.org" / "en" / "test" / "python"
+        page_dir.mkdir(parents=True, exist_ok=True)
+        filepath = page_dir / "_index.md"
+        # Simulate what yaml.dump produces: single-quoted multi-line flow scalar
+        content = (
+            "---\n"
+            "layout: plugin\n"
+            "family_name: Test FOSS\n"
+            "plugin_description: Test\n"
+            "plugin_platform: Python\n"
+            "head_title: Test\n"
+            "head_description: Test\n"
+            "title: Test\n"
+            "description: Test\n"
+            "github_url: https://github.com/test\n"
+            "submenu:\n  enable: true\n"
+            "overview:\n  enable: true\n  title: T\n"
+            "  content: 'First paragraph.\n"
+            "\n"
+            "    Second paragraph with code.\n"
+            "\n"
+            "    '\n"
+            "content:\n  enable: true\n  block:\n  - title_left: T\n"
+            "single:\n  enable: true\n  block:\n  - title: T\n"
+            "supportandlearning:\n  enable: true\n"
+            "more_formats:\n  enable: true\n"
+            "back_to_top:\n  enable: true\n"
+            "provenance:\n  content_origin: skill-generated\n"
+            "evidence:\n  model_sha: abc\n"
+            "---\n"
+        )
+        filepath.write_text(content, encoding="utf-8")
+        findings = check_file(filepath)
+        flow_errors = [f for f in findings if f.check_id == "YAML_FLOW_SCALAR"]
+        assert len(flow_errors) >= 1, f"Expected YAML_FLOW_SCALAR finding, got: {findings}"
+        assert flow_errors[0].severity == "ERROR"
+
+    def test_double_quoted_escaped_newlines_detected(self, tmp_path):
+        """Double-quoted \\n-escaped content is flagged."""
+        page_dir = tmp_path / "content" / "products.aspose.org" / "en" / "test" / "python"
+        page_dir.mkdir(parents=True, exist_ok=True)
+        filepath = page_dir / "_index.md"
+        content = (
+            "---\n"
+            "layout: plugin\n"
+            "family_name: Test FOSS\n"
+            "plugin_description: Test\n"
+            "plugin_platform: Python\n"
+            "head_title: Test\n"
+            "head_description: Test\n"
+            "title: Test\n"
+            "description: Test\n"
+            "github_url: https://github.com/test\n"
+            "submenu:\n  enable: true\n"
+            "overview:\n  enable: true\n  title: T\n  content: T\n"
+            "content:\n  enable: true\n  block:\n  - title_left: T\n"
+            'single:\n  enable: true\n  block:\n  - title: Code Example\n'
+            '    content: "Generate a barcode.\\n```python\\nimport foo\\n```\\n"\n'
+            "supportandlearning:\n  enable: true\n"
+            "more_formats:\n  enable: true\n"
+            "back_to_top:\n  enable: true\n"
+            "provenance:\n  content_origin: skill-generated\n"
+            "evidence:\n  model_sha: abc\n"
+            "---\n"
+        )
+        filepath.write_text(content, encoding="utf-8")
+        findings = check_file(filepath)
+        flow_errors = [f for f in findings if f.check_id == "YAML_FLOW_SCALAR"]
+        assert len(flow_errors) >= 1, f"Expected YAML_FLOW_SCALAR finding, got: {findings}"
+
+    def test_literal_block_scalar_passes(self, tmp_path):
+        """Correct | block scalar style should NOT trigger the check."""
+        filepath = _write_plugin_page(tmp_path, english=True)
+        findings = check_file(filepath)
+        flow_errors = [f for f in findings if f.check_id == "YAML_FLOW_SCALAR"]
+        assert len(flow_errors) == 0, f"Unexpected YAML_FLOW_SCALAR on clean page: {flow_errors}"
+
+    def test_locale_page_gets_warn_not_error(self, tmp_path):
+        """Locale pages should get WARN severity, not ERROR."""
+        page_dir = tmp_path / "content" / "products.aspose.org" / "fr" / "test" / "python"
+        page_dir.mkdir(parents=True, exist_ok=True)
+        filepath = page_dir / "_index.md"
+        content = (
+            "---\n"
+            "layout: plugin\n"
+            "family_name: Test FOSS\n"
+            "plugin_description: Test\n"
+            "plugin_platform: Python\n"
+            "head_title: Test\n"
+            "head_description: Test\n"
+            "title: Test\n"
+            "description: Test\n"
+            "github_url: https://github.com/test\n"
+            "submenu:\n  enable: true\n"
+            "overview:\n  enable: true\n  title: T\n"
+            "  content: 'Multi-line\n"
+            "\n"
+            "    continuation text.\n"
+            "\n"
+            "    '\n"
+            "content:\n  enable: true\n  block:\n  - title_left: T\n"
+            "single:\n  enable: true\n  block:\n  - title: T\n"
+            "supportandlearning:\n  enable: true\n"
+            "more_formats:\n  enable: true\n"
+            "back_to_top:\n  enable: true\n"
+            "provenance:\n  content_origin: skill-generated\n"
+            "evidence:\n  model_sha: abc\n"
+            "---\n"
+        )
+        filepath.write_text(content, encoding="utf-8")
+        findings = check_file(filepath)
+        flow_errors = [f for f in findings if f.check_id == "YAML_FLOW_SCALAR"]
+        assert len(flow_errors) >= 1
+        assert all(f.severity == "WARN" for f in flow_errors)
