@@ -53,8 +53,12 @@ SITE_PATHS = [
     ("kb.aspose.org", str(_REPO_ROOT / "content/kb.aspose.org/en/{family}/{platform}")),
 ]
 
-# Locale codes to skip (translation files)
-LOCALE_RE = re.compile(r"\.(?:ar|bg|ca|cs|da|de|el|es|et|fa|fi|fr|he|hi|hr|hu|id|it|ja|ko|lt|lv|ms|nl|no|pl|pt|ro|ru|sk|sl|sr|sv|th|tr|uk|vi|zh)\.md$")
+# Locale codes used by folder-based sites and translation filename suffixes.
+LOCALE_CODES = frozenset(
+    "ar bg ca cs da de el es et fa fi fr he hi hr hu id it ja ko lt lv ms "
+    "nl no pl pt ro ru sk sl sr sv th tr uk vi zh".split()
+)
+LOCALE_RE = re.compile(rf"\.(?:{'|'.join(sorted(LOCALE_CODES))})\.md$")
 
 
 def _infer_subdomain(filepath: Path) -> str | None:
@@ -127,9 +131,11 @@ def infer_product(filepath: Path) -> tuple[str, str] | tuple[None, None]:
     for i, p in enumerate(parts):
         if p in ("products.aspose.org", "reference.aspose.org",
                   "docs.aspose.org", "blog.aspose.org", "kb.aspose.org"):
-            # Path structure: .../site/[en/]{family}/{platform}/...
+            # Folder-based localized sites use .../site/{locale}/{family}/{platform}.
+            # English uses the same topology with ``en`` as the locale segment.
+            # Blog paths omit the locale directory and remain family/platform.
             remaining = parts[i + 1:]
-            if remaining and remaining[0] == "en":
+            if remaining and (remaining[0] == "en" or remaining[0] in LOCALE_CODES):
                 remaining = remaining[1:]
             if len(remaining) >= 2:
                 family = remaining[0]

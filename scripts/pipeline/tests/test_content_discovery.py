@@ -57,6 +57,19 @@ class TestInferProduct:
         assert family == "slides"
         assert platform == "cpp"
 
+    @pytest.mark.parametrize("site", [
+        "docs.aspose.org",
+        "kb.aspose.org",
+        "products.aspose.org",
+        "reference.aspose.org",
+    ])
+    @pytest.mark.parametrize("locale", ["ar", "fa", "fr", "tr", "vi", "zh"])
+    def test_folder_locale_path(self, site, locale):
+        p = Path(f"/repo/content/{site}/{locale}/barcode/python/_index.md")
+        family, platform = infer_product(p)
+        assert family == "barcode"
+        assert platform == "python"
+
     def test_unknown_site_returns_none(self):
         p = Path("/some/unrelated/path/file.md")
         family, platform = infer_product(p)
