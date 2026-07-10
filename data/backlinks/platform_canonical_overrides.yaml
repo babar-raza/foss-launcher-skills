@@ -79,3 +79,10 @@ overrides:
     verification_date: "2026-07-03"
     verification_url: "https://products.aspose.com/3d/python-net/"
     notes: "products.aspose.com/3d/python/ HTTP 404. products.aspose.com/3d/python-net/ HTTP 200 (live verified 2026-07-03, TC-BL-010). Enterprise 3D Python product uses python-net slug."
+
+  barcode/python:
+    target_platform: "python-net"
+    http_verified: true
+    verification_date: "2026-07-09"
+    verification_url: "https://products.aspose.com/barcode/python-net/"
+    notes: "products.aspose.com/barcode/python-net/ HTTP 200 (live verified 2026-07-09). Enterprise barcode Python product uses python-net slug."
