@@ -235,7 +235,12 @@ def _kb_noun_from_cluster(category: str, family: str, verb: str = "") -> str:
         "protect":  ["protection"],
     }
     if verb:
-        if base.startswith(f"{verb}-") and len(base) > len(verb) + 1:
+        if base == verb:
+            # Edge case: category name IS the verb (e.g. category="render", verb="render").
+            # Use family name as noun to avoid how-to-render-render duplication.
+            # e.g. "render" + family "3d" → noun "3d" → "how-to-render-3d-dotnet".
+            base = family
+        elif base.startswith(f"{verb}-") and len(base) > len(verb) + 1:
             base = base[len(verb) + 1:]
         elif base.endswith(f"-{verb}") and len(base) > len(verb) + 1:
             base = base[: -(len(verb) + 1)]

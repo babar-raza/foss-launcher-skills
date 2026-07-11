@@ -262,6 +262,12 @@ def check_stale_reference_pages(
     for ref_page in sorted(ref_root.glob("*.md")):
         class_name = ref_page.stem.lower()
         if class_name not in valid_api_names and class_name not in ("_index",):
+            # Skip namespace-disambiguated pages like Axis-ThreeD.md or Property-GLTF.md.
+            # These are valid pages for a class whose base name IS in the api_surface,
+            # generated with a namespace suffix to avoid slug collisions.
+            base_name = class_name.rsplit("-", 1)[0]
+            if base_name in valid_api_names:
+                continue
             # Skip retired (draft: true) pages — intentionally kept on disk
             # but excluded from the live site.
             try:
