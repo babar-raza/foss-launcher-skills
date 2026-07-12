@@ -63,6 +63,15 @@ Do not run any subsequent steps. Exit 0.
 > ```
 
 
+0. **Build content region index** (TC-03: content_region_indexer):
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/ops/content_region_indexer.py {family} {platform}
+   ```
+   - Scans English content pages to index install command blocks, format tables, feature-list pages, and code blocks containing coordinate strings
+   - Writes `reports/content_region_index/{family}/{platform}.json` (gitignored, regenerated each run)
+   - **Must run before any handler step** — Steps 2b, 2c, and 4 depend on the index
+   - If the index fails: emit WARNING and proceed; handlers will fall back to full file scan
+
 1. **Detect change** (S-12: knowledge-diff):
    ```
    /knowledge-diff {family} {platform} {repo-path}
@@ -78,8 +87,50 @@ Do not run any subsequent steps. Exit 0.
    ```
    - Runs full scout → enrich → promote → index pipeline
    - Writes `knowledge_delta.json` with semantic diff
+   - **Also writes `manifest_delta.json`** (install/coordinate changes) and **`format_delta.json`** (format support changes) — see Steps 2b/2c
    - Clears `stale_since` on success
    - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step knowledge_update`
+
+2b. **Dispatch manifest delta** (Category A mechanical fixes):
+   Consumes `knowledge/{family}/{platform}/merged/manifest_delta.json` produced by Step 2.
+
+   **a. Install command updates** (`install_block_updater.py`):
+   Handles `INSTALL_CMD_CHANGED`, `INSTALL_CMD_ADDED`, `VERSION_BUMP` events.
+   ```bash
+   # Preview first
+   .venv/Scripts/python scripts/pipeline/commands/content/install_block_updater.py {family} {platform} --dry-run
+   # Execute if dry-run output is correct
+   .venv/Scripts/python scripts/pipeline/commands/content/install_block_updater.py {family} {platform} --execute
+   ```
+   - Reads authoritative install string from `merged/install.md` (NOT `model.yaml.install_command`)
+   - Replaces the entire fenced install block in installation/quickstart pages
+   - English-only guard active; writes via `safe_content_write`
+   - If `manifest_delta.json` absent or contains no install events: step is a no-op
+
+   **b. Coordinate migration** (`coordinate_migrator.py`) — **TC-04, not yet implemented**:
+   Handles `COORDINATE_CHANGE` events (groupId/artifactId/package name changes).
+   When TC-04 is implemented, add:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/content/coordinate_migrator.py {family} {platform} --execute
+   ```
+   Until then: if `manifest_delta.json` contains `COORDINATE_CHANGE` events, **halt and flag for manual review**.
+
+   - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step manifest_delta_dispatch`
+
+2c. **Dispatch format delta** (Category B structural fixes):
+   Consumes `knowledge/{family}/{platform}/merged/format_delta.json` produced by Step 2.
+   ```bash
+   # Preview first
+   .venv/Scripts/python scripts/pipeline/commands/content/format_table_handler.py {family} {platform} --dry-run
+   # Execute if dry-run output is correct
+   .venv/Scripts/python scripts/pipeline/commands/content/format_table_handler.py {family} {platform} --execute
+   ```
+   - Handles `FORMAT_ADDED`, `FORMAT_REMOVED`, `FORMAT_DIRECTION_CHANGED` events
+   - Also populates STUB and MISSING format-support pages from `merged/formats.json` (no delta required)
+   - Deterministic table operations — no LLM used for table row content
+   - English-only guard active
+   - If `format_delta.json` absent and no STUB/MISSING page exists: step is a no-op
+   - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step format_delta_dispatch`
 
 3. **Delta site planning** (S-82: delta-site-plan):
    ```
@@ -116,6 +167,15 @@ Do not run any subsequent steps. Exit 0.
    - `reference/` → `python scripts/pipeline/commands/content/batch_reference.py {family} {platform} --update`
    - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step delta_dispatch`
 
+5b. **Feature list extension** (Category B+C) — **TC-07, not yet implemented**:
+   For new APIs with `class_importance >= 0.7` in `coverage_matrix.json`, extend feature-list-role pages with new capability bullets.
+   When TC-07 (`feature_list_extender.py`) is implemented, add:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/content/feature_list_extender.py {family} {platform} --execute
+   ```
+   Until then: if `knowledge_delta.json` contains `new_apis` with high-importance classes,
+   flag them in the post-refresh coverage report for manual feature-list extension.
+
 6. **Retire obsolete pages** (S-83: page-retire):
    ```
    /page-retire --from-plan reports/plans/{family}/{platform}/site_plan.yaml
@@ -143,6 +203,16 @@ Do not run any subsequent steps. Exit 0.
      ```bash
      .venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --reconcile
      ```
+
+7.5. **Post-body-refresh evidence re-attachment** (TC-09: post_body_refresh_evidence):
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/ops/post_body_refresh_evidence.py {family} {platform}
+   ```
+   - Reads `reports/body_refresh_writes/body-refresh-{family}-{platform}.txt` (written by body_refresh.py during Steps 4–5b)
+   - Calls `attach_evidence.py` on each file that was body-refreshed to update `model_sha` and claim IDs
+   - Must run **after all content write steps** (Steps 4, 5, 5b, 2b, 2c) and **before verification** (Step 12)
+   - If the writes log is absent (no body refresh occurred): step is a no-op
+   - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step post_body_evidence`
 
 8. **Family page sync** (S-48: family-sync):
    ```
@@ -261,7 +331,7 @@ Do not run any subsequent steps. Exit 0.
     Include in the commit message:
     - Knowledge delta summary (new/removed claims and APIs)
     - Step list from `progress.json`
-    - `Skills invoked: [refresh-product, S-12, S-14, S-82, S-20, S-83, S-62, S-48]`
+    - `Skills invoked: [refresh-product, S-12, S-14, S-82, S-20, S-83, S-62, S-48, install_block_updater, format_table_handler, content_region_indexer, post_body_refresh_evidence]`
 
 > **Skill context close** — run after the last step:
 > ```bash
