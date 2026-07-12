@@ -84,7 +84,7 @@ class Knowledge:
                 methods={}, properties={}, enum_members={},
                 return_types={}, property_types={}, method_params={},
                 parents={}, valid_imports=set(),
-                claim_ids=set(), api_to_claim={},
+                claim_ids=set(), api_to_claim={}, claims_by_id={},
                 surface_tier=3, install_cmd="",
                 snippet_index=[], _snippet_classes=set(), _snippet_methods=set(),
                 class_importance={}, class_kind={},
@@ -229,8 +229,9 @@ class Knowledge:
         # Claims index (for evidence validation and api_to_claim mapping)
         claims_path = merged / "claims.json"
         self.claim_ids = set()
-        self.api_to_claim = {}  # "ClassName.method" (CLM-) or "ClassName" (ERC-) → claim_id
-        self.claims_hash = ""   # sha256 of claims.json bytes (GAP-14 idempotency tracking)
+        self.api_to_claim = {}    # "ClassName.method" (CLM-) or "ClassName" (ERC-) → claim_id
+        self.claims_by_id = {}    # claim_id → full claim dict (for policy context lookup)
+        self.claims_hash = ""     # sha256 of claims.json bytes (GAP-14 idempotency tracking)
         if claims_path.exists():
             claims_bytes = claims_path.read_bytes()
             self.claims_hash = hashlib.sha256(claims_bytes).hexdigest()
@@ -245,6 +246,7 @@ class Knowledge:
                 if not cid:
                     continue
                 self.claim_ids.add(cid)
+                self.claims_by_id[cid] = c   # full dict for policy context lookup
                 text = c.get("text", "")
                 if cid.startswith("ERC-"):
                     # ERC- enriched claims: extract class names in two formats:

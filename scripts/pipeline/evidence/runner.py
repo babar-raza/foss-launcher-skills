@@ -321,15 +321,17 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
         policy = ClaimPolicy()
         subdomain = _infer_subdomain(Path(filepath))
         claim_records = []
+        _claims_by_id = getattr(knowledge, "claims_by_id", {})
         for cid in proposed_claims:
+            _claim_meta = _claims_by_id.get(cid, {})
             ctx = PolicyContext(
                 filepath=Path(filepath),
                 subdomain=subdomain or "",
                 page_role=fm.get("page_role"),
                 claim_id=cid,
-                claim_kind=None,
-                claim_page_role=None,
-                claim_source=None,
+                claim_kind=_claim_meta.get("kind"),
+                claim_page_role=_claim_meta.get("page_role"),
+                claim_source=_claim_meta.get("claim_source"),
                 token_match_context=None,
             )
             decision = policy.evaluate(ctx)
