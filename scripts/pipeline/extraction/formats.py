@@ -483,6 +483,11 @@ def detect_formats(
         "chars", "emu", "color", "point", "rect", "size",
         "underlying", "hex", "method", "class", "module",
         "ipackage",
+        # H-04e: 3d/net false positives identified during TC-R05 cross-product audit
+        # (2026-07-12): "basic" comes from internal class BasicLoadOptions (not a
+        # user-facing format); "entity" comes from EntityRenderer (rendering framework
+        # abstract class in Render/ namespace, not a file-format handler).
+        "basic", "entity",
     })
     _allowed_fmt_overrides = _FAMILY_FORMAT_ALLOWLISTS.get(family, frozenset())
 
