@@ -3901,7 +3901,24 @@ scripts:
     change_impact: "Queues locale equivalents for re-translation after body updates; routes to S-75 (small) or S-56 (large)"
     notes: "S-107 locale-refresh-handoff; threshold: 3 sentences; output: locale_handoff.yaml"
 
-  # ── S-84 Delta Handlers (TC-03, TC-05, TC-06, TC-09) ──────────────────────
+  # ── S-84 Delta Handlers (TC-03, TC-04, TC-05, TC-06, TC-09) ────────────────
+
+  - path: scripts/pipeline/commands/content/coordinate_migrator.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_coordinate_migrator.py
+    deprecated_since: null
+    change_impact: "TC-04: replaces package coordinates (groupId, artifactId, package_name) inside fenced code blocks; prose mentions flagged as HUMAN_REVIEW_REQUIRED; cells/java pilot"
+    notes: "S-84 Step 2b (COORDINATE_CHANGE events); code-blocks-only replacement; no LLM; supports --dry-run and --execute"
 
   - path: scripts/pipeline/commands/content/install_block_updater.py
     kind: entrypoint
