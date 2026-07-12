@@ -287,8 +287,13 @@ _pc_step_start "provenance protection"
 # committed (HEAD) provenance block.  These pages contain manually curated content
 # that should not be overwritten by automated processes.
 # Currently warning-only; will be promoted to blocking after validation period.
-[ -n "$_HOOK_PYTHON" ] && "$_HOOK_PYTHON" scripts/ci/checks/check_protected_overwrites.py --check-staged
-_prot_status=$?
+# Performance: uses git grep batch scan for large commits (O(1) subprocess).
+_prot_status=0
+if [ -n "$_HOOK_PYTHON" ]; then
+    echo "[Step 4b] Scanning HEAD for provenance-protected pages..."
+    "$_HOOK_PYTHON" scripts/ci/checks/check_protected_overwrites.py --check-staged
+    _prot_status=$?
+fi
 if [ $_prot_status -eq 2 ]; then
     echo ""
     echo "WARNING: Protected page(s) modified (auto_updatable: false). See above."
