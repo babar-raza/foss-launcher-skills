@@ -19,15 +19,32 @@ else
     _HOOK_PYTHON=""
 fi
 
-# Add the Codex co-author trailer only for agent-authored messages. Human
-# commits normally have no "Skills invoked:" line and must not be modified.
+# Co-author validation: agent commits must have exactly one Co-authored-by trailer.
+# Each agent's skill file (S-76) is responsible for writing the correct trailer for
+# its own identity (Claude, Codex, Kilo Code).  The hook validates but does NOT
+# inject — injection caused double attribution when multiple agents shared the repo.
+# Human commits (no "Skills invoked:" line) are exempt from this check.
 if [ -n "$1" ] && [ -f "$1" ]; then
-    msg=$(cat "$1")
-    if echo "$msg" | grep -qiE 'skills?\s*invoked'; then
-        _codex_trailer="Co-authored-by: Codex <codex@openai.com>"
-        if ! grep -qiF "$_codex_trailer" "$1"; then
-            printf '\n%s\n' "$_codex_trailer" >> "$1"
-            msg=$(cat "$1")
+    _msg=$(cat "$1")
+    if echo "$_msg" | grep -qiE 'skills?\s*invoked'; then
+        _coauthor_count=$(grep -ciE '^[[:space:]]*co-authored?-by:' "$1" 2>/dev/null) || _coauthor_count=0
+        if [ "$_coauthor_count" -eq 0 ]; then
+            echo ""
+            echo "BLOCKED: Agent commit is missing a Co-authored-by trailer."
+            echo "REASON:  S-76 skill requires exactly one Co-authored-by line matching agent identity."
+            echo "FIX:     Add 'Co-authored-by: <agent-name> <email>' to the commit message."
+            echo "DOC:     docs/QUICKSTART.md (Agent commit rule)"
+            echo ""
+            exit 1
+        fi
+        if [ "$_coauthor_count" -gt 1 ]; then
+            echo ""
+            echo "BLOCKED: Multiple Co-authored-by trailers found ($_coauthor_count)."
+            echo "REASON:  Only one co-author is permitted per commit — one agent, one trailer."
+            echo "FIX:     Remove extra Co-authored-by lines from the commit message."
+            echo "DOC:     docs/QUICKSTART.md (Agent commit rule)"
+            echo ""
+            exit 1
         fi
     fi
 fi

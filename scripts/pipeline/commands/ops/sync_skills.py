@@ -111,6 +111,11 @@ def _normalize_for_comparison(text: str) -> str:
     text = re.sub(r"<!--\s+CONTRACT:.*?-->", "", text, flags=re.DOTALL)
     # Remove $ARGUMENTS placeholder differences
     text = text.replace("$ARGUMENTS", "").strip()
+    # Strip Co-authored-by trailers — intentionally agent-specific.
+    # Each agent mirror (claude, agents, kilocode) carries its own identity.
+    # Enforcing parity here would prevent per-agent attribution fixes.
+    # Co-author correctness is validated by the commit-msg hook instead.
+    text = re.sub(r"(?im)^co-authored?-by:.*$\n?", "", text)
     # Normalize whitespace
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()

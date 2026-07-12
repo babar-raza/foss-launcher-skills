@@ -432,7 +432,7 @@ type(scope): imperative title ≤ 72 chars
 [Skills invoked: [S-xx, ...]]        ← content commits only
 [Addresses: [item-IDs, ...]]         ← when session addresses backlog items
 
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+Co-authored-by: Codex <codex@openai.com>
 ```
 
 Pass the message via a heredoc to preserve formatting:
@@ -445,7 +445,7 @@ feat(skills): add S-76 commit skill
 - Register S-76 in AGENTS.md §12 and skills/README.md
 - Verification: sync_skills.py --check → 0 drift
 
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+Co-authored-by: Codex <codex@openai.com>
 EOF
 )"
 ```

@@ -39,19 +39,33 @@ _DEFAULT_SKIP_SLUGS: dict = {
 }
 SKIP_SLUGS = _DEFAULT_SKIP_SLUGS
 
+# Per-provider co-author identity substituted into synced skill content.
+# The canonical skill (skills/) uses Claude's identity; each agent mirror
+# must carry the identity of the agent that will actually run the skill.
+# sync_skills.py --check excludes Co-authored-by lines from parity so these
+# intentional differences do not trigger drift alerts.
+_DEFAULT_PROVIDER_CO_AUTHORS: dict[str, str] = {
+    "claude": "Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>",
+    "agents": "Co-authored-by: Codex <codex@openai.com>",
+    "kilocode": "Co-authored-by: Kilo Code <kilocode@kilocode.ai>",
+}
+PROVIDER_CO_AUTHORS: dict[str, str] = dict(_DEFAULT_PROVIDER_CO_AUTHORS)
+
 
 def configure(
     *,
     canonical_dir: "Path | str | None" = None,
     providers: "dict | None" = None,
     skip_slugs: "dict | None" = None,
+    provider_co_authors: "dict | None" = None,
 ) -> None:
     """Override module-level path constants for testing."""
-    global CANONICAL_DIR, PROVIDERS, SKIP_SLUGS
-    if canonical_dir is None and providers is None and skip_slugs is None:
+    global CANONICAL_DIR, PROVIDERS, SKIP_SLUGS, PROVIDER_CO_AUTHORS
+    if canonical_dir is None and providers is None and skip_slugs is None and provider_co_authors is None:
         CANONICAL_DIR = _DEFAULT_CANONICAL_DIR
         PROVIDERS = _DEFAULT_PROVIDERS
         SKIP_SLUGS = _DEFAULT_SKIP_SLUGS
+        PROVIDER_CO_AUTHORS = dict(_DEFAULT_PROVIDER_CO_AUTHORS)
         return
     if canonical_dir is not None:
         CANONICAL_DIR = Path(canonical_dir)
@@ -59,6 +73,8 @@ def configure(
         PROVIDERS = providers
     if skip_slugs is not None:
         SKIP_SLUGS = skip_slugs
+    if provider_co_authors is not None:
+        PROVIDER_CO_AUTHORS = provider_co_authors
 
 CROSS_SKILL_NOTE = (
     "> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.\n\n"
@@ -162,6 +178,15 @@ def sync_provider(provider: str, dry_run: bool = False,
         canonical_raw = canonical_path.read_text(encoding="utf-8", errors="replace")
         # Strip canonical frontmatter — mirrors have their own provider-specific frontmatter
         _, canonical_content = _extract_frontmatter(canonical_raw)
+
+        # Substitute provider-specific co-author identity.
+        # The canonical uses Claude's identity; each agent mirror carries its own.
+        if provider in PROVIDER_CO_AUTHORS:
+            canonical_content = re.sub(
+                r"(?im)^co-authored?-by:.*$",
+                PROVIDER_CO_AUTHORS[provider],
+                canonical_content,
+            )
 
         if provider == "claude":
             provider_path = base / f"{slug}.md"

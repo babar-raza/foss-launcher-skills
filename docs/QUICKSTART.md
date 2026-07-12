@@ -50,8 +50,16 @@ All content is **agent-generated** and grounded in **knowledge models** built fr
 
 **Skills** are procedures in `.claude/commands/` that AI agents follow. You invoke them with `/skill-name {args}` inside a Claude session — they are not CLI commands.
 
-**Codex commit rule**: When Codex creates any commit in this repository, the
-commit message must include `Co-authored-by: Codex <codex@openai.com>`.
+**Agent commit rule**: Every agent commit must include exactly one `Co-authored-by`
+trailer matching the agent's own identity.  The commit-msg hook enforces this —
+missing or multiple trailers are blocked.  Each agent's S-76 skill mirror carries
+the correct trailer for that agent:
+
+| Agent | Co-authored-by trailer |
+|---|---|
+| Claude Code | `Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>` |
+| Codex CLI | `Co-authored-by: Codex <codex@openai.com>` |
+| Kilo Code | `Co-authored-by: Kilo Code <kilocode@kilocode.ai>` |
 
 ---
 
