@@ -3901,6 +3901,74 @@ scripts:
     change_impact: "Queues locale equivalents for re-translation after body updates; routes to S-75 (small) or S-56 (large)"
     notes: "S-107 locale-refresh-handoff; threshold: 3 sentences; output: locale_handoff.yaml"
 
+  # ── S-84 Delta Handlers (TC-03, TC-05, TC-06, TC-09) ──────────────────────
+
+  - path: scripts/pipeline/commands/content/install_block_updater.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_install_block_updater.py
+    deprecated_since: null
+    change_impact: "TC-05: replaces install command blocks in English content pages from manifest_delta.json; handles INSTALL_CMD_CHANGED, INSTALL_CMD_ADDED, VERSION_BUMP"
+    notes: "S-84 Step 2b; reads authoritative install string from merged/install.md (not model.yaml); supports --dry-run and --execute"
+
+  - path: scripts/pipeline/commands/content/format_table_handler.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_format_table_handler.py
+    deprecated_since: null
+    change_impact: "TC-06: populates or updates format-support tables from format_delta.json and formats.json; handles STUB, MISSING, POPULATED states"
+    notes: "S-84 Step 2c; deterministic table ops — no LLM; supports --dry-run and --execute"
+
+  - path: scripts/pipeline/commands/ops/content_region_indexer.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    deprecated_since: null
+    change_impact: "TC-03: indexes English content pages by region type (install blocks, format tables, feature-list pages, coordinate occurrences); must run before S-84 handler steps"
+    notes: "S-84 Step 0; output: reports/content_region_index/{family}/{platform}.json (gitignored, regenerated each run)"
+
+  - path: scripts/pipeline/commands/ops/post_body_refresh_evidence.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content
+    backing:
+      kind: internal
+      ref: null
+    requires_test: false
+    test_targets: []
+    deprecated_since: null
+    change_impact: "TC-09: re-attaches evidence frontmatter after body_refresh writes; reads body_refresh_writes log, calls attach_evidence on each updated file"
+    notes: "S-84 Step 7.5; prevents stale model_sha after body refresh; must run after all content write steps and before verification"
+
   - path: scripts/pipeline/commands/ops/localization_incident.py
     kind: entrypoint
     lifecycle: active
