@@ -505,6 +505,8 @@ def write_reconciliation(
             except Exception:
                 pass
 
+    pages_add_skipped = max(0, planned["pages_to_add"] - pages_added)
+
     recon = {
         "created_at": datetime.now(timezone.utc).isoformat(),
         "delta_source": f"reports/plans/{family}/{platform}/knowledge_delta.json",
@@ -517,6 +519,9 @@ def write_reconciliation(
         },
         "skipped": {
             "pages_update_skipped": planned["pages_to_update"] - files_with_body_diff - files_metadata_only,
+            # TC-14: pages_add_skipped > 0 is a FAIL condition (see assert_no_skipped_pages).
+            # Only valid exemption: explicit DEFERRED_LOW_IMPORTANCE with operator acknowledgment.
+            "pages_add_skipped": pages_add_skipped,
         },
         "body_changes": {
             "files_with_body_diff": files_with_body_diff,
@@ -530,6 +535,131 @@ def write_reconciliation(
     )
     print(f"Reconciliation artifact written: {recon_path}")
     return recon_path
+
+
+class SkippedPagesError(RuntimeError):
+    """Raised by assert_no_skipped_pages() when pages_add_skipped > 0 (TC-14).
+
+    Indicates that the delta dispatch step planned new content pages (via
+    delta-site-plan / S-82) but did not create them.  Committing in this state
+    leaves reference pages that link to missing docs/KB pages.
+
+    Resolve by creating the missing pages (use S-57 for docs, S-58 for KB how-tos)
+    or by explicitly acknowledging deferral via mark_pages_deferred_low_importance().
+    """
+
+
+def assert_no_skipped_pages(
+    family: str,
+    platform: str,
+    *,
+    allow_explicit_deferral: bool = True,
+) -> None:
+    """Assert that no planned new pages were silently skipped in delta dispatch.
+
+    Reads execution_reconciliation.json and raises SkippedPagesError if
+    skipped.pages_add_skipped > 0 and the skipped pages have no explicit
+    DEFERRED_LOW_IMPORTANCE acknowledgment.
+
+    Args:
+        allow_explicit_deferral: When True (default), pages with explicit
+            DEFERRED_LOW_IMPORTANCE status in the reconciliation are not
+            counted as violations.  Set False in strict mode.
+
+    Raises:
+        SkippedPagesError: If any planned pages were not created.
+        FileNotFoundError: If execution_reconciliation.json does not exist.
+    """
+    recon_path = REPORTS_ROOT / family / platform / "execution_reconciliation.json"
+    if not recon_path.is_file():
+        raise FileNotFoundError(
+            f"execution_reconciliation.json not found for {family}/{platform}. "
+            f"Run write_reconciliation() before assert_no_skipped_pages()."
+        )
+
+    recon = json.loads(recon_path.read_text(encoding="utf-8"))
+    skipped = recon.get("skipped", {})
+    pages_add_skipped = int(skipped.get("pages_add_skipped", 0))
+
+    if pages_add_skipped == 0:
+        print(
+            f"  {family}/{platform}: assert_no_skipped_pages PASS "
+            f"(0 skipped pages; all planned pages created)"
+        )
+        return
+
+    # Check for explicit deferral acknowledgment
+    if allow_explicit_deferral:
+        deferred_count = int(skipped.get("pages_deferred_low_importance", 0))
+        unaccounted = pages_add_skipped - deferred_count
+        if unaccounted <= 0:
+            print(
+                f"  {family}/{platform}: assert_no_skipped_pages PASS "
+                f"({pages_add_skipped} pages explicitly deferred with DEFERRED_LOW_IMPORTANCE)"
+            )
+            return
+
+        skip_reason = skipped.get("skip_reason", "no reason provided")
+        raise SkippedPagesError(
+            f"{family}/{platform}: {unaccounted} planned new pages were not created "
+            f"and have no DEFERRED_LOW_IMPORTANCE acknowledgment.\n"
+            f"  pages_add_skipped: {pages_add_skipped}\n"
+            f"  pages_deferred_low_importance: {deferred_count}\n"
+            f"  unaccounted skipped: {unaccounted}\n"
+            f"  skip_reason recorded: {skip_reason!r}\n"
+            f"\n"
+            f"RESOLUTION: Create the missing pages (S-57 for docs, S-58 for KB how-tos)\n"
+            f"  OR call mark_pages_deferred_low_importance() with operator acknowledgment\n"
+            f"  before this assertion will pass.\n"
+            f"\n"
+            f"Reconciliation: {recon_path}"
+        )
+
+    raise SkippedPagesError(
+        f"{family}/{platform}: {pages_add_skipped} planned new pages were skipped. "
+        f"Reconciliation: {recon_path}"
+    )
+
+
+def mark_pages_deferred_low_importance(
+    family: str,
+    platform: str,
+    *,
+    count: int,
+    operator_reason: str,
+) -> None:
+    """Record an explicit DEFERRED_LOW_IMPORTANCE deferral in execution_reconciliation.json.
+
+    This is the ONLY valid way to prevent assert_no_skipped_pages() from failing
+    when pages_add_skipped > 0.  The operator_reason must be non-empty.
+
+    Precondition: execution_reconciliation.json must already exist (call
+    write_reconciliation() first).
+
+    Args:
+        count: Number of pages being explicitly deferred (must equal pages_add_skipped).
+        operator_reason: Non-empty string explaining why deferral is acceptable.
+            Must mention class_importance or equivalent justification.
+    """
+    if not operator_reason or not operator_reason.strip():
+        raise ValueError("operator_reason must be non-empty for DEFERRED_LOW_IMPORTANCE.")
+
+    recon_path = REPORTS_ROOT / family / platform / "execution_reconciliation.json"
+    if not recon_path.is_file():
+        raise FileNotFoundError(
+            f"execution_reconciliation.json not found for {family}/{platform}. "
+            f"Run write_reconciliation() first."
+        )
+
+    recon = json.loads(recon_path.read_text(encoding="utf-8"))
+    recon.setdefault("skipped", {})["pages_deferred_low_importance"] = count
+    recon["skipped"]["deferred_reason"] = operator_reason.strip()
+
+    recon_path.write_text(json.dumps(recon, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(
+        f"  {family}/{platform}: DEFERRED_LOW_IMPORTANCE recorded "
+        f"({count} pages; reason: {operator_reason[:80]!r})"
+    )
 
 
 def capture_pre_update_hashes(family: str, platform: str) -> dict[str, str]:
@@ -885,6 +1015,8 @@ def main(argv: list[str] | None = None) -> int:
                       help="Write execution_reconciliation.json (requires content steps to have completed)")
     mode.add_argument("--reconcile-force", action="store_true",
                       help="Write execution_reconciliation.json, bypassing the content-steps precondition guard (diagnostic/test use only)")
+    mode.add_argument("--assert-no-skipped", action="store_true",
+                      help="(TC-14) Assert that pages_add_skipped == 0 in execution_reconciliation.json; exits 2 on violation")
 
     args = parser.parse_args(argv)
 
@@ -924,6 +1056,17 @@ def main(argv: list[str] | None = None) -> int:
         )
         print(f"Reconciliation written to: {recon_path}")
         return 0
+
+    if args.assert_no_skipped:
+        try:
+            assert_no_skipped_pages(args.family, args.platform)
+            return 0
+        except FileNotFoundError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 1
+        except SkippedPagesError as exc:
+            print(f"FAIL: {exc}", file=sys.stderr)
+            return 2
 
     if args.verify:
         # Prerequisite check — clear error messages instead of cryptic tracebacks

@@ -106,6 +106,7 @@ _cfg_receipts_root: str | None = None  # default: reports_root/{family}/{platfor
 _cfg_llm_router_class: Any = None       # injected in tests to mock LLM calls
 _cfg_safe_write_fn: Any = None          # injected in tests to mock file writes
 _cfg_hash_validation: bool = True       # set False in tests to skip hash checks
+_cfg_writes_root: str = "reports/body_refresh_writes"  # TC-09: post-write evidence log
 
 
 def configure(
@@ -114,10 +115,11 @@ def configure(
     llm_router_class: Any = None,
     safe_write_fn: Any = None,
     hash_validation: bool | None = None,
+    writes_root: str | None = None,
 ) -> None:
     """Override dependencies for testing (configure() seam pattern)."""
     global _cfg_reports_root, _cfg_receipts_root, _cfg_llm_router_class
-    global _cfg_safe_write_fn, _cfg_hash_validation
+    global _cfg_safe_write_fn, _cfg_hash_validation, _cfg_writes_root
     if reports_root is not None:
         _cfg_reports_root = reports_root
     if receipts_root is not None:
@@ -128,6 +130,8 @@ def configure(
         _cfg_safe_write_fn = safe_write_fn
     if hash_validation is not None:
         _cfg_hash_validation = hash_validation
+    if writes_root is not None:
+        _cfg_writes_root = writes_root
 
 
 # ── Loaders ────────────────────────────────────────────────────────────────
@@ -584,6 +588,19 @@ def _apply_section_update(
     return page_content, "NO_STRATEGY"
 
 
+def _record_body_refresh_write(page_path: str, run_id: str) -> None:
+    """TC-09: Append a successfully-written page path to the run's writes log.
+
+    The log at reports/body_refresh_writes/{run_id}.txt is consumed by
+    post_body_refresh_evidence.py to re-attach evidence after body refresh writes.
+    """
+    writes_dir = Path(_cfg_writes_root)
+    writes_dir.mkdir(parents=True, exist_ok=True)
+    log_path = writes_dir / f"{run_id}.txt"
+    with open(log_path, "a", encoding="utf-8") as f:
+        f.write(page_path + "\n")
+
+
 def _write_page(page_path: str, new_content: str, family: str, platform: str) -> bool:
     """Write updated page content using safe_content_write()."""
     write_fn = _cfg_safe_write_fn
@@ -740,6 +757,9 @@ def run(
         if new_content != old_content:
             written = _write_page(page_path, new_content, family, platform)
             verdict = VD_UPDATED if written else VD_SKIPPED_AUTO
+            if written:
+                # TC-09: record write for post_body_refresh_evidence.py
+                _record_body_refresh_write(page_path, run_id)
         else:
             verdict = VD_NO_SECTIONS
 

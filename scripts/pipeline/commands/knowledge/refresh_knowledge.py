@@ -286,6 +286,269 @@ def _write_model_field(family: str, platform: str, field: str, value: object) ->
         print(f"  {family}/{platform}: WARN — could not write {field} to model.yaml: {exc}")
 
 
+def _parse_install_md(install_path: Path) -> dict[str, str]:
+    """Extract identity fields from an install.md file.
+
+    Returns a dict with keys: install_block (raw code block text), package_name,
+    version, group_id, artifact_id (Java only).  All values default to "".
+    """
+    result: dict[str, str] = {
+        "install_block": "",
+        "package_name": "",
+        "version": "",
+        "group_id": "",
+        "artifact_id": "",
+    }
+    if not install_path.is_file():
+        return result
+
+    text = install_path.read_text(encoding="utf-8", errors="replace")
+
+    # Extract the first fenced code block (``` ... ```)
+    code_block_match = re.search(r"```[^\n]*\n(.*?)```", text, re.DOTALL)
+    if not code_block_match:
+        return result
+
+    block = code_block_match.group(1).strip()
+    result["install_block"] = block
+
+    # Python: pip install {name}>={version} or pip install {name}=={version}
+    m = re.match(r"pip install\s+([A-Za-z0-9._-]+)(?:[>=<]+([A-Za-z0-9._-]+))?", block)
+    if m:
+        result["package_name"] = m.group(1)
+        result["version"] = m.group(2) or ""
+        return result
+
+    # .NET: dotnet add package {name} --version {version}
+    m = re.match(r"dotnet add package\s+([A-Za-z0-9._-]+)(?:\s+--version\s+([A-Za-z0-9._-]+))?",
+                 block)
+    if m:
+        result["package_name"] = m.group(1)
+        result["version"] = m.group(2) or ""
+        return result
+
+    # Java Maven XML: extract groupId, artifactId, version
+    gid = re.search(r"<groupId>([^<]+)</groupId>", block)
+    aid = re.search(r"<artifactId>([^<]+)</artifactId>", block)
+    ver = re.search(r"<version>([^<]+)</version>", block)
+    if gid or aid:
+        result["group_id"] = gid.group(1).strip() if gid else ""
+        result["artifact_id"] = aid.group(1).strip() if aid else ""
+        result["version"] = ver.group(1).strip() if ver else ""
+        result["package_name"] = result["artifact_id"]
+        return result
+
+    # JavaScript/TypeScript: npm install {name}@{version}
+    m = re.match(r"npm install\s+([A-Za-z0-9@._/-]+)(?:@([A-Za-z0-9._-]+))?", block)
+    if m:
+        result["package_name"] = m.group(1)
+        result["version"] = m.group(2) or ""
+        return result
+
+    # Go: go get {module}
+    m = re.match(r"go get\s+(\S+)", block)
+    if m:
+        result["package_name"] = m.group(1)
+        return result
+
+    return result
+
+
+def _write_manifest_delta(
+    family: str,
+    platform: str,
+    bak_dir: Path,
+    merged_dir: Path,
+    current_sha: str,
+    base_sha: str | None,
+) -> None:
+    """Compute and write manifest_delta.json comparing merged.bak/install.md vs merged/install.md.
+
+    Detects: COORDINATE_CHANGE (group_id/artifact_id changed), INSTALL_CMD_CHANGED
+    (package name changed), VERSION_BUMP (version only changed), INSTALL_CMD_ADDED
+    (block absent in bak, present in merged).
+
+    The delta is written to merged/manifest_delta.json and persists after bak cleanup.
+    Must be called BEFORE _cleanup_bak().
+    """
+    bak_install = bak_dir / "install.md"
+    new_install = merged_dir / "install.md"
+
+    old = _parse_install_md(bak_install)
+    new = _parse_install_md(new_install)
+
+    events: list[dict] = []
+
+    no_old_block = not old["install_block"]
+    no_new_block = not new["install_block"]
+
+    if no_new_block:
+        # No install info in new — nothing to report; install block may have been removed
+        # (handled separately) or product has no install command yet.
+        pass
+    elif no_old_block:
+        # Install block appeared for the first time
+        events.append({
+            "change_type": "INSTALL_CMD_ADDED",
+            "old": None,
+            "new": new["install_block"],
+            "package_name_new": new["package_name"],
+            "version_new": new["version"],
+        })
+    else:
+        # Both have blocks — compare field by field
+        old_gid, new_gid = old["group_id"], new["group_id"]
+        old_aid, new_aid = old["artifact_id"], new["artifact_id"]
+        old_pkg, new_pkg = old["package_name"].lower(), new["package_name"].lower()
+        old_ver, new_ver = old["version"], new["version"]
+
+        if (old_gid and new_gid and old_gid != new_gid) or (
+            old_aid and new_aid and old_aid != new_aid
+        ):
+            events.append({
+                "change_type": "COORDINATE_CHANGE",
+                "field": "group_id" if old_gid != new_gid else "artifact_id",
+                "old_group_id": old_gid,
+                "new_group_id": new_gid,
+                "old_artifact_id": old_aid,
+                "new_artifact_id": new_aid,
+                "old_version": old_ver,
+                "new_version": new_ver,
+                "scope": "all_code_blocks",
+            })
+        elif old_pkg and new_pkg and old_pkg != new_pkg:
+            events.append({
+                "change_type": "INSTALL_CMD_CHANGED",
+                "old_package_name": old["package_name"],
+                "new_package_name": new["package_name"],
+                "old_version": old_ver,
+                "new_version": new_ver,
+                "old_install_block": old["install_block"],
+                "new_install_block": new["install_block"],
+            })
+        elif old_ver and new_ver and old_ver != new_ver:
+            events.append({
+                "change_type": "VERSION_BUMP",
+                "package_name": new["package_name"],
+                "old_version": old_ver,
+                "new_version": new_ver,
+                "old_install_block": old["install_block"],
+                "new_install_block": new["install_block"],
+            })
+
+    delta = {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "base_sha": base_sha or "",
+        "current_sha": current_sha,
+        "events": events,
+    }
+
+    target = merged_dir / "manifest_delta.json"
+    tmp = target.with_suffix(".tmp")
+    try:
+        tmp.write_text(json.dumps(delta, indent=2, ensure_ascii=False), encoding="utf-8")
+        tmp.replace(target)
+        if events:
+            event_summary = ", ".join(e["change_type"] for e in events)
+            print(f"  {family}/{platform}: manifest_delta.json written ({event_summary})")
+        else:
+            print(f"  {family}/{platform}: manifest_delta.json written (no coordinate/install changes)")
+    except Exception as exc:
+        print(f"  {family}/{platform}: WARN — could not write manifest_delta.json: {exc}")
+        if tmp.exists():
+            tmp.unlink(missing_ok=True)
+
+
+def _write_format_delta(
+    family: str,
+    platform: str,
+    bak_dir: Path,
+    merged_dir: Path,
+    current_sha: str,
+    base_sha: str | None,
+) -> None:
+    """Compute and write format_delta.json comparing merged.bak/formats.json vs merged/formats.json.
+
+    Detects: FORMAT_ADDED, FORMAT_REMOVED, FORMAT_DIRECTION_CHANGED.
+    Written to merged/format_delta.json; persists after bak cleanup.
+    Must be called BEFORE _cleanup_bak().
+    """
+    bak_fmt_path = bak_dir / "formats.json"
+    new_fmt_path = merged_dir / "formats.json"
+
+    def _load_formats(path: Path) -> dict[str, dict]:
+        """Load formats.json as a dict keyed by format name (uppercase)."""
+        if not path.is_file():
+            return {}
+        try:
+            data = json.loads(path.read_text(encoding="utf-8", errors="replace"))
+            if not isinstance(data, list):
+                return {}
+            return {str(f.get("name", "")).upper(): f for f in data if isinstance(f, dict)}
+        except Exception:
+            return {}
+
+    old_formats = _load_formats(bak_fmt_path)
+    new_formats = _load_formats(new_fmt_path)
+
+    added: list[dict] = []
+    removed: list[dict] = []
+    direction_changed: list[dict] = []
+
+    old_names = set(old_formats)
+    new_names = set(new_formats)
+
+    for name in sorted(new_names - old_names):
+        f = new_formats[name]
+        added.append({
+            "name": f.get("name", name),
+            "ext": f.get("ext", ""),
+            "support": f.get("support", ""),
+            "description": f.get("description", ""),
+        })
+
+    for name in sorted(old_names - new_names):
+        f = old_formats[name]
+        removed.append({
+            "name": f.get("name", name),
+            "ext": f.get("ext", ""),
+            "support": f.get("support", ""),
+        })
+
+    for name in sorted(old_names & new_names):
+        old_sup = old_formats[name].get("support", "")
+        new_sup = new_formats[name].get("support", "")
+        if old_sup != new_sup:
+            direction_changed.append({
+                "name": new_formats[name].get("name", name),
+                "old_support": old_sup,
+                "new_support": new_sup,
+            })
+
+    delta = {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "base_sha": base_sha or "",
+        "current_sha": current_sha,
+        "formats_added": added,
+        "formats_removed": removed,
+        "formats_direction_changed": direction_changed,
+    }
+
+    target = merged_dir / "format_delta.json"
+    tmp = target.with_suffix(".tmp")
+    try:
+        tmp.write_text(json.dumps(delta, indent=2, ensure_ascii=False), encoding="utf-8")
+        tmp.replace(target)
+        print(
+            f"  {family}/{platform}: format_delta.json written "
+            f"(+{len(added)} added, -{len(removed)} removed, ~{len(direction_changed)} direction_changed)"
+        )
+    except Exception as exc:
+        print(f"  {family}/{platform}: WARN — could not write format_delta.json: {exc}")
+        if tmp.exists():
+            tmp.unlink(missing_ok=True)
+
+
 def _backup_merged(merged_dir: Path, bak_dir: Path) -> None:
     """Copy merged/ to merged.bak/ for delta computation."""
     if bak_dir.exists():
@@ -633,6 +896,14 @@ def refresh(
 
         # Write knowledge_delta.json only after successful promote (no partial delta).
         _write_knowledge_delta(family, platform, bak_dir, merged_dir, head, current)
+
+        # Write manifest_delta.json: coordinate/install/version changes (TC-01).
+        # Must run before _cleanup_bak() in the finally block.
+        _write_manifest_delta(family, platform, bak_dir, merged_dir, head, current)
+
+        # Write format_delta.json: format support additions/removals (TC-02).
+        # Must run before _cleanup_bak() in the finally block.
+        _write_format_delta(family, platform, bak_dir, merged_dir, head, current)
 
         # Record enrichment quality in model.yaml so downstream consumers can detect
         # scout-only (degraded) refreshes vs full refreshes (TC-4).
