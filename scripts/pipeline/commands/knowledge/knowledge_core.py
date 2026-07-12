@@ -78,7 +78,7 @@ class Knowledge:
         if not available:
             # Set all data attributes to safe defaults so callers need not guard
             self.__dict__.update(dict(
-                version="", repo_sha="", claims_hash="",
+                version="", repo_sha="", config_sha=None, claims_hash="",
                 enrichment_status=None, stale_since=None,
                 classes={}, classes_by_import={},
                 methods={}, properties={}, enum_members={},
@@ -94,6 +94,9 @@ class Knowledge:
         model = yaml.safe_load((merged / "model.yaml").read_text(encoding="utf-8"))
         self.__dict__["version"] = model.get("version", "")
         self.__dict__["repo_sha"] = model.get("repo_sha", "")
+        # config_sha: None means field absent (pre-backfill model). stale_detect treats
+        # None as missing (INFO) rather than stale.  Set after running promote.py.
+        self.__dict__["config_sha"] = model.get("config_sha", None)
         # enrichment_status: None means field absent (product bootstrapped before TC-4
         # tracking was added).  Callers treat None as "unknown — assume full" for
         # backward-compat.  "scout-only" means LLM enrichment was skipped or failed;

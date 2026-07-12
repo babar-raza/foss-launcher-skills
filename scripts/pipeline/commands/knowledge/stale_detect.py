@@ -18,6 +18,7 @@ if _LIB_DIR not in sys.path:
 from knowledge_core import Knowledge  # noqa: E402
 from content_discovery import LOCALE_RE, _is_draft  # noqa: E402  (R-4: was knowledge_core)
 from core.markdown import parse_frontmatter  # noqa: E402  (R-2a: was knowledge_core)
+from commands.knowledge.promote import compute_extractor_config_sha  # noqa: E402
 
 _SITE_PATTERNS = (
     "docs.aspose.org/en/{family}/{platform}",
@@ -65,6 +66,19 @@ def scan_product(
         )
 
     enrichment_status = knowledge.enrichment_status or "full"
+
+    # Check extractor config drift (RC-2): compare model.yaml config_sha against
+    # the current hash of family-specific extractor config dicts.
+    # Missing config_sha (pre-backfill models) emits INFO, not a stale flag.
+    extractor_config_stale = False
+    extractor_config_missing = False
+    model_config_sha = knowledge.config_sha  # may be None for old models
+    if model_config_sha is None:
+        extractor_config_missing = True
+    else:
+        current_config_sha = compute_extractor_config_sha(family)
+        if model_config_sha != current_config_sha:
+            extractor_config_stale = True
 
     pages = []
     stale_sha_skipped = 0  # count of pages where SHA differs but claims are all present
@@ -125,6 +139,16 @@ def scan_product(
     }
     if claim_delta:
         result["claim_delta_skipped"] = stale_sha_skipped
+    if extractor_config_stale:
+        result["stale_extractor_config"] = True
+        result["extractor_config_note"] = (
+            "model.yaml config_sha differs from current extractor config — "
+            "re-run promote.py to refresh the knowledge model"
+        )
+    elif extractor_config_missing:
+        result["extractor_config_note"] = (
+            "model.yaml has no config_sha — run promote.py to backfill"
+        )
     return result
 
 
@@ -133,14 +157,22 @@ def _to_markdown(report: dict) -> str:
     enrichment_note = (
         f" (**enrichment_degraded: {enrichment_status}**)" if enrichment_status != "full" else ""
     )
+    config_note = report.get("extractor_config_note", "")
+    config_line = ""
+    if report.get("stale_extractor_config"):
+        config_line = f"- **Extractor config stale**: {config_note}"
+    elif config_note:
+        config_line = f"- Extractor config: {config_note}"
     lines = [
         f"# Stale Detect Report: {report['family']}/{report['platform']}",
         "",
         f"- Knowledge SHA: `{report['knowledge_repo_sha']}`{enrichment_note}",
         f"- Files scanned: {report['files_scanned']}",
         f"- Stale pages: {report['stale_pages']}",
-        "",
     ]
+    if config_line:
+        lines.append(config_line)
+    lines.append("")
     if not report["pages"]:
         lines.append("No stale pages detected.")
         return "\n".join(lines)

@@ -604,6 +604,20 @@ _SUBPKG_LABEL: dict[str, str] = {
 # Family-specific sub-package label overrides.
 # Applied in _subpkg_to_label() before the generic slug_from_category() fallback.
 # Prevents generic sub-package names (e.g. "core") from producing bad cluster labels.
+# Maps family name to the cluster label used for root-level (package-less) classes.
+# Promoted to module level (was a local in _subpkg_to_label) so promote.py can hash it
+# for extractor config provenance (config_sha in model.yaml).
+_ROOT_LABELS: dict[str, str] = {
+    "3d": "scene-management",
+    "barcode": "barcode-generation",
+    "slides": "presentation-management",
+    "cells": "spreadsheet-management",
+    "email": "email-processing",
+    "font": "font-management",
+    "note": "document-management",
+    "pdf": "document-management",
+}
+
 _FAMILY_SUBPKG_LABELS: dict[str, dict[str, str]] = {
     "barcode": {
         "":          "barcode-generation",   # Root-level Barcode/BarcodeService classes
@@ -710,16 +724,6 @@ def _subpkg_to_label(subpkg: str, family: str) -> str:
         return _SUBPKG_LABEL[key]
     if key == "" or subpkg == "":
         # Root-level classes → family-specific core capability
-        _ROOT_LABELS = {
-            "3d": "scene-management",
-            "barcode": "barcode-generation",
-            "slides": "presentation-management",
-            "cells": "spreadsheet-management",
-            "email": "email-processing",
-            "font": "font-management",
-            "note": "document-management",
-            "pdf": "document-management",
-        }
         return _ROOT_LABELS.get(family, "core-management")
     # TC-KBS-002: For unmapped PascalCase names (e.g. C# namespace dirs like
     # "JavaScriptExtensions"), split on CamelCase word boundaries before

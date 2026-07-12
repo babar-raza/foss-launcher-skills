@@ -28,6 +28,7 @@ Usage:
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import re
@@ -40,6 +41,34 @@ from pathlib import Path
 import yaml
 
 from core.constants import _TEST_PATH_PATTERNS, _INTERNAL_PATH_PATTERNS
+from extraction.formats import _FAMILY_FORMAT_ALLOWLISTS, _FAMILY_PYTHON_PRIMARY_FMT
+from commands.launch.site_planner import _FAMILY_SUBPKG_LABELS, _ROOT_LABELS
+
+
+def compute_extractor_config_sha(family: str) -> str:
+    """Return a 16-hex-char hash of the family-specific extractor configuration.
+
+    Covers the four per-family dicts that directly affect knowledge model output:
+    - _FAMILY_FORMAT_ALLOWLISTS  (formats.py)
+    - _FAMILY_PYTHON_PRIMARY_FMT (formats.py)
+    - _FAMILY_SUBPKG_LABELS      (site_planner.py)
+    - _ROOT_LABELS               (site_planner.py)
+
+    When any of these change for a family, the hash changes.  promote.py writes
+    this to model.yaml as ``config_sha``.  stale_detect.py compares it to the
+    current hash to detect extractor-config drift (RC-2 fix).
+
+    Limitation: covers only these four dicts, not extraction logic changes.
+    """
+    config = {
+        "format_allowlist": sorted(_FAMILY_FORMAT_ALLOWLISTS.get(family, frozenset())),
+        "python_primary_fmt": _FAMILY_PYTHON_PRIMARY_FMT.get(family),
+        "subpkg_labels": _FAMILY_SUBPKG_LABELS.get(family, {}),
+        "root_label": _ROOT_LABELS.get(family, "core-management"),
+    }
+    return hashlib.sha256(
+        json.dumps(config, sort_keys=True).encode("utf-8")
+    ).hexdigest()[:16]
 
 
 # ---------------------------------------------------------------------------
@@ -1092,6 +1121,7 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
         "license": scout_model.get("license", ""),
         "repo_url": scout_model.get("repo_url", ""),
         "repo_sha": scout_model.get("repo_sha", ""),
+        "config_sha": compute_extractor_config_sha(family),
         "stale_since": None,
         "promoted_at": datetime.now(timezone.utc).isoformat(),
         "source": "scout_and_enriched" if enriched_count > 0 else "scout_only",

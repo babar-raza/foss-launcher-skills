@@ -168,6 +168,17 @@ _FAMILY_PYTHON_PRIMARY_FMT: dict[str, str] = {
     "cells": "xlsx",  # Workbook.__init__(file_path) always loads .xlsx
 }
 
+# Per-family allowlist: format names that are genuine user-visible formats for a
+# specific family but would be false positives everywhere else.
+# e.g. "cfb" is an internal impl detail in cells/python but a real user format in
+# email/cpp (Compound File Binary = .msg container).
+# Promoted to module level (was a local in detect_formats) so promote.py can hash it
+# for extractor config provenance (config_sha in model.yaml).
+_FAMILY_FORMAT_ALLOWLISTS: dict[str, frozenset[str]] = {
+    "email": frozenset({"cfb"}),
+    "barcode": frozenset({"png"}),
+}
+
 
 def _scan_document_ctor_imports(
     files: list[Path],
@@ -473,14 +484,6 @@ def detect_formats(
         "underlying", "hex", "method", "class", "module",
         "ipackage",
     })
-    # Per-family allowlist: format names that are genuine user-visible formats
-    # for a specific family but are false positives everywhere else.
-    # e.g. "cfb" is an internal impl detail in cells/python but a real user
-    # format in email/cpp (Compound File Binary = .msg container).
-    _FAMILY_FORMAT_ALLOWLISTS: dict[str, frozenset[str]] = {
-        "email": frozenset({"cfb"}),
-        "barcode": frozenset({"png"}),
-    }
     _allowed_fmt_overrides = _FAMILY_FORMAT_ALLOWLISTS.get(family, frozenset())
 
     for fpath in files:

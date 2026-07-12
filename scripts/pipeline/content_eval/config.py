@@ -128,6 +128,7 @@ DEFAULT_EVALUATORS = [
     "consumer_usefulness",
     "cta_wording",  # graduated from EXPERIMENTAL 2026-06-09 (TC-CTA-GRADUATION)
     "code_prose_alignment",  # graduated from EXPERIMENTAL 2026-06-13 (TC-PROMOTE-001), WARN-only
+    "evidence_format_validity",  # added to DEFAULT 2026-07-12 — surfaces stale evidence.formats entries in reports
     "generic_description_check",  # TC-GDF-001: EXPERIMENTAL — detect placeholder descriptions in _index.md
 ]
 
