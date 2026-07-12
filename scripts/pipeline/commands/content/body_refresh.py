@@ -398,6 +398,56 @@ def _section_removal(page_content: str, section_id: str) -> str:
     return "".join(result)
 
 
+# ── TC-08: Claim grounding helpers ─────────────────────────────────────────
+
+def _load_claim_text(claim_id: str, claims_path: Path) -> str:
+    """Load a single claim's text from claims.json. Returns empty string if absent."""
+    if not claim_id or not claims_path.exists():
+        return ""
+    try:
+        data = json.loads(claims_path.read_text(encoding="utf-8"))
+        claims = data if isinstance(data, list) else data.get("claims", [])
+        for c in claims:
+            if isinstance(c, dict) and c.get("claim_id") == claim_id:
+                return c.get("claim_text") or c.get("text") or ""
+    except (json.JSONDecodeError, OSError):
+        pass
+    return ""
+
+
+def _get_claim_grounding(change: dict, context: dict) -> tuple[str, str]:
+    """
+    Return (old_claim_text, new_claim_text) for TC-08 grounded prompt.
+
+    Sources:
+      old_claim_text: knowledge/{family}/{platform}/merged.bak/claims.json
+      new_claim_text: knowledge/{family}/{platform}/merged/claims.json
+    Falls back to empty strings when bak is absent (first run / no prior state).
+    """
+    claim_id = change.get("claim_id", "")
+    if not claim_id:
+        return "", ""
+
+    family = context.get("family", "")
+    platform = context.get("platform", "")
+    if not family or not platform:
+        return "", ""
+
+    repo_root = Path(__file__).resolve().parents[3]
+    base = repo_root / "knowledge" / family / platform
+    bak_claims = base / "merged.bak" / "claims.json"
+    new_claims = base / "merged" / "claims.json"
+
+    old_text = _load_claim_text(claim_id, bak_claims)
+    new_text = _load_claim_text(claim_id, new_claims)
+
+    if not old_text and not bak_claims.exists():
+        print(f"WARNING: merged.bak/claims.json absent for {family}/{platform} — "
+              f"using degraded (ungrounded) prompt for claim {claim_id}")
+
+    return old_text, new_text
+
+
 def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
     """Rewrite a paragraph using LLMRouter (callsite: body_refresh_paragraph_rewrite)."""
     def _deterministic_fallback() -> str:
@@ -464,14 +514,42 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
     family = context.get("family", "")
     platform = context.get("platform", "")
 
-    system_prompt = (
-        f"You are a technical writer updating {family}/{platform} documentation. "
-        f"Rewrite the following paragraph to reflect that {symbol} has changed "
-        f"({change_type}). Keep the same structure and tone. Be concise and accurate. "
-        f"Do not add new unrelated content. Preserve all code blocks verbatim unless "
-        f"they directly reference {symbol}."
-    )
-    user_prompt = f"Original paragraph:\n\n{section_text}\n\nRewritten paragraph:"
+    # TC-08: Load claim grounding from bak/claims.json → merged/claims.json.
+    # When available, the prompt anchors the LLM to the exact old→new claim
+    # text, preventing hallucination of unverified capabilities.
+    old_claim_text, new_claim_text = _get_claim_grounding(change, context)
+    grounded = bool(old_claim_text or new_claim_text)
+
+    if grounded:
+        system_prompt = (
+            f"You are a technical writer maintaining {family}/{platform} documentation.\n"
+            f"A specific claim has changed. Update ONLY the affected sentence or sentences.\n"
+            f"Do not modify surrounding context. Do not introduce any capability, behavior, "
+            f"or limitation that is not explicitly stated in the knowledge provided below.\n"
+            f"If you are uncertain, preserve the original text.\n\n"
+            f"Knowledge (authoritative):\n"
+            f"  Old claim: {old_claim_text or '(not available)'}\n"
+            f"  New claim: {new_claim_text or '(not available)'}\n"
+            f"  Change type: {change_type}\n\n"
+            f"Rules:\n"
+            f"  - Preserve all code blocks verbatim unless they reference {symbol!r} directly.\n"
+            f"  - Do not remove links.\n"
+            f"  - Match the register of adjacent sentences.\n"
+            f"  - Output only the rewritten paragraph, nothing else."
+        )
+        user_prompt = (
+            f"Original section:\n\n{section_text}\n\nRewritten section:"
+        )
+    else:
+        # Degraded (ungrounded) mode — merged.bak absent or no claim_id
+        system_prompt = (
+            f"You are a technical writer updating {family}/{platform} documentation. "
+            f"Rewrite the following paragraph to reflect that {symbol} has changed "
+            f"({change_type}). Keep the same structure and tone. Be concise and accurate. "
+            f"Do not add new unrelated content. Preserve all code blocks verbatim unless "
+            f"they directly reference {symbol}."
+        )
+        user_prompt = f"Original paragraph:\n\n{section_text}\n\nRewritten paragraph:"
 
     router = router_class()
     result = router.call_chat(

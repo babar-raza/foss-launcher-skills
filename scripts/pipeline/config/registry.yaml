@@ -3986,6 +3986,57 @@ scripts:
     change_impact: "TC-09: re-attaches evidence frontmatter after body_refresh writes; reads body_refresh_writes log, calls attach_evidence on each updated file"
     notes: "S-84 Step 7.5; prevents stale model_sha after body refresh; must run after all content write steps and before verification"
 
+  - path: scripts/pipeline/commands/ops/naturalness_check.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_naturalness_check.py
+    deprecated_since: null
+    change_impact: "TC-10: deterministic prose quality gate; checks injection markers, sentence count delta, register shift; returns PASS/WARNING; called by feature_list_extender and body_refresh"
+    notes: "S-84 Step 5b quality gate; never emits FAIL; WARNING output queued for human review"
+
+  - path: scripts/pipeline/commands/ops/verify_claim_accuracy.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_verify_claim_accuracy.py
+    deprecated_since: null
+    change_impact: "TC-11: post-rewrite accuracy scanner; checks capability-verb + API/format name pairs vs claims.json and formats.json; WARNING only until calibrated"
+    notes: "S-84 Step 8 post-write checker; starts as WARNING-only; graduate to FAIL after 3-product calibration"
+
+  - path: scripts/pipeline/commands/content/feature_list_extender.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: content-generation
+    backing:
+      kind: skill
+      ref: refresh-product
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_feature_list_extender.py
+    deprecated_since: null
+    change_impact: "TC-07: LLM-driven bullet insertion for high-importance new APIs (class_importance >= 0.7); reads knowledge_delta.json; calls naturalness_check before insert; words/python primary pilot"
+    notes: "S-84 Step 5b; English-only guard active; runs naturalness_check.py before write; attach_evidence after write"
+
   - path: scripts/pipeline/commands/ops/localization_incident.py
     kind: entrypoint
     lifecycle: active
