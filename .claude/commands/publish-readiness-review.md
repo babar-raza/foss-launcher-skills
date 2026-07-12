@@ -5,7 +5,7 @@
      postcondition: per-page publish disposition recorded; fix skills invoked for actionable items;
                     final-verdict.md written with PUBLISH | CONDITIONAL | BLOCKED recommendation
      idempotent: no — LLM-based fix skills vary; --dry-run flag enables safe re-inspection
-     verified: 2026-07-07
+     verified: 2026-04-17
      depends_on: [S-54, S-25]
 -->
 # S-90: Publish Readiness Review — Agent-Executed Governed Inspection
@@ -333,39 +333,7 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
     {Rationale: what was done, what changed, what remains, and why the recommendation follows.}
     ```
 
-12. **Write H-gate sign-off files**:
-    Write sign-off files to `reports/human-review/` so that `readiness_scorecard.py`
-    can compute a valid READY TO SHIP verdict. These files are the machine-readable
-    record of each H-gate outcome and are read by `_read_hgate_signoffs()`.
-
-    **Gate result mapping** (based on outcomes from prior inspection steps):
-
-    | Gate | Source step | PASS condition | CONDITIONAL | FAIL condition |
-    |------|-------------|----------------|-------------|----------------|
-    | H-01 | 5b prose review | No prose accuracy issues found | Issues found and actioned | Critical prose hallucinations remain unresolved |
-    | H-02 | 7g reference accuracy | All `evidence.apis` classes in `api_surface.json` | Gaps found and routed to S-38 | Structural accuracy issues unresolved after S-38 |
-    | H-03 | 7f format spot-check | 0 FORMAT_MISMATCH findings remain | Mismatches found and corrected via S-73 | Uncorrected format mismatches remain |
-    | H-04 | 7e link validation | `link_validator.py` returns 0 broken links | Broken links found and resolved via S-74 | Broken links remain unresolved |
-    | H-05 | 7h license accuracy | License confirmed from clone cache | Clone cache missing (check deferred) | License mismatch detected |
-
-    Write each file, substituting the appropriate result for each gate:
-    ```
-    reports/human-review/{family}-{platform}-h01-sample.md  ← result: "{H01_RESULT}"
-    reports/human-review/{family}-{platform}-h02-sample.md  ← result: "{H02_RESULT}"
-    reports/human-review/{family}-{platform}-h03-sample.md  ← result: "{H03_RESULT}"
-    reports/human-review/{family}-{platform}-h04-sample.md  ← result: "{H04_RESULT}"
-    reports/human-review/{family}-{platform}-h05-sample.md  ← result: "{H05_RESULT}"
-    ```
-
-    Each file must contain exactly one line: `result: "PASS"`, `result: "CONDITIONAL"`,
-    or `result: "FAIL"`. No other format is accepted.
-
-    **Contract note**: `readiness_scorecard.py::_read_hgate_signoffs()` reads exclusively
-    from `reports/human-review/{family}-{platform}-{gate}-sample.md`. If any sign-off
-    file is absent, the scorecard returns that gate as "not reviewed" and blocks
-    READY TO SHIP. This step is mandatory and must not be skipped.
-
-13. **Report to operator**:
+12. **Report to operator**:
     ```
     PUBLISH READINESS REVIEW — {family}/{platform}
     Scope: {scope} | Pages inspected: {N} | Post-action re-grade: yes/no
@@ -384,7 +352,6 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
 
     VERDICT: {PUBLISH | CONDITIONAL (actions taken, {N} remain) | BLOCKED}
     Full report: reports/publish-review/{family}-{platform}-{YYYYMMDD}/final-verdict.md
-    H-gate sign-offs: reports/human-review/{family}-{platform}-h0N-sample.md (written in Step 12)
     ```
 
 > **Skill context close** — run after the last step:
@@ -400,9 +367,6 @@ skill rather than halting — see AGENTS.md §7c for the canonical definition.
 - `final-verdict.md` has per-section READY/CONDITIONAL/BLOCKED with rationale
 - All actioned pages have been re-evaluated and grades updated
 - Escalated items have concrete escalation reasons (not vague "needs human")
-- **H-gate sign-off files written** (Step 12): `reports/human-review/{family}-{platform}-h0{1..5}-sample.md`
-  exist with `result: "PASS"`, `result: "CONDITIONAL"`, or `result: "FAIL"` — required for
-  `readiness_scorecard.py` to compute a READY TO SHIP verdict
 
 ## Error Handling
 

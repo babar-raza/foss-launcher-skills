@@ -91,9 +91,10 @@ Default weight for unlisted platforms: 80.
       layout: wide
       weight: {weight from step 5a}
       provenance:
-        content_origin: skill-generated
+        content_origin: unknown
         last_mechanism: skill
         auto_updatable: false
+        provenance_recovery_note: structural-page
       ---
 
       {1–2 sentence description from model.yaml}
@@ -105,10 +106,6 @@ Default weight for unlisted platforms: 80.
 
       {{< sections cols="4" >}}
       ```
-
-      Family index pages use `content_origin: skill-generated` because they contain
-      knowledge-derived content (Key capabilities section from model.yaml and claims.json).
-      They use `auto_updatable: false` because structural pages are not auto-updated.
 
       > **IMPORTANT**: Do NOT add a `linkTitle` field to the family root `_index.md`.
       > The Hugo sidebar partial prioritizes `LinkTitle` over `Title`; adding
@@ -147,9 +144,10 @@ Default weight for unlisted platforms: 80.
    weight: {weight from step 6}
    layout: list
    provenance:
-     content_origin: skill-generated
+     content_origin: unknown
      last_mechanism: skill
      auto_updatable: false
+     provenance_recovery_note: structural-page
    ---
 
    {body_intro from step 6}
@@ -159,25 +157,13 @@ Default weight for unlisted platforms: 80.
    {{< sections >}}
    ```
 
-   **Do NOT add a manual `## See Also` or enterprise link.** Step 8b handles this automatically.
-
    Note: the `evidence:` and `grade:` blocks are written by `attach_evidence.py` in the next
-   step — do not add them manually. Both family and platform index pages use
-   `content_origin: skill-generated` because they contain knowledge-derived content.
-   `auto_updatable: false` because structural pages are not auto-updated.
+   step — do not add them manually. The `provenance:` block above is included in the template
+   by design: structural index pages receive `content_origin: unknown` with `auto_updatable: false`
+   at creation time (structural-deferred classification per Phase N provenance governance).
 
    Note: use `linktitle` (all lowercase) — this is the Hugo docs theme convention for this site,
    distinct from `linkTitle` (camelCase) used in the KB and reference sites.
-
-8b. **Backlink injection**: After writing, inject the reciprocal aspose.com backlink as a
-    `## See Also` section. Because the platform index page has `auto_updatable: false`,
-    use `--include-protected` to bypass the protection check:
-    ```bash
-    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \
-      --family {family} --platform {platform} --subdomain docs.aspose.org --write --include-protected
-    ```
-    If BLOCKED_TARGET: log WARN and continue.
-    **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
 
 9. **Attach evidence**: Run:
    ```bash

@@ -100,10 +100,6 @@ Before generating any content, you MUST:
    - `---`
    - `### API Reference Summary` — markdown table: Class/Method | Description, limited to what you confirmed exists in reference content
 
-   **Do NOT add a manual `## See Also` section.** Step 8b (backlink injection) adds the
-   enterprise link automatically via `backlink_backfill.py`. Manually writing enterprise links
-   causes duplicates when the backfill system resolves a different (more specific) URL.
-
 6. **Constraints**:
    - **Code fence language** — resolve from `{platform}` argument (never hardcode `python`):
      - `python` → ` ```python `, install via `pip install {package-name}`
