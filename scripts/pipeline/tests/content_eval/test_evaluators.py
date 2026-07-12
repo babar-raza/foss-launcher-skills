@@ -639,12 +639,13 @@ class TestEvidenceDepth:
 
         This validates that the fix does not suppress legitimate evidence gaps.
         A page with 2+ TypeScript code blocks and empty apis should still WARN.
+        Uses model_sha="" so the staleness guard does not run (no SHA = cannot be stale).
         """
         page = _make_page(textwrap.dedent("""\
             ---
             title: Quick Start
             evidence:
-              model_sha: abc123
+              model_sha: ""
               claims: []
               apis: []
             ---
@@ -672,12 +673,13 @@ class TestEvidenceDepth:
         """True positive: pages mixing bash install blocks with API code blocks must still warn.
 
         The presence of non-API bash blocks should not mask the API coverage gap.
+        Uses model_sha="" so the staleness guard does not run (no SHA = cannot be stale).
         """
         page = _make_page(textwrap.dedent("""\
             ---
             title: Quick Start
             evidence:
-              model_sha: abc123
+              model_sha: ""
               claims: []
               apis: []
             ---
@@ -788,12 +790,13 @@ class TestEvidenceDepth:
         A page with 2 TypeScript blocks + 2 untagged output blocks should report
         count=2 in the WARN message, not count=4.  Inflated counts were a symptom
         of the denylist not excluding empty-string tags.
+        Uses model_sha="" so the staleness guard does not run (no SHA = cannot be stale).
         """
         page = _make_page(textwrap.dedent("""\
             ---
             title: Quick Start
             evidence:
-              model_sha: abc123
+              model_sha: ""
               claims: []
               apis: []
             ---
@@ -917,6 +920,92 @@ class TestEvidenceDepth:
         assert compute_grade(0, 5) == "B"
         assert compute_grade(0, 6) == "C"
         assert compute_grade(1, 0) == "C"
+
+    def test_eg_grounding_fires_when_evidence_current_and_apis_empty(self):
+        """TC-SFH-001: EG_GROUNDING fires when evidence is current (not stale) but apis empty.
+
+        Uses a nonexistent family so model.yaml is absent → current_sha="" →
+        _evidence_stale=False. With 2+ API code blocks and apis=[], EG_GROUNDING fires.
+        EG_STALE must NOT fire.
+        """
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Test
+            evidence:
+              model_sha: "sha_with_no_matching_model"
+              claims: []
+              apis: []
+            ---
+            ## Create Object
+
+            ```python
+            obj = Library.create()
+            result = obj.process()
+            ```
+
+            ## Save Result
+
+            ```python
+            result.save("output.dat")
+            output = result.export()
+            ```
+        """), "content/docs.aspose.org/en/nonexistentfamily/python/test.md")
+        findings = self.evaluator.evaluate(page, None)
+        grounding = [f for f in findings if f.category == "EG_GROUNDING" and f.level == "WARN"]
+        stale = [f for f in findings if f.category == "EG_STALE" and f.level == "WARN"]
+        assert len(grounding) >= 1, f"EG_GROUNDING WARN expected; got: {findings}"
+        assert "0 evidence APIs" in grounding[0].message
+        assert stale == [], f"EG_STALE must not fire when model.yaml absent; got: {stale}"
+
+    def test_eg_stale_fires_and_eg_grounding_suppressed(self, monkeypatch, tmp_path):
+        """TC-SFH-001: EG_STALE fires for stale evidence; EG_GROUNDING is suppressed.
+
+        When evidence.model_sha != current knowledge.repo_sha:
+        - EG_STALE WARN fires (root cause: staleness)
+        - EG_GROUNDING WARN must NOT fire (would be false positive — the stale evidence
+          may have empty apis only because it was attached against an old model)
+        """
+        import content_eval.evaluators.evidence_depth as ed_module
+
+        # Write a fake model.yaml with a known current SHA in a temp directory
+        model_dir = tmp_path / "nonexistentfamily" / "python" / "merged"
+        model_dir.mkdir(parents=True)
+        (model_dir / "model.yaml").write_text(
+            "repo_sha: current_sha_xyz\n", encoding="utf-8"
+        )
+        # Redirect KNOWLEDGE_ROOT to the temp directory
+        monkeypatch.setattr(ed_module, "KNOWLEDGE_ROOT", tmp_path)
+
+        page = _make_page(textwrap.dedent("""\
+            ---
+            title: Test
+            evidence:
+              model_sha: "old_stale_sha"
+              claims: []
+              apis: []
+            ---
+            ## Create Object
+
+            ```python
+            obj = Library.create()
+            result = obj.process()
+            ```
+
+            ## Save Result
+
+            ```python
+            result.save("output.dat")
+            output = result.export()
+            ```
+        """), "content/docs.aspose.org/en/nonexistentfamily/python/test.md")
+        findings = self.evaluator.evaluate(page, None)
+        stale = [f for f in findings if f.category == "EG_STALE" and f.level == "WARN"]
+        grounding = [f for f in findings if f.category == "EG_GROUNDING" and f.level == "WARN"]
+        assert len(stale) >= 1, f"EG_STALE WARN expected for stale evidence; got: {findings}"
+        assert "stale" in stale[0].message.lower()
+        assert grounding == [], (
+            f"EG_GROUNDING must be suppressed when evidence is stale; got: {grounding}"
+        )
 
 
 class TestEvidenceBindingTier:

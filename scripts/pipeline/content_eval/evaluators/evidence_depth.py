@@ -90,6 +90,37 @@ class EvidenceDepthEvaluator(BaseEvaluator):
                 ))
             return findings
 
+        # --- Staleness check (must run before grounding checks) ---
+        # Load current_sha early so grounding WARNs can be suppressed for stale evidence.
+        # Stale evidence means attach_evidence.py was not re-run after a knowledge refresh;
+        # the root cause is staleness, not a grounding gap — suppress EG_GROUNDING in that case.
+        # Skip for draft pages (EVIDENCE-DRAFT-STALE-001): draft pages accumulate stale
+        # model_sha because attach_evidence.py skips them; do not WARN on unpublished pages.
+        _is_draft = bool(fm.get("draft", False))
+        model_sha = evidence.get("model_sha", "")
+        current_sha = ""
+        _evidence_stale = False
+        if not _is_draft and model_sha and page.family and page.platform:
+            model_path = KNOWLEDGE_ROOT / page.family / page.platform / "merged" / "model.yaml"
+            if model_path.exists():
+                import yaml
+                try:
+                    model = yaml.safe_load(model_path.read_text(encoding="utf-8"))
+                    current_sha = model.get("repo_sha", "")
+                    if current_sha and model_sha != current_sha:
+                        _evidence_stale = True
+                        findings.append(Finding(
+                            level="WARN",
+                            category="EG_STALE",
+                            filepath=str(page.filepath),
+                            line_no=1,
+                            message="Evidence stale: model_sha does not match current knowledge",
+                            suggestion="Rerun attach_evidence.py to update evidence block",
+                            evaluator=self.name,
+                        ))
+                except Exception:
+                    pass
+
         # Check claim count
         claims = evidence.get("claims") or []
         apis = evidence.get("apis") or []
@@ -104,11 +135,13 @@ class EvidenceDepthEvaluator(BaseEvaluator):
         eligible = _api_eligible_blocks(page.code_blocks, page.platform)
         code_block_count = len(eligible)
 
-        # Warn if API-language code blocks are present but no evidence APIs cited
-        if code_block_count >= 2 and len(apis) == 0:
+        # Warn if API-language code blocks are present but no evidence APIs cited.
+        # Only fire when evidence is NOT stale: if stale, the root cause is a missing
+        # attach_evidence.py re-run (EG_STALE covers it) not a grounding gap.
+        if code_block_count >= 2 and len(apis) == 0 and not _evidence_stale:
             findings.append(Finding(
                 level="WARN",
-                category="EG",
+                category="EG_GROUNDING",
                 filepath=str(page.filepath),
                 line_no=1,
                 message=f"Page has {code_block_count} API-eligible code blocks but 0 evidence APIs",
@@ -128,38 +161,11 @@ class EvidenceDepthEvaluator(BaseEvaluator):
                 evaluator=self.name,
             ))
 
-        # Check model_sha staleness — skip for draft pages (EVIDENCE-DRAFT-STALE-001):
-        # after a knowledge refresh, draft pages accumulate stale model_sha because
-        # attach_evidence.py skips them; auditing stale evidence on unpublished pages
-        # produces FAIL noise for pages that will be updated before they go live.
-        _is_draft = bool(fm.get("draft", False))
-        model_sha = evidence.get("model_sha", "")
-        current_sha = ""
-        if not _is_draft and model_sha and page.family and page.platform:
-            model_path = KNOWLEDGE_ROOT / page.family / page.platform / "merged" / "model.yaml"
-            if model_path.exists():
-                import yaml
-                try:
-                    model = yaml.safe_load(model_path.read_text(encoding="utf-8"))
-                    current_sha = model.get("repo_sha", "")
-                    if current_sha and model_sha != current_sha:
-                        findings.append(Finding(
-                            level="WARN",
-                            category="EG",
-                            filepath=str(page.filepath),
-                            line_no=1,
-                            message="Evidence stale: model_sha does not match current knowledge",
-                            suggestion="Rerun attach_evidence.py to update evidence block",
-                            evaluator=self.name,
-                        ))
-                except Exception:
-                    pass
-
         # --- Per-section evidence checks ---
         sections = evidence.get("sections", [])
         if sections and not _is_draft:
             findings.extend(
-                self._evaluate_sections(page, evidence, sections, current_sha)
+                self._evaluate_sections(page, evidence, sections, current_sha, _evidence_stale)
             )
 
         # --- Binding tier summary (GR-G09) ---
@@ -177,7 +183,8 @@ class EvidenceDepthEvaluator(BaseEvaluator):
         return findings
 
     def _evaluate_sections(
-        self, page: Page, evidence: dict, sections: list, current_sha: str
+        self, page: Page, evidence: dict, sections: list, current_sha: str,
+        evidence_stale: bool = False,
     ) -> list[Finding]:
         """Evaluate per-section evidence coverage."""
         findings: list[Finding] = []
@@ -188,31 +195,33 @@ class EvidenceDepthEvaluator(BaseEvaluator):
         # Build a map of which page headings have code blocks after them
         headings_with_code = self._headings_with_code(page)
 
-        # Check: sections with code blocks but empty apis
-        for sec in sections:
-            heading = sec.get("heading", "")
-            line = sec.get("line", 0)
-            sec_apis = sec.get("apis") or []
-            sec_claims = sec.get("claims") or []
+        # Check: sections with code blocks but empty apis.
+        # Suppressed when evidence is stale: EG_STALE covers the root cause.
+        if not evidence_stale:
+            for sec in sections:
+                heading = sec.get("heading", "")
+                line = sec.get("line", 0)
+                sec_apis = sec.get("apis") or []
+                sec_claims = sec.get("claims") or []
 
-            # Check if this section's heading corresponds to one that has code blocks
-            if line in headings_with_code and not sec_apis:
-                findings.append(Finding(
-                    level="WARN",
-                    category="EG",
-                    filepath=str(page.filepath),
-                    line_no=line,
-                    message=f"Section \"{heading}\" has code blocks but 0 evidence APIs",
-                    suggestion="Check token extraction or claims.json mapping for this section",
-                    evaluator=self.name,
-                ))
+                # Check if this section's heading corresponds to one that has code blocks
+                if line in headings_with_code and not sec_apis:
+                    findings.append(Finding(
+                        level="WARN",
+                        category="EG_GROUNDING",
+                        filepath=str(page.filepath),
+                        line_no=line,
+                        message=f"Section \"{heading}\" has code blocks but 0 evidence APIs",
+                        suggestion="Check token extraction or claims.json mapping for this section",
+                        evaluator=self.name,
+                    ))
 
         # Check: sections data staleness (model_sha mismatch)
         model_sha = evidence.get("model_sha", "")
         if current_sha and model_sha and model_sha != current_sha:
             findings.append(Finding(
                 level="WARN",
-                category="EG",
+                category="EG_STALE",
                 filepath=str(page.filepath),
                 line_no=1,
                 message="Section-level evidence is stale: model_sha mismatch",
