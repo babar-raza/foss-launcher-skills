@@ -80,16 +80,18 @@ def _make_repo(tmp_path: Path) -> Path:
         "```bash\n.venv/Scripts/python scripts/pipeline/audit.py all\n```\n",
         encoding="utf-8",
     )
-    # docs/QUICKSTART.md — all required substrings present
+    # docs/QUICKSTART.md — all required substrings from REQUIRED_QUICKSTART_SUBSTRINGS present
     docs = tmp_path / "docs"
     docs.mkdir()
     (docs / "QUICKSTART.md").write_text(
         "# Operator Quick-Start Guide\n\n"
-        "## 3. Session Flow: Init → Work → Commit\n\n"
+        "## Step 1: Environment Setup (5 minutes)\n\n"
+        "Install the toolchain.\n\n"
+        "## Step 4: Five Common Operator Workflows (15 minutes)\n\n"
         "Run `/session-start` first.\n\n"
         "## 6. Key Safety Rules\n\n"
         "Always use /commit.\n\n"
-        "## 8. Further Reading\n\n"
+        "## After This Quickstart\n\n"
         "See [AGENTS.md](../AGENTS.md).\n",
         encoding="utf-8",
     )
