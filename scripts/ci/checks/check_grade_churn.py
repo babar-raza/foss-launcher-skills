@@ -57,13 +57,13 @@ def _get_changed_md_files(*, mode: str, base_branch: str) -> list[str]:
     if mode == "staged":
         result = subprocess.run(
             ["git", "diff", "--cached", "--name-only", "--diff-filter=M", "--", "content/**/*.md"],
-            capture_output=True, text=True,
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
         )
     else:  # pr
         result = subprocess.run(
             ["git", "diff", "--name-only", "--diff-filter=M",
              f"{base_branch}...HEAD", "--", "content/**/*.md"],
-            capture_output=True, text=True,
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
         )
     if result.returncode != 0:
         return []
@@ -75,12 +75,12 @@ def _is_grade_only_change(path: str, *, mode: str, base_branch: str) -> bool:
     if mode == "staged":
         result = subprocess.run(
             ["git", "diff", "--cached", "--unified=0", "--", path],
-            capture_output=True, text=True,
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
         )
     else:
         result = subprocess.run(
             ["git", "diff", "--unified=0", f"{base_branch}...HEAD", "--", path],
-            capture_output=True, text=True,
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
         )
     if result.returncode != 0:
         return False

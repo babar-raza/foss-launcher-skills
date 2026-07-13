@@ -201,33 +201,36 @@ while IFS= read -r _line; do changed+=("$_line"); done < <(
         | grep -E '(/en/|^content/blog\.aspose\.org/)'
 )
 if [ ${#changed[@]} -eq 0 ]; then
+    # No English pages staged — skip the API audit ONLY. Do NOT exit the hook:
+    # the early `_pc_exit 0` that used to live here skipped Steps 3-18 for
+    # locale-only commits, which is how the 2026-07-12 wave-3 locale commits
+    # bypassed every later gate (encoding, blog standards, frontmatter YAML).
     _pc_step_end "SKIP"
-    _pc_exit 0
-fi
-
-echo "Running content API audit on staged files (${#changed[@]} English pages)..."
-# Use --files-from to avoid OS argument-list-too-long errors on large commits.
-_tmpfile=$(mktemp /tmp/audit-files-XXXXXX.txt 2>/dev/null || mktemp)
-printf '%s\n' "${changed[@]}" > "$_tmpfile"
-if [ -n "$_HOOK_PYTHON" ]; then
-    "$_HOOK_PYTHON" scripts/pipeline/commands/content/audit.py --files-from "$_tmpfile" --fail-fast
-    status=$?
-    rm -f "$_tmpfile"
-    if [ $status -ne 0 ]; then
-        echo ""
-        echo "BLOCKED: Content has API accuracy failures."
-        echo "Fix the issues above, then re-stage and commit."
-        _pc_step_end "FAIL"
-        _pc_exit 1
-    fi
 else
-    rm -f "$_tmpfile"
-    echo "[Step 2] SKIP: .venv not found — audit skipped." >&2
-    status=0
-fi
-_pc_step_end "PASS"
+    echo "Running content API audit on staged files (${#changed[@]} English pages)..."
+    # Use --files-from to avoid OS argument-list-too-long errors on large commits.
+    _tmpfile=$(mktemp /tmp/audit-files-XXXXXX.txt 2>/dev/null || mktemp)
+    printf '%s\n' "${changed[@]}" > "$_tmpfile"
+    if [ -n "$_HOOK_PYTHON" ]; then
+        "$_HOOK_PYTHON" scripts/pipeline/commands/content/audit.py --files-from "$_tmpfile" --fail-fast
+        status=$?
+        rm -f "$_tmpfile"
+        if [ $status -ne 0 ]; then
+            echo ""
+            echo "BLOCKED: Content has API accuracy failures."
+            echo "Fix the issues above, then re-stage and commit."
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    else
+        rm -f "$_tmpfile"
+        echo "[Step 2] SKIP: .venv not found — audit skipped." >&2
+        status=0
+    fi
+    _pc_step_end "PASS"
 
-echo "Content API audit passed."
+    echo "Content API audit passed."
+fi
 
 # ---------------------------------------------------------------------------
 _pc_step_start "plugin_platform"
@@ -806,6 +809,50 @@ if [ ${#staged_content_files[@]} -gt 0 ]; then
         fi
     else
         echo "[Step 17] SKIP: .venv not found or check_enterprise_link_syntax.py missing." >&2
+    fi
+fi
+_pc_step_end "PASS"
+
+# ---------------------------------------------------------------------------
+_pc_step_start "frontmatter YAML parse"
+# Step 18: Frontmatter YAML parse gate — ALL locales (check_frontmatter_yaml.py)
+# Steps 2/4/5 validate staged ENGLISH files only; locale files previously had
+# no frontmatter gate, which let the 2026-07-12 wave-3 locale commits land
+# unparseable YAML on main and break the Hugo site builds (docs run
+# 29230300508). This step parses the frontmatter of every staged content/*.md
+# file regardless of locale.
+# ---------------------------------------------------------------------------
+staged_all_content_md=()
+while IFS= read -r _fmline; do staged_all_content_md+=("$_fmline"); done < <(
+    git diff --cached --name-only --diff-filter=ACMR | grep -E '^content/.*\.md$' || true
+)
+if [ ${#staged_all_content_md[@]} -gt 0 ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_frontmatter_yaml.py" ]; then
+        # Batch to avoid OS argument list limit (same pattern as Step 13)
+        _fm_exit=0
+        _fm_out=""
+        _fm_batch_size=200
+        for (( _fmi=0; _fmi<${#staged_all_content_md[@]}; _fmi+=_fm_batch_size )); do
+            _fm_batch=("${staged_all_content_md[@]:$_fmi:$_fm_batch_size}")
+            _fm_batch_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_frontmatter_yaml.py \
+                "${_fm_batch[@]}" 2>&1)
+            _fm_batch_code=$?
+            if [ $_fm_batch_code -ne 0 ]; then
+                _fm_exit=1
+                _fm_out+="$_fm_batch_out"$'\n'
+            fi
+        done
+        if [ $_fm_exit -ne 0 ]; then
+            echo "$_fm_out" | sed 's/^/[Step 18] /'
+            echo ""
+            echo "BLOCKED: Staged content file(s) have unparseable YAML frontmatter (see above)."
+            echo "  These files would abort the Hugo site build. Fix the frontmatter YAML"
+            echo "  (most common: a truncated multi-line description with an unterminated quote)."
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    else
+        echo "[Step 18] SKIP: .venv not found or check_frontmatter_yaml.py missing." >&2
     fi
 fi
 _pc_step_end "PASS"

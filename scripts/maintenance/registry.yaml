@@ -125,3 +125,9 @@ scripts:
     purpose: "Batch-add skill_context.py begin/end gates to all skill .md files in skills/"
     created: "2026-04-16"
     status: done
+
+  - path: scripts/maintenance/repair_locale_description_yaml.py
+    kind: repair
+    purpose: "Repair locale content whose YAML frontmatter no longer parses — restores description blocks from last parseable committed version (wave-3 incident 2026-07-13)"
+    created: "2026-07-13"
+    status: done
