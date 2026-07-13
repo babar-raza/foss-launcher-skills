@@ -378,9 +378,14 @@ def record_file(
     if not manifest:
         return False
 
-    normalized = file_path.replace("\\", "/").lstrip("./")
-    touched = manifest.setdefault("touched_files", {})
+    _apply_touch(manifest.setdefault("touched_files", {}), file_path, action, skill)
+    _save_manifest(manifest_path, manifest)
+    return True
 
+
+def _apply_touch(touched: dict, file_path: str, action: str, skill: str | None) -> None:
+    """Apply one file-touch entry to a touched_files dict (no I/O)."""
+    normalized = file_path.replace("\\", "/").lstrip("./")
     if normalized in touched:
         # Update existing entry
         entry = touched[normalized]
@@ -396,16 +401,39 @@ def record_file(
             entry.setdefault("skills", []).append(skill)
     else:
         # New entry
-        entry = {
+        touched[normalized] = {
             "action": action,
             "first_touched": _now_iso(),
             "last_touched": _now_iso(),
             "skills": [skill] if skill else [],
         }
-        touched[normalized] = entry
 
+
+def record_files(
+    file_paths: list[str],
+    action: str = "modified",
+    skill: str | None = None,
+) -> int | None:
+    """Record many file touches with a single manifest load/save.
+
+    Added for TC-W3H-009: per-file `record` CLI calls cost ~1-2 s each
+    (interpreter + manifest round-trip), which pushed agents toward
+    over-broad `adopt --glob`. Batch mode records 1,000 paths in one write.
+
+    Returns the number of files recorded, or None if no active session.
+    """
+    active = _find_active_session()
+    if not active:
+        return None
+    _session_id, manifest_path = active
+    manifest = _load_manifest(manifest_path)
+    if not manifest:
+        return None
+    touched = manifest.setdefault("touched_files", {})
+    for fp in file_paths:
+        _apply_touch(touched, fp, action, skill)
     _save_manifest(manifest_path, manifest)
-    return True
+    return len(file_paths)
 
 
 def get_current_session_id() -> str | None:
@@ -592,6 +620,23 @@ def cmd_init(args: argparse.Namespace) -> int:
 
 
 def cmd_record(args: argparse.Namespace) -> int:
+    if args.files_from:
+        list_path = Path(args.files_from)
+        if not list_path.is_file():
+            print(f"ERROR: --files-from list not found: {args.files_from}", file=sys.stderr)
+            return 1
+        paths = [ln.strip() for ln in list_path.read_text(encoding="utf-8").splitlines()
+                 if ln.strip()]
+        count = record_files(paths, action=args.action, skill=args.skill)
+        if count is None:
+            print("ERROR: no active session. Run 'init' first.", file=sys.stderr)
+            return 1
+        print(f"Recorded {count} files ({args.action})"
+              + (f" [skill: {args.skill}]" if args.skill else ""))
+        return 0
+    if not args.file:
+        print("ERROR: provide --file or --files-from.", file=sys.stderr)
+        return 1
     ok = record_file(args.file, action=args.action, skill=args.skill)
     if not ok:
         print("ERROR: no active session. Run 'init' first.", file=sys.stderr)
@@ -1006,7 +1051,9 @@ def main(argv: list[str] | None = None) -> int:
 
     # record
     p_rec = sub.add_parser("record", help="Record a file touch")
-    p_rec.add_argument("--file", required=True, help="Repo-relative file path")
+    p_rec.add_argument("--file", default=None, help="Repo-relative file path")
+    p_rec.add_argument("--files-from", default=None, dest="files_from",
+                       help="Path to newline-delimited list of files (batch mode, one manifest write)")
     p_rec.add_argument("--action", required=True, choices=["created", "modified", "deleted", "renamed"],
                        help="Type of file operation")
     p_rec.add_argument("--skill", default=None, help="S-{n} skill ID (optional)")

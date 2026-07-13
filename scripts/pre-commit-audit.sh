@@ -857,4 +857,50 @@ if [ ${#staged_all_content_md[@]} -gt 0 ]; then
 fi
 _pc_step_end "PASS"
 
+# ---------------------------------------------------------------------------
+_pc_step_start "translation regression"
+# Step 19: Translation-regression gate — check_translation_regression.py
+# Blocks commits that regress a translated locale description back to English
+# or stage translation-prompt leak text (the silently-parseable wave-3
+# corruption classes; Step 18 only catches UNPARSEABLE frontmatter).
+# Compares staged blobs against HEAD, so pre-existing English descriptions
+# (backlog ST-012) do not block unrelated commits.
+# ---------------------------------------------------------------------------
+staged_locale_md=()
+while IFS= read -r _trline; do staged_locale_md+=("$_trline"); done < <(
+    git diff --cached --name-only --diff-filter=ACMR \
+        | grep -E '^content/[^/]+/[a-z]{2}(-[a-z]{2})?/.*\.md$' \
+        | grep -vE '^content/[^/]+/en/' || true
+)
+if [ ${#staged_locale_md[@]} -gt 0 ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_translation_regression.py" ]; then
+        _tr_exit=0
+        _tr_out=""
+        _tr_batch_size=200
+        for (( _tri=0; _tri<${#staged_locale_md[@]}; _tri+=_tr_batch_size )); do
+            _tr_batch=("${staged_locale_md[@]:$_tri:$_tr_batch_size}")
+            _tr_batch_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_translation_regression.py \
+                --staged "${_tr_batch[@]}" 2>&1)
+            _tr_batch_code=$?
+            if [ $_tr_batch_code -ne 0 ]; then
+                _tr_exit=1
+                _tr_out+="$_tr_batch_out"$'\n'
+            fi
+        done
+        if [ $_tr_exit -ne 0 ]; then
+            echo "$_tr_out" | sed 's/^/[Step 19] /'
+            echo ""
+            echo "BLOCKED: Staged locale file(s) regress translated content (see above)."
+            echo "  R1: a previously-translated description became English — restore the"
+            echo "      translation or fix the producing tool."
+            echo "  R2: translation-prompt leak text staged — remove the leaked prompt."
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    else
+        echo "[Step 19] SKIP: .venv not found or check_translation_regression.py missing." >&2
+    fi
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0

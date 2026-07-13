@@ -34,8 +34,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-_REPO_ROOT = Path(__file__).resolve().parents[4]
-sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
+_DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
+_REPO_ROOT = _DEFAULT_REPO_ROOT
+sys.path.insert(0, str(_DEFAULT_REPO_ROOT / "scripts" / "pipeline"))
+
+
+def configure(*, repo_root: Path | str | None = None) -> None:
+    """Test seam: override _REPO_ROOT (AGENTS.md §16 configure() pattern).
+
+    Call with no arguments to reset to the default.
+    """
+    global _REPO_ROOT
+    _REPO_ROOT = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
 
 from lib.backlink_targets import (
     COMPLIANT,

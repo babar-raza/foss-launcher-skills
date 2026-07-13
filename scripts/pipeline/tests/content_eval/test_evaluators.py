@@ -973,39 +973,41 @@ class TestEvidenceDepth:
         (model_dir / "model.yaml").write_text(
             "repo_sha: current_sha_xyz\n", encoding="utf-8"
         )
-        # Redirect KNOWLEDGE_ROOT to the temp directory
-        monkeypatch.setattr(ed_module, "KNOWLEDGE_ROOT", tmp_path)
+        # Redirect KNOWLEDGE_ROOT via the configure() seam (AGENTS.md §16)
+        ed_module.configure(knowledge_root=tmp_path)
+        try:
+            page = _make_page(textwrap.dedent("""\
+                ---
+                title: Test
+                evidence:
+                  model_sha: "old_stale_sha"
+                  claims: []
+                  apis: []
+                ---
+                ## Create Object
 
-        page = _make_page(textwrap.dedent("""\
-            ---
-            title: Test
-            evidence:
-              model_sha: "old_stale_sha"
-              claims: []
-              apis: []
-            ---
-            ## Create Object
+                ```python
+                obj = Library.create()
+                result = obj.process()
+                ```
 
-            ```python
-            obj = Library.create()
-            result = obj.process()
-            ```
+                ## Save Result
 
-            ## Save Result
-
-            ```python
-            result.save("output.dat")
-            output = result.export()
-            ```
-        """), "content/docs.aspose.org/en/nonexistentfamily/python/test.md")
-        findings = self.evaluator.evaluate(page, None)
-        stale = [f for f in findings if f.category == "EG_STALE" and f.level == "WARN"]
-        grounding = [f for f in findings if f.category == "EG_GROUNDING" and f.level == "WARN"]
-        assert len(stale) >= 1, f"EG_STALE WARN expected for stale evidence; got: {findings}"
-        assert "stale" in stale[0].message.lower()
-        assert grounding == [], (
-            f"EG_GROUNDING must be suppressed when evidence is stale; got: {grounding}"
-        )
+                ```python
+                result.save("output.dat")
+                output = result.export()
+                ```
+            """), "content/docs.aspose.org/en/nonexistentfamily/python/test.md")
+            findings = self.evaluator.evaluate(page, None)
+            stale = [f for f in findings if f.category == "EG_STALE" and f.level == "WARN"]
+            grounding = [f for f in findings if f.category == "EG_GROUNDING" and f.level == "WARN"]
+            assert len(stale) >= 1, f"EG_STALE WARN expected for stale evidence; got: {findings}"
+            assert "stale" in stale[0].message.lower()
+            assert grounding == [], (
+                f"EG_GROUNDING must be suppressed when evidence is stale; got: {grounding}"
+            )
+        finally:
+            ed_module.configure()  # reset KNOWLEDGE_ROOT seam
 
 
 class TestEvidenceBindingTier:

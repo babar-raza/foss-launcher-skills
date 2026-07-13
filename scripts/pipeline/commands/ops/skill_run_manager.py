@@ -43,6 +43,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -53,7 +54,24 @@ if _LIB_DIR not in sys.path:
 from path_utils import repo_rel
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
-_RUNS_DIR = _REPO_ROOT / "reports" / "skill-runs"
+
+
+def _default_runs_dir() -> Path:
+    """Resolve the records directory.
+
+    SKILL_RUN_RECORDS_DIR overrides the default. This exists so hook tests
+    (e.g. test_commit_coauthor_hook.py, which runs commit-msg-skills.sh as a
+    subprocess) can isolate themselves from the repo's LIVE pending records —
+    without it, any real pending record makes those tests fail spuriously
+    (TC-W3H-007).
+    """
+    env = os.environ.get("SKILL_RUN_RECORDS_DIR")
+    if env:
+        return Path(env)
+    return _REPO_ROOT / "reports" / "skill-runs"
+
+
+_RUNS_DIR = _default_runs_dir()
 
 
 def configure(*, runs_dir: Path | str | None = None) -> None:
@@ -65,7 +83,7 @@ def configure(*, runs_dir: Path | str | None = None) -> None:
     if runs_dir is not None:
         _RUNS_DIR = Path(runs_dir)
     else:
-        _RUNS_DIR = _REPO_ROOT / "reports" / "skill-runs"
+        _RUNS_DIR = _default_runs_dir()
 
 
 # ---------------------------------------------------------------------------
@@ -100,6 +118,11 @@ def _parse_declared_skills(declared: str) -> list[str]:
 
 def cmd_create(args: argparse.Namespace) -> int:
     """Create a new pending skill run record."""
+    # Accept both space-separated (--skills S-73 S-62) and comma-separated
+    # (--skills S-73,S-62) forms. Without this, the comma form stored the
+    # literal "S-73,S-62" as ONE skill id and every commit-msg validation
+    # mismatched until the record JSON was hand-edited (TC-W3H-008).
+    args.skills = [s.strip() for arg in args.skills for s in arg.split(",") if s.strip()]
     now = datetime.now(tz=timezone.utc)
     ts = now.strftime("%Y%m%d-%H%M%S")
     slug = "-".join(s.lower().replace("-", "") for s in args.skills[:2])

@@ -1,0 +1,162 @@
+#!/usr/bin/env python3
+"""Translation-regression gate (TC-W3H-006, wave-3 incident).
+
+Blocks commits that REGRESS a translated locale page back to English or
+inject translation-prompt text — the two silently-parseable corruption
+classes the wave-3 locale refresh produced (2,372 English descriptions and
+prompt-leak frontmatter shipped to main with valid YAML; repaired in
+2bbaa64fb5).
+
+Rules (per staged non-English content/*.md file):
+  R1 (FAIL) — staged description looks English while the HEAD version's
+              description does not (translation regression)
+  R2 (FAIL) — staged content contains a known translation-prompt leak phrase
+
+The check compares the STAGED blob against HEAD, so it only fires on commits
+that make a translated field worse — pre-existing English descriptions
+(1,636 tracked in backlog ST-012) do not block unrelated commits.
+
+Usage — staged mode (pre-commit):
+    check_translation_regression.py --staged FILE [FILE ...]
+
+Usage — ref mode (CI over a PR diff):
+    check_translation_regression.py --base origin/main FILE [FILE ...]
+    (compares HEAD:file against BASE:file)
+
+Exit codes:
+    0 — all pass
+    1 — at least one FAIL
+    2 — usage error
+"""
+from __future__ import annotations
+
+import argparse
+import re
+import subprocess
+import sys
+
+import yaml
+
+NONLATIN_LOCALES = {"ar", "bg", "el", "fa", "he", "hi", "ja", "ko", "ru", "sr", "th", "uk", "zh"}
+EN_STOPWORDS = [" the ", " and ", " with ", " for ", " how to ", " using ", " from ", " your ", " all "]
+LEAK_RE = re.compile(
+    r"SÓLO la traducción|ONLY the translation|Preservar todo el formato|"
+    r"Preserve all formatting|shortcodes de Hugo exactamente|Hugo shortcodes exactly|"
+    r"No explicaciones, notas ni comentarios|Do not add, remove, or reorder content"
+)
+
+
+def _split_fm(text: str) -> str | None:
+    if not text.startswith("---"):
+        return None
+    end = text.find("\n---", 3)
+    return text[3:end] if end != -1 else None
+
+
+def _description(text: str) -> str | None:
+    fm = _split_fm(text)
+    if fm is None:
+        return None
+    try:
+        data = yaml.safe_load(fm)
+    except yaml.YAMLError:
+        return None  # unparseable frontmatter is check_frontmatter_yaml's job
+    if isinstance(data, dict):
+        value = data.get("description")
+        return value if isinstance(value, str) else None
+    return None
+
+
+def _ascii_alpha_frac(s: str) -> float:
+    alpha = [c for c in s if c.isalpha()]
+    if len(alpha) < 20:
+        return 0.0
+    return sum(1 for c in alpha if c.isascii()) / len(alpha)
+
+
+def looks_english(text: str | None, locale: str) -> bool:
+    """Heuristic: does this description read as English for the given locale?"""
+    if not text or locale == "en":
+        return False
+    if locale in NONLATIN_LOCALES:
+        return _ascii_alpha_frac(text) > 0.7
+    low = f" {text.lower()} "
+    return sum(1 for w in EN_STOPWORDS if w in low) >= 4
+
+
+def locale_of(path: str) -> str:
+    """content/<site>/<locale>/... -> locale (or 'en' if shape is unexpected)."""
+    parts = path.replace("\\", "/").split("/")
+    return parts[2] if len(parts) > 2 and parts[0] == "content" else "en"
+
+
+def check_pair(cur_text: str, old_text: str | None, locale: str) -> list[str]:
+    """Pure core: return failure codes for one (current, previous) pair."""
+    failures = []
+    if LEAK_RE.search(cur_text):
+        failures.append("R2")
+    cur_desc = _description(cur_text)
+    if looks_english(cur_desc, locale):
+        old_desc = _description(old_text) if old_text else None
+        # Only a REGRESSION blocks: previous version had a non-English desc.
+        if old_desc and not looks_english(old_desc, locale):
+            failures.append("R1")
+    return failures
+
+
+def _git_show(ref: str) -> str | None:
+    result = subprocess.run(["git", "show", ref], capture_output=True)
+    if result.returncode != 0:
+        return None
+    return result.stdout.decode("utf-8", errors="replace")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Translation-regression gate")
+    parser.add_argument("files", nargs="*", help="content .md files to check")
+    parser.add_argument("--staged", action="store_true",
+                        help="compare staged blob (:0:file) against HEAD:file")
+    parser.add_argument("--base", default=None,
+                        help="compare HEAD:file against BASE:file (CI mode)")
+    args = parser.parse_args()
+
+    if not args.files:
+        parser.print_usage(sys.stderr)
+        return 2
+    if not args.staged and not args.base:
+        print("ERROR: pass --staged or --base <ref>", file=sys.stderr)
+        return 2
+
+    fail_count = 0
+    for f in args.files:
+        path = f.replace("\\", "/")
+        if not path.endswith(".md") or not path.startswith("content/"):
+            continue
+        locale = locale_of(path)
+        if locale == "en":
+            continue
+        if args.staged:
+            cur = _git_show(f":0:{path}")
+            old = _git_show(f"HEAD:{path}")
+        else:
+            cur = _git_show(f"HEAD:{path}")
+            old = _git_show(f"{args.base}:{path}")
+        if cur is None:
+            continue  # deleted / not in this diff side
+        for code in check_pair(cur, old, locale):
+            fail_count += 1
+            if code == "R1":
+                print(f"R1 FAIL {path}: description regressed to English "
+                      f"(previous version was translated, locale '{locale}')")
+            else:
+                print(f"R2 FAIL {path}: translation-prompt leak phrase found")
+
+    if fail_count:
+        print(f"\ncheck_translation_regression: {fail_count} FAIL(s)")
+        return 1
+    print("check_translation_regression: OK")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

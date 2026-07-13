@@ -32,6 +32,25 @@ if _LIB_DIR not in sys.path:
 from content_discovery import discover_content, _infer_subdomain  # noqa: E402
 from core.markdown import parse_frontmatter  # noqa: E402
 
+# Test seams (AGENTS.md §16 configure() pattern) — replace unittest.mock.patch
+# of module internals in tests (TC-W3H-007).
+_cfg_discover_content = None
+_cfg_infer_subdomain = None
+_cfg_knowledge_factory = None
+
+
+def configure(
+    *,
+    discover_content=None,
+    infer_subdomain=None,
+    knowledge_factory=None,
+) -> None:
+    """Inject test doubles. Call with no arguments to reset to defaults."""
+    global _cfg_discover_content, _cfg_infer_subdomain, _cfg_knowledge_factory
+    _cfg_discover_content = discover_content
+    _cfg_infer_subdomain = infer_subdomain
+    _cfg_knowledge_factory = knowledge_factory
+
 
 def detect_stale_claims(filepath: "Path | str", knowledge) -> list[str]:
     """Return claim IDs in evidence.claims not present in knowledge.claim_ids.
@@ -79,7 +98,7 @@ def report_stale_claims(
     """
     from knowledge_core import Knowledge  # noqa: E402 (avoid circular at module level)
 
-    knowledge = Knowledge(family, platform)
+    knowledge = (_cfg_knowledge_factory or Knowledge)(family, platform)
     if not knowledge.available:
         return {
             "family": family,
@@ -92,9 +111,10 @@ def report_stale_claims(
             "stale": {},
         }
 
-    files = discover_content(family, platform)
+    files = (_cfg_discover_content or discover_content)(family, platform)
     if subdomain is not None:
-        files = [f for f in files if _infer_subdomain(f) == subdomain]
+        infer = _cfg_infer_subdomain or _infer_subdomain
+        files = [f for f in files if infer(f) == subdomain]
 
     stale_map: dict[str, list[str]] = {}
     for f in files:
@@ -172,7 +192,7 @@ def report_stale_apis(
     """
     from knowledge_core import Knowledge  # noqa: E402 (avoid circular at module level)
 
-    knowledge = Knowledge(family, platform)
+    knowledge = (_cfg_knowledge_factory or Knowledge)(family, platform)
     if not knowledge.available:
         return {
             "family": family,
@@ -185,9 +205,10 @@ def report_stale_apis(
             "stale": {},
         }
 
-    files = discover_content(family, platform)
+    files = (_cfg_discover_content or discover_content)(family, platform)
     if subdomain is not None:
-        files = [f for f in files if _infer_subdomain(f) == subdomain]
+        infer = _cfg_infer_subdomain or _infer_subdomain
+        files = [f for f in files if infer(f) == subdomain]
 
     stale_map: dict[str, list[str]] = {}
     for f in files:

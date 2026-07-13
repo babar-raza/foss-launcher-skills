@@ -242,6 +242,27 @@ class TestRecordFile:
         touched = session_ledger.get_touched_files()
         assert touched["content/foo.md"]["action"] == "created"
 
+    def test_record_files_batch(self, active_session):
+        """TC-W3H-009: batch mode records many paths with one manifest write."""
+        paths = [f"content/kb.aspose.org/de/pdf/net/page-{i}.md" for i in range(1000)]
+        count = session_ledger.record_files(paths, action="modified", skill="S-73")
+        assert count == 1000
+        touched = session_ledger.get_touched_files()
+        assert len(touched) == 1000
+        assert touched[paths[0]]["skills"] == ["S-73"]
+
+    def test_record_files_batch_no_session(self, isolate_session_dir):
+        assert session_ledger.record_files(["content/foo.md"]) is None
+
+    def test_record_files_batch_merges_existing(self, active_session):
+        session_ledger.record_file("content/foo.md", action="created", skill="S-19")
+        session_ledger.record_files(["content/foo.md", "content/bar.md"],
+                                    action="modified", skill="S-73")
+        touched = session_ledger.get_touched_files()
+        assert touched["content/foo.md"]["action"] == "created"  # not downgraded
+        assert "S-73" in touched["content/foo.md"]["skills"]
+        assert touched["content/bar.md"]["action"] == "modified"
+
     def test_skill_deduplication(self, active_session):
         session_ledger.record_file("content/foo.md", action="modified", skill="S-23")
         session_ledger.record_file("content/foo.md", action="modified", skill="S-23")

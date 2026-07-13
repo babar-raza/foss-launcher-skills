@@ -30,6 +30,13 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
 
 import commands.ops.backlink_backfill as _bbm
+
+
+@pytest.fixture(autouse=True)
+def _reset_bbm_configure():
+    """Reset the backlink_backfill configure() seam after every test."""
+    yield
+    _bbm.configure()
 from commands.ops.backlink_backfill import (
     _build_see_also_entry,
     _apply_overview_template,
@@ -418,7 +425,7 @@ class TestBackfillMarkdownIdempotency:
 
     @pytest.fixture(autouse=True)
     def patch_repo_root(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(_bbm, "_REPO_ROOT", tmp_path)
+        _bbm.configure(repo_root=tmp_path)  # seam (AGENTS.md §16)
 
     def test_idempotent_when_url_already_present(self, tmp_path):
         """No second See Also entry if the target URL is already in the body."""
@@ -1046,7 +1053,7 @@ class TestBackfillNegativeControls:
 
     def test_bf_neg_002_exact_url_idempotent_skip(self, tmp_path, monkeypatch):
         """TC-BF-NEG-002: exact URL already in body → idempotent skip, skipped=True."""
-        monkeypatch.setattr(_bbm, "_REPO_ROOT", tmp_path)
+        _bbm.configure(repo_root=tmp_path)  # seam (AGENTS.md §16)
         target_url = "https://blog.aspose.com/"
         body_content = (
             "## Related Resources\n\n"
@@ -1087,7 +1094,7 @@ class TestBackfillNegativeControls:
     # TC-4: NEAR_DUPLICATE hard-block (2026-07-04)
     def test_near_duplicate_hard_block_at_high_similarity(self, tmp_path, monkeypatch):
         """TC-BF-NEG-HARD-001: Jaccard sim >= 0.90 → injection hard-blocked (skipped=True, NEAR_DUPLICATE_HARD_BLOCK)."""
-        monkeypatch.setattr(_bbm, "_REPO_ROOT", tmp_path)
+        _bbm.configure(repo_root=tmp_path)  # seam (AGENTS.md §16)
         # Build a body where the existing "See Also" entry has nearly identical tokens
         # to the candidate entry. After URL-stripping, both reduce to {cells, python, knowledge, base}.
         # Jaccard of {cells,python,knowledge,base} vs {cells,python,knowledge,base} = 1.0 >= 0.90.
@@ -1117,7 +1124,7 @@ class TestBackfillNegativeControls:
 
     def test_near_duplicate_below_hard_block_still_warns(self, tmp_path, monkeypatch):
         """TC-BF-NEG-HARD-002: 0.65 <= Jaccard < 0.90 → warning-only, injection proceeds."""
-        monkeypatch.setattr(_bbm, "_REPO_ROOT", tmp_path)
+        _bbm.configure(repo_root=tmp_path)  # seam (AGENTS.md §16)
         # Body tokens ≈ {words, net, blog} — same as in existing TC-BF-NEG-001.
         # Similarity 0.75 is above warn threshold (0.65) but below hard-block (0.90).
         body_content = (
@@ -1142,7 +1149,7 @@ class TestBackfillNegativeControls:
 
     def test_bf_neg_001_near_duplicate_warning_accumulated(self, tmp_path, monkeypatch):
         """TC-BF-NEG-001: near-duplicate in existing body → warning_messages non-empty, single link injected."""
-        monkeypatch.setattr(_bbm, "_REPO_ROOT", tmp_path)
+        _bbm.configure(repo_root=tmp_path)  # seam (AGENTS.md §16)
         from commands.ops.backlink_backfill import _detect_near_duplicate
         # Body sentence shares enough tokens with the entry to trigger Jaccard >= 0.65.
         # After URL-stripping, entry tokens ≈ {words, net, blog}.
@@ -1256,7 +1263,7 @@ family_name: Aspose.Test FOSS
 
     def test_oscillation_guard_triggers_when_marker_present_url_absent(self, tmp_path, monkeypatch):
         """TC-BL-005-05-A: frontmatter field set but URL removed from content -> oscillation_guard."""
-        monkeypatch.setattr(_bbm, "_REPO_ROOT", tmp_path)
+        _bbm.configure(repo_root=tmp_path)  # seam (AGENTS.md §16)
         target_url = "https://products.aspose.com/3d/python-net/"
         # Frontmatter has the injected marker but content does NOT have the URL
         content = "Some overview text about Aspose.3D FOSS library. No enterprise link."
@@ -1280,7 +1287,7 @@ family_name: Aspose.Test FOSS
 
     def test_oscillation_guard_does_not_trigger_when_url_present(self, tmp_path, monkeypatch):
         """TC-BL-005-05-B: frontmatter field AND URL in content -> idempotent (not oscillation_guard)."""
-        monkeypatch.setattr(_bbm, "_REPO_ROOT", tmp_path)
+        _bbm.configure(repo_root=tmp_path)  # seam (AGENTS.md §16)
         target_url = "https://products.aspose.com/3d/python-net/"
         # Content has the actual link AND frontmatter has the injected field
         content = (
@@ -1307,7 +1314,7 @@ family_name: Aspose.Test FOSS
 
     def test_oscillation_guard_does_not_trigger_without_marker(self, tmp_path, monkeypatch):
         """TC-BL-005-05-C: no frontmatter field, no URL -> injection proceeds (not oscillation_guard)."""
-        monkeypatch.setattr(_bbm, "_REPO_ROOT", tmp_path)
+        _bbm.configure(repo_root=tmp_path)  # seam (AGENTS.md §16)
         target_url = "https://products.aspose.com/3d/python-net/"
         content = "Some overview text about Aspose.3D FOSS library. No enterprise link yet."
         fpath = self._make_yaml_file(tmp_path, content)  # no extra_fm
@@ -1327,7 +1334,7 @@ family_name: Aspose.Test FOSS
 
     def test_oscillation_guard_marker_embedded_on_write(self, tmp_path, monkeypatch):
         """TC-BL-005-05-D: after --write, frontmatter has enterprise_backlink_injected; no HTML comment in content."""
-        monkeypatch.setattr(_bbm, "_REPO_ROOT", tmp_path)
+        _bbm.configure(repo_root=tmp_path)  # seam (AGENTS.md §16)
         target_url = "https://products.aspose.com/3d/python-net/"
         content = "Some overview text about Aspose.3D FOSS library. No enterprise link yet."
         fpath = self._make_yaml_file(tmp_path, content)

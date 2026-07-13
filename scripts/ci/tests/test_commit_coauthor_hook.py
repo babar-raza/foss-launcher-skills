@@ -14,13 +14,17 @@ Covered scenarios:
   CA-07  Agent commit, 3 co-authors                   → blocked  (exit 1)
   CA-08  Operator bypass SKIP_SKILL_COMMIT_CHECK=1    → allowed  (exit 0, full bypass)
 
-Note: CA-02 and CA-03 only block when content/ files are staged (the hook exits 0
-before the co-author check if no content files are staged).  The tests below use
-a mock git environment so that staged-file detection is bypassed.
+Note: the co-author checks run BEFORE the hook's staged-file gate, so blocked
+cases (CA-02/03/07) are staging-independent. Allowed cases exit 0 at the
+staged-file gate. _run_hook isolates the hook from the developer's real repo
+state (temp GIT_INDEX_FILE seeded from HEAD + empty SKILL_RUN_RECORDS_DIR) so
+live staged content or pending skill-run records cannot fail these tests
+(TC-W3H-007).
 """
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -64,11 +68,29 @@ def _run_hook(msg: str, env_overrides: dict | None = None) -> int:
         f.write(msg)
         tmp_path = f.name
 
+    # Isolation (TC-W3H-007): the hook consults the REAL repo state, so
+    # without these overrides the tests fail spuriously whenever the
+    # developer has content staged or a live pending skill-run record.
+    #  - GIT_INDEX_FILE: temp index seeded from HEAD -> `git diff --cached`
+    #    is deterministically empty for the hook subprocess. The co-author
+    #    checks (CA-02/03/07) fire BEFORE the staged-file check, so blocked
+    #    cases are unaffected; allowed cases exit 0 at the staged-file gate.
+    #  - SKILL_RUN_RECORDS_DIR: empty temp dir -> find-pending sees nothing.
+    tmp_index = tempfile.NamedTemporaryFile(suffix=".index", delete=False)
+    tmp_index.close()
+    tmp_records = tempfile.mkdtemp(prefix="skillruns-")
+
     try:
         env = dict(os.environ)
         env.pop("SKIP_SKILL_COMMIT_CHECK", None)
         env.pop("GOV_BYPASS_TASKCARD", None)
         env.pop("GOV_BYPASS_REASON", None)
+        env["GIT_INDEX_FILE"] = tmp_index.name
+        env["SKILL_RUN_RECORDS_DIR"] = tmp_records
+        subprocess.run(
+            ["git", "read-tree", "HEAD"],
+            env=env, cwd=str(_REPO_ROOT), capture_output=True, check=True,
+        )
         if env_overrides:
             env.update(env_overrides)
 
@@ -82,6 +104,8 @@ def _run_hook(msg: str, env_overrides: dict | None = None) -> int:
         return result.returncode
     finally:
         os.unlink(tmp_path)
+        os.unlink(tmp_index.name)
+        shutil.rmtree(tmp_records, ignore_errors=True)
 
 
 # ---------------------------------------------------------------------------

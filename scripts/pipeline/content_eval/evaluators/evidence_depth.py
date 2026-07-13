@@ -13,6 +13,15 @@ from . import BaseEvaluator
 KNOWLEDGE_ROOT = Path("knowledge")
 
 
+def configure(*, knowledge_root: Path | str | None = None) -> None:
+    """Test seam: override KNOWLEDGE_ROOT (AGENTS.md §16 configure() pattern).
+
+    Call with no arguments to reset to the default.
+    """
+    global KNOWLEDGE_ROOT
+    KNOWLEDGE_ROOT = Path(knowledge_root) if knowledge_root is not None else Path("knowledge")
+
+
 def classify_binding_tier(evidence: dict, current_sha: str = "") -> str:
     """Classify evidence binding quality into one of four tiers (GR-G09).
 

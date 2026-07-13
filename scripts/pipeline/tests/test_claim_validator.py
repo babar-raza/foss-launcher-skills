@@ -1,15 +1,26 @@
 """Tests for evidence/claim_validator.py — stale claim detection (TC-CLAIM-05).
 
-All tests use tmp_path only; no real content/ files are read.
+All tests use tmp_path only; no real content/ files are read. Module
+collaborators are injected via the configure() seam (AGENTS.md §16) instead
+of unittest.mock.patch on internals (TC-W3H-007).
 """
 from __future__ import annotations
 
 import json
 import textwrap
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
+
+from evidence import claim_validator
+
+
+@pytest.fixture(autouse=True)
+def _reset_claim_validator_configure():
+    """Reset the claim_validator configure() seam after every test."""
+    yield
+    claim_validator.configure()
 
 
 # ---------------------------------------------------------------------------
@@ -100,18 +111,17 @@ def test_report_stale_produces_valid_json(tmp_path):
 
     f = _write_md(tmp_path, "test.md", ["CLM-cells-abc123", "ERC-STALE-0000"])
 
-    with patch("evidence.claim_validator.discover_content") as mock_disc, \
-         patch("knowledge_core.Knowledge") as mock_klass:
-        mock_klass.return_value = _knowledge({"CLM-cells-abc123"})
-        mock_disc.return_value = [f]
-
-        report = report_stale_claims("cells", "java")
-        # Must be JSON-serialisable
-        serialised = json.dumps(report)
-        parsed = json.loads(serialised)
-        assert "stale" in parsed
-        assert "total_files_scanned" in parsed
-        assert "total_stale_claims" in parsed
+    claim_validator.configure(
+        discover_content=lambda family, platform: [f],
+        knowledge_factory=lambda family, platform: _knowledge({"CLM-cells-abc123"}),
+    )
+    report = report_stale_claims("cells", "java")
+    # Must be JSON-serialisable
+    serialised = json.dumps(report)
+    parsed = json.loads(serialised)
+    assert "stale" in parsed
+    assert "total_files_scanned" in parsed
+    assert "total_stale_claims" in parsed
 
 
 def test_report_stale_no_content_files_modified(tmp_path):
@@ -121,12 +131,11 @@ def test_report_stale_no_content_files_modified(tmp_path):
     f = _write_md(tmp_path, "test.md", ["CLM-cells-abc123", "ERC-STALE-0000"])
     content_before = f.read_bytes()
 
-    with patch("evidence.claim_validator.discover_content") as mock_disc, \
-         patch("knowledge_core.Knowledge") as mock_klass:
-        mock_klass.return_value = _knowledge({"CLM-cells-abc123"})
-        mock_disc.return_value = [f]
-
-        report_stale_claims("cells", "java")
+    claim_validator.configure(
+        discover_content=lambda family, platform: [f],
+        knowledge_factory=lambda family, platform: _knowledge({"CLM-cells-abc123"}),
+    )
+    report_stale_claims("cells", "java")
 
     assert f.read_bytes() == content_before, "report_stale_claims modified a content file"
 
@@ -137,17 +146,15 @@ def test_report_stale_respects_subdomain_filter(tmp_path):
     f_ref = _write_md(tmp_path, "ref.md", ["ERC-STALE-0001"])
     f_blog = _write_md(tmp_path, "blog.md", ["ERC-STALE-0002"])
 
-    with patch("evidence.claim_validator.discover_content") as mock_disc, \
-         patch("evidence.claim_validator._infer_subdomain") as mock_infer, \
-         patch("knowledge_core.Knowledge") as mock_klass:
-        mock_klass.return_value = _knowledge(set())
-        mock_disc.return_value = [f_ref, f_blog]
-        mock_infer.side_effect = lambda p: (
+    claim_validator.configure(
+        discover_content=lambda family, platform: [f_ref, f_blog],
+        infer_subdomain=lambda p: (
             "reference.aspose.org" if p == f_ref else "blog.aspose.org"
-        )
-
-        report = report_stale_claims("cells", "java",
-                                     subdomain="reference.aspose.org")
+        ),
+        knowledge_factory=lambda family, platform: _knowledge(set()),
+    )
+    report = report_stale_claims("cells", "java",
+                                 subdomain="reference.aspose.org")
 
     assert report["total_files_scanned"] == 1
     assert str(f_ref) in report["stale"]
@@ -160,9 +167,8 @@ def test_report_stale_unavailable_knowledge(tmp_path):
     k = MagicMock()
     k.available = False
 
-    with patch("knowledge_core.Knowledge") as mock_klass:
-        mock_klass.return_value = k
-        report = report_stale_claims("cells", "java")
+    claim_validator.configure(knowledge_factory=lambda family, platform: k)
+    report = report_stale_claims("cells", "java")
 
     assert "error" in report
     assert report["total_files_scanned"] == 0
@@ -257,17 +263,16 @@ def test_report_stale_apis_produces_valid_json(tmp_path):
 
     f = _write_md_with_apis(tmp_path, "test.md", ["GhostClass.method"])
 
-    with patch("evidence.claim_validator.discover_content") as mock_disc, \
-         patch("knowledge_core.Knowledge") as mock_klass:
-        mock_klass.return_value = _knowledge_with_classes(set())
-        mock_disc.return_value = [f]
-
-        report = report_stale_apis("barcode", "python")
-        serialised = json.dumps(report)
-        parsed = json.loads(serialised)
-        assert "stale" in parsed
-        assert "total_files_scanned" in parsed
-        assert "total_stale_apis" in parsed
+    claim_validator.configure(
+        discover_content=lambda family, platform: [f],
+        knowledge_factory=lambda family, platform: _knowledge_with_classes(set()),
+    )
+    report = report_stale_apis("barcode", "python")
+    serialised = json.dumps(report)
+    parsed = json.loads(serialised)
+    assert "stale" in parsed
+    assert "total_files_scanned" in parsed
+    assert "total_stale_apis" in parsed
 
 
 def test_report_stale_apis_no_content_files_modified(tmp_path):
@@ -277,12 +282,11 @@ def test_report_stale_apis_no_content_files_modified(tmp_path):
     f = _write_md_with_apis(tmp_path, "test.md", ["GhostClass.method"])
     content_before = f.read_bytes()
 
-    with patch("evidence.claim_validator.discover_content") as mock_disc, \
-         patch("knowledge_core.Knowledge") as mock_klass:
-        mock_klass.return_value = _knowledge_with_classes(set())
-        mock_disc.return_value = [f]
-
-        report_stale_apis("barcode", "python")
+    claim_validator.configure(
+        discover_content=lambda family, platform: [f],
+        knowledge_factory=lambda family, platform: _knowledge_with_classes(set()),
+    )
+    report_stale_apis("barcode", "python")
 
     assert f.read_bytes() == content_before, "report_stale_apis modified a content file"
 
@@ -293,9 +297,8 @@ def test_report_stale_apis_unavailable_knowledge(tmp_path):
     k = MagicMock()
     k.available = False
 
-    with patch("knowledge_core.Knowledge") as mock_klass:
-        mock_klass.return_value = k
-        report = report_stale_apis("barcode", "python")
+    claim_validator.configure(knowledge_factory=lambda family, platform: k)
+    report = report_stale_apis("barcode", "python")
 
     assert "error" in report
     assert report["total_files_scanned"] == 0

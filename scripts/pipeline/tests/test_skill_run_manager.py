@@ -63,6 +63,19 @@ class TestCreate:
         assert record["retroactive"] is True
         assert _get_run_id(tmp_path).startswith("retroactive-")
 
+    def test_create_comma_separated_skills_split(self, tmp_path):
+        """--skills S-73,S-62 must store two ids, not one literal (TC-W3H-008)."""
+        rc = skill_run_manager.main(["create", "--skills", "S-73,S-62"])
+        assert rc == 0
+        record = _load_record(tmp_path)
+        assert record["skills_invoked"] == ["S-73", "S-62"]
+
+    def test_create_mixed_comma_and_space_skills(self, tmp_path):
+        rc = skill_run_manager.main(["create", "--skills", "S-73,S-62", "S-76"])
+        assert rc == 0
+        record = _load_record(tmp_path)
+        assert record["skills_invoked"] == ["S-73", "S-62", "S-76"]
+
 
 # ---------------------------------------------------------------------------
 # TestRecordStep
