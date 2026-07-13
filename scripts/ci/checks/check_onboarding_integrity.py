@@ -58,9 +58,9 @@ def configure(repo_root: Path | None = None) -> None:
 # Substrings that must appear in docs/QUICKSTART.md.
 # Update here when a section is renamed — do NOT rename sections to avoid updating this list.
 REQUIRED_QUICKSTART_SUBSTRINGS = [
-    "Session Flow",
-    "Safety Rules",
-    "Further Reading",
+    "Environment Setup",
+    "Five Common Operator Workflows",
+    "After This Quickstart",
     "/session-start",
 ]
 
