@@ -152,7 +152,14 @@ def _claim_direction(text: str, start: int, end: int) -> str | None:
     """Guess claimed direction from context around the format mention."""
     # 80 chars before and after the format match
     window_start = max(0, start - 80)
-    window = text[window_start:end + 80]
+    window_end = end + 80
+    # If the right edge falls mid-word, extend to the next word boundary so
+    # regex  anchors don't fire falsely at the truncation point
+    # (e.g. "human-read" from "human-readable" would match read at EOS).
+    if window_end < len(text) and text[window_end - 1 : window_end].isalpha():
+        while window_end < len(text) and text[window_end].isalpha():
+            window_end += 1
+    window = text[window_start:window_end]
 
     has_export = bool(_EXPORT_VERB_RE.search(window))
     has_import = bool(_IMPORT_VERB_RE.search(window))
