@@ -19,6 +19,7 @@ Constants::
 """
 from __future__ import annotations
 
+import copy
 import hashlib
 import logging
 import re
@@ -1400,15 +1401,24 @@ def _flatten_inheritance(classes: list[dict]) -> None:
             parent = by_name.get(base_name)
             if parent is None:
                 continue
+            # Deep-copy each inherited member — the parent's method/property
+            # dicts must never be shared by reference across classes. Without
+            # this, any later pass that mutates one class's copy of an
+            # inherited member (e.g. a doc backfill) silently corrupts the
+            # parent's own entry and every other class that inherited the
+            # same member, since they all pointed at the identical object.
+            # Confirmed root cause of ST-013 (3d/java truth audit 2026-07-14):
+            # identical wrong doc text appeared on ~37 unrelated pages because
+            # they all rendered the same shared, mutated dict.
             child_method_names = {m["name"] for m in cls.get("methods", [])}
             for m in parent.get("methods", []):
                 if m["name"] not in child_method_names:
-                    cls.setdefault("methods", []).append(m)
+                    cls.setdefault("methods", []).append(copy.deepcopy(m))
                     child_method_names.add(m["name"])
             child_prop_names = {p["name"] for p in cls.get("properties", [])}
             for p in parent.get("properties", []):
                 if p["name"] not in child_prop_names:
-                    cls.setdefault("properties", []).append(p)
+                    cls.setdefault("properties", []).append(copy.deepcopy(p))
                     child_prop_names.add(p["name"])
         visiting.discard(cls_name)
         resolved.add(cls_name)
