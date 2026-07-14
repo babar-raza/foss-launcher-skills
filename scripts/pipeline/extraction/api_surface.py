@@ -44,6 +44,7 @@ from extraction.tree_helpers import (
     child_by_field,
     collect_nodes,
     find_child_by_type,
+    find_children_by_type,
     is_public,
     node_text,
     visibility_tier,
@@ -392,6 +393,38 @@ def _extract_doc_comment(node, language: str) -> str:
 # Python property extraction
 # ---------------------------------------------------------------------------
 
+def _all_decorator_text(fn) -> str:
+    """Return the combined text of every decorator attached to *fn*.
+
+    A Python function can carry multiple stacked decorators, e.g.::
+
+        @property
+        @abstractmethod
+        def font_name(self) -> str: ...
+
+    Checking only the single nearest decorator (a direct child of *fn*, or
+    its one immediate previous sibling) misses this: ``@abstractmethod`` is
+    the nearest sibling to the function, so a check for ``@property`` alone
+    against that one node never finds it. This walks the full run of
+    consecutive ``decorator`` nodes — as direct children of *fn* (some
+    tree-sitter grammars attach them there) and as consecutive preceding
+    siblings (the more common form) — and returns their concatenated text
+    so callers can search across the whole stack, not just one layer of it.
+
+    Root cause of ST-014 (font/python truth audit, 2026-07-24): 56 of 57
+    FAILs traced to this single-decorator blind spot classifying stacked
+    ``@property @abstractmethod`` members as plain callable methods.
+    """
+    parts = [node_text(d) for d in find_children_by_type(fn, "decorator")]
+
+    node = fn.prev_named_sibling
+    while node is not None and node.type == "decorator":
+        parts.append(node_text(node))
+        node = node.prev_named_sibling
+
+    return " ".join(parts)
+
+
 def _extract_python_properties(
     cnode, cname: str, rel: str, family: str,
 ) -> tuple[list[dict[str, Any]], list[dict]]:
@@ -407,14 +440,7 @@ def _extract_python_properties(
     # TC-SYS-019: pre-scan for @name.setter decorators to detect writable properties.
     setter_names: set[str] = set()
     for fn in func_nodes:
-        dec = find_child_by_type(fn, "decorator")
-        if dec is None:
-            prev = fn.prev_named_sibling
-            if prev and prev.type == "decorator":
-                dec = prev
-        if dec is None:
-            continue
-        dec_text = node_text(dec)
+        dec_text = _all_decorator_text(fn)
         # Match @prop_name.setter patterns
         if ".setter" in dec_text:
             fn_name = _node_name(fn, "python")
@@ -422,16 +448,9 @@ def _extract_python_properties(
                 setter_names.add(fn_name)
 
     for fn in func_nodes:
-        # check for @property decorator
-        dec = find_child_by_type(fn, "decorator")
-        if dec is None:
-            # check previous sibling
-            prev = fn.prev_named_sibling
-            if prev and prev.type == "decorator":
-                dec = prev
-        if dec is None:
-            continue
-        dec_text = node_text(dec)
+        # check for @property anywhere in the decorator stack (e.g. stacked
+        # with @abstractmethod — see _all_decorator_text)
+        dec_text = _all_decorator_text(fn)
         if "@property" not in dec_text:
             continue
         pname = _node_name(fn, "python")
@@ -1681,17 +1700,14 @@ def extract_api_surface(
                     if _in_nested:
                         continue
 
-                # Skip Python @property and setter/deleter — handled by _extract_python_properties
+                # Skip Python @property and setter/deleter — handled by _extract_python_properties.
+                # Checks the full decorator stack (see _all_decorator_text), not just the
+                # single nearest decorator — a bare @abstractmethod check would otherwise
+                # miss @property stacked with another decorator (root cause of ST-014).
                 if language == "python" and mnode.type == "function_definition":
-                    dec = find_child_by_type(mnode, "decorator")
-                    if dec is None:
-                        prev = mnode.prev_named_sibling
-                        if prev and prev.type == "decorator":
-                            dec = prev
-                    if dec is not None:
-                        dec_text = node_text(dec)
-                        if "@property" in dec_text or ".setter" in dec_text or ".deleter" in dec_text:
-                            continue
+                    dec_text = _all_decorator_text(mnode)
+                    if "@property" in dec_text or ".setter" in dec_text or ".deleter" in dec_text:
+                        continue
 
                 # FR-14: TypeScript getter/setter accessors → kind: property, not callable
                 if language in ("typescript", "javascript"):
