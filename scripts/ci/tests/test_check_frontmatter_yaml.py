@@ -237,3 +237,32 @@ class TestCli:
     def test_scan_missing_root_exit_2(self, tmp_path):
         result = _run("--scan", "--root", str(tmp_path / "nope"))
         assert result.returncode == 2
+
+    def test_staged_mode_reads_index_not_worktree(self, tmp_path):
+        """--staged must catch a corrupted STAGED blob even when the worktree
+        copy is clean (2026-07-14 pilot negative-control gap)."""
+        repo = tmp_path / "repo"
+        repo.mkdir()
+        def git(*a):
+            return subprocess.run(["git"] + list(a), cwd=str(repo),
+                                  capture_output=True, text=True, check=True)
+        git("init", "-q")
+        git("config", "user.email", "t@t"); git("config", "user.name", "t")
+        target = repo / "content" / "docs.aspose.org" / "bg" / "x.md"
+        target.parent.mkdir(parents=True)
+        target.write_text(VALID_SIMPLE, encoding="utf-8")
+        git("add", "-A"); git("commit", "-qm", "init")
+        # Stage the CORRUPTED version, then restore the CLEAN copy on disk
+        target.write_text(CORRUPT_TRUNCATED_QUOTE, encoding="utf-8")
+        git("add", "content/docs.aspose.org/bg/x.md")
+        target.write_text(VALID_SIMPLE, encoding="utf-8")
+        rel = "content/docs.aspose.org/bg/x.md"
+        # Worktree mode passes (disk is clean) — the historical gap
+        disk = subprocess.run([sys.executable, str(CHECKER), rel],
+                              cwd=str(repo), capture_output=True, text=True)
+        assert disk.returncode == 0
+        # Staged mode must FAIL (index holds the corruption)
+        staged = subprocess.run([sys.executable, str(CHECKER), "--staged", rel],
+                                cwd=str(repo), capture_output=True, text=True)
+        assert staged.returncode == 1, staged.stdout + staged.stderr
+        assert "F1 FAIL" in staged.stdout

@@ -22,7 +22,11 @@ Scope:
   not start with '---' are skipped (no frontmatter — Hugo tolerates this).
 
 Usage — staged-file mode (pre-commit):
-    check_frontmatter_yaml.py FILE [FILE ...]
+    check_frontmatter_yaml.py --staged FILE [FILE ...]
+    Reads the STAGED blob (:0:file), not the worktree copy. Without --staged
+    the listed files are read from disk — which misses corruption when the
+    index and worktree diverge (proven by the 2026-07-14 pilot negative
+    control; on this host OneDrive makes index/worktree divergence routine).
 
 Usage — scan mode (CI/reporting):
     check_frontmatter_yaml.py --scan [--root CONTENT_ROOT]
@@ -36,6 +40,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -76,23 +81,43 @@ def find_unterminated_quote_line(fm_text: str) -> int | None:
     return None
 
 
+def staged_blob(path: str) -> str | None:
+    """Return the STAGED content of a path (:0:path), or None if not in index."""
+    result = subprocess.run(
+        ["git", "show", f":0:{path.replace(chr(92), '/')}"],
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        return None
+    return result.stdout.decode("utf-8", errors="replace")
+
+
+def check_text(text: str, label: str) -> list[str]:
+    """Return failure messages for one already-read content string."""
+    if not text.startswith("---"):
+        return []
+    return _check_frontmatter(text, label)
+
+
 def check_file(path: Path) -> list[str]:
     """Return a list of failure messages for one file (empty = pass)."""
     try:
         text = path.read_text(encoding="utf-8", errors="replace")
     except OSError as exc:
         return [f"F1 FAIL {path}: unreadable: {exc}"]
-    if not text.startswith("---"):
-        return []
+    return check_text(text, str(path))
+
+
+def _check_frontmatter(text: str, label: str) -> list[str]:
     end = text.find("\n---", 3)
     if end == -1:
-        return [f"F3 FAIL {path}: frontmatter has no closing '---' delimiter"]
+        return [f"F3 FAIL {label}: frontmatter has no closing '---' delimiter"]
     fm_text = text[3:end]
     try:
         parsed = yaml.safe_load(fm_text)
     except yaml.YAMLError as exc:
         msg = str(exc).replace("\n", " ")[:200]
-        failures = [f"F1 FAIL {path}: frontmatter does not parse: {msg}"]
+        failures = [f"F1 FAIL {label}: frontmatter does not parse: {msg}"]
         bad_line = find_unterminated_quote_line(fm_text)
         if bad_line is not None:
             failures.append(
@@ -103,7 +128,7 @@ def check_file(path: Path) -> list[str]:
         return failures
     if not isinstance(parsed, dict):
         return [
-            f"F2 FAIL {path}: frontmatter parses but is "
+            f"F2 FAIL {label}: frontmatter parses but is "
             f"{type(parsed).__name__}, not a mapping"
         ]
     return []
@@ -112,6 +137,8 @@ def check_file(path: Path) -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Frontmatter YAML parse gate")
     parser.add_argument("files", nargs="*", help="content .md files to check")
+    parser.add_argument("--staged", action="store_true",
+                        help="validate STAGED blobs (:0:file) instead of worktree copies")
     parser.add_argument("--scan", action="store_true",
                         help="scan the whole content tree instead of listed files")
     parser.add_argument("--root", default="content",
@@ -131,16 +158,23 @@ def main() -> int:
         return 2
 
     fail_count = 0
+    checked = 0
     for path in targets:
-        if not path.is_file():
-            continue  # deleted/renamed-away staged paths
-        failures = check_file(path)
+        if args.staged and not args.scan:
+            text = staged_blob(str(path))
+            if text is None:
+                continue  # deleted / not in index
+            checked += 1
+            failures = check_text(text, str(path))
+        else:
+            if not path.is_file():
+                continue  # deleted/renamed-away staged paths
+            checked += 1
+            failures = check_file(path)
         if failures:
             fail_count += 1
             for msg in failures:
                 print(msg)
-
-    checked = len(targets)
     if fail_count:
         print(f"\ncheck_frontmatter_yaml: {fail_count}/{checked} file(s) FAILED")
         return 1

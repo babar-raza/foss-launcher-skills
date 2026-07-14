@@ -88,3 +88,13 @@ class TestCheckPair:
         # Broken YAML is check_frontmatter_yaml's job — description is None here
         broken = "---\ndescription: 'unterminated\ntitle: x\n---\nBody.\n"
         assert check_pair(broken, _page(AR_DESC.replace("'", "''")), "ar") == []
+
+    def test_r3_fence_stripping_blocks(self):
+        old = _page(DE_DESC) + "\n```csharp\ncode();\n```\n"
+        cur = _page(DE_DESC) + "\n\ncode();\n```\n"  # opener stripped
+        assert check_pair(cur, old, "de") == ["R3"]
+
+    def test_r3_fence_added_passes(self):
+        old = _page(DE_DESC)
+        cur = _page(DE_DESC) + "\n```csharp\ncode();\n```\n"
+        assert check_pair(cur, old, "de") == []

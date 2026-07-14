@@ -11,6 +11,9 @@ Rules (per staged non-English content/*.md file):
   R1 (FAIL) — staged description looks English while the HEAD version's
               description does not (translation regression)
   R2 (FAIL) — staged content contains a known translation-prompt leak phrase
+  R3 (FAIL) — staged body has FEWER code-fence lines than the HEAD version
+              (wave-3 fence-stripping; added 2026-07-14 after the pilot
+              negative-control showed fence-only damage passed all gates)
 
 The check compares the STAGED blob against HEAD, so it only fires on commits
 that make a translated field worse — pre-existing English descriptions
@@ -90,6 +93,10 @@ def locale_of(path: str) -> str:
     return parts[2] if len(parts) > 2 and parts[0] == "content" else "en"
 
 
+def _fence_count(text: str) -> int:
+    return sum(1 for ln in text.splitlines() if ln.lstrip().startswith("```"))
+
+
 def check_pair(cur_text: str, old_text: str | None, locale: str) -> list[str]:
     """Pure core: return failure codes for one (current, previous) pair."""
     failures = []
@@ -101,6 +108,8 @@ def check_pair(cur_text: str, old_text: str | None, locale: str) -> list[str]:
         # Only a REGRESSION blocks: previous version had a non-English desc.
         if old_desc and not looks_english(old_desc, locale):
             failures.append("R1")
+    if old_text and _fence_count(cur_text) < _fence_count(old_text):
+        failures.append("R3")
     return failures
 
 
@@ -148,8 +157,11 @@ def main() -> int:
             if code == "R1":
                 print(f"R1 FAIL {path}: description regressed to English "
                       f"(previous version was translated, locale '{locale}')")
-            else:
+            elif code == "R2":
                 print(f"R2 FAIL {path}: translation-prompt leak phrase found")
+            else:
+                print(f"R3 FAIL {path}: staged version has fewer code-fence "
+                      f"lines than the previous version (fence stripping)")
 
     if fail_count:
         print(f"\ncheck_translation_regression: {fail_count} FAIL(s)")

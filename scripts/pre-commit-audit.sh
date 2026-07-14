@@ -835,7 +835,7 @@ if [ ${#staged_all_content_md[@]} -gt 0 ]; then
         for (( _fmi=0; _fmi<${#staged_all_content_md[@]}; _fmi+=_fm_batch_size )); do
             _fm_batch=("${staged_all_content_md[@]:$_fmi:$_fm_batch_size}")
             _fm_batch_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_frontmatter_yaml.py \
-                "${_fm_batch[@]}" 2>&1)
+                --staged "${_fm_batch[@]}" 2>&1)
             _fm_batch_code=$?
             if [ $_fm_batch_code -ne 0 ]; then
                 _fm_exit=1
