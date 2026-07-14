@@ -1,6 +1,6 @@
 # Grade configuration for content_eval
 # Changes to this file MUST be accompanied by an EVALUATOR_LOGIC_VERSION bump.
-evaluator_logic_version: "17"
+evaluator_logic_version: "18"
 
 # Categories where any FAIL forces grade F
 critical_categories:
@@ -26,3 +26,4 @@ category_ceilings:
   CF: {levels: ["WARN", "FAIL"], ceiling: "C"}  # capability_claim_check — capability mismatch caps grade
   SG: {levels: ["WARN"], ceiling: "C"}          # verify_signature — signature mismatch (WARN only until calibration passes)
   US: {levels: ["WARN"], ceiling: "B"}          # consumer_usefulness — purpose framing / code-without-context (caps at B)
+  EG_GROUNDING: {levels: ["WARN"], ceiling: "B"}  # evidence_depth — grounding gap caps at B (graduated TC-SFH-003 2026-07-14; EG_STALE excluded)

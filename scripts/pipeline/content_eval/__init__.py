@@ -12,7 +12,7 @@ __version__ = "0.1.0"
 # When this value does not match graded_logic_version in a page's frontmatter,
 # --skip-graded will re-grade the page even if graded_model_sha is current.
 # Update the AGENTS.md evaluator change checklist when bumping this value.
-EVALUATOR_LOGIC_VERSION = "17"
+EVALUATOR_LOGIC_VERSION = "18"
 
 # Evaluator freeze gate (C-24).
 #
@@ -23,7 +23,7 @@ EVALUATOR_LOGIC_VERSION = "17"
 # EVALUATOR_LOGIC_VERSION value.  Any subsequent ELV bump must also
 # update this constant with a documented justification in the commit
 # message and GRADE_CONTRACT.md.
-EVALUATOR_FREEZE_VERSION: str | None = "17"
+EVALUATOR_FREEZE_VERSION: str | None = "18"  # TC-SFH-003: evidence_depth graduated to CANONICAL
 
 # TC-5: Per-evaluator version dict.
 #
@@ -40,6 +40,9 @@ EVALUATOR_FREEZE_VERSION: str | None = "17"
 # Version history (evaluators bumped at v17):
 #   capability_claim_check: 1→2 (FP-001: code-fence filtering in _extract_scannable_lines;
 #                                 code blocks in YAML frontmatter text fields are now skipped)
+# Version history (evaluators bumped at v18):
+#   evidence_depth: 1→2 (TC-SFH-003: graduated to CANONICAL_EVALUATORS; EG_GROUNDING WARN
+#                        now caps grade at B; EG_STALE excluded from ceiling by category key)
 EVALUATOR_VERSIONS: dict[str, str] = {
     "api_accuracy": "2",  # v2: TS/JS built-ins (Error, JSON, Buffer, Worker, GLB, etc.) added to PLATFORM_SDK_CLASSES
     "api_backtick": "1",
@@ -57,7 +60,7 @@ EVALUATOR_VERSIONS: dict[str, str] = {
     "install_recipe": "1",
     "limitations_check": "1",
     "risk_language": "2",
-    "evidence_depth": "1",
+    "evidence_depth": "2",  # v2: graduated to CANONICAL_EVALUATORS (TC-SFH-003 2026-07-14)
     "code_plausibility": "1",
     "coverage": "1",
     "type_accuracy": "3",  # v3: Check 6 — C# static class instantiation escalated to FAIL; abstract stays WARN

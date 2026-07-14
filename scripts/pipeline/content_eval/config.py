@@ -61,6 +61,8 @@ CANONICAL_EVALUATORS = frozenset({
     # Completeness (FAIL → ceiling C)
     "api_completeness",
     "description_completeness",
+    # Grounding (EG_GROUNDING WARN → ceiling B; graduated TC-SFH-003 2026-07-14)
+    "evidence_depth",
 })
 
 # FREEZE-03: Experimental evaluators — run during evaluation and appear in
@@ -76,7 +78,6 @@ EXPERIMENTAL_EVALUATORS = frozenset({
     "coverage",
     "dead_internal_link",
     "encoding_check",
-    "evidence_depth",
     "format_completeness",
     "install_recipe",
     "limitations_check",
