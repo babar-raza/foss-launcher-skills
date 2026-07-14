@@ -42,13 +42,19 @@ for site in $REQUESTED_SITES; do
         continue
     fi
 
-    # reference.aspose.org: build per-family segment to isolate failures
+    # reference.aspose.org: committed segments are family-agnostic (shared, sitemap);
+    # per-family/platform segments are synthesized by the deploy workflow from the
+    # content tree (plan zesty-whistling-hopper). Validate the committed segments plus
+    # one synthesized shard so the synthesis mechanism itself is exercised.
+    # NOTE: search must be disabled here — this repo is a FULL checkout, and the
+    # FlexSearch data template overflows on the whole-site page graph (slice bounds
+    # error). CI shard jobs use sparse checkouts, where search is safe and stays on.
     if [ "$site" = "reference.aspose.org" ]; then
         ref_fail=0
-        for segment in shared 3d cells email font note page pdf slides tex words; do
+        for segment in shared sitemap; do
             famtmp=$(mktemp -d)
             echo -n "  Building $site [$segment]... "
-            if hugo --config "$config" \
+            if HUGO_PARAMS_SEARCH_ENABLE=false hugo --config "$config" \
                     --renderSegments "$segment" \
                     -d "$famtmp" \
                     --quiet 2>"$famtmp/stderr.txt"; then
@@ -60,8 +66,44 @@ for site in $REQUESTED_SITES; do
             fi
             rm -rf "$famtmp"
         done
+        # Synthesized shard: smallest {family}/{platform} by page count (fast, exercises
+        # the same append-to-config-copy mechanism the deploy workflow uses).
+        shard=$(find "$REPO_ROOT/content/reference.aspose.org/en" -mindepth 2 -maxdepth 2 -type d \
+            | while read -r d; do printf '%s %s\n' "$(find "$d" -name '*.md' | wc -l)" "${d#"$REPO_ROOT/content/reference.aspose.org/en/"}"; done \
+            | sort -n | head -1 | cut -d' ' -f2)
+        fam=${shard%%/*}; plat=${shard##*/}
+        famtmp=$(mktemp -d)
+        # Hugo infers config format from the file extension — an extensionless
+        # mktemp file fails with "not a valid configuration format".
+        jobcfg="$famtmp/job.toml"
+        cp "$config" "$jobcfg"
+        printf '\n[[segments.target.includes]]\n  path = "{/%s,/%s/%s,/%s/%s/**}"\n' \
+            "$fam" "$fam" "$plat" "$fam" "$plat" >> "$jobcfg"
+        echo -n "  Building $site [synthesized $fam/$plat]... "
+        if HUGO_PARAMS_SEARCH_ENABLE=false hugo --config "$jobcfg" \
+                --renderSegments "target" \
+                -d "$famtmp" \
+                --quiet 2>"$famtmp/stderr.txt"; then
+            # Guard: the shard must render its own family and nothing else
+            rendered=$(find "$famtmp" -name 'index.html' | wc -l)
+            leaked=$(find "$famtmp" -name 'index.html' \
+                | sed "s#^$famtmp/##" \
+                | awk -F/ '{ seg = ($1 ~ /^[a-z]{2}(-[a-z]+)?$/ && NF > 1) ? $2 : $1; print seg }' \
+                | sort -u | grep -vx "$fam" || true)
+            if [ "$rendered" -eq 0 ] || [ -n "$leaked" ]; then
+                echo "FAIL (rendered=$rendered leaked='$leaked')"
+                ref_fail=$((ref_fail + 1))
+            else
+                echo "PASS"
+            fi
+        else
+            echo "FAIL"
+            sed 's/^/    /' "$famtmp/stderr.txt" | head -10
+            ref_fail=$((ref_fail + 1))
+        fi
+        rm -rf "$famtmp" "$jobcfg"
         if [ $ref_fail -eq 0 ]; then
-            echo "Building $site... PASS (11/11 segments)"
+            echo "Building $site... PASS (shared + sitemap + synthesized shard)"
             PASS=$((PASS + 1))
         else
             echo "Building $site... FAIL ($ref_fail segment(s) failed)"
