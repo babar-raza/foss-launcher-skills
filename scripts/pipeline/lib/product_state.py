@@ -219,15 +219,22 @@ def infer_phase(family: str, platform: str, knowledge_root: Path | None = None) 
 
     # Merged exists — check for enrichment
     model_path = merged / "model.yaml"
+    enrichment_status = None
     if model_path.exists():
         import yaml
         model = yaml.safe_load(model_path.read_text(encoding="utf-8"))
         stale = model.get("stale_since")
         if stale:
             return Phase.SOURCE_CHANGED
+        enrichment_status = model.get("enrichment_status")
 
-    # Has merged knowledge — at least FACTS_VERIFIED
+    # Has merged knowledge — but scout-only enrichment means facts are
+    # extracted, not verified. Content generation against scout-only
+    # knowledge produces a lower quality ceiling (AGENTS.md §5a); callers
+    # gate on this to require /knowledge-enrich first.
     if (merged / "claims.json").exists():
+        if enrichment_status is not None and enrichment_status != "full":
+            return Phase.FACTS_EXTRACTED
         return Phase.FACTS_VERIFIED
 
     return Phase.FACTS_EXTRACTED
