@@ -3,10 +3,13 @@
 The hook receives a JSON payload via CLAUDE_TOOL_INPUT and exits 2 (block)
 when the command contains a high-blast-radius destructive operation.
 
-Blocked: git reset --hard (all-files), git clean -f, force-push to main/master,
-git checkout -- ., git rm (without -n), mass filesystem deletions.
+Blocked: git reset in ANY form (bare, HEAD, --soft/--mixed/--hard, any target,
+with or without a `-- <file>` suffix -- no allowed forms, closed 2026-07-15
+after a concurrent-session git reset emptied a commit's index mid-hook and
+pushed an empty commit to main, b860c6fb92), git clean -f, force-push to
+main/master, git checkout -- ., git rm (without -n), mass filesystem deletions.
 
-Allowed: --force-with-lease, git clean -n (dry-run), file-specific resets,
+Allowed: --force-with-lease, git clean -n (dry-run), git restore --staged,
 expendable-dir removals, empty/unparseable input (fail-open).
 """
 from __future__ import annotations
@@ -104,11 +107,6 @@ def test_db_04_git_clean_n_allowed():
     assert _run("git clean -n") == 0
 
 
-def test_db_05_git_reset_hard_specific_file_allowed():
-    """DB-05: git reset --hard -- content/foo.md (specific file) → exit 0."""
-    assert _run("git reset --hard -- content/foo.md") == 0
-
-
 def test_db_06_force_with_lease_allowed():
     """DB-06: git push --force-with-lease → exit 0."""
     assert _run("git push --force-with-lease") == 0
@@ -164,9 +162,6 @@ def test_reset_origin_main_blocked():
 def test_reset_refs_remotes_blocked():
     assert _run("git reset refs/remotes/origin/main") == 2
 
-def test_reset_origin_file_allowed():
-    assert _run("git reset origin/main -- content/foo.md") == 0
-
 def test_reset_head_tilde_blocked():
     assert _run("git reset HEAD~1") == 2
 
@@ -176,14 +171,40 @@ def test_reset_head_caret_blocked():
 def test_reset_sha_no_file_blocked():
     assert _run("git reset abc1234abc1234") == 2
 
-def test_reset_sha_file_allowed():
-    assert _run("git reset abc1234 -- content/foo.md") == 0
 
-def test_reset_head_allowed():
-    assert _run("git reset HEAD") == 0
+# Blanket git-reset prohibition (TC-GIT-003, 2026-07-15): the `-- <file>`
+# exemption is gone -- no form of git reset is allowed via the Bash tool
+# anymore, closing the gap that let a concurrent-session `git reset` empty a
+# commit's index mid-hook and push an empty commit to main (b860c6fb92).
 
-def test_reset_head_file_allowed():
-    assert _run("git reset HEAD -- content/foo.md") == 0
+def test_db_05_git_reset_hard_specific_file_blocked():
+    """DB-05: git reset --hard -- content/foo.md (specific file) → exit 2."""
+    assert _run("git reset --hard -- content/foo.md") == 2
+
+def test_reset_origin_file_blocked():
+    assert _run("git reset origin/main -- content/foo.md") == 2
+
+def test_reset_sha_file_blocked():
+    assert _run("git reset abc1234 -- content/foo.md") == 2
+
+def test_reset_head_blocked():
+    assert _run("git reset HEAD") == 2
+
+def test_reset_head_file_blocked():
+    assert _run("git reset HEAD -- content/foo.md") == 2
+
+def test_reset_bare_blocked():
+    """Bare `git reset` (no args) -- the exact form that caused b860c6fb92."""
+    assert _run("git reset") == 2
+
+def test_reset_mixed_blocked():
+    assert _run("git reset --mixed") == 2
+
+def test_reset_soft_blocked():
+    assert _run("git reset --soft") == 2
+
+def test_reset_soft_head_blocked():
+    assert _run("git reset --soft HEAD") == 2
 
 
 # New blocks: hugo relative-public destination (TC-HUGO-03)

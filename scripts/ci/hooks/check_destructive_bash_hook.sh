@@ -5,14 +5,22 @@
 # Blocks high-blast-radius destructive operations that are hard to reverse.
 #
 # Blocked operations (exit 2):
-#   git reset --hard       (without a specific file — resets all tracked files)
+#   git reset (ANY form)   — bare, HEAD, --soft/--mixed/--hard, any target,
+#                             with or without a `-- <file>` suffix. No allowed
+#                             forms via the Bash tool (closed 2026-07-15 after a
+#                             concurrent-session `git reset` emptied a commit's
+#                             index mid-hook and pushed an empty commit to main,
+#                             b860c6fb92). Use `git restore --staged <path>` to
+#                             unstage, or `git checkout <sha> -- <path>` to
+#                             restore file content, instead. The one legitimate
+#                             git-reset caller in this codebase — clone_cache.py's
+#                             guarded `git reset --hard origin/HEAD` — runs via
+#                             subprocess.run(), never the Bash tool, so it never
+#                             reaches this hook and needs no special-casing here.
 #   git clean -f           (destroys untracked files; -n dry-run is allowed)
 #   git push --force/-f    (force-push to main/master)
 #   git checkout -- .      (resets all tracked files to HEAD)
 #   git rm (without -n)    (stages deletion of tracked files)
-#   git reset origin/HEAD  (mixed reset to remote — moves HEAD, unstages all)
-#   git reset HEAD~N       (pops commits — destructive to branch pointer)
-#   git reset <sha>        (moves HEAD to arbitrary commit — destructive)
 #   find ... -delete       (find with -delete flag)
 #   rm -rf /               (system-level mass deletion)
 #   rm -rf ~               (home directory mass deletion)
@@ -21,7 +29,6 @@
 #
 # Allowed despite destructive appearance:
 #   git push --force-with-lease   (safe force: checks remote state first)
-#   git reset --hard -- <file>    (specific file reset, not all-files reset)
 #   git clean -n                  (dry-run: shows what would be deleted)
 #   rm -rf reports/               (designated expendable output directories)
 #   rm -rf runs/
@@ -111,38 +118,14 @@ while IFS= read -r _line; do
     [ -z "$_stripped" ] && continue
     [[ "$_stripped" == \#* ]] && continue
 
-    # --- git reset --hard ---
-    # Allowed: git reset --hard -- <specific-file>
-    # Blocked: git reset --hard (no file), git reset --hard HEAD, git reset --hard <sha>
-    if echo "$_stripped" | grep -qE '(^|[;|&])\s*git\s+reset\s+.*--hard'; then
-        # Allow if followed by " -- " (specific file reset)
-        if echo "$_stripped" | grep -qE -- '--hard\s+--\s+\S'; then
-            continue
-        fi
-        _block "$_stripped" "git reset --hard resets all tracked files to the target commit"
-    fi
-
-    # --- git reset <remote-ref> (mixed/soft reset) ---
-    if echo "$_stripped" | grep -qE '(^|[;|&])\s*git\s+reset\s+'; then
-        if echo "$_stripped" | grep -qE '\borigin/|\brefs/remotes/'; then
-            if ! echo "$_stripped" | grep -qE -- '(origin/\S+|refs/remotes/\S+)\s+--\s+\S'; then
-                _block "$_stripped" "git reset to a remote ref (origin/HEAD, origin/main, etc.) moves HEAD and unstages all staged work; use git pull --rebase instead"
-            fi
-        fi
-    fi
-
-    # --- git reset HEAD~N or HEAD^ ---
-    if echo "$_stripped" | grep -qE '(^|[;|&])\s*git\s+reset\s+'; then
-        if echo "$_stripped" | grep -qE 'HEAD~[0-9]|HEAD\^'; then
-            _block "$_stripped" "git reset HEAD~N pops commits off the local branch; requires explicit human approval"
-        fi
-    fi
-
-    # --- git reset <sha> ---
-    if echo "$_stripped" | grep -qE '(^|[;|&])\s*git\s+reset\s+[0-9a-f]{7,40}\b'; then
-        if ! echo "$_stripped" | grep -qE '[0-9a-f]{7,40}\s+--\s+\S'; then
-            _block "$_stripped" "git reset to a specific SHA moves HEAD; use git checkout <sha> -- <file> to restore individual files instead"
-        fi
+    # --- git reset (ANY form — blanket prohibition, no exceptions) ---
+    # A concurrent-session `git reset` mid-commit produced an empty commit on
+    # main (2026-07-14, b860c6fb92). All forms are blocked: bare `git reset`,
+    # `git reset HEAD`, --soft/--mixed/--hard, any target, with or without a
+    # `-- <file>` suffix. Use `git restore --staged <path>` to unstage, or
+    # `git checkout <sha> -- <path>` to restore file content, instead.
+    if echo "$_stripped" | grep -qE '(^|[;|&])\s*git\s+reset(\s|$)'; then
+        _block "$_stripped" "git reset is prohibited in any form -- use git restore --staged <path> to unstage, or git checkout <sha> -- <path> to restore file content"
     fi
 
     # --- git clean -f / --force ---
