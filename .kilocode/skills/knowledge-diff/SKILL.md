@@ -51,9 +51,33 @@ before SHA comparison so detection is never blind.
    If `update_clone()` returns `None` (fetch failed), proceed with the existing local clone HEAD
    and note that the comparison may not reflect the latest upstream state.
 
-2. **Get stored SHA**: Read `repo_sha` from `knowledge/{family}/{platform}/merged/model.yaml`
+2. **Resolve the baseline SHA (RPR-C-03)**: Do **not** read the mutable
+   `model.yaml.repo_sha` scalar directly — `promote.py` overwrites it every run, so a
+   scalar read cannot distinguish a normal baseline from a force-pushed/orphaned one.
+   Instead resolve it through the append-only baseline ledger, which also implements the
+   real orphaned-SHA walkback:
+   ```python
+   from lib.baseline_resolver import resolve_baseline_sha, git_reachable, OrphanedBaselineError
+   repo_path = ...  # the FOSS clone path from Step 1 (core/clone_cache.py resolve)
+   try:
+       resolution = resolve_baseline_sha(
+           '{family}', '{platform}',
+           reachable=git_reachable(repo_path),
+           model_repo_sha=<model.yaml repo_sha, as a pre-migration fallback only>,
+       )
+       old_sha, sha_source = resolution.sha, resolution.source  # source: ledger|model-yaml|orphaned-recovered
+   except OrphanedBaselineError as exc:
+       # Explicit ORPHANED_BASELINE state — never treat as "no changes". Go to Step 4a.
+       ...
+   ```
+   Or via the CLI: `.venv/Scripts/python scripts/pipeline/lib/baseline_resolver.py {family} {platform}
+   --repo-path <clone> --model-sha <scalar>` (exit 0 prints `sha\tsource\torphaned_from`;
+   exit 3 = ORPHANED_BASELINE). When `source == "orphaned-recovered"`, the recorded head was
+   unreachable and the resolver walked the ledger back to the newest reachable ancestor —
+   record that in the delta so the run is auditable.
 
-3. **Compare**: If SHAs match, report "no changes" and exit cleanly — no further action needed.
+3. **Compare**: If the resolved baseline SHA matches the current SHA, report "no changes" and
+   exit cleanly — no further action needed.
 
 4. **Classify impact from knowledge artifacts**:
    First, attempt to enumerate changed files between the stored SHA and current HEAD:
@@ -64,7 +88,12 @@ before SHA comparison so detection is never blind.
    `fatal: bad object`), the stored `repo_sha` is not reachable in the current git history —
    this is the **ORPHANED_SHA** case. It happens when the upstream FOSS repository was
    force-pushed, rebased, or re-initialized. Do not treat this as a tool error; it is a
-   distinct, expected outcome that Step 5 must classify explicitly.
+   distinct, expected outcome that Step 5 must classify explicitly. **Note (RPR-C-03):**
+   Step 2's `resolve_baseline_sha` already classifies this authoritatively — a
+   `source == "orphaned-recovered"` result means it recovered a reachable ancestor to diff
+   against (use that as `{old_sha}` here), and an `OrphanedBaselineError` / CLI exit 3 means
+   no reachable ancestor exists at all (skip straight to Step 4a's API-surface comparison).
+   This git-log probe is now a secondary confirmation, not the primary detector.
 
    If the git log succeeds, read the changed file list to classify impact. Otherwise, classify
    by file-type heuristic on the sha diff:

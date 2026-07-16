@@ -191,8 +191,11 @@ Do not run any subsequent steps. Exit 0.
     update the page and emit `SOURCE_EVIDENCE_UNAVAILABLE` in the decision record.
     Proceeding without source evidence risks silent quality regression.
 
-12. **Verification gate** (post_refresh_verify.py --verify):
+12. **Verification gate** (post_refresh_verify.py --verify --assert-no-skipped):
     ```bash
+    # RPR-F-02: --assert-no-skipped (exit 2) is now part of the documented gate — it
+    # was a real hard-blocking flag that the chain previously never invoked.
+    .venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --assert-no-skipped
     .venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --verify
     ```
     Runs post-refresh checklist:
@@ -200,6 +203,14 @@ Do not run any subsequent steps. Exit 0.
     - No content pages cite claim IDs absent from `merged/claims.json`
     - No reference pages exist for classes absent from `merged/api_surface.json`
     - `stale_detect.py` reports 0 stale pages (end-state proxy for page freshness)
+    - **Check 7/8 (RPR-F-01, now BLOCKING)**: a refresh that removed >50 claims but updated
+      0 pages, or shows real body diffs with no tracked `pages_updated`, or has stale prose
+      referencing removed APIs, now FAILS the gate (was WARN-only). `--allow-warn` demotes
+      these back to WARN, opt-out only, after manual confirmation.
+    - **Check 9 (RPR-F-03)**: S-92 triage-confirm Layer 2 body-prose scan (blocks on stale prose).
+    - **Check 10 (RPR-F-04)**: frontmatter-only grade regression — a page whose body is
+      byte-identical but whose evidence bumped AND grade regressed (the PDF-NET-REFRESH-001
+      v26.7.0 defect) now FAILS the gate.
 
     Note: `audit.py` is NOT re-run per-page during `--verify`; it is already enforced
     by S-20 and S-23 during the chain. `stale_detect.py` is the correct end-state proxy:
