@@ -38,6 +38,24 @@ blog post evidence.apis is empty — run: /evidence-repair {path}
 blocks in the YAML frontmatter. It NEVER modifies page title, description, body content,
 headings, code blocks, or any prose text.
 
+**Scale boundary (added 2026-07-16, TC-SFH-007)**: This skill is scoped to a small number
+of validator-blocked files (typically 1–5). It is **not** a substitute for S-84
+(refresh-product) when a product's knowledge model has changed materially — S-72 is
+contractually forbidden from touching bodies (see above), so looping it across many files
+in one family/platform to absorb a knowledge/model update produces exactly the failure mode
+of commit `643c02f7b8`: hundreds of pages get `evidence.model_sha`/`model_version` re-stamped
+with zero body reconciliation, because the one skill able to reconcile bodies (S-20,
+page-update) was never invoked. If more than ~10 files in the same `{family}/{platform}`
+need evidence repair at once, that is a signal of a product-wide knowledge change, not a
+handful of validator failures — STOP and invoke `/refresh-product {family} {platform}`
+(S-84) instead, which orchestrates S-12 → S-14 → S-20 (body reconciliation) → evidence
+re-stamp, in that order. Do not work around this by calling `attach_evidence.py --files`
+in a loop across a product's pages — the per-file `--files` invocation is not covered by
+`attach_evidence.py`'s bulk `--confirm-model-version-jump` gate (that gate only fires on
+the `{family} {platform}` / `all` bulk-invocation forms), so the scale-boundary discipline
+here is the operator's/agent's responsibility, not something the tool can catch for you in
+this shape.
+
 ## Pre-conditions (Preflight — halt immediately on any failure)
 
 1. Parse file path(s) from `$ARGUMENTS`. If `--dry-run` is present, record it and make no file writes.
@@ -225,6 +243,7 @@ The skill MUST refuse and immediately halt (without modifying any file) when:
 | Locale variant file | `REFUSED: {path} is a locale translation file — run on the English source only` |
 | Double frontmatter | `REFUSED: {path} has double frontmatter — fix structural issue first before evidence repair` |
 | --scope requires content edit | `REFUSED: requested edit scope would require body content modification — use heal-page (S-26) instead` |
+| More than ~10 files in one family/platform | `REFUSED: {N} files in {family}/{platform} — this is a product-wide knowledge change, not a validator-fix batch. Run /refresh-product {family} {platform} (S-84) instead.` |
 | Post-edit audit still fails after retry | File reverted; reported as ESCAPED; escalation entry written |
 
 ## Never Do
@@ -236,3 +255,6 @@ The skill MUST refuse and immediately halt (without modifying any file) when:
 - Never skip the post-edit validation step (Steps 11 / 13)
 - Never apply more than one Stage 2 reasoning pass per file
 - Never call itself recursively or enter an infinite retry loop
+- Never loop this skill's Stage 1 (`attach_evidence.py --files ... --force`) across more
+  than ~10 files in the same `{family}/{platform}` as a way to absorb a knowledge model
+  update — that is S-84's job (TC-SFH-007)

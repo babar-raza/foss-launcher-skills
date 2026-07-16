@@ -58,6 +58,8 @@ _cfg_write_grade_fn = None
 _cfg_compute_grade_fn = None
 _cfg_evaluator_logic_version = None
 _cfg_semantic_evidence = False
+_cfg_discover_content_fn = None
+_cfg_attach_evidence_fn = None
 
 
 def configure(
@@ -73,13 +75,15 @@ def configure(
     compute_grade_fn=None,
     evaluator_logic_version=None,
     semantic_evidence=False,
+    discover_content_fn=None,
+    attach_evidence_fn=None,
 ) -> None:
     """Inject test dependencies. Call configure() with no args to reset."""
     global _cfg_extract_tokens_fn, _cfg_verify_tokens_fn, _cfg_map_tokens_fn
     global _cfg_detect_formats_fn, _cfg_build_sections_fn, _cfg_write_evidence_fn
     global _cfg_infer_product_fn, _cfg_knowledge_fn
     global _cfg_write_grade_fn, _cfg_compute_grade_fn, _cfg_evaluator_logic_version
-    global _cfg_semantic_evidence
+    global _cfg_semantic_evidence, _cfg_discover_content_fn, _cfg_attach_evidence_fn
     _cfg_extract_tokens_fn = extract_tokens_fn
     _cfg_verify_tokens_fn = verify_tokens_fn
     _cfg_map_tokens_fn = map_tokens_fn
@@ -92,6 +96,8 @@ def configure(
     _cfg_compute_grade_fn = compute_grade_fn
     _cfg_evaluator_logic_version = evaluator_logic_version
     _cfg_semantic_evidence = semantic_evidence
+    _cfg_discover_content_fn = discover_content_fn
+    _cfg_attach_evidence_fn = attach_evidence_fn
 
 
 _KNOWN_SUBDOMAINS = frozenset(
@@ -110,6 +116,66 @@ _KNOWN_SUBDOMAINS = frozenset(
 
 def _log(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
+
+
+# Root incident: commit 643c02f7b8 (TC-SFH-007) ran `attach_evidence.py pdf net
+# --force` after the knowledge model jumped 0.1.0-alpha -> 26.6.0, re-stamping
+# evidence.model_sha/model_version on 845 pages with zero body reconciliation
+# (S-20/page-update was never invoked). attach_evidence.py is metadata-only by
+# design and cannot reconcile bodies -- so a real model_version jump must not
+# be absorbed by a bulk --force re-stamp. _is_model_version_jump() below draws
+# the line between a trivial rebuild (same version, new SHA only -- safe to
+# re-stamp) and a real release jump (major/minor changed, or the old value
+# isn't even a clean semver, e.g. a pre-release tag -- must route through
+# S-84/refresh-product -> S-20/page-update first).
+
+_SEMVER_RE = re.compile(r"^(\d+)\.(\d+)(?:\.\d+)?$")
+
+
+def _parse_version_tuple(version_str: str):
+    """Parse a clean `major.minor(.patch)` version string into (major, minor).
+
+    Returns None for anything that isn't a clean numeric semver (empty string,
+    pre-release tags like "0.1.0-alpha", build metadata, etc.) -- those are
+    never assumed to be a trivial bump.
+    """
+    if not version_str:
+        return None
+    m = _SEMVER_RE.match(version_str.strip())
+    if not m:
+        return None
+    return (int(m.group(1)), int(m.group(2)))
+
+
+def _is_model_version_jump(old_version: str, new_version: str) -> bool:
+    """Return True if old_version -> new_version is more than a trivial
+    rebuild (i.e. NOT safe for a bulk --force re-stamp without S-20 body
+    reconciliation first).
+    """
+    if old_version == new_version:
+        return False
+    old_t = _parse_version_tuple(old_version)
+    new_t = _parse_version_tuple(new_version)
+    if old_t is None or new_t is None:
+        # Either side isn't a clean semver -- can't prove this is trivial.
+        return True
+    return old_t != new_t
+
+
+def _sample_stamped_model_version(family, platform):
+    """Return the evidence.model_version stamped on an existing page for this
+    product, or None if no page has an evidence block yet (first attach run,
+    which is never a "jump" -- there is nothing to reconcile).
+    """
+    _eff_discover_content = _cfg_discover_content_fn if _cfg_discover_content_fn is not None else discover_content
+    for f in _eff_discover_content(family, platform):
+        fm = parse_frontmatter(f)
+        existing = fm.get("evidence") or {}
+        if isinstance(existing, dict):
+            mv = existing.get("model_version")
+            if mv:
+                return mv
+    return None
 
 
 def _append_skip_record(records: list, filepath, reason: str, existing_claims=None):
@@ -448,7 +514,7 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
 
 def attach_product(family, platform, dry_run=False, force=False,
                    subdomain=None, all_subdomains=False,
-                   dry_run_records=None) -> dict:
+                   dry_run_records=None, confirm_version_jump=False) -> dict:
     """Attach evidence to all content files for a product.
 
     Args:
@@ -459,6 +525,15 @@ def attach_product(family, platform, dry_run=False, force=False,
             unscoped-write WARN. Use with --confirm-all-subdomains.
         dry_run_records: When not None, ClaimPlan records are accumulated here
             instead of writing. Enables --dry-run-json output.
+        confirm_version_jump: Required (mirrors all_subdomains/
+            confirm_all_subdomains) to proceed with a bulk `force=True` write
+            when the product's currently-stamped evidence.model_version and
+            the knowledge model's current version differ by more than a
+            trivial rebuild. See _is_model_version_jump(). Without it, a real
+            model_version jump refuses the bulk write and points at S-84
+            (refresh-product), which reconciles bodies via S-20 (page-update)
+            before evidence is re-stamped. Root incident: commit 643c02f7b8
+            (TC-SFH-007).
     """
     if subdomain is not None and subdomain not in _KNOWN_SUBDOMAINS:
         raise ValueError(
@@ -466,15 +541,39 @@ def attach_product(family, platform, dry_run=False, force=False,
             f"Known: {sorted(_KNOWN_SUBDOMAINS)}"
         )
 
-    knowledge = Knowledge(family, platform)
+    _eff_knowledge_cls = _cfg_knowledge_fn if _cfg_knowledge_fn is not None else Knowledge
+    _eff_discover_content = _cfg_discover_content_fn if _cfg_discover_content_fn is not None else discover_content
+    _eff_attach_evidence = _cfg_attach_evidence_fn if _cfg_attach_evidence_fn is not None else attach_evidence
+
+    knowledge = _eff_knowledge_cls(family, platform)
     if not knowledge.available:
         _log(f"  SKIP {family}/{platform}: no knowledge model")
         return {}
 
-    files = discover_content(family, platform)
+    files = _eff_discover_content(family, platform)
     if not files:
         _log(f"  SKIP {family}/{platform}: no content files")
         return {}
+
+    # Bulk --force version-jump gate (TC-SFH-007 guardrail). Narrow --files
+    # invocations (attach_files) are not gated -- this only applies to bulk
+    # product-wide/--all writes, which is exactly the shape of the incident.
+    if force and not dry_run and not confirm_version_jump:
+        stamped_version = _sample_stamped_model_version(family, platform)
+        if stamped_version is not None and _is_model_version_jump(stamped_version, knowledge.version):
+            _log(
+                f"  REFUSED {family}/{platform}: bulk --force re-stamp blocked -- "
+                f"model_version jumped {stamped_version!r} -> {knowledge.version!r}.\n"
+                f"  This looks like a real knowledge model update, not a trivial rebuild.\n"
+                f"  A bulk evidence re-stamp cannot reconcile page bodies against the new\n"
+                f"  model (attach_evidence.py is metadata-only by design). Run:\n"
+                f"    /refresh-product {family} {platform}\n"
+                f"  (S-84), which reconciles bodies via S-20 (page-update) before\n"
+                f"  re-stamping evidence. If this jump is confirmed trivial (e.g. a\n"
+                f"  version string correction with no real API/claim changes), re-run\n"
+                f"  with --confirm-model-version-jump to proceed anyway."
+            )
+            return {"REFUSED (model_version jump)": len(files)}
 
     # Apply subdomain filter
     if subdomain is not None:
@@ -491,8 +590,8 @@ def attach_product(family, platform, dry_run=False, force=False,
     counts = {"UPDATED": 0, "SKIP (current)": 0, "SKIP (draft)": 0,
               "SKIP (audit FAILs)": 0, "DRY-RUN": 0, "ERROR": 0}
     for f in files:
-        status = attach_evidence(f, knowledge, dry_run=dry_run, force=force,
-                                 dry_run_records=dry_run_records)
+        status = _eff_attach_evidence(f, knowledge, dry_run=dry_run, force=force,
+                                      dry_run_records=dry_run_records)
         counts[status] = counts.get(status, 0) + 1
 
     _log(f"    -> {counts}")
@@ -572,6 +671,14 @@ def main():
                              "--confirm-all-subdomains for write commands)")
     parser.add_argument("--confirm-all-subdomains", action="store_true",
                         help="Suppress unscoped-write WARN when --all-subdomains is set")
+    parser.add_argument("--confirm-model-version-jump", action="store_true",
+                        help="Allow a bulk --force re-stamp when the product's stamped "
+                             "evidence.model_version differs from the current knowledge "
+                             "model by more than a trivial rebuild (major/minor changed, "
+                             "or the old value wasn't a clean semver). Without this flag, "
+                             "such a jump is refused -- run /refresh-product (S-84) first "
+                             "so bodies are reconciled via S-20 (page-update) before "
+                             "evidence is re-stamped. See TC-SFH-007.")
     parser.add_argument("--auto-refresh", action="store_true",
                         help="Run refresh_knowledge.py before attaching")
     parser.add_argument("--detect-stale-claims", action="store_true",
@@ -594,6 +701,7 @@ def main():
     auto_refresh = parsed.auto_refresh
     subdomain = parsed.subdomain
     all_subdomains = parsed.all_subdomains and parsed.confirm_all_subdomains
+    confirm_version_jump = parsed.confirm_model_version_jump
     positional = parsed.args
     detect_stale = parsed.detect_stale_claims
 
@@ -675,7 +783,8 @@ def main():
         _log(f"Attaching evidence for {family}/{platform}...")
         attach_product(family, platform, dry_run=dry_run, force=force,
                        subdomain=subdomain, all_subdomains=all_subdomains,
-                       dry_run_records=dry_run_records)
+                       dry_run_records=dry_run_records,
+                       confirm_version_jump=confirm_version_jump)
     elif len(positional) == 1 and positional[0] == "all":
         products = discover_products()
         _log(f"Attaching evidence for {len(products)} products...")
@@ -685,7 +794,8 @@ def main():
                 _auto_refresh(family, platform)
             counts = attach_product(family, platform, dry_run=dry_run, force=force,
                                     subdomain=subdomain, all_subdomains=all_subdomains,
-                                    dry_run_records=dry_run_records)
+                                    dry_run_records=dry_run_records,
+                                    confirm_version_jump=confirm_version_jump)
             for k, v in counts.items():
                 total[k] = total.get(k, 0) + v
         _log(f"\nTotal: {total}")

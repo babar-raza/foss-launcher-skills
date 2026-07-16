@@ -175,6 +175,9 @@ if [ "${#CHANGED_FILES[@]}" -gt 0 ]; then
     run_step "Check grade churn (GUARD-02)" "blocking" \
         env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/checks/check_grade_churn.py --mode pr --base-branch "${BASE_BRANCH}"
 
+    run_step "Check evidence churn" "blocking" \
+        env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/checks/check_evidence_churn.py --mode pr --base-branch "${BASE_BRANCH}"
+
     run_step "Check evaluator freeze (FREEZE-04)" "blocking" \
         env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/checks/check_evaluator_freeze.py
 
