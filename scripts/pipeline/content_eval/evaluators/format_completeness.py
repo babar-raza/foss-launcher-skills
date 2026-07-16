@@ -92,35 +92,51 @@ def _normalize(name: str) -> str:
 _FORMAT_ALIASES: dict[str, str] = {
     "threemf": "3mf",
     "microsoft3mf": "3mf",
-    "excelopenxml": "xlsx",   # "Excel Open XML" display name → formats.json key
-    "xlsx": "excelopenxml",   # reverse alias for safety
-    "gltf": "gltf20",         # knowledge "Gltf" → page "GLTF2.0/GLB" normalized to "gltf20"
-    "mime": "eml",             # knowledge "Mime" → page "EML" (RFC 5322 email format)
+    "excelopenxml": "xlsx",       # "Excel Open XML" display name → formats.json key
+    "xlsx": "excelopenxml",       # reverse alias for safety
+    "gltf": "gltf20",             # knowledge "Gltf" → page "GLTF2.0/GLB" normalized to "gltf20"
+    "mime": "eml",                 # knowledge "Mime" → page "EML" (RFC 5322 email format)
+    "cfb": "compoundfilebinary",  # knowledge "CFB" → page "Compound File Binary"
+    "msg": "outlookmessage",      # knowledge "Msg" → page "Outlook Message"
+    "outlookmessage": "outlookmsg",  # chain: also register "Outlook MSG" variant
 }
 
 
-def _load_formats(family: str, platform: str) -> dict[str, str]:
-    """Load formats.json and return a dict of normalized_name -> direction.
+def _alias_variants(name: str) -> set[str]:
+    """Return every format name connected to *name* by alias mappings."""
+    variants = {name}
+    changed = True
+    while changed:
+        changed = False
+        for left, right in _FORMAT_ALIASES.items():
+            if left in variants or right in variants:
+                before = len(variants)
+                variants.update((left, right))
+                changed = changed or len(variants) != before
+    return variants
 
-    Returns an empty dict if the file is absent, unreadable, or has fewer
-    than 2 entries (too little data to be reliable).
 
-    Handles both ``name`` and ``format``/``ext`` key variants.
-    Direction is inferred from explicit ``direction`` field or from boolean
-    ``import``/``export`` fields.
+def _load_formats(family: str, platform: str) -> tuple[dict[str, str], dict[str, str]]:
+    """Load formats.json and return (canonical, expanded) dicts of normalized_name -> direction.
+
+    canonical: only keys from formats.json — used for completeness coverage checks.
+    expanded: canonical + alias variants — used for phantom-format detection so pages
+              using human-readable names (e.g. "Compound File Binary") are not falsely flagged.
+
+    Returns ({}, {}) if the file is absent, unreadable, or has fewer than 2 entries.
     """
     path = KNOWLEDGE_ROOT / family / platform / "merged" / "formats.json"
     if not path.exists():
-        return {}
+        return {}, {}
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, TypeError, OSError):
-        return {}
+        return {}, {}
 
     if not isinstance(data, list) or len(data) < 2:
-        return {}
+        return {}, {}
 
-    result: dict[str, str] = {}
+    canonical: dict[str, str] = {}
     for entry in data:
         raw_key = (
             entry.get("name")
@@ -147,19 +163,19 @@ def _load_formats(family: str, platform: str) -> dict[str, str]:
             else:
                 direction = "none"
 
-        # If the same normalised key appears with conflicting directions, promote to "both"
-        existing = result.get(norm)
+        existing = canonical.get(norm)
         if existing and existing != direction:
-            result[norm] = "both"
+            canonical[norm] = "both"
         else:
-            result[norm] = direction
+            canonical[norm] = direction
 
-    # Register aliases so human-readable display names match enum canonical keys.
-    for canon, alias in _FORMAT_ALIASES.items():
-        if canon in result and alias not in result:
-            result[alias] = result[canon]
+    # Build alias-expanded dict for phantom-format detection only.
+    expanded = dict(canonical)
+    for canon, direction in canonical.items():
+        for alias in _alias_variants(canon):
+            expanded.setdefault(alias, direction)
 
-    return result
+    return canonical, expanded
 
 
 def _find_format_table(prose_lines: list[tuple[int, str]]) -> list[tuple[int, str]] | None:
@@ -290,7 +306,9 @@ class FormatCompletenessEvaluator(BaseEvaluator):
             return []  # No format table on this page
 
         # --- Load formats.json ---
-        known_formats = _load_formats(page.family, page.platform)
+        # canonical_formats: raw keys from formats.json (for completeness coverage check)
+        # known_formats: canonical + alias variants (for phantom-format detection)
+        canonical_formats, known_formats = _load_formats(page.family, page.platform)
         if not known_formats:
             return []  # No knowledge available — skip silently
 
@@ -337,8 +355,17 @@ class FormatCompletenessEvaluator(BaseEvaluator):
         # and only when the table has at least 3 data rows.
         # ---------------------------------------------------------------
         if len(table_entries) >= 3 and _is_feature_page(page):
-            known_set = set(known_formats.keys())
-            missing = known_set - table_norm_set
+            # Use canonical_formats (not alias-expanded) so display-name aliases
+            # don't inflate the "expected" coverage count.
+            known_set = set(canonical_formats.keys())
+            # A table entry counts against a canonical key if it matches directly
+            # or via any alias chain registered in _FORMAT_ALIASES.
+            canonical_covered = {
+                canon_key
+                for canon_key in known_set
+                if _alias_variants(canon_key) & table_norm_set
+            }
+            missing = known_set - canonical_covered
             if known_set:
                 missing_ratio = len(missing) / len(known_set)
                 if missing_ratio > 0.20:
