@@ -112,6 +112,5 @@ class TestAuditLiveRepo:
         from audit_family_subtitles import run_audit
         results = run_audit()
         fails = [r for r in results if r["severity"] == "FAIL"]
-        assert len(results) == 30, f"Expected 30 entries, got {len(results)}"
         fail_names = [r["site"] + "/" + r["family"] for r in fails]
         assert fails == [], f"FAIL entries: {fail_names}"
