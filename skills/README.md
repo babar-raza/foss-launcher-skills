@@ -60,7 +60,7 @@ Source: `scripts/pipeline/commands/ops/sync_skills.py:INTERNAL_SKILLS`.
 
 ## Skill Catalog
 
-98 registered skills grouped by functional category. For the machine-validated registry with
+99 registered skills grouped by functional category. For the machine-validated registry with
 full descriptions, see [AGENTS.md §12 (full table: docs/registries/skills.md)](../AGENTS.md).
 
 ### Knowledge & Truth
@@ -173,6 +173,7 @@ Skills that coordinate pipelines, manage translations, or support operators.
 | S-93 | `repo-patrol` | Discover new FOSS repos across 26 orgs, score confidence, produce patrol report |
 | S-94 | `change-sweep` | Batch SHA comparison across all active products, classify impact HIGH/MEDIUM/LOW |
 | S-95 | `discovery-triage` | Route patrol/sweep reports to backlog items (MVP: never invokes S-84 directly) |
+| S-110 | `foss-java-publish` | Publish a FOSS Java library to Maven Central: surgical pom.xml patches, GHA tag-push automation, PUBLISHING.md runbook committed to product repo, and aspose.org English content healing |
 
 ---
 

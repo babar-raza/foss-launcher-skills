@@ -5,7 +5,7 @@ Each skill is a subdirectory with a `SKILL.md` file inside.
 
 > **Canonical source**: [skills/README.md](../../skills/README.md)
 > **Authoritative registry**: [AGENTS.md §12](../../AGENTS.md)
-> This tree is a full mirror of `skills/` — all 100 registered skills are present.
+> This tree is a full mirror of `skills/` — all 99 registered skills are present.
 > When content diverges from canonical, investigate with `python scripts/pipeline/commands/ops/sync_skills.py --report`.
 
 ---
@@ -37,7 +37,7 @@ Governance rules for Kilo Code are in `.kilocode/rules-code/governance.md`.
 
 ## Skill List (72 skills — full canonical set)
 
-All 86 registered skills are present in this tree. Internal sub-routines are included here
+All 99 registered skills are present in this tree. Internal sub-routines are included here
 because Kilo Code invokes them directly when orchestrating skill chains.
 
 | ID | Slug | Category | Internal? |

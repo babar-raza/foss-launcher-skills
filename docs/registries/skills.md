@@ -85,6 +85,7 @@
 | locale-refresh-handoff | S-107 | Queues locale equivalents for re-translation; routes <3 sentences to S-75, >=3 to S-56 |
 | frontmatter-body-consistency | S-108 | Checks paired-claim consistency between frontmatter evidence and body prose |
 | production-localization-incident | S-109 | Production localization incident orchestration: containment, forensics, review packets, S-HT-01/S-HT-02/S-99 routing, deployment/live/CDN gates, monitoring, resume, and closeout |
+| foss-java-publish | S-110 | Publish a FOSS Java library to Maven Central: surgical pom.xml patches, GHA tag-push automation, PUBLISHING.md runbook committed to product repo, and aspose.org English content healing with post-sweep verification |
 | project-phase-store | S-10 | Track generation phase state |
 | publish-readiness-review | S-90 | Agent-executed governed inspection |
 | refresh-product | S-84 | Full post-launch product refresh orchestration |
