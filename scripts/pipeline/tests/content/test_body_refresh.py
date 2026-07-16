@@ -196,14 +196,26 @@ def test_feature_removed_section_eliminated(tmp_path):
 
 
 def test_feature_added_section_enriched(tmp_path):
-    """PARAGRAPH_REWRITE: LLM path invoked and result applied."""
+    """PARAGRAPH_REWRITE: LLM path is actually reached and its output is applied.
+
+    RPR-E-01 regression guard: prior to the fix, body_refresh.py's
+    _paragraph_rewrite() short-circuited to _deterministic_fallback() for
+    FEATURE_ADDED before ever constructing the configured LLM router, so
+    this test passed on a receipt-count assertion alone while silently
+    never exercising the LLM branch. Asserting the mock's distinctive
+    output text is present (and the fallback's template text is absent)
+    is what actually proves the LLM callsite ran.
+    """
     page_content = "---\ntitle: Test\n---\n\n## Signing\n\nOld signing text here.\n"
     page = _make_page(tmp_path, "content/page.md", page_content)
+
+    call_count = {"n": 0}
 
     class MockLLM:
         class MockResult:
             data = "Updated signing text with new feature."
         def call_chat(self, *a, **kw):
+            call_count["n"] += 1
             return self.MockResult()
         def __init__(self):
             pass
@@ -220,17 +232,23 @@ def test_feature_added_section_enriched(tmp_path):
 
     receipts = br.run("pdf", "net", execute=True)
     assert len(receipts) == 1
+    assert call_count["n"] == 1, "MockLLM.call_chat() was never invoked — PARAGRAPH_REWRITE short-circuited before the LLM branch"
+    assert "Updated signing text with new feature." in writes[0][1]
+    assert "reviewed against the current source model" not in writes[0][1], "deterministic template fired instead of the LLM output"
 
 
 def test_behavior_changed_paragraph_rewritten(tmp_path):
-    """PARAGRAPH_REWRITE for BEHAVIOR_CHANGED invokes LLM."""
+    """PARAGRAPH_REWRITE for BEHAVIOR_CHANGED actually invokes the LLM (RPR-E-01 regression guard)."""
     page_content = "---\ntitle: Test\n---\n\n## Rendering\n\nOld rendering description.\n"
     page = _make_page(tmp_path, "content/page.md", page_content)
+
+    call_count = {"n": 0}
 
     class MockLLM:
         class MockResult:
             data = "New rendering description reflecting changed behavior."
         def call_chat(self, *a, **kw):
+            call_count["n"] += 1
             return self.MockResult()
         def __init__(self):
             pass
@@ -247,6 +265,80 @@ def test_behavior_changed_paragraph_rewritten(tmp_path):
 
     receipts = br.run("pdf", "net", execute=True)
     assert len(receipts) == 1
+    assert call_count["n"] == 1, "MockLLM.call_chat() was never invoked — PARAGRAPH_REWRITE short-circuited before the LLM branch"
+    assert "New rendering description reflecting changed behavior." in writes[0][1]
+    assert "reviewed against the current source model" not in writes[0][1], "deterministic template fired instead of the LLM output"
+
+
+def test_llm_call_exception_falls_back_to_template(tmp_path):
+    """RPR-E-01: a real router that raises (no credentials, network error, timeout)
+    must fail safe to the deterministic template, not crash the refresh run."""
+    page_content = "---\ntitle: Test\n---\n\n## Loading\n\nExisting loading text.\n"
+    page = _make_page(tmp_path, "content/page.md", page_content)
+
+    class ExplodingLLM:
+        def __init__(self):
+            pass
+        def call_chat(self, *a, **kw):
+            raise ConnectionError("no route to professionalize gateway")
+
+    writes: list[tuple] = []
+    br.configure(
+        safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True,
+        llm_router_class=ExplodingLLM,
+    )
+
+    change = _make_change("CHG-001", "CLM-3d-abc123", "FEATURE_ADDED")
+    change["symbol_kind"] = "claim"
+    impact = _make_impact(str(page), "CHG-001", "loading", br.UT_REWRITE)
+    _setup_reports(tmp_path, "3d", "java", [impact], [change])
+
+    receipts = br.run("3d", "java", execute=True)
+    assert len(receipts) == 1
+    assert receipts[0]["verdict"] == br.VD_UPDATED
+    assert "reviewed against the current source model" in writes[0][1]
+
+
+def test_paragraph_rewrite_reachable_for_every_routed_change_type(tmp_path):
+    """RPR-E-01 exhaustive regression guard: every change_type that
+    body_impact.py's _select_update_type() ever routes to PARAGRAPH_REWRITE
+    (API_ADDED, API_RESURRECTED, API_MODIFIED, API_SIGNATURE_CHANGED,
+    FEATURE_ADDED, BEHAVIOR_CHANGED, CLAIM_MODIFIED) must actually reach
+    and invoke a configured LLM router — none may be silently intercepted
+    before the call."""
+    routed_change_types = (
+        "API_ADDED", "API_RESURRECTED", "API_MODIFIED", "API_SIGNATURE_CHANGED",
+        "FEATURE_ADDED", "BEHAVIOR_CHANGED", "CLAIM_MODIFIED",
+    )
+
+    for change_type in routed_change_types:
+        call_count = {"n": 0}
+
+        class MockLLM:
+            class MockResult:
+                data = "LLM-authored rewrite."
+            def call_chat(self, *a, **kw):
+                call_count["n"] += 1
+                return self.MockResult()
+            def __init__(self):
+                pass
+
+        page_content = "---\ntitle: Test\n---\n\n## Section\n\nOriginal text.\n"
+        page = _make_page(tmp_path / change_type, "content/page.md", page_content)
+
+        writes: list[tuple] = []
+        br.configure(
+            safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True,
+            llm_router_class=MockLLM,
+        )
+
+        change = _make_change("CHG-001", "Symbol", change_type)
+        impact = _make_impact(str(page), "CHG-001", "section", br.UT_REWRITE)
+        _setup_reports(tmp_path / change_type, "pdf", "net", [impact], [change])
+
+        br.run("pdf", "net", execute=True)
+        assert call_count["n"] == 1, f"{change_type} did not reach the LLM callsite"
+        assert writes and "LLM-authored rewrite." in writes[0][1], f"{change_type}: LLM output not applied"
 
 
 def test_api_added_rewrite_has_deterministic_fallback(tmp_path):

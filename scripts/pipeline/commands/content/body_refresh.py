@@ -489,17 +489,18 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
             return section_text if note.strip() in existing_content else section_text.rstrip() + note
         return section_text
 
-    if change.get("change_type", "") in (
-        "API_ADDED",
-        "API_RESURRECTED",
-        "API_MODIFIED",
-        "API_SIGNATURE_CHANGED",
-        "FEATURE_ADDED",
-        "FEATURE_CHANGED",
-        "BEHAVIOR_CHANGED",
-        "CLAIM_MODIFIED",
-    ):
-        return _deterministic_fallback()
+    # RPR-E-01 (aspose-org-foss-refresh-tidy-lightning): this block used to
+    # short-circuit to _deterministic_fallback() for every change_type that
+    # body_impact.py's _select_update_type() ever routes to PARAGRAPH_REWRITE
+    # (API_ADDED/API_RESURRECTED/API_MODIFIED/API_SIGNATURE_CHANGED/
+    # FEATURE_ADDED/BEHAVIOR_CHANGED/CLAIM_MODIFIED — see body_impact.py
+    # lines 169-176), which made the LLM callsite below permanently
+    # unreachable in production regardless of whether an LLM router was
+    # configured. The LLM attempt now always runs first for every change
+    # type; failure at any stage (missing router, exception, timeout, empty
+    # response, or a link-preservation violation) falls back to the same
+    # _deterministic_fallback() template as before — this is a pure
+    # reachability fix, not a change to fallback content or triggers.
 
     router_class = _cfg_llm_router_class
     if router_class is None:
@@ -551,13 +552,20 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
         )
         user_prompt = f"Original paragraph:\n\n{section_text}\n\nRewritten paragraph:"
 
-    router = router_class()
-    result = router.call_chat(
-        prompt_system=system_prompt,
-        prompt_user=user_prompt,
-        temperature=0.1,
-        json_extract=False,
-    )
+    try:
+        router = router_class()
+        result = router.call_chat(
+            prompt_system=system_prompt,
+            prompt_user=user_prompt,
+            temperature=0.1,
+            json_extract=False,
+        )
+    except Exception as exc:  # noqa: BLE001 — any router failure must fail safe, not crash the refresh run
+        print(
+            f"LLM_CALL_FAILED: {type(exc).__name__}: {exc} "
+            f"— using deterministic fallback"
+        )
+        return _deterministic_fallback()
 
     if result and result.data and isinstance(result.data, str):
         llm_output = result.data.strip()
