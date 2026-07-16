@@ -28,6 +28,14 @@ class DeadInternalLinkEvaluator(BaseEvaluator):
             return findings
 
         page_dir = page.filepath.parent
+        # Hugo renders a leaf page (e.g. developer-guide/diff.md) one URL segment
+        # deeper than its filesystem location (developer-guide/diff/), but a
+        # section index (_index.md) or leaf bundle (index.md) deploys at the
+        # same depth as its directory. Relative links like ../sibling/ are
+        # authored against the rendered URL, so they must resolve against that
+        # same base — mirrors _build_slug_index() in link_validator.py.
+        is_section_or_bundle = page.filepath.stem == "_index" or page.filepath.name == "index.md"
+        base_dir = page_dir if is_section_or_bundle else page_dir / page.filepath.stem
 
         for link in page.links:
             if not link.is_internal:
@@ -45,7 +53,7 @@ class DeadInternalLinkEvaluator(BaseEvaluator):
                 # without knowing the content root; skip for now
                 continue
 
-            resolved = (page_dir / url_no_anchor).resolve()
+            resolved = (base_dir / url_no_anchor).resolve()
 
             # Hugo pages can be either filename.md or filename/_index.md
             exists = (

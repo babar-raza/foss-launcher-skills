@@ -395,3 +395,47 @@ class TestContentSubstanceHardeningForReference:
         assert "content_substance" in tier, (
             f"evaluator_tier must include 'content_substance' when CS fires. Got: {tier}"
         )
+
+
+# ---------------------------------------------------------------------------
+# Section 5 — G-16 companion: a ValueError from the writer must not abort the batch
+# ---------------------------------------------------------------------------
+
+class TestWriteEvidenceErrorDoesNotAbortBatch:
+    """A malformed-frontmatter file raising ValueError inside the writer must be
+    reported as 'ERROR' for that file only — attach_files() must still process
+    the remaining files in the batch (see runner.py's try/except around
+    _eff_write_evidence)."""
+
+    def test_write_evidence_error_does_not_abort_batch(self, tmp_path):
+        import evidence.runner as er
+
+        good_a = _make_content_file(tmp_path / "good_a.md")
+        bad = _make_content_file(tmp_path / "bad.md")
+        good_b = _make_content_file(tmp_path / "good_b.md")
+        fk = _FakeKnowledge(repo_sha="sha-batch")
+
+        def flaky_write_evidence(filepath, evidence_dict):
+            if filepath.name == "bad.md":
+                raise ValueError("simulated malformed frontmatter")
+            return True
+
+        er.configure(
+            infer_product_fn=lambda fp: ("cells", "python"),
+            knowledge_fn=lambda f, p: fk,
+            extract_tokens_fn=lambda *a, **kw: [],
+            verify_tokens_fn=lambda *a, **kw: [],
+            map_tokens_fn=lambda *a, **kw: ([], []),
+            detect_formats_fn=lambda *a, **kw: [],
+            build_sections_fn=lambda *a, **kw: [],
+            write_evidence_fn=flaky_write_evidence,
+            write_grade_fn=lambda *a, **kw: None,
+            compute_grade_fn=lambda f, w: "B",
+            evaluator_logic_version="v1",
+        )
+        counts = er.attach_files([good_a, bad, good_b])
+
+        assert counts.get("ERROR") == 1, f"Expected 1 ERROR for the bad file: {counts}"
+        assert counts.get("UPDATED") == 2, (
+            f"Both good files must still be processed after the bad one: {counts}"
+        )

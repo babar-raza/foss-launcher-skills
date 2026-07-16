@@ -127,7 +127,14 @@ def _write_evidence_to_frontmatter(filepath, evidence_dict) -> bool:
 
     Returns True on success, False on skip/error.
     """
-    text = filepath.read_text(encoding="utf-8")
+    # utf-8-sig strips a leading BOM if present. A BOM makes the anchored
+    # frontmatter regex fail to match even on an otherwise well-formed file,
+    # which used to fall through to the "no frontmatter" branch below and
+    # corrupt the file with a duplicate, evidence-only frontmatter block
+    # (see the malformed-frontmatter guard note for the full failure mode).
+    # atomic_write() always writes plain utf-8, so any BOM is stripped on
+    # output — this is intentional, not incidental.
+    text = filepath.read_text(encoding="utf-8-sig")
     m = _FRONTMATTER_RE.match(text)
 
     if m:
@@ -171,7 +178,11 @@ def _write_evidence_to_frontmatter(filepath, evidence_dict) -> bool:
         # whose closing fence lacked a trailing newline, or otherwise
         # malformed).  Prepending in that case would create double frontmatter,
         # which Hugo silently ignores — a silent data-loss corruption.
-        if text.lstrip().startswith("---"):
+        # Strip common invisible leading characters (BOM, zero-width space,
+        # ordinary whitespace) before checking for a leading fence — a bare
+        # str.lstrip() does not strip "﻿", so a BOM'd file with malformed
+        # frontmatter would otherwise slip past this guard undetected.
+        if text.lstrip("﻿​ \t\r\n").startswith("---"):
             raise ValueError(
                 f"Frontmatter regex failed on {filepath} but file starts with "
                 "'---'.  The file likely has malformed frontmatter (e.g. missing "
@@ -179,7 +190,11 @@ def _write_evidence_to_frontmatter(filepath, evidence_dict) -> bool:
                 "new block to avoid double-frontmatter corruption.  Fix the "
                 "source file and retry."
             )
-        # Genuinely no frontmatter — prepend a minimal one containing only evidence
+        # Genuinely no frontmatter — prepend a minimal one containing only evidence.
+        # Pop _valid_claim_ids first (mirrors the pop in the matched branch above,
+        # line ~141) — it is an internal validation set, never meant to be
+        # serialized into the file itself.
+        evidence_dict.pop("_valid_claim_ids", None)
         evidence_yaml = _build_evidence_yaml(evidence_dict)
         new_text = f"---\n{evidence_yaml}---\n\n{text}"
 

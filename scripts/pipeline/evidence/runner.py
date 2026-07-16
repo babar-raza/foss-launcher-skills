@@ -440,7 +440,15 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
     # and re-grading risks a false regression (RG-003 fix).
     _pre_attach_graded_hash = existing.get("graded_content_hash", "") if isinstance(existing, dict) else ""
 
-    ok = _eff_write_evidence(filepath, evidence)
+    # A malformed-frontmatter guard inside the writer raises ValueError rather
+    # than risk double-frontmatter corruption (see writer.py). Catch it here so
+    # one bad file reports "ERROR" and the batch loop (attach_evidence_batch)
+    # continues to the next file instead of the whole run aborting silently.
+    try:
+        ok = _eff_write_evidence(filepath, evidence)
+    except ValueError as exc:
+        _log(f"  ERROR {filepath}: {exc}")
+        return "ERROR"
     if ok:
         # Auto-grade: pages reaching here have 0 FAILs (line 58 returns on FAILs).
         from content_eval.models import compute_grade as _cg_default, Page  # noqa: E402

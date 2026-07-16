@@ -247,3 +247,220 @@ def validate_and_raise(data: dict, validator_fn) -> None:
     errors = validator_fn(data)
     if errors:
         raise ValidationError(errors)
+
+
+# ── Refresh-pipeline schemas (aspose-org-foss-refresh-tidy-lightning §5) ────
+#
+# These five validators formalize the refresh-run contract records introduced
+# by the FOSS Refresh Pipeline Recovery plan (RPR-B-01/02/03). Several checks
+# below directly encode confirmed root causes from that plan's forensic audit
+# as enforceable invariants, not just type-checking:
+#   - a BODY_UPDATED page-coverage decision with an identical before/after
+#     body hash is rejected outright (this is the exact PDF-NET-REFRESH-001
+#     v26.7.0 bug: a KB page graded A->C from a frontmatter-only evidence
+#     change with zero prose diff, yet nothing in the pipeline flagged it);
+#   - frontmatter_only=True can never coexist with decision=BODY_UPDATED;
+#   - a committed refresh-run manifest requires every validation field to be
+#     PASS (never advance the baseline on a partially-failed run).
+
+_BASELINE_LEDGER_SHA_SOURCES = {"scout", "manual-recovery", "orphaned-recovered"}
+_BASELINE_LEDGER_STATUSES = {"attempted", "accepted", "superseded", "abandoned"}
+
+
+def validate_baseline_ledger_entry(data: dict) -> list[str]:
+    """Validate one append-only baseline_ledger.jsonl row (plan schema 5a)."""
+    errors = []
+    errors.extend(_check_required(
+        data,
+        ["run_id", "family", "platform", "new_repo_sha", "sha_source", "attempt_started_at", "status"],
+        "baseline_ledger_entry",
+    ))
+    if "sha_source" in data and data["sha_source"] not in _BASELINE_LEDGER_SHA_SOURCES:
+        errors.append(f"baseline_ledger_entry: invalid sha_source '{data['sha_source']}'")
+    if "status" in data and data["status"] not in _BASELINE_LEDGER_STATUSES:
+        errors.append(f"baseline_ledger_entry: invalid status '{data['status']}'")
+    if data.get("status") == "accepted" and not data.get("accepted_at"):
+        errors.append("baseline_ledger_entry: status=accepted requires a non-empty accepted_at")
+    if data.get("sha_source") == "orphaned-recovered" and not data.get("orphaned_sha"):
+        errors.append("baseline_ledger_entry: sha_source=orphaned-recovered requires a non-empty orphaned_sha")
+    return errors
+
+
+_PRODUCT_CHANGE_TYPES = {
+    "API_ADDED", "API_REMOVED", "API_RESURRECTED", "API_MODIFIED",
+    "API_SIGNATURE_CHANGED", "API_RENAMED", "FEATURE_ADDED", "FEATURE_REMOVED",
+    "FEATURE_CHANGED", "BEHAVIOR_CHANGED", "CLAIM_MODIFIED", "LIMITATION_CHANGED",
+}
+_UPDATE_STRATEGIES = {
+    "SURGICAL_CLAIM_REPLACEMENT", "TABLE_ROW_RECONCILIATION",
+    "EXAMPLE_REGENERATION", "SECTION_REMOVAL", "PARAGRAPH_REWRITE",
+}
+
+
+def validate_product_change_record(data: dict) -> list[str]:
+    """Validate one semantic_changes.json entry, extended per plan schema 5b."""
+    errors = []
+    errors.extend(_check_required(
+        data,
+        ["change_id", "change_type", "api_symbol", "baseline_ref", "routed_strategy",
+         "classification_confidence", "requires_llm"],
+        "product_change_record",
+    ))
+    if "change_type" in data and data["change_type"] not in _PRODUCT_CHANGE_TYPES:
+        errors.append(f"product_change_record: invalid change_type '{data['change_type']}'")
+    if "routed_strategy" in data and data["routed_strategy"] not in _UPDATE_STRATEGIES:
+        errors.append(f"product_change_record: invalid routed_strategy '{data['routed_strategy']}'")
+    if "classification_confidence" in data:
+        conf = data["classification_confidence"]
+        if not isinstance(conf, (int, float)) or conf < 0 or conf > 1:
+            errors.append(f"product_change_record: classification_confidence must be 0.0-1.0, got {conf}")
+    if "requires_llm" in data and "routed_strategy" in data:
+        expected = data["routed_strategy"] == "PARAGRAPH_REWRITE"
+        if data["requires_llm"] != expected:
+            errors.append(
+                f"product_change_record: requires_llm={data['requires_llm']} is inconsistent with "
+                f"routed_strategy={data['routed_strategy']!r} (requires_llm must be True iff "
+                f"routed_strategy is PARAGRAPH_REWRITE)"
+            )
+    return errors
+
+
+_PAGE_COVERAGE_DECISIONS = {
+    "BODY_UPDATED", "EVIDENCE_ONLY", "NOT_AFFECTED", "RETIRED", "GENERATED",
+    "SEMANTIC_NOOP_PROVEN", "REFRESH_BLOCKED_UNPROVEN_NOOP",
+    "CLAIM_EXTRACTION_MISSED_DELTA", "PAGE_MAPPING_MISSED_IMPACT",
+    "GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT", "GRADING_REPAIRED",
+    "GRADING_BLOCKED", "TASKCARD_CREATED",
+}
+_PAGE_COVERAGE_DECISION_SOURCES = {"pia_per_page_citation", "oracle", "manual", "triage_confirm"}
+
+
+def validate_page_coverage_ledger_entry(data: dict) -> list[str]:
+    """Validate one page_decisions.json entry, extended per plan schema 5c.
+
+    RPR-F-01/RPR-F-04 root-cause guard: a decision of BODY_UPDATED with an
+    identical before/after body hash, or with frontmatter_only=True, is
+    rejected — this is precisely the PDF-NET-REFRESH-001 v26.7.0 defect
+    (34/82 non-reference pages recorded EVIDENCE_ONLY correctly, but nothing
+    in the pipeline enforced that a BODY_UPDATED page could never have a
+    frontmatter-only diff underneath it).
+    """
+    errors = []
+    errors.extend(_check_required(
+        data,
+        ["page_id", "decision", "decision_reason", "decision_source",
+         "body_diff_hash_before", "body_diff_hash_after", "frontmatter_only", "blocking"],
+        "page_coverage_ledger_entry",
+    ))
+    if "decision" in data and data["decision"] not in _PAGE_COVERAGE_DECISIONS:
+        errors.append(f"page_coverage_ledger_entry: invalid decision '{data['decision']}'")
+    if "decision_source" in data and data["decision_source"] not in _PAGE_COVERAGE_DECISION_SOURCES:
+        errors.append(f"page_coverage_ledger_entry: invalid decision_source '{data['decision_source']}'")
+    if data.get("decision") == "BODY_UPDATED":
+        if data.get("frontmatter_only") is True:
+            errors.append(
+                "page_coverage_ledger_entry: decision=BODY_UPDATED is incompatible with frontmatter_only=True"
+            )
+        before = data.get("body_diff_hash_before")
+        after = data.get("body_diff_hash_after")
+        if before is not None and after is not None and before == after:
+            errors.append(
+                "page_coverage_ledger_entry: decision=BODY_UPDATED but body_diff_hash_before == "
+                "body_diff_hash_after (frontmatter-only refresh misrecorded as a body update — "
+                "see PDF-NET-REFRESH-001 v26.7.0 regression)"
+            )
+    return errors
+
+
+_PAGE_PATCH_VERDICTS = {"BODY_UPDATED", "SKIPPED_HASH_CHANGED", "SKIPPED_AUTO_UPDATABLE_FALSE"}
+
+
+def validate_page_patch_receipt(data: dict) -> list[str]:
+    """Validate one S-105 body-refresh receipt, extended per plan schema 5d.
+
+    RPR-E-01 observability guard: when strategy_used=PARAGRAPH_REWRITE and
+    the receipt claims BODY_UPDATED, exactly one of llm_invoked /
+    template_fallback_used must be true — a receipt claiming neither (or
+    both) fired means the observability added by RPR-E-01 to distinguish a
+    genuine LLM rewrite from the dead-fallback bug's canned template is
+    itself broken.
+    """
+    errors = []
+    errors.extend(_check_required(
+        data,
+        ["receipt_id", "run_id", "page_path", "locale", "change_ids",
+         "strategy_used", "old_hash", "new_hash", "verdict"],
+        "page_patch_receipt",
+    ))
+    if "strategy_used" in data and data["strategy_used"] not in _UPDATE_STRATEGIES:
+        errors.append(f"page_patch_receipt: invalid strategy_used '{data['strategy_used']}'")
+    if "verdict" in data and data["verdict"] not in _PAGE_PATCH_VERDICTS:
+        errors.append(f"page_patch_receipt: invalid verdict '{data['verdict']}'")
+    if data.get("strategy_used") == "PARAGRAPH_REWRITE" and data.get("verdict") == "BODY_UPDATED":
+        llm_invoked = data.get("llm_invoked")
+        template_used = data.get("template_fallback_used")
+        if llm_invoked is None or template_used is None:
+            errors.append(
+                "page_patch_receipt: strategy_used=PARAGRAPH_REWRITE with verdict=BODY_UPDATED requires "
+                "both llm_invoked and template_fallback_used to be recorded"
+            )
+        elif llm_invoked == template_used:
+            errors.append(
+                f"page_patch_receipt: exactly one of llm_invoked/template_fallback_used must be true "
+                f"(got llm_invoked={llm_invoked}, template_fallback_used={template_used})"
+            )
+    return errors
+
+
+_REFRESH_RUN_VALIDATION_FIELDS = ("post_refresh_verify", "oracle", "triage_confirm", "seo_stability")
+_REFRESH_RUN_STATUSES = {"in_progress", "blocked", "committed", "abandoned"}
+
+
+def validate_refresh_run_manifest(data: dict) -> list[str]:
+    """Validate one refresh-run manifest, per plan schema 5e.
+
+    Encodes the plan's rollback rule (§13): a run may only be status=committed
+    with a non-null commit_sha when every validation field is PASS — a failed
+    or partial run must never be recorded as committed.
+    """
+    errors = []
+    errors.extend(_check_required(
+        data,
+        ["run_id", "family", "platform", "started_at", "baseline_ledger_ref",
+         "product_change_refs", "page_coverage_ledger_ref", "patch_receipt_refs",
+         "validation", "status"],
+        "refresh_run_manifest",
+    ))
+    errors.extend(_check_type(data, "product_change_refs", list, "refresh_run_manifest"))
+    errors.extend(_check_type(data, "patch_receipt_refs", list, "refresh_run_manifest"))
+
+    if "status" in data and data["status"] not in _REFRESH_RUN_STATUSES:
+        errors.append(f"refresh_run_manifest: invalid status '{data['status']}'")
+
+    validation = data.get("validation")
+    if not isinstance(validation, dict):
+        errors.append("refresh_run_manifest: 'validation' must be a dict")
+        validation = {}
+    else:
+        for field in _REFRESH_RUN_VALIDATION_FIELDS:
+            if field not in validation:
+                errors.append(f"refresh_run_manifest.validation: missing required key '{field}'")
+            elif validation[field] not in ("PASS", "FAIL"):
+                errors.append(f"refresh_run_manifest.validation.{field}: must be PASS or FAIL, got '{validation[field]}'")
+
+    all_pass = validation and all(validation.get(f) == "PASS" for f in _REFRESH_RUN_VALIDATION_FIELDS)
+
+    if data.get("status") == "committed":
+        if not data.get("commit_sha"):
+            errors.append("refresh_run_manifest: status=committed requires a non-empty commit_sha")
+        if not all_pass:
+            errors.append(
+                "refresh_run_manifest: status=committed but not every validation field is PASS "
+                "(a partially-failed run must never be recorded as committed — plan §13 rollback rule)"
+            )
+    elif data.get("commit_sha"):
+        errors.append(
+            f"refresh_run_manifest: commit_sha is set but status={data.get('status')!r} != 'committed'"
+        )
+
+    return errors

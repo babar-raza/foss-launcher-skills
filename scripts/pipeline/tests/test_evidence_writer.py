@@ -58,6 +58,22 @@ def _apply_evidence(content: str, evidence: dict | None = None) -> str:
         tmp.unlink(missing_ok=True)
 
 
+def _apply_evidence_raw_bytes(raw: bytes, evidence: dict | None = None) -> bytes:
+    """Write raw bytes (e.g. BOM-prefixed) to a temp file, run the writer, return
+    the raw output bytes. Needed because _apply_evidence's text-mode write can
+    never itself produce a BOM."""
+    if evidence is None:
+        evidence = dict(_SAMPLE_EVIDENCE)
+    with tempfile.NamedTemporaryFile(suffix=".md", delete=False) as f:
+        f.write(raw)
+        tmp = Path(f.name)
+    try:
+        _write_evidence_to_frontmatter(tmp, dict(evidence))
+        return tmp.read_bytes()
+    finally:
+        tmp.unlink(missing_ok=True)
+
+
 def _strip_evidence(text: str) -> str:
     """Remove the evidence block from frontmatter for comparison."""
     # Match between --- fences
@@ -405,3 +421,74 @@ class TestEvidenceWriterPreservesLastMechanism:
         assert "provenance:" not in text, (
             f"evidence writer created a provenance block unexpectedly:\n{text}"
         )
+
+
+# ---------------------------------------------------------------------------
+# G-16: BOM handling + _valid_claim_ids leak in the no-frontmatter branch
+# ---------------------------------------------------------------------------
+
+def test_bom_prefixed_file_frontmatter_matched_not_prepended():
+    """A BOM'd file with otherwise-valid frontmatter must be matched and merged
+    in place, not misdetected as frontmatter-less and double-prepended."""
+    original = textwrap.dedent("""\
+        ---
+        title: My Page
+        layout: plugin
+        ---
+
+        Body content here.
+    """)
+    raw = b"\xef\xbb\xbf" + original.encode("utf-8")
+    result = _apply_evidence_raw_bytes(raw).decode("utf-8")
+
+    fence_lines = [line for line in result.splitlines() if line == "---"]
+    assert len(fence_lines) == 2, (
+        f"expected exactly one frontmatter fence pair, found fences: {fence_lines}\n{result}"
+    )
+    assert result.count("evidence:") == 1
+    assert "title: My Page" in result
+    assert "Body content here." in result
+
+
+def test_bom_stripped_from_output():
+    """atomic_write always emits plain utf-8 — any input BOM must not survive."""
+    original = "---\ntitle: Page\n---\n\nBody.\n"
+    raw = b"\xef\xbb\xbf" + original.encode("utf-8")
+    result = _apply_evidence_raw_bytes(raw)
+
+    assert not result.startswith(b"\xef\xbb\xbf"), "BOM leaked into output bytes"
+    assert not result.decode("utf-8").startswith("﻿")
+
+
+def test_no_frontmatter_prepend_branch_prunes_valid_claim_ids():
+    """The no-frontmatter-yet branch must pop _valid_claim_ids before serializing,
+    same as the matched branch already does — it is an internal validation set,
+    never meant to reach the file."""
+    original = "Just some body content.\n"
+    result = _apply_evidence(original, {
+        "model_sha": "abc123",
+        "model_version": "1.0.0",
+        "claims": ["CLM-SMALL"],
+        "apis": [],
+        "_valid_claim_ids": {"CLM-SMALL", "CLM-HUGE-1", "CLM-HUGE-2", "CLM-HUGE-3"},
+    })
+    assert "CLM-SMALL" in result
+    assert "_valid_claim_ids" not in result
+    assert "CLM-HUGE" not in result
+
+
+def test_guard_still_raises_on_malformed_non_bom_frontmatter():
+    """Regression lock: the pre-existing malformed-frontmatter guard must still
+    raise on a plain (non-BOM) file whose closing fence is malformed, rather than
+    silently falling through to double-frontmatter corruption."""
+    malformed = "---\ntitle: Page\n---no newline after fence\nBody.\n"
+    with tempfile.NamedTemporaryFile(
+        suffix=".md", mode="w", encoding="utf-8", delete=False
+    ) as f:
+        f.write(malformed)
+        tmp = Path(f.name)
+    try:
+        with pytest.raises(ValueError):
+            _write_evidence_to_frontmatter(tmp, dict(_SAMPLE_EVIDENCE))
+    finally:
+        tmp.unlink(missing_ok=True)
