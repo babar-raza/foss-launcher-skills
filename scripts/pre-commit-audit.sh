@@ -903,4 +903,32 @@ if [ ${#staged_locale_md[@]} -gt 0 ]; then
 fi
 _pc_step_end "PASS"
 
+# ---------------------------------------------------------------------------
+_pc_step_start "evidence churn"
+# Step 20: Evidence-only mass-churn gate — check_evidence_churn.py
+# Blocks bulk commits where many staged content .md files change only the
+# `evidence:` frontmatter block (model_sha/model_version/claims/apis/
+# sections re-stamp) with no body content change and no other frontmatter
+# field changed. Local pre-commit counterpart to check_grade_churn.py
+# (GUARD-02, wired CI-only) for the `evidence:` block specifically. Root
+# incident: commit 643c02f7b8 (TC-SFH-007) re-stamped 845 pdf/net pages after
+# a knowledge model jump with zero body reconciliation via S-20 (page-update).
+# Override: commit message annotation `EVIDENCE-RESTAMP: approved by ...`.
+# ---------------------------------------------------------------------------
+if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_evidence_churn.py" ]; then
+    _ec_commit_msg="$(cat .git/COMMIT_EDITMSG 2>/dev/null || true)"
+    _ec_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_evidence_churn.py --mode staged --commit-msg "$_ec_commit_msg" 2>&1)
+    _ec_exit=$?
+    if [ -n "$_ec_out" ]; then
+        echo "$_ec_out" | sed 's/^/[Step 20] /'
+    fi
+    if [ $_ec_exit -ne 0 ]; then
+        _pc_step_end "FAIL"
+        _pc_exit 1
+    fi
+else
+    echo "[Step 20] SKIP: .venv not found or check_evidence_churn.py missing." >&2
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0
