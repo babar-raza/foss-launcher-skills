@@ -358,8 +358,10 @@ class TestLowImpactDetection:
         score, _ = page_impact_assess._score_page(page, set(), claim_keywords)
         assert score == "LOW_IMPACT"
 
-    def test_score_page_never_returns_not_affected(self, tmp_path):
-        """_score_page with non-empty delta signals always returns LOW_IMPACT or higher."""
+    def test_score_page_fallback_path_never_returns_not_affected(self, tmp_path):
+        """FALLBACK path (evidence-less page, legacy 3-arg call) never returns
+        NOT_AFFECTED. (The citation path CAN return NOT_AFFECTED per RPR-D-02 —
+        see TestCitationBasedScoring — but only for pages that carry evidence.)"""
         page = tmp_path / "page.md"
         page.write_text("---\ntitle: Page\n---\nsome generic content here\n", encoding="utf-8")
         score, _ = page_impact_assess._score_page(page, {"workbook"}, {"spreadsheet"})
@@ -486,3 +488,181 @@ class TestNewClaimsNewApisScoring:
         assert "performance" in keywords
         score, _ = page_impact_assess._score_page(page, set(), keywords)
         assert score == "MEDIUM_IMPACT"
+
+
+# ---------------------------------------------------------------------------
+# RPR-D-01 / RPR-D-02: citation-based scoring + per-page NOT_AFFECTED
+# ---------------------------------------------------------------------------
+
+def _write_page_with_evidence(
+    dir_: Path,
+    name: str,
+    *,
+    claims: "list[str] | None" = None,
+    apis: "list[str] | None" = None,
+    body: str = "generic body content with no special tokens",
+) -> Path:
+    """Write a page carrying an evidence: frontmatter block."""
+    import yaml as _yaml
+    dir_.mkdir(parents=True, exist_ok=True)
+    fm: dict = {"title": name, "evidence": {}}
+    if claims is not None:
+        fm["evidence"]["claims"] = claims
+    if apis is not None:
+        fm["evidence"]["apis"] = apis
+    p = dir_ / name
+    p.write_text("---\n" + _yaml.dump(fm, sort_keys=False) + "---\n" + body + "\n", encoding="utf-8")
+    return p
+
+
+class TestCitationBasedScoring:
+    """RPR-D-01: scoring driven by the page's own evidence.claims/apis, not body tokens."""
+
+    def test_high_on_cited_api_change(self, tmp_path):
+        page = _write_page_with_evidence(tmp_path, "p.md", apis=["Document", "Permissions"])
+        score, signals = page_impact_assess._score_page(
+            page, set(), set(),
+            changed_api_ids={"Document"}, changed_claim_ids=set(),
+        )
+        assert score == "HIGH_IMPACT"
+        assert any(s.startswith("cite-api:Document") for s in signals)
+
+    def test_high_on_cited_method_when_owning_class_changed(self, tmp_path):
+        """A page citing Document.Create is HIGH when the class Document changed,
+        even though the delta tracks the change at class granularity."""
+        page = _write_page_with_evidence(tmp_path, "p.md", apis=["Document.Create"])
+        score, signals = page_impact_assess._score_page(
+            page, set(), set(),
+            changed_api_ids={"Document"}, changed_claim_ids=set(),
+        )
+        assert score == "HIGH_IMPACT"
+        assert any("Document.Create" in s for s in signals)
+
+    def test_medium_on_cited_claim_change(self, tmp_path):
+        page = _write_page_with_evidence(tmp_path, "p.md", claims=["CLM-pdf-073e10"])
+        score, signals = page_impact_assess._score_page(
+            page, set(), set(),
+            changed_api_ids=set(), changed_claim_ids={"CLM-pdf-073e10"},
+        )
+        assert score == "MEDIUM_IMPACT"
+        assert any("CLM-pdf-073e10" in s for s in signals)
+
+    def test_api_citation_beats_claim_citation(self, tmp_path):
+        """When both a cited API and a cited claim changed, HIGH (api) wins over MEDIUM (claim)."""
+        page = _write_page_with_evidence(
+            tmp_path, "p.md", apis=["Document"], claims=["CLM-x"],
+        )
+        score, _ = page_impact_assess._score_page(
+            page, set(), set(),
+            changed_api_ids={"Document"}, changed_claim_ids={"CLM-x"},
+        )
+        assert score == "HIGH_IMPACT"
+
+    def test_not_affected_when_page_cites_unrelated_apis_only(self, tmp_path):
+        """RPR-D-02: a page whose cited APIs/claims are NONE of them in the delta
+        scores NOT_AFFECTED even though the product delta is non-empty."""
+        page = _write_page_with_evidence(tmp_path, "p.md", apis=["SomethingElse"], claims=["CLM-unrelated"])
+        score, signals = page_impact_assess._score_page(
+            page, set(), set(),
+            changed_api_ids={"Document"}, changed_claim_ids={"CLM-pdf-073e10"},
+        )
+        assert score == "NOT_AFFECTED"
+        assert signals == ["cite-clean"]
+
+    def test_citation_path_ignores_body_tokens(self, tmp_path):
+        """Even if the body text mentions a changed API by name, an evidence-bearing
+        page that does NOT cite it scores NOT_AFFECTED — citation is authoritative,
+        body-token coincidence is not (the exact false-positive class RPR-D-01 fixes)."""
+        page = _write_page_with_evidence(
+            tmp_path, "p.md", apis=["UnrelatedClass"],
+            body="This prose happens to mention Document in passing.",
+        )
+        score, _ = page_impact_assess._score_page(
+            page, {"document"}, set(),
+            changed_api_ids={"Document"}, changed_claim_ids=set(),
+        )
+        assert score == "NOT_AFFECTED"
+
+
+class TestEvidencelessFallback:
+    """RPR-D-01: pages with no evidence fall back to the token heuristic, visibly marked."""
+
+    def test_fallback_warns_on_missing_evidence(self, tmp_path):
+        """An evidence-less page scored during a real run (changed_ids supplied)
+        gets a 'fallback-no-evidence' marker so the token-guess is never mistaken
+        for a confident citation verdict."""
+        page = tmp_path / "p.md"
+        page.write_text("---\ntitle: P\n---\nUse the Workbook class heavily here.\n", encoding="utf-8")
+        score, signals = page_impact_assess._score_page(
+            page, {"workbook"}, set(),
+            changed_api_ids={"Workbook"}, changed_claim_ids=set(),
+        )
+        assert score == "HIGH_IMPACT"
+        assert "fallback-no-evidence" in signals
+
+    def test_evidenceless_page_never_defaults_to_not_affected(self, tmp_path):
+        """RPR-D-02 guard: a page with empty/missing evidence must NOT silently
+        become NOT_AFFECTED — it routes to the fallback path (LOW_IMPACT here),
+        never the citation-clean NOT_AFFECTED branch."""
+        page = tmp_path / "p.md"
+        page.write_text("---\ntitle: P\n---\ncompletely unrelated prose\n", encoding="utf-8")
+        score, _ = page_impact_assess._score_page(
+            page, {"workbook"}, {"spreadsheet"},
+            changed_api_ids={"Workbook"}, changed_claim_ids={"CLM-x"},
+        )
+        assert score == "LOW_IMPACT"  # fallback path, not NOT_AFFECTED
+
+    def test_malformed_frontmatter_falls_back_not_crashes(self, tmp_path):
+        page = tmp_path / "p.md"
+        page.write_text("---\ntitle: [unclosed\n---\nbody\n", encoding="utf-8")
+        # Must not raise; malformed evidence → treated as no evidence → fallback.
+        claims, apis = page_impact_assess._read_page_evidence(page)
+        assert claims == [] and apis == []
+
+
+class TestPerPageNotAffectedInAssessProduct:
+    """RPR-D-02 end-to-end: a NOT_AFFECTED page can coexist with HIGH/MEDIUM siblings
+    in the same non-empty-delta product run."""
+
+    def test_not_affected_assignable_when_product_delta_nonempty(self, tmp_path):
+        page_impact_assess.configure(repo_root=tmp_path)
+        d = tmp_path / "content" / "docs.aspose.org" / "en" / "pdf" / "net"
+        _write_page_with_evidence(d, "affected.md", apis=["Document"])
+        _write_page_with_evidence(d, "clean.md", apis=["UntouchedClass"], claims=["CLM-untouched"])
+        _write_delta(
+            tmp_path / "knowledge" / "pdf" / "net",
+            {"modified_apis": ["Document"], "new_claims": ["CLM-new"], "current_sha": "abc"},
+        )
+        result = page_impact_assess.assess_product(
+            "pdf", "net",
+            content_root=tmp_path / "content",
+            knowledge_root=tmp_path / "knowledge",
+        )
+        scores = {p["path"].split("/")[-1]: p["pia_score"] for p in result["pages"]}
+        assert scores["affected.md"] == "HIGH_IMPACT"
+        assert scores["clean.md"] == "NOT_AFFECTED"
+        # Both a HIGH and a NOT_AFFECTED in the same non-empty-delta run — the exact
+        # thing impossible before RPR-D-02.
+        assert result["summary"]["HIGH_IMPACT"] == 1
+        assert result["summary"]["NOT_AFFECTED"] == 1
+
+
+class TestChangedIdExtraction:
+    """RPR-D-01: exact (case-preserved) changed-ID extraction, distinct from the
+    lowercased token extraction used by the fallback path."""
+
+    def test_extract_changed_api_ids_preserves_case(self):
+        delta = {"modified_apis": ["Document"], "removed_apis": ["OldClass"],
+                 "new_apis": ["NewClass"], "resurrected_apis": ["BackClass"]}
+        ids = page_impact_assess._extract_changed_api_ids(delta)
+        assert ids == {"Document", "OldClass", "NewClass", "BackClass"}
+
+    def test_extract_changed_claim_ids(self):
+        delta = {"modified_claims": ["CLM-a"], "removed_claims": ["CLM-b"], "new_claims": ["CLM-c"]}
+        ids = page_impact_assess._extract_changed_claim_ids(delta)
+        assert ids == {"CLM-a", "CLM-b", "CLM-c"}
+
+    def test_extract_handles_dict_entries(self):
+        delta = {"modified_apis": [{"name": "Document"}], "modified_claims": [{"claim_id": "CLM-x"}]}
+        assert page_impact_assess._extract_changed_api_ids(delta) == {"Document"}
+        assert page_impact_assess._extract_changed_claim_ids(delta) == {"CLM-x"}

@@ -24,6 +24,7 @@ def reset_config():
         llm_router_class=None,
         safe_write_fn=None,
         hash_validation=True,
+        forbidden_claims=None,
     )
 
 
@@ -56,7 +57,8 @@ def _setup_reports(
     )
 
 
-def _make_impact(page_path: str, change_id: str, section_id: str, update_type: str, impact_level: str = "DEFINITE") -> dict:
+def _make_impact(page_path: str, change_id: str, section_id: str, update_type: str,
+                 impact_level: str = "DEFINITE", lines: "list[int] | None" = None) -> dict:
     return {
         "impact_id": "IMP-0001",
         "page_path": page_path,
@@ -66,7 +68,7 @@ def _make_impact(page_path: str, change_id: str, section_id: str, update_type: s
             {
                 "section_id": section_id,
                 "heading": f"## {section_id}",
-                "lines": [5, 15],
+                "lines": lines or [5, 15],
                 "reason": "test",
                 "impact_level": impact_level,
                 "required_action": "BODY_UPDATE",
@@ -99,7 +101,7 @@ def _make_change(change_id: str, symbol: str, change_type: str = "API_REMOVED") 
 def test_api_removed_sentence_replaced(tmp_path):
     """SURGICAL: renamed API symbol is replaced in prose with new symbol."""
     page_content = "---\ntitle: Test\nauto_updatable: true\n---\n\nUse `OldDocument` to load files.\n"
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
 
     writes: list[tuple] = []
     br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
@@ -121,7 +123,7 @@ def test_api_removed_code_block_regenerated(tmp_path):
         "---\ntitle: Test\n---\n\n## Example\n\n"
         "```csharp\nvar doc = new OldDocument();\ndoc.Save();\n```\n"
     )
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
 
     writes: list[tuple] = []
     br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
@@ -140,7 +142,7 @@ def test_api_removed_table_row_removed(tmp_path):
         "---\ntitle: Test\n---\n\n## Formats\n\n"
         "| Format | Class |\n| --- | --- |\n| PDF | OldDocument |\n| HTML | HtmlDoc |\n"
     )
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
 
     writes: list[tuple] = []
     br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
@@ -158,7 +160,7 @@ def test_api_removed_table_row_removed(tmp_path):
 def test_api_renamed_prose_updated(tmp_path):
     """SURGICAL: renamed API symbol updates prose references."""
     page_content = "---\ntitle: Test\n---\n\nThe `LegacyConverter` class converts files.\n"
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
 
     writes: list[tuple] = []
     br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
@@ -180,7 +182,7 @@ def test_feature_removed_section_eliminated(tmp_path):
         "## Legacy Section\n\nThis references the old feature.\n\n"
         "## See Also\n\nLinks here.\n"
     )
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
 
     writes: list[tuple] = []
     br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
@@ -207,7 +209,7 @@ def test_feature_added_section_enriched(tmp_path):
     is what actually proves the LLM callsite ran.
     """
     page_content = "---\ntitle: Test\n---\n\n## Signing\n\nOld signing text here.\n"
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
 
     call_count = {"n": 0}
 
@@ -240,7 +242,7 @@ def test_feature_added_section_enriched(tmp_path):
 def test_behavior_changed_paragraph_rewritten(tmp_path):
     """PARAGRAPH_REWRITE for BEHAVIOR_CHANGED actually invokes the LLM (RPR-E-01 regression guard)."""
     page_content = "---\ntitle: Test\n---\n\n## Rendering\n\nOld rendering description.\n"
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
 
     call_count = {"n": 0}
 
@@ -274,7 +276,7 @@ def test_llm_call_exception_falls_back_to_template(tmp_path):
     """RPR-E-01: a real router that raises (no credentials, network error, timeout)
     must fail safe to the deterministic template, not crash the refresh run."""
     page_content = "---\ntitle: Test\n---\n\n## Loading\n\nExisting loading text.\n"
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/3d/java/page.md", page_content)
 
     class ExplodingLLM:
         def __init__(self):
@@ -324,7 +326,7 @@ def test_paragraph_rewrite_reachable_for_every_routed_change_type(tmp_path):
                 pass
 
         page_content = "---\ntitle: Test\n---\n\n## Section\n\nOriginal text.\n"
-        page = _make_page(tmp_path / change_type, "content/page.md", page_content)
+        page = _make_page(tmp_path / change_type, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
 
         writes: list[tuple] = []
         br.configure(
@@ -344,7 +346,7 @@ def test_paragraph_rewrite_reachable_for_every_routed_change_type(tmp_path):
 def test_api_added_rewrite_has_deterministic_fallback(tmp_path):
     """PARAGRAPH_REWRITE updates API additions even when LLM returns no change."""
     page_content = "---\ntitle: Test\n---\n\n## Forms\n\nExisting form workflow text.\n"
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
 
     class NoopLLM:
         class MockResult:
@@ -373,7 +375,7 @@ def test_api_added_rewrite_has_deterministic_fallback(tmp_path):
 def test_feature_added_rewrite_has_deterministic_fallback(tmp_path):
     """PARAGRAPH_REWRITE updates feature changes without requiring LLM."""
     page_content = "---\ntitle: Test\n---\n\n## Loading\n\nExisting loading text.\n"
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/3d/java/page.md", page_content)
 
     writes: list[tuple] = []
     br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
@@ -391,7 +393,7 @@ def test_feature_added_rewrite_has_deterministic_fallback(tmp_path):
 def test_section_change_id_limits_rewrite_to_matching_change(tmp_path):
     """Section-level change_id prevents unrelated page changes from driving strategy."""
     page_content = "---\ntitle: Test\n---\n\n## Loading\n\nExisting loading text.\n"
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/3d/java/page.md", page_content)
 
     writes: list[tuple] = []
     br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
@@ -415,7 +417,7 @@ def test_preserve_first_unaffected_sections_unchanged(tmp_path):
         "---\ntitle: Test\n---\n\n## Overview\n\nUnchanged overview text.\n\n"
         "## Installation\n\nUse `OldPkg` here.\n"
     )
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
 
     writes: list[tuple] = []
     br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
@@ -526,7 +528,7 @@ def test_ambiguous_locale_path_rejected_before_write(tmp_path):
 def test_dry_run_produces_no_writes(tmp_path):
     """--dry-run mode plans but produces no file writes."""
     page_content = "---\ntitle: Test\n---\n\nUse `Document.Save` here.\n"
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
 
     writes: list[tuple] = []
     br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
@@ -543,7 +545,7 @@ def test_dry_run_produces_no_writes(tmp_path):
 def test_idempotent_rerun_no_changes(tmp_path):
     """Running body_refresh twice produces same output (idempotency)."""
     page_content = "---\ntitle: Test\n---\n\nUse `NewAPI` here.\n"
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
 
     writes: list[list] = [[]]
     br.configure(safe_write_fn=lambda p, c, **kw: writes[0].append(c) or True)
@@ -565,7 +567,7 @@ def test_api_added_fallback_idempotent_with_stale_line_range(tmp_path):
         "## Forms\n\nExisting form workflow text.\n\n"
         "The current pdf/net API surface also includes `ImportDataAction` for related workflows.\n"
     )
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
 
     writes: list[tuple] = []
     br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
@@ -588,7 +590,7 @@ def test_duplicate_api_refresh_notes_collapsed(tmp_path):
         "The current pdf/net API surface also includes `BoxShape` for related workflows.\n"
         "The current pdf/net API surface also includes `ImportDataAction` for related workflows.\n"
     )
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
 
     writes: list[tuple] = []
     br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
@@ -602,10 +604,77 @@ def test_duplicate_api_refresh_notes_collapsed(tmp_path):
     assert writes[0][1].count("API surface also includes") == 1
 
 
+def test_get_claim_grounding_repo_root_resolves_to_real_repo_root():
+    """Regression guard (session 2): _get_claim_grounding()'s repo_root computation
+    must resolve to the actual repo root (which has a knowledge/ directory), not a
+    subdirectory of it. Prior to this fix, `parents[3]` resolved to scripts/ instead
+    of the repo root, so bak_claims.exists()/new_claims.exists() were always False
+    and every PARAGRAPH_REWRITE call ran in degraded (ungrounded) mode silently —
+    zero prior test coverage existed for this function, which is how the bug survived."""
+    import inspect
+    import commands.content.body_refresh as br_module
+    module_file = Path(inspect.getfile(br_module)).resolve()
+    # Mirror _get_claim_grounding()'s own computation exactly.
+    repo_root = module_file.parents[4]
+    assert (repo_root / "knowledge").is_dir(), (
+        f"repo_root computed as {repo_root} does not contain a knowledge/ directory — "
+        f"the parents[N] index in _get_claim_grounding() has regressed"
+    )
+    # The old (buggy) index must NOT resolve to a directory containing knowledge/,
+    # confirming this test would have failed before the fix.
+    old_wrong_root = module_file.parents[3]
+    assert not (old_wrong_root / "knowledge").is_dir(), (
+        "test assumption invalid: parents[3] unexpectedly also has a knowledge/ dir "
+        "— re-verify the fix is still needed / the constant is still correct"
+    )
+
+
+def test_get_claim_grounding_loads_real_claim_text_when_present():
+    """End-to-end regression proof using this repo's own real knowledge artifacts
+    (read-only) — grounding must actually load non-empty text for a real claim_id
+    when merged/claims.json exists, proving the path fix works end-to-end, not just
+    in isolation."""
+    import json as _json
+    repo_root = Path(__file__).resolve().parents[4]
+    # Find any product with a real merged/claims.json to test against, without
+    # hardcoding a specific family/platform that might not exist in a given checkout.
+    knowledge_dir = repo_root / "knowledge"
+    if not knowledge_dir.is_dir():
+        pytest.skip("no knowledge/ directory in this checkout")
+    candidate = None
+    for family_dir in knowledge_dir.iterdir():
+        if not family_dir.is_dir():
+            continue
+        for platform_dir in family_dir.iterdir():
+            claims_path = platform_dir / "merged" / "claims.json"
+            if claims_path.exists():
+                try:
+                    data = _json.loads(claims_path.read_text(encoding="utf-8"))
+                    claims = data if isinstance(data, list) else data.get("claims", [])
+                    if claims and isinstance(claims[0], dict) and claims[0].get("claim_id"):
+                        candidate = (family_dir.name, platform_dir.name, claims[0]["claim_id"])
+                        break
+                except (ValueError, OSError):
+                    continue
+        if candidate:
+            break
+    if candidate is None:
+        pytest.skip("no product with a populated merged/claims.json found in this checkout")
+
+    family, platform, claim_id = candidate
+    change = {"claim_id": claim_id}
+    context = {"family": family, "platform": platform}
+    _, new_text = br._get_claim_grounding(change, context)
+    assert new_text, (
+        f"expected non-empty claim text for {family}/{platform} claim_id={claim_id} "
+        f"via merged/claims.json — grounding returned empty, path resolution likely still broken"
+    )
+
+
 def test_receipt_written_per_page(tmp_path):
     """Each updated page produces a receipt YAML in receipts/."""
     page_content = "---\ntitle: Test\n---\n\n## Install\n\nRun `OldPackage.Install()`.\n"
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
 
     br.configure(safe_write_fn=lambda p, c, **kw: True)
 
@@ -629,7 +698,7 @@ def test_see_also_section_never_removed(tmp_path):
         "---\ntitle: Test\n---\n\n## Main Content\n\nAPI docs here.\n\n"
         "## See Also\n\n- [Link1](url1)\n- [Link2](url2)\n"
     )
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
 
     writes: list[tuple] = []
     br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
@@ -651,7 +720,7 @@ def test_see_also_section_never_removed(tmp_path):
 def test_low_confidence_change_not_applied(tmp_path):
     """RG-007: changes with confidence < _MIN_CONFIDENCE_THRESHOLD are not applied."""
     page_content = "---\ntitle: Test\n---\n\n## Overview\n\nSome content about OldAPI here.\n"
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
 
     writes: list[tuple] = []
     br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
@@ -674,7 +743,7 @@ def test_low_confidence_change_not_applied(tmp_path):
 def test_high_confidence_change_applied(tmp_path):
     """RG-007 positive: changes at or above _MIN_CONFIDENCE_THRESHOLD are processed normally."""
     page_content = "---\ntitle: Test\n---\n\n## Overview\n\nUse `OldAPI` to process files.\n"
-    page = _make_page(tmp_path, "content/page.md", page_content)
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
 
     writes: list[tuple] = []
     br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
@@ -778,3 +847,412 @@ def test_paragraph_rewrite_internal_link_stripped_triggers_fallback():
     assert result == section_text, (
         "RG-010: Must fall back to section_text when LLM strips internal aspose.org link"
     )
+
+
+# ── RPR-E-02: generation-time forbidden-claims gate ──────────────────────────
+
+def test_generation_blocked_on_forbidden_claim(tmp_path, monkeypatch):
+    """A candidate that INTRODUCES an affirmative claim about a forbidden API
+    (methods throw NotImplementedException) must be blocked before write —
+    the original page content is preserved and the receipt records the block."""
+    page_content = "---\ntitle: Test\n---\n\n## Formats\n\nExisting clean prose.\n"
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/3d/net/page.md", page_content)
+    original = page.read_text(encoding="utf-8")
+
+    class ForbiddenLLM:
+        class MockResult:
+            data = "You can use `Microsoft3MFFormat.IsBuildable` to check buildability."
+        def call_chat(self, *a, **kw):
+            return self.MockResult()
+        def __init__(self):
+            pass
+
+    writes: list[tuple] = []
+    br.configure(
+        safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True,
+        llm_router_class=ForbiddenLLM,
+        forbidden_claims=["supports Microsoft3MFFormat.IsBuildable"],
+    )
+
+    change = _make_change("CHG-001", "SomeFeature", "FEATURE_ADDED")
+    impact = _make_impact(str(page), "CHG-001", "formats", br.UT_REWRITE)
+    _setup_reports(tmp_path, "3d", "net", [impact], [change])
+
+    receipts = br.run("3d", "net", execute=True)
+    assert len(receipts) == 1
+    assert receipts[0]["verdict"] == br.VD_FORBIDDEN_BLOCKED
+    assert receipts[0]["forbidden_violations"], "block reason must be recorded on the receipt"
+    # No write happened — the violating candidate was refused.
+    assert writes == []
+    # Original content preserved on disk.
+    assert page.read_text(encoding="utf-8") == original
+
+
+def test_3mf_regression_fixture_blocked_end_to_end(tmp_path, monkeypatch):
+    """The exact 3d/net 3MF case, end-to-end through body_refresh.run()."""
+    page_content = "---\ntitle: Formats\n---\n\n## Supported Formats\n\nAspose.3D reads OBJ and STL.\n"
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/3d/net/idx.md", page_content)
+
+    class ThreeMFLLM:
+        class MockResult:
+            data = "Aspose.3D FOSS for .NET supports Microsoft3MFFormat for 3MF import and export."
+        def call_chat(self, *a, **kw):
+            return self.MockResult()
+        def __init__(self):
+            pass
+
+    br.configure(
+        safe_write_fn=lambda p, c, **kw: True,
+        llm_router_class=ThreeMFLLM,
+        forbidden_claims=[
+            "supports Microsoft3MFFormat.IsBuildable",
+            "supports Microsoft3MFFormat.SetBuildable",
+        ],
+    )
+
+    change = _make_change("CHG-001", "Feature", "FEATURE_ADDED")
+    impact = _make_impact(str(page), "CHG-001", "supported-formats", br.UT_REWRITE)
+    _setup_reports(tmp_path, "3d", "net", [impact], [change])
+
+    receipts = br.run("3d", "net", execute=True)
+    assert receipts[0]["verdict"] == br.VD_FORBIDDEN_BLOCKED
+
+
+def test_clean_candidate_not_blocked_by_forbidden_gate(tmp_path, monkeypatch):
+    """A candidate that does NOT touch any forbidden claim writes normally —
+    the gate must not block legitimate edits."""
+    page_content = "---\ntitle: Test\n---\n\n## Signing\n\nOld signing prose.\n"
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/3d/net/page.md", page_content)
+
+    class CleanLLM:
+        class MockResult:
+            data = "Updated signing prose using Document.Sign for digital signatures."
+        def call_chat(self, *a, **kw):
+            return self.MockResult()
+        def __init__(self):
+            pass
+
+    writes: list[tuple] = []
+    br.configure(
+        safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True,
+        llm_router_class=CleanLLM,
+        forbidden_claims=["supports Microsoft3MFFormat.IsBuildable"],
+    )
+
+    change = _make_change("CHG-001", "Feature", "FEATURE_ADDED")
+    impact = _make_impact(str(page), "CHG-001", "signing", br.UT_REWRITE)
+    _setup_reports(tmp_path, "3d", "net", [impact], [change])
+
+    receipts = br.run("3d", "net", execute=True)
+    assert receipts[0]["verdict"] == br.VD_UPDATED
+    assert len(writes) == 1
+
+
+# ── RPR-E-03: per-page re-grounding (template-propagation) gate ───────────────
+
+def test_transform_scale_fvector3_regression_blocks_reuse(tmp_path):
+    """The 3d/net template-propagation defect, end-to-end: two pages both receive
+    the identical fabricated snippet `node.Transform.Scale = new FVector3(...)` from
+    the LLM. Page A (first occurrence) writes; page B, which does not share A's
+    grounding, is blocked as template propagation and its original content preserved."""
+    snippet = "Use `node.Transform.Scale = new FVector3(2, 2, 2)` to scale the node."
+
+    class TemplateLLM:
+        class MockResult:
+            data = snippet
+        def call_chat(self, *a, **kw):
+            return self.MockResult()
+        def __init__(self):
+            pass
+
+    pageA = _make_page(tmp_path, "content/docs.aspose.org/en/3d/net/a.md",
+                       "---\ntitle: A\nevidence:\n  apis:\n  - Transform\n---\n\n## Scaling\n\nA old prose.\n")
+    pageB_original = "---\ntitle: B\nevidence:\n  apis:\n  - Mesh\n---\n\n## Scaling\n\nB old prose.\n"
+    pageB = _make_page(tmp_path, "content/docs.aspose.org/en/3d/net/b.md", pageB_original)
+
+    writes: list[tuple] = []
+    br.configure(
+        safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True,
+        llm_router_class=TemplateLLM,
+    )
+
+    changeA = _make_change("CHG-A", "Feature", "FEATURE_ADDED")
+    changeB = _make_change("CHG-B", "Feature", "FEATURE_ADDED")
+    impactA = _make_impact(str(pageA), "CHG-A", "scaling", br.UT_REWRITE, lines=[7, 12])
+    impactB = _make_impact(str(pageB), "CHG-B", "scaling", br.UT_REWRITE, lines=[7, 12])
+    _setup_reports(tmp_path, "3d", "net", [impactA, impactB], [changeA, changeB])
+
+    receipts = br.run("3d", "net", execute=True)
+    by_page = {r["page_path"]: r for r in receipts}
+
+    # Page A: first occurrence of the snippet, written normally.
+    assert by_page[str(pageA)]["verdict"] == br.VD_UPDATED
+    # Page B: reused A's snippet without sharing A's grounding (cites Mesh, not Transform)
+    # → blocked as template propagation; original content preserved.
+    assert by_page[str(pageB)]["verdict"] == br.VD_REGROUNDING_BLOCKED
+    assert by_page[str(pageB)]["regrounding_violations"], "block reason must be recorded"
+    assert pageB.read_text(encoding="utf-8") == pageB_original
+
+
+def test_shared_grounding_allows_snippet_reuse_end_to_end(tmp_path):
+    """Two pages that genuinely cite the same evidence may reuse the same snippet —
+    the gate must not block legitimate shared content."""
+    snippet = "Call `Document.Save(path)` to persist."
+
+    class SharedLLM:
+        class MockResult:
+            data = snippet
+        def call_chat(self, *a, **kw):
+            return self.MockResult()
+        def __init__(self):
+            pass
+
+    pageA = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/a.md",
+                       "---\ntitle: A\nevidence:\n  apis:\n  - Document\n---\n\n## Save\n\nA prose.\n")
+    pageB = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/b.md",
+                       "---\ntitle: B\nevidence:\n  apis:\n  - Document\n---\n\n## Save\n\nB prose.\n")
+
+    writes: list[tuple] = []
+    br.configure(
+        safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True,
+        llm_router_class=SharedLLM,
+    )
+    impactA = _make_impact(str(pageA), "CHG-A", "save", br.UT_REWRITE, lines=[7, 12])
+    impactB = _make_impact(str(pageB), "CHG-B", "save", br.UT_REWRITE, lines=[7, 12])
+    _setup_reports(tmp_path, "pdf", "net",
+                   [impactA, impactB],
+                   [_make_change("CHG-A", "F", "FEATURE_ADDED"), _make_change("CHG-B", "F", "FEATURE_ADDED")])
+
+    receipts = br.run("pdf", "net", execute=True)
+    verdicts = {r["page_path"]: r["verdict"] for r in receipts}
+    assert verdicts[str(pageA)] == br.VD_UPDATED
+    assert verdicts[str(pageB)] == br.VD_UPDATED  # shared Document grounding → allowed
+
+
+# ── RPR-E-04: surface-differentiated update-strategy policy ───────────────────
+
+def test_surface_inference():
+    assert br._surface_for_page("content/docs.aspose.org/en/pdf/net/x.md") == "docs"
+    assert br._surface_for_page("content/kb.aspose.org/en/pdf/net/x.md") == "kb"
+    assert br._surface_for_page("content/blog.aspose.org/pdf/net/x/index.md") == "blog"
+    assert br._surface_for_page("content/products.aspose.org/en/pdf/x.md") == "products"
+    assert br._surface_for_page("content/reference.aspose.org/en/pdf/net/Doc.md") == "reference"
+    assert br._surface_for_page("some/random/path.md") == "unknown"
+
+
+def test_every_surface_has_explicit_policy():
+    """No surface may fall through to a silent default — all five plus 'unknown'
+    have an explicit _SURFACE_POLICY entry (plan §2.1)."""
+    for surface in ("reference", "products", "docs", "kb", "blog", "unknown"):
+        assert surface in br._SURFACE_POLICY
+        assert "allowed" in br._SURFACE_POLICY[surface]
+
+
+def test_reference_surface_requires_citation_backed_strategy():
+    """Reference pages may only be touched by citation-backed deterministic
+    strategies; an LLM PARAGRAPH_REWRITE is deferred to batch-reference (S-62),
+    never applied in place."""
+    allowed_rewrite, handoff = br._surface_allows_strategy("reference", br.UT_REWRITE)
+    assert allowed_rewrite is False
+    assert "batch-reference" in handoff
+    # A deterministic strategy IS allowed on reference.
+    allowed_surgical, _ = br._surface_allows_strategy("reference", br.UT_SURGICAL)
+    assert allowed_surgical is True
+
+
+def test_reference_page_paragraph_rewrite_deferred_end_to_end(tmp_path):
+    """End-to-end: a PARAGRAPH_REWRITE targeting a reference page is deferred by
+    the surface policy — the LLM is never called, nothing is written, and the
+    receipt records the deferral to batch-reference."""
+    page = _make_page(
+        tmp_path, "content/reference.aspose.org/en/3d/net/Node.md",
+        "---\ntitle: Node\n---\n\n## Description\n\nNode class prose.\n",
+    )
+    original = page.read_text(encoding="utf-8")
+
+    llm_calls = {"n": 0}
+
+    class ShouldNotBeCalledLLM:
+        class MockResult:
+            data = "rewritten"
+        def call_chat(self, *a, **kw):
+            llm_calls["n"] += 1
+            return self.MockResult()
+        def __init__(self):
+            pass
+
+    writes: list[tuple] = []
+    br.configure(
+        safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True,
+        llm_router_class=ShouldNotBeCalledLLM,
+    )
+    change = _make_change("CHG-001", "Feature", "FEATURE_ADDED")
+    impact = _make_impact(str(page), "CHG-001", "description", br.UT_REWRITE, lines=[5, 12])
+    _setup_reports(tmp_path, "3d", "net", [impact], [change])
+
+    receipts = br.run("3d", "net", execute=True)
+    r = receipts[0]
+    assert r["surface"] == "reference"
+    assert r["surface_deferrals"], "the PARAGRAPH_REWRITE must be recorded as a surface deferral"
+    assert r["surface_deferrals"][0]["handoff"].startswith("batch-reference")
+    assert llm_calls["n"] == 0, "LLM must never be called for a policy-deferred reference rewrite"
+    assert writes == []
+    assert page.read_text(encoding="utf-8") == original
+
+
+def test_docs_surface_routes_per_policy_table_not_silently(tmp_path):
+    """A docs page's PARAGRAPH_REWRITE is ALLOWED by policy (full strategy set) and
+    applied — proving the policy routes explicitly per surface, not by silently
+    treating every surface the same."""
+    page = _make_page(
+        tmp_path, "content/docs.aspose.org/en/pdf/net/guide.md",
+        "---\ntitle: Guide\n---\n\n## Overview\n\nOld overview prose.\n",
+    )
+
+    class DocsLLM:
+        class MockResult:
+            data = "New overview prose reflecting the feature."
+        def call_chat(self, *a, **kw):
+            return self.MockResult()
+        def __init__(self):
+            pass
+
+    writes: list[tuple] = []
+    br.configure(
+        safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True,
+        llm_router_class=DocsLLM,
+    )
+    change = _make_change("CHG-001", "Feature", "FEATURE_ADDED")
+    impact = _make_impact(str(page), "CHG-001", "overview", br.UT_REWRITE, lines=[5, 12])
+    _setup_reports(tmp_path, "pdf", "net", [impact], [change])
+
+    receipts = br.run("pdf", "net", execute=True)
+    r = receipts[0]
+    assert r["surface"] == "docs"
+    assert r["surface_deferrals"] == []  # docs allows PARAGRAPH_REWRITE
+    assert r["verdict"] == br.VD_UPDATED
+    assert len(writes) == 1
+
+
+# ── RPR-E-05: LLM circuit breaker + fallback_reason observability ─────────────
+
+def test_circuit_opens_after_n_consecutive_failures():
+    circuit = br._LLMCircuit(threshold=3)
+    assert circuit.should_attempt()
+    circuit.record_failure()
+    circuit.record_failure()
+    assert circuit.should_attempt()  # 2 failures, still closed
+    circuit.record_failure()
+    assert not circuit.should_attempt()  # 3rd failure opens it
+
+
+def test_circuit_success_resets_streak():
+    circuit = br._LLMCircuit(threshold=3)
+    circuit.record_failure()
+    circuit.record_failure()
+    circuit.record_success()  # resets the consecutive streak
+    circuit.record_failure()
+    assert circuit.should_attempt()  # only 1 consecutive failure now
+
+
+def test_circuit_state_is_per_run_not_persisted(tmp_path):
+    """A fresh run() gets a fresh circuit — a prior run's failures do not carry over."""
+    # Two independent circuits are independent objects.
+    c1 = br._LLMCircuit()
+    c1.record_failure(); c1.record_failure(); c1.record_failure()
+    assert c1.is_open
+    c2 = br._LLMCircuit()
+    assert not c2.is_open  # brand new, unaffected by c1
+
+
+def _fallback_reason_page(tmp_path, family, platform):
+    page = _make_page(
+        tmp_path, f"content/docs.aspose.org/en/{family}/{platform}/p.md",
+        "---\ntitle: P\n---\n\n## Overview\n\nOld overview prose here.\n",
+    )
+    change = _make_change("CHG-001", "Feature", "FEATURE_ADDED")
+    impact = _make_impact(str(page), "CHG-001", "overview", br.UT_REWRITE, lines=[5, 12])
+    _setup_reports(tmp_path, family, platform, [impact], [change])
+    return page
+
+
+def test_fallback_reason_llm_error_recorded(tmp_path):
+    class ErrorLLM:
+        def __init__(self): pass
+        def call_chat(self, *a, **kw):
+            raise ConnectionError("degraded gateway")
+
+    br.configure(safe_write_fn=lambda p, c, **kw: True, llm_router_class=ErrorLLM)
+    _fallback_reason_page(tmp_path, "pdf", "net")
+    receipts = br.run("pdf", "net", execute=True)
+    assert receipts[0]["fallback_reason"] == "LLM_ERROR"
+
+
+def test_fallback_reason_empty_response_recorded(tmp_path):
+    class EmptyLLM:
+        class MockResult:
+            data = None
+        def __init__(self): pass
+        def call_chat(self, *a, **kw):
+            return self.MockResult()
+
+    br.configure(safe_write_fn=lambda p, c, **kw: True, llm_router_class=EmptyLLM)
+    _fallback_reason_page(tmp_path, "pdf", "net")
+    receipts = br.run("pdf", "net", execute=True)
+    assert receipts[0]["fallback_reason"] == "LLM_EMPTY_RESPONSE"
+
+
+def test_fallback_reason_none_on_success(tmp_path):
+    class GoodLLM:
+        class MockResult:
+            data = "New overview prose."
+        def __init__(self): pass
+        def call_chat(self, *a, **kw):
+            return self.MockResult()
+
+    br.configure(safe_write_fn=lambda p, c, **kw: True, llm_router_class=GoodLLM)
+    _fallback_reason_page(tmp_path, "pdf", "net")
+    receipts = br.run("pdf", "net", execute=True)
+    assert receipts[0]["fallback_reason"] == "NONE"
+
+
+def test_circuit_opens_and_later_pages_skip_llm(tmp_path):
+    """After 3 consecutive failures, the LLM is not attempted for the 4th page —
+    it gets CIRCUIT_OPEN without paying another call_chat()."""
+    call_count = {"n": 0}
+
+    class FlakyLLM:
+        def __init__(self): pass
+        def call_chat(self, *a, **kw):
+            call_count["n"] += 1
+            raise TimeoutError("slow provider")
+
+    br.configure(safe_write_fn=lambda p, c, **kw: True, llm_router_class=FlakyLLM)
+
+    impacts, changes = [], []
+    for i in range(5):
+        page = _make_page(
+            tmp_path, f"content/docs.aspose.org/en/pdf/net/p{i}.md",
+            "---\ntitle: P\n---\n\n## Overview\n\nOld prose here for page.\n",
+        )
+        impacts.append(_make_impact(str(page), f"CHG-{i}", "overview", br.UT_REWRITE, lines=[5, 12]))
+        changes.append(_make_change(f"CHG-{i}", "Feature", "FEATURE_ADDED"))
+    _setup_reports(tmp_path, "pdf", "net", impacts, changes)
+
+    receipts = br.run("pdf", "net", execute=True)
+    # First 3 pages actually call the LLM (and fail); after the 3rd failure the
+    # circuit opens, so pages 4 and 5 skip the LLM entirely.
+    assert call_count["n"] == 3, f"expected exactly 3 real LLM attempts, got {call_count['n']}"
+    reasons = [r["fallback_reason"] for r in receipts]
+    assert reasons[:3] == ["LLM_ERROR", "LLM_ERROR", "LLM_ERROR"]
+    assert reasons[3] == "CIRCUIT_OPEN"
+    assert reasons[4] == "CIRCUIT_OPEN"
+
+
+def test_run_is_llm_degraded_helper(tmp_path):
+    assert br.run_is_llm_degraded([{"fallback_reason": "LLM_ERROR"}]) is True
+    assert br.run_is_llm_degraded([{"fallback_reason": "CIRCUIT_OPEN"}]) is True
+    assert br.run_is_llm_degraded([{"fallback_reason": "NONE"}]) is False
+    # A link-preservation violation reflects output quality, not an outage → not degraded.
+    assert br.run_is_llm_degraded([{"fallback_reason": "LINK_PRESERVATION_VIOLATION"}]) is False
+    assert br.run_is_llm_degraded([{"fallback_reason": None}]) is False

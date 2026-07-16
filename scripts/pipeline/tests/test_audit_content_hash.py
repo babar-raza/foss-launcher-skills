@@ -123,3 +123,79 @@ class TestMainCLI:
 
         rc = main(["--files", str(md)])
         assert rc == 1
+
+
+# ── RPR-F-04: frontmatter-only-refresh detection ─────────────────────────────
+
+from audit_content_hash import (  # noqa: E402
+    is_frontmatter_only_change,
+    is_evidence_only_grade_regression,
+)
+
+
+def _page(evidence_sha: str, grade: str, body: str) -> str:
+    return (
+        "---\n"
+        "title: FAQ\n"
+        "evidence:\n"
+        f"  model_sha: {evidence_sha}\n"
+        "  claims:\n"
+        "  - CLM-x\n"
+        f"grade: {grade}\n"
+        "---\n\n"
+        f"{body}\n"
+    )
+
+
+class TestFrontmatterOnlyChange:
+    def test_flags_model_sha_change_with_identical_body_hash(self):
+        old = _page("aaa", "A", "Identical body prose.")
+        new = _page("bbb", "A", "Identical body prose.")  # evidence bumped, body same
+        v = is_frontmatter_only_change(old, new)
+        assert v is not None
+        assert v["body_identical"] is True
+        assert v["old_model_sha"] == "aaa"
+        assert v["new_model_sha"] == "bbb"
+
+    def test_no_flag_when_body_changed(self):
+        old = _page("aaa", "A", "Old body prose.")
+        new = _page("bbb", "A", "New, different body prose.")
+        assert is_frontmatter_only_change(old, new) is None
+
+    def test_no_flag_when_evidence_unchanged(self):
+        old = _page("aaa", "A", "Same body.")
+        new = _page("aaa", "A", "Same body.")
+        assert is_frontmatter_only_change(old, new) is None
+
+    def test_body_hash_whitespace_insensitive(self):
+        """CRLF / trailing-whitespace differences in the body are not 'body changed'."""
+        old = _page("aaa", "A", "Body line one.")
+        new = _page("bbb", "A", "Body line one.  ")  # trailing spaces only
+        assert is_frontmatter_only_change(old, new) is not None
+
+
+class TestEvidenceOnlyGradeRegression:
+    def test_a_to_c_kb_page_regression_fixture_flagged(self):
+        """The exact PDF-NET-REFRESH-001 v26.7.0 defect: identical body, evidence
+        model_sha bumped, grade dropped A->C."""
+        old = _page("d42e9f1e", "A", "The FAQ answer text, unchanged.")
+        new = _page("8a3131b9", "C", "The FAQ answer text, unchanged.")
+        v = is_evidence_only_grade_regression(old, new)
+        assert v is not None
+        assert v["grade_before"] == "A"
+        assert v["grade_after"] == "C"
+
+    def test_no_regression_when_grade_same(self):
+        old = _page("aaa", "A", "Same body.")
+        new = _page("bbb", "A", "Same body.")  # frontmatter-only but grade unchanged
+        assert is_evidence_only_grade_regression(old, new) is None
+
+    def test_grade_improvement_not_flagged(self):
+        old = _page("aaa", "C", "Same body.")
+        new = _page("bbb", "A", "Same body.")  # improvement, not a regression
+        assert is_evidence_only_grade_regression(old, new) is None
+
+    def test_no_regression_when_body_changed(self):
+        old = _page("aaa", "A", "Old body.")
+        new = _page("bbb", "C", "New body entirely.")  # body changed → not frontmatter-only
+        assert is_evidence_only_grade_regression(old, new) is None

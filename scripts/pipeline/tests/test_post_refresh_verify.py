@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 import yaml
@@ -162,18 +162,17 @@ class TestVerifyCheckStaleDetect:
 
         # Create fake stale_detect.py at tmp_path and point _HERE there
         (tmp_path / "stale_detect.py").touch()
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stdout = json.dumps({"stale_pages": 0})
         post_refresh_verify.configure(
             repo_root=tmp_path,
             reports_root=tmp_path / "refresh_state",
             here=tmp_path,
+            subprocess_run=lambda *a, **kw: mock_result,
         )
 
-        mock_result = MagicMock()
-        mock_result.returncode = 0
-        mock_result.stdout = json.dumps({"stale_pages": 0})
-
-        with patch("post_refresh_verify.subprocess.run", return_value=mock_result):
-            passed, failures = post_refresh_verify.verify("3d", "python")
+        passed, failures = post_refresh_verify.verify("3d", "python")
 
         stale_failures = [f for f in failures if "stale_detect" in f.lower()]
         assert len(stale_failures) == 0
@@ -182,20 +181,202 @@ class TestVerifyCheckStaleDetect:
         _setup_knowledge(tmp_path, "3d", "python")
 
         (tmp_path / "stale_detect.py").touch()
+        mock_result = MagicMock()
+        mock_result.returncode = 1
+        mock_result.stdout = json.dumps({"stale_pages": 3, "pages": []})
+        post_refresh_verify.configure(
+            repo_root=tmp_path,
+            reports_root=tmp_path / "refresh_state",
+            here=tmp_path,
+            subprocess_run=lambda *a, **kw: mock_result,
+        )
+
+        passed, failures = post_refresh_verify.verify("3d", "python")
+
+        assert any("stale_detect" in f.lower() for f in failures)
+
+
+# ---------------------------------------------------------------------------
+# verify() — check 9 (RPR-F-03, S-111): triage_confirm Layer 2 scan
+#
+# Regression context: prior to RPR-F-03, triage_confirm.py had no CLI at all,
+# so no gate anywhere in --verify could invoke it. These tests prove Check 9
+# actually blocks on triage_confirm reporting stale pages, and correctly
+# distinguishes "no knowledge yet" (SKIP) from "ran and found something" (FAIL)
+# from "ran clean" (PASS) — mirroring TestVerifyCheckStaleDetect's mock pattern.
+# ---------------------------------------------------------------------------
+
+class TestVerifyCheck10FrontmatterOnly:
+    """Check 10 (RPR-F-04): frontmatter-only grade regressions among updated pages."""
+
+    def _write_progress(self, tmp_path, pages_updated):
+        refresh_dir = tmp_path / "refresh_state" / "pdf" / "net"
+        refresh_dir.mkdir(parents=True, exist_ok=True)
+        (refresh_dir / "progress.json").write_text(
+            json.dumps({"steps": ["page_update"], "pages_updated": pages_updated}),
+            encoding="utf-8",
+        )
+
+    def test_blocks_on_frontmatter_only_grade_regression(self, tmp_path):
+        _setup_knowledge(tmp_path, "pdf", "net")
+        self._write_progress(tmp_path, ["content/kb.aspose.org/en/pdf/net/faq.md"])
+
+        fake_violation = [{"path": "content/kb.aspose.org/en/pdf/net/faq.md",
+                           "grade_before": "A", "grade_after": "C"}]
+        post_refresh_verify.configure(
+            repo_root=tmp_path,
+            reports_root=tmp_path / "refresh_state",
+            detect_grade_regressions=lambda *a, **kw: fake_violation,
+        )
+        passed, failures = post_refresh_verify.verify("pdf", "net")
+
+        c10 = [f for f in failures if "Check 10" in f]
+        assert len(c10) == 1
+        assert "A->C" in c10[0]
+        assert passed is False
+
+    def test_passes_when_no_regressions(self, tmp_path):
+        _setup_knowledge(tmp_path, "pdf", "net")
+        self._write_progress(tmp_path, ["content/docs.aspose.org/en/pdf/net/p.md"])
+        post_refresh_verify.configure(
+            repo_root=tmp_path,
+            reports_root=tmp_path / "refresh_state",
+            detect_grade_regressions=lambda *a, **kw: [],
+        )
+        passed, failures = post_refresh_verify.verify("pdf", "net")
+        assert not any("Check 10" in f for f in failures)
+
+    def test_skips_when_no_updated_pages(self, tmp_path):
+        _setup_knowledge(tmp_path, "pdf", "net")
+        self._write_progress(tmp_path, [])
+        passed, failures = post_refresh_verify.verify("pdf", "net")
+        assert not any("Check 10" in f for f in failures)  # SKIP, not a failure
+
+
+class TestVerifyCheck11SeoStability:
+    """Check 11 (RPR-F-05): undeclared title/H1/slug/canonical changes block."""
+
+    def _write_progress(self, tmp_path, pages_updated):
+        refresh_dir = tmp_path / "refresh_state" / "pdf" / "net"
+        refresh_dir.mkdir(parents=True, exist_ok=True)
+        (refresh_dir / "progress.json").write_text(
+            json.dumps({"steps": ["page_update"], "pages_updated": pages_updated}),
+            encoding="utf-8",
+        )
+
+    def test_blocks_on_undeclared_seo_change(self, tmp_path):
+        _setup_knowledge(tmp_path, "pdf", "net")
+        self._write_progress(tmp_path, ["content/docs.aspose.org/en/pdf/net/p.md"])
+        fake = [{"page": "content/docs.aspose.org/en/pdf/net/p.md",
+                 "changed_fields": ["slug"], "before": {"slug": "a"}, "after": {"slug": "b"}}]
+        post_refresh_verify.configure(
+            repo_root=tmp_path,
+            reports_root=tmp_path / "refresh_state",
+            detect_seo_violations=lambda *a, **kw: fake,
+        )
+        passed, failures = post_refresh_verify.verify("pdf", "net")
+        c11 = [f for f in failures if "Check 11" in f]
+        assert len(c11) == 1
+        assert "slug" in c11[0]
+        assert passed is False
+
+    def test_passes_when_no_seo_changes(self, tmp_path):
+        _setup_knowledge(tmp_path, "pdf", "net")
+        self._write_progress(tmp_path, ["content/docs.aspose.org/en/pdf/net/p.md"])
+        post_refresh_verify.configure(
+            repo_root=tmp_path,
+            reports_root=tmp_path / "refresh_state",
+            detect_seo_violations=lambda *a, **kw: [],
+        )
+        passed, failures = post_refresh_verify.verify("pdf", "net")
+        assert not any("Check 11" in f for f in failures)
+
+    def test_skips_when_no_updated_pages(self, tmp_path):
+        _setup_knowledge(tmp_path, "pdf", "net")
+        self._write_progress(tmp_path, [])
+        passed, failures = post_refresh_verify.verify("pdf", "net")
+        assert not any("Check 11" in f for f in failures)  # SKIP, not a failure
+
+
+class TestVerifyCheck9TriageConfirm:
+    def _configure_with_real_script_path(self, tmp_path, subprocess_run=None):
+        """Point triage_confirm_script at a real (touched) file under tmp_path,
+        matching Check 9's REPO_ROOT/scripts/pipeline/lib/triage_confirm.py
+        construction so is_file() finds it under the test sandbox."""
+        script_dir = tmp_path / "scripts" / "pipeline" / "lib"
+        script_dir.mkdir(parents=True, exist_ok=True)
+        (script_dir / "triage_confirm.py").touch()
+        post_refresh_verify.configure(
+            repo_root=tmp_path,
+            reports_root=tmp_path / "refresh_state",
+            here=tmp_path,
+            subprocess_run=subprocess_run,
+        )
+
+    def test_exit_0_passes(self, tmp_path):
+        _setup_knowledge(tmp_path, "3d", "python")
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stdout = json.dumps({"stale_count": 0})
+        self._configure_with_real_script_path(tmp_path, subprocess_run=lambda *a, **kw: mock_result)
+
+        passed, failures = post_refresh_verify.verify("3d", "python")
+
+        assert not any("Check 9" in f for f in failures)
+
+    def test_exit_1_blocks_with_stale_count(self, tmp_path):
+        _setup_knowledge(tmp_path, "3d", "python")
+        mock_result = MagicMock()
+        mock_result.returncode = 1
+        mock_result.stdout = json.dumps({"stale_count": 2})
+        self._configure_with_real_script_path(tmp_path, subprocess_run=lambda *a, **kw: mock_result)
+
+        passed, failures = post_refresh_verify.verify("3d", "python")
+
+        c9_failures = [f for f in failures if "Check 9" in f]
+        assert len(c9_failures) == 1
+        assert "2 stale page" in c9_failures[0]
+
+    def test_exit_2_is_skip_not_fail(self, tmp_path):
+        """Knowledge-absent (exit 2) must not block — it's a precondition gap,
+        not a content-quality failure; distinct from exit 1 (ran, found staleness)."""
+        _setup_knowledge(tmp_path, "3d", "python")
+        mock_result = MagicMock()
+        mock_result.returncode = 2
+        mock_result.stdout = ""
+        self._configure_with_real_script_path(tmp_path, subprocess_run=lambda *a, **kw: mock_result)
+
+        passed, failures = post_refresh_verify.verify("3d", "python")
+
+        assert not any("Check 9" in f for f in failures)
+
+    def test_script_missing_is_skip(self, tmp_path):
+        """If triage_confirm.py genuinely doesn't exist at the resolved path,
+        Check 9 must SKIP silently, not error the whole verify() call —
+        this is what keeps all 32 pre-existing tests (which redirect _HERE to
+        a nonexistent path and don't create scripts/pipeline/lib/) passing
+        unmodified after Check 9 was added."""
+        _setup_knowledge(tmp_path, "3d", "python")
         post_refresh_verify.configure(
             repo_root=tmp_path,
             reports_root=tmp_path / "refresh_state",
             here=tmp_path,
         )
+        # Deliberately do NOT create scripts/pipeline/lib/triage_confirm.py
 
+        passed, failures = post_refresh_verify.verify("3d", "python")
+        assert not any("Check 9" in f for f in failures)
+
+    def test_unexpected_exit_code_blocks(self, tmp_path):
+        _setup_knowledge(tmp_path, "3d", "python")
         mock_result = MagicMock()
-        mock_result.returncode = 1
-        mock_result.stdout = json.dumps({"stale_pages": 3, "pages": []})
+        mock_result.returncode = 3
+        mock_result.stdout = ""
+        self._configure_with_real_script_path(tmp_path, subprocess_run=lambda *a, **kw: mock_result)
 
-        with patch("post_refresh_verify.subprocess.run", return_value=mock_result):
-            passed, failures = post_refresh_verify.verify("3d", "python")
+        passed, failures = post_refresh_verify.verify("3d", "python")
 
-        assert any("stale_detect" in f.lower() for f in failures)
+        assert any("Check 9" in f and "exit 3" in f for f in failures)
 
 
 # ---------------------------------------------------------------------------
@@ -535,7 +716,9 @@ class TestWriteReconciliationDeltaPath:
 # ---------------------------------------------------------------------------
 
 class TestCheck8FilesWithBodyDiffMismatch:
-    """Check 8 Case A: files_with_body_diff > 0 but pages_updated=[] is a WARN (no FAIL)."""
+    """Check 8 Case A: files_with_body_diff > 0 but pages_updated=[]. RPR-F-01 promoted
+    this from WARN to BLOCK by default (the exact PDF-NET-REFRESH-001 tracking gap);
+    --allow-warn demotes it back to WARN."""
 
     def _write_reconciliation(self, refresh_dir: Path, files_with_body_diff: int) -> None:
         """Write a minimal execution_reconciliation.json with given files_with_body_diff."""
@@ -561,8 +744,8 @@ class TestCheck8FilesWithBodyDiffMismatch:
             encoding="utf-8",
         )
 
-    def test_check8_case_a_warn_does_not_add_failure(self, tmp_path):
-        """Case A: files_with_body_diff > 0 and pages_updated=[] -> WARN only, no hard FAIL."""
+    def test_check8_case_a_blocks_by_default(self, tmp_path):
+        """RPR-F-01: Case A now BLOCKS — the tracking gap adds a hard failure."""
         _setup_knowledge(tmp_path, "cells", "net")
         refresh_dir = tmp_path / "refresh_state" / "cells" / "net"
         self._write_reconciliation(refresh_dir, files_with_body_diff=3)
@@ -570,11 +753,33 @@ class TestCheck8FilesWithBodyDiffMismatch:
 
         passed, failures = post_refresh_verify.verify("cells", "net")
 
-        # Check 8 Case A is a WARN — it must NOT add to failures list
-        c8_failures = [f for f in failures if "Check 8" in f]
-        assert len(c8_failures) == 0, (
-            f"Check 8 Case A must not produce hard failures; got: {c8_failures}"
-        )
+        c8_failures = [f for f in failures if "Check 8" in f and "Case A" in f]
+        assert len(c8_failures) == 1, f"Case A must now block; failures: {failures}"
+        assert passed is False
+
+    def test_check8_case_a_allow_warn_demotes_to_warn(self, tmp_path):
+        """RPR-F-01 opt-out: --allow-warn (allow_warn=True) keeps Case A as WARN-only."""
+        _setup_knowledge(tmp_path, "cells", "net")
+        refresh_dir = tmp_path / "refresh_state" / "cells" / "net"
+        self._write_reconciliation(refresh_dir, files_with_body_diff=3)
+        self._write_progress(refresh_dir, pages_updated=[])
+
+        passed, failures = post_refresh_verify.verify("cells", "net", allow_warn=True)
+
+        c8_failures = [f for f in failures if "Check 8" in f and "Case A" in f]
+        assert len(c8_failures) == 0, f"--allow-warn must demote Case A to WARN; got: {c8_failures}"
+
+    def test_check8_case_a_pdf_net_v26_7_0_regression_now_blocks(self, tmp_path):
+        """The exact real on-disk state from PDF-NET-REFRESH-001 v26.7.0:
+        files_with_body_diff=36, pages_updated=[]. Must block."""
+        _setup_knowledge(tmp_path, "pdf", "net")
+        refresh_dir = tmp_path / "refresh_state" / "pdf" / "net"
+        self._write_reconciliation(refresh_dir, files_with_body_diff=36)
+        self._write_progress(refresh_dir, pages_updated=[])
+
+        passed, failures = post_refresh_verify.verify("pdf", "net")
+        assert any("36 file(s) with body diff" in f for f in failures)
+        assert passed is False
 
     def test_check8_case_a_no_warn_when_pages_updated_populated(self, tmp_path):
         """Case A: files_with_body_diff > 0 and pages_updated is non-empty -> no issue."""
@@ -614,7 +819,8 @@ class TestCheck8FilesWithBodyDiffMismatch:
 
 
 class TestCheck8ProseStaleWarn:
-    """Check 8 Case B: prose_stale_scan JSON with hits -> WARN only, no hard FAIL."""
+    """Check 8 Case B: prose_stale_scan JSON with hits. RPR-F-01 promoted this from
+    WARN to BLOCK by default; --allow-warn demotes it back."""
 
     def _write_prose_stale(self, gap_dir: Path, family: str, platform: str, hits: list) -> None:
         gap_dir.mkdir(parents=True, exist_ok=True)
@@ -623,8 +829,8 @@ class TestCheck8ProseStaleWarn:
             json.dumps(report), encoding="utf-8"
         )
 
-    def test_check8_case_b_warn_does_not_add_failure(self, tmp_path):
-        """Case B: prose-stale report with hits -> WARN only, not a hard FAIL."""
+    def test_check8_case_b_blocks_by_default(self, tmp_path):
+        """RPR-F-01: Case B with hits now BLOCKS."""
         _setup_knowledge(tmp_path, "cells", "net")
         gap_dir = tmp_path / "reports" / "gap-analysis"
         self._write_prose_stale(gap_dir, "cells", "net", hits=[
@@ -634,11 +840,21 @@ class TestCheck8ProseStaleWarn:
 
         passed, failures = post_refresh_verify.verify("cells", "net")
 
-        # Case B must NOT produce hard failures
-        c8_failures = [f for f in failures if "Check 8" in f]
-        assert len(c8_failures) == 0, (
-            f"Check 8 Case B must not produce hard failures; got: {c8_failures}"
-        )
+        c8_failures = [f for f in failures if "Check 8" in f and "Case B" in f]
+        assert len(c8_failures) == 1, f"Case B must now block; failures: {failures}"
+        assert passed is False
+
+    def test_check8_case_b_allow_warn_demotes_to_warn(self, tmp_path):
+        _setup_knowledge(tmp_path, "cells", "net")
+        gap_dir = tmp_path / "reports" / "gap-analysis"
+        self._write_prose_stale(gap_dir, "cells", "net", hits=[
+            {"file": "content/docs.aspose.org/en/cells/net/page1.md", "api": "OldMethod"},
+        ])
+
+        passed, failures = post_refresh_verify.verify("cells", "net", allow_warn=True)
+
+        c8_failures = [f for f in failures if "Check 8" in f and "Case B" in f]
+        assert len(c8_failures) == 0
 
     def test_check8_case_b_pass_when_hits_empty(self, tmp_path):
         """Case B: prose-stale report exists but hits=[] -> PASS."""

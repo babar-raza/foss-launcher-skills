@@ -110,6 +110,106 @@ class TestRecordDecision:
 
 
 # ---------------------------------------------------------------------------
+# RPR-D-03: schema-conformant page_decisions.json enforcement at write time
+# ---------------------------------------------------------------------------
+
+class TestRecordDecisionSchemaEnforcement:
+    def test_record_decision_rejects_invalid_enum(self, tmp_path):
+        """Pre-existing guard, restated as an RPR-D-03 acceptance check."""
+        with pytest.raises(ValueError, match="Invalid decision"):
+            refresh_review.record_decision(
+                "cells", "net", path="content/docs.aspose.org/en/cells/net/p.md",
+                decision="NONSENSE", reason="x", review_root=tmp_path,
+            )
+
+    def test_body_updated_with_identical_hashes_rejected(self, tmp_path):
+        """The exact PDF-NET-REFRESH-001 v26.7.0 bug shape: a BODY_UPDATED decision
+        whose before/after body hashes are identical (i.e. nothing actually changed)
+        must be refused at write time, not silently recorded."""
+        with pytest.raises(ValueError, match="not schema-conformant"):
+            refresh_review.record_decision(
+                "pdf", "net", path="content/kb.aspose.org/en/pdf/net/faq.md",
+                decision="BODY_UPDATED", reason="claimed body update",
+                body_diff_hash_before="sha256:same", body_diff_hash_after="sha256:same",
+                review_root=tmp_path,
+            )
+        # And nothing was written.
+        assert not (tmp_path / "pdf" / "net" / "page_decisions.json").exists()
+
+    def test_body_updated_with_frontmatter_only_rejected(self, tmp_path):
+        with pytest.raises(ValueError, match="not schema-conformant"):
+            refresh_review.record_decision(
+                "pdf", "net", path="content/kb.aspose.org/en/pdf/net/faq.md",
+                decision="BODY_UPDATED", reason="claimed body update",
+                frontmatter_only=True, review_root=tmp_path,
+            )
+
+    def test_body_updated_with_distinct_hashes_accepted(self, tmp_path):
+        refresh_review.record_decision(
+            "pdf", "net", path="content/docs.aspose.org/en/pdf/net/p.md",
+            decision="BODY_UPDATED", reason="real change",
+            body_diff_hash_before="sha256:aaa", body_diff_hash_after="sha256:bbb",
+            body_hash_changed=True, review_root=tmp_path,
+        )
+        data = json.loads((tmp_path / "pdf" / "net" / "page_decisions.json").read_text(encoding="utf-8"))
+        entry = data["pages"]["content/docs.aspose.org/en/pdf/net/p.md"]
+        assert entry["decision"] == "BODY_UPDATED"
+        assert entry["body_diff_hash_before"] == "sha256:aaa"
+        assert entry["decision_source"] == "manual"  # default
+
+    def test_evidence_only_with_identical_hashes_accepted(self, tmp_path):
+        """A frontmatter-only EVIDENCE_ONLY decision legitimately has identical body
+        hashes — that must pass (only BODY_UPDATED with identical hashes is the bug)."""
+        refresh_review.record_decision(
+            "pdf", "net", path="content/kb.aspose.org/en/pdf/net/faq.md",
+            decision="EVIDENCE_ONLY", reason="only evidence pointer bumped",
+            body_diff_hash_before="sha256:same", body_diff_hash_after="sha256:same",
+            frontmatter_only=True, review_root=tmp_path,
+        )
+        data = json.loads((tmp_path / "pdf" / "net" / "page_decisions.json").read_text(encoding="utf-8"))
+        assert data["pages"]["content/kb.aspose.org/en/pdf/net/faq.md"]["decision"] == "EVIDENCE_ONLY"
+
+    def test_decision_source_and_evidence_ids_stored(self, tmp_path):
+        refresh_review.record_decision(
+            "pdf", "net", path="content/docs.aspose.org/en/pdf/net/p.md",
+            decision="HIGH_IMPACT" if False else "NOT_AFFECTED", reason="citation-clean",
+            decision_source="pia_per_page_citation",
+            evidence_claims_checked=["CLM-x"], evidence_apis_checked=["Document"],
+            review_root=tmp_path,
+        )
+        data = json.loads((tmp_path / "pdf" / "net" / "page_decisions.json").read_text(encoding="utf-8"))
+        entry = data["pages"]["content/docs.aspose.org/en/pdf/net/p.md"]
+        assert entry["decision_source"] == "pia_per_page_citation"
+        assert entry["evidence_apis_checked"] == ["Document"]
+
+    def test_validate_decisions_file_flags_stored_contradiction(self, tmp_path):
+        """--dry-run-validate catches a historical/hand-edited page_decisions.json
+        entry that is a stored BODY_UPDATED with identical hashes."""
+        review = tmp_path / "pdf" / "net"
+        review.mkdir(parents=True)
+        (review / "page_decisions.json").write_text(json.dumps({
+            "family": "pdf", "platform": "net", "pages": {
+                "content/kb.aspose.org/en/pdf/net/faq.md": {
+                    "decision": "BODY_UPDATED", "reason": "x",
+                    "body_diff_hash_before": "sha256:same",
+                    "body_diff_hash_after": "sha256:same",
+                    "frontmatter_only": False,
+                },
+            },
+        }), encoding="utf-8")
+        problems = refresh_review.validate_decisions_file("pdf", "net", review_root=tmp_path)
+        assert any("body_diff_hash_before == body_diff_hash_after" in p for p in problems)
+
+    def test_validate_decisions_file_clean_when_conformant(self, tmp_path):
+        refresh_review.record_decision(
+            "pdf", "net", path="content/docs.aspose.org/en/pdf/net/p.md",
+            decision="NOT_AFFECTED", reason="clean", review_root=tmp_path,
+        )
+        problems = refresh_review.validate_decisions_file("pdf", "net", review_root=tmp_path)
+        assert problems == []
+
+
+# ---------------------------------------------------------------------------
 # generate_coverage_report tests
 # ---------------------------------------------------------------------------
 

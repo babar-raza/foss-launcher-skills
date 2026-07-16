@@ -1067,22 +1067,36 @@ scripts:
     notes: "SEO slug audit for blog posts with optional AI-proposed replacements; --ai flag for LLM proposals"
 
   - path: scripts/pipeline/lib/triage_confirm.py
-    kind: library
+    kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
-    public_entrypoint: false
-    cli_contract: none
+    public_entrypoint: true
+    cli_contract: stable
     owner_domain: knowledge-pipeline
     backing:
       kind: internal
       ref: null
-    test_targets: []
-    test_exempt_reason: "Layer 2 body-prose scanner; imported by refresh_knowledge.py; coverage via refresh_knowledge tests"
+    test_targets: [scripts/pipeline/tests/test_triage_confirm_cli.py]
     deprecated_since: null
     change_impact: null
-    notes: "RH-201 Layer 2 triage — scans page body prose for stale API class or claim references; used by refresh pipeline to detect false-negative staleness"
+    notes: "RH-201 Layer 2 triage — scans page body prose for stale API class or claim references; used by refresh pipeline to detect false-negative staleness. RPR-F-03 (2026-07-16): added a real argparse/__main__ CLI — prior contract had no CLI at all despite S-92's SKILL.md documenting one; now wired as a blocking Check 9 in post_refresh_verify.py --verify."
 
   - path: scripts/pipeline/lib/reconcile_triage.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    test_targets: [scripts/pipeline/tests/test_triage_confirm_cli.py, scripts/pipeline/tests/test_refresh_validation.py]
+    deprecated_since: null
+    change_impact: null
+    notes: "RH-203 3-source triage reconciliation — combines layer1_triage, layer2_triage, page_spec into final_verdict; conservative: any stale signal triggers needs_update. RPR-F-03 (2026-07-16): added a real argparse/__main__ CLI (2-of-3-source: page_spec not wired into the CLI path, see module docstring); library API (test_refresh_validation.py coverage) unchanged."
+
+  - path: scripts/pipeline/lib/baseline_ledger.py
     kind: library
     lifecycle: active
     canonical_impl_path: null
@@ -1092,11 +1106,88 @@ scripts:
     backing:
       kind: internal
       ref: null
-    test_targets: []
-    test_exempt_reason: "3-source reconciliation library; imported by refresh pipeline; coverage via test_refresh_validation.py (TestReconcileTriageFinalVerdict + TestTwoLayerModelProof)"
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_baseline_ledger.py]
     deprecated_since: null
-    change_impact: null
-    notes: "RH-203 3-source triage reconciliation — combines layer1_triage, layer2_triage, page_spec into final_verdict; conservative: any stale signal triggers needs_update"
+    change_impact: "RPR-C-01 (2026-07-16, new file): append-only baseline SHA ledger replacing the single mutable model.yaml.repo_sha scalar. First concurrency-safe write primitive in this pipeline (real exclusive lock with stale-lock recovery). Consumed by promote.py (RPR-C-02)."
+    notes: "knowledge/{family}/{platform}/merged/baseline_ledger.jsonl (append-only) + baseline_ledger_head.json (O(1) cache). See aspose-org-foss-refresh-tidy-lightning.md schema 5a."
+  - path: scripts/pipeline/lib/baseline_resolver.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: "python scripts/pipeline/lib/baseline_resolver.py {family} {platform} --repo-path PATH [--model-sha SHA]; prints 'sha\\tsource\\torphaned_from', exit 0; exit 3 on ORPHANED_BASELINE"
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: skill
+      ref: S-12
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_baseline_resolver.py]
+    deprecated_since: null
+    change_impact: "RPR-C-03 (2026-07-17, new file): implements the previously-vaporware orphaned_sha fallback (S-12's skill documented it; grep found 0 implementation). Sources baseline from baseline_ledger last_accepted() instead of the mutable model.yaml scalar; walks ledger history for the newest git-reachable ancestor when the head was force-pushed/rebased away; raises OrphanedBaselineError (explicit ORPHANED_BASELINE state) rather than a silent empty diff. Consumed by S-12 (knowledge-diff)."
+    notes: "Reachability probe injected for pure-logic tests; git_reachable(repo_path) builds the real probe. See aspose-org-foss-refresh-tidy-lightning.md RPR-C-03 / §2.3."
+  - path: scripts/pipeline/commands/knowledge/migrate_baseline_ledger.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python scripts/pipeline/commands/knowledge/migrate_baseline_ledger.py [--apply] [--products PATH] [--report PATH]; default dry-run classifies provenance, --apply seeds ledger rows; exit 1 if any product would be silently CONFIRMED"
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_migrate_baseline_ledger.py]
+    deprecated_since: null
+    change_impact: "RPR-C-04 (2026-07-17, new file): one-time baseline-ledger backfill. Classifies every active product (data/products.json) into CONFIRMED (CLOSED-backlog-attested) / RECONSTRUCTED (repo_sha present, unattested) / UNCERTAIN (conflated, e.g. 3D-NET-REFRESH-002 -> status=attempted, head unresolved) / NO_BASELINE; never silently defaults to CONFIRMED (plan §13). Real dry-run over 25 products: 2 CONFIRMED, 22 RECONSTRUCTED, 1 UNCERTAIN, 0 NO_BASELINE. Idempotent (skips products with an existing ledger)."
+    notes: "Curated attestations are human-verified against CLOSED backlog items and live in the module as reviewable, git-tracked data. Writes reports/baseline_migration/provenance.json. See aspose-org-foss-refresh-tidy-lightning.md RPR-C-04."
+  - path: scripts/pipeline/commands/content/seo_stability_check.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python scripts/pipeline/commands/content/seo_stability_check.py [pages...] --base REF [--intentional-renames a,b]; exit 1 on any undeclared title/H1/slug/canonical change"
+    owner_domain: content-pipeline
+    backing:
+      kind: skill
+      ref: refresh-product
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_seo_stability_check.py]
+    deprecated_since: null
+    change_impact: "RPR-F-05 (2026-07-17, new file): first SEO-stability gate in the pipeline. Compares title/H1/slug/canonical of each refreshed page against a git base ref; any change not in the run manifest's intentional_renames allowlist is a violation. Wired as Check 11 in post_refresh_verify.py --verify (blocking, SKIP-friendly). Reuses audit_content_hash.py's frontmatter split/parse."
+    notes: "H1 = first ATX heading in body; title/slug/canonical from frontmatter. See aspose-org-foss-refresh-tidy-lightning.md RPR-F-05 / §2.3."
+
+  - path: scripts/pipeline/lib/forbidden_claims_check.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_forbidden_claims_check.py]
+    deprecated_since: null
+    change_impact: "RPR-E-02 (2026-07-17, new file): generation-time forbidden-claims gate. scan()/newly_introduced() flag content that affirmatively claims support for an API the knowledge model marks forbidden (methods throw NotImplementedException). Consumed by body_refresh.py as a pre-write block (the 3d/net 3MF fabrication had no such gate)."
+    notes: "Shared with RPR-F-04. Precise (fully-qualified symbol match + class-with-capability-language), deliberately not fuzzy, to avoid WARN-fatigue."
+
+  - path: scripts/pipeline/lib/regrounding_check.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_regrounding_check.py]
+    deprecated_since: null
+    change_impact: "RPR-E-03 (2026-07-17, new file): per-run re-grounding cache. Flags a distinctive code/claim span reused verbatim across pages within one refresh run without shared grounding — the 3d/net Transform.Scale/FVector3 fabrication that recurred across 6 pages. Consumed by body_refresh.py as a pre-write block."
+    notes: "Exempts generic boilerplate (no dotted API symbol) so the canned deterministic-fallback note is never flagged."
 
   - path: scripts/pipeline/lib/content_discovery.py
     kind: library
@@ -1782,11 +1873,11 @@ scripts:
     notes: "audit created_at field against actual file/git timestamps"
 
   - path: scripts/pipeline/commands/content/audit_content_hash.py
-    kind: one-shot
-    lifecycle: maintenance
+    kind: entrypoint
+    lifecycle: active
     canonical_impl_path: null
     public_entrypoint: true
-    cli_contract: none
+    cli_contract: stable
     owner_domain: provenance-maintenance
     backing:
       kind: internal
@@ -1794,7 +1885,8 @@ scripts:
     test_targets:
       - scripts/pipeline/tests/test_audit_content_hash.py
     deprecated_since: null
-    notes: "report files where stored content_hash != computed hash"
+    change_impact: "RPR-F-04 (2026-07-17): de-orphaned (was zero callers). Added frontmatter-only-refresh detection (--detect-evidence-only) — body byte-identical + evidence bumped + grade regressed, the PDF-NET-REFRESH-001 v26.7.0 bug. Wired into post_refresh_verify.py Check 10."
+    notes: "content_hash integrity scan + frontmatter-only grade-regression detection"
 
   - path: scripts/pipeline/commands/content/audit_content_origin.py
     kind: one-shot

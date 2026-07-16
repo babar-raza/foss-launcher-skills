@@ -10,6 +10,7 @@ from lib.schema_validators import (
     validate_page_patch_receipt,
     validate_product_change_record,
     validate_refresh_run_manifest,
+    validate_taskcard_record,
 )
 
 
@@ -211,6 +212,36 @@ def test_page_patch_receipt_both_llm_and_template_true_fails():
     assert any("exactly one" in e for e in errors)
 
 
+def test_page_patch_receipt_invalid_fallback_reason_fails():
+    """RPR-E-05: fallback_reason must be one of the known enum values."""
+    errors = validate_page_patch_receipt(_valid_receipt(fallback_reason="MADE_UP"))
+    assert any("invalid fallback_reason" in e for e in errors)
+
+
+def test_page_patch_receipt_template_fired_requires_reason():
+    """RPR-E-05: template_fallback_used=True with fallback_reason=NONE is contradictory —
+    if the template fired, the receipt must say WHY."""
+    errors = validate_page_patch_receipt(
+        _valid_receipt(llm_invoked=False, template_fallback_used=True, fallback_reason="NONE")
+    )
+    assert any("requires a fallback_reason" in e for e in errors)
+
+
+def test_page_patch_receipt_template_with_circuit_open_passes():
+    errors = validate_page_patch_receipt(
+        _valid_receipt(llm_invoked=False, template_fallback_used=True, fallback_reason="CIRCUIT_OPEN")
+    )
+    assert errors == []
+
+
+def test_page_patch_receipt_llm_invoked_with_fallback_reason_inconsistent():
+    """If the LLM's output was used, fallback_reason cannot name a fallback cause."""
+    errors = validate_page_patch_receipt(
+        _valid_receipt(llm_invoked=True, template_fallback_used=False, fallback_reason="LLM_ERROR")
+    )
+    assert any("inconsistent with fallback_reason" in e for e in errors)
+
+
 def test_page_patch_receipt_neither_llm_nor_template_fails():
     errors = validate_page_patch_receipt(
         _valid_receipt(llm_invoked=False, template_fallback_used=False)
@@ -284,9 +315,128 @@ def test_refresh_run_manifest_in_progress_without_commit_sha_passes():
     assert validate_refresh_run_manifest(manifest) == []
 
 
+def test_refresh_run_manifest_intentional_renames_must_be_list():
+    """RPR-F-05: intentional_renames is optional, but when present must be a list."""
+    manifest = _valid_manifest(status="in_progress")
+    del manifest["commit_sha"]
+    manifest["intentional_renames"] = "content/p.md"  # string, not a list
+    errors = validate_refresh_run_manifest(manifest)
+    assert any("intentional_renames" in e for e in errors)
+
+
+def test_refresh_run_manifest_intentional_renames_list_passes():
+    manifest = _valid_manifest(status="in_progress")
+    del manifest["commit_sha"]
+    manifest["intentional_renames"] = ["content/p.md", "content/q.md"]
+    assert validate_refresh_run_manifest(manifest) == []
+
+
 def test_refresh_run_manifest_invalid_validation_value_fails():
     manifest = _valid_manifest(status="in_progress")
     del manifest["commit_sha"]
     manifest["validation"]["oracle"] = "MAYBE"
     errors = validate_refresh_run_manifest(manifest)
     assert any("must be PASS or FAIL" in e for e in errors)
+
+
+# ── enum-drift guard (RPR-B-02's originally-specified enum-match test, added
+#    RPR-D-03 after the integration caught a missing decision value) ──────────
+
+def test_page_coverage_decisions_match_refresh_review_source():
+    """The schema's accepted page-coverage decisions MUST equal refresh_review's
+    live VALID_DECISIONS constant, byte-for-byte. If they drift, a decision that
+    refresh_review.record_decision() accepts would be rejected by the schema
+    validator (or vice versa) — the exact failure that surfaced
+    EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED missing from the schema when
+    RPR-D-03 first wired the two together."""
+    import sys
+    from pathlib import Path
+    _ops = Path(__file__).resolve().parents[1] / "commands" / "ops"
+    if str(_ops) not in sys.path:
+        sys.path.insert(0, str(_ops))
+    import refresh_review
+    from lib.schema_validators import _PAGE_COVERAGE_DECISIONS
+
+    assert set(_PAGE_COVERAGE_DECISIONS) == set(refresh_review.VALID_DECISIONS), (
+        "schema _PAGE_COVERAGE_DECISIONS has drifted from refresh_review.VALID_DECISIONS; "
+        f"schema-only={set(_PAGE_COVERAGE_DECISIONS) - set(refresh_review.VALID_DECISIONS)}, "
+        f"source-only={set(refresh_review.VALID_DECISIONS) - set(_PAGE_COVERAGE_DECISIONS)}"
+    )
+
+
+# ── taskcard_record (schema 5f, RPR-G-04 / §2.5 SW-4) ─────────────────────
+
+def _valid_taskcard(**overrides):
+    tc = {
+        "task_id": "RPR-A-01",
+        "mission_id": "aspose-org-foss-refresh-tidy-lightning",
+        "status": "TODO",
+        "recorded_at": "2026-07-17T00:00:00Z",
+        "evidence_refs": [],
+        "recorded_by": "session-4",
+    }
+    tc.update(overrides)
+    return tc
+
+
+def test_valid_taskcard_todo_passes():
+    assert validate_taskcard_record(_valid_taskcard()) == []
+
+
+def test_taskcard_missing_required_field_fails():
+    tc = _valid_taskcard()
+    del tc["recorded_by"]
+    errors = validate_taskcard_record(tc)
+    assert any("recorded_by" in e for e in errors)
+
+
+def test_taskcard_invalid_status_fails():
+    errors = validate_taskcard_record(_valid_taskcard(status="DEFINITELY_DONE"))
+    assert any("invalid status" in e for e in errors)
+
+
+def test_taskcard_evidence_refs_must_be_list():
+    errors = validate_taskcard_record(_valid_taskcard(evidence_refs="scripts/x.py"))
+    assert any("evidence_refs" in e for e in errors)
+
+
+def test_taskcard_verified_status_requires_evidence():
+    """The core SW-4 rule: a status past IMPLEMENTED with no evidence is rejected —
+    the exact shape of TC-W11-001.C7 claiming progress while citing nothing."""
+    errors = validate_taskcard_record(_valid_taskcard(status="FOCUSED_VERIFIED", evidence_refs=[]))
+    assert any("requires a non-empty evidence_refs" in e for e in errors)
+
+
+def test_taskcard_verified_status_with_evidence_passes():
+    tc = _valid_taskcard(status="CLOSED", evidence_refs=["scripts/x.py", "test_x.py"])
+    assert validate_taskcard_record(tc) == []
+
+
+def test_taskcard_implemented_does_not_require_evidence():
+    """IMPLEMENTED = code written, not yet verified — evidence not yet required."""
+    assert validate_taskcard_record(_valid_taskcard(status="IMPLEMENTED", evidence_refs=[])) == []
+
+
+def test_taskcard_blocked_status_does_not_require_evidence():
+    assert validate_taskcard_record(_valid_taskcard(status="BLOCKED_EXTERNAL", evidence_refs=[])) == []
+
+
+def test_this_missions_taskcards_file_is_schema_valid():
+    """The plan's own live taskcards.jsonl (RPR-G-04 step 2) must validate — it is
+    the mission's own first test case per the plan's acceptance criteria."""
+    import json
+    from pathlib import Path
+    repo_root = Path(__file__).resolve().parents[3]
+    store = repo_root / "reports" / "plan_state" / "aspose-org-foss-refresh-tidy-lightning" / "taskcards.jsonl"
+    if not store.is_file():
+        import pytest
+        pytest.skip("mission taskcards.jsonl not present")
+    rows = 0
+    for line in store.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        rows += 1
+        errs = validate_taskcard_record(json.loads(line))
+        assert errs == [], f"invalid taskcard row: {errs}"
+    assert rows >= 1

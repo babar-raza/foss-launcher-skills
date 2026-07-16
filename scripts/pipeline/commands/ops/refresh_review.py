@@ -104,6 +104,34 @@ def _save_decisions(
             tmp.unlink(missing_ok=True)
 
 
+def _build_coverage_ledger_entry(
+    path: str,
+    decision: str,
+    reason: str,
+    *,
+    decision_source: str,
+    body_diff_hash_before: str | None,
+    body_diff_hash_after: str | None,
+    frontmatter_only: bool,
+    blocking: bool,
+    evidence_claims_checked: list[str],
+    evidence_apis_checked: list[str],
+) -> dict:
+    """Construct a schema-5c page-coverage-ledger entry for validation (RPR-D-03)."""
+    return {
+        "page_id": path,
+        "decision": decision,
+        "decision_reason": reason,
+        "decision_source": decision_source,
+        "evidence_claims_checked": evidence_claims_checked,
+        "evidence_apis_checked": evidence_apis_checked,
+        "body_diff_hash_before": body_diff_hash_before,
+        "body_diff_hash_after": body_diff_hash_after,
+        "frontmatter_only": frontmatter_only,
+        "blocking": blocking,
+    }
+
+
 def record_decision(
     family: str,
     platform: str,
@@ -112,31 +140,123 @@ def record_decision(
     reason: str,
     *,
     body_hash_changed: bool = False,
+    decision_source: str = "manual",
+    body_diff_hash_before: str | None = None,
+    body_diff_hash_after: str | None = None,
+    frontmatter_only: bool = False,
+    blocking: bool = False,
+    evidence_claims_checked: list[str] | None = None,
+    evidence_apis_checked: list[str] | None = None,
     review_root: Path | None = None,
 ) -> None:
     """Record a per-page content review decision.
 
+    RPR-D-03: every write is now validated against the schema-5c page-coverage-ledger
+    contract (`validate_page_coverage_ledger_entry`) BEFORE it touches disk — a
+    non-conformant entry raises instead of silently landing. The strict cross-field
+    invariants (a BODY_UPDATED decision cannot have identical before/after body hashes,
+    nor frontmatter_only=True) only bite when the caller actually populates those fields;
+    the legacy simple-shape call (path/decision/reason[/body_hash_changed]) keeps working
+    because the hash fields default to None (which the invariant treats as "not applicable").
+
     Args:
-        family:            Product family (e.g. "cells")
-        platform:          Platform (e.g. "net")
-        path:              Relative file path (e.g. "content/docs.aspose.org/en/cells/net/page.md")
-        decision:          One of BODY_UPDATED, EVIDENCE_ONLY, NOT_AFFECTED, RETIRED
-        reason:            Human-readable explanation for the decision
-        body_hash_changed: True if body content changed (i.e., decision == BODY_UPDATED)
-        review_root:       Override for reports/refresh_review/ base (tests only)
+        family, platform:   Product identity.
+        path:               Relative file path.
+        decision:           A VALID_DECISIONS value.
+        reason:             Human-readable explanation (maps to schema decision_reason).
+        body_hash_changed:  Legacy flag; retained in the stored entry for backward compat.
+        decision_source:    RPR-D-01 provenance: pia_per_page_citation | oracle | manual | triage_confirm.
+        body_diff_hash_before/after: content hashes; when both set + equal + decision=BODY_UPDATED, rejected.
+        frontmatter_only:   when True + decision=BODY_UPDATED, rejected (the PDF-NET-REFRESH-001 bug shape).
+        blocking:           whether this decision must be justified before commit.
+        evidence_claims_checked/apis_checked: the cited IDs PIA actually read (proves citation-based).
+        review_root:        Override for reports/refresh_review/ base (tests only).
     """
     if decision not in VALID_DECISIONS:
         raise ValueError(f"Invalid decision '{decision}'. Must be one of {sorted(VALID_DECISIONS)}")
 
+    claims_checked = evidence_claims_checked or []
+    apis_checked = evidence_apis_checked or []
+
+    # RPR-D-03: validate the schema-5c projection before writing. Raise on failure —
+    # this is a write-time gate, not a report-time WARN (plan §2.3: Check 6 previously
+    # accepted any decision, including a malformed one, as "covered").
+    ledger_entry = _build_coverage_ledger_entry(
+        path, decision, reason,
+        decision_source=decision_source,
+        body_diff_hash_before=body_diff_hash_before,
+        body_diff_hash_after=body_diff_hash_after,
+        frontmatter_only=frontmatter_only,
+        blocking=blocking,
+        evidence_claims_checked=claims_checked,
+        evidence_apis_checked=apis_checked,
+    )
+    try:
+        from lib.schema_validators import validate_page_coverage_ledger_entry
+    except ImportError:  # pragma: no cover — lib always importable in this repo
+        validate_page_coverage_ledger_entry = None
+    if validate_page_coverage_ledger_entry is not None:
+        errors = validate_page_coverage_ledger_entry(ledger_entry)
+        if errors:
+            raise ValueError(
+                f"page_decisions entry for {path} is not schema-conformant, refusing to write: {errors}"
+            )
+
     data = _load_decisions(family, platform, review_root=review_root)
+    # Stored entry keeps the legacy fields (consumed by post_refresh_verify.py /
+    # generate_coverage_report) AND carries the richer schema-5c fields.
     data.setdefault("pages", {})[path] = {
         "decision": decision,
         "reason": reason,
         "body_hash_changed": body_hash_changed,
+        "decision_source": decision_source,
+        "body_diff_hash_before": body_diff_hash_before,
+        "body_diff_hash_after": body_diff_hash_after,
+        "frontmatter_only": frontmatter_only,
+        "blocking": blocking,
+        "evidence_claims_checked": claims_checked,
+        "evidence_apis_checked": apis_checked,
         "recorded_at": datetime.now(timezone.utc).isoformat(),
     }
     data["generated_at"] = datetime.now(timezone.utc).isoformat()
     _save_decisions(family, platform, data, review_root=review_root)
+
+
+def validate_decisions_file(
+    family: str,
+    platform: str,
+    *,
+    review_root: Path | None = None,
+) -> list[str]:
+    """RPR-D-03 `--dry-run-validate`: check an existing page_decisions.json against
+    schema 5c without a full re-run. Returns a list of human-readable problem strings
+    (empty = all entries conformant). Historical files written before RPR-D-03 lack the
+    richer fields, so missing-field problems are reported but treated as advisory (the
+    entry predates the schema) — only a genuinely contradictory entry (e.g. a stored
+    BODY_UPDATED with identical hashes) is a hard problem.
+    """
+    data = _load_decisions(family, platform, review_root=review_root)
+    problems: list[str] = []
+    try:
+        from lib.schema_validators import validate_page_coverage_ledger_entry
+    except ImportError:  # pragma: no cover
+        return ["lib.schema_validators unavailable"]
+    for path, entry in (data.get("pages") or {}).items():
+        projected = _build_coverage_ledger_entry(
+            path,
+            entry.get("decision", ""),
+            entry.get("reason", ""),
+            decision_source=entry.get("decision_source", "manual"),
+            body_diff_hash_before=entry.get("body_diff_hash_before"),
+            body_diff_hash_after=entry.get("body_diff_hash_after"),
+            frontmatter_only=bool(entry.get("frontmatter_only", False)),
+            blocking=bool(entry.get("blocking", False)),
+            evidence_claims_checked=entry.get("evidence_claims_checked", []),
+            evidence_apis_checked=entry.get("evidence_apis_checked", []),
+        )
+        for err in validate_page_coverage_ledger_entry(projected):
+            problems.append(f"{path}: {err}")
+    return problems
 
 
 def _infer_subdomain(path: str) -> str:
@@ -253,6 +373,9 @@ def main(argv: list[str] | None = None) -> int:
                       help="Generate coverage_report.md from accumulated decisions")
     mode.add_argument("--status", action="store_true",
                       help="Print current page_decisions.json summary")
+    mode.add_argument("--dry-run-validate", action="store_true",
+                      help="Validate an existing page_decisions.json against schema 5c "
+                           "without a re-run (RPR-D-03); exit 1 if any entry is non-conformant")
 
     parser.add_argument("--path", metavar="FILE_PATH",
                         help="Content page path (required for --record-decision)")
@@ -282,6 +405,16 @@ def main(argv: list[str] | None = None) -> int:
             review_root=rr,
         )
         print(f"Decision recorded: {args.path} → {args.decision}")
+        return 0
+
+    if getattr(args, "dry_run_validate", False):
+        problems = validate_decisions_file(args.family, args.platform, review_root=rr)
+        if problems:
+            print(f"NON-CONFORMANT: {len(problems)} problem(s) in {args.family}/{args.platform} page_decisions.json:")
+            for p in problems:
+                print(f"  - {p}")
+            return 1
+        print(f"OK: {args.family}/{args.platform} page_decisions.json is schema-conformant")
         return 0
 
     if args.report:

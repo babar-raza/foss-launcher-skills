@@ -36,6 +36,12 @@
       "T3": 31,
       "T4": 0
     },
+    "scripts/ci/tests/test_check_skill_command_parity.py": {
+      "T1": 0,
+      "T2": 3,
+      "T3": 0,
+      "T4": 0
+    },
     "scripts/ci/tests/test_check_skill_readme_coverage.py": {
       "T1": 0,
       "T2": 3,
@@ -141,6 +147,12 @@
     "scripts/pipeline/tests/test_backtrack_controller.py": {
       "T1": 0,
       "T2": 3,
+      "T3": 0,
+      "T4": 0
+    },
+    "scripts/pipeline/tests/test_baseline_ledger.py": {
+      "T1": 0,
+      "T2": 2,
       "T3": 0,
       "T4": 0
     },
@@ -366,9 +378,9 @@
       "T3": 4,
       "T4": 1
     },
-    "scripts/pipeline/tests/test_post_refresh_verify.py": {
+    "scripts/pipeline/tests/test_promote_preserves_history.py": {
       "T1": 0,
-      "T2": 2,
+      "T2": 1,
       "T3": 0,
       "T4": 0
     },
@@ -553,13 +565,13 @@
       "T4": 0
     }
   },
-  "generated_at": "2026-07-13T17:55:41Z",
+  "generated_at": "2026-07-16T22:36:51Z",
   "generator": "scripts/ci/checks/check_monkeypatch_lint.py --baseline",
   "generator_version": "2.0.0",
   "schema_version": 1,
   "totals": {
     "T1": 65,
-    "T2": 719,
+    "T2": 723,
     "T3": 62,
     "T4": 17
   }

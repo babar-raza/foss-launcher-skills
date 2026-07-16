@@ -34,6 +34,8 @@ import re
 import sys
 from pathlib import Path
 
+import yaml
+
 _PIPELINE_DIR = Path(__file__).resolve().parents[2]  # commands/ops/ -> commands/ -> pipeline/
 if str(_PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_DIR))
@@ -146,17 +148,150 @@ def _extract_claim_keywords(delta: dict) -> set[str]:
     return keywords
 
 
+# ---------------------------------------------------------------------------
+# RPR-D-01: citation-based scoring — read the page's OWN evidence frontmatter
+# (evidence.claims / evidence.apis) and match those cited IDs against the exact
+# changed-ID sets from the delta, instead of guessing via body-text token
+# overlap. The token heuristic below is retained ONLY as a logged-warning
+# fallback for pages that carry no evidence frontmatter — never as the primary
+# path when evidence is present (plan §2.3: PIA "never reads the page's own
+# evidence.claims/evidence.apis frontmatter").
+# ---------------------------------------------------------------------------
+
+
+def _extract_changed_api_ids(delta: dict) -> set[str]:
+    """Exact (case-preserved) API names/IDs from every changed set in the delta.
+
+    Unlike _extract_api_names (which lowercases for token matching), this keeps
+    original case because evidence.apis and api_surface names are case-sensitive
+    and citation matching is exact, not fuzzy.
+    """
+    ids: set[str] = set()
+    for key in ("modified_apis", "removed_apis", "new_apis", "resurrected_apis"):
+        for entry in delta.get(key, []):
+            if isinstance(entry, str):
+                ids.add(entry)
+            elif isinstance(entry, dict):
+                name = entry.get("name") or entry.get("class_name") or ""
+                if name:
+                    ids.add(name)
+    return ids
+
+
+def _extract_changed_claim_ids(delta: dict) -> set[str]:
+    """Exact claim IDs from every changed claim set in the delta."""
+    ids: set[str] = set()
+    for key in ("modified_claims", "removed_claims", "new_claims"):
+        for entry in delta.get(key, []):
+            if isinstance(entry, str):
+                ids.add(entry)
+            elif isinstance(entry, dict):
+                cid = entry.get("claim_id") or entry.get("id") or ""
+                if cid:
+                    ids.add(cid)
+    return ids
+
+
+def _read_page_evidence(path: Path) -> tuple[list[str], list[str]]:
+    """Return (evidence.claims, evidence.apis) from a page's frontmatter.
+
+    Returns ([], []) when the page has no frontmatter, no evidence block, or is
+    unreadable/malformed — callers must treat ([], []) as "no evidence to score
+    from", NOT as "nothing changed".
+    """
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return [], []
+    if not text.startswith("---"):
+        return [], []
+    end = text.find("\n---", 3)
+    if end == -1:
+        return [], []
+    fm_text = text[3:end]
+    try:
+        fm = yaml.safe_load(fm_text) or {}
+    except Exception:
+        return [], []
+    if not isinstance(fm, dict):
+        return [], []
+    ev = fm.get("evidence") or {}
+    if not isinstance(ev, dict):
+        return [], []
+    claims = [str(c) for c in (ev.get("claims") or []) if c]
+    apis = [str(a) for a in (ev.get("apis") or []) if a]
+    return claims, apis
+
+
+def _match_cited_apis(cited_apis: list[str], changed_api_ids: set[str]) -> set[str]:
+    """Return the subset of cited APIs affected by the delta.
+
+    A cited API matches when it is exactly in the changed set, OR when its
+    owning class (the token before the first '.') is in the changed set — a
+    page citing `Document.Create` is affected when the class `Document` changed,
+    even if the delta tracks changes at class granularity only.
+    """
+    hits: set[str] = set()
+    for cited in cited_apis:
+        if cited in changed_api_ids:
+            hits.add(cited)
+            continue
+        owning_class = cited.split(".", 1)[0]
+        if owning_class and owning_class in changed_api_ids:
+            hits.add(cited)
+    return hits
+
+
 def _score_page(
     path: Path,
     api_names: set[str],
     claim_keywords: set[str],
+    *,
+    changed_api_ids: set[str] | None = None,
+    changed_claim_ids: set[str] | None = None,
 ) -> tuple[str, list[str]]:
     """Return (pia_score, signals_found) for a single page.
 
-    Reads the page body (text after frontmatter fence) and checks for:
-    - API class/method name matches → HIGH_IMPACT
-    - Claim keyword matches → MEDIUM_IMPACT
+    Primary path (RPR-D-01) — when the page carries an evidence frontmatter block
+    AND changed-ID sets are supplied:
+      - HIGH_IMPACT   : a cited API (exact or its owning class) is in the delta's
+                        changed API set.
+      - MEDIUM_IMPACT : a cited claim ID is in the delta's changed claim set.
+      - LOW_IMPACT    : evidence present, but nothing it cites changed. (RPR-D-02
+                        upgrades this specific case to NOT_AFFECTED.)
+
+    Fallback path — when the page has NO evidence frontmatter (or no changed-ID
+    sets were supplied): the legacy body-text token heuristic runs, and its
+    signals are prefixed `fallback-*` so it is visible in the output that this
+    page could not be citation-scored.
     """
+    changed_api_ids = changed_api_ids or set()
+    changed_claim_ids = changed_claim_ids or set()
+
+    cited_claims, cited_apis = _read_page_evidence(path)
+    has_evidence = bool(cited_claims or cited_apis)
+    citation_scoring_available = has_evidence and (changed_api_ids or changed_claim_ids)
+
+    if citation_scoring_available:
+        api_hits = _match_cited_apis(cited_apis, changed_api_ids)
+        if api_hits:
+            return "HIGH_IMPACT", [f"cite-api:{a}" for a in sorted(api_hits)[:5]]
+
+        claim_hits = set(cited_claims) & changed_claim_ids
+        if claim_hits:
+            return "MEDIUM_IMPACT", [f"cite-claim:{c}" for c in sorted(claim_hits)[:5]]
+
+        # RPR-D-02: evidence present, and nothing this page cites is in the delta's
+        # changed sets. This is a genuine, per-page NOT_AFFECTED — assignable even
+        # when the product's overall delta is non-empty and sibling pages score
+        # HIGH/MEDIUM. Before RPR-D-01/D-02, NOT_AFFECTED could only ever be
+        # assigned product-wide (whole delta empty), so a page with zero overlap
+        # was forced to LOW_IMPACT. A page reaches here ONLY via the citation path,
+        # which requires non-empty evidence — an evidence-less page can never
+        # silently default to NOT_AFFECTED (it takes the fallback path instead).
+        return "NOT_AFFECTED", ["cite-clean"]
+
+    # ── Fallback: legacy body-text token heuristic (evidence-less pages only) ──
     try:
         text = path.read_text(encoding="utf-8", errors="replace")
     except OSError:
@@ -170,26 +305,30 @@ def _score_page(
         body = text
 
     body_lower = body.lower()
-    # Tokenize body for whole-word matching
     body_tokens = set(re.findall(r"\b[a-z][a-z0-9]{2,}\b", body_lower))
 
-    signals: list[str] = []
+    # Emit a visible marker so an evidence-less page's fallback scoring is never
+    # mistaken for a confident citation-based verdict. Only added when the caller
+    # actually supplied changed-ID sets (i.e. a real assess_product run) — the
+    # legacy 3-arg _score_page(page, api_names, claim_keywords) call path (used by
+    # older unit tests and any external caller) keeps its original signal shape.
+    fallback_note = "fallback-no-evidence" if (changed_api_ids or changed_claim_ids) else None
 
-    # HIGH_IMPACT: exact class/method name found in body
     high_matches = api_names.intersection(body_tokens)
     if high_matches:
-        signals.extend(f"api:{m}" for m in sorted(high_matches)[:5])
+        signals = [f"api:{m}" for m in sorted(high_matches)[:5]]
+        if fallback_note:
+            signals.insert(0, fallback_note)
         return "HIGH_IMPACT", signals
 
-    # MEDIUM_IMPACT: claim keyword found in body
     kw_matches = claim_keywords.intersection(body_tokens)
-    if kw_matches:
-        # Require at least 2 keyword matches to avoid single-word false positives
-        if len(kw_matches) >= 2:
-            signals.extend(f"kw:{k}" for k in sorted(kw_matches)[:5])
-            return "MEDIUM_IMPACT", signals
+    if kw_matches and len(kw_matches) >= 2:
+        signals = [f"kw:{k}" for k in sorted(kw_matches)[:5]]
+        if fallback_note:
+            signals.insert(0, fallback_note)
+        return "MEDIUM_IMPACT", signals
 
-    return "LOW_IMPACT", []
+    return "LOW_IMPACT", [fallback_note] if fallback_note else []
 
 
 # ---------------------------------------------------------------------------
@@ -382,6 +521,9 @@ def assess_product(
 
     api_names = _extract_api_names(delta)
     claim_keywords = _extract_claim_keywords(delta)
+    # RPR-D-01: exact changed-ID sets for citation-based scoring (primary path).
+    changed_api_ids = _extract_changed_api_ids(delta)
+    changed_claim_ids = _extract_changed_claim_ids(delta)
 
     pages_data = []
     summary: dict[str, int] = {
@@ -408,7 +550,11 @@ def assess_product(
             # No delta signals — all pages are NOT_AFFECTED (delta absent or empty)
             score, signals = "NOT_AFFECTED", []
         else:
-            score, signals = _score_page(path, api_names, claim_keywords)
+            score, signals = _score_page(
+                path, api_names, claim_keywords,
+                changed_api_ids=changed_api_ids,
+                changed_claim_ids=changed_claim_ids,
+            )
 
         pages_data.append({
             "path": rel_path,

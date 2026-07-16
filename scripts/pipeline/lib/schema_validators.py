@@ -325,12 +325,17 @@ def validate_product_change_record(data: dict) -> list[str]:
     return errors
 
 
+# MUST stay in exact sync with refresh_review.VALID_DECISIONS. The drift-guard
+# test `test_page_coverage_decisions_match_refresh_review_source` (RPR-B-02's
+# originally-specified enum-match test, added in RPR-D-03 after the integration
+# caught EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED missing here) fails if they
+# ever diverge. Do not hand-edit one without the other.
 _PAGE_COVERAGE_DECISIONS = {
     "BODY_UPDATED", "EVIDENCE_ONLY", "NOT_AFFECTED", "RETIRED", "GENERATED",
     "SEMANTIC_NOOP_PROVEN", "REFRESH_BLOCKED_UNPROVEN_NOOP",
     "CLAIM_EXTRACTION_MISSED_DELTA", "PAGE_MAPPING_MISSED_IMPACT",
-    "GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT", "GRADING_REPAIRED",
-    "GRADING_BLOCKED", "TASKCARD_CREATED",
+    "GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT", "EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED",
+    "GRADING_REPAIRED", "GRADING_BLOCKED", "TASKCARD_CREATED",
 }
 _PAGE_COVERAGE_DECISION_SOURCES = {"pia_per_page_citation", "oracle", "manual", "triage_confirm"}
 
@@ -373,6 +378,15 @@ def validate_page_coverage_ledger_entry(data: dict) -> list[str]:
 
 
 _PAGE_PATCH_VERDICTS = {"BODY_UPDATED", "SKIPPED_HASH_CHANGED", "SKIPPED_AUTO_UPDATABLE_FALSE"}
+# RPR-E-05: why a PARAGRAPH_REWRITE fell back to the deterministic template (if it did).
+_FALLBACK_REASONS = {
+    "NONE",                          # LLM ran and its output was used
+    "LLM_UNAVAILABLE",               # router unconstructible (no import / not configured)
+    "LLM_ERROR",                     # exception during call_chat
+    "LLM_EMPTY_RESPONSE",            # result.data falsy
+    "LINK_PRESERVATION_VIOLATION",   # RG-010 guard rejected the LLM output
+    "CIRCUIT_OPEN",                  # run-scoped circuit already open — LLM not attempted
+}
 
 
 def validate_page_patch_receipt(data: dict) -> list[str]:
@@ -396,6 +410,9 @@ def validate_page_patch_receipt(data: dict) -> list[str]:
         errors.append(f"page_patch_receipt: invalid strategy_used '{data['strategy_used']}'")
     if "verdict" in data and data["verdict"] not in _PAGE_PATCH_VERDICTS:
         errors.append(f"page_patch_receipt: invalid verdict '{data['verdict']}'")
+    if "fallback_reason" in data and data["fallback_reason"] is not None \
+            and data["fallback_reason"] not in _FALLBACK_REASONS:
+        errors.append(f"page_patch_receipt: invalid fallback_reason '{data['fallback_reason']}'")
     if data.get("strategy_used") == "PARAGRAPH_REWRITE" and data.get("verdict") == "BODY_UPDATED":
         llm_invoked = data.get("llm_invoked")
         template_used = data.get("template_fallback_used")
@@ -408,6 +425,18 @@ def validate_page_patch_receipt(data: dict) -> list[str]:
             errors.append(
                 f"page_patch_receipt: exactly one of llm_invoked/template_fallback_used must be true "
                 f"(got llm_invoked={llm_invoked}, template_fallback_used={template_used})"
+            )
+        # RPR-E-05: if the template fired, fallback_reason must say WHY (not NONE);
+        # if the LLM's output was used, fallback_reason must be NONE/absent.
+        fr = data.get("fallback_reason")
+        if template_used is True and fr in (None, "NONE"):
+            errors.append(
+                "page_patch_receipt: template_fallback_used=True requires a fallback_reason "
+                "other than NONE (RPR-E-05 observability)"
+            )
+        if llm_invoked is True and fr not in (None, "NONE"):
+            errors.append(
+                f"page_patch_receipt: llm_invoked=True is inconsistent with fallback_reason={fr!r}"
             )
     return errors
 
@@ -433,6 +462,10 @@ def validate_refresh_run_manifest(data: dict) -> list[str]:
     ))
     errors.extend(_check_type(data, "product_change_refs", list, "refresh_run_manifest"))
     errors.extend(_check_type(data, "patch_receipt_refs", list, "refresh_run_manifest"))
+    # intentional_renames (schema 5e / RPR-F-05) is optional, but when present must be a
+    # list of page ids — the SEO-stability allowlist Check 11 consumes.
+    if "intentional_renames" in data:
+        errors.extend(_check_type(data, "intentional_renames", list, "refresh_run_manifest"))
 
     if "status" in data and data["status"] not in _REFRESH_RUN_STATUSES:
         errors.append(f"refresh_run_manifest: invalid status '{data['status']}'")
@@ -463,4 +496,53 @@ def validate_refresh_run_manifest(data: dict) -> list[str]:
             f"refresh_run_manifest: commit_sha is set but status={data.get('status')!r} != 'committed'"
         )
 
+    return errors
+
+
+# Ordered by lifecycle maturity. The subset past IMPLEMENTED requires non-empty
+# evidence_refs (schema 5f rule) — a status claim beyond "code written" that cites
+# nothing is exactly the prose-drift failure mode RPR-G-04 exists to close.
+_TASKCARD_STATUSES = {
+    "TODO", "READY", "IN_PROGRESS", "IMPLEMENTED", "FOCUSED_VERIFIED",
+    "INTEGRATION_VERIFIED", "END_TO_END_VERIFIED", "PILOT_PROVEN",
+    "INDEPENDENTLY_REVIEWED", "CLOSED", "REWORK_REQUIRED",
+    "BLOCKED_LOCAL", "BLOCKED_EXTERNAL", "SUPERSEDED", "OUT_OF_SCOPE",
+}
+# Statuses at or before which no evidence is yet required (nothing verified).
+_TASKCARD_PRE_EVIDENCE_STATUSES = {"TODO", "READY", "IN_PROGRESS", "IMPLEMENTED"}
+
+
+def validate_taskcard_record(data: dict) -> list[str]:
+    """Validate one taskcards.jsonl row (plan schema 5f, §2.5 SW-4).
+
+    The structured counterpart to a plan's §7 prose task cards. The core rule
+    this schema exists to enforce: any status past IMPLEMENTED must cite at
+    least one evidence_ref (a file path, commit SHA, or test name) — the exact
+    check that would have flagged dazzling-strolling-shell's TC-W11-001.C7
+    sitting at 'TODO' while the plan claimed progress, and the 8 DAR-table rows
+    that drifted with nothing asserting they still matched reality.
+    """
+    errors = []
+    errors.extend(_check_required(
+        data,
+        ["task_id", "mission_id", "status", "recorded_at", "evidence_refs", "recorded_by"],
+        "taskcard_record",
+    ))
+    errors.extend(_check_type(data, "evidence_refs", list, "taskcard_record"))
+    if "status" in data and data["status"] not in _TASKCARD_STATUSES:
+        errors.append(f"taskcard_record: invalid status '{data['status']}'")
+    # Evidence requirement for any verified/terminal status past IMPLEMENTED.
+    status = data.get("status")
+    if (
+        status in _TASKCARD_STATUSES
+        and status not in _TASKCARD_PRE_EVIDENCE_STATUSES
+        and status not in ("SUPERSEDED", "OUT_OF_SCOPE", "BLOCKED_LOCAL", "BLOCKED_EXTERNAL", "REWORK_REQUIRED")
+    ):
+        refs = data.get("evidence_refs")
+        if not isinstance(refs, list) or not refs:
+            errors.append(
+                f"taskcard_record: status={status} requires a non-empty evidence_refs "
+                f"(a status past IMPLEMENTED that cites no evidence is the prose-drift "
+                f"failure mode schema 5f exists to prevent)"
+            )
     return errors

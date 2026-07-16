@@ -18,6 +18,20 @@ Final verdict rules (conservative — any stale signal triggers action):
      OR layer2_triage.verdict == "needs_update" → final_verdict = "needs_update"
   3. All sources clean                  → final_verdict = "current"
 
+CONTRACT: scripts/pipeline/lib/reconcile_triage.py (RPR-F-03)
+  purpose: real CLI wrapping reconcile_triage_page() across every page for a product.
+  inputs:  content pages for {family}/{platform}; knowledge/{family}/{platform}/merged/
+           {api_surface.json,claims.json,knowledge_delta.json,model.yaml}
+  outputs: reports/refresh_review/{family}/{platform}/reconcile_triage.json
+  idempotent: yes; exit 0 = all current, 1 = >=1 needs_update/missing, 2 = error
+  known simplification: the page_spec source (missing/extra vs. site_plan.yaml) is not
+    wired into this CLI path — it always reports page_spec as "current" (no signal),
+    since that requires loading and diffing against reports/plans/{family}/{platform}/
+    site_plan.yaml, out of scope for RPR-F-03. layer1_triage IS wired, sourced from
+    model.yaml's stale_since field. This means the CLI path is a 2-of-3-source
+    reconciliation, not the full 3-source design the library function supports when
+    called directly with explicit page_spec_missing/page_spec_extra arguments.
+
 Usage::
 
     from reconcile_triage import reconcile_triage_page, TriageSource
@@ -29,14 +43,32 @@ Usage::
     )
     print(result.final_verdict)  # "needs_update"
     print(result.to_dict())      # machine-readable 3-source report
+
+CLI usage::
+
+    PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/lib/reconcile_triage.py pdf net
 """
 from __future__ import annotations
 
+import argparse
+import json
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from lib.triage_confirm import triage_confirm
+_DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[3]  # lib/ -> pipeline/ -> scripts/ -> repo root
+_REPO_ROOT = _DEFAULT_REPO_ROOT
+if str(Path(__file__).resolve().parents[1]) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from lib.triage_confirm import triage_confirm, _load_knowledge  # noqa: E402
+
+
+def configure(*, repo_root=None):
+    """Redirect module-level paths for testing. Call with no args to reset."""
+    global _REPO_ROOT
+    _REPO_ROOT = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
 
 
 # ---------------------------------------------------------------------------
@@ -243,3 +275,117 @@ def reconcile_triage_page(
         final_confidence=conf,
         final_reasons=reasons,
     )
+
+
+# ── CLI (RPR-F-03) ───────────────────────────────────────────────────────────
+
+def _layer1_stale_from_model_yaml(family: str, platform: str, repo_root: Path) -> tuple[bool, list[str]]:
+    """Source layer1_stale from model.yaml's stale_since field (non-null == stale)."""
+    model_path = repo_root / "knowledge" / family / platform / "merged" / "model.yaml"
+    if not model_path.exists():
+        return False, []
+    try:
+        import yaml
+        data = yaml.safe_load(model_path.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return False, []
+    stale_since = data.get("stale_since")
+    if stale_since:
+        return True, [f"model.yaml stale_since={stale_since}"]
+    return False, []
+
+
+def run(family: str, platform: str, *, repo_root: Path | None = None, files: list[str] | None = None) -> dict[str, Any]:
+    """Run 3-source (2-of-3 wired, see module docstring) reconciliation across a product."""
+    root = repo_root or _REPO_ROOT
+    merged_dir = root / "knowledge" / family / platform / "merged"
+    if not merged_dir.exists():
+        raise FileNotFoundError(
+            f"knowledge/{family}/{platform}/merged/ not found at {merged_dir} — "
+            f"run knowledge bootstrap (S-54) before reconcile-triage"
+        )
+
+    knowledge = _load_knowledge(family, platform, root)
+    layer1_stale, layer1_reasons = _layer1_stale_from_model_yaml(family, platform, root)
+
+    if files:
+        pages = [Path(f) for f in files]
+    else:
+        sys.path.insert(0, str(root / "scripts" / "pipeline" / "lib"))
+        from content_discovery import discover_content  # noqa: E402
+        pages = discover_content(family, platform, skip_drafts=True)
+
+    results = []
+    needs_update = 0
+    missing = 0
+    unknown = 0
+    for page in pages:
+        r = reconcile_triage_page(
+            page, knowledge,
+            layer1_stale=layer1_stale, layer1_reasons=layer1_reasons,
+            family=family, platform=platform,
+        )
+        results.append(r.to_dict())
+        if r.final_verdict == "needs_update":
+            needs_update += 1
+        elif r.final_verdict == "missing":
+            missing += 1
+        elif r.final_verdict == "unknown":
+            unknown += 1
+
+    return {
+        "family": family,
+        "platform": platform,
+        "pages_checked": len(pages),
+        "needs_update_count": needs_update,
+        "missing_count": missing,
+        "unknown_count": unknown,
+        "results": results,
+    }
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="reconcile_triage — 3-source (2-of-3 wired) triage reconciliation CLI (RPR-F-03).",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/lib/reconcile_triage.py pdf net
+
+Exit codes:
+  0 = all pages current
+  1 = >=1 page needs_update or missing
+  2 = error (knowledge/{family}/{platform}/merged/ not found)
+        """,
+    )
+    parser.add_argument("family")
+    parser.add_argument("platform")
+    parser.add_argument("--files", nargs="*")
+    parser.add_argument("--json", action="store_true")
+    args = parser.parse_args(argv)
+
+    try:
+        summary = run(args.family, args.platform, files=args.files)
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 2
+
+    out_dir = _REPO_ROOT / "reports" / "refresh_review" / args.family / args.platform
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "reconcile_triage.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+
+    if args.json:
+        print(json.dumps(summary, indent=2))
+    else:
+        print(f"reconcile_triage: {args.family}/{args.platform}")
+        print(f"  pages checked : {summary['pages_checked']}")
+        print(f"  needs_update  : {summary['needs_update_count']}")
+        print(f"  missing       : {summary['missing_count']}")
+        print(f"  unknown       : {summary['unknown_count']}")
+
+    blocking = summary["needs_update_count"] + summary["missing_count"]
+    return 1 if blocking else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

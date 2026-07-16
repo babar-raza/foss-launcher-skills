@@ -70,6 +70,8 @@ VD_SKIPPED_DRY = "DRY_RUN"
 VD_NO_SECTIONS = "NO_ACTIONABLE_SECTIONS"
 VD_REJECTED_LOCALIZED = "TARGET_REJECTED_LOCALIZED"
 VD_REJECTED_AMBIGUOUS = "TARGET_REJECTED_AMBIGUOUS_LOCALE"
+VD_FORBIDDEN_BLOCKED = "BLOCKED_FORBIDDEN_CLAIM"  # RPR-E-02: candidate introduced a forbidden-claim violation
+VD_REGROUNDING_BLOCKED = "BLOCKED_TEMPLATE_PROPAGATION"  # RPR-E-03: reused a distinctive span without shared grounding
 
 # Minimum confidence threshold for semantic changes.  Changes classified by
 # semantic_diff.py with confidence < this value are skipped and require human
@@ -99,7 +101,8 @@ _PROTECTED_SECTION_IDS = frozenset({
     "additional-resources", "further-reading",
 })
 
-# ── Configurable defaults (configure() seam for tests) ────────────────────
+# ── Configurable defaults (configure() seam for tests) ──────────────────────
+_UNSET = object()  # sentinel for configure() parameters where None is a valid value
 
 _cfg_reports_root: str = "reports/refresh_review"
 _cfg_receipts_root: str | None = None  # default: reports_root/{family}/{platform}/receipts/
@@ -107,6 +110,7 @@ _cfg_llm_router_class: Any = None       # injected in tests to mock LLM calls
 _cfg_safe_write_fn: Any = None          # injected in tests to mock file writes
 _cfg_hash_validation: bool = True       # set False in tests to skip hash checks
 _cfg_writes_root: str = "reports/body_refresh_writes"  # TC-09: post-write evidence log
+_cfg_forbidden_claims: "list[str] | None" = None  # RPR-E-02: injected in tests; None = load from index.json
 
 
 def configure(
@@ -116,10 +120,12 @@ def configure(
     safe_write_fn: Any = None,
     hash_validation: bool | None = None,
     writes_root: str | None = None,
+    forbidden_claims: "list[str] | None | object" = _UNSET,
 ) -> None:
     """Override dependencies for testing (configure() seam pattern)."""
     global _cfg_reports_root, _cfg_receipts_root, _cfg_llm_router_class
     global _cfg_safe_write_fn, _cfg_hash_validation, _cfg_writes_root
+    global _cfg_forbidden_claims
     if reports_root is not None:
         _cfg_reports_root = reports_root
     if receipts_root is not None:
@@ -132,6 +138,156 @@ def configure(
         _cfg_hash_validation = hash_validation
     if writes_root is not None:
         _cfg_writes_root = writes_root
+    if forbidden_claims is not _UNSET:
+        _cfg_forbidden_claims = forbidden_claims  # type: ignore[assignment]
+
+
+# ── RPR-E-04: surface-differentiated update-strategy policy ──────────────────
+#
+# Each of the five content surfaces has a DIFFERENT editing contract. Reference
+# pages are deterministically regenerated from api_surface.json by batch_reference
+# (S-62) and must never be LLM-rewritten in place; products/docs/kb/blog carry
+# hand/LLM-authored prose that the full strategy set may touch (safely, post
+# RPR-E-01/02/03). Every surface has an EXPLICIT policy entry — nothing falls
+# through to a silent default (plan §2.1: Amendment-009 punted docs/kb/blog with
+# zero deterministic backing; this makes the routing explicit and testable).
+
+# Deterministic, citation-backed strategies (grounded in a specific claim/API).
+_CITATION_BACKED_STRATEGIES = frozenset({UT_SURGICAL, UT_TABLE, UT_EXAMPLE, UT_REMOVAL})
+# The full set additionally permits the LLM PARAGRAPH_REWRITE.
+_ALL_STRATEGIES = _CITATION_BACKED_STRATEGIES | frozenset({UT_REWRITE})
+
+_SURFACE_POLICY: dict[str, dict] = {
+    # surface   allowed strategies                     handoff for a disallowed strategy
+    "reference": {"allowed": _CITATION_BACKED_STRATEGIES, "handoff": "batch-reference (S-62)"},
+    "products":  {"allowed": _ALL_STRATEGIES,             "handoff": None},
+    "docs":      {"allowed": _ALL_STRATEGIES,             "handoff": None},
+    "kb":        {"allowed": _ALL_STRATEGIES,             "handoff": None},
+    "blog":      {"allowed": _ALL_STRATEGIES,             "handoff": None},
+    # A page we cannot classify is treated conservatively: deterministic strategies
+    # only, LLM rewrites deferred to the S-20 (page-update) manual/agent path.
+    "unknown":   {"allowed": _CITATION_BACKED_STRATEGIES, "handoff": "page-update (S-20)"},
+}
+
+_SURFACE_SITE_MAP = {
+    "docs.aspose.org": "docs",
+    "kb.aspose.org": "kb",
+    "blog.aspose.org": "blog",
+    "products.aspose.org": "products",
+    "reference.aspose.org": "reference",
+}
+
+
+def _surface_for_page(page_path: str) -> str:
+    """Infer the content surface (docs/kb/blog/products/reference) from a page path,
+    or 'unknown' when the path names no known site."""
+    normalized = str(page_path).replace("\\", "/")
+    for site, surface in _SURFACE_SITE_MAP.items():
+        if site in normalized:
+            return surface
+    return "unknown"
+
+
+def _surface_allows_strategy(surface: str, update_type: str) -> tuple[bool, str | None]:
+    """Return (allowed, handoff_target) for a strategy on a surface, per the
+    explicit _SURFACE_POLICY. An unrecognized surface is treated as 'unknown'
+    (never silently permissive)."""
+    policy = _SURFACE_POLICY.get(surface, _SURFACE_POLICY["unknown"])
+    allowed = update_type in policy["allowed"]
+    return allowed, (None if allowed else policy["handoff"])
+
+
+def _read_cited_evidence(page_content: str) -> list[str]:
+    """RPR-E-03: return a page's cited evidence IDs (evidence.apis + evidence.claims)
+    from its frontmatter, for the re-grounding shared-grounding check. Returns [] on
+    no/malformed frontmatter."""
+    if not page_content.startswith("---"):
+        return []
+    end = page_content.find("\n---", 3)
+    if end == -1:
+        return []
+    try:
+        import yaml
+        fm = yaml.safe_load(page_content[3:end]) or {}
+    except Exception:
+        return []
+    if not isinstance(fm, dict):
+        return []
+    ev = fm.get("evidence") or {}
+    if not isinstance(ev, dict):
+        return []
+    ids = [str(a) for a in (ev.get("apis") or []) if a]
+    ids += [str(c) for c in (ev.get("claims") or []) if c]
+    return ids
+
+
+# ── RPR-E-05: run-scoped LLM circuit breaker ─────────────────────────────────
+
+_CIRCUIT_FAILURE_THRESHOLD = 3  # consecutive LLM failures in one run before the circuit opens
+                                # NOTE: an untuned initial value (the LLM path was dead code until
+                                # RPR-E-01, so no real failure-rate data exists yet). Documented,
+                                # easily changed; RPR-H-01/pilots are the first chance to tune it.
+
+
+class _LLMCircuit:
+    """Run-scoped, in-process circuit breaker over the aggregate LLM.
+
+    Not persisted, not shared across runs (deliberately simple — avoids inventing a
+    second stateful subsystem). After _CIRCUIT_FAILURE_THRESHOLD consecutive
+    call_chat() failures within one body_refresh run, the circuit OPENS and every
+    remaining PARAGRAPH_REWRITE skips the LLM and goes straight to the deterministic
+    template (fallback_reason=CIRCUIT_OPEN) — so a degraded-LLM window does not make
+    every page pay the full provider-timeout chain (plan §2.5 SW-3).
+    """
+
+    def __init__(self, threshold: int = _CIRCUIT_FAILURE_THRESHOLD):
+        self.threshold = threshold
+        self.consecutive_failures = 0
+        self.is_open = False
+
+    def should_attempt(self) -> bool:
+        return not self.is_open
+
+    def record_success(self) -> None:
+        self.consecutive_failures = 0  # a success resets the streak (circuit stays as-is)
+
+    def record_failure(self) -> None:
+        self.consecutive_failures += 1
+        if self.consecutive_failures >= self.threshold:
+            self.is_open = True
+
+
+def run_is_llm_degraded(receipts: list[dict]) -> bool:
+    """RPR-E-05: a run is 'LLM degraded' if any page's fallback_reason names a cause
+    other than a link-preservation violation (which reflects LLM output quality, not
+    an outage). This is the signal a manifest writer maps to manifest.llm_degraded."""
+    for r in receipts:
+        fr = r.get("fallback_reason")
+        if fr not in (None, "NONE", "LINK_PRESERVATION_VIOLATION"):
+            return True
+    return False
+
+
+def _scan_forbidden_claims(old_content: str, new_content: str, family: str, platform: str) -> list[dict]:
+    """RPR-E-02: return forbidden-claim violations NEWLY introduced by new_content.
+
+    Uses the injected _cfg_forbidden_claims when set (tests); otherwise loads the
+    product's forbidden_claims from merged/index.json. A load/scan failure is
+    non-fatal (returns []) — the gate must never crash the refresh run, only
+    block a provably-violating candidate.
+    """
+    try:
+        from lib.forbidden_claims_check import load_forbidden_claims, newly_introduced
+        if _cfg_forbidden_claims is not None:
+            forbidden = _cfg_forbidden_claims
+        else:
+            forbidden = load_forbidden_claims(family, platform)
+        if not forbidden:
+            return []
+        return newly_introduced(old_content, new_content, forbidden)
+    except Exception as exc:  # noqa: BLE001 — gate must fail-open, not crash the run
+        print(f"WARNING: forbidden-claims scan failed (non-fatal): {exc}")
+        return []
 
 
 # ── Loaders ────────────────────────────────────────────────────────────────
@@ -433,7 +589,15 @@ def _get_claim_grounding(change: dict, context: dict) -> tuple[str, str]:
     if not family or not platform:
         return "", ""
 
-    repo_root = Path(__file__).resolve().parents[3]
+    # BUGFIX (session 2, found while building RPR-F-03): parents[3] from this file's
+    # path (scripts/pipeline/commands/content/body_refresh.py) resolves to scripts/,
+    # not the repo root — parents[4] is correct. With the old off-by-one, bak_claims/
+    # new_claims.exists() were always False, so every PARAGRAPH_REWRITE call has been
+    # running in degraded (ungrounded) mode in production regardless of whether real
+    # claim-grounding data was available, since RPR-E-01's routing fix made this
+    # branch reachable. Verified empirically: parents[3] == .../scripts (no knowledge/
+    # subdir there), parents[4] == the real repo root (has knowledge/).
+    repo_root = Path(__file__).resolve().parents[4]
     base = repo_root / "knowledge" / family / platform
     bak_claims = base / "merged.bak" / "claims.json"
     new_claims = base / "merged" / "claims.json"
@@ -502,13 +666,24 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
     # _deterministic_fallback() template as before — this is a pure
     # reachability fix, not a change to fallback content or triggers.
 
+    # RPR-E-05: record why we fell back (if we do). The caller reads
+    # context["_fallback_reason"] after this returns.
+    def _fallback(reason: str) -> str:
+        context["_fallback_reason"] = reason
+        return _deterministic_fallback()
+
+    circuit = context.get("_llm_circuit")
+    # If the run-scoped circuit is already open, skip the LLM entirely.
+    if circuit is not None and not circuit.should_attempt():
+        return _fallback("CIRCUIT_OPEN")
+
     router_class = _cfg_llm_router_class
     if router_class is None:
         try:
             from commands.ops.llm_router import LLMRouter
             router_class = LLMRouter
         except ImportError:
-            return _deterministic_fallback()
+            return _fallback("LLM_UNAVAILABLE")
 
     symbol = change.get("symbol", "")
     change_type = change.get("change_type", "")
@@ -565,9 +740,13 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
             f"LLM_CALL_FAILED: {type(exc).__name__}: {exc} "
             f"— using deterministic fallback"
         )
-        return _deterministic_fallback()
+        if circuit is not None:
+            circuit.record_failure()
+        return _fallback("LLM_ERROR")
 
     if result and result.data and isinstance(result.data, str):
+        if circuit is not None:
+            circuit.record_success()
         llm_output = result.data.strip()
         # RG-010: Hyperlink preservation guard.
         # After LLM rewrite, verify all enterprise and internal links from the
@@ -595,9 +774,15 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
                     f"LINK_PRESERVATION_FALLBACK: LLM stripped {len(stripped)} link(s) "
                     f"— using deterministic fallback"
                 )
-                return _deterministic_fallback()
+                # A link violation is NOT a circuit failure — the LLM was reachable
+                # and responded; its output was just rejected for quality.
+                return _fallback("LINK_PRESERVATION_VIOLATION")
+        context["_fallback_reason"] = "NONE"
         return llm_output
-    return _deterministic_fallback()
+    # Empty / non-string response.
+    if circuit is not None:
+        circuit.record_failure()
+    return _fallback("LLM_EMPTY_RESPONSE")
 
 
 # ── Main update logic ──────────────────────────────────────────────────────
@@ -745,6 +930,19 @@ def run(
     receipts: list[dict] = []
     run_id = f"body-refresh-{family}-{platform}"
 
+    # RPR-E-03: per-run re-grounding cache, shared across every page in this run,
+    # so a distinctive code/claim span reused verbatim on a later page (without
+    # that page sharing the originating page's grounding) is caught.
+    try:
+        from lib.regrounding_check import RegroundingCache
+        _regrounding_cache = RegroundingCache()
+    except Exception:  # pragma: no cover — lib always importable
+        _regrounding_cache = None
+
+    # RPR-E-05: one circuit per run, shared across all pages via context.
+    _llm_circuit = _LLMCircuit()
+    context["_llm_circuit"] = _llm_circuit
+
     for impact in impacts:
         page_path = impact.get("page_path", "")
         if not page_path:
@@ -811,11 +1009,30 @@ def run(
         strategies_used: list[str] = []
         sections_changed: list[str] = []
         sections_preserved: list[str] = []
+        surface_deferrals: list[dict] = []
+        surface = _surface_for_page(page_path)  # RPR-E-04
+        page_fallback_reason = "NONE"  # RPR-E-05: worst fallback reason seen on this page
 
         for sec in actionable_sections:
             sec_id = sec.get("section_id", "")
             if sec_id in _PROTECTED_SECTION_IDS:
                 sections_preserved.append(sec_id)
+                continue
+
+            # RPR-E-04: enforce the per-surface strategy policy BEFORE applying.
+            # A strategy disallowed for this surface (e.g. an LLM PARAGRAPH_REWRITE
+            # on a reference page, which must be regenerated by batch-reference) is
+            # deferred to its explicit handoff target, never silently applied.
+            sec_update_type = sec.get("update_type", "")
+            allowed, handoff = _surface_allows_strategy(surface, sec_update_type)
+            if not allowed:
+                surface_deferrals.append({
+                    "section_id": sec_id,
+                    "surface": surface,
+                    "strategy": sec_update_type,
+                    "handoff": handoff,
+                })
+                sections_preserved.append(f"{sec_id}[SURFACE_DEFER:{surface}->{handoff}]")
                 continue
 
             section_change_ids = [sec["change_id"]] if sec.get("change_id") else impact.get("semantic_change_ids", [])
@@ -830,7 +1047,14 @@ def run(
                     sections_preserved.append(f"{sec_id}[LOW_CONFIDENCE:{change_confidence:.2f}]")
                     continue
                 context["page_content"] = new_content
+                context.pop("_fallback_reason", None)  # RPR-E-05: reset per section-change
                 updated, strategy = _apply_section_update(new_content, sec, change, context)
+                # RPR-E-05: capture the LLM fallback reason (set by _paragraph_rewrite
+                # when a PARAGRAPH_REWRITE ran). Keep the most informative one per page —
+                # any real fallback reason outranks NONE.
+                sec_reason = context.get("_fallback_reason")
+                if sec_reason and sec_reason != "NONE" and page_fallback_reason == "NONE":
+                    page_fallback_reason = sec_reason
                 if updated != new_content:
                     new_content = updated
                     strategies_used.append(strategy)
@@ -839,13 +1063,52 @@ def run(
 
         new_hash = hashlib.sha256(new_content.encode("utf-8")).hexdigest()
         verdict = VD_NO_SECTIONS
+        forbidden_violations: list[dict] = []
+        regrounding_violations: list[dict] = []
 
         if new_content != old_content:
-            written = _write_page(page_path, new_content, family, platform)
-            verdict = VD_UPDATED if written else VD_SKIPPED_AUTO
-            if written:
-                # TC-09: record write for post_body_refresh_evidence.py
-                _record_body_refresh_write(page_path, run_id)
+            # RPR-E-02: generation-time forbidden-claims gate. If this edit
+            # INTRODUCES an affirmative claim about a forbidden API (one whose
+            # methods throw NotImplementedException), refuse to write the
+            # candidate — preserve the original content and surface the violation.
+            # This is the pre-write enforcement absent when 3d/net's "3MF"
+            # fabrication landed across 13 files (plan §2.4). Only newly-introduced
+            # violations block; a pre-existing one this edit didn't touch is a
+            # separate remediation concern, not a reason to abort this edit.
+            forbidden_violations = _scan_forbidden_claims(old_content, new_content, family, platform)
+            if _regrounding_cache is not None:
+                try:
+                    rg = _regrounding_cache.check_page(
+                        page_path, new_content, _read_cited_evidence(old_content))
+                    regrounding_violations = [v.to_dict() for v in rg]
+                except Exception as exc:  # noqa: BLE001 — gate fails open, never crashes the run
+                    print(f"WARNING: re-grounding check failed (non-fatal): {exc}")
+            if forbidden_violations:
+                verdict = VD_FORBIDDEN_BLOCKED
+                print(
+                    f"FORBIDDEN_CLAIM_BLOCKED: {page_path} — candidate introduced "
+                    f"{len(forbidden_violations)} forbidden-claim violation(s): "
+                    f"{[v['matched_symbol'] for v in forbidden_violations][:3]}; "
+                    f"original content preserved, routed for review"
+                )
+                new_content = old_content  # do not write the violating candidate
+                new_hash = old_hash.replace("sha256:", "")
+            elif regrounding_violations:
+                verdict = VD_REGROUNDING_BLOCKED
+                print(
+                    f"TEMPLATE_PROPAGATION_BLOCKED: {page_path} — candidate reused "
+                    f"{len(regrounding_violations)} distinctive span(s) first seen on "
+                    f"{regrounding_violations[0]['first_page']} without shared grounding; "
+                    f"original content preserved, routed for fresh generation"
+                )
+                new_content = old_content  # do not propagate the ungrounded reuse
+                new_hash = old_hash.replace("sha256:", "")
+            else:
+                written = _write_page(page_path, new_content, family, platform)
+                verdict = VD_UPDATED if written else VD_SKIPPED_AUTO
+                if written:
+                    # TC-09: record write for post_body_refresh_evidence.py
+                    _record_body_refresh_write(page_path, run_id)
         else:
             verdict = VD_NO_SECTIONS
 
@@ -861,6 +1124,11 @@ def run(
             "new_hash": f"sha256:{new_hash}",
             "verdict": verdict,
             "strategies_used": strategies_used,
+            "forbidden_violations": forbidden_violations,
+            "regrounding_violations": regrounding_violations,
+            "surface": surface,
+            "surface_deferrals": surface_deferrals,
+            "fallback_reason": page_fallback_reason,
             "generated_at": datetime.now(timezone.utc).isoformat(),
         }
         receipts.append(receipt_data)

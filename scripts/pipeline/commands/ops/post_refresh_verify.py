@@ -53,6 +53,10 @@ KNOWLEDGE_ROOT = REPO_ROOT / "knowledge"
 CONTENT_ROOT = REPO_ROOT / "content"
 REPORTS_ROOT = REPO_ROOT / "reports" / "refresh_state"
 
+_cfg_subprocess_run = None           # None → use subprocess.run directly
+_cfg_detect_grade_regressions = None  # None → import from audit_content_hash
+_cfg_detect_seo_violations = None    # None → import from seo_stability_check
+
 
 def configure(
     *,
@@ -61,6 +65,9 @@ def configure(
     content_root: "Path | str | None" = None,
     reports_root: "Path | str | None" = None,
     here: "Path | str | None" = None,
+    subprocess_run=None,
+    detect_grade_regressions=None,
+    detect_seo_violations=None,
 ) -> None:
     """Reconfigure module-level paths for testing or alternative layouts.
 
@@ -69,12 +76,16 @@ def configure(
     in a yield-based fixture and reset with ``configure()`` at teardown.
     """
     global REPO_ROOT, KNOWLEDGE_ROOT, CONTENT_ROOT, REPORTS_ROOT, _HERE
+    global _cfg_subprocess_run, _cfg_detect_grade_regressions, _cfg_detect_seo_violations
     _root = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
     REPO_ROOT = _root
     KNOWLEDGE_ROOT = Path(knowledge_root) if knowledge_root is not None else _root / "knowledge"
     CONTENT_ROOT = Path(content_root) if content_root is not None else _root / "content"
     REPORTS_ROOT = Path(reports_root) if reports_root is not None else _root / "reports" / "refresh_state"
     _HERE = Path(here) if here is not None else _DEFAULT_HERE
+    _cfg_subprocess_run = subprocess_run
+    _cfg_detect_grade_regressions = detect_grade_regressions
+    _cfg_detect_seo_violations = detect_seo_violations
 
 
 _SITE_PATTERNS = (
@@ -102,6 +113,22 @@ def _load_progress(family: str, platform: str) -> dict:
         except Exception:
             pass
     return {"family": family, "platform": platform, "steps": [], "pages_updated": [], "pages_generated": []}
+
+
+def _load_intentional_renames(family: str, platform: str) -> set:
+    """Best-effort read of `intentional_renames` from the newest refresh-run manifest
+    (schema 5e) for this product. Empty set if no manifest exists yet (RPR-F-05)."""
+    manifest_dir = REPO_ROOT / "reports" / "refresh_runs" / family / platform
+    if not manifest_dir.is_dir():
+        return set()
+    manifests = sorted(manifest_dir.glob("*.manifest.json"))
+    if not manifests:
+        return set()
+    try:
+        data = json.loads(manifests[-1].read_text(encoding="utf-8"))
+        return set(data.get("intentional_renames") or [])
+    except Exception:
+        return set()
 
 
 def _save_progress(family: str, platform: str, data: dict) -> None:
@@ -755,11 +782,18 @@ def check_coverage_completeness(
     return False, failures
 
 
-def verify(family: str, platform: str) -> tuple[bool, list[str]]:
+def verify(family: str, platform: str, *, allow_warn: bool = False) -> tuple[bool, list[str]]:
     """Run the post-refresh verification checklist.
 
     Returns (passed: bool, failures: list[str]).
     This function is read-only — it never modifies any files.
+
+    RPR-F-01: Check 7's "ran-and-did-nothing" branch and Check 8 (both sub-cases)
+    are now BLOCKING by default — they were WARN-only in exactly the branches the
+    real PDF-NET-REFRESH-001 v26.7.0 tracking gap reproduces (plan §2.4). Pass
+    allow_warn=True to demote them back to WARN (explicit opt-out only, never the
+    default), for the rare case where an operator has manually confirmed the
+    condition is benign.
     """
     failures = []
 
@@ -833,7 +867,8 @@ def verify(family: str, platform: str) -> tuple[bool, list[str]]:
     stale_detect = _HERE / "stale_detect.py"
     if stale_detect.is_file():
         try:
-            result = subprocess.run(
+            _run = _cfg_subprocess_run if _cfg_subprocess_run is not None else subprocess.run
+            result = _run(
                 [sys.executable, str(stale_detect),
                  family, platform, "--json",
                  "--content-root", str(CONTENT_ROOT),
@@ -909,12 +944,19 @@ def verify(family: str, platform: str) -> tuple[bool, list[str]]:
                     f"page_update step not in completed steps"
                 )
             elif removed_count > 50 and pages_updated_count == 0:
-                # page_update ran but found nothing to update — WARN
-                warnings_list = getattr(verify, "_warnings", None)
-                print(
-                    f"  Check 7: WARN — {removed_count} removed claims but pages_updated=0 "
-                    f"(page_update ran; confirm via page_decisions.json before committing)"
+                # page_update ran but found nothing to update. RPR-F-01: this is the
+                # "ran-and-did-nothing" branch — BLOCKING by default (was WARN-only,
+                # the exact hole the PDF-NET-REFRESH-001 refresh slipped through).
+                msg = (
+                    f"Check 7: {removed_count} removed claims but pages_updated=0 "
+                    f"(page_update ran and changed nothing; confirm via page_decisions.json). "
+                    f"Pass --allow-warn only after manually confirming this is benign."
                 )
+                if allow_warn:
+                    print(f"  Check 7: WARN (--allow-warn) — {msg}")
+                else:
+                    failures.append(msg)
+                    print(f"  Check 7: FAIL (RPR-F-01) — {msg}")
             else:
                 print("  Check 7: PASS — completeness guard")
         except Exception:
@@ -941,12 +983,20 @@ def verify(family: str, platform: str) -> tuple[bool, list[str]]:
     pages_updated_c8 = progress_data_c8.get("pages_updated", [])
 
     if files_with_body_diff_c8 > 0 and len(pages_updated_c8) == 0:
-        print(
-            f"  Check 8: WARN (Case A) — execution_reconciliation shows "
+        # RPR-F-01: the literal tracking gap — real body diffs exist but progress.json
+        # records none. This is the exact PDF-NET-REFRESH-001 v26.7.0 on-disk state
+        # (files_with_body_diff=36, pages_updated=[]). BLOCKING by default (was WARN).
+        msg = (
+            f"Check 8 (Case A): execution_reconciliation shows "
             f"{files_with_body_diff_c8} file(s) with body diff but progress.json "
-            f"pages_updated=[]. S-20 may have run without --updated tracking. "
-            f"Verify page_decisions.json covers updated files before committing."
+            f"pages_updated=[] — the tracking gap. page_decisions.json must cover the "
+            f"updated files. Pass --allow-warn only after manual confirmation."
         )
+        if allow_warn:
+            print(f"  Check 8: WARN (Case A, --allow-warn) — {msg}")
+        else:
+            failures.append(msg)
+            print(f"  Check 8: FAIL (Case A, RPR-F-01) — {msg}")
     else:
         if files_with_body_diff_c8 == 0 and recon_path_c8.is_file():
             print("  Check 8 Case A: PASS — no untracked body-diff files")
@@ -964,11 +1014,18 @@ def verify(family: str, platform: str) -> tuple[bool, list[str]]:
             hits = prose_data.get("hits", [])
             hit_count = len(hits)
             if hit_count > 0:
-                print(
-                    f"  Check 8: WARN (Case B) — {hit_count} stale prose reference(s) "
-                    f"found for removed APIs in {prose_stale_path.name}. "
-                    f"Run remediation (e.g. /page-update or /heal-page) to clear stale prose."
+                # RPR-F-01: stale prose referencing removed APIs is a real content
+                # defect. BLOCKING by default (was WARN).
+                msg = (
+                    f"Check 8 (Case B): {hit_count} stale prose reference(s) to removed "
+                    f"APIs in {prose_stale_path.name}. Run remediation (/page-update or "
+                    f"/heal-page) to clear stale prose. Pass --allow-warn only after review."
                 )
+                if allow_warn:
+                    print(f"  Check 8: WARN (Case B, --allow-warn) — {msg}")
+                else:
+                    failures.append(msg)
+                    print(f"  Check 8: FAIL (Case B, RPR-F-01) — {msg}")
             else:
                 print("  Check 8 Case B: PASS — prose stale scan has 0 hits")
         except Exception:
@@ -983,6 +1040,110 @@ def verify(family: str, platform: str) -> tuple[bool, list[str]]:
         print(f"  Check 6: FAIL — coverage completeness: {check6_failures[0] if check6_failures else '?'}")
     else:
         print("  Check 6: PASS — page_decisions.json covers all discovered pages")
+
+    # Check 9 (RPR-F-03, S-111): Layer 2 body-prose triage confirmation.
+    # Prior to RPR-F-03, triage_confirm.py/reconcile_triage.py had no CLI at all —
+    # the S-92 skill's documented invocation, run literally as written, executed the
+    # module top-to-bottom and no-op'd (defined functions, touched no files, exited 0)
+    # with no signal to the caller. This is the first real, blocking wiring of that
+    # scan into --verify. Non-zero exit from the real triage_confirm CLI blocks commit.
+    triage_confirm_script = REPO_ROOT / "scripts" / "pipeline" / "lib" / "triage_confirm.py"
+    if triage_confirm_script.is_file():
+        try:
+            _run = _cfg_subprocess_run if _cfg_subprocess_run is not None else subprocess.run
+            result = _run(
+                [sys.executable, str(triage_confirm_script), family, platform, "--json"],
+                capture_output=True,
+                text=True,
+                timeout=120,
+                cwd=str(REPO_ROOT),
+            )
+            if result.returncode == 2:
+                # Knowledge artifacts absent — treat as non-blocking SKIP, not FAIL,
+                # consistent with Check 8's SKIP-when-absent behavior elsewhere in
+                # this function; a product with no knowledge bootstrap yet has
+                # nothing for triage_confirm to meaningfully check.
+                print(f"  Check 9: SKIP — triage_confirm.py exit 2 (knowledge artifacts absent for {family}/{platform})")
+            elif result.returncode == 1:
+                try:
+                    report = json.loads(result.stdout)
+                    stale_count = report.get("stale_count", 0)
+                except json.JSONDecodeError:
+                    stale_count = "?"
+                failures.append(
+                    f"Check 9: triage_confirm reports {stale_count} stale page(s) "
+                    f"(Layer 2 body-prose scan) — re-run the relevant content update "
+                    f"step before committing."
+                )
+            elif result.returncode == 0:
+                print("  Check 9: PASS — triage_confirm Layer 2 scan found 0 stale pages")
+            else:
+                failures.append(f"Check 9: triage_confirm.py failed unexpectedly (exit {result.returncode})")
+        except subprocess.TimeoutExpired:
+            failures.append("Check 9: triage_confirm.py timed out")
+        except Exception as exc:
+            failures.append(f"Check 9: could not run triage_confirm.py: {exc}")
+    else:
+        print(f"  Check 9: SKIP — triage_confirm.py not found at {triage_confirm_script}")
+
+    # Check 10 (RPR-F-04): frontmatter-only-refresh grade regressions. For each page
+    # this refresh recorded as updated, compare its working-tree content against HEAD;
+    # a page whose BODY is byte-identical but whose evidence bumped AND grade regressed
+    # is the PDF-NET-REFRESH-001 v26.7.0 defect. BLOCKING (best-effort: SKIP if not a
+    # git repo / no updated pages). Wires the previously-orphaned audit_content_hash.py.
+    try:
+        progress_c10 = _load_progress(family, platform)
+        pages_c10 = list(progress_c10.get("pages_updated", [])) + list(progress_c10.get("pages_generated", []))
+        if pages_c10:
+            if _cfg_detect_grade_regressions is not None:
+                _detect_gr = _cfg_detect_grade_regressions
+            else:
+                from commands.content.audit_content_hash import detect_evidence_only_grade_regressions as _detect_gr
+            fm_regressions = _detect_gr(pages_c10, base_ref="HEAD")
+            if fm_regressions:
+                for v in fm_regressions[:5]:
+                    failures.append(
+                        f"Check 10: frontmatter-only grade regression on {v['path']} "
+                        f"({v['grade_before']}->{v['grade_after']}; body unchanged, evidence bumped)"
+                    )
+                print(f"  Check 10: FAIL (RPR-F-04) — {len(fm_regressions)} frontmatter-only grade regression(s)")
+            else:
+                print("  Check 10: PASS — no frontmatter-only grade regressions among updated pages")
+        else:
+            print("  Check 10: SKIP — no updated pages recorded in progress.json")
+    except Exception as exc:
+        print(f"  Check 10: SKIP — could not run frontmatter-only detection ({exc})")
+
+    # Check 11 (RPR-F-05): SEO stability. For each page this refresh recorded as
+    # updated, compare title/H1/slug/canonical against HEAD. Any change not declared
+    # in the run manifest's `intentional_renames` allowlist is a blocking violation —
+    # the first SEO-specific gate in the pipeline. BLOCKING (best-effort: SKIP if not
+    # a git repo / no updated pages).
+    try:
+        progress_c11 = _load_progress(family, platform)
+        pages_c11 = list(progress_c11.get("pages_updated", []))
+        if pages_c11:
+            if _cfg_detect_seo_violations is not None:
+                _detect_seo = _cfg_detect_seo_violations
+            else:
+                from commands.content.seo_stability_check import detect_seo_violations as _detect_seo
+            intentional = _load_intentional_renames(family, platform)
+            seo_violations = _detect_seo(
+                pages_c11, base_ref="HEAD", intentional_renames=intentional
+            )
+            if seo_violations:
+                for v in seo_violations[:5]:
+                    failures.append(
+                        f"Check 11: undeclared SEO change on {v['page']} "
+                        f"({v['changed_fields']}; declare in manifest.intentional_renames if intended)"
+                    )
+                print(f"  Check 11: FAIL (RPR-F-05) — {len(seo_violations)} undeclared SEO change(s)")
+            else:
+                print("  Check 11: PASS — no undeclared title/H1/slug/canonical changes")
+        else:
+            print("  Check 11: SKIP — no updated pages recorded in progress.json")
+    except Exception as exc:
+        print(f"  Check 11: SKIP — could not run SEO stability detection ({exc})")
 
     passed = len(failures) == 0
     return passed, failures
@@ -1017,6 +1178,11 @@ def main(argv: list[str] | None = None) -> int:
                       help="Write execution_reconciliation.json, bypassing the content-steps precondition guard (diagnostic/test use only)")
     mode.add_argument("--assert-no-skipped", action="store_true",
                       help="(TC-14) Assert that pages_add_skipped == 0 in execution_reconciliation.json; exits 2 on violation")
+
+    parser.add_argument("--allow-warn", action="store_true",
+                        help="(RPR-F-01) Demote Check 7 'ran-and-did-nothing' and Check 8 tracking-gap/"
+                             "stale-prose findings back to WARN instead of BLOCK. Opt-out only — use "
+                             "solely after manually confirming the flagged condition is benign.")
 
     args = parser.parse_args(argv)
 
@@ -1078,7 +1244,7 @@ def main(argv: list[str] | None = None) -> int:
         except Exception:
             pass  # prereqs is best-effort; verify() has its own checks
         print(f"Running post-refresh verification for {args.family}/{args.platform}...")
-        passed, failures = verify(args.family, args.platform)
+        passed, failures = verify(args.family, args.platform, allow_warn=getattr(args, "allow_warn", False))
         if passed:
             print("VERIFICATION PASSED: all checks clean.")
             return 0

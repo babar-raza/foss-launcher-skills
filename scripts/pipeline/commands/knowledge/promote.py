@@ -754,6 +754,21 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
 
     merged_dir.mkdir(parents=True, exist_ok=True)
 
+    # RPR-C-02: capture the OLD repo_sha (if any) BEFORE this function's later
+    # full-dict rewrite of model.yaml destroys it. Prior to this fix, that prior
+    # value was unrecoverable after promote() ran -- model.yaml.repo_sha is a
+    # single scalar, always fully overwritten, with no history retained anywhere
+    # (confirmed empirically pre-fix: knowledge/3d/net/merged/model.yaml had no
+    # previous_repo_sha key despite refresh_knowledge.py's intent to write one).
+    _prior_repo_sha_for_ledger: str | None = None
+    _existing_model_path = merged_dir / "model.yaml"
+    if _existing_model_path.exists():
+        try:
+            _existing_model = yaml.safe_load(_existing_model_path.read_text(encoding="utf-8")) or {}
+            _prior_repo_sha_for_ledger = _existing_model.get("repo_sha") or None
+        except Exception:
+            _prior_repo_sha_for_ledger = None  # corrupt/unreadable prior model.yaml; ledger will record prior=null, not fabricate a value
+
     # Load scout data
     # FIX-12: claims.json may be a flat list (legacy) or a wrapper dict with
     # {source_sha, claims: [...]}.  Accept both.
@@ -1142,6 +1157,32 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
         yaml.dump(merged_model, default_flow_style=False, sort_keys=False),
         encoding="utf-8",
     )
+
+    # RPR-C-02: record this promotion in the append-only baseline ledger, using
+    # the prior_repo_sha captured before the write above destroyed it. This
+    # entry is intentionally recorded as "accepted" here (promote() succeeding
+    # to this point is treated as the acceptance event) even though a handful
+    # of non-critical steps remain below (api_surface.md, merge_report.md,
+    # snippet promotion) -- full transactional rollback across the whole
+    # promote() function is out of scope for this fix; the property this fix
+    # guarantees is that repo_sha HISTORY is never silently lost, which held
+    # with zero exceptions before this change (a single scalar, always fully
+    # overwritten). A ledger write failure here is logged but does not fail
+    # promote() itself -- knowledge promotion succeeding must not become
+    # contingent on ledger-write availability.
+    try:
+        from lib.baseline_ledger import BaselineLedger
+        _ledger = BaselineLedger(family, platform, merged_dir=merged_dir)
+        _ledger.append(
+            new_repo_sha=merged_model.get("repo_sha", ""),
+            sha_source="scout",
+            run_id=f"promote-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}",
+            status="accepted",
+            accepted_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            prior_repo_sha=_prior_repo_sha_for_ledger,
+        )
+    except Exception as _ledger_exc:
+        print(f"WARNING: baseline_ledger append failed (non-fatal): {_ledger_exc}")
 
     # -----------------------------------------------------------------------
     # api_surface.md
