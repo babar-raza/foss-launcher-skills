@@ -2,7 +2,7 @@
 
 Status: Current
 Audience: Agent, Operator
-Last verified: 2026-06-10
+Last verified: 2026-07-16 (full skill-ID audit against docs/registries/skills.md — 8 stale mappings corrected; see aspose-org-foss-refresh-tidy-lightning.md RPR-A-04)
 
 ## Summary
 
@@ -18,7 +18,7 @@ See AGENTS.md §6a for the full DAR governance rules.
 |---|---|---|
 | `/batch-eval-fix` (S-41) | `/knowledge-bootstrap` | Knowledge artifacts must exist before evaluation |
 | `/batch-reference` (S-62) | `/knowledge-bootstrap` | Requires api_surface.json for page generation |
-| `/batch-remediate` (S-26) | `/knowledge-bootstrap` | Requires knowledge for remediation grounding |
+| `/batch-remediate` (S-40) | `/knowledge-bootstrap` | Requires knowledge for remediation grounding |
 | `/change-guard` | `/knowledge-bootstrap` | Requires knowledge to assess change impact |
 | `/content-audit` (S-32) | `/knowledge-bootstrap` | Requires knowledge for semantic verification |
 | `/content-check` (S-23) | `/knowledge-bootstrap` | Requires knowledge for accuracy audit |
@@ -26,8 +26,8 @@ See AGENTS.md §6a for the full DAR governance rules.
 | `/family-sync` (S-48) | `/knowledge-bootstrap` | Requires knowledge to sync family page |
 | `/faq-generate` (S-22) | `/knowledge-bootstrap` | Requires knowledge for FAQ grounding |
 | `/gap-apply` (S-46) | `/knowledge-bootstrap` | Requires knowledge for fix spec execution |
-| `/heal-page` (S-20) | `/knowledge-bootstrap` | Requires knowledge for page healing |
-| `/new-blog-post` (S-55) | `/knowledge-bootstrap` | Requires knowledge for blog content grounding |
+| `/heal-page` (S-26) | `/knowledge-bootstrap` | Requires knowledge for page healing |
+| `/new-blog-post` (S-57) | `/knowledge-bootstrap` | Requires knowledge for blog content grounding |
 | `/new-docs-index` (S-70) | `/knowledge-bootstrap` | Requires knowledge for docs index scaffold |
 | `/new-docs-page` (S-56) | `/knowledge-bootstrap` | Requires knowledge for docs page grounding |
 | `/new-kb-faq` (S-59) | `/knowledge-bootstrap` | Requires knowledge for KB FAQ generation |
@@ -35,14 +35,14 @@ See AGENTS.md §6a for the full DAR governance rules.
 | `/new-kb-index` (S-69) | `/knowledge-bootstrap` | Requires knowledge for KB index scaffold |
 | `/new-products-page` (S-61) | `/knowledge-bootstrap` | Requires knowledge for products page generation |
 | `/new-reference-index` (S-71) | `/knowledge-bootstrap` | Requires knowledge for reference index scaffold |
-| `/new-reference-page` (S-57) | `/knowledge-bootstrap` | Requires knowledge for reference page generation |
+| `/new-reference-page` (S-60) | `/knowledge-bootstrap` | Requires knowledge for reference page generation |
 | `/page-draft` (S-19) | `/knowledge-bootstrap` | Requires knowledge for draft grounding |
 | `/page-plan` (S-18) | `/knowledge-bootstrap` | Requires knowledge for page planning |
 | `/publish-readiness-review` (S-90) | `/knowledge-bootstrap` | Requires knowledge for publish verification |
-| `/refresh-product` (S-80) | `/knowledge-bootstrap` | Requires knowledge for product refresh |
-| `/register-human-content` (S-92) | `/knowledge-bootstrap` | Requires knowledge for evidence attachment |
-| `/site-plan` (S-17) | `/knowledge-bootstrap` | Requires knowledge for site planning |
-| `/system-heal` (S-30) | `/knowledge-bootstrap` | Requires knowledge for system healing |
+| `/refresh-product` (S-84) | `/knowledge-bootstrap` | Requires knowledge for product refresh |
+| `/register-human-content` (S-66) | `/knowledge-bootstrap` | Requires knowledge for evidence attachment |
+| `/site-plan` (S-47) | `/knowledge-bootstrap` | Requires knowledge for site planning |
+| `/system-heal` (S-87) | `/knowledge-bootstrap` | Requires knowledge for system healing |
 | `/truth-audit-content` (S-85) | `/knowledge-bootstrap` | Requires knowledge for truth audit |
 
 ## Exceptions

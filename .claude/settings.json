@@ -61,7 +61,8 @@
       "Bash(PYTHONPATH=\"scripts/pipeline;scripts/pipeline/lib\" .venv/Scripts/python scripts/pipeline/commands/ops/semantic_refresh_guard.py pdf java --source-delta reports/refresh_review/pdf/java/semantic_source_delta.json --page-decisions reports/refresh_review/pdf/java/page_decisions.json --out /tmp/guard_pdf_java_current.json)",
       "Bash(hugo --config configs/reference.aspose.org.toml --renderToMemory --logLevel warn)",
       "WebFetch(domain:products.aspose.org)",
-      "Bash(gh run view 29098377327 --repo Aspose/aspose.org-workflows)"
+      "Bash(gh run view 29098377327 --repo Aspose/aspose.org-workflows)",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/override_manager.py create --paths scripts/pipeline/evidence/writer.py scripts/pipeline/evidence/runner.py scripts/pipeline/tests/test_evidence_writer.py scripts/pipeline/tests/test_attach_evidence_behavior.py scripts/pipeline/content_eval/evaluators/dead_internal_link.py scripts/pipeline/tests/content_eval/test_dead_internal_link.py --reason 'Fix G-16 \\(evidence writer BOM/double-frontmatter corruption + claim-ID leak\\) and G-18 \\(dead_internal_link false positive on Hugo leaf-bundle sibling links\\), both discovered via the pdf/net v26.7.0 pilot rerun; root causes confirmed via code reading, fixes validated by an independent plan review' --plan staged-discovering-pony)"
     ],
     "additionalDirectories": [
       "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing",

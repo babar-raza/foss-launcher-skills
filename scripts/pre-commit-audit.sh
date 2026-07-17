@@ -916,7 +916,7 @@ _pc_step_start "evidence churn"
 # Override: commit message annotation `EVIDENCE-RESTAMP: approved by ...`.
 # ---------------------------------------------------------------------------
 if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_evidence_churn.py" ]; then
-    _ec_commit_msg="$(cat .git/COMMIT_EDITMSG 2>/dev/null || true)"
+    _ec_commit_msg="${EVIDENCE_RESTAMP_MSG:-$(cat .git/COMMIT_EDITMSG 2>/dev/null || true)}"
     _ec_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_evidence_churn.py --mode staged --commit-msg "$_ec_commit_msg" 2>&1)
     _ec_exit=$?
     if [ -n "$_ec_out" ]; then
