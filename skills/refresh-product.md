@@ -260,10 +260,22 @@ Do not run any subsequent steps. Exit 0.
     - **Check 11 (RPR-F-05)**: SEO stability — any undeclared title/H1/slug/canonical change on a
       refreshed page FAILS the gate unless declared in the run manifest's `intentional_renames`.
 
-    **Tri-state verdicts (RPR-J-00)**: Checks 7 and 8 now return one of three states, not a
-    binary PASS/FAIL. `--verify`'s exit codes: `0` = PASS, `1` = real FAIL (a content/tracking
-    defect), `3` = INCONCLUSIVE (one or more checks returned UNKNOWN — commit is still blocked,
-    but this is NOT a content defect and reports no fabricated count).
+    **Tri-state verdicts (RPR-J-00, broadened by RPR-J-06)**: every check in `--verify`
+    (Checks 1, 4, 5, 7, 8 Case B, 9, 10, 11) returns one of three states, not a binary
+    PASS/FAIL — a tool crashing, timing out, or an artifact failing to parse proves the
+    check couldn't run, never that the content is defective, so it routes to UNKNOWN, not
+    a fabricated FAIL. `--verify`'s exit codes: `0` = PASS, `1` = real FAIL (a
+    content/tracking defect), `3` = INCONCLUSIVE (one or more checks returned UNKNOWN —
+    commit is still blocked, but this is NOT a content defect and reports no fabricated
+    count).
+
+    **Tier-aware claim gating (RPR-J-07)**: Check 2 and `evidence_verifier.py` no longer
+    treat every unknown `evidence.claims` citation identically. A missing `CLM-*`
+    (deterministic scout/api_surface/formats) claim_id is a real, blocking signal — the
+    underlying API/format genuinely changed. A missing `ERC-*` (LLM-enriched) claim_id is
+    expected knowledge-rebuild churn (capability-mode enriched claims are still
+    content-hash-keyed even after RPR-J-16) and is reported, not blocked. See
+    `lib/knowledge_tiers.py`.
 
     **Git-founded, not bookkeeping (RPR-J-05)**: Checks 7 and 8 Case A no longer read
     `progress.json` / `execution_reconciliation.json` for their verdict — both are ephemeral,
