@@ -289,6 +289,160 @@ class TestAssignIds:
 
 
 # ---------------------------------------------------------------------------
+# _assign_ids — RPR-J-16 member-doc stable anchor IDs
+# ---------------------------------------------------------------------------
+
+class TestAssignIdsMemberDocAnchor:
+    """Member-doc claims must key off the ClassName.MemberName anchor, not
+    the exact wording, so citations survive a rebuild that rephrases the
+    same fact. Non-member-doc claims must be byte-for-byte unaffected."""
+
+    def test_reworded_member_doc_claim_keeps_same_id(self):
+        """The literal citation-durability guarantee: two runs with
+        different wording for the same member must resolve to the same
+        claim_id."""
+        claim_run1 = {
+            "text": "Workbook.Save writes the workbook to the given path.",
+            "kind": "api", "claim_source": "llm_member_doc",
+        }
+        claim_run2 = {
+            "text": "Workbook.Save persists the current workbook contents to disk.",
+            "kind": "api", "claim_source": "llm_member_doc",
+        }
+        r1 = _assign_ids([claim_run1], "cells", "python")
+        r2 = _assign_ids([claim_run2], "cells", "python")
+        assert r1[0]["claim_id"] == r2[0]["claim_id"]
+
+    def test_different_member_gets_different_id(self):
+        claim_a = {"text": "Workbook.Save writes the file.", "kind": "api",
+                   "claim_source": "llm_member_doc"}
+        claim_b = {"text": "Workbook.Load reads the file.", "kind": "api",
+                   "claim_source": "llm_member_doc"}
+        result = _assign_ids([claim_a, claim_b], "cells", "python")
+        assert result[0]["claim_id"] != result[1]["claim_id"]
+
+    def test_different_class_same_member_name_gets_different_id(self):
+        claim_a = {"text": "Workbook.Save writes the file.", "kind": "api",
+                   "claim_source": "llm_member_doc"}
+        claim_b = {"text": "Chart.Save writes the chart.", "kind": "api",
+                   "claim_source": "llm_member_doc"}
+        result = _assign_ids([claim_a, claim_b], "cells", "python")
+        assert result[0]["claim_id"] != result[1]["claim_id"]
+
+    def test_anchor_id_matches_direct_hash_computation(self):
+        import hashlib
+        claim = {"text": "Workbook.Save writes the file.", "kind": "api",
+                 "claim_source": "llm_member_doc"}
+        result = _assign_ids([claim], "cells", "python")
+        expected = "ERC-cells-python-" + hashlib.sha256(
+            ("Workbook.Save" + "|" + "api").encode()
+        ).hexdigest()[:8]
+        assert result[0]["claim_id"] == expected
+
+    def test_malformed_prefix_falls_back_to_text_hash(self):
+        """A member-doc claim whose text doesn't start with a parseable
+        ClassName.MemberName prefix must not crash — it falls back to the
+        prior text+kind hash scheme."""
+        import hashlib
+        claim = {"text": "This description forgot the required prefix.",
+                 "kind": "api", "claim_source": "llm_member_doc"}
+        result = _assign_ids([claim], "cells", "python")
+        expected = "ERC-cells-python-" + hashlib.sha256(
+            ("This description forgot the required prefix." + "|" + "api").encode()
+        ).hexdigest()[:8]
+        assert result[0]["claim_id"] == expected
+
+    def test_non_member_doc_claim_unaffected_even_with_dotted_text(self):
+        """A capability-mode claim (no claim_source, or a different one)
+        must keep the old text+kind scheme even if its text happens to look
+        like a ClassName.Member prefix — the field, not a text pattern,
+        gates the new behavior."""
+        import hashlib
+        claim = {"text": "Workbook.Save is one of several export methods.",
+                 "kind": "api"}
+        result = _assign_ids([claim], "cells", "python")
+        expected = "ERC-cells-python-" + hashlib.sha256(
+            ("Workbook.Save is one of several export methods." + "|" + "api").encode()
+        ).hexdigest()[:8]
+        assert result[0]["claim_id"] == expected
+
+    def test_same_run_anchor_collision_keeps_both_no_data_loss(self):
+        """Overloaded members (multiple constructors, Save(path) vs
+        Save(stream)) are common in the real corpus (815/18969 measured,
+        ~4.3%) — two distinct claims sharing one anchor must NOT collide
+        into a duplicate claim_id (promote.py hard-fails the whole write on
+        a duplicate ERC-* id) but must also never be silently dropped: one
+        wins the stable anchor id, the other falls back to its own
+        text+kind hash, and both survive."""
+        import hashlib
+        claim_a = {"text": "Workbook.Save writes the file to disk.",
+                   "kind": "api", "claim_source": "llm_member_doc"}
+        claim_b = {"text": "Workbook.Save persists workbook contents.",
+                   "kind": "api", "claim_source": "llm_member_doc"}
+        result = _assign_ids([claim_a, claim_b], "cells", "python")
+        assert len(result) == 2
+        ids = {c["claim_id"] for c in result}
+        assert len(ids) == 2, "both overload claims must survive with distinct IDs"
+
+        anchor_id = "ERC-cells-python-" + hashlib.sha256(
+            ("Workbook.Save" + "|" + "api").encode()
+        ).hexdigest()[:8]
+        # Deterministic tie-break: the alphabetically-first text wins the anchor.
+        winner_text = min(claim_a["text"], claim_b["text"])
+        winner = next(c for c in result if c["text"] == winner_text)
+        loser = next(c for c in result if c["text"] != winner_text)
+        assert winner["claim_id"] == anchor_id
+        loser_expected = "ERC-cells-python-" + hashlib.sha256(
+            (loser["text"] + "|" + "api").encode()
+        ).hexdigest()[:8]
+        assert loser["claim_id"] == loser_expected
+
+    def test_anchor_winner_deterministic_regardless_of_input_order(self):
+        """The choice of which overload claim wins the stable anchor ID must
+        not depend on the order the LLM happened to return them in."""
+        claim_a = {"text": "Workbook.Save writes the file to disk.",
+                   "kind": "api", "claim_source": "llm_member_doc"}
+        claim_b = {"text": "Workbook.Save persists workbook contents.",
+                   "kind": "api", "claim_source": "llm_member_doc"}
+        r1 = _assign_ids([claim_a, claim_b], "cells", "python")
+        r2 = _assign_ids([claim_b, claim_a], "cells", "python")
+        ids1 = {c["text"]: c["claim_id"] for c in r1}
+        ids2 = {c["text"]: c["claim_id"] for c in r2}
+        assert ids1 == ids2
+
+    def test_three_way_overload_collision_no_data_loss(self):
+        """Three overloads of the same member (observed in the real corpus,
+        e.g. Cylinder.Cylinder x4, Vector4.Vector4 x5) must all survive with
+        distinct IDs, exactly one of which is the stable anchor ID."""
+        import hashlib
+        claims = [
+            {"text": f"Matrix4.Matrix4 constructs a matrix variant {i}.",
+             "kind": "api", "claim_source": "llm_member_doc"}
+            for i in range(3)
+        ]
+        result = _assign_ids(claims, "3d", "java")
+        ids = [c["claim_id"] for c in result]
+        assert len(result) == 3
+        assert len(set(ids)) == 3
+        anchor_id = "ERC-3d-java-" + hashlib.sha256(
+            ("Matrix4.Matrix4" + "|" + "api").encode()
+        ).hexdigest()[:8]
+        assert sum(1 for i in ids if i == anchor_id) == 1
+
+    def test_malformed_prefix_claims_do_not_collide_with_real_anchor_claims(self):
+        """Two distinct malformed-prefix claims still use the full-text hash
+        (effectively unique per distinct wording) and must not be conflated
+        with the anchor-based collision guard, which only tracks anchor ids."""
+        claim_a = {"text": "no prefix here at all, variant one",
+                   "kind": "api", "claim_source": "llm_member_doc"}
+        claim_b = {"text": "no prefix here at all, variant two",
+                   "kind": "api", "claim_source": "llm_member_doc"}
+        result = _assign_ids([claim_a, claim_b], "cells", "python")
+        assert len(result) == 2
+        assert result[0]["claim_id"] != result[1]["claim_id"]
+
+
+# ---------------------------------------------------------------------------
 # enrich() with no_llm=True — integration smoke test
 # ---------------------------------------------------------------------------
 

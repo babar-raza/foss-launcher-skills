@@ -45,6 +45,8 @@ if str(_PIPELINE_ROOT) not in sys.path:
 from core.env_loader import load_env  # noqa: E402
 load_env()
 
+from lib.knowledge_tiers import is_tier2_claim_id  # noqa: E402
+
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 _DEFAULT_HERE = Path(__file__).resolve().parents[2]  # commands/ops/ -> commands/ -> pipeline/
 
@@ -52,10 +54,12 @@ REPO_ROOT = _DEFAULT_REPO_ROOT
 KNOWLEDGE_ROOT = REPO_ROOT / "knowledge"
 CONTENT_ROOT = REPO_ROOT / "content"
 REPORTS_ROOT = REPO_ROOT / "reports" / "refresh_state"
+_REVIEW_ROOT = REPO_ROOT / "reports" / "refresh_review"
 
 _cfg_subprocess_run = None           # None → use subprocess.run directly
 _cfg_detect_grade_regressions = None  # None → import from audit_content_hash
 _cfg_detect_seo_violations = None    # None → import from seo_stability_check
+_cfg_git_body_changed = None         # None → real git-founded check (RPR-J-05)
 
 
 def configure(
@@ -68,6 +72,7 @@ def configure(
     subprocess_run=None,
     detect_grade_regressions=None,
     detect_seo_violations=None,
+    git_body_changed=None,
 ) -> None:
     """Reconfigure module-level paths for testing or alternative layouts.
 
@@ -75,17 +80,20 @@ def configure(
     Tests call ``post_refresh_verify.configure(repo_root=tmp_path, ...)``
     in a yield-based fixture and reset with ``configure()`` at teardown.
     """
-    global REPO_ROOT, KNOWLEDGE_ROOT, CONTENT_ROOT, REPORTS_ROOT, _HERE
+    global REPO_ROOT, KNOWLEDGE_ROOT, CONTENT_ROOT, REPORTS_ROOT, _REVIEW_ROOT, _HERE
     global _cfg_subprocess_run, _cfg_detect_grade_regressions, _cfg_detect_seo_violations
+    global _cfg_git_body_changed
     _root = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
     REPO_ROOT = _root
     KNOWLEDGE_ROOT = Path(knowledge_root) if knowledge_root is not None else _root / "knowledge"
     CONTENT_ROOT = Path(content_root) if content_root is not None else _root / "content"
     REPORTS_ROOT = Path(reports_root) if reports_root is not None else _root / "reports" / "refresh_state"
+    _REVIEW_ROOT = _root / "reports" / "refresh_review"
     _HERE = Path(here) if here is not None else _DEFAULT_HERE
     _cfg_subprocess_run = subprocess_run
     _cfg_detect_grade_regressions = detect_grade_regressions
     _cfg_detect_seo_violations = detect_seo_violations
+    _cfg_git_body_changed = git_body_changed
 
 
 _SITE_PATTERNS = (
@@ -115,51 +123,95 @@ def _load_progress(family: str, platform: str) -> dict:
     return {"family": family, "platform": platform, "steps": [], "pages_updated": [], "pages_generated": []}
 
 
-def _pages_updated_state(family: str, platform: str) -> tuple:
-    """Classify progress.json's pages_updated recording (RPR-J-00, fixes SW-6/SW-7).
+def _git_body_changed_pages(family: str, platform: str, base_ref: str = "HEAD") -> "dict | None":
+    """RPR-J-05: the durable, git-founded replacement for Checks 7/8's old
+    bookkeeping-derived "did pages really change" question.
 
-    Returns one of:
-      ("present", count)  — current-schema progress.json with a pages_updated list
-      ("old_schema", None)— progress.json exists but has NO pages_updated key (a real
-                            pre-2026-07 schema, e.g. cells/java 2026-06-28). "Absent key"
-                            is NOT "zero updates" — the distinction that stops a false BLOCK.
-      ("absent", None)    — no/unreadable progress.json (fresh clone, CI)
+    Compares every discovered page's working-tree body against base_ref using
+    the exact primitive audit_content_hash.py already exports for F-04/F-05
+    (git show + normalized body hash) — no new git-diffing mechanism, per
+    plan §19.3/§19.5. progress.json / execution_reconciliation.json are not
+    consulted here; they remain resume hints elsewhere in this file, never a
+    verdict input for this function.
 
-    Callers must treat old_schema/absent as UNKNOWN, never default the count to 0.
+    Returns None when nothing can be verified from git — no pages discovered,
+    or every discovered page is new at base_ref (no prior version to diff),
+    or audit_content_hash is unimportable. Callers must treat None as
+    UNKNOWN, never as "changed=0". Otherwise returns:
+        {"total": N, "changed": M, "changed_paths": {rel_path, ...},
+         "unchanged_paths": {rel_path, ...}}
+    where N is the count of pages that existed at base_ref and were
+    comparable; changed_paths/unchanged_paths partition that N (a page
+    outside both sets is new at base_ref — unverifiable, not "unchanged").
+    Consumers cross-checking a specific page's claimed disposition (e.g.
+    page_decisions.json's BODY_UPDATED) must use this partition, not just
+    "changed==0", to avoid flagging a legitimately new page as mislabeled.
     """
-    p = _progress_path(family, platform)
-    if not p.is_file():
-        return ("absent", None)
-    try:
-        data = json.loads(p.read_text(encoding="utf-8"))
-    except Exception:
-        return ("absent", None)
-    if "pages_updated" not in data:
-        return ("old_schema", None)
-    return ("present", len(data.get("pages_updated") or []))
+    if _cfg_git_body_changed is not None:
+        return _cfg_git_body_changed(family, platform, base_ref)
 
-
-def _recon_body_change_view(family: str, platform: str) -> "dict | None":
-    """Return the reconciliation's OWN internal view, or None if absent/unreadable.
-
-    Keys: files_with_body_diff, executed_pages_updated, files_metadata_only. Used to
-    judge a refresh by whether reconciliation is *self-consistent* (RPR-J-00) rather than
-    by whether two independent ephemeral files (recon vs progress.json) happen to agree.
-    """
-    recon_path = REPORTS_ROOT / family / platform / "execution_reconciliation.json"
-    if not recon_path.is_file():
+    discovered = _discover_content_files(family, platform)
+    if not discovered:
         return None
     try:
-        recon = json.loads(recon_path.read_text(encoding="utf-8"))
-    except Exception:
+        from commands.content.audit_content_hash import _git_show, _body_hash
+    except ImportError:
         return None
-    body = recon.get("body_changes", {}) or {}
-    executed = recon.get("executed", {}) or {}
+
+    changed_paths: set = set()
+    unchanged_paths: set = set()
+    for f in discovered:
+        try:
+            rel = str(f.relative_to(REPO_ROOT)).replace("\\", "/")
+        except ValueError:
+            rel = str(f).replace("\\", "/")
+        old = _git_show(base_ref, rel)
+        if old is None:
+            continue  # no version at base_ref (new page) — not a body-change signal
+        try:
+            new = f.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        if _body_hash(old) != _body_hash(new):
+            changed_paths.add(rel)
+        else:
+            unchanged_paths.add(rel)
+
+    checked = len(changed_paths) + len(unchanged_paths)
+    if checked == 0:
+        return None
     return {
-        "files_with_body_diff": body.get("files_with_body_diff", 0),
-        "files_metadata_only": body.get("files_metadata_only", 0),
-        "executed_pages_updated": executed.get("pages_updated", 0),
+        "total": checked,
+        "changed": len(changed_paths),
+        "changed_paths": changed_paths,
+        "unchanged_paths": unchanged_paths,
     }
+
+
+def _load_base_commit_sha(family: str, platform: str) -> "str | None":
+    """RPR-J-17: best-effort read of `base_commit_sha` from the newest refresh-run
+    manifest (schema 5e) for this product. None if no manifest exists yet, or the
+    field is absent — callers fall back to "HEAD" (unchanged default behavior).
+
+    This is the fix for a real, confirmed limitation (plan §19.3): comparing a
+    product's content against "HEAD" is vacuous once its refresh has already been
+    committed — HEAD then *is* the post-refresh state, so every check built on
+    _git_body_changed_pages (and the identically-shaped F-04/F-05 checks) reports
+    zero diffs regardless of whether the refresh actually happened. base_commit_sha
+    is the pre-refresh HEAD, captured once before any commits land, so a caller can
+    verify against the state the refresh actually started from."""
+    manifest_dir = REPO_ROOT / "reports" / "refresh_runs" / family / platform
+    if not manifest_dir.is_dir():
+        return None
+    manifests = sorted(manifest_dir.glob("*.manifest.json"))
+    if not manifests:
+        return None
+    try:
+        data = json.loads(manifests[-1].read_text(encoding="utf-8"))
+        sha = data.get("base_commit_sha")
+        return sha if isinstance(sha, str) and sha.strip() else None
+    except Exception:
+        return None
 
 
 def _load_intentional_renames(family: str, platform: str) -> set:
@@ -438,8 +490,6 @@ def check_incorrectly_retired_pages(
 # ---------------------------------------------------------------------------
 
 import hashlib as _hashlib
-
-_REVIEW_ROOT = REPO_ROOT / "reports" / "refresh_review"
 
 
 def _body_hash(path: Path) -> str:
@@ -830,7 +880,8 @@ def check_coverage_completeness(
 
 
 def verify(family: str, platform: str, *, allow_warn: bool = False,
-           unknowns_out: "list | None" = None) -> tuple[bool, list[str]]:
+           unknowns_out: "list | None" = None,
+           base_ref: "str | None" = None) -> tuple[bool, list[str]]:
     """Run the post-refresh verification checklist.
 
     Returns (passed: bool, failures: list[str]).
@@ -849,9 +900,21 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
     NOT enter `failures` — so `passed` is not flipped by "I could not verify". A caller that
     must not ship an unverified refresh treats a non-empty unknowns list as commit-blocking
     (see main()'s exit code 3), which is different from a content defect (exit 1).
+
+    RPR-J-17: base_ref is the git ref every git-founded check (7, 8, 10, 11) diffs the
+    working tree against. When omitted (None), it resolves in priority order: an
+    explicit --base CLI flag > the newest refresh-run manifest's base_commit_sha >
+    "HEAD" (the original, unchanged default). Comparing against "HEAD" is only
+    meaningful for an in-progress, not-yet-committed refresh — once a refresh has
+    landed, HEAD *is* the post-refresh state, so a plain HEAD diff is vacuous
+    (confirmed against real pdf/net data, not merely theoretical). Pass an explicit
+    base_ref to verify an already-committed historical refresh against its true
+    pre-refresh baseline.
     """
     failures = []
     unknowns = unknowns_out if unknowns_out is not None else []
+    if base_ref is None:
+        base_ref = _load_base_commit_sha(family, platform) or "HEAD"
 
     merged = KNOWLEDGE_ROOT / family / platform / "merged"
 
@@ -867,7 +930,13 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
         except Exception as exc:
             failures.append(f"Could not read model.yaml: {exc}")
 
-    # Check 2: No content pages cite claim IDs absent from merged/claims.json
+    # Check 2 (RPR-J-07, tier-aware): No content pages cite claim IDs absent
+    # from merged/claims.json. A missing Tier-1 (CLM-*, scout/deterministic)
+    # claim_id is a real defect and still blocks. A missing Tier-2 (ERC-*,
+    # LLM-enriched) claim_id is expected enrichment churn -- capability-mode
+    # enriched claims are still content-hash-keyed (RPR-J-16 only stabilized
+    # the member-doc majority) and legitimately re-key across a knowledge
+    # rebuild -- so it is reported, not blocked.
     claims_path = merged / "claims.json"
     valid_claim_ids: set[str] = set()
     claims_list = _load_json_list(claims_path)
@@ -878,12 +947,19 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
     if valid_claim_ids or claims_path.is_file():
         content_files = _discover_content_files(family, platform)
         orphaned_pages = []
+        tier2_orphaned_pages = []
         for page in content_files:
             evidence = _get_page_evidence(page)
             cited_claims = evidence.get("claims") or []
-            orphaned = [cid for cid in cited_claims if cid not in valid_claim_ids]
-            if orphaned:
-                orphaned_pages.append((page, orphaned))
+            orphaned_all = [cid for cid in cited_claims if cid not in valid_claim_ids]
+            if not orphaned_all:
+                continue
+            tier1_orphaned = [cid for cid in orphaned_all if not is_tier2_claim_id(cid)]
+            tier2_orphaned = [cid for cid in orphaned_all if is_tier2_claim_id(cid)]
+            if tier1_orphaned:
+                orphaned_pages.append((page, tier1_orphaned))
+            if tier2_orphaned:
+                tier2_orphaned_pages.append((page, tier2_orphaned))
         if orphaned_pages:
             for page, orphaned in orphaned_pages[:5]:  # cap at 5 in message
                 try:
@@ -895,6 +971,10 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
                 )
             if len(orphaned_pages) > 5:
                 failures.append(f"... and {len(orphaned_pages) - 5} more pages with orphaned claims")
+        if tier2_orphaned_pages:
+            print(f"  Check 2: {sum(len(o) for _, o in tier2_orphaned_pages)} Tier-2/enriched "
+                  f"orphaned claim citation(s) across {len(tier2_orphaned_pages)} page(s) — "
+                  f"non-blocking (RPR-J-07), expected enrichment churn")
 
     # Check 3: No reference pages exist for classes absent from api_surface.json
     api_path = merged / "api_surface.json"
@@ -979,8 +1059,13 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
         except Exception as exc:
             failures.append(f"Could not read reconciliation artifact: {exc}")
 
-    # Check 7 (G-16): Completeness guard — if planned pages_to_update > 0 and
-    # page_update step never ran, FAIL rather than silently passing with 0 updates.
+    # Check 7 (G-16, re-founded RPR-J-05): Completeness guard — if the knowledge
+    # delta shows significant claim removal (>50) but git shows literally zero
+    # real body changes anywhere in this product's discovered pages, that's a
+    # genuine defect. Re-founded on a real git diff (reusing
+    # audit_content_hash.py's existing _git_show/_body_hash primitives, per
+    # plan §19.3/§19.5) instead of progress.json/execution_reconciliation.json
+    # bookkeeping — those files are no longer consulted for this verdict.
     claim_delta_path = KNOWLEDGE_ROOT / family / platform / "merged" / "knowledge_delta.json"
     if claim_delta_path.is_file():
         try:
@@ -989,97 +1074,90 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
             if removed_count <= 50:
                 print("  Check 7: PASS — completeness guard (removed_count <= 50)")
             else:
-                # RPR-J-00: distinguish "did nothing" (recording present + genuinely zero)
-                # from "cannot tell" (absent/old-schema recording, or reconciliation shows
-                # work WAS done and only progress.json disagrees). Only the first is a FAIL.
-                state, pages_updated_count = _pages_updated_state(family, platform)
-                recon_view = _recon_body_change_view(family, platform)
-                recon_shows_work = bool(recon_view) and (
-                    recon_view["executed_pages_updated"] > 0
-                    or recon_view["files_with_body_diff"] > 0
-                )
-                if state in ("absent", "old_schema"):
+                git_view = _git_body_changed_pages(family, platform, base_ref=base_ref)
+                if git_view is None:
                     msg = (
-                        f"Check 7: {removed_count} removed claims, but the page-update record is "
-                        f"{state} (no current-schema pages_updated) — cannot confirm whether "
-                        f"page_update ran. Not a defect; verify against git (RPR-J-05) or re-run "
-                        f"the refresh so a current-schema record exists."
+                        f"Check 7: {removed_count} removed claims, but git-founded body-diff "
+                        f"verification is unavailable (no comparable pages at HEAD, or not a "
+                        f"git repo) — cannot confirm whether page bodies actually changed."
                     )
                     unknowns.append(msg)
-                    print(f"  Check 7: UNKNOWN (RPR-J-00) — {msg}")
-                elif pages_updated_count == 0 and recon_shows_work:
-                    # progress.json says 0 but reconciliation records real body work — the two
-                    # ephemeral files disagree. Not a content defect; a bookkeeping desync.
+                    print(f"  Check 7: UNKNOWN (RPR-J-05) — {msg}")
+                elif git_view["changed"] > 0:
+                    print(f"  Check 7: PASS — {git_view['changed']} of {git_view['total']} "
+                          f"discovered pages have a real body diff vs HEAD")
+                else:
                     msg = (
-                        f"Check 7: progress.json pages_updated=0 but execution_reconciliation "
-                        f"records body work (executed={recon_view['executed_pages_updated']}, "
-                        f"body_diff={recon_view['files_with_body_diff']}). Bookkeeping desync, "
-                        f"not a tracking gap — verify against git (RPR-J-05)."
-                    )
-                    unknowns.append(msg)
-                    print(f"  Check 7: UNKNOWN (RPR-J-00) — {msg}")
-                elif pages_updated_count == 0:
-                    # Recording is present and current-schema AND reconciliation does not show
-                    # work either (or is absent). This is the genuine ran-and-did-nothing case.
-                    completed_steps = set(_load_progress(family, platform).get("steps", []))
-                    ran = "page_update" in completed_steps
-                    msg = (
-                        f"Check 7: {removed_count} removed claims but pages_updated=0 and "
-                        f"reconciliation shows no body work "
-                        f"({'page_update ran and changed nothing' if ran else 'page_update never ran'}). "
+                        f"Check 7: {removed_count} removed claims but git shows 0 of "
+                        f"{git_view['total']} discovered pages with a real body diff vs HEAD. "
                         f"Pass --allow-warn only after manually confirming this is benign."
                     )
                     if allow_warn:
                         print(f"  Check 7: WARN (--allow-warn) — {msg}")
                     else:
                         failures.append(msg)
-                        print(f"  Check 7: FAIL (RPR-F-01) — {msg}")
-                else:
-                    print(f"  Check 7: PASS — {pages_updated_count} pages updated")
+                        print(f"  Check 7: FAIL (RPR-J-05) — {msg}")
         except Exception:
             pass  # Non-blocking; delta file may not exist on first run
 
     # Check 8 (G-16): Tracking-gap and stale-prose detection.
-    # CASE A: execution_reconciliation.json shows files_with_body_diff > 0 but
-    #         progress.json pages_updated is empty — S-20 changed files but did not
-    #         register the paths via --updated CLI arg.  Tracking gap, not content failure.
+    # CASE A (re-founded RPR-J-05): cross-check page_decisions.json's own
+    #         BODY_UPDATED claims against git — a decision that claims a page's
+    #         body was updated, but which git shows as byte-identical to HEAD,
+    #         is the literal PDF-NET-REFRESH-001 tracking-gap shape, now caught
+    #         directly against the durable git record instead of comparing two
+    #         ephemeral bookkeeping files against each other. A page with no
+    #         version at HEAD (a genuinely new page) is unverifiable by this
+    #         method and is excluded, not flagged.
     # CASE B: prose_stale_scan report exists with hits — G-15 scan found stale prose
     #         references to removed APIs that have not yet been remediated.
-    # RPR-J-00: judge reconciliation by its OWN self-consistency, not by whether it agrees
-    # with the separate, independently-stale progress.json. The original check FAILed
-    # whenever recon.body_changes.files_with_body_diff > 0 while progress.json.pages_updated
-    # was empty — but recon ALSO records executed.pages_updated, and for a healthy refresh
-    # (pdf/net: executed=36, body_diff=36, metadata_only=0) that field confirms the work WAS
-    # tracked. Comparing two ephemeral files manufactured a false BLOCK on a clean refresh.
-    recon_view_c8 = _recon_body_change_view(family, platform)
-    if recon_view_c8 is None:
-        print("  Check 8 Case A: UNKNOWN — execution_reconciliation.json not present "
-              "(cannot verify tracking from bookkeeping; verify against git, RPR-J-05)")
-        unknowns.append("Check 8 (Case A): reconciliation artifact absent — tracking unverifiable")
+    git_view_c8 = _git_body_changed_pages(family, platform, base_ref=base_ref)
+    decisions_path_c8 = _REVIEW_ROOT / family / platform / "page_decisions.json"
+    if git_view_c8 is None:
+        print("  Check 8 Case A: UNKNOWN — git-founded body-diff verification unavailable "
+              "(no comparable pages at HEAD, or not a git repo)")
+        unknowns.append("Check 8 (Case A): git-founded verification unavailable")
+    elif not decisions_path_c8.is_file():
+        print("  Check 8 Case A: UNKNOWN — page_decisions.json not present "
+              "(nothing to cross-check against git)")
+        unknowns.append("Check 8 (Case A): page_decisions.json absent — tracking unverifiable")
     else:
-        body_diff = recon_view_c8["files_with_body_diff"]
-        exec_updated = recon_view_c8["executed_pages_updated"]
-        if body_diff == 0:
-            print("  Check 8 Case A: PASS — no body-diff files recorded")
-        elif exec_updated >= body_diff:
-            # Reconciliation is self-consistent: it recorded at least as many executed page
-            # updates as body diffs. The refresh tracked its work. (progress.json may lag —
-            # that is a bookkeeping desync, not a content tracking gap.)
-            print(f"  Check 8 Case A: PASS — reconciliation self-consistent "
-                  f"(executed={exec_updated} >= body_diff={body_diff})")
-        else:
-            # Reconciliation ITSELF shows a gap: more body diffs than it recorded as executed
-            # updates. This is a genuine tracking failure inside the durable-ish record.
-            msg = (
-                f"Check 8 (Case A): reconciliation shows {body_diff} body-diff file(s) but only "
-                f"{exec_updated} recorded as executed page updates — a real tracking gap within "
-                f"the reconciliation record. Pass --allow-warn only after manual confirmation."
-            )
-            if allow_warn:
-                print(f"  Check 8: WARN (Case A, --allow-warn) — {msg}")
+        try:
+            decisions_data = json.loads(decisions_path_c8.read_text(encoding="utf-8")) or {}
+            pages = decisions_data.get("pages", {}) or {}
+            body_updated_claims = [
+                p for p, entry in pages.items()
+                if isinstance(entry, dict) and entry.get("decision") == "BODY_UPDATED"
+            ]
+            # Only claims git can actually verify (excludes genuinely new pages,
+            # which have no version at base_ref to diff against).
+            verifiable = [
+                p for p in body_updated_claims
+                if p in git_view_c8["changed_paths"] or p in git_view_c8["unchanged_paths"]
+            ]
+            mislabeled = [p for p in verifiable if p in git_view_c8["unchanged_paths"]]
+            if not verifiable:
+                print("  Check 8 Case A: PASS — no verifiable BODY_UPDATED decisions "
+                      "(none recorded, or all are new pages with no HEAD version)")
+            elif not mislabeled:
+                print(f"  Check 8 Case A: PASS — all {len(verifiable)} verifiable "
+                      f"BODY_UPDATED decision(s) have a real git-diffable body change")
             else:
-                failures.append(msg)
-                print(f"  Check 8: FAIL (Case A, RPR-F-01) — {msg}")
+                msg = (
+                    f"Check 8 (Case A): {len(mislabeled)} of {len(verifiable)} page(s) recorded "
+                    f"as BODY_UPDATED show NO real body diff vs HEAD in git — the "
+                    f"PDF-NET-REFRESH-001 tracking-gap shape, now caught directly. Example(s): "
+                    f"{', '.join(sorted(mislabeled)[:3])}. Pass --allow-warn only after manual "
+                    f"confirmation."
+                )
+                if allow_warn:
+                    print(f"  Check 8: WARN (Case A, --allow-warn) — {msg}")
+                else:
+                    failures.append(msg)
+                    print(f"  Check 8: FAIL (Case A, RPR-J-05) — {msg}")
+        except Exception as exc:
+            print(f"  Check 8 Case A: UNKNOWN — could not read page_decisions.json ({exc})")
+            unknowns.append(f"Check 8 (Case A): could not read page_decisions.json: {exc}")
 
     # CASE B: prose stale scan
     prose_stale_path = (
@@ -1177,7 +1255,7 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
                 _detect_gr = _cfg_detect_grade_regressions
             else:
                 from commands.content.audit_content_hash import detect_evidence_only_grade_regressions as _detect_gr
-            fm_regressions = _detect_gr(pages_c10, base_ref="HEAD")
+            fm_regressions = _detect_gr(pages_c10, base_ref=base_ref)
             if fm_regressions:
                 for v in fm_regressions[:5]:
                     failures.append(
@@ -1207,7 +1285,7 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
                 from commands.content.seo_stability_check import detect_seo_violations as _detect_seo
             intentional = _load_intentional_renames(family, platform)
             seo_violations = _detect_seo(
-                pages_c11, base_ref="HEAD", intentional_renames=intentional
+                pages_c11, base_ref=base_ref, intentional_renames=intentional
             )
             if seo_violations:
                 for v in seo_violations[:5]:
@@ -1261,6 +1339,12 @@ def main(argv: list[str] | None = None) -> int:
                         help="(RPR-F-01) Demote Check 7 'ran-and-did-nothing' and Check 8 tracking-gap/"
                              "stale-prose findings back to WARN instead of BLOCK. Opt-out only — use "
                              "solely after manually confirming the flagged condition is benign.")
+    parser.add_argument("--base", metavar="REF", default=None,
+                        help="(RPR-J-17, --verify only) Git ref that Checks 7/8/10/11 diff the working "
+                             "tree against. Default: the newest refresh-run manifest's base_commit_sha "
+                             "if one exists, else HEAD. Use this to verify an already-committed "
+                             "historical refresh against its true pre-refresh baseline — 'HEAD' is "
+                             "vacuous once the refresh itself has already landed.")
 
     args = parser.parse_args(argv)
 
@@ -1327,6 +1411,7 @@ def main(argv: list[str] | None = None) -> int:
             args.family, args.platform,
             allow_warn=getattr(args, "allow_warn", False),
             unknowns_out=unknowns,
+            base_ref=getattr(args, "base", None),
         )
         if not passed:
             # Real content/tracking defects — a hard failure (exit 1).

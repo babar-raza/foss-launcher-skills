@@ -339,6 +339,34 @@ def test_refresh_run_manifest_invalid_validation_value_fails():
     assert any("must be PASS or FAIL" in e for e in errors)
 
 
+def test_refresh_run_manifest_base_commit_sha_optional_absent_passes():
+    """RPR-J-17: base_commit_sha is optional -- a manifest without it is still valid."""
+    assert validate_refresh_run_manifest(_valid_manifest()) == []
+
+
+def test_refresh_run_manifest_base_commit_sha_string_passes():
+    manifest = _valid_manifest(base_commit_sha="8a3131b9a6f7e97c20214896c615dbee86272459")
+    assert validate_refresh_run_manifest(manifest) == []
+
+
+def test_refresh_run_manifest_base_commit_sha_null_passes():
+    """An explicit null is treated the same as absent (no captured baseline yet)."""
+    manifest = _valid_manifest(base_commit_sha=None)
+    assert validate_refresh_run_manifest(manifest) == []
+
+
+def test_refresh_run_manifest_base_commit_sha_wrong_type_fails():
+    manifest = _valid_manifest(base_commit_sha=12345)
+    errors = validate_refresh_run_manifest(manifest)
+    assert any("base_commit_sha" in e for e in errors)
+
+
+def test_refresh_run_manifest_base_commit_sha_empty_string_fails():
+    manifest = _valid_manifest(base_commit_sha="")
+    errors = validate_refresh_run_manifest(manifest)
+    assert any("base_commit_sha" in e and "empty" in e for e in errors)
+
+
 # ── enum-drift guard (RPR-B-02's originally-specified enum-match test, added
 #    RPR-D-03 after the integration caught a missing decision value) ──────────
 

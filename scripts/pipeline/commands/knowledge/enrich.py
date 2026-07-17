@@ -826,20 +826,77 @@ def _validate_claim(claim: dict, api_names: set[str]) -> bool:
 # Claim ID assignment
 # ---------------------------------------------------------------------------
 
-def _assign_ids(claims: list, family: str, platform: str) -> list:
-    """Assign stable content-hash-based IDs to all claims.
+# RPR-J-16: member-doc claims are prompted (see _build_member_doc_prompt) to
+# always start their text with the exact "ClassName.MemberName" they describe.
+# That prefix is a stable anchor known before the LLM call — unlike the rest
+# of the claim's wording, it does not change when a rebuild re-phrases the
+# same fact. Anchoring the ID to it (instead of the full text) keeps
+# citations from dangling across knowledge rebuilds.
+_MEMBER_DOC_ANCHOR_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)\.([A-Za-z_][A-Za-z0-9_]*)\b")
 
-    Always derives the ID from claim text + kind, regardless of whether the
-    claim already has an ERC-* ID. This prevents sequential LLM batch IDs
-    (001, 002, ...) from surviving across multi-batch runs and causing
-    duplicate IDs for distinct claim texts.
+
+def _assign_ids(claims: list, family: str, platform: str) -> list:
+    """Assign stable IDs to all claims.
+
+    Member-doc claims (claim_source == "llm_member_doc") derive their ID from
+    the "ClassName.MemberName" anchor parsed out of the required text prefix,
+    not the exact wording — see RPR-J-16. This keeps citations from dangling
+    across a knowledge rebuild that rewords the same fact.
+
+    Overloaded members (multiple constructors, Save(path) vs Save(stream),
+    etc.) all share one anchor — measured against the real corpus, this is
+    common (815 of 18,969 real member-doc claims, ~4.3%), not a rare edge
+    case. Only one claim per anchor may safely take the stable anchor-based
+    ID (promote.py hard-fails the whole write on a duplicate ERC-* id);
+    every other claim sharing that anchor keeps the prior full-text hash
+    instead of being dropped, so no claim is ever silently lost — it just
+    doesn't gain the new stability guarantee for that particular overload.
+    The claim that "wins" the anchor is chosen by sorting the colliding
+    group's text, not by generation order, so the choice doesn't depend on
+    how the LLM happened to order its response.
+
+    Every other claim — non-member-doc, or member-doc with an unparseable
+    prefix (malformed LLM output) — is entirely unaffected and keeps the
+    original text+kind hash scheme exactly as before. This also prevents
+    sequential LLM batch IDs (001, 002, ...) from surviving across
+    multi-batch runs and causing duplicate IDs for distinct claim texts.
     """
-    result = []
+    # Pass 1: compute each claim's anchor (or None), without assigning IDs.
+    anchors: list = []
     for claim in claims:
+        anchor = None
+        if isinstance(claim, dict) and claim.get("claim_source") == "llm_member_doc":
+            match = _MEMBER_DOC_ANCHOR_RE.match(claim.get("text", ""))
+            if match:
+                anchor = f"{match.group(1)}.{match.group(2)}"
+        anchors.append(anchor)
+
+    # Pass 2: for an anchor shared by more than one claim, only the
+    # deterministically-chosen (sorted by text) claim keeps the anchor-based
+    # ID; the rest fall back to the text+kind scheme so nothing collides.
+    anchor_groups: dict = {}
+    for idx, anchor in enumerate(anchors):
+        if anchor:
+            anchor_groups.setdefault(anchor, []).append(idx)
+    anchor_owner: dict = {}
+    for anchor, idxs in anchor_groups.items():
+        winner = idxs[0] if len(idxs) == 1 else min(
+            idxs, key=lambda i: claims[i].get("text", "")
+        )
+        anchor_owner[winner] = True
+
+    result = []
+    for idx, claim in enumerate(claims):
         c = dict(claim)
-        stable = hashlib.sha256(
-            (c.get("text", "") + "|" + c.get("kind", "")).encode()
-        ).hexdigest()[:8]
+        anchor = anchors[idx]
+        if anchor and anchor_owner.get(idx):
+            stable = hashlib.sha256(
+                (anchor + "|" + c.get("kind", "")).encode()
+            ).hexdigest()[:8]
+        else:
+            stable = hashlib.sha256(
+                (c.get("text", "") + "|" + c.get("kind", "")).encode()
+            ).hexdigest()[:8]
         c["claim_id"] = f"ERC-{family}-{platform}-{stable}"
         result.append(c)
     return result

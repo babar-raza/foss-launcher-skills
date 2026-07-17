@@ -33,11 +33,12 @@ import sys
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
-if str(_HERE) not in sys.path:
-    sys.path.insert(0, str(_HERE.parent.parent))  # scripts/pipeline/
-    _LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "lib")
-    if _LIB_DIR not in sys.path:
-        sys.path.insert(0, _LIB_DIR)
+_PIPELINE_ROOT = _HERE.parent.parent  # commands/content/ -> commands/ -> pipeline/
+if str(_PIPELINE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PIPELINE_ROOT))
+_LIB_DIR = str(_PIPELINE_ROOT / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 
 from provenance import read_provenance, compute_content_hash  # noqa: E402
 

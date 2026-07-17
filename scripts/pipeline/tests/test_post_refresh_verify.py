@@ -715,128 +715,138 @@ class TestWriteReconciliationDeltaPath:
 # Check 8 (G-16): Tracking-gap and stale-prose detection
 # ---------------------------------------------------------------------------
 
-class TestCheck8FilesWithBodyDiffMismatch:
-    """Check 8 Case A: files_with_body_diff > 0 but pages_updated=[]. RPR-F-01 promoted
-    this from WARN to BLOCK by default (the exact PDF-NET-REFRESH-001 tracking gap);
-    --allow-warn demotes it back to WARN."""
+class TestBaseRefResolution:
+    """RPR-J-17: verify()'s base_ref resolves explicit param > newest refresh-run
+    manifest's base_commit_sha > "HEAD" — fixing the confirmed-real limitation that
+    diffing against a plain "HEAD" is vacuous for an already-committed refresh
+    (proven against real pdf/net data: 903/903 BODY_UPDATED pages showed 0 diff from
+    HEAD purely because the refresh had already landed there)."""
 
-    def _write_reconciliation(self, refresh_dir: Path, files_with_body_diff: int,
-                              executed_pages_updated: "int | None" = None) -> None:
-        """Write a minimal execution_reconciliation.json.
-
-        RPR-J-00: Check 8 Case A now judges reconciliation by its OWN self-consistency
-        (executed.pages_updated vs body_changes.files_with_body_diff), not by whether it
-        agrees with the separate progress.json. `executed_pages_updated` defaults to
-        `files_with_body_diff` (a self-consistent, healthy refresh); pass a smaller value
-        to model a genuine internal tracking gap.
-        """
-        if executed_pages_updated is None:
-            executed_pages_updated = files_with_body_diff
-        refresh_dir.mkdir(parents=True, exist_ok=True)
-        recon = {
-            "planned": {"pages_to_update": files_with_body_diff, "pages_to_add": 0, "pages_to_remove": 0},
-            "executed": {"pages_updated": executed_pages_updated, "pages_added": 0, "pages_removed": 0},
-            "skipped": {"pages_update_skipped": 0},
-            "body_changes": {
-                "files_with_body_diff": files_with_body_diff,
-                "files_metadata_only": 0,
-                "metadata_only_files": [],
-            },
-        }
-        (refresh_dir / "execution_reconciliation.json").write_text(
-            json.dumps(recon), encoding="utf-8"
-        )
-
-    def _write_progress(self, refresh_dir: Path, pages_updated: list) -> None:
-        refresh_dir.mkdir(parents=True, exist_ok=True)
-        (refresh_dir / "progress.json").write_text(
-            json.dumps({"steps": ["page_update"], "pages_updated": pages_updated}),
+    def _write_manifest(self, tmp_path, family, platform, base_commit_sha):
+        d = tmp_path / "reports" / "refresh_runs" / family / platform
+        d.mkdir(parents=True, exist_ok=True)
+        (d / "RUN-001.manifest.json").write_text(
+            json.dumps({"run_id": "RUN-001", "base_commit_sha": base_commit_sha}),
             encoding="utf-8",
         )
 
-    def test_check8_case_a_blocks_on_real_internal_gap(self, tmp_path):
-        """RPR-J-00: Case A blocks when RECONCILIATION ITSELF is inconsistent — more body
-        diffs than it recorded as executed page updates (body_diff=3, executed=0). That is
-        a genuine tracking gap in the durable-ish record, not a progress.json disagreement."""
+    def test_load_base_commit_sha_none_when_no_manifest_dir(self, tmp_path):
+        assert post_refresh_verify._load_base_commit_sha("cells", "net") is None
+
+    def test_load_base_commit_sha_reads_newest_manifest(self, tmp_path):
+        self._write_manifest(tmp_path, "pdf", "net", "8a3131b9a6f7e97c20214896c615dbee86272459")
+        sha = post_refresh_verify._load_base_commit_sha("pdf", "net")
+        assert sha == "8a3131b9a6f7e97c20214896c615dbee86272459"
+
+    def test_load_base_commit_sha_none_when_field_absent(self, tmp_path):
+        d = tmp_path / "reports" / "refresh_runs" / "pdf" / "net"
+        d.mkdir(parents=True, exist_ok=True)
+        (d / "RUN-001.manifest.json").write_text(json.dumps({"run_id": "RUN-001"}), encoding="utf-8")
+        assert post_refresh_verify._load_base_commit_sha("pdf", "net") is None
+
+    def test_load_base_commit_sha_none_when_empty_string(self, tmp_path):
+        self._write_manifest(tmp_path, "pdf", "net", "")
+        assert post_refresh_verify._load_base_commit_sha("pdf", "net") is None
+
+    def test_verify_uses_explicit_base_ref_over_manifest(self, tmp_path):
+        """An explicit base_ref param wins even when a manifest exists."""
         _setup_knowledge(tmp_path, "cells", "net")
-        refresh_dir = tmp_path / "refresh_state" / "cells" / "net"
-        self._write_reconciliation(refresh_dir, files_with_body_diff=3, executed_pages_updated=0)
-        self._write_progress(refresh_dir, pages_updated=[])
+        self._write_manifest(tmp_path, "cells", "net", "manifest-sha")
+        seen_refs: list = []
 
-        passed, failures = post_refresh_verify.verify("cells", "net")
+        def _spy(family, platform, base_ref):
+            seen_refs.append(base_ref)
+            return None
 
-        c8_failures = [f for f in failures if "Check 8" in f and "Case A" in f]
-        assert len(c8_failures) == 1, f"a real internal gap must block; failures: {failures}"
-        assert passed is False
+        post_refresh_verify.configure(
+            repo_root=tmp_path, reports_root=tmp_path / "refresh_state",
+            git_body_changed=_spy,
+        )
+        post_refresh_verify.verify("cells", "net", base_ref="explicit-sha")
+        assert seen_refs and all(r == "explicit-sha" for r in seen_refs)
 
-    def test_check8_case_a_allow_warn_demotes_to_warn(self, tmp_path):
-        """RPR-F-01 opt-out: --allow-warn keeps a real internal gap as WARN-only."""
-        _setup_knowledge(tmp_path, "cells", "net")
-        refresh_dir = tmp_path / "refresh_state" / "cells" / "net"
-        self._write_reconciliation(refresh_dir, files_with_body_diff=3, executed_pages_updated=0)
-        self._write_progress(refresh_dir, pages_updated=[])
-
-        passed, failures = post_refresh_verify.verify("cells", "net", allow_warn=True)
-
-        c8_failures = [f for f in failures if "Check 8" in f and "Case A" in f]
-        assert len(c8_failures) == 0, f"--allow-warn must demote Case A to WARN; got: {c8_failures}"
-
-    def test_check8_case_a_healthy_pdf_net_36_36_passes(self, tmp_path):
-        """ANTI-ARTIFACT FIXTURE (plan §18.5, RPR-J-00). The REAL PDF-NET-REFRESH-001
-        v26.7.0 reconciliation was executed=36, body_diff=36, metadata_only=0 — a HEALTHY
-        refresh. The old Check 8 wrongly FAILed it because progress.json.pages_updated was []
-        (two ephemeral files disagreeing). It must now PASS: reconciliation is self-consistent."""
+    def test_verify_falls_back_to_manifest_base_commit_sha(self, tmp_path):
+        """No explicit base_ref, but a manifest exists -> its base_commit_sha is used."""
         _setup_knowledge(tmp_path, "pdf", "net")
-        refresh_dir = tmp_path / "refresh_state" / "pdf" / "net"
-        self._write_reconciliation(refresh_dir, files_with_body_diff=36, executed_pages_updated=36)
-        self._write_progress(refresh_dir, pages_updated=[])  # progress.json lags — must not matter
+        self._write_manifest(tmp_path, "pdf", "net", "8a3131b9a6f7e97c20214896c615dbee86272459")
+        seen_refs: list = []
 
-        passed, failures = post_refresh_verify.verify("pdf", "net")
+        def _spy(family, platform, base_ref):
+            seen_refs.append(base_ref)
+            return None
 
-        c8_failures = [f for f in failures if "Check 8" in f and "Case A" in f]
-        assert len(c8_failures) == 0, f"healthy 36/36 refresh must not fail Check 8; got: {c8_failures}"
+        post_refresh_verify.configure(
+            repo_root=tmp_path, reports_root=tmp_path / "refresh_state",
+            git_body_changed=_spy,
+        )
+        post_refresh_verify.verify("pdf", "net")
+        assert seen_refs and all(r == "8a3131b9a6f7e97c20214896c615dbee86272459" for r in seen_refs)
 
-    def test_check8_case_a_self_consistent_recon_passes_despite_empty_progress(self, tmp_path):
-        """RPR-J-00: reconciliation self-consistent (executed >= body_diff) PASSES even when
-        progress.json.pages_updated is empty — the progress file is not the authority."""
+    def test_verify_falls_back_to_head_when_nothing_else_available(self, tmp_path):
+        """No explicit base_ref, no manifest -> original unchanged default, "HEAD"."""
         _setup_knowledge(tmp_path, "cells", "net")
-        refresh_dir = tmp_path / "refresh_state" / "cells" / "net"
-        self._write_reconciliation(refresh_dir, files_with_body_diff=3, executed_pages_updated=3)
-        self._write_progress(refresh_dir, pages_updated=[])
+        seen_refs: list = []
 
-        passed, failures = post_refresh_verify.verify("cells", "net")
+        def _spy(family, platform, base_ref):
+            seen_refs.append(base_ref)
+            return None
 
-        c8_failures = [f for f in failures if "Check 8" in f]
-        assert len(c8_failures) == 0
+        post_refresh_verify.configure(
+            repo_root=tmp_path, reports_root=tmp_path / "refresh_state",
+            git_body_changed=_spy,
+        )
+        post_refresh_verify.verify("cells", "net")
+        assert seen_refs and all(r == "HEAD" for r in seen_refs)
 
-    def test_check8_case_a_no_warn_when_body_diff_zero(self, tmp_path):
-        """Case A: files_with_body_diff == 0 -> PASS regardless of pages_updated."""
+    def test_cli_base_flag_threads_through_to_verify(self, tmp_path, monkeypatch):
+        """--base on the CLI reaches verify() as an explicit base_ref override."""
         _setup_knowledge(tmp_path, "cells", "net")
-        refresh_dir = tmp_path / "refresh_state" / "cells" / "net"
-        self._write_reconciliation(refresh_dir, files_with_body_diff=0)
-        self._write_progress(refresh_dir, pages_updated=[])
+        captured = {}
 
-        passed, failures = post_refresh_verify.verify("cells", "net")
+        def _fake_verify(family, platform, *, allow_warn=False, unknowns_out=None, base_ref=None):
+            captured["base_ref"] = base_ref
+            return True, []
 
-        c8_failures = [f for f in failures if "Check 8" in f]
-        assert len(c8_failures) == 0
+        monkeypatch.setattr(post_refresh_verify, "verify", _fake_verify)
+        exit_code = post_refresh_verify.main(["cells", "net", "--verify", "--base", "cli-sha"])
+        assert exit_code == 0
+        assert captured["base_ref"] == "cli-sha"
 
-    def test_check8_case_a_unknown_when_no_reconciliation(self, tmp_path):
-        """RPR-J-00: reconciliation absent -> UNKNOWN (unverifiable), NOT a failure and NOT a
-        silent pass. It never contributes a Check-8 FAILURE."""
+    def test_cli_omitted_base_flag_passes_none_through(self, tmp_path, monkeypatch):
+        """No --base on the CLI -> None reaches verify(), which does its own resolution."""
         _setup_knowledge(tmp_path, "cells", "net")
-        # No reconciliation file written
-        unknowns: list = []
-        passed, failures = post_refresh_verify.verify("cells", "net", unknowns_out=unknowns)
+        captured = {}
 
-        c8_failures = [f for f in failures if "Check 8" in f]
-        assert len(c8_failures) == 0
-        assert any("Case A" in u for u in unknowns), f"absent recon must be UNKNOWN; got {unknowns}"
+        def _fake_verify(family, platform, *, allow_warn=False, unknowns_out=None, base_ref=None):
+            captured["base_ref"] = base_ref
+            return True, []
+
+        monkeypatch.setattr(post_refresh_verify, "verify", _fake_verify)
+        exit_code = post_refresh_verify.main(["cells", "net", "--verify"])
+        assert exit_code == 0
+        assert captured["base_ref"] is None
 
 
-class TestRPRJ00TriState:
-    """RPR-J-00: absent / old-schema / self-contradictory bookkeeping yields UNKNOWN, never a
-    fabricated FAIL with a made-up count. Encodes the two documented false blocks."""
+def _fake_git_view(total, changed_paths, unchanged_paths=None):
+    """Build a fake return value for the _cfg_git_body_changed seam
+    (RPR-J-05), matching _git_body_changed_pages()'s real return shape."""
+    changed_paths = set(changed_paths)
+    unchanged_paths = set(unchanged_paths or [])
+    return {
+        "total": total,
+        "changed": len(changed_paths),
+        "changed_paths": changed_paths,
+        "unchanged_paths": unchanged_paths,
+    }
+
+
+class TestCheck7GitFounded:
+    """Check 7 (RPR-J-05): re-founded on a real git body-diff (via the
+    _cfg_git_body_changed seam, standing in for audit_content_hash's git
+    show + body-hash primitives) instead of progress.json /
+    execution_reconciliation.json bookkeeping. UNKNOWN when git-founded
+    verification is unavailable — never a fabricated FAIL with a made-up
+    count from an absent or old-schema bookkeeping file."""
 
     def _delta(self, tmp_path, family, platform, removed):
         merged = tmp_path / "knowledge" / family / platform / "merged"
@@ -844,61 +854,181 @@ class TestRPRJ00TriState:
         (merged / "knowledge_delta.json").write_text(
             json.dumps({"removed_claims": [f"CLM-{i}" for i in range(removed)]}), encoding="utf-8")
 
-    def _progress(self, tmp_path, family, platform, obj):
-        d = tmp_path / "refresh_state" / family / platform
-        d.mkdir(parents=True, exist_ok=True)
-        (d / "progress.json").write_text(json.dumps(obj), encoding="utf-8")
-
-    def test_check7_old_schema_progress_is_unknown_not_fail(self, tmp_path):
-        """The cells/java false block: a 2026-06-28 progress.json with NO pages_updated key
-        must NOT be read as '0 updates'. It is UNKNOWN, never a FAIL with a removed-claim count."""
+    def test_check7_pass_le_50_removed_no_git_call_needed(self, tmp_path):
         _setup_knowledge(tmp_path, "cells", "java")
-        self._delta(tmp_path, "cells", "java", removed=1996)
-        # old-schema progress.json: has 'steps' but NO 'pages_updated' key at all
-        self._progress(tmp_path, "cells", "java",
-                       {"status": "done", "steps": ["page_update", "reference_update"]})
-        unknowns: list = []
-        passed, failures = post_refresh_verify.verify("cells", "java", unknowns_out=unknowns)
-        assert not any("Check 7" in f for f in failures), f"old-schema must not FAIL Check 7: {failures}"
-        assert any("Check 7" in u and "old_schema" in u for u in unknowns)
-
-    def test_check7_absent_progress_is_unknown_not_fail(self, tmp_path):
-        """Fresh clone / CI: no progress.json at all -> Check 7 UNKNOWN, never a fabricated FAIL."""
-        _setup_knowledge(tmp_path, "cells", "java")
-        self._delta(tmp_path, "cells", "java", removed=1996)
-        unknowns: list = []
-        passed, failures = post_refresh_verify.verify("cells", "java", unknowns_out=unknowns)
+        self._delta(tmp_path, "cells", "java", removed=10)
+        passed, failures = post_refresh_verify.verify("cells", "java")
         assert not any("Check 7" in f for f in failures)
+
+    def test_check7_unknown_when_git_view_unavailable(self, tmp_path):
+        """The cells/java false-block scenario, re-founded: git-founded verification
+        unavailable (e.g. not a git repo, or every page is new at HEAD) must yield
+        UNKNOWN, never a fabricated FAIL with a removed-claim count."""
+        _setup_knowledge(tmp_path, "cells", "java")
+        self._delta(tmp_path, "cells", "java", removed=1996)
+        post_refresh_verify.configure(
+            repo_root=tmp_path, reports_root=tmp_path / "refresh_state",
+            git_body_changed=lambda *a, **kw: None,
+        )
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("cells", "java", unknowns_out=unknowns)
+        assert not any("Check 7" in f for f in failures), f"unavailable git view must not FAIL Check 7: {failures}"
         assert any("Check 7" in u for u in unknowns)
 
-    def test_check7_genuine_ran_and_did_nothing_still_blocks(self, tmp_path):
-        """Preserve the real signal: current-schema progress records 0 updates AND
-        reconciliation confirms no body work AND >50 removed -> still a FAIL."""
+    def test_check7_pass_when_git_shows_real_body_changes(self, tmp_path):
+        _setup_knowledge(tmp_path, "pdf", "net")
+        self._delta(tmp_path, "pdf", "net", removed=100)
+        post_refresh_verify.configure(
+            repo_root=tmp_path, reports_root=tmp_path / "refresh_state",
+            git_body_changed=lambda *a, **kw: _fake_git_view(
+                total=36, changed_paths={f"content/docs.aspose.org/en/pdf/net/p{i}.md" for i in range(36)},
+            ),
+        )
+        passed, failures = post_refresh_verify.verify("pdf", "net")
+        assert not any("Check 7" in f for f in failures)
+
+    def test_check7_genuine_zero_real_changes_still_blocks(self, tmp_path):
+        """The real signal Check 7 exists to catch: a significant knowledge delta but
+        git shows literally 0 body diffs anywhere in the product — a genuine FAIL,
+        immune to any bookkeeping schema/desync question."""
         _setup_knowledge(tmp_path, "cells", "java")
         self._delta(tmp_path, "cells", "java", removed=100)
-        self._progress(tmp_path, "cells", "java", {"steps": ["page_update"], "pages_updated": []})
-        # reconciliation present and shows no body work either
-        d = tmp_path / "refresh_state" / "cells" / "java"
-        (d / "execution_reconciliation.json").write_text(json.dumps({
-            "executed": {"pages_updated": 0}, "body_changes": {"files_with_body_diff": 0}}),
-            encoding="utf-8")
+        post_refresh_verify.configure(
+            repo_root=tmp_path, reports_root=tmp_path / "refresh_state",
+            git_body_changed=lambda *a, **kw: _fake_git_view(
+                total=5, changed_paths=set(),
+                unchanged_paths={f"content/docs.aspose.org/en/cells/java/p{i}.md" for i in range(5)},
+            ),
+        )
         passed, failures = post_refresh_verify.verify("cells", "java")
-        assert any("Check 7" in f for f in failures), "genuine ran-and-did-nothing must still block"
+        assert any("Check 7" in f for f in failures), "genuine 0-real-changes must still block"
 
-    def test_check7_progress_desync_with_recon_work_is_unknown(self, tmp_path):
-        """progress.json says 0 but reconciliation records body work -> bookkeeping desync ->
-        UNKNOWN, not a FAIL."""
-        _setup_knowledge(tmp_path, "3d", "net")
-        self._delta(tmp_path, "3d", "net", removed=99)
-        self._progress(tmp_path, "3d", "net", {"steps": ["page_update"], "pages_updated": []})
-        d = tmp_path / "refresh_state" / "3d" / "net"
-        (d / "execution_reconciliation.json").write_text(json.dumps({
-            "executed": {"pages_updated": 32}, "body_changes": {"files_with_body_diff": 32}}),
-            encoding="utf-8")
-        unknowns: list = []
-        passed, failures = post_refresh_verify.verify("3d", "net", unknowns_out=unknowns)
+    def test_check7_allow_warn_demotes_genuine_zero_to_warn(self, tmp_path):
+        _setup_knowledge(tmp_path, "cells", "java")
+        self._delta(tmp_path, "cells", "java", removed=100)
+        post_refresh_verify.configure(
+            repo_root=tmp_path, reports_root=tmp_path / "refresh_state",
+            git_body_changed=lambda *a, **kw: _fake_git_view(
+                total=5, changed_paths=set(),
+                unchanged_paths={f"content/docs.aspose.org/en/cells/java/p{i}.md" for i in range(5)},
+            ),
+        )
+        passed, failures = post_refresh_verify.verify("cells", "java", allow_warn=True)
         assert not any("Check 7" in f for f in failures)
-        assert any("Check 7" in u and "desync" in u for u in unknowns)
+
+
+class TestCheck8CaseAGitFounded:
+    """Check 8 Case A (RPR-J-05): cross-checks page_decisions.json's own BODY_UPDATED
+    claims against a real git body diff — a decision that claims a body update but
+    which git shows as byte-identical to HEAD is the literal PDF-NET-REFRESH-001
+    tracking-gap shape, now caught directly instead of comparing two ephemeral
+    bookkeeping files against each other."""
+
+    def _write_decisions(self, tmp_path, family, platform, decisions: dict) -> None:
+        """decisions: {path: decision_string}"""
+        d = tmp_path / "reports" / "refresh_review" / family / platform
+        d.mkdir(parents=True, exist_ok=True)
+        pages = {p: {"decision": dec, "reason": "test"} for p, dec in decisions.items()}
+        (d / "page_decisions.json").write_text(
+            json.dumps({"family": family, "platform": platform, "pages": pages}),
+            encoding="utf-8",
+        )
+
+    def test_check8_case_a_unknown_when_git_view_unavailable(self, tmp_path):
+        _setup_knowledge(tmp_path, "cells", "net")
+        post_refresh_verify.configure(
+            repo_root=tmp_path, reports_root=tmp_path / "refresh_state",
+            git_body_changed=lambda *a, **kw: None,
+        )
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("cells", "net", unknowns_out=unknowns)
+        c8_failures = [f for f in failures if "Check 8" in f]
+        assert len(c8_failures) == 0
+        assert any("Case A" in u for u in unknowns)
+
+    def test_check8_case_a_unknown_when_no_page_decisions(self, tmp_path):
+        _setup_knowledge(tmp_path, "cells", "net")
+        post_refresh_verify.configure(
+            repo_root=tmp_path, reports_root=tmp_path / "refresh_state",
+            git_body_changed=lambda *a, **kw: _fake_git_view(total=1, changed_paths={"a.md"}),
+        )
+        # No page_decisions.json written
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("cells", "net", unknowns_out=unknowns)
+        c8_failures = [f for f in failures if "Check 8" in f]
+        assert len(c8_failures) == 0
+        assert any("Case A" in u for u in unknowns)
+
+    def test_check8_case_a_pass_when_no_body_updated_claims(self, tmp_path):
+        _setup_knowledge(tmp_path, "cells", "net")
+        post_refresh_verify.configure(
+            repo_root=tmp_path, reports_root=tmp_path / "refresh_state",
+            git_body_changed=lambda *a, **kw: _fake_git_view(total=1, changed_paths=set(), unchanged_paths={"a.md"}),
+        )
+        self._write_decisions(tmp_path, "cells", "net", {"a.md": "EVIDENCE_ONLY"})
+        passed, failures = post_refresh_verify.verify("cells", "net")
+        assert not any("Check 8" in f and "Case A" in f for f in failures)
+
+    def test_check8_case_a_pass_when_body_updated_claim_verified_changed(self, tmp_path):
+        """ANTI-ARTIFACT case (plan §18.5): a healthy refresh where the decision's claim
+        is backed by a real git diff must PASS."""
+        _setup_knowledge(tmp_path, "pdf", "net")
+        post_refresh_verify.configure(
+            repo_root=tmp_path, reports_root=tmp_path / "refresh_state",
+            git_body_changed=lambda *a, **kw: _fake_git_view(
+                total=1, changed_paths={"content/kb.aspose.org/en/pdf/net/faq.md"},
+            ),
+        )
+        self._write_decisions(tmp_path, "pdf", "net",
+                              {"content/kb.aspose.org/en/pdf/net/faq.md": "BODY_UPDATED"})
+        passed, failures = post_refresh_verify.verify("pdf", "net")
+        assert not any("Check 8" in f and "Case A" in f for f in failures)
+
+    def test_check8_case_a_fails_on_the_pdf_net_tracking_gap_shape(self, tmp_path):
+        """The literal PDF-NET-REFRESH-001 shape: a page recorded as BODY_UPDATED whose
+        body git shows as byte-identical to HEAD — must FAIL by default."""
+        _setup_knowledge(tmp_path, "pdf", "net")
+        post_refresh_verify.configure(
+            repo_root=tmp_path, reports_root=tmp_path / "refresh_state",
+            git_body_changed=lambda *a, **kw: _fake_git_view(
+                total=1, changed_paths=set(),
+                unchanged_paths={"content/kb.aspose.org/en/pdf/net/faq.md"},
+            ),
+        )
+        self._write_decisions(tmp_path, "pdf", "net",
+                              {"content/kb.aspose.org/en/pdf/net/faq.md": "BODY_UPDATED"})
+        passed, failures = post_refresh_verify.verify("pdf", "net")
+        c8_failures = [f for f in failures if "Check 8" in f and "Case A" in f]
+        assert len(c8_failures) == 1, f"claimed-but-unverified body update must block; failures: {failures}"
+        assert "faq.md" in c8_failures[0]
+        assert passed is False
+
+    def test_check8_case_a_allow_warn_demotes_tracking_gap_to_warn(self, tmp_path):
+        _setup_knowledge(tmp_path, "pdf", "net")
+        post_refresh_verify.configure(
+            repo_root=tmp_path, reports_root=tmp_path / "refresh_state",
+            git_body_changed=lambda *a, **kw: _fake_git_view(
+                total=1, changed_paths=set(),
+                unchanged_paths={"content/kb.aspose.org/en/pdf/net/faq.md"},
+            ),
+        )
+        self._write_decisions(tmp_path, "pdf", "net",
+                              {"content/kb.aspose.org/en/pdf/net/faq.md": "BODY_UPDATED"})
+        passed, failures = post_refresh_verify.verify("pdf", "net", allow_warn=True)
+        assert not any("Check 8" in f and "Case A" in f for f in failures)
+
+    def test_check8_case_a_new_page_excluded_not_flagged(self, tmp_path):
+        """A page claimed BODY_UPDATED that is neither in changed_paths nor
+        unchanged_paths (a genuinely new page, no version at HEAD to diff against)
+        is unverifiable by this method and must not be flagged as mislabeled."""
+        _setup_knowledge(tmp_path, "cells", "net")
+        post_refresh_verify.configure(
+            repo_root=tmp_path, reports_root=tmp_path / "refresh_state",
+            git_body_changed=lambda *a, **kw: _fake_git_view(total=0, changed_paths=set(), unchanged_paths=set()),
+        )
+        self._write_decisions(tmp_path, "cells", "net", {"content/docs.aspose.org/en/cells/net/new.md": "BODY_UPDATED"})
+        passed, failures = post_refresh_verify.verify("cells", "net")
+        assert not any("Check 8" in f and "Case A" in f for f in failures)
 
 
 class TestCheck8ProseStaleWarn:

@@ -466,6 +466,16 @@ def validate_refresh_run_manifest(data: dict) -> list[str]:
     # list of page ids — the SEO-stability allowlist Check 11 consumes.
     if "intentional_renames" in data:
         errors.extend(_check_type(data, "intentional_renames", list, "refresh_run_manifest"))
+    # base_commit_sha (schema 5e / RPR-J-17) is optional -- the pre-refresh HEAD, captured
+    # once at S-84 Step 1 before any commits land. Without it, post_refresh_verify's
+    # git-founded checks (7, 8, 10, 11) default to "HEAD", which is vacuous once the
+    # refresh has already been committed (HEAD then *is* the post-refresh state) --
+    # confirmed against real pdf/net data, not merely theoretical. When present it must
+    # be a non-empty string; consumers that can't resolve it fall back to "HEAD".
+    if "base_commit_sha" in data and data["base_commit_sha"] is not None:
+        errors.extend(_check_type(data, "base_commit_sha", str, "refresh_run_manifest"))
+        if isinstance(data.get("base_commit_sha"), str) and not data["base_commit_sha"].strip():
+            errors.append("refresh_run_manifest: base_commit_sha must not be an empty string (omit or use null)")
 
     if "status" in data and data["status"] not in _REFRESH_RUN_STATUSES:
         errors.append(f"refresh_run_manifest: invalid status '{data['status']}'")
