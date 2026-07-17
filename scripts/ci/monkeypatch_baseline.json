@@ -554,7 +554,7 @@
     },
     "scripts/pipeline/tests/test_version_capability_evaluators.py": {
       "T1": 0,
-      "T2": 37,
+      "T2": 41,
       "T3": 0,
       "T4": 0
     },
@@ -571,13 +571,13 @@
       "T4": 0
     }
   },
-  "generated_at": "2026-07-17T14:31:10Z",
+  "generated_at": "2026-07-17T16:17:04Z",
   "generator": "scripts/ci/checks/check_monkeypatch_lint.py --baseline",
   "generator_version": "2.0.0",
   "schema_version": 1,
   "totals": {
     "T1": 65,
-    "T2": 729,
+    "T2": 733,
     "T3": 62,
     "T4": 17
   }

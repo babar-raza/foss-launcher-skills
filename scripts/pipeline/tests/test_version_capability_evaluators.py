@@ -352,6 +352,82 @@ class TestCapabilityClaimCheck:
         assert len(findings) == 0
 
 
+class TestFormatTruthCheck:
+    """Regression tests for ST-029 patterns (2) and (3) in format_truth.py (RPR-J-09)."""
+
+    def setup_method(self):
+        self.evaluator = get_evaluator("format_truth")()
+
+    # --- ST-029 pattern (2): product-name + negation ---
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_st029_aspose_pdf_dotnet_negation_not_flagged(self, mock_formats):
+        """Real sentence: 'Aspose.PDF FOSS ... does not support .NET Framework,
+        .NET Standard' was misread as 'PDF format is not supported' — the
+        negated subject is the .NET runtime, not the PDF format. formats.json
+        genuinely shows pdf as fully supported ('both'); must produce NO
+        finding for it."""
+        mock_formats.return_value = {"pdf": "both"}
+        page = _make_kb_page("pdf", "net",
+            "Aspose.PDF FOSS for .NET does not support .NET Framework, .NET Standard "
+            "runtimes older than the minimum required version.")
+        findings = self.evaluator.evaluate(page, None)
+        assert not any("pdf" in f.message.lower() for f in findings), (
+            f"Aspose.PDF product-name mention must not be read as a format negation; got {findings}")
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_st029_genuine_pdf_negation_still_flagged(self, mock_formats):
+        """The fix must NOT suppress a REAL false negative-limitation claim:
+        prose that genuinely says the PDF format itself is unsupported, with
+        no 'Aspose.' product-name prefix, must still fire."""
+        mock_formats.return_value = {"pdf": "both"}
+        page = _make_kb_page("pdf", "net",
+            "Note that PDF is not supported in this configuration.")
+        findings = self.evaluator.evaluate(page, None)
+        assert any("pdf" in f.message.lower() for f in findings), (
+            f"a genuine false PDF-unsupported claim must still be flagged; got {findings}")
+
+    # --- ST-029 pattern (3): export-framing read as bidirectional ---
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_st029_image_output_supports_is_export_only(self, mock_formats):
+        """The exact real sentence from content/kb.aspose.org/en/pdf/net/faq.md:206
+        (a single line holding an EARLIER, unrelated 'reads and writes the PDF
+        format' clause followed by the 'Image output ... supports BMP, GIF,
+        JPEG, PNG, TIFF' clause) was misread as a bidirectional claim for every
+        format in the list except possibly the first — GIF/JPEG/PNG/TIFF fall
+        outside _claim_direction's narrow window entirely, and a naive
+        whole-line widening would wrongly pick up 'reads'/'writes' from the
+        earlier, unrelated PDF clause. Must resolve to export-only for all
+        five, using only the current sentence's own framing."""
+        mock_formats.return_value = {
+            "pdf": "both", "bmp": "export", "gif": "export",
+            "jpeg": "export", "png": "export", "tiff": "export",
+        }
+        page = _make_kb_page("pdf", "net",
+            "The library reads and writes the PDF format. The `Document.Open` method accepts "
+            "byte arrays, file paths, and streams. The `Document.Save` and `Document.ToArray` "
+            "methods produce PDF output. Image output (for rendering pages) is governed by the "
+            "`ImageFormat` enum, which supports BMP, GIF, JPEG, PNG, TIFF, and other raster formats.")
+        findings = self.evaluator.evaluate(page, None)
+        bidirectional_findings = [f for f in findings if "bidirectional" in f.message.lower()]
+        assert bidirectional_findings == [], (
+            f"'output ... supports BMP, GIF, JPEG, PNG, TIFF' must resolve every format in the "
+            f"list to export-only, not bidirectional; got {bidirectional_findings}")
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_st029_genuine_bidirectional_overclaim_still_flagged(self, mock_formats):
+        """The fix must NOT suppress a REAL false bidirectional claim: prose
+        that explicitly claims both import and export when only export is
+        supported must still fire."""
+        mock_formats.return_value = {"bmp": "export"}
+        page = _make_kb_page("pdf", "net",
+            "The library supports both import and export of BMP images.")
+        findings = self.evaluator.evaluate(page, None)
+        assert any("bmp" in f.message.lower() for f in findings), (
+            f"a genuine false bidirectional BMP claim must still be flagged; got {findings}")
+
+
 class TestCapabilityClaimCheckNormalization:
     """Regression tests for VBD-02: enum_only normalization and read(?!-only) regex gap."""
 

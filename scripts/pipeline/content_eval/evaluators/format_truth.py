@@ -54,12 +54,16 @@ _FORMAT_TOKEN_RE = re.compile(
 )
 
 # Direction verbs preceding a format reference
+# ST-029 pattern (3): "output" is added alongside the explicit export verbs so
+# that "Image output ... supports BMP/GIF/..." resolves to export-only, not
+# "both" (the bare "supports" in _BOTH_VERB_RE would otherwise win) — directionless
+# "supports" following an "output" framing is export framing, not bidirectional.
 _EXPORT_VERB_RE = re.compile(
-    r"\b(?:export|save|write|convert\s+to|render\s+to)\b",
+    r"\b(?:export|save|write|convert\s+to|render\s+to|output)\b",
     re.IGNORECASE,
 )
 _IMPORT_VERB_RE = re.compile(
-    r"\b(?:import|load|read(?!-only)|open|convert\s+from|parse)\b",
+    r"\b(?:import|load|read(?!-only)|open|convert\s+from|parse|input)\b",
     re.IGNORECASE,
 )
 _BOTH_VERB_RE = re.compile(
@@ -86,6 +90,23 @@ _VARIANT_QUALIFIER_RE = re.compile(
     r"|embedded|standalone|raw|plain)\s+$",
     re.IGNORECASE,
 )
+
+# ST-029 pattern (2): "Aspose.PDF", "Aspose.Cells", etc. name the PRODUCT
+# family, not a format-extension claim — even though the family name can be
+# identical to a real format token (PDF is both a product family and a
+# format). Real example: "Aspose.PDF FOSS ... does not support .NET
+# Framework" was misread as "PDF format is not supported", when the negated
+# subject is the .NET runtime, not the PDF format.
+_PRODUCT_NAME_PREFIX_RE = re.compile(r"aspose\.?\s*$", re.IGNORECASE)
+
+
+def _is_product_name_mention(text: str, pos: int) -> bool:
+    """True if the format token whose match starts at `pos` is really part of
+    an "Aspose.<Name>" product-family reference, not a format-extension claim.
+    `pos` is m.start(0) from _FORMAT_TOKEN_RE, i.e. it points at the leading
+    dot (or the token itself if no dot matched) — the text immediately before
+    it is exactly what would precede "Aspose.PDF"'s dot."""
+    return bool(_PRODUCT_NAME_PREFIX_RE.search(text[max(0, pos - 10):pos]))
 
 
 def _is_enum_name_schema(entries: list[dict]) -> bool:
@@ -201,6 +222,41 @@ def _claim_direction(context: str) -> str | None:
     if has_both:
         return "both"
     return None
+
+
+_SENTENCE_BOUNDARY_RE = re.compile(r"[.!?]\s+")
+
+
+def _resolve_list_direction(claimed_dir: "str | None", line_text: str, pos: int) -> "str | None":
+    """ST-029 pattern (3): resolve a bare "both" claim for a format that is
+    part of an enumerated list ("Image output ... supports BMP, GIF, JPEG,
+    PNG, TIFF") where only the first item falls inside _claim_direction's
+    narrow +/-80-char window — later items in the same list see no local
+    export/import verb at all and fall back to the generic "both" from a bare
+    "supports". Only applied when the narrow window itself found no
+    distinguishing verb (claimed_dir == "both").
+
+    Widens the search back to the START OF THE CURRENT SENTENCE (not the
+    whole line) — a single line can hold multiple distinct sentences/claims
+    (e.g. "The library reads and writes PDF. Image output ... supports BMP,
+    GIF, ..."), and widening to the whole line would let an earlier,
+    unrelated clause's verbs leak into a later, separate claim's direction.
+    If exactly one of export/import framing appears within the current
+    sentence (not both), that framing wins.
+    """
+    if claimed_dir != "both":
+        return claimed_dir
+    sentence_start = 0
+    for m in _SENTENCE_BOUNDARY_RE.finditer(line_text[:pos]):
+        sentence_start = m.end()
+    preceding = line_text[sentence_start:pos]
+    has_export = bool(_EXPORT_VERB_RE.search(preceding))
+    has_import = bool(_IMPORT_VERB_RE.search(preceding))
+    if has_export and not has_import:
+        return "export"
+    if has_import and not has_export:
+        return "import"
+    return claimed_dir
 
 
 # H-09: Site-specific severity for direction mismatches.
@@ -373,6 +429,11 @@ class FormatTruthEvaluator(BaseEvaluator):
                     known_dir = format_direction.get(ext)
                     if not known_dir or known_dir in ("none", "detect"):
                         continue  # Content correctly says it's unsupported
+                    # ST-029 pattern (2): "Aspose.PDF ... does not support .NET
+                    # Framework" — the negated subject is the runtime, not the
+                    # format; "PDF" here names the product, not a format claim.
+                    if _is_product_name_mention(line_text, _pos):
+                        continue
                     # EC-03 FP fix: skip variant-qualified mentions like
                     # "binary FBX is not implemented" — the negation applies
                     # to the variant, not the format as a whole.
@@ -429,9 +490,14 @@ class FormatTruthEvaluator(BaseEvaluator):
                 pre_char = scan_text[pos - 1 : pos] if pos > 0 else ""
                 if pre_char in ("*", "`", "_") and tail[:1] == pre_char:
                     continue
+                # ST-029 pattern (2): "Aspose.PDF" names the product, not a
+                # format-extension claim.
+                if _is_product_name_mention(scan_text, pos):
+                    continue
                 before = scan_text[max(0, pos - 60) : pos]
                 after = scan_text[pos : min(len(scan_text), pos + 40)]
                 claimed_dir = _claim_direction(before + after)
+                claimed_dir = _resolve_list_direction(claimed_dir, scan_text, pos)
                 _check(ext, claimed_dir, line_no, "prose")
 
         # --- Scan code blocks ---
