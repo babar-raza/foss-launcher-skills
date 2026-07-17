@@ -894,12 +894,23 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
     default), for the rare case where an operator has manually confirmed the
     condition is benign.
 
-    RPR-J-00 (tri-state): a check whose durable/recording inputs are absent, old-schema,
-    or mutually-contradictory returns UNKNOWN rather than a fabricated FAIL with a made-up
-    count. UNKNOWN items are appended to `unknowns_out` (when provided) and printed, but do
-    NOT enter `failures` — so `passed` is not flipped by "I could not verify". A caller that
-    must not ship an unverified refresh treats a non-empty unknowns list as commit-blocking
-    (see main()'s exit code 3), which is different from a content defect (exit 1).
+    RPR-J-00 (tri-state, originally Checks 7/8): a check whose durable/recording inputs
+    are absent, old-schema, or mutually-contradictory returns UNKNOWN rather than a
+    fabricated FAIL with a made-up count. UNKNOWN items are appended to `unknowns_out`
+    (when provided) and printed, but do NOT enter `failures` — so `passed` is not
+    flipped by "I could not verify". A caller that must not ship an unverified refresh
+    treats a non-empty unknowns list as commit-blocking (see main()'s exit code 3),
+    which is different from a content defect (exit 1).
+
+    RPR-J-06 (tri-state, broadened to every check in this function): the same
+    principle now applies wherever an artifact that WAS applicable (it existed, or a
+    subprocess ran) failed to parse, timed out, or raised — Checks 1, 4, 5, 7, 8 Case B,
+    9, 10, and 11 all route that class of failure to `unknowns`, never to `failures`.
+    A tool crashing or a file being unparseable proves the check couldn't run; it does
+    not prove the underlying content is defective. A check that is simply not
+    applicable (no pages discovered, no updated pages recorded, no report generated
+    yet) is unaffected — that stays a plain, non-blocking SKIP/PASS, since there is
+    nothing to be uncertain about.
 
     RPR-J-17: base_ref is the git ref every git-founded check (7, 8, 10, 11) diffs the
     working tree against. When omitted (None), it resolves in priority order: an
@@ -928,7 +939,11 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
                     f"stale_since is set in merged/model.yaml: {model['stale_since']}"
                 )
         except Exception as exc:
-            failures.append(f"Could not read model.yaml: {exc}")
+            # RPR-J-06: an unparseable model.yaml proves nothing about whether the
+            # model is actually stale -- UNKNOWN, not a fabricated FAIL.
+            msg = f"Check 1: could not read model.yaml: {exc}"
+            unknowns.append(msg)
+            print(f"  Check 1: UNKNOWN (RPR-J-06) — {msg}")
 
     # Check 2 (RPR-J-07, tier-aware): No content pages cite claim IDs absent
     # from merged/claims.json. A missing Tier-1 (CLM-*, scout/deterministic)
@@ -1027,11 +1042,20 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
                                 f"  - {page_info.get('file', '?')} ({page_info.get('issues', [])})"
                             )
                 except json.JSONDecodeError:
-                    failures.append(f"stale_detect.py failed (exit {result.returncode})")
+                    # RPR-J-06: a non-zero exit with unparseable output proves the tool
+                    # misbehaved, not that N pages are stale -- UNKNOWN, not a fabricated
+                    # defect count.
+                    msg = f"Check 4: stale_detect.py exited {result.returncode} with unparseable output"
+                    unknowns.append(msg)
+                    print(f"  Check 4: UNKNOWN (RPR-J-06) — {msg}")
         except subprocess.TimeoutExpired:
-            failures.append("stale_detect.py timed out")
+            msg = "Check 4: stale_detect.py timed out — could not verify"
+            unknowns.append(msg)
+            print(f"  Check 4: UNKNOWN (RPR-J-06) — {msg}")
         except Exception as exc:
-            failures.append(f"Could not run stale_detect.py: {exc}")
+            msg = f"Check 4: could not run stale_detect.py: {exc}"
+            unknowns.append(msg)
+            print(f"  Check 4: UNKNOWN (RPR-J-06) — {msg}")
 
     # Check 5: Reconciliation artifact shows no unreconciled planned work
     recon_path = REPORTS_ROOT / family / platform / "execution_reconciliation.json"
@@ -1057,7 +1081,12 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
                         f"executed={executed_n}, skipped={skipped_n}"
                     )
         except Exception as exc:
-            failures.append(f"Could not read reconciliation artifact: {exc}")
+            # RPR-J-06: an unparseable reconciliation artifact proves nothing about
+            # whether planned work was actually reconciled -- UNKNOWN, not a
+            # fabricated FAIL.
+            msg = f"Check 5: could not read reconciliation artifact: {exc}"
+            unknowns.append(msg)
+            print(f"  Check 5: UNKNOWN (RPR-J-06) — {msg}")
 
     # Check 7 (G-16, re-founded RPR-J-05): Completeness guard — if the knowledge
     # delta shows significant claim removal (>50) but git shows literally zero
@@ -1097,8 +1126,13 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
                     else:
                         failures.append(msg)
                         print(f"  Check 7: FAIL (RPR-J-05) — {msg}")
-        except Exception:
-            pass  # Non-blocking; delta file may not exist on first run
+        except Exception as exc:
+            # RPR-J-06: the file exists (guarded above) but failed to parse or another
+            # unexpected error occurred -- that's "couldn't verify," not silence. A
+            # bare `pass` here would make Check 7 vanish with no signal at all.
+            msg = f"Check 7: could not read/parse knowledge_delta.json: {exc}"
+            unknowns.append(msg)
+            print(f"  Check 7: UNKNOWN (RPR-J-06) — {msg}")
 
     # Check 8 (G-16): Tracking-gap and stale-prose detection.
     # CASE A (re-founded RPR-J-05): cross-check page_decisions.json's own
@@ -1184,8 +1218,13 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
                     print(f"  Check 8: FAIL (Case B, RPR-F-01) — {msg}")
             else:
                 print("  Check 8 Case B: PASS — prose stale scan has 0 hits")
-        except Exception:
-            pass  # Non-blocking
+        except Exception as exc:
+            # RPR-J-06: the report file exists but failed to parse -- couldn't verify,
+            # not silently fine. A bare `pass` here would make Case B vanish with no
+            # signal at all.
+            msg = f"Check 8 (Case B): could not read prose-stale scan report: {exc}"
+            unknowns.append(msg)
+            print(f"  Check 8 Case B: UNKNOWN (RPR-J-06) — {msg}")
     else:
         print("  Check 8 Case B: SKIP — no prose-stale scan report found")
 
@@ -1234,11 +1273,21 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
             elif result.returncode == 0:
                 print("  Check 9: PASS — triage_confirm Layer 2 scan found 0 stale pages")
             else:
-                failures.append(f"Check 9: triage_confirm.py failed unexpectedly (exit {result.returncode})")
+                # RPR-J-06: an exit code outside the documented 0/1/2 contract is a
+                # contract violation by the tool, not proof of stale prose -- we
+                # genuinely don't know the content state, so UNKNOWN, not a
+                # fabricated "stale pages found" FAIL.
+                msg = f"Check 9: triage_confirm.py returned an undocumented exit code ({result.returncode})"
+                unknowns.append(msg)
+                print(f"  Check 9: UNKNOWN (RPR-J-06) — {msg}")
         except subprocess.TimeoutExpired:
-            failures.append("Check 9: triage_confirm.py timed out")
+            msg = "Check 9: triage_confirm.py timed out — could not verify"
+            unknowns.append(msg)
+            print(f"  Check 9: UNKNOWN (RPR-J-06) — {msg}")
         except Exception as exc:
-            failures.append(f"Check 9: could not run triage_confirm.py: {exc}")
+            msg = f"Check 9: could not run triage_confirm.py: {exc}"
+            unknowns.append(msg)
+            print(f"  Check 9: UNKNOWN (RPR-J-06) — {msg}")
     else:
         print(f"  Check 9: SKIP — triage_confirm.py not found at {triage_confirm_script}")
 
@@ -1268,7 +1317,12 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
         else:
             print("  Check 10: SKIP — no updated pages recorded in progress.json")
     except Exception as exc:
-        print(f"  Check 10: SKIP — could not run frontmatter-only detection ({exc})")
+        # RPR-J-06: pages WERE recorded as updated (there was something to check),
+        # but the detection itself failed -- that's "couldn't verify," not "verified
+        # clean." Distinct from the SKIP above, which is a genuine not-applicable case.
+        msg = f"Check 10: could not run frontmatter-only detection: {exc}"
+        unknowns.append(msg)
+        print(f"  Check 10: UNKNOWN (RPR-J-06) — {msg}")
 
     # Check 11 (RPR-F-05): SEO stability. For each page this refresh recorded as
     # updated, compare title/H1/slug/canonical against HEAD. Any change not declared
@@ -1299,7 +1353,11 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
         else:
             print("  Check 11: SKIP — no updated pages recorded in progress.json")
     except Exception as exc:
-        print(f"  Check 11: SKIP — could not run SEO stability detection ({exc})")
+        # RPR-J-06: same distinction as Check 10 -- pages were recorded as updated,
+        # so this was applicable; the detection failing is "couldn't verify."
+        msg = f"Check 11: could not run SEO stability detection: {exc}"
+        unknowns.append(msg)
+        print(f"  Check 11: UNKNOWN (RPR-J-06) — {msg}")
 
     passed = len(failures) == 0
     return passed, failures

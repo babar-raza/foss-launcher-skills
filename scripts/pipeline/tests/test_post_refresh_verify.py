@@ -13,6 +13,7 @@ Coverage:
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -117,6 +118,18 @@ class TestVerifyCheckStaleSince:
         _setup_knowledge(tmp_path, "3d", "python", stale_since="2026-04-01")
         passed, failures = post_refresh_verify.verify("3d", "python")
         assert any("stale_since" in f for f in failures)
+
+    def test_unparseable_model_yaml_is_unknown_not_fail(self, tmp_path):
+        """RPR-J-06: a corrupt model.yaml proves nothing about staleness --
+        UNKNOWN, not a fabricated FAIL."""
+        merged = tmp_path / "knowledge" / "3d" / "python" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "model.yaml").write_text("{ not: valid: yaml: [", encoding="utf-8")
+        post_refresh_verify.configure(repo_root=tmp_path, reports_root=tmp_path / "refresh_state")
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("3d", "python", unknowns_out=unknowns)
+        assert not any("Check 1" in f for f in failures)
+        assert any("Check 1" in u for u in unknowns)
 
 
 # ---------------------------------------------------------------------------
@@ -241,6 +254,38 @@ class TestVerifyCheckStaleDetect:
 
         assert any("stale_detect" in f.lower() for f in failures)
 
+    def test_stale_detect_timeout_is_unknown_not_fail(self, tmp_path):
+        """RPR-J-06: a timeout proves nothing about staleness -- UNKNOWN."""
+        _setup_knowledge(tmp_path, "3d", "python")
+        (tmp_path / "stale_detect.py").touch()
+
+        def _raise_timeout(*a, **kw):
+            raise subprocess.TimeoutExpired(cmd="stale_detect.py", timeout=60)
+
+        post_refresh_verify.configure(
+            repo_root=tmp_path, reports_root=tmp_path / "refresh_state",
+            here=tmp_path, subprocess_run=_raise_timeout,
+        )
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("3d", "python", unknowns_out=unknowns)
+        assert not any("stale_detect" in f.lower() for f in failures)
+        assert any("Check 4" in u for u in unknowns)
+
+    def test_stale_detect_unparseable_output_is_unknown_not_fail(self, tmp_path):
+        _setup_knowledge(tmp_path, "3d", "python")
+        (tmp_path / "stale_detect.py").touch()
+        mock_result = MagicMock()
+        mock_result.returncode = 1
+        mock_result.stdout = "not valid json {{{"
+        post_refresh_verify.configure(
+            repo_root=tmp_path, reports_root=tmp_path / "refresh_state",
+            here=tmp_path, subprocess_run=lambda *a, **kw: mock_result,
+        )
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("3d", "python", unknowns_out=unknowns)
+        assert not any("stale_detect" in f.lower() for f in failures)
+        assert any("Check 4" in u for u in unknowns)
+
 
 # ---------------------------------------------------------------------------
 # verify() — check 9 (RPR-F-03, S-111): triage_confirm Layer 2 scan
@@ -298,6 +343,26 @@ class TestVerifyCheck10FrontmatterOnly:
         passed, failures = post_refresh_verify.verify("pdf", "net")
         assert not any("Check 10" in f for f in failures)  # SKIP, not a failure
 
+    def test_detection_exception_is_unknown_not_silent_skip(self, tmp_path):
+        """RPR-J-06: pages WERE updated (this check was applicable), but the
+        detection itself raised -- UNKNOWN, not a print-only SKIP that leaves
+        the caller with no signal at all."""
+        _setup_knowledge(tmp_path, "pdf", "net")
+        self._write_progress(tmp_path, ["content/kb.aspose.org/en/pdf/net/faq.md"])
+
+        def _raise(*a, **kw):
+            raise RuntimeError("git show failed")
+
+        post_refresh_verify.configure(
+            repo_root=tmp_path,
+            reports_root=tmp_path / "refresh_state",
+            detect_grade_regressions=_raise,
+        )
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("pdf", "net", unknowns_out=unknowns)
+        assert not any("Check 10" in f for f in failures)
+        assert any("Check 10" in u for u in unknowns)
+
 
 class TestVerifyCheck11SeoStability:
     """Check 11 (RPR-F-05): undeclared title/H1/slug/canonical changes block."""
@@ -342,6 +407,26 @@ class TestVerifyCheck11SeoStability:
         self._write_progress(tmp_path, [])
         passed, failures = post_refresh_verify.verify("pdf", "net")
         assert not any("Check 11" in f for f in failures)  # SKIP, not a failure
+
+    def test_detection_exception_is_unknown_not_silent_pass(self, tmp_path):
+        """RPR-J-06: pages WERE updated (this check was applicable), but the
+        detection itself raised -- that's UNKNOWN, not a silently-swallowed
+        SKIP that leaves passed=True unexamined."""
+        _setup_knowledge(tmp_path, "pdf", "net")
+        self._write_progress(tmp_path, ["content/docs.aspose.org/en/pdf/net/p.md"])
+
+        def _raise(*a, **kw):
+            raise RuntimeError("git show failed")
+
+        post_refresh_verify.configure(
+            repo_root=tmp_path,
+            reports_root=tmp_path / "refresh_state",
+            detect_seo_violations=_raise,
+        )
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("pdf", "net", unknowns_out=unknowns)
+        assert not any("Check 11" in f for f in failures)
+        assert any("Check 11" in u for u in unknowns)
 
 
 class TestVerifyCheck9TriageConfirm:
@@ -413,16 +498,49 @@ class TestVerifyCheck9TriageConfirm:
         passed, failures = post_refresh_verify.verify("3d", "python")
         assert not any("Check 9" in f for f in failures)
 
-    def test_unexpected_exit_code_blocks(self, tmp_path):
+    def test_unexpected_exit_code_is_unknown_not_fail(self, tmp_path):
+        """RPR-J-06: an exit code outside the documented 0/1/2 contract is a
+        contract violation by the tool, not proof of stale prose -- UNKNOWN,
+        never a fabricated 'stale pages found' FAIL."""
         _setup_knowledge(tmp_path, "3d", "python")
         mock_result = MagicMock()
         mock_result.returncode = 3
         mock_result.stdout = ""
         self._configure_with_real_script_path(tmp_path, subprocess_run=lambda *a, **kw: mock_result)
 
-        passed, failures = post_refresh_verify.verify("3d", "python")
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("3d", "python", unknowns_out=unknowns)
 
-        assert any("Check 9" in f and "exit 3" in f for f in failures)
+        assert not any("Check 9" in f for f in failures)
+        assert any("Check 9" in u for u in unknowns)
+
+    def test_timeout_is_unknown_not_fail(self, tmp_path):
+        _setup_knowledge(tmp_path, "3d", "python")
+
+        def _raise_timeout(*a, **kw):
+            raise subprocess.TimeoutExpired(cmd="triage_confirm.py", timeout=120)
+
+        self._configure_with_real_script_path(tmp_path, subprocess_run=_raise_timeout)
+
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("3d", "python", unknowns_out=unknowns)
+
+        assert not any("Check 9" in f for f in failures)
+        assert any("Check 9" in u and "timed out" in u for u in unknowns)
+
+    def test_subprocess_exception_is_unknown_not_fail(self, tmp_path):
+        _setup_knowledge(tmp_path, "3d", "python")
+
+        def _raise_error(*a, **kw):
+            raise OSError("could not spawn process")
+
+        self._configure_with_real_script_path(tmp_path, subprocess_run=_raise_error)
+
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("3d", "python", unknowns_out=unknowns)
+
+        assert not any("Check 9" in f for f in failures)
+        assert any("Check 9" in u for u in unknowns)
 
 
 # ---------------------------------------------------------------------------
@@ -660,6 +778,24 @@ class TestCheck6CoverageCompleteness:
 # ---------------------------------------------------------------------------
 # G-12 regression: write_reconciliation reads delta from plan.delta, not sp.delta
 # ---------------------------------------------------------------------------
+
+class TestVerifyCheck5ReconciliationUnknown:
+    """Check 5: reconciliation artifact shows no unreconciled planned work."""
+
+    def test_unparseable_reconciliation_is_unknown_not_fail(self, tmp_path):
+        """RPR-J-06: a corrupt execution_reconciliation.json proves nothing about
+        whether planned work was reconciled -- UNKNOWN, not a fabricated FAIL."""
+        _setup_knowledge(tmp_path, "cells", "net")
+        refresh_dir = tmp_path / "refresh_state" / "cells" / "net"
+        refresh_dir.mkdir(parents=True, exist_ok=True)
+        (refresh_dir / "execution_reconciliation.json").write_text(
+            "not valid json {{{", encoding="utf-8"
+        )
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("cells", "net", unknowns_out=unknowns)
+        assert not any("Reconciliation" in f or "reconciliation artifact" in f for f in failures)
+        assert any("Check 5" in u for u in unknowns)
+
 
 class TestWriteReconciliationDeltaPath:
     """G-12 regression: site_plan.yaml delta lives at plan.delta, not top-level delta."""
@@ -906,6 +1042,18 @@ class TestCheck7GitFounded:
         passed, failures = post_refresh_verify.verify("cells", "java")
         assert not any("Check 7" in f for f in failures)
 
+    def test_check7_unparseable_delta_is_unknown_not_silent(self, tmp_path):
+        """RPR-J-06: knowledge_delta.json exists but is corrupt -- UNKNOWN, not
+        a silent `pass` that makes Check 7 vanish with no signal at all."""
+        merged = tmp_path / "knowledge" / "cells" / "java" / "merged"
+        merged.mkdir(parents=True, exist_ok=True)
+        (merged / "knowledge_delta.json").write_text("not valid json {{{", encoding="utf-8")
+        post_refresh_verify.configure(repo_root=tmp_path, reports_root=tmp_path / "refresh_state")
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("cells", "java", unknowns_out=unknowns)
+        assert not any("Check 7" in f for f in failures)
+        assert any("Check 7" in u for u in unknowns)
+
     def test_check7_unknown_when_git_view_unavailable(self, tmp_path):
         """The cells/java false-block scenario, re-founded: git-founded verification
         unavailable (e.g. not a git repo, or every page is new at HEAD) must yield
@@ -1125,6 +1273,19 @@ class TestCheck8ProseStaleWarn:
 
         c8_failures = [f for f in failures if "Check 8" in f]
         assert len(c8_failures) == 0
+
+    def test_check8_case_b_unparseable_report_is_unknown_not_silent(self, tmp_path):
+        """RPR-J-06: the report exists but is corrupt -- UNKNOWN, not a silent
+        `pass` that vanishes with no signal at all."""
+        _setup_knowledge(tmp_path, "cells", "net")
+        gap_dir = tmp_path / "reports" / "gap-analysis"
+        gap_dir.mkdir(parents=True, exist_ok=True)
+        (gap_dir / "cells-net-prose-stale.json").write_text("not valid json {{{", encoding="utf-8")
+
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("cells", "net", unknowns_out=unknowns)
+        assert not any("Check 8" in f and "Case B" in f for f in failures)
+        assert any("Check 8" in u and "Case B" in u for u in unknowns)
 
     def test_check8_case_b_skip_when_no_report(self, tmp_path):
         """Case B: no prose-stale report -> SKIP (no failures)."""
