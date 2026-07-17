@@ -104,6 +104,15 @@ _SITE_PATTERNS = (
     "blog.aspose.org/{family}/{platform}",
 )
 
+# RPR-J-08: every derived (gitignored) artifact this file writes is stamped with
+# its own schema_version so a reader can tell "genuinely nothing recorded" apart
+# from "recorded under a shape this code no longer understands" -- the second
+# case must route to UNKNOWN (RPR-J-06), never silently fall through to a
+# dict.get(..., []) default that reads identically to "recorded, and empty."
+_PROGRESS_SCHEMA_VERSION = 2
+_RECONCILIATION_SCHEMA_VERSION = 2
+_PAGE_DECISIONS_SCHEMA_VERSION = 2
+
 
 # ---------------------------------------------------------------------------
 # Progress tracking
@@ -230,7 +239,30 @@ def _load_intentional_renames(family: str, platform: str) -> set:
         return set()
 
 
+def _artifact_schema_state(path: Path, expected_version: int) -> str:
+    """RPR-J-08: classify a derived artifact's schema state.
+
+    Returns "absent" (file doesn't exist — legitimately nothing recorded yet,
+    not ambiguous; callers should treat this the same as before, e.g. SKIP),
+    "current" (parses, schema_version matches expected_version), or
+    "stale_or_unversioned" (file exists but predates schema_version or the
+    version doesn't match — callers must treat this as UNKNOWN, per RPR-J-06,
+    never silently proceed with stale-shape field defaults that read
+    identically to "recorded, and empty").
+    """
+    if not path.is_file():
+        return "absent"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return "stale_or_unversioned"
+    if not isinstance(data, dict) or data.get("schema_version") != expected_version:
+        return "stale_or_unversioned"
+    return "current"
+
+
 def _save_progress(family: str, platform: str, data: dict) -> None:
+    data["schema_version"] = _PROGRESS_SCHEMA_VERSION
     p = _progress_path(family, platform)
     p.parent.mkdir(parents=True, exist_ok=True)
     tmp = p.with_suffix(".tmp")
@@ -632,6 +664,7 @@ def write_reconciliation(
     pages_add_skipped = max(0, planned["pages_to_add"] - pages_added)
 
     recon = {
+        "schema_version": _RECONCILIATION_SCHEMA_VERSION,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "delta_source": f"reports/plans/{family}/{platform}/knowledge_delta.json",
         "site_plan_source": f"reports/plans/{family}/{platform}/site_plan.yaml",
@@ -1062,24 +1095,38 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
     if recon_path.is_file():
         try:
             recon = json.loads(recon_path.read_text(encoding="utf-8"))
-            p = recon.get("planned", {})
-            e = recon.get("executed", {})
-            s = recon.get("skipped", {})
-            key_map = {
-                "pages_to_update": "pages_updated",
-                "pages_to_add": "pages_added",
-                "pages_to_remove": "pages_removed",
-            }
-            for plan_key, exec_key in key_map.items():
-                planned_n = p.get(plan_key, 0)
-                executed_n = e.get(exec_key, 0)
-                skipped_key = plan_key.replace("pages_to_", "pages_") + "_skipped"
-                skipped_n = s.get(skipped_key, 0)
-                if executed_n + skipped_n < planned_n:
-                    failures.append(
-                        f"Reconciliation: {plan_key}={planned_n}, "
-                        f"executed={executed_n}, skipped={skipped_n}"
-                    )
+            if recon.get("schema_version") != _RECONCILIATION_SCHEMA_VERSION:
+                # RPR-J-08: a pre-schema-versioning artifact may use a different
+                # field shape entirely -- reading its planned/executed/skipped
+                # dicts with .get(key, 0) would silently read as "0 planned, 0
+                # executed" (identical to a genuinely empty, reconciled run).
+                # UNKNOWN, not a silent pass or a fabricated FAIL.
+                msg = (
+                    f"Check 5: execution_reconciliation.json predates schema_version "
+                    f"{_RECONCILIATION_SCHEMA_VERSION} (or doesn't match) — cannot "
+                    f"trust its planned/executed/skipped shape."
+                )
+                unknowns.append(msg)
+                print(f"  Check 5: UNKNOWN (RPR-J-08) — {msg}")
+            else:
+                p = recon.get("planned", {})
+                e = recon.get("executed", {})
+                s = recon.get("skipped", {})
+                key_map = {
+                    "pages_to_update": "pages_updated",
+                    "pages_to_add": "pages_added",
+                    "pages_to_remove": "pages_removed",
+                }
+                for plan_key, exec_key in key_map.items():
+                    planned_n = p.get(plan_key, 0)
+                    executed_n = e.get(exec_key, 0)
+                    skipped_key = plan_key.replace("pages_to_", "pages_") + "_skipped"
+                    skipped_n = s.get(skipped_key, 0)
+                    if executed_n + skipped_n < planned_n:
+                        failures.append(
+                            f"Reconciliation: {plan_key}={planned_n}, "
+                            f"executed={executed_n}, skipped={skipped_n}"
+                        )
         except Exception as exc:
             # RPR-J-06: an unparseable reconciliation artifact proves nothing about
             # whether planned work was actually reconciled -- UNKNOWN, not a
@@ -1297,9 +1344,29 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
     # is the PDF-NET-REFRESH-001 v26.7.0 defect. BLOCKING (best-effort: SKIP if not a
     # git repo / no updated pages). Wires the previously-orphaned audit_content_hash.py.
     try:
-        progress_c10 = _load_progress(family, platform)
-        pages_c10 = list(progress_c10.get("pages_updated", [])) + list(progress_c10.get("pages_generated", []))
-        if pages_c10:
+        progress_state_c10 = _artifact_schema_state(_progress_path(family, platform), _PROGRESS_SCHEMA_VERSION)
+        if progress_state_c10 == "stale_or_unversioned":
+            # RPR-J-08: progress.json exists but predates schema_version (or
+            # doesn't match) -- its pages_updated/pages_generated shape can't be
+            # trusted; reading them with .get(key, []) would read identically to
+            # "genuinely nothing updated," silently skipping a check that was
+            # actually applicable. UNKNOWN, not a silent SKIP.
+            msg = (
+                f"Check 10: progress.json predates schema_version {_PROGRESS_SCHEMA_VERSION} "
+                f"(or doesn't match) — cannot trust its recorded page lists."
+            )
+            unknowns.append(msg)
+            print(f"  Check 10: UNKNOWN (RPR-J-08) — {msg}")
+            progress_c10 = None
+        else:
+            progress_c10 = _load_progress(family, platform)
+        pages_c10 = (
+            list(progress_c10.get("pages_updated", [])) + list(progress_c10.get("pages_generated", []))
+            if progress_c10 is not None else []
+        )
+        if progress_c10 is None:
+            pass  # already reported UNKNOWN above
+        elif pages_c10:
             if _cfg_detect_grade_regressions is not None:
                 _detect_gr = _cfg_detect_grade_regressions
             else:
@@ -1330,9 +1397,21 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
     # the first SEO-specific gate in the pipeline. BLOCKING (best-effort: SKIP if not
     # a git repo / no updated pages).
     try:
-        progress_c11 = _load_progress(family, platform)
-        pages_c11 = list(progress_c11.get("pages_updated", []))
-        if pages_c11:
+        progress_state_c11 = _artifact_schema_state(_progress_path(family, platform), _PROGRESS_SCHEMA_VERSION)
+        if progress_state_c11 == "stale_or_unversioned":
+            msg = (
+                f"Check 11: progress.json predates schema_version {_PROGRESS_SCHEMA_VERSION} "
+                f"(or doesn't match) — cannot trust its recorded page list."
+            )
+            unknowns.append(msg)
+            print(f"  Check 11: UNKNOWN (RPR-J-08) — {msg}")
+            progress_c11 = None
+        else:
+            progress_c11 = _load_progress(family, platform)
+        pages_c11 = list(progress_c11.get("pages_updated", [])) if progress_c11 is not None else []
+        if progress_c11 is None:
+            pass  # already reported UNKNOWN above
+        elif pages_c11:
             if _cfg_detect_seo_violations is not None:
                 _detect_seo = _cfg_detect_seo_violations
             else:
