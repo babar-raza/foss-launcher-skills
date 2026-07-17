@@ -216,9 +216,13 @@ if [ "$GOVERNED" != "true" ]; then
 fi
 
 ACTIVE_FILE="$REPO_ROOT/reports/skill-context/ACTIVE.json"
+# RPR-G-03: per-session contexts live here (opt-in --session-id). A session on the OCC
+# path has no legacy ACTIVE.json, so the marker check accepts either. With no session
+# files present this is byte-identical to the previous behavior.
+ACTIVE_DIR="$REPO_ROOT/reports/skill-context/active"
 
-# Fast check: does the marker file exist?
-if [ ! -f "$ACTIVE_FILE" ]; then
+# Fast check: does a context marker exist (legacy ACTIVE.json OR any per-session file)?
+if [ ! -f "$ACTIVE_FILE" ] && ! ls "$ACTIVE_DIR"/*.json >/dev/null 2>&1; then
     _gov_block "Edit/Write denied — no active skill context." \
         "$FILE_PATH is under a governed path and requires skill context." \
         "Invoke a registered skill that covers this file." \
