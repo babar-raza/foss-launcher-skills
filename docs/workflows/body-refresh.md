@@ -196,15 +196,29 @@ All 8 flags must be `true` for full pipeline operation.
 
 ## Integration with S-84 (refresh-product)
 
-The body refresh pipeline is integrated into S-84 via `.claude/commands/refresh-product.md`
-(Steps 3.6–3.8 and 4.5–4.7) and `.claude/commands/page-update.md` (Steps 3a–3f).
+**Status (RPR-G-01, 2026-07-17): re-integrated into the CANONICAL skill source.** S-104–S-108 are
+wired into `.agents/skills/refresh-product/SKILL.md` (Steps 2.5, 4, 11.7, 11.8, 14) and
+`skills/refresh-product.md`, with `page-update` (S-20) demoted to the explicit fallback path — and
+propagated byte-consistent to all three provider mirrors (`.agents` / `.claude` / `.kilocode`,
+`sync_skills --check` = 0 drift).
 
-S-84 orchestration sequence with body refresh:
+> **History (do not repeat):** the original 2026-06-27 integration wired only the
+> `.claude/commands/` mirrors (never the canonical `.agents/skills/` files) and was silently
+> reverted on 2026-07-02 with no rationale and no backlog entry (filed retroactively as ST-028).
+> That mirror-only wiring is exactly why this re-integration targets the canonical source and is
+> guarded by the RPR-G-02 skill/command 3-mirror parity check + co-change enforcement, so a future
+> mirror-only revert cannot silently un-integrate the pipeline again.
+
+S-84 orchestration sequence with body refresh (per the canonical SKILL.md):
 ```
-S-12 (knowledge-diff) → S-14 (knowledge-update) → S-104 (semantic-diff)
-→ body_impact.py → S-105 (body-refresh --dry-run) → S-105 (body-refresh --execute)
-→ S-106 (refresh-oracle) → S-107 (locale-refresh-handoff)
-→ S-82 (delta-site-plan) → S-62 (batch-reference) → S-76 (commit)
+S-12 (knowledge-diff, baseline via S-111 resolve_baseline_sha) → S-14 (knowledge-update, S-111 ledger append)
+→ S-104 (semantic-diff) → S-82 (delta-site-plan) → PIA v2 (citation-based, RPR-D-01)
+→ S-105 (body-refresh — PRIMARY; S-20 page-update — FALLBACK)
+→ S-83 (page-retire) | S-62 (batch-reference) | S-48 (family-sync)
+→ S-106 (refresh-oracle, BLOCKING) + S-108 (frontmatter-body-consistency, BLOCKING)
+→ S-114 (regression-classification, on grade delta)
+→ post_refresh_verify --verify --assert-no-skipped (Checks 7/8/9/10/11 all BLOCKING)
+→ S-92/S-112 (triage-verdict-gate) → S-76 (commit) → S-107 (locale-refresh-handoff, post-commit)
 ```
 
 ## Troubleshooting

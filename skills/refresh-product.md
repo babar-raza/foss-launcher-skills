@@ -79,7 +79,22 @@ Do not run any subsequent steps. Exit 0.
    - Runs full scout → enrich → promote → index pipeline
    - Writes `knowledge_delta.json` with semantic diff
    - Clears `stale_since` on success
+   - `promote.py` appends the accepted baseline to the append-only ledger (S-111:
+     baseline-ledger-writer) — the durable history that replaces the mutable
+     `model.yaml.repo_sha` scalar (RPR-C-01/02). Step 1's baseline was resolved via
+     `resolve_baseline_sha` (real orphaned-SHA walkback), not a raw scalar read (RPR-C-03).
    - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step knowledge_update`
+
+2.5. **Semantic diff** (S-104: semantic-diff):
+   ```
+   /semantic-diff {family} {platform}
+   ```
+   - Converts `knowledge_delta.json`'s string arrays into typed semantic change objects
+     (API_ADDED / FEATURE_CHANGED / BEHAVIOR_CHANGED / …), each routed to an update strategy
+     and tagged with a grounding source; writes `semantic_changes.json` (schema 5b).
+   - This typed output is the single change-typing input consumed by body-refresh (Step 4) and
+     the PIA (Step 3.5) — not a filename or version-string heuristic.
+   - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step semantic_diff`
 
 3. **Delta site planning** (S-82: delta-site-plan):
    ```
@@ -93,18 +108,29 @@ Do not run any subsequent steps. Exit 0.
    ```bash
    .venv/Scripts/python scripts/pipeline/commands/ops/page_impact_assess.py {family} {platform}
    ```
-   - Scores every English page HIGH_IMPACT / MEDIUM_IMPACT / LOW_IMPACT / NOT_AFFECTED
-     based on body text signals vs `knowledge_delta.json` (class names, method names, claim keywords)
+   - Scores every English page HIGH_IMPACT / MEDIUM_IMPACT / LOW_IMPACT / NOT_AFFECTED using
+     **citation-based scoring** (RPR-D-01): reads each page's own `evidence.claims`/`evidence.apis`
+     frontmatter and matches it against the changed claim/API IDs. HIGH on a cited-API change,
+     MEDIUM on a cited-claim change, NOT_AFFECTED ("cite-clean") when evidence is present but nothing
+     cited changed. The old token-intersection heuristic is a logged fallback for evidence-less
+     pages only ("fallback-no-evidence"), never primary. A page can now score NOT_AFFECTED even
+     when its product's delta is non-empty (RPR-D-02).
    - Writes `reports/refresh_review/{family}/{platform}/page_impact.json`
    - **If `knowledge_delta.json` absent**: step is skipped with WARNING; chain continues
    - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step page_impact_assess`
 
-4. **Update stale existing pages** (S-20: page-update):
+4. **Update stale existing pages** (S-105: body-refresh — PRIMARY; S-20: page-update — FALLBACK):
    ```
-   /page-update {family} {platform}
+   /body-refresh {family} {platform}
    ```
-   - Reads `knowledge_delta.json` to find affected pages
-   - Updates stale paragraphs; uses blog regeneration rule for blog posts
+   - **body-refresh (S-105) is the primary, deterministic-first body-editing path.** It consumes the
+     typed `semantic_changes.json` (Step 2.5), selects a surgical strategy per change (5 of 6
+     strategies never touch an LLM), and applies the smallest sufficient edit — grounded in cited
+     evidence, with generation-time forbidden-claims (RPR-E-02), template-propagation/re-grounding
+     (RPR-E-03), surface-policy (RPR-E-04), and LLM-circuit/`fallback_reason` (RPR-E-05) gates. It
+     emits a per-page patch receipt (schema 5d) with `llm_invoked`/`fallback_reason`/`oracle_verdict`.
+   - **S-20 page-update is the explicit, logged fallback** — used only when body-refresh reports
+     `UNRESOLVED` for a page (`/page-update {family} {platform}`), never as the default.
    - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step page_update`
 
 5. **Delta dispatch — generate new pages**:
@@ -191,8 +217,31 @@ Do not run any subsequent steps. Exit 0.
     update the page and emit `SOURCE_EVIDENCE_UNAVAILABLE` in the decision record.
     Proceeding without source evidence risks silent quality regression.
 
-12. **Verification gate** (post_refresh_verify.py --verify):
+11.7. **Oracle + frontmatter-body consistency** (S-106: refresh-oracle, S-108:
+    frontmatter-body-consistency — BLOCKING):
+    ```
+    /refresh-oracle {family} {platform}
+    /frontmatter-body-consistency {family} {platform}
+    ```
+    - **refresh-oracle (S-106)** validates every `BODY_UPDATED` page's refreshed prose against
+      source truth (claim/API-symbol validation) — required PASS for each such page, not a
+      pilot-only side effect. Queues any missed cross-page propagation.
+    - **frontmatter-body-consistency (S-108)** checks paired-claim consistency between frontmatter
+      evidence and body prose, merged with Amendment-009's `GENERATED_ONLY_BODY_CHANGE_INSUFFICIENT`
+      verdict into one enforcement path.
+    - Both are BLOCKING: an oracle FAIL or a consistency violation halts the chain before Step 12.
+
+11.8. **Regression classification** (S-114: regression-classification — on any grade delta):
+    If Step 9.5's re-grade shows any page's grade moved, classify each delta JUSTIFIED/UNJUSTIFIED
+    with a cited `grade_reason`, writing the COMPLETE list to
+    `reports/regression_classification/`. UNJUSTIFIED items must be remediated (re-run Step 4) or
+    explicitly accepted before commit — a grade regression may never pass silently.
+
+12. **Verification gate** (post_refresh_verify.py --verify --assert-no-skipped):
     ```bash
+    # RPR-F-02: --assert-no-skipped (exit 2) is now part of the documented gate — it
+    # was a real hard-blocking flag that the chain previously never invoked.
+    .venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --assert-no-skipped
     .venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --verify
     ```
     Runs post-refresh checklist:
@@ -200,6 +249,29 @@ Do not run any subsequent steps. Exit 0.
     - No content pages cite claim IDs absent from `merged/claims.json`
     - No reference pages exist for classes absent from `merged/api_surface.json`
     - `stale_detect.py` reports 0 stale pages (end-state proxy for page freshness)
+    - **Check 7/8 (RPR-F-01, now BLOCKING)**: a refresh that removed >50 claims but updated
+      0 pages, or shows real body diffs with no tracked `pages_updated`, or has stale prose
+      referencing removed APIs, now FAILS the gate (was WARN-only). `--allow-warn` demotes
+      these back to WARN, opt-out only, after manual confirmation.
+    - **Check 9 (RPR-F-03)**: S-92 triage-confirm Layer 2 body-prose scan (blocks on stale prose).
+    - **Check 10 (RPR-F-04)**: frontmatter-only grade regression — a page whose body is
+      byte-identical but whose evidence bumped AND grade regressed (the PDF-NET-REFRESH-001
+      v26.7.0 defect) now FAILS the gate.
+    - **Check 11 (RPR-F-05)**: SEO stability — any undeclared title/H1/slug/canonical change on a
+      refreshed page FAILS the gate unless declared in the run manifest's `intentional_renames`.
+
+    **Tri-state verdicts (RPR-J-00)**: Checks 7 and 8 now return one of three states, not a
+    binary PASS/FAIL. Absent or old-schema `progress.json` (e.g. a pre-2026-07 refresh with no
+    `pages_updated` key) is **UNKNOWN**, never a fabricated "0 updates" FAIL — the old behavior
+    manufactured false blocks (a healthy pdf/net refresh with 36/36 self-consistent reconciliation
+    was wrongly FAILed by comparing two independently-stale ephemeral files; a pre-schema
+    `progress.json` with an absent key was read as "0 pages updated" and wrongly FAILed on a
+    products with real work done). `--verify`'s exit codes: `0` = PASS, `1` = real FAIL (a
+    content/tracking defect), `3` = INCONCLUSIVE (one or more checks returned UNKNOWN — commit
+    is still blocked, but this is NOT a content defect and reports no fabricated count). Check 8
+    Case A now judges `execution_reconciliation.json` by its own internal self-consistency
+    (`executed.pages_updated >= body_changes.files_with_body_diff`), not by whether it agrees
+    with the separately-tracked `progress.json`.
 
     Note: `audit.py` is NOT re-run per-page during `--verify`; it is already enforced
     by S-20 and S-23 during the chain. `stale_detect.py` is the correct end-state proxy:
@@ -252,6 +324,11 @@ Do not run any subsequent steps. Exit 0.
     - If `result['stale']` is True for any page: log the reasons and re-run
       the relevant content update step before continuing.
     - If all pages return `stale: False`: proceed to Step 13.
+    - **Deterministic enforcement (S-112: triage-verdict-gate)**: the verdict is now a real
+      exit-coded gate, not advisory prose. Run
+      `.venv/Scripts/python scripts/pipeline/lib/triage_confirm.py {family} {platform}` — exit 1
+      (stale prose) is a hard BLOCK on commit; a CONFIRMED verdict (or explicit logged human
+      override) is required before Step 13. This is also enforced as Check 9 in `--verify`.
     - Record step: `.venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step triage_gate`
 
 13. **Commit** (S-76: commit):
@@ -261,7 +338,17 @@ Do not run any subsequent steps. Exit 0.
     Include in the commit message:
     - Knowledge delta summary (new/removed claims and APIs)
     - Step list from `progress.json`
-    - `Skills invoked: [refresh-product, S-12, S-14, S-82, S-20, S-83, S-62, S-48]`
+    - `Skills invoked: [refresh-product, S-12, S-14, S-104, S-82, S-105, S-83, S-62, S-48, S-106, S-108, S-92/S-112, S-76]`
+    - **Commit precondition**: the S-112 triage verdict must be CONFIRMED (or explicitly overridden)
+      and every Step 12 check PASS — S-76 is gated on manifest validation == PASS (schema 5e).
+
+14. **Locale handoff** (S-107: locale-refresh-handoff — post-commit):
+    ```
+    /locale-refresh-handoff {family} {platform}
+    ```
+    After the English commit lands, queue the locale equivalents of every `BODY_UPDATED` page for
+    re-translation (routes <3 changed sentences to S-75 locale-patch, ≥3 to the batch translator).
+    This runs post-commit so locale work never blocks the English refresh.
 
 > **Skill context close** — run after the last step:
 > ```bash

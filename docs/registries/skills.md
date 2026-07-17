@@ -86,6 +86,10 @@
 | frontmatter-body-consistency | S-108 | Checks paired-claim consistency between frontmatter evidence and body prose |
 | production-localization-incident | S-109 | Production localization incident orchestration: containment, forensics, review packets, S-HT-01/S-HT-02/S-99 routing, deployment/live/CDN gates, monitoring, resume, and closeout |
 | foss-java-publish | S-110 | Publish a FOSS Java library to Maven Central: surgical pom.xml patches, GHA tag-push automation, PUBLISHING.md runbook committed to product repo, and aspose.org English content healing with post-sweep verification |
+| baseline-ledger-writer | S-111 | Append-only baseline SHA history per product + git-reachable baseline resolution with real orphaned-SHA walkback; replaces the mutable model.yaml.repo_sha scalar (RPR-C-01/03/04) |
+| triage-verdict-gate | S-112 | Deterministic exit-code gate over triage_confirm/reconcile_triage findings; hard precondition for S-76 commit and post_refresh_verify Check 9 (RPR-F-03). Enforcement half of S-92 triage-confirm |
+| plan-health-watchdog | S-113 | Detect stalled P0 taskcards and plan-prose contradicted by repo state via structured taskcards.jsonl (schema 5f) field comparison + plan-markdown parity check (RPR-G-04) |
+| regression-classification | S-114 | Classify every grade regression JUSTIFIED/UNJUSTIFIED with a cited evidence source, writing the complete input list (never a sample) so it cannot be silently lost (RPR-A-01) |
 | project-phase-store | S-10 | Track generation phase state |
 | publish-readiness-review | S-90 | Agent-executed governed inspection |
 | refresh-product | S-84 | Full post-launch product refresh orchestration |

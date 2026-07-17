@@ -52,25 +52,33 @@ The scanner uses `knowledge/{family}/{platform}/merged/` artifacts:
 ### 3. Run Layer 2 scan
 
 ```bash
-PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/lib/triage_confirm.py \
-  --family {family} --platform {platform} [--files {glob}]
+PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/lib/triage_confirm.py {family} {platform} [--files path1 path2 ...] [--json]
 ```
+
+Positional `{family} {platform}` args, matching this repo's other refresh-pipeline CLIs
+(`body_impact.py`, `body_refresh.py`, `page_impact_assess.py`) — not `--family`/`--platform`
+flags. Writes `reports/refresh_review/{family}/{platform}/triage_verdict.yaml`.
 
 For each page, `triage_confirm()` checks:
 - Whether prose references any API class in `knowledge_delta.json` `modified_apis`
 - Whether prose references any claim in `knowledge_delta.json` removed/modified claims
 - Returns `{'stale': bool, 'reasons': list[str]}`
 
+Exit codes: `0` = confirmed (no page stale), `1` = unresolved (≥1 page stale — blocks
+`post_refresh_verify.py --verify` Check 9), `2` = error (knowledge artifacts absent).
+
 ### 4. Run 3-source reconciliation (optional, full triage)
 
-To combine Layer 1 + Layer 2 + page-spec signals:
+To combine Layer 1 + Layer 2 signals (page-spec source not wired into the CLI path — see
+`reconcile_triage.py`'s module docstring for the documented simplification):
 
 ```bash
-PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/lib/reconcile_triage.py \
-  --family {family} --platform {platform} [--output reports/triage/]
+PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/lib/reconcile_triage.py {family} {platform} [--files path1 path2 ...] [--json]
 ```
 
-Output: per-page `final_verdict` (`needs_update` / `missing` / `current`) with source breakdown.
+Writes `reports/refresh_review/{family}/{platform}/reconcile_triage.json`. Output: per-page
+`final_verdict` (`needs_update` / `missing` / `current`) with source breakdown. Exit codes
+mirror step 3 above.
 
 ### 5. Route stale pages
 
