@@ -85,6 +85,9 @@ def _load_decisions(family: str, platform: str, *, review_root: Path | None = No
     }
 
 
+_PAGE_DECISIONS_SCHEMA_VERSION = 2
+
+
 def _save_decisions(
     family: str,
     platform: str,
@@ -92,6 +95,10 @@ def _save_decisions(
     *,
     review_root: Path | None = None,
 ) -> None:
+    # RPR-J-08: stamp every write so a reader can tell "recorded, under a shape
+    # this code understands" apart from "recorded under an old/incompatible
+    # shape" -- see post_refresh_verify.py's _artifact_schema_state.
+    data["schema_version"] = _PAGE_DECISIONS_SCHEMA_VERSION
     p = _decisions_path(family, platform, review_root=review_root)
     p.parent.mkdir(parents=True, exist_ok=True)
     tmp = p.with_suffix(".tmp")

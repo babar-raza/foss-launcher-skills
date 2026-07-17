@@ -1205,37 +1205,51 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
     else:
         try:
             decisions_data = json.loads(decisions_path_c8.read_text(encoding="utf-8")) or {}
-            pages = decisions_data.get("pages", {}) or {}
-            body_updated_claims = [
-                p for p, entry in pages.items()
-                if isinstance(entry, dict) and entry.get("decision") == "BODY_UPDATED"
-            ]
-            # Only claims git can actually verify (excludes genuinely new pages,
-            # which have no version at base_ref to diff against).
-            verifiable = [
-                p for p in body_updated_claims
-                if p in git_view_c8["changed_paths"] or p in git_view_c8["unchanged_paths"]
-            ]
-            mislabeled = [p for p in verifiable if p in git_view_c8["unchanged_paths"]]
-            if not verifiable:
-                print("  Check 8 Case A: PASS — no verifiable BODY_UPDATED decisions "
-                      "(none recorded, or all are new pages with no HEAD version)")
-            elif not mislabeled:
-                print(f"  Check 8 Case A: PASS — all {len(verifiable)} verifiable "
-                      f"BODY_UPDATED decision(s) have a real git-diffable body change")
-            else:
+            if decisions_data.get("schema_version") != _PAGE_DECISIONS_SCHEMA_VERSION:
+                # RPR-J-08: an old/incompatible page_decisions.json shape may not
+                # even use a "decision" key the same way -- reading .get("pages", {})
+                # would silently read as "nothing recorded," a false PASS. UNKNOWN.
                 msg = (
-                    f"Check 8 (Case A): {len(mislabeled)} of {len(verifiable)} page(s) recorded "
-                    f"as BODY_UPDATED show NO real body diff vs HEAD in git — the "
-                    f"PDF-NET-REFRESH-001 tracking-gap shape, now caught directly. Example(s): "
-                    f"{', '.join(sorted(mislabeled)[:3])}. Pass --allow-warn only after manual "
-                    f"confirmation."
+                    f"Check 8 (Case A): page_decisions.json predates schema_version "
+                    f"{_PAGE_DECISIONS_SCHEMA_VERSION} (or doesn't match) — cannot trust "
+                    f"its recorded decisions."
                 )
-                if allow_warn:
-                    print(f"  Check 8: WARN (Case A, --allow-warn) — {msg}")
+                unknowns.append(msg)
+                print(f"  Check 8 Case A: UNKNOWN (RPR-J-08) — {msg}")
+                pages = None
+            else:
+                pages = decisions_data.get("pages", {}) or {}
+            if pages is not None:
+                body_updated_claims = [
+                    p for p, entry in pages.items()
+                    if isinstance(entry, dict) and entry.get("decision") == "BODY_UPDATED"
+                ]
+                # Only claims git can actually verify (excludes genuinely new pages,
+                # which have no version at base_ref to diff against).
+                verifiable = [
+                    p for p in body_updated_claims
+                    if p in git_view_c8["changed_paths"] or p in git_view_c8["unchanged_paths"]
+                ]
+                mislabeled = [p for p in verifiable if p in git_view_c8["unchanged_paths"]]
+                if not verifiable:
+                    print("  Check 8 Case A: PASS — no verifiable BODY_UPDATED decisions "
+                          "(none recorded, or all are new pages with no HEAD version)")
+                elif not mislabeled:
+                    print(f"  Check 8 Case A: PASS — all {len(verifiable)} verifiable "
+                          f"BODY_UPDATED decision(s) have a real git-diffable body change")
                 else:
-                    failures.append(msg)
-                    print(f"  Check 8: FAIL (Case A, RPR-J-05) — {msg}")
+                    msg = (
+                        f"Check 8 (Case A): {len(mislabeled)} of {len(verifiable)} page(s) recorded "
+                        f"as BODY_UPDATED show NO real body diff vs HEAD in git — the "
+                        f"PDF-NET-REFRESH-001 tracking-gap shape, now caught directly. Example(s): "
+                        f"{', '.join(sorted(mislabeled)[:3])}. Pass --allow-warn only after manual "
+                        f"confirmation."
+                    )
+                    if allow_warn:
+                        print(f"  Check 8: WARN (Case A, --allow-warn) — {msg}")
+                    else:
+                        failures.append(msg)
+                        print(f"  Check 8: FAIL (Case A, RPR-J-05) — {msg}")
         except Exception as exc:
             print(f"  Check 8 Case A: UNKNOWN — could not read page_decisions.json ({exc})")
             unknowns.append(f"Check 8 (Case A): could not read page_decisions.json: {exc}")

@@ -304,7 +304,7 @@ class TestVerifyCheck10FrontmatterOnly:
         refresh_dir = tmp_path / "refresh_state" / "pdf" / "net"
         refresh_dir.mkdir(parents=True, exist_ok=True)
         (refresh_dir / "progress.json").write_text(
-            json.dumps({"steps": ["page_update"], "pages_updated": pages_updated}),
+            json.dumps({"schema_version": 2, "steps": ["page_update"], "pages_updated": pages_updated}),
             encoding="utf-8",
         )
 
@@ -363,6 +363,23 @@ class TestVerifyCheck10FrontmatterOnly:
         assert not any("Check 10" in f for f in failures)
         assert any("Check 10" in u for u in unknowns)
 
+    def test_old_schema_progress_is_unknown_not_silent_skip(self, tmp_path):
+        """RPR-J-08: progress.json exists and parses, but predates
+        schema_version -- UNKNOWN, not a silent SKIP that reads its shape as
+        'nothing updated' and lets a real check quietly not run."""
+        _setup_knowledge(tmp_path, "pdf", "net")
+        refresh_dir = tmp_path / "refresh_state" / "pdf" / "net"
+        refresh_dir.mkdir(parents=True, exist_ok=True)
+        (refresh_dir / "progress.json").write_text(
+            json.dumps({"steps": ["page_update"], "pages_updated": ["content/kb.aspose.org/en/pdf/net/faq.md"]}),
+            encoding="utf-8",
+        )  # deliberately no schema_version key
+        post_refresh_verify.configure(repo_root=tmp_path, reports_root=tmp_path / "refresh_state")
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("pdf", "net", unknowns_out=unknowns)
+        assert not any("Check 10" in f for f in failures)
+        assert any("Check 10" in u and "schema_version" in u for u in unknowns)
+
 
 class TestVerifyCheck11SeoStability:
     """Check 11 (RPR-F-05): undeclared title/H1/slug/canonical changes block."""
@@ -371,7 +388,7 @@ class TestVerifyCheck11SeoStability:
         refresh_dir = tmp_path / "refresh_state" / "pdf" / "net"
         refresh_dir.mkdir(parents=True, exist_ok=True)
         (refresh_dir / "progress.json").write_text(
-            json.dumps({"steps": ["page_update"], "pages_updated": pages_updated}),
+            json.dumps({"schema_version": 2, "steps": ["page_update"], "pages_updated": pages_updated}),
             encoding="utf-8",
         )
 
@@ -427,6 +444,20 @@ class TestVerifyCheck11SeoStability:
         passed, failures = post_refresh_verify.verify("pdf", "net", unknowns_out=unknowns)
         assert not any("Check 11" in f for f in failures)
         assert any("Check 11" in u for u in unknowns)
+
+    def test_old_schema_progress_is_unknown_not_silent_skip(self, tmp_path):
+        _setup_knowledge(tmp_path, "pdf", "net")
+        refresh_dir = tmp_path / "refresh_state" / "pdf" / "net"
+        refresh_dir.mkdir(parents=True, exist_ok=True)
+        (refresh_dir / "progress.json").write_text(
+            json.dumps({"steps": ["page_update"], "pages_updated": ["content/docs.aspose.org/en/pdf/net/p.md"]}),
+            encoding="utf-8",
+        )  # deliberately no schema_version key
+        post_refresh_verify.configure(repo_root=tmp_path, reports_root=tmp_path / "refresh_state")
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("pdf", "net", unknowns_out=unknowns)
+        assert not any("Check 11" in f for f in failures)
+        assert any("Check 11" in u and "schema_version" in u for u in unknowns)
 
 
 class TestVerifyCheck9TriageConfirm:
@@ -796,6 +827,24 @@ class TestVerifyCheck5ReconciliationUnknown:
         assert not any("Reconciliation" in f or "reconciliation artifact" in f for f in failures)
         assert any("Check 5" in u for u in unknowns)
 
+    def test_old_schema_reconciliation_is_unknown_not_silent_pass(self, tmp_path):
+        """RPR-J-08: a valid, parseable execution_reconciliation.json that
+        predates schema_version must not be read with its planned/executed
+        .get(key, 0) defaults -- that would silently read as a fully
+        reconciled (0 planned, 0 executed) run. UNKNOWN, not a silent PASS."""
+        _setup_knowledge(tmp_path, "cells", "net")
+        refresh_dir = tmp_path / "refresh_state" / "cells" / "net"
+        refresh_dir.mkdir(parents=True, exist_ok=True)
+        (refresh_dir / "execution_reconciliation.json").write_text(
+            json.dumps({"planned": {"pages_to_update": 5}, "executed": {"pages_updated": 0}}),
+            encoding="utf-8",
+        )  # deliberately no schema_version key -- would otherwise silently FAIL correctly
+           # by luck (5 > 0), masking the real point: an old shape can't be trusted at all
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("cells", "net", unknowns_out=unknowns)
+        assert not any("Reconciliation" in f or "reconciliation artifact" in f for f in failures)
+        assert any("Check 5" in u and "schema_version" in u for u in unknowns)
+
 
 class TestWriteReconciliationDeltaPath:
     """G-12 regression: site_plan.yaml delta lives at plan.delta, not top-level delta."""
@@ -1118,15 +1167,15 @@ class TestCheck8CaseAGitFounded:
     tracking-gap shape, now caught directly instead of comparing two ephemeral
     bookkeeping files against each other."""
 
-    def _write_decisions(self, tmp_path, family, platform, decisions: dict) -> None:
+    def _write_decisions(self, tmp_path, family, platform, decisions: dict, schema_version=2) -> None:
         """decisions: {path: decision_string}"""
         d = tmp_path / "reports" / "refresh_review" / family / platform
         d.mkdir(parents=True, exist_ok=True)
         pages = {p: {"decision": dec, "reason": "test"} for p, dec in decisions.items()}
-        (d / "page_decisions.json").write_text(
-            json.dumps({"family": family, "platform": platform, "pages": pages}),
-            encoding="utf-8",
-        )
+        doc = {"family": family, "platform": platform, "pages": pages}
+        if schema_version is not None:
+            doc["schema_version"] = schema_version
+        (d / "page_decisions.json").write_text(json.dumps(doc), encoding="utf-8")
 
     def test_check8_case_a_unknown_when_git_view_unavailable(self, tmp_path):
         _setup_knowledge(tmp_path, "cells", "net")
@@ -1152,6 +1201,26 @@ class TestCheck8CaseAGitFounded:
         c8_failures = [f for f in failures if "Check 8" in f]
         assert len(c8_failures) == 0
         assert any("Case A" in u for u in unknowns)
+
+    def test_check8_case_a_unknown_when_page_decisions_old_schema(self, tmp_path):
+        """RPR-J-08: page_decisions.json exists and parses, but predates
+        schema_version -- UNKNOWN, not a silent PASS reading its shape as
+        'nothing recorded'."""
+        _setup_knowledge(tmp_path, "pdf", "net")
+        post_refresh_verify.configure(
+            repo_root=tmp_path, reports_root=tmp_path / "refresh_state",
+            git_body_changed=lambda *a, **kw: _fake_git_view(
+                total=1, changed_paths=set(),
+                unchanged_paths={"content/kb.aspose.org/en/pdf/net/faq.md"},
+            ),
+        )
+        self._write_decisions(tmp_path, "pdf", "net",
+                              {"content/kb.aspose.org/en/pdf/net/faq.md": "BODY_UPDATED"},
+                              schema_version=None)  # no schema_version key at all
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("pdf", "net", unknowns_out=unknowns)
+        assert not any("Check 8" in f and "Case A" in f for f in failures)
+        assert any("Check 8" in u and "Case A" in u and "schema_version" in u for u in unknowns)
 
     def test_check8_case_a_pass_when_no_body_updated_claims(self, tmp_path):
         _setup_knowledge(tmp_path, "cells", "net")
