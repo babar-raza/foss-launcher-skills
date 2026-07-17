@@ -378,6 +378,12 @@
       "T3": 4,
       "T4": 1
     },
+    "scripts/pipeline/tests/test_post_refresh_verify.py": {
+      "T1": 0,
+      "T2": 2,
+      "T3": 0,
+      "T4": 0
+    },
     "scripts/pipeline/tests/test_promote_preserves_history.py": {
       "T1": 0,
       "T2": 1,
@@ -565,13 +571,13 @@
       "T4": 0
     }
   },
-  "generated_at": "2026-07-17T11:21:16Z",
+  "generated_at": "2026-07-17T14:31:10Z",
   "generator": "scripts/ci/checks/check_monkeypatch_lint.py --baseline",
   "generator_version": "2.0.0",
   "schema_version": 1,
   "totals": {
     "T1": 65,
-    "T2": 727,
+    "T2": 729,
     "T3": 62,
     "T4": 17
   }
