@@ -290,6 +290,31 @@ class TestCapabilityClaimCheck:
         findings = self.evaluator.evaluate(page, None)
         assert len(findings) == 0
 
+    # --- ST-029 regression: identifier-as-format false positives (RPR-J-09) ---
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_st029_doc_variable_member_access_not_flagged(self, mock_formats):
+        """`doc.Save(ms)` / `doc.ToArray()` is a member access on a variable named `doc`,
+        NOT a claim that the DOC (Word) format is exported. Must produce NO CF finding even
+        though DOC is enum_only/none. (Measured: 39 such FPs across 19 pdf/net pages.)"""
+        mock_formats.return_value = {"doc": "none"}
+        page = _make_kb_page("pdf", "net",
+            "When reading back from a `MemoryStream` after `doc.Save(ms)`, reset the position. "
+            "You can also call `doc.ToArray()` to serialise the current state.")
+        findings = self.evaluator.evaluate(page, None)
+        assert findings == [], f"variable member access must not be a format claim; got {findings}"
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_st029_genuine_doc_export_claim_still_flagged(self, mock_formats):
+        """The fix must NOT suppress a REAL false capability claim: prose that actually claims
+        DOC export when DOC is not exportable must still fire (no over-correction)."""
+        mock_formats.return_value = {"doc": "none"}
+        page = _make_kb_page("pdf", "net",
+            "The library can export your document to DOC format for editing in Word.")
+        findings = self.evaluator.evaluate(page, None)
+        assert any(f.category == "CF" and "doc" in f.message.lower() for f in findings), (
+            f"a genuine false DOC-export claim must still be flagged; got {findings}")
+
     @patch("content_eval.evaluators.capability_claim_check._load_formats")
     def test_detect_only_blocks_io_claims(self, mock_formats):
         """Should flag both import and export when direction is 'detect'."""

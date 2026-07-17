@@ -720,12 +720,22 @@ class TestCheck8FilesWithBodyDiffMismatch:
     this from WARN to BLOCK by default (the exact PDF-NET-REFRESH-001 tracking gap);
     --allow-warn demotes it back to WARN."""
 
-    def _write_reconciliation(self, refresh_dir: Path, files_with_body_diff: int) -> None:
-        """Write a minimal execution_reconciliation.json with given files_with_body_diff."""
+    def _write_reconciliation(self, refresh_dir: Path, files_with_body_diff: int,
+                              executed_pages_updated: "int | None" = None) -> None:
+        """Write a minimal execution_reconciliation.json.
+
+        RPR-J-00: Check 8 Case A now judges reconciliation by its OWN self-consistency
+        (executed.pages_updated vs body_changes.files_with_body_diff), not by whether it
+        agrees with the separate progress.json. `executed_pages_updated` defaults to
+        `files_with_body_diff` (a self-consistent, healthy refresh); pass a smaller value
+        to model a genuine internal tracking gap.
+        """
+        if executed_pages_updated is None:
+            executed_pages_updated = files_with_body_diff
         refresh_dir.mkdir(parents=True, exist_ok=True)
         recon = {
             "planned": {"pages_to_update": files_with_body_diff, "pages_to_add": 0, "pages_to_remove": 0},
-            "executed": {"pages_updated": 0, "pages_added": 0, "pages_removed": 0},
+            "executed": {"pages_updated": executed_pages_updated, "pages_added": 0, "pages_removed": 0},
             "skipped": {"pages_update_skipped": 0},
             "body_changes": {
                 "files_with_body_diff": files_with_body_diff,
@@ -744,24 +754,26 @@ class TestCheck8FilesWithBodyDiffMismatch:
             encoding="utf-8",
         )
 
-    def test_check8_case_a_blocks_by_default(self, tmp_path):
-        """RPR-F-01: Case A now BLOCKS — the tracking gap adds a hard failure."""
+    def test_check8_case_a_blocks_on_real_internal_gap(self, tmp_path):
+        """RPR-J-00: Case A blocks when RECONCILIATION ITSELF is inconsistent — more body
+        diffs than it recorded as executed page updates (body_diff=3, executed=0). That is
+        a genuine tracking gap in the durable-ish record, not a progress.json disagreement."""
         _setup_knowledge(tmp_path, "cells", "net")
         refresh_dir = tmp_path / "refresh_state" / "cells" / "net"
-        self._write_reconciliation(refresh_dir, files_with_body_diff=3)
+        self._write_reconciliation(refresh_dir, files_with_body_diff=3, executed_pages_updated=0)
         self._write_progress(refresh_dir, pages_updated=[])
 
         passed, failures = post_refresh_verify.verify("cells", "net")
 
         c8_failures = [f for f in failures if "Check 8" in f and "Case A" in f]
-        assert len(c8_failures) == 1, f"Case A must now block; failures: {failures}"
+        assert len(c8_failures) == 1, f"a real internal gap must block; failures: {failures}"
         assert passed is False
 
     def test_check8_case_a_allow_warn_demotes_to_warn(self, tmp_path):
-        """RPR-F-01 opt-out: --allow-warn (allow_warn=True) keeps Case A as WARN-only."""
+        """RPR-F-01 opt-out: --allow-warn keeps a real internal gap as WARN-only."""
         _setup_knowledge(tmp_path, "cells", "net")
         refresh_dir = tmp_path / "refresh_state" / "cells" / "net"
-        self._write_reconciliation(refresh_dir, files_with_body_diff=3)
+        self._write_reconciliation(refresh_dir, files_with_body_diff=3, executed_pages_updated=0)
         self._write_progress(refresh_dir, pages_updated=[])
 
         passed, failures = post_refresh_verify.verify("cells", "net", allow_warn=True)
@@ -769,27 +781,28 @@ class TestCheck8FilesWithBodyDiffMismatch:
         c8_failures = [f for f in failures if "Check 8" in f and "Case A" in f]
         assert len(c8_failures) == 0, f"--allow-warn must demote Case A to WARN; got: {c8_failures}"
 
-    def test_check8_case_a_pdf_net_v26_7_0_regression_now_blocks(self, tmp_path):
-        """The exact real on-disk state from PDF-NET-REFRESH-001 v26.7.0:
-        files_with_body_diff=36, pages_updated=[]. Must block."""
+    def test_check8_case_a_healthy_pdf_net_36_36_passes(self, tmp_path):
+        """ANTI-ARTIFACT FIXTURE (plan §18.5, RPR-J-00). The REAL PDF-NET-REFRESH-001
+        v26.7.0 reconciliation was executed=36, body_diff=36, metadata_only=0 — a HEALTHY
+        refresh. The old Check 8 wrongly FAILed it because progress.json.pages_updated was []
+        (two ephemeral files disagreeing). It must now PASS: reconciliation is self-consistent."""
         _setup_knowledge(tmp_path, "pdf", "net")
         refresh_dir = tmp_path / "refresh_state" / "pdf" / "net"
-        self._write_reconciliation(refresh_dir, files_with_body_diff=36)
-        self._write_progress(refresh_dir, pages_updated=[])
+        self._write_reconciliation(refresh_dir, files_with_body_diff=36, executed_pages_updated=36)
+        self._write_progress(refresh_dir, pages_updated=[])  # progress.json lags — must not matter
 
         passed, failures = post_refresh_verify.verify("pdf", "net")
-        assert any("36 file(s) with body diff" in f for f in failures)
-        assert passed is False
 
-    def test_check8_case_a_no_warn_when_pages_updated_populated(self, tmp_path):
-        """Case A: files_with_body_diff > 0 and pages_updated is non-empty -> no issue."""
+        c8_failures = [f for f in failures if "Check 8" in f and "Case A" in f]
+        assert len(c8_failures) == 0, f"healthy 36/36 refresh must not fail Check 8; got: {c8_failures}"
+
+    def test_check8_case_a_self_consistent_recon_passes_despite_empty_progress(self, tmp_path):
+        """RPR-J-00: reconciliation self-consistent (executed >= body_diff) PASSES even when
+        progress.json.pages_updated is empty — the progress file is not the authority."""
         _setup_knowledge(tmp_path, "cells", "net")
         refresh_dir = tmp_path / "refresh_state" / "cells" / "net"
-        self._write_reconciliation(refresh_dir, files_with_body_diff=3)
-        self._write_progress(
-            refresh_dir,
-            pages_updated=["content/docs.aspose.org/en/cells/net/page1.md"],
-        )
+        self._write_reconciliation(refresh_dir, files_with_body_diff=3, executed_pages_updated=3)
+        self._write_progress(refresh_dir, pages_updated=[])
 
         passed, failures = post_refresh_verify.verify("cells", "net")
 
@@ -808,14 +821,84 @@ class TestCheck8FilesWithBodyDiffMismatch:
         c8_failures = [f for f in failures if "Check 8" in f]
         assert len(c8_failures) == 0
 
-    def test_check8_case_a_no_warn_when_no_reconciliation(self, tmp_path):
-        """Case A: execution_reconciliation.json absent -> SKIP (no failures, no warn)."""
+    def test_check8_case_a_unknown_when_no_reconciliation(self, tmp_path):
+        """RPR-J-00: reconciliation absent -> UNKNOWN (unverifiable), NOT a failure and NOT a
+        silent pass. It never contributes a Check-8 FAILURE."""
         _setup_knowledge(tmp_path, "cells", "net")
         # No reconciliation file written
-        passed, failures = post_refresh_verify.verify("cells", "net")
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("cells", "net", unknowns_out=unknowns)
 
         c8_failures = [f for f in failures if "Check 8" in f]
         assert len(c8_failures) == 0
+        assert any("Case A" in u for u in unknowns), f"absent recon must be UNKNOWN; got {unknowns}"
+
+
+class TestRPRJ00TriState:
+    """RPR-J-00: absent / old-schema / self-contradictory bookkeeping yields UNKNOWN, never a
+    fabricated FAIL with a made-up count. Encodes the two documented false blocks."""
+
+    def _delta(self, tmp_path, family, platform, removed):
+        merged = tmp_path / "knowledge" / family / platform / "merged"
+        merged.mkdir(parents=True, exist_ok=True)
+        (merged / "knowledge_delta.json").write_text(
+            json.dumps({"removed_claims": [f"CLM-{i}" for i in range(removed)]}), encoding="utf-8")
+
+    def _progress(self, tmp_path, family, platform, obj):
+        d = tmp_path / "refresh_state" / family / platform
+        d.mkdir(parents=True, exist_ok=True)
+        (d / "progress.json").write_text(json.dumps(obj), encoding="utf-8")
+
+    def test_check7_old_schema_progress_is_unknown_not_fail(self, tmp_path):
+        """The cells/java false block: a 2026-06-28 progress.json with NO pages_updated key
+        must NOT be read as '0 updates'. It is UNKNOWN, never a FAIL with a removed-claim count."""
+        _setup_knowledge(tmp_path, "cells", "java")
+        self._delta(tmp_path, "cells", "java", removed=1996)
+        # old-schema progress.json: has 'steps' but NO 'pages_updated' key at all
+        self._progress(tmp_path, "cells", "java",
+                       {"status": "done", "steps": ["page_update", "reference_update"]})
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("cells", "java", unknowns_out=unknowns)
+        assert not any("Check 7" in f for f in failures), f"old-schema must not FAIL Check 7: {failures}"
+        assert any("Check 7" in u and "old_schema" in u for u in unknowns)
+
+    def test_check7_absent_progress_is_unknown_not_fail(self, tmp_path):
+        """Fresh clone / CI: no progress.json at all -> Check 7 UNKNOWN, never a fabricated FAIL."""
+        _setup_knowledge(tmp_path, "cells", "java")
+        self._delta(tmp_path, "cells", "java", removed=1996)
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("cells", "java", unknowns_out=unknowns)
+        assert not any("Check 7" in f for f in failures)
+        assert any("Check 7" in u for u in unknowns)
+
+    def test_check7_genuine_ran_and_did_nothing_still_blocks(self, tmp_path):
+        """Preserve the real signal: current-schema progress records 0 updates AND
+        reconciliation confirms no body work AND >50 removed -> still a FAIL."""
+        _setup_knowledge(tmp_path, "cells", "java")
+        self._delta(tmp_path, "cells", "java", removed=100)
+        self._progress(tmp_path, "cells", "java", {"steps": ["page_update"], "pages_updated": []})
+        # reconciliation present and shows no body work either
+        d = tmp_path / "refresh_state" / "cells" / "java"
+        (d / "execution_reconciliation.json").write_text(json.dumps({
+            "executed": {"pages_updated": 0}, "body_changes": {"files_with_body_diff": 0}}),
+            encoding="utf-8")
+        passed, failures = post_refresh_verify.verify("cells", "java")
+        assert any("Check 7" in f for f in failures), "genuine ran-and-did-nothing must still block"
+
+    def test_check7_progress_desync_with_recon_work_is_unknown(self, tmp_path):
+        """progress.json says 0 but reconciliation records body work -> bookkeeping desync ->
+        UNKNOWN, not a FAIL."""
+        _setup_knowledge(tmp_path, "3d", "net")
+        self._delta(tmp_path, "3d", "net", removed=99)
+        self._progress(tmp_path, "3d", "net", {"steps": ["page_update"], "pages_updated": []})
+        d = tmp_path / "refresh_state" / "3d" / "net"
+        (d / "execution_reconciliation.json").write_text(json.dumps({
+            "executed": {"pages_updated": 32}, "body_changes": {"files_with_body_diff": 32}}),
+            encoding="utf-8")
+        unknowns: list = []
+        passed, failures = post_refresh_verify.verify("3d", "net", unknowns_out=unknowns)
+        assert not any("Check 7" in f for f in failures)
+        assert any("Check 7" in u and "desync" in u for u in unknowns)
 
 
 class TestCheck8ProseStaleWarn:

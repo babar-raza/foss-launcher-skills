@@ -353,6 +353,52 @@ class TestAdoptFiles:
         assert count == 2
         assert all(p.startswith("content/kb.aspose.org/") for p in matched)
 
+    @patch.object(session_ledger, "_git_dirty_files",
+                  return_value=[".agents/skills/refresh-product/SKILL.md",
+                                ".claude/commands/refresh-product.md",
+                                ".kilocode/skills/refresh-product/SKILL.md"])
+    def test_adopt_preserves_dotfile_leading_dot(self, mock_dirty, isolate_session_dir):
+        """Regression (found live during RPR-J-11 commit prep, 2026-07-17): normalization
+        used `.lstrip("./")`, which strips a CHARACTER SET ({'.', '/'}), not the literal
+        prefix "./". Any path starting with a literal dot-directory (.agents/, .claude/,
+        .kilocode/, .github/) had its leading dot silently eaten -- '.agents/skills/x.md'
+        became 'agents/skills/x.md' -- so adopt_files() recorded a touched-file key that
+        could NEVER match the real (dotted) git-dirty path, and the file silently never
+        became a commit candidate no matter how many times it was "adopted". Fixed via
+        removeprefix("./"), which only strips the literal prefix when present."""
+        session_ledger.init_session("adopt-dotfile")
+        count = session_ledger.adopt_files([
+            ".agents/skills/refresh-product/SKILL.md",
+            ".claude/commands/refresh-product.md",
+            ".kilocode/skills/refresh-product/SKILL.md",
+        ])
+        assert count == 3
+        touched = session_ledger.get_touched_files()
+        # The leading dot MUST survive normalization -- this is the exact bug.
+        assert ".agents/skills/refresh-product/SKILL.md" in touched
+        assert ".claude/commands/refresh-product.md" in touched
+        assert ".kilocode/skills/refresh-product/SKILL.md" in touched
+        assert "agents/skills/refresh-product/SKILL.md" not in touched
+
+    @patch.object(session_ledger, "_git_dirty_files",
+                  return_value=[".agents/skills/refresh-product/SKILL.md"])
+    def test_adopted_dotfile_appears_in_candidates(self, mock_dirty, isolate_session_dir):
+        """End-to-end: an adopted dotfile path must actually surface as a commit
+        candidate (touched ∩ git-dirty), not just exist in the touched-files dict."""
+        session_ledger.init_session("adopt-dotfile-candidates")
+        session_ledger.adopt_files([".agents/skills/refresh-product/SKILL.md"])
+        candidates, _excluded_dirty_at_start, _excluded_not_in_ledger = session_ledger.get_candidates()
+        assert ".agents/skills/refresh-product/SKILL.md" in candidates
+
+    def test_classify_file_strips_literal_dotslash_only(self):
+        """classify_file's normalization must strip a literal leading './' (same group as
+        the un-prefixed path), and must NOT strip the leading dot of a dotfile path."""
+        assert session_ledger.classify_file("./scripts/pipeline/foo.py") == \
+            session_ledger.classify_file("scripts/pipeline/foo.py")
+        # Must not raise, and must not silently collapse to a path lacking the leading dot.
+        group = session_ledger.classify_file(".agents/skills/refresh-product/SKILL.md")
+        assert isinstance(group, str) and group
+
 
 class TestAdoptCLI:
     @patch.object(session_ledger, "_git_dirty_files",

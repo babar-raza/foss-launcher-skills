@@ -163,3 +163,71 @@ class TestPromoteErcDuplicateGate:
         assert result is True
         merged = kr / "test" / "testplat" / "merged" / "claims.json"
         assert merged.exists(), "claims.json must be written when only CLM dupes exist"
+
+
+def _claim_id_set(merged_dir):
+    """The set of claim_ids in a promoted merged/claims.json."""
+    data = json.loads((merged_dir / "claims.json").read_text(encoding="utf-8"))
+    rows = data if isinstance(data, list) else data.get("claims", [])
+    return {c.get("claim_id") for c in rows if isinstance(c, dict)}
+
+
+class TestPromoteDeterminism:
+    """RPR-J-01: prove `promote()` is a deterministic function of its scout inputs — the
+    property the file's own docstring claimed ('Promote output is identical on consecutive
+    runs') but never actually tested. This is the load-bearing measurement for the pin-and-
+    replay design (RPR-J-02): if promote is deterministic given a FIXED enriched_claims.json,
+    then committing that file makes a full knowledge rebuild reproducible without re-calling
+    the LLM. The nondeterminism lives ONLY in enrich.py (the one LLM callsite), never here.
+    """
+
+    def _run(self, tmp_path_factory, scout, enriched, name):
+        base = tmp_path_factory.mktemp(name)
+        kr = _setup_promote_tree(base, scout, enriched)
+        ok = promote_mod.promote("test", "testplat", knowledge_root=str(kr))
+        assert ok is True
+        return kr / "test" / "testplat" / "merged"
+
+    def test_promote_claim_ids_identical_across_runs(self, tmp_path_factory):
+        """Two promote() runs against the SAME scout + enriched inputs produce the identical
+        claim_id set. This is the replay guarantee: citations pinned to these IDs never dangle
+        so long as enriched_claims.json is unchanged."""
+        scout = [
+            {"claim_id": "CLM-scout-aaa", "text": "Document.Save() writes a PDF.", "kind": "api_method"},
+            {"claim_id": "CLM-scout-bbb", "text": "Document.Open() reads a PDF.", "kind": "api_method"},
+        ]
+        enriched = [
+            {"claim_id": "ERC-test-testplat-001", "text": "Merging preserves bookmarks.", "kind": "feature"},
+        ]
+        m1 = self._run(tmp_path_factory, scout, enriched, "run1")
+        m2 = self._run(tmp_path_factory, scout, enriched, "run2")
+        assert _claim_id_set(m1) == _claim_id_set(m2), "promote must yield an identical claim_id set on replay"
+        assert _claim_id_set(m1), "sanity: the set is non-empty"
+
+    def test_promote_claims_bytes_identical_modulo_timestamps(self, tmp_path_factory):
+        """The promoted claims.json is byte-identical across runs once volatile timestamp-like
+        fields are removed — i.e. the claim CONTENT (not just the IDs) is stable."""
+        scout = [{"claim_id": "CLM-scout-ccc", "text": "Save writes output.", "kind": "api_method"}]
+        enriched = [{"claim_id": "ERC-test-testplat-002", "text": "Streaming is supported.", "kind": "feature"}]
+        m1 = self._run(tmp_path_factory, scout, enriched, "b1")
+        m2 = self._run(tmp_path_factory, scout, enriched, "b2")
+        c1 = json.loads((m1 / "claims.json").read_text(encoding="utf-8"))
+        c2 = json.loads((m2 / "claims.json").read_text(encoding="utf-8"))
+
+        def _strip(o):
+            if isinstance(o, dict):
+                return {k: _strip(v) for k, v in sorted(o.items())
+                        if k not in ("promoted_at", "extracted_at", "generated_at", "timestamp")}
+            if isinstance(o, list):
+                return [_strip(x) for x in o]
+            return o
+
+        assert _strip(c1) == _strip(c2), "promoted claim content must be identical on replay"
+
+    def test_enriched_claim_survives_promote_unchanged(self, tmp_path_factory):
+        """The pinned enriched claim's id is carried into merged output verbatim — so a page
+        citing it resolves after replay (the citation-durability property J-02 depends on)."""
+        scout = [{"claim_id": "CLM-scout-ddd", "text": "Open reads input.", "kind": "api_method"}]
+        enriched = [{"claim_id": "ERC-test-testplat-keepme", "text": "Encryption is available.", "kind": "feature"}]
+        m1 = self._run(tmp_path_factory, scout, enriched, "e1")
+        assert "ERC-test-testplat-keepme" in _claim_id_set(m1)

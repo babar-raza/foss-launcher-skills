@@ -148,7 +148,7 @@ def classify_file(path: str) -> str:
     Returns the group name (e.g. 'content(docs)') or 'chore(misc)' if no
     prefix matches.
     """
-    normalized = path.replace("\\", "/").lstrip("./")
+    normalized = path.replace("\\", "/").removeprefix("./")
 
     # Special locale detection: content/ path that is NOT English
     if normalized.startswith("content/") and normalized.endswith(".md"):
@@ -385,7 +385,7 @@ def record_file(
 
 def _apply_touch(touched: dict, file_path: str, action: str, skill: str | None) -> None:
     """Apply one file-touch entry to a touched_files dict (no I/O)."""
-    normalized = file_path.replace("\\", "/").lstrip("./")
+    normalized = file_path.replace("\\", "/").removeprefix("./")
     if normalized in touched:
         # Update existing entry
         entry = touched[normalized]
@@ -537,7 +537,7 @@ def adopt_files(
     count = 0
 
     for file_path in paths:
-        normalized = file_path.replace("\\", "/").lstrip("./")
+        normalized = file_path.replace("\\", "/").removeprefix("./")
         if normalized not in touched:
             touched[normalized] = {
                 "action": action,
@@ -860,7 +860,7 @@ def check_staged(staged_paths: list[str]) -> tuple[list[str], list[str]]:
     allowed = []
     blocked = []
     for p in staged_paths:
-        normalized = p.replace("\\", "/").lstrip("./")
+        normalized = p.replace("\\", "/").removeprefix("./")
         if normalized in touched:
             allowed.append(normalized)
         else:

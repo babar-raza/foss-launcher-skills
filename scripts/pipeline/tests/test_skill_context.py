@@ -322,5 +322,128 @@ class TestDAREnforcement(unittest.TestCase):
         mock_run.assert_called_once()
 
 
+class TestSkillContextOCC(unittest.TestCase):
+    """RPR-G-03 (§2.5 SW-1): per-session optimistic concurrency control.
+
+    Before this, cmd_begin unconditionally archived ANY existing ACTIVE.json as
+    'superseded' with no session identity — two concurrent sessions silently clobbered
+    each other's governance context (reproduced first-hand 4x during session 4).
+    """
+
+    def setUp(self):
+        import tempfile
+        self._td = tempfile.TemporaryDirectory()
+        self.tmp = Path(self._td.name)
+        self.orig = (skill_context._CONTEXT_DIR, skill_context._ACTIVE_FILE,
+                     skill_context._HISTORY_DIR, skill_context._ACTIVE_DIR)
+        skill_context._CONTEXT_DIR = self.tmp / "skill-context"
+        skill_context._ACTIVE_FILE = skill_context._CONTEXT_DIR / "ACTIVE.json"
+        skill_context._HISTORY_DIR = skill_context._CONTEXT_DIR / "history"
+        skill_context._ACTIVE_DIR = skill_context._CONTEXT_DIR / "active"
+
+    def tearDown(self):
+        (skill_context._CONTEXT_DIR, skill_context._ACTIVE_FILE,
+         skill_context._HISTORY_DIR, skill_context._ACTIVE_DIR) = self.orig
+        self._td.cleanup()
+
+    # ── scope overlap primitive ──────────────────────────────────────────
+    def test_scope_overlap_detects_same_and_glob_matches(self):
+        self.assertTrue(skill_context.scope_overlap(["a/b.py"], ["a/b.py"]))
+        self.assertTrue(skill_context.scope_overlap(["a/*.py"], ["a/b.py"]))
+        self.assertTrue(skill_context.scope_overlap(["a/b.py"], ["a/*.py"]))
+        self.assertTrue(skill_context.scope_overlap(["*"], ["anything/at/all.py"]))
+        self.assertFalse(skill_context.scope_overlap(["a/b.py"], ["c/d.py"]))
+        self.assertFalse(skill_context.scope_overlap(["a/*.py"], ["c/*.py"]))
+
+    # ── the core OCC behaviors ───────────────────────────────────────────
+    def test_two_sessions_nonoverlapping_scope_coexist(self):
+        r1 = skill_context.main(["begin", "--skill", "S-20", "--scope", "a/x.py",
+                                 "--session-id", "sess-A", "--skip-dar"])
+        r2 = skill_context.main(["begin", "--skill", "S-21", "--scope", "b/y.py",
+                                 "--session-id", "sess-B", "--skip-dar"])
+        self.assertEqual((r1, r2), (0, 0))
+        live = skill_context._load_session_contexts()
+        self.assertEqual(set(live), {"sess-A", "sess-B"})  # neither superseded the other
+
+    def test_two_sessions_overlapping_scope_second_begin_fails_with_named_conflict(self):
+        self.assertEqual(0, skill_context.main(
+            ["begin", "--skill", "S-20", "--scope", "a/x.py", "--session-id", "sess-A", "--skip-dar"]))
+        result = skill_context.main(
+            ["begin", "--skill", "S-21", "--scope", "a/*.py", "--session-id", "sess-B", "--skip-dar"])
+        self.assertEqual(result, 3)  # named conflict, NOT a silent supersede
+        live = skill_context._load_session_contexts()
+        self.assertEqual(set(live), {"sess-A"})  # A survives untouched
+        self.assertEqual(live["sess-A"]["skill_id"], "S-20")
+
+    def test_session_end_only_ends_own_context(self):
+        skill_context.main(["begin", "--skill", "S-20", "--scope", "a/x.py",
+                            "--session-id", "sess-A", "--skip-dar"])
+        skill_context.main(["begin", "--skill", "S-21", "--scope", "b/y.py",
+                            "--session-id", "sess-B", "--skip-dar"])
+        skill_context.main(["end", "--skill", "S-20", "--session-id", "sess-A"])
+        live = skill_context._load_session_contexts()
+        self.assertEqual(set(live), {"sess-B"})  # B untouched by A's end
+
+    def test_rebegin_same_session_replaces_own_context_without_conflict(self):
+        skill_context.main(["begin", "--skill", "S-20", "--scope", "a/x.py",
+                            "--session-id", "sess-A", "--skip-dar"])
+        r = skill_context.main(["begin", "--skill", "S-22", "--scope", "a/x.py",
+                                "--session-id", "sess-A", "--skip-dar"])
+        self.assertEqual(r, 0)  # own scope is not a conflict with itself
+        self.assertEqual(skill_context._load_session_contexts()["sess-A"]["skill_id"], "S-22")
+
+    def test_stale_session_context_self_expires_per_ttl(self):
+        skill_context.main(["begin", "--skill", "S-20", "--scope", "a/x.py",
+                            "--session-id", "sess-A", "--skip-dar"])
+        p = skill_context._session_context_path("sess-A")
+        rec = json.loads(p.read_text(encoding="utf-8"))
+        rec["started_at"] = (datetime.now(timezone.utc) - timedelta(hours=5)).isoformat().replace("+00:00", "Z")
+        p.write_text(json.dumps(rec), encoding="utf-8")
+        self.assertEqual(skill_context._load_session_contexts(), {})  # expired
+        self.assertFalse(p.exists())
+
+    def test_archiving_stale_session_does_not_delete_legacy_active(self):
+        """Regression guard: _archive() unlinks ACTIVE.json by default. Archiving a stale
+        SESSION context must never destroy an unrelated legacy context."""
+        skill_context.main(["begin", "--skill", "S-30", "--scope", "legacy/*", "--skip-dar"])
+        self.assertTrue(skill_context._ACTIVE_FILE.exists())
+        skill_context.main(["begin", "--skill", "S-20", "--scope", "a/x.py",
+                            "--session-id", "sess-A", "--skip-dar"])
+        p = skill_context._session_context_path("sess-A")
+        rec = json.loads(p.read_text(encoding="utf-8"))
+        rec["started_at"] = (datetime.now(timezone.utc) - timedelta(hours=5)).isoformat().replace("+00:00", "Z")
+        p.write_text(json.dumps(rec), encoding="utf-8")
+        skill_context._load_session_contexts()  # triggers stale archive of sess-A
+        self.assertTrue(skill_context._ACTIVE_FILE.exists(), "legacy ACTIVE.json was wrongly deleted")
+
+    # ── backward compatibility (the non-negotiable acceptance) ───────────
+    def test_existing_single_session_callers_unaffected(self):
+        """Every current caller omits --session-id and must behave exactly as before:
+        begin -> ACTIVE.json written; a second begin supersedes it (legacy semantics)."""
+        self.assertEqual(0, skill_context.main(["begin", "--skill", "S-20", "--scope", "a/*", "--skip-dar"]))
+        self.assertTrue(skill_context._ACTIVE_FILE.exists())
+        self.assertEqual(skill_context._load_active()["skill_id"], "S-20")
+        # legacy supersede still happens (unchanged behavior)
+        self.assertEqual(0, skill_context.main(["begin", "--skill", "S-21", "--scope", "b/*", "--skip-dar"]))
+        self.assertEqual(skill_context._load_active()["skill_id"], "S-21")
+        self.assertEqual(0, skill_context.main(["end", "--skill", "S-21"]))
+        self.assertIsNone(skill_context._load_active())
+        # no session files were created by legacy callers
+        self.assertEqual(skill_context._load_session_contexts(), {})
+
+    def test_check_with_session_id_isolates_to_that_session(self):
+        skill_context.main(["begin", "--skill", "S-20", "--scope", "a/x.py",
+                            "--session-id", "sess-A", "--skip-dar"])
+        self.assertEqual(0, skill_context.main(["check", "--file", "a/x.py", "--session-id", "sess-A"]))
+        self.assertEqual(1, skill_context.main(["check", "--file", "b/y.py", "--session-id", "sess-A"]))
+        self.assertEqual(2, skill_context.main(["check", "--file", "a/x.py", "--session-id", "sess-Z"]))
+
+    def test_legacy_check_also_honors_session_contexts(self):
+        """A session on the OCC path must not be blocked by a hook that doesn't know its id."""
+        skill_context.main(["begin", "--skill", "S-20", "--scope", "a/x.py",
+                            "--session-id", "sess-A", "--skip-dar"])
+        self.assertEqual(0, skill_context.main(["check", "--file", "a/x.py"]))
+
+
 if __name__ == "__main__":
     unittest.main()

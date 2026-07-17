@@ -227,6 +227,13 @@ class CapabilityClaimCheckEvaluator(BaseEvaluator):
                 pre_char = scan_text[m.start() - 1 : m.start()] if m.start() > 0 else ""
                 if pre_char in ("*", "`", "_") and tail[:1] == pre_char:
                     continue
+                # ST-029 FP guard: a format token immediately followed by ".<identifier>" is a
+                # member/property access on a variable named like the format, not a format claim.
+                # e.g. `doc.Save(ms)`, `doc.ToArray()` — the variable `doc` is NOT the DOC format.
+                # (Measured: 39 such false "Claims DOC export" findings across 19 pdf/net pages,
+                #  because `doc` is the near-universal idiom for an Aspose Document variable.)
+                if tail[:1] == "." and (tail[1:2].isalpha() or tail[1:2] == "_"):
+                    continue
 
                 claimed = _claim_direction(scan_text, m.start(), m.end())
                 if claimed is None:

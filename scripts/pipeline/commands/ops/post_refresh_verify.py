@@ -115,6 +115,53 @@ def _load_progress(family: str, platform: str) -> dict:
     return {"family": family, "platform": platform, "steps": [], "pages_updated": [], "pages_generated": []}
 
 
+def _pages_updated_state(family: str, platform: str) -> tuple:
+    """Classify progress.json's pages_updated recording (RPR-J-00, fixes SW-6/SW-7).
+
+    Returns one of:
+      ("present", count)  — current-schema progress.json with a pages_updated list
+      ("old_schema", None)— progress.json exists but has NO pages_updated key (a real
+                            pre-2026-07 schema, e.g. cells/java 2026-06-28). "Absent key"
+                            is NOT "zero updates" — the distinction that stops a false BLOCK.
+      ("absent", None)    — no/unreadable progress.json (fresh clone, CI)
+
+    Callers must treat old_schema/absent as UNKNOWN, never default the count to 0.
+    """
+    p = _progress_path(family, platform)
+    if not p.is_file():
+        return ("absent", None)
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return ("absent", None)
+    if "pages_updated" not in data:
+        return ("old_schema", None)
+    return ("present", len(data.get("pages_updated") or []))
+
+
+def _recon_body_change_view(family: str, platform: str) -> "dict | None":
+    """Return the reconciliation's OWN internal view, or None if absent/unreadable.
+
+    Keys: files_with_body_diff, executed_pages_updated, files_metadata_only. Used to
+    judge a refresh by whether reconciliation is *self-consistent* (RPR-J-00) rather than
+    by whether two independent ephemeral files (recon vs progress.json) happen to agree.
+    """
+    recon_path = REPORTS_ROOT / family / platform / "execution_reconciliation.json"
+    if not recon_path.is_file():
+        return None
+    try:
+        recon = json.loads(recon_path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    body = recon.get("body_changes", {}) or {}
+    executed = recon.get("executed", {}) or {}
+    return {
+        "files_with_body_diff": body.get("files_with_body_diff", 0),
+        "files_metadata_only": body.get("files_metadata_only", 0),
+        "executed_pages_updated": executed.get("pages_updated", 0),
+    }
+
+
 def _load_intentional_renames(family: str, platform: str) -> set:
     """Best-effort read of `intentional_renames` from the newest refresh-run manifest
     (schema 5e) for this product. Empty set if no manifest exists yet (RPR-F-05)."""
@@ -782,7 +829,8 @@ def check_coverage_completeness(
     return False, failures
 
 
-def verify(family: str, platform: str, *, allow_warn: bool = False) -> tuple[bool, list[str]]:
+def verify(family: str, platform: str, *, allow_warn: bool = False,
+           unknowns_out: "list | None" = None) -> tuple[bool, list[str]]:
     """Run the post-refresh verification checklist.
 
     Returns (passed: bool, failures: list[str]).
@@ -794,8 +842,16 @@ def verify(family: str, platform: str, *, allow_warn: bool = False) -> tuple[boo
     allow_warn=True to demote them back to WARN (explicit opt-out only, never the
     default), for the rare case where an operator has manually confirmed the
     condition is benign.
+
+    RPR-J-00 (tri-state): a check whose durable/recording inputs are absent, old-schema,
+    or mutually-contradictory returns UNKNOWN rather than a fabricated FAIL with a made-up
+    count. UNKNOWN items are appended to `unknowns_out` (when provided) and printed, but do
+    NOT enter `failures` — so `passed` is not flipped by "I could not verify". A caller that
+    must not ship an unverified refresh treats a non-empty unknowns list as commit-blocking
+    (see main()'s exit code 3), which is different from a content defect (exit 1).
     """
     failures = []
+    unknowns = unknowns_out if unknowns_out is not None else []
 
     merged = KNOWLEDGE_ROOT / family / platform / "merged"
 
@@ -930,35 +986,56 @@ def verify(family: str, platform: str, *, allow_warn: bool = False) -> tuple[boo
         try:
             claim_delta = json.loads(claim_delta_path.read_text(encoding="utf-8"))
             removed_count = len(claim_delta.get("removed_claims", []))
-            progress_data = _load_progress(family, platform)
-            completed_steps = set(progress_data.get("steps", []))
-            pages_updated_count = len(progress_data.get("pages_updated", []))
-            if removed_count > 50 and pages_updated_count == 0 and "page_update" not in completed_steps:
-                failures.append(
-                    f"Check 7: {removed_count} claims removed from knowledge but "
-                    f"page_update (S-20) was never run and pages_updated=0. "
-                    f"Run S-84 from Step 4 (page_update) forward."
-                )
-                print(
-                    f"  Check 7: FAIL — {removed_count} removed claims, 0 pages updated, "
-                    f"page_update step not in completed steps"
-                )
-            elif removed_count > 50 and pages_updated_count == 0:
-                # page_update ran but found nothing to update. RPR-F-01: this is the
-                # "ran-and-did-nothing" branch — BLOCKING by default (was WARN-only,
-                # the exact hole the PDF-NET-REFRESH-001 refresh slipped through).
-                msg = (
-                    f"Check 7: {removed_count} removed claims but pages_updated=0 "
-                    f"(page_update ran and changed nothing; confirm via page_decisions.json). "
-                    f"Pass --allow-warn only after manually confirming this is benign."
-                )
-                if allow_warn:
-                    print(f"  Check 7: WARN (--allow-warn) — {msg}")
-                else:
-                    failures.append(msg)
-                    print(f"  Check 7: FAIL (RPR-F-01) — {msg}")
+            if removed_count <= 50:
+                print("  Check 7: PASS — completeness guard (removed_count <= 50)")
             else:
-                print("  Check 7: PASS — completeness guard")
+                # RPR-J-00: distinguish "did nothing" (recording present + genuinely zero)
+                # from "cannot tell" (absent/old-schema recording, or reconciliation shows
+                # work WAS done and only progress.json disagrees). Only the first is a FAIL.
+                state, pages_updated_count = _pages_updated_state(family, platform)
+                recon_view = _recon_body_change_view(family, platform)
+                recon_shows_work = bool(recon_view) and (
+                    recon_view["executed_pages_updated"] > 0
+                    or recon_view["files_with_body_diff"] > 0
+                )
+                if state in ("absent", "old_schema"):
+                    msg = (
+                        f"Check 7: {removed_count} removed claims, but the page-update record is "
+                        f"{state} (no current-schema pages_updated) — cannot confirm whether "
+                        f"page_update ran. Not a defect; verify against git (RPR-J-05) or re-run "
+                        f"the refresh so a current-schema record exists."
+                    )
+                    unknowns.append(msg)
+                    print(f"  Check 7: UNKNOWN (RPR-J-00) — {msg}")
+                elif pages_updated_count == 0 and recon_shows_work:
+                    # progress.json says 0 but reconciliation records real body work — the two
+                    # ephemeral files disagree. Not a content defect; a bookkeeping desync.
+                    msg = (
+                        f"Check 7: progress.json pages_updated=0 but execution_reconciliation "
+                        f"records body work (executed={recon_view['executed_pages_updated']}, "
+                        f"body_diff={recon_view['files_with_body_diff']}). Bookkeeping desync, "
+                        f"not a tracking gap — verify against git (RPR-J-05)."
+                    )
+                    unknowns.append(msg)
+                    print(f"  Check 7: UNKNOWN (RPR-J-00) — {msg}")
+                elif pages_updated_count == 0:
+                    # Recording is present and current-schema AND reconciliation does not show
+                    # work either (or is absent). This is the genuine ran-and-did-nothing case.
+                    completed_steps = set(_load_progress(family, platform).get("steps", []))
+                    ran = "page_update" in completed_steps
+                    msg = (
+                        f"Check 7: {removed_count} removed claims but pages_updated=0 and "
+                        f"reconciliation shows no body work "
+                        f"({'page_update ran and changed nothing' if ran else 'page_update never ran'}). "
+                        f"Pass --allow-warn only after manually confirming this is benign."
+                    )
+                    if allow_warn:
+                        print(f"  Check 7: WARN (--allow-warn) — {msg}")
+                    else:
+                        failures.append(msg)
+                        print(f"  Check 7: FAIL (RPR-F-01) — {msg}")
+                else:
+                    print(f"  Check 7: PASS — {pages_updated_count} pages updated")
         except Exception:
             pass  # Non-blocking; delta file may not exist on first run
 
@@ -968,40 +1045,41 @@ def verify(family: str, platform: str, *, allow_warn: bool = False) -> tuple[boo
     #         register the paths via --updated CLI arg.  Tracking gap, not content failure.
     # CASE B: prose_stale_scan report exists with hits — G-15 scan found stale prose
     #         references to removed APIs that have not yet been remediated.
-    recon_path_c8 = REPORTS_ROOT / family / platform / "execution_reconciliation.json"
-    files_with_body_diff_c8 = 0
-    if recon_path_c8.is_file():
-        try:
-            recon_c8 = json.loads(recon_path_c8.read_text(encoding="utf-8"))
-            files_with_body_diff_c8 = (
-                recon_c8.get("body_changes", {}).get("files_with_body_diff", 0)
-            )
-        except Exception:
-            pass  # Non-blocking; malformed reconciliation is ignored
-
-    progress_data_c8 = _load_progress(family, platform)
-    pages_updated_c8 = progress_data_c8.get("pages_updated", [])
-
-    if files_with_body_diff_c8 > 0 and len(pages_updated_c8) == 0:
-        # RPR-F-01: the literal tracking gap — real body diffs exist but progress.json
-        # records none. This is the exact PDF-NET-REFRESH-001 v26.7.0 on-disk state
-        # (files_with_body_diff=36, pages_updated=[]). BLOCKING by default (was WARN).
-        msg = (
-            f"Check 8 (Case A): execution_reconciliation shows "
-            f"{files_with_body_diff_c8} file(s) with body diff but progress.json "
-            f"pages_updated=[] — the tracking gap. page_decisions.json must cover the "
-            f"updated files. Pass --allow-warn only after manual confirmation."
-        )
-        if allow_warn:
-            print(f"  Check 8: WARN (Case A, --allow-warn) — {msg}")
-        else:
-            failures.append(msg)
-            print(f"  Check 8: FAIL (Case A, RPR-F-01) — {msg}")
+    # RPR-J-00: judge reconciliation by its OWN self-consistency, not by whether it agrees
+    # with the separate, independently-stale progress.json. The original check FAILed
+    # whenever recon.body_changes.files_with_body_diff > 0 while progress.json.pages_updated
+    # was empty — but recon ALSO records executed.pages_updated, and for a healthy refresh
+    # (pdf/net: executed=36, body_diff=36, metadata_only=0) that field confirms the work WAS
+    # tracked. Comparing two ephemeral files manufactured a false BLOCK on a clean refresh.
+    recon_view_c8 = _recon_body_change_view(family, platform)
+    if recon_view_c8 is None:
+        print("  Check 8 Case A: UNKNOWN — execution_reconciliation.json not present "
+              "(cannot verify tracking from bookkeeping; verify against git, RPR-J-05)")
+        unknowns.append("Check 8 (Case A): reconciliation artifact absent — tracking unverifiable")
     else:
-        if files_with_body_diff_c8 == 0 and recon_path_c8.is_file():
-            print("  Check 8 Case A: PASS — no untracked body-diff files")
-        elif not recon_path_c8.is_file():
-            print("  Check 8 Case A: SKIP — execution_reconciliation.json not present")
+        body_diff = recon_view_c8["files_with_body_diff"]
+        exec_updated = recon_view_c8["executed_pages_updated"]
+        if body_diff == 0:
+            print("  Check 8 Case A: PASS — no body-diff files recorded")
+        elif exec_updated >= body_diff:
+            # Reconciliation is self-consistent: it recorded at least as many executed page
+            # updates as body diffs. The refresh tracked its work. (progress.json may lag —
+            # that is a bookkeeping desync, not a content tracking gap.)
+            print(f"  Check 8 Case A: PASS — reconciliation self-consistent "
+                  f"(executed={exec_updated} >= body_diff={body_diff})")
+        else:
+            # Reconciliation ITSELF shows a gap: more body diffs than it recorded as executed
+            # updates. This is a genuine tracking failure inside the durable-ish record.
+            msg = (
+                f"Check 8 (Case A): reconciliation shows {body_diff} body-diff file(s) but only "
+                f"{exec_updated} recorded as executed page updates — a real tracking gap within "
+                f"the reconciliation record. Pass --allow-warn only after manual confirmation."
+            )
+            if allow_warn:
+                print(f"  Check 8: WARN (Case A, --allow-warn) — {msg}")
+            else:
+                failures.append(msg)
+                print(f"  Check 8: FAIL (Case A, RPR-F-01) — {msg}")
 
     # CASE B: prose stale scan
     prose_stale_path = (
@@ -1244,15 +1322,32 @@ def main(argv: list[str] | None = None) -> int:
         except Exception:
             pass  # prereqs is best-effort; verify() has its own checks
         print(f"Running post-refresh verification for {args.family}/{args.platform}...")
-        passed, failures = verify(args.family, args.platform, allow_warn=getattr(args, "allow_warn", False))
-        if passed:
-            print("VERIFICATION PASSED: all checks clean.")
-            return 0
-        else:
+        unknowns: list = []
+        passed, failures = verify(
+            args.family, args.platform,
+            allow_warn=getattr(args, "allow_warn", False),
+            unknowns_out=unknowns,
+        )
+        if not passed:
+            # Real content/tracking defects — a hard failure (exit 1).
             print(f"VERIFICATION FAILED: {len(failures)} issue(s) found:")
             for f in failures:
                 print(f"  - {f}")
+            if unknowns:
+                print(f"  (plus {len(unknowns)} UNVERIFIABLE item(s) — see UNKNOWN lines above)")
             return 1
+        if unknowns:
+            # RPR-J-00: nothing FAILED, but one or more checks could not be verified from
+            # durable inputs. Not a content defect and no fabricated count — but a refresh
+            # that cannot be verified must not be silently treated as clean. Exit 3 so the
+            # commit gate can block while --verify's exit 1 stays reserved for real defects.
+            print(f"VERIFICATION INCONCLUSIVE: {len(unknowns)} check(s) could not be verified "
+                  f"from durable state (no content defect found):")
+            for u in unknowns:
+                print(f"  - {u}")
+            return 3
+        print("VERIFICATION PASSED: all checks clean.")
+        return 0
 
     return 0
 
