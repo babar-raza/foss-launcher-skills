@@ -175,6 +175,37 @@ class TestClaimIds:
         fails = [r for r in results if r.level == "FAIL"]
         assert len(fails) == 2
 
+    def test_unknown_tier2_erc_claim_id_warns_not_fails(self):
+        """RPR-J-07: a missing Tier-2 (ERC-*) claim_id is expected enrichment
+        churn, not a defect -- it must WARN, never FAIL."""
+        fm = {"evidence": {"model_sha": "abc12345", "claims": ["ERC-pdf-net-deadbeef"]}}
+        k = FakeKnowledge(repo_sha="abc12345", claim_ids={"CLM-pdf-aaaa1111"})
+        results = verify_evidence(fm, k, FAKE_FILE)
+        fails = [r for r in results if r.level == "FAIL"]
+        warns = [r for r in results if r.level == "WARN"]
+        assert fails == []
+        assert any("ERC-pdf-net-deadbeef" in m for m in _messages(warns))
+
+    def test_unknown_tier1_clm_claim_id_still_fails(self):
+        """A missing Tier-1 (CLM-*) claim_id is a real signal and must still
+        block, unchanged by RPR-J-07."""
+        fm = {"evidence": {"model_sha": "abc12345", "claims": ["CLM-pdf-deadbeef"]}}
+        k = FakeKnowledge(repo_sha="abc12345", claim_ids={"CLM-pdf-aaaa1111"})
+        results = verify_evidence(fm, k, FAKE_FILE)
+        fails = [r for r in results if r.level == "FAIL"]
+        assert len(fails) == 1
+        assert "CLM-pdf-deadbeef" in fails[0].message
+
+    def test_mixed_tier1_and_tier2_unknown_claims_split_correctly(self):
+        fm = {"evidence": {"model_sha": "abc12345",
+                           "claims": ["CLM-pdf-deadbeef", "ERC-pdf-net-deadbeef"]}}
+        k = FakeKnowledge(repo_sha="abc12345", claim_ids={"CLM-pdf-aaaa1111"})
+        results = verify_evidence(fm, k, FAKE_FILE)
+        fails = [r for r in results if r.level == "FAIL"]
+        warns = [r for r in results if r.level == "WARN"]
+        assert len(fails) == 1 and "CLM-pdf-deadbeef" in fails[0].message
+        assert any("ERC-pdf-net-deadbeef" in m for m in _messages(warns))
+
 
 # ---------------------------------------------------------------------------
 # API reference validation

@@ -1096,6 +1096,21 @@ scripts:
     change_impact: null
     notes: "RH-203 3-source triage reconciliation — combines layer1_triage, layer2_triage, page_spec into final_verdict; conservative: any stale signal triggers needs_update. RPR-F-03 (2026-07-16): added a real argparse/__main__ CLI (2-of-3-source: page_spec not wired into the CLI path, see module docstring); library API (test_refresh_validation.py coverage) unchanged."
 
+  - path: scripts/pipeline/lib/knowledge_tiers.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_knowledge_tiers.py]
+    deprecated_since: null
+    change_impact: "RPR-J-07 (2026-07-17, new file): tiers a claim_id by its ID-scheme prefix (CLM-*=Tier-1 deterministic/scout, ERC-*=Tier-2 LLM-enriched) so blocking gates can distinguish an unknown-claim-id defect (Tier-1, real) from expected enrichment churn (Tier-2, non-blocking). Consumed by evidence_verifier.py and post_refresh_verify.py Check 2."
+
   - path: scripts/pipeline/lib/baseline_ledger.py
     kind: library
     lifecycle: active

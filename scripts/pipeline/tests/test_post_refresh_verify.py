@@ -151,6 +151,52 @@ class TestVerifyCheckOrphanedClaims:
         passed, failures = post_refresh_verify.verify("3d", "python")
         assert any("Orphaned" in f for f in failures)
 
+    def test_orphaned_tier1_clm_claim_still_fails(self, tmp_path):
+        """RPR-J-07: a missing Tier-1 (CLM-*) claim_id is a real signal and
+        must still block, unchanged."""
+        claims = [{"claim_id": "CLM-3d-aaaa1111"}]
+        _setup_knowledge(tmp_path, "3d", "python", claims=claims)
+
+        content_dir = tmp_path / "content" / "docs.aspose.org" / "en" / "3d" / "python"
+        content_dir.mkdir(parents=True)
+        (content_dir / "page.md").write_text(
+            "---\nevidence:\n  claims:\n    - CLM-3d-deadbeef\n---\nbody\n"
+        )
+
+        passed, failures = post_refresh_verify.verify("3d", "python")
+        assert any("Orphaned" in f and "CLM-3d-deadbeef" in f for f in failures)
+
+    def test_orphaned_tier2_erc_claim_does_not_fail(self, tmp_path):
+        """RPR-J-07: a missing Tier-2 (ERC-*) claim_id is expected enrichment
+        churn -- it must NOT appear in failures (non-blocking)."""
+        claims = [{"claim_id": "CLM-3d-aaaa1111"}]
+        _setup_knowledge(tmp_path, "3d", "python", claims=claims)
+
+        content_dir = tmp_path / "content" / "docs.aspose.org" / "en" / "3d" / "python"
+        content_dir.mkdir(parents=True)
+        (content_dir / "page.md").write_text(
+            "---\nevidence:\n  claims:\n    - ERC-3d-python-deadbeef\n---\nbody\n"
+        )
+
+        passed, failures = post_refresh_verify.verify("3d", "python")
+        assert not any("Orphaned" in f for f in failures)
+
+    def test_mixed_tier1_and_tier2_orphaned_claims_only_tier1_fails(self, tmp_path):
+        claims = [{"claim_id": "CLM-3d-aaaa1111"}]
+        _setup_knowledge(tmp_path, "3d", "python", claims=claims)
+
+        content_dir = tmp_path / "content" / "docs.aspose.org" / "en" / "3d" / "python"
+        content_dir.mkdir(parents=True)
+        (content_dir / "page.md").write_text(
+            "---\nevidence:\n  claims:\n    - CLM-3d-deadbeef\n    - ERC-3d-python-deadbeef\n---\nbody\n"
+        )
+
+        passed, failures = post_refresh_verify.verify("3d", "python")
+        orphan_failures = [f for f in failures if "Orphaned" in f]
+        assert len(orphan_failures) == 1
+        assert "CLM-3d-deadbeef" in orphan_failures[0]
+        assert "ERC-3d-python-deadbeef" not in orphan_failures[0]
+
 
 # ---------------------------------------------------------------------------
 # verify() — check 4: stale_detect subprocess (mocked)

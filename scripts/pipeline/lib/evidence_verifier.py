@@ -24,6 +24,7 @@ if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
 
 from token_ops import Finding  # noqa: E402
+from knowledge_tiers import is_tier2_claim_id  # noqa: E402
 
 if TYPE_CHECKING:
     from knowledge_core import Knowledge  # pragma: no cover
@@ -73,11 +74,25 @@ def verify_evidence(
     if can_validate_claims:
         for claim_id in (evidence.get("claims") or []):
             if claim_id and claim_id not in knowledge.claim_ids:
-                findings.append(Finding(
-                    "FAIL", filepath, 0,
-                    f"`evidence.claims` references unknown claim_id `{claim_id}`",
-                    "Check merged/claims.json for valid IDs",
-                ))
+                # RPR-J-07: a missing Tier-2 (ERC-* / LLM-enriched) claim_id is
+                # expected churn -- capability-mode enriched claims are still
+                # content-hash-keyed (RPR-J-16 only stabilized the member-doc
+                # majority) and legitimately re-key across a knowledge rebuild.
+                # A missing Tier-1 (CLM-* / scout, deterministic) claim_id is a
+                # real signal and must still block.
+                if is_tier2_claim_id(claim_id):
+                    findings.append(Finding(
+                        "WARN", filepath, 0,
+                        f"`evidence.claims` references unknown claim_id `{claim_id}` "
+                        "(Tier-2/enriched — non-blocking, RPR-J-07)",
+                        "Check merged/claims.json for valid IDs",
+                    ))
+                else:
+                    findings.append(Finding(
+                        "FAIL", filepath, 0,
+                        f"`evidence.claims` references unknown claim_id `{claim_id}`",
+                        "Check merged/claims.json for valid IDs",
+                    ))
     elif evidence.get("claims"):
         findings.append(Finding(
             "WARN", filepath, 0,
