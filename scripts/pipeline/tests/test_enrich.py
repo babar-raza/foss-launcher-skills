@@ -441,6 +441,28 @@ class TestAssignIdsMemberDocAnchor:
         assert len(result) == 2
         assert result[0]["claim_id"] != result[1]["claim_id"]
 
+    def test_known_limitation_cross_scheme_anchor_vs_text_collision(self):
+        """Documents a real, narrow limitation found by RPR-J-10's independent
+        review: the anchor winner's ID is sha256(anchor|kind), identical to
+        what a NON-member-doc claim would get if its own full text equals the
+        bare anchor string with the same kind. This is unreachable from real
+        capability-mode prose (which never emits a bare "Class.Member" as a
+        complete claim) and is backstopped by promote.py's duplicate-ERC-id
+        hard-abort (it fails the write loudly rather than silently merging
+        two distinct claims) -- but _assign_ids itself does not prevent it.
+        This test pins the actual behavior so a future change to the ID
+        scheme doesn't silently alter it without notice."""
+        winner = {"text": "Save.Load reads data from the given path.",
+                  "kind": "api", "claim_source": "llm_member_doc"}
+        collider = {"text": "Save.Load", "kind": "api"}  # non-member-doc, text == bare anchor
+        result = _assign_ids([winner, collider], "cells", "python")
+        assert len(result) == 2, "no claim is dropped"
+        ids = [c["claim_id"] for c in result]
+        assert ids[0] == ids[1], (
+            "documents the known cross-scheme collision -- if this assertion "
+            "starts failing, the limitation described in _assign_ids' docstring "
+            "may have been fixed or changed; update both together")
+
 
 # ---------------------------------------------------------------------------
 # enrich() with no_llm=True — integration smoke test

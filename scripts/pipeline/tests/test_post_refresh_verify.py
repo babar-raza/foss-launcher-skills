@@ -846,6 +846,65 @@ class TestVerifyCheck5ReconciliationUnknown:
         assert any("Check 5" in u and "schema_version" in u for u in unknowns)
 
 
+class TestAssertNoSkippedPages:
+    """assert_no_skipped_pages() (TC-14) — had zero test coverage anywhere in
+    the suite before this (found during RPR-J-10's independent Lane I
+    review). Covers the pre-existing PASS/FAIL/deferral/absent behavior plus
+    the new schema-version guard (RPR-J-10 follow-up): reading
+    skipped.pages_add_skipped via .get(key, 0) on an old-schema artifact
+    would otherwise silently read as "0 skipped" -- a false PASS this
+    function must never produce."""
+
+    def _write_recon(self, tmp_path, family, platform, skipped: dict, schema_version=2) -> None:
+        refresh_dir = tmp_path / "refresh_state" / family / platform
+        refresh_dir.mkdir(parents=True, exist_ok=True)
+        doc = {"planned": {}, "executed": {}, "skipped": skipped}
+        if schema_version is not None:
+            doc["schema_version"] = schema_version
+        (refresh_dir / "execution_reconciliation.json").write_text(json.dumps(doc), encoding="utf-8")
+
+    def test_zero_skipped_passes(self, tmp_path):
+        post_refresh_verify.configure(repo_root=tmp_path, reports_root=tmp_path / "refresh_state")
+        self._write_recon(tmp_path, "cells", "net", {"pages_add_skipped": 0})
+        post_refresh_verify.assert_no_skipped_pages("cells", "net")  # must not raise
+
+    def test_skipped_without_deferral_raises(self, tmp_path):
+        post_refresh_verify.configure(repo_root=tmp_path, reports_root=tmp_path / "refresh_state")
+        self._write_recon(tmp_path, "cells", "net", {"pages_add_skipped": 3, "skip_reason": "test"})
+        with pytest.raises(post_refresh_verify.SkippedPagesError):
+            post_refresh_verify.assert_no_skipped_pages("cells", "net")
+
+    def test_skipped_with_full_deferral_passes(self, tmp_path):
+        post_refresh_verify.configure(repo_root=tmp_path, reports_root=tmp_path / "refresh_state")
+        self._write_recon(tmp_path, "cells", "net",
+                          {"pages_add_skipped": 3, "pages_deferred_low_importance": 3})
+        post_refresh_verify.assert_no_skipped_pages("cells", "net")  # must not raise
+
+    def test_absent_reconciliation_raises_file_not_found(self, tmp_path):
+        post_refresh_verify.configure(repo_root=tmp_path, reports_root=tmp_path / "refresh_state")
+        with pytest.raises(FileNotFoundError):
+            post_refresh_verify.assert_no_skipped_pages("cells", "net")
+
+    def test_old_schema_raises_schema_unknown_not_silent_pass(self, tmp_path):
+        """RPR-J-10 follow-up (found by independent review): an old-schema
+        artifact with a genuinely nonzero pages_add_skipped under a DIFFERENT
+        field name would read as 0 via .get(key, 0) -- must raise instead of
+        silently passing."""
+        post_refresh_verify.configure(repo_root=tmp_path, reports_root=tmp_path / "refresh_state")
+        self._write_recon(tmp_path, "cells", "net", {"pages_add_skipped": 0}, schema_version=None)
+        with pytest.raises(post_refresh_verify.ReconciliationSchemaUnknownError):
+            post_refresh_verify.assert_no_skipped_pages("cells", "net")
+
+    def test_cli_old_schema_exits_3_not_0(self, tmp_path):
+        """The CLI --assert-no-skipped path must surface schema-unknown as its
+        own exit code (3, mirroring --verify's INCONCLUSIVE), never exit 0
+        (clean pass) or silently swallow it."""
+        post_refresh_verify.configure(repo_root=tmp_path, reports_root=tmp_path / "refresh_state")
+        self._write_recon(tmp_path, "cells", "net", {"pages_add_skipped": 0}, schema_version=None)
+        exit_code = post_refresh_verify.main(["cells", "net", "--assert-no-skipped"])
+        assert exit_code == 3
+
+
 class TestWriteReconciliationDeltaPath:
     """G-12 regression: site_plan.yaml delta lives at plan.delta, not top-level delta."""
 

@@ -706,6 +706,17 @@ class SkippedPagesError(RuntimeError):
     """
 
 
+class ReconciliationSchemaUnknownError(RuntimeError):
+    """Raised by assert_no_skipped_pages() (RPR-J-10 follow-up, found by
+    independent review) when execution_reconciliation.json exists but predates
+    schema_version or doesn't match. Reading skipped.pages_add_skipped with a
+    .get(key, 0) default on an old/incompatible shape would silently read as
+    "0 skipped" -- a false PASS. This function must never let that happen; it
+    raises instead of returning normally, so a caller cannot mistake "could
+    not verify" for "verified clean."
+    """
+
+
 def assert_no_skipped_pages(
     family: str,
     platform: str,
@@ -726,6 +737,8 @@ def assert_no_skipped_pages(
     Raises:
         SkippedPagesError: If any planned pages were not created.
         FileNotFoundError: If execution_reconciliation.json does not exist.
+        ReconciliationSchemaUnknownError: If the artifact exists but predates
+            schema_version (or doesn't match) -- its shape cannot be trusted.
     """
     recon_path = REPORTS_ROOT / family / platform / "execution_reconciliation.json"
     if not recon_path.is_file():
@@ -735,6 +748,13 @@ def assert_no_skipped_pages(
         )
 
     recon = json.loads(recon_path.read_text(encoding="utf-8"))
+    if recon.get("schema_version") != _RECONCILIATION_SCHEMA_VERSION:
+        raise ReconciliationSchemaUnknownError(
+            f"{family}/{platform}: execution_reconciliation.json predates schema_version "
+            f"{_RECONCILIATION_SCHEMA_VERSION} (or doesn't match) — cannot trust its "
+            f"skipped.pages_add_skipped shape. Re-run write_reconciliation() to regenerate "
+            f"a current-schema artifact before asserting no pages were skipped."
+        )
     skipped = recon.get("skipped", {})
     pages_add_skipped = int(skipped.get("pages_add_skipped", 0))
 
@@ -1546,6 +1566,12 @@ def main(argv: list[str] | None = None) -> int:
         except SkippedPagesError as exc:
             print(f"FAIL: {exc}", file=sys.stderr)
             return 2
+        except ReconciliationSchemaUnknownError as exc:
+            # RPR-J-10 follow-up: distinct from both a clean PASS (0) and a
+            # confirmed FAIL (2) -- mirrors --verify's exit-3 INCONCLUSIVE
+            # convention. Never silently treated as "0 skipped."
+            print(f"UNKNOWN: {exc}", file=sys.stderr)
+            return 3
 
     if args.verify:
         # Prerequisite check — clear error messages instead of cryptic tracebacks

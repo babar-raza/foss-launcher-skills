@@ -860,6 +860,19 @@ def _assign_ids(claims: list, family: str, platform: str) -> list:
     original text+kind hash scheme exactly as before. This also prevents
     sequential LLM batch IDs (001, 002, ...) from surviving across
     multi-batch runs and causing duplicate IDs for distinct claim texts.
+
+    Known limitation (found by independent review, RPR-J-10): the anchor
+    winner's ID is sha256(anchor|kind), which is byte-identical to what a
+    NON-member-doc claim would get if its own full text happened to equal
+    the bare anchor string with the same kind (e.g. text="Save.Load", no
+    claim_source) — a cross-scheme hash collision, not a within-anchor-group
+    one. This is unreached by real capability-mode prose (which describes
+    behavior in sentences, never emits a bare "ClassName.MemberName" as a
+    complete claim) and is backstopped even if it did occur: promote.py's
+    duplicate-ERC-id check (promote.py, "FAIL: N duplicate ERC claim_id(s) -
+    aborting write") hard-aborts the write rather than silently merging two
+    distinct claims under one ID. No claim is silently lost; the guarantee
+    that fails is "no possible input can collide," not "no data loss."
     """
     # Pass 1: compute each claim's anchor (or None), without assigning IDs.
     anchors: list = []

@@ -243,6 +243,21 @@ def _resolve_list_direction(claimed_dir: "str | None", line_text: str, pos: int)
     unrelated clause's verbs leak into a later, separate claim's direction.
     If exactly one of export/import framing appears within the current
     sentence (not both), that framing wins.
+
+    Known limitation (found by independent review, RPR-J-10): the sentence
+    boundary is punctuation-based ([.!?]\s+). A SINGLE sentence that joins a
+    genuinely separate import clause and an export-framed list via "and"
+    instead of a period — e.g. "Aspose.3D can read scene data and output to
+    FBX, OBJ, STL, PLY, GLTF images." — still resolves the list items to the
+    ambiguous "both" (has_export and has_import both true within one
+    sentence), so an export-only format late in such a list can still
+    produce a false bidirectional-mismatch WARN. This is the same severity
+    class as the bug this function fixes, not a new failure mode, and no
+    fix was attempted here: distinguishing "and" as a clause boundary from
+    "and" as a plain list conjunction ("BMP, GIF, and TIFF") reliably needs
+    more than a regex heuristic, and a wrong heuristic risks being worse
+    than the current, at least well-understood, boundary. Tracked as a
+    follow-up rather than papered over.
     """
     if claimed_dir != "both":
         return claimed_dir
