@@ -261,17 +261,31 @@ Do not run any subsequent steps. Exit 0.
       refreshed page FAILS the gate unless declared in the run manifest's `intentional_renames`.
 
     **Tri-state verdicts (RPR-J-00)**: Checks 7 and 8 now return one of three states, not a
-    binary PASS/FAIL. Absent or old-schema `progress.json` (e.g. a pre-2026-07 refresh with no
-    `pages_updated` key) is **UNKNOWN**, never a fabricated "0 updates" FAIL — the old behavior
-    manufactured false blocks (a healthy pdf/net refresh with 36/36 self-consistent reconciliation
-    was wrongly FAILed by comparing two independently-stale ephemeral files; a pre-schema
-    `progress.json` with an absent key was read as "0 pages updated" and wrongly FAILed on a
-    products with real work done). `--verify`'s exit codes: `0` = PASS, `1` = real FAIL (a
-    content/tracking defect), `3` = INCONCLUSIVE (one or more checks returned UNKNOWN — commit
-    is still blocked, but this is NOT a content defect and reports no fabricated count). Check 8
-    Case A now judges `execution_reconciliation.json` by its own internal self-consistency
-    (`executed.pages_updated >= body_changes.files_with_body_diff`), not by whether it agrees
-    with the separately-tracked `progress.json`.
+    binary PASS/FAIL. `--verify`'s exit codes: `0` = PASS, `1` = real FAIL (a content/tracking
+    defect), `3` = INCONCLUSIVE (one or more checks returned UNKNOWN — commit is still blocked,
+    but this is NOT a content defect and reports no fabricated count).
+
+    **Git-founded, not bookkeeping (RPR-J-05)**: Checks 7 and 8 Case A no longer read
+    `progress.json` / `execution_reconciliation.json` for their verdict — both are ephemeral,
+    gitignored, and were proven to disagree with each other on a genuinely healthy refresh
+    (comparing two independently-stale files manufactured false blocks). They now diff the
+    working tree against a git ref using the same primitive `audit_content_hash.py` already
+    uses for Checks 10/11 (`git show {ref}:{path}` vs. a normalized body hash). Check 7 asks
+    "did ANY discovered page's body really change" (aggregate); Check 8 Case A cross-checks
+    each page `page_decisions.json` records as `BODY_UPDATED` against that same git diff — a
+    decision claiming a body update whose body is git-identical to the base ref is the literal
+    PDF-NET-REFRESH-001 tracking-gap shape, caught directly. UNKNOWN when git-founded
+    verification is unavailable (no comparable pages, or not a git repo) — never a fabricated
+    count from an absent/old-schema bookkeeping file.
+
+    **`--base <ref>` (RPR-J-17)**: the ref Checks 7/8/10/11 diff against. Default: the newest
+    `reports/refresh_runs/{family}/{platform}/*.manifest.json`'s `base_commit_sha` if one
+    exists, else `HEAD`. **`HEAD` is only meaningful for an in-progress, not-yet-committed
+    refresh** — once a refresh has already landed, `HEAD` *is* the post-refresh state, so a
+    plain `HEAD` diff is vacuous (confirmed against real pdf/net data: every `BODY_UPDATED`
+    page showed 0 diff from `HEAD` purely because the refresh had already been committed, not
+    because nothing happened). Pass `--base <pre-refresh-sha>` explicitly to verify an
+    already-committed historical refresh against its true starting point.
 
     Note: `audit.py` is NOT re-run per-page during `--verify`; it is already enforced
     by S-20 and S-23 during the chain. `stale_detect.py` is the correct end-state proxy:
