@@ -64,6 +64,20 @@ Do not run any subsequent steps. Exit 0.
 
 
 1. **Detect change** (S-12: knowledge-diff):
+   - **First, capture this refresh's pre-refresh baseline (RPR-J-17/ST-034)**, before any
+     knowledge or content change is made:
+     ```bash
+     PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/ops/refresh_run_manifest.py {family} {platform} --capture-base
+     ```
+     Writes the current `HEAD` sha as `base_commit_sha` into a new
+     `reports/refresh_runs/{family}/{platform}/*.manifest.json`. `post_refresh_verify.py
+     --verify`'s git-founded checks (7, 8, 10, 11) read this automatically — without it they
+     silently default to comparing against `HEAD`, which is vacuous the moment this refresh's
+     own commits land (`HEAD` then *is* the post-refresh state; confirmed against real
+     pdf/net/3d/net/cells/java data, not merely theoretical — see RPR-J-10's independent
+     review). This step is a best-effort capture: if it fails (not a git repo, git
+     unavailable), proceed anyway — `--verify` falls back to `HEAD`, the pre-existing
+     behavior, not a new failure.
    ```
    /knowledge-diff {family} {platform} {repo-path}
    ```

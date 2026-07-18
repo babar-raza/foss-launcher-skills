@@ -1096,6 +1096,34 @@ scripts:
     change_impact: null
     notes: "RH-203 3-source triage reconciliation — combines layer1_triage, layer2_triage, page_spec into final_verdict; conservative: any stale signal triggers needs_update. RPR-F-03 (2026-07-16): added a real argparse/__main__ CLI (2-of-3-source: page_spec not wired into the CLI path, see module docstring); library API (test_refresh_validation.py coverage) unchanged."
 
+  - path: scripts/pipeline/commands/ops/migrate_schema_version.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    test_targets: [scripts/pipeline/tests/test_migrate_schema_version.py]
+    deprecated_since: null
+    change_impact: "ST-035 (2026-07-17, new file): one-time format-only migration stamping schema_version (RPR-J-08) onto pre-existing progress.json / execution_reconciliation.json / page_decisions.json artifacts, without re-deriving any decision content -- makes Check 8 Case A (and Checks 5/10/11) stop being safe-but-inert on real data. Dry-run by default (--apply to write), mirrors migrate_baseline_ledger.py's established CLI convention. reports/ output is local-only/gitignored; only this script itself is committed."
+
+  - path: scripts/pipeline/commands/ops/refresh_run_manifest.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    test_targets: [scripts/pipeline/tests/test_refresh_run_manifest.py]
+    deprecated_since: null
+    change_impact: "ST-034 (2026-07-17, new file): captures base_commit_sha (current HEAD) into a new refresh-run manifest before any refresh work begins, so post_refresh_verify.py's git-founded checks (7, 8, 10, 11) have a real, non-vacuous baseline to diff against instead of defaulting to HEAD (which is vacuous once the refresh's own commits land -- the single biggest gap identified by RPR-J-10's independent Lane I review). Wired into refresh-product (S-84) Step 1, before /knowledge-diff. Deliberately partial: does not populate the rest of schema 5e (baseline_ledger_ref, product_change_refs, page_coverage_ledger_ref, patch_receipt_refs, validation) -- a full end-of-run manifest writer remains a separate, unscoped follow-up. Consumed by post_refresh_verify.py::_load_base_commit_sha()."
+
   - path: scripts/pipeline/lib/knowledge_tiers.py
     kind: library
     lifecycle: active
