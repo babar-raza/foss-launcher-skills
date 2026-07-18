@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
-  "skill_count": 98,
+  "skill_count": 104,
   "skills": [
     {
       "id": "S-01",
@@ -735,6 +735,54 @@
       "internal": false,
       "canonical_path": "skills/production-localization-incident.md",
       "args": "``"
+    },
+    {
+      "id": "S-110",
+      "slug": "foss-java-publish",
+      "name": "FOSS Java Publish — Maven Central Publication and Content Healing",
+      "description": "Publish a FOSS Java library to Maven Central with exactly the surgical changes required —",
+      "internal": false,
+      "canonical_path": "skills/foss-java-publish.md"
+    },
+    {
+      "id": "S-111",
+      "slug": "baseline-ledger-writer",
+      "name": "Baseline Ledger Writer — Append-Only Baseline SHA History",
+      "description": "Give every product a durable, append-only baseline SHA history instead of the single mutable",
+      "internal": false,
+      "canonical_path": "skills/baseline-ledger-writer.md"
+    },
+    {
+      "id": "S-112",
+      "slug": "triage-verdict-gate",
+      "name": "Triage Verdict Gate — Deterministic Commit Precondition",
+      "description": "Turn S-92 triage-confirm's findings into a real, blocking gate.",
+      "internal": false,
+      "canonical_path": "skills/triage-verdict-gate.md"
+    },
+    {
+      "id": "S-113",
+      "slug": "plan-health-watchdog",
+      "name": "Plan Health Watchdog — Structured Stall Detection",
+      "description": "Make \"is this plan's prose still true, and is any P0 silently stuck?\" a machine-checkable question.",
+      "internal": false,
+      "canonical_path": "skills/plan-health-watchdog.md"
+    },
+    {
+      "id": "S-114",
+      "slug": "regression-classification",
+      "name": "Regression Classification — Cited JUSTIFIED/UNJUSTIFIED Verdicts",
+      "description": "Formalize \"classify a grade regression as JUSTIFIED/UNJUSTIFIED with a cited evidence source\" as a",
+      "internal": false,
+      "canonical_path": "skills/regression-classification.md"
+    },
+    {
+      "id": "S-115",
+      "slug": "workflow-harden",
+      "name": "Workflow Harden — GitHub Actions CI Forensic Audit & Hardening",
+      "description": "Manually review every GitHub Actions workflow in `.github/workflows/` (and any composite",
+      "internal": false,
+      "canonical_path": "skills/workflow-harden.md"
     },
     {
       "id": "S-HT-02",

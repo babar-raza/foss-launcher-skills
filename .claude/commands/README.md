@@ -143,6 +143,7 @@ Source: `scripts/pipeline/commands/ops/sync_skills.py:KNOWN_EXCEPTIONS` and `INT
 | S-101 | `new-blog-index` | Generation |
 | S-102 | `grade-remediate` | Repair |
 | S-103 | `post-sprint-loop` | Operations |
+| S-115 | `workflow-harden` | Operations |
 
 ---
 

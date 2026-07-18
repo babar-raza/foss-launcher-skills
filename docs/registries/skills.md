@@ -90,6 +90,7 @@
 | triage-verdict-gate | S-112 | Deterministic exit-code gate over triage_confirm/reconcile_triage findings; hard precondition for S-76 commit and post_refresh_verify Check 9 (RPR-F-03). Enforcement half of S-92 triage-confirm |
 | plan-health-watchdog | S-113 | Detect stalled P0 taskcards and plan-prose contradicted by repo state via structured taskcards.jsonl (schema 5f) field comparison + plan-markdown parity check (RPR-G-04) |
 | regression-classification | S-114 | Classify every grade regression JUSTIFIED/UNJUSTIFIED with a cited evidence source, writing the complete input list (never a sample) so it cannot be silently lost (RPR-A-01) |
+| workflow-harden | S-115 | GitHub Actions CI forensic audit and hardening — trigger/permission/secret/cache correctness plus CI-weight reduction across `.github/workflows/**` |
 | project-phase-store | S-10 | Track generation phase state |
 | publish-readiness-review | S-90 | Agent-executed governed inspection |
 | refresh-product | S-84 | Full post-launch product refresh orchestration |

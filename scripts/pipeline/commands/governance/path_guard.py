@@ -76,6 +76,10 @@ ALLOWED_PREFIXES: tuple[str, ...] = (
     "deletion-approvals/",
     # Website maintenance scripts (clean_locales.py, etc.) — governed batch ops.
     "scripts/website/",
+    # GitHub Actions CI definitions — governed by S-115 (workflow-harden); edit-time
+    # already required active skill context via check_skill_context_hook.sh's GOVERNED
+    # list, this closes the matching commit-time gate so a token isn't needed per commit.
+    ".github/workflows/",
 )
 
 FORBIDDEN_PREFIXES: tuple[str, ...] = (
