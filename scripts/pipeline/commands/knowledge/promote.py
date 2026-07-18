@@ -727,6 +727,60 @@ def _promote_snippets(scout_dir: Path, merged_dir: Path) -> int:
 # Main promote function
 # ---------------------------------------------------------------------------
 
+def _overrides_dir(family: str, platform: str, knowledge_root=None) -> Path:
+    """knowledge/_overrides/{family}/{platform}/ — RPR-J-03 (rescues SW-11).
+
+    Unlike the rest of knowledge/, this subtree is explicitly un-ignored
+    (.gitignore: `/knowledge/*` + `!/knowledge/_overrides`) so manually-curated
+    format notes and "Known Documentation Errors" survive a fresh clone or a
+    knowledge/ rebuild, instead of silently vanishing because they previously
+    lived only in the gitignored merged/ copy.
+    """
+    root = Path(knowledge_root) if knowledge_root else Path("knowledge")
+    return root / "_overrides" / family / platform
+
+
+def _load_format_overrides(family: str, platform: str, knowledge_root=None) -> list[dict]:
+    """Read committed note/manual formats.json entries, or [] if none exist yet."""
+    path = _overrides_dir(family, platform, knowledge_root) / "formats_overrides.json"
+    if not path.exists():
+        return []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return data if isinstance(data, list) else []
+    except (json.JSONDecodeError, OSError):
+        return []
+
+
+def _save_format_overrides(entries: list[dict], family: str, platform: str, knowledge_root=None) -> None:
+    """Write the committed note/manual formats.json entries (git-durable)."""
+    if not entries:
+        return
+    path = _overrides_dir(family, platform, knowledge_root) / "formats_overrides.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(entries, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def _load_known_errors_override(family: str, platform: str, knowledge_root=None) -> str:
+    """Read the committed 'Known Documentation Errors' block, or '' if none yet."""
+    path = _overrides_dir(family, platform, knowledge_root) / "known_errors.md"
+    if not path.exists():
+        return ""
+    try:
+        return path.read_text(encoding="utf-8")
+    except OSError:
+        return ""
+
+
+def _save_known_errors_override(block: str, family: str, platform: str, knowledge_root=None) -> None:
+    """Write the committed 'Known Documentation Errors' block (git-durable)."""
+    if not block:
+        return
+    path = _overrides_dir(family, platform, knowledge_root) / "known_errors.md"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(block, encoding="utf-8")
+
+
 def promote(family: str, platform: str, knowledge_root=None) -> bool:
     """Promote scout/ knowledge to merged/ with optional enriched/supplemental claims.
 
@@ -922,19 +976,38 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
     # file-extension aliases, method-based imports).  These are merged back
     # after the scout copy so that a plain promote.py run does not silently
     # erase them.
-    _fmt_preserved: list[dict] = []
+    #
+    # RPR-J-03 (rescues SW-11): the previous-run merged/formats.json this used
+    # to read from lives under gitignored knowledge/ and does not survive a
+    # fresh clone or a knowledge/ rebuild -- manually-curated entries would be
+    # silently lost forever. The committed knowledge/_overrides/{family}/{platform}/
+    # store (see _load_format_overrides/_save_format_overrides) is now the
+    # durable source: read from it first, union with whatever the ephemeral
+    # merged/ copy still has (covers products not yet migrated), then write
+    # the union back to the override store so it is rescued going forward.
     _fmt_dst = merged_dir / "formats.json"
+    _fmt_preserved: list[dict] = list(
+        _load_format_overrides(family, platform, knowledge_root)
+    )
+    _preserved_keys = {
+        (e.get("format"), e.get("enum")) for e in _fmt_preserved
+        if e.get("format") is not None or e.get("enum") is not None
+    }
     if _fmt_dst.exists():
         try:
             _existing = json.loads(_fmt_dst.read_text(encoding="utf-8"))
-            _fmt_preserved = [
-                e for e in _existing
-                if e.get("note") or e.get("manual") is True
-            ]
+            for e in _existing:
+                if not (e.get("note") or e.get("manual") is True):
+                    continue
+                key = (e.get("format"), e.get("enum"))
+                if key not in _preserved_keys and (key[0] is not None or key[1] is not None):
+                    _fmt_preserved.append(e)
+                    _preserved_keys.add(key)
         except Exception as exc:
             import sys as _sys
             print(f"[promote] WARNING: could not load {_fmt_dst} for note preservation: {exc}",
                   file=_sys.stderr)
+    _save_format_overrides(_fmt_preserved, family, platform, knowledge_root)
 
     for fname in ["formats.json", "class_graph.json", "coverage_matrix.json",
                   "install.md"]:
@@ -972,18 +1045,24 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
                   f"into {_fmt_dst}: {exc}", file=_sys.stderr)
 
     # Copy limitations.md from scout, then re-append any "Known Documentation
-    # Errors" section that was manually maintained in the merged copy.  That
-    # section survives repeated promote runs; the auto-detected stub table at
-    # the top is always refreshed from the latest scout output.
+    # Errors" section that was manually maintained.  That section survives
+    # repeated promote runs; the auto-detected stub table at the top is always
+    # refreshed from the latest scout output.
+    #
+    # RPR-J-03 (rescues SW-11): same durability gap as formats.json above --
+    # read the committed override first (survives a fresh clone), fall back to
+    # the ephemeral merged/limitations.md for not-yet-migrated products, and
+    # rescue whatever is found back into the committed override store.
     lim_src = scout_dir / "limitations.md"
     lim_dst = merged_dir / "limitations.md"
-    known_errors_block = ""
-    if lim_dst.exists():
+    marker = "## Known Documentation Errors"
+    known_errors_block = _load_known_errors_override(family, platform, knowledge_root)
+    if not known_errors_block and lim_dst.exists():
         existing = lim_dst.read_text(encoding="utf-8")
-        marker = "## Known Documentation Errors"
         idx = existing.find(marker)
         if idx != -1:
             known_errors_block = "\n" + existing[idx:]
+    _save_known_errors_override(known_errors_block, family, platform, knowledge_root)
     if lim_src.exists():
         scout_lim = lim_src.read_text(encoding="utf-8")
         lim_dst.write_text(scout_lim.rstrip() + known_errors_block + "\n",

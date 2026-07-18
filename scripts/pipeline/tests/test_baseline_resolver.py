@@ -12,6 +12,7 @@ from lib.baseline_ledger import BaselineLedger
 from lib.baseline_resolver import (
     BaselineResolution,
     OrphanedBaselineError,
+    _sample_content_model_sha,
     git_reachable,
     resolve_baseline_sha,
 )
@@ -115,6 +116,105 @@ def test_only_accepted_entries_are_primary_but_history_walkback_uses_all(tmp_pat
     )
     assert res.sha == "attempted_here"
     assert res.source == "orphaned-recovered"
+
+
+# ── RPR-J-04: content-frontmatter fallback (fresh clone / never-migrated) ──
+
+def test_fresh_clone_resolves_via_content_frontmatter(tmp_path):
+    """No ledger, no model.yaml scalar -- the fresh-clone case. Falls back to the
+    evidence.model_sha already committed on a content page instead of failing."""
+    res = resolve_baseline_sha(
+        "pdf", "net",
+        reachable=lambda s: s == "content_sha_abc",
+        merged_dir=tmp_path,
+        sample_content_model_sha=lambda family, platform: "content_sha_abc",
+    )
+    assert res.sha == "content_sha_abc"
+    assert res.source == "content-frontmatter"
+    assert res.is_orphaned_recovery is False
+
+
+def test_content_frontmatter_fallback_unreachable_still_raises_orphaned(tmp_path):
+    """The sampled content sha is itself unreachable (e.g. a shallow clone with no
+    matching history) -- must still fail loudly, never silently, and must report the
+    sha it tried."""
+    with pytest.raises(OrphanedBaselineError) as exc:
+        resolve_baseline_sha(
+            "pdf", "net",
+            reachable=lambda s: False,
+            merged_dir=tmp_path,
+            sample_content_model_sha=lambda family, platform: "content_sha_unreachable",
+        )
+    assert "content_sha_unreachable" in exc.value.tried
+
+
+def test_no_ledger_no_scalar_no_content_sha_raises_orphaned(tmp_path):
+    """Nothing resolves anywhere (e.g. product has no content pages yet) -- unchanged
+    behavior: explicit OrphanedBaselineError, empty tried set."""
+    with pytest.raises(OrphanedBaselineError) as exc:
+        resolve_baseline_sha(
+            "pdf", "net",
+            reachable=lambda s: True,
+            merged_dir=tmp_path,
+            sample_content_model_sha=lambda family, platform: None,
+        )
+    assert exc.value.tried == []
+
+
+def test_ledger_present_and_reachable_never_calls_content_sampler(tmp_path):
+    """When the ledger already resolves, the (potentially I/O-heavy) content sampler
+    must not run at all -- no behavior change for products with a warm ledger cache."""
+    ledger = _ledger(tmp_path)
+    _append(ledger, "R1", "warm_cache_sha")
+
+    def _boom(family, platform):
+        raise AssertionError("content sampler must not be called when the ledger resolves")
+
+    res = resolve_baseline_sha(
+        "pdf", "net",
+        reachable=lambda s: s == "warm_cache_sha",
+        merged_dir=tmp_path,
+        sample_content_model_sha=_boom,
+    )
+    assert res.sha == "warm_cache_sha"
+    assert res.source == "ledger"
+
+
+def test_sample_content_model_sha_reads_evidence_model_sha_field(tmp_path):
+    """Real integration: parse_frontmatter + discover_content wired to an actual
+    committed-shaped content file, not just an injected fake."""
+    page = tmp_path / "Foo.md"
+    page.write_text(
+        "---\n"
+        "title: Foo\n"
+        "evidence:\n"
+        "  model_sha: real_committed_sha_123\n"
+        "  model_version: 26.6.0\n"
+        "---\n"
+        "Body text.\n",
+        encoding="utf-8",
+    )
+    sha = _sample_content_model_sha(
+        "pdf", "net", discover_content_fn=lambda family, platform: [page]
+    )
+    assert sha == "real_committed_sha_123"
+
+
+def test_sample_content_model_sha_skips_pages_without_evidence_block(tmp_path):
+    """First page has no evidence block yet; second page does -- must not stop at
+    the first miss."""
+    no_evidence = tmp_path / "NoEvidence.md"
+    no_evidence.write_text("---\ntitle: Bare\n---\nBody.\n", encoding="utf-8")
+    with_evidence = tmp_path / "WithEvidence.md"
+    with_evidence.write_text(
+        "---\ntitle: Stamped\nevidence:\n  model_sha: second_page_sha\n---\nBody.\n",
+        encoding="utf-8",
+    )
+    sha = _sample_content_model_sha(
+        "pdf", "net",
+        discover_content_fn=lambda family, platform: [no_evidence, with_evidence],
+    )
+    assert sha == "second_page_sha"
 
 
 # ── real git reachability probe ───────────────────────────────────────────

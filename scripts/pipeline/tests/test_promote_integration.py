@@ -362,6 +362,127 @@ class TestPromoteFormatsNotePreservation:
         assert len(none_entries) == 0, "Malformed (None/None) entry must not appear in output"
 
 
+class TestPromoteFormatsOverridesDurability:
+    """RPR-J-03 (rescues SW-11): note/manual formats.json entries and the "Known
+    Documentation Errors" block must survive a full knowledge/ rebuild (fresh clone),
+    not just a plain re-run against an already-populated merged/ directory.
+    """
+
+    def test_note_entry_rescued_into_committed_override_on_first_run(self, tmp_path):
+        """The first promote() after this fix must copy an existing ephemeral
+        merged/formats.json note entry into the committed override store."""
+        kr = _setup_scout(tmp_path)
+        scout_dir = kr / "test" / "python" / "scout"
+        merged_dir = kr / "test" / "python" / "merged"
+
+        (scout_dir / "formats.json").write_text(
+            json.dumps([{"format": "OBJ", "enum": "FileFormat", "direction": "export", "functional": True}], indent=2),
+            encoding="utf-8",
+        )
+        merged_dir.mkdir(parents=True, exist_ok=True)
+        (merged_dir / "formats.json").write_text(
+            json.dumps([
+                {"format": "OBJ", "enum": "FileFormat", "direction": "export", "functional": True},
+                {"format": "TXT", "enum": "LoadFormat", "direction": "import", "functional": True,
+                 "note": "File-extension alias for TEXT LoadFormat; not emitted by scout"},
+            ], indent=2),
+            encoding="utf-8",
+        )
+
+        promote_mod.promote("test", "python", knowledge_root=str(kr))
+
+        override_path = kr / "_overrides" / "test" / "python" / "formats_overrides.json"
+        assert override_path.exists(), "note entry must be rescued into the committed override store"
+        rescued = json.loads(override_path.read_text(encoding="utf-8"))
+        rescued_keys = {(e.get("format"), e.get("enum")) for e in rescued}
+        assert ("TXT", "LoadFormat") in rescued_keys
+
+    def test_note_entry_survives_full_knowledge_rebuild(self, tmp_path):
+        """The real acceptance criterion: delete knowledge/ (except _overrides/) --
+        simulating a fresh clone -- and rebuild. The note entry must still appear."""
+        kr = _setup_scout(tmp_path)
+        scout_dir = kr / "test" / "python" / "scout"
+        merged_dir = kr / "test" / "python" / "merged"
+
+        (scout_dir / "formats.json").write_text(
+            json.dumps([{"format": "OBJ", "enum": "FileFormat", "direction": "export", "functional": True}], indent=2),
+            encoding="utf-8",
+        )
+        merged_dir.mkdir(parents=True, exist_ok=True)
+        (merged_dir / "formats.json").write_text(
+            json.dumps([
+                {"format": "OBJ", "enum": "FileFormat", "direction": "export", "functional": True},
+                {"format": "TXT", "enum": "LoadFormat", "direction": "import", "functional": True,
+                 "note": "File-extension alias for TEXT LoadFormat; not emitted by scout"},
+            ], indent=2),
+            encoding="utf-8",
+        )
+
+        # First run: rescues the note entry into the committed override store.
+        promote_mod.promote("test", "python", knowledge_root=str(kr))
+
+        # Simulate a fresh clone: knowledge/{family}/{platform}/{scout,merged}/ are
+        # gitignored and gone; only knowledge/_overrides/ (committed) survives.
+        import shutil as _shutil
+        _shutil.rmtree(merged_dir)
+        _shutil.rmtree(scout_dir)
+        scout_dir.mkdir(parents=True)
+        (scout_dir / "claims.json").write_text(json.dumps(SCOUT_CLAIMS, indent=2), encoding="utf-8")
+        (scout_dir / "api_surface.json").write_text(json.dumps(API_SURFACE, indent=2), encoding="utf-8")
+        (scout_dir / "model.yaml").write_text(yaml.dump(MODEL_YAML, default_flow_style=False), encoding="utf-8")
+        (scout_dir / "formats.json").write_text(
+            json.dumps([{"format": "OBJ", "enum": "FileFormat", "direction": "export", "functional": True}], indent=2),
+            encoding="utf-8",
+        )
+
+        result = promote_mod.promote("test", "python", knowledge_root=str(kr))
+        assert result is True
+
+        result_formats = json.loads((merged_dir / "formats.json").read_text(encoding="utf-8"))
+        keys = {(e["format"], e["enum"]) for e in result_formats}
+        assert ("TXT", "LoadFormat") in keys, (
+            "note entry must survive a full knowledge/ rebuild via the committed override, "
+            "not just a re-run against an already-populated merged/ directory"
+        )
+
+    def test_known_errors_block_survives_full_knowledge_rebuild(self, tmp_path):
+        """Same durability requirement for the 'Known Documentation Errors' section."""
+        kr = _setup_scout(tmp_path)
+        scout_dir = kr / "test" / "python" / "scout"
+        merged_dir = kr / "test" / "python" / "merged"
+
+        (scout_dir / "limitations.md").write_text("# Limitations\n\nAuto-detected stub.\n", encoding="utf-8")
+        merged_dir.mkdir(parents=True, exist_ok=True)
+        (merged_dir / "limitations.md").write_text(
+            "# Limitations\n\nAuto-detected stub.\n\n"
+            "## Known Documentation Errors\n\n- Foo.Bar is mislabeled upstream as deprecated.\n",
+            encoding="utf-8",
+        )
+
+        promote_mod.promote("test", "python", knowledge_root=str(kr))
+
+        override_path = kr / "_overrides" / "test" / "python" / "known_errors.md"
+        assert override_path.exists()
+        assert "Foo.Bar is mislabeled" in override_path.read_text(encoding="utf-8")
+
+        # Simulate fresh clone: scout/merged gone, _overrides/ (committed) survives.
+        import shutil as _shutil
+        _shutil.rmtree(merged_dir)
+        _shutil.rmtree(scout_dir)
+        scout_dir.mkdir(parents=True)
+        (scout_dir / "claims.json").write_text(json.dumps(SCOUT_CLAIMS, indent=2), encoding="utf-8")
+        (scout_dir / "api_surface.json").write_text(json.dumps(API_SURFACE, indent=2), encoding="utf-8")
+        (scout_dir / "model.yaml").write_text(yaml.dump(MODEL_YAML, default_flow_style=False), encoding="utf-8")
+        (scout_dir / "limitations.md").write_text("# Limitations\n\nAuto-detected stub.\n", encoding="utf-8")
+
+        promote_mod.promote("test", "python", knowledge_root=str(kr))
+
+        result_lim = (merged_dir / "limitations.md").read_text(encoding="utf-8")
+        assert "Foo.Bar is mislabeled" in result_lim, (
+            "Known Documentation Errors block must survive a full knowledge/ rebuild"
+        )
+
+
 class TestPromoteWithMissingScout:
     """promote() must fail gracefully when scout/ artifacts are absent."""
 

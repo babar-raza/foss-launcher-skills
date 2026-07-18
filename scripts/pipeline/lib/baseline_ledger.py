@@ -3,11 +3,22 @@ baseline_ledger.py — RPR-C-01: append-only baseline SHA history per product.
 
 CONTRACT: scripts/pipeline/lib/baseline_ledger.py
   purpose: Replace the single mutable model.yaml.repo_sha scalar (destroyed on every
-           promote.py full-dict rewrite — see RPR-C-02) with a durable, append-only,
-           schema-validated ledger. This is the first concurrency-safe write primitive
-           anywhere in this pipeline (plan §2.5 SW-1: a repo-wide grep found zero lock/
-           lease mechanisms before this file existed — including in skill_context.py,
-           the governance tool meant to prevent exactly this class of conflict).
+           promote.py full-dict rewrite — see RPR-C-02) with an append-only,
+           schema-validated, concurrency-safe local ledger. This is the first
+           concurrency-safe write primitive anywhere in this pipeline (plan §2.5 SW-1:
+           a repo-wide grep found zero lock/lease mechanisms before this file existed —
+           including in skill_context.py, the governance tool meant to prevent exactly
+           this class of conflict).
+  durability correction (RPR-J-04, session 5): this ledger lives under knowledge/,
+           which is entirely gitignored (.gitignore:20, /knowledge). It is therefore a
+           fast, concurrency-safe LOCAL CACHE — real and valuable within one checkout,
+           where it correctly serializes concurrent writers and preserves full history
+           that a bare scalar would destroy — but it does NOT survive a fresh clone and
+           is not itself the durable source of truth. The one baseline source that is
+           git-durable is evidence.model_sha, already committed on every generated
+           content page's frontmatter; baseline_resolver.py's resolve_baseline_sha()
+           falls back to sampling that field when this ledger and the legacy model.yaml
+           scalar are both unavailable (fresh clone, or a product never migrated).
   inputs:  none (pure writer/reader over its own ledger file)
   outputs: knowledge/{family}/{platform}/merged/baseline_ledger.jsonl (append-only)
            knowledge/{family}/{platform}/merged/baseline_ledger_head.json (O(1) head cache)

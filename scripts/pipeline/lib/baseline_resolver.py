@@ -20,6 +20,17 @@ that `promote.py` overwrites every run. This module closes both:
 The git-reachability probe is injected (`reachable=`), so the resolution logic is
 pure and unit-testable without a repo; `git_reachable(repo_path)` builds the real
 probe for production callers (S-12).
+
+RPR-J-04 correction (session 5): `baseline_ledger.jsonl` lives under `knowledge/`,
+which is entirely gitignored (`.gitignore:20`, `/knowledge`). It is therefore a
+fast, concurrency-safe **local cache** — real and useful within one checkout — but
+it is NOT durable across a fresh clone, contrary to RPR-C-01's original framing.
+The one baseline source that genuinely survives a fresh clone is `evidence.model_sha`,
+already committed on every generated content page's frontmatter. When the ledger and
+the legacy `model.yaml` scalar are both unavailable (fresh clone, or a product never
+migrated), this module now falls back to sampling that field directly from committed
+content before giving up — see `_sample_content_model_sha` and its use in
+`resolve_baseline_sha`.
 """
 from __future__ import annotations
 
@@ -36,6 +47,8 @@ if str(_PIPELINE_ROOT) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_ROOT))
 
 from lib.baseline_ledger import BaselineLedger  # noqa: E402
+from lib.content_discovery import discover_content  # noqa: E402
+from core.markdown import parse_frontmatter  # noqa: E402
 
 
 class OrphanedBaselineError(Exception):
@@ -89,6 +102,30 @@ def git_reachable(repo_path: Path | str) -> Callable[[str], bool]:
     return _check
 
 
+def _sample_content_model_sha(
+    family: str,
+    platform: str,
+    *,
+    discover_content_fn: Callable[[str, str], list] = discover_content,
+) -> str | None:
+    """Return the `evidence.model_sha` stamped on the first committed content page
+    for this product that has one, or None if no page carries an evidence block yet.
+
+    This is the git-durable fallback RPR-J-04 adds: unlike `baseline_ledger.jsonl`
+    (gitignored, local-only), a page's frontmatter is committed, so this value
+    survives a fresh clone. Mirrors the read-one-sample-page pattern already used
+    by `evidence.runner._sample_stamped_model_version` (same idea, different field).
+    """
+    for f in discover_content_fn(family, platform):
+        fm = parse_frontmatter(f)
+        evidence = fm.get("evidence") or {}
+        if isinstance(evidence, dict):
+            sha = evidence.get("model_sha")
+            if sha:
+                return sha
+    return None
+
+
 def resolve_baseline_sha(
     family: str,
     platform: str,
@@ -97,6 +134,7 @@ def resolve_baseline_sha(
     repo_root: Path | str | None = None,
     merged_dir: Path | str | None = None,
     model_repo_sha: str | None = None,
+    sample_content_model_sha: Callable[[str, str], "str | None"] = _sample_content_model_sha,
 ) -> BaselineResolution:
     """Resolve the baseline SHA to diff the current HEAD against.
 
@@ -104,9 +142,13 @@ def resolve_baseline_sha(
         reachable: callable(sha) -> bool, true iff sha is a commit in the FOSS clone.
             Inject a fake in tests; use `git_reachable(repo_path)` in production.
         repo_root / merged_dir: locate the product's baseline ledger (same convention
-            as BaselineLedger).
+            as BaselineLedger). This is a local performance cache — see RPR-J-04 — not
+            the durable source of truth.
         model_repo_sha: the legacy `model.yaml.repo_sha` scalar, used only as a
             fallback when the ledger has no accepted entry yet (pre-migration).
+        sample_content_model_sha: callable(family, platform) -> sha | None, injectable
+            for tests; defaults to sampling committed content frontmatter (see
+            `_sample_content_model_sha`).
 
     Returns:
         BaselineResolution with the reachable sha and how it was found.
@@ -118,8 +160,8 @@ def resolve_baseline_sha(
     ledger = BaselineLedger(family, platform, repo_root=repo_root, merged_dir=merged_dir)
     tried: list[str] = []
 
-    # 1. Preferred baseline: the ledger's most recent accepted entry; else the
-    #    legacy model.yaml scalar (pre-migration products only).
+    # 1. Preferred baseline: the ledger's most recent accepted entry (a local cache,
+    #    fast when present); else the legacy model.yaml scalar (pre-migration products).
     last = ledger.last_accepted()
     primary = (last or {}).get("new_repo_sha")
     primary_source = "ledger"
@@ -131,6 +173,15 @@ def resolve_baseline_sha(
         tried.append(primary)
         if reachable(primary):
             return BaselineResolution(sha=primary, source=primary_source)
+    else:
+        # RPR-J-04: neither local artifact exists (fresh clone, or a product never
+        # migrated to the ledger) — fall back to the one source that IS git-durable:
+        # evidence.model_sha, already committed on generated content pages.
+        content_sha = sample_content_model_sha(family, platform)
+        if content_sha:
+            tried.append(content_sha)
+            if reachable(content_sha):
+                return BaselineResolution(sha=content_sha, source="content-frontmatter")
 
     # 2. Orphaned baseline: walk history newest→oldest for the first reachable ancestor.
     for entry in reversed(ledger.history()):
