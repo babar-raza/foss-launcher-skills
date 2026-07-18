@@ -40,8 +40,18 @@ def main() -> int:
 
     current_text = current_path.read_text(encoding="utf-8").strip()
     if not current_text:
-        print("audit-results.json is empty — no files audited; no regressions possible.")
-        return 0
+        # audit.py's "all" mode only prints JSON after its whole product loop completes
+        # (audit/runner.py: report_json() is the sole stdout write, at the very end).
+        # An empty file therefore means the audit tool crashed before finishing — never
+        # that zero content was audited. Silently returning 0 here previously let a
+        # broken audit.py (continue-on-error: true upstream) produce a false-green PR gate.
+        print(
+            f"ERROR: {current_path} is empty. This means audit.py crashed before "
+            "completing its run (it only writes JSON once, after auditing everything) "
+            "-- not that zero files were audited. Treating this as a failure.",
+            file=sys.stderr,
+        )
+        return 2
 
     try:
         current = json.loads(current_text)
