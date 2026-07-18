@@ -742,7 +742,7 @@ Files: N English source files across blog/docs/kb
 Artifact: org.aspose:{artifact-id}:{version} (live on Maven Central)
 Skills invoked: [S-73, S-76, S-110]
 
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
+Co-authored-by: Codex <codex@openai.com>
 ```
 
 **Pre-commit hook sync.** `.git/hooks/pre-commit` is a COPY (not a symlink) of

@@ -5,7 +5,7 @@ description: >
   Classify every grade regression in a refresh as JUSTIFIED or UNJUSTIFIED with a cited evidence source, writing the complete input list (never a sample) so the classification cannot be silently lost.
 ---
 
-> Cross-skill references like `/content-eval` refer to sibling skills in this directory.
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
 # S-114: Regression Classification — Cited JUSTIFIED/UNJUSTIFIED Verdicts
 

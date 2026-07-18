@@ -1,4 +1,4 @@
-<!-- CONTRACT: scripts/pipeline/lib/triage_confirm.py (main entrypoint), scripts/pipeline/lib/reconcile_triage.py (3-source reconciliation)
+<!-- CONTRACT: agent-executed
      purpose: detect whether a content page's body prose has become stale relative to the
               current knowledge model by scanning for references to changed or removed API
               classes and claims (Layer 2 staleness detection)
@@ -6,11 +6,7 @@
      postcondition: stale/current verdict written with per-finding reasons; no content modified
      idempotent: yes — read-only scan; safe to re-run
      depends_on: [S-54, S-84]
-     verified: 2026-07-16 (RPR-F-03) — real CLI added; prior "agent-executed" contract was
-       inaccurate: the backing files had no argparse/__main__, so the CLI invocation this
-       document previously specified silently no-op'd (defined functions, touched nothing,
-       exited 0) if run literally as written. Wired into post_refresh_verify.py --verify
-       Check 9 as a real blocking gate (exit 1 = stale pages found, blocks commit).
+     verified: 2026-04-18
 -->
 # S-92: Triage Confirm — Layer 2 Body-Prose Staleness Scanner
 

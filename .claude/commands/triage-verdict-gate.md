@@ -5,7 +5,7 @@ description: >
   Deterministic exit-code gate over triage_confirm/reconcile_triage findings that blocks the S-76 commit when a refresh left stale body prose. The enforcement half of S-92 triage-confirm (which is the agent-facing wrapper).
 ---
 
-> Cross-skill references like `/triage-confirm` refer to sibling skills in this directory.
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
 # S-112: Triage Verdict Gate — Deterministic Commit Precondition
 

@@ -5,7 +5,7 @@ description: >
   Detect stalled P0 work and doc claims contradicted by repo state by querying the structured taskcard store (schema 5f) and running the plan-markdown parity check — the detector that would have caught dazzling-strolling-shell's silent abandonment.
 ---
 
-> Cross-skill references like `/plan-normalize` refer to sibling skills in this directory.
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
 # S-113: Plan Health Watchdog — Structured Stall Detection
 

@@ -5,7 +5,7 @@ description: >
   Maintain the append-only baseline SHA ledger for a product and resolve a git-reachable baseline for a refresh, implementing the real orphaned-SHA walkback. Replaces the single mutable model.yaml.repo_sha scalar with durable history.
 ---
 
-> Cross-skill references like `/knowledge-diff` refer to sibling skills in this directory.
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
 # S-111: Baseline Ledger Writer — Append-Only Baseline SHA History
 
