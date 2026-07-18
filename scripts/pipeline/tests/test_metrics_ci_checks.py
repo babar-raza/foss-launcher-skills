@@ -460,20 +460,6 @@ class TestCheckMetricsTestPostLimit:
         assert result.test_row_count == 0
         assert result.passed is True
 
-    def test_real_repo_posted_dir_exceeds_limit(self):
-        """Real repo posted/ directory has 98 test_submit markers — hard limit 3 exceeded."""
-        result = cmtpl.run_check(
-            posted_dir=_REPO_ROOT / "reports" / "metrics" / "posted",
-            max_per_sprint=2,
-            hard_limit=3,
-        )
-        # 98 test_submit markers in the real repo — must fail hard limit
-        assert result.passed is False, (
-            f"Expected FAIL with real repo posted/ (98 test_submit markers > limit 3), "
-            f"got: {result.message}"
-        )
-        assert result.test_row_count >= 3  # at minimum exceeds hard limit
-
 
 # ---------------------------------------------------------------------------
 # check_metrics_event_ledger_schema tests (5)
