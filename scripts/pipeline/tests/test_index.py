@@ -260,3 +260,118 @@ def test_build_index_no_model_yaml_returns_none(tmp_path, monkeypatch):
     _index_module.configure(knowledge_root=tmp_path / "knowledge")
     result = build_index("cells", "python")
     assert result is None
+
+
+class TestCrossProductIndexNotTruncatedBySingleProductInvocation:
+    """HARDEN-words-net (2026-07-22): main()'s single-product invocation
+    (`index.py {family} {platform}`, as opposed to `index.py all`) used to
+    overwrite knowledge/_index.json — documented as a CROSS-PRODUCT summary
+    — with an entry for ONLY the requested product, silently discarding
+    every other product's summary. Found live: running `index.py words net`
+    truncated a ~26-product _index.json down to 1 entry. Fixed by always
+    rebuilding the full cross-product list from discover_products(),
+    regardless of which invocation mode triggered the write."""
+
+    def test_single_product_invocation_preserves_other_products(self, tmp_path, monkeypatch):
+        _make_merged_dir(tmp_path, "cells", "python")
+        _make_merged_dir(tmp_path, "pdf", "net")
+        _make_merged_dir(tmp_path, "words", "net")
+        _index_module.configure(knowledge_root=tmp_path / "knowledge")
+
+        # First, build the full index (as `index.py all` would).
+        monkeypatch.setattr(sys, "argv", ["index.py", "all"])
+        _index_module.main()
+        index_path = tmp_path / "knowledge" / "_index.json"
+        full = json.loads(index_path.read_text(encoding="utf-8"))
+        assert len(full["products"]) == 3
+
+        # Now invoke single-product mode for just ONE of the three --
+        # this must NOT truncate the cross-product index to 1 entry.
+        monkeypatch.setattr(sys, "argv", ["index.py", "words", "net"])
+        _index_module.main()
+        after = json.loads(index_path.read_text(encoding="utf-8"))
+        families = {(p["family"], p["platform"]) for p in after["products"]}
+        assert len(after["products"]) == 3, (
+            "single-product invocation must not truncate the cross-product "
+            "index -- this is the exact live regression found on words/net"
+        )
+        assert families == {("cells", "python"), ("pdf", "net"), ("words", "net")}
+
+    def test_single_product_invocation_updates_that_products_own_entry(self, tmp_path, monkeypatch):
+        """The requested product's OWN entry must still be freshly
+        recomputed (not just preserved stale) -- confirms this fix doesn't
+        regress into reading a prior _index.json's stale entries."""
+        merged = _make_merged_dir(tmp_path, "words", "net")
+        _make_merged_dir(tmp_path, "cells", "python")
+        _index_module.configure(knowledge_root=tmp_path / "knowledge")
+
+        monkeypatch.setattr(sys, "argv", ["index.py", "all"])
+        _index_module.main()
+
+        # Mutate words/net's claims.json so a fresh build_index() call
+        # would see a different claim_count than the stale first pass.
+        (merged / "claims.json").write_text(json.dumps([
+            "Claim one.", "Claim two.", "Claim three.",
+        ]), encoding="utf-8")
+
+        monkeypatch.setattr(sys, "argv", ["index.py", "words", "net"])
+        _index_module.main()
+        index_path = tmp_path / "knowledge" / "_index.json"
+        after = json.loads(index_path.read_text(encoding="utf-8"))
+        words_net = next(p for p in after["products"] if p["family"] == "words")
+        assert words_net["claim_count"] == 3
+
+    def test_single_product_invocation_on_first_ever_run_still_writes_full_index(self, tmp_path, monkeypatch):
+        """No prior _index.json exists at all -- single-product mode must
+        still discover and include every product with merged/ present, not
+        just the one requested."""
+        _make_merged_dir(tmp_path, "cells", "python")
+        _make_merged_dir(tmp_path, "words", "net")
+        _index_module.configure(knowledge_root=tmp_path / "knowledge")
+
+        monkeypatch.setattr(sys, "argv", ["index.py", "words", "net"])
+        _index_module.main()
+        index_path = tmp_path / "knowledge" / "_index.json"
+        result = json.loads(index_path.read_text(encoding="utf-8"))
+        assert len(result["products"]) == 2
+
+    def test_requested_product_own_entry_never_dropped_when_missing_claims_json(self, tmp_path, monkeypatch):
+        """HARDEN-words-net (adversarial re-review, 2026-07-22): a product
+        with model.yaml but no claims.json builds a valid entry
+        (build_index() defaults absent claims.json to []) but never appears
+        in discover_products()'s scan (which requires claims.json to exist
+        as its candidacy signal). Without an explicit guarantee, the
+        just-explicitly-requested product's OWN entry -- despite being
+        successfully built -- would silently never be appended to
+        _index.json, since the main loop only matches tuples that
+        discover_products() actually yields."""
+        _make_merged_dir(tmp_path, "cells", "python")
+
+        # words/net: model.yaml + api_surface.json present, but NO claims.json
+        words_merged = tmp_path / "knowledge" / "words" / "net" / "merged"
+        words_merged.mkdir(parents=True)
+        words_merged.joinpath("model.yaml").write_text(
+            "family: words\nplatform: net\nrepo_sha: abc123\n"
+            "merged_at: '2026-01-01T00:00:00Z'\nstale_since: null\n"
+            "stats:\n  total_classes: 1\n",
+            encoding="utf-8",
+        )
+        words_merged.joinpath("api_surface.json").write_text(json.dumps([
+            {"kind": "class", "name": "Document", "file": "aspose/words/document.py",
+             "methods": [{"name": "save"}], "properties": []},
+        ]), encoding="utf-8")
+        # deliberately no claims.json written here
+
+        _index_module.configure(knowledge_root=tmp_path / "knowledge")
+        monkeypatch.setattr(sys, "argv", ["index.py", "words", "net"])
+        _index_module.main()
+
+        index_path = tmp_path / "knowledge" / "_index.json"
+        result = json.loads(index_path.read_text(encoding="utf-8"))
+        families = {(p["family"], p["platform"]) for p in result["products"]}
+        assert ("words", "net") in families, (
+            "the explicitly-requested product's own entry must never be "
+            "silently dropped, even when it's absent from discover_products()'s "
+            "candidacy scan"
+        )
+        assert ("cells", "python") in families

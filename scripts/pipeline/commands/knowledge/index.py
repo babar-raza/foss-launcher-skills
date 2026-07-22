@@ -441,7 +441,34 @@ def main():
         family = sys.argv[1]
         platform = sys.argv[2]
         entry = build_index(family, platform)
-        entries = [entry] if entry else []
+        # HARDEN-words-net (2026-07-22): _index.json is documented as a
+        # CROSS-PRODUCT summary (knowledge/_index.json, "products" array) —
+        # a single-product invocation must never truncate it down to just
+        # the one product being processed. Found live: running
+        # `index.py words net` overwrote a ~26-product _index.json down to
+        # 1 entry, silently discarding every other product's summary.
+        # Rebuild the full cross-product list from every discovered
+        # product (never reuse a prior on-disk _index.json's stale
+        # entries — that would just reintroduce the same per-product
+        # staleness bug A13 already fixed elsewhere in this file).
+        entries = []
+        if entry:
+            for fam, plat in discover_products():
+                e = entry if (fam, plat) == (family, platform) else build_index(fam, plat)
+                if e:
+                    entries.append(e)
+            # HARDEN-words-net (adversarial re-review, 2026-07-22): a product
+            # with model.yaml but no claims.json builds a valid `entry`
+            # (build_index() defaults an absent claims.json to an empty
+            # list rather than failing) but never appears in
+            # discover_products()'s scan (which requires claims.json to
+            # exist) — so the loop above never matches this exact tuple and
+            # the just-explicitly-requested product's OWN entry would be
+            # silently dropped from _index.json. Guarantee it's always
+            # included regardless of discover_products()'s candidacy rules.
+            if not any(e.get("family") == family and e.get("platform") == platform
+                       for e in entries):
+                entries.append(entry)
 
     # Write _index.json aggregating all products
     if entries:
