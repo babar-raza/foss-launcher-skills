@@ -12,11 +12,35 @@ No Scout class dependencies — these are pure functions usable in isolation.
 """
 from __future__ import annotations
 
+import logging
+import os
 import re
 from pathlib import Path
 from typing import Any
 
-MAX_FILES = 500  # shared cap for _collect_source_files
+LOG = logging.getLogger(__name__)
+
+# HARDEN-words-net (2026-07-22): raised from 500 after words/net (Aspose.Words
+# FOSS for .NET) exercised this cap for the first time ever — 3,167 source
+# files under its package root vs. a 500-file ceiling nobody had revisited
+# since. That silently dropped ~84% of the product's source files from
+# extraction before scout_report.json's own files_attempted/skip-rate
+# monitoring ever saw them (the report's counts are computed AFTER this cap
+# already applied), so the existing skip-rate warnings never fired despite
+# the API surface being severely incomplete. Every other product measured at
+# the time of this fix was comfortably under 500 (pdf/net 385, slides/net
+# 297, cells/net 219); 8000 gives ~2.5x headroom over words/net's own size.
+# This remains a finite safety ceiling, not a "normal size" throttle — a
+# repo that exceeds even this now logs a loud warning and records the true
+# candidate count in scout_report.json (see _collect_source_files below),
+# so a future product outgrowing it is visible immediately, not rediscovered
+# by another full audit.
+#
+# SCOUT_MAX_FILES env var overrides this without a code edit + redeploy, for
+# the next product that outgrows even 8000 — read once at import time, same
+# as every other consumer of this constant.
+_MAX_FILES_DEFAULT = 8000
+MAX_FILES = int(os.environ.get("SCOUT_MAX_FILES", _MAX_FILES_DEFAULT))  # shared cap for _collect_source_files
 
 
 # ---------------------------------------------------------------------------
@@ -362,7 +386,10 @@ _FORMAT_STEM_RE = re.compile(
 )
 
 
-def _collect_source_files(root: Path, ext: str, header_ext: str | list[str] = "") -> list[Path]:
+def _collect_source_files(
+    root: Path, ext: str, header_ext: str | list[str] = "",
+    *, stats: "dict[str, Any] | None" = None,
+) -> list[Path]:
     """Glob for source files, capped at MAX_FILES, excluding non-public directories.
 
     Files are ordered by a three-tier priority key so critical extraction
@@ -370,6 +397,13 @@ def _collect_source_files(root: Path, ext: str, header_ext: str | list[str] = ""
       0 — _internal/ implementation files (exporter/parser classes live here)
       1 — format-enum and I/O-class files (SaveFormat, SourceFormat, *Exporter …)
       2 — all other public source files (alphabetical within tier)
+
+    If the true candidate count exceeds MAX_FILES, a warning is logged (this
+    used to be silent — a product bigger than the cap looked identical to one
+    that fit comfortably inside it, until an actual audit found the gap; see
+    the MAX_FILES history note above). Pass ``stats`` (a dict) to also receive
+    the true pre-cap candidate count and whether capping occurred, for
+    callers that persist it into a durable report (e.g. scout_report.json).
     """
     def _priority(p: Path) -> tuple:
         rel = p.relative_to(root).as_posix()
@@ -379,20 +413,36 @@ def _collect_source_files(root: Path, ext: str, header_ext: str | list[str] = ""
             return (1, rel)
         return (2, rel)
 
-    files = sorted(
+    candidates = sorted(
         (f for f in root.rglob(f"*{ext}") if not _is_non_public_path(f, root)),
         key=_priority,
-    )[:MAX_FILES]
+    )
+    total_candidates = len(candidates)
+    files = candidates[:MAX_FILES]
     if header_ext:
         exts = [header_ext] if isinstance(header_ext, str) else header_ext
         for he in exts:
             remaining = MAX_FILES - len(files)
-            if remaining <= 0:
-                break
-            files.extend(sorted(
+            he_candidates = sorted(
                 (f for f in root.rglob(f"*{he}") if not _is_non_public_path(f, root)),
                 key=_priority,
-            )[:remaining])
+            )
+            total_candidates += len(he_candidates)
+            if remaining > 0:
+                files.extend(he_candidates[:remaining])
+
+    files_capped = total_candidates > MAX_FILES
+    if files_capped:
+        LOG.warning(
+            "MAX_FILES cap reached scanning %s: %d source files found, only %d will be "
+            "processed (%d dropped) -- API surface will be INCOMPLETE for this product. "
+            "Raise MAX_FILES in scripts/pipeline/extraction/tree_helpers.py if this repo's "
+            "size is expected to persist.",
+            root, total_candidates, MAX_FILES, total_candidates - MAX_FILES,
+        )
+    if stats is not None:
+        stats["candidates_found"] = total_candidates
+        stats["files_capped"] = files_capped
     return files
 
 

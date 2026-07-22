@@ -10,6 +10,7 @@ Public API::
 """
 from __future__ import annotations
 
+import logging
 import re
 from pathlib import Path
 from typing import Any
@@ -25,7 +26,57 @@ from extraction.tree_helpers import (
     node_text,
 )
 
+LOG = logging.getLogger(__name__)
+
 MAX_SNIPPETS = 100
+
+_NON_ALNUM_RE = re.compile(r"[^a-z0-9]+")
+
+
+def _dir_name_matches_pattern(dirname: str, pattern: str) -> bool:
+    """True if dirname is a snippet-worthy directory for pattern (e.g. "tests"),
+    either by exact match (case-insensitive — preserves the original behavior
+    for names like "ApiExamples", "_examples") or by appearing as a WHOLE
+    TOKEN once the name is split on non-alphanumeric separators.
+
+    HARDEN-words-net (2026-07-22): words/net's actual test directory is named
+    `Aspose.Words.Tests` — a common C#-solution naming convention this
+    exact-match-only check could never find (it's not literally named
+    "tests"), which silently produced only 1 code snippet for a product this
+    size (vs. 100, the cap, for sibling .NET products whose repos happen to
+    have a literal `tests/` directory). Token matching catches
+    `Aspose.Words.Tests` -> tokens ["aspose","words","tests"] -> "tests"
+    matches, while deliberately NOT matching unrelated names that merely
+    contain the substring "test" (e.g. "Latest", "Contest" tokenize as single
+    words that aren't equal to "test"), and NOT matching `Aspose.Words.TestFx`
+    (a test-*framework* helper library, tokenizes to "testfx", not "test" —
+    correctly excluded, it holds no example code)."""
+    dl = dirname.lower()
+    pl = pattern.lower()
+    if dl == pl:
+        return True
+    return pl in _NON_ALNUM_RE.split(dl)
+
+
+def _is_product_affine(dirname: str, pkg_name: str) -> bool:
+    """True if dirname appears to belong to the SAME product/namespace as
+    pkg_name (the package root's own directory name), e.g. pkg_name
+    "Aspose.Words", dirname "Aspose.Words.Tests" -> True.
+
+    HARDEN-words-net (2026-07-22), found by adversarial re-review of the
+    token-matching fix above: words/net's clone has THREE directories that
+    token-match "tests" — the real product tests (`Aspose.Words.Tests`), a
+    correctly-excluded test-framework helper (`Aspose.Words.TestFx`, doesn't
+    token-match at all), and a bundled Java-compat shim's OWN unrelated test
+    suite (`Aspose.JavaMs.Tests`). Without this affinity check, directory
+    iteration order (alphabetical here) let `Aspose.JavaMs.Tests` exhaust the
+    entire MAX_SNIPPETS budget on BouncyCastle/collection-shim tests before
+    `Aspose.Words.Tests` was ever reached — worse than the original bug, since
+    100 snippets now LOOK like real coverage while containing zero genuine
+    Aspose.Words API examples."""
+    dl = dirname.lower()
+    pl = pkg_name.lower()
+    return dl == pl or dl.startswith(pl + ".") or dl.startswith(pl + "_") or dl.startswith(pl + "-")
 
 
 def _collect_snippet_functions(
@@ -212,72 +263,113 @@ def extract_snippets(
 
     snippets: list[dict] = []
     snippet_counter = 0
+    _pkg_name = pkg_root.name
 
     for sdir in snippet_dirs:
         _visited: set[Path] = set()
         for _base in _search_bases:
-            d = _base / sdir
-            if d in _visited:
-                continue
-            _visited.add(d)
-            if not d.is_dir():
-                continue
-            files = sorted(d.rglob(f"*{ext}"))[:MAX_FILES]
-            for fpath in files:
-                if snippet_counter >= MAX_SNIPPETS:
-                    break
-                rel = str(fpath.relative_to(repo)).replace("\\", "/")
+            # Exact join (original behavior — literal "tests"/"ApiExamples"/
+            # etc. as a direct child) PLUS any direct child matching sdir as
+            # a whole token (catches compound names like Aspose.Words.Tests).
+            #
+            # Token matches are affinity-filtered: prefer directories sharing
+            # the package's own namespace prefix (Aspose.Words.Tests, for
+            # pkg_root "Aspose.Words") over unrelated siblings that happen to
+            # ALSO token-match (Aspose.JavaMs.Tests, a bundled dependency's
+            # own test suite) — otherwise the FIRST-visited match can exhaust
+            # the whole MAX_SNIPPETS budget before the real product's tests
+            # are ever reached (found by adversarial re-review; see
+            # _is_product_affine's docstring).
+            _candidate_dirs: list[Path] = []
+            _exact = _base / sdir
+            if _exact.is_dir():
+                _candidate_dirs.append(_exact)
+            if _base.is_dir():
                 try:
-                    src = fpath.read_bytes()
+                    _children = list(_base.iterdir())
                 except OSError:
+                    _children = []
+                _token_matches = [
+                    c for c in _children
+                    if c != _exact and c.is_dir() and _dir_name_matches_pattern(c.name, sdir)
+                ]
+                if _token_matches:
+                    _affine = [c for c in _token_matches if _is_product_affine(c.name, _pkg_name)]
+                    if _affine:
+                        _candidate_dirs.extend(sorted(_affine))
+                    else:
+                        if len(_token_matches) > 1:
+                            LOG.warning(
+                                "extract_snippets: %d directories token-match "
+                                "%r under %s with no clear product-affine "
+                                "match (pkg_root=%s) -- using all of them: %s. "
+                                "Snippet coverage may be diluted by unrelated "
+                                "dependencies' test/example code.",
+                                len(_token_matches), sdir, _base, _pkg_name,
+                                [c.name for c in _token_matches],
+                            )
+                        _candidate_dirs.extend(sorted(_token_matches))
+
+            for d in _candidate_dirs:
+                if d in _visited:
                     continue
-                tree = parser.parse(src)
-                text = src.decode("utf-8", errors="replace")
-                root = tree.root_node
-
-                func_nodes = _collect_snippet_functions(
-                    root, language, func_types, class_types, text,
-                    is_example_dir=(sdir in _example_dirs))
-
-                for fn_name, fn_node, fn_line in func_nodes:
+                _visited.add(d)
+                files = sorted(d.rglob(f"*{ext}"))[:MAX_FILES]
+                for fpath in files:
                     if snippet_counter >= MAX_SNIPPETS:
                         break
-                    code = node_text(fn_node)
-                    if not code.strip():
+                    rel = str(fpath.relative_to(repo)).replace("\\", "/")
+                    try:
+                        src = fpath.read_bytes()
+                    except OSError:
                         continue
+                    tree = parser.parse(src)
+                    text = src.decode("utf-8", errors="replace")
+                    root = tree.root_node
 
-                    classes_used: list[str] = []
-                    methods_used: list[str] = []
-                    formats_ref: list[str] = []
+                    func_nodes = _collect_snippet_functions(
+                        root, language, func_types, class_types, text,
+                        is_example_dir=(sdir in _example_dirs))
 
-                    code_lower = code.lower()
-                    for cname in api_class_names:
-                        if cname in code:
-                            classes_used.append(cname)
-                            for mname in api_method_index.get(cname, set()):
-                                if (f"{cname}.{mname}" in code
-                                        or f".{mname}(" in code):
-                                    methods_used.append(f"{cname}.{mname}")
+                    for fn_name, fn_node, fn_line in func_nodes:
+                        if snippet_counter >= MAX_SNIPPETS:
+                            break
+                        code = node_text(fn_node)
+                        if not code.strip():
+                            continue
 
-                    for fmt_name in format_names:
-                        if fmt_name in code_lower:
-                            formats_ref.append(fmt_name)
+                        classes_used: list[str] = []
+                        methods_used: list[str] = []
+                        formats_ref: list[str] = []
 
-                    snippet_id = f"snippet_{snippet_counter + 1:03d}"
-                    snippets.append({
-                        "id": snippet_id,
-                        "file": f"{snippet_id}{ext}",
-                        "source_file": rel,
-                        "source_function": fn_name,
-                        "source_line": fn_line,
-                        "language": language,
-                        "code": code[:5000],
-                        "valid": not fn_node.has_error,
-                        "classes_used": sorted(set(classes_used)),
-                        "methods_used": sorted(set(methods_used)),
-                        "formats_referenced": sorted(set(formats_ref)),
-                    })
-                    snippet_counter += 1
+                        code_lower = code.lower()
+                        for cname in api_class_names:
+                            if cname in code:
+                                classes_used.append(cname)
+                                for mname in api_method_index.get(cname, set()):
+                                    if (f"{cname}.{mname}" in code
+                                            or f".{mname}(" in code):
+                                        methods_used.append(f"{cname}.{mname}")
+
+                        for fmt_name in format_names:
+                            if fmt_name in code_lower:
+                                formats_ref.append(fmt_name)
+
+                        snippet_id = f"snippet_{snippet_counter + 1:03d}"
+                        snippets.append({
+                            "id": snippet_id,
+                            "file": f"{snippet_id}{ext}",
+                            "source_file": rel,
+                            "source_function": fn_name,
+                            "source_line": fn_line,
+                            "language": language,
+                            "code": code[:5000],
+                            "valid": not fn_node.has_error,
+                            "classes_used": sorted(set(classes_used)),
+                            "methods_used": sorted(set(methods_used)),
+                            "formats_referenced": sorted(set(formats_ref)),
+                        })
+                        snippet_counter += 1
 
         if snippet_counter >= MAX_SNIPPETS:
             break

@@ -64,7 +64,7 @@ Language constants and generic tree-sitter helper functions.
 | `_CLASS_TYPES` | Per-language AST node type sets for class declarations |
 | `_FUNC_TYPES` | Per-language AST node type sets for method/function declarations |
 | `_FILE_EXTENSIONS` | Per-language source file extension |
-| `MAX_FILES` | File cap (500) for `_collect_source_files` |
+| `MAX_FILES` | Safety-ceiling file cap for `_collect_source_files` (raised to 8000 in 2026-07-22, HARDEN-words-net — see the constant's own docstring/comment for current value and history; do not hardcode a number here, it will drift again) |
 | `get_parser(language)` | Load tree-sitter parser for a language |
 | `collect_nodes(node, types)` | Recursively collect nodes of given types |
 | `node_text(node, source)` | Extract UTF-8 text for a node |

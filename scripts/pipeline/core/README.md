@@ -86,12 +86,16 @@ All shared values used across pipeline modules. Import from here rather than red
 | `_TEST_PATH_PATTERNS` | `tuple` | File path fragments identifying test code |
 | `_INTERNAL_PATH_PATTERNS` | `tuple` | File path fragments identifying private/internal code |
 | `DUAL_OVERLAP_THRESHOLD` | `float` | `0.8` — Jaccard threshold for scout+FL dual-source match |
-| `MAX_FILES` | `int` | `500` — Maximum source files per product for scout |
-| `MAX_SNIPPETS` | `int` | `200` — Maximum snippets per product for scout |
 | `QUALITY_TREND_MAX_ENTRIES` | `int` | `180` — Entries retained in quality_trend.jsonl |
 
+`MAX_FILES`/`MAX_SNIPPETS` do **not** live here — a duplicate, unused pair was
+removed from this module (2026-07-22, HARDEN-words-net) after it drifted out
+of sync with the real, active values in `extraction/tree_helpers.py::MAX_FILES`
+and `extraction/scout.py::MAX_SNIPPETS`. See those modules for the current
+scout-extraction limits.
+
 ```python
-from core.constants import KNOWLEDGE_ROOT, DUAL_OVERLAP_THRESHOLD, MAX_FILES
+from core.constants import KNOWLEDGE_ROOT, DUAL_OVERLAP_THRESHOLD
 ```
 
 ## Notes

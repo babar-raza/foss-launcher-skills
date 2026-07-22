@@ -1552,7 +1552,8 @@ def extract_api_surface(
 
     ext = _FILE_EXTENSIONS.get(language, ".py")
     header_ext = _HEADER_EXTENSIONS.get(language, "")
-    files = _collect_source_files(pkg_root, ext, header_ext)
+    _collection_stats: dict[str, Any] = {}
+    files = _collect_source_files(pkg_root, ext, header_ext, stats=_collection_stats)
 
     # H-04d: Pre-compute set of files in vendor/private directories.
     # Classes from these files will be marked visibility="internal".
@@ -2172,5 +2173,11 @@ def extract_api_surface(
         "skip_reasons": skip_reasons,
         "parse_errors": parse_errors,
         "parse_error_rate": len(parse_errors) / max(files_attempted, 1),
+        # HARDEN-words-net: files_attempted above already reflects the
+        # post-MAX_FILES-cap count, so it alone can't reveal truncation (a
+        # capped product and one that fit comfortably look identical). These
+        # two fields make that fact durable in the artifact itself.
+        "total_source_files_found": _collection_stats.get("candidates_found", files_attempted),
+        "files_capped": _collection_stats.get("files_capped", False),
     }
     return classes, claims, scanned_files, packages, scout_report

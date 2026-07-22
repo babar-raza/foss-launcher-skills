@@ -96,13 +96,3 @@ QUALITY_TREND_MAX_ENTRIES = 180
 DUAL_OVERLAP_THRESHOLD = 0.8
 """Minimum Jaccard token overlap for a scout+FL claim pair to be tagged 'dual'."""
 
-
-# ---------------------------------------------------------------------------
-# Scout limits
-# ---------------------------------------------------------------------------
-
-MAX_FILES = 500
-"""Maximum number of source files the scout will process per product."""
-
-MAX_SNIPPETS = 200
-"""Maximum number of snippets the scout will extract per product."""

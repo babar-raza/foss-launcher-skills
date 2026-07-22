@@ -252,6 +252,19 @@ class Scout:
         self.packages.update(new_pkgs)
         self.scout_report = scout_report
 
+        # HARDEN-words-net: files_attempted alone can't reveal MAX_FILES
+        # truncation (it's already the post-cap count) — check the explicit
+        # files_capped flag so a product bigger than the cap is never mistaken
+        # for one that fit comfortably inside it.
+        if scout_report.get("files_capped"):
+            LOG.error(
+                "Scout hit the MAX_FILES cap: %d source files exist but only "
+                "%d were processed. API surface is INCOMPLETE for this "
+                "product — raise MAX_FILES in extraction/tree_helpers.py.",
+                scout_report.get("total_source_files_found", len(new_files)),
+                len(new_files),
+            )
+
         # Log warnings for high skip rates
         skip_rate = len(scout_report["files_skipped"]) / max(scout_report["files_attempted"], 1)
         if skip_rate > 0.10:
