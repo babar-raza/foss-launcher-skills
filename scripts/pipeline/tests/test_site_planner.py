@@ -631,6 +631,46 @@ def test_no_warning_when_all_claims_allocated(caplog):
     assert not any("stats-consistency" in r.message for r in caplog.records)
 
 
+def test_raw_claim_count_sums_to_total_when_no_orphans():
+    """D-6 (2026-07-23): build_plan()'s evidence_summary.orphaned_claim_count
+    is computed as len(claims) - sum(cluster raw counts). It must use
+    raw_claim_count (unweighted), not claim_count (visibility-weighted up to
+    3x per claim via _VISIBILITY_WEIGHT) — summing the WEIGHTED field
+    produces a value greater than len(claims) whenever any class has
+    non-conventional visibility, making orphaned_claim_count go negative
+    (confirmed live for both words/net and words/python before this fix).
+
+    This test proves the invariant the fix depends on: with an "exported"
+    (3x-weighted) class in the mix and every claim allocated to a cluster,
+    summing raw_claim_count across clusters exactly equals len(claims), while
+    summing claim_count does not (it overshoots).
+    """
+    api_surface = _make_api_surface(["formats", "entities"])
+    # Class0 (in "formats") gets 3x weight; Class1 (in "entities") stays
+    # default "conventional" (1x) — this asymmetry is what makes the weighted
+    # sum diverge from the raw count.
+    api_surface[0]["visibility"] = "exported"
+    claims = _make_claims(api_surface, per_class=5)  # 10 claims total, no orphans
+
+    clusters = sp.detect_clusters(claims, api_surface, [], "", family="3d")
+
+    raw_sum = sum(c["raw_claim_count"] for c in clusters)
+    weighted_sum = sum(c["claim_count"] for c in clusters)
+
+    assert raw_sum == len(claims), (
+        f"D-6 regression: raw_claim_count must sum to the true claim total "
+        f"when nothing is orphaned; got {raw_sum}, expected {len(claims)}"
+    )
+    assert weighted_sum > len(claims), (
+        "test fixture did not actually exercise visibility weighting — "
+        "expected the weighted sum to overshoot len(claims)"
+    )
+    # The bug: len(claims) - weighted_sum goes negative here, while
+    # len(claims) - raw_sum correctly stays at 0.
+    assert len(claims) - raw_sum == 0
+    assert len(claims) - weighted_sum < 0
+
+
 # ---------------------------------------------------------------------------
 # Family index entry tests (FIX-03)
 # ---------------------------------------------------------------------------

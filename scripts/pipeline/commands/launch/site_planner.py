@@ -2038,8 +2038,12 @@ def build_plan(
         kn.limitations_text,
         family=family,
     )
-    # Orphaned claim count for evidence_summary
-    _claims_in_clusters = sum(c["claim_count"] for c in clusters)
+    # Orphaned claim count for evidence_summary. Must sum raw_claim_count
+    # (unweighted), not claim_count (visibility-weighted up to 3x per claim,
+    # see _VISIBILITY_WEIGHT in detect_clusters) — comparing a weighted sum
+    # against len(kn.claims) (an unweighted raw count) produced nonsensical
+    # negative values (confirmed live for both words/net and words/python).
+    _claims_in_clusters = sum(c["raw_claim_count"] for c in clusters)
     orphaned_claim_count = len(kn.claims) - _claims_in_clusters
 
     # Launch tier
