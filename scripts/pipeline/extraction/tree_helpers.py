@@ -261,13 +261,27 @@ def is_public(node, language: str) -> bool:
                 if gp and gp.type in ("translation_unit", "namespace_definition",
                                        "declaration_list"):
                     return True
+        # HARDEN-A11 (2026-07-22): accumulate EVERY modifier/modifiers sibling
+        # before deciding, instead of returning on the first one found. Java's
+        # grammar bundles all annotations/keywords into one "modifiers" node, so
+        # short-circuiting on the first hit was harmless there — but C#'s
+        # grammar emits each modifier keyword (public, static, virtual, ...) as
+        # its OWN separate sibling node, in whatever order the source wrote
+        # them. `static public void Foo()` has "static" as the first modifier
+        # sibling; the old code returned False right there and silently
+        # dropped every such member from the extracted API surface. This is
+        # the same bug SHAPE as ST-014 (checking only the nearest sibling in a
+        # sequence instead of the whole stack) — same fix, generalized.
+        found_modifier_node = False
+        modifier_texts: list[str] = []
         for ch in node.children:
             if ch.type == "modifiers" or ch.type == "modifier":
-                if "public" in node_text(ch):
-                    return True
-                return False
-            if ch.type == "public":
+                found_modifier_node = True
+                modifier_texts.append(node_text(ch))
+            elif ch.type == "public":
                 return True
+        if found_modifier_node:
+            return "public" in " ".join(modifier_texts)
         # C# / Java: interface members are implicitly public
         if node.parent and node.parent.type in ("interface_declaration",
                                                   "interface_body",

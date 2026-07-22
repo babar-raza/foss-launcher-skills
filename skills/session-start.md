@@ -41,7 +41,31 @@ any user request.
    ```bash
    .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py init
    ```
-   Record the returned session ID.
+   Record the returned session ID, **then export it for the rest of the
+   session** (HARDEN-A2/A12, 2026-07-22):
+   ```bash
+   export AGENT_SESSION_ID=<the-returned-id>
+   ```
+   Every subsequent `session_ledger.py`/`skill_context.py` call in this session
+   should run with `AGENT_SESSION_ID` set in its environment — this is what
+   routes it onto the per-session-isolated path (no shared global "active
+   session"/"active skill context" pointer another concurrent session could
+   silently close or supersede — see ST-021). Without it, resolution still
+   works for the common single-session case, but two sessions active at once
+   become a loud, blocking ambiguity error instead of a silent one — exporting
+   the id avoids ever hitting that error path at all.
+
+   **Worktree-per-session (the suggested default for any session expected to
+   commit):** this repo is a shared checkout with no git-index isolation
+   between concurrent sessions (ST-021) — a session doing multi-stage writes
+   (a product launch, a broad refresh, anything spanning several commits)
+   should start in an isolated worktree via the `EnterWorktree` tool before
+   step 1, rather than working directly in the shared checkout. A quick
+   single-file edit doesn't need this; anything that will touch many files
+   over multiple steps does. This fixes the underlying shared-working-tree
+   git-index race at its root — the `AGENT_SESSION_ID` convention above only
+   fixes the ledger/attribution layer around it, not the git-level race
+   itself.
 6. Surface backlog briefing (non-blocking — skip gracefully if files absent):
    - Read `backlog/REMINDERS.md` — show items where `Due <= today` or `Due = session-start`
    - Read `backlog/HANDOFF.md` — show "What's next" and "Blocked / Waiting"

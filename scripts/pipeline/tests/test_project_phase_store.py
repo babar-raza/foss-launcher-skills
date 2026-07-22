@@ -127,6 +127,116 @@ class ProjectPhaseStoreTests(unittest.TestCase):
             self.assertTrue(backup.exists())
             self.assertIn("corrupt", backup.name)
 
+    def test_concurrent_sets_no_lost_updates(self):
+        """HARDEN-A2: two threads setting different keys must both land — the
+        unlocked read-mutate-save used to silently drop one write."""
+        import threading
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_file = Path(temp_dir) / "phase_state.json"
+            errors: list[Exception] = []
+
+            def worker(key_prefix: str):
+                try:
+                    for i in range(10):
+                        rc = project_phase_store.main([
+                            "set", "fam", "plat", f"{key_prefix}_{i}", "true",
+                            "--state-file", str(state_file),
+                        ])
+                        assert rc == 0
+                except Exception as exc:  # pragma: no cover - diagnostics
+                    errors.append(exc)
+
+            threads = [__import__("threading").Thread(target=worker, args=(p,))
+                       for p in ("alpha", "beta")]
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join(timeout=120)
+
+            self.assertEqual(errors, [])
+            state = json.loads(state_file.read_text(encoding="utf-8"))
+            values = state["fam/plat"]["values"]
+            self.assertEqual(
+                sum(1 for k in values if k.startswith(("alpha_", "beta_"))), 20,
+                f"lost update: only {sorted(values)} present",
+            )
+
+
+class VerifyCheckpointTests(unittest.TestCase):
+    """HARDEN-A5: artifact-fingerprinted checkpoints."""
+
+    def test_set_with_artifact_then_verify_ok(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_file = Path(temp_dir) / "phase_state.json"
+            artifact = Path(temp_dir) / "site_plan.yaml"
+            artifact.write_text("pages: [a, b]\n", encoding="utf-8")
+
+            rc = project_phase_store.main([
+                "set", "words", "net", "site_plan_done", "true",
+                "--state-file", str(state_file),
+                "--artifact", str(artifact),
+            ])
+            self.assertEqual(rc, 0)
+            rc = project_phase_store.main([
+                "verify", "words", "net", "site_plan_done",
+                "--state-file", str(state_file),
+            ])
+            self.assertEqual(rc, 0)
+
+    def test_verify_detects_artifact_drift(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_file = Path(temp_dir) / "phase_state.json"
+            artifact = Path(temp_dir) / "site_plan.yaml"
+            artifact.write_text("pages: [a, b]\n", encoding="utf-8")
+
+            project_phase_store.main([
+                "set", "words", "net", "site_plan_done", "true",
+                "--state-file", str(state_file),
+                "--artifact", str(artifact),
+            ])
+            artifact.write_text("pages: [CORRUPTED]\n", encoding="utf-8")
+
+            state, _ = project_phase_store.load_state(state_file)
+            ok, notes = project_phase_store.verify_checkpoint(state, "words", "net", "site_plan_done")
+            self.assertFalse(ok)
+            self.assertTrue(any("content changed" in n for n in notes))
+
+    def test_verify_detects_missing_artifact(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_file = Path(temp_dir) / "phase_state.json"
+            artifact = Path(temp_dir) / "site_plan.yaml"
+            artifact.write_text("pages: [a]\n", encoding="utf-8")
+
+            project_phase_store.main([
+                "set", "words", "net", "site_plan_done", "true",
+                "--state-file", str(state_file),
+                "--artifact", str(artifact),
+            ])
+            artifact.unlink()
+
+            state, _ = project_phase_store.load_state(state_file)
+            ok, notes = project_phase_store.verify_checkpoint(state, "words", "net", "site_plan_done")
+            self.assertFalse(ok)
+            self.assertTrue(any("missing" in n for n in notes))
+
+    def test_legacy_bool_only_checkpoint_is_unverifiable_not_blocking(self):
+        """2026-06-era entries have no fingerprint — they warn, never block."""
+        state = {
+            "3d/java": {
+                "values": {"docs_done": True},
+                "updated_at": "2026-06-14T06:19:26+00:00",
+                "updated_by": "agent",
+            }
+        }
+        ok, notes = project_phase_store.verify_checkpoint(state, "3d", "java", "docs_done")
+        self.assertTrue(ok)
+        self.assertTrue(any("unverifiable" in n for n in notes))
+
+    def test_unset_checkpoint_fails_verify(self):
+        ok, notes = project_phase_store.verify_checkpoint({}, "words", "net", "docs_done")
+        self.assertFalse(ok)
+        self.assertTrue(any("not set" in n for n in notes))
+
 
 class ValidateCompletionTests(unittest.TestCase):
     def test_readiness_done_with_all_hgates_no_warnings(self):

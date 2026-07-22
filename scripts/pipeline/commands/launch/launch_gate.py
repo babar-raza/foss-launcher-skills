@@ -223,7 +223,41 @@ def _has_evidence_block(text: str) -> bool:
 
 
 def gate_l03_forbidden_claims(family: str, platform: str) -> GateResult:
-    """L-03: change_guard.py must exit with PASS or WARN (not DENY=exit 2)."""
+    """L-03: change_guard.py must exit with PASS or WARN (not DENY=exit 2).
+
+    HARDEN-A7/A8 addition: any body-refresh receipt for this product whose
+    forbidden-claims scan did not verifiably complete (scan_ok=False, or a
+    written page with no scan record) FAILS this gate — "the scanner crashed"
+    must never read as "scanned clean" at launch.
+    """
+    # A7: receipts with unverified forbidden-claims scans block the gate.
+    receipts_dir = _REPO_ROOT / "reports" / "refresh_review" / family / platform / "receipts"
+    if receipts_dir.is_dir():
+        try:
+            import yaml  # noqa: PLC0415
+            unverified: list[str] = []
+            for receipt_path in sorted(receipts_dir.glob("*.yaml")):
+                data = yaml.safe_load(receipt_path.read_text(encoding="utf-8")) or {}
+                receipt = data.get("content_refresh_receipt", data)
+                scan = receipt.get("forbidden_claims_scan")
+                if isinstance(scan, dict):
+                    if scan.get("ok") is False:
+                        unverified.append(receipt_path.name)
+                elif receipt.get("verdict") == "BODY_UPDATED":
+                    unverified.append(f"{receipt_path.name} (no scan record)")
+            if unverified:
+                return GateResult(
+                    "L-03", "Forbidden claims", STATUS_FAIL,
+                    f"{len(unverified)} receipt(s) with UNVERIFIED forbidden-claims scan — "
+                    "re-run the scan (body_refresh / change_guard) before launch",
+                    extra_lines=[f"  {name}" for name in unverified[:5]],
+                )
+        except Exception as exc:  # noqa: BLE001 — unreadable receipts are unverifiable
+            return GateResult(
+                "L-03", "Forbidden claims", STATUS_FAIL,
+                f"could not verify receipt scan records: {exc}",
+            )
+
     # change_guard.py requires proposed text; we pass the claims from knowledge
     # as a representative text sample. If no knowledge exists, we SKIP.
     merged_dir = _KNOWLEDGE_ROOT / family / platform / "merged"

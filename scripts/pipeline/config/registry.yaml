@@ -475,7 +475,13 @@ scripts:
     test_targets:
       - scripts/pipeline/tests/test_no_downgrade_guard.py
     deprecated_since: null
-    notes: "pre-write grade downgrade protection; used by change_guard.py"
+    notes: "pre-write grade downgrade protection. NOT used by change_guard.py (S-33, a
+      forbidden-claims/API/format checker, unrelated) — that was a stale claim, corrected
+      2026-07-22 (HARDEN-A9). Actual production wiring: check_grade_downgrade.py imports
+      _decision()/DECISION_BLOCK/DECISION_WARN and is invoked from
+      scripts/pre-commit-audit.sh Step 21 (HARDEN-A8, added 2026-07-22) — the first time
+      this guard's logic ran on the real push-to-main write path rather than only in the
+      PR-only content-audit.yml workflow."
 
   - path: scripts/pipeline/commands/knowledge/promote.py
     kind: entrypoint
@@ -1139,6 +1145,49 @@ scripts:
     deprecated_since: null
     change_impact: "RPR-J-07 (2026-07-17, new file): tiers a claim_id by its ID-scheme prefix (CLM-*=Tier-1 deterministic/scout, ERC-*=Tier-2 LLM-enriched) so blocking gates can distinguish an unknown-claim-id defect (Tier-1, real) from expected enrichment churn (Tier-2, non-blocking). Consumed by evidence_verifier.py and post_refresh_verify.py Check 2."
 
+  - path: scripts/pipeline/lib/llm_output_cache.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_llm_rerun_consistency.py]
+    deprecated_since: null
+    change_impact: "HARDEN-A4 (2026-07-22, new file): content-hash-keyed LLM output cache generalizing generate_product_backlink_copy.py's key design + tier3_cache.py's invalidation model. Consumed by enrich.py::_llm_call (S-37) and body_refresh.py::_paragraph_rewrite. Cache hit = zero LLM calls, byte-identical rerun; MODEL_DRIFT_DETECTED logged when the serving model changes between fresh entries."
+  - path: scripts/pipeline/commands/governance/regression_classification.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-grading
+    backing:
+      kind: skill
+      ref: regression-classification
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_regression_classification.py
+    deprecated_since: null
+    change_impact: "HARDEN-A10 (2026-07-22, new file): S-114 regression-classification implemented as real code — previously only a prose skill procedure with no backing script, so its own 'classify every regressed item, never a sample' completeness guarantee was unenforceable. main() now asserts output row count == regressed-page count and refuses to write a partial/duplicated report. Deterministic evidence-citation via evidence.apis/claims vs knowledge_delta.json intersection; optional --llm-judge path for ambiguous cases (never accepts an uncited LLM verdict)."
+  - path: scripts/pipeline/lib/advisory_lock.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_advisory_lock.py]
+    deprecated_since: null
+    change_impact: "HARDEN-A1 (2026-07-22, new file): shared advisory FileLock extracted from baseline_ledger.py's RPR-C-01 lock, plus pid-liveness fast steal (verifiably-dead holder stolen immediately, not after the stale window). Consumed by baseline_ledger.py, session_ledger.py, skill_context.py, project_phase_store.py."
   - path: scripts/pipeline/lib/baseline_ledger.py
     kind: library
     lifecycle: active

@@ -189,6 +189,80 @@ class TestCheckpointCriteria:
 
 
 # ---------------------------------------------------------------------------
+# HARDEN-A5: checkpoint integrity (fingerprint verification)
+# ---------------------------------------------------------------------------
+
+class TestCheckpointIntegrity:
+    def test_no_integrity_problems_stays_ready(self):
+        ready, blockers = compute_verdict(
+            _passing_grades(), _passing_coverage(), _passing_checkpoints(),
+            _passing_hgates(), skip_human_review=True, checkpoint_integrity=[],
+        )
+        assert ready is True
+        assert blockers == []
+
+    def test_integrity_problem_blocks(self):
+        ready, blockers = compute_verdict(
+            _passing_grades(), _passing_coverage(), _passing_checkpoints(),
+            _passing_hgates(), skip_human_review=True,
+            checkpoint_integrity=["site_plan_done: reports/plans/x/y/site_plan.yaml "
+                                  "content changed since checkpoint"],
+        )
+        assert ready is False
+        assert any("checkpoint integrity" in b and "content changed" in b for b in blockers)
+
+    def test_integrity_none_defaults_to_no_blockers(self):
+        """checkpoint_integrity defaults to None -> treated as no problems, not a crash."""
+        ready, blockers = compute_verdict(
+            _passing_grades(), _passing_coverage(), _passing_checkpoints(),
+            _passing_hgates(), skip_human_review=True,
+        )
+        assert ready is True
+
+    def test_verify_checkpoint_integrity_detects_tampered_artifact(self, tmp_path):
+        """End-to-end: a checkpoint set with --artifact whose file is later
+        modified must surface as a real integrity problem."""
+        import project_phase_store as pps
+        import readiness_scorecard as rs
+
+        state_file = tmp_path / "phase_state.json"
+        artifact = tmp_path / "site_plan.yaml"
+        artifact.write_text("pages: [a, b]\n", encoding="utf-8")
+        pps.main(["set", "words", "net", "site_plan_done", "true",
+                 "--state-file", str(state_file), "--artifact", str(artifact)])
+
+        rs._PHASE_STATE = state_file
+        try:
+            checkpoints = rs._read_checkpoints("words", "net")
+            problems = rs._verify_checkpoint_integrity("words", "net", checkpoints)
+            assert problems == []  # untampered — clean
+
+            artifact.write_text("pages: [CORRUPTED]\n", encoding="utf-8")
+            problems2 = rs._verify_checkpoint_integrity("words", "net", checkpoints)
+            assert len(problems2) == 1
+            assert "content changed" in problems2[0]
+        finally:
+            rs.configure()
+
+    def test_verify_checkpoint_integrity_ignores_legacy_bool_only(self, tmp_path):
+        """A checkpoint with no __fingerprint sibling (every pre-A5 entry) must
+        never be treated as an integrity problem."""
+        import project_phase_store as pps
+        import readiness_scorecard as rs
+
+        state_file = tmp_path / "phase_state.json"
+        pps.main(["set", "3d", "java", "docs_done", "true", "--state-file", str(state_file)])
+
+        rs._PHASE_STATE = state_file
+        try:
+            checkpoints = rs._read_checkpoints("3d", "java")
+            problems = rs._verify_checkpoint_integrity("3d", "java", checkpoints)
+            assert problems == []
+        finally:
+            rs.configure()
+
+
+# ---------------------------------------------------------------------------
 # H-gate criteria
 # ---------------------------------------------------------------------------
 

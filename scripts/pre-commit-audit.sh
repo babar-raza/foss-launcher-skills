@@ -931,4 +931,127 @@ else
 fi
 _pc_step_end "PASS"
 
+# ---------------------------------------------------------------------------
+_pc_step_start "grade downgrade gate"
+# Step 21 (HARDEN-A8): grade-downgrade gate on the ACTUAL production write path.
+# check_grade_downgrade.py previously ran only in content-audit.yml, which
+# triggers on pull_request — a path production (direct push to main, AGENTS.md
+# §2b) never takes. Root cause #2 of the 2026-07-22 reliability audit: the one
+# CI gate with real regression checks structurally never fired.
+# Scope: staged MODIFIED English content .md files (new files have no prior
+# grade to protect). Override: a pending override token from override_manager.py
+# covering the specific file(s) — same governed mechanism as protected paths,
+# no new bypass channel.
+# ---------------------------------------------------------------------------
+if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/pipeline/commands/governance/check_grade_downgrade.py" ]; then
+    mapfile -t _gd_files < <(git diff --cached --name-only --diff-filter=M -- 'content/*.md' 2>/dev/null)
+    if [ ${#_gd_files[@]} -gt 0 ]; then
+        _gd_blocked_list=$(mktemp)
+        _gd_out=$(PYTHONPATH=scripts/pipeline "$_HOOK_PYTHON" \
+            scripts/pipeline/commands/governance/check_grade_downgrade.py \
+            --blocked-files-out "$_gd_blocked_list" "${_gd_files[@]}" 2>&1)
+        _gd_exit=$?
+        if [ -n "$_gd_out" ]; then
+            echo "$_gd_out" | sed 's/^/[Step 21] /'
+        fi
+        if [ $_gd_exit -ne 0 ]; then
+            # Governed override: accept a pending override token that covers
+            # EVERY BLOCKED file (validate via override_manager.py).
+            # R2 (post-review fix): a non-zero exit with an EMPTY blocked-list
+            # (the check crashed before writing --blocked-files-out, or the
+            # file is otherwise unreadable) must NOT read as "nothing to
+            # override, therefore permitted" — that was a silent fail-open.
+            # Unverifiable = block, same direction as every other gate here.
+            if [ ! -s "$_gd_blocked_list" ]; then
+                echo "[Step 21] BLOCKED: check_grade_downgrade.py exited non-zero but" >&2
+                echo "[Step 21] wrote no blocked-file list — cannot verify which files" >&2
+                echo "[Step 21] are safe to override. Treating as unverifiable, not permitted." >&2
+                rm -f "$_gd_blocked_list"
+                _pc_step_end "FAIL"
+                _pc_exit 1
+            fi
+            _gd_override_ok=1
+            while IFS= read -r _gd_f; do
+                [ -z "$_gd_f" ] && continue
+                if ! "$_HOOK_PYTHON" scripts/pipeline/commands/governance/override_manager.py \
+                        validate-for-path "$_gd_f" >/dev/null 2>&1; then
+                    _gd_override_ok=0
+                    break
+                fi
+            done < "$_gd_blocked_list"
+            rm -f "$_gd_blocked_list"
+            if [ $_gd_override_ok -eq 1 ]; then
+                echo "[Step 21] Grade downgrade permitted by pending override token(s)." >&2
+            else
+                echo "[Step 21] BLOCKED: staged content downgrades a published grade." >&2
+                echo "[Step 21] Fix the content, or create a governed override:" >&2
+                echo "[Step 21]   override_manager.py create --paths <file> --reason '...' --plan '<plan>'" >&2
+                _pc_step_end "FAIL"
+                _pc_exit 1
+            fi
+        fi
+        rm -f "$_gd_blocked_list"
+    else
+        echo "[Step 21] No staged modified content files — skipping."
+    fi
+else
+    echo "[Step 21] SKIP: .venv not found or check_grade_downgrade.py missing." >&2
+fi
+_pc_step_end "PASS"
+
+# ---------------------------------------------------------------------------
+_pc_step_start "stale refresh gate"
+# Step 22 (HARDEN-A8): stale-refresh triage gate. Blocks committing a SPECIFIC
+# page that triage_confirm.py (S-92)'s most recent verdict flagged as stale for
+# its {family}/{platform}, unless a governed override token covers it. Makes
+# refresh-product.md's "S-76 is gated on triage verdict" claim actually true —
+# previously nothing on the commit path read the verdict. Scoped per-file (R1,
+# post-review correction) rather than per-product-pair: this repo already has
+# 4 products with nonzero historical stale counts (3d/java, 3d/net, cells/java,
+# pdf/net) — pair-level blocking would have hard-blocked every future commit to
+# any file under those products, forever, with no escape hatch. Rewriting the
+# specific flagged page (or a governed override) clears the block.
+# ---------------------------------------------------------------------------
+if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_stale_refresh_gate.py" ]; then
+    _sr_out=$(git diff --cached --name-only -- 'content/' 2>/dev/null | \
+        "$_HOOK_PYTHON" scripts/ci/checks/check_stale_refresh_gate.py 2>&1)
+    _sr_exit=$?
+    if [ -n "$_sr_out" ]; then
+        echo "$_sr_out" | sed 's/^/[Step 22] /'
+    fi
+    if [ $_sr_exit -ne 0 ]; then
+        _pc_step_end "FAIL"
+        _pc_exit 1
+    fi
+else
+    echo "[Step 22] SKIP: .venv not found or check_stale_refresh_gate.py missing." >&2
+fi
+_pc_step_end "PASS"
+
+# ---------------------------------------------------------------------------
+_pc_step_start "contract claims drift"
+# Step 23 (HARDEN-A9): self-documentation drift checker, ADVISORY ONLY. Scoped
+# to staged skill/registry files (cheap, narrow blast radius). Heuristic
+# pattern-matcher — a false positive must never block an unrelated commit, so
+# this step always exits 0; findings are printed as a WARN for the author to
+# read, same tone as other advisory-only steps in this hook.
+# ---------------------------------------------------------------------------
+if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_contract_claims.py" ]; then
+    mapfile -t _cc_files < <(git diff --cached --name-only -- \
+        'skills/*.md' '.claude/commands/*.md' \
+        '.agents/skills/*/SKILL.md' '.kilocode/skills/*/SKILL.md' \
+        'scripts/pipeline/config/registry.yaml' 2>/dev/null)
+    if [ ${#_cc_files[@]} -gt 0 ]; then
+        _cc_out=$("$_HOOK_PYTHON" scripts/ci/checks/check_contract_claims.py --paths "${_cc_files[@]}" 2>&1)
+        if [ -n "$_cc_out" ]; then
+            echo "$_cc_out" | sed 's/^/[Step 23] /'
+        fi
+    else
+        echo "[Step 23] No staged skill/registry files — skipping."
+    fi
+else
+    echo "[Step 23] SKIP: .venv not found or check_contract_claims.py missing." >&2
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0

@@ -33,25 +33,32 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 _LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 from path_utils import repo_rel
+from advisory_lock import FileLock
+
+_ENV_SESSION_ID = "AGENT_SESSION_ID"
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent  # commands/governance/ -> commands/ -> pipeline/ -> scripts/ -> repo
 _REPO_ROOT = _DEFAULT_REPO_ROOT
 _CONTEXT_DIR = _REPO_ROOT / "reports" / "skill-context"
 _ACTIVE_FILE = _CONTEXT_DIR / "ACTIVE.json"
 _HISTORY_DIR = _CONTEXT_DIR / "history"
-# RPR-G-03 (§2.5 SW-1): per-session context directory for the optimistic-concurrency
-# model. Each session that passes --session-id gets its own file here, so two concurrent
-# sessions no longer clobber a single global ACTIVE.json. The legacy single-file path is
-# fully preserved for callers that do NOT pass --session-id (backward compatible).
+# RPR-G-03 (§2.5 SW-1) + HARDEN-A2: per-session context directory. A session id
+# comes from --session-id or the AGENT_SESSION_ID env var (the default path for
+# any properly-started session), giving each session its own file so concurrent
+# sessions never clobber a single global ACTIVE.json. Callers with NO identity at
+# all fall back to the legacy single-file path — now fail-closed: a live context
+# for a different skill is a named conflict (exit 3), never a silent supersede.
 _ACTIVE_DIR = _CONTEXT_DIR / "active"
 
 
@@ -109,11 +116,20 @@ def _load_active() -> dict | None:
     return record
 
 
+def _legacy_lock() -> FileLock:
+    """Lock guarding the legacy single-file ACTIVE.json read-modify-write
+    (HARDEN-A2 — this was a plain unlocked load/decide/save before)."""
+    return FileLock(str(_ACTIVE_FILE) + ".lock", timeout=10.0)
+
+
 def _save_active(record: dict) -> None:
     _CONTEXT_DIR.mkdir(parents=True, exist_ok=True)
-    with open(_ACTIVE_FILE, "w", encoding="utf-8") as f:
+    with NamedTemporaryFile("w", encoding="utf-8", delete=False,
+                            dir=_CONTEXT_DIR, suffix=".tmp") as f:
         json.dump(record, f, indent=2, ensure_ascii=False)
         f.write("\n")
+        temp_path = Path(f.name)
+    temp_path.replace(_ACTIVE_FILE)
 
 
 def _archive(record: dict, status: str = "completed", *, remove_active: bool = True) -> None:
@@ -133,7 +149,17 @@ def _archive(record: dict, status: str = "completed", *, remove_active: bool = T
         json.dump(record, f, indent=2, ensure_ascii=False)
         f.write("\n")
     if remove_active and _ACTIVE_FILE.exists():
-        _ACTIVE_FILE.unlink()
+        # F4 guard: only unlink ACTIVE.json if it still holds the record being
+        # archived. An un-locked reader (check/current) archiving a stale record
+        # could otherwise delete a fresh context a locked begin just wrote.
+        try:
+            current = json.loads(_ACTIVE_FILE.read_text(encoding="utf-8"))
+            matches = (current.get("skill_id") == record.get("skill_id")
+                       and current.get("started_at") == record.get("started_at"))
+        except (json.JSONDecodeError, OSError):
+            matches = True  # unreadable/corrupt — removing it is the safe outcome
+        if matches:
+            _ACTIVE_FILE.unlink()
 
 
 def _archive_stale(record: dict) -> None:
@@ -187,14 +213,18 @@ def scope_overlap(scope_a: list[str], scope_b: list[str]) -> bool:
 
 
 def _derive_session_id(explicit: "str | None") -> "str | None":
-    """Return the explicit session id, or None (legacy single-file mode).
+    """Return the session id: explicit arg, else AGENT_SESSION_ID env, else None.
 
-    A stable id must be supplied by orchestrated/agent callers via --session-id, because
-    begin/end and the edit hook run in separate processes and cannot share a PID. When
-    absent, the caller uses the legacy global ACTIVE.json path (backward compatible).
+    HARDEN-A2 flips RPR-G-03 from opt-in to default: any session that exports
+    AGENT_SESSION_ID (the convention session-start now documents) gets per-session
+    context isolation automatically — no flag needed. A stable id must come from
+    the caller because begin/end and the edit hook run in separate processes and
+    cannot share a PID. With neither arg nor env, the caller uses the legacy
+    global ACTIVE.json path (backward compatible, now fail-closed on conflicts).
     """
-    if explicit:
-        return "".join(c if (c.isalnum() or c in "-_") else "-" for c in explicit)[:64]
+    value = explicit or os.environ.get(_ENV_SESSION_ID, "").strip() or None
+    if value:
+        return "".join(c if (c.isalnum() or c in "-_") else "-" for c in value)[:64]
     return None
 
 
@@ -314,20 +344,35 @@ def cmd_begin(args: argparse.Namespace) -> int:
         print(f"Skill context started: {args.skill} (scope: {scope}; session: {session_id}{suffix})")
         return 0
 
-    # ---- Legacy single-context path (unchanged; no --session-id supplied) ----
-    existing = _load_active()
-    if existing:
-        # Clean up stale context from a crashed prior skill
-        print(f"WARNING: Cleaning up prior active context for {existing.get('skill_id')}", file=sys.stderr)
-        _archive(existing, status="superseded")
+    # ---- Legacy single-context path (no --session-id and no AGENT_SESSION_ID) ----
+    # HARDEN-A2: the old behavior silently superseded whatever live context existed
+    # — the exact clobber that let one session end/overwrite another's governance
+    # state. Now: a live context for a DIFFERENT skill is a named conflict (exit 3).
+    # A live context for the SAME skill is superseded (the standard re-begin loop —
+    # scope re-arms before every edit — is single-session and must keep working).
+    # The whole load/decide/save is under the legacy lock (was unlocked before).
+    with _legacy_lock():
+        existing = _load_active()
+        if existing and existing.get("skill_id") != args.skill:
+            print(
+                f"CONFLICT: a live context for {existing.get('skill_id')} "
+                f"(scope: {existing.get('scope_patterns')}) already exists and this begin "
+                f"({args.skill}) has no session identity. Refusing to supersede it silently.\n"
+                f"Fix: export {_ENV_SESSION_ID}=<your-session-id> (or pass --session-id) so "
+                f"contexts are per-session, or end the other context first.",
+                file=sys.stderr,
+            )
+            return 3
+        if existing:
+            _archive(existing, status="superseded_same_skill")
 
-    record = {
-        "skill_id": args.skill,
-        "context_type": "skill",
-        "scope_patterns": scope,
-        "started_at": _now().isoformat().replace("+00:00", "Z"),
-    }
-    _save_active(record)
+        record = {
+            "skill_id": args.skill,
+            "context_type": "skill",
+            "scope_patterns": scope,
+            "started_at": _now().isoformat().replace("+00:00", "Z"),
+        }
+        _save_active(record)
     print(f"Skill context started: {args.skill} (scope: {scope})")
     return 0
 
@@ -354,17 +399,18 @@ def cmd_end(args: argparse.Namespace) -> int:
         print(f"Skill context ended: {args.skill} ({args.status}; session: {session_id})")
         return 0
 
-    # ---- Legacy single-context path (unchanged) ----
-    active = _load_active()
-    if not active:
-        print("WARNING: No active skill context to end.", file=sys.stderr)
-        return 0
+    # ---- Legacy single-context path (now under the legacy lock) ----
+    with _legacy_lock():
+        active = _load_active()
+        if not active:
+            print("WARNING: No active skill context to end.", file=sys.stderr)
+            return 0
 
-    if active.get("skill_id") != args.skill:
-        print(f"WARNING: Active skill is {active.get('skill_id')}, not {args.skill}. Ending anyway.",
-              file=sys.stderr)
+        if active.get("skill_id") != args.skill:
+            print(f"WARNING: Active skill is {active.get('skill_id')}, not {args.skill}. Ending anyway.",
+                  file=sys.stderr)
 
-    _archive(active, status=args.status)
+        _archive(active, status=args.status)
     print(f"Skill context ended: {args.skill} ({args.status})")
     return 0
 
@@ -408,7 +454,19 @@ def cmd_check(args: argparse.Namespace) -> int:
 
 
 def cmd_current(args: argparse.Namespace) -> int:
-    """Print current active skill ID. Exit 2 if no active context."""
+    """Print current active skill ID. Exit 2 if no active context.
+
+    Session-aware (HARDEN-A2): with an explicit --session-id or AGENT_SESSION_ID
+    env, reports THAT session's context; otherwise the legacy ACTIVE.json.
+    """
+    session_id = _derive_session_id(getattr(args, "session_id", None))
+    if session_id:
+        record = _load_session_contexts().get(session_id)
+        if not record:
+            return 2
+        print(f"{record.get('skill_id', 'unknown')} ({record.get('context_type', 'skill')})")
+        return 0
+
     active = _load_active()
     if not active:
         return 2
@@ -434,10 +492,6 @@ def cmd_gap(args: argparse.Namespace) -> int:
         print(f"ERROR: Gap report not found: {args.report}", file=sys.stderr)
         return 1
 
-    existing = _load_active()
-    if existing:
-        _archive(existing, status="superseded_by_gap")
-
     scope = [s.strip() for s in args.scope.split(",") if s.strip()] if args.scope else ["*"]
 
     record = {
@@ -449,7 +503,44 @@ def cmd_gap(args: argparse.Namespace) -> int:
         "started_at": _now().isoformat().replace("+00:00", "Z"),
         "ttl_minutes": 30,
     }
-    _save_active(record)
+
+    # F5: gap contexts follow the same identity/conflict rules as begin — the
+    # old path silently superseded ANY live context (the exact clobber class A2
+    # eliminated on begin), and ignored session identity entirely.
+    session_id = _derive_session_id(getattr(args, "session_id", None))
+    if session_id:
+        others = _load_session_contexts(exclude=session_id)
+        for other_sid, other in others.items():
+            if scope_overlap(scope, other.get("scope_patterns", ["*"])):
+                print(
+                    f"CONFLICT: session {other_sid!r} (skill {other.get('skill_id')}) holds a live "
+                    f"context overlapping this gap scope {scope}. Refusing to supersede it.",
+                    file=sys.stderr,
+                )
+                return 3
+        prior = _load_session_contexts().get(session_id)
+        if prior:
+            _archive(prior, status="superseded_by_gap", remove_active=False)
+        record["session_id"] = session_id
+        _save_session_context(session_id, record)
+        print(f"Gap-approved context started (30-min TTL; session: {session_id}): {args.task}")
+        print(f"  Report: {args.report}")
+        return 0
+
+    with _legacy_lock():
+        existing = _load_active()
+        if existing and existing.get("skill_id") not in (None, "GAP-APPROVED"):
+            print(
+                f"CONFLICT: a live context for {existing.get('skill_id')} exists and this gap "
+                f"request has no session identity. Refusing to supersede it silently.\n"
+                f"Fix: export {_ENV_SESSION_ID}=<your-session-id> (or pass --session-id), or "
+                f"end the other context first.",
+                file=sys.stderr,
+            )
+            return 3
+        if existing:
+            _archive(existing, status="superseded_by_gap")
+        _save_active(record)
     print(f"Gap-approved context started (30-min TTL): {args.task}")
     print(f"  Report: {args.report}")
     return 0
@@ -498,7 +589,9 @@ def main(argv: list[str] | None = None) -> int:
                          help="Check only this session's context (RPR-G-03)")
 
     # current
-    sub.add_parser("current", help="Print current active skill ID")
+    p_current = sub.add_parser("current", help="Print current active skill ID")
+    p_current.add_argument("--session-id", dest="session_id", default=None,
+                           help="Report this session's context (default: AGENT_SESSION_ID env, then legacy)")
 
     # gap
     p_gap = sub.add_parser("gap", help="Create gap-approved temporary context")
@@ -506,6 +599,8 @@ def main(argv: list[str] | None = None) -> int:
     p_gap.add_argument("--report", required=True, help="Path to the gap escalation report")
     p_gap.add_argument("--scope", default="*",
                        help="Comma-separated glob patterns for allowed file paths")
+    p_gap.add_argument("--session-id", dest="session_id", default=None,
+                       help="Session identity (default: AGENT_SESSION_ID env, then legacy path)")
 
     args = parser.parse_args(argv)
     dispatch = {

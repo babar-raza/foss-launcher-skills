@@ -238,19 +238,51 @@ PYTHONPATH="$REPO_ROOT/scripts/pipeline" "$PYTHON" "$REPO_ROOT/scripts/pipeline/
     check --file "$FILE_PATH" 2>/dev/null || CHECK_EXIT=$?
 
 if [ $CHECK_EXIT -eq 0 ]; then
-    # File is in scope — record touch with skill attribution (best-effort, non-blocking)
-    ACTIVE_SKILL=$(printf '%s' "$(cat "$ACTIVE_FILE")" | "$PYTHON" -c "
-import json, sys
-try:
-    print(json.load(sys.stdin).get('skill_id', ''))
-except Exception:
-    pass
-" 2>/dev/null || true)
-    if [ -n "$ACTIVE_SKILL" ]; then
+    # File is in scope — record touch with skill+session attribution (best-effort,
+    # non-blocking). HARDEN-A3/F1: session-aware. The old block read skill_id ONLY
+    # from legacy ACTIVE.json, so a session on the per-session path (AGENT_SESSION_ID
+    # exported — now the default) had no ACTIVE.json, recording silently stopped,
+    # ledgers starved, and agents were pushed toward `adopt --all` — re-opening the
+    # exact cross-session sweep A2 guards against. Attribution order: env identity's
+    # per-session context > legacy ACTIVE.json > sole live per-session file.
+    ATTRIB=$("$PYTHON" -c "
+import json, os, sys
+from pathlib import Path
+ctx_dir = Path(sys.argv[1])
+active_file = ctx_dir / 'ACTIVE.json'
+active_dir = ctx_dir / 'active'
+
+def load(p):
+    try:
+        return json.loads(p.read_text(encoding='utf-8'))
+    except Exception:
+        return None
+
+sid = os.environ.get('AGENT_SESSION_ID', '').strip()
+rec = load(active_dir / (sid + '.json')) if sid else None
+if rec is None:
+    legacy = load(active_file)
+    if legacy:
+        rec = legacy
+        sid = legacy.get('session_id', '') or sid
+if rec is None and active_dir.exists():
+    files = sorted(active_dir.glob('*.json'))
+    if len(files) == 1:
+        rec = load(files[0])
+        sid = files[0].stem
+if rec and rec.get('skill_id'):
+    print(rec.get('skill_id') + '\t' + (sid or ''))
+" "$REPO_ROOT/reports/skill-context" 2>/dev/null || true)
+    if [ -n "$ATTRIB" ]; then
+        ACTIVE_SKILL="${ATTRIB%%$'\t'*}"
+        ATTRIB_SID="${ATTRIB#*$'\t'}"
+        _REC_ARGS=(record --file "$FILE_PATH" --action modified --skill "$ACTIVE_SKILL")
+        if [ -n "$ATTRIB_SID" ] && [ "$ATTRIB_SID" != "$ATTRIB" ]; then
+            _REC_ARGS+=(--session-id "$ATTRIB_SID")
+        fi
         PYTHONPATH="$REPO_ROOT/scripts/pipeline" "$PYTHON" \
             "$REPO_ROOT/scripts/pipeline/commands/ops/session_ledger.py" \
-            record --file "$FILE_PATH" --action modified \
-            --skill "$ACTIVE_SKILL" 2>/dev/null || true
+            "${_REC_ARGS[@]}" 2>/dev/null || true
     fi
     exit 0
 elif [ $CHECK_EXIT -eq 2 ]; then

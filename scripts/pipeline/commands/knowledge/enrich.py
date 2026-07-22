@@ -564,11 +564,43 @@ def _get_router():
     return _router
 
 
-def _llm_call(prompt_system: str, prompt_user: str) -> tuple[dict | list | None, str]:
+# HARDEN-A4: bump when the cached-output SCHEMA/validation contract changes in a
+# way that makes old cached outputs unusable (prompt content itself is hashed
+# into the key, so prompt changes invalidate automatically).
+_ENRICH_CACHE_SCHEMA = "1"
+
+
+def _llm_call(
+    prompt_system: str,
+    prompt_user: str,
+    cache=None,
+    cache_extra: list[str] | None = None,
+) -> tuple[dict | list | None, str]:
     """Call LLM with professionalize.com → Ollama fallback.
+
+    HARDEN-A4: with a cache (lib.llm_output_cache.LLMOutputCache), the fully
+    rendered prompts + caller identity parts form a content-hash key — a rerun
+    against unchanged knowledge input returns the stored output byte-identically
+    with zero LLM calls. Fresh successes are stored even when cache reads are
+    bypassed (forced regen refreshes the cache).
 
     Returns (parsed_data, 'provider/model') or (None, '') on failure.
     """
+    cache_key = None
+    if cache is not None:
+        from lib.llm_output_cache import build_cache_key, sha256_text
+        cache_key = build_cache_key([
+            *(cache_extra or []),
+            sha256_text(prompt_system),
+            sha256_text(prompt_user),
+            _ENRICH_CACHE_SCHEMA,
+        ])
+        entry = cache.load(cache_key)
+        if entry is not None:
+            log.info("LLM cache HIT (%s...) — zero-call reuse via %s",
+                     cache_key[:12], entry.get("model_used", "?"))
+            return entry["output"], entry.get("model_used", "cache")
+
     try:
         from lib.llm_router import EndpointStatus
         router = _get_router()
@@ -591,8 +623,21 @@ def _llm_call(prompt_system: str, prompt_user: str) -> tuple[dict | list | None,
     if result.status == EndpointStatus.OK:
         model_info = f"{result.provider}/{result.model}"
         log.info("LLM call via %s", model_info)
+        if cache is not None and cache_key and _is_cacheable_payload(result.data):
+            cache.save(cache_key, result.data, model_info)
         return result.data, model_info
     return None, ""
+
+
+def _is_cacheable_payload(data) -> bool:
+    """HARDEN-A4/R2: OK transport status is not enough — an HTTP-200 completion
+    can carry a semantic error body (e.g. {"error": "rate_limited"}, the exact
+    TC-2 case). Caching one would replay the failure with zero LLM calls on
+    every rerun until the input changes. Cache only shapes the TC-2 validation
+    downstream accepts as claim-bearing."""
+    if isinstance(data, list):
+        return True
+    return isinstance(data, dict) and "claims" in data
 
 
 # ---------------------------------------------------------------------------
@@ -997,7 +1042,8 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
            batch_size: int = _DEFAULT_BATCH_SIZE,
            min_coverage: float = _DEFAULT_MIN_COVERAGE,
            mode: str = "capability",
-           reports_root=None) -> bool:
+           reports_root=None,
+           force_llm_regen: bool = False) -> bool:
     """Run S-37 enrichment for a family/platform.
 
     Returns True on success (even if LLM unavailable — writes empty enriched file).
@@ -1031,10 +1077,33 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
                   family, platform)
         return False
 
-    api_surface: list = json.loads(api_surface_path.read_text(encoding="utf-8"))
+    api_surface_text = api_surface_path.read_text(encoding="utf-8")
+    api_surface: list = json.loads(api_surface_text)
     if not isinstance(api_surface, list):
         log.error("api_surface.json is not a list for %s/%s", family, platform)
         return False
+
+    # HARDEN-A4: content-hash-keyed LLM output cache. Key parts include the
+    # api_surface sha so a re-scout invalidates everything; the rendered prompts
+    # (hashed inside _llm_call) cover per-batch source-content changes.
+    # Hermeticity: an explicit knowledge_root (tests, sandboxes) scopes the cache
+    # beside it — never into the live reports/ tree from an isolated run.
+    from lib.llm_output_cache import LLMOutputCache, sha256_text as _sha_text
+    _cache_reports_root = reports_root
+    if _cache_reports_root is None and knowledge_root is not None:
+        _cache_reports_root = Path(knowledge_root) / ".llm_cache_reports"
+    llm_cache = LLMOutputCache(
+        family, platform, "enrich",
+        reports_root=_cache_reports_root,
+        enabled=not force_llm_regen,
+    )
+    if force_llm_regen:
+        log.warning(
+            "LLM_CACHE_BYPASSED: forced fresh regeneration for %s/%s "
+            "(cache reads disabled; fresh outputs still stored for future runs)",
+            family, platform,
+        )
+    _cache_extra = [family, platform, _sha_text(api_surface_text)]
 
     # Load existing scout claims (for de-duplication)
     # FIX-12: claims.json may be a flat list (legacy) or a wrapper dict with
@@ -1184,7 +1253,7 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
             log.info("Batch %d/%d: calling LLM for %d classes...",
                      batch_idx + 1, len(batches), len(batch))
             run_stats["batches_attempted"] += 1
-            raw_result, batch_model = _llm_call(sys_prompt, user_prompt)
+            raw_result, batch_model = _llm_call(sys_prompt, user_prompt, cache=llm_cache, cache_extra=_cache_extra)
             if batch_model:
                 model_used = batch_model
 
@@ -1240,7 +1309,7 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
             )
             log.info("member-doc: calling LLM for class %s...", cls_name)
             run_stats["batches_attempted"] += 1
-            raw_result, batch_model = _llm_call(sys_prompt, user_prompt)
+            raw_result, batch_model = _llm_call(sys_prompt, user_prompt, cache=llm_cache, cache_extra=_cache_extra)
             if batch_model:
                 model_used = batch_model
             if raw_result is None:
@@ -1295,7 +1364,7 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
         )
         log.info("Feature mode: calling LLM with %d source files listed...", len(source_files))
         run_stats["batches_attempted"] += 1
-        raw_result, batch_model = _llm_call(sys_prompt, user_prompt)
+        raw_result, batch_model = _llm_call(sys_prompt, user_prompt, cache=llm_cache, cache_extra=_cache_extra)
         if batch_model:
             model_used = batch_model
 
@@ -1518,6 +1587,9 @@ def main() -> None:
                              "feature: high-level capability/install/troubleshoot claims "
                              "(writes to feature_claims.json); "
                              "both: run capability + member-doc modes")
+    parser.add_argument("--no-llm-cache", action="store_true", dest="no_llm_cache",
+                        help="HARDEN-A4: bypass the content-hash LLM output cache and force "
+                             "fresh LLM calls (loudly logged; fresh outputs still refresh the cache)")
     args = parser.parse_args()
 
     # Prerequisite check — clear error messages instead of cryptic tracebacks
@@ -1534,7 +1606,8 @@ def main() -> None:
                      rehash_only=args.rehash_only,
                      batch_size=args.batch_size,
                      min_coverage=args.min_coverage,
-                     mode=args.mode)
+                     mode=args.mode,
+                     force_llm_regen=args.no_llm_cache)
     status = "PASS" if success else "FAIL"
     print(f"\nKNOWLEDGE-ENRICH: {status}")
     sys.exit(0 if success else 1)

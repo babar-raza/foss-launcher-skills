@@ -14,7 +14,17 @@ _PIPELINE_DIR = Path(__file__).resolve().parent.parent
 if str(_PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_DIR))
 
+import pytest
+
 import skill_context
+
+
+@pytest.fixture(autouse=True)
+def _clear_agent_session_env(monkeypatch):
+    """Keep legacy-path tests hermetic: a developer/agent shell exporting
+    AGENT_SESSION_ID (the HARDEN-A2 convention) must not leak in and silently
+    reroute flag-less calls onto the per-session path."""
+    monkeypatch.delenv("AGENT_SESSION_ID", raising=False)
 
 
 class TestSkillContextBeginEnd(unittest.TestCase):
@@ -62,16 +72,35 @@ class TestSkillContextBeginEnd(unittest.TestCase):
         result = skill_context.main(["end", "--skill", "S-20", "--status", "completed"])
         self.assertEqual(result, 0)
 
-    def test_begin_supersedes_existing(self):
+    def test_begin_same_skill_supersedes_own_context(self):
+        """HARDEN-A2: same-skill re-begin (the per-edit scope re-arm loop) still
+        replaces the prior context — this is the standard single-session flow."""
         skill_context.main(["begin", "--skill", "S-20", "--scope", "*", "--skip-dar"])
-        result = skill_context.main(["begin", "--skill", "S-21", "--scope", "*", "--skip-dar"])
+        result = skill_context.main(["begin", "--skill", "S-20", "--scope", "a/*", "--skip-dar"])
         self.assertEqual(result, 0)
         with open(skill_context._ACTIVE_FILE) as f:
             data = json.load(f)
-        self.assertEqual(data["skill_id"], "S-21")
-        # Prior context archived as superseded
+        self.assertEqual(data["skill_id"], "S-20")
+        self.assertEqual(data["scope_patterns"], ["a/*"])
         history_files = list(skill_context._HISTORY_DIR.glob("*.json"))
         self.assertEqual(len(history_files), 1)
+        with open(history_files[0]) as f:
+            archived = json.load(f)
+        self.assertEqual(archived["end_status"], "superseded_same_skill")
+
+    def test_begin_different_skill_without_identity_conflicts(self):
+        """HARDEN-A2: a live context for a DIFFERENT skill is a named conflict
+        (exit 3), never a silent supersede — the old clobber let one session
+        destroy another's governance state."""
+        skill_context.main(["begin", "--skill", "S-20", "--scope", "*", "--skip-dar"])
+        result = skill_context.main(["begin", "--skill", "S-21", "--scope", "*", "--skip-dar"])
+        self.assertEqual(result, 3)
+        # The original context is untouched
+        with open(skill_context._ACTIVE_FILE) as f:
+            data = json.load(f)
+        self.assertEqual(data["skill_id"], "S-20")
+        self.assertEqual(list(skill_context._HISTORY_DIR.glob("*.json"))
+                         if skill_context._HISTORY_DIR.exists() else [], [])
 
 
 class TestSkillContextCheck(unittest.TestCase):
@@ -418,18 +447,37 @@ class TestSkillContextOCC(unittest.TestCase):
 
     # ── backward compatibility (the non-negotiable acceptance) ───────────
     def test_existing_single_session_callers_unaffected(self):
-        """Every current caller omits --session-id and must behave exactly as before:
-        begin -> ACTIVE.json written; a second begin supersedes it (legacy semantics)."""
+        """Identity-less callers keep the single-skill lifecycle working:
+        begin -> ACTIVE.json written; same-skill re-begin supersedes own context;
+        end archives. A DIFFERENT skill's begin now conflicts (fail-closed,
+        HARDEN-A2) instead of silently superseding."""
         self.assertEqual(0, skill_context.main(["begin", "--skill", "S-20", "--scope", "a/*", "--skip-dar"]))
         self.assertTrue(skill_context._ACTIVE_FILE.exists())
         self.assertEqual(skill_context._load_active()["skill_id"], "S-20")
-        # legacy supersede still happens (unchanged behavior)
-        self.assertEqual(0, skill_context.main(["begin", "--skill", "S-21", "--scope", "b/*", "--skip-dar"]))
-        self.assertEqual(skill_context._load_active()["skill_id"], "S-21")
-        self.assertEqual(0, skill_context.main(["end", "--skill", "S-21"]))
+        # same-skill re-begin still supersedes own context (per-edit re-arm loop)
+        self.assertEqual(0, skill_context.main(["begin", "--skill", "S-20", "--scope", "b/*", "--skip-dar"]))
+        self.assertEqual(skill_context._load_active()["scope_patterns"], ["b/*"])
+        # different-skill begin without identity is a named conflict now
+        self.assertEqual(3, skill_context.main(["begin", "--skill", "S-21", "--scope", "c/*", "--skip-dar"]))
+        self.assertEqual(skill_context._load_active()["skill_id"], "S-20")
+        self.assertEqual(0, skill_context.main(["end", "--skill", "S-20"]))
         self.assertIsNone(skill_context._load_active())
         # no session files were created by legacy callers
         self.assertEqual(skill_context._load_session_contexts(), {})
+
+    def test_env_session_id_routes_to_per_session_path(self):
+        """HARDEN-A2: exporting AGENT_SESSION_ID flips a flag-less caller onto
+        the per-session path automatically (opt-in became default)."""
+        with mock.patch.dict("os.environ", {"AGENT_SESSION_ID": "env-sess-1"}):
+            self.assertEqual(0, skill_context.main(
+                ["begin", "--skill", "S-20", "--scope", "a/*", "--skip-dar"]))
+            # No legacy ACTIVE.json — the context landed in the session file
+            self.assertFalse(skill_context._ACTIVE_FILE.exists())
+            contexts = skill_context._load_session_contexts()
+            self.assertIn("env-sess-1", contexts)
+            self.assertEqual(contexts["env-sess-1"]["skill_id"], "S-20")
+            self.assertEqual(0, skill_context.main(["end", "--skill", "S-20"]))
+            self.assertEqual(skill_context._load_session_contexts(), {})
 
     def test_check_with_session_id_isolates_to_that_session(self):
         skill_context.main(["begin", "--skill", "S-20", "--scope", "a/x.py",

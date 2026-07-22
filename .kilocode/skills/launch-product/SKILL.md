@@ -357,7 +357,23 @@ On re-run, read checkpoint state:
 ```bash
 .venv/Scripts/python scripts/pipeline/commands/ops/project_phase_store.py get {family} {platform}
 ```
-Skip completed stages. Print: `Resuming {family}/{platform} from stage N (checkpoint: {name})`
+
+**Before trusting a `true` checkpoint to skip its stage (HARDEN-A5, 2026-07-22):**
+a boolean alone does not prove the artifact it certifies still matches disk -- it
+could have been corrupted, reverted, or hand-edited since the checkpoint was set.
+If the checkpoint was set with `--artifact <path>` (fingerprinted), verify it first:
+```bash
+.venv/Scripts/python scripts/pipeline/commands/ops/project_phase_store.py verify {family} {platform} {checkpoint_key}
+```
+Exit 0 = fingerprint matches (or the entry is legacy/unfingerprinted -- "unverifiable,"
+never blocking). Exit 1 = the artifact genuinely changed since certification -- do NOT
+skip the stage; treat the checkpoint as stale and re-run it. When setting a checkpoint
+for a stage that produces a specific, checkable artifact (e.g. `site_plan_done` ->
+`reports/plans/{family}/{platform}/site_plan.yaml`), pass `--artifact <path>` so future
+resumes get this real verification instead of trusting the bare boolean.
+
+Skip completed stages only after this check passes. Print:
+`Resuming {family}/{platform} from stage N (checkpoint: {name})`
 
 ## Checkpoint Storage
 

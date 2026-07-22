@@ -223,10 +223,43 @@ def _read_checkpoints(family: str, platform: str) -> dict:
     return entry.get("values", {})
 
 
+def _verify_checkpoint_integrity(family: str, platform: str, checkpoints: dict) -> list[str]:
+    """HARDEN-A5: re-verify artifact fingerprints behind every fingerprinted
+    checkpoint. A checkpoint whose certified artifact was corrupted/reverted
+    since it was set is a REAL blocker; legacy bool-only checkpoints are
+    unverifiable (warn-only, never block — no flag day)."""
+    problems: list[str] = []
+    pipeline_root = str(_ROOT / "scripts" / "pipeline")
+    if pipeline_root not in sys.path:
+        sys.path.insert(0, pipeline_root)
+    try:
+        from commands.ops.project_phase_store import load_state, verify_checkpoint
+    except ImportError as exc:
+        print(f"WARN: checkpoint integrity verification unavailable: {exc}", file=sys.stderr)
+        return problems
+    state, _backup = load_state(_PHASE_STATE)
+    for key in sorted(checkpoints):
+        if key.endswith("__fingerprint"):
+            continue
+        if f"{key}__fingerprint" not in checkpoints:
+            continue  # legacy bool-only — unverifiable, not blocking
+        ok, notes = verify_checkpoint(state, family, platform, key)
+        if not ok:
+            for note in notes:
+                problems.append(f"checkpoint {key}: {note}")
+    return problems
+
+
 def _set_checkpoint(family: str, platform: str, key: str, value: str):
-    """Set a checkpoint via project_phase_store CLI."""
+    """Set a checkpoint via project_phase_store CLI.
+
+    (A5 fix: the previous path pointed at the pre-migration root-level
+    scripts/pipeline/project_phase_store.py, which no longer exists — the
+    --set-checkpoint flag crashed on every invocation.)
+    """
     import subprocess
-    cmd = [sys.executable, str(_ROOT / "scripts" / "pipeline" / "project_phase_store.py"),
+    cmd = [sys.executable,
+           str(_ROOT / "scripts" / "pipeline" / "commands" / "ops" / "project_phase_store.py"),
            "set", family, platform, key, value]
     subprocess.run(cmd, check=True, capture_output=True)
 
@@ -238,6 +271,7 @@ def compute_verdict(
     hgate_results: dict[str, str],
     *,
     skip_human_review: bool = False,
+    checkpoint_integrity: list[str] | None = None,
 ) -> tuple[bool, list[str]]:
     """Compute launch readiness verdict. Pure function — no I/O, no sys.exit.
 
@@ -247,6 +281,9 @@ def compute_verdict(
         checkpoints: pipeline checkpoint dict (keys like "truth_audit_done")
         hgate_results: gate_id → "PASS" | "FAIL" | "CONDITIONAL" | ""
         skip_human_review: if True, skip H-gate criterion
+        checkpoint_integrity: HARDEN-A5 fingerprint-verification failures from
+            _verify_checkpoint_integrity() — each is a real blocker (an artifact
+            a checkpoint certified has changed/vanished since certification)
 
     Returns:
         (ready: bool, blockers: list[str])
@@ -256,6 +293,10 @@ def compute_verdict(
     # Criterion 0: phase_state entry must exist
     if not checkpoints:
         blockers.append("No phase_state entry — product not registered in launch tracking")
+
+    # Criterion 0.5 (HARDEN-A5): fingerprinted checkpoints must still match disk
+    for problem in (checkpoint_integrity or []):
+        blockers.append(f"checkpoint integrity: {problem}")
 
     # Criterion 1: 0 D/F pages
     df_count = grades.get("D", 0) + grades.get("F", 0)
@@ -320,9 +361,11 @@ def main():
     hgate_results = _read_hgate_signoffs(family, platform)
     if args.skip_human_review:
         print(f"  AUDIT: --skip-human-review used for {family}/{platform}", file=sys.stderr)
+    checkpoint_integrity = _verify_checkpoint_integrity(family, platform, checkpoints)
     ready, blockers = compute_verdict(
         grades, coverage, checkpoints, hgate_results,
         skip_human_review=args.skip_human_review,
+        checkpoint_integrity=checkpoint_integrity,
     )
     verdict = "READY TO SHIP" if ready else "NOT READY"
 

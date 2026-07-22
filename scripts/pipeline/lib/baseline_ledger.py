@@ -57,6 +57,7 @@ if str(_LIB_DIR) not in sys.path:
 _REPO_ROOT = Path(__file__).resolve().parents[3]  # lib/ -> pipeline/ -> scripts/ -> repo root
 
 from schema_validators import validate_baseline_ledger_entry, ValidationError  # noqa: E402
+from advisory_lock import FileLock, LockTimeout  # noqa: E402
 
 _STALE_LOCK_SECONDS = 120.0  # a lock older than this is assumed to be held by a crashed process
 _DEFAULT_LOCK_TIMEOUT = 10.0
@@ -100,38 +101,28 @@ class BaselineLedger:
 
     # ── Locking ──────────────────────────────────────────────────────────
 
-    def _acquire_lock(self, timeout: float = _DEFAULT_LOCK_TIMEOUT) -> None:
-        self.lock_path.parent.mkdir(parents=True, exist_ok=True)
-        deadline = time.monotonic() + timeout
-        while True:
-            try:
-                fd = os.open(str(self.lock_path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-                try:
-                    os.write(fd, f"{os.getpid()}:{time.time()}".encode("utf-8"))
-                finally:
-                    os.close(fd)
-                return
-            except FileExistsError:
-                if time.monotonic() >= deadline:
-                    # Stale-lock steal: a lock file older than _STALE_LOCK_SECONDS almost
-                    # certainly belongs to a crashed process, not an active writer.
-                    try:
-                        age = time.time() - self.lock_path.stat().st_mtime
-                    except OSError:
-                        age = 0.0
-                    if age > _STALE_LOCK_SECONDS:
-                        try:
-                            self.lock_path.unlink()
-                        except OSError:
-                            pass
-                        continue
-                    raise LedgerLockTimeout(
-                        f"Could not acquire lock {self.lock_path} within {timeout}s "
-                        f"(held by another process; not yet stale — age={age:.1f}s)"
-                    )
-                time.sleep(_LOCK_POLL_INTERVAL)
+    def _acquire_lock(self, timeout: float | None = None) -> None:
+        # HARDEN-A1: delegates to the shared advisory_lock.FileLock (extracted from
+        # this file's original RPR-C-01 loop, plus pid-liveness fast steal). Module
+        # globals are read at call time so tests that monkeypatch them still work.
+        lock = FileLock(
+            self.lock_path,
+            stale_seconds=_STALE_LOCK_SECONDS,
+            timeout=timeout if timeout is not None else _DEFAULT_LOCK_TIMEOUT,
+            poll=_LOCK_POLL_INTERVAL,
+        )
+        try:
+            lock.acquire()
+        except LockTimeout as exc:
+            raise LedgerLockTimeout(str(exc)) from exc
+        self._active_lock = lock
 
     def _release_lock(self) -> None:
+        lock = getattr(self, "_active_lock", None)
+        if lock is not None:
+            self._active_lock = None
+            lock.release()
+            return
         try:
             self.lock_path.unlink()
         except OSError:

@@ -1232,7 +1232,7 @@ def plan_blog(
         kf_record["cluster"] = kf_cluster_cat
     pages.append(kf_record)
 
-    # --- Optional 3rd post: deep-dive ---
+    # --- Optional deep-dive post(s) ---
     # Exclude the cluster already used by Post 2 to prevent topical overlap.
     _kf_cat = kf_cluster_cat  # may be "" when fallback path was taken
     eligible = [
@@ -1243,7 +1243,10 @@ def plan_blog(
         and not c["in_limitations"]
         and c["category"] != _kf_cat
     ]
-    # SH-01: sliding-scale threshold for 3rd blog post
+    # SH-01: sliding-scale threshold for whether ANY deep-dive post exists at
+    # all. Unchanged — HARDEN-A13 only scales HOW MANY once this gate passes
+    # (was hard-capped at exactly 1 regardless of product size; see
+    # _deep_dive_post_cap docstring).
     # Large APIs (500+ claims): always eligible
     # Medium APIs (200-499 claims): eligible if snippets and topic clusters exist
     deep_dive_eligible = (
@@ -1251,38 +1254,41 @@ def plan_blog(
         or (total_claims >= 200 and snippet_count >= 5 and len(eligible) >= 1)
     )
     if eligible and deep_dive_eligible:
-        top = eligible[0]
-        # Mirror the features slug prefix-deduplication: ensure family identity is present.
-        if top['slug'].startswith(f"{family}-"):
-            dive_derived_slug = f"{top['slug']}-in-{platform}"
-        else:
-            dive_derived_slug = f"{family}-{top['slug']}-in-{platform}"
-        dive_path = f"{base}/{dive_derived_slug}/index.md"
-        # Check existing for a deep-dive match
-        dive_match = _match_existing_to_cluster(
-            existing, top["category"], top["slug"], top["class_names"],
-            section="blog", family=family,
-        )
-        if dive_match:
-            dive_slug = dive_match["slug"]
-            dive_path = dive_match["path"]
-        else:
-            dive_slug = dive_derived_slug
+        deep_dive_cap = _deep_dive_post_cap(total_claims)
+        deep_dive_weight = 3
+        for top in eligible[:deep_dive_cap]:
+            # Mirror the features slug prefix-deduplication: ensure family identity is present.
+            if top['slug'].startswith(f"{family}-"):
+                dive_derived_slug = f"{top['slug']}-in-{platform}"
+            else:
+                dive_derived_slug = f"{family}-{top['slug']}-in-{platform}"
+            dive_path = f"{base}/{dive_derived_slug}/index.md"
+            # Check existing for a deep-dive match
+            dive_match = _match_existing_to_cluster(
+                existing, top["category"], top["slug"], top["class_names"],
+                section="blog", family=family,
+            )
+            if dive_match:
+                dive_slug = dive_match["slug"]
+                dive_path = dive_match["path"]
+            else:
+                dive_slug = dive_derived_slug
 
-        pages.append(
-            {
-                "slug": dive_slug,
-                "path": dive_path,
-                "type": "blog-post",
-                "weight": 3,
-                "mandatory": False,
-                "page_class": "generated",
-                "blog_role": "deep-dive",
-                "note": f"Deep-dive post for cluster: {top['category']}",
-                "cluster": top["category"],
-                "source": "discovered" if dive_match else "derived",
-            }
-        )
+            pages.append(
+                {
+                    "slug": dive_slug,
+                    "path": dive_path,
+                    "type": "blog-post",
+                    "weight": deep_dive_weight,
+                    "mandatory": False,
+                    "page_class": "generated",
+                    "blog_role": "deep-dive",
+                    "note": f"Deep-dive post for cluster: {top['category']}",
+                    "cluster": top["category"],
+                    "source": "discovered" if dive_match else "derived",
+                }
+            )
+            deep_dive_weight += 1
 
     # Include existing blog pages not yet matched (source: existing).
     # Exclude paths already in pages_to_retire — these were deliberately cleared
@@ -1655,6 +1661,42 @@ def _validate_kb_slugs(
                 )
 
 
+def _kb_howto_cap(total_claims: int) -> int:
+    """HARDEN-A13: how many eligible clusters get a KB how-to page.
+
+    Was a hard `eligible[:7]` slice regardless of product size — empirically
+    proven flat by a dedicated audit: pdf/net (5.85x the classes, 8.9x the
+    claims of words/python) got only 1.08x the KB pages, vs. 2.1x for docs
+    (whose cluster loop is genuinely uncapped) and 5.9x for reference (1:1
+    with the API surface via batch_reference.py). Mirrors the existing
+    `min_faq_items` step-scaling idiom in this same function. The floor (7)
+    is unchanged from today's behavior for every product under 300 claims —
+    zero regression risk for any currently-shipped small/medium product.
+    """
+    if total_claims >= 1000:
+        return 20
+    if total_claims >= 500:
+        return 12
+    if total_claims >= 300:
+        return 9
+    return 7
+
+
+def _deep_dive_post_cap(total_claims: int) -> int:
+    """HARDEN-A13: how many optional deep-dive blog posts a product's size
+    justifies, once SH-01's `deep_dive_eligible` gate (unchanged) says at
+    least one is warranted. Was hard-capped at exactly 1 post ever
+    (`top = eligible[0]`), regardless of how many eligible clusters remained
+    — the same flat-regardless-of-size shape as the KB cap above. The floor
+    (1) is unchanged for every product under 1000 claims.
+    """
+    if total_claims >= 2000:
+        return 3
+    if total_claims >= 1000:
+        return 2
+    return 1
+
+
 def plan_kb(
     family: str,
     platform: str,
@@ -1713,7 +1755,9 @@ def plan_kb(
         }
     )
 
-    # How-to pages — up to 7 eligible clusters (reference-only clusters excluded)
+    # How-to pages — up to _kb_howto_cap(total_claims) eligible clusters
+    # (reference-only clusters excluded). HARDEN-A13: cap scales with product
+    # size (was a flat 7 regardless of size — see _kb_howto_cap docstring).
     eligible = [
         c
         for c in clusters
@@ -1722,10 +1766,11 @@ def plan_kb(
         and not c["in_limitations"]
         and c["category"].lower() not in KB_SKIP_CLUSTERS
     ]
+    howto_cap = _kb_howto_cap(total_claims)
     howto_weight = 10
     howto_count = 0
     matched_existing: set[str] = set()
-    for cluster in eligible[:7]:
+    for cluster in eligible[:howto_cap]:
         # Try to find an existing KB page for this cluster
         match = _match_existing_to_cluster(
             existing, cluster["category"], cluster["slug"],

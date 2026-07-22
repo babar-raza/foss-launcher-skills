@@ -380,7 +380,7 @@ Do not run any subsequent steps. Exit 0.
     - Step list from `progress.json`
     - `Skills invoked: [refresh-product, S-12, S-14, S-104, S-82, S-105, S-83, S-62, S-48, S-106, S-108, S-92/S-112, S-76]`
     - **Commit precondition**: the S-112 triage verdict must be CONFIRMED (or explicitly overridden)
-      and every Step 12 check PASS — S-76 is gated on manifest validation == PASS (schema 5e).
+      and every Step 12 check PASS — the pre-commit hook (Step 22, HARDEN-A8, check_stale_refresh_gate.py) BLOCKS the S-76 commit if triage_verdict.yaml records unresolved stale pages; there is no separate "manifest schema 5e" validation inside S-76 itself (that phrasing was aspirational, corrected 2026-07-22).
 
 14. **Locale handoff** (S-107: locale-refresh-handoff — post-commit):
     ```

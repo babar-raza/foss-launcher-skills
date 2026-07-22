@@ -103,6 +103,10 @@ def main(argv: list[str] | None = None) -> int:
                         help="WARNs also fail CI (not just BLOCKs)")
     parser.add_argument("--allow-regrade", action="store_true",
                         help="Allow downgrades if graded_model_sha changed")
+    parser.add_argument("--blocked-files-out", default=None, dest="blocked_files_out",
+                        help="HARDEN-A8: write the BLOCKED file paths (one per line) here "
+                             "so the pre-commit hook can check override-token coverage "
+                             "for exactly the blocked files, not every staged file")
     args = parser.parse_args(argv)
 
     # --allow-regrade: skip all downgrade checks (used for rubric/evaluator changes)
@@ -150,6 +154,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"BLOCKED: {len(blocks)} grade downgrade(s):", file=sys.stderr)
         for f, old, new in blocks:
             print(f"  {f}: {old} → {new}", file=sys.stderr)
+
+    if args.blocked_files_out:
+        Path(args.blocked_files_out).write_text(
+            "".join(f"{f}\n" for f, _old, _new in blocks), encoding="utf-8")
 
     if warns:
         print(f"WARN: {len(warns)} grade degradation(s):", file=sys.stderr)

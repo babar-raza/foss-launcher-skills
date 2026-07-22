@@ -15,8 +15,13 @@ import session_ledger
 # ---------------------------------------------------------------------------
 
 @pytest.fixture(autouse=True)
-def isolate_session_dir(tmp_path):
-    """Redirect session state to tmp_path via configure() seam."""
+def isolate_session_dir(tmp_path, monkeypatch):
+    """Redirect session state to tmp_path via configure() seam.
+
+    Also clears AGENT_SESSION_ID so a developer/agent shell exporting its own
+    session identity (the HARDEN-A2 convention) cannot leak into these tests.
+    """
+    monkeypatch.delenv("AGENT_SESSION_ID", raising=False)
     session_ledger.configure(repo_root=tmp_path)
     yield tmp_path / "reports" / "session-state"
     session_ledger.configure()  # reset to defaults
@@ -175,16 +180,20 @@ class TestInitSession:
         assert len(sid) > 0
         assert (isolate_session_dir / f"{sid}.json").exists()
 
-    def test_closes_prior_session(self, isolate_session_dir):
-        sid1 = session_ledger.init_session("session-1")
-        sid2 = session_ledger.init_session("session-2")
+    def test_init_does_not_close_prior_session(self, isolate_session_dir):
+        """HARDEN-A2: init never mutates another session's manifest. The old
+        behavior (init closes whatever is active) was the ST-021 corruption
+        mechanism — session A's records silently landing in B's manifest."""
+        session_ledger.init_session("session-1")
+        session_ledger.init_session("session-2")
 
         m1 = json.loads((isolate_session_dir / "session-1.json").read_text(encoding="utf-8"))
         m2 = json.loads((isolate_session_dir / "session-2.json").read_text(encoding="utf-8"))
 
-        assert m1["status"] == "closed"
-        assert "closed_at" in m1
+        assert m1["status"] == "active"
+        assert "closed_at" not in m1
         assert m2["status"] == "active"
+        assert m2["stale_after_hours"] == session_ledger._DEFAULT_STALE_AFTER_HOURS
 
     @patch.object(session_ledger, "_git_dirty_files", return_value=["file_a.md", "file_b.md"])
     def test_captures_dirty_snapshot(self, mock_dirty, isolate_session_dir):
@@ -629,30 +638,34 @@ class TestLibraryImport:
 # ---------------------------------------------------------------------------
 
 class TestMultiSessionHandoff:
-    """Tests for the cross-session hand-off scenario:
-    Session A records files → conversation ends → Session B inits (closes A)
-    → B inherits A's work → B can commit A's files."""
+    """Cross-session hand-off under the HARDEN-A2 contract:
+    Session A records files → A is closed BY NAME → Session B inits
+    → B inherits A's work → B can commit A's files. init never closes A."""
 
     @patch.object(session_ledger, "_git_dirty_files", return_value=["content/a.md", "content/b.md"])
-    def test_session_b_init_closes_a(self, mock_dirty, isolate_session_dir):
-        """When Session B inits, Session A is closed and B's dirty_at_start
-        includes A's touched files."""
+    def test_session_b_init_leaves_a_active(self, mock_dirty, isolate_session_dir):
+        """When Session B inits, Session A stays active and untouched; B's
+        dirty_at_start still snapshots the working tree (including A's files)."""
         # Session A
-        sid_a = session_ledger.init_session("session-a")
-        session_ledger.record_file("content/a.md", "created", skill="S-56")
-        session_ledger.record_file("content/b.md", "modified", skill="S-21")
+        session_ledger.init_session("session-a")
+        session_ledger.record_file("content/a.md", "created", skill="S-56",
+                                   session_id="session-a")
+        session_ledger.record_file("content/b.md", "modified", skill="S-21",
+                                   session_id="session-a")
 
-        # Session B inits — closes A
+        # Session B inits — A is NOT closed
         mock_dirty.return_value = ["content/a.md", "content/b.md", "content/c.md"]
-        sid_b = session_ledger.init_session("session-b")
+        session_ledger.init_session("session-b")
 
-        # A is now closed
         manifest_a = json.loads((isolate_session_dir / "session-a.json").read_text(encoding="utf-8"))
-        assert manifest_a["status"] == "closed"
+        assert manifest_a["status"] == "active"
         assert "content/a.md" in manifest_a["touched_files"]
         assert "content/b.md" in manifest_a["touched_files"]
 
-        # B is active and its dirty_at_start includes A's files
+        # A can still record into its own manifest after B's init
+        assert session_ledger.record_file("content/d.md", "created",
+                                          session_id="session-a") is True
+
         manifest_b = json.loads((isolate_session_dir / "session-b.json").read_text(encoding="utf-8"))
         assert manifest_b["status"] == "active"
         assert "content/a.md" in manifest_b["dirty_at_start"]
@@ -660,14 +673,16 @@ class TestMultiSessionHandoff:
 
     @patch.object(session_ledger, "_git_dirty_files", return_value=["content/a.md"])
     def test_inherit_from_prior_session(self, mock_dirty, isolate_session_dir):
-        """inherit_session copies A's touched_files into B as adopted entries."""
-        # Session A: record files
-        sid_a = session_ledger.init_session("session-a")
+        """inherit_session copies A's touched_files into B as adopted entries
+        after A is explicitly closed (closed sessions don't claim files)."""
+        # Session A: record files, then close by name
+        session_ledger.init_session("session-a")
         session_ledger.record_file("content/a.md", "created", skill="S-56")
+        assert session_ledger.close_session("session-a") is True
 
         # Session B
         mock_dirty.return_value = ["content/a.md", "content/other.md"]
-        sid_b = session_ledger.init_session("session-b")
+        session_ledger.init_session("session-b")
 
         # Inherit A's work
         count, paths = session_ledger.inherit_session("session-a")
@@ -681,12 +696,11 @@ class TestMultiSessionHandoff:
     @patch.object(session_ledger, "_git_dirty_files", return_value=[])
     def test_inherit_auto_finds_most_recent_closed(self, mock_dirty, isolate_session_dir):
         """inherit_session() with no ID auto-finds the most recently closed session."""
-        # Session A
-        sid_a = session_ledger.init_session("session-a")
+        session_ledger.init_session("session-a")
         session_ledger.record_file("content/a.md", "created")
+        session_ledger.close_session("session-a")
 
-        # Session B (closes A)
-        sid_b = session_ledger.init_session("session-b")
+        session_ledger.init_session("session-b")
 
         # Inherit without specifying session ID
         count, paths = session_ledger.inherit_session()
@@ -694,41 +708,45 @@ class TestMultiSessionHandoff:
         assert "content/a.md" in paths
 
     @patch.object(session_ledger, "_git_dirty_files", return_value=[])
-    def test_prior_session_manifest_survives(self, mock_dirty, isolate_session_dir):
-        """A's closed manifest is still readable after B inits."""
-        sid_a = session_ledger.init_session("session-a")
+    def test_closed_session_manifest_survives(self, mock_dirty, isolate_session_dir):
+        """A's manifest is intact and readable after close + B's init."""
+        session_ledger.init_session("session-a")
         session_ledger.record_file("content/a.md", "created")
+        session_ledger.close_session("session-a")
 
-        sid_b = session_ledger.init_session("session-b")
+        session_ledger.init_session("session-b")
 
-        # A's manifest file still exists and is valid
         path_a = isolate_session_dir / "session-a.json"
         assert path_a.exists()
         manifest_a = json.loads(path_a.read_text(encoding="utf-8"))
         assert manifest_a["status"] == "closed"
+        assert "closed_at" in manifest_a
         assert manifest_a["session_id"] == "session-a"
         assert "content/a.md" in manifest_a["touched_files"]
 
     @patch.object(session_ledger, "_git_dirty_files", return_value=[])
     def test_inherit_no_prior_session_returns_zero(self, mock_dirty, isolate_session_dir):
         """inherit_session returns (0, []) when there's no prior closed session."""
-        sid = session_ledger.init_session("only-session")
+        session_ledger.init_session("only-session")
         count, paths = session_ledger.inherit_session()
         assert count == 0
         assert paths == []
 
     @patch.object(session_ledger, "_git_dirty_files", return_value=[])
-    def test_cmd_init_reports_prior_session(self, mock_dirty, isolate_session_dir, capsys):
-        """cmd_init output mentions prior session when one exists."""
+    def test_cmd_init_warns_about_other_active_sessions(self, mock_dirty, isolate_session_dir, capsys):
+        """cmd_init warns (does not close) when another session is active."""
         session_ledger.init_session("session-a")
         session_ledger.record_file("content/x.md", "created")
 
-        # Re-init via CLI
         rc = session_ledger.main(["init", "--session-id", "session-b"])
         assert rc == 0
         output = capsys.readouterr().out
-        assert "Prior session closed: session-a" in output
-        assert "1 touched files" in output
+        assert "other active session(s): session-a" in output
+        assert "did NOT close" in output
+
+        # And session-a genuinely stayed active
+        manifest_a = json.loads((isolate_session_dir / "session-a.json").read_text(encoding="utf-8"))
+        assert manifest_a["status"] == "active"
 
 
 # ---------------------------------------------------------------------------
@@ -808,6 +826,7 @@ class TestInheritCLI:
         """CLI inherit --session-id works."""
         session_ledger.init_session("session-a")
         session_ledger.record_file("content/a.md", "created")
+        session_ledger.close_session("session-a")
         session_ledger.init_session("session-b")
 
         rc = session_ledger.main(["inherit", "--session-id", "session-a"])
@@ -836,6 +855,7 @@ class TestInheritCLI:
         session_ledger.record_file("content/new.md", "created", skill="S-56")
         session_ledger.record_file("content/old.md", "deleted")
         session_ledger.record_file("content/changed.md", "modified")
+        session_ledger.close_session("session-a")
 
         session_ledger.init_session("session-b")
         count, paths = session_ledger.inherit_session("session-a")
@@ -873,7 +893,7 @@ class TestLogAdopt:
             session_ledger.main(["adopt", "--all"])
             mock_log.assert_called_once()
             adopt_args, count = mock_log.call_args[0]
-            assert adopt_args == ["--all"]
+            assert adopt_args == ["--all", "skipped=0"]
             assert count == 2
 
     @patch.object(session_ledger, "_git_dirty_files", return_value=[])
@@ -882,3 +902,193 @@ class TestLogAdopt:
         session_ledger.init_session("test-log")
         # Call _log_adopt directly — it should not raise even if session_logger is unavailable
         session_ledger._log_adopt(["--all"], 5)  # No exception = pass
+
+
+# ---------------------------------------------------------------------------
+# HARDEN-A2: per-session isolation, ambiguity, TTL, cross-session adopt guard
+# ---------------------------------------------------------------------------
+
+class TestSessionIsolationA2:
+    def test_ambiguous_resolution_raises(self, isolate_session_dir):
+        """Two live sessions + no explicit identity = loud error, not silent pick."""
+        session_ledger.init_session("session-a")
+        session_ledger.init_session("session-b")
+        with pytest.raises(session_ledger.AmbiguousSessionError) as exc_info:
+            session_ledger.record_file("content/foo.md", "created")
+        assert set(exc_info.value.candidates) == {"session-a", "session-b"}
+
+    def test_ambiguous_cli_exit_3(self, isolate_session_dir, capsys):
+        session_ledger.init_session("session-a")
+        session_ledger.init_session("session-b")
+        rc = session_ledger.main(["record", "--file", "content/foo.md",
+                                  "--action", "created"])
+        assert rc == 3
+        err = capsys.readouterr().err
+        assert "AMBIGUOUS" in err
+        assert "session-a" in err and "session-b" in err
+
+    def test_explicit_session_id_no_cross_contamination(self, isolate_session_dir):
+        """Records with explicit ids land in exactly the named manifest."""
+        session_ledger.init_session("session-a")
+        session_ledger.init_session("session-b")
+        assert session_ledger.record_file("content/a-only.md", "created",
+                                          session_id="session-a") is True
+        assert session_ledger.record_file("content/b-only.md", "created",
+                                          session_id="session-b") is True
+
+        touched_a = session_ledger.get_touched_files("session-a")
+        touched_b = session_ledger.get_touched_files("session-b")
+        assert "content/a-only.md" in touched_a
+        assert "content/a-only.md" not in touched_b
+        assert "content/b-only.md" in touched_b
+        assert "content/b-only.md" not in touched_a
+
+    def test_env_var_resolves_identity(self, isolate_session_dir, monkeypatch):
+        session_ledger.init_session("session-a")
+        session_ledger.init_session("session-b")
+        monkeypatch.setenv("AGENT_SESSION_ID", "session-b")
+        assert session_ledger.record_file("content/via-env.md", "created") is True
+        assert "content/via-env.md" in session_ledger.get_touched_files("session-b")
+        assert "content/via-env.md" not in session_ledger.get_touched_files("session-a")
+
+    def test_env_var_missing_manifest_falls_through(self, isolate_session_dir, monkeypatch):
+        """An env id with no manifest is a hint, not a hard failure — scan proceeds."""
+        session_ledger.init_session("session-real")
+        monkeypatch.setenv("AGENT_SESSION_ID", "session-ghost")
+        assert session_ledger.record_file("content/x.md", "created") is True
+        assert "content/x.md" in session_ledger.get_touched_files("session-real")
+
+    def test_stale_session_swept_and_excluded(self, isolate_session_dir):
+        """An idle-beyond-TTL session is flipped to stale (not deleted) and no
+        longer resolves; the surviving live session resolves unambiguously."""
+        import os as _os
+        import time as _time
+        session_ledger.init_session("session-old")
+        old_path = isolate_session_dir / "session-old.json"
+        ancient = _time.time() - 10 * 3600  # 10h idle > 8h TTL
+        _os.utime(old_path, (ancient, ancient))
+
+        session_ledger.init_session("session-new")
+        # Resolution sweeps session-old to stale and picks session-new
+        assert session_ledger.record_file("content/new-work.md", "created") is True
+        assert "content/new-work.md" in session_ledger.get_touched_files("session-new")
+
+        manifest_old = json.loads(old_path.read_text(encoding="utf-8"))
+        assert manifest_old["status"] == "stale"
+        assert "stale_at" in manifest_old
+        assert old_path.exists()  # inspectable, never deleted
+
+    def test_stale_session_reactivates_on_explicit_write(self, isolate_session_dir):
+        import os as _os
+        import time as _time
+        session_ledger.init_session("session-old")
+        old_path = isolate_session_dir / "session-old.json"
+        ancient = _time.time() - 10 * 3600
+        _os.utime(old_path, (ancient, ancient))
+        session_ledger._sweep_stale()
+        assert json.loads(old_path.read_text(encoding="utf-8"))["status"] == "stale"
+
+        # Explicit write reactivates — staleness is a heuristic, not a tombstone
+        assert session_ledger.record_file("content/late.md", "created",
+                                          session_id="session-old") is True
+        manifest = json.loads(old_path.read_text(encoding="utf-8"))
+        assert manifest["status"] == "active"
+        assert "stale_at" not in manifest
+
+    def test_close_requires_name(self, isolate_session_dir):
+        session_ledger.init_session("session-a")
+        assert session_ledger.close_session("session-a") is True
+        assert session_ledger.close_session("no-such-session") is False
+        rc = session_ledger.main(["close", "--session-id", "no-such-session"])
+        assert rc == 2
+
+    def test_closed_session_rejects_writes(self, isolate_session_dir):
+        session_ledger.init_session("session-a")
+        session_ledger.close_session("session-a")
+        assert session_ledger.record_file("content/x.md", "created",
+                                          session_id="session-a") is False
+
+    def test_adopt_refuses_cross_session_claims(self, isolate_session_dir):
+        """The PDF-*-REFRESH-001 guard: files in another ACTIVE session's ledger
+        are refused by adopt unless explicitly confirmed."""
+        session_ledger.init_session("session-a")
+        session_ledger.record_file("content/theirs.md", "modified",
+                                   session_id="session-a")
+        session_ledger.init_session("session-b")
+
+        skipped: dict[str, str] = {}
+        count = session_ledger.adopt_files(
+            ["content/theirs.md", "content/free.md"],
+            session_id="session-b", skipped_out=skipped,
+        )
+        assert count == 1  # only the unclaimed path
+        assert skipped == {"content/theirs.md": "session-a"}
+        touched_b = session_ledger.get_touched_files("session-b")
+        assert "content/free.md" in touched_b
+        assert "content/theirs.md" not in touched_b
+
+    def test_adopt_cross_session_override(self, isolate_session_dir):
+        session_ledger.init_session("session-a")
+        session_ledger.record_file("content/theirs.md", "modified",
+                                   session_id="session-a")
+        session_ledger.init_session("session-b")
+
+        count = session_ledger.adopt_files(
+            ["content/theirs.md"], session_id="session-b",
+            confirm_cross_session=True,
+        )
+        assert count == 1
+        assert "content/theirs.md" in session_ledger.get_touched_files("session-b")
+
+    def test_adopt_ignores_claims_from_closed_and_stale(self, isolate_session_dir):
+        import os as _os
+        import time as _time
+        session_ledger.init_session("session-closed")
+        session_ledger.record_file("content/c.md", "modified",
+                                   session_id="session-closed")
+        session_ledger.close_session("session-closed")
+
+        session_ledger.init_session("session-stale")
+        session_ledger.record_file("content/s.md", "modified",
+                                   session_id="session-stale")
+        stale_path = isolate_session_dir / "session-stale.json"
+        ancient = _time.time() - 10 * 3600
+        _os.utime(stale_path, (ancient, ancient))
+        session_ledger._sweep_stale()
+
+        session_ledger.init_session("session-live")
+        skipped: dict[str, str] = {}
+        count = session_ledger.adopt_files(
+            ["content/c.md", "content/s.md"],
+            session_id="session-live", skipped_out=skipped,
+        )
+        assert count == 2
+        assert skipped == {}
+
+    def test_concurrent_records_same_session_no_lost_updates(self, isolate_session_dir):
+        """Two threads recording into the SAME session must not lose entries —
+        the manifest lock serializes the read-modify-write."""
+        import threading
+        session_ledger.init_session("session-shared")
+        errors: list[Exception] = []
+
+        def worker(prefix: str):
+            try:
+                for i in range(20):
+                    ok = session_ledger.record_file(
+                        f"content/{prefix}-{i}.md", "created",
+                        session_id="session-shared",
+                    )
+                    assert ok is True
+            except Exception as exc:  # pragma: no cover - diagnostics
+                errors.append(exc)
+
+        threads = [threading.Thread(target=worker, args=(p,)) for p in ("t1", "t2")]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join(timeout=120)
+
+        assert not errors, f"worker errors: {errors}"
+        touched = session_ledger.get_touched_files("session-shared")
+        assert len(touched) == 40

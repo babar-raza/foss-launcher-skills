@@ -275,6 +275,42 @@ def build_index(family, platform):
     # class_names derives directly from public_api — same filter, consistent with all metrics
     class_names = sorted(set(c["name"] for c in public_api if "name" in c))
 
+    # HARDEN-A13 (2026-07-22): recompute stats from the LIVE artifacts this
+    # function already loaded (claims.json, api_surface.json-derived
+    # class_names, forbidden list), instead of copying model.yaml's stats
+    # block verbatim. The stats block is a snapshot taken whenever model.yaml
+    # was last written by promote.py — if claims.json/api_surface.json are
+    # regenerated afterward without a fresh promote(), index.json silently
+    # drifts from the artifacts it's supposed to describe. Confirmed live on
+    # this exact repo: words/python's committed index.json (class_count: 262,
+    # total_claims: 1603) disagreed with its own model.yaml/claims.json
+    # (class_count: 146, total_claims: 972) at the time this was found.
+    # site_planner.py's evidence_summary (which gates docs/KB/blog page-count
+    # scaling — see A13's other half) reads THIS stats block, so a stale
+    # value here silently mis-sizes every downstream launch-size decision.
+    # Fields not independently recomputable here (scout/enriched/supplemental
+    # claim-type breakdown) are carried forward from model.yaml as before —
+    # only the fields this function already has live, corroborated data for
+    # are overwritten.
+    recomputed_stats = dict(model.get("stats", {}))
+    recomputed_stats["class_count"] = len(class_names)
+    recomputed_stats["total_claims"] = len(claims)
+    # R6: match the truncation the emitted "forbidden_claims" array actually
+    # uses ([:50], below) — forbidden_count must describe the array readers
+    # actually see, not the pre-truncation list length.
+    recomputed_stats["forbidden_count"] = len(forbidden[:50])
+    snippets_index_path = merged_dir / "snippets" / "snippets_index.json"
+    if snippets_index_path.exists():
+        try:
+            snippets_data = json.loads(snippets_index_path.read_text(encoding="utf-8"))
+            if isinstance(snippets_data, list):
+                recomputed_stats["snippet_count"] = len(snippets_data)
+            elif isinstance(snippets_data, dict):
+                recomputed_stats["snippet_count"] = len(
+                    snippets_data.get("snippets", snippets_data))
+        except (json.JSONDecodeError, OSError):
+            pass  # keep model.yaml's recorded snippet_count on a read failure
+
     # Classify public classes for snippet-coverage sub-metrics.
     # "Testable" classes have at least one method, property, or enum_member —
     # zero-surface marker classes (pure structural placeholders) are excluded
@@ -296,7 +332,7 @@ def build_index(family, platform):
         "repo_sha": model.get("repo_sha", ""),
         "last_merged": model.get("merged_at", ""),
         "vectors_available": vectors_exist,
-        "stats": model.get("stats", {}),
+        "stats": recomputed_stats,  # HARDEN-A13: recomputed from live artifacts, not copied
         "classes": class_names,
         "class_graph": class_graph,
         "formats": {

@@ -257,6 +257,22 @@ class _LLMCircuit:
             self.is_open = True
 
 
+# HARDEN-A4: bump when the cached-output contract changes (prompt content is
+# hashed into the key, so prompt template changes invalidate automatically).
+_BODY_REFRESH_CACHE_SCHEMA = "1"
+
+# RG-010 link-preservation guard patterns (hoisted module-level for A4/R4: the
+# cache key folds these pattern strings in, so TIGHTENING the guard mechanically
+# invalidates every entry validated under the looser guard — no schema-bump
+# discipline required).
+_ENTERPRISE_LINK_RE = re.compile(
+    r'\[([^\]]+)\]\((https://products\.aspose\.com[^)]*)\)'
+)
+_INTERNAL_LINK_RE = re.compile(
+    r'\[([^\]]+)\]\((https?://(?:docs|kb|blog|products)\.aspose\.org[^)]*)\)'
+)
+
+
 def run_is_llm_degraded(receipts: list[dict]) -> bool:
     """RPR-E-05: a run is 'LLM degraded' if any page's fallback_reason names a cause
     other than a link-preservation violation (which reflects LLM output quality, not
@@ -268,13 +284,20 @@ def run_is_llm_degraded(receipts: list[dict]) -> bool:
     return False
 
 
-def _scan_forbidden_claims(old_content: str, new_content: str, family: str, platform: str) -> list[dict]:
+def _scan_forbidden_claims(
+    old_content: str, new_content: str, family: str, platform: str
+) -> tuple[list[dict], bool, str]:
     """RPR-E-02: return forbidden-claim violations NEWLY introduced by new_content.
 
     Uses the injected _cfg_forbidden_claims when set (tests); otherwise loads the
-    product's forbidden_claims from merged/index.json. A load/scan failure is
-    non-fatal (returns []) — the gate must never crash the refresh run, only
-    block a provably-violating candidate.
+    product's forbidden_claims from merged/index.json.
+
+    HARDEN-A7: returns (violations, scan_ok, error). A load/scan failure is still
+    non-fatal for THE RUN (the gate must not crash a whole refresh over a scanner
+    bug) but is no longer silent: scan_ok=False propagates into the page receipt,
+    and run_has_unverified_forbidden_claims_scans() lets the launch/readiness
+    gate refuse to ship a page whose scan never actually ran. The old return
+    ([] on error) was indistinguishable from "scanned clean".
     """
     try:
         from lib.forbidden_claims_check import load_forbidden_claims, newly_introduced
@@ -283,11 +306,35 @@ def _scan_forbidden_claims(old_content: str, new_content: str, family: str, plat
         else:
             forbidden = load_forbidden_claims(family, platform)
         if not forbidden:
-            return []
-        return newly_introduced(old_content, new_content, forbidden)
-    except Exception as exc:  # noqa: BLE001 — gate must fail-open, not crash the run
-        print(f"WARNING: forbidden-claims scan failed (non-fatal): {exc}")
-        return []
+            return [], True, ""
+        return newly_introduced(old_content, new_content, forbidden), True, ""
+    except Exception as exc:  # noqa: BLE001 — fail-open for the run, loud in the receipt
+        print(f"FORBIDDEN_SCAN_UNVERIFIED: forbidden-claims scan failed for "
+              f"{family}/{platform} — page will carry scan_ok=false and must be "
+              f"re-scanned before launch: {exc}")
+        return [], False, f"{type(exc).__name__}: {exc}"
+
+
+def run_has_unverified_forbidden_claims_scans(receipts: list[dict]) -> bool:
+    """HARDEN-A7: True if any page in this run wrote content whose forbidden-claims
+    scan cannot be shown to have completed. Launch gate L-03 / readiness must
+    treat such pages as unscanned, not clean.
+
+    Two trigger conditions (R5):
+      - scan_ok is explicitly False (scan raised — fail-open-but-loud), OR
+      - the receipt says content was WRITTEN (verdict BODY_UPDATED) but carries
+        no forbidden_claims_scan record at all (pre-A7 receipt shape, or a
+        future regression that drops the field). "No scan record" must read as
+        unverifiable — the exact ambiguity A7 exists to kill.
+    """
+    for r in receipts:
+        scan = r.get("forbidden_claims_scan")
+        if isinstance(scan, dict):
+            if scan.get("ok") is False:
+                return True
+        elif r.get("verdict") == VD_UPDATED:
+            return True
+    return False
 
 
 # ── Loaders ────────────────────────────────────────────────────────────────
@@ -672,19 +719,6 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
         context["_fallback_reason"] = reason
         return _deterministic_fallback()
 
-    circuit = context.get("_llm_circuit")
-    # If the run-scoped circuit is already open, skip the LLM entirely.
-    if circuit is not None and not circuit.should_attempt():
-        return _fallback("CIRCUIT_OPEN")
-
-    router_class = _cfg_llm_router_class
-    if router_class is None:
-        try:
-            from commands.ops.llm_router import LLMRouter
-            router_class = LLMRouter
-        except ImportError:
-            return _fallback("LLM_UNAVAILABLE")
-
     symbol = change.get("symbol", "")
     change_type = change.get("change_type", "")
     family = context.get("family", "")
@@ -727,6 +761,43 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
         )
         user_prompt = f"Original paragraph:\n\n{section_text}\n\nRewritten paragraph:"
 
+    # HARDEN-A4: content-hash cache. The rendered prompts embed the section text,
+    # claim grounding, symbol, and change type, so the key invalidates exactly
+    # when the input actually changed. Checked BEFORE the circuit breaker — a hit
+    # needs no LLM, so a degraded-LLM window must not block it. Only outputs that
+    # passed RG-010 link preservation are ever stored (see save site below); the
+    # page-level forbidden-claims gate still runs downstream on every path, cache
+    # hit or miss, so caching never weakens enforcement.
+    llm_cache = context.get("_llm_cache")
+    cache_key = None
+    if llm_cache is not None:
+        from lib.llm_output_cache import build_cache_key, sha256_text
+        cache_key = build_cache_key([
+            family, platform, change_type,
+            sha256_text(system_prompt), sha256_text(user_prompt),
+            sha256_text(_ENTERPRISE_LINK_RE.pattern + _INTERNAL_LINK_RE.pattern),
+            _BODY_REFRESH_CACHE_SCHEMA,
+        ])
+        entry = llm_cache.load(cache_key)
+        if entry is not None and isinstance(entry.get("output"), str):
+            print(f"LLM_CACHE_HIT: body-refresh rewrite reused ({cache_key[:12]}...) "
+                  f"via {entry.get('model_used', '?')}")
+            context["_fallback_reason"] = "NONE"
+            return entry["output"]
+
+    circuit = context.get("_llm_circuit")
+    # If the run-scoped circuit is already open, skip the LLM entirely.
+    if circuit is not None and not circuit.should_attempt():
+        return _fallback("CIRCUIT_OPEN")
+
+    router_class = _cfg_llm_router_class
+    if router_class is None:
+        try:
+            from commands.ops.llm_router import LLMRouter
+            router_class = LLMRouter
+        except ImportError:
+            return _fallback("LLM_UNAVAILABLE")
+
     try:
         router = router_class()
         result = router.call_chat(
@@ -753,13 +824,8 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
         # original section_text are present in the LLM output.  If any are missing,
         # fall back to _deterministic_fallback() rather than accepting a rewrite
         # that strips user-navigable links (including enterprise cross-product links
-        # inserted by backlink_backfill.py).
-        _ENTERPRISE_LINK_RE = re.compile(
-            r'\[([^\]]+)\]\((https://products\.aspose\.com[^)]*)\)'
-        )
-        _INTERNAL_LINK_RE = re.compile(
-            r'\[([^\]]+)\]\((https?://(?:docs|kb|blog|products)\.aspose\.org[^)]*)\)'
-        )
+        # inserted by backlink_backfill.py). Patterns are module constants (R4) —
+        # their text participates in the A4 cache key.
         original_enterprise = set(_ENTERPRISE_LINK_RE.findall(section_text))
         original_internal = set(_INTERNAL_LINK_RE.findall(section_text))
         if original_enterprise or original_internal:
@@ -778,6 +844,11 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
                 # and responded; its output was just rejected for quality.
                 return _fallback("LINK_PRESERVATION_VIOLATION")
         context["_fallback_reason"] = "NONE"
+        # HARDEN-A4: store only RG-010-passing LLM output — a fallback/template
+        # result must never masquerade as a cached LLM rewrite.
+        if llm_cache is not None and cache_key:
+            model_used = f"{getattr(result, 'provider', '?')}/{getattr(result, 'model', '?')}"
+            llm_cache.save(cache_key, llm_output, model_used)
         return llm_output
     # Empty / non-string response.
     if circuit is not None:
@@ -917,6 +988,7 @@ def run(
     dry_run: bool = True,
     execute: bool = False,
     page_filter: str | None = None,
+    force_llm_regen: bool = False,
 ) -> list[dict]:
     """
     Main logic entry point (importable by tests and CLI).
@@ -929,6 +1001,22 @@ def run(
     context = {"family": family, "platform": platform}
     receipts: list[dict] = []
     run_id = f"body-refresh-{family}-{platform}"
+
+    # HARDEN-A4: run-scoped LLM output cache for PARAGRAPH_REWRITE. Lives under
+    # the configured reports root, so tests/sandboxes are hermetic automatically.
+    try:
+        from lib.llm_output_cache import LLMOutputCache
+        context["_llm_cache"] = LLMOutputCache(
+            family, platform, "body_refresh",
+            reports_root=Path(_cfg_reports_root),
+            enabled=not force_llm_regen,
+        )
+        if force_llm_regen:
+            print(f"LLM_CACHE_BYPASSED: forced fresh rewrites for {family}/{platform} "
+                  f"(cache reads disabled; fresh RG-010-passing outputs still stored)")
+    except Exception as exc:  # pragma: no cover — lib always importable
+        print(f"WARNING: LLM output cache unavailable (non-fatal): {exc}")
+        context["_llm_cache"] = None
 
     # RPR-E-03: per-run re-grounding cache, shared across every page in this run,
     # so a distinctive code/claim span reused verbatim on a later page (without
@@ -1065,6 +1153,8 @@ def run(
         verdict = VD_NO_SECTIONS
         forbidden_violations: list[dict] = []
         regrounding_violations: list[dict] = []
+        forbidden_scan_ok = True
+        forbidden_scan_error = ""
 
         if new_content != old_content:
             # RPR-E-02: generation-time forbidden-claims gate. If this edit
@@ -1075,7 +1165,8 @@ def run(
             # fabrication landed across 13 files (plan §2.4). Only newly-introduced
             # violations block; a pre-existing one this edit didn't touch is a
             # separate remediation concern, not a reason to abort this edit.
-            forbidden_violations = _scan_forbidden_claims(old_content, new_content, family, platform)
+            forbidden_violations, forbidden_scan_ok, forbidden_scan_error = \
+                _scan_forbidden_claims(old_content, new_content, family, platform)
             if _regrounding_cache is not None:
                 try:
                     rg = _regrounding_cache.check_page(
@@ -1125,6 +1216,7 @@ def run(
             "verdict": verdict,
             "strategies_used": strategies_used,
             "forbidden_violations": forbidden_violations,
+            "forbidden_claims_scan": {"ok": forbidden_scan_ok, "error": forbidden_scan_error},
             "regrounding_violations": regrounding_violations,
             "surface": surface,
             "surface_deferrals": surface_deferrals,
@@ -1167,6 +1259,9 @@ Update strategies: SURGICAL_CLAIM_REPLACEMENT | TABLE_ROW_RECONCILIATION |
     parser.add_argument("--dry-run", action="store_true", default=False, help="Plan only; no writes")
     parser.add_argument("--execute", action="store_true", default=False, help="Apply all body updates")
     parser.add_argument("--page", default=None, help="Restrict to single page path")
+    parser.add_argument("--no-llm-cache", action="store_true", dest="no_llm_cache",
+                        help="HARDEN-A4: bypass the content-hash LLM rewrite cache and force "
+                             "fresh LLM calls (loudly logged; fresh outputs still refresh the cache)")
     args = parser.parse_args()
 
     if not args.dry_run and not args.execute:
@@ -1180,6 +1275,7 @@ Update strategies: SURGICAL_CLAIM_REPLACEMENT | TABLE_ROW_RECONCILIATION |
             dry_run=args.dry_run,
             execute=args.execute,
             page_filter=args.page,
+            force_llm_regen=args.no_llm_cache,
         )
     except FileNotFoundError as e:
         print(f"ERROR: {e}", file=sys.stderr)

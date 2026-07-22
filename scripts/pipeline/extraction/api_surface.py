@@ -1204,7 +1204,17 @@ _VIS_RANK = {"exported": 3, "public": 2, "conventional": 1, "internal": 0}
 
 
 def _merge_members(target: dict, source: dict) -> None:
-    """Merge methods, properties, and bases from *source* into *target*."""
+    """Merge methods, properties, and bases from *source* into *target*.
+
+    HARDEN-A11 (2026-07-22): members are deepcopy'd before appending, matching
+    the ST-013 fix in _flatten_inheritance(). This wasn't exploitable as a live
+    bug today ONLY because every `source` merged here is unconditionally
+    discarded by the caller (consolidate_classes()) right after — no other
+    surviving class holds the same object. That invariant lives entirely in
+    caller discipline, not in this function's own contract, and is exactly the
+    shape of assumption ST-013 violated once already. Copying here removes the
+    dependency on that invariant rather than trusting it to hold forever.
+    """
     # Methods: dedup by (name, params_str)
     existing_sigs: set[tuple[str, str]] = {
         (m.get("name", ""), str(m.get("params", "")))
@@ -1213,13 +1223,13 @@ def _merge_members(target: dict, source: dict) -> None:
     for m in source.get("methods", []):
         sig = (m.get("name", ""), str(m.get("params", "")))
         if sig not in existing_sigs:
-            target.setdefault("methods", []).append(m)
+            target.setdefault("methods", []).append(copy.deepcopy(m))
             existing_sigs.add(sig)
     # Properties: dedup by name
     existing_pnames: set[str] = {p.get("name", "") for p in target.get("properties", [])}
     for p in source.get("properties", []):
         if p.get("name", "") not in existing_pnames:
-            target.setdefault("properties", []).append(p)
+            target.setdefault("properties", []).append(copy.deepcopy(p))
             existing_pnames.add(p.get("name", ""))
     # Bases: dedup
     existing_bases = set(target.get("bases", []))
