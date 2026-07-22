@@ -222,22 +222,48 @@ def _kb_noun_from_cluster(category: str, family: str, verb: str = "") -> str:
     # TC-KBS-003: also strip nominal forms (-{verb}ion, -{verb}ing) to prevent
     # slugs like "how-to-extract-text-extraction" where verb "extract" appears
     # in the noun as "extraction".
+    #
+    # words/net launch (2026-07-23, TC-KBS-021): this dict must cover every verb
+    # _VERB_KEYWORDS can produce ("load", "export", "build", "add", "traverse"
+    # were missing entirely) — _validate_kb_slugs's Check 2 re-derives the verb
+    # generically (verb + "ion"/"ing"/"tion"/"ation") from the slug text itself,
+    # so any verb missing its regular nominal form here passes generation
+    # unstripped and then fails validation as a false "duplication" (confirmed
+    # live: category="loading", verb="load" — "load" had no entry, so noun
+    # stayed "loading" and Check 2 correctly rejected "how-to-load-loading-dotnet").
+    #
+    # Every verb also gets its bare "-ing" gerund listed explicitly: unlike
+    # "-ion"/"-tion"/"-ation" (whose correct spelling is verb-specific — e.g.
+    # "convert" + "ion" concatenates to "convertion", not the real word
+    # "conversion" — so it can't be derived generically), "-ing" is a regular
+    # English nominalization for every verb, and Check 2 always tests for it.
+    # Without an explicit entry, verbs whose *other* nominal form doesn't
+    # happen to end in "-ing" (e.g. "extract" -> "extraction") leave a bare
+    # "-ing" category (e.g. "extracting") unstripped.
     _VERB_NOMINAL_FORMS: dict[str, list[str]] = {
-        "extract":  ["extraction"],
-        "convert":  ["conversion"],
-        "render":   ["rendering"],
-        "optimize": ["optimization"],
-        "parse":    ["parsing"],
-        "create":   ["creation"],
-        "generate": ["generation"],
-        "compress": ["compression"],
-        "encrypt":  ["encryption"],
-        "protect":  ["protection"],
+        "extract":   ["extraction", "extracting"],
+        "convert":   ["conversion", "converting"],
+        "render":    ["rendering"],
+        "optimize":  ["optimization", "optimizing"],
+        "parse":     ["parsing"],
+        "create":    ["creation", "creating"],
+        "generate":  ["generation", "generating"],
+        "compress":  ["compression", "compressing"],
+        "encrypt":   ["encryption", "encrypting"],
+        "protect":   ["protection", "protecting"],
+        "load":      ["loading"],
+        "export":    ["exporting", "exportation"],
+        "build":     ["building"],
+        "add":       ["adding", "addition"],
+        "traverse":  ["traversing", "traversal"],
     }
     if verb:
-        if base == verb:
-            # Edge case: category name IS the verb (e.g. category="render", verb="render").
-            # Use family name as noun to avoid how-to-render-render duplication.
+        nominal_forms = _VERB_NOMINAL_FORMS.get(verb, [])
+        if base == verb or base in nominal_forms:
+            # Edge case: category name IS the verb or its bare nominal form
+            # (e.g. category="render"/"rendering", verb="render"; or
+            # category="loading", verb="load"). Use family name as noun to
+            # avoid how-to-render-render / how-to-load-loading duplication.
             # e.g. "render" + family "3d" → noun "3d" → "how-to-render-3d-dotnet".
             base = family
         elif base.startswith(f"{verb}-") and len(base) > len(verb) + 1:
@@ -246,7 +272,7 @@ def _kb_noun_from_cluster(category: str, family: str, verb: str = "") -> str:
             base = base[: -(len(verb) + 1)]
         else:
             # Strip nominal forms of the verb (e.g. "-extraction" when verb="extract")
-            for form in _VERB_NOMINAL_FORMS.get(verb, []):
+            for form in nominal_forms:
                 if base.endswith(f"-{form}") and len(base) > len(form) + 1:
                     base = base[: -(len(form) + 1)]
                     break
@@ -254,6 +280,36 @@ def _kb_noun_from_cluster(category: str, family: str, verb: str = "") -> str:
     _GENERIC_NOUNS = {"models", "files", "data", "objects", "items", "elements", "scenes"}
     if base in _GENERIC_NOUNS:
         base = f"{family}-{base}"
+    else:
+        # TC-KBS-022 (2026-07-23): self-heal _validate_kb_slugs's Check 3
+        # (_KB_GENERIC_NOUNS) and Check 4 / C4 (_FAMILY_PRODUCT_KEYWORDS)
+        # instead of requiring a hand-curated _FAMILY_SUBPKG_LABELS entry for
+        # every new subpackage name a family's real codebase happens to
+        # introduce. A static audit — driving every (family, category) pair
+        # reachable from _SUBPKG_LABEL/_FAMILY_SUBPKG_LABELS/_ROOT_LABELS
+        # through the real plan_kb(), across all 11 families registered in
+        # data/products.json, excluding categories KB_SKIP_CLUSTERS filters
+        # out before they'd ever reach validation — found 110 combinations
+        # that would crash the moment any family's actual source tree
+        # produced them; cross-family generic labels like "core-properties"
+        # or "logical-structure" carry no family-specific word by
+        # construction. Mirrors the validator's two checks exactly and
+        # applies the fix the ValueError message itself already suggests
+        # (option 1: prefix the noun with the family term). This can only
+        # ever fire for a noun the validator would otherwise reject outright —
+        # it is a strict no-op for any noun already passing both checks, so it
+        # cannot change a slug any already-shipped, already-passing page uses.
+        primary = base.split("-")[0]
+        needs_prefix = primary in _KB_GENERIC_NOUNS
+        if not needs_prefix and "-" in base:
+            family_keywords = _FAMILY_PRODUCT_KEYWORDS.get(family, frozenset())
+            noun_words = base.split("-")
+            if family_keywords and not any(
+                word.startswith(kw) for word in noun_words for kw in family_keywords
+            ):
+                needs_prefix = True
+        if needs_prefix:
+            base = f"{family}-{base}"
     return base or slug_from_category(category)
 
 
@@ -616,6 +672,12 @@ _ROOT_LABELS: dict[str, str] = {
     "font": "font-management",
     "note": "document-management",
     "pdf": "document-management",
+    # words/net launch (2026-07-23, TC-KBS-021): without an entry here, words'
+    # root-level classes fell to the generic default "core-management", whose
+    # noun "core" is in _KB_GENERIC_NOUNS — confirmed live, this crashed
+    # `words python` site-plan regeneration (a pre-existing, already-shipped
+    # product) too, independent of the words/net launch.
+    "words": "word-processing",
 }
 
 _FAMILY_SUBPKG_LABELS: dict[str, dict[str, str]] = {
@@ -649,8 +711,16 @@ _FAMILY_SUBPKG_LABELS: dict[str, dict[str, str]] = {
         "logicalstructure":     "logical-structure",
         "tagged":               "logical-structure",
         "structure":            "logical-structure",
-        "generator":            "page-generation",
-        "stamps":               "page-generation",
+        # words/net launch (2026-07-23, TC-KBS-021): "page-generation" had no
+        # pdf qualifier, confirmed live to crash `pdf net` site-plan
+        # regeneration (a pre-existing, already-shipped product), independent
+        # of the words/net launch — same C4 gap as this family's other
+        # already-qualified labels below ("pdf-annotations", "pdf-graphics",
+        # "pdf-metadata"). No existing content matched this cluster's slug via
+        # frontmatter/exact-substring at the time of this fix (still matches
+        # via the keyword-overlap fallback — verified empirically).
+        "generator":            "pdf-page-generation",   # was "page-generation"
+        "stamps":               "pdf-page-generation",   # was "page-generation"
         "drawing":              "pdf-graphics",      # was "graphics-drawing"
         "shading":              "pdf-graphics",      # was "graphics-drawing"
         "color":                "pdf-graphics",      # was "graphics-drawing"
@@ -671,6 +741,20 @@ _FAMILY_SUBPKG_LABELS: dict[str, dict[str, str]] = {
         "interop":              "pdf-metadata",      # was "metadata-utilities"
         "groupprocessor":       "pdf-metadata",      # was "metadata-utilities"
         "javascriptextensions": "javascript-extensions",  # TC-KBS-001: C# namespace fix
+    },
+    "words": {
+        # words/net launch (2026-07-23): Aspose.Words.NET has real namespaces
+        # ("Drawing", "LinksAndReferences", "IndexAndTables") that either fall
+        # through to a generic cross-family _SUBPKG_LABEL entry (built for
+        # slides' PowerPoint-shape "drawing" namespace) or the CamelCase-split
+        # fallback — neither includes a words-specific qualifier, so C4
+        # (_FAMILY_PRODUCT_KEYWORDS) rejects the resulting KB slug as
+        # ambiguous without URL context. Mirrors pdf's RC-5/TC-KBS-015 fix:
+        # add the product qualifier at the label level rather than loosen
+        # the keyword allowlist.
+        "drawing":            "word-drawing-shapes",       # was generic "drawing-shapes" (slides)
+        "linksandreferences": "word-links-and-references",
+        "indexandtables":     "word-index-and-tables",
     },
 }
 
