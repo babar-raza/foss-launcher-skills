@@ -173,6 +173,55 @@ class TestGateL03ForbiddenClaims:
         assert result.status == STATUS_SKIP
         assert "no claim text" in result.detail
 
+    def test_fails_on_unverified_forbidden_claims_receipt(self, tmp_path):
+        """HARDEN-A7/finding-1: a receipt whose forbidden-claims scan carries
+        scan_ok=False must FAIL L-03, even with no merged/claims.json at all —
+        this is the real production-shape check (via the shared
+        body_refresh.find_unverified_forbidden_claims_receipts helper), not
+        the SKIP-path-only coverage the gate previously had."""
+        receipts_dir = (tmp_path / "reports" / "refresh_review" / "test" / "python"
+                         / "receipts")
+        receipts_dir.mkdir(parents=True)
+        (receipts_dir / "page.yaml").write_text(
+            yaml.safe_dump({"verdict": "BODY_UPDATED",
+                           "forbidden_claims_scan": {"ok": False, "error": "boom"}}),
+            encoding="utf-8",
+        )
+
+        result = gate_l03_forbidden_claims("test", "python")
+        assert result.status == STATUS_FAIL
+        assert "UNVERIFIED forbidden-claims scan" in result.detail
+        assert any("page.yaml" in line for line in result.extra_lines)
+
+    def test_fails_on_written_receipt_with_no_scan_record(self, tmp_path):
+        """Pre-A7 receipt shape (or a future regression dropping the field)
+        must read as unverifiable, never as clean."""
+        receipts_dir = (tmp_path / "reports" / "refresh_review" / "test" / "python"
+                         / "receipts")
+        receipts_dir.mkdir(parents=True)
+        (receipts_dir / "page.yaml").write_text(
+            yaml.safe_dump({"verdict": "BODY_UPDATED"}), encoding="utf-8",
+        )
+
+        result = gate_l03_forbidden_claims("test", "python")
+        assert result.status == STATUS_FAIL
+
+    def test_verified_receipt_falls_through_to_normal_skip_path(self, tmp_path):
+        """A fully-verified (scan_ok=True) receipt does not itself block —
+        the gate proceeds to its normal merged-knowledge check."""
+        receipts_dir = (tmp_path / "reports" / "refresh_review" / "test" / "python"
+                         / "receipts")
+        receipts_dir.mkdir(parents=True)
+        (receipts_dir / "page.yaml").write_text(
+            yaml.safe_dump({"verdict": "BODY_UPDATED",
+                           "forbidden_claims_scan": {"ok": True, "error": ""}}),
+            encoding="utf-8",
+        )
+
+        result = gate_l03_forbidden_claims("test", "python")
+        assert result.status == STATUS_SKIP
+        assert "no merged knowledge" in result.detail
+
 
 # ---------------------------------------------------------------------------
 # L-04: API accuracy (subprocess — test behavior indirectly)

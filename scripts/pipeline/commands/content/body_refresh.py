@@ -337,6 +337,41 @@ def run_has_unverified_forbidden_claims_scans(receipts: list[dict]) -> bool:
     return False
 
 
+def find_unverified_forbidden_claims_receipts(
+    family: str, platform: str, *, repo_root: Path
+) -> list[str]:
+    """HARDEN-A7 finding-1: scan ON-DISK refresh receipts (not an in-memory
+    run's list — this reads reports/refresh_review/{family}/{platform}/receipts/
+    directly) and return the names of any whose forbidden-claims scan did not
+    verifiably complete: scan_ok=False, or a written page (verdict BODY_UPDATED)
+    with no forbidden_claims_scan record at all.
+
+    This is the single source of truth for that check — launch_gate.py's L-03
+    gate and readiness_scorecard.py's verdict both call this instead of each
+    re-implementing the same YAML-scanning logic, which is exactly the kind of
+    drift-prone duplication root cause #7 (docs/logic asserting a protection
+    that isn't actually wired everywhere it needs to be) exists to catch.
+    """
+    receipts_dir = Path(repo_root) / "reports" / "refresh_review" / family / platform / "receipts"
+    if not receipts_dir.is_dir():
+        return []
+    unverified: list[str] = []
+    for receipt_path in sorted(receipts_dir.glob("*.yaml")):
+        try:
+            data = yaml.safe_load(receipt_path.read_text(encoding="utf-8")) or {}
+        except Exception as exc:  # noqa: BLE001 — an unreadable receipt is unverifiable, not clean
+            unverified.append(f"{receipt_path.name} (unreadable: {type(exc).__name__}: {exc})")
+            continue
+        receipt = data.get("content_refresh_receipt", data)
+        scan = receipt.get("forbidden_claims_scan")
+        if isinstance(scan, dict):
+            if scan.get("ok") is False:
+                unverified.append(receipt_path.name)
+        elif receipt.get("verdict") == VD_UPDATED:
+            unverified.append(f"{receipt_path.name} (no scan record)")
+    return unverified
+
+
 # ── Loaders ────────────────────────────────────────────────────────────────
 
 def _load_body_impact(family: str, platform: str) -> list[dict]:

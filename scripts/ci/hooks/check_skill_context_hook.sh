@@ -243,36 +243,12 @@ if [ $CHECK_EXIT -eq 0 ]; then
     # from legacy ACTIVE.json, so a session on the per-session path (AGENT_SESSION_ID
     # exported — now the default) had no ACTIVE.json, recording silently stopped,
     # ledgers starved, and agents were pushed toward `adopt --all` — re-opening the
-    # exact cross-session sweep A2 guards against. Attribution order: env identity's
-    # per-session context > legacy ACTIVE.json > sole live per-session file.
-    ATTRIB=$("$PYTHON" -c "
-import json, os, sys
-from pathlib import Path
-ctx_dir = Path(sys.argv[1])
-active_file = ctx_dir / 'ACTIVE.json'
-active_dir = ctx_dir / 'active'
-
-def load(p):
-    try:
-        return json.loads(p.read_text(encoding='utf-8'))
-    except Exception:
-        return None
-
-sid = os.environ.get('AGENT_SESSION_ID', '').strip()
-rec = load(active_dir / (sid + '.json')) if sid else None
-if rec is None:
-    legacy = load(active_file)
-    if legacy:
-        rec = legacy
-        sid = legacy.get('session_id', '') or sid
-if rec is None and active_dir.exists():
-    files = sorted(active_dir.glob('*.json'))
-    if len(files) == 1:
-        rec = load(files[0])
-        sid = files[0].stem
-if rec and rec.get('skill_id'):
-    print(rec.get('skill_id') + '\t' + (sid or ''))
-" "$REPO_ROOT/reports/skill-context" 2>/dev/null || true)
+    # exact cross-session sweep A2 guards against. Attribution order (env identity's
+    # per-session context > legacy ACTIVE.json > sole live per-session file) lives in
+    # skill_context_attribution.py — extracted out of an inline heredoc (finding-3
+    # remediation) specifically so it has its own direct pytest coverage.
+    ATTRIB=$("$PYTHON" "$SCRIPT_DIR/skill_context_attribution.py" \
+        "$REPO_ROOT/reports/skill-context" 2>/dev/null || true)
     if [ -n "$ATTRIB" ]; then
         ACTIVE_SKILL="${ATTRIB%%$'\t'*}"
         ATTRIB_SID="${ATTRIB#*$'\t'}"

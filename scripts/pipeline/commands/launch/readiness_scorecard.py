@@ -250,6 +250,26 @@ def _verify_checkpoint_integrity(family: str, platform: str, checkpoints: dict) 
     return problems
 
 
+def _verify_forbidden_claims_receipts(family: str, platform: str) -> list[str]:
+    """HARDEN-A7/finding-1: consult the SAME on-disk receipt scan
+    launch_gate.py's L-03 gate uses, so readiness_scorecard's own verdict
+    can't diverge from L-03 on what counts as an unverified forbidden-claims
+    scan (the two were previously separate re-implementations — a scan
+    failure could read READY here while L-03 correctly failed it there)."""
+    pipeline_root = str(_ROOT / "scripts" / "pipeline")
+    if pipeline_root not in sys.path:
+        sys.path.insert(0, pipeline_root)
+    try:
+        from commands.content.body_refresh import find_unverified_forbidden_claims_receipts
+    except ImportError as exc:
+        print(f"WARN: forbidden-claims receipt verification unavailable: {exc}", file=sys.stderr)
+        return []
+    try:
+        return find_unverified_forbidden_claims_receipts(family, platform, repo_root=_ROOT)
+    except Exception as exc:  # noqa: BLE001 — unreadable receipts are unverifiable, not clean
+        return [f"(scan error: {exc})"]
+
+
 def _set_checkpoint(family: str, platform: str, key: str, value: str):
     """Set a checkpoint via project_phase_store CLI.
 
@@ -272,6 +292,7 @@ def compute_verdict(
     *,
     skip_human_review: bool = False,
     checkpoint_integrity: list[str] | None = None,
+    unverified_forbidden_claims: list[str] | None = None,
 ) -> tuple[bool, list[str]]:
     """Compute launch readiness verdict. Pure function — no I/O, no sys.exit.
 
@@ -284,6 +305,12 @@ def compute_verdict(
         checkpoint_integrity: HARDEN-A5 fingerprint-verification failures from
             _verify_checkpoint_integrity() — each is a real blocker (an artifact
             a checkpoint certified has changed/vanished since certification)
+        unverified_forbidden_claims: HARDEN-A7/finding-1 — receipt names from
+            _verify_forbidden_claims_receipts() whose forbidden-claims scan
+            did not verifiably complete. Each is a real blocker: this gate
+            must not report READY for a page whose scan crashed or never ran,
+            even though launch_gate.py's separate L-03 gate already catches
+            the same condition — the two gates must not be allowed to disagree.
 
     Returns:
         (ready: bool, blockers: list[str])
@@ -297,6 +324,10 @@ def compute_verdict(
     # Criterion 0.5 (HARDEN-A5): fingerprinted checkpoints must still match disk
     for problem in (checkpoint_integrity or []):
         blockers.append(f"checkpoint integrity: {problem}")
+
+    # Criterion 0.6 (HARDEN-A7/finding-1): every forbidden-claims scan must be verified
+    for receipt_name in (unverified_forbidden_claims or []):
+        blockers.append(f"unverified forbidden-claims scan: {receipt_name}")
 
     # Criterion 1: 0 D/F pages
     df_count = grades.get("D", 0) + grades.get("F", 0)
@@ -362,10 +393,12 @@ def main():
     if args.skip_human_review:
         print(f"  AUDIT: --skip-human-review used for {family}/{platform}", file=sys.stderr)
     checkpoint_integrity = _verify_checkpoint_integrity(family, platform, checkpoints)
+    unverified_forbidden_claims = _verify_forbidden_claims_receipts(family, platform)
     ready, blockers = compute_verdict(
         grades, coverage, checkpoints, hgate_results,
         skip_human_review=args.skip_human_review,
         checkpoint_integrity=checkpoint_integrity,
+        unverified_forbidden_claims=unverified_forbidden_claims,
     )
     verdict = "READY TO SHIP" if ready else "NOT READY"
 

@@ -31,6 +31,23 @@ CONTRACT: scripts/ci/checks/check_contract_claims.py
   false-positive damping: only claims about *.py filenames or bracketed
            skill/script identifiers are checked (prose like "gated on human
            review" is not a code claim and is skipped).
+  finding-2 addendum (2026-07-22 remediation): a "<subject> is gated on
+           <prose>" claim whose object is NOT a checkable .py filename is no
+           longer silently dropped — it is now surfaced as a distinct,
+           advisory-only "UNVERIFIABLE_PROSE_CLAIM" finding (kind field),
+           never affecting the exit code. This is exactly the shape of the
+           original refresh-product.md bug ("S-76 is gated on manifest
+           validation == PASS (schema 5e)") — that specific claim is fixed,
+           but the tool previously gave zero future recurrence protection for
+           the same *shape* of claim. It still can't PROVE such a claim false
+           (that requires reading and understanding prose, which this
+           heuristic explicitly does not attempt) — it makes the claim
+           visible for periodic manual review instead of invisible, which is
+           the honest, bounded improvement available without turning this
+           into an unbounded NLP-verification project. Known-legitimate
+           non-code gates (human/manual/editorial review, sign-off, approval)
+           are excluded from this advisory to avoid drowning real signal in
+           routine prose.
 
 Usage:
     python scripts/ci/checks/check_contract_claims.py [--paths glob ...]
@@ -63,6 +80,23 @@ _CLAIM_RE = re.compile(
     r"\s+(?:MUST\s+be\s+|is\s+)?"
     r"(?P<verb>calls|invokes|uses|is gated on)\s+"
     r"(?P<object>[A-Za-z_][A-Za-z0-9_./\\-]*\.py|[A-Za-z_][A-Za-z0-9_]*\(\))",
+    re.IGNORECASE,
+)
+
+# finding-2: a looser "is gated on <prose>" pattern with no .py/() requirement
+# on the object — catches the exact shape of the original refresh-product.md
+# bug, which _CLAIM_RE structurally cannot match (its object group requires a
+# file/call-shaped token). Matches are advisory-only (see _KNOWN_HUMAN_GATES).
+_GATED_ON_PROSE_RE = re.compile(
+    r"(?P<subject>[A-Za-z_][A-Za-z0-9_.\-]*\.py|\bS-\d+\b)"
+    r"\s+is\s+gated\s+on\s+(?P<object>[^.\n]+)",
+    re.IGNORECASE,
+)
+
+# Non-code gates that are legitimately not machine-checkable — excluded from
+# the advisory so it signals real drift, not routine editorial process.
+_KNOWN_HUMAN_GATES = re.compile(
+    r"\bhuman\b|\bmanual(?:ly)?\b|\beditorial\b|\breview(?:er)?\b|\bsign-?off\b|\bapproval\b",
     re.IGNORECASE,
 )
 
@@ -117,8 +151,16 @@ def scan_file(path: Path) -> list[dict]:
     except OSError:
         return findings
     for lineno, line in enumerate(text.splitlines(), start=1):
+        try:
+            display_path = str(path.relative_to(_REPO_ROOT)).replace("\\", "/")
+        except ValueError:
+            display_path = str(path)  # outside the repo (e.g. a test fixture)
+
+        matched_gated_on = False
         for m in _CLAIM_RE.finditer(line):
             subject_raw, verb, object_raw = m.group("subject"), m.group("verb"), m.group("object")
+            if verb.lower() == "is gated on":
+                matched_gated_on = True  # covered here (checkable) — don't also advisory-flag below
             if not subject_raw.endswith(".py") or not object_raw.endswith(".py"):
                 continue  # only file-to-file claims are checkable; skip S-xx/bare-ident claims
             subject_stem = _module_stem(subject_raw)
@@ -126,10 +168,6 @@ def scan_file(path: Path) -> list[dict]:
             if subject_stem == object_stem:
                 continue
             if not _claim_verified(subject_stem, object_stem):
-                try:
-                    display_path = str(path.relative_to(_REPO_ROOT)).replace("\\", "/")
-                except ValueError:
-                    display_path = str(path)  # outside the repo (e.g. a test fixture)
                 findings.append({
                     "file": display_path,
                     "line": lineno,
@@ -137,7 +175,30 @@ def scan_file(path: Path) -> list[dict]:
                     "subject": subject_raw,
                     "verb": verb,
                     "object": object_raw,
+                    "kind": "FALSE_CLAIM",
                 })
+
+        if matched_gated_on:
+            continue  # this line's "is gated on" claim already handled above
+
+        # finding-2: prose "is gated on" claims _CLAIM_RE structurally can't
+        # match (object has no .py/() shape) — advisory, not a hard finding.
+        for m in _GATED_ON_PROSE_RE.finditer(line):
+            subject_raw = m.group("subject")
+            object_raw = m.group("object").strip()
+            if ".py" in object_raw:
+                continue  # file-shaped object that just missed _CLAIM_RE's stricter token match
+            if _KNOWN_HUMAN_GATES.search(object_raw):
+                continue  # legitimate non-code gate, not a claim about pipeline enforcement
+            findings.append({
+                "file": display_path,
+                "line": lineno,
+                "claim": line.strip(),
+                "subject": subject_raw,
+                "verb": "is gated on",
+                "object": object_raw,
+                "kind": "UNVERIFIABLE_PROSE_CLAIM",
+            })
     return findings
 
 
@@ -168,19 +229,27 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     findings = scan(args.paths or _DEFAULT_GLOBS)
+    hard = [f for f in findings if f.get("kind", "FALSE_CLAIM") == "FALSE_CLAIM"]
+    advisory = [f for f in findings if f.get("kind") == "UNVERIFIABLE_PROSE_CLAIM"]
 
     if args.json:
         print(json.dumps(findings, indent=2))
-    elif findings:
-        print(f"CONTRACT_CLAIM_DRIFT: {len(findings)} unverified claim(s):", file=sys.stderr)
-        for f in findings:
-            print(f"  {f['file']}:{f['line']}: {f['subject']} {f['verb']} {f['object']}",
-                  file=sys.stderr)
-            print(f"    \"{f['claim']}\"", file=sys.stderr)
     else:
-        print("check_contract_claims: no unverified claims found.")
+        if hard:
+            print(f"CONTRACT_CLAIM_DRIFT: {len(hard)} unverified claim(s):", file=sys.stderr)
+            for f in hard:
+                print(f"  {f['file']}:{f['line']}: {f['subject']} {f['verb']} {f['object']}",
+                      file=sys.stderr)
+                print(f"    \"{f['claim']}\"", file=sys.stderr)
+        if advisory:
+            print(f"ADVISORY: {len(advisory)} prose gating claim(s) not machine-verifiable "
+                  "— periodic manual review recommended (never blocks):")
+            for f in advisory:
+                print(f"  {f['file']}:{f['line']}: \"{f['claim']}\"")
+        if not hard and not advisory:
+            print("check_contract_claims: no unverified claims found.")
 
-    return 1 if findings else 0
+    return 1 if hard else 0
 
 
 if __name__ == "__main__":

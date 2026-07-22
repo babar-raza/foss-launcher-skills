@@ -263,6 +263,85 @@ class TestCheckpointIntegrity:
 
 
 # ---------------------------------------------------------------------------
+# Forbidden-claims receipt verification (HARDEN-A7/finding-1)
+# ---------------------------------------------------------------------------
+
+class TestForbiddenClaimsReceipts:
+    """readiness_scorecard's verdict must not diverge from launch_gate.py's
+    L-03 gate: both now call the same shared
+    body_refresh.find_unverified_forbidden_claims_receipts(), so a page whose
+    forbidden-claims scan never verifiably completed can't read READY here
+    while L-03 correctly fails it."""
+
+    def test_no_unverified_receipts_stays_ready(self):
+        ready, blockers = compute_verdict(
+            _passing_grades(), _passing_coverage(), _passing_checkpoints(),
+            _passing_hgates(), skip_human_review=True,
+            unverified_forbidden_claims=[],
+        )
+        assert ready is True
+        assert blockers == []
+
+    def test_unverified_receipt_blocks(self):
+        ready, blockers = compute_verdict(
+            _passing_grades(), _passing_coverage(), _passing_checkpoints(),
+            _passing_hgates(), skip_human_review=True,
+            unverified_forbidden_claims=["installation.yaml (no scan record)"],
+        )
+        assert ready is False
+        assert any("unverified forbidden-claims scan" in b and "installation.yaml" in b
+                   for b in blockers)
+
+    def test_unverified_forbidden_claims_none_defaults_to_no_blockers(self):
+        """Backward compatible: omitting the param entirely must not crash or block."""
+        ready, blockers = compute_verdict(
+            _passing_grades(), _passing_coverage(), _passing_checkpoints(),
+            _passing_hgates(), skip_human_review=True,
+        )
+        assert ready is True
+
+    def test_verify_forbidden_claims_receipts_reads_real_receipts(self, tmp_path):
+        """End-to-end: _verify_forbidden_claims_receipts reads on-disk receipts
+        via the shared body_refresh helper, not a stub."""
+        import yaml
+        import readiness_scorecard as rs
+
+        receipts_dir = tmp_path / "reports" / "refresh_review" / "words" / "net" / "receipts"
+        receipts_dir.mkdir(parents=True)
+        (receipts_dir / "page.yaml").write_text(
+            yaml.safe_dump({"verdict": "BODY_UPDATED",
+                           "forbidden_claims_scan": {"ok": False, "error": "boom"}}),
+            encoding="utf-8",
+        )
+
+        rs.configure(repo_root=tmp_path)
+        try:
+            problems = rs._verify_forbidden_claims_receipts("words", "net")
+            assert problems == ["page.yaml"]
+        finally:
+            rs.configure()
+
+    def test_verify_forbidden_claims_receipts_clean_run_is_empty(self, tmp_path):
+        import yaml
+        import readiness_scorecard as rs
+
+        receipts_dir = tmp_path / "reports" / "refresh_review" / "words" / "net" / "receipts"
+        receipts_dir.mkdir(parents=True)
+        (receipts_dir / "page.yaml").write_text(
+            yaml.safe_dump({"verdict": "BODY_UPDATED",
+                           "forbidden_claims_scan": {"ok": True, "error": ""}}),
+            encoding="utf-8",
+        )
+
+        rs.configure(repo_root=tmp_path)
+        try:
+            problems = rs._verify_forbidden_claims_receipts("words", "net")
+            assert problems == []
+        finally:
+            rs.configure()
+
+
+# ---------------------------------------------------------------------------
 # H-gate criteria
 # ---------------------------------------------------------------------------
 

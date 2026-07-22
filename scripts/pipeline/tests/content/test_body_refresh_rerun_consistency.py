@@ -256,6 +256,57 @@ def test_unverified_helper_flags_old_shape_written_receipts():
           "forbidden_claims_scan": {"ok": True, "error": ""}}]) is False
 
 
+def test_find_unverified_forbidden_claims_receipts_on_disk(tmp_path):
+    """HARDEN-A7/finding-1: the ON-DISK variant (reads reports/refresh_review/
+    {family}/{platform}/receipts/*.yaml directly) that launch_gate.py's L-03
+    gate and readiness_scorecard.py's verdict both now call, replacing two
+    separate untested re-implementations of the same scan."""
+    import yaml as _yaml
+
+    receipts_dir = tmp_path / "reports" / "refresh_review" / "pdf" / "net" / "receipts"
+    receipts_dir.mkdir(parents=True)
+
+    # 1. scan_ok explicitly False -> flagged
+    (receipts_dir / "unverified.yaml").write_text(
+        _yaml.safe_dump({"verdict": br.VD_UPDATED,
+                         "forbidden_claims_scan": {"ok": False, "error": "boom"}}),
+        encoding="utf-8",
+    )
+    # 2. BODY_UPDATED with no scan record at all (pre-A7 shape) -> flagged
+    (receipts_dir / "old_shape.yaml").write_text(
+        _yaml.safe_dump({"verdict": br.VD_UPDATED}), encoding="utf-8",
+    )
+    # 3. clean, verified receipt -> NOT flagged
+    (receipts_dir / "clean.yaml").write_text(
+        _yaml.safe_dump({"verdict": br.VD_UPDATED,
+                         "forbidden_claims_scan": {"ok": True, "error": ""}}),
+        encoding="utf-8",
+    )
+    # 4. skipped page (no write happened) with no scan record -> NOT flagged
+    (receipts_dir / "skipped.yaml").write_text(
+        _yaml.safe_dump({"verdict": br.VD_SKIPPED_DRY}), encoding="utf-8",
+    )
+    # 5. unreadable/corrupt YAML -> flagged as unreadable, never silently skipped
+    (receipts_dir / "corrupt.yaml").write_text("{not: valid: yaml: [", encoding="utf-8")
+
+    unverified = br.find_unverified_forbidden_claims_receipts(
+        "pdf", "net", repo_root=tmp_path)
+
+    names = {u.split(" ")[0] for u in unverified}
+    assert "unverified.yaml" in names
+    assert "old_shape.yaml" in names
+    assert "corrupt.yaml" in names
+    assert "clean.yaml" not in names
+    assert "skipped.yaml" not in names
+    assert len(unverified) == 3
+
+
+def test_find_unverified_forbidden_claims_receipts_no_receipts_dir(tmp_path):
+    """No receipts directory at all (product never refreshed) -> empty, not an error."""
+    assert br.find_unverified_forbidden_claims_receipts(
+        "words", "net", repo_root=tmp_path) == []
+
+
 def test_cache_never_stores_fallback_output(tmp_path):
     """A router failure falls back to the deterministic template — that output
     must NOT be cached as if it were an LLM rewrite."""

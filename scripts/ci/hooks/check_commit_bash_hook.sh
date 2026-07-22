@@ -19,10 +19,12 @@
 #
 # Bypass:
 #   SKIP_COMMIT_BASH_CHECK=1 — operator-only, not for agent use
-#   CHECK_COMMIT_HOOK_ROOT_OVERRIDE — test-harness-only root redirection seam.
-#   Agents MUST NOT set it: pointing it at a fabricated context directory is
-#   functionally a bypass and is treated as a governance violation, same as
-#   SKIP_* variables (AGENTS.md §11).
+#   CHECK_COMMIT_HOOK_ROOT_OVERRIDE — test-harness-only root redirection seam;
+#   only takes effect when PYTEST_CURRENT_TEST is also set (pytest sets this
+#   automatically; nothing else does), so it cannot fire outside an actual
+#   test run. Agents MUST NOT set either variable: pointing it at a
+#   fabricated context directory is functionally a bypass and is treated as a
+#   governance violation, same as SKIP_* variables (AGENTS.md §11).
 #
 # Exit codes (Claude Code PreToolUse semantics):
 #   0 = allow (tool executes)
@@ -46,7 +48,17 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 # an isolated root so tests never read or mutate the LIVE repo's skill contexts
 # (which could transiently yank a concurrent session's commit authorization).
 # Not a bypass — every check still runs, just against the given root.
-if [ -n "${CHECK_COMMIT_HOOK_ROOT_OVERRIDE:-}" ]; then
+# finding-5 hardening (2026-07-22): also requires PYTEST_CURRENT_TEST — pytest
+# sets this automatically for every test and nothing else does — so the
+# override can't redirect this hook by accident outside an actual test run.
+# This does NOT close the underlying exposure (an agent with Bash access can
+# forge context files directly under reports/skill-context/ without this
+# override at all — that path and this one are threat-model-equivalent, as
+# noted in the finding), but it does remove the override as an easier
+# alternate route than that, and it turns any accidental/careless use into a
+# hook that quietly runs against the real repo (safe) rather than a silent
+# redirect.
+if [ -n "${CHECK_COMMIT_HOOK_ROOT_OVERRIDE:-}" ] && [ -n "${PYTEST_CURRENT_TEST:-}" ]; then
     REPO_ROOT="$CHECK_COMMIT_HOOK_ROOT_OVERRIDE"
 fi
 
