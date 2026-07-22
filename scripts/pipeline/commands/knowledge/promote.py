@@ -202,7 +202,33 @@ def _semantic_dedup_claims(claims: list[dict]) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 def _validate_claims(claims, source_label: str) -> list:
-    """Validate and filter a claims list. Warns on bad entries."""
+    """Validate and filter a claims list. Warns on bad entries.
+
+    HARDEN-words-net (2026-07-22): 6 rounds of adversarial review on
+    downstream claim-consuming logic (the claim_id uniqueness/collision
+    resolver, and separately the opt-in --semantic-dedup path) found 9 real
+    crashes/bugs in total, all tracing to the same root cause — this
+    function, the ONE choke point every claims source (scout/enriched/
+    supplemental) passes through before entering merged_claims, checked only
+    that required KEYS were present, never that VALUES had a sane type:
+      - claim_id / text: a non-str value crashed `.startswith()`, `sorted()`
+        comparisons, and string slicing in the collision resolver.
+      - evidence: a non-list value, or a list containing non-dict elements,
+        crashed indexing/`.get()` calls in the same resolver.
+      - kind / confidence / description: a non-str `kind` crashed a frozenset
+        membership check (unhashable type) in `_semantic_dedup_claims`; a
+        non-numeric `confidence` crashed a `>=` comparison there; a non-str
+        `description` (reached via the `text or description` fallback when
+        `text` is legitimately `""`) crashed `.strip()`.
+    Per the review chain's explicit recommendation after round 5 (stop
+    patching individual downstream access sites one at a time): every field
+    a claim dict carries that ANY downstream consumer assumes a type for is
+    now validated or normalized ONCE, here. claim_id/text are identity-
+    critical — a malformed value quarantines the whole claim (with a loud
+    warning). kind/confidence/description/evidence are supplementary
+    quality signals, not identity-critical — a malformed value is coerced to
+    a safe default (with a loud warning) rather than discarding the claim.
+    """
     if not isinstance(claims, list):
         print(f"  WARNING: {source_label} claims is not a list, skipping")
         return []
@@ -214,6 +240,45 @@ def _validate_claims(claims, source_label: str) -> list:
         if "text" not in c or "kind" not in c:
             print(f"  WARNING: {source_label} claim #{i} missing 'text' or 'kind', skipping")
             continue
+        if not isinstance(c.get("text"), str):
+            print(f"  WARNING: {source_label} claim #{i} has non-string 'text' "
+                  f"({type(c.get('text')).__name__}), skipping")
+            continue
+        cid = c.get("claim_id")
+        if cid is not None and not isinstance(cid, str):
+            print(f"  WARNING: {source_label} claim #{i} has non-string claim_id "
+                  f"({cid!r}), skipping")
+            continue
+
+        c = dict(c)  # normalize on a copy — never mutate the caller's dict
+        kind_val = c.get("kind")
+        if not isinstance(kind_val, str):
+            print(f"  WARNING: {source_label} claim #{i} has non-string 'kind' "
+                  f"({type(kind_val).__name__}), normalizing to ''")
+            c["kind"] = ""
+        # Note: confidence/description use "key in c" (not "value is not
+        # None") as the trigger — unlike evidence below, an EXPLICIT
+        # `None` value for these two is itself the crash (`None >= 0.95`,
+        # `None.strip()`); downstream's `.get("confidence", 0)` only
+        # supplies its default when the key is ABSENT, not when it's
+        # present-but-None, so a present-None value must be normalized too.
+        if "confidence" in c and not isinstance(c.get("confidence"), (int, float)):
+            print(f"  WARNING: {source_label} claim #{i} has non-numeric 'confidence' "
+                  f"({c.get('confidence')!r}), normalizing to 0")
+            c["confidence"] = 0
+        if "description" in c and not isinstance(c.get("description"), str):
+            print(f"  WARNING: {source_label} claim #{i} has non-string 'description' "
+                  f"({type(c.get('description')).__name__}), normalizing to ''")
+            c["description"] = ""
+        ev = c.get("evidence")
+        if ev is not None and not isinstance(ev, list):
+            print(f"  WARNING: {source_label} claim #{i} has non-list evidence "
+                  f"({type(ev).__name__}), normalizing to []")
+            c["evidence"] = []
+        elif isinstance(ev, list):
+            clean_ev = [e for e in ev if isinstance(e, dict)]
+            if len(clean_ev) != len(ev):
+                c["evidence"] = clean_ev
         valid.append(c)
     if len(valid) < len(claims):
         print(f"  WARNING: {source_label} {len(claims) - len(valid)} invalid claims filtered")
@@ -270,6 +335,13 @@ def _reconcile_formats_claims(
             continue
         direction = fmt.get("direction", "both")
         if direction not in _WRITE_DIRECTIONS:
+            continue
+        # HARDEN-words-net (2026-07-22): a format already known non-functional
+        # (e.g. gated by _apply_foss_gate_overrides in extraction/formats.py)
+        # matching a claim that says it's "not supported" is CONFIRMATION,
+        # not a contradiction — direction alone (an enum-level signal) can't
+        # tell the two cases apart, but functional can.
+        if fmt.get("functional") is False:
             continue
 
         name_lower = raw_name.lower().rstrip("_")
@@ -916,8 +988,113 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
         return False
 
     if _clm_dupes:
+        # HARDEN-words-net (2026-07-22): a claim_id collision between claims
+        # with DIFFERENT text is NOT a safe dedup target — CLM ids are a
+        # 6-hex-char (24-bit) hash of the claim text (extraction/api_surface.py
+        # _make_claim), and a product with several thousand claims carries
+        # real birthday-paradox collision risk in that space. Silently keeping
+        # only the first of two DIFFERENT claims that happen to share an id
+        # discards real data with no trace — confirmed already happening in a
+        # SHIPPED product (pdf/net: a "Heading.Top property" claim was
+        # silently dropped in favor of an unrelated "Form.SetXfaFieldValues"
+        # claim that happened to hash to the same id).
+        #
+        # An initial version of this fix hard-failed promote() on any real
+        # collision — technically correct (never silently lose data) but an
+        # adversarial review found it would retroactively turn "silently
+        # succeeds" into "hard blocks" for 7 already-shipped products the next
+        # time any of them refreshes (3d/java, 3d/net, pdf/java, pdf/net,
+        # slides/java, slides/net, slides/python), with no forewarning and no
+        # path forward short of manual code changes. That is a worse
+        # production outcome than the bug it fixes.
+        #
+        # Instead: re-hash the SECOND (and later) distinct-text claim under a
+        # colliding id using more entropy (text + evidence file + line, plus a
+        # salt as an extreme-case tie-breaker), so BOTH claims survive under
+        # distinct, still-validly-shaped CLM ids. Loud WARNING either way —
+        # this must never be silent — but it can never regress a passing
+        # promote() into a failing one purely because of a hash collision;
+        # identical-text duplicates (the common, harmless case — e.g. a C#
+        # partial class scanned across multiple files producing the same
+        # descriptive claim text each time) still dedupe exactly as before.
+        _real_collisions: dict[str, set[str]] = {}
+        for _cid in _clm_dupes:
+            _texts = {c.get("text", "") for c in merged_claims if c.get("claim_id") == _cid}
+            if len(_texts) > 1:
+                _real_collisions[_cid] = _texts
+
+        if _real_collisions:
+            print(f"  WARNING: {len(_real_collisions)} claim_id hash COLLISION(s) between "
+                  f"DIFFERENT claim texts — re-hashing with more context so both survive "
+                  f"under distinct ids (never silently dropping real data):")
+            for _cid, _texts in sorted(_real_collisions.items())[:5]:
+                print(f"    {_cid}:")
+                for _t in sorted(_texts)[:3]:
+                    print(f"      - {_t[:120]}")
+
+            # HARDEN-words-net finding-1 (2026-07-22, adversarial re-review):
+            # tracking only the FIRST-seen text per colliding id meant a
+            # LATER repeat of an already-rehashed (non-first) text got its
+            # own fresh id instead of reusing the sibling's — e.g.
+            # [A, B, B, C] sharing one id produced 2 different ids for the
+            # two "B" copies instead of collapsing them to 1. Fixed by
+            # tracking EVERY distinct text seen per group, mapping each to
+            # whichever id (original or freshly re-hashed) it was first
+            # assigned, so any later exact-text repeat reuses that same id
+            # regardless of which occurrence (first or not) introduced it.
+            _all_ids = {c.get("claim_id") for c in merged_claims
+                       if isinstance(c, dict) and c.get("claim_id")}
+            _text_to_id_by_group: dict[str, dict[str, str]] = {}
+            for _c in merged_claims:
+                _cid = _c.get("claim_id")
+                if _cid not in _real_collisions:
+                    continue
+                _text = _c.get("text", "")
+                _group = _text_to_id_by_group.setdefault(_cid, {})
+                if _text in _group:
+                    _c["claim_id"] = _group[_text]  # reuse this text's already-assigned id
+                    continue
+                if not _group:
+                    _group[_text] = _cid  # first-seen text in this group keeps the original id
+                    continue
+                # HARDEN-words-net finding-2 (2 rounds — an earlier fix here
+                # only validated evidence[0], not the evidence CONTAINER
+                # itself, so a scalar/dict `evidence` value — e.g. a
+                # hand-authored supplemental_claims.json entry that wrote
+                # {"file": ..., "line": ...} instead of [{"file": ...,
+                # "line": ...}] — still raised TypeError/KeyError on
+                # subscripting or indexing a non-list. Evidence entries are
+                # untrusted; nothing about their shape can crash promote().
+                _ev_raw = _c.get("evidence")
+                _ev = _ev_raw if isinstance(_ev_raw, list) else []
+                _ev0 = _ev[0] if _ev and isinstance(_ev[0], dict) else {}
+                _file = _ev0.get("file", "")
+                _line = _ev0.get("line", "")
+                _family_part = _cid.split("-", 2)[1] if _cid.count("-") >= 2 else "x"
+                _salt = 0
+                while True:
+                    _new_hash = hashlib.sha256(
+                        f"{_text}|{_file}|{_line}|{_salt}".encode("utf-8")
+                    ).hexdigest()[:8]
+                    _new_id = f"CLM-{_family_part}-{_new_hash}"
+                    if _new_id not in _all_ids:
+                        break
+                    _salt += 1
+                print(f"    re-hashed {_cid} -> {_new_id}: {_text[:100]}")
+                _c["claim_id"] = _new_id
+                _all_ids.add(_new_id)
+                _group[_text] = _new_id
+
+            # Recompute duplicate groups now that real collisions have distinct ids.
+            _id_counts = _Counter(c.get("claim_id") for c in merged_claims
+                                  if isinstance(c, dict) and c.get("claim_id"))
+            _clm_dupes = {cid: cnt for cid, cnt in _id_counts.items()
+                         if cnt > 1 and not cid.startswith("ERC-")}
+
+    if _clm_dupes:
         _excess = sum(v - 1 for v in _clm_dupes.values())
-        print(f"  WARNING: {len(_clm_dupes)} duplicate CLM claim_id(s) - deduplicating ({_excess} excess removed)")
+        print(f"  WARNING: {len(_clm_dupes)} duplicate CLM claim_id(s) (identical text, "
+              f"safe to dedupe) — deduplicating ({_excess} excess removed)")
         for _cid, _cnt in sorted(_clm_dupes.items(), key=lambda x: -x[1])[:5]:
             print(f"    {_cid}: {_cnt} occurrences")
         _seen_ids: set[str] = set()

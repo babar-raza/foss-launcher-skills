@@ -795,6 +795,19 @@ def detect_formats(
         formats, save_format_pattern, load_format_pattern,
     )
 
+    # HARDEN-words-net (2026-07-22): a format can have a fully-implemented,
+    # non-stub reader/writer class (so the checks above conclude
+    # functional=True) while STILL being unreachable because a central
+    # factory/dispatcher explicitly blocks it — a known FOSS-edition pattern
+    # (keep the code, gate access to it). Confirmed on words/net: HTML has a
+    # complete HtmlSaveOptions/HtmlReader implementation, but
+    # WriterFactory.cs/ReaderFactory.cs both throw
+    # `NotSupportedException("FOSS")` for SaveFormat.Html/LoadFormat.Html
+    # before ever reaching that code. This pass overrides functional=True
+    # back to False whenever the format's own enum member is gated this way,
+    # regardless of what the per-class stub detection above concluded.
+    formats = _apply_foss_gate_overrides(formats, files, repo, _add_claim)
+
     # H-04: Post-extraction validation — remove false-positive entries and
     # normalize format names (strip trailing underscores, reject common words).
     formats = _validate_formats(formats, _FALSE_POSITIVE_NAMES, _allowed_fmt_overrides)
@@ -926,6 +939,104 @@ def _scan_save_dispatch(
                 )
 
     formats.extend(new_entries)
+    return formats
+
+
+# Central-dispatch gate detection (HARDEN-words-net, 2026-07-22): a
+# `case <EnumFamily>.<Member>:` switch label immediately followed (before the
+# next `case`) by a throw/raise of a "this isn't supported" exception means
+# that format is blocked at the dispatcher, regardless of whether a complete
+# implementation class exists for it elsewhere in the source tree.
+_CASE_LABEL_RE = re.compile(
+    r"case\s+(SaveFormat|ExportFormat|OutputFormat|LoadFormat|ImportFormat|InputFormat|SourceFormat)"
+    r"\s*\.\s*(\w+)\s*:",
+    re.IGNORECASE,
+)
+_UNSUPPORTED_THROW_RE = re.compile(
+    r"\b(?:throw\s+new\s+(?:NotSupportedException|UnsupportedOperationException)"
+    r"|raise\s+NotImplementedError)\b",
+    re.IGNORECASE,
+)
+_EXPORT_ENUM_NAMES = frozenset({"saveformat", "exportformat", "outputformat"})
+
+
+def _scan_foss_gate_exceptions(
+    files: list[Path], repo: Path,
+) -> tuple[dict[str, tuple[str, int]], dict[str, tuple[str, int]]]:
+    """Scan for `case <Enum>.<Member>:` labels whose block (up to the next
+    `case`) throws an explicit "unsupported" exception — a format gated this
+    way is unreachable no matter how complete its own I/O class looks.
+
+    Returns (gated_export, gated_import): dicts mapping lowercase format name
+    to (file, line) evidence for the FIRST gate found for that format.
+    """
+    gated_export: dict[str, tuple[str, int]] = {}
+    gated_import: dict[str, tuple[str, int]] = {}
+    for fpath in files:
+        try:
+            text = fpath.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        if "case" not in text.lower():
+            continue
+        matches = list(_CASE_LABEL_RE.finditer(text))
+        if not matches:
+            continue
+        rel = str(fpath.relative_to(repo)).replace("\\", "/")
+        for i, m in enumerate(matches):
+            enum_name = m.group(1).lower()
+            fmt_lower = m.group(2).lower()
+            window_end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+            window = text[m.end():window_end]
+            if not _UNSUPPORTED_THROW_RE.search(window):
+                continue
+            line_num = text[:m.start()].count("\n") + 1
+            target = gated_export if enum_name in _EXPORT_ENUM_NAMES else gated_import
+            if fmt_lower not in target:
+                target[fmt_lower] = (rel, line_num)
+    return gated_export, gated_import
+
+
+def _apply_foss_gate_overrides(
+    formats: list[dict], files: list[Path], repo: Path, add_claim: object | None,
+) -> list[dict]:
+    """Force functional=False for any format whose enum member is gated by
+    an explicit unsupported-exception dispatch (see _scan_foss_gate_exceptions).
+    This is a final override — it can only tighten toward False, never the
+    reverse, and only touches formats actually found gated.
+
+    Applies regardless of the entry's PRIOR functional value — including
+    absent entirely. Non-enum entries (e.g. a raw class-detection hit like
+    HtmlSaveOptions.cs, direction="export") never get a `functional` key set
+    by any earlier pass, so `f.get("functional", False)` alone can't
+    distinguish "already correctly False" from "never set" — both must be
+    forced to False here if gated, or downstream consumers (e.g.
+    promote.py's format-claims reconciliation) that DO check `functional`
+    would still misclassify them."""
+    gated_export, gated_import = _scan_foss_gate_exceptions(files, repo)
+    if not gated_export and not gated_import:
+        return formats
+
+    for f in formats:
+        fmt_lower = f.get("format", "").lower()
+        direction = f.get("direction", "")
+        gate = gated_export.get(fmt_lower) if direction == "export" else (
+            gated_import.get(fmt_lower) if direction == "import" else None)
+        if gate is None:
+            continue
+        was_functional = f.get("functional", False)
+        f["functional"] = False
+        if not was_functional:
+            continue  # already False (or never set) -- no claim needed, just ensure the key is set
+        gate_file, gate_line = gate
+        if callable(add_claim):
+            add_claim(
+                "format_support",
+                f"{f.get('format')} {direction} is BLOCKED by an explicit "
+                f"unsupported-format exception in the dispatch switch, despite "
+                f"a complete implementation class existing elsewhere",
+                gate_file, gate_line,
+            )
     return formats
 
 

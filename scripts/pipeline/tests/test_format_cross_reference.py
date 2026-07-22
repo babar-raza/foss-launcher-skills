@@ -1246,5 +1246,201 @@ class Workbook {
             self.assertEqual(result[0]["direction"], "export")
 
 
+class TestFossGateOverride(unittest.TestCase):
+    """HARDEN-words-net (2026-07-22): a format can have a fully-implemented,
+    non-stub reader/writer class while still being unreachable because a
+    central factory/dispatcher explicitly blocks it — confirmed on words/net:
+    HtmlSaveOptions.cs/HtmlReader.cs are complete implementations, but
+    WriterFactory.cs/ReaderFactory.cs both throw
+    `NotSupportedException("FOSS")` for SaveFormat.Html/LoadFormat.Html before
+    ever routing to that code, so `formats.json` incorrectly showed
+    `functional: true`. _apply_foss_gate_overrides() must catch this."""
+
+    def _write_file(self, tmp: Path, name: str, content: str) -> Path:
+        fpath = tmp / name
+        fpath.write_text(content, encoding="utf-8")
+        return fpath
+
+    def test_csharp_writer_factory_gate_detected(self):
+        """The exact real-world shape: case SaveFormat.Html: throw new
+        NotSupportedException("FOSS");"""
+        from extraction.formats import _scan_foss_gate_exceptions
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "WriterFactory.cs", '''\
+internal static class WriterFactory {
+    internal static Writer Create(SaveFormat format) {
+        switch (format) {
+            case SaveFormat.Docx:
+                return new DocxWriter();
+            case SaveFormat.Html:
+                throw new NotSupportedException("FOSS");
+            default:
+                throw new ArgumentException();
+        }
+    }
+}
+''')
+            gated_export, gated_import = _scan_foss_gate_exceptions([src], tmp)
+            self.assertIn("html", gated_export)
+            self.assertNotIn("docx", gated_export)
+
+    def test_csharp_reader_factory_gate_detected_as_import(self):
+        from extraction.formats import _scan_foss_gate_exceptions
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "ReaderFactory.cs", '''\
+internal static class ReaderFactory {
+    internal static Reader Create(LoadFormat format) {
+        switch (format) {
+            case LoadFormat.Docx:
+                return new DocxReader();
+            case LoadFormat.Html:
+                throw new NotSupportedException("FOSS: HTML file format is not supported in the Aspose.Words FOSS version.");
+        }
+    }
+}
+''')
+            gated_export, gated_import = _scan_foss_gate_exceptions([src], tmp)
+            self.assertIn("html", gated_import)
+            self.assertNotIn("docx", gated_import)
+
+    def test_java_unsupported_operation_exception_detected(self):
+        """Generalizes beyond C# — Java FOSS editions use the analogous
+        UnsupportedOperationException for the same gating pattern."""
+        from extraction.formats import _scan_foss_gate_exceptions
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "WriterFactory.java", '''\
+class WriterFactory {
+    static Writer create(int format) {
+        switch (format) {
+            case SaveFormat.PDF:
+                return new PdfWriter();
+            case SaveFormat.EPUB:
+                throw new UnsupportedOperationException("FOSS edition");
+        }
+    }
+}
+''')
+            gated_export, _ = _scan_foss_gate_exceptions([src], tmp)
+            self.assertIn("epub", gated_export)
+            self.assertNotIn("pdf", gated_export)
+
+    def test_no_gate_present_leaves_dict_empty(self):
+        from extraction.formats import _scan_foss_gate_exceptions
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "WriterFactory.cs", '''\
+internal static class WriterFactory {
+    internal static Writer Create(SaveFormat format) {
+        switch (format) {
+            case SaveFormat.Docx:
+                return new DocxWriter();
+            case SaveFormat.Html:
+                return new HtmlWriter();
+        }
+    }
+}
+''')
+            gated_export, gated_import = _scan_foss_gate_exceptions([src], tmp)
+            self.assertEqual(gated_export, {})
+            self.assertEqual(gated_import, {})
+
+    def test_gate_does_not_leak_into_next_case_block(self):
+        """A throw in one case's block must never be attributed to a
+        DIFFERENT, unrelated case that happens to be nearby in the file."""
+        from extraction.formats import _scan_foss_gate_exceptions
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "WriterFactory.cs", '''\
+internal static class WriterFactory {
+    internal static Writer Create(SaveFormat format) {
+        switch (format) {
+            case SaveFormat.Epub:
+                throw new NotSupportedException("FOSS");
+            case SaveFormat.Docx:
+                return new DocxWriter();
+        }
+    }
+}
+''')
+            gated_export, _ = _scan_foss_gate_exceptions([src], tmp)
+            self.assertIn("epub", gated_export)
+            self.assertNotIn("docx", gated_export)
+
+    def test_apply_overrides_forces_functional_false(self):
+        """End-to-end: a functional=True entry for a gated format is
+        corrected to False; an entry for a non-gated format is untouched."""
+        from extraction.formats import _apply_foss_gate_overrides
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "WriterFactory.cs", '''\
+internal static class WriterFactory {
+    internal static Writer Create(SaveFormat format) {
+        switch (format) {
+            case SaveFormat.Docx:
+                return new DocxWriter();
+            case SaveFormat.Html:
+                throw new NotSupportedException("FOSS");
+        }
+    }
+}
+''')
+            formats = [
+                {"format": "Html", "enum": "SaveFormat", "direction": "export", "functional": True},
+                {"format": "Docx", "enum": "SaveFormat", "direction": "export", "functional": True},
+            ]
+            result = _apply_foss_gate_overrides(formats, [src], tmp, None)
+            html = next(f for f in result if f["format"] == "Html")
+            docx = next(f for f in result if f["format"] == "Docx")
+            self.assertFalse(html["functional"], "gated Html must be forced to functional=False")
+            self.assertTrue(docx["functional"], "non-gated Docx must be left untouched")
+
+    def test_apply_overrides_leaves_already_false_unchanged_no_redundant_claim(self):
+        """Leaves an entry that's already functional=False as False (e.g.
+        from the stub-detection pass) and does not emit a redundant claim
+        for it, but still counts as handled (not skipped)."""
+        from extraction.formats import _apply_foss_gate_overrides
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "WriterFactory.cs", '''\
+case SaveFormat.Html:
+    throw new NotSupportedException("FOSS");
+''')
+            formats = [
+                {"format": "Html", "enum": "SaveFormat", "direction": "export", "functional": False},
+            ]
+            claims_emitted = []
+            result = _apply_foss_gate_overrides(
+                formats, [src], tmp, lambda *a, **kw: claims_emitted.append(a))
+            self.assertFalse(result[0]["functional"])
+            self.assertEqual(claims_emitted, [])
+
+    def test_apply_overrides_sets_functional_false_when_key_absent(self):
+        """HARDEN-words-net regression: a non-enum, class-detection-derived
+        entry (e.g. the real HtmlSaveOptions.cs hit) never gets a `functional`
+        key set by any earlier pass. The override must still force it to
+        False when gated -- otherwise a downstream consumer that checks
+        `functional` (e.g. promote.py's format-claims reconciliation) would
+        still misclassify it, exactly as happened live on words/net before
+        this fix (the enum entry was corrected but a second, non-enum Html
+        entry with no functional key kept tripping a false "contradiction")."""
+        from extraction.formats import _apply_foss_gate_overrides
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "WriterFactory.cs", '''\
+case SaveFormat.Html:
+    throw new NotSupportedException("FOSS");
+''')
+            formats = [
+                {"format": "Html", "enum": "", "direction": "export",
+                 "file": "HtmlSaveOptions.cs"},  # no "functional" key at all
+            ]
+            result = _apply_foss_gate_overrides(formats, [src], tmp, None)
+            self.assertIn("functional", result[0])
+            self.assertFalse(result[0]["functional"])
+
+
 if __name__ == "__main__":
     unittest.main()

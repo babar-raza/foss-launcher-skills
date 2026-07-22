@@ -833,3 +833,438 @@ class TestEnrichmentStatusAndSource:
         assert model_data["enrichment_status"] == "scout-only"
         assert model_data["source"] == "scout_only"
 
+
+class TestClaimIdCollisionDetection:
+    """HARDEN-words-net (2026-07-22): CLM claim_ids are a 6-hex-char (24-bit)
+    hash of claim text (extraction/api_surface.py::_make_claim) — a product
+    with several thousand claims (words/net: 4171) carries real
+    birthday-paradox collision risk. Found while investigating a live
+    "20 duplicate CLM claim_id(s)" warning on words/net's first bootstrap
+    (verified empirically to be 0 real collisions on words/net itself — all
+    20 were identical text, e.g. from a C# partial class scanned across
+    multiple files).
+
+    An initial version of this fix hard-failed promote() on any real
+    collision. An adversarial review then swept ALL 26 live products' scout
+    data and found 7 already-shipped products (3d/java, 3d/net, pdf/java,
+    pdf/net, slides/java, slides/net, slides/python) have REAL pre-existing
+    collisions — including one confirmed case of already-silently-lost data
+    in pdf/net (a "Heading.Top property" claim, dropped in favor of an
+    unrelated "Form.SetXfaFieldValues" claim sharing the same hash). Hard-
+    failing would have turned "silently succeeds" into "hard blocks" for all
+    7 the next time any of them refreshes, with no forewarning.
+
+    Final design: two DIFFERENT claims sharing an id are NEVER silently
+    resolved by keeping only the first (real data loss) — but instead of
+    aborting, the second (and any further) distinct-text claim is re-hashed
+    with more context (text + evidence file + line) so BOTH survive under
+    distinct ids. Loud WARNING either way; promote() never fails purely
+    because of a hash collision."""
+
+    def _setup_scout_with_claims(self, tmp_path, claims):
+        knowledge_root = tmp_path / "knowledge"
+        scout_dir = knowledge_root / "test" / "python" / "scout"
+        scout_dir.mkdir(parents=True)
+        (scout_dir / "claims.json").write_text(json.dumps(claims), encoding="utf-8")
+        (scout_dir / "api_surface.json").write_text(json.dumps(API_SURFACE), encoding="utf-8")
+        (scout_dir / "model.yaml").write_text(
+            yaml.dump(MODEL_YAML, default_flow_style=False), encoding="utf-8"
+        )
+        return knowledge_root
+
+    def test_identical_text_duplicate_is_safely_deduped(self, tmp_path):
+        """The common, harmless case: same claim_id, same text -- silently
+        dedupe, promote still succeeds."""
+        claims = [
+            {"claim_id": "CLM-test-abc123", "text": "Document.Save(string) writes a file.", "kind": "api_method"},
+            {"claim_id": "CLM-test-abc123", "text": "Document.Save(string) writes a file.", "kind": "api_method"},
+            {"claim_id": "CLM-test-def456", "text": "Shape.Type is the shape's type.", "kind": "api_property"},
+        ]
+        kr = self._setup_scout_with_claims(tmp_path, claims)
+        result = promote_mod.promote("test", "python", knowledge_root=str(kr))
+        assert result is True
+
+        merged_path = kr / "test" / "python" / "merged" / "claims.json"
+        data = json.loads(merged_path.read_text(encoding="utf-8"))
+        merged = data if isinstance(data, list) else data.get("claims", [])
+        assert sum(1 for c in merged if c["claim_id"] == "CLM-test-abc123") == 1
+
+    def test_real_collision_both_claims_survive_under_distinct_ids(self, tmp_path, capsys):
+        """The rare, dangerous case: same claim_id, DIFFERENT text -- a true
+        hash collision. Must NOT abort, and must NOT silently keep only one --
+        both claims must survive, the second under a freshly re-hashed id."""
+        claims = [
+            {"claim_id": "CLM-test-abc123", "text": "Document.Save(string) writes a file.",
+             "kind": "api_method", "evidence": [{"file": "document.py", "line": 10}]},
+            {"claim_id": "CLM-test-abc123", "text": "Shape.Anchor sets the shape's anchor point.",
+             "kind": "api_property", "evidence": [{"file": "shape.py", "line": 20}]},
+        ]
+        kr = self._setup_scout_with_claims(tmp_path, claims)
+        result = promote_mod.promote("test", "python", knowledge_root=str(kr))
+        assert result is True, "a hash collision must never fail promote() -- it must be resolved, not aborted"
+
+        merged_path = kr / "test" / "python" / "merged" / "claims.json"
+        data = json.loads(merged_path.read_text(encoding="utf-8"))
+        merged = data if isinstance(data, list) else data.get("claims", [])
+        texts = {c["text"] for c in merged}
+        assert "Document.Save(string) writes a file." in texts, "first claim must survive"
+        assert "Shape.Anchor sets the shape's anchor point." in texts, "second claim must ALSO survive, not be dropped"
+        ids = [c["claim_id"] for c in merged]
+        assert len(ids) == len(set(ids)), "every surviving claim must have a UNIQUE id"
+
+        out = capsys.readouterr().out
+        assert "COLLISION" in out or "collision" in out.lower()
+
+    def test_real_collision_rehashed_id_still_matches_clm_format(self, tmp_path):
+        """The re-hashed id must still be a valid CLM-{family}-{hex} shape --
+        scripts/ci or downstream claim_id validators assume this format."""
+        import re
+        claims = [
+            {"claim_id": "CLM-test-abc123", "text": "Document.Save(string) writes a file.",
+             "kind": "api_method", "evidence": [{"file": "document.py", "line": 10}]},
+            {"claim_id": "CLM-test-abc123", "text": "Shape.Anchor sets the shape's anchor point.",
+             "kind": "api_property", "evidence": [{"file": "shape.py", "line": 20}]},
+        ]
+        kr = self._setup_scout_with_claims(tmp_path, claims)
+        promote_mod.promote("test", "python", knowledge_root=str(kr))
+        merged_path = kr / "test" / "python" / "merged" / "claims.json"
+        data = json.loads(merged_path.read_text(encoding="utf-8"))
+        merged = data if isinstance(data, list) else data.get("claims", [])
+        clm_format = re.compile(r"^CLM-[a-zA-Z0-9]+-[0-9a-f]{4,}$")
+        for c in merged:
+            assert clm_format.match(c["claim_id"]), f"malformed claim_id: {c['claim_id']}"
+
+    def test_three_way_collision_two_identical_one_different(self, tmp_path):
+        """2 identical-text + 1 different-text sharing one id -- the
+        different one must be detected and re-hashed even though it's a
+        minority, not a majority-vote miss."""
+        claims = [
+            {"claim_id": "CLM-test-abc123", "text": "Document.Save(string) writes a file.",
+             "kind": "api_method", "evidence": [{"file": "document.py", "line": 10}]},
+            {"claim_id": "CLM-test-abc123", "text": "Document.Save(string) writes a file.",
+             "kind": "api_method", "evidence": [{"file": "document.py", "line": 10}]},
+            {"claim_id": "CLM-test-abc123", "text": "Totally unrelated claim about Shape.Anchor.",
+             "kind": "api_property", "evidence": [{"file": "shape.py", "line": 99}]},
+        ]
+        kr = self._setup_scout_with_claims(tmp_path, claims)
+        result = promote_mod.promote("test", "python", knowledge_root=str(kr))
+        assert result is True
+
+        merged_path = kr / "test" / "python" / "merged" / "claims.json"
+        data = json.loads(merged_path.read_text(encoding="utf-8"))
+        merged = data if isinstance(data, list) else data.get("claims", [])
+        texts = {c["text"] for c in merged}
+        assert "Document.Save(string) writes a file." in texts
+        assert "Totally unrelated claim about Shape.Anchor." in texts
+        # the 2 identical-text entries collapse to 1, the different one gets its own id
+        assert sum(1 for c in merged if c["claim_id"] == "CLM-test-abc123") == 1
+
+    def test_real_words_net_data_zero_real_collisions_all_dedupe_safely(self, tmp_path):
+        """Regression guard mirroring the actual words/net finding: 20
+        duplicate CLM ids that are ALL identical-text must still just dedupe
+        (no spurious re-hashing), proving the collision path doesn't fire on
+        harmless data."""
+        claims = [
+            {"claim_id": "CLM-test-same01", "text": "Repeated claim text.", "kind": "api_method"},
+            {"claim_id": "CLM-test-same01", "text": "Repeated claim text.", "kind": "api_method"},
+            {"claim_id": "CLM-test-same01", "text": "Repeated claim text.", "kind": "api_method"},
+        ]
+        kr = self._setup_scout_with_claims(tmp_path, claims)
+        result = promote_mod.promote("test", "python", knowledge_root=str(kr))
+        assert result is True
+        merged_path = kr / "test" / "python" / "merged" / "claims.json"
+        data = json.loads(merged_path.read_text(encoding="utf-8"))
+        merged = data if isinstance(data, list) else data.get("claims", [])
+        assert sum(1 for c in merged if c["claim_id"] == "CLM-test-same01") == 1
+
+    def test_repeat_of_non_first_rehashed_text_collapses_to_one_id(self, tmp_path):
+        """HARDEN-words-net finding-1 (adversarial re-review, 2026-07-22): a
+        group of [A(first), B, B, C] sharing one id must collapse the two "B"
+        copies to a SINGLE re-hashed id, not two different ones -- tracking
+        only the first-seen text per group missed this because B is not the
+        first occurrence."""
+        claims = [
+            {"claim_id": "CLM-test-shared1", "text": "Claim A -- the first occurrence.",
+             "kind": "api_method", "evidence": [{"file": "a.py", "line": 1}]},
+            {"claim_id": "CLM-test-shared1", "text": "Claim B -- differs from first, appears twice.",
+             "kind": "api_method", "evidence": [{"file": "b.py", "line": 2}]},
+            {"claim_id": "CLM-test-shared1", "text": "Claim B -- differs from first, appears twice.",
+             "kind": "api_method", "evidence": [{"file": "b.py", "line": 2}]},
+            {"claim_id": "CLM-test-shared1", "text": "Claim C -- also differs from first.",
+             "kind": "api_method", "evidence": [{"file": "c.py", "line": 3}]},
+        ]
+        kr = self._setup_scout_with_claims(tmp_path, claims)
+        result = promote_mod.promote("test", "python", knowledge_root=str(kr))
+        assert result is True
+
+        merged_path = kr / "test" / "python" / "merged" / "claims.json"
+        data = json.loads(merged_path.read_text(encoding="utf-8"))
+        merged = data if isinstance(data, list) else data.get("claims", [])
+        b_entries = [c for c in merged if c["text"] == "Claim B -- differs from first, appears twice."]
+        assert len(b_entries) == 1, "the two identical 'Claim B' copies must collapse to ONE surviving entry"
+        ids = [c["claim_id"] for c in merged]
+        assert len(ids) == len(set(ids)), "every surviving claim must have a unique id"
+        texts = {c["text"] for c in merged}
+        assert texts == {
+            "Claim A -- the first occurrence.",
+            "Claim B -- differs from first, appears twice.",
+            "Claim C -- also differs from first.",
+        }
+
+    def test_malformed_evidence_shape_does_not_crash(self, tmp_path):
+        """HARDEN-words-net finding-2 (adversarial re-review, 2026-07-22): a
+        claim with a malformed `evidence` entry (e.g. a bare string instead
+        of a {file, line} dict -- possible from hand-authored
+        supplemental_claims.json) must not crash promote() when it's part of
+        a real collision needing a re-hash."""
+        claims = [
+            {"claim_id": "CLM-test-abc123", "text": "Document.Save(string) writes a file.",
+             "kind": "api_method", "evidence": ["not-a-dict-just-a-string"]},
+            {"claim_id": "CLM-test-abc123", "text": "Shape.Anchor sets the shape's anchor point.",
+             "kind": "api_property", "evidence": ["also-not-a-dict"]},
+        ]
+        kr = self._setup_scout_with_claims(tmp_path, claims)
+        result = promote_mod.promote("test", "python", knowledge_root=str(kr))  # must not raise
+        assert result is True
+        merged_path = kr / "test" / "python" / "merged" / "claims.json"
+        data = json.loads(merged_path.read_text(encoding="utf-8"))
+        merged = data if isinstance(data, list) else data.get("claims", [])
+        texts = {c["text"] for c in merged}
+        assert "Document.Save(string) writes a file." in texts
+        assert "Shape.Anchor sets the shape's anchor point." in texts
+
+    def test_evidence_container_itself_malformed_does_not_crash(self, tmp_path):
+        """HARDEN-words-net finding-2, round 2 (fourth adversarial re-review,
+        2026-07-22): the first fix for finding-2 only validated
+        evidence[0]'s TYPE, never checked that `evidence` itself is a list at
+        all -- a scalar or bare-dict `evidence` value (exactly the mistake a
+        hand-authored supplemental_claims.json entry would make: writing
+        {"file": ..., "line": ...} instead of [{"file": ..., "line": ...}])
+        still crashed promote() with TypeError/KeyError. This must never
+        crash regardless of what shape `evidence` takes."""
+        claims = [
+            {"claim_id": "CLM-test-int1", "text": "Document.Save(string) writes a file.",
+             "kind": "api_method", "evidence": 123},
+            {"claim_id": "CLM-test-int1", "text": "Shape.Anchor sets the shape's anchor point.",
+             "kind": "api_property", "evidence": {"file": "x.py", "line": 1}},
+        ]
+        kr = self._setup_scout_with_claims(tmp_path, claims)
+        result = promote_mod.promote("test", "python", knowledge_root=str(kr))  # must not raise
+        assert result is True
+        merged_path = kr / "test" / "python" / "merged" / "claims.json"
+        data = json.loads(merged_path.read_text(encoding="utf-8"))
+        merged = data if isinstance(data, list) else data.get("claims", [])
+        texts = {c["text"] for c in merged}
+        assert "Document.Save(string) writes a file." in texts
+        assert "Shape.Anchor sets the shape's anchor point." in texts
+
+
+class TestValidateClaimsTypeChecking:
+    """HARDEN-words-net (2026-07-22): after 5 rounds of adversarial review
+    found 6 real crashes downstream of _validate_claims -- all traceable to
+    it checking only that 'text'/'kind' KEYS were present, never that
+    claim_id/text VALUES had the right type, and never touching evidence's
+    shape at all -- this is the fix at the recommended structural level: a
+    single upfront gate (already the one every claims source passes
+    through) now enforces those types once, instead of patching each
+    downstream access site individually."""
+
+    def test_non_string_claim_id_is_quarantined(self):
+        """Bug A from round 5: a JSON-number claim_id (a very plausible
+        unquoted-id typo in hand-authored supplemental_claims.json) used to
+        crash promote()'s uniqueness gate at `cid.startswith("ERC-")`."""
+        claims = [
+            {"claim_id": 12345, "text": "Some claim.", "kind": "api_method"},
+            {"claim_id": "CLM-test-abc123", "text": "A valid claim.", "kind": "api_method"},
+        ]
+        result = promote_mod._validate_claims(claims, "test")
+        assert len(result) == 1
+        assert result[0]["claim_id"] == "CLM-test-abc123"
+
+    def test_none_text_is_quarantined(self):
+        """Bug B from round 5: `"text": null` used to crash the collision
+        WARNING printer's `sorted()` call (str vs NoneType comparison)."""
+        claims = [
+            {"claim_id": "CLM-test-null1", "text": None, "kind": "api_method"},
+            {"claim_id": "CLM-test-abc123", "text": "A valid claim.", "kind": "api_method"},
+        ]
+        result = promote_mod._validate_claims(claims, "test")
+        assert len(result) == 1
+        assert result[0]["text"] == "A valid claim."
+
+    def test_non_string_text_is_quarantined(self):
+        claims = [
+            {"claim_id": "CLM-test-int1", "text": 42, "kind": "api_method"},
+        ]
+        result = promote_mod._validate_claims(claims, "test")
+        assert result == []
+
+    def test_missing_claim_id_still_allowed(self):
+        """No claim_id at all is existing, unchanged behavior (a claim can
+        legitimately lack an id, e.g. some hand-authored supplemental
+        entries) -- only a claim_id of the WRONG TYPE is new-quarantined."""
+        claims = [
+            {"text": "A claim with no id.", "kind": "api_method"},
+        ]
+        result = promote_mod._validate_claims(claims, "test")
+        assert len(result) == 1
+
+    def test_non_list_evidence_normalized_not_quarantined(self):
+        """Evidence is supplementary, not identity-critical -- a malformed
+        evidence value normalizes the claim (coerced to []), it does not
+        quarantine the whole claim the way a bad claim_id/text does."""
+        claims = [
+            {"claim_id": "CLM-test-abc123", "text": "A claim.", "kind": "api_method",
+             "evidence": {"file": "x.py", "line": 1}},
+        ]
+        result = promote_mod._validate_claims(claims, "test")
+        assert len(result) == 1
+        assert result[0]["evidence"] == []
+
+    def test_evidence_list_with_mixed_valid_invalid_entries_filtered(self):
+        claims = [
+            {"claim_id": "CLM-test-abc123", "text": "A claim.", "kind": "api_method",
+             "evidence": [{"file": "a.py", "line": 1}, "garbage", 42, None]},
+        ]
+        result = promote_mod._validate_claims(claims, "test")
+        assert len(result) == 1
+        assert result[0]["evidence"] == [{"file": "a.py", "line": 1}]
+
+    def test_end_to_end_non_string_claim_id_in_collision_group_does_not_crash(self, tmp_path):
+        """The exact real-world shape from round-5 Bug A, run through the
+        full promote() pipeline, not just _validate_claims in isolation."""
+        knowledge_root = tmp_path / "knowledge"
+        scout_dir = knowledge_root / "test" / "python" / "scout"
+        scout_dir.mkdir(parents=True)
+        claims = [
+            {"claim_id": 999, "text": "Duplicate-id-shape claim A.", "kind": "api_method"},
+            {"claim_id": 999, "text": "Duplicate-id-shape claim A.", "kind": "api_method"},
+        ]
+        (scout_dir / "claims.json").write_text(json.dumps(claims), encoding="utf-8")
+        (scout_dir / "api_surface.json").write_text(json.dumps(API_SURFACE), encoding="utf-8")
+        (scout_dir / "model.yaml").write_text(
+            yaml.dump(MODEL_YAML, default_flow_style=False), encoding="utf-8")
+        result = promote_mod.promote("test", "python", knowledge_root=str(knowledge_root))  # must not raise
+        assert result is True
+
+    def test_end_to_end_none_text_in_collision_group_does_not_crash(self, tmp_path):
+        """The exact real-world shape from round-5 Bug B, run through the
+        full promote() pipeline."""
+        knowledge_root = tmp_path / "knowledge"
+        scout_dir = knowledge_root / "test" / "python" / "scout"
+        scout_dir.mkdir(parents=True)
+        claims = [
+            {"claim_id": "CLM-test-nulltxt", "text": None, "kind": "api_method"},
+            {"claim_id": "CLM-test-nulltxt", "text": "Real text sharing the id.", "kind": "api_method"},
+        ]
+        (scout_dir / "claims.json").write_text(json.dumps(claims), encoding="utf-8")
+        (scout_dir / "api_surface.json").write_text(json.dumps(API_SURFACE), encoding="utf-8")
+        (scout_dir / "model.yaml").write_text(
+            yaml.dump(MODEL_YAML, default_flow_style=False), encoding="utf-8")
+        result = promote_mod.promote("test", "python", knowledge_root=str(knowledge_root))  # must not raise
+        assert result is True
+
+    def test_non_string_kind_is_normalized_not_quarantined(self):
+        """HARDEN-words-net round 6/7: a non-string 'kind' (e.g. a list)
+        used to crash _semantic_dedup_claims's frozenset membership check
+        (`kind_i in _EXACT_ONLY_KINDS` -- unhashable type). kind is
+        supplementary here (not identity-critical the way claim_id/text
+        are), so it's normalized, not quarantined."""
+        claims = [
+            {"claim_id": "CLM-test-abc123", "text": "A claim.", "kind": ["not", "a", "string"]},
+        ]
+        result = promote_mod._validate_claims(claims, "test")
+        assert len(result) == 1
+        assert result[0]["kind"] == ""
+
+    def test_non_numeric_confidence_is_normalized_not_quarantined(self):
+        """HARDEN-words-net round 6/7: a None/non-numeric 'confidence' used
+        to crash _semantic_dedup_claims's `ci >= cj` comparison."""
+        claims = [
+            {"claim_id": "CLM-test-abc123", "text": "A claim.", "kind": "api_method",
+             "confidence": None},
+        ]
+        result = promote_mod._validate_claims(claims, "test")
+        assert len(result) == 1
+        assert result[0]["confidence"] == 0
+
+    def test_non_string_description_is_normalized_not_quarantined(self):
+        """HARDEN-words-net round 6/7: when 'text' is legitimately "" (an
+        empty string, which passes the str-type check), _semantic_dedup_claims
+        falls back to `description` -- a non-string description there used
+        to crash `.strip()`."""
+        claims = [
+            {"claim_id": "CLM-test-abc123", "text": "", "kind": "api_method",
+             "description": None},
+        ]
+        result = promote_mod._validate_claims(claims, "test")
+        assert len(result) == 1
+        assert result[0]["description"] == ""
+
+    def test_semantic_dedup_survives_all_three_malformed_fields_end_to_end(self):
+        """The exact composition that matters: claims pass through
+        _validate_claims (as they always do in the real promote() pipeline)
+        BEFORE reaching _semantic_dedup_claims -- confirming the two
+        functions compose correctly to close round 6/7's findings, not just
+        that _validate_claims normalizes fields in isolation."""
+        raw_claims = [
+            {"claim_id": "CLM-test-k1", "text": "Claim with bad kind.",
+             "kind": {"not": "a string"}, "confidence": 0.9},
+            {"claim_id": "CLM-test-k2", "text": "Claim with bad confidence.",
+             "kind": "feature", "confidence": "high"},
+            {"claim_id": "CLM-test-k3", "text": "", "kind": "feature",
+             "confidence": 0.9, "description": 12345},
+        ]
+        validated = promote_mod._validate_claims(raw_claims, "test")
+        assert len(validated) == 3
+        result = promote_mod._semantic_dedup_claims(validated)  # must not raise
+        assert len(result) == 3
+
+
+class TestReconcileFormatsClaimsFunctionalAware:
+    """HARDEN-words-net (2026-07-22): _reconcile_formats_claims only checked
+    `direction` (an enum-level signal: "this format enum member represents
+    export"), never `functional` (whether it's actually reachable). Once
+    extraction/formats.py's FOSS-gate override correctly marks a gated format
+    functional=False, a claim confirming "not supported" for that SAME format
+    is CONFIRMATION of the data, not a contradiction — but the reconciliation
+    check kept firing anyway because it never looked at functional. Found
+    live: words/net's HTML format, correctly re-classified functional=False,
+    still printed a "format-claims contradiction" warning against the
+    accurate "HTML... not supported" enriched claim."""
+
+    def test_functional_false_format_is_not_flagged_as_contradiction(self):
+        formats_data = [
+            {"format": "Html", "direction": "export", "functional": False},
+        ]
+        claims = [
+            {"text": "HTML and other formats are not supported in this open-source edition."},
+        ]
+        result = promote_mod._reconcile_formats_claims(formats_data, claims, "words", "net")
+        assert result == [], "a confirmed-non-functional format matching its own 'not supported' claim is not a contradiction"
+
+    def test_functional_true_format_still_flagged(self):
+        """The check must still fire for genuinely contradictory data --
+        this fix narrows a false positive, it must not blind the check."""
+        formats_data = [
+            {"format": "Html", "direction": "export", "functional": True},
+        ]
+        claims = [
+            {"text": "HTML and other formats are not supported in this open-source edition."},
+        ]
+        result = promote_mod._reconcile_formats_claims(formats_data, claims, "words", "net")
+        assert len(result) == 1
+        assert result[0]["format"] == "Html"
+
+    def test_functional_absent_still_flagged(self):
+        """Formats predating this fix (no functional key at all) must not
+        silently bypass the check -- only an EXPLICIT False skips it."""
+        formats_data = [
+            {"format": "Html", "direction": "export"},
+        ]
+        claims = [
+            {"text": "HTML and other formats are not supported in this open-source edition."},
+        ]
+        result = promote_mod._reconcile_formats_claims(formats_data, claims, "words", "net")
+        assert len(result) == 1
+
