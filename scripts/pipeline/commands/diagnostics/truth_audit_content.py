@@ -148,6 +148,34 @@ def _build_method_index(knowledge: Knowledge) -> dict[str, list[str]]:
     return index
 
 
+def _build_type_and_interface_names(knowledge: Knowledge) -> set[str]:
+    """Build the set of bare identifiers that are genuine type or interface
+    references elsewhere in the model, even though they have no class entry
+    of their own -- implemented interfaces (only ever appear in another
+    class's `bases`) and BCL/framework property or return types (e.g. a
+    .NET `RectangleF`) are never themselves documented as a class, but are
+    still real, verifiable references, not fabrications.
+
+    Found 2026-07-23: `_is_method_like()`'s camelCase heuristic (needed to
+    recognize genuine multi-word PascalCase .NET/Java/C++ method names as
+    "method-like", since those platforms use PascalCase for members, not
+    literal camelCase) cannot distinguish a member name from a type/interface
+    name by casing alone -- both are indistinguishable multi-word PascalCase
+    strings. `IFieldWithCalendar` (a real interface, confirmed present in
+    four classes' own `bases` in api_surface.json) and `RectangleF` (a real
+    .NET property type, confirmed on `GroupShape`/`Shape`/`ShapeBase`'s
+    `Bounds` property) were both reported FABRICATED because they aren't
+    method/property NAMES -- they're TYPE names -- so the reverse
+    method/property index correctly never contained them.
+    """
+    names: set[str] = set()
+    for bases in getattr(knowledge, "parents", {}).values():
+        names.update(bases)
+    names.update(getattr(knowledge, "property_types", {}).values())
+    names.update(getattr(knowledge, "return_types", {}).values())
+    return names
+
+
 # Platforms where methods use camelCase convention
 _CAMELCASE_PLATFORMS = frozenset({"java", "net", "cpp", "typescript", "javascript"})
 _CAMELCASE_RE = re.compile(r"[a-z]+[A-Z]")
@@ -464,7 +492,24 @@ def _load_forbidden_claims(family: str, platform: str) -> list[str]:
 
 
 def _load_formats(family: str, platform: str) -> dict[str, str]:
-    """Load format support as {ext: direction}."""
+    """Load format support as {ext: direction}.
+
+    formats.json commonly has multiple raw entries for the same format key
+    (e.g. separate LoadFormat/SaveFormat enum entries, or separate
+    Reader/Writer class entries) with DIFFERENT directions -- a format that
+    genuinely supports both import and export has one "import" entry and one
+    "export" entry, not a single "both" entry. Naively overwriting `result[ext]`
+    per entry means whichever entry happens to appear LAST in the array wins,
+    silently discarding the other direction. Found 2026-07-23: Text/Txt has
+    import entries (LoadFormat, TxtReader, TxtLoadOptions) and export entries
+    (SaveFormat, TxtWriter, TxtSaveOptions) interleaved in formats.json; the
+    last-write-wins bug resolved both to "export" and flagged a page
+    correctly describing TxtLoadOptions' IMPORT behavior as CONTRADICTED.
+    Mirrors format_truth.py's `_load_formats()`, which already merges
+    correctly -- this was a second, independently-diverged copy of the same
+    logic (duplicated knowledge lookups across evaluators/tools are a
+    recurring source of exactly this kind of drift).
+    """
     path = KNOWLEDGE_ROOT / family / platform / "merged" / "formats.json"
     if not path.exists():
         return {}
@@ -474,7 +519,17 @@ def _load_formats(family: str, platform: str) -> dict[str, str]:
         for fmt in data:
             ext = (fmt.get("format") or fmt.get("ext") or "").lower()
             direction = (fmt.get("direction") or fmt.get("support") or "").lower()
-            if ext:
+            if not ext:
+                continue
+            existing = result.get(ext)
+            if existing and existing != direction:
+                if direction == "none":
+                    pass  # keep existing
+                elif existing == "none":
+                    result[ext] = direction
+                else:
+                    result[ext] = "both"
+            else:
                 result[ext] = direction
         return result
     except (json.JSONDecodeError, KeyError):
@@ -500,6 +555,7 @@ def verify_unit(
     claim_token_index: list[tuple[str, str, set[str]]],
     method_index: dict[str, list[str]] | None = None,
     platform: str = "",
+    type_names: set[str] | None = None,
 ) -> dict:
     """Verify a single unit against knowledge and clone cache.
 
@@ -573,6 +629,22 @@ def verify_unit(
             parts = ref.split(".")
             cls_name = parts[0]
             if cls_name not in knowledge.classes:
+                # Bare name, no class entry of its own -- could be (a) a real
+                # interface/type reference (never separately documented as a
+                # class, e.g. an implemented interface or a BCL property
+                # type), or (b) a real member name needing the reverse
+                # method/property index. Check (a) first: _is_method_like()'s
+                # casing heuristic cannot tell "RectangleF" (a type) from
+                # "GetBounds" (a method) apart -- both are multi-word
+                # PascalCase -- so a genuine type/interface name must be
+                # checked here or it falls through to the member-name index,
+                # where it will correctly never be found, and gets reported
+                # FABRICATED despite being completely accurate.
+                if type_names and len(parts) == 1 and cls_name in type_names:
+                    api_checked = True
+                    api_verified_count += 1
+                    best_api_entry = cls_name
+                    continue
                 # Bare name — try reverse method index as fallback
                 # Only consider names that look like methods for this platform
                 # to avoid false positives on parameter names, package names, etc.
@@ -1018,6 +1090,7 @@ def run_audit(
 
     # Build reverse method index for bare name resolution
     method_index = _build_method_index(knowledge)
+    type_names = _build_type_and_interface_names(knowledge)
 
     # Pre-compute claim token index: (claim_id, claim_text, token_set)
     claim_token_index = []
@@ -1043,7 +1116,7 @@ def run_audit(
             verify_unit(
                 unit, knowledge, claims, forbidden, formats,
                 clone_path, claim_token_index, method_index,
-                platform=platform,
+                platform=platform, type_names=type_names,
             )
             file_verdict_counts[unit["verdict"]] += 1
             all_units.append(unit)

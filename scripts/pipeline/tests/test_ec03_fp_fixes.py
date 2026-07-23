@@ -212,6 +212,46 @@ class TestProseTruthMarkdownTableNoneExclusion:
         )
 
 
+class TestProseTruthBacktickIdentifierStrongWords:
+    """Root-cause fix: a strong word wrapped in backticks (an API member name
+    that happens to collide with common English, e.g. PageSet's real static
+    property `All`) is an identifier reference, not a prose overclaim. Prior
+    logic (_STRONG_WORDS.search on the raw line) could not distinguish
+    "Properties: `All`, `Even`, `Odd`." from a genuine "all X are Y" claim.
+    """
+
+    @pytest.mark.parametrize("line", [
+        "Properties: `All`, `Even`, `Odd`.",
+        "Methods: `Any`, `Only`, `Never`.",
+        "The `None` value indicates no page range is applied.",
+    ])
+    def test_identifier_in_backticks_not_flagged(self, line):
+        from content_eval.evaluators.prose_truth import _has_prose_strong_wording
+        assert not _has_prose_strong_wording(line), (
+            f"Backtick-quoted identifier should not be treated as strong "
+            f"prose wording: {line!r}"
+        )
+
+    @pytest.mark.parametrize("line", [
+        "This method always returns true.",
+        "All properties on this page are guaranteed to be read-only.",
+        "The `Document` class always saves correctly regardless of input.",
+    ])
+    def test_genuine_prose_strong_wording_still_flagged(self, line):
+        from content_eval.evaluators.prose_truth import _has_prose_strong_wording
+        assert _has_prose_strong_wording(line), (
+            f"Genuine prose strong wording must still be caught: {line!r}"
+        )
+
+    def test_strong_word_partially_overlapping_backtick_span_still_flagged(self):
+        """A strong word must be entirely inside a backtick span to be
+        excluded -- guards against a naive "line contains backticks
+        somewhere" implementation that would suppress too much."""
+        from content_eval.evaluators.prose_truth import _has_prose_strong_wording
+        line = "The `Foo` class always behaves this way."
+        assert _has_prose_strong_wording(line)
+
+
 class TestFormatTruthNegationDirectionGuard:
     """F2-FIX: _NEGATION_RE must not fire on lines with no format direction verb.
 

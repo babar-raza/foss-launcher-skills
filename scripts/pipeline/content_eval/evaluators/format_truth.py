@@ -19,6 +19,7 @@ from typing import Any
 
 from ..models import Finding, Page
 from . import BaseEvaluator
+from ._claim_index import is_markdown_table_row
 
 KNOWLEDGE_ROOT = Path("knowledge")
 
@@ -78,7 +79,20 @@ _EXT_RE = re.compile(r"^[a-z0-9]{2,6}$")
 # explicitly described as unsupported and should NOT be counted as an "unknown" mention.
 _NEGATION_RE = re.compile(
     r"\b(?:not\s+support|unsupport|are\s+not|is\s+not|cannot|no\s+support|"
-    r"does\s+not\s+support|don't\s+support|doesn't\s+support)\b",
+    r"does\s+not\s+support|don't\s+support|doesn't\s+support|"
+    r"does\s+not\s+include|do\s+not\s+include|doesn't\s+include|don't\s+include|"
+    r"not\s+included|not\s+functional|does\s+not\s+work|"
+    r"not\s+in\s+this\s+edition|no\s+printing)\b|"
+    # FIX-NEG-01: "no <format list> export/import/output" — a bare "no" directly
+    # negating an I/O verb, without the word "support" (e.g. "no PDF/XPS/image
+    # export", "no PDF, XPS, or image export"). Found 2026-07-23 alongside the
+    # format_truth known_dir=="none" branch fix: multiple already-reviewed,
+    # accurate pages (developer-guide/_index.md, features.md, license.md,
+    # troubleshooting.md, use-cases.md) use this exact natural phrasing, and the
+    # narrow "no support"-only pattern above missed all of them. Bounded to a
+    # short (<=40 char) span so it can't accidentally swallow an unrelated,
+    # genuinely positive claim much later in a long line.
+    r"\bno\s+[a-z0-9,/\s]{0,40}?(?:export|import|output)\b",
     re.IGNORECASE,
 )
 
@@ -160,6 +174,18 @@ def _load_formats(family: str, platform: str) -> dict[str, str]:
                 direction = "none"
             else:
                 direction = "import"
+        elif entry.get("functional") is False:
+            # FIX-G30: functional=False can appear on entries whose raw direction
+            # is already "import"/"export"/"both" (not just "enum_only") — e.g. a
+            # format-detection dispatch that gates a real reader/writer class behind
+            # a throw, per formats.py's FOSS-gate scanning. The enum_only branch
+            # above already treats functional=False as "no real capability"; the
+            # same rule must apply here too, or a gated format's own direction
+            # value gets taken at face value and reported as genuinely supported.
+            # Found 2026-07-23 via words/net's HTML entries (direction: "import"/
+            # "export", functional: false) producing FAIL-level false positives
+            # on 7 reference pages that correctly state HTML is unsupported.
+            direction = "none"
         if not direction:
             # Infer from boolean fields
             can_import = entry.get("import", False)
@@ -309,9 +335,46 @@ class FormatTruthEvaluator(BaseEvaluator):
         if "Enum" in categories and layout.startswith("reference"):
             return []
 
+        # FIX-IFACE-01: interface reference pages (IDocumentMergerPlugin,
+        # IDocumentConverterPlugin, etc.) describe a CONTRACT for an external
+        # implementer, not the library's own behavior — e.g.
+        # IDocumentMergerPlugin's docstring "Merges the given input PDF
+        # documents..." describes what a conforming plugin implementation
+        # would do, not a capability Aspose.Words itself has. Mirrors the
+        # Enum-page exclusion above for the identical reason. Found 2026-07-23
+        # via words/net (27 Interface-category reference pages in this
+        # product alone).
+        if "Interface" in categories and layout.startswith("reference"):
+            return []
+
         format_direction = _load_formats(page.family, page.platform)
         if not format_direction:
             return []  # No format knowledge available
+
+        # FIX-DISCLOSED-01: once a page has ALREADY disclosed, in its own body,
+        # that a format has no working I/O path (e.g. a reference page's
+        # Overview caveat "HTML, MHTML, EPUB, AZW3, and MOBI export are not
+        # functional in this FOSS edition"), every LATER mechanically-transcribed
+        # docstring row on the SAME page repeating that same format (e.g. a
+        # *SaveOptions class with 60+ properties whose real C# docstrings all
+        # say "...to HTML, MHTML or EPUB") is not a fresh, independent claim —
+        # it is the identical, already-covered fact restated. Without this, a
+        # single class-level caveat does nothing to prevent dozens of per-row
+        # FAILs on the very same page for the very same already-disclosed
+        # limitation. Found 2026-07-23 via words/net's HtmlSaveOptions.md (66
+        # properties, most mentioning HTML/MHTML/EPUB export).
+        full_text = "\n".join(t for _, t in page.prose_lines)
+        disclosed_none_formats: set[str] = set()
+        for m in re.finditer(
+            r"([A-Za-z][A-Za-z0-9]*(?:\s*,\s*[A-Za-z][A-Za-z0-9]*)*"
+            r"(?:\s*,?\s*(?:and|or)\s+[A-Za-z][A-Za-z0-9]*)?)"
+            r"\s+(?:export|import|loading|load)\s+(?:is|are)\s+not\s+functional",
+            full_text, re.IGNORECASE,
+        ):
+            for tok in re.split(r"\s*,\s*|\s+(?:and|or)\s+", m.group(1)):
+                tok = re.sub(r"^(?:and|or)\s+", "", tok.strip(), flags=re.IGNORECASE).lower()
+                if tok:
+                    disclosed_none_formats.add(tok)
 
         findings: list[Finding] = []
         # Track per-page stats for the "many unknown" check
@@ -322,6 +385,8 @@ class FormatTruthEvaluator(BaseEvaluator):
 
         def _check(ext: str, claimed_dir: str | None, line_no: int, source: str):
             all_mentioned.add(ext)
+            if ext in disclosed_none_formats and format_direction.get(ext) == "none":
+                return  # Already disclosed elsewhere on this same page
             known_dir = format_direction.get(ext)
 
             if known_dir is None:
@@ -422,6 +487,38 @@ class FormatTruthEvaluator(BaseEvaluator):
                         ),
                         evaluator=self.name,
                     ))
+            # "none" means the format has no working I/O capability at all (e.g.
+            # gated behind a throw, per formats.py's FOSS-gate scanning — see
+            # FIX-G30). Unlike the branches above, which catch a claim in the
+            # WRONG direction, this branch is the only one that fires for a
+            # positive capability claim (any direction) against a format with
+            # NO real capability whatsoever — a gap found 2026-07-23 alongside
+            # FIX-G30 while testing it: this _check() helper had no "none"
+            # branch at all, so a genuine false "export works" claim against a
+            # fully-gated format silently passed through this evaluator
+            # (capability_claim_check.py's _direction_compatible() already
+            # covered this case independently, which is why the corpus-wide
+            # gap wasn't visible until a dedicated unit test isolated this
+            # evaluator alone).
+            elif known_dir == "none" and claimed_dir in ("import", "export", "both"):
+                key = (ext, "none-mismatch")
+                if key not in reported:
+                    reported.add(key)
+                    findings.append(Finding(
+                        level="FAIL",
+                        category="FT",
+                        filepath=str(page.filepath),
+                        line_no=line_no,
+                        message=(
+                            f"Claims {ext.upper()} {claimed_dir} support but "
+                            f"formats.json shows no working I/O capability"
+                        ),
+                        suggestion=(
+                            f"Remove the {claimed_dir} claim for {ext.upper()} — "
+                            f"this format has no functional read or write path in this edition"
+                        ),
+                        evaluator=self.name,
+                    ))
 
         # Regex: detects Markdown table access-column values ("| Read |",
         # "| Write |", "| Read/Write |") that should not count as I/O verbs.
@@ -431,6 +528,28 @@ class FormatTruthEvaluator(BaseEvaluator):
 
         # --- Scan prose lines ---
         for line_no, line_text in page.prose_lines:
+            # Properties/Methods table rows on reference pages are generated
+            # verbatim from api_surface.json's per-member `doc` field (see
+            # batch_reference.py) -- the description column often mentions a
+            # format name in a completely unrelated technical sense (e.g.
+            # "Gets or sets a value indicating whether to convert loaded SVG
+            # images to the EMF format" describes what ONE PROPERTY does
+            # internally, not a claim that the containing class/page supports
+            # SVG as a document format). Table content is already verified by
+            # dedicated table-focused evaluators, not this one. Found
+            # 2026-07-23: mirrors the identical fix already applied to
+            # prose_claim_binding.py/prose_truth.py -- never extended here.
+            if is_markdown_table_row(line_text):
+                continue
+            # A question is never itself a capability assertion, regardless of
+            # phrasing — "Can X export to Y?" states nothing about whether X can;
+            # only its (separately-scanned) answer does. KB/blog FAQ content commonly
+            # renders questions as markdown headings ("#### Does this edition
+            # support X?"), which land here as ordinary prose lines. Skip them so
+            # the natural question/no-answer FAQ pattern doesn't produce a false
+            # positive. Found 2026-07-23 via words/net's products-page FAQ.
+            if line_text.rstrip().endswith("?"):
+                continue
             # Lines that explicitly state a format is NOT supported need a
             # separate check: if formats.json says it IS supported, the claim
             # is a false limitation (VBD-01 fix).
@@ -500,10 +619,29 @@ class FormatTruthEvaluator(BaseEvaluator):
                 # format token is a variable name, not a file-extension claim.
                 if tail.lstrip().startswith(":"):
                     continue
+                # ST-029 pattern: a format token immediately followed by
+                # ".<identifier>" is member/property access on a variable named
+                # like the format, not a format claim — e.g. `` `doc.Range.
+                # Bookmarks` `` (the near-universal idiom for an Aspose Document
+                # variable). Mirrors capability_claim_check.py's identical
+                # guard, which this evaluator was missing. Found 2026-07-23.
+                if tail[:1] == "." and (tail[1:2].isalpha() or tail[1:2] == "_"):
+                    continue
                 # Skip Markdown inline spans (*doc*, `doc`, _doc_) where the
                 # format token is a variable reference, not a format claim.
                 pre_char = scan_text[pos - 1 : pos] if pos > 0 else ""
                 if pre_char in ("*", "`", "_") and tail[:1] == pre_char:
+                    continue
+                # FIX-FNAME-01: example filenames like `input.doc`/`output.pdf`
+                # illustrating a PATH or an error case (e.g. "passing an
+                # unsupported path such as `input.doc` to the Document
+                # constructor raises this exception") are not a format-support
+                # claim — the extension here just completes an example
+                # filename. Skip when the format token is immediately preceded
+                # by "." with a bare identifier before that (no format-context
+                # markers like a leading "*." glob or a surrounding backtick
+                # already consumed above). Found 2026-07-23 via words/net.
+                if pre_char == "." and re.search(r"[A-Za-z_][A-Za-z0-9_]*\.$", scan_text[:pos]):
                     continue
                 # ST-029 pattern (2): "Aspose.PDF" names the product, not a
                 # format-extension claim.
@@ -531,6 +669,22 @@ class FormatTruthEvaluator(BaseEvaluator):
                 # These are I/O arguments, not capability claims.
                 pre = block.content[max(0, pos - 30) : pos]
                 if re.search(r'["\'][^"\']*\.\s*$', pre):
+                    continue
+                # ST-029 pattern (3): a format token used as a bare
+                # function-call argument (e.g. `device.Process(doc, stream);`)
+                # is a variable reference passed by value -- not a format
+                # claim -- and isn't covered by the ".identifier"/"= " guard
+                # above (no member access, no assignment here). Preceded by
+                # "(" or "," (an argument position, allowing whitespace) and
+                # followed by "," or ")" (end of that argument slot).
+                # capability_claim_check.py already guards the equivalent
+                # prose-context case (measured: 39 false "Claims DOC export"
+                # findings across 19 pdf/net pages from the "doc" variable
+                # idiom), but this code-block guard was never updated to
+                # match, so the same idiom used as a bare argument in a code
+                # sample still false-positived here. Found 2026-07-23 via an
+                # independent review of the words/net launch's evaluator fixes.
+                if tail[:1] in (",", ")") and re.search(r"[(,]\s*$", pre):
                     continue
                 # EC-03 FP fix: limit direction context to the same line
                 # within the code block to prevent cross-statement bleed
@@ -596,6 +750,8 @@ class FormatTruthEvaluator(BaseEvaluator):
         reported: set[str] = set()
 
         for line_no, line_text in page.prose_lines:
+            if is_markdown_table_row(line_text):
+                continue
             stripped = line_text.strip()
             # Only examine bullet lines or lines with "support"/"format" context
             if not any(kw in stripped.lower() for kw in ("support", "format", "import", "export", "read", "writ", "load", "save")):

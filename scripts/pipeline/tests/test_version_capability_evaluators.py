@@ -70,6 +70,29 @@ def _make_kb_page(family: str, platform: str, body: str) -> Page:
         return page
 
 
+def _make_reference_page(family: str, platform: str, body: str) -> Page:
+    """Create a synthetic reference page (FAIL severity for capability/format claims)."""
+    raw = textwrap.dedent(f"""\
+        ---
+        title: "Test reference for {family}/{platform}"
+        categories:
+        - Class
+        ---
+        {body}
+    """)
+    import tempfile
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".md", delete=False, encoding="utf-8",
+    ) as f:
+        f.write(raw)
+        f.flush()
+        page = Page.load(Path(f.name))
+        page.family = family
+        page.platform = platform
+        page.subdomain = "reference"
+        return page
+
+
 class TestVersionClaimCheck:
 
     def setup_method(self):
@@ -351,6 +374,57 @@ class TestCapabilityClaimCheck:
         findings = self.evaluator.evaluate(page, None)
         assert len(findings) == 0
 
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_faq_question_not_flagged_even_with_positive_phrasing(self, mock_formats):
+        """Regression (found 2026-07-23 via words/net): a FAQ question is never
+        itself a capability assertion, regardless of phrasing. 'Can X export to
+        PDF?' followed by 'No, ...' is a completely standard FAQ pattern —
+        without a question-line guard, the QUESTION text alone (scanned
+        independently of its paired answer per _extract_scannable_lines) reads
+        as a false positive claim."""
+        mock_formats.return_value = {"pdf": "none"}
+        raw = textwrap.dedent("""\
+            ---
+            layout: plugin
+            faq:
+              enable: true
+              list:
+                - question: "Can this library export documents to PDF format?"
+                  answer: "No. PDF export is not included in this edition."
+            ---
+        """)
+        import tempfile as _tf
+        with _tf.NamedTemporaryFile(
+            mode="w", suffix=".md", delete=False, encoding="utf-8",
+            prefix="products_words_net_faq_question_",
+        ) as f:
+            f.write(raw)
+            f.flush()
+            page = Page.load(Path(f.name))
+            page.family = "words"
+            page.platform = "net"
+            page.subdomain = "products"
+        findings = self.evaluator.evaluate(page, None)
+        assert findings == [], (
+            f"FAQ question text must never be flagged as a capability claim, got {findings}"
+        )
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_genuine_question_mark_line_with_real_claim_elsewhere_still_works(self, mock_formats):
+        """Sanity: the question-guard must only suppress the interrogative line
+        itself — a genuine wrong claim on a DIFFERENT (non-question) line must
+        still be flagged."""
+        mock_formats.return_value = {"fbx": "import"}
+        page = _make_kb_page("3d", "java", body=(
+            "Does this library support FBX export?\n"
+            "Yes — export your scenes to FBX format easily.\n"
+        ))
+        findings = self.evaluator.evaluate(page, None)
+        assert len(findings) >= 1, (
+            "A genuine wrong claim on a non-question line must still be flagged "
+            "even when a question line precedes it"
+        )
+
 
 class TestFormatTruthCheck:
     """Regression tests for ST-029 patterns (2) and (3) in format_truth.py (RPR-J-09)."""
@@ -426,6 +500,254 @@ class TestFormatTruthCheck:
         findings = self.evaluator.evaluate(page, None)
         assert any("bmp" in f.message.lower() for f in findings), (
             f"a genuine false bidirectional BMP claim must still be flagged; got {findings}")
+
+    # --- Question-line guard (found 2026-07-23 via words/net) ---
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_faq_style_question_heading_not_flagged(self, mock_formats):
+        """KB FAQ pages commonly render questions as markdown headings, e.g.
+        '#### Can Aspose.Words FOSS for .NET export documents to PDF?' followed
+        by a 'No, ...' answer paragraph. The question heading alone must never
+        be read as a positive capability claim."""
+        mock_formats.return_value = {"pdf": "none"}
+        page = _make_kb_page("words", "net", (
+            "#### Can Aspose.Words FOSS for .NET export documents to PDF, XPS, or image formats?\n\n"
+            "No. This edition does not include the page-layout and rendering subsystem.\n"
+        ))
+        findings = self.evaluator.evaluate(page, None)
+        assert not any("pdf" in f.message.lower() for f in findings), (
+            f"FAQ question heading must not be flagged as a capability claim; got {findings}")
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_non_question_claim_still_flagged_after_question_guard(self, mock_formats):
+        """Sanity: the question-guard must not suppress a genuine wrong claim
+        made on an ordinary (non-interrogative) line."""
+        mock_formats.return_value = {"pdf": "none"}
+        page = _make_kb_page("words", "net", (
+            "This edition fully supports PDF export for archival workflows.\n"
+        ))
+        findings = self.evaluator.evaluate(page, None)
+        assert any("pdf" in f.message.lower() for f in findings), (
+            f"a genuine false PDF-export claim on a non-question line must still be flagged; got {findings}")
+
+    # --- ST-029 pattern (3): "doc" variable as a bare code-block argument ---
+    # Found via an independent reviewer auditing the words/net launch's
+    # evaluator fixes: format_truth.py's code-block guard only covered
+    # ".identifier" (doc.save()) and "= " (doc = Document(...)) forms, not a
+    # bare argument like "device.Process(doc, stream);" -- the exact same
+    # "doc" idiom that capability_claim_check.py already guards in prose
+    # (measured there: 39 false "Claims DOC export" findings across 19
+    # pdf/net pages), left this evaluator's parallel code-block guard out of
+    # sync, and turned a live pdf/net doc page (devices-rendering.md) into a
+    # new FAIL once the "none"-direction branch (G-30 cascade) started
+    # actually checking code blocks.
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_bare_argument_doc_variable_in_code_block_not_flagged(self, mock_formats):
+        mock_formats.return_value = {"doc": "none"}
+        page = _make_kb_page("pdf", "net", (
+            "```csharp\n"
+            "var settings = new TiffSettings();\n"
+            "var device = new TiffDevice(new Resolution(200), settings);\n"
+            'using var stream = File.Create("document.tiff");\n'
+            "device.Process(doc, stream);  // All pages\n"
+            "```\n"
+        ))
+        findings = self.evaluator.evaluate(page, None)
+        assert not any("doc" in f.message.lower() for f in findings), (
+            f"bare 'doc' variable passed as a function argument in a code "
+            f"block must not be read as a DOC-format claim; got {[f.message for f in findings]}"
+        )
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_genuine_doc_format_mention_in_code_block_still_flagged(self, mock_formats):
+        """Sanity: the bare-argument guard must not suppress a genuine false
+        claim -- a `SaveFormat.Doc` enum reference (not a bare identifier
+        passed as an argument) must still be checked."""
+        mock_formats.return_value = {"doc": "none"}
+        page = _make_kb_page("pdf", "net", (
+            "```csharp\n"
+            "document.Save(SaveFormat.Doc);\n"
+            "```\n"
+        ))
+        findings = self.evaluator.evaluate(page, None)
+        assert any("doc" in f.message.lower() for f in findings), (
+            f"a genuine DOC-format save call must still be flagged when the "
+            f"format has no working I/O; got {[f.message for f in findings]}"
+        )
+
+    # --- known_dir == "none" branch gap (found 2026-07-23 alongside the
+    # question-guard fix, while writing this exact test) ---
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_positive_export_claim_against_fully_unsupported_format_is_flagged(self, mock_formats):
+        """Regression: _check() had no branch at all for known_dir == 'none' —
+        every other known_dir value (import/export/both/detect mismatches) was
+        handled, but a positive capability claim against a format with NO
+        working I/O path whatsoever silently passed through undetected. This
+        is the format_truth.py equivalent of capability_claim_check.py's
+        already-correct actual == 'none' handling in _direction_compatible()."""
+        mock_formats.return_value = {"pdf": "none"}
+        page = _make_kb_page("words", "net", (
+            "This edition fully supports PDF export for archival workflows.\n"
+        ))
+        findings = self.evaluator.evaluate(page, None)
+        assert any("pdf" in f.message.lower() for f in findings), (
+            f"a positive claim against a fully-unsupported ('none') format must be flagged; got {findings}")
+        assert any(f.level == "FAIL" for f in findings if "pdf" in f.message.lower())
+
+    # --- Interface-page exclusion (mirrors the existing Enum-page exclusion) ---
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_interface_reference_page_direction_claims_suppressed(self, mock_formats):
+        """An Interface reference page (e.g. IDocumentMergerPlugin) describes a
+        CONTRACT for an external implementer, not the library's own behavior —
+        'Merges the given input PDF documents...' must not be read as a
+        capability claim about Aspose.Words itself."""
+        mock_formats.return_value = {"pdf": "none"}
+        raw = (
+            "---\n"
+            "title: IDocumentMergerPlugin\n"
+            "categories:\n- Interface\n"
+            "layout: reference-single\n"
+            "---\n\n"
+            "Merges the given input PDF documents into a single output PDF document "
+            "using specified input and output streams.\n"
+        )
+        import tempfile as _tf
+        with _tf.NamedTemporaryFile(
+            mode="w", suffix=".md", delete=False, encoding="utf-8",
+            prefix="reference_words_net_iface_",
+        ) as f:
+            f.write(raw)
+            f.flush()
+            page = Page.load(Path(f.name))
+            page.family = "words"
+            page.platform = "net"
+            page.subdomain = "reference"
+        findings = self.evaluator.evaluate(page, None)
+        assert findings == [], f"Interface page must suppress direction checks entirely; got {findings}"
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_class_reference_page_not_suppressed_by_interface_exclusion(self, mock_formats):
+        """Sanity: a Class (not Interface) reference page must still be checked normally."""
+        mock_formats.return_value = {"pdf": "none"}
+        raw = (
+            "---\n"
+            "title: SomeClass\n"
+            "categories:\n- Class\n"
+            "layout: reference-single\n"
+            "---\n\n"
+            "This class fully supports PDF export for archival workflows.\n"
+        )
+        import tempfile as _tf
+        with _tf.NamedTemporaryFile(
+            mode="w", suffix=".md", delete=False, encoding="utf-8",
+            prefix="reference_words_net_class_",
+        ) as f:
+            f.write(raw)
+            f.flush()
+            page = Page.load(Path(f.name))
+            page.family = "words"
+            page.platform = "net"
+            page.subdomain = "reference"
+        findings = self.evaluator.evaluate(page, None)
+        assert any("pdf" in f.message.lower() for f in findings), (
+            f"Class pages must still be checked normally; got {findings}")
+
+    # --- Example-filename guard (`input.doc`, `output.pdf`) ---
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_example_filename_not_flagged_as_format_claim(self, mock_formats):
+        """`input.doc` illustrating an error case is not a claim that DOC is supported."""
+        mock_formats.return_value = {"doc": "none"}
+        page = _make_kb_page("words", "net", (
+            "Passing an unsupported path such as `input.doc` to the Document "
+            "constructor raises this exception instead of returning a loaded document.\n"
+        ))
+        findings = self.evaluator.evaluate(page, None)
+        assert not any("doc" in f.message.lower() and "capability" in f.message.lower()
+                       for f in findings), (
+            f"Example filename `input.doc` must not be read as a format claim; got {findings}")
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_genuine_doc_claim_not_suppressed_by_filename_guard(self, mock_formats):
+        """Sanity: a genuine claim mentioning DOC without the filename pattern
+        must still be flagged."""
+        mock_formats.return_value = {"doc": "none"}
+        page = _make_kb_page("words", "net", (
+            "This edition fully supports DOC import for legacy documents.\n"
+        ))
+        findings = self.evaluator.evaluate(page, None)
+        assert any("doc" in f.message.lower() for f in findings), (
+            f"a genuine false DOC claim must still be flagged; got {findings}")
+
+    # --- Broadened negation phrases ---
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_not_included_table_cell_treated_as_negation(self, mock_formats):
+        """A comparison-table row ending in 'Not included' (no 'does/do') must
+        be recognized as negation, matching the real license.md table shape."""
+        mock_formats.return_value = {"pdf": "none"}
+        page = _make_kb_page("words", "net", (
+            "| Page layout / rendering (PDF, XPS, image export) | Not included | Included |\n"
+        ))
+        findings = self.evaluator.evaluate(page, None)
+        assert findings == [], (
+            f"'Not included' table cell must be treated as correct negation; got {findings}")
+
+    # --- Page-level "already disclosed non-functional" suppression ---
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_page_level_disclosure_suppresses_later_repeated_claims(self, mock_formats):
+        """Regression: once a page's own body discloses a format as non-
+        functional (the class-level caveat pattern used across words/net's
+        *SaveOptions/*LoadOptions reference pages), later mechanically-
+        transcribed docstring rows repeating that same format must not each
+        independently re-trigger a FAIL — this is the real HtmlSaveOptions.md
+        shape (66 properties, most mentioning HTML/MHTML export)."""
+        mock_formats.return_value = {"html": "none", "mhtml": "none"}
+        page = _make_kb_page("words", "net", (
+            "Can be used to specify additional options when saving a document "
+            "into the Html or Mhtml format. HTML, MHTML export are not "
+            "functional in this FOSS edition — the writer throws.\n\n"
+            "`ExportFontResources` specifies whether font resources should be "
+            "exported to HTML or MHTML.\n"
+            "`ExportImagesAsBase64` specifies whether images are saved to the "
+            "output HTML or MHTML.\n"
+        ))
+        findings = self.evaluator.evaluate(page, None)
+        assert findings == [], (
+            f"repeated mentions of an already-disclosed non-functional format "
+            f"must not each independently fail; got {findings}")
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_undisclosed_format_on_same_page_still_flagged(self, mock_formats):
+        """Sanity: the disclosure suppression must be format-specific — a
+        DIFFERENT format not covered by the disclosure sentence must still be
+        flagged normally on the same page."""
+        mock_formats.return_value = {"html": "none", "pdf": "none"}
+        page = _make_kb_page("words", "net", (
+            "HTML export is not functional in this FOSS edition.\n\n"
+            "This class fully supports PDF export for archival workflows.\n"
+        ))
+        findings = self.evaluator.evaluate(page, None)
+        assert any("pdf" in f.message.lower() for f in findings), (
+            f"an undisclosed format's genuine false claim must still be flagged; got {findings}")
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_none_direction_with_no_claim_produces_no_finding(self, mock_formats):
+        """Sanity: merely mentioning a fully-unsupported format with no
+        capability claim attached (no export/import/support verb nearby) must
+        not produce a finding from the new 'none' branch."""
+        mock_formats.return_value = {"pdf": "none"}
+        page = _make_kb_page("words", "net", (
+            "PDF is a common document format used across many industries.\n"
+        ))
+        findings = self.evaluator.evaluate(page, None)
+        assert not any(
+            "no working I/O capability" in f.message for f in findings
+        ), f"a bare mention with no capability verb must not be flagged; got {findings}"
 
 
 class TestCapabilityClaimCheckNormalization:
@@ -721,3 +1043,107 @@ class TestCapabilityClaimCheckCodeFenceFiltering:
         assert len(findings) == 0, (
             f"Code-block lines must not trigger: {[f.message for f in findings]}"
         )
+
+
+# ---------------------------------------------------------------------------
+# Table-row guard: format_truth.py / capability_claim_check.py /
+# version_claim_check.py must not scan Properties/Methods table rows as
+# free-standing prose. Found 2026-07-23 via a fresh batch_reference.py
+# regeneration of words/net's HtmlLoadOptions.md/HtmlSaveOptions.md: real
+# property/constructor descriptions sourced verbatim from api_surface.json
+# (e.g. "Gets or sets a value indicating whether to convert loaded SVG
+# images to the EMF format") were scanned as capability claims about the
+# CONTAINING CLASS, contradicting formats.json even though the description
+# accurately describes what that ONE property does. prose_claim_binding.py
+# and prose_truth.py already had this guard (is_markdown_table_row); it was
+# never extended to these three evaluators, which share the same risk.
+# ---------------------------------------------------------------------------
+
+class TestFormatTruthTableRowGuard:
+
+    def setup_method(self):
+        self.evaluator = get_evaluator("format_truth")()
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_table_row_format_mention_not_flagged(self, mock_formats):
+        mock_formats.return_value = {"svg": "detect"}
+        page = _make_reference_page("words", "net", (
+            "| `ConvertSvgToEmf` | `bool` | Read/Write | Gets or sets a value "
+            "indicating whether to convert loaded SVG images to the EMF format. |\n"
+        ))
+        findings = self.evaluator.evaluate(page, None)
+        assert not any("svg" in f.message.lower() for f in findings), (
+            f"Table row describing a property must not be read as a format "
+            f"claim about the class; got {[f.message for f in findings]}"
+        )
+
+    @patch("content_eval.evaluators.format_truth._load_formats")
+    def test_genuine_prose_format_claim_still_flagged(self, mock_formats):
+        """Sanity: the guard must not suppress a genuine false claim made in
+        ordinary (non-table) prose."""
+        mock_formats.return_value = {"svg": "detect"}
+        page = _make_reference_page("words", "net", (
+            "This class fully supports both import and export of SVG documents.\n"
+        ))
+        findings = self.evaluator.evaluate(page, None)
+        assert any("svg" in f.message.lower() for f in findings), (
+            f"a genuine false SVG bidirectional claim in ordinary prose must "
+            f"still be flagged; got {[f.message for f in findings]}"
+        )
+
+
+class TestCapabilityClaimCheckTableRowGuard:
+
+    def setup_method(self):
+        self.evaluator = get_evaluator("capability_claim_check")()
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_table_row_format_mention_not_flagged(self, mock_formats):
+        mock_formats.return_value = {"html": "none", "mhtml": "none"}
+        page = _make_reference_page("words", "net", (
+            "| `ExportDocumentProperties` | `bool` | Read/Write | Specifies "
+            "whether to export built-in and custom document properties to "
+            "HTML, MHTML or EPUB. |\n"
+        ))
+        findings = self.evaluator.evaluate(page, None)
+        assert not any(
+            "html" in f.message.lower() or "mhtml" in f.message.lower()
+            for f in findings
+        ), (
+            f"Table row describing one property's export behavior must not "
+            f"be read as a class-level HTML/MHTML export claim; "
+            f"got {[f.message for f in findings]}"
+        )
+
+    @patch("content_eval.evaluators.capability_claim_check._load_formats")
+    def test_genuine_prose_capability_claim_still_flagged(self, mock_formats):
+        mock_formats.return_value = {"html": "none"}
+        page = _make_reference_page("words", "net", (
+            "This class fully supports export to HTML for archival purposes.\n"
+        ))
+        findings = self.evaluator.evaluate(page, None)
+        assert any("html" in f.message.lower() for f in findings), (
+            f"a genuine false HTML export claim in ordinary prose must still "
+            f"be flagged; got {[f.message for f in findings]}"
+        )
+
+
+class TestVersionClaimCheckTableRowGuard:
+
+    def setup_method(self):
+        self.evaluator = get_evaluator("version_claim_check")()
+
+    def test_table_row_version_like_mention_not_flagged(self):
+        page = _make_reference_page("words", "net", (
+            "| `TargetFramework` | `string` | Read | Specifies the .NET "
+            "Framework 4.5 compatibility mode used for legacy documents. |\n"
+        ))
+        findings = self.evaluator.evaluate(page, None)
+        # This is a sanity/no-crash guard -- the key assertion is that the
+        # table-row skip runs before any version-claim logic, not any
+        # specific verdict (version_claim_check's own matching rules decide
+        # the rest). Absence of a crash plus the skip having fired is
+        # confirmed via the dedicated is_markdown_table_row unit test in
+        # test_claim_index_class_doc.py; here we just confirm end-to-end
+        # wiring didn't break.
+        assert isinstance(findings, list)

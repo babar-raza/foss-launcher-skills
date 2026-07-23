@@ -1104,6 +1104,280 @@ public class Circle implements IShape {
 
 
 # ---------------------------------------------------------------------------
+# Regression: C# conditionally-compiled base list (#if/#endif around a base)
+# (found via words/net truth-audit 2026-07-23 — CompositeNode's real declaration
+# wraps IXPathNavigable in a `#if !JAVA && !CPLUSPLUS // comment` block; tree-sitter
+# includes the preprocessor lines verbatim in the base_list node text, and a naive
+# comma-split then treated the directive/comment text itself as bogus "base names")
+# ---------------------------------------------------------------------------
+
+
+class TestCSharpConditionalCompilationBaseList:
+
+    CS_CONDITIONAL_BASE = """
+public abstract class CompositeNode : Node, IEnumerable<Node>, INodeCollection
+#if !JAVA && !CPLUSPLUS  // XPath navigation is supported on Java and C++, but implementing this interface is not needed.
+    , IXPathNavigable
+#endif
+{
+}
+"""
+
+    def test_preprocessor_directive_lines_not_captured_as_bases(self):
+        root = _parse("csharp", self.CS_CONDITIONAL_BASE)
+        classes = scout.collect_nodes(root, {"class_declaration"})
+        assert classes, "Expected class_declaration node"
+        bases = scout._extract_bases(classes[0], "csharp")
+        for b in bases:
+            assert "#if" not in b, f"Preprocessor directive leaked into base name: {b!r}"
+            assert "#endif" not in b, f"Preprocessor directive leaked into base name: {b!r}"
+            assert "XPath navigation is supported" not in b, (
+                f"Comment text leaked into base name: {b!r}"
+            )
+
+    def test_real_bases_still_captured_across_conditional_block(self):
+        root = _parse("csharp", self.CS_CONDITIONAL_BASE)
+        classes = scout.collect_nodes(root, {"class_declaration"})
+        bases = scout._extract_bases(classes[0], "csharp")
+        assert "Node" in bases
+        assert "IEnumerable<Node>" in bases
+        assert "INodeCollection" in bases
+        assert "IXPathNavigable" in bases, (
+            "Base inside the #if block must still be captured, not dropped entirely"
+        )
+
+    def test_conditional_base_list_exact_count(self):
+        """No garbage entries: exactly the 4 real bases, nothing extra."""
+        root = _parse("csharp", self.CS_CONDITIONAL_BASE)
+        classes = scout.collect_nodes(root, {"class_declaration"})
+        bases = scout._extract_bases(classes[0], "csharp")
+        assert len(bases) == 4, f"Expected exactly 4 bases, got {len(bases)}: {bases}"
+
+
+# ---------------------------------------------------------------------------
+# Preprocessor-conditional method/property exclusion (found via independent
+# review of the words/net launch, 2026-07-23): DEBUG-only helpers and
+# other-language-only overrides (this source is shared across the
+# Java/C++/Python ports) were leaking into api_surface.json as real public
+# .NET API. Root cause: the C# scout extractor collected method_declaration
+# nodes via a plain recursive walk with no #if/#elif ancestry awareness.
+# ---------------------------------------------------------------------------
+
+from extraction.tree_helpers import _condition_definitely_false, _in_excluded_preproc_branch
+
+
+class TestConditionDefinitelyFalse:
+    """Unit tests for the 3-valued preprocessor condition evaluator."""
+
+    @pytest.mark.parametrize("condition", [
+        "DEBUG", "JAVA", "PLAIN_JAVA", "CPLUSPLUS", "PYNET", "TEST",
+        "TEST || DEBUG", "DEBUG && !CPLUSPLUS", "DEBUG && !CPLUSPLUS && !JAVA",
+        "DEBUG || JAVA",
+    ])
+    def test_definitely_false_for_debug_java_variants(self, condition):
+        assert _condition_definitely_false(condition), (
+            f"{condition!r} should be unreachable in a real .NET Release build"
+        )
+
+    @pytest.mark.parametrize("condition", [
+        "!JAVA", "!JAVA && !CPLUSPLUS", "!CPLUSPLUS",
+        "NETSTANDARD || NET462_OR_GREATER || JAVA",  # unknown symbols could make this true
+        "!NET8_0_OR_GREATER", "!OPTIMIZED", "NETSTANDARD",
+    ])
+    def test_not_definitely_false_when_reachable_or_ambiguous(self, condition):
+        assert not _condition_definitely_false(condition), (
+            f"{condition!r} is reachable (or depends on an unresolved target-framework "
+            f"symbol) and must NOT be excluded"
+        )
+
+    def test_comment_after_condition_stripped(self):
+        assert _condition_definitely_false(
+            "CPLUSPLUS // alexnosk: Workaround for hanging nodes."
+        )
+
+    def test_empty_condition_not_excluded(self):
+        assert not _condition_definitely_false("")
+
+    def test_unsafe_characters_rejected_not_excluded(self):
+        """Defense in depth: anything outside the expected token grammar must
+        never reach eval() -- and must default to "not excluded"."""
+        assert not _condition_definitely_false("DEBUG; import os")
+
+    def test_too_many_unknowns_gives_up_safely(self):
+        many_unknowns = " || ".join(f"SYM{i}" for i in range(20))
+        assert not _condition_definitely_false(many_unknowns)
+
+
+class TestInExcludedPreprocBranch:
+    """AST-ancestry check: is a node nested inside an unreachable branch?"""
+
+    CS_SOURCE = """
+class Node {
+#if DEBUG
+    public override string ToString() { return ""; }
+
+    public virtual void dd() {
+        Debug.WriteLine(ToString());
+    }
+#elif JAVA
+    public override string ToString() { return ""; }
+#endif
+
+    public void Real() {}
+
+#if !JAVA && !CPLUSPLUS
+    public void RealConditional() {}
+#endif
+}
+"""
+
+    def _methods_by_name(self):
+        root = _parse("csharp", self.CS_SOURCE)
+        method_nodes = scout.collect_nodes(root, {"method_declaration"})
+        return {scout._node_name(m, "csharp"): m for m in method_nodes}
+
+    def test_debug_only_method_excluded(self):
+        methods = self._methods_by_name()
+        assert _in_excluded_preproc_branch(methods["dd"], "csharp")
+
+    def test_java_only_override_excluded(self):
+        # Two ToString() overrides exist (DEBUG branch and JAVA branch);
+        # collect_nodes returns both — both must be excluded.
+        root = _parse("csharp", self.CS_SOURCE)
+        all_methods = scout.collect_nodes(root, {"method_declaration"})
+        tostring_nodes = [m for m in all_methods if scout._node_name(m, "csharp") == "ToString"]
+        assert len(tostring_nodes) == 2
+        for node in tostring_nodes:
+            assert _in_excluded_preproc_branch(node, "csharp")
+
+    def test_real_unconditional_method_not_excluded(self):
+        methods = self._methods_by_name()
+        assert not _in_excluded_preproc_branch(methods["Real"], "csharp")
+
+    def test_real_conditional_method_not_excluded(self):
+        """A method inside `#if !JAVA && !CPLUSPLUS` (true for .NET) must
+        still be included."""
+        methods = self._methods_by_name()
+        assert not _in_excluded_preproc_branch(methods["RealConditional"], "csharp")
+
+    def test_non_csharp_language_never_excludes(self):
+        """This check is C#-specific; other languages don't have this
+        preprocessor syntax and must always return False."""
+        methods = self._methods_by_name()
+        assert not _in_excluded_preproc_branch(methods["dd"], "python")
+        assert not _in_excluded_preproc_branch(methods["dd"], "java")
+
+
+class TestPreprocElseDoesNotInvertOuterCondition:
+    """Regression for a real bug found via independent review, reproducing
+    Aspose.Words/Model/Drawing/Ole/OleFormat.cs verbatim: `#if PYNET ...
+    #else ... #endif` followed immediately by more unconditional code.
+    `GetRawData()` (genuinely unconditional, ~15 real source lines after the
+    `#endif`) was walked up to its `preproc_else` ancestor, then PAST it to
+    the outer `preproc_if`, which evaluated the `#if`'s own condition
+    (PYNET, known false) and wrongly excluded it -- inverting the fact that
+    being in the ELSE branch means the condition is *false*, the opposite of
+    what would justify exclusion via the IF's condition. Separately,
+    tree-sitter's C# grammar produced a too-wide span for the `preproc_else`
+    node in the real file (extending ~400 lines past its own `#endif`),
+    which is exactly why simply "negating the IF condition" would not be a
+    safe general fix -- the correct, conservative answer is to never
+    exclude on `#else` ancestry at all.
+    """
+
+    CS_SOURCE = """
+class OleFormat {
+#if PYNET
+    public Stream GetOleEntry(string oleEntryName) { return null; }
+#else
+    public MemoryStream GetOleEntry(string oleEntryName) { return null; }
+#endif
+
+    public byte[] GetRawData() {
+        return null;
+    }
+}
+"""
+
+    def test_unconditional_method_after_if_else_not_excluded(self):
+        root = _parse("csharp", self.CS_SOURCE)
+        methods = scout.collect_nodes(root, {"method_declaration"})
+        by_name = {scout._node_name(m, "csharp"): m for m in methods}
+        assert not _in_excluded_preproc_branch(by_name["GetRawData"], "csharp"), (
+            "An unconditional method declared after a `#if X ... #else ... "
+            "#endif` block must never be excluded due to the outer #if's "
+            "condition -- it is not inside that conditional at all."
+        )
+
+    def test_else_branch_method_itself_not_excluded(self):
+        """The #else branch's own method (GetOleEntry's MemoryStream
+        overload, the real .NET code) must not be excluded -- confirms the
+        fix doesn't just get lucky for content after #endif. The paired #if
+        PYNET branch's own Stream-returning overload SHOULD still be
+        excluded (that one genuinely is PYNET-only)."""
+        root = _parse("csharp", self.CS_SOURCE)
+        methods = scout.collect_nodes(root, {"method_declaration"})
+        oleentry_methods = [
+            m for m in methods
+            if scout._node_name(m, "csharp") == "GetOleEntry"
+        ]
+        assert len(oleentry_methods) == 2, "Expected both GetOleEntry overloads"
+        by_return_type = {scout.node_text(m).split()[1]: m for m in oleentry_methods}
+        assert not _in_excluded_preproc_branch(by_return_type["MemoryStream"], "csharp"), (
+            "The #else branch's MemoryStream-returning GetOleEntry is the "
+            "real .NET code and must not be excluded"
+        )
+        assert _in_excluded_preproc_branch(by_return_type["Stream"], "csharp"), (
+            "The #if PYNET branch's own Stream-returning GetOleEntry "
+            "genuinely is PYNET-only and should still be excluded"
+        )
+
+
+class TestApiSurfaceExcludesUnreachableMembers:
+    """End-to-end: extract_api_surface() must not surface DEBUG/JAVA-only
+    members in the real, published api_surface.json for the .NET platform."""
+
+    CS_SOURCE = TestInExcludedPreprocBranch.CS_SOURCE.replace(
+        "class Node {", "public class Node {"
+    )
+
+    def _extract(self):
+        import tempfile
+        from pathlib import Path
+        parser = scout.get_parser("csharp")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root_dir = Path(tmpdir)
+            src = root_dir / "Node.cs"
+            src.write_text(self.CS_SOURCE)
+            classes, _, _, _, _ = extract_api_surface(
+                parser, "csharp", root_dir, root_dir, "testfamily"
+            )
+        return classes
+
+    def test_debug_and_java_only_methods_absent(self):
+        classes = self._extract()
+        node_entry = next((c for c in classes if c["name"] == "Node"), None)
+        assert node_entry is not None, "Node class not found in extracted entries"
+        method_names = [m["name"] for m in node_entry.get("methods", [])]
+        assert "dd" not in method_names, (
+            f"DEBUG-only 'dd' method leaked into api_surface.json: {method_names!r}"
+        )
+        assert "ToString" not in method_names, (
+            f"DEBUG/JAVA-only 'ToString' override leaked into api_surface.json: {method_names!r}"
+        )
+
+    def test_real_methods_still_present(self):
+        classes = self._extract()
+        node_entry = next((c for c in classes if c["name"] == "Node"), None)
+        method_names = [m["name"] for m in node_entry.get("methods", [])]
+        assert "Real" in method_names
+        assert "RealConditional" in method_names, (
+            "Method inside a genuinely-reachable #if (!JAVA && !CPLUSPLUS) "
+            "block must still be extracted"
+        )
+
+
+# ---------------------------------------------------------------------------
 # SFX-1: Go receiver method association
 # ---------------------------------------------------------------------------
 

@@ -140,6 +140,15 @@ def infer_product(filepath: Path) -> tuple[str, str] | tuple[None, None]:
             if len(remaining) >= 2:
                 family = remaining[0]
                 platform = remaining[1]
+                # Family-root pages (e.g. content/products.aspose.org/en/{family}/_index.md)
+                # have exactly 2 remaining segments where the second IS the
+                # filename, not a platform directory. Without this check,
+                # `platform` silently became a bogus value like "_index.md"
+                # that no knowledge lookup could ever match, instead of the
+                # (None, None) "no specific platform" signal callers already
+                # check for (HARDEN-words-net, 2026-07-23).
+                if len(remaining) == 2 and platform.endswith((".md", ".markdown")):
+                    return None, None
                 knowledge_platform = PLATFORM_MAP.get(platform, platform)
                 return family, knowledge_platform
     return None, None

@@ -417,6 +417,223 @@ class TestIsMethodLike(unittest.TestCase):
         """All-caps or PascalCase without interior lowercase+uppercase transition."""
         self.assertFalse(tac._is_method_like("PDF", "java"))
 
+    def test_multiword_pascalcase_type_name_also_true(self):
+        """Documents an existing, unfixed quirk: _is_method_like() cannot
+        distinguish a multi-word PascalCase MEMBER name (e.g. "GetBounds")
+        from a multi-word PascalCase TYPE/INTERFACE name (e.g. "RectangleF",
+        "IFieldWithCalendar") -- both have an interior lowercase-to-uppercase
+        transition. This is why _build_type_and_interface_names() must be
+        checked BEFORE falling back to this heuristic in verify_unit() --
+        see TestBuildTypeAndInterfaceNames and the FABRICATED regression
+        tests below."""
+        self.assertTrue(tac._is_method_like("RectangleF", "net"))
+        self.assertTrue(tac._is_method_like("IFieldWithCalendar", "net"))
+
+
+class TestBuildTypeAndInterfaceNames(unittest.TestCase):
+    """Root cause (found 2026-07-23 via words/net Stage 8 verification):
+    interfaces (only ever appear in another class's `bases`) and BCL/
+    framework property or return types (e.g. .NET's `RectangleF`) have no
+    class entry of their own in api_surface.json, so a bare backtick
+    reference to one falls to _is_method_like()'s reverse method/property
+    index lookup -- where a TYPE name is correctly never found, producing a
+    false FABRICATED verdict on completely accurate content. Confirmed live:
+    GroupShape/Shape/ShapeBase's real `Bounds: RectangleF` property, and
+    FieldDate/FieldCreateDate/FieldPrintDate/FieldSaveDate's real
+    `IFieldWithCalendar` implemented interface, were both reported
+    FABRICATED despite being verbatim-correct per api_surface.json.
+    """
+
+    def _make_knowledge(self):
+        k = MagicMock()
+        k.parents = {
+            "FieldDate": ["Field", "IFieldCodeTokenInfoProvider", "IFieldWithCalendar"],
+            "GroupShape": ["ShapeBase"],
+        }
+        k.property_types = {("GroupShape", "Bounds"): "RectangleF"}
+        k.return_types = {("Document", "ToString"): "string"}
+        return k
+
+    def test_interface_from_bases_included(self):
+        names = tac._build_type_and_interface_names(self._make_knowledge())
+        self.assertIn("IFieldWithCalendar", names)
+
+    def test_base_class_from_bases_included(self):
+        names = tac._build_type_and_interface_names(self._make_knowledge())
+        self.assertIn("ShapeBase", names)
+
+    def test_property_type_included(self):
+        names = tac._build_type_and_interface_names(self._make_knowledge())
+        self.assertIn("RectangleF", names)
+
+    def test_return_type_included(self):
+        names = tac._build_type_and_interface_names(self._make_knowledge())
+        self.assertIn("string", names)
+
+    def test_unrelated_name_not_included(self):
+        names = tac._build_type_and_interface_names(self._make_knowledge())
+        self.assertNotIn("TotallyMadeUpTypeName", names)
+
+    def test_missing_attributes_handled_gracefully(self):
+        """A MagicMock or real Knowledge without these attributes must not
+        raise -- getattr(..., {}) defaults must actually be honored."""
+        k = MagicMock(spec=[])  # no attributes at all
+        names = tac._build_type_and_interface_names(k)
+        self.assertEqual(names, set())
+
+
+class TestVerifyUnitTypeInterfaceRegression(unittest.TestCase):
+    """End-to-end regression: verify_unit() must not report FABRICATED for a
+    bare type/interface reference that's a real `bases` entry or property
+    type, reproducing the exact words/net GroupShape.md and
+    date-and-time.md findings."""
+
+    def _make_knowledge(self):
+        k = MagicMock()
+        k.available = True
+        k.classes = {"GroupShape": {}, "FieldDate": {}}
+        k.methods = {}
+        k.properties = {}
+        k.enum_members = {}
+        k.has_method = lambda c, m: False
+        k.has_property = lambda c, m: False
+        k.parents = {
+            "FieldDate": ["Field", "IFieldWithCalendar"],
+        }
+        k.property_types = {("GroupShape", "Bounds"): "RectangleF"}
+        k.return_types = {}
+        k.repo_sha = "abc123"
+        k.version = "1.0.0"
+        return k
+
+    def test_property_type_reference_not_fabricated(self):
+        knowledge = self._make_knowledge()
+        type_names = tac._build_type_and_interface_names(knowledge)
+        unit = {
+            "id": "U-test",
+            "file": "GroupShape.md",
+            "line_start": 126,
+            "line_end": 126,
+            "type": "table_row",
+            "text": "| `Bounds` | `RectangleF` | Read/Write | Gets or sets the location and size of the containing block of the shape. |",
+        }
+        result = tac.verify_unit(
+            unit, knowledge, [], [], {}, None, [],
+            method_index={}, platform="net", type_names=type_names,
+        )
+        self.assertNotEqual(result["verdict"], tac.VERDICT_FABRICATED)
+
+    def test_implemented_interface_reference_not_fabricated(self):
+        knowledge = self._make_knowledge()
+        type_names = tac._build_type_and_interface_names(knowledge)
+        unit = {
+            "id": "U-test",
+            "file": "date-and-time.md",
+            "line_start": 179,
+            "line_end": 179,
+            "type": "table_row",
+            "text": "| `IFieldWithCalendar` | Interface implemented by all four classes for calendar-aware field results |",
+        }
+        result = tac.verify_unit(
+            unit, knowledge, [], [], {}, None, [],
+            method_index={}, platform="net", type_names=type_names,
+        )
+        self.assertNotEqual(result["verdict"], tac.VERDICT_FABRICATED)
+
+    def test_genuinely_fabricated_type_still_flagged(self):
+        """The fix must not weaken detection of a genuinely invented type
+        name -- one that appears in no class's bases and no property/return
+        type anywhere in the model. A non-empty method_index is required
+        here (an empty dict is falsy in verify_unit's own truthiness check,
+        which would silently skip the reverse-lookup fallback regardless of
+        this fix and produce a weaker UNSUPPORTED verdict instead -- not
+        what this test is isolating)."""
+        knowledge = self._make_knowledge()
+        type_names = tac._build_type_and_interface_names(knowledge)
+        unit = {
+            "id": "U-test",
+            "file": "test.md",
+            "line_start": 1,
+            "line_end": 1,
+            "type": "table_row",
+            "text": "| `TotallyFakeInterfaceType` | An interface that does not exist anywhere |",
+        }
+        result = tac.verify_unit(
+            unit, knowledge, [], [], {}, None, [],
+            method_index={"unrelated_method": ["SomeClass"]},
+            platform="net", type_names=type_names,
+        )
+        self.assertEqual(result["verdict"], tac.VERDICT_FABRICATED)
+
+
+class TestLoadFormatsMerge(unittest.TestCase):
+    """Root cause (found 2026-07-23): _load_formats() overwrote result[ext]
+    per raw formats.json entry with no merge logic, so whichever entry
+    happened to appear LAST in the array silently won -- a format with
+    separate import-direction and export-direction entries (e.g. Text: one
+    LoadFormat entry direction=import, one SaveFormat entry direction=export)
+    resolved to whichever direction was listed last, not "both". Confirmed
+    live: words/net's Text/Txt formats (both import- and export-capable)
+    triggered a false CONTRADICTED verdict on TxtLeadingSpacesOptions.md
+    correctly describing IMPORT behavior, because the last entry in
+    formats.json happened to be an export-direction one.
+    """
+
+    def _write_formats(self, tmp_path, entries):
+        merged = tmp_path / "words" / "net" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "formats.json").write_text(json.dumps(entries), encoding="utf-8")
+
+    def test_import_then_export_merges_to_both(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            tmp_path = Path(td)
+            self._write_formats(tmp_path, [
+                {"format": "Text", "direction": "import"},
+                {"format": "Text", "direction": "export"},
+            ])
+            with patch.object(tac, "KNOWLEDGE_ROOT", tmp_path):
+                result = tac._load_formats("words", "net")
+            self.assertEqual(result["text"], "both")
+
+    def test_export_then_import_merges_to_both(self):
+        """Order must not matter -- the bug was specifically order-dependent."""
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            tmp_path = Path(td)
+            self._write_formats(tmp_path, [
+                {"format": "Txt", "direction": "export"},
+                {"format": "Txt", "direction": "import"},
+                {"format": "Txt", "direction": "export"},
+                {"format": "Txt", "direction": "import"},
+            ])
+            with patch.object(tac, "KNOWLEDGE_ROOT", tmp_path):
+                result = tac._load_formats("words", "net")
+            self.assertEqual(result["txt"], "both")
+
+    def test_single_direction_unaffected(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            tmp_path = Path(td)
+            self._write_formats(tmp_path, [
+                {"format": "Fbx", "direction": "export"},
+            ])
+            with patch.object(tac, "KNOWLEDGE_ROOT", tmp_path):
+                result = tac._load_formats("words", "net")
+            self.assertEqual(result["fbx"], "export")
+
+    def test_none_direction_does_not_override_real_direction(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            tmp_path = Path(td)
+            self._write_formats(tmp_path, [
+                {"format": "Html", "direction": "import"},
+                {"format": "Html", "direction": "none"},
+            ])
+            with patch.object(tac, "KNOWLEDGE_ROOT", tmp_path):
+                result = tac._load_formats("words", "net")
+            self.assertEqual(result["html"], "import")
+
 
 class TestClassifyUnit(unittest.TestCase):
     """Change B: Unit classification into claim vs structural/code/reference."""

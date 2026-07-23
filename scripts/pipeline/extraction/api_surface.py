@@ -40,6 +40,7 @@ from extraction.tree_helpers import (
     _extract_bases,
     _extract_enum_members,
     _extract_python_enum_members,
+    _in_excluded_preproc_branch,
     _node_name,
     child_by_field,
     collect_nodes,
@@ -1690,6 +1691,17 @@ def extract_api_surface(
 
             method_nodes = collect_nodes(cnode, func_types)
             for mnode in method_nodes:
+                # Skip members whose declaration lives inside a C#
+                # `#if DEBUG` / `#elif JAVA` / `#if CPLUSPLUS` / etc. branch
+                # that is unreachable in a real .NET Release build -- this
+                # source is shared across the Java/C++/Python ports of the
+                # same product, and Debug-only helpers or other-language-only
+                # overrides were leaking into api_surface.json and being
+                # rendered as real public .NET API. Found 2026-07-23 via an
+                # independent review of the words/net launch (Node.cs's
+                # `dd()` and its `#elif JAVA`-only `ToString()` override).
+                if _in_excluded_preproc_branch(mnode, language):
+                    continue
                 if not is_public(mnode, language):
                     continue
                 mname = _node_name(mnode, language)

@@ -381,6 +381,53 @@ class TestBuildPageErcFallback:
 
 
 # ---------------------------------------------------------------------------
+# "Inherits from:" body line — count-suffix regression (found via words/net
+# truth-audit 2026-07-23: 8/617 reference pages silently truncated a class's
+# real base list to 3 with no "and N more" indication, unlike the Properties/
+# Methods summaries in the same template which do count-suffix correctly)
+# ---------------------------------------------------------------------------
+
+class TestInheritsFromLine:
+
+    def _entry(self, name: str, bases: list[str]) -> dict:
+        return {"name": name, "kind": "class_declaration", "doc": "",
+                "methods": [], "properties": [], "bases": bases}
+
+    def test_three_or_fewer_bases_no_suffix(self):
+        entry = self._entry("Simple", bases=["Node", "ICloneable"])
+        page = _build_page(entry, "words", "net")
+        line = next(ln for ln in page.splitlines() if ln.startswith("Inherits from:"))
+        assert line == "Inherits from: `Node`, `ICloneable`."
+        assert "more" not in line
+
+    def test_exactly_three_bases_no_suffix(self):
+        entry = self._entry("Simple", bases=["A", "B", "C"])
+        page = _build_page(entry, "words", "net")
+        line = next(ln for ln in page.splitlines() if ln.startswith("Inherits from:"))
+        assert line == "Inherits from: `A`, `B`, `C`."
+        assert "more" not in line
+
+    def test_more_than_three_bases_gets_count_suffix(self):
+        """Regression: previously silently dropped bases 4+ with no indication."""
+        entry = self._entry("ShapeBase", bases=["Node", "INodeGraph", "ICompositeObject", "IShapeAnchor", "IExtra"])
+        page = _build_page(entry, "words", "net")
+        line = next(ln for ln in page.splitlines() if ln.startswith("Inherits from:"))
+        assert line == "Inherits from: `Node`, `INodeGraph`, `ICompositeObject`, and 2 more."
+
+    def test_no_bases_no_inherits_line(self):
+        entry = self._entry("Root", bases=[])
+        page = _build_page(entry, "words", "net")
+        assert "Inherits from:" not in page
+
+    def test_enum_bases_filtered_do_not_trigger_count(self):
+        """Self-referential and enum bases are filtered before counting — must not
+        inflate the 'and N more' count with filtered-out entries."""
+        entry = self._entry("MyEnum", bases=["enum.Enum", "MyEnum"])
+        page = _build_page(entry, "words", "net")
+        assert "Inherits from:" not in page
+
+
+# ---------------------------------------------------------------------------
 # Evidence apis: population from class metadata (WP-3 healing)
 # ---------------------------------------------------------------------------
 

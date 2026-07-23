@@ -1280,3 +1280,72 @@ class TestListItemPreservation:
         assert "- orphaned" not in result
         assert "title: Test" in result
         assert "description: desc" in result
+
+    def test_multi_item_list_fully_preserved(self):
+        """Regression for a real 2026-07-23 bug: every item AFTER the first in a
+        valid multi-item root-level list was wrongly treated as orphaned (its
+        preceding line is the previous list item, not a ':'-terminated key),
+        silently truncating e.g. `keywords:` from 7 entries down to 1 whenever
+        write_grade() had any other cleanup to do. This must never regress."""
+        from grade_writer import _strip_orphaned_list_items
+
+        text = (
+            "keywords:\n"
+            "- first keyword\n"
+            "- second keyword\n"
+            "- third keyword\n"
+            "- fourth keyword\n"
+            "provenance:\n"
+            "  content_origin: skill-generated\n"
+        )
+        result = _strip_orphaned_list_items(text)
+        assert "- first keyword" in result
+        assert "- second keyword" in result
+        assert "- third keyword" in result
+        assert "- fourth keyword" in result
+        assert "provenance:" in result
+
+    def test_multiple_orphaned_items_in_a_row_all_stripped(self):
+        """Multiple consecutive genuinely-orphaned items (no valid parent key)
+        must ALL be stripped, not just the first."""
+        from grade_writer import _strip_orphaned_list_items
+
+        text = "title: Test\n- orphaned1\n- orphaned2\n- orphaned3\ndescription: desc\n"
+        result = _strip_orphaned_list_items(text)
+        assert "- orphaned1" not in result
+        assert "- orphaned2" not in result
+        assert "- orphaned3" not in result
+        assert "title: Test" in result
+        assert "description: desc" in result
+
+    def test_multi_item_keywords_preserved_through_write_grade(self, tmp_path):
+        """End-to-end regression: write_grade() replacing an EXISTING grade block
+        (the only code path that invokes _strip_orphaned_list_items — a fresh
+        first-time grade write takes a different, non-cleanup append path and
+        would not have exercised this bug at all) must not truncate a genuine
+        multi-item keywords: list sitting outside that grade block, even while
+        a real stray orphaned item elsewhere IS correctly cleaned up."""
+        p = tmp_path / "page.md"
+        p.write_text(textwrap.dedent("""\
+            ---
+            title: Test
+            - stray orphaned line
+            keywords:
+            - alpha keyword
+            - beta keyword
+            - gamma keyword
+            grade: B
+            graded_content_hash: "oldhash"
+            provenance:
+              content_origin: skill-generated
+            ---
+
+            Body.
+        """), encoding="utf-8")
+        ok = write_grade(p, "A", model_sha="sha-multi-kw")
+        assert ok
+        text = p.read_text(encoding="utf-8")
+        assert "- alpha keyword" in text
+        assert "- beta keyword" in text
+        assert "- gamma keyword" in text
+        assert "- stray orphaned line" not in text

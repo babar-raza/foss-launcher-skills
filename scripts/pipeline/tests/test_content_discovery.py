@@ -90,6 +90,34 @@ class TestInferProduct:
         assert family == "cells"
         assert platform == "net"
 
+    def test_family_root_index_page_returns_none_not_filename_as_platform(self):
+        """HARDEN-words-net (2026-07-23): a family-root page (e.g.
+        content/products.aspose.org/en/{family}/_index.md) has exactly 2
+        remaining path segments where the second IS the filename, not a
+        platform directory. Before this fix, the filename ("_index.md")
+        was silently returned as a bogus "platform" value that no
+        knowledge lookup could ever match -- confirmed live: this caused
+        audit.py/no_downgrade_guard.py to silently SKIP/error on every
+        family page across the whole site, with no clear signal why."""
+        p = Path("/repo/content/products.aspose.org/en/words/_index.md")
+        family, platform = infer_product(p)
+        assert family is None
+        assert platform is None
+
+    def test_family_root_index_page_markdown_extension_also_returns_none(self):
+        p = Path("/repo/content/products.aspose.org/en/words/_index.markdown")
+        family, platform = infer_product(p)
+        assert family is None
+        assert platform is None
+
+    def test_platform_directory_page_still_resolved_normally(self):
+        """Regression guard: the family-root fix must not affect the
+        genuine family/platform/file.md shape (3+ remaining segments)."""
+        p = Path("/repo/content/products.aspose.org/en/words/net/_index.md")
+        family, platform = infer_product(p)
+        assert family == "words"
+        assert platform == "net"
+
     def test_returns_tuple(self):
         p = Path("/repo/content/docs.aspose.org/en/cells/python/index.md")
         result = infer_product(p)

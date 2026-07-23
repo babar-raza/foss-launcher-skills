@@ -550,7 +550,10 @@ def _build_page(
         # FIX-05: filter out self-referential inheritance and enum bases
         bases_filtered = [b for b in bases if b not in _PY_ENUM_BASES and "enum." not in b and b != name]
         if bases_filtered:
-            lines.append(f"Inherits from: {', '.join(f'`{b}`' for b in bases_filtered[:3])}.")
+            _bases_listed = ", ".join(f"`{b}`" for b in bases_filtered[:3])
+            if len(bases_filtered) > 3:
+                _bases_listed += f", and {len(bases_filtered) - 3} more"
+            lines.append(f"Inherits from: {_bases_listed}.")
     if doc:
         lines.append("")
         lines.append(doc)

@@ -78,22 +78,43 @@ _EVALUATOR_VERSION_ENTRY_RE = re.compile(r'^\s{2}(\w+):\s*"?([^"\n]+?)"?\s*$', r
 def _strip_orphaned_list_items(text: str) -> str:
     """Strip bare root-level YAML list items that have no valid parent mapping key.
 
-    A list item (line starting with '- ') is considered orphaned when the
-    preceding non-blank line does NOT end with ':' (i.e., it is not a YAML
-    mapping key that opens a sequence).  Valid list items such as those under
-    'categories:' or 'tags:' are preserved.
+    A list item (line starting with '- ') is considered orphaned when it is
+    neither (a) immediately preceded by a YAML mapping key ending in ':' that
+    opens a sequence, nor (b) a continuation of an already-valid list (i.e.
+    the immediately preceding line is itself a list item already accepted as
+    valid by this same walk). Valid list items such as those under
+    'categories:' or 'tags:' — including every item in a MULTI-item list, not
+    just the first — are preserved.
 
-    This replaces the previous unconditional regex approach which caused valid
-    category and tag values to be stripped as a side-effect of grade-block
-    cleanup (bug introduced with the bare-list-item orphan guard).
+    Bug history: an earlier version checked only "does the preceding non-blank
+    output line end with ':'", which correctly covered the first item of a
+    list but incorrectly treated every SUBSEQUENT item as orphaned (its
+    preceding line is the previous list item, not a ':'-terminated key) —
+    silently truncating every multi-item root-level list (e.g. `keywords:`
+    with 2+ entries) down to just its first item on any write_grade() call
+    that also had cleanup work to do. Found 2026-07-23 via 10 KB content pages
+    whose `keywords:` lists had been silently truncated from ~7 items to 1.
+    This version tracks list-continuation state explicitly so item 2+ is
+    recognized as still belonging to the same valid list, not re-classified
+    as orphaned on every subsequent line.
     """
     lines = text.split('\n')
     out: list[str] = []
+    in_valid_list = False
     for line in lines:
         if re.match(r'^- ', line):
+            if in_valid_list:
+                out.append(line)
+                continue
             prev_nonempty = next((ln for ln in reversed(out) if ln.strip()), '')
-            if not prev_nonempty.rstrip().endswith(':'):
-                continue  # genuinely orphaned — strip
+            if prev_nonempty.rstrip().endswith(':'):
+                in_valid_list = True
+                out.append(line)
+                continue
+            continue  # genuinely orphaned — strip
+        if line.strip():
+            # Any other non-blank line ends whatever list was in progress.
+            in_valid_list = False
         out.append(line)
     return '\n'.join(out)
 

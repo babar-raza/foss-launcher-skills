@@ -17,6 +17,7 @@ from typing import Any
 
 from ..models import Finding, Page
 from . import BaseEvaluator
+from ._claim_index import is_markdown_table_row
 
 _DEFAULT_KNOWLEDGE_ROOT = Path(__file__).resolve().parents[4] / "knowledge"
 KNOWLEDGE_ROOT = _DEFAULT_KNOWLEDGE_ROOT
@@ -122,6 +123,14 @@ def _load_formats(family: str, platform: str) -> dict[str, str]:
                 direction = "none"
             else:
                 direction = "import"
+        elif entry.get("functional") is False:
+            # FIX-G30: functional=False can appear on entries whose raw direction
+            # is already "import"/"export"/"both" (not just "enum_only") — a format
+            # genuinely gated behind a throw at the dispatch layer, per formats.py's
+            # FOSS-gate scanning. Without this, the gated format's raw direction is
+            # taken at face value and reported as real capability. (Same root cause
+            # and fix as format_truth.py's _load_formats(), found 2026-07-23.)
+            direction = "none"
 
         existing = lookup.get(ext)
         if existing is None:
@@ -204,6 +213,26 @@ class CapabilityClaimCheckEvaluator(BaseEvaluator):
         from .version_claim_check import _extract_scannable_lines
 
         for line_no, text in _extract_scannable_lines(page):
+            # Properties/Methods table rows on reference pages are generated
+            # verbatim from api_surface.json's per-member `doc` field -- the
+            # description column often mentions a format name in an unrelated
+            # technical sense (e.g. a property description naming HTML/MHTML
+            # as part of what that ONE property controls, not a claim that
+            # the class itself supports HTML export). Mirrors the identical
+            # fix already applied to prose_claim_binding.py/prose_truth.py.
+            # Found 2026-07-23 via words/net's HtmlSaveOptions/HtmlLoadOptions
+            # reference pages.
+            if is_markdown_table_row(text):
+                continue
+            # A question is never itself a capability assertion, regardless of
+            # phrasing — "Can X export to Y?" states nothing about whether X can;
+            # only its (separately-scanned) answer does. Without this guard, FAQ
+            # question text (faq.list[].question, scanned independently of its
+            # paired answer per _extract_scannable_lines) produces false FAILs on
+            # the natural "Can <product> export to <format>?" / "No, ..." pattern
+            # used across every product's FAQ. Found 2026-07-23 via words/net.
+            if text.rstrip().endswith("?"):
+                continue
             # Normalize table access columns ("| Read |", "| Write |") to neutral "| - |"
             # before scanning, preventing column headers from polluting direction context.
             scan_text = _TABLE_ACCESS_COL_RE.sub(" - ", text)

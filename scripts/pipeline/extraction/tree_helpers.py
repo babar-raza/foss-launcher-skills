@@ -12,6 +12,7 @@ No Scout class dependencies — these are pure functions usable in isolation.
 """
 from __future__ import annotations
 
+import itertools
 import logging
 import os
 import re
@@ -470,11 +471,140 @@ def _extract_bases(node, language: str) -> list[str]:
             text = node_text(ch)
             # strip keywords
             text = re.sub(r"^(extends|implements|:)\s*", "", text)
+            # Conditionally-compiled base lists (C# `#if`/`#elif`/`#else`/`#endif`
+            # around one or more interfaces, e.g. CompositeNode's real declaration:
+            #   : Node, IEnumerable<Node>, INodeCollection
+            #   #if !JAVA && !CPLUSPLUS  // XPath navigation is supported on ...
+            #       , IXPathNavigable
+            #   #endif
+            # tree-sitter includes the preprocessor lines verbatim inside the
+            # base_list node's text span, and a naive comma-split then treats the
+            # directive line (plus its trailing `//` comment) as if it were itself
+            # a base-class name. Strip preprocessor directive lines and any `//`
+            # line comment before splitting, so only real identifiers remain.
+            text = re.sub(r"^\s*#\s*(if|elif|else|endif)\b.*$", "", text, flags=re.MULTILINE)
+            text = re.sub(r"//[^\n]*", "", text)
             for part in text.split(","):
                 part = part.strip()
                 if part:
                     bases.append(part)
     return bases
+
+
+# ---------------------------------------------------------------------------
+# C# preprocessor-conditional exclusion (DEBUG/JAVA/CPLUSPLUS/etc. branches)
+# ---------------------------------------------------------------------------
+
+# Symbols that are unambiguously FALSE when extracting the real, published
+# .NET (C#) Release build's API surface: transpilation-target flags (this
+# source is shared across the Java/C++/Python ports of the same product) and
+# build-configuration flags. Found 2026-07-23: the C# scout extractor
+# collected `method_declaration`/`property_declaration` nodes via a plain
+# recursive collect_nodes() with no awareness of `#if`/`#elif` ancestry, so
+# a `#if DEBUG` -only helper (`dd()`) and a `#elif JAVA` -only `ToString()`
+# override on Node.cs both leaked into api_surface.json and were rendered as
+# real public .NET API on 48 published reference pages (confirmed via an
+# independent adversarial review of the words/net launch).
+_PREPROC_KNOWN_FALSE_SYMBOLS = frozenset({
+    "DEBUG", "JAVA", "PLAIN_JAVA", "CPLUSPLUS", "PYNET", "TEST",
+})
+
+_PREPROC_TOKEN_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*|&&|\|\||!|\(|\)")
+_PREPROC_SAFE_RE = re.compile(r"^[A-Za-z0-9_\s!&|()]*$")
+
+# Cap on distinct unrecognized symbols per condition before giving up (avoids
+# a combinatorial blow-up on a pathological expression; none observed in
+# practice exceed 3).
+_PREPROC_MAX_UNKNOWNS = 8
+
+
+def _condition_definitely_false(condition_text: str) -> bool:
+    """True if a C# `#if`/`#elif` condition can be proven false for a real
+    .NET Release build regardless of the value of any symbol NOT in
+    _PREPROC_KNOWN_FALSE_SYMBOLS (target-framework symbols like NETSTANDARD,
+    NET8_0_OR_GREATER, OPTIMIZED are deliberately left unresolved -- their
+    real value depends on which of several supported target frameworks a
+    consumer builds against, which this extractor has no principled way to
+    pick, so a condition depending only on those is conservatively treated
+    as reachable rather than guessed at).
+
+    Evaluates the expression under every combination of True/False for the
+    unrecognized symbols; only returns True if EVERY combination evaluates
+    to False (i.e. no possible value of the unresolved symbols could make
+    this branch reachable).
+    """
+    condition_text = condition_text.split("//", 1)[0].strip()
+    if not condition_text:
+        return False
+    tokens = _PREPROC_TOKEN_RE.findall(condition_text)
+    if not tokens:
+        return False
+    identifiers = {t for t in tokens if t not in ("&&", "||", "!", "(", ")")}
+    unknowns = sorted(identifiers - _PREPROC_KNOWN_FALSE_SYMBOLS)
+    if len(unknowns) > _PREPROC_MAX_UNKNOWNS:
+        return False
+    # Reject anything containing characters outside the expected grammar
+    # before eval() -- defense in depth even though this only ever runs
+    # against our own cloned source, never untrusted input.
+    if not _PREPROC_SAFE_RE.match(condition_text):
+        return False
+    py_expr = condition_text.replace("&&", " and ").replace("||", " or ").replace("!", " not ")
+    for combo in itertools.product((False, True), repeat=len(unknowns)):
+        env = dict(zip(unknowns, combo))
+        for sym in _PREPROC_KNOWN_FALSE_SYMBOLS:
+            env[sym] = False
+        try:
+            if eval(py_expr, {"__builtins__": {}}, env):  # noqa: S307 - restricted env, own source only
+                return False
+        except Exception:
+            return False
+    return True
+
+
+_PREPROC_BRANCH_TYPES = frozenset({"preproc_if", "preproc_elif"})
+
+
+def _in_excluded_preproc_branch(node, language: str) -> bool:
+    """True if `node` is nested (at any depth) inside a C# `#if`/`#elif`
+    branch whose condition is definitely false for a real .NET Release build
+    (see _condition_definitely_false). `#else` branches are never excluded
+    here -- correctly resolving one requires negating every sibling
+    `#if`/`#elif` condition in the chain, which this deliberately does not
+    attempt (a bounded, conservative scope: this closes the confirmed
+    DEBUG/JAVA/CPLUSPLUS/etc. leak without risking a false exclusion on the
+    much harder `#else` case).
+
+    Bug found 2026-07-23 (independent review, real source file
+    OleFormat.cs): the ancestor walk did not stop at a `preproc_else`
+    ancestor -- it continued past it to the outer `preproc_if`/`preproc_elif`
+    and evaluated THAT condition, wrongly applying the IF-branch's exclusion
+    verdict to content that is actually in the ELSE branch (where the
+    condition is false, which is often exactly why that branch is the real
+    .NET code -- e.g. `#if PYNET ... #else ... #endif`). This is doubly
+    important because tree-sitter's C# grammar was also observed to produce
+    an incorrect (too-wide) span for a `preproc_else` node in this same file
+    -- `GetRawData()`, an unconditional method ~400 lines after the real
+    `#endif`, was parsed as a descendant of the `preproc_else`/`preproc_if`
+    pair. Stopping the walk the moment a `preproc_else` ancestor is seen
+    (returning "not excluded" per this function's documented else-branch
+    scope) fixes both problems at once: it stops applying the wrong
+    condition, and it stops trusting a tree-sitter span that may not be
+    trustworthy for `#else` in the first place.
+    """
+    if language != "csharp":
+        return False
+    ancestor = node.parent
+    while ancestor is not None:
+        if ancestor.type == "preproc_else":
+            return False
+        if ancestor.type in _PREPROC_BRANCH_TYPES:
+            cond_node = ancestor.children[1] if len(ancestor.children) > 1 else None
+            if cond_node is not None:
+                condition_text = node_text(cond_node)
+                if _condition_definitely_false(condition_text):
+                    return True
+        ancestor = ancestor.parent
+    return False
 
 
 # ---------------------------------------------------------------------------

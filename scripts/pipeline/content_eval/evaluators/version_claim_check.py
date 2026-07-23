@@ -17,6 +17,7 @@ import yaml
 
 from ..models import Finding, Page
 from . import BaseEvaluator
+from ._claim_index import is_markdown_table_row
 
 KNOWLEDGE_ROOT = Path("knowledge")
 
@@ -252,6 +253,12 @@ class VersionClaimCheckEvaluator(BaseEvaluator):
         findings: list[Finding] = []
 
         for line_no, text in _extract_scannable_lines(page):
+            # Properties/Methods table rows are generated verbatim from
+            # api_surface.json's per-member `doc` field and may mention a
+            # version-like number in an unrelated technical sense. Mirrors
+            # the identical guard in capability_claim_check.py/format_truth.py.
+            if is_markdown_table_row(text):
+                continue
             # Skip negation context
             if _NEGATION_RE.search(text):
                 continue

@@ -333,6 +333,119 @@ def _api_name_fallback_match(filepath, knowledge, already_matched: set) -> tuple
     return claim_ids, api_refs
 
 
+# EVID-PROSE-001: backtick-quoted `ClassName` or `ClassName.member` tokens in prose.
+# Requires an uppercase-leading class name (this corpus's own C#/Java/Python API
+# naming convention) so common lowercase English words in backticks never match.
+_BACKTICK_TOKEN_RE = re.compile(
+    r"`([A-Z][A-Za-z0-9_]*)(?:\.([A-Za-z_][A-Za-z0-9_]*))?(?:\(\))?`"
+)
+
+
+def _scan_backtick_tokens(text_prose: str, knowledge, already_matched: set) -> tuple[list, list]:
+    """Core scan: backtick-quoted API tokens in already-prose-only text.
+
+    Shared by _prose_backtick_fallback_match (page-level, reads+strips a whole
+    file) and _build_sections_evidence (section-level, passes an already-sliced,
+    already-code-stripped section text) so both levels apply identical matching
+    logic. See _prose_backtick_fallback_match's docstring for the full rationale.
+
+    Args:
+        text_prose: Body text with frontmatter and fenced code blocks already
+            removed by the caller.
+        knowledge: Knowledge model instance.
+        already_matched: Set of ref strings already captured elsewhere — avoids
+            double-counting.
+
+    Returns (claim_ids: list[str], api_refs: list[str]), both deduplicated and
+    sorted for deterministic output.
+    """
+    claim_ids: list[str] = []
+    api_refs: list[str] = []
+    seen_refs: set[str] = set()
+
+    for m in _BACKTICK_TOKEN_RE.finditer(text_prose):
+        cls, member = m.group(1), m.group(2)
+        if cls not in knowledge.classes:
+            continue
+
+        if member:
+            member_valid = (
+                knowledge.has_method(cls, member)
+                or knowledge.has_property(cls, member)
+                or knowledge.has_enum_member(cls, member)
+            )
+            if not member_valid:
+                # Qualified reference doesn't resolve — skip entirely rather than
+                # silently crediting the bare class (never mask a potentially-wrong
+                # qualified reference as partial evidence).
+                continue
+            ref = f"{cls}.{member}"
+        else:
+            ref = cls
+
+        if ref in seen_refs or ref in already_matched:
+            continue
+        seen_refs.add(ref)
+
+        cid = knowledge.api_to_claim.get(ref)
+        if not cid and member:
+            # Method/property-level claim key missed — fall back to the
+            # class-level claim (ERC- style), same pattern as the code-block path.
+            cid = knowledge.api_to_claim.get(cls)
+        if cid:
+            claim_ids.append(cid)
+        api_refs.append(ref)
+
+    return sorted(set(claim_ids)), sorted(set(api_refs))
+
+
+def _prose_backtick_fallback_match(filepath, knowledge, already_matched: set) -> tuple[list, list]:
+    """Fallback: scan page body prose for backtick-quoted API tokens not captured
+    by code-block token extraction.
+
+    EVID-PROSE-001: generalizes the CLAIM-EXTRACT-001 modified_apis-only fallback
+    (_api_name_fallback_match) to the general case — most content pages in this repo
+    are prose-only (no fenced code blocks) because verified code snippets are scarce
+    or, for some products, cover only a narrow slice of the API surface (see G-26 in
+    backlog/BACKLOG.md). Every class/method mentioned in prose is written as a
+    backtick-quoted identifier by this repo's own authoring convention (enforced by
+    every content-generation skill), so a backtick-quoted, uppercase-leading token that
+    resolves to a real class (optionally qualified by a real method/property/enum
+    member on that class) is a high-precision, low-false-positive signal — the same
+    exact-match confidence tier as code-block token extraction, just fed from prose.
+
+    Conservative by design: bare method/property/enum-member mentions without a class
+    qualifier (e.g. `` `Update()` `` on its own) are NOT resolved, since a bare member
+    name cannot be attributed to one specific class without ambiguity — this avoids
+    the false-positive class seen in this repo's other bare-backtick-token consumers
+    (change_guard.py flagging bare enum members as unresolved API lookups).
+
+    Args:
+        filepath: Path to the content file.
+        knowledge: Knowledge model instance.
+        already_matched: Set of ref strings (e.g. "ClassName" or "ClassName.member")
+            already captured by _map_tokens_to_evidence — avoids double-counting.
+
+    Returns (claim_ids: list[str], api_refs: list[str]), both deduplicated and
+    sorted for deterministic output.
+    """
+    try:
+        text = filepath.read_text(encoding="utf-8")
+    except OSError:
+        return [], []
+
+    if text.startswith("---"):
+        end_fm = text.find("\n---", 3)
+        if end_fm != -1:
+            text = text[end_fm + 4:]
+
+    # Remove fenced code blocks to limit matches to prose text only — avoids
+    # re-matching tokens already captured by code-block token extraction.
+    text_prose = re.sub(r"```[\s\S]*?```", " ", text)
+
+    return _scan_backtick_tokens(text_prose, knowledge, already_matched)
+
+
 def _extract_section_tokens(filepath, section, platform) -> list:
     """Extract API tokens from a single section's code blocks."""
     all_tokens = extract_tokens(filepath, platform)
@@ -378,6 +491,26 @@ def _build_sections_evidence(filepath, knowledge) -> list:
         claim_ids, api_refs = _map_tokens_to_evidence(section_tokens, knowledge)
 
         section_text = "\n".join(text for _, text in section["body_lines"])
+
+        # EVID-PROSE-001: backtick-quoted API tokens in this section's prose,
+        # excluding lines inside this section's own code fences (code_ranges) so
+        # code-block usage isn't double-counted against the token-extraction path
+        # above. See _prose_backtick_fallback_match for the full rationale.
+        code_ranges = section["code_ranges"]
+        prose_lines = [
+            text for line_no, text in section["body_lines"]
+            if not any(start <= line_no <= end for start, end in code_ranges)
+        ]
+        section_prose = "\n".join(prose_lines)
+        already_in_section = set(api_refs) | {r.split(".")[0] for r in api_refs}
+        pb_claims, pb_refs = _scan_backtick_tokens(section_prose, knowledge, already_in_section)
+        for cid in pb_claims:
+            if cid not in claim_ids:
+                claim_ids.append(cid)
+        for ref in pb_refs:
+            if ref not in api_refs:
+                api_refs.append(ref)
+
         formats = _detect_formats_in_text(section_text, knowledge)
 
         # FIX-06: if the section heading is a limitations context, strip

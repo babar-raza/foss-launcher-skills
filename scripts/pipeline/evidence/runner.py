@@ -35,6 +35,7 @@ from token_ops import (  # noqa: E402
 from evidence.mapper import (  # noqa: E402
     _map_tokens_to_evidence,
     _api_name_fallback_match,
+    _prose_backtick_fallback_match,
     _detect_formats,
     _build_sections_evidence,
     _semantic_match_claims,
@@ -309,6 +310,22 @@ def attach_evidence(filepath, knowledge, dry_run=False, force=False,
         if cid not in claim_ids:
             claim_ids.append(cid)
     for ref in fb_refs:
+        if ref not in api_refs:
+            api_refs.append(ref)
+
+    # EVID-PROSE-001: general-purpose fallback for backtick-quoted API tokens in
+    # prose, independent of any refresh delta — the primary fix for pages that are
+    # entirely prose (no code blocks) because verified code snippets are scarce or
+    # narrow in scope for this product (see G-26, backlog/BACKLOG.md). Runs
+    # unconditionally, like the CLAIM-EXTRACT-001 fallback above; re-derives
+    # already_matched to include anything the two prior passes just added, so the
+    # two fallbacks never double-count each other's refs.
+    already_matched = set(api_refs) | {r.split(".")[0] for r in api_refs}
+    pb_claims, pb_refs = _prose_backtick_fallback_match(filepath, knowledge, already_matched)
+    for cid in pb_claims:
+        if cid not in claim_ids:
+            claim_ids.append(cid)
+    for ref in pb_refs:
         if ref not in api_refs:
             api_refs.append(ref)
 

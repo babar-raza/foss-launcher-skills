@@ -19,6 +19,7 @@ import readiness_scorecard
 from readiness_scorecard import (
     _SUBDOMAINS,
     _LOCALES,
+    _collect_grades,
     compute_verdict,
 )
 
@@ -122,6 +123,94 @@ class TestGradeCriteria:
             skip_human_review=True,
         )
         assert any("3 page(s)" in b for b in blockers)
+
+
+# ---------------------------------------------------------------------------
+# _collect_grades frontmatter-boundary fix
+# ---------------------------------------------------------------------------
+
+class TestCollectGradesFrontmatterBoundary:
+    """Root cause: _collect_grades() used to search only text[:2000] for the
+    `grade:` line, on the assumption frontmatter is always short. Reference
+    pages with many evidence claims/apis, and products.aspose.org plugin
+    pages with substantial overview/content/single blocks, routinely push
+    `grade:` past 2000 chars -- confirmed live: 75 of 707 words/net pages
+    were misreported as "ungraded" despite every one of them genuinely
+    carrying `grade: A` in frontmatter. Fixed to search the actual
+    frontmatter block (bounded by the two `---` delimiters), not an
+    arbitrary byte count.
+    """
+
+    def _write_page(self, tmp_path, rel_path, frontmatter_lines, padding_before_grade=0):
+        """Write a page whose frontmatter optionally pads many chars before
+        the `grade:` line, to simulate a real evidence-heavy page."""
+        path = tmp_path / "content" / rel_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        lines = ["---"]
+        if padding_before_grade:
+            lines.append("description: >-")
+            # Each padding line is ~60 chars; repeat until we exceed the target.
+            filler = "  this is filler frontmatter content to push grade past the old byte limit\n" * (
+                (padding_before_grade // 75) + 1
+            )
+            lines.append(filler.rstrip())
+        lines.extend(frontmatter_lines)
+        lines.append("---")
+        lines.append("")
+        lines.append("Body content.")
+        path.write_text("\n".join(lines), encoding="utf-8")
+        return path
+
+    def test_grade_beyond_2000_chars_still_counted(self, tmp_path, monkeypatch):
+        readiness_scorecard.configure(repo_root=tmp_path)
+        self._write_page(
+            tmp_path,
+            "reference.aspose.org/en/words/net/Big.md",
+            ["grade: A"],
+            padding_before_grade=2500,
+        )
+        grades = _collect_grades("words", "net")
+        assert grades["A"] == 1
+        assert grades["ungraded"] == 0
+
+    def test_grade_within_old_2000_char_window_still_works(self, tmp_path):
+        """Regression guard: short frontmatter must still be detected --
+        the fix must not require padding to find a grade."""
+        readiness_scorecard.configure(repo_root=tmp_path)
+        self._write_page(
+            tmp_path,
+            "reference.aspose.org/en/words/net/Small.md",
+            ["grade: B"],
+            padding_before_grade=0,
+        )
+        grades = _collect_grades("words", "net")
+        assert grades["B"] == 1
+        assert grades["ungraded"] == 0
+
+    def test_genuinely_ungraded_page_still_counted_as_ungraded(self, tmp_path):
+        readiness_scorecard.configure(repo_root=tmp_path)
+        self._write_page(
+            tmp_path,
+            "reference.aspose.org/en/words/net/NoGrade.md",
+            ["title: NoGrade"],
+            padding_before_grade=0,
+        )
+        grades = _collect_grades("words", "net")
+        assert grades["ungraded"] == 1
+
+    def test_grade_mentioned_in_body_after_frontmatter_not_counted(self, tmp_path):
+        """A `grade:` line appearing in the BODY (after the closing ---)
+        must not be picked up -- only the frontmatter block counts."""
+        readiness_scorecard.configure(repo_root=tmp_path)
+        path = tmp_path / "content" / "reference.aspose.org" / "en" / "words" / "net" / "BodyMention.md"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            "---\ntitle: BodyMention\n---\n\nSee the grade: A note in our docs.\n",
+            encoding="utf-8",
+        )
+        grades = _collect_grades("words", "net")
+        assert grades["ungraded"] == 1
+        assert grades["A"] == 0
 
 
 # ---------------------------------------------------------------------------

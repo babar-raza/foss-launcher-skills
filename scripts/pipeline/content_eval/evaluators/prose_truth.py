@@ -48,8 +48,10 @@ _UNBACKED_CLAIM_SEVERITY: dict[str, str] = {
 
 from ._claim_index import (
     ClaimIndex as _ClaimIndex,
+    best_token_overlap as _best_token_overlap,
     clear_claim_cache,
     get_claim_index as _get_claim_index,
+    is_markdown_table_row as _is_markdown_table_row,
     load_claims as _load_claims,
     tokenize as _tokenize_shared,
 )
@@ -87,6 +89,28 @@ _TECHNICAL_CONTEXT_RE = re.compile(
 def _is_technical_strong_wording(line_text: str) -> bool:
     """Return True if the strong word appears in a technical API context."""
     return bool(_TECHNICAL_CONTEXT_RE.search(line_text))
+
+
+_BACKTICK_SPAN_RE = re.compile(r"`[^`]*`")
+
+
+def _has_prose_strong_wording(line_text: str) -> bool:
+    """Return True if a strong word appears outside any backtick-quoted span.
+
+    A strong word wrapped in backticks (e.g. a property or method literally
+    named `All`, `Any`, `None`, `Only`) is an identifier reference, not a
+    prose overclaim -- reference pages routinely list real API member names
+    that happen to collide with common English words (PageSet.All is a real
+    static property). Excluding backtick spans here prevents those from being
+    misread as marketing language while still catching genuine unbacked
+    strong wording elsewhere on the same line.
+    """
+    code_spans = [m.span() for m in _BACKTICK_SPAN_RE.finditer(line_text)]
+    for m in _STRONG_WORDS.finditer(line_text):
+        start, end = m.span()
+        if not any(cs <= start and end <= ce for cs, ce in code_spans):
+            return True
+    return False
 
 
 def _load_formats(family: str, platform: str) -> list[dict]:
@@ -228,6 +252,9 @@ class ProseTruthEvaluator(BaseEvaluator):
 
         # Check format claims in prose
         for line_no, line_text in page.prose_lines:
+            if _is_markdown_table_row(line_text):
+                continue
+
             for m in _FORMAT_CLAIM_RE.finditer(line_text):
                 claimed_format = m.group(1).lower()
                 if claimed_format in format_support:
@@ -256,7 +283,7 @@ class ProseTruthEvaluator(BaseEvaluator):
                         ))
 
             # Flag strong wording without evidence backing
-            if _STRONG_WORDS.search(line_text):
+            if _has_prose_strong_wording(line_text):
                 # EC-03 Pattern fix: suppress strong-wording check in
                 # technical API contexts where words like "only", "all",
                 # "must", "every" are factual descriptors, not marketing.
@@ -264,11 +291,7 @@ class ProseTruthEvaluator(BaseEvaluator):
                     continue
 
                 line_tokens = _tokenize(line_text)
-                best_overlap = 0.0
-                for _, ct in claim_tokens:
-                    if ct:
-                        overlap = len(line_tokens & ct) / max(len(ct), 1)
-                        best_overlap = max(best_overlap, overlap)
+                best_overlap = _best_token_overlap(line_tokens, [ct for _, ct in claim_tokens])
 
                 if best_overlap < 0.3 and len(line_tokens) > 3:
                     # Secondary tier: TF-IDF semantic matching

@@ -64,7 +64,7 @@
     "output_hash": "sha256:8e6e8eb6608a7b5cfc94854c1e5e39a87a0af2867ef0c4fb3ffdea386f654c27",
     "total_targets": 80031,
     "patched_at": "2026-07-09T00:00:00+00:00",
-    "patch_note": "Manual patch 2026-07-03 (TC-DATA-002): pdf/go HTTP 200->404 (live verification); added pdf/go-cpp, cells/python-net, email/python-net, slides/python-net, words/python-net HTTP 200 (live HTTP HEAD verified, commit bb68a63a22). Manual patch 2026-07-03 (TC-BL-010): corrected 3d/python, 3d/typescript, font/python, note/python platform entries from http_status 200->404 (live HTTP HEAD verified: all return 404; datasource was generated with --skip-http-verify); added 3d/python-net HTTP 200 (live verified). | Manual patch 2026-07-09: Added barcode/python-net entries (products, docs, reference) all HTTP 200 live verified."
+    "patch_note": "Manual patch 2026-07-03 (TC-DATA-002): pdf/go HTTP 200->404 (live verification); added pdf/go-cpp, cells/python-net, email/python-net, slides/python-net, words/python-net HTTP 200 (live HTTP HEAD verified, commit bb68a63a22). Manual patch 2026-07-03 (TC-BL-010): corrected 3d/python, 3d/typescript, font/python, note/python platform entries from http_status 200->404 (live HTTP HEAD verified: all return 404; datasource was generated with --skip-http-verify); added 3d/python-net HTTP 200 (live verified). | Manual patch 2026-07-09: Added barcode/python-net entries (products, docs, reference) all HTTP 200 live verified. | Manual patch 2026-07-23 (words/net launch): docs.aspose.com/words/net/ HTTP 200 (live WebFetch-verified: real Aspose.Words for .NET documentation homepage, not stale/404) -- family_platform_matrix.words.platforms_on_docs was missing net despite Aspose.Words for .NET being a long-established commercial product, causing backlink_audit.py to wrongly classify existing docs.aspose.org/en/words/net/* backlinks as WRONG_TARGET and fall back to a family-level URL."
   },
   "targets": {
     "docs.aspose.com": {
@@ -337,6 +337,12 @@
           "url": "https://docs.aspose.com/barcode/python-net/",
           "http_status": 200,
           "redirect_chain": []
+        },
+        "words/net": {
+          "url": "https://docs.aspose.com/words/net/",
+          "http_status": 200,
+          "redirect_chain": [],
+          "validated_via": "manual-correction-2026-07-23-words-net-launch-live-verified"
         }
       }
     },
@@ -562097,7 +562103,8 @@
         "python"
       ],
       "platforms_on_docs": [
-        "python"
+        "python",
+        "net"
       ],
       "platforms_on_reference": [
         "cpp",

@@ -172,7 +172,20 @@ def _collect_grades(family: str, platform: str) -> dict:
                 text = md.read_text(encoding="utf-8", errors="replace")
             except OSError:
                 continue
-            m = grade_re.search(text[:2000])  # grades are in frontmatter
+            # Search the actual frontmatter block, not an arbitrary byte
+            # count. Found 2026-07-23: text[:2000] silently misclassified 75
+            # genuinely-graded words/net pages as "ungraded" because their
+            # evidence:/content: frontmatter blocks (many claims/apis cited,
+            # or plugin-layout pages with substantial overview/content/single
+            # blocks) push the `grade:` line past 2000 chars -- e.g.
+            # bibliography.md (grade at byte 207 of an 11880-byte file, but
+            # still beyond 2000 once the preceding evidence block is counted)
+            # and the products.aspose.org plugin page (grade at byte 132 of
+            # an 8880-byte file). Frontmatter is delimited by a leading `---`
+            # and the next `---` on its own line -- search only that span.
+            frontmatter_end = text.find("\n---", 3)
+            frontmatter = text[: frontmatter_end + 4] if text.startswith("---") and frontmatter_end != -1 else text[:2000]
+            m = grade_re.search(frontmatter)
             if m:
                 grades[m.group(1)] += 1
             else:
