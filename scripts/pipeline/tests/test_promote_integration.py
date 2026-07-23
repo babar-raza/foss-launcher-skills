@@ -1268,3 +1268,61 @@ class TestReconcileFormatsClaimsFunctionalAware:
         result = promote_mod._reconcile_formats_claims(formats_data, claims, "words", "net")
         assert len(result) == 1
 
+
+class TestFormatsMdRespectsFunctionalFlag:
+    """HARDEN-words-net (2026-07-23): promote()'s formats.md table builder
+    set Import/Export "Yes" purely from `direction`, never checking
+    `functional` at all -- so a FOSS-gated format (functional=False,
+    confirmed unreachable via an explicit NotSupportedException in the real
+    dispatch factory) still rendered as supported in the human-readable
+    formats.md table. Confirmed live on words/net: HTML/EPUB/MHTML/Azw3/Mobi
+    all showed "Yes" in both columns despite being genuinely unsupported in
+    this FOSS edition. formats.md is read by the truth-audit and
+    stale-detect skills, so this is not merely cosmetic."""
+
+    def test_functional_false_format_not_rendered_as_supported(self, tmp_path):
+        kr = _setup_scout(tmp_path)
+        scout_dir = kr / "test" / "python" / "scout"
+        (scout_dir / "formats.json").write_text(json.dumps([
+            {"format": "Html", "direction": "export", "functional": False},
+            {"format": "Html", "direction": "import", "functional": False},
+        ]), encoding="utf-8")
+        promote_mod.promote("test", "python", knowledge_root=str(kr))
+        merged_md = kr / "test" / "python" / "merged" / "formats.md"
+        lines = merged_md.read_text(encoding="utf-8").splitlines()
+        html_line = next((l for l in lines if l.strip().startswith("| HTML")), None)
+        assert html_line is not None, "HTML row must still appear in formats.md"
+        assert "| - | - |" in html_line.replace(" ", "") or "|-|-|" in html_line.replace(" ", ""), (
+            f"functional=False HTML must show as unsupported in both columns, got: {html_line!r}"
+        )
+
+    def test_functional_true_format_still_rendered_as_supported(self, tmp_path):
+        """The fix must not blind formats.md to genuinely supported formats."""
+        kr = _setup_scout(tmp_path)
+        scout_dir = kr / "test" / "python" / "scout"
+        (scout_dir / "formats.json").write_text(json.dumps([
+            {"format": "Docx", "direction": "export", "functional": True},
+        ]), encoding="utf-8")
+        promote_mod.promote("test", "python", knowledge_root=str(kr))
+        merged_md = kr / "test" / "python" / "merged" / "formats.md"
+        lines = merged_md.read_text(encoding="utf-8").splitlines()
+        docx_line = next((l for l in lines if l.strip().startswith("| DOCX")), None)
+        assert docx_line is not None
+        assert "Yes" in docx_line
+
+    def test_functional_absent_still_rendered_as_supported(self, tmp_path):
+        """Legacy/non-enum entries with no `functional` key at all must not
+        be silently dropped from the table -- only an EXPLICIT False hides
+        a row's support flag."""
+        kr = _setup_scout(tmp_path)
+        scout_dir = kr / "test" / "python" / "scout"
+        (scout_dir / "formats.json").write_text(json.dumps([
+            {"format": "Markdown", "direction": "export"},
+        ]), encoding="utf-8")
+        promote_mod.promote("test", "python", knowledge_root=str(kr))
+        merged_md = kr / "test" / "python" / "merged" / "formats.md"
+        lines = merged_md.read_text(encoding="utf-8").splitlines()
+        md_line = next((l for l in lines if l.strip().startswith("| MARKDOWN")), None)
+        assert md_line is not None
+        assert "Yes" in md_line
+

@@ -1332,14 +1332,27 @@ def promote(family: str, platform: str, knowledge_root=None) -> bool:
                    _DISPLAY_NAMES.get(stripped, stripped.upper()))
 
         # Merge per-direction rows: one row per display name with Im/Ex flags.
+        # HARDEN-words-net (2026-07-23): must respect the `functional` flag,
+        # not just `direction` -- an entry can have direction="import"/"export"
+        # while functional=False (FOSS-gated, e.g. HTML/EPUB import/export are
+        # explicitly blocked by WriterFactory.cs/ReaderFactory.cs in words/net,
+        # yet formats.md previously showed them as "Yes" regardless, since this
+        # loop never checked `functional` at all). The row itself is still
+        # created (consistent with how a non-directional entry already got a
+        # "-/-" row before this fix) -- only a functional=False entry is
+        # prevented from flipping its own flag to "Yes". Entries with no
+        # `functional` key at all (legacy/non-enum entries some older passes
+        # never set it for) default to counted, preserving prior behavior.
         fmt_rows: dict[str, dict[str, bool]] = {}
         for fmt in formats_raw:
             raw_name = fmt.get("name", fmt.get("format", ""))
             if not raw_name:
                 continue
             display_name = _display(raw_name)
-            direction = fmt.get("direction", "both")
             row = fmt_rows.setdefault(display_name, {"import": False, "export": False})
+            if fmt.get("functional") is False:
+                continue  # confirmed unreachable -- row exists, but stays "-"
+            direction = fmt.get("direction", "both")
             if direction in ("import", "both"):
                 row["import"] = True
             if direction in ("export", "both"):

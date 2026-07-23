@@ -1405,8 +1405,14 @@ internal static class WriterFactory {
         with tempfile.TemporaryDirectory() as tmp:
             tmp = Path(tmp)
             src = self._write_file(tmp, "WriterFactory.cs", '''\
-case SaveFormat.Html:
-    throw new NotSupportedException("FOSS");
+internal static class WriterFactory {
+    internal static Writer Create(SaveFormat format) {
+        switch (format) {
+            case SaveFormat.Html:
+                throw new NotSupportedException("FOSS");
+        }
+    }
+}
 ''')
             formats = [
                 {"format": "Html", "enum": "SaveFormat", "direction": "export", "functional": False},
@@ -1430,8 +1436,14 @@ case SaveFormat.Html:
         with tempfile.TemporaryDirectory() as tmp:
             tmp = Path(tmp)
             src = self._write_file(tmp, "WriterFactory.cs", '''\
-case SaveFormat.Html:
-    throw new NotSupportedException("FOSS");
+internal static class WriterFactory {
+    internal static Writer Create(SaveFormat format) {
+        switch (format) {
+            case SaveFormat.Html:
+                throw new NotSupportedException("FOSS");
+        }
+    }
+}
 ''')
             formats = [
                 {"format": "Html", "enum": "", "direction": "export",
@@ -1440,6 +1452,472 @@ case SaveFormat.Html:
             result = _apply_foss_gate_overrides(formats, [src], tmp, None)
             self.assertIn("functional", result[0])
             self.assertFalse(result[0]["functional"])
+
+
+class TestDispatchFallthroughFunctional(unittest.TestCase):
+    """HARDEN-words-net (2026-07-23): the complementary case to
+    TestFossGateOverride. Confirmed live on words/net: ReaderFactory.cs's
+    LoadFormat switch falls through Docx/Docm/Dotx/Dotm/FlatOpc(+variants)
+    to a single `return new OpenXmlDocumentReader(...)`, but
+    _cross_reference_enum_directions only credits "Docx" (the only member
+    with a name-matched DocxReader.cs/DocxWriter.cs class pair), leaving the
+    other 7 as enum_only/functional=False despite sharing the identical
+    working code path — verified directly against the real .csproj/source
+    (OoxmlSaveOptions.cs, LoadOptions.cs XML docs, DocumentValidator.cs's
+    shared gSaveActions.Add(SaveFormat.Dotx, docxActions) registration all
+    independently confirm these formats are genuinely functional)."""
+
+    def _write_file(self, tmp: Path, name: str, content: str) -> Path:
+        fpath = tmp / name
+        fpath.write_text(content, encoding="utf-8")
+        return fpath
+
+    def test_fallthrough_group_credited_as_functional(self):
+        """The exact real-world shape: multiple case labels fall through to
+        one shared `return new X(...)` -- all members must be credited."""
+        from extraction.formats import _scan_dispatch_fallthrough_functional
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "ReaderFactory.cs", '''\
+internal static class ReaderFactory {
+    internal static IDocumentReader CreateReader(LoadFormat loadFormat) {
+        switch (loadFormat) {
+            case LoadFormat.WordML:
+                throw new NotSupportedException("FOSS");
+            case LoadFormat.Docx:
+            case LoadFormat.Docm:
+            case LoadFormat.Dotx:
+            case LoadFormat.Dotm:
+            case LoadFormat.FlatOpc:
+                return new OpenXmlDocumentReader(stream, loadOptions, fileFormatInfo, document);
+            case LoadFormat.Text:
+                return new TxtReader(stream, loadOptions, fileFormatInfo, document);
+        }
+    }
+}
+''')
+            functional_export, functional_import = _scan_dispatch_fallthrough_functional([src], tmp)
+            for fmt in ("docx", "docm", "dotx", "dotm", "flatopc", "text"):
+                self.assertIn(fmt, functional_import, f"{fmt!r} should be credited functional")
+            self.assertNotIn("wordml", functional_import, "gated format must not be credited")
+            self.assertEqual(functional_export, {})
+
+    def test_gate_and_functional_groups_never_overlap(self):
+        """A format appearing in a throw-gated group must never also appear
+        in the functional dict, and vice versa (mutually exclusive by
+        construction, but verify no cross-contamination across groups)."""
+        from extraction.formats import (
+            _scan_foss_gate_exceptions, _scan_dispatch_fallthrough_functional,
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "WriterFactory.cs", '''\
+internal static class WriterFactory {
+    internal static Writer Create(SaveFormat format) {
+        switch (format) {
+            case SaveFormat.Html:
+                throw new NotSupportedException("FOSS");
+            case SaveFormat.Docx:
+            case SaveFormat.Docm:
+                return new OpenXmlDocumentWriter();
+        }
+    }
+}
+''')
+            gated_export, _ = _scan_foss_gate_exceptions([src], tmp)
+            functional_export, _ = _scan_dispatch_fallthrough_functional([src], tmp)
+            self.assertIn("html", gated_export)
+            self.assertIn("docm", functional_export)
+            self.assertNotIn("html", functional_export)
+            self.assertNotIn("docm", gated_export)
+
+    def test_single_case_with_own_return_is_also_credited(self):
+        """A case that does NOT share its terminal action with any sibling
+        (no fallthrough) is still credited -- a group of one is just the
+        trivial case of the same general pattern."""
+        from extraction.formats import _scan_dispatch_fallthrough_functional
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "ReaderFactory.cs", '''\
+internal static class ReaderFactory {
+    internal static Reader Create(LoadFormat format) {
+        switch (format) {
+            case LoadFormat.Docx:
+                return new DocxReader();
+            case LoadFormat.Text:
+                return new TxtReader();
+        }
+    }
+}
+''')
+            functional_export, functional_import = _scan_dispatch_fallthrough_functional([src], tmp)
+            self.assertIn("docx", functional_import)
+            self.assertIn("text", functional_import)
+            self.assertEqual(functional_export, {})
+
+    def test_no_confirmable_evidence_leaves_dict_empty(self):
+        """A case whose terminal action is neither an unsupported-throw gate
+        nor a `return new X()` construction (e.g. delegates to another
+        method) yields no evidence either way -- no group to credit."""
+        from extraction.formats import _scan_dispatch_fallthrough_functional
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "ReaderFactory.cs", '''\
+internal static class ReaderFactory {
+    internal static Reader Create(LoadFormat format) {
+        switch (format) {
+            case LoadFormat.Docx:
+                return DelegateToHelper(format);
+            case LoadFormat.Text:
+                return DelegateToHelper(format);
+        }
+    }
+}
+''')
+            functional_export, functional_import = _scan_dispatch_fallthrough_functional([src], tmp)
+            self.assertEqual(functional_export, {})
+            self.assertEqual(functional_import, {})
+
+    def test_apply_overrides_restores_functional_true_and_direction(self):
+        """End-to-end: an enum_only/functional=False entry for a format
+        sharing a non-gated fallthrough group is restored to
+        functional=True with the correct direction; an entry already
+        functional=True is left untouched (no redundant claim)."""
+        from extraction.formats import _apply_dispatch_fallthrough_overrides
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "ReaderFactory.cs", '''\
+internal static class ReaderFactory {
+    internal static Reader Create(LoadFormat format) {
+        switch (format) {
+            case LoadFormat.Docx:
+            case LoadFormat.Docm:
+                return new OpenXmlDocumentReader();
+        }
+    }
+}
+''')
+            formats = [
+                {"format": "Docx", "enum": "LoadFormat", "direction": "import", "functional": True},
+                {"format": "Docm", "enum": "LoadFormat", "direction": "enum_only", "functional": False},
+            ]
+            claims_emitted = []
+            result = _apply_dispatch_fallthrough_overrides(
+                formats, [src], tmp, lambda *a, **kw: claims_emitted.append(a))
+            docx = next(f for f in result if f["format"] == "Docx")
+            docm = next(f for f in result if f["format"] == "Docm")
+            self.assertTrue(docx["functional"])
+            self.assertTrue(docm["functional"], "Docm must be restored to functional=True")
+            self.assertEqual(docm["direction"], "import", "direction must be restored too")
+            self.assertEqual(len(claims_emitted), 1, "only the actually-changed entry gets a claim")
+
+    def test_apply_overrides_uses_entrys_own_enum_type_not_whichever_dict_is_populated(self):
+        """Regression: a format name can legitimately have evidence in BOTH
+        functional_export and functional_import (e.g. "Docm" appears in a
+        separate LoadFormat switch AND a separate SaveFormat switch, exactly
+        as words/net's real ReaderFactory.cs/WriterFactory.cs do). The
+        override must pick the dict matching the ENTRY's own enum type
+        (LoadFormat -> import, SaveFormat -> export), not just whichever
+        dict happens to have a match first -- confirmed live: an earlier
+        version of this fix always preferred functional_export, mislabeling
+        a real LoadFormat.Docm entry as direction="export"."""
+        from extraction.formats import _apply_dispatch_fallthrough_overrides
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            reader_src = self._write_file(tmp, "ReaderFactory.cs", '''\
+internal static class ReaderFactory {
+    internal static Reader Create(LoadFormat format) {
+        switch (format) {
+            case LoadFormat.Docx:
+            case LoadFormat.Docm:
+                return new OpenXmlDocumentReader();
+        }
+    }
+}
+''')
+            writer_src = self._write_file(tmp, "WriterFactory.cs", '''\
+internal static class WriterFactory {
+    internal static Writer Create(SaveFormat format) {
+        switch (format) {
+            case SaveFormat.Docx:
+            case SaveFormat.Docm:
+                return new OpenXmlDocumentWriter();
+        }
+    }
+}
+''')
+            formats = [
+                {"format": "Docm", "enum": "LoadFormat", "direction": "enum_only", "functional": False},
+                {"format": "Docm", "enum": "SaveFormat", "direction": "enum_only", "functional": False},
+            ]
+            result = _apply_dispatch_fallthrough_overrides(
+                formats, [reader_src, writer_src], tmp, None)
+            load_entry = next(f for f in result if f["enum"] == "LoadFormat")
+            save_entry = next(f for f in result if f["enum"] == "SaveFormat")
+            self.assertEqual(load_entry["direction"], "import",
+                              "LoadFormat entry must get direction='import', not 'export'")
+            self.assertEqual(save_entry["direction"], "export")
+            self.assertTrue(load_entry["functional"])
+            self.assertTrue(save_entry["functional"])
+
+    def test_apply_overrides_confirmed_gate_wins_over_unrelated_positive_match(self):
+        """Regression: a format gated in the REAL dispatch factory
+        (WriterFactory.cs, throws NotSupportedException) must stay
+        functional=False even when a SEPARATE, unrelated switch elsewhere
+        (e.g. a SaveOptions settings-object factory) falls through the same
+        format to a `return new X(...)`. Confirmed live on words/net:
+        WriterFactory.cs gates SaveFormat.Html/Epub/Mhtml/Azw3/Mobi, but
+        SaveOptions.CreateSaveOptions() constructs an HtmlSaveOptions object
+        for those same five formats regardless -- constructing a settings
+        object is not proof the format can actually be saved. A confirmed
+        gate must always take precedence over an unrelated positive match."""
+        from extraction.formats import _apply_dispatch_fallthrough_overrides
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            writer_src = self._write_file(tmp, "WriterFactory.cs", '''\
+internal static class WriterFactory {
+    internal static Writer Create(SaveFormat format) {
+        switch (format) {
+            case SaveFormat.Html:
+                throw new NotSupportedException("FOSS");
+            case SaveFormat.Docx:
+                return new DocxWriter();
+        }
+    }
+}
+''')
+            save_options_src = self._write_file(tmp, "SaveOptions.cs", '''\
+public static class SaveOptions {
+    public static SaveOptions CreateSaveOptions(SaveFormat saveFormat) {
+        switch (saveFormat) {
+            case SaveFormat.Html:
+                return new HtmlSaveOptions(saveFormat);
+        }
+    }
+}
+''')
+            formats = [
+                {"format": "Html", "enum": "SaveFormat", "direction": "enum_only", "functional": False},
+            ]
+            result = _apply_dispatch_fallthrough_overrides(
+                formats, [writer_src, save_options_src], tmp, None)
+            self.assertFalse(
+                result[0]["functional"],
+                "Html must stay functional=False -- WriterFactory.cs's gate must win over "
+                "SaveOptions.cs's unrelated settings-object construction",
+            )
+
+    def test_apply_overrides_never_touches_non_enum_entries(self):
+        """Scoped to enum-derived entries only -- a non-enum, class-detection
+        entry (e.g. a stub reader correctly marked functional=False by a
+        different pass) is never resurrected by this override."""
+        from extraction.formats import _apply_dispatch_fallthrough_overrides
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "ReaderFactory.cs", '''\
+case LoadFormat.Docm:
+    return new OpenXmlDocumentReader();
+''')
+            formats = [
+                {"format": "Docm", "enum": "", "direction": "detect", "functional": False,
+                 "file": "StubReader.cs"},
+            ]
+            result = _apply_dispatch_fallthrough_overrides(formats, [src], tmp, None)
+            self.assertFalse(result[0]["functional"], "non-enum entries must not be touched")
+
+    def test_apply_overrides_no_op_when_no_fallthrough_group_found(self):
+        from extraction.formats import _apply_dispatch_fallthrough_overrides
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "ReaderFactory.cs", '''\
+case LoadFormat.Docx:
+    return new DocxReader();
+''')
+            formats = [
+                {"format": "Docm", "enum": "LoadFormat", "direction": "enum_only", "functional": False},
+            ]
+            result = _apply_dispatch_fallthrough_overrides(formats, [src], tmp, None)
+            self.assertFalse(result[0]["functional"], "no evidence found -- must stay untouched")
+
+
+class TestDispatchScanningSoundness(unittest.TestCase):
+    """TC-FMT-030 (2026-07-23): regression tests for three issues an
+    adversarial review found in the first version of the dispatch-
+    fallthrough/gate-exception scanners:
+
+    1. An unrelated switch on the SAME enum, in a file that is not itself
+       an I/O dispatcher (e.g. a digital-signature capability check), could
+       wrongly gate a format a REAL dispatcher elsewhere shows is genuinely
+       functional. Confirmed live: words/net's DigitalSignatureUtil.cs
+       gates Docx/Dotx/Docm/Dotm for an unrelated reason (signing isn't
+       supported), which wrongly suppressed ReaderFactory.cs's correct
+       positive evidence for Dotm's import.
+    2. `_DISPATCH_RETURN_RE` didn't match namespace-qualified constructors
+       (`return new Docx.Writer.DocxWriter(...)`).
+    3. Case-label matching wasn't scoped to a single switch statement's own
+       body, so a match's "next case label" window could span past this
+       switch's closing brace into an unrelated later switch or method in
+       the same file, misattributing evidence to the wrong code.
+    """
+
+    def _write_file(self, tmp: Path, name: str, content: str) -> Path:
+        fpath = tmp / name
+        fpath.write_text(content, encoding="utf-8")
+        return fpath
+
+    def test_unrelated_non_dispatcher_switch_does_not_suppress_real_dispatch(self):
+        """Finding 1: the exact words/net shape -- a non-I/O-dispatcher file
+        (no Factory/Reader/Writer/Loader/Saver in its name) gates a format
+        for an unrelated reason; a genuine dispatcher elsewhere shows it's
+        actually functional. The real dispatcher must win."""
+        from extraction.formats import _apply_dispatch_fallthrough_overrides
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            reader_factory = self._write_file(tmp, "ReaderFactory.cs", '''\
+internal static class ReaderFactory {
+    internal static Reader Create(LoadFormat format) {
+        switch (format) {
+            case LoadFormat.Docx:
+            case LoadFormat.Dotm:
+                return new OpenXmlDocumentReader();
+        }
+    }
+}
+''')
+            # Not a dispatcher -- a digital-signature capability check that
+            # happens to switch on the same enum for an unrelated purpose.
+            signature_util = self._write_file(tmp, "DigitalSignatureUtil.cs", '''\
+internal static class DigitalSignatureUtil {
+    internal static void SignStreams(FileFormatInfo formatInfo) {
+        switch (formatInfo.LoadFormat) {
+            case LoadFormat.Docx:
+            case LoadFormat.Dotm:
+                throw new NotSupportedException("FOSS");
+        }
+    }
+}
+''')
+            formats = [
+                {"format": "Dotm", "enum": "LoadFormat", "direction": "enum_only", "functional": False},
+            ]
+            result = _apply_dispatch_fallthrough_overrides(
+                formats, [reader_factory, signature_util], tmp, None)
+            self.assertTrue(
+                result[0]["functional"],
+                "Dotm must be restored to functional=True -- the real dispatcher's "
+                "positive evidence must not be suppressed by an unrelated, "
+                "non-dispatcher file's gate on the same enum member",
+            )
+
+    def test_gate_scan_ignores_non_dispatcher_files_too(self):
+        """The same file-name restriction applies to gate detection itself --
+        a throw in a non-dispatcher file must not register as a gate at all."""
+        from extraction.formats import _scan_foss_gate_exceptions
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            signature_util = self._write_file(tmp, "DigitalSignatureUtil.cs", '''\
+internal static class DigitalSignatureUtil {
+    internal static void SignStreams(FileFormatInfo formatInfo) {
+        switch (formatInfo.LoadFormat) {
+            case LoadFormat.Dotm:
+                throw new NotSupportedException("FOSS");
+        }
+    }
+}
+''')
+            gated_export, gated_import = _scan_foss_gate_exceptions([signature_util], tmp)
+            self.assertNotIn("dotm", gated_import)
+            self.assertEqual(gated_export, {})
+
+    def test_namespace_qualified_constructor_matched(self):
+        """Finding 2: `return new Namespace.ClassName(...)` (dotted type
+        name) must match, not just a bare `return new ClassName(...)`."""
+        from extraction.formats import _scan_dispatch_fallthrough_functional
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "WriterFactory.cs", '''\
+internal static class WriterFactory {
+    internal static Writer Create(SaveFormat format) {
+        switch (format) {
+            case SaveFormat.Docx:
+                return new Docx.Writer.DocxWriter();
+        }
+    }
+}
+''')
+            functional_export, _ = _scan_dispatch_fallthrough_functional([src], tmp)
+            self.assertIn("docx", functional_export)
+
+    def test_case_label_window_does_not_cross_switch_boundary(self):
+        """Finding 3: two separate switch statements on the same enum, in
+        the same file, must not contaminate each other's evidence. The
+        first switch's last case must not "see" the second switch's
+        return statement as its own terminal action."""
+        from extraction.formats import _scan_dispatch_fallthrough_functional
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "WriterFactory.cs", '''\
+internal static class WriterFactory {
+    internal static Writer CreateMain(SaveFormat format) {
+        switch (format) {
+            case SaveFormat.Docx:
+                // No return here -- this switch is intentionally incomplete
+                // to prove the scan does not reach into the SECOND switch
+                // below to find a match.
+                break;
+        }
+        throw new NotImplementedException();
+    }
+
+    internal static Writer CreateHelper(SaveFormat format) {
+        switch (format) {
+            case SaveFormat.Markdown:
+                return new MarkdownWriter();
+        }
+    }
+}
+''')
+            functional_export, _ = _scan_dispatch_fallthrough_functional([src], tmp)
+            self.assertNotIn(
+                "docx", functional_export,
+                "Docx's own switch has no return -- it must not be credited via "
+                "a match that leaked from the second, unrelated switch",
+            )
+            self.assertIn("markdown", functional_export)
+
+    def test_case_label_window_does_not_cross_own_switch_close_brace(self):
+        """A case label at the very end of a switch, with the next 'case'
+        text appearing only in a comment or unrelated code AFTER the
+        switch's closing brace, must not have its window run past its own
+        switch body."""
+        from extraction.formats import _scan_dispatch_fallthrough_functional
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "WriterFactory.cs", '''\
+internal static class WriterFactory {
+    internal static Writer Create(SaveFormat format) {
+        switch (format) {
+            case SaveFormat.Docx:
+                break;
+        }
+        return null;
+    }
+
+    internal static Writer CreateOther(LoadFormat format) {
+        switch (format) {
+            case LoadFormat.Text:
+                return new TxtReader();
+        }
+    }
+}
+''')
+            functional_export, functional_import = _scan_dispatch_fallthrough_functional([src], tmp)
+            self.assertNotIn(
+                "docx", functional_export,
+                "the first switch's Docx case has no return of its own -- it must "
+                "not be credited via the second switch's unrelated return",
+            )
+            self.assertIn("text", functional_import)
 
 
 if __name__ == "__main__":

@@ -808,6 +808,16 @@ def detect_formats(
     # regardless of what the per-class stub detection above concluded.
     formats = _apply_foss_gate_overrides(formats, files, repo, _add_claim)
 
+    # HARDEN-words-net (2026-07-23): the complementary case — a format whose
+    # enum member shares a switch-dispatch fallthrough group with a confirmed
+    # real I/O construction (not a NotSupportedException gate) is genuinely
+    # functional even when no separately-named reader/writer class exists for
+    # that specific member (e.g. words/net's Docm/Dotx/Dotm/FlatOpc variants
+    # all share Docx's OpenXmlDocumentReader; only "Docx" has a name-matched
+    # DocxReader.cs/DocxWriter.cs, so the naming heuristic above left the
+    # other 7 as enum_only/functional=False despite identical real dispatch).
+    formats = _apply_dispatch_fallthrough_overrides(formats, files, repo, _add_claim)
+
     # H-04: Post-extraction validation — remove false-positive entries and
     # normalize format names (strip trailing underscores, reject common words).
     formats = _validate_formats(formats, _FALSE_POSITIVE_NAMES, _allowed_fmt_overrides)
@@ -959,13 +969,131 @@ _UNSUPPORTED_THROW_RE = re.compile(
 )
 _EXPORT_ENUM_NAMES = frozenset({"saveformat", "exportformat", "outputformat"})
 
+# Dispatch-fallthrough functional detection (HARDEN-words-net, 2026-07-23):
+# the complementary signal to the gate detection above. A `case` label group
+# that falls through (no throw of its own) to a shared terminal action
+# constructing and returning a real reader/writer object proves every format
+# in that group is genuinely dispatched to I/O logic — even when no
+# separately-named class exists for that SPECIFIC enum member. Confirmed
+# live on words/net: ReaderFactory.cs's LoadFormat switch falls through
+# Docx/Docm/Dotx/Dotm/FlatOpc(+3 template/macro variants) to a single
+# `return new OpenXmlDocumentReader(...)` — but _cross_reference_enum_directions
+# only credits "Docx" (the only member with a name-matched DocxReader.cs/
+# DocxWriter.cs), demoting the other 7 to enum_only/functional=False despite
+# them sharing the exact same working code path.
+#
+# TC-FMT-030 (2026-07-23, adversarial-review follow-up): the constructor name
+# may be namespace-qualified (`return new Docx.Writer.DocxWriter(...)`), so
+# the class-name group allows dots, not just \w.
+_DISPATCH_RETURN_RE = re.compile(r"\breturn\s+new\s+[\w.]+\s*\(", re.IGNORECASE)
+
+# TC-FMT-030 (2026-07-23): restrict gate/fallthrough-functional scanning to
+# files that are plausibly the ACTUAL I/O dispatch layer (reader/writer/
+# factory/loader/saver-named) — not just any file that happens to switch on
+# the same format enum for an unrelated purpose. Confirmed live:
+# DigitalSignatureUtil.cs's SignStreams() gates Docx/Dotx/Docm/Dotm because
+# *signing* isn't supported for them in this FOSS edition — independent of
+# whether loading/saving those same formats works, which is genuinely
+# functional via the real dispatcher (ReaderFactory.cs). Without this
+# filter, that unrelated switch's gate evidence wrongly suppresses the
+# correct positive dispatch evidence for the same enum members. Mirrors the
+# `importer_pattern` naming convention already used elsewhere in this file
+# for I/O class detection (see detect_formats()).
+_DISPATCH_FILE_NAME_RE = re.compile(
+    r"(Factory|Reader|Writer|Loader|Saver|Importer|Exporter)", re.IGNORECASE)
+_CS_BLOCK_COMMENT_RE = re.compile(r"/\*.*?\*/", re.DOTALL)
+_CS_LINE_COMMENT_RE = re.compile(r"//[^\n]*")
+
+
+def _strip_code_comments(text: str) -> str:
+    """Strip C-style block and line comments (best-effort, regex-based)."""
+    text = _CS_BLOCK_COMMENT_RE.sub("", text)
+    text = _CS_LINE_COMMENT_RE.sub("", text)
+    return text
+
+
+def _find_switch_bodies(text: str) -> list[tuple[int, int]]:
+    """Find (start, end) char-offset spans of each `switch (...) { ... }`
+    body in text, via balanced-brace counting from the opening brace to its
+    matching close.
+
+    TC-FMT-030 (2026-07-23): case-label scans must be scoped to a single
+    switch statement's own body. Without this, a "next case label" window
+    computed against the whole file can span past this switch's closing
+    brace into an unrelated later switch or method in the same file,
+    misattributing evidence (confirmed live: a match's window jumped ~50
+    lines past its own switch into an unrelated method's `return new X()`).
+    Best-effort regex + brace counting, not a real parser — consistent with
+    the rest of this file's C# source scanning.
+    """
+    bodies: list[tuple[int, int]] = []
+    for m in re.finditer(r"\bswitch\s*\([^)]*\)\s*\{", text):
+        depth = 0
+        start = m.end() - 1  # position of the opening '{'
+        i = start
+        while i < len(text):
+            if text[i] == "{":
+                depth += 1
+            elif text[i] == "}":
+                depth -= 1
+                if depth == 0:
+                    bodies.append((start, i + 1))
+                    break
+            i += 1
+    return bodies
+
+
+def _iter_switch_case_groups(text: str):
+    """Yield (group, window) for every fallthrough group of consecutive
+    `case <Enum>.<Member>:` labels within each switch statement body found
+    in text, where `window` is the shared terminal action text following
+    the group's last label — bounded by the NEXT case label or this switch
+    body's own closing brace, whichever comes first, so it can never span
+    into a different switch statement or past this one's own end.
+
+    group: list of (enum_name_lower, format_name_lower, line_number).
+
+    TC-FMT-030 (2026-07-23): shared by both _scan_foss_gate_exceptions and
+    _scan_dispatch_fallthrough_functional so a fix to the grouping/scoping
+    logic (e.g. this switch-body bounding) automatically applies to both —
+    an earlier version of this file had each scanner keep its own copy of
+    similar logic, and one of the two had a still-unfixed bug the other one
+    had already worked around, which is exactly the kind of drift a shared
+    implementation prevents.
+    """
+    bodies = _find_switch_bodies(text)
+    if not bodies:
+        return
+    all_matches = list(_CASE_LABEL_RE.finditer(text))
+    if not all_matches:
+        return
+    for body_start, body_end in bodies:
+        body_matches = [m for m in all_matches if body_start <= m.start() < body_end]
+        group: list[tuple[str, str, int]] = []
+        for i, m in enumerate(body_matches):
+            enum_name = m.group(1).lower()
+            fmt_lower = m.group(2).lower()
+            line_num = text[:m.start()].count("\n") + 1
+            window_end = body_matches[i + 1].start() if i + 1 < len(body_matches) else body_end
+            window = text[m.end():window_end]
+            group.append((enum_name, fmt_lower, line_num))
+            if not _strip_code_comments(window).strip():
+                continue  # pure fallthrough -- keep accumulating the group
+            yield group, window
+            group = []
+
 
 def _scan_foss_gate_exceptions(
     files: list[Path], repo: Path,
 ) -> tuple[dict[str, tuple[str, int]], dict[str, tuple[str, int]]]:
-    """Scan for `case <Enum>.<Member>:` labels whose block (up to the next
-    `case`) throws an explicit "unsupported" exception — a format gated this
-    way is unreachable no matter how complete its own I/O class looks.
+    """Scan for `case <Enum>.<Member>:` fallthrough groups whose shared
+    terminal action throws an explicit "unsupported" exception — a format
+    gated this way is unreachable no matter how complete its own I/O class
+    looks. Every member of the fallthrough group is attributed the gate,
+    not just the one immediately preceding the throw (TC-FMT-030 fix,
+    2026-07-23: a version of this function that only checked each label's
+    own immediate window — empty for every label but the group's last —
+    silently missed all-but-the-last member of a >1-label gated group).
 
     Returns (gated_export, gated_import): dicts mapping lowercase format name
     to (file, line) evidence for the FIRST gate found for that format.
@@ -973,27 +1101,22 @@ def _scan_foss_gate_exceptions(
     gated_export: dict[str, tuple[str, int]] = {}
     gated_import: dict[str, tuple[str, int]] = {}
     for fpath in files:
+        if not _DISPATCH_FILE_NAME_RE.search(fpath.name):
+            continue
         try:
             text = fpath.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
         if "case" not in text.lower():
             continue
-        matches = list(_CASE_LABEL_RE.finditer(text))
-        if not matches:
-            continue
         rel = str(fpath.relative_to(repo)).replace("\\", "/")
-        for i, m in enumerate(matches):
-            enum_name = m.group(1).lower()
-            fmt_lower = m.group(2).lower()
-            window_end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
-            window = text[m.end():window_end]
+        for group, window in _iter_switch_case_groups(text):
             if not _UNSUPPORTED_THROW_RE.search(window):
                 continue
-            line_num = text[:m.start()].count("\n") + 1
-            target = gated_export if enum_name in _EXPORT_ENUM_NAMES else gated_import
-            if fmt_lower not in target:
-                target[fmt_lower] = (rel, line_num)
+            for enum_name, fmt_lower, line_num in group:
+                target = gated_export if enum_name in _EXPORT_ENUM_NAMES else gated_import
+                if fmt_lower not in target:
+                    target[fmt_lower] = (rel, line_num)
     return gated_export, gated_import
 
 
@@ -1036,6 +1159,120 @@ def _apply_foss_gate_overrides(
                 f"unsupported-format exception in the dispatch switch, despite "
                 f"a complete implementation class existing elsewhere",
                 gate_file, gate_line,
+            )
+    return formats
+
+
+def _scan_dispatch_fallthrough_functional(
+    files: list[Path], repo: Path,
+) -> tuple[dict[str, tuple[str, int]], dict[str, tuple[str, int]]]:
+    """Scan for `case <Enum>.<Member>:` switch-fallthrough groups whose
+    shared terminal action constructs and returns a real object (e.g.
+    `return new OpenXmlDocumentReader(...)`) rather than throwing an
+    unsupported-format exception — proof every member of that fallthrough
+    group is dispatched to genuine I/O logic. This is the complementary
+    signal to _scan_foss_gate_exceptions.
+
+    A single format is NOT guaranteed to appear in only one of this
+    function's results or _scan_foss_gate_exceptions's — a codebase can
+    have more than one switch on the same enum for different purposes
+    (confirmed live: a digital-signature-signing helper gates the same
+    enum members a totally separate, unrelated load dispatcher does not) —
+    so callers that need to decide "is this format really usable" must
+    apply their own precedence (see _apply_dispatch_fallthrough_overrides,
+    which lets a confirmed gate win).
+
+    Returns (functional_export, functional_import): dicts mapping lowercase
+    format name to (file, line) evidence for the confirmed dispatch.
+    """
+    functional_export: dict[str, tuple[str, int]] = {}
+    functional_import: dict[str, tuple[str, int]] = {}
+    for fpath in files:
+        if not _DISPATCH_FILE_NAME_RE.search(fpath.name):
+            continue
+        try:
+            text = fpath.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        if "case" not in text.lower():
+            continue
+        rel = str(fpath.relative_to(repo)).replace("\\", "/")
+        for group, window in _iter_switch_case_groups(text):
+            if not _DISPATCH_RETURN_RE.search(window):
+                continue
+            for enum_name, fmt_lower, line_num in group:
+                target = (functional_export if enum_name in _EXPORT_ENUM_NAMES
+                          else functional_import)
+                if fmt_lower not in target:
+                    target[fmt_lower] = (rel, line_num)
+    return functional_export, functional_import
+
+
+def _apply_dispatch_fallthrough_overrides(
+    formats: list[dict], files: list[Path], repo: Path, add_claim: object | None,
+) -> list[dict]:
+    """Restore functional=True (and direction) for any enum-derived format
+    entry whose member shares a switch-dispatch fallthrough group (see
+    _scan_dispatch_fallthrough_functional) with a confirmed real I/O action,
+    even when _cross_reference_enum_directions found no separately-named
+    class for that SPECIFIC member (e.g. Docm/Dotx/Dotm sharing Docx's
+    OpenXmlDocumentReader).
+
+    This is a final, additive override — it can only loosen an
+    enum_only/functional=False entry toward export/import + functional=True,
+    and is scoped to enum-derived entries only (`f.get("enum")` truthy, the
+    same class of entry _cross_reference_enum_directions demotes).
+
+    A confirmed gate always wins over a fallthrough-functional match, even
+    for the SAME format: they are NOT mutually exclusive by construction,
+    because a codebase can have more than one switch on the same enum for
+    different purposes. Confirmed live on words/net: WriterFactory.cs (the
+    real save dispatcher) gates Html/Mhtml/Epub/Azw3/Mobi with
+    `throw new NotSupportedException("FOSS")`, while a SEPARATE, unrelated
+    switch in SaveOptions.CreateSaveOptions() (a settings-object factory,
+    not the actual writer) falls through those same five members to
+    `return new HtmlSaveOptions(saveFormat)` — constructing a configuration
+    object is not the same as being able to actually save the format. This
+    function therefore re-checks _scan_foss_gate_exceptions and skips any
+    format+direction already confirmed gated, regardless of what its own
+    scan found elsewhere.
+    """
+    functional_export, functional_import = _scan_dispatch_fallthrough_functional(files, repo)
+    if not functional_export and not functional_import:
+        return formats
+    gated_export, gated_import = _scan_foss_gate_exceptions(files, repo)
+
+    for f in formats:
+        enum_name = f.get("enum", "")
+        if not enum_name:
+            continue
+        if f.get("functional"):
+            continue  # already confirmed functional -- nothing to add
+        fmt_lower = f.get("format", "").lower()
+        # The entry's OWN enum type decides which dict to consult -- a
+        # format name can legitimately have evidence in BOTH dicts (e.g.
+        # "docm" appears in both a LoadFormat switch and a SaveFormat
+        # switch), so this must not just prefer whichever is non-empty.
+        is_export_enum = enum_name.lower() in _EXPORT_ENUM_NAMES
+        target_direction = "export" if is_export_enum else "import"
+        if fmt_lower in (gated_export if is_export_enum else gated_import):
+            continue  # a confirmed gate elsewhere always wins
+        evidence = (functional_export if is_export_enum else functional_import).get(
+            fmt_lower
+        )
+        if evidence is None:
+            continue
+        f["functional"] = True
+        f["direction"] = target_direction
+        ev_file, ev_line = evidence
+        if callable(add_claim):
+            add_claim(
+                "format_support",
+                f"{f.get('format')} {target_direction} is functional via a "
+                f"shared dispatch fallthrough (confirmed: this format's "
+                f"switch-case group routes to real I/O construction, not a "
+                f"NotSupportedException gate)",
+                ev_file, ev_line,
             )
     return formats
 
