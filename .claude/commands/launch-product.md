@@ -147,7 +147,12 @@ If missing, STOP and re-run Stage 0.5.
 **Commands**:
 1. `/new-docs-index {family} {platform}`
 2. Fixed pages (always generate if missing):
-   - `/new-docs-page {family} {platform} getting-started installation`
+   - `/new-docs-page {family} {platform} getting-started installation` — **for `platform: java`**,
+     this page's install section must be the `maven-coord` shortcode, never a literal
+     `<groupId>`/coordinate (new-docs-page.md's own instructions enforce this; noted here because
+     this is historically the single most-affected page type — see Mission MT008,
+     `plans/master-plan.md`, the `docs.aspose.org/.../getting-started/installation.md`
+     self-contradiction example in Finding F-01).
    - `/new-docs-page {family} {platform} getting-started quickstart`
    - If site plan includes `getting-started/license`:
      `/new-docs-page {family} {platform} getting-started license`

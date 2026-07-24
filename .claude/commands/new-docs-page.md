@@ -104,11 +104,20 @@ Before generating any content, you MUST:
    - **Code fence language** — resolve from `{platform}` argument (never hardcode `python`):
      - `python` → ` ```python `, install via `pip install {package-name}`
      - `net` → ` ```csharp `, install via `dotnet add package {package-name}`
-     - `java` → ` ```java `, install via Maven `<dependency>`
+     - `java` → ` ```java `, install via Maven `<dependency>` — **do NOT write a literal
+       `<groupId>`/coordinate**. Write `{{< maven-coord "{family}" "java" >}}` on its own line
+       (blank line before/after) instead of a fenced Maven XML block. For inline mentions, use
+       `{{< maven-gav "{family}" "java" >}}` with NO surrounding backticks (it already renders
+       its own `<code>` wrapper). Renders the live-verified `org.aspose:...` coordinate from
+       `data/foss_packages.json` — see Mission MT008 in `plans/master-plan.md`.
      - `cpp` → ` ```cpp `, install via CMake FetchContent or vcpkg
      - `typescript` → ` ```typescript `, install via `npm install {package-name}`
    - Shell/terminal commands always use ` ```bash `
    - `---` divider between every major section
+   - **Package name** for import statements/code blocks always comes from
+     `knowledge/{family}/{platform}/scout/model.yaml` → `canonical_import`. Never use the
+     commercial Aspose package name. This is a separate fact from the Java Maven groupId above
+     — do not conflate them.
    - Class names, method names, package paths must exactly match what you read from reference content — no invented API
    - **Internal links within docs.aspose.org**: use relative paths (`../slug/`)
    - **Cross-subdomain links** (to kb, blog, reference): use absolute `https://` URLs without `/en/` — e.g. `https://kb.aspose.org/{family}/{platform}/slug/`
