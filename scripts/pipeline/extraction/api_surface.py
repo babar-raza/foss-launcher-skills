@@ -48,6 +48,7 @@ from extraction.tree_helpers import (
     find_children_by_type,
     is_public,
     node_text,
+    synthesize_interface_members,
     visibility_tier,
 )
 
@@ -2030,6 +2031,16 @@ def extract_api_surface(
                 vis = "internal"
             # OBS-03: Remove self-referential bases (tree-sitter extraction bug)
             bases = [b for b in bases if b != cname]
+
+            # TC-MT007-01 (G-40): synthesize standard interface-contract members
+            # (Dispose, MoveNext/Reset/Current, GetEnumerator, CompareTo) for
+            # classes implementing a known BCL interface without an explicit
+            # same-file override. C#-only; see synthesize_interface_members's
+            # own docstring for the full finding and scope rationale.
+            _synth_methods, _synth_properties = synthesize_interface_members(
+                bases, methods, properties, language)
+            methods = methods + _synth_methods
+            properties = properties + _synth_properties
 
             # Extract class-level modifiers (C#/Java: static, abstract, sealed)
             # Uses the same tree-sitter pattern as _extract_const_fields (L664).

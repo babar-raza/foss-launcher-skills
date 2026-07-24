@@ -608,6 +608,158 @@ def _in_excluded_preproc_branch(node, language: str) -> bool:
 
 
 # ---------------------------------------------------------------------------
+# Interface-contract member synthesis (C#, TC-MT007-01 / backlog G-40)
+# ---------------------------------------------------------------------------
+
+# Standard BCL interfaces this synthesizes members for, and the members each
+# one contributes. Deliberately a small, closed, hand-vetted set (not an
+# open-ended interface-parsing engine) -- exactly the interfaces named in the
+# G-40 finding, no more. `IEnumerator<T>`/`IEnumerable<T>` model .NET's real
+# transitive contract: `IEnumerator<T> : IEnumerator, IDisposable`, so the
+# generic form also contributes Dispose(); the non-generic forms do not.
+_SYNTHESIZABLE_INTERFACE_MEMBERS: dict[str, list[dict[str, Any]]] = {
+    "IDisposable": [
+        {"kind": "method", "name": "Dispose", "return_type": "void"},
+    ],
+    "IEnumerator": [
+        {"kind": "method", "name": "MoveNext", "return_type": "bool"},
+        {"kind": "method", "name": "Reset", "return_type": "void"},
+        {"kind": "property", "name": "Current", "type": "object"},
+    ],
+    "IEnumerator<T>": [
+        {"kind": "method", "name": "MoveNext", "return_type": "bool"},
+        {"kind": "method", "name": "Reset", "return_type": "void"},
+        {"kind": "property", "name": "Current", "type": "T"},
+        {"kind": "method", "name": "Dispose", "return_type": "void"},
+    ],
+    "IEnumerable": [
+        {"kind": "method", "name": "GetEnumerator", "return_type": "IEnumerator"},
+    ],
+    "IEnumerable<T>": [
+        {"kind": "method", "name": "GetEnumerator", "return_type": "IEnumerator<T>"},
+    ],
+    "IComparable": [
+        {"kind": "method", "name": "CompareTo", "return_type": "int"},
+    ],
+    "IComparable<T>": [
+        {"kind": "method", "name": "CompareTo", "return_type": "int"},
+    ],
+}
+
+_GENERIC_BASE_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)\s*<(.+)>\s*$")
+
+
+def _canonical_interface_key(base_name: str) -> "tuple[str, str | None] | None":
+    """Map a raw base-list entry (e.g. 'IEnumerator<Node>', 'IDisposable') to
+    (key, generic_arg) where key is an entry in _SYNTHESIZABLE_INTERFACE_MEMBERS
+    and generic_arg is the real captured type argument ('Node') for generic
+    bases or None for non-generic ones -- or None (the whole return value) if
+    the base isn't one of the small set of interfaces this synthesizes members
+    for. Exact-name matching only (plus stripping one level of generic
+    argument) -- never substring or fuzzy matching, so an unrelated interface
+    that merely contains one of these names as a substring (there are none
+    known today, but a future one is plausible) can never be mis-synthesized
+    against.
+    """
+    m = _GENERIC_BASE_RE.match(base_name.strip())
+    if m:
+        bare, arg = m.group(1), m.group(2).strip()
+        generic_key = f"{bare}<T>"
+        if generic_key in _SYNTHESIZABLE_INTERFACE_MEMBERS:
+            return generic_key, arg
+        return None
+    bare = base_name.strip()
+    if bare in _SYNTHESIZABLE_INTERFACE_MEMBERS:
+        return bare, None
+    return None
+
+
+def synthesize_interface_members(
+    bases: list[str], methods: list[dict], properties: list[dict], language: str
+) -> tuple[list[dict], list[dict]]:
+    """Return (new_methods, new_properties) to append to a C# class's already-
+    extracted `methods`/`properties`, synthesizing standard interface-contract
+    members for interfaces the class implements without an explicit same-file
+    override.
+
+    Found 2026-07-24 (backlog G-40, MT007-L2-02): the scout extractor captures
+    a class's implemented-interface list (`bases`) but never synthesizes the
+    interface's own contract members for classes that implement them without
+    declaring an explicit override in the same file (common for simple
+    iterator/wrapper classes, e.g. `NodeEnumerator : IEnumerator<Node>,
+    IDocumentPositionListener` -- `Dispose()`/`MoveNext()`/`Reset()`/`Current`
+    are all real, callable, spec-guaranteed members that were previously
+    absent from api_surface.json entirely).
+
+    Each synthesized entry is tagged `"origin": "interface_synthesized"` (only
+    on the synthesized entries -- explicit entries are left with no `origin`
+    key at all, backward-compatible with every existing consumer, rather than
+    retrofitting an `origin` field onto every extraction call site repo-wide,
+    which would be a far larger, riskier change than this finding warrants).
+    Synthesized entries have no real declaration line (`"line": None`) and do
+    NOT generate a claims.json entry -- a claim represents an extracted fact
+    with real source evidence, and there is no source line to cite for a
+    member that isn't written in this file.
+
+    Only C# is in scope (`language == "csharp"`) -- this is where the gap was
+    found and where `bases` reliably captures interface names; other
+    languages' interface/protocol models differ enough that generalizing here
+    would be guessing, not fixing a confirmed gap.
+    """
+    if language != "csharp":
+        return [], []
+
+    existing_method_names = {m["name"] for m in methods}
+    existing_property_names = {p["name"] for p in properties}
+
+    new_methods: list[dict] = []
+    new_properties: list[dict] = []
+    seen_this_class: set[str] = set()
+
+    for base in bases:
+        resolved = _canonical_interface_key(base)
+        if resolved is None:
+            continue
+        key, generic_arg = resolved
+        for member in _SYNTHESIZABLE_INTERFACE_MEMBERS[key]:
+            name = member["name"]
+            if name in seen_this_class:
+                continue  # e.g. IEnumerator<T> and IEnumerator both listed -- don't duplicate
+            if member["kind"] == "method":
+                if name in existing_method_names:
+                    continue  # explicit override present -- do not shadow it
+                return_type = member["return_type"]
+                if generic_arg and "T" in return_type:
+                    return_type = return_type.replace("T", generic_arg)
+                new_methods.append({
+                    "name": name,
+                    "params": [],
+                    "return_type": return_type,
+                    "doc": "",
+                    "line": None,
+                    "is_constructor": False,
+                    "origin": "interface_synthesized",
+                })
+            else:
+                if name in existing_property_names:
+                    continue
+                prop_type = member["type"]
+                if generic_arg and prop_type == "T":
+                    prop_type = generic_arg
+                new_properties.append({
+                    "name": name,
+                    "type": prop_type,
+                    "doc": "",
+                    "line": None,
+                    "writable": False,
+                    "origin": "interface_synthesized",
+                })
+            seen_this_class.add(name)
+
+    return new_methods, new_properties
+
+
+# ---------------------------------------------------------------------------
 # Enum member extraction
 # ---------------------------------------------------------------------------
 
