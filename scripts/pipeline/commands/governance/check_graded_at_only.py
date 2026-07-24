@@ -51,12 +51,16 @@ def _classify_file(path: str, *, mode: str) -> str:
                 ["git", "diff", "--cached", "HEAD", "--", path],
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
         else:  # worktree
             result = subprocess.run(
                 ["git", "diff", "HEAD", "--", path],
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
     except Exception:
         return "D"

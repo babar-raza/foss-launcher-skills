@@ -212,6 +212,35 @@ class TestUnstaggedFileIsIgnored:
         assert "orphan.md" not in result.stdout
 
 
+class TestNonAsciiBodyChangeDoesNotCrash:
+    """Regression: subprocess.run(..., text=True) without an explicit encoding
+    decodes git diff output using the platform-default codepage (cp1252 on
+    Windows), which raises UnicodeDecodeError on non-ASCII content (e.g. an
+    Arabic/Chinese locale page's body) instead of returning Case B/C -- found
+    live migrating cells/java locale content (Mission MT008, TC-MT008-08)."""
+
+    def test_non_ascii_body_change_classified_normally(self, tmp_path):
+        repo = _init_repo(tmp_path)
+        p = _commit_file(repo, "page.ar.md", FRONTMATTER_WITH_GRADE)
+
+        non_ascii_body = (
+            "---\ntitle: Test\ngrade: A\n"
+            'graded_at: "2026-01-01T00:00:00Z"\n'
+            "graded_model_sha: sha1\ngraded_evaluators: full\n"
+            "graded_logic_version: 5\n"
+            'graded_content_hash: "abcdef1234567890"\n---\n\n'
+            "ج: أضف اعتماد مافين إلى حسابك. 中文内容测试\n"
+        )
+        p.write_text(non_ascii_body, encoding="utf-8")
+        _git(repo, "add", "page.ar.md")
+
+        result = _run_checker(repo, ["page.ar.md"])
+        assert result.returncode == 0
+        assert "page.ar.md" not in result.stdout
+        assert "PARSE_FAILURE" not in result.stderr
+        assert "UnicodeDecodeError" not in result.stderr
+
+
 class TestParseFailureExitsNonzero:
     """Case D: git failure in non-repo directory -> PARSE_FAILURE in stderr, exit 2."""
 
