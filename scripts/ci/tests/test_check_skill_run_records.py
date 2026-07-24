@@ -78,10 +78,49 @@ class TestMain:
         assert check_skill_run_records.main(["--commits", "abc12345"]) == 1
 
     def test_no_skills_declaration_exits_0(self, tmp_path, monkeypatch):
-        """Commit with no 'Skills invoked:' line is not a mismatch — just skipped."""
+        """Commit with no 'Skills invoked:' line is not a mismatch — advisory exit 0."""
         check_skill_run_records.configure(runs_dir=tmp_path)
         monkeypatch.setattr(
             check_skill_run_records, "_get_commit_message",
             lambda sha: "docs: no skills here",
         )
         assert check_skill_run_records.main(["--commits", "abc12345"]) == 0
+
+    def test_retroactive_record_reconciles_undeclared_commit(self, tmp_path, monkeypatch, capsys):
+        """MT007 L1-01 fix: a commit with no message-level 'Skills invoked:' field
+        (the git-plumbing case, where no local hook could ever have fired) is
+        reported as RECONCILED, not as an unaccounted-for gap, when a matching
+        retroactive skill run record exists for its SHA."""
+        check_skill_run_records.configure(runs_dir=tmp_path)
+        _make_record(tmp_path, "retroactive-run-1", ["S-72"], "deadbeef01")
+        record_path = tmp_path / "retroactive-run-1.json"
+        record = json.loads(record_path.read_text(encoding="utf-8"))
+        record["retroactive"] = True
+        record_path.write_text(json.dumps(record), encoding="utf-8")
+
+        monkeypatch.setattr(
+            check_skill_run_records, "_get_commit_message",
+            lambda sha: "fix(ci): something with no declaration",
+        )
+        rc = check_skill_run_records.main(["--commits", "deadbeef0123"])
+        assert rc == 0
+        out = capsys.readouterr().out
+        assert "RECONCILED" in out
+        assert "deadbeef01" in out
+        assert "NO DECLARATION" not in out
+
+    def test_no_skills_declaration_is_reported_not_silent(self, tmp_path, monkeypatch, capsys):
+        """MT007 L1-01/L3-01 regression guard: a commit with no 'Skills invoked:'
+        field must be visibly reported, never silently skipped -- this is exactly
+        the gap that let 3 git-plumbing commits bypass all governance validation
+        with zero output anywhere in the pipeline."""
+        check_skill_run_records.configure(runs_dir=tmp_path)
+        monkeypatch.setattr(
+            check_skill_run_records, "_get_commit_message",
+            lambda sha: "docs: no skills here",
+        )
+        rc = check_skill_run_records.main(["--commits", "abc12345"])
+        assert rc == 0
+        out = capsys.readouterr().out
+        assert "NO DECLARATION" in out
+        assert "abc12345" in out

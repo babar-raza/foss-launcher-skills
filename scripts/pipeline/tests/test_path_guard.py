@@ -83,6 +83,16 @@ class TestAllowedKnowledgeAndReports:
         decision, _ = check_path(path)
         assert decision == "ALLOW"
 
+    @pytest.mark.parametrize("path", [
+        ".supervisor/state/MT007-2026-07-24-WORDS-NET-LAUNCH/stage1-post-sprint-audit.md",
+        ".supervisor/state/diligent-verifying-egret/final-all-green-candidate.json",
+        ".supervisor/state/current.json",
+    ])
+    def test_supervisor_state_paths(self, path):
+        # MT007 L1-03 regression guard: every Stage 1 audit needs to write here.
+        decision, _ = check_path(path)
+        assert decision == "ALLOW"
+
 
 # ---------------------------------------------------------------------------
 # Forbidden prefix paths

@@ -30,6 +30,37 @@ git push "https://x-access-token:${GH_TOKEN}@github.com/Aspose/aspose.org.git" m
 
 `GITHUB_PAT` is also set but **does not work** for push to this repo.
 
+### Concurrent-session git-index contention (ST-021)
+
+If another session is actively mutating the shared `.git/index` (large in-flight
+`content/` sweeps are common in this repo), an ordinary `git add`/`git commit` risks
+staging or corrupting the other session's work. The sanctioned escalation is git
+object-plumbing against an isolated temp index (`GIT_INDEX_FILE` + `git read-tree
+<parent>` + scoped `git add -f <exact paths>` + `git write-tree` + `git commit-tree
+-p <parent>` + `git push <sha>:refs/heads/main`) — this never touches the real
+`.git/index` and never invokes `git commit`.
+
+**This bypasses every commit-time git hook** (`pre-commit`, `commit-msg`,
+`post-commit`) by construction — no local hook can fire for a commit that never goes
+through `git commit`, including the `Skills invoked:` / skill-run-record validation
+in `.git/hooks/commit-msg` (TC-GOV-15). This is not a bug to work around; it is a
+structural property of how git hooks work. **A git-plumbed commit is therefore
+mandatory-paired with a retroactive skill-run record**, created and finalized against
+the resulting SHA immediately after pushing:
+
+```bash
+PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/ops/skill_run_manager.py create \
+  --skills S-xx [S-yy ...] --plan "<what this commit does>" --retroactive --run-type targeted
+PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/ops/skill_run_manager.py finalize \
+  --run-id <run_id from create output> --outcome success --commit-sha <the pushed sha>
+```
+
+`scripts/ci/checks/check_skill_run_records.py` recognizes a retroactive record
+matched by `commit_sha` and reports the commit as `RECONCILED` rather than
+`NO DECLARATION`. Skipping this step leaves the commit with zero governance trail
+(found live 2026-07-24, MT007 L1-01/L3-01/L3-02 — 3 commits from the words/net launch
+sprint had no skill-run record until reconciled post-hoc).
+
 ## Behavioral Mandates (enforced by hooks)
 
 These rules are enforced by PreToolUse hooks — violations will be auto-blocked:

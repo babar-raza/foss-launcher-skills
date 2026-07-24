@@ -80,6 +80,12 @@ ALLOWED_PREFIXES: tuple[str, ...] = (
     # already required active skill context via check_skill_context_hook.sh's GOVERNED
     # list, this closes the matching commit-time gate so a token isn't needed per commit.
     ".github/workflows/",
+    # .supervisor/ post-sprint audit-loop mission state (Stage 1/2/3 outputs, closure
+    # records) — gitignored, local-only, same category as reports/ above. Added
+    # 2026-07-24 (MT007 L1-03): every Stage 1 audit run needs to write here, but the
+    # prefix was never added, so every run required a fresh override token including
+    # the one that wrote the precedent file this convention is based on.
+    ".supervisor/state/",
 )
 
 FORBIDDEN_PREFIXES: tuple[str, ...] = (
