@@ -421,6 +421,61 @@ class TestSkillContextOCC(unittest.TestCase):
         self.assertEqual(r, 0)  # own scope is not a conflict with itself
         self.assertEqual(skill_context._load_session_contexts()["sess-A"]["skill_id"], "S-22")
 
+    def test_handoff_between_different_skills_links_bidirectionally(self):
+        """TC-MT007-02 (backlog G-41): a re-begin under the same session_id that
+        changes SKILL (the S-72 evidence-repair -> S-73 manual-edit pattern,
+        forced by check_content_edit_hook.sh recognizing only S-73 for
+        content/ writes) must produce a bidirectional link: the archived S-72
+        record points forward (superseded_by) to the new S-73 record, and the
+        new S-73 record points back (handoff_from) to the S-72 one."""
+        skill_context.main(["begin", "--skill", "S-72", "--scope", "content/*",
+                            "--session-id", "evidence-repair-docs-a", "--skip-dar"])
+        skill_context.main(["begin", "--skill", "S-73", "--scope", "content/*",
+                            "--session-id", "evidence-repair-docs-a", "--skip-dar"])
+
+        new_record = skill_context._load_session_contexts()["evidence-repair-docs-a"]
+        self.assertEqual(new_record["skill_id"], "S-73")
+        self.assertIn("handoff_from", new_record)
+        self.assertEqual(new_record["handoff_from"]["skill_id"], "S-72")
+
+        history = skill_context._load_history_records()
+        s72_record = next(r for r in history if r["skill_id"] == "S-72")
+        self.assertEqual(s72_record["end_status"], "superseded_same_session")
+        self.assertIn("superseded_by", s72_record)
+        self.assertEqual(s72_record["superseded_by"]["skill_id"], "S-73")
+        self.assertEqual(s72_record["superseded_by"]["started_at"], new_record["started_at"])
+
+    def test_same_skill_rearm_gets_no_handoff_noise(self):
+        """The overwhelmingly common case (a skill re-arming its OWN scope
+        before every edit) must not get a handoff_from field -- only a genuine
+        skill CHANGE is a handoff."""
+        skill_context.main(["begin", "--skill", "S-20", "--scope", "a/x.py",
+                            "--session-id", "sess-A", "--skip-dar"])
+        skill_context.main(["begin", "--skill", "S-20", "--scope", "a/y.py",
+                            "--session-id", "sess-A", "--skip-dar"])
+        new_record = skill_context._load_session_contexts()["sess-A"]
+        self.assertNotIn("handoff_from", new_record)
+        history = skill_context._load_history_records()
+        self.assertNotIn("superseded_by", history[0])
+
+    def test_trace_prints_full_handoff_chain_both_directions(self):
+        skill_context.main(["begin", "--skill", "S-72", "--scope", "content/*",
+                            "--session-id", "evidence-repair-docs-b", "--skip-dar"])
+        skill_context.main(["begin", "--skill", "S-73", "--scope", "content/*",
+                            "--session-id", "evidence-repair-docs-b", "--skip-dar"])
+        skill_context.main(["end", "--skill", "S-73", "--session-id", "evidence-repair-docs-b"])
+
+        chain = skill_context.trace_handoff_chain("evidence-repair-docs-b")
+        self.assertEqual([r["skill_id"] for r in chain], ["S-72", "S-73"])
+        self.assertEqual(chain[1]["end_status"], "completed")
+
+        r = skill_context.main(["trace", "--session-id", "evidence-repair-docs-b"])
+        self.assertEqual(r, 0)
+
+    def test_trace_no_records_exits_1(self):
+        r = skill_context.main(["trace", "--session-id", "no-such-session"])
+        self.assertEqual(r, 1)
+
     def test_stale_session_context_self_expires_per_ttl(self):
         skill_context.main(["begin", "--skill", "S-20", "--scope", "a/x.py",
                             "--session-id", "sess-A", "--skip-dar"])

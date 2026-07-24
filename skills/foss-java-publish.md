@@ -88,17 +88,59 @@ reflect the new Maven coordinates.
 
 ### Step A1 — Pre-flight idempotency check
 
-Before cloning or editing anything, check if the artifact already exists on Maven Central:
+Before cloning or editing anything, check TWO independent conditions:
 
+1. Is the artifact version already published?
 ```bash
 STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
   "https://repo1.maven.org/maven2/org/aspose/{artifact-id}/{version}/")
 ```
 
-- HTTP 200 → Version already published. Print: `Phase A skipped — org.aspose:{artifact-id}:{version} already on Maven Central`. Proceed directly to Step B1.
-- HTTP 404 → Not yet published. Continue with Step A2.
+2. Does PUBLISHING.md already exist in the product repo root?
+```bash
+PUB_STATUS=$(gh api repos/{org}/{repo}/contents/PUBLISHING.md \
+  -q '.name' >/dev/null 2>&1 && echo 200 || echo 404)
+```
+
+These are INDEPENDENT. Publication and documentation status can diverge — this
+happened for real: `aspose-3d-foss` and `aspose-pdf-foss` were published to Maven
+Central on 2026-07-16 without `PUBLISHING.md` ever being committed, because `S-110`
+did not exist yet at publish time. Do not treat "already published" as "nothing left
+to do."
+
+| STATUS | PUB_STATUS | Action |
+|---|---|---|
+| 404 | any | Not yet published. Continue with Step A2 (full Phase A). |
+| 200 | 200 | Fully done. Print `Phase A skipped — org.aspose:{artifact-id}:{version} already on Maven Central and documented`. Proceed directly to Step B1. |
+| 200 | 404 | **Docs-only remediation.** Artifact is live but undocumented. Run Step A1a below, then proceed directly to Step B1. Do NOT attempt to republish (coordinates are immutable once live on Central; skip A2, A4-A8, A11, A12, A14-A16 entirely — see Step A1a for exactly what still runs). |
 
 This check is the FIRST action. Do not clone or edit any file without running it.
+
+### Step A1a — Docs-only remediation (published, but PUBLISHING.md missing)
+
+This path exists because Step A1's old logic could never reach it — it always skipped
+straight to Phase B once a version was live, even when undocumented. Only the
+following steps run; every other Phase A step (A2 credential validation, A4 Java
+version check, A5-A6 pom.xml audit/patch, A7 .gitignore, A8 GHA workflow generation,
+A11 local build, A12 secrets, A14-A16 dry-run/tag/publish) is SKIPPED — none of them
+apply when nothing is being rebuilt, resigned, or republished.
+
+1. Clone the repo (same mechanics as Step A3).
+2. Read the CURRENT live `pom.xml` as plain reference data — do not modify it, do not
+   run the Step A5 audit/patch logic against it. Use its actual current values to fill
+   the `PUBLISHING.md` "pom.xml changes" table's "After" column; use
+   "n/a — already live, historical before-state not recorded" for "Before" where
+   unknown.
+3. Write `PUBLISHING.md` at the repo root using the existing Step A9 template verbatim,
+   with BOM-zero enforcement (Step A6's BOM-zero rule applies here too). In the
+   "Publication History" table, mark the row "documentation added retroactively by
+   S-110 Step A1a — artifact was already live" instead of claiming a fresh publish.
+4. Surgical boundary check (same mechanics as Step A10), with the allowed-file-set
+   narrowed to exactly one entry: `PUBLISHING.md`. HALT if any other file would
+   change — this includes `pom.xml`, which step 2 above must not have touched.
+5. Commit: `docs: add Maven Central publishing guide (retroactive — S-110)`. Push
+   using the same GH_TOKEN URL mechanics as Step A13.
+6. Continue to Phase B (Step B1) exactly as the "published + documented" branch does.
 
 ### Step A2 — Pre-flight credential validation
 
@@ -809,7 +851,13 @@ aspose.org commit: {sha}
 - Post-healing grep sweep returns zero matches on all five patterns
 - aspose.org commit pushed to main
 
-**If Phase A skipped (version already on Central):**
+**If Phase A skipped (version already on Central AND already documented):**
+- All Phase B postconditions apply
+
+**If Phase A ran via Step A1a (docs-only remediation):**
+- `PUBLISHING.md` is committed to the product repo root
+- `pom.xml`, `.gitignore`, and the GHA workflow file are unchanged (diff-verified before staging)
+- No republish or resign was attempted
 - All Phase B postconditions apply
 
 **If Phase B operator declined:**
@@ -831,6 +879,7 @@ aspose.org commit: {sha}
 | BOM detected in written pom.xml | HALT — abort and diagnose write tool |
 | `waitUtil` typo found in written files | HALT — fix before staging |
 | Surgical boundary violated (unexpected file in diff) | HALT before staging |
+| Step A1a would touch a file other than `PUBLISHING.md` | HALT before staging — same rule as the general surgical boundary check, applied with the allowed-file-set narrowed to one entry |
 | Local build fails | Diagnose and fix; do not push until `BUILD SUCCESS` |
 | Dry-run workflow fails | HALT — print `--log-failed` output |
 | Content healing operator declines | Halt Phase B; Phase A result stands |

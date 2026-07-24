@@ -132,16 +132,33 @@ def _save_active(record: dict) -> None:
     temp_path.replace(_ACTIVE_FILE)
 
 
-def _archive(record: dict, status: str = "completed", *, remove_active: bool = True) -> None:
+def _archive(record: dict, status: str = "completed", *, remove_active: bool = True,
+             superseded_by: "dict | None" = None) -> "Path":
     """Move a context record to history.
 
     remove_active=False is used when archiving a PER-SESSION context (RPR-G-03): that
     record does not live in the legacy ACTIVE.json, so removing ACTIVE.json would destroy
     an unrelated session's live context. The caller unlinks its own session file instead.
+
+    superseded_by (TC-MT007-02, backlog G-41): when a re-begin under the SAME session_id
+    hands off to a DIFFERENT skill (the S-72 evidence-repair -> S-73 manual-edit pattern,
+    forced by check_content_edit_hook.sh/check_s73_edit_scope.py recognizing only an
+    active S-73 context for content/ writes), the archived record gets an explicit
+    forward pointer to the record that superseded it -- {"skill_id", "started_at"} is
+    enough to locate the exact history file later (history filenames are
+    "{timestamp}-{skill_id}.json"). This is additive: existing records/consumers with no
+    superseded_by key are unaffected. Returns the path the record was written to, so a
+    caller can build the matching reverse pointer (handoff_from) on the new record.
     """
     _HISTORY_DIR.mkdir(parents=True, exist_ok=True)
     record["ended_at"] = _now().isoformat().replace("+00:00", "Z")
     record["end_status"] = status
+    if superseded_by is not None:
+        record["superseded_by"] = {
+            "skill_id": superseded_by.get("skill_id"),
+            "started_at": superseded_by.get("started_at"),
+            "session_id": superseded_by.get("session_id"),
+        }
     ts = _now().strftime("%Y%m%d-%H%M%S")
     skill = record.get("skill_id", "unknown")
     out = _HISTORY_DIR / f"{ts}-{skill}.json"
@@ -160,6 +177,7 @@ def _archive(record: dict, status: str = "completed", *, remove_active: bool = T
             matches = True  # unreadable/corrupt — removing it is the safe outcome
         if matches:
             _ACTIVE_FILE.unlink()
+    return out
 
 
 def _archive_stale(record: dict) -> None:
@@ -328,9 +346,6 @@ def cmd_begin(args: argparse.Namespace) -> int:
                 )
                 return 3
         prior = _load_session_contexts().get(session_id)
-        if prior:
-            # Re-begin within the SAME session replaces its own context (not a conflict).
-            _archive(prior, status="superseded_same_session", remove_active=False)
         record = {
             "skill_id": args.skill,
             "context_type": "skill",
@@ -338,6 +353,25 @@ def cmd_begin(args: argparse.Namespace) -> int:
             "started_at": _now().isoformat().replace("+00:00", "Z"),
             "session_id": session_id,
         }
+        if prior:
+            # Re-begin within the SAME session replaces its own context (not a conflict).
+            # TC-MT007-02 (G-41): when this re-begin is a genuine skill CHANGE (e.g. S-72
+            # evidence-repair handing off to S-73 manual-edit to satisfy the Edit-tool write
+            # gate), record a bidirectional link -- the archived record points forward to
+            # this new one (superseded_by), and this new record points back (handoff_from) --
+            # so a single S-72 invocation's provenance is traceable end-to-end even though it
+            # spans two skill-context records under the same session_id. A same-skill re-arm
+            # (the ordinary "scope re-arms before every edit" loop) is not a handoff and gets
+            # no handoff_from field, to avoid noise on the overwhelmingly common case.
+            if prior.get("skill_id") != args.skill:
+                record["handoff_from"] = {
+                    "skill_id": prior.get("skill_id"),
+                    "started_at": prior.get("started_at"),
+                }
+                _archive(prior, status="superseded_same_session", remove_active=False,
+                          superseded_by=record)
+            else:
+                _archive(prior, status="superseded_same_session", remove_active=False)
         _save_session_context(session_id, record)
         coexisting = sorted(others)
         suffix = f"; coexisting sessions: {coexisting}" if coexisting else ""
@@ -477,6 +511,90 @@ def cmd_current(args: argparse.Namespace) -> int:
     return 0
 
 
+def _load_history_records() -> list[dict]:
+    """Load every history/*.json record, tolerating unreadable/corrupt files."""
+    records = []
+    if not _HISTORY_DIR.exists():
+        return records
+    for path in sorted(_HISTORY_DIR.glob("*.json")):
+        try:
+            records.append(json.loads(path.read_text(encoding="utf-8")))
+        except (json.JSONDecodeError, OSError):
+            continue
+    return records
+
+
+def _find_history_record(records: list[dict], skill_id: "str | None",
+                          started_at: "str | None") -> "dict | None":
+    for r in records:
+        if r.get("skill_id") == skill_id and r.get("started_at") == started_at:
+            return r
+    return None
+
+
+def trace_handoff_chain(session_id: str) -> list[dict]:
+    """Return every history record for `session_id`, in chronological order,
+    plus any record a handoff_from/superseded_by pointer resolves to even if
+    that record was filed under a DIFFERENT session_id (the pointer is a
+    (skill_id, started_at) reference, not a session_id match, so it still
+    resolves correctly even in that less-common case).
+
+    TC-MT007-02 (backlog G-41): makes a multi-skill handoff (e.g. S-72
+    evidence-repair -> S-73 manual-edit) traceable end-to-end from either
+    direction, not just structurally linkable by an operator willing to grep
+    two JSON files by hand.
+    """
+    records = _load_history_records()
+    chain = [r for r in records if r.get("session_id") == session_id]
+
+    seen_keys = {(r.get("skill_id"), r.get("started_at")) for r in chain}
+    changed = True
+    while changed:
+        changed = False
+        for r in list(chain):
+            for pointer_key in ("handoff_from", "superseded_by"):
+                pointer = r.get(pointer_key)
+                if not pointer:
+                    continue
+                key = (pointer.get("skill_id"), pointer.get("started_at"))
+                if key in seen_keys:
+                    continue
+                resolved = _find_history_record(records, *key)
+                if resolved is not None:
+                    chain.append(resolved)
+                    seen_keys.add(key)
+                    changed = True
+
+    chain.sort(key=lambda r: r.get("started_at", ""))
+    return chain
+
+
+def cmd_trace(args: argparse.Namespace) -> int:
+    """Print the full skill-context handoff chain for a session_id.
+
+    Exit 0 with output if any records were found for the session, 1 if none.
+    """
+    chain = trace_handoff_chain(args.session_id)
+    if not chain:
+        print(f"No skill-context history records found for session {args.session_id!r}.",
+              file=sys.stderr)
+        return 1
+    print(f"Handoff chain for session {args.session_id!r} ({len(chain)} record(s)):")
+    for i, r in enumerate(chain):
+        handoff_note = ""
+        if r.get("handoff_from"):
+            hf = r["handoff_from"]
+            handoff_note = f"  <- handoff from {hf.get('skill_id')} (started {hf.get('started_at')})"
+        supersede_note = ""
+        if r.get("superseded_by"):
+            sb = r["superseded_by"]
+            supersede_note = f"  -> superseded by {sb.get('skill_id')} (started {sb.get('started_at')})"
+        print(f"  [{i}] {r.get('skill_id')}: {r.get('started_at')} -> "
+              f"{r.get('ended_at', '(active)')} [{r.get('end_status', 'active')}]"
+              f"{handoff_note}{supersede_note}")
+    return 0
+
+
 def cmd_gap(args: argparse.Namespace) -> int:
     """Create a temporary gap-approved context with 30-min TTL."""
     if not args.report:
@@ -602,6 +720,12 @@ def main(argv: list[str] | None = None) -> int:
     p_gap.add_argument("--session-id", dest="session_id", default=None,
                        help="Session identity (default: AGENT_SESSION_ID env, then legacy path)")
 
+    # trace (TC-MT007-02 / backlog G-41)
+    p_trace = sub.add_parser(
+        "trace", help="Print the full skill-context handoff chain for a session_id")
+    p_trace.add_argument("--session-id", dest="session_id", required=True,
+                         help="Session identifier to trace (e.g. evidence-repair-docs-a)")
+
     args = parser.parse_args(argv)
     dispatch = {
         "begin": cmd_begin,
@@ -609,6 +733,7 @@ def main(argv: list[str] | None = None) -> int:
         "check": cmd_check,
         "current": cmd_current,
         "gap": cmd_gap,
+        "trace": cmd_trace,
     }
     return dispatch[args.command](args)
 
