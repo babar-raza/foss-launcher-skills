@@ -194,11 +194,17 @@ _pc_step_start "API accuracy audit"
 # ---------------------------------------------------------------------------
 # Locale files (/ar/, /fr/, /de/, etc.) are translator output and are not
 # subject to API accuracy audit — only English source pages are checked.
+# blog.aspose.org encodes locale in the FILENAME (index.<locale>.md), not a
+# path segment, so it needs its own pattern (bare index.md = English) rather
+# than matching every staged blog file unconditionally (found live migrating
+# 722 3d/java pages, Mission MT008 TC-MT008-08: every locale sibling of a
+# blog post was being audited against the English page's shared evidence
+# frontmatter, contradicting this step's own stated intent above).
 changed=()
 while IFS= read -r _line; do changed+=("$_line"); done < <(
     git diff --cached --name-only --diff-filter=ACM \
         | grep '^content/.*\.md$' \
-        | grep -E '(/en/|^content/blog\.aspose\.org/)'
+        | grep -E '(/en/|^content/blog\.aspose\.org/.*/index\.md$)'
 )
 if [ ${#changed[@]} -eq 0 ]; then
     # No English pages staged — skip the API audit ONLY. Do NOT exit the hook:
