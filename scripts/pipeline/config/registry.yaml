@@ -54,6 +54,22 @@ scripts:
     deprecated_since: null
     notes: "wrapper → evidence.runner.main()"
 
+  - path: scripts/pipeline/commands/healing/prune_stale_evidence_apis.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python scripts/pipeline/commands/healing/prune_stale_evidence_apis.py {family} {platform} --files PATH [PATH ...] [--dry-run]"
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: skill
+      ref: evidence-repair
+    test_targets:
+      - scripts/pipeline/tests/test_prune_stale_evidence_apis.py
+    requires_test: true
+    deprecated_since: null
+    notes: "G-39 root-cause fix (2026-07-24): line-level pruner for evidence.apis entries whose Class.Member token does not resolve against api_surface.json (methods+properties+enum_members+fields). Complements attach_evidence.py, which adds new tokens but never removes stale ones."
+
   - path: scripts/pipeline/commands/healing/repair_grade_reasons_yaml.py
     kind: entrypoint
     lifecycle: active

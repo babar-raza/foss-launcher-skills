@@ -82,7 +82,7 @@ prompts:
     output_schema: .supervisor/schemas/stage3-quality-scoring-rubric.schema.json
     successor_rules:
       - condition: "all_green == true"
-        next: null
+        next: PSL-PROMPT-4
       - condition: "overall_verdict == EXECUTION_REROUTED_REWORK_REQUIRED"
         next: PSL-PROMPT-2
       - condition: "overall_verdict == PLAN_NOT_READY_HEALED_ONLY"
@@ -92,6 +92,30 @@ prompts:
       - "must include quality_scores for every taskcard"
       - "must include evidence_bundle_path"
       - "rerouted items cannot be accepted without rescoring"
+
+  - id: PSL-PROMPT-4
+    name: prompt4-close-task
+    file: .supervisor/prompts/prompt4-close-task.md
+    description: "Governed task closure: review changes, commit, update master plan in place, report closure status"
+    stage: 4
+    mode: close
+    inputs:
+      - stage3-final-sprint-summary.yaml
+      - plans/master-plan.md
+    outputs:
+      - closure record (.supervisor/state/closures/<plan_id>-<date>.json)
+      - master plan update (plans/master-plan.md, amended in place)
+    output_schema: null
+    successor_rules:
+      - condition: "closure_status == CLOSED"
+        next: null
+      - condition: "closure_status == NOT_CLOSED"
+        next: PSL-PROMPT-2
+    validation_rules:
+      - "must not claim closure without verifying final repo state"
+      - "must not leave uncommitted relevant changes behind"
+      - "must record files changed, commit hash(es), master plan sections updated, closure status"
+    note: "Added to registry 2026-07-24 -- prompt existed on disk (added 2026-06-24) and was already used successfully for MT004-2026-07-16-PDF-NET-REFRESH closure (.supervisor/state/closures/diligent-verifying-egret-20260717.json, hash da14cfcb36dff6341e029189d084be3f confirmed matching) but was never added to this registry. Backfilling the registration; no change to the file's own content or behavior."
 
   - id: PSL-LOOP-CTRL
     name: prompt-loop-controller
