@@ -98,3 +98,35 @@ class TestCheckPair:
         old = _page(DE_DESC)
         cur = _page(DE_DESC) + "\n```csharp\ncode();\n```\n"
         assert check_pair(cur, old, "de") == []
+
+    def test_r3_block_replaced_by_maven_coord_shortcode_passes(self):
+        # Mission MT008 (plans/master-plan.md, TC-MT008-08): a whole fenced
+        # dependency block cleanly replaced by the maven-coord shortcode is
+        # NOT wave-3 fence-stripping -- the code content is gone too, and a
+        # validly-argumented shortcode call took its place.
+        old = _page(DE_DESC) + "\n```xml\n<dependency/>\n```\n"
+        cur = _page(DE_DESC) + '\n{{< maven-coord "cells" "java" >}}\n'
+        assert check_pair(cur, old, "de") == []
+
+    def test_r3_two_blocks_replaced_by_two_shortcodes_passes(self):
+        old = _page(DE_DESC) + "\n```xml\nA\n```\n```xml\nB\n```\n"
+        cur = _page(DE_DESC) + (
+            '\n{{< maven-coord "cells" "java" >}}\n'
+            '{{< maven-gav "cells" "java" >}}\n'
+        )
+        assert check_pair(cur, old, "de") == []
+
+    def test_r3_block_removed_without_shortcode_still_blocks(self):
+        # Same fence-pair reduction as the passing case above, but no new
+        # shortcode call -- must still be treated as real fence-stripping.
+        old = _page(DE_DESC) + "\n```xml\n<dependency/>\n```\n"
+        cur = _page(DE_DESC) + "\n<dependency/>\n"
+        assert check_pair(cur, old, "de") == ["R3"]
+
+    def test_r3_odd_reduction_with_shortcode_still_blocks(self):
+        # One marker of a pair stripped (odd reduction) even though a
+        # shortcode call is present elsewhere -- cannot be a clean
+        # pair-for-shortcode substitution, so it must still fail.
+        old = _page(DE_DESC) + "\n```xml\n<a/>\n```\n```xml\n<b/>\n```\n"
+        cur = _page(DE_DESC) + '\n<a/>\n```\n{{< maven-coord "cells" "java" >}}\n'
+        assert check_pair(cur, old, "de") == ["R3"]

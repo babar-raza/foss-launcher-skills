@@ -97,6 +97,20 @@ def _fence_count(text: str) -> int:
     return sum(1 for ln in text.splitlines() if ln.lstrip().startswith("```"))
 
 
+# Shortcodes known to legitimately replace a whole fenced code block (open
+# fence + content + close fence) with a single line, e.g. Mission MT008's
+# maven-coord/maven-gav (plans/master-plan.md D-02). A newly-introduced call
+# to one of these is a specific, hard-to-accidentally-produce signal of an
+# intentional structural substitution -- unlike wave-3 fence-stripping, which
+# leaves the original code CONTENT behind as orphaned text with no new,
+# validly-argumented shortcode syntax in its place.
+_BLOCK_REPLACING_SHORTCODE_RE = re.compile(r"\{\{<\s*maven-(?:coord|gav)\s")
+
+
+def _shortcode_call_count(text: str) -> int:
+    return len(_BLOCK_REPLACING_SHORTCODE_RE.findall(text))
+
+
 def check_pair(cur_text: str, old_text: str | None, locale: str) -> list[str]:
     """Pure core: return failure codes for one (current, previous) pair."""
     failures = []
@@ -108,8 +122,18 @@ def check_pair(cur_text: str, old_text: str | None, locale: str) -> list[str]:
         # Only a REGRESSION blocks: previous version had a non-English desc.
         if old_desc and not looks_english(old_desc, locale):
             failures.append("R1")
-    if old_text and _fence_count(cur_text) < _fence_count(old_text):
-        failures.append("R3")
+    if old_text:
+        fence_reduction = _fence_count(old_text) - _fence_count(cur_text)
+        if fence_reduction > 0:
+            # A clean block-for-shortcode substitution removes whole fence
+            # PAIRS (open + close = 2 markers) and adds 1 shortcode call per
+            # pair. An ODD reduction can never be explained this way -- it is
+            # exactly the wave-3 signature (one marker of a pair stripped,
+            # content left orphaned) -- so it always fails, regardless of
+            # shortcode count.
+            new_shortcode_calls = _shortcode_call_count(cur_text) - _shortcode_call_count(old_text)
+            if fence_reduction % 2 != 0 or new_shortcode_calls < fence_reduction // 2:
+                failures.append("R3")
     return failures
 
 
