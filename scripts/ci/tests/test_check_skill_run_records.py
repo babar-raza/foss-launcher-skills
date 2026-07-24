@@ -52,6 +52,18 @@ class TestParseSkills:
         msg = "docs: just documentation, no skills"
         assert check_skill_run_records._parse_declared_skills(msg) is None
 
+    def test_ignores_prose_mention_finds_real_declaration_line(self):
+        # Regression guard: found live while committing this exact fix. A commit
+        # body discussing "Skills invoked:" as a topic (mid-sentence, quoted) must
+        # not be mistaken for the real declaration line further down the message.
+        msg = (
+            "fix: harden the commit-msg hook's \"Skills invoked:\" field check\n\n"
+            "This changes how the 'Skills invoked:' field is validated.\n\n"
+            "Skills invoked: [S-99]\n"
+        )
+        result = check_skill_run_records._parse_declared_skills(msg)
+        assert result == ["S-99"]
+
 
 # ---------------------------------------------------------------------------
 # TestMain

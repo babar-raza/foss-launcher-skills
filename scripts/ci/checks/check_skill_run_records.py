@@ -55,7 +55,14 @@ def configure(*, repo_root: "Path | str | None" = None, runs_dir: "Path | str | 
     _RUNS_DIR = Path(runs_dir) if runs_dir is not None else _REPO_ROOT / "reports" / "skill-runs"
 
 # Pattern to match "Skills invoked: [S-xx, S-yy]" or "Skills invoked: S-xx, S-yy"
-_SKILLS_RE = re.compile(r"skills?\s*invoked[:\s]+\[?([^\]\n]+)\]?", re.IGNORECASE)
+# Anchored to the START of a line (re.MULTILINE): the real declaration is always its
+# own line (e.g. "Skills invoked: [S-72]"), typically near the end of the message. A
+# bare .search() with no anchor matches the FIRST occurrence anywhere in the message,
+# including a prose mention mid-sentence (e.g. a commit body discussing this exact
+# field, as this fix's own commit message did -- found live, MT007 follow-up: the
+# unanchored regex matched a quoted mention on line 8 instead of the real
+# declaration on line 41).
+_SKILLS_RE = re.compile(r"^skills?\s*invoked[:\s]+\[?([^\]\n]+)\]?", re.IGNORECASE | re.MULTILINE)
 
 
 def _parse_declared_skills(commit_msg: str) -> list[str] | None:
