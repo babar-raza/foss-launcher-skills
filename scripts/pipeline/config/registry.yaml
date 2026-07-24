@@ -2726,6 +2726,58 @@ scripts:
     change_impact: null
     notes: "Slice 7 CLI: wraps MetricsSubmitter. Default mode is --dry-run. Production requires --owner-approved + env vars."
 
+  # ── Mission MT008 (plans/master-plan.md), TC-MT008-08 (2026-07-24) ──────────
+
+  - path: scripts/pipeline/commands/content/maven_shortcode_migrator.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python -m commands.content.maven_shortcode_migrator {family} [--dry-run|--execute] [--limit N]"
+    owner_domain: content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_maven_shortcode_migrator.py
+    test_exempt_reason: null
+    requires_test: true
+    deprecated_since: null
+    notes: >-
+      Mission MT008 D-08: deterministic codemod replacing literal Java-FOSS
+      Maven-coordinate text (block and inline forms) with the maven-coord/
+      maven-gav Hugo shortcode calls, across docs/blog/kb/products.aspose.org
+      and all locales. Evaluated coordinate_migrator.py/install_block_updater.py
+      first (TC-MT008-00) and found them not a structural fit (old-value/
+      new-value substitution vs. this mission's block/span-replacement need,
+      and no products.aspose.org coverage) -- this is new, purpose-built
+      machinery reusing safe_content_write verbatim.
+
+  # ── Mission MT008 (plans/master-plan.md), TC-MT008-05 (2026-07-24) ──────────
+
+  - path: scripts/pipeline/commands/ops/publish_watcher.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: "python -m commands.ops.publish_watcher"
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_publish_watcher.py
+    test_exempt_reason: null
+    requires_test: true
+    deprecated_since: null
+    notes: >-
+      Mission MT008 D-03: scheduled live-Maven-Central check for Java-FOSS
+      packages still marked published:false in data/foss_packages.json.
+      Detects and reports only (opens a GitHub issue via
+      .github/workflows/maven-publish-watcher.yml) -- never auto-commits a
+      state flip. See publish_watcher.py's own module docstring for the full
+      design rationale.
+
   # ── fix(pipeline): blog 404 sprint ops scripts (2026-05-20) ─────────────────
 
   - path: scripts/pipeline/commands/ops/batch_gen_missing.py
@@ -2738,11 +2790,21 @@ scripts:
     backing:
       kind: internal
       ref: null
-    test_targets: []
-    test_exempt_reason: "write-only batch orchestrator; invokes existing pipeline commands; no return values to unit-test"
-    requires_test: false
+    test_targets:
+      - scripts/pipeline/tests/test_batch_gen_missing_install_command.py
+    test_exempt_reason: null
+    requires_test: true
     deprecated_since: null
-    notes: "Batch-generate all missing site plan pages; used during sprint execution"
+    notes: >-
+      Batch-generate all missing site plan pages; used during sprint execution.
+      Previously test_exempt with rationale "write-only... no return values to
+      unit-test" -- that rationale was false: the files it writes are exactly
+      the testable contract (its return value IS observable, via the string it
+      produces). This exemption is what let a hardcoded wrong-groupId table
+      (PACKAGE_NAMES) survive undetected for 3 months -- see Mission MT008
+      (plans/master-plan.md) Finding F-07 and TC-MT008-10. The other ~119
+      test_exempt_reason entries in this registry were NOT audited as part of
+      this fix -- flagged as a separate, unscoped follow-up, not resolved here.
 
   - path: scripts/pipeline/commands/ops/enrich_reference_stubs.py
     kind: entrypoint

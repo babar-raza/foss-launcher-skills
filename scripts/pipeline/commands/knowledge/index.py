@@ -11,12 +11,15 @@ from pathlib import Path
 
 _DEFAULT_KNOWLEDGE_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent / "knowledge"
 KNOWLEDGE_ROOT = _DEFAULT_KNOWLEDGE_ROOT
+_DEFAULT_FOSS_PACKAGES_PATH = Path(__file__).resolve().parent.parent.parent.parent.parent / "data" / "foss_packages.json"
+FOSS_PACKAGES_PATH = _DEFAULT_FOSS_PACKAGES_PATH
 
 
-def configure(*, knowledge_root: "Path | str | None" = None) -> None:
+def configure(*, knowledge_root: "Path | str | None" = None, foss_packages_path: "Path | str | None" = None) -> None:
     """Override module-level path constants for testing."""
-    global KNOWLEDGE_ROOT
+    global KNOWLEDGE_ROOT, FOSS_PACKAGES_PATH
     KNOWLEDGE_ROOT = Path(knowledge_root) if knowledge_root is not None else _DEFAULT_KNOWLEDGE_ROOT
+    FOSS_PACKAGES_PATH = Path(foss_packages_path) if foss_packages_path is not None else _DEFAULT_FOSS_PACKAGES_PATH
 
 
 def compute_api_confidence(api_total: int, method_pct: float) -> str:
@@ -39,6 +42,33 @@ def compute_api_confidence(api_total: int, method_pct: float) -> str:
     return "low"
 
 
+def _java_install_command(family):
+    """Generate the Java Maven <dependency> block from data/foss_packages.json.
+
+    This is the ONLY source for the Java groupId/artifactId — never hardcoded.
+    See plans/master-plan.md Mission MT008 (D-04): a hardcoded, wrong-groupId
+    fallback lived here for 3 months because promote.py strips `install_command`
+    from merged/model.yaml (AF-03), so this fallback fired for every Java-FOSS
+    page. Returns a "not yet published" placeholder — never a coordinate — when
+    no entry exists or the family isn't confirmed live on Maven Central.
+    """
+    try:
+        packages = json.loads(FOSS_PACKAGES_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return "<!-- Maven coordinate unavailable: data/foss_packages.json missing or invalid -->"
+
+    entry = packages.get(family, {}).get("java")
+    if not entry or not entry.get("published") or not entry.get("confirmed"):
+        return f"<!-- aspose-{family}-foss is not yet published on Maven Central -- build from source -->"
+
+    c = entry["confirmed"]
+    return (
+        f"<dependency><groupId>{c['group_id']}</groupId>"
+        f"<artifactId>{c['artifact_id']}</artifactId>"
+        f"<version>{c['version']}</version></dependency>"
+    )
+
+
 def _install_command(family, platform, version=""):
     """Generate platform-appropriate install command."""
     pkg = f"aspose-{family}-foss"
@@ -49,9 +79,7 @@ def _install_command(family, platform, version=""):
     elif platform in ("net", "dotnet"):
         return f"dotnet add package {pkg.replace('-', '.')}"
     elif platform == "java":
-        gid = "com.aspose"
-        aid = f"aspose-{family}-foss"
-        return f"<dependency><groupId>{gid}</groupId><artifactId>{aid}</artifactId></dependency>"
+        return _java_install_command(family)
     elif platform == "go":
         module = f"github.com/aspose-{family}-foss/aspose-{family}-foss-for-go"
         return f"go get {module}"
