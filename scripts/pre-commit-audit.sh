@@ -1060,4 +1060,45 @@ else
 fi
 _pc_step_end "PASS"
 
+_pc_step_start "reference index structure"
+# ---------------------------------------------------------------------------
+# Step 24 (TC-REF-14, 2026-07-25): reference platform index structure gate.
+# check_reference_index_structure.py detects reference.aspose.org platform
+# _index.md pages that use the legacy flat `{{< children >}}` shortcode when
+# grouped module tables are required (docs/reference/reference-index-structure.md).
+# This check already existed and already exits non-zero (blocking) on a flat
+# index, but was wired only into the `pull_request` trigger of
+# content-audit.yml — this repo's content commits go directly to `main`, so
+# that gate never actually ran. words/net, cells/rust, and html/python all
+# regressed to flat past this exact CI check silently as a result. Gate on
+# staged reference _index.md files so this doesn't cost anything on unrelated
+# commits; the script itself scans the whole reference tree (cheap — ~30
+# platforms) once triggered.
+# ---------------------------------------------------------------------------
+staged_ref_index=()
+while IFS= read -r _rline; do staged_ref_index+=("$_rline"); done < <(
+    git diff --cached --name-only --diff-filter=ACMR \
+        | grep -E '^content/reference\.aspose\.org/en/[^/]+/[^/]+/_index\.md$' || true
+)
+if [ ${#staged_ref_index[@]} -gt 0 ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_reference_index_structure.py" ]; then
+        _ref_out=$(PYTHONPATH=scripts/pipeline "$_HOOK_PYTHON" \
+            scripts/ci/checks/check_reference_index_structure.py 2>&1)
+        _ref_exit=$?
+        if [ -n "$_ref_out" ]; then
+            echo "$_ref_out" | sed 's/^/[Step 24] /'
+        fi
+        if [ $_ref_exit -ne 0 ]; then
+            echo ""
+            echo "BLOCKED: staged reference _index.md page(s) use flat {{< children >}} instead of grouped tables (see above)."
+            echo "  Fix: .venv/Scripts/python scripts/pipeline/commands/content/batch_reference.py {family} {platform} --generate-index"
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    else
+        echo "[Step 24] SKIP: .venv not found or check_reference_index_structure.py missing." >&2
+    fi
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0

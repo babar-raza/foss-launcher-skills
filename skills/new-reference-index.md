@@ -9,8 +9,10 @@ Scaffold or repair the reference platform `_index.md` section landing page.
 
 Creates the Hugo section landing page at
 `content/reference.aspose.org/en/{family}/{platform}/_index.md` with all required frontmatter
-fields and the `{{< children >}}` shortcode. Without this file (or when it is missing
-`layout: list`, `summary`, `categories`, or the shortcode), the reference section
+fields and a grouped, per-module class table (Step 8 writes a temporary `{{< children >}}`
+scaffold; Step 8b immediately regenerates it into grouped tables via
+`batch_reference.py --generate-index` — see Step 8b). Without this file (or when it is missing
+`layout: list`, `summary`, `categories`, or a grouped body), the reference section
 will fail to list classes or render incorrectly.
 
 ## Platform Display Names
@@ -156,9 +158,35 @@ Default weight for unlisted platforms: 80.
    ```
 
    Note: the `evidence:` and `grade:` blocks are written by `attach_evidence.py` in the next
-   step — do not add them manually. The `provenance:` block above is included in the template
-   by design: structural index pages receive `content_origin: unknown` with `auto_updatable: false`
-   at creation time (structural-deferred classification per Phase N provenance governance).
+   step — do not add them manually. The `provenance:` block above is a **transient scaffold**,
+   not the final state: it exists only to seed `linkTitle`/`weight`/`description`/`summary`/base
+   provenance for Step 8b to read and rewrite. It must never survive to the committed page except
+   in the genuine-skip case documented in Step 8b.
+
+8b. **Generate the grouped index** (TC-REF-14, 2026-07-25): Immediately convert the Step 8
+    scaffold into the required grouped-table structure — do NOT leave the bare `{{< children >}}`
+    body in place. Run:
+    ```bash
+    PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/batch_reference.py \
+      {family} {platform} --generate-index
+    ```
+    - **`SUCCESS: Grouped index written to ...`** → the flat scaffold body is replaced with
+      `## Module` headings + `| Class | Description |` tables, and `provenance.auto_updatable`
+      flips to `true` / `content_origin` to `skill-generated` / `provenance_recovery_note` is
+      dropped. Continue to Step 9 as normal.
+    - **`SKIPPED: api_surface.json missing`** or **`SKIPPED: ... too small (<5 entries)`** →
+      knowledge for this platform is too thin to group (e.g. scout-only/degraded enrichment).
+      The Step 8 flat scaffold legitimately persists — but this is NOT a silent allowed state:
+      file a backlog follow-up (same pattern as `RUST-ENRICH-001`) noting the platform needs a
+      knowledge re-enrichment pass and an `S-84 refresh-product` (or direct `--generate-index`)
+      follow-up once knowledge improves. Do not confirm the skill run as fully complete without
+      this follow-up filed.
+
+    Background: a one-off manual heal (commit `b8dced9004`, 2026-05-25) migrated 10 platforms
+    from this flat scaffold to grouped tables using the same `generate_grouped_index()` function
+    this step now calls, but the heal was never folded back into this skill — every platform
+    launched via Step 8 alone between 2026-05-25 and 2026-07-25 (`words/net`, `cells/rust`,
+    `html/python`) silently regressed to the pre-heal flat structure. Step 8b closes that gap.
 
 9. **Attach evidence**: Run:
    ```bash
