@@ -58,6 +58,7 @@ PLATFORM_TO_LANG: dict[str, str] = {
     "javascript": "javascript",
     "nodejs": "javascript",
     "go": "go",
+    "rust": "rust",
 }
 
 _CLASS_TYPES: dict[str, set[str]] = {
@@ -71,6 +72,7 @@ _CLASS_TYPES: dict[str, set[str]] = {
     "cpp": {"class_specifier", "struct_specifier", "enum_specifier"},
     "python": {"class_definition"},
     "go": {"type_declaration", "type_spec"},
+    "rust": {"struct_item", "enum_item", "trait_item", "union_item"},
 }
 
 _FUNC_TYPES: dict[str, set[str]] = {
@@ -84,6 +86,8 @@ _FUNC_TYPES: dict[str, set[str]] = {
     "go": {"function_declaration", "method_declaration"},
     "cpp": {"function_definition"},
     "python": {"function_definition"},
+    # function_signature_item = body-less trait method declarations
+    "rust": {"function_item", "function_signature_item"},
 }
 
 _PY_ENUM_BASES: frozenset[str] = frozenset({
@@ -99,6 +103,7 @@ _IMPORT_TYPES: dict[str, set[str]] = {
     "go": {"import_declaration"},
     "cpp": set(),
     "python": {"import_statement", "import_from_statement"},
+    "rust": {"use_declaration"},
 }
 
 _MODULE_TYPES: dict[str, set[str]] = {
@@ -109,6 +114,7 @@ _MODULE_TYPES: dict[str, set[str]] = {
     "go": {"package_clause"},
     "cpp": {"namespace_definition"},
     "python": set(),
+    "rust": {"mod_item"},
 }
 
 _NOT_IMPL_PATTERNS: dict[str, re.Pattern[str]] = {
@@ -128,6 +134,11 @@ _NOT_IMPL_PATTERNS: dict[str, re.Pattern[str]] = {
         r'|panic\s*\(\s*"not implemented[^"]*"\s*\)',
         re.IGNORECASE,
     ),
+    "rust": re.compile(
+        r"unimplemented!\s*\(|todo!\s*\("
+        r'|panic!\s*\(\s*"not implemented',
+        re.IGNORECASE,
+    ),
 }
 
 _FILE_EXTENSIONS: dict[str, str] = {
@@ -138,6 +149,7 @@ _FILE_EXTENSIONS: dict[str, str] = {
     "typescript": ".ts",
     "javascript": ".js",
     "go": ".go",
+    "rust": ".rs",
 }
 
 _HEADER_EXTENSIONS: dict[str, str | list[str]] = {
@@ -152,6 +164,7 @@ _DOC_COMMENT_STYLES: dict[str, str] = {
     "cpp": "javadoc",
     "python": "docstring",
     "go": "godoc",
+    "rust": "rustdoc",
 }
 
 
@@ -244,6 +257,29 @@ def is_public(node, language: str) -> bool:
 
     if language == "go":
         return name[0].isupper()
+
+    if language == "rust":
+        # Trait members (function_item / function_signature_item inside a
+        # trait body) are implicitly public — the trait itself is gated
+        # separately as its own class-type node. Trait-impl members
+        # (`impl Trait for Type { fn ... }`) inherit the trait's visibility
+        # and carry no `pub` of their own. Inherent-impl members and
+        # module-level items require an explicit bare `pub` —
+        # `pub(crate)` / `pub(super)` / `pub(in ...)` are crate-internal
+        # and must NOT be extracted as public API.
+        parent = node.parent
+        while parent is not None:
+            if parent.type == "trait_item":
+                return True
+            if parent.type == "impl_item":
+                if child_by_field(parent, "trait") is not None:
+                    return True
+                break  # inherent impl — fall through to the pub check
+            parent = parent.parent
+        for ch in node.children:
+            if ch.type == "visibility_modifier":
+                return node_text(ch).strip() == "pub"
+        return False
 
     if language == "python":
         if name == "__init__":
@@ -355,6 +391,9 @@ def visibility_tier(node, language: str, *, has_docstring: bool = False,
         return "public"
     if language == "go":
         return "exported"
+    if language == "rust":
+        # `pub` is an explicit visibility marker (crate-external export).
+        return "public"
     return "public"
 
 
@@ -454,6 +493,31 @@ def _collect_source_files(
 def _extract_bases(node, language: str) -> list[str]:
     """Extract base classes / interfaces from a class declaration."""
     bases: list[str] = []
+    if language == "rust":
+        # Rust has no inheritance. "Bases" are (a) traits from #[derive(...)]
+        # attributes preceding the item and (b) supertraits on trait items
+        # (`pub trait Foo: Bar + Baz`). Traits implemented via separate
+        # `impl Trait for Type` blocks are added later by
+        # api_surface._associate_rust_impl_methods.
+        cur = node.prev_named_sibling
+        while cur is not None and cur.type in ("attribute_item", "line_comment"):
+            if cur.type == "attribute_item":
+                m = re.search(r"derive\s*\(([^)]*)\)", node_text(cur))
+                if m:
+                    for part in m.group(1).split(","):
+                        part = part.strip()
+                        if part:
+                            bases.append(part)
+            cur = cur.prev_named_sibling
+        if node.type == "trait_item":
+            tb = find_child_by_type(node, "trait_bounds")
+            if tb is not None:
+                for ch in tb.children:
+                    if ch.type in ("type_identifier", "generic_type",
+                                    "scoped_type_identifier"):
+                        bases.append(node_text(ch))
+        return bases
+
     if language == "python":
         arg_list = find_child_by_type(node, "argument_list")
         if arg_list:
@@ -770,6 +834,7 @@ def _extract_enum_members(node, language: str) -> list[dict[str, str]]:
             or find_child_by_type(node, "enum_member_declaration_list")
             or find_child_by_type(node, "enum_declaration_list")
             or find_child_by_type(node, "enumerator_list")
+            or find_child_by_type(node, "enum_variant_list")
             or find_child_by_type(node, "declaration_list")
             or find_child_by_type(node, "block"))
     if body is None:
@@ -777,7 +842,8 @@ def _extract_enum_members(node, language: str) -> list[dict[str, str]]:
 
     for ch in body.children:
         if ch.type in ("enum_constant", "enum_member_declaration",
-                        "enum_assignment", "enumerator", "property_identifier"):
+                        "enum_assignment", "enumerator", "property_identifier",
+                        "enum_variant"):
             name = _node_name(ch, language) or node_text(ch).strip()
             val_node = child_by_field(ch, "value")
             val = node_text(val_node) if val_node else ""

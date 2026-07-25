@@ -33,6 +33,8 @@ def parse_manifest(repo: Path, platform: str) -> dict[str, Any]:
         return _parse_cpp_manifest(repo)
     if platform == "go":
         return _parse_go_manifest(repo)
+    if platform == "rust":
+        return _parse_rust_manifest(repo)
     return {}
 
 
@@ -248,6 +250,58 @@ def _parse_go_manifest(repo: Path) -> dict[str, Any]:
     pkg_name = _extract_go_package_name(repo)
     if pkg_name:
         info["package_name"] = pkg_name
+    return info
+
+
+def _parse_rust_manifest(repo: Path) -> dict[str, Any]:
+    """Extract identity fields from Cargo.toml.
+
+    Captures ``[package]`` name/version/license/edition/rust-version plus the
+    ``[lib] name`` (the real import path when it differs from the crate name,
+    stored as ``canonical_package`` — same key the Python manifest uses for
+    the analogous name-vs-import split).
+    """
+    info: dict[str, Any] = {}
+    cargo = repo / "Cargo.toml"
+    if not cargo.exists():
+        # Nested/workspace layout: use the first subdirectory crate.
+        try:
+            for candidate in sorted(repo.iterdir()):
+                if candidate.is_dir() and (candidate / "Cargo.toml").exists():
+                    cargo = candidate / "Cargo.toml"
+                    break
+        except OSError:
+            pass
+    if not cargo.exists():
+        return info
+    try:
+        if sys.version_info >= (3, 11):
+            import tomllib
+        else:
+            import tomli as tomllib  # type: ignore[no-redef]
+        data = tomllib.loads(cargo.read_text(encoding="utf-8", errors="replace"))
+    except Exception as exc:
+        LOG.warning("Cargo.toml parse error: %s", exc)
+        return info
+    pkg = data.get("package", {})
+    info["name"] = pkg.get("name", "") if isinstance(pkg.get("name", ""), str) else ""
+    version = pkg.get("version", "")
+    info["version"] = version if isinstance(version, str) else ""
+    lic = pkg.get("license", "")
+    info["license"] = lic if isinstance(lic, str) else ""
+    if pkg.get("edition"):
+        info["edition"] = str(pkg["edition"])
+    if pkg.get("rust-version"):
+        info["rust_version"] = str(pkg["rust-version"])
+        info["runtime_requirement"] = f"Rust {pkg['rust-version']}+"
+    deps = data.get("dependencies", {})
+    if isinstance(deps, dict):
+        info["dependencies"] = list(deps.keys())
+    lib_name = (data.get("lib") or {}).get("name", "")
+    info["canonical_package"] = (
+        lib_name if isinstance(lib_name, str) and lib_name
+        else info["name"].replace("-", "_")
+    )
     return info
 
 

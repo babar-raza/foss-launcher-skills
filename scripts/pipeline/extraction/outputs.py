@@ -54,7 +54,7 @@ def _is_enum_class(c: dict) -> bool:
       carry a populated enum_members list because _PY_ENUM_BASES detected them.
     """
     kind = c.get("kind", "")
-    if kind in ("enum_declaration", "enum_definition"):
+    if kind in ("enum_declaration", "enum_definition", "enum_item"):
         return True
     # Python: IntEnum/StrEnum/Flag/IntFlag subclasses are class_definition nodes
     # that the api_surface extractor tagged with enum_members.
@@ -63,7 +63,7 @@ def _is_enum_class(c: dict) -> bool:
     return False
 
 
-def _install_command(platform: str, manifest: dict) -> str:
+def _install_command(platform: str, manifest: dict, repo_url: str = "") -> str:
     name = manifest.get("name", "")
     version = manifest.get("version", "")
     if platform == "python":
@@ -95,6 +95,21 @@ def _install_command(platform: str, manifest: dict) -> str:
     if platform == "go":
         module = manifest.get("name", "")
         return f"go get {module}" if module else ""
+    if platform == "rust":
+        if not name:
+            return ""
+        # The crate is not published on crates.io — install as a Cargo git
+        # dependency (fully functional). When the crate ships on the
+        # registry, drop the repo_url path and this becomes `cargo add`.
+        if repo_url:
+            git_url = repo_url[:-4] if repo_url.endswith(".git") else repo_url
+            return (
+                f"# Cargo.toml\n[dependencies]\n"
+                f'{name} = {{ git = "{git_url}" }}'
+            )
+        if version:
+            return f"cargo add {name}@{version}"
+        return f"cargo add {name}"
     return ""
 
 
@@ -140,6 +155,12 @@ def _canonical_import(platform: str, manifest: dict,
             alias = (pkg_name if pkg_name and pkg_name != "main"
                      else module.rstrip("/").rsplit("/", 1)[-1].replace("-", ""))
             return f'import {alias} "{module}"'
+    if platform == "rust":
+        # canonical_package = [lib] name when present, else crate name with
+        # hyphens mapped to underscores (Cargo's own import-path rule).
+        crate = (manifest.get("canonical_package", "")
+                 or name.replace("-", "_"))
+        return f"use {crate}::*;" if crate else ""
     return ""
 
 
@@ -212,6 +233,12 @@ def _runtime_requirement(platform: str, manifest: dict) -> str:
     if platform == "cpp":
         cmake_min = manifest.get("cmake_min_version", "")
         return f"CMake {cmake_min}+" if cmake_min else ""
+    if platform == "rust":
+        rust_version = manifest.get("rust_version", "")
+        if rust_version:
+            return f"Rust {rust_version}+"
+        edition = manifest.get("edition", "")
+        return f"Rust edition {edition}" if edition else ""
     return ""
 
 
@@ -252,7 +279,7 @@ def write_outputs(
             manifest["license"] = overrides["license"]
         LOG.info("Applied registry overrides: %s", list(overrides.keys()))
 
-    install_cmd = _install_command(platform, manifest)
+    install_cmd = _install_command(platform, manifest, repo_url)
     canonical_imp = _canonical_import(platform, manifest, packages)
     runtime_req = _runtime_requirement(platform, manifest)
 

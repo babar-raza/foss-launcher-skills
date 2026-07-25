@@ -289,9 +289,60 @@ def _first_sentence(text: str) -> str:
     return text.split("\n")[0].strip()[:200]
 
 
+def _extract_rustdoc_comment(node) -> str:
+    """Extract the first sentence of a Rust `///` doc comment preceding *node*.
+
+    Rust doc comments are per-line ``line_comment`` nodes preceding the item,
+    optionally separated from it by ``attribute_item`` nodes
+    (``#[derive(...)]``, ``#[doc = "..."]``). Walk back over attributes first
+    (collecting any ``#[doc = "..."]`` text as a fallback doc source), then
+    gather the contiguous run of ``///`` line-comment nodes using the same
+    line-adjacency rule as the godoc/xml_doc extractors. ``//!`` inner docs
+    document the *enclosing* module, never the following item, and are
+    excluded by the ``///`` prefix check.
+    """
+    attr_doc_parts: list[str] = []
+    cur = node.prev_named_sibling
+    while cur is not None and cur.type == "attribute_item":
+        m = re.search(r'#\s*\[\s*doc\s*=\s*"([^"]*)"\s*\]', node_text(cur))
+        if m:
+            attr_doc_parts.insert(0, m.group(1))
+        cur = cur.prev_named_sibling
+
+    lines_with_row: list[tuple[int, str]] = []
+    while cur is not None and cur.type == "line_comment":
+        cur_txt = node_text(cur)
+        if not cur_txt.lstrip().startswith("///"):
+            break
+        cur_row = cur.start_point[0]
+        if lines_with_row and lines_with_row[0][0] - cur_row > 1:
+            break  # line gap — belongs to a different comment block
+        lines_with_row.insert(0, (cur_row, cur_txt))
+        cur = cur.prev_named_sibling
+
+    para_lines: list[str] = []
+    for _, ln in lines_with_row:
+        bare = ln.strip()
+        if bare.startswith("///"):
+            bare = bare[3:]
+        bare = bare.strip()
+        if not bare and para_lines:
+            break  # blank `///` line ends the summary paragraph
+        if bare:
+            para_lines.append(bare)
+
+    cleaned = " ".join(para_lines) or " ".join(attr_doc_parts)
+    if cleaned:
+        return _first_sentence(cleaned)
+    return ""
+
+
 def _extract_doc_comment(node, language: str) -> str:
     """Extract the first sentence of a doc comment preceding *node*."""
     style = _DOC_COMMENT_STYLES.get(language, "javadoc")
+
+    if style == "rustdoc":
+        return _extract_rustdoc_comment(node)
 
     if style == "docstring" and language == "python":
         body = child_by_field(node, "body") or find_child_by_type(node, "block")
@@ -1146,6 +1197,148 @@ def _extract_go_struct_fields(
 
 
 # ---------------------------------------------------------------------------
+# Rust struct field extraction + impl-block method association
+# ---------------------------------------------------------------------------
+
+
+def _extract_rust_struct_fields(
+    cnode,
+    cname: str,
+    rel: str,
+    family: str,
+) -> tuple[list[dict], list[dict]]:
+    """Extract `pub` fields from a Rust struct_item node.
+
+    Walks struct_item → field_declaration_list → field_declaration and keeps
+    only fields carrying a bare ``pub`` visibility modifier — private and
+    ``pub(crate)``/``pub(super)`` fields are implementation detail, not public
+    API. Tuple structs (ordered_field_declaration_list) and unit structs have
+    no named fields and yield nothing.
+
+    Returns (properties, claims).
+    """
+    properties: list[dict] = []
+    claims: list[dict] = []
+
+    body = child_by_field(cnode, "body")
+    if body is None or body.type != "field_declaration_list":
+        return properties, claims
+
+    for field_decl in body.children:
+        if field_decl.type != "field_declaration":
+            continue
+        vis = [node_text(c).strip() for c in field_decl.children
+               if c.type == "visibility_modifier"]
+        if "pub" not in vis:
+            continue
+        name_node = child_by_field(field_decl, "name")
+        fname = node_text(name_node) if name_node else ""
+        if not fname:
+            continue
+        type_node = child_by_field(field_decl, "type")
+        ftype = node_text(type_node) if type_node else ""
+        properties.append({
+            "name": fname,
+            "type": ftype,
+            "kind": "property",
+            "access_mode": "readwrite",
+            "doc": _extract_rustdoc_comment(field_decl),
+            "line": field_decl.start_point[0] + 1,
+        })
+        claims.append(_make_claim(
+            family, "api_method",
+            f"{cname}.{fname} field of type {ftype}",
+            rel, field_decl.start_point[0] + 1,
+        ))
+
+    return properties, claims
+
+
+def _extract_rust_impl_context(fnode) -> tuple[str, str]:
+    """Return (implementing_type, trait_name) for a Rust function_item.
+
+    Walks up from *fnode* to the enclosing ``impl_item`` (if any) and reads
+    its ``type`` field (the implementing type) and optional ``trait`` field.
+    Generic arguments and reference sigils are stripped so the bare type name
+    matches the extracted struct/enum entry (``Workbook<'a, T>`` → ``Workbook``).
+    Returns ("", "") for functions not inside an impl block.
+    """
+    parent = fnode.parent
+    while parent is not None and parent.type != "impl_item":
+        parent = parent.parent
+    if parent is None:
+        return "", ""
+
+    def _bare(n) -> str:
+        if n is None:
+            return ""
+        txt = node_text(n)
+        return txt.split("<", 1)[0].strip().lstrip("&").strip()
+
+    return (_bare(child_by_field(parent, "type")),
+            _bare(child_by_field(parent, "trait")))
+
+
+_RUST_TYPE_KINDS: frozenset[str] = frozenset({
+    "struct_item", "enum_item", "union_item", "trait_item",
+})
+
+
+def _associate_rust_impl_methods(classes: list[dict]) -> list[dict]:
+    """Post-process Rust entries: move impl-block methods into their type.
+
+    Rust methods live in ``impl Type { ... }`` / ``impl Trait for Type { ... }``
+    blocks, which are top-level AST nodes — the same shape as Go receiver
+    methods (SFX-1). The main extraction loop records them as
+    ``kind="function"`` entries carrying ``receiver_type`` (the impl target
+    type) and ``trait_impl`` (the trait name, for trait impls). This pass
+    relocates each such entry into the matching type's ``methods[]`` list and
+    records implemented traits in the type's ``bases``. Functions whose
+    receiver type was not extracted (e.g. an impl for a private type) are
+    left in place, matching the Go behavior.
+    """
+    type_map: dict[str, int] = {}
+    for i, entry in enumerate(classes):
+        if entry.get("kind") in _RUST_TYPE_KINDS:
+            type_map.setdefault(entry["name"], i)
+
+    to_remove: set[int] = set()
+    moved = 0
+    for i, entry in enumerate(classes):
+        if entry.get("kind") != "function":
+            continue
+        receiver = entry.get("receiver_type", "")
+        if not receiver:
+            continue
+        idx = type_map.get(receiver)
+        if idx is None:
+            continue
+        parent = classes[idx]
+        method_entry = {
+            "name": entry["name"],
+            "doc": entry.get("doc", ""),
+            "params": entry.get("params", []),
+            "return_type": entry.get("return_type", ""),
+            "line": entry.get("line", 0),
+            "file": entry.get("file", ""),
+            # Rust convention: `new` is the canonical associated constructor.
+            "is_constructor": entry["name"] == "new",
+        }
+        if not isinstance(parent.get("methods"), list):
+            parent["methods"] = []
+        parent["methods"].append(method_entry)
+        trait_name = entry.get("trait_impl", "")
+        if trait_name and trait_name not in parent.get("bases", []):
+            parent.setdefault("bases", []).append(trait_name)
+        to_remove.add(i)
+        moved += 1
+
+    LOG.debug("Rust impl association: moved %d impl methods into %d types",
+              moved, len(type_map))
+    return [e for i, e in enumerate(classes) if i not in to_remove]
+
+
+# ---------------------------------------------------------------------------
 # Go receiver method association (SFX-1)
 # ---------------------------------------------------------------------------
 
@@ -1591,6 +1784,13 @@ def extract_api_surface(
                 if name_node:
                     packages.add(node_text(name_node))
                 continue
+            # Rust mod_item: extract the name field — the node text of an
+            # inline module (`mod foo { ... }`) spans the entire module body.
+            if language == "rust" and mnode.type == "mod_item":
+                name_node = child_by_field(mnode, "name")
+                if name_node:
+                    packages.add(node_text(name_node))
+                continue
             pkg_text = node_text(mnode).strip().rstrip(";").rstrip("{").strip()
             for kw in ("package", "namespace"):
                 if pkg_text.startswith(kw):
@@ -1651,7 +1851,7 @@ def extract_api_surface(
                 continue
 
             is_enum = cnode.type in ("enum_declaration", "enum_definition",
-                                     "enum_specifier")
+                                     "enum_specifier", "enum_item")
             # SFX-2: For Go type_spec nodes, the godoc comment precedes the
             # parent type_declaration node, not the type_spec itself.  Pass
             # the parent when available so _extract_doc_comment can find it.
@@ -2021,6 +2221,13 @@ def extract_api_surface(
                 properties.extend(extra_props)
                 claims.extend(extra_claims)
 
+            # Rust pub struct fields (e.g. Workbook.path)
+            if language == "rust":
+                extra_props, extra_claims = _extract_rust_struct_fields(
+                    cnode, cname, rel, family)
+                properties.extend(extra_props)
+                claims.extend(extra_claims)
+
             vis = visibility_tier(
                 cnode, language,
                 has_docstring=bool(cdoc),
@@ -2108,6 +2315,25 @@ def extract_api_surface(
                         cls_record["class_import"] = f"{module_path}.{cname}"
                 except ValueError:
                     pass
+            elif language == "rust":
+                # Module path derived from file location relative to pkg_root
+                # (src/): src/worksheet.rs → "worksheet", src/foo/mod.rs →
+                # "foo", src/lib.rs → crate root (no module segment).
+                try:
+                    rs_rel = fpath.relative_to(pkg_root)
+                    parts = list(rs_rel.parts)
+                    if parts and parts[-1].endswith(".rs"):
+                        parts[-1] = parts[-1][:-3]
+                    if parts and parts[-1] in ("lib", "main", "mod"):
+                        parts = parts[:-1]
+                    if parts:
+                        module_path = "::".join(parts)
+                        cls_record["canonical_namespace"] = module_path
+                        cls_record["class_import"] = f"{module_path}::{cname}"
+                    else:
+                        cls_record["class_import"] = cname
+                except ValueError:
+                    cls_record["class_import"] = cname
 
             classes.append(cls_record)
             claims.append(_make_claim(
@@ -2140,8 +2366,14 @@ def extract_api_surface(
             # SFX-1: For Go methods, capture receiver type so _associate_go_methods
             # can move them into their parent type's methods[] list later.
             receiver_type = ""
+            rust_trait = ""
             if language == "go":
                 receiver_type = _extract_go_receiver_type(fnode)
+            elif language == "rust":
+                # Rust impl-block methods surface here (impl_item is not a
+                # class-type node); capture the impl target + trait so
+                # _associate_rust_impl_methods can relocate them.
+                receiver_type, rust_trait = _extract_rust_impl_context(fnode)
 
             func_entry: dict[str, Any] = {
                 "name": fname,
@@ -2157,6 +2389,8 @@ def extract_api_surface(
             }
             if receiver_type:
                 func_entry["receiver_type"] = receiver_type
+            if rust_trait:
+                func_entry["trait_impl"] = rust_trait
             classes.append(func_entry)
             claims.append(_make_claim(
                 family, "api_method",
@@ -2169,6 +2403,11 @@ def extract_api_surface(
     # moves them into the correct type's methods[] list.
     if language == "go":
         classes = _associate_go_methods(classes)
+
+    # Rust: same shape as Go — impl-block methods are top-level nodes, so
+    # relocate them into their owning struct/enum/trait entries.
+    if language == "rust":
+        classes = _associate_rust_impl_methods(classes)
 
     # Consolidate partial classes, deduplicate enums, disambiguate same-name
     # types in different namespaces.  Must run BEFORE _flatten_inheritance so

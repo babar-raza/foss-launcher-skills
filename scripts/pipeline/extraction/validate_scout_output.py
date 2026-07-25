@@ -33,6 +33,8 @@ _CLASS_BEARING_EXTENSIONS: dict[str, list[str]] = {
     "cpp": [".hpp", ".h", ".cpp"],
     "typescript": [".ts"],
     "javascript": [".js"],
+    "go": [".go"],
+    "rust": [".rs"],
 }
 
 _PLATFORM_TO_LANG: dict[str, str] = {
@@ -44,6 +46,8 @@ _PLATFORM_TO_LANG: dict[str, str] = {
     "typescript": "typescript",
     "javascript": "javascript",
     "nodejs": "javascript",
+    "go": "go",
+    "rust": "rust",
 }
 
 # Maturity tier thresholds.

@@ -9,7 +9,7 @@ import scout
 
 class TestPlatformToLang:
     def test_all_platforms_present(self):
-        expected = {"python", "net", "dotnet", "java", "cpp", "typescript", "javascript", "nodejs", "go"}
+        expected = {"python", "net", "dotnet", "java", "cpp", "typescript", "javascript", "nodejs", "go", "rust"}
         assert set(scout.PLATFORM_TO_LANG.keys()) == expected
 
     def test_nodejs_maps_to_javascript(self):

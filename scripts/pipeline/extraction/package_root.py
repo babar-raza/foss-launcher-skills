@@ -30,6 +30,8 @@ def detect_package_root(repo: Path, platform: str) -> Path:
         return _detect_cpp_root(repo)
     if platform == "go":
         return _detect_go_root(repo)
+    if platform == "rust":
+        return _detect_rust_root(repo)
     return repo
 
 
@@ -116,6 +118,30 @@ def _detect_cpp_root(repo: Path) -> Path:
     src = repo / "src"
     if src.is_dir():
         return src
+    return repo
+
+
+def _detect_rust_root(repo: Path) -> Path:
+    """Return the Rust crate source root inside *repo*.
+
+    For flat-layout crates (Cargo.toml at root), returns ``src/`` when it
+    exists (the canonical crate source dir), else the repo root.
+    For nested/workspace layouts, returns the first subdirectory containing
+    a Cargo.toml (its ``src/`` when present).
+    Logs a warning if no Cargo.toml is found and falls back to *repo*.
+    """
+    if (repo / "Cargo.toml").exists():
+        src = repo / "src"
+        return src if src.is_dir() else repo
+    try:
+        for candidate in sorted(repo.iterdir()):
+            if candidate.is_dir() and (candidate / "Cargo.toml").exists():
+                LOG.info("Rust crate root detected at %s (nested layout)", candidate)
+                src = candidate / "src"
+                return src if src.is_dir() else candidate
+    except OSError:
+        pass
+    LOG.warning("No Cargo.toml found under %s — falling back to repo root", repo)
     return repo
 
 
