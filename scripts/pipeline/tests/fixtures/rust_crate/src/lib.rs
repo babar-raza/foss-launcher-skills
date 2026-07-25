@@ -5,6 +5,10 @@ pub mod workbook;
 mod internal_util;
 mod save;
 
+#[path = "Aspose.Fixture_FOSS/flat.rs"]
+mod flat;
+
+pub use flat::{FlatType, SaveFormat};
 pub use workbook::Workbook;
 
 /// Opens a workbook from disk.

@@ -112,6 +112,13 @@ class TestRustBatchReference:
         e = _entry(file="src/workbook.rs")
         assert _br._derive_group_key(e, "cells", "rust") == "core"
 
+    def test_group_key_dotted_path_dir_is_core(self):
+        """#[path]-mapped dotted dirs (src/Aspose.Cells_FOSS/) are not Rust
+        modules — every type there groups under core, not one mega-group
+        named after the directory."""
+        e = _entry(file="src/Aspose.Cells_FOSS/PageSetup.rs")
+        assert _br._derive_group_key(e, "cells", "rust") == "core"
+
 
 # ---------------------------------------------------------------------------
 # Snippets: inline #[test] fns + examples/ main()

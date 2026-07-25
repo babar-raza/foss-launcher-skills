@@ -544,7 +544,7 @@ def detect_formats(
             if not cname:
                 continue
             is_enum = cn.type in ("enum_declaration", "enum_definition",
-                                  "enum_specifier")
+                                  "enum_specifier", "enum_item")
             # Python: detect enums by base class inheritance
             if not is_enum and language == "python":
                 fmt_bases = _extract_bases(cn, language)
@@ -726,9 +726,19 @@ def detect_formats(
         "chars", "emu", "color", "point", "rect", "size",
         "underlying", "hex",
     })
-    _method_fmt_re = re.compile(
-        r'\b(?:load_from|save_to|save_as|from|to)_([a-z][a-z0-9]+)\b'
-    )
+    # Rust: bare `to_x`/`from_x` are the language's TYPE-conversion idiom
+    # (to_lowercase, to_vec, from_bits, to_rfc3339, ...), not format I/O —
+    # found live on cells/rust (11 fake formats from one scout run). Only the
+    # explicit I/O verb forms count there; every other language keeps the
+    # broad pattern that C++/Python libraries rely on.
+    if language == "rust":
+        _method_fmt_re = re.compile(
+            r'\b(?:load_from|save_to|save_as)_([a-z][a-z0-9]+)\b'
+        )
+    else:
+        _method_fmt_re = re.compile(
+            r'\b(?:load_from|save_to|save_as|from|to)_([a-z][a-z0-9]+)\b'
+        )
     # Private save method definitions: def _save_xlsx(...), def _save_csv(...)
     _save_private_re = re.compile(r'\bdef\s+_save_([a-z][a-z0-9]+)\s*\(')
     seen_mf: set[tuple[str, str]] = set()
@@ -904,17 +914,24 @@ def _scan_save_dispatch(
         return formats
 
     # Dynamic regex for SaveFormat/ExportFormat/OutputFormat.MEMBER references
-    # (case-insensitive for libraries that use Title-case enum values)
+    # (case-insensitive for libraries that use Title-case enum values).
+    # `::` separator covers Rust/C++ enum paths (SaveFormat::Xlsx) — found
+    # live on cells/rust (2026-07-25): Workbook.rs dispatches SaveFormat::Xlsx
+    # into pub fn save_xlsx(), but the dot-only pattern never matched, so the
+    # real Xlsx export was demoted to enum_only.
     enum_alt = "|".join(re.escape(n) for n in sorted(enum_names))
     member_ref_re = re.compile(
-        r'(?:' + enum_alt + r')\s*\.\s*('
+        r'(?:' + enum_alt + r')\s*(?:::|\.)\s*('
         + "|".join(re.escape(m) for m in sorted(save_members))
         + r")\b",
         re.IGNORECASE,
     )
-    # Method definition pattern: _save_as_X, save_as_X, _save_X
+    # Method definition pattern: _save_as_X, save_as_X, _save_X.
+    # `fn` keyword covers Rust (pub fn save_xlsx) — no other supported
+    # language declares functions with a bare `fn`, so this stays inert
+    # elsewhere.
     save_method_re = re.compile(
-        r"\bdef\s+(_?save_?(?:as_?|to_?)?)([a-z][a-z0-9_]*)\s*\("
+        r"\b(?:def|fn)\s+(_?save_?(?:as_?|to_?)?)([a-z][a-z0-9_]*)\s*\("
     )
 
     seen: set[str] = set()

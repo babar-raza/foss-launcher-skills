@@ -960,15 +960,19 @@ def _derive_group_key(entry: dict, family: str, platform: str) -> str:
         return "core"
 
     elif platform == "rust":
-        # Pattern: src/formats/xlsx.rs → "formats"; src/workbook.rs → "core"
+        # Pattern: src/formats/xlsx.rs → "formats"; src/workbook.rs → "core".
+        # Directory segments that are not valid Rust module identifiers
+        # (e.g. the dotted `src/Aspose.Cells_FOSS/` #[path]-mapped layout)
+        # are not modules — treat them as crate root.
         for i, p in enumerate(parts):
             if p == "src" and i + 1 < len(parts) - 1:
                 next_seg = parts[i + 1]
-                if next_seg.endswith(".rs"):
+                if (next_seg.endswith(".rs")
+                        or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", next_seg)):
                     return "core"
                 return next_seg
         # Fallback: use second-to-last directory (nested crate layouts)
-        if len(parts) >= 3:
+        if len(parts) >= 3 and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", parts[-2]):
             return parts[-2]
         return "core"
 

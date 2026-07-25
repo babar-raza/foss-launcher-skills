@@ -224,7 +224,8 @@ class TestRustdocExtraction:
 
 
 class TestFixtureCrateExtraction:
-    EXPECTED_TYPES = {"Workbook", "SheetRef", "CellValue", "Saveable", "Coord"}
+    EXPECTED_TYPES = {"Workbook", "SheetRef", "CellValue", "Saveable", "Coord",
+                      "FlatType", "SaveFormat"}
 
     def test_exact_public_type_set(self, extracted):
         type_names = {n for n, c in extracted["classes"].items()
@@ -342,6 +343,84 @@ class TestFixtureCrateExtraction:
 
     def test_visibility_field(self, extracted):
         assert extracted["classes"]["Workbook"]["visibility"] == "public"
+
+    def test_dotted_path_module_gets_bare_import(self, extracted):
+        """cells/rust real-repo finding (2026-07-25): #[path]-mapped dotted
+        directories (src/Aspose.Cells_FOSS/) are not Rust modules — types
+        there are crate-root re-exports and must get the bare type name, not
+        an invalid `Aspose.Fixture_FOSS::FlatType` path."""
+        flat = extracted["classes"]["FlatType"]
+        assert flat["class_import"] == "FlatType"
+        assert "canonical_namespace" not in flat
+
+    def test_flat_type_methods_associated(self, extracted):
+        methods = {m["name"] for m in extracted["classes"]["FlatType"]["methods"]}
+        assert {"to_vec", "save_to_xlsx"} <= methods
+
+
+# ---------------------------------------------------------------------------
+# Format detection (C4 real-repo findings, cells/rust 2026-07-25)
+# ---------------------------------------------------------------------------
+
+
+class TestRustFormatDetection:
+    @pytest.fixture(scope="class")
+    def detected(self):
+        from extraction.formats import detect_formats
+        parser = scout.get_parser("rust")
+        formats, claims = detect_formats(
+            parser, "rust", FIXTURE / "src", FIXTURE, "cells")
+        return formats
+
+    def test_save_format_enum_members_detected(self, detected):
+        """enum_item was missing from detect_formats' enum-kind tuple — Rust
+        SaveFormat/LoadFormat enums silently produced no format entries."""
+        xlsx_export = [f for f in detected
+                       if f["format"].lower() == "xlsx"
+                       and f["direction"] == "export"
+                       and f["enum"] == "SaveFormat"]
+        assert xlsx_export, f"SaveFormat.Xlsx export entry missing: {detected}"
+
+    def test_conversion_idioms_not_formats(self, detected):
+        """Bare to_x/from_x are Rust type-conversion idioms, not format I/O —
+        11 fake formats (vec, lowercase, bits, ...) leaked from one real
+        scout run before this was scoped to explicit I/O verbs."""
+        names = {f["format"].lower() for f in detected}
+        assert "vec" not in names
+        assert "string" not in names
+        assert "mut" not in names
+
+    def test_explicit_io_verb_still_detected(self, detected):
+        """save_to_xlsx keeps working — only the bare from_/to_ forms are
+        excluded for Rust."""
+        assert any(f["format"].lower() == "xlsx" and f["direction"] == "export"
+                   and f["enum"] == "" for f in detected)
+
+    def test_rust_save_dispatch_backing(self, tmp_path):
+        """Pass 4 (_scan_save_dispatch) must recognize Rust dispatch:
+        SaveFormat::Xlsx member reference + pub fn save_xlsx() in the same
+        file — found live on cells/rust where the dot-only/def-only patterns
+        left the real Xlsx export demoted to enum_only."""
+        from extraction.formats import _scan_save_dispatch
+        import re as _re
+        src = tmp_path / "workbook.rs"
+        src.write_text(
+            "pub fn save_xlsx(&self, path: &str) -> Result<(), E> {\n"
+            "    match fmt {\n"
+            "        SaveFormat::Xlsx => Ok(()),\n"
+            "    }\n"
+            "}\n",
+            encoding="utf-8",
+        )
+        formats = [{"format": "Xlsx", "enum": "SaveFormat",
+                    "direction": "export", "value": "", "file": "x.rs",
+                    "line": 1}]
+        out = _scan_save_dispatch(
+            formats, [src], tmp_path,
+            _re.compile(r"(SaveFormat|ExportFormat|OutputFormat)", _re.IGNORECASE),
+            None)
+        assert any(f["format"] == "xlsx" and f["direction"] == "export"
+                   and f["enum"] == "" for f in out), out
 
 
 # ---------------------------------------------------------------------------
