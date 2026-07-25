@@ -18,7 +18,7 @@ canonical_platforms:
   - ruby
   - typescript
   - jasperreports   # Enterprise-only; no local source pages
-  - rust            # Enterprise-only; no local source pages
+  - rust            # Local platform since 2026-07-25 (cells/rust launch, commit 7934cdd495)
 
 # Variant mappings: enterprise_slug -> canonical_platform
 # All entries have confirmed evidence from all_urls HTTP 200 counts
@@ -95,8 +95,8 @@ variants:
   # Rust variants
   rust:
     canonical: rust
-    local_equivalent: false
-    evidence: "No local rust platform dirs confirmed"
+    local_equivalent: true
+    evidence: "cells/rust launched 2026-07-25 (commit 7934cdd495): local pages on all 5 subdomains (content/{docs,kb,products,reference}.aspose.org/en/cells/rust/, content/blog.aspose.org/cells/rust/)"
   rust-cpp:
     canonical: rust
     local_equivalent: false
