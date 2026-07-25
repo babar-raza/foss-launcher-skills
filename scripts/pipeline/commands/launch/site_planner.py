@@ -95,7 +95,8 @@ KB_PLATFORM_SUFFIX = {
 # Troubleshooting eligibility — platforms where a troubleshooting page is generated
 # when howto_count >= 6 (see plan_kb).  net and java added 2026-04-07 healing sprint:
 # these platforms produce enough how-to articles to warrant a troubleshooting page.
-TROUBLE_PLATFORMS = {"typescript", "python", "cpp", "net", "java"}
+# rust added 2026-07-25 (cells/rust onboarding — parity with the other cells platforms).
+TROUBLE_PLATFORMS = {"typescript", "python", "cpp", "net", "java", "rust"}
 
 
 # ---------------------------------------------------------------------------

@@ -66,6 +66,8 @@ _TS_LANG_MAP: dict[str, str] = {
     "ts":         "typescript",
     "cpp":        "cpp",
     "c++":        "cpp",
+    "rust":       "rust",
+    "rs":         "rust",
 }
 
 # Platform name → frozenset of language tags to extract.
@@ -75,6 +77,7 @@ _PLATFORM_LANGS: dict[str, frozenset[str]] = {
     "net":        frozenset({"csharp", "cs", "c#"}),
     "typescript": frozenset({"typescript", "ts"}),
     "cpp":        frozenset({"cpp", "c++"}),
+    "rust":       frozenset({"rust", "rs"}),
 }
 
 # ---------------------------------------------------------------------------
@@ -155,6 +158,18 @@ def _load_ts_parsers() -> None:
         p = _get_lp_parser("cpp")
         if p:
             for tag in ("cpp", "c++"):
+                _TS_PARSER_CACHE[tag] = p
+
+    try:
+        import tree_sitter_rust as _tsrs
+        p = _make(_tsrs.language)
+        if p:
+            for tag in ("rust", "rs"):
+                _TS_PARSER_CACHE[tag] = p
+    except ImportError:
+        p = _get_lp_parser("rust")
+        if p:
+            for tag in ("rust", "rs"):
                 _TS_PARSER_CACHE[tag] = p
 
 
@@ -339,6 +354,7 @@ _LANG_DISPLAY: dict[str, str] = {
     "typescript": "TypeScript", "ts": "TypeScript",
     "cpp": "C++", "c++": "C++",
     "java": "Java",
+    "rust": "Rust", "rs": "Rust",
 }
 
 

@@ -119,7 +119,7 @@ class TestProducts:
 
 class TestPlatforms:
     REQUIRED_PLATFORMS = [
-        "python", "net", "java", "cpp",
+        "python", "net", "java", "cpp", "rust",
     ]
 
     @pytest.mark.parametrize("platform_key", REQUIRED_PLATFORMS)

@@ -186,6 +186,17 @@ PLATFORM_FOREIGN_PATTERNS: dict[str, list[tuple[str, str]]] = {
         (r"\bConsole\.WriteLine", ".NET console output"),
         (r"#\s*include\s*<", "C++ include directive"),
     ],
+    "rust": [
+        # NOTE: no `self.`-based pattern here — `self.field` (and even
+        # `self.field = value`) is idiomatic Rust, unlike every other
+        # non-Python platform where it signals Python contamination.
+        (r"\bdef\s+\w+\s*\(", "Python function definition"),
+        (r"\bSystem\.out\.println", "Java print statement"),
+        (r"\bConsole\.WriteLine", ".NET console output"),
+        (r"\bconsole\.log\(", "JavaScript console.log"),
+        (r"#\s*include\s*<", "C++ include directive"),
+        (r"\bfrom\s+\w+\s+import\b", "Python from-import"),
+    ],
 }
 
 # Language tag normalization: content lang tags → knowledge platform names
@@ -202,6 +213,8 @@ LANG_TO_PLATFORM = {
     "ts": "typescript",
     "javascript": "javascript",
     "js": "javascript",
+    "rust": "rust",
+    "rs": "rust",
 }
 
 # Platform → expected code block language tags
@@ -212,6 +225,7 @@ PLATFORM_EXPECTED_LANGS = {
     "cpp": {"cpp", "c++"},
     "typescript": {"typescript", "ts"},
     "javascript": {"javascript", "js"},
+    "rust": {"rust", "rs"},
 }
 
 # Prose contamination patterns (checked in prose, not code)
@@ -235,6 +249,12 @@ PROSE_FOREIGN_PATTERNS: dict[str, list[tuple[str, str]]] = {
         (r"\bpip\s+install\b", "Python pip install in C++ page"),
         (r"\bNuGet\b", "NuGet reference in C++ page"),
         (r"\bmaven\b", "Maven reference in C++ page"),
+    ],
+    "rust": [
+        (r"\bpip\s+install\b", "Python pip install in Rust page"),
+        (r"\bNuGet\b", "NuGet reference in Rust page"),
+        (r"\bmaven\b", "Maven reference in Rust page"),
+        (r"\bnpm\s+install\b", "npm install in Rust page"),
     ],
 }
 

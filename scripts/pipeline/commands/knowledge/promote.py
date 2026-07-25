@@ -462,8 +462,10 @@ def _apply_godoc_fallback(api_surface: list, platform: str) -> int:
     _PASCAL_PLATFORMS = {"go", "net", "cpp"}
     # Platforms that use camelCase accessors (Java, TypeScript)
     _CAMEL_PLATFORMS = {"java", "typescript"}
-    # Platforms that use snake_case accessors (Python)
-    _SNAKE_PLATFORMS = {"python"}
+    # Platforms that use snake_case accessors (Python, Rust — note Rust
+    # getters are bare `name()` without a get_ prefix, so only set_/is_
+    # inference applies)
+    _SNAKE_PLATFORMS = {"python", "rust"}
 
     if platform not in _PASCAL_PLATFORMS | _CAMEL_PLATFORMS | _SNAKE_PLATFORMS:
         return 0

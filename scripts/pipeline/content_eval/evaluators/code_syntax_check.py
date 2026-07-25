@@ -30,7 +30,7 @@ _PYTHON_LANGS = {"python", "py"}
 
 # Language tags handled by tree-sitter (when available)
 _TS_LANGS = {"java", "csharp", "cs", "c#", "typescript", "ts",
-             "javascript", "js", "cpp", "c++"}
+             "javascript", "js", "cpp", "c++", "rust", "rs"}
 
 # Language tags for heuristic fallback (tree-sitter absent, or other brace langs)
 _BRACE_LANGS = _TS_LANGS | {"kotlin", "swift", "go", "rust", "scala"}
@@ -114,6 +114,16 @@ def _load_ts_parsers() -> None:
             for tag in ("cpp", "c++"):
                 _TS_PARSER_CACHE[tag] = p
     except ImportError:
+        pass
+
+    # Rust ships via tree_sitter_language_pack (no standalone wheel installed)
+    try:
+        from tree_sitter_language_pack import get_parser as _lp_get_parser
+        p = _lp_get_parser("rust")
+        if p:
+            for tag in ("rust", "rs"):
+                _TS_PARSER_CACHE[tag] = p
+    except Exception:
         pass
 
 

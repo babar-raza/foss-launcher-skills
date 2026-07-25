@@ -129,6 +129,7 @@ _ENUM_KINDS: frozenset[str] = frozenset({
     "enum_specifier",       # C++
     "enum_declaration",     # Java / C#
     "enum_definition",      # alternative TS / C++
+    "enum_item",            # Rust
 })
 
 _CLASS_KINDS_BY_PLATFORM: dict[str, set[str]] = {
@@ -142,6 +143,7 @@ _CLASS_KINDS_BY_PLATFORM: dict[str, set[str]] = {
     "javascript": {"class_declaration"},
     "nodejs":     {"class_declaration"},
     "go":         {"type_spec"},
+    "rust":       {"struct_item", "enum_item", "trait_item", "union_item"},
 }
 
 _PLATFORM_TO_LANG: dict[str, str] = {
@@ -153,6 +155,7 @@ _PLATFORM_TO_LANG: dict[str, str] = {
     "javascript": "javascript",
     "nodejs": "javascript",
     "go": "go",
+    "rust": "rust",
 }
 
 # ERC-* claim kinds treated as prose-eligible for reference page descriptions
@@ -422,6 +425,8 @@ def _category(entry: dict, platform: str) -> str:
     # For all other cases, use the kind field
     if "interface" in kind:
         return "Interface"
+    if "trait" in kind:
+        return "Trait"
     if "struct" in kind:
         return "Struct"
     return "Class"
@@ -588,7 +593,12 @@ def _build_page(
         _plisted = ", ".join(f"`{n}`" for n in _all_pnames[:6])
         if len(_all_pnames) > 6:
             _plisted += f", and {len(_all_pnames) - 6} more"
-        _prop_label = "Accessor methods" if platform == "cpp" else "Properties"
+        if platform == "cpp":
+            _prop_label = "Accessor methods"
+        elif platform == "rust":
+            _prop_label = "Fields"
+        else:
+            _prop_label = "Properties"
         _lc10_prose.append(f"{_prop_label}: {_plisted}.")
     if category == "Enum" and _all_enames and not _lc10_prose:
         _elisted = ", ".join(f"`{e}`" for e in _all_enames[:12])
@@ -633,9 +643,15 @@ def _build_page(
             lines.append(f"| `{mname}` | {mdoc} |")
         lines.append("")
 
-    # Properties section (C++ has no language-level properties — use "Accessor Methods")
+    # Properties section (C++ has no language-level properties — use "Accessor
+    # Methods"; Rust exposes pub struct fields — use "Fields")
     if properties:
-        _prop_heading = "Accessor Methods" if platform == "cpp" else "Properties"
+        if platform == "cpp":
+            _prop_heading = "Accessor Methods"
+        elif platform == "rust":
+            _prop_heading = "Fields"
+        else:
+            _prop_heading = "Properties"
         lines.append(f"## {_prop_heading}")
         lines.append("")
         lines.append("| Name | Type | Access | Description |")
@@ -941,6 +957,23 @@ def _derive_group_key(entry: dict, family: str, platform: str) -> str:
                 if "." in next_seg:  # filename
                     return "core"
                 return next_seg
+        return "core"
+
+    elif platform == "rust":
+        # Pattern: src/formats/xlsx.rs → "formats"; src/workbook.rs → "core".
+        # Directory segments that are not valid Rust module identifiers
+        # (e.g. the dotted `src/Aspose.Cells_FOSS/` #[path]-mapped layout)
+        # are not modules — treat them as crate root.
+        for i, p in enumerate(parts):
+            if p == "src" and i + 1 < len(parts) - 1:
+                next_seg = parts[i + 1]
+                if (next_seg.endswith(".rs")
+                        or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", next_seg)):
+                    return "core"
+                return next_seg
+        # Fallback: use second-to-last directory (nested crate layouts)
+        if len(parts) >= 3 and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", parts[-2]):
+            return parts[-2]
         return "core"
 
     return "core"

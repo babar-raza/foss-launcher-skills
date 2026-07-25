@@ -2319,6 +2319,13 @@ def extract_api_surface(
                 # Module path derived from file location relative to pkg_root
                 # (src/): src/worksheet.rs → "worksheet", src/foo/mod.rs →
                 # "foo", src/lib.rs → crate root (no module segment).
+                # Segments that are not valid Rust module identifiers are
+                # dropped: crates like Aspose.Cells-FOSS-for-Rust keep source
+                # under a dotted directory (src/Aspose.Cells_FOSS/) wired via
+                # `#[path = "..."] mod api;` and re-export every type at the
+                # crate root — a path like `Aspose.Cells_FOSS::Workbook` is
+                # not a real Rust path, so such types get the bare type name
+                # (crate-root import), the Rust analog of PY-INIT-001.
                 try:
                     rs_rel = fpath.relative_to(pkg_root)
                     parts = list(rs_rel.parts)
@@ -2326,6 +2333,13 @@ def extract_api_surface(
                         parts[-1] = parts[-1][:-3]
                     if parts and parts[-1] in ("lib", "main", "mod"):
                         parts = parts[:-1]
+                    # ANY invalid segment means the layout is #[path]-mapped —
+                    # the whole derived path is unreliable, not just that
+                    # segment (the file-stem "module" under a dotted dir is
+                    # not a real module either).
+                    if any(not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", p)
+                           for p in parts):
+                        parts = []
                     if parts:
                         module_path = "::".join(parts)
                         cls_record["canonical_namespace"] = module_path

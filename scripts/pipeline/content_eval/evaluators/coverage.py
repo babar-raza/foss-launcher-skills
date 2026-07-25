@@ -18,7 +18,8 @@ KNOWLEDGE_ROOT = Path("knowledge")
 # Java and .NET expose interfaces as user-facing API — pages SHOULD exist.
 INTERFACE_PAGE_PLATFORMS = {"net", "java"}
 # C++ and Python use I-prefixed types as implementation contracts — no pages.
-CONCRETE_ONLY_PLATFORMS = {"cpp", "python"}
+# Rust has traits (rendered as their own pages), not I-prefixed interfaces.
+CONCRETE_ONLY_PLATFORMS = {"cpp", "python", "rust"}
 
 
 def _is_interface_entry(name: str, kind: str) -> bool:

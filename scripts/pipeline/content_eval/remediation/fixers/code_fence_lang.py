@@ -22,11 +22,12 @@ _PLATFORM_PRIMARY_LANG: dict[str, str] = {
     "cpp": "cpp",
     "typescript": "typescript",
     "javascript": "javascript",
+    "rust": "rust",
 }
 
 # Heuristics to detect shell/output blocks
 _SHELL_INDICATORS = re.compile(
-    r"^(\$\s|>\s|pip\s+install|npm\s+install|dotnet\s+add|mvn\s|cmake\s|nuget\s)",
+    r"^(\$\s|>\s|pip\s+install|npm\s+install|dotnet\s+add|mvn\s|cmake\s|nuget\s|cargo\s)",
     re.MULTILINE,
 )
 _XML_INDICATOR = re.compile(r"^\s*<\w+", re.MULTILINE)
