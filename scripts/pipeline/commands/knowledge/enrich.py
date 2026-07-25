@@ -1592,15 +1592,16 @@ def main() -> None:
                              "fresh LLM calls (loudly logged; fresh outputs still refresh the cache)")
     args = parser.parse_args()
 
-    # Prerequisite check — clear error messages instead of cryptic tracebacks
-    try:
-        from core.prereqs import require_all
-        require_all(args.family, args.platform, needs_clone_cache=True)
-    except SystemExit:
-        raise
-    except Exception:
-        pass  # prereqs is best-effort; enrich() has its own checks
-
+    # TC-03/G-03 (MT009 SEED-04): a require_all() precondition call previously
+    # lived here, checking for knowledge/{family}/{platform}/merged/model.yaml
+    # and merged/api_surface.json. Those are S-35 (truth-merge) outputs, but
+    # S-37 (this script) runs BEFORE S-35 in the documented first-time bootstrap
+    # chain (S-34 -> S-37 -> S-35), so on every greenfield product this check
+    # unconditionally failed with sys.exit(1) via its own "except SystemExit:
+    # raise" -- directly contradicting its adjacent comment ("prereqs is
+    # best-effort"). enrich()'s own body (see api_surface_path check below)
+    # already validates its true precondition (scout/api_surface.json), so no
+    # replacement check is needed here.
     success = enrich(args.family, args.platform, args.knowledge_root,
                      no_llm=args.no_llm,
                      rehash_only=args.rehash_only,

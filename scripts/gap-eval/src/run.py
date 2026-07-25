@@ -276,8 +276,16 @@ def discover_content_files(family: str, platform: str, scope: str = "all") -> di
 
 # Patterns for Tier 1 deterministic checks
 _RE_CODE_BLOCK = re.compile(r"```([a-z]*)\n(.*?)```", re.DOTALL)  # group1=lang, group2=body
+# TC-02/G-02 (MT009 SEED-20): the two alternatives below are ordered so that a
+# Python `from X import Y[, Y2...]` statement is consumed by the first
+# alternative as ONE match (capturing only the real package path X into
+# from_val). Without this, the bare `import` branch previously re-matched
+# independently inside the same statement and captured Y (an imported class/
+# function name) as if it were itself a package -- a systematic false
+# positive for every from-import code example (see pipeline-evidence.md).
 _RE_PACKAGE_IMPORT = re.compile(
-    r"(?:import|require|using|from|pip install|nuget|maven|npm install|poetry add)\s+([\w.@/\-]+)",
+    r"from\s+(?P<from_val>[\w.@/\-]+)\s+import\s+[\w.,\s()*]+"
+    r"|(?:import|require|using|pip install|nuget|maven|npm install|poetry add)\s+(?P<val>[\w.@/\-]+)",
     re.IGNORECASE,
 )
 _RE_API_TOKEN = re.compile(r"\b([A-Z][A-Za-z0-9]+)\.([a-z_][A-Za-z0-9_]*)\s*[\(\[]?")
@@ -328,7 +336,7 @@ def extract_claims(file_path: Path, content: str) -> list[dict]:
         line_no = content[: m.start()].count("\n") + 1
         # Package declarations
         for pm in _RE_PACKAGE_IMPORT.finditer(block):
-            pkg_val = pm.group(1)
+            pkg_val = pm.group("from_val") or pm.group("val")
             # TIER3-TS-FP-01: For TS/JS code blocks, the regex `import X from 'mod'`
             # captures the binding identifier X (e.g. `is`, `buffer`) rather than the
             # module name.  Skip these bare single-word identifiers — they have no

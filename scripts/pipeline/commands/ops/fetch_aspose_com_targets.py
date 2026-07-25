@@ -424,6 +424,57 @@ def synthesize_urls_for_subdomain(
     return results
 
 
+# ── Read-merge-write for scoped runs (TC-01/G-01) ────────────────────────────
+
+def merge_preserved_families(
+    targets: dict[str, dict],
+    all_urls_flat: dict[str, dict],
+    filter_families: set[str],
+    repo_root: Path,
+) -> None:
+    """Preserve on-disk registry entries for families outside filter_families.
+
+    Mutates ``targets`` and ``all_urls_flat`` in place. A --families scoped
+    run only scans the requested families; without this merge, writing the
+    result would silently discard every other family already recorded in
+    data/aspose_com_targets.json (MT009 SEED-16 data-loss incident).
+    """
+    existing_json_path = repo_root / "data" / "aspose_com_targets.json"
+    if not existing_json_path.exists():
+        return
+    try:
+        existing_data = json.loads(existing_json_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"  WARN: could not read existing {existing_json_path} for merge: {exc}",
+              file=sys.stderr)
+        return
+
+    existing_targets = existing_data.get("targets", {})
+    for sd, sd_data in existing_targets.items():
+        merged_sd = targets.setdefault(sd, {"families": {}, "platforms": {}})
+        for fam, entry in sd_data.get("families", {}).items():
+            if fam not in filter_families:
+                merged_sd["families"].setdefault(fam, entry)
+        for key, entry in sd_data.get("platforms", {}).items():
+            fam = key.split("/", 1)[0]
+            if fam not in filter_families:
+                merged_sd["platforms"].setdefault(key, entry)
+
+    for url, meta in existing_data.get("all_urls", {}).items():
+        if meta.get("family") not in filter_families:
+            all_urls_flat.setdefault(url, meta)
+
+    preserved_count = sum(
+        len(v.get("families", {})) for v in existing_targets.values()
+    )
+    print(
+        f"  Merged {len(filter_families)} freshly-scanned famil"
+        f"{'y' if len(filter_families) == 1 else 'ies'} into existing "
+        f"{preserved_count}-family registry",
+        file=sys.stderr,
+    )
+
+
 # ── Build target map ─────────────────────────────────────────────────────────
 
 def build_target_map(
@@ -634,14 +685,25 @@ def build_target_map(
             key = f"{entry.family}/{entry.platform}"
             targets[sd]["platforms"][key] = entry_dict
 
+    # TC-01/G-01 (MT009 SEED-16): --families scopes the SCAN, not the persisted
+    # registry. Without this merge, a scoped run silently discards every other
+    # family already on disk when the output is written (confirmed data-loss
+    # incident). Read-merge-write: preserve on-disk entries for families NOT
+    # in this run's filter_families; freshly-scanned families always win.
+    if filter_families:
+        merge_preserved_families(targets, all_urls_flat, filter_families, repo_root)
+
     # Build family/platform matrix
     matrix: dict[str, dict] = {}
     products_sd = "products.aspose.com"
     docs_sd = "docs.aspose.com"
     ref_sd = "reference.aspose.com"
 
-    # Collect all families seen
+    # Collect all families seen (post-merge: includes preserved families)
     all_families: set[str] = set()
+    for sd_data in targets.values():
+        all_families.update(sd_data.get("families", {}).keys())
+        all_families.update(k.split("/", 1)[0] for k in sd_data.get("platforms", {}))
     for entry in all_entries.values():
         if entry.family:
             all_families.add(entry.family)
