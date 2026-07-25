@@ -15,7 +15,7 @@ Expected format: `{family} {platform}` or `--files {path1} [path2 ...]`
 ## Purpose
 
 Check that code blocks in content pages are syntactically valid. Supports
-Python (via `py_compile` and `mypy`), Java, C#, TypeScript, and C++ (via
+Python (via `py_compile` and `mypy`), Java, C#, TypeScript, C++, and Rust (via
 tree-sitter grammar parsing). **Never executes code** — syntax-check only.
 
 ## Pre-conditions
@@ -110,7 +110,7 @@ When `eval-page` is run for a Python-platform product, add this as step 2b:
 - Multi-block examples (variables defined in block 1 used in block 2) are
   checked independently. This may produce false-positive `NameError` or type
   complaints for variables defined in prior blocks.
-- Java, C#, TypeScript, and C++ blocks are checked via tree-sitter syntax
+- Java, C#, TypeScript, C++, and Rust blocks are checked via tree-sitter syntax
   parsing (grammar-level only — not semantic analysis or type inference).
 - `bash` blocks are never checked.
 - The syntax check only catches compile-time errors, not runtime errors.

@@ -83,6 +83,7 @@ platforms:
   nodejs: "Node.js"
   php: "PHP"
   go: "Go"
+  rust: "Rust"
   ruby: "Ruby"
   android: "Android"
   swift: "Swift"

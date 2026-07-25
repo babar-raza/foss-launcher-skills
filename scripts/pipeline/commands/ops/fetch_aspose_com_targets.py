@@ -91,6 +91,8 @@ PLATFORM_ALIASES: dict[str, str] = {
     "ruby": "ruby", "ruby-net": "ruby",
     # go
     "go": "go", "golang": "go",
+    # rust
+    "rust": "rust", "rs": "rust",
     # typescript
     "typescript": "typescript",
 }
