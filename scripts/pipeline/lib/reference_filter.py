@@ -34,6 +34,7 @@ _ENUM_KINDS: frozenset[str] = frozenset({
     "enum_specifier",       # C++
     "enum_declaration",     # Java / C#
     "enum_definition",      # alternative TS / C++
+    "enum_item",            # Rust (no other tree-sitter grammar emits this kind)
 })
 
 # C++ abstract base classes that must not appear as public API reference pages.
@@ -91,6 +92,7 @@ _CLASS_KINDS_BY_PLATFORM: dict[str, set[str]] = {
     "javascript": {"class_declaration"},
     "nodejs":     {"class_declaration"},
     "go":         {"type_spec"},
+    "rust":       {"struct_item", "enum_item", "trait_item", "union_item"},
 }
 
 # ---------------------------------------------------------------------------

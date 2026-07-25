@@ -142,6 +142,21 @@ def _parse_install_md(install_path: Path) -> dict[str, str]:
         result["package_name"] = m.group(1)
         return result
 
+    # Rust: cargo add {crate}@{version}
+    m = re.match(r"cargo add\s+([A-Za-z0-9._-]+)(?:@([A-Za-z0-9._-]+))?", block)
+    if m:
+        result["package_name"] = m.group(1)
+        result["version"] = m.group(2) or ""
+        return result
+
+    # Rust: Cargo.toml git-dependency form ({crate} = { git = "..." }),
+    # emitted by outputs.py while the crate is unpublished on crates.io.
+    m = re.search(
+        r'^([A-Za-z0-9._-]+)\s*=\s*\{\s*git\s*=\s*"[^"]+"', block, re.MULTILINE)
+    if m:
+        result["package_name"] = m.group(1)
+        return result
+
     return result
 
 
@@ -152,6 +167,7 @@ _PLATFORM_JAVA = frozenset({"java"})
 _PLATFORM_PYTHON = frozenset({"python"})
 _PLATFORM_JS = frozenset({"typescript", "javascript", "nodejs"})
 _PLATFORM_GO = frozenset({"go"})
+_PLATFORM_RUST = frozenset({"rust"})
 
 
 def _detect_platform_type(platform: str) -> str:
@@ -167,6 +183,8 @@ def _detect_platform_type(platform: str) -> str:
         return "js"
     if p in _PLATFORM_GO:
         return "go"
+    if p in _PLATFORM_RUST:
+        return "rust"
     return "unknown"
 
 
@@ -245,6 +263,18 @@ def _block_contains_install(block_text: str, info: dict[str, str], platform_type
         if re.search(r"go get\s+\S+", inner):
             return True
 
+    elif platform_type == "rust":
+        pkg = info.get("package_name", "")
+        if pkg and re.search(r"cargo add\s+" + re.escape(pkg), inner):
+            return True
+        if pkg and re.search(
+                re.escape(pkg) + r'\s*=\s*\{\s*git\s*=', inner):
+            return True
+        if re.search(r"cargo add\s+\S+", inner):
+            return True
+        if re.search(r'\[dependencies\]', inner):
+            return True
+
     return False
 
 
@@ -290,6 +320,17 @@ def _content_already_matches(content: str, new_info: dict[str, str], platform_ty
         mod = new_info.get("package_name", "")
         if mod:
             return bool(re.search(r"go get\s+" + re.escape(mod), content))
+
+    elif platform_type == "rust":
+        if new_pkg and new_ver:
+            return bool(re.search(
+                r"cargo add\s+" + re.escape(new_pkg) + r"@" + re.escape(new_ver),
+                content,
+            ))
+        if new_pkg:
+            # Git-dependency form carries no version — package name match only
+            return bool(re.search(
+                re.escape(new_pkg) + r'\s*=\s*\{\s*git\s*=', content))
 
     return False
 

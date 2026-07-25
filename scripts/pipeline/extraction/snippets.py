@@ -198,6 +198,29 @@ def _collect_snippet_functions(
             elif is_example_dir and fname == "main":
                 results.append((fname, fn, fn.start_point[0] + 1))
 
+    elif language == "rust":
+        # Rust tests are #[test]-attributed fns (usually inside an inline
+        # `#[cfg(test)] mod tests` block in the src file itself); examples/
+        # files use main(). The #[test] attribute is an attribute_item
+        # sibling immediately preceding the function_item.
+        _rust_test_attr_re = re.compile(r"#\s*\[\s*(?:\w+(?:::\w+)*::)?test\b")
+        for fn in collect_nodes(root, {"function_item"}):
+            fname = _node_name(fn, language)
+            if not fname:
+                continue
+            has_test_attr = False
+            cur = fn.prev_named_sibling
+            while cur is not None and cur.type == "attribute_item":
+                if _rust_test_attr_re.search(node_text(cur)):
+                    has_test_attr = True
+                    break
+                cur = cur.prev_named_sibling
+            if (has_test_attr or fname.startswith("test_")
+                    or fname.startswith("example_")):
+                results.append((fname, fn, fn.start_point[0] + 1))
+            elif is_example_dir and fname == "main":
+                results.append((fname, fn, fn.start_point[0] + 1))
+
     return results
 
 
@@ -437,6 +460,66 @@ def extract_snippets(
                     })
                     snippet_counter += 1
 
+    # Rust-specific: scan src files for inline #[cfg(test)] mod tests blocks.
+    # Rust unit tests conventionally live alongside the code they test, not in
+    # a tests/ subdirectory — the snippet_dirs loop never visits src/.
+    if language == "rust" and snippet_counter < MAX_SNIPPETS:
+        for src_file in sorted(pkg_root.rglob("*.rs"))[:MAX_FILES]:
+            if snippet_counter >= MAX_SNIPPETS:
+                break
+            rel = str(src_file.relative_to(repo)).replace("\\", "/")
+            try:
+                src = src_file.read_bytes()
+            except OSError:
+                continue
+            if b"#[test]" not in src and b"#[cfg(test)]" not in src:
+                continue
+            tree = parser.parse(src)
+            text = src.decode("utf-8", errors="replace")
+            root = tree.root_node
+            func_nodes = _collect_snippet_functions(
+                root, language, func_types, class_types, text,
+                is_example_dir=False)
+            for fn_name, fn_node, fn_line in func_nodes:
+                if snippet_counter >= MAX_SNIPPETS:
+                    break
+                if any(s.get("source_function") == fn_name for s in snippets):
+                    continue
+                code = node_text(fn_node)
+                if not code.strip():
+                    continue
+
+                classes_used = []
+                methods_used = []
+                formats_ref = []
+                code_lower = code.lower()
+                for cname in api_class_names:
+                    if cname in code:
+                        classes_used.append(cname)
+                        for mname in api_method_index.get(cname, set()):
+                            if (f"{cname}.{mname}" in code
+                                    or f".{mname}(" in code):
+                                methods_used.append(f"{cname}.{mname}")
+                for fmt_name in format_names:
+                    if fmt_name in code_lower:
+                        formats_ref.append(fmt_name)
+
+                snippet_id = f"snippet_{snippet_counter + 1:03d}"
+                snippets.append({
+                    "id": snippet_id,
+                    "file": f"{snippet_id}{ext}",
+                    "source_file": rel,
+                    "source_function": fn_name,
+                    "source_line": fn_line,
+                    "language": language,
+                    "code": code[:5000],
+                    "valid": not fn_node.has_error,
+                    "classes_used": sorted(set(classes_used)),
+                    "methods_used": sorted(set(methods_used)),
+                    "formats_referenced": sorted(set(formats_ref)),
+                })
+                snippet_counter += 1
+
     # README fenced code blocks (as whole-file snippets)
     for readme_name in ("README.md", "readme.md", "README.rst"):
         if snippet_counter >= MAX_SNIPPETS:
@@ -460,6 +543,8 @@ def extract_snippets(
                 lang_names.add("java")
             if language == "cpp":
                 lang_names.update({"cpp", "c++"})
+            if language == "rust":
+                lang_names.update({"rust", "rs"})
 
             fence_pattern = re.compile(
                 r"```(" + "|".join(re.escape(n) for n in lang_names)

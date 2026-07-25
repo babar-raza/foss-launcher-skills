@@ -20,7 +20,8 @@ KNOWLEDGE_ROOT = Path("knowledge")
 # Package-manager / install command patterns (case-insensitive)
 _INSTALL_PROSE_RE = re.compile(
     r"pip\s+install|mvn\b|<dependency\b|dotnet\s+add\s+package|nuget\b"
-    r"|npm\s+install|cargo\s+add|gem\s+install|composer\s+require",
+    r"|npm\s+install|cargo\s+add|\[dependencies\]|gem\s+install"
+    r"|composer\s+require",
     re.IGNORECASE,
 )
 
@@ -47,7 +48,8 @@ _BACKTICK_API_RE = re.compile(r"`[A-Z][A-Za-z0-9]+(?:\.[a-zA-Z0-9]+)?`")
 
 # H-16: Package name extraction from install commands
 _PKG_NAME_RE = re.compile(
-    r"(?:pip\s+install|npm\s+install|dotnet\s+add\s+package|nuget\s+install)\s+(\S+)",
+    r"(?:pip\s+install|npm\s+install|dotnet\s+add\s+package|nuget\s+install"
+    r"|cargo\s+add)\s+(\S+)",
     re.IGNORECASE,
 )
 
@@ -59,6 +61,7 @@ _PLATFORM_PKG_MANAGERS: dict[str, set[str]] = {
     "cpp": {"vcpkg", "conan", "cmake"},
     "typescript": {"npm", "yarn", "pnpm"},
     "javascript": {"npm", "yarn", "pnpm"},
+    "rust": {"cargo"},
 }
 
 # Package manager detection pattern

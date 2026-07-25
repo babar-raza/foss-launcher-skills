@@ -217,7 +217,37 @@ def _scan_document_ctor_imports(
     libraries like cells/typescript where ``Workbook.load(filePath)`` is the import
     entry point rather than a constructor.
     """
-    if language not in ("java", "csharp", "python", "typescript", "javascript", "go"):
+    if language not in ("java", "csharp", "python", "typescript", "javascript",
+                        "go", "rust"):
+        return []
+    if language == "rust":
+        # Rust: primary-type files expose `pub fn open/load/from_file(path ...)`
+        # associated functions (e.g. Workbook::open("book.xlsx")).
+        _rs_open_re = re.compile(
+            r"pub\s+fn\s+(?:open|load|from_file|from_path)\s*\(")
+        _rs_primary_stems = frozenset(
+            {"workbook", "document", "presentation", "spreadsheet", "lib"})
+        primary_fmt = _FAMILY_PYTHON_PRIMARY_FMT.get(family, family.title())
+        if primary_fmt.lower() in existing_import_fmts:
+            return []
+        for fpath in files:
+            if fpath.suffix != ".rs" or fpath.stem.lower() not in _rs_primary_stems:
+                continue
+            rel = str(fpath.relative_to(repo)).replace("\\", "/")
+            try:
+                text = fpath.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            for i, line in enumerate(text.splitlines(), 1):
+                if _rs_open_re.search(line):
+                    return [{
+                        "format": primary_fmt,
+                        "enum": "",
+                        "value": "",
+                        "file": rel,
+                        "line": i,
+                        "direction": "import",
+                    }]
         return []
     if language == "go":
         # Go: detect func Open(path string) or func Open(path string, ...) in *.go files
