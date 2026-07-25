@@ -11,7 +11,14 @@ providers:
     priority: 1
     base_url: "https://llm.professionalize.com/v1"
     base_url_env: "GPT_OSS_ENDPOINT"           # env override takes precedence over base_url
-    api_key_env: "PROFESSIONALIZE_API_KEY"
+    # 2026-07-25: PROFESSIONALIZE_API_KEY started returning HTTP 401 (auth_failed)
+    # against llm.professionalize.com/v1 — confirmed via LLMRouter.probe(). LLM_API_KEY
+    # and GPT_OSS_API_KEY both authenticate OK (live-probed same session); promoted
+    # LLM_API_KEY to primary. GPT_OSS_API_KEY kept as fallback since it already works
+    # too. Note the router only re-checks the fallback var when the primary is
+    # empty/absent, not on a 401 from a stale-but-present key — swap the primary here
+    # (not just add another var) if this ever needs reverting.
+    api_key_env: "LLM_API_KEY"
     api_key_env_fallback: "GPT_OSS_API_KEY"    # checked when api_key_env is absent
     chat:
       endpoint: "/chat/completions"

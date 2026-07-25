@@ -28,6 +28,7 @@ The `{platform}` segment in all content and knowledge paths must use the short n
 | Java | `java` | — |
 | C++ | `cpp` | — |
 | TypeScript | `typescript` | `ts` |
+| Rust | `rust` | `rs` |
 
 ## 3b. `plugin_platform` Display Name (products.aspose.org)
 
@@ -40,6 +41,7 @@ The `plugin_platform` frontmatter field on product pages names the **platform**,
 | Java     | `Java`                 |
 | C++      | `C++`                  |
 | TypeScript | `TypeScript`         |
+| Rust     | `Rust`                 |
 
 **Wrong**: `plugin_platform: .NET (C#)` — "(C#)" belongs in prose, not in this metadata field.
 
