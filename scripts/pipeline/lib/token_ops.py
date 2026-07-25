@@ -296,7 +296,12 @@ _PY_PROP_ASSIGNMENT = re.compile(r"(\w+)\s*=\s*(\w+)\.(\w+)(?:\s*$|\s*#)")
 _PY_ENUM_ACCESS = re.compile(r"([A-Z]\w+)\.([A-Z][A-Z_0-9]+)")
 _PY_METHOD_CALL = re.compile(r"(\w+)\.(\w+)\s*\(")
 _PY_PROP_ACCESS = re.compile(r"(\w+)\.(\w+)")
-_PY_CONSTRUCTOR = re.compile(r"(?<!\w)([A-Z][A-Za-z0-9]+)\s*\(")
+# (?<!::) excludes calls immediately after a scope-resolution operator — a Rust
+# tuple-variant construction like CellValue::Number(20.0) would otherwise also be
+# misread as a bare top-level constructor call for a nonexistent class "Number",
+# producing a spurious UNKNOWN_CLASS (RUST-TOKENOPS-001, confirmed live on
+# cells/rust: CellValue::Number(20.0) --> false Number(...) constructor token).
+_PY_CONSTRUCTOR = re.compile(r"(?<!\w)(?<!::)([A-Z][A-Za-z0-9]+)\s*\(")
 
 # C# / Java new-keyword assignment: "var x = new ClassName(" or "Type x = new ClassName("
 # The generic _PY_ASSIGNMENT misses this because "new" is not followed by "(" directly.
@@ -305,6 +310,13 @@ _CS_NEW_ASSIGNMENT = re.compile(r"(?:var\s+)?(\w+)\s*=\s*new\s+([A-Z]\w*)\s*\(")
 # C++ scope-resolution enum access: ClassName::MEMBER_NAME
 # C++ enums use ALL_CAPS names (e.g. NullableBool::TRUE, FillType::SOLID)
 _CPP_ENUM_ACCESS = re.compile(r"([A-Z]\w+)::([A-Z][A-Z_0-9]+)")
+
+# Rust scope-resolution enum-variant access: EnumName::Variant
+# Unlike C++, Rust enum variants are PascalCase, not ALL_CAPS (CellValue::Number,
+# LoadFormat::Xlsx, ValidationType::List) — a separate pattern from _CPP_ENUM_ACCESS.
+# Associated functions (Workbook::new, Workbook::load_xlsx) are naturally excluded:
+# Rust fn names are snake_case, so the PascalCase member group never matches them.
+_RUST_ENUM_ACCESS = re.compile(r"([A-Z]\w+)::([A-Z]\w*)")
 
 # Java explicit type declaration: ClassName varName = expr
 # Used to override the weaker _PY_METHOD_ASSIGNMENT inference for Java code.
@@ -477,6 +489,12 @@ def _extract_from_code_line(line: str, line_no: int, var_types: dict, platform: 
     # --- C++ scope-resolution enum: ClassName::MEMBER ---
     if platform == "cpp":
         for m in _CPP_ENUM_ACCESS.finditer(stripped):
+            enum_name, member = m.group(1), m.group(2)
+            tokens.append(Token("enum", enum_name, member, line_no, m.group(0)))
+
+    # --- Rust scope-resolution enum-variant: EnumName::Variant ---
+    if platform == "rust":
+        for m in _RUST_ENUM_ACCESS.finditer(stripped):
             enum_name, member = m.group(1), m.group(2)
             tokens.append(Token("enum", enum_name, member, line_no, m.group(0)))
 
