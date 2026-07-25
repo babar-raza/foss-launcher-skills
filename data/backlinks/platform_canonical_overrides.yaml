@@ -48,6 +48,13 @@ overrides:
     verification_url: "https://products.aspose.com/cells/python-net/"
     notes: "products.aspose.com/cells/python-net/ HTTP 200. Policy: enterprise Python product uses python-net slug. Commit bb68a63a22."
 
+  html/python:
+    target_platform: "python-net"
+    http_verified: true
+    verification_date: "2026-07-25"
+    verification_url: "https://products.aspose.com/html/python-net/"
+    notes: "products.aspose.com/html/python-net/ HTTP 200 (curl -L, MT009 html/python launch). Same python-net policy as cells/email/slides/words. reference.aspose.com already maps html/python -> python-net variant."
+
   email/python:
     target_platform: "python-net"
     http_verified: true
