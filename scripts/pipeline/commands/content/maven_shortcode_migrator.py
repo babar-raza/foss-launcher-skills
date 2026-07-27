@@ -15,9 +15,11 @@ top of proven primitives where they exist (fence detection reused from the same
 approach as coordinate_migrator.py; safe_content_write reused verbatim).
 
 Scope: content/{docs,blog,kb,products}.aspose.org/**/{family}/java/** for
-family in {cells, 3d, pdf} -- slides is explicitly excluded pending TC-MT008-09's
-human decision, reference.aspose.org is explicitly excluded per TC-MT008-00
-(package-namespace mentions there are a different, correct fact).
+family in {cells, 3d, pdf, slides}. slides was added once TC-MT008-09's
+human decision was resolved (org.aspose:aspose-slides-foss:26.7.0 confirmed
+live on Maven Central; data/foss_packages.json updated — see
+plans/master-plan.md). reference.aspose.org is explicitly excluded per
+TC-MT008-00 (package-namespace mentions there are a different, correct fact).
 
 Two independent match/replace passes, both operating on RAW file text (not
 frontmatter-stripped -- products.aspose.org pages embed their whole visible
@@ -81,6 +83,10 @@ _FAMILY_ARTIFACT_KEYWORD = {
     "cells": "cells-foss",
     "3d": "3d-foss",
     "pdf": "pdf-foss",
+    # slides: added after TC-MT008-09 resolved (org.aspose:aspose-slides-foss:26.7.0
+    # confirmed live on Maven Central, data/foss_packages.json updated) — see
+    # plans/master-plan.md TC-MT008-09 determination.
+    "slides": "slides-foss",
 }
 
 # Subdomains this codemod is allowed to touch. reference.aspose.org is
