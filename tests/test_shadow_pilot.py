@@ -34,6 +34,8 @@ from commands.content.shadow_content_generator import (
     _is_forbidden_output,
     generate_candidates,
     generate_reference_candidate,
+    generate_docs_candidate,
+    generate_product_candidate,
     generate_blog_candidate,
     generate_kb_candidate,
     main as shadow_main,
@@ -61,6 +63,7 @@ from lib.controlled_draft_writer import (
     WriteGuardError, RollbackManifest, WriteRecord,
     RollbackPathError, ALLOWED_ROLLBACK_ROOTS, _validate_rollback_target,
     rollback,
+    check_promotion_guards, promote_shadow_candidate, PromotionGuardError,
 )
 from lib.schema_validators import (
     validate_claim_map,
@@ -211,6 +214,83 @@ class TestShadowGenerator:
         content = Path(records[0]["output_path"]).read_text(encoding="utf-8")
         fact_refs = extract_fact_refs(content)
         assert len(fact_refs) > 0, "Generated content must contain fact references"
+
+
+# ---------------------------------------------------------------------------
+# TC-URL-003: no url: frontmatter emission (REQ-URL-001)
+#
+# Root cause: every one of the 5 generator functions used to unconditionally
+# write `url: /{slug}/` into candidate frontmatter with no locale-prefix
+# awareness. Because Hugo's per-language contentDir already derives the
+# correct (and correctly locale-prefixed) permalink from a page's file path,
+# this explicit override was always redundant and, once hugo-translator
+# copied it verbatim into every locale file, caused every language version
+# of a page to collide onto the same output URL (proven via a local Hugo
+# v0.154.5 build/rebuild against real content: removing the field fixed
+# en/zh/de routing with zero regression). See ASPOSE-URL-FRONTMATTER-
+# COLLISION-REMEDIATION mission, TC-URL-003.
+# ---------------------------------------------------------------------------
+
+class TestNoUrlFrontmatterEmission:
+    """Every candidate generator must never write an explicit url: key."""
+
+    def _page(self, page_type, slug, required_facts):
+        return {
+            "page_type": page_type,
+            "slug": slug,
+            "title": "Document",
+            "required_facts": required_facts,
+        }
+
+    def test_reference_candidate_has_no_url_key(self):
+        graph = _make_graph()
+        fact_index = _make_fact_index(graph)
+        page = self._page(
+            "reference", "reference/pdf/go/document",
+            [f.fact_id for f in graph.facts if f.category in ("api_class", "api_method")],
+        )
+        content = generate_reference_candidate(page, fact_index, "pdf", "go")
+        assert "url:" not in content
+
+    def test_docs_candidate_has_no_url_key(self):
+        graph = _make_graph()
+        fact_index = _make_fact_index(graph)
+        page = self._page("documentation", "docs/pdf/go/overview", [f.fact_id for f in graph.facts])
+        content = generate_docs_candidate(page, fact_index, "pdf", "go")
+        assert "url:" not in content
+
+    def test_product_candidate_has_no_url_key(self):
+        graph = _make_graph()
+        fact_index = _make_fact_index(graph)
+        page = self._page("product_landing", "pdf-go", [f.fact_id for f in graph.facts])
+        content = generate_product_candidate(page, fact_index, "pdf", "go")
+        assert "url:" not in content
+
+    def test_blog_candidate_has_no_url_key(self):
+        graph = _make_graph()
+        fact_index = _make_fact_index(graph)
+        page = self._page("blog_post", "blog/pdf/go/overview", [f.fact_id for f in graph.facts])
+        content = generate_blog_candidate(page, fact_index, "pdf", "go")
+        assert "url:" not in content
+
+    def test_kb_candidate_has_no_url_key(self):
+        graph = _make_graph()
+        fact_index = _make_fact_index(graph)
+        page = self._page("knowledge_base", "kb/pdf/go/overview", [f.fact_id for f in graph.facts])
+        content = generate_kb_candidate(page, fact_index, "pdf", "go")
+        assert "url:" not in content
+
+    def test_full_batch_generation_has_no_url_key(self, tmp_path):
+        """Negative control: generate_candidates() across all 5 page types,
+        inspect every written file on disk (not just the in-memory string),
+        to prove the CLI-facing output path is also clean."""
+        graph = _make_graph()
+        plan = compile_page_plan(graph)
+        records = generate_candidates(plan, graph, tmp_path)
+        assert len(records) > 0
+        for r in records:
+            text = Path(r["output_path"]).read_text(encoding="utf-8")
+            assert "url:" not in text, f"{r['output_path']} still emits a url: key"
 
 
 # ---------------------------------------------------------------------------
@@ -857,6 +937,95 @@ class TestControlledDraftWriter:
         loaded = RollbackManifest.read(tmp_path / "manifest.json")
         assert loaded.family == "pdf"
         assert loaded.dry_run is True
+
+
+# ---------------------------------------------------------------------------
+# TC-URL-010: ACT promotion gate (REQ-URL-007)
+#
+# Nothing shadow_content_generator.py / controlled_draft_writer.py produces
+# may reach draft:false without passing the same contract skill-generated
+# content already satisfies by construction. This is the mechanism that
+# makes "skills-based generation remains the default" an enforced rule
+# rather than a documentation note — see docs/reference/hugo-rendering.md
+# §4a and ASPOSE-URL-FRONTMATTER-COLLISION-REMEDIATION mission, TC-URL-010.
+# ---------------------------------------------------------------------------
+
+def _make_promotable_candidate(url_line: str = "") -> str:
+    """A shadow candidate with a valid provenance block (passes
+    validate_frontmatter's provenance-presence check) and, optionally, an
+    explicit url: key to exercise the REQ-URL-003 gate."""
+    return f"""---
+title: "Test Class"
+type: docs
+{url_line}draft: true
+shadow_candidate: true
+generator_version: 1.0.0
+family: pdf
+platform: go
+provenance:
+  content_origin: skill-generated
+  last_mechanism: skill
+---
+
+## Description
+
+This is a test class for PDF processing.
+"""
+
+
+class TestPromotionGate:
+    def test_promotion_refused_when_url_key_present(self, tmp_path):
+        fp = tmp_path / "candidate.md"
+        fp.write_text(
+            _make_promotable_candidate(url_line="url: /pdf/go/test-class/\n"),
+            encoding="utf-8",
+        )
+        errors = check_promotion_guards(fp)
+        assert any("url:" in e for e in errors)
+        with pytest.raises(PromotionGuardError):
+            promote_shadow_candidate(fp)
+        # File must be untouched on refusal
+        assert "draft: true" in fp.read_text(encoding="utf-8")
+        assert "shadow_candidate: true" in fp.read_text(encoding="utf-8")
+
+    def test_promotion_succeeds_when_clean(self, tmp_path):
+        fp = tmp_path / "candidate.md"
+        fp.write_text(_make_promotable_candidate(), encoding="utf-8")
+        errors = check_promotion_guards(fp)
+        assert errors == []
+        promote_shadow_candidate(fp)
+        text = fp.read_text(encoding="utf-8")
+        assert "draft: false" in text
+        assert "draft: true" not in text
+        assert "shadow_candidate: true" not in text
+        # Nothing else in the file should have changed
+        assert "## Description" in text
+        assert "family: pdf" in text
+
+    def test_promotion_refused_without_provenance_block(self, tmp_path):
+        """Raw ACT template output (no provenance: block) must not promote —
+        this is the exact shape of the real, currently-dormant pdf/go
+        ACT pilot pages (see TC-URL-011)."""
+        fp = tmp_path / "candidate.md"
+        fp.write_text(
+            "---\ntitle: \"Raw\"\ntype: docs\ndraft: true\n"
+            "shadow_candidate: true\nfamily: pdf\nplatform: go\n---\n\n# Raw\n",
+            encoding="utf-8",
+        )
+        errors = check_promotion_guards(fp)
+        assert any("provenance" in e for e in errors)
+        with pytest.raises(PromotionGuardError):
+            promote_shadow_candidate(fp)
+
+    def test_promotion_guard_error_message_names_target(self, tmp_path):
+        fp = tmp_path / "candidate.md"
+        fp.write_text(
+            _make_promotable_candidate(url_line="url: /pdf/go/test-class/\n"),
+            encoding="utf-8",
+        )
+        with pytest.raises(PromotionGuardError) as exc_info:
+            promote_shadow_candidate(fp)
+        assert str(fp) in str(exc_info.value)
 
 
 # ---------------------------------------------------------------------------
