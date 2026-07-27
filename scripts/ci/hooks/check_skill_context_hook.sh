@@ -115,6 +115,14 @@ if [[ "$FILE_PATH" == /* ]]; then
         fi
     done
     unset _oor_prefix
+    # S-110 foss-java-publish: allow edits inside cloned Aspose FOSS product repos
+    # (e.g. D:/OneDrive/Documents/GitHub/Aspose.Slides-FOSS-for-Java/), where Phase A's
+    # surgical pom.xml/workflow/PUBLISHING.md changes are made per skills/foss-java-publish.md.
+    if [ "$_OOR_ALLOWED" != "1" ]; then
+        case "$FILE_PATH" in
+            */GitHub/*-FOSS-for-*/*) _OOR_ALLOWED=1 ;;
+        esac
+    fi
     if [ "$_OOR_ALLOWED" = "1" ]; then
         unset _OOR_ALLOWED
         exit 0

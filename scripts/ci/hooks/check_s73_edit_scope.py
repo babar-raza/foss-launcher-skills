@@ -46,12 +46,21 @@ def _file_in_scope(file_path: str, scope_patterns: list[str]) -> bool:
     return False
 
 
+# Skills other than S-73 whose own documented steps perform direct, governed
+# content/ edits (Read -> Edit) as part of their normal operation, without ever
+# invoking /manual-edit themselves. S-110 (foss-java-publish) Phase B is one:
+# its content-healing steps (B4-B6) apply targeted Maven-coordinate fixes across
+# docs/blog/kb/products/reference directly, gated by S-110's own operator
+# confirmation prompt (Step B4) instead of a separate S-73 invocation per file.
+_CONTENT_EDIT_SKILLS = {"S-73", "S-110"}
+
+
 def s73_covers(ctx_dir: Path, file_path: str) -> bool:
     active_file = ctx_dir / "ACTIVE.json"
     active_dir = ctx_dir / "active"
 
     legacy = _load(active_file)
-    if legacy and legacy.get("skill_id") == "S-73" and _file_in_scope(
+    if legacy and legacy.get("skill_id") in _CONTENT_EDIT_SKILLS and _file_in_scope(
         file_path, legacy.get("scope_patterns", [])
     ):
         return True
@@ -61,7 +70,7 @@ def s73_covers(ctx_dir: Path, file_path: str) -> bool:
             rec = _load(f)
             if not rec:
                 continue
-            if rec.get("skill_id") == "S-73" and _file_in_scope(
+            if rec.get("skill_id") in _CONTENT_EDIT_SKILLS and _file_in_scope(
                 file_path, rec.get("scope_patterns", [])
             ):
                 return True
