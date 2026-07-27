@@ -100,7 +100,7 @@ from .runner import (
     main,
 )
 from .formats import verify_format_direction
-from .frontmatter_schema import verify_no_explicit_url
+from .frontmatter_schema import verify_no_explicit_url, verify_no_non_english_aliases
 
 __all__ = [
     # knowledge_core / content_discovery re-exports
@@ -145,4 +145,5 @@ __all__ = [
     "main",
     "verify_format_direction",
     "verify_no_explicit_url",
+    "verify_no_non_english_aliases",
 ]
