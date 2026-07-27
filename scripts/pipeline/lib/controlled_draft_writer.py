@@ -15,11 +15,14 @@ Public API:
     RollbackManifest    — manifest of files written for rollback
     write_approved_candidates — write approved candidates to content/
     rollback            — undo a previous write using manifest
+    check_promotion_guards    — validate a candidate before draft:true -> false
+    promote_shadow_candidate  — promote a candidate to live content, gated
 """
 from __future__ import annotations
 
 import hashlib
 import json
+import re
 import shutil
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
@@ -322,3 +325,96 @@ def rollback(manifest_path: Path, repo_root: Path) -> list[str]:
             )
 
     return actions
+
+
+# ---------------------------------------------------------------------------
+# Promotion gate (ASPOSE-URL-FRONTMATTER-COLLISION-REMEDIATION, TC-URL-010 /
+# REQ-URL-007)
+#
+# write_approved_candidates() above intentionally writes draft:true content
+# with no evidence/provenance frontmatter — that is correct for the draft
+# state itself (draft-time, not publication-time, per the original pilot
+# commit's rationale). But nothing previously re-validated a page against
+# the skill-generated content contract at the one moment it actually
+# matters: when draft:true flips to draft:false and the page goes live.
+# That gap is exactly how Mechanism A of the url: frontmatter collision
+# incident stayed live in ACT output for months — the generator's template
+# bug was never caught because promotion never re-checked the page.
+#
+# check_promotion_guards() closes that gap by running the same checks
+# skill-generated content already satisfies by construction before allowing
+# promotion. This makes "skills-based generation remains the default" an
+# enforced rule: ACT may still generate drafts, but nothing it produces
+# reaches content/ as live, non-draft content without passing the same gate.
+# ---------------------------------------------------------------------------
+
+class PromotionGuardError(Exception):
+    """Raised when a shadow candidate fails promotion validation."""
+
+
+def check_promotion_guards(target: Path) -> list[str]:
+    """Validate a shadow_candidate page against the skill-generated content
+    contract. Returns a list of human-readable error strings (empty list =
+    clear to promote).
+
+    Runs:
+      1. audit.frontmatter_schema.verify_no_explicit_url — the exact check
+         that closes the url: frontmatter collision incident (REQ-URL-003).
+      2. validate_frontmatter.check_file — structural frontmatter checks
+         (double frontmatter, duplicate keys, blog evidence completeness,
+         provenance validity) already required of skill-generated content.
+         Only "error"-severity findings block promotion; "warning"-severity
+         findings (e.g. provenance value advisories) do not.
+    """
+    errors: list[str] = []
+
+    from audit.frontmatter_schema import verify_no_explicit_url
+    for finding in verify_no_explicit_url(target):
+        errors.append(f"{finding.level}: {finding.message}")
+
+    from commands.content.validate_frontmatter import check_file
+    for fm_error in check_file(target):
+        if fm_error.severity == "error":
+            errors.append(str(fm_error))
+
+    return errors
+
+
+_DRAFT_TRUE_RE = re.compile(r"^draft:\s*true\s*$")
+_SHADOW_CANDIDATE_TRUE_RE = re.compile(r"^shadow_candidate:\s*true\s*$")
+
+
+def promote_shadow_candidate(target: Path) -> None:
+    """Promote a shadow_candidate:true, draft:true page to live content.
+
+    Refuses (raises PromotionGuardError, leaves the file untouched) unless
+    check_promotion_guards() returns no errors. On success, flips
+    `draft: true` to `draft: false` and removes the `shadow_candidate: true`
+    marker — nothing else in the file is modified.
+    """
+    guard_errors = check_promotion_guards(target)
+    if guard_errors:
+        raise PromotionGuardError(
+            f"Promotion blocked for {target}: {'; '.join(guard_errors)}"
+        )
+
+    text = target.read_text(encoding="utf-8")
+    lines = text.splitlines(keepends=True)
+    out: list[str] = []
+    in_fm = False
+    for i, line in enumerate(lines):
+        if i == 0 and line.strip() == "---":
+            in_fm = True
+            out.append(line)
+            continue
+        if in_fm and line.strip() == "---":
+            in_fm = False
+            out.append(line)
+            continue
+        if in_fm and _DRAFT_TRUE_RE.match(line):
+            out.append("draft: false\n")
+            continue
+        if in_fm and _SHADOW_CANDIDATE_TRUE_RE.match(line):
+            continue
+        out.append(line)
+    target.write_text("".join(out), encoding="utf-8")

@@ -38,6 +38,7 @@ from audit.snippets import verify_snippet_coverage  # noqa: E402
 from audit.formats import verify_format_direction  # noqa: E402
 from audit.phantom_methods import verify_phantom_methods  # noqa: E402
 from audit.maven_coordinates import verify_maven_coordinates  # noqa: E402
+from audit.frontmatter_schema import verify_no_explicit_url  # noqa: E402
 from audit.reports import (  # noqa: E402
     REPORTS_DIR,
     report_text,
@@ -143,6 +144,7 @@ def audit_product(
         findings.extend(verify_format_direction(str(f), family, platform))
         findings.extend(verify_phantom_methods(f, text, knowledge))
         findings.extend(verify_maven_coordinates(f))
+        findings.extend(verify_no_explicit_url(f))
         if check_snippets:
             findings.extend(verify_snippet_coverage(f, knowledge))
 
@@ -204,6 +206,9 @@ def audit_files(
         maven_findings = verify_maven_coordinates(fp)
         file_findings.extend(maven_findings)
         findings.extend(maven_findings)
+        url_findings = verify_no_explicit_url(fp)
+        file_findings.extend(url_findings)
+        findings.extend(url_findings)
         if check_snippets:
             snippet_findings = verify_snippet_coverage(fp, knowledge)
             file_findings.extend(snippet_findings)

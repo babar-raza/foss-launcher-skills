@@ -100,6 +100,7 @@ from .runner import (
     main,
 )
 from .formats import verify_format_direction
+from .frontmatter_schema import verify_no_explicit_url
 
 __all__ = [
     # knowledge_core / content_discovery re-exports
@@ -143,4 +144,5 @@ __all__ = [
     "audit_files",
     "main",
     "verify_format_direction",
+    "verify_no_explicit_url",
 ]
