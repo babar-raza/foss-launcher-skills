@@ -123,4 +123,8 @@ Before executing any inherited, stale, or archive-containing plan, invoke
 If S-91 returns `execution-ready-as-is: no`, do not proceed. Amend the plan
 first using S-91 in `amend` mode, then re-run assessment.
 
+For mission-scale work (spanning multiple sessions or agents, not just a single inherited plan
+file), see `AGENTS.md` §17 and `docs/governance/planning-methodology.md` — the planning-review
+and taskcard-readiness checklists to apply before treating a newly-authored plan as executable.
+
 See `docs/skill-quality-gates.md` for the full gate inventory.

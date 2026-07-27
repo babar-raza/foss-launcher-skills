@@ -27,6 +27,7 @@ registered skills with IDs, descriptions, and argument patterns.
 2. **Knowledge freshness** — if `model.yaml` has `stale_since != null`, stop and run the maintenance workflow (S-12 → S-14) before editing content.
 3. **Forbidden write paths** — never write to `themes/`, `layouts/`, `configs/`, `AGENTS.md`, `CODEX.md`, `CLAUDE.md`, `.claude/`, `.agents/`, `.kilocode/`, or `skills/` without explicit human override.
 4. **Skill-first execution** — every task must be attempted through registered skills first (AGENTS.md §6a). If no skill covers the requirement, classify capability as FULL/PARTIAL/NONE/BROKEN per §6b and produce a gap escalation report. Do not invent ad hoc workflows.
+5. **Planning discipline** — before treating any newly-authored multi-step plan as ready to execute, self-check it against AGENTS.md §17 (`docs/governance/planning-methodology.md`): apply the Planning Review Checklist and Taskcard Readiness Checklist, and bind multi-session missions to the existing `MISSION_AUTHORITY.yaml` / schema-5f taskcard mechanisms rather than inventing a new tracker.
 
 ## Pre-Write Preflight Check
 
@@ -53,5 +54,5 @@ command. Exit 0 = ALLOW, exit 1 = DENY with guidance. Use `--json` for machine-r
 
 ## Alignment
 
-This file must stay aligned with AGENTS.md. When AGENTS.md §6, §6a, §6b, §7, §8, or §11
+This file must stay aligned with AGENTS.md. When AGENTS.md §6, §6a, §6b, §7, §8, §11, or §17
 are updated, update the corresponding rules here. The canonical source is always AGENTS.md.

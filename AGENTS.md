@@ -39,6 +39,7 @@
 | §12 | [File Map](#12-file-map) | All scripts, skills, paths |
 | §13 | [Internal Metadata Policy](#13-internal-metadata-rendering-policy) | Evidence panel hiding |
 | §14 | [Completion Verification](#14-completion-verification-protocol) | → [docs/workflows/completion-verification.md](docs/workflows/completion-verification.md) |
+| §17 | [Planning Discipline](#17-planning-discipline-mission--taskcard-methodology) | → [docs/governance/planning-methodology.md](docs/governance/planning-methodology.md) |
 
 </details>
 
@@ -626,6 +627,18 @@ through `LLMRouter` — carry a mandatory metrics obligation.
 ## 16. Testing Seam Contract — Tiered Monkeypatch Policy
 
 > Full detail: [docs/development/testing-seams.md](docs/development/testing-seams.md) *(moved)*
+
+## 17. Planning Discipline (Mission & Taskcard Methodology)
+
+> Full detail: [docs/governance/planning-methodology.md](docs/governance/planning-methodology.md)
+
+Before any newly-authored multi-step plan — including Claude Code Plan Mode output (before
+`ExitPlanMode` is accepted as final) and Codex's own multi-step planning — is treated as ready
+to execute, it must pass the Planning Review Checklist and Taskcard Readiness Checklist in
+[docs/reference/planning-execution-state-machine.md](docs/reference/planning-execution-state-machine.md).
+Multi-session or multi-agent missions bind to this repo's existing mission-contract
+(`MISSION_AUTHORITY.yaml` shape) and taskcard (schema 5f) mechanisms — see the concordance
+table in the linked doc — never a new parallel tracker.
 
 ## Operating Standard
 

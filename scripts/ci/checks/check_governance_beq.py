@@ -15,6 +15,7 @@ BEQ paths checked:
   BEQ-08: §10 → docs/governance/evidence-and-provenance.md
   BEQ-09: §14 → docs/workflows/completion-verification.md
   BEQ-10: §12 → docs/registries/skills.md + docs/registries/file-map.md
+  BEQ-11: §17 → docs/governance/planning-methodology.md
 
 Usage:
     python scripts/ci/checks/check_governance_beq.py
@@ -50,6 +51,7 @@ BEQ_ROUTES: list[tuple[str, str, str, int]] = [
     ("BEQ-09", "§14", "docs/workflows/completion-verification.md", 5),
     ("BEQ-10a", "§12", "docs/registries/skills.md", 20),
     ("BEQ-10b", "§12", "docs/registries/file-map.md", 20),
+    ("BEQ-11", "§17", "docs/governance/planning-methodology.md", 20),
 ]
 
 

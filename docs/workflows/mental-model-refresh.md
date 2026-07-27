@@ -18,6 +18,10 @@ Before editing any content page for `{family}/{platform}`:
 If resuming a plan last modified >7 days ago, or any plan with archive/postmortem/sprint sections,
 run `/plan-normalize {plan-file}` (S-91) before executing it.
 
+This governs *resuming or inheriting* a plan. *Authoring* a new multi-step plan (including
+Claude Code Plan Mode output and Codex's own planning) is governed by `AGENTS.md` §17 — see
+[docs/governance/planning-methodology.md](../governance/planning-methodology.md).
+
 ## Quick Check (bash)
 
 ```bash
