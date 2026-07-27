@@ -115,6 +115,21 @@
 
 ---
 
+## Non-skill internal tooling
+
+The following components are **not** skills and are deliberately excluded from the table
+above (and from the S-12/S-91 skill-first execution mandate) — they must not be invoked
+as `/command` entries or treated as satisfying "use the applicable skill" guidance.
+
+| Component | Files | Status |
+|-----------|-------|--------|
+| ACT (Autonomous Content Tooling) | `scripts/pipeline/commands/content/shadow_content_generator.py`, `scripts/pipeline/lib/controlled_draft_writer.py` | Experimental, pilot-scoped (`pdf/go` only). Produces `draft: true` candidates only; never authoritative content. See `docs/reference/hugo-rendering.md` §4a for the full contract, including the promotion-gate requirement before any ACT-originated page may reach `draft: false`. |
+
+Skill-based generation (the table above) is the default, authoritative content path.
+ACT does not supersede or replace any skill listed above.
+
+---
+
 ## Plan execution gate
 
 Before executing any inherited, stale, or archive-containing plan, invoke
