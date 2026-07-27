@@ -39,7 +39,15 @@ Draft page content by consuming the output of S-18 (page-plan). Generates conten
    - Read `knowledge/{family}/{platform}/merged/claims.json` for claim text
    - Read `knowledge/{family}/{platform}/merged/api_surface.json` for API verification
    - Read referenced snippets from `knowledge/{family}/{platform}/snippets/`
-   - Read `knowledge/{family}/{platform}/merged/install.md` for install instructions (if getting-started page)
+   - Read `knowledge/{family}/{platform}/merged/install.md` for install instructions (if getting-started page).
+     **For `platform: java`, never copy a literal `<groupId>`/coordinate out of `install.md` into
+     the page.** Write `{{< maven-coord "{family}" "java" >}}` on its own line (blank line
+     before/after) for the install block, and `{{< maven-gav "{family}" "java" >}}` (no
+     surrounding backticks — it already renders its own `<code>`) for any inline mention. These
+     shortcodes render the live-verified `org.aspose:...` coordinate from
+     `data/foss_packages.json` at build time — see Mission MT008 in `plans/master-plan.md`. This
+     applies regardless of what `install.md` itself says, since `install.md` can be stale
+     relative to the live-published coordinate (see Finding F-03 in the mission doc).
 
 4. **Generate frontmatter** appropriate to the page type:
 

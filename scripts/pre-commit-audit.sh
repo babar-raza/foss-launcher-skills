@@ -1101,4 +1101,42 @@ if [ ${#staged_ref_index[@]} -gt 0 ]; then
 fi
 _pc_step_end "PASS"
 
+_pc_step_start "skill-mirror parity"
+# ---------------------------------------------------------------------------
+# Step 25: skill/mirror parity gate. sync_skills.py (--check/--report) only
+# detects drift between canonical skills/*.md and its 3 provider mirrors
+# (.claude/commands/, .agents/skills/, .kilocode/skills/); it has zero write
+# capability. CI (skill-governance.yml) already runs that check on every
+# push, but this repo's real production path is direct-push-to-main (no PRs,
+# no branch protection available on this GitHub plan) — a failing post-push
+# CI check has no gating power, confirmed by a 5+ day continuous red streak
+# with zero effect. This step moves enforcement to the one gate every commit
+# actually passes through. Scoped to ONLY the skill(s) the current commit
+# touches (check_parity_for_slugs in sync_skills.py) — pre-existing drift in
+# an untouched skill never blocks an unrelated commit.
+# ---------------------------------------------------------------------------
+staged_skill_files=()
+while IFS= read -r _sline; do staged_skill_files+=("$_sline"); done < <(
+    git diff --cached --name-only --diff-filter=ACMR -- \
+        'skills/*.md' '.claude/commands/*.md' \
+        '.agents/skills/*/SKILL.md' '.kilocode/skills/*/SKILL.md' 2>/dev/null || true
+)
+if [ ${#staged_skill_files[@]} -gt 0 ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_skill_mirror_parity.py" ]; then
+        _smp_out=$(PYTHONPATH=scripts/pipeline "$_HOOK_PYTHON" \
+            scripts/ci/checks/check_skill_mirror_parity.py --staged-files "${staged_skill_files[@]}" 2>&1)
+        _smp_exit=$?
+        echo "$_smp_out" | sed 's/^/[Step 25] /'
+        if [ $_smp_exit -ne 0 ]; then
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    else
+        echo "[Step 25] SKIP: .venv not found or check_skill_mirror_parity.py missing." >&2
+    fi
+else
+    echo "[Step 25] No staged skill/mirror files — skipping."
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0

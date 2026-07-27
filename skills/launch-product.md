@@ -147,7 +147,12 @@ If missing, STOP and re-run Stage 0.5.
 **Commands**:
 1. `/new-docs-index {family} {platform}`
 2. Fixed pages (always generate if missing):
-   - `/new-docs-page {family} {platform} getting-started installation`
+   - `/new-docs-page {family} {platform} getting-started installation` — **for `platform: java`**,
+     this page's install section must be the `maven-coord` shortcode, never a literal
+     `<groupId>`/coordinate (new-docs-page.md's own instructions enforce this; noted here because
+     this is historically the single most-affected page type — see Mission MT008,
+     `plans/master-plan.md`, the `docs.aspose.org/.../getting-started/installation.md`
+     self-contradiction example in Finding F-01).
    - `/new-docs-page {family} {platform} getting-started quickstart`
    - If site plan includes `getting-started/license`:
      `/new-docs-page {family} {platform} getting-started license`
@@ -359,16 +364,16 @@ On re-run, read checkpoint state:
 ```
 
 **Before trusting a `true` checkpoint to skip its stage (HARDEN-A5, 2026-07-22):**
-a boolean alone does not prove the artifact it certifies still matches disk -- it
+a boolean alone does not prove the artifact it certifies still matches disk — it
 could have been corrupted, reverted, or hand-edited since the checkpoint was set.
 If the checkpoint was set with `--artifact <path>` (fingerprinted), verify it first:
 ```bash
 .venv/Scripts/python scripts/pipeline/commands/ops/project_phase_store.py verify {family} {platform} {checkpoint_key}
 ```
-Exit 0 = fingerprint matches (or the entry is legacy/unfingerprinted -- "unverifiable,"
-never blocking). Exit 1 = the artifact genuinely changed since certification -- do NOT
+Exit 0 = fingerprint matches (or the entry is legacy/unfingerprinted — "unverifiable,"
+never blocking). Exit 1 = the artifact genuinely changed since certification — do NOT
 skip the stage; treat the checkpoint as stale and re-run it. When setting a checkpoint
-for a stage that produces a specific, checkable artifact (e.g. `site_plan_done` ->
+for a stage that produces a specific, checkable artifact (e.g. `site_plan_done` →
 `reports/plans/{family}/{platform}/site_plan.yaml`), pass `--artifact <path>` so future
 resumes get this real verification instead of trusting the bare boolean.
 

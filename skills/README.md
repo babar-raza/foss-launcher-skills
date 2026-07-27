@@ -236,7 +236,18 @@ S-62 (batch-reference) → S-38 (truth-audit, spot-check) → S-24 (evidence-cit
 5. Run `python scripts/ci/checks/check_dar_coverage.py` — must exit 0
 6. **Update the catalog table in this file** (skills/README.md) — add the new skill in the correct category
 7. Run `python scripts/ci/fix_skill_counts.py` — reconciles "N registered skills" counts across all four README files
-8. The sync mechanism (`sync_skills.py`) will flag if agent-specific mirrors diverge
+8. **Sync the provider mirrors — this step is mandatory, not optional.**
+   `sync_skills.py --check` only detects drift; it has no write capability. The command that
+   actually fixes it is:
+   ```bash
+   PYTHONPATH=scripts/pipeline python scripts/pipeline/commands/ops/sync_providers.py
+   ```
+   Run this before your skill edit is considered complete — do not stop at `--check` reporting
+   drift and assume something else will fix it. Verify with
+   `PYTHONPATH=scripts/pipeline python scripts/pipeline/commands/ops/sync_skills.py --check`
+   (must exit 0, "PARITY CHECK: PASS") before committing. A pre-commit gate enforces this for any
+   commit touching `skills/*.md` or a provider mirror — see
+   `scripts/pre-commit-audit.sh`'s skill-mirror-parity check.
 
 ---
 

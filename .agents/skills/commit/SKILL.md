@@ -69,6 +69,16 @@ Applies a full commit-preparation workflow **scoped to the current session's tou
 > PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-76 --scope "*"
 > ```
 
+> **Session identity (HARDEN-A2/A12, 2026-07-22):** if `AGENT_SESSION_ID` was
+> exported at `/session-start`, the actual `git commit` in Step H below MUST be
+> run as `AGENT_SESSION_ID=$AGENT_SESSION_ID git commit ...` — the commit hook
+> (`check_commit_bash_hook.sh`) checks that THIS session's S-76 context is
+> live, not just that some S-76 context exists anywhere, and needs the id to
+> tell sessions apart when more than one is active. Every `session_ledger.py`
+> call below should also carry `--session-id "$AGENT_SESSION_ID"` (or rely on
+> the env var, which every subcommand now honors by default) for the same
+> reason.
+
 
 ### A — Inspect repo state
 
@@ -126,7 +136,19 @@ Then read `.gitignore` to confirm what is intentionally excluded.
         # Or inherit a specific prior session:
         .venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py inherit --session-id <prior-id>
         ```
-     2. Or pass `--force-all` to bypass scoping entirely.
+        **HARDEN-A2 (2026-07-22):** `adopt --all`/`--group`/`--glob` now refuse
+        any path already claimed in ANOTHER live session's ledger by default —
+        this is what stops one session's `/commit` from silently sweeping up a
+        concurrent session's in-flight, uncommitted work (the exact mechanism
+        behind the ST-021 provenance-corruption incidents). If `adopt` reports
+        paths as `REFUSED ... claimed by <session>`, that is real signal, not
+        an error to work around — those files belong to a still-active
+        session. Only override with `--confirm-cross-session` if you have
+        specifically confirmed with the user (or the other session has
+        genuinely ended) that sweeping those files in is intended; this is an
+        audited, logged action, not a silent bypass.
+     2. Or pass `--force-all` to bypass scoping entirely (same cross-session
+        claim guard applies to the dirty-file set it adopts).
 
   Use `dirty` to see all dirty files with their commit group and adoption status:
   ```bash

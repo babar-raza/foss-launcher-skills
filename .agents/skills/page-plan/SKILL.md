@@ -52,6 +52,12 @@ Plan a page's structure before drafting. Compiles relevant claims from knowledge
    - Match by keyword overlap with `{slug}`
    - Include all claims with confidence >= 0.5
    - Flag claims with confidence < 0.7 as needing careful wording
+   - **For `platform: java` install/coordinate claims**: never carry a literal Maven groupId or
+     `<dependency>` block into the plan's YAML — reference it structurally instead (e.g.
+     `install_source: maven-coord-shortcode`). page-draft.md renders the actual coordinate via
+     the `maven-coord`/`maven-gav` shortcodes from `data/foss_packages.json` at build time; a
+     literal coordinate embedded here would bypass that and could go stale. See Mission MT008
+     in `plans/master-plan.md`.
 
 4. **Select relevant API surface**: From `api_surface.json`, identify classes and methods related to the topic.
 

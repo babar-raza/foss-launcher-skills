@@ -214,6 +214,18 @@ def check_parity() -> list[dict]:
     return issues
 
 
+def check_parity_for_slugs(slugs: "set[str] | list[str]") -> list[dict]:
+    """Same as check_parity(), filtered to only the given skill slugs.
+
+    Used by the pre-commit skill-mirror-parity gate (Step 25 in
+    scripts/pre-commit-audit.sh) so a commit is only blocked on drift in the
+    skill(s) it actually touches, never on unrelated pre-existing drift
+    elsewhere in the 100+ skill catalog.
+    """
+    wanted = set(slugs)
+    return [issue for issue in check_parity() if issue["slug"] in wanted]
+
+
 def list_skill_ids() -> list[tuple[str, str, str]]:
     """Return [(id, slug, title)] sorted by ID number."""
     canonical = discover_canonical()

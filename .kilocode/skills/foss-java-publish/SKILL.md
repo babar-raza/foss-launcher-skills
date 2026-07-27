@@ -88,17 +88,59 @@ reflect the new Maven coordinates.
 
 ### Step A1 — Pre-flight idempotency check
 
-Before cloning or editing anything, check if the artifact already exists on Maven Central:
+Before cloning or editing anything, check TWO independent conditions:
 
+1. Is the artifact version already published?
 ```bash
 STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
   "https://repo1.maven.org/maven2/org/aspose/{artifact-id}/{version}/")
 ```
 
-- HTTP 200 → Version already published. Print: `Phase A skipped — org.aspose:{artifact-id}:{version} already on Maven Central`. Proceed directly to Step B1.
-- HTTP 404 → Not yet published. Continue with Step A2.
+2. Does PUBLISHING.md already exist in the product repo root?
+```bash
+PUB_STATUS=$(gh api repos/{org}/{repo}/contents/PUBLISHING.md \
+  -q '.name' >/dev/null 2>&1 && echo 200 || echo 404)
+```
+
+These are INDEPENDENT. Publication and documentation status can diverge — this
+happened for real: `aspose-3d-foss` and `aspose-pdf-foss` were published to Maven
+Central on 2026-07-16 without `PUBLISHING.md` ever being committed, because `S-110`
+did not exist yet at publish time. Do not treat "already published" as "nothing left
+to do."
+
+| STATUS | PUB_STATUS | Action |
+|---|---|---|
+| 404 | any | Not yet published. Continue with Step A2 (full Phase A). |
+| 200 | 200 | Fully done. Print `Phase A skipped — org.aspose:{artifact-id}:{version} already on Maven Central and documented`. Proceed directly to Step B1. |
+| 200 | 404 | **Docs-only remediation.** Artifact is live but undocumented. Run Step A1a below, then proceed directly to Step B1. Do NOT attempt to republish (coordinates are immutable once live on Central; skip A2, A4-A8, A11, A12, A14-A16 entirely — see Step A1a for exactly what still runs). |
 
 This check is the FIRST action. Do not clone or edit any file without running it.
+
+### Step A1a — Docs-only remediation (published, but PUBLISHING.md missing)
+
+This path exists because Step A1's old logic could never reach it — it always skipped
+straight to Phase B once a version was live, even when undocumented. Only the
+following steps run; every other Phase A step (A2 credential validation, A4 Java
+version check, A5-A6 pom.xml audit/patch, A7 .gitignore, A8 GHA workflow generation,
+A11 local build, A12 secrets, A14-A16 dry-run/tag/publish) is SKIPPED — none of them
+apply when nothing is being rebuilt, resigned, or republished.
+
+1. Clone the repo (same mechanics as Step A3).
+2. Read the CURRENT live `pom.xml` as plain reference data — do not modify it, do not
+   run the Step A5 audit/patch logic against it. Use its actual current values to fill
+   the `PUBLISHING.md` "pom.xml changes" table's "After" column; use
+   "n/a — already live, historical before-state not recorded" for "Before" where
+   unknown.
+3. Write `PUBLISHING.md` at the repo root using the existing Step A9 template verbatim,
+   with BOM-zero enforcement (Step A6's BOM-zero rule applies here too). In the
+   "Publication History" table, mark the row "documentation added retroactively by
+   S-110 Step A1a — artifact was already live" instead of claiming a fresh publish.
+4. Surgical boundary check (same mechanics as Step A10), with the allowed-file-set
+   narrowed to exactly one entry: `PUBLISHING.md`. HALT if any other file would
+   change — this includes `pom.xml`, which step 2 above must not have touched.
+5. Commit: `docs: add Maven Central publishing guide (retroactive — S-110)`. Push
+   using the same GH_TOKEN URL mechanics as Step A13.
+6. Continue to Phase B (Step B1) exactly as the "published + documented" branch does.
 
 ### Step A2 — Pre-flight credential validation
 
@@ -614,9 +656,14 @@ For each unique import, verify class presence in `/tmp/{artifact-id}-classes.txt
 
 ```bash
 grep -r "import com\.aspose\." content/*/en/{family}/java/ \
-     content/blog.aspose.org/{family}/java/ 2>/dev/null | \
+     content/blog.aspose.org/{family}/java/ \
+     content/products.aspose.org/en/{family}/java/ 2>/dev/null | \
   grep -oP 'import (com\.aspose\.[A-Za-z0-9.]+)' | sort -u
 ```
+
+`content/reference.aspose.org/en/{family}/java/` is intentionally excluded from this
+cross-check: those pages are single-class API references (no runnable code blocks with
+import statements) — see Step B4's surface table for what they actually need.
 
 For each class: `grep -F "com.aspose.{pkg}.{Class}" /tmp/{artifact-id}-classes.txt`
 
@@ -625,7 +672,61 @@ into PUBLISHING.md for the product team.
 
 ### Step B4 — Content healing pre-edit audit
 
-Grep all English-scope content files for the five coordinate check patterns:
+**Check the shortcode data source FIRST**, before touching any content file. A Hugo shortcode
+system (`layouts/shortcodes/maven-coord.html` / `maven-gav.html`, built under Mission MT008,
+`plans/master-plan.md`) renders the Maven coordinate from `data/foss_packages.json` — never
+from page frontmatter, never from hardcoded text. If `data/foss_packages.json` has (or, after
+Step B4a below, now has) a `{family}.java` entry with `published: true`, the correct fix for
+every literal `<groupId>`/`<version>`/Gradle-coordinate mention across
+docs/blog/kb/products is a **shortcode conversion**, not a text substitution — literal text is
+a staleness risk regardless of whether it happens to be momentarily correct (same principle as
+`maven_coordinates.py`'s audit module). Do not hand-patch C1–C4 below unless the family/platform
+genuinely has no shortcode entry and adding one is out of scope for this run.
+
+**Step B4a — Update the data source (covers C1/C2/C3/C4 in one place, all locales, all of
+docs/blog/kb/products at once):**
+1. Add/update `data/foss_packages.json`'s `{family}.java` entry: `published: true`,
+   `confirmed: {group_id: "org.aspose", artifact_id: "{artifact-id}", version: "{version}"}`,
+   `confirmed_at`, `confirmed_evidence` (cite the live HTTP 200 checks + GitHub Release +
+   Sonatype deploymentId gathered in Phase A), `central_url`.
+2. If `{family}` is not yet in `maven_shortcode_migrator.py`'s `_FAMILY_ARTIFACT_KEYWORD` dict
+   (`scripts/pipeline/commands/content/maven_shortcode_migrator.py`), add it —
+   `"{family}": "{family}-foss"` (or whatever substring the real artifactId's family-specific
+   part actually is; check the pom's `<artifactId>` first).
+3. Dry-run, review, then execute:
+   ```bash
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.content.maven_shortcode_migrator {family} --dry-run
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.content.maven_shortcode_migrator {family} --execute
+   ```
+   This is a deterministic regex-driven codemod (not LLM-authored per-file) covering
+   `content/{docs,blog,kb,products}.aspose.org/**/{family}/java/**`, **all locales** — it
+   replaces fenced `<dependency>` blocks with `{{< maven-coord "{family}" "java" >}}` and
+   inline coordinate mentions with `{{< maven-gav "{family}" "java" >}}`. It intentionally
+   migrates already-correct-looking literal text too (structural match, not value match), and
+   intentionally excludes `reference.aspose.org` (see below).
+4. Re-run with `--dry-run` once more — `files_migrated: 0` confirms nothing was missed.
+
+**C6 remains a separate, always-applicable fix across ALL 5 surfaces** (the shortcode never
+touches frontmatter): grep for stale `model_version:` and fix directly via Read → Edit:
+
+| Check | Grep pattern | Expected fix |
+|-------|-------------|-------------|
+| C6 | Stale `model_version:` in frontmatter | → `{version}` (no `^` anchor — some files have indented `  model_version:`) |
+
+- `content/blog.aspose.org/{family}/java/**/*.md` (English only — no locale suffix)
+- `content/docs.aspose.org/en/{family}/java/**/*.md`
+- `content/kb.aspose.org/en/{family}/java/**/*.md`
+- `content/products.aspose.org/en/{family}/java/**/*.md`
+- `content/reference.aspose.org/en/{family}/java/**/*.md` — auto-generated per-class API pages
+  (`content_origin: skill-generated`, `auto_updatable: true`). These carry **only C6** — no
+  Maven/Gradle snippets at all, confirmed structurally (package-namespace mentions here are a
+  different, correct fact per Mission MT008 — never shortcode-convert them). Typically the
+  largest surface by file count (one file per public class/interface/enum); plan for tens to
+  low hundreds of files and consider parallelizing the mechanical edit pass (e.g. one agent per
+  alphabetical file range) since every file needs the identical single-line substitution.
+
+**Fallback — literal C1/C2/C3/C4 patching** applies only when the family/platform has no
+shortcode data entry and creating one is genuinely out of scope for this run:
 
 | Check | Grep pattern | Expected fix |
 |-------|-------------|-------------|
@@ -633,15 +734,15 @@ Grep all English-scope content files for the five coordinate check patterns:
 | C2 | Wrong `<artifactId>` in dependency block | → `{artifact-id}` |
 | C3 | Stale `<version>` in dependency block | → `{version}` |
 | C4 | Wrong Gradle `implementation '...'` coordinate | Fix groupId/artifactId/version |
-| C6 | Stale `model_version:` in frontmatter | → `{version}` (no `^` anchor — some files have indented `  model_version:`) |
 
-**English scope** (no locale-suffix files):
-- `content/blog.aspose.org/{family}/java/**/*.md`
-- `content/docs.aspose.org/en/{family}/java/**/*.md`
-- `content/kb.aspose.org/en/{family}/java/**/*.md`
+English-scope only in the fallback case (`content/blog.aspose.org/{family}/java/**/*.md`,
+`content/docs.aspose.org/en/{family}/java/**/*.md`, `content/kb.aspose.org/en/{family}/java/**/*.md`,
+`content/products.aspose.org/en/{family}/java/**/*.md`) — locale files are never patched by hand;
+they get the shortcode treatment in a later run instead of literal-text propagation.
 
-Do NOT edit: `content/reference.aspose.org/` (auto-generated), any file with a locale
-suffix (e.g. `index.fr.md`, `index.de.md`).
+Any file with a locale suffix (e.g. `index.fr.md`, `index.de.md`) is out of scope for the C6
+frontmatter fix and the C1–C4 fallback alike — the shortcode-migrator path is the only mechanism
+that touches locale files, and only for the Maven-coordinate text, never frontmatter.
 
 Print the full pre-edit table to the operator before ANY edits:
 
@@ -649,13 +750,12 @@ Print the full pre-edit table to the operator before ANY edits:
 === CONTENT HEALING PLAN (operator confirmation required) ===
 
 Artifact: org.aspose:{artifact-id}:{version}
-Scope:    English-only .md files (no locale suffix)
+Mechanism: {shortcode migration (data/foss_packages.json + maven_shortcode_migrator.py,
+           all locales) | literal C1-C4 fallback (English-only) — state which path was used}
 
-C1 (groupId fix):    N files
-C2 (artifactId fix): N files
-C3 (version fix):    N files
-C4 (gradle fix):     N files
-C6 (model_version):  N files
+maven_shortcode_migrator (if used): N files_migrated, N block_replacements, N inline_replacements
+C1-C4 fallback (if used, English-only): N files (see per-check breakdown below)
+C6 (model_version, English-only, all 5 surfaces): N files
 
 Sample substitutions:
   content/docs.aspose.org/en/{family}/java/foo.md
@@ -738,7 +838,7 @@ git commit -m "content({family}/java): fix Maven coordinates for org.aspose:{art
 - C3: version updated to {version} in all dependency blocks
 - C4: Gradle coordinates corrected
 - C6: model_version updated to {version} in frontmatter
-Files: N English source files across blog/docs/kb
+Files: N English source files across blog/docs/kb/products/reference
 Artifact: org.aspose:{artifact-id}:{version} (live on Maven Central)
 Skills invoked: [S-73, S-76, S-110]
 
@@ -751,11 +851,11 @@ Co-authored-by: Kilo Code <kilocode@kilocode.ai>
 cp scripts/pre-commit-audit.sh .git/hooks/pre-commit
 ```
 
-**Staged file boundary check.** Before committing, verify no reference or locale files
-were accidentally staged:
+**Staged file boundary check.** Before committing, verify no locale files were
+accidentally staged (`content/reference.aspose.org/` is now an in-scope healing
+surface per Step B4, so it is expected to appear in this diff — only locale-suffixed
+files remain out of bounds):
 ```bash
-git diff --staged --name-only | grep "reference.aspose.org" && \
-  { echo "ERROR: reference files staged — unstage them"; exit 1; } || true
 git diff --staged --name-only | grep -E '\.[a-z]{2}\.md$' && \
   { echo "ERROR: locale files staged — unstage them"; exit 1; } || true
 ```
@@ -785,7 +885,7 @@ C7 findings:     N missing classes (see PUBLISHING.md for details)
 
 aspose.org commit: {sha}
   C1: N files  C2: N files  C3: N files  C4: N files  C6: N files
-  Total healed: N English files (blog/docs/kb)
+  Total healed: N English files (blog/docs/kb/products/reference)
   Post-sweep:   zero stale patterns confirmed
 ```
 
@@ -809,7 +909,13 @@ aspose.org commit: {sha}
 - Post-healing grep sweep returns zero matches on all five patterns
 - aspose.org commit pushed to main
 
-**If Phase A skipped (version already on Central):**
+**If Phase A skipped (version already on Central AND already documented):**
+- All Phase B postconditions apply
+
+**If Phase A ran via Step A1a (docs-only remediation):**
+- `PUBLISHING.md` is committed to the product repo root
+- `pom.xml`, `.gitignore`, and the GHA workflow file are unchanged (diff-verified before staging)
+- No republish or resign was attempted
 - All Phase B postconditions apply
 
 **If Phase B operator declined:**
@@ -831,10 +937,11 @@ aspose.org commit: {sha}
 | BOM detected in written pom.xml | HALT — abort and diagnose write tool |
 | `waitUtil` typo found in written files | HALT — fix before staging |
 | Surgical boundary violated (unexpected file in diff) | HALT before staging |
+| Step A1a would touch a file other than `PUBLISHING.md` | HALT before staging — same rule as the general surgical boundary check, applied with the allowed-file-set narrowed to one entry |
 | Local build fails | Diagnose and fix; do not push until `BUILD SUCCESS` |
 | Dry-run workflow fails | HALT — print `--log-failed` output |
 | Content healing operator declines | Halt Phase B; Phase A result stands |
-| Reference or locale files staged | HALT — unstage before committing |
+| Locale-suffixed files staged | HALT — unstage before committing |
 
 ### What S-110 will never do
 
@@ -844,7 +951,7 @@ aspose.org commit: {sha}
 - Skip the surgical boundary check before staging
 - Skip the post-healing grep sweep before committing
 - Commit to aspose.org without draining stale skill run records first
-- Edit locale-suffix files or `reference.aspose.org` content
+- Edit locale-suffix files (any of the 5 healing surfaces, English-only)
 
 ---
 
@@ -861,7 +968,7 @@ aspose.org commit: {sha}
 | Skill run record mismatch at pre-commit | Drain stale records (Step B7); re-create fresh record |
 | `check_evidence_churn.py` BLOCK | Set `EVIDENCE_RESTAMP_MSG` env var (Step B8); do not add `--no-verify` |
 | Pre-commit hook sync needed | `cp scripts/pre-commit-audit.sh .git/hooks/pre-commit` |
-| Reference files staged accidentally | `git restore --staged content/reference.aspose.org/**` |
+| Locale files staged accidentally | `git restore --staged` on the matching `*.xx.md` paths |
 
 ---
 

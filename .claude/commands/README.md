@@ -6,7 +6,9 @@ Skills here are invoked as slash commands within Claude Code sessions.
 > **Canonical source**: [skills/README.md](../../skills/README.md)
 > **Authoritative registry**: [AGENTS.md §12](../../AGENTS.md)
 > This tree is a mirror of `skills/` with Claude Code-specific adaptations. When content diverges,
-> investigate using `python scripts/pipeline/commands/ops/sync_skills.py --report`.
+> investigate with `sync_skills.py --report`, then fix it with
+> `python scripts/pipeline/commands/ops/sync_providers.py` (the report-only tool never writes
+> anything itself).
 
 ---
 
@@ -155,10 +157,16 @@ Source: `scripts/pipeline/commands/ops/sync_skills.py:KNOWN_EXCEPTIONS` and `INT
 
 # View full divergence report
 .venv/Scripts/python scripts/pipeline/commands/ops/sync_skills.py --report
+
+# Actually fix drift — sync_skills.py above only detects it, never writes anything.
+# This is the command that propagates skills/*.md into this tree (and .agents/, .kilocode/):
+.venv/Scripts/python scripts/pipeline/commands/ops/sync_providers.py
 ```
 
-CI runs this check on every PR that modifies content. Drift from canonical is reported but
-currently advisory (`continue-on-error: true`).
+CI runs `sync_skills.py --check` on every push/PR that modifies `skills/**`, `.agents/skills/**`,
+`.claude/commands/**`, or `.kilocode/skills/**` (`.github/workflows/skill-governance.yml`).
+A pre-commit gate additionally blocks any local commit that touches a skill whose canonical and
+mirror copies have diverged — run `sync_providers.py` (not just `--check`) before committing.
 
 ---
 
