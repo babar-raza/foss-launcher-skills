@@ -898,6 +898,7 @@ scripts:
       ref: update-registry
     test_targets:
       - scripts/pipeline/tests/test_update_product_registry.py
+      - scripts/pipeline/tests/test_registry_exclusions.py
     requires_test: true
     deprecated_since: null
     notes: "update data/products.json from GitHub org and local knowledge dirs"
@@ -1392,6 +1393,7 @@ scripts:
       ref: repo-patrol
     test_targets:
       - scripts/pipeline/tests/test_repo_patrol.py
+      - scripts/pipeline/tests/test_registry_exclusions.py
     requires_test: true
     deprecated_since: null
     change_impact: null

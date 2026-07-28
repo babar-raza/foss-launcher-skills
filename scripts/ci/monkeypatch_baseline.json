@@ -42,6 +42,12 @@
       "T3": 0,
       "T4": 0
     },
+    "scripts/ci/tests/test_check_skill_mirror_parity.py": {
+      "T1": 3,
+      "T2": 3,
+      "T3": 0,
+      "T4": 0
+    },
     "scripts/ci/tests/test_check_skill_readme_coverage.py": {
       "T1": 0,
       "T2": 3,
@@ -76,6 +82,12 @@
       "T1": 0,
       "T2": 0,
       "T3": 3,
+      "T4": 0
+    },
+    "scripts/pipeline/tests/content/test_body_refresh.py": {
+      "T1": 0,
+      "T2": 1,
+      "T3": 0,
       "T4": 0
     },
     "scripts/pipeline/tests/content/test_refresh_oracle.py": {
@@ -162,6 +174,12 @@
       "T3": 0,
       "T4": 0
     },
+    "scripts/pipeline/tests/test_audit_frontmatter_schema.py": {
+      "T1": 0,
+      "T2": 36,
+      "T3": 0,
+      "T4": 0
+    },
     "scripts/pipeline/tests/test_backlink_adjudicate_review.py": {
       "T1": 0,
       "T2": 6,
@@ -186,9 +204,15 @@
       "T3": 0,
       "T4": 0
     },
+    "scripts/pipeline/tests/test_batch_reference.py": {
+      "T1": 0,
+      "T2": 3,
+      "T3": 0,
+      "T4": 0
+    },
     "scripts/pipeline/tests/test_batch_reference_rebuild_all.py": {
       "T1": 0,
-      "T2": 13,
+      "T2": 17,
       "T3": 0,
       "T4": 0
     },
@@ -243,6 +267,12 @@
     "scripts/pipeline/tests/test_content_discovery.py": {
       "T1": 0,
       "T2": 11,
+      "T3": 0,
+      "T4": 0
+    },
+    "scripts/pipeline/tests/test_core_fs.py": {
+      "T1": 0,
+      "T2": 2,
       "T3": 0,
       "T4": 0
     },
@@ -308,7 +338,7 @@
     },
     "scripts/pipeline/tests/test_gap_eval_tier2_vectors.py": {
       "T1": 0,
-      "T2": 3,
+      "T2": 9,
       "T3": 0,
       "T4": 0
     },
@@ -354,6 +384,12 @@
       "T3": 0,
       "T4": 0
     },
+    "scripts/pipeline/tests/test_launch_gate.py": {
+      "T1": 0,
+      "T2": 3,
+      "T3": 0,
+      "T4": 0
+    },
     "scripts/pipeline/tests/test_launch_rollback.py": {
       "T1": 0,
       "T2": 6,
@@ -368,9 +404,9 @@
     },
     "scripts/pipeline/tests/test_llm_router.py": {
       "T1": 0,
-      "T2": 27,
+      "T2": 29,
       "T3": 0,
-      "T4": 10
+      "T4": 12
     },
     "scripts/pipeline/tests/test_localization_incident.py": {
       "T1": 0,
@@ -397,12 +433,6 @@
       "T4": 2
     },
     "scripts/pipeline/tests/test_metrics_ci_checks.py": {
-      "T1": 0,
-      "T2": 1,
-      "T3": 0,
-      "T4": 0
-    },
-    "scripts/pipeline/tests/test_metrics_embed_adapter.py": {
       "T1": 0,
       "T2": 1,
       "T3": 0,
@@ -468,6 +498,12 @@
       "T3": 0,
       "T4": 0
     },
+    "scripts/pipeline/tests/test_registry_exclusions.py": {
+      "T1": 0,
+      "T2": 8,
+      "T3": 0,
+      "T4": 0
+    },
     "scripts/pipeline/tests/test_regression_classification.py": {
       "T1": 2,
       "T2": 16,
@@ -529,7 +565,7 @@
       "T4": 0
     },
     "scripts/pipeline/tests/test_slice8_entry_point_metrics.py": {
-      "T1": 10,
+      "T1": 12,
       "T2": 0,
       "T3": 0,
       "T4": 0
@@ -566,7 +602,7 @@
     },
     "scripts/pipeline/tests/test_tier2_determinism.py": {
       "T1": 0,
-      "T2": 4,
+      "T2": 6,
       "T3": 0,
       "T4": 0
     },
@@ -584,7 +620,7 @@
     },
     "scripts/pipeline/tests/test_truth_audit_content.py": {
       "T1": 6,
-      "T2": 2,
+      "T2": 4,
       "T3": 0,
       "T4": 0
     },
@@ -619,14 +655,14 @@
       "T4": 0
     }
   },
-  "generated_at": "2026-07-24T17:53:33Z",
+  "generated_at": "2026-07-28T13:36:59Z",
   "generator": "scripts/ci/checks/check_monkeypatch_lint.py --baseline",
   "generator_version": "2.0.0",
   "schema_version": 1,
   "totals": {
-    "T1": 98,
-    "T2": 786,
+    "T1": 103,
+    "T2": 857,
     "T3": 62,
-    "T4": 17
+    "T4": 19
   }
 }

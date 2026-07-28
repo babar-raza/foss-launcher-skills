@@ -33,7 +33,7 @@ Schema:
 Environment:
     GITHUB_TOKEN  GitHub personal access token (alternative to --token).
     ASPOSE_ORG    Comma-separated GitHub organisations to scan
-                  (default: all 26 aspose-{family}-foss orgs).
+                  (default: all 25 aspose-{family}-foss orgs).
 """
 from __future__ import annotations
 
@@ -90,7 +90,6 @@ _DEFAULT_ORGS = [
     "aspose-font-foss",
     "aspose-gis-foss",
     "aspose-html-foss",
-    "aspose-imaging-foss",
     "aspose-medical-foss",
     "aspose-note-foss",
     "aspose-ocr-foss",
@@ -200,6 +199,48 @@ def _discover_from_knowledge() -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
+# Registry exclusions (data/registry_exclusions.json)
+# ---------------------------------------------------------------------------
+# Duplicated in repo_patrol.py per PIPELINE.md's "2 scripts need it -> duplicate
+# and comment" rule (no lib/ module for exactly 2 consumers).
+
+def _load_exclusions() -> list[dict]:
+    path = DATA_DIR / "registry_exclusions.json"
+    if not path.is_file():
+        return []
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return []
+
+
+def _is_excluded(exclusions: list[dict], *, repo_name: str = "", family: str = "", platform: str = "") -> bool:
+    for ex in exclusions:
+        if ex.get("match") == "repo_name" and repo_name and ex.get("value", "").lower() == repo_name.lower():
+            return True
+        if ex.get("match") == "family_platform" and family and platform \
+                and ex.get("family") == family and ex.get("platform") == platform:
+            return True
+    return False
+
+
+def _enforce_exclusions(merged: list[dict], exclusions: list[dict]) -> list[dict]:
+    """Force active=False on any entry matching an exclusion, in place.
+
+    Safety net independent of the discovery-time skip in _discover_from_github:
+    catches an excluded entry regardless of which code path produced or
+    preserved it (existing registry state, --local-only knowledge_dir
+    discovery, --force, etc). Mutates and returns *merged* for convenience.
+    """
+    for entry in merged:
+        if _is_excluded(exclusions, repo_name=entry.get("repo_name", ""),
+                         family=entry["family"], platform=entry["platform"]):
+            entry["active"] = False
+            entry["excluded"] = True
+    return merged
+
+
+# ---------------------------------------------------------------------------
 # Discover products from GitHub
 # ---------------------------------------------------------------------------
 
@@ -228,12 +269,15 @@ def _discover_from_github(orgs: list[str], token: str | None) -> list[dict]:
         from org_scanner import scan_orgs  # type: ignore[no-redef]
 
     products: list[dict] = []
+    exclusions = _load_exclusions()
     repos = scan_orgs(orgs, token=token)
     for repo in repos:
         pair = _classify_repo(repo["name"])
         if pair is None:
             continue
         family, platform = pair
+        if _is_excluded(exclusions, repo_name=repo["name"], family=family, platform=platform):
+            continue
         active = not repo["archived"] and _is_recently_pushed(repo.get("pushed_at", ""))
         products.append(
             {
@@ -494,6 +538,10 @@ def main(argv: list[str] | None = None) -> int:
 
     # Merge
     merged = _merge(existing, incoming, force=args.force)
+
+    # Enforce exclusions unconditionally on the final merged output (see
+    # _enforce_exclusions docstring).
+    merged = _enforce_exclusions(merged, _load_exclusions())
 
     # Dry-run: print table and exit without writing
     if args.dry_run:

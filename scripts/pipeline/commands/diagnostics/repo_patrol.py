@@ -17,7 +17,7 @@ Default behaviour:
 
 Environment:
     GITHUB_TOKEN   GitHub personal access token (needed for scan).
-    ASPOSE_ORG     Comma-separated GitHub organisations (overrides default 26).
+    ASPOSE_ORG     Comma-separated GitHub organisations (overrides default 25).
 
 Output:
     reports/discovery/patrol_report.json
@@ -104,6 +104,32 @@ def _save_registry(data: list[dict]) -> None:
 
 def _key(entry: dict) -> tuple[str, str]:
     return (entry["family"], entry["platform"])
+
+
+# ---------------------------------------------------------------------------
+# Registry exclusions (data/registry_exclusions.json)
+# ---------------------------------------------------------------------------
+# Duplicated in update_product_registry.py per PIPELINE.md's "2 scripts need it
+# -> duplicate and comment" rule (no lib/ module for exactly 2 consumers).
+
+def _load_exclusions() -> list[dict]:
+    path = DATA_DIR / "registry_exclusions.json"
+    if not path.is_file():
+        return []
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return []
+
+
+def _is_excluded(exclusions: list[dict], *, repo_name: str = "", family: str = "", platform: str = "") -> bool:
+    for ex in exclusions:
+        if ex.get("match") == "repo_name" and repo_name and ex.get("value", "").lower() == repo_name.lower():
+            return True
+        if ex.get("match") == "family_platform" and family and platform \
+                and ex.get("family") == family and ex.get("platform") == platform:
+            return True
+    return False
 
 
 # ---------------------------------------------------------------------------
@@ -227,6 +253,7 @@ def cmd_scan(
 
     registry = _load_registry()
     registry_index = {_key(e): e for e in registry}
+    exclusions = _load_exclusions()
 
     print(f"Scanning {len(orgs)} GitHub orgs...", file=sys.stderr)
     all_repos = scan_orgs(orgs, token=token)
@@ -238,8 +265,15 @@ def cmd_scan(
     status_changes: list[dict] = []
     unclassifiable: list[dict] = []
     skipped: list[dict] = []
+    excluded_count = 0
 
     for repo in all_repos:
+        if _is_excluded(exclusions, repo_name=repo["name"]):
+            # Permanently excluded (e.g. not a docs-able product type) — do not
+            # surface as unclassifiable noise or re-evaluate every scan.
+            excluded_count += 1
+            continue
+
         pair = _classify_repo(repo["name"])
         if pair is None:
             unclassifiable.append({
@@ -250,6 +284,10 @@ def cmd_scan(
             continue
 
         family, platform = pair
+        if _is_excluded(exclusions, family=family, platform=platform):
+            excluded_count += 1
+            continue
+
         k = (family, platform)
 
         if k in registry_index:
@@ -358,11 +396,13 @@ def cmd_scan(
         "status_changes": status_changes,
         "unclassifiable": unclassifiable,
         "skipped_count": len(skipped),
+        "excluded_count": excluded_count,
         "summary": {
             "new_candidates": len(new_candidates),
             "status_changes": len(status_changes),
             "unclassifiable": len(unclassifiable),
             "skipped": len(skipped),
+            "excluded": excluded_count,
         },
     }
 
