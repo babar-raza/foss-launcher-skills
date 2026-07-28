@@ -12,6 +12,7 @@ Covers (S-62 Healing Sprint — F-1 + F-6):
   - Java internal class filter: _JAVA_INTERNAL_CLASSES excluded from Java candidates (SEA-T3)
 """
 import json
+import hashlib
 import sys
 from pathlib import Path
 from unittest.mock import patch
@@ -21,9 +22,16 @@ import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import batch_reference as _br
-from batch_reference import (_passes_platform_scope, _apply_kind_filter, _is_enum, run,
+from batch_reference import (_passes_platform_scope, _apply_kind_filter, _is_enum,
+                              run as _production_run,
                               _build_erc_index, _build_page, check_member_doc_coverage,
                               _derive_group_key, _normalize_doc_for_index)
+
+
+def run(*args, **kwargs):
+    """Keep behavior tests on the production run-bound mutation API."""
+    kwargs.setdefault("run_id", "TEST-RUN")
+    return _production_run(*args, **kwargs)
 
 
 # ---------------------------------------------------------------------------
@@ -57,6 +65,118 @@ def _isolate_paths(tmp_path):
 # ---------------------------------------------------------------------------
 # Kind filter tests (F-6 regression)
 # ---------------------------------------------------------------------------
+
+def test_mutating_run_requires_explicit_run_id(tmp_path):
+    _make_api_surface(tmp_path, [], family="slides", platform="net")
+    with pytest.raises(ValueError, match="explicit run_id"):
+        _production_run("slides", "net")
+
+
+def test_reference_write_ahead_evidence_survives_writer_crash(
+    tmp_path, monkeypatch
+):
+    _make_api_surface(
+        tmp_path,
+        [{
+            "name": "Foo",
+            "kind": "class_declaration",
+            "methods": [],
+            "properties": [],
+        }],
+    )
+    page = (
+        tmp_path
+        / "content/reference.aspose.org/en/fake/net/Foo.md"
+    )
+    page.parent.mkdir(parents=True, exist_ok=True)
+    old_content = (
+        "---\nprovenance:\n  content_origin: skill-generated\n"
+        "  auto_updatable: true\n---\n# Old\n"
+    )
+    page.write_text(old_content, encoding="utf-8")
+    run_root = tmp_path / "reports/refresh_runs/fake/net/RUN-REF-CRASH"
+    run_root.mkdir(parents=True)
+    scoped = "content/reference.aspose.org/en/fake/net/Foo.md"
+    scope_path = run_root / "scope.json"
+    scope_path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "run_id": "RUN-REF-CRASH",
+                "family": "fake",
+                "platform": "net",
+                "paths": [scoped],
+                "initial_hashes": {},
+            }
+        ),
+        encoding="utf-8",
+    )
+    logical = json.dumps(
+        {"paths": [scoped], "input_digest": None},
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    (run_root / "manifest.json").write_text(
+        json.dumps(
+            {
+                "run_id": "RUN-REF-CRASH",
+                "family": "fake",
+                "platform": "net",
+                "created_at": "2026-07-26T00:00:00Z",
+                "scope": {
+                    "paths": [scoped],
+                    "input_digest": None,
+                    "digest": "sha256:" + hashlib.sha256(logical).hexdigest(),
+                },
+                "output_digests": {
+                    "scope": "sha256:" + hashlib.sha256(
+                        scope_path.read_bytes()
+                    ).hexdigest()
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    original_write = _br.safe_content_write
+    flat_heal_calls = []
+    monkeypatch.setattr(
+        _br,
+        "_auto_heal_flat_index",
+        lambda *args: flat_heal_calls.append(args),
+    )
+
+    def crash_on_real_path(path, content, **kwargs):
+        if str(path).startswith(str(run_root / "staging")):
+            return original_write(path, content, **kwargs)
+        assert list((run_root / "receipts").glob("*.yaml"))
+        assert (run_root / "page_decisions.jsonl").is_file()
+        raise RuntimeError("simulated reference writer crash")
+
+    monkeypatch.setattr(_br, "safe_content_write", crash_on_real_path)
+    result = _production_run(
+        "fake",
+        "net",
+        rebuild_all=True,
+        confirm_rebuild=True,
+        run_id="RUN-REF-CRASH",
+        run_root=run_root,
+    )
+    assert result["errors"] == 1
+    assert page.read_text(encoding="utf-8") == old_content
+
+    monkeypatch.setattr(_br, "safe_content_write", original_write)
+    result = _production_run(
+        "fake",
+        "net",
+        rebuild_all=True,
+        confirm_rebuild=True,
+        run_id="RUN-REF-CRASH",
+        run_root=run_root,
+    )
+    assert result["updated"] == 1
+    assert len(list((run_root / "receipts").glob("*.yaml"))) == 1
+    assert flat_heal_calls == []
+
 
 class TestKindFilterJava:
     ENTRIES = [
@@ -1437,7 +1557,7 @@ class TestConfigureSeam:
         _make_api_surface(tmp_path, entries, family="test_fam", platform="net")
         _br_local.configure(repo_root=tmp_path)
         try:
-            result = _br_local.run("test_fam", "net")
+            result = _br_local.run("test_fam", "net", run_id="TEST-RUN")
         finally:
             _br_local.configure()
         assert result["generated"] == 1

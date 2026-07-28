@@ -2396,6 +2396,20 @@ def extract_api_surface(
                     cls_record["class_import"] = cname
             elif language == "python":
                 # Derive from file path relative to pkg_root
+                #
+                # HARDEN-py-canonical-namespace (2026-07-28, MT013): this
+                # branch computed module_path for class_import but never
+                # exposed it as canonical_namespace -- the field the existing
+                # same-name disambiguation mechanism in batch_reference.py /
+                # api_completeness.py reads (already proven for C++/Rust).
+                # Without it, two genuinely distinct Python classes sharing a
+                # short name across different modules (e.g. pdf/python's
+                # `Document` in both aspose_pdf/document.py -- the primary
+                # implementation -- and aspose_pdf/generated/document.py -- a
+                # real, separate compatibility-shim class, not a stub) could
+                # never be disambiguated and both failed page generation
+                # entirely ("within-batch case-collision"). Populating this
+                # mirrors the Rust branch below.
                 try:
                     py_rel = fpath.relative_to(pkg_root)
                     parts = list(py_rel.parts)
@@ -2405,6 +2419,7 @@ def extract_api_surface(
                         parts = parts[:-1]
                     if parts:
                         module_path = ".".join(parts)
+                        cls_record["canonical_namespace"] = module_path
                         cls_record["class_import"] = f"{module_path}.{cname}"
                 except ValueError:
                     pass

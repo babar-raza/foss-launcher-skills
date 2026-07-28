@@ -22,6 +22,8 @@ Options:
                             more than REBUILD_CONFIRM_THRESHOLD pages would be rebuilt.
     --confirm-rebuild       Required when --rebuild-all would regenerate more than
                             REBUILD_CONFIRM_THRESHOLD existing pages.
+    --run-id ID             Required for every mutating execution.
+    --run-root DIR          Run directory; when supplied, scope.json restricts writes.
 
 CONTRACT: This script is the backing implementation for S-62 (batch-reference).
 The skill spec in .agents/skills/batch-reference/SKILL.md documents the same
@@ -36,6 +38,7 @@ import json
 import logging
 import re
 import sys
+import yaml
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -47,11 +50,12 @@ LOG = logging.getLogger(__name__)
 
 # Bootstrap: ensure scripts/pipeline/ is on sys.path for sibling imports
 _HERE = Path(__file__).resolve().parent
-if str(_HERE) not in sys.path:
-    sys.path.insert(0, str(_HERE.parent.parent))  # scripts/pipeline/
-    _LIB_DIR = str(_HERE.parent.parent / "lib")  # scripts/pipeline/lib
-    if _LIB_DIR not in sys.path:
-        sys.path.insert(0, _LIB_DIR)
+_PIPELINE_DIR = str(_HERE.parent.parent)
+if _PIPELINE_DIR not in sys.path:
+    sys.path.insert(0, _PIPELINE_DIR)
+_LIB_DIR = str(_HERE.parent.parent / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 
 from core.env_loader import load_env  # noqa: E402
 load_env()
@@ -117,6 +121,17 @@ def configure(
         else root / "content" / "reference.aspose.org" / "en"
     )
 
+
+def _canonical_reference_path(page_path: Path) -> str:
+    """Return a repo-relative content path without leaking sandbox roots."""
+    try:
+        return page_path.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return (
+            Path("content/reference.aspose.org/en")
+            / page_path.relative_to(CONTENT_ROOT)
+        ).as_posix()
+
 # Python enum base classes (mirrors extraction/tree_helpers.py _PY_ENUM_BASES)
 _PY_ENUM_BASES: frozenset[str] = frozenset({
     "Enum", "IntEnum", "StrEnum", "Flag", "IntFlag",
@@ -160,6 +175,26 @@ _PLATFORM_TO_LANG: dict[str, str] = {
 
 # ERC-* claim kinds treated as prose-eligible for reference page descriptions
 _ERC_PROSE_KINDS: frozenset[str] = frozenset({"api", "feature"})
+
+
+def _evidence_ids(text: str) -> tuple[list[str], list[str]]:
+    """Extract run-decision evidence IDs from final page frontmatter."""
+    if not text.startswith("---"):
+        return [], []
+    parts = text.split("---", 2)
+    if len(parts) < 3:
+        return [], []
+    try:
+        frontmatter = yaml.safe_load(parts[1]) or {}
+    except yaml.YAMLError:
+        return [], []
+    evidence = frontmatter.get("evidence") or {}
+    claims = evidence.get("claims") or []
+    apis = evidence.get("apis") or []
+    return (
+        [str(value) for value in claims if value],
+        [str(value) for value in apis if value],
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -396,6 +431,38 @@ def _entry_slug(entry: dict) -> str:
     if suffix:
         return f"{base}-{_sanitize_slug(suffix)}"
     return base
+
+
+def _assign_namespace_slug_suffixes(group: list[dict]) -> None:
+    """Set ``_slug_suffix`` on each entry in a same-name collision *group*.
+
+    Prefers the short, readable last dot-segment of ``canonical_namespace``
+    (e.g. ``Aspose.Pdf.Drawing`` -> ``Drawing``) -- the established, tested
+    convention for deeply-nested namespaces (.NET/Java) where the tail alone
+    already disambiguates.
+
+    HARDEN-py-namespace-suffix (2026-07-28, MT013): that shortcut silently
+    re-collides when two DIFFERENT namespaces share the same last segment --
+    found live on pdf/python, where ``aspose_pdf.document`` and
+    ``aspose_pdf.generated.document`` both truncate to ``document``, hiding
+    the real, distinct compatibility-shim ``Document`` class entirely
+    ("within-batch case-collision", 0 pages written for either). Falls back
+    to the FULL sanitized namespace only for entries whose truncated suffix
+    is still ambiguous within this group -- leaving the already-tested short
+    form (``Color-Drawing.md``) unchanged for every already-disambiguating
+    case.
+    """
+    from collections import Counter as _Counter
+
+    entries_with_ns = [e for e in group if e.get("canonical_namespace")]
+    truncated = {
+        id(e): e["canonical_namespace"].rsplit(".", 1)[-1]
+        for e in entries_with_ns
+    }
+    counts = _Counter(truncated.values())
+    for e in entries_with_ns:
+        short = truncated[id(e)]
+        e["_slug_suffix"] = e["canonical_namespace"] if counts[short] > 1 else short
 
 
 # ---------------------------------------------------------------------------
@@ -1293,13 +1360,10 @@ def generate_grouped_index(
             if f"{_entry_slug(_gie)}.md" in _gi_existing_exact:
                 _gi_winner = _gie
                 break
-        for _gie in _gi_group:
-            if _gie is _gi_winner:
-                continue
-            if not _gie.get("_slug_suffix"):
-                _cns = _gie.get("canonical_namespace", "")
-                if _cns:
-                    _gie["_slug_suffix"] = _cns.rsplit(".", 1)[-1]
+        _assign_namespace_slug_suffixes([
+            _gie for _gie in _gi_group
+            if _gie is not _gi_winner and not _gie.get("_slug_suffix")
+        ])
 
     # Load model metadata
     model_sha = ""
@@ -1454,7 +1518,8 @@ def run(family: str, platform: str, kind_arg: str = "all",
         limit: int | None = None, dry_run: bool = False, update: bool = False,
         require_member_doc_coverage: int | None = None, heal: bool = False,
         confirm_heal: bool = False, plan_path: str | None = None,
-        rebuild_all: bool = False, confirm_rebuild: bool = False) -> dict:
+        rebuild_all: bool = False, confirm_rebuild: bool = False,
+        run_id: str | None = None, run_root: str | Path | None = None) -> dict:
     """Run batch reference generation. Returns result dict with counts.
 
     When update=True, only re-generates pages for classes listed in
@@ -1467,6 +1532,17 @@ def run(family: str, platform: str, kind_arg: str = "all",
     Requires confirm_rebuild=True when more than REBUILD_CONFIRM_THRESHOLD pages
     would be overwritten.
     """
+    if not dry_run and not run_id:
+        raise ValueError("mutating batch-reference execution requires an explicit run_id")
+    explicit_run_root = run_root is not None
+    resolved_run_root = (
+        Path(run_root)
+        if run_root is not None
+        else REPO_ROOT / "reports" / "refresh_runs" / family / platform / str(run_id)
+        if run_id
+        else None
+    )
+
     if update and rebuild_all:
         print("STOP: --update and --rebuild-all are mutually exclusive. Use one or the other.")
         sys.exit(2)
@@ -1559,18 +1635,36 @@ def run(family: str, platform: str, kind_arg: str = "all",
             print(f"Skipped {_conv_skipped} conventional class(es) "
                   f"(package defines __all__).")
 
+    scoped_paths: set[str] | None = None
+    if explicit_run_root and resolved_run_root is not None:
+        if not run_id:
+            raise ValueError("an explicit run_root requires run_id")
+        from commands.content.body_refresh import _validated_run_scope
+
+        scope_data = _validated_run_scope(
+            resolved_run_root,
+            run_id=run_id,
+            family=family,
+            platform=platform,
+        )
+        scoped_paths = {
+            Path(value).as_posix() for value in scope_data.get("paths", [])
+        }
+
     # api_surface is already consolidated at extraction time (consolidate_classes
     # in api_surface.py).  Remaining same-name entries have distinct namespaces.
     # Disambiguate their output slugs so each gets its own page file.
     from collections import Counter as _Counter
+    from collections import defaultdict as _defaultdict
     _name_counts = _Counter(e.get("name", "") for e in candidates)
     _collisions = {n for n, c in _name_counts.items() if c > 1}
     if _collisions:
+        _groups: dict[str, list[dict]] = _defaultdict(list)
         for entry in candidates:
             if entry.get("name", "") in _collisions:
-                ns = entry.get("canonical_namespace", "")
-                if ns:
-                    entry["_slug_suffix"] = ns.rsplit(".", 1)[-1]
+                _groups[entry["name"]].append(entry)
+        for _group in _groups.values():
+            _assign_namespace_slug_suffixes(_group)
         print(f"  {len(_collisions)} name collision(s) disambiguated by namespace")
 
     # Phase A: Case-collision detection.
@@ -1603,41 +1697,57 @@ def run(family: str, platform: str, kind_arg: str = "all",
                 if f"{_entry_slug(_ce)}.md" in _existing_exact:
                     _existing_on_disk = _ce
                     break
-            for _ce in _cgroup:
-                if _ce is _existing_on_disk:
-                    continue  # Preserve existing committed file's slug unchanged
-                if not _ce.get("_slug_suffix"):  # Don't override name-exact disambiguation
-                    _cns = _ce.get("canonical_namespace", "")
-                    if _cns:
-                        _ce["_slug_suffix"] = _cns.rsplit(".", 1)[-1]
-                    else:
-                        print(f"  WARN: case-collision for '{_ce.get('name')}' but "
-                              f"canonical_namespace is empty — cannot auto-disambiguate; "
-                              f"Phase C backstop will catch if both reach write loop")
+            _targets = [
+                _ce for _ce in _cgroup
+                if _ce is not _existing_on_disk and not _ce.get("_slug_suffix")
+            ]
+            _assign_namespace_slug_suffixes(_targets)
+            for _ce in _targets:
+                if not _ce.get("canonical_namespace"):
+                    print(f"  WARN: case-collision for '{_ce.get('name')}' but "
+                          f"canonical_namespace is empty — cannot auto-disambiguate; "
+                          f"Phase C backstop will catch if both reach write loop")
         print(f"  {len(_case_only_collisions)} case-only collision(s) auto-disambiguated by namespace")
 
-    # Clean up stale undisambiguated pages when disambiguated versions will be
-    # generated.  After consolidation, a collision set {Color-Pdf.md, Color-Drawing.md}
-    # supersedes the old merged Color.md.
+    # Never delete a tracked content page from this generator. A stale
+    # undisambiguated page requires the governed page-retire workflow (draft:
+    # true), with its own run-scoped disposition.
     if _collisions and not dry_run:
         _ref_dir = CONTENT_ROOT / family / platform
-        _stale_removed = 0
+        _stale_pages: list[Path] = []
         for _cname in sorted(_collisions):
             _old = _ref_dir / f"{_sanitize_slug(_cname)}.md"
-            if _old.exists():
-                try:
-                    _old.unlink()
-                    _stale_removed += 1
-                except OSError:
-                    pass
-        if _stale_removed:
-            print(f"  Removed {_stale_removed} stale undisambiguated page(s)")
+            if (
+                _old.exists()
+                and (
+                    scoped_paths is None
+                    or _canonical_reference_path(_old) in scoped_paths
+                )
+            ):
+                _stale_pages.append(_old)
+        if _stale_pages:
+            raise RuntimeError(
+                f"{len(_stale_pages)} stale undisambiguated page(s) require "
+                "the governed page-retire workflow; no files were deleted: "
+                f"{[path.name for path in _stale_pages[:5]]}"
+            )
 
     if limit is not None:
         candidates = candidates[:limit]
 
-    total = len(candidates)
     output_dir = CONTENT_ROOT / family / platform
+    if scoped_paths is not None:
+        candidates = [
+            entry
+            for entry in candidates
+            if (
+                _canonical_reference_path(
+                    output_dir / f"{_entry_slug(entry)}.md"
+                )
+                in scoped_paths
+            )
+        ]
+    total = len(candidates)
 
     # Plan-aware advisory filtering (CP-P4)
     plan_slugs: set[str] | None = None
@@ -1696,6 +1806,11 @@ def run(family: str, platform: str, kind_arg: str = "all",
     to_generate = []   # pages that don't exist yet (always created)
     to_update = []     # pages that exist and are in modified_apis (--update mode only)
     to_skip = []       # pages that exist and are not being updated
+    skip_reasons: dict[str, str] = {}
+
+    def _skip(entry: dict, reason: str) -> None:
+        to_skip.append(entry)
+        skip_reasons[_entry_slug(entry)] = reason
 
     if update:
         # Load update-eligible APIs from knowledge_delta.json (modified + new + resurrected)
@@ -1717,7 +1832,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
                 _dup = _has_slug_duplicate(entry)
                 if _dup is not None:
                     print(f"  DEDUP-SLUG: {name} — slug-duplicate of {_dup.stem}, skipping")
-                    to_skip.append(entry)
+                    _skip(entry, "SLUG_DUPLICATE")
                 else:
                     to_generate.append(entry)
             elif name in modified_apis:
@@ -1725,16 +1840,16 @@ def run(family: str, platform: str, kind_arg: str = "all",
                 # or pages that were manually curated (manual-edit-skill, human-edit, etc.)
                 if not is_auto_updatable(page_path):
                     print(f"  PROTECTED: {name} — auto_updatable: false, skipping update")
-                    to_skip.append(entry)
+                    _skip(entry, "AUTO_UPDATABLE_FALSE")
                 elif is_manually_curated(page_path) and not heal:
                     print(f"  PROTECTED: {name} — manually curated, skipping update")
-                    to_skip.append(entry)
+                    _skip(entry, "MANUALLY_CURATED")
                 else:
                     if is_manually_curated(page_path) and heal:
                         print(f"  HEAL: {name} — overriding manual-curation protection (auto_updatable=true)")
                     to_update.append(entry)
             else:
-                to_skip.append(entry)
+                _skip(entry, "NOT_IN_KNOWLEDGE_DELTA")
         print(f"Found {total} candidates: {len(to_generate)} to generate, "
               f"{len(to_update)} to update (in modified_apis), "
               f"{len(to_skip)} to skip.")
@@ -1749,15 +1864,15 @@ def run(family: str, platform: str, kind_arg: str = "all",
                 _dup = _has_slug_duplicate(entry)
                 if _dup is not None:
                     print(f"  DEDUP-SLUG: {name} — slug-duplicate of {_dup.stem}, skipping")
-                    to_skip.append(entry)
+                    _skip(entry, "SLUG_DUPLICATE")
                 else:
                     to_generate.append(entry)
             elif not is_auto_updatable(page_path):
                 print(f"  PROTECTED: {name} — auto_updatable: false, skipping rebuild")
-                to_skip.append(entry)
+                _skip(entry, "AUTO_UPDATABLE_FALSE")
             elif is_manually_curated(page_path):
                 print(f"  PROTECTED: {name} — manually curated, skipping rebuild")
-                to_skip.append(entry)
+                _skip(entry, "MANUALLY_CURATED")
             else:
                 to_update.append(entry)
         print(f"--rebuild-all: {len(to_generate)} new, {len(to_update)} eligible for rebuild, "
@@ -1772,12 +1887,12 @@ def run(family: str, platform: str, kind_arg: str = "all",
             name = entry.get("name", "")
             page_path = output_dir / f"{_entry_slug(entry)}.md"
             if page_path.exists():
-                to_skip.append(entry)
+                _skip(entry, "EXISTING_PAGE_NO_UPDATE_MODE")
             else:
                 dup_path = _has_slug_duplicate(entry)
                 if dup_path is not None:
                     print(f"  DEDUP-SLUG: {name} — slug-duplicate of {dup_path.stem}, skipping")
-                    to_skip.append(entry)
+                    _skip(entry, "SLUG_DUPLICATE")
                 else:
                     to_generate.append(entry)
         print(f"Found {total} candidates: {len(to_generate)} to generate, "
@@ -1829,6 +1944,172 @@ def run(family: str, platform: str, kind_arg: str = "all",
               f"Run /repo-scout {family} {platform}, then /truth-merge.")
         sys.exit(1)
 
+    if resolved_run_root is None or run_id is None:
+        raise ValueError("run evidence root could not be resolved")
+    from commands.content.body_refresh import (
+        _emit_receipt,
+        _emit_run_decision,
+        _existing_run_receipts,
+        _read_cited_evidence,
+        _run_recorded_at,
+        _scan_forbidden_claims,
+    )
+    existing_run_receipts = _existing_run_receipts(
+        resolved_run_root, run_id
+    )
+    try:
+        from lib.regrounding_check import RegroundingCache
+
+        regrounding_cache = RegroundingCache()
+        regrounding_init_error = ""
+    except Exception as exc:  # noqa: BLE001 - decision must record UNKNOWN
+        regrounding_cache = None
+        regrounding_init_error = f"{type(exc).__name__}: {exc}"
+
+    def _receipt_already_applied(page_path: Path) -> bool:
+        relative_page = _canonical_reference_path(page_path)
+        receipt = existing_run_receipts.get(relative_page)
+        if receipt is None or not page_path.is_file():
+            return False
+        return (
+            "sha256:" + hashlib.sha256(page_path.read_bytes()).hexdigest()
+            == receipt.get("new_hash")
+        )
+
+    def _record_reference_attempt(
+        page_path: Path,
+        before_content: str,
+        final_content: str,
+        *,
+        before_file_hash: str | None = None,
+        final_file_hash: str | None = None,
+        intended_action: str,
+        disposition: str,
+        verdict: str,
+        reason: str,
+    ) -> None:
+        """Persist one validated receipt/decision for every scoped candidate."""
+        relative_page = _canonical_reference_path(page_path)
+        old_digest = before_file_hash or hashlib.sha256(
+            before_content.encode("utf-8")
+        ).hexdigest()
+        new_digest = final_file_hash or hashlib.sha256(
+            final_content.encode("utf-8")
+        ).hexdigest()
+        forbidden_violations, forbidden_scan_ok, forbidden_scan_error = (
+            _scan_forbidden_claims(
+                before_content,
+                final_content,
+                family,
+                platform,
+            )
+        )
+        if forbidden_violations:
+            raise ValueError(
+                f"Reference generation introduced forbidden claims for "
+                f"{relative_page}: {forbidden_violations[:3]}"
+            )
+        regrounding_violations: list[dict] = []
+        regrounding_scan_ok = before_content == final_content
+        regrounding_scan_error = (
+            "" if regrounding_scan_ok else regrounding_init_error
+        )
+        if before_content != final_content and regrounding_cache is not None:
+            try:
+                violations = regrounding_cache.check_page(
+                    relative_page,
+                    final_content,
+                    _read_cited_evidence(before_content),
+                )
+                regrounding_violations = [value.to_dict() for value in violations]
+                regrounding_scan_ok = True
+                regrounding_scan_error = ""
+            except Exception as exc:  # noqa: BLE001 - commit readiness becomes UNKNOWN
+                regrounding_scan_ok = False
+                regrounding_scan_error = f"{type(exc).__name__}: {exc}"
+        if regrounding_violations:
+            raise ValueError(
+                f"Reference generation failed re-grounding for {relative_page}: "
+                f"{regrounding_violations[:3]}"
+            )
+        if before_content == final_content and page_path.is_file():
+            new_digest = old_digest
+        receipt_seed = (
+            f"{run_id}\0{relative_page}\0{old_digest}\0{new_digest}\0{verdict}"
+        ).encode("utf-8")
+        receipt = {
+            "receipt_id": f"RCP-{hashlib.sha256(receipt_seed).hexdigest()[:20]}",
+            "run_id": run_id,
+            "page_path": relative_page,
+            "locale": "en",
+            "change_ids": [],
+            "strategy_used": "REFERENCE_REGENERATION",
+            "old_hash": f"sha256:{old_digest}",
+            "new_hash": f"sha256:{new_digest}",
+            "verdict": verdict,
+            "surface": "reference",
+            "reason": reason,
+            "forbidden_violations": forbidden_violations,
+            "forbidden_claims_scan": {
+                "ok": forbidden_scan_ok,
+                "error": forbidden_scan_error,
+            },
+            "regrounding_violations": regrounding_violations,
+            "regrounding_scan": {
+                "ok": regrounding_scan_ok,
+                "error": regrounding_scan_error,
+            },
+            "generated_at": _run_recorded_at(resolved_run_root),
+        }
+        receipt_path, receipt_digest = _emit_receipt(
+            receipt,
+            family,
+            platform,
+            run_root=resolved_run_root,
+        )
+        evidence_claims, evidence_apis = _evidence_ids(final_content)
+        _emit_run_decision(
+            run_root=resolved_run_root,
+            receipt=receipt,
+            receipt_path=receipt_path,
+            receipt_digest=receipt_digest,
+            old_content=before_content,
+            new_content=final_content,
+            impact={
+                "evidence_claims_checked": evidence_claims,
+                "evidence_apis_checked": evidence_apis,
+            },
+            intended_action=intended_action,
+            disposition=disposition,
+        )
+
+    for entry in to_skip:
+        page_path = output_dir / f"{_entry_slug(entry)}.md"
+        if _receipt_already_applied(page_path):
+            continue
+        content = page_path.read_text(encoding="utf-8") if page_path.is_file() else ""
+        before_file_hash = (
+            hashlib.sha256(page_path.read_bytes()).hexdigest()
+            if page_path.is_file()
+            else None
+        )
+        reason = skip_reasons.get(_entry_slug(entry), "UNCLASSIFIED_SKIP")
+        blocked = reason in {
+            "AUTO_UPDATABLE_FALSE",
+            "MANUALLY_CURATED",
+            "SLUG_DUPLICATE",
+        }
+        _record_reference_attempt(
+            page_path,
+            content,
+            content,
+            before_file_hash=before_file_hash,
+            intended_action="REFERENCE_UPDATE",
+            disposition="BLOCKED" if blocked else "NOT_AFFECTED",
+            verdict="REFERENCE_BLOCKED" if blocked else "REFERENCE_SKIPPED",
+            reason=reason,
+        )
+
     for i, entry in enumerate(to_write, 1):
         name = entry.get("name", "")
         kind = entry.get("kind", "")
@@ -1838,6 +2119,23 @@ def run(family: str, platform: str, kind_arg: str = "all",
         print(f"[{i}/{len(to_write)}] {action} page for {name} ({kind})...")
         try:
             page_path = output_dir / f"{_entry_slug(entry)}.md"
+            if _receipt_already_applied(page_path):
+                receipt = existing_run_receipts[
+                    _canonical_reference_path(page_path)
+                ]
+                if receipt.get("verdict") == "BODY_UPDATED":
+                    updated.append(entry)
+                elif receipt.get("verdict") == "GENERATED":
+                    generated.append(entry)
+                continue
+            before_file_hash = (
+                hashlib.sha256(page_path.read_bytes()).hexdigest()
+                if page_path.is_file()
+                else None
+            )
+            before_content = (
+                page_path.read_text(encoding="utf-8") if page_path.is_file() else ""
+            )
             # Phase C backstop: catch any case-collisions Phase A could not resolve
             # (e.g., entry with empty canonical_namespace that could not be auto-disambiguated).
             # Placed before _build_page() to avoid wasting an LLM call on a discarded page.
@@ -1856,6 +2154,16 @@ def run(family: str, platform: str, kind_arg: str = "all",
             if is_rebuild and not _has_meaningful_change(page_path, content):
                 print(f"  UNCHANGED: {name} — no meaningful changes beyond timestamps, skipping write")
                 unchanged.append(entry)
+                _record_reference_attempt(
+                    page_path,
+                    before_content,
+                    before_content,
+                    before_file_hash=before_file_hash,
+                    intended_action="REFERENCE_UPDATE",
+                    disposition="NOT_AFFECTED",
+                    verdict="REFERENCE_UNCHANGED",
+                    reason="NO_MEANINGFUL_CHANGE",
+                )
                 continue
             # Preserve content_created_at from the existing page (write-once field).
             # safe_content_write() writes content as-is without timestamp preservation,
@@ -1872,12 +2180,44 @@ def run(family: str, platform: str, kind_arg: str = "all",
                         )
                 except OSError:
                     pass
-            safe_content_write(page_path, content, mechanism="batch-reference")
-            _seen_lower_slugs.add(_page_lower)  # Phase C: mark slug consumed after successful write
-            # Attach evidence + auto-grade (identical path for new pages and updates)
-            # force=True because _build_page already wrote a model_sha; runner would skip otherwise
-            if knowledge.available:
-                attach_evidence(page_path, knowledge, force=True)
+            relative_page = Path(_canonical_reference_path(page_path))
+            if relative_page.is_absolute() or ".." in relative_page.parts:
+                raise ValueError(f"unsafe scoped page path: {relative_page}")
+            staging_path = resolved_run_root / "staging" / relative_page
+            safe_content_write(
+                staging_path, content, mechanism="batch-reference-staging"
+            )
+            # Attach evidence and grading to the staged candidate.  The final
+            # candidate bytes and their receipt exist before the real content
+            # path is mutated.
+            attach_evidence(staging_path, knowledge, force=True)
+            final_content = staging_path.read_text(encoding="utf-8")
+            final_file_hash = hashlib.sha256(
+                staging_path.read_bytes()
+            ).hexdigest()
+            _record_reference_attempt(
+                page_path,
+                before_content,
+                final_content,
+                before_file_hash=before_file_hash,
+                final_file_hash=final_file_hash,
+                intended_action=(
+                    "REFERENCE_UPDATE" if is_update else "REFERENCE_GENERATE"
+                ),
+                disposition="BODY_UPDATED" if is_update else "GENERATED",
+                verdict="BODY_UPDATED" if is_update else "GENERATED",
+                reason="GENERATED_FROM_PINNED_KNOWLEDGE",
+            )
+            safe_content_write(
+                page_path, final_content, mechanism="batch-reference"
+            )
+            actual_file_hash = hashlib.sha256(page_path.read_bytes()).hexdigest()
+            if actual_file_hash != final_file_hash:
+                raise RuntimeError(
+                    f"content write hash mismatch for "
+                    f"{_canonical_reference_path(page_path)}"
+                )
+            _seen_lower_slugs.add(_page_lower)
             if is_update:
                 updated.append(entry)
             else:
@@ -1953,7 +2293,11 @@ def run(family: str, platform: str, kind_arg: str = "all",
     )
 
     # Auto-heal flat reference index if running in --update or --rebuild-all mode
-    if (update or rebuild_all) and not dry_run:
+    if (
+        (update or rebuild_all)
+        and not dry_run
+        and resolved_run_root is None
+    ):
         _auto_heal_flat_index(family, platform)
 
     return {"generated": len(generated), "updated": len(updated),
@@ -2085,6 +2429,10 @@ def main():
     parser.add_argument("--content-root", default=None, metavar="DIR",
                         help="Override content root path "
                              "(default: <repo>/content/reference.aspose.org/en)")
+    parser.add_argument("--run-id", default=None,
+                        help="Required immutable refresh-run ID for any mutating execution")
+    parser.add_argument("--run-root", default=None, metavar="DIR",
+                        help="Run artifact directory created by refresh_run.py")
     args = parser.parse_args()
 
     if args.knowledge_root or args.content_root:
@@ -2117,7 +2465,9 @@ def main():
         confirm_heal=args.confirm_heal,
         plan_path=args.plan,
         rebuild_all=args.rebuild_all,
-        confirm_rebuild=args.confirm_rebuild)
+        confirm_rebuild=args.confirm_rebuild,
+        run_id=args.run_id,
+        run_root=args.run_root)
 
 
 if __name__ == "__main__":

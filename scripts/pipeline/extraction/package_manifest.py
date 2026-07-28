@@ -57,16 +57,31 @@ def _parse_python_manifest(repo: Path) -> dict[str, Any]:
             info["license"] = lic
             info["dependencies"] = proj.get("dependencies", [])
             info["requires_python"] = proj.get("requires-python", "")
-            # Extract canonical package path for namespace packages.
-            # [tool.setuptools.packages.find].include lists dotted package names;
-            # the first non-wildcard entry with a dot is the canonical import root.
+            # Extract canonical package path from [tool.setuptools.packages.find].
+            # include lists package names (dotted for namespace packages, flat
+            # for ordinary ones); the first non-wildcard entry is the canonical
+            # import root.
             # e.g. include = ["aspose.email_foss", "aspose.email_foss.*"]
-            # → canonical_package = "aspose.email_foss"
+            #   → canonical_package = "aspose.email_foss" (namespace package)
+            # e.g. include = ["aspose_pdf", "aspose_pdf.*"]
+            #   → canonical_package = "aspose_pdf" (flat package)
+            #
+            # HARDEN-py-flat-package (2026-07-28, MT013): the original condition
+            # required a "." in the entry, which only matches namespace packages.
+            # A flat top-level package whose PyPI distribution name differs from
+            # its import name (e.g. PyPI "aspose-pdf-foss-for-python" vs. real
+            # `import aspose_pdf`) is the ORDINARY setuptools case, not an edge
+            # case -- requiring a dot silently skipped it, leaving
+            # canonical_package unset and falling through to the wrong
+            # name.replace("-", "_") fallback (which uses the PyPI name, not the
+            # real import name). Found live on pdf/python: every generated page
+            # would have shown `import aspose_pdf_foss_for_python`, which does
+            # not exist -- the real package imports as `import aspose_pdf`.
             setuptools_cfg = data.get("tool", {}).get("setuptools", {})
             packages_find = setuptools_cfg.get("packages", {}).get("find", {})
             includes = packages_find.get("include", [])
             for inc in includes:
-                if inc and "." in inc and not inc.endswith(".*") and not inc.endswith("*"):
+                if inc and not inc.endswith(".*") and not inc.endswith("*"):
                     info["canonical_package"] = inc
                     break
         except Exception as exc:
