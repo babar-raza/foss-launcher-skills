@@ -1,36 +1,28 @@
 mission_authority:
-  mission_id: SYSTEM_HARDENING_PRE_SCALING-20260627
-  mission_summary: "Harden the aspose.org content generation system for scaling to many future plugins/products/formats by addressing the 4 must-fix and 5 should-fix items identified in the layman system status review"
-  governing_plan_path: LAYMAN_SYSTEM_STATUS_REVIEW.md
-  current_phase: BASELINE_ESTABLISHED
+  mission_id: MT011-2026-07-28-CELLS-GO-LAUNCH
+  mission_summary: "Harden Go extraction (interface method/property capture; struct-embedding detection in _extract_bases) and launch cells/go (Aspose.Cells FOSS for Go) across all 5 aspose.org subdomains, then retroactively re-scout pdf/go (Phase 7) to pick up the corrected extraction once cells/go's own launch is committed and S-90-verified. First of three sequential launches (cells/go -> pdf/cpp -> pdf/python) queued by the discover-more-products-to-launch mission (2026-07-28, commit 68336dd63f); each gets its own MISSION_AUTHORITY.yaml contract when it starts (this file governs Mission 1 only)."
+  governing_plan_path: "plans/master-plan.md#Mission:-MT011-2026-07-28-CELLS-GO-LAUNCH"
+  current_phase: TRACK_A_PRIME_HARDENING
   in_scope_outcomes:
-    - "Add cross-platform consistency gate (G-07) to readiness_gate.py"
-    - "Fix email/python evaluator false positives (13 wrong-claim findings on import statements)"
-    - "Re-scout 3d/typescript to add missing classes (VertexElementVertexColor, TextureMapping) to api_surface.json"
-    - "Automate repo-patrol in CI (schedule weekly)"
-    - "Document template override patterns"
-    - "Add evidence_depth.py staleness check to CI"
-    - "Fix index.py total_claims=0 bug (HSI-004)"
-    - "Resolve note/python scene-entities (human policy decision on planner output)"
-    - "Add fixer generator scaffold"
+    - "Go interface-body method/property extraction (new function parallel to _extract_go_struct_fields, api_surface.py)"
+    - "Go struct-embedding detection in _extract_bases (tree_helpers.py), without regressing the existing enum-underlying-type idiom"
+    - "New extraction fixtures/tests proving interface, embedding, and enum shapes are independently correct"
+    - "Dry-run regression proof against pdf/go's real clone-cache source (Annotation interface, CaretAnnotation embedding) with no modification to pdf/go's shipped knowledge/content"
+    - "cells/go registered (already active in data/products.json), knowledge-bootstrapped, size-gated (SS7d), site-planned, generated across docs/kb/reference/blog/products, quality-gated (truth-audit, S-90), and committed+pushed"
+    - "Phase 7 (gated on cells/go's own launch commit + S-90 sign-off): real pdf/go re-scout/promote/index using the corrected extractor, truth-audit re-verification, targeted content updates for affected interface/struct pages, separate commit"
   out_of_scope_items:
-    - "Full translation quality validation (future enhancement)"
-    - "Blog slug migration tooling (future enhancement)"
-    - "LLM prompt versioning for healing (future enhancement)"
-    - "Cross-evaluator interference tests (future enhancement)"
+    - "pdf/cpp and pdf/python launches (Missions 2 and 3 -- separate MISSION_AUTHORITY.yaml contracts when each starts)"
+    - "cells/cpp blog-checkpoint correction (Mission 2's Phase 7, not this mission's)"
+    - "Any change to the already-landed generic pipeline hardening (advisory_lock.py, session_ledger.py, llm_output_cache.py, pre-commit-audit.sh Steps 21-22, site_planner.py step-scaling, knowledge/index.py live stats) -- verified EXISTS-AND-WIRED this session, reused as-is"
+    - "Fixing check_contract_claims.py's advisory-only (non-blocking) status or making worktree-per-session enforced rather than suggested -- pipeline-wide policy questions, not this launch's scope"
   mandatory_acceptance_criteria:
-    - "All 4 must-fix items implemented and verified"
-    - "All 5 should-fix items implemented and verified"
-    - "readiness_gate.py passes with G-07 cross-platform gate for all 16 products"
-    - "email/python gap-eval shows 0 wrong-claim false positives"
-    - "3d/typescript api_surface.json includes VertexElementVertexColor and TextureMapping"
-    - "repo-patrol runs in CI weekly"
-    - "Template override documentation exists and is accurate"
-    - "evidence_depth.py staleness check runs in CI"
-    - "index.py total_claims returns correct count"
-    - "note/python scene-entities decision documented"
-    - "Fixer generator scaffold produces working fixer"
-    - "All existing tests still pass (3462+)"
-    - "No regression in any product's publication readiness"
+    - "New Go interface/embedding extraction tests pass, including a regression fixture proving the pre-existing enum idiom (type X int -> bases:[\"int\"]) is unchanged"
+    - "Dry-run scout against pdf/go's real annotation.go/annotation_caret.go shows the Annotation interface's 12 real methods and CaretAnnotation's real embedded base, without writing to knowledge/pdf/go/ or content/ for pdf/go"
+    - "cells/go's SS7d gate (class_count>=5, total_claims>=20, snippet_count>=3, enrichment_status not error/absent) passes on real thresholds, not an override"
+    - "truth-audit hard-stops on FAIL for cells/go; 0 FAIL required before Phase 5 commit"
+    - "S-90 publish-readiness-review verdict is PUBLISH (or an explicitly justified equivalent) before commit"
+    - "cells/go launch commit pushed to origin/main via the documented GH_TOKEN URL, verified with git show --stat matching intent"
+    - "Phase 7 only starts after the above commit is confirmed pushed and S-90-verified; its own diff against pdf/go's previously-shipped content is a strict addition of previously-dropped real API surface, in a separate commit from cells/go's launch commit"
+    - "Full scripts/pipeline/tests/ suite remains green (no regression) after both this mission's extraction changes and Phase 7's re-scout"
   conflicts_found: []
   mission_locked: true
