@@ -75,17 +75,38 @@ _VENDOR_PATH_SEGMENTS: frozenset[str] = frozenset({
 # Private directory names that are exempt from filtering (contain real implementations)
 _EXEMPT_PRIVATE_DIRS: frozenset[str] = frozenset({"_internal"})
 
+# HARDEN-cpp-internal-collision (2026-07-28, MT012): C++-only vendor segment.
+# pdf/cpp's real repo has a genuinely private `include/internal/` header tree —
+# unlike Java/.NET's "internal" *package* convention (slides/java's
+# org.aspose.slides.foss.internal ships real, already-published reference pages
+# for PptxExporter/OpcPackage/etc. — those must NOT be affected), C++'s
+# `internal/` headers are unreachable from the library's public
+# `#include <aspose/pdf/...>` surface and routinely reuse the SAME short struct
+# name (e.g. `DecodedImage`, `Options`, `Point`, `Rectangle`) across independent,
+# unrelated per-codec files. batch_reference.py's collision-detection correctly
+# refused to merge these into one page ("template_propagation_without_shared_
+# grounding") rather than silently fabricating a page from the wrong file's
+# methods -- the real fix is to never surface them as public API in the first
+# place. Gated strictly to language=="cpp" so Java/.NET's own "internal"
+# handling (see _JAVA_DEFAULT_EXCLUDED_PACKAGE_SEGMENTS above, a separate,
+# package-segment-based mechanism) is completely untouched.
+_CPP_ONLY_VENDOR_SEGMENTS: frozenset[str] = frozenset({"internal"})
 
-def _detect_vendor_files(files: list[Path], pkg_root: Path) -> set[Path]:
+
+def _detect_vendor_files(files: list[Path], pkg_root: Path, language: str = "") -> set[Path]:
     """Return the subset of files that are inside vendor/private directories.
 
-    A directory is considered vendor if its name is in ``_VENDOR_PATH_SEGMENTS``.
-    A directory is considered private if its name starts with ``_`` (but not ``__``)
-    and is not in ``_EXEMPT_PRIVATE_DIRS``.
+    A directory is considered vendor if its name is in ``_VENDOR_PATH_SEGMENTS``
+    (all languages) or, when *language* is ``"cpp"``, in
+    ``_CPP_ONLY_VENDOR_SEGMENTS``. A directory is considered private if its name
+    starts with ``_`` (but not ``__``) and is not in ``_EXEMPT_PRIVATE_DIRS``.
 
     These files will still be scanned (so class names appear in api_surface.json
     for diagnostic purposes) but their entries will have ``visibility: "internal"``.
     """
+    vendor_segments = _VENDOR_PATH_SEGMENTS
+    if language == "cpp":
+        vendor_segments = vendor_segments | _CPP_ONLY_VENDOR_SEGMENTS
     vendor: set[Path] = set()
     for fpath in files:
         try:
@@ -93,7 +114,7 @@ def _detect_vendor_files(files: list[Path], pkg_root: Path) -> set[Path]:
         except ValueError:
             continue
         for part in rel_parts[:-1]:
-            if part.lower() in _VENDOR_PATH_SEGMENTS:
+            if part.lower() in vendor_segments:
                 vendor.add(fpath)
                 break
             if (part.startswith("_") and not part.startswith("__")
@@ -1815,7 +1836,7 @@ def extract_api_surface(
 
     # H-04d: Pre-compute set of files in vendor/private directories.
     # Classes from these files will be marked visibility="internal".
-    _vendor_files = _detect_vendor_files(files, pkg_root)
+    _vendor_files = _detect_vendor_files(files, pkg_root, language=language)
 
     class_types = _CLASS_TYPES.get(language, set())
     func_types = _FUNC_TYPES.get(language, set())

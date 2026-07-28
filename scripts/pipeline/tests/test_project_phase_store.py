@@ -162,6 +162,78 @@ class ProjectPhaseStoreTests(unittest.TestCase):
             )
 
 
+class BlogDoneEvidenceGuardTests(unittest.TestCase):
+    """HARDEN-A6 (MT012): blog_done=true must carry real evidence.
+
+    Found live: cells/cpp's phase_state.json entry had blog_done: true with
+    zero blog content anywhere on disk. This guard refuses that write going
+    forward -- either a real --artifact fingerprint, or an explicit
+    blog_skipped reason instead.
+    """
+
+    def test_bare_blog_done_true_without_artifact_is_refused(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_file = Path(temp_dir) / "phase_state.json"
+            with self.assertRaises(SystemExit) as ctx:
+                project_phase_store.main([
+                    "set", "cells", "cpp", "blog_done", "true",
+                    "--state-file", str(state_file),
+                ])
+            self.assertEqual(ctx.exception.code, 2)
+            self.assertFalse(state_file.exists())
+
+    def test_blog_done_true_with_artifact_succeeds(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_file = Path(temp_dir) / "phase_state.json"
+            artifact = Path(temp_dir) / "index.md"
+            artifact.write_text("# Blog index\n", encoding="utf-8")
+
+            rc = project_phase_store.main([
+                "set", "pdf", "cpp", "blog_done", "true",
+                "--state-file", str(state_file),
+                "--artifact", str(artifact),
+            ])
+            self.assertEqual(rc, 0)
+            state = json.loads(state_file.read_text(encoding="utf-8"))
+            self.assertIs(state["pdf/cpp"]["values"]["blog_done"], True)
+            self.assertIn("blog_done__fingerprint", state["pdf/cpp"]["values"])
+
+    def test_blog_done_false_does_not_require_artifact(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_file = Path(temp_dir) / "phase_state.json"
+            rc = project_phase_store.main([
+                "set", "cells", "cpp", "blog_done", "false",
+                "--state-file", str(state_file),
+            ])
+            self.assertEqual(rc, 0)
+
+    def test_blog_skipped_reason_does_not_require_artifact(self):
+        """The honest alternative to a bare blog_done:true lie."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_file = Path(temp_dir) / "phase_state.json"
+            rc = project_phase_store.main([
+                "set", "cells", "cpp", "blog_skipped",
+                "below blog-eligibility claim threshold",
+                "--state-file", str(state_file),
+            ])
+            self.assertEqual(rc, 0)
+            state = json.loads(state_file.read_text(encoding="utf-8"))
+            self.assertEqual(
+                state["cells/cpp"]["values"]["blog_skipped"],
+                "below blog-eligibility claim threshold",
+            )
+
+    def test_other_done_keys_unaffected(self):
+        """Guard is scoped to blog_done only, not every _done key."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_file = Path(temp_dir) / "phase_state.json"
+            rc = project_phase_store.main([
+                "set", "cells", "cpp", "docs_done", "true",
+                "--state-file", str(state_file),
+            ])
+            self.assertEqual(rc, 0)
+
+
 class VerifyCheckpointTests(unittest.TestCase):
     """HARDEN-A5: artifact-fingerprinted checkpoints."""
 

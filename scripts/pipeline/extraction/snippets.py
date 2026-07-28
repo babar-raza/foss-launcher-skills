@@ -86,6 +86,7 @@ def _collect_snippet_functions(
     class_types: set,
     source_text: str,
     is_example_dir: bool = False,
+    file_stem: str = "",
 ) -> list[tuple[str, Any, int]]:
     """Collect candidate test/example functions from a parsed tree.
 
@@ -93,6 +94,14 @@ def _collect_snippet_functions(
     Language-specific heuristics determine which functions qualify.
     When *is_example_dir* is True, C++ ``main()`` functions are also
     captured — example files use ``main`` rather than test_ naming.
+
+    HARDEN-cpp-smoke-main (2026-07-28, MT012): a real-world C++ idiom found
+    live in pdf/cpp's tests/ dir — hand-rolled smoke tests with no gtest
+    dependency, just a bare ``int main()`` and a local pass/fail counter
+    (e.g. ``document_info_test.cpp``). These live in a "tests" dir, not an
+    "examples" dir, so *is_example_dir* is false for them; *file_stem* lets
+    the cpp branch recognize the ``*_test``/``*_smoke_test`` filename
+    convention as its own signal, independent of directory naming.
     """
     results: list[tuple[str, Any, int]] = []
 
@@ -151,10 +160,13 @@ def _collect_snippet_functions(
                                 fname = node_text(gch)
                                 break
                         break
+            _is_smoke_test_file = file_stem.lower().endswith(
+                ("_test", "_smoke_test"))
             if fname and (fname.startswith("test_")
                           or fname.startswith("Test")
                           or fname in _gtest_macros
-                          or (is_example_dir and fname == "main")):
+                          or (is_example_dir and fname == "main")
+                          or (_is_smoke_test_file and fname == "main")):
                 results.append((fname, fn, fn.start_point[0] + 1))
 
     elif language in ("typescript", "javascript"):
@@ -352,7 +364,8 @@ def extract_snippets(
 
                     func_nodes = _collect_snippet_functions(
                         root, language, func_types, class_types, text,
-                        is_example_dir=(sdir in _example_dirs))
+                        is_example_dir=(sdir in _example_dirs),
+                        file_stem=fpath.stem)
 
                     for fn_name, fn_node, fn_line in func_nodes:
                         if snippet_counter >= MAX_SNIPPETS:

@@ -10,6 +10,16 @@ the boolean (as `{key}__fingerprint`), and `verify` recomputes them so a resume
 can detect a checkpoint whose underlying artifact was corrupted/reverted since
 it was certified. Bool-only legacy entries verify as "unverifiable" (warn,
 never block) — no flag day.
+
+HARDEN-A6 (2026-07-28, MT012): `set <family> <platform> blog_done true` with no
+`--artifact` is refused outright — found live as cells/cpp's phase_state.json
+entry carrying `blog_done: true` with zero blog content anywhere on disk
+(content/blog.aspose.org/cells/ has no cpp/ subdirectory), predating HARDEN-A5's
+fingerprint mechanism and never re-verified since. A blog stage that is
+legitimately skipped (e.g. below the site-planner's blog-eligibility threshold)
+should record `blog_skipped <reason>` instead — an ordinary key/value pair, no
+special handling needed. Scoped to `blog_done` only (the confirmed live
+instance of this lie), not generalized to every `_done` key.
 """
 
 from __future__ import annotations
@@ -342,8 +352,16 @@ def main(argv: list[str] | None = None) -> int:
             raw_value = args.value
             if raw_value is None:
                 key, raw_value = "phase", key
+            parsed_value = _parse_value(raw_value)
+            if key == "blog_done" and parsed_value and not args.artifacts:
+                parser.error(
+                    "set blog_done=true requires --artifact <path> (repeatable) "
+                    "proving real blog content exists on disk. If the blog stage "
+                    "was legitimately skipped, record that instead: "
+                    "set <family> <platform> blog_skipped \"<reason>\" (HARDEN-A6)"
+                )
             record = set_value(state, args.family, args.platform, key,
-                               _parse_value(raw_value), args.updated_by,
+                               parsed_value, args.updated_by,
                                artifact_paths=args.artifacts)
             save_state(state_path, state)
             _emit_mutation("set", args.family, args.platform, key, record["values"][key], True, args.json)

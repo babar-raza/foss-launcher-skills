@@ -308,8 +308,15 @@ _PY_CONSTRUCTOR = re.compile(r"(?<!\w)(?<!::)([A-Z][A-Za-z0-9]+)\s*\(")
 _CS_NEW_ASSIGNMENT = re.compile(r"(?:var\s+)?(\w+)\s*=\s*new\s+([A-Z]\w*)\s*\(")
 
 # C++ scope-resolution enum access: ClassName::MEMBER_NAME
-# C++ enums use ALL_CAPS names (e.g. NullableBool::TRUE, FillType::SOLID)
-_CPP_ENUM_ACCESS = re.compile(r"([A-Z]\w+)::([A-Z][A-Z_0-9]+)")
+# C++ enums use ALL_CAPS names (e.g. NullableBool::TRUE, FillType::SOLID).
+#
+# HARDEN-cpp-enum-x-suffix (2026-07-28, MT012): some C++ enums encode a bit-width
+# variant with a lowercase "x" separator (pdf/cpp's CryptoAlgorithm: RC4x40,
+# RC4x128, AESx128, AESx256 -- "AES128" would misread as a single run-on token).
+# The mandatory ALL_CAPS core (`[A-Z][A-Z_0-9]+`, unchanged, still requires 2+
+# uppercase/digit chars so it can never match a mixed-case method name like
+# `IsPredefinedKey`) now accepts an optional trailing `x<digits>` suffix.
+_CPP_ENUM_ACCESS = re.compile(r"([A-Z]\w+)::([A-Z][A-Z_0-9]+(?:x[0-9]+)?)")
 
 # Rust scope-resolution enum-variant access: EnumName::Variant
 # Unlike C++, Rust enum variants are PascalCase, not ALL_CAPS (CellValue::Number,

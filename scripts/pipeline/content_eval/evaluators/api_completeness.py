@@ -24,14 +24,22 @@ KNOWLEDGE_ROOT = Path("knowledge")
 
 # Patterns to extract member names mentioned on the page
 # Matches `name` and `name()` and `name(args)` inside backticks
-_BACKTICK_MEMBER_RE = re.compile(r"`(\w+)(?:\([^`]*\))?`")
+#
+# HARDEN-cpp-destructor (2026-07-28, MT012): C++ destructor method names are
+# literally "~ClassName" in api_surface.json (e.g. Device's destructor is
+# named '~Device') -- the leading "~" is not a \w character, so the original
+# `(\w+)` group never matched a documented `~Device()` table row at all,
+# making every C++ class with a destructor permanently "undocumented" for
+# that one member regardless of real page content. `~?` makes the tilde
+# optional without affecting any other language's member names.
+_BACKTICK_MEMBER_RE = re.compile(r"`(~?\w+)(?:\([^`]*\))?`")
 _TABLE_MEMBER_RE = re.compile(
-    r"^\|\s*`(\w+)(?:\([^)]*\))?`",
+    r"^\|\s*`(~?\w+)(?:\([^)]*\))?`",
     re.MULTILINE,
 )
 # Section headers of the form "### MethodName()" or "## MethodName" or "### MethodName() → RetType"
 _SECTION_HEADER_RE = re.compile(
-    r"^#{1,4}\s+(\w+)\s*(?:\([^)]*\))?",
+    r"^#{1,4}\s+(~?\w+)\s*(?:\([^)]*\))?",
     re.MULTILINE,
 )
 
@@ -74,12 +82,31 @@ class ApiCompletenessEvaluator(BaseEvaluator):
         if not class_name:
             return []
 
-        # Find matching class entry
-        cls_entry = next(
-            (c for c in api_surface if c.get("name") == class_name), None
-        )
-        if not cls_entry:
+        # Find matching class entry/entries
+        candidates = [c for c in api_surface if c.get("name") == class_name]
+        if not candidates:
             return []
+        cls_entry = candidates[0]
+        if len(candidates) > 1:
+            # HARDEN-cpp-namespace-collision (2026-07-28, MT012): when two
+            # unrelated classes share a short name across namespaces (e.g.
+            # C++'s Aspose::Pdf::Rectangle vs Aspose::Pdf::Drawing::Rectangle),
+            # batch_reference.py disambiguates the FILENAME as
+            # "{ClassName}-{namespace_with_underscores}.md" but this evaluator
+            # was matching by bare class_name only -- picking whichever
+            # candidate happened to be first in api_surface.json regardless of
+            # which one the page actually documents, and reporting the OTHER
+            # class's members as "missing" from a page that never claimed to
+            # cover them. Resolve using the page's own filename suffix, which
+            # encodes the real namespace.
+            stem = page.filepath.stem
+            suffix = stem[len(class_name) + 1:] if stem.startswith(class_name + "-") else ""
+            if suffix:
+                for c in candidates:
+                    ns_slug = re.sub(r"[^A-Za-z0-9]+", "_", c.get("canonical_namespace", "")).strip("_")
+                    if ns_slug == suffix:
+                        cls_entry = c
+                        break
 
         # Collect all public members expected
         expected_members: set[str] = set()
