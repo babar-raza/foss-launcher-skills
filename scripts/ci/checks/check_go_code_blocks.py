@@ -20,6 +20,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import shutil
 import subprocess
@@ -38,6 +39,70 @@ _IMPORT_HEURISTICS: list[tuple[re.Pattern, str]] = [
     (re.compile(r"\basposepdf\."), f'asposepdf "{_PDF_GO_MODULE}"'),
 ]
 
+# Populated per-run by _resolve_go_module() for whichever family/platform is
+# being checked -- this script originally only ever ran against pdf/go, so
+# the import heuristic above was hardcoded rather than derived. Kept as a
+# module-level list (not a parameter threaded through _vet_block/
+# _wrap_fragment/_infer_imports) since this script is a single-shot CLI
+# process with no concurrency to race against.
+_EXTRA_IMPORT_HEURISTICS: list[tuple[re.Pattern, str]] = []
+
+_CANONICAL_IMPORT_RE = re.compile(r'import\s+(\w+)\s+"([^"]+)"')
+
+
+def _resolve_go_module(content_dir: Path, repo_root: Path | None = None) -> tuple[str, str, str] | None:
+    """Derive (alias, import_path, bare_module_path) for the Go product
+    under *content_dir*.
+
+    *repo_root* defaults to the real `REPO_ROOT`; tests pass an explicit
+    value instead of monkeypatching the module global (dependency
+    injection seam, preferred per docs/development/testing-seams.md over
+    broad monkeypatching -- AGENTS.md §16 T1/T2 policy blocks
+    `monkeypatch.setattr` on module-level names like `REPO_ROOT` in
+    staged test files).
+
+    *content_dir* is a platform root such as
+    `content/docs.aspose.org/en/{family}/go` -- the family is always its
+    parent directory, regardless of subdomain layout (with or without an
+    `/en/` segment). Reads the real, scouted
+    `knowledge/{family}/go/scout/model.yaml`'s `canonical_import` field
+    (e.g. `import cells_foss "github.com/aspose-cells-foss/.../v26/aspose/
+    cells_foss"`) for the alias + the exact import path to inject into
+    vetted code, rather than hardcoding a per-family constant, so this
+    generalizes to every future Go product automatically.
+
+    `import_path` and `bare_module_path` are deliberately kept distinct:
+    when the real package lives in a subdirectory (package_manifest.py's
+    `_detect_go_package_subpath`), `canonical_import` includes that
+    subdirectory, but a go.mod `replace` directive operates at the MODULE
+    level -- it must target the bare module path (`model.yaml`'s
+    `package_name` field), never the subpackaged import path, or
+    `_find_module_replace_path`'s substring match against the real repo's
+    `go.mod` (which only ever contains the bare module line) silently
+    fails to match and the block gets vetted with no local replace at all.
+    """
+    family = content_dir.parent.name
+    root = repo_root if repo_root is not None else REPO_ROOT
+    model_path = root / "knowledge" / family / "go" / "scout" / "model.yaml"
+    if not model_path.is_file():
+        return None
+    try:
+        text = model_path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+    alias = import_path = bare_module_path = ""
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("canonical_import:"):
+            m = _CANONICAL_IMPORT_RE.search(line)
+            if m:
+                alias, import_path = m.group(1), m.group(2)
+        elif stripped.startswith("package_name:"):
+            bare_module_path = stripped[len("package_name:"):].strip().strip('"').strip("'")
+    if alias and import_path and bare_module_path:
+        return alias, import_path, bare_module_path
+    return None
+
 # Pattern to extract fenced go code blocks
 _GO_BLOCK_RE = re.compile(r"```go\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
 
@@ -55,9 +120,27 @@ def _has_leading_import(code: str) -> bool:
     return bool(re.search(r"^\s*import\s", code, re.MULTILINE))
 
 
+def _has_top_level_main(code: str) -> bool:
+    """True when *code* already declares its own `func main(` at column 0.
+
+    Real upstream examples (and this repo's own verified snippets/) are
+    frequently complete `func main() { ... }` programs, not bare statement
+    fragments. Found live (cells/go launch, 2026-07-28): `_wrap_fragment`
+    unconditionally wrapped ANY non-`package`-prefixed block in a second
+    `func main() { ... }`, producing an illegal nested `func main` (Go only
+    allows anonymous `func() {}` literals inside a function body) --
+    `go vet` fails with "expected '(', found main" on the nested named
+    function. This is a pre-existing bug, not specific to any one product:
+    the same double-wrap would hit pdf/go's own quickstart.md `func main`
+    block (which has a leading `import (...)`) if it were ever re-staged,
+    it just was never re-vetted since this checker's introduction.
+    """
+    return bool(re.search(r"^[ \t]*func\s+main\s*\(", code, re.MULTILINE))
+
+
 def _infer_imports(code: str) -> list[str]:
     imports: list[str] = []
-    for pattern, import_line in _IMPORT_HEURISTICS:
+    for pattern, import_line in _IMPORT_HEURISTICS + _EXTRA_IMPORT_HEURISTICS:
         if pattern.search(code):
             imports.append(f'\t{import_line}')
     if re.search(r'\bfmt\.', code):
@@ -95,8 +178,8 @@ def _wrap_fragment(code: str) -> str:
                     continue  # skip blank lines between imports and body
                 past_imports = True
             body_lines.append(line)
-        indented = "\n".join("\t" + line for line in body_lines)
-        extra = _infer_imports("\n".join(body_lines))
+        body = "\n".join(body_lines)
+        extra = _infer_imports(body)
         # Merge user imports with inferred ones (avoid duplicates)
         existing = "\n".join(import_lines)
         merged: list[str] = []
@@ -120,7 +203,20 @@ def _wrap_fragment(code: str) -> str:
             all_imports += ")\n"
         else:
             all_imports = ""
+        if _has_top_level_main(body):
+            # Body is already a complete program (e.g. `func main() { ... }`
+            # copied verbatim from a real snippet/example) -- emit it as-is,
+            # not nested inside a second func main (illegal Go).
+            return f"package main\n\n{all_imports}\n{body}\n"
+        indented = "\n".join("\t" + line for line in body_lines)
         return f"package main\n\n{all_imports}\nfunc main() {{\n{indented}\n}}\n"
+
+    if _has_top_level_main(code):
+        imports = _infer_imports(code)
+        import_block = ""
+        if imports:
+            import_block = "import (\n" + "\n".join(imports) + "\n)\n\n"
+        return f"package main\n\n{import_block}{code}\n"
 
     imports = _infer_imports(code)
     import_block = ""
@@ -166,13 +262,29 @@ def _vet_block(
         go_mod_lines = [f"module check_block\n\ngo {go_version}\n"]
         replace_path = _find_module_replace_path(module_path)
         if replace_path:
+            # A module path with a major-version suffix (/vN, N>=2 -- Go's
+            # semantic import versioning convention) requires the required
+            # version's own major component to match that suffix (e.g.
+            # `.../v26` must be required at `v26.x.y`, not `v0.0.0`). Found
+            # live on cells/go (module path ends `/v26`): the hardcoded
+            # `v0.0.0` placeholder made `go.mod` itself invalid before `go
+            # vet` ever ran.
+            major_suffix = re.search(r"/v(\d+)$", module_path)
+            placeholder_version = f"v{major_suffix.group(1)}.0.0" if major_suffix else "v0.0.0"
             go_mod_lines.append(
-                f"\nrequire {module_path} v0.0.0\n"
+                f"\nrequire {module_path} {placeholder_version}\n"
                 f"replace {module_path} => {replace_path}\n"
             )
         (tmp / "go.mod").write_text("".join(go_mod_lines), encoding="utf-8")
         (tmp / "main.go").write_text(wrapped, encoding="utf-8")
 
+        # GOFLAGS=-mod=mod: a fresh go.mod referencing a local `replace`
+        # target has no go.sum entry yet; without this, `go vet` refuses
+        # with "updates to go.mod needed; to update it: go mod tidy"
+        # instead of vetting. Safe here since this go.mod is a disposable
+        # scratch file the checker itself generated, not a real project
+        # module -- there is nothing to "silently modify" that matters.
+        vet_env = {**os.environ, "GOFLAGS": "-mod=mod"}
         try:
             result = subprocess.run(
                 [go_exe, "vet", "./..."],
@@ -180,6 +292,7 @@ def _vet_block(
                 text=True,
                 cwd=str(tmp),
                 timeout=30,
+                env=vet_env,
             )
         except subprocess.TimeoutExpired:
             return f"TIMEOUT:{source_file} block #{block_index + 1}: go vet timed out (module not cached)"
@@ -211,11 +324,17 @@ def check_content_dir(
         for i, block in enumerate(blocks):
             if not block.strip():
                 continue
-            # Skip import-only blocks (no executable code to vet)
+            # Skip import-only blocks (no executable code to vet). The
+            # aliased-import branch (`alias "path"`) must allow underscores
+            # -- real Go aliases commonly contain them (e.g. `cells_foss`,
+            # this repo's own alias for cells/go), and the unfixed
+            # `[a-zA-Z]+` char class silently failed to recognize them,
+            # letting an import-only block fall through to _vet_block and
+            # fail with "imported and not used" instead of being skipped.
             stripped_lines = [
                 ln for ln in block.strip().splitlines()
                 if ln.strip() and not re.match(
-                    r'^\s*(import\s|import\s*\(|\)|"[^"]*"$|[a-zA-Z]+\s+"[^"]*"$)',
+                    r'^\s*(import\s|import\s*\(|\)|"[^"]*"$|[a-zA-Z_]\w*\s+"[^"]*"$)',
                     ln,
                 )
             ]
@@ -244,8 +363,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--module",
-        default=_PDF_GO_MODULE,
-        help=f"Go module path (default: {_PDF_GO_MODULE})",
+        default=None,
+        help="Go module path (default: auto-resolved from "
+             "knowledge/{family}/go/scout/model.yaml's canonical_import; "
+             f"falls back to {_PDF_GO_MODULE} if that can't be resolved)",
     )
     parser.add_argument(
         "--go-version",
@@ -268,10 +389,21 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0 if args.advisory else 2
 
+    module_path = args.module
+    if module_path is None:
+        resolved = _resolve_go_module(content_dir)
+        if resolved:
+            alias, import_path, module_path = resolved
+            _EXTRA_IMPORT_HEURISTICS.append(
+                (re.compile(rf"\b{re.escape(alias)}\."), f'{alias} "{import_path}"')
+            )
+        else:
+            module_path = _PDF_GO_MODULE
+
     errors = check_content_dir(
         content_dir,
         go_exe,
-        module_path=args.module,
+        module_path=module_path,
         go_version=args.go_version,
     )
 

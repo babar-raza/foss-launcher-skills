@@ -230,6 +230,62 @@ def _extract_go_package_name(repo: Path) -> str:
     return ""
 
 
+def _has_go_declarations(go_file: Path) -> bool:
+    """True when *go_file* declares at least one func/type/var/const at file scope.
+
+    A file containing only a `package X` line plus doc comments (a `doc.go`
+    stub) returns False.
+    """
+    try:
+        text = go_file.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return False
+    return bool(re.search(r"^(func|type|var|const)\s", text, re.MULTILINE))
+
+
+def _detect_go_package_subpath(repo: Path, pkg_name: str) -> str:
+    """Return the subdirectory (relative to *repo*) holding the real
+    implementation of *pkg_name*, or "" when the root-level declaration
+    itself already has real declarations (the common case).
+
+    Found live (cells/go, 2026-07-28): some Go repos put `go.mod` at the
+    module root (mandatory -- that's simply where Go module boundaries
+    live) but keep only a doc-comment-only `doc.go` stub there (e.g.
+    `// Package cells_foss is a pure-Go Excel library.` with no func/type
+    declarations), while the real implementation lives in a subdirectory
+    under the SAME package name. `_extract_go_package_name` matches the
+    stub's `package cells_foss` line first (it only scans repo root) and
+    returns a package name that is real, but whose import path
+    (`{module}`) resolves to an empty package -- `cells_foss.NewWorkbook`
+    is `undefined` at that path. The real import path needs the
+    subdirectory appended: `{module}/aspose/cells_foss`.
+    """
+    root_files = [
+        f for f in sorted(repo.glob("*.go"))
+        if not f.name.endswith("_test.go")
+    ]
+    root_has_real_decl = any(
+        _has_go_declarations(f) for f in root_files
+        if re.search(rf"^package\s+{re.escape(pkg_name)}\b", f.read_text(encoding="utf-8", errors="replace"), re.MULTILINE)
+    )
+    if root_has_real_decl:
+        return ""
+    try:
+        subdirs = [d for d in repo.rglob("*") if d.is_dir()]
+    except OSError:
+        return ""
+    for subdir in sorted(subdirs):
+        go_files = [f for f in subdir.glob("*.go") if not f.name.endswith("_test.go")]
+        for f in go_files:
+            try:
+                text = f.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            if re.search(rf"^package\s+{re.escape(pkg_name)}\b", text, re.MULTILINE) and _has_go_declarations(f):
+                return subdir.relative_to(repo).as_posix()
+    return ""
+
+
 def _parse_go_manifest(repo: Path) -> dict[str, Any]:
     """Extract identity fields from go.mod."""
     info: dict[str, Any] = {}
@@ -250,6 +306,14 @@ def _parse_go_manifest(repo: Path) -> dict[str, Any]:
     pkg_name = _extract_go_package_name(repo)
     if pkg_name:
         info["package_name"] = pkg_name
+        subpath = _detect_go_package_subpath(repo, pkg_name)
+        if subpath:
+            info["package_subpath"] = subpath
+            LOG.info(
+                "Go package %r has no real declarations at repo root; "
+                "real implementation found at %s (import path needs this appended)",
+                pkg_name, subpath,
+            )
     return info
 
 

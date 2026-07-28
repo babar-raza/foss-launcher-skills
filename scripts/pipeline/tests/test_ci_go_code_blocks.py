@@ -15,8 +15,10 @@ sys.path.insert(0, str(_CI_CHECKS))
 
 from check_go_code_blocks import (
     _GO_BLOCK_RE,
+    _has_top_level_main,
     _infer_imports,
     _needs_package_wrapper,
+    _resolve_go_module,
     _wrap_fragment,
 )
 
@@ -82,3 +84,83 @@ class TestInferImports:
         code = 'x := 42\ny := x + 1'
         imports = _infer_imports(code)
         assert imports == []
+
+
+class TestCompleteProgramNotDoubleWrapped:
+    """HARDEN-GO-VET (cells/go launch, 2026-07-28): a code block that is
+    already a complete `func main() { ... }` program (real upstream
+    examples/snippets are frequently written this way, not as bare
+    fragments) must not be nested inside a SECOND func main -- Go only
+    allows anonymous `func() {}` literals inside a function body, so the
+    old unconditional wrap produced a real parse error
+    ("expected '(', found main") on every such block.
+    """
+
+    def test_detects_top_level_main(self):
+        assert _has_top_level_main('func main() {\n\tfmt.Println("hi")\n}')
+
+    def test_detects_indented_top_level_main(self):
+        # Code blocks extracted from YAML frontmatter (e.g. a products page's
+        # single.block[].content) retain their original indentation --
+        # the detection must not require column-0 placement.
+        assert _has_top_level_main('      func main() {\n      \tfmt.Println("hi")\n      }')
+
+    def test_plain_fragment_has_no_top_level_main(self):
+        assert not _has_top_level_main('fmt.Println("hi")')
+
+    def test_bare_func_main_not_double_wrapped(self):
+        code = 'func main() {\n\tfmt.Println("hi")\n}'
+        wrapped = _wrap_fragment(code)
+        assert wrapped.count("func main(") == 1
+
+    def test_func_main_with_leading_import_not_double_wrapped(self):
+        code = (
+            'import (\n'
+            '\t"fmt"\n'
+            ')\n\n'
+            'func main() {\n'
+            '\tfmt.Println("hi")\n'
+            '}'
+        )
+        wrapped = _wrap_fragment(code)
+        assert wrapped.count("func main(") == 1
+
+    def test_plain_fragment_still_wrapped_once(self):
+        # Regression guard: the ordinary fragment-wrapping path (no
+        # pre-existing func main) must be unaffected by this fix.
+        code = 'fmt.Println("hi")'
+        wrapped = _wrap_fragment(code)
+        assert wrapped.count("func main(") == 1
+
+
+class TestResolveGoModule:
+    """HARDEN-GO-VET: module/import resolution must generalize beyond the
+    hardcoded pdf/go default to any Go product with scouted knowledge.
+    """
+
+    def test_resolves_from_real_model_yaml(self, tmp_path):
+        family_dir = tmp_path / "knowledge" / "widgets" / "go" / "scout"
+        family_dir.mkdir(parents=True)
+        (family_dir / "model.yaml").write_text(
+            'family: widgets\n'
+            'platform: go\n'
+            'package_name: github.com/example/widgets-go/v3\n'
+            'canonical_import: import widgets '
+            '"github.com/example/widgets-go/v3/pkg/widgets"\n',
+            encoding="utf-8",
+        )
+        content_dir = tmp_path / "content" / "docs.aspose.org" / "en" / "widgets" / "go"
+        content_dir.mkdir(parents=True)
+
+        result = _resolve_go_module(content_dir, repo_root=tmp_path)
+        assert result == (
+            "widgets",
+            "github.com/example/widgets-go/v3/pkg/widgets",
+            "github.com/example/widgets-go/v3",
+        )
+
+    def test_returns_none_when_no_model_yaml(self, tmp_path):
+        content_dir = tmp_path / "content" / "docs.aspose.org" / "en" / "widgets" / "go"
+        content_dir.mkdir(parents=True)
+
+        assert _resolve_go_module(content_dir, repo_root=tmp_path) is None

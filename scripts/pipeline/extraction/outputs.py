@@ -154,7 +154,15 @@ def _canonical_import(platform: str, manifest: dict,
             pkg_name = manifest.get("package_name", "")
             alias = (pkg_name if pkg_name and pkg_name != "main"
                      else module.rstrip("/").rsplit("/", 1)[-1].replace("-", ""))
-            return f'import {alias} "{module}"'
+            # HARDEN-GO-SUBPATH (2026-07-28): when the real package lives in
+            # a subdirectory (go.mod's module root holds only a doc-comment
+            # stub under the same package name -- see package_manifest.py's
+            # _detect_go_package_subpath), the import path must include that
+            # subdirectory; the bare module path resolves to an empty
+            # package.
+            subpath = manifest.get("package_subpath", "")
+            import_path = f"{module.rstrip('/')}/{subpath}" if subpath else module
+            return f'import {alias} "{import_path}"'
     if platform == "rust":
         # canonical_package = [lib] name when present, else crate name with
         # hyphens mapped to underscores (Cargo's own import-path rule).
