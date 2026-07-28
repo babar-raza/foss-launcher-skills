@@ -526,6 +526,50 @@ def _extract_bases(node, language: str) -> list[str]:
                     bases.append(node_text(ch))
         return bases
 
+    if language == "go":
+        # Go has no classical inheritance; "bases" here covers two real
+        # idioms the generic fallback loop below cannot see because it only
+        # inspects a type_spec's direct children, never descending into a
+        # struct_type/interface_type body:
+        #   (a) struct embedding: an anonymous field (no "name" field on its
+        #       field_declaration) whose "type" field names the embedded type,
+        #       e.g. `type CaretAnnotation struct { drawingAnnotationBase }`.
+        #   (b) interface embedding: a `type_elem` child of interface_type
+        #       naming another embedded interface, e.g.
+        #       `type ReadWriteCloser interface { Reader; Writer }`.
+        # Verified against real tree-sitter-go output (method_elem/type_elem/
+        # field_declaration field names: "name", "type", "result").
+        #
+        # The type-alias-to-underlying-primitive idiom (`type AnnotationType
+        # int`) has no struct_type/interface_type "type" field at all -- it
+        # falls through unchanged to the generic loop below, which already
+        # handles it correctly (matches the bare type_identifier "int"; the
+        # type's own name is filtered out later by api_surface.py's
+        # self-referential-bases removal).
+        type_node = child_by_field(node, "type")
+        if type_node is not None and type_node.type == "struct_type":
+            field_list = find_child_by_type(type_node, "field_declaration_list")
+            if field_list is not None:
+                for field_decl in field_list.children:
+                    if field_decl.type != "field_declaration":
+                        continue
+                    if child_by_field(field_decl, "name") is not None:
+                        continue  # named field, not embedded
+                    embedded_type = child_by_field(field_decl, "type")
+                    if embedded_type is not None:
+                        bases.append(node_text(embedded_type))
+            return bases
+        if type_node is not None and type_node.type == "interface_type":
+            for ch in type_node.children:
+                if ch.type == "type_elem":
+                    for sub in ch.children:
+                        if sub.type in ("type_identifier", "qualified_type"):
+                            bases.append(node_text(sub))
+                            break
+            return bases
+        # Neither struct_type nor interface_type (e.g. the enum-alias idiom):
+        # fall through to the generic loop below, unchanged.
+
     # Java/C#: superclass, interfaces, base_list
     for ch in node.children:
         if ch.type in ("superclass", "type_identifier", "base_list",

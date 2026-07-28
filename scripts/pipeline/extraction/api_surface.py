@@ -1197,6 +1197,69 @@ def _extract_go_struct_fields(
 
 
 # ---------------------------------------------------------------------------
+# Go interface method extraction
+# ---------------------------------------------------------------------------
+
+
+def _extract_go_interface_methods(
+    cnode,
+    cname: str,
+    rel: str,
+    family: str,
+) -> tuple[list[dict], list[dict]]:
+    """Extract method signatures from a Go interface type_spec node.
+
+    Walks type_spec -> interface_type -> method_elem* and captures each
+    method's name/params/result. Unlike struct receiver methods (which are
+    top-level function_declaration/method_declaration nodes relocated by
+    _associate_go_methods), interface method signatures live directly inside
+    the interface_type body and were never visited by any extraction path --
+    confirmed live: pdf/go's real `Annotation` interface (12 methods) was
+    captured with methods:[] before this fix, since collect_nodes(cnode,
+    func_types) finds 0 function_declaration/method_declaration nodes inside
+    an interface body.
+
+    Embedded interfaces (type_elem children, e.g. `interface { Reader }`) are
+    handled by _extract_bases, not here -- they contribute to `bases`, not
+    `methods`, matching how struct embedding is handled.
+
+    Returns (methods, claims).
+    """
+    methods: list[dict] = []
+    claims: list[dict] = []
+
+    interface_body = find_child_by_type(cnode, "interface_type")
+    if interface_body is None:
+        return methods, claims
+
+    for member in interface_body.children:
+        if member.type != "method_elem":
+            continue
+        name_node = child_by_field(member, "name")
+        mname = node_text(name_node) if name_node else ""
+        if not mname or not mname[0].isupper():
+            continue  # skip unexported interface methods (package-private contract)
+        params = _extract_method_params(member, "go")
+        ret = _extract_return_type(member, "go")
+        mdoc = _extract_doc_comment(member, "go")
+        methods.append({
+            "name": mname,
+            "params": params,
+            "return_type": ret,
+            "doc": mdoc,
+            "line": member.start_point[0] + 1,
+            "is_constructor": False,
+        })
+        claims.append(_make_claim(
+            family, "api_method",
+            f"{cname}.{mname}({', '.join(p['name'] for p in params)}) -> {ret}",
+            rel, member.start_point[0] + 1,
+        ))
+
+    return methods, claims
+
+
+# ---------------------------------------------------------------------------
 # Rust struct field extraction + impl-block method association
 # ---------------------------------------------------------------------------
 
@@ -2220,6 +2283,15 @@ def extract_api_surface(
                     cnode, cname, rel, family)
                 properties.extend(extra_props)
                 claims.extend(extra_claims)
+
+            # Go interface method signatures (e.g. Annotation.Rect/SetColor/
+            # Flatten) -- interface bodies have no struct_type, so the block
+            # above is a no-op for them; this is the dedicated path.
+            if language == "go":
+                extra_methods, extra_iface_claims = _extract_go_interface_methods(
+                    cnode, cname, rel, family)
+                methods.extend(extra_methods)
+                claims.extend(extra_iface_claims)
 
             # Rust pub struct fields (e.g. Workbook.path)
             if language == "rust":
