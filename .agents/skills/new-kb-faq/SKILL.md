@@ -103,6 +103,14 @@ Generate or update the FAQ page for a product platform.
 
    Each question uses `### Question text?` as the heading followed by one or more answer paragraphs.
 
+   **Keyword-seeded topics** (SEO-FAQ-KEYWORD-SEEDING, optional, additive only): call
+   `scripts/seo/pipeline/faq_keyword_seeding.py::suggest_faq_question_topics(family)` for real
+   search-demand topic hints (Schema B GSC data). **Anti-fabrication guard**: a suggested topic
+   is evidence of real search DEMAND, never evidence a claim about it is TRUE, and carries no
+   answer text. Only add a question from a suggested topic if step 3's reference-content reading
+   already grounds it — never answer a keyword-seeded topic from general knowledge. An empty
+   suggestion list (the common case) changes nothing about the categories above.
+
 6. **Constraints**:
    - All class names, method names, and package import paths must match what you read from the reference content — do not invent API surface
    - Code examples use ` ```python ` language identifier

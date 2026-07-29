@@ -62,6 +62,17 @@ For KB FAQ pages specifically, prefer S-59 (new-kb-faq) which includes the full 
    - Common class/method usage questions
    - Parameter questions for frequently-used methods
 
+   **Keyword-seeded topics** (SEO-FAQ-KEYWORD-SEEDING, optional, additive only):
+   Call `scripts/seo/pipeline/faq_keyword_seeding.py::suggest_faq_question_topics(family)`
+   for real search-demand topic hints (Schema B GSC data, family-level). **Anti-fabrication
+   guard**: every suggestion returned is evidence of real search DEMAND, never evidence that
+   a claim about it is TRUE, and carries no answer text — it is a topic hint only. Before
+   turning a suggested topic into an actual FAQ question, verify it against
+   `claims.json`/`formats.json`/`limitations.md` exactly as you would any other question in
+   this step; if nothing in the knowledge model grounds it, drop the topic — do not answer it
+   from general knowledge. An empty suggestion list (the common case — real GSC signal is
+   thin) changes nothing about the rest of this step.
+
 4. **Generate Q&A pairs**: For each extracted question:
    - Write a clear, concise question
    - Write an answer grounded in specific claims (reference claim IDs)
