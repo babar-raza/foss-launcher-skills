@@ -43,12 +43,31 @@ def test_resolve_devguide_with_content_clause():
 
 def test_resolve_devguide_without_content_clause_uses_fallback():
     title = tt.resolve_title("docs_devguide_index", family="PDF", platform="Java")
-    assert title == "Aspose.PDF FOSS for Java Developer Guide"
+    assert title == "Aspose.PDF FOSS for Java — Developer Guide & Examples"
+
+
+def test_resolve_devguide_fallback_meets_the_50_char_floor_for_short_combos():
+    """Regression pin (found by an independent S-116 review before any
+    content file was written): the ORIGINAL fallback resolved to 38-48
+    chars for every real family/platform combo -- always below safety.py's
+    _TITLE_MIN=50. The shortest realistic combo (a 2-char family + a
+    2-char platform) is the tightest case; it must still clear the floor."""
+    title = tt.resolve_title("docs_devguide_index", family="3D", platform="Go")
+    assert len(title) >= 50
 
 
 def test_resolve_kb_faq_ignores_any_content_clause_rigid():
     title = tt.resolve_title("kb_faq", family="Page", platform="Python", content_clause="should be ignored")
-    assert title == "Aspose.Page FOSS for Python FAQ"
+    assert title == "Aspose.Page FOSS for Python — Frequently Asked Questions"
+
+
+def test_resolve_kb_faq_meets_the_50_char_floor_for_short_combos():
+    """Same regression class as the devguide fallback -- kb_faq is rigid
+    (skeleton == fallback_skeleton), so the ORIGINAL "...FAQ" skeleton
+    (25-36 chars for every real combo) would have failed this floor for
+    EVERY kb FAQ title, not just an edge case."""
+    title = tt.resolve_title("kb_faq", family="3D", platform="Go")
+    assert len(title) >= 50
 
 
 def test_resolve_products_family_root():
@@ -73,7 +92,7 @@ def test_resolve_missing_required_placeholder_raises():
 
 def test_check_conformance_true_for_fallback_title():
     assert tt.check_conformance(
-        "Aspose.PDF FOSS for .NET Developer Guide", "docs_devguide_index", family="PDF", platform=".NET",
+        "Aspose.PDF FOSS for .NET — Developer Guide & Examples", "docs_devguide_index", family="PDF", platform=".NET",
     )
 
 
@@ -107,7 +126,9 @@ def test_check_conformance_false_for_wrong_family():
 
 
 def test_check_conformance_rigid_kb_faq_exact_match_only():
-    assert tt.check_conformance("Aspose.Page FOSS for Python FAQ", "kb_faq", family="Page", platform="Python")
+    assert tt.check_conformance(
+        "Aspose.Page FOSS for Python — Frequently Asked Questions", "kb_faq", family="Page", platform="Python",
+    )
     assert not tt.check_conformance("Frequently Asked Questions", "kb_faq", family="Page", platform="Python")
 
 

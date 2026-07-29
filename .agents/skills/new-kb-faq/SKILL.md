@@ -57,7 +57,7 @@ Generate or update the FAQ page for a product platform.
 
    ```yaml
    ---
-   title: "Aspose.{Family} FOSS for {Platform} FAQ"
+   title: "Aspose.{Family} FOSS for {Platform} — Frequently Asked Questions"
    description: >
      FAQ about Aspose.{Family} FOSS for {Platform} — licensing, known limitations,
      format support, and common usage questions.

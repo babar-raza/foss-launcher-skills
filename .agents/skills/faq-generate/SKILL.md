@@ -100,7 +100,7 @@ For KB FAQ pages specifically, prefer S-59 (new-kb-faq) which includes the full 
 
    ```markdown
    ---
-   title: "Aspose.{Family} FOSS for {Platform} FAQ"
+   title: "Aspose.{Family} FOSS for {Platform} — Frequently Asked Questions"
    description: "Common questions about Aspose.{Family} FOSS for {Platform}"
    type: topic
    date: '{today}'

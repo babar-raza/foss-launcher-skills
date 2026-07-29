@@ -39,7 +39,7 @@ def test_evaluate_devguide_pages_passes_a_conformant_title(tmp_path, monkeypatch
     _write_page(tmp_path / "products.aspose.org" / "en" / "pdf" / "_index.md", "Aspose.PDF FOSS")
     _write_page(
         tmp_path / "docs.aspose.org" / "en" / "pdf" / "net" / "developer-guide" / "_index.md",
-        "Aspose.PDF FOSS for .NET Developer Guide",
+        "Aspose.PDF FOSS for .NET — Developer Guide & Examples",
     )
     results = evaluator.evaluate_devguide_pages()
     assert results[0]["conforms"] is True
@@ -61,7 +61,7 @@ def test_evaluate_faq_pages_passes_conformant_title(tmp_path, monkeypatch):
     _write_page(tmp_path / "products.aspose.org" / "en" / "page" / "_index.md", "Aspose.Page FOSS")
     _write_page(
         tmp_path / "kb.aspose.org" / "en" / "page" / "python" / "faq.md",
-        "Aspose.Page FOSS for Python FAQ",
+        "Aspose.Page FOSS for Python — Frequently Asked Questions",
     )
     results = evaluator.evaluate_faq_pages()
     assert results[0]["conforms"] is True
@@ -109,7 +109,7 @@ def test_build_report_aggregates_pass_and_warn_counts(tmp_path, monkeypatch):
     monkeypatch.setattr(evaluator, "CONTENT_ROOT", tmp_path)
     _write_page(tmp_path / "products.aspose.org" / "en" / "words" / "_index.md", "Aspose.Words FOSS")
     _write_page(tmp_path / "docs.aspose.org" / "en" / "pdf" / "net" / "developer-guide" / "_index.md", "Developer Guide")
-    _write_page(tmp_path / "docs.aspose.org" / "en" / "words" / "net" / "developer-guide" / "_index.md", "Aspose.Words FOSS for .NET Developer Guide")
+    _write_page(tmp_path / "docs.aspose.org" / "en" / "words" / "net" / "developer-guide" / "_index.md", "Aspose.Words FOSS for .NET — Developer Guide & Examples")
 
     report = evaluator.build_report()
     assert report["meta"]["total_evaluated"] == 2

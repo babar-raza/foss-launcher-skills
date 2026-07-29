@@ -38,7 +38,17 @@ page_types:
     applies_to: "content/docs.aspose.org/en/{family}/{platform}/developer-guide/_index.md"
     rigid: false
     skeleton: "Aspose.{Family} FOSS for {Platform} — {ContentClause}"
-    fallback_skeleton: "Aspose.{Family} FOSS for {Platform} Developer Guide"
+    # Fixed 2026-07-29 (found by an independent S-116 review of the
+    # SEO-TITLE-PILOT-BACKFILL-PDF-DEVGUIDE candidates, before any file was
+    # written): the original fallback "Aspose.{Family} FOSS for {Platform}
+    # Developer Guide" resolves to 38-48 chars for every real family/platform
+    # combination -- always below safety.py's own _TITLE_MIN=50 gate, so any
+    # page that ever needed the fallback would be mechanically REJECTed by
+    # this same pipeline's own length check. The reviewing agent verified
+    # this is systemic (tested across PDF/Cells/3D/Words x 5+ platforms), not
+    # a one-page fluke. New fallback resolves to 50-61 chars across the same
+    # test matrix, always within the 50-70 bound.
+    fallback_skeleton: "Aspose.{Family} FOSS for {Platform} — Developer Guide & Examples"
     content_clause_priority:
       - gsc_query
       - description
@@ -52,10 +62,15 @@ page_types:
     site: kb.aspose.org
     applies_to: "content/kb.aspose.org/en/{family}/{platform}/faq.md"
     rigid: true
-    skeleton: "Aspose.{Family} FOSS for {Platform} FAQ"
-    fallback_skeleton: "Aspose.{Family} FOSS for {Platform} FAQ"
+    # Fixed 2026-07-29 (same length defect found alongside docs_devguide_index's
+    # fallback -- the original "Aspose.{Family} FOSS for {Platform} FAQ"
+    # resolves to only 25-36 chars, always below the 50-char floor. Since
+    # kb_faq is rigid (skeleton == fallback_skeleton), EVERY kb FAQ title
+    # would have failed safety.py's length gate, not just an edge case).
+    skeleton: "Aspose.{Family} FOSS for {Platform} — Frequently Asked Questions"
+    fallback_skeleton: "Aspose.{Family} FOSS for {Platform} — Frequently Asked Questions"
     content_clause_priority: []
-    example: "Aspose.Page FOSS for Python FAQ"
+    example: "Aspose.Page FOSS for Python — Frequently Asked Questions"
     known_duplicate_count_2026_07_29: 28
     resolution_note: >
       Resolves the 3-way S-22/S-59/production-reality title conflict,

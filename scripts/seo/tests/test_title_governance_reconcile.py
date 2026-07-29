@@ -10,6 +10,13 @@ what the mission decided (product-first: 'Aspose.{Family} FOSS for
 {Platform} FAQ'). Both are now reconciled to the same pattern, which this
 test locks in against regression (a future skill edit that silently
 reintroduces drift would fail this test, not just a manual read-through).
+
+Updated 2026-07-29 (SEO-TITLE-PILOT-BACKFILL-PDF-DEVGUIDE, independent
+S-116 review): the original 'Aspose.{Family} FOSS for {Platform} FAQ'
+skeleton resolved to 25-36 chars for every real combo -- always below
+safety.py's _TITLE_MIN=50 floor. The registry's kb_faq skeleton was fixed
+to 'Aspose.{Family} FOSS for {Platform} — Frequently Asked Questions'
+(50-61 chars); the pattern and expected values below are updated to match.
 """
 from __future__ import annotations
 
@@ -30,7 +37,7 @@ if str(_PIPELINE) not in sys.path:
 import seo.pipeline.title_templates as tt  # noqa: E402
 
 _CANONICAL_KB_FAQ_TITLE_PATTERN = re.compile(
-    r'title:\s*"?Aspose\.\{Family\}\s+FOSS\s+for\s+\{Platform\}\s+FAQ"?'
+    r'title:\s*"?Aspose\.\{Family\}\s+FOSS\s+for\s+\{Platform\}\s+—\s+Frequently\s+Asked\s+Questions"?'
 )
 
 
@@ -72,7 +79,7 @@ def test_documented_pattern_resolves_via_the_real_registry():
     -- plugging real values through title_templates.py's resolver must
     produce a title that fits the same shape the skills document."""
     resolved = tt.resolve_title("kb_faq", family="Page", platform="Python")
-    assert resolved == "Aspose.Page FOSS for Python FAQ"
+    assert resolved == "Aspose.Page FOSS for Python — Frequently Asked Questions"
     assert tt.check_conformance(resolved, "kb_faq", family="Page", platform="Python")
 
 
