@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -13,6 +14,58 @@ if str(PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(PIPELINE_DIR))
 
 import truth_audit_content as tac  # noqa: E402
+
+
+class TestWindowsEntrypointReliability(unittest.TestCase):
+    """The documented root-level command must not depend on shell encoding."""
+
+    def test_direct_script_help_bootstraps_pipeline_imports(self):
+        script = PIPELINE_DIR / "commands" / "diagnostics" / "truth_audit_content.py"
+        result = subprocess.run(
+            [sys.executable, str(script), "--help"],
+            cwd=PIPELINE_DIR.parent.parent,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=30,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("ModuleNotFoundError", result.stderr)
+        self.assertIn("Line-level content truth audit", result.stdout)
+
+    def test_clone_grep_uses_explicit_utf8_replacement(self):
+        completed = subprocess.CompletedProcess(
+            args=["git"],
+            returncode=0,
+            stdout="src/Example.java:7:replacement \ufffd text\n",
+            stderr="",
+        )
+        with patch.object(tac.subprocess, "run", return_value=completed) as run:
+            matches = tac._grep_clone_cache(Path.cwd(), "replacement")
+
+        self.assertEqual(matches[0]["excerpt"], "replacement \ufffd text")
+        self.assertEqual(run.call_args.kwargs["encoding"], "utf-8")
+        self.assertEqual(run.call_args.kwargs["errors"], "replace")
+
+    def test_unsupported_findings_use_findings_exit_code(self):
+        ledger = {
+            "summary": {
+                "total_units": 1,
+                "claim_units": 1,
+                "verified": 0,
+                "unverifiable": 0,
+                "unsupported": 1,
+                "contradicted": 0,
+                "fabricated": 0,
+                "claim_verification_rate": 0.0,
+                "verification_rate": 0.0,
+                "defect_rate": 0.0,
+                "confidence_bands": {},
+            }
+        }
+        with patch.object(tac, "run_audit", return_value=ledger):
+            self.assertEqual(tac.main(["cells", "java", "--no-llm"]), 2)
 
 
 class TestUnitIds(unittest.TestCase):
@@ -408,6 +461,10 @@ class TestIsMethodLike(unittest.TestCase):
         self.assertFalse(tac._is_method_like("getText", "python"))
         self.assertFalse(tac._is_method_like("getValue", ""))
 
+    def test_java_standard_library_types_are_not_methods(self):
+        self.assertFalse(tac._is_method_like("InputStream", "java"))
+        self.assertFalse(tac._is_method_like("IndexOutOfBoundsException", "java"))
+
     def test_single_lowercase_word_false(self):
         self.assertFalse(tac._is_method_like("filepath", "python"))
         self.assertFalse(tac._is_method_like("stream", "java"))
@@ -564,6 +621,74 @@ class TestVerifyUnitTypeInterfaceRegression(unittest.TestCase):
             platform="net", type_names=type_names,
         )
         self.assertEqual(result["verdict"], tac.VERDICT_FABRICATED)
+
+    def test_qualified_property_type_not_reinterpreted_as_member(self):
+        """Live cells/java regression: a nested property type is not a
+        nonexistent member of its qualifying class."""
+        knowledge = self._make_knowledge()
+        knowledge.classes["AutoFilterModel"] = {}
+        knowledge.property_types = {
+            ("AutoFilterCustomFilter", "operator"):
+                "AutoFilterModel.FilterOperatorType",
+        }
+        type_names = tac._build_type_and_interface_names(knowledge)
+        unit = {
+            "id": "U-test",
+            "file": "AutoFilterCustomFilter.md",
+            "line_start": 55,
+            "line_end": 55,
+            "type": "table_row",
+            "text": "| `operator` | `AutoFilterModel.FilterOperatorType` | Read | Returns the operator. |",
+        }
+        result = tac.verify_unit(
+            unit,
+            knowledge,
+            [],
+            [],
+            {},
+            None,
+            [],
+            method_index={"operator": ["AutoFilterCustomFilter"]},
+            platform="java",
+            type_names=type_names,
+        )
+        self.assertNotEqual(result["verdict"], tac.VERDICT_FABRICATED)
+
+    def test_java_framework_types_do_not_create_fabrication(self):
+        """Live cells/java regressions: JDK types in prose/tables are outside
+        the product API and therefore cannot prove product fabrication."""
+        knowledge = self._make_knowledge()
+        method_index = {
+            "getCount": ["WorksheetCollection"],
+            "unrelatedMethod": ["SomeClass"],
+        }
+        for text in (
+            "| `get(index)` throws `IndexOutOfBoundsException` | "
+            "Sheet index beyond `getCount() - 1` |",
+            "Always wrap the `InputStream` in a try-with-resources block "
+            "so the stream is closed even if the constructor throws.",
+        ):
+            unit = {
+                "id": "U-test",
+                "file": "test.md",
+                "line_start": 1,
+                "line_end": 1,
+                "type": "table_row" if text.startswith("|") else "paragraph",
+                "text": text,
+            }
+            result = tac.verify_unit(
+                unit,
+                knowledge,
+                [],
+                [],
+                {},
+                None,
+                [],
+                method_index=method_index,
+                platform="java",
+                type_names=set(),
+            )
+            self.assertNotEqual(result["verdict"], tac.VERDICT_FABRICATED)
 
 
 class TestLoadFormatsMerge(unittest.TestCase):

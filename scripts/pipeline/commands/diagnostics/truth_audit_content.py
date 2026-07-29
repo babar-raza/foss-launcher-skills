@@ -40,9 +40,13 @@ from pathlib import Path
 from typing import Any
 
 # ---------------------------------------------------------------------------
-# Imports from sibling pipeline modules (PYTHONPATH=scripts/pipeline)
+# Imports from sibling pipeline modules.  Direct invocation from the repository
+# root must work without relying on the caller to set PYTHONPATH.
 # ---------------------------------------------------------------------------
-_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
+_PIPELINE_DIR = str(Path(__file__).resolve().parents[2])
+if _PIPELINE_DIR not in sys.path:
+    sys.path.insert(0, _PIPELINE_DIR)
+_LIB_DIR = str(Path(_PIPELINE_DIR) / "lib")
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 from knowledge_core import Knowledge
@@ -176,8 +180,11 @@ def _build_type_and_interface_names(knowledge: Knowledge) -> set[str]:
     return names
 
 
-# Platforms where methods use camelCase convention
-_CAMELCASE_PLATFORMS = frozenset({"java", "net", "cpp", "typescript", "javascript"})
+# Platforms whose product members conventionally start with lower camelCase.
+_LOWER_CAMELCASE_PLATFORMS = frozenset({"java", "typescript", "javascript"})
+# .NET and C++ surfaces may expose PascalCase members, so casing alone cannot
+# distinguish a member from a framework type on those platforms.
+_PASCAL_MEMBER_PLATFORMS = frozenset({"net", "cpp"})
 _CAMELCASE_RE = re.compile(r"[a-z]+[A-Z]")
 
 
@@ -185,12 +192,20 @@ def _is_method_like(name: str, platform: str) -> bool:
     """Check if a bare name looks like a method/property for the given platform.
 
     - snake_case names (contain ``_``) are method-like on all platforms.
-    - camelCase names are method-like on Java/C#/C++/TypeScript.
+    - lower camelCase names are method-like on Java/TypeScript/JavaScript.
+    - .NET/C++ also permit PascalCase members.
     - Unknown platforms default to conservative (underscore only).
+
+    An upper-camel Java identifier is a type by convention, not a member.
+    Treating ``InputStream`` or ``IndexOutOfBoundsException`` as a missing
+    product member creates a false FABRICATED verdict for standard-library
+    types.
     """
     if "_" in name:
         return True
-    if platform in _CAMELCASE_PLATFORMS:
+    if platform in _LOWER_CAMELCASE_PLATFORMS:
+        return bool(name[:1].islower() and _CAMELCASE_RE.search(name))
+    if platform in _PASCAL_MEMBER_PLATFORMS:
         return bool(_CAMELCASE_RE.search(name))
     return False
 
@@ -446,7 +461,11 @@ def _grep_clone_cache(clone_path: Path, pattern: str, max_results: int = 5) -> l
     try:
         result = subprocess.run(
             ["git", "-C", str(clone_path), "grep", "-n", "-i", "--max-count", str(max_results), pattern],
-            capture_output=True, text=True, timeout=10,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=10,
         )
         if result is None or result.stdout is None:
             return []
@@ -628,6 +647,15 @@ def verify_unit(
         for ref in api_refs:
             parts = ref.split(".")
             cls_name = parts[0]
+            # Property/return types may themselves be qualified nested types
+            # (for example ``AutoFilterModel.FilterOperatorType``).  The
+            # complete identifier is authoritative when it is present in the
+            # model's type set; do not reinterpret its suffix as a member.
+            if type_names and ref in type_names:
+                api_checked = True
+                api_verified_count += 1
+                best_api_entry = ref
+                continue
             if cls_name not in knowledge.classes:
                 # Bare name, no class entry of its own -- could be (a) a real
                 # interface/type reference (never separately documented as a
@@ -1353,7 +1381,7 @@ def main(argv: list[str] | None = None) -> int:
         file=sys.stderr,
     )
 
-    if s["contradicted"] + s["fabricated"] > 0:
+    if s["unsupported"] + s["contradicted"] + s["fabricated"] > 0:
         return 2
     return 0
 
