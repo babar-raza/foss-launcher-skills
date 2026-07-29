@@ -8,7 +8,7 @@ import pytest
 import sys
 import os
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "checks"))
-from check_monkeypatch_lint import check_file, main
+from check_monkeypatch_lint import check_file, main, analyze_python_file
 
 
 # ---------------------------------------------------------------------------
@@ -138,6 +138,58 @@ def test_bad(monkeypatch):
 """)
         violations = check_file(p)
         assert len(violations) == 1
+
+
+# ---------------------------------------------------------------------------
+# classify_target — object-chain resolution (closes the bare-attribute-name
+# blind spot: monkeypatch.setattr(Path, "replace", ...) must resolve via the
+# patched-object's chain, not just the string "replace", or every stdlib I/O
+# mock whose method name isn't in the small literal _IO_TARGETS allowlist
+# falls through to the T2-banned default.)
+# ---------------------------------------------------------------------------
+
+class TestObjectChainResolution:
+    def test_pathlib_method_on_path_class_is_t3(self, tmp_path):
+        p = _write(tmp_path, "test_fs.py", """\
+from pathlib import Path
+def test_ok(monkeypatch):
+    monkeypatch.setattr(Path, "replace", lambda self, other: None)
+""")
+        violations = analyze_python_file(p)
+        assert len(violations) == 1
+        assert violations[0].tier == 3
+
+    def test_time_sleep_via_module_attribute_chain_is_t3(self, tmp_path):
+        p = _write(tmp_path, "test_fs.py", """\
+def test_ok(monkeypatch):
+    monkeypatch.setattr(fs.time, "sleep", lambda seconds: None)
+""")
+        violations = analyze_python_file(p)
+        assert len(violations) == 1
+        assert violations[0].tier == 3
+
+    def test_patch_object_on_io_module_attribute_is_t3(self, tmp_path):
+        p = _write(tmp_path, "test_fs.py", """\
+from unittest.mock import patch
+def test_ok():
+    with patch.object(os.path, "exists", return_value=True):
+        pass
+""")
+        violations = analyze_python_file(p)
+        assert len(violations) == 1
+        assert violations[0].tier == 3
+
+    def test_bare_name_on_internal_module_stays_t2(self, tmp_path):
+        """Same bare attribute name ('verify'), but the patched object is the
+        module under test itself — must stay T2, not be swept into T3 by the
+        object-chain resolution."""
+        p = _write(tmp_path, "test_bad.py", """\
+def test_bad(monkeypatch):
+    monkeypatch.setattr(post_refresh_verify, "verify", lambda *a, **k: None)
+""")
+        violations = analyze_python_file(p)
+        assert len(violations) == 1
+        assert violations[0].tier == 2
 
 
 # ---------------------------------------------------------------------------

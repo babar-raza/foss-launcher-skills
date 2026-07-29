@@ -37,7 +37,7 @@ GUARDED_NAMES: frozenset[str] = frozenset({
 # Known external/I/O modules whose attributes are T3 when mocked
 _IO_MODULES: frozenset[str] = frozenset({
     "sys", "os", "subprocess", "requests", "urllib", "http", "socket",
-    "shutil", "tempfile",
+    "shutil", "tempfile", "time",
 })
 
 # Known I/O boundary targets (dotted or plain) -> T3
@@ -45,6 +45,14 @@ _IO_TARGETS: frozenset[str] = frozenset({
     "sys.argv", "sys.stdout", "sys.stderr", "sys.stdin",
     "subprocess.run", "subprocess.check_output", "subprocess.Popen",
     "os.environ", "os.path",
+})
+
+# Known external/I/O classes (e.g. pathlib.Path) whose methods are T3 when
+# mocked on the class or an instance — a class name alone can't be resolved
+# to its defining module by AST inspection, so this is a name-based allowlist
+# like _IO_MODULES, not an import-aware check.
+_IO_CLASSES: frozenset[str] = frozenset({
+    "Path", "PosixPath", "WindowsPath",
 })
 
 
@@ -76,8 +84,17 @@ class Violation:
 # Tier classification
 # ---------------------------------------------------------------------------
 
-def classify_target(target_name: str) -> int:
-    """Classify a mock target name into a tier (1-4)."""
+def classify_target(target_name: str, obj_chain: str | None = None) -> int:
+    """Classify a mock target into a tier (1-4).
+
+    ``target_name`` is the attribute-name string being patched (e.g. "replace"
+    from ``monkeypatch.setattr(Path, "replace", ...)``). ``obj_chain`` is the
+    dotted expression of the object the attribute is being patched ON (e.g.
+    "Path" or "fs.time"), when the call site provides one — this is what lets
+    a bare name like "replace" or "sleep" resolve to a real I/O boundary
+    (T3) instead of falling through to the T2 default just because the name
+    itself isn't in the small literal _IO_TARGETS allowlist.
+    """
     base = target_name.rsplit(".", 1)[-1] if "." in target_name else target_name
     if base in GUARDED_NAMES:
         return 1
@@ -86,6 +103,10 @@ def classify_target(target_name: str) -> int:
     parts = target_name.split(".")
     if parts[0] in _IO_MODULES:
         return 3
+    if obj_chain:
+        obj_parts = obj_chain.split(".")
+        if any(p in _IO_MODULES for p in obj_parts) or obj_parts[-1] in _IO_CLASSES:
+            return 3
     return 2
 
 
@@ -217,7 +238,8 @@ def analyze_python_file(filepath: Path) -> list[Violation]:
         if _is_monkeypatch_setattr(node):
             target = _extract_target_from_setattr(node)
             if target:
-                tier = classify_target(target)
+                obj_chain = _get_attr_chain(node.args[0]) if node.args else None
+                tier = classify_target(target, obj_chain)
                 violations.append(Violation(
                     file=rel_path, line=lineno, tier=tier,
                     pattern="monkeypatch.setattr",
@@ -238,7 +260,8 @@ def analyze_python_file(filepath: Path) -> list[Violation]:
         if _is_patch_object(node, patch_names):
             target = _extract_target_from_patch_object(node)
             if target:
-                tier = classify_target(target)
+                obj_chain = _get_attr_chain(node.args[0]) if node.args else None
+                tier = classify_target(target, obj_chain)
                 violations.append(Violation(
                     file=rel_path, line=lineno, tier=tier,
                     pattern="patch.object",
