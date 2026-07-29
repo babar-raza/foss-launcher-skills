@@ -100,6 +100,7 @@
 | repo-scout | S-34 | Extract truth from FOSS repository |
 | rubric-align | S-17 | Align content to quality rubric |
 | section-enhance | S-96 | Inventory and propose improvements for a content section |
+| seo-review | S-116 | Independent-agent review gate for pending SEO frontmatter recommendations (title/description/keywords), unblocking apply.py |
 | session-start | S-77 | Mandatory session initialization gate |
 | site-plan | S-47 | Production-grade pre-generation site manifest |
 | stale-detect | S-13 | Identify stale content pages |

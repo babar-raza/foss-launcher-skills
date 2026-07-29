@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
-  "skill_count": 104,
+  "skill_count": 105,
   "skills": [
     {
       "id": "S-01",
@@ -783,6 +783,14 @@
       "description": "Manually review every GitHub Actions workflow in `.github/workflows/` (and any composite",
       "internal": false,
       "canonical_path": "skills/workflow-harden.md"
+    },
+    {
+      "id": "S-116",
+      "slug": "seo-review",
+      "name": "SEO Review — Independent-Agent Review Gate for Pending SEO Recommendations",
+      "description": "Load `safe_recommendations.json`, independently re-verify each proposed `description`/",
+      "internal": false,
+      "canonical_path": "skills/seo-review.md"
     },
     {
       "id": "S-HT-02",

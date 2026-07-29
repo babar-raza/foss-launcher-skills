@@ -41,6 +41,7 @@ See AGENTS.md §6a for the full DAR governance rules.
 | `/publish-readiness-review` (S-90) | `/knowledge-bootstrap` | Requires knowledge for publish verification |
 | `/refresh-product` (S-84) | `/knowledge-bootstrap` | Requires knowledge for product refresh |
 | `/register-human-content` (S-66) | `/knowledge-bootstrap` | Requires knowledge for evidence attachment |
+| `/seo-review` (S-116) | `/knowledge-bootstrap` | Grounding-check step independently re-verifies each recommendation against claims.json/formats.json before approving |
 | `/site-plan` (S-47) | `/knowledge-bootstrap` | Requires knowledge for site planning |
 | `/system-heal` (S-87) | `/knowledge-bootstrap` | Requires knowledge for system healing |
 | `/truth-audit-content` (S-85) | `/knowledge-bootstrap` | Requires knowledge for truth audit |

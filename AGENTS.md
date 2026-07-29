@@ -512,8 +512,8 @@ in git diff. If the source is T-01, a DGR with `operation: rename` and
 | Tier | Paths | Gate |
 |------|-------|------|
 | T-00 | FORBIDDEN_EXACT + FORBIDDEN_PREFIXES | Always blocked; no DGR path |
-| T-01 | content/, knowledge/, scripts/pipeline/, scripts/ci/, tests/, data/ | DGR required |
-| T-02 | docs/, scripts/maintenance/, scripts/seo/ | Advisory warning only |
+| T-01 | content/, knowledge/, scripts/pipeline/, scripts/ci/, tests/, data/, scripts/seo/ | DGR required |
+| T-02 | docs/, scripts/maintenance/ | Advisory warning only |
 | T-03 | Gitignored / unprotected | Silent pass |
 
 **Implementation artifacts:**
