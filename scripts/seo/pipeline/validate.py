@@ -37,23 +37,14 @@ REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 # not a filename allowlist. A filename list previously covered only 5 of the
 # 7 real Schema B files and silently misclassified the rest as Schema A.
 
-# These file names contain the family name only — used for quality filter
-_SCHEMA_A_FAMILIES: dict[str, str] = {
-    "barcode.json": "barcode",
-    "cad.json": "cad",
-    "cells.json": "cells",
-    "home.json": "home",
-    "html.json": "html",
-    "imaging.json": "imaging",
-    "ocr.json": "ocr",
-    "page.json": "page",
-    "pdf.json": "pdf",
-    "psd.json": "psd",
-    "tasks.json": "tasks",
-    "tex.json": "tex",
-    "words.json": "words",
-    "zip.json": "zip",
-}
+# Family name for a Schema A file is derived from its filename stem
+# directly (e.g. "barcode.json" -> "barcode") -- this used to be a hardcoded
+# 14-entry dict, but every entry mapped a filename to exactly its own stem,
+# which is what filename.replace(".json", "") already produces. The dict
+# added zero information beyond that fallback while still being one more
+# hand-maintained list that could drift from disk reality (Finding #32) --
+# removed rather than reconciled, since reconciling a list that duplicates
+# a one-line derivation isn't a fix, it's more surface for the same drift.
 
 # For Schema A files the "platform" cannot be determined from the filename —
 # the canonical assumed platform is .NET (the original primary Aspose platform).
@@ -221,7 +212,7 @@ def _validate_schema_b(filename: str, raw: list, file_path: Path) -> tuple[dict,
 
 def _validate_schema_a(filename: str, raw: list, file_path: Path) -> tuple[dict, list[dict]]:
     """Validate a Schema A file. Returns (file_summary, validated_records)."""
-    family = _SCHEMA_A_FAMILIES.get(filename, filename.replace(".json", ""))
+    family = filename.replace(".json", "")
     issues: list[str] = []
     valid_raw: list[dict] = []
     rejected = 0

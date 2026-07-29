@@ -11,14 +11,28 @@ sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
 from core.env_loader import load_env  # noqa: E402
 load_env()
 
-import google.generativeai as genai
+_SEO_SCRIPTS = Path(__file__).resolve().parent
+if str(_SEO_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_SEO_SCRIPTS))
+try:
+    from seo.pipeline.schema import canonical_families
+except ImportError:
+    from pipeline.schema import canonical_families
 
-DEFAULT_FAMILIES = ["barcode", "cad", "cells", "html", "imaging", "ocr", "page", "pdf", "psd", "tasks", "tex", "words", "zip"]
+# google.generativeai is imported lazily, inside reevaluate_keywords(), not at
+# module load time -- see get_keywords.py for the same fix and its rationale.
+
+# Single source of truth for "which families exist" -- see get_keywords.py
+# and Finding #32. Falls back to the pre-fix 13-name list if the registry is
+# unreadable.
+_FALLBACK_FAMILIES = ["barcode", "cad", "cells", "html", "imaging", "ocr", "page", "pdf", "psd", "tasks", "tex", "words", "zip"]
+DEFAULT_FAMILIES = canonical_families() or _FALLBACK_FAMILIES
 
 
 # Merge keywords for duplicate titles
 def merge_keywords_by_title(data):
     merged_data = {}
+    source_paths = {}
     for entry in data:
         title = entry.get("pageTitle")
         keywords = set(entry.get("keywords", []))
@@ -29,21 +43,36 @@ def merge_keywords_by_title(data):
             merged_data[title].update(keywords)
         else:
             merged_data[title] = keywords
+        if entry.get("sourcePath") and title not in source_paths:
+            source_paths[title] = entry["sourcePath"]
 
-    return [
-        {"pageTitle": title, "keywords": list(keywords)}
-        for title, keywords in merged_data.items()
-    ]
+    result = []
+    for title, keywords in merged_data.items():
+        record = {"pageTitle": title, "keywords": list(keywords)}
+        if title in source_paths:
+            record["sourcePath"] = source_paths[title]
+        result.append(record)
+    return result
 
 # Get improved keywords from Google Gemini
-def reevaluate_keywords(title, keywords):
+def reevaluate_keywords(title, keywords, platform="net"):
+    import google.generativeai as genai  # lazy: optional heavy dependency
+
+    platform_label = {
+        "net": ".NET",
+        "java": "Java",
+        "python": "Python",
+        "cpp": "C++",
+        "nodejs": "Node.js",
+        "php": "PHP",
+    }.get(platform, platform)
     model = genai.GenerativeModel("gemini-1.5-flash")
     prompt = (
         f"The title of the content is: '{title}'.\n\n"
         f"Here is the current list of keywords:\n"
         f"{', '.join(keywords)}\n\n"
         f"Your task is to refine and optimize the list of keywords based on the following instructions:\n"
-        f"1. Focus on long-tail keywords specifically related to the .NET platform.\n"
+        f"1. Focus on long-tail keywords specifically related to the {platform_label} platform.\n"
         f"2. Prioritize keywords that are likely to have medium to high relevance and engagement for users.\n"
         f"3. Avoid using keywords that seem overly broad or generic.\n"
         f"4. Remove any keywords that mention brand names other than 'Aspose'.\n"
@@ -66,7 +95,7 @@ def reevaluate_keywords(title, keywords):
                 return keywords
 
 # Read and process JSON files
-def process_json_files_by_family(families, root_dir):
+def process_json_files_by_family(families, root_dir, platform="net"):
     for family in families:
         family_file = os.path.join(root_dir, f"{family}.json")
         if not os.path.exists(family_file):
@@ -99,7 +128,7 @@ def process_json_files_by_family(families, root_dir):
                 continue
 
             logging.info(f"Reevaluating keywords for title: {title}")
-            improved_keywords = reevaluate_keywords(title, keywords)
+            improved_keywords = reevaluate_keywords(title, keywords, platform)
             if improved_keywords:
                 entry["keywords"] = improved_keywords
 
@@ -122,13 +151,24 @@ if __name__ == "__main__":
         "--families",
         nargs="+",
         default=DEFAULT_FAMILIES,
-        help="Product families to process (default: 13 standard families)",
+        help=f"Product families to process (default: {len(DEFAULT_FAMILIES)} families, from data/family_descriptions.json)",
+    )
+    parser.add_argument(
+        "--platform",
+        default="net",
+        help=(
+            "Platform label used in the Gemini reevaluation prompt (e.g. net, java, python, "
+            "cpp, nodejs, php). Previously hardcoded to '.NET platform' regardless of the "
+            "actual family/platform being reviewed (Finding #33) -- default remains net for "
+            "backward compatibility."
+        ),
     )
     args = parser.parse_args()
 
     api_key = os.environ.get("GOOGLE_API_KEY")
     if not api_key:
         raise SystemExit("Error: GOOGLE_API_KEY environment variable is not set.")
+    import google.generativeai as genai
     genai.configure(api_key=api_key)
 
     logging.basicConfig(
@@ -137,5 +177,5 @@ if __name__ == "__main__":
         format="%(asctime)s - %(levelname)s - %(message)s"
     )
 
-    process_json_files_by_family(args.families, args.keywords_dir)
+    process_json_files_by_family(args.families, args.keywords_dir, args.platform)
     logging.info("Keyword reevaluation complete.")

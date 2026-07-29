@@ -92,3 +92,29 @@ def classify_keyword_path(path: Path) -> str:
     except json.JSONDecodeError:
         return SCHEMA_UNKNOWN
     return classify_keyword_file(payload)
+
+
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+_FAMILY_DESCRIPTIONS_PATH = _REPO_ROOT / "data" / "family_descriptions.json"
+
+
+def canonical_families() -> list[str]:
+    """The full list of Aspose product family slugs, sorted.
+
+    Single source of truth for "which families exist" across scripts/seo/ --
+    replaces three independently hand-maintained lists that had silently
+    drifted out of sync with each other (get_keywords.py: 18 names,
+    review_keywords.py: 13, validate.py: 14) and with data/family_descriptions.json,
+    the same registry already treated as authoritative by 4 Hugo home
+    templates (Finding #32). Returns [] if the registry is missing or
+    unparseable rather than raising, so a stale/broken registry degrades to
+    "no families" (caller falls back to an explicit --families arg) instead
+    of crashing every script that imports this at module load time.
+    """
+    try:
+        raw = json.loads(_FAMILY_DESCRIPTIONS_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    if not isinstance(raw, dict):
+        return []
+    return sorted(raw.keys())
