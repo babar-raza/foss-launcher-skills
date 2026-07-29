@@ -12,6 +12,7 @@ partial filename list or a real file's shape stops matching either schema.
 """
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -66,6 +67,27 @@ _EXPECTED_SCHEMA_A = {
     "zip.json",
 }
 
+# SEO-SCHEMA-A-QUARANTINE-STALE-ENTRIES (2026-07-29): these 7 files had 100%
+# of their entries confirmed drifted_title_mismatch by audit_schema_a.py --
+# every pageTitle matched nothing in the family's own launched content, a
+# consequence of this repo's content-generation approach having moved on to
+# claims-grounded, repo-scout-driven titles since these were generated. All
+# entries were quarantined to keywords/_stale/{family}.json (not deleted),
+# leaving the live file an empty [] until SEO-SCHEMA-A-BOOTSTRAP-REGENERATION
+# repopulates it. An empty list legitimately classifies as SCHEMA_UNKNOWN
+# (schema.py's own documented behavior) -- this is not a bug, it is the
+# quarantine having worked as designed.
+_QUARANTINED_TO_EMPTY = {
+    "barcode.json",
+    "cells.json",
+    "html.json",
+    "page.json",
+    "pdf.json",
+    "tex.json",
+    "words.json",
+}
+_EXPECTED_SCHEMA_A_WITH_CONTENT = _EXPECTED_SCHEMA_A - _QUARANTINED_TO_EMPTY
+
 
 def _real_keyword_files() -> list[Path]:
     files = sorted(_KEYWORDS_DIR.glob("*.json"))
@@ -119,11 +141,23 @@ class TestFileClassification:
         assert path.exists(), f"expected real file missing: {path}"
         assert classify_keyword_path(path) == SCHEMA_B
 
-    @pytest.mark.parametrize("filename", sorted(_EXPECTED_SCHEMA_A))
+    @pytest.mark.parametrize("filename", sorted(_EXPECTED_SCHEMA_A_WITH_CONTENT))
     def test_real_schema_a_files_classify_as_a(self, filename):
         path = _KEYWORDS_DIR / filename
         assert path.exists(), f"expected real file missing: {path}"
         assert classify_keyword_path(path) == SCHEMA_A
+
+    @pytest.mark.parametrize("filename", sorted(_QUARANTINED_TO_EMPTY))
+    def test_quarantined_files_are_now_empty_and_unknown(self, filename):
+        path = _KEYWORDS_DIR / filename
+        assert path.exists(), f"expected real file missing: {path}"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        assert payload == [], (
+            f"{filename} was expected to be empty post-quarantine -- if "
+            "SEO-SCHEMA-A-BOOTSTRAP-REGENERATION has since repopulated it, "
+            "move it back out of _QUARANTINED_TO_EMPTY"
+        )
+        assert classify_keyword_path(path) == SCHEMA_UNKNOWN
 
     def test_all_21_real_files_accounted_for(self):
         real_files = {p.name for p in _real_keyword_files()}

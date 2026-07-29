@@ -51,6 +51,62 @@ _CAPABILITY_RE = re.compile(
 )
 _NEGATION_RE = re.compile(r"\b(not|no|never|cannot|can't|unsupported|without)\b", re.IGNORECASE)
 
+# Inline-code spans: `like this`. A single backtick pair, non-greedy, no newline.
+_INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
+
+# A markdown table row: starts and ends with `|` (ignoring surrounding whitespace),
+# with at least one more `|` inside — i.e. 2+ cells.
+_TABLE_ROW_RE = re.compile(r"^\s*\|(.*)\|\s*$")
+
+
+def _strip_inline_code(text: str) -> str:
+    """Remove backtick-delimited inline-code spans from text."""
+    return _INLINE_CODE_RE.sub(" ", text)
+
+
+def _capability_scan_text(line: str) -> str:
+    """Return the portion of a line tier 2 should search for capability
+    language and bare-class mentions.
+
+    HARDEN-FC-01 (2026-07-29): tier 2 ("class_with_capability_language") used
+    to search the WHOLE line for both a bare owning-class mention and generic
+    capability language, with no distinction between prose that actually
+    claims a capability and the structural, non-prose columns of an
+    auto-generated Methods (`| Signature | Description |`) or Properties
+    (`| Name | Type | Access | Description |`) table. Two concrete failure
+    shapes, both found live blocking 29 3d/java reference pages from a
+    legitimate ST-013 regeneration:
+
+      1. A class name appearing only as a backtick-quoted return/parameter
+         TYPE (e.g. `` `getFileSystem()` `->` `FileSystem` ``) is a type
+         annotation, not a capability subject — handled by stripping inline
+         code before the class-name search (see below).
+      2. A Properties table's Access column is literally the word "Read" or
+         "Read/Write" — and "read"/"write" are themselves in the generic
+         capability-verb list, so EVERY properties row satisfies the
+         capability check regardless of what the description says (found:
+         `` | `fileSystemFactory` | `FileSystemFactory` | Read | Gets the
+         factory class for FileSystem. | `` flagged purely because of its
+         own Access="Read" column, not because the description claims
+         anything about reading files).
+
+    For a table row (2+ `|`-delimited cells — every Methods/Properties row
+    this pipeline generates), both checks are scoped to the LAST cell only:
+    by construction, the description/prose column is always last in these
+    templates, and every other column (signature, type, access) is
+    structural markup that should never itself satisfy either check. Inline
+    code is additionally stripped from that cell before the class-name
+    search, per case 1. Non-table lines (ordinary prose paragraphs, where
+    the original 3d/net "3MF" incident this module exists to catch actually
+    occurred) are returned unchanged — this narrowing applies only to the
+    generated-table shape, never to free-form prose.
+    """
+    m = _TABLE_ROW_RE.match(line)
+    if not m:
+        return line
+    cells = m.group(1).split("|")
+    return cells[-1] if cells else line
+
 
 def extract_symbols(forbidden_claim: str) -> tuple[set[str], set[str]]:
     """Return (fully_qualified_symbols, owning_classes) from one forbidden-claim string.
@@ -97,15 +153,23 @@ def scan(text: str, forbidden_claims: list[str]) -> list[dict]:
                 break
 
         # 2) Bare owning-class match on a line that also carries capability language
-        #    and is not explicitly negated.
+        #    and is not explicitly negated. Both checks run against the line's
+        #    description-only scan text (HARDEN-FC-01) — for a generated
+        #    Methods/Properties table row that means just the last (Description)
+        #    cell, with inline code additionally stripped before the class-name
+        #    search; for ordinary prose it's the line unchanged. Negation is
+        #    still checked against the full original line (conservative: a
+        #    negation word anywhere in the row still suppresses the match).
         if matched is None:
             for line in lines:
                 if _NEGATION_RE.search(line):
                     continue
-                if not _CAPABILITY_RE.search(line):
+                scan_text = _capability_scan_text(line)
+                if not _CAPABILITY_RE.search(scan_text):
                     continue
+                prose = _strip_inline_code(scan_text)
                 for cls in owning_classes:
-                    if re.search(r"\b" + re.escape(cls) + r"\b", line):
+                    if re.search(r"\b" + re.escape(cls) + r"\b", prose):
                         matched = {"forbidden_claim": claim, "matched_symbol": cls,
                                    "match_type": "class_with_capability_language"}
                         break

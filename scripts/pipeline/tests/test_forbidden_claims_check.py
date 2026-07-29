@@ -83,6 +83,77 @@ def test_scan_negation_not_flagged():
     assert v == []
 
 
+# ── HARDEN-FC-01: bare-class-in-inline-code false positive (2026-07-29) ─────
+# Real incident: batch_reference.py --rebuild-all refused to regenerate 29
+# 3d/java reference pages (SaveOptions/LoadOptions family) because their
+# Methods tables have rows like:
+#   | `getFileSystem()` -> `FileSystem` | Allow user to handle how to manage
+#   the external dependencies during load/save. |
+# "FileSystem" (a return-type annotation inside backticks) plus "Allow" (in
+# the free-text description) tripped "supports FileSystem.readFile"/"supports
+# FileSystem.writeFile" even though the description never mentions FileSystem
+# in prose, and never mentions reading or writing at all.
+
+_FILESYSTEM_FORBIDDEN = ["supports FileSystem.readFile", "supports FileSystem.writeFile"]
+
+
+def test_bare_class_inside_inline_code_not_flagged():
+    """The exact real-world trigger: a class name appearing ONLY as a
+    backtick-quoted return-type annotation, on a line whose free-text
+    description carries generic capability language but never mentions the
+    class or the forbidden action, must not be flagged."""
+    line = ("| `getFileSystem()` → `FileSystem` | Allow user to handle how to "
+            "manage the external dependencies during load/save. |\n")
+    v = scan(line, _FILESYSTEM_FORBIDDEN)
+    assert v == []
+
+
+def test_bare_class_in_prose_still_flagged():
+    """The same owning class mentioned in actual free-text prose (not inside
+    inline code), with capability language, is still flagged for every
+    forbidden claim sharing that owning class -- tier 2 keeps working for
+    real prose capability claims, only inline-code type annotations are
+    excluded."""
+    text = "This class supports FileSystem for direct file access.\n"
+    v = scan(text, _FILESYSTEM_FORBIDDEN)
+    assert len(v) == 2
+    assert all(x["match_type"] == "class_with_capability_language" for x in v)
+
+
+def test_properties_table_access_column_not_mistaken_for_capability_language():
+    """Real second trigger: a Properties table row's Access column is
+    literally the word "Read" (or "Read/Write") -- and "read"/"write" are
+    themselves in the generic capability-verb list, so a naive whole-line
+    scan flags EVERY properties row regardless of what the description says.
+    The description here ("Gets the factory class for FileSystem.") mentions
+    FileSystem as bare prose but makes no claim about reading or writing
+    files at all -- must not be flagged."""
+    line = ("| `fileSystemFactory` | `FileSystemFactory` | Read | Gets the "
+            "factory class for FileSystem. |\n")
+    v = scan(line, _FILESYSTEM_FORBIDDEN)
+    assert v == []
+
+
+def test_properties_table_description_prose_still_flagged():
+    """The same table shape, but the Description column genuinely claims the
+    forbidden action in prose -- still caught."""
+    line = ("| `fileSystemFactory` | `FileSystemFactory` | Read | This class "
+            "supports FileSystem for direct file access. |\n")
+    v = scan(line, _FILESYSTEM_FORBIDDEN)
+    assert len(v) == 2
+
+
+def test_exact_member_reference_inside_inline_code_still_flagged():
+    """A literal, backtick-quoted reference to the exact forbidden member
+    (not just the owning class) is still caught by tier 1 regardless of the
+    inline-code stripping applied to tier 2."""
+    text = "Call `FileSystem.readFile` to load the bytes directly.\n"
+    v = scan(text, _FILESYSTEM_FORBIDDEN)
+    assert len(v) == 1
+    assert v[0]["match_type"] == "fully_qualified"
+    assert v[0]["matched_symbol"] == "FileSystem.readFile"
+
+
 def test_scan_clean_text_no_violations():
     text = "This page discusses PDF conversion using Document.Save.\n"
     v = scan(text, _3MF_FORBIDDEN)
@@ -104,13 +175,25 @@ def test_newly_introduced_only_flags_added_violations():
     assert v[0]["matched_symbol"] == "Microsoft3MFFormat.IsBuildable"
 
 
-def test_newly_introduced_flags_every_violated_claim():
-    """A single line violating 3 forbidden claims (all sharing the owning class)
-    reports one violation per forbidden claim — useful, not a bug."""
+def test_newly_introduced_flags_the_specific_referenced_member():
+    """HARDEN-FC-01 (2026-07-29) behavior change: a literal, backtick-quoted
+    reference to ONE specific member (`Microsoft3MFFormat.IsBuildable`) is a
+    strong tier-1 violation for THAT claim. It no longer cascades into flagging
+    two OTHER, unrelated forbidden claims (GetTransformForBuild, SetBuildable)
+    that merely share the same owning class and are not otherwise mentioned
+    anywhere in the text -- that cascade was tier 2's bare-class-name search
+    matching "Microsoft3MFFormat" inside the same backtick span, the exact
+    over-broad shape that let a reference page's unrelated `FileSystem` type
+    annotation trip a completely different forbidden claim (see
+    test_bare_class_inside_inline_code_not_flagged below). Precision over
+    breadth: tier 1 still catches the exact member if referenced; tier 2 still
+    catches free-text prose that actually discusses the class's capabilities."""
     old = "Clean prose.\n"
     new = "Now you can use `Microsoft3MFFormat.IsBuildable` here.\n"
     v = newly_introduced(old, new, _3MF_FORBIDDEN)
-    assert len(v) == 3
+    assert len(v) == 1
+    assert v[0]["matched_symbol"] == "Microsoft3MFFormat.IsBuildable"
+    assert v[0]["match_type"] == "fully_qualified"
 
 
 def test_newly_introduced_ignores_preexisting_violation():
