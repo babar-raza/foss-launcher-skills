@@ -527,7 +527,7 @@
     {
       "id": "S-84",
       "slug": "refresh-product",
-      "name": "Refresh Product — Full Post-Launch Refresh Orchestration",
+      "name": "Refresh Product",
       "description": "Re-generate content for a single product after a knowledge update.",
       "internal": false,
       "canonical_path": "skills/refresh-product.md"

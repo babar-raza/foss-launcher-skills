@@ -16,10 +16,13 @@ context. Every write passes through three generation-time gates before it lands.
 **CLI:**
 ```bash
 PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.content.body_refresh {family} {platform} --dry-run
-PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.content.body_refresh {family} {platform} --execute
+PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.content.body_refresh \
+  {family} {platform} --execute --run-id ID --run-root reports/refresh_runs/{family}/{platform}/ID
 ```
 
-Output: `reports/refresh_review/{family}/{platform}/receipts/*.yaml`
+Mutating execution without `--run-id` fails. Production inputs, receipts, and
+`page_decisions.jsonl` are bound to `--run-root`; use S-84 `refresh_run.py` rather
+than invoking this command directly. Diagnostic dry runs remain compatible.
 
 ## Update strategies
 

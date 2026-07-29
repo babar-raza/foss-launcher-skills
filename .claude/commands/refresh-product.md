@@ -1,27 +1,83 @@
-<!-- CONTRACT: agent-executed
-     purpose: orchestrate full post-launch product refresh cycle (14-step chain)
-     preconditions: product already launched; knowledge model accessible; clone cache reachable
-     postcondition: content updated from knowledge delta; verification gate passed; changes committed
-     idempotent: yes — checkpoint-based resume; completed steps produce no-ops on re-run
-     verified: 2026-04-11
--->
 ---
 name: refresh-product
 id: S-84
 description: >
-  Re-generate content for a single product after knowledge update: detect upstream
-  changes, refresh knowledge model, plan delta, update stale pages, generate new pages,
-  retire obsolete pages, validate quality, and commit. Translation runs via separate
-  cadence (AREA9-TRANS-001) and is not part of this chain.
+  Start, resume, inspect, verify, recover, bind, or abandon one production product refresh
+  through the registered run-bound refresh_run.py state machine.
 args: "{family} {platform}"
 ---
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-# S-84: Refresh Product — Full Post-Launch Refresh Orchestration
+<!-- CONTRACT: registered-cli-wrapper
+     purpose: operate one run-bound post-launch product refresh state machine
+     preconditions: product launched; explicit session identity; knowledge and clone reachable
+     postcondition: run is blocked, ready-to-commit, committed-and-bound, or abandoned
+     idempotent: yes — immutable receipts, OCC hashes, and state checkpoints
+     verified: 2026-07-26
+-->
+
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
+# S-84: Refresh Product
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform}`
+
+## Official execution contract
+
+Use only the registered control plane:
+
+```bash
+.venv/Scripts/python scripts/pipeline/commands/ops/refresh_run.py start FAMILY PLATFORM \
+  --mode upstream|remediation|combined [--scope-manifest PATH] [--session-id ID]
+.venv/Scripts/python scripts/pipeline/commands/ops/refresh_run.py run --run-id ID [--session-id ID]
+.venv/Scripts/python scripts/pipeline/commands/ops/refresh_run.py resume --run-id ID [--session-id ID]
+.venv/Scripts/python scripts/pipeline/commands/ops/refresh_run.py status --run-id ID
+.venv/Scripts/python scripts/pipeline/commands/ops/refresh_run.py verify --run-id ID [--session-id ID]
+.venv/Scripts/python scripts/pipeline/commands/ops/refresh_run.py recover --run-id ID \
+  --reason TEXT [--session-id ID]
+.venv/Scripts/python scripts/pipeline/commands/ops/refresh_run.py bind-commit --run-id ID \
+  --commit SHA [--session-id ID]
+.venv/Scripts/python scripts/pipeline/commands/ops/refresh_run.py abandon --run-id ID \
+  --reason TEXT [--session-id ID]
+```
+
+Do not invoke the stages below as a production orchestration sequence. The CLI pins
+the session owner, Git base, clone/model SHAs, scope, receipts, decisions, state
+transitions, and validation results under
+`reports/refresh_runs/{family}/{platform}/{run_id}/`. Mutating S-62 and S-105 calls
+without a run ID fail. Commit readiness requires `post_refresh_verify --run-id`;
+`--base` is forensic-only and never infers the newest local manifest.
+The validation state also requires scoped S-23 content audit and link validation,
+the refresh oracle, triage confirmation, and SEO stability to return PASS.
+Writers stage the final candidate and emit a validated receipt plus page decision
+before mutating the real content path. Scope identity and its manifest digest are
+rechecked inside each writer. A resumed run accepts only the pinned input hash or
+the receipt-bound output hash, so interruption cannot create an unowned write.
+Required page validators are exactly `receipt`, `forbidden_claims`, and
+`regrounding`; all three must be `PASS`.
+
+Use `--mode remediation --scope-manifest PATH` to revalidate an explicit historical
+candidate set against current truth without fabricating an upstream delta. Missing
+baseline, model/clone mismatch, mixed-run evidence, incomplete scope reconciliation,
+in-scope HEAD movement, or an altered scoped file blocks the run.
+
+Use `recover` only for an uncommitted failed or rejected run. It restores each
+run-owned path from the pinned base only when the current bytes still match the
+validated receipt output (or were already restored by an interrupted recovery),
+then marks the run `ABANDONED`. It refuses paths absent from the base rather than
+deleting them. Post-commit rollback remains `git revert`, never recovery.
+
+One run owns one family/platform and one content commit. Keep pipeline-code changes
+separate. Include `Refresh-Run`, `Refresh-Base`, and `Refresh-Source-SHA` trailers in
+the content commit exactly once each in the final Git trailer block, then bind it
+explicitly; matching subject/body prose is not accepted. Binding compares
+checkout-filtered committed bytes to each receipt's raw `new_hash` in addition to
+normalized body/frontmatter hashes. Never push as part of S-84.
+
+<details>
+<summary>Legacy pre-orchestrator sequence (forensic context only; do not execute)</summary>
 
 ## Purpose
 
@@ -420,3 +476,5 @@ will be skipped or produce no-ops on re-run.
 - Step 2 (knowledge-update): if scout fails, abort entire cycle; do not write partial delta
 - Step 12 (verify): if fails, list specific issues; do not commit; fix and re-verify
 - Any step failure: check `--status` to see which steps completed; resume from the failing step
+
+</details>

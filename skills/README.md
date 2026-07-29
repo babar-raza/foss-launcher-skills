@@ -240,7 +240,7 @@ S-62 (batch-reference) → S-38 (truth-audit, spot-check) → S-24 (evidence-cit
    `sync_skills.py --check` only detects drift; it has no write capability. The command that
    actually fixes it is:
    ```bash
-   PYTHONPATH=scripts/pipeline python scripts/pipeline/commands/ops/sync_providers.py
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/ops/sync_providers.py
    ```
    Run this before your skill edit is considered complete — do not stop at `--check` reporting
    drift and assume something else will fix it. Verify with

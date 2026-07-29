@@ -1,6 +1,6 @@
 <!-- CONTRACT: scripts/pipeline/commands/content/batch_reference.py (backing script for headless/CI batch runs)
      purpose: generate template-based skeleton reference pages from api_surface.json without LLM
-     cli: python scripts/pipeline/commands/content/batch_reference.py {family} {platform} [--kind class|enum|all] [--limit N] [--dry-run]
+     cli: python scripts/pipeline/commands/content/batch_reference.py {family} {platform} [--kind class|enum|all] [--limit N] [--dry-run] [--run-id ID --run-root DIR]
      postcondition: applies same platform scope rules as this skill (kind values match tree-sitter output)
      postcondition: idempotent — skips existing pages; re-run on populated platform yields Generated: 0
      postcondition: prints S-62 summary format (Candidates / Generated / Skipped / Errors)
@@ -17,6 +17,10 @@ Generate reference pages in bulk for all missing classes/enums in a given family
 — e.g. `slides cpp` or `slides cpp --kind enum` or `3d python --limit 10`
 
 Defaults: `--kind all`, no limit.
+
+Any mutating execution requires `--run-id`. In production, invoke S-62 through
+S-84 `refresh_run.py`, which also supplies `--run-root` and restricts generation
+to the pinned `scope.json`. Direct dry runs remain available for diagnostics.
 
 ## Knowledge Pre-conditions
 
@@ -135,7 +139,8 @@ For each entry marked `GENERATE`, in order:
 Invoke the batch generation script:
 
 ```bash
-.venv/Scripts/python scripts/pipeline/commands/content/batch_reference.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/commands/content/batch_reference.py {family} {platform} \
+  --run-id ID --run-root reports/refresh_runs/{family}/{platform}/ID
 ```
 
 The script generates all class pages using templates from `api_surface.json`. For each page it:
@@ -244,7 +249,8 @@ After a knowledge refresh (S-14), use `--update` to regenerate only the referenc
 classes appear in `knowledge_delta.json modified_apis`:
 
 ```bash
-.venv/Scripts/python scripts/pipeline/commands/content/batch_reference.py {family} {platform} --update
+.venv/Scripts/python scripts/pipeline/commands/content/batch_reference.py {family} {platform} --update \
+  --run-id ID --run-root reports/refresh_runs/{family}/{platform}/ID
 .venv/Scripts/python scripts/pipeline/commands/content/batch_reference.py {family} {platform} --update --dry-run  # preview only
 ```
 
