@@ -49,7 +49,11 @@ ALLOWED_PREFIXES: tuple[str, ...] = (
     "data/",
     # SEO patch manifests — written by scripts/seo/pipeline/report.py.
     "patches/",
-    # SEO keyword data — written exclusively by the seo-keyword-refresh CI workflow.
+    # SEO keyword data: Schema B (GSC exports, keywords/{site}.json) is written
+    # by the real GSC-collector CI process. Schema A (LLM-suggested, per-family
+    # keywords/{family}.json) is NOT CI-automated -- it is hand-run locally via
+    # scripts/seo/pipeline/get_keywords.py (the documented monthly refresh
+    # workflow was never actually deployed; see AGENTS.md/Finding #31).
     "keywords/",
     # Pipeline and CI maintenance scripts are allowed for operational maintenance.
     # path_guard.py itself is self-protected via FORBIDDEN_EXACT below.
