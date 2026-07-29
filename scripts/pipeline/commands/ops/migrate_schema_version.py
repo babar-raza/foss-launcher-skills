@@ -1,5 +1,4 @@
-"""migrate_schema_version.py — ST-035: stamp schema_version onto pre-existing
-derived artifacts, without re-deriving any of their content.
+"""migrate_schema_version.py — forensic inventory for legacy refresh artifacts.
 
 RPR-J-08 made progress.json, execution_reconciliation.json, and
 page_decisions.json writers stamp a schema_version field on every NEW write,
@@ -12,20 +11,14 @@ whole re-foundation exists to fix) is currently safe-but-inert on real
 data — it correctly reports UNKNOWN, but that means it is not actually
 guarding anything yet.
 
-This is deliberately a FORMAT migration, not a content regeneration: it
-adds the schema_version key to an existing, already-correct file's data —
-it does not re-run page_impact_assess, write_reconciliation, or any other
-decision-producing step, and it does not change any existing field's
-value. Re-deriving decisions from scratch is a much larger, riskier
-operation (it could change what a page's disposition actually IS, not
-just how a reader interprets its shape) and is explicitly out of scope
-here — this only makes an old-shape "empty-looking" file readable by the
-new, stricter schema-version-aware checks.
+Schema stamping cannot make legacy decisions trustworthy: it changes their
+shape without re-deriving their meaning or binding them to a run. The old
+``--apply`` mode is therefore disabled. Existing files are reported as
+``legacy_unbound`` and remain usable only for explicit forensic analysis.
 
 Usage:
-    python migrate_schema_version.py                    # dry-run: report what would change
-    python migrate_schema_version.py --apply             # write the migrated files
-    python migrate_schema_version.py --apply --family pdf --platform net   # one product only
+    python migrate_schema_version.py
+    python migrate_schema_version.py --family pdf --platform net
 """
 from __future__ import annotations
 
@@ -73,8 +66,12 @@ def migrate_one(
     repo_root: Path, family: str, platform: str, *, apply: bool
 ) -> list[dict]:
     """Return a list of per-artifact result dicts for one product.
-    {"path": str, "kind": str, "action": "already_current"|"would_migrate"|"migrated"|"absent"|"unreadable"}
+    ``action`` is ``legacy_unbound``, ``absent``, or ``unreadable``.
     """
+    if apply:
+        raise ValueError(
+            "Legacy schema stamping is disabled; re-derive evidence through refresh_run.py"
+        )
     results = []
     for subdir, filename, expected_version in _ARTIFACT_KINDS:
         path = repo_root / "reports" / subdir / family / platform / filename
@@ -95,18 +92,9 @@ def migrate_one(
             entry["error"] = "top-level JSON is not an object"
             results.append(entry)
             continue
-        if data.get("schema_version") == expected_version:
-            entry["action"] = "already_current"
-            results.append(entry)
-            continue
         entry["previous_schema_version"] = data.get("schema_version")
-        if not apply:
-            entry["action"] = "would_migrate"
-            results.append(entry)
-            continue
-        data["schema_version"] = expected_version
-        path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-        entry["action"] = "migrated"
+        entry["expected_legacy_schema_version"] = expected_version
+        entry["action"] = "legacy_unbound"
         results.append(entry)
     return results
 
@@ -114,16 +102,23 @@ def migrate_one(
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
         prog="migrate_schema_version",
-        description="ST-035: stamp schema_version onto pre-existing derived artifacts (format-only migration).",
+        description="Inventory legacy refresh artifacts as unbound forensic inputs.",
     )
     parser.add_argument("--apply", action="store_true",
-                        help="Write the migrated files (default: dry-run, report only)")
+                        help="Disabled: legacy artifacts must be re-derived, not stamped")
     parser.add_argument("--family", default=None, help="Migrate one product only (requires --platform)")
     parser.add_argument("--platform", default=None, help="Migrate one product only (requires --family)")
     parser.add_argument("--repo-root", default=str(_REPO_ROOT))
     args = parser.parse_args(argv)
 
     repo_root = Path(args.repo_root)
+    if args.apply:
+        print(
+            "ERROR: --apply is disabled. Schema stamping does not create "
+            "run-bound evidence; use refresh_run.py to re-derive it.",
+            file=sys.stderr,
+        )
+        return 2
 
     if args.family and args.platform:
         products = [(args.family, args.platform)]
@@ -138,28 +133,23 @@ def main(argv=None) -> int:
               "page_decisions.json under reports/.")
         return 0
 
-    mode = "APPLY" if args.apply else "DRY-RUN"
-    print(f"migrate_schema_version.py ({mode}) — {len(products)} product(s)")
+    print(f"migrate_schema_version.py (FORENSIC-ONLY) — {len(products)} product(s)")
 
-    totals = {"already_current": 0, "would_migrate": 0, "migrated": 0, "absent": 0, "unreadable": 0}
+    totals = {"legacy_unbound": 0, "absent": 0, "unreadable": 0}
     for family, platform in products:
         results = migrate_one(repo_root, family, platform, apply=args.apply)
         for r in results:
             totals[r["action"]] += 1
-            if r["action"] in ("would_migrate", "migrated"):
+            if r["action"] == "legacy_unbound":
                 prev = r.get("previous_schema_version")
-                print(f"  [{r['action']}] {r['path']} (schema_version: {prev!r} -> current)")
+                print(f"  [legacy_unbound] {r['path']} (schema_version={prev!r})")
             elif r["action"] == "unreadable":
                 print(f"  [unreadable] {r['path']}: {r.get('error')}")
 
     print(
-        f"Totals: already_current={totals['already_current']} "
-        f"{'migrated' if args.apply else 'would_migrate'}="
-        f"{totals['migrated'] if args.apply else totals['would_migrate']} "
+        f"Totals: legacy_unbound={totals['legacy_unbound']} "
         f"absent={totals['absent']} unreadable={totals['unreadable']}"
     )
-    if not args.apply and totals["would_migrate"] > 0:
-        print("Run with --apply to write these changes.")
     return 0
 
 

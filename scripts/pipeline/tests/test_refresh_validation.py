@@ -963,10 +963,10 @@ class TestTriageConfirmRemovedApi:
 
 
 class TestTriageConfirmModifiedApi:
-    """RH-201: Signal 2 — body mentions modified API."""
+    """RH-201: a modified API mention is advisory, not proof of staleness."""
 
-    def test_stale_when_body_references_modified_api(self, tmp_path):
-        """Page body mentions an API that was modified → potentially stale."""
+    def test_advisory_when_body_references_modified_api(self, tmp_path):
+        """A still-valid API mention cannot independently prove stale prose."""
         page = tmp_path / "Cell.md"
         page.write_text(
             "The Cell class provides PutValue and GetValue methods.\n",
@@ -976,9 +976,9 @@ class TestTriageConfirmModifiedApi:
             "delta": {"removed_apis": [], "modified_apis": ["Cell"], "removed_claims": []},
         }
         result = triage_confirm(page, knowledge)
-        assert result["stale"] is True
-        assert any("Cell" in r for r in result["reasons"])
-        assert 0.5 <= result["confidence"] < 0.9  # lower confidence than removed
+        assert result["stale"] is False
+        assert not result["reasons"]
+        assert any("Cell" in r for r in result["advisories"])
 
     def test_not_stale_when_modified_api_not_in_body(self, tmp_path):
         """Page body does not mention the modified API → not stale from this signal."""

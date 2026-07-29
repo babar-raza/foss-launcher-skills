@@ -271,21 +271,19 @@ def _dispatch_content_write(
       - no_write == False
 
     Verdicts and behaviour:
-      - Exit 0 verdicts (PASSING) → invoke batch_reference.py --update
+      - Exit 0 verdicts (PASSING) → block direct mutation and route to refresh_run.py
       - Exit 1 verdicts (BLOCKING) → skip with BLOCKED note; run continues
       - Exit 2 verdicts (ABORT) → raise RuntimeError; caller must stop the run
       - No verdict file → skip with advisory note
 
     Returns:
         (written: bool, note: str) where:
-          written=True  → batch_reference.py --update succeeded
-          written=False → skipped or FAILED (note explains why)
+          written=False → skipped or routed to the run-bound orchestrator
 
     Raises:
         RuntimeError: If verdict is an abort-class (exit_code 2).
     """
     import sys as _sys
-    import subprocess
 
     family, platform = product.split("/", 1)
     verdict_path = (
@@ -327,102 +325,16 @@ def _dispatch_content_write(
         )
         return False, f"content write blocked (semantic guard verdict={verdict_name!r})"
 
-    # Exit 0 class: invoke batch_reference.py --update
-    batch_script = (
-        _REPO_ROOT / "scripts" / "pipeline" / "commands" / "content" / "batch_reference.py"
-    )
-    cmd = [sys.executable, str(batch_script), family, platform, "--update"]
+    # Exit 0 class: this legacy harness is diagnostic only. Production writes
+    # require the run-bound S-84 control plane; silently inventing a run ID here
+    # would recreate the cross-run attribution defect.
     print(
-        f"[PHASE5] Content write dispatched for {product}/{subdomain} "
-        f"(decision={decision}, verdict={verdict_name!r})",
+        f"[PHASE5-BLOCKED] Direct content dispatch is disabled for "
+        f"{product}/{subdomain}; start refresh_run.py with an explicit mode, "
+        "scope, and session identity",
         file=_sys.stderr,
     )
-
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
-        if result.returncode != 0:
-            print(
-                f"[PHASE5-FAIL] batch_reference.py exited {result.returncode} for "
-                f"{product}/{subdomain}: {result.stderr[:500]}",
-                file=_sys.stderr,
-            )
-            return False, f"content write FAILED (batch_reference.py returned {result.returncode})"
-        # Record dispatch in state so INITIAL_REFRESH_ALLOWED won't fire again
-        dispatch_state = _STATE_ROOT / family / platform / "dispatch_history.json"
-        try:
-            dispatch_state.parent.mkdir(parents=True, exist_ok=True)
-            from datetime import datetime, timezone
-            dispatch_state.write_text(json.dumps({
-                "first_dispatch_at": datetime.now(timezone.utc).isoformat(),
-                "decision": decision,
-                "verdict": verdict_name,
-                "product": product,
-                "subdomain": subdomain,
-            }), encoding="utf-8")
-        except OSError as _st_exc:
-            print(
-                f"[PHASE5-WARN] Failed to write dispatch_history.json: {_st_exc}",
-                file=_sys.stderr,
-            )
-        print(
-            f"[PHASE5-OK] Content write succeeded for {product}/{subdomain}",
-            file=_sys.stderr,
-        )
-        # Advisory: generate pending_page_updates.json for existing content pages
-        try:
-            from commands.ops.semantic_body_update_dispatch import generate_pending_updates
-            impact_path = (
-                _REPO_ROOT / "reports" / "refresh_review" / family / platform
-                / "page_impact.json"
-            )
-            if not impact_path.is_file():
-                print(
-                    f"[PHASE5-INFO] No page_impact.json for {family}/{platform} "
-                    f"— skipping advisory (run page_impact_assess.py to generate)",
-                    file=_sys.stderr,
-                )
-            else:
-                pending = generate_pending_updates(
-                    impact_path, family=family, platform=platform
-                )
-                if pending:
-                    out = _STATE_ROOT / family / platform / "pending_page_updates.json"
-                    out.parent.mkdir(parents=True, exist_ok=True)
-                    out.write_text(
-                        json.dumps(pending, indent=2, ensure_ascii=False),
-                        encoding="utf-8",
-                    )
-                    print(
-                        f"[PHASE5-ADVISORY] {len(pending)} HIGH/MEDIUM existing pages "
-                        f"need agent-assisted update — see {out}",
-                        file=_sys.stderr,
-                    )
-                else:
-                    print(
-                        f"[PHASE5-INFO] page_impact.json exists for {family}/{platform} "
-                        f"but 0 HIGH/MEDIUM non-reference pages found — no advisory needed",
-                        file=_sys.stderr,
-                    )
-        except Exception as _adv_exc:
-            import traceback as _tb
-            print(
-                f"[PHASE5-ERROR] Failed to generate pending_page_updates for "
-                f"{family}/{platform}: {_adv_exc}\n{_tb.format_exc()}",
-                file=_sys.stderr,
-            )
-        return True, f"content write SUCCEEDED (decision={decision}, verdict={verdict_name!r})"
-    except subprocess.TimeoutExpired:
-        print(
-            f"[PHASE5-TIMEOUT] Content write timed out for {product}/{subdomain}",
-            file=_sys.stderr,
-        )
-        return False, "content write FAILED (batch_reference.py timeout)"
-    except Exception as exc:
-        print(
-            f"[PHASE5-ERROR] Content write error for {product}/{subdomain}: {exc}",
-            file=_sys.stderr,
-        )
-        return False, f"content write FAILED ({exc})"
+    return False, "content write blocked (use run-bound refresh_run.py)"
 
 
 def _restore_backup(manifest_path: Path, backup_path: Path) -> None:

@@ -13,6 +13,7 @@ Coverage:
 from __future__ import annotations
 
 import json
+import hashlib
 import subprocess
 from pathlib import Path
 from unittest.mock import MagicMock
@@ -485,6 +486,155 @@ class TestVerifyCheck9TriageConfirm:
         passed, failures = post_refresh_verify.verify("3d", "python")
 
         assert not any("Check 9" in f for f in failures)
+
+    def test_run_bound_check_9_receives_exact_scope(self, tmp_path):
+        _setup_knowledge(tmp_path, "pdf", "net")
+        captured: list[str] = []
+        mock_result = MagicMock(returncode=0, stdout='{"stale_count": 0}')
+
+        def capture(args, **_kwargs):
+            captured.extend(args)
+            return mock_result
+
+        self._configure_with_real_script_path(
+            tmp_path,
+            subprocess_run=capture,
+        )
+        page = "content/docs.aspose.org/en/pdf/net/only.md"
+        run_root = (
+            tmp_path / "reports/refresh_runs/pdf/net/RUN-SCOPED-TRIAGE"
+        )
+        (run_root / "receipts").mkdir(parents=True)
+        raw = yaml.safe_dump(
+            {
+                "content_refresh_receipt": {
+                    "receipt_id": "RCP-SCOPED",
+                    "run_id": "RUN-SCOPED-TRIAGE",
+                    "page_path": page,
+                    "locale": "en",
+                    "change_ids": [],
+                    "strategy_used": "SURGICAL_CLAIM_REPLACEMENT",
+                    "old_hash": "sha256:" + "1" * 64,
+                    "new_hash": "sha256:" + "1" * 64,
+                    "verdict": "NO_ACTIONABLE_SECTIONS",
+                    "generated_at": "2026-07-25T00:00:00Z",
+                }
+            },
+            sort_keys=False,
+        ).encode("utf-8")
+        (run_root / "receipts/RCP-SCOPED.yaml").write_bytes(raw)
+        decision = {
+            "schema_version": 1,
+            "run_id": "RUN-SCOPED-TRIAGE",
+            "page_path": page,
+            "surface": "docs",
+            "locale": "en",
+            "intended_action": "BODY_UPDATE",
+            "disposition": "NOT_AFFECTED",
+            "body_hash_before": "sha256:before",
+            "body_hash_after": "sha256:before",
+            "frontmatter_hash_before": "sha256:fm",
+            "frontmatter_hash_after": "sha256:fm",
+            "receipt_ref": "receipts/RCP-SCOPED.yaml",
+            "receipt_digest": "sha256:" + hashlib.sha256(raw).hexdigest(),
+            "evidence_claims_checked": [],
+            "evidence_apis_checked": [],
+            "validator_results": {
+                "receipt": "PASS",
+                "forbidden_claims": "PASS",
+                "regrounding": "PASS",
+            },
+        }
+        (run_root / "page_decisions.jsonl").write_text(
+            json.dumps(decision) + "\n",
+            encoding="utf-8",
+        )
+        scope_path = run_root / "scope.json"
+        scope_path.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "run_id": "RUN-SCOPED-TRIAGE",
+                    "family": "pdf",
+                    "platform": "net",
+                    "paths": [page],
+                    "initial_hashes": {},
+                }
+            ),
+            encoding="utf-8",
+        )
+        decisions_path = run_root / "page_decisions.jsonl"
+        receipt_path = run_root / "receipts/RCP-SCOPED.yaml"
+        file_digest = lambda path: (  # noqa: E731 - compact fixture helper
+            "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+        )
+        receipts_digest = "sha256:" + hashlib.sha256(
+            f"{receipt_path.name}:{file_digest(receipt_path)}".encode("utf-8")
+        ).hexdigest()
+        scope_digest = "sha256:" + hashlib.sha256(
+            json.dumps(
+                {"paths": [page], "input_digest": None},
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        sha = "a" * 40
+        (run_root / "manifest.json").write_text(
+            json.dumps(
+                {
+                    "schema_version": 3,
+                    "run_id": "RUN-SCOPED-TRIAGE",
+                    "family": "pdf",
+                    "platform": "net",
+                    "mode": "remediation",
+                    "state": "VALIDATING",
+                    "session_owner": "session-1",
+                    "created_at": "2026-07-25T00:00:00Z",
+                    "updated_at": "2026-07-25T00:01:00Z",
+                    "base_commit_sha": "b" * 40,
+                    "initial_model_sha": sha,
+                    "initial_source_sha": sha,
+                    "target_model_sha": sha,
+                    "target_source_sha": sha,
+                    "scope": {"digest": scope_digest, "paths": [page]},
+                    "stage_checkpoints": {},
+                    "validation": {
+                        "post_refresh_verify": "NOT_RUN",
+                        "content_audit": "NOT_RUN",
+                        "link_validation": "NOT_RUN",
+                        "oracle": "NOT_RUN",
+                        "triage_confirm": "NOT_RUN",
+                        "seo_stability": "NOT_RUN",
+                    },
+                    "observed_heads": ["b" * 40],
+                    "receipt_refs": [
+                        receipt_path.relative_to(tmp_path).as_posix()
+                    ],
+                    "page_decision_ref": decisions_path.relative_to(
+                        tmp_path
+                    ).as_posix(),
+                    "output_digests": {
+                        "scope": file_digest(scope_path),
+                        "page_decisions": file_digest(decisions_path),
+                        "receipts": receipts_digest,
+                    },
+                    "commit_sha": None,
+                    "failure_reason": None,
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        unknowns: list[str] = []
+        post_refresh_verify.verify(
+            "pdf",
+            "net",
+            run_id="RUN-SCOPED-TRIAGE",
+            unknowns_out=unknowns,
+        )
+
+        assert "--files" in captured
+        assert page in captured
 
     def test_exit_1_blocks_with_stale_count(self, tmp_path):
         _setup_knowledge(tmp_path, "3d", "python")
@@ -1055,8 +1205,8 @@ class TestBaseRefResolution:
         post_refresh_verify.verify("cells", "net", base_ref="explicit-sha")
         assert seen_refs and all(r == "explicit-sha" for r in seen_refs)
 
-    def test_verify_falls_back_to_manifest_base_commit_sha(self, tmp_path):
-        """No explicit base_ref, but a manifest exists -> its base_commit_sha is used."""
+    def test_verify_does_not_infer_newest_manifest(self, tmp_path):
+        """Diagnostic API never binds an arbitrary newest local manifest."""
         _setup_knowledge(tmp_path, "pdf", "net")
         self._write_manifest(tmp_path, "pdf", "net", "8a3131b9a6f7e97c20214896c615dbee86272459")
         seen_refs: list = []
@@ -1070,7 +1220,7 @@ class TestBaseRefResolution:
             git_body_changed=_spy,
         )
         post_refresh_verify.verify("pdf", "net")
-        assert seen_refs and all(r == "8a3131b9a6f7e97c20214896c615dbee86272459" for r in seen_refs)
+        assert seen_refs and all(r == "HEAD" for r in seen_refs)
 
     def test_verify_falls_back_to_head_when_nothing_else_available(self, tmp_path):
         """No explicit base_ref, no manifest -> original unchanged default, "HEAD"."""
@@ -1093,8 +1243,12 @@ class TestBaseRefResolution:
         _setup_knowledge(tmp_path, "cells", "net")
         captured = {}
 
-        def _fake_verify(family, platform, *, allow_warn=False, unknowns_out=None, base_ref=None):
+        def _fake_verify(
+            family, platform, *, allow_warn=False, unknowns_out=None,
+            base_ref=None, run_id=None,
+        ):
             captured["base_ref"] = base_ref
+            captured["run_id"] = run_id
             return True, []
 
         monkeypatch.setattr(post_refresh_verify, "verify", _fake_verify)
@@ -1102,19 +1256,22 @@ class TestBaseRefResolution:
         assert exit_code == 0
         assert captured["base_ref"] == "cli-sha"
 
-    def test_cli_omitted_base_flag_passes_none_through(self, tmp_path, monkeypatch):
-        """No --base on the CLI -> None reaches verify(), which does its own resolution."""
+    def test_cli_omitted_run_and_base_is_unknown(self, tmp_path, monkeypatch):
+        """Commit readiness may not infer a base or newest local run."""
         _setup_knowledge(tmp_path, "cells", "net")
         captured = {}
 
-        def _fake_verify(family, platform, *, allow_warn=False, unknowns_out=None, base_ref=None):
+        def _fake_verify(
+            family, platform, *, allow_warn=False, unknowns_out=None,
+            base_ref=None, run_id=None,
+        ):
             captured["base_ref"] = base_ref
             return True, []
 
         monkeypatch.setattr(post_refresh_verify, "verify", _fake_verify)
         exit_code = post_refresh_verify.main(["cells", "net", "--verify"])
-        assert exit_code == 0
-        assert captured["base_ref"] is None
+        assert exit_code == 3
+        assert "base_ref" not in captured
 
 
 def _fake_git_view(total, changed_paths, unchanged_paths=None):
@@ -1128,6 +1285,131 @@ def _fake_git_view(total, changed_paths, unchanged_paths=None):
         "changed_paths": changed_paths,
         "unchanged_paths": unchanged_paths,
     }
+
+
+class TestRunBoundEvidence:
+    @staticmethod
+    def _write_bound_run(tmp_path: Path, *, receipt_run_id: str = "RUN-BOUND"):
+        run_id = "RUN-BOUND"
+        run_root = tmp_path / "reports/refresh_runs/pdf/net" / run_id
+        (run_root / "receipts").mkdir(parents=True)
+        page = "content/docs.aspose.org/en/pdf/net/page.md"
+        receipt = {
+            "receipt_id": "RCP-BOUND",
+            "run_id": receipt_run_id,
+            "page_path": page,
+            "locale": "en",
+            "change_ids": ["CHG-1"],
+            "strategy_used": "SECTION_REMOVAL",
+            "old_hash": "sha256:old",
+            "new_hash": "sha256:new",
+            "verdict": "BODY_UPDATED",
+        }
+        raw = yaml.safe_dump(
+            {"content_refresh_receipt": receipt},
+            sort_keys=False,
+        ).encode("utf-8")
+        (run_root / "receipts/RCP-BOUND.yaml").write_bytes(raw)
+        decision = {
+            "schema_version": 1,
+            "run_id": run_id,
+            "page_path": page,
+            "surface": "docs",
+            "locale": "en",
+            "intended_action": "BODY_UPDATE",
+            "disposition": "BODY_UPDATED",
+            "body_hash_before": "sha256:before",
+            "body_hash_after": "sha256:after",
+            "frontmatter_hash_before": "sha256:fm-before",
+            "frontmatter_hash_after": "sha256:fm-after",
+            "receipt_ref": "receipts/RCP-BOUND.yaml",
+            "receipt_digest": "sha256:" + hashlib.sha256(raw).hexdigest(),
+            "evidence_claims_checked": [],
+            "evidence_apis_checked": [],
+            "validator_results": {
+                "receipt": "PASS",
+                "forbidden_claims": "PASS",
+                "regrounding": "PASS",
+            },
+        }
+        (run_root / "page_decisions.jsonl").write_text(
+            json.dumps(decision) + "\n",
+            encoding="utf-8",
+        )
+        sha = "a" * 40
+        scope_digest = "sha256:" + hashlib.sha256(
+            json.dumps(
+                {"paths": [page], "input_digest": None},
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        manifest = {
+            "schema_version": 3,
+            "run_id": run_id,
+            "family": "pdf",
+            "platform": "net",
+            "mode": "remediation",
+            "state": "VALIDATING",
+            "session_owner": "session-1",
+            "created_at": "2026-07-25T00:00:00Z",
+            "updated_at": "2026-07-25T00:01:00Z",
+            "base_commit_sha": "b" * 40,
+            "initial_model_sha": sha,
+            "initial_source_sha": sha,
+            "target_model_sha": sha,
+            "target_source_sha": sha,
+            "scope": {"digest": scope_digest, "paths": [page]},
+            "stage_checkpoints": {},
+            "validation": {
+                "post_refresh_verify": "NOT_RUN",
+                "content_audit": "NOT_RUN",
+                "link_validation": "NOT_RUN",
+                "oracle": "NOT_RUN",
+                "triage_confirm": "NOT_RUN",
+                "seo_stability": "NOT_RUN",
+            },
+            "observed_heads": ["b" * 40],
+            "receipt_refs": ["receipts/RCP-BOUND.yaml"],
+            "page_decision_ref": "page_decisions.jsonl",
+            "commit_sha": None,
+            "failure_reason": None,
+        }
+        (run_root / "manifest.json").write_text(
+            json.dumps(manifest),
+            encoding="utf-8",
+        )
+        return run_root, decision
+
+    def test_exact_run_loads_and_validates_same_run_receipt(self, tmp_path):
+        run_root, _ = self._write_bound_run(tmp_path)
+        bound = post_refresh_verify._load_bound_run("pdf", "net", "RUN-BOUND")
+        rows = post_refresh_verify._load_run_decisions(run_root, "RUN-BOUND")
+        post_refresh_verify._validate_run_receipts(
+            run_root, "RUN-BOUND", rows
+        )
+        assert bound["manifest"]["base_commit_sha"] == "b" * 40
+
+    def test_wrong_run_receipt_is_rejected(self, tmp_path):
+        run_root, _ = self._write_bound_run(
+            tmp_path, receipt_run_id="OTHER-RUN"
+        )
+        rows = post_refresh_verify._load_run_decisions(run_root, "RUN-BOUND")
+        with pytest.raises(ValueError, match="wrong-run receipt"):
+            post_refresh_verify._validate_run_receipts(
+                run_root, "RUN-BOUND", rows
+            )
+
+    def test_legacy_stamped_decision_is_not_a_run_ledger(self, tmp_path):
+        run_root, _ = self._write_bound_run(tmp_path)
+        (run_root / "page_decisions.jsonl").write_text(
+            json.dumps({"schema_version": 2, "pages": {}}),
+            encoding="utf-8",
+        )
+        with pytest.raises(ValueError, match="invalid page decision"):
+            post_refresh_verify._load_run_decisions(
+                run_root, "RUN-BOUND"
+            )
 
 
 class TestCheck7GitFounded:

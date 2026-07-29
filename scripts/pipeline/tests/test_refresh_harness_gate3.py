@@ -1201,8 +1201,8 @@ class TestDispatchContentWriteIntegration:
         )
         return stub, marker
 
-    def test_passing_verdict_invokes_subprocess(self, tmp_path, monkeypatch):
-        """Exit-0 verdict (BODY_UPDATED_VERIFIED) triggers real subprocess invocation."""
+    def test_passing_verdict_routes_to_run_bound_orchestrator(self, tmp_path, monkeypatch):
+        """A legacy passing verdict cannot bypass the S-84 run contract."""
         import refresh_harness as rh
 
         self._make_verdict(tmp_path, "BODY_UPDATED_VERIFIED", "test", "py")
@@ -1217,10 +1217,9 @@ class TestDispatchContentWriteIntegration:
             no_write=False,
         )
 
-        assert written is True
-        assert "SUCCEEDED" in note
-        assert marker.exists(), "Stub script was not invoked — subprocess.run() not called"
-        assert "test:py:--update" in marker.read_text()
+        assert written is False
+        assert "refresh_run.py" in note
+        assert not marker.exists()
 
     def test_blocking_verdict_skips_subprocess(self, tmp_path, monkeypatch):
         """Exit-1 verdict (SEMANTIC_REFRESH_REQUIRED) skips subprocess."""
@@ -1275,8 +1274,7 @@ class TestDispatchContentWriteIntegration:
         assert written is False
         assert "no semantic_refresh_verdict.json" in note
 
-    def test_subprocess_failure_returns_false(self, tmp_path, monkeypatch):
-        """Subprocess returning non-zero exit code → written=False, FAILED note."""
+    def test_legacy_dispatch_never_invokes_subprocess(self, tmp_path, monkeypatch):
         import refresh_harness as rh
 
         self._make_verdict(tmp_path, "SEMANTIC_NOOP_PROVEN", "test", "py")
@@ -1292,11 +1290,10 @@ class TestDispatchContentWriteIntegration:
         )
 
         assert written is False
-        assert "FAILED" in note
-        assert marker.exists(), "Subprocess should have been invoked (exit code checked after)"
+        assert "refresh_run.py" in note
+        assert not marker.exists()
 
-    def test_initial_refresh_allowed_verdict_passes_dispatch(self, tmp_path, monkeypatch):
-        """INITIAL_REFRESH_ALLOWED verdict triggers subprocess and writes dispatch_history.json."""
+    def test_initial_refresh_allowed_still_requires_run_contract(self, tmp_path, monkeypatch):
         import refresh_harness as rh
 
         self._make_verdict(tmp_path, "INITIAL_REFRESH_ALLOWED", "test", "py")
@@ -1312,16 +1309,11 @@ class TestDispatchContentWriteIntegration:
             no_write=False,
         )
 
-        assert written is True
-        assert "SUCCEEDED" in note
-        assert marker.exists(), "Stub script was not invoked"
-        # Verify dispatch_history.json was written
+        assert written is False
+        assert "refresh_run.py" in note
+        assert not marker.exists()
         dispatch_state = tmp_path / "runs" / "state" / "test" / "py" / "dispatch_history.json"
-        assert dispatch_state.exists(), "dispatch_history.json was not written after successful dispatch"
-        import json
-        history = json.loads(dispatch_state.read_text())
-        assert history["decision"] == "REGENERATE_UPSTREAM"
-        assert history["verdict"] == "INITIAL_REFRESH_ALLOWED"
+        assert not dispatch_state.exists()
 
     def test_dispatch_history_not_written_on_failure(self, tmp_path, monkeypatch):
         """Failed dispatch (exit code 1) must NOT write dispatch_history.json."""

@@ -28,6 +28,7 @@ progress.json is local-only (gitignored); never committed.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import subprocess
@@ -198,17 +199,11 @@ def _git_body_changed_pages(family: str, platform: str, base_ref: str = "HEAD") 
 
 
 def _load_base_commit_sha(family: str, platform: str) -> "str | None":
-    """RPR-J-17: best-effort read of `base_commit_sha` from the newest refresh-run
-    manifest (schema 5e) for this product. None if no manifest exists yet, or the
-    field is absent — callers fall back to "HEAD" (unchanged default behavior).
+    """Legacy forensic helper for schema-5e tests and explicit diagnostics.
 
-    This is the fix for a real, confirmed limitation (plan §19.3): comparing a
-    product's content against "HEAD" is vacuous once its refresh has already been
-    committed — HEAD then *is* the post-refresh state, so every check built on
-    _git_body_changed_pages (and the identically-shaped F-04/F-05 checks) reports
-    zero diffs regardless of whether the refresh actually happened. base_commit_sha
-    is the pre-refresh HEAD, captured once before any commits land, so a caller can
-    verify against the state the refresh actually started from."""
+    Commit readiness never calls this function and never selects a newest
+    manifest. It loads the exact schema-v3 run requested with ``--run-id``.
+    """
     manifest_dir = REPO_ROOT / "reports" / "refresh_runs" / family / platform
     if not manifest_dir.is_dir():
         return None
@@ -237,6 +232,212 @@ def _load_intentional_renames(family: str, platform: str) -> set:
         return set(data.get("intentional_renames") or [])
     except Exception:
         return set()
+
+
+def _load_bound_run(family: str, platform: str, run_id: str) -> dict:
+    """Load and validate the exact schema-v3 run selected by the caller."""
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}", run_id):
+        raise ValueError(f"unsafe run_id: {run_id!r}")
+    run_root = REPO_ROOT / "reports" / "refresh_runs" / family / platform / run_id
+    manifest_path = run_root / "manifest.json"
+    if not manifest_path.is_file():
+        raise FileNotFoundError(f"run manifest not found: {manifest_path}")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    from lib.schema_validators import validate_refresh_run_manifest
+
+    errors = validate_refresh_run_manifest(manifest, phase=manifest.get("state"))
+    if errors:
+        raise ValueError(f"invalid run manifest {run_id}: {errors}")
+    if manifest.get("run_id") != run_id:
+        raise ValueError(
+            f"run manifest identity mismatch: requested {run_id}, "
+            f"found {manifest.get('run_id')}"
+        )
+    if (manifest.get("family"), manifest.get("platform")) != (family, platform):
+        raise ValueError(
+            "run manifest product mismatch: "
+            f"{manifest.get('family')}/{manifest.get('platform')}"
+        )
+    if manifest.get("state") not in {
+        "VALIDATING",
+        "READY_TO_COMMIT",
+        "COMMITTED",
+    }:
+        raise ValueError(
+            f"run {run_id} is not verifiable in state {manifest.get('state')}"
+        )
+    return {"manifest": manifest, "run_root": run_root}
+
+
+def _load_run_decisions(run_root: Path, run_id: str) -> list[dict]:
+    """Load only same-run JSONL decisions and reject malformed/mixed evidence."""
+    path = run_root / "page_decisions.jsonl"
+    if not path.is_file():
+        raise FileNotFoundError(f"run decision ledger not found: {path}")
+    from lib.schema_validators import validate_refresh_page_decision
+
+    rows: list[dict] = []
+    seen_paths: set[str] = set()
+    for line_number, line in enumerate(
+        path.read_text(encoding="utf-8").splitlines(), 1
+    ):
+        if not line.strip():
+            continue
+        row = json.loads(line)
+        errors = validate_refresh_page_decision(row)
+        if errors:
+            raise ValueError(
+                f"invalid page decision at line {line_number}: {errors}"
+            )
+        if row.get("run_id") != run_id:
+            raise ValueError(
+                f"wrong-run page decision at line {line_number}: "
+                f"{row.get('run_id')!r}"
+            )
+        path_value = row["page_path"]
+        if path_value in seen_paths:
+            raise ValueError(f"duplicate page decision for {path_value}")
+        seen_paths.add(path_value)
+        rows.append(row)
+    return rows
+
+
+def _validate_run_receipts(
+    run_root: Path,
+    run_id: str,
+    decisions: list[dict],
+) -> None:
+    """Validate every decision's immutable, same-run receipt and digest."""
+    from lib.schema_validators import validate_page_patch_receipt
+
+    seen_receipt_ids: set[str] = set()
+    resolved_root = run_root.resolve()
+    for row in decisions:
+        ref = Path(row["receipt_ref"])
+        if ref.is_absolute() or ".." in ref.parts:
+            raise ValueError(f"unsafe receipt_ref for {row['page_path']}: {ref}")
+        receipt_path = (run_root / ref).resolve()
+        try:
+            receipt_path.relative_to(resolved_root)
+        except ValueError as exc:
+            raise ValueError(f"receipt escapes run root: {ref}") from exc
+        if not receipt_path.is_file():
+            raise FileNotFoundError(f"receipt not found: {ref}")
+        raw = receipt_path.read_bytes()
+        digest = "sha256:" + hashlib.sha256(raw).hexdigest()
+        if digest != row["receipt_digest"]:
+            raise ValueError(
+                f"receipt digest mismatch for {row['page_path']}: "
+                f"{row['receipt_digest']} != {digest}"
+            )
+        document = yaml.safe_load(raw.decode("utf-8")) or {}
+        receipt = document.get("content_refresh_receipt")
+        if not isinstance(receipt, dict):
+            raise ValueError(f"receipt wrapper missing in {ref}")
+        errors = validate_page_patch_receipt(receipt)
+        if errors:
+            raise ValueError(f"invalid receipt {ref}: {errors}")
+        if receipt.get("run_id") != run_id:
+            raise ValueError(
+                f"wrong-run receipt {ref}: {receipt.get('run_id')!r}"
+            )
+        if receipt.get("page_path") != row.get("page_path"):
+            raise ValueError(
+                f"receipt/decision page mismatch in {ref}: "
+                f"{receipt.get('page_path')!r} != {row.get('page_path')!r}"
+            )
+        receipt_id = receipt["receipt_id"]
+        if receipt_id in seen_receipt_ids:
+            raise ValueError(f"duplicate receipt_id in run: {receipt_id}")
+        seen_receipt_ids.add(receipt_id)
+
+
+def _validate_bound_run_evidence(
+    manifest: dict,
+    run_root: Path,
+    decisions: list[dict],
+) -> None:
+    """Require a complete, digest-bound, all-PASS run evidence join."""
+    output_digests = manifest.get("output_digests") or {}
+    scope_path = run_root / "scope.json"
+    decisions_path = run_root / "page_decisions.jsonl"
+
+    def _digest(path: Path) -> str:
+        return (
+            "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+            if path.is_file()
+            else "MISSING"
+        )
+
+    if output_digests.get("scope") != _digest(scope_path):
+        raise ValueError("run scope digest mismatch")
+    if output_digests.get("page_decisions") != _digest(decisions_path):
+        raise ValueError("run page-decision digest mismatch")
+    scope = json.loads(scope_path.read_text(encoding="utf-8"))
+    scope_paths = list((manifest.get("scope") or {}).get("paths") or [])
+    logical_scope = "sha256:" + hashlib.sha256(
+        json.dumps(
+            {
+                "paths": sorted(scope_paths),
+                "input_digest": (manifest.get("scope") or {}).get(
+                    "input_digest"
+                ),
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+    if (
+        scope.get("run_id") != manifest["run_id"]
+        or scope.get("family") != manifest["family"]
+        or scope.get("platform") != manifest["platform"]
+        or scope.get("paths") != scope_paths
+        or (manifest.get("scope") or {}).get("digest") != logical_scope
+    ):
+        raise ValueError("run scope identity mismatch")
+    decision_paths = [str(row.get("page_path")) for row in decisions]
+    if (
+        len(decision_paths) != len(scope_paths)
+        or len(set(decision_paths)) != len(decision_paths)
+        or set(decision_paths) != set(scope_paths)
+    ):
+        raise ValueError("run scope does not exactly reconcile with decisions")
+    required_validators = {"receipt", "forbidden_claims", "regrounding"}
+    for row in decisions:
+        validators = row.get("validator_results") or {}
+        if set(validators) != required_validators or any(
+            value != "PASS" for value in validators.values()
+        ):
+            raise ValueError(
+                f"page decision is not all-PASS: {row.get('page_path')}"
+            )
+
+    receipt_paths = sorted((run_root / "receipts").glob("*.yaml"))
+    receipts_digest = "sha256:" + hashlib.sha256(
+        "\n".join(
+            f"{path.name}:{_digest(path)}" for path in receipt_paths
+        ).encode("utf-8")
+    ).hexdigest()
+    if output_digests.get("receipts") != receipts_digest:
+        raise ValueError("run receipt-set digest mismatch")
+    actual_refs = {
+        path.relative_to(run_root).as_posix() for path in receipt_paths
+    }
+    decision_refs = {Path(row["receipt_ref"]).as_posix() for row in decisions}
+    manifest_refs = {
+        Path(value).as_posix() for value in manifest.get("receipt_refs") or []
+    }
+    expected_manifest_refs = {
+        (run_root / value).relative_to(REPO_ROOT).as_posix()
+        for value in actual_refs
+    }
+    if (
+        actual_refs != decision_refs
+        or manifest_refs != expected_manifest_refs
+        or manifest.get("page_decision_ref")
+        != decisions_path.relative_to(REPO_ROOT).as_posix()
+    ):
+        raise ValueError("run contains unbound or mismatched receipt references")
 
 
 def _artifact_schema_state(path: Path, expected_version: int) -> str:
@@ -862,6 +1063,8 @@ def check_coverage_completeness(
     *,
     review_root: Path | None = None,
     tolerance: float = 0.01,
+    decision_rows: list[dict] | None = None,
+    scope_paths: list[str] | None = None,
 ) -> tuple[bool, list[str]]:
     """Check 6: Verify page_decisions.json covers all discovered English pages.
 
@@ -896,24 +1099,36 @@ def check_coverage_completeness(
             pass
         discovered_rel.append(rel)
 
+    if scope_paths is not None:
+        scoped = {Path(path).as_posix() for path in scope_paths}
+        discovered_rel = [path for path in discovered_rel if path in scoped]
+        # Scope can contain planned new pages that do not exist yet; those must
+        # still receive a disposition rather than disappearing from coverage.
+        discovered_rel.extend(sorted(scoped.difference(discovered_rel)))
+
     total = len(discovered_rel)
     if total == 0:
         # No pages discovered — either product not generated yet or wrong paths.
         # Treat as passing to avoid blocking on products without content.
         return True, []
 
-    # Only require decisions file if there are pages to cover
-    if not decisions_path.is_file():
+    if decision_rows is not None:
+        recorded_paths = {
+            row["page_path"] for row in decision_rows if isinstance(row, dict)
+        }
+    # Only require the legacy decisions file in explicit forensic compatibility mode.
+    elif not decisions_path.is_file():
         return False, [
             f"page_decisions.json not found: {decisions_path}. "
             "Run page_impact_assess.py and the S-20 / S-84 refresh chain before --verify."
         ]
 
-    try:
-        data = json.loads(decisions_path.read_text(encoding="utf-8")) or {}
-        recorded_paths: set[str] = set(data.get("pages", {}).keys())
-    except Exception as exc:
-        return False, [f"Could not read page_decisions.json: {exc}"]
+    else:
+        try:
+            data = json.loads(decisions_path.read_text(encoding="utf-8")) or {}
+            recorded_paths = set(data.get("pages", {}).keys())
+        except Exception as exc:
+            return False, [f"Could not read page_decisions.json: {exc}"]
 
     uncovered = [p for p in discovered_rel if p not in recorded_paths]
     uncovered_frac = len(uncovered) / total
@@ -934,7 +1149,8 @@ def check_coverage_completeness(
 
 def verify(family: str, platform: str, *, allow_warn: bool = False,
            unknowns_out: "list | None" = None,
-           base_ref: "str | None" = None) -> tuple[bool, list[str]]:
+           base_ref: "str | None" = None,
+           run_id: "str | None" = None) -> tuple[bool, list[str]]:
     """Run the post-refresh verification checklist.
 
     Returns (passed: bool, failures: list[str]).
@@ -965,20 +1181,39 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
     yet) is unaffected — that stays a plain, non-blocking SKIP/PASS, since there is
     nothing to be uncertain about.
 
-    RPR-J-17: base_ref is the git ref every git-founded check (7, 8, 10, 11) diffs the
-    working tree against. When omitted (None), it resolves in priority order: an
-    explicit --base CLI flag > the newest refresh-run manifest's base_commit_sha >
-    "HEAD" (the original, unchanged default). Comparing against "HEAD" is only
-    meaningful for an in-progress, not-yet-committed refresh — once a refresh has
-    landed, HEAD *is* the post-refresh state, so a plain HEAD diff is vacuous
-    (confirmed against real pdf/net data, not merely theoretical). Pass an explicit
-    base_ref to verify an already-committed historical refresh against its true
-    pre-refresh baseline.
+    ``run_id`` selects the exact schema-v3 manifest, decision JSONL, receipts,
+    and pinned base used for commit readiness. Without a run ID, ``base_ref`` is
+    an explicit forensic interval. The importable diagnostic API retains HEAD
+    as a compatibility default; the CLI rejects an omitted run/base.
     """
     failures = []
     unknowns = unknowns_out if unknowns_out is not None else []
-    if base_ref is None:
-        base_ref = _load_base_commit_sha(family, platform) or "HEAD"
+    bound_manifest: dict | None = None
+    run_decisions: list[dict] | None = None
+    run_scope: list[str] | None = None
+    if run_id is not None:
+        try:
+            bound = _load_bound_run(family, platform, run_id)
+            bound_manifest = bound["manifest"]
+            run_decisions = _load_run_decisions(bound["run_root"], run_id)
+            _validate_run_receipts(bound["run_root"], run_id, run_decisions)
+            _validate_bound_run_evidence(
+                bound_manifest, bound["run_root"], run_decisions
+            )
+            run_scope = bound_manifest.get("scope", {}).get("paths") or []
+            if base_ref is not None and base_ref != bound_manifest["base_commit_sha"]:
+                raise ValueError(
+                    f"--base {base_ref} conflicts with run base "
+                    f"{bound_manifest['base_commit_sha']}"
+                )
+            base_ref = bound_manifest["base_commit_sha"]
+        except Exception as exc:
+            unknowns.append(f"Run binding unavailable: {exc}")
+            return True, []
+    elif base_ref is None:
+        # Compatibility for the importable diagnostic API. The commit-readiness
+        # CLI requires either --run-id or an explicit forensic --base.
+        base_ref = "HEAD"
 
     merged = KNOWLEDGE_ROOT / family / platform / "merged"
 
@@ -1181,11 +1416,11 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
                     print(f"  Check 7: UNKNOWN (RPR-J-05) — {msg}")
                 elif git_view["changed"] > 0:
                     print(f"  Check 7: PASS — {git_view['changed']} of {git_view['total']} "
-                          f"discovered pages have a real body diff vs HEAD")
+                          f"discovered pages have a real body diff vs {base_ref}")
                 else:
                     msg = (
                         f"Check 7: {removed_count} removed claims but git shows 0 of "
-                        f"{git_view['total']} discovered pages with a real body diff vs HEAD. "
+                        f"{git_view['total']} discovered pages with a real body diff vs {base_ref}. "
                         f"Pass --allow-warn only after manually confirming this is benign."
                     )
                     if allow_warn:
@@ -1218,58 +1453,74 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
         print("  Check 8 Case A: UNKNOWN — git-founded body-diff verification unavailable "
               "(no comparable pages at HEAD, or not a git repo)")
         unknowns.append("Check 8 (Case A): git-founded verification unavailable")
-    elif not decisions_path_c8.is_file():
+    elif run_decisions is None and not decisions_path_c8.is_file():
         print("  Check 8 Case A: UNKNOWN — page_decisions.json not present "
               "(nothing to cross-check against git)")
         unknowns.append("Check 8 (Case A): page_decisions.json absent — tracking unverifiable")
     else:
         try:
-            decisions_data = json.loads(decisions_path_c8.read_text(encoding="utf-8")) or {}
-            if decisions_data.get("schema_version") != _PAGE_DECISIONS_SCHEMA_VERSION:
-                # RPR-J-08: an old/incompatible page_decisions.json shape may not
-                # even use a "decision" key the same way -- reading .get("pages", {})
-                # would silently read as "nothing recorded," a false PASS. UNKNOWN.
-                msg = (
-                    f"Check 8 (Case A): page_decisions.json predates schema_version "
-                    f"{_PAGE_DECISIONS_SCHEMA_VERSION} (or doesn't match) — cannot trust "
-                    f"its recorded decisions."
-                )
-                unknowns.append(msg)
-                print(f"  Check 8 Case A: UNKNOWN (RPR-J-08) — {msg}")
-                pages = None
-            else:
-                pages = decisions_data.get("pages", {}) or {}
-            if pages is not None:
+            if run_decisions is not None:
                 body_updated_claims = [
-                    p for p, entry in pages.items()
-                    if isinstance(entry, dict) and entry.get("decision") == "BODY_UPDATED"
+                    row["page_path"]
+                    for row in run_decisions
+                    if row.get("disposition") == "BODY_UPDATED"
                 ]
-                # Only claims git can actually verify (excludes genuinely new pages,
-                # which have no version at base_ref to diff against).
-                verifiable = [
-                    p for p in body_updated_claims
-                    if p in git_view_c8["changed_paths"] or p in git_view_c8["unchanged_paths"]
+            else:
+                body_updated_claims = [
+                    p
+                    for p, entry in (
+                        (
+                            json.loads(
+                                decisions_path_c8.read_text(encoding="utf-8")
+                            )
+                            or {}
+                        ).get("pages", {})
+                        or {}
+                    ).items()
+                    if isinstance(entry, dict)
+                    and entry.get("decision") == "BODY_UPDATED"
                 ]
-                mislabeled = [p for p in verifiable if p in git_view_c8["unchanged_paths"]]
-                if not verifiable:
-                    print("  Check 8 Case A: PASS — no verifiable BODY_UPDATED decisions "
-                          "(none recorded, or all are new pages with no HEAD version)")
-                elif not mislabeled:
-                    print(f"  Check 8 Case A: PASS — all {len(verifiable)} verifiable "
-                          f"BODY_UPDATED decision(s) have a real git-diffable body change")
-                else:
+                decisions_data = json.loads(
+                    decisions_path_c8.read_text(encoding="utf-8")
+                ) or {}
+                if decisions_data.get("schema_version") != _PAGE_DECISIONS_SCHEMA_VERSION:
                     msg = (
-                        f"Check 8 (Case A): {len(mislabeled)} of {len(verifiable)} page(s) recorded "
-                        f"as BODY_UPDATED show NO real body diff vs HEAD in git — the "
-                        f"PDF-NET-REFRESH-001 tracking-gap shape, now caught directly. Example(s): "
-                        f"{', '.join(sorted(mislabeled)[:3])}. Pass --allow-warn only after manual "
-                        f"confirmation."
+                        f"Check 8 (Case A): page_decisions.json predates schema_version "
+                        f"{_PAGE_DECISIONS_SCHEMA_VERSION} (or doesn't match) — cannot trust "
+                        f"its recorded decisions."
                     )
-                    if allow_warn:
-                        print(f"  Check 8: WARN (Case A, --allow-warn) — {msg}")
-                    else:
-                        failures.append(msg)
-                        print(f"  Check 8: FAIL (Case A, RPR-J-05) — {msg}")
+                    unknowns.append(msg)
+                    print(f"  Check 8 Case A: UNKNOWN (RPR-J-08) — {msg}")
+                    body_updated_claims = []
+
+            # Only claims git can actually verify (excludes genuinely new pages,
+            # which have no version at base_ref to diff against).
+            verifiable = [
+                p for p in body_updated_claims
+                if p in git_view_c8["changed_paths"]
+                or p in git_view_c8["unchanged_paths"]
+            ]
+            mislabeled = [
+                p for p in verifiable if p in git_view_c8["unchanged_paths"]
+            ]
+            if not verifiable:
+                print("  Check 8 Case A: PASS — no verifiable BODY_UPDATED decisions "
+                      "(none recorded, or all are new pages with no base version)")
+            elif not mislabeled:
+                print(f"  Check 8 Case A: PASS — all {len(verifiable)} verifiable "
+                      f"BODY_UPDATED decision(s) have a real git-diffable body change")
+            else:
+                msg = (
+                    f"Check 8 (Case A): {len(mislabeled)} of {len(verifiable)} page(s) recorded "
+                    f"as BODY_UPDATED show NO real body diff vs {base_ref} in git. Example(s): "
+                    f"{', '.join(sorted(mislabeled)[:3])}. Pass --allow-warn only after manual "
+                    f"confirmation."
+                )
+                if allow_warn:
+                    print(f"  Check 8: WARN (Case A, --allow-warn) — {msg}")
+                else:
+                    failures.append(msg)
+                    print(f"  Check 8: FAIL (Case A, RPR-J-05) — {msg}")
         except Exception as exc:
             print(f"  Check 8 Case A: UNKNOWN — could not read page_decisions.json ({exc})")
             unknowns.append(f"Check 8 (Case A): could not read page_decisions.json: {exc}")
@@ -1310,7 +1561,12 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
         print("  Check 8 Case B: SKIP — no prose-stale scan report found")
 
     # Check 6: Coverage completeness — page_decisions.json must cover all discovered pages
-    check6_passed, check6_failures = check_coverage_completeness(family, platform)
+    check6_passed, check6_failures = check_coverage_completeness(
+        family,
+        platform,
+        decision_rows=run_decisions,
+        scope_paths=run_scope,
+    )
     failures.extend(check6_failures)
     if not check6_passed:
         print(f"  Check 6: FAIL — coverage completeness: {check6_failures[0] if check6_failures else '?'}")
@@ -1327,8 +1583,17 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
     if triage_confirm_script.is_file():
         try:
             _run = _cfg_subprocess_run if _cfg_subprocess_run is not None else subprocess.run
+            triage_args = [
+                sys.executable,
+                str(triage_confirm_script),
+                family,
+                platform,
+            ]
+            if run_scope is not None:
+                triage_args.extend(["--files", *run_scope])
+            triage_args.append("--json")
             result = _run(
-                [sys.executable, str(triage_confirm_script), family, platform, "--json"],
+                triage_args,
                 capture_output=True,
                 text=True,
                 timeout=120,
@@ -1378,8 +1643,21 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
     # is the PDF-NET-REFRESH-001 v26.7.0 defect. BLOCKING (best-effort: SKIP if not a
     # git repo / no updated pages). Wires the previously-orphaned audit_content_hash.py.
     try:
-        progress_state_c10 = _artifact_schema_state(_progress_path(family, platform), _PROGRESS_SCHEMA_VERSION)
-        if progress_state_c10 == "stale_or_unversioned":
+        progress_state_c10 = (
+            "run_bound"
+            if run_decisions is not None
+            else _artifact_schema_state(
+                _progress_path(family, platform), _PROGRESS_SCHEMA_VERSION
+            )
+        )
+        if progress_state_c10 == "run_bound":
+            progress_c10 = None
+            pages_c10 = [
+                row["page_path"]
+                for row in run_decisions
+                if row.get("disposition") in {"BODY_UPDATED", "GENERATED"}
+            ]
+        elif progress_state_c10 == "stale_or_unversioned":
             # RPR-J-08: progress.json exists but predates schema_version (or
             # doesn't match) -- its pages_updated/pages_generated shape can't be
             # trusted; reading them with .get(key, []) would read identically to
@@ -1392,13 +1670,16 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
             unknowns.append(msg)
             print(f"  Check 10: UNKNOWN (RPR-J-08) — {msg}")
             progress_c10 = None
+            pages_c10 = []
         else:
             progress_c10 = _load_progress(family, platform)
-        pages_c10 = (
-            list(progress_c10.get("pages_updated", [])) + list(progress_c10.get("pages_generated", []))
-            if progress_c10 is not None else []
-        )
-        if progress_c10 is None:
+            pages_c10 = (
+                list(progress_c10.get("pages_updated", []))
+                + list(progress_c10.get("pages_generated", []))
+                if progress_c10 is not None
+                else []
+            )
+        if progress_c10 is None and progress_state_c10 != "run_bound":
             pass  # already reported UNKNOWN above
         elif pages_c10:
             if _cfg_detect_grade_regressions is not None:
@@ -1431,8 +1712,21 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
     # the first SEO-specific gate in the pipeline. BLOCKING (best-effort: SKIP if not
     # a git repo / no updated pages).
     try:
-        progress_state_c11 = _artifact_schema_state(_progress_path(family, platform), _PROGRESS_SCHEMA_VERSION)
-        if progress_state_c11 == "stale_or_unversioned":
+        progress_state_c11 = (
+            "run_bound"
+            if run_decisions is not None
+            else _artifact_schema_state(
+                _progress_path(family, platform), _PROGRESS_SCHEMA_VERSION
+            )
+        )
+        if progress_state_c11 == "run_bound":
+            progress_c11 = None
+            pages_c11 = [
+                row["page_path"]
+                for row in run_decisions
+                if row.get("disposition") == "BODY_UPDATED"
+            ]
+        elif progress_state_c11 == "stale_or_unversioned":
             msg = (
                 f"Check 11: progress.json predates schema_version {_PROGRESS_SCHEMA_VERSION} "
                 f"(or doesn't match) — cannot trust its recorded page list."
@@ -1440,17 +1734,26 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
             unknowns.append(msg)
             print(f"  Check 11: UNKNOWN (RPR-J-08) — {msg}")
             progress_c11 = None
+            pages_c11 = []
         else:
             progress_c11 = _load_progress(family, platform)
-        pages_c11 = list(progress_c11.get("pages_updated", [])) if progress_c11 is not None else []
-        if progress_c11 is None:
+            pages_c11 = (
+                list(progress_c11.get("pages_updated", []))
+                if progress_c11 is not None
+                else []
+            )
+        if progress_c11 is None and progress_state_c11 != "run_bound":
             pass  # already reported UNKNOWN above
         elif pages_c11:
             if _cfg_detect_seo_violations is not None:
                 _detect_seo = _cfg_detect_seo_violations
             else:
                 from commands.content.seo_stability_check import detect_seo_violations as _detect_seo
-            intentional = _load_intentional_renames(family, platform)
+            intentional = (
+                set(bound_manifest.get("intentional_renames") or [])
+                if bound_manifest is not None
+                else set()
+            )
             seo_violations = _detect_seo(
                 pages_c11, base_ref=base_ref, intentional_renames=intentional
             )
@@ -1511,11 +1814,10 @@ def main(argv: list[str] | None = None) -> int:
                              "stale-prose findings back to WARN instead of BLOCK. Opt-out only — use "
                              "solely after manually confirming the flagged condition is benign.")
     parser.add_argument("--base", metavar="REF", default=None,
-                        help="(RPR-J-17, --verify only) Git ref that Checks 7/8/10/11 diff the working "
-                             "tree against. Default: the newest refresh-run manifest's base_commit_sha "
-                             "if one exists, else HEAD. Use this to verify an already-committed "
-                             "historical refresh against its true pre-refresh baseline — 'HEAD' is "
-                             "vacuous once the refresh itself has already landed.")
+                        help="Explicit Git base for forensic verification. Commit readiness uses "
+                             "--run-id and the base pinned in that exact run.")
+    parser.add_argument("--run-id", default=None,
+                        help="Exact schema-v3 refresh run to verify for commit readiness")
 
     args = parser.parse_args(argv)
 
@@ -1574,6 +1876,13 @@ def main(argv: list[str] | None = None) -> int:
             return 3
 
     if args.verify:
+        if not args.run_id and not args.base:
+            print(
+                "UNKNOWN: --verify requires --run-id for commit readiness or "
+                "--base for explicit forensic use.",
+                file=sys.stderr,
+            )
+            return 3
         # Prerequisite check — clear error messages instead of cryptic tracebacks
         try:
             from core.prereqs import require_all
@@ -1589,6 +1898,7 @@ def main(argv: list[str] | None = None) -> int:
             allow_warn=getattr(args, "allow_warn", False),
             unknowns_out=unknowns,
             base_ref=getattr(args, "base", None),
+            run_id=getattr(args, "run_id", None),
         )
         if not passed:
             # Real content/tracking defects — a hard failure (exit 1).

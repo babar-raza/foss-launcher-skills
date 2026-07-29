@@ -1,4 +1,4 @@
-"""refresh_run_manifest.py — ST-034: capture base_commit_sha before a refresh begins.
+"""Deprecated partial refresh-manifest writer.
 
 The independent Lane I review of the aspose-org-foss-refresh-tidy-lightning
 plan's Lane J re-foundation (RPR-J-10, 2026-07-17) identified this as the
@@ -28,8 +28,9 @@ against it — that is expected, not a bug, for an in-progress manifest.
 A more complete end-of-run manifest writer remains a separate, unscoped
 follow-up.
 
-Public API:
-    capture_base_commit_sha(family, platform, run_id=None) -> Path
+Schema-5e manifests created by the former implementation are
+``legacy_unbound`` forensic inputs. New refreshes must use ``refresh_run.py``;
+this module deliberately refuses to create more partial manifests.
 """
 from __future__ import annotations
 
@@ -98,47 +99,11 @@ def _generate_run_id(family: str, platform: str) -> str:
 def capture_base_commit_sha(
     family: str, platform: str, *, run_id: "str | None" = None
 ) -> "Path | None":
-    """Write a partial refresh-run manifest capturing the pre-refresh
-    base_commit_sha. Call this ONCE, before any content or knowledge change
-    for this refresh has been made (S-84 Step 1 / knowledge-diff) — calling
-    it after changes have already landed defeats its entire purpose, the
-    exact HEAD-vacuity bug this exists to prevent.
-
-    Returns the manifest path on success, or None if HEAD could not be
-    resolved (e.g. not a git repo) — callers must not treat None as a
-    silent no-op; --verify will simply fall back to "HEAD" as before,
-    which is the status quo, not a regression.
-    """
-    head_sha = _current_head_sha()
-    if head_sha is None:
-        return None
-
-    rid = run_id or _generate_run_id(family, platform)
-    manifest_dir = _manifest_dir(family, platform)
-    manifest_dir.mkdir(parents=True, exist_ok=True)
-    manifest_path = manifest_dir / f"{rid}.manifest.json"
-
-    manifest = {
-        "run_id": rid,
-        "family": family,
-        "platform": platform,
-        "started_at": datetime.now(timezone.utc).isoformat(),
-        "base_commit_sha": head_sha,
-        "status": "in_progress",
-        # RPR-J-10/ST-034 scope note: the fields below are part of schema 5e
-        # but are not yet knowable at this stage (S-84 Step 1, before the
-        # refresh has scoped its own changes) -- present as schema-shaped
-        # empty placeholders, not populated. A full-manifest writer that
-        # fills these in from real pipeline state (baseline_ledger,
-        # page_impact_assess, S-105 receipts, oracle/triage_confirm/SEO
-        # results) is a separate, unscoped follow-up.
-        "baseline_ledger_ref": None,
-        "product_change_refs": [],
-        "page_coverage_ledger_ref": None,
-        "patch_receipt_refs": [],
-    }
-    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
-    return manifest_path
+    """Refuse the retired partial-manifest path."""
+    raise RuntimeError(
+        "refresh_run_manifest.py is deprecated and cannot create trusted "
+        "evidence; use refresh_run.py start"
+    )
 
 
 def main(argv=None) -> int:
@@ -153,13 +118,12 @@ def main(argv=None) -> int:
                         help="Capture the current HEAD as this refresh's base_commit_sha")
     args = parser.parse_args(argv)
 
-    path = capture_base_commit_sha(args.family, args.platform)
-    if path is None:
-        print(f"ERROR: could not resolve HEAD for {args.family}/{args.platform} "
-              f"(not a git repo, or git unavailable) -- no manifest written.", file=sys.stderr)
-        return 1
-    print(f"base_commit_sha captured: {path}")
-    return 0
+    print(
+        "ERROR: partial refresh manifests are disabled; use "
+        "refresh_run.py start FAMILY PLATFORM --mode ...",
+        file=sys.stderr,
+    )
+    return 2
 
 
 if __name__ == "__main__":

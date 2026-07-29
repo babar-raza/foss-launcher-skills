@@ -9,7 +9,6 @@ from __future__ import annotations
 import hashlib
 import os
 import time
-import uuid
 from pathlib import Path
 
 
@@ -37,25 +36,33 @@ def atomic_write(path: Path, content: str, encoding: str = "utf-8") -> None:
                 time.sleep(0.2 * (attempt + 1))
         if last_exc is not None:
             raise last_exc
-    except PermissionError:
-        if os.name != "nt":
-            raise
-        backup = path.with_name(f"{path.name}.bak-{uuid.uuid4().hex}")
+    except Exception:
         try:
-            path.replace(backup)
+            tmp.unlink(missing_ok=True)
+        except OSError:
+            pass
+        raise
+
+
+def atomic_write_bytes(path: Path, content: bytes) -> None:
+    """Write binary *content* atomically without newline or encoding changes."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    try:
+        tmp.write_bytes(content)
+        last_exc: OSError | None = None
+        for attempt in range(5):
             try:
                 tmp.replace(path)
-            except Exception:
-                backup.replace(path)
-                raise
-            finally:
-                backup.unlink(missing_ok=True)
-        except Exception:
-            try:
-                tmp.unlink(missing_ok=True)
-            except OSError:
-                pass
-            raise
+                last_exc = None
+                break
+            except PermissionError as exc:
+                last_exc = exc
+                if os.name != "nt" or attempt == 4:
+                    raise
+                time.sleep(0.2 * (attempt + 1))
+        if last_exc is not None:
+            raise last_exc
     except Exception:
         try:
             tmp.unlink(missing_ok=True)
