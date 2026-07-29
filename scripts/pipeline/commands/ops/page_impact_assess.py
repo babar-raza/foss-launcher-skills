@@ -51,8 +51,9 @@ _REPO_ROOT = _DEFAULT_REPO_ROOT
 
 def configure(*, repo_root: "Path | str | None" = None) -> None:
     """Override module-level path constants for testing."""
-    global _REPO_ROOT
+    global _REPO_ROOT, _url_map_cache
     _REPO_ROOT = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
+    _url_map_cache = None
 
 # Site pattern tuples: (subdomain_label, path_pattern_relative_to_content_root)
 # Must match stale_detect.py _SITE_PATTERNS for consistency.
@@ -83,6 +84,83 @@ def _discover_pages(
                 continue
             results.append((path, subdomain))
     return results
+
+
+# ---------------------------------------------------------------------------
+# SEO-PIA-TRAFFIC-TIER-FIELD: order-only, non-authoritative traffic signal.
+#
+# traffic_tier NEVER affects pia_score or which pages are in scope for a
+# refresh run (_paths_from_pia() in refresh_run.py filters on pia_score
+# alone, unchanged by this addition) -- it exists purely so a downstream
+# consumer (body_refresh.py's per-page processing loop) can choose to
+# process higher-real-traffic pages first within an already-decided scope.
+# Real GSC signal in this repo is thin (Finding #3: ~150-190 English URLs
+# total) so a page with zero rows here is the overwhelmingly common case --
+# "no-data" must never be read as "zero demand", only as "no measurement".
+#
+# Both scripts/seo/pipeline modules are imported lazily and defensively: PIA
+# is core pipeline infrastructure used well beyond this SEO mission, so it
+# must degrade to "no-data" cleanly (never raise) if the seo subpackage is
+# ever unavailable, moved, or its optional data files are missing.
+# ---------------------------------------------------------------------------
+
+_TRAFFIC_TIER_NO_DATA = "no-data"
+_TRAFFIC_TIER_HIGH = "high"
+_TRAFFIC_TIER_MEDIUM = "medium"
+_TRAFFIC_TIER_HIGH_MIN_IMPRESSIONS = 50
+
+_url_map_cache: dict[str, str] | None = None
+
+
+def _content_path_to_gsc_url_map() -> dict[str, str]:
+    """Build (once, cached) {content_path: gsc_url} from map_url.py's real
+    URL resolution -- the inverse of what map_url.py itself computes.
+    Returns {} on any import/build failure (defensive -- see module note).
+    """
+    global _url_map_cache
+    if _url_map_cache is not None:
+        return _url_map_cache
+
+    _url_map_cache = {}
+    scripts_dir = str(_REPO_ROOT / "scripts")
+    if scripts_dir not in sys.path:
+        sys.path.insert(0, scripts_dir)
+    try:
+        from seo.pipeline.map_url import build_url_map
+        result = build_url_map()
+        for entry in result.get("url_map", []):
+            content_path = entry.get("content_path")
+            gsc_url = entry.get("gsc_url")
+            if content_path and gsc_url:
+                _url_map_cache[content_path] = gsc_url
+    except Exception:
+        # Defensive: PIA must never fail because the SEO subsystem is
+        # unavailable, mid-refactor, or missing optional data.
+        _url_map_cache = {}
+    return _url_map_cache
+
+
+def traffic_tier_for_path(rel_path: str) -> str:
+    """Return 'high' | 'medium' | 'no-data' for a repo-relative content path.
+
+    'high': real GSC query data exists with >= _TRAFFIC_TIER_HIGH_MIN_IMPRESSIONS
+            total impressions across its top queries.
+    'medium': real GSC query data exists, below that threshold.
+    'no-data': no GSC URL maps to this path, or no query rows for that URL --
+               the default for the large majority of pages in this repo.
+    """
+    url = _content_path_to_gsc_url_map().get(rel_path)
+    if not url:
+        return _TRAFFIC_TIER_NO_DATA
+    try:
+        from seo.pipeline.keyword_lookup import top_queries_for_url
+        queries = top_queries_for_url(url)
+    except Exception:
+        return _TRAFFIC_TIER_NO_DATA
+    if not queries:
+        return _TRAFFIC_TIER_NO_DATA
+    total_impressions = sum(q.get("impressions", 0) for q in queries)
+    return _TRAFFIC_TIER_HIGH if total_impressions >= _TRAFFIC_TIER_HIGH_MIN_IMPRESSIONS else _TRAFFIC_TIER_MEDIUM
 
 
 def _load_delta(knowledge_root: Path, family: str, platform: str) -> dict:
@@ -501,7 +579,8 @@ def assess_product(
           "api_signals_count": N,
           "claim_keyword_count": N,
           "pages": [
-            {"path": ..., "subdomain": ..., "pia_score": ..., "signals_found": [...]},
+            {"path": ..., "subdomain": ..., "pia_score": ..., "signals_found": [...],
+             "traffic_tier": "high"|"medium"|"no-data"},
             ...
           ],
           "summary": {
@@ -561,6 +640,9 @@ def assess_product(
             "subdomain": subdomain,
             "pia_score": score,
             "signals_found": signals,
+            # Order-only signal, never authoritative for scope -- see
+            # traffic_tier_for_path()'s docstring and the module note above.
+            "traffic_tier": traffic_tier_for_path(rel_path),
         })
         summary[score] = summary.get(score, 0) + 1
         summary["total"] += 1

@@ -11,7 +11,10 @@ Coverage:
 """
 from __future__ import annotations
 
+import builtins
 import json
+import sys
+import types
 from pathlib import Path
 
 import pytest
@@ -666,3 +669,105 @@ class TestChangedIdExtraction:
         delta = {"modified_apis": [{"name": "Document"}], "modified_claims": [{"claim_id": "CLM-x"}]}
         assert page_impact_assess._extract_changed_api_ids(delta) == {"Document"}
         assert page_impact_assess._extract_changed_claim_ids(delta) == {"CLM-x"}
+
+
+class TestTrafficTier:
+    """SEO-PIA-TRAFFIC-TIER-FIELD: order-only, non-authoritative traffic signal.
+
+    Hard rule under test: traffic_tier must never change pia_score or which
+    pages appear in the assess_product() output -- only body_refresh.py's
+    processing ORDER may vary based on it, and that happens downstream, not
+    here. This class proves the field is present, correctly bucketed, and
+    provably inert with respect to scoring.
+    """
+
+    def test_traffic_tier_no_data_when_url_map_lookup_fails(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(page_impact_assess, "_content_path_to_gsc_url_map", lambda: {})
+        assert page_impact_assess.traffic_tier_for_path("content/docs.aspose.org/en/pdf/net/x.md") == "no-data"
+
+    def test_traffic_tier_no_data_when_no_query_rows(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(
+            page_impact_assess, "_content_path_to_gsc_url_map",
+            lambda: {"content/docs.aspose.org/en/pdf/net/x.md": "https://docs.aspose.org/pdf/net/x/"},
+        )
+        monkeypatch.setitem(
+            sys.modules, "seo.pipeline.keyword_lookup",
+            types.SimpleNamespace(top_queries_for_url=lambda url, **kw: None),
+        )
+        assert page_impact_assess.traffic_tier_for_path("content/docs.aspose.org/en/pdf/net/x.md") == "no-data"
+
+    def test_traffic_tier_medium_below_threshold(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(
+            page_impact_assess, "_content_path_to_gsc_url_map",
+            lambda: {"content/docs.aspose.org/en/pdf/net/x.md": "https://docs.aspose.org/pdf/net/x/"},
+        )
+        monkeypatch.setitem(
+            sys.modules, "seo.pipeline.keyword_lookup",
+            types.SimpleNamespace(top_queries_for_url=lambda url, **kw: [{"query": "q", "impressions": 10}]),
+        )
+        assert page_impact_assess.traffic_tier_for_path("content/docs.aspose.org/en/pdf/net/x.md") == "medium"
+
+    def test_traffic_tier_high_at_or_above_threshold(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(
+            page_impact_assess, "_content_path_to_gsc_url_map",
+            lambda: {"content/docs.aspose.org/en/pdf/net/x.md": "https://docs.aspose.org/pdf/net/x/"},
+        )
+        monkeypatch.setitem(
+            sys.modules, "seo.pipeline.keyword_lookup",
+            types.SimpleNamespace(top_queries_for_url=lambda url, **kw: [{"query": "q", "impressions": 60}]),
+        )
+        assert page_impact_assess.traffic_tier_for_path("content/docs.aspose.org/en/pdf/net/x.md") == "high"
+
+    def test_content_path_to_gsc_url_map_degrades_to_empty_on_import_failure(self, monkeypatch):
+        page_impact_assess.configure()  # reset cache
+        real_import = builtins.__import__
+
+        def _raise_on_map_url(name, *args, **kwargs):
+            if name == "seo.pipeline.map_url":
+                raise ImportError("simulated: seo subsystem unavailable")
+            return real_import(name, *args, **kwargs)
+
+        monkeypatch.setattr(builtins, "__import__", _raise_on_map_url)
+        assert page_impact_assess._content_path_to_gsc_url_map() == {}
+
+    def test_assess_product_pages_carry_a_traffic_tier_field(self, tmp_path, monkeypatch):
+        page_impact_assess.configure(repo_root=tmp_path)
+        monkeypatch.setattr(page_impact_assess, "_content_path_to_gsc_url_map", lambda: {})
+
+        d = tmp_path / "content" / "docs.aspose.org" / "en" / "cells" / "net"
+        _write_page(d, "page.md", "Any body text here.")
+        result = page_impact_assess.assess_product(
+            "cells", "net",
+            content_root=tmp_path / "content",
+            knowledge_root=tmp_path / "knowledge",
+        )
+        assert result["pages"][0]["traffic_tier"] == "no-data"
+
+    def test_traffic_tier_never_changes_pia_score(self, tmp_path, monkeypatch):
+        """Negative control (mission acceptance criterion): the SAME page,
+        scored against the SAME delta, must classify identically regardless
+        of what traffic_tier resolves to -- present, absent (no-data), high,
+        or medium. Scope/score is computed entirely independently of it."""
+        page_impact_assess.configure(repo_root=tmp_path)
+
+        d = tmp_path / "content" / "docs.aspose.org" / "en" / "test" / "py"
+        _write_page(d, "converter.md", "The AsyncConverter handles batch processing efficiently.")
+        knowledge_dir = tmp_path / "knowledge" / "test" / "py"
+        _write_delta(knowledge_dir, {"new_apis": ["AsyncConverter"]})
+
+        outcomes = []
+        for tier_fn in (
+            lambda p: "no-data",
+            lambda p: "high",
+            lambda p: "medium",
+        ):
+            monkeypatch.setattr(page_impact_assess, "traffic_tier_for_path", tier_fn)
+            result = page_impact_assess.assess_product(
+                "test", "py",
+                content_root=tmp_path / "content",
+                knowledge_root=tmp_path / "knowledge",
+            )
+            outcomes.append((result["pages"][0]["pia_score"], result["summary"]["HIGH_IMPACT"]))
+
+        assert len(set(outcomes)) == 1, f"pia_score/summary varied by traffic_tier: {outcomes}"
+        assert outcomes[0] == ("HIGH_IMPACT", 1)

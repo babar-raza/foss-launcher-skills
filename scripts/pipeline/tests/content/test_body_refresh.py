@@ -1494,3 +1494,120 @@ def test_run_is_llm_degraded_helper(tmp_path):
     # A link-preservation violation reflects output quality, not an outage → not degraded.
     assert br.run_is_llm_degraded([{"fallback_reason": "LINK_PRESERVATION_VIOLATION"}]) is False
     assert br.run_is_llm_degraded([{"fallback_reason": None}]) is False
+
+
+# ── SEO-BODY-REFRESH-ORDER-BY-TRAFFIC ───────────────────────────────────────
+# Order-only reprioritization: a page_impact.json sitting alongside
+# body_impact.json may reorder the processing loop, but must never add,
+# drop, or otherwise change which impacts get processed.
+
+class TestTrafficTierOrdering:
+    def test_load_traffic_tiers_missing_file_returns_empty(self, tmp_path):
+        assert br._load_traffic_tiers("pdf", "net", product_root=tmp_path) == {}
+
+    def test_load_traffic_tiers_malformed_json_returns_empty(self, tmp_path):
+        (tmp_path / "page_impact.json").write_text("not valid json {{{", encoding="utf-8")
+        assert br._load_traffic_tiers("pdf", "net", product_root=tmp_path) == {}
+
+    def test_load_traffic_tiers_reads_real_shape(self, tmp_path):
+        (tmp_path / "page_impact.json").write_text(json.dumps({
+            "pages": [
+                {"path": "content/docs.aspose.org/en/pdf/net/a.md", "traffic_tier": "high"},
+                {"path": "content/docs.aspose.org/en/pdf/net/b.md", "traffic_tier": "no-data"},
+                {"path": "content/docs.aspose.org/en/pdf/net/c.md"},  # missing tier -- skipped
+            ]
+        }), encoding="utf-8")
+        tiers = br._load_traffic_tiers("pdf", "net", product_root=tmp_path)
+        assert tiers == {
+            "content/docs.aspose.org/en/pdf/net/a.md": "high",
+            "content/docs.aspose.org/en/pdf/net/b.md": "no-data",
+        }
+
+    def test_sort_impacts_orders_high_before_medium_before_no_data(self):
+        impacts = [
+            {"page_path": "a.md"},  # no-data (absent from tiers)
+            {"page_path": "b.md"},  # high
+            {"page_path": "c.md"},  # medium
+        ]
+        tiers = {"b.md": "high", "c.md": "medium"}
+        result = br._sort_impacts_by_traffic_tier(impacts, tiers)
+        assert [i["page_path"] for i in result] == ["b.md", "c.md", "a.md"]
+
+    def test_sort_impacts_is_order_only_never_changes_membership(self):
+        impacts = [{"page_path": f"p{i}.md"} for i in range(5)]
+        tiers = {"p3.md": "high"}
+        result = br._sort_impacts_by_traffic_tier(impacts, tiers)
+        assert {i["page_path"] for i in result} == {i["page_path"] for i in impacts}
+        assert len(result) == len(impacts)
+
+    def test_sort_impacts_is_stable_within_same_tier(self):
+        """Two pages with the same (no-data) tier must keep their original
+        relative order -- Python's sort is stable, this pins that behavior."""
+        impacts = [{"page_path": "z.md"}, {"page_path": "a.md"}]
+        result = br._sort_impacts_by_traffic_tier(impacts, {})
+        assert [i["page_path"] for i in result] == ["z.md", "a.md"]
+
+    def test_run_processes_high_traffic_page_before_no_data_page(self, tmp_path):
+        """End-to-end: page_impact.json listing page B as 'high' and page A
+        as 'no-data' reorders body_refresh's actual processing loop, even
+        though body_impact.json lists A first -- proven via page_decisions.jsonl
+        write order (append-only, in loop-iteration order)."""
+        page_a = _make_page(
+            tmp_path, "content/docs.aspose.org/en/pdf/net/a.md",
+            "---\ntitle: A\nauto_updatable: true\n---\n\n## Overview\n\nOld prose A.\n",
+        )
+        page_b = _make_page(
+            tmp_path, "content/docs.aspose.org/en/pdf/net/b.md",
+            "---\ntitle: B\nauto_updatable: true\n---\n\n## Overview\n\nOld prose B.\n",
+        )
+        change = _make_change("CHG-001", "Feature", "FEATURE_ADDED")
+        impact_a = _make_impact(str(page_a), "CHG-001", "overview", br.UT_REWRITE, lines=[5, 12])
+        impact_b = _make_impact(str(page_b), "CHG-001", "overview", br.UT_REWRITE, lines=[5, 12])
+        # body_impact.json lists A first, B second -- the pre-traffic-tier order.
+        _setup_reports(tmp_path, "pdf", "net", [impact_a, impact_b], [change])
+        br.configure(safe_write_fn=lambda p, c, **kw: True)
+        (tmp_path / "reports" / "pdf" / "net" / "page_impact.json").write_text(json.dumps({
+            "pages": [
+                {"path": str(page_a).replace("\\", "/"), "traffic_tier": "no-data"},
+                {"path": str(page_b).replace("\\", "/"), "traffic_tier": "high"},
+            ]
+        }), encoding="utf-8")
+
+        _run("pdf", "net", execute=True)
+
+        decisions_path = tmp_path / "reports/pdf/net/run-artifacts/page_decisions.jsonl"
+        lines = decisions_path.read_text(encoding="utf-8").strip().splitlines()
+        decisions = [json.loads(line) for line in lines]
+        assert len(decisions) == 2  # both pages still processed -- membership unchanged
+        processed_order = [d["page_path"] for d in decisions]
+        assert processed_order[0].endswith("b.md"), (
+            f"expected b.md (high traffic) processed first, got order: {processed_order}"
+        )
+
+    def test_run_without_page_impact_json_preserves_original_order(self, tmp_path):
+        """No page_impact.json at all (the common case for any body_refresh
+        invocation outside a full PIA-instrumented run) -- original
+        body_impact.json order is preserved exactly, unaffected."""
+        page_a = _make_page(
+            tmp_path, "content/docs.aspose.org/en/pdf/net/a.md",
+            "---\ntitle: A\nauto_updatable: true\n---\n\n## Overview\n\nOld prose A.\n",
+        )
+        page_b = _make_page(
+            tmp_path, "content/docs.aspose.org/en/pdf/net/b.md",
+            "---\ntitle: B\nauto_updatable: true\n---\n\n## Overview\n\nOld prose B.\n",
+        )
+        change = _make_change("CHG-001", "Feature", "FEATURE_ADDED")
+        impact_a = _make_impact(str(page_a), "CHG-001", "overview", br.UT_REWRITE, lines=[5, 12])
+        impact_b = _make_impact(str(page_b), "CHG-001", "overview", br.UT_REWRITE, lines=[5, 12])
+        _setup_reports(tmp_path, "pdf", "net", [impact_a, impact_b], [change])
+        br.configure(safe_write_fn=lambda p, c, **kw: True)
+        # Deliberately no page_impact.json written.
+
+        _run("pdf", "net", execute=True)
+
+        decisions_path = tmp_path / "reports/pdf/net/run-artifacts/page_decisions.jsonl"
+        lines = decisions_path.read_text(encoding="utf-8").strip().splitlines()
+        decisions = [json.loads(line) for line in lines]
+        processed_order = [d["page_path"] for d in decisions]
+        assert processed_order[0].endswith("a.md")
+        assert processed_order[1].endswith("b.md")

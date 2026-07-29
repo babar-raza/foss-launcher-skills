@@ -394,6 +394,63 @@ def _load_body_impact(
         return json.load(f)
 
 
+def _load_traffic_tiers(
+    family: str,
+    platform: str,
+    *,
+    product_root: Path | None = None,
+) -> dict[str, str]:
+    """Return {page_path: traffic_tier} from a sibling page_impact.json, or {}
+    if it doesn't exist -- SEO-BODY-REFRESH-ORDER-BY-TRAFFIC reads this purely
+    to choose PROCESSING ORDER in the loop below; a missing file (a dry-run,
+    a unit test, or any body_refresh invocation without a full PIA pass) must
+    never block or change which impacts get processed, only leave their
+    original order untouched. Never raises.
+    """
+    path = (
+        product_root / "page_impact.json"
+        if product_root is not None
+        else Path(_cfg_reports_root) / family / platform / "page_impact.json"
+    )
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    tiers: dict[str, str] = {}
+    for row in data.get("pages", []):
+        if not isinstance(row, dict):
+            continue
+        page_path = row.get("path")
+        tier = row.get("traffic_tier")
+        if page_path and tier:
+            tiers[Path(page_path).as_posix()] = tier
+    return tiers
+
+
+_TRAFFIC_TIER_SORT_RANK = {"high": 0, "medium": 1, "no-data": 2}
+
+
+def _sort_impacts_by_traffic_tier(impacts: list[dict], tiers: dict[str, str]) -> list[dict]:
+    """Stable-sort `impacts` so higher-traffic pages process first.
+
+    Order-only: the returned list contains exactly the same impact entries
+    as the input, in a different order -- never adds, drops, or filters any
+    entry. A page absent from `tiers` (no page_impact.json, or that page not
+    present in it) sorts as "no-data", matching the same default every page
+    gets from page_impact_assess.py itself when it has no real GSC signal.
+    Python's sort is stable, so within a tier, original relative order
+    (whatever _load_body_impact/body_impact.py produced) is preserved.
+    """
+    def _rank(impact: dict) -> int:
+        page_path = Path(str(impact.get("page_path", ""))).as_posix()
+        tier = tiers.get(page_path, "no-data")
+        return _TRAFFIC_TIER_SORT_RANK.get(tier, 2)
+
+    return sorted(impacts, key=_rank)
+
+
 def _load_semantic_changes(
     family: str,
     platform: str,
@@ -1360,6 +1417,14 @@ def run(
         existing_run_receipts = _existing_run_receipts(
             resolved_run_root, run_id
         )
+
+    # SEO-BODY-REFRESH-ORDER-BY-TRAFFIC: order-only reprioritization -- the
+    # set of impacts processed is completely unchanged above this point;
+    # this only changes the ORDER in which the loop below visits them.
+    _traffic_tiers = _load_traffic_tiers(family, platform, product_root=run_product_root)
+    if _traffic_tiers:
+        impacts = _sort_impacts_by_traffic_tier(impacts, _traffic_tiers)
+
     changes_by_id = _load_semantic_changes(
         family, platform, product_root=run_product_root
     )
