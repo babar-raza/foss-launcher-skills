@@ -74,9 +74,12 @@ For KB FAQ pages specifically, prefer S-59 (new-kb-faq) which includes the full 
    Never write a `faq:` or `faq.list` frontmatter block — it is invisible to the Hugo renderer
    and will trigger `_check_faq` Rule 3 FAIL on the next evaluation.
 
+   Title follows the `kb_faq` skeleton in `scripts/pipeline/config/title_templates.yaml`
+   (product-first, resolves the prior S-22/S-59/production-reality title conflict).
+
    ```markdown
    ---
-   title: "Frequently Asked Questions — Aspose.{Family} for {Platform}"
+   title: "Aspose.{Family} FOSS for {Platform} FAQ"
    description: "Common questions about Aspose.{Family} FOSS for {Platform}"
    type: topic
    date: '{today}'

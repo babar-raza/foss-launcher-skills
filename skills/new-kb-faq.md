@@ -42,9 +42,13 @@ Generate or update the FAQ page for a product platform.
    - Read one existing how-to article from `content/kb.aspose.org/en/{family}/{platform}/` to see keyword style
 
 4. **Frontmatter** (for new files — preserve existing frontmatter when updating):
+
+   Title follows the `kb_faq` skeleton in `scripts/pipeline/config/title_templates.yaml`
+   (product-first, resolves the prior S-22/S-59/production-reality title conflict).
+
    ```yaml
    ---
-   title: Frequently Asked Questions
+   title: "Aspose.{Family} FOSS for {Platform} FAQ"
    description: >
      FAQ about Aspose.{Family} FOSS for {Platform} — licensing, known limitations,
      format support, and common usage questions.
