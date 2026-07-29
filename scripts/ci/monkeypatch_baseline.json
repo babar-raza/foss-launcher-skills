@@ -234,6 +234,12 @@
       "T3": 0,
       "T4": 0
     },
+    "scripts/pipeline/tests/test_check_duplicate_titles.py": {
+      "T1": 12,
+      "T2": 5,
+      "T3": 4,
+      "T4": 0
+    },
     "scripts/pipeline/tests/test_check_onboarding_integrity.py": {
       "T1": 0,
       "T2": 0,
@@ -667,14 +673,14 @@
       "T4": 0
     }
   },
-  "generated_at": "2026-07-29T02:57:27Z",
+  "generated_at": "2026-07-29T13:32:26Z",
   "generator": "scripts/ci/checks/check_monkeypatch_lint.py --baseline",
   "generator_version": "2.0.0",
   "schema_version": 1,
   "totals": {
-    "T1": 103,
-    "T2": 835,
-    "T3": 91,
+    "T1": 115,
+    "T2": 840,
+    "T3": 95,
     "T4": 19
   }
 }

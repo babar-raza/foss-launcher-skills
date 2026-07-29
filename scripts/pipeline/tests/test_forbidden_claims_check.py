@@ -154,6 +154,47 @@ def test_exact_member_reference_inside_inline_code_still_flagged():
     assert v[0]["matched_symbol"] == "FileSystem.readFile"
 
 
+# ── HARDEN-FC-02: relational/possessive class mention (2026-07-29) ─────────
+# Real incident: A3dwSaveOptions.md's Properties table description "Export
+# meta data associated with Scene/Node to client." tripped "supports
+# Scene.render" purely because "Export" (capability language) and "Scene"
+# (the forbidden claim's owning class) both appear -- but the sentence
+# describes an unrelated exportMetaData boolean flag; "Scene" is only named
+# via "associated with", never as the subject of a capability claim.
+
+_SCENE_FORBIDDEN = ["supports Scene.render"]
+
+
+def test_class_reached_only_via_relation_not_flagged():
+    """The exact real-world trigger: the owning class is named only through
+    'associated with' / 'properties of', never as a direct capability
+    subject."""
+    text = "Export meta data associated with Scene/Node to client.\n"
+    v = scan(text, _SCENE_FORBIDDEN)
+    assert v == []
+
+
+def test_class_as_direct_capability_subject_still_flagged():
+    """The same owning class named as the direct subject of capability
+    language (not behind a relational phrase) is still flagged."""
+    text = "This exporter fully supports Scene rendering to PNG.\n"
+    v = scan(text, _SCENE_FORBIDDEN)
+    assert len(v) == 1
+    assert v[0]["match_type"] == "class_with_capability_language"
+
+
+def test_direct_mention_still_flagged_even_alongside_relational_mention():
+    """A genuine direct capability claim about the class is still caught even
+    when an unrelated relational mention of the same class also appears in
+    the text -- per-occurrence checking, not a blanket suppression."""
+    text = (
+        "Export meta data associated with Scene/Node to client. "
+        "Separately, this class also supports Scene directly.\n"
+    )
+    v = scan(text, _SCENE_FORBIDDEN)
+    assert len(v) == 1
+
+
 def test_scan_clean_text_no_violations():
     text = "This page discusses PDF conversion using Document.Save.\n"
     v = scan(text, _3MF_FORBIDDEN)

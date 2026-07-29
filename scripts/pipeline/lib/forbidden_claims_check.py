@@ -51,6 +51,18 @@ _CAPABILITY_RE = re.compile(
 )
 _NEGATION_RE = re.compile(r"\b(not|no|never|cannot|can't|unsupported|without)\b", re.IGNORECASE)
 
+# A class name reached only through a relational/possessive phrase ("associated
+# with X", "properties of X", "part of X") is being named as CONTEXT for what
+# the sentence is actually about, not as the subject performing the capability.
+# Matches immediately before the class name so a per-occurrence check (see
+# _class_mentions_outside_relation below) can tell "the Foo instance" (direct,
+# a real subject) apart from "properties of Foo" (relational, not a subject).
+_RELATION_PRECEDING_RE = re.compile(
+    r"\b(associated with|related to|belonging to|part of|properties of|"
+    r"members? of|attributes? of|fields? of)\s+$",
+    re.IGNORECASE,
+)
+
 # Inline-code spans: `like this`. A single backtick pair, non-greedy, no newline.
 _INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
 
@@ -108,6 +120,36 @@ def _capability_scan_text(line: str) -> str:
     return cells[-1] if cells else line
 
 
+def _class_mentioned_outside_relation(prose: str, cls: str) -> bool:
+    """True if ``cls`` appears in ``prose`` at least once NOT immediately
+    preceded by a relational/possessive phrase ("associated with X",
+    "properties of X", "part of X", ...).
+
+    HARDEN-FC-02 (2026-07-29): a bare owning-class match plus capability
+    language on the same description text still over-triggers when the class
+    is named only as CONTEXT for what the sentence is actually about, not as
+    the subject performing the capability. Found live: "Export meta data
+    associated with Scene/Node to client." -- "Export" (capability language)
+    and "Scene" (owning class of the forbidden "supports Scene.render" claim)
+    both appear, but the sentence is about an `exportMetaData` boolean flag,
+    not about Scene rendering. Every mention of "Scene" in that file follows
+    "associated with" or "properties of" -- never appears as a direct object
+    ("supports Scene", "can render Scene") the way a real over-claiming
+    incident (the 3d/net "3MF" case this module exists to catch) would.
+
+    This checks each occurrence independently: a class mentioned BOTH
+    relationally and directly in the same text still counts as a genuine
+    mention (the direct occurrence carries the signal), preserving recall for
+    real capability prose that happens to also contain an incidental
+    possessive reference elsewhere.
+    """
+    for m in re.finditer(r"\b" + re.escape(cls) + r"\b", prose):
+        preceding = prose[:m.start()]
+        if not _RELATION_PRECEDING_RE.search(preceding):
+            return True
+    return False
+
+
 def extract_symbols(forbidden_claim: str) -> tuple[set[str], set[str]]:
     """Return (fully_qualified_symbols, owning_classes) from one forbidden-claim string.
 
@@ -160,6 +202,10 @@ def scan(text: str, forbidden_claims: list[str]) -> list[dict]:
         #    search; for ordinary prose it's the line unchanged. Negation is
         #    still checked against the full original line (conservative: a
         #    negation word anywhere in the row still suppresses the match).
+        #    A class reached only through a relational/possessive phrase
+        #    ("associated with X", "properties of X") is named as context,
+        #    not as the subject of the capability (HARDEN-FC-02) — every
+        #    other occurrence still counts normally.
         if matched is None:
             for line in lines:
                 if _NEGATION_RE.search(line):
@@ -169,7 +215,7 @@ def scan(text: str, forbidden_claims: list[str]) -> list[dict]:
                     continue
                 prose = _strip_inline_code(scan_text)
                 for cls in owning_classes:
-                    if re.search(r"\b" + re.escape(cls) + r"\b", prose):
+                    if _class_mentioned_outside_relation(prose, cls):
                         matched = {"forbidden_claim": claim, "matched_symbol": cls,
                                    "match_type": "class_with_capability_language"}
                         break
