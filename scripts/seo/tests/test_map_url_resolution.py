@@ -104,3 +104,59 @@ class TestRealContentRegressionPin:
         assert path is not None, "Finding #36's exact motivating case must resolve"
         assert path.name == "installation.md"
         assert match_type == "bare_file"
+
+
+class TestWebsitesAsposeOrgEnPrefix:
+    """Strategy 3 extended to websites.aspose.org (Finding #45): this site's
+    content also lives under an /en/ prefix (e.g.
+    content/websites.aspose.org/en/aspose/app/_index.md), but it was missing
+    from every /en/-prefix strategy -- real, existing content misreported as
+    an unmatched/content-gap candidate. Discovered while building
+    SEO-KEYWORD-GAP-REPORT: 6 of 8 English "unmatched" GSC URLs turned out to
+    be this exact bug, not real content gaps.
+    """
+
+    def test_websites_root_with_en_prefix(self, tmp_path):
+        site_root = tmp_path / "websites.aspose.org"
+        target = site_root / "en" / "_index.md"
+        target.parent.mkdir(parents=True)
+        target.write_text("---\ntitle: x\n---\n", encoding="utf-8")
+
+        path, match_type = _resolve_url_to_content_path("https://websites.aspose.org/", tmp_path)
+        assert path == target
+        assert match_type == "exact"
+
+    def test_websites_nested_section_with_en_prefix(self, tmp_path):
+        site_root = tmp_path / "websites.aspose.org"
+        target = site_root / "en" / "aspose" / "app" / "_index.md"
+        target.parent.mkdir(parents=True)
+        target.write_text("---\ntitle: x\n---\n", encoding="utf-8")
+
+        path, match_type = _resolve_url_to_content_path(
+            "https://websites.aspose.org/aspose/app/", tmp_path
+        )
+        assert path == target
+        assert match_type == "exact"
+
+    def test_websites_still_unmatched_when_file_absent(self, tmp_path):
+        site_root = tmp_path / "websites.aspose.org"
+        (site_root / "en").mkdir(parents=True)
+
+        path, match_type = _resolve_url_to_content_path(
+            "https://websites.aspose.org/nonexistent/", tmp_path
+        )
+        assert path is None
+        assert match_type == "unmatched"
+
+    def test_real_websites_aspose_org_app_pages_now_resolve(self):
+        """Pin the exact real cases found while auditing unmatched English
+        GSC URLs for SEO-KEYWORD-GAP-REPORT."""
+        for url in (
+            "https://websites.aspose.org/aspose/app/",
+            "https://websites.aspose.org/conholdate/app/",
+            "https://websites.aspose.org/aspose/cloud/",
+            "https://websites.aspose.org/groupdocs/",
+        ):
+            path, match_type = _resolve_url_to_content_path(url, _CONTENT_ROOT)
+            assert path is not None, f"{url} must resolve to real content"
+            assert match_type == "exact"

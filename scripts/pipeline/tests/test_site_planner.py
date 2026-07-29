@@ -1230,3 +1230,90 @@ class TestMatchExistingToClusterSQ10:
         assert result is None, (
             "Expected unrelated page to NOT match 'javascript-extensions' cluster"
         )
+
+
+class TestDemandHintsTiebreak:
+    """SEO-SITE-PLANNER-DEMAND-TIEBREAK-SCHEMA-B: detect_clusters()'s optional
+    demand_hints parameter. Must never change ordering except among clusters
+    whose claim_count is exactly tied, and must never change which (or how
+    many) clusters are returned."""
+
+    def test_no_demand_hints_matches_prior_behavior(self):
+        """Omitting demand_hints (every pre-existing caller) must produce
+        byte-identical output to calling detect_clusters() with no such
+        parameter at all -- the default is a true no-op."""
+        api_surface = _make_api_surface(["formats", "entities"])
+        claims = _make_claims(api_surface, per_class=10)
+
+        without_param = sp.detect_clusters(claims, api_surface, [], "", family="3d")
+        with_none = sp.detect_clusters(claims, api_surface, [], "", family="3d", demand_hints=None)
+        with_empty = sp.detect_clusters(claims, api_surface, [], "", family="3d", demand_hints={})
+
+        assert without_param == with_none == with_empty
+
+    def test_demand_hints_does_not_override_claim_count_ordering(self):
+        """A cluster with fewer claims must never outrank one with more,
+        no matter how much demand it has -- demand is a tie-break only."""
+        api_surface = _make_api_surface(["formats", "entities"])
+        # formats cluster: 10 claims/class; entities cluster: 3 claims/class
+        # (fewer -> lower total, must stay ranked below formats regardless
+        # of demand_hints).
+        claims = []
+        for entry in api_surface:
+            per_class = 10 if "formats" in entry["file"] else 3
+            for j in range(per_class):
+                claims.append({"kind": "api_method", "text": f"{entry['name']}.method_{j}()"})
+
+        # Give the LOW-claim-count cluster's class a huge demand score.
+        low_count_class = next(e["name"] for e in api_surface if "entities" in e["file"])
+        demand_hints = {low_count_class: 999999.0}
+
+        clusters = sp.detect_clusters(claims, api_surface, [], "", family="3d", demand_hints=demand_hints)
+        assert clusters[0]["raw_claim_count"] > clusters[1]["raw_claim_count"], (
+            "higher claim_count cluster must still rank first despite the other "
+            "cluster's massive demand_hints score"
+        )
+
+    def test_demand_hints_breaks_a_real_tie(self):
+        """Two clusters with EQUAL claim_count: the one whose class has a
+        higher demand score must sort first."""
+        api_surface = _make_api_surface(["formats", "entities"])
+        claims = _make_claims(api_surface, per_class=10)  # identical weight both clusters
+
+        clusters_no_hints = sp.detect_clusters(claims, api_surface, [], "", family="3d")
+        assert clusters_no_hints[0]["raw_claim_count"] == clusters_no_hints[1]["raw_claim_count"], (
+            "test setup requires a genuine tie"
+        )
+        # Whichever cluster is currently second, give its class a demand boost.
+        second_cluster_class = clusters_no_hints[1]["class_names"][0]
+        demand_hints = {second_cluster_class: 100.0}
+
+        clusters_with_hints = sp.detect_clusters(
+            claims, api_surface, [], "", family="3d", demand_hints=demand_hints
+        )
+        assert clusters_with_hints[0]["class_names"] == [second_cluster_class], (
+            "the demand-boosted cluster must now sort first among tied clusters"
+        )
+
+    def test_demand_hints_never_changes_cluster_count_or_membership(self):
+        api_surface = _make_api_surface(["formats", "entities"])
+        claims = _make_claims(api_surface, per_class=10)
+
+        clusters_no_hints = sp.detect_clusters(claims, api_surface, [], "", family="3d")
+        clusters_with_hints = sp.detect_clusters(
+            claims, api_surface, [], "", family="3d",
+            demand_hints={"NonexistentClass": 500.0, api_surface[0]["name"]: 50.0},
+        )
+        assert len(clusters_no_hints) == len(clusters_with_hints)
+        assert {c["category"] for c in clusters_no_hints} == {c["category"] for c in clusters_with_hints}
+
+    def test_demand_hints_for_unknown_class_is_ignored_not_an_error(self):
+        """A demand_hints key that doesn't correspond to any real class in
+        this family must be silently ignored, never raise."""
+        api_surface = _make_api_surface(["formats"])
+        claims = _make_claims(api_surface, per_class=5)
+        clusters = sp.detect_clusters(
+            claims, api_surface, [], "", family="3d",
+            demand_hints={"TotallyMadeUpClassName": 1000.0},
+        )
+        assert len(clusters) == 1

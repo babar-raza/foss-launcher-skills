@@ -111,9 +111,14 @@ def _resolve_url_to_content_path(url: str, content_root: Path) -> tuple[Path | N
     if candidate2.exists():
         return candidate2, "alt_index"
 
-    # Strategy 3: products.aspose.org uses /en/ prefix in content
+    # Strategy 3: products.aspose.org and websites.aspose.org use /en/ prefix in
+    # content (Finding #45: websites.aspose.org was missing from every /en/-prefix
+    # strategy, so real, existing content -- e.g.
+    # content/websites.aspose.org/en/aspose/app/_index.md -- misreported as an
+    # "unmatched"/content-gap candidate when it demonstrably already exists).
     # e.g. https://products.aspose.org/3d/ -> content/products.aspose.org/en/3d/_index.md
-    if domain == "products.aspose.org":
+    #      https://websites.aspose.org/aspose/app/ -> content/websites.aspose.org/en/aspose/app/_index.md
+    if domain in ("products.aspose.org", "websites.aspose.org"):
         candidate3 = site_root / "en" / stripped / "_index.md" if stripped else site_root / "en" / "_index.md"
         if candidate3.exists():
             return candidate3, "exact"

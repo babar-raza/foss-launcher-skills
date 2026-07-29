@@ -826,6 +826,7 @@ def detect_clusters(
     snippet_index: list[dict],
     limitations_text: str,
     family: str = "",
+    demand_hints: "dict[str, float] | None" = None,
 ) -> list[dict]:
     """Detect capability-area content clusters from api_surface sub-packages.
 
@@ -844,6 +845,19 @@ def detect_clusters(
           in_limitations: bool,
           class_names: list[str], # classes belonging to this cluster
         }
+
+    demand_hints (SEO-SITE-PLANNER-DEMAND-TIEBREAK-SCHEMA-B): optional
+    {class_name: demand_score} map (real GSC search-demand signal,
+    scripts/seo/pipeline/demand_hints.py -- keyed by API class name, NOT by
+    cluster slug, so the caller never needs to know cluster groupings ahead
+    of time; a cluster's demand score is the sum over its own class_names).
+    Used ONLY as a tie-breaker between clusters whose claim_count is EQUAL
+    -- demand can never promote a lower-claim_count cluster above a
+    higher-claim_count one, and can never create a cluster that has zero
+    claims backing it (every cluster here already comes from real
+    claims/api_surface data; demand_hints only reorders among ties).
+    Omitting this parameter (the default) reproduces the exact prior sort
+    -- every existing caller is unaffected.
     """
     # ----- 0. Build class → visibility lookup for S-2 weighting -----
     _VISIBILITY_WEIGHT = {"exported": 3.0, "public": 2.0, "conventional": 1.0}
@@ -963,8 +977,15 @@ def detect_clusters(
             if len(parts_ln) >= 1:
                 lim_classes.add(parts_ln[0].lower())
 
+    _demand = demand_hints or {}
+
+    def _sort_key(item: tuple[str, dict]) -> tuple[float, float]:
+        _label, data = item
+        demand_score = sum(_demand.get(c, 0.0) for c in data["classes"])
+        return (-data["total"], -demand_score)
+
     clusters = []
-    for label, data in sorted(by_cluster.items(), key=lambda x: -x[1]["total"]):
+    for label, data in sorted(by_cluster.items(), key=_sort_key):
         # Mark in_limitations only if >50% of this cluster's classes are limited
         cls_list = [c.lower() for c in data["classes"]]
         lim_count = sum(1 for c in cls_list if c in lim_classes)
