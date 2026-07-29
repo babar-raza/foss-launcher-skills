@@ -14,8 +14,11 @@ markdown leaves untagged is treated as SILENT, not as a contradiction — forcin
 prose to be a complete, always-current status board would itself be the brittle
 prose-scanning failure mode this check exists to retire. Silence is fine; lying is not.
 
-  --strict-coverage   Additionally require every store task to carry a markdown tag
-                      (opt-in; off by default for the reason above).
+  --strict-coverage   Additionally require every store task to carry a markdown tag.
+  --execution-authority
+                      Declare this plan authoritative for execution; strict coverage
+                      becomes mandatory. The in-file marker
+                      ``<!-- TASKCARD_EXECUTION_AUTHORITY -->`` has the same effect.
 
 ENFORCEMENT STATUS — read this before assuming it is a gate (ST-030, found by this plan's
 own Lane I adversarial review):
@@ -45,8 +48,9 @@ from pathlib import Path
 
 # A task card header carries the task id and an optional [STATUS: ...] tag, e.g.
 #   **RPR-A-01 — Classify ... [STATUS: PARTIAL — 12/74 ...]**
-_TASK_ID = re.compile(r"\bRPR-[A-I]-\d{2}\b")
+_TASK_ID = re.compile(r"\bRPR-[A-Z]-\d{2}\b")
 _STATUS_TAG = re.compile(r"\[STATUS:\s*([^\]]+)\]", re.IGNORECASE)
+_EXECUTION_AUTHORITY_MARKER = "<!-- TASKCARD_EXECUTION_AUTHORITY -->"
 
 # Buckets — the granularity at which drift actually matters (a DONE-vs-TODO
 # contradiction), not the full 15-value enum (comparing freeform prose to a
@@ -157,6 +161,11 @@ def main(argv=None) -> int:
     parser.add_argument("--taskcards", required=True, help="Path to the mission's taskcards.jsonl")
     parser.add_argument("--strict-coverage", action="store_true",
                         help="Also require every store task to carry a markdown [STATUS] tag")
+    parser.add_argument(
+        "--execution-authority",
+        action="store_true",
+        help="Treat the plan as execution authority and require strict task coverage",
+    )
     args = parser.parse_args(argv)
 
     plan_path, store_path = Path(args.plan_file), Path(args.taskcards)
@@ -167,13 +176,23 @@ def main(argv=None) -> int:
         print(f"ERROR: taskcards file not found: {store_path}", file=sys.stderr)
         return 2
     try:
-        plan_tags = extract_plan_tags(plan_path.read_text(encoding="utf-8"))
+        plan_text = plan_path.read_text(encoding="utf-8")
+        plan_tags = extract_plan_tags(plan_text)
         store = load_taskcards(store_path)
     except (json.JSONDecodeError, KeyError, OSError) as exc:
         print(f"ERROR: could not parse inputs: {exc}", file=sys.stderr)
         return 2
 
-    problems = find_contradictions(plan_tags, store, strict_coverage=args.strict_coverage)
+    strict_coverage = (
+        args.strict_coverage
+        or args.execution_authority
+        or _EXECUTION_AUTHORITY_MARKER in plan_text
+    )
+    problems = find_contradictions(
+        plan_tags,
+        store,
+        strict_coverage=strict_coverage,
+    )
     if problems:
         print(f"TASKCARD/PLAN PARITY: {len(problems)} problem(s):")
         for p in problems:

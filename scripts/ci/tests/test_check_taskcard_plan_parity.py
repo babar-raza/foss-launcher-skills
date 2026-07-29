@@ -62,6 +62,13 @@ def test_extract_only_status_tags_not_new_tags():
     assert tags["RPR-B-01"] == "DONE"  # first id on a shared-card line wins
 
 
+def test_extract_supports_lanes_after_i():
+    tags = parity.extract_plan_tags(
+        "**RPR-J-05 — verifier [STATUS: DONE]**\n"
+    )
+    assert tags["RPR-J-05"] == "DONE"
+
+
 # ── parity logic ──────────────────────────────────────────────────────────
 
 def test_silence_is_not_contradiction(tmp_path):
@@ -119,6 +126,30 @@ def test_strict_coverage_flags_untagged_store_tasks(tmp_path):
     plan_tags = parity.extract_plan_tags(md.read_text(encoding="utf-8"))
     problems = parity.find_contradictions(plan_tags, parity.load_taskcards(store), strict_coverage=True)
     assert any(p["kind"] == "untagged_under_strict_coverage" for p in problems)
+
+
+def test_execution_authority_marker_makes_coverage_strict(tmp_path):
+    store = _write_store(tmp_path, [_row("RPR-D-01", "TODO")])
+    plan = tmp_path / "plan.md"
+    plan.write_text(
+        "<!-- TASKCARD_EXECUTION_AUTHORITY -->\nNo task tags.\n",
+        encoding="utf-8",
+    )
+    assert parity.main([
+        "--plan-file", str(plan),
+        "--taskcards", str(store),
+    ]) == 1
+
+
+def test_execution_authority_flag_makes_coverage_strict(tmp_path):
+    store = _write_store(tmp_path, [_row("RPR-D-01", "TODO")])
+    plan = tmp_path / "plan.md"
+    plan.write_text("No task tags.\n", encoding="utf-8")
+    assert parity.main([
+        "--plan-file", str(plan),
+        "--taskcards", str(store),
+        "--execution-authority",
+    ]) == 1
 
 
 # ── real mission artifact ─────────────────────────────────────────────────
