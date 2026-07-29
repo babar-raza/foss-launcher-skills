@@ -19,6 +19,11 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
+try:
+    from seo.pipeline.schema import classify_keyword_file, SCHEMA_B
+except ImportError:
+    from schema import classify_keyword_file, SCHEMA_B
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -28,15 +33,9 @@ KEYWORDS_DIR = REPO_ROOT / "keywords"
 REPORTS_DIR = REPO_ROOT / "reports" / "seo"
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
-# Schema B files are domain-level JSON (url/lang/lastUpdated/queries)
-# Everything else is Schema A (pageTitle/keywords)
-_SCHEMA_B_NAMES = {
-    "docs.aspose.org.json",
-    "products.aspose.org.json",
-    "reference.aspose.org.json",
-    "websites.aspose.org.json",
-    "www.aspose.org.json",
-}
+# Schema classification is structural (see schema.py::classify_keyword_file),
+# not a filename allowlist. A filename list previously covered only 5 of the
+# 7 real Schema B files and silently misclassified the rest as Schema A.
 
 # These file names contain the family name only — used for quality filter
 _SCHEMA_A_FAMILIES: dict[str, str] = {
@@ -338,7 +337,7 @@ def run_validation(keywords_dir: Path | None = None) -> dict:
             })
             continue
 
-        if filename in _SCHEMA_B_NAMES:
+        if classify_keyword_file(raw) == SCHEMA_B:
             summary, records = _validate_schema_b(filename, raw, file_path)
             schema_b_records.extend(records)
         else:

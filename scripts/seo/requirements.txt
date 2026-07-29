@@ -4,3 +4,7 @@ google-generativeai>=0.8
 litellm
 requests>=2.28
 python-dotenv>=1.0
+# pipeline/apply.py: format-preserving (round-trip) frontmatter writes —
+# added SEO-APPLY-HARDEN, replaces plain PyYAML's yaml.dump() which loses
+# comments/quote-style/key-order on every write.
+ruamel.yaml>=0.18

@@ -23,6 +23,11 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
+try:
+    from seo.pipeline.schema import classify_keyword_file, SCHEMA_B
+except ImportError:
+    from schema import classify_keyword_file, SCHEMA_B
+
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
@@ -33,12 +38,10 @@ KEYWORDS_DIR = REPO_ROOT / "keywords"
 REPORTS_DIR = REPO_ROOT / "reports" / "seo"
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
-_SCHEMA_B_NAMES = {
-    "products.aspose.org.json",
-    "reference.aspose.org.json",
-    "websites.aspose.org.json",
-    "www.aspose.org.json",
-}
+# Schema classification is structural (see schema.py::classify_keyword_file),
+# not a filename allowlist. A filename list previously covered only 4 of the
+# 7 real Schema B files (missing docs, blog, kb), silently dropping their
+# GSC data from the url_map.
 
 # ---------------------------------------------------------------------------
 # Load Schema B entries directly from keywords/
@@ -46,22 +49,24 @@ _SCHEMA_B_NAMES = {
 
 
 def _load_schema_b_entries(keywords_dir: Path) -> list[dict]:
-    """Return all Schema B entries from keywords/ as raw dicts."""
+    """Return all Schema B entries from keywords/ as raw dicts.
+
+    Walks every *.json file in keywords_dir and classifies each one
+    structurally rather than matching against a fixed filename list.
+    """
     entries: list[dict] = []
-    for filename in _SCHEMA_B_NAMES:
-        path = keywords_dir / filename
-        if not path.exists():
-            warnings.warn(f"map_url.py: Schema B file not found: {path}")
-            continue
+    for path in sorted(keywords_dir.glob("*.json")):
         try:
             raw = json.loads(path.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, UnicodeDecodeError) as exc:
-            warnings.warn(f"map_url.py: could not parse {filename}: {exc}")
+            warnings.warn(f"map_url.py: could not parse {path.name}: {exc}")
+            continue
+        if classify_keyword_file(raw) != SCHEMA_B:
             continue
         if isinstance(raw, list):
             for entry in raw:
                 if isinstance(entry, dict) and "url" in entry:
-                    entry["_source_file"] = filename
+                    entry["_source_file"] = path.name
                     entries.append(entry)
     return entries
 
@@ -138,6 +143,16 @@ def _resolve_url_to_content_path(url: str, content_root: Path) -> tuple[Path | N
         candidate5 = site_root / (stripped.rstrip("/") + ".md")
         if candidate5.exists():
             return candidate5, "bare_file"
+
+        # Strategy 5b: docs/kb/reference use /en/ prefix in content, same as Strategy 4 —
+        # but Strategy 4 only tries index.md/_index.md forms, never a bare .md file.
+        # e.g. https://docs.aspose.org/words/python/getting-started/installation/ ->
+        #      content/docs.aspose.org/en/words/python/getting-started/installation.md
+        if domain in ("docs.aspose.org", "kb.aspose.org", "reference.aspose.org"):
+            inner = stripped[3:] if stripped.startswith("en/") else stripped
+            candidate5b = site_root / "en" / (inner.rstrip("/") + ".md")
+            if candidate5b.exists():
+                return candidate5b, "bare_file"
 
     return None, "unmatched"
 

@@ -2,14 +2,23 @@
 SEO-008 apply.py
 ================
 Apply approved patches from patch_manifest.json to content files.
-Uses YAML surgery: parse frontmatter → modify target fields → re-serialize.
+Uses ruamel.yaml round-trip YAML surgery: parse frontmatter (preserving
+comments/quote-style/key-order) -> modify target fields only -> re-serialize.
 Body content is NEVER touched.
 
-Known gap:
-  PyYAML dump() does not preserve original formatting (loses quotes, changes
-  indentation). This is acceptable — Hugo frontmatter parses standard YAML
-  correctly. Original formatting is NOT restored; the semantic content is
-  preserved exactly.
+Governance gates (SEO-APPLY-HARDEN, closing the confirmed bypasses from the
+2026-03-27 incident audit):
+  1. requires_human_review must be explicitly False -- a patch missing this
+     field, or with it True/absent, is REJECTED, not silently written.
+  2. auto_updatable:false targets are never written (provenance.is_auto_updatable).
+  3. Every write is checked against no_downgrade_guard.compare_content() before
+     landing -- BLOCK rejects the write, WARN logs and proceeds.
+  4. WRITABLE_FIELDS is site-scoped: {description, keywords} everywhere except
+     blog.aspose.org, which also gets seoTitle (the only theme that renders it,
+     via SEO-BLOG-WIRE-OG-TWITTER's Open Graph/Twitter Card wiring). tags_to_add
+     is retired -- no theme renders apply.py's old tags field as SEO signal.
+  5. A single run is capped at MAX_BATCH_SIZE files, so a bad batch is always
+     revertable with one git revert without touching unrelated commits.
 
 Usage:
   python scripts/seo/pipeline/apply.py --dry-run
@@ -37,6 +46,8 @@ Post-apply (non-dry-run only):
 from __future__ import annotations
 
 import argparse
+import copy
+import io
 import json
 import logging
 import sys
@@ -50,15 +61,30 @@ from typing import Any
 _THIS_FILE = Path(__file__).resolve()
 _PIPELINE_DIR = _THIS_FILE.parent        # scripts/seo/pipeline/
 _REPO_ROOT = _THIS_FILE.parents[3]       # .../aspose.org
+_MAIN_PIPELINE = _REPO_ROOT / "scripts" / "pipeline"
 
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
+if str(_MAIN_PIPELINE) not in sys.path:
+    sys.path.insert(0, str(_MAIN_PIPELINE))
 
 try:
-    import yaml
+    from ruamel.yaml import YAML
+    from ruamel.yaml.error import YAMLError
 except ImportError:
-    print("ERROR: PyYAML is required. Install with: pip install pyyaml", file=sys.stderr)
+    print(
+        "ERROR: ruamel.yaml is required for format-preserving writes. "
+        "Install with: pip install ruamel.yaml",
+        file=sys.stderr,
+    )
     sys.exit(1)
+
+from lib.provenance import is_auto_updatable  # noqa: E402
+from commands.governance.no_downgrade_guard import (  # noqa: E402
+    compare_content,
+    DECISION_BLOCK,
+    DECISION_WARN,
+)
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -78,9 +104,36 @@ log = logging.getLogger("apply")
 PATCHES_DIR = _REPO_ROOT / "patches" / "seo"
 MANIFEST_PATH = PATCHES_DIR / "patch_manifest.json"
 
-# Fields that apply.py is permitted to write.
-# Evidence fields are never modified (enforced by verify_evidence_unchanged).
-WRITABLE_FIELDS = {"seoTitle", "description", "tags"}
+# A single apply run is capped so a bad batch is always revertable with one
+# git revert without touching unrelated commits (Finding #9 / SEO-APPLY-HARDEN).
+MAX_BATCH_SIZE = 50
+
+# Round-trip YAML instance: preserves comments, quote style, key order, and
+# block/flow style for every untouched key. allow_unicode + explicit utf-8
+# file I/O everywhere is required for non-ASCII values (em-dashes, curly
+# quotes, non-English text) to round-trip byte-for-byte -- verified directly
+# against this repo's own content during SEO-APPLY-HARDEN's implementation.
+_yaml = YAML()
+_yaml.preserve_quotes = True
+_yaml.allow_unicode = True
+_yaml.width = 4096  # avoid unwanted line-wrapping of long description/title values
+
+
+def _writable_fields_for(page_path: str) -> set[str]:
+    """Fields apply.py may write, scoped by site.
+
+    seoTitle renders on zero themes except blog.aspose.org (confirmed via an
+    exhaustive repo-wide theme grep during this mission) -- blog's head.html
+    sources its Open Graph/Twitter Card title from seoTitle with a .Title
+    fallback. Every other site gets {description, keywords} only. tags_to_add
+    is retired entirely: no theme renders apply.py's old tags field as SEO
+    signal, and the field was never load-bearing for ranking.
+    """
+    normalized = page_path.replace("\\", "/")
+    if "content/blog.aspose.org/" in normalized:
+        return {"description", "keywords", "seoTitle"}
+    return {"description", "keywords"}
+
 
 # ---------------------------------------------------------------------------
 # YAML surgery helpers
@@ -118,20 +171,22 @@ def _split_frontmatter(raw: str) -> tuple[str, str]:
     return frontmatter_block, body
 
 
-def _reconstruct(frontmatter_dict: dict, body: str) -> str:
-    """Re-serialize frontmatter and rejoin with body."""
-    fm_yaml = yaml.dump(
-        frontmatter_dict,
-        allow_unicode=True,
-        default_flow_style=False,
-        sort_keys=False,
-    )
+def _parse_frontmatter(fm_block: str) -> Any:
+    """Parse a frontmatter block with the round-trip YAML loader."""
+    return _yaml.load(fm_block)
+
+
+def _reconstruct(frontmatter_dict: Any, body: str) -> str:
+    """Re-serialize frontmatter (round-trip preserving) and rejoin with body."""
+    buf = io.StringIO()
+    _yaml.dump(frontmatter_dict, buf)
+    fm_yaml = buf.getvalue()
     return f"---\n{fm_yaml}---\n{body}"
 
 
 def _verify_evidence_unchanged(
-    original_fm: dict,
-    new_fm: dict,
+    original_fm: Any,
+    new_fm: Any,
 ) -> bool:
     """
     Confirm that the 'evidence' block is present and matches between
@@ -149,59 +204,70 @@ def _verify_evidence_unchanged(
     return True
 
 
+def _verify_only_intended_keys_changed(
+    original_fm: Any,
+    new_fm: Any,
+    intended_fields: list[str],
+) -> list[str]:
+    """Return any top-level key that changed but was NOT in intended_fields.
+
+    Defense-in-depth on top of ruamel's round-trip preservation and
+    _apply_patch_to_fm's targeted-assignment-only design: an empty return
+    list is required before any write proceeds.
+    """
+    unexpected: list[str] = []
+    all_keys = set(original_fm.keys()) | set(new_fm.keys())
+    for key in all_keys:
+        if key in intended_fields:
+            continue
+        if original_fm.get(key) != new_fm.get(key):
+            unexpected.append(key)
+    return unexpected
+
+
 # ---------------------------------------------------------------------------
 # Apply a single patch to frontmatter
 # ---------------------------------------------------------------------------
 
 def _apply_patch_to_fm(
-    fm: dict,
+    fm: Any,
     patch: dict,
-) -> tuple[dict, list[str]]:
+    page_path: str,
+) -> tuple[Any, list[str], list[str]]:
     """
-    Apply a single patch dict to a frontmatter dict (in-place copy).
+    Apply a single patch dict to a frontmatter mapping (in-place copy).
 
     Returns:
-      (updated_fm, list_of_changed_field_names)
+      (updated_fm, changed_field_names, rejected_field_names)
 
-    Rules:
-      seoTitle    — set/overwrite only if proposed is not None
-      description — set/overwrite only if proposed is not None
-      tags        — extend existing list with tags_to_add (no duplicates, no removals)
+    Only fields in _writable_fields_for(page_path) are ever written; anything
+    else present in fields_to_update is rejected (logged, never applied) —
+    this is the WRITABLE_FIELDS enforcement point (Finding #16).
     """
-    import copy
     new_fm = copy.deepcopy(fm)
     changed: list[str] = []
+    rejected: list[str] = []
+    writable = _writable_fields_for(page_path)
 
     fields = patch.get("fields_to_update", {})
 
-    # seoTitle
-    seo_title = fields.get("seoTitle")
-    if seo_title is not None:
-        new_fm["seoTitle"] = seo_title
-        changed.append("seoTitle")
+    for field_name in ("seoTitle", "description", "keywords"):
+        if field_name not in fields:
+            continue
+        value = fields.get(field_name)
+        if value is None:
+            continue
+        if field_name not in writable:
+            rejected.append(field_name)
+            continue
+        new_fm[field_name] = value
+        changed.append(field_name)
 
-    # description
-    description = fields.get("description")
-    if description is not None:
-        new_fm["description"] = description
-        changed.append("description")
+    # tags_to_add is retired (Finding #16) — no theme renders it as SEO signal.
+    if fields.get("tags_to_add"):
+        rejected.append("tags_to_add")
 
-    # tags — extend, no duplicates, no removals
-    tags_to_add: list[str] = fields.get("tags_to_add", []) or []
-    if tags_to_add:
-        existing_tags: list = list(new_fm.get("tags", []) or [])
-        existing_set = {t.lower() for t in existing_tags}
-        added = []
-        for tag in tags_to_add:
-            if tag.lower() not in existing_set:
-                existing_tags.append(tag)
-                existing_set.add(tag.lower())
-                added.append(tag)
-        if added:
-            new_fm["tags"] = existing_tags
-            changed.append(f"tags (+{len(added)})")
-
-    return new_fm, changed
+    return new_fm, changed, rejected
 
 
 # ---------------------------------------------------------------------------
@@ -211,25 +277,33 @@ def _apply_patch_to_fm(
 def _format_dry_run_page(
     page_path: str,
     patch: dict,
-    fm: dict | None,
+    fm: Any | None,
 ) -> str:
     """Format a single page entry for dry-run output."""
     lines = [f"Page: {page_path}"]
     fields = patch.get("fields_to_update", {})
     requires_review = patch.get("requires_human_review", True)
+    writable = _writable_fields_for(page_path)
+
+    if requires_review is not False:
+        lines.append("  ** WOULD BE REJECTED: requires_human_review is not explicitly False **")
 
     # seoTitle
-    seo_title_proposed = fields.get("seoTitle")
-    current_title = fm.get("seoTitle") if fm else None
-    title_line_before = f'"{current_title}"' if current_title is not None else "null"
-    if seo_title_proposed is not None:
-        title_line_after = f'"{seo_title_proposed}"'
+    if "seoTitle" not in writable and fields.get("seoTitle") is not None:
+        lines.append("  seoTitle: ** WOULD BE REJECTED — not a writable field on this site **")
     else:
-        after_note = " (llm_skipped - human review required)" if requires_review else ""
-        title_line_after = f"null{after_note}"
-    lines.append("  seoTitle:")
-    lines.append(f"    before: {title_line_before}")
-    lines.append(f"    after:  {title_line_after}")
+        seo_title_proposed = fields.get("seoTitle")
+        current_title = fm.get("seoTitle") if fm else None
+        title_line_before = f'"{current_title}"' if current_title is not None else "null"
+        if seo_title_proposed is not None:
+            title_line_after = f'"{seo_title_proposed}"'
+        else:
+            after_note = " (llm_skipped - human review required)" if requires_review else ""
+            title_line_after = f"null{after_note}"
+        if seo_title_proposed is not None or current_title is not None:
+            lines.append("  seoTitle:")
+            lines.append(f"    before: {title_line_before}")
+            lines.append(f"    after:  {title_line_after}")
 
     # description
     desc_proposed = fields.get("description")
@@ -240,10 +314,17 @@ def _format_dry_run_page(
         lines.append(f"    before: {desc_before}")
         lines.append(f'    after:  "{desc_proposed}"')
 
-    # tags
-    tags_to_add = fields.get("tags_to_add") or []
-    if tags_to_add:
-        lines.append(f"  tags add: {json.dumps(tags_to_add)}")
+    # keywords
+    keywords_proposed = fields.get("keywords")
+    if keywords_proposed is not None:
+        current_keywords = fm.get("keywords") if fm else None
+        lines.append("  keywords:")
+        lines.append(f"    before: {json.dumps(list(current_keywords) if current_keywords else [])}")
+        lines.append(f"    after:  {json.dumps(list(keywords_proposed))}")
+
+    # retired field
+    if fields.get("tags_to_add"):
+        lines.append("  tags_to_add: ** RETIRED FIELD — no longer writable, will be rejected **")
 
     return "\n".join(lines)
 
@@ -254,9 +335,6 @@ def _format_dry_run_page(
 
 def run_dry_run(patches: list[dict]) -> None:
     """Execute dry-run: show what would change, write nothing."""
-    from datetime import date
-    batch_id = patches[0]["batch_id"] if patches and "batch_id" in patches[0] else "unknown"
-    # batch_id comes from manifest, not individual patch — get from loaded manifest
     manifest = _load_manifest()
     batch_id = manifest.get("batch_id", "unknown")
 
@@ -264,19 +342,20 @@ def run_dry_run(patches: list[dict]) -> None:
     print("-" * 40)
 
     title_changes = 0
-    tag_additions_total = 0
+    keyword_changes = 0
     review_required = 0
+    would_reject = 0
 
     for patch in patches:
         page_path = patch["page_path"]
         content_file = _REPO_ROOT / page_path
 
-        fm: dict | None = None
+        fm: Any | None = None
         if content_file.exists():
             try:
                 raw = content_file.read_text(encoding="utf-8")
                 fm_block, _ = _split_frontmatter(raw)
-                fm = yaml.safe_load(fm_block) or {}
+                fm = _parse_frontmatter(fm_block) or {}
             except Exception as e:
                 log.warning("could not parse %s: %s", page_path, e)
 
@@ -284,17 +363,26 @@ def run_dry_run(patches: list[dict]) -> None:
         print("-" * 40)
 
         fields = patch.get("fields_to_update", {})
-        if fields.get("seoTitle") is not None:
+        writable = _writable_fields_for(page_path)
+        if fields.get("seoTitle") is not None and "seoTitle" in writable:
             title_changes += 1
-        tag_additions_total += len(fields.get("tags_to_add") or [])
-        if patch.get("requires_human_review"):
+        if fields.get("keywords") is not None:
+            keyword_changes += 1
+        if patch.get("requires_human_review") is not False:
             review_required += 1
+            would_reject += 1
 
-    # Summary line
     total = len(patches)
-    print(f"Total: {total} page{'s' if total != 1 else ''}, {title_changes} seoTitle change{'s' if title_changes != 1 else ''}, {tag_additions_total} tag addition{'s' if tag_additions_total != 1 else ''}")
+    print(
+        f"Total: {total} page{'s' if total != 1 else ''}, "
+        f"{title_changes} seoTitle change{'s' if title_changes != 1 else ''}, "
+        f"{keyword_changes} keywords change{'s' if keyword_changes != 1 else ''}"
+    )
     if review_required:
-        print(f"WARNING: {review_required} page{'s' if review_required != 1 else ''} require{'s' if review_required == 1 else ''} human review (proposed values are null)")
+        print(
+            f"WARNING: {review_required} page{'s' if review_required != 1 else ''} "
+            f"would be REJECTED — requires_human_review is not explicitly False"
+        )
 
 
 def run_apply(patches: list[dict], dry_run: bool) -> None:
@@ -302,25 +390,47 @@ def run_apply(patches: list[dict], dry_run: bool) -> None:
     Apply patches to content files.
 
     For each patch:
-      1. Read file
-      2. Split frontmatter / body
-      3. Parse YAML
-      4. Verify evidence block unchanged
-      5. Apply field updates
-      6. Re-serialize
-      7. Write file
-      8. Post-write verification
+      1. Governance gate: requires_human_review must be explicitly False
+      2. Governance gate: auto_updatable (skip if false)
+      3. Read file, split frontmatter/body, parse YAML (round-trip)
+      4. Apply field updates (writable-fields-scoped)
+      5. Verify evidence block unchanged; verify only intended keys changed
+      6. Re-serialize (round-trip preserving)
+      7. Governance gate: no_downgrade_guard.compare_content (BLOCK rejects)
+      8. Write file
+      9. Post-write verification
     """
     applied_count = 0
     rollback_count = 0
     skip_count = 0
+    rejected_governance_count = 0
 
     for patch in patches:
         page_path = patch["page_path"]
         content_file = _REPO_ROOT / page_path
 
+        # --- Governance gate 1: requires_human_review ---
+        if patch.get("requires_human_review") is not False:
+            log.error(
+                "REJECT: %s — requires_human_review is not explicitly False; "
+                "independent-agent/human sign-off required before this patch can be applied",
+                page_path,
+            )
+            rejected_governance_count += 1
+            continue
+
         if not content_file.exists():
             log.warning("SKIP: %s — file not found", page_path)
+            skip_count += 1
+            continue
+
+        # --- Governance gate 2: auto_updatable ---
+        if not is_auto_updatable(content_file):
+            log.warning(
+                "SKIP: %s — auto_updatable:false (manually curated); queued for "
+                "manual/S-116 review, never auto-written",
+                page_path,
+            )
             skip_count += 1
             continue
 
@@ -340,19 +450,27 @@ def run_apply(patches: list[dict], dry_run: bool) -> None:
             skip_count += 1
             continue
 
-        # --- Parse YAML ---
+        # --- Parse YAML (round-trip) ---
         try:
-            original_fm: dict = yaml.safe_load(fm_block) or {}
-        except yaml.YAMLError as e:
+            original_fm: Any = _parse_frontmatter(fm_block)
+            if original_fm is None:
+                original_fm = _yaml.map()  # type: ignore[attr-defined]
+        except YAMLError as e:
             log.warning("SKIP: %s — YAML parse error: %s", page_path, e)
             skip_count += 1
             continue
 
-        # --- Apply patch (produces new_fm) ---
-        new_fm, changed_fields = _apply_patch_to_fm(original_fm, patch)
+        # --- Apply patch (produces new_fm), enforcing writable-fields ---
+        new_fm, changed_fields, rejected_fields = _apply_patch_to_fm(original_fm, patch, page_path)
+
+        if rejected_fields:
+            log.warning(
+                "%s — field(s) rejected (not writable on this site or retired): %s",
+                page_path, ", ".join(rejected_fields),
+            )
 
         if not changed_fields:
-            log.info("SKIP: %s — no fields to change", page_path)
+            log.info("SKIP: %s — no writable fields to change", page_path)
             skip_count += 1
             continue
 
@@ -372,11 +490,21 @@ def run_apply(patches: list[dict], dry_run: bool) -> None:
             skip_count += 1
             continue
 
+        # --- Verify only intended keys changed (defense in depth) ---
+        unexpected = _verify_only_intended_keys_changed(original_fm, new_fm, changed_fields)
+        if unexpected:
+            log.error(
+                "SKIP: %s — unexpected key(s) would change: %s (only %s were intended)",
+                page_path, unexpected, changed_fields,
+            )
+            skip_count += 1
+            continue
+
         if dry_run:
             # Dry-run is handled by run_dry_run(); this path shouldn't be reached
             continue
 
-        # --- Re-serialize ---
+        # --- Re-serialize (round-trip preserving) ---
         try:
             new_raw = _reconstruct(new_fm, body)
         except Exception as e:
@@ -384,12 +512,32 @@ def run_apply(patches: list[dict], dry_run: bool) -> None:
             rollback_count += 1
             continue
 
+        # --- Governance gate 3: no_downgrade_guard ---
+        try:
+            guard_result = compare_content(content_file, new_raw)
+        except Exception as e:
+            log.error("SKIP: %s — no_downgrade_guard check could not run: %s", page_path, e)
+            skip_count += 1
+            continue
+
+        if guard_result["decision"] == DECISION_BLOCK:
+            log.error(
+                "REJECT: %s — no_downgrade_guard BLOCK: %s",
+                page_path, guard_result["reason"],
+            )
+            rejected_governance_count += 1
+            continue
+        if guard_result["decision"] == DECISION_WARN:
+            log.warning(
+                "%s — no_downgrade_guard WARN: %s (proceeding)",
+                page_path, guard_result["reason"],
+            )
+
         # --- Write ---
         try:
             content_file.write_text(new_raw, encoding="utf-8")
         except OSError as e:
             log.error("ROLLBACK: %s — write failed: %s", page_path, e)
-            # Attempt restore
             try:
                 content_file.write_text(original_raw, encoding="utf-8")
                 log.info("ROLLBACK: %s — original content restored", page_path)
@@ -402,12 +550,13 @@ def run_apply(patches: list[dict], dry_run: bool) -> None:
         try:
             verify_raw = content_file.read_text(encoding="utf-8")
             verify_fm_block, _ = _split_frontmatter(verify_raw)
-            verify_fm: dict = yaml.safe_load(verify_fm_block) or {}
+            verify_fm: Any = _parse_frontmatter(verify_fm_block) or {}
 
             verification_ok = True
             fields_upd = patch.get("fields_to_update", {})
+            writable = _writable_fields_for(page_path)
 
-            if fields_upd.get("seoTitle") is not None:
+            if "seoTitle" in writable and fields_upd.get("seoTitle") is not None:
                 if verify_fm.get("seoTitle") != fields_upd["seoTitle"]:
                     verification_ok = False
                     log.error("ROLLBACK: %s — seoTitle verification failed", page_path)
@@ -416,6 +565,11 @@ def run_apply(patches: list[dict], dry_run: bool) -> None:
                 if verify_fm.get("description") != fields_upd["description"]:
                     verification_ok = False
                     log.error("ROLLBACK: %s — description verification failed", page_path)
+
+            if fields_upd.get("keywords") is not None:
+                if list(verify_fm.get("keywords") or []) != list(fields_upd["keywords"]):
+                    verification_ok = False
+                    log.error("ROLLBACK: %s — keywords verification failed", page_path)
 
             if not verification_ok:
                 content_file.write_text(original_raw, encoding="utf-8")
@@ -439,7 +593,10 @@ def run_apply(patches: list[dict], dry_run: bool) -> None:
     # Summary
     print()
     print("=" * 60)
-    print(f"Apply complete: {applied_count} applied, {rollback_count} rolled back, {skip_count} skipped")
+    print(
+        f"Apply complete: {applied_count} applied, {rollback_count} rolled back, "
+        f"{skip_count} skipped, {rejected_governance_count} rejected (governance)"
+    )
     if applied_count > 0:
         print()
         print("Run the following to validate:")
@@ -531,6 +688,15 @@ def main() -> None:
         manifest.get("total_patches", 0),
         len(patches),
     )
+
+    if not dry_run and len(patches) > MAX_BATCH_SIZE:
+        log.error(
+            "REFUSING: %d patches exceeds the %d-file safety cap for a single apply "
+            "run (Finding #9 — a bad batch must always be revertable with one git "
+            "revert). Use --page or --batch-id to scope a smaller batch.",
+            len(patches), MAX_BATCH_SIZE,
+        )
+        sys.exit(1)
 
     if dry_run:
         run_dry_run(patches)
