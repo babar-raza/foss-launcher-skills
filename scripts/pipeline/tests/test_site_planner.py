@@ -1317,3 +1317,19 @@ class TestDemandHintsTiebreak:
             demand_hints={"TotallyMadeUpClassName": 1000.0},
         )
         assert len(clusters) == 1
+
+    def test_compute_demand_hints_safe_degrades_to_empty_on_any_failure(self, monkeypatch):
+        """build_plan()'s real call sites use this wrapper -- it must never
+        raise or block site planning, regardless of what goes wrong in the
+        optional SEO subsystem."""
+        import builtins
+        real_import = builtins.__import__
+
+        def _raise_on_demand_hints(name, *args, **kwargs):
+            if name == "seo.pipeline.demand_hints":
+                raise ImportError("simulated: seo subsystem unavailable")
+            return real_import(name, *args, **kwargs)
+
+        monkeypatch.setattr(builtins, "__import__", _raise_on_demand_hints)
+        result = sp._compute_demand_hints_safe("3d", _make_api_surface(["formats"]))
+        assert result == {}

@@ -820,6 +820,22 @@ def _subpkg_to_label(subpkg: str, family: str) -> str:
     return slug_from_category(split)
 
 
+def _compute_demand_hints_safe(family: str, api_surface: list[dict]) -> "dict[str, float]":
+    """Lazily compute real demand_hints for `family`, degrading to {} on any
+    failure -- site planning must never fail or behave differently because
+    the optional SEO subsystem is unavailable. See
+    scripts/seo/pipeline/demand_hints.py for the real matching logic.
+    """
+    try:
+        _scripts_dir = str(Path(__file__).resolve().parents[3])
+        if _scripts_dir not in sys.path:
+            sys.path.insert(0, _scripts_dir)
+        from seo.pipeline.demand_hints import compute_demand_hints
+        return compute_demand_hints(family, api_surface)
+    except Exception:
+        return {}
+
+
 def detect_clusters(
     claims: list[dict],
     api_surface: list[dict],
@@ -2059,6 +2075,7 @@ def build_plan(
         kn.snippet_index,
         kn.limitations_text,
         family=family,
+        demand_hints=_compute_demand_hints_safe(family, kn.api_surface),
     )
     # Orphaned claim count for evidence_summary. Must sum raw_claim_count
     # (unweighted), not claim_count (visibility-weighted up to 3x per claim,
@@ -2408,6 +2425,7 @@ def main() -> None:
             kn.snippet_index,
             kn.limitations_text,
             family=family,
+            demand_hints=_compute_demand_hints_safe(family, kn.api_surface),
         )
         print(json.dumps(clusters, indent=2, ensure_ascii=False))
         return
