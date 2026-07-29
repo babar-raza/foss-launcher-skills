@@ -5,7 +5,14 @@ Sibling check to check_grade_churn.py, for the `evidence:` frontmatter block
 instead of grade fields. Detects commits/PRs where many .md files have changes
 confined to the `evidence:` block (model_sha/model_version/claims/apis/
 formats/sections re-stamp) with no body content change and no change to any
-other top-level frontmatter field.
+non-grade top-level frontmatter field. A co-occurring change to the
+`grade`/`graded_*`/`grade_reasons` family does NOT disqualify a file from this
+classification — those fields are derived from evidence + body content, and
+re-grading is a routine, expected side effect of an evidence re-stamp, not an
+independent editorial change (2026-07-29, HARDEN-EC-01: found live on a
+208-file 3d/java evidence re-stamp where `grade_reasons` wording also shifted,
+which silently evaded this guard under the pre-fix all-other-keys-identical
+rule even though the body was byte-identical).
 
 Root incident this guards against: commit 643c02f7b8 (TC-SFH-007) re-ran
 `attach_evidence.py --force` across 845 pdf/net pages after a
@@ -53,6 +60,21 @@ import yaml
 
 # The bulk re-stamp annotation that overrides the check
 _BULK_ANNOTATION_RE = re.compile(r"EVIDENCE-RESTAMP:\s*approved by", re.IGNORECASE)
+
+# Grade fields are DERIVED from evidence + body content, not independent
+# editorial decisions — when evidence is re-stamped, grade/grade_reasons
+# routinely get recomputed as a side effect even though nothing a human
+# would call "content" changed. Treating a co-occurring grade change as
+# disqualifying (the pre-fix behavior) meant re-stamps that also happened
+# to shift `grade_reasons` wording silently evaded this guard entirely,
+# even with a byte-identical body. Mirrors the field list check_grade_churn.py
+# already treats as the grade-field family (GUARD-01).
+_GRADE_FIELDS: frozenset[str] = frozenset({
+    "grade", "graded_at", "graded_model_sha", "graded_evaluators",
+    "graded_logic_version", "graded_content_hash", "graded_evaluator_versions",
+    "graded_enrichment_status", "grade_final", "grade_stale_reason",
+    "grade_stale_targets", "grade_reasons",
+})
 
 
 def _get_changed_md_files(*, mode: str, base_branch: str) -> list[str]:
@@ -130,10 +152,10 @@ def is_evidence_only_change(old_text: str | None, new_text: str | None) -> bool:
         return False  # a top-level frontmatter key was added/removed
 
     for key in old_keys:
-        if key == "evidence":
+        if key == "evidence" or key in _GRADE_FIELDS:
             continue
         if old_data[key] != new_data[key]:
-            return False  # some non-evidence top-level field changed
+            return False  # some non-evidence, non-grade top-level field changed
 
     return old_data.get("evidence") != new_data.get("evidence")
 
