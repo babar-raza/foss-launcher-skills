@@ -17,6 +17,7 @@ the real _paragraph_rewrite path with a call-counting fake router:
 from __future__ import annotations
 
 import json
+import hashlib
 import shutil
 import sys
 from pathlib import Path
@@ -127,6 +128,69 @@ def _setup(tmp_path: Path, *, family="pdf", platform="net"):
     return page
 
 
+def _execute(
+    tmp_path: Path,
+    family: str,
+    platform: str,
+    run_tag: str,
+    **kwargs,
+):
+    """Exercise mutation through a distinct run while sharing the LLM cache."""
+    run_root = tmp_path / "run-artifacts" / run_tag
+    run_root.mkdir(parents=True, exist_ok=True)
+    impact_path = (
+        Path(br._cfg_reports_root) / family / platform / "body_impact.json"
+    )
+    impacts = json.loads(impact_path.read_text(encoding="utf-8"))
+    paths = [item["page_path"] for item in impacts]
+    scope_path = run_root / "scope.json"
+    scope_path.write_text(
+        json.dumps(
+            {
+                "run_id": f"TEST-{run_tag}",
+                "family": family,
+                "platform": platform,
+                "paths": paths,
+            }
+        ),
+        encoding="utf-8",
+    )
+    logical = json.dumps(
+        {"paths": sorted(paths), "input_digest": None},
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    (run_root / "manifest.json").write_text(
+        json.dumps(
+            {
+                "run_id": f"TEST-{run_tag}",
+                "family": family,
+                "platform": platform,
+                "created_at": "2026-07-26T00:00:00Z",
+                "scope": {
+                    "paths": paths,
+                    "input_digest": None,
+                    "digest": "sha256:" + hashlib.sha256(logical).hexdigest(),
+                },
+                "output_digests": {
+                    "scope": "sha256:" + hashlib.sha256(
+                        scope_path.read_bytes()
+                    ).hexdigest()
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    return br.run(
+        family,
+        platform,
+        execute=True,
+        run_id=f"TEST-{run_tag}",
+        run_root=run_root,
+        **kwargs,
+    )
+
+
 def test_case_a_cache_enabled_second_run_zero_calls_byte_identical(tmp_path):
     _CountingRouter.calls = 0
     _CountingRouter.vary_output = False
@@ -135,7 +199,7 @@ def test_case_a_cache_enabled_second_run_zero_calls_byte_identical(tmp_path):
     writes: list[str] = []
     br.configure(safe_write_fn=lambda p, c, **kw: writes.append(c) or True)
 
-    receipts1 = br.run("pdf", "net", execute=True)
+    receipts1 = _execute(tmp_path, "pdf", "net", "cache-first")
     assert _CountingRouter.calls == 1, "first run must make one real LLM call"
     assert len(writes) == 1
     first_output = writes[0]
@@ -143,7 +207,7 @@ def test_case_a_cache_enabled_second_run_zero_calls_byte_identical(tmp_path):
 
     # Reset the page to its original content — identical input, second run
     page.write_text(_PAGE_BODY, encoding="utf-8")
-    receipts2 = br.run("pdf", "net", execute=True)
+    receipts2 = _execute(tmp_path, "pdf", "net", "cache-second")
     assert _CountingRouter.calls == 1, "second identical run must be served from cache"
     assert len(writes) == 2
     assert writes[1] == first_output, "cache hit must be byte-identical"
@@ -156,12 +220,12 @@ def test_case_a_changed_input_misses_cache(tmp_path):
     page = _setup(tmp_path)
     br.configure(safe_write_fn=lambda p, c, **kw: True)
 
-    br.run("pdf", "net", execute=True)
+    _execute(tmp_path, "pdf", "net", "changed-first")
     assert _CountingRouter.calls == 1
 
     # Different section text -> different prompt -> different key -> real call
     page.write_text(_PAGE_BODY.replace("in detail", "at length"), encoding="utf-8")
-    br.run("pdf", "net", execute=True)
+    _execute(tmp_path, "pdf", "net", "changed-second")
     assert _CountingRouter.calls == 2
 
 
@@ -178,9 +242,13 @@ def test_case_b_forced_fresh_varies_but_never_regresses(tmp_path):
     writes: list[str] = []
     br.configure(safe_write_fn=lambda p, c, **kw: writes.append(c) or True)
 
-    receipts1 = br.run("fake", "python", execute=True, force_llm_regen=True)
+    receipts1 = _execute(
+        tmp_path, "fake", "python", "fresh-first", force_llm_regen=True
+    )
     page.write_text(_PAGE_BODY, encoding="utf-8")
-    receipts2 = br.run("fake", "python", execute=True, force_llm_regen=True)
+    receipts2 = _execute(
+        tmp_path, "fake", "python", "fresh-second", force_llm_regen=True
+    )
 
     assert _CountingRouter.calls == 2, "forced fresh must call the LLM every run"
     assert len(writes) == 2
@@ -223,7 +291,7 @@ def test_forbidden_scan_failure_marks_receipt_unverified(tmp_path):
     br.configure(forbidden_claims=42,
                  safe_write_fn=lambda p, c, **kw: True)
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _execute(tmp_path, "pdf", "net", "scan-failure")
     updated = [r for r in receipts if r.get("verdict") == br.VD_UPDATED]
     assert updated, f"expected a written page, got {receipts}"
     scan = updated[0].get("forbidden_claims_scan")
@@ -237,7 +305,7 @@ def test_forbidden_scan_ok_on_normal_run(tmp_path):
     _setup(tmp_path)
     br.configure(safe_write_fn=lambda p, c, **kw: True)
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _execute(tmp_path, "pdf", "net", "scan-normal")
     updated = [r for r in receipts if r.get("verdict") == br.VD_UPDATED]
     assert updated
     assert updated[0]["forbidden_claims_scan"] == {"ok": True, "error": ""}
@@ -323,7 +391,7 @@ def test_cache_never_stores_fallback_output(tmp_path):
     br.configure(llm_router_class=_FailingRouter,
                  safe_write_fn=lambda p, c, **kw: True)
 
-    receipts1 = br.run("pdf", "net", execute=True)
+    receipts1 = _execute(tmp_path, "pdf", "net", "fallback")
     assert _FailingRouter.calls == 1
     assert receipts1[0]["fallback_reason"] == "LLM_ERROR"
 

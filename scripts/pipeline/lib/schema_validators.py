@@ -294,6 +294,7 @@ _PRODUCT_CHANGE_TYPES = {
 _UPDATE_STRATEGIES = {
     "SURGICAL_CLAIM_REPLACEMENT", "TABLE_ROW_RECONCILIATION",
     "EXAMPLE_REGENERATION", "SECTION_REMOVAL", "PARAGRAPH_REWRITE",
+    "REFERENCE_REGENERATION",
 }
 
 
@@ -377,7 +378,21 @@ def validate_page_coverage_ledger_entry(data: dict) -> list[str]:
     return errors
 
 
-_PAGE_PATCH_VERDICTS = {"BODY_UPDATED", "SKIPPED_HASH_CHANGED", "SKIPPED_AUTO_UPDATABLE_FALSE"}
+_PAGE_PATCH_VERDICTS = {
+    "BODY_UPDATED",
+    "GENERATED",
+    "EVIDENCE_ONLY",
+    "REFERENCE_UNCHANGED",
+    "REFERENCE_SKIPPED",
+    "REFERENCE_BLOCKED",
+    "NO_ACTIONABLE_SECTIONS",
+    "TARGET_REJECTED_LOCALIZED",
+    "TARGET_REJECTED_AMBIGUOUS_LOCALE",
+    "BLOCKED_FORBIDDEN_CLAIM",
+    "BLOCKED_TEMPLATE_PROPAGATION",
+    "SKIPPED_HASH_CHANGED",
+    "SKIPPED_AUTO_UPDATABLE_FALSE",
+}
 # RPR-E-05: why a PARAGRAPH_REWRITE fell back to the deterministic template (if it did).
 _FALLBACK_REASONS = {
     "NONE",                          # LLM ran and its output was used
@@ -441,17 +456,133 @@ def validate_page_patch_receipt(data: dict) -> list[str]:
     return errors
 
 
-_REFRESH_RUN_VALIDATION_FIELDS = ("post_refresh_verify", "oracle", "triage_confirm", "seo_stability")
-_REFRESH_RUN_STATUSES = {"in_progress", "blocked", "committed", "abandoned"}
+_REFRESH_PAGE_DISPOSITIONS = {
+    "BODY_UPDATED",
+    "EVIDENCE_ONLY",
+    "NOT_AFFECTED",
+    "SKIPPED",
+    "BLOCKED",
+    "GENERATED",
+}
 
 
-def validate_refresh_run_manifest(data: dict) -> list[str]:
-    """Validate one refresh-run manifest, per plan schema 5e.
+def validate_refresh_page_decision(data: dict) -> list[str]:
+    """Validate a run-scoped page decision emitted by an actual writer.
 
-    Encodes the plan's rollback rule (§13): a run may only be status=committed
-    with a non-null commit_sha when every validation field is PASS — a failed
-    or partial run must never be recorded as committed.
+    These rows describe pipeline intent and evidence ownership. They do not
+    prove that a body changed; post-refresh verification independently derives
+    that fact from Git using the run's explicit base.
     """
+    errors: list[str] = []
+    errors.extend(_check_required(
+        data,
+        [
+            "schema_version",
+            "run_id",
+            "page_path",
+            "surface",
+            "locale",
+            "intended_action",
+            "disposition",
+            "body_hash_before",
+            "body_hash_after",
+            "frontmatter_hash_before",
+            "frontmatter_hash_after",
+            "receipt_ref",
+            "receipt_digest",
+            "evidence_claims_checked",
+            "evidence_apis_checked",
+            "validator_results",
+        ],
+        "refresh_page_decision",
+    ))
+    if data.get("schema_version") != 1:
+        errors.append("refresh_page_decision: schema_version must be 1")
+    if data.get("disposition") not in _REFRESH_PAGE_DISPOSITIONS:
+        errors.append(
+            f"refresh_page_decision: invalid disposition {data.get('disposition')!r}"
+        )
+    for field in ("evidence_claims_checked", "evidence_apis_checked"):
+        errors.extend(_check_type(data, field, list, "refresh_page_decision"))
+    errors.extend(_check_type(data, "validator_results", dict, "refresh_page_decision"))
+    validators = data.get("validator_results")
+    required_validators = {"receipt", "forbidden_claims", "regrounding"}
+    if isinstance(validators, dict):
+        missing_validators = sorted(required_validators.difference(validators))
+        unexpected_validators = sorted(set(validators).difference(required_validators))
+        if missing_validators:
+            errors.append(
+                "refresh_page_decision: validator_results is missing "
+                f"{missing_validators}"
+            )
+        if unexpected_validators:
+            errors.append(
+                "refresh_page_decision: validator_results contains unsupported "
+                f"keys {unexpected_validators}"
+            )
+        for name in sorted(required_validators.intersection(validators)):
+            if validators[name] not in {"PASS", "FAIL", "UNKNOWN"}:
+                errors.append(
+                    "refresh_page_decision: validator_results."
+                    f"{name} must be PASS, FAIL, or UNKNOWN"
+                )
+    for field in (
+        "run_id",
+        "page_path",
+        "surface",
+        "locale",
+        "intended_action",
+        "body_hash_before",
+        "body_hash_after",
+        "frontmatter_hash_before",
+        "frontmatter_hash_after",
+        "receipt_ref",
+        "receipt_digest",
+    ):
+        value = data.get(field)
+        if not isinstance(value, str) or not value.strip():
+            errors.append(
+                f"refresh_page_decision: '{field}' must be a non-empty string"
+            )
+    if (
+        data.get("disposition") == "BODY_UPDATED"
+        and data.get("body_hash_before") == data.get("body_hash_after")
+    ):
+        errors.append(
+            "refresh_page_decision: BODY_UPDATED requires different normalized body hashes"
+        )
+    if data.get("receipt_digest") and not str(data["receipt_digest"]).startswith("sha256:"):
+        errors.append("refresh_page_decision: receipt_digest must use sha256: prefix")
+    return errors
+
+
+_REFRESH_RUN_VALIDATION_FIELDS = ("post_refresh_verify", "oracle", "triage_confirm", "seo_stability")
+_REFRESH_RUN_V3_VALIDATION_FIELDS = (
+    "post_refresh_verify",
+    "content_audit",
+    "link_validation",
+    "oracle",
+    "triage_confirm",
+    "seo_stability",
+)
+_REFRESH_RUN_STATUSES = {"in_progress", "blocked", "committed", "abandoned"}
+_REFRESH_RUN_V3_STATES = {
+    "CREATED",
+    "INPUTS_PINNED",
+    "PLANNED",
+    "APPLYING",
+    "VALIDATING",
+    "READY_TO_COMMIT",
+    "COMMITTED",
+    "BLOCKED",
+    "ABANDONED",
+}
+_REFRESH_RUN_V3_MODES = {"upstream", "remediation", "combined"}
+_REFRESH_RUN_V3_RESULTS = {"NOT_RUN", "PASS", "FAIL", "UNKNOWN"}
+
+
+def _validate_legacy_refresh_run_manifest(data: dict) -> list[str]:
+    """Validate the historical schema-5e manifest shape."""
     errors = []
     errors.extend(_check_required(
         data,
@@ -504,6 +635,210 @@ def validate_refresh_run_manifest(data: dict) -> list[str]:
     elif data.get("commit_sha"):
         errors.append(
             f"refresh_run_manifest: commit_sha is set but status={data.get('status')!r} != 'committed'"
+        )
+
+    return errors
+
+
+def validate_refresh_run_manifest(
+    data: dict,
+    phase: str | None = None,
+) -> list[str]:
+    """Validate a refresh-run manifest.
+
+    Schema versions before 3 retain the historical schema-5e behavior. Schema
+    version 3 is the run-bound state-machine contract. Its requirements are
+    progressive: an early manifest is valid without pretending later-stage
+    evidence exists, while ``READY_TO_COMMIT`` and ``COMMITTED`` require a
+    complete all-PASS validation set.
+
+    ``phase`` is optional and primarily useful to callers validating a proposed
+    transition before it is persisted. When supplied it must match ``state``.
+    """
+    if data.get("schema_version") != 3:
+        return _validate_legacy_refresh_run_manifest(data)
+
+    errors: list[str] = []
+    errors.extend(_check_required(
+        data,
+        [
+            "schema_version",
+            "run_id",
+            "family",
+            "platform",
+            "mode",
+            "state",
+            "session_owner",
+            "created_at",
+            "updated_at",
+            "base_commit_sha",
+            "initial_model_sha",
+            "initial_source_sha",
+            "scope",
+            "stage_checkpoints",
+            "validation",
+            "observed_heads",
+        ],
+        "refresh_run_manifest",
+    ))
+
+    state = data.get("state")
+    if state not in _REFRESH_RUN_V3_STATES:
+        errors.append(f"refresh_run_manifest: invalid state '{state}'")
+    if phase is not None and state != phase:
+        errors.append(
+            f"refresh_run_manifest: state {state!r} does not match requested phase {phase!r}"
+        )
+    if data.get("mode") not in _REFRESH_RUN_V3_MODES:
+        errors.append(f"refresh_run_manifest: invalid mode '{data.get('mode')}'")
+
+    for field in (
+        "run_id",
+        "family",
+        "platform",
+        "session_owner",
+        "created_at",
+        "updated_at",
+        "base_commit_sha",
+    ):
+        value = data.get(field)
+        if not isinstance(value, str) or not value.strip():
+            errors.append(f"refresh_run_manifest: '{field}' must be a non-empty string")
+
+    for field in ("initial_model_sha", "initial_source_sha", "target_model_sha", "target_source_sha"):
+        if field in data and data[field] is not None:
+            value = data[field]
+            if not isinstance(value, str) or not value.strip():
+                errors.append(f"refresh_run_manifest: '{field}' must be null or a non-empty string")
+
+    if not isinstance(data.get("scope"), dict):
+        errors.append("refresh_run_manifest: 'scope' must be a dict")
+    if not isinstance(data.get("stage_checkpoints"), dict):
+        errors.append("refresh_run_manifest: 'stage_checkpoints' must be a dict")
+    if not isinstance(data.get("observed_heads"), list):
+        errors.append("refresh_run_manifest: 'observed_heads' must be a list")
+    for field in ("stage_attempt_refs", "validation_attempt_refs"):
+        if field in data and not isinstance(data.get(field), list):
+            errors.append(f"refresh_run_manifest: '{field}' must be a list")
+    for field in ("stage_attempt_digests", "validation_attempt_digests"):
+        mapping = data.get(field)
+        if field in data and not isinstance(mapping, dict):
+            errors.append(f"refresh_run_manifest: '{field}' must be a dict")
+        elif isinstance(mapping, dict):
+            for ref, digest in mapping.items():
+                if (
+                    not isinstance(ref, str)
+                    or not ref
+                    or not isinstance(digest, str)
+                    or not digest.startswith("sha256:")
+                ):
+                    errors.append(
+                        f"refresh_run_manifest: '{field}' must map "
+                        "non-empty refs to sha256: digests"
+                    )
+                    break
+
+    validation = data.get("validation")
+    if not isinstance(validation, dict):
+        errors.append("refresh_run_manifest: 'validation' must be a dict")
+        validation = {}
+    for field in _REFRESH_RUN_V3_VALIDATION_FIELDS:
+        result = validation.get(field)
+        if result not in _REFRESH_RUN_V3_RESULTS:
+            errors.append(
+                f"refresh_run_manifest.validation.{field}: must be one of "
+                f"{sorted(_REFRESH_RUN_V3_RESULTS)}, got {result!r}"
+            )
+
+    state_rank = {
+        "CREATED": 0,
+        "INPUTS_PINNED": 1,
+        "PLANNED": 2,
+        "APPLYING": 3,
+        "VALIDATING": 4,
+        "READY_TO_COMMIT": 5,
+        "COMMITTED": 6,
+        "BLOCKED": -1,
+        "ABANDONED": -1,
+    }.get(state, -1)
+
+    if state_rank >= 1:
+        for field in ("initial_model_sha", "initial_source_sha"):
+            if not data.get(field):
+                errors.append(
+                    f"refresh_run_manifest: state={state} requires non-empty '{field}'"
+                )
+
+    if state_rank >= 2:
+        scope = data.get("scope") if isinstance(data.get("scope"), dict) else {}
+        if not isinstance(scope.get("digest"), str) or not scope.get("digest"):
+            errors.append(
+                f"refresh_run_manifest: state={state} requires scope.digest"
+            )
+        if not isinstance(scope.get("paths"), list):
+            errors.append(
+                f"refresh_run_manifest: state={state} requires scope.paths as a list"
+            )
+        for field in ("target_model_sha", "target_source_sha"):
+            if not data.get(field):
+                errors.append(
+                    f"refresh_run_manifest: state={state} requires non-empty '{field}'"
+                )
+        if data.get("target_model_sha") != data.get("target_source_sha"):
+            errors.append(
+                "refresh_run_manifest: target_model_sha must equal target_source_sha "
+                "before planning or mutation"
+            )
+
+    if state_rank >= 4:
+        if not isinstance(data.get("receipt_refs"), list):
+            errors.append(
+                f"refresh_run_manifest: state={state} requires receipt_refs as a list"
+            )
+        if not isinstance(data.get("page_decision_ref"), str) or not data.get("page_decision_ref"):
+            errors.append(
+                f"refresh_run_manifest: state={state} requires page_decision_ref"
+            )
+
+    if state in {"READY_TO_COMMIT", "COMMITTED"}:
+        not_pass = [
+            field for field in _REFRESH_RUN_V3_VALIDATION_FIELDS
+            if validation.get(field) != "PASS"
+        ]
+        if not_pass:
+            errors.append(
+                f"refresh_run_manifest: state={state} requires every validation to PASS; "
+                f"not PASS: {not_pass}"
+            )
+        if data.get("failure_reason"):
+            errors.append(
+                f"refresh_run_manifest: state={state} cannot carry failure_reason"
+            )
+
+    if state == "COMMITTED":
+        if not isinstance(data.get("commit_sha"), str) or not data.get("commit_sha"):
+            errors.append(
+                "refresh_run_manifest: state=COMMITTED requires a non-empty commit_sha"
+            )
+    elif data.get("commit_sha"):
+        errors.append(
+            f"refresh_run_manifest: commit_sha is set but state={state!r} != 'COMMITTED'"
+        )
+
+    if state == "BLOCKED":
+        if not isinstance(data.get("failure_reason"), str) or not data.get("failure_reason"):
+            errors.append(
+                "refresh_run_manifest: state=BLOCKED requires failure_reason"
+            )
+        resume_state = data.get("resume_state")
+        if resume_state not in _REFRESH_RUN_V3_STATES - {"BLOCKED", "ABANDONED", "COMMITTED"}:
+            errors.append(
+                "refresh_run_manifest: state=BLOCKED requires a legal resume_state"
+            )
+
+    if state == "ABANDONED" and not data.get("failure_reason"):
+        errors.append(
+            "refresh_run_manifest: state=ABANDONED requires failure_reason"
         )
 
     return errors

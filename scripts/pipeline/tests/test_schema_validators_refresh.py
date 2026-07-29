@@ -9,6 +9,7 @@ from lib.schema_validators import (
     validate_page_coverage_ledger_entry,
     validate_page_patch_receipt,
     validate_product_change_record,
+    validate_refresh_page_decision,
     validate_refresh_run_manifest,
     validate_taskcard_record,
 )
@@ -256,6 +257,69 @@ def test_page_patch_receipt_deterministic_strategy_does_not_require_llm_fields()
     assert validate_page_patch_receipt(receipt) == []
 
 
+# ── run-scoped refresh page decision ─────────────────────────────────────
+
+def _valid_run_decision(**overrides):
+    row = {
+        "schema_version": 1,
+        "run_id": "RUN-001",
+        "page_path": "content/docs.aspose.org/en/pdf/net/page.md",
+        "surface": "docs",
+        "locale": "en",
+        "intended_action": "BODY_UPDATE",
+        "disposition": "BODY_UPDATED",
+        "body_hash_before": "sha256:aaa",
+        "body_hash_after": "sha256:bbb",
+        "frontmatter_hash_before": "sha256:ddd",
+        "frontmatter_hash_after": "sha256:eee",
+        "receipt_ref": "reports/refresh_runs/pdf/net/RUN-001/receipts/RCP-001.yaml",
+        "receipt_digest": "sha256:ccc",
+        "evidence_claims_checked": ["CLM-001"],
+        "evidence_apis_checked": [],
+        "validator_results": {
+            "receipt": "PASS",
+            "forbidden_claims": "PASS",
+            "regrounding": "PASS",
+        },
+    }
+    row.update(overrides)
+    return row
+
+
+def test_valid_refresh_page_decision_passes():
+    assert validate_refresh_page_decision(_valid_run_decision()) == []
+
+
+def test_refresh_page_decision_requires_exact_validator_set():
+    row = _valid_run_decision()
+    del row["validator_results"]["regrounding"]
+    errors = validate_refresh_page_decision(row)
+    assert any("missing" in error and "regrounding" in error for error in errors)
+
+
+def test_refresh_page_decision_rejects_bogus_validator_key_and_value():
+    row = _valid_run_decision()
+    row["validator_results"]["invented"] = "PASS"
+    row["validator_results"]["receipt"] = "MAYBE"
+    errors = validate_refresh_page_decision(row)
+    assert any("unsupported keys" in error for error in errors)
+    assert any("must be PASS, FAIL, or UNKNOWN" in error for error in errors)
+
+
+def test_refresh_page_decision_body_updated_requires_real_body_hash_change():
+    errors = validate_refresh_page_decision(
+        _valid_run_decision(body_hash_after="sha256:aaa")
+    )
+    assert any("different normalized body hashes" in e for e in errors)
+
+
+def test_refresh_page_decision_rejects_unknown_disposition():
+    errors = validate_refresh_page_decision(
+        _valid_run_decision(disposition="LEGACY_BODY_UPDATED")
+    )
+    assert any("invalid disposition" in e for e in errors)
+
+
 # ── refresh_run_manifest ─────────────────────────────────────────────────
 
 def _valid_manifest(**overrides):
@@ -365,6 +429,107 @@ def test_refresh_run_manifest_base_commit_sha_empty_string_fails():
     manifest = _valid_manifest(base_commit_sha="")
     errors = validate_refresh_run_manifest(manifest)
     assert any("base_commit_sha" in e and "empty" in e for e in errors)
+
+
+# ── refresh_run_manifest schema v3 (run-bound orchestration) ─────────────
+
+def _valid_v3_manifest(**overrides):
+    manifest = {
+        "schema_version": 3,
+        "run_id": "rf-20260725-abcdef12",
+        "family": "pdf",
+        "platform": "net",
+        "mode": "upstream",
+        "state": "INPUTS_PINNED",
+        "session_owner": "thread-001",
+        "created_at": "2026-07-25T00:00:00Z",
+        "updated_at": "2026-07-25T00:00:01Z",
+        "base_commit_sha": "a" * 40,
+        "initial_model_sha": "b" * 40,
+        "initial_source_sha": "c" * 40,
+        "target_model_sha": None,
+        "target_source_sha": None,
+        "scope": {"manifest_ref": None, "digest": None, "paths": []},
+        "stage_checkpoints": {},
+        "validation": {
+            "post_refresh_verify": "NOT_RUN",
+            "content_audit": "NOT_RUN",
+            "link_validation": "NOT_RUN",
+            "oracle": "NOT_RUN",
+            "triage_confirm": "NOT_RUN",
+            "seo_stability": "NOT_RUN",
+        },
+        "observed_heads": ["a" * 40],
+        "receipt_refs": [],
+        "page_decision_ref": None,
+        "commit_sha": None,
+        "failure_reason": None,
+    }
+    manifest.update(overrides)
+    return manifest
+
+
+def test_v3_inputs_pinned_manifest_passes():
+    assert validate_refresh_run_manifest(_valid_v3_manifest()) == []
+
+
+def test_v3_phase_must_match_state():
+    errors = validate_refresh_run_manifest(
+        _valid_v3_manifest(), phase="PLANNED"
+    )
+    assert any("does not match requested phase" in e for e in errors)
+
+
+def test_v3_planned_requires_equal_target_model_and_source():
+    manifest = _valid_v3_manifest(
+        state="PLANNED",
+        target_model_sha="d" * 40,
+        target_source_sha="e" * 40,
+        scope={"manifest_ref": None, "digest": "sha256:abc", "paths": []},
+    )
+    errors = validate_refresh_run_manifest(manifest)
+    assert any("target_model_sha must equal target_source_sha" in e for e in errors)
+
+
+def test_v3_ready_to_commit_requires_all_pass():
+    manifest = _valid_v3_manifest(
+        state="READY_TO_COMMIT",
+        target_model_sha="d" * 40,
+        target_source_sha="d" * 40,
+        scope={"manifest_ref": None, "digest": "sha256:abc", "paths": []},
+        receipt_refs=[],
+        page_decision_ref="page_decisions.jsonl",
+    )
+    errors = validate_refresh_run_manifest(manifest)
+    assert any("requires every validation to PASS" in e for e in errors)
+
+
+def test_v3_committed_manifest_passes():
+    manifest = _valid_v3_manifest(
+        state="COMMITTED",
+        target_model_sha="d" * 40,
+        target_source_sha="d" * 40,
+        scope={"manifest_ref": None, "digest": "sha256:abc", "paths": []},
+        receipt_refs=["receipts/RCP-001.yaml"],
+        page_decision_ref="page_decisions.jsonl",
+        validation={
+            "post_refresh_verify": "PASS",
+            "content_audit": "PASS",
+            "link_validation": "PASS",
+            "oracle": "PASS",
+            "triage_confirm": "PASS",
+            "seo_stability": "PASS",
+        },
+        commit_sha="e" * 40,
+    )
+    assert validate_refresh_run_manifest(manifest) == []
+
+
+def test_v3_blocked_requires_reason_and_resume_state():
+    manifest = _valid_v3_manifest(state="BLOCKED")
+    errors = validate_refresh_run_manifest(manifest)
+    assert any("failure_reason" in e for e in errors)
+    assert any("resume_state" in e for e in errors)
 
 
 # ── enum-drift guard (RPR-B-02's originally-specified enum-match test, added

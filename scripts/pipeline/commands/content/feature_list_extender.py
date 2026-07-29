@@ -226,11 +226,13 @@ def _generate_bullet(
 
     try:
         router = router_class()
+        from commands.ops.llm_router import LLMCallContext
         result = router.call_chat(
             prompt_system=system_prompt,
             prompt_user=user_prompt,
             temperature=0.1,
             json_extract=False,
+            context=LLMCallContext.create("feature-list-extender", "content-enrichment", "features"),
         )
         if result and result.data and isinstance(result.data, str):
             bullet = result.data.strip()

@@ -72,6 +72,17 @@ def test_format_name_detection():
     assert "SVG" in formats
 
 
+def test_discovery_includes_products_surface(tmp_path):
+    page = (
+        tmp_path
+        / "products.aspose.org/en/pdf/net/index.md"
+    )
+    page.parent.mkdir(parents=True)
+    page.write_text("---\ntitle: PDF\n---\n", encoding="utf-8")
+    cp.configure(content_root=str(tmp_path))
+    assert page in {Path(item) for item in cp._discover_pages("pdf", "net")}
+
+
 def test_feature_claim_extraction():
     """Feature keywords (supports, converts, exports) are captured."""
     text = "Aspose.PDF supports PDF export and converts files."

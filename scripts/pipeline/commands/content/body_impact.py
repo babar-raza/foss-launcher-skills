@@ -332,9 +332,16 @@ Writes:
     )
     parser.add_argument("family", help="Product family (e.g. pdf, 3d)")
     parser.add_argument("platform", help="Platform (e.g. net, java)")
+    parser.add_argument(
+        "--reports-root",
+        default=None,
+        help="Run-scoped reports root containing {family}/{platform}/ inputs",
+    )
     args = parser.parse_args()
 
     try:
+        if args.reports_root:
+            configure(args.reports_root)
         impacts = run(args.family, args.platform)
     except FileNotFoundError as e:
         print(f"ERROR: {e}", file=sys.stderr)

@@ -1131,9 +1131,23 @@ scripts:
       ref: null
     test_targets: [scripts/pipeline/tests/test_migrate_schema_version.py]
     deprecated_since: null
-    change_impact: "ST-035 (2026-07-17, new file): one-time format-only migration stamping schema_version (RPR-J-08) onto pre-existing progress.json / execution_reconciliation.json / page_decisions.json artifacts, without re-deriving any decision content -- makes Check 8 Case A (and Checks 5/10/11) stop being safe-but-inert on real data. Dry-run by default (--apply to write), mirrors migrate_baseline_ledger.py's established CLI convention. reports/ output is local-only/gitignored; only this script itself is committed."
+    change_impact: "Refresh recovery containment (2026-07-25): read-only forensic inventory for legacy product-level refresh artifacts. Schema stamping is disabled because it changes shape without re-deriving meaning or binding evidence to a run; --apply exits 2. Commit readiness accepts only schema-v3 evidence selected by explicit run_id."
 
   - path: scripts/pipeline/commands/ops/refresh_run_manifest.py
+    kind: entrypoint
+    lifecycle: deprecated
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    test_targets: [scripts/pipeline/tests/test_refresh_run_manifest.py]
+    deprecated_since: "2026-07-25"
+    change_impact: "Superseded by refresh_run.py schema-v3 state machine. This partial schema-5e writer remains only for historical diagnostics and must not produce commit-readiness evidence."
+
+  - path: scripts/pipeline/commands/ops/refresh_run.py
     kind: entrypoint
     lifecycle: active
     canonical_impl_path: null
@@ -1143,9 +1157,26 @@ scripts:
     backing:
       kind: internal
       ref: null
-    test_targets: [scripts/pipeline/tests/test_refresh_run_manifest.py]
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_refresh_run.py, scripts/pipeline/tests/test_schema_validators_refresh.py]
     deprecated_since: null
-    change_impact: "ST-034 (2026-07-17, new file): captures base_commit_sha (current HEAD) into a new refresh-run manifest before any refresh work begins, so post_refresh_verify.py's git-founded checks (7, 8, 10, 11) have a real, non-vacuous baseline to diff against instead of defaulting to HEAD (which is vacuous once the refresh's own commits land -- the single biggest gap identified by RPR-J-10's independent Lane I review). Wired into refresh-product (S-84) Step 1, before /knowledge-diff. Deliberately partial: does not populate the rest of schema 5e (baseline_ledger_ref, product_change_refs, page_coverage_ledger_ref, patch_receipt_refs, validation) -- a full end-of-run manifest writer remains a separate, unscoped follow-up. Consumed by post_refresh_verify.py::_load_base_commit_sha()."
+    change_impact: "Refresh recovery control plane: binds S-84 stages to one explicit run_id, pre-refresh Git base, source/model SHAs, product lock, session owner, progressive schema-v3 manifest, legal state transitions, run-scoped scope/receipt/decision paths, blocking validation, and commit trailers. Local reports remain operational state; Git/source remain authoritative."
+    notes: "Official S-84 execution boundary. Commands: start, run, resume, verify, status, bind-commit, abandon."
+
+  - path: scripts/pipeline/commands/ops/refresh_run_forensics.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_refresh_run_forensics.py]
+    deprecated_since: null
+    change_impact: "Read-only historical refresh classifier. Requires explicit Git base/end boundaries, reconciles every legacy BODY_UPDATED row, records normalized body/frontmatter hashes, and never labels a current content defect without separate truth-audit evidence."
 
   - path: scripts/pipeline/lib/knowledge_tiers.py
     kind: library

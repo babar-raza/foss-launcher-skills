@@ -16,7 +16,8 @@ Architecture:
 
 CLI:
     PYTHONPATH=scripts/pipeline python -m commands.content.body_refresh pdf net --dry-run
-    PYTHONPATH=scripts/pipeline python -m commands.content.body_refresh pdf net --execute
+    PYTHONPATH=scripts/pipeline python -m commands.content.body_refresh pdf net \\
+        --execute --run-id ID --run-root reports/refresh_runs/pdf/net/ID
     PYTHONPATH=scripts/pipeline python -m commands.content.body_refresh pdf net \\
         --execute --page content/docs.aspose.org/en/pdf/net/getting-started/installation.md
 
@@ -52,6 +53,8 @@ import uuid
 import yaml
 from datetime import datetime, timezone
 from typing import Any
+
+from core.fs import atomic_write
 
 # ── Update type constants ──────────────────────────────────────────────────
 
@@ -374,16 +377,34 @@ def find_unverified_forbidden_claims_receipts(
 
 # ── Loaders ────────────────────────────────────────────────────────────────
 
-def _load_body_impact(family: str, platform: str) -> list[dict]:
-    path = Path(_cfg_reports_root) / family / platform / "body_impact.json"
+def _load_body_impact(
+    family: str,
+    platform: str,
+    *,
+    product_root: Path | None = None,
+) -> list[dict]:
+    path = (
+        product_root / "body_impact.json"
+        if product_root is not None
+        else Path(_cfg_reports_root) / family / platform / "body_impact.json"
+    )
     if not path.exists():
         raise FileNotFoundError(f"body_impact.json not found at {path}. Run body_impact.py first.")
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
-def _load_semantic_changes(family: str, platform: str) -> dict[str, dict]:
-    path = Path(_cfg_reports_root) / family / platform / "semantic_changes.json"
+def _load_semantic_changes(
+    family: str,
+    platform: str,
+    *,
+    product_root: Path | None = None,
+) -> dict[str, dict]:
+    path = (
+        product_root / "semantic_changes.json"
+        if product_root is not None
+        else Path(_cfg_reports_root) / family / platform / "semantic_changes.json"
+    )
     if not path.exists():
         raise FileNotFoundError(f"semantic_changes.json not found at {path}.")
     with open(path, encoding="utf-8") as f:
@@ -835,11 +856,13 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
 
     try:
         router = router_class()
+        from commands.ops.llm_router import LLMCallContext
         result = router.call_chat(
             prompt_system=system_prompt,
             prompt_user=user_prompt,
             temperature=0.1,
             json_extract=False,
+            context=LLMCallContext.create("body-refresh", "body-refresh", "paragraph-rewrite"),
         )
     except Exception as exc:  # noqa: BLE001 — any router failure must fail safe, not crash the refresh run
         print(
@@ -1002,16 +1025,277 @@ def _emit_receipt(
     receipt_data: dict,
     family: str,
     platform: str,
-) -> Path:
-    """Write a YAML receipt to receipts/ directory."""
-    receipts_root = _cfg_receipts_root or f"{_cfg_reports_root}/{family}/{platform}/receipts"
+    *,
+    run_root: "Path | None" = None,
+) -> tuple[Path, str]:
+    """Validate and atomically write one immutable YAML receipt.
+
+    A repeated emission is accepted only when the bytes are identical. Reusing a
+    receipt ID for different evidence is a hard error instead of an overwrite.
+    """
+    # A run-scoped root is the production authority.  Test/legacy dependency
+    # injection must never redirect receipts out of that run after another
+    # caller configured this module in the same process.
+    receipts_root = (
+        run_root / "receipts"
+        if run_root is not None
+        else Path(_cfg_receipts_root)
+        if _cfg_receipts_root is not None
+        else Path(f"{_cfg_reports_root}/{family}/{platform}/receipts")
+    )
     receipts_dir = Path(receipts_root)
     receipts_dir.mkdir(parents=True, exist_ok=True)
     receipt_id = receipt_data.get("receipt_id", f"RCP-{uuid.uuid4().hex[:8]}")
     out_path = receipts_dir / f"{receipt_id}.yaml"
-    with open(out_path, "w", encoding="utf-8") as f:
-        yaml.dump({"content_refresh_receipt": receipt_data}, f, default_flow_style=False, allow_unicode=True)
-    return out_path
+    from lib.schema_validators import validate_page_patch_receipt
+
+    errors = validate_page_patch_receipt(receipt_data)
+    if errors:
+        raise ValueError(
+            f"Refusing to write invalid body-refresh receipt {receipt_id}: {errors}"
+        )
+    rendered = yaml.safe_dump(
+        {"content_refresh_receipt": receipt_data},
+        default_flow_style=False,
+        allow_unicode=True,
+        sort_keys=False,
+    )
+    if out_path.is_file():
+        existing_text = out_path.read_text(encoding="utf-8")
+        if existing_text != rendered:
+            existing_doc = yaml.safe_load(existing_text) or {}
+            existing_receipt = existing_doc.get("content_refresh_receipt") or {}
+            comparable_existing = {
+                key: value
+                for key, value in existing_receipt.items()
+                if key != "generated_at"
+            }
+            comparable_new = {
+                key: value
+                for key, value in receipt_data.items()
+                if key != "generated_at"
+            }
+            if comparable_existing == comparable_new:
+                receipt_data["generated_at"] = existing_receipt.get(
+                    "generated_at", receipt_data.get("generated_at")
+                )
+                rendered = existing_text
+            else:
+                raise FileExistsError(
+                    f"Receipt ID collision: {out_path} already exists with different evidence"
+                )
+    else:
+        atomic_write(out_path, rendered)
+    digest = "sha256:" + hashlib.sha256(out_path.read_bytes()).hexdigest()
+    return out_path, digest
+
+
+def _normalized_body_hash(text: str) -> str:
+    from commands.content.audit_content_hash import _body_hash
+
+    return "sha256:" + _body_hash(text)
+
+
+def _frontmatter_hash(text: str) -> str:
+    from commands.content.audit_content_hash import _split_frontmatter_body
+
+    frontmatter, _ = _split_frontmatter_body(text)
+    return "sha256:" + hashlib.sha256(frontmatter.encode("utf-8")).hexdigest()
+
+
+def _frontmatter_evidence_ids(text: str) -> tuple[list[str], list[str]]:
+    from commands.content.audit_content_hash import _split_frontmatter_body
+
+    frontmatter, _ = _split_frontmatter_body(text)
+    try:
+        data = yaml.safe_load(frontmatter) or {}
+    except yaml.YAMLError:
+        return [], []
+    evidence = data.get("evidence") or {}
+    return (
+        [str(value) for value in evidence.get("claims", []) if value],
+        [str(value) for value in evidence.get("apis", []) if value],
+    )
+
+
+def _run_recorded_at(run_root: Path) -> str:
+    """Return the immutable run timestamp when a manifest is available."""
+    manifest_path = run_root / "manifest.json"
+    if manifest_path.is_file():
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            created_at = manifest.get("created_at")
+            if isinstance(created_at, str) and created_at:
+                return created_at
+        except (OSError, json.JSONDecodeError):
+            pass
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _validated_run_scope(
+    run_root: Path,
+    *,
+    run_id: str,
+    family: str,
+    platform: str,
+) -> dict:
+    """Load a pinned run scope only when its manifest binding is intact.
+
+    Writers call this immediately before selecting pages.  This closes the
+    mutation-time gap where a locally edited scope.json could otherwise broaden
+    a run after PLANNED but before final verification.
+    """
+    manifest_path = run_root / "manifest.json"
+    scope_path = run_root / "scope.json"
+    if not manifest_path.is_file() or not scope_path.is_file():
+        raise ValueError("run manifest and pinned scope.json are required")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    scope_bytes = scope_path.read_bytes()
+    scope = json.loads(scope_bytes.decode("utf-8"))
+    actual_scope_digest = "sha256:" + hashlib.sha256(scope_bytes).hexdigest()
+    expected_file_digest = (manifest.get("output_digests") or {}).get("scope")
+    manifest_scope = manifest.get("scope") or {}
+    paths = scope.get("paths")
+    logical_payload = json.dumps(
+        {
+            "paths": sorted(paths if isinstance(paths, list) else []),
+            "input_digest": manifest_scope.get("input_digest"),
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    logical_digest = "sha256:" + hashlib.sha256(logical_payload).hexdigest()
+    if (
+        manifest.get("run_id") != run_id
+        or manifest.get("family") != family
+        or manifest.get("platform") != platform
+        or scope.get("run_id") != run_id
+        or scope.get("family") != family
+        or scope.get("platform") != platform
+        or not isinstance(paths, list)
+        or paths != manifest_scope.get("paths")
+        or actual_scope_digest != expected_file_digest
+        or logical_digest != manifest_scope.get("digest")
+    ):
+        raise ValueError("run scope does not match its pinned manifest contract")
+    unsafe_paths = [
+        value
+        for value in paths
+        if Path(str(value)).is_absolute() or ".." in Path(str(value)).parts
+    ]
+    if unsafe_paths and _cfg_safe_write_fn is None:
+        raise ValueError(f"run scope contains unsafe content paths: {unsafe_paths[:3]}")
+    return scope
+
+
+def _existing_run_receipts(run_root: Path, run_id: str) -> dict[str, dict]:
+    """Return validated, same-run receipts keyed by canonical page path."""
+    from lib.schema_validators import validate_page_patch_receipt
+
+    rows: dict[str, dict] = {}
+    for path in sorted((run_root / "receipts").glob("*.yaml")):
+        document = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        receipt = document.get("content_refresh_receipt") or {}
+        errors = validate_page_patch_receipt(receipt)
+        if errors or receipt.get("run_id") != run_id:
+            raise ValueError(f"invalid existing run receipt {path.name}: {errors}")
+        page_path = Path(str(receipt.get("page_path", ""))).as_posix()
+        if page_path in rows and rows[page_path] != receipt:
+            raise ValueError(f"duplicate run receipt ownership for {page_path}")
+        rows[page_path] = receipt
+    return rows
+
+
+def _emit_run_decision(
+    *,
+    run_root: Path,
+    receipt: dict,
+    receipt_path: Path,
+    receipt_digest: str,
+    old_content: str,
+    new_content: str,
+    impact: dict,
+    intended_action: str = "BODY_UPDATE",
+    disposition: str = "BODY_UPDATED",
+) -> None:
+    """Append one validated run-scoped page decision without overwriting rows."""
+    from lib.schema_validators import validate_refresh_page_decision
+
+    before = _normalized_body_hash(old_content)
+    after = _normalized_body_hash(new_content)
+    page_claims, page_apis = _frontmatter_evidence_ids(new_content)
+    try:
+        receipt_ref = receipt_path.relative_to(run_root).as_posix()
+    except ValueError:
+        # Tests and compatibility callers may configure a separate receipt root.
+        # Never persist an absolute workstation path in the run decision.
+        receipt_ref = f"receipts/{receipt_path.name}"
+    row = {
+        "schema_version": 1,
+        "run_id": receipt["run_id"],
+        "page_path": receipt["page_path"],
+        "surface": receipt.get("surface", _surface_for_page(receipt["page_path"])),
+        "locale": receipt.get("locale", "en"),
+        "intended_action": intended_action,
+        "disposition": disposition,
+        "body_hash_before": before,
+        "body_hash_after": after,
+        "frontmatter_hash_before": _frontmatter_hash(old_content),
+        "frontmatter_hash_after": _frontmatter_hash(new_content),
+        "receipt_ref": receipt_ref,
+        "receipt_digest": receipt_digest,
+        "evidence_claims_checked": (
+            impact.get("evidence_claims_checked") or page_claims
+        ),
+        "evidence_apis_checked": (
+            impact.get("evidence_apis_checked") or page_apis
+        ),
+        "validator_results": {
+            "receipt": "PASS",
+            "forbidden_claims": (
+                "PASS"
+                if receipt.get("forbidden_claims_scan", {}).get("ok") is True
+                else "UNKNOWN"
+            ),
+            "regrounding": (
+                "FAIL"
+                if receipt.get("regrounding_violations")
+                else "PASS"
+                if receipt.get("regrounding_scan", {}).get("ok") is True
+                else "UNKNOWN"
+            ),
+        },
+        "recorded_at": receipt["generated_at"],
+    }
+    errors = validate_refresh_page_decision(row)
+    if errors:
+        raise ValueError(
+            f"Refusing to write invalid page decision for {receipt['page_path']}: {errors}"
+        )
+
+    decisions_path = run_root / "page_decisions.jsonl"
+    existing_rows: list[dict] = []
+    if decisions_path.is_file():
+        for line in decisions_path.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                existing_rows.append(json.loads(line))
+    matching = [
+        prior
+        for prior in existing_rows
+        if prior.get("run_id") == row["run_id"]
+        and prior.get("page_path") == row["page_path"]
+    ]
+    if matching:
+        if matching[-1] != row:
+            raise FileExistsError(
+                f"Page decision collision for {row['run_id']} {row['page_path']}"
+            )
+        return
+    rendered = "".join(
+        json.dumps(item, ensure_ascii=False, sort_keys=True) + "\n"
+        for item in [*existing_rows, row]
+    )
+    atomic_write(decisions_path, rendered)
 
 
 # ── Run entry point ────────────────────────────────────────────────────────
@@ -1024,18 +1308,64 @@ def run(
     execute: bool = False,
     page_filter: str | None = None,
     force_llm_regen: bool = False,
+    run_id: str | None = None,
+    run_root: "str | Path | None" = None,
 ) -> list[dict]:
     """
     Main logic entry point (importable by tests and CLI).
 
     Returns list of receipt dicts (one per page processed).
     """
-    impacts = _load_body_impact(family, platform)
-    changes_by_id = _load_semantic_changes(family, platform)
-
+    if execute and not run_id:
+        raise ValueError("execute=True requires an explicit run_id")
+    explicit_run_root = run_root is not None
+    resolved_run_root = Path(run_root) if run_root is not None else (
+        Path("reports") / "refresh_runs" / family / platform / str(run_id)
+        if run_id
+        else None
+    )
+    run_product_root = (
+        resolved_run_root / "planning" / family / platform
+        if resolved_run_root is not None
+        else None
+    )
+    if (
+        run_product_root is not None
+        and not (run_product_root / "body_impact.json").is_file()
+    ):
+        run_product_root = None
+    impacts = _load_body_impact(
+        family, platform, product_root=run_product_root
+    )
+    existing_run_receipts: dict[str, dict] = {}
+    if explicit_run_root and resolved_run_root is not None:
+        if not run_id:
+            raise ValueError("an explicit run_root requires run_id")
+        scope_data = _validated_run_scope(
+            resolved_run_root,
+            run_id=run_id,
+            family=family,
+            platform=platform,
+        )
+        scoped_paths = {
+            Path(str(value)).as_posix()
+            for value in scope_data.get("paths", [])
+        }
+        impacts = [
+            impact
+            for impact in impacts
+            if Path(str(impact.get("page_path", ""))).as_posix()
+            in scoped_paths
+        ]
+        existing_run_receipts = _existing_run_receipts(
+            resolved_run_root, run_id
+        )
+    changes_by_id = _load_semantic_changes(
+        family, platform, product_root=run_product_root
+    )
     context = {"family": family, "platform": platform}
     receipts: list[dict] = []
-    run_id = f"body-refresh-{family}-{platform}"
+    effective_run_id = run_id or f"dry-run-{family}-{platform}"
 
     # HARDEN-A4: run-scoped LLM output cache for PARAGRAPH_REWRITE. Lives under
     # the configured reports root, so tests/sandboxes are hermetic automatically.
@@ -1059,17 +1389,30 @@ def run(
     try:
         from lib.regrounding_check import RegroundingCache
         _regrounding_cache = RegroundingCache()
-    except Exception:  # pragma: no cover — lib always importable
+        _regrounding_init_error = ""
+    except Exception as exc:  # pragma: no cover — defensive dependency boundary
         _regrounding_cache = None
+        _regrounding_init_error = f"{type(exc).__name__}: {exc}"
 
     # RPR-E-05: one circuit per run, shared across all pages via context.
     _llm_circuit = _LLMCircuit()
     context["_llm_circuit"] = _llm_circuit
 
-    for impact in impacts:
-        page_path = impact.get("page_path", "")
+    for source_impact in impacts:
+        impact = dict(source_impact)
+        page_path = Path(str(impact.get("page_path", ""))).as_posix()
+        existing_receipt = existing_run_receipts.get(page_path)
+        if execute and existing_receipt and Path(page_path).is_file():
+            current_digest = _file_sha256(Path(page_path))
+            if current_digest == existing_receipt.get("new_hash"):
+                # A prior attempt completed this page and crashed later.  Its
+                # immutable receipt/decision remain authoritative; do not
+                # generate a second identity or rewrite the page.
+                receipts.append(existing_receipt)
+                continue
         if not page_path:
             continue
+        impact["page_path"] = page_path
         if page_filter and page_path != page_filter:
             continue
 
@@ -1077,7 +1420,7 @@ def run(
         if not target_allowed:
             receipts.append({
                 "receipt_id": f"RCP-{family}-{platform}-{len(receipts)+1:04d}",
-                "run_id": run_id,
+                "run_id": effective_run_id,
                 "page_path": page_path,
                 "locale": target_locale or impact.get("locale", ""),
                 "verdict": target_reason,
@@ -1094,7 +1437,7 @@ def run(
         if not actionable_sections:
             receipts.append({
                 "receipt_id": f"RCP-{family}-{platform}-{len(receipts)+1:04d}",
-                "run_id": run_id,
+                "run_id": effective_run_id,
                 "page_path": page_path,
                 "verdict": VD_NO_SECTIONS,
             })
@@ -1104,7 +1447,7 @@ def run(
         if not _is_auto_updatable(page_path):
             receipts.append({
                 "receipt_id": f"RCP-{family}-{platform}-{len(receipts)+1:04d}",
-                "run_id": run_id,
+                "run_id": effective_run_id,
                 "page_path": page_path,
                 "verdict": VD_SKIPPED_AUTO,
             })
@@ -1114,7 +1457,7 @@ def run(
         if dry_run and not execute:
             receipts.append({
                 "receipt_id": f"RCP-{family}-{platform}-{len(receipts)+1:04d}",
-                "run_id": run_id,
+                "run_id": effective_run_id,
                 "page_path": page_path,
                 "verdict": VD_SKIPPED_DRY,
                 "planned_sections": [s["section_id"] for s in actionable_sections],
@@ -1190,6 +1533,10 @@ def run(
         regrounding_violations: list[dict] = []
         forbidden_scan_ok = True
         forbidden_scan_error = ""
+        regrounding_scan_ok = new_content == old_content
+        regrounding_scan_error = (
+            "" if regrounding_scan_ok else _regrounding_init_error
+        )
 
         if new_content != old_content:
             # RPR-E-02: generation-time forbidden-claims gate. If this edit
@@ -1207,8 +1554,12 @@ def run(
                     rg = _regrounding_cache.check_page(
                         page_path, new_content, _read_cited_evidence(old_content))
                     regrounding_violations = [v.to_dict() for v in rg]
-                except Exception as exc:  # noqa: BLE001 — gate fails open, never crashes the run
-                    print(f"WARNING: re-grounding check failed (non-fatal): {exc}")
+                    regrounding_scan_ok = True
+                    regrounding_scan_error = ""
+                except Exception as exc:  # noqa: BLE001 — evidence records UNKNOWN
+                    regrounding_scan_ok = False
+                    regrounding_scan_error = f"{type(exc).__name__}: {exc}"
+                    print(f"WARNING: re-grounding check failed: {exc}")
             if forbidden_violations:
                 verdict = VD_FORBIDDEN_BLOCKED
                 print(
@@ -1230,38 +1581,120 @@ def run(
                 new_content = old_content  # do not propagate the ungrounded reuse
                 new_hash = old_hash.replace("sha256:", "")
             else:
-                written = _write_page(page_path, new_content, family, platform)
-                verdict = VD_UPDATED if written else VD_SKIPPED_AUTO
-                if written:
-                    # TC-09: record write for post_body_refresh_evidence.py
-                    _record_body_refresh_write(page_path, run_id)
+                # The receipt and page decision are emitted before the content
+                # mutation below.  A crash can therefore be resumed or
+                # hash-gated-recovered without an unowned working-tree write.
+                verdict = VD_UPDATED
         else:
             verdict = VD_NO_SECTIONS
 
+        strategy_used = (
+            UT_REWRITE if UT_REWRITE in strategies_used
+            else strategies_used[0] if strategies_used
+            else UT_SURGICAL
+        )
+        staged_path: Path | None = None
+        if verdict == VD_UPDATED:
+            if resolved_run_root is None:
+                raise ValueError("run_root could not be resolved")
+            relative_page = Path(page_path)
+            if relative_page.is_absolute() or ".." in relative_page.parts:
+                if _cfg_safe_write_fn is None:
+                    raise ValueError(f"unsafe scoped page path: {page_path}")
+                relative_page = (
+                    Path("test-fixture")
+                    / f"{hashlib.sha256(page_path.encode('utf-8')).hexdigest()}.md"
+                )
+            staged_path = resolved_run_root / "staging" / relative_page
+            atomic_write(staged_path, new_content)
+            staged_bytes = staged_path.read_bytes()
+            receipt_new_hash = (
+                "sha256:" + hashlib.sha256(staged_bytes).hexdigest()
+            )
+        else:
+            receipt_new_hash = old_hash
+        receipt_seed = (
+            f"{effective_run_id}\0{page_path}\0{old_hash}\0{receipt_new_hash}"
+        ).encode("utf-8")
         receipt_data = {
-            "receipt_id": f"RCP-{family}-{platform}-{len(receipts)+1:04d}",
-            "run_id": run_id,
+            "receipt_id": f"RCP-{hashlib.sha256(receipt_seed).hexdigest()[:20]}",
+            "run_id": effective_run_id,
             "page_path": page_path,
             "locale": impact.get("locale", "en"),
+            "change_ids": impact.get("semantic_change_ids", []),
             "semantic_change_ids": impact.get("semantic_change_ids", []),
+            "strategy_used": strategy_used,
             "body_sections_changed": sections_changed,
             "preserved_sections": sections_preserved,
             "old_hash": old_hash,
-            "new_hash": f"sha256:{new_hash}",
+            "new_hash": receipt_new_hash,
             "verdict": verdict,
             "strategies_used": strategies_used,
             "forbidden_violations": forbidden_violations,
             "forbidden_claims_scan": {"ok": forbidden_scan_ok, "error": forbidden_scan_error},
             "regrounding_violations": regrounding_violations,
+            "regrounding_scan": {
+                "ok": regrounding_scan_ok,
+                "error": regrounding_scan_error,
+            },
             "surface": surface,
             "surface_deferrals": surface_deferrals,
             "fallback_reason": page_fallback_reason,
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "llm_invoked": (
+                strategy_used == UT_REWRITE and page_fallback_reason == "NONE"
+            ),
+            "template_fallback_used": (
+                strategy_used == UT_REWRITE and page_fallback_reason != "NONE"
+            ),
+            "generated_at": (
+                _run_recorded_at(resolved_run_root)
+                if resolved_run_root is not None
+                else datetime.now(timezone.utc).isoformat()
+            ),
         }
         receipts.append(receipt_data)
 
-        if execute and verdict == VD_UPDATED:
-            _emit_receipt(receipt_data, family, platform)
+        if execute:
+            if resolved_run_root is None:  # defensive; execute already requires run_id
+                raise ValueError("run_root could not be resolved")
+            receipt_path, receipt_digest = _emit_receipt(
+                receipt_data,
+                family,
+                platform,
+                run_root=resolved_run_root,
+            )
+            _emit_run_decision(
+                run_root=resolved_run_root,
+                receipt=receipt_data,
+                receipt_path=receipt_path,
+                receipt_digest=receipt_digest,
+                old_content=old_content,
+                new_content=new_content,
+                impact=impact,
+                disposition=(
+                    "BODY_UPDATED"
+                    if verdict == VD_UPDATED
+                    else "NOT_AFFECTED"
+                    if verdict == VD_NO_SECTIONS
+                    else "SKIPPED"
+                    if verdict in {VD_SKIPPED_AUTO, VD_SKIPPED_HASH}
+                    else "BLOCKED"
+                ),
+            )
+            if verdict == VD_UPDATED:
+                written = _write_page(page_path, new_content, family, platform)
+                if not written:
+                    raise RuntimeError(
+                        f"validated write was refused for {page_path}"
+                    )
+                if (
+                    _cfg_safe_write_fn is None
+                    and _file_sha256(Path(page_path)) != receipt_new_hash
+                ):
+                    raise RuntimeError(
+                        f"content write hash mismatch for {page_path}"
+                    )
+                _record_body_refresh_write(page_path, effective_run_id)
 
     return receipts
 
@@ -1279,11 +1712,13 @@ Examples:
   PYTHONPATH=scripts/pipeline python -m commands.content.body_refresh pdf net --dry-run
 
   # Execute all impacts:
-  PYTHONPATH=scripts/pipeline python -m commands.content.body_refresh pdf net --execute
+  PYTHONPATH=scripts/pipeline python -m commands.content.body_refresh pdf net \\
+      --execute --run-id ID --run-root reports/refresh_runs/pdf/net/ID
 
   # Execute single page:
   PYTHONPATH=scripts/pipeline python -m commands.content.body_refresh pdf net \\
-      --execute --page content/docs.aspose.org/en/pdf/net/getting-started/installation.md
+      --execute --run-id ID --run-root reports/refresh_runs/pdf/net/ID \\
+      --page content/docs.aspose.org/en/pdf/net/getting-started/installation.md
 
 Update strategies: SURGICAL_CLAIM_REPLACEMENT | TABLE_ROW_RECONCILIATION |
                    EXAMPLE_REGENERATION | SECTION_REMOVAL | PARAGRAPH_REWRITE
@@ -1294,6 +1729,16 @@ Update strategies: SURGICAL_CLAIM_REPLACEMENT | TABLE_ROW_RECONCILIATION |
     parser.add_argument("--dry-run", action="store_true", default=False, help="Plan only; no writes")
     parser.add_argument("--execute", action="store_true", default=False, help="Apply all body updates")
     parser.add_argument("--page", default=None, help="Restrict to single page path")
+    parser.add_argument(
+        "--run-id",
+        default=None,
+        help="Run-bound refresh ID; required with --execute",
+    )
+    parser.add_argument(
+        "--run-root",
+        default=None,
+        help="Run artifact directory (default: reports/refresh_runs/{family}/{platform}/{run_id})",
+    )
     parser.add_argument("--no-llm-cache", action="store_true", dest="no_llm_cache",
                         help="HARDEN-A4: bypass the content-hash LLM rewrite cache and force "
                              "fresh LLM calls (loudly logged; fresh outputs still refresh the cache)")
@@ -1311,8 +1756,10 @@ Update strategies: SURGICAL_CLAIM_REPLACEMENT | TABLE_ROW_RECONCILIATION |
             execute=args.execute,
             page_filter=args.page,
             force_llm_regen=args.no_llm_cache,
+            run_id=args.run_id,
+            run_root=args.run_root,
         )
-    except FileNotFoundError as e:
+    except (FileNotFoundError, ValueError, FileExistsError) as e:
         print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(1)
 

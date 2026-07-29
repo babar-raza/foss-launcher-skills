@@ -25,6 +25,21 @@ def _clear_agent_session_env(monkeypatch):
     AGENT_SESSION_ID (the HARDEN-A2 convention) must not leak in and silently
     reroute flag-less calls onto the per-session path."""
     monkeypatch.delenv("AGENT_SESSION_ID", raising=False)
+    monkeypatch.delenv("CODEX_THREAD_ID", raising=False)
+
+
+def test_session_id_resolution_precedence(monkeypatch):
+    monkeypatch.setenv("CODEX_THREAD_ID", "codex-thread")
+    assert skill_context._derive_session_id(None) == "codex-thread"
+
+    monkeypatch.setenv("AGENT_SESSION_ID", "agent-session")
+    assert skill_context._derive_session_id(None) == "agent-session"
+    assert skill_context._derive_session_id("explicit-session") == "explicit-session"
+
+
+def test_codex_thread_id_is_sanitized(monkeypatch):
+    monkeypatch.setenv("CODEX_THREAD_ID", "thread/id with spaces")
+    assert skill_context._derive_session_id(None) == "thread-id-with-spaces"
 
 
 class TestSkillContextBeginEnd(unittest.TestCase):
@@ -36,14 +51,17 @@ class TestSkillContextBeginEnd(unittest.TestCase):
         self.orig_context_dir = skill_context._CONTEXT_DIR
         self.orig_active = skill_context._ACTIVE_FILE
         self.orig_history = skill_context._HISTORY_DIR
+        self.orig_active_dir = skill_context._ACTIVE_DIR
         skill_context._CONTEXT_DIR = self.tmp / "skill-context"
         skill_context._ACTIVE_FILE = skill_context._CONTEXT_DIR / "ACTIVE.json"
         skill_context._HISTORY_DIR = skill_context._CONTEXT_DIR / "history"
+        skill_context._ACTIVE_DIR = skill_context._CONTEXT_DIR / "active"
 
     def tearDown(self):
         skill_context._CONTEXT_DIR = self.orig_context_dir
         skill_context._ACTIVE_FILE = self.orig_active
         skill_context._HISTORY_DIR = self.orig_history
+        skill_context._ACTIVE_DIR = self.orig_active_dir
         import shutil
         shutil.rmtree(self.tmp, ignore_errors=True)
 
@@ -112,14 +130,17 @@ class TestSkillContextCheck(unittest.TestCase):
         self.orig_context_dir = skill_context._CONTEXT_DIR
         self.orig_active = skill_context._ACTIVE_FILE
         self.orig_history = skill_context._HISTORY_DIR
+        self.orig_active_dir = skill_context._ACTIVE_DIR
         skill_context._CONTEXT_DIR = self.tmp / "skill-context"
         skill_context._ACTIVE_FILE = skill_context._CONTEXT_DIR / "ACTIVE.json"
         skill_context._HISTORY_DIR = skill_context._CONTEXT_DIR / "history"
+        skill_context._ACTIVE_DIR = skill_context._CONTEXT_DIR / "active"
 
     def tearDown(self):
         skill_context._CONTEXT_DIR = self.orig_context_dir
         skill_context._ACTIVE_FILE = self.orig_active
         skill_context._HISTORY_DIR = self.orig_history
+        skill_context._ACTIVE_DIR = self.orig_active_dir
         import shutil
         shutil.rmtree(self.tmp, ignore_errors=True)
 
@@ -152,14 +173,17 @@ class TestSkillContextCurrent(unittest.TestCase):
         self.orig_context_dir = skill_context._CONTEXT_DIR
         self.orig_active = skill_context._ACTIVE_FILE
         self.orig_history = skill_context._HISTORY_DIR
+        self.orig_active_dir = skill_context._ACTIVE_DIR
         skill_context._CONTEXT_DIR = self.tmp / "skill-context"
         skill_context._ACTIVE_FILE = skill_context._CONTEXT_DIR / "ACTIVE.json"
         skill_context._HISTORY_DIR = skill_context._CONTEXT_DIR / "history"
+        skill_context._ACTIVE_DIR = skill_context._CONTEXT_DIR / "active"
 
     def tearDown(self):
         skill_context._CONTEXT_DIR = self.orig_context_dir
         skill_context._ACTIVE_FILE = self.orig_active
         skill_context._HISTORY_DIR = self.orig_history
+        skill_context._ACTIVE_DIR = self.orig_active_dir
         import shutil
         shutil.rmtree(self.tmp, ignore_errors=True)
 
@@ -212,14 +236,17 @@ class TestSkillContextStaleness(unittest.TestCase):
         self.orig_context_dir = skill_context._CONTEXT_DIR
         self.orig_active = skill_context._ACTIVE_FILE
         self.orig_history = skill_context._HISTORY_DIR
+        self.orig_active_dir = skill_context._ACTIVE_DIR
         skill_context._CONTEXT_DIR = self.tmp / "skill-context"
         skill_context._ACTIVE_FILE = skill_context._CONTEXT_DIR / "ACTIVE.json"
         skill_context._HISTORY_DIR = skill_context._CONTEXT_DIR / "history"
+        skill_context._ACTIVE_DIR = skill_context._CONTEXT_DIR / "active"
 
     def tearDown(self):
         skill_context._CONTEXT_DIR = self.orig_context_dir
         skill_context._ACTIVE_FILE = self.orig_active
         skill_context._HISTORY_DIR = self.orig_history
+        skill_context._ACTIVE_DIR = self.orig_active_dir
         import shutil
         shutil.rmtree(self.tmp, ignore_errors=True)
 
@@ -292,14 +319,17 @@ class TestDAREnforcement(unittest.TestCase):
         self.orig_context_dir = skill_context._CONTEXT_DIR
         self.orig_active = skill_context._ACTIVE_FILE
         self.orig_history = skill_context._HISTORY_DIR
+        self.orig_active_dir = skill_context._ACTIVE_DIR
         skill_context._CONTEXT_DIR = self.tmp / "skill-context"
         skill_context._ACTIVE_FILE = skill_context._CONTEXT_DIR / "ACTIVE.json"
         skill_context._HISTORY_DIR = skill_context._CONTEXT_DIR / "history"
+        skill_context._ACTIVE_DIR = skill_context._CONTEXT_DIR / "active"
 
     def tearDown(self):
         skill_context._CONTEXT_DIR = self.orig_context_dir
         skill_context._ACTIVE_FILE = self.orig_active
         skill_context._HISTORY_DIR = self.orig_history
+        skill_context._ACTIVE_DIR = self.orig_active_dir
         import shutil
         shutil.rmtree(self.tmp, ignore_errors=True)
 

@@ -298,6 +298,7 @@ def _discover_pages(family: str, platform: str) -> list[str]:
     patterns = [
         f"{_cfg_content_root}/docs.aspose.org/en/{family}/{platform}/**/*.md",
         f"{_cfg_content_root}/kb.aspose.org/en/{family}/{platform}/**/*.md",
+        f"{_cfg_content_root}/products.aspose.org/en/{family}/{platform}/**/*.md",
         f"{_cfg_content_root}/blog.aspose.org/{family}/{platform}/**/*.md",
     ]
     pages: list[str] = []

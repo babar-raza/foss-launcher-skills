@@ -138,7 +138,7 @@ class TestKnowledgeAvailabilityGate:
         )
 
         with pytest.raises(SystemExit) as exc_info:
-            batch_reference.run("test", "python")
+            batch_reference.run("test", "python", run_id="TEST-RUN")
 
         assert exc_info.value.code == 1
 

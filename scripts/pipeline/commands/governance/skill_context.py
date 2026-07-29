@@ -47,6 +47,7 @@ from path_utils import repo_rel
 from advisory_lock import FileLock
 
 _ENV_SESSION_ID = "AGENT_SESSION_ID"
+_CODEX_SESSION_ID = "CODEX_THREAD_ID"
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent  # commands/governance/ -> commands/ -> pipeline/ -> scripts/ -> repo
 _REPO_ROOT = _DEFAULT_REPO_ROOT
@@ -54,8 +55,8 @@ _CONTEXT_DIR = _REPO_ROOT / "reports" / "skill-context"
 _ACTIVE_FILE = _CONTEXT_DIR / "ACTIVE.json"
 _HISTORY_DIR = _CONTEXT_DIR / "history"
 # RPR-G-03 (§2.5 SW-1) + HARDEN-A2: per-session context directory. A session id
-# comes from --session-id or the AGENT_SESSION_ID env var (the default path for
-# any properly-started session), giving each session its own file so concurrent
+# comes from --session-id, AGENT_SESSION_ID, or CODEX_THREAD_ID, giving each
+# session its own file so concurrent
 # sessions never clobber a single global ACTIVE.json. Callers with NO identity at
 # all fall back to the legacy single-file path — now fail-closed: a live context
 # for a different skill is a named conflict (exit 3), never a silent supersede.
@@ -231,16 +232,20 @@ def scope_overlap(scope_a: list[str], scope_b: list[str]) -> bool:
 
 
 def _derive_session_id(explicit: "str | None") -> "str | None":
-    """Return the session id: explicit arg, else AGENT_SESSION_ID env, else None.
+    """Return the stable caller identity.
 
-    HARDEN-A2 flips RPR-G-03 from opt-in to default: any session that exports
-    AGENT_SESSION_ID (the convention session-start now documents) gets per-session
-    context isolation automatically — no flag needed. A stable id must come from
-    the caller because begin/end and the edit hook run in separate processes and
-    cannot share a PID. With neither arg nor env, the caller uses the legacy
-    global ACTIVE.json path (backward compatible, now fail-closed on conflicts).
+    Precedence is explicit ``--session-id`` > ``AGENT_SESSION_ID`` >
+    ``CODEX_THREAD_ID``. Codex supplies the latter for every thread, so treating it
+    as a stable identity prevents Codex callers from silently falling back to the
+    shared legacy ``ACTIVE.json``. Other callers retain the legacy path when none
+    of the three sources is available.
     """
-    value = explicit or os.environ.get(_ENV_SESSION_ID, "").strip() or None
+    value = (
+        explicit
+        or os.environ.get(_ENV_SESSION_ID, "").strip()
+        or os.environ.get(_CODEX_SESSION_ID, "").strip()
+        or None
+    )
     if value:
         return "".join(c if (c.isalnum() or c in "-_") else "-" for c in value)[:64]
     return None
@@ -709,7 +714,7 @@ def main(argv: list[str] | None = None) -> int:
     # current
     p_current = sub.add_parser("current", help="Print current active skill ID")
     p_current.add_argument("--session-id", dest="session_id", default=None,
-                           help="Report this session's context (default: AGENT_SESSION_ID env, then legacy)")
+                           help="Session identity (default: AGENT_SESSION_ID, then CODEX_THREAD_ID, then legacy)")
 
     # gap
     p_gap = sub.add_parser("gap", help="Create gap-approved temporary context")
@@ -718,7 +723,7 @@ def main(argv: list[str] | None = None) -> int:
     p_gap.add_argument("--scope", default="*",
                        help="Comma-separated glob patterns for allowed file paths")
     p_gap.add_argument("--session-id", dest="session_id", default=None,
-                       help="Session identity (default: AGENT_SESSION_ID env, then legacy path)")
+                       help="Session identity (default: AGENT_SESSION_ID, then CODEX_THREAD_ID, then legacy)")
 
     # trace (TC-MT007-02 / backlog G-41)
     p_trace = sub.add_parser(

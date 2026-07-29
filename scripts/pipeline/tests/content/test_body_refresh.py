@@ -57,6 +57,64 @@ def _setup_reports(
     )
 
 
+def _run(family: str, platform: str, **kwargs):
+    """Exercise the production run-bound API from legacy behavior tests."""
+    kwargs.setdefault("run_id", "TEST-RUN")
+    run_root = Path(br._cfg_reports_root) / family / platform / "run-artifacts"
+    run_root.mkdir(parents=True, exist_ok=True)
+    impact_path = Path(br._cfg_reports_root) / family / platform / "body_impact.json"
+    impacts = (
+        json.loads(impact_path.read_text(encoding="utf-8"))
+        if impact_path.is_file()
+        else []
+    )
+    (run_root / "scope.json").write_text(
+        "",
+        encoding="utf-8",
+    )
+    paths = [
+        impact["page_path"]
+        for impact in impacts
+        if impact.get("page_path")
+    ]
+    scope = {
+        "schema_version": 1,
+        "run_id": kwargs["run_id"],
+        "family": family,
+        "platform": platform,
+        "paths": paths,
+        "initial_hashes": {},
+    }
+    scope_path = run_root / "scope.json"
+    scope_path.write_text(json.dumps(scope), encoding="utf-8")
+    logical = json.dumps(
+        {"paths": sorted(paths), "input_digest": None},
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    manifest = {
+        "run_id": kwargs["run_id"],
+        "family": family,
+        "platform": platform,
+        "created_at": "2026-07-26T00:00:00Z",
+        "scope": {
+            "paths": paths,
+            "input_digest": None,
+            "digest": "sha256:" + hashlib.sha256(logical).hexdigest(),
+        },
+        "output_digests": {
+            "scope": "sha256:" + hashlib.sha256(
+                scope_path.read_bytes()
+            ).hexdigest()
+        },
+    }
+    (run_root / "manifest.json").write_text(
+        json.dumps(manifest), encoding="utf-8"
+    )
+    kwargs.setdefault("run_root", run_root)
+    return br.run(family, platform, **kwargs)
+
+
 def _make_impact(page_path: str, change_id: str, section_id: str, update_type: str,
                  impact_level: str = "DEFINITE", lines: "list[int] | None" = None) -> dict:
     return {
@@ -98,6 +156,106 @@ def _make_change(change_id: str, symbol: str, change_type: str = "API_REMOVED") 
 
 # ── Tests ─────────────────────────────────────────────────────────────────
 
+def test_execute_requires_explicit_run_id(tmp_path):
+    _setup_reports(tmp_path, "pdf", "net", [], [])
+    with pytest.raises(ValueError, match="explicit run_id"):
+        br.run("pdf", "net", execute=True)
+
+
+def test_writer_rejects_scope_tampering_after_manifest_pin(tmp_path):
+    run_root = tmp_path / "run"
+    run_root.mkdir()
+    scope_path = run_root / "scope.json"
+    scope = {
+        "run_id": "RUN-SCOPE",
+        "family": "pdf",
+        "platform": "net",
+        "paths": ["content/docs.aspose.org/en/pdf/net/page.md"],
+    }
+    scope_path.write_text(json.dumps(scope), encoding="utf-8")
+    logical = json.dumps(
+        {"paths": sorted(scope["paths"]), "input_digest": None},
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    (run_root / "manifest.json").write_text(
+        json.dumps(
+            {
+                "run_id": "RUN-SCOPE",
+                "family": "pdf",
+                "platform": "net",
+                "scope": {
+                    "paths": scope["paths"],
+                    "input_digest": None,
+                    "digest": "sha256:" + hashlib.sha256(logical).hexdigest(),
+                },
+                "output_digests": {
+                    "scope": "sha256:" + hashlib.sha256(
+                        scope_path.read_bytes()
+                    ).hexdigest()
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    scope["paths"].append("content/docs.aspose.org/en/pdf/net/extra.md")
+    scope_path.write_text(json.dumps(scope), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="pinned manifest"):
+        br._validated_run_scope(
+            run_root,
+            run_id="RUN-SCOPE",
+            family="pdf",
+            platform="net",
+        )
+
+
+def test_run_evidence_uses_canonical_forward_slash_page_path(
+    tmp_path, monkeypatch
+):
+    page_content = (
+        "---\ntitle: Test\nauto_updatable: true\n---\n\n"
+        "Use `Document` to load files.\n"
+    )
+    page = _make_page(
+        tmp_path,
+        "content/docs.aspose.org/en/pdf/net/page.md",
+        page_content,
+    )
+    monkeypatch.chdir(tmp_path)
+    windows_path = (
+        "content/docs.aspose.org/en/pdf/net/page.md".replace("/", "\\")
+    )
+    change = _make_change("CHG-001", "Unrelated", "FEATURE_ADDED")
+    impact = _make_impact(
+        windows_path,
+        "CHG-001",
+        "body",
+        br.UT_SURGICAL,
+    )
+    _setup_reports(tmp_path, "pdf", "net", [impact], [change])
+
+    _run("pdf", "net", execute=True)
+
+    receipt_path = next(
+        (tmp_path / "reports/pdf/net/run-artifacts/receipts").glob("*.yaml")
+    )
+    receipt = yaml.safe_load(receipt_path.read_text(encoding="utf-8"))[
+        "content_refresh_receipt"
+    ]
+    assert receipt["new_hash"] == receipt["old_hash"]
+    decision = json.loads(
+        (
+            tmp_path
+            / "reports/pdf/net/run-artifacts/page_decisions.jsonl"
+        ).read_text(encoding="utf-8")
+    )
+    assert "\\" not in decision["page_path"]
+    assert decision["receipt_digest"] == (
+        "sha256:" + hashlib.sha256(receipt_path.read_bytes()).hexdigest()
+    )
+
+
 def test_api_removed_sentence_replaced(tmp_path):
     """SURGICAL: renamed API symbol is replaced in prose with new symbol."""
     page_content = "---\ntitle: Test\nauto_updatable: true\n---\n\nUse `OldDocument` to load files.\n"
@@ -111,10 +269,90 @@ def test_api_removed_sentence_replaced(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "body", br.UT_SURGICAL)
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     assert len(writes) == 1
     assert "PdfDocument" in writes[0][1]
     assert "OldDocument" not in writes[0][1]
+
+
+def test_write_ahead_evidence_survives_crash_and_resumes(tmp_path):
+    old_content = (
+        "---\ntitle: Test\nauto_updatable: true\n---\n\n"
+        "Use `OldDocument` to load files.\n"
+    )
+    page = _make_page(
+        tmp_path,
+        "content/docs.aspose.org/en/pdf/net/page.md",
+        old_content,
+    )
+    change = _make_change("CHG-CRASH", "OldDocument", "API_RENAMED")
+    change["new_symbol"] = "PdfDocument"
+    impact = _make_impact(
+        str(page), "CHG-CRASH", "body", br.UT_SURGICAL
+    )
+    _setup_reports(tmp_path, "pdf", "net", [impact], [change])
+    run_root = tmp_path / "reports/pdf/net/run-artifacts"
+
+    def crash_after_evidence(_path, _content, **_kwargs):
+        assert list((run_root / "receipts").glob("*.yaml"))
+        assert (run_root / "page_decisions.jsonl").is_file()
+        raise RuntimeError("simulated writer crash")
+
+    br.configure(safe_write_fn=crash_after_evidence)
+    with pytest.raises(RuntimeError, match="simulated writer crash"):
+        _run("pdf", "net", execute=True)
+    assert page.read_text(encoding="utf-8") == old_content
+
+    def complete_write(path, content, **_kwargs):
+        Path(path).write_text(content, encoding="utf-8")
+        return True
+
+    br.configure(safe_write_fn=complete_write)
+    _run("pdf", "net", execute=True)
+    assert "`PdfDocument`" in page.read_text(encoding="utf-8")
+    assert len(list((run_root / "receipts").glob("*.yaml"))) == 1
+    assert len(
+        (run_root / "page_decisions.jsonl").read_text(
+            encoding="utf-8"
+        ).splitlines()
+    ) == 1
+
+
+def test_regrounding_initialization_failure_records_unknown(
+    tmp_path, monkeypatch
+):
+    import lib.regrounding_check as regrounding_check
+
+    page_content = (
+        "---\ntitle: Test\nauto_updatable: true\n---\n\n"
+        "Use `OldDocument` to load files.\n"
+    )
+    page = _make_page(
+        tmp_path,
+        "content/docs.aspose.org/en/pdf/net/page.md",
+        page_content,
+    )
+    change = _make_change("CHG-RG-UNKNOWN", "OldDocument", "API_RENAMED")
+    change["new_symbol"] = "PdfDocument"
+    impact = _make_impact(
+        str(page), "CHG-RG-UNKNOWN", "body", br.UT_SURGICAL
+    )
+    _setup_reports(tmp_path, "pdf", "net", [impact], [change])
+    br.configure(safe_write_fn=lambda _p, _c, **_kw: True)
+
+    def fail_cache():
+        raise RuntimeError("cache unavailable")
+
+    monkeypatch.setattr(regrounding_check, "RegroundingCache", fail_cache)
+    _run("pdf", "net", execute=True)
+
+    decision = json.loads(
+        (
+            tmp_path
+            / "reports/pdf/net/run-artifacts/page_decisions.jsonl"
+        ).read_text(encoding="utf-8")
+    )
+    assert decision["validator_results"]["regrounding"] == "UNKNOWN"
 
 
 def test_api_removed_code_block_regenerated(tmp_path):
@@ -132,7 +370,7 @@ def test_api_removed_code_block_regenerated(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "example", br.UT_EXAMPLE)
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     assert len(receipts) == 1
 
 
@@ -151,7 +389,7 @@ def test_api_removed_table_row_removed(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "formats", br.UT_TABLE)
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     if writes:
         assert "OldDocument" not in writes[0][1]
         assert "HtmlDoc" in writes[0][1]  # other rows preserved
@@ -170,7 +408,7 @@ def test_api_renamed_prose_updated(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "body", br.UT_SURGICAL)
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     if writes:
         assert "PdfConverter" in writes[0][1]
 
@@ -191,7 +429,7 @@ def test_feature_removed_section_eliminated(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "legacy-section", br.UT_REMOVAL)
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     if writes:
         assert "## Legacy Section" not in writes[0][1]
         assert "Still valid content" in writes[0][1]
@@ -232,7 +470,7 @@ def test_feature_added_section_enriched(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "signing", br.UT_REWRITE)
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     assert len(receipts) == 1
     assert call_count["n"] == 1, "MockLLM.call_chat() was never invoked — PARAGRAPH_REWRITE short-circuited before the LLM branch"
     assert "Updated signing text with new feature." in writes[0][1]
@@ -265,7 +503,7 @@ def test_behavior_changed_paragraph_rewritten(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "rendering", br.UT_REWRITE)
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     assert len(receipts) == 1
     assert call_count["n"] == 1, "MockLLM.call_chat() was never invoked — PARAGRAPH_REWRITE short-circuited before the LLM branch"
     assert "New rendering description reflecting changed behavior." in writes[0][1]
@@ -295,7 +533,7 @@ def test_llm_call_exception_falls_back_to_template(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "loading", br.UT_REWRITE)
     _setup_reports(tmp_path, "3d", "java", [impact], [change])
 
-    receipts = br.run("3d", "java", execute=True)
+    receipts = _run("3d", "java", execute=True)
     assert len(receipts) == 1
     assert receipts[0]["verdict"] == br.VD_UPDATED
     assert "reviewed against the current source model" in writes[0][1]
@@ -338,7 +576,7 @@ def test_paragraph_rewrite_reachable_for_every_routed_change_type(tmp_path):
         impact = _make_impact(str(page), "CHG-001", "section", br.UT_REWRITE)
         _setup_reports(tmp_path / change_type, "pdf", "net", [impact], [change])
 
-        br.run("pdf", "net", execute=True)
+        _run("pdf", "net", execute=True)
         assert call_count["n"] == 1, f"{change_type} did not reach the LLM callsite"
         assert writes and "LLM-authored rewrite." in writes[0][1], f"{change_type}: LLM output not applied"
 
@@ -366,7 +604,7 @@ def test_api_added_rewrite_has_deterministic_fallback(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "forms", br.UT_REWRITE)
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     assert len(receipts) == 1
     assert receipts[0]["verdict"] == br.VD_UPDATED
     assert "`ImportDataAction`" in writes[0][1]
@@ -385,7 +623,7 @@ def test_feature_added_rewrite_has_deterministic_fallback(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "loading", br.UT_REWRITE)
     _setup_reports(tmp_path, "3d", "java", [impact], [change])
 
-    receipts = br.run("3d", "java", execute=True)
+    receipts = _run("3d", "java", execute=True)
     assert receipts[0]["verdict"] == br.VD_UPDATED
     assert "reviewed against the current source model" in writes[0][1]
 
@@ -406,7 +644,7 @@ def test_section_change_id_limits_rewrite_to_matching_change(tmp_path):
     impact["affected_sections"][0]["change_id"] = "CHG-ADDED"
     _setup_reports(tmp_path, "3d", "java", [impact], [removed, added])
 
-    receipts = br.run("3d", "java", execute=True)
+    receipts = _run("3d", "java", execute=True)
     assert receipts[0]["verdict"] == br.VD_UPDATED
     assert "reviewed against the current source model" in writes[0][1]
 
@@ -427,7 +665,7 @@ def test_preserve_first_unaffected_sections_unchanged(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "installation", br.UT_SURGICAL)
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     if writes:
         assert "Unchanged overview text" in writes[0][1]
 
@@ -447,7 +685,7 @@ def test_auto_updatable_false_page_skipped(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "body", br.UT_SURGICAL)
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     assert len(writes) == 0
     assert any(r.get("verdict") == br.VD_SKIPPED_AUTO for r in receipts)
 
@@ -470,7 +708,7 @@ def test_provenance_auto_updatable_false_page_skipped(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "body", br.UT_REWRITE)
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     assert len(writes) == 0
     assert any(r.get("verdict") == br.VD_SKIPPED_AUTO for r in receipts)
 
@@ -495,7 +733,7 @@ def test_localized_products_page_rejected_before_write(tmp_path):
     impact["locale"] = "fr"
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     assert len(writes) == 0
     assert receipts[0]["verdict"] == br.VD_REJECTED_LOCALIZED
     assert receipts[0]["locale"] == "fr"
@@ -520,7 +758,7 @@ def test_ambiguous_locale_path_rejected_before_write(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "overview", br.UT_REWRITE)
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     assert len(writes) == 0
     assert receipts[0]["verdict"] == br.VD_REJECTED_AMBIGUOUS
 
@@ -537,7 +775,7 @@ def test_dry_run_produces_no_writes(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "body", br.UT_SURGICAL)
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", dry_run=True)
+    receipts = _run("pdf", "net", dry_run=True)
     assert len(writes) == 0
     assert all(r.get("verdict") == br.VD_SKIPPED_DRY for r in receipts if r.get("verdict"))
 
@@ -554,8 +792,8 @@ def test_idempotent_rerun_no_changes(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "body", br.UT_SURGICAL)
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts1 = br.run("pdf", "net", execute=True)
-    receipts2 = br.run("pdf", "net", execute=True)
+    receipts1 = _run("pdf", "net", execute=True)
+    receipts2 = _run("pdf", "net", execute=True)
     # Same number of receipts
     assert len(receipts1) == len(receipts2)
 
@@ -577,7 +815,7 @@ def test_api_added_fallback_idempotent_with_stale_line_range(tmp_path):
     impact["affected_sections"][0]["lines"] = [4, 6]
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     assert len(writes) == 0
     assert receipts[0]["verdict"] == br.VD_NO_SECTIONS
 
@@ -599,7 +837,7 @@ def test_duplicate_api_refresh_notes_collapsed(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "forms", br.UT_REWRITE)
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     assert receipts[0]["verdict"] == br.VD_UPDATED
     assert writes[0][1].count("API surface also includes") == 1
 
@@ -682,7 +920,7 @@ def test_receipt_written_per_page(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "install", br.UT_SURGICAL)
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     # Check receipts list returned
     assert len(receipts) >= 1
     # Check receipt has required fields
@@ -708,7 +946,7 @@ def test_see_also_section_never_removed(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "see-also", br.UT_REMOVAL)
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     # See Also should never be removed
     if writes:
         assert "## See Also" in writes[0][1]
@@ -732,7 +970,7 @@ def test_low_confidence_change_not_applied(tmp_path):
     impact = _make_impact(str(page), "CHG-LC-001", "overview", br.UT_REMOVAL)
     _setup_reports(tmp_path, "pdf", "net", [impact], [low_conf_change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
 
     # No write should occur — low-confidence gate prevents the edit
     assert writes == [], "Low-confidence change must not produce a body write"
@@ -755,7 +993,7 @@ def test_high_confidence_change_applied(tmp_path):
     impact = _make_impact(str(page), "CHG-HC-001", "overview", br.UT_REMOVAL)
     _setup_reports(tmp_path, "pdf", "net", [impact], [high_conf_change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
 
     # High confidence change should be processed (write attempted or content changed)
     # We accept either a write or a receipt showing BODY_UPDATED / NO_ACTIONABLE_SECTIONS
@@ -878,7 +1116,7 @@ def test_generation_blocked_on_forbidden_claim(tmp_path, monkeypatch):
     impact = _make_impact(str(page), "CHG-001", "formats", br.UT_REWRITE)
     _setup_reports(tmp_path, "3d", "net", [impact], [change])
 
-    receipts = br.run("3d", "net", execute=True)
+    receipts = _run("3d", "net", execute=True)
     assert len(receipts) == 1
     assert receipts[0]["verdict"] == br.VD_FORBIDDEN_BLOCKED
     assert receipts[0]["forbidden_violations"], "block reason must be recorded on the receipt"
@@ -914,7 +1152,7 @@ def test_3mf_regression_fixture_blocked_end_to_end(tmp_path, monkeypatch):
     impact = _make_impact(str(page), "CHG-001", "supported-formats", br.UT_REWRITE)
     _setup_reports(tmp_path, "3d", "net", [impact], [change])
 
-    receipts = br.run("3d", "net", execute=True)
+    receipts = _run("3d", "net", execute=True)
     assert receipts[0]["verdict"] == br.VD_FORBIDDEN_BLOCKED
 
 
@@ -943,7 +1181,7 @@ def test_clean_candidate_not_blocked_by_forbidden_gate(tmp_path, monkeypatch):
     impact = _make_impact(str(page), "CHG-001", "signing", br.UT_REWRITE)
     _setup_reports(tmp_path, "3d", "net", [impact], [change])
 
-    receipts = br.run("3d", "net", execute=True)
+    receipts = _run("3d", "net", execute=True)
     assert receipts[0]["verdict"] == br.VD_UPDATED
     assert len(writes) == 1
 
@@ -982,15 +1220,15 @@ def test_transform_scale_fvector3_regression_blocks_reuse(tmp_path):
     impactB = _make_impact(str(pageB), "CHG-B", "scaling", br.UT_REWRITE, lines=[7, 12])
     _setup_reports(tmp_path, "3d", "net", [impactA, impactB], [changeA, changeB])
 
-    receipts = br.run("3d", "net", execute=True)
+    receipts = _run("3d", "net", execute=True)
     by_page = {r["page_path"]: r for r in receipts}
 
     # Page A: first occurrence of the snippet, written normally.
-    assert by_page[str(pageA)]["verdict"] == br.VD_UPDATED
+    assert by_page[pageA.as_posix()]["verdict"] == br.VD_UPDATED
     # Page B: reused A's snippet without sharing A's grounding (cites Mesh, not Transform)
     # → blocked as template propagation; original content preserved.
-    assert by_page[str(pageB)]["verdict"] == br.VD_REGROUNDING_BLOCKED
-    assert by_page[str(pageB)]["regrounding_violations"], "block reason must be recorded"
+    assert by_page[pageB.as_posix()]["verdict"] == br.VD_REGROUNDING_BLOCKED
+    assert by_page[pageB.as_posix()]["regrounding_violations"], "block reason must be recorded"
     assert pageB.read_text(encoding="utf-8") == pageB_original
 
 
@@ -1023,10 +1261,10 @@ def test_shared_grounding_allows_snippet_reuse_end_to_end(tmp_path):
                    [impactA, impactB],
                    [_make_change("CHG-A", "F", "FEATURE_ADDED"), _make_change("CHG-B", "F", "FEATURE_ADDED")])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     verdicts = {r["page_path"]: r["verdict"] for r in receipts}
-    assert verdicts[str(pageA)] == br.VD_UPDATED
-    assert verdicts[str(pageB)] == br.VD_UPDATED  # shared Document grounding → allowed
+    assert verdicts[pageA.as_posix()] == br.VD_UPDATED
+    assert verdicts[pageB.as_posix()] == br.VD_UPDATED  # shared Document grounding → allowed
 
 
 # ── RPR-E-04: surface-differentiated update-strategy policy ───────────────────
@@ -1090,7 +1328,7 @@ def test_reference_page_paragraph_rewrite_deferred_end_to_end(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "description", br.UT_REWRITE, lines=[5, 12])
     _setup_reports(tmp_path, "3d", "net", [impact], [change])
 
-    receipts = br.run("3d", "net", execute=True)
+    receipts = _run("3d", "net", execute=True)
     r = receipts[0]
     assert r["surface"] == "reference"
     assert r["surface_deferrals"], "the PARAGRAPH_REWRITE must be recorded as a surface deferral"
@@ -1126,7 +1364,7 @@ def test_docs_surface_routes_per_policy_table_not_silently(tmp_path):
     impact = _make_impact(str(page), "CHG-001", "overview", br.UT_REWRITE, lines=[5, 12])
     _setup_reports(tmp_path, "pdf", "net", [impact], [change])
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     r = receipts[0]
     assert r["surface"] == "docs"
     assert r["surface_deferrals"] == []  # docs allows PARAGRAPH_REWRITE
@@ -1184,7 +1422,7 @@ def test_fallback_reason_llm_error_recorded(tmp_path):
 
     br.configure(safe_write_fn=lambda p, c, **kw: True, llm_router_class=ErrorLLM)
     _fallback_reason_page(tmp_path, "pdf", "net")
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     assert receipts[0]["fallback_reason"] == "LLM_ERROR"
 
 
@@ -1198,7 +1436,7 @@ def test_fallback_reason_empty_response_recorded(tmp_path):
 
     br.configure(safe_write_fn=lambda p, c, **kw: True, llm_router_class=EmptyLLM)
     _fallback_reason_page(tmp_path, "pdf", "net")
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     assert receipts[0]["fallback_reason"] == "LLM_EMPTY_RESPONSE"
 
 
@@ -1212,7 +1450,7 @@ def test_fallback_reason_none_on_success(tmp_path):
 
     br.configure(safe_write_fn=lambda p, c, **kw: True, llm_router_class=GoodLLM)
     _fallback_reason_page(tmp_path, "pdf", "net")
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     assert receipts[0]["fallback_reason"] == "NONE"
 
 
@@ -1239,7 +1477,7 @@ def test_circuit_opens_and_later_pages_skip_llm(tmp_path):
         changes.append(_make_change(f"CHG-{i}", "Feature", "FEATURE_ADDED"))
     _setup_reports(tmp_path, "pdf", "net", impacts, changes)
 
-    receipts = br.run("pdf", "net", execute=True)
+    receipts = _run("pdf", "net", execute=True)
     # First 3 pages actually call the LLM (and fail); after the 3rd failure the
     # circuit opens, so pages 4 and 5 skip the LLM entirely.
     assert call_count["n"] == 3, f"expected exactly 3 real LLM attempts, got {call_count['n']}"

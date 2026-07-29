@@ -89,6 +89,15 @@ class TestContentEvalBootstrap:
             f"stdout: {result.stdout}\nstderr: {result.stderr}"
         )
 
+    def test_batch_reference_invocable_without_pythonpath(self):
+        """The S-84 orchestrator invokes the S-62 script directly."""
+        result = _run_wrapper("commands/content/batch_reference.py", ["--help"])
+        assert result.returncode == 0, (
+            "python scripts/pipeline/commands/content/batch_reference.py "
+            f"--help failed without PYTHONPATH.\n"
+            f"stdout: {result.stdout}\nstderr: {result.stderr}"
+        )
+
 
 class TestApiSurfaceKindValues:
     """F-6: api_surface.py must emit the tree-sitter node type names that S-62 now documents.
