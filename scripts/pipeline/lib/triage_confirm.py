@@ -58,6 +58,66 @@ def configure(*, repo_root=None):
     _REPO_ROOT = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
 
 
+_TYPE_WORDS = {
+    "bool", "boolean", "byte", "char", "decimal", "double", "float", "int",
+    "integer", "long", "object", "short", "str", "string", "uint", "ulong",
+    "ushort", "void",
+}
+
+
+def _split_signature_params(value: str) -> list[str]:
+    params: list[str] = []
+    start = 0
+    depth = 0
+    for index, char in enumerate(value):
+        if char in "<[(":
+            depth += 1
+        elif char in ">])" and depth:
+            depth -= 1
+        elif char == "," and depth == 0:
+            params.append(value[start:index].strip())
+            start = index + 1
+    tail = value[start:].strip()
+    if tail:
+        params.append(tail)
+    return params
+
+
+def _normalize_type(value: str) -> str:
+    value = re.sub(r"^(?:ref|out|in|params)\s+", "", value.strip(), flags=re.I)
+    value = re.sub(r"\s+", "", value)
+    value = value.replace("System.", "")
+    return value.lower()
+
+
+def _signature_claim(value: str) -> tuple[str, ...] | None:
+    """Return normalized type tokens, or None when text looks like call values."""
+    if not value.strip():
+        return ()
+    types: list[str] = []
+    for raw in _split_signature_params(value):
+        if (
+            not raw
+            or any(char in raw for char in "\"'=")
+            or re.fullmatch(r"[-+]?\d+(?:\.\d+)?", raw)
+        ):
+            return None
+        # Accept both ``String`` and ``String value`` documentation forms.
+        token = raw.split()[0]
+        core = re.sub(r"[\[\]<>?,]", "", token)
+        if not core:
+            return None
+        if not (
+            token.lower() in _TYPE_WORDS
+            or token[0].isupper()
+            or "." in token
+            or any(char in token for char in "[]<>?")
+        ):
+            return None
+        types.append(_normalize_type(token))
+    return tuple(types)
+
+
 def triage_confirm(
     page_path: str | Path,
     knowledge: dict[str, Any],
@@ -84,19 +144,41 @@ def triage_confirm(
     """
     page_path = Path(page_path)
     reasons: list[str] = []
+    advisories: list[str] = []
     confidence = 0.0
 
     # Read the page; if unreadable return a distinct "read_error" verdict (TC-2).
     # Callers must treat "read_error" as unknown — NOT as "current".
     try:
-        body = page_path.read_text(encoding="utf-8")
+        page_text = page_path.read_text(encoding="utf-8")
     except Exception as exc:
         return {
             "stale": False,
             "verdict": "read_error",
             "reasons": [f"could not read page: {exc}"],
+            "advisories": [],
             "confidence": 0.0,
         }
+
+    truth_errors = list(knowledge.get("_truth_errors") or [])
+    if not truth_errors and "api_surface" not in knowledge and "delta" not in knowledge:
+        truth_errors = ["api_surface and knowledge delta were not supplied"]
+    if truth_errors:
+        return {
+            "stale": False,
+            "verdict": "unknown",
+            "reasons": [f"truth unavailable: {error}" for error in truth_errors],
+            "advisories": [],
+            "confidence": 0.0,
+        }
+
+    # This is a body-prose gate. Evidence/frontmatter drift has separate,
+    # stronger validators and must not manufacture a prose-staleness verdict.
+    body = page_text
+    if page_text.startswith("---"):
+        boundary = page_text.find("\n---", 3)
+        if boundary != -1:
+            body = page_text[boundary + 4:]
 
     delta: dict[str, Any] = knowledge.get("delta") or {}
     api_surface: list[dict] = knowledge.get("api_surface") or []
@@ -112,12 +194,87 @@ def triage_confirm(
             reasons.append(f"body references removed API '{api_name}'")
             confidence = max(confidence, 0.9)
 
-    # --- Signal 2: page body mentions APIs that have been modified ---
+    # --- Advisory 1: page body mentions APIs that have been modified ---
+    #
+    # "Modified" says that the API still exists and some source representation
+    # changed. Mere presence of its class name does not prove that any sentence
+    # on the page is stale. The old implementation treated presence alone as a
+    # blocking 0.6-confidence verdict, making every valid continued reference a
+    # false positive. Removed APIs/members and explicit contradictions remain
+    # blocking signals; a modified-name hit is retained for review evidence.
     modified_apis: list[str] = delta.get("modified_apis") or []
+    current_members: dict[str, set[str]] = {}
+    current_signatures: dict[tuple[str, str], set[tuple[str, ...]]] = {}
+    for entry in api_surface:
+        if not isinstance(entry, dict) or not isinstance(entry.get("name"), str):
+            continue
+        class_name = entry["name"]
+        members: set[str] = set()
+        for field in ("methods", "properties", "members", "values"):
+            for member in entry.get(field) or []:
+                if isinstance(member, str):
+                    members.add(member)
+                elif isinstance(member, dict) and isinstance(member.get("name"), str):
+                    member_name = member["name"]
+                    members.add(member_name)
+                    if field == "methods":
+                        params = member.get("params")
+                        if params is None:
+                            params = member.get("parameters")
+                        if isinstance(params, list):
+                            signature: list[str] = []
+                            for param in params:
+                                if isinstance(param, str):
+                                    param_type = param
+                                elif isinstance(param, dict):
+                                    param_type = (
+                                        param.get("type")
+                                        or param.get("data_type")
+                                        or param.get("param_type")
+                                        or ""
+                                    )
+                                else:
+                                    param_type = ""
+                                signature.append(_normalize_type(str(param_type)))
+                            current_signatures.setdefault(
+                                (class_name, member_name), set()
+                            ).add(tuple(signature))
+        # A merged surface can legitimately contain multiple same-name class
+        # entries (for example namespaces/partials). Never let the last entry
+        # erase members observed in earlier authoritative rows.
+        current_members.setdefault(class_name, set()).update(members)
     for api_name in modified_apis:
         if re.search(rf"\b{re.escape(api_name)}\b", body):
-            reasons.append(f"body references modified API '{api_name}'")
-            confidence = max(confidence, 0.6)
+            advisories.append(
+                f"body references modified API '{api_name}'; "
+                "presence alone does not prove stale prose"
+            )
+        for member in re.findall(
+            rf"`{re.escape(api_name)}\.([A-Za-z_][A-Za-z0-9_]*)"
+            rf"(?:\([^`]*\))?`",
+            body,
+        ):
+            if api_name in current_members and member not in current_members[api_name]:
+                reasons.append(
+                    f"body references missing member '{api_name}.{member}' "
+                    "on a modified API"
+                )
+                confidence = max(confidence, 0.9)
+        for member, raw_params in re.findall(
+            rf"`{re.escape(api_name)}\.([A-Za-z_][A-Za-z0-9_]*)"
+            rf"\(([^`]*)\)`",
+            body,
+        ):
+            claimed = _signature_claim(raw_params)
+            if claimed is None:
+                continue
+            known = current_signatures.get((api_name, member))
+            if known is not None and claimed not in known:
+                reasons.append(
+                    f"body references stale signature "
+                    f"'{api_name}.{member}({raw_params})' on a modified API"
+                )
+                confidence = max(confidence, 0.9)
 
     # --- Signal 3: page slug references a class not in current api_surface ---
     slug = page_path.stem  # e.g. "Workbook" from "Workbook.md"
@@ -134,7 +291,12 @@ def triage_confirm(
             confidence = max(confidence, 0.7)
 
     stale = bool(reasons)
-    return {"stale": stale, "reasons": reasons, "confidence": confidence}
+    return {
+        "stale": stale,
+        "reasons": reasons,
+        "advisories": advisories,
+        "confidence": confidence,
+    }
 
 
 # ── CLI (RPR-F-03) ───────────────────────────────────────────────────────────
@@ -142,36 +304,36 @@ def triage_confirm(
 def _load_knowledge(family: str, platform: str, repo_root: Path) -> dict[str, Any]:
     """Load the knowledge dict shape triage_confirm() expects from merged/ artifacts."""
     merged = repo_root / "knowledge" / family / platform / "merged"
-    knowledge: dict[str, Any] = {}
+    knowledge: dict[str, Any] = {"_truth_errors": []}
 
-    api_surface_path = merged / "api_surface.json"
-    if api_surface_path.exists():
+    def _load_required(name: str, *, list_key: str | None = None) -> Any:
+        path = merged / name
+        if not path.is_file():
+            knowledge["_truth_errors"].append(f"{name} is missing")
+            return [] if list_key is not None else {}
         try:
-            data = json.loads(api_surface_path.read_text(encoding="utf-8"))
-            knowledge["api_surface"] = data if isinstance(data, list) else data.get("classes", [])
-        except (json.JSONDecodeError, OSError):
-            knowledge["api_surface"] = []
-    else:
-        knowledge["api_surface"] = []
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            knowledge["_truth_errors"].append(f"{name} is unreadable: {exc}")
+            return [] if list_key is not None else {}
+        if list_key is not None:
+            value = data if isinstance(data, list) else (
+                data.get(list_key, []) if isinstance(data, dict) else []
+            )
+            if not isinstance(value, list):
+                knowledge["_truth_errors"].append(f"{name} has an invalid list shape")
+                return []
+            return value
+        if not isinstance(data, dict):
+            knowledge["_truth_errors"].append(f"{name} must contain an object")
+            return {}
+        return data
 
-    claims_path = merged / "claims.json"
-    if claims_path.exists():
-        try:
-            data = json.loads(claims_path.read_text(encoding="utf-8"))
-            knowledge["claims"] = data if isinstance(data, list) else data.get("claims", [])
-        except (json.JSONDecodeError, OSError):
-            knowledge["claims"] = []
-    else:
-        knowledge["claims"] = []
-
-    delta_path = merged / "knowledge_delta.json"
-    if delta_path.exists():
-        try:
-            knowledge["delta"] = json.loads(delta_path.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
-            knowledge["delta"] = {}
-    else:
-        knowledge["delta"] = {}
+    knowledge["api_surface"] = _load_required(
+        "api_surface.json", list_key="classes"
+    )
+    knowledge["claims"] = _load_required("claims.json", list_key="claims")
+    knowledge["delta"] = _load_required("knowledge_delta.json")
 
     return knowledge
 
@@ -205,12 +367,15 @@ def run(family: str, platform: str, *, repo_root: Path | None = None, files: lis
     results = []
     stale_count = 0
     error_count = 0
+    unknown_count = 0
     for page in pages:
         result = triage_confirm(page, knowledge)
         result["page_path"] = str(page)
         results.append(result)
         if result.get("verdict") == "read_error":
             error_count += 1
+        elif result.get("verdict") == "unknown":
+            unknown_count += 1
         elif result.get("stale"):
             stale_count += 1
 
@@ -220,6 +385,7 @@ def run(family: str, platform: str, *, repo_root: Path | None = None, files: lis
         "pages_checked": len(pages),
         "stale_count": stale_count,
         "error_count": error_count,
+        "unknown_count": unknown_count,
         "results": results,
     }
 
@@ -270,16 +436,18 @@ Exit codes:
         print(f"  pages checked : {summary['pages_checked']}")
         print(f"  stale         : {summary['stale_count']}")
         print(f"  read errors   : {summary['error_count']}")
+        print(f"  unknown       : {summary['unknown_count']}")
         if summary["stale_count"]:
             print("  STALE PAGES:")
             for r in summary["results"]:
                 if r.get("stale"):
                     print(f"    - {r['page_path']}: {'; '.join(r['reasons'])}")
 
-    if summary["error_count"] and summary["stale_count"] == 0:
-        # Unreadable pages alone (no confirmed staleness) still can't be called "confirmed"
+    if summary["stale_count"]:
         return 1
-    return 1 if summary["stale_count"] else 0
+    if summary["error_count"] or summary["unknown_count"]:
+        return 3
+    return 0
 
 
 if __name__ == "__main__":

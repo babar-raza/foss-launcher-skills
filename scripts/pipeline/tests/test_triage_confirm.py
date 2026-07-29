@@ -67,16 +67,119 @@ class TestLayer2Detection:
         result = triage_confirm(page, knowledge)
         assert result["stale"] is False
 
-    def test_modified_api_in_body_triggers_stale(self, tmp_path):
-        page = _page(tmp_path, "Page.md", "Call ChangedClass.method() to process data.")
+    def test_modified_api_in_body_is_advisory_not_stale(self, tmp_path):
+        page = _page(tmp_path, "page.md", "Call ChangedClass.method() to process data.")
         knowledge = {
             "api_surface": [{"name": "ChangedClass"}],
             "delta": {"modified_apis": ["ChangedClass"]},
         }
         result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+        assert result["reasons"] == []
+        assert any("ChangedClass" in r for r in result["advisories"])
+        assert result["confidence"] == 0.0
+
+    def test_missing_member_on_modified_api_is_stale(self, tmp_path):
+        page = _page(
+            tmp_path,
+            "page.md",
+            "Call `ChangedClass.removedMethod()` to process data.",
+        )
+        knowledge = {
+            "api_surface": [{
+                "name": "ChangedClass",
+                "methods": [{"name": "currentMethod"}],
+                "properties": [],
+            }],
+            "delta": {"modified_apis": ["ChangedClass"]},
+        }
+        result = triage_confirm(page, knowledge)
         assert result["stale"] is True
-        assert any("ChangedClass" in r for r in result["reasons"])
-        assert result["confidence"] >= 0.6
+        assert any("ChangedClass.removedMethod" in reason for reason in result["reasons"])
+        assert result["confidence"] >= 0.9
+
+    def test_changed_parameter_signature_on_modified_api_is_stale(self, tmp_path):
+        page = _page(
+            tmp_path,
+            "page.md",
+            "Use `ChangedClass.convert(String)` for conversion.",
+        )
+        knowledge = {
+            "api_surface": [{
+                "name": "ChangedClass",
+                "methods": [{
+                    "name": "convert",
+                    "params": [{"name": "value", "type": "Stream"}],
+                }],
+            }],
+            "delta": {"modified_apis": ["ChangedClass"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is True
+        assert any("stale signature" in reason for reason in result["reasons"])
+
+    def test_current_overload_signature_is_not_stale(self, tmp_path):
+        page = _page(
+            tmp_path,
+            "page.md",
+            "Use `ChangedClass.convert(Stream)` for conversion.",
+        )
+        knowledge = {
+            "api_surface": [{
+                "name": "ChangedClass",
+                "methods": [{
+                    "name": "convert",
+                    "params": [{"name": "value", "type": "Stream"}],
+                }],
+            }],
+            "delta": {"modified_apis": ["ChangedClass"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+
+    def test_duplicate_class_rows_union_members(self, tmp_path):
+        page = _page(
+            tmp_path,
+            "page.md",
+            "Use `ChangedClass.first()` and `ChangedClass.second()`.",
+        )
+        knowledge = {
+            "api_surface": [
+                {"name": "ChangedClass", "methods": [{"name": "first"}]},
+                {"name": "ChangedClass", "methods": [{"name": "second"}]},
+            ],
+            "delta": {"modified_apis": ["ChangedClass"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+
+    def test_frontmatter_api_evidence_is_not_scanned_as_body_prose(self, tmp_path):
+        page = _page(
+            tmp_path,
+            "page.md",
+            "---\nevidence:\n  apis: [OldClass]\n---\nCurrent prose has no removed API.",
+        )
+        knowledge = {
+            "api_surface": [{"name": "CurrentClass"}],
+            "delta": {"removed_apis": ["OldClass"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+        assert result["reasons"] == []
+
+    def test_removed_api_in_body_after_frontmatter_still_blocks(self, tmp_path):
+        page = _page(
+            tmp_path,
+            "page.md",
+            "---\nevidence:\n  apis: [CurrentClass]\n---\nUse OldClass to process data.",
+        )
+        knowledge = {
+            "api_surface": [{"name": "CurrentClass"}],
+            "delta": {"removed_apis": ["OldClass"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is True
+        assert any("OldClass" in r for r in result["reasons"])
 
     def test_slug_not_in_api_surface_triggers_stale(self, tmp_path):
         page = _page(tmp_path, "DeletedClass.md", "This class was removed.")
@@ -197,6 +300,7 @@ class TestReconciliationSchema:
         assert "stale" in result
         assert "reasons" in result
         assert "confidence" in result
+        assert result["verdict"] == "unknown"
 
     def test_stale_is_bool(self, tmp_path):
         page = _page(tmp_path, "Page.md", "Content.")
