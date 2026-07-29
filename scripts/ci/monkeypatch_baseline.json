@@ -224,7 +224,7 @@
     },
     "scripts/pipeline/tests/test_batch_reference_rebuild_all.py": {
       "T1": 0,
-      "T2": 17,
+      "T2": 18,
       "T3": 0,
       "T4": 0
     },
@@ -468,6 +468,12 @@
       "T3": 4,
       "T4": 1
     },
+    "scripts/pipeline/tests/test_page_impact_assess.py": {
+      "T1": 0,
+      "T2": 7,
+      "T3": 0,
+      "T4": 0
+    },
     "scripts/pipeline/tests/test_post_refresh_verify.py": {
       "T1": 0,
       "T2": 2,
@@ -673,13 +679,13 @@
       "T4": 0
     }
   },
-  "generated_at": "2026-07-29T13:32:26Z",
+  "generated_at": "2026-07-29T14:04:42Z",
   "generator": "scripts/ci/checks/check_monkeypatch_lint.py --baseline",
   "generator_version": "2.0.0",
   "schema_version": 1,
   "totals": {
     "T1": 115,
-    "T2": 840,
+    "T2": 848,
     "T3": 95,
     "T4": 19
   }

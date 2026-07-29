@@ -1650,6 +1650,25 @@ def run(family: str, platform: str, kind_arg: str = "all",
         scoped_paths = {
             Path(value).as_posix() for value in scope_data.get("paths", [])
         }
+        # HARDEN-BR-01 (2026-07-29): scope manifests are typically built from a
+        # file listing (e.g. `find`/glob), which captures whatever casing is
+        # actually tracked on disk. A candidate's target filename is always
+        # computed from api_surface.json's PascalCase class name
+        # (_entry_slug), so a class whose existing tracked page happens to use
+        # different casing (e.g. legacy "material.md" for the "Material"
+        # class) silently drops out of every scoped run: "Material.md" (the
+        # candidate's target) is a byte-for-byte different string than
+        # "material.md" (what the manifest listed), even though they name the
+        # SAME file on a case-insensitive filesystem (Windows). Found live:
+        # 8 pre-existing 3d/java pages (camera/entity/light/material/mesh/
+        # node/scene/transform) were silently excluded from two full
+        # ST-013-remediation regeneration passes this way. Matching on the
+        # lowercased path preserves the manifest's intent ("this file is in
+        # scope") without depending on exact tracked casing. This is scope
+        # membership, not the Phase A case-collision disambiguation below
+        # (a different, legitimate concern: deciding NEW filenames when two
+        # DIFFERENT classes would collide) -- that logic is untouched.
+        scoped_paths_lower = {p.lower() for p in scoped_paths}
 
     # api_surface is already consolidated at extraction time (consolidate_classes
     # in api_surface.py).  Remaining same-name entries have distinct namespaces.
@@ -1721,7 +1740,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
                 _old.exists()
                 and (
                     scoped_paths is None
-                    or _canonical_reference_path(_old) in scoped_paths
+                    or _canonical_reference_path(_old).lower() in scoped_paths_lower
                 )
             ):
                 _stale_pages.append(_old)
@@ -1743,8 +1762,8 @@ def run(family: str, platform: str, kind_arg: str = "all",
             if (
                 _canonical_reference_path(
                     output_dir / f"{_entry_slug(entry)}.md"
-                )
-                in scoped_paths
+                ).lower()
+                in scoped_paths_lower
             )
         ]
     total = len(candidates)
