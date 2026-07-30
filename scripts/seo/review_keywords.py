@@ -66,7 +66,10 @@ def reevaluate_keywords(title, keywords, platform="net"):
         "nodejs": "Node.js",
         "php": "PHP",
     }.get(platform, platform)
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    # gemini-1.5-flash was retired (404 as of 2026-07-30, verified against the
+    # live API); "-latest" alias tracks Google's current supported flash-lite
+    # model without needing another pinned-version update when this one sunsets.
+    model = genai.GenerativeModel("gemini-flash-lite-latest")
     prompt = (
         f"The title of the content is: '{title}'.\n\n"
         f"Here is the current list of keywords:\n"

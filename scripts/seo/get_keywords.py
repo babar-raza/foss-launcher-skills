@@ -146,7 +146,10 @@ def get_keywords_from_gemini(page_title, platform="net"):
         "nodejs": "Node.js",
         "php": "PHP",
     }.get(platform, platform)
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    # gemini-1.5-flash was retired (404 as of 2026-07-30, verified against the
+    # live API); "-latest" alias tracks Google's current supported flash-lite
+    # model without needing another pinned-version update when this one sunsets.
+    model = genai.GenerativeModel("gemini-flash-lite-latest")
     prompt = (
         f"Generate a concise list of SEO keywords for the product page titled '{page_title}'. "
         f"Focus on long tail keywords related to the {platform_label} platform having medium to high search volume, and low to medium competition."
