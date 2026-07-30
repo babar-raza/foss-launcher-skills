@@ -27,7 +27,11 @@ registered skills with IDs, descriptions, and argument patterns.
 2. **Knowledge freshness** — if `model.yaml` has `stale_since != null`, stop and run the maintenance workflow (S-12 → S-14) before editing content.
 3. **Forbidden write paths** — never write to `themes/`, `layouts/`, `configs/`, `AGENTS.md`, `CODEX.md`, `CLAUDE.md`, `.claude/`, `.agents/`, `.kilocode/`, or `skills/` without explicit human override.
 4. **Skill-first execution** — every task must be attempted through registered skills first (AGENTS.md §6a). If no skill covers the requirement, classify capability as FULL/PARTIAL/NONE/BROKEN per §6b and produce a gap escalation report. Do not invent ad hoc workflows.
-5. **Planning discipline** — before treating any newly-authored multi-step plan as ready to execute, self-check it against AGENTS.md §17 (`docs/governance/planning-methodology.md`): apply the Planning Review Checklist and Taskcard Readiness Checklist, and bind multi-session missions to the existing `MISSION_AUTHORITY.yaml` / schema-5f taskcard mechanisms rather than inventing a new tracker.
+5. **Planning discipline** — before treating any newly-authored multi-step plan as ready to execute, self-check it against AGENTS.md §17 (`docs/governance/planning-methodology.md`): apply the Planning Review Checklist and Taskcard Readiness Checklist, and bind multi-session missions to the existing `MISSION_AUTHORITY.yaml` / schema-5f taskcard mechanisms rather than inventing a new tracker. Most of this remains a self-administered check (there is no CI gate for it), but the one mechanically-checkable rule — don't invent a parallel mission/taskcard tracker — has a real, runnable command. Run it against the plan you draft, before presenting it as final:
+   ```bash
+   .venv/Scripts/python scripts/ci/checks/check_plan_origination.py <drafted-plan-file>
+   ```
+   Exit 0 means the plan is clean or correctly cites the existing mechanism; exit 1 prints the specific violation (e.g. an inline `mission_id:`/`taskcards:` block with no citation of `MISSION_AUTHORITY.yaml` / `reports/plan_state/` / `taskcards.jsonl` / `backlog/BACKLOG.md`) — fix the plan to bind to the real mechanism rather than the invented one.
 
 ## Pre-Write Preflight Check
 

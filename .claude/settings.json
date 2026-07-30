@@ -94,6 +94,10 @@
           {
             "type": "command",
             "command": "bash scripts/ci/hooks/check_skill_context_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_plan_origination_capture_hook.sh"
           }
         ]
       },
@@ -132,6 +136,19 @@
           {
             "type": "command",
             "command": "bash scripts/ci/hooks/check_skill_context_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_plan_origination_capture_hook.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_plan_origination_gate_hook.sh"
           }
         ]
       }
