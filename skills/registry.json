@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
-  "skill_count": 105,
+  "skill_count": 106,
   "skills": [
     {
       "id": "S-01",
@@ -791,6 +791,14 @@
       "description": "Load `safe_recommendations.json`, independently re-verify each proposed `description`/",
       "internal": false,
       "canonical_path": "skills/seo-review.md"
+    },
+    {
+      "id": "S-117",
+      "slug": "mechanism-sweep",
+      "name": "Mechanism Sweep — Cross-Product Pipeline-Improvement Propagation",
+      "description": "`change-sweep` (S-94) answers \"did the *upstream FOSS repo* change for any launched",
+      "internal": false,
+      "canonical_path": "skills/mechanism-sweep.md"
     },
     {
       "id": "S-HT-02",
