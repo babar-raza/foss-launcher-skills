@@ -2023,7 +2023,10 @@ class _FakeRouter:
         self._fail = fail
         self.calls: list[dict] = []
 
-    def call_chat(self, system, user, *, temperature=None, max_tokens=None, json_extract=True):
+    def call_chat(
+        self, system, user, *, temperature=None, max_tokens=None,
+        json_extract=True, context=None,
+    ):
         self.calls.append({"system": system, "user": user})
         if self._fail:
             return _FakeCallResult(status=_FakeEndpointStatus.UNREACHABLE)

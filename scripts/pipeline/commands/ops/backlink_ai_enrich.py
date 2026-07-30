@@ -124,11 +124,13 @@ def _classify_target(
         # reasoning_content before outputting the JSON answer. 100 tokens were
         # insufficient, leaving content None (finish_reason=length). 500 is
         # enough for reasoning (~300 tokens) + JSON output (~60 tokens).
+        from commands.ops.llm_router import LLMCallContext
         result = router.call_chat(
             system_prompt,
             prompt,
             temperature=0.0,
             max_tokens=500,
+            context=LLMCallContext.create("backlink-ai-enrich", "backlink", "enrichment"),
         )
         # Map EndpointStatus to its string value for comparison
         # EndpointStatus is a str enum: status.value == "ok", "unreachable", etc.

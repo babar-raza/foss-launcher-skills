@@ -25,6 +25,14 @@ if str(_PIPELINE_ROOT) not in sys.path:
 from commands.knowledge.embed import EmbeddingClient, _PROF_CLIENT_AVAILABLE
 from commands.ops.metrics_schema import MetricsEvent, validate_event
 
+_CANONICAL_EMBED_DIMENSIONS = 512
+
+
+@pytest.fixture(autouse=True)
+def _canonical_test_credential(monkeypatch):
+    """Keep adapter tests hermetic while preserving registry-owned credentials."""
+    monkeypatch.setenv("LLM_API_KEY", "st043-test-only-key")
+
 
 # ---------------------------------------------------------------------------
 # Fake HTTP transport for ProfessionalizeClient injection
@@ -50,6 +58,10 @@ class _FakeHTTPClient:
 
 def _embed_resp(vectors: list[list[float]], total_tokens: int = 100) -> MagicMock:
     """Build a fake HTTP response for an embeddings request."""
+    vectors = [
+        v + [0.0] * (_CANONICAL_EMBED_DIMENSIONS - len(v))
+        for v in vectors
+    ]
     resp = MagicMock()
     resp.status_code = 200
     data = [{"object": "embedding", "index": i, "embedding": v} for i, v in enumerate(vectors)]
@@ -87,11 +99,12 @@ def _make_prof_client(http_responses: list) -> EmbeddingClient:
 
 
 def _make_ollama_client() -> EmbeddingClient:
-    """Create an EmbeddingClient for the ollama tier (no call_site_id)."""
+    """Legacy constructor arguments still route through the canonical client."""
     return EmbeddingClient(
         "http://localhost:11434/v1/embeddings",
         "nomic-embed-text",
         "",
+        _http_client=_FakeHTTPClient([_embed_resp([[0.5, 0.6]])]),
     )
 
 
@@ -232,21 +245,12 @@ def test_embed_batch_metrics_events_reset_per_call():
 # ===========================================================================
 
 
-def test_ollama_embed_no_metrics_events(monkeypatch):
-    """CS-004 boundary: ollama tier (no call_site_id) does NOT emit MetricsEvents."""
-    import requests as _req
-
-    fake_resp = MagicMock()
-    fake_resp.status_code = 200
-    fake_resp.json.return_value = {
-        "data": [{"index": 0, "embedding": [0.5, 0.6]}]
-    }
-
-    monkeypatch.setattr(_req, "post", lambda *a, **kw: fake_resp)
-
+def test_legacy_constructor_routes_through_canonical_metrics():
+    """Legacy endpoint arguments cannot bypass router/client metrics."""
     client = _make_ollama_client()
     client.embed_batch(["hello"])
-    assert client.metrics_events == []
+    assert len(client.metrics_events) == 1
+    assert client.metrics_events[0].call_site_id == "CS-004"
 
 
 # ===========================================================================
@@ -257,7 +261,25 @@ def test_ollama_embed_no_metrics_events(monkeypatch):
 @pytest.mark.skipif(not _PROF_CLIENT_AVAILABLE, reason="ProfessionalizeClient not importable")
 def test_embed_batch_returns_correct_vectors():
     """CS-004: embed_batch returns correct list of vectors."""
-    expected = [[0.1, 0.2], [0.3, 0.4]]
+    expected = [
+        [0.1, 0.2] + [0.0] * (_CANONICAL_EMBED_DIMENSIONS - 2),
+        [0.3, 0.4] + [0.0] * (_CANONICAL_EMBED_DIMENSIONS - 2),
+    ]
     client = _make_prof_client([_embed_resp(expected)])
     result = client.embed_batch(["text1", "text2"])
     assert result == expected
+
+
+def test_embed_batch_rejects_retired_4096_dimension_contract():
+    """A real 4,096-dimensional response is a contract mismatch, not success."""
+    response = MagicMock()
+    response.status_code = 200
+    body = {
+        "data": [{"index": 0, "embedding": [0.1] * 4096}],
+        "usage": {"total_tokens": 1},
+    }
+    response.content = json.dumps(body).encode("utf-8")
+    client = _make_prof_client([response])
+
+    with pytest.raises(RuntimeError, match="contract_mismatch"):
+        client.embed_batch(["legacy-dimension"])

@@ -85,8 +85,43 @@ class TestTfidfVector:
 class TestEmbeddingClientWithoutRequests:
     def test_unavailable_without_requests(self):
         client = embed.EmbeddingClient("http://localhost:9999", "test-model")
-        # Should return False (no server running, or requests missing)
+        client._router.is_operation_available = MagicMock(return_value=False)
         assert client.is_available() is False
+
+    def test_embed_batch_preserves_run_context(self):
+        from commands.ops.llm_router import (
+            CallResult,
+            EmbeddingProfile,
+            EndpointStatus,
+            LLMCallContext,
+        )
+
+        context = LLMCallContext(
+            consumer_id="embed-api-index",
+            run_id="run-context-test",
+            job_type="knowledge-embedding",
+            work_slice_id="cells/net/api",
+        )
+        client = embed.EmbeddingClient(
+            "ignored",
+            "ignored",
+            context=context,
+        )
+        client._router.call_embeddings = MagicMock(
+            return_value=CallResult(
+                provider="professionalize",
+                model="qwen3-embedding-8b",
+                status=EndpointStatus.OK,
+                data=[[0.1] * 512],
+                embedding_profile=EmbeddingProfile(
+                    "profile", "professionalize", "qwen3-embedding-8b", 512, "digest"
+                ),
+            )
+        )
+
+        client.embed_batch(["one"])
+
+        assert client._router.call_embeddings.call_args.kwargs["context"] == context
 
 
 # ---------------------------------------------------------------------------

@@ -17,6 +17,7 @@ Usage:
 """
 
 import argparse
+import hashlib
 import json
 import logging
 import math
@@ -24,20 +25,13 @@ import os
 import re
 import sys
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+import uuid
 
-try:
-    import requests
-except ImportError:
-    requests = None  # type: ignore[assignment]
-
-try:
-    from commands.ops.professionalize_client import ProfessionalizeClient
-    _PROF_CLIENT_AVAILABLE = True
-except ImportError:
-    _PROF_CLIENT_AVAILABLE = False
+from commands.ops.llm_router import EndpointStatus, LLMCallContext, LLMRouter
+_PROF_CLIENT_AVAILABLE = True  # compatibility alias for existing test selection
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 log = logging.getLogger(__name__)
@@ -110,7 +104,7 @@ def cosine_similarity(vec1: dict[str, float], vec2: dict[str, float]) -> float:
 # ---------------------------------------------------------------------------
 
 class EmbeddingClient:
-    """Client for OpenAI-compatible /v1/embeddings endpoint."""
+    """Compatibility facade over the canonical LLMRouter embedding operation."""
 
     def __init__(
         self,
@@ -120,89 +114,42 @@ class EmbeddingClient:
         *,
         call_site_id: str | None = None,
         _http_client: Any = None,
+        context: LLMCallContext | None = None,
     ):
-        self.endpoint = endpoint.rstrip("/")
+        self.endpoint = "router-managed"
         self.model = model
-        self.api_key = api_key
         self._call_site_id = call_site_id  # set to "CS-004" for professionalize tier
         self._http_client = _http_client   # injected transport for tests
+        self._context = context
         self.metrics_events: list = []     # populated by embed_batch per HTTP call
+        self._router = LLMRouter(_http_client=_http_client)
 
     def is_available(self) -> bool:
         """Probe endpoint with trivial request."""
-        if requests is None:
-            log.debug("requests library not installed — API embedding unavailable")
-            return False
-        try:
-            resp = requests.post(
-                self.endpoint,
-                json={"model": self.model, "input": ["probe"]},
-                headers=self._headers(),
-                timeout=10,
-            )
-            return resp.status_code == 200
-        except Exception as exc:
-            log.warning("Embedding endpoint probe failed (%s): %s", self.endpoint, exc)
-            return False
+        return self._router.is_operation_available("index_build")
 
     def embed_batch(self, texts: list[str], batch_size: int = 32) -> list[list[float]]:
         """Batch embed texts. Splits into chunks of batch_size."""
         self.metrics_events = []
-        all_vectors: list[list[float]] = []
-
-        if _PROF_CLIENT_AVAILABLE and self._call_site_id:
-            # Professionalize path: use ProfessionalizeClient for metrics-aware HTTP.
-            # Derive base_url by stripping the /embeddings path component.
-            base_url = self.endpoint
-            if base_url.endswith("/embeddings"):
-                base_url = base_url[: -len("/embeddings")]
-            prof_client = ProfessionalizeClient(
-                base_url=base_url,
-                api_key=self.api_key or None,
-                default_embedding_model=self.model,
-                call_site_id=self._call_site_id,
-                http_client=self._http_client,
+        result = self._router.call_embeddings(
+            texts,
+            batch_size=batch_size,
+            operation="index_build",
+            context=self._context or LLMCallContext(
+                consumer_id="embed-api-index",
+                run_id=str(uuid.uuid4()),
+                job_type="embedding-index",
+                work_slice_id="batch",
+            ),
+        )
+        self.metrics_events = list(result.metrics_events)
+        if result.status != EndpointStatus.OK:
+            raise RuntimeError(
+                f"Embedding API returned failure: {result.status.value}: {result.error}"
             )
-            for i in range(0, len(texts), batch_size):
-                batch = texts[i : i + batch_size]
-                result = prof_client.embed(texts=batch)
-                self.metrics_events.append(result.event)
-                if not result.ok:
-                    raise RuntimeError(
-                        f"Embedding API returned failure: {result.error_summary}"
-                    )
-                items = sorted(result.data, key=lambda x: x.get("index", 0))
-                for item in items:
-                    all_vectors.append(item["embedding"])
-        else:
-            # Non-professionalize path (ollama) or ProfessionalizeClient unavailable.
-            if requests is None:
-                raise RuntimeError(
-                    "requests library required for API embeddings: pip install requests"
-                )
-            for i in range(0, len(texts), batch_size):
-                batch = texts[i : i + batch_size]
-                resp = requests.post(
-                    self.endpoint,
-                    json={"model": self.model, "input": batch},
-                    headers=self._headers(),
-                    timeout=30,
-                )
-                if resp.status_code != 200:
-                    raise RuntimeError(
-                        f"Embedding API returned {resp.status_code}: {resp.text[:200]}"
-                    )
-                data = resp.json()
-                items = sorted(data.get("data", []), key=lambda x: x.get("index", 0))
-                for item in items:
-                    all_vectors.append(item["embedding"])
-        return all_vectors
-
-    def _headers(self) -> dict:
-        h = {"Content-Type": "application/json"}
-        if self.api_key:
-            h["Authorization"] = f"Bearer {self.api_key}"
-        return h
+        if result.embedding_profile:
+            self.model = result.embedding_profile.model
+        return result.data or []
 
 
 # ---------------------------------------------------------------------------
@@ -217,18 +164,14 @@ DEFAULT_CONFIG = {
         {
             "id": "api",
             "provider": "professionalize",
-            "endpoint": "https://llm.professionalize.com/v1/embeddings",
-            "model": "qwen3-embedding-8b",
-            "api_key_env": "PROFESSIONALIZE_API_KEY",
+            "model": "router-managed",
             "dimensions": None,
             "last_embedded": None,
         },
         {
             "id": "local",
             "provider": "ollama",
-            "endpoint": "http://localhost:11434/v1/embeddings",
-            "model": "nomic-embed-text",
-            "api_key_env": None,
+            "model": "router-managed",
             "dimensions": 768,
             "last_embedded": None,
         },
@@ -414,9 +357,21 @@ def embed_knowledge(
         if tier.get("api_key_env"):
             api_key = os.environ.get(tier["api_key_env"], "")
 
-        # Pass call_site_id for professionalize tier so embed_batch emits MetricsEvents.
+        # Preserve the historical call-site label while the router owns transport.
         cs_id = "CS-004" if tier.get("provider") == "professionalize" else None
-        client = EmbeddingClient(tier["endpoint"], tier["model"], api_key, call_site_id=cs_id)
+        tier_run_id = str(uuid.uuid4())
+        client = EmbeddingClient(
+            tier["endpoint"],
+            tier["model"],
+            api_key,
+            call_site_id=cs_id,
+            context=LLMCallContext(
+                consumer_id="embed-api-index",
+                run_id=tier_run_id,
+                job_type="knowledge-embedding",
+                work_slice_id=f"{family}/{platform}/{tier['id']}",
+            ),
+        )
 
         if not client.is_available():
             log.info("Tier '%s' (%s) unavailable, skipping", tier["id"], tier["provider"])
@@ -437,20 +392,31 @@ def embed_knowledge(
         exp_dims = tier.get("dimensions")
         prov_name = tier.get("provider", "")
 
+        tier_events: list = []
         try:
             if claim_texts:
                 embed_and_save(client, claim_texts, tier_dir / "claims.vectors.json",
                                expected_dimensions=exp_dims, provider=prov_name)
+                tier_events.extend(client.metrics_events)
             if api_texts:
                 embed_and_save(client, api_texts, tier_dir / "api.vectors.json",
                                expected_dimensions=exp_dims, provider=prov_name)
+                tier_events.extend(client.metrics_events)
             if content_texts:
                 embed_and_save(client, content_texts, tier_dir / "content.vectors.json",
                                expected_dimensions=exp_dims, provider=prov_name)
+                tier_events.extend(client.metrics_events)
             tier_results[tier["id"]] = True
         except Exception as exc:
             log.error("Tier '%s' failed during embedding: %s", tier["id"], exc)
             tier_results[tier["id"]] = False
+        finally:
+            _persist_embedding_metrics(
+                tier_run_id,
+                family,
+                platform,
+                tier_events,
+            )
 
     attempted = {tid for tid, result in tier_results.items() if result is not None}
     failed = {tid for tid, result in tier_results.items() if result is False}
@@ -465,7 +431,7 @@ def embed_knowledge(
     # A partial update (some tiers failed) would leave last_embedded timestamps
     # inconsistent with the actual vector files on disk.
     if attempted and not failed:
-        now = datetime.utcnow().isoformat() + "Z"
+        now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         for tier in config["tiers"]:
             if tier["id"] in attempted:
                 tier["last_embedded"] = now
@@ -511,6 +477,35 @@ def _pick_client(config: dict) -> tuple[EmbeddingClient | None, dict | None]:
     return None, None
 
 
+def _persist_embedding_metrics(
+    run_id: str,
+    family: str,
+    platform: str,
+    events: list,
+) -> None:
+    """Persist router events for one index build. Metrics failure is non-fatal."""
+    if not events:
+        return
+    try:
+        from commands.ops.run_metrics import RunMetrics  # noqa: PLC0415
+
+        repo_root = Path(__file__).resolve().parents[4]
+        with RunMetrics(
+            run_id=run_id,
+            agent_name="aspose-org-knowledge-embedding",
+            job_type="knowledge_embedding",
+            product=family,
+            platform=platform,
+            website="aspose.org",
+            website_section="Docs",
+            work_slice_id=f"{family}/{platform}",
+            ledger_root=repo_root / "reports" / "metrics" / "events",
+        ) as run_metrics:
+            run_metrics.record_events(events)
+    except Exception as exc:  # noqa: BLE001 - metrics cannot block index generation
+        log.warning("Embedding metrics persistence failed (non-fatal): %s", exc)
+
+
 def embed_api_index(
     family: str,
     platform: str,
@@ -520,8 +515,10 @@ def embed_api_index(
     """Build a per-product API surface vector index for S-43 Tier 2.
 
     Reads ``knowledge/{family}/{platform}/merged/api_surface.json`` and embeds
-    each class entry as a searchable text string.  Output is written to
-    ``knowledge/_vectors/{family}/{platform}/api.vectors.json``.
+    each class entry as a searchable text string. The official path writes a
+    profile-versioned v2 index and atomically activates it through
+    ``knowledge/_vectors/{family}/{platform}/active.json``. The legacy flat
+    index remains readable and is never overwritten by that path.
 
     Returns the output path on success, None if no data or no client.
     """
@@ -551,12 +548,104 @@ def embed_api_index(
         "gap-index %s/%s: %d class entries to embed", family, platform, len(texts)
     )
 
+    # Official path: the router owns endpoint, credentials, model, retry and
+    # dimension authority. Explicit legacy configs remain readable for tests and
+    # migration tooling, but cannot become an active v2 profile.
+    if config_path is None and knowledge_root is None:
+        from commands.ops.llm_router import (  # noqa: PLC0415
+            EndpointStatus,
+            LLMCallContext,
+            LLMRouter,
+        )
+        from core.fs import atomic_write  # noqa: PLC0415
+
+        run_id = str(uuid.uuid4())
+        router = LLMRouter()
+        result = router.call_embeddings(
+            [texts[key] for key in sorted(texts)],
+            context=LLMCallContext(
+                consumer_id="embed-api-index",
+                run_id=run_id,
+                job_type="gap-index",
+                work_slice_id=f"{family}/{platform}",
+            ),
+            operation="general_embeddings",
+        )
+        _persist_embedding_metrics(
+            run_id,
+            family,
+            platform,
+            result.metrics_events,
+        )
+        if result.status != EndpointStatus.OK or not result.embedding_profile:
+            log.error("Canonical embedding failed: %s — %s", result.status.value, result.error)
+            return None
+
+        profile = result.embedding_profile
+        # ST-043 activation gate: this rollout was approved only for the observed
+        # Professionalize/qwen3-embedding-8b/512 profile.
+        if (
+            profile.provider,
+            profile.model,
+            profile.dimensions,
+        ) != ("professionalize", "qwen3-embedding-8b", 512):
+            log.error(
+                "ACTIVATION_BLOCKED: expected professionalize/qwen3-embedding-8b/512, "
+                "observed %s/%s/%s; legacy pointer unchanged",
+                profile.provider, profile.model, profile.dimensions,
+            )
+            return None
+
+        keys = sorted(texts)
+        vectors = result.data or []
+        if len(vectors) != len(keys) or any(len(v) != profile.dimensions for v in vectors):
+            raise ValueError("Profile build validation failed before activation")
+
+        source_hash = hashlib.sha256(api_path.read_bytes()).hexdigest()
+        profile_id = (
+            f"{profile.provider}-{profile.model}-{profile.dimensions}-"
+            f"{profile.config_digest[:12]}"
+        )
+        root = ((_kr / "_vectors") if knowledge_root else VECTORS_DIR) / family / platform
+        profile_dir = root / "profiles" / profile_id
+        vector_payload = {
+            "version": "2.0.0",
+            "profile_id": profile_id,
+            "vectors": {key: vector for key, vector in zip(keys, vectors)},
+        }
+        vector_bytes = json.dumps(vector_payload, separators=(",", ":")).encode("utf-8")
+        vector_hash = hashlib.sha256(vector_bytes).hexdigest()
+        manifest = {
+            "version": "2.0.0",
+            "profile_id": profile_id,
+            "provider": profile.provider,
+            "model": profile.model,
+            "dimensions": profile.dimensions,
+            "registry_digest": profile.config_digest,
+            "source_hash": source_hash,
+            "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            "count": len(keys),
+            "vector_file": "api.vectors.json",
+            "vector_file_hash": vector_hash,
+        }
+        profile_dir.mkdir(parents=True, exist_ok=True)
+        vector_path = profile_dir / "api.vectors.json"
+        atomic_write(vector_path, vector_bytes.decode("utf-8"))
+        atomic_write(profile_dir / "manifest.json", json.dumps(manifest, indent=2))
+        # Activation is the final atomic write. Any earlier failure leaves the
+        # existing pointer and legacy api.vectors.json untouched.
+        atomic_write(
+            root / "active.json",
+            json.dumps({"version": "2.0.0", "profile_id": profile_id}, indent=2),
+        )
+        return vector_path
+
     config = load_or_create_config(config_path)
     client, tier = _pick_client(config)
     if client is None:
         log.warning(
             "No embedding tier available. "
-            "Set PROFESSIONALIZE_API_KEY or ensure Ollama is running."
+            "Check the llm_registry credential chain and operation availability."
         )
         return None
 
@@ -688,9 +777,25 @@ def main() -> None:
                 log.error("No knowledge targets discovered")
                 sys.exit(1)
             log.info("gap-index: building API surface index for %d targets", len(targets))
+            failures: list[str] = []
             for family, platform in targets:
                 log.info("--- gap-index %s/%s ---", family, platform)
-                embed_api_index(family, platform, args.config, args.knowledge_root)
+                result = embed_api_index(
+                    family,
+                    platform,
+                    args.config,
+                    args.knowledge_root,
+                )
+                if result is None:
+                    failures.append(f"{family}/{platform}")
+            if failures:
+                log.error(
+                    "gap-index incomplete: %d/%d targets failed: %s",
+                    len(failures),
+                    len(targets),
+                    ", ".join(failures),
+                )
+                sys.exit(1)
         else:
             if not args.platform:
                 p.error("gap-index requires: gap-index {family} {platform}  or  gap-index all")

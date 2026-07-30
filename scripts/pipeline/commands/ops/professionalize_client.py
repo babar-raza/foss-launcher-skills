@@ -89,6 +89,8 @@ class ProfessionalizeCallResult:
     error_summary: str | None  # always redacted via redact_secret_like_values()
     content: str | None = None  # chat: completion text (not stored in event)
     data: list | None = None  # embed: list of vector objects (not stored in event)
+    credential_env_name: str | None = None
+    credential_attempts: list[dict] | None = None
 
     def __repr__(self) -> str:
         return (
@@ -220,7 +222,29 @@ class ProfessionalizeClient:
         job_type: str | None = None,
         parent_run_id: str | None = None,
         work_slice_id: str | None = None,
+        credential_candidates: list[tuple[str, str]] | None = None,
+        consumer_id: str | None = None,
+        config_digest: str | None = None,
+        retry_max_attempts: int = 1,
+        retry_statuses: list[int] | tuple[int, ...] | set[int] | None = None,
     ) -> None:
+        if (
+            not isinstance(retry_max_attempts, int)
+            or isinstance(retry_max_attempts, bool)
+            or retry_max_attempts < 1
+        ):
+            raise ProfessionalizeClientError("retry_max_attempts must be a positive integer")
+        normalized_retry_statuses = frozenset(retry_statuses or ())
+        if any(
+            not isinstance(status, int)
+            or isinstance(status, bool)
+            or status < 100
+            or status > 599
+            for status in normalized_retry_statuses
+        ):
+            raise ProfessionalizeClientError(
+                "retry_statuses must contain valid integer HTTP statuses"
+            )
         self._base_url = _normalize_base_url(base_url)  # raises on blank
         self._api_key = api_key
         self._default_chat_model = default_chat_model
@@ -232,6 +256,13 @@ class ProfessionalizeClient:
         self._default_job_type = job_type
         self._default_parent_run_id = parent_run_id
         self._default_work_slice_id = work_slice_id
+        self._credential_candidates = credential_candidates or (
+            [("direct", api_key)] if api_key else []
+        )
+        self._consumer_id = consumer_id
+        self._config_digest = config_digest
+        self._retry_max_attempts = retry_max_attempts
+        self._retry_statuses = normalized_retry_statuses
 
     # ------------------------------------------------------------------ #
     # Public API
@@ -284,6 +315,7 @@ class ProfessionalizeClient:
         *,
         texts: list[str],
         model: str | None = None,
+        dimensions: int | None = None,
         call_site_id: str | None = None,
         agent_name: str | None = None,
         job_type: str | None = None,
@@ -301,6 +333,10 @@ class ProfessionalizeClient:
         payload: dict = {"input": texts}
         if effective_model:
             payload["model"] = effective_model
+        if dimensions is not None:
+            if not isinstance(dimensions, int) or isinstance(dimensions, bool) or dimensions <= 0:
+                raise ProfessionalizeClientError("dimensions must be a positive integer")
+            payload["dimensions"] = dimensions
 
         return self._call(
             endpoint=endpoint,
@@ -352,12 +388,11 @@ class ProfessionalizeClient:
         """Core transport + event emission. Shared by chat() and embed()."""
         # Redact any token-like query params that may have crept into endpoint
         safe_endpoint = redact_secret_like_values(endpoint)
-        headers = self._build_headers()
         timestamp = now_iso8601()
         event_id = generate_event_id()
 
         # api_calls_count_delta = 1: transport is always attempted from here.
-        api_calls_count_delta = 1
+        api_calls_count_delta = 0
         http_status: int | None = None
         status = "failure"
         prompt_tokens = completion_tokens = total_tokens = 0
@@ -365,26 +400,61 @@ class ProfessionalizeClient:
         error_summary: str | None = None
         content: str | None = None
         data: list | None = None
+        credential_env_name: str | None = None
+        credential_attempts: list[dict] = []
 
         t0 = time.monotonic()
         try:
-            resp = self._post(safe_endpoint, json_body=payload, headers=headers)
+            candidates = self._credential_candidates or [("", "")]
+            resp = None
+            transport_complete = False
+            for credential_env_name, candidate_key in candidates:
+                for retry_index in range(self._retry_max_attempts):
+                    api_calls_count_delta += 1
+                    attempt_started = time.monotonic()
+                    headers = {"Content-Type": "application/json"}
+                    if candidate_key:
+                        headers["Authorization"] = f"Bearer {candidate_key}"
+                    resp = self._post(safe_endpoint, json_body=payload, headers=headers)
+                    credential_attempts.append({
+                        "credential_env_name": credential_env_name or None,
+                        "http_status": resp.status_code,
+                        "latency_ms": _safe_latency_ms(time.monotonic() - attempt_started),
+                    })
+                    if resp.status_code in (401, 403):
+                        # Authentication failures rotate aliases immediately;
+                        # retrying the same rejected credential cannot recover.
+                        break
+                    if (
+                        resp.status_code in self._retry_statuses
+                        and retry_index + 1 < self._retry_max_attempts
+                    ):
+                        continue
+                    transport_complete = True
+                    break
+                if transport_complete:
+                    break
+            assert resp is not None
             latency_ms = _safe_latency_ms(time.monotonic() - t0)
             http_status = resp.status_code
 
-            body = _json.loads(resp.content.decode("utf-8"))
-            prompt_tokens, completion_tokens, total_tokens = _extract_usage(body)
-
-            extracted, extract_error = result_extractor(body)
-            if extract_error:
+            if not 200 <= http_status < 300:
                 status = "failure"
-                error_summary = redact_secret_like_values(extract_error)
+                error_summary = f"HTTP {http_status}"
             else:
-                status = "success"
-                if request_type == "chat":
-                    content = extracted
+                body = _json.loads(resp.content.decode("utf-8"))
+                prompt_tokens, completion_tokens, total_tokens = _extract_usage(body)
+
+                extracted, extract_error = result_extractor(body)
+                if extract_error:
+                    status = "failure"
+                    error_summary = redact_secret_like_values(extract_error)
                 else:
-                    data = extracted
+                    status = "success"
+                    if request_type == "chat":
+                        content = extracted
+                    else:
+                        data = extracted
 
         except RequestsTimeout:
             latency_ms = _safe_latency_ms(time.monotonic() - t0)
@@ -420,6 +490,11 @@ class ProfessionalizeClient:
             http_status=http_status,
             latency_ms=latency_ms,
             redacted_error_summary=error_summary,
+            consumer_id=self._consumer_id,
+            provider="professionalize",
+            credential_env_name=credential_env_name or None,
+            config_digest=self._config_digest,
+            route_outcome=status,
         )
 
         return ProfessionalizeCallResult(
@@ -436,4 +511,6 @@ class ProfessionalizeClient:
             error_summary=error_summary,
             content=content,
             data=data,
+            credential_env_name=credential_env_name or None,
+            credential_attempts=credential_attempts,
         )

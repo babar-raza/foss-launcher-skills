@@ -20,7 +20,16 @@ if str(_GAP_EVAL_DIR) not in sys.path:
 
 from validate_profile import _read_package_from_build_file, validate_profile, update_profile, ALL_PRODUCTS  # type: ignore  # noqa: E402
 import validate_profile as _vp  # type: ignore  # noqa: E402
-from run import stage1_baseline, stage2_knowledge_validation, tier1_verify  # type: ignore  # noqa: E402
+from run import (  # type: ignore  # noqa: E402
+    Tier1Status,
+    _build_api_name_set,
+    _read_build_package,
+    generate_report,
+    stage1_baseline,
+    stage2_knowledge_validation,
+    tier1_assess,
+    tier1_verify,
+)
 from state import make_finding_id, reset_state, save_state  # type: ignore  # noqa: E402
 
 
@@ -110,6 +119,156 @@ class TestReadPackageFromBuildFile:
             encoding="utf-8",
         )
         assert _read_package_from_build_file(f) == "Aspose.Email_FOSS"
+
+
+def test_gap_eval_cmake_add_library_extraction(tmp_path):
+    (tmp_path / "CMakeLists.txt").write_text(
+        "cmake_minimum_required(VERSION 3.16)\n"
+        "add_library(AsposeEmailFoss STATIC src/message.cpp)\n"
+        "add_library(Aspose::Email ALIAS AsposeEmailFoss)\n",
+        encoding="utf-8",
+    )
+    profile = {
+        "discovery_hints": {
+            "package_source_file": "CMakeLists.txt",
+            "package_extraction": "cmake:add_library",
+        }
+    }
+    assert _read_build_package(tmp_path, profile) == "AsposeEmailFoss"
+
+
+def test_gap_report_uses_same_normalized_open_findings_for_counts():
+    findings = [
+        {
+            "id": "F-open",
+            "type": "needs-review",
+            "severity": "S",
+            "tier_resolved_by": 3,
+            "file": "open.md",
+            "line": 1,
+            "description": "open",
+            "status": "open",
+        },
+        {
+            "id": "F-fixed",
+            "type": "needs-review",
+            "severity": "S",
+            "tier_resolved_by": 3,
+            "file": "fixed.md",
+            "line": 2,
+            "description": "fixed",
+            "status": "fixed",
+        },
+    ]
+    report = generate_report(
+        "email", "cpp", findings, "PUBLICATION READY", "", "a" * 40,
+        "professionalize",
+    )
+    assert "S-findings: 1" in report
+    assert "Tier 3 (LLM): 1 findings" in report
+    assert "NEEDS_REVIEW: 1 findings" in report
+
+
+def test_tier1_exact_api_is_terminally_verified():
+    result = tier1_assess(
+        {
+            "type": "api-token",
+            "value": "Scene.fromFile",
+            "file": "example.md",
+            "line": 1,
+        },
+        {"Scene.fromFile"},
+        {},
+        "3d",
+        "typescript",
+    )
+    assert result.status is Tier1Status.VERIFIED
+    assert result.finding is None
+
+
+def test_tier1_unknown_api_is_explicitly_unresolved():
+    result = tier1_assess(
+        {
+            "type": "api-token",
+            "value": "Scene.notInSurface",
+            "file": "example.md",
+            "line": 1,
+        },
+        {"Scene.fromFile"},
+        {},
+        "3d",
+        "typescript",
+    )
+    assert result.status is Tier1Status.UNRESOLVED
+    assert result.finding is None
+
+
+def test_tier1_accepted_package_is_terminally_verified():
+    result = tier1_assess(
+        {
+            "type": "package-declaration",
+            "value": "@aspose/3d",
+            "file": "install.md",
+            "line": 1,
+        },
+        set(),
+        {
+            "discovered_actuals": {"package_name": "@aspose/3d"},
+            "discovery_hints": {"language": "typescript"},
+        },
+        "3d",
+        "typescript",
+    )
+    assert result.status is Tier1Status.VERIFIED
+    assert result.finding is None
+
+
+def test_api_name_set_normalizes_current_and_legacy_member_schemas():
+    names = _build_api_name_set(
+        [
+            {
+                "name": "Quaternion",
+                "methods": [{"name": "fromEulerAngle"}],
+                "properties": [{"name": "identity"}],
+            },
+            {
+                "name": "LegacyScene",
+                "method_details": [{"name": "open"}],
+                "property_details": [{"name": "rootNode"}],
+            },
+            {
+                "name": "Mixed",
+                "methods": [{"name": "save"}],
+                "method_details": [{"name": "save"}],
+            },
+        ]
+    )
+    assert {
+        "Quaternion.fromEulerAngle",
+        "Quaternion.identity",
+        "LegacyScene.open",
+        "LegacyScene.rootNode",
+        "Mixed.save",
+    } <= names
+
+
+def test_current_typescript_member_resolves_exactly_at_tier1():
+    names = _build_api_name_set(
+        [{"name": "Quaternion", "methods": [{"name": "fromEulerAngle"}]}]
+    )
+    result = tier1_assess(
+        {
+            "type": "api-token",
+            "value": "Quaternion.fromEulerAngle",
+            "file": "features.md",
+            "line": 609,
+        },
+        names,
+        {},
+        "3d",
+        "typescript",
+    )
+    assert result.status is Tier1Status.VERIFIED
 
 
 # ---------------------------------------------------------------------------

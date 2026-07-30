@@ -20,11 +20,10 @@ ALLOWED_CAPTURE_METHODS = {
     "wrapper_native",
     "llm_router_native",
     "approved_adapter",
-    "legacy_temporary",
     "blocked",
 }
 
-EXPECTED_TRANSPORT_IDS = {"CS-001", "CS-002", "CS-004", "CS-008", "CS-009", "CS-010", "CS-014", "CS-015"}
+EXPECTED_TRANSPORT_IDS = {"CS-001", "CS-002", "CS-004", "CS-009", "CS-010", "CS-014", "CS-015"}
 BOUNDARY_ONLY_IDS = {"CS-011", "CS-012", "CS-013"}
 
 # Values that must NOT appear as endpoint_source
@@ -57,6 +56,25 @@ class TestRegistryStructure:
 
     def test_has_allowed_capture_methods(self, registry):
         assert "allowed_capture_methods" in registry
+
+    def test_summary_counts_match_call_sites(self, registry):
+        call_sites = registry["call_sites"]
+        summary = registry["summary"]
+        assert summary["total_registered_transport_sites"] == len(call_sites)
+        assert summary["active"] == sum(
+            entry["status"] == "active" for entry in call_sites.values()
+        )
+        for method in ("wrapper_native", "llm_router_native", "approved_adapter"):
+            assert summary[method] == sum(
+                entry["capture_method"] == method for entry in call_sites.values()
+            )
+
+    def test_router_native_entries_do_not_claim_direct_transport(self, call_sites):
+        for call_site_id, entry in call_sites.items():
+            if entry["capture_method"] != "llm_router_native":
+                continue
+            assert "LLMRouter" in entry["transport_type"], call_site_id
+            assert "direct urllib" not in str(entry).lower(), call_site_id
 
 
 # --------------------------------------------------------------------------- #
@@ -125,8 +143,8 @@ class TestCaptureMethods:
         assert entry["capture_method"] in ALLOWED_CAPTURE_METHODS
 
     def test_direct_bypasses_use_approved_adapter_or_stricter(self, call_sites):
-        bypass_ids = {"CS-004", "CS-008", "CS-009"}
-        strict_methods = {"approved_adapter", "wrapper_native"}
+        bypass_ids = {"CS-004", "CS-009", "CS-014"}
+        strict_methods = {"llm_router_native", "wrapper_native"}
         for cs_id in bypass_ids:
             entry = call_sites[cs_id]
             assert entry["capture_method"] in strict_methods, (

@@ -16,6 +16,7 @@ import logging
 import re
 from pathlib import Path
 from typing import TYPE_CHECKING
+from commands.ops.llm_router import LLMCallContext
 
 if TYPE_CHECKING:
     from commands.ops.llm_router import LLMRouter
@@ -381,6 +382,7 @@ def generate_seo_slug(
             temperature=0.3,
             max_tokens=100,
             json_extract=False,
+            context=LLMCallContext.create("blog-slug-policy", "blog-slug", "classification"),
         )
 
         if EndpointStatus is not None and result.status == EndpointStatus.OK:

@@ -63,6 +63,10 @@ class FakeHTTPClient:
         self.calls.append({"url": url, "json": json, "headers": headers, "timeout": timeout})
         if self._raise_exc is not None:
             raise self._raise_exc
+        if isinstance(self._response, list):
+            if not self._response:
+                raise ConnectionError("No more configured responses")
+            return self._response.pop(0)
         return self._response
 
 
@@ -236,6 +240,19 @@ class TestEmbedSuccess:
         result = _client(fake).embed(texts=["hello"])
         assert result.prompt_tokens == 30
         assert result.total_tokens == 30
+
+    def test_embed_sends_explicit_dimensions(self):
+        fake = FakeHTTPClient(FakeResponse(200, _embed_body(1)))
+        result = _client(fake).embed(texts=["hello"], dimensions=512)
+        assert result.ok is True
+        assert fake.calls[0]["json"]["dimensions"] == 512
+
+    @pytest.mark.parametrize("dimensions", [0, -1, True, 1.5, "512"])
+    def test_embed_rejects_invalid_dimensions_before_transport(self, dimensions):
+        fake = FakeHTTPClient(FakeResponse(200, _embed_body(1)))
+        with pytest.raises(ProfessionalizeClientError, match="positive integer"):
+            _client(fake).embed(texts=["hello"], dimensions=dimensions)
+        assert fake.calls == []
 
     def test_embed_missing_usage_returns_zero_tokens(self):
         body = {"data": [{"embedding": [0.1, 0.2]}]}
@@ -494,6 +511,67 @@ class TestTimeoutAndRetry:
         # Only one HTTP call should have been made
         assert len(fake.calls) == 1
         assert result.ok is False
+
+    def test_configured_transient_status_retries_then_succeeds(self):
+        fake = FakeHTTPClient([
+            FakeResponse(503, {"error": "temporary"}),
+            FakeResponse(200, _chat_body()),
+        ])
+        result = _client(
+            fake,
+            retry_max_attempts=2,
+            retry_statuses=[503],
+        ).chat(messages=[{"role": "user", "content": "x"}])
+        assert result.ok is True
+        assert result.api_calls_count_delta == 2
+        assert [attempt["http_status"] for attempt in result.credential_attempts] == [
+            503, 200,
+        ]
+
+    def test_non_2xx_success_shaped_body_is_never_success(self):
+        fake = FakeHTTPClient(FakeResponse(500, _chat_body()))
+        result = _client(fake).chat(messages=[{"role": "user", "content": "x"}])
+        assert result.ok is False
+        assert result.http_status == 500
+        assert result.error_summary == "HTTP 500"
+        assert result.content is None
+
+    def test_auth_failure_rotates_alias_without_same_key_retry(self):
+        fake = FakeHTTPClient([
+            FakeResponse(401, {"error": "bad first key"}),
+            FakeResponse(200, _chat_body()),
+        ])
+        result = _client(
+            fake,
+            credential_candidates=[
+                ("FIRST_TEST_KEY", "first-test-secret"),
+                ("SECOND_TEST_KEY", "second-test-secret"),
+            ],
+            retry_max_attempts=3,
+            retry_statuses=[500, 503],
+        ).chat(messages=[{"role": "user", "content": "x"}])
+        assert result.ok is True
+        assert len(fake.calls) == 2
+        assert [
+            attempt["credential_env_name"]
+            for attempt in result.credential_attempts
+        ] == ["FIRST_TEST_KEY", "SECOND_TEST_KEY"]
+        assert "first-test-secret" not in repr(result)
+        assert "second-test-secret" not in repr(result)
+
+    @pytest.mark.parametrize(
+        ("max_attempts", "statuses"),
+        [(0, []), (True, []), (1, [99]), (1, [True])],
+    )
+    def test_invalid_retry_configuration_fails_closed(self, max_attempts, statuses):
+        fake = FakeHTTPClient(FakeResponse(200, _chat_body()))
+        with pytest.raises(ProfessionalizeClientError):
+            _client(
+                fake,
+                retry_max_attempts=max_attempts,
+                retry_statuses=statuses,
+            )
+        assert fake.calls == []
 
 
 # --------------------------------------------------------------------------- #

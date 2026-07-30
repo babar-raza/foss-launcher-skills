@@ -1,7 +1,9 @@
 """LLM Candidate Enricher — expand short shadow candidates using LLM.
 
-Calls the llm.professionalize.com endpoint (gpt-oss) to enrich stub
-candidates that fail min_word_count or need fact_ref injection.
+Calls the registry-owned ``candidate_enrichment`` operation through
+``LLMRouter`` to enrich stub candidates that fail min_word_count or need
+fact_ref injection. This module has no endpoint, credential, retry, model, or
+provider authority.
 
 All LLM output is bounded by facts from the product's fact graph.
 NEVER invents facts — only elaborates on verified fact graph entries.
@@ -15,18 +17,13 @@ Public API:
 from __future__ import annotations
 
 import json
-import os
 import re
+import uuid
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
-import urllib.request
-import urllib.error
-
 ENRICHER_VERSION = "1.0.0"
-DEFAULT_MODEL = "gpt-oss"
-DEFAULT_BASE_URL = "https://llm.professionalize.com/v1"
 DEFAULT_MAX_TOKENS = 600
 DEFAULT_TEMPERATURE = 0.0
 
@@ -43,15 +40,8 @@ TARGET_WORD_COUNTS: dict[str, int] = {
 @dataclass
 class LLMEnricherConfig:
     """Configuration for the LLM enricher."""
-    base_url: str = DEFAULT_BASE_URL
-    model: str = DEFAULT_MODEL
     max_tokens: int = DEFAULT_MAX_TOKENS
     temperature: float = DEFAULT_TEMPERATURE
-    api_key: str = ""
-
-    def __post_init__(self):
-        if not self.api_key:
-            self.api_key = os.environ.get("PROFESSIONALIZE_API_KEY", "")
 
 
 @dataclass
@@ -90,32 +80,35 @@ def _parse_frontmatter(content: str) -> tuple[dict[str, str], str]:
 
 
 def _call_llm(prompt: str, config: LLMEnricherConfig) -> str:
-    """Call LLM endpoint. Returns generated text or raises.
+    """Call the canonical candidate-enrichment route or raise.
 
     Prepends /no_think to suppress reasoning tokens on thinking-mode models
     (e.g. gpt-oss). Falls back to reasoning_content if content is None.
     """
-    payload = json.dumps({
-        "model": config.model,
-        "messages": [{"role": "user", "content": f"/no_think\n{prompt}"}],
-        "max_tokens": config.max_tokens,
-        "temperature": config.temperature,
-    }).encode("utf-8")
-
-    req = urllib.request.Request(
-        f"{config.base_url}/chat/completions",
-        data=payload,
-        headers={
-            "Authorization": f"Bearer {config.api_key}",
-            "Content-Type": "application/json",
-        },
-        method="POST",
+    from commands.ops.llm_router import (  # noqa: PLC0415
+        EndpointStatus,
+        LLMCallContext,
+        LLMRouter,
     )
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        data = json.loads(resp.read().decode("utf-8"))
-    msg = data["choices"][0]["message"]
-    content = msg.get("content") or msg.get("reasoning_content") or ""
-    return _clean_llm_output(content.strip())
+    run_id = str(uuid.uuid4())
+    result = LLMRouter().call_chat(
+        "You expand content only from the supplied verified facts.",
+        f"/no_think\n{prompt}",
+        max_tokens=config.max_tokens,
+        temperature=config.temperature,
+        timeout=60,
+        json_extract=False,
+        operation="candidate_enrichment",
+        context=LLMCallContext(
+            consumer_id="llm-candidate-enricher",
+            run_id=run_id,
+            job_type="candidate-enrichment",
+            work_slice_id="candidate",
+        ),
+    )
+    if result.status != EndpointStatus.OK:
+        raise RuntimeError(f"LLM enrichment failed: {result.status.value}: {result.error}")
+    return _clean_llm_output(str(result.data or "").strip())
 
 
 def _clean_llm_output(text: str, max_words: int = 100) -> str:

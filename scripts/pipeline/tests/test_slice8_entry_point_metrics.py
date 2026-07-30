@@ -181,6 +181,27 @@ class TestGapEvalRunMetricsWiring:
         assert row["product"] == "Aspose.Slides"
         assert row["token_usage"] == 180
 
+    def test_gaeval_publication_ready_is_metrics_success(self, tmp_path, monkeypatch):
+        run = self._get_run()
+        run_id = generate_run_id()
+        monkeypatch.setenv("AGENT_METRICS_PRODUCTION", "0")
+        orig = run._REPO_ROOT
+        try:
+            run._REPO_ROOT = tmp_path
+            run._try_write_gaeval_metrics(
+                "email", "cpp", run_id, [], [],
+                "PUBLICATION READY", time.monotonic(),
+            )
+        finally:
+            run._REPO_ROOT = orig
+        row = json.loads(
+            (tmp_path / "reports" / "metrics" / "dry" / f"{run_id}.dry.json")
+            .read_text(encoding="utf-8")
+        )
+        assert row["status"] == "success"
+        assert row["items_succeeded"] == 1
+        assert row["items_failed"] == 0
+
     def test_gaeval_metrics_helper_silent_on_none_run_id(self, tmp_path):
         run = self._get_run()
         orig = run._REPO_ROOT

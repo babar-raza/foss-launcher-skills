@@ -155,6 +155,74 @@ class TestCheckProfessionalizeCallSites:
         )
         assert result.passed, "Expected PASS when call is registered"
 
+    def test_rejects_registered_direct_transport(self, tmp_path):
+        script_rel = "scripts/direct.py"
+        script = tmp_path / script_rel
+        script.parent.mkdir(parents=True)
+        script.write_text("import requests\nrequests.post('https://example.invalid')\n", encoding="utf-8")
+        registry = tmp_path / "registry.yaml"
+        registry.write_text(
+            "call_sites:\n  CS-X:\n    path: scripts/direct.py\n"
+            "    capture_method: approved_adapter\n",
+            encoding="utf-8",
+        )
+        result = cpc.run_check(tmp_path, registry, include_tests=True)
+        assert not result.passed
+        assert any("direct transport" in error for error in result.governance_errors)
+
+    def test_rejects_stale_registered_path(self, tmp_path):
+        registry = tmp_path / "registry.yaml"
+        registry.write_text(
+            "call_sites:\n  CS-X:\n    path: scripts/missing.py\n"
+            "    capture_method: llm_router_native\n",
+            encoding="utf-8",
+        )
+        result = cpc.run_check(tmp_path, registry, include_tests=True)
+        assert not result.passed
+        assert any("source path is missing" in error for error in result.governance_errors)
+
+    def test_rejects_contextless_router_consumer(self, tmp_path):
+        script_rel = "scripts/consumer.py"
+        script = tmp_path / script_rel
+        script.parent.mkdir(parents=True)
+        script.write_text("router.call_chat('system', 'user')\n", encoding="utf-8")
+        registry = tmp_path / "registry.yaml"
+        registry.write_text(
+            "call_sites: {}\nlogical_consumers:\n"
+            f"  - consumer_id: demo\n    path: {script_rel}\n",
+            encoding="utf-8",
+        )
+        result = cpc.run_check(tmp_path, registry, include_tests=True)
+        assert not result.passed
+        assert any("contextless router call" in error for error in result.governance_errors)
+
+    def test_rejects_stale_router_transport_metadata(self, tmp_path):
+        script_rel = "scripts/consumer.py"
+        script = tmp_path / script_rel
+        script.parent.mkdir(parents=True)
+        script.write_text(
+            "router.call_chat('system', 'user', context=context)\n",
+            encoding="utf-8",
+        )
+        registry = tmp_path / "registry.yaml"
+        registry.write_text(
+            "call_sites:\n"
+            "  CS-X:\n"
+            f"    path: {script_rel}\n"
+            "    capture_method: llm_router_native\n"
+            "    transport_type: LLMRouter.call_chat\n"
+            "    notes: direct urllib call\n"
+            "logical_consumers:\n"
+            f"  - consumer_id: demo\n    path: {script_rel}\n",
+            encoding="utf-8",
+        )
+        result = cpc.run_check(tmp_path, registry, include_tests=True)
+        assert not result.passed
+        assert any(
+            "stale direct-transport metadata" in error
+            for error in result.governance_errors
+        )
+
     def test_ignores_boundary_systems(self, tmp_path):
         """Gemini and Ollama boundary files do not trigger failures."""
         # These paths are in _ALWAYS_EXCLUDE_PATHS

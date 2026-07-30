@@ -220,6 +220,103 @@ class TestRegistryLoading:
         assert providers[1][0] == "ollama"
 
 
+class TestRegistryHotReload:
+    def test_same_instance_observes_dimension_update(self, registry_path):
+        import yaml
+
+        vectors_4096 = [[0.1] * 4096]
+        vectors_512 = [[0.2] * 512]
+        router = _make_router(
+            registry_path,
+            [_prof_embed_resp(vectors_4096), _prof_embed_resp(vectors_512)],
+        )
+        with patch.dict(os.environ, {"PROFESSIONALIZE_API_KEY": "test-key"}):
+            first = router.call_embeddings(["one"], operation="index_build")
+            registry = yaml.safe_load(registry_path.read_text(encoding="utf-8"))
+            registry["providers"]["professionalize"]["embeddings"]["embed_dimensions"] = 512
+            registry_path.write_text(yaml.safe_dump(registry), encoding="utf-8")
+            second = router.call_embeddings(["two"], operation="index_build")
+
+        assert first.status == EndpointStatus.OK
+        assert first.embedding_profile.dimensions == 4096
+        assert second.status == EndpointStatus.OK
+        assert second.embedding_profile.dimensions == 512
+        assert first.config_digest != second.config_digest
+
+    def test_invalid_changed_registry_fails_closed(self, registry_path):
+        router = _make_router(registry_path, [_prof_chat_resp('{"ok": true}')])
+        registry_path.write_text("schema_version: 2\nproviders: []\n", encoding="utf-8")
+        result = router.call_chat("system", "user")
+        assert result.status == EndpointStatus.CONFIG_INVALID
+        assert router._http_client.call_count == 0
+
+    def test_invalid_retry_policy_fails_validation(self, registry_path):
+        import yaml
+
+        registry = yaml.safe_load(registry_path.read_text(encoding="utf-8"))
+        registry["providers"]["professionalize"]["retry"] = {
+            "max_attempts": 0,
+            "retry_statuses": [503],
+        }
+        registry_path.write_text(yaml.safe_dump(registry), encoding="utf-8")
+        with pytest.raises(RuntimeError, match="retry.max_attempts"):
+            LLMRouter(registry_path=registry_path)
+
+
+class TestCredentialRotation:
+    def test_401_rotates_to_next_alias_without_exposing_secret(self, registry_path):
+        import yaml
+
+        registry = yaml.safe_load(registry_path.read_text(encoding="utf-8"))
+        provider = registry["providers"]["professionalize"]
+        provider["credential_aliases"] = ["FIRST_TEST_KEY", "SECOND_TEST_KEY"]
+        registry_path.write_text(yaml.safe_dump(registry), encoding="utf-8")
+        router = _make_router(
+            registry_path,
+            [
+                _prof_chat_resp('{"error": "unauthorized"}', status_code=401),
+                _prof_chat_resp('{"ok": true}'),
+            ],
+        )
+        with patch.dict(
+            os.environ,
+            {"FIRST_TEST_KEY": "secret-first", "SECOND_TEST_KEY": "secret-second"},
+        ):
+            result = router.call_chat("system", "user")
+
+        assert result.status == EndpointStatus.OK
+        assert result.api_calls_count == 2
+        assert [attempt.credential_env_name for attempt in result.attempts] == [
+            "FIRST_TEST_KEY", "SECOND_TEST_KEY",
+        ]
+        assert "secret-first" not in repr(result)
+        assert "secret-second" not in repr(result)
+
+    def test_registry_retry_policy_reaches_transport(self, registry_path):
+        import yaml
+
+        registry = yaml.safe_load(registry_path.read_text(encoding="utf-8"))
+        registry["providers"]["professionalize"]["retry"] = {
+            "max_attempts": 2,
+            "retry_statuses": [503],
+        }
+        registry_path.write_text(yaml.safe_dump(registry), encoding="utf-8")
+        router = _make_router(
+            registry_path,
+            [
+                _prof_chat_resp('{"error": "temporary"}', status_code=503),
+                _prof_chat_resp('{"ok": true}'),
+            ],
+        )
+        result = router.call_chat("system", "user")
+        assert result.status == EndpointStatus.OK
+        assert result.api_calls_count == 2
+        assert [attempt.status for attempt in result.attempts] == [
+            EndpointStatus.UNKNOWN,
+            EndpointStatus.OK,
+        ]
+
+
 # ---------------------------------------------------------------------------
 # call_chat — happy path
 # ---------------------------------------------------------------------------
@@ -269,8 +366,8 @@ class TestCallChatMissingKey:
         assert result.status == EndpointStatus.OK
         assert result.provider == "ollama"
         assert result.data == {"answer": "from ollama"}
-        # Fallback artifact should be written
-        assert result.fallback_artifact != ""
+        # Routing is recorded in the metrics ledger; anonymous artifacts are retired.
+        assert result.fallback_artifact == ""
 
 
 # ---------------------------------------------------------------------------
@@ -291,7 +388,7 @@ class TestCallChatAuthFailed:
 
         assert result.status == EndpointStatus.OK
         assert result.provider == "ollama"
-        assert result.fallback_artifact != ""
+        assert result.fallback_artifact == ""
 
     def test_403_is_auth_failed_then_ollama(self, registry_path):
         prof_resp = _FakeHTTPResponse({"error": "forbidden"}, 403)
@@ -324,7 +421,7 @@ class TestCallChatUnreachable:
 
         assert result.status == EndpointStatus.OK
         assert result.provider == "ollama"
-        assert result.fallback_artifact != ""
+        assert result.fallback_artifact == ""
 
     def test_timeout_falls_back(self, registry_path):
         router = _make_router(
@@ -386,10 +483,11 @@ class TestCallEmbeddingsHappy:
         assert len(result.data) == 2
         assert len(result.data[0]) == 4096
         assert result.provider == "professionalize"
+        assert router._http_client.calls[0]["json"]["dimensions"] == 4096
 
 
 # ---------------------------------------------------------------------------
-# call_embeddings — dimension mismatch → PARSE_FAILED
+# call_embeddings — dimension mismatch → CONTRACT_MISMATCH
 # ---------------------------------------------------------------------------
 
 class TestCallEmbeddingsDimensionMismatch:
@@ -409,6 +507,47 @@ class TestCallEmbeddingsDimensionMismatch:
         assert result.status == EndpointStatus.OK
         assert result.provider == "ollama"
         assert len(result.data[0]) == 768
+        assert [attempt.status for attempt in result.attempts] == [
+            EndpointStatus.CONTRACT_MISMATCH,
+            EndpointStatus.OK,
+        ]
+        assert result.attempts[0].observed_dimensions == 512
+        assert result.embedding_profile.provider == "ollama"
+
+
+class TestOllamaEmbeddingResultContract:
+    @staticmethod
+    def _ollama_only_registry(registry_path):
+        import yaml
+
+        registry = yaml.safe_load(registry_path.read_text(encoding="utf-8"))
+        registry["providers"].pop("professionalize")
+        registry_path.write_text(yaml.safe_dump(registry), encoding="utf-8")
+        return LLMRouter(registry_path=registry_path)
+
+    def test_malformed_payload_is_parse_failed(self, registry_path):
+        router = self._ollama_only_registry(registry_path)
+        malformed = _FakeHTTPResponse({"data": [{}]})
+        with patch("commands.ops.llm_router.requests") as mock_req:
+            mock_req.post.return_value = malformed
+            mock_req.exceptions = real_requests.exceptions
+            result = router.call_embeddings(["text"])
+        assert result.status == EndpointStatus.PARSE_FAILED
+        assert result.attempts[-1].status == EndpointStatus.PARSE_FAILED
+        assert result.config_digest
+        assert result.embedding_profile.provider == "ollama"
+
+    def test_dimension_drift_is_contract_mismatch(self, registry_path):
+        router = self._ollama_only_registry(registry_path)
+        wrong_dims = _mock_embed_response([[0.1] * 512])
+        with patch("commands.ops.llm_router.requests") as mock_req:
+            mock_req.post.return_value = wrong_dims
+            mock_req.exceptions = real_requests.exceptions
+            result = router.call_embeddings(["text"])
+        assert result.status == EndpointStatus.CONTRACT_MISMATCH
+        assert result.attempts[-1].status == EndpointStatus.CONTRACT_MISMATCH
+        assert result.attempts[-1].observed_dimensions == 512
+        assert result.embedding_profile.dimensions == 768
 
 
 # ---------------------------------------------------------------------------
@@ -897,6 +1036,15 @@ class TestMapProfStatus:
         r = self._make_mock_result(ok=False, http_status=0)
         status, _ = _map_prof_status(r)
         assert status == EndpointStatus.UNREACHABLE
+
+    def test_successful_http_with_invalid_body_maps_to_parse_failed(self):
+        r = self._make_mock_result(
+            ok=False,
+            http_status=200,
+            error_summary="Decode error: empty response",
+        )
+        status, _ = _map_prof_status(r)
+        assert status == EndpointStatus.PARSE_FAILED
 
     def test_500_maps_to_unknown(self):
         r = self._make_mock_result(ok=False, http_status=500)

@@ -1,7 +1,6 @@
 """CS-009: Metrics adapter tests for recommend.py _call_llm.
 
-Verifies that every professionalize HTTP attempt via the OpenAI SDK in
-_call_llm() emits a MetricsEvent with call_site_id='CS-009'.
+Verifies that SEO uses the canonical router and preserves attributed metrics.
 
 When LITELLM_KEY is absent (llm_skipped=True), _call_llm is never called,
 so no MetricsEvents are emitted.
@@ -12,8 +11,8 @@ Slice 4 of Agent Metrics Integration (METRICS-PLAN-001 v7.1).
 """
 from __future__ import annotations
 
+import json
 import sys
-import types
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -30,7 +29,8 @@ if str(_PIPELINE) not in sys.path:
 # Import the module under test
 import seo.pipeline.recommend as recommend
 from seo.pipeline.recommend import _call_llm, _METRICS_AVAILABLE
-from commands.ops.metrics_schema import validate_event
+from commands.ops.llm_router import CallResult, EndpointStatus
+from commands.ops.metrics_schema import MetricsEvent, now_iso8601, validate_event
 
 
 # ---------------------------------------------------------------------------
@@ -74,21 +74,10 @@ def _openai_empty_resp() -> MagicMock:
 
 @pytest.fixture
 def mock_openai():
-    """Install a fake 'openai' module in sys.modules.
-
-    _call_llm does ``import openai`` locally, so we inject a mock at the
-    sys.modules level.  The fixture yields the fake module so tests can
-    configure mock_openai.OpenAI.return_value as needed.
-    """
-    fake_mod = types.ModuleType("openai")
-    fake_mod.OpenAI = MagicMock()
-    prev = sys.modules.get("openai")
-    sys.modules["openai"] = fake_mod
-    yield fake_mod
-    if prev is None:
-        sys.modules.pop("openai", None)
-    else:
-        sys.modules["openai"] = prev
+    """Patch the canonical router used by SEO."""
+    router = MagicMock()
+    with patch("seo.pipeline.recommend.LLMRouter", return_value=router):
+        yield router
 
 
 @pytest.fixture(autouse=True)
@@ -105,14 +94,54 @@ def clear_metrics_events():
 
 
 def _setup_client(mock_openai_fixture, *, side_effect=None, return_value=None) -> MagicMock:
-    """Configure mock_openai.OpenAI() to return a client with set behavior."""
-    client = MagicMock()
+    """Configure a canonical-router result from legacy-shaped fixture data."""
+    def event(status: str, tokens: int = 0) -> MetricsEvent:
+        return MetricsEvent(
+            event_id="evt", call_site_id="CS-009",
+            endpoint="https://llm.professionalize.com/v1/chat/completions",
+            request_type="seo", status=status,
+            prompt_tokens=0, completion_tokens=0, total_tokens=tokens,
+            api_calls_count_delta=1, timestamp=now_iso8601(),
+            consumer_id="seo-recommend", provider="professionalize",
+        )
+
+    def convert(response) -> CallResult:
+        raw = response.choices[0].message.content
+        tokens = response.usage.total_tokens
+        if not raw:
+            evt = event("failure", tokens)
+            return CallResult(
+                status=EndpointStatus.PARSE_FAILED, error="empty",
+                metrics_events=[evt],
+            )
+        evt = event("success", tokens)
+        return CallResult(
+            provider="professionalize", status=EndpointStatus.OK,
+            data=json.loads(raw), metrics_events=[evt],
+        )
+
     if side_effect is not None:
-        client.chat.completions.create.side_effect = side_effect
+        events = []
+        final = None
+        try:
+            for _ in range(3):
+                candidate = convert(side_effect())
+                events.extend(candidate.metrics_events)
+                final = candidate
+                if candidate.status == EndpointStatus.OK:
+                    break
+        except Exception as exc:
+            events.append(event("failure"))
+            final = CallResult(
+                status=EndpointStatus.UNREACHABLE, error=str(exc),
+                metrics_events=events,
+            )
+        assert final is not None
+        final.metrics_events = events
+        mock_openai_fixture.call_chat.return_value = final
     else:
-        client.chat.completions.create.return_value = return_value
-    mock_openai_fixture.OpenAI.return_value = client
-    return client
+        mock_openai_fixture.call_chat.return_value = convert(return_value)
+    return mock_openai_fixture
 
 
 # ===========================================================================

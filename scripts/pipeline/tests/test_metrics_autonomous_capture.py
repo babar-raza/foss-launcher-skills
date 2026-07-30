@@ -345,11 +345,12 @@ class TestAT04_OpenAISDKAdapter:
         finally:
             sys.path.pop(0)
 
-    def test_recommend_adapter_zero_events_when_disabled(self):
-        """CS-009 emits zero events when LITELLM_KEY is not set (disabled state)."""
+    def test_recommend_adapter_uses_router_operation_availability(self):
+        """CS-009 availability is registry-owned, not tied to one env alias."""
         src = (_REPO_ROOT / "scripts" / "seo" / "pipeline" / "recommend.py").read_text(encoding="utf-8")
-        # The adapter must check LITELLM_KEY and skip when absent
-        assert "LITELLM_KEY" in src, "recommend.py must reference LITELLM_KEY"
+        assert 'is_operation_available("seo_recommendation")' in src
+        assert "os.environ" not in src
+        assert "os.getenv" not in src
         assert "metrics_events" in src, "recommend.py must have metrics_events tracking"
 
 

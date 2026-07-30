@@ -6,20 +6,35 @@
 #
 # Do NOT add providers without updating llm_router.py EndpointStatus enum.
 
+schema_version: 2
+
+operation_profiles:
+  general_chat:
+    providers: [professionalize, ollama]
+  general_embeddings:
+    providers: [professionalize, ollama]
+  index_build:
+    providers: [professionalize]
+  candidate_enrichment:
+    providers: [professionalize]
+  seo_recommendation:
+    providers: [professionalize]
+
 providers:
   professionalize:
     priority: 1
     base_url: "https://llm.professionalize.com/v1"
     base_url_env: "GPT_OSS_ENDPOINT"           # env override takes precedence over base_url
-    # 2026-07-25: PROFESSIONALIZE_API_KEY started returning HTTP 401 (auth_failed)
-    # against llm.professionalize.com/v1 — confirmed via LLMRouter.probe(). LLM_API_KEY
-    # and GPT_OSS_API_KEY both authenticate OK (live-probed same session); promoted
-    # LLM_API_KEY to primary. GPT_OSS_API_KEY kept as fallback since it already works
-    # too. Note the router only re-checks the fallback var when the primary is
-    # empty/absent, not on a 401 from a stale-but-present key — swap the primary here
-    # (not just add another var) if this ever needs reverting.
-    api_key_env: "LLM_API_KEY"
-    api_key_env_fallback: "GPT_OSS_API_KEY"    # checked when api_key_env is absent
+    # Ordered credential failover. The deprecated Professionalize-specific alias
+    # remains last for transition compatibility; 401/403 rotates to the next alias.
+    credential_aliases:
+      - "LLM_API_KEY"
+      - "GPT_OSS_API_KEY"
+      - "LITELLM_KEY"
+      - "PROFESSIONALIZE_API_KEY"
+    retry:
+      max_attempts: 2
+      retry_statuses: [429, 500, 502, 503, 504]
     chat:
       endpoint: "/chat/completions"
       model: "gpt-oss"
@@ -30,12 +45,14 @@ providers:
       endpoint: "/embeddings"
       model: "qwen3-embedding-8b"
       default_timeout: 30
-      embed_dimensions: 4096
+      # qwen3-embedding-8b defaults to 4096 but supports an explicit dimensions
+      # request. The canonical client requests this registry contract on every call.
+      embed_dimensions: 512
 
   ollama:
     priority: 2
     base_url: "http://localhost:11434/v1"
-    api_key_env: null
+    credential_aliases: []
     preferred_models: ["llama3.2", "llama3.1", "mistral", "qwen2.5"]
     chat:
       endpoint: "/chat/completions"

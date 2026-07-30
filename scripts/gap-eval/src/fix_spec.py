@@ -72,7 +72,7 @@ def _llm_call(system: str, user: str) -> dict | None:
     Delegates to shared LLMRouter.
     """
     try:
-        from lib.llm_router import EndpointStatus
+        from lib.llm_router import EndpointStatus, LLMCallContext
         router = _get_router()
     except (ImportError, RuntimeError) as exc:
         log.warning("LLM router unavailable: %s", exc)
@@ -84,6 +84,7 @@ def _llm_call(system: str, user: str) -> dict | None:
         timeout=45,
         json_extract=True,
         json_array=False,
+        context=LLMCallContext.create("gap-eval-fix-spec", "gap-eval", "fix-spec"),
     )
 
     if result.status == EndpointStatus.OK and isinstance(result.data, dict):

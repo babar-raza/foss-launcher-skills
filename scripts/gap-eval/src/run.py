@@ -25,6 +25,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from enum import Enum
 from pathlib import Path
 from typing import Any, Optional
 
@@ -198,22 +199,27 @@ def _load_api_surface(family: str, platform: str) -> list[dict]:
 
 
 def _build_api_name_set(api_data: list[dict]) -> set[str]:
-    """Flat set of all class names + method names from api_surface.json."""
+    """Flat set of class and member names across current and legacy schemas."""
     names: set[str] = set()
     for cls in api_data:
         cname = cls.get("name", "")
         if cname:
             names.add(cname)
-        for m in cls.get("method_details", []):
-            mname = m.get("name", "")
-            if mname:
-                names.add(f"{cname}.{mname}")
-                names.add(mname)
-        for p in cls.get("property_details", []):
-            pname = p.get("name", "")
-            if pname:
-                names.add(f"{cname}.{pname}")
-                names.add(pname)
+        # Generated API surfaces use ``methods``/``properties`` today, while
+        # older products retain ``method_details``/``property_details``.
+        # Consume both; the set makes mixed-schema records idempotent.
+        for field in ("method_details", "methods"):
+            for member in cls.get(field, []) or []:
+                mname = member.get("name", "") if isinstance(member, dict) else str(member)
+                if mname:
+                    names.add(f"{cname}.{mname}")
+                    names.add(mname)
+        for field in ("property_details", "properties"):
+            for member in cls.get(field, []) or []:
+                pname = member.get("name", "") if isinstance(member, dict) else str(member)
+                if pname:
+                    names.add(f"{cname}.{pname}")
+                    names.add(pname)
     return names
 
 
@@ -285,16 +291,25 @@ _RE_CODE_BLOCK = re.compile(r"```([a-z]*)\n(.*?)```", re.DOTALL)  # group1=lang,
 # positive for every from-import code example (see pipeline-evidence.md).
 _RE_PACKAGE_IMPORT = re.compile(
     r"from\s+(?P<from_val>[\w.@/\-]+)\s+import\s+[\w.,\s()*]+"
-    r"|(?:import|require|using|pip install|nuget|maven|npm install|poetry add)\s+(?P<val>[\w.@/\-]+)",
+    r"|(?:pip install|npm install|poetry add)\s+"
+    r"(?:--?[\w-]+(?:=[^\s]+)?\s+)*(?P<install_val>[\w.@/\-]+)"
+    r"|(?:import|require|using|nuget|maven)\s+(?P<val>[\w.@/\-]+)",
     re.IGNORECASE,
 )
 _RE_API_TOKEN = re.compile(r"\b([A-Z][A-Za-z0-9]+)\.([a-z_][A-Za-z0-9_]*)\s*[\(\[]?")
 _RE_INTERNAL_LINK = re.compile(r"\[([^\]]+)\]\((/[^\)]+)\)")
+_RE_URL_TOKEN = re.compile(r"(?:https?://|git@)\S+", re.IGNORECASE)
 
 # TIER3-TS-FP-01: TypeScript/JavaScript code block filters
 # These prevent JS/TS built-in globals and bare import-binding identifiers from
 # being extracted as claims and escalating to Tier 3 LLM.
 _TS_JS_LANG_TAGS: frozenset[str] = frozenset({"typescript", "javascript", "ts", "js"})
+_SHELL_LANG_TAGS: frozenset[str] = frozenset(
+    {"bash", "shell", "sh", "powershell", "ps1", "batch", "cmd"}
+)
+_SHELL_FILE_EXTENSIONS: frozenset[str] = frozenset(
+    {"bat", "cmd", "exe", "ps1", "sh"}
+)
 _TS_JS_STDLIB_CLASSES: frozenset[str] = frozenset({
     # JSON / data built-ins
     "JSON", "Math", "Date", "RegExp",
@@ -319,6 +334,32 @@ _TS_JS_STDLIB_CLASSES: frozenset[str] = frozenset({
 })
 
 
+def _match_is_inside_url(block: str, match: re.Match[str]) -> bool:
+    """Return True when an API-token regex match is part of a URL.
+
+    Repository URLs such as ``Aspose.Email-FOSS-for-Cpp.git`` contain a
+    syntactically API-like ``Cpp.git`` suffix.  Treating that suffix as a
+    source-level API claim sends a non-claim through Tier 2 and produces a
+    misleading Tier 4 ``needs-review`` result.  Limit the exclusion to URL
+    spans on the same line so real ``Class.method`` tokens remain checkable.
+    """
+    line_start = block.rfind("\n", 0, match.start()) + 1
+    line_end = block.find("\n", match.end())
+    if line_end < 0:
+        line_end = len(block)
+    line = block[line_start:line_end]
+    # Compare the semantic ``Class.member`` span, not the regex's optional
+    # trailing whitespace/parenthesis.  At the end of a code-block line,
+    # ``\s*`` may consume the newline and otherwise extend one character past
+    # the URL span.
+    relative_start = match.start(1) - line_start
+    relative_end = match.end(2) - line_start
+    return any(
+        url.start() <= relative_start and relative_end <= url.end()
+        for url in _RE_URL_TOKEN.finditer(line)
+    )
+
+
 def extract_claims(file_path: Path, content: str) -> list[dict]:
     """Extract checkable claims from a markdown file."""
     claims: list[dict] = []
@@ -336,7 +377,7 @@ def extract_claims(file_path: Path, content: str) -> list[dict]:
         line_no = content[: m.start()].count("\n") + 1
         # Package declarations
         for pm in _RE_PACKAGE_IMPORT.finditer(block):
-            pkg_val = pm.group("from_val") or pm.group("val")
+            pkg_val = pm.group("from_val") or pm.group("install_val") or pm.group("val")
             # TIER3-TS-FP-01: For TS/JS code blocks, the regex `import X from 'mod'`
             # captures the binding identifier X (e.g. `is`, `buffer`) rather than the
             # module name.  Skip these bare single-word identifiers — they have no
@@ -355,16 +396,40 @@ def extract_claims(file_path: Path, content: str) -> list[dict]:
             )
         # API tokens
         for am in _RE_API_TOKEN.finditer(block):
+            if _match_is_inside_url(block, am):
+                continue
             cls_name = am.group(1)
+            member_name = am.group(2)
             # TIER3-TS-FP-01: Skip JS/TS built-in global class names (JSON.stringify,
             # Math.floor, Buffer.from, etc.) — these are standard library calls, not
             # Aspose API tokens.  Applies only to code blocks tagged typescript/javascript.
             if lang_tag in _TS_JS_LANG_TAGS and cls_name in _TS_JS_STDLIB_CLASSES:
                 continue
+            if lang_tag in _TS_JS_LANG_TAGS:
+                # ALL_CAPS identifiers are local constants, not exported Aspose
+                # classes (for example EXTENSIONS.includes(...)).
+                if cls_name.isupper():
+                    continue
+                # Prose such as "Express.js" matches the broad Class.member
+                # pattern. Preserve an actual call/index expression if one is
+                # ever present; only suppress bare language-extension labels.
+                if (
+                    member_name in _TS_JS_LANG_TAGS
+                    and not am.group(0).rstrip().endswith(("(", "["))
+                ):
+                    continue
+            if (
+                lang_tag in _SHELL_LANG_TAGS
+                and member_name.lower() in _SHELL_FILE_EXTENSIONS
+                and not am.group(0).rstrip().endswith(("(", "["))
+            ):
+                # Shell blocks commonly mention activation scripts such as
+                # Activate.ps1. A filename is not an application API claim.
+                continue
             claims.append(
                 {
                     "type": "api-token",
-                    "value": f"{cls_name}.{am.group(2)}",
+                    "value": f"{cls_name}.{member_name}",
                     "file": str(file_path),
                     "line": line_no,
                     "context": block[:200],
@@ -391,8 +456,30 @@ def extract_claims(file_path: Path, content: str) -> list[dict]:
 # Tier 1: Deterministic verification
 # ---------------------------------------------------------------------------
 
+class Tier1Status(str, Enum):
+    """Terminal state at the deterministic-to-semantic verification boundary."""
+
+    VERIFIED = "verified"
+    FINDING = "finding"
+    UNRESOLVED = "unresolved"
+
+
+@dataclass(frozen=True)
+class Tier1Result:
+    """Typed Tier 1 result; avoids conflating a pass with an unresolved claim."""
+
+    status: Tier1Status
+    finding: dict | None = None
+
+
 def tier1_verify(claim: dict, api_names: set[str], profile: dict, family: str, platform: str) -> dict | None:
-    """Run deterministic checks.  Returns a finding dict or None if claim passes."""
+    """Backward-compatible deterministic finding check.
+
+    ``None`` historically meant both "verified" and "unresolved". New
+    orchestration must use :func:`tier1_assess`, which makes that distinction
+    explicit while preserving this function for registered test/caller
+    compatibility.
+    """
     ctype = claim["type"]
     value = claim["value"]
 
@@ -556,6 +643,34 @@ def tier1_verify(claim: dict, api_names: set[str], profile: dict, family: str, p
     return None
 
 
+def tier1_assess(
+    claim: dict,
+    api_names: set[str],
+    profile: dict,
+    family: str,
+    platform: str,
+) -> Tier1Result:
+    """Return a typed deterministic disposition for one extracted claim."""
+    finding = tier1_verify(claim, api_names, profile, family, platform)
+    if finding is not None:
+        return Tier1Result(Tier1Status.FINDING, finding)
+
+    ctype = claim.get("type")
+    if ctype == "api-token":
+        status = Tier1Status.VERIFIED if claim.get("value") in api_names else Tier1Status.UNRESOLVED
+        return Tier1Result(status)
+    if ctype == "internal-link":
+        # A missing link would already have produced a finding.
+        return Tier1Result(Tier1Status.VERIFIED)
+    if ctype == "package-declaration":
+        expected_pkg = (profile.get("discovered_actuals") or {}).get("package_name")
+        # With an authoritative expected package, Tier 1 either emitted a
+        # mismatch or deliberately accepted/suppressed the declaration.
+        status = Tier1Status.VERIFIED if expected_pkg else Tier1Status.UNRESOLVED
+        return Tier1Result(status)
+    return Tier1Result(Tier1Status.UNRESOLVED)
+
+
 # ---------------------------------------------------------------------------
 # Tier 2 embedding similarity thresholds
 # ---------------------------------------------------------------------------
@@ -583,19 +698,35 @@ def _cosine(a: list[float], b: list[float]) -> float:
     return dot / (na * nb)
 
 
-def _embed_text(text: str) -> list[float] | None:
+def _embed_text(text: str, required_profile=None, *, return_result: bool = False):
     """Embed a single text via LLMRouter (professionalize → Ollama fallback).
 
-    Returns the embedding vector or None if all providers fail.
+    By default, returns the embedding vector or ``None`` for backward
+    compatibility.  ``return_result=True`` preserves the typed router result
+    so callers can distinguish contract mismatch from runtime unavailability.
     """
     try:
-        from lib.llm_router import EndpointStatus as _ES
+        from lib.llm_router import EndpointStatus as _ES, LLMCallContext
         router = _get_router()
     except (ImportError, RuntimeError) as exc:
         log.warning("LLM router unavailable for embedding: %s", exc)
         return None
 
-    result = router.call_embeddings([text], timeout=15)
+    result = router.call_embeddings(
+        [text],
+        timeout=15,
+        required_profile=required_profile,
+        context=LLMCallContext(
+            consumer_id="gap-eval-tier2",
+            run_id=_gaeval_run_id or "gap-eval",
+            job_type="gap-eval",
+            work_slice_id="tier2",
+        ),
+    )
+    if result.metrics_events:
+        _gaeval_metrics_events.extend(result.metrics_events)
+    if return_result:
+        return result
     if result.status == _ES.OK and result.data:
         return result.data[0]
     return None
@@ -608,7 +739,20 @@ def tier2_verify(claim: dict, family: str, platform: str) -> tuple[str, float] |
     Verdict: 'MATCH' | 'MISMATCH' | 'UNVERIFIABLE'
     Thresholds: ≥0.75 → MATCH, 0.40–0.75 → escalate to Tier 3, <0.40 → MISMATCH
     """
-    vectors_path = _REPO_ROOT / "knowledge" / "_vectors" / family / platform / "api.vectors.json"
+    from lib.llm_router import EmbeddingProfile
+    vectors_root = _REPO_ROOT / "knowledge" / "_vectors" / family / platform
+    vectors_path = vectors_root / "api.vectors.json"
+    manifest = None
+    active_path = vectors_root / "active.json"
+    if active_path.exists():
+        try:
+            active = json.loads(active_path.read_text(encoding="utf-8"))
+            profile_dir = vectors_root / "profiles" / active["profile_id"]
+            manifest = json.loads((profile_dir / "manifest.json").read_text(encoding="utf-8"))
+            vectors_path = profile_dir / manifest.get("vector_file", "api.vectors.json")
+        except Exception as exc:
+            log.warning("Invalid active embedding profile for %s/%s: %s", family, platform, exc)
+            return None
     if not vectors_path.exists():
         return None
 
@@ -626,7 +770,35 @@ def tier2_verify(claim: dict, family: str, platform: str) -> tuple[str, float] |
         return None
 
     # Try to embed the claim
-    claim_vec = _embed_text(claim_text)
+    required_profile = EmbeddingProfile(
+        profile_id=(manifest or vdata).get("profile_id", "legacy"),
+        provider=(manifest or vdata).get("provider", ""),
+        model=(manifest or vdata).get("model", ""),
+        dimensions=int((manifest or vdata).get("dimensions", 0)),
+        config_digest=(manifest or vdata).get("registry_digest", ""),
+    )
+    embedding = _embed_text(claim_text, required_profile, return_result=True)
+    # Tests and compatibility callers may inject a vector directly. The real
+    # router path returns a typed CallResult.
+    if isinstance(embedding, list):
+        claim_vec = embedding
+    elif embedding is not None and hasattr(embedding, "status"):
+        from lib.llm_router import EndpointStatus as _ES
+        if embedding.status == _ES.CONTRACT_MISMATCH:
+            log.warning(
+                "Embedding profile contract mismatch for %s/%s; "
+                "skipping dense and lexical Tier 2 comparison",
+                family,
+                platform,
+            )
+            return ("UNVERIFIABLE", 0.0)
+        claim_vec = (
+            embedding.data[0]
+            if embedding.status == _ES.OK and embedding.data
+            else None
+        )
+    else:
+        claim_vec = None
 
     if claim_vec:
         # Dimension mismatch guard — warn if query dims ≠ stored dims
@@ -638,6 +810,7 @@ def tier2_verify(claim: dict, family: str, platform: str) -> tuple[str, float] |
                 "Tier 2 results will be unreliable. Re-embed with matching model.",
                 query_dims, stored_dims, family, platform,
             )
+            return ("UNVERIFIABLE", 0.0)
 
         # Dense cosine similarity against all stored vectors
         best_key = ""
@@ -842,6 +1015,12 @@ def _llm_call(system: str, user: str) -> dict | None:
         timeout=30,
         json_extract=True,
         json_array=False,
+        context=__import__("lib.llm_router", fromlist=["LLMCallContext"]).LLMCallContext(
+            consumer_id="gap-eval-tier3",
+            run_id=_gaeval_run_id or "gap-eval",
+            job_type="gap-eval",
+            work_slice_id="tier3",
+        ),
     )
 
     # CS-001: collect MetricsEvents
@@ -868,6 +1047,12 @@ def _llm_call_full(system: str, user: str):
         timeout=30,
         json_extract=True,
         json_array=False,
+        context=__import__("lib.llm_router", fromlist=["LLMCallContext"]).LLMCallContext(
+            consumer_id="gap-eval-tier3",
+            run_id=_gaeval_run_id or "gap-eval",
+            job_type="gap-eval",
+            work_slice_id="tier3",
+        ),
     )
     # CS-001: collect MetricsEvents from full call
     if result is not None and hasattr(result, 'metrics_events') and result.metrics_events:
@@ -1028,8 +1213,11 @@ def generate_report(
 ) -> str:
     """Generate the 8-section gap analysis report."""
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    m_findings = [f for f in findings if f.get("severity") == "M" and f.get("status") != "fixed"]
-    s_findings = [f for f in findings if f.get("severity") == "S" and f.get("status") != "fixed"]
+    terminal_statuses = {"fixed", "wontfix", "suppressed"}
+    open_findings = [f for f in findings if f.get("status") not in terminal_statuses]
+    m_findings = [f for f in open_findings if f.get("severity") == "M"]
+    s_findings = [f for f in open_findings if f.get("severity") == "S"]
+    needs_review = [f for f in open_findings if f.get("type") == "needs-review"]
 
     def finding_block(f: dict) -> str:
         return (
@@ -1085,10 +1273,10 @@ def generate_report(
         "",
         "## Section 7: LLM Verification Summary",
         f"- Tier used: {llm_tier}",
-        f"- Tier 1 (deterministic): {sum(1 for f in findings if f.get('tier_resolved_by') == 1)} findings",
-        f"- Tier 2 (vector): {sum(1 for f in findings if f.get('tier_resolved_by') == 2)} findings",
-        f"- Tier 3 (LLM): {sum(1 for f in findings if f.get('tier_resolved_by') == 3)} findings",
-        f"- NEEDS_REVIEW: {sum(1 for f in findings if f.get('status') == 'needs_review')} findings",
+        f"- Tier 1 (deterministic): {sum(1 for f in open_findings if f.get('tier_resolved_by') == 1)} findings",
+        f"- Tier 2 (vector): {sum(1 for f in open_findings if f.get('tier_resolved_by') == 2)} findings",
+        f"- Tier 3 (LLM): {sum(1 for f in open_findings if f.get('tier_resolved_by') == 3)} findings",
+        f"- NEEDS_REVIEW: {len(needs_review)} findings",
         "",
         "## Section 8: Publication Verdict",
         f"**{verdict}**",
@@ -1148,6 +1336,15 @@ def _read_build_package(clone_path: Path, profile: dict) -> str | None:
         aid_m = re.search(r"<artifactId>([\w.\-]+)</artifactId>", text)
         if gid_m and aid_m:
             return f"{gid_m.group(1)}:{aid_m.group(1)}"
+    # CMake target extraction used by C++ profiles.  Match the first real
+    # add_library target and stop before later ALIAS declarations.
+    if extraction.strip().lower() == "cmake:add_library":
+        target_m = re.search(
+            r"(?im)^\s*add_library\s*\(\s*([A-Za-z_][A-Za-z0-9_.+\-]*)",
+            text,
+        )
+        if target_m:
+            return target_m.group(1)
     # Try regex extraction from hint
     if "regex:" in extraction:
         pat = extraction.split("regex:", 1)[1].strip()
@@ -1417,17 +1614,7 @@ def run_gap_eval(
     # --no-llm implies --no-embed: both Tier 3 (LLM) and Tier 2 (embeddings) require network.
     _no_embed = no_embed or no_llm
 
-    llm_tier = "none"
-    if not no_llm:
-        try:
-            import requests as _req  # type: ignore
-            api_key = os.environ.get("PROFESSIONALIZE_API_KEY", "")
-            if api_key:
-                llm_tier = "professionalize"
-            else:
-                llm_tier = "ollama"
-        except ImportError:
-            llm_tier = "none"
+    llm_tier = "none" if no_llm else "not-used"
 
     prior_state = load_state(family, platform, state_dir)
     log.info("Prior state: verdict=%s, %d prior findings", prior_state.get("verdict"), len(prior_state.get("findings", [])))
@@ -1484,13 +1671,17 @@ def run_gap_eval(
 
             for claim in claims:
                 # Tier 1
-                finding = tier1_verify(claim, api_names, profile, family, platform)
-                if finding:
+                tier1 = tier1_assess(claim, api_names, profile, family, platform)
+                if tier1.status is Tier1Status.FINDING:
+                    finding = tier1.finding
+                    assert finding is not None
                     finding["id"] = make_finding_id(
                         family, platform, finding["type"],
                         claim["file"], claim["line"], claim["value"]
                     )
                     raw_findings.append(finding)
+                    continue
+                if tier1.status is Tier1Status.VERIFIED:
                     continue
 
                 # Tier 2 (skipped when --no-embed or --no-llm: embedding endpoint required)
@@ -1581,6 +1772,13 @@ def run_gap_eval(
     if tier3_findings:
         log.info("Tier 3 advisory: %d findings (not blocking verdict)", len(tier3_findings))
 
+    used_providers = [
+        event.provider for event in _gaeval_metrics_events
+        if getattr(event, "provider", None) and event.status == "success"
+    ]
+    if used_providers:
+        llm_tier = used_providers[-1]
+
     # Delta section for report
     delta_section = build_delta_section(prior_state, clone_sha, merged_findings, delta, llm_tier)
 
@@ -1655,8 +1853,9 @@ def _try_write_gaeval_metrics(
         dry_dir.mkdir(parents=True, exist_ok=True)
         dur_ms = max(0, int((_time.monotonic() - t_start) * 1000))
         disc = len(merged_findings) if merged_findings else 1
-        succ = 1 if verdict == "PASS" else 0
-        fail = 0 if verdict == "PASS" else 1
+        successful_verdicts = {"PASS", "PUBLICATION READY"}
+        succ = 1 if verdict in successful_verdicts else 0
+        fail = 0 if verdict in successful_verdicts else 1
         with RunMetrics(
             run_id=run_id,
             agent_name="aspose-org-gap-evaluation",

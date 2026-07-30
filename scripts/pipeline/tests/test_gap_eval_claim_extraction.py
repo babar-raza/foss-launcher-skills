@@ -78,6 +78,17 @@ def test_pip_install_still_captured():
     assert values == ["aspose-html-foss"]
 
 
+def test_npm_install_option_is_not_misclassified_as_package():
+    content = (
+        "```bash\n"
+        "npm install -D @aspose/3d\n"
+        "```\n"
+    )
+    values = _package_claims(content)
+    assert values == ["@aspose/3d"]
+    assert "-D" not in values
+
+
 def test_dotnet_using_still_captured():
     content = (
         "```csharp\n"
@@ -86,3 +97,62 @@ def test_dotnet_using_still_captured():
     )
     values = _package_claims(content)
     assert values == ["Aspose.ThreeD"]
+
+
+def test_repository_url_suffix_is_not_an_api_token():
+    content = (
+        "```bash\n"
+        "git clone https://github.com/aspose-email-foss/"
+        "Aspose.Email-FOSS-for-Cpp.git\n"
+        "```\n"
+    )
+    claims = extract_claims(Path("installation.md"), content)
+    assert not [
+        claim for claim in claims
+        if claim["type"] == "api-token" and claim["value"] == "Cpp.git"
+    ]
+
+
+def test_real_api_token_at_line_end_remains_captured():
+    content = "```cpp\nMessage.load(path);\n```\n"
+    claims = extract_claims(Path("example.md"), content)
+    assert [
+        claim for claim in claims
+        if claim["type"] == "api-token" and claim["value"] == "Message.load"
+    ]
+
+
+def test_typescript_local_constant_member_is_not_an_api_token():
+    content = "```typescript\nif (EXTENSIONS.includes(ext)) return;\n```\n"
+    claims = extract_claims(Path("example.md"), content)
+    assert not [
+        claim for claim in claims
+        if claim["type"] == "api-token" and claim["value"] == "EXTENSIONS.includes"
+    ]
+
+
+def test_typescript_language_extension_label_is_not_an_api_token():
+    content = "```typescript\n// Integrate with Express.js middleware\n```\n"
+    claims = extract_claims(Path("example.md"), content)
+    assert not [
+        claim for claim in claims
+        if claim["type"] == "api-token" and claim["value"] == "Express.js"
+    ]
+
+
+def test_real_typescript_api_call_remains_captured():
+    content = "```typescript\nconst scene = Scene.fromFile(input);\n```\n"
+    claims = extract_claims(Path("example.md"), content)
+    assert [
+        claim for claim in claims
+        if claim["type"] == "api-token" and claim["value"] == "Scene.fromFile"
+    ]
+
+
+def test_shell_activation_script_is_not_an_api_token():
+    content = "```powershell\n.\\.venv\\Scripts\\Activate.ps1\n```\n"
+    claims = extract_claims(Path("installation.md"), content)
+    assert not [
+        claim for claim in claims
+        if claim["type"] == "api-token" and claim["value"] == "Activate.ps1"
+    ]

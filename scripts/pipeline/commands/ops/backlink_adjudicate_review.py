@@ -638,8 +638,10 @@ def _tier2_ai_adjudicate(
                 "Respond with JSON only, using exactly the format requested."
             )
             try:
+                from commands.ops.llm_router import LLMCallContext
                 llm_result = router.call_chat(
                     system_prompt, prompt, temperature=0.0, max_tokens=500,
+                    context=LLMCallContext.create("backlink-adjudicate", "backlink", "review"),
                 )
                 raw_status = getattr(llm_result, "status", None)
                 status_val = (

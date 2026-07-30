@@ -8,8 +8,9 @@ structured recommendation objects for HIGH, MEDIUM, and LOW opportunities.
   MEDIUM — seoTitle rewrite if title_aligned=False (LLM if available)
   LOW    — tag additions (deterministic) or add_seo_title placeholder
 
-LLM access: LITELLM_KEY env var → https://llm.professionalize.com/v1/
-If absent: degrade gracefully, emit llm_skipped=True recommendations.
+LLM access is owned by ``LLMRouter`` and the ``seo_recommendation`` operation
+profile in ``llm_registry.yaml``. If that route is unavailable, degrade
+gracefully and emit ``llm_skipped=True`` recommendations.
 
 No LLM calls for LOW opportunities — deterministic only.
 
@@ -20,9 +21,9 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import sys
-import time
+import time  # compatibility seam for existing adapter tests; routing owns retries
+import uuid
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -42,17 +43,8 @@ sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
 from core.env_loader import load_env  # noqa: E402
 load_env()
 
-try:
-    sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
-    from commands.ops.metrics_schema import (
-        MetricsEvent,
-        generate_event_id,
-        now_iso8601,
-        redact_secret_like_values,
-    )
-    _METRICS_AVAILABLE = True
-except ImportError:
-    _METRICS_AVAILABLE = False
+from commands.ops.llm_router import EndpointStatus, LLMCallContext, LLMRouter  # noqa: E402
+_METRICS_AVAILABLE = True  # compatibility: router always exposes metrics events
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -78,11 +70,9 @@ RECOMMENDATIONS_PATH = REPORTS_DIR / "recommendations.json"
 # This ensures each pipeline run produces uniquely identifiable artifacts.
 BATCH_ID = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
 
-# LLM settings
-_LLM_BASE_URL = "https://llm.professionalize.com/v1/"
-_LLM_MODEL_MEDIUM = "recommended"          # seoTitle rewrites for MEDIUM/HIGH
-_LLM_MAX_RETRIES = 3
-_LLM_RETRY_DELAY = 3                       # seconds between retries
+# Compatibility label retained for callers of the pre-router helper signature.
+# Provider/model/retry selection is exclusively registry-owned.
+_LLM_MODEL_MEDIUM = "router-managed"
 
 # SEO length bounds
 _TITLE_MIN = 50
@@ -112,40 +102,8 @@ _ALLOWED_SITE_PREFIXES = (
 metrics_events: list = []
 
 
-def _emit_cs009_event(
-    *,
-    status: str,
-    http_status: int | None,
-    total_tokens: int,
-    latency_ms: int,
-    error_summary: str | None = None,
-) -> None:
-    """Append a MetricsEvent for one professionalize HTTP attempt (CS-009)."""
-    if not _METRICS_AVAILABLE:
-        return
-    safe_error = (
-        redact_secret_like_values(error_summary) if error_summary else None
-    )
-    event = MetricsEvent(
-        event_id=generate_event_id(),
-        call_site_id="CS-009",
-        endpoint=_LLM_BASE_URL.rstrip("/") + "/chat/completions",
-        request_type="seo",
-        status=status,
-        prompt_tokens=0,
-        completion_tokens=0,
-        total_tokens=total_tokens,
-        api_calls_count_delta=1,
-        timestamp=now_iso8601(),
-        http_status=http_status,
-        latency_ms=latency_ms,
-        redacted_error_summary=safe_error,
-    )
-    metrics_events.append(event)
-
-
 # ---------------------------------------------------------------------------
-# LLM call — openai SDK pointed at custom base URL
+# LLM call — canonical router/client boundary
 # ---------------------------------------------------------------------------
 
 
@@ -156,118 +114,45 @@ def _call_llm(
     litellm_key: str,
 ) -> dict | None:
     """
-    Call https://llm.professionalize.com/v1/chat/completions with structured
-    JSON output.  Returns a parsed dict if all required schema keys are present,
-    None on failure (after _LLM_MAX_RETRIES attempts).
+    Call the registry-owned SEO operation through ``LLMRouter``. Returns a
+    parsed dict if all required schema keys are present, otherwise ``None``.
 
     Args:
         prompt:      Full user prompt string.
-        model:       Model ID to request.
+        model:       Deprecated compatibility label; the registry owns model selection.
         schema:      Dict of {key: type_description} — required keys in response.
-        litellm_key: Bearer token.
+        litellm_key: Deprecated compatibility flag; routing owns credentials.
 
     Returns:
         Parsed dict on success, None on any failure.
     """
-    try:
-        import openai  # local import so module is usable without openai installed
-    except ImportError:
-        _LOG.warning("openai package not installed — LLM calls disabled")
-        return None
-
-    client = openai.OpenAI(
-        api_key=litellm_key,
-        base_url=_LLM_BASE_URL,
+    run_id = str(uuid.uuid4())
+    result = LLMRouter().call_chat(
+        (
+            "You are an SEO specialist. Respond only with a valid JSON object. "
+            "Never fabricate API names, class names, method names, or capabilities."
+        ),
+        prompt,
+        max_tokens=2048,
+        temperature=0.3,
+        json_extract=True,
+        operation="seo_recommendation",
+        context=LLMCallContext(
+            consumer_id="seo-recommend",
+            run_id=run_id,
+            job_type="seo-recommendation",
+            work_slice_id="recommendation",
+        ),
     )
-
-    last_exc: Exception | None = None
-    for attempt in range(1, _LLM_MAX_RETRIES + 1):
-        t0 = time.monotonic()
-        try:
-            response = client.chat.completions.create(
-                model=model,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": (
-                            "You are an SEO specialist. "
-                            "Respond ONLY with a valid JSON object — no markdown, no prose, "
-                            "no code fences. Output raw JSON only. "
-                            "Never fabricate API names, class names, or method names. "
-                            "Base all suggestions strictly on the provided context."
-                        ),
-                    },
-                    {"role": "user", "content": prompt},
-                ],
-                max_tokens=2048,
-                temperature=0.3,
-            )
-            latency_ms = int((time.monotonic() - t0) * 1000)
-            total_tokens = 0
-            if response.usage:
-                total_tokens = getattr(response.usage, "total_tokens", 0) or 0
-
-            raw = response.choices[0].message.content
-            if not raw:
-                _LOG.warning("LLM returned empty content (attempt %d)", attempt)
-                _emit_cs009_event(
-                    status="failure", http_status=200, total_tokens=total_tokens,
-                    latency_ms=latency_ms, error_summary="empty LLM response",
-                )
-                last_exc = ValueError("empty LLM response")
-                time.sleep(_LLM_RETRY_DELAY)
-                continue
-
-            # Strip markdown code fences if present (```json ... ``` or ``` ... ```)
-            stripped = raw.strip()
-            if stripped.startswith("```"):
-                stripped = stripped.split("```", 2)[-1] if stripped.count("```") >= 2 else stripped
-                stripped = stripped.lstrip("json").strip().rstrip("`").strip()
-            parsed: dict = json.loads(stripped)
-
-            # Validate required schema keys are present
-            missing = [k for k in schema if k not in parsed]
-            if missing:
-                _LOG.warning(
-                    "LLM response missing keys %s (attempt %d)", missing, attempt
-                )
-                _emit_cs009_event(
-                    status="failure", http_status=200, total_tokens=total_tokens,
-                    latency_ms=latency_ms, error_summary=f"missing schema keys: {missing}",
-                )
-                last_exc = ValueError(f"missing schema keys: {missing}")
-                time.sleep(_LLM_RETRY_DELAY)
-                continue
-
-            _emit_cs009_event(
-                status="success", http_status=200,
-                total_tokens=total_tokens, latency_ms=latency_ms,
-            )
-            return parsed
-
-        except json.JSONDecodeError as exc:
-            latency_ms = int((time.monotonic() - t0) * 1000)
-            _LOG.warning("LLM response not valid JSON (attempt %d): %s", attempt, exc)
-            _emit_cs009_event(
-                status="failure", http_status=None, total_tokens=0,
-                latency_ms=latency_ms, error_summary="JSON decode error",
-            )
-            last_exc = exc
-            time.sleep(_LLM_RETRY_DELAY)
-        except Exception as exc:  # noqa: BLE001
-            latency_ms = int((time.monotonic() - t0) * 1000)
-            _LOG.warning("LLM call error (attempt %d): %s", attempt, exc)
-            # Detect timeout via openai SDK exception type when available
-            _status = "timeout" if type(exc).__name__ == "APITimeoutError" else "failure"
-            _emit_cs009_event(
-                status=_status, http_status=None, total_tokens=0,
-                latency_ms=latency_ms, error_summary=str(exc)[:200],
-            )
-            last_exc = exc
-            time.sleep(_LLM_RETRY_DELAY)
-
-    _LOG.warning("LLM call failed after %d attempts: %s", _LLM_MAX_RETRIES, last_exc)
-    return None
+    metrics_events.extend(result.metrics_events)
+    if result.status != EndpointStatus.OK or not isinstance(result.data, dict):
+        _LOG.warning("LLM call failed: %s — %s", result.status.value, result.error)
+        return None
+    missing = [key for key in schema if key not in result.data]
+    if missing:
+        _LOG.warning("LLM response missing keys %s", missing)
+        return None
+    return result.data
 
 
 # ---------------------------------------------------------------------------
@@ -413,7 +298,7 @@ def _gen_high_recommendations(
                 llm_skipped = True
         else:
             proposed_title = None
-            rationale = "LLM unavailable (no LITELLM_KEY) — human must draft."
+            rationale = "LLM router operation unavailable — human must draft."
             llm_skipped = True
 
         recs.append({
@@ -573,7 +458,7 @@ def _gen_medium_recommendations(
                 llm_skipped = True
         else:
             proposed_title = None
-            rationale = "LLM unavailable (no LITELLM_KEY) — human must draft."
+            rationale = "LLM router operation unavailable — human must draft."
             llm_skipped = True
 
         recs.append({
@@ -772,12 +657,14 @@ def run_recommendations(
     # ------------------------------------------------------------------
     # 2. Check LLM availability
     # ------------------------------------------------------------------
-    litellm_key: str | None = os.environ.get("LITELLM_KEY") or None
-    litellm_available = litellm_key is not None
+    litellm_available = LLMRouter().is_operation_available("seo_recommendation")
+    litellm_key: str | None = "router-managed" if litellm_available else None
     if litellm_available:
-        _LOG.info("LITELLM_KEY present — LLM calls enabled (model: %s)", _LLM_MODEL_MEDIUM)
+        _LOG.info("SEO LLM router operation available")
     else:
-        _LOG.warning("LITELLM_KEY not set — LLM calls disabled, all recs will be llm_skipped=True")
+        _LOG.warning(
+            "SEO LLM router operation unavailable — all recommendations will be llm_skipped=True"
+        )
 
     # ------------------------------------------------------------------
     # 3. Separate by level (skip SKIP)

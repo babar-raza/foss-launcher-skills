@@ -442,6 +442,7 @@ def generate_copy(
     response_hash = ""
     token_in: int | None = None
     token_out: int | None = None
+    from commands.ops.llm_router import LLMCallContext
 
     # Attempt 1
     result = router.call_chat(
@@ -450,6 +451,7 @@ def generate_copy(
         temperature=0.0,
         max_tokens=800,
         json_extract=False,
+        context=LLMCallContext.create("backlink-copy", "backlink", "generate"),
     )
     metrics_events.extend(result.metrics_events)
 
@@ -494,6 +496,7 @@ def generate_copy(
                 temperature=0.0,
                 max_tokens=800,
                 json_extract=False,
+                context=LLMCallContext.create("backlink-copy", "backlink", "repair"),
             )
             metrics_events.extend(repair_result.metrics_events)
 

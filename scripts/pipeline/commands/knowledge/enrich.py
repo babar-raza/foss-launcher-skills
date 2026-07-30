@@ -9,8 +9,9 @@ The FL Understand Worker called Claude 3.5 Sonnet with:
   - source_context_block: README + docs + example source excerpts
   - bounded-description mode: for each verified API fact, write one claim
 
-This script reproduces that logic using the same llm.professionalize.com
-endpoint already used by gap-eval/run.py.
+This script reproduces that logic through the canonical ``LLMRouter``.
+Endpoint, credential, model, retry, and fallback authority lives in
+``scripts/pipeline/config/llm_registry.yaml``.
 
 Reads from:
     knowledge/{family}/{platform}/scout/api_surface.json   (verified facts)
@@ -28,8 +29,7 @@ Usage:
     python scripts/pipeline/commands/knowledge/enrich.py 3d net --no-llm   # dry-run without LLM
 
 Environment:
-    PROFESSIONALIZE_API_KEY   API key for llm.professionalize.com (optional;
-                              falls back to Ollama llama3.2 if unset)
+    LLM credential aliases are resolved in registry order by LLMRouter.
     ASPOSE_CLONE_CACHE        Override clone cache root (default: runs/.clone_cache/)
 """
 from __future__ import annotations
@@ -608,6 +608,7 @@ def _llm_call(
         log.warning("LLM router unavailable: %s", exc)
         return None, ""
 
+    from lib.llm_router import LLMCallContext
     result = router.call_chat(
         prompt_system, prompt_user,
         temperature=0.0,
@@ -615,6 +616,7 @@ def _llm_call(
         timeout=90,
         json_extract=True,
         json_array=True,
+        context=LLMCallContext.create("knowledge-enrich", "knowledge-enrichment", "claims"),
     )
 
     # CS-001: collect MetricsEvents from this call

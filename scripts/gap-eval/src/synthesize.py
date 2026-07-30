@@ -110,7 +110,7 @@ def embed_findings(findings: list[dict]) -> dict[str, list[float]]:
 
     # Try embedding via LLMRouter
     try:
-        from lib.llm_router import EndpointStatus as _ES
+        from lib.llm_router import EndpointStatus as _ES, LLMCallContext
         router = _get_router()
     except (ImportError, RuntimeError) as exc:
         log.warning("LLM router unavailable for embedding: %s", exc)
@@ -119,7 +119,10 @@ def embed_findings(findings: list[dict]) -> dict[str, list[float]]:
 
     keys = sorted(texts.keys())
     text_list = [texts[k] for k in keys]
-    cr = router.call_embeddings(text_list, timeout=30)
+    cr = router.call_embeddings(
+        text_list, timeout=30,
+        context=LLMCallContext.create("gap-eval-synthesize", "gap-eval", "embeddings"),
+    )
 
     if cr.status == _ES.OK and cr.data and len(cr.data) == len(keys):
         result = {k: v for k, v in zip(keys, cr.data)}
@@ -300,7 +303,7 @@ def name_cluster(findings_in_cluster: list[dict]) -> dict:
     )
 
     try:
-        from lib.llm_router import EndpointStatus
+        from lib.llm_router import EndpointStatus, LLMCallContext
         router = _get_router()
     except (ImportError, RuntimeError) as exc:
         log.warning("LLM router unavailable for cluster naming: %s", exc)
@@ -312,6 +315,7 @@ def name_cluster(findings_in_cluster: list[dict]) -> dict:
         timeout=30,
         json_extract=True,
         json_array=False,
+        context=LLMCallContext.create("gap-eval-synthesize", "gap-eval", "cluster-name"),
     )
 
     # CS-001: collect MetricsEvents
@@ -359,7 +363,7 @@ def analyze_root_causes(patterns: list[dict]) -> list[dict]:
     )
 
     try:
-        from lib.llm_router import EndpointStatus
+        from lib.llm_router import EndpointStatus, LLMCallContext
         router = _get_router()
     except (ImportError, RuntimeError) as exc:
         log.warning("LLM router unavailable: %s", exc)
@@ -371,6 +375,7 @@ def analyze_root_causes(patterns: list[dict]) -> list[dict]:
         timeout=45,
         json_extract=True,
         json_array=False,
+        context=LLMCallContext.create("gap-eval-synthesize", "gap-eval", "root-causes"),
     )
 
     # CS-001: collect MetricsEvents

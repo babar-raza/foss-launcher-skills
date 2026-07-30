@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 from unittest.mock import patch, MagicMock
@@ -14,6 +15,7 @@ if str(_GAP_EVAL_DIR) not in sys.path:
     sys.path.insert(0, str(_GAP_EVAL_DIR))
 
 from run import stage2_knowledge_validation, _apply_false_positives, compute_verdict  # type: ignore  # noqa: E402
+from state import load_state  # type: ignore  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -284,3 +286,21 @@ class TestNoEmbedFlag:
         args = parser.parse_args(["pdf", "net", "--no-llm", "--no-embed"])
         assert args.no_llm is True
         assert args.no_embed is True
+
+
+def test_legacy_report_metadata_is_normalized_when_seeded_as_state(tmp_path):
+    state_path = tmp_path / "email-cpp.json"
+    state_path.write_text(
+        json.dumps({
+            "family": "email",
+            "platform": "cpp",
+            "clone_sha": "c7252b3e4f6bbec4bbe5e2f50f51eb2a7384eaf2",
+            "run_date": "2026-05-05T08:20:00+00:00",
+            "verdict": "PUBLICATION READY",
+            "findings": [],
+        }),
+        encoding="utf-8",
+    )
+    state = load_state("email", "cpp", tmp_path)
+    assert state["last_run_sha"] == state["clone_sha"]
+    assert state["last_run_date"] == "2026-05-05"

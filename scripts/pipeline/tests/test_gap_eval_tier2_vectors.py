@@ -6,12 +6,14 @@ api.vectors.json exists, and returns cosine similarity scores.
 
 import json
 import math
+import sys
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import pytest
 
 import embed
+from commands.ops.llm_router import CallResult, EmbeddingProfile, EndpointStatus
 
 
 class TestEmbedApiIndex:
@@ -87,6 +89,71 @@ class TestEmbedApiIndex:
             result = embed.embed_api_index("cells", "net", knowledge_root=kr)
         assert result is None
 
+    def test_blocked_profile_leaves_active_and_legacy_unchanged(self, tmp_path, monkeypatch):
+        """A non-512 rollout canary cannot activate or overwrite legacy data."""
+        self._make_api_surface(tmp_path, "cells", "net")
+        product_dir = tmp_path / "knowledge" / "_vectors" / "cells" / "net"
+        product_dir.mkdir(parents=True)
+        legacy = product_dir / "api.vectors.json"
+        active = product_dir / "active.json"
+        legacy.write_text('{"legacy":true}', encoding="utf-8")
+        active.write_text('{"profile_id":"previous"}', encoding="utf-8")
+        before_legacy = legacy.read_bytes()
+        before_active = active.read_bytes()
+
+        mock_router = MagicMock()
+        mock_router.call_embeddings.return_value = CallResult(
+            provider="professionalize",
+            model="qwen3-embedding-8b",
+            status=EndpointStatus.OK,
+            data=[[0.1] * 4096, [0.2] * 4096],
+            config_digest="a" * 64,
+            embedding_profile=EmbeddingProfile(
+                "professionalize-qwen3-embedding-8b-4096-aaaaaaaaaaaa",
+                "professionalize", "qwen3-embedding-8b", 4096, "a" * 64,
+            ),
+        )
+        monkeypatch.chdir(tmp_path)
+        with patch("commands.ops.llm_router.LLMRouter", return_value=mock_router):
+            result = embed.embed_api_index("cells", "net")
+
+        assert result is None
+        assert legacy.read_bytes() == before_legacy
+        assert active.read_bytes() == before_active
+        assert not (product_dir / "profiles").exists()
+
+    def test_official_path_persists_router_metrics(self, tmp_path, monkeypatch):
+        """The official builder flushes attributed router events to RunMetrics."""
+        self._make_api_surface(tmp_path, "cells", "net")
+        mock_event = MagicMock()
+        mock_router = MagicMock()
+        mock_router.call_embeddings.return_value = CallResult(
+            provider="professionalize",
+            model="qwen3-embedding-8b",
+            status=EndpointStatus.OK,
+            data=[[0.1] * 512, [0.2] * 512],
+            metrics_events=[mock_event],
+            config_digest="b" * 64,
+            embedding_profile=EmbeddingProfile(
+                "professionalize-qwen3-embedding-8b-512-bbbbbbbbbbbb",
+                "professionalize", "qwen3-embedding-8b", 512, "b" * 64,
+            ),
+        )
+        persist = MagicMock()
+        monkeypatch.chdir(tmp_path)
+        with (
+            patch("commands.ops.llm_router.LLMRouter", return_value=mock_router),
+            patch.object(embed, "_persist_embedding_metrics", persist),
+        ):
+            result = embed.embed_api_index("cells", "net")
+
+        assert result is not None
+        persist.assert_called_once()
+        run_id, family, platform, events = persist.call_args.args
+        assert run_id
+        assert (family, platform) == ("cells", "net")
+        assert events == [mock_event]
+
     def test_output_path_matches_gap_eval_expectation(self, tmp_path):
         """Output path is knowledge/_vectors/{family}/{platform}/api.vectors.json."""
         kr = self._make_api_surface(tmp_path, "pdf", "go")
@@ -101,6 +168,33 @@ class TestEmbedApiIndex:
         assert result.name == "api.vectors.json"
         assert "pdf" in str(result)
         assert "go" in str(result)
+
+
+class TestGapIndexAllCli:
+    def test_processes_every_target_then_exits_nonzero_on_partial_failure(self):
+        output = Path("knowledge/_vectors/cells/net/profiles/p/api.vectors.json")
+        with (
+            patch.object(
+                sys,
+                "argv",
+                ["embed.py", "gap-index", "all"],
+            ),
+            patch.object(
+                embed,
+                "discover_targets",
+                return_value=[("3d", "net"), ("cells", "net")],
+            ),
+            patch.object(
+                embed,
+                "embed_api_index",
+                side_effect=[None, output],
+            ) as build,
+            pytest.raises(SystemExit) as exc_info,
+        ):
+            embed.main()
+
+        assert exc_info.value.code == 1
+        assert build.call_count == 2
 
 
 class TestTier2VectorActivation:

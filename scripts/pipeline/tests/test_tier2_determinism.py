@@ -19,6 +19,7 @@ if str(_GAP_EVAL_DIR) not in sys.path:
     sys.path.insert(0, str(_GAP_EVAL_DIR))
 
 import run as _run_mod  # noqa: E402
+from commands.ops.llm_router import CallResult, EndpointStatus  # noqa: E402
 
 from run import (  # type: ignore  # noqa: E402
     tier2_verify,
@@ -240,3 +241,37 @@ class TestTier2DimensionWarning:
 
         assert not any("Dimension mismatch" in msg for msg in caplog.messages)
         assert result is not None
+
+
+class TestTier2ContractMismatch:
+    """An incompatible query profile must fail before every comparison path."""
+
+    def test_contract_mismatch_skips_dense_and_lexical_comparison(self, tmp_path, caplog):
+        repo = _setup_vectors(
+            tmp_path,
+            "test",
+            "python",
+            [1.0, 0.0, 0.0],
+        )
+        claim = _make_claim("SomeClass.someMethod")
+        mismatch = CallResult(
+            provider="professionalize",
+            model="qwen3-embedding-8b",
+            status=EndpointStatus.CONTRACT_MISMATCH,
+            error="required profile dimensions 4096 do not match route dimensions 512",
+        )
+        _run_mod.configure(repo_root=repo)
+
+        with (
+            patch("run._embed_text", return_value=mismatch),
+            patch("run._cosine") as cosine,
+            caplog.at_level(logging.WARNING, logger="run"),
+        ):
+            result = tier2_verify(claim, "test", "python")
+
+        assert result == ("UNVERIFIABLE", 0.0)
+        cosine.assert_not_called()
+        assert any(
+            "skipping dense and lexical Tier 2 comparison" in message
+            for message in caplog.messages
+        )
