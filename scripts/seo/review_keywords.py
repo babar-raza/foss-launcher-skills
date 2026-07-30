@@ -54,6 +54,13 @@ def merge_keywords_by_title(data):
         result.append(record)
     return result
 
+# Free-tier Gemini rate limits are as low as 15 RPM (Google AI Studio free
+# tier) -- see get_keywords.py's identical constants for the full rationale.
+_RPM_PACING_SECONDS = 4.5
+_MAX_429_RETRIES = 5
+_BACKOFF_BASE_SECONDS = 60
+
+
 # Get improved keywords from Google Gemini
 def reevaluate_keywords(title, keywords, platform="net"):
     import google.generativeai as genai  # lazy: optional heavy dependency
@@ -83,22 +90,41 @@ def reevaluate_keywords(title, keywords, platform="net"):
         f"6. Return the revised list in plain text format, with one keyword per line.\n\n"
         f"Important: Do not justify your actions or mention limitations. Assume the best possible context and provide your most informed response."
     )
-    while True:
+    for attempt in range(1, _MAX_429_RETRIES + 1):
         try:
             response = model.generate_content(prompt)
             keywords_text = response.text
             new_keywords = [kw.strip() for kw in keywords_text.split('\n') if kw.strip()]
+            time.sleep(_RPM_PACING_SECONDS)
             return new_keywords
         except Exception as e:
             if "429" in str(e):
-                logging.warning("Rate limit reached, pausing for 1 minute.")
-                time.sleep(60)
+                if attempt == _MAX_429_RETRIES:
+                    logging.error(
+                        f"Rate limit still active for title '{title}' after "
+                        f"{_MAX_429_RETRIES} retries -- giving up on this title."
+                    )
+                    return None
+                backoff = _BACKOFF_BASE_SECONDS * attempt
+                logging.warning(
+                    f"Rate limit reached (attempt {attempt}/{_MAX_429_RETRIES}), "
+                    f"pausing for {backoff}s."
+                )
+                time.sleep(backoff)
             else:
+                # None (not the original `keywords`) so the caller can tell a
+                # hard failure apart from a genuine "no change needed" result
+                # instead of silently rewriting the same keywords back with a
+                # misleading "Updated keywords..." log line.
                 logging.error(f"Error during reevaluation for title '{title}': {e}")
-                return keywords
+                return None
+    return None  # unreachable, but explicit
 
 # Read and process JSON files
 def process_json_files_by_family(families, root_dir, platform="net"):
+    call_success_count = 0
+    call_failure_count = 0
+
     for family in families:
         family_file = os.path.join(root_dir, f"{family}.json")
         if not os.path.exists(family_file):
@@ -132,14 +158,33 @@ def process_json_files_by_family(families, root_dir, platform="net"):
 
             logging.info(f"Reevaluating keywords for title: {title}")
             improved_keywords = reevaluate_keywords(title, keywords, platform)
-            if improved_keywords:
-                entry["keywords"] = improved_keywords
+            if improved_keywords is None:
+                call_failure_count += 1
+                continue
+            call_success_count += 1
+            entry["keywords"] = improved_keywords
 
-                # Save updated JSON immediately after a valid response
-                updated_file = os.path.join(root_dir, f"{family}_updated.json")
-                with open(updated_file, 'w', encoding='utf-8') as file:
-                    json.dump(merged_data, file, indent=4, ensure_ascii=False)
-                logging.info(f"Updated keywords for title '{title}' saved to {updated_file}")
+            # Save updated JSON immediately after a valid response
+            updated_file = os.path.join(root_dir, f"{family}_updated.json")
+            with open(updated_file, 'w', encoding='utf-8') as file:
+                json.dump(merged_data, file, indent=4, ensure_ascii=False)
+            logging.info(f"Updated keywords for title '{title}' saved to {updated_file}")
+
+    total_calls = call_success_count + call_failure_count
+    if total_calls:
+        print(
+            f"Gemini calls: {call_success_count} succeeded, "
+            f"{call_failure_count} failed ({total_calls} total)."
+        )
+        if call_success_count == 0:
+            # Same rationale as get_keywords.py: a 100% failure rate is a
+            # systemic problem, not per-title noise -- fail loudly rather
+            # than silently produce a run that looks like "nothing to update".
+            raise SystemExit(
+                f"ERROR: all {total_calls} Gemini call(s) failed for this run -- "
+                f"check for a retired model, revoked/exhausted API key, or "
+                f"changed error format. Not writing this off as 'no changes'."
+            )
 
 
 if __name__ == "__main__":

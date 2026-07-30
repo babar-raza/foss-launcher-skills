@@ -70,6 +70,7 @@ def test_reevaluate_keywords_uses_platform_label(monkeypatch):
     fake_genai = types.SimpleNamespace(GenerativeModel=_FakeModel)
     monkeypatch.setitem(sys.modules, "google", types.SimpleNamespace(generativeai=fake_genai))
     monkeypatch.setitem(sys.modules, "google.generativeai", fake_genai)
+    monkeypatch.setattr(review_keywords.time, "sleep", lambda *a, **kw: None)
 
     result = review_keywords.reevaluate_keywords("Title", ["a", "b"], platform="python")
     assert result == ["kw one", "kw two"]
@@ -94,6 +95,41 @@ def test_reevaluate_keywords_defaults_to_net_platform(monkeypatch):
     fake_genai = types.SimpleNamespace(GenerativeModel=_FakeModel)
     monkeypatch.setitem(sys.modules, "google", types.SimpleNamespace(generativeai=fake_genai))
     monkeypatch.setitem(sys.modules, "google.generativeai", fake_genai)
+    monkeypatch.setattr(review_keywords.time, "sleep", lambda *a, **kw: None)
 
     review_keywords.reevaluate_keywords("Title", ["a"])
     assert ".NET platform" in captured["prompt"]
+
+
+def test_reevaluate_keywords_returns_none_after_exhausting_429_retries(monkeypatch):
+    call_count = {"n": 0}
+
+    class _FakeModel:
+        def __init__(self, *a, **kw):
+            pass
+
+        def generate_content(self, prompt):
+            call_count["n"] += 1
+            raise RuntimeError("429 Too Many Requests")
+
+    fake_genai = types.SimpleNamespace(GenerativeModel=_FakeModel)
+    monkeypatch.setitem(sys.modules, "google", types.SimpleNamespace(generativeai=fake_genai))
+    monkeypatch.setitem(sys.modules, "google.generativeai", fake_genai)
+    monkeypatch.setattr(review_keywords.time, "sleep", lambda *a, **kw: None)
+
+    result = review_keywords.reevaluate_keywords("Title", ["a"])
+    assert result is None
+    assert call_count["n"] == review_keywords._MAX_429_RETRIES
+
+
+def test_process_json_files_raises_systemexit_when_every_call_fails(tmp_path, monkeypatch):
+    family_file = tmp_path / "cad.json"
+    family_file.write_text(
+        '[{"pageTitle": "Aspose.CAD FOSS", "keywords": ["a keyword"]}]',
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(review_keywords, "reevaluate_keywords", lambda title, kws, platform="net": None)
+
+    with pytest.raises(SystemExit):
+        review_keywords.process_json_files_by_family(["cad"], str(tmp_path))

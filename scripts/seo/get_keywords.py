@@ -134,6 +134,20 @@ def save_family_to_json(family, data, output_dir):
     logging.info(f"Saved {family} data to {file_path}")
 
 
+# Free-tier Gemini rate limits are as low as 15 RPM (Google AI Studio free
+# tier). Proactively pacing every call keeps us under that ceiling instead of
+# relying solely on reactive 429-retry -- fewer 429s, fewer wasted retries,
+# and actual behavior now matches the workflow's own documented assumption
+# (90-min timeout / ~1,350 calls => ~4s/call).
+_RPM_PACING_SECONDS = 4.5
+# Retry-on-429 is now bounded with exponential backoff instead of an
+# unbounded `while True` -- an exhausted/revoked trial key should fail this
+# one call after a few minutes, not spin sleeping for the entire 90-minute
+# workflow timeout.
+_MAX_429_RETRIES = 5
+_BACKOFF_BASE_SECONDS = 60
+
+
 # Get keywords from Google Gemini using google.generativeai
 def get_keywords_from_gemini(page_title, platform="net"):
     import google.generativeai as genai  # lazy: optional heavy dependency
@@ -155,24 +169,46 @@ def get_keywords_from_gemini(page_title, platform="net"):
         f"Focus on long tail keywords related to the {platform_label} platform having medium to high search volume, and low to medium competition."
         f"Provide only the keywords, with each keyword on a new line, and no additional explanations."
     )
-    while True:
+    for attempt in range(1, _MAX_429_RETRIES + 1):
         try:
             response = model.generate_content(prompt)
             keywords_text = response.text
             keywords = [kw.strip() for kw in keywords_text.split('\n') if kw.strip()]
+            time.sleep(_RPM_PACING_SECONDS)
             return keywords
         except Exception as e:
             if "429" in str(e):  # Check specifically for rate limit error
-                logging.warning("Rate limit reached, pausing for 1 minute.")
-                time.sleep(60)  # Wait for 1 minute
+                if attempt == _MAX_429_RETRIES:
+                    logging.error(
+                        f"Rate limit still active for page '{page_title}' after "
+                        f"{_MAX_429_RETRIES} retries -- giving up on this page "
+                        f"(quota may be exhausted, not just rate-limited)."
+                    )
+                    return None
+                backoff = _BACKOFF_BASE_SECONDS * attempt
+                logging.warning(
+                    f"Rate limit reached (attempt {attempt}/{_MAX_429_RETRIES}), "
+                    f"pausing for {backoff}s."
+                )
+                time.sleep(backoff)
             else:
+                # Not a rate-limit error -- e.g. a retired/renamed model (404),
+                # auth failure, or malformed response. Return None (distinct
+                # from [] meaning "Gemini genuinely suggested no keywords") so
+                # the caller can tell a hard failure apart from a soft empty
+                # result and surface a systemic problem loudly instead of
+                # silently producing sparse/empty output for an entire run.
                 logging.error(f"Error with Gemini API for page '{page_title}': {e}")
-                return []
+                return None
+    return None  # unreachable, but explicit
 
 
 # Process Markdown files grouped by families
 def process_markdown_files_by_families(families, root_dir, output_dir, platform="net"):
     family_data = {}
+    call_success_count = 0
+    call_failure_count = 0
+
     for family in families:
         family_dir = os.path.join(root_dir, family)
         if not os.path.exists(family_dir):
@@ -193,20 +229,51 @@ def process_markdown_files_by_families(families, root_dir, output_dir, platform=
                         if existing is not None:
                             logging.info(f"Appending keywords: {page_title} (Family: {family})")
                             new_keywords = get_keywords_from_gemini(page_title, platform)
-                            if new_keywords:
-                                append_keywords_to_existing(family, source_path, page_title, new_keywords, output_dir)
+                            if new_keywords is None:
+                                call_failure_count += 1
+                            else:
+                                call_success_count += 1
+                                if new_keywords:
+                                    append_keywords_to_existing(family, source_path, page_title, new_keywords, output_dir)
                             continue
 
                         logging.info(f"Processing new title: {page_title} (Family: {family})")
                         keywords = get_keywords_from_gemini(page_title, platform)
-                        if keywords:
-                            family_data[family].append({
-                                "pageTitle": page_title,
-                                "sourcePath": source_path,
-                                "keywords": keywords
-                            })
+                        if keywords is None:
+                            call_failure_count += 1
+                        else:
+                            call_success_count += 1
+                            if keywords:
+                                family_data[family].append({
+                                    "pageTitle": page_title,
+                                    "sourcePath": source_path,
+                                    "keywords": keywords
+                                })
 
         save_family_to_json(family, family_data[family], output_dir)
+
+    total_calls = call_success_count + call_failure_count
+    if total_calls:
+        logging.info(
+            f"Gemini calls this run: {call_success_count} succeeded, "
+            f"{call_failure_count} failed ({total_calls} total)."
+        )
+        print(
+            f"Gemini calls: {call_success_count} succeeded, "
+            f"{call_failure_count} failed ({total_calls} total)."
+        )
+        if call_success_count == 0:
+            # Every single call failed -- this is a systemic problem (retired
+            # model, revoked key, exhausted quota), not per-page noise. Exit
+            # non-zero so the workflow's existing
+            # `|| echo "WARNING: $site exited non-zero"` step actually fires
+            # instead of this run silently reporting "0 keyword changes" and
+            # looking identical to a genuinely idempotent, healthy run.
+            raise SystemExit(
+                f"ERROR: all {total_calls} Gemini call(s) failed for this run -- "
+                f"check for a retired model, revoked/exhausted API key, or "
+                f"changed error format. Not writing this off as 'no changes'."
+            )
 
     return family_data
 

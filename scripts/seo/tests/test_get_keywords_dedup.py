@@ -114,6 +114,7 @@ def test_get_keywords_from_gemini_uses_platform_label_in_prompt(monkeypatch):
     fake_genai = types.SimpleNamespace(GenerativeModel=_FakeModel)
     monkeypatch.setitem(sys.modules, "google", types.SimpleNamespace(generativeai=fake_genai))
     monkeypatch.setitem(sys.modules, "google.generativeai", fake_genai)
+    monkeypatch.setattr(get_keywords.time, "sleep", lambda *a, **kw: None)
 
     keywords = get_keywords.get_keywords_from_gemini("Some Page", platform="java")
     assert keywords == ["keyword one", "keyword two"]
@@ -139,6 +140,92 @@ def test_get_keywords_from_gemini_defaults_to_net_platform(monkeypatch):
     fake_genai = types.SimpleNamespace(GenerativeModel=_FakeModel)
     monkeypatch.setitem(sys.modules, "google", types.SimpleNamespace(generativeai=fake_genai))
     monkeypatch.setitem(sys.modules, "google.generativeai", fake_genai)
+    monkeypatch.setattr(get_keywords.time, "sleep", lambda *a, **kw: None)
 
     get_keywords.get_keywords_from_gemini("Some Page")
     assert ".NET platform" in captured["prompt"]
+
+
+def test_get_keywords_from_gemini_returns_none_after_exhausting_429_retries(monkeypatch):
+    """Bounded retry (Gemini API limitations follow-up): a persistent 429
+    must give up after _MAX_429_RETRIES, not retry forever."""
+    call_count = {"n": 0}
+
+    class _FakeModel:
+        def __init__(self, *a, **kw):
+            pass
+
+        def generate_content(self, prompt):
+            call_count["n"] += 1
+            raise RuntimeError("429 Too Many Requests")
+
+    import types
+    fake_genai = types.SimpleNamespace(GenerativeModel=_FakeModel)
+    monkeypatch.setitem(sys.modules, "google", types.SimpleNamespace(generativeai=fake_genai))
+    monkeypatch.setitem(sys.modules, "google.generativeai", fake_genai)
+    sleeps = []
+    monkeypatch.setattr(get_keywords.time, "sleep", lambda s: sleeps.append(s))
+
+    result = get_keywords.get_keywords_from_gemini("Some Page")
+    assert result is None
+    assert call_count["n"] == get_keywords._MAX_429_RETRIES
+    # backoff grows with attempt number, never sleeps for the (would-be) pacing delay
+    assert sleeps == [get_keywords._BACKOFF_BASE_SECONDS * a for a in range(1, get_keywords._MAX_429_RETRIES)]
+
+
+def test_get_keywords_from_gemini_returns_none_on_non_429_error(monkeypatch):
+    """A non-rate-limit error (e.g. a retired/renamed model returning 404)
+    must return None -- distinct from [] ("Gemini suggested nothing") --
+    so callers can count it as a hard failure."""
+    class _FakeModel:
+        def __init__(self, *a, **kw):
+            pass
+
+        def generate_content(self, prompt):
+            raise RuntimeError("404 model not found")
+
+    import types
+    fake_genai = types.SimpleNamespace(GenerativeModel=_FakeModel)
+    monkeypatch.setitem(sys.modules, "google", types.SimpleNamespace(generativeai=fake_genai))
+    monkeypatch.setitem(sys.modules, "google.generativeai", fake_genai)
+    monkeypatch.setattr(get_keywords.time, "sleep", lambda *a, **kw: None)
+
+    result = get_keywords.get_keywords_from_gemini("Some Page")
+    assert result is None
+
+
+def test_process_markdown_files_raises_systemexit_when_every_call_fails(tmp_path, monkeypatch):
+    """Gemini API limitations follow-up: a 100% failure rate (retired model,
+    revoked key, exhausted quota) must fail loudly, not silently report as
+    a healthy '0 changes' run indistinguishable from real idempotency."""
+    monkeypatch.setattr(get_keywords, "_REPO_ROOT", tmp_path)
+    family_dir = tmp_path / "cad"
+    family_dir.mkdir()
+    (family_dir / "_index.md").write_text(
+        "---\ntitle: Aspose.CAD FOSS\n---\nBody\n", encoding="utf-8"
+    )
+    output_dir = tmp_path / "keywords"
+    output_dir.mkdir()
+
+    monkeypatch.setattr(get_keywords, "get_keywords_from_gemini", lambda title, platform="net": None)
+
+    with pytest.raises(SystemExit):
+        get_keywords.process_markdown_files_by_families(["cad"], str(tmp_path), str(output_dir))
+
+
+def test_process_markdown_files_does_not_raise_when_some_calls_succeed(tmp_path, monkeypatch):
+    """Partial failure (normal transient throttling) must not be treated as
+    the systemic case -- only a 100% failure rate is loud."""
+    monkeypatch.setattr(get_keywords, "_REPO_ROOT", tmp_path)
+    family_dir = tmp_path / "cad"
+    family_dir.mkdir()
+    (family_dir / "_index.md").write_text(
+        "---\ntitle: Aspose.CAD FOSS\n---\nBody\n", encoding="utf-8"
+    )
+    output_dir = tmp_path / "keywords"
+    output_dir.mkdir()
+
+    monkeypatch.setattr(get_keywords, "get_keywords_from_gemini", lambda title, platform="net": ["a keyword"])
+
+    result = get_keywords.process_markdown_files_by_families(["cad"], str(tmp_path), str(output_dir))
+    assert result["cad"][0]["keywords"] == ["a keyword"]
