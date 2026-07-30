@@ -1219,6 +1219,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Skip L-07 (pytest) for faster iteration",
     )
     parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Fail closed: WARN or SKIP is a nonzero launch result",
+    )
+    parser.add_argument(
         "--output-report",
         action="store_true",
         help="Write a Markdown report to reports/launch-gate/{family}-{platform}.md",
@@ -1242,7 +1247,10 @@ def main(argv: list[str] | None = None) -> int:
         print(result)
         for extra in result.extra_lines:
             print(extra)
-        if args.fail_fast and result.status == STATUS_FAIL:
+        if args.fail_fast and (
+            result.status == STATUS_FAIL
+            or (args.strict and result.status in (STATUS_WARN, STATUS_SKIP))
+        ):
             # Fill remaining gates as SKIP
             remaining = gates_to_run[gates_to_run.index(gate_fn) + 1:]
             for remaining_fn in remaining:
@@ -1266,7 +1274,8 @@ def main(argv: list[str] | None = None) -> int:
     passes = sum(1 for r in results if r.status == STATUS_PASS)
     warns = sum(1 for r in results if r.status == STATUS_WARN)
     skips = sum(1 for r in results if r.status == STATUS_SKIP)
-    overall = STATUS_FAIL if fails > 0 else STATUS_PASS
+    strict_failures = warns + skips if args.strict else 0
+    overall = STATUS_FAIL if fails > 0 or strict_failures > 0 else STATUS_PASS
 
     print(
         f"Result: {overall}"
@@ -1290,7 +1299,7 @@ def main(argv: list[str] | None = None) -> int:
         report_path.write_text(report_md, encoding="utf-8")
         print(f"\nReport written to: {report_path.relative_to(_REPO_ROOT)}")
 
-    return 1 if fails > 0 else 0
+    return 1 if fails > 0 or strict_failures > 0 else 0
 
 
 if __name__ == "__main__":

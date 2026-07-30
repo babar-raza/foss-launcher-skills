@@ -14,6 +14,7 @@ Exit code: 0 always (coverage is advisory, not a hard gate).
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -360,6 +361,133 @@ def check_products_parity(repo_root: Path) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
+# Pinned campaign verification
+# ---------------------------------------------------------------------------
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def scan_campaign_manifest(manifest_path: Path, repo_root: Path) -> dict:
+    """Verify the exact source/output matrix from a zero-defect manifest."""
+    payload = yaml.safe_load(manifest_path.read_text(encoding="utf-8")) or {}
+    locales = [str(item) for item in payload.get("target_locales", [])]
+    sources = payload.get("sources", [])
+    expected_source_count = int(payload.get("expected_source_count", -1))
+    expected_output_count = int(payload.get("expected_output_count", -1))
+
+    errors: list[dict] = []
+    missing: list[str] = []
+    unexpected: list[str] = []
+    fallbacks: list[str] = []
+    present = 0
+    expected_outputs: set[str] = set()
+    scoped_roots: set[Path] = set()
+
+    if payload.get("validation_policy") != "zero-defect":
+        errors.append({"check": "policy", "detail": "validation_policy is not zero-defect"})
+    if len(sources) != expected_source_count:
+        errors.append({
+            "check": "source_count",
+            "detail": f"{len(sources)} != {expected_source_count}",
+        })
+
+    for source in sources:
+        source_rel = Path(source["source_path"])
+        source_path = repo_root / source_rel
+        outputs = source.get("outputs") or {}
+        if set(outputs) != set(locales):
+            errors.append({
+                "check": "locale_matrix",
+                "file": source_rel.as_posix(),
+                "detail": "output locales differ from campaign target_locales",
+            })
+        if not source_path.is_file():
+            errors.append({"check": "source_missing", "file": source_rel.as_posix()})
+            continue
+        if _sha256(source_path) != source.get("source_sha256"):
+            errors.append({"check": "source_hash_drift", "file": source_rel.as_posix()})
+
+        source_fields = _read_frontmatter_fields(source_path)
+        for locale, output_value in outputs.items():
+            output_rel = Path(output_value)
+            output_key = output_rel.as_posix()
+            expected_outputs.add(output_key)
+            output_path = repo_root / output_rel
+            if output_path.is_file():
+                present += 1
+                output_fields = _read_frontmatter_fields(output_path)
+                if _sha256(output_path) == _sha256(source_path) or (
+                    source_fields["title"]
+                    and source_fields["description"]
+                    and output_fields == source_fields
+                ):
+                    fallbacks.append(output_key)
+            else:
+                missing.append(output_key)
+
+            parts = output_rel.parts
+            if source["site_id"] == "blog.aspose.org":
+                scoped_roots.add(
+                    repo_root / "content" / source["site_id"] / source["family"] / source["platform"]
+                )
+            else:
+                scoped_roots.add(
+                    repo_root
+                    / "content"
+                    / source["site_id"]
+                    / locale
+                    / source["family"]
+                    / source["platform"]
+                )
+
+    for root in sorted(scoped_roots):
+        if not root.exists():
+            continue
+        for path in root.rglob("*.md"):
+            rel = path.relative_to(repo_root).as_posix()
+            if rel in expected_outputs:
+                continue
+            if "blog.aspose.org" in rel:
+                if re.search(r"\.([a-z]{2})\.md$", path.name):
+                    unexpected.append(rel)
+            else:
+                unexpected.append(rel)
+
+    unserved = []
+    for site_id in sorted({item["site_id"] for item in sources}):
+        declared = load_declared_locales(site_id, repo_root)
+        for locale in locales:
+            if locale not in declared:
+                unserved.append({"site_id": site_id, "locale": locale})
+
+    if len(expected_outputs) != expected_output_count:
+        errors.append({
+            "check": "output_count",
+            "detail": f"{len(expected_outputs)} != {expected_output_count}",
+        })
+
+    return {
+        "campaign_id": payload.get("campaign_id"),
+        "target_locales": locales,
+        "expected_sources": expected_source_count,
+        "actual_sources": len(sources),
+        "expected_outputs": expected_output_count,
+        "present_outputs": present,
+        "missing": sorted(missing),
+        "unexpected": sorted(set(unexpected)),
+        "fallbacks": sorted(fallbacks),
+        "unserved": unserved,
+        "errors": errors,
+        "passed": not (missing or unexpected or fallbacks or unserved or errors),
+    }
+
+
+# ---------------------------------------------------------------------------
 # Rendering
 # ---------------------------------------------------------------------------
 
@@ -479,9 +607,29 @@ def main(argv=None) -> int:
     parser.add_argument("--all", action="store_true", help="Run all modes")
     parser.add_argument("--json-out", default=None, metavar="PATH",
                         help="Write full JSON report to this path")
+    parser.add_argument(
+        "--campaign-manifest",
+        type=Path,
+        help="Verify the exact source/output matrix in a zero-defect campaign manifest",
+    )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Return nonzero for any campaign coverage, fallback, scope, or serving gap",
+    )
     args = parser.parse_args(argv)
 
     repo_root = _REPO_ROOT
+    if args.campaign_manifest:
+        campaign = scan_campaign_manifest(args.campaign_manifest.resolve(), repo_root)
+        rendered = json.dumps(campaign, ensure_ascii=False, indent=2)
+        print(rendered)
+        if args.json_out:
+            out_path = repo_root / args.json_out
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(rendered, encoding="utf-8")
+        return 1 if args.strict and not campaign["passed"] else 0
+
     target_subdomains = [args.subdomain] if args.subdomain else list(SUBDOMAINS.keys())
 
     print(f"Scanning {len(target_subdomains)} subdomain(s)...", file=sys.stderr)

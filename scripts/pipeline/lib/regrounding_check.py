@@ -40,6 +40,14 @@ def fingerprint(span: str) -> str:
     return hashlib.sha256(_normalize(span).encode("utf-8")).hexdigest()[:16]
 
 
+def _has_distinctive_symbol(value: str) -> bool:
+    """Exclude product namespace boilerplate such as ``Aspose.Pdf``."""
+    return any(
+        not match.group(0).startswith("Aspose.")
+        for match in _DOTTED_SYMBOL_RE.finditer(value)
+    )
+
+
 def extract_distinctive_spans(text: str) -> list[str]:
     """Return the distinctive technical spans of a body: fenced code blocks that
     contain a dotted API symbol, plus individual non-code lines carrying a dotted
@@ -49,7 +57,7 @@ def extract_distinctive_spans(text: str) -> list[str]:
 
     # Fenced code blocks with a dotted symbol.
     for code in _FENCED_CODE_RE.findall(text):
-        if _DOTTED_SYMBOL_RE.search(code):
+        if _has_distinctive_symbol(code):
             key = _normalize(code)
             if key and key not in seen:
                 seen.add(key)
@@ -59,7 +67,7 @@ def extract_distinctive_spans(text: str) -> list[str]:
     # interior lines are not double-counted).
     text_no_code = _FENCED_CODE_RE.sub("", text)
     for line in text_no_code.splitlines():
-        if _DOTTED_SYMBOL_RE.search(line):
+        if _has_distinctive_symbol(line):
             key = _normalize(line)
             if key and key not in seen:
                 seen.add(key)

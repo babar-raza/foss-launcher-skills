@@ -27,7 +27,16 @@ def load_state(family: str, platform: str, state_dir: Path | None = None) -> dic
     path = _state_path(family, platform, state_dir)
     if path.exists():
         try:
-            return json.loads(path.read_text(encoding="utf-8"))
+            state = json.loads(path.read_text(encoding="utf-8"))
+            # Backward compatibility: early gap-eval reports were sometimes
+            # seeded directly as state.  Preserve their clone/date metadata
+            # under the canonical state keys so rerun deltas do not degrade to
+            # "first run, SHA N/A".
+            if not state.get("last_run_sha") and state.get("clone_sha"):
+                state["last_run_sha"] = state["clone_sha"]
+            if not state.get("last_run_date") and state.get("run_date"):
+                state["last_run_date"] = str(state["run_date"])[:10]
+            return state
         except Exception as exc:
             log.warning("Cannot read state file %s: %s — starting fresh", path, exc)
     return {

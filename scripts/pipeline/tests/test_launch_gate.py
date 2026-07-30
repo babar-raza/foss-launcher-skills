@@ -13,15 +13,18 @@ from pathlib import Path
 import pytest
 
 from launch_gate import (
+    GateResult,
     STATUS_FAIL,
     STATUS_PASS,
     STATUS_SKIP,
+    STATUS_WARN,
     _ALL_GATES,
     _check_provenance_coverage,
     gate_l08_provenance_coverage,
     gate_l09_hugo_build,
     gate_l10_no_coming_soon,
     gate_l11_family_display_name,
+    main,
 )
 
 import launch_gate as _lg_mod
@@ -221,6 +224,32 @@ class TestGateRegistry:
     def test_l11_precedes_new_gates(self):
         """L-11 should precede L-12..L-15 in the registry."""
         assert _ALL_GATES[10] is gate_l11_family_display_name
+
+
+class TestStrictPolicy:
+    def test_warn_is_nonzero_in_strict_mode(self, monkeypatch):
+        monkeypatch.setattr(
+            _lg_mod,
+            "_ALL_GATES",
+            (lambda family, platform: GateResult("L-X", "warn", STATUS_WARN, "warning"),),
+        )
+        assert main(["words", "net", "--strict"]) == 1
+
+    def test_skip_is_nonzero_in_strict_mode(self, monkeypatch):
+        monkeypatch.setattr(
+            _lg_mod,
+            "_ALL_GATES",
+            (lambda family, platform: GateResult("L-X", "skip", STATUS_SKIP, "unavailable"),),
+        )
+        assert main(["words", "net", "--strict"]) == 1
+
+    def test_warn_remains_compatible_without_strict(self, monkeypatch):
+        monkeypatch.setattr(
+            _lg_mod,
+            "_ALL_GATES",
+            (lambda family, platform: GateResult("L-X", "warn", STATUS_WARN, "warning"),),
+        )
+        assert main(["words", "net"]) == 0
 
 
 # ---------------------------------------------------------------------------

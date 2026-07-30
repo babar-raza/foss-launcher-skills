@@ -360,6 +360,7 @@ def mode_regenerate(args: argparse.Namespace, runs_root: pathlib.Path) -> Exit:
             sys.executable, str(batch_ref_path),
             args.family, getattr(args, "platform", "") or "",
             "--rebuild-all", "--confirm-rebuild",
+            "--run-id", args.run_id,
         ]
         if dry_run:
             cmd.append("--dry-run")
