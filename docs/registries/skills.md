@@ -59,6 +59,7 @@
 | llms-verify | S-LG-02 | Verify live HTTP endpoints for deployed llms-output .txt pages |
 | locale-patch | S-75 | Propagate targeted text fixes to locale files |
 | manual-edit | S-73 | Operator-directed targeted content edit |
+| mechanism-sweep | S-117 | Sweep already-launched products for staleness caused by OUR OWN pipeline (extraction/enrichment) improving, independent of any upstream FOSS change — the sibling of change-sweep's upstream-drift axis |
 | new-blog-index | S-101 | Scaffold Blog platform section landing page |
 | new-blog-post | S-57 | Generate blog posts for blog.aspose.org |
 | new-docs-index | S-70 | Scaffold Docs platform section landing page |

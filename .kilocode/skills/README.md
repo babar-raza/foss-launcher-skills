@@ -37,7 +37,7 @@ Governance rules for Kilo Code are in `.kilocode/rules-code/governance.md`.
 
 ## Skill List (72 skills — full canonical set)
 
-All 99 registered skills are present in this tree. Internal sub-routines are included here
+All 106 registered skills are present in this tree. Internal sub-routines are included here
 because Kilo Code invokes them directly when orchestrating skill chains.
 
 | ID | Slug | Category | Internal? |
