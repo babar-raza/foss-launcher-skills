@@ -275,14 +275,28 @@ def _scope_paths_from_file(relative_path: str | None) -> list[str]:
 
 
 def _assert_product_scope(paths: list[str], family: str, platform: str) -> None:
-    """Require every content path to belong to the run's English product."""
+    """Require every content path to belong to the run's English product.
+
+    Site path shapes differ (found live, MT014-2026-07-29-PDF-GO-REDO): every
+    site except blog.aspose.org carries an English locale segment --
+    content/{site}/en/{family}/{platform}/... (docs, kb, reference, AND
+    products -- e.g. content/products.aspose.org/en/pdf/go/_index.md; other
+    products.aspose.org top-level entries are non-English locale codes like
+    ar/bg/ca, confirming "en" is a real locale segment there too, not absent).
+    Only blog.aspose.org omits it: content/blog.aspose.org/{family}/{platform}/...
+    (its non-English variants suffix the *filename*, e.g. index.fr.md, rather
+    than adding a locale directory). This function previously special-cased
+    "products.aspose.org" as the no-locale site instead of "blog.aspose.org" --
+    backwards -- so every real refresh scope touching blog or products pages
+    was incorrectly rejected as "outside" the product.
+    """
     invalid: list[str] = []
     for value in paths:
         parts = Path(value).parts
         if len(parts) < 4 or parts[0] != "content":
             invalid.append(value)
             continue
-        if parts[1] == "products.aspose.org":
+        if parts[1] == "blog.aspose.org":
             matches = len(parts) >= 4 and parts[2:4] == (family, platform)
         else:
             matches = (

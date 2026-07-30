@@ -374,6 +374,53 @@ def test_scope_manifest_digest_is_rechecked_before_planning(tmp_path: Path):
         refresh_run.prepare_run(manifest)
 
 
+def test_assert_product_scope_accepts_real_per_site_path_shapes():
+    """Regression test for a confirmed bug: this function special-cased
+    "products.aspose.org" as the site with NO locale segment -- backwards.
+    Real path shapes (verified live against the repo, MT014-2026-07-29-
+    PDF-GO-REDO): every site except blog.aspose.org carries an English
+    locale segment, INCLUDING products.aspose.org (its other top-level
+    entries are non-English locale codes like ar/bg/ca, confirming "en" is
+    a real locale directory there, not absent) -- only blog.aspose.org
+    omits it (its non-English variants suffix the filename instead, e.g.
+    index.fr.md). The old code rejected every real blog/products path in
+    scope as "outside the product"."""
+    real_paths = [
+        "content/docs.aspose.org/en/pdf/go/_index.md",
+        "content/kb.aspose.org/en/pdf/go/faq.md",
+        "content/reference.aspose.org/en/pdf/go/Document.md",
+        "content/products.aspose.org/en/pdf/go/_index.md",
+        "content/blog.aspose.org/pdf/go/_index.md",
+        "content/blog.aspose.org/pdf/go/pdf-document-management-go/index.md",
+    ]
+    refresh_run._assert_product_scope(real_paths, "pdf", "go")  # must not raise
+
+
+def test_assert_product_scope_rejects_blog_path_with_locale_segment():
+    """Negative control: blog.aspose.org must NOT accept a spurious 'en'
+    segment either -- it genuinely has none in real content."""
+    with pytest.raises(refresh_run.RefreshRunError, match="outside pdf/go"):
+        refresh_run._assert_product_scope(
+            ["content/blog.aspose.org/en/pdf/go/_index.md"], "pdf", "go"
+        )
+
+
+def test_assert_product_scope_rejects_products_path_without_locale():
+    """Negative control: products.aspose.org must NOT accept a path missing
+    its real locale segment."""
+    with pytest.raises(refresh_run.RefreshRunError, match="outside pdf/go"):
+        refresh_run._assert_product_scope(
+            ["content/products.aspose.org/pdf/go/_index.md"], "pdf", "go"
+        )
+
+
+def test_assert_product_scope_rejects_cross_product_path():
+    with pytest.raises(refresh_run.RefreshRunError, match="outside pdf/go"):
+        refresh_run._assert_product_scope(
+            ["content/docs.aspose.org/en/words/net/other.md"], "pdf", "go"
+        )
+
+
 def test_prepare_rejects_scope_from_another_product(tmp_path: Path):
     selected = "content/docs.aspose.org/en/words/net/selected.md"
     page = tmp_path / selected
