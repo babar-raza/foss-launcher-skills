@@ -437,6 +437,169 @@ def _scan_ts_ooxml_writer_export(
     return []
 
 
+# ---------------------------------------------------------------------------
+# Pass 1e (ST-022, 2026-07-30): PascalCase verb+format-token method names.
+#
+# Root cause: every prior pass ties format detection to either (a) an enum
+# class name (FileFormat/SaveFormat/...), (b) a class NAME matching
+# Importer/Exporter/Reader/Writer/Loader/Saver/Serializer/Device/Renderer, or
+# (c) a snake_case method-name convention (load_from_x/save_to_x/from_x/to_x)
+# meant for Python/C++. None of these fire for a language like Go, where a
+# secondary format's real I/O methods live directly on the library's own
+# primary document/page types with ordinary PascalCase names -- e.g. pdf/go's
+# `Page.AddSVG`, `Page.AddSVGFromStream`, `Page.AddSVGObject`,
+# `Document.LoadSVG`, `Document.LoadSVGFromStream` (verified against
+# runs/.clone_cache/aspose_pdf_go/svg.go and knowledge/pdf/go/merged/
+# api_surface.json). `Page`/`Document` are not Importer/Exporter-named, SVG
+# is not this library's primary/constructor format (Pass 1c only credits
+# ONE primary format per product), and the method names use no underscores
+# so Pass 2's snake_case regex never matches them either. The result:
+# formats.json recorded `svg: export` (from the unrelated `svgDevice` HTML
+# backend, matched via the "Device" substring in the class-name pass) but
+# never `svg: import`, even though the import methods are real and verified
+# -- producing a false format_truth FAIL against Page.md's accurate prose.
+#
+# Fix: scan for `<Verb><FormatToken>(` identifiers directly (Go/Java/C# all
+# use this PascalCase convention), independent of the enclosing class's name
+# or its constructor-based primary format. This is deliberately an ALLOWLIST
+# (_KNOWN_FORMAT_TOKENS), not a denylist, because "Add"/"Insert" in
+# particular are used constantly for non-format operations in these APIs
+# (AddPage, AddAnnotation, AddWatermark, InsertField, ...) -- accepting any
+# capitalized suffix the way the class-name pass does would flood every
+# product with false positives. Restricting the verb-prefixed suffix to
+# recognized format abbreviations keeps this pass safe to run unconditionally
+# across every language and family.
+_PASCAL_IO_VERB_RE = re.compile(
+    r"\b(Add|Insert|Load|Read|Import|Open|Parse|Save|Write|Export|Serialize)"
+    r"([A-Z][A-Za-z0-9]*)\s*\(",
+)
+_PASCAL_IMPORT_VERBS: frozenset[str] = frozenset(
+    {"add", "insert", "load", "read", "import", "open", "parse"})
+_PASCAL_EXPORT_VERBS: frozenset[str] = frozenset(
+    {"save", "write", "export", "serialize"})
+
+# Known short file-format tokens recognized when they appear as the immediate
+# suffix of a PascalCase I/O verb. Deliberately broad (spans the format
+# vocabulary of the Aspose product families this pipeline covers: pdf,
+# cells, slides, words, email, 3d, note, page, font, html, barcode, tex) --
+# a generic fix must not be tuned to pdf/go specifically.
+_KNOWN_FORMAT_TOKENS: frozenset[str] = frozenset({
+    "svg", "pdf", "html", "htm", "xml", "json", "csv", "tsv",
+    "xls", "xlsx", "xlsm", "xlsb", "ods", "doc", "docx", "docm", "odt",
+    "ppt", "pptx", "pptm", "odp", "rtf", "txt", "md", "yaml", "yml",
+    "png", "jpg", "jpeg", "gif", "bmp", "tiff", "tif", "ico", "webp",
+    "emf", "wmf", "eps", "ps", "svgz", "cgm", "cdr",
+    "zip", "tar", "gz",
+    "eml", "msg", "mbox", "vcf", "ics",
+    "fbx", "obj", "gltf", "glb", "stl", "dae", "3ds", "u3d", "amf",
+    "ply", "x3d", "dxf",
+    "mp3", "mp4", "wav", "avi", "mov", "webm",
+    "ttf", "otf", "woff", "woff2",
+    "cfb", "jbig2", "epub", "mobi", "azw3", "mhtml", "chm", "xps", "djvu",
+    "markdown", "latex", "tex",
+})
+
+
+def _split_pascal_format_token(remainder: str) -> str:
+    """Extract the first camelCase/acronym word from a PascalCase identifier
+    remainder (the portion of a method name right after its verb prefix).
+
+    Applies the standard acronym-boundary rule used by camelCase splitters: a
+    run of leading uppercase letters that is followed by a lowercase letter
+    treats the LAST uppercase letter of that run as the start of the next
+    word -- the same rule that splits "HTTPServer" into "HTTP" + "Server",
+    not "HTTPS" + "erver". This lets a single, simple function correctly
+    reduce every one of pdf/go's real SVG method names to the bare token
+    "SVG": "AddSVG" (nothing follows -- the whole remainder is the acronym),
+    "AddSVGFromStream" / "AddSVGObject" / "LoadSVGFromStream" (the acronym
+    run ends because a lowercase letter follows, so the last uppercase
+    letter -- "G" -- starts the next word: "SVG" + "FromStream"/"Object").
+    Ordinary single-capital words (e.g. "Watermark" in "AddWatermark") take
+    the other branch: consume the trailing lowercase/digit run as-is.
+    """
+    if not remainder:
+        return ""
+    j = 1
+    while j < len(remainder) and remainder[j].isupper():
+        j += 1
+    if j == 1:
+        # Ordinary capitalized word (Svg, Watermark, ...).
+        k = 1
+        while k < len(remainder) and (remainder[k].islower() or remainder[k].isdigit()):
+            k += 1
+        return remainder[:k]
+    if j == len(remainder):
+        # Whole remainder is one acronym run (AddSVG -> "SVG").
+        return remainder
+    # Acronym run ends because a lowercase letter follows -- the last
+    # uppercase letter belongs to the next word (AddSVGFromStream -> "SVG").
+    return remainder[: j - 1]
+
+
+def _scan_pascal_verb_format_methods(
+    files: list[Path],
+    repo: Path,
+    add_claim: object | None,
+) -> list[dict]:
+    """Pass 1e: detect PascalCase verb+format-token method names.
+
+    See the module comment above _PASCAL_IO_VERB_RE for the full root-cause
+    analysis (ST-022). Text-based (like Pass 2/3/4), not tree-sitter-node-
+    based: Go methods use receiver syntax (`func (p *Page) AddSVG(...)`) and
+    are never nested inside the struct's own type declaration the way
+    Java/C# class bodies nest their methods, so a class-node-scoped scan
+    (the way Pass 1's I/O-class detection works) cannot see them at all --
+    a plain regex over the raw file text sidesteps that structural mismatch
+    entirely and works uniformly across Go/Java/C#.
+    """
+    seen: set[tuple[str, str]] = set()
+    new_entries: list[dict] = []
+
+    for fpath in files:
+        rel = str(fpath.relative_to(repo)).replace("\\", "/")
+        try:
+            text = fpath.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+
+        for m in _PASCAL_IO_VERB_RE.finditer(text):
+            verb = m.group(1)
+            remainder = m.group(2)
+            verb_lower = verb.lower()
+            token = _split_pascal_format_token(remainder)
+            token_lower = token.lower()
+            if token_lower not in _KNOWN_FORMAT_TOKENS:
+                continue
+            if verb_lower in _PASCAL_IMPORT_VERBS:
+                direction = "import"
+            elif verb_lower in _PASCAL_EXPORT_VERBS:
+                direction = "export"
+            else:
+                continue
+            key = (token_lower, direction)
+            if key in seen:
+                continue
+            seen.add(key)
+            line_num = text[: m.start()].count("\n") + 1
+            new_entries.append({
+                "format": token,
+                "enum": "",
+                "value": "",
+                "file": rel,
+                "line": line_num,
+                "direction": direction,
+            })
+            if callable(add_claim):
+                add_claim(
+                    "format_support",
+                    f"{direction} support for {token} format "
+                    f"(method name: {verb}{remainder})",
+                    rel, line_num,
+                )
+
+    return new_entries
+
+
 def detect_formats(
     parser,
     language: str,
@@ -704,6 +867,11 @@ def detect_formats(
             f"export support for {entry['format']} via OOXML writer",
             entry["file"], entry["line"],
         )
+
+    # Pass 1e (ST-022): PascalCase verb+format-token method names (Go/Java/C#
+    # methods like Page.AddSVG / Document.LoadSVG that name a secondary
+    # format directly, independent of class-name or primary-format ties).
+    formats.extend(_scan_pascal_verb_format_methods(files, repo, _add_claim))
 
     # Second pass: scan method names for format signals embedded in naming
     # conventions (e.g., load_from_eml, save_to_eml).  Catches formats that

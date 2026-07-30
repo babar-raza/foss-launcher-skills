@@ -10,7 +10,14 @@ from typing import Any
 from ..models import Finding, Page
 from . import BaseEvaluator
 
-KNOWLEDGE_ROOT = Path("knowledge")
+_DEFAULT_KNOWLEDGE_ROOT = Path("knowledge")
+KNOWLEDGE_ROOT = _DEFAULT_KNOWLEDGE_ROOT
+
+
+def configure(*, knowledge_root: "Path | str | None" = None) -> None:
+    """Testing seam (AGENTS.md §16) — set/reset KNOWLEDGE_ROOT without monkeypatch."""
+    global KNOWLEDGE_ROOT
+    KNOWLEDGE_ROOT = Path(knowledge_root) if knowledge_root is not None else _DEFAULT_KNOWLEDGE_ROOT
 
 # Sentence patterns that indicate factual API claims
 _API_CLAIM_RE = re.compile(
@@ -25,6 +32,42 @@ _FORMAT_CLAIM_RE = re.compile(
     r"(?:the\s+)?(?:to\s+|from\s+)?(\w{2,6})\s+(?:format|file|document)",
     re.IGNORECASE,
 )
+
+# ST-023 (2026-07-30) directional-claim patterns.
+#
+# Root cause: _FORMAT_CLAIM_RE grabs whatever short token sits directly
+# before "format"/"file"/"document", with no regard for sentence direction.
+# For "Aspose.PDF FOSS for Go now exports PDF documents to HTML..." that
+# token is "PDF" -- but the sentence names TWO formats: PDF (the kind of
+# document being acted on -- this library's own source format, not a claim
+# about PDF being an export TARGET) and HTML (the actual destination the
+# capability claim is about: "can produce HTML output"). Nearest-token
+# matching picks the wrong one, so the evaluator flagged the true, correct
+# claim "PDF export but knowledge shows import-only" for a sentence that
+# never claimed PDF is an export target at all.
+#
+# Fix: resolve the sentence's real directional clause -- "<verb> ... to/into
+# <FORMAT>" claims export of FORMAT; "<verb> ... from <FORMAT>" claims import
+# of FORMAT -- and let that take priority over the nearest-token match. The
+# candidate FORMAT is validated against this page's own format_support dict
+# (built from formats.json below) rather than a hardcoded allowlist, so a
+# generic "to disk"/"to the caller" clause is never mistaken for a format
+# claim: only a token this specific product's knowledge actually recognizes
+# as a format name is treated as one.
+_DIRECTIONAL_CLAIM_RE = re.compile(
+    r"\b(?:export|import|convert|save|write|read|load|render)\w*\b"
+    r".{0,60}?"
+    r"\b(?P<prep>to|into|from)\s+(?:the\s+)?(?P<fmt>\w{2,6})\b",
+    re.IGNORECASE,
+)
+
+# "<SRC>-to-<DST> conversion"/"supports X-to-Y conversion" -- the hyphenated
+# form of the same directional claim, handled separately because there is no
+# whitespace between the verb-governed clause and the format tokens for
+# _DIRECTIONAL_CLAIM_RE to anchor on. A claimed "X-to-Y" conversion asserts
+# BOTH capabilities: import of X (the source) and export of Y (the
+# destination).
+_HYPHEN_TO_RE = re.compile(r"\b(\w{2,6})-to-(\w{2,6})\b", re.IGNORECASE)
 
 # Strong wording indicators
 _STRONG_WORDS = re.compile(
@@ -250,12 +293,91 @@ class ProseTruthEvaluator(BaseEvaluator):
                 else:
                     format_support[ext] = direction
 
+        def _direction_mismatch_finding(
+            fmt_token: str, claimed_dir: str, known_dir: str, line_no: int,
+        ) -> "Finding | None":
+            """Return a FAIL Finding when claimed_dir contradicts known_dir,
+            or None when the claim is consistent (or known_dir is 'both')."""
+            if claimed_dir == "export" and known_dir == "import":
+                return Finding(
+                    level="FAIL",
+                    category="PT",
+                    filepath=str(page.filepath),
+                    line_no=line_no,
+                    message=f"Claims {fmt_token.upper()} export but knowledge shows import-only",
+                    suggestion=f"Fix direction: {fmt_token.upper()} supports {known_dir}",
+                    evaluator=self.name,
+                )
+            if claimed_dir == "import" and known_dir == "export":
+                return Finding(
+                    level="FAIL",
+                    category="PT",
+                    filepath=str(page.filepath),
+                    line_no=line_no,
+                    message=f"Claims {fmt_token.upper()} import but knowledge shows export-only",
+                    suggestion=f"Fix direction: {fmt_token.upper()} supports {known_dir}",
+                    evaluator=self.name,
+                )
+            return None
+
         # Check format claims in prose
         for line_no, line_text in page.prose_lines:
             if _is_markdown_table_row(line_text):
                 continue
 
+            # ST-023: resolve directional "<verb> ... to/into/from <FORMAT>"
+            # clauses FIRST -- they identify which of potentially several
+            # format-like tokens on the line is the one actually being
+            # claimed, and in which direction. Spans consumed by a resolved
+            # directional clause are shadowed from the nearest-token fallback
+            # below so the SOURCE token in "exports SRC documents to DST"
+            # (SRC, not an independent claim) isn't re-evaluated in the
+            # opposite, wrong direction.
+            _shadowed_spans: list[tuple[int, int]] = []
+
+            for dm in _DIRECTIONAL_CLAIM_RE.finditer(line_text):
+                fmt_token = dm.group("fmt").lower()
+                if fmt_token not in format_support:
+                    continue  # not a recognized format for this product
+                claimed_dir = (
+                    "export" if dm.group("prep").lower() in ("to", "into") else "import"
+                )
+                finding = _direction_mismatch_finding(
+                    fmt_token, claimed_dir, format_support[fmt_token], line_no,
+                )
+                if finding is not None:
+                    findings.append(finding)
+                # The clause between the verb and the preposition names the
+                # SOURCE/acted-upon document (e.g. "PDF" in "exports PDF
+                # documents to HTML") -- shadow it regardless of whether a
+                # mismatch fired, so it is never independently re-checked.
+                _shadowed_spans.append((dm.start(), dm.start("prep")))
+
+            for hm in _HYPHEN_TO_RE.finditer(line_text):
+                # "X-to-Y conversion" claims import(X) + export(Y).
+                src_token = hm.group(1).lower()
+                dst_token = hm.group(2).lower()
+                if src_token in format_support:
+                    finding = _direction_mismatch_finding(
+                        src_token, "import", format_support[src_token], line_no,
+                    )
+                    if finding is not None:
+                        findings.append(finding)
+                    _shadowed_spans.append(hm.span(1))
+                if dst_token in format_support:
+                    finding = _direction_mismatch_finding(
+                        dst_token, "export", format_support[dst_token], line_no,
+                    )
+                    if finding is not None:
+                        findings.append(finding)
+                    _shadowed_spans.append(hm.span(2))
+
+            def _in_shadow(pos: int) -> bool:
+                return any(start <= pos < end for start, end in _shadowed_spans)
+
             for m in _FORMAT_CLAIM_RE.finditer(line_text):
+                if _in_shadow(m.start(1)):
+                    continue
                 claimed_format = m.group(1).lower()
                 if claimed_format in format_support:
                     # Check direction consistency
