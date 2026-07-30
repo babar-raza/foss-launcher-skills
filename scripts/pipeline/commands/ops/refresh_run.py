@@ -1106,7 +1106,18 @@ def _paths_from_pia(path: Path) -> list[str]:
     for row in iterable:
         if not isinstance(row, dict):
             continue
-        impact = row.get("impact") or row.get("impact_level") or row.get("classification")
+        # page_impact_assess.py's real, documented output field is "pia_score"
+        # (see its own module comment: "_paths_from_pia() in refresh_run.py
+        # filters on pia_score"). The legacy alias names below never appear in
+        # real PIA output -- kept only as a defensive fallback for any other
+        # caller that might use a different schema, not because PIA itself
+        # emits them.
+        impact = (
+            row.get("pia_score")
+            or row.get("impact")
+            or row.get("impact_level")
+            or row.get("classification")
+        )
         path_value = row.get("page_path") or row.get("path")
         if impact in {"HIGH_IMPACT", "MEDIUM_IMPACT"} and isinstance(path_value, str):
             selected.append(Path(path_value).as_posix())

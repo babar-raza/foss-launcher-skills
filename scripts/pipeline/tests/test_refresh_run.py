@@ -460,8 +460,8 @@ def test_remediation_scope_is_not_broadened_by_historical_pia(tmp_path: Path):
         json.dumps(
             {
                 "pages": [
-                    {"path": selected, "impact": "HIGH_IMPACT"},
-                    {"path": historical, "impact": "HIGH_IMPACT"},
+                    {"path": selected, "pia_score": "HIGH_IMPACT"},
+                    {"path": historical, "pia_score": "HIGH_IMPACT"},
                 ]
             }
         ),
@@ -478,6 +478,105 @@ def test_remediation_scope_is_not_broadened_by_historical_pia(tmp_path: Path):
         ).read_text(encoding="utf-8")
     )
     assert saved_scope["paths"] == [selected]
+
+
+def test_upstream_scope_selected_from_real_pia_score_schema(tmp_path: Path):
+    """Regression test for a confirmed bug: page_impact_assess.py's real,
+    documented output field is "pia_score" (not "impact"/"impact_level"/
+    "classification"), but _paths_from_pia() only checked the latter three --
+    so every real upstream/combined-mode run with genuine HIGH_IMPACT/
+    MEDIUM_IMPACT pages incorrectly resolved to zero scope and raised
+    "Refresh scope resolved to zero pages" (found live during
+    MT014-2026-07-29-PDF-GO-REDO's first real refresh_run.py execution
+    against pdf/go, which had 55 HIGH_IMPACT + 8 MEDIUM_IMPACT real pages).
+    test_remediation_scope_is_not_broadened_by_historical_pia (above) never
+    caught this because remediation mode never consults PIA scope at all,
+    and its own fixture used the wrong field name too."""
+    high = "content/docs.aspose.org/en/pdf/net/high.md"
+    medium = "content/docs.aspose.org/en/pdf/net/medium.md"
+    low = "content/docs.aspose.org/en/pdf/net/low.md"
+    not_affected = "content/docs.aspose.org/en/pdf/net/not-affected.md"
+    for relative in (high, medium, low, not_affected):
+        page = tmp_path / relative
+        page.parent.mkdir(parents=True, exist_ok=True)
+        page.write_text("page\n", encoding="utf-8")
+
+    delta_path = tmp_path / "knowledge/pdf/net/merged/knowledge_delta.json"
+    delta_path.parent.mkdir(parents=True, exist_ok=True)
+    delta_path.write_text("{}", encoding="utf-8")
+
+    manifest = refresh_run.create_run(
+        "pdf",
+        "net",
+        mode="upstream",
+        run_id="RUN-PIA-SCORE",
+        session_id="session-1",
+    )
+    planning = (
+        tmp_path
+        / "reports/refresh_runs/pdf/net/RUN-PIA-SCORE/planning/pdf/net"
+    )
+    planning.mkdir(parents=True)
+    (planning / "page_impact.json").write_text(
+        json.dumps(
+            {
+                "pages": [
+                    {"path": high, "pia_score": "HIGH_IMPACT"},
+                    {"path": medium, "pia_score": "MEDIUM_IMPACT"},
+                    {"path": low, "pia_score": "LOW_IMPACT"},
+                    {"path": not_affected, "pia_score": "NOT_AFFECTED"},
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    prepared = refresh_run.prepare_run(manifest)
+
+    assert prepared["scope"]["paths"] == sorted([high, medium])
+
+
+def test_upstream_scope_still_zero_when_pia_finds_nothing_affected(tmp_path: Path):
+    """Negative control: a real PIA report with ONLY LOW_IMPACT/NOT_AFFECTED
+    pages must still correctly raise -- the fix above must not become a
+    blanket bypass of the zero-scope guard."""
+    low = "content/docs.aspose.org/en/pdf/net/low.md"
+    not_affected = "content/docs.aspose.org/en/pdf/net/not-affected.md"
+    for relative in (low, not_affected):
+        page = tmp_path / relative
+        page.parent.mkdir(parents=True, exist_ok=True)
+        page.write_text("page\n", encoding="utf-8")
+
+    delta_path = tmp_path / "knowledge/pdf/net/merged/knowledge_delta.json"
+    delta_path.parent.mkdir(parents=True, exist_ok=True)
+    delta_path.write_text("{}", encoding="utf-8")
+
+    manifest = refresh_run.create_run(
+        "pdf",
+        "net",
+        mode="upstream",
+        run_id="RUN-PIA-EMPTY",
+        session_id="session-1",
+    )
+    planning = (
+        tmp_path
+        / "reports/refresh_runs/pdf/net/RUN-PIA-EMPTY/planning/pdf/net"
+    )
+    planning.mkdir(parents=True)
+    (planning / "page_impact.json").write_text(
+        json.dumps(
+            {
+                "pages": [
+                    {"path": low, "pia_score": "LOW_IMPACT"},
+                    {"path": not_affected, "pia_score": "NOT_AFFECTED"},
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(refresh_run.RefreshRunError, match="zero pages"):
+        refresh_run.prepare_run(manifest)
 
 
 def test_illegal_transition_is_rejected():
