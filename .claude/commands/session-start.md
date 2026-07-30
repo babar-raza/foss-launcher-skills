@@ -79,11 +79,18 @@ any user request.
        Action: run `/backlog plan --reconstruct {id}` or `/backlog reconcile`
      ```
    - **Plan normalization audit** (non-blocking advisory, S-91): For each P0/P1 item whose
-     Plan file was found on disk, check whether the plan needs S-91 normalization by scanning
-     for: (a) H2 sections with sprint/retrospective/postmortem keywords, (b) file mtime >7 days
-     ago with no `## Plan Normalization Record` section, (c) session inherited from another
-     agent (HANDOFF.md present with prior-session context). For any plan matching at least one
-     trigger, append to the BACKLOG BRIEFING output block:
+     Plan file was found on disk, check whether the plan needs S-91 normalization by running
+     the real check (not a re-described copy of its logic — the two had already drifted once):
+     ```bash
+     .venv/Scripts/python scripts/ci/checks/check_plan_quality.py {plan-path} --json
+     ```
+     Trigger normalization on any finding (`PQ-01` mixed context, `PQ-02` stale-unnormalized,
+     `PQ-03` completed-mixed-with-open, `PQ-04` maturity ambiguity, `PQ-05` long-unnormalized) —
+     these already cover: H2 sections with sprint/retrospective/postmortem keywords, file mtime
+     >7 days with no `## Plan Normalization Record` section, and completed/open-work mixing.
+     Session-inherited-from-another-agent (HANDOFF.md present with prior-session context) is not
+     covered by the script; check that separately. For any plan matching at least one trigger,
+     append to the BACKLOG BRIEFING output block:
      ```
      PLANS NEEDING NORMALIZATION:
        [{id}] {title} - plan: {path} - trigger: {reason}

@@ -27,8 +27,11 @@ Before treating any newly-authored multi-step plan as **ready to execute** — i
 readiness checklist** (both near the end of
 [planning-execution-state-machine.md](../reference/planning-execution-state-machine.md)).
 
-This is a discipline check, not a new gate script — there is no CI enforcement for this section
-(see "Non-goals" below). It supplements, and does not replace, `/plan-normalize` (S-91), which
+This is mostly a discipline check, not a full CI-enforced gate (see "Non-goals" below) — with one
+exception: the single mechanically-checkable rule from "The genuinely new rules" below (don't
+invent a parallel mission/taskcard tracker) is captured on every plan-file `Write`/`Edit` and,
+once burn-in completes, gated at `ExitPlanMode` — see `scripts/ci/checks/check_plan_origination.py`
+and `scripts/ci/hooks/check_plan_origination_gate_hook.sh`. It supplements, and does not replace, `/plan-normalize` (S-91), which
 governs **resuming or inheriting** an existing plan (see
 [docs/workflows/mental-model-refresh.md](../workflows/mental-model-refresh.md) § Plan
 Normalization). This section governs **originating** one.
@@ -40,7 +43,7 @@ do not create a differently-shaped one.
 
 | Reference-doc concept | This repo's artifact |
 | --- | --- |
-| Mission contract | `MISSION_AUTHORITY.yaml` (repo root) — `mission_id`, `mission_summary`, `governing_plan_path`, `in_scope_outcomes`, `out_of_scope_items`, `mandatory_acceptance_criteria`, `mission_locked` |
+| Mission contract | `MISSION_AUTHORITY.yaml` (repo root) — `mission_id`, `mission_summary`, `governing_plan_path`, `in_scope_outcomes`, `out_of_scope_items`, `mandatory_acceptance_criteria`, `mission_locked`. Root file is the current/active projection only (single mutable slot); `scripts/pipeline/commands/governance/mission_authority.py open --mission-id {id}` validates it and archives a durable, immutable snapshot to `reports/plan_state/{mission_id}/mission_authority.yaml` — use `mission_authority.py list` to see every known mission (open and closed), not just the current one |
 | Taskcard / durable mission state / task DAG | "Schema 5f" — `reports/plan_state/{mission_id}/taskcards.jsonl`, validated by `validate_taskcard_record` in `scripts/pipeline/lib/schema_validators.py`; 15-state status enum; `evidence_refs` mandatory for any status past `IMPLEMENTED` |
 | Pre-execution plan gate ("don't execute a plan blindly") | `/plan-normalize` (S-91) — classifies plan sections, verifies claims against repo state, selects exactly one next executable item |
 | Stall detection / doc-vs-store contradiction | `/plan-health-watchdog` (S-113) + `scripts/ci/checks/check_taskcard_plan_parity.py` |
@@ -73,8 +76,12 @@ gap this section closes:
 
 - This doc does not replace `/plan-normalize`, `/plan-health-watchdog`, `/backlog`, or any other
   registered skill — it tells an agent which one to reach for.
-- This is not a new CI-enforced gate. No script validates compliance with this section; it is
-  discipline text, consistent with how most of `AGENTS.md` (e.g. §7, §8, §11) already works.
+- This is not a broad new CI-enforced gate over the whole Planning Review Checklist / Taskcard
+  Readiness Checklist — the source reference doc itself warns against turning those checklists
+  into a rigid regex gate (high false-positive risk). Most of this section remains discipline
+  text, consistent with how most of `AGENTS.md` (e.g. §7, §8, §11) already works. The one
+  exception is the narrow, mechanically-checkable "no parallel tracker" rule below, which is
+  gated (see "When this applies").
 - This does not require literally creating the reference doc's YAML schemas (mission graph,
   transition event, campaign manifest, etc.) in this repo — those are illustrative of the model,
   not file formats to reproduce. Use the concordance table.

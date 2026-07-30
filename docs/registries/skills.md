@@ -143,4 +143,4 @@ For mission-scale work (spanning multiple sessions or agents, not just a single 
 file), see `AGENTS.md` §17 and `docs/governance/planning-methodology.md` — the planning-review
 and taskcard-readiness checklists to apply before treating a newly-authored plan as executable.
 
-See `docs/skill-quality-gates.md` for the full gate inventory.
+See `docs/reference/skill-quality-gates.md` for the full gate inventory.
