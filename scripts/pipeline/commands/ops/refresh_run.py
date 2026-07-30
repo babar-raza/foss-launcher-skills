@@ -1151,6 +1151,7 @@ def prepare_run(manifest: dict[str, Any]) -> dict[str, Any]:
         )
 
     python = sys.executable
+    post_kr_snapshot: dict[str, str] = {}
     if manifest["mode"] in {"upstream", "combined"}:
         _require_command(
             [
@@ -1166,6 +1167,32 @@ def prepare_run(manifest: dict[str, Any]) -> dict[str, Any]:
             "knowledge refresh",
             manifest=manifest,
         )
+        # Knowledge refresh's own attach_evidence.py sub-step legitimately
+        # rewrites working-tree content pages (evidence.model_sha bumps)
+        # *before* scope is even known -- scope is only computed later, from
+        # this same refresh's PIA output. Snapshot which pages are dirty
+        # right now (and their exact bytes) so the "clean scoped base" check
+        # below can tell "already touched by this run's own knowledge
+        # refresh" apart from "touched by something else after knowledge
+        # refresh finished". Found live (MT014-2026-07-29-PDF-GO-REDO):
+        # comparing scoped pages directly against base_commit_sha made
+        # every real combined/upstream run block on its own legitimate
+        # evidence-refresh output, unconditionally -- no combined/upstream
+        # run has ever completed prepare_run() as a result (the one prior
+        # attempt on record, cells/go's mt011-cells-go-ref, was left
+        # BLOCKED at an earlier step and never resumed past it).
+        post_kr_diff = _command_runner(
+            ["git", "diff", "--name-only", manifest["base_commit_sha"]],
+            cwd=str(_repo_root),
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        post_kr_snapshot = {
+            line.strip(): _path_hash(line.strip())
+            for line in post_kr_diff.stdout.splitlines()
+            if line.strip()
+        }
 
     model = _model_state(family, platform)
     source_sha = _source_sha(family, platform)
@@ -1291,35 +1318,41 @@ def prepare_run(manifest: dict[str, Any]) -> dict[str, Any]:
     dirty_scope: list[str] = []
     for relative_path in scope_paths:
         current_path = _repo_root / relative_path
-        base_has_path = _command_runner(
-            [
-                "git",
-                "cat-file",
-                "-e",
-                f"{manifest['base_commit_sha']}:{relative_path}",
-            ],
-            cwd=str(_repo_root),
-            capture_output=True,
-            text=True,
-            timeout=30,
-        ).returncode == 0
-        if base_has_path:
-            clean = _command_runner(
+        if relative_path in post_kr_snapshot:
+            # Already dirty immediately after this run's own knowledge
+            # refresh -- only block if something ELSE has touched it since
+            # (bytes no longer match that post-refresh snapshot).
+            clean = _path_hash(relative_path) == post_kr_snapshot[relative_path]
+        else:
+            base_has_path = _command_runner(
                 [
                     "git",
-                    "diff",
-                    "--quiet",
-                    manifest["base_commit_sha"],
-                    "--",
-                    relative_path,
+                    "cat-file",
+                    "-e",
+                    f"{manifest['base_commit_sha']}:{relative_path}",
                 ],
                 cwd=str(_repo_root),
                 capture_output=True,
                 text=True,
                 timeout=30,
             ).returncode == 0
-        else:
-            clean = not current_path.exists()
+            if base_has_path:
+                clean = _command_runner(
+                    [
+                        "git",
+                        "diff",
+                        "--quiet",
+                        manifest["base_commit_sha"],
+                        "--",
+                        relative_path,
+                    ],
+                    cwd=str(_repo_root),
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                ).returncode == 0
+            else:
+                clean = not current_path.exists()
         if not clean:
             dirty_scope.append(relative_path)
     if dirty_scope:

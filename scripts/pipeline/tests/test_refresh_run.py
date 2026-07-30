@@ -478,6 +478,137 @@ def test_prepare_rejects_dirty_scoped_base(tmp_path: Path):
         refresh_run.prepare_run(manifest)
 
 
+def test_combined_mode_does_not_block_on_its_own_knowledge_refresh_evidence(
+    tmp_path: Path,
+):
+    """Regression test for a confirmed bug: the "clean scoped base" check
+    compared scoped pages directly against base_commit_sha, but knowledge
+    refresh's own attach_evidence.py sub-step (run earlier in this SAME
+    prepare_run call, for upstream/combined mode) legitimately rewrites
+    those exact pages' evidence.model_sha before scope is even computed --
+    so every real combined/upstream run blocked on its own legitimate
+    output, unconditionally. Found live during MT014-2026-07-29-PDF-GO-REDO
+    (the one prior combined-mode attempt on record, cells/go's
+    mt011-cells-go-ref, never got far enough to hit this specific check,
+    but would have). Fix: snapshot which pages are dirty immediately after
+    knowledge refresh finishes; only block if a scoped page differs from
+    THAT snapshot (something touched it again afterward), not from
+    base_commit_sha directly."""
+    evidence_touched = "content/docs.aspose.org/en/pdf/net/touched.md"
+    untouched = "content/docs.aspose.org/en/pdf/net/untouched.md"
+    for relative in (evidence_touched, untouched):
+        page = tmp_path / relative
+        page.parent.mkdir(parents=True, exist_ok=True)
+        page.write_text("page\n", encoding="utf-8")
+
+    delta_path = tmp_path / "knowledge/pdf/net/merged/knowledge_delta.json"
+    delta_path.parent.mkdir(parents=True, exist_ok=True)
+    delta_path.write_text("{}", encoding="utf-8")
+
+    def kr_runner(
+        args: list[str],
+        **_: object,
+    ) -> subprocess.CompletedProcess[str]:
+        if args[:3] == ["git", "rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, HEAD_SHA + "\n", "")
+        if args[:4] == ["git", "diff", "--name-only", HEAD_SHA]:
+            # Simulates: knowledge refresh's attach_evidence.py already
+            # rewrote `evidence_touched` by the time this snapshot runs.
+            return subprocess.CompletedProcess(
+                args, 0, f"{evidence_touched}\n", ""
+            )
+        return subprocess.CompletedProcess(args, 0, "", "")
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=kr_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+    manifest = refresh_run.create_run(
+        "pdf",
+        "net",
+        mode="upstream",
+        run_id="RUN-KR-EVIDENCE",
+        session_id="session-1",
+    )
+    planning = (
+        tmp_path / "reports/refresh_runs/pdf/net/RUN-KR-EVIDENCE/planning/pdf/net"
+    )
+    planning.mkdir(parents=True)
+    (planning / "page_impact.json").write_text(
+        json.dumps(
+            {
+                "pages": [
+                    {"path": evidence_touched, "pia_score": "HIGH_IMPACT"},
+                    {"path": untouched, "pia_score": "HIGH_IMPACT"},
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    prepared = refresh_run.prepare_run(manifest)  # must not raise
+
+    assert prepared["scope"]["paths"] == sorted([evidence_touched, untouched])
+
+
+def test_combined_mode_still_blocks_on_a_change_after_knowledge_refresh(
+    tmp_path: Path,
+):
+    """Negative control: the fix above must not become a blanket bypass --
+    a page that changes AGAIN after knowledge refresh's own snapshot (a
+    genuinely concurrent/unexpected edit) must still block."""
+    tampered = "content/docs.aspose.org/en/pdf/net/tampered.md"
+    page = tmp_path / tampered
+    page.parent.mkdir(parents=True, exist_ok=True)
+    page.write_text("original\n", encoding="utf-8")
+
+    delta_path = tmp_path / "knowledge/pdf/net/merged/knowledge_delta.json"
+    delta_path.parent.mkdir(parents=True, exist_ok=True)
+    delta_path.write_text("{}", encoding="utf-8")
+
+    def kr_runner(
+        args: list[str],
+        **_: object,
+    ) -> subprocess.CompletedProcess[str]:
+        if args[:3] == ["git", "rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, HEAD_SHA + "\n", "")
+        if args[:4] == ["git", "diff", "--name-only", HEAD_SHA]:
+            # Snapshot point: file still has its "original" content here.
+            return subprocess.CompletedProcess(args, 0, f"{tampered}\n", "")
+        if any("site_planner.py" in str(a) for a in args):
+            # Simulate a concurrent edit landing well after the post-KR
+            # snapshot was taken but before the later dirty-check runs.
+            page.write_text("tampered after knowledge refresh\n", encoding="utf-8")
+        return subprocess.CompletedProcess(args, 0, "", "")
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=kr_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+    manifest = refresh_run.create_run(
+        "pdf",
+        "net",
+        mode="upstream",
+        run_id="RUN-KR-TAMPERED",
+        session_id="session-1",
+    )
+    planning = (
+        tmp_path / "reports/refresh_runs/pdf/net/RUN-KR-TAMPERED/planning/pdf/net"
+    )
+    planning.mkdir(parents=True)
+    (planning / "page_impact.json").write_text(
+        json.dumps({"pages": [{"path": tampered, "pia_score": "HIGH_IMPACT"}]}),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(refresh_run.RefreshRunError, match="clean scoped base"):
+        refresh_run.prepare_run(manifest)
+
+
 def test_remediation_scope_is_not_broadened_by_historical_pia(tmp_path: Path):
     selected = "content/docs.aspose.org/en/pdf/net/selected.md"
     historical = "content/docs.aspose.org/en/pdf/net/historical.md"
