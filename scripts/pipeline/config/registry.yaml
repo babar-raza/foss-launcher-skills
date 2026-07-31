@@ -478,6 +478,28 @@ scripts:
     deprecated_since: null
     notes: "cross-subdomain internal link validator"
 
+  - path: scripts/pipeline/lib/package_registry_data.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-tooling
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_package_registry_data.py
+    requires_test: true
+    deprecated_since: null
+    notes: "Mission MT015-2026-07-30-PACKAGE-REGISTRY (plans/master-plan.md), TC-MT015-01:
+      unified package-manager identity registry (pypi/nuget/maven/npm/go_modules/cargo),
+      loader + validator for data/package_registry.json against
+      data/schemas/package-registry-schema.json. Replaces the split
+      data/foss_packages.json (Maven-only) / data/cargo_packages.json (Cargo-only) files —
+      that migration (TC-MT015-02) has not happened yet; both old files still exist and are
+      still the live source for their respective shortcodes as of this commit."
+
   - path: scripts/pipeline/commands/governance/no_downgrade_guard.py
     kind: entrypoint
     lifecycle: active

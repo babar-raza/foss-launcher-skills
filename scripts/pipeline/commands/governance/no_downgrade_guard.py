@@ -25,6 +25,7 @@ from core.markdown import parse_frontmatter, extract_frontmatter_body  # R-2a: w
 from token_ops import extract_tokens, verify_tokens
 from content_eval.models import compute_grade, Page
 from content_eval.evaluators.type_accuracy import TypeAccuracyEvaluator
+from content_eval.evaluators.install_recipe import InstallRecipeEvaluator
 from grade_writer import read_grade
 
 
@@ -50,16 +51,28 @@ def _evaluate_file(path: Path, family: str, platform: str) -> dict:
 
     findings = verify_tokens(extract_tokens(path, platform), knowledge, path)
     findings.extend(verify_evidence(parse_frontmatter(path), knowledge, path))
-    # TC-24: Run type_accuracy evaluator so TA findings reach the guard.
     try:
         page = Page.load(path)
-        if page is not None:
-            page.family = family
-            page.platform = platform
+    except Exception:
+        page = None
+    if page is not None:
+        page.family = family
+        page.platform = platform
+        # TC-24: Run type_accuracy evaluator so TA findings reach the guard.
+        try:
             ta_ev = TypeAccuracyEvaluator()
             findings.extend(ta_ev.evaluate(page, None))
-    except Exception:
-        pass  # type_accuracy is best-effort in the guard
+        except Exception:
+            pass  # type_accuracy is best-effort in the guard
+        # TC-MT015-03: Run install_recipe evaluator so H-16 package-identity
+        # findings (wrong package name / wrong-platform package manager)
+        # reach the guard. H-16 already existed in content_eval's general
+        # evaluator registry but was never wired into this pre-write gate.
+        try:
+            ir_ev = InstallRecipeEvaluator()
+            findings.extend(ir_ev.evaluate(page, None))
+        except Exception:
+            pass  # install_recipe is best-effort in the guard, same as TA
     fails = [f for f in findings if f.level == "FAIL"]
     warns = [f for f in findings if f.level == "WARN"]
     return {
@@ -216,19 +229,24 @@ def compare_content(target_path: Path, proposed_text: str, family: str | None = 
             DECISION_BLOCK: "proposed content regresses beyond the allowed quality floor",
         }[decision]
 
-    # TC-24: Escalate WARN → BLOCK when type-accuracy findings cause the
-    # grade regression.  This makes the guard a hard gate for TA-caused
-    # A→C / B→C transitions while leaving non-TA WARN behaviour unchanged.
+    # TC-24 (TA) + TC-MT015-03 (IR): escalate WARN -> BLOCK when these
+    # deterministic-correctness categories cause the grade regression, since
+    # the grade proxy alone under-weighs them. IR covers install_recipe.py's
+    # H-16 checks (wrong package name / wrong-platform package manager),
+    # added after 3D-NET-REFRESH-002 showed this exact defect class shipping
+    # undetected because H-16 existed but was never reachable from here.
     if decision == DECISION_WARN:
-        ta_findings = [
+        _BLOCKING_CATEGORIES = {"TA", "IR"}
+        blocking_findings = [
             f for f in proposed["findings"]
-            if f.get("category") == "TA"
+            if f.get("category") in _BLOCKING_CATEGORIES
         ]
-        if ta_findings:
+        if blocking_findings:
             decision = DECISION_BLOCK
+            categories_hit = sorted({f["category"] for f in blocking_findings})
             reason = (
-                f"type accuracy findings block this regression: "
-                f"{len(ta_findings)} TA issue(s)"
+                f"correctness findings block this regression: "
+                f"{len(blocking_findings)} issue(s) in categories {categories_hit}"
             )
 
     result = {

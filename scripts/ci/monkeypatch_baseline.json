@@ -424,7 +424,7 @@
       "T1": 0,
       "T2": 29,
       "T3": 0,
-      "T4": 12
+      "T4": 9
     },
     "scripts/pipeline/tests/test_localization_incident.py": {
       "T1": 0,
@@ -448,7 +448,7 @@
       "T1": 0,
       "T2": 1,
       "T3": 0,
-      "T4": 2
+      "T4": 1
     },
     "scripts/pipeline/tests/test_metrics_ci_checks.py": {
       "T1": 0,
@@ -457,8 +457,8 @@
       "T4": 0
     },
     "scripts/pipeline/tests/test_no_downgrade_guard.py": {
-      "T1": 9,
-      "T2": 12,
+      "T1": 11,
+      "T2": 16,
       "T3": 0,
       "T4": 0
     },
@@ -685,14 +685,14 @@
       "T4": 0
     }
   },
-  "generated_at": "2026-07-30T15:21:52Z",
+  "generated_at": "2026-07-31T14:59:32Z",
   "generator": "scripts/ci/checks/check_monkeypatch_lint.py --baseline",
   "generator_version": "2.0.0",
   "schema_version": 1,
   "totals": {
-    "T1": 115,
-    "T2": 849,
+    "T1": 117,
+    "T2": 853,
     "T3": 95,
-    "T4": 19
+    "T4": 15
   }
 }

@@ -222,7 +222,8 @@ class TestTAEscalation:
         result = compare_content(existing_path, "---\ntitle: T\n---\nNew.",
                                  family="pdf", platform="net")
         assert result["decision"] == DECISION_BLOCK
-        assert "type accuracy" in result["reason"]
+        assert "correctness findings" in result["reason"]
+        assert "TA" in result["reason"]
 
     def test_a_to_c_without_ta_finding_warns(self, monkeypatch, tmp_path):
         """A→C regression without TA findings → WARN (unchanged)."""
@@ -312,6 +313,66 @@ class TestTAEscalation:
                                  family="pdf", platform="net",
                                  force_regenerate=True)
         assert result["decision"] == DECISION_ALLOW
+
+
+class TestIREscalation:
+    """TC-MT015-03: IR (install_recipe H-16) WARN -> BLOCK escalation.
+
+    Mirrors TestTAEscalation's pattern. Proves the guard's generalized
+    _BLOCKING_CATEGORIES check treats an IR-category WARN finding the same
+    way it already treated TA -- this is the fix for the gap that let
+    3D-NET-REFRESH-002's wrong NuGet command ship undetected: H-16 could
+    compute the finding, but nothing upstream of this escalation ever
+    turned it into a BLOCK.
+    """
+
+    def test_a_to_c_with_ir_finding_blocks(self, monkeypatch, tmp_path):
+        """A→C regression caused by an IR (wrong package name) finding → BLOCK."""
+        import no_downgrade_guard as mod
+        existing_path = tmp_path / "page.md"
+        existing_path.write_text("---\ntitle: Test\n---\nBody.", encoding="utf-8")
+
+        calls = {"n": 0}
+        def _eval(path, family, platform):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                return {"grade": "A", "fail_count": 0, "warn_count": 0,
+                        "findings": [], "from_stored": False}
+            return {"grade": "C", "fail_count": 0, "warn_count": 1,
+                    "findings": [{"level": "WARN",
+                                  "message": "Install command references `Aspose.3D.Foss` "
+                                             "but knowledge install.md uses different package(s)",
+                                  "line": 10, "category": "IR"}]}
+
+        monkeypatch.setattr(mod, "_evaluate_file", _eval)
+        monkeypatch.setattr(mod, "read_grade", lambda p: None)
+        result = compare_content(existing_path, "---\ntitle: T\n---\nNew.",
+                                 family="3d", platform="net")
+        assert result["decision"] == DECISION_BLOCK
+        assert "correctness findings" in result["reason"]
+        assert "IR" in result["reason"]
+
+    def test_a_to_c_without_ir_finding_still_warns(self, monkeypatch, tmp_path):
+        """A→C regression without IR/TA findings → WARN (unchanged, non-regression)."""
+        import no_downgrade_guard as mod
+        existing_path = tmp_path / "page.md"
+        existing_path.write_text("---\ntitle: Test\n---\nBody.", encoding="utf-8")
+
+        calls = {"n": 0}
+        def _eval(path, family, platform):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                return {"grade": "A", "fail_count": 0, "warn_count": 0,
+                        "findings": [], "from_stored": False}
+            return {"grade": "C", "fail_count": 0, "warn_count": 1,
+                    "findings": [{"level": "WARN", "message": "prose issue",
+                                  "line": 5, "category": "PG"}]}
+
+        monkeypatch.setattr(mod, "_evaluate_file", _eval)
+        monkeypatch.setattr(mod, "read_grade", lambda p: None)
+        result = compare_content(existing_path, "---\ntitle: T\n---\nNew.",
+                                 family="3d", platform="net")
+        assert result["decision"] == DECISION_WARN
 
 
 # ---------------------------------------------------------------------------
@@ -419,6 +480,83 @@ class TestEvaluateFileIntegration:
         ]
         assert len(ta_findings) == 0, (
             f"Expected 0 TA findings for unknown class but got: {ta_findings}"
+        )
+
+    def test_evaluate_file_produces_ir_findings(self, monkeypatch):
+        """TC-MT015-03: _evaluate_file returns IR findings for a wrong package manager.
+
+        Proves install_recipe.py's H-16 check is now actually reachable from
+        the guard's pre-write path (it previously computed findings only in
+        content_eval's general registry, never invoked here).
+
+        Note: install_recipe.py keeps its OWN module-level KNOWLEDGE_ROOT,
+        independent of content_discovery's and type_accuracy's (a third
+        instance of the documented Gap O dual-root pattern) -- it must be
+        monkeypatched separately or this evaluator silently finds nothing.
+        """
+        import content_eval.evaluators.install_recipe as _ir_mod
+        monkeypatch.setattr(_ir_mod, "KNOWLEDGE_ROOT", self._knowledge_root)
+
+        install_md = self._knowledge_root / "pdf" / "net" / "merged" / "install.md"
+        install_md.write_text(
+            "Install via NuGet: dotnet add package Aspose.PDF.FOSS\n",
+            encoding="utf-8",
+        )
+
+        from no_downgrade_guard import _evaluate_file
+
+        # docs-subdomain path so Page.load() derives subdomain="docs", page_role="docs"
+        docs_dir = self._tmp_path / "content" / "docs.aspose.org" / "en" / "pdf" / "net" / "getting-started"
+        docs_dir.mkdir(parents=True)
+        page_path = docs_dir / "usage.md"
+        page_path.write_text(
+            "---\ntitle: Usage\n---\n\n"
+            "## Example\n\n"
+            "```bash\n"
+            "npm install aspose-pdf-foss\n"
+            "```\n",
+            encoding="utf-8",
+        )
+
+        result = _evaluate_file(page_path, "pdf", "net")
+
+        ir_findings = [f for f in result["findings"] if f.get("category") == "IR"]
+        assert len(ir_findings) >= 1, (
+            f"Expected IR findings but got none. All findings: {result['findings']}"
+        )
+        messages = " ".join(f["message"] for f in ir_findings)
+        assert "npm" in messages.lower()
+
+    def test_evaluate_file_no_ir_for_correct_install_command(self, monkeypatch):
+        """No IR findings when the page's install command matches knowledge."""
+        import content_eval.evaluators.install_recipe as _ir_mod
+        monkeypatch.setattr(_ir_mod, "KNOWLEDGE_ROOT", self._knowledge_root)
+
+        install_md = self._knowledge_root / "pdf" / "net" / "merged" / "install.md"
+        install_md.write_text(
+            "Install via NuGet: dotnet add package Aspose.PDF.FOSS\n",
+            encoding="utf-8",
+        )
+
+        from no_downgrade_guard import _evaluate_file
+
+        docs_dir = self._tmp_path / "content" / "docs.aspose.org" / "en" / "pdf" / "net" / "getting-started"
+        docs_dir.mkdir(parents=True)
+        page_path = docs_dir / "usage2.md"
+        page_path.write_text(
+            "---\ntitle: Usage\n---\n\n"
+            "## Example\n\n"
+            "```bash\n"
+            "dotnet add package Aspose.PDF.FOSS\n"
+            "```\n",
+            encoding="utf-8",
+        )
+
+        result = _evaluate_file(page_path, "pdf", "net")
+
+        ir_findings = [f for f in result["findings"] if f.get("category") == "IR"]
+        assert len(ir_findings) == 0, (
+            f"Expected 0 IR findings for matching install command but got: {ir_findings}"
         )
 
 
