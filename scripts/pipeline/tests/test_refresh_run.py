@@ -1240,6 +1240,123 @@ def test_stage_attempts_are_immutable_redacted_and_counted(tmp_path: Path):
     assert all((stage_root.parent / ref).is_file() for ref in saved["stage_attempt_refs"])
 
 
+def _append_advisory_decision(
+    tmp_path: Path,
+    manifest: dict,
+    *,
+    page_path: str,
+    disposition: str,
+    body_hash_before: str,
+) -> None:
+    """Append one out-of-scope decision + matching receipt to an existing
+    evidence bundle, and update the manifest digests _write_run_evidence
+    already computed so only the NEW row is under test."""
+    run_root = (
+        tmp_path
+        / "reports/refresh_runs"
+        / manifest["family"]
+        / manifest["platform"]
+        / manifest["run_id"]
+    )
+    receipt_path = run_root / "receipts" / "RCP-ADVISORY.yaml"
+    receipt_path.write_text(
+        yaml.safe_dump({
+            "content_refresh_receipt": {
+                "receipt_id": "RCP-ADVISORY",
+                "run_id": manifest["run_id"],
+                "page_path": page_path,
+                "old_hash": body_hash_before,
+                "new_hash": body_hash_before,
+            }
+        }, sort_keys=False),
+        encoding="utf-8",
+    )
+    row = {
+        "schema_version": 1,
+        "run_id": manifest["run_id"],
+        "page_path": page_path,
+        "surface": "reference",
+        "locale": "en",
+        "intended_action": "REFERENCE_GENERATE",
+        "disposition": disposition,
+        "body_hash_before": body_hash_before,
+        "body_hash_after": body_hash_before,
+        "frontmatter_hash_before": body_hash_before,
+        "frontmatter_hash_after": body_hash_before,
+        "receipt_ref": receipt_path.relative_to(run_root).as_posix(),
+        "receipt_digest": refresh_run._file_digest(receipt_path),
+        "evidence_claims_checked": [],
+        "evidence_apis_checked": [],
+        "validator_results": {"receipt": "PASS", "forbidden_claims": "PASS", "regrounding": "PASS"},
+    }
+    decisions_path = run_root / "page_decisions.jsonl"
+    with open(decisions_path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(row) + "\n")
+    receipts = sorted((run_root / "receipts").glob("*.yaml"))
+    manifest["receipt_refs"] = [
+        path.relative_to(tmp_path).as_posix() for path in receipts
+    ]
+    manifest["output_digests"]["page_decisions"] = refresh_run._file_digest(
+        decisions_path
+    )
+    manifest["output_digests"]["receipts"] = "sha256:" + hashlib.sha256(
+        "\n".join(
+            f"{p.name}:{refresh_run._file_digest(p)}" for p in receipts
+        ).encode("utf-8")
+    ).hexdigest()
+    refresh_run._save_manifest(manifest)
+
+
+def test_evidence_ready_tolerates_out_of_scope_additive_generated_row(
+    tmp_path: Path,
+):
+    """Integration test for _assert_run_evidence_ready using the shared
+    _reconcile_scope_and_decisions() helper: an out-of-scope GENERATED row
+    for a provably-new page must not block commit-readiness."""
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-EVIDENCE-OK", session_id="session-1"
+    )
+    manifest["scope"]["paths"] = ["content/docs.aspose.org/en/pdf/net/page.md"]
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    _write_run_evidence(tmp_path, manifest)
+    _append_advisory_decision(
+        tmp_path,
+        manifest,
+        page_path="content/reference.aspose.org/en/pdf/net/NewClass.md",
+        disposition="GENERATED",
+        body_hash_before=_normalized_body_hash(""),
+    )
+    refresh_run._assert_run_evidence_ready(manifest)  # must not raise
+
+
+def test_evidence_ready_blocks_out_of_scope_overwrite(tmp_path: Path):
+    """Negative control: an out-of-scope GENERATED row whose body_hash_before
+    proves real pre-existing content must still block."""
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-EVIDENCE-BAD", session_id="session-1"
+    )
+    manifest["scope"]["paths"] = ["content/docs.aspose.org/en/pdf/net/page.md"]
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    _write_run_evidence(tmp_path, manifest)
+    _append_advisory_decision(
+        tmp_path,
+        manifest,
+        page_path="content/reference.aspose.org/en/pdf/net/Existing.md",
+        disposition="GENERATED",
+        body_hash_before="sha256:" + "1" * 64,
+    )
+    with pytest.raises(refresh_run.RefreshRunError, match="exactly one decision"):
+        refresh_run._assert_run_evidence_ready(manifest)
+
+
 def test_stage_log_tampering_and_unbound_results_block_readiness(
     tmp_path: Path,
 ):

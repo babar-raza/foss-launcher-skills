@@ -328,6 +328,69 @@ def _path_hash(relative_path: str) -> str:
     return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _reconcile_scope_and_decisions(
+    scope_paths: list[str],
+    decision_rows: list[dict[str, Any]],
+    initial_hashes: dict[str, str],
+) -> tuple[list[str], list[str]]:
+    """Return (real_missing, real_unexpected): the subset of scope/decision
+    mismatches that indicate a genuine problem, filtering out two classes of
+    expected noise found live during MT014-2026-07-29-PDF-GO-REDO's first
+    real combined/upstream-mode run:
+
+    - "missing": body_refresh.py has early-exit paths (auto_updatable:false
+      pages; pages with zero actionable BODY_UPDATE sections) that never
+      call _emit_run_decision, so a scoped no-op page can legitimately have
+      no decision row at all. A missing decision is only a real problem if
+      the page's bytes actually changed from the initial_hashes snapshot
+      frozen in scope.json at PLANNED time.
+    - "unexpected": batch_reference.py's --update mode decides and logs a
+      disposition for every class in knowledge_delta.json, not just ones in
+      this run's PIA-derived scope. An out-of-scope decision is only a real
+      problem if its disposition implies a write happened
+      (BODY_UPDATED/EVIDENCE_ONLY/GENERATED/RETIRED) AND, for GENERATED
+      specifically, the page did not provably start empty (body_hash_before
+      equal to the hash of empty content) -- an additive write to a
+      genuinely new page cannot clobber existing content, which is the
+      property scope-pinning exists to protect.
+
+    Used by both apply_run's post-write reconciliation and
+    _assert_run_evidence_ready's pre-commit evidence check -- keep both
+    callers on this single implementation rather than two divergent copies.
+    """
+    from commands.content.body_refresh import _normalized_body_hash
+
+    scope_set = set(scope_paths)
+    decision_paths = {row.get("page_path") for row in decision_rows}
+    missing = sorted(scope_set - decision_paths)
+    unexpected = sorted(decision_paths - scope_set)
+
+    real_missing = [
+        p for p in missing
+        if _path_hash(p) != initial_hashes.get(p, "MISSING")
+    ]
+
+    empty_hash = _normalized_body_hash("")
+    write_dispositions = {"BODY_UPDATED", "EVIDENCE_ONLY", "GENERATED", "RETIRED"}
+    decisions_by_path: dict[str, list[dict[str, Any]]] = {}
+    for row in decision_rows:
+        decisions_by_path.setdefault(row.get("page_path"), []).append(row)
+
+    def _is_real_violation(row: dict[str, Any]) -> bool:
+        disposition = row.get("disposition")
+        if disposition not in write_dispositions:
+            return False
+        if disposition == "GENERATED" and row.get("body_hash_before") == empty_hash:
+            return False
+        return True
+
+    real_unexpected = [
+        p for p in unexpected
+        if any(_is_real_violation(row) for row in decisions_by_path.get(p, []))
+    ]
+    return real_missing, real_unexpected
+
+
 def _file_digest(path: Path) -> str:
     if not path.is_file():
         return "MISSING"
@@ -450,8 +513,9 @@ def _assert_run_evidence_ready(
             f"{sorted(set(mismatched))}"
         )
 
-    _assert_pinned_scope(manifest)
+    pinned_scope = _assert_pinned_scope(manifest)
     scope_paths = list(manifest.get("scope", {}).get("paths") or [])
+    initial_hashes = pinned_scope.get("initial_hashes") or {}
 
     decisions_path = required_artifacts["page_decisions"]
     decision_rows: list[dict[str, Any]] = []
@@ -512,14 +576,26 @@ def _assert_run_evidence_ready(
         referenced_receipts.add(receipt_ref.as_posix())
         decision_rows.append(row)
 
+    # See _reconcile_scope_and_decisions()'s docstring: batch_reference.py's
+    # --update mode logs decisions (and, for GENERATED, sometimes writes)
+    # beyond this run's pinned scope, and body_refresh.py has early-exit
+    # paths that record no decision at all for a legitimate no-op scoped
+    # page. An exact 1:1 count/set match is too strict; check the real
+    # safety properties instead. A duplicate decision for the SAME in-scope
+    # page is still a genuine integrity problem and remains a hard block.
     decision_paths = [str(row.get("page_path")) for row in decision_rows]
+    real_missing, real_unexpected = _reconcile_scope_and_decisions(
+        scope_paths, decision_rows, initial_hashes
+    )
+    scoped_decision_paths = [p for p in decision_paths if p in set(scope_paths)]
     if (
-        len(decision_rows) != len(scope_paths)
-        or len(set(decision_paths)) != len(decision_paths)
-        or set(decision_paths) != set(scope_paths)
+        real_missing
+        or real_unexpected
+        or len(set(scoped_decision_paths)) != len(scoped_decision_paths)
     ):
         raise RefreshRunError(
-            "Run evidence must contain exactly one decision per scoped page"
+            "Run evidence must contain exactly one decision per scoped page: "
+            f"missing={real_missing[:5]}, unexpected={real_unexpected[:5]}"
         )
     actual_receipt_refs = {
         path.relative_to(run_root).as_posix() for path in receipt_paths
@@ -1514,78 +1590,11 @@ def apply_run(manifest: dict[str, Any]) -> dict[str, Any]:
                 f"{row.get('run_id')!r}"
             )
         decision_rows.append(row)
-    decision_paths = {row.get("page_path") for row in decision_rows}
-    scope_paths = set(manifest.get("scope", {}).get("paths") or [])
-    missing = sorted(scope_paths.difference(decision_paths))
-    unexpected = sorted(decision_paths.difference(scope_paths))
-
-    # Found live (MT014-2026-07-29-PDF-GO-REDO): both sides of this
-    # reconciliation had real false positives that had nothing to do with
-    # unauthorized writes.
-    #
-    # "missing": body_refresh.py has multiple early-exit paths (protected
-    # auto_updatable:false pages; pages with zero actionable BODY_UPDATE
-    # sections) that append a local receipt but never call
-    # _emit_run_decision, so a scoped structural/no-op page can legitimately
-    # have no decision row. Similarly, structural `_index.md` pages under
-    # reference.aspose.org are never batch_reference.py candidates at all
-    # (its own candidate scan only covers type_spec/enum entries) -- they're
-    # scaffolded by a separate index skill, not scope-refreshed here.
-    # "unexpected": batch_reference.py's --update mode decides + logs a
-    # disposition for every class in knowledge_delta.json, not just the ones
-    # this run's PIA-derived scope selected -- --run-root already restricts
-    # actual file WRITES to scope, so an out-of-scope NOT_AFFECTED/SKIPPED/
-    # BLOCKED row is just wider transparency, not an unauthorized write.
-    #
-    # The safety property that actually matters in both cases is observable
-    # directly: did the page's bytes change from what scope was frozen
-    # against (missing side), and did an out-of-scope row correspond to a
-    # disposition that implies a write happened (unexpected side)? Checking
-    # that directly is robust to every current and future skip-reason a
-    # writer might have, instead of re-deriving each one here.
+    scope_paths_list = list(manifest.get("scope", {}).get("paths") or [])
     initial_hashes = _assert_pinned_scope(manifest).get("initial_hashes") or {}
-    real_missing = [
-        p for p in missing
-        if _path_hash(p) != initial_hashes.get(p, "MISSING")
-    ]
-    # An out-of-scope GENERATED row for a page that provably did not exist
-    # before (body_hash_before is the empty-string hash) is an additive new-
-    # page write -- confirmed live: batch_reference.py's --update mode
-    # generates every new class in knowledge_delta.json, not just ones in
-    # scope.json, and --run-root does NOT actually prevent that write despite
-    # its own --help text ("scope.json restricts writes"). This is safe
-    # precisely because there is no pre-existing content to clobber -- the
-    # scope-pinning discipline exists to protect EXISTING pages from
-    # unintended mutation, which an additive write cannot violate. Any OTHER
-    # write disposition outside scope (BODY_UPDATED/EVIDENCE_ONLY/RETIRED, or
-    # a GENERATED row whose body_hash_before is non-empty) still implies
-    # touching content that existed before this run and must still block.
-    from commands.content.body_refresh import _normalized_body_hash
-
-    # NOTE: this is NOT a plain SHA256 -- body_hash_before/after use a
-    # truncated-to-32-hex-chars normalized-body hash (see _body_hash() in
-    # audit_content_hash.py), confirmed live: a full untruncated
-    # hashlib.sha256(b"").hexdigest() never matched a single real decision
-    # row, since the actual convention used everywhere else in this pipeline
-    # truncates. Reuse the real function instead of re-deriving the format.
-    _EMPTY_HASH = _normalized_body_hash("")
-    write_dispositions = {"BODY_UPDATED", "EVIDENCE_ONLY", "GENERATED", "RETIRED"}
-    decisions_by_path: dict[str, list[dict[str, Any]]] = {}
-    for row in decision_rows:
-        decisions_by_path.setdefault(row.get("page_path"), []).append(row)
-
-    def _is_real_violation(row: dict[str, Any]) -> bool:
-        disposition = row.get("disposition")
-        if disposition not in write_dispositions:
-            return False
-        if disposition == "GENERATED" and row.get("body_hash_before") == _EMPTY_HASH:
-            return False
-        return True
-
-    real_unexpected = [
-        p for p in unexpected
-        if any(_is_real_violation(row) for row in decisions_by_path.get(p, []))
-    ]
+    real_missing, real_unexpected = _reconcile_scope_and_decisions(
+        scope_paths_list, decision_rows, initial_hashes
+    )
     if real_missing or real_unexpected:
         raise RefreshRunError(
             "Run decision/scope reconciliation failed: "
