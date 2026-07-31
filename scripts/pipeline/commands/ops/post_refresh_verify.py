@@ -395,13 +395,64 @@ def _validate_bound_run_evidence(
         or (manifest.get("scope") or {}).get("digest") != logical_scope
     ):
         raise ValueError("run scope identity mismatch")
+    # Found live (MT014-2026-07-29-PDF-GO-REDO): an exact 1:1 count/set match
+    # between scope_paths and decision page_paths is too strict -- the same
+    # root cause fixed in refresh_run.py's apply_run()/
+    # _assert_run_evidence_ready() (see _reconcile_scope_and_decisions()
+    # there for the full rationale, kept as a self-contained copy here since
+    # this is a separately-invoked CLI script, not an import of that
+    # module's internals). body_refresh.py has early-exit paths that record
+    # no decision for a legitimate no-op scoped page; batch_reference.py's
+    # --update mode logs (and sometimes additively writes) decisions beyond
+    # this run's pinned scope. Check the real safety properties instead of
+    # exact equality: a duplicate decision for the SAME in-scope page is
+    # still a genuine problem and remains a hard block.
     decision_paths = [str(row.get("page_path")) for row in decisions]
+    scope_path_set = set(scope_paths)
+    initial_hashes = scope.get("initial_hashes") or {}
+
+    def _current_hash(relative_path: str) -> str:
+        target = REPO_ROOT / relative_path
+        return (
+            "sha256:" + hashlib.sha256(target.read_bytes()).hexdigest()
+            if target.is_file()
+            else "MISSING"
+        )
+
+    missing = [
+        p for p in scope_path_set.difference(decision_paths)
+        if _current_hash(p) != initial_hashes.get(p, "MISSING")
+    ]
+    from commands.content.body_refresh import _normalized_body_hash
+
+    empty_hash = _normalized_body_hash("")
+    write_dispositions = {"BODY_UPDATED", "EVIDENCE_ONLY", "GENERATED", "RETIRED"}
+    decisions_by_path: dict[str, list[dict]] = {}
+    for row in decisions:
+        decisions_by_path.setdefault(str(row.get("page_path")), []).append(row)
+
+    def _is_real_violation(row: dict) -> bool:
+        disposition = row.get("disposition")
+        if disposition not in write_dispositions:
+            return False
+        if disposition == "GENERATED" and row.get("body_hash_before") == empty_hash:
+            return False
+        return True
+
+    unexpected = [
+        p for p in set(decision_paths).difference(scope_path_set)
+        if any(_is_real_violation(row) for row in decisions_by_path.get(p, []))
+    ]
+    scoped_decision_paths = [p for p in decision_paths if p in scope_path_set]
     if (
-        len(decision_paths) != len(scope_paths)
-        or len(set(decision_paths)) != len(decision_paths)
-        or set(decision_paths) != set(scope_paths)
+        missing
+        or unexpected
+        or len(set(scoped_decision_paths)) != len(scoped_decision_paths)
     ):
-        raise ValueError("run scope does not exactly reconcile with decisions")
+        raise ValueError(
+            "run scope does not exactly reconcile with decisions: "
+            f"missing={missing[:5]}, unexpected={unexpected[:5]}"
+        )
     required_validators = {"receipt", "forbidden_claims", "regrounding"}
     for row in decisions:
         validators = row.get("validator_results") or {}

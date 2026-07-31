@@ -1741,3 +1741,149 @@ class TestCheck8ProseStaleWarn:
 
         c8_failures = [f for f in failures if "Check 8" in f]
         assert len(c8_failures) == 0
+
+
+def _build_bound_evidence(tmp_path, run_id, scoped_page, extra_decision=None):
+    """Minimal, digest-consistent run_root + manifest for
+    _validate_bound_run_evidence, with one scoped page and optionally one
+    extra (out-of-scope) decision row appended after digests are computed."""
+    run_root = tmp_path / "reports/refresh_runs/pdf/net" / run_id
+    (run_root / "receipts").mkdir(parents=True)
+    page = tmp_path / scoped_page
+    page.parent.mkdir(parents=True, exist_ok=True)
+    page.write_text("original\n", encoding="utf-8")
+    file_hash = "sha256:" + hashlib.sha256(page.read_bytes()).hexdigest()
+
+    receipt_path = run_root / "receipts/RCP-001.yaml"
+    raw = yaml.safe_dump({
+        "content_refresh_receipt": {
+            "receipt_id": "RCP-001", "run_id": run_id, "page_path": scoped_page,
+            "locale": "en", "change_ids": [], "strategy_used": "SURGICAL_CLAIM_REPLACEMENT",
+            "old_hash": file_hash, "new_hash": file_hash,
+            "verdict": "NO_ACTIONABLE_SECTIONS", "generated_at": "2026-07-25T00:00:00Z",
+        }
+    }, sort_keys=False).encode("utf-8")
+    receipt_path.write_bytes(raw)
+
+    decision = {
+        "schema_version": 1, "run_id": run_id, "page_path": scoped_page,
+        "surface": "docs", "locale": "en", "intended_action": "BODY_UPDATE",
+        "disposition": "NOT_AFFECTED",
+        "body_hash_before": file_hash, "body_hash_after": file_hash,
+        "frontmatter_hash_before": "sha256:fm", "frontmatter_hash_after": "sha256:fm",
+        "receipt_ref": "receipts/RCP-001.yaml",
+        "receipt_digest": "sha256:" + hashlib.sha256(raw).hexdigest(),
+        "evidence_claims_checked": [], "evidence_apis_checked": [],
+        "validator_results": {"receipt": "PASS", "forbidden_claims": "PASS", "regrounding": "PASS"},
+    }
+    decisions_path = run_root / "page_decisions.jsonl"
+    lines = [json.dumps(decision)]
+    if extra_decision is not None:
+        # Both decisions share the same receipt file in this minimal fixture.
+        extra_decision.setdefault("receipt_ref", "receipts/RCP-001.yaml")
+        extra_decision["receipt_digest"] = decision["receipt_digest"]
+        lines.append(json.dumps(extra_decision))
+    decisions_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    scope_path = run_root / "scope.json"
+    scope_path.write_text(json.dumps({
+        "schema_version": 1, "run_id": run_id, "family": "pdf", "platform": "net",
+        "paths": [scoped_page], "initial_hashes": {scoped_page: file_hash},
+    }), encoding="utf-8")
+
+    def _digest(path):
+        return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+
+    scope_digest = "sha256:" + hashlib.sha256(
+        json.dumps({"paths": [scoped_page], "input_digest": None},
+                    sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    receipts_digest = "sha256:" + hashlib.sha256(
+        f"{receipt_path.name}:{_digest(receipt_path)}".encode("utf-8")
+    ).hexdigest()
+    manifest = {
+        "run_id": run_id, "family": "pdf", "platform": "net",
+        "scope": {"paths": [scoped_page], "digest": scope_digest, "input_digest": None},
+        "output_digests": {
+            "scope": _digest(scope_path),
+            "page_decisions": _digest(decisions_path),
+            "receipts": receipts_digest,
+        },
+        "receipt_refs": [receipt_path.relative_to(tmp_path).as_posix()],
+        "page_decision_ref": decisions_path.relative_to(tmp_path).as_posix(),
+    }
+    decisions = [json.loads(line) for line in lines]
+    return manifest, run_root, decisions
+
+
+def test_bound_evidence_tolerates_out_of_scope_additive_generated_row(tmp_path):
+    """Regression test: _validate_bound_run_evidence required an exact
+    scope/decision set match -- the same bug fixed in refresh_run.py's
+    apply_run()/_assert_run_evidence_ready() via _reconcile_scope_and_decisions
+    (kept self-contained here since this is a separately-invoked CLI script).
+    An out-of-scope GENERATED row for a provably-new page must not block."""
+    from commands.content.body_refresh import _normalized_body_hash
+
+    manifest, run_root, decisions = _build_bound_evidence(
+        tmp_path, "RUN-BOUND-OK", "content/docs.aspose.org/en/pdf/net/page.md",
+        extra_decision={
+            "schema_version": 1, "run_id": "RUN-BOUND-OK",
+            "page_path": "content/reference.aspose.org/en/pdf/net/NewClass.md",
+            "surface": "reference", "locale": "en", "intended_action": "REFERENCE_GENERATE",
+            "disposition": "GENERATED",
+            "body_hash_before": _normalized_body_hash(""),
+            "body_hash_after": _normalized_body_hash("x"),
+            "frontmatter_hash_before": "sha256:fm", "frontmatter_hash_after": "sha256:fm",
+            "receipt_ref": "receipts/RCP-001.yaml",
+            "evidence_claims_checked": [], "evidence_apis_checked": [],
+            "validator_results": {"receipt": "PASS", "forbidden_claims": "PASS", "regrounding": "PASS"},
+        },
+    )
+    # Re-derive decisions/digests now that the extra row is in the file.
+    decisions_path = run_root / "page_decisions.jsonl"
+    manifest["output_digests"]["page_decisions"] = (
+        "sha256:" + hashlib.sha256(decisions_path.read_bytes()).hexdigest()
+    )
+    decisions = [
+        json.loads(line) for line in decisions_path.read_text(encoding="utf-8").splitlines() if line.strip()
+    ]
+
+    post_refresh_verify.configure(repo_root=tmp_path)
+    try:
+        post_refresh_verify._validate_bound_run_evidence(manifest, run_root, decisions)  # must not raise
+    finally:
+        post_refresh_verify.configure()
+
+
+def test_bound_evidence_blocks_out_of_scope_overwrite(tmp_path):
+    """Negative control: an out-of-scope GENERATED row whose body_hash_before
+    proves real pre-existing content must still block."""
+    manifest, run_root, decisions = _build_bound_evidence(
+        tmp_path, "RUN-BOUND-BAD", "content/docs.aspose.org/en/pdf/net/page.md",
+        extra_decision={
+            "schema_version": 1, "run_id": "RUN-BOUND-BAD",
+            "page_path": "content/reference.aspose.org/en/pdf/net/Existing.md",
+            "surface": "reference", "locale": "en", "intended_action": "REFERENCE_GENERATE",
+            "disposition": "GENERATED",
+            "body_hash_before": "sha256:" + "1" * 64,
+            "body_hash_after": "sha256:" + "2" * 64,
+            "frontmatter_hash_before": "sha256:fm", "frontmatter_hash_after": "sha256:fm",
+            "receipt_ref": "receipts/RCP-001.yaml",
+            "evidence_claims_checked": [], "evidence_apis_checked": [],
+            "validator_results": {"receipt": "PASS", "forbidden_claims": "PASS", "regrounding": "PASS"},
+        },
+    )
+    decisions_path = run_root / "page_decisions.jsonl"
+    manifest["output_digests"]["page_decisions"] = (
+        "sha256:" + hashlib.sha256(decisions_path.read_bytes()).hexdigest()
+    )
+    decisions = [
+        json.loads(line) for line in decisions_path.read_text(encoding="utf-8").splitlines() if line.strip()
+    ]
+
+    post_refresh_verify.configure(repo_root=tmp_path)
+    try:
+        with pytest.raises(ValueError, match="does not exactly reconcile"):
+            post_refresh_verify._validate_bound_run_evidence(manifest, run_root, decisions)
+    finally:
+        post_refresh_verify.configure()
