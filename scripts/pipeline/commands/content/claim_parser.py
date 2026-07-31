@@ -303,7 +303,13 @@ def _discover_pages(family: str, platform: str) -> list[str]:
     ]
     pages: list[str] = []
     for pattern in patterns:
-        pages.extend(glob.glob(pattern, recursive=True))
+        # glob.glob's recursive "**" segment is joined with os.sep on Windows,
+        # producing mixed-separator paths (e.g. ".../go\\_index.md") that no
+        # longer match the forward-slash page_path convention used everywhere
+        # else in the pipeline (scope.json, page_impact.json, page_decisions).
+        pages.extend(
+            Path(p).as_posix() for p in glob.glob(pattern, recursive=True)
+        )
     return sorted(pages)
 
 

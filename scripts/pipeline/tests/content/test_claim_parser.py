@@ -83,6 +83,27 @@ def test_discovery_includes_products_surface(tmp_path):
     assert page in {Path(item) for item in cp._discover_pages("pdf", "net")}
 
 
+def test_discovery_returns_forward_slash_paths_for_zero_depth_index_pages(tmp_path):
+    """A page sitting directly under the platform dir (no subdirectory matched
+    by the recursive glob) must still come back forward-slash-only.
+
+    On Windows, glob.glob(..., recursive=True) joins the "**"-matched segment
+    with os.sep, producing mixed-separator strings like ".../go\\_index.md"
+    for zero-depth matches. Downstream consumers (body_impact.py, and every
+    other page_path in the pipeline: scope.json, page_impact.json,
+    page_decisions.jsonl) key/compare by exact forward-slash string, so a
+    mixed-separator page_path silently drops the page from body-impact
+    processing even though it is correctly present in the discovered set.
+    """
+    page = tmp_path / "docs.aspose.org/en/pdf/go/_index.md"
+    page.parent.mkdir(parents=True)
+    page.write_text("---\ntitle: PDF\n---\n", encoding="utf-8")
+    cp.configure(content_root=str(tmp_path))
+    discovered = cp._discover_pages("pdf", "go")
+    assert any(item.endswith("docs.aspose.org/en/pdf/go/_index.md") for item in discovered)
+    assert not any("\\" in item for item in discovered)
+
+
 def test_feature_claim_extraction():
     """Feature keywords (supports, converts, exports) are captured."""
     text = "Aspose.PDF supports PDF export and converts files."
