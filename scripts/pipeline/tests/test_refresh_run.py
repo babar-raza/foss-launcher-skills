@@ -867,6 +867,121 @@ def test_cli_status_is_read_only_and_does_not_require_identity(capsys):
     assert '"state": "INPUTS_PINNED"' in capsys.readouterr().out
 
 
+def _write_scope_manifest_and_plan(tmp_path: Path, paths: list[str], run_id: str):
+    """Shared setup: real files on disk, a remediation-mode scope manifest,
+    and a PLANNED manifest with real initial_hashes (via prepare_run)."""
+    for relative in paths:
+        page = tmp_path / relative
+        page.parent.mkdir(parents=True, exist_ok=True)
+        page.write_text("original\n", encoding="utf-8")
+    scope = tmp_path / "scope.json"
+    scope.write_text(json.dumps({"paths": paths}), encoding="utf-8")
+    manifest = refresh_run.create_run(
+        "pdf",
+        "net",
+        mode="remediation",
+        scope_manifest="scope.json",
+        run_id=run_id,
+        session_id="session-1",
+    )
+    prepared = refresh_run.prepare_run(manifest)
+    body_impact = (
+        tmp_path / "reports/refresh_runs/pdf/net" / run_id / "planning/pdf/net"
+    )
+    body_impact.mkdir(parents=True, exist_ok=True)
+    (body_impact / "body_impact.json").write_text("[]", encoding="utf-8")
+    return prepared
+
+
+def test_apply_reconciliation_tolerates_no_op_skip_and_out_of_scope_advisory_rows(
+    tmp_path: Path,
+):
+    """Regression test for a confirmed bug: apply_run() required an EXACT
+    set match between scope_paths and page_decisions.jsonl's page_path
+    values. Found live (MT014-2026-07-29-PDF-GO-REDO): body_refresh.py has
+    early-exit paths (auto_updatable:false pages; pages with zero actionable
+    BODY_UPDATE sections) that never call _emit_run_decision, so a scoped
+    no-op page legitimately has no decision row; and batch_reference.py's
+    --update mode logs a disposition for every class in knowledge_delta.json,
+    not just the ones this run's scope selected, so out-of-scope
+    NOT_AFFECTED rows are expected noise, not a violation -- --run-root
+    already restricts actual file WRITES to scope. Fix: only treat a
+    "missing" scoped page as a real problem if its bytes actually changed
+    from the initial_hashes snapshot frozen at PLANNED time, and only treat
+    an "unexpected" out-of-scope row as a real problem if its disposition
+    implies a write happened."""
+    structural = "content/docs.aspose.org/en/pdf/net/structural.md"
+    updated = "content/docs.aspose.org/en/pdf/net/updated.md"
+    manifest = _write_scope_manifest_and_plan(
+        tmp_path, [structural, updated], "RUN-RECONCILE-OK"
+    )
+
+    def body_refresh_runner(args: list[str], **_: object):
+        if any("body_refresh.py" in str(a) for a in args):
+            run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-RECONCILE-OK"
+            (tmp_path / updated).write_text("changed\n", encoding="utf-8")
+            with open(run_root / "page_decisions.jsonl", "a", encoding="utf-8") as f:
+                f.write(json.dumps({
+                    "run_id": "RUN-RECONCILE-OK",
+                    "page_path": updated,
+                    "disposition": "BODY_UPDATED",
+                }) + "\n")
+                # structural.md: no row at all (simulates an early-exit skip)
+                # unrelated.md: out-of-scope advisory row, no disposition
+                # implying a write -- must not be treated as a violation.
+                f.write(json.dumps({
+                    "run_id": "RUN-RECONCILE-OK",
+                    "page_path": "content/docs.aspose.org/en/pdf/net/unrelated.md",
+                    "disposition": "NOT_AFFECTED",
+                }) + "\n")
+            return subprocess.CompletedProcess(args, 0, "", "")
+        return _runner(args)
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=body_refresh_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+
+    result = refresh_run.apply_run(manifest)  # must not raise
+    assert result["state"] == "VALIDATING"
+
+
+def test_apply_reconciliation_still_blocks_real_violations(tmp_path: Path):
+    """Negative control: the fix above must not become a blanket bypass --
+    a scoped page silently mutated with NO decision row, and an out-of-scope
+    page with a write-implying disposition, must both still raise."""
+    silent = "content/docs.aspose.org/en/pdf/net/silent.md"
+    manifest = _write_scope_manifest_and_plan(tmp_path, [silent], "RUN-RECONCILE-BAD")
+
+    def bad_runner(args: list[str], **_: object):
+        if any("body_refresh.py" in str(a) for a in args):
+            run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-RECONCILE-BAD"
+            # Silently mutate the page with NO decision row at all.
+            (tmp_path / silent).write_text("silently changed\n", encoding="utf-8")
+            with open(run_root / "page_decisions.jsonl", "a", encoding="utf-8") as f:
+                # An out-of-scope page claiming a real write -- a genuine
+                # scope violation, must still be caught.
+                f.write(json.dumps({
+                    "run_id": "RUN-RECONCILE-BAD",
+                    "page_path": "content/docs.aspose.org/en/pdf/net/out-of-scope.md",
+                    "disposition": "GENERATED",
+                }) + "\n")
+            return subprocess.CompletedProcess(args, 0, "", "")
+        return _runner(args)
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=bad_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+
+    with pytest.raises(refresh_run.RefreshRunError, match="reconciliation failed"):
+        refresh_run.apply_run(manifest)
+
+
 def test_apply_refuses_scoped_file_changed_after_planning(tmp_path: Path):
     page = tmp_path / "content/docs.aspose.org/en/pdf/net/page.md"
     page.parent.mkdir(parents=True)

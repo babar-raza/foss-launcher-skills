@@ -1518,10 +1518,50 @@ def apply_run(manifest: dict[str, Any]) -> dict[str, Any]:
     scope_paths = set(manifest.get("scope", {}).get("paths") or [])
     missing = sorted(scope_paths.difference(decision_paths))
     unexpected = sorted(decision_paths.difference(scope_paths))
-    if missing or unexpected:
+
+    # Found live (MT014-2026-07-29-PDF-GO-REDO): both sides of this
+    # reconciliation had real false positives that had nothing to do with
+    # unauthorized writes.
+    #
+    # "missing": body_refresh.py has multiple early-exit paths (protected
+    # auto_updatable:false pages; pages with zero actionable BODY_UPDATE
+    # sections) that append a local receipt but never call
+    # _emit_run_decision, so a scoped structural/no-op page can legitimately
+    # have no decision row. Similarly, structural `_index.md` pages under
+    # reference.aspose.org are never batch_reference.py candidates at all
+    # (its own candidate scan only covers type_spec/enum entries) -- they're
+    # scaffolded by a separate index skill, not scope-refreshed here.
+    # "unexpected": batch_reference.py's --update mode decides + logs a
+    # disposition for every class in knowledge_delta.json, not just the ones
+    # this run's PIA-derived scope selected -- --run-root already restricts
+    # actual file WRITES to scope, so an out-of-scope NOT_AFFECTED/SKIPPED/
+    # BLOCKED row is just wider transparency, not an unauthorized write.
+    #
+    # The safety property that actually matters in both cases is observable
+    # directly: did the page's bytes change from what scope was frozen
+    # against (missing side), and did an out-of-scope row correspond to a
+    # disposition that implies a write happened (unexpected side)? Checking
+    # that directly is robust to every current and future skip-reason a
+    # writer might have, instead of re-deriving each one here.
+    initial_hashes = _assert_pinned_scope(manifest).get("initial_hashes") or {}
+    real_missing = [
+        p for p in missing
+        if _path_hash(p) != initial_hashes.get(p, "MISSING")
+    ]
+    write_dispositions = {"BODY_UPDATED", "EVIDENCE_ONLY", "GENERATED", "RETIRED"}
+    decisions_by_path: dict[str, list[str]] = {}
+    for row in decision_rows:
+        decisions_by_path.setdefault(row.get("page_path"), []).append(
+            row.get("disposition")
+        )
+    real_unexpected = [
+        p for p in unexpected
+        if any(d in write_dispositions for d in decisions_by_path.get(p, []))
+    ]
+    if real_missing or real_unexpected:
         raise RefreshRunError(
             "Run decision/scope reconciliation failed: "
-            f"missing={missing[:5]}, unexpected={unexpected[:5]}"
+            f"missing={real_missing[:5]}, unexpected={real_unexpected[:5]}"
         )
     blocked = [
         row.get("page_path")
