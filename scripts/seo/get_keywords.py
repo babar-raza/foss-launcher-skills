@@ -203,13 +203,28 @@ def get_keywords_from_gemini(page_title, platform="net"):
     return None  # unreachable, but explicit
 
 
+# Consecutive-failure circuit breaker: found live, 2026-07-31/08-01 --
+# without this, a sustained quota exhaustion (not a transient blip) meant
+# ~8.5 hours and 48 consecutive pages each burning their full 5-attempt,
+# ~10-minute backoff before giving up, one page at a time, with zero
+# successes the entire time. Per-page bounded retry (Finding #47) was never
+# meant to substitute for a whole-run abort signal -- it bounds the cost of
+# ONE page, not the cost of grinding through an entire remaining file list
+# under a quota that has evidently not recovered.
+_CIRCUIT_BREAKER_CONSECUTIVE_FAILURES = 3
+
+
 # Process Markdown files grouped by families
 def process_markdown_files_by_families(families, root_dir, output_dir, platform="net"):
     family_data = {}
     call_success_count = 0
     call_failure_count = 0
+    consecutive_failures = 0
+    circuit_tripped = False
 
     for family in families:
+        if circuit_tripped:
+            break
         family_dir = os.path.join(root_dir, family)
         if not os.path.exists(family_dir):
             logging.warning(f"Directory for family '{family}' does not exist: {family_dir}")
@@ -219,36 +234,54 @@ def process_markdown_files_by_families(families, root_dir, output_dir, platform=
         family_data[family] = []
 
         for subdir, _, files in os.walk(family_dir):
+            if circuit_tripped:
+                break
             for file in files:
-                if file.endswith('.md'):
-                    file_path = os.path.join(subdir, file)
-                    source_path = Path(file_path).resolve().relative_to(_REPO_ROOT).as_posix()
-                    page_title = extract_head_title(file_path)
-                    if page_title:
-                        existing = find_existing_entry(family, source_path, page_title, output_dir)
-                        if existing is not None:
-                            logging.info(f"Appending keywords: {page_title} (Family: {family})")
-                            new_keywords = get_keywords_from_gemini(page_title, platform)
-                            if new_keywords is None:
-                                call_failure_count += 1
-                            else:
-                                call_success_count += 1
-                                if new_keywords:
-                                    append_keywords_to_existing(family, source_path, page_title, new_keywords, output_dir)
-                            continue
+                if not file.endswith('.md'):
+                    continue
+                file_path = os.path.join(subdir, file)
+                source_path = Path(file_path).resolve().relative_to(_REPO_ROOT).as_posix()
+                page_title = extract_head_title(file_path)
+                if not page_title:
+                    continue
 
-                        logging.info(f"Processing new title: {page_title} (Family: {family})")
-                        keywords = get_keywords_from_gemini(page_title, platform)
-                        if keywords is None:
-                            call_failure_count += 1
-                        else:
-                            call_success_count += 1
-                            if keywords:
-                                family_data[family].append({
-                                    "pageTitle": page_title,
-                                    "sourcePath": source_path,
-                                    "keywords": keywords
-                                })
+                existing = find_existing_entry(family, source_path, page_title, output_dir)
+                if existing is not None:
+                    logging.info(f"Appending keywords: {page_title} (Family: {family})")
+                    new_keywords = get_keywords_from_gemini(page_title, platform)
+                    if new_keywords is None:
+                        call_failure_count += 1
+                        consecutive_failures += 1
+                    else:
+                        call_success_count += 1
+                        consecutive_failures = 0
+                        if new_keywords:
+                            append_keywords_to_existing(family, source_path, page_title, new_keywords, output_dir)
+                else:
+                    logging.info(f"Processing new title: {page_title} (Family: {family})")
+                    keywords = get_keywords_from_gemini(page_title, platform)
+                    if keywords is None:
+                        call_failure_count += 1
+                        consecutive_failures += 1
+                    else:
+                        call_success_count += 1
+                        consecutive_failures = 0
+                        if keywords:
+                            family_data[family].append({
+                                "pageTitle": page_title,
+                                "sourcePath": source_path,
+                                "keywords": keywords
+                            })
+
+                if consecutive_failures >= _CIRCUIT_BREAKER_CONSECUTIVE_FAILURES:
+                    logging.error(
+                        f"Circuit breaker tripped: {consecutive_failures} consecutive "
+                        f"page failures -- quota has evidently not recovered. Saving "
+                        f"progress made so far and stopping the whole run now, rather "
+                        f"than grinding through the remaining files one at a time."
+                    )
+                    circuit_tripped = True
+                    break
 
         save_family_to_json(family, family_data[family], output_dir)
 
@@ -262,6 +295,14 @@ def process_markdown_files_by_families(families, root_dir, output_dir, platform=
             f"Gemini calls: {call_success_count} succeeded, "
             f"{call_failure_count} failed ({total_calls} total)."
         )
+        if circuit_tripped:
+            raise SystemExit(
+                f"ERROR: circuit breaker tripped after "
+                f"{_CIRCUIT_BREAKER_CONSECUTIVE_FAILURES} consecutive failures "
+                f"({call_success_count} succeeded, {call_failure_count} failed before "
+                f"stopping) -- quota is evidently exhausted for this window. Progress "
+                f"made so far has been saved. Resume later once quota recovers."
+            )
         if call_success_count == 0:
             # Every single call failed -- this is a systemic problem (retired
             # model, revoked key, exhausted quota), not per-page noise. Exit

@@ -51,33 +51,37 @@ _EXPECTED_SCHEMA_B = {
 }
 
 _EXPECTED_SCHEMA_A = {
+    "3d.json",
     "barcode.json",
     "cad.json",
     "cells.json",
+    "email.json",
+    "font.json",
     "home.json",
     "html.json",
     "imaging.json",
+    "note.json",
     "ocr.json",
     "page.json",
     "pdf.json",
     "psd.json",
+    "slides.json",
     "tasks.json",
     "tex.json",
     "words.json",
     "zip.json",
 }
 
-# SEO-SCHEMA-A-QUARANTINE-STALE-ENTRIES (2026-07-29): these 7 files had 100%
-# of their entries confirmed drifted_title_mismatch by audit_schema_a.py --
-# every pageTitle matched nothing in the family's own launched content, a
-# consequence of this repo's content-generation approach having moved on to
-# claims-grounded, repo-scout-driven titles since these were generated. All
-# entries were quarantined to keywords/_stale/{family}.json (not deleted),
-# leaving the live file an empty [] until SEO-SCHEMA-A-BOOTSTRAP-REGENERATION
-# repopulates it. An empty list legitimately classifies as SCHEMA_UNKNOWN
-# (schema.py's own documented behavior) -- this is not a bug, it is the
-# quarantine having worked as designed.
-_QUARANTINED_TO_EMPTY = {
+# SEO-SCHEMA-A-QUARANTINE-STALE-ENTRIES (2026-07-29) quarantined 7 files'
+# entries (100% drifted_title_mismatch, confirmed by audit_schema_a.py) to
+# keywords/_stale/{family}.json, leaving the live files empty [] pending
+# SEO-SCHEMA-A-BOOTSTRAP-REGENERATION. SEO-SCHEMA-A-BOOTSTRAP-REGENERATION
+# (2026-07-30/08-01) has since fully repopulated all 7, plus the 5 families
+# named in Finding #35 that had no Schema A file at all before (3d, email,
+# font, note, slides) -- all 12 target families are now real, regenerated
+# content. Kept as a historical record of which files were quarantined, not
+# because that state is still true.
+_FORMERLY_QUARANTINED_NOW_REGENERATED = {
     "barcode.json",
     "cells.json",
     "html.json",
@@ -86,7 +90,12 @@ _QUARANTINED_TO_EMPTY = {
     "tex.json",
     "words.json",
 }
-_EXPECTED_SCHEMA_A_WITH_CONTENT = _EXPECTED_SCHEMA_A - _QUARANTINED_TO_EMPTY
+# Every Schema A file has real content now: the 7 formerly-quarantined files
+# were regenerated, the 5 Finding-#35 files were created fresh, and the 6
+# stub-tier prospective files (cad, imaging, ocr, psd, tasks, zip) plus
+# home.json were never touched by either the quarantine or the regeneration
+# -- they retain their original prospective content throughout.
+_EXPECTED_SCHEMA_A_WITH_CONTENT = _EXPECTED_SCHEMA_A
 
 
 def _real_keyword_files() -> list[Path]:
@@ -147,19 +156,21 @@ class TestFileClassification:
         assert path.exists(), f"expected real file missing: {path}"
         assert classify_keyword_path(path) == SCHEMA_A
 
-    @pytest.mark.parametrize("filename", sorted(_QUARANTINED_TO_EMPTY))
-    def test_quarantined_files_are_now_empty_and_unknown(self, filename):
+    @pytest.mark.parametrize("filename", sorted(_FORMERLY_QUARANTINED_NOW_REGENERATED))
+    def test_formerly_quarantined_files_are_repopulated_and_classify_as_a(self, filename):
+        """SEO-SCHEMA-A-BOOTSTRAP-REGENERATION closed the loop the quarantine
+        opened: these 7 files were emptied pending regeneration, and are now
+        real, non-empty Schema A content again."""
         path = _KEYWORDS_DIR / filename
         assert path.exists(), f"expected real file missing: {path}"
         payload = json.loads(path.read_text(encoding="utf-8"))
-        assert payload == [], (
-            f"{filename} was expected to be empty post-quarantine -- if "
-            "SEO-SCHEMA-A-BOOTSTRAP-REGENERATION has since repopulated it, "
-            "move it back out of _QUARANTINED_TO_EMPTY"
+        assert payload != [], (
+            f"{filename} is empty -- SEO-SCHEMA-A-BOOTSTRAP-REGENERATION was "
+            "expected to have repopulated it by now"
         )
-        assert classify_keyword_path(path) == SCHEMA_UNKNOWN
+        assert classify_keyword_path(path) == SCHEMA_A
 
-    def test_all_21_real_files_accounted_for(self):
+    def test_all_26_real_files_accounted_for(self):
         real_files = {p.name for p in _real_keyword_files()}
         assert real_files == _EXPECTED_SCHEMA_B | _EXPECTED_SCHEMA_A, (
             "keywords/ directory contents changed -- update this test's expected "

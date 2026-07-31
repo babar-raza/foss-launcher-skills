@@ -5,9 +5,11 @@ independently, in its own Gemini reevaluation prompt).
 """
 from __future__ import annotations
 
+import json
 import sys
 import types
 from pathlib import Path
+from unittest import mock
 
 import pytest
 
@@ -133,3 +135,38 @@ def test_process_json_files_raises_systemexit_when_every_call_fails(tmp_path, mo
 
     with pytest.raises(SystemExit):
         review_keywords.process_json_files_by_family(["cad"], str(tmp_path))
+
+
+def test_process_json_files_circuit_breaker_stops_after_consecutive_failures(tmp_path):
+    entries = [{"pageTitle": f"Title {i}", "keywords": ["a"]} for i in range(6)]
+    family_file = tmp_path / "cad.json"
+    family_file.write_text(json.dumps(entries), encoding="utf-8")
+
+    call_count = {"n": 0}
+
+    def _always_fail(title, kws, platform="net"):
+        call_count["n"] += 1
+        return None
+
+    with mock.patch.object(review_keywords, "reevaluate_keywords", _always_fail):
+        with pytest.raises(SystemExit):
+            review_keywords.process_json_files_by_family(["cad"], str(tmp_path))
+
+    assert call_count["n"] == review_keywords._CIRCUIT_BREAKER_CONSECUTIVE_FAILURES
+
+
+def test_process_json_files_circuit_breaker_resets_on_success(tmp_path):
+    entries = [{"pageTitle": f"Title {i}", "keywords": ["a"]} for i in range(6)]
+    family_file = tmp_path / "cad.json"
+    family_file.write_text(json.dumps(entries), encoding="utf-8")
+
+    call_count = {"n": 0}
+
+    def _alternate(title, kws, platform="net"):
+        call_count["n"] += 1
+        return None if call_count["n"] % 2 == 0 else ["improved"]
+
+    with mock.patch.object(review_keywords, "reevaluate_keywords", _alternate):
+        review_keywords.process_json_files_by_family(["cad"], str(tmp_path))
+
+    assert call_count["n"] == 6

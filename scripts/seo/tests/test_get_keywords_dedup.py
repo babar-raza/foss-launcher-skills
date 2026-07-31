@@ -229,3 +229,64 @@ def test_process_markdown_files_does_not_raise_when_some_calls_succeed(tmp_path,
 
     result = get_keywords.process_markdown_files_by_families(["cad"], str(tmp_path), str(output_dir))
     assert result["cad"][0]["keywords"] == ["a keyword"]
+
+
+def test_process_markdown_files_circuit_breaker_stops_after_consecutive_failures(tmp_path, monkeypatch):
+    """Found live 2026-07-31/08-01: without a whole-run circuit breaker, a
+    sustained quota exhaustion meant ~8.5 hours grinding through 48
+    consecutive pages one at a time, each burning its full per-page retry
+    budget, with zero successes the entire time. 3 consecutive failures
+    must stop the run immediately rather than continuing to the 4th, 5th...
+    file in the list."""
+    monkeypatch.setattr(get_keywords, "_REPO_ROOT", tmp_path)
+    family_dir = tmp_path / "cad"
+    family_dir.mkdir()
+    for i in range(6):
+        (family_dir / f"page{i}.md").write_text(
+            f"---\ntitle: Page {i}\n---\nBody\n", encoding="utf-8"
+        )
+    output_dir = tmp_path / "keywords"
+    output_dir.mkdir()
+
+    call_count = {"n": 0}
+
+    def _always_fail(title, platform="net"):
+        call_count["n"] += 1
+        return None
+
+    monkeypatch.setattr(get_keywords, "get_keywords_from_gemini", _always_fail)
+
+    with pytest.raises(SystemExit):
+        get_keywords.process_markdown_files_by_families(["cad"], str(tmp_path), str(output_dir))
+
+    assert call_count["n"] == get_keywords._CIRCUIT_BREAKER_CONSECUTIVE_FAILURES, (
+        "circuit breaker must stop the run at exactly the threshold, not process "
+        "all 6 files in the family"
+    )
+
+
+def test_process_markdown_files_circuit_breaker_resets_on_success(tmp_path, monkeypatch):
+    """Alternating success/failure (normal transient throttling) must never
+    trip the breaker, however many total failures accumulate, as long as
+    they're not consecutive."""
+    monkeypatch.setattr(get_keywords, "_REPO_ROOT", tmp_path)
+    family_dir = tmp_path / "cad"
+    family_dir.mkdir()
+    for i in range(6):
+        (family_dir / f"page{i}.md").write_text(
+            f"---\ntitle: Page {i}\n---\nBody\n", encoding="utf-8"
+        )
+    output_dir = tmp_path / "keywords"
+    output_dir.mkdir()
+
+    call_count = {"n": 0}
+
+    def _alternate(title, platform="net"):
+        call_count["n"] += 1
+        return None if call_count["n"] % 2 == 0 else ["a keyword"]
+
+    monkeypatch.setattr(get_keywords, "get_keywords_from_gemini", _alternate)
+
+    result = get_keywords.process_markdown_files_by_families(["cad"], str(tmp_path), str(output_dir))
+    assert call_count["n"] == 6, "all 6 files must be processed -- no consecutive-failure run ever occurred"
+    assert len(result["cad"]) == 3

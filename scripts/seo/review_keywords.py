@@ -120,12 +120,23 @@ def reevaluate_keywords(title, keywords, platform="net"):
                 return None
     return None  # unreachable, but explicit
 
+# Consecutive-failure circuit breaker -- see get_keywords.py's identical
+# constant for the full rationale (found live, 2026-07-31/08-01: ~8.5 hours
+# and 48 consecutive pages each burning a full ~10-minute backoff before
+# giving up, one at a time, under a quota that had evidently not recovered).
+_CIRCUIT_BREAKER_CONSECUTIVE_FAILURES = 3
+
+
 # Read and process JSON files
 def process_json_files_by_family(families, root_dir, platform="net"):
     call_success_count = 0
     call_failure_count = 0
+    consecutive_failures = 0
+    circuit_tripped = False
 
     for family in families:
+        if circuit_tripped:
+            break
         family_file = os.path.join(root_dir, f"{family}.json")
         if not os.path.exists(family_file):
             logging.warning(f"JSON file for family '{family}' does not exist: {family_file}")
@@ -160,8 +171,18 @@ def process_json_files_by_family(families, root_dir, platform="net"):
             improved_keywords = reevaluate_keywords(title, keywords, platform)
             if improved_keywords is None:
                 call_failure_count += 1
+                consecutive_failures += 1
+                if consecutive_failures >= _CIRCUIT_BREAKER_CONSECUTIVE_FAILURES:
+                    logging.error(
+                        f"Circuit breaker tripped: {consecutive_failures} consecutive "
+                        f"title failures -- quota has evidently not recovered. Stopping "
+                        f"the whole run now, rather than grinding through the rest."
+                    )
+                    circuit_tripped = True
+                    break
                 continue
             call_success_count += 1
+            consecutive_failures = 0
             entry["keywords"] = improved_keywords
 
             # Save updated JSON immediately after a valid response
@@ -176,6 +197,14 @@ def process_json_files_by_family(families, root_dir, platform="net"):
             f"Gemini calls: {call_success_count} succeeded, "
             f"{call_failure_count} failed ({total_calls} total)."
         )
+        if circuit_tripped:
+            raise SystemExit(
+                f"ERROR: circuit breaker tripped after "
+                f"{_CIRCUIT_BREAKER_CONSECUTIVE_FAILURES} consecutive failures "
+                f"({call_success_count} succeeded, {call_failure_count} failed before "
+                f"stopping) -- quota is evidently exhausted for this window. Progress "
+                f"made so far has been saved. Resume later once quota recovers."
+            )
         if call_success_count == 0:
             # Same rationale as get_keywords.py: a 100% failure rate is a
             # systemic problem, not per-title noise -- fail loudly rather
