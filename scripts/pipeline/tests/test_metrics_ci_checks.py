@@ -131,6 +131,41 @@ class TestCheckProfessionalizeCallSites:
         assert not result.passed, "Expected FAIL for unregistered direct call"
         assert len(result.unregistered_matches) > 0
 
+    def test_ignores_vendored_deps_inside_nested_worktree(self, tmp_path):
+        """A .venv nested inside a .claude worktree is excluded at any depth.
+
+        Regression test: the scanner previously walked into
+        .claude/worktrees/*/.venv/... (a full nested virtualenv copied along
+        with an agent worktree checkout) and flagged third-party vendored
+        library code as unregistered professionalize call sites, because
+        (1) .claude was missing from the always-excluded paths (only .kilo
+        was listed) and (2) the exclusion match was a full-relpath prefix
+        check, so even listed noise names like .venv were never excluded
+        when nested below an unlisted directory. Both are fixed; this
+        encodes the exact real-world shape that broke.
+        """
+        vendored = tmp_path / ".claude" / "worktrees" / "fake" / ".venv" / "lib" / "site-packages" / "vendor_lib.py"
+        vendored.parent.mkdir(parents=True)
+        vendored.write_text(
+            'url = "https://llm.professionalize.com/v1/chat/completions"\n'
+            'response = requests.post(url, headers=headers)\n',
+            encoding="utf-8",
+        )
+        fake_registry = tmp_path / "registry.yaml"
+        fake_registry.write_text("version: '1.0'\ncall_sites: {}\n", encoding="utf-8")
+
+        result = cpc.run_check(
+            root=tmp_path,
+            registry_path=fake_registry,
+            include_tests=True,
+            include_reports=True,
+        )
+        assert result.passed, (
+            f"Expected PASS (nested worktree .venv excluded) but got "
+            f"{len(result.unregistered_matches)} unregistered match(es): "
+            + ", ".join(f"{m.file}:{m.line}" for m in result.unregistered_matches[:5])
+        )
+
     def test_passes_when_fake_call_registered(self, tmp_path):
         """A fake file whose path is registered passes."""
         script_rel = "scripts/my_agent.py"

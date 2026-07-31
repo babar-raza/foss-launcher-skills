@@ -58,10 +58,16 @@ _TRANSPORT_CODE_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ("base_url=", re.compile(r"\bbase_url\s*=")),
 ]
 
+# Directory names excluded no matter how deeply nested (vendored deps inside
+# any worktree, submodule, or cache dir — these recur unpredictably, so they
+# can't be defended by enumerating one more top-level entry each time a new
+# worktree happens to contain one; see _is_excluded()).
+_UNIVERSAL_NOISE_NAMES = {".venv", "venv", "__pycache__", ".git", "node_modules"}
+
 # Files/dirs that are always excluded (boundary systems, generated files, etc.)
 _ALWAYS_EXCLUDE_PATHS = {
-    ".venv", "venv", "__pycache__", ".git", "node_modules",
     ".kilo",                                    # Git worktrees — copies of repo scripts, not our transport
+    ".claude",                                  # Git worktrees — copies of repo scripts, not our transport
     "runs",                                     # Clone cache — FOSS code, not our transport
     "scripts/ci",                               # CI check scripts reference patterns as strings, not calls
     # Core metrics infrastructure — these ARE the approved transport layer, not new call sites
@@ -220,7 +226,12 @@ def _load_registry_simple(registry_path: Path) -> tuple[list[RegistryEntry], lis
 def _is_excluded(rel_path: str, include_tests: bool, include_reports: bool) -> bool:
     """Return True if this path should be skipped."""
     forward = rel_path.replace("\\", "/")
-    # Always-excluded dirs/files
+    # Universal noise: excluded at ANY depth, not just at the repo root —
+    # a vendored .venv/node_modules/etc. inside a nested worktree is just as
+    # irrelevant as one at the top level.
+    if any(p in _UNIVERSAL_NOISE_NAMES for p in forward.split("/")):
+        return True
+    # Always-excluded dirs/files (specific, repo-root-relative locations)
     for exc in _ALWAYS_EXCLUDE_PATHS:
         if forward == exc or forward.startswith(exc + "/"):
             return True
