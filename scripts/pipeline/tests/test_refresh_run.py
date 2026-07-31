@@ -916,6 +916,8 @@ def test_apply_reconciliation_tolerates_no_op_skip_and_out_of_scope_advisory_row
         tmp_path, [structural, updated], "RUN-RECONCILE-OK"
     )
 
+    empty_hash = "sha256:" + hashlib.sha256(b"").hexdigest()
+
     def body_refresh_runner(args: list[str], **_: object):
         if any("body_refresh.py" in str(a) for a in args):
             run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-RECONCILE-OK"
@@ -933,6 +935,17 @@ def test_apply_reconciliation_tolerates_no_op_skip_and_out_of_scope_advisory_row
                     "run_id": "RUN-RECONCILE-OK",
                     "page_path": "content/docs.aspose.org/en/pdf/net/unrelated.md",
                     "disposition": "NOT_AFFECTED",
+                }) + "\n")
+                # new-class.md: out-of-scope GENERATED row for a page that
+                # provably did not exist before (empty body_hash_before) --
+                # an additive write, must not be treated as a violation
+                # (batch_reference.py's --update mode generates every new
+                # class in knowledge_delta.json, not just scoped ones).
+                f.write(json.dumps({
+                    "run_id": "RUN-RECONCILE-OK",
+                    "page_path": "content/reference.aspose.org/en/pdf/net/NewClass.md",
+                    "disposition": "GENERATED",
+                    "body_hash_before": empty_hash,
                 }) + "\n")
             return subprocess.CompletedProcess(args, 0, "", "")
         return _runner(args)
@@ -967,6 +980,40 @@ def test_apply_reconciliation_still_blocks_real_violations(tmp_path: Path):
                     "run_id": "RUN-RECONCILE-BAD",
                     "page_path": "content/docs.aspose.org/en/pdf/net/out-of-scope.md",
                     "disposition": "GENERATED",
+                }) + "\n")
+            return subprocess.CompletedProcess(args, 0, "", "")
+        return _runner(args)
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=bad_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+
+    with pytest.raises(refresh_run.RefreshRunError, match="reconciliation failed"):
+        refresh_run.apply_run(manifest)
+
+
+def test_apply_reconciliation_blocks_generated_over_existing_content(tmp_path: Path):
+    """Negative control, narrower than the one above: a GENERATED row for an
+    out-of-scope page whose body_hash_before is explicitly non-empty (proof
+    it HAD real pre-existing content) must still block -- the additive-write
+    exception only covers provably-new pages, not a mislabeled overwrite."""
+    silent = "content/docs.aspose.org/en/pdf/net/silent.md"
+    manifest = _write_scope_manifest_and_plan(tmp_path, [silent], "RUN-RECONCILE-OVERWRITE")
+
+    def bad_runner(args: list[str], **_: object):
+        if any("body_refresh.py" in str(a) for a in args):
+            run_root = (
+                tmp_path / "reports/refresh_runs/pdf/net/RUN-RECONCILE-OVERWRITE"
+            )
+            with open(run_root / "page_decisions.jsonl", "a", encoding="utf-8") as f:
+                f.write(json.dumps({
+                    "run_id": "RUN-RECONCILE-OVERWRITE",
+                    "page_path": "content/reference.aspose.org/en/pdf/net/Existing.md",
+                    "disposition": "GENERATED",
+                    "body_hash_before": "sha256:" + "1" * 64,
                 }) + "\n")
             return subprocess.CompletedProcess(args, 0, "", "")
         return _runner(args)

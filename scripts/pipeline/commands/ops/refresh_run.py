@@ -1548,15 +1548,35 @@ def apply_run(manifest: dict[str, Any]) -> dict[str, Any]:
         p for p in missing
         if _path_hash(p) != initial_hashes.get(p, "MISSING")
     ]
+    # An out-of-scope GENERATED row for a page that provably did not exist
+    # before (body_hash_before is the empty-string hash) is an additive new-
+    # page write -- confirmed live: batch_reference.py's --update mode
+    # generates every new class in knowledge_delta.json, not just ones in
+    # scope.json, and --run-root does NOT actually prevent that write despite
+    # its own --help text ("scope.json restricts writes"). This is safe
+    # precisely because there is no pre-existing content to clobber -- the
+    # scope-pinning discipline exists to protect EXISTING pages from
+    # unintended mutation, which an additive write cannot violate. Any OTHER
+    # write disposition outside scope (BODY_UPDATED/EVIDENCE_ONLY/RETIRED, or
+    # a GENERATED row whose body_hash_before is non-empty) still implies
+    # touching content that existed before this run and must still block.
+    _EMPTY_HASH = "sha256:" + hashlib.sha256(b"").hexdigest()
     write_dispositions = {"BODY_UPDATED", "EVIDENCE_ONLY", "GENERATED", "RETIRED"}
-    decisions_by_path: dict[str, list[str]] = {}
+    decisions_by_path: dict[str, list[dict[str, Any]]] = {}
     for row in decision_rows:
-        decisions_by_path.setdefault(row.get("page_path"), []).append(
-            row.get("disposition")
-        )
+        decisions_by_path.setdefault(row.get("page_path"), []).append(row)
+
+    def _is_real_violation(row: dict[str, Any]) -> bool:
+        disposition = row.get("disposition")
+        if disposition not in write_dispositions:
+            return False
+        if disposition == "GENERATED" and row.get("body_hash_before") == _EMPTY_HASH:
+            return False
+        return True
+
     real_unexpected = [
         p for p in unexpected
-        if any(d in write_dispositions for d in decisions_by_path.get(p, []))
+        if any(_is_real_violation(row) for row in decisions_by_path.get(p, []))
     ]
     if real_missing or real_unexpected:
         raise RefreshRunError(
