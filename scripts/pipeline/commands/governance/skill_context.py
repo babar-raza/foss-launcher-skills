@@ -86,6 +86,28 @@ def _now() -> datetime:
     return datetime.now(tz=timezone.utc)
 
 
+def _effective_activity_dt(record: dict) -> "datetime | None":
+    """Return the timestamp staleness should be measured from.
+
+    Prefers ``last_touched_at`` (heartbeat, RC1/RC2 hardening 2026-07-31 —
+    bumped by ``cmd_check`` on every in-scope hit) over ``started_at``, so a
+    context still being actively worked never expires mid-task just because
+    it began more than one TTL ago, and a context that has gone genuinely
+    quiet is detected from its last real activity, not diluted by how long
+    ago it happened to begin. Records written before this field existed have
+    none — falling back to ``started_at`` keeps them working exactly as
+    before (additive, no migration needed). Returns ``None`` if neither
+    timestamp parses.
+    """
+    for key in ("last_touched_at", "started_at"):
+        raw = record.get(key, "")
+        try:
+            return datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        except (ValueError, AttributeError):
+            continue
+    return None
+
+
 def _load_active() -> dict | None:
     """Load ACTIVE.json if it exists and is not stale. Returns None if absent or expired."""
     if not _ACTIVE_FILE.exists():
@@ -97,11 +119,9 @@ def _load_active() -> dict | None:
         return None
 
     # Check staleness
-    started = record.get("started_at", "")
-    try:
-        start_dt = datetime.fromisoformat(started.replace("Z", "+00:00"))
-    except (ValueError, AttributeError):
-        # Unparseable timestamp — treat as stale
+    activity_dt = _effective_activity_dt(record)
+    if activity_dt is None:
+        # Unparseable timestamps — treat as stale
         _archive_stale(record)
         return None
 
@@ -111,11 +131,25 @@ def _load_active() -> dict | None:
     else:
         ttl = _MAX_CONTEXT_AGE
 
-    if _now() - start_dt > ttl:
+    if _now() - activity_dt > ttl:
         _archive_stale(record)
         return None
 
     return record
+
+
+def _touch_active_heartbeat() -> None:
+    """Bump ACTIVE.json's last_touched_at (best-effort; a lost race is harmless
+    since the next check simply doesn't extend the TTL that one time)."""
+    with _legacy_lock():
+        if not _ACTIVE_FILE.exists():
+            return
+        try:
+            record = json.loads(_ACTIVE_FILE.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return
+        record["last_touched_at"] = _now().isoformat().replace("+00:00", "Z")
+        _save_active(record)
 
 
 def _legacy_lock() -> FileLock:
@@ -278,13 +312,24 @@ def _session_context_path(session_id: str) -> Path:
 
 
 def _record_is_stale(record: dict) -> bool:
-    started = record.get("started_at", "")
-    try:
-        start_dt = datetime.fromisoformat(started.replace("Z", "+00:00"))
-    except (ValueError, AttributeError):
+    activity_dt = _effective_activity_dt(record)
+    if activity_dt is None:
         return True
     ttl = _GAP_TTL if record.get("context_type") == "gap_approved" else _MAX_CONTEXT_AGE
-    return _now() - start_dt > ttl
+    return _now() - activity_dt > ttl
+
+
+def _touch_session_heartbeat(session_id: str) -> None:
+    """Bump a per-session context's last_touched_at (best-effort — see
+    _touch_active_heartbeat; no lock needed, only the owning session's own
+    `check`/`begin` calls ever write to this session's own file)."""
+    p = _session_context_path(session_id)
+    try:
+        record = json.loads(p.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return
+    record["last_touched_at"] = _now().isoformat().replace("+00:00", "Z")
+    _save_session_context(session_id, record)
 
 
 def _load_session_contexts(exclude: "str | None" = None) -> dict:
@@ -492,6 +537,7 @@ def cmd_check(args: argparse.Namespace) -> int:
             print(f"No active skill context for session {session_id}.", file=sys.stderr)
             return 2
         if _file_in_scope(args.file, record.get("scope_patterns", [])):
+            _touch_session_heartbeat(session_id)
             return 0
         print(f"File {args.file} is outside session {session_id} skill "
               f"{record.get('skill_id')} scope.", file=sys.stderr)
@@ -500,11 +546,13 @@ def cmd_check(args: argparse.Namespace) -> int:
     # ---- Legacy path first (unchanged) ----
     active = _load_active()
     if active and _file_in_scope(args.file, active.get("scope_patterns", [])):
+        _touch_active_heartbeat()
         return 0
 
     # Additionally honor any live per-session context that covers this file.
     for sid, record in _load_session_contexts().items():
         if _file_in_scope(args.file, record.get("scope_patterns", [])):
+            _touch_session_heartbeat(sid)
             return 0
 
     if not active:

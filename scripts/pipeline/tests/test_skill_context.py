@@ -289,6 +289,83 @@ class TestSkillContextStaleness(unittest.TestCase):
         result = skill_context.main(["current"])
         self.assertEqual(result, 2)
 
+    # ── heartbeat-based staleness (RC1/RC2 hardening, 2026-07-31) ──────────
+    #
+    # Previously staleness was measured purely from started_at: a context
+    # still being actively worked could be wrongly expired after 2h, and an
+    # abandoned one read as "live" for the full 2h regardless of how quickly
+    # it actually went idle. last_touched_at (bumped by `check` on every
+    # in-scope hit) fixes both directions.
+
+    def test_heartbeat_keeps_long_running_context_alive_past_original_ttl(self):
+        """A context begun >2h ago but touched recently must NOT expire."""
+        skill_context._CONTEXT_DIR.mkdir(parents=True, exist_ok=True)
+        long_ago = (datetime.now(tz=timezone.utc) - timedelta(hours=5)).isoformat().replace("+00:00", "Z")
+        recent = (datetime.now(tz=timezone.utc) - timedelta(minutes=5)).isoformat().replace("+00:00", "Z")
+        record = {
+            "skill_id": "S-LONG",
+            "context_type": "skill",
+            "scope_patterns": ["*"],
+            "started_at": long_ago,
+            "last_touched_at": recent,
+        }
+        with open(skill_context._ACTIVE_FILE, "w") as f:
+            json.dump(record, f)
+
+        result = skill_context.main(["current"])
+        self.assertEqual(result, 0)
+        self.assertTrue(skill_context._ACTIVE_FILE.exists())
+
+    def test_check_bumps_heartbeat_on_in_scope_hit(self):
+        """cmd_check must persist a fresh last_touched_at when it returns 0,
+        so the NEXT staleness check measures from this activity, not from
+        whenever the context originally began."""
+        skill_context.main(["begin", "--skill", "S-73", "--scope", "a/*.py", "--skip-dar"])
+        before = json.loads(skill_context._ACTIVE_FILE.read_text(encoding="utf-8"))
+        self.assertNotIn("last_touched_at", before)  # not set until first touch
+
+        self.assertEqual(0, skill_context.main(["check", "--file", "a/x.py"]))
+        after = json.loads(skill_context._ACTIVE_FILE.read_text(encoding="utf-8"))
+        self.assertIn("last_touched_at", after)
+
+    def test_quiet_context_still_expires_per_ttl_from_last_activity(self):
+        """A context whose last real activity (not just its start) is more
+        than one TTL ago must still expire -- the heartbeat must not be able
+        to keep something alive forever once it truly goes quiet."""
+        skill_context._CONTEXT_DIR.mkdir(parents=True, exist_ok=True)
+        old_time = (datetime.now(tz=timezone.utc) - timedelta(hours=3)).isoformat().replace("+00:00", "Z")
+        record = {
+            "skill_id": "S-QUIET",
+            "context_type": "skill",
+            "scope_patterns": ["*"],
+            "started_at": old_time,
+            "last_touched_at": old_time,  # last activity was also 3h ago
+        }
+        with open(skill_context._ACTIVE_FILE, "w") as f:
+            json.dump(record, f)
+
+        result = skill_context.main(["current"])
+        self.assertEqual(result, 2)
+        self.assertFalse(skill_context._ACTIVE_FILE.exists())
+
+    def test_legacy_record_without_last_touched_at_falls_back_to_started_at(self):
+        """Backward compatibility: records written before this field existed
+        (no last_touched_at at all) must behave exactly as before -- staleness
+        measured from started_at alone."""
+        skill_context._CONTEXT_DIR.mkdir(parents=True, exist_ok=True)
+        recent = (datetime.now(tz=timezone.utc) - timedelta(minutes=5)).isoformat().replace("+00:00", "Z")
+        record = {
+            "skill_id": "S-OLD-FORMAT",
+            "context_type": "skill",
+            "scope_patterns": ["*"],
+            "started_at": recent,
+        }
+        with open(skill_context._ACTIVE_FILE, "w") as f:
+            json.dump(record, f)
+
+        result = skill_context.main(["current"])
+        self.assertEqual(result, 0)
+
 
 class TestFileInScope(unittest.TestCase):
     """Tests for _file_in_scope helper."""
@@ -520,6 +597,26 @@ class TestSkillContextOCC(unittest.TestCase):
         p.write_text(json.dumps(rec), encoding="utf-8")
         self.assertEqual(skill_context._load_session_contexts(), {})  # expired
         self.assertFalse(p.exists())
+
+    def test_session_check_bumps_heartbeat_keeping_it_alive_past_original_ttl(self):
+        """A per-session context begun >2h ago, but already touched again
+        1h ago (within TTL), must still be alive -- and a fresh `check` now
+        must refresh its heartbeat again, not just ride the old one."""
+        skill_context.main(["begin", "--skill", "S-20", "--scope", "a/*.py",
+                            "--session-id", "sess-A", "--skip-dar"])
+        p = skill_context._session_context_path("sess-A")
+        rec = json.loads(p.read_text(encoding="utf-8"))
+        rec["started_at"] = (datetime.now(timezone.utc) - timedelta(hours=5)).isoformat().replace("+00:00", "Z")
+        rec["last_touched_at"] = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat().replace("+00:00", "Z")
+        p.write_text(json.dumps(rec), encoding="utf-8")
+
+        self.assertEqual(0, skill_context.main(["check", "--file", "a/x.py", "--session-id", "sess-A"]))
+        touched = json.loads(p.read_text(encoding="utf-8"))
+        # heartbeat refreshed to now, not left at the 1h-ago value
+        touched_dt = datetime.fromisoformat(touched["last_touched_at"].replace("Z", "+00:00"))
+        self.assertLess(datetime.now(timezone.utc) - touched_dt, timedelta(minutes=1))
+        # still alive on a SECOND load, proving the heartbeat (not luck) is what saved it
+        self.assertIn("sess-A", skill_context._load_session_contexts())
 
     def test_archiving_stale_session_does_not_delete_legacy_active(self):
         """Regression guard: _archive() unlinks ACTIVE.json by default. Archiving a stale
