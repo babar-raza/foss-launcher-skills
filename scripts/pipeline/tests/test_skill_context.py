@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import io
 import json
 import sys
 import unittest
+from contextlib import redirect_stdout
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from unittest import mock
@@ -200,6 +202,91 @@ class TestSkillContextCurrent(unittest.TestCase):
         skill_context.main(["begin", "--skill", "S-73", "--scope", "*", "--skip-dar"])
         result = skill_context.main(["current"])
         self.assertEqual(result, 0)
+
+
+class TestSkillContextStatus(unittest.TestCase):
+    """Tests for the read-only `status` command (RC1/RC2 hardening, 2026-07-31).
+
+    The core property under test: status must NEVER mutate or delete
+    anything on disk, unlike current/_load_active/_load_session_contexts,
+    which archive-and-delete stale records as a side effect of being read.
+    """
+
+    def setUp(self):
+        import tempfile
+        self.tmp = Path(tempfile.mkdtemp())
+        self.orig_context_dir = skill_context._CONTEXT_DIR
+        self.orig_active = skill_context._ACTIVE_FILE
+        self.orig_history = skill_context._HISTORY_DIR
+        self.orig_active_dir = skill_context._ACTIVE_DIR
+        skill_context._CONTEXT_DIR = self.tmp / "skill-context"
+        skill_context._ACTIVE_FILE = skill_context._CONTEXT_DIR / "ACTIVE.json"
+        skill_context._HISTORY_DIR = skill_context._CONTEXT_DIR / "history"
+        skill_context._ACTIVE_DIR = skill_context._CONTEXT_DIR / "active"
+
+    def tearDown(self):
+        skill_context._CONTEXT_DIR = self.orig_context_dir
+        skill_context._ACTIVE_FILE = self.orig_active
+        skill_context._HISTORY_DIR = self.orig_history
+        skill_context._ACTIVE_DIR = self.orig_active_dir
+        import shutil
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_status_empty_reports_nothing_and_exits_0(self):
+        self.assertEqual(0, skill_context.main(["status"]))
+
+    def test_status_never_mutates_a_stale_legacy_record(self):
+        """THE core safety property: reading status on a stale record must
+        leave the file exactly as it was -- no archive, no delete."""
+        skill_context._CONTEXT_DIR.mkdir(parents=True, exist_ok=True)
+        stale_time = (datetime.now(tz=timezone.utc) - timedelta(hours=3)).isoformat().replace("+00:00", "Z")
+        record = {"skill_id": "S-OLD", "context_type": "skill",
+                  "scope_patterns": ["*"], "started_at": stale_time}
+        with open(skill_context._ACTIVE_FILE, "w") as f:
+            json.dump(record, f)
+        before = skill_context._ACTIVE_FILE.read_text(encoding="utf-8")
+
+        self.assertEqual(0, skill_context.main(["status"]))
+
+        self.assertTrue(skill_context._ACTIVE_FILE.exists(), "status must not delete the stale record")
+        self.assertEqual(before, skill_context._ACTIVE_FILE.read_text(encoding="utf-8"),
+                          "status must not modify the record at all")
+        self.assertEqual(0, len(list(skill_context._HISTORY_DIR.glob("*.json")) if
+                                 skill_context._HISTORY_DIR.exists() else []),
+                          "status must not archive anything to history")
+
+    def test_status_never_mutates_a_stale_session_record(self):
+        skill_context.main(["begin", "--skill", "S-20", "--scope", "a/x.py",
+                            "--session-id", "sess-A", "--skip-dar"])
+        p = skill_context._session_context_path("sess-A")
+        rec = json.loads(p.read_text(encoding="utf-8"))
+        rec["started_at"] = (datetime.now(timezone.utc) - timedelta(hours=5)).isoformat().replace("+00:00", "Z")
+        p.write_text(json.dumps(rec), encoding="utf-8")
+        before = p.read_text(encoding="utf-8")
+
+        self.assertEqual(0, skill_context.main(["status"]))
+
+        self.assertTrue(p.exists(), "status must not delete the stale session record")
+        self.assertEqual(before, p.read_text(encoding="utf-8"))
+
+    def test_status_json_reports_live_and_stale_correctly(self):
+        skill_context.main(["begin", "--skill", "S-73", "--scope", "content/*", "--skip-dar"])
+        skill_context.main(["begin", "--skill", "S-20", "--scope", "a/x.py",
+                            "--session-id", "sess-A", "--skip-dar"])
+        p = skill_context._session_context_path("sess-A")
+        rec = json.loads(p.read_text(encoding="utf-8"))
+        rec["started_at"] = (datetime.now(timezone.utc) - timedelta(hours=5)).isoformat().replace("+00:00", "Z")
+        p.write_text(json.dumps(rec), encoding="utf-8")
+
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            self.assertEqual(0, skill_context.main(["status", "--json"]))
+        report = json.loads(buf.getvalue())
+
+        self.assertEqual(report["legacy"]["skill_id"], "S-73")
+        self.assertFalse(report["legacy"]["would_be_stale"])
+        self.assertEqual(report["sessions"]["sess-A"]["skill_id"], "S-20")
+        self.assertTrue(report["sessions"]["sess-A"]["would_be_stale"])
 
 
 class TestSkillContextGap(unittest.TestCase):

@@ -586,6 +586,84 @@ def cmd_current(args: argparse.Namespace) -> int:
     return 0
 
 
+def _describe_record(record: dict) -> dict:
+    """Compute display fields for one context record without mutating anything."""
+    activity_dt = _effective_activity_dt(record)
+    ttl = _GAP_TTL if record.get("context_type") == "gap_approved" else _MAX_CONTEXT_AGE
+    if activity_dt is None:
+        age_desc = "unknown (unparseable timestamp)"
+        stale = True
+    else:
+        age = _now() - activity_dt
+        age_desc = f"{age.total_seconds() / 60:.1f}m"
+        stale = age > ttl
+    return {
+        "skill_id": record.get("skill_id", "unknown"),
+        "context_type": record.get("context_type", "skill"),
+        "scope_patterns": record.get("scope_patterns", []),
+        "started_at": record.get("started_at"),
+        "last_touched_at": record.get("last_touched_at"),
+        "age": age_desc,
+        "would_be_stale": stale,
+    }
+
+
+def cmd_status(args: argparse.Namespace) -> int:
+    """Report every skill-context record (legacy + all per-session) with its
+    computed staleness, WITHOUT mutating or archiving anything.
+
+    RC1/RC2 hardening (2026-07-31): _load_active()/_load_session_contexts()
+    archive-and-delete a stale record as a side effect of being read, so
+    diagnosing a live incident by calling them can destroy the evidence
+    needed to diagnose it. This command reads the raw files directly instead.
+    Always exits 0 -- it is a report, not a gate.
+    """
+    as_json = getattr(args, "json", False)
+    report: dict = {"legacy": None, "sessions": {}}
+
+    if _ACTIVE_FILE.exists():
+        try:
+            raw = json.loads(_ACTIVE_FILE.read_text(encoding="utf-8"))
+            report["legacy"] = _describe_record(raw)
+        except (json.JSONDecodeError, OSError) as exc:
+            report["legacy"] = {"error": f"unreadable: {exc}"}
+
+    if _ACTIVE_DIR.exists():
+        for p in sorted(_ACTIVE_DIR.glob("*.json")):
+            try:
+                raw = json.loads(p.read_text(encoding="utf-8"))
+                report["sessions"][p.stem] = _describe_record(raw)
+            except (json.JSONDecodeError, OSError) as exc:
+                report["sessions"][p.stem] = {"error": f"unreadable: {exc}"}
+
+    if as_json:
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+        return 0
+
+    if not report["legacy"] and not report["sessions"]:
+        print("No skill-context records on disk (legacy or per-session).")
+        return 0
+
+    if report["legacy"]:
+        d = report["legacy"]
+        if "error" in d:
+            print(f"Legacy ACTIVE.json: {d['error']}")
+        else:
+            flag = "STALE (would self-expire on next real read)" if d["would_be_stale"] else "live"
+            print(f"Legacy ACTIVE.json: {d['skill_id']} ({d['context_type']}) "
+                  f"scope={d['scope_patterns']} age={d['age']} [{flag}]")
+
+    for sid, d in sorted(report["sessions"].items()):
+        if "error" in d:
+            print(f"Session {sid}: {d['error']}")
+            continue
+        flag = "STALE (would self-expire on next real read)" if d["would_be_stale"] else "live"
+        print(f"Session {sid}: {d['skill_id']} ({d['context_type']}) "
+              f"scope={d['scope_patterns']} age={d['age']} [{flag}]")
+
+    return 0
+
+
 def _load_history_records() -> list[dict]:
     """Load every history/*.json record, tolerating unreadable/corrupt files."""
     records = []
@@ -786,6 +864,11 @@ def main(argv: list[str] | None = None) -> int:
     p_current.add_argument("--session-id", dest="session_id", default=None,
                            help="Session identity (default: AGENT_SESSION_ID, then CODEX_THREAD_ID, then legacy)")
 
+    # status (RC1/RC2 hardening 2026-07-31: read-only, never mutates)
+    p_status = sub.add_parser(
+        "status", help="Report every context (legacy + per-session) with computed staleness; never mutates")
+    p_status.add_argument("--json", action="store_true", help="Emit machine-readable JSON")
+
     # gap
     p_gap = sub.add_parser("gap", help="Create gap-approved temporary context")
     p_gap.add_argument("--task", required=True, help="Description of the gap work")
@@ -807,6 +890,7 @@ def main(argv: list[str] | None = None) -> int:
         "end": cmd_end,
         "check": cmd_check,
         "current": cmd_current,
+        "status": cmd_status,
         "gap": cmd_gap,
         "trace": cmd_trace,
     }
