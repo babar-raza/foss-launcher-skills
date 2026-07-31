@@ -249,9 +249,20 @@ def triage_confirm(
                 f"body references modified API '{api_name}'; "
                 "presence alone does not prove stale prose"
             )
+        # Found live (MT014-2026-07-29-PDF-GO-REDO): [^`]* inside the
+        # parameter group is greedy across parens, so a CHAINED call in the
+        # same backtick span -- e.g. `Document.Form().Field(name)` -- has its
+        # first call's "()" swallow everything up to the LAST ")" before the
+        # backtick ("). Field(name" became the claimed param list for
+        # Form(), which takes none, producing a false "stale signature"
+        # finding on prose that was actually accurate). Excluding parens from
+        # the captured class means the match simply stops at the first
+        # real ")" -- a chained call then fails to match at all (silently
+        # skipped, not mis-attributed), while a real single call's params
+        # ("path, opts") are still captured correctly.
         for member in re.findall(
             rf"`{re.escape(api_name)}\.([A-Za-z_][A-Za-z0-9_]*)"
-            rf"(?:\([^`]*\))?`",
+            rf"(?:\([^`()]*\))?`",
             body,
         ):
             if api_name in current_members and member not in current_members[api_name]:
@@ -262,7 +273,7 @@ def triage_confirm(
                 confidence = max(confidence, 0.9)
         for member, raw_params in re.findall(
             rf"`{re.escape(api_name)}\.([A-Za-z_][A-Za-z0-9_]*)"
-            rf"\(([^`]*)\)`",
+            rf"\(([^`()]*)\)`",
             body,
         ):
             claimed = _signature_claim(raw_params)

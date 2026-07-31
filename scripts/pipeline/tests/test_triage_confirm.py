@@ -137,6 +137,55 @@ class TestLayer2Detection:
         result = triage_confirm(page, knowledge)
         assert result["stale"] is False
 
+    def test_chained_call_in_same_backtick_span_is_not_falsely_stale(self, tmp_path):
+        """Regression test for a confirmed bug: [^`]* inside the captured
+        parameter group is greedy across parens, so a CHAINED call in one
+        backtick span -- `Document.Form().Field(name)` -- had Form()'s
+        "()" swallow everything up to the LAST ")" before the backtick,
+        misreading ").Field(name" as Form's claimed argument list. Since
+        Form takes zero params, this produced a false "stale signature"
+        finding on accurate prose (found live, MT014-2026-07-29-PDF-GO-REDO,
+        content/kb.aspose.org/en/pdf/go/faq.md -- Document.Form() truly
+        takes no arguments; .Field(name) is a separate, correctly-described
+        chained call)."""
+        page = _page(
+            tmp_path,
+            "page.md",
+            "Use `Document.Form().Field(name)` and assert the concrete type.",
+        )
+        knowledge = {
+            "api_surface": [{
+                "name": "Document",
+                "methods": [{"name": "Form", "params": []}],
+            }],
+            "delta": {"modified_apis": ["Document"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is False
+        assert result["reasons"] == []
+
+    def test_single_call_signature_still_detected_after_chained_call_fix(self, tmp_path):
+        """Negative control: the fix above must not blind the checker to
+        real, non-chained signature mismatches."""
+        page = _page(
+            tmp_path,
+            "page.md",
+            "Use `Document.Load(String)` to open with options.",
+        )
+        knowledge = {
+            "api_surface": [{
+                "name": "Document",
+                "methods": [{
+                    "name": "Load",
+                    "params": [{"name": "value", "type": "Stream"}],
+                }],
+            }],
+            "delta": {"modified_apis": ["Document"]},
+        }
+        result = triage_confirm(page, knowledge)
+        assert result["stale"] is True
+        assert any("stale signature" in reason for reason in result["reasons"])
+
     def test_duplicate_class_rows_union_members(self, tmp_path):
         page = _page(
             tmp_path,
