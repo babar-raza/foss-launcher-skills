@@ -21,6 +21,16 @@ CONTRACT: scripts/pipeline/lib/advisory_lock.py
            a lock that just changed hands. Narrowed, not eliminated — advisory
            locking on a plain filesystem cannot fully close that window; this
            is documented, not hidden.
+  improvement (RC1/RC2 hardening, 2026-07-31): the guard above only ever
+           covered the WAITER doing a steal. Nothing covered the original
+           HOLDER's own release() — if this instance's lock was stolen
+           (acquire()'s deadline branch intentionally steals from a still-
+           alive holder once stale_seconds elapses, per the note above),
+           release() used to unconditionally unlink whatever now occupies
+           self.path, silently destroying the new holder's live lock instead
+           of a safe no-op. release() now compares the exact payload it wrote
+           at acquire() time before unlinking (compare-then-unlink), the same
+           narrowing (not elimination) already accepted for the steal path.
   windows note: liveness probing shells out to `tasklist` (native Windows
            executable, also on PATH inside Git Bash / MSYS2). Probes are rate
            limited (once per second of waiting) because tasklist costs
@@ -93,6 +103,7 @@ class FileLock:
         self.poll = poll
         self._held = False
         self._observed_sig: tuple[float, int] | None = None
+        self._own_payload: str | None = None
 
     # ── internals ────────────────────────────────────────────────────────
 
@@ -144,11 +155,13 @@ class FileLock:
         while True:
             try:
                 fd = os.open(str(self.path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                payload = f"{os.getpid()}:{time.time()}"
                 try:
-                    os.write(fd, f"{os.getpid()}:{time.time()}".encode("utf-8"))
+                    os.write(fd, payload.encode("utf-8"))
                 finally:
                     os.close(fd)
                 self._held = True
+                self._own_payload = payload
                 return self
             except FileExistsError:
                 now = time.monotonic()
@@ -174,9 +187,34 @@ class FileLock:
                 time.sleep(self.poll)
 
     def release(self) -> None:
+        """Release the lock -- but only if the file at self.path still holds
+        the exact payload THIS instance wrote at acquire() time.
+
+        HARDEN-A1 covers the waiter side: a waiter stealing a stale-but-live
+        lock re-checks a stat signature immediately before unlinking, so it
+        never blindly destroys a lock that changed hands. Nothing previously
+        covered the holder side: if this instance's own lock was stolen
+        (deadline-branch steal in acquire(), which can legitimately steal
+        from a still-alive holder past stale_seconds -- documented,
+        intentional, tested in test_stale_mtime_steal_from_live_pid), this
+        release() would otherwise unconditionally unlink whatever is now at
+        self.path -- silently destroying the NEW holder's live lock instead
+        of a no-op. Comparing the exact payload this instance wrote narrows
+        that to a compare-then-unlink race (same class of narrowing, not
+        elimination, the steal path already documents and accepts for a
+        plain filesystem).
+        """
         if not self._held:
             return
         self._held = False
+        payload = self._own_payload
+        self._own_payload = None
+        try:
+            current = self.path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            return  # already gone — nothing to compare or unlink
+        if payload is not None and current != payload:
+            return  # stolen since we acquired — this is no longer OUR lock to release
         try:
             self.path.unlink()
         except OSError:

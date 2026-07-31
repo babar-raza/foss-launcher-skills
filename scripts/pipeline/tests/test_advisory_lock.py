@@ -77,6 +77,37 @@ def test_stale_mtime_steal_from_live_pid(lock_path: Path):
     waiter.release()
 
 
+def test_late_release_after_steal_does_not_destroy_new_holders_lock(lock_path: Path):
+    """RC1/RC2 hardening (2026-07-31): acquire()'s deadline branch can steal
+    from a still-alive holder once stale_seconds elapses (see
+    test_stale_mtime_steal_from_live_pid above -- that is intentional). What
+    was NOT covered: the ORIGINAL holder, unaware it was stolen from, later
+    calling release() must not destroy the NEW holder's live lock."""
+    holder = FileLock(lock_path, timeout=2.0, stale_seconds=120.0)
+    holder.acquire()
+    assert holder._held
+
+    # Age the lock file past stale_seconds without holder's knowledge, exactly
+    # as if real time had passed while holder kept working.
+    old = time.time() - 500
+    os.utime(lock_path, (old, old))
+
+    waiter = FileLock(lock_path, timeout=0.5, stale_seconds=120.0)
+    waiter.acquire()  # steals via the mtime-stale fallback (holder's own pid is alive)
+    assert waiter._held
+    payload_after_steal = lock_path.read_text(encoding="utf-8")
+
+    # The original holder, unaware it was stolen from, now calls release().
+    holder.release()
+
+    # THE regression this test guards: waiter's lock must survive untouched.
+    assert lock_path.exists(), "holder.release() destroyed the new holder's live lock"
+    assert lock_path.read_text(encoding="utf-8") == payload_after_steal
+
+    waiter.release()
+    assert not lock_path.exists()
+
+
 def test_dead_pid_immediate_steal(lock_path: Path):
     # A verifiably-dead holder is stolen well before the stale window (120s)
     # and even before this waiter's own timeout would expire.
