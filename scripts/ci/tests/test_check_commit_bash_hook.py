@@ -54,12 +54,15 @@ def _run(
     active_started_hours_ago: float = 0.0,
     active_omit_started_at: bool = False,
     session_ctxs: tuple = (),
+    claude_code_session_id: str | None = None,
 ) -> int:
     """Invoke the hook against an isolated root; return exit code.
 
     active_skill: _SENTINEL/None = no legacy ACTIVE.json; "S-76" etc. writes one.
     session_ctxs: iterable of (session_id, skill_id, stale: bool) tuples written
         as per-session context files under reports/skill-context/active/.
+    claude_code_session_id: simulates the harness-provided CLAUDE_CODE_SESSION_ID
+        env var for the RC1/RC2 CLAUDE_CODE_SESSION_ID fallback tier (2026-07-31).
     """
     payload = json.dumps({"tool_name": "Bash", "tool_input": {"command": command}})
     with tempfile.TemporaryDirectory() as tmp:
@@ -89,6 +92,12 @@ def _run(
         env["CHECK_COMMIT_HOOK_ROOT_OVERRIDE"] = str(root)
         # Keep hermetic against a live agent shell's exported identity
         env.pop("AGENT_SESSION_ID", None)
+        if claude_code_session_id is not None:
+            env["CLAUDE_CODE_SESSION_ID"] = claude_code_session_id
+        else:
+            # Keep hermetic against the real CLAUDE_CODE_SESSION_ID set by
+            # whatever harness is actually running this test suite.
+            env.pop("CLAUDE_CODE_SESSION_ID", None)
         if skip:
             env["SKIP_COMMIT_BASH_CHECK"] = "1"
         else:
@@ -294,6 +303,53 @@ def test_cb_a3_stale_session_context_not_counted():
     # only a stale context exists → block
     assert _run('git commit -m "x"',
                 session_ctxs=(("sess-old", "S-76", True),)) == 2
+
+
+# ---------------------------------------------------------------------------
+# RC1/RC2 hardening (2026-07-31): CLAUDE_CODE_SESSION_ID fallback tier.
+#
+# An earlier design fell back to session_ledger.py's shared
+# reports/session-state/ACTIVE pointer file. Live testing against a
+# genuinely concurrent second session in this repo showed that design lets
+# two independent processes both resolve to the same identity (whoever's
+# session the shared file last named), so a commit from one process could be
+# authorized by another process's live S-76 context. CLAUDE_CODE_SESSION_ID
+# does not have that failure mode — it is assigned per-conversation by the
+# harness, not read from a file another process could overwrite.
+# ---------------------------------------------------------------------------
+
+def test_cb_claude_code_session_id_allows_own_session():
+    """CLAUDE_CODE_SESSION_ID alone (no AGENT_SESSION_ID) resolves identity
+    and authorizes a commit when THAT session holds a live S-76 context."""
+    assert _run('git commit -m "x"',
+                session_ctxs=(("conv-a", "S-76", False), ("conv-b", "S-76", False)),
+                claude_code_session_id="conv-a") == 0
+
+
+def test_cb_claude_code_session_id_blocks_wrong_session():
+    """CLAUDE_CODE_SESSION_ID naming a session that holds no live S-76 context
+    blocks, even though a different session's context IS live -- the core
+    safety property: one conversation's identity must never authorize a
+    commit via another, independent conversation's context."""
+    assert _run('git commit -m "x"',
+                session_ctxs=(("conv-a", "S-76", False),),
+                claude_code_session_id="conv-b") == 2
+
+
+def test_cb_agent_session_id_prefix_takes_precedence_over_claude_code_session_id():
+    """Explicit AGENT_SESSION_ID=<id> in the command still wins over the
+    CLAUDE_CODE_SESSION_ID fallback tier."""
+    assert _run('AGENT_SESSION_ID=conv-a git commit -m "x"',
+                session_ctxs=(("conv-a", "S-76", False), ("conv-b", "S-76", False)),
+                claude_code_session_id="conv-b") == 0
+
+
+def test_cb_no_identity_source_falls_back_to_holder_count():
+    """Absent-var fallback gate: with neither AGENT_SESSION_ID nor
+    CLAUDE_CODE_SESSION_ID set, behavior is unchanged from before this
+    change -- two live contexts with no identity is still ambiguous."""
+    assert _run('git commit -m "x"',
+                session_ctxs=(("conv-a", "S-76", False), ("conv-b", "S-76", False))) == 2
 
 
 # ---------------------------------------------------------------------------

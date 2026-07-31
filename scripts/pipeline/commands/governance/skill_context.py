@@ -48,6 +48,7 @@ from advisory_lock import FileLock
 
 _ENV_SESSION_ID = "AGENT_SESSION_ID"
 _CODEX_SESSION_ID = "CODEX_THREAD_ID"
+_CLAUDE_CODE_SESSION_ID = "CLAUDE_CODE_SESSION_ID"
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent  # commands/governance/ -> commands/ -> pipeline/ -> scripts/ -> repo
 _REPO_ROOT = _DEFAULT_REPO_ROOT
@@ -235,15 +236,36 @@ def _derive_session_id(explicit: "str | None") -> "str | None":
     """Return the stable caller identity.
 
     Precedence is explicit ``--session-id`` > ``AGENT_SESSION_ID`` >
-    ``CODEX_THREAD_ID``. Codex supplies the latter for every thread, so treating it
-    as a stable identity prevents Codex callers from silently falling back to the
-    shared legacy ``ACTIVE.json``. Other callers retain the legacy path when none
-    of the three sources is available.
+    ``CODEX_THREAD_ID`` > ``CLAUDE_CODE_SESSION_ID``. Codex supplies its env
+    var for every thread, so treating it as a stable identity prevents Codex
+    callers from silently falling back to the shared legacy ``ACTIVE.json``.
+
+    ``CLAUDE_CODE_SESSION_ID`` (RC1/RC2 hardening, 2026-07-31) is the harness's
+    own per-conversation identifier — inherited into every tool-call subprocess
+    automatically, unlike ``AGENT_SESSION_ID``/``--session-id`` which the caller
+    must remember to re-supply on every single call (this harness's Bash tool
+    does not persist shell state across invocations). It is a LAST-RESORT
+    fallback, not a replacement for explicit identity: it is shared by a
+    conversation with any subagents it spawns (verified empirically), so
+    parallel subagents from one conversation are not distinguished from each
+    other by this tier alone — a pre-existing limitation (they already shared
+    the single legacy ``ACTIVE.json`` before this change), not a new one. What
+    it does fix is the common case this repo actually hit in production: two
+    genuinely independent, separately-initiated sessions/conversations, which
+    the harness assigns *different* ``CLAUDE_CODE_SESSION_ID`` values, so the
+    scope-overlap conflict check now correctly compares two distinct
+    identities instead of both silently falling to the legacy path (where a
+    conflict is only ever "any different skill", not scope-aware) or, in an
+    earlier unsafe design that was tried and reverted, both resolving to one
+    shared *mutable* file that either process could legitimately believe was
+    its own. Other callers retain the legacy path only when none of the four
+    sources resolves to anything.
     """
     value = (
         explicit
         or os.environ.get(_ENV_SESSION_ID, "").strip()
         or os.environ.get(_CODEX_SESSION_ID, "").strip()
+        or os.environ.get(_CLAUDE_CODE_SESSION_ID, "").strip()
         or None
     )
     if value:

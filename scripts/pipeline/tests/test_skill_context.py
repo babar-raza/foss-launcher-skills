@@ -23,9 +23,14 @@ import skill_context
 def _clear_agent_session_env(monkeypatch):
     """Keep legacy-path tests hermetic: a developer/agent shell exporting
     AGENT_SESSION_ID (the HARDEN-A2 convention) must not leak in and silently
-    reroute flag-less calls onto the per-session path."""
+    reroute flag-less calls onto the per-session path. CLAUDE_CODE_SESSION_ID
+    is set by the real harness running this very test suite (RC1/RC2
+    hardening, 2026-07-31), so it must be cleared here too or every
+    legacy-path test would silently flip to the per-session path only when
+    run inside an actual Claude Code session."""
     monkeypatch.delenv("AGENT_SESSION_ID", raising=False)
     monkeypatch.delenv("CODEX_THREAD_ID", raising=False)
+    monkeypatch.delenv("CLAUDE_CODE_SESSION_ID", raising=False)
 
 
 def test_session_id_resolution_precedence(monkeypatch):
@@ -563,6 +568,84 @@ class TestSkillContextOCC(unittest.TestCase):
             self.assertEqual(contexts["env-sess-1"]["skill_id"], "S-20")
             self.assertEqual(0, skill_context.main(["end", "--skill", "S-20"]))
             self.assertEqual(skill_context._load_session_contexts(), {})
+
+    # ── CLAUDE_CODE_SESSION_ID fallback tier (RC1/RC2 hardening, 2026-07-31) ──
+    #
+    # An earlier design used session_ledger.py's shared reports/session-state/ACTIVE
+    # pointer file as this fallback. Live testing against a genuinely concurrent
+    # second session in this repo showed that design collides: both processes
+    # read the same mutable file and believe it is their own identity, so a
+    # scope-overlapping begin from the second process silently SUPERSEDED the
+    # first process's live context instead of conflicting -- reproducing, in
+    # miniature, the exact silent-clobber class this OCC mechanism exists to
+    # prevent. CLAUDE_CODE_SESSION_ID is different in kind: it is inherited by
+    # the harness into every tool-call subprocess of ONE conversation, not read
+    # from a file any other process could overwrite. The test below is the
+    # safety-property gate for that claim: two independently-set
+    # CLAUDE_CODE_SESSION_ID values must behave exactly like two independent
+    # --session-id values (named conflict on overlap), never a same-session supersede.
+
+    def test_claude_code_session_id_routes_to_per_session_path(self):
+        """With no explicit identity and no AGENT_SESSION_ID/CODEX_THREAD_ID,
+        CLAUDE_CODE_SESSION_ID alone is enough to land on the per-session path."""
+        with mock.patch.dict("os.environ", {"CLAUDE_CODE_SESSION_ID": "conv-1"}):
+            self.assertEqual(0, skill_context.main(
+                ["begin", "--skill", "S-20", "--scope", "a/*", "--skip-dar"]))
+            self.assertFalse(skill_context._ACTIVE_FILE.exists())
+            contexts = skill_context._load_session_contexts()
+            self.assertIn("conv-1", contexts)
+            self.assertEqual(contexts["conv-1"]["skill_id"], "S-20")
+
+    def test_agent_session_id_takes_precedence_over_claude_code_session_id(self):
+        with mock.patch.dict("os.environ", {
+            "AGENT_SESSION_ID": "explicit-sess",
+            "CLAUDE_CODE_SESSION_ID": "conv-1",
+        }):
+            self.assertEqual("explicit-sess", skill_context._derive_session_id(None))
+
+    def test_two_independent_conversations_with_overlapping_scope_conflict_not_supersede(self):
+        """THE safety-property gate: two DIFFERENT CLAUDE_CODE_SESSION_ID values
+        (simulating two genuinely independent, separately-initiated Claude Code
+        conversations, each with no explicit --session-id of its own -- the
+        common real case, since the harness does not persist AGENT_SESSION_ID
+        across tool calls) must be treated as two DISTINCT sessions: an
+        overlapping-scope begin from the second one is a named conflict (exit 3),
+        and the first session's context must survive completely untouched --
+        never a silent same-session supersede."""
+        with mock.patch.dict("os.environ", {"CLAUDE_CODE_SESSION_ID": "conversation-A"}):
+            self.assertEqual(0, skill_context.main(
+                ["begin", "--skill", "S-20", "--scope", "a/x.py", "--skip-dar"]))
+
+        with mock.patch.dict("os.environ", {"CLAUDE_CODE_SESSION_ID": "conversation-B"}):
+            result = skill_context.main(
+                ["begin", "--skill", "S-21", "--scope", "a/*.py", "--skip-dar"])
+            self.assertEqual(result, 3, "must be a named conflict, not a silent supersede")
+
+        live = skill_context._load_session_contexts()
+        self.assertEqual(set(live), {"conversation-A"}, "conversation-A must survive untouched")
+        self.assertEqual(live["conversation-A"]["skill_id"], "S-20")
+
+    def test_two_independent_conversations_nonoverlapping_scope_coexist(self):
+        """Companion to the conflict test: when the two independent conversations'
+        scopes do NOT overlap, both must coexist as distinct sessions (proving
+        this fallback tier does not over-block unrelated concurrent work either)."""
+        with mock.patch.dict("os.environ", {"CLAUDE_CODE_SESSION_ID": "conversation-A"}):
+            r1 = skill_context.main(["begin", "--skill", "S-20", "--scope", "a/x.py", "--skip-dar"])
+        with mock.patch.dict("os.environ", {"CLAUDE_CODE_SESSION_ID": "conversation-B"}):
+            r2 = skill_context.main(["begin", "--skill", "S-21", "--scope", "b/y.py", "--skip-dar"])
+        self.assertEqual((r1, r2), (0, 0))
+        live = skill_context._load_session_contexts()
+        self.assertEqual(set(live), {"conversation-A", "conversation-B"})
+
+    def test_no_identity_source_at_all_still_uses_legacy_path(self):
+        """Absent-var fallback gate: when CLAUDE_CODE_SESSION_ID (and every other
+        source) is unset -- e.g. a CLI/SDK invocation outside this harness --
+        behavior is byte-identical to before this change: the legacy single
+        ACTIVE.json path, not an error."""
+        self.assertIsNone(skill_context._derive_session_id(None))
+        self.assertEqual(0, skill_context.main(["begin", "--skill", "S-20", "--scope", "a/*", "--skip-dar"]))
+        self.assertTrue(skill_context._ACTIVE_FILE.exists())
+        self.assertEqual(skill_context._load_session_contexts(), {})
 
     def test_check_with_session_id_isolates_to_that_session(self):
         skill_context.main(["begin", "--skill", "S-20", "--scope", "a/x.py",

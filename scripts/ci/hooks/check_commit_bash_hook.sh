@@ -170,6 +170,19 @@ fi
 #     exists repo-wide (the single-session case, unchanged). Two or more is
 #     ambiguous -> fail-closed with both named.
 # Existing fail-open cases (no input, no python) are unchanged above.
+#
+# RC1/RC2 hardening (2026-07-31): with no inline/env AGENT_SESSION_ID, also
+# fall back to CLAUDE_CODE_SESSION_ID (the harness's own per-conversation
+# identifier, inherited automatically into this subprocess — unlike
+# AGENT_SESSION_ID, which the caller must remember to re-supply on every
+# call since this harness's Bash tool does not persist shell state across
+# invocations). Matches the same fallback tier added to skill_context.py's
+# _derive_session_id. An earlier design used session_ledger.py's shared
+# reports/session-state/ACTIVE pointer file instead; that was reverted after
+# live testing showed two independent processes could both read it as their
+# own identity. CLAUDE_CODE_SESSION_ID does not have that failure mode: it is
+# assigned per-conversation by the harness, not read from a file another
+# process could overwrite.
 # ---------------------------------------------------------------------------
 
 VERDICT=$("$PYTHON" -c "
@@ -203,7 +216,11 @@ def is_s76(rec):
     return bool(rec) and rec.get('skill_id') == 'S-76' and live(rec)
 
 m = re.search(r'(?:^|[\s;&|(])AGENT_SESSION_ID=([A-Za-z0-9_.-]+)', command)
-sid = m.group(1) if m else os.environ.get('AGENT_SESSION_ID', '').strip()
+sid = (
+    (m.group(1) if m else '')
+    or os.environ.get('AGENT_SESSION_ID', '').strip()
+    or os.environ.get('CLAUDE_CODE_SESSION_ID', '').strip()
+)
 
 if sid:
     if is_s76(load(active_dir / (sid + '.json'))):
