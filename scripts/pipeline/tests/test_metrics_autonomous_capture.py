@@ -172,10 +172,19 @@ def _prof_embed_resp(vectors: list, prompt_tokens: int = 4) -> _FakeHTTPResponse
 
 
 def _make_router(registry_path: Path, http_responses: list):
+    """Build a router with credentials injected via LLMRouter's
+    _credential_env seam, not os.environ patching: LLMRouter reads
+    credentials lazily inside call_chat()/call_embeddings(), not at
+    construction time, so a `with patch.dict(...)` scoped to construction
+    reverts before the caller ever invokes those methods.
+    """
     from commands.ops.llm_router import LLMRouter
     http = _FakeHTTPClient(http_responses)
-    with patch.dict(os.environ, {"PROFESSIONALIZE_API_KEY": "test-key-at01"}):
-        return LLMRouter(registry_path=registry_path, _http_client=http)
+    return LLMRouter(
+        registry_path=registry_path,
+        _http_client=http,
+        _credential_env={"PROFESSIONALIZE_API_KEY": "test-key-at01"},
+    )
 
 
 def _make_test_row() -> MetricsRow:

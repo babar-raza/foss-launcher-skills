@@ -310,13 +310,34 @@ class LLMRouter:
     All methods return ``CallResult`` — never raise on network/parse errors.
     """
 
-    def __init__(self, registry_path: Path | None = None, *, _http_client: Any = None):
+    def __init__(
+        self,
+        registry_path: Path | None = None,
+        *,
+        _http_client: Any = None,
+        _credential_env: dict[str, str] | None = None,
+    ):
         self._registry_path = registry_path or _REGISTRY_PATH
         self._registry = _load_registry(self._registry_path)
         self._providers = _sorted_providers(self._registry)
         self._config_digest = self._digest_registry()
         self._ollama_models: list[str] | None = None
         self._http_client = _http_client
+        self._credential_env_override = _credential_env
+
+    def _env_get(self, name: str) -> str:
+        """Resolve a credential env var name, honoring the test-only override.
+
+        Names present in ``_credential_env`` (if passed to the constructor)
+        are resolved deterministically from that dict, regardless of the
+        ambient process environment. Names absent from it fall through to
+        the real ``os.environ`` — this lets a test pin the one credential it
+        cares about while still layering its own additional env-var patches
+        (e.g. a custom ``credential_aliases`` set) around the actual call.
+        """
+        if self._credential_env_override is not None and name in self._credential_env_override:
+            return self._credential_env_override[name]
+        return os.environ.get(name, "").strip()
 
     def _digest_registry(self) -> str:
         return hashlib.sha256(self._registry_path.read_bytes()).hexdigest()
@@ -1414,8 +1435,7 @@ class LLMRouter:
                 return env_url
         return provider["base_url"].rstrip("/")
 
-    @staticmethod
-    def _get_api_key(provider: dict) -> str | None:
+    def _get_api_key(self, provider: dict) -> str | None:
         """Return API key for provider.
 
         Returns:
@@ -1430,32 +1450,31 @@ class LLMRouter:
         aliases = provider.get("credential_aliases")
         if aliases:
             for env_var in aliases:
-                key = os.environ.get(env_var, "").strip()
+                key = self._env_get(env_var)
                 if key:
                     return key
             return None
         env_var = provider.get("api_key_env")
         if not env_var:
             return ""  # No key required (e.g. Ollama)
-        key = os.environ.get(env_var, "").strip()
+        key = self._env_get(env_var)
         if not key:
             fallback_var = provider.get("api_key_env_fallback")
             if fallback_var:
-                key = os.environ.get(fallback_var, "").strip()
+                key = self._env_get(fallback_var)
         if not key:
             return None
         return key
 
-    @staticmethod
-    def _get_api_key_candidates(provider: dict) -> list[tuple[str, str]]:
+    def _get_api_key_candidates(self, provider: dict) -> list[tuple[str, str]]:
         aliases = provider.get("credential_aliases") or []
         if aliases:
             return [
-                (name, os.environ.get(name, "").strip())
+                (name, self._env_get(name))
                 for name in aliases
-                if os.environ.get(name, "").strip()
+                if self._env_get(name)
             ]
-        key = LLMRouter._get_api_key(provider)
+        key = self._get_api_key(provider)
         return [(provider.get("api_key_env", ""), key)] if key else []
 
     def _build_prof_client(

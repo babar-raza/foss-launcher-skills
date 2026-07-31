@@ -148,17 +148,32 @@ def registry_path(tmp_path):
 
 @pytest.fixture
 def router_no_key(registry_path):
-    """Router with no professionalize key set (ollama-only path)."""
-    with patch.dict(os.environ, {"PROFESSIONALIZE_API_KEY": ""}, clear=False):
-        return LLMRouter(registry_path=registry_path)
+    """Router with no professionalize key set (ollama-only path).
+
+    Uses the _credential_env injection seam (not os.environ patching) so the
+    "no key" state is deterministic regardless of the ambient shell — see
+    LLMRouter._env_get. Pinning PROFESSIONALIZE_API_KEY to "" in the override
+    guarantees it resolves empty even if the real env var happens to be set.
+    """
+    return LLMRouter(registry_path=registry_path, _credential_env={"PROFESSIONALIZE_API_KEY": ""})
 
 
 def _make_router(registry_path, http_responses=None, api_key="test-key-123"):
-    """Build a router with optional injected FakeHTTPClient."""
-    env = {"PROFESSIONALIZE_API_KEY": api_key}
-    with patch.dict(os.environ, env):
-        http = _FakeHTTPClient(http_responses) if http_responses is not None else None
-        return LLMRouter(registry_path=registry_path, _http_client=http)
+    """Build a router with optional injected FakeHTTPClient.
+
+    Credentials are injected via LLMRouter's _credential_env seam, not
+    os.environ patching: LLMRouter reads credentials lazily inside
+    call_chat()/call_embeddings()/probe(), not at construction time, so a
+    `with patch.dict(...)` scoped to construction would revert before the
+    caller ever invokes those methods. The injection seam sidesteps that
+    entirely and needs no teardown.
+    """
+    http = _FakeHTTPClient(http_responses) if http_responses is not None else None
+    return LLMRouter(
+        registry_path=registry_path,
+        _http_client=http,
+        _credential_env={"PROFESSIONALIZE_API_KEY": api_key},
+    )
 
 
 @pytest.fixture
@@ -168,8 +183,10 @@ def router(registry_path):
     For Slice 3: most professionalize-path tests should use _make_router()
     with injected fake responses instead of this fixture.
     """
-    with patch.dict(os.environ, {"PROFESSIONALIZE_API_KEY": "test-key-123"}):
-        return LLMRouter(registry_path=registry_path)
+    return LLMRouter(
+        registry_path=registry_path,
+        _credential_env={"PROFESSIONALIZE_API_KEY": "test-key-123"},
+    )
 
 
 def _mock_chat_response(content: str, status_code: int = 200):
@@ -389,6 +406,9 @@ class TestCallChatAuthFailed:
         assert result.status == EndpointStatus.OK
         assert result.provider == "ollama"
         assert result.fallback_artifact == ""
+        # Proves professionalize's 401 was actually hit (not skipped as
+        # not_configured) — this is the scenario the test name claims.
+        assert router._http_client.call_count == 1
 
     def test_403_is_auth_failed_then_ollama(self, registry_path):
         prof_resp = _FakeHTTPResponse({"error": "forbidden"}, 403)
@@ -401,6 +421,7 @@ class TestCallChatAuthFailed:
 
         assert result.status == EndpointStatus.OK
         assert result.provider == "ollama"
+        assert router._http_client.call_count == 1
 
 
 # ---------------------------------------------------------------------------
@@ -422,6 +443,9 @@ class TestCallChatUnreachable:
         assert result.status == EndpointStatus.OK
         assert result.provider == "ollama"
         assert result.fallback_artifact == ""
+        # Proves professionalize's connection error was actually hit (not
+        # skipped as not_configured) — the scenario the test name claims.
+        assert router._http_client.call_count == 1
 
     def test_timeout_falls_back(self, registry_path):
         router = _make_router(
@@ -436,6 +460,7 @@ class TestCallChatUnreachable:
 
         assert result.status == EndpointStatus.OK
         assert result.provider == "ollama"
+        assert router._http_client.call_count == 1
 
 
 # ---------------------------------------------------------------------------
