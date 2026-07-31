@@ -190,3 +190,92 @@ class TestDryRun:
         assert not registry_path.exists(), "dry-run must not create products.json"
         captured = capsys.readouterr()
         assert "DRY-RUN" in captured.out
+
+
+# ---------------------------------------------------------------------------
+# --reconcile: blog_content signal distinguishes below-threshold skip from a
+# genuinely missing/lost blog section (site_planner.py plan_blog() threshold)
+# ---------------------------------------------------------------------------
+
+class TestReconcileBlogSignal:
+    @pytest.fixture(autouse=True)
+    def _reset_repo_root(self):
+        yield
+        upr.configure(repo_root=None)
+
+    def _write_site_plan(self, tmp_path, family, platform, justified):
+        plan_dir = tmp_path / "reports" / "plans" / family / platform
+        plan_dir.mkdir(parents=True, exist_ok=True)
+        (plan_dir / "site_plan.yaml").write_text(
+            "plan:\n"
+            "  sections:\n"
+            "    blog:\n"
+            f"      justified: {str(justified).lower()}\n"
+            "      page_count: 0\n"
+            "      pages: []\n",
+            encoding="utf-8",
+        )
+
+    def test_blog_skipped_when_below_threshold_and_no_content(self, tmp_path):
+        upr.configure(repo_root=tmp_path)
+        self._write_site_plan(tmp_path, "cells", "go", justified=False)
+        entry = {"family": "cells", "platform": "go"}
+        signals = dict(upr._check_signals(entry))
+        assert signals["blog_content"] == "SKIPPED"
+
+    def test_blog_missing_when_justified_but_no_content(self, tmp_path):
+        # Regression guard for the real G-06 class: a product whose blog WAS
+        # justified but has no content on disk must still fail loudly.
+        upr.configure(repo_root=tmp_path)
+        self._write_site_plan(tmp_path, "cells", "cpp", justified=True)
+        entry = {"family": "cells", "platform": "cpp"}
+        signals = dict(upr._check_signals(entry))
+        assert signals["blog_content"] == "MISSING"
+
+    def test_blog_missing_when_site_plan_absent(self, tmp_path):
+        # No site_plan.yaml at all -> unknown, fail conservative (not SKIPPED).
+        upr.configure(repo_root=tmp_path)
+        entry = {"family": "words", "platform": "net"}
+        signals = dict(upr._check_signals(entry))
+        assert signals["blog_content"] == "MISSING"
+
+    def test_blog_ok_when_content_dir_exists(self, tmp_path):
+        upr.configure(repo_root=tmp_path)
+        self._write_site_plan(tmp_path, "pdf", "go", justified=True)
+        blog_dir = tmp_path / "content" / "blog.aspose.org" / "pdf" / "go"
+        blog_dir.mkdir(parents=True)
+        entry = {"family": "pdf", "platform": "go"}
+        signals = dict(upr._check_signals(entry))
+        assert signals["blog_content"] == "OK"
+
+    def _make_fully_ok_product(self, tmp_path, family, platform, *, blog_justified):
+        """Build a real on-disk fixture where every signal except (maybe) blog
+        resolves OK, exercising _run_reconcile end-to-end with no mocking."""
+        model_dir = tmp_path / "knowledge" / family / platform / "merged"
+        model_dir.mkdir(parents=True, exist_ok=True)
+        (model_dir / "model.yaml").write_text("stale_since: null\n", encoding="utf-8")
+        self._write_site_plan(tmp_path, family, platform, justified=blog_justified)
+        for site in ("docs.aspose.org", "kb.aspose.org", "reference.aspose.org"):
+            (tmp_path / "content" / site / "en" / family / platform).mkdir(parents=True, exist_ok=True)
+
+    def test_run_reconcile_skipped_does_not_fail(self, tmp_path, capsys):
+        upr.configure(repo_root=tmp_path)
+        self._make_fully_ok_product(tmp_path, "cells", "go", blog_justified=False)
+        entry = {"family": "cells", "platform": "go"}
+
+        rc = upr._run_reconcile([entry])
+
+        assert rc == 0
+        captured = capsys.readouterr()
+        assert "skipped (below blog threshold)" in captured.out
+
+    def test_run_reconcile_missing_fails(self, tmp_path):
+        upr.configure(repo_root=tmp_path)
+        # Regression guard for the real G-06 class: everything else OK, but
+        # blog was justified and the directory is genuinely absent.
+        self._make_fully_ok_product(tmp_path, "cells", "cpp", blog_justified=True)
+        entry = {"family": "cells", "platform": "cpp"}
+
+        rc = upr._run_reconcile([entry])
+
+        assert rc == 1

@@ -1220,6 +1220,7 @@ def plan_blog(
     clusters: list[dict],
     existing: list[dict] | None = None,
     force_replan: bool = False,
+    force_justify: bool = False,
 ) -> tuple[list[dict], bool, list[dict]]:
     """Plan blog section pages.
 
@@ -1227,8 +1228,14 @@ def plan_blog(
     pages_to_retire is non-empty only when force_replan replaces an existing slug.
     When *existing* content is provided, adopts discovered slugs for mandatory
     posts instead of deriving new ones.
+
+    force_justify bypasses the total_claims/snippet_count threshold below.
+    Human-only, deliberate-intent override (mirrors force_replan) for a
+    product an operator has decided deserves blog coverage despite falling
+    under the mechanical bar — never set automatically by launch-product,
+    refresh-product, or any orchestration skill.
     """
-    justified = total_claims >= 200 and snippet_count >= 5
+    justified = (total_claims >= 200 and snippet_count >= 5) or force_justify
     if not justified:
         return [], False, []
 
@@ -2056,6 +2063,7 @@ def build_plan(
     section: Optional[str],
     existing_plan: Optional[dict],
     force_replan: bool = False,
+    force_blog_justify: bool = False,
 ) -> dict:
     """Build the full site plan dict."""
     kn = PlannerKnowledge(family, platform)
@@ -2127,6 +2135,7 @@ def build_plan(
             clusters,
             existing=existing_content.get("blog"),
             force_replan=force_replan,
+            force_justify=force_blog_justify,
         )
 
     if "docs" in sections_to_build:
@@ -2401,6 +2410,18 @@ def main() -> None:
             "launch-product or refresh-product."
         ),
     )
+    parser.add_argument(
+        "--force-blog",
+        action="store_true",
+        default=False,
+        help=(
+            "Bypass the total_claims>=200/snippet_count>=5 blog-eligibility gate "
+            "for this product. Human-only, deliberate-intent override for a "
+            "product an operator has decided deserves blog coverage despite "
+            "falling under the mechanical threshold. Never used automatically by "
+            "launch-product or refresh-product."
+        ),
+    )
     args = parser.parse_args()
 
     family = args.family
@@ -2477,6 +2498,7 @@ def main() -> None:
     plan, clusters, excluded_topics = build_plan(
         family, platform, mode, section, existing_plan,
         force_replan=args.replan_blog,
+        force_blog_justify=args.force_blog,
     )
 
     # Surface enrichment degradation in the plan (TC-4).

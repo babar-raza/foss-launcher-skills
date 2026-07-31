@@ -198,6 +198,55 @@ def test_small_product_kb_and_blog_unaffected():
 
 
 # ---------------------------------------------------------------------------
+# force_justify — human-gated override of the total_claims/snippet_count gate
+# (cells/go: real product with total_claims=136 < 200, snippet_count=15 >= 5,
+# genuinely below threshold on real upstream source, not an extraction bug)
+# ---------------------------------------------------------------------------
+
+def test_force_justify_false_default_unaffected():
+    """Default behavior must be untouched: a below-threshold product still
+    gets 0 blog pages when force_justify is not passed."""
+    cluster = _cluster("spreadsheet-management", claim_count=87, api_method_count=56,
+                       snippet_count=15)
+    pages, justified, _retired = plan_blog(
+        "cells", "go", total_claims=136, snippet_count=15, clusters=[cluster],
+    )
+    assert justified is False
+    assert pages == []
+
+
+def test_force_justify_true_bypasses_claims_threshold():
+    """cells/go-shaped fixture: total_claims=136 (< 200) but snippet_count=15
+    (>= 5) — force_justify=True must still plan real Post 1 (intro) + Post 2
+    (cluster-derived features) pages, exactly as if the product had cleared
+    the threshold normally."""
+    cluster = _cluster("spreadsheet-management", claim_count=87, api_method_count=56,
+                       snippet_count=15)
+    pages, justified, _retired = plan_blog(
+        "cells", "go", total_claims=136, snippet_count=15, clusters=[cluster],
+        force_justify=True,
+    )
+    assert justified is True
+    assert len(pages) == 2
+    slugs = {p["slug"] for p in pages}
+    assert "introducing-cells-foss-go" in slugs
+    assert "cells-spreadsheet-management-go" in slugs
+
+
+def test_force_justify_true_bypasses_both_legs():
+    """force_justify overrides the full `total_claims >= 200 and snippet_count
+    >= 5` gate, not just one leg — a product failing both must still plan
+    pages when explicitly forced."""
+    cluster = _cluster("tiny-topic", claim_count=8, api_method_count=2, snippet_count=1)
+    pages, justified, _retired = plan_blog(
+        "tiny-fam", "python", total_claims=40, snippet_count=1, clusters=[cluster],
+        force_justify=True,
+    )
+    assert justified is True
+    assert len(pages) == 2
+
+
+# ---------------------------------------------------------------------------
 # Reviewer note: docs/reference already scale correctly (per the audit) and
 # are intentionally NOT touched by this change — only KB/blog caps moved.
 # ---------------------------------------------------------------------------

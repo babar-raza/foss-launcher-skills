@@ -404,9 +404,25 @@ def _check_signals(entry: dict) -> list[tuple[str, str]]:
     plan_path = REPO_ROOT / "reports" / "plans" / family / platform / "site_plan.yaml"
     results.append(("site_plan_yaml", "OK" if plan_path.is_file() else "MISSING"))
 
-    # Signal 4–7: content directories exist
+    # Signal 4: blog_content — special-cased. The site planner (site_planner.py
+    # plan_blog()) only plans blog pages when total_claims/snippet_count clear
+    # a minimum bar; below that bar it correctly and deliberately plans 0 pages
+    # (sections.blog.justified: false). An absent blog dir is only a real gap
+    # when blog WAS justified — otherwise it's working as designed, not MISSING.
+    blog_path = REPO_ROOT / "content" / "blog.aspose.org" / family / platform
+    if blog_path.is_dir():
+        results.append(("blog_content", "OK"))
+    else:
+        blog_justified = _read_blog_justified(plan_path)
+        if blog_justified is False:
+            results.append(("blog_content", "SKIPPED"))
+        else:
+            # justified True, or unknown (missing/corrupt site plan) — fail
+            # conservative, same as the other signals above.
+            results.append(("blog_content", "MISSING"))
+
+    # Signal 5–7: content directories exist
     content_sites = [
-        ("blog_content", REPO_ROOT / "content" / "blog.aspose.org" / family / platform),
         ("docs_content", REPO_ROOT / "content" / "docs.aspose.org" / "en" / family / platform),
         ("kb_content", REPO_ROOT / "content" / "kb.aspose.org" / "en" / family / platform),
         ("reference_content", REPO_ROOT / "content" / "reference.aspose.org" / "en" / family / platform),
@@ -415,6 +431,27 @@ def _check_signals(entry: dict) -> list[tuple[str, str]]:
         results.append((label, "OK" if path.is_dir() else "MISSING"))
 
     return results
+
+
+def _read_blog_justified(plan_path: Path) -> bool | None:
+    """Read sections.blog.justified from a site_plan.yaml.
+
+    Returns True/False if determinable, None if the file is missing, unreadable,
+    or doesn't have the expected shape (caller should treat None as unknown and
+    fail conservative, not assume False).
+    """
+    if not plan_path.is_file():
+        return None
+    try:
+        import yaml  # type: ignore[import]
+        with open(plan_path, encoding="utf-8") as fh:
+            data = yaml.safe_load(fh) or {}
+        plan = data.get("plan", data)
+        blog = plan.get("sections", {}).get("blog", {})
+        justified = blog.get("justified")
+        return bool(justified) if isinstance(justified, bool) else None
+    except Exception:
+        return None
 
 
 def _run_reconcile(products: list[dict]) -> int:
@@ -433,9 +470,16 @@ def _run_reconcile(products: list[dict]) -> int:
         key = f"{entry['family']}/{entry['platform']}"
         signals = _check_signals(entry)
         for label, status in signals:
-            if status != "OK":
+            if status not in ("OK", "SKIPPED"):
                 any_bad = True
-            marker = " <-- MISSING" if status == "MISSING" else (" <-- STALE" if status == "STALE" else "")
+            if status == "MISSING":
+                marker = " <-- MISSING"
+            elif status == "STALE":
+                marker = " <-- STALE"
+            elif status == "SKIPPED":
+                marker = " <-- skipped (below blog threshold)"
+            else:
+                marker = ""
             print(f"{key:<{col_product}} {label:<{col_signal}} {status:<{col_status}}{marker}")
 
     print()
