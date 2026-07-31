@@ -172,17 +172,24 @@ fi
 # Existing fail-open cases (no input, no python) are unchanged above.
 #
 # RC1/RC2 hardening (2026-07-31): with no inline/env AGENT_SESSION_ID, also
-# fall back to CLAUDE_CODE_SESSION_ID (the harness's own per-conversation
-# identifier, inherited automatically into this subprocess — unlike
-# AGENT_SESSION_ID, which the caller must remember to re-supply on every
-# call since this harness's Bash tool does not persist shell state across
-# invocations). Matches the same fallback tier added to skill_context.py's
-# _derive_session_id. An earlier design used session_ledger.py's shared
-# reports/session-state/ACTIVE pointer file instead; that was reverted after
+# fall back to CODEX_THREAD_ID, then CLAUDE_CODE_SESSION_ID (the harness's
+# own per-conversation identifier, inherited automatically into this
+# subprocess — unlike AGENT_SESSION_ID, which the caller must remember to
+# re-supply on every call since this harness's Bash tool does not persist
+# shell state across invocations). Matches skill_context.py's
+# _derive_session_id precedence exactly (a gap an independent verification
+# pass caught: the first version of this fallback here skipped
+# CODEX_THREAD_ID, silently mismatching skill_context.py's own order). An
+# earlier design used session_ledger.py's shared reports/session-state/ACTIVE
+# pointer file instead of CLAUDE_CODE_SESSION_ID; that was reverted after
 # live testing showed two independent processes could both read it as their
 # own identity. CLAUDE_CODE_SESSION_ID does not have that failure mode: it is
 # assigned per-conversation by the harness, not read from a file another
-# process could overwrite.
+# process could overwrite. `live()` below also now mirrors
+# skill_context.py's heartbeat (last_touched_at) staleness check, not just
+# started_at, for the same reason -- otherwise a context skill_context.py
+# itself still considers live (kept alive by real activity past the
+# original TTL) would read as dead here.
 # ---------------------------------------------------------------------------
 
 VERDICT=$("$PYTHON" -c "
@@ -203,14 +210,19 @@ def load(p):
         return None
 
 def live(rec):
+    # Mirrors skill_context.py's _effective_activity_dt (RC1/RC2 hardening,
+    # 2026-07-31): prefer last_touched_at (heartbeat) over started_at, or a
+    # context kept alive by real activity would still read as dead here
+    # after 2h/30m even though skill_context.py itself considers it live.
     if not rec:
         return False
+    raw = rec.get('last_touched_at') or rec.get('started_at', '')
     try:
-        started = datetime.fromisoformat(rec.get('started_at', '').replace('Z', '+00:00'))
+        activity = datetime.fromisoformat(raw.replace('Z', '+00:00'))
     except (ValueError, AttributeError):
         return False
     ttl = 1800 if rec.get('context_type') == 'gap_approved' else 7200
-    return (datetime.now(timezone.utc) - started).total_seconds() <= ttl
+    return (datetime.now(timezone.utc) - activity).total_seconds() <= ttl
 
 def is_s76(rec):
     return bool(rec) and rec.get('skill_id') == 'S-76' and live(rec)
@@ -219,6 +231,7 @@ m = re.search(r'(?:^|[\s;&|(])AGENT_SESSION_ID=([A-Za-z0-9_.-]+)', command)
 sid = (
     (m.group(1) if m else '')
     or os.environ.get('AGENT_SESSION_ID', '').strip()
+    or os.environ.get('CODEX_THREAD_ID', '').strip()
     or os.environ.get('CLAUDE_CODE_SESSION_ID', '').strip()
 )
 

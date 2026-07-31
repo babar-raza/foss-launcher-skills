@@ -449,6 +449,18 @@ class TestSkillContextStaleness(unittest.TestCase):
         after = json.loads(skill_context._ACTIVE_FILE.read_text(encoding="utf-8"))
         self.assertIn("last_touched_at", after)
 
+    def test_heartbeat_write_failure_never_turns_allow_into_block(self):
+        """Independent verification pass (2026-07-31) caught this: the
+        heartbeat write was documented as best-effort but wasn't actually
+        exception-safe end-to-end -- a lock/disk failure while bumping
+        last_touched_at could propagate out of cmd_check and turn an
+        in-scope ALLOW into a false BLOCK, the exact failure mode this
+        whole mission exists to remove. _save_active raising must not
+        change check's result."""
+        skill_context.main(["begin", "--skill", "S-73", "--scope", "a/*.py", "--skip-dar"])
+        with mock.patch.object(skill_context, "_save_active", side_effect=OSError("disk full")):
+            self.assertEqual(0, skill_context.main(["check", "--file", "a/x.py"]))
+
     def test_quiet_context_still_expires_per_ttl_from_last_activity(self):
         """A context whose last real activity (not just its start) is more
         than one TTL ago must still expire -- the heartbeat must not be able
@@ -738,6 +750,15 @@ class TestSkillContextOCC(unittest.TestCase):
         self.assertLess(datetime.now(timezone.utc) - touched_dt, timedelta(minutes=1))
         # still alive on a SECOND load, proving the heartbeat (not luck) is what saved it
         self.assertIn("sess-A", skill_context._load_session_contexts())
+
+    def test_session_heartbeat_write_failure_never_turns_allow_into_block(self):
+        """Same exception-safety property as the legacy path, for the
+        per-session heartbeat (independent verification pass, 2026-07-31)."""
+        skill_context.main(["begin", "--skill", "S-20", "--scope", "a/*.py",
+                            "--session-id", "sess-A", "--skip-dar"])
+        with mock.patch.object(skill_context, "_save_session_context", side_effect=OSError("disk full")):
+            self.assertEqual(0, skill_context.main(
+                ["check", "--file", "a/x.py", "--session-id", "sess-A"]))
 
     def test_archiving_stale_session_does_not_delete_legacy_active(self):
         """Regression guard: _archive() unlinks ACTIVE.json by default. Archiving a stale

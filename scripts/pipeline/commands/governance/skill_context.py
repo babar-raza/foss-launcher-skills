@@ -140,16 +140,26 @@ def _load_active() -> dict | None:
 
 def _touch_active_heartbeat() -> None:
     """Bump ACTIVE.json's last_touched_at (best-effort; a lost race is harmless
-    since the next check simply doesn't extend the TTL that one time)."""
-    with _legacy_lock():
-        if not _ACTIVE_FILE.exists():
-            return
-        try:
-            record = json.loads(_ACTIVE_FILE.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
-            return
-        record["last_touched_at"] = _now().isoformat().replace("+00:00", "Z")
-        _save_active(record)
+    since the next check simply doesn't extend the TTL that one time).
+
+    Genuinely best-effort (independent verification pass, 2026-07-31, caught
+    this): a failure here (lock contention, disk error) must never propagate
+    out of cmd_check's in-scope return path and turn an ALLOW into a BLOCK --
+    the whole point of this heartbeat is to reduce false blocks, not add a
+    new way to cause one.
+    """
+    try:
+        with _legacy_lock():
+            if not _ACTIVE_FILE.exists():
+                return
+            try:
+                record = json.loads(_ACTIVE_FILE.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                return
+            record["last_touched_at"] = _now().isoformat().replace("+00:00", "Z")
+            _save_active(record)
+    except Exception:
+        pass
 
 
 def _legacy_lock() -> FileLock:
@@ -322,14 +332,22 @@ def _record_is_stale(record: dict) -> bool:
 def _touch_session_heartbeat(session_id: str) -> None:
     """Bump a per-session context's last_touched_at (best-effort — see
     _touch_active_heartbeat; no lock needed, only the owning session's own
-    `check`/`begin` calls ever write to this session's own file)."""
-    p = _session_context_path(session_id)
+    `check`/`begin` calls ever write to this session's own file).
+
+    Genuinely best-effort (independent verification pass, 2026-07-31): any
+    failure here must never propagate out of cmd_check's in-scope return
+    path and turn an ALLOW into a BLOCK.
+    """
     try:
-        record = json.loads(p.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        return
-    record["last_touched_at"] = _now().isoformat().replace("+00:00", "Z")
-    _save_session_context(session_id, record)
+        p = _session_context_path(session_id)
+        try:
+            record = json.loads(p.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return
+        record["last_touched_at"] = _now().isoformat().replace("+00:00", "Z")
+        _save_session_context(session_id, record)
+    except Exception:
+        pass
 
 
 def _load_session_contexts(exclude: "str | None" = None) -> dict:

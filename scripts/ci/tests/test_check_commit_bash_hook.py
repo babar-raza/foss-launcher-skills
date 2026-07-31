@@ -55,6 +55,7 @@ def _run(
     active_omit_started_at: bool = False,
     session_ctxs: tuple = (),
     claude_code_session_id: str | None = None,
+    codex_thread_id: str | None = None,
 ) -> int:
     """Invoke the hook against an isolated root; return exit code.
 
@@ -63,6 +64,8 @@ def _run(
         as per-session context files under reports/skill-context/active/.
     claude_code_session_id: simulates the harness-provided CLAUDE_CODE_SESSION_ID
         env var for the RC1/RC2 CLAUDE_CODE_SESSION_ID fallback tier (2026-07-31).
+    codex_thread_id: simulates CODEX_THREAD_ID for the same fallback chain
+        (added after an independent review caught this hook skipping it).
     """
     payload = json.dumps({"tool_name": "Bash", "tool_input": {"command": command}})
     with tempfile.TemporaryDirectory() as tmp:
@@ -92,6 +95,10 @@ def _run(
         env["CHECK_COMMIT_HOOK_ROOT_OVERRIDE"] = str(root)
         # Keep hermetic against a live agent shell's exported identity
         env.pop("AGENT_SESSION_ID", None)
+        if codex_thread_id is not None:
+            env["CODEX_THREAD_ID"] = codex_thread_id
+        else:
+            env.pop("CODEX_THREAD_ID", None)
         if claude_code_session_id is not None:
             env["CLAUDE_CODE_SESSION_ID"] = claude_code_session_id
         else:
@@ -350,6 +357,54 @@ def test_cb_no_identity_source_falls_back_to_holder_count():
     change -- two live contexts with no identity is still ambiguous."""
     assert _run('git commit -m "x"',
                 session_ctxs=(("conv-a", "S-76", False), ("conv-b", "S-76", False))) == 2
+
+
+def test_cb_codex_thread_id_allows_own_session():
+    """CODEX_THREAD_ID resolves identity when neither AGENT_SESSION_ID nor
+    an inline prefix is given -- found missing from this hook's fallback
+    chain by an independent review (it matched skill_context.py's
+    precedence except for this exact tier)."""
+    assert _run('git commit -m "x"',
+                session_ctxs=(("codex-a", "S-76", False), ("conv-b", "S-76", False)),
+                codex_thread_id="codex-a") == 0
+
+
+def test_cb_codex_thread_id_takes_precedence_over_claude_code_session_id():
+    assert _run('git commit -m "x"',
+                session_ctxs=(("codex-a", "S-76", False), ("conv-b", "S-76", False)),
+                codex_thread_id="codex-a", claude_code_session_id="conv-b") == 0
+
+
+def test_cb_heartbeat_keeps_context_live_past_started_at_ttl():
+    """live() must mirror skill_context.py's heartbeat (last_touched_at),
+    not just started_at -- otherwise a context skill_context.py itself
+    still considers live (kept alive by real activity) reads as dead here,
+    reintroducing a false 'no live S-76 context' block."""
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        ctx_dir = root / "reports" / "skill-context"
+        active_dir = ctx_dir / "active"
+        active_dir.mkdir(parents=True)
+        (active_dir / "conv-a.json").write_text(json.dumps({
+            "skill_id": "S-76",
+            "scope_patterns": ["*"],
+            "session_id": "conv-a",
+            "started_at": _now_iso(5.0),  # 5h ago -- long past the 2h TTL on its own
+            "last_touched_at": _now_iso(0.05),  # touched 3 minutes ago
+        }), encoding="utf-8")
+
+        payload = json.dumps({"tool_name": "Bash", "tool_input": {"command": 'git commit -m "x"'}})
+        env = dict(os.environ)
+        env["CLAUDE_TOOL_INPUT"] = payload
+        env["CHECK_COMMIT_HOOK_ROOT_OVERRIDE"] = str(root)
+        env["CLAUDE_CODE_SESSION_ID"] = "conv-a"
+        env.pop("AGENT_SESSION_ID", None)
+        env.pop("CODEX_THREAD_ID", None)
+        env.pop("SKIP_COMMIT_BASH_CHECK", None)
+
+        result = subprocess.run([_BASH, _HOOK_REL], env=env, cwd=str(_REPO_ROOT),
+                                 capture_output=True, text=True)
+        assert result.returncode == 0, result.stderr
 
 
 # ---------------------------------------------------------------------------

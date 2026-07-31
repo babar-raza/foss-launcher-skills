@@ -49,7 +49,7 @@ do not create a differently-shaped one.
 | Stall detection / doc-vs-store contradiction | `/plan-health-watchdog` (S-113) + `scripts/ci/checks/check_taskcard_plan_parity.py` |
 | Session-level task/dependency tracking, wave sequencing | `/backlog` (S-88) — `backlog/BACKLOG.md`, topologically-sorted Blocker-column DAG |
 | Deliverable lifecycle (per execution run) | `refresh_run.py` state machine: `CREATED -> INPUTS_PINNED -> PLANNED -> APPLYING -> VALIDATING -> READY_TO_COMMIT -> COMMITTED`, with `BLOCKED` / `ABANDONED` |
-| Claim / lease primitive | `scripts/pipeline/core/advisory_lock.py` (PID-liveness, mtime-age fallback) |
+| Claim / lease primitive | `scripts/pipeline/lib/advisory_lock.py` (PID-liveness, mtime-age fallback) |
 | Execution lease ("who owns this edit right now") | `scripts/pipeline/commands/governance/skill_context.py` / `reports/skill-context/ACTIVE.json` |
 | Gate ordering by authority and risk | `scripts/pipeline/commands/launch/readiness_gate.py` (G-01..G-07); archived predecessor `docs/_archive/pre-refactor/governance/launch-gates.md` (L-01..L-15, H-01..H-05) |
 | Dependency Authority Registry (upstream/downstream skill dependencies) | [docs/governance/dar-table.md](dar-table.md) |

@@ -11,8 +11,17 @@ with zero automated test coverage, unlike its sibling check_commit_bash_hook.sh
 directly like any other pure function instead of only by hand.
 
 Attribution order (first match wins):
-  1. AGENT_SESSION_ID env var names a live per-session context file
-     (reports/skill-context/active/<id>.json) -> use it.
+  1. AGENT_SESSION_ID, then CODEX_THREAD_ID, then CLAUDE_CODE_SESSION_ID env
+     var names a live per-session context file
+     (reports/skill-context/active/<id>.json) -> use it. (RC1/RC2 hardening,
+     2026-07-31: skill_context.py's cmd_begin/cmd_check now resolve identity
+     through this same precedence, including the CLAUDE_CODE_SESSION_ID
+     fallback the harness sets automatically -- so most sessions now land on
+     the per-session path instead of the legacy ACTIVE.json. Without this
+     tier here too, attribution would fall through to tier 3 far more often
+     than before, and tier 3 is ambiguous under genuine concurrency -- the
+     exact starvation this file's own HARDEN-A3/F1 history already fixed
+     once for the AGENT_SESSION_ID-only case.)
   2. Otherwise, the legacy reports/skill-context/ACTIVE.json, if present
      -> use it (and its own session_id field, if it carries one).
   3. Otherwise, if exactly one per-session context file exists under
@@ -53,7 +62,11 @@ def resolve_attribution(ctx_dir: Path) -> tuple[str, str] | None:
     active_file = ctx_dir / "ACTIVE.json"
     active_dir = ctx_dir / "active"
 
-    sid = os.environ.get("AGENT_SESSION_ID", "").strip()
+    sid = (
+        os.environ.get("AGENT_SESSION_ID", "").strip()
+        or os.environ.get("CODEX_THREAD_ID", "").strip()
+        or os.environ.get("CLAUDE_CODE_SESSION_ID", "").strip()
+    )
     rec = _load(active_dir / f"{sid}.json") if sid else None
     if rec is None:
         legacy = _load(active_file)

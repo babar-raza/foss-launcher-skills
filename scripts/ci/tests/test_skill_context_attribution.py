@@ -25,6 +25,12 @@ import skill_context_attribution as sca  # noqa: E402
 @pytest.fixture(autouse=True)
 def _clear_session_id_env(monkeypatch):
     monkeypatch.delenv("AGENT_SESSION_ID", raising=False)
+    monkeypatch.delenv("CODEX_THREAD_ID", raising=False)
+    # CLAUDE_CODE_SESSION_ID is set by the real harness running this very
+    # test suite (RC1/RC2 hardening, 2026-07-31) — must be cleared here too
+    # or these tests silently change behavior only when run inside an
+    # actual Claude Code session.
+    monkeypatch.delenv("CLAUDE_CODE_SESSION_ID", raising=False)
 
 
 def _write(p: Path, data: dict) -> None:
@@ -56,6 +62,59 @@ def test_env_identity_with_no_matching_file_falls_back_to_legacy(tmp_path, monke
 
     result = sca.resolve_attribution(ctx)
     assert result == ("S-77", "sess-nonexistent")
+
+
+def test_codex_thread_id_resolves_when_agent_session_id_unset(tmp_path, monkeypatch):
+    """RC1/RC2 hardening (2026-07-31): skill_context.py's own identity
+    resolution already honored CODEX_THREAD_ID as tier 2 -- this file must
+    match it, or a Codex caller's per-session context (written under its
+    CODEX_THREAD_ID) would never be found here."""
+    ctx = tmp_path / "skill-context"
+    _write(ctx / "active" / "codex-thread-1.json", {"skill_id": "S-49"})
+    monkeypatch.setenv("CODEX_THREAD_ID", "codex-thread-1")
+
+    result = sca.resolve_attribution(ctx)
+    assert result == ("S-49", "codex-thread-1")
+
+
+def test_claude_code_session_id_resolves_as_last_resort(tmp_path, monkeypatch):
+    """CLAUDE_CODE_SESSION_ID (RC1/RC2 hardening, 2026-07-31) is the harness's
+    own per-conversation identifier, inherited automatically -- unlike
+    AGENT_SESSION_ID/CODEX_THREAD_ID, which require the caller to set them.
+    Since skill_context.py's cmd_begin/cmd_check now fall back to it too,
+    most sessions land on the per-session path; this file must resolve the
+    same identity or attribution falls through to the ambiguous tier-3 scan
+    far more often than before this change."""
+    ctx = tmp_path / "skill-context"
+    _write(ctx / "active" / "conv-uuid-1.json", {"skill_id": "S-73"})
+    monkeypatch.setenv("CLAUDE_CODE_SESSION_ID", "conv-uuid-1")
+
+    result = sca.resolve_attribution(ctx)
+    assert result == ("S-73", "conv-uuid-1")
+
+
+def test_agent_session_id_takes_precedence_over_the_other_two(tmp_path, monkeypatch):
+    ctx = tmp_path / "skill-context"
+    _write(ctx / "active" / "sess-agent.json", {"skill_id": "S-20"})
+    _write(ctx / "active" / "codex-thread-1.json", {"skill_id": "S-21"})
+    _write(ctx / "active" / "conv-uuid-1.json", {"skill_id": "S-22"})
+    monkeypatch.setenv("AGENT_SESSION_ID", "sess-agent")
+    monkeypatch.setenv("CODEX_THREAD_ID", "codex-thread-1")
+    monkeypatch.setenv("CLAUDE_CODE_SESSION_ID", "conv-uuid-1")
+
+    result = sca.resolve_attribution(ctx)
+    assert result == ("S-20", "sess-agent")
+
+
+def test_codex_thread_id_takes_precedence_over_claude_code_session_id(tmp_path, monkeypatch):
+    ctx = tmp_path / "skill-context"
+    _write(ctx / "active" / "codex-thread-1.json", {"skill_id": "S-21"})
+    _write(ctx / "active" / "conv-uuid-1.json", {"skill_id": "S-22"})
+    monkeypatch.setenv("CODEX_THREAD_ID", "codex-thread-1")
+    monkeypatch.setenv("CLAUDE_CODE_SESSION_ID", "conv-uuid-1")
+
+    result = sca.resolve_attribution(ctx)
+    assert result == ("S-21", "codex-thread-1")
 
 
 def test_legacy_active_json_carries_own_session_id(tmp_path):
