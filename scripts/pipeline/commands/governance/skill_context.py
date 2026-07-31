@@ -617,7 +617,15 @@ def cmd_status(args: argparse.Namespace) -> int:
     diagnosing a live incident by calling them can destroy the evidence
     needed to diagnose it. This command reads the raw files directly instead.
     Always exits 0 -- it is a report, not a gate.
+
+    --root lets an external aggregator (mission_authority.py's liveness
+    report) point this subcommand at a different repo root -- e.g. a tmp_path
+    test fixture -- without affecting the module's default path resolution
+    used by every other subcommand.
     """
+    root = getattr(args, "root", None)
+    if root:
+        configure(repo_root=root)
     as_json = getattr(args, "json", False)
     report: dict = {"legacy": None, "sessions": {}}
 
@@ -868,6 +876,8 @@ def main(argv: list[str] | None = None) -> int:
     p_status = sub.add_parser(
         "status", help="Report every context (legacy + per-session) with computed staleness; never mutates")
     p_status.add_argument("--json", action="store_true", help="Emit machine-readable JSON")
+    p_status.add_argument("--root", default=None,
+                          help="Repo root override (for tests / external aggregators)")
 
     # gap
     p_gap = sub.add_parser("gap", help="Create gap-approved temporary context")

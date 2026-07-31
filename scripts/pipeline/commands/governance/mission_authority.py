@@ -19,6 +19,14 @@ fabricate mission narrative). What this script adds:
   list                  scan reports/plan_state/*/mission_authority.yaml and
                         print every known mission with its status
   close --mission-id X  mark mission X's archived snapshot status: closed
+  status [--json]       read-only liveness aggregator across session_ledger,
+                        skill_context, and advisory-lock state (RC1/RC2
+                        hardening, 2026-07-31) -- the automated replacement
+                        for the manual, undocumented investigation a mission
+                        handoff previously required to answer "is anything
+                        else really in progress?" (see the hand-typed
+                        conflicts_found field in past root-file commits).
+                        Read-only: never mutates, never gates `open` today.
 
 Required fields (concordance table, docs/governance/planning-methodology.md):
 mission_id, mission_summary, governing_plan_path, in_scope_outcomes,
@@ -33,12 +41,19 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import yaml
+
+_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
+from advisory_lock import _pid_alive  # noqa: E402
 
 REQUIRED_FIELDS = [
     "mission_id",
@@ -192,6 +207,156 @@ def cmd_list(args: argparse.Namespace) -> int:
     return 0
 
 
+def _session_ledger_report(root: Path) -> List[Dict[str, Any]]:
+    """Read-only summary of every reports/session-state/*.json manifest.
+
+    Never invokes session_ledger.py's sweep/resolution machinery -- reads the
+    raw files and reports their on-disk `status` field plus mtime-derived
+    age, exactly as pass-1/pass-2 of this investigation did by hand. Age is
+    informational only; session_ledger.py's own TTL logic is the source of
+    truth for whether a manifest is actually stale.
+    """
+    session_dir = root / "reports" / "session-state"
+    out: List[Dict[str, Any]] = []
+    if not session_dir.is_dir():
+        return out
+    now = datetime.datetime.now(datetime.timezone.utc).timestamp()
+    for f in sorted(session_dir.glob("*.json")):
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            out.append({"session_id": f.stem, "error": str(exc)})
+            continue
+        try:
+            age_hours = round((now - f.stat().st_mtime) / 3600.0, 2)
+        except OSError:
+            age_hours = None
+        out.append({
+            "session_id": data.get("session_id", f.stem),
+            "status": data.get("status", "?"),
+            "age_hours_since_last_write": age_hours,
+        })
+    return out
+
+
+def _skill_context_report(root: Path) -> Dict[str, Any]:
+    """Read-only summary via `skill_context.py status --json` (RC1/RC2
+    hardening, 2026-07-31) -- never touches the mutating loaders directly."""
+    script = Path(__file__).resolve().parent / "skill_context.py"
+    if not script.is_file():
+        return {"error": f"skill_context.py not found at {script}"}
+    full_env = dict(os.environ)
+    full_env["PYTHONPATH"] = str(Path(__file__).resolve().parents[2])
+    try:
+        result = subprocess.run(
+            [sys.executable, str(script), "status", "--json", "--root", str(root)],
+            cwd=str(root), capture_output=True, text=True, timeout=10, env=full_env,
+        )
+    except (subprocess.SubprocessError, OSError) as exc:
+        return {"error": str(exc)}
+    try:
+        return json.loads(result.stdout)
+    except json.JSONDecodeError:
+        return {"error": f"unparseable output: {result.stdout!r} {result.stderr!r}"}
+
+
+def _lock_report(root: Path) -> List[Dict[str, Any]]:
+    """Read-only summary of every reports/locks/**/*.lock file.
+
+    Re-checks PID liveness live via advisory_lock._pid_alive() rather than
+    trusting mtime alone -- this is the one store of the three that CAN
+    verify liveness, so the aggregator uses that capability instead of
+    just reporting age like the other two.
+    """
+    locks_dir = root / "reports" / "locks"
+    out: List[Dict[str, Any]] = []
+    if not locks_dir.is_dir():
+        return out
+    now = datetime.datetime.now(datetime.timezone.utc).timestamp()
+    for f in sorted(locks_dir.rglob("*.lock")):
+        try:
+            raw = f.read_text(encoding="utf-8").strip()
+        except OSError as exc:
+            out.append({"path": str(f.relative_to(root)), "error": str(exc)})
+            continue
+        entry: Dict[str, Any] = {"path": str(f.relative_to(root)).replace("\\", "/")}
+        # advisory_lock.py's format: "{pid}:{timestamp}"
+        parts = raw.split(":", 1)
+        pid_str = parts[0] if parts else ""
+        if pid_str.isdigit():
+            pid = int(pid_str)
+            alive = _pid_alive(pid)
+            entry["pid"] = pid
+            entry["liveness"] = "alive" if alive is True else ("dead" if alive is False else "indeterminate")
+        else:
+            entry["liveness"] = "unrecognized_format"
+        try:
+            entry["age_hours"] = round((now - f.stat().st_mtime) / 3600.0, 2)
+        except OSError:
+            entry["age_hours"] = None
+        out.append(entry)
+    return out
+
+
+def build_liveness_report(root: Optional[Path] = None) -> Dict[str, Any]:
+    """Aggregate all three liveness stores into one structured, read-only report.
+
+    This is the automated replacement for the manual, undocumented
+    cross-checking a mission handoff previously required (see the
+    `conflicts_found` field in past root MISSION_AUTHORITY.yaml commits) --
+    it does not decide anything, it only reports what each store currently
+    shows, so an agent/human can make an informed handoff decision instead
+    of hand-grepping reports/session-state/ and reports/skill-context/.
+    """
+    root = root or repo_root()
+    return {
+        "sessions": _session_ledger_report(root),
+        "skill_context": _skill_context_report(root),
+        "locks": _lock_report(root),
+    }
+
+
+def cmd_status(args: argparse.Namespace) -> int:
+    """Print the aggregated liveness report. Read-only; always exits 0."""
+    root = Path(args.root) if args.root else None
+    report = build_liveness_report(root)
+
+    if getattr(args, "json", False):
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+        return 0
+
+    sessions = report["sessions"]
+    active_sessions = [s for s in sessions if s.get("status") == "active"]
+    print(f"Sessions: {len(sessions)} total, {len(active_sessions)} status=active")
+    for s in sessions:
+        if "error" in s:
+            print(f"  {s['session_id']}: UNREADABLE ({s['error']})")
+        else:
+            print(f"  {s['session_id']}: status={s['status']} "
+                  f"age={s['age_hours_since_last_write']}h since last write")
+
+    sc = report["skill_context"]
+    if "error" in sc:
+        print(f"Skill context: ERROR ({sc['error']})")
+    else:
+        legacy = sc.get("legacy")
+        print(f"Skill context (legacy): "
+              f"{legacy['skill_id'] + (' [STALE]' if legacy['would_be_stale'] else ' [live]') if legacy else 'none'}")
+        for sid, d in sorted(sc.get("sessions", {}).items()):
+            flag = "STALE" if d.get("would_be_stale") else "live"
+            print(f"  session {sid}: {d.get('skill_id')} [{flag}] age={d.get('age')}")
+
+    locks = report["locks"]
+    print(f"Locks: {len(locks)} file(s) under reports/locks/")
+    for lk in locks:
+        if "error" in lk:
+            print(f"  {lk['path']}: UNREADABLE ({lk['error']})")
+        else:
+            print(f"  {lk['path']}: liveness={lk['liveness']} age={lk['age_hours']}h")
+
+    return 0
+
+
 def dedupe_missions_by_id(commit_mission_pairs: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
     """Collapse consecutive (sha, mission_id) pairs sharing the same mission_id,
     keeping only the LAST sha of each run — commit count is not mission count
@@ -299,6 +464,14 @@ def main(argv: Optional[List[str]] = None) -> int:
         help="One-time: reconstruct archives for every mission in MISSION_AUTHORITY.yaml's git history",
     )
     p_backfill.set_defaults(func=cmd_backfill)
+
+    p_status = sub.add_parser(
+        "status",
+        help="Read-only liveness aggregator (sessions, skill-context, locks) -- "
+             "replaces manual conflicts_found investigation for mission handoffs",
+    )
+    p_status.add_argument("--json", action="store_true", help="Emit machine-readable JSON")
+    p_status.set_defaults(func=cmd_status)
 
     args = parser.parse_args(argv)
     return args.func(args)

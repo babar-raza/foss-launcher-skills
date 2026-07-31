@@ -288,6 +288,40 @@ class TestSkillContextStatus(unittest.TestCase):
         self.assertEqual(report["sessions"]["sess-A"]["skill_id"], "S-20")
         self.assertTrue(report["sessions"]["sess-A"]["would_be_stale"])
 
+    def test_status_root_override_reads_a_different_repo_root(self):
+        """--root lets an external caller (mission_authority.py's liveness
+        aggregator) point status at a different repo root -- e.g. a tmp_path
+        test fixture -- without touching this test's own configured tmp dir.
+
+        Note: --root calls configure() internally, which reassigns
+        skill_context's module globals for the rest of THIS process (correct
+        and harmless for the real one-shot subprocess use case in
+        mission_authority.py; here it just means we must capture the
+        original path before the call, not re-read the module global after)."""
+        original_active_file = skill_context._ACTIVE_FILE
+        original_active_file.parent.mkdir(parents=True, exist_ok=True)
+        original_active_file.write_text(json.dumps({
+            "skill_id": "S-ORIGINAL", "context_type": "skill", "scope_patterns": ["*"],
+            "started_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        }), encoding="utf-8")
+
+        other_root = self.tmp / "other-repo"
+        other_ctx_dir = other_root / "reports" / "skill-context"
+        other_ctx_dir.mkdir(parents=True)
+        (other_ctx_dir / "ACTIVE.json").write_text(json.dumps({
+            "skill_id": "S-EXTERNAL", "context_type": "skill", "scope_patterns": ["*"],
+            "started_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        }), encoding="utf-8")
+
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            self.assertEqual(0, skill_context.main(["status", "--json", "--root", str(other_root)]))
+        report = json.loads(buf.getvalue())
+        self.assertEqual(report["legacy"]["skill_id"], "S-EXTERNAL")
+        # the ORIGINAL repo root's ACTIVE.json (captured before the call) must be untouched
+        self.assertEqual(
+            json.loads(original_active_file.read_text(encoding="utf-8"))["skill_id"], "S-ORIGINAL")
+
 
 class TestSkillContextGap(unittest.TestCase):
     """Tests for gap-approved context."""
