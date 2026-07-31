@@ -955,6 +955,47 @@ func (d *Document) Save(path string, opts SaveOptions) error {
 
 
 # ---------------------------------------------------------------------------
+# ST-024: Go comma-separated same-type parameters (a, b string)
+# ---------------------------------------------------------------------------
+
+class TestGoSharedTypeParams:
+    """Go allows multiple parameter names to share one declared type in a
+    single parameter_declaration node, e.g. func f(a, b string). Only the
+    first identifier was extracted; every name after it was silently
+    dropped. Root incident: pdf/go's OpenWithPassword(path, password string)
+    lost the password parameter entirely (ST-024)."""
+
+    GO_SHARED_TYPE_FUNC = '''
+func OpenWithPassword(path, password string) (*Document, error) {
+    return nil, nil
+}
+'''
+
+    GO_SHARED_TYPE_THREE_NAMES = '''
+func Blend(a, b, c float64) float64 {
+    return a
+}
+'''
+
+    def test_two_names_share_one_type(self):
+        root = _parse("go", self.GO_SHARED_TYPE_FUNC)
+        mnode = scout.collect_nodes(root, {"function_declaration"})[0]
+        params = _extract_method_params(mnode, "go")
+        assert len(params) == 2
+        assert [p["name"] for p in params] == ["path", "password"]
+        assert params[0]["type"] == "string"
+        assert params[1]["type"] == "string"
+
+    def test_three_names_share_one_type(self):
+        root = _parse("go", self.GO_SHARED_TYPE_THREE_NAMES)
+        mnode = scout.collect_nodes(root, {"function_declaration"})[0]
+        params = _extract_method_params(mnode, "go")
+        assert len(params) == 3
+        assert [p["name"] for p in params] == ["a", "b", "c"]
+        assert all(p["type"] == "float64" for p in params)
+
+
+# ---------------------------------------------------------------------------
 # TC-SYS-019: Python property mutability detection
 # ---------------------------------------------------------------------------
 

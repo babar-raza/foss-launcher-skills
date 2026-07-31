@@ -181,23 +181,38 @@ def _extract_method_params(node, language: str) -> list[dict[str, str]]:
                         "identifier", "parameter_declaration",
                         "optional_parameter_declaration",
                         "variadic_parameter_declaration"):
-            pname = ""
+            pnames: list[str] = []
             ptype = ""
 
-            name_node = child_by_field(ch, "name")
-            if name_node:
-                pname = node_text(name_node)
-            elif ch.type == "identifier":
-                pname = node_text(ch)
-            else:
-                for sub in ch.children:
-                    if sub.type == "identifier":
-                        pname = node_text(sub)
-                        break
+            if language == "go" and ch.type in (
+                "parameter_declaration", "variadic_parameter_declaration"
+            ):
+                # Go allows comma-separated parameters sharing one declared
+                # type in a single parameter_declaration node, e.g.
+                # `func OpenWithPassword(path, password string)`. The node's
+                # "name" field only ever resolves to one identifier even when
+                # several are present, so every name after it silently
+                # vanished. Scan every identifier child directly instead.
+                pnames = [
+                    node_text(sub) for sub in ch.children
+                    if sub.type == "identifier"
+                ]
+
+            if not pnames:
+                name_node = child_by_field(ch, "name")
+                if name_node:
+                    pnames = [node_text(name_node)]
+                elif ch.type == "identifier":
+                    pnames = [node_text(ch)]
+                else:
+                    for sub in ch.children:
+                        if sub.type == "identifier":
+                            pnames = [node_text(sub)]
+                            break
 
             # C++: parameter_declaration uses a "declarator" field for the name.
             # Handles default-arg forms: std::string x = {}, const T& y = T()
-            if not pname and ch.type == "parameter_declaration":
+            if not pnames and ch.type == "parameter_declaration":
                 decl = child_by_field(ch, "declarator")
                 if decl is not None:
                     cur = decl
@@ -213,9 +228,10 @@ def _extract_method_params(node, language: str) -> list[dict[str, str]]:
                                     break
                             cur = found
                     if cur is not None and cur.type == "identifier":
-                        pname = node_text(cur)
+                        pnames = [node_text(cur)]
 
-            if pname in ("self", "this", "cls"):
+            pnames = [p for p in pnames if p not in ("self", "this", "cls")]
+            if not pnames:
                 continue
 
             type_node = (child_by_field(ch, "type")
@@ -225,10 +241,10 @@ def _extract_method_params(node, language: str) -> list[dict[str, str]]:
             if type_node:
                 ptype = node_text(type_node).lstrip(":").strip()
 
-            if pname:
-                # TC-SYS-005: Go variadic params — preserve ... prefix in type
-                if ch.type == "variadic_parameter_declaration" and ptype:
-                    ptype = f"...{ptype}"
+            # TC-SYS-005: Go variadic params — preserve ... prefix in type
+            if ch.type == "variadic_parameter_declaration" and ptype:
+                ptype = f"...{ptype}"
+            for pname in pnames:
                 params.append({"name": pname, "type": ptype})
     return params
 
