@@ -938,6 +938,55 @@ class TestCheck6CoverageCompleteness:
         )
         assert passed
 
+    def test_check6_exempts_uncovered_page_unchanged_since_pinned_baseline(self, tmp_path):
+        """Check 6 PASS when a page missing a decision row is byte-identical to its
+        initial_hashes baseline — body_refresh.py's early-exit paths (auto_updatable:false,
+        zero-actionable-claims) legitimately never emit a decision for an untouched page."""
+        import hashlib
+
+        d = tmp_path / "content" / "docs.aspose.org" / "en" / "cells" / "net"
+        page1 = self._write_page(d, "page1.md")
+        page2 = self._write_page(d, "page2.md")
+        baseline_hash = "sha256:" + hashlib.sha256(page2.read_bytes()).hexdigest()
+
+        self._write_decisions(
+            tmp_path / "review", "cells", "net",
+            ["content/docs.aspose.org/en/cells/net/page1.md"]
+        )
+
+        passed, failures = post_refresh_verify.check_coverage_completeness(
+            "cells", "net", review_root=tmp_path / "review",
+            initial_hashes={
+                "content/docs.aspose.org/en/cells/net/page2.md": baseline_hash,
+            },
+        )
+
+        assert passed
+        assert failures == []
+
+    def test_check6_still_fails_when_uncovered_page_changed_since_baseline(self, tmp_path):
+        """Check 6 still FAILs when a page missing a decision row has bytes that differ
+        from its initial_hashes baseline — a real, unrecorded coverage gap, not a
+        legitimate no-op skip."""
+        d = tmp_path / "content" / "docs.aspose.org" / "en" / "cells" / "net"
+        self._write_page(d, "page1.md")
+        self._write_page(d, "page2.md")
+
+        self._write_decisions(
+            tmp_path / "review", "cells", "net",
+            ["content/docs.aspose.org/en/cells/net/page1.md"]
+        )
+
+        passed, failures = post_refresh_verify.check_coverage_completeness(
+            "cells", "net", review_root=tmp_path / "review",
+            initial_hashes={
+                "content/docs.aspose.org/en/cells/net/page2.md": "sha256:" + "0" * 64,
+            },
+        )
+
+        assert not passed
+        assert any("page2.md" in f for f in failures)
+
     def test_check6_skips_locale_files(self, tmp_path):
         """Check 6 does not require locale (translation) files in page_decisions.json."""
         d = tmp_path / "content" / "docs.aspose.org" / "en" / "cells" / "net"

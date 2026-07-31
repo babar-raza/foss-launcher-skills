@@ -1116,6 +1116,7 @@ def check_coverage_completeness(
     tolerance: float = 0.01,
     decision_rows: list[dict] | None = None,
     scope_paths: list[str] | None = None,
+    initial_hashes: dict[str, str] | None = None,
 ) -> tuple[bool, list[str]]:
     """Check 6: Verify page_decisions.json covers all discovered English pages.
 
@@ -1126,6 +1127,14 @@ def check_coverage_completeness(
         tolerance: Fraction of pages that may be uncovered without failing (default 1%).
                    This handles edge cases where new pages are created after PIA runs.
         review_root: Override for reports/refresh_review/ base (tests only).
+        initial_hashes: pinned per-path baseline hashes from scope.json. A page missing
+            a decision row is exempt from "uncovered" when its current bytes still match
+            this baseline — body_refresh.py's early-exit paths (auto_updatable:false,
+            zero-actionable-claims) legitimately never call _emit_run_decision for a
+            genuinely untouched page, mirroring the same tolerance
+            refresh_run.py._reconcile_scope_and_decisions already applies to the
+            scope/decision reconciliation gate. Only a page whose bytes actually changed
+            with no recorded decision is a real coverage gap.
 
     Returns:
         (passed: bool, failures: list[str])
@@ -1182,6 +1191,15 @@ def check_coverage_completeness(
             return False, [f"Could not read page_decisions.json: {exc}"]
 
     uncovered = [p for p in discovered_rel if p not in recorded_paths]
+    if initial_hashes:
+        def _unchanged(rel: str) -> bool:
+            target = REPO_ROOT / rel
+            if not target.is_file():
+                return False
+            current = "sha256:" + hashlib.sha256(target.read_bytes()).hexdigest()
+            return current == initial_hashes.get(rel)
+
+        uncovered = [p for p in uncovered if not _unchanged(p)]
     uncovered_frac = len(uncovered) / total
 
     if uncovered_frac <= tolerance:
@@ -1242,6 +1260,7 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
     bound_manifest: dict | None = None
     run_decisions: list[dict] | None = None
     run_scope: list[str] | None = None
+    run_initial_hashes: dict[str, str] | None = None
     if run_id is not None:
         try:
             bound = _load_bound_run(family, platform, run_id)
@@ -1252,6 +1271,14 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
                 bound_manifest, bound["run_root"], run_decisions
             )
             run_scope = bound_manifest.get("scope", {}).get("paths") or []
+            scope_json_path = bound["run_root"] / "scope.json"
+            if scope_json_path.is_file():
+                run_initial_hashes = (
+                    json.loads(scope_json_path.read_text(encoding="utf-8")).get(
+                        "initial_hashes"
+                    )
+                    or {}
+                )
             if base_ref is not None and base_ref != bound_manifest["base_commit_sha"]:
                 raise ValueError(
                     f"--base {base_ref} conflicts with run base "
@@ -1617,6 +1644,7 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
         platform,
         decision_rows=run_decisions,
         scope_paths=run_scope,
+        initial_hashes=run_initial_hashes,
     )
     failures.extend(check6_failures)
     if not check6_passed:
