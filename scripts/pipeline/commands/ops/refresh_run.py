@@ -1560,7 +1560,15 @@ def apply_run(manifest: dict[str, Any]) -> dict[str, Any]:
     # write disposition outside scope (BODY_UPDATED/EVIDENCE_ONLY/RETIRED, or
     # a GENERATED row whose body_hash_before is non-empty) still implies
     # touching content that existed before this run and must still block.
-    _EMPTY_HASH = "sha256:" + hashlib.sha256(b"").hexdigest()
+    from commands.content.body_refresh import _normalized_body_hash
+
+    # NOTE: this is NOT a plain SHA256 -- body_hash_before/after use a
+    # truncated-to-32-hex-chars normalized-body hash (see _body_hash() in
+    # audit_content_hash.py), confirmed live: a full untruncated
+    # hashlib.sha256(b"").hexdigest() never matched a single real decision
+    # row, since the actual convention used everywhere else in this pipeline
+    # truncates. Reuse the real function instead of re-deriving the format.
+    _EMPTY_HASH = _normalized_body_hash("")
     write_dispositions = {"BODY_UPDATED", "EVIDENCE_ONLY", "GENERATED", "RETIRED"}
     decisions_by_path: dict[str, list[dict[str, Any]]] = {}
     for row in decision_rows:

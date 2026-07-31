@@ -916,7 +916,8 @@ def test_apply_reconciliation_tolerates_no_op_skip_and_out_of_scope_advisory_row
         tmp_path, [structural, updated], "RUN-RECONCILE-OK"
     )
 
-    empty_hash = "sha256:" + hashlib.sha256(b"").hexdigest()
+    from commands.content.body_refresh import _normalized_body_hash
+    empty_hash = _normalized_body_hash("")
 
     def body_refresh_runner(args: list[str], **_: object):
         if any("body_refresh.py" in str(a) for a in args):
