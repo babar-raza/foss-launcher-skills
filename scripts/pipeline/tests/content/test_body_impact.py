@@ -268,3 +268,95 @@ def test_api_added_uses_rewrite_strategy_for_keyword_match(tmp_path):
     assert section["impact_level"] == bi.IL_HIGHLY_LIKELY
     assert section["update_type"] == bi.UT_REWRITE
     assert section["change_id"] == "CHG-pdf-net-0001"
+
+
+def test_duplicate_section_matches_deduped_to_one_entry(tmp_path):
+    """Multiple changes keyword-matching the SAME section collapse to one
+    affected_sections entry.
+
+    Regression test for the body_refresh repeated-rewrite bug found during
+    FONT-PYTHON-REFRESH-002: before this fix, N changes matching a shared
+    boilerplate section produced N near-duplicate affected_sections entries
+    for that section_id, and body_refresh.py's consumer loop rewrote the
+    same section once per duplicate within a single pass — compounding
+    near-duplicate prose and malformed markdown at each successive rewrite.
+    """
+    changes = [
+        _make_change("DocumentConverter", change_id="CHG-pdf-net-0001"),
+        _make_change("DocumentBuilder", change_id="CHG-pdf-net-0002"),
+        _make_change("DocumentLoader", change_id="CHG-pdf-net-0003"),
+    ]
+    cm = {
+        "page_path": "content/docs.aspose.org/en/pdf/net/page.md",
+        "sections": [
+            {
+                "section_id": "overview",
+                "heading": "## Overview",
+                "start_line": 0,
+                "end_line": 10,
+                "claims": [
+                    {
+                        "sentence": "The document conversion tools build and load documents.",
+                        "line_number": 5,
+                        "detected_symbols": [],
+                        "detected_formats": [],
+                        "detected_features": ["convert"],
+                        "detected_versions": [],
+                        "claim_type": "FEATURE_CLAIM",
+                    }
+                ],
+            }
+        ],
+    }
+    _setup_reports(tmp_path, "pdf", "net", changes, [cm])
+
+    impacts = bi.run("pdf", "net")
+    assert len(impacts) == 1
+    overview_entries = [
+        s for s in impacts[0]["affected_sections"] if s["section_id"] == "overview"
+    ]
+    assert len(overview_entries) == 1
+    # All 3 changes are still recorded at the page level, even though only
+    # one drives the section-level rewrite.
+    assert len(impacts[0]["semantic_change_ids"]) == 3
+
+
+def test_definite_match_wins_over_highly_likely_for_same_section(tmp_path):
+    """When one change is an exact symbol match (DEFINITE) and another only
+    keyword-matches (HIGHLY_LIKELY) the same section, dedup keeps the
+    higher-confidence DEFINITE entry rather than an arbitrary one."""
+    changes = [
+        _make_change("DocumentConverter", change_id="CHG-pdf-net-0001"),  # keyword-only
+        _make_change("Document", change_id="CHG-pdf-net-0002"),  # exact symbol match
+    ]
+    cm = {
+        "page_path": "content/docs.aspose.org/en/pdf/net/page.md",
+        "sections": [
+            {
+                "section_id": "overview",
+                "heading": "## Overview",
+                "start_line": 0,
+                "end_line": 10,
+                "claims": [
+                    {
+                        "sentence": "Use `Document` with the document conversion workflow.",
+                        "line_number": 5,
+                        "detected_symbols": ["Document"],
+                        "detected_formats": [],
+                        "detected_features": [],
+                        "detected_versions": [],
+                        "claim_type": "API_REFERENCE",
+                    }
+                ],
+            }
+        ],
+    }
+    _setup_reports(tmp_path, "pdf", "net", changes, [cm])
+
+    impacts = bi.run("pdf", "net")
+    overview_entries = [
+        s for s in impacts[0]["affected_sections"] if s["section_id"] == "overview"
+    ]
+    assert len(overview_entries) == 1
+    assert overview_entries[0]["impact_level"] == bi.IL_DEFINITE
+    assert overview_entries[0]["change_id"] == "CHG-pdf-net-0002"

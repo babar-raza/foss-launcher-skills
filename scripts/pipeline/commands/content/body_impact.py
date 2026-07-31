@@ -224,6 +224,36 @@ def _match_change_to_sections(change: dict, claim_map: dict) -> list[dict]:
     return impacts
 
 
+_IMPACT_LEVEL_RANK = {IL_DEFINITE: 0, IL_HIGHLY_LIKELY: 1}
+
+
+def _dedupe_affected_sections(sections: list[dict]) -> list[dict]:
+    """Collapse multiple change-matches against the same section_id into one entry.
+
+    _match_change_to_sections runs once per semantic change. A section whose prose
+    mentions several changed classes (common in intro/notes boilerplate) would
+    otherwise collect one near-duplicate entry per matching change, and
+    body_refresh.py's consumer loop revisits actionable_sections in order — so it
+    would rewrite that same section once per duplicate entry within a single pass,
+    compounding near-duplicate prose and malformed markdown at each rewrite.
+    Keep the highest-confidence match per section_id (DEFINITE over
+    HIGHLY_LIKELY); break ties by first occurrence for determinism.
+    """
+    best: dict[str, dict] = {}
+    order: list[str] = []
+    for section in sections:
+        sid = section["section_id"]
+        if sid not in best:
+            best[sid] = section
+            order.append(sid)
+            continue
+        current_rank = _IMPACT_LEVEL_RANK.get(best[sid]["impact_level"], 99)
+        candidate_rank = _IMPACT_LEVEL_RANK.get(section["impact_level"], 99)
+        if candidate_rank < current_rank:
+            best[sid] = section
+    return [best[sid] for sid in order]
+
+
 def _build_impact_entries(
     changes: list[dict],
     claim_maps: dict[str, dict],
@@ -290,6 +320,9 @@ def _build_impact_entries(
                 ],
                 "planner_signal": True,
             }
+
+    for entry in page_impacts.values():
+        entry["affected_sections"] = _dedupe_affected_sections(entry["affected_sections"])
 
     return list(page_impacts.values())
 
