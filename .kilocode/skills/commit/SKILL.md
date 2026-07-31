@@ -64,11 +64,6 @@ Applies a full commit-preparation workflow **scoped to the current session's tou
 
 ## Steps
 
-> **Skill context gate** — run before step 1:
-> ```bash
-> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-76 --scope "*"
-> ```
-
 > **Session identity (HARDEN-A2/A12, 2026-07-22):** if `AGENT_SESSION_ID` was
 > exported at `/session-start`, the actual `git commit` in Step H below MUST be
 > run as `AGENT_SESSION_ID=$AGENT_SESSION_ID git commit ...` — the commit hook
@@ -161,6 +156,18 @@ Do not assume "no session" without actually running `current` and examining its 
 **Refusal conditions** (even with a ledger):
 - If ledger is empty (session touched no files) → refuse: `"Session ledger is empty — nothing to commit."`
 - If candidates list is empty after filtering → refuse: `"No session-touched files are currently dirty."`
+
+> **Skill context gate** — run now that the candidate list is known, before Step B:
+> Declare the real candidate paths as scope, not `"*"` (RC1 hardening,
+> 2026-07-31) — a blanket `"*"` scope overlaps any other live per-session
+> context regardless of whether the files actually overlap, defeating the
+> scope-overlap conflict design this skill relies on to coexist with unrelated
+> concurrent sessions. Comma-join the candidate paths from Step A.5 (or, in the
+> `--force-all`/no-ledger fallback where there is no candidate list to narrow
+> to, fall back to `"*"`):
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-76 --scope "<comma-joined candidate paths>"
+> ```
 
 ---
 
