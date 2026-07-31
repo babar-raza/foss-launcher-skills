@@ -391,6 +391,33 @@ def _reconcile_scope_and_decisions(
     return real_missing, real_unexpected
 
 
+def _allowed_commit_paths(
+    scope_paths: list[str], decision_rows: list[dict[str, Any]]
+) -> set[str]:
+    """Return the pinned scope plus any provably-additive GENERATED pages.
+
+    scope.json is frozen from PIA's existing-page assessment at PLANNED time
+    and cannot name a class file that did not exist yet, so a brand-new
+    reference page batch_reference.py generates from api_surface.json always
+    falls outside the pinned scope. Tolerate exactly the same case
+    _reconcile_scope_and_decisions already does for apply_run's own
+    post-write reconciliation: GENERATED with body_hash_before == the hash of
+    empty content cannot have clobbered existing content, which is the
+    property scope-pinning exists to protect.
+    """
+    from commands.content.body_refresh import _normalized_body_hash
+
+    empty_hash = _normalized_body_hash("")
+    allowed = set(scope_paths)
+    allowed.update(
+        str(row.get("page_path"))
+        for row in decision_rows
+        if row.get("disposition") == "GENERATED"
+        and row.get("body_hash_before") == empty_hash
+    )
+    return allowed
+
+
 def _file_digest(path: Path) -> str:
     if not path.is_file():
         return "MISSING"
@@ -2215,7 +2242,9 @@ def bind_commit(
             ).splitlines()
             if path
         }
-        allowed_paths = set(manifest.get("scope", {}).get("paths") or [])
+        allowed_paths = _allowed_commit_paths(
+            list(manifest.get("scope", {}).get("paths") or []), decision_rows
+        )
         if not changed_paths:
             raise RefreshRunError(f"Commit {resolved} has no changed paths")
         unexpected = sorted(changed_paths.difference(allowed_paths))

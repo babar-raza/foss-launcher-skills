@@ -2234,6 +2234,143 @@ def test_bind_commit_rejects_raw_byte_substitution_with_same_body_hash(
         )
 
 
+def test_bind_commit_tolerates_out_of_scope_additive_generated_page(
+    tmp_path: Path,
+):
+    """A brand-new reference page batch_reference.py generates from
+    api_surface.json (a GENERATED row whose page_path was never in scope.json
+    -- new classes can't be named at PLANNED time since they don't exist yet)
+    must not be rejected as 'outside the pinned run scope'. Mirrors the same
+    tolerance _reconcile_scope_and_decisions already gives apply_run's own
+    reconciliation, via the shared _allowed_commit_paths() helper."""
+    commit_sha = "c" * 40
+    scoped_page = "content/docs.aspose.org/en/pdf/net/page.md"
+    new_page = "content/reference.aspose.org/en/pdf/net/NewClass.md"
+    # Bare-LF literals matching what _write_run_evidence's own read_text()
+    # round-trip produces (universal newlines) -- these are what body_refresh
+    # would actually hash, not whatever bytes a platform-default write_text()
+    # happens to put on disk. git cat-file --filters reflects the real
+    # committed blob (already LF-normalized for this repo), so mocking with
+    # these literals -- not a raw disk read -- is the faithful simulation.
+    scoped_content = "---\ntitle: Test\n---\n\nGrounded body.\n"
+    new_content = "---\ntitle: NewClass\n---\n\nGenerated content.\n"
+    new_page_hash = "sha256:" + hashlib.sha256(
+        new_content.encode("utf-8")
+    ).hexdigest()
+
+    def commit_runner(args: list[str], **kwargs: object):
+        binary = kwargs.get("text") is False
+        if args == ["git", "rev-parse", "HEAD"]:
+            output = HEAD_SHA + "\n"
+        elif args[:2] == ["git", "rev-parse"]:
+            output = commit_sha + "\n"
+        elif args[:3] == ["git", "show", "-s"]:
+            output = (
+                "refresh\n\n"
+                "Refresh-Run: RUN-NEW-PAGE\n"
+                f"Refresh-Base: {HEAD_SHA}\n"
+                f"Refresh-Source-SHA: {MODEL_SHA}\n"
+            )
+        elif args[:2] == ["git", "diff-tree"]:
+            output = scoped_page + "\n" + new_page + "\n"
+        elif args[:3] == ["git", "cat-file", "--filters"]:
+            output = (
+                new_content if args[-1].endswith(new_page) else scoped_content
+            )
+        else:
+            output = ""
+        rendered = output.encode("utf-8") if binary else output
+        empty = b"" if binary else ""
+        return subprocess.CompletedProcess(args, 0, rendered, empty)
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=commit_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+    )
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-NEW-PAGE", session_id="session-1"
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["paths"] = [scoped_page]
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["validation"] = {
+        field: "PASS" for field in refresh_run.VALIDATION_FIELDS
+    }
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    _write_run_evidence(tmp_path, manifest, include_validation=True)
+    # _write_run_evidence's own page.write_text() uses platform-default
+    # newline translation (CRLF on Windows), while its body/frontmatter
+    # hashes come from a read_text() round-trip (bare LF) -- rewrite with
+    # newline="" so the on-disk bytes are bare-LF everywhere, matching both
+    # the receipt hash and this test's cat-file literal consistently (a real
+    # LF-normalized git checkout would look like this uniformly).
+    scoped_page_disk = tmp_path / scoped_page
+    scoped_page_disk.write_text(scoped_content, encoding="utf-8", newline="")
+    scoped_receipt_path = (
+        tmp_path / "reports/refresh_runs/pdf/net/RUN-NEW-PAGE/receipts/RCP-001.yaml"
+    )
+    scoped_doc = yaml.safe_load(scoped_receipt_path.read_text(encoding="utf-8"))
+    scoped_hash = refresh_run._path_hash(scoped_page)
+    scoped_doc["content_refresh_receipt"]["old_hash"] = scoped_hash
+    scoped_doc["content_refresh_receipt"]["new_hash"] = scoped_hash
+    scoped_receipt_path.write_text(
+        yaml.safe_dump(scoped_doc, sort_keys=False), encoding="utf-8"
+    )
+    _append_advisory_decision(
+        tmp_path,
+        manifest,
+        page_path=new_page,
+        disposition="GENERATED",
+        body_hash_before=_normalized_body_hash(""),
+    )
+    new_page_disk = tmp_path / new_page
+    new_page_disk.parent.mkdir(parents=True, exist_ok=True)
+    # newline="" disables platform-default translation so the on-disk bytes
+    # are exactly new_content.encode("utf-8") -- matching new_page_hash and
+    # the cat-file mock above bit-for-bit, the same way a real LF-normalized
+    # git checkout would.
+    new_page_disk.write_text(new_content, encoding="utf-8", newline="")
+    # The advisory receipt/decision must match the real committed bytes for
+    # bind_commit's raw-byte reconciliation, unlike the body-hash-only checks
+    # _assert_run_evidence_ready performs.
+    receipt_path = (
+        tmp_path
+        / "reports/refresh_runs/pdf/net/RUN-NEW-PAGE/receipts/RCP-ADVISORY.yaml"
+    )
+    doc = yaml.safe_load(receipt_path.read_text(encoding="utf-8"))
+    doc["content_refresh_receipt"]["new_hash"] = new_page_hash
+    receipt_path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
+    decisions_path = tmp_path / "reports/refresh_runs/pdf/net/RUN-NEW-PAGE/page_decisions.jsonl"
+    rows = [json.loads(l) for l in decisions_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    for row in rows:
+        if row["page_path"] == new_page:
+            row["body_hash_after"] = _normalized_body_hash(new_content)
+            row["frontmatter_hash_after"] = _frontmatter_hash(new_content)
+            row["receipt_digest"] = refresh_run._file_digest(receipt_path)
+        elif row["page_path"] == scoped_page:
+            row["receipt_digest"] = refresh_run._file_digest(scoped_receipt_path)
+    decisions_path.write_text(
+        "\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8"
+    )
+    receipts = sorted((tmp_path / "reports/refresh_runs/pdf/net/RUN-NEW-PAGE/receipts").glob("*.yaml"))
+    manifest["output_digests"]["page_decisions"] = refresh_run._file_digest(decisions_path)
+    manifest["output_digests"]["receipts"] = "sha256:" + hashlib.sha256(
+        "\n".join(f"{p.name}:{refresh_run._file_digest(p)}" for p in receipts).encode("utf-8")
+    ).hexdigest()
+    refresh_run._save_manifest(manifest)
+    refresh_run._transition(manifest, "VALIDATING")
+    refresh_run._transition(manifest, "READY_TO_COMMIT")
+
+    result = refresh_run.bind_commit(
+        "pdf", "net", "RUN-NEW-PAGE", commit_sha, session_id="session-1",
+    )
+    assert result["state"] == "COMMITTED"
+    assert result["commit_sha"] == commit_sha
+
+
 def test_locate_run_rejects_unsafe_glob_identity():
     with pytest.raises(refresh_run.RefreshRunError, match="run_id"):
         refresh_run._locate_run("*")
