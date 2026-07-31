@@ -8,7 +8,7 @@ import pytest
 import sys
 import os
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "checks"))
-from check_monkeypatch_lint import check_file, main, analyze_python_file
+from check_monkeypatch_lint import check_file, main, analyze_python_file, compare_baseline
 
 
 # ---------------------------------------------------------------------------
@@ -225,3 +225,62 @@ def test_bad(monkeypatch):
     def test_no_args_exits_0(self, capsys):
         rc = main([])
         assert rc == 0
+
+
+class TestCompareBaselineScoping:
+    """compare_baseline must gate only on scoped_files, not every test file
+    the repo currently contains -- otherwise a concurrent session's
+    unrelated, uncommitted edits to some other test file (sitting dirty in
+    the same shared working tree) would block a commit that never touched
+    that file at all."""
+
+    def _write_baseline(self, tmp_path: Path, files: dict) -> Path:
+        p = tmp_path / "baseline.json"
+        totals = {"T1": 0, "T2": 0}
+        for counts in files.values():
+            totals["T1"] += counts.get("T1", 0)
+            totals["T2"] += counts.get("T2", 0)
+        import json
+        p.write_text(
+            json.dumps({"totals": totals, "files": files}), encoding="utf-8"
+        )
+        return p
+
+    def test_ignores_regression_in_an_out_of_scope_file(self, tmp_path):
+        """An unrelated file's T1/T2 count going up must not fail a
+        comparison scoped to a different, unchanged file."""
+        baseline_path = self._write_baseline(tmp_path, {
+            "scripts/pipeline/tests/test_mine.py": {"T1": 0, "T2": 0},
+            "scripts/pipeline/tests/test_other_session.py": {"T1": 9, "T2": 12},
+        })
+        current = {
+            "totals": {"T1": 11, "T2": 16},
+            "files": {
+                "scripts/pipeline/tests/test_mine.py": {"T1": 0, "T2": 0},
+                # Another session's uncommitted, unrelated drift.
+                "scripts/pipeline/tests/test_other_session.py": {"T1": 11, "T2": 16},
+            },
+        }
+        failures = compare_baseline(
+            current, baseline_path,
+            scoped_files=["scripts/pipeline/tests/test_mine.py"],
+        )
+        assert failures == []
+
+    def test_still_catches_regression_in_the_scoped_file_itself(self, tmp_path):
+        """The gate must still block when the file actually being checked is
+        the one that regressed."""
+        baseline_path = self._write_baseline(tmp_path, {
+            "scripts/pipeline/tests/test_mine.py": {"T1": 0, "T2": 0},
+        })
+        current = {
+            "totals": {"T1": 1, "T2": 0},
+            "files": {
+                "scripts/pipeline/tests/test_mine.py": {"T1": 1, "T2": 0},
+            },
+        }
+        failures = compare_baseline(
+            current, baseline_path,
+            scoped_files=["scripts/pipeline/tests/test_mine.py"],
+        )
+        assert any("T1 regression" in f for f in failures)

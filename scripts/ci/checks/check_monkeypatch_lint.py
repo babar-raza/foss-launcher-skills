@@ -430,19 +430,32 @@ def generate_baseline(test_dirs: list[str] | None = None) -> dict:
     }
 
 
-def compare_baseline(current: dict, committed_path: Path) -> list[str]:
+def compare_baseline(
+    current: dict, committed_path: Path, scoped_files: list[str]
+) -> list[str]:
+    """Compare tier counts against the committed baseline, scoped to
+    scoped_files (the exact files this invocation actually checked -- staged
+    files in the pre-commit hook, or an explicit file list).
+
+    Comparing global totals instead of a scoped subset means a concurrent
+    session's unrelated, uncommitted edits to some other test file sitting
+    dirty in the same working tree inflate "current" and block a commit that
+    never touched that file at all. Pass every currently-known test file
+    (e.g. via --all-files) to reproduce the old whole-repo comparison.
+    """
     failures: list[str] = []
     try:
         committed = json.loads(committed_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as e:
         return [f"Cannot read baseline at {committed_path}: {e}"]
 
-    committed_totals = committed.get("totals", {})
-    current_totals = current.get("totals", {})
+    committed_files = committed.get("files", {})
+    current_files = current.get("files", {})
+    scoped = {f.replace("\\", "/") for f in scoped_files}
 
     for tier in ["T1", "T2"]:
-        cur = current_totals.get(tier, 0)
-        base = committed_totals.get(tier, 0)
+        cur = sum(current_files.get(f, {}).get(tier, 0) for f in scoped)
+        base = sum(committed_files.get(f, {}).get(tier, 0) for f in scoped)
         if cur > base:
             failures.append(
                 f"{tier} regression: {cur} > baseline {base} (+{cur - base})"
@@ -574,7 +587,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.compare_baseline:
         current_baseline = generate_baseline()
         baseline_failures = compare_baseline(
-            current_baseline, Path(args.compare_baseline)
+            current_baseline,
+            Path(args.compare_baseline),
+            scoped_files=[str(fp) for fp in files],
         )
 
     ratchet_failures: list[str] = []
