@@ -2849,6 +2849,60 @@ scripts:
       state flip. See publish_watcher.py's own module docstring for the full
       design rationale.
 
+  # ── Mission MT015-2026-07-30-PACKAGE-REGISTRY, TC-MT015-09 (2026-08-01) ─────
+
+  - path: scripts/pipeline/commands/content/package_install_migrator.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python -m commands.content.package_install_migrator {family} {platform} [--dry-run|--execute] [--limit N]"
+    owner_domain: content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_package_install_migrator.py
+    test_exempt_reason: null
+    requires_test: true
+    deprecated_since: null
+    notes: >-
+      Generic sibling of maven_shortcode_migrator.py for the 4 registries
+      package-install.html covers (pypi, nuget, npm, go_modules). Only
+      replaces a sole-command fenced code block with the shortcode call --
+      inline backtick-wrapped mentions are counted and reported, never
+      auto-rewritten (package-install renders a block-level element, unsafe
+      to splice mid-sentence). Built to close the SLIDES-NET-NUGET-001
+      discovery (1296 files); validated via dry-run against that real corpus
+      (1223 files eligible) but not executed against it in this pass -- see
+      backlog/BACKLOG.md for that row's own scope.
+
+  - path: scripts/pipeline/commands/ops/package_publish_watch.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: "python -m commands.ops.package_publish_watch [--issue-body-out PATH] [--no-persist-counters]"
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_package_publish_watch.py
+    test_exempt_reason: null
+    requires_test: true
+    deprecated_since: null
+    notes: >-
+      Multi-registry sibling of publish_watcher.py (Maven-only) -- covers
+      pypi/nuget/npm/go_modules/cargo via the TC-MT015-04/09 adapters, with a
+      2-consecutive-check debounce (unlike publish_watcher.py, which doesn't
+      need one -- see this module's own docstring for why). Detects and
+      reports only; never auto-flips verification.published. Wrapped by
+      skills/package-publish-watch.md (S-118) for the operator-confirmed
+      apply + content-healing flow, and by
+      .github/workflows/package-publish-watch.yml for scheduled
+      notification-only detection.
+
   # ── fix(pipeline): blog 404 sprint ops scripts (2026-05-20) ─────────────────
 
   - path: scripts/pipeline/commands/ops/batch_gen_missing.py

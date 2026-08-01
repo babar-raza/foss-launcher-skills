@@ -17,7 +17,7 @@ if str(_LIB_DIR) not in sys.path:
     sys.path.insert(0, str(_LIB_DIR))
 
 from package_registries import CheckResult, FetchResponse, apply_debounce  # noqa: E402
-from package_registries import pypi, npm, nuget, go  # noqa: E402
+from package_registries import pypi, npm, nuget, go, cargo  # noqa: E402
 
 
 def _fake_fetch(status_code: int, body: bytes = b""):
@@ -142,6 +142,40 @@ class TestGoAdapter:
             {"module_path": "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"},
             fetch=_fake_fetch(200, b""),
         )
+        assert result.ambiguous is True
+
+
+class TestCargoAdapter:
+    """crates.io adapter (TC-MT015-09) -- built alongside /package-publish-watch
+    since RUST-CRATESIO-001 explicitly names this gap and TC-MT015-04 covered
+    only pypi/nuget/npm/go."""
+
+    def test_published(self):
+        body = b'{"crate": {"id": "aspose-cells-foss-rust"}}'
+        result = cargo.check_published({"name": "aspose-cells-foss-rust"}, fetch=_fake_fetch(200, body))
+        assert result.published is True
+        assert result.ambiguous is False
+        assert result.verified_owner == "aspose-cells-foss-rust"
+        assert "crates.io" in result.evidence_url
+
+    def test_not_published(self):
+        result = cargo.check_published({"name": "aspose-cells-foss-rust"}, fetch=_fake_fetch(404))
+        assert result.published is False
+        assert result.ambiguous is False
+
+    def test_ambiguous_on_server_error(self):
+        result = cargo.check_published({"name": "aspose-cells-foss-rust"}, fetch=_fake_fetch(503))
+        assert result.published is False
+        assert result.ambiguous is True
+
+    def test_ambiguous_on_connection_error(self):
+        result = cargo.check_published({"name": "aspose-cells-foss-rust"}, fetch=_fake_fetch_connection_error())
+        assert result.published is False
+        assert result.ambiguous is True
+
+    def test_ambiguous_on_malformed_json(self):
+        result = cargo.check_published({"name": "aspose-cells-foss-rust"}, fetch=_fake_fetch(200, b"not json"))
+        assert result.published is False
         assert result.ambiguous is True
 
 

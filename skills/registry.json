@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
-  "skill_count": 106,
+  "skill_count": 107,
   "skills": [
     {
       "id": "S-01",
@@ -799,6 +799,14 @@
       "description": "`change-sweep` (S-94) answers \"did the *upstream FOSS repo* change for any launched",
       "internal": false,
       "canonical_path": "skills/mechanism-sweep.md"
+    },
+    {
+      "id": "S-118",
+      "slug": "package-publish-watch",
+      "name": "Package Publish Watch — Multi-Registry Publish Detection and Content Healing",
+      "description": "Maven has its own watcher (`publish_watcher.py`, Mission MT008 D-03) because",
+      "internal": false,
+      "canonical_path": "skills/package-publish-watch.md"
     },
     {
       "id": "S-HT-02",

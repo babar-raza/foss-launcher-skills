@@ -92,6 +92,7 @@
 | plan-health-watchdog | S-113 | Detect stalled P0 taskcards and plan-prose contradicted by repo state via structured taskcards.jsonl (schema 5f) field comparison + plan-markdown parity check (RPR-G-04) |
 | regression-classification | S-114 | Classify every grade regression JUSTIFIED/UNJUSTIFIED with a cited evidence source, writing the complete input list (never a sample) so it cannot be silently lost (RPR-A-01) |
 | workflow-harden | S-115 | GitHub Actions CI forensic audit and hardening — trigger/permission/secret/cache correctness plus CI-weight reduction across `.github/workflows/**` |
+| package-publish-watch | S-118 | Multi-registry (pypi/nuget/npm/go_modules/cargo) publish detection with 2-consecutive-check debounce + operator-confirmed content healing via package_install_migrator.py; Maven's own sibling is S-110/publish_watcher.py (Mission MT015-2026-07-30-PACKAGE-REGISTRY, TC-MT015-09) |
 | project-phase-store | S-10 | Track generation phase state |
 | publish-readiness-review | S-90 | Agent-executed governed inspection |
 | refresh-product | S-84 | Full post-launch product refresh orchestration |
