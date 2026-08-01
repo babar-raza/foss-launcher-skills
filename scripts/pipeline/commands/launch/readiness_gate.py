@@ -195,7 +195,7 @@ def gate_g05_proof_index(env: dict | None = None) -> GateResult:
 
 def gate_g06_launch_gate(family: str, platform: str) -> GateResult:
     """G-06: launch_gate.py exits 0."""
-    script = _REPO_ROOT / "scripts" / "pipeline" / "launch_gate.py"
+    script = _REPO_ROOT / "scripts" / "pipeline" / "commands" / "launch" / "launch_gate.py"
     rc, out = _run([_PYTHON, str(script), family, platform, "--skip-tests"])
     if rc == 0:
         return GateResult("G-06", "Launch gate", STATUS_PASS, f"launch_gate {family}/{platform} passed")

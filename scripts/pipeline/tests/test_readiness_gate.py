@@ -80,6 +80,25 @@ def test_g05_fail_unregistered_dir(tmp_path):
     assert "1 unregistered" in result.detail
 
 
+# ---------------------------------------------------------------------------
+# G-06 tests (ST-051 regression: G-06 hardcoded a stale launch_gate.py path
+# left over from the "move remaining domains to commands/" migration, so
+# every G-06 invocation silently failed with a file-not-found error instead
+# of actually running the launch gate. No test existed for this at all.)
+# ---------------------------------------------------------------------------
+
+def test_g06_resolves_to_the_real_launch_gate_script(tmp_path):
+    """The script path gate_g06_launch_gate() constructs must resolve to a
+    real, existing file against the actual repo root -- not the stale
+    scripts/pipeline/launch_gate.py path (ST-051)."""
+    readiness_gate.configure(repo_root=None)  # use the real repo root for this one check
+    real_root = readiness_gate._REPO_ROOT
+    expected = real_root / "scripts" / "pipeline" / "commands" / "launch" / "launch_gate.py"
+    assert expected.is_file(), f"launch_gate.py not found at {expected}"
+    stale = real_root / "scripts" / "pipeline" / "launch_gate.py"
+    assert not stale.is_file(), "stale path should not exist -- if it does, both paths are ambiguous"
+
+
 def test_g05_ignore_files_in_proofs_dir(tmp_path):
     """Files (not dirs) in reports/proofs/ are not counted as bundles."""
     _make_bundle_dir(tmp_path, "20260101-run")

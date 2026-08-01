@@ -101,7 +101,7 @@ Before generating any content, you MUST:
 
    `## Introduction`
    - 2–3 paragraphs: announce or introduce the topic; what problem this solves; who it's for
-   - Mention the package name (PyPI name), MIT license, and zero-dependency nature
+   - Mention the package name (per `canonical_import`, not a package-manager identity), MIT license, and zero-dependency nature
 
    `---`
 
@@ -113,8 +113,10 @@ Before generating any content, you MUST:
    `---`
 
    `## Quick Start`
-   - Install snippet in ` ```bash ` block: `pip install {package-name}`
-   - A 10–20 line Python example covering the core task described by the slug
+   - Install instructions: use the shortcode for `{platform}` per Constraints below (never a
+     literal `pip install`/`dotnet add package`/`npm install` line — see the install-instructions
+     rule in Constraints)
+   - A 10–20 line code example (language per `{platform}`) covering the core task described by the slug
 
    `---`
 
@@ -149,20 +151,29 @@ Before generating any content, you MUST:
    - `tags` is always `[]`
    - `categories` uses the format `Aspose.{Family}` with a capital F and correct family name casing (e.g. `Aspose.3D`, `Aspose.Cells`, `Aspose.Slides`)
    - **Code fence language** — resolve from `{platform}` argument (never hardcode `python`):
-     - `python` → `python`, install via `pip`
-     - `net` → `csharp`, install via `dotnet add package`
-     - `java` → `java`, install via Maven `<dependency>` — **do NOT write a literal
-       `<groupId>`/coordinate**. Write `{{< maven-coord "{family}" "java" >}}` on its own line
+     `python` → `python`, `net` → `csharp`, `java` → `java`, `cpp` → `cpp`, `typescript` → `typescript`.
+   - **Install instructions: never write `pip install`/`dotnet add package`/`npm install` (or any
+     package-manager identity) from LLM knowledge or from `model.yaml` — always render it via a
+     shortcode reading `data/package_registry.json`.** Same mandatory rule `new-products-page.md`
+     (S-61), `new-docs-page.md` (S-56), and `new-kb-howto.md` (S-58) enforce (Mission
+     MT015-2026-07-30-PACKAGE-REGISTRY, root cause 1):
+     - **for `platform: java`**: write `{{< maven-coord "{family}" "java" >}}` on its own line
        (blank line before/after) instead of a fenced Maven XML block. For inline mentions, use
        `{{< maven-gav "{family}" "java" >}}` with NO surrounding backticks (it already renders
-       its own `<code>` wrapper). Renders the live-verified `org.aspose:...` coordinate from
-       `data/foss_packages.json` — see Mission MT008 in `plans/master-plan.md`.
-     - `cpp` → `cpp`, install via CMake FetchContent or vcpkg (see install.md)
-     - `typescript` → `typescript`, install via `npm install`
-   - **Package name** always comes from `knowledge/{family}/{platform}/scout/model.yaml` →
-     `canonical_import`. Never use the commercial Aspose package name. If `canonical_import`
-     is empty, STOP and run `/repo-scout {family} {platform}` first. This governs the Java
-     **import package** only — a separate fact from the Maven groupId above; do not conflate them.
+       its own `<code>` wrapper).
+     - **for `platform: rust`**: use `{{< cargo-crate "{family}" "rust" >}}`.
+     - **for every other platform** (net, cpp, python, typescript, javascript, go, ...): use
+       `{{< package-install "{family}" "{platform}" >}}`.
+     - **If `data/package_registry.json` has no entry at all for this family/platform**: do not
+       invoke any shortcode (it will `errorf`) and do not hand-write a specific command — use the
+       plain-prose "not yet published, build from source" fallback matching words/net's wording.
+   - **Package name** for import statements/code blocks always comes from
+     `knowledge/{family}/{platform}/scout/model.yaml` → `canonical_import`. Never use the
+     commercial Aspose package name. If `canonical_import` is empty, STOP and run
+     `/repo-scout {family} {platform}` first. This governs the **import package** only — a
+     separate fact from the install-instruction identity above; do not conflate them. **Never
+     use `canonical_import` (or any `model.yaml` field) to construct or infer the rendered install
+     command itself** — that must always come from the shortcode above, never from this field.
    - All class names and method names must match what you read from reference content — no invented API
 
 6. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:

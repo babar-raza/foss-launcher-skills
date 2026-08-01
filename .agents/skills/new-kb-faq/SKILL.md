@@ -114,6 +114,14 @@ Generate or update the FAQ page for a product platform.
 6. **Constraints**:
    - All class names, method names, and package import paths must match what you read from the reference content — do not invent API surface
    - Code examples use ` ```python ` language identifier
+   - **"How do I install?" answer**: never write a literal `pip install`/`dotnet add package`/
+     `npm install`/Maven coordinate from LLM knowledge — render it via the shortcode for
+     `{platform}` reading `data/package_registry.json`, same mandatory rule as `new-products-page.md`
+     (S-61)/`new-docs-page.md` (S-56)/`new-kb-howto.md` (S-58)/`new-blog-post.md` (S-57): java →
+     `{{< maven-gav "{family}" "java" >}}` (no backticks), rust → `{{< cargo-crate "{family}" "rust" >}}`,
+     everything else → `{{< package-install "{family}" "{platform}" >}}`. If no registry entry
+     exists, answer with the plain-prose "not yet published, build from source" fallback instead
+     of inventing a command (Mission MT015-2026-07-30-PACKAGE-REGISTRY, root cause 1).
    - `weight: 1` ensures FAQ appears first in the KB listing — never change this value
    - Do NOT write a `faq:` or `faq.list` key to frontmatter — FAQ entries belong exclusively
      in the markdown body as `### Question text?` headings followed by answer paragraphs.

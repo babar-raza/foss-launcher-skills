@@ -102,21 +102,36 @@ Generate a new KB how-to article.
 
 5. **Constraints** (hard rules — never violate):
    - **Code fence language** — resolve from `{platform}` argument (never hardcode `python`):
-     - `python` → ` ```python `, install via `pip install {package-name}`
-     - `net` → ` ```csharp `, install via `dotnet add package {package-name}`
-     - `java` → ` ```java `, install via Maven `<dependency>` — **do NOT write a literal
-       `<groupId>`/coordinate**. In Step 1's install section, write exactly
-       `{{< maven-coord "{family}" "java" >}}` on its own line (blank line before/after)
-       instead of a fenced Maven XML block. For any inline mention of the coordinate elsewhere
-       in the page, use `{{< maven-gav "{family}" "java" >}}` with NO surrounding backticks (it
-       already renders its own `<code>` wrapper). These shortcodes render the live-verified
-       `org.aspose:...` coordinate from `data/foss_packages.json` — see Mission MT008 in
-       `plans/master-plan.md`.
-     - `cpp` → ` ```cpp `, install via CMake FetchContent or vcpkg (see install.md)
-     - `typescript` → ` ```typescript `, install via `npm install {package-name}`
+     `python` → ` ```python `, `net` → ` ```csharp `, `java` → ` ```java `, `cpp` → ` ```cpp `,
+     `typescript` → ` ```typescript `.
+   - **Install instructions: never write `pip install {package-name}` / `dotnet add package
+     {package-name}` / `npm install {package-name}` (or any package-manager identity) from
+     LLM knowledge — always render it via a shortcode reading `data/package_registry.json`.**
+     This is the same mandatory rule `new-products-page.md` (S-61) and `new-docs-page.md` (S-56)
+     enforce (Mission MT015-2026-07-30-PACKAGE-REGISTRY, root cause 1: a generation step must
+     never guess a live install command for an unconfirmed package):
+     - **for `platform: java`**: in Step 1's install section, write exactly
+       `{{< maven-coord "{family}" "java" >}}` on its own line (blank line before/after) instead
+       of a fenced Maven XML block. For any inline mention of the coordinate elsewhere in the
+       page, use `{{< maven-gav "{family}" "java" >}}` with NO surrounding backticks (it already
+       emits its own `<code>` wrapper).
+     - **for `platform: rust`**: use `{{< cargo-crate "{family}" "rust" >}}`.
+     - **for every other platform** (net, cpp, python, typescript, javascript, go, ...): use
+       `{{< package-install "{family}" "{platform}" >}}`.
+     - **If `data/package_registry.json` has no entry at all for this family/platform**: do not
+       invoke any of the above shortcodes (they will `errorf` the build) and do not write a
+       specific command by hand either — write the plain-prose fallback ("A {registry} package
+       has not been published yet — build from source until it ships") matching the wording
+       already used for words/net.
+     All of these shortcodes read `data/package_registry.json` at build time and fail the build
+     loudly (`errorf`) if no entry exists — see Mission MT015 (unified schema) in
+     `plans/master-plan.md`.
    - Shell/terminal commands always use ` ```bash `
    - Use `---` horizontal divider between each step inside `{{% steps %}}`
-   - **Package name** always comes from `knowledge/{family}/{platform}/scout/model.yaml` → `canonical_import`. Never use the commercial Aspose package name. This governs the Java **import package** only — it is a separate fact from the Maven groupId above; do not conflate them.
+   - **Package name** for import statements/code blocks always comes from
+     `knowledge/{family}/{platform}/scout/model.yaml` → `canonical_import`. Never use the
+     commercial Aspose package name. This governs the **import package** only — it is a separate
+     fact from the install-instruction identity above; do not conflate them.
    - Class names, method names, and import paths must exactly match what appears in the reference content you read — do not invent new API names
    - All cross-subdomain links must be absolute `https://` URLs without `/en/` (e.g. `https://docs.aspose.org/{family}/{platform}/...`)
    - All claims must be backed by entries in `knowledge/{family}/{platform}/merged/claims.json`

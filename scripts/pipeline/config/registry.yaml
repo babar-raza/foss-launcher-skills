@@ -2924,6 +2924,34 @@ scripts:
       .github/workflows/package-publish-watch.yml for scheduled
       notification-only detection.
 
+  # ── Mission MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE, TC-MT018-03 ────────
+
+  - path: scripts/pipeline/commands/ops/registry_coverage_scan.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: "python -m commands.ops.registry_coverage_scan [--json]"
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_registry_coverage_scan.py
+    test_exempt_reason: null
+    requires_test: true
+    deprecated_since: null
+    notes: >-
+      Unions content_discovery.discover_products() with a
+      content/products.aspose.org/en/*/*/ directory scan, diffs against
+      data/package_registry.json + data/registry_exclusions.json. Closes the
+      root cause behind MT015 only ever registering 7 of 31 launched
+      products: no prior tool ever enumerated every real product and asked
+      which ones were missing a registry entry. Confirmed byte-identical to
+      a full manual audit (2026-08-01): 31 discovered, 7 registered, 24
+      uncovered, plus a real exclusion-vs-content discrepancy
+      (cells/typescript flagged BLOCKED_REPO_NOT_LAUNCHABLE yet still live).
+
   # ── fix(pipeline): blog 404 sprint ops scripts (2026-05-20) ─────────────────
 
   - path: scripts/pipeline/commands/ops/batch_gen_missing.py
