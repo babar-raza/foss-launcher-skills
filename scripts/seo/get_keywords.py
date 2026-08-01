@@ -1,10 +1,12 @@
 import argparse
+import datetime
 import json
 import logging
 import os
 import sys
 import time
 import yaml
+from collections import deque
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -51,6 +53,40 @@ def extract_head_title(file_path):
                 data = yaml.safe_load(front_matter)
                 return data.get('title')
     return None
+
+
+def _extract_platform_from_path(file_path, family_dir):
+    """Derive the real platform from a file's path within its family
+    directory, instead of trusting a single CLI-wide --platform flag for
+    every file regardless of its actual platform (Finding #50). Content is
+    laid out as {family_dir}/{platform}/... consistently across all 3 sites
+    (docs/kb/products.aspose.org), confirmed directly against real content
+    (cpp, go, java, net, python, rust, typescript). A file directly at
+    {family_dir}/_index.md, or any file with no platform subdirectory, is
+    inherently cross-platform: returns None so the caller uses
+    platform-neutral prompt framing instead of defaulting to one platform.
+    """
+    rel_parts = Path(file_path).resolve().relative_to(Path(family_dir).resolve()).parts
+    if len(rel_parts) <= 1:
+        return None
+    return rel_parts[0]
+
+
+def rotate_families_by_iso_week(families, today=None):
+    """Rotate family processing order by ISO week number so a fixed
+    per-run call budget (--max-calls) doesn't always prioritize the same
+    early families, starving later ones over many weekly runs (see
+    SEO-SCHEMA-A-WORKFLOW-UPDATE). Deterministic given the same date --
+    every run in the same ISO week produces the same order.
+    """
+    families = list(families)
+    if not families:
+        return families
+    today = today or datetime.date.today()
+    iso_week = today.isocalendar()[1]
+    rotated = deque(families)
+    rotated.rotate(-(iso_week % len(families)))
+    return list(rotated)
 
 
 def _find_entry(data, source_path, title):
@@ -152,21 +188,31 @@ _BACKOFF_BASE_SECONDS = 60
 def get_keywords_from_gemini(page_title, platform="net"):
     import google.generativeai as genai  # lazy: optional heavy dependency
 
-    platform_label = {
-        "net": ".NET",
-        "java": "Java",
-        "python": "Python",
-        "cpp": "C++",
-        "nodejs": "Node.js",
-        "php": "PHP",
-    }.get(platform, platform)
+    if platform is None:
+        # Family-root pages (Finding #50) have no single real platform --
+        # framing the prompt around one anyway is what produced the
+        # ".NET platform" mislabeling on non-.NET pages in the first place.
+        platform_phrase = "this product"
+    else:
+        platform_label = {
+            "net": ".NET",
+            "java": "Java",
+            "python": "Python",
+            "cpp": "C++",
+            "go": "Go",
+            "rust": "Rust",
+            "typescript": "TypeScript",
+            "nodejs": "Node.js",
+            "php": "PHP",
+        }.get(platform, platform)
+        platform_phrase = f"the {platform_label} platform"
     # gemini-1.5-flash was retired (404 as of 2026-07-30, verified against the
     # live API); "-latest" alias tracks Google's current supported flash-lite
     # model without needing another pinned-version update when this one sunsets.
     model = genai.GenerativeModel("gemini-flash-lite-latest")
     prompt = (
         f"Generate a concise list of SEO keywords for the product page titled '{page_title}'. "
-        f"Focus on long tail keywords related to the {platform_label} platform having medium to high search volume, and low to medium competition."
+        f"Focus on long tail keywords related to {platform_phrase} having medium to high search volume, and low to medium competition."
         f"Provide only the keywords, with each keyword on a new line, and no additional explanations."
     )
     for attempt in range(1, _MAX_429_RETRIES + 1):
@@ -215,15 +261,32 @@ _CIRCUIT_BREAKER_CONSECUTIVE_FAILURES = 3
 
 
 # Process Markdown files grouped by families
-def process_markdown_files_by_families(families, root_dir, output_dir, platform="net"):
+def process_markdown_files_by_families(
+    families, root_dir, output_dir, platform_override=None, force=False, max_calls=None,
+):
+    """
+    platform_override: forces every file to this platform, bypassing
+        per-file path detection (Finding #50's fix). None (default) means
+        "detect from each file's real path" -- the normal, correct behavior.
+        Kept only for the rare case a caller needs to force one platform.
+    force: bypass skip-if-unchanged (Finding #51's fix) -- always call
+        Gemini even when an existing entry's title hasn't changed. Needed
+        for the one-time migration pass that corrects already-mislabeled
+        entries (see SEO-SCHEMA-A-WORKFLOW-UPDATE's Migration Plan).
+    max_calls: stop cleanly (not a failure) once this many real Gemini
+        calls have been made this run, saving progress made so far. A
+        proactive budget, independent of the reactive circuit breaker.
+    """
     family_data = {}
     call_success_count = 0
     call_failure_count = 0
     consecutive_failures = 0
+    calls_made = 0
     circuit_tripped = False
+    budget_reached = False
 
     for family in families:
-        if circuit_tripped:
+        if circuit_tripped or budget_reached:
             break
         family_dir = os.path.join(root_dir, family)
         if not os.path.exists(family_dir):
@@ -234,7 +297,7 @@ def process_markdown_files_by_families(families, root_dir, output_dir, platform=
         family_data[family] = []
 
         for subdir, _, files in os.walk(family_dir):
-            if circuit_tripped:
+            if circuit_tripped or budget_reached:
                 break
             for file in files:
                 if not file.endswith('.md'):
@@ -246,6 +309,25 @@ def process_markdown_files_by_families(families, root_dir, output_dir, platform=
                     continue
 
                 existing = find_existing_entry(family, source_path, page_title, output_dir)
+                if existing is not None and not force and existing.get("pageTitle") == page_title:
+                    logging.info(f"Skipping (title unchanged): {page_title} (Family: {family})")
+                    continue
+
+                if max_calls is not None and calls_made >= max_calls:
+                    logging.info(
+                        f"Call budget ({max_calls}) reached -- stopping cleanly, "
+                        f"saving progress made so far."
+                    )
+                    budget_reached = True
+                    break
+
+                platform = (
+                    platform_override
+                    if platform_override is not None
+                    else _extract_platform_from_path(file_path, family_dir)
+                )
+                calls_made += 1
+
                 if existing is not None:
                     logging.info(f"Appending keywords: {page_title} (Family: {family})")
                     new_keywords = get_keywords_from_gemini(page_title, platform)
@@ -315,6 +397,14 @@ def process_markdown_files_by_families(families, root_dir, output_dir, platform=
                 f"check for a retired model, revoked/exhausted API key, or "
                 f"changed error format. Not writing this off as 'no changes'."
             )
+        if budget_reached:
+            msg = (
+                f"Call budget ({max_calls}) reached after {calls_made} call(s) this run -- "
+                f"stopping cleanly, not a failure. Progress made so far has been saved. "
+                f"Resume next run to continue with the remaining files."
+            )
+            logging.info(msg)
+            print(msg)
 
     return family_data
 
@@ -356,11 +446,46 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--platform",
-        default="net",
+        default=None,
         help=(
-            "Platform label used in the Gemini prompt (e.g. net, java, python, cpp, nodejs, php). "
-            "Previously hardcoded to '.NET platform' regardless of the actual content being "
-            "scanned (Finding #33) -- default remains net for backward compatibility."
+            "Force this platform for every file, bypassing automatic per-file path "
+            "detection (e.g. net, java, python, cpp, go, rust, typescript). Normally "
+            "unnecessary -- the platform is now detected per file from its real path "
+            "({family}/{platform}/...), since a single CLI-wide flag applied to every "
+            "file regardless of its actual platform was itself a defect (Finding #50). "
+            "Only pass this to force one platform for content that doesn't follow the "
+            "usual layout."
+        ),
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help=(
+            "Bypass skip-if-unchanged (Finding #51) and call Gemini for every page, "
+            "even when an existing entry's title hasn't changed. Needed once for the "
+            "migration pass that corrects already-mislabeled entries after the platform "
+            "detection fix lands; not needed for routine weekly runs."
+        ),
+    )
+    parser.add_argument(
+        "--max-calls",
+        type=int,
+        default=None,
+        help=(
+            "Stop cleanly (not a failure) once this many real Gemini calls have been "
+            "made this run, saving progress made so far. A proactive budget, independent "
+            "of the reactive circuit breaker -- keeps a single run well inside the real, "
+            "empirically-tight quota ceiling discovered in the bootstrap regeneration."
+        ),
+    )
+    parser.add_argument(
+        "--rotate-weekly",
+        action="store_true",
+        help=(
+            "Rotate --families processing order by the current ISO week number, so a "
+            "fixed per-run call budget doesn't always prioritize the same early families "
+            "over many weekly runs. Intended for the scheduled weekly workflow, not "
+            "one-off manual/migration invocations where explicit family order matters."
         ),
     )
     args = parser.parse_args()
@@ -377,5 +502,10 @@ if __name__ == "__main__":
         format="%(asctime)s - %(levelname)s - %(message)s"
     )
 
-    process_markdown_files_by_families(args.families, args.content_dir, args.output_dir, args.platform)
+    families = rotate_families_by_iso_week(args.families) if args.rotate_weekly else args.families
+
+    process_markdown_files_by_families(
+        families, args.content_dir, args.output_dir,
+        platform_override=args.platform, force=args.force, max_calls=args.max_calls,
+    )
     logging.info("Processing complete.")

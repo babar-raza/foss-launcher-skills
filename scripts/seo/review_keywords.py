@@ -70,6 +70,9 @@ def reevaluate_keywords(title, keywords, platform="net"):
         "java": "Java",
         "python": "Python",
         "cpp": "C++",
+        "go": "Go",
+        "rust": "Rust",
+        "typescript": "TypeScript",
         "nodejs": "Node.js",
         "php": "PHP",
     }.get(platform, platform)
