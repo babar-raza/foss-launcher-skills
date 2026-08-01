@@ -30,10 +30,12 @@ See AGENTS.md §6a for the full DAR governance rules.
 | `/new-blog-post` (S-57) | `/knowledge-bootstrap` | Requires knowledge for blog content grounding |
 | `/new-docs-index` (S-70) | `/knowledge-bootstrap` | Requires knowledge for docs index scaffold |
 | `/new-docs-page` (S-56) | `/knowledge-bootstrap` | Requires knowledge for docs page grounding |
+| `/new-docs-page` (S-56) | `data/package_registry.json` | Install-instruction rendering (maven-coord/maven-gav/cargo-crate/package-install shortcodes) reads this file directly — a data-file dependency, not a skill-form one, since no skill currently maintains it end-to-end (root cause 1, Mission MT015-2026-07-30-PACKAGE-REGISTRY: this exact gap — a mandated grounding source with no producer — is what let 3D-NET-REFRESH-002's wrong NuGet command ship undetected). `/repo-scout` (S-34) + `naming_convention_candidate()` (TC-MT015-07) populate the "candidate" side; the planned `/package-publish-watch` (TC-MT015-09, not yet built) will be the live-verification producer for `verification.published`. |
 | `/new-kb-faq` (S-59) | `/knowledge-bootstrap` | Requires knowledge for KB FAQ generation |
 | `/new-kb-howto` (S-58) | `/knowledge-bootstrap` | Requires knowledge for KB how-to generation |
 | `/new-kb-index` (S-69) | `/knowledge-bootstrap` | Requires knowledge for KB index scaffold |
 | `/new-products-page` (S-61) | `/knowledge-bootstrap` | Requires knowledge for products page generation |
+| `/new-products-page` (S-61) | `data/package_registry.json` | Same install-instruction data-file dependency as `/new-docs-page` above (root cause 1, Mission MT015-2026-07-30-PACKAGE-REGISTRY) — see that row for detail. |
 | `/new-reference-index` (S-71) | `/knowledge-bootstrap` | Requires knowledge for reference index scaffold |
 | `/new-reference-page` (S-60) | `/knowledge-bootstrap` | Requires knowledge for reference page generation |
 | `/page-draft` (S-19) | `/knowledge-bootstrap` | Requires knowledge for draft grounding |

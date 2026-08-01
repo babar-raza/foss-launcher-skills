@@ -102,16 +102,28 @@ Before generating any content, you MUST:
 
 6. **Constraints**:
    - **Code fence language** — resolve from `{platform}` argument (never hardcode `python`):
-     - `python` → ` ```python `, install via `pip install {package-name}`
-     - `net` → ` ```csharp `, install via `dotnet add package {package-name}`
-     - `java` → ` ```java `, install via Maven `<dependency>` — **do NOT write a literal
-       `<groupId>`/coordinate**. Write `{{< maven-coord "{family}" "java" >}}` on its own line
-       (blank line before/after) instead of a fenced Maven XML block. For inline mentions, use
-       `{{< maven-gav "{family}" "java" >}}` with NO surrounding backticks (it already renders
-       its own `<code>` wrapper). Renders the live-verified `org.aspose:...` coordinate from
-       `data/foss_packages.json` — see Mission MT008 in `plans/master-plan.md`.
-     - `cpp` → ` ```cpp `, install via CMake FetchContent or vcpkg
-     - `typescript` → ` ```typescript `, install via `npm install {package-name}`
+     - `python` → ` ```python `
+     - `net` → ` ```csharp `
+     - `java` → ` ```java `
+     - `cpp` → ` ```cpp `
+     - `typescript` → ` ```typescript `
+   - **Install instructions in any generated section — never a literal command, never from
+     LLM knowledge.** Same mandatory rule as new-products-page (S-61), root cause 1 (Mission
+     MT015-2026-07-30-PACKAGE-REGISTRY: a generation step must never guess a live install
+     command for an unconfirmed package — this exact defect class already shipped once,
+     3D-NET-REFRESH-002's wrong NuGet command across 19 files):
+     - `java` → `{{< maven-coord "{family}" "java" >}}` on its own line (blank line before/after)
+       instead of a fenced Maven XML block; `{{< maven-gav "{family}" "java" >}}` (no surrounding
+       backticks) for inline mentions.
+     - `rust` → `{{< cargo-crate "{family}" "rust" >}}`.
+     - every other platform (`net`, `cpp`, `python`, `typescript`, `javascript`, `go`, ...) →
+       `{{< package-install "{family}" "{platform}" >}}`.
+     - If `data/package_registry.json` has no entry for this family/platform, do not invoke any
+       shortcode (it will `errorf`) and do not hand-write a specific command — use the plain-prose
+       "not yet published, build from source" fallback (matching words/net's current wording).
+     All of these read `data/package_registry.json` at build time and fail the build loudly if no
+     entry exists — see Mission MT008 (Java/Maven) and Mission MT015 (unified schema + the other
+     platforms) in `plans/master-plan.md`.
    - Shell/terminal commands always use ` ```bash `
    - `---` divider between every major section
    - **Package name** for import statements/code blocks always comes from

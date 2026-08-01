@@ -31,7 +31,11 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
    - Read `forbidden_claims` from `knowledge/{family}/{platform}/merged/index.json`
    - Read `knowledge/{family}/{platform}/scout/model.yaml` for:
      - `canonical_import` (package name — never use commercial Aspose package name)
-     - `version`, `license`, `runtime_requirement`, `install_command`
+     - `version`, `license`, `runtime_requirement`
+     - `install_command`: **do not read this field for the rendered install text** — see Step 3
+       (Mission MT015-2026-07-30-PACKAGE-REGISTRY found this field is never reliably populated;
+       the real grounding source for install instructions is `data/package_registry.json` + the
+       shortcodes, not this file)
    - Read `knowledge/{family}/{platform}/merged/snippets/` for verified code examples
      (ALL code in `single.block` MUST come from snippets/ — do NOT generate code from scratch)
 
@@ -58,13 +62,28 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
 
 3. **Resolve product metadata** from `scout/model.yaml`:
    - `plugin_name` = "{ProductName} FOSS for {Platform display name}"
-   - `install_command` from model.yaml (never from LLM knowledge) — **for `platform: java`**,
-     do not write a literal Maven coordinate at all: use the `{{< maven-coord "{family}" "java" >}}`
-     shortcode for the dependency block and `{{< maven-gav "{family}" "java" >}}` for any inline
-     mention (e.g. "installs with a single Maven dependency ({{< maven-gav "{family}" "java" >}})").
-     These shortcodes render the live-verified `org.aspose:...` coordinate from
-     `data/foss_packages.json` at build time — see Mission MT008 in `plans/master-plan.md`.
-     Do NOT wrap `maven-gav` in backticks (it already emits its own `<code>` wrapper).
+   - **Install instructions: never write `install_command` (or any package-manager identity) from
+     LLM knowledge or from `model.yaml` — always render it via a shortcode reading
+     `data/package_registry.json`.** This is the single mandatory rule this skill exists to
+     enforce (Mission MT015-2026-07-30-PACKAGE-REGISTRY, root cause 1: a generation step must
+     never guess a live install command for an unconfirmed package — this exact defect class
+     already shipped once, 3D-NET-REFRESH-002's wrong NuGet command across 19 files):
+     - **for `platform: java`**: use `{{< maven-coord "{family}" "java" >}}` for the dependency
+       block and `{{< maven-gav "{family}" "java" >}}` for any inline mention (e.g. "installs
+       with a single Maven dependency ({{< maven-gav "{family}" "java" >}})"). Do NOT wrap
+       `maven-gav` in backticks (it already emits its own `<code>` wrapper).
+     - **for `platform: rust`**: use `{{< cargo-crate "{family}" "rust" >}}`.
+     - **for every other platform** (net, cpp, python, typescript, javascript, go, ...): use
+       `{{< package-install "{family}" "{platform}" >}}`.
+     - **If `data/package_registry.json` has no entry at all for this family/platform**: do not
+       invoke any of the above shortcodes (they will `errorf` the build) and do not write a
+       specific command by hand either — write the plain-prose fallback ("A {registry} package
+       has not been published yet — build from source until it ships") matching the wording
+       already used for words/net, and flag this in your own output so a human can add the
+       registry entry (see TC-MT015-07's `naming_convention_candidate()` for how to populate one).
+     All of these shortcodes read `data/package_registry.json` at build time and fail the build
+     loudly (`errorf`) if no entry exists — see Mission MT008 (original Java/Maven design) and
+     Mission MT015 (unified schema + the other platforms) in `plans/master-plan.md`.
    - `canonical_import` for package name in code blocks
 
 4. **Build `plugin_description`**: 1-sentence summary from claims with `kind: "identity"` and
@@ -207,9 +226,11 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
 - Every class/method name in feature bullets must exist in `api_surface.md`
 - No format claims unless they appear in `formats.json` with confirmed support
 - No limitation denials — if `limitations.md` lists a method as unimplemented, do not claim it works
-- `install_command` comes from `scout/model.yaml`, NOT from LLM knowledge. For `platform: java`,
-  use the `maven-coord`/`maven-gav` shortcodes (never a literal `<groupId>`/coordinate string) —
-  see Step 3 above.
+- Install instructions come from a shortcode reading `data/package_registry.json`, NEVER from
+  `scout/model.yaml`, NEVER from LLM knowledge, and NEVER as literal hand-written text: `maven-coord`/
+  `maven-gav` for java, `cargo-crate` for rust, `package-install` for every other platform. If no
+  registry entry exists, write the plain-prose "not yet published" fallback, never a specific
+  guessed command. See Step 3 above.
 - `canonical_import` must not contain the commercial Aspose package name
 - All code in `single.block` comes from verified `snippets/` — no fabrication
 - **No blank lines inside code fences**: Code fence content in YAML frontmatter strings (e.g. `single.block[].content`) must not have a blank line immediately after the opening ````lang`` fence, a blank line immediately before the closing `` ``` `` fence, or blank lines between statements in short code snippets (<=8 code lines). Hugo's Goldmark renderer preserves these blank lines verbatim, producing visible empty lines in `<pre><code>` on the rendered page. The `validate_plugin_structure.py` `CODE_BLOCK_BLANK_LINES` check enforces this for products pages.
