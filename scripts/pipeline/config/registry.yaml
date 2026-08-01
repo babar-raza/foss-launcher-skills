@@ -1895,6 +1895,27 @@ scripts:
     deprecated_since: null
     notes: "GOVERNANCE: universal pre-write preflight check; agent-agnostic enforcement"
 
+  - path: scripts/pipeline/lib/session_identity.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_session_identity.py
+    requires_test: true
+    deprecated_since: null
+    notes: "GOVERNANCE: production concurrency redesign (2026-08-01), Step 1 -- shared
+      caller-identity resolution (explicit > AGENT_SESSION_ID > CODEX_THREAD_ID >
+      CLAUDE_CODE_SESSION_ID > None), extracted from skill_context.py's
+      _derive_session_id (RC1/RC2 hardening, 2026-07-31). Consumed by
+      skill_context.py; planned consumers per the redesign plan: refresh_run.py,
+      skill_context_attribution.py, check_commit_bash_hook.sh."
+
   - path: scripts/pipeline/commands/governance/skill_context.py
     kind: library
     lifecycle: active
