@@ -61,6 +61,26 @@ matched by `commit_sha` and reports the commit as `RECONCILED` rather than
 (found live 2026-07-24, MT007 L1-01/L3-01/L3-02 — 3 commits from the words/net launch
 sprint had no skill-run record until reconciled post-hoc).
 
+**A git-plumbed commit is also mandatory-paired with a manual stale-file-regression
+check**, for the same structural reason: `scripts/ci/checks/check_stale_file_regression.py`
+(Step 30 of the normal pre-commit hook) detects staged content that silently reverts a
+more recent commit made by someone else since your session began — but pre-commit hooks
+never fire for a commit that never runs `git commit`, so plumbing bypasses this gate too,
+by the same construction as every other hook. Run it against your exact file list, using
+the `HEAD_SHA` you captured before `git read-tree`, BEFORE building the temp index:
+
+```bash
+printf '%s\n' <exact files> | PYTHONPATH=scripts/pipeline .venv/Scripts/python \
+  scripts/ci/checks/check_stale_file_regression.py --base-sha "$HEAD_SHA" --working-tree
+```
+
+A nonzero exit means at least one of your files matches the state from BEFORE a commit
+made by someone else since `$HEAD_SHA` — re-read the current file and reapply your change
+on top of it before proceeding, rather than pushing a silent revert (found live 2026-08-01:
+TC-MT018-06's commit `d2dce37de5` silently reverted an unrelated fetch_aspose_com_targets.py
+fix committed by another session hours earlier, with its own message never mentioning
+either file — the exact incident this check exists to prevent).
+
 ## Behavioral Mandates (enforced by hooks)
 
 These rules are enforced by PreToolUse hooks — violations will be auto-blocked:
