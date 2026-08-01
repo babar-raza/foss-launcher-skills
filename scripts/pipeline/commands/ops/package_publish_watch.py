@@ -1,4 +1,23 @@
 """package_publish_watch.py — Mission MT015-2026-07-30-PACKAGE-REGISTRY, TC-MT015-09.
+Extended Mission MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE, TC-MT018-09: this
+watcher originally only ever checked `verification.published: false` entries
+(the false->true direction) -- meaning once an entry flipped to `published:
+true`, nothing ever looked at it again. Two gaps followed directly from that:
+(1) if a package were later pulled/renamed/deleted upstream, or a `false-
+positive` publish confirmation had been applied in error, this watcher had no
+way to ever notice -- drift only in one direction was detectable. (2)
+`data/registry_exclusions.json` (the BLOCKED_REPO_NOT_LAUNCHABLE mechanism)
+and live launched `content/` were never reconciled by anything running on a
+schedule -- `update_product_registry.py`'s `_enforce_exclusions()` only ever
+sets a flag on `data/products.json`, never touches `content/`, which is
+exactly how `cells/typescript` shipped fabricated content despite being
+excluded (see INV-004, backlog/inbox.md). TC-MT018-09 adds both closures:
+`check_published_entries_for_drift()` (symmetric counterpart to
+`check_unpublished_entries()`, its own debounce counter
+`consecutive_checks_absent` so it never shares state with the
+publish-confirmation counter) and `check_exclusion_reconciliation()` (thin
+wrapper around `registry_coverage_scan.scan_coverage()`'s
+`excluded_but_still_live`, reused rather than reimplemented).
 
 Multi-registry sibling of publish_watcher.py (Mission MT008 D-03, Maven-only).
 Covers the 5 registries publish_watcher.py deliberately excludes (pypi, nuget,
@@ -55,9 +74,10 @@ _LIB_DIR = str(_PIPELINE_ROOT / "lib")
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 
-from package_registries import apply_debounce  # noqa: E402
+from package_registries import apply_debounce, REQUIRED_CONSECUTIVE_CHECKS  # noqa: E402
 from package_registries import pypi, nuget, npm, go, cargo  # noqa: E402
 from audit.package_install_literal import verify_package_install_literals  # noqa: E402
+from commands.ops import registry_coverage_scan  # noqa: E402
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 _DEFAULT_DATA_PATH = _DEFAULT_REPO_ROOT / "data" / "package_registry.json"
@@ -140,6 +160,145 @@ def check_unpublished_entries(
     return proposals
 
 
+def apply_drift_debounce(current_consecutive_absent: int, result: Any) -> tuple[int, bool]:
+    """Symmetric counterpart to package_registries.apply_debounce, for the
+    opposite direction: a currently-published:true entry that no longer
+    resolves live. Same fail-closed philosophy -- an ambiguous result never
+    advances the counter and never proposes a drift flip (a transient network
+    hiccup must never cause a live, working package to be proposed as gone);
+    a result that DOES still resolve resets the counter to 0 immediately.
+    Uses its own counter (consecutive_checks_absent) so it never shares state
+    with the false->true debounce counter (consecutive_checks_agreeing) --
+    the two are tracking opposite hypotheses and must not interfere.
+    """
+    if result.ambiguous:
+        return current_consecutive_absent, False
+    if result.published:
+        return 0, False
+    new_counter = current_consecutive_absent + 1
+    return new_counter, new_counter >= REQUIRED_CONSECUTIVE_CHECKS
+
+
+def check_published_entries_for_drift(
+    data: dict[str, Any],
+    *,
+    adapters: "dict[str, Any] | None" = None,
+) -> list[dict[str, Any]]:
+    """Re-check every non-Maven, verification.published:true entry via its
+    registry adapter -- the direction check_unpublished_entries() never
+    covers. Mutates `data` in place ONLY for the debounce counter
+    (consecutive_checks_absent), exactly mirroring check_unpublished_entries's
+    own mutation discipline -- never flips verification.published itself.
+
+    Returns drift proposals for entries whose absence was just confirmed
+    across REQUIRED_CONSECUTIVE_CHECKS consecutive runs. A drift proposal is a
+    human-review item (the package may have been renamed, pulled, or the
+    prior published:true was itself a false positive) -- never auto-applied.
+    """
+    adapters = adapters if adapters is not None else _ADAPTERS
+    drift_proposals: list[dict[str, Any]] = []
+
+    for family, platforms in data.items():
+        if family.startswith("_"):
+            continue
+        for platform, entry in platforms.items():
+            registry_type = entry.get("registry_type")
+            adapter = adapters.get(registry_type)
+            if adapter is None:
+                continue  # maven (own watcher) or an unrecognized type
+            verification = entry.setdefault("verification", {})
+            if not verification.get("published"):
+                continue  # only the published:true direction is this function's job
+
+            candidate = entry.get("candidate") or {}
+            if not candidate:
+                continue
+
+            result = adapter.check_published(candidate)
+            current_counter = verification.get("consecutive_checks_absent", 0) or 0
+            new_counter, should_flip = apply_drift_debounce(current_counter, result)
+            verification["consecutive_checks_absent"] = new_counter
+
+            if not should_flip:
+                continue
+
+            drift_proposals.append({
+                "family": family,
+                "platform": platform,
+                "registry_type": registry_type,
+                "candidate": candidate,
+                "previous_evidence_url": entry.get("verification", {}).get("evidence_url"),
+            })
+
+    return drift_proposals
+
+
+def check_exclusion_reconciliation(
+    *,
+    scan_fn: "Callable[[], dict[str, Any]] | None" = None,
+) -> list[str]:
+    """Reconciliation check between data/registry_exclusions.json and live
+    launched content -- closes the cells/typescript-style gap where
+    _enforce_exclusions() (update_product_registry.py) only ever sets a flag
+    on data/products.json and never touches content/. Reuses
+    registry_coverage_scan.scan_coverage()'s excluded_but_still_live rather
+    than reimplementing the same directory-vs-exclusions cross-reference.
+
+    `scan_fn` is dependency injection (defaults to the real scan_coverage) --
+    lets tests exercise this without needing a full repo checkout.
+    """
+    scan_fn = scan_fn if scan_fn is not None else registry_coverage_scan.scan_coverage
+    report = scan_fn()
+    return report.get("excluded_but_still_live", [])
+
+
+def format_drift_and_reconciliation_body(
+    drift_proposals: list[dict[str, Any]],
+    excluded_but_still_live: list[str],
+) -> str:
+    """Second issue-body formatter, kept separate from format_issue_body()
+    (the original false->true proposal report) since these are a different
+    audience/action (drift needs re-verification, not a registry flip;
+    reconciliation needs either content removal or an exclusions update) --
+    combining all three into one wall of text would bury the distinct
+    actions needed under one another."""
+    lines = [
+        "## Package Registry Drift / Exclusion Reconciliation",
+        "",
+    ]
+    if drift_proposals:
+        lines += [
+            "### Previously-published entries that no longer resolve",
+            "",
+            "Each of these was `verification.published: true` but has now failed "
+            f"{REQUIRED_CONSECUTIVE_CHECKS} consecutive live checks. Investigate "
+            "before flipping back to `published: false` -- this could be a genuine "
+            "removal/rename upstream, or a transient adapter/registry-API issue.",
+            "",
+        ]
+        for p in drift_proposals:
+            lines.append(
+                f"- **{p['family']}/{p['platform']}** ({p['registry_type']}): "
+                f"candidate {p['candidate']!r} no longer resolves "
+                f"(previously verified via {p.get('previous_evidence_url')})"
+            )
+        lines.append("")
+    if excluded_but_still_live:
+        lines += [
+            "### Excluded products with live content",
+            "",
+            "Each of these is flagged in `data/registry_exclusions.json` (not "
+            "launchable) but still has live content under `content/`. Either the "
+            "exclusion is stale (repo was fixed upstream -- re-verify and remove "
+            "the exclusion) or the content needs to be retired/corrected.",
+            "",
+        ]
+        for pair in excluded_but_still_live:
+            lines.append(f"- **{pair}**")
+        lines.append("")
+    return "\n".join(lines)
+
+
 def _literal_content_scope(family: str, platform: str, entry: dict[str, Any]) -> int:
     """Best-effort count of how many real content files still carry literal
     (non-shortcode) install text for this family/platform, via the same
@@ -219,12 +378,20 @@ def format_issue_body(proposals: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def run_watch(*, adapters: "dict[str, Any] | None" = None) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Load DATA_PATH, check every unpublished non-Maven entry, return
-    (proposals, updated_data). The caller is responsible for persisting
-    updated_data's debounce counters (see module docstring) -- this function
-    itself does not write to disk, matching publish_watcher.py's I/O
-    separation and keeping this function trivially testable.
+def run_watch(
+    *, adapters: "dict[str, Any] | None" = None,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
+    """Load DATA_PATH, check every unpublished non-Maven entry (false->true
+    direction) AND every published non-Maven entry (true->false drift
+    direction, TC-MT018-09), return (proposals, drift_proposals,
+    updated_data). The caller is responsible for persisting updated_data's
+    debounce counters (see module docstring) -- this function itself does
+    not write to disk, matching publish_watcher.py's I/O separation and
+    keeping this function trivially testable.
+
+    Both checks mutate the SAME `data` dict (different counter fields, see
+    check_unpublished_entries/check_published_entries_for_drift docstrings)
+    so a single persisted write covers both directions' bookkeeping.
 
     `adapters` is dependency injection (defaults to the real _ADAPTERS) --
     lets tests exercise main()'s full wiring with fake, network-free adapters
@@ -232,12 +399,16 @@ def run_watch(*, adapters: "dict[str, Any] | None" = None) -> tuple[list[dict[st
     (this mission's established DI-over-monkeypatch convention, AGENTS.md 16)."""
     data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
     proposals = check_unpublished_entries(data, adapters=adapters)
-    return proposals, data
+    drift_proposals = check_published_entries_for_drift(data, adapters=adapters)
+    return proposals, drift_proposals, data
 
 
-def main(argv: "list[str] | None" = None, *, adapters: "dict[str, Any] | None" = None) -> int:
-    """`adapters` is not a CLI flag (objects can't cross the command line) --
-    it's a test-only injection point mirroring run_watch's own `adapters`
+def main(
+    argv: "list[str] | None" = None, *, adapters: "dict[str, Any] | None" = None,
+    scan_fn: "Callable[[], dict[str, Any]] | None" = None,
+) -> int:
+    """`adapters`/`scan_fn` are not CLI flags (objects can't cross the command
+    line) -- test-only injection points mirroring run_watch's own `adapters`
     parameter, so CLI-wiring tests never need to monkeypatch run_watch or hit
     a live network call to exercise main()'s persist/no-persist/exit-code
     branches."""
@@ -249,16 +420,24 @@ def main(argv: "list[str] | None" = None, *, adapters: "dict[str, Any] | None" =
                          help="Skip writing updated debounce counters back to DATA_PATH (dry-run/test use)")
     args = parser.parse_args(argv)
 
-    proposals, updated_data = run_watch(adapters=adapters)
+    proposals, drift_proposals, updated_data = run_watch(adapters=adapters)
+    excluded_but_still_live = check_exclusion_reconciliation(scan_fn=scan_fn)
 
     if not args.no_persist_counters:
         DATA_PATH.write_text(json.dumps(updated_data, indent=2) + "\n", encoding="utf-8")
 
-    if not proposals:
-        print("package_publish_watch: no unpublished entry resolves live (with debounce satisfied) yet. Nothing to report.")
+    bodies = []
+    if proposals:
+        bodies.append(format_issue_body(proposals))
+    if drift_proposals or excluded_but_still_live:
+        bodies.append(format_drift_and_reconciliation_body(drift_proposals, excluded_but_still_live))
+
+    if not bodies:
+        print("package_publish_watch: no unpublished entry resolves live (with debounce satisfied) yet, "
+              "no published entry has drifted away, no exclusion/content reconciliation findings. Nothing to report.")
         return 0
 
-    body = format_issue_body(proposals)
+    body = "\n\n".join(bodies)
     print(body)
     if args.issue_body_out:
         Path(args.issue_body_out).write_text(body, encoding="utf-8")

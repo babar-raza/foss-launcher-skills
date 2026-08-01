@@ -19,6 +19,7 @@ if str(_PIPELINE_ROOT) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_ROOT))
 
 import commands.ops.package_publish_watch as sut
+import commands.ops.registry_coverage_scan as _rcs
 from package_registries import CheckResult
 
 
@@ -28,8 +29,15 @@ def isolate_repo(tmp_path):
     empty_content_root = tmp_path / "content"
     empty_content_root.mkdir()
     sut.configure(data_path=data_path, content_root=empty_content_root)
+    # TC-MT018-09: main() now also calls check_exclusion_reconciliation(),
+    # whose default scan_fn (registry_coverage_scan.scan_coverage) reads from
+    # a module-level _REPO_ROOT independent of sut's own configure() seam --
+    # without this, every test in this file would silently scan the REAL
+    # repo's content/ + data/package_registry.json during main() calls.
+    _rcs.configure(repo_root=tmp_path)
     yield data_path
     sut.configure(data_path=None, content_root=None)
+    _rcs.configure(repo_root=None)
 
 
 def _fake_adapter(result: CheckResult):
@@ -101,6 +109,158 @@ def test_already_published_entries_are_never_rechecked():
 
     sut.check_unpublished_entries(data, adapters={"pypi": _Adapter()})
     assert calls == []
+
+
+def _published_entry(registry_type="pypi", consecutive_absent=0):
+    return {
+        "registry_type": registry_type,
+        "candidate": {"name": "aspose-cells-foss"},
+        "verification": {"published": True, "evidence_url": "https://pypi.org/prior",
+                          "consecutive_checks_absent": consecutive_absent},
+    }
+
+
+class TestApplyDriftDebounce:
+    """TC-MT018-09: symmetric counterpart to package_registries.apply_debounce."""
+
+    def test_ambiguous_result_does_not_advance_counter(self):
+        result = CheckResult(published=False, ambiguous=True, evidence_url="u", method="m")
+        counter, should_flip = sut.apply_drift_debounce(1, result)
+        assert counter == 1 and should_flip is False
+
+    def test_still_published_result_resets_counter(self):
+        result = CheckResult(published=True, ambiguous=False, evidence_url="u", method="m")
+        counter, should_flip = sut.apply_drift_debounce(1, result)
+        assert counter == 0 and should_flip is False
+
+    def test_first_absent_result_increments_but_no_flip(self):
+        result = CheckResult(published=False, ambiguous=False, evidence_url="u", method="m")
+        counter, should_flip = sut.apply_drift_debounce(0, result)
+        assert counter == 1 and should_flip is False
+
+    def test_second_consecutive_absent_result_flips(self):
+        result = CheckResult(published=False, ambiguous=False, evidence_url="u", method="m")
+        counter, should_flip = sut.apply_drift_debounce(1, result)
+        assert counter == 2 and should_flip is True
+
+
+class TestCheckPublishedEntriesForDrift:
+    """TC-MT018-09: the true->false direction check_unpublished_entries never covered."""
+
+    def test_first_absent_check_increments_counter_but_no_proposal(self):
+        data = {"cells": {"python": _published_entry(consecutive_absent=0)}}
+        result = CheckResult(published=False, ambiguous=False, evidence_url="u", method="m")
+        adapters = {"pypi": _fake_adapter(result)}
+        drift = sut.check_published_entries_for_drift(data, adapters=adapters)
+        assert drift == []
+        assert data["cells"]["python"]["verification"]["consecutive_checks_absent"] == 1
+        assert data["cells"]["python"]["verification"]["published"] is True  # never auto-flipped
+
+    def test_second_consecutive_absent_check_produces_drift_proposal(self):
+        data = {"cells": {"python": _published_entry(consecutive_absent=1)}}
+        result = CheckResult(published=False, ambiguous=False, evidence_url="u", method="m")
+        adapters = {"pypi": _fake_adapter(result)}
+        drift = sut.check_published_entries_for_drift(data, adapters=adapters)
+        assert len(drift) == 1
+        p = drift[0]
+        assert p["family"] == "cells" and p["platform"] == "python"
+        assert p["previous_evidence_url"] == "https://pypi.org/prior"
+        # published flip itself must NOT be applied automatically
+        assert data["cells"]["python"]["verification"]["published"] is True
+
+    def test_ambiguous_result_does_not_advance_absent_counter(self):
+        data = {"cells": {"python": _published_entry(consecutive_absent=1)}}
+        result = CheckResult(published=False, ambiguous=True, evidence_url="u", method="m")
+        adapters = {"pypi": _fake_adapter(result)}
+        sut.check_published_entries_for_drift(data, adapters=adapters)
+        assert data["cells"]["python"]["verification"]["consecutive_checks_absent"] == 1
+
+    def test_still_resolving_result_resets_absent_counter(self):
+        data = {"cells": {"python": _published_entry(consecutive_absent=1)}}
+        result = CheckResult(published=True, ambiguous=False, evidence_url="u", method="m")
+        adapters = {"pypi": _fake_adapter(result)}
+        sut.check_published_entries_for_drift(data, adapters=adapters)
+        assert data["cells"]["python"]["verification"]["consecutive_checks_absent"] == 0
+
+    def test_unpublished_entries_are_never_checked_by_this_function(self):
+        data = {"cells": {"python": _entry(published=False)}}
+        calls = []
+
+        class _Adapter:
+            @staticmethod
+            def check_published(candidate):
+                calls.append(candidate)
+                return CheckResult(published=False, ambiguous=False, evidence_url="u", method="m")
+
+        sut.check_published_entries_for_drift(data, adapters={"pypi": _Adapter()})
+        assert calls == []  # check_unpublished_entries's job, not this function's
+
+    def test_maven_entries_are_skipped(self):
+        data = {"cells": {"java": _published_entry(registry_type="maven", consecutive_absent=1)}}
+        drift = sut.check_published_entries_for_drift(data, adapters={"pypi": _fake_adapter(
+            CheckResult(published=False, ambiguous=False, evidence_url="u", method="m"))})
+        assert drift == []
+        assert data["cells"]["java"]["verification"]["consecutive_checks_absent"] == 1  # untouched
+
+
+class TestCheckExclusionReconciliation:
+    """TC-MT018-09: reconciliation between registry_exclusions.json and live content."""
+
+    def test_returns_excluded_but_still_live_from_scan(self):
+        stub = lambda: {"excluded_but_still_live": ["cells/typescript"]}  # noqa: E731
+        result = sut.check_exclusion_reconciliation(scan_fn=stub)
+        assert result == ["cells/typescript"]
+
+    def test_empty_when_scan_reports_nothing(self):
+        stub = lambda: {"excluded_but_still_live": []}  # noqa: E731
+        result = sut.check_exclusion_reconciliation(scan_fn=stub)
+        assert result == []
+
+
+class TestFormatDriftAndReconciliationBody:
+    def test_includes_drift_section_when_present(self):
+        drift = [{"family": "cells", "platform": "python", "registry_type": "pypi",
+                  "candidate": {"name": "aspose-cells-foss"}, "previous_evidence_url": "https://pypi.org/x"}]
+        body = sut.format_drift_and_reconciliation_body(drift, [])
+        assert "no longer resolve" in body
+        assert "cells/python" in body
+
+    def test_includes_reconciliation_section_when_present(self):
+        body = sut.format_drift_and_reconciliation_body([], ["cells/typescript"])
+        assert "Excluded products with live content" in body
+        assert "cells/typescript" in body
+
+    def test_empty_sections_omitted(self):
+        body = sut.format_drift_and_reconciliation_body([], [])
+        assert "no longer resolve" not in body
+        assert "Excluded products with live content" not in body
+
+
+class TestMainIntegratesDriftAndReconciliation:
+    def test_exit_code_1_when_only_drift_found_no_publish_proposals(self, tmp_path):
+        data_path = tmp_path / "package_registry.json"
+        data_path.write_text(json.dumps({"cells": {"python": _published_entry(consecutive_absent=1)}}), encoding="utf-8")
+        sut.configure(data_path=data_path)
+        result = CheckResult(published=False, ambiguous=False, evidence_url="u", method="m")
+        exit_code = sut.main(["--no-persist-counters"], adapters={"pypi": _fake_adapter(result)},
+                              scan_fn=lambda: {"excluded_but_still_live": []})
+        assert exit_code == 1
+
+    def test_exit_code_1_when_only_reconciliation_found(self, tmp_path):
+        data_path = tmp_path / "package_registry.json"
+        data_path.write_text(json.dumps({}), encoding="utf-8")
+        sut.configure(data_path=data_path)
+        exit_code = sut.main(["--no-persist-counters"], adapters={},
+                              scan_fn=lambda: {"excluded_but_still_live": ["cells/typescript"]})
+        assert exit_code == 1
+
+    def test_exit_code_0_when_nothing_found(self, tmp_path):
+        data_path = tmp_path / "package_registry.json"
+        data_path.write_text(json.dumps({}), encoding="utf-8")
+        sut.configure(data_path=data_path)
+        exit_code = sut.main(["--no-persist-counters"], adapters={},
+                              scan_fn=lambda: {"excluded_but_still_live": []})
+        assert exit_code == 0
 
 
 def test_maven_entries_are_skipped_own_watcher_handles_them():

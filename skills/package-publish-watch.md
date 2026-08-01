@@ -97,6 +97,29 @@ If `{family} {platform}` was given in `$ARGUMENTS`, filter the printed findings 
 one entry (the script itself always checks the whole registry — filter the output, not
 the invocation, so the persisted counters stay consistent for every entry).
 
+### Step 1b — Drift and exclusion-reconciliation findings (TC-MT018-09)
+
+The same run also checks two things the original scope never covered:
+
+1. **Drift**: every `verification.published: true` entry is re-checked via its adapter.
+   If it fails to resolve across 2 consecutive checks (its own counter,
+   `consecutive_checks_absent`, independent of the publish-confirmation counter), it's
+   reported as a drift proposal — the package may have been renamed, pulled upstream, or
+   the original `published: true` was itself a false positive. **Never auto-flip this
+   back to `published: false`** — investigate the evidence_url and registry API
+   independently before touching the entry; a live check adapter bug is just as likely
+   an explanation as a genuine removal.
+2. **Exclusion reconciliation**: `data/registry_exclusions.json` (BLOCKED_REPO_NOT_LAUNCHABLE
+   entries) is cross-referenced against live `content/` via
+   `registry_coverage_scan.scan_coverage()`'s `excluded_but_still_live`. A hit means a
+   product flagged as not-launchable still has shipped content — either the exclusion is
+   stale (re-verify the upstream repo; if fixed, remove the exclusion and launch properly)
+   or the content needs S-73 remediation/retirement.
+
+Both surface in the same combined issue body (`format_drift_and_reconciliation_body`),
+separate from the publish-proposal section (`format_issue_body`) since they need
+different human actions.
+
 ### Step 2 — Present each proposal for confirmation
 
 For each proposal in the output:
@@ -172,8 +195,9 @@ If `content_healing_needed` is true for a just-applied proposal:
 ## Scheduled detection (notification only, no auto-commit)
 
 `.github/workflows/package-publish-watch.yml` runs `package_publish_watch.py
---no-persist-counters` on a schedule and files a GitHub issue when proposals appear —
-mirroring `maven-publish-watcher.yml`'s shape exactly. **Deliberate scope limit**: the
+--no-persist-counters` on a schedule and files a GitHub issue when proposals, drift
+findings, or exclusion-reconciliation findings appear (all 3 combined into one issue
+body, TC-MT018-09) — mirroring `maven-publish-watcher.yml`'s shape exactly. **Deliberate scope limit**: the
 scheduled CI run does NOT persist debounce counters back to the repository (that would
 require a CI bot-commit path with its own conflict-safety design, a nontrivial and
 separate piece of infrastructure not built in this pass — flagged honestly rather than
@@ -205,11 +229,13 @@ there's something to check, the same job `maven-publish-watcher.yml` and
 | Migrator dry-run shows `skipped_protected` > 0 | Report which files were skipped (protected-page provenance) and why; do not force-write them |
 | Operator declines a proposal | Leave state as Step 1 left it; do not retry within the same invocation |
 | `--auto` requested content healing on a family/platform with >50 `inline_mentions_found` | Do not attempt inline; file a backlog row instead (matches SLIDES-NET-NUGET-001 precedent) |
+| A drift proposal appears (a `published: true` entry stopped resolving) | Never auto-flip to `published: false`; investigate independently (the adapter/API itself, not just the one evidence_url) before touching the entry |
+| An exclusion-reconciliation finding appears (excluded family/platform still has live content) | Re-verify the upstream repo's current state before deciding whether to remove the exclusion or remediate/retire the content — do not assume the exclusion is stale without checking |
 
 ### What S-118 will never do
 
 - Publish a package to any registry (detection and content-healing only)
-- Auto-apply a `verification.published` flip without operator confirmation (unless `--auto`)
+- Auto-apply a `verification.published` flip without operator confirmation (unless `--auto`) — this applies equally to false→true (Step 3) and to a drift-confirmed true→false
 - Rewrite an inline backtick-wrapped install-command mention (block-level shortcode only)
 - Touch Maven/Cargo's own dedicated shortcode data beyond what `apply_proposal` sets for a cargo entry (Maven stays on `publish_watcher.py` entirely)
 - Commit without going through `/commit` (S-76)
