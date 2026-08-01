@@ -120,15 +120,27 @@ def test_published_true_implies_verified_at_and_evidence_populated():
                 assert v["evidence_url"], f"{family}/{platform}: published but no evidence_url"
 
 
-def test_published_false_implies_verified_at_is_null():
+def test_unchecked_entry_implies_verified_at_is_null():
+    """A published:false entry with method:null (no live check ever performed --
+    e.g. a pure naming-convention guess) must not carry a fabricated verified_at.
+    A published:false entry WITH a method set (a live check was actually performed
+    and confirmed the package is not published -- e.g. slides/net's 4-point NuGet
+    verification) legitimately carries a real verified_at: that timestamp records
+    when the check ran, not that the package is live. Conflating "never checked"
+    with "checked and confirmed absent" would make the schema unable to represent
+    genuine negative verification, which is exactly the kind of rigor this field
+    exists to capture."""
     data = _load()
     for family, platforms in data.items():
         if family.startswith("_"):
             continue
         for platform, entry in platforms.items():
             v = entry["verification"]
-            if not v["published"]:
-                assert v["verified_at"] is None, f"{family}/{platform}: not published but verified_at is set"
+            if not v["published"] and v["method"] is None:
+                assert v["verified_at"] is None, (
+                    f"{family}/{platform}: no live check performed (method is null) "
+                    "but verified_at is set"
+                )
 
 
 def test_owner_match_honestly_null_for_migrated_entries():
@@ -155,6 +167,25 @@ def test_slides_java_is_published():
     migration's file to fix.)"""
     data = _load()
     assert data["slides"]["java"]["verification"]["published"] is True
+
+
+def test_slides_net_is_confirmed_not_published():
+    """slides/net (TC-MT015-06, 2026-08-01): a real, live 4-point verification
+    (nuget.org v3-flatcontainer 404 across 4 name variants, nuget.org search API,
+    real .csproj has no PackageId/Version, CI workflow has no publish/pack step)
+    confirmed Aspose.Slides.Foss has never been published to NuGet. Unlike words/net
+    (a pure naming-convention guess, never live-checked), this entry legitimately
+    carries a non-null verified_at and method -- a live check WAS performed, it just
+    confirmed absence rather than presence. See test_unchecked_entry_implies_verified_at_is_null
+    for why that distinction matters."""
+    data = _load()
+    entry = data["slides"]["net"]
+    v = entry["verification"]
+    assert entry["registry_type"] == "nuget"
+    assert entry["candidate"]["name"] == "Aspose.Slides.Foss"
+    assert v["published"] is False
+    assert v["verified_at"] is not None
+    assert v["method"] == "nuget-api-v3-live-check"
 
 
 def test_cells_3d_pdf_use_org_aspose_groupid():
