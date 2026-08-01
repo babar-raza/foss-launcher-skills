@@ -239,10 +239,10 @@
           "redirect_chain": []
         },
         "cells/python": {
-          "url": "https://docs.aspose.com/cells/python-java/",
-          "http_status": 200,
+          "url": "https://docs.aspose.com/cells/python/",
+          "http_status": -1,
           "redirect_chain": [],
-          "validated_via": "manual-correction-2026-08-01-bundled-python-java-page"
+          "validated_via": "manual-correction-2026-07-04-TC-HEAL-008"
         },
         "cells/typescript": {
           "url": "https://docs.aspose.com/cells/typescript/",
@@ -316,10 +316,10 @@
           "redirect_chain": []
         },
         "slides/python": {
-          "url": "https://docs.aspose.com/slides/python-net/",
-          "http_status": 200,
+          "url": "https://docs.aspose.com/slides/python/",
+          "http_status": -1,
           "redirect_chain": [],
-          "validated_via": "manual-correction-2026-08-01-bundled-python-net-page"
+          "validated_via": "manual-correction-2026-07-04-TC-HEAL-008"
         },
         "tex/python": {
           "url": "https://docs.aspose.com/tex/python/",
@@ -328,10 +328,10 @@
           "validated_via": "manual-correction-2026-07-04-TC-HEAL-007"
         },
         "words/python": {
-          "url": "https://docs.aspose.com/words/python-net/",
-          "http_status": 200,
+          "url": "https://docs.aspose.com/words/python/",
+          "http_status": -1,
           "redirect_chain": [],
-          "validated_via": "manual-correction-2026-08-01-bundled-python-net-page"
+          "validated_via": "manual-correction-2026-07-04-TC-HEAL-008"
         },
         "barcode/python-net": {
           "url": "https://docs.aspose.com/barcode/python-net/",
@@ -516,10 +516,11 @@
           "redirect_chain": []
         },
         "cells/go": {
-          "url": "https://products.aspose.com/cells/go-cpp/",
+          "url": "https://products.aspose.com/cells/go/",
           "http_status": 200,
-          "redirect_chain": [],
-          "validated_via": "manual-correction-2026-08-01-bundled-go-cpp-page"
+          "redirect_chain": [
+            "https://products.aspose.com/cells/go/"
+          ]
         },
         "cells/java": {
           "url": "https://products.aspose.com/cells/java/",
@@ -532,10 +533,9 @@
           "redirect_chain": []
         },
         "cells/python": {
-          "url": "https://products.aspose.com/cells/python-java/",
+          "url": "https://products.aspose.com/cells/python/",
           "http_status": 200,
-          "redirect_chain": [],
-          "validated_via": "manual-correction-2026-08-01-bundled-python-java-page"
+          "redirect_chain": []
         },
         "cells/typescript": {
           "url": "https://products.aspose.com/cells/typescript/",
@@ -573,10 +573,9 @@
           "redirect_chain": []
         },
         "pdf/go": {
-          "url": "https://products.aspose.com/pdf/go-cpp/",
-          "http_status": 200,
-          "redirect_chain": [],
-          "validated_via": "manual-correction-2026-08-01-bundled-go-cpp-page"
+          "url": "https://products.aspose.com/pdf/go/",
+          "http_status": 404,
+          "redirect_chain": []
         },
         "pdf/java": {
           "url": "https://products.aspose.com/pdf/java/",
@@ -604,10 +603,9 @@
           "redirect_chain": []
         },
         "slides/python": {
-          "url": "https://products.aspose.com/slides/python-net/",
+          "url": "https://products.aspose.com/slides/python/",
           "http_status": 200,
-          "redirect_chain": [],
-          "validated_via": "manual-correction-2026-08-01-bundled-python-net-page"
+          "redirect_chain": []
         },
         "tex/python": {
           "url": "https://products.aspose.com/tex/python/",
@@ -615,10 +613,9 @@
           "redirect_chain": []
         },
         "words/python": {
-          "url": "https://products.aspose.com/words/python-net/",
+          "url": "https://products.aspose.com/words/python/",
           "http_status": 200,
-          "redirect_chain": [],
-          "validated_via": "manual-correction-2026-08-01-bundled-python-net-page"
+          "redirect_chain": []
         },
         "pdf/go-cpp": {
           "url": "https://products.aspose.com/pdf/go-cpp/",

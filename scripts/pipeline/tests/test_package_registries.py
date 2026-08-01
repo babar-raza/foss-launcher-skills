@@ -155,6 +155,40 @@ class TestGoAdapter:
         )
         assert result.ambiguous is True
 
+    def test_mixed_case_module_path_is_escaped_before_the_proxy_request(self):
+        """Real bug found 2026-08-01 (TC-MT018-06): cells/go's real module
+        path has mixed case (github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26)
+        and returned a false-negative 404 before this was fixed -- the Go
+        module proxy protocol requires every uppercase letter escaped as
+        '!' + lowercase."""
+        captured = {}
+
+        def _fetch(url):
+            captured["url"] = url
+            return FetchResponse(status_code=200, body=b"v26.7.0\nv26.7.1\n")
+
+        result = go.check_published(
+            {"module_path": "github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26"},
+            fetch=_fetch,
+        )
+        assert result.published is True
+        assert "!aspose.!cells-!f!o!s!s-for-!go" in captured["url"]
+        # project_url/candidate_name stay in the original, human-readable form
+        assert result.project_url == "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26"
+        assert result.candidate_name == "github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26"
+
+    def test_all_lowercase_module_path_is_unchanged(self):
+        """Backward-compat: the common all-lowercase case must produce the
+        exact same URL as before this fix (no escaping needed)."""
+        captured = {}
+
+        def _fetch(url):
+            captured["url"] = url
+            return FetchResponse(status_code=200, body=b"v1.0.0\n")
+
+        go.check_published({"module_path": "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"}, fetch=_fetch)
+        assert captured["url"] == "https://proxy.golang.org/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/@v/list"
+
 
 class TestCargoAdapter:
     """crates.io adapter (TC-MT015-09) -- built alongside /package-publish-watch

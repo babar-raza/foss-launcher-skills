@@ -2974,6 +2974,37 @@ scripts:
       uncovered, plus a real exclusion-vs-content discrepancy
       (cells/typescript flagged BLOCKED_REPO_NOT_LAUNCHABLE yet still live).
 
+  - path: scripts/pipeline/commands/ops/registry_backfill.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python -m commands.ops.registry_backfill [--execute] [--only fam/plat,...]"
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_registry_backfill.py
+    test_exempt_reason: null
+    requires_test: true
+    deprecated_since: null
+    notes: >-
+      Mission MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE, TC-MT018-06: the
+      actual registry backfill -- manifest-extract (package_manifest.py) ->
+      naming-convention-guess -> search-fallback-with-corroboration (TC-04's
+      is_corroborated_match) -> honest unpublished fallback, for every
+      family/platform flagged uncovered by registry_coverage_scan.py. Never
+      writes an unverified guess -- every entry's published state comes from
+      a real, evidenced live check performed during the run. Live-verified
+      against all 24 real uncovered products (2026-08-01), catching 3 real
+      bugs along the way: naming_convention_candidate() never guesses
+      non-convention names like the real aspose-note (needs search()); a
+      NuGet cpp-vs-net platform disambiguation gap (email/cpp's search
+      wrongly matched the .NET package); and a Go module proxy case-encoding
+      bug (cells/go's mixed-case path returned a false-negative 404 until
+      fixed in package_registries/go.py).
+
   # ── fix(pipeline): blog 404 sprint ops scripts (2026-05-20) ─────────────────
 
   - path: scripts/pipeline/commands/ops/batch_gen_missing.py

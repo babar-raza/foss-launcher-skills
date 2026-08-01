@@ -1,11 +1,9 @@
 """go.py — Go Modules publish-verification adapter.
 
 Public API endpoint: https://proxy.golang.org/{module-path}/@v/list
-(unauthenticated GET; module path must be lowercase-escaped per the Go
-module proxy protocol's case-encoding rule -- uppercase letters are escaped
-as '!' + lowercase, e.g. "GitHub.com" -> "!git!hub.com" -- most Aspose FOSS
-module paths are already all-lowercase, so this is a defensive pass-through
-for the common case rather than a full implementation of the escaping rule).
+(unauthenticated GET; module path must be case-encoded per the Go module
+proxy protocol -- every uppercase letter is escaped as '!' + its lowercase
+form, e.g. "GitHub.com" -> "!git!hub.com").
 
 A 200 response with a non-empty body (at least one version line) means
 published; a 404/410 (module never existed or was withdrawn) means not
@@ -23,10 +21,21 @@ from __future__ import annotations
 from . import CheckResult, default_fetch
 
 
+def _escape_module_path(module_path: str) -> str:
+    """Go module proxy case-encoding: each uppercase letter becomes '!' +
+    its lowercase form. Real bug found 2026-08-01 (Mission MT018,
+    TC-MT018-06): cells/go's real module path
+    (github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26) has mixed
+    case and returned a false-negative 404 before this was implemented --
+    the module IS live (v26.7.0/v26.7.1), just at the escaped path."""
+    return "".join(f"!{c.lower()}" if c.isupper() else c for c in module_path)
+
+
 def check_published(candidate: dict, *, fetch=None) -> CheckResult:
     fetch = fetch or default_fetch
     module_path = candidate["module_path"]
-    url = f"https://proxy.golang.org/{module_path}/@v/list"
+    escaped_path = _escape_module_path(module_path)
+    url = f"https://proxy.golang.org/{escaped_path}/@v/list"
     resp = fetch(url)
 
     if resp is None:

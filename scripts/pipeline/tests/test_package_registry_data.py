@@ -60,11 +60,28 @@ def test_validate_package_registry_reports_no_errors():
 
 def test_migrated_families_present():
     """Migration from foss_packages.json/cargo_packages.json is like-for-like:
-    same 4 Java-FOSS families + cells/rust, plus words/net (TC-MT015-07)."""
+    same 4 Java-FOSS families + cells/rust, plus words/net (TC-MT015-07) --
+    this was the state BEFORE TC-MT018-06's full backfill. As of
+    2026-08-01, the registry covers all 31 launched family/platform pairs
+    (Mission MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE) -- assert the
+    original 5 migrated families are still present as a subset, not that
+    they're the only families (that assumption is what this pin originally
+    checked and is now intentionally superseded)."""
     data = _load()
     families = {k for k in data if not k.startswith("_")}
-    assert families == {"cells", "3d", "pdf", "slides", "words"}
-    assert set(data["cells"].keys()) == {"java", "rust"}
+    assert {"cells", "3d", "pdf", "slides", "words"}.issubset(families)
+    assert {"java", "rust"}.issubset(set(data["cells"].keys()))
+
+
+def test_all_31_launched_products_are_registered():
+    """Mission MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE, TC-MT018-06: the
+    full backfill closed the coverage gap MT015 left open (only 7 of 31
+    launched products were ever registered). Pin the complete, correct
+    state so a future regression (e.g. someone reverting the backfill) is
+    caught immediately."""
+    data = _load()
+    total_pairs = sum(len(platforms) for family, platforms in data.items() if not family.startswith("_"))
+    assert total_pairs == 31
 
 
 def test_words_net_uses_naming_convention_fallback_and_is_unpublished():
