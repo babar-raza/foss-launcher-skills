@@ -36,6 +36,8 @@ class CheckResult(NamedTuple):
     evidence_url: str
     method: str
     verified_owner: str | None = None
+    project_url: str | None = None  # project/homepage/repository URL from the registry's own API response
+    candidate_name: str | None = None  # the actual name this result was checked against (set by search())
 
 
 REQUIRED_CONSECUTIVE_CHECKS = 2
@@ -59,6 +61,34 @@ def default_fetch(url: str, *, timeout: float = 10.0) -> FetchResponse | None:
         return FetchResponse(status_code=exc.code, body=b"")
     except (urllib.error.URLError, TimeoutError, OSError):
         return None
+
+
+def is_corroborated_match(candidate_name: str, project_url: "str | None", expected_repo_fragment: str) -> bool:
+    """Mission MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE identity-verification rule
+    (user-mandated): a live registry hit only confirms the FOSS product if the
+    candidate name contains "foss" in some form, OR corroborating metadata
+    (the registry's own project/homepage URL) exactly references the product's
+    known FOSS GitHub org/repo.
+
+    Real case this guards against in both directions:
+      - False negative: PyPI's `aspose-note` has no "foss" in its name but IS the
+        genuine FOSS package -- its project_urls point exactly to
+        github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python. A purely
+        mechanical "reject if no foss substring" rule would wrongly discard this.
+      - False positive: PyPI's `aspose-page` (no "foss") is a genuinely unrelated
+        *commercial* package with no FOSS connection at all -- accepting any
+        name match without corroboration would have produced this exact
+        collision (found 2026-08-01 during the full-repo audit).
+
+    `expected_repo_fragment` is the identifying substring of the product's real
+    FOSS GitHub org/repo (e.g. "aspose-note-foss" or "Aspose.Note-FOSS") -- callers
+    supply this from the family's known repo_url, never guessed here.
+    """
+    if "foss" in candidate_name.lower():
+        return True
+    if project_url and expected_repo_fragment.lower() in project_url.lower():
+        return True
+    return False
 
 
 def apply_debounce(current_consecutive: int, result: CheckResult) -> tuple[int, bool]:
