@@ -46,7 +46,9 @@ Before generating any content, you MUST:
      this file. If a name is not in api_surface.md, do not use it.
    - Read `knowledge/{family}/{platform}/merged/formats.json` — only reference formats confirmed here
    - Read `forbidden_claims` from `knowledge/{family}/{platform}/merged/index.json` — never include these
-   - Read `knowledge/{family}/{platform}/scout/model.yaml` → `canonical_import` (package name for install)
+   - Read `knowledge/{family}/{platform}/scout/model.yaml` → `canonical_import` (the language import
+     name, e.g. for mentioning "import aspose.words" in prose or code — NOT the install command;
+     the install command comes exclusively from `data/package_registry.json`, see Constraints below)
    - Check `knowledge/{family}/{platform}/merged/snippets/` for verified code examples
    - Read `knowledge/{family}/{platform}/merged/limitations.md` (if the file exists — skip this step
      if absent) — **limitations cross-check**: for every format capability claim you plan to make
