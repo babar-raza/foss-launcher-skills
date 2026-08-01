@@ -89,6 +89,54 @@ class TestCreate:
         assert token["reason"] == "test reason"
         assert token["consumed_by_commit"] is None
 
+    def test_dotdir_path_leading_dot_preserved(self, tmp_path, monkeypatch):
+        """Found live, production concurrency redesign (2026-08-01), Step 6:
+        the old `.lstrip("./")` normalization silently ate the leading '.'
+        from any dotdir path (.supervisor/, .claude/, .agents/, .kilocode/ --
+        all real protected paths this repo issues override tokens for),
+        since lstrip strips a character SET, not a prefix string."""
+        pending = tmp_path / "pending"
+        archived = tmp_path / "archived"
+        override_manager.configure(repo_root=tmp_path, pending_dir=pending, archived_dir=archived)
+
+        class Args:
+            paths = [".supervisor/prompts/prompt4-close-task.md"]
+            reason = "test reason"
+            plan = "my-plan.md"
+            scope = ""
+            operation = "edit"
+            retroactive = False
+
+        rc = override_manager.cmd_create(Args())
+        assert rc == 0
+
+        token_files = list(pending.glob("*.json"))
+        token = json.loads(token_files[0].read_text())
+        assert token["paths"] == [".supervisor/prompts/prompt4-close-task.md"]
+
+    def test_relative_prefix_still_stripped(self, tmp_path, monkeypatch):
+        """The fix must still strip a genuine './' relative-path prefix
+        (including a repeated one) -- only the dotdir-eating side effect was
+        the bug."""
+        pending = tmp_path / "pending"
+        archived = tmp_path / "archived"
+        override_manager.configure(repo_root=tmp_path, pending_dir=pending, archived_dir=archived)
+
+        class Args:
+            paths = ["./AGENTS.md", "././scripts/foo.py"]
+            reason = "test reason"
+            plan = "my-plan.md"
+            scope = ""
+            operation = "edit"
+            retroactive = False
+
+        rc = override_manager.cmd_create(Args())
+        assert rc == 0
+
+        token_files = list(pending.glob("*.json"))
+        token = json.loads(token_files[0].read_text())
+        assert token["paths"] == ["AGENTS.md", "scripts/foo.py"]
+
 
 class TestValidateForPath:
     def test_matching_path_passes(self, tmp_path, monkeypatch):

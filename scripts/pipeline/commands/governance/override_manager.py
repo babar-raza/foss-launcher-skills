@@ -96,7 +96,23 @@ def _save_token(path: Path, token: dict) -> None:
 
 
 def _normalize(p: str) -> str:
-    return p.replace("\\", "/").lstrip("./")
+    """Normalize a path for token storage/comparison: backslashes to forward
+    slashes, and strip a leading './' prefix (repeated, for './/foo' etc).
+
+    NOT `.lstrip("./")` (found live, production concurrency redesign,
+    2026-08-01, Step 6): `str.lstrip` strips a CHARACTER SET, not a prefix
+    string -- for a path like '.supervisor/prompts/x.md', it silently ate
+    the leading '.' too (stopping only once it hit 's', the first character
+    not in {'.', '/'}), producing 'supervisor/prompts/x.md'. Harmless for a
+    single self-consistent create+validate pair (both sides normalize the
+    same way), but corrupts the STORED path for every dotdir this repo
+    actually protects (.supervisor/, .claude/, .agents/, .kilocode/), and a
+    human reading the token file sees the wrong path entirely.
+    """
+    p = p.replace("\\", "/")
+    while p.startswith("./"):
+        p = p[2:]
+    return p
 
 
 def _slug_from_paths(paths: list[str]) -> str:
