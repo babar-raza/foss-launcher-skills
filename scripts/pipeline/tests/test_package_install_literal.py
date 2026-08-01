@@ -81,8 +81,22 @@ class TestScopeGuards:
         findings = verify_package_install_literals(page, "cells", "rust", registry=_registry("cargo", True))
         assert findings == []
 
-    def test_no_registry_entry_no_findings(self, tmp_path):
+    def test_no_registry_entry_with_install_command_is_now_a_fail(self, tmp_path):
+        """TC-MT018-07: a family/platform with NO registry entry at all is no
+        longer a silent pass -- this was the exact blind spot that let 14
+        launched products ship fabricated/never-published install commands
+        undetected (2026-08-01 full-repo audit). An install-command-shaped
+        line for an unregistered pair is now a FAIL."""
         page = _write(tmp_path, "pip install some-unrelated-package\n")
+        findings = verify_package_install_literals(page, "unknown-family", "python", registry={})
+        assert len(findings) == 1
+        assert "UNREGISTERED" in findings[0].message
+
+    def test_no_registry_entry_no_install_command_still_clean(self, tmp_path):
+        """The fail-on-missing-entry rule only fires when an install-command
+        pattern is actually present -- a page with no install text at all for
+        an unregistered pair is still clean (nothing to flag)."""
+        page = _write(tmp_path, "This page has no install instructions at all.\n")
         findings = verify_package_install_literals(page, "unknown-family", "python", registry={})
         assert findings == []
 

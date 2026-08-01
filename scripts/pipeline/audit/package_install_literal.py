@@ -1,4 +1,5 @@
 """package_install_literal.py — Mission MT015-2026-07-30-PACKAGE-REGISTRY, TC-MT015-05.
+Fail-on-missing-entry behavior added Mission MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE, TC-MT018-07.
 
 Regression gate: analogous to maven_coordinates.py, but for the 4 registries
 that don't have their own dedicated shortcode's audit gate (pypi, nuget, npm,
@@ -6,7 +7,7 @@ go_modules) -- Maven/Cargo already have maven_coordinates.py; that module is
 untouched by this mission (different literal-text shape: XML dependency
 blocks vs. a single CLI line, not a clean parameterization target).
 
-Two checks, both FAIL-level (hard gate, not advisory):
+Three checks, all FAIL-level (hard gate, not advisory):
 
 1. Any content page for a family/platform tracked in data/package_registry.json
    under one of these 4 registry types must never contain a raw literal
@@ -21,6 +22,18 @@ Two checks, both FAIL-level (hard gate, not advisory):
    generation event must never guess a live command for an unconfirmed
    package). Confirmed real: this exact defect class already shipped once
    (3D-NET-REFRESH-002, a wrong NuGet command across 19 files).
+
+3. (TC-MT018-07) A page showing an install-command-shaped pattern for a
+   family/platform with NO data/package_registry.json entry at all is
+   ITSELF a FAIL, not a silent pass. This closes the exact blind spot a
+   full-repo audit (2026-08-01) traced as the root cause behind 14 launched
+   products shipping fabricated or never-published install commands
+   undetected: this gate previously had zero power to catch anything for a
+   family/platform it had never been pointed at. Only safe to enable once
+   every real, launched product has a registry entry (TC-MT018-06's
+   backfill) -- enabling it earlier would FAIL already-correct content for
+   every then-uncovered product, a false positive this mission's own
+   sequencing was designed to avoid.
 """
 from __future__ import annotations
 
@@ -58,45 +71,74 @@ def _load_registry_cached(registry: dict | None) -> dict:
     return registry if registry is not None else load_registry()
 
 
+def _is_noise_line(line: str) -> bool:
+    if _SHORTCODE_MARKER in line:
+        return True  # the shortcode call itself is not a literal-text violation
+    if re.match(r"^#{1,6}\s", line) or re.match(r"^\s*-?\s*heading:\s", line, re.IGNORECASE):
+        # Confirmed real case (content/kb.aspose.org/en/words/net/troubleshooting.md):
+        # "### `dotnet add package Aspose.Words` cannot find the package" is a
+        # troubleshooting heading explaining the command DOESN'T work, not an
+        # install instruction -- flagging it would be a false positive against
+        # already-shipped, correct content. The same text is mirrored in
+        # frontmatter as a `heading:` field (a TOC/FAQ-list entry), which the
+        # first end-to-end test run against the real file caught -- the
+        # Markdown-heading-only guard alone was not sufficient. Headings (in
+        # either form) describing a command are a different genre from
+        # prose/code-block asserting it as instructions.
+        return True
+    return False
+
+
 def verify_package_install_literals(
     filepath: Path, family: str | None, platform: str | None, *, registry: dict | None = None,
 ) -> list:
     """Check a content file for raw literal install-command text belonging to
-    a tracked (non-Maven, non-Cargo) family/platform.
+    a family/platform.
 
     Returns a list of Finding objects (FAIL level). Returns [] if family/platform
-    can't be inferred, has no data/package_registry.json entry, or the entry's
-    registry_type isn't one of the 4 this module covers.
+    can't be inferred, or the entry's registry_type is maven/cargo (out of
+    scope -- those have their own dedicated maven_coordinates.py gate).
+    A family/platform with NO registry entry at all is NOT silently skipped
+    (TC-MT018-07) -- any install-command-shaped line is a FAIL, since there
+    is no grounding source to trust it against.
     """
     if not family or not platform:
         return []
 
     data = _load_registry_cached(registry)
     entry = data.get(family, {}).get(platform)
-    if not entry or entry.get("registry_type") not in _TRACKED_REGISTRY_TYPES:
-        return []
+    if entry and entry.get("registry_type") not in _TRACKED_REGISTRY_TYPES:
+        return []  # maven/cargo -- out of scope, has its own dedicated gate
 
     try:
         text = filepath.read_text(encoding="utf-8", errors="replace")
     except OSError:
         return []
 
-    published = bool(entry.get("verification", {}).get("published"))
     findings = []
+
+    if entry is None:
+        for line_no, line in enumerate(text.splitlines(), start=1):
+            if _is_noise_line(line):
+                continue
+            match = _INSTALL_CMD_RE.search(line)
+            if not match:
+                continue
+            findings.append(Finding(
+                "FAIL", filepath, line_no,
+                f"Install command found for an UNREGISTERED family/platform: {match.group(0)!r}",
+                f"{family}/{platform} has no entry in data/package_registry.json at all -- "
+                "there is no live-verified identity to ground this command against, which is "
+                "exactly the gap that let 14 launched products ship fabricated or "
+                "never-published install commands undetected (Mission "
+                "MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE). Add a registry entry first "
+                "(registry_backfill.py), then use the appropriate shortcode.",
+            ))
+        return findings
+
+    published = bool(entry.get("verification", {}).get("published"))
     for line_no, line in enumerate(text.splitlines(), start=1):
-        if _SHORTCODE_MARKER in line:
-            continue  # the shortcode call itself is not a literal-text violation
-        if re.match(r"^#{1,6}\s", line) or re.match(r"^\s*-?\s*heading:\s", line, re.IGNORECASE):
-            # Confirmed real case (content/kb.aspose.org/en/words/net/troubleshooting.md):
-            # "### `dotnet add package Aspose.Words` cannot find the package" is a
-            # troubleshooting heading explaining the command DOESN'T work, not an
-            # install instruction -- flagging it would be a false positive against
-            # already-shipped, correct content. The same text is mirrored in
-            # frontmatter as a `heading:` field (a TOC/FAQ-list entry), which the
-            # first end-to-end test run against the real file caught -- the
-            # Markdown-heading-only guard alone was not sufficient. Headings (in
-            # either form) describing a command are a different genre from
-            # prose/code-block asserting it as instructions.
+        if _is_noise_line(line):
             continue
         match = _INSTALL_CMD_RE.search(line)
         if not match:
