@@ -30,6 +30,8 @@ if str(_LIB_DIR) not in sys.path:
 
 from package_registry_data import (  # noqa: E402
     REGISTRY_TYPES,
+    naming_convention_candidate,
+    naming_convention_owner,
     validate_package_entry,
     validate_package_registry,
 )
@@ -58,11 +60,27 @@ def test_validate_package_registry_reports_no_errors():
 
 def test_migrated_families_present():
     """Migration from foss_packages.json/cargo_packages.json is like-for-like:
-    same 4 Java-FOSS families + cells/rust, nothing added or dropped."""
+    same 4 Java-FOSS families + cells/rust, plus words/net (TC-MT015-07)."""
     data = _load()
     families = {k for k in data if not k.startswith("_")}
-    assert families == {"cells", "3d", "pdf", "slides"}
+    assert families == {"cells", "3d", "pdf", "slides", "words"}
     assert set(data["cells"].keys()) == {"java", "rust"}
+
+
+def test_words_net_uses_naming_convention_fallback_and_is_unpublished():
+    """Regression pin (TC-MT015-07): words/net is this mission's own worked
+    example -- a product launched on aspose.org before its NuGet package
+    exists. Its candidate must come from the naming-convention fallback
+    (package_manifest.py has nothing to extract from the real .csproj), and
+    it must honestly reflect the currently-true unpublished state, matching
+    the live content across all 4 subdomains."""
+    data = _load()
+    entry = data["words"]["net"]
+    assert entry["registry_type"] == "nuget"
+    assert entry["candidate"]["name"] == "Aspose.Words.FOSS"
+    assert entry["scout_source"] == "naming-convention-fallback"
+    assert entry["verification"]["published"] is False
+    assert entry["owner_match"] is None
 
 
 def test_registry_type_never_vcpkg_or_conan():
@@ -146,6 +164,91 @@ def test_cells_3d_pdf_use_org_aspose_groupid():
     for family in ("cells", "3d", "pdf"):
         entry = data[family]["java"]
         assert entry["candidate"]["group_id"] == "org.aspose"
+
+
+# ---------------------------------------------------------------------------
+# TC-MT015-07: naming-convention candidate fallback
+# ---------------------------------------------------------------------------
+
+class TestNamingConventionCandidate:
+    def test_pypi_flat_name(self):
+        assert naming_convention_candidate("pdf", "python", "pypi") == {"name": "aspose-pdf-foss"}
+
+    def test_nuget_net_title_case(self):
+        assert naming_convention_candidate("words", "net", "nuget") == {"name": "Aspose.Words.FOSS"}
+
+    def test_nuget_cpp_distinct_from_net(self):
+        """Regression pin for the user's own worked example: C++ ships via NuGet
+        under its own package ID, distinct from the .NET package."""
+        cpp = naming_convention_candidate("pdf", "cpp", "nuget")
+        net = naming_convention_candidate("pdf", "net", "nuget")
+        assert cpp == {"name": "Aspose.PDF.Cpp.FOSS"}
+        assert net == {"name": "Aspose.PDF.FOSS"}
+        assert cpp != net
+
+    def test_nuget_acronym_family_stays_uppercase(self):
+        assert naming_convention_candidate("3d", "net", "nuget") == {"name": "Aspose.3D.FOSS"}
+
+    def test_nuget_non_acronym_family_is_title_cased(self):
+        assert naming_convention_candidate("slides", "net", "nuget") == {"name": "Aspose.Slides.FOSS"}
+
+    def test_npm_scoped_name(self):
+        assert naming_convention_candidate("pdf", "typescript", "npm") == {"name": "@asposefoss/pdf"}
+
+    def test_go_module_path(self):
+        assert naming_convention_candidate("pdf", "go", "go_modules") == {
+            "module_path": "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"
+        }
+
+    def test_cargo_flat_name(self):
+        assert naming_convention_candidate("cells", "rust", "cargo") == {"name": "aspose-cells-foss"}
+
+    def test_maven_returns_none(self):
+        """No convention fallback for Maven -- a real pom.xml groupId/artifactId
+        almost always exists; guessing here would be worse than the empty
+        field it would replace."""
+        assert naming_convention_candidate("pdf", "java", "maven") is None
+
+    def test_unknown_registry_type_returns_none(self):
+        assert naming_convention_candidate("pdf", "net", "vcpkg") is None
+
+    def test_result_shape_is_schema_valid_for_each_registry_type(self):
+        """Every non-None result must satisfy validate_package_entry's candidate
+        shape requirement for its registry_type -- a guessed candidate must be
+        just as structurally valid as an extracted one."""
+        cases = [
+            ("pdf", "python", "pypi"), ("pdf", "net", "nuget"), ("pdf", "cpp", "nuget"),
+            ("pdf", "typescript", "npm"), ("pdf", "go", "go_modules"), ("cells", "rust", "cargo"),
+        ]
+        for family, platform, registry_type in cases:
+            candidate = naming_convention_candidate(family, platform, registry_type)
+            entry = {
+                "registry_type": registry_type, "candidate": candidate,
+                "candidate_owner": naming_convention_owner(registry_type, family=family),
+                "verification": {"published": False, "verified_at": None, "verified_owner": None,
+                                  "evidence_url": None, "method": None},
+                "owner_match": None,
+            }
+            errors = validate_package_entry(entry, f"{family}.{platform}")
+            assert errors == [], f"{family}/{platform} ({registry_type}): {errors}"
+
+
+class TestNamingConventionOwner:
+    def test_maven_owner(self):
+        assert naming_convention_owner("maven") == "org.aspose"
+
+    def test_go_owner_is_per_family_org(self):
+        assert naming_convention_owner("go_modules", family="pdf") == "aspose-pdf-foss"
+
+    def test_go_owner_without_family_is_none(self):
+        assert naming_convention_owner("go_modules") is None
+
+    def test_pypi_nuget_npm_cargo_owner_is_asposefoss(self):
+        for registry_type in ("pypi", "nuget", "npm", "cargo"):
+            assert naming_convention_owner(registry_type) == "asposefoss"
+
+    def test_unknown_registry_type_returns_none(self):
+        assert naming_convention_owner("vcpkg") is None
 
 
 def test_slides_java_candidate_matches_live_verified_coordinate():

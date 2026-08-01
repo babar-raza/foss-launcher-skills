@@ -115,3 +115,75 @@ def load_registry(path: Path | None = None) -> dict[str, Any]:
     path = path or default_registry_path()
     with open(path, encoding="utf-8") as f:
         return json.load(f)
+
+
+# ---------------------------------------------------------------------------
+# Naming-convention candidate fallback (TC-MT015-07)
+#
+# package_manifest.py's scout-time extraction is 100% deterministic but can
+# only extract identity that actually exists in the upstream repo's manifest
+# file -- and that is format-dependent, not a wiring bug: Cargo.toml
+# structurally requires [package] name/version, but .NET's .csproj has no
+# mandatory PackageId/Version at all (confirmed: the real slides/net and
+# words/net .csproj files declare neither -- these are typically injected
+# only at NuGet-pack/CI time). For registries in this position, the only
+# available "candidate" before a real manifest value or a live registry
+# check exists is a naming-convention guess -- explicitly a guess, tracked
+# via `scout_source` so it's never confused with a source-extracted value.
+# ---------------------------------------------------------------------------
+
+# Families whose display form is an acronym, not a title-cased word --
+# mirrors commands/knowledge/index.py's _display_name() special-casing
+# (kept in sync manually; both are small, stable, rarely-changed tables).
+_ACRONYM_FAMILIES = {"3d": "3D", "pdf": "PDF"}
+
+
+def _title_case_family(family: str) -> str:
+    return _ACRONYM_FAMILIES.get(family, family.title())
+
+
+def naming_convention_candidate(family: str, platform: str, registry_type: str) -> dict[str, Any] | None:
+    """Convention-based candidate coordinate for a family/platform, per the
+    naming schema supplied for Mission MT015-2026-07-30-PACKAGE-REGISTRY
+    (worked example: Aspose.PDF FOSS). Returns None for "maven" (a real
+    pom.xml groupId/artifactId almost always exists -- no fallback attempted)
+    and for any registry_type this schema doesn't cover.
+
+    Honesty note: the one real shipped NuGet package this repo has today
+    (org.aspose:aspose-slides-foss's NuGet counterpart) is named
+    "Aspose.Slides.Foss" -- title-case "Foss", not the all-caps "FOSS" this
+    function produces. That's an earlier, different precedent, not this
+    schema; this function follows the user's current explicit instruction
+    for anything NEW rather than silently matching it. Every value this
+    function returns is a guess, not a confirmed identity -- callers must
+    record `scout_source="naming-convention-fallback"` and leave
+    `verification.published`/`owner_match` unresolved until a live check or
+    human review settles it.
+    """
+    fam = _title_case_family(family)
+    if registry_type == "pypi":
+        return {"name": f"aspose-{family}-foss"}
+    if registry_type == "nuget":
+        if platform == "cpp":
+            return {"name": f"Aspose.{fam}.Cpp.FOSS"}
+        return {"name": f"Aspose.{fam}.FOSS"}
+    if registry_type == "npm":
+        return {"name": f"@asposefoss/{family}"}
+    if registry_type == "go_modules":
+        return {"module_path": f"github.com/aspose-{family}-foss/aspose-{family}-foss-for-go"}
+    if registry_type == "cargo":
+        return {"name": f"aspose-{family}-foss"}
+    return None
+
+
+def naming_convention_owner(registry_type: str, *, family: str = "") -> str | None:
+    """Convention-based expected publisher org/namespace, per the same schema.
+    Go's candidate owner is the per-family GitHub org itself (no single
+    shared "asposefoss"-style org for Go, per the supplied schema table)."""
+    if registry_type == "maven":
+        return "org.aspose"
+    if registry_type == "go_modules":
+        return f"aspose-{family}-foss" if family else None
+    if registry_type in ("pypi", "nuget", "npm", "cargo"):
+        return "asposefoss"
+    return None
