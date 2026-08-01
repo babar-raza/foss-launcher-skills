@@ -51,6 +51,14 @@
 | `scripts/pipeline/commands/governance/skill_context.py` | Skill context gate |
 | `scripts/pipeline/commands/ops/skill_run_manager.py` | Skill run record lifecycle |
 | `scripts/translator/cli.py` | Translation CLI (audit, retranslate, preflight) |
+| `scripts/pipeline/commands/ops/package_publish_watch.py` | Multi-registry (pypi/nuget/npm/go_modules/cargo) publish detection, `/package-publish-watch` (S-118) |
+| `scripts/pipeline/commands/content/package_install_migrator.py` | Codemod: literal install commands → `package-install` shortcode |
+
+## Data Files
+
+| Path | Purpose |
+|------|---------|
+| `data/package_registry.json` | Unified package-manager identity SOT (Mission MT015-2026-07-30-PACKAGE-REGISTRY) — sole rendering source for the `maven-coord`/`maven-gav`/`cargo-crate`/`package-install` shortcodes; see `data/schemas/package-registry-schema.json` for shape. Supersedes the retired `data/foss_packages.json`/`data/cargo_packages.json` (deleted TC-MT015-14). |
 
 ## Environment
 
