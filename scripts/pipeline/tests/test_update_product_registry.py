@@ -257,6 +257,13 @@ class TestReconcileBlogSignal:
         self._write_site_plan(tmp_path, family, platform, justified=blog_justified)
         for site in ("docs.aspose.org", "kb.aspose.org", "reference.aspose.org"):
             (tmp_path / "content" / site / "en" / family / platform).mkdir(parents=True, exist_ok=True)
+        # MT015 signal 8: package_registry must also resolve OK for a fixture
+        # genuinely meant to be "fully OK" across every signal.
+        (tmp_path / "data").mkdir(parents=True, exist_ok=True)
+        (tmp_path / "data" / "package_registry.json").write_text(
+            json.dumps({family: {platform: {"verification": {"published": True}}}}),
+            encoding="utf-8",
+        )
 
     def test_run_reconcile_skipped_does_not_fail(self, tmp_path, capsys):
         upr.configure(repo_root=tmp_path)
@@ -275,6 +282,108 @@ class TestReconcileBlogSignal:
         # blog was justified and the directory is genuinely absent.
         self._make_fully_ok_product(tmp_path, "cells", "cpp", blog_justified=True)
         entry = {"family": "cells", "platform": "cpp"}
+
+        rc = upr._run_reconcile([entry])
+
+        assert rc == 1
+
+
+# ---------------------------------------------------------------------------
+# --reconcile: package_registry signal (MT015) -- "launched but
+# package-unverified" is exactly the discrepancy this signal exists to
+# surface. The inverse ("published but content still says unpublished") is
+# a content-text concern handled by the audit gate (TC-MT015-05), not here.
+# ---------------------------------------------------------------------------
+
+class TestReconcilePackageRegistrySignal:
+    @pytest.fixture(autouse=True)
+    def _reset_repo_root(self):
+        yield
+        upr.configure(repo_root=None)
+
+    def _write_site_plan(self, tmp_path, family, platform, justified):
+        plan_dir = tmp_path / "reports" / "plans" / family / platform
+        plan_dir.mkdir(parents=True, exist_ok=True)
+        (plan_dir / "site_plan.yaml").write_text(
+            "plan:\n"
+            "  sections:\n"
+            "    blog:\n"
+            f"      justified: {str(justified).lower()}\n"
+            "      page_count: 0\n"
+            "      pages: []\n",
+            encoding="utf-8",
+        )
+
+    def _write_package_registry(self, tmp_path, data):
+        (tmp_path / "data").mkdir(parents=True, exist_ok=True)
+        (tmp_path / "data" / "package_registry.json").write_text(json.dumps(data), encoding="utf-8")
+
+    def test_missing_when_no_package_registry_file_at_all(self, tmp_path):
+        upr.configure(repo_root=tmp_path)
+        entry = {"family": "words", "platform": "net"}
+        signals = dict(upr._check_signals(entry))
+        assert signals["package_registry"] == "MISSING"
+
+    def test_missing_when_family_platform_not_in_package_registry(self, tmp_path):
+        upr.configure(repo_root=tmp_path)
+        self._write_package_registry(tmp_path, {"cells": {"java": {"verification": {"published": True}}}})
+        entry = {"family": "words", "platform": "net"}
+        signals = dict(upr._check_signals(entry))
+        assert signals["package_registry"] == "MISSING"
+
+    def test_unverified_when_entry_exists_but_not_yet_published(self, tmp_path):
+        """A tracked-but-unpublished entry (e.g. words/net today) is a normal,
+        valid state -- not a defect -- so it must not fail reconcile."""
+        upr.configure(repo_root=tmp_path)
+        self._write_package_registry(tmp_path, {"words": {"net": {"verification": {"published": False}}}})
+        entry = {"family": "words", "platform": "net"}
+        signals = dict(upr._check_signals(entry))
+        assert signals["package_registry"] == "UNVERIFIED"
+
+    def test_ok_when_entry_exists_and_published(self, tmp_path):
+        upr.configure(repo_root=tmp_path)
+        self._write_package_registry(tmp_path, {"slides": {"java": {"verification": {"published": True}}}})
+        entry = {"family": "slides", "platform": "java"}
+        signals = dict(upr._check_signals(entry))
+        assert signals["package_registry"] == "OK"
+
+    def test_na_for_platform_with_no_tracked_registry_type(self, tmp_path):
+        upr.configure(repo_root=tmp_path)
+        entry = {"family": "cells", "platform": "some-unmapped-platform"}
+        signals = dict(upr._check_signals(entry))
+        assert signals["package_registry"] == "N/A"
+
+    def test_reconcile_passes_with_unverified_package_registry_signal(self, tmp_path):
+        """UNVERIFIED must not flip _run_reconcile's exit code -- it is not a failure."""
+        upr.configure(repo_root=tmp_path)
+        model_dir = tmp_path / "knowledge" / "words" / "net" / "merged"
+        model_dir.mkdir(parents=True, exist_ok=True)
+        (model_dir / "model.yaml").write_text("stale_since: null\n", encoding="utf-8")
+        self._write_site_plan(tmp_path, "words", "net", justified=True)
+        for site in ("docs.aspose.org", "kb.aspose.org", "reference.aspose.org"):
+            (tmp_path / "content" / site / "en" / "words" / "net").mkdir(parents=True, exist_ok=True)
+        (tmp_path / "content" / "blog.aspose.org" / "words" / "net").mkdir(parents=True, exist_ok=True)
+        # Tracked but explicitly not-yet-published -- a normal state, matching
+        # words/net's real current status.
+        self._write_package_registry(tmp_path, {"words": {"net": {"verification": {"published": False}}}})
+        entry = {"family": "words", "platform": "net"}
+
+        rc = upr._run_reconcile([entry])
+
+        assert rc == 0
+
+    def test_reconcile_fails_when_package_registry_missing(self, tmp_path):
+        """Everything else OK, but no package_registry entry at all -> MISSING -> fail."""
+        upr.configure(repo_root=tmp_path)
+        model_dir = tmp_path / "knowledge" / "words" / "net" / "merged"
+        model_dir.mkdir(parents=True, exist_ok=True)
+        (model_dir / "model.yaml").write_text("stale_since: null\n", encoding="utf-8")
+        self._write_site_plan(tmp_path, "words", "net", justified=True)
+        for site in ("docs.aspose.org", "kb.aspose.org", "reference.aspose.org"):
+            (tmp_path / "content" / site / "en" / "words" / "net").mkdir(parents=True, exist_ok=True)
+        (tmp_path / "content" / "blog.aspose.org" / "words" / "net").mkdir(parents=True, exist_ok=True)
+        # Deliberately no data/package_registry.json written at all.
+        entry = {"family": "words", "platform": "net"}
 
         rc = upr._run_reconcile([entry])
 

@@ -9,9 +9,9 @@ Modes:
     Default:      Scan GitHub org for FOSS repos, merge with local knowledge dirs.
     --local-only: Skip GitHub — build registry from knowledge/ dirs only.
     --force:      Overwrite active/inactive status even for repos already in registry.
-    --reconcile:  Read-only check: verify all 7 content/knowledge signals for each
-                  registered product. Prints a per-product table and exits 1 if any
-                  signal is MISSING.
+    --reconcile:  Read-only check: verify all 8 content/knowledge/package-registry
+                  signals for each registered product. Prints a per-product table
+                  and exits 1 if any signal is MISSING.
 
 Output:
     data/products.json — canonical product registry
@@ -366,13 +366,34 @@ _SIGNAL_LABELS = [
     "docs_content",
     "kb_content",
     "reference_content",
+    "package_registry",
 ]
+
+# MT015: platform -> the package_registry.json registry_type it should carry
+# an entry under. Platforms not listed here have no tracked package-manager
+# identity yet (vcpkg/Conan were confirmed never implemented in practice; any
+# other unmapped platform is "not applicable" rather than a real gap).
+_PLATFORM_TO_REGISTRY_TYPE = {
+    "python": "pypi", "net": "nuget", "cpp": "nuget", "java": "maven",
+    "npm": "npm", "typescript": "npm", "javascript": "npm",
+    "go": "go_modules", "rust": "cargo",
+}
+
+
+def _load_package_registry() -> dict:
+    path = REPO_ROOT / "data" / "package_registry.json"
+    if not path.is_file():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
 
 
 def _check_signals(entry: dict) -> list[tuple[str, str]]:
-    """Return list of (signal_label, status) for all 7 signals.
+    """Return list of (signal_label, status) for all 8 signals.
 
-    status is "OK" or "MISSING".
+    status is "OK", "MISSING", "STALE", "SKIPPED", "UNVERIFIED", or "N/A".
     """
     family = entry["family"]
     platform = entry["platform"]
@@ -430,6 +451,27 @@ def _check_signals(entry: dict) -> list[tuple[str, str]]:
     for label, path in content_sites:
         results.append((label, "OK" if path.is_dir() else "MISSING"))
 
+    # Signal 8 (MT015): package_registry -- does data/package_registry.json
+    # track this family/platform's package-manager identity at all? MISSING
+    # here is exactly the "launched but package-unverified" discrepancy this
+    # signal exists to surface (closing the words/net-style bidirectional-
+    # sequencing gap: a product can launch content before its package exists,
+    # or vice versa, and nothing previously cross-referenced the two states).
+    # The inverse discrepancy ("published in the registry but content still
+    # says unpublished") is a content-text concern, out of scope here --
+    # covered by the audit gate (TC-MT015-05), not this file-existence check.
+    registry_type = _PLATFORM_TO_REGISTRY_TYPE.get(platform)
+    if registry_type is None:
+        results.append(("package_registry", "N/A"))
+    else:
+        pr_entry = _load_package_registry().get(family, {}).get(platform)
+        if pr_entry is None:
+            results.append(("package_registry", "MISSING"))
+        elif not pr_entry.get("verification", {}).get("published"):
+            results.append(("package_registry", "UNVERIFIED"))
+        else:
+            results.append(("package_registry", "OK"))
+
     return results
 
 
@@ -470,7 +512,11 @@ def _run_reconcile(products: list[dict]) -> int:
         key = f"{entry['family']}/{entry['platform']}"
         signals = _check_signals(entry)
         for label, status in signals:
-            if status not in ("OK", "SKIPPED"):
+            # UNVERIFIED (package tracked, not yet confirmed published -- a
+            # normal, valid pre-publish state, not a defect) and N/A
+            # (platform has no tracked registry type) never fail reconcile;
+            # only a genuinely MISSING/STALE signal does.
+            if status not in ("OK", "SKIPPED", "UNVERIFIED", "N/A"):
                 any_bad = True
             if status == "MISSING":
                 marker = " <-- MISSING"
@@ -478,6 +524,8 @@ def _run_reconcile(products: list[dict]) -> int:
                 marker = " <-- STALE"
             elif status == "SKIPPED":
                 marker = " <-- skipped (below blog threshold)"
+            elif status == "UNVERIFIED":
+                marker = " <-- not yet confirmed published"
             else:
                 marker = ""
             print(f"{key:<{col_product}} {label:<{col_signal}} {status:<{col_status}}{marker}")
@@ -528,8 +576,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--dry-run", action="store_true",
                         help="Print discovered products; do NOT write data/products.json")
     parser.add_argument("--reconcile", "--check", action="store_true",
-                        help="Read-only: check all 7 content/knowledge signals for each "
-                             "registered product. Exit 0 if all OK, exit 1 if any MISSING.")
+                        help="Read-only: check all 8 content/knowledge/package-registry "
+                             "signals for each registered product. Exit 0 if all OK, exit 1 if any MISSING.")
     args = parser.parse_args(argv)
 
     token = args.token or os.environ.get("GITHUB_TOKEN")
