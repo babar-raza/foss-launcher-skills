@@ -15,7 +15,19 @@ from typing import Any
 from ..models import Finding, Page
 from . import BaseEvaluator
 
-KNOWLEDGE_ROOT = Path("knowledge")
+_DEFAULT_KNOWLEDGE_ROOT = Path("knowledge")
+KNOWLEDGE_ROOT = _DEFAULT_KNOWLEDGE_ROOT
+
+
+def configure(*, knowledge_root: "Path | str | None" = None) -> None:
+    """Override the module-level KNOWLEDGE_ROOT constant for testing.
+
+    Mirrors content_discovery.py's configure() seam (AGENTS.md 16) -- the
+    sanctioned alternative to monkeypatching KNOWLEDGE_ROOT directly, which
+    is a T1-banned guarded-path-constant patch.
+    """
+    global KNOWLEDGE_ROOT
+    KNOWLEDGE_ROOT = Path(knowledge_root) if knowledge_root is not None else _DEFAULT_KNOWLEDGE_ROOT
 
 # Package-manager / install command patterns (case-insensitive)
 _INSTALL_PROSE_RE = re.compile(
@@ -72,26 +84,41 @@ _PKG_MANAGER_RE = re.compile(
 
 
 class InstallRecipeEvaluator(BaseEvaluator):
-    """Flags documentation pages that demonstrate API usage but lack install guidance.
+    """Flags documentation pages that demonstrate API usage but lack install guidance,
+    and cross-checks install-command accuracy (H-16) against knowledge.
 
-    Only applies to ``docs`` subdomain pages with role ``docs`` or ``howto``
-    that are not index pages.  Level is INFO because installation instructions
-    may legitimately live on a linked page.
+    The "missing install instructions" INFO suggestion only applies to ``docs``
+    subdomain pages with role ``docs``/``howto`` that are not index pages --
+    installation instructions may legitimately live on a linked page there.
+    H-16's accuracy check (ST-047) runs on every subdomain (docs/kb/blog/
+    products): a wrong package name or wrong-platform package manager is a
+    defect wherever it appears, not just in docs.
     """
 
     name = "install_recipe"
 
     def evaluate(self, page: Page, knowledge: Any) -> list[Finding]:
-        # Gate: only docs subdomain, docs/howto role, non-index pages
-        if page.subdomain != "docs":
-            return []
-        if page.page_role not in ("docs", "howto"):
-            return []
-        if page.filepath.name == "_index.md":
-            return []
-
-        # H-16: Always run install accuracy check (even if install instructions exist)
+        # ST-047 fix: H-16 (install-command accuracy) must run across every
+        # subdomain, not just docs. It previously sat behind the docs-only
+        # gate below, so content_eval had zero visibility into kb/blog/
+        # products pages -- confirmed by the 3D-NET-REFRESH-002 remediation,
+        # where 19 wrong-NuGet-command files spanned all 4 content surfaces
+        # but the evaluator only ever checked docs.aspose.org. Runs first,
+        # unconditionally; the docs-only gate below now only scopes the
+        # separate "missing install instructions" suggestion.
         accuracy_findings = self._verify_install_accuracy(page)
+
+        # Gate: the "missing install instructions" suggestion legitimately
+        # only applies to docs subdomain pages with role docs/howto
+        # (non-index) -- kb/blog/products pages aren't expected to carry a
+        # full install section, so that narrower check stays scoped as
+        # before.
+        if page.subdomain != "docs":
+            return accuracy_findings
+        if page.page_role not in ("docs", "howto"):
+            return accuracy_findings
+        if page.filepath.name == "_index.md":
+            return accuracy_findings
 
         # Skip if this page IS an installation/setup page
         page_path_str = str(page.filepath).replace("\\", "/")
