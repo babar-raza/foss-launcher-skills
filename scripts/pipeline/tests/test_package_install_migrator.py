@@ -64,6 +64,69 @@ def test_block_pass_replaces_sole_command_fenced_block(tmp_path):
     assert "```bash" not in text  # whole fence removed
 
 
+def test_sole_command_with_version_flag_is_migrated(tmp_path):
+    """Found live 2026-08-02 (MT018 verification pass): dotnet's CLI syntax
+    for a version pin is space-separated (`--version X`), unlike npm's `@X`
+    or pip's `==X` which glue onto the package token with no space -- the
+    original regex only ever captured one \\S+ token, so `--version 1.0.0`
+    trailing content caused _block_is_sole_command's fullmatch to fail and
+    the block was left as a false "unfixable inline mention". This is a real,
+    safe, isolated code block -- just with a version pin -- and must migrate."""
+    fp = _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
+        "```bash\n"
+        "dotnet add package Aspose.Slides.Foss --version 1.0.0\n"
+        "```\n"
+    ))
+    res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+    assert res["result"] == sut.R_MIGRATED
+    assert res["block_replacements"] == 1
+    text = fp.read_text(encoding="utf-8")
+    assert '{{< package-install "slides" "net" >}}' in text
+    assert "--version" not in text
+
+
+def test_pypi_sole_command_with_version_pin_is_migrated(tmp_path):
+    """pip's version pin glues onto the package token (no space) -- already
+    covered by the original \\S+ token match, confirmed still working after
+    the --version-flag extension (regression pin, not a new capability)."""
+    fp = _write(tmp_path, "content/docs.aspose.org/en/cells/python/getting-started/installation.md", (
+        "```bash\n"
+        "pip install aspose-cells-foss==26.3.2\n"
+        "```\n"
+    ))
+    res = sut.migrate_file(fp, "cells", "python", dry_run=False, registry=_PYPI_REGISTRY)
+    assert res["result"] == sut.R_MIGRATED
+    assert res["block_replacements"] == 1
+
+
+def test_sole_command_with_extra_flags_beyond_version_still_not_migrated(tmp_path):
+    """Confirms the --version tolerance is narrowly scoped, not a blanket
+    'anything after the package name is fine' loosening -- a block with
+    additional unrelated flags is still correctly treated as a multi-part
+    command, not a safe sole-command replacement."""
+    fp = _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
+        "```bash\n"
+        "dotnet add package Aspose.Slides.Foss --version 1.0.0 --prerelease\n"
+        "```\n"
+    ))
+    res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+    assert res["result"] == sut.R_NOOP
+    assert res["block_replacements"] == 0
+    text = fp.read_text(encoding="utf-8")
+    assert "--prerelease" in text  # untouched
+
+
+def test_inline_mention_with_version_flag_still_counted_once(tmp_path):
+    """The extended pattern must not double-count or miscount an inline
+    (non-block) mention that happens to include a --version flag."""
+    fp = _write(tmp_path, "content/kb.aspose.org/en/slides/net/faq.md", (
+        "Run `dotnet add package Aspose.Slides.Foss --version 1.0.0` to install.\n"
+    ))
+    res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+    assert res["result"] == sut.R_NOOP
+    assert res["inline_mentions_found"] == 1
+
+
 def test_multi_line_block_not_migrated_as_sole_command(tmp_path):
     """A fenced block with the command PLUS other steps is not a sole-command
     block -- migrating it would silently drop the other lines. Structural

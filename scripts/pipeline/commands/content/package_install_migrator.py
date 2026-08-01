@@ -79,7 +79,18 @@ R_NO_REGISTRY_ENTRY = "NO_REGISTRY_ENTRY"
 
 
 def _command_pattern(prefix: str) -> re.Pattern:
-    return re.compile(r"\b" + re.escape(prefix) + r"\s+\S+", re.IGNORECASE)
+    """Match an install command, tolerating a trailing `--version X` flag
+    (dotnet's CLI syntax, space-separated -- unlike npm's `@X`/pip's `==X`,
+    which are already covered since they glue onto the package-name token
+    with no space). Found live (2026-08-02, MT018 verification pass): a block
+    containing exactly `dotnet add package X --version Y` was being skipped
+    by _block_is_sole_command's fullmatch check and misclassified as an
+    unfixable "inline mention" -- it's a perfectly safe, isolated code block,
+    just with a version pin. ~1,950 occurrences repo-wide matched this exact
+    recoverable pattern."""
+    return re.compile(
+        r"\b" + re.escape(prefix) + r"\s+\S+(?:\s+--version\s+\S+)?", re.IGNORECASE,
+    )
 
 
 def _block_is_sole_command(block_text: str, cmd_re: re.Pattern) -> bool:
