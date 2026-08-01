@@ -38,6 +38,7 @@ from audit.snippets import verify_snippet_coverage  # noqa: E402
 from audit.formats import verify_format_direction  # noqa: E402
 from audit.phantom_methods import verify_phantom_methods  # noqa: E402
 from audit.maven_coordinates import verify_maven_coordinates  # noqa: E402
+from audit.package_install_literal import verify_package_install_literals  # noqa: E402
 from audit.frontmatter_schema import (  # noqa: E402
     verify_no_explicit_url,
     verify_no_non_english_aliases,
@@ -147,6 +148,7 @@ def audit_product(
         findings.extend(verify_format_direction(str(f), family, platform))
         findings.extend(verify_phantom_methods(f, text, knowledge))
         findings.extend(verify_maven_coordinates(f))
+        findings.extend(verify_package_install_literals(f, family, platform))
         findings.extend(verify_no_explicit_url(f))
         findings.extend(verify_no_non_english_aliases(f))
         if check_snippets:
@@ -210,6 +212,9 @@ def audit_files(
         maven_findings = verify_maven_coordinates(fp)
         file_findings.extend(maven_findings)
         findings.extend(maven_findings)
+        package_install_findings = verify_package_install_literals(fp, family, platform)
+        file_findings.extend(package_install_findings)
+        findings.extend(package_install_findings)
         url_findings = verify_no_explicit_url(fp)
         file_findings.extend(url_findings)
         findings.extend(url_findings)
