@@ -153,6 +153,36 @@ def append_keywords_to_existing(family, source_path, title, new_keywords, output
     logging.info(f"Appended keywords for {title} in {family}.json")
 
 
+# Replace (not union) an existing entry's keywords, identified by sourcePath
+# (falling back to pageTitle for legacy entries). Finding #52: --force was
+# meant to correct entries whose platform label was wrong, but reusing
+# append_keywords_to_existing() for that case unioned the freshly-generated
+# (correct) keywords with the existing (contaminated, wrong-platform) ones
+# instead of removing them -- producing a permanently mixed-platform list,
+# not a correction. Use this instead of append_keywords_to_existing() when
+# the goal is to REPLACE a known-wrong keyword set, not to accumulate
+# variety across genuine re-runs (title-changed) or repeated LLM calls.
+def replace_keywords_for_entry(family, source_path, title, new_keywords, output_dir):
+    file_path = os.path.join(output_dir, f"{family}.json")
+    if not os.path.exists(file_path):
+        return
+    with open(file_path, 'r', encoding='utf-8') as json_file:
+        try:
+            data = json.load(json_file)
+        except json.JSONDecodeError:
+            logging.error(f"Invalid JSON in file: {file_path}")
+            return
+    entry = _find_entry(data, source_path, title)
+    if entry is not None:
+        entry["keywords"] = list(new_keywords)
+        if source_path:
+            entry["sourcePath"] = source_path
+        entry["pageTitle"] = title
+    with open(file_path, 'w', encoding='utf-8') as json_file:
+        json.dump(data, json_file, indent=4, ensure_ascii=False)
+    logging.info(f"Replaced keywords for {title} in {family}.json")
+
+
 # Save data grouped by family to JSON file
 def save_family_to_json(family, data, output_dir):
     os.makedirs(output_dir, exist_ok=True)
@@ -270,9 +300,14 @@ def process_markdown_files_by_families(
         "detect from each file's real path" -- the normal, correct behavior.
         Kept only for the rare case a caller needs to force one platform.
     force: bypass skip-if-unchanged (Finding #51's fix) -- always call
-        Gemini even when an existing entry's title hasn't changed. Needed
-        for the one-time migration pass that corrects already-mislabeled
-        entries (see SEO-SCHEMA-A-WORKFLOW-UPDATE's Migration Plan).
+        Gemini even when an existing entry's title hasn't changed. When this
+        is what causes an existing entry to be re-processed (title genuinely
+        unchanged), the result REPLACES the entry's keywords (Finding #52 --
+        a real rename still unions, exactly as before). Useful for ad hoc
+        whole-family re-generation; the persistent migration mechanism (see
+        migrate_platform_labels.py / SEO-SCHEMA-A-WORKFLOW-UPDATE's Migration
+        Plan v2) is the primary way the 896 already-mislabeled entries get
+        corrected in production.
     max_calls: stop cleanly (not a failure) once this many real Gemini
         calls have been made this run, saving progress made so far. A
         proactive budget, independent of the reactive circuit breaker.
@@ -309,7 +344,8 @@ def process_markdown_files_by_families(
                     continue
 
                 existing = find_existing_entry(family, source_path, page_title, output_dir)
-                if existing is not None and not force and existing.get("pageTitle") == page_title:
+                title_unchanged = existing is not None and existing.get("pageTitle") == page_title
+                if title_unchanged and not force:
                     logging.info(f"Skipping (title unchanged): {page_title} (Family: {family})")
                     continue
 
@@ -329,7 +365,6 @@ def process_markdown_files_by_families(
                 calls_made += 1
 
                 if existing is not None:
-                    logging.info(f"Appending keywords: {page_title} (Family: {family})")
                     new_keywords = get_keywords_from_gemini(page_title, platform)
                     if new_keywords is None:
                         call_failure_count += 1
@@ -338,7 +373,17 @@ def process_markdown_files_by_families(
                         call_success_count += 1
                         consecutive_failures = 0
                         if new_keywords:
-                            append_keywords_to_existing(family, source_path, page_title, new_keywords, output_dir)
+                            if title_unchanged:
+                                # force=True got us here with an unchanged title -- a
+                                # genuine forced correction (e.g. Finding #50's platform
+                                # migration), not a rename. Replace, don't union: the
+                                # existing keywords are the known-wrong ones this call
+                                # exists to remove (Finding #52).
+                                logging.info(f"Replacing keywords (forced): {page_title} (Family: {family})")
+                                replace_keywords_for_entry(family, source_path, page_title, new_keywords, output_dir)
+                            else:
+                                logging.info(f"Appending keywords: {page_title} (Family: {family})")
+                                append_keywords_to_existing(family, source_path, page_title, new_keywords, output_dir)
                 else:
                     logging.info(f"Processing new title: {page_title} (Family: {family})")
                     keywords = get_keywords_from_gemini(page_title, platform)

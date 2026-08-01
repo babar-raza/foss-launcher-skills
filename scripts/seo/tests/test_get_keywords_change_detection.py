@@ -122,6 +122,51 @@ class TestSkipIfUnchanged:
         get_keywords.process_markdown_files_by_families(["tex"], str(tmp_path), str(output_dir), force=True)
         assert call_count["n"] == 1
 
+    def test_force_with_unchanged_title_replaces_not_unions(self, tmp_path, monkeypatch):
+        """Finding #52: --force with an unchanged title is a genuine forced
+        correction (e.g. the platform-mislabeling migration) -- the old,
+        known-wrong keywords must be GONE afterward, not unioned with the
+        new ones. Before the fix, this entry would have ended up with
+        {"old", "new"} -- a permanently contaminated mix."""
+        monkeypatch.setattr(get_keywords, "_REPO_ROOT", tmp_path)
+        family_dir = tmp_path / "tex"
+        family_dir.mkdir()
+        (family_dir / "page.md").write_text("---\ntitle: Same Title\n---\nBody\n", encoding="utf-8")
+        output_dir = tmp_path / "keywords"
+        output_dir.mkdir()
+        _write_family_json(output_dir, "tex", [
+            {"pageTitle": "Same Title", "sourcePath": _source_path(tmp_path, family_dir, "page.md"), "keywords": ["old"]}
+        ])
+
+        monkeypatch.setattr(get_keywords, "get_keywords_from_gemini", lambda title, platform="net": ["new"])
+
+        get_keywords.process_markdown_files_by_families(["tex"], str(tmp_path), str(output_dir), force=True)
+
+        data = json.loads((output_dir / "tex.json").read_text(encoding="utf-8"))
+        assert set(data[0]["keywords"]) == {"new"}, "old, known-wrong keywords must not survive a forced correction"
+
+    def test_force_with_genuine_title_change_still_unions(self, tmp_path, monkeypatch):
+        """Regression pin: force=True must not change the REAL-rename case --
+        a title that actually changed still unions, exactly as before
+        Finding #52's fix (accumulating keyword variety is correct there)."""
+        monkeypatch.setattr(get_keywords, "_REPO_ROOT", tmp_path)
+        family_dir = tmp_path / "tex"
+        family_dir.mkdir()
+        (family_dir / "page.md").write_text("---\ntitle: New Title\n---\nBody\n", encoding="utf-8")
+        output_dir = tmp_path / "keywords"
+        output_dir.mkdir()
+        _write_family_json(output_dir, "tex", [
+            {"pageTitle": "Old Title", "sourcePath": _source_path(tmp_path, family_dir, "page.md"), "keywords": ["old"]}
+        ])
+
+        monkeypatch.setattr(get_keywords, "get_keywords_from_gemini", lambda title, platform="net": ["new"])
+
+        get_keywords.process_markdown_files_by_families(["tex"], str(tmp_path), str(output_dir), force=True)
+
+        data = json.loads((output_dir / "tex.json").read_text(encoding="utf-8"))
+        assert data[0]["pageTitle"] == "New Title"
+        assert set(data[0]["keywords"]) == {"old", "new"}
+
 
 class TestMaxCallsBudget:
     def test_budget_stops_cleanly_without_systemexit(self, tmp_path, monkeypatch):

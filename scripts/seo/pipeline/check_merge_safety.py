@@ -26,6 +26,12 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 
 _ALLOWED_ENTRY_KEYS = {"pageTitle", "sourcePath", "keywords"}
 
+# SEO-SCHEMA-A-WORKFLOW-UPDATE Migration Plan v2: the one-time platform-label
+# migration persists its resumable progress in this single extra file. Gate 2
+# allows exactly this path alongside keywords/*.json -- not a broader glob --
+# so a run that touches anything else still fails the gate.
+_MIGRATION_STATE_FILE_PATH = "data/seo_schema_a_migration_state.json"
+
 
 def _git(args, repo_root):
     return subprocess.run(
@@ -52,8 +58,13 @@ def _load_at_ref(ref, rel_path, repo_root):
 
 
 def check_scope(changed_files):
-    """Gate 2: every changed path is keywords/*.json."""
-    offenders = [f for f in changed_files if not (f.startswith("keywords/") and f.endswith(".json"))]
+    """Gate 2: every changed path is keywords/*.json, or exactly the
+    migration state file (_MIGRATION_STATE_FILE_PATH)."""
+    offenders = [
+        f for f in changed_files
+        if not (f.startswith("keywords/") and f.endswith(".json"))
+        and f != _MIGRATION_STATE_FILE_PATH
+    ]
     return (not offenders), offenders
 
 
@@ -100,9 +111,15 @@ def run_checks(base_ref, repo_root=None):
     scope_ok, offenders = check_scope(changed)
     if not scope_ok:
         all_passed = False
-        messages.append(f"GATE 2 FAILED (scope): non-keywords/*.json path(s) changed: {offenders}")
+        messages.append(
+            f"GATE 2 FAILED (scope): path(s) outside keywords/*.json and "
+            f"{_MIGRATION_STATE_FILE_PATH} changed: {offenders}"
+        )
     else:
-        messages.append("GATE 2 passed: diff scoped exclusively to keywords/*.json")
+        messages.append(
+            f"GATE 2 passed: diff scoped exclusively to keywords/*.json "
+            f"(and/or {_MIGRATION_STATE_FILE_PATH})"
+        )
 
     # Gates 3/4 only meaningful for files that passed the scope gate.
     scoped_changed = [f for f in changed if f.startswith("keywords/") and f.endswith(".json")]

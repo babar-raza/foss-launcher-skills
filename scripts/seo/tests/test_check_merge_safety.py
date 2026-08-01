@@ -87,6 +87,53 @@ def test_fails_when_non_keywords_path_changed(tmp_path):
     assert any("GATE 2 FAILED" in m for m in messages)
 
 
+def test_passes_when_migration_state_file_changed_alongside_keywords(tmp_path):
+    """SEO-SCHEMA-A-WORKFLOW-UPDATE Migration Plan v2: the migration state
+    file is a deliberate, narrow exception to Gate 2 -- a run that updates
+    both keywords/*.json and exactly this one file must still pass."""
+    repo = _init_repo(tmp_path)
+    (repo / "keywords").mkdir()
+    (repo / "keywords" / "tex.json").write_text(json.dumps([]), encoding="utf-8")
+    (repo / "data").mkdir()
+    (repo / "data" / "seo_schema_a_migration_state.json").write_text(json.dumps({"families": {}}), encoding="utf-8")
+    _commit_all(repo, "base")
+    base_sha = _rev_parse_head(repo)
+
+    (repo / "keywords" / "tex.json").write_text(
+        json.dumps([{"pageTitle": "A", "keywords": ["x"]}]), encoding="utf-8"
+    )
+    (repo / "data" / "seo_schema_a_migration_state.json").write_text(
+        json.dumps({"families": {"tex": {"status": "done"}}}), encoding="utf-8"
+    )
+    _commit_all(repo, "migration progress")
+
+    passed, messages = check_merge_safety.run_checks(base_sha, repo_root=repo)
+    assert passed, messages
+
+
+def test_fails_when_a_different_non_keywords_path_changed_alongside_migration_state(tmp_path):
+    """The Gate 2 exception is exactly one path, not a broader allowance --
+    a run touching some OTHER non-keywords path must still fail, even if
+    the migration state file is also present in the diff."""
+    repo = _init_repo(tmp_path)
+    (repo / "keywords").mkdir()
+    (repo / "keywords" / "tex.json").write_text(json.dumps([]), encoding="utf-8")
+    (repo / "data").mkdir()
+    (repo / "data" / "seo_schema_a_migration_state.json").write_text(json.dumps({}), encoding="utf-8")
+    (repo / "scripts").mkdir()
+    (repo / "scripts" / "other.py").write_text("x = 1\n", encoding="utf-8")
+    _commit_all(repo, "base")
+    base_sha = _rev_parse_head(repo)
+
+    (repo / "data" / "seo_schema_a_migration_state.json").write_text(json.dumps({"a": 1}), encoding="utf-8")
+    (repo / "scripts" / "other.py").write_text("x = 2\n", encoding="utf-8")
+    _commit_all(repo, "migration state + unrelated script change")
+
+    passed, messages = check_merge_safety.run_checks(base_sha, repo_root=repo)
+    assert not passed
+    assert any("GATE 2 FAILED" in m for m in messages)
+
+
 def test_fails_on_unexpected_entry_keys(tmp_path):
     """Real failing case for Gate 3: reproduces the 2026-03-27 contamination
     shape (a stray 'tags' key) -- must not pass."""

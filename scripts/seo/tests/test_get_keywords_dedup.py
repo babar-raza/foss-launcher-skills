@@ -81,6 +81,32 @@ def test_append_keywords_updates_title_in_place_on_rename(tmp_path):
     assert data[0]["sourcePath"] == "content/kb.aspose.org/pdf/page.md"
 
 
+def test_replace_keywords_for_entry_overwrites_not_unions(tmp_path):
+    """Finding #52: replace_keywords_for_entry() exists specifically because
+    append_keywords_to_existing()'s union semantics are wrong for a forced
+    correction of a known-bad keyword set (e.g. the platform-mislabeling
+    migration) -- the old keywords must not survive."""
+    family_file = tmp_path / "pdf.json"
+    _write(family_file, [
+        {"pageTitle": "Same Title", "sourcePath": "content/kb.aspose.org/pdf/page.md", "keywords": ["wrong-platform-kw"]}
+    ])
+
+    get_keywords.replace_keywords_for_entry(
+        "pdf", "content/kb.aspose.org/pdf/page.md", "Same Title", ["correct-kw"], str(tmp_path)
+    )
+
+    data = json.loads(family_file.read_text(encoding="utf-8"))
+    assert len(data) == 1
+    assert data[0]["keywords"] == ["correct-kw"]
+    assert "wrong-platform-kw" not in data[0]["keywords"]
+    assert data[0]["sourcePath"] == "content/kb.aspose.org/pdf/page.md"
+
+
+def test_replace_keywords_for_entry_missing_file_is_a_noop(tmp_path):
+    get_keywords.replace_keywords_for_entry("nope", "content/x/y.md", "Title", ["kw"], str(tmp_path))
+    assert not (tmp_path / "nope.json").exists()
+
+
 def test_find_existing_entry_returns_none_for_new_page(tmp_path):
     family_file = tmp_path / "pdf.json"
     _write(family_file, [{"pageTitle": "Other Page", "sourcePath": "content/kb.aspose.org/pdf/other.md", "keywords": ["x"]}])
