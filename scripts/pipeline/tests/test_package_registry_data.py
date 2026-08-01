@@ -146,3 +146,18 @@ def test_cells_3d_pdf_use_org_aspose_groupid():
     for family in ("cells", "3d", "pdf"):
         entry = data[family]["java"]
         assert entry["candidate"]["group_id"] == "org.aspose"
+
+
+def test_slides_java_candidate_matches_live_verified_coordinate():
+    """Regression pin: TC-MT015-02's first migration draft copied slides/java's
+    *scouted* (provisional) coordinate (org.aspose.slides.foss:1.0.0) into
+    `candidate` instead of the real, live-verified *confirmed* one
+    (org.aspose:26.7.0, per TC-MT008-09) -- caught only by a real Hugo build
+    byte-parity check against the old foss_packages.json-backed shortcode
+    output, not by any shape test. This pins the correct value so the same
+    scouted/confirmed mix-up can't silently regress again."""
+    data = _load()
+    entry = data["slides"]["java"]
+    assert entry["candidate"]["group_id"] == "org.aspose"
+    assert entry["candidate"]["artifact_id"] == "aspose-slides-foss"
+    assert entry["candidate"]["version"] == "26.7.0"
