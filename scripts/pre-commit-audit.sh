@@ -1139,4 +1139,83 @@ else
 fi
 _pc_step_end "PASS"
 
+# ---------------------------------------------------------------------------
+_pc_step_start "stale file regression"
+# ---------------------------------------------------------------------------
+# Step 30 (2026-08-01): stale-file regression guard. Detects staged content
+# that silently reverts a MORE RECENT commit made by someone else since this
+# session began -- found live via TC-MT018-06's commit d2dce37de5, which
+# reverted an unrelated fetch_aspose_com_targets.py fix (and corrected
+# data/aspose_com_targets.json entries back to known-wrong values, e.g.
+# pdf/go's URL back to a 404) hours after it landed, with its own commit
+# message never mentioning either file. Every protection built in the
+# production concurrency redesign (session_identity.py, taskcard_store.py,
+# master_plan_index.py) guards governance METADATA or shared coordination
+# artifacts -- none of them ever inspected ordinary file CONTENT for
+# regression at commit time. This closes that gap.
+#
+# Scoped to non-content/ files: content/ already has extensive,
+# content-specific staleness/provenance/evidence protections (Steps 7, 20,
+# 22, 24 above); this targets the gap those don't cover -- code, data, and
+# governance files, exactly where the real incident happened.
+#
+# Requires session_ledger.py's base_commit_sha (the HEAD sha recorded at
+# init_session() time, added alongside this check) -- advisory (never
+# blocks) when unavailable, since this check's own infrastructure failing
+# must never itself block an unrelated commit. Deliberately a byte-exact
+# match against the pre-intervening-commit state, not a fuzzy heuristic: a
+# high-confidence, low-false-positive signal, not a guarantee against every
+# possible staleness mechanism (see the check's own module docstring for the
+# honest limits).
+#
+# Override: a genuinely intentional revert is a governed override_manager.py
+# token, same pattern as Step 21's grade-downgrade gate.
+# ---------------------------------------------------------------------------
+staged_non_content_files=()
+while IFS= read -r _sfline; do staged_non_content_files+=("$_sfline"); done < <(
+    git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -v '^content/' || true
+)
+if [ ${#staged_non_content_files[@]} -gt 0 ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_stale_file_regression.py" ]; then
+        _sfr_out=$(printf '%s\n' "${staged_non_content_files[@]}" | PYTHONPATH=scripts/pipeline \
+            "$_HOOK_PYTHON" scripts/ci/checks/check_stale_file_regression.py 2>&1)
+        _sfr_exit=$?
+        if [ $_sfr_exit -ne 0 ]; then
+            # File-name lines are exactly "  <path>" (2-space indent, then a
+            # non-space char); detail lines are 4-space indented -- this
+            # pattern captures only the former.
+            _sfr_files=$(printf '%s\n' "$_sfr_out" | sed -n 's/^  \([^ ].*\)$/\1/p')
+            _sfr_override_ok=1
+            if [ -z "$_sfr_files" ]; then
+                _sfr_override_ok=0
+            else
+                while IFS= read -r _sfr_f; do
+                    [ -z "$_sfr_f" ] && continue
+                    if ! "$_HOOK_PYTHON" scripts/pipeline/commands/governance/override_manager.py \
+                            validate-for-path "$_sfr_f" >/dev/null 2>&1; then
+                        _sfr_override_ok=0
+                        break
+                    fi
+                done <<< "$_sfr_files"
+            fi
+            if [ $_sfr_override_ok -eq 1 ]; then
+                echo "[Step 30] Stale-file regression permitted by pending override token(s)." >&2
+            else
+                echo "$_sfr_out" | sed 's/^/[Step 30] /'
+                echo "[Step 30] BLOCKED: staged content looks like a silent revert of a more" >&2
+                echo "[Step 30] recent commit. Re-read the current file and reapply your change" >&2
+                echo "[Step 30] on top of it, or if this revert is intentional, create a governed" >&2
+                echo "[Step 30]   override_manager.py create --paths <file> --reason '...' --plan '<plan>'" >&2
+                _pc_step_end "FAIL"
+                _pc_exit 1
+            fi
+        fi
+    else
+        echo "[Step 30] SKIP: .venv not found or check_stale_file_regression.py missing." >&2
+    fi
+else
+    echo "[Step 30] No staged non-content files — skipping."
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0

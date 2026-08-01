@@ -268,6 +268,33 @@ def _git_dirty_files() -> list[str]:
         return []
 
 
+def _git_head_sha() -> str | None:
+    """Return the current HEAD commit SHA, or None if it cannot be resolved.
+
+    Stale-file regression guard (2026-08-01, found live: TC-MT018-06's commit
+    d2dce37de5 silently reverted an unrelated fix to fetch_aspose_com_targets.py
+    committed by another session hours earlier -- byte-exact regression of
+    corrected data/aspose_com_targets.json entries back to known-wrong values,
+    with the reverting commit's own message never mentioning the file). This
+    is the missing reference point: without a recorded baseline, nothing can
+    ever ask "has this file changed on main since my session began, and does
+    my proposed content actually reflect that change?" -- see
+    check_stale_file_regression.py, which consumes this field.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True, text=True, cwd=str(_REPO_ROOT),
+            timeout=30,
+        )
+        if result.returncode != 0:
+            return None
+        sha = result.stdout.strip()
+        return sha or None
+    except (subprocess.SubprocessError, OSError):
+        return None
+
+
 # ---------------------------------------------------------------------------
 # Session I/O
 # ---------------------------------------------------------------------------
@@ -487,6 +514,7 @@ def init_session(session_id: str | None = None, force: bool = False) -> str:
             "started_at": _now_iso(),
             "stale_after_hours": _DEFAULT_STALE_AFTER_HOURS,
             "dirty_at_start": dirty,
+            "base_commit_sha": _git_head_sha(),
             "touched_files": {},
             "status": "active",
         }
@@ -703,6 +731,29 @@ def get_dirty_at_start(session_id: str | None = None) -> list[str]:
     if not manifest:
         return []
     return manifest.get("dirty_at_start", [])
+
+
+def get_base_commit_sha(session_id: str | None = None) -> str | None:
+    """Return the base_commit_sha recorded at init_session() time for the
+    given or resolved session, or None if unavailable (manifest predates
+    this field, or HEAD could not be resolved at init time).
+
+    Same read semantics as get_touched_files/get_dirty_at_start: explicit id
+    reads any status. Consumed by check_stale_file_regression.py to know
+    which commits on a candidate file happened DURING this session (i.e.,
+    after its own starting point) and therefore might have been silently
+    reverted by this session's proposed content.
+    """
+    if session_id:
+        manifest = _load_manifest(_session_path(session_id))
+    else:
+        resolved = _resolve_session(None)
+        if not resolved:
+            return None
+        manifest = _load_manifest(resolved[1])
+    if not manifest:
+        return None
+    return manifest.get("base_commit_sha")
 
 
 def get_candidates(

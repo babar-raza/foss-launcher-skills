@@ -208,6 +208,43 @@ class TestInitSession:
         manifest = json.loads((isolate_session_dir / "snap-test.json").read_text(encoding="utf-8"))
         assert manifest["dirty_at_start"] == ["file_a.md", "file_b.md"]
 
+    @patch.object(session_ledger, "_git_head_sha", return_value="abc1234567890abc1234567890abc1234567890")
+    def test_captures_base_commit_sha(self, mock_head, isolate_session_dir):
+        """Stale-file regression guard (2026-08-01): the manifest must record
+        the HEAD sha at session start -- the missing reference point that let
+        TC-MT018-06's commit silently revert an unrelated fix committed by
+        another session hours earlier."""
+        session_ledger.init_session("sha-test")
+        manifest = json.loads((isolate_session_dir / "sha-test.json").read_text(encoding="utf-8"))
+        assert manifest["base_commit_sha"] == "abc1234567890abc1234567890abc1234567890"
+
+    @patch.object(session_ledger, "_git_head_sha", return_value=None)
+    def test_base_commit_sha_none_when_unresolvable(self, mock_head, isolate_session_dir):
+        """HEAD unresolvable (e.g. a fresh repo with no commits yet) must not
+        crash init -- records None, not a placeholder that looks real."""
+        session_ledger.init_session("sha-none-test")
+        manifest = json.loads((isolate_session_dir / "sha-none-test.json").read_text(encoding="utf-8"))
+        assert manifest["base_commit_sha"] is None
+
+
+class TestGetBaseCommitSha:
+    @patch.object(session_ledger, "_git_head_sha", return_value="deadbeef" * 5)
+    def test_returns_recorded_sha_for_explicit_session(self, mock_head, isolate_session_dir):
+        session_ledger.init_session("sha-explicit-test")
+        assert session_ledger.get_base_commit_sha("sha-explicit-test") == "deadbeef" * 5
+
+    @patch.object(session_ledger, "_git_dirty_files", return_value=[])
+    @patch.object(session_ledger, "_git_head_sha", return_value="cafebabe" * 5)
+    def test_returns_recorded_sha_for_resolved_session(self, mock_head, mock_dirty, isolate_session_dir):
+        session_ledger.init_session("sha-resolved-test")
+        assert session_ledger.get_base_commit_sha() == "cafebabe" * 5
+
+    def test_returns_none_for_unknown_session(self, isolate_session_dir):
+        assert session_ledger.get_base_commit_sha("no-such-session") is None
+
+    def test_returns_none_when_no_active_session(self, isolate_session_dir):
+        assert session_ledger.get_base_commit_sha() is None
+
 
 # ---------------------------------------------------------------------------
 # record_file

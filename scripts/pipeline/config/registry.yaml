@@ -1758,7 +1758,13 @@ scripts:
     test_targets:
       - scripts/pipeline/tests/test_session_ledger.py
     deprecated_since: null
-    notes: "GOVERNANCE: session-scoped file touch ledger for /commit scoping"
+    notes: "GOVERNANCE: session-scoped file touch ledger for /commit scoping.
+      Manifest gained base_commit_sha (2026-08-01, stale-file regression guard):
+      the HEAD sha recorded at init_session() time, consumed by
+      scripts/ci/checks/check_stale_file_regression.py to detect a commit
+      silently reverting a more recent commit made by another session --
+      found live via TC-MT018-06's commit d2dce37de5, which reverted an
+      unrelated fetch_aspose_com_targets.py fix hours after it landed."
 
   - path: scripts/pipeline/commands/ops/report_extract.py
     kind: entrypoint
