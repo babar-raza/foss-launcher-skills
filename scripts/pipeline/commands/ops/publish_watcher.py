@@ -1,24 +1,31 @@
 """publish_watcher.py — Mission MT008 (plans/master-plan.md) D-03.
 
-For every Java-FOSS family/platform in data/foss_packages.json with published:false,
-independently verifies whether the scouted coordinate is now live on Maven Central --
-never inferred from a green release-workflow exit code (this repo's own history
-documents a workflow that can report success while the artifact silently sits in
-"Pending Validation": the waitUtil/waitUntil typo, see .claude/commands/foss-java-publish.md).
+For every Maven-registry family/platform in data/package_registry.json with
+verification.published:false, independently verifies whether the candidate
+coordinate is now live on Maven Central -- never inferred from a green
+release-workflow exit code (this repo's own history documents a workflow that
+can report success while the artifact silently sits in "Pending Validation":
+the waitUtil/waitUntil typo, see .claude/commands/foss-java-publish.md).
 
 This closes Finding F-05: S-110 (foss-java-publish)'s content-healing phase is
 manually triggered and was never run for 2 of 4 families. This script replaces
 "someone must remember" with a scheduled check (see .github/workflows/maven-publish-watcher.yml).
 
-Design note: does NOT auto-commit a state flip to data/foss_packages.json, and does
-NOT open a pull request. It detects and reports only -- a human reviews the finding
-(via a GitHub issue, following this repo's existing scripts/ci/checks/check_upstream_drift.py
+Design note: does NOT auto-commit a state flip to data/package_registry.json, and
+does NOT open a pull request. It detects and reports only -- a human reviews the
+finding (via a GitHub issue, following this repo's existing scripts/ci/checks/check_upstream_drift.py
 + .github/workflows/upstream-monitor.yml precedent) before the data file is ever
 touched. This is a deliberate adaptation of the mission plan's original "opens a PR"
 design: an issue requires zero git/branch/commit operations (strictly lower blast
 radius than a PR) while preserving the same human-review-before-landing guarantee,
 and matches this repo's own proven, already-working pattern instead of introducing a
 new one.
+
+MT015 update (2026-08-01): repointed from the retired data/foss_packages.json
+(Maven-only) to the unified data/package_registry.json (Mission
+MT015-2026-07-30-PACKAGE-REGISTRY) -- filters on registry_type=="maven" so this
+module's Maven-Central-specific live-check logic (maven-metadata.xml, not a
+generic JSON API) only ever runs against Maven entries in the now-shared file.
 
 CLI:
     PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.ops.publish_watcher
@@ -41,7 +48,7 @@ from typing import Any, Callable
 from xml.etree import ElementTree
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
-_DEFAULT_DATA_PATH = _DEFAULT_REPO_ROOT / "data" / "foss_packages.json"
+_DEFAULT_DATA_PATH = _DEFAULT_REPO_ROOT / "data" / "package_registry.json"
 DATA_PATH = _DEFAULT_DATA_PATH
 _LIVE_CHECKER: "Callable[[str, str], str | None] | None" = None
 
@@ -85,8 +92,8 @@ def check_unpublished_families(
     data: dict[str, Any],
     live_checker: Callable[[str, str], "str | None"] = default_live_checker,
 ) -> list[dict[str, Any]]:
-    """Return proposed state flips for every published:false entry whose scouted
-    coordinate now resolves live on Maven Central.
+    """Return proposed state flips for every Maven-registry, verification.published:false
+    entry whose candidate coordinate now resolves live on Maven Central.
 
     Pure detection -- never mutates `data`. INV-02 (plans/master-plan.md): the only
     signal that can produce a proposal is `live_checker`'s own return value, never a
@@ -97,10 +104,12 @@ def check_unpublished_families(
         if family.startswith("_"):
             continue
         for platform, entry in platforms.items():
-            if entry.get("published"):
+            if entry.get("registry_type") != "maven":
                 continue
-            scouted = entry.get("scouted") or {}
-            group_id, artifact_id = scouted.get("group_id"), scouted.get("artifact_id")
+            if entry.get("verification", {}).get("published"):
+                continue
+            candidate = entry.get("candidate") or {}
+            group_id, artifact_id = candidate.get("group_id"), candidate.get("artifact_id")
             if not group_id or not artifact_id:
                 continue
             live_version = live_checker(group_id, artifact_id)
@@ -125,15 +134,19 @@ def apply_proposal(data: dict[str, Any], proposal: dict[str, Any], *, checked_at
     """
     checked_at = checked_at or datetime.now(timezone.utc).date().isoformat()
     entry = data[proposal["family"]][proposal["platform"]]
-    entry["published"] = True
-    entry["confirmed"] = {
+    entry["candidate"] = {
         "group_id": proposal["group_id"],
         "artifact_id": proposal["artifact_id"],
         "version": proposal["version"],
     }
-    entry["confirmed_at"] = checked_at
-    entry["confirmed_evidence"] = f"publish-watcher live check, {checked_at}"
-    entry["central_url"] = proposal["central_url"]
+    entry["verification"] = {
+        **entry.get("verification", {}),
+        "published": True,
+        "verified_at": checked_at,
+        "evidence_url": proposal["central_url"],
+        "evidence_note": f"publish-watcher live check, {checked_at}",
+        "method": "maven-central-poll",
+    }
     return entry
 
 
@@ -145,17 +158,17 @@ def format_issue_body(proposals: list[dict[str, Any]]) -> str:
         "## Java-FOSS Package(s) Now Live on Maven Central",
         "",
         "The scheduled publish-watcher found that one or more Java-FOSS packages "
-        "previously marked `published: false` in `data/foss_packages.json` now "
-        "resolve live on Maven Central.",
+        "previously marked `verification.published: false` in `data/package_registry.json` "
+        "now resolve live on Maven Central.",
         "",
         "### Action Required",
         "1. Verify each finding below independently before applying it (this issue "
         "is a proposal, not an auto-applied change).",
-        "2. Update `data/foss_packages.json` for each confirmed family (see "
+        "2. Update `data/package_registry.json` for each confirmed family (see "
         "`publish_watcher.apply_proposal` for the exact shape).",
         "3. Re-run `/repo-scout {family} java` and `/truth-merge {family} java` to "
         "reconcile `knowledge/` with the newly-confirmed coordinate.",
-        "4. Run the full test suite (`scripts/pipeline/tests/test_foss_packages_data.py` "
+        "4. Run the full test suite (`scripts/pipeline/tests/test_package_registry_data.py` "
         "at minimum) before committing.",
         "",
         "### Findings",
@@ -173,7 +186,7 @@ def run_watch(*, live_checker: "Callable[[str, str], str | None] | None" = None)
     """Load DATA_PATH, check every unpublished entry, return proposals (if any).
 
     Does not write anything -- see module docstring for why the automatic path
-    never mutates data/foss_packages.json directly.
+    never mutates data/package_registry.json directly.
 
     `live_checker` defaults to None and is resolved INSIDE the function body
     (not as a bound default parameter value), falling back to a `configure()`-

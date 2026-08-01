@@ -1,12 +1,13 @@
 """
 Tests for commands/knowledge/index.py's _install_command / _java_install_command
-(Mission MT008, TC-MT008-03).
+(Mission MT008, TC-MT008-03; repointed to data/package_registry.json by Mission
+MT015-2026-07-30-PACKAGE-REGISTRY).
 
 Regression pin: for 3 months, the Java branch hardcoded `groupId=com.aspose`
 unconditionally -- always exercised in practice because promote.py strips
 `install_command` from merged/model.yaml (AF-03), so index.py's fallback path
 was the ONLY path for every Java-FOSS family's install command. Fixed to read
-data/foss_packages.json instead of hardcoding any groupId (including the
+the package-registry data file instead of hardcoding any groupId (including the
 correct one) -- see Mission MT008 D-04 in plans/master-plan.md: hardcoding
 `org.aspose` here would just be a different hardcode, not a fix to the
 duplicated-authority root cause.
@@ -28,20 +29,21 @@ import commands.knowledge.index as sut
 @pytest.fixture(autouse=True)
 def isolate_paths(tmp_path):
     """Each test gets a fresh temp knowledge_root/foss_packages_path."""
-    sut.configure(knowledge_root=tmp_path / "knowledge", foss_packages_path=tmp_path / "foss_packages.json")
+    sut.configure(knowledge_root=tmp_path / "knowledge", foss_packages_path=tmp_path / "package_registry.json")
     yield
     sut.configure(knowledge_root=None, foss_packages_path=None)
 
 
 def _write_packages(tmp_path: Path, data: dict) -> None:
-    (tmp_path / "foss_packages.json").write_text(json.dumps(data), encoding="utf-8")
+    (tmp_path / "package_registry.json").write_text(json.dumps(data), encoding="utf-8")
 
 
 def test_java_published_family_uses_confirmed_coordinate(tmp_path):
     _write_packages(tmp_path, {
         "cells": {"java": {
-            "published": True,
-            "confirmed": {"group_id": "org.aspose", "artifact_id": "aspose-cells-foss", "version": "26.5.0"},
+            "registry_type": "maven",
+            "candidate": {"group_id": "org.aspose", "artifact_id": "aspose-cells-foss", "version": "26.5.0"},
+            "verification": {"published": True},
         }}
     })
     result = sut._install_command("cells", "java")
@@ -53,7 +55,7 @@ def test_java_published_family_uses_confirmed_coordinate(tmp_path):
 
 def test_java_unpublished_family_never_fabricates_a_coordinate(tmp_path):
     _write_packages(tmp_path, {
-        "slides": {"java": {"published": False, "confirmed": None}}
+        "slides": {"java": {"registry_type": "maven", "candidate": None, "verification": {"published": False}}}
     })
     result = sut._install_command("slides", "java")
     assert "groupId" not in result
@@ -61,8 +63,11 @@ def test_java_unpublished_family_never_fabricates_a_coordinate(tmp_path):
 
 
 def test_java_missing_family_never_fabricates_a_coordinate(tmp_path):
-    _write_packages(tmp_path, {"cells": {"java": {"published": True, "confirmed": {
-        "group_id": "org.aspose", "artifact_id": "aspose-cells-foss", "version": "26.5.0"}}}})
+    _write_packages(tmp_path, {"cells": {"java": {
+        "registry_type": "maven",
+        "candidate": {"group_id": "org.aspose", "artifact_id": "aspose-cells-foss", "version": "26.5.0"},
+        "verification": {"published": True},
+    }}})
     result = sut._install_command("nonexistent-family", "java")
     assert "groupId" not in result
     assert "not yet published" in result

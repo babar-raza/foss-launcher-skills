@@ -11,7 +11,7 @@ from pathlib import Path
 
 _DEFAULT_KNOWLEDGE_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent / "knowledge"
 KNOWLEDGE_ROOT = _DEFAULT_KNOWLEDGE_ROOT
-_DEFAULT_FOSS_PACKAGES_PATH = Path(__file__).resolve().parent.parent.parent.parent.parent / "data" / "foss_packages.json"
+_DEFAULT_FOSS_PACKAGES_PATH = Path(__file__).resolve().parent.parent.parent.parent.parent / "data" / "package_registry.json"
 FOSS_PACKAGES_PATH = _DEFAULT_FOSS_PACKAGES_PATH
 
 
@@ -43,7 +43,7 @@ def compute_api_confidence(api_total: int, method_pct: float) -> str:
 
 
 def _java_install_command(family):
-    """Generate the Java Maven <dependency> block from data/foss_packages.json.
+    """Generate the Java Maven <dependency> block from data/package_registry.json.
 
     This is the ONLY source for the Java groupId/artifactId — never hardcoded.
     See plans/master-plan.md Mission MT008 (D-04): a hardcoded, wrong-groupId
@@ -51,17 +51,21 @@ def _java_install_command(family):
     from merged/model.yaml (AF-03), so this fallback fired for every Java-FOSS
     page. Returns a "not yet published" placeholder — never a coordinate — when
     no entry exists or the family isn't confirmed live on Maven Central.
+
+    MT015 update (2026-08-01): repointed from the retired data/foss_packages.json
+    to the unified data/package_registry.json; `entry["confirmed"]` -> single
+    `entry["candidate"]`, `entry["published"]` -> `entry["verification"]["published"]`.
     """
     try:
         packages = json.loads(FOSS_PACKAGES_PATH.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
-        return "<!-- Maven coordinate unavailable: data/foss_packages.json missing or invalid -->"
+        return "<!-- Maven coordinate unavailable: data/package_registry.json missing or invalid -->"
 
     entry = packages.get(family, {}).get("java")
-    if not entry or not entry.get("published") or not entry.get("confirmed"):
+    if not entry or not entry.get("verification", {}).get("published") or not entry.get("candidate"):
         return f"<!-- aspose-{family}-foss is not yet published on Maven Central -- build from source -->"
 
-    c = entry["confirmed"]
+    c = entry["candidate"]
     return (
         f"<dependency><groupId>{c['group_id']}</groupId>"
         f"<artifactId>{c['artifact_id']}</artifactId>"

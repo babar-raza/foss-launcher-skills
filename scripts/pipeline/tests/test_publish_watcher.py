@@ -24,20 +24,35 @@ import commands.ops.publish_watcher as sut
 def _fake_data():
     return {
         "cells": {"java": {
-            "scouted": {"group_id": "org.aspose", "artifact_id": "aspose-cells-foss", "version": "26.5.0"},
-            "published": True,
-            "confirmed": {"group_id": "org.aspose", "artifact_id": "aspose-cells-foss", "version": "26.5.0"},
-            "confirmed_at": "2026-07-24", "central_url": "https://repo1.maven.org/maven2/org/aspose/aspose-cells-foss/",
+            "registry_type": "maven",
+            "candidate": {"group_id": "org.aspose", "artifact_id": "aspose-cells-foss", "version": "26.5.0"},
+            "candidate_owner": "org.aspose",
+            "verification": {
+                "published": True, "verified_at": "2026-07-24", "verified_owner": None,
+                "evidence_url": "https://repo1.maven.org/maven2/org/aspose/aspose-cells-foss/",
+                "method": "migrated-from-foss_packages.json",
+            },
+            "owner_match": None,
         }},
         "slides": {"java": {
-            "scouted": {"group_id": "org.aspose.slides.foss", "artifact_id": "aspose-slides-foss", "version": "1.0.0"},
-            "published": False,
-            "confirmed": None, "confirmed_at": None, "central_url": None,
+            "registry_type": "maven",
+            "candidate": {"group_id": "org.aspose.slides.foss", "artifact_id": "aspose-slides-foss", "version": "1.0.0"},
+            "candidate_owner": "org.aspose",
+            "verification": {
+                "published": False, "verified_at": None, "verified_owner": None,
+                "evidence_url": None, "method": None,
+            },
+            "owner_match": None,
         }},
         "fictional": {"java": {
-            "scouted": {"group_id": "org.aspose", "artifact_id": "aspose-fictional-foss", "version": "1.0.0"},
-            "published": False,
-            "confirmed": None, "confirmed_at": None, "central_url": None,
+            "registry_type": "maven",
+            "candidate": {"group_id": "org.aspose", "artifact_id": "aspose-fictional-foss", "version": "1.0.0"},
+            "candidate_owner": "org.aspose",
+            "verification": {
+                "published": False, "verified_at": None, "verified_owner": None,
+                "evidence_url": None, "method": None,
+            },
+            "owner_match": None,
         }},
     }
 
@@ -66,8 +81,8 @@ def test_negative_fixture_a_family_that_never_resolves_stays_unpublished():
     proposals = sut.check_unpublished_families(data, live_checker=checker)
     assert proposals == []
     # data itself must be completely untouched -- check_unpublished_families is pure
-    assert data["slides"]["java"]["published"] is False
-    assert data["fictional"]["java"]["published"] is False
+    assert data["slides"]["java"]["verification"]["published"] is False
+    assert data["fictional"]["java"]["verification"]["published"] is False
 
 
 def test_already_published_families_are_never_rechecked():
@@ -106,16 +121,16 @@ def test_apply_proposal_flips_state_correctly():
         "version": "1.0.0", "central_url": "https://repo1.maven.org/maven2/org/aspose/slides/foss/aspose-slides-foss/",
     }
     entry = sut.apply_proposal(data, proposal, checked_at="2026-08-01")
-    assert entry["published"] is True
-    assert entry["confirmed"]["version"] == "1.0.0"
-    assert entry["confirmed_at"] == "2026-08-01"
-    assert data["slides"]["java"]["published"] is True  # mutated in place
+    assert entry["verification"]["published"] is True
+    assert entry["candidate"]["version"] == "1.0.0"
+    assert entry["verification"]["verified_at"] == "2026-08-01"
+    assert data["slides"]["java"]["verification"]["published"] is True  # mutated in place
 
 
 def test_apply_proposal_is_not_called_by_run_watch(tmp_path, monkeypatch):
     """Design invariant: the automatic scheduled path (run_watch) must never
-    write to data/foss_packages.json itself -- only detect and report."""
-    data_path = tmp_path / "foss_packages.json"
+    write to data/package_registry.json itself -- only detect and report."""
+    data_path = tmp_path / "package_registry.json"
     data_path.write_text(json.dumps(_fake_data()), encoding="utf-8")
     sut.configure(data_path=data_path)
     try:
@@ -133,14 +148,14 @@ def test_default_data_path_resolves_to_the_real_repo_root():
     not by any fixture-based test (fixtures inject their own tmp_path, which
     masked the bug). Assert the real default path lands inside this repo and
     matches the file that actually exists on disk."""
-    assert sut._DEFAULT_DATA_PATH.name == "foss_packages.json"
+    assert sut._DEFAULT_DATA_PATH.name == "package_registry.json"
     assert sut._DEFAULT_DATA_PATH.parent.name == "data"
     assert (sut._DEFAULT_DATA_PATH.parent.parent / ".git").is_dir(), (
         f"_DEFAULT_DATA_PATH's grandparent ({sut._DEFAULT_DATA_PATH.parent.parent}) "
         "should be the repo root (contains .git) -- if this fails, the parents[N] "
         "depth in publish_watcher.py has drifted again"
     )
-    assert sut._DEFAULT_DATA_PATH.is_file(), "the real data/foss_packages.json must actually exist at the computed default path"
+    assert sut._DEFAULT_DATA_PATH.is_file(), "the real data/package_registry.json must actually exist at the computed default path"
 
 
 def test_default_live_checker_handles_network_failure_gracefully():
@@ -162,7 +177,7 @@ def test_format_issue_body_includes_actionable_steps_and_findings():
 
 
 def test_cli_exit_code_reflects_findings(tmp_path, capsys):
-    data_path = tmp_path / "foss_packages.json"
+    data_path = tmp_path / "package_registry.json"
     data_path.write_text(json.dumps(_fake_data()), encoding="utf-8")
     try:
         sut.configure(data_path=data_path, live_checker=lambda g, a: None)
