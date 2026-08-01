@@ -516,11 +516,10 @@
           "redirect_chain": []
         },
         "cells/go": {
-          "url": "https://products.aspose.com/cells/go/",
+          "url": "https://products.aspose.com/cells/go-cpp/",
           "http_status": 200,
-          "redirect_chain": [
-            "https://products.aspose.com/cells/go/"
-          ]
+          "redirect_chain": [],
+          "validated_via": "manual-correction-2026-08-01-bundled-go-cpp-page"
         },
         "cells/java": {
           "url": "https://products.aspose.com/cells/java/",
@@ -573,9 +572,10 @@
           "redirect_chain": []
         },
         "pdf/go": {
-          "url": "https://products.aspose.com/pdf/go/",
-          "http_status": 404,
-          "redirect_chain": []
+          "url": "https://products.aspose.com/pdf/go-cpp/",
+          "http_status": 200,
+          "redirect_chain": [],
+          "validated_via": "manual-correction-2026-08-01-bundled-go-cpp-page"
         },
         "pdf/java": {
           "url": "https://products.aspose.com/pdf/java/",

@@ -241,15 +241,37 @@ def classify_url(url: str, subdomain: str) -> tuple[str, Optional[str], Optional
 
 # ── HTTP verification (§U HEAD → GET fallback) ──────────────────────────────
 
-def verify_url(url: str, session: requests.Session, max_retries: int = 3) -> tuple[int, list[str], str, int]:
+def _redirect_changed_path(requested_url: str, resolved_url: str) -> bool:
+    """True when a redirect landed on a materially different path -- not just
+    a scheme upgrade (http->https) or a trailing-slash addition. Used to catch
+    synthesized URLs that guessed a plausible-looking path which turned out to
+    redirect somewhere else entirely (e.g. a bundled platform product page)."""
+    req = urllib.parse.urlparse(requested_url)
+    res = urllib.parse.urlparse(resolved_url)
+    return req.path.rstrip("/") != res.path.rstrip("/")
+
+
+def verify_url(url: str, session: requests.Session, max_retries: int = 3) -> tuple[int, list[str], str, str, int]:
     """
-    Returns (final_http_status, redirect_chain, validated_via, retry_count).
+    Returns (final_http_status, redirect_chain, resolved_url, validated_via, retry_count).
+
+    resolved_url is the URL actually reached after following any redirects
+    (requests' resp.url) -- distinct from redirect_chain, which lists the
+    origin URL of each hop, not the destination. Without this, a redirect
+    that changes the URL PATH (not just scheme/trailing-slash) was silently
+    reported as "200, verified" against the ORIGINAL requested URL, which a
+    caller could not distinguish from a genuinely-canonical 200 (found live:
+    a synthesized products.aspose.com/cells/go/ URL 301s to the bundled
+    products.aspose.com/cells/go-cpp/ page; both requested and destination
+    URLs must be compared by the caller to catch this).
+
     Uses HEAD first; falls back to GET on 403/405/timeout/suspicious.
     """
     redirect_chain: list[str] = []
     retry_delays = [2, 4, 8]
     last_status = 0
     validated_via = "head"
+    resolved_url = url
 
     for attempt in range(max_retries):
         try:
@@ -257,9 +279,10 @@ def verify_url(url: str, session: requests.Session, max_retries: int = 3) -> tup
             for r in resp.history:
                 redirect_chain.append(r.url)
             last_status = resp.status_code
+            resolved_url = resp.url
             # HEAD succeeded with a usable status
             if last_status not in (403, 405, 0):
-                return last_status, redirect_chain, "head", attempt
+                return last_status, redirect_chain, resolved_url, "head", attempt
             # Fall through to GET
         except (Timeout, ConnError, RequestException):
             pass
@@ -274,15 +297,16 @@ def verify_url(url: str, session: requests.Session, max_retries: int = 3) -> tup
             _ = resp.raw.read(4096)
             resp.close()
             redirect_chain = redirect_chain_get
+            resolved_url = resp.url
             validated_via = "get"
-            return resp.status_code, redirect_chain, "get", attempt
+            return resp.status_code, redirect_chain, resolved_url, "get", attempt
         except (Timeout, ConnError, RequestException):
             pass
 
         if attempt < max_retries - 1:
             time.sleep(retry_delays[attempt])
 
-    return last_status, redirect_chain, validated_via, max_retries
+    return last_status, redirect_chain, resolved_url, validated_via, max_retries
 
 
 # ── Sitemap fetching ─────────────────────────────────────────────────────────
@@ -528,9 +552,9 @@ def build_target_map(
                 # _lookup_platform() checks http_status == 200, so unverified URLs
                 # will be rejected by the resolver and never injected into content.
                 # Storing 200 here was the root cause of the 2026-07-04 bad injection incident.
-                http_st, rchain, via, retries = -1, [], "skipped", 0
+                http_st, rchain, resolved, via, retries = -1, [], url, "skipped", 0
             else:
-                http_st, rchain, via, retries = verify_url(url, session)
+                http_st, rchain, resolved, via, retries = verify_url(url, session)
 
             if rchain:
                 redirects_seen += 1
@@ -538,8 +562,21 @@ def build_target_map(
                 excluded += 1
                 continue
 
+            final_url = url
+            if rchain and _redirect_changed_path(url, resolved):
+                # A synthesized guess redirected to a DIFFERENT path -- not a
+                # cosmetic scheme/trailing-slash normalization. Store the real
+                # destination instead of silently keeping the wrong guessed URL
+                # (found live: cells/go -> cells/go-cpp, a bundled platform page).
+                print(
+                    f"  NOTE: {url} redirects to a different path -- "
+                    f"using resolved target {resolved}",
+                    file=sys.stderr,
+                )
+                final_url = resolved
+
             entry = TargetEntry(
-                url=url,
+                url=final_url,
                 http_status=http_st,
                 redirect_chain=rchain,
                 validated_via=via,
@@ -549,7 +586,7 @@ def build_target_map(
                 family=family,
                 platform=platform,
             )
-            all_entries[url] = entry
+            all_entries[final_url] = entry
             included += 1
 
         sources.append({
@@ -616,9 +653,9 @@ def build_target_map(
                 # _lookup_platform() checks http_status == 200, so unverified URLs
                 # will be rejected by the resolver and never injected into content.
                 # Storing 200 here was the root cause of the 2026-07-04 bad injection incident.
-                http_st, rchain, via, retries = -1, [], "skipped", 0
+                http_st, rchain, resolved, via, retries = -1, [], norm, "skipped", 0
             else:
-                http_st, rchain, via, retries = verify_url(norm, session)
+                http_st, rchain, resolved, via, retries = verify_url(norm, session)
 
             if rchain:
                 redirects_seen += 1
@@ -627,8 +664,20 @@ def build_target_map(
                 excluded += 1
                 continue
 
+            final_url = norm
+            if rchain and _redirect_changed_path(norm, resolved):
+                # A sitemap-discovered URL still redirected to a materially
+                # different path (site restructure since the sitemap was
+                # cached, or a bundled platform page) -- store the real target.
+                print(
+                    f"  NOTE: {norm} redirects to a different path -- "
+                    f"using resolved target {resolved}",
+                    file=sys.stderr,
+                )
+                final_url = resolved
+
             entry = TargetEntry(
-                url=norm,
+                url=final_url,
                 http_status=http_st,
                 redirect_chain=rchain,
                 validated_via=via,
@@ -638,7 +687,7 @@ def build_target_map(
                 family=family,
                 platform=platform,
             )
-            all_entries[norm] = entry
+            all_entries[final_url] = entry
             included += 1
 
         sources.append({
