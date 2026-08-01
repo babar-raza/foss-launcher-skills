@@ -515,6 +515,13 @@
           "http_status": 200,
           "redirect_chain": []
         },
+        "cells/go": {
+          "url": "https://products.aspose.com/cells/go/",
+          "http_status": 200,
+          "redirect_chain": [
+            "https://products.aspose.com/cells/go/"
+          ]
+        },
         "cells/java": {
           "url": "https://products.aspose.com/cells/java/",
           "http_status": 200,
