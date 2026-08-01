@@ -43,6 +43,12 @@ fi
 # Determine repo root from script location (scripts/ci/hooks/ — three levels up)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+# Library source location, kept separate from REPO_ROOT: this is CODE
+# (scripts/pipeline/lib/session_identity.py), not repo CONTENT the test seam
+# below isolates against — it must always resolve from this script's real
+# on-disk location, never from CHECK_COMMIT_HOOK_ROOT_OVERRIDE's fake root
+# (which has no scripts/ tree at all).
+LIB_DIR="$(cd "$SCRIPT_DIR/../../pipeline/lib" && pwd)"
 
 # Test seam (HARDEN-A3/F8): the test suite points the governance-state lookups at
 # an isolated root so tests never read or mutate the LIVE repo's skill contexts
@@ -176,32 +182,48 @@ fi
 # own per-conversation identifier, inherited automatically into this
 # subprocess — unlike AGENT_SESSION_ID, which the caller must remember to
 # re-supply on every call since this harness's Bash tool does not persist
-# shell state across invocations). Matches skill_context.py's
-# _derive_session_id precedence exactly (a gap an independent verification
-# pass caught: the first version of this fallback here skipped
-# CODEX_THREAD_ID, silently mismatching skill_context.py's own order). An
-# earlier design used session_ledger.py's shared reports/session-state/ACTIVE
-# pointer file instead of CLAUDE_CODE_SESSION_ID; that was reverted after
-# live testing showed two independent processes could both read it as their
-# own identity. CLAUDE_CODE_SESSION_ID does not have that failure mode: it is
-# assigned per-conversation by the harness, not read from a file another
-# process could overwrite. `live()` below also now mirrors
-# skill_context.py's heartbeat (last_touched_at) staleness check, not just
-# started_at, for the same reason -- otherwise a context skill_context.py
-# itself still considers live (kept alive by real activity past the
-# original TTL) would read as dead here.
+# shell state across invocations). An earlier design used session_ledger.py's
+# shared reports/session-state/ACTIVE pointer file instead of
+# CLAUDE_CODE_SESSION_ID; that was reverted after live testing showed two
+# independent processes could both read it as their own identity.
+# CLAUDE_CODE_SESSION_ID does not have that failure mode: it is assigned
+# per-conversation by the harness, not read from a file another process
+# could overwrite. `live()` below also now mirrors skill_context.py's
+# heartbeat (last_touched_at) staleness check, not just started_at, for the
+# same reason -- otherwise a context skill_context.py itself still considers
+# live (kept alive by real activity past the original TTL) would read as
+# dead here.
+#
+# Production concurrency redesign (2026-08-01), Step 2: the precedence chain
+# itself (explicit > AGENT_SESSION_ID > CODEX_THREAD_ID > CLAUDE_CODE_SESSION_ID)
+# now imports scripts/pipeline/lib/session_identity.py directly instead of
+# reimplementing it inline a third time -- this file's own history is the
+# reason why: the first version of this fallback skipped CODEX_THREAD_ID,
+# silently mismatching skill_context.py's order, caught only by a later
+# independent-verification pass. A shared import can't drift the way a
+# hand-copied precedence chain can. resolve_sanitized() (not resolve()) is
+# used because active/{id}.json filenames are written with the SANITIZED id
+# (see skill_context.py's _session_file) -- an unsanitized raw id here would
+# silently fail to match its own file for any identity containing characters
+# sanitize() strips (latent pre-existing gap, fixed as part of this
+# consolidation since it's the same root cause).
 # ---------------------------------------------------------------------------
 
 VERDICT=$("$PYTHON" -c "
-import json, os, re, sys
+import json, re, sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 repo = Path(sys.argv[1])
 command = sys.argv[2]
+lib_dir = sys.argv[3]
 ctx_dir = repo / 'reports' / 'skill-context'
 active_file = ctx_dir / 'ACTIVE.json'
 active_dir = ctx_dir / 'active'
+
+if lib_dir not in sys.path:
+    sys.path.insert(0, lib_dir)
+import session_identity
 
 def load(p):
     try:
@@ -228,12 +250,8 @@ def is_s76(rec):
     return bool(rec) and rec.get('skill_id') == 'S-76' and live(rec)
 
 m = re.search(r'(?:^|[\s;&|(])AGENT_SESSION_ID=([A-Za-z0-9_.-]+)', command)
-sid = (
-    (m.group(1) if m else '')
-    or os.environ.get('AGENT_SESSION_ID', '').strip()
-    or os.environ.get('CODEX_THREAD_ID', '').strip()
-    or os.environ.get('CLAUDE_CODE_SESSION_ID', '').strip()
-)
+inline_sid = m.group(1) if m else None
+sid = session_identity.resolve_sanitized(explicit=inline_sid) or ''
 
 if sid:
     if is_s76(load(active_dir / (sid + '.json'))):
@@ -259,7 +277,7 @@ elif not holders:
     print('BLOCK:no live S-76 context')
 else:
     print('BLOCK:AMBIGUOUS — multiple live S-76 contexts (' + ', '.join(holders) + '); rerun as AGENT_SESSION_ID=<yours> git commit ...')
-" "$REPO_ROOT" "$COMMAND" 2>/dev/null) || VERDICT=""
+" "$REPO_ROOT" "$COMMAND" "$LIB_DIR" 2>/dev/null) || VERDICT=""
 
 if [ "$VERDICT" = "ALLOW" ]; then
     exit 0

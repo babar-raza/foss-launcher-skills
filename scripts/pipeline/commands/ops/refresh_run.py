@@ -17,7 +17,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 import re
 import subprocess
 import sys
@@ -36,6 +35,7 @@ _LIB_DIR = str(_PIPELINE_ROOT / "lib")
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 
+import session_identity  # noqa: E402
 from advisory_lock import FileLock, LockTimeout  # noqa: E402
 from core.fs import atomic_write, atomic_write_bytes  # noqa: E402
 from lib.schema_validators import (  # noqa: E402
@@ -118,18 +118,21 @@ def _safe_token(value: str, label: str) -> str:
 
 
 def _session_id(explicit: str | None = None) -> str:
-    value = (
-        explicit
-        or os.environ.get("AGENT_SESSION_ID", "").strip()
-        or os.environ.get("CODEX_THREAD_ID", "").strip()
-    )
+    # Production concurrency redesign (2026-08-01), Step 2: was the weakest of
+    # 4 duplicate identity-resolution copies -- no CLAUDE_CODE_SESSION_ID
+    # fallback, so every call from a harness session with no explicit
+    # --session-id/AGENT_SESSION_ID/CODEX_THREAD_ID hard-errored. Delegates to
+    # the shared module (see lib/session_identity.py for full precedence
+    # rationale) for both resolution and sanitization; _safe_token below still
+    # applies this module's own stricter policy (must start alnum, <=128
+    # chars, no "..") on top of session_identity's generic sanitize().
+    value = session_identity.resolve_sanitized(explicit)
     if not value:
         raise RefreshRunError(
             "A stable session identity is required: pass --session-id or set "
-            "AGENT_SESSION_ID/CODEX_THREAD_ID"
+            "AGENT_SESSION_ID/CODEX_THREAD_ID/CLAUDE_CODE_SESSION_ID"
         )
-    cleaned = "".join(c if (c.isalnum() or c in "-_") else "-" for c in value)[:64]
-    return _safe_token(cleaned, "session_id")
+    return _safe_token(value, "session_id")
 
 
 def _run_root(family: str, platform: str, run_id: str) -> Path:

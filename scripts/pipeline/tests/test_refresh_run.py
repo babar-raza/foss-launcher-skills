@@ -256,6 +256,12 @@ def _isolate(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     )
     monkeypatch.delenv("AGENT_SESSION_ID", raising=False)
     monkeypatch.delenv("CODEX_THREAD_ID", raising=False)
+    # CLAUDE_CODE_SESSION_ID is set by the real harness running this very test
+    # suite (production concurrency redesign, 2026-08-01, Step 2 added it as a
+    # third _session_id fallback tier) -- must be cleared here too or
+    # test_start_requires_stable_session_identity below silently passes for
+    # the wrong reason only when run inside an actual Claude Code session.
+    monkeypatch.delenv("CLAUDE_CODE_SESSION_ID", raising=False)
     refresh_run.configure(
         repo_root=tmp_path,
         command_runner=_runner,
@@ -302,6 +308,30 @@ def test_codex_thread_identity_is_accepted(monkeypatch: pytest.MonkeyPatch):
         "pdf", "net", mode="upstream", run_id="RUN-CODEX"
     )
     assert manifest["session_owner"] == "codex-thread-1"
+
+
+def test_claude_code_session_id_identity_is_accepted(monkeypatch: pytest.MonkeyPatch):
+    """Step 2 of the production concurrency redesign (2026-08-01): previously
+    the weakest of 4 duplicate identity-resolution copies -- this was the
+    only one that hard-errored instead of falling back to the harness's own
+    per-conversation id. Now routed through lib/session_identity.py, matching
+    skill_context.py's precedence exactly."""
+    monkeypatch.setenv("CLAUDE_CODE_SESSION_ID", "conv-uuid-1")
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-CLAUDE"
+    )
+    assert manifest["session_owner"] == "conv-uuid-1"
+
+
+def test_agent_session_id_takes_precedence_over_claude_code_session_id(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    monkeypatch.setenv("AGENT_SESSION_ID", "agent-sess")
+    monkeypatch.setenv("CLAUDE_CODE_SESSION_ID", "conv-uuid-1")
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-PRECEDENCE"
+    )
+    assert manifest["session_owner"] == "agent-sess"
 
 
 def test_remediation_requires_scope_manifest():

@@ -42,9 +42,15 @@ otherwise. Always exits 0 — this is a best-effort lookup, never a gate.
 from __future__ import annotations
 
 import json
-import os
 import sys
 from pathlib import Path
+
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent  # scripts/ci/hooks -> repo root
+_LIB_DIR = _REPO_ROOT / "scripts" / "pipeline" / "lib"
+if str(_LIB_DIR) not in sys.path:
+    sys.path.insert(0, str(_LIB_DIR))
+
+import session_identity  # noqa: E402 (production concurrency redesign, 2026-08-01, Step 2)
 
 
 def _load(p: Path) -> dict | None:
@@ -62,11 +68,11 @@ def resolve_attribution(ctx_dir: Path) -> tuple[str, str] | None:
     active_file = ctx_dir / "ACTIVE.json"
     active_dir = ctx_dir / "active"
 
-    sid = (
-        os.environ.get("AGENT_SESSION_ID", "").strip()
-        or os.environ.get("CODEX_THREAD_ID", "").strip()
-        or os.environ.get("CLAUDE_CODE_SESSION_ID", "").strip()
-    )
+    # Sanitized: skill_context.py._derive_session_id sanitizes before using the
+    # id as the active/{id}.json filename stem (see that module's _session_file),
+    # so lookups here must sanitize identically or a raw id with characters the
+    # writer stripped would never match its own file.
+    sid = session_identity.resolve_sanitized() or ""
     rec = _load(active_dir / f"{sid}.json") if sid else None
     if rec is None:
         legacy = _load(active_file)
