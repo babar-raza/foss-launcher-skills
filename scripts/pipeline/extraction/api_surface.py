@@ -1794,6 +1794,170 @@ def _mark_package_init_exports(classes: list[dict], source_files: list[Path]) ->
             entry["exported_via_package_init"] = True
 
 
+_PY_RELATIVE_IMPORT_RE = re.compile(
+    r"^\s*from\s+(\.+)([\w.]*)\s+import\s+([^\n(]+)$", re.MULTILINE
+)
+
+
+def _resolve_python_shim_collisions(
+    classes: list[dict], source_files: list[Path], repo: Path
+) -> list[dict]:
+    """Drop same-name Python class duplicates that are abandoned top-level
+    compatibility shims shadowed by a real submodule implementation, or
+    an unreferenced duplicate sitting alongside a confirmed-public sibling.
+
+    Upstream packages sometimes leave a thin placeholder file at the
+    package root (``formats/FbxLoadOptions.py``) after moving the real
+    implementation into a per-format submodule
+    (``formats/fbx/FbxLoadOptions.py``), without deleting the old file.
+    Both are picked up as distinct classes by file-based extraction, and
+    ``consolidate_classes`` treats differing ``canonical_namespace``
+    values as genuinely different types (correct in general — this pass
+    only removes duplicates it can positively resolve, before that
+    generic logic runs).
+
+    Two ordered signals, both deliberately conservative — a group is
+    only narrowed to zero when there is positive evidence of curation
+    that omits every candidate — a real, intentional same-name-
+    different-module pattern exists in this codebase (e.g. pdf/python's
+    ``Document`` + a separate ``generated/Document`` compatibility-shim
+    *class*, HARDEN-py-canonical-namespace/MT013) and must not be
+    mistaken for dead code just because no ``__init__.py`` curates the
+    package's exports:
+      1. Base-class presence: a class with zero bases next to a
+         same-name class with real bases is almost always the abandoned
+         placeholder — discard it.
+      2. Package-init reachability: if bases don't disambiguate, keep
+         only the entry whose defining file is actually the source of a
+         ``from <path> import <Name>`` statement in some ``__init__.py``
+         — but only when exactly one candidate is reachable.
+      3. Whole-group drop: if none are reachable, only discard the
+         entire group when EVERY candidate's own directory has a real,
+         non-private ``__init__.py`` that had the chance to export it
+         and didn't (e.g. all Token/TokenType duplicates sit in
+         formats/fbx/, whose ``__init__.py`` curates other classes but
+         never these). If even one candidate's directory has no
+         ``__init__.py`` to check, that is an absence of evidence, not
+         evidence of absence — leave the group untouched.
+
+    If no signal cleanly resolves a group, it is left untouched for
+    ``consolidate_classes``'s existing "different namespace, keep both"
+    handling and downstream batch_reference disambiguation.
+    """
+    from collections import Counter, defaultdict
+
+    name_counts = Counter(c.get("name", "") for c in classes)
+    dup_names = {n for n, cnt in name_counts.items() if cnt > 1 and n}
+    if not dup_names:
+        return list(classes)
+
+    # Build the reachability set: (imported name, resolved module file
+    # relative to repo, POSIX-style) for every "from <relpath> import
+    # <Name>" statement found in any non-private __init__.py. Also track
+    # which directories have a real (non-private) __init__.py at all —
+    # a package that demonstrably curates its exports there is much
+    # stronger evidence than a package with no __init__.py to check.
+    reachable: set[tuple[str, str]] = set()
+    governed_dirs: set[str] = set()
+    for src_file in source_files:
+        if src_file.name != "__init__.py":
+            continue
+        if any(p.startswith("_") and not p.startswith("__") for p in src_file.parts):
+            continue
+        try:
+            governed_dirs.add(str(src_file.parent.relative_to(repo)).replace("\\", "/"))
+        except ValueError:
+            pass
+        try:
+            content = src_file.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for dots, modpath, names_part in _PY_RELATIVE_IMPORT_RE.findall(content):
+            if not modpath:
+                continue  # "from . import X" — not a specific module file
+            base_dir = src_file.parent
+            for _ in range(len(dots) - 1):
+                base_dir = base_dir.parent
+            target = base_dir.joinpath(*modpath.split(".")).with_suffix(".py")
+            try:
+                target_rel = str(target.relative_to(repo)).replace("\\", "/")
+            except ValueError:
+                continue
+            for raw_name in names_part.split(","):
+                imported_name = raw_name.strip().split(" as ")[0].strip()
+                if imported_name:
+                    reachable.add((imported_name, target_rel))
+
+    groups: dict[str, list[int]] = defaultdict(list)
+    for i, c in enumerate(classes):
+        n = c.get("name", "")
+        if n in dup_names:
+            groups[n].append(i)
+
+    discard: set[int] = set()
+    for name, indices in groups.items():
+        if len(indices) < 2:
+            continue
+        entries = [(i, classes[i]) for i in indices]
+
+        with_bases = [i for i, e in entries if e.get("bases")]
+        without_bases = [i for i, e in entries if not e.get("bases")]
+        if with_bases and without_bases:
+            for i in without_bases:
+                discard.add(i)
+            LOG.info(
+                "PY-SHIM: %s — discarded %d baseless shim(s) (kept %s)",
+                name, len(without_bases),
+                ", ".join(classes[j].get("file", "") for j in with_bases),
+            )
+            continue
+
+        reachable_idx = [i for i, e in entries if (name, e.get("file", "")) in reachable]
+        if len(reachable_idx) == 1:
+            for i in indices:
+                if i not in reachable_idx:
+                    discard.add(i)
+            LOG.info(
+                "PY-SHIM: %s — kept reachable %s, discarded %d unreachable duplicate(s)",
+                name, classes[reachable_idx[0]].get("file", ""), len(indices) - 1,
+            )
+            continue
+
+        if not reachable_idx:
+            # Zero reachable is only meaningful when EVERY entry's own
+            # directory has a real, curating __init__.py that had the
+            # chance to export it and didn't — e.g. all Token/TokenType
+            # duplicates sit in formats/fbx/, which has a real __init__.py
+            # that imports other classes but never these. A package with
+            # NO __init__.py to check (namespace package, or genuinely
+            # distinct same-name classes users import directly from their
+            # own submodule — the documented pdf/python Document +
+            # generated/Document compat-shim pattern) gives no such
+            # evidence and must not be treated as dead code by default.
+            entry_dirs = {
+                str(Path(e.get("file", "")).parent).replace("\\", "/")
+                for _, e in entries
+            }
+            if entry_dirs and entry_dirs.issubset(governed_dirs):
+                for i in indices:
+                    discard.add(i)
+                LOG.warning(
+                    "PY-SHIM: %s — none of %d duplicate(s) reachable, and every "
+                    "containing package has a curating __init__.py that omits "
+                    "them; treating as internal, discarding all: %s",
+                    name, len(indices),
+                    ", ".join(classes[i].get("file", "") for i in indices),
+                )
+        # else (>1 reachable, or 0 reachable without full __init__.py
+        # coverage): not a confident signal either way — leave the group
+        # untouched for consolidate_classes' existing different-namespace
+        # handling and downstream disambiguation.
+
+    if not discard:
+        return list(classes)
+    return [c for i, c in enumerate(classes) if i not in discard]
+
+
 def extract_api_surface(
     parser,
     language: str,
@@ -2546,6 +2710,12 @@ def extract_api_surface(
     # relocate them into their owning struct/enum/trait entries.
     if language == "rust":
         classes = _associate_rust_impl_methods(classes)
+
+    # Drop abandoned top-level compatibility shims and unreferenced
+    # internal duplicates before the generic different-namespace-keeps-both
+    # consolidation logic runs (see _resolve_python_shim_collisions).
+    if language == "python":
+        classes = _resolve_python_shim_collisions(classes, files, repo)
 
     # Consolidate partial classes, deduplicate enums, disambiguate same-name
     # types in different namespaces.  Must run BEFORE _flatten_inheritance so

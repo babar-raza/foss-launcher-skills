@@ -155,7 +155,20 @@ def _write_evidence_to_frontmatter(filepath, evidence_dict) -> bool:
         # Merge apis: preserve metadata-derived apis (e.g. from batch_reference.py)
         # when code-token extraction yields nothing. Both sources are valid —
         # metadata-derived (class members) and code-extracted (token scan).
+        # Mirrors the claims prune above: an existing api reference whose base
+        # class no longer exists in the current knowledge model is dropped
+        # rather than carried forward forever (found live on 3d/python's
+        # reference _index.md after Token/TokenType were removed from
+        # api_surface.json — the old union-only merge kept citing them
+        # indefinitely since nothing ever re-derives them to trigger a
+        # natural drop).
+        valid_api_class_names = evidence_dict.pop("_valid_api_class_names", None)
         existing_apis = _extract_existing_apis(fm_text)
+        if valid_api_class_names is not None:
+            existing_apis = [
+                a for a in existing_apis
+                if a.split(".", 1)[0] in valid_api_class_names
+            ]
         merged_apis = sorted(set(
             existing_apis + list(evidence_dict.get("apis", []))
         ))
@@ -191,10 +204,10 @@ def _write_evidence_to_frontmatter(filepath, evidence_dict) -> bool:
                 "source file and retry."
             )
         # Genuinely no frontmatter — prepend a minimal one containing only evidence.
-        # Pop _valid_claim_ids first (mirrors the pop in the matched branch above,
-        # line ~141) — it is an internal validation set, never meant to be
-        # serialized into the file itself.
+        # Pop the internal validation sets first (mirrors the pops in the matched
+        # branch above) — they are never meant to be serialized into the file itself.
         evidence_dict.pop("_valid_claim_ids", None)
+        evidence_dict.pop("_valid_api_class_names", None)
         evidence_yaml = _build_evidence_yaml(evidence_dict)
         new_text = f"---\n{evidence_yaml}---\n\n{text}"
 

@@ -312,6 +312,67 @@ def test_existing_claims_pruned_when_not_in_current_knowledge():
     assert "_valid_claim_ids" not in result
 
 
+def test_existing_apis_pruned_when_class_removed_from_current_knowledge():
+    """Stale evidence apis must not survive forever (found live on 3d/python's
+    reference _index.md: Token/TokenType kept citing a removed class because
+    the pre-fix merge was a plain union with no validity check, unlike claims
+    which already had one via _valid_claim_ids)."""
+    original = textwrap.dedent("""\
+        ---
+        title: Page
+        evidence:
+          model_sha: old_sha
+          model_version: '1.0'
+          claims: []
+          apis:
+          - Token
+          - Token.type
+          - KeepMe
+        ---
+
+        Body.
+    """)
+    result = _apply_evidence(original, {
+        "model_sha": "new_sha",
+        "model_version": "1.1",
+        "claims": [],
+        "apis": ["NewClass"],
+        "_valid_api_class_names": {"KeepMe", "NewClass"},
+    })
+
+    assert "KeepMe" in result
+    assert "NewClass" in result
+    assert "- Token\n" not in result
+    assert "Token.type" not in result
+    assert "_valid_api_class_names" not in result
+
+
+def test_apis_not_pruned_when_no_valid_set_supplied():
+    """Backward compatibility: omitting _valid_api_class_names keeps the old
+    union-only behaviour (e.g. callers that never populate knowledge.classes)."""
+    original = textwrap.dedent("""\
+        ---
+        title: Page
+        evidence:
+          model_sha: old_sha
+          model_version: '1.0'
+          claims: []
+          apis:
+          - SomeClass
+        ---
+
+        Body.
+    """)
+    result = _apply_evidence(original, {
+        "model_sha": "new_sha",
+        "model_version": "1.1",
+        "claims": [],
+        "apis": [],
+    })
+
+    assert "SomeClass" in result
+
+
 def test_idempotent_on_second_run():
     """Running writer twice must not duplicate the evidence block."""
     original = textwrap.dedent("""\

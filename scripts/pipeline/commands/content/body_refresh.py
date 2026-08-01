@@ -987,6 +987,26 @@ def _select_strategy(impact_section: dict, change: dict) -> str:
     return UT_REWRITE
 
 
+def _shift_section_lines(sec: dict, line_offset: int) -> dict:
+    """Return sec with its "lines" range shifted by line_offset.
+
+    RPR-LINE-DRIFT-001: sec["lines"] is computed once, upfront, by
+    claim_parser.py against a page's ORIGINAL (pre-edit) content. When
+    multiple sections on the same page are updated in sequence, each
+    applied edit changes the page's total line count — every section
+    processed after it needs its stale, pre-edit line numbers shifted by
+    the cumulative delta, or it slices the wrong lines (see UT_REWRITE in
+    _apply_section_update). A zero offset or a section with no "lines"
+    key is returned unchanged (no-op, no copy).
+    """
+    if not line_offset or not sec.get("lines"):
+        return sec
+    return {**sec, "lines": [
+        sec["lines"][0] + line_offset,
+        sec["lines"][1] + line_offset,
+    ]}
+
+
 def _apply_section_update(
     page_content: str,
     impact_section: dict,
@@ -1037,6 +1057,18 @@ def _apply_section_update(
         section_text = "".join(lines[start: end + 1])
         new_section = _paragraph_rewrite(section_text, change, context)
         if new_section != section_text:
+            # RPR-LINE-DRIFT-001 (part 2): lines[] entries all carry their
+            # trailing newline (splitlines(keepends=True)), so the splice
+            # below assumes new_section does too. The LLM branch of
+            # _paragraph_rewrite returns result.data.strip() — stripping the
+            # trailing newline along with incidental whitespace — so without
+            # this guard the next line (often the following heading) gets
+            # glued directly onto the rewritten text with no separator at
+            # all (found live: "### Scene GraphAll 3D content is
+            # organized..."). The deterministic fallback already ends its
+            # note with "\n" so this is a no-op on that path.
+            if new_section and not new_section.endswith("\n"):
+                new_section += "\n"
             new_body = "".join(lines[:start]) + new_section + "".join(lines[end + 1:])
             new_content = fm + new_body
             return new_content, strategy
@@ -1544,11 +1576,25 @@ def run(
         surface = _surface_for_page(page_path)  # RPR-E-04
         page_fallback_reason = "NONE"  # RPR-E-05: worst fallback reason seen on this page
 
+        # RPR-LINE-DRIFT-001: sec["lines"] for every section in
+        # actionable_sections was computed once, upfront, by claim_parser.py
+        # against the page's ORIGINAL (pre-edit) content. UT_REWRITE slices
+        # new_content using those same absolute line numbers — but earlier
+        # sections in this loop may already have inserted/removed lines,
+        # shifting every later section's true position. Left uncorrected,
+        # a later UT_REWRITE slices the WRONG lines, often landing inside an
+        # unrelated code block and corrupting its fence structure (found live
+        # on 3d/python's developer-guide/features.md: 5 sequential changes on
+        # one page produced 5 compounding mid-fence insertions). Track the
+        # cumulative line-count delta from each applied edit and shift every
+        # subsequent section's line range by it before use.
+        line_offset = 0
         for sec in actionable_sections:
             sec_id = sec.get("section_id", "")
             if sec_id in _PROTECTED_SECTION_IDS:
                 sections_preserved.append(sec_id)
                 continue
+            sec = _shift_section_lines(sec, line_offset)
 
             # RPR-E-04: enforce the per-surface strategy policy BEFORE applying.
             # A strategy disallowed for this surface (e.g. an LLM PARAGRAPH_REWRITE
@@ -1587,6 +1633,7 @@ def run(
                 if sec_reason and sec_reason != "NONE" and page_fallback_reason == "NONE":
                     page_fallback_reason = sec_reason
                 if updated != new_content:
+                    line_offset += len(updated.splitlines()) - len(new_content.splitlines())
                     new_content = updated
                     strategies_used.append(strategy)
                     sections_changed.append(sec_id)

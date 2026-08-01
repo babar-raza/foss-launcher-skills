@@ -820,6 +820,57 @@ def test_api_added_fallback_idempotent_with_stale_line_range(tmp_path):
     assert receipts[0]["verdict"] == br.VD_NO_SECTIONS
 
 
+def test_shift_section_lines_applies_cumulative_offset():
+    """RPR-LINE-DRIFT-001: sec["lines"] is computed once, upfront, against a
+    page's ORIGINAL content. When an earlier section's edit changes the
+    page's line count, every later section's stale line range must be
+    shifted by that delta before it's used to slice the (now different)
+    content -- proven directly here against real drifted content: the
+    unshifted range lands on section 1's own newly-added note text plus
+    only the next heading (losing section 2's sentence entirely), while
+    the shifted range correctly recovers section 2 intact.
+    """
+    page_content = (
+        "---\ntitle: Test\n---\n\n"
+        "## First\n\nFirst text mentions OldSymbolA.\n\n"
+        "## Second\n\nSecond text mentions OldSymbolB.\n"
+    )
+    after_first_edit = (
+        "---\ntitle: Test\n---\n\n## First\n\nFirst text mentions OldSymbolA.\n\n"
+        "The `SymbolA` API surface has changed in the current source model; "
+        "review its reference page before relying on older member details.\n"
+        "## Second\n\nSecond text mentions OldSymbolB.\n"
+    )
+    line_offset = (
+        len(after_first_edit.splitlines()) - len(page_content.splitlines())
+    )
+    assert line_offset > 0, "the note insertion must add at least one line"
+
+    sec_second = {"section_id": "second", "lines": [8, 10]}
+
+    # sec_second["lines"] is unchanged by a zero offset (no drift yet).
+    assert br._shift_section_lines(sec_second, 0) is sec_second
+
+    shifted = br._shift_section_lines(sec_second, line_offset)
+    assert shifted["lines"] == [8 + line_offset, 10 + line_offset]
+
+    fm_line_count = 3
+    body_lines = after_first_edit.splitlines(keepends=True)[fm_line_count:]
+
+    stale_start, stale_end = 8 - fm_line_count, 10 - fm_line_count
+    stale_slice = "".join(body_lines[stale_start: stale_end + 1])
+    assert "Second text mentions OldSymbolB." not in stale_slice, (
+        "sanity check: the unshifted range must reproduce the bug (missing "
+        "section 2's own text) so this test would fail if the drift "
+        "scenario itself stopped reproducing"
+    )
+
+    adj_start = shifted["lines"][0] - fm_line_count
+    adj_end = shifted["lines"][1] - fm_line_count
+    adjusted_slice = "".join(body_lines[adj_start: adj_end + 1])
+    assert adjusted_slice == "## Second\n\nSecond text mentions OldSymbolB.\n"
+
+
 def test_duplicate_api_refresh_notes_collapsed(tmp_path):
     """Execute pass collapses repeated deterministic API notes."""
     page_content = (
@@ -953,6 +1004,60 @@ def test_see_also_section_never_removed(tmp_path):
     else:
         # Nothing written (protected) — also acceptable
         pass
+
+
+def test_llm_output_missing_trailing_newline_does_not_glue_next_heading(tmp_path):
+    """RPR-LINE-DRIFT-001 (part 2) regression: _paragraph_rewrite's LLM branch
+    returns result.data.strip(), which strips the rewritten section's
+    trailing newline. lines[] entries all carry their own trailing newline
+    (splitlines(keepends=True)), so splicing a newline-less new_section
+    directly against the next line glues it onto whatever follows -- found
+    live as "### Scene GraphAll 3D content is organized..." (heading fused
+    to body prose with zero separation).
+    """
+    page_content = (
+        "---\ntitle: Test\n---\n\n"
+        "## Overview\n\nUse `OldAPI` to process files.\n\n"
+        "## Next Section\n\nUnrelated following content.\n"
+    )
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
+
+    class StrippedLLM:
+        class MockResult:
+            # No trailing newline -- mirrors what .strip() produces in
+            # production regardless of what the raw model output contained.
+            data = "Use `NewAPI` to process files."
+        def call_chat(self, *a, **kw):
+            return self.MockResult()
+        def __init__(self):
+            pass
+
+    writes: list[tuple] = []
+    br.configure(
+        safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True,
+        llm_router_class=StrippedLLM,
+    )
+
+    change = _make_change("CHG-001", "OldAPI", "API_RENAMED")
+    change["new_symbol"] = "NewAPI"
+    impact = _make_impact(str(page), "CHG-001", "overview", br.UT_REWRITE)
+    # end=7 deliberately includes the trailing blank line inside the
+    # section slice, so lines[end+1:] starts directly at "## Next Section"
+    # with no blank-line buffer -- the exact shape that exposes a missing
+    # trailing newline on new_section as a glued heading.
+    impact["affected_sections"][0]["lines"] = [4, 7]
+    _setup_reports(tmp_path, "pdf", "net", [impact], [change])
+
+    receipts = _run("pdf", "net", execute=True)
+    assert receipts[0]["verdict"] == br.VD_UPDATED
+    result = writes[0][1]
+
+    assert "Use `NewAPI` to process files." in result
+    assert "\n## Next Section\n" in result, (
+        "the next heading must remain on its own line, not fused onto the "
+        "rewritten section's last line"
+    )
+    assert "## Next SectionUnrelated" not in result
 
 
 def test_low_confidence_change_not_applied(tmp_path):

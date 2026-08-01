@@ -1570,9 +1570,29 @@ def apply_run(manifest: dict[str, Any]) -> dict[str, Any]:
             manifest=manifest,
         )
     if reference_scope:
+        # Two-step regeneration rule (mandatory when removed_apis > 0):
+        # an --update-only pass only regenerates pages for classes in
+        # modified_apis, so reference pages for OTHER, unmodified classes
+        # can retain phantom members that were only removed as a
+        # side-effect of the deleted classes (proven on pdf/java
+        # Rectangle.md, 2026-06-12). Prior to this fix, only
+        # mode=="remediation" ever triggered --rebuild-all; a plain
+        # upstream/combined refresh with real removals silently skipped
+        # it (found live during 3D-PYTHON-REFRESH-001, 2026-08-01).
+        removed_apis_count = 0
+        delta_path = (
+            _repo_root / "knowledge" / family / platform / "merged" / "knowledge_delta.json"
+        )
+        if delta_path.is_file():
+            try:
+                removed_apis_count = len(
+                    json.loads(delta_path.read_text(encoding="utf-8")).get("removed_apis") or []
+                )
+            except (OSError, ValueError):
+                removed_apis_count = 0
         reference_mode = (
             ["--rebuild-all", "--confirm-rebuild"]
-            if manifest["mode"] == "remediation"
+            if manifest["mode"] == "remediation" or removed_apis_count > 0
             else ["--update"]
         )
         _assert_pinned_scope(manifest)
