@@ -47,16 +47,38 @@ Usage (CLI):
 Usage (Python import):
   from session_ledger import init_session, record_file, get_candidates, get_current_session_id
 
-Session identity (HARDEN-A2 / ST-021, 2026-07-22):
+Session identity (HARDEN-A2 / ST-021, 2026-07-22; extended 2026-08-01):
   Multiple sessions may be active concurrently. Identity resolution order for every
-  operation: explicit --session-id / session_id kwarg > AGENT_SESSION_ID env var
-  (honored when that manifest exists) > directory scan. If the scan finds MORE THAN
-  ONE live active session, the operation fails loudly (exit 3) instead of silently
+  operation: explicit --session-id / session_id kwarg > AGENT_SESSION_ID env var >
+  CODEX_THREAD_ID env var > CLAUDE_CODE_SESSION_ID env var (honored when that
+  manifest exists) > directory scan, via scripts/pipeline/lib/session_identity.py
+  (the same module skill_context.py/refresh_run.py/skill_context_attribution.py/
+  check_commit_bash_hook.sh already delegate to). If the scan finds MORE THAN ONE
+  live active session, the operation fails loudly (exit 3) instead of silently
   picking one — the exact silent-pick that produced the PDF-GO/PDF-NET-REFRESH-001
   provenance corruption. init no longer closes other sessions; close requires
   naming the session explicitly. Manifests older than their stale_after_hours
   (default 8h of no writes) are flipped to status="stale" — excluded from
   resolution, never deleted, reactivated automatically if written to again.
+
+  Production concurrency redesign (2026-08-01), Step 3: init_session's default-id
+  generation (when called with no explicit id) now also prefers
+  session_identity.resolve() over a fresh random id. This closes a reproduced bug,
+  not just an ergonomics gap: without it, a single real session that calls init
+  twice without consistently re-supplying an explicit id (the same
+  Bash-doesn't-persist-exported-env-vars gap Steps 1-2 fixed for 4 other
+  consumers -- e.g. a retried /session-start) silently fragments into two
+  unrelated manifests, and the next unqualified call then hits
+  AmbiguousSessionError between two ids belonging to the SAME real session. With
+  CLAUDE_CODE_SESSION_ID wired into init's default path, the second init call
+  resolves to the SAME id as the first and hits the existing F6 guard (loud,
+  named ValueError pointing at the live manifest) instead of silently minting a
+  second one. Accepted, bounded tradeoff (matching skill_context.py's own
+  precedent): sibling subagents of one conversation share CLAUDE_CODE_SESSION_ID,
+  so ordinary record_file/adopt calls with no explicit id from a sibling land in
+  the SAME manifest as the parent's -- init-time collision is guarded (F6), but
+  ongoing merges are not and are by design; any resulting candidate list is still
+  surfaced for review by S-76's commit-plan preview before anything stages.
 
 Exit codes:
   0  Success
@@ -68,7 +90,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import secrets
 import subprocess
 import sys
@@ -81,6 +102,7 @@ _LIB_DIR = str(_PIPELINE_ROOT / "lib")
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 
+import session_identity  # noqa: E402
 from advisory_lock import FileLock, LockTimeout  # noqa: E402
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
@@ -370,13 +392,15 @@ def _sweep_stale() -> list[str]:
 
 
 def _resolve_session(session_id: str | None = None) -> tuple[str, Path] | None:
-    """Resolve the session an operation targets (HARDEN-A2).
+    """Resolve the session an operation targets (HARDEN-A2; extended Step 3,
+    2026-08-01).
 
-    Escalation: explicit session_id > AGENT_SESSION_ID env (if its manifest
-    exists and is not closed) > stale sweep + scan. A scan finding exactly one
-    active session uses it (the common single-session case, unchanged); zero
-    returns None; two or more raises AmbiguousSessionError instead of silently
-    picking one.
+    Escalation: explicit session_id > AGENT_SESSION_ID env > CODEX_THREAD_ID
+    env > CLAUDE_CODE_SESSION_ID env (via session_identity.resolve(); honored
+    when that manifest exists and is not closed) > stale sweep + scan. A scan
+    finding exactly one active session uses it (the common single-session
+    case, unchanged); zero returns None; two or more raises
+    AmbiguousSessionError instead of silently picking one.
     """
     if session_id:
         p = _session_path(session_id)
@@ -385,7 +409,7 @@ def _resolve_session(session_id: str | None = None) -> tuple[str, Path] | None:
             return None
         return session_id, p
 
-    env_id = os.environ.get(_ENV_SESSION_ID, "").strip()
+    env_id = session_identity.resolve()
     if env_id:
         p = _session_path(env_id)
         m = _load_manifest(p)
@@ -440,7 +464,12 @@ def init_session(session_id: str | None = None, force: bool = False) -> str:
     Returns the session ID.
     """
     if session_id is None:
-        session_id = _generate_session_id()
+        # Step 3 (2026-08-01): prefer the caller's resolvable identity over a
+        # fresh random id -- closes the self-fragmentation bug described in
+        # the module docstring (a single real session calling init twice
+        # would otherwise silently mint two unrelated manifests instead of
+        # hitting the F6 guard below on the second call).
+        session_id = session_identity.resolve() or _generate_session_id()
 
     path = _session_path(session_id)
     with _manifest_lock(path):
@@ -1345,9 +1374,9 @@ def cmd_diagnose(args: argparse.Namespace) -> int:
                 age_h = 0.0
             if age_h <= _stale_ttl_hours(m):
                 live.append(m.get("session_id", f.stem))
-    env_id = os.environ.get(_ENV_SESSION_ID, "").strip()
+    env_id = session_identity.resolve()
     if env_id:
-        print(f"{_ENV_SESSION_ID}: {env_id}")
+        print(f"Resolved caller identity: {env_id}")
     if len(live) > 1:
         print(f"Resolution:      AMBIGUOUS — {len(live)} live sessions: " + ", ".join(sorted(live)))
         print(f"                 Operations require --session-id or {_ENV_SESSION_ID}.")

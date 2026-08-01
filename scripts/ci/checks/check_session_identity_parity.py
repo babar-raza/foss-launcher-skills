@@ -30,11 +30,12 @@ catch logic split across two files that only together implement the 3-tier chain
 It catches the actual failure mode this repo hit in production: a single file
 hand-copying the whole chain inline.
 
-A file that mentions fewer than all 3 names (e.g. session_ledger.py, which as of
-this check only implements a 2-tier explicit>AGENT_SESSION_ID scheme -- see Step 3
-of the redesign plan, an explicit pending decision, not a silent gap) is not a
-match for this heuristic and is not flagged. Widening that check is Step 3's job,
-not this one's.
+A file that mentions fewer than all 3 names is not a match for this heuristic
+and is not flagged -- e.g. a file implementing only a 1- or 2-tier scheme by
+deliberate, documented choice (not a silent gap this check should catch).
+session_ledger.py was such a case (explicit>AGENT_SESSION_ID only) until Step 3
+of the redesign plan (2026-08-01) widened it to the full chain via
+session_identity.py, closing a reproduced self-fragmentation bug.
 
 Exit codes:
   0 — no un-migrated duplicates found

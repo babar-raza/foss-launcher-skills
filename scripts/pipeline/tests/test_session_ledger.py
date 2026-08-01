@@ -20,8 +20,15 @@ def isolate_session_dir(tmp_path, monkeypatch):
 
     Also clears AGENT_SESSION_ID so a developer/agent shell exporting its own
     session identity (the HARDEN-A2 convention) cannot leak into these tests.
+    CODEX_THREAD_ID/CLAUDE_CODE_SESSION_ID (Step 3, 2026-08-01: session_ledger.py
+    now delegates to session_identity.resolve(), which checks both) must be
+    cleared too — CLAUDE_CODE_SESSION_ID in particular is set by the real
+    harness running this very test suite and would otherwise silently change
+    behavior only when run inside an actual Claude Code session.
     """
     monkeypatch.delenv("AGENT_SESSION_ID", raising=False)
+    monkeypatch.delenv("CODEX_THREAD_ID", raising=False)
+    monkeypatch.delenv("CLAUDE_CODE_SESSION_ID", raising=False)
     session_ledger.configure(repo_root=tmp_path)
     yield tmp_path / "reports" / "session-state"
     session_ledger.configure()  # reset to defaults
@@ -957,6 +964,85 @@ class TestSessionIsolationA2:
         monkeypatch.setenv("AGENT_SESSION_ID", "session-ghost")
         assert session_ledger.record_file("content/x.md", "created") is True
         assert "content/x.md" in session_ledger.get_touched_files("session-real")
+
+    # -- Step 3 (production concurrency redesign, 2026-08-01): delegation to
+    # session_identity.py adds CODEX_THREAD_ID and CLAUDE_CODE_SESSION_ID as
+    # additional resolution tiers below AGENT_SESSION_ID. --------------------
+
+    def test_codex_thread_id_resolves_identity(self, isolate_session_dir, monkeypatch):
+        session_ledger.init_session("session-a")
+        session_ledger.init_session("session-b")
+        monkeypatch.setenv("CODEX_THREAD_ID", "session-b")
+        assert session_ledger.record_file("content/via-codex.md", "created") is True
+        assert "content/via-codex.md" in session_ledger.get_touched_files("session-b")
+        assert "content/via-codex.md" not in session_ledger.get_touched_files("session-a")
+
+    def test_claude_code_session_id_resolves_identity(self, isolate_session_dir, monkeypatch):
+        session_ledger.init_session("session-a")
+        session_ledger.init_session("session-b")
+        monkeypatch.setenv("CLAUDE_CODE_SESSION_ID", "session-b")
+        assert session_ledger.record_file("content/via-claude.md", "created") is True
+        assert "content/via-claude.md" in session_ledger.get_touched_files("session-b")
+        assert "content/via-claude.md" not in session_ledger.get_touched_files("session-a")
+
+    def test_agent_session_id_takes_precedence_over_claude_code_session_id(
+        self, isolate_session_dir, monkeypatch
+    ):
+        session_ledger.init_session("session-a")
+        session_ledger.init_session("session-b")
+        monkeypatch.setenv("AGENT_SESSION_ID", "session-a")
+        monkeypatch.setenv("CLAUDE_CODE_SESSION_ID", "session-b")
+        assert session_ledger.record_file("content/precedence.md", "created") is True
+        assert "content/precedence.md" in session_ledger.get_touched_files("session-a")
+        assert "content/precedence.md" not in session_ledger.get_touched_files("session-b")
+
+    def test_init_default_id_prefers_resolvable_identity_over_random(
+        self, isolate_session_dir, monkeypatch
+    ):
+        """init_session(None) with a resolvable identity uses it verbatim,
+        instead of minting an unrelated random id -- the ergonomic half of
+        the Step 3 fix (a caller that never learns/passes back its own
+        random id can still find its own manifest on the next call)."""
+        monkeypatch.setenv("CLAUDE_CODE_SESSION_ID", "conv-uuid-1")
+        sid = session_ledger.init_session(None)
+        assert sid == "conv-uuid-1"
+
+    def test_init_default_id_falls_back_to_random_with_no_identity(
+        self, isolate_session_dir
+    ):
+        """No explicit id, no resolvable env identity -> unchanged legacy
+        behavior (a fresh random id, not a crash or empty string)."""
+        sid = session_ledger.init_session(None)
+        assert sid  # non-empty
+        assert sid != "conv-uuid-1"
+
+    def test_repeated_init_with_shared_identity_hits_f6_guard_not_silent_fragmentation(
+        self, isolate_session_dir, monkeypatch
+    ):
+        """The bug this step actually closes (reproduced live before the fix
+        shipped): a single real session calling init_session(None) twice
+        under a shared resolvable identity (e.g. two Bash calls in one
+        Claude Code conversation, or two sibling subagents) must hit the
+        EXISTING F6 guard on the second call -- a named ValueError pointing
+        at the live manifest -- rather than silently minting a second,
+        unrelated manifest that later surfaces as a false-positive
+        AmbiguousSessionError between two ids belonging to the same session."""
+        monkeypatch.setenv("CLAUDE_CODE_SESSION_ID", "conv-shared-uuid")
+        sid1 = session_ledger.init_session(None)
+        session_ledger.record_file("content/first.md", "created", session_id=sid1)
+
+        with pytest.raises(ValueError, match="already has an ACTIVE manifest"):
+            session_ledger.init_session(None)
+
+        # The guard refused the second init -- the ORIGINAL manifest (and its
+        # already-recorded touch) must be untouched, not partially wiped.
+        touched = session_ledger.get_touched_files("conv-shared-uuid")
+        assert "content/first.md" in touched
+
+        # And a subsequent unqualified call resolves cleanly to the one real
+        # manifest -- no AmbiguousSessionError, unlike the unpatched bug.
+        assert session_ledger.record_file("content/second.md", "created") is True
+        assert "content/second.md" in session_ledger.get_touched_files("conv-shared-uuid")
 
     def test_stale_session_swept_and_excluded(self, isolate_session_dir):
         """An idle-beyond-TTL session is flipped to stale (not deleted) and no
