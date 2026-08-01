@@ -10,7 +10,17 @@ Close this task cleanly.
    - If this mission already has a file: amend `plans/missions/{mission_id}.md` in place.
    - If this is a new mission with no file yet: create `plans/missions/{mission_id}.md`.
    - Either way, update (or add) this mission's one row in `plans/master-plan.md`'s index
-     table to reflect its current status.
+     table to reflect its current status. Do this through
+     `scripts/pipeline/lib/master_plan_index.py`'s `upsert_mission_row()` (lock-guarded
+     read-modify-write), NOT a direct hand-edit of the index file — a bare edit can lose
+     a concurrent session's update to a DIFFERENT mission's row (both read the file,
+     both write back, whichever writes second silently erases the other's row). Example:
+     ```
+     PYTHONPATH=scripts/pipeline .venv/Scripts/python -c "
+     from lib.master_plan_index import upsert_mission_row
+     upsert_mission_row('plans/master-plan.md', '<mission_id>',
+                         'plans/missions/<mission_id>.md', '**CLOSED**')"
+     ```
    Record in the mission's own file:
    - what was completed
    - what changed

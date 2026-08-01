@@ -1938,6 +1938,31 @@ scripts:
       same task_id. update_taskcard_status() refuses (TaskcardCASError) rather
       than silently overwriting when a caller's expected_status is stale."
 
+  - path: scripts/pipeline/lib/master_plan_index.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_master_plan_index.py
+    requires_test: true
+    deprecated_since: null
+    notes: "GOVERNANCE: production concurrency redesign (2026-08-01), Step 8 --
+      FileLock-guarded upsert for plans/master-plan.md's mission index table.
+      Closes a gap Step 6's split itself introduced: every mission close now
+      requires updating that mission's one row in the shared index (a routine
+      operation, not the rare hardening pass Step 8 originally targeted) --
+      without a lock, two sessions closing two different missions at once can
+      lose one update to a last-write-wins race. Deliberately FileLock, not a
+      TTL/heartbeat lock (the shape originally proposed): upserting one row is
+      a quick single-process read-modify-write, never held across multiple
+      agent tool calls."
+
   - path: scripts/pipeline/commands/governance/skill_context.py
     kind: library
     lifecycle: active
