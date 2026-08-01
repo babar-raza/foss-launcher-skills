@@ -282,6 +282,96 @@ class TestNamingConventionOwner:
         assert naming_convention_owner("vcpkg") is None
 
 
+def _minimal_entry(*, registry_type="pypi", name="aspose-x-foss", published=False,
+                    identity_basis=None, evidence_note=None):
+    return {
+        "registry_type": registry_type,
+        "candidate": {"name": name},
+        "candidate_owner": "asposefoss",
+        "verification": {
+            "published": published,
+            "verified_at": None,
+            "verified_owner": None,
+            "evidence_url": None,
+            "evidence_note": evidence_note,
+            "method": None,
+            "identity_basis": identity_basis,
+        },
+        "owner_match": None,
+    }
+
+
+class TestIdentityBasisValidation:
+    """Mission MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE: identity_basis
+    schema field + the rule that a published:true entry with no 'foss'
+    substring in its candidate name must be corroborated, not accepted on
+    name alone."""
+
+    def test_unknown_identity_basis_value_rejected(self):
+        entry = _minimal_entry(identity_basis="just-guessed")
+        errors = validate_package_entry(entry)
+        assert any("identity_basis" in e for e in errors)
+
+    def test_null_identity_basis_is_valid_when_unpublished(self):
+        entry = _minimal_entry(published=False, identity_basis=None)
+        assert validate_package_entry(entry) == []
+
+    def test_foss_substring_name_needs_no_corroboration(self):
+        """candidate.name already contains 'foss' -- any identity_basis
+        (including manifest-extracted) is fine, no evidence_note required."""
+        entry = _minimal_entry(name="aspose-x-foss", published=True, identity_basis="manifest-extracted")
+        assert validate_package_entry(entry) == []
+
+    def test_non_foss_name_published_true_requires_corroborated_basis(self):
+        """Real case: PyPI's aspose-note (no 'foss') published:true must
+        carry identity_basis='corroborated-non-convention-match', not
+        'foss-convention-match' or anything else."""
+        entry = _minimal_entry(
+            name="aspose-note", published=True, identity_basis="foss-convention-match",
+            evidence_note="some note",
+        )
+        errors = validate_package_entry(entry)
+        assert any("corroborated-non-convention-match" in e for e in errors)
+
+    def test_non_foss_name_corroborated_basis_requires_evidence_note(self):
+        entry = _minimal_entry(
+            name="aspose-note", published=True, identity_basis="corroborated-non-convention-match",
+            evidence_note=None,
+        )
+        errors = validate_package_entry(entry)
+        assert any("evidence_note" in e for e in errors)
+
+    def test_non_foss_name_corroborated_basis_with_evidence_note_passes(self):
+        entry = _minimal_entry(
+            name="aspose-note", published=True, identity_basis="corroborated-non-convention-match",
+            evidence_note="project_urls matches github.com/aspose-note-foss/... exactly",
+        )
+        assert validate_package_entry(entry) == []
+
+    def test_maven_and_go_modules_are_exempt_from_the_flat_name_check(self):
+        """maven (groupId/artifactId) and go_modules (fully-qualified module
+        path) have their own structured identity and are not subject to the
+        flat candidate.name foss-substring check."""
+        maven_entry = {
+            "registry_type": "maven",
+            "candidate": {"group_id": "org.aspose", "artifact_id": "aspose-note"},
+            "candidate_owner": "org.aspose",
+            "verification": {
+                "published": True, "verified_at": "2026-01-01", "verified_owner": None,
+                "evidence_url": "u", "evidence_note": None, "method": "m", "identity_basis": None,
+            },
+            "owner_match": None,
+        }
+        assert validate_package_entry(maven_entry) == []
+
+    def test_existing_7_registry_entries_all_pass_with_new_rule(self):
+        """Regression pin: adding identity_basis validation must not break
+        any of the 7 already-committed, already-verified entries."""
+        data = _load()
+        errors = validate_package_registry(data)
+        assert errors == []
+
+
 def test_slides_java_candidate_matches_live_verified_coordinate():
     """Regression pin: TC-MT015-02's first migration draft copied slides/java's
     *scouted* (provisional) coordinate (org.aspose.slides.foss:1.0.0) into

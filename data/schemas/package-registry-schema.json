@@ -100,6 +100,11 @@
               "type": "integer",
               "minimum": 0,
               "description": "Debounce counter -- a watcher must not flip published:false->true until this reaches 2, to avoid flapping on transient API errors."
+            },
+            "identity_basis": {
+              "type": ["string", "null"],
+              "enum": [null, "manifest-extracted", "foss-convention-match", "corroborated-non-convention-match"],
+              "description": "Mission MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE: how this candidate was confirmed to be the genuine FOSS package, not decided ad hoc. 'manifest-extracted': read directly from the product's own Cargo.toml/pyproject.toml/package.json (mandatory fields, high confidence). 'foss-convention-match': the candidate name itself contains 'foss' in some form. 'corroborated-non-convention-match': the name has no 'foss' substring, but the registry's own project_url/homepage exactly matches the product's known FOSS GitHub org/repo (e.g. PyPI's `aspose-note`, confirmed via project_urls pointing to github.com/aspose-note-foss/...). Null only when verification.published is false and no live check has ever been attempted. A published:true entry with a non-foss-substring candidate.name MUST carry 'corroborated-non-convention-match' with a non-null evidence_note explaining the corroboration -- never silently accepted on name alone."
             }
           }
         },

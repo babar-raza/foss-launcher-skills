@@ -37,6 +37,12 @@ _CANDIDATE_REQUIRED_FIELD = {
 
 _ENTRY_REQUIRED_FIELDS = ("registry_type", "candidate", "candidate_owner", "verification", "owner_match")
 _VERIFICATION_REQUIRED_FIELDS = ("published", "verified_at", "verified_owner", "evidence_url", "method")
+_IDENTITY_BASIS_VALUES = (None, "manifest-extracted", "foss-convention-match", "corroborated-non-convention-match")
+# Registries with a flat `candidate.name` field -- the ones the foss-substring
+# rule applies to directly. maven/go_modules have their own structured
+# identity (groupId/artifactId; a fully-qualified module path) and are not
+# subject to this specific check.
+_FLAT_NAME_REGISTRY_TYPES = {"pypi", "nuget", "npm", "cargo"}
 
 
 def default_registry_path() -> Path:
@@ -102,6 +108,33 @@ def validate_package_entry(entry: dict[str, Any], context: str = "entry") -> lis
         _check_required(verification, _VERIFICATION_REQUIRED_FIELDS, f"{context}.verification", errors)
         if "published" in verification and not isinstance(verification["published"], bool):
             errors.append(f"{context}.verification.published: must be a boolean")
+
+        identity_basis = verification.get("identity_basis")
+        if identity_basis not in _IDENTITY_BASIS_VALUES:
+            errors.append(
+                f"{context}.verification.identity_basis: '{identity_basis}' not in {_IDENTITY_BASIS_VALUES}"
+            )
+        elif (
+            verification.get("published") is True
+            and registry_type in _FLAT_NAME_REGISTRY_TYPES
+            and isinstance(candidate, dict)
+            and "foss" not in str(candidate.get("name", "")).lower()
+        ):
+            # Mission MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE identity rule:
+            # a published:true entry whose candidate name has no "foss"
+            # substring must have been corroborated, not accepted on name
+            # alone -- e.g. PyPI's real aspose-note package.
+            if identity_basis != "corroborated-non-convention-match":
+                errors.append(
+                    f"{context}.verification: candidate name {candidate.get('name')!r} has no 'foss' "
+                    f"substring but published=true -- identity_basis must be "
+                    f"'corroborated-non-convention-match', got {identity_basis!r}"
+                )
+            elif not verification.get("evidence_note"):
+                errors.append(
+                    f"{context}.verification: identity_basis='corroborated-non-convention-match' "
+                    f"requires a non-empty evidence_note explaining the corroboration"
+                )
 
     owner_match = entry["owner_match"]
     if owner_match is not None and not isinstance(owner_match, bool):
