@@ -25,6 +25,7 @@ from extraction.formats import (
     _cross_reference_enum_directions,
     _scan_save_dispatch,
     _scan_document_ctor_imports,
+    _scan_helper_delegated_save_format,
 )
 
 # Re-create the patterns used by detect_formats() for test use.
@@ -826,6 +827,110 @@ class Workbook:
             self.assertEqual(result[0]["format"], "xlsx")
             self.assertEqual(result[0]["direction"], "import")
 
+    def test_python_multiline_source_param_ctor_import_detected(self):
+        """PDFPY-FORMATSGAP-001: multi-line, type-hinted __init__ with `source`
+        param (pdf/python's real shape) must be detected -- previously invisible
+        both because `source` wasn't in the accepted-name list AND because the
+        old per-line search could never see `def __init__(`, `self,`, and the
+        parameter name together when they span separate physical lines."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "document.py", """\
+class Document:
+    def __init__(
+        self,
+        source: str = None,
+        options: object = None,
+        *,
+        password: str = None,
+    ) -> None:
+        self._load(source)
+""")
+            result = _scan_document_ctor_imports(
+                [src], tmp, "python", "pdf", set()
+            )
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0]["format"], "Pdf")
+            self.assertEqual(result[0]["direction"], "import")
+            # Line number must point at the real `def __init__(` opener (line 2),
+            # not a wrong/default value -- provenance accuracy matters here too.
+            self.assertEqual(result[0]["line"], 2)
+
+    def test_python_single_line_source_param_ctor_import_detected(self):
+        """`source` alone (single-line signature) is also now accepted -- was
+        previously entirely absent from the name alternation."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "document.py", """\
+class Document:
+    def __init__(self, source: str = None):
+        self._load(source)
+""")
+            result = _scan_document_ctor_imports(
+                [src], tmp, "python", "pdf", set()
+            )
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0]["format"], "Pdf")
+            self.assertEqual(result[0]["direction"], "import")
+
+    def test_cpp_document_ctor_import_detected(self):
+        """PDFPY-FORMATSGAP-001: C++ was categorically excluded before this fix
+        (language gate never included "cpp"). Real pdf/cpp shape verified live
+        against include/aspose/pdf/document.hpp: `explicit Document(const
+        std::string& filename);`, in a lowercase-stem header file (document.hpp,
+        not Document.hpp -- C++ convention, unlike Java/C#'s capitalized
+        Document.java/.cs)."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "document.hpp", """\
+class Document {
+public:
+    Document();
+    explicit Document(const std::string& filename);
+    Document(const Document&) = delete;
+    Document(Document&&) noexcept;
+};
+""")
+            result = _scan_document_ctor_imports(
+                [src], tmp, "cpp", "pdf", set()
+            )
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0]["format"], "Pdf")
+            self.assertEqual(result[0]["direction"], "import")
+            # Must match the file-path-accepting constructor (line 4), not the
+            # copy/move constructors that also contain "Document(" (lines 5-6).
+            self.assertEqual(result[0]["line"], 4)
+
+    def test_cpp_non_primary_stem_skipped(self):
+        """C++ header with non-primary stem (e.g. helpers.hpp) -> no result."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "helpers.hpp", """\
+class Helpers {
+public:
+    explicit Helpers(const std::string& filename);
+};
+""")
+            result = _scan_document_ctor_imports(
+                [src], tmp, "cpp", "pdf", set()
+            )
+            self.assertEqual(len(result), 0)
+
+    def test_cpp_no_duplicate_when_import_already_detected(self):
+        """C++ Pass 1c skipped when import for primary format already exists."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            src = self._write_file(tmp, "document.hpp", """\
+class Document {
+public:
+    explicit Document(const std::string& filename);
+};
+""")
+            result = _scan_document_ctor_imports(
+                [src], tmp, "cpp", "pdf", {"pdf"}
+            )
+            self.assertEqual(len(result), 0)
+
     def test_python_non_primary_stem_skipped(self):
         """Python file with non-primary stem (e.g. formatter.py) → no result."""
         with tempfile.TemporaryDirectory() as tmp:
@@ -871,6 +976,154 @@ public class Document {
             )
             self.assertEqual(len(result), 0,
                              "LoadOptions constructor must be skipped (Pass 1b handles it)")
+
+
+class TestHelperDelegatedSaveFormat(unittest.TestCase):
+    """Tests for _scan_helper_delegated_save_format() — Pass 1f.
+
+    Root cause guarded (PDFPY-FORMATSGAP-001): pdf/python's Document.save()
+    validates `save_format` via a helper imported from a sibling module
+    (_compat_surface.require_pdf_save_format, aliased on import) rather than
+    referencing a literal SaveFormat.MEMBER token in the same file -- no
+    existing pass (including Pass 4's _scan_save_dispatch, which requires an
+    already-confirmed enum export member to even start looking) can see this.
+    """
+
+    def _write_file(self, tmp: Path, name: str, content: str) -> Path:
+        fpath = tmp / name
+        fpath.write_text(content, encoding="utf-8")
+        return fpath
+
+    def test_helper_delegated_format_detected_real_shape(self):
+        """Real pdf/python shape: multi-line save() signature, a 3-statement
+        parenthesized import block (only the last one aliases the format
+        helper), and the accepted format token living in a sibling module's
+        frozenset -- not in document.py at all."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            self._write_file(tmp, "_compat_surface.py", """\
+_PDF_MEMBERS = frozenset({("DocFormat", "PDF"), ("SaveFormat", "PDF")})
+
+def require_pdf_save_format(value):
+    pass
+""")
+            self._write_file(tmp, "document.py", """\
+from aspose_pdf._compat_surface import (
+    reject_load_options,
+)
+from aspose_pdf._compat_surface import (
+    describe,
+)
+from aspose_pdf._compat_surface import (
+    require_pdf_save_format as _require_pdf_save_format,
+)
+
+
+class Document:
+    def save(
+        self,
+        destination,
+        save_format=None,
+        *,
+        overwrite=False,
+    ):
+        _require_pdf_save_format(save_format)
+""")
+            document_path = tmp / "document.py"
+            result = _scan_helper_delegated_save_format(
+                [document_path], tmp, "python", "pdf", set()
+            )
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0]["format"], "Pdf")
+            self.assertEqual(result[0]["direction"], "export")
+
+    def test_no_result_when_sibling_module_missing(self):
+        """Import references a module that doesn't exist on disk -- no crash,
+        no false positive."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            self._write_file(tmp, "document.py", """\
+from aspose_pdf._compat_surface import require_pdf_save_format
+
+
+class Document:
+    def save(self, destination, save_format=None):
+        require_pdf_save_format(save_format)
+""")
+            document_path = tmp / "document.py"
+            result = _scan_helper_delegated_save_format(
+                [document_path], tmp, "python", "pdf", set()
+            )
+            self.assertEqual(result, [])
+
+    def test_no_result_when_sibling_lacks_format_token(self):
+        """Sibling module exists and is imported, but never mentions the
+        family's own primary format name -- must not fire (avoids matching an
+        unrelated "format"-named helper, e.g. a date/log formatter)."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            self._write_file(tmp, "_compat_surface.py", """\
+def require_pdf_save_format(value):
+    pass  # no format token referenced here at all
+""")
+            self._write_file(tmp, "document.py", """\
+from aspose_pdf._compat_surface import require_pdf_save_format
+
+
+class Document:
+    def save(self, destination, save_format=None):
+        require_pdf_save_format(save_format)
+""")
+            document_path = tmp / "document.py"
+            result = _scan_helper_delegated_save_format(
+                [document_path], tmp, "python", "pdf", set()
+            )
+            self.assertEqual(result, [])
+
+    def test_no_result_when_already_detected(self):
+        """Existing-export-fmts gate: skipped when the primary format is
+        already confirmed by an earlier pass."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            self._write_file(tmp, "_compat_surface.py", """\
+_PDF_MEMBERS = frozenset({("SaveFormat", "PDF")})
+def require_pdf_save_format(value):
+    pass
+""")
+            self._write_file(tmp, "document.py", """\
+from aspose_pdf._compat_surface import require_pdf_save_format
+
+
+class Document:
+    def save(self, destination, save_format=None):
+        require_pdf_save_format(save_format)
+""")
+            document_path = tmp / "document.py"
+            result = _scan_helper_delegated_save_format(
+                [document_path], tmp, "python", "pdf", {"pdf"}
+            )
+            self.assertEqual(result, [])
+
+    def test_non_python_language_returns_empty(self):
+        """This pass is explicitly Python-only -- not assumed to generalize
+        to other languages without their own verified evidence."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            self._write_file(tmp, "_compat_surface.py", """\
+_PDF_MEMBERS = frozenset({("SaveFormat", "PDF")})
+""")
+            self._write_file(tmp, "Document.java", """\
+class Document {
+    void save(String destination, SaveFormat saveFormat) {
+        requirePdfSaveFormat(saveFormat);
+    }
+}
+""")
+            document_path = tmp / "Document.java"
+            result = _scan_helper_delegated_save_format(
+                [document_path], tmp, "java", "pdf", set()
+            )
+            self.assertEqual(result, [])
 
 
 class TestFamilyFormatAllowlist(unittest.TestCase):

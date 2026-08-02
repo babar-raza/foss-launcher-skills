@@ -166,6 +166,48 @@ class TestFilterVendorPaths(unittest.TestCase):
         result = _filter_vendor_paths(files, pkg)
         self.assertEqual(len(result), 0, "vendor/ and third_party/ should be filtered")
 
+    def test_cpp_filters_internal_dir(self):
+        """PDFPY-FORMATSGAP-001 follow-on: C++'s `internal/` (no underscore)
+        header tree must be excluded when language="cpp" -- confirmed live,
+        pdf/cpp's formats.json previously leaked spurious `scratch`/`unicode`
+        entries sourced from include/internal/... files. Distinct from
+        `_internal` (underscore-prefixed), which is exempted (see
+        test_exempts_internal_dir) because slides/java uses that convention
+        for real, publicly-reachable exporter/importer classes."""
+        from extraction.formats import _filter_vendor_paths
+        pkg = Path("/pkg")
+        files = [
+            pkg / "include" / "internal" / "scratch.hpp",
+            pkg / "include" / "internal" / "unicode.hpp",
+            pkg / "include" / "aspose" / "pdf" / "document.hpp",
+        ]
+        result = _filter_vendor_paths(files, pkg, language="cpp")
+        names = [str(f.relative_to(pkg)).replace("\\", "/") for f in result]
+        self.assertNotIn("include/internal/scratch.hpp", names)
+        self.assertNotIn("include/internal/unicode.hpp", names)
+        self.assertIn("include/aspose/pdf/document.hpp", names)
+
+    def test_non_cpp_language_does_not_filter_internal_dir(self):
+        """The `internal/` exclusion is strictly gated to language=="cpp" --
+        Java/.NET's own separate "internal" *package*-segment handling
+        (_JAVA_DEFAULT_EXCLUDED_PACKAGE_SEGMENTS in api_surface.py) must be
+        untouched by this mechanism."""
+        from extraction.formats import _filter_vendor_paths
+        pkg = Path("/pkg")
+        files = [pkg / "internal" / "Helper.java"]
+        result = _filter_vendor_paths(files, pkg, language="java")
+        self.assertEqual(len(result), 1,
+                          "internal/ must NOT be filtered for non-cpp languages")
+
+    def test_cpp_default_language_arg_does_not_filter_internal_dir(self):
+        """Backward-compat: omitting language (default "") must not filter
+        internal/ -- only explicit language="cpp" triggers the new exclusion."""
+        from extraction.formats import _filter_vendor_paths
+        pkg = Path("/pkg")
+        files = [pkg / "internal" / "scratch.hpp"]
+        result = _filter_vendor_paths(files, pkg)
+        self.assertEqual(len(result), 1)
+
 
 class TestConventionalVisibilityPolicy(unittest.TestCase):
     """When __all__ defines the public API, conventional classes must not

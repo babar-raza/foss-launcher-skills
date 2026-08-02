@@ -127,11 +127,27 @@ def _extract_exporter_dict_formats(class_node, language: str) -> list[str]:
 _VENDOR_PATH_SEGMENTS = {"vendor", "vendored", "third_party", "thirdparty"}
 
 
-def _filter_vendor_paths(files: list[Path], pkg_root: Path) -> list[Path]:
+_CPP_ONLY_VENDOR_SEGMENTS = {"internal"}
+
+
+def _filter_vendor_paths(
+    files: list[Path], pkg_root: Path, language: str = "",
+) -> list[Path]:
     """Remove files in vendor/third-party or private bundled directories.
 
     Filtered directories:
     - Names in ``_VENDOR_PATH_SEGMENTS`` (vendor, vendored, third_party, etc.)
+    - When *language* is ``"cpp"``, also names in ``_CPP_ONLY_VENDOR_SEGMENTS``
+      (``internal``) -- mirrors ``api_surface.py``'s ``_detect_vendor_files``
+      (HARDEN-cpp-internal-collision, 2026-07-28): pdf/cpp's real
+      ``include/internal/`` header tree is unreachable from the library's
+      public ``#include <aspose/pdf/...>`` surface. Confirmed (PDFPY-FORMATSGAP-001
+      follow-on): without this, `scratch`/`unicode` -- entries from
+      ``include/internal/...`` sources -- leaked into pdf/cpp's formats.json
+      even though ``api_surface.json`` already correctly excludes them. Gated
+      strictly to ``language == "cpp"`` so Java/.NET's own "internal"
+      *package*-segment handling (a separate, unrelated mechanism) is
+      untouched.
     - ``_``-prefixed directories EXCEPT ``_internal`` (which often contains
       real I/O implementations that back format enum entries).
 
@@ -140,6 +156,9 @@ def _filter_vendor_paths(files: list[Path], pkg_root: Path) -> list[Path]:
     transpiled or vendored code that produces false-positive format names.
     """
     _EXEMPT_PRIVATE_DIRS = {"_internal"}
+    vendor_segments = _VENDOR_PATH_SEGMENTS
+    if language == "cpp":
+        vendor_segments = vendor_segments | _CPP_ONLY_VENDOR_SEGMENTS
     filtered: list[Path] = []
     for fpath in files:
         try:
@@ -149,7 +168,7 @@ def _filter_vendor_paths(files: list[Path], pkg_root: Path) -> list[Path]:
             continue
         skip = False
         for part in rel_parts[:-1]:
-            if part.lower() in _VENDOR_PATH_SEGMENTS:
+            if part.lower() in vendor_segments:
                 skip = True
                 break
             if (part.startswith("_") and not part.startswith("__")
@@ -218,7 +237,46 @@ def _scan_document_ctor_imports(
     entry point rather than a constructor.
     """
     if language not in ("java", "csharp", "python", "typescript", "javascript",
-                        "go", "rust"):
+                        "go", "rust", "cpp"):
+        return []
+    if language == "cpp":
+        # C++ (PDFPY-FORMATSGAP-001 follow-on): header-declared constructors,
+        # e.g. `explicit Document(const std::string& filename);` in
+        # document.hpp. Two things the java/csharp generic fallback below
+        # doesn't handle: (1) C++ header file stems are conventionally
+        # lowercase (document.hpp, not Document.hpp) -- case-insensitive
+        # match required, matching _cpp_primary_stems' own lowercase set;
+        # (2) C++ parameter types (const std::string&, std::filesystem::path,
+        # const char*) don't match the Java/C# String|InputStream|Path|File
+        # alternation. Confirmed live against pdf/cpp's real
+        # include/aspose/pdf/document.hpp.
+        _cpp_primary_stems = frozenset({"document", "workbook", "presentation", "spreadsheet"})
+        _cpp_ctor_re = re.compile(
+            r'\bDocument\s*\(\s*(?:const\s+)?(?:std::)?'
+            r'(?:string|filesystem::path|char\s*\*)\b',
+        )
+        primary_fmt = family.title()
+        if primary_fmt.lower() in existing_import_fmts:
+            return []
+        for fpath in files:
+            if fpath.stem.lower() not in _cpp_primary_stems:
+                continue
+            rel = str(fpath.relative_to(repo)).replace("\\", "/")
+            try:
+                text = fpath.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            match = _cpp_ctor_re.search(text)
+            if match:
+                line_no = text.count("\n", 0, match.start()) + 1
+                return [{
+                    "format": primary_fmt,
+                    "enum": "",
+                    "value": "",
+                    "file": rel,
+                    "line": line_no,
+                    "direction": "import",
+                }]
         return []
     if language == "rust":
         # Rust: primary-type files expose `pub fn open/load/from_file(path ...)`
@@ -283,8 +341,19 @@ def _scan_document_ctor_imports(
 
     if language == "python":
         _py_primary_stems = frozenset({"document", "workbook", "presentation", "spreadsheet"})
+        # Matches the `def __init__(` opener through its first parameter name.
+        # `\s` already spans real newlines with no flags needed, but this regex
+        # was previously applied per-line via text.splitlines() (see below) --
+        # that made newline-spanning `\s*` moot, since `def __init__(`, `self,`,
+        # and the parameter name were never in the same `line` string for a
+        # multi-line, type-hinted signature. Confirmed live: pdf/python's real
+        # Document.__init__ spans 3 lines (`def __init__(` / `self,` /
+        # `source: str | Path | ... = None,`) and was invisible to the old
+        # per-line search regardless of which parameter names were accepted.
+        # Fixed by matching against the whole file text instead of per-line.
         _py_ctor_re = re.compile(
-            r'def\s+__init__\s*\(\s*self\s*,\s*(?:file_path|filepath|path|filename|file_name)\b',
+            r'def\s+__init__\s*\(\s*self\s*,\s*'
+            r'(?:file_path|filepath|path|filename|file_name|source)\b',
         )
         for fpath in files:
             if fpath.stem.lower() not in _py_primary_stems:
@@ -294,16 +363,17 @@ def _scan_document_ctor_imports(
                 text = fpath.read_text(encoding="utf-8", errors="replace")
             except OSError:
                 continue
-            for i, line in enumerate(text.splitlines(), 1):
-                if _py_ctor_re.search(line):
-                    return [{
-                        "format": primary_fmt,
-                        "enum": "",
-                        "value": "",
-                        "file": rel,
-                        "line": i,
-                        "direction": "import",
-                    }]
+            match = _py_ctor_re.search(text)
+            if match:
+                line_no = text.count("\n", 0, match.start()) + 1
+                return [{
+                    "format": primary_fmt,
+                    "enum": "",
+                    "value": "",
+                    "file": rel,
+                    "line": line_no,
+                    "direction": "import",
+                }]
         return []
 
     if language in ("typescript", "javascript"):
@@ -354,6 +424,95 @@ def _scan_document_ctor_imports(
                     "line": i,
                     "direction": "import",
                 }]
+    return []
+
+
+def _scan_helper_delegated_save_format(
+    files: list[Path],
+    repo: Path,
+    language: str,
+    family: str,
+    existing_export_fmts: set[str],
+) -> list[dict]:
+    """Pass 1f (PDFPY-FORMATSGAP-001): detect a save()/load() method whose
+    format-validity check is delegated to a helper function imported from a
+    sibling module, rather than referencing a literal ``SaveFormat.MEMBER``
+    token in the same file. `_scan_save_dispatch` (Pass 4) cannot see this
+    idiom at all -- it only fires when an already-confirmed enum export
+    member seeds its search (``if not save_members: return formats``), and
+    for this exact idiom the enum member is precisely what's under-detected.
+
+    Confirmed live: pdf/python's ``Document.save()`` validates
+    ``save_format`` via ``_require_pdf_save_format()``, aliased from
+    ``from aspose_pdf._compat_surface import require_pdf_save_format as
+    _require_pdf_save_format`` -- the accepted-format token ("PDF") lives in
+    a frozenset inside ``_compat_surface.py``, never in ``document.py``
+    itself. Every existing pass requires the format token and the save/load
+    method in the SAME file; none can see this.
+
+    Scope: Python only. The aliased-import syntax this heuristic parses is
+    Python-specific -- extending to other languages needs its own verified
+    evidence, not assumed here.
+    """
+    if language != "python":
+        return []
+    primary_fmt = _FAMILY_PYTHON_PRIMARY_FMT.get(family, family.title())
+    if primary_fmt.lower() in existing_export_fmts:
+        return []
+
+    _primary_stems = frozenset({"document", "workbook", "presentation", "spreadsheet"})
+    # A save/load method with a parameter name containing "format".
+    _save_method_re = re.compile(
+        r'def\s+(?:save|load)\w*\s*\([^)]*\b\w*format\w*\s*[:=)]',
+        re.IGNORECASE | re.DOTALL,
+    )
+    # A relative-package import statement's module path (the parenthesized
+    # or trailing name list is checked separately, in a bounded window --
+    # not captured here, since it may span multiple physical lines).
+    _import_module_re = re.compile(r'from\s+\.?([\w.]+)\s+import\b')
+    _format_name_re = re.compile(r'\w*format\w*', re.IGNORECASE)
+
+    for fpath in files:
+        if fpath.stem.lower() not in _primary_stems:
+            continue
+        rel = str(fpath.relative_to(repo)).replace("\\", "/")
+        try:
+            text = fpath.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        method_match = _save_method_re.search(text)
+        if not method_match:
+            continue
+
+        for imp_match in _import_module_re.finditer(text):
+            window = text[imp_match.end():imp_match.end() + 300]
+            if not _format_name_re.search(window):
+                continue
+            module_name = imp_match.group(1).rsplit(".", 1)[-1]
+            sibling = fpath.parent / f"{module_name}.py"
+            if not sibling.is_file():
+                continue
+            try:
+                sibling_text = sibling.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            # Confirm the sibling module actually references the family's
+            # own primary format name as a quoted string -- avoids firing on
+            # an unrelated "format"-named helper (e.g. a date/log formatter).
+            if not re.search(
+                r'["\']' + re.escape(primary_fmt) + r'["\']',
+                sibling_text, re.IGNORECASE,
+            ):
+                continue
+            line_no = text.count("\n", 0, method_match.start()) + 1
+            return [{
+                "format": primary_fmt,
+                "enum": "",
+                "value": "",
+                "file": rel,
+                "line": line_no,
+                "direction": "export",
+            }]
     return []
 
 
@@ -637,7 +796,7 @@ def detect_formats(
     # H-04d: Filter out files in private/vendor/internal directories.
     # These contain implementation details (transpiled code, I/O helpers)
     # that produce false-positive format names.
-    files = _filter_vendor_paths(files, pkg_root)
+    files = _filter_vendor_paths(files, pkg_root, language)
     format_pattern = re.compile(
         r"(FileFormat|FormatType|SupportedFormat|FileType|SaveFormat|ExportFormat|LoadFormat|ImportFormat|OutputFormat|InputFormat|SourceFormat|FontType)",
         re.IGNORECASE)
@@ -846,6 +1005,23 @@ def detect_formats(
         _add_claim(
             "format_support",
             f"import support for {entry['format']} via Document constructor",
+            entry["file"], entry["line"],
+        )
+
+    # Pass 1f (PDFPY-FORMATSGAP-001): save()/load() method whose format
+    # validity check is delegated to a helper imported from a sibling
+    # module (no in-file SaveFormat.MEMBER token for any pass to match).
+    _existing_export_fmts_1f = {
+        f["format"].lower() for f in formats if f.get("direction") == "export"
+    }
+    for entry in _scan_helper_delegated_save_format(
+        files, repo, language, family, _existing_export_fmts_1f
+    ):
+        formats.append(entry)
+        _add_claim(
+            "format_support",
+            f"export support for {entry['format']} via helper-delegated "
+            f"format validation",
             entry["file"], entry["line"],
         )
 
