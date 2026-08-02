@@ -208,6 +208,64 @@ class TestValidateForPath:
         assert rc == 2
 
 
+class TestFindValidTokenForPath:
+    """Direct, importable API -- production concurrency redesign (2026-08-01),
+    Step 8 follow-up: git_plumb_commit.py calls this directly instead of
+    shelling out to the CLI."""
+
+    def test_returns_token_dict_when_covered(self, tmp_path):
+        pending = tmp_path / "pending"
+        override_manager.configure(pending_dir=pending)
+        token = _make_token("20260401-123000-agents-md", ["AGENTS.md"], days_ago=1)
+        _write_token(pending, token)
+
+        found = override_manager.find_valid_token_for_path("AGENTS.md")
+        assert found is not None
+        assert found["override_id"] == "20260401-123000-agents-md"
+
+    def test_returns_none_when_not_covered(self, tmp_path):
+        pending = tmp_path / "pending"
+        override_manager.configure(pending_dir=pending)
+        token = _make_token("20260401-123000-agents-md", ["AGENTS.md"], days_ago=1)
+        _write_token(pending, token)
+
+        assert override_manager.find_valid_token_for_path("scripts/foo.py") is None
+
+    def test_returns_none_when_only_expired_token_covers(self, tmp_path):
+        pending = tmp_path / "pending"
+        override_manager.configure(pending_dir=pending)
+        token = _make_token("20260401-123000-agents-md", ["AGENTS.md"], days_ago=10)
+        _write_token(pending, token)
+
+        assert override_manager.find_valid_token_for_path("AGENTS.md") is None
+
+    def test_skips_expired_token_and_finds_a_later_valid_one(self, tmp_path):
+        """If an expired token and a fresh token both cover the same path,
+        the fresh one must still be found -- not masked by the expired one
+        being enumerated first."""
+        pending = tmp_path / "pending"
+        override_manager.configure(pending_dir=pending)
+        expired = _make_token("20260401-000000-agents-md-old", ["AGENTS.md"], days_ago=10)
+        fresh = _make_token("20260410-000000-agents-md-new", ["AGENTS.md"], days_ago=1)
+        _write_token(pending, expired)
+        _write_token(pending, fresh)
+
+        found = override_manager.find_valid_token_for_path("AGENTS.md")
+        assert found is not None
+        assert found["override_id"] == "20260410-000000-agents-md-new"
+
+    def test_retroactive_expired_token_still_counts_as_valid(self, tmp_path):
+        pending = tmp_path / "pending"
+        override_manager.configure(pending_dir=pending)
+        token = _make_token(
+            "20260401-123000-agents-md", ["AGENTS.md"], days_ago=10, retroactive=True,
+        )
+        _write_token(pending, token)
+
+        found = override_manager.find_valid_token_for_path("AGENTS.md")
+        assert found is not None
+
+
 class TestConsume:
     def test_consume_moves_to_archived(self, tmp_path, monkeypatch):
         pending = tmp_path / "pending"

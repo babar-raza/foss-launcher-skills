@@ -1635,7 +1635,10 @@ scripts:
       - scripts/pipeline/tests/test_override_manager.py
     requires_test: true
     deprecated_since: null
-    notes: "GOVERNANCE: override token lifecycle; DO NOT MOVE OR RENAME"
+    notes: "GOVERNANCE: override token lifecycle; DO NOT MOVE OR RENAME.
+      find_valid_token_for_path() (2026-08-02, MT019 follow-up) is a pure,
+      directly-importable version of validate-for-path's lookup, used by
+      git_plumb_commit.py so callers needn't shell out to this module's CLI."
 
   - path: scripts/pipeline/commands/governance/deletion_governance_manager.py
     kind: entrypoint
@@ -1968,6 +1971,35 @@ scripts:
       TTL/heartbeat lock (the shape originally proposed): upserting one row is
       a quick single-process read-modify-write, never held across multiple
       agent tool calls."
+
+  - path: scripts/pipeline/commands/ops/git_plumb_commit.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_git_plumb_commit.py
+    requires_test: true
+    deprecated_since: null
+    notes: "GOVERNANCE: MT019 convergence-audit follow-up (2026-08-02, TC-MT019-03):
+      atomic, enforced isolated git-plumbing commit. The sanctioned escalation
+      for shared-.git/index contention was, until this tool existed, a 5-6-step
+      MANUAL procedure (CLAUDE.md), hand-typed roughly 8 times across one
+      session and producing at least one real mistake. Worse, the pre-commit
+      Step 30 stale-file-regression check can only ever be enforced by a git
+      HOOK, and git-plumbing exists specifically to bypass git commit (and
+      therefore every hook) by construction -- CLAUDE.md's own protocol was
+      an honor-system reminder to run the check manually first. This tool
+      makes the check a mandatory, non-skippable first step of the one tool
+      that performs read-tree/add-f/write-tree/commit-tree/push/ref-sync/
+      retroactive-skill-run-record as ONE atomic operation, closing the
+      enforcement gap instead of relying on a session remembering the
+      manual sequence correctly every time."
 
   - path: scripts/pipeline/commands/governance/skill_context.py
     kind: library

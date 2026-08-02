@@ -35,18 +35,36 @@ git push "https://x-access-token:${GH_TOKEN}@github.com/Aspose/aspose.org.git" m
 If another session is actively mutating the shared `.git/index` (large in-flight
 `content/` sweeps are common in this repo), an ordinary `git add`/`git commit` risks
 staging or corrupting the other session's work. The sanctioned escalation is git
-object-plumbing against an isolated temp index (`GIT_INDEX_FILE` + `git read-tree
-<parent>` + scoped `git add -f <exact paths>` + `git write-tree` + `git commit-tree
--p <parent>` + `git push <sha>:refs/heads/main`) — this never touches the real
+object-plumbing against an isolated temp index — this never touches the real
 `.git/index` and never invokes `git commit`.
 
-**This bypasses every commit-time git hook** (`pre-commit`, `commit-msg`,
-`post-commit`) by construction — no local hook can fire for a commit that never goes
-through `git commit`, including the `Skills invoked:` / skill-run-record validation
-in `.git/hooks/commit-msg` (TC-GOV-15). This is not a bug to work around; it is a
-structural property of how git hooks work. **A git-plumbed commit is therefore
-mandatory-paired with a retroactive skill-run record**, created and finalized against
-the resulting SHA immediately after pushing:
+**Use `scripts/pipeline/commands/ops/git_plumb_commit.py`, not the manual sequence.**
+It wraps the full plumbing procedure (`GIT_INDEX_FILE` + `git read-tree <parent>` +
+scoped `git add -f <exact paths>` + `git write-tree` + `git commit-tree -p <parent>` +
+`git push <sha>:refs/heads/main`) AND makes the two paired safety steps below
+non-skippable by construction, instead of relying on the agent to remember to run
+them by hand:
+
+```bash
+PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/ops/git_plumb_commit.py \
+  --files <exact paths...> --message "<commit message>" \
+  --skills S-xx [S-yy ...] --plan "<what this commit does>"
+```
+
+This runs the stale-file-regression check before building the temp index (raising
+`PlumbCommitBlocked` and pushing nothing if it finds a silent revert — pass
+`--skip-stale-check` only when you've deliberately verified the "regression" is an
+intentional revert, ideally backed by an override token), builds and pushes the
+commit, and creates+finalizes the retroactive skill-run record against the real
+resulting SHA automatically. Pass `--no-push` to commit locally without pushing, or
+`--base-sha`/`--session-id` to control what the stale-file check compares against.
+
+If you must fall back to the raw manual sequence (e.g. the tool itself is broken),
+both paired steps below are still mandatory — the tool exists to make them
+impossible to forget, not to make them optional:
+
+**1. Retroactive skill-run record**, created and finalized against the resulting SHA
+immediately after pushing:
 
 ```bash
 PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/ops/skill_run_manager.py create \
@@ -61,13 +79,13 @@ matched by `commit_sha` and reports the commit as `RECONCILED` rather than
 (found live 2026-07-24, MT007 L1-01/L3-01/L3-02 — 3 commits from the words/net launch
 sprint had no skill-run record until reconciled post-hoc).
 
-**A git-plumbed commit is also mandatory-paired with a manual stale-file-regression
-check**, for the same structural reason: `scripts/ci/checks/check_stale_file_regression.py`
-(Step 30 of the normal pre-commit hook) detects staged content that silently reverts a
-more recent commit made by someone else since your session began — but pre-commit hooks
-never fire for a commit that never runs `git commit`, so plumbing bypasses this gate too,
-by the same construction as every other hook. Run it against your exact file list, using
-the `HEAD_SHA` you captured before `git read-tree`, BEFORE building the temp index:
+**2. Manual stale-file-regression check**, for the same structural reason:
+`scripts/ci/checks/check_stale_file_regression.py` (Step 30 of the normal pre-commit
+hook) detects staged content that silently reverts a more recent commit made by
+someone else since your session began — but pre-commit hooks never fire for a commit
+that never runs `git commit`, so plumbing bypasses this gate too, by the same
+construction as every other hook. Run it against your exact file list, using the
+`HEAD_SHA` you captured before `git read-tree`, BEFORE building the temp index:
 
 ```bash
 printf '%s\n' <exact files> | PYTHONPATH=scripts/pipeline .venv/Scripts/python \
@@ -80,6 +98,14 @@ on top of it before proceeding, rather than pushing a silent revert (found live 
 TC-MT018-06's commit `d2dce37de5` silently reverted an unrelated fetch_aspose_com_targets.py
 fix committed by another session hours earlier, with its own message never mentioning
 either file — the exact incident this check exists to prevent).
+
+For a newly-built module with no consumer yet, also consider
+`scripts/ci/checks/check_module_consumption.py --module <path>` (advisory, not a
+gate — backlog G-48) before calling that module's task done: registry.yaml's
+`requires_test` proves a module is tested, not that anything outside its own test
+suite actually calls it. Found live 2026-08-01/02: `taskcard_store.py` and
+`master_plan_index.py` both reached "fully tested" status with zero real callers
+until caught by manual self-audit within the same session that built them.
 
 ## Behavioral Mandates (enforced by hooks)
 

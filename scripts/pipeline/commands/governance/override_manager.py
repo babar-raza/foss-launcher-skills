@@ -167,12 +167,24 @@ def cmd_create(args: argparse.Namespace) -> int:
     return 0
 
 
-def cmd_validate_for_path(args: argparse.Namespace) -> int:
-    """Check that a valid (non-expired, non-consumed) pending token covers the given path."""
-    target = _normalize(args.path)
-    _PENDING_DIR.mkdir(parents=True, exist_ok=True)
+def find_valid_token_for_path(path: str) -> "dict | None":
+    """Return the first valid (non-expired, non-consumed) pending token that
+    covers path, or None. Pure function, no I/O side effects beyond reading
+    reports/overrides/pending/ -- importable directly by any Python caller
+    that needs an override decision without shelling out to this module's
+    own CLI (e.g. git_plumb_commit.py, production concurrency redesign,
+    2026-08-01, Step 8 follow-up).
 
-    for token_file in _PENDING_DIR.glob("*.json"):
+    Note: an EXPIRED token that covers the path is deliberately NOT treated
+    as "no token at all" -- it's a distinct, more actionable outcome (the
+    caller should recreate the token, not assume no override was ever
+    intended). Callers that only care about the boolean "am I covered"
+    question should check `is_expired=False` alongside a non-None return.
+    """
+    _PENDING_DIR.mkdir(parents=True, exist_ok=True)
+    target = _normalize(path)
+
+    for token_file in sorted(_PENDING_DIR.glob("*.json")):
         try:
             token = _load_token(token_file)
         except (json.JSONDecodeError, OSError):
@@ -184,12 +196,37 @@ def cmd_validate_for_path(args: argparse.Namespace) -> int:
             continue
 
         if _is_expired(token) and not token.get("retroactive", False):
-            print(f"EXPIRED: token {token['override_id']} is older than {_TOKEN_TTL_DAYS} days",
-                  file=sys.stderr)
-            return 2
+            continue  # expired and not retroactive -- does not count as valid coverage
 
+        return token
+
+    return None
+
+
+def cmd_validate_for_path(args: argparse.Namespace) -> int:
+    """Check that a valid (non-expired, non-consumed) pending token covers the given path."""
+    target = _normalize(args.path)
+    token = find_valid_token_for_path(target)
+
+    if token is not None:
         print(f"VALID: token {token['override_id']} covers path '{target}'")
         return 0
+
+    # Distinguish "covered but expired" from "never covered" for a clearer message
+    # -- find_valid_token_for_path already filtered expired-non-retroactive tokens
+    # out, so re-scan once more here purely for the diagnostic message.
+    _PENDING_DIR.mkdir(parents=True, exist_ok=True)
+    for token_file in sorted(_PENDING_DIR.glob("*.json")):
+        try:
+            candidate = _load_token(token_file)
+        except (json.JSONDecodeError, OSError):
+            continue
+        covered = any(target == p or target.startswith(p.rstrip("/") + "/")
+                      for p in candidate.get("paths", []))
+        if covered and _is_expired(candidate) and not candidate.get("retroactive", False):
+            print(f"EXPIRED: token {candidate['override_id']} is older than {_TOKEN_TTL_DAYS} days",
+                  file=sys.stderr)
+            return 2
 
     print(f"NO VALID TOKEN: no pending override token covers path '{target}'", file=sys.stderr)
     return 2
