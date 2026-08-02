@@ -1,0 +1,57 @@
+{
+  "target_families": [
+    "tex",
+    "barcode",
+    "page",
+    "font",
+    "note",
+    "html",
+    "email",
+    "words",
+    "3d",
+    "cells",
+    "slides",
+    "pdf"
+  ],
+  "families": {
+    "tex": {
+      "status": "done"
+    },
+    "barcode": {
+      "status": "done"
+    },
+    "page": {
+      "status": "done"
+    },
+    "font": {
+      "status": "done"
+    },
+    "note": {
+      "status": "done"
+    },
+    "html": {
+      "status": "in_progress",
+      "migrated_source_paths": [
+        "content/docs.aspose.org/en/html/_index.md",
+        "content/docs.aspose.org/en/html/python/_index.md",
+        "content/kb.aspose.org/en/html/_index.md",
+        "content/kb.aspose.org/en/html/python/_index.md",
+        "content/kb.aspose.org/en/html/python/faq.md",
+        "content/kb.aspose.org/en/html/python/how-to-work-with-css-python.md",
+        "content/kb.aspose.org/en/html/python/how-to-work-with-cssom-python.md",
+        "content/kb.aspose.org/en/html/python/how-to-work-with-dom-python.md",
+        "content/kb.aspose.org/en/html/python/how-to-work-with-encoding-python.md",
+        "content/kb.aspose.org/en/html/python/how-to-work-with-html-core-python.md",
+        "content/kb.aspose.org/en/html/python/how-to-work-with-html-python.md",
+        "content/kb.aspose.org/en/html/python/how-to-work-with-js-python.md",
+        "content/kb.aspose.org/en/html/python/how-to-work-with-layout-python.md",
+        "content/kb.aspose.org/en/html/python/how-to-work-with-tokenizer-python.md",
+        "content/kb.aspose.org/en/html/python/how-to-work-with-tree-python.md",
+        "content/kb.aspose.org/en/html/python/how-to-work-with-url-python.md",
+        "content/kb.aspose.org/en/html/python/troubleshooting.md",
+        "content/kb.aspose.org/en/html/python/use-cases.md"
+      ]
+    }
+  },
+  "migration_complete": false
+}
