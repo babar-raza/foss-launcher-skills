@@ -1531,6 +1531,15 @@ def run(
             s for s in impact.get("affected_sections", [])
             if s.get("required_action") == "BODY_UPDATE"
         ]
+        # RPR-ORDER-001: affected_sections' order reflects body_impact.py's
+        # per-change discovery order (semantic_changes.json's change list),
+        # not document position. The cumulative line_offset tracking below
+        # (RPR-LINE-DRIFT-001) is only correct when sections are visited in
+        # ascending document order -- a section discovered first upstream
+        # but appearing LATER on the page must not have its edit's line
+        # delta applied to an EARLIER section that never moved. Sorting here
+        # makes the shift math's own precondition hold unconditionally.
+        actionable_sections.sort(key=lambda s: s.get("lines", [0, 0])[0])
         if not actionable_sections:
             receipts.append({
                 "receipt_id": f"RCP-{family}-{platform}-{len(receipts)+1:04d}",

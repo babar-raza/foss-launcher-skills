@@ -2010,6 +2010,99 @@ def execute_run(
             raise
 
 
+def _restore_scope_to_baseline(
+    manifest: dict[str, Any],
+) -> tuple[list[str], list[str]]:
+    """Restore every scoped path this run touched back to its pinned-baseline
+    bytes, verified by hash. Returns (restored_paths, already_restored_paths).
+
+    RPR-ABANDON-001: shared by abandon_run and recover_run so both verbs give
+    the same working-tree safety guarantee -- previously only recover_run had
+    this, and a real production incident (FONT-PYTHON-REFRESH-002) shows
+    corruption compounding across repeated abandon+restart cycles precisely
+    because abandon left whatever body_refresh.py had already written on
+    disk, and the next attempt started from that dirty state, not a clean
+    baseline.
+
+    A run abandoned before APPLYING ever produced page_decisions.jsonl has
+    nothing to restore -- this must remain a harmless no-op, not an error
+    (_assert_run_evidence_ready raises on a missing/mismatched artifact, so
+    it is only safe to call once page_decisions.jsonl actually exists).
+    """
+    run_root = _run_root(
+        manifest["family"], manifest["platform"], manifest["run_id"]
+    )
+    if not (run_root / "page_decisions.jsonl").is_file():
+        return [], []
+    decision_rows = _assert_run_evidence_ready(
+        manifest,
+        require_all_pass=False,
+        include_attempts=False,
+    )
+    scope = json.loads(
+        (run_root / "scope.json").read_text(encoding="utf-8")
+    )
+    initial_hashes = dict(scope.get("initial_hashes") or {})
+    restore_payloads: dict[str, bytes] = {}
+    already_restored: list[str] = []
+    for row in decision_rows:
+        page_path = str(row["page_path"])
+        initial_hash = initial_hashes.get(page_path)
+        receipt_path = run_root / Path(row["receipt_ref"])
+        receipt_doc = yaml.safe_load(
+            receipt_path.read_text(encoding="utf-8")
+        ) or {}
+        output_hash = (
+            receipt_doc.get("content_refresh_receipt") or {}
+        ).get("new_hash")
+        current_hash = _path_hash(page_path)
+        if current_hash == initial_hash:
+            already_restored.append(page_path)
+            continue
+        if not isinstance(output_hash, str) or current_hash != output_hash:
+            raise RefreshRunError(
+                "Recovery refused because a scoped path no longer matches "
+                f"the run output or pinned input: {page_path}"
+            )
+        result = _command_runner(
+            [
+                "git",
+                "cat-file",
+                "--filters",
+                f"--path={page_path}",
+                f"{manifest['base_commit_sha']}:{page_path}",
+            ],
+            cwd=str(_repo_root),
+            capture_output=True,
+            text=False,
+            timeout=30,
+        )
+        if result.returncode != 0:
+            raise RefreshRunError(
+                "Recovery will not delete a path absent from the pinned base: "
+                f"{page_path}"
+            )
+        payload = result.stdout
+        if isinstance(payload, str):
+            payload = payload.encode("utf-8")
+        restored_hash = "sha256:" + hashlib.sha256(payload).hexdigest()
+        if restored_hash != initial_hash:
+            raise RefreshRunError(
+                "Pinned base bytes do not match the recorded initial hash for "
+                f"{page_path}"
+            )
+        restore_payloads[page_path] = payload
+
+    for page_path, payload in restore_payloads.items():
+        atomic_write_bytes(_repo_root / page_path, payload)
+        if _path_hash(page_path) != initial_hashes[page_path]:
+            raise RefreshRunError(
+                f"Recovery write verification failed for {page_path}"
+            )
+
+    return sorted(restore_payloads), sorted(already_restored)
+
+
 def abandon_run(
     family: str,
     platform: str,
@@ -2028,6 +2121,43 @@ def abandon_run(
             raise RefreshRunError(
                 f"Run is owned by session {manifest['session_owner']!r}, not {owner!r}"
             )
+        # abandon is the unconditional, last-resort "give up" verb -- it must
+        # never get stuck ACTIVE, for ANY reason _restore_scope_to_baseline
+        # can fail: a crash mid-APPLYING leaving manifest["output_digests"]
+        # unfinalized (RefreshRunError from _assert_run_evidence_ready), but
+        # also a corrupt/missing scope.json or receipt (FileNotFoundError,
+        # json/yaml decode errors), a malformed decision row (KeyError), a
+        # hung git subprocess (subprocess.TimeoutExpired), or a disk-full
+        # write (OSError) -- all of these are exactly the "run is in a messy,
+        # crashed state" scenarios abandon exists to rescue from, so all of
+        # them must degrade to a best-effort, unverified restore rather than
+        # propagate. recover_run (an explicit, deliberate operator action)
+        # still fails loudly on any of these by design; only abandon must not.
+        restore_error: str | None = None
+        try:
+            restored_paths, already_restored = _restore_scope_to_baseline(manifest)
+        except Exception as exc:  # noqa: BLE001 -- abandon must never re-raise; see above
+            restored_paths, already_restored = [], []
+            restore_error = _redact_artifact_text(str(exc))
+        manifest["recovery"] = {
+            "base_commit_sha": manifest["base_commit_sha"],
+            "restored_paths": restored_paths,
+            "already_restored_paths": already_restored,
+            "reason": _redact_artifact_text(reason.strip()),
+            "completed_at": _utc(),
+        }
+        if restore_error is not None:
+            manifest["recovery"]["restore_error"] = restore_error
+        _save_manifest(manifest)
+        _event(
+            family,
+            platform,
+            run_id,
+            "RUN_RECOVERED",
+            restored_paths=restored_paths,
+            already_restored_paths=already_restored,
+            restore_error=restore_error,
+        )
         _transition_abandoned(manifest, reason=reason)
         _clear_active(family, platform, run_id)
         return manifest
@@ -2056,78 +2186,11 @@ def recover_run(
             raise RefreshRunError(
                 f"recover cannot operate on terminal state {manifest['state']}"
             )
-        decision_rows = _assert_run_evidence_ready(
-            manifest,
-            require_all_pass=False,
-            include_attempts=False,
-        )
-        run_root = _run_root(family, platform, run_id)
-        scope = json.loads(
-            (run_root / "scope.json").read_text(encoding="utf-8")
-        )
-        initial_hashes = dict(scope.get("initial_hashes") or {})
-        restore_payloads: dict[str, bytes] = {}
-        already_restored: list[str] = []
-        for row in decision_rows:
-            page_path = str(row["page_path"])
-            initial_hash = initial_hashes.get(page_path)
-            receipt_path = run_root / Path(row["receipt_ref"])
-            receipt_doc = yaml.safe_load(
-                receipt_path.read_text(encoding="utf-8")
-            ) or {}
-            output_hash = (
-                receipt_doc.get("content_refresh_receipt") or {}
-            ).get("new_hash")
-            current_hash = _path_hash(page_path)
-            if current_hash == initial_hash:
-                already_restored.append(page_path)
-                continue
-            if not isinstance(output_hash, str) or current_hash != output_hash:
-                raise RefreshRunError(
-                    "Recovery refused because a scoped path no longer matches "
-                    f"the run output or pinned input: {page_path}"
-                )
-            result = _command_runner(
-                [
-                    "git",
-                    "cat-file",
-                    "--filters",
-                    f"--path={page_path}",
-                    f"{manifest['base_commit_sha']}:{page_path}",
-                ],
-                cwd=str(_repo_root),
-                capture_output=True,
-                text=False,
-                timeout=30,
-            )
-            if result.returncode != 0:
-                raise RefreshRunError(
-                    "Recovery will not delete a path absent from the pinned base: "
-                    f"{page_path}"
-                )
-            payload = result.stdout
-            if isinstance(payload, str):
-                payload = payload.encode("utf-8")
-            restored_hash = "sha256:" + hashlib.sha256(payload).hexdigest()
-            if restored_hash != initial_hash:
-                raise RefreshRunError(
-                    "Pinned base bytes do not match the recorded initial hash for "
-                    f"{page_path}"
-                )
-            restore_payloads[page_path] = payload
-
-        for page_path, payload in restore_payloads.items():
-            atomic_write_bytes(_repo_root / page_path, payload)
-            if _path_hash(page_path) != initial_hashes[page_path]:
-                raise RefreshRunError(
-                    f"Recovery write verification failed for {page_path}"
-                )
-
-        restored_paths = sorted(restore_payloads)
+        restored_paths, already_restored = _restore_scope_to_baseline(manifest)
         manifest["recovery"] = {
             "base_commit_sha": manifest["base_commit_sha"],
             "restored_paths": restored_paths,
-            "already_restored_paths": sorted(already_restored),
+            "already_restored_paths": already_restored,
             "reason": _redact_artifact_text(reason.strip()),
             "completed_at": _utc(),
         }
@@ -2138,7 +2201,7 @@ def recover_run(
             run_id,
             "RUN_RECOVERED",
             restored_paths=restored_paths,
-            already_restored_paths=sorted(already_restored),
+            already_restored_paths=already_restored,
         )
         _transition_abandoned(
             manifest,

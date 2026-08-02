@@ -549,6 +549,13 @@ Writes: reports/refresh_review/{family}/{platform}/oracle_verdicts/*.yaml
     out_dir = f"reports/refresh_review/{args.family}/{args.platform}/oracle_verdicts/"
     print(f"  output        : {out_dir}")
 
+    # RPR-ORACLE-001: a clean run() (no exception) with real per-page FAIL
+    # verdicts must not exit 0 -- refresh_run.py::verify_run() derives
+    # manifest["validation"]["oracle"] purely from this process's exit code
+    # and has no other way to see the FAIL/PASS counts above.
+    if fails:
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

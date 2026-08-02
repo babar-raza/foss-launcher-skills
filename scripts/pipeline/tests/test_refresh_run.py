@@ -867,6 +867,236 @@ def test_abandon_is_terminal_and_clears_active_pointer(tmp_path: Path):
     assert not (tmp_path / "reports/refresh_runs/pdf/net/ACTIVE.json").exists()
 
 
+def test_abandon_restores_working_tree_to_pinned_baseline(tmp_path: Path):
+    """RPR-ABANDON-001: abandon_run() must restore the working tree to the
+    pinned baseline the same way recover_run() already does -- before this
+    fix, abandon_run only transitioned state and cleared the active pointer,
+    leaving whatever body_refresh.py had already written on disk. Real
+    production evidence (FONT-PYTHON-REFRESH-002, backlog/BACKLOG.md) shows
+    corruption compounded across repeated abandon+restart cycles specifically
+    because abandon left the tree dirty and the next attempt started from
+    it, not from a clean baseline. This mirrors
+    test_recover_restores_only_receipt_owned_output_and_abandons exactly,
+    substituting abandon_run for recover_run, to prove both verbs now give
+    the same safety guarantee.
+    """
+    page_path = "content/docs.aspose.org/en/pdf/net/page.md"
+    base_content = "---\ntitle: Base\n---\n\nOriginal body.\n"
+    output_content = "---\ntitle: Base\n---\n\nRun output.\n"
+
+    def recovery_runner(
+        args: list[str],
+        **_: object,
+    ) -> subprocess.CompletedProcess:
+        if args[:3] == ["git", "rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, HEAD_SHA + "\n", "")
+        if args[:3] == ["git", "cat-file", "--filters"]:
+            return subprocess.CompletedProcess(args, 0, base_payload, b"")
+        return subprocess.CompletedProcess(args, 0, "", "")
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=recovery_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+    page = tmp_path / page_path
+    page.parent.mkdir(parents=True)
+    page.write_text(base_content, encoding="utf-8")
+    base_payload = page.read_bytes()
+    manifest = refresh_run.create_run(
+        "pdf",
+        "net",
+        mode="upstream",
+        run_id="RUN-ABANDON-RESTORE",
+        session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = [page_path]
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    _write_run_evidence(tmp_path, manifest)
+    _replace_synthetic_output(
+        tmp_path,
+        manifest,
+        page_path=page_path,
+        content=output_content,
+    )
+    refresh_run._transition(manifest, "VALIDATING")
+
+    # page currently holds output_content -- exactly what body_refresh.py's
+    # own writer produced and receipted for this run (the real incident
+    # shape: the run's OWN recorded output is what needs rolling back, not
+    # some unrelated third-party edit -- that separate case is already
+    # covered by test_recover_refuses_scoped_path_changed_after_run_output).
+    abandoned = refresh_run.abandon_run(
+        "pdf",
+        "net",
+        "RUN-ABANDON-RESTORE",
+        reason="body_refresh.py's output for this run must be rolled back",
+        session_id="session-1",
+    )
+
+    assert abandoned["state"] == "ABANDONED"
+    assert page.read_bytes() == base_payload, (
+        "abandon must restore the working tree to the pinned baseline, "
+        "not leave the run's own output on disk"
+    )
+    assert abandoned["recovery"]["restored_paths"] == [page_path]
+    assert not (
+        tmp_path / "reports/refresh_runs/pdf/net/ACTIVE.json"
+    ).exists()
+
+
+def test_abandon_before_any_output_is_a_safe_noop(tmp_path: Path):
+    """Abandoning a run before APPLYING ever produced page_decisions.jsonl
+    must remain a harmless no-op restore, not an error -- this is the exact
+    shape test_abandon_is_terminal_and_clears_active_pointer already
+    exercises; this test makes the no-op restore behavior explicit."""
+    refresh_run.configure(repo_root=tmp_path, command_runner=_runner)
+    refresh_run.create_run(
+        "pdf",
+        "net",
+        mode="upstream",
+        run_id="RUN-ABANDON-EARLY",
+        session_id="session-1",
+    )
+    manifest = refresh_run.abandon_run(
+        "pdf",
+        "net",
+        "RUN-ABANDON-EARLY",
+        reason="cancelled before any content mutation",
+        session_id="session-1",
+    )
+    assert manifest["state"] == "ABANDONED"
+    assert manifest["recovery"]["restored_paths"] == []
+    assert not (tmp_path / "reports/refresh_runs/pdf/net/ACTIVE.json").exists()
+
+
+def test_abandon_succeeds_even_when_evidence_digests_are_unverifiable(tmp_path: Path):
+    """Independent-review finding: a crash mid-APPLYING can leave
+    page_decisions.jsonl partially written on disk while
+    manifest["output_digests"] was never finalized (that only happens at the
+    end of apply_run) -- _assert_run_evidence_ready's digest check correctly
+    can't verify evidence integrity in that window, but abandon_run must
+    still succeed unconditionally: it is the last-resort "give up" verb, and
+    every retry would otherwise hit the identical digest-mismatch error with
+    no way to ever clear the run. recover_run (an explicit, deliberate
+    operator action) is allowed to keep failing loudly here by design --
+    only abandon_run must degrade to a best-effort, unverified restore.
+    """
+    page_path = "content/docs.aspose.org/en/pdf/net/page.md"
+    refresh_run.configure(repo_root=tmp_path, command_runner=_runner)
+    page = tmp_path / page_path
+    page.parent.mkdir(parents=True)
+    page.write_text("---\ntitle: Test\n---\n\nBody.\n", encoding="utf-8")
+    manifest = refresh_run.create_run(
+        "pdf",
+        "net",
+        mode="upstream",
+        run_id="RUN-ABANDON-CRASH",
+        session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = [page_path]
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    _write_run_evidence(tmp_path, manifest)
+
+    # Simulate a crash: page_decisions.jsonl is really on disk (written just
+    # above), but the manifest's own output_digests were never finalized --
+    # that only happens once apply_run completes normally.
+    manifest["output_digests"]["page_decisions"] = None
+    refresh_run._save_manifest(manifest)
+
+    abandoned = refresh_run.abandon_run(
+        "pdf",
+        "net",
+        "RUN-ABANDON-CRASH",
+        reason="crashed mid-apply, giving up",
+        session_id="session-1",
+    )
+    assert abandoned["state"] == "ABANDONED"
+    assert abandoned["recovery"]["restored_paths"] == []
+    assert "restore_error" in abandoned["recovery"]
+    assert not (tmp_path / "reports/refresh_runs/pdf/net/ACTIVE.json").exists()
+
+
+def test_abandon_succeeds_on_non_refresh_run_error_during_restore(tmp_path: Path):
+    """Independent-review finding #2: abandon's "never gets stuck" guarantee
+    must hold for ANY failure inside _restore_scope_to_baseline, not just
+    RefreshRunError. A hung/failing git subprocess fetching the pinned-base
+    bytes (`git cat-file --filters`) is exactly this: it runs only after
+    every digest/hash precondition in _assert_run_evidence_ready has already
+    passed (confirmed empirically -- corrupting scope.json or a receipt's
+    *content* while keeping their recorded digests consistent still gets
+    caught by _assert_pinned_scope's own RefreshRunError wrapping or the
+    per-row receipt_digest check first, never reaching this deep), so it is
+    the cleanest real place a genuinely unwrapped exception
+    (subprocess.TimeoutExpired in production; a plain OSError here, which is
+    equally uncaught by the pre-broadening `except RefreshRunError`) can
+    occur, and abandon must still not get stuck when it does.
+    """
+    page_path = "content/docs.aspose.org/en/pdf/net/page.md"
+    base_content = "---\ntitle: Base\n---\n\nOriginal body.\n"
+    output_content = "---\ntitle: Base\n---\n\nRun output.\n"
+
+    def hanging_git_runner(
+        args: list[str],
+        **_: object,
+    ) -> subprocess.CompletedProcess:
+        if args[:3] == ["git", "rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, HEAD_SHA + "\n", "")
+        if args[:3] == ["git", "cat-file", "--filters"]:
+            raise OSError("git process did not respond (simulated hang)")
+        return subprocess.CompletedProcess(args, 0, "", "")
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=hanging_git_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+    page = tmp_path / page_path
+    page.parent.mkdir(parents=True)
+    page.write_text(base_content, encoding="utf-8")
+    manifest = refresh_run.create_run(
+        "pdf",
+        "net",
+        mode="upstream",
+        run_id="RUN-ABANDON-GITHANG",
+        session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = [page_path]
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    _write_run_evidence(tmp_path, manifest)
+    _replace_synthetic_output(
+        tmp_path, manifest, page_path=page_path, content=output_content,
+    )
+    refresh_run._transition(manifest, "VALIDATING")
+
+    abandoned = refresh_run.abandon_run(
+        "pdf",
+        "net",
+        "RUN-ABANDON-GITHANG",
+        reason="git hung fetching pinned base, giving up anyway",
+        session_id="session-1",
+    )
+    assert abandoned["state"] == "ABANDONED"
+    assert abandoned["recovery"]["restored_paths"] == []
+    assert "restore_error" in abandoned["recovery"]
+    assert "simulated hang" in abandoned["recovery"]["restore_error"]
+    assert not (tmp_path / "reports/refresh_runs/pdf/net/ACTIVE.json").exists()
+
+
 def test_owner_mismatch_blocks_mutation():
     refresh_run.create_run(
         "pdf",

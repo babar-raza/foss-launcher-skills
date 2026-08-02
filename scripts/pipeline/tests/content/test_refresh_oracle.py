@@ -5,11 +5,23 @@ Min required: 8 tests. This file has 9.
 """
 
 import json
+import sys
 import pytest
 import yaml
 from pathlib import Path
 
 import commands.content.refresh_oracle as ro
+
+
+def _call_main_get_exit_code() -> int:
+    """main() may either return normally (implicit exit 0) or raise
+    SystemExit with an explicit code -- normalize both to a plain int so
+    tests don't need to assume which path a given code version takes."""
+    try:
+        ro.main()
+    except SystemExit as exc:
+        return exc.code if isinstance(exc.code, int) else 1
+    return 0
 
 
 # ── Fixtures ──────────────────────────────────────────────────────────────
@@ -290,3 +302,74 @@ def test_cross_page_check_ignores_receipt_covered_page(tmp_path, monkeypatch):
 
     verdicts = ro.run("pdf", "net", receipts_dir=str(receipts))
     assert verdicts[0]["verdict"] == ro.VERDICT_PASS
+
+
+def _make_receipted_page(tmp_path: Path, page_content: str) -> Path:
+    """Build a receipts/ + api_surface.json fixture around one page whose
+    content and receipt are wired together via _setup()."""
+    page = _make_page(tmp_path, "content/page.md", page_content)
+    reports = _setup(tmp_path)
+    reports.mkdir(parents=True, exist_ok=True)
+    receipts = reports / "receipts"
+    receipts.mkdir()
+    (receipts / "RCP-001.yaml").write_text(
+        yaml.safe_dump({
+            "content_refresh_receipt": {
+                "page_path": str(page),
+                "verdict": "BODY_UPDATED",
+            }
+        }),
+        encoding="utf-8",
+    )
+    api_dir = tmp_path / "knowledge" / "pdf" / "net" / "merged"
+    api_dir.mkdir(parents=True, exist_ok=True)
+    (api_dir / "api_surface.json").write_text(
+        json.dumps([{"name": "RealClass"}]), encoding="utf-8"
+    )
+    return receipts
+
+
+def test_main_exits_nonzero_when_run_reports_any_fail(tmp_path, monkeypatch):
+    """RPR-ORACLE-001: main() must exit non-zero whenever run() returns any
+    FAIL verdict. Before the fix, the only sys.exit(1) in the file fired
+    from the except-Exception handler around run() -- a clean run with real
+    FAIL verdicts always returned normally (implicit exit 0), silently
+    disabling this validator as a blocking gate: refresh_run.py::verify_run()
+    derives manifest["validation"]["oracle"] purely from the subprocess
+    returncode, so it faithfully -- but wrongly -- recorded PASS no matter
+    how many pages the oracle itself found broken.
+    """
+    receipts = _make_receipted_page(
+        tmp_path,
+        "---\ntitle: Test\n---\n\nSee `TotallyFakeSymbolXYZ` for details.\n",
+    )
+
+    # Sanity check on the fixture itself: run() must actually report a real
+    # FAIL here, or the exit-code assertion below would prove nothing.
+    verdicts = ro.run("pdf", "net", receipts_dir=str(receipts))
+    assert verdicts and verdicts[0]["verdict"] == ro.VERDICT_FAIL
+
+    monkeypatch.setattr(
+        sys, "argv", ["refresh_oracle.py", "pdf", "net", "--receipts", str(receipts)]
+    )
+    assert _call_main_get_exit_code() != 0, (
+        "main() exited 0 despite a real FAIL verdict -- the oracle gate is "
+        "not actually blocking"
+    )
+
+
+def test_main_exits_zero_when_run_reports_no_fail(tmp_path, monkeypatch):
+    """Negative control: a clean page (no invalid symbols) must still exit 0
+    -- the fix must not turn this validator into an always-fail gate."""
+    receipts = _make_receipted_page(
+        tmp_path,
+        "---\ntitle: Test\n---\n\nSee `RealClass` for details.\n",
+    )
+
+    verdicts = ro.run("pdf", "net", receipts_dir=str(receipts))
+    assert verdicts and verdicts[0]["verdict"] == ro.VERDICT_PASS
+
+    monkeypatch.setattr(
+        sys, "argv", ["refresh_oracle.py", "pdf", "net", "--receipts", str(receipts)]
+    )
+    assert _call_main_get_exit_code() == 0

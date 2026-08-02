@@ -871,6 +871,116 @@ def test_shift_section_lines_applies_cumulative_offset():
     assert adjusted_slice == "## Second\n\nSecond text mentions OldSymbolB.\n"
 
 
+def test_reversed_change_order_picks_wrong_section_to_update(tmp_path):
+    """RPR-ORDER-001: the RPR-LINE-DRIFT-001 cumulative-offset fix in run() is
+    only correct if actionable_sections is visited in ascending document-line
+    order. Nothing sorts it -- affected_sections' order comes from
+    body_impact.py's per-change discovery order (see _build_impact_entries),
+    not document position.
+
+    Here the change targeting the LATER section ("second") is listed FIRST in
+    affected_sections -- the shape a real semantic-diff ordering can produce
+    (change-discovery order has no relationship to document position). Two
+    independent, cross-cutting mechanisms combine to determine the observable
+    outcome: (1) without a document-order sort, "second" is processed first
+    and picks up a nonzero line_offset from its own successful edit; "first"
+    (which precedes "second" and never moved) then gets that offset wrongly
+    applied to its stale lines, extracting a bad slice; (2) separately,
+    _deterministic_fallback()'s own cross-section guard (any of its 3 note
+    phrases already present anywhere on the page blocks every subsequent
+    note, regardless of category) means only the FIRST successful edit in
+    the pass ever survives -- so instead of visible textual corruption, the
+    bug's observable symptom in this fixture shape is that the WRONG
+    section's concern silently wins: "second" (processed first only because
+    of discovery-order happenstance) gets its note, "first" (which precedes
+    it in the document and should have no reason to lose to it) gets none,
+    silently, with no error or signal. Sorting by document position makes
+    the document-earlier section win deterministically instead of whichever
+    section's change happened to be discovered first upstream.
+    """
+    page_content = (
+        "---\ntitle: Test\n---\n\n"
+        "## First\n\nFirst text mentions OldSymbolA.\n\n"
+        "## Second\n\nSecond text mentions OldSymbolB.\n"
+    )
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
+
+    class ExplodingLLM:
+        def __init__(self):
+            pass
+        def call_chat(self, *a, **kw):
+            raise ConnectionError("no route to professionalize gateway")
+
+    writes: list[tuple] = []
+    br.configure(
+        safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True,
+        llm_router_class=ExplodingLLM,
+    )
+
+    change_second = _make_change("CHG-SECOND", "SymbolB", "API_ADDED")
+    change_first = _make_change("CHG-FIRST", "SymbolA", "API_MODIFIED")
+    impact = {
+        "impact_id": "IMP-0001",
+        "page_path": str(page),
+        "locale": "en",
+        "semantic_change_ids": ["CHG-SECOND", "CHG-FIRST"],
+        "affected_sections": [
+            {
+                "section_id": "second",
+                "heading": "## Second",
+                "lines": [8, 10],
+                "reason": "test",
+                "impact_level": "DEFINITE",
+                "required_action": "BODY_UPDATE",
+                "update_type": br.UT_REWRITE,
+                "change_id": "CHG-SECOND",
+            },
+            {
+                "section_id": "first",
+                "heading": "## First",
+                "lines": [4, 6],
+                "reason": "test",
+                "impact_level": "DEFINITE",
+                "required_action": "BODY_UPDATE",
+                "update_type": br.UT_REWRITE,
+                "change_id": "CHG-FIRST",
+            },
+        ],
+        "planner_signal": False,
+    }
+    _setup_reports(tmp_path, "pdf", "net", [impact], [change_second, change_first])
+
+    receipts = _run("pdf", "net", execute=True)
+    assert receipts[0]["verdict"] == br.VD_UPDATED
+    written = writes[0][1]
+
+    # Both original sentences must always survive intact -- the guard's
+    # blocked branch returns the untouched full page, never a corrupted
+    # reconstruction. This holds with or without the fix; it is not the
+    # behavior under test.
+    assert written.count("First text mentions OldSymbolA.") == 1
+    assert written.count("Second text mentions OldSymbolB.") == 1
+    assert written.count("## First") == 1
+    assert written.count("## Second") == 1
+
+    first_note = "The `SymbolA` API surface has changed in the current source model"
+    second_note = "The current pdf/net API surface also includes `SymbolB`"
+
+    # This is the actual defect: "first" precedes "second" in the document
+    # and has no legitimate reason to lose to it. It must win the
+    # one-note-per-page guard deterministically, regardless of which change
+    # a fresh semantic-diff run happened to discover first.
+    assert first_note in written, (
+        "the document-earlier section's own change must be reflected -- "
+        "if this fails, the section that happened to be discovered first "
+        "upstream won instead of the section that appears first on the page"
+    )
+    assert second_note not in written, (
+        "only one advisory note survives per pass (_deterministic_fallback's "
+        "own cross-section guard) -- it must be first's, not second's"
+    )
+
+
 def test_duplicate_api_refresh_notes_collapsed(tmp_path):
     """Execute pass collapses repeated deterministic API notes."""
     page_content = (
