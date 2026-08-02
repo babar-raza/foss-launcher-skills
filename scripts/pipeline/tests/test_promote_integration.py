@@ -1269,6 +1269,80 @@ class TestReconcileFormatsClaimsFunctionalAware:
         assert len(result) == 1
 
 
+class TestReconcileFormatsClaimsWordBoundary:
+    """G25 (concurrent-toasting-biscuit): _reconcile_formats_claims used a
+    plain substring test (`name_lower in claim_lower`), so format "Source"
+    (words/net's Bibliography Source/SourceReader/SourceWriter classes, not
+    a file format) false-matched inside the unrelated word "open-source" in
+    an HTML/EPUB non-support claim -- a real false positive found live in
+    knowledge/words/net/merged/claims.json. Fixed via a word-boundary regex."""
+
+    def test_source_format_does_not_match_inside_open_source(self):
+        formats_data = [
+            {"format": "Source", "direction": "export", "functional": True},
+        ]
+        claims = [
+            {
+                "text": (
+                    "HTML, EPUB, and other formats are not supported for loading or "
+                    "saving in this open-source edition, so attempts to use "
+                    "HtmlSaveOptions for those formats will not succeed."
+                )
+            },
+        ]
+        result = promote_mod._reconcile_formats_claims(formats_data, claims, "words", "net")
+        assert result == [], "'Source' must not match as a substring of 'open-source'"
+
+    def test_source_format_does_not_match_inside_open_source_nonbreaking_hyphen(self):
+        """The real claim text that surfaced this bug (knowledge/words/net/
+        merged/claims.json) uses a Unicode NON-BREAKING HYPHEN (U+2011) in
+        "open‑source", not ASCII '-' -- a plain (?<![\\w-]) lookaround
+        misses this variant entirely. Regression-pins the exact character
+        that made the first fix attempt pass its synthetic test but fail
+        against real data."""
+        formats_data = [
+            {"format": "Source", "direction": "export", "functional": True},
+        ]
+        claims = [
+            {
+                "text": (
+                    "HTML, EPUB, and other formats are not supported for loading or "
+                    "saving in this open‑source edition, so attempts to use "
+                    "HtmlSaveOptions for those formats will not succeed."
+                )
+            },
+        ]
+        result = promote_mod._reconcile_formats_claims(formats_data, claims, "words", "net")
+        assert result == [], "'Source' must not match inside 'open‑source' (non-breaking hyphen variant)"
+
+    def test_format_name_as_word_suffix_does_not_false_match(self):
+        """A format name that is a suffix of a longer unrelated word (e.g.
+        "csv" inside "excsv") must not match -- proves the fix guards both
+        the prefix and suffix substring-collision directions, not just the
+        one observed "open-source" case."""
+        formats_data = [
+            {"format": "Csv", "direction": "export", "functional": True},
+        ]
+        claims = [
+            {"text": "The excsv legacy helper is read-only and cannot export data."},
+        ]
+        result = promote_mod._reconcile_formats_claims(formats_data, claims, "words", "net")
+        assert result == [], "'Csv' must not match as a substring of 'excsv'"
+
+    def test_genuine_same_word_contradiction_still_caught(self):
+        """The word-boundary fix must narrow false positives without
+        blinding the check to a real contradiction on the exact word."""
+        formats_data = [
+            {"format": "Csv", "direction": "export", "functional": True},
+        ]
+        claims = [
+            {"text": "CSV export is read-only and cannot export in this build."},
+        ]
+        result = promote_mod._reconcile_formats_claims(formats_data, claims, "words", "net")
+        assert len(result) == 1
+        assert result[0]["format"] == "Csv"
+
+
 class TestFormatsMdRespectsFunctionalFlag:
     """HARDEN-words-net (2026-07-23): promote()'s formats.md table builder
     set Import/Export "Yes" purely from `direction`, never checking

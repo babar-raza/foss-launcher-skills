@@ -299,6 +299,12 @@ _CONTRADICTION_PHRASES = (
     "no export",
 )
 
+# G25: ASCII hyphen plus the Unicode hyphen/dash variants seen in real
+# enriched claim text (e.g. NON-BREAKING HYPHEN in "open\u2011source"),
+# treated as word-continuation characters so a format name is not matched
+# as a false substring inside a hyphenated compound word.
+_HYPHEN_CHARS = "\\-\u2010\u2011\u2012\u2013\u2014"
+
 _WRITE_DIRECTIONS = frozenset({"export", "both", "readwrite"})
 
 
@@ -353,7 +359,21 @@ def _reconcile_formats_claims(
             if not isinstance(claim_text, str):
                 continue
             claim_lower = claim_text.lower()
-            if name_lower not in claim_lower:
+            # G25: was a plain substring test (`name_lower in claim_lower`),
+            # which false-matched e.g. format "Source" inside the unrelated
+            # word "open-source" (or, as confirmed against the real live
+            # claims.json that surfaced this bug, "open\u2011source" using a
+            # Unicode NON-BREAKING HYPHEN, not ASCII '-'). A plain \b
+            # word-boundary regex is NOT enough on its own -- regex \b
+            # treats hyphen characters as non-word, so "source" still
+            # matches inside a hyphenated compound (the boundary falls at
+            # the hyphen). Treat common ASCII and Unicode hyphen/dash
+            # variants as word-continuation characters via lookaround so
+            # hyphenated compounds are not split into their parts.
+            if not re.search(
+                rf"(?<![\w{_HYPHEN_CHARS}]){re.escape(name_lower)}(?![\w{_HYPHEN_CHARS}])",
+                claim_lower,
+            ):
                 continue
             for phrase in _CONTRADICTION_PHRASES:
                 if phrase in claim_lower:
