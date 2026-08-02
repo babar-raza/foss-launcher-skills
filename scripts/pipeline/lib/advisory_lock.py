@@ -151,7 +151,12 @@ class FileLock:
     def acquire(self) -> "FileLock":
         self.path.parent.mkdir(parents=True, exist_ok=True)
         deadline = time.monotonic() + self.timeout
-        next_liveness_probe = 0.0
+        # G38: was 0.0, which made the FIRST contention event on every waiter
+        # probe immediately (spawning a ~100-300ms `tasklist` subprocess on
+        # Windows) instead of honoring the documented "once per second of
+        # waiting" rate limit below. Under load this can stack up faster than
+        # the lock timeout across many concurrent waiters.
+        next_liveness_probe = time.monotonic() + _LIVENESS_PROBE_INTERVAL
         while True:
             try:
                 fd = os.open(str(self.path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
