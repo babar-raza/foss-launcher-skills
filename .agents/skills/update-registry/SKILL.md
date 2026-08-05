@@ -35,7 +35,7 @@ memory; the only persisted record of discovery results is this file.
 | `--dry-run` | Print discovered repos as a summary table; do NOT write `data/products.json` |
 | `--local-only` | Skip GitHub API; derive registry from `knowledge/{family}/{platform}/` dirs only |
 | `--force` | Overwrite `active` status even for repos already in the registry |
-| `--token TOKEN` | GitHub PAT (alternative to `GITHUB_TOKEN` env var) |
+| `--token TOKEN` | GitHub PAT (falls back to `GH_TOKEN`, then `GITHUB_TOKEN`) |
 
 ---
 
@@ -43,8 +43,14 @@ memory; the only persisted record of discovery results is this file.
 
 1. `.venv` is activated (`source .venv/Scripts/activate` on Windows or `.venv/bin/activate` on Unix)
 2. `requests>=2.28` installed (`pip show requests`)
-3. `GITHUB_TOKEN` set in `.env` or passed via `--token` (required for live GitHub scan;
-   not required for `--local-only`)
+3. `GH_TOKEN` set to a **classic** PAT, or passed via `--token` (required for live GitHub
+   scan; not required for `--local-only`). `GITHUB_TOKEN` holds a fine-grained PAT that all
+   25 `aspose-*-foss` orgs reject with HTTP 403 (>366-day-lifetime policy, ST-058) — it is
+   only a last-resort fallback in the resolution order.
+
+   Exit codes: 0 = registry written; 1 = `--reconcile` found a MISSING/STALE signal;
+   2 = no credential, or the scan reached no org — the tracked `data/products.json` is left
+   UNCHANGED rather than rewritten from unverified data (ST-058).
 4. `scripts/pipeline/lib/org_scanner.py` exists
 5. `data/` directory exists (or will be created automatically)
 
@@ -66,7 +72,7 @@ memory; the only persisted record of discovery results is this file.
 
 3. **Run discovery**:
    ```bash
-   .venv/Scripts/python scripts/pipeline/commands/ops/update_product_registry.py [--token $GITHUB_TOKEN] [--dry-run] [--local-only] [--force]
+   .venv/Scripts/python scripts/pipeline/commands/ops/update_product_registry.py [--token $GH_TOKEN] [--dry-run] [--local-only] [--force]
    ```
 
    - **GitHub mode** (default): Calls `org_scanner.scan_orgs()` for each of the 26 orgs.

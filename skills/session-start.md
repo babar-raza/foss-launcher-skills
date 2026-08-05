@@ -111,16 +111,27 @@ any user request.
      If all counts are 0: emit `Harvest: clear` (one line).
      Graceful skip if extractor or ledger not available (scripts missing or reports/ empty).
    - Discovery advisory (read-only, never blocks session — skip gracefully if reports/ absent):
-     Check age and content of discovery reports:
-     - If `reports/discovery/patrol_report.json` exists and is older than 7 days: suggest running `/repo-patrol`
+     Check **health first, then age** of discovery reports:
+     - Read `reports/discovery/patrol_report.json` → `scan_health.status` (ST-058).
+       - `failed` or `degraded`: suggest re-running `/repo-patrol` **regardless of age**, and
+         state that the last scan did not reach all orgs. Findings from a degraded report are
+         incomplete — an empty candidate list does NOT mean "nothing new exists".
+       - `scan_health` absent: the report predates ST-058; treat as unknown health and
+         suggest a re-run to establish a trustworthy baseline.
+     - If `scan_health.status == "ok"` and the report is older than 7 days: suggest running `/repo-patrol`
      - If `reports/discovery/sweep_report.json` exists and has `high_count > 0` or `medium_count > 0`: suggest running `/discovery-triage`
      - If neither file exists: suggest running `/repo-patrol` then `/change-sweep` for initial baseline
      ```
      DISCOVERY ADVISORY:
-       Patrol report: {age} days old | Sweep HIGH: {N} | Sweep MEDIUM: {N}
+       Patrol report: {age} days old | Health: {ok|degraded|failed|unknown} ({orgs_ok}/{orgs_requested} orgs)
+       Sweep HIGH: {N} | Sweep MEDIUM: {N}
        [suggestion if applicable]
      ```
-     If both reports are current (patrol < 7 days) and no HIGH/MEDIUM findings: emit `Discovery: clear` (one line).
+     Emit `Discovery: clear` (one line) **only** when `scan_health.status == "ok"` AND the
+     patrol report is < 7 days old AND there are no HIGH/MEDIUM sweep findings.
+     Never emit `Discovery: clear` on a `failed`/`degraded`/unknown-health report — a failed
+     scan refreshes `generated_at` in every pre-ST-058 artifact, so age alone would let the
+     failure silence the only monitor that would prompt a re-run.
      Advisory is informational only — do NOT invoke S-93, S-94, or S-95 automatically.
    - Output a `BACKLOG BRIEFING` block (see format below)
    - If `backlog/` directory does not exist, output: `BACKLOG: not configured (run /backlog to set up)`

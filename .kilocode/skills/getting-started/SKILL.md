@@ -50,12 +50,15 @@ Verify with `.venv/Scripts/pip show tree-sitter pyyaml requests`.
 Create `.env` at the repo root (already in `.gitignore` - never commit it):
 
 ```
-GITHUB_TOKEN=<personal access token with repo read scope>
+GH_TOKEN=<CLASSIC personal access token with repo read scope>
 PROFESSIONALIZE_API_KEY=<key for LLM embeddings - optional, TF-IDF fallback used if absent>
 ```
 
 `PROFESSIONALIZE_API_KEY` is optional. All embedding operations fall back to TF-IDF
-automatically when the key is absent. `GITHUB_TOKEN` is required for Steps 3 and 4.
+automatically when the key is absent. `GH_TOKEN` is required for Steps 3 and 4.
+
+Use a **classic** (`ghp_`) PAT. The `aspose-*-foss` orgs reject fine-grained PATs whose
+lifetime exceeds 366 days with HTTP 403 (ST-058); `GITHUB_TOKEN` is only a fallback.
 
 ---
 
@@ -64,7 +67,7 @@ automatically when the key is absent. `GITHUB_TOKEN` is required for Steps 3 and
 Write clone URLs into `data/products.json` for all active products:
 
 ```bash
-.venv/Scripts/python scripts/pipeline/commands/ops/update_product_registry.py --token $GITHUB_TOKEN
+.venv/Scripts/python scripts/pipeline/commands/ops/update_product_registry.py --token $GH_TOKEN
 ```
 
 This step is required before cloning FOSS source repos. Without it the product

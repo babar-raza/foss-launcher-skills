@@ -61,7 +61,7 @@ pip install -r scripts/translator/requirements.txt
 
 # 3. Configure environment
 cp .env.example .env
-# Edit .env: set GITHUB_TOKEN, optionally LLM_API_KEY
+# Edit .env: set GH_TOKEN (CLASSIC ghp_ PAT), optionally LLM_API_KEY
 
 # 4. Install all hooks (pre-commit, commit-msg, post-commit)
 bash scripts/install-hooks.sh
@@ -88,7 +88,7 @@ by `clone_cache.py` and `refresh_knowledge.py`.
 /update-registry
 
 # Or run the backing script directly
-.venv/Scripts/python scripts/pipeline/commands/ops/update_product_registry.py --token $GITHUB_TOKEN
+.venv/Scripts/python scripts/pipeline/commands/ops/update_product_registry.py --token $GH_TOKEN
 ```
 
 **Modes:**
@@ -388,7 +388,10 @@ cat reports/discovery/combined_report.md
 
 | Symptom | Fix |
 |---------|-----|
-| Scan finds 0 repos | Missing `GITHUB_TOKEN` in `.env`; set and retry |
+| Scan exits 2, "token rejected by GitHub" | The credential is a fine-grained PAT; the `aspose-*-foss` orgs reject those over 366 days old (ST-058). Set `GH_TOKEN` to a **classic** `ghp_` PAT and retry |
+| Scan exits 2, "no GitHub credential found" | Set `GH_TOKEN`, pass `--token`, or use `--no-auth` (60 req/hr public API) |
+| Scan exits 1 (degraded) | Some orgs unreachable — see `scan_health.failures` in `patrol_report.json`. Findings are **incomplete**; re-run before trusting an empty candidate list |
+| Scan finds 0 repos with exit 0 | Genuinely no matching repos. Confirm `scan_health.status == "ok"` and `orgs_ok == orgs_requested` |
 | Sweep fetch failure | Check `sweep_report.json` `fetch_failures`; verify clone URL |
 | Description "pending" in provider mirror | Re-run `sync_providers.py` after adding `## Purpose` to canonical skill |
 | Session advisory shows stale patrol | `patrol_report.json` > 7 days old; run `/repo-patrol` |
