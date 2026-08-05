@@ -10,7 +10,7 @@ preconditions:
     report is never triaged.
 postcondition: backlog/inbox.md updated with new items for each finding
 idempotent: no (creates backlog items; check for duplicates before re-running)
-verified: '2026-04-26'
+verified: '2026-08-05'
 -->
 
 ## Purpose
