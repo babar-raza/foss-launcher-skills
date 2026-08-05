@@ -8,9 +8,32 @@ check_enterprise_edition_naming, check_required_sections, surgical_diff_check,
 check_license_link_target, check_process_narration_smells,
 check_no_undisclosed_blocking_commands, check_dropped_content,
 check_no_excluded_domain_links, check_named_member_accuracy,
-check_api_reference_intro_names_classes) are specified in the plan but not yet
-implemented; this module grows into the skill's full checks module as those
-land.
+check_api_reference_intro_names_classes,
+check_diagram_no_mechanism_duplicate_output) are specified in the plan but
+not yet implemented; this module grows into the skill's full checks module
+as those land.
+
+check_diagram_no_mechanism_duplicate_output (spec'd 2026-08-05, plan section
+"Never split one output artifact into multiple Output nodes purely by
+delivery mechanism") is a heuristic pre-filter, two-tier like the other
+2026-08-05 checks: it flags any pair of `## At a glance` Output nodes whose
+labels share a significant word and where at least one label contains a
+delivery-mechanism keyword (path/stream/buffer/bytes/in-memory/file) while
+their inbound Capability-edge sets differ. Found live via direct user review
+of cells/cpp's rendered GitHub diagram: `.xlsx workbook (path)` and `.xlsx
+workbook (binary stream)` were split into two Output nodes, but the stream
+variant was wired from only 1 of 5 Capability nodes, falsely implying only
+that one capability's work could be stream-saved -- when in reality path vs.
+stream is an orthogonal Save() I/O mechanism, unrelated to which capability
+populated the workbook. cells/rust had the same defect, worse (3 delivery
+variants, 2 gated to a single capability). A portfolio-wide mechanical
+pre-filter + manual review confirmed these were the only 2 of 30 files with
+this exact defect -- several near-misses (3d/net, cells/python, email/cpp,
+email/net, email/python) were checked and confirmed to be genuinely
+different output *content*, not mechanism duplicates, and correctly left
+alone. A hit is a prompt for the mandatory judgment pass ("same artifact,
+different mechanism" vs. "genuinely different content"), never an automatic
+fail.
 
 check_api_reference_intro_names_classes (spec'd 2026-08-05, plan section "API
 reference intro sentence must name real hub classes") is a cheap regex
