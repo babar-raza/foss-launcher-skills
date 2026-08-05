@@ -79,6 +79,19 @@ denial instead of sleeping until `X-RateLimit-Reset`. If you see
 - reports/discovery/history/YYYY-MM-DD-patrol.json -- archived snapshot
 - reports/discovery/combined_report.md -- human-readable summary (via report subcommand)
 
+## Consumers of patrol_report.json (keep this list current)
+
+Any change to this report's schema MUST enumerate and update every consumer below in
+the same change. This list exists because the ST-058 fix added `scan_health` and
+shipped with only two of the three consumers updated — S-95 kept triaging degraded
+reports as if complete until the follow-up audit caught it (MT020-L2-01).
+
+| Consumer | Reads | Must honour |
+|----------|-------|-------------|
+| S-95 `/discovery-triage` | `new_candidates`, `status_changes`, `unclassifiable` | `scan_health.status` gate (its Step 0) — hard stop on `failed`, annotate on `degraded` |
+| S-77 `/session-start` discovery advisory | `generated_at`, `scan_health.status` | health-first, never `Discovery: clear` on degraded/failed/unknown |
+| `repo_patrol.py report` (`cmd_report`) | whole report | renders the DEGRADED/FAILED banner + `Scan Failures` table |
+
 ## Notes
 
 - scan is read-only by default. It never modifies data/products.json without --apply.

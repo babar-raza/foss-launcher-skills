@@ -394,7 +394,7 @@ cat reports/discovery/combined_report.md
 | Scan finds 0 repos with exit 0 | Genuinely no matching repos. Confirm `scan_health.status == "ok"` and `orgs_ok == orgs_requested` |
 | Sweep fetch failure | Check `sweep_report.json` `fetch_failures`; verify clone URL |
 | Description "pending" in provider mirror | Re-run `sync_providers.py` after adding `## Purpose` to canonical skill |
-| Session advisory shows stale patrol | `patrol_report.json` > 7 days old; run `/repo-patrol` |
+| Session advisory shows stale patrol | Health first, then age: if `scan_health.status` is `failed`/`degraded`/absent the advisory flags it **regardless of age** — re-run `/repo-patrol` and fix the cause before trusting findings. Otherwise it is a plain age trigger (`> 7 days`); run `/repo-patrol` |
 
 ## 11. Handling Renamed or Moved FOSS Repositories
 

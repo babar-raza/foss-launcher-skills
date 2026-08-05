@@ -20,7 +20,8 @@ Each returned repo dict contains:
 ``scan_orgs`` additionally returns one *outcome* dict per org::
 
     {"org": str,
-     "status": "ok" | "auth_denied" | "rate_limited" | "not_found" | "network_error",
+     "status": "ok" | "auth_denied" | "rate_limited" | "not_found"
+               | "http_error" | "network_error",
      "repo_count": int,
      "detail": str}     # never contains the token
 
@@ -64,7 +65,18 @@ _AUTH_HINT = (
 
 
 class OrgScanError(RuntimeError):
-    """A single org could not be scanned."""
+    """A single org could not be scanned.
+
+    Carries the originating HTTP ``status`` (None for non-HTTP failures) so callers
+    classify from the status code rather than by substring-matching the rendered
+    message. Message parsing is a lossy channel and previously absorbed every
+    non-404 status into "rate_limited" (MT020-L1-01) — the same conflation this
+    module exists to eliminate one layer down.
+    """
+
+    def __init__(self, message: str, *, status: int | None = None) -> None:
+        super().__init__(message)
+        self.status = status
 
 
 class TokenRejected(OrgScanError):
@@ -167,10 +179,12 @@ def _raise_for_status(resp, org: str) -> None:
         return
     detail = _detail_from(resp)
     if status in (401, 403):
-        raise TokenRejected(f"HTTP {status} on org '{org}': {detail} — {_AUTH_HINT}")
+        raise TokenRejected(f"HTTP {status} on org '{org}': {detail} — {_AUTH_HINT}",
+                            status=status)
     if status == 404:
-        raise OrgScanError(f"HTTP 404 on org '{org}': {detail or 'organisation not found'}")
-    raise OrgScanError(f"HTTP {status} on org '{org}': {detail}")
+        raise OrgScanError(f"HTTP 404 on org '{org}': {detail or 'organisation not found'}",
+                           status=404)
+    raise OrgScanError(f"HTTP {status} on org '{org}': {detail}", status=status)
 
 
 # ---------------------------------------------------------------------------
@@ -283,10 +297,23 @@ def _outcome(org: str, status: str, repo_count: int = 0, detail: str = "") -> di
 
 
 def _status_for(exc: Exception) -> str:
+    """Map an exception to an outcome status, classifying from the HTTP status code.
+
+    Never infer the class by substring-matching the message: a GitHub 500 would then
+    be reported as "rate_limited", telling an operator to wait out an outage
+    (MT020-L1-01).
+    """
     if isinstance(exc, TokenRejected):
         return "auth_denied"
     if isinstance(exc, OrgScanError):
-        return "not_found" if "HTTP 404" in str(exc) else "rate_limited"
+        status = getattr(exc, "status", None)
+        if status == 404:
+            return "not_found"
+        if status in (403, 429):
+            return "rate_limited"
+        if status is not None:
+            return "http_error"
+        return "network_error"
     return "network_error"
 
 

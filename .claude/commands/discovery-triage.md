@@ -5,6 +5,9 @@ purpose: Read patrol and sweep reports; create backlog items for all findings. M
 preconditions:
   - reports/discovery/patrol_report.json exists (from S-93) OR
   - reports/discovery/sweep_report.json exists (from S-94)
+  - the patrol report's scan_health.status is "ok" (or "degraded" with the
+    incompleteness carried onto every row created) — see Step 0. A "failed"
+    report is never triaged.
 postcondition: backlog/inbox.md updated with new items for each finding
 idempotent: no (creates backlog items; check for duplicates before re-running)
 verified: '2026-04-26'
@@ -35,6 +38,25 @@ At least one report file must exist to proceed. The skill may be invoked with pa
 sweep-only, or both reports present.
 
 ## Steps
+
+### Step 0 (MANDATORY): check scan health before reading any findings
+
+A patrol report can be produced by a scan that never reached some or all GitHub orgs.
+An empty `new_candidates` list from such a scan means **"we did not look"**, not
+**"there is nothing new"**. Triaging it creates a backlog set that silently understates
+reality — the exact failure ST-058 was filed for.
+
+Read `scan_health` from `reports/discovery/patrol_report.json`:
+
+| `scan_health.status` | Action |
+|----------------------|--------|
+| `ok` | Proceed normally. Findings are complete. |
+| `degraded` | Proceed, but **every** backlog row created from this report must state that the scan was degraded and name the unreachable orgs from `scan_health.failures[]`. Do **not** record "no new products found" as a conclusion. Recommend a re-run once the cause is cleared. |
+| `failed` | **HARD STOP.** Do not create any backlog rows from this report. Report the failure and the remedy from `scan_health.failures[].detail` (commonly a rejected credential — use a classic PAT in `GH_TOKEN`). Re-run `/repo-patrol` first. |
+| *absent* | The report predates ST-058. Treat health as **unknown**: do not conclude absence of findings; recommend a fresh `/repo-patrol` before triaging. |
+
+`sweep_report.json` has no `scan_health` block; its `fetch_failures[]` is the
+equivalent signal and is already surfaced in Step 5.
 
 1. Read the patrol report (if it exists):
    reports/discovery/patrol_report.json

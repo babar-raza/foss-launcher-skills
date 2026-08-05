@@ -278,6 +278,52 @@ class TestResolveToken:
 # scan_orgs outcome contract (ST-058) — failure must never look like empty success
 # ---------------------------------------------------------------------------
 
+class TestOutcomeStatusClassification:
+    """MT020-L1-01: classify from the HTTP status code, never the rendered message.
+
+    The first version matched "HTTP 404" as a substring and defaulted everything else
+    to rate_limited, so a GitHub 500 told the operator to wait out a rate limit that
+    did not exist -- the same 403-conflation this module exists to eliminate, one
+    layer up.
+    """
+
+    @pytest.mark.parametrize("status,expected", [
+        (404, "not_found"),
+        (403, "rate_limited"),
+        (429, "rate_limited"),
+        (500, "http_error"),
+        (502, "http_error"),
+        (422, "http_error"),
+    ])
+    def test_http_status_classified_from_code(self, status, expected):
+        exc = org_scanner.OrgScanError(f"HTTP {status} on org 'x': boom", status=status)
+        assert org_scanner._status_for(exc) == expected
+
+    def test_non_http_failure_is_network_error(self):
+        assert org_scanner._status_for(TimeoutError("timed out")) == "network_error"
+        assert org_scanner._status_for(OSError("connection reset")) == "network_error"
+
+    def test_org_scan_error_without_status_is_network_error(self):
+        assert org_scanner._status_for(org_scanner.OrgScanError("no status")) == "network_error"
+
+    def test_token_rejected_still_auth_denied(self):
+        exc = org_scanner.TokenRejected("HTTP 403 ... policy", status=403)
+        assert org_scanner._status_for(exc) == "auth_denied"
+
+    def test_500_message_mentioning_404_is_not_misclassified(self):
+        """Message text must not be able to override the real status code."""
+        exc = org_scanner.OrgScanError("HTTP 500: upstream returned 404 earlier", status=500)
+        assert org_scanner._status_for(exc) == "http_error"
+
+    def test_raise_for_status_attaches_the_code(self):
+        r = MagicMock(); r.status_code = 503; r.headers = {}
+        r.json.return_value = {"message": "Service Unavailable"}
+        with pytest.raises(org_scanner.OrgScanError) as exc:
+            org_scanner._raise_for_status(r, "some-org")
+        assert exc.value.status == 503
+        assert org_scanner._status_for(exc.value) == "http_error"
+
+
 class TestScanOrgsOutcomes:
     def test_failed_org_is_recorded_not_swallowed(self):
         """REGRESSION GATE (ST-058): the old code returned [] and lost the error."""
@@ -292,7 +338,9 @@ class TestScanOrgsOutcomes:
     def test_partial_failure_reports_both(self):
         def _side_effect(org, **kw):
             if org == "bad":
-                raise org_scanner.OrgScanError("HTTP 404 on org 'bad': Not Found")
+                # status= is required: classification reads the code, not the message
+                # (MT020-L1-01).
+                raise org_scanner.OrgScanError("HTTP 404 on org 'bad': Not Found", status=404)
             return [{"name": "aspose-3d-python"}]
 
         with patch.object(org_scanner, "scan_org", side_effect=_side_effect):
