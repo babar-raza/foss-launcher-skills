@@ -7,9 +7,30 @@ checker" section. Other checks (compute_link_caps, count_aspose_links,
 check_enterprise_edition_naming, check_required_sections, surgical_diff_check,
 check_license_link_target, check_process_narration_smells,
 check_no_undisclosed_blocking_commands, check_dropped_content,
-check_no_excluded_domain_links, check_named_member_accuracy) are specified in the
-plan but not yet implemented; this module grows into the skill's full checks
-module as those land.
+check_no_excluded_domain_links, check_named_member_accuracy,
+check_api_reference_intro_names_classes) are specified in the plan but not yet
+implemented; this module grows into the skill's full checks module as those
+land.
+
+check_api_reference_intro_names_classes (spec'd 2026-08-05, plan section "API
+reference intro sentence must name real hub classes") is a cheap regex
+tripwire, two-tier like check_process_narration_smells: it flags the
+"## API reference" intro sentence (the text between the H2 heading and its
+`<details>` fold) when it matches either confirmed bad form -- a bare
+"ships N public types. Selected entry points:" filler, or a bare
+`namespace.*`/`package.*` wildcard with no backtick-quoted class name in the
+same sentence -- as a prompt for the mandatory judgment pass to rewrite it
+naming the product's real hub class(es), never an automatic fail (naming a
+real hub class is a content-quality judgment call, not mechanically
+decidable). Found live on direct user review of 3d/net's rendered GitHub PR
+page: the section read as nearly empty (one generic sentence, then everything
+real hidden behind a single `<details>` fold with zero class names visible).
+A read-only 30-file survey run in response confirmed this is inconsistent
+portfolio-wide, not a 3d/net-specific defect -- 9 of 30 files have the weak
+pattern (3d/net, pdf/net, cells/net, 3d/java, cells/java, slides/java,
+email/net, note/python, 3d/python) while the other 21 already name real hub
+classes correctly (e.g. cells/cpp: "The primary entry point is `Workbook`,
+which owns a `WorksheetCollection` of `Worksheet` objects.").
 
 check_named_member_accuracy (spec'd 2026-08-05, plan section "Named-member API
 claims must be individually verified against real source") is the newest spec'd
