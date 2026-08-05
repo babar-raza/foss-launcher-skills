@@ -4,9 +4,27 @@ C:\\Users\\prora\\.claude\\plans\\d-users-prora-onedrive-documents-github-humble
 Currently implements check_diagram_connectivity() only — the "At a glance" Mermaid
 flowchart orphan-node check described in the plan's "Deterministic connectivity
 checker" section. Other checks (compute_link_caps, count_aspose_links,
-check_enterprise_edition_naming, check_required_sections, surgical_diff_check) are
-specified in the plan but not yet implemented; this module grows into the skill's
-full checks module as those land.
+check_enterprise_edition_naming, check_required_sections, surgical_diff_check,
+check_license_link_target, check_process_narration_smells,
+check_no_undisclosed_blocking_commands, check_dropped_content,
+check_no_excluded_domain_links, check_named_member_accuracy) are specified in the
+plan but not yet implemented; this module grows into the skill's full checks
+module as those land.
+
+check_named_member_accuracy (spec'd 2026-08-05, plan section "Named-member API
+claims must be individually verified against real source") is the newest spec'd
+check -- it targets a defect class check_dropped_content cannot see: a README
+bullet of the form "`ClassName` -- `member1`, `member2`, ..." can name a real,
+present class while still listing a wrong member set (a member that doesn't
+exist on the real class, or a combined Load/Save-style bullet that's silently
+just one side's property list). This was found live in 3d/python's "Format
+load/save options" API reference subsection -- ObjSaveOptions had 5 real
+Save-only properties silently missing from a combined bullet, and a glTF bullet
+claimed an `export_textures` property that exists on neither real class.
+check_dropped_content only tests presence (does old topic X still appear
+somewhere); this checks accuracy (is the specific technical claim about a
+present topic actually true of the real source) -- a different failure mode
+needing a different check, not wider coverage of the same one.
 
 check_diagram_connectivity parses the ```mermaid flowchart``` block in a README,
 classifies each `subgraph` by its label (Inputs / Capabilities / Outputs), and
